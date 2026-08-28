@@ -90,6 +90,7 @@ const EXEMPT = new Map([
     'CommandPaletteEntryOptions',
     'options object of provideCommandPaletteEntry',
   ],
+  ['QuickOpenEntryOptions', 'options object of provideQuickOpenEntry'],
   ['PluginCatalogOptions', 'options object of providePluginCatalog'],
   ['CapabilityGrants', 'map shape of provideCapabilityGrants'],
   ['ContentTabView', 'rendered form of a content tab'],

@@ -224,6 +224,13 @@ many triggers](samples.md#one-behaviour-many-triggers).
 `mod+shift+n` fires the command the scaffold registered, which raises a toast — a placeholder action
 on a real shortcut, there to be replaced.
 
+Two shortcuts are the shell's own and work from this first run: **`mod+k`** opens the command
+search, **`mod+p`** the search over everything you have open (`mod` is ⌘ on macOS, Ctrl elsewhere).
+You do not have to remember them, because the scaffold put both on screen: the badge at the right of
+the top bar is the command search, the one at the left of the status bar is quick-open, and each
+prints its own chord. Both badges are two lines in your `app.config.ts` and yours to move or delete;
+`LOOMWEAVER.md` says how, and how to drop either search altogether.
+
 That icon in the rail is the whole point: the platform drew every piece of chrome around it, and your
 plugin only declared what it wanted to contribute.
 
