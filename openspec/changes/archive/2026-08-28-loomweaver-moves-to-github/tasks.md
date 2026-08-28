@@ -140,7 +140,14 @@ hints still naming the old scope without its slash, and two tests that the renam
 ## 9. Open it
 
 - [x] 9.1 Switch the repository to public.
-- [ ] 9.2 Freeze the Azure repository read-only and unregister its five pipelines.
+- [x] 9.2 Freeze the Azure repository read-only and unregister its five pipelines. The five
+      definitions are set to `disabled`, so nothing runs on a schedule against a repository nobody
+      maintains any more. The repository denies every write to `Project Valid Users`, which is
+      everyone: contributing, force pushing, creating a branch or a tag, notes, policy exemption,
+      deleting the repository, and pull requests. Reading is untouched, and so is managing
+      permissions, so the freeze can be lifted. Verified from both sides: a push came back
+      `TF401027: You need the Git 'CreateBranch' permission`, and `git ls-remote` still answers with
+      `main` at `13c5ec50` and the old tags.
 - [x] 9.3 Point the website and any remaining reference at the GitHub repository and the npm packages.
       The site header carries a GitHub link; the two comments naming an Azure pipeline name the
       workflow that replaced it; `scripts/ci/export-sonarqube-results.sh` is deleted, since it
