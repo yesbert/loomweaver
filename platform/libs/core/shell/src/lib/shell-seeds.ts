@@ -285,11 +285,19 @@ export function seedBuiltInMenus(
     deps.popout,
     deps.features,
   );
+  seedRailMenus(registry, layout, deps);
+  seedViewMenus(registry, layout, deps);
+}
+
+function seedRailMenus(
+  registry: ContributionRegistry,
+  layout: ShellRegions,
+  deps: BuiltInMenuDeps,
+): void {
   const railCount = layout.regions.filter(
     (region) => region.type === 'rail',
   ).length;
   const rail = deps.features.rail;
-  const sidebar = deps.features.sidebar;
   if (railCount >= 1 && rail.hideItems) {
     registerRailContextMenu(registry, deps.railItems);
   }
@@ -299,6 +307,14 @@ export function seedBuiltInMenus(
   if (railCount >= 1 && rail.curate) {
     registerRailCustomizeMenu(registry);
   }
+}
+
+function seedViewMenus(
+  registry: ContributionRegistry,
+  layout: ShellRegions,
+  deps: BuiltInMenuDeps,
+): void {
+  const sidebar = deps.features.sidebar;
   if (sidebar.resetViewState) {
     registerViewResetMenu(registry, deps.viewStates, deps.viewInstances);
   }

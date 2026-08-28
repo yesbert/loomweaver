@@ -56,10 +56,8 @@ export function sharedEslintConfig(
   prefix: string | readonly string[],
 ): string {
   const prefixes = typeof prefix === 'string' ? [prefix] : prefix;
-  const rendered =
-    prefixes.length === 1
-      ? `'${prefixes[0]}'`
-      : `[${prefixes.map((p) => `'${p}'`).join(', ')}]`;
+  const quoted = prefixes.map((entry) => `'${entry}'`);
+  const rendered = quoted.length === 1 ? `${quoted[0]}` : `[${quoted.join(', ')}]`;
   return `import nx from '@nx/eslint-plugin';
 import baseConfig from '${depth.toRoot}/eslint.config.mjs';
 

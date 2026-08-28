@@ -38,13 +38,12 @@
 
 <div class="flex min-h-0 min-w-0 flex-1 flex-col" (pointerdown)="onBodyPointerDown()">
   @if (awaitingContent()) {
-    <div
+    <output
       class="flex h-full items-center justify-center p-6 text-center text-sm text-content-faint"
       data-testid="pane-awaiting-content"
-      role="status"
     >
       {{ 'content.split.awaiting' | transloco }}
-    </div>
+    </output>
   } @else {
     <lw-content-secondary-pane
       class="min-h-0 min-w-0 flex-1"

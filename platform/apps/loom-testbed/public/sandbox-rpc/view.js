@@ -295,9 +295,20 @@
 
   let vetoArmed = false;
 
+  function vetoButton(spec, finish) {
+    const button = document.createElement('button');
+    button.dataset.testid = spec[0];
+    button.textContent = spec[1];
+    button.className = 'lw-btn ' + (spec[2] ? 'lw-btn--danger' : 'lw-btn--default');
+    button.addEventListener('click', function () {
+      finish(spec[2]);
+    });
+    return button;
+  }
+
   function askBeforeClose() {
     if (!vetoArmed) {
-      return true;
+      return Promise.resolve(true);
     }
     return new Promise(function (resolve) {
       const t = strings().veto;
@@ -320,14 +331,7 @@
         ['sandbox-veto-keep', t.keep, false],
         ['sandbox-veto-allow', t.allow, true],
       ].forEach(function (spec) {
-        const button = document.createElement('button');
-        button.dataset.testid = spec[0];
-        button.textContent = spec[1];
-        button.className = 'lw-btn ' + (spec[2] ? 'lw-btn--danger' : 'lw-btn--default');
-        button.addEventListener('click', function () {
-          finish(spec[2]);
-        });
-        buttons.appendChild(button);
+        buttons.appendChild(vetoButton(spec, finish));
       });
       overlay.appendChild(question);
       overlay.appendChild(buttons);

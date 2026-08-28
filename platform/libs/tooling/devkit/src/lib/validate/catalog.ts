@@ -130,6 +130,18 @@ function validateEntry(
     ];
   }
 
+  return [
+    ...validateEntryIdentity(raw, index),
+    ...validateCapabilities(raw['capabilities'], index, known),
+    ...validateEntryMetadata(raw, index),
+    ...validateEntryKeys(raw, index),
+  ];
+}
+
+function validateEntryIdentity(
+  raw: Record<string, unknown>,
+  index: number,
+): Finding[] {
   const findings: Finding[] = [];
 
   if (typeof raw['id'] !== 'string' || raw['id'].length === 0) {
@@ -176,7 +188,14 @@ function validateEntry(
     });
   }
 
-  findings.push(...validateCapabilities(raw['capabilities'], index, known));
+  return findings;
+}
+
+function validateEntryMetadata(
+  raw: Record<string, unknown>,
+  index: number,
+): Finding[] {
+  const findings: Finding[] = [];
 
   if (
     raw['downloads'] !== undefined &&
@@ -207,6 +226,15 @@ function validateEntry(
       path: at(index, 'repository'),
     });
   }
+
+  return findings;
+}
+
+function validateEntryKeys(
+  raw: Record<string, unknown>,
+  index: number,
+): Finding[] {
+  const findings: Finding[] = [];
 
   for (const key of Object.keys(raw)) {
     if (!CATALOG_ENTRY_KEYS.includes(key)) {

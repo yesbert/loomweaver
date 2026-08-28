@@ -157,7 +157,7 @@ export class SurfaceCloseGuard {
 
   private async saveAll(dirty: readonly DirtySurface[]): Promise<boolean> {
     try {
-      await Promise.all(dirty.map((surface) => surface.surfaceSave?.()));
+      await Promise.all(dirty.map(async (surface) => surface.surfaceSave?.()));
     } catch (error) {
       console.error('Save before closing failed', error);
       this.notifications.show({

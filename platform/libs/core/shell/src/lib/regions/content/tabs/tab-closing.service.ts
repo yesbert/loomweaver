@@ -5,8 +5,7 @@ import { ContentReuseStrategy } from '../routing/content-reuse-strategy';
 import { normalizePath, tabRootOf } from '../content-path';
 import { TabCloseHooks } from './tab-close-hooks';
 import { OpenTabsService } from './open-tabs.service';
-import { VIEW_PANE_PREFIX, promotedContentPath } from '../../pane/tree/pane-address';
-import { CONTENT_DOCK } from '../../pane/tree/pane-address';
+import { CONTENT_DOCK, VIEW_PANE_PREFIX, promotedContentPath } from '../../pane/tree/pane-address';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 import { RetainedViewStash } from '../../pane/retention/retained-view-stash';
 import {

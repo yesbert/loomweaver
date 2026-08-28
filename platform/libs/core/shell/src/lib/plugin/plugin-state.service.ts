@@ -64,7 +64,8 @@ export class PluginStateService {
   }
 
   removePlugin(pluginId: string): void {
-    for (const [storageKey, entry] of [...this.entries]) {
+    const snapshot = [...this.entries];
+    for (const [storageKey, entry] of snapshot) {
       if (entry.pluginId === pluginId) {
         this.cancelPending(entry);
         entry.value.set(undefined);

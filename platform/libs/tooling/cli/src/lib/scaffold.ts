@@ -6,13 +6,12 @@ import {
   ScaffoldDescriptor,
   ScaffoldOption,
   ScaffoldValues,
-  SCAFFOLDS,
   findScaffold as findDescriptor,
 } from '@loomweaver/devkit';
 import { relative, resolve } from 'node:path';
 import { ArgError, ParsedArgs } from './args';
 
-export { SCAFFOLDS };
+export { SCAFFOLDS } from '@loomweaver/devkit';
 export type { ScaffoldDescriptor };
 
 export function findScaffold(name: string): ScaffoldDescriptor {

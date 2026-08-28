@@ -45,8 +45,11 @@ export function claimFor(
   if (matching.length === 0) {
     return null;
   }
-  const best = matching.reduce((winner, claim) =>
-    narrower(claim.pattern, winner.pattern) > 0 ? claim : winner,
+  const [first, ...rest] = matching;
+  const best = rest.reduce(
+    (winner, claim) =>
+      narrower(claim.pattern, winner.pattern) > 0 ? claim : winner,
+    first,
   );
   const tied = matching.filter(
     (claim) =>
@@ -76,12 +79,14 @@ function contestedShapes(
 export function conflictingClaims(
   claims: readonly WorkspaceClaim[],
 ): readonly string[] {
-  return [...contestedShapes(claims)].map(
-    ([shape, owners]) =>
-      `Workspaces ${owners.map((id) => `"${id}"`).join(' and ')} both claim "${shape}" — ` +
+  return [...contestedShapes(claims)].map(([shape, owners]) => {
+    const named = owners.map((id) => `"${id}"`).join(' and ');
+    return (
+      `Workspaces ${named} both claim "${shape}" — ` +
       `neither is narrower than the other, so the claim is dropped and that address ` +
-      `behaves as though nothing claimed it. Give the address one home.`,
-  );
+      `behaves as though nothing claimed it. Give the address one home.`
+    );
+  });
 }
 
 export function withoutConflicts(

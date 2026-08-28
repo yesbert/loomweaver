@@ -1,8 +1,7 @@
 import { inject, Service } from '@angular/core';
-import { VIEW_PANE_PREFIX } from '../regions/pane/tree/pane-address';
+import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../regions/pane/tree/pane-address';
 import { findLeafWithTab } from '../regions/pane/tree/pane-queries';
 import { CONTAINER_DOCK_PREFIX } from '../regions/pane/container/container-children';
-import { CONTENT_DOCK } from '../regions/pane/tree/pane-address';
 import { PaneTreeService } from '../regions/pane/tree/pane-tree.service';
 import { ContentTabsService } from '../regions/content/tabs/content-tabs.service';
 import { PanelState } from '../regions/panel/panel-state';

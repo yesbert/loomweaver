@@ -182,7 +182,8 @@ export class RetainedViewStash implements OnDestroy {
   }
 
   evictWorkspace(workspaceId: string): void {
-    for (const entry of [...this.entries.values()]) {
+    const snapshot = [...this.entries.values()];
+    for (const entry of snapshot) {
       if (!entry.inUse && entry.workspace === workspaceId) {
         this.destroyEntry(entry);
       }
@@ -190,7 +191,8 @@ export class RetainedViewStash implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    for (const entry of [...this.entries.values()]) {
+    const snapshot = [...this.entries.values()];
+    for (const entry of snapshot) {
       this.destroyEntry(entry);
     }
     this.holdingArea?.remove();
@@ -329,7 +331,7 @@ export class RetainedViewStash implements OnDestroy {
 
   private pullNodes(entry: StashEntry): void {
     for (const node of liveRootNodes(entry)) {
-      node.parentNode?.removeChild(node);
+      (node as ChildNode).remove();
     }
   }
 
@@ -356,7 +358,8 @@ export class RetainedViewStash implements OnDestroy {
     this.sweepQueued = true;
     queueMicrotask(() => {
       this.sweepQueued = false;
-      for (const entry of [...this.entries.values()]) {
+      const snapshot = [...this.entries.values()];
+      for (const entry of snapshot) {
         if (entry.inUse) {
           continue;
         }

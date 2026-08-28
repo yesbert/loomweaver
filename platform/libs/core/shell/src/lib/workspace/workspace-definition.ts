@@ -140,12 +140,12 @@ export function auditWorkspaceDefinitions(
     }
     seen.add(definition.id);
     if (definition.initial) {
-      if (initial !== null) {
+      if (initial === null) {
+        initial = definition.id;
+      } else {
         problems.push(
           `Workspace "${definition.id}" also declares initial: true — "${initial}" already does, so this one is ignored.`,
         );
-      } else {
-        initial = definition.id;
       }
     }
     auditDefinition(definition, panelRegions, problems);
@@ -239,7 +239,7 @@ function baselineSidebars(
         .map((path) => path.slice(VIEW_PANE_PREFIX.length))
         .filter((id) => !sidebars[region].includes(id)),
     )
-    .sort();
+    .sort((a, b) => a.localeCompare(b));
   return hidden.length === 0 ? {} : { hiddenViews: JSON.stringify(hidden) };
 }
 

@@ -1,6 +1,5 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, EnvironmentInjector, Injector, computed, effect, inject, input } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, EnvironmentInjector, Injector, Type, computed, effect, inject, input } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { Type } from '@angular/core';
 import { View } from '@loomweaver/plugin-sdk';
 import { LayoutRegion, SHELL_LAYOUT } from '../../layout/layout';
 import { ViewAction } from '../../layout/view';

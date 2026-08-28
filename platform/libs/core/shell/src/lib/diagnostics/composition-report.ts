@@ -234,10 +234,10 @@ export class CompositionReport {
 }
 
 export function installCompositionReport(report: CompositionReport): void {
-  if (typeof window === 'undefined') {
+  if (typeof globalThis.window === 'undefined') {
     return;
   }
-  const host = window as unknown as Record<string, unknown>;
+  const host = globalThis as unknown as Record<string, unknown>;
   if (host['loomweaver'] !== undefined) {
     return;
   }

@@ -44,9 +44,7 @@ export class LwIconElement extends HTMLElement {
   }
 
   attributeChangedCallback(): void {
-    if (this.isConnected) {
-      this.render();
-    }
+    this.refresh();
   }
 
   /**

@@ -30,11 +30,7 @@ export class HiddenViewsService {
   readonly hidden = this.ids.asReadonly();
 
   constructor() {
-    void this.workspace.ready.then(() =>
-      hydrateAsync(this.store, this.storageKey(), (raw) =>
-        this.ids.set(parseHiddenViews(raw)),
-      ),
-    );
+    this.hydrateWhenWorkspaceReady();
   }
 
   isHidden(viewId: string): boolean {
@@ -63,7 +59,7 @@ export class HiddenViewsService {
   }
 
   serialize(): string {
-    return JSON.stringify([...this.ids()].sort());
+    return JSON.stringify([...this.ids()].sort((a, b) => a.localeCompare(b)));
   }
 
   private commit(next: ReadonlySet<string>): void {
@@ -73,5 +69,13 @@ export class HiddenViewsService {
 
   private storageKey(): string {
     return this.workspace.scopedKey(STORAGE_KEY);
+  }
+
+  private hydrateWhenWorkspaceReady(): void {
+    void this.workspace.ready.then(() =>
+      hydrateAsync(this.store, this.storageKey(), (raw) =>
+        this.ids.set(parseHiddenViews(raw)),
+      ),
+    );
   }
 }

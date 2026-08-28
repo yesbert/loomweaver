@@ -3,9 +3,8 @@ import { CdkDrag, CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
 import { SHELL_FEATURES } from '../../../foundation/shell-features';
 import { PaneDragService } from './pane-drag.service';
 import { isContainerDock } from '../container/container-children';
-import { CONTENT_DOCK } from '../tree/pane-address';
+import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../tree/pane-address';
 import { PaneTreeService } from '../tree/pane-tree.service';
-import { VIEW_PANE_PREFIX } from '../tree/pane-address';
 import { findLeaf } from '../tree/pane-queries';
 import {
   PaneDropEdge,
@@ -68,12 +67,7 @@ export class PaneDropZones {
 
   constructor() {
     effect((onCleanup) => {
-      const ids = this.fills()
-        ? this.accepts()
-          ? [this.fillZoneId()]
-          : []
-        : this.edges().map((edge) => this.zoneId(edge));
-      const disposers = ids.map((id) => this.drag.registerZone(id));
+      const disposers = this.zoneIds().map((id) => this.drag.registerZone(id));
       onCleanup(() => disposers.forEach((dispose) => dispose()));
     });
   }
@@ -120,5 +114,12 @@ export class PaneDropZones {
         edge,
       );
     }
+  }
+
+  private zoneIds(): string[] {
+    if (!this.fills()) {
+      return this.edges().map((edge) => this.zoneId(edge));
+    }
+    return this.accepts() ? [this.fillZoneId()] : [];
   }
 }

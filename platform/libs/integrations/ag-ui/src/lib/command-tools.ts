@@ -72,6 +72,10 @@ interface OpenCall {
   json: string;
 }
 
+function textOf(value: unknown): string {
+  return typeof value === 'string' ? value : '';
+}
+
 /**
  * Connects a plugin context to an agent's tool calls.
  *
@@ -120,7 +124,8 @@ export function commandTools(
     const pending = [...open.values()];
     open.clear();
     chunked = null;
-    return pending.length === 0 ? null : finish(pending[pending.length - 1]);
+    const last = pending.pop();
+    return last === undefined ? null : finish(last);
   };
 
   return {
@@ -139,7 +144,7 @@ export function commandTools(
         case EventType.TOOL_CALL_ARGS: {
           const call = open.get(String(raw['toolCallId']));
           if (call) {
-            call.json += String(raw['delta'] ?? '');
+            call.json += textOf(raw['delta']);
           }
           return null;
         }
@@ -167,14 +172,14 @@ export function commandTools(
       chunked = id;
       open.set(id, {
         toolCallId: id,
-        commandId: String(raw['toolCallName'] ?? ''),
-        json: String(raw['delta'] ?? ''),
+        commandId: textOf(raw['toolCallName']),
+        json: textOf(raw['delta']),
       });
       return previous ? finish(previous) : null;
     }
     const call = chunked === null ? undefined : open.get(chunked);
     if (call) {
-      call.json += String(raw['delta'] ?? '');
+      call.json += textOf(raw['delta']);
     }
     return null;
   }

@@ -63,11 +63,11 @@ function sidebarGaps(
 ): readonly string[] {
   return Object.entries(definition.sidebars ?? {}).flatMap(
     ([region, visible]) => {
-      const declared = declaredPaths(region).map((path) =>
-        path.slice(VIEW_PANE_PREFIX.length),
+      const declared = new Set(
+        declaredPaths(region).map((path) => path.slice(VIEW_PANE_PREFIX.length)),
       );
       return visible
-        .filter((viewId) => !declared.includes(viewId))
+        .filter((viewId) => !declared.has(viewId))
         .map(
           (viewId) =>
             `Workspace "${id}": sidebar view "${viewId}" is not declared for region "${region}" — the entry has no effect.`,

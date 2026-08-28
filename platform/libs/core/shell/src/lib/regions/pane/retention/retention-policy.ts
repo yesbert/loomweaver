@@ -49,7 +49,7 @@ export function effectiveRetain(
   declared: 'always' | 'never' | undefined,
   fallback: RetentionDefault,
 ): boolean {
-  return declared !== undefined ? declared === 'always' : fallback === 'retain';
+  return declared === undefined ? fallback === 'retain' : declared === 'always';
 }
 
 export function routeRetains(
@@ -90,7 +90,7 @@ export function surfaceRetentionMode(
   if (!route || route.container !== undefined) {
     return 'rebuild';
   }
-  return route.iframe !== undefined ? 'in-place' : 'move';
+  return route.iframe === undefined ? 'move' : 'in-place';
 }
 
 export function containerChildInstances(

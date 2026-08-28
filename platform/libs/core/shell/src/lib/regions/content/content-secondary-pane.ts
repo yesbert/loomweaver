@@ -1,5 +1,5 @@
 import { Component, EnvironmentInjector, Injector, Type, computed, inject, input, output } from '@angular/core';
-import { NgTemplateOutlet } from '@angular/common';
+import { DOCUMENT, NgTemplateOutlet } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { CONTAINER_HANDLE, ContentRoute } from '@loomweaver/plugin-sdk';
@@ -9,7 +9,6 @@ import {
   RegisteredView,
 } from '../../plugin/contribution-registry';
 import { AuthContext } from '../../auth/auth-context';
-import { DOCUMENT } from '@angular/common';
 import { ViewMountService } from '../../views/view-mount.service';
 import { ViewInstanceSwitcher } from '../../views/view-instance-switcher';
 import { ComponentLoader } from '../../views/component-loader.service';
@@ -202,12 +201,12 @@ export class ContentSecondaryPane {
     injector: Injector;
   } | null>(() => {
     const route = this.activeRoute();
-    return route?.iframe !== undefined
-      ? {
+    return route?.iframe === undefined
+      ? null
+      : {
           component: IframeSurface,
           injector: this.injectorFor(route, this.path(), this.surfaceKey()),
-        }
-      : null;
+        };
   });
 
   protected readonly surface = computed<{

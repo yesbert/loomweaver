@@ -1,8 +1,7 @@
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { ViewMoveService } from './view-move.service';
 import { ViewVisibilityService } from './view-visibility.service';
-import { VIEW_PANE_PREFIX } from '../pane/tree/pane-address';
-import { CONTENT_DOCK } from '../pane/tree/pane-address';
+import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../pane/tree/pane-address';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
 import { menuContextString } from '../../menu/menu-context';
 import { ViewStateService } from '../../views/view-state.service';
