@@ -39,10 +39,6 @@ the result — see [who writes the files](#how-a-file-actually-gets-created).
 
 ## The CLI — `@loomweaver/cli`
 
-> **Availability:** the `@loomweaver/*` packages are not on the public npm registry yet; the first public
-> release publishes them. Until then they come from LoomWeaver's own package feed, and `npx` needs
-> that registry configured for the `@loomweaver` scope.
-
 It needs nothing installed and no workspace of any kind — the generators are bundled in:
 
 ```bash

@@ -56,7 +56,7 @@
       `https://github.com/yesbert/loomweaver` with the package's own directory.
 - [x] 4.3 Rewrite `NOTICE` to name `Norbert Rosenwinkel` in both lines, and correct the mention in
       `platform/libs/integrations/ag-ui/README.md`, which npm renders on the package page.
-- [ ] 4.4 Delete `demo/.npmrc` and remove the feed authentication it existed for, so the demo
+- [x] 4.4 Delete `demo/.npmrc` and remove the feed authentication it existed for, so the demo
       installs the public packages. This waits for the first npm release: until the packages exist
       there, removing the feed mapping breaks the demo build. Six documents say the packages are not
       public yet and name the feed — `README.md`, `demo/README.md`, `docs/getting-started.md`,
@@ -122,8 +122,8 @@ hints still naming the old scope without its slash, and two tests that the renam
       fails until the packages are on npm, because it installs them from a registry — so run 8.4
       before judging it.
 - [ ] 8.2 Trigger the nightly workflow manually and confirm the end-to-end suites run.
-- [ ] 8.3 Trigger the Sonar workflow and confirm the server receives the analysis.
-- [ ] 8.4 Tag a release and confirm all seven packages appear on npm with provenance, under the
+- [x] 8.3 Trigger the Sonar workflow and confirm the server receives the analysis.
+- [x] 8.4 Tag a release and confirm all seven packages appear on npm with provenance, under the
       correct author and repository.
 - [ ] 8.5 Confirm the site and the demo deploy, and that the demo installs the public packages.
 

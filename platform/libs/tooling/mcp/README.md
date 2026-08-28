@@ -14,10 +14,6 @@ is not inside this repo (a chat assistant, a remote client) can scaffold and val
 
 ## Consume from npm (product repos)
 
-> **Availability:** the `@loomweaver/*` packages are not on the public npm registry yet — the first
-> public release publishes them. Until then they come from LoomWeaver's own package feed, and
-> `npx` needs that registry configured for the `@loomweaver` scope.
-
 `@loomweaver/mcp` ships as a self-contained bundle (devkit + the MCP SDK are inlined — no transitive
 install). A product repo that already consumes `@loomweaver/shell` / `@loomweaver/plugin-sdk` just adds the
 server to its `.mcp.json`; `npx` fetches the bundle and starts the stdio server:
