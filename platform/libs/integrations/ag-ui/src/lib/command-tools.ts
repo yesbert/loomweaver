@@ -124,7 +124,7 @@ export function commandTools(
     const pending = [...open.values()];
     open.clear();
     chunked = null;
-    const last = pending.at(-1);
+    const last = pending.pop();
     return last === undefined ? null : finish(last);
   };
 
