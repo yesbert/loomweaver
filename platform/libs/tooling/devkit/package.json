@@ -1,6 +1,6 @@
 {
   "name": "@loomweaver/devkit",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "LoomWeaver scaffolding for Nx workspaces: generators for weavers, distributions, frame plugins and the integration seams, plus the manifest and i18n validators.",
   "keywords": [
     "loomweaver",
