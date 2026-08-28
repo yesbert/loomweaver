@@ -32,5 +32,6 @@
 - [x] 4.2 Calibrate in the other direction: remove `quotes` from the quotes workspace's left panel,
       confirm the same eleven tests fail, restore it.
 - [x] 4.3 Run the whole testbed suite: all tests green.
-- [ ] 4.4 Let one nightly run green before calling this done, and confirm the testbed job finishes
-      well inside its thirty-minute limit.
+- [x] 4.4 Let one nightly run green before calling this done, and confirm the testbed job finishes
+      well inside its thirty-minute limit. Run 33160830452: both jobs green, testbed 10m39s of the
+      thirty allowed, demo 2m29s, no warnings.
