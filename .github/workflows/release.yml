@@ -3,9 +3,13 @@
 # The tag is the deliberate "release this" signal: create it with scripts/bump-version.sh, which
 # stamps Directory.Build.props and every manifest, then push it. A push to a branch never publishes.
 #
-# No npm token is stored anywhere. The job authenticates to npm over OIDC (trusted publishing),
-# which also gives every package a provenance attestation a consumer can verify. Configure it once
-# per package on npmjs.com, naming this repository and this workflow file.
+# The job authenticates to npm over OIDC (trusted publishing), which also gives every package a
+# provenance attestation a consumer can verify. That is configured per package on npmjs.com, naming
+# this repository and this workflow file — which can only be done once a package exists there.
+#
+# For the very first release the packages do not exist yet, so this falls back to NPM_TOKEN from the
+# release environment. Remove the token, the fallback and this paragraph as soon as the seven trusted
+# publishers are configured; a stored credential that nothing needs is a credential that can leak.
 name: Release
 
 on:
@@ -116,6 +120,8 @@ jobs:
           npx nx bundle cli --skip-nx-cache
 
       - name: Publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           set -euo pipefail
           for dir in \
