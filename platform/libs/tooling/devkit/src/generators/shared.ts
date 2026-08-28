@@ -5,6 +5,8 @@ import {
   Tree,
   updateProjectConfiguration,
 } from '@nx/devkit';
+import { ensurePostcssPlugin } from '../lib/amend/merge';
+import { PostcssAmendment } from '../lib/amend/types';
 import { FileMap } from '../lib/generate/types';
 
 export interface ResolvedApp {
@@ -59,10 +61,6 @@ export function resolveApp(tree: Tree, app?: string): ResolvedApp {
   );
 }
 
-/**
- * The npm scope of the workspace, taken from the root manifest, so a generated import path matches
- * what the consumer already publishes under. Undefined for an unscoped workspace.
- */
 export function workspaceScope(tree: Tree): string | undefined {
   const raw = tree.read('package.json', 'utf-8');
   if (!raw) {
@@ -75,7 +73,6 @@ export function workspaceScope(tree: Tree): string | undefined {
   return name.split('/')[0];
 }
 
-/** The file that carries the workspace path aliases — classic base config or the solution config. */
 export function tsconfigPathsFile(tree: Tree): string {
   return tree.exists('tsconfig.base.json')
     ? 'tsconfig.base.json'
@@ -109,11 +106,6 @@ export interface I18nAssetsGlob {
   readonly output: string;
 }
 
-/**
- * Serves a library's i18n bundle through the application's build assets, so the namespace loader
- * can fetch `/i18n/<id>/<lang>.json`. A no-op when the app's build target carries no assets array
- * (a non-standard builder) or the glob is already present.
- */
 export function addI18nAssetsGlob(
   tree: Tree,
   app: string,
@@ -188,4 +180,27 @@ function entryStylesheet(styles: unknown): string | undefined {
     }
   }
   return undefined;
+}
+
+export function addPostcssPlugin(
+  tree: Tree,
+  amendment: PostcssAmendment,
+): void {
+  const codeConfigs = [
+    'postcss.config.js',
+    'postcss.config.mjs',
+    'postcss.config.cjs',
+    '.postcssrc.js',
+  ];
+  if (codeConfigs.some((name) => tree.exists(name))) {
+    return;
+  }
+  const existing = tree.exists(amendment.file)
+    ? (JSON.parse(tree.read(amendment.file, 'utf-8') ?? '{}') as unknown)
+    : undefined;
+  const result = ensurePostcssPlugin(existing, amendment);
+  if (result.added.length === 0) {
+    return;
+  }
+  tree.write(amendment.file, `${JSON.stringify(result.value, null, 2)}\n`);
 }

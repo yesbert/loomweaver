@@ -1,6 +1,6 @@
 import { formatFiles, readJson, Tree, updateJson } from '@nx/devkit';
-import { generate } from '../../lib/generate/generate';
-import { tsconfigPathsFile, writeFiles } from '../shared';
+import { amendments, generate } from '../../lib/generate/generate';
+import { addPostcssPlugin, tsconfigPathsFile, writeFiles } from '../shared';
 import { angularDistribution } from '../../recipes/angular-distribution/recipe';
 import { nxDistribution, nxDistributionFiles } from './nx-files';
 import { DistributionGeneratorSchema } from './schema';
@@ -43,6 +43,15 @@ export async function distributionGenerator(
     withTests: distribution.withTests,
     styles: options.styles,
   });
+  for (const amendment of amendments(angularDistribution, {
+    name: options.name,
+    styles: options.styles,
+  })) {
+    if (amendment.kind === 'postcss') {
+      addPostcssPlugin(tree, amendment);
+    }
+  }
+
   const scaffold = nxDistributionFiles(distribution);
   if (composingIntoExisting) {
     const { 'project.json': ours, ...rest } = scaffold;

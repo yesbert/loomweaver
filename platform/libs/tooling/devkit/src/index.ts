@@ -1,5 +1,22 @@
 export type { FileMap, Recipe } from './lib/generate/types';
-export { generate } from './lib/generate/generate';
+export { amendments, generate } from './lib/generate/generate';
+export type {
+  Amendment,
+  AssetGlob,
+  ComposePluginAmendment,
+  BuildTargetAmendment,
+  PostcssAmendment,
+  StylesheetSourceAmendment,
+} from './lib/amend/types';
+export {
+  ensureBuildTarget,
+  ensurePostcssPlugin,
+  ensureStylesheetSource,
+  joinProjectPath,
+  resolveAssetInput,
+  type MergeResult,
+} from './lib/amend/merge';
+export { composeLines, composePlugin, type ComposeResult } from './lib/amend/compose';
 export { isKebabId, toCamelCase, toPascalCase, toTitleCase } from './lib/generate/casing';
 export {
   angularWeaver,

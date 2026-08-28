@@ -18,8 +18,10 @@ import {
   requiredFlag,
   stringFlag,
 } from './args';
+import { AmendPlan, applyAmend, planAmend } from './amend';
 import {
   allowedFlagsFor,
+  amendmentsFor,
   buildScaffold,
   findScaffold,
   SCAFFOLDS,
@@ -158,6 +160,24 @@ function validateCatalogCommand(args: ParsedArgs, io: Io): number {
   );
 }
 
+function reportAmendments(io: Io, amend: AmendPlan, done: boolean): void {
+  if (amend.amendments.length > 0) {
+    io.out(
+      done
+        ? `Wired ${amend.amendments.length} workspace file(s):`
+        : `Would wire ${amend.amendments.length} workspace file(s):`,
+    );
+    for (const amendment of amend.amendments) {
+      io.out(`  ${amendment.display}`);
+      amendment.added.forEach((entry) => io.out(`    + ${entry}`));
+    }
+  }
+  if (amend.remaining.length > 0) {
+    io.out('Still to do by hand:');
+    amend.remaining.forEach((entry) => io.out(`  - ${entry}`));
+  }
+}
+
 function scaffold(args: ParsedArgs, io: Io): number {
   const descriptor = findScaffold(args.command);
   rejectUnknownFlags(args, [
@@ -167,8 +187,10 @@ function scaffold(args: ParsedArgs, io: Io): number {
     'force',
   ]);
   const files = buildScaffold(descriptor, args);
-  const plan = planWrite(files, stringFlag(args, 'out') ?? '.');
+  const out = stringFlag(args, 'out') ?? '.';
+  const plan = planWrite(files, out);
   const paths = plan.files.map((file) => file.path);
+  const amend = planAmend(amendmentsFor(descriptor, args), out);
 
   if (boolFlag(args, 'dry-run')) {
     io.out(`Would write ${paths.length} file(s) into ${plan.root}:`);
@@ -179,6 +201,7 @@ function scaffold(args: ParsedArgs, io: Io): number {
       );
       plan.conflicts.forEach((path) => io.out(`  ${path}`));
     }
+    reportAmendments(io, amend, false);
     return 0;
   }
 
@@ -191,8 +214,10 @@ function scaffold(args: ParsedArgs, io: Io): number {
   }
 
   applyWrite(files, plan);
+  applyAmend(amend);
   io.out(`Wrote ${paths.length} file(s) into ${plan.root}:`);
   paths.forEach((path) => io.out(`  ${path}`));
+  reportAmendments(io, amend, true);
   return 0;
 }
 

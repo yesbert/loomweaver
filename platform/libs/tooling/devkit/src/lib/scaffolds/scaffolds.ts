@@ -2,14 +2,17 @@ import {
   angularDistribution,
   type DistributionStyles,
 } from '../../recipes/angular-distribution/recipe';
+import { weaverAmendments } from '../../recipes/angular-weaver/amendments';
 import { angularWeaver } from '../../recipes/angular-weaver/recipe';
 import { authSource } from '../../recipes/auth-source/recipe';
 import { layout } from '../../recipes/layout/recipe';
 import { framePlugin } from '../../recipes/frame-plugin/recipe';
 import { settingsStore } from '../../recipes/settings-store/recipe';
 import { theme, type ThemePreset } from '../../recipes/theme/recipe';
-import { generate } from '../generate/generate';
+import { Amendment } from '../amend/types';
+import { amendments, generate } from '../generate/generate';
 import { FileMap } from '../generate/types';
+import { distributionInput, weaverInput } from './inputs';
 
 export type ScaffoldValues = Readonly<
   Record<string, string | boolean | undefined>
@@ -35,6 +38,8 @@ export interface ScaffoldDescriptor {
   readonly summary: string;
   readonly options: readonly ScaffoldOption[];
   build(values: ScaffoldValues): FileMap;
+  /** What the workspace around the generated files must carry. Absent where nothing is needed. */
+  amend?(values: ScaffoldValues): readonly Amendment[];
 }
 
 export function str(values: ScaffoldValues, name: string): string | undefined {
@@ -197,25 +202,8 @@ export const SCAFFOLDS: readonly ScaffoldDescriptor[] = [
       APP_OPTION,
       ...PLACEMENT_OPTIONS,
     ],
-    build: (values) =>
-      generate(angularWeaver, {
-        id: str(values, 'id') ?? '',
-        name: str(values, 'name'),
-        prefix: str(values, 'prefix'),
-        importPath: str(values, 'importPath'),
-        features: {
-          command: bool(values, 'command'),
-          shortcut: str(values, 'shortcut'),
-          menu: str(values, 'menu'),
-          barItem: bool(values, 'barItem'),
-          settings: bool(values, 'settings'),
-          about: bool(values, 'about'),
-          instanceable: bool(values, 'instanceable'),
-          container: bool(values, 'container'),
-          access: str(values, 'access'),
-          spec: bool(values, 'spec'),
-        },
-      }),
+    build: (values) => generate(angularWeaver, weaverInput(values)),
+    amend: (values) => weaverAmendments(weaverInput(values), str(values, 'directory')),
   },
   {
     name: 'frame-plugin',
@@ -274,15 +262,8 @@ export const SCAFFOLDS: readonly ScaffoldDescriptor[] = [
       },
       ...PLACEMENT_OPTIONS,
     ],
-    build: (values) =>
-      generate(angularDistribution, {
-        name: str(values, 'name') ?? '',
-        title: str(values, 'title'),
-        directory: str(values, 'directory'),
-        styles:
-          (str(values, 'styles') as DistributionStyles | undefined) ??
-          'tailwind',
-      }),
+    build: (values) => generate(angularDistribution, distributionInput(values)),
+    amend: (values) => amendments(angularDistribution, distributionInput(values)),
   },
   {
     name: 'auth-source',

@@ -1,3 +1,4 @@
+import { Amendment } from '../amend/types';
 import { FileMap, Recipe } from './types';
 
 function isUnsafePath(path: string): boolean {
@@ -16,4 +17,11 @@ export function generate<Input>(recipe: Recipe<Input>, input: Input): FileMap {
     throw new Error(`Recipe "${recipe.id}" produced an unsafe path: "${unsafe}".`);
   }
   return files;
+}
+
+export function amendments<Input>(
+  recipe: Recipe<Input>,
+  input: Input,
+): readonly Amendment[] {
+  return recipe.amend?.(input) ?? [];
 }
