@@ -1,6 +1,6 @@
 {
   "name": "@loomweaver/shell",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "description": "LoomWeaver shell: the neutral host chrome as an Angular library — declarative region engine, plugin loader, command/dialog/settings services and the host UI vocabulary (<lw-*>). Domain-pure.",
   "keywords": [
     "loomweaver",
@@ -21,7 +21,7 @@
     "@angular/router": "^22.0.0",
     "@angular/service-worker": "^22.0.0",
     "@jsverse/transloco": "^8.4.0",
-    "@loomweaver/plugin-sdk": "0.7.2",
+    "@loomweaver/plugin-sdk": "0.7.3",
     "@ng-icons/heroicons": "^35.1.0",
     "rxjs": "^7.8.0"
   },
