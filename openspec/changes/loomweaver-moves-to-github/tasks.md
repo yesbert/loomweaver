@@ -105,31 +105,39 @@ hints still naming the old scope without its slash, and two tests that the renam
 ## 7. The cut
 
 - [x] 7.1 Switch `yesbert/loomweaver` to private for the setup.
-- [ ] 7.2 Run the internal-marker sweep against the exact tree that will be pushed, not against the
+- [x] 7.2 Run the internal-marker sweep against the exact tree that will be pushed, not against the
       working copy.
-- [ ] 7.3 Push that tree to `main` as a single initial commit.
+- [x] 7.3 Push that tree to `main` as a single initial commit.
 - [x] 7.4 Add the build badge to `README.md`, now that there is a workflow to point at.
-- [ ] 7.5 Configure branch protection on `main`: required checks, required pull request, no direct
-      pushes.
+- [x] 7.5 Configure branch protection on `main`: required checks, required pull request, no direct
+      pushes. The three gate jobs are required, admins included, force pushes and deletion refused.
+      Verified by pushing an empty commit straight at `main`: `protected branch hook declined`.
 - [ ] 7.6 Configure the secrets and the environments: Sonar token, deploy key, and the npm trusted
       publisher, with a required reviewer on the deployment and release environments.
-- [ ] 7.7 Restrict which actions may run, and confirm that fork pull requests need approval before a
-      workflow starts.
+- [x] 7.7 Restrict which actions may run, and confirm that fork pull requests need approval before a
+      workflow starts. Only GitHub-owned actions and the pinned Sonar scanner may run; every fork
+      pull request from an outside contributor waits for approval, not just a first-time one.
 
 ## 8. Prove the chain
 
-- [ ] 8.1 Open a throwaway pull request and confirm the build gate runs and reports. The demo job
+- [x] 8.1 Open a throwaway pull request and confirm the build gate runs and reports. The demo job
       fails until the packages are on npm, because it installs them from a registry — so run 8.4
       before judging it.
-- [ ] 8.2 Trigger the nightly workflow manually and confirm the end-to-end suites run.
+- [x] 8.2 Trigger the nightly workflow manually and confirm the end-to-end suites run.
 - [x] 8.3 Trigger the Sonar workflow and confirm the server receives the analysis.
 - [x] 8.4 Tag a release and confirm all seven packages appear on npm with provenance, under the
       correct author and repository.
-- [ ] 8.5 Confirm the site and the demo deploy, and that the demo installs the public packages.
+- [x] 8.5 Confirm the site and the demo deploy, and that the demo installs the public packages.
 
 ## 9. Open it
 
-- [ ] 9.1 Switch the repository to public.
+- [x] 9.1 Switch the repository to public.
 - [ ] 9.2 Freeze the Azure repository read-only and unregister its five pipelines.
-- [ ] 9.3 Point the website and any remaining reference at the GitHub repository and the npm packages.
-- [ ] 9.4 Record the move in `docs/chronicle.md`.
+- [x] 9.3 Point the website and any remaining reference at the GitHub repository and the npm packages.
+      The site header carries a GitHub link; the two comments naming an Azure pipeline name the
+      workflow that replaced it; `scripts/ci/export-sonarqube-results.sh` is deleted, since it
+      existed to upload a build tab that no longer exists.
+- [x] 9.4 Record the move in `docs/chronicle.md`. Not as a new entry: the chronicle was frozen on
+      2026-08-18 and says so in its own first lines. It went where the scope rename went, into the
+      preamble, saying that a four-digit pull request number below means the frozen Azure repository
+      and that the GitHub count starts at 1.

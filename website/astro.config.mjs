@@ -17,6 +17,13 @@ export default defineConfig({
         alt: 'LoomWeaver',
       },
       customCss: ['./src/styles/brand.css'],
+      social: [
+        {
+          icon: 'github',
+          label: 'GitHub',
+          href: 'https://github.com/yesbert/loomweaver',
+        },
+      ],
       sidebar: [
         { label: 'Overview', link: '/overview/' },
         {
