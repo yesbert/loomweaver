@@ -1,0 +1,41 @@
+{
+  "$schema": "../../node_modules/nx/schemas/collection.schema.json",
+  "name": "@loomweaver/devkit",
+  "generators": {
+    "weaver": {
+      "factory": "./src/generators/weaver/generator",
+      "schema": "./src/generators/weaver/schema.json",
+      "description": "Scaffold a LoomWeaver weaver (Angular plugin bundle)."
+    },
+    "frame-plugin": {
+      "factory": "./src/generators/frame-plugin/generator",
+      "schema": "./src/generators/frame-plugin/schema.json",
+      "description": "Scaffold a sandboxed, framework-agnostic (iframe) LoomWeaver plugin."
+    },
+    "distribution": {
+      "factory": "./src/generators/distribution/generator",
+      "schema": "./src/generators/distribution/schema.json",
+      "description": "Scaffold a LoomWeaver distribution (a composition-root Angular app)."
+    },
+    "auth-source": {
+      "factory": "./src/generators/auth-source/generator",
+      "schema": "./src/generators/auth-source/schema.json",
+      "description": "Scaffold a provider-neutral AuthSource."
+    },
+    "settings-store": {
+      "factory": "./src/generators/settings-store/generator",
+      "schema": "./src/generators/settings-store/schema.json",
+      "description": "Scaffold a backend-backed settings-store port implementation."
+    },
+    "theme": {
+      "factory": "./src/generators/theme/generator",
+      "schema": "./src/generators/theme/schema.json",
+      "description": "Scaffold a token-override theme (CSS) for a distribution."
+    },
+    "layout": {
+      "factory": "./src/generators/layout/generator",
+      "schema": "./src/generators/layout/schema.json",
+      "description": "Scaffold a distribution base layout (ShellLayout regions)."
+    }
+  }
+}

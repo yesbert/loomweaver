@@ -1,0 +1,58 @@
+<lw-pane-tab-strip
+  class="shrink-0"
+  [variant]="options().variant"
+  [tabs]="stripTabs()"
+  [activeId]="activeTabId()"
+  [urlDriven]="pointed()"
+  [source]="source()"
+  [reorderable]="tabsReorderable()"
+  [draggable]="tabsDraggable()"
+  [acceptsTabs]="acceptsTabs()"
+  [canAddTab]="canAddTab()"
+  [viewContextMenuSlot]="viewContextMenu()"
+  [contextGroup]="dock()"
+  [paneActions]="paneActions"
+  (selectTab)="onSelectTab($event)"
+  (escalate)="onEscalate($event)"
+  (closeTab)="onCloseTab($event)"
+  (unpinTab)="onUnpinTab($event)"
+  (addTab)="openPicker($event)"
+  (reorderTabs)="onReorderTabs($event)"
+/>
+<ng-template #paneActions>
+  <lw-pane-toolbar
+    [canSplitRight]="canSplitRight()"
+    [canSplitDown]="canSplitDown()"
+    [canMinimize]="canMinimize()"
+    [canMaximize]="canMaximize()"
+    [maximized]="maximized()"
+    [canClose]="canClose()"
+    [closeLabel]="options().closeLabel"
+    (splitRight)="splitPane('row')"
+    (splitDown)="splitPane('column')"
+    (minimize)="minimize()"
+    (toggleMaximize)="toggleMaximize()"
+    (closePane)="closePane()"
+  />
+</ng-template>
+
+<div class="flex min-h-0 min-w-0 flex-1 flex-col" (pointerdown)="onBodyPointerDown()">
+  @if (awaitingContent()) {
+    <div
+      class="flex h-full items-center justify-center p-6 text-center text-sm text-content-faint"
+      data-testid="pane-awaiting-content"
+      role="status"
+    >
+      {{ 'content.split.awaiting' | transloco }}
+    </div>
+  } @else {
+    <lw-content-secondary-pane
+      class="min-h-0 min-w-0 flex-1"
+      [path]="path()"
+      [instanceId]="instanceId()"
+      [variant]="options().body"
+      [retentionScope]="retentionScope()"
+      (instanceReleased)="releaseTabInstance()"
+    />
+  }
+</div>

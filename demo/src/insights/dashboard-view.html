@@ -1,0 +1,127 @@
+<div class="h-full overflow-auto p-6" data-testid="insights-dashboard">
+  <div class="mx-auto flex max-w-6xl flex-col gap-4">
+    <header class="flex flex-col gap-1">
+      <h1 class="text-lg font-medium text-content">
+        {{ 'insights.dashboard.title' | transloco }}
+      </h1>
+      <p class="text-sm text-content-muted">
+        {{ 'insights.dashboard.subtitle' | transloco }}
+      </p>
+    </header>
+
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <article class="flex flex-col gap-1 rounded-lg border border-border bg-surface-raised p-4">
+        <span class="text-sm text-content-muted">{{ 'insights.cards.out' | transloco }}</span>
+        <span class="text-2xl text-content tabular-nums" data-testid="insights-out">
+          {{ out() }}
+        </span>
+        <span class="text-xs text-content-faint">
+          {{ 'insights.cards.outHint' | transloco: { count: outCount() } }}
+        </span>
+      </article>
+
+      <article class="flex flex-col gap-1 rounded-lg border border-border bg-surface-raised p-4">
+        <span class="text-sm text-content-muted">{{ 'insights.cards.rate' | transloco }}</span>
+        <span class="text-2xl text-content tabular-nums" data-testid="insights-rate">
+          {{ acceptRate() }}%
+        </span>
+        <span class="text-xs text-content-faint">
+          {{ 'insights.cards.rateHint' | transloco: { count: total() } }}
+        </span>
+      </article>
+
+      @if (maySeeMargin()) {
+        <article
+          class="flex flex-col gap-1 rounded-lg border border-border bg-surface-raised p-4"
+          data-testid="insights-won-margin"
+        >
+          <span class="text-sm text-content-muted">{{ 'insights.cards.margin' | transloco }}</span>
+          <span class="text-2xl text-content tabular-nums" data-testid="insights-margin-total">
+            {{ wonMargin() }}
+          </span>
+          <span class="text-xs text-content-faint">
+            {{ 'insights.cards.marginHint' | transloco: { revenue: wonRevenue(), percent: wonPercent() } }}
+          </span>
+        </article>
+      }
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <article
+        class="flex flex-col gap-3 rounded-lg border border-border bg-surface-raised p-4 lg:col-span-2"
+        data-testid="insights-quoted"
+      >
+        <h2 class="text-sm font-medium text-content">
+          {{ 'insights.cards.quoted' | transloco }}
+        </h2>
+        <div class="h-56">
+          <lw-insights-chart [config]="quotedPerMonth()" />
+        </div>
+      </article>
+
+      <article
+        class="flex flex-col gap-3 rounded-lg border border-border bg-surface-raised p-4"
+        data-testid="insights-pipeline"
+      >
+        <h2 class="text-sm font-medium text-content">
+          {{ 'insights.cards.pipeline' | transloco }}
+        </h2>
+        <div class="h-40">
+          <lw-insights-chart [config]="pipeline()" />
+        </div>
+        <ul class="flex flex-col gap-1">
+          @for (share of shares(); track share.status) {
+            <li class="flex items-center gap-2 text-xs">
+              <span
+                class="size-2 shrink-0 rounded-full"
+                [style.background-color]="share.colour"
+              ></span>
+              <span class="min-w-0 flex-1 truncate text-content-muted">
+                {{ 'insights.pipeline.status.' + share.status | transloco }}
+              </span>
+              <span class="text-content tabular-nums">{{ share.count }}</span>
+            </li>
+          }
+        </ul>
+      </article>
+    </div>
+
+    <article
+      class="flex flex-col gap-3 rounded-lg border border-border bg-surface-raised p-4"
+      data-testid="insights-deadlines"
+    >
+      <h2 class="text-sm font-medium text-content">
+        {{ 'insights.cards.deadlines' | transloco }}
+      </h2>
+      @if (deadlines().length === 0) {
+        <p class="text-sm text-content-faint">{{ 'insights.deadlines.none' | transloco }}</p>
+      } @else {
+        <ul class="flex flex-col divide-y divide-border">
+          @for (deadline of deadlines(); track deadline.id) {
+            <li class="flex items-baseline justify-between gap-3 py-2 first:pt-0 last:pb-0">
+              <span class="flex min-w-0 flex-col">
+                <span class="truncate text-sm text-content">{{ deadline.customer }}</span>
+                <span class="text-xs text-content-faint">{{ deadline.validUntil }}</span>
+              </span>
+              <span class="flex shrink-0 items-baseline gap-3">
+                <span class="text-sm text-content tabular-nums">{{ deadline.gross }}</span>
+                <span
+                  class="w-24 text-right text-xs tabular-nums"
+                  [class]="deadline.pressing ? 'text-caution' : 'text-content-faint'"
+                >
+                  @if (deadline.days < 0) {
+                    {{ 'insights.deadlines.gone' | transloco }}
+                  } @else if (deadline.days === 0) {
+                    {{ 'insights.deadlines.today' | transloco }}
+                  } @else {
+                    {{ 'insights.deadlines.days' | transloco: { days: deadline.days } }}
+                  }
+                </span>
+              </span>
+            </li>
+          }
+        </ul>
+      }
+    </article>
+  </div>
+</div>

@@ -1,0 +1,106 @@
+<div class="@container">
+  <div class="mb-3 flex items-center justify-between gap-2">
+    <p class="hidden text-sm text-content-muted @xl:block">
+      {{ 'testbed.list.openCount' | transloco: { count: openCount() } }}
+    </p>
+    <lw-select
+      [attr.label]="'testbed.list.sortLabel' | transloco"
+      [attr.value]="sort()"
+      (lw-select-change)="onSort($event)"
+    >
+      <lw-option value="waiting">{{
+        'testbed.list.sortWaiting' | transloco
+      }}</lw-option>
+      <lw-option value="priority">{{
+        'testbed.list.sortPriority' | transloco
+      }}</lw-option>
+    </lw-select>
+  </div>
+
+  <ul
+    class="flex flex-col gap-1 @xl:grid @xl:gap-4 @3xl:grid-cols-2 @5xl:grid-cols-3"
+    data-testid="list-list"
+  >
+    @for (entry of entries(); track entry.id) {
+      <li>
+        <button
+          type="button"
+          (click)="preview(entry)"
+          (dblclick)="open(entry)"
+          (contextmenu)="rowMenu($event, entry)"
+          [attr.data-entry]="entry.id"
+          [attr.data-open]="isOpen(entry) ? '' : null"
+          class="relative flex w-full gap-2 overflow-hidden rounded-md px-2 py-1.5 text-left transition-colors hover:bg-surface-overlay @xl:flex-col @xl:gap-3 @xl:border @xl:border-border @xl:bg-surface-raised @xl:p-4 @xl:hover:border-brand"
+        >
+          <span
+            aria-hidden="true"
+            class="absolute inset-y-0 left-0 w-0.5 rounded-full @xl:w-1"
+            [class]="stripe(entry)"
+          ></span>
+
+          <span class="min-w-0 flex-1 pl-2 @xl:hidden">
+            <span class="block truncate text-sm text-content">{{
+              entry.subject
+            }}</span>
+            <span class="block truncate text-xs text-content-faint">
+              {{ entry.group }} · {{ waiting(entry) }}
+            </span>
+          </span>
+          <span
+            aria-hidden="true"
+            class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full @xl:hidden"
+            [class.bg-brand]="isOpen(entry)"
+            [class.bg-transparent]="!isOpen(entry)"
+          ></span>
+          <lw-tooltip [text]="tooltipFor(entry)" position="right"></lw-tooltip>
+
+          <span class="hidden w-full min-w-0 flex-col gap-3 pl-2 @xl:flex">
+            <span class="flex items-center justify-between gap-2">
+              <span
+                class="font-mono text-xs tracking-wide text-content-faint"
+                >{{ entry.reference }}</span
+              >
+              <span
+                class="flex items-center gap-1 text-xs font-medium"
+                [class]="priorityText(entry)"
+              >
+                @if (entry.priority === 'urgent') {
+                  <lw-icon name="testbedUrgent" size="0.75rem"></lw-icon>
+                }
+                {{ 'testbed.list.priority.' + entry.priority | transloco }}
+              </span>
+            </span>
+
+            <span class="block">
+              <span class="block font-medium text-content">{{
+                entry.subject
+              }}</span>
+              <span class="mt-0.5 block text-xs text-content-muted">
+                {{ entry.owner }} · {{ entry.group }}
+              </span>
+            </span>
+
+            <span class="line-clamp-2 text-sm text-content-faint">{{
+              'testbed.entry.message' | transloco: { n: excerpt(entry) }
+            }}</span>
+
+            <span
+              class="mt-auto flex items-center justify-between gap-2 border-t border-border pt-3"
+            >
+              <span
+                class="flex items-center gap-1.5 text-xs text-content-muted"
+              >
+                <lw-icon name="testbedWaiting" size="0.875rem"></lw-icon>
+                {{ 'testbed.list.waiting' | transloco: { time: waiting(entry) } }}
+              </span>
+              <span [class]="statusBadge(entry)">
+                <lw-icon [attr.name]="statusIcon(entry)" size="0.75rem"></lw-icon>
+                {{ 'testbed.list.status.' + entry.status | transloco }}
+              </span>
+            </span>
+          </span>
+        </button>
+      </li>
+    }
+  </ul>
+</div>

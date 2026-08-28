@@ -1,0 +1,33 @@
+<div class="mx-auto flex max-w-2xl flex-col gap-4">
+  <header class="flex flex-col gap-1">
+    <h2 class="text-lg font-semibold text-content">
+      {{ 'testbed.escalations.title' | transloco }}
+    </h2>
+    <p class="text-sm text-content-muted">
+      {{ 'testbed.escalations.intro' | transloco }}
+    </p>
+  </header>
+
+  <ol class="flex flex-col divide-y divide-border rounded-lg border border-border bg-surface-raised">
+    @for (entry of escalated; track entry.id) {
+      <li class="flex items-baseline justify-between gap-3 p-4">
+        <span class="min-w-0">
+          <span class="block font-medium text-content">{{ entry.subject }}</span>
+          <span class="block text-xs text-content-muted">
+            {{ entry.owner }} · {{ entry.group }}
+          </span>
+        </span>
+        <span class="flex shrink-0 items-center gap-2 text-xs">
+          <span
+            class="font-medium"
+            [class.text-negative]="entry.priority === 'urgent'"
+            [class.text-caution]="entry.priority !== 'urgent'"
+          >
+            {{ 'testbed.list.priority.' + entry.priority | transloco }}
+          </span>
+          <span class="text-content-faint">{{ waiting(entry) }}</span>
+        </span>
+      </li>
+    }
+  </ol>
+</div>

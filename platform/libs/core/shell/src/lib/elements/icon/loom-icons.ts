@@ -1,0 +1,86 @@
+import {
+  heroArrowPath,
+  heroArrowDownTray,
+  heroArrowUturnLeft,
+  heroArrowsPointingIn,
+  heroArrowsPointingOut,
+  heroArrowsUpDown,
+  heroArrowTopRightOnSquare,
+  heroBars3,
+  heroCheck,
+  heroChevronDoubleLeft,
+  heroChevronDoubleRight,
+  heroChevronDown,
+  heroCog6Tooth,
+  heroComputerDesktop,
+  heroDocument,
+  heroEye,
+  heroExclamationTriangle,
+  heroInformationCircle,
+  heroListBullet,
+  heroLockClosed,
+  heroMagnifyingGlass,
+  heroMinus,
+  heroMoon,
+  heroPencilSquare,
+  heroPlus,
+  heroPuzzlePiece,
+  heroQuestionMarkCircle,
+  heroRectangleGroup,
+  heroSun,
+  heroTrash,
+  heroXCircle,
+  heroXMark,
+} from '@ng-icons/heroicons/outline';
+
+export const LOOM_ICONS = {
+  themeLight: heroSun,
+  themeDark: heroMoon,
+  themeSystem: heroComputerDesktop,
+  chevronsLeft: heroChevronDoubleLeft,
+  chevronsRight: heroChevronDoubleRight,
+  chevronDown: heroChevronDown,
+  check: heroCheck,
+  close: heroXMark,
+
+  pin: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8 4h8M10.5 4v7M13.5 4v7M7 11h10M12 11v9"/></svg>',
+
+  save: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17 3.75H5.25a1.5 1.5 0 0 0-1.5 1.5v13.5a1.5 1.5 0 0 0 1.5 1.5h13.5a1.5 1.5 0 0 0 1.5-1.5V7l-3.25-3.25Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 3.75v4.5h6.5v-4.5M7.75 20.25v-7h8.5v7"/></svg>',
+
+  splitPanes:
+    '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5.25h16a.75.75 0 0 1 .75.75v12a.75.75 0 0 1-.75.75H4a.75.75 0 0 1-.75-.75V6a.75.75 0 0 1 .75-.75ZM12 5.25v13.5"/></svg>',
+
+  splitPanesDown:
+    '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5.25h16a.75.75 0 0 1 .75.75v12a.75.75 0 0 1-.75.75H4a.75.75 0 0 1-.75-.75V6a.75.75 0 0 1 .75-.75ZM3.25 12h17.5"/></svg>',
+
+  workspaces: heroRectangleGroup,
+
+  menu: heroBars3,
+  document: heroDocument,
+  navigator: heroBars3,
+  outline: heroListBullet,
+  add: heroPlus,
+  edit: heroPencilSquare,
+  trash: heroTrash,
+  preview: heroEye,
+  sort: heroArrowsUpDown,
+  reset: heroArrowPath,
+  undo: heroArrowUturnLeft,
+  info: heroInformationCircle,
+  lock: heroLockClosed,
+  success: heroCheck,
+  warning: heroExclamationTriangle,
+  error: heroXCircle,
+  settings: heroCog6Tooth,
+  help: heroQuestionMarkCircle,
+  search: heroMagnifyingGlass,
+  plugin: heroPuzzlePiece,
+  download: heroArrowDownTray,
+  maximize: heroArrowsPointingOut,
+  popout: heroArrowTopRightOnSquare,
+  restore: heroArrowsPointingIn,
+  minimize: heroMinus,
+} as const;
+
+/** The names the shell ships. Naming one in `provideIcons` replaces that glyph app-wide. */
+export type LoomIconName = keyof typeof LOOM_ICONS;

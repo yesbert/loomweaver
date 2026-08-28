@@ -1,0 +1,13 @@
+<div class="mx-auto flex max-w-2xl flex-col gap-3">
+  <h2 class="text-lg font-semibold text-content">
+    {{ 'testbed.search.heading' | transloco }}
+  </h2>
+  <input
+    type="search"
+    [attr.placeholder]="'testbed.search.title' | transloco"
+    class="rounded-md border border-border bg-surface px-3 py-2 text-sm text-content outline-none focus:border-brand"
+  />
+  <p class="text-sm text-content-faint">
+    {{ 'testbed.search.intro' | transloco }}
+  </p>
+</div>

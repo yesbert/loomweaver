@@ -1,0 +1,13 @@
+{
+  "name": "LoomWeaver Demo",
+  "short_name": "LoomWeaver Demo",
+  "description": "LoomWeaver Demo — a LoomWeaver distribution.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2E96C9",
+  "icons": [
+    { "src": "icon-192.png", "type": "image/png", "sizes": "192x192" },
+    { "src": "icon-512.png", "type": "image/png", "sizes": "512x512" }
+  ]
+}

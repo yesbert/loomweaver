@@ -1,0 +1,102 @@
+@if (entry(); as entry) {
+  <div class="flex flex-col gap-4" data-testid="store-detail">
+    <div class="flex items-start justify-between gap-4">
+      <div class="flex items-start gap-3">
+        @if (entry.iconUrl) {
+          <img
+            class="mt-1 size-12 shrink-0 rounded-lg"
+            [src]="entry.iconUrl"
+            alt=""
+          />
+        }
+        <div class="flex flex-col gap-1">
+          <h3
+            class="flex items-center gap-2 text-xl font-semibold text-content"
+          >
+            {{ entry.name }}
+            @if (entry.version) {
+              <span class="text-sm font-normal text-content-muted">
+                v{{ entry.version }}
+              </span>
+            }
+            @if (entry.category) {
+              <span class="lw-badge">{{ entry.category }}</span>
+            }
+          </h3>
+          <p class="flex items-center gap-1 text-sm text-content-muted">
+            @if (entry.author) {
+              {{ 'settings.storeBy' | transloco: { author: entry.author } }}
+            }
+            @if (entry.author && entry.downloads !== undefined) {
+              ·
+            }
+            @if (entry.downloads !== undefined) {
+              <lw-icon name="download" size="0.9rem" />
+              {{
+                'settings.storeDownloads'
+                  | transloco: { count: count(entry.downloads) }
+              }}
+            }
+            @if (entry.updated) {
+              ·
+              {{
+                'settings.storeUpdated'
+                  | transloco: { date: updated(entry.updated) }
+              }}
+            }
+          </p>
+          @if (entry.repository) {
+            <a
+              class="text-sm text-brand-text hover:underline"
+              [href]="entry.repository"
+              target="_blank"
+              rel="noopener noreferrer"
+              data-testid="store-repository"
+            >
+              {{ 'settings.storeRepository' | transloco }} ↗
+            </a>
+          }
+        </div>
+      </div>
+      <span class="flex shrink-0 items-center gap-2">
+        @if (installs.isInstalled(entry.id)) {
+          @if (update(); as pending) {
+            <button
+              class="lw-btn lw-btn--primary"
+              [attr.data-testid]="'store-update-' + entry.id"
+              (click)="updateRequested.emit(pending)"
+            >
+              {{
+                'settings.storeUpdateTo'
+                  | transloco: { version: pending.version }
+              }}
+            </button>
+          }
+          <button
+            class="lw-btn lw-btn--default"
+            [attr.data-testid]="'store-uninstall-' + entry.id"
+            (click)="uninstall.emit(entry)"
+          >
+            {{ 'settings.storeUninstall' | transloco }}
+          </button>
+        } @else {
+          <button
+            class="lw-btn lw-btn--primary"
+            [attr.data-testid]="'store-install-' + entry.id"
+            (click)="install.emit(entry)"
+          >
+            {{ 'settings.storeInstall' | transloco }}
+          </button>
+        }
+      </span>
+    </div>
+    @if (entry.description) {
+      <p class="text-sm text-content">{{ entry.description }}</p>
+    }
+    @if (readme(); as text) {
+      <div class="border-t border-border pt-4" data-testid="store-readme">
+        <lw-markdown [source]="text"></lw-markdown>
+      </div>
+    }
+  </div>
+}

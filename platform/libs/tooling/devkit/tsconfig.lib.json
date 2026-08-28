@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../../dist/out-tsc",
+    "declaration": true,
+    "types": ["node"]
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": [
+    "vite.config.mts",
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts",
+    "src/generators/test-workspace.ts"
+  ]
+}

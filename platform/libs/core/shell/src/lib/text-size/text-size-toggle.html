@@ -1,0 +1,14 @@
+<fieldset class="lw-segmented" [attr.aria-label]="'textSize.label' | transloco">
+  @for (s of scales; track s) {
+    <button
+      type="button"
+      (click)="select(s)"
+      [attr.aria-pressed]="scale() === s"
+      [attr.aria-label]="'textSize.' + s | transloco"
+      class="lw-segmented-item font-semibold"
+    >
+      <span [class]="glyphClass(s)" aria-hidden="true">A</span>
+      <lw-tooltip [text]="'textSize.' + s | transloco" position="bottom" />
+    </button>
+  }
+</fieldset>

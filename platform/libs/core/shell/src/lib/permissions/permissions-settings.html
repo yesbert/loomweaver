@@ -1,0 +1,86 @@
+<p class="mb-4 text-sm text-content-muted">
+  {{ 'settings.permissionsDesc' | transloco }}
+</p>
+@if (plugins().length === 0) {
+  <p class="text-sm text-content-muted">
+    {{ 'settings.permissionsEmpty' | transloco }}
+  </p>
+} @else {
+  <div class="flex flex-col gap-6">
+    @for (plugin of plugins(); track plugin.id) {
+      <section class="flex flex-col gap-3">
+        <div class="flex items-center justify-between gap-4">
+          <h3 class="text-sm font-semibold text-content">
+            {{ plugin.name }}
+          </h3>
+          @if (!plugin.provided) {
+            <input
+              type="checkbox"
+              role="switch"
+              class="lw-switch shrink-0"
+              [checked]="plugin.enabled"
+              [attr.aria-checked]="plugin.enabled"
+              [attr.aria-label]="'settings.pluginEnabled' | transloco"
+              [attr.data-testid]="'plugin-enabled-' + plugin.id"
+              (change)="togglePlugin(plugin.id, $event)"
+            />
+          }
+        </div>
+        @if (plugin.rungNote; as rungNote) {
+          <p
+            class="text-xs text-content-muted"
+            [attr.data-testid]="'perm-level-' + plugin.id"
+          >
+            {{ rungNote | transloco }}
+          </p>
+        }
+        @if (plugin.provided) {
+          <p
+            class="text-xs text-content-muted"
+            [attr.data-testid]="'perm-provided-' + plugin.id"
+          >
+            {{ 'settings.permissionsProvided' | transloco }}
+          </p>
+        }
+        @if (plugin.enabled) {
+          <ul class="flex flex-col gap-3">
+            @for (cap of plugin.capabilities; track cap.capability) {
+              <li class="flex items-start justify-between gap-4">
+                <div class="flex flex-col">
+                  <span class="text-sm text-content">{{
+                    'settings.capability.' + cap.capability | transloco
+                  }}</span>
+                  <span class="text-xs text-content-muted">{{
+                    'settings.capabilityDesc.' + cap.capability | transloco
+                  }}</span>
+                </div>
+                @if (!plugin.provided) {
+                  <input
+                    type="checkbox"
+                    role="switch"
+                    class="lw-switch shrink-0"
+                    [checked]="cap.effective"
+                    [attr.aria-checked]="cap.effective"
+                    [attr.aria-label]="
+                      'settings.capability.' + cap.capability | transloco
+                    "
+                    [attr.data-testid]="
+                      'perm-' + plugin.id + '-' + cap.capability
+                    "
+                    (change)="
+                      toggleCapability(plugin.id, cap.capability, $event)
+                    "
+                  />
+                }
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="text-xs text-content-muted">
+            {{ 'settings.pluginDisabled' | transloco }}
+          </p>
+        }
+      </section>
+    }
+  </div>
+}

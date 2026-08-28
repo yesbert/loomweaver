@@ -1,0 +1,72 @@
+{
+  "title": "Angebote",
+  "list": {
+    "search": "Angebote durchsuchen",
+    "searchPlaceholder": "Suchen …",
+    "statusLabel": "Status",
+    "status": {
+      "all": "Alle",
+      "draft": "Entwurf",
+      "sent": "Versendet",
+      "accepted": "Angenommen",
+      "declined": "Abgelehnt",
+      "expired": "Abgelaufen"
+    },
+    "column": {
+      "number": "Nummer",
+      "customer": "Kunde",
+      "issued": "Datum",
+      "validUntil": "Gültig bis",
+      "status": "Status",
+      "total": "Summe"
+    },
+    "empty": "Kein Angebot passt zum aktuellen Filter.",
+    "shown": "{{shown}} von {{total}} Angeboten"
+  },
+  "margin": {
+    "revenue": "Umsatz (netto)",
+    "cost": "Kosten",
+    "total": "Marge"
+  },
+  "document": {
+    "positions": "Positionen",
+    "customer": "Kunde",
+    "margin": "Marge",
+    "title": "Angebot",
+    "column": {
+      "position": "Pos.",
+      "description": "Leistung",
+      "quantity": "Menge",
+      "unitPrice": "Einzelpreis",
+      "net": "Netto"
+    },
+    "discount": "{{percent}} % Rabatt",
+    "missing": "Dieses Angebot gibt es nicht mehr."
+  },
+  "command": {
+    "open": {
+      "title": "Angebot öffnen",
+      "description": "Öffnet ein Angebotsdokument in der Inhaltsfläche und behält es als Tab.",
+      "answers": "Die Nummer des geöffneten Angebots.",
+      "arg": {
+        "number": "Die Angebotsnummer, zum Beispiel Q-0007."
+      }
+    },
+    "send": {
+      "title": "Angebot an Kunden senden",
+      "description": "Sendet ein Angebot an seinen Kunden und markiert es als gesendet. Ein folgenreicher Schritt: der Kunde sieht es.",
+      "answers": "Die Nummer des Angebots und sein neuer Status.",
+      "arg": {
+        "number": "Die Angebotsnummer, zum Beispiel Q-0007."
+      }
+    },
+    "margin": {
+      "title": "Marge eines Angebots lesen",
+      "description": "Gibt Umsatz, Kosten und Marge eines Angebots zurück. Margen sieht nur die Buchhaltung.",
+      "answers": "Umsatz, Kosten und Marge des Angebots.",
+      "arg": {
+        "number": "Die Angebotsnummer, zum Beispiel Q-0007."
+      }
+    }
+  }
+}

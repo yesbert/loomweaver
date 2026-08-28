@@ -1,0 +1,840 @@
+# Samples
+
+<!-- derived-from-specs -->
+> **This is a guide, not the contract.** What the platform guarantees is specified under
+> `openspec/specs/` — for this page: `surfaces` · `ui-primitives` · `persistence-ports`. Where
+> this page and a specification disagree, the specification is right, and that is a defect in this
+> page: change the behaviour there, then explain it here.
+
+Complete, copyable recipes — whole files with the path they belong at, what to wire, and what you get
+on screen. Every one of them compiles against the published `@loomweaver/plugin-sdk`; they are checked that
+way rather than written from memory.
+
+They all assume a distribution set up by the [quickstart](getting-started.md) or by
+[hand](manual-setup.md), and a weaver of your own. If you have neither yet:
+
+```bash
+npx @loomweaver/cli weaver --id notes --out src/notes
+```
+
+Everything below goes **inside `activate(ctx)`** of your plugin unless the path says otherwise. The
+capabilities each recipe needs are listed with it — declare them in your `manifest` *and* have the
+distribution grant them, or the call throws `CapabilityError`.
+
+## The file layout these recipes assume
+
+```
+src/notes/src/
+  index.ts                     export { notesPlugin } from './lib/plugin/notes.plugin';
+  lib/plugin/notes.plugin.ts   the manifest + activate(ctx) — all the recipes below
+  lib/views/*.ts|.html         your components
+  lib/i18n/en.json, de.json    your translation bundle, served under /i18n/notes/
+```
+
+<a id="a-sidebar-view-that-remembers-its-state"></a>
+
+## 1 · A sidebar view that remembers its state
+
+A surface docked into a panel region, whose sort order survives a reload — the host stores the blob,
+the view never touches storage.
+
+**Capabilities:** `contributions`
+
+```ts
+// src/notes/src/lib/views/notes-list.ts
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { VIEW_STATE, type ViewState } from '@loomweaver/plugin-sdk';
+
+interface ListState {
+  readonly sort: 'natural' | 'alpha';
+}
+
+@Component({
+  selector: 'lw-notes-list',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <button type="button" class="lw-btn lw-btn--default" (click)="toggle()">
+      Sort: {{ sort() }}
+    </button>
+    <ul class="mt-3 space-y-1 text-sm text-content">
+      @for (note of ordered(); track note) {
+        <li>{{ note }}</li>
+      }
+    </ul>
+  `,
+})
+export class NotesList {
+  private readonly state = inject(VIEW_STATE) as ViewState<ListState>;
+  private readonly notes = ['Roadmap', 'Anna', 'Budget'];
+
+  // `undefined` for a fresh instance — apply your own default.
+  protected readonly sort = computed(() => this.state.value()?.sort ?? 'natural');
+
+  protected readonly ordered = computed(() =>
+    this.sort() === 'alpha' ? [...this.notes].sort() : this.notes,
+  );
+
+  protected toggle(): void {
+    this.state.set({ sort: this.sort() === 'alpha' ? 'natural' : 'alpha' });
+  }
+}
+```
+
+```ts
+// in activate(ctx)
+ctx.registerSurface({
+  id: 'notes.list',
+  title: 'notes.list.title',
+  icon: 'notes',
+  component: NotesList,
+  docks: ['left-panel'],      // a region id from your layout — must be a `panel`
+});
+```
+
+**You get:** a view in the left sidebar, tabbed automatically if other views dock there. Toggle the
+sort, reload — it comes back. Writes are debounced by the host. Since a hidden surface is destroyed as
+soon as it is clean, this is also how the sort survives a tab switch or a collapsed sidebar;
+[recipe 7](#everything-a-view-must-persist) is the same idea scaled to everything a real view holds.
+
+> `docks[0]` must name a **panel** region. Docking a non-routable surface into a `content`, `bar` or
+> `rail` region is a silent no-op (dev mode warns).
+
+<a id="a-content-surface-with-its-own-url"></a>
+
+## 2 · A content surface with its own URL
+
+The main area is URL-addressed, so a surface that lives there is deep-linkable — and visiting it opens
+a tab in the strip the host draws for the pane.
+
+**Capabilities:** `contributions`, `navigation`
+
+```ts
+// in activate(ctx)
+ctx.registerSurface({
+  id: 'notes.detail',
+  title: 'notes.detail.title',
+  icon: 'notes',
+  component: NoteDetail,
+  routable: { path: 'note/:id' },   // add chromeless: true for a full-area screen with no strip
+});
+
+ctx.registerRailItem({
+  id: 'notes.rail',
+  rail: 'primary',                       // a `rail` region id from your layout
+  icon: 'notes',
+  title: 'notes.title',
+  run: () => ctx.openContentTab({ path: 'note/roadmap', title: 'Roadmap', titleIsLiteral: true }),
+});
+```
+
+Read the parameter the ordinary Angular way:
+
+```ts
+// src/notes/src/lib/views/note-detail.ts
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
+
+@Component({
+  selector: 'lw-note-detail',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `<h1 class="text-lg font-medium text-content">Note {{ id() }}</h1>`,
+})
+export class NoteDetail {
+  private readonly route = inject(ActivatedRoute);
+  protected readonly id = toSignal(
+    this.route.paramMap.pipe(map((p) => p.get('id') ?? '')),
+    { initialValue: '' },
+  );
+}
+```
+
+**You get:** a rail icon that opens `/note/roadmap` as a tab titled *Roadmap*.
+`titleIsLiteral: true` says the title is text, not a translation key. The URL is shareable,
+back/forward work, and the user can split the tab into its own pane. Add `chromeless: true` and
+everything still works except the tab: the surface then fills the area on its own with no strip,
+which is what you want for a login or onboarding screen.
+
+<a id="one-behaviour-many-triggers"></a>
+
+## 3 · One behaviour, many triggers
+
+Register the behaviour **once** as a command; a shortcut, a status-bar button and a menu entry all
+reference it by id. Never duplicate the `run`.
+
+**Capabilities:** `contributions`, `ui`
+
+```ts
+// in activate(ctx)
+ctx.registerCommand({
+  id: 'notes.add',
+  title: 'notes.add',
+  icon: 'notes',
+  shortcut: 'mod+shift+n',              // `mod` = ⌘ on macOS, Ctrl elsewhere — never write cmd/ctrl
+  run: () => ctx.ui.toast({ message: 'notes.added', kind: 'success', timeoutMs: 4000 }),
+});
+
+ctx.registerBarItem({
+  id: 'notes.bar.add',                  // an item id must NOT equal the command id
+  bar: 'status-bar',
+  slot: 'end',                          // 'start' | 'center' | 'end'
+  command: 'notes.add',
+  icon: 'notes',
+  tooltip: 'notes.add',
+  showShortcut: true,                   // render the chord next to the label
+});
+
+ctx.registerMenuItem({
+  menu: 'content/tab/context',
+  command: 'notes.add',
+});
+```
+
+**You get:** the action in the command palette (`mod+k`), on its shortcut, as a status-bar button
+showing `⌘⇧N`, and in the tab context menu. Give the toast a `timeoutMs` unless you want it sticky.
+
+<a id="a-settings-section"></a>
+
+## 4 · A settings section
+
+Rows the built-in settings dialog renders. **Your plugin owns the value** — the platform never
+persists foreign data behind your back.
+
+**Capabilities:** `contributions`
+
+```ts
+// in activate(ctx) — `signal` imported from '@angular/core'
+const compact = signal(false);
+const author = signal('');
+
+ctx.registerSettingsSection({
+  id: 'notes.settings',
+  title: 'notes.settings.title',
+  rows: [
+    {
+      id: 'notes.compact',
+      label: 'notes.settings.compact',
+      description: 'notes.settings.compactDesc',
+      control: { kind: 'toggle', value: () => compact(), set: (v) => compact.set(v) },
+    },
+    {
+      id: 'notes.author',
+      label: 'notes.settings.author',
+      control: {
+        kind: 'text',
+        value: () => author(),
+        set: (v) => author.set(v),
+        placeholder: 'notes.settings.authorPlaceholder',
+      },
+    },
+  ],
+});
+```
+
+**You get:** a *Notes* entry in the settings dialog's left nav with a switch and a text field, saving
+as you type. To persist across reloads, write the values through your own storage in `set` — see
+[backend integration](backend-integration.md) for doing it through the distribution's settings store.
+
+<a id="gating-a-surface-behind-a-login"></a>
+
+## 5 · Gating a surface behind a login
+
+Declare the requirement; the host enforces it on every surface it draws, and re-evaluates when the
+session changes.
+
+**Capabilities:** `contributions` (plus `session` only if you also want to *read* the session)
+
+```ts
+// in activate(ctx)
+ctx.registerSurface({
+  id: 'notes.admin',
+  title: 'notes.admin.title',
+  component: NotesAdmin,
+  routable: { path: 'notes/admin' },
+  access: { anyRole: ['admin'] },        // or { authenticated: true }
+});
+
+ctx.registerRailItem({
+  id: 'notes.rail.admin',
+  rail: 'primary',
+  icon: 'notes',
+  title: 'notes.admin.title',
+  run: () => ctx.navigateContent('notes/admin'),
+  access: { anyRole: ['admin'], mode: 'hide' },   // 'disable' greys it out instead
+});
+```
+
+Reading it yourself, for UI that adapts rather than disappears:
+
+```ts
+// in activate(ctx) — needs the `session` capability
+const canEdit = () => ctx.session.hasRole('admin');
+```
+
+**You get:** the rail item vanishes for everyone else, and the route refuses to activate — a
+deep-link renders a neutral "sign-in required" placeholder with the URL intact, or redirects if the
+distribution wired `provideUnauthorizedRedirect`. Client-side gating is presentation: enforce it in
+your backend too. Full matrix in [access gating](reference/access-gating.md).
+
+<a id="asking-before-doing-something-destructive"></a>
+
+## 6 · Asking before doing something destructive
+
+**Capabilities:** `ui`
+
+```ts
+// in activate(ctx)
+ctx.registerCommand({
+  id: 'notes.deleteAll',
+  title: 'notes.deleteAll',
+  run: async () => {
+    const confirmed = await ctx.ui.confirm({
+      title: 'notes.deleteAll',
+      message: 'notes.deleteAll.body',      // rendered as Markdown
+      tone: 'danger',
+      confirmLabel: 'notes.deleteAll.yes',
+    });
+    if (!confirmed) return;
+
+    // withProgress takes the promise itself, not a callback.
+    await ctx.ui.withProgress({ message: 'notes.deleting' }, deleteEverything());
+    ctx.ui.toast({ message: 'notes.deleted', kind: 'success', timeoutMs: 4000 });
+  },
+});
+```
+
+**You get:** a modal in the host's own vocabulary — tinted icon, danger-red confirm button, Escape
+and backdrop dismissal, focus trapped — then a non-dismissable progress dialog while the work runs.
+The whole `ctx.ui` surface is listed in [host services](reference/host-services.md).
+
+<a id="everything-a-view-must-persist"></a>
+
+## 7 · Everything a view must persist
+
+A hidden surface is destroyed as soon as it is clean, so **anything that must outlive a tab switch, a
+collapsed sidebar or an F5 lives in `VIEW_STATE`** — filter text, the active sub-tab, which nodes are
+expanded, where the list was scrolled to. This is recipe 1 grown up: one state shape instead of five
+signals, and one place that writes it.
+
+**Capabilities:** `contributions` · **applies to:** a **docked** surface (a routable one has no handle —
+see below)
+
+```ts
+// src/notes/src/lib/views/notes-workspace.ts
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  afterNextRender,
+  computed,
+  inject,
+  viewChild,
+} from '@angular/core';
+import { VIEW_STATE, type ViewState } from '@loomweaver/plugin-sdk';
+
+interface WorkspaceState {
+  readonly query: string;
+  readonly tab: 'open' | 'archived';
+  readonly expanded: readonly string[];
+  readonly scrollTop: number;
+}
+
+const FRESH: WorkspaceState = { query: '', tab: 'open', expanded: [], scrollTop: 0 };
+
+@Component({
+  selector: 'lw-notes-workspace',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <input
+      #q
+      class="lw-field w-full"
+      placeholder="Filter"
+      [value]="query()"
+      (input)="patch({ query: q.value })"
+    />
+
+    <div class="lw-segmented mt-3">
+      @for (name of tabs; track name) {
+        <button
+          type="button"
+          class="lw-segmented-item w-auto px-3"
+          [attr.aria-pressed]="tab() === name"
+          (click)="patch({ tab: name })"
+        >
+          {{ name }}
+        </button>
+      }
+    </div>
+
+    <ul #list class="mt-3 h-64 overflow-auto" (scroll)="patch({ scrollTop: list.scrollTop })">
+      @for (note of visible(); track note.title) {
+        <li>
+          <button type="button" class="lw-btn lw-btn--ghost" (click)="toggle(note.title)">
+            {{ note.title }}
+          </button>
+          @if (isExpanded(note.title)) {
+            <p class="px-3 text-sm text-content-faint">{{ note.body }}</p>
+          }
+        </li>
+      }
+    </ul>
+  `,
+})
+export class NotesWorkspace {
+  private readonly viewState = inject(VIEW_STATE) as ViewState<WorkspaceState>;
+  private readonly list = viewChild.required<ElementRef<HTMLElement>>('list');
+
+  private readonly notes = [
+    { title: 'Roadmap', body: 'Ship the thing.', archived: false },
+    { title: 'Anna', body: 'Call back.', archived: false },
+    { title: 'Budget', body: 'Signed off.', archived: true },
+  ];
+
+  protected readonly tabs = ['open', 'archived'] as const;
+
+  // One read of the blob; `undefined` for a fresh instance → your own default.
+  private readonly state = computed(() => this.viewState.value() ?? FRESH);
+
+  // Narrow computeds: scrolling changes `state()`, but `query()` keeps its value,
+  // so `visible()` is not recomputed on every scroll event.
+  protected readonly query = computed(() => this.state().query);
+  protected readonly tab = computed(() => this.state().tab);
+  protected readonly expanded = computed(() => this.state().expanded);
+
+  protected readonly visible = computed(() => {
+    const needle = this.query().toLowerCase();
+    const archived = this.tab() === 'archived';
+    return this.notes.filter(
+      (note) => note.archived === archived && note.title.toLowerCase().includes(needle),
+    );
+  });
+
+  constructor() {
+    afterNextRender(() => {
+      this.list().nativeElement.scrollTop = this.state().scrollTop;
+    });
+  }
+
+  protected isExpanded(title: string): boolean {
+    return this.expanded().includes(title);
+  }
+
+  protected toggle(title: string): void {
+    const open = this.expanded();
+    this.patch({
+      expanded: open.includes(title) ? open.filter((t) => t !== title) : [...open, title],
+    });
+  }
+
+  // The one writer: `set` replaces the whole blob, so spread what is already there.
+  protected patch(part: Partial<WorkspaceState>): void {
+    this.viewState.set({ ...this.state(), ...part });
+  }
+}
+```
+
+```ts
+// in activate(ctx)
+ctx.registerSurface({
+  id: 'notes.workspace',
+  title: 'notes.workspace.title',
+  icon: 'notes',
+  component: NotesWorkspace,
+  docks: ['left-panel'],
+});
+```
+
+**You get:** a view you can filter, switch, expand and scroll — then move to another pane, collapse the
+sidebar, reload the browser, and find it exactly as you left it. The host writes the blob for you,
+debounced.
+
+**The counter-example.** The same view written the obvious way:
+
+```ts
+export class NotesWorkspaceLocal {
+  protected readonly query = signal('');
+  protected readonly expanded = signal<readonly string[]>([]);
+}
+```
+
+Nothing here is wrong on screen, and nothing warns you. It simply loses the filter and the expanded rows
+the moment the surface is hidden — switching to another tab in the same pane, collapsing the sidebar,
+closing the mobile drawer, minimising the pane — and it always lost them on reload. Local signals are for
+state that is genuinely throwaway (a hover, a menu that is open right now); everything else belongs in the
+blob.
+
+**Three things that are easy to get wrong:**
+
+- **`set` replaces, it does not merge.** `set({ query })` would wipe the scroll position and the expanded
+  rows. One `patch` helper that spreads is all it takes — and it is the reason to keep *one* shape rather
+  than five independent signals.
+- **Call it as often as you like.** The value is live immediately and the save is debounced, so a `set`
+  per keystroke or per scroll event costs one write once the user stops. Do not hand-roll a debounce.
+- **Read narrow.** `state()` changes identity on every write; deriving `query()`/`tab()` from it keeps
+  downstream computeds still when an unrelated field moved.
+
+**And its sibling, unsaved work.** `VIEW_STATE` is *view* state: the host saves it silently and never asks
+about it. Unsaved *document* state is `DirtySurface` — [recipe 8](#an-editor-with-unsaved-changes):
+the host keeps that instance alive while it is dirty and asks before closing it. An editor does both — the
+scroll position and the expanded tree in `VIEW_STATE`, the unsaved body behind `surfaceDirty()`.
+
+> **A routable surface has no `VIEW_STATE` handle** — injecting the token there throws. It owns a URL, so
+> shareable state (the filter, the active sub-tab) belongs in route params or `subRoutes`, where it also
+> survives a deep link and takes part in browser history; unsaved edits are `DirtySurface` or
+> `retain: 'always'`. A sandboxed surface is always routable and gets `retain` too: the host hides its
+> iframe in place rather than destroying it.
+
+---
+
+<a id="an-editor-with-unsaved-changes"></a>
+
+## 8 · An editor with unsaved changes
+
+**A hidden surface is destroyed as soon as it is clean** — and *dirty* is what makes it not
+clean. Implement `DirtySurface` on your component and the host takes over the whole unsaved-work
+protocol: no hiding gesture ever loses the draft or prompts, closing runs one localised
+*Save · Discard · Cancel* dialog across every plugin, and closing the browser window triggers the native
+`beforeunload` prompt. You write two members; everything else is the host's job.
+
+**Capabilities:** `contributions`
+
+```ts
+// in activate(ctx)
+ctx.registerSurface({
+  id: 'notes.editor',
+  title: 'notes.editor.title',
+  icon: 'notes',
+  component: NoteEditor,
+  routable: { path: 'note-editor' },
+});
+```
+
+```ts
+// src/notes/src/lib/views/note-editor.ts
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  signal,
+} from '@angular/core';
+import { DirtySurface } from '@loomweaver/plugin-sdk';
+
+@Component({
+  selector: 'lw-note-editor',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <div class="flex h-full flex-col gap-3 p-6">
+      <textarea
+        class="lw-field min-h-40 flex-1"
+        [value]="draft()"
+        (input)="onInput($event)"
+      ></textarea>
+      <button
+        class="lw-btn lw-btn--primary self-start"
+        [disabled]="!dirty()"
+        (click)="save()"
+      >
+        Save
+      </button>
+    </div>
+  `,
+})
+export class NoteEditor implements DirtySurface {
+  // What the backend has; a real editor loads it (see recipe 7 for view state).
+  private readonly saved = signal('');
+  protected readonly draft = signal(this.saved());
+  protected readonly dirty = computed(() => this.draft() !== this.saved());
+
+  // The host reads this reactively: while it returns true the instance is
+  // never destroyed on hide, and closing runs the Save · Discard · Cancel ask.
+  surfaceDirty(): boolean {
+    return this.dirty();
+  }
+
+  // Optional — its presence puts the Save button into the host's close dialog.
+  async surfaceSave(): Promise<void> {
+    // await this.api.save(this.draft());
+    this.saved.set(this.draft());
+  }
+
+  protected save(): void {
+    void this.surfaceSave();
+  }
+
+  protected onInput(event: Event): void {
+    this.draft.set((event.target as HTMLTextAreaElement).value);
+  }
+}
+```
+
+What you get, precisely:
+
+- **Hiding never asks and never loses.** Tab switch, minimise, collapse, a move to another screen — while
+  `surfaceDirty()` is `true` the instance stays alive; once the user saves (your button or the host's),
+  the normal destroy-on-hide rule applies again.
+- **Closing asks.** Tab ×, `Delete`, close pane, close others/all/to the right — one host dialog. *Save*
+  appears only because `surfaceSave` exists; a failed or still-dirty save cancels the close and reports,
+  never discards.
+- **`beforeunload`.** Closing the browser window with a dirty instance triggers the native prompt.
+  Its wording and language are the **browser's own** — browsers ignore page-supplied text and show
+  it in the browser UI language, not the app's, so an English browser asks in English even in a
+  German app. Every dialog the host draws is localised; only this one belongs to the browser.
+
+**Auto-save instead of asking.** Declare `saveOn: 'hide'` on the registration and the host calls
+`surfaceSave` fire-and-forget the moment a dirty instance becomes hidden — the tab switch stays instant,
+and a failed save keeps the instance dirty (and therefore alive) plus raises a warning toast:
+
+```ts
+ctx.registerSurface({
+  id: 'notes.editor',
+  title: 'notes.editor.title',
+  component: NoteEditor,
+  routable: { path: 'note-editor' },
+  saveOn: 'hide',
+});
+```
+
+**Your own close flow instead of the standard dialog.** Implement the optional `surfaceBeforeClose`:
+it runs on every user-initiated close *before* the host's ask. Return `false` to cancel; if you resolve
+your own save/discard first, the instance is clean and no second dialog appears. A hook that throws,
+rejects or hangs can never make a tab unclosable — the host enforces a timeout with a guaranteed
+*Close anyway*.
+
+```ts
+  // Optional veto — replace the standard ask with your own close flow.
+  async surfaceBeforeClose(): Promise<boolean> {
+    if (!this.surfaceDirty()) {
+      return true;
+    }
+    const choice = await this.askOwnDialog(); // 'save' | 'discard' | 'stay'
+    if (choice === 'stay') {
+      return false; // cancels the close
+    }
+    if (choice === 'save') {
+      await this.surfaceSave();
+    } else {
+      this.draft.set(this.saved()); // discard: back to the saved body
+    }
+    return true; // now clean — the host's standard ask will not appear
+  }
+```
+
+**The sandboxed (iframe) variant.** Nothing of `DirtySurface` crosses the RPC boundary as an interface —
+instead your surface document **pushes its dirty flag** over the surface channel and may expose a
+`beforeClose` method next to its `render` receiver. The host then treats it like any other dirty
+surface: it survives hiding, closing runs the host dialog (without *Save* — no save call crosses the
+boundary; save inside the surface and push `setDirty(false)`), and your `beforeClose` may veto with its
+own in-iframe dialog:
+
+```js
+// view.js — the surface document (plain JS, any framework)
+let draft = '';
+
+const connection = Penpal.connect({
+  messenger: new Penpal.WindowMessenger({
+    remoteWindow: window.parent,
+    allowedOrigins: ['*'],
+  }),
+  methods: {
+    render(state) {
+      /* locale, tab, theme tokens … — see the sandbox bootstrap */
+    },
+    beforeClose() {
+      // optional veto — draw your own dialog and resolve with the answer;
+      // absent, throwing or hanging all count as consent (host timeout).
+      return draft === '' || confirm('Discard your draft?');
+    },
+  },
+});
+
+input.addEventListener('input', (event) => {
+  draft = event.target.value;
+  connection.promise.then((host) => host.setDirty(draft.length > 0));
+});
+```
+
+The testbed dogfoods both halves: `sandbox-rpc/view.js` pushes `setDirty` from its draft field and draws
+its own veto overlay.
+
+---
+
+<a id="sync-your-own-state-across-browser-windows"></a>
+
+## 9 · Sync your own state across browser windows
+
+Everything the shell persists already follows across same-origin windows live: every write through the
+two persistence ports broadcasts its **key**, the other window reads the fresh value back **through the
+store** and applies it. Theme, language, view state, plugin settings — nothing to wire.
+This recipe is for **your own** state: a distribution key, a product session, a backend push.
+
+First decide where the state lives, because that decides how it syncs:
+
+| Your state is…                              | Persist it…                     | Sync story                                             |
+| ------------------------------------------- | ------------------------------- | ------------------------------------------------------ |
+| a deliberate user decision (a preference)   | through `SETTINGS_STORE`        | broadcasts by itself — register a reaction             |
+| usage state (drafts-of-layout, MRU, traces) | through `WORKING_STATE_STORE`   | broadcasts by itself — register a reaction             |
+| outside both ports (a product session)      | wherever it lives today         | `announce` on write + `register('external', …)`        |
+
+**Capabilities:** none — this is distribution wiring (`app.config.ts`), not a plugin API.
+
+```ts
+// src/app/app.config.ts — in the providers array
+import { inject, provideEnvironmentInitializer } from '@angular/core';
+import { SETTINGS_STORE, StateSyncService } from '@loomweaver/shell';
+
+provideEnvironmentInitializer(() => {
+  const sync = inject(StateSyncService);
+
+  // ① State on a port syncs itself — you only register the reaction.
+  //    'settings' names where the fresh value is read back from.
+  const store = inject(SETTINGS_STORE);
+  sync.register('settings', 'acme.density', (raw) => {
+    applyDensity(raw ?? 'comfortable'); // apply WITHOUT writing back
+  });
+  // Writing through the port broadcasts on its own:
+  //   void store.set('acme.density', 'compact');
+
+  // ② State outside the ports announces itself and re-reads its own storage.
+  sync.register('external', acmeSession.key, () => acmeSession.reload());
+
+  // ③ Live cross-device tier: a backend push transport rings the bell for
+  //    THIS window; the applier reads the fresh value back through the store.
+  const events = new EventSource('/api/state/events');
+  events.onmessage = (event) => sync.notifyRemoteChange(String(event.data));
+}),
+```
+
+The `'external'` half needs the owning store to **announce** its own writes — a broadcast only happens
+by itself for writes that go through the ports:
+
+```ts
+// src/app/session.ts — YOUR session store, persisted outside the shell's ports
+const SESSION_KEY = 'acme.session';
+
+export const acmeSession = {
+  key: SESSION_KEY,
+  current(): string | null {
+    return localStorage.getItem(SESSION_KEY);
+  },
+  signIn(token: string, announce: (key: string) => void): void {
+    localStorage.setItem(SESSION_KEY, token);
+    announce(SESSION_KEY); // tell the other windows — nothing else can know
+  },
+  reload(): void {
+    // re-read SESSION_KEY and update your AuthSource signal
+  },
+};
+```
+
+Two rules keep it convergent: an applier must **set state without persisting again** (or two windows
+write back and forth forever), and a broadcast never reaches the window that sent it — so `announce`
+notifies only the *other* windows, while `notifyRemoteChange` is the deliberate way to run the applier
+in *this* window (that is the live tier of a cross-device
+[working-state store](building-a-distribution.md#persistence-stores-optional)).
+
+**A plugin's own state.** A **sandboxed** plugin inherits all of this: its settings live in
+host-managed storage, so a change in one window is pushed to its copy in the other window via
+`settingsChanged` — nothing to do. A **trusted** weaver that persists its own storage (outside the
+ports) exposes the same two hooks the session store above has, and the distribution wires them; the
+demo does exactly this for its theme toggle and its auth stub:
+
+```ts
+// the weaver exposes: connectSync({ announce }) → { key, refresh }
+const theme = testbedTheme.connectSync({ announce: (key) => sync.announce(key) });
+sync.register('external', theme.key, () => theme.refresh());
+```
+
+---
+
+<a id="letting-an-agent-drive-your-product"></a>
+
+## 10 · Letting an AG-UI agent drive your product
+
+An agentic backend speaking [AG-UI](https://docs.ag-ui.com) can run the actions your product already
+has, without you keeping a tool registry or a dispatch switch beside the command registry. The rule
+underneath it: **an agent reaches what the user could have reached, and nothing more.**
+
+**Capabilities:** `automation` · plus `ui` if you confirm before a consequential call
+
+```bash
+npm install @loomweaver/ag-ui @ag-ui/core
+```
+
+```ts
+// src/notes/src/lib/plugin/notes-agent.ts
+import type { BaseEvent, Message, Tool } from '@ag-ui/core';
+import { commandTools } from '@loomweaver/ag-ui';
+import type { PluginContext } from '@loomweaver/plugin-sdk';
+
+const CONSEQUENTIAL = new Set(['notes.deleteAll']);
+
+export function notesAgent(ctx: PluginContext) {
+  const tools = commandTools(ctx, {
+    before: async (call) => {
+      if (!CONSEQUENTIAL.has(call.commandId)) {
+        return { decision: 'run' };
+      }
+      const confirmed = await ctx.ui.confirm({
+        title: 'notes.agent.confirm',
+        message: 'notes.agent.confirmBody',
+        tone: 'warning',
+      });
+      return confirmed
+        ? { decision: 'run' }
+        : { decision: 'decline', reason: 'the person at the keyboard said no.' };
+    },
+  });
+
+  return {
+    /** Ask at the start of every run. Never keep the answer: what you may reach changes. */
+    offer: (): readonly Tool[] => tools.list(),
+
+    /** Hand it every event of the run; send back whatever it answers. */
+    async carry(event: BaseEvent, back: (message: Message) => void): Promise<void> {
+      const answer = await tools.receive(event);
+      if (answer) {
+        back(answer);
+      }
+    },
+  };
+}
+```
+
+**You get:** every command that declared itself `callable` described to the agent as a tool, with its
+declared arguments as JSON Schema, already narrowed by everything that would refuse it — the session,
+the window, your grant. A call arrives as a start, a stream of argument deltas and an end; `receive`
+assembles it, puts it to the workbench through the same seam a keystroke uses, and answers a tool
+message carrying a real outcome. A refusal and a failure both come back in the protocol's `error`
+field, worded so an agent can tell "you may not" from "it broke".
+
+The package brings **no transport, no user interface and no agent**: you open the connection, you draw
+the conversation, and you decide what the agent is. The full contract, including what the agent never
+learns and why, is in [agent tools](reference/agent-tools.md).
+
+## Translations for all of the above
+
+Every `title` / `label` / `message` here is a **translation key**. Put them in your bundle:
+
+```jsonc
+// src/notes/src/lib/i18n/en.json
+{
+  "title": "Notes",
+  "add": "New note",
+  "added": "Note created",
+  "list": { "title": "All notes" },
+  "workspace": { "title": "Workspace" },
+  "settings": { "title": "Notes", "compact": "Compact rows" }
+}
+```
+
+The distribution composes it with `provideTranslationNamespaces('notes')`, so these live under
+`notes.*` and can never collide with host keys — which is why the recipes above write
+`'notes.add'`. Serve the bundle with an assets glob (`input: "src/notes/src/lib/i18n"`,
+`output: "i18n/notes"`). An unknown key renders as-is, so a literal string works while you are
+sketching.
+
+---
+
+**Next:** [Authoring a weaver](authoring-a-weaver.md) — the complete contract behind these recipes ·
+[The plugin system](plugins.md) — trusted, sandboxed and user-installed plugins.

@@ -1,0 +1,10 @@
+<ul class="flex flex-col gap-0.5 text-sm">
+  @for (item of items(); track item) {
+    <li class="rounded px-2 py-1.5 text-content">{{ item }}</li>
+  }
+</ul>
+
+<p class="mt-3 border-t border-border pt-3 text-xs text-content-muted">
+  {{ 'testbed.nav.scratch' | transloco }}
+</p>
+<p class="text-sm text-content" data-testid="scratch-echo">{{ scratch.note() }}</p>

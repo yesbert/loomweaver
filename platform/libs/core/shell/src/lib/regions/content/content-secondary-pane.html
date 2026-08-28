@@ -1,0 +1,63 @@
+<div class="h-full" [class.hidden]="!iframeSurface()">
+  <ng-container
+    [lwRetainedComponent]="iframeSurface()?.component ?? null"
+    [componentInjector]="iframeSurface()?.injector ?? null"
+    [retentionKey]="surfaceKey()"
+    mode="in-place"
+    [retain]="surfaceRetain()"
+  />
+</div>
+@if (view(); as v) {
+  @if (showSwitcher()) {
+    <div class="flex h-full min-h-0 flex-col">
+      <div class="mb-2 flex shrink-0 items-center border-b border-border pb-1.5">
+        <lw-view-instance-switcher [view]="v" (beforeSwitch)="instanceReleased.emit()" />
+      </div>
+      <div class="flex min-h-0 min-w-0 flex-1 flex-col">
+        <ng-container [ngTemplateOutlet]="viewBody" [ngTemplateOutletContext]="{ $implicit: v }" />
+      </div>
+    </div>
+  } @else {
+    <ng-container [ngTemplateOutlet]="viewBody" [ngTemplateOutletContext]="{ $implicit: v }" />
+  }
+} @else if (surface(); as s) {
+  <ng-container
+    [lwRetainedComponent]="s.component"
+    [componentInjector]="s.injector"
+    [retentionKey]="surfaceKey()"
+    [mode]="surfaceMode()"
+    [retain]="surfaceRetain()"
+  />
+} @else if (!iframeSurface()) {
+  @if (blocked()) {
+    <lw-auth-required />
+  } @else if (unknown()) {
+    <lw-route-unavailable />
+  } @else {
+    <div
+      class="flex h-full items-center justify-center p-6 text-center text-sm text-content-faint"
+    >
+      {{ unavailableKey | transloco }}
+    </div>
+  }
+}
+
+<ng-template #viewBody let-v>
+  @if (v.iframe) {
+    <ng-container
+      [lwRetainedComponent]="iframeComponent"
+      [componentInjector]="dockedInjector(v)"
+      [retentionKey]="viewKey()"
+      mode="in-place"
+      [retain]="surfaceRetain()"
+    />
+  } @else if (componentFor(v); as component) {
+    <ng-container
+      [lwRetainedComponent]="component"
+      [componentInjector]="viewInjector(v)"
+      [retentionKey]="viewKey()"
+      mode="move"
+      [retain]="surfaceRetain()"
+    />
+  }
+</ng-template>

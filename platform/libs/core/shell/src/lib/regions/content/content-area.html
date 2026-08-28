@@ -1,0 +1,97 @@
+<div class="relative flex h-full flex-col">
+  @if (tabs.showStrip()) {
+    <lw-pane-tab-strip
+      [tabs]="stripTabs()"
+      [activeId]="activeId()"
+      [source]="urlGroup()"
+      [urlDriven]="true"
+      [reorderable]="tabsReorderable"
+      [draggable]="tabsDraggable"
+      [acceptsTabs]="features.moveTabs"
+      [contextMenuSlot]="tabContextMenu"
+      [contextGroup]="''"
+      [overflow]="true"
+      [canAddTab]="canAddTab()"
+      [paneActions]="urlToolbar"
+      (selectTab)="select($event)"
+      (escalate)="escalate($event)"
+      (closeTab)="tabs.close($event.path)"
+      (unpinTab)="tabs.unpin($event.path)"
+      (reorderTabs)="onReorder($event)"
+      (runAction)="runAction($event)"
+      (revealRequest)="tabs.bringToFront($event)"
+      (addTab)="newTab($event)"
+    />
+  }
+  <ng-template #urlToolbar>
+    <lw-pane-toolbar
+      [canSplitRight]="canSplitRight()"
+      [canSplitDown]="canSplitDown()"
+      [canMinimize]="canMinimize()"
+      [canMaximize]="canMaximize()"
+      [maximized]="maximized()"
+      [canClose]="canClose()"
+      (splitRight)="split('row')"
+      (splitDown)="split('column')"
+      (minimize)="minimize()"
+      (toggleMaximize)="toggleMaximize()"
+      (closePane)="closePrimary()"
+    />
+  </ng-template>
+  <main
+    id="lw-main-content"
+    tabindex="-1"
+    class="flex-1 text-content outline-none"
+    [class.overflow-auto]="!activeIsContainer()"
+    [class.bg-surface-raised]="!activeIsContainer()"
+    [class.p-6]="activeIsPadded()"
+    [class.flex]="activeIsContainer()"
+    [class.min-h-0]="activeIsContainer()"
+    [class.min-w-0]="activeIsContainer()"
+    [class.hidden]="tabs.activeViewPath()"
+  >
+    <router-outlet />
+    <div class="h-full" [class.hidden]="!iframeSurface()">
+      <ng-container
+        [lwRetainedComponent]="iframeSurface()?.component ?? null"
+        [componentInjector]="iframeSurface()?.injector ?? null"
+        [retentionKey]="surfaceKey()"
+        mode="in-place"
+        [retain]="iframeRetain()"
+      />
+    </div>
+    <div class="h-full" [class.hidden]="!retainedSurface()">
+      <ng-container
+        [lwRetainedComponent]="retainedSurface()?.component ?? null"
+        [componentInjector]="retainedSurface()?.injector ?? null"
+        [retentionKey]="surfaceKey()"
+        mode="move"
+        [retain]="true"
+      />
+    </div>
+  </main>
+  @if (tabs.activeViewPath(); as viewPath) {
+    <lw-content-secondary-pane class="min-h-0 flex-1" [path]="viewPath" [instanceId]="tabs.activeViewInstance()" variant="content" [retentionScope]="urlGroupScope()" />
+  }
+  @if (showFloating()) {
+    <lw-pane-toolbar
+      class="absolute top-1.5 right-2 z-30 rounded-md bg-surface-raised/85 px-0.5 ring-1 ring-border"
+      [canNewTab]="canNewTabFloating()"
+      [canSplitRight]="canSplitRightFloating()"
+      [canSplitDown]="canSplitDownFloating()"
+      [canMinimize]="canMinimize()"
+      [canMaximize]="canMaximize()"
+      [maximized]="maximized()"
+      [canClose]="canClose()"
+      newTabTestId="content-new-tab"
+      splitRightTestId="content-split-toggle"
+      splitDownTestId="content-split-down"
+      (newTab)="newTab($event)"
+      (splitRight)="split('row')"
+      (splitDown)="split('column')"
+      (minimize)="minimize()"
+      (toggleMaximize)="toggleMaximize()"
+      (closePane)="closePrimary()"
+    />
+  }
+</div>

@@ -1,0 +1,51 @@
+{
+  "title": "Assistant",
+  "scripted": "This assistant is scripted. It picks its answers from a short script, and nothing else about it is pretend: it reads the actions the workbench offers it, speaks real protocol events, and every call runs through the workbench itself. No model, no key, no network.",
+  "empty": "Nothing yet. Pick a prompt below and watch what it may do.",
+  "suggestions": "Try one of these",
+  "offered": "Reading what it may do right now: {{count}} actions.",
+  "notOffered": "{{command}} is not among them. It asks anyway, so you can see who says no.",
+  "confirm": {
+    "title": "Send this quote?",
+    "message": "The assistant wants to send the quote to the customer, and the customer will see it. Say no, and watch what the assistant is told.",
+    "yes": "Send it",
+    "no": "Not now"
+  },
+  "result": {
+    "answered": "The workbench ran it and answered: {{content}}",
+    "refused": "The workbench did not run it."
+  },
+  "beat": {
+    "openQuote": {
+      "prompt": "Open the quote for Nordwind Logistik.",
+      "says": "Nordwind Logistik is on quote Q-0007. Opening it now.",
+      "closes": "It is open in the content area, and it stays as a tab.",
+      "refused": "I was not allowed to open it, so nothing happened."
+    },
+    "overview": {
+      "prompt": "Show me the overview.",
+      "says": "Bringing up the dashboard.",
+      "closes": "The dashboard has the whole content area now. It is not a document, so it took no tab, and nothing reloaded.",
+      "refused": "I was not allowed to show it, so you are still where you were."
+    },
+    "sendQuote": {
+      "prompt": "Send quote Q-0004 to the customer.",
+      "says": "Q-0004 is still a draft. Sending it to the customer.",
+      "closes": "It has gone out, and the quote is marked as sent.",
+      "refused": "You said no, so it never ran. The workbench was not even asked."
+    },
+    "margin": {
+      "prompt": "What is the margin on Q-0007?",
+      "says": "Reading the margin on Q-0007.",
+      "closes": "There it is: revenue, cost and what is left. Only accounting may see this, and that is the account you are on.",
+      "refused": "Margins are for accounting, and the account you are signed in as is not. Switch accounts and ask me again."
+    },
+    "look": {
+      "prompt": "Give the product a different look.",
+      "warns": "This one reloads the page, and the conversation ends with it. A look here is composed at startup: the colours, the letterforms, the icons and part of the wording are decided once, when the application boots. That is what makes it a composition rather than a colour switch.",
+      "says": "Switching the product to {{look}}. Watch the whole thing change.",
+      "closes": "The look is on its way.",
+      "refused": "I was not allowed to change the look."
+    }
+  }
+}

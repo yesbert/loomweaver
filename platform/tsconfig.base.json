@@ -1,0 +1,29 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "bundler",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "es2015",
+    "module": "esnext",
+    "lib": ["es2020", "dom"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "strict": false,
+    "paths": {
+      "@loomweaver/plugin-sdk": ["./libs/core/plugin-sdk/src/index.ts"],
+      "@loomweaver/shell": ["./libs/core/shell/src/index.ts"],
+      "@loomweaver/testbed-weaver": ["./libs/weavers/testbed-weaver/src/index.ts"],
+      "@loomweaver/devkit": ["./libs/tooling/devkit/src/index.ts"],
+      "@loomweaver/ag-ui": [
+        "./libs/integrations/ag-ui/src/index.ts"
+      ],
+      "@loomweaver/mcp": ["./libs/tooling/mcp/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "tmp"]
+}

@@ -1,0 +1,27 @@
+{
+  "tagline": "Ein Produkt auf Basis von LoomWeaver",
+  "search": "Suchen",
+  "signIn": "Anmelden",
+  "switchAccount": "Konto wechseln",
+  "signOut": "Abmelden",
+  "signedInAs": "Angemeldet als {{name}}",
+  "theme": "Theme",
+  "workspace": {
+    "quotes": "Angebote",
+    "dashboard": "Übersicht",
+    "payments": "Zahlungen"
+  },
+  "payments": {
+    "title": "Zahlungsabgleich"
+  },
+  "looks": {
+    "command": {
+      "title": "Look wechseln",
+      "description": "Schaltet die ganze Anwendung auf einen anderen Look um — Farben, Schrift, Icons und Wortwahl. Beim Anwenden lädt die Seite neu, weil dieses Produkt seine Looks beim Start komponiert.",
+      "answers": "Welcher Look aktiv ist, ob er gewechselt hat und ob die Seite neu lädt.",
+      "arg": {
+        "look": "Welcher Look angewendet wird: default, aurora oder breeze."
+      }
+    }
+  }
+}

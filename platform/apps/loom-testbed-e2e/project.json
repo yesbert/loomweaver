@@ -1,0 +1,30 @@
+{
+  "name": "loom-testbed-e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/loom-testbed-e2e/src",
+  "tags": ["scope:distribution", "type:e2e"],
+  "implicitDependencies": ["loom-testbed"],
+  "targets": {
+    "e2e": {
+      "executor": "@nx/playwright:playwright",
+      "outputs": ["{workspaceRoot}/dist/.playwright/apps/loom-testbed-e2e"],
+      "options": {
+        "config": "apps/loom-testbed-e2e/playwright.config.ts"
+      }
+    },
+    "lint": {
+      "inputs": [
+        "default",
+        "^default",
+        "{workspaceRoot}/.eslintrc.json",
+        "{workspaceRoot}/.eslintignore",
+        "{workspaceRoot}/eslint.config.mjs",
+        "{workspaceRoot}/tools/eslint-rules/**/*",
+        {
+          "externalDependencies": ["eslint"]
+        }
+      ]
+    }
+  }
+}

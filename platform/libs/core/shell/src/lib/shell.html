@@ -1,0 +1,169 @@
+@if (popout.active) {
+  <div class="flex h-screen flex-col">
+    <main id="lw-main-content" class="min-h-0 flex-1 overflow-hidden">
+      <router-outlet />
+    </main>
+    <lw-toasts />
+    <lw-dialog-outlet />
+  </div>
+} @else {
+<div class="flex h-screen flex-col">
+  @if (hasContent) {
+
+    <a
+      href="#lw-main-content"
+      class="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-[100] focus:rounded-md focus:bg-surface-raised focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-content focus:shadow-lg focus:outline focus:outline-2 focus:outline-brand"
+    >
+      {{ 'skip.toContent' | transloco }}
+    </a>
+  }
+  <div class="relative flex flex-1 overflow-hidden">
+
+    @if (leftRails.length || leftPanels.length) {
+      <div class="flex flex-col overflow-hidden border-border" [class.border-r]="leftEdgeBorder()">
+        @if (viewport.compact()) {
+          @for (panel of leftPanels; track panel.id) {
+            <lw-shell-sidebar-header [region]="panel" />
+          }
+        }
+        <div class="flex flex-1 overflow-hidden">
+          @for (region of leftRails; track region.id) {
+            <lw-shell-rail [region]="region" />
+          }
+          @if (!viewport.compact()) {
+            <div
+              class="flex flex-col overflow-hidden border-border"
+              [class.border-l]="leftRailDivider()"
+            >
+              @for (panel of leftPanels; track panel.id) {
+                <lw-shell-sidebar-header
+                  [region]="panel"
+                  [class.w-0]="!panelCollapsed(panel)"
+                  [class.min-w-full]="!panelCollapsed(panel)"
+                />
+              }
+              <div class="flex flex-1 overflow-hidden">
+                @for (region of leftPanels; track region.id) {
+                  <lw-shell-panel [region]="region" />
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
+      <div class="flex">
+        @for (panel of leftFloating(); track panel.id) {
+          <lw-shell-sidebar-header [region]="panel" context="floating" />
+        }
+        @for (region of topBars; track region.id) {
+          <lw-shell-bar [region]="region" class="flex-1" />
+        }
+        @if (!topBars.length && (leftFloating().length || rightFloating().length)) {
+
+          <div class="h-12 flex-1"></div>
+        }
+        @for (panel of rightFloating(); track panel.id) {
+          <lw-shell-sidebar-header [region]="panel" context="floating" />
+        }
+      </div>
+      <div class="flex flex-1 overflow-hidden">
+        @if (hasContent) {
+
+          <lw-content-grid class="min-w-0 flex-1" />
+        }
+      </div>
+    </div>
+
+    @if (rightRails.length || rightPanels.length) {
+      <div class="flex flex-col overflow-hidden border-border" [class.border-l]="rightEdgeBorder()">
+        @if (viewport.compact()) {
+          @for (panel of rightPanels; track panel.id) {
+            <lw-shell-sidebar-header [region]="panel" />
+          }
+        }
+        <div class="flex flex-1 overflow-hidden">
+          @if (!viewport.compact()) {
+            <div
+              class="flex flex-col overflow-hidden border-border"
+              [class.border-r]="rightRailDivider()"
+            >
+              @for (panel of rightPanels; track panel.id) {
+                <lw-shell-sidebar-header
+                  [region]="panel"
+                  [class.w-0]="!panelCollapsed(panel)"
+                  [class.min-w-full]="!panelCollapsed(panel)"
+                />
+              }
+              <div class="flex flex-1 overflow-hidden">
+                @for (region of rightPanels; track region.id) {
+                  <lw-shell-panel [region]="region" />
+                }
+              </div>
+            </div>
+          }
+          @for (region of rightRails; track region.id) {
+            <lw-shell-rail [region]="region" />
+          }
+        </div>
+      </div>
+    }
+
+    @if (viewport.compact()) {
+      <button
+        type="button"
+        class="lw-scrim absolute inset-0 z-40 cursor-default transition-opacity duration-300 ease-out"
+        [class.pointer-events-none]="!anyOverlayOpen()"
+        [class.opacity-0]="!anyOverlayOpen()"
+        [attr.aria-hidden]="!anyOverlayOpen()"
+        [attr.aria-label]="'panel.close' | transloco"
+        [attr.tabindex]="anyOverlayOpen() ? 0 : -1"
+        (click)="closeOverlay()"
+      ></button>
+
+      @for (panel of leftPanels; track panel.id) {
+        <div
+          class="absolute inset-y-0 left-0 z-50 flex flex-col overflow-hidden shadow-xl transition duration-300 ease-out will-change-transform"
+          [class.-translate-x-full]="!isOverlayOpen(panel.id)"
+          [class.opacity-0]="!isOverlayOpen(panel.id)"
+          [attr.inert]="isOverlayOpen(panel.id) ? null : ''"
+          [attr.aria-hidden]="!isOverlayOpen(panel.id)"
+        >
+          @if (isOverlayOpen(panel.id)) {
+            <lw-shell-sidebar-header [region]="panel" context="drawer" />
+            <div class="flex min-h-0 flex-1">
+              <lw-shell-panel [region]="panel" />
+            </div>
+          }
+        </div>
+      }
+
+      @for (panel of rightPanels; track panel.id) {
+        <div
+          class="absolute inset-y-0 right-0 z-50 flex flex-col overflow-hidden shadow-xl transition duration-300 ease-out will-change-transform"
+          [class.translate-x-full]="!isOverlayOpen(panel.id)"
+          [class.opacity-0]="!isOverlayOpen(panel.id)"
+          [attr.inert]="isOverlayOpen(panel.id) ? null : ''"
+          [attr.aria-hidden]="!isOverlayOpen(panel.id)"
+        >
+          @if (isOverlayOpen(panel.id)) {
+            <lw-shell-sidebar-header [region]="panel" context="drawer" />
+            <div class="flex min-h-0 flex-1">
+              <lw-shell-panel [region]="panel" />
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+
+  @for (region of bottomBars; track region.id) {
+    <lw-shell-bar [region]="region" />
+  }
+
+  <lw-toasts />
+  <lw-dialog-outlet />
+</div>
+}

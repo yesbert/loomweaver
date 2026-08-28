@@ -1,0 +1,44 @@
+{
+  "title": "Dashboard",
+  "pipeline": {
+    "title": "Pipeline",
+    "out": "Out with customers",
+    "count": "{{count}} quotes",
+    "status": {
+      "draft": "Draft",
+      "sent": "Sent",
+      "accepted": "Accepted",
+      "declined": "Declined",
+      "expired": "Expired"
+    }
+  },
+  "deadlines": {
+    "title": "Running out",
+    "none": "Nothing expires in the next weeks.",
+    "days": "in {{days}} days",
+    "today": "today",
+    "gone": "expired"
+  },
+  "dashboard": {
+    "title": "Overview",
+    "subtitle": "Where the quotes stand today"
+  },
+  "cards": {
+    "out": "Out with customers",
+    "outHint": "across {{count}} open quotes",
+    "rate": "Accepted",
+    "rateHint": "of the decided quotes, {{count}} in total",
+    "margin": "Margin won",
+    "marginHint": "{{percent}}% on {{revenue}} revenue",
+    "quoted": "Quoted per month",
+    "pipeline": "Pipeline by status",
+    "deadlines": "Running out next"
+  },
+  "command": {
+    "overview": {
+      "title": "Show the overview",
+      "description": "Shows the dashboard, which takes the whole content area and is not a document.",
+      "answers": "Which screen the content area now shows."
+    }
+  }
+}

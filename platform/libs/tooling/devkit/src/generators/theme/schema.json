@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "$id": "LoomWeaverTheme",
+  "title": "Scaffold a token-override stylesheet in @layer lw-tenant-theme",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Theme name in kebab-case, e.g. 'midnight'.",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+    },
+    "preset": {
+      "type": "string",
+      "description": "Where the token values come from. 'literal' writes editable colours; 'bootstrap' maps them onto Bootstrap 5.3's --bs-* variables, which makes the shell follow your Bootstrap theme live.",
+      "enum": ["literal", "bootstrap"],
+      "default": "literal"
+    },
+    "app": {
+      "type": "string",
+      "description": "Application to drop into. Inferred when the workspace has exactly one."
+    }
+  },
+  "required": ["name"]
+}

@@ -1,0 +1,64 @@
+<div class="flex h-full flex-col gap-3">
+  <p
+    class="shrink-0 rounded-md border border-border bg-surface-raised px-3 py-2 text-xs text-content-muted"
+    data-testid="agent-disclosure"
+  >
+    {{ 'agent.scripted' | transloco }}
+  </p>
+
+  <div #scroller class="min-h-0 flex-1 overflow-auto" data-testid="agent-conversation">
+    <ul class="flex flex-col gap-2.5">
+      @for (line of lines(); track $index) {
+        @if (line.kind === 'visitor') {
+          <li class="max-w-full self-end rounded-lg bg-brand-fill px-3 py-2 text-sm text-on-brand">
+            {{ line.text }}
+          </li>
+        } @else if (line.kind === 'agent') {
+          <li
+            class="max-w-full self-start rounded-lg bg-surface-raised px-3 py-2 text-sm text-content"
+          >
+            {{ line.text }}
+          </li>
+        } @else if (line.kind === 'call') {
+          <li
+            class="rounded-md border border-border px-3 py-2 font-mono text-xs break-all text-content-muted"
+            [attr.data-command]="line.text"
+          >
+            {{ line.text }}<span class="text-content-faint">({{ line.args }})</span>
+          </li>
+        } @else if (line.kind === 'result') {
+          <li
+            class="px-1 text-xs"
+            [class.text-negative]="line.failed"
+            [class.text-content-muted]="!line.failed"
+          >
+            {{ line.text }}
+          </li>
+        } @else {
+          <li class="px-1 text-xs text-content-faint">{{ line.text }}</li>
+        }
+      } @empty {
+        <li class="px-1 py-6 text-center text-sm text-content-muted">
+          {{ 'agent.empty' | transloco }}
+        </li>
+      }
+    </ul>
+  </div>
+
+  <div class="flex shrink-0 flex-col gap-2 border-t border-border pt-3">
+    <span class="px-1 text-xs font-medium text-content-muted">{{
+      'agent.suggestions' | transloco
+    }}</span>
+    @for (beat of beats; track beat.id) {
+      <button
+        type="button"
+        class="lw-btn lw-btn--default lw-btn--sm h-auto justify-start py-2 text-left whitespace-normal"
+        [disabled]="busy()"
+        [attr.data-beat]="beat.id"
+        (click)="ask(beat)"
+      >
+        {{ 'agent.beat.' + beat.id + '.prompt' | transloco }}
+      </button>
+    }
+  </div>
+</div>

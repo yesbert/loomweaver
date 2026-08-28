@@ -1,0 +1,43 @@
+@if (quote(); as quote) {
+  <div class="flex flex-col gap-3" data-testid="quote-customer">
+    <div class="flex items-center gap-3">
+      <h2 class="font-mono text-lg text-content">{{ quote.number }}</h2>
+      <span [class]="badge()">{{ 'quotes.list.status.' + quote.status | transloco }}</span>
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <p class="text-base font-medium text-content">
+        {{ customer()?.name ?? quote.customerId }}
+      </p>
+      @if (customer(); as customer) {
+        <p class="text-xs text-content-faint">
+          {{ customer.city }}
+          <span aria-hidden="true">·</span>
+          {{ 'accounting.customer.number' | transloco }} {{ customer.number }}
+        </p>
+        <p class="text-xs text-content-faint">
+          {{ 'accounting.customer.vatId' | transloco }} {{ customer.vatId }}
+        </p>
+      }
+    </div>
+
+    <dl class="flex flex-col gap-1.5 border-t border-border pt-3 text-sm">
+      <div class="flex items-baseline justify-between gap-3">
+        <dt class="text-content-muted">{{ 'quotes.list.column.issued' | transloco }}</dt>
+        <dd class="text-content tabular-nums">{{ issuedOn() }}</dd>
+      </div>
+      <div class="flex items-baseline justify-between gap-3">
+        <dt class="text-content-muted">{{ 'quotes.list.column.validUntil' | transloco }}</dt>
+        <dd class="text-content tabular-nums">{{ validUntil() }}</dd>
+      </div>
+      @if (customer(); as customer) {
+        <div class="flex items-baseline justify-between gap-3">
+          <dt class="text-content-muted">{{ 'accounting.customer.terms' | transloco }}</dt>
+          <dd class="text-content tabular-nums">
+            {{ 'accounting.customer.termsDays' | transloco: { days: customer.paymentTermsDays } }}
+          </dd>
+        </div>
+      }
+    </dl>
+  </div>
+}

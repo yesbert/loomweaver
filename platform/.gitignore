@@ -1,0 +1,17 @@
+.certs/
+
+# JetBrains IDE (root .gitignore's /.idea is root-anchored, so cover the nested one here)
+.idea/
+
+# Test coverage output
+coverage/
+
+# Vitest writes a timestamped config next to the source config while it loads it
+vite.config.*.timestamp*
+vitest.config.*.timestamp*
+
+# Playwright E2E artifacts
+test-results/
+playwright-report/
+blob-report/
+.playwright/

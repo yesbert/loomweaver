@@ -1,0 +1,167 @@
+<div [class]="bandClass()">
+  <div
+    #tabStrip
+    class="flex min-w-0 flex-1 items-center gap-0.5 overflow-hidden"
+    [class.px-2]="!icons()"
+    [class.px-1]="icons()"
+    role="tablist"
+    cdkDropList
+    cdkDropListOrientation="horizontal"
+    [id]="stripId()"
+    [cdkDropListSortingDisabled]="!reorderable()"
+    [cdkDropListEnterPredicate]="enterPredicate"
+    [cdkDropListConnectedTo]="dragZoneIds()"
+    [cdkDropListSortPredicate]="sortPredicate"
+    (cdkDropListDropped)="onDrop($event)"
+    [lwReorderable]="stripId()"
+    [lwReorderableEnabled]="reorderable()"
+    (reorder)="reorderTabs.emit($event)"
+  >
+    @for (tab of tabs(); track tab.path) {
+      @let title = tab.literalTitle ? tab.title : (tab.title | transloco);
+      @if (icons()) {
+        <button
+          type="button"
+          role="tab"
+          cdkDrag
+          [cdkDragData]="tab.path"
+          [cdkDragDisabled]="!canDrag(tab)"
+          (cdkDragStarted)="onDragStarted(tab)"
+          (cdkDragEnded)="onDragEnded()"
+          [lwContextMenu]="menuSlotFor(tab)"
+          [lwContextMenuContext]="tabContext(tab)"
+          [attr.aria-selected]="isActive(tab)"
+          [attr.aria-label]="title"
+          [attr.data-reorder-id]="canReorder(tab) ? tab.path : null"
+          [attr.data-reorder-band]="tab.pinned ? 'pinned' : 'dynamic'"
+          [attr.data-tab-path]="tab.path"
+          (click)="onSelectTab(tab)"
+          (dblclick)="escalate.emit(tab)"
+          class="lw-icon-btn h-10 w-10 rounded-md md:h-7 md:w-7"
+          [class.bg-surface-overlay]="isActive(tab)"
+          [class.text-content]="isActive(tab)"
+        >
+          <lw-icon [name]="tab.icon ?? 'document'" size="1rem" />
+          <lw-tooltip [text]="title" position="bottom" />
+        </button>
+      } @else {
+        <div
+          class="flex max-w-52 min-w-28 items-center border-b-2 transition-colors"
+          cdkDrag
+          [cdkDragData]="tab.path"
+          [cdkDragDisabled]="!canDrag(tab)"
+          (cdkDragStarted)="onDragStarted(tab)"
+          (cdkDragEnded)="onDragEnded()"
+          [class.border-brand]="isActive(tab) && urlDriven()"
+          [class.border-content-faint]="isActive(tab) && !urlDriven()"
+          [class.border-transparent]="!isActive(tab)"
+          [lwContextMenu]="menuSlotFor(tab)"
+          [lwContextMenuContext]="tabContext(tab)"
+        >
+          <button
+            type="button"
+            role="tab"
+            cdkDragHandle
+            [attr.aria-selected]="isActive(tab)"
+            [attr.aria-label]="title"
+            [attr.data-reorder-id]="canReorder(tab) ? tab.path : null"
+            [attr.data-reorder-band]="tab.pinned ? 'pinned' : 'dynamic'"
+            [attr.data-tab-path]="tab.path"
+            [attr.aria-keyshortcuts]="tab.closable && !tab.pinned ? 'Delete' : null"
+            (click)="onSelectTab(tab)"
+            (dblclick)="escalate.emit(tab)"
+            (keydown)="onTabKeydown($event, tab)"
+            class="relative flex min-w-0 items-center gap-1.5 py-2 pr-1 pl-3 text-sm transition-colors"
+            [class.text-content]="isActive(tab)"
+            [class.text-content-faint]="!isActive(tab)"
+            [class.italic]="tab.preview"
+          >
+            @if (tab.preview) {
+              <lw-icon name="preview" size="1rem" />
+            } @else if (tab.icon) {
+              <lw-icon [name]="tab.icon" size="1rem" />
+            }
+            <span class="min-w-0 truncate">{{ title }}</span>
+
+            <lw-tooltip
+              [text]="
+                tab.preview && escalatable
+                  ? title + ' — ' + ('content.previewHint' | transloco)
+                  : title
+              "
+              position="bottom"
+            />
+          </button>
+
+          @if (tab.pinned) {
+            <span
+              aria-hidden="true"
+              data-testid="tab-unpin"
+              (click)="onUnpin($event, tab)"
+              class="relative mr-1 flex h-6 w-6 cursor-pointer items-center justify-center rounded text-brand opacity-90 transition-colors hover:bg-surface-overlay hover:opacity-100"
+            >
+              <lw-icon name="pin" size="0.85rem" />
+              <lw-tooltip [text]="'content.pinnedHint' | transloco" position="bottom" />
+            </span>
+          } @else if (tab.closable) {
+            <span
+              aria-hidden="true"
+              data-testid="tab-close"
+              (click)="onClose($event, tab)"
+              class="lw-icon-btn mr-1 h-6 w-6 cursor-pointer opacity-70 hover:opacity-100"
+            >
+              <lw-icon name="close" size="0.85rem" />
+              <lw-tooltip [text]="'content.closeTab' | transloco" position="bottom" />
+            </span>
+          }
+        </div>
+      }
+    }
+  </div>
+
+  @if (canAddTab()) {
+    <button
+      type="button"
+      (click)="addTab.emit($event)"
+      class="lw-icon-btn w-8"
+      [class.self-stretch]="icons()"
+      [attr.aria-label]="'content.split.newTab' | transloco"
+      data-testid="pane-add-tab"
+    >
+      <lw-icon name="add" size="1rem" />
+      <lw-tooltip [text]="'content.split.newTab' | transloco" position="bottom" />
+    </button>
+  }
+
+  @if (overflow() && overflowing()) {
+    <button
+      type="button"
+      (click)="openOverflow($event)"
+      class="lw-icon-btn w-8"
+      [class.self-stretch]="icons()"
+      [attr.aria-label]="'content.moreTabs' | transloco"
+    >
+      <lw-icon name="chevronDown" size="1rem" />
+      <lw-tooltip [text]="'content.moreTabs' | transloco" position="bottom" />
+    </button>
+  }
+
+  @if (paneActions(); as actions) {
+    <ng-container [ngTemplateOutlet]="actions" />
+  }
+  @if (activeActions().length) {
+    <div class="flex shrink-0 items-center gap-0.5 border-l border-border px-2">
+      @for (action of activeActions(); track action.id) {
+        <button
+          type="button"
+          (click)="runAction.emit(action)"
+          class="lw-icon-btn h-8 w-8 rounded-md"
+          [attr.aria-label]="action.title | transloco"
+        >
+          <lw-icon [name]="action.icon" size="1rem" />
+          <lw-tooltip [text]="action.title | transloco" position="bottom" />
+        </button>
+      }
+    </div>
+  }
+</div>

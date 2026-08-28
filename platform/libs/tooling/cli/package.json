@@ -1,0 +1,33 @@
+{
+  "name": "@loomweaver/cli",
+  "version": "0.7.1",
+  "description": "LoomWeaver scaffolding CLI: generates weavers, distributions and integrations into any project — no Nx workspace, no LoomWeaver checkout and no AI assistant required.",
+  "keywords": [
+    "loomweaver",
+    "cli",
+    "scaffolding",
+    "codegen",
+    "generator"
+  ],
+  "license": "Apache-2.0",
+  "author": "Norbert Rosenwinkel (https://loomweaver.dev)",
+  "type": "module",
+  "bin": {
+    "loomweaver": "./dist/main.mjs"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "homepage": "https://loomweaver.dev",
+  "bugs": {
+    "url": "https://github.com/yesbert/loomweaver/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yesbert/loomweaver.git",
+    "directory": "platform/libs/tooling/cli"
+  }
+}

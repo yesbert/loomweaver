@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "$id": "LoomWeaverWeaver",
+  "title": "Scaffold an Angular in-process plugin: manifest, surface, rail item, i18n, test",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Plugin id in kebab-case, e.g. 'notes'.",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable name. Defaults to a title-cased id."
+    },
+    "command": {
+      "type": "boolean",
+      "description": "Also scaffold a registered command the weaver can trigger.",
+      "default": false
+    },
+    "shortcut": {
+      "type": "string",
+      "description": "Keyboard chord for the command, e.g. 'mod+shift+k'. Implies --command."
+    },
+    "menu": {
+      "type": "string",
+      "description": "Hook a menu item into a slot, e.g. 'content/tab/context'. Implies --command."
+    },
+    "barItem": {
+      "type": "boolean",
+      "description": "Also add a status-bar button that triggers the command. Implies --command.",
+      "default": false
+    },
+    "settings": {
+      "type": "boolean",
+      "description": "Also scaffold a settings section with signal-backed value owners.",
+      "default": false
+    },
+    "about": {
+      "type": "boolean",
+      "description": "Also scaffold an About dialog that reads ctx.host, plus a bottom rail item.",
+      "default": false
+    },
+    "instanceable": {
+      "type": "boolean",
+      "description": "Dock the surface and give it named saved instances, each with its own view state. Not combinable with --container: named instances exist only for a docked, non-routable surface.",
+      "default": false
+    },
+    "container": {
+      "type": "boolean",
+      "description": "Make the surface a container: a routable tab at '<id>/:id' holding a nested pane tree of child surfaces, which the host draws. Not combinable with --instanceable.",
+      "default": false
+    },
+    "access": {
+      "type": "string",
+      "description": "Auth-gate the surface and rail item: 'authenticated', 'anonymous' or 'role:<name>'."
+    },
+    "spec": {
+      "type": "boolean",
+      "description": "Generate a starter unit test. Use --no-spec to skip it.",
+      "default": true
+    },
+    "projectName": {
+      "type": "string",
+      "description": "Nx project name. Defaults to '<id>-weaver'."
+    },
+    "importPath": {
+      "type": "string",
+      "description": "Import path for the workspace alias. Defaults to the workspace scope plus the project name."
+    },
+    "app": {
+      "type": "string",
+      "description": "Application to drop into. Inferred when the workspace has exactly one."
+    },
+    "directory": {
+      "type": "string",
+      "description": "Project root, relative to the workspace root."
+    },
+    "tags": {
+      "type": "string",
+      "description": "Comma-separated Nx tags for the project."
+    },
+    "prefix": {
+      "type": "string",
+      "description": "Selector prefix for generated components and directives.",
+      "default": "lw",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+    },
+    "unitTestRunner": {
+      "type": "string",
+      "description": "Test wiring to emit. 'vitest' uses @nx/angular:unit-test; 'none' emits no test target.",
+      "enum": ["vitest", "none"],
+      "default": "vitest"
+    }
+  },
+  "required": ["id"]
+}

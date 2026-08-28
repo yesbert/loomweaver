@@ -1,0 +1,9 @@
+<lw-select
+  [attr.label]="'language.label' | transloco"
+  [attr.value]="lang()"
+  (lw-select-change)="onSelect($event)"
+>
+  @for (l of langs; track l.value) {
+    <lw-option [attr.value]="l.value" [attr.icon]="l.flag">{{ l.label }}</lw-option>
+  }
+</lw-select>

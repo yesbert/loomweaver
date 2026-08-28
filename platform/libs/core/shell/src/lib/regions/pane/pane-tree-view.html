@@ -1,0 +1,37 @@
+@if (split(); as s) {
+  <div class="flex min-h-0 min-w-0 flex-1" [class.flex-col]="s.orientation === 'column'">
+    <lw-pane-tree-view [dock]="dock()" [node]="s.first" [primary]="primary()" [paneOptions]="paneOptions()" [parentOrientation]="s.orientation" [class.lw-pane-animate]="!resizing()" [style.flex]="flexFor(firstMinimized(), secondMinimized(), s.ratio, s.orientation)" />
+    @if (!firstMinimized() && !secondMinimized()) {
+      <lw-pane-split-handle
+        [orientation]="s.orientation"
+        [ratio]="s.ratio"
+        [label]="'content.split.resize' | transloco"
+        (ratioStream)="onRatio(s.id, $event)"
+        (ratioCommit)="onRatioCommit()"
+      />
+    }
+    <lw-pane-tree-view [dock]="dock()" [node]="s.second" [primary]="primary()" [paneOptions]="paneOptions()" [parentOrientation]="s.orientation" [class.lw-pane-animate]="!resizing()" [style.flex]="flexFor(secondMinimized(), firstMinimized(), 1 - s.ratio, s.orientation)" />
+  </div>
+} @else if (leaf(); as l) {
+  @if (l.id === primaryPaneId() && primary(); as primaryTpl) {
+    @if (primaryMinimized()) {
+      <lw-pane-minimized-strip class="flex min-h-0 min-w-0 flex-1" [dock]="dock()" [leaf]="l" [orientation]="parentOrientation()" />
+    } @else {
+      <div class="relative flex min-h-0 min-w-0 flex-1">
+        <ng-container
+          [lwRetainedTemplate]="primaryTpl"
+          [retentionKey]="primaryRetentionKey()"
+          [retentionPath]="primaryLeafPath()"
+        />
+        <lw-pane-drop-zones [dock]="dock()" [paneId]="l.id" />
+      </div>
+    }
+  } @else if (minimized()) {
+    <lw-pane-minimized-strip class="flex min-h-0 min-w-0 flex-1" [dock]="dock()" [leaf]="l" [orientation]="parentOrientation()" />
+  } @else {
+    <div class="relative flex min-h-0 min-w-0 flex-1">
+      <lw-pane-view class="min-h-0 min-w-0 flex-1" [dock]="dock()" [leaf]="l" [options]="paneOptions()" />
+      <lw-pane-drop-zones [dock]="dock()" [paneId]="l.id" />
+    </div>
+  }
+}

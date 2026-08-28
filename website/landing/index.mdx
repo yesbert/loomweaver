@@ -1,0 +1,53 @@
+---
+title: LoomWeaver
+description: A domain-agnostic plugin & UI platform — the loom on which products weave.
+template: splash
+hero:
+  tagline: The loom on which products weave. A thin core that can only do plugins — your product is the first plugin bundle.
+  image:
+    file: ../assets/loomweaver-logo-full.png
+  actions:
+    - text: Get started in 5 minutes
+      link: /getting-started/
+      icon: right-arrow
+    - text: Read the architecture
+      link: /architecture/
+      variant: secondary
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## Zero domain logic, on purpose
+
+LoomWeaver gives you a plugin registry, extension points, a default-deny capability broker, a
+theming engine, sandboxing, RPC and a plugin loader — and nothing about your domain. Products run
+as plugin bundles ("weavers") on top of it. The model follows VS&nbsp;Code, Backstage and Eclipse
+Theia: the core stays small because it *cannot* grow domain logic.
+
+<CardGrid stagger>
+  <Card title="One contract for every plugin" icon="puzzle">
+    A weaver consumes one uniform `ctx` from `@loomweaver/plugin-sdk`. First-party and third-party plugins
+    take the same path — there is no privileged host API.
+  </Card>
+  <Card title="Default-deny by construction" icon="approve-check">
+    A plugin gets a capability only if the distribution granted it *and* the plugin declared it.
+    Users can revoke what was granted, and untrusted plugins run in an isolated iframe.
+  </Card>
+  <Card title="Frontend-only platform" icon="laptop">
+    LoomWeaver ships no server. The backend seam is expressed as frontend ports —
+    `SettingsStore` and `AuthSource` — that your own backend implements, in any stack.
+  </Card>
+  <Card title="Your product is a distribution" icon="rocket">
+    A thin app composes `@loomweaver/shell` plus your weavers and brands itself. You never fork the core,
+    the way VSCodium never forks VS&nbsp;Code.
+  </Card>
+</CardGrid>
+
+## Built for AI assistants too
+
+The whole platform is described in two machine-readable briefs: a curated
+[`llms.txt`](/llms.txt) entry point and a single-fetch [`llms-full.txt`](/llms-full.txt) that
+carries the complete contract. The same scaffolding runs three ways: `@loomweaver/cli` from any command
+line, `@loomweaver/devkit` as Nx generators, and `@loomweaver/mcp` as MCP tools — so an assistant in your
+repository can generate a weaver, a distribution or a sandboxed plugin without a LoomWeaver
+checkout.

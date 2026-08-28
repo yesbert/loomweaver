@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "$id": "LoomWeaverSettingsStore",
+  "title": "Scaffold a settings-store implementation backed by your API",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Store name in kebab-case, e.g. 'backend'.",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+    },
+    "app": {
+      "type": "string",
+      "description": "Application to drop into. Inferred when the workspace has exactly one."
+    }
+  },
+  "required": ["name"]
+}

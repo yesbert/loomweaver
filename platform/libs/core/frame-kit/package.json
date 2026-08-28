@@ -1,0 +1,31 @@
+{
+  "name": "@loomweaver/frame-kit",
+  "version": "0.7.1",
+  "description": "LoomWeaver frame UI kit: the whole <lw-*> custom-element family, the compiled .lw-* CSS class contracts and Penpal as static assets. A distribution serves them same-origin under /frame-kit/ so frame plugins paint with the host's primitives and tokens.",
+  "types": "dist/lw-frame.d.ts",
+  "keywords": [
+    "loomweaver",
+    "frame-plugin",
+    "web-components",
+    "custom-elements",
+    "iframe",
+    "design-tokens"
+  ],
+  "license": "Apache-2.0",
+  "author": "Norbert Rosenwinkel (https://loomweaver.dev)",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "homepage": "https://loomweaver.dev",
+  "bugs": {
+    "url": "https://github.com/yesbert/loomweaver/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yesbert/loomweaver.git",
+    "directory": "platform/libs/core/frame-kit"
+  }
+}

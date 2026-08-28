@@ -1,0 +1,78 @@
+<div class="flex max-h-[60vh] w-full flex-col overflow-hidden">
+  <header class="flex items-center gap-2 border-b border-border px-4 py-3">
+    <lw-icon
+      [attr.name]="chrome.icon"
+      size="1.125rem"
+      class="text-content-muted"
+    ></lw-icon>
+    <h2 class="min-w-0 flex-1 truncate text-sm font-semibold text-content">
+      {{ chrome.title | transloco }}
+    </h2>
+  </header>
+
+  <div class="flex items-center gap-2 border-b border-border px-4">
+    <lw-icon name="search" size="1.1rem" class="text-content-muted"></lw-icon>
+    <input
+      data-lw-autofocus
+      type="text"
+      data-testid="curation-search"
+      class="flex-1 bg-transparent py-3 text-sm text-content outline-none placeholder:text-content-faint"
+      [attr.placeholder]="'curation.search' | transloco"
+      [attr.aria-label]="'curation.search' | transloco"
+      [value]="query()"
+      (input)="query.set($any($event.target).value)"
+    />
+  </div>
+
+  <ul class="min-h-0 flex-1 overflow-y-auto p-1" data-testid="curation-list">
+    @for (row of rows(); track row.id) {
+      <li
+        class="flex items-center gap-3 rounded-md px-3 py-2 hover:bg-surface-overlay"
+        [attr.data-curation-row]="row.id"
+      >
+        @if (row.initials) {
+          <span
+            aria-hidden="true"
+            class="lw-rail-initials w-[1.125rem] shrink-0 text-center text-content-muted"
+            >{{ row.initials }}</span
+          >
+        } @else if (row.icon) {
+          <lw-icon
+            [attr.name]="row.icon"
+            size="1.125rem"
+            class="shrink-0 text-content-muted"
+          ></lw-icon>
+        }
+        <span class="min-w-0 flex-1 truncate text-sm">{{ row.label }}</span>
+        <div class="lw-segmented shrink-0">
+          @for (option of places(); track option.id) {
+            <button
+              type="button"
+              class="lw-segmented-item w-auto px-3 text-sm"
+              [attr.data-curation-place]="option.id"
+              [attr.aria-label]="row.label + ': ' + option.label"
+              [attr.aria-pressed]="row.place === option.id"
+              (click)="place(row, option.id)"
+            >
+              {{ option.label }}
+            </button>
+          }
+        </div>
+      </li>
+    } @empty {
+      <li class="px-3 py-6 text-center text-sm text-content-muted">
+        {{ 'curation.empty' | transloco }}
+      </li>
+    }
+  </ul>
+
+  <div
+    data-testid="curation-footer"
+    class="flex items-center border-t border-border px-4 py-2 text-xs text-content-faint"
+  >
+    <span class="ml-auto flex items-center gap-1.5">
+      <kbd class="rounded border border-border px-1 py-0.5">Esc</kbd>
+      {{ 'dialog.close' | transloco }}
+    </span>
+  </div>
+</div>

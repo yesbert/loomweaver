@@ -1,0 +1,84 @@
+<aside
+  class="relative flex h-full shrink-0 flex-col overflow-hidden border-border bg-surface transition-[width] duration-300 ease-out"
+  [class.w-72]="viewport.compact()"
+  [style.width.px]="widthPx()"
+  [style.transition]="size.isResizing() ? 'none' : null"
+  [attr.inert]="collapsed() ? '' : null"
+  [attr.aria-hidden]="collapsed() ? true : null"
+>
+  @if (splitterDock(); as dock) {
+    <lw-panel-splitter [regionId]="region().id" [dock]="dock" />
+  }
+  @if (!collapsed()) {
+    @if (activeView(); as view) {
+
+      <div class="flex items-center gap-1 border-b border-border px-3 py-1.5">
+        @if (view.instanceable && features.instances) {
+          <lw-view-instance-switcher [view]="view" (beforeSwitch)="releaseCarriedInstance()" />
+        } @else {
+          <span class="flex-1 truncate text-xs font-semibold tracking-wide text-content-faint uppercase">
+            {{ view.title | transloco }}
+          </span>
+        }
+        @for (action of actions(); track action.id) {
+          <button
+            type="button"
+            (click)="run(action)"
+            [disabled]="disabled(action)"
+            class="lw-icon-btn h-10 w-10 rounded-md disabled:pointer-events-none disabled:opacity-40 md:h-7 md:w-7"
+            [attr.aria-label]="action.title | transloco"
+          >
+            <lw-icon [name]="action.icon" size="1rem" />
+            <lw-tooltip [text]="action.title | transloco" position="bottom" />
+          </button>
+        }
+      </div>
+    }
+
+    <div class="flex min-h-0 flex-1 flex-col">
+      <lw-pane-tree-view
+        class="min-h-0 flex-1"
+        [dock]="region().id"
+        [node]="tree()"
+        [primary]="activeViewPane"
+        [paneOptions]="panelPaneOptions"
+      />
+    </div>
+
+    <ng-template #activeViewPane>
+      @if (activeView(); as view) {
+        <div class="flex min-h-0 min-w-0 flex-1 flex-col overflow-auto p-3 text-content">
+          @if (view.iframe) {
+            <ng-container
+              [lwRetainedComponent]="iframeComponent"
+              [componentInjector]="dockedInjector(view)"
+              [retentionKey]="viewKeyFor(view)"
+              mode="in-place"
+              [retain]="viewRetains(view)"
+            />
+          } @else if (componentFor(view); as component) {
+            <ng-container
+              [lwRetainedComponent]="component"
+              [componentInjector]="viewInjector(view)"
+              [retentionKey]="viewKeyFor(view)"
+              [retain]="viewRetains(view)"
+            />
+          }
+        </div>
+      } @else if (activeContentPath(); as path) {
+        <lw-content-secondary-pane
+          class="min-h-0 min-w-0 flex-1"
+          [path]="path"
+          variant="panel"
+          [retentionScope]="primaryScope()"
+        />
+      } @else {
+        <div class="min-h-0 min-w-0 flex-1"></div>
+      }
+    </ng-template>
+
+    @for (footer of footers(); track footer.id) {
+      <lw-shell-bar [region]="footer" class="shrink-0" />
+    }
+  }
+</aside>

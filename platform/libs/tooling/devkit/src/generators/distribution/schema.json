@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "$id": "LoomWeaverDistribution",
+  "title": "Scaffold a runnable composition root that boots the shell",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Distribution name in kebab-case, e.g. 'acme-studio'.",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+    },
+    "title": {
+      "type": "string",
+      "description": "Product display title. Defaults to a title-cased name."
+    },
+    "styles": {
+      "type": "string",
+      "description": "Which stylesheet to emit. 'tailwind' compiles the shell's source theme and lets you write Tailwind utilities of your own; 'precompiled' imports the stylesheet we compiled, so the application needs no Tailwind and can be themed with Bootstrap or anything else.",
+      "enum": ["tailwind", "precompiled"],
+      "default": "tailwind"
+    },
+    "force": {
+      "type": "boolean",
+      "description": "Compose into the application already at that path, replacing the bootstrap files this scaffold owns and merging its build targets. Without it an existing project is an error."
+    },
+    "directory": {
+      "type": "string",
+      "description": "Project root, relative to the workspace root."
+    },
+    "tags": {
+      "type": "string",
+      "description": "Comma-separated Nx tags for the project."
+    },
+    "prefix": {
+      "type": "string",
+      "description": "Selector prefix for generated components and directives.",
+      "default": "lw",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+    },
+    "unitTestRunner": {
+      "type": "string",
+      "description": "Test wiring to emit. 'vitest' uses @nx/angular:unit-test; 'none' emits no test target.",
+      "enum": ["vitest", "none"],
+      "default": "vitest"
+    }
+  },
+  "required": ["name"]
+}

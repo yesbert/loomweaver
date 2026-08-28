@@ -1,0 +1,10 @@
+{
+  "tagline": "Test-App der Plattform",
+  "workspace": {
+    "home": "Start",
+    "dashboard": "Dashboard",
+    "review": "Durchsicht",
+    "search": "Suche",
+    "notes": "Notizen"
+  }
+}

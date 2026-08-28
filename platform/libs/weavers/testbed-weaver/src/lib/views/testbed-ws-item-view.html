@@ -1,0 +1,16 @@
+<div data-testid="testbed-ws-item">
+  <p class="text-sm font-semibold text-content">
+    {{ 'testbed.workspace.item' | transloco }}
+    <span data-testid="ws-item-id">{{ itemId }}</span>
+  </p>
+  <p class="mt-1 text-xs text-content-muted">
+    {{ 'testbed.workspace.simId' | transloco: { id: simId } }}
+  </p>
+  <textarea
+    class="lw-field mt-2 h-16 w-full"
+    data-testid="ws-item-note"
+    [value]="note()"
+    (input)="onNote($event)"
+    [attr.aria-label]="'testbed.workspace.item' | transloco"
+  ></textarea>
+</div>

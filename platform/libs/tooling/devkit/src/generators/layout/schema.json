@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "$id": "LoomWeaverLayout",
+  "title": "Scaffold a ShellLayout with the regions a weaver expects",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Layout name. Defaults to a base layout."
+    },
+    "app": {
+      "type": "string",
+      "description": "Application to drop into. Inferred when the workspace has exactly one."
+    }
+  },
+  "required": []
+}

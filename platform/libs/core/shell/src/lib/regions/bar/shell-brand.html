@@ -1,0 +1,5 @@
+<div class="flex min-w-0 items-center gap-2">
+  <img class="block h-7 w-7 shrink-0" [src]="product.logoUrl" alt="" width="28" height="28" />
+  <span class="truncate text-[1.1rem] font-semibold tracking-tight text-brand-text">{{ product.name }}</span>
+  <span class="hidden truncate text-sm text-content-muted sm:inline">{{ product.tagline | transloco }}</span>
+</div>

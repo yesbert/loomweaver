@@ -1,0 +1,29 @@
+<header
+  class="flex items-center gap-2 overflow-hidden border-border bg-surface px-2 md:px-4"
+  [class.border-b]="dock() === 'top'"
+  [class.h-12]="dock() === 'top'"
+  [class.border-t]="dock() === 'bottom' || footer()"
+  [class.py-1]="dock() === 'bottom' || footer()"
+  [class.text-xs]="dock() === 'bottom'"
+  [class.text-content-muted]="dock() === 'bottom'"
+>
+  <div class="flex min-w-0 items-center gap-2">
+    @for (item of startItems(); track item.id) {
+      <lw-shell-bar-item [item]="item" [dock]="dock()" />
+    }
+  </div>
+
+  @if (centerItems().length) {
+    <div class="mx-auto flex shrink-0 items-center gap-2">
+      @for (item of centerItems(); track item.id) {
+        <lw-shell-bar-item [item]="item" [dock]="dock()" />
+      }
+    </div>
+  }
+
+  <div class="ml-auto flex shrink-0 items-center gap-2">
+    @for (item of endItems(); track item.id) {
+      <lw-shell-bar-item [item]="item" [dock]="dock()" />
+    }
+  </div>
+</header>

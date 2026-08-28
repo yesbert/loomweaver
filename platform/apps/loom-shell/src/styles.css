@@ -1,0 +1,6 @@
+@import 'tailwindcss';
+@import '../../../libs/core/shell/src/lib/styles/theme.css';
+
+@plugin '@tailwindcss/typography';
+
+@source '../../../libs/core/shell/src';

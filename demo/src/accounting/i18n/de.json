@@ -1,0 +1,27 @@
+{
+  "article": {
+    "consulting": "Beratung",
+    "development": "Softwareentwicklung",
+    "workshop": "Workshop vor Ort",
+    "hosting": "Managed Hosting",
+    "support": "Supportvertrag",
+    "handbook": "Gedrucktes Handbuch"
+  },
+  "unit": {
+    "hour": "Std.",
+    "day": "Tage",
+    "piece": "Stk.",
+    "month": "Mon."
+  },
+  "totals": {
+    "net": "Netto",
+    "vat": "USt. {{rate}} %",
+    "gross": "Gesamt"
+  },
+  "customer": {
+    "number": "Kundennr.",
+    "vatId": "USt-IdNr.",
+    "terms": "Zahlungsziel",
+    "termsDays": "{{days}} Tage netto"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "name": "plugin-sdk",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/core/plugin-sdk/src",
+  "projectType": "library",
+  "tags": ["scope:platform", "type:contract"],
+  "targets": {
+    "lint": {
+      "inputs": [
+        "default",
+        "^default",
+        "{workspaceRoot}/.eslintrc.json",
+        "{workspaceRoot}/.eslintignore",
+        "{workspaceRoot}/eslint.config.mjs",
+        "{workspaceRoot}/tools/eslint-rules/**/*",
+        {
+          "externalDependencies": ["eslint"]
+        }
+      ]
+    },
+    "package": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/core/plugin-sdk",
+        "main": "libs/core/plugin-sdk/src/index.ts",
+        "tsConfig": "libs/core/plugin-sdk/tsconfig.lib.json",
+        "assets": ["libs/core/plugin-sdk/*.md"]
+      }
+    },
+    "test": {
+      "options": {
+        "config": "./vite.config.mts"
+      },
+      "configurations": {
+        "ci": {
+          "mode": "coverage"
+        }
+      }
+    }
+  }
+}

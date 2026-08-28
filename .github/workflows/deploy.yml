@@ -1,0 +1,149 @@
+# Deploy loomweaver.dev: the documentation site to the domain root, the demo to its subdomain.
+#
+# Runs on merges to main that touch the documentation, the site or the demo, and can be started by
+# hand. Never on a pull request: it holds a deploy key, and a fork's run gets no secrets — which is
+# exactly the protection that makes a public repository safe to run.
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - docs/**
+      - website/**
+      - demo/**
+      - llms.txt
+      - llms-full.txt
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-loomweaver-dev
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Build and deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Holds the deploy key and a required reviewer, so neither an accident nor a compromised
+    # dependency ships unattended.
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Prepare the deploy key
+        env:
+          DEPLOY_KEY_B64: ${{ secrets.DEPLOY_SSH_KEY_B64 }}
+          DEPLOY_KNOWN_HOSTS: ${{ vars.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          echo "$DEPLOY_KEY_B64" | base64 -d > ~/.ssh/loomweaver_deploy
+          chmod 600 ~/.ssh/loomweaver_deploy
+          echo "$DEPLOY_KNOWN_HOSTS" >> ~/.ssh/known_hosts
+
+      - name: Build the documentation site
+        working-directory: website
+        run: |
+          set -euo pipefail
+          npm install
+          npm run build
+
+      # The demo installs the published packages from the public registry, exactly as a consumer
+      # would. That is the point of deploying it: it shows what somebody else would get, not what
+      # this repository happens to have on disk.
+      - name: Build the demo
+        working-directory: demo
+        run: |
+          set -euo pipefail
+          npm install
+          npm run build
+
+      # Plesk serves these directories with Apache, so the SPA fallback and the cache headers are
+      # .htaccess files rather than server configuration. Hashed assets are immutable; anything the
+      # service worker compares against must revalidate, or a new version is never seen.
+      - name: Add the SPA fallback and cache headers
+        run: |
+          set -euo pipefail
+          cat > demo/dist/loomweaver-demo/browser/.htaccess <<'HTACCESS'
+          RewriteEngine On
+          RewriteCond %{REQUEST_FILENAME} !-f
+          RewriteCond %{REQUEST_FILENAME} !-d
+          RewriteRule ^ index.html [L]
+          <IfModule mod_headers.c>
+            <FilesMatch "-[A-Z0-9]{8}\.(js|css)$">
+              Header set Cache-Control "public, max-age=31536000, immutable"
+            </FilesMatch>
+            <FilesMatch "\.(html|json|webmanifest)$">
+              Header set Cache-Control "no-cache"
+            </FilesMatch>
+            <FilesMatch "^ngsw-worker\.js$">
+              Header set Cache-Control "no-cache"
+            </FilesMatch>
+          </IfModule>
+          HTACCESS
+          cat > demo/dist/loomweaver-demo/browser/api/.htaccess <<'HTACCESS'
+          <IfModule mod_headers.c>
+            Header set Access-Control-Allow-Origin "*"
+          </IfModule>
+          HTACCESS
+          cat > website/dist/.htaccess <<'HTACCESS'
+          <IfModule mod_headers.c>
+            <FilesMatch "\.(html|json|txt|xml)$">
+              Header set Cache-Control "no-cache"
+            </FilesMatch>
+          </IfModule>
+          HTACCESS
+          cat > website/dist/_astro/.htaccess <<'HTACCESS'
+          <IfModule mod_headers.c>
+            <FilesMatch "\.(js|css|woff2?)$">
+              Header set Cache-Control "public, max-age=31536000, immutable"
+            </FilesMatch>
+          </IfModule>
+          HTACCESS
+
+      - name: Deploy
+        env:
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+        run: |
+          set -euo pipefail
+          rsync -az --delete -e 'ssh -i ~/.ssh/loomweaver_deploy' \
+            website/dist/ "${DEPLOY_USER}@${DEPLOY_HOST}:httpdocs/"
+          rsync -az --delete -e 'ssh -i ~/.ssh/loomweaver_deploy' \
+            demo/dist/loomweaver-demo/browser/ "${DEPLOY_USER}@${DEPLOY_HOST}:demo.loomweaver.dev/"
+
+      # A deploy that reports success while the site is broken is worse than one that fails, so this
+      # asks the live domains rather than trusting the upload.
+      - name: Check what is actually served
+        run: |
+          set -euo pipefail
+          contains() {
+            local body
+            body=$(curl -fsS "$1")
+            printf '%s' "$body" | grep -qi -- "$2" || { echo "$3"; exit 1; }
+          }
+          header_has() {
+            local headers
+            headers=$(curl -fsSI "$1")
+            printf '%s' "$headers" | grep -qi -- "$2" || { echo "$3"; exit 1; }
+          }
+          contains https://loomweaver.dev/ loomweaver "the docs site does not mention itself"
+          contains https://demo.loomweaver.dev/ '<script' "the demo served no application bundle"
+          code=$(curl -s -o /dev/null -w '%{http_code}' https://demo.loomweaver.dev/some/deep/link)
+          [ "$code" = "200" ] || { echo "the SPA fallback is missing — deep links answer $code"; exit 1; }
+          for url in https://loomweaver.dev/ https://demo.loomweaver.dev/; do
+            header_has "$url" 'cache-control: no-cache' "no-cache header missing on $url"
+          done
+          header_has https://demo.loomweaver.dev/ngsw.json 'cache-control: no-cache' \
+            "ngsw.json is cacheable — the service worker would never see a new version"
+          header_has https://demo.loomweaver.dev/api/open-items.json 'access-control-allow-origin: \*' \
+            "the demo's data refuses cross-origin reads — the isolated plugin cannot fetch it"
+          echo "Both domains answer, deep links resolve, and the files that must not go stale revalidate."

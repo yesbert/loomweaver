@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.astro/
+
+# Written by `npm run sync` from the repo's docs/, llms*.txt and assets/brand.
+# The markdown under docs/ is the single source; never edit these copies.
+generated/
+public/

@@ -1,0 +1,6 @@
+@import 'tailwindcss' source(none);
+@plugin '@tailwindcss/typography';
+
+@source '../..';
+
+@import './theme.css';

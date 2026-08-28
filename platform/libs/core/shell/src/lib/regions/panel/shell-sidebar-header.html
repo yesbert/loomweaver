@@ -1,0 +1,65 @@
+@if (showHamburger()) {
+
+  <div
+    class="flex h-12 w-10 shrink-0 items-center justify-center border-b border-border bg-surface"
+  >
+    <button
+      type="button"
+      (click)="open()"
+      class="lw-icon-btn h-9 w-9 rounded-md"
+      [attr.aria-label]="'panel.open' | transloco"
+    >
+      <lw-icon name="menu" size="1rem" />
+      <lw-tooltip [text]="'panel.open' | transloco" position="bottom" />
+    </button>
+  </div>
+} @else if (showExpand()) {
+
+  <div
+    class="flex h-12 items-center overflow-hidden border-b border-border bg-surface px-1.5"
+  >
+    <button
+      type="button"
+      (click)="expand()"
+      class="lw-icon-btn h-7 w-7 rounded-md"
+      [attr.aria-label]="'panel.expand' | transloco"
+    >
+      <lw-icon [name]="expandIcon()" size="1rem" />
+      <lw-tooltip [text]="'panel.expand' | transloco" position="bottom" />
+    </button>
+  </div>
+} @else if (!collapsed()) {
+
+  <lw-pane-tab-strip
+    class="block h-12"
+    [id]="hostId()"
+    variant="icons"
+    [tabs]="stripTabs()"
+    [activeId]="activeTabPath()"
+    [source]="source()"
+    [reorderable]="viewsReorderable"
+    [draggable]="viewsDraggable"
+    [acceptsTabs]="acceptsTab"
+    [viewContextMenuSlot]="viewContextMenu"
+    [contextGroup]="region().id"
+    [overflow]="true"
+    [paneActions]="trailing"
+    (selectTab)="select($event)"
+    (reorderTabs)="onReorder($event)"
+    (keydown)="onStripKeydown($event)"
+    [lwContextMenu]="stripMenu"
+  />
+  <ng-template #trailing>
+    @if (canCollapse()) {
+    <button
+      type="button"
+      (click)="trailingAction()"
+      class="lw-icon-btn h-10 w-10 self-center rounded-md md:h-7 md:w-7"
+      [attr.aria-label]="(viewport.compact() ? 'panel.close' : 'panel.collapse') | transloco"
+    >
+      <lw-icon [name]="viewport.compact() ? 'close' : collapseIcon()" size="1rem" />
+      <lw-tooltip [text]="(viewport.compact() ? 'panel.close' : 'panel.collapse') | transloco" position="bottom" />
+    </button>
+    }
+  </ng-template>
+}

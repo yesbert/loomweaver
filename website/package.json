@@ -1,0 +1,23 @@
+{
+  "name": "loomweaver-website",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sync": "node tools/sync-docs.mjs",
+    "lint": "eslint .",
+    "predev": "npm run sync",
+    "dev": "astro dev",
+    "prebuild": "npm run sync",
+    "build": "astro build",
+    "preview": "astro preview",
+    "licence-check": "node tools/check-licences.mjs"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "^0.41.7",
+    "astro": "^7.1.6"
+  },
+  "devDependencies": {
+    "eslint": "^10.9.1",
+    "typescript-eslint": "^8.68.0"
+  }
+}

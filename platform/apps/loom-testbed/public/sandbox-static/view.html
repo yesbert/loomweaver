@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sandbox info</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+      }
+      body {
+        margin: 0;
+        padding: 2.5rem;
+        font-family: var(--lw-font-sans, system-ui, -apple-system, 'Segoe UI', sans-serif);
+        line-height: 1.6;
+        color: var(--lw-content, #0f172a);
+        background: var(--lw-surface, #ffffff);
+        color-scheme: light;
+      }
+      .badge {
+        display: inline-block;
+        padding: 0.25rem 0.6rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #2a2000;
+        background: #c59a2f;
+      }
+      h1 {
+        margin: 0.75rem 0 0.5rem;
+        font-size: 1.5rem;
+      }
+      code {
+        padding: 0.1rem 0.35rem;
+        border-radius: 4px;
+        background: rgba(197, 154, 47, 0.15);
+        font-size: 0.9em;
+      }
+      body.dark {
+        color-scheme: dark;
+      }
+    </style>
+  </head>
+  <body>
+    <span class="badge">sandboxed · static tab</span>
+    <h1>A static, non-closable tab 📌</h1>
+    <p>
+      This is a <strong>second</strong> sandboxed plugin. It registered its content route with
+      <code>tab: {…}</code>, so the host shows it in the Dashboard strip <strong>from the start</strong> —
+      next to Overview | Trends | Export — and it has <strong>no close button</strong>, exactly like a
+      first-party static tab.
+    </p>
+    <p>
+      The other frame plugin (the blue one) instead opens as a <em>dynamic</em>, closable tab on demand.
+      Same isolation (its own <code>&lt;iframe sandbox&gt;</code> + Penpal RPC), different tab lifecycle —
+      the plugin chooses by declaring <code>tab</code> (static) or not (dynamic, opened via
+      <code>openContentTab</code>).
+    </p>
+    <h2>It owns everything below its prefix</h2>
+    <p>
+      It also declared <code>rest: true</code>, so every deeper address under <code>sandbox-static</code>
+      belongs to it and arrives here verbatim — query string included. The prefix stays the tab root, so
+      all of this is <strong>one</strong> tab.
+    </p>
+    <p>The rest right now: <code id="rest">(none)</code></p>
+    <p>
+      <button type="button" class="lw-btn lw-btn--default" id="go-deep">Go deeper</button>
+      <button type="button" class="lw-btn lw-btn--default" id="go-query">Deeper, with a query</button>
+      <button type="button" class="lw-btn lw-btn--ghost" id="go-root">Back to the prefix</button>
+    </p>
+    <script src="/frame-kit/penpal.global.js"></script>
+    <script src="/frame-kit/lw-elements.global.js"></script>
+    <script src="./view.js"></script>
+  </body>
+</html>

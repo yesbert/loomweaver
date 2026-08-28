@@ -1,0 +1,50 @@
+{
+  "name": "devkit",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/tooling/devkit/src",
+  "projectType": "library",
+  "tags": ["scope:tooling", "type:tool"],
+  "targets": {
+    "package": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/tooling/devkit",
+        "main": "libs/tooling/devkit/src/index.ts",
+        "tsConfig": "libs/tooling/devkit/tsconfig.lib.json",
+        "assets": [
+          "libs/tooling/devkit/*.md",
+          "libs/tooling/devkit/generators.json",
+          {
+            "glob": "**/schema.json",
+            "input": "libs/tooling/devkit/src",
+            "output": "src"
+          }
+        ]
+      }
+    },
+    "test": {
+      "options": {
+        "config": "./vite.config.mts"
+      },
+      "configurations": {
+        "ci": {
+          "mode": "coverage"
+        }
+      }
+    },
+    "lint": {
+      "inputs": [
+        "default",
+        "^default",
+        "{workspaceRoot}/.eslintrc.json",
+        "{workspaceRoot}/.eslintignore",
+        "{workspaceRoot}/eslint.config.mjs",
+        "{workspaceRoot}/tools/eslint-rules/**/*",
+        {
+          "externalDependencies": ["eslint"]
+        }
+      ]
+    }
+  }
+}

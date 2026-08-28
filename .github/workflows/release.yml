@@ -1,0 +1,132 @@
+# Publish the seven packages to npm. Version tags only.
+#
+# The tag is the deliberate "release this" signal: create it with scripts/bump-version.sh, which
+# stamps Directory.Build.props and every manifest, then push it. A push to a branch never publishes.
+#
+# No npm token is stored anywhere. The job authenticates to npm over OIDC (trusted publishing),
+# which also gives every package a provenance attestation a consumer can verify. Configure it once
+# per package on npmjs.com, naming this repository and this workflow file.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # A human confirms before anything reaches the registry. A published version cannot be taken
+    # back, so this is the one place where a required reviewer is worth the friction.
+    environment: release
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          registry-url: https://registry.npmjs.org
+          cache: npm
+          cache-dependency-path: platform/package-lock.json
+
+      # Trusted publishing needs npm 11.5.1 or newer. Node 24 ships an older 11.x on some images.
+      - name: Use an npm that can publish over OIDC
+        run: npm install -g npm@latest
+
+      # The tag is the version, and the working tree has to agree with it. A tag that disagrees with
+      # Directory.Build.props means the bump and the tag drifted apart, and publishing either of them
+      # would be a guess.
+      - name: Resolve and verify the version
+        id: version
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_REF#refs/tags/v}"
+          props="$(sed -n 's/.*<Version>\([^<]*\)<\/Version>.*/\1/p' Directory.Build.props)"
+          if [[ "${tag}" != "${props}" ]]; then
+            echo "Tag v${tag} disagrees with Directory.Build.props <Version>${props}</Version>." >&2
+            echo "Bump with scripts/bump-version.sh so the tag and the manifests match, then re-tag." >&2
+            exit 1
+          fi
+          echo "value=${tag}" >> "$GITHUB_OUTPUT"
+          echo "Publishing version ${tag}"
+
+      - name: Install dependencies
+        working-directory: platform
+        run: npm install
+
+      # Separately and in order, not with run-many: co-building parallelises Nx' buildable-lib path
+      # rewriting, which breaks ng-packagr's resolution of the SDK from the shell.
+      - name: Pack the libraries
+        working-directory: platform
+        run: |
+          set -euo pipefail
+          npx nx package plugin-sdk
+          npx nx package shell
+          npx nx run shell:styles
+          npx nx package devkit
+          npx nx package ag-ui
+
+      # Four packages publish from platform/dist; three publish from their source directory with a
+      # bundled dist, so their own manifests are the ones that get stamped.
+      - name: Stamp the version into every manifest
+        env:
+          PKG_VERSION: ${{ steps.version.outputs.value }}
+        run: |
+          node -e '
+            const fs = require("fs");
+            const v = process.env.PKG_VERSION;
+            const stamp = (path, mut) => {
+              const p = JSON.parse(fs.readFileSync(path, "utf8"));
+              mut(p);
+              fs.writeFileSync(path, JSON.stringify(p, null, 2) + "\n");
+            };
+            stamp("platform/dist/libs/core/plugin-sdk/package.json", p => { p.version = v; });
+            stamp("platform/dist/libs/core/shell/package.json", p => {
+              p.version = v;
+              p.peerDependencies["@loomweaver/plugin-sdk"] = v;
+            });
+            stamp("platform/dist/libs/tooling/devkit/package.json", p => { p.version = v; });
+            stamp("platform/dist/libs/integrations/ag-ui/package.json", p => {
+              p.version = v;
+              p.peerDependencies["@loomweaver/plugin-sdk"] = v;
+            });
+            stamp("platform/libs/tooling/mcp/package.json", p => { p.version = v; });
+            stamp("platform/libs/tooling/cli/package.json", p => { p.version = v; });
+            stamp("platform/libs/core/frame-kit/package.json", p => { p.version = v; });
+          '
+
+      # Bundled after stamping, so the version baked into each bundle is the released one.
+      - name: Bundle the three that publish from source
+        working-directory: platform
+        run: |
+          set -euo pipefail
+          npx nx bundle frame-kit --skip-nx-cache
+          npx nx bundle mcp --skip-nx-cache
+          npx nx bundle cli --skip-nx-cache
+
+      - name: Publish
+        run: |
+          set -euo pipefail
+          for dir in \
+            platform/dist/libs/core/plugin-sdk \
+            platform/dist/libs/core/shell \
+            platform/dist/libs/tooling/devkit \
+            platform/dist/libs/integrations/ag-ui \
+            platform/libs/tooling/mcp \
+            platform/libs/tooling/cli \
+            platform/libs/core/frame-kit
+          do
+            echo "publishing ${dir}"
+            ( cd "${dir}" && npm publish )
+          done

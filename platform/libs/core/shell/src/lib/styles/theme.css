@@ -1,0 +1,709 @@
+/* LoomWeaver design tokens (seed of the primitive → semantic token system, see design doc).
+   Semantic Tailwind colors map onto the --lw-* ladder; :root / :root.dark flip the ladder.
+   Components use ONLY semantic tokens (bg-surface, text-content, text-brand …), never raw hex.
+   ThemeService toggles the `dark` class on <html> (light / dark / system).
+   Shared by every distribution — imported from each app's styles.css. */
+
+/* Token precedence: later layer wins → Product default < Plugin < Tenant. Product tokens
+   live in lw-base; ctx.contributeTheme injects into lw-plugin-theme; a tenant/distribution theme uses
+   lw-tenant-theme. Declared here so runtime-injected styles slot in by layer, not by source order. */
+@layer lw-base, lw-plugin-theme, lw-tenant-theme;
+
+@theme inline {
+  --color-brand: var(--lw-brand);
+  --color-brand-strong: var(--lw-brand-strong);
+  --color-brand-text: var(--lw-brand-text);
+  --color-brand-fill: var(--lw-brand-fill);
+  --color-on-brand: var(--lw-on-brand);
+  --color-accent: var(--lw-accent);
+  --color-accent-strong: var(--lw-accent-strong);
+
+  --color-surface: var(--lw-surface);
+  --color-surface-raised: var(--lw-surface-raised);
+  --color-surface-overlay: var(--lw-surface-overlay);
+  --color-field: var(--lw-field);
+  --color-border: var(--lw-border);
+
+  --color-content: var(--lw-content);
+  --color-content-muted: var(--lw-content-muted);
+  --color-content-faint: var(--lw-content-faint);
+
+  --color-tooltip: var(--lw-tooltip);
+  --color-tooltip-content: var(--lw-tooltip-content);
+
+  --color-positive: var(--lw-positive);
+  --color-on-positive: var(--lw-on-positive);
+  --color-negative: var(--lw-negative);
+  --color-negative-fill: var(--lw-negative-fill);
+  --color-on-negative: var(--lw-on-negative);
+  --color-caution: var(--lw-caution);
+  --color-on-caution: var(--lw-on-caution);
+  --color-info: var(--lw-info);
+  --color-on-info: var(--lw-on-info);
+
+  --color-scrim: var(--lw-scrim);
+
+  --font-sans: var(--lw-font-sans);
+  --font-mono: var(--lw-font-mono);
+}
+
+/* Tailwind Typography (`prose`) mapped onto our tokens — used by <lw-markdown>. Because the
+   --lw-* ladder flips in :root.dark, prose adopts dark mode automatically (no prose-invert). */
+@utility prose-lw {
+  --tw-prose-body: var(--lw-content);
+  --tw-prose-headings: var(--lw-content);
+  --tw-prose-lead: var(--lw-content-muted);
+  --tw-prose-links: var(--lw-brand);
+  --tw-prose-bold: var(--lw-content);
+  --tw-prose-counters: var(--lw-content-muted);
+  --tw-prose-bullets: var(--lw-border);
+  --tw-prose-hr: var(--lw-border);
+  --tw-prose-quotes: var(--lw-content);
+  --tw-prose-quote-borders: var(--lw-border);
+  --tw-prose-captions: var(--lw-content-muted);
+  --tw-prose-code: var(--lw-content);
+  --tw-prose-pre-code: var(--lw-content);
+  --tw-prose-pre-bg: var(--lw-surface-overlay);
+  --tw-prose-th-borders: var(--lw-border);
+  --tw-prose-td-borders: var(--lw-border);
+}
+
+@layer lw-base {
+/* Light (default) — brand = LoomWeaver blue, accent = gold. */
+:root {
+  color-scheme: light;
+
+  --lw-brand: #2e96c9;
+  --lw-brand-strong: #2680b0;
+  /* Brand blue used as *text*: a deeper shade so it stays WCAG AA (>=4.5:1) on light surfaces.
+     The #2e96c9 brand stays for the logo, fills, borders and icons (non-text, 3:1). */
+  --lw-brand-text: #256f92;
+  /* Brand blue used as a *filled* surface with on-brand text (e.g. the primary button): a deeper
+     shade so white label text stays WCAG AA. The #2e96c9 brand stays as the identity colour. */
+  --lw-brand-fill: #1d7099;
+  --lw-on-brand: #ffffff;
+  --lw-accent: #c59a2f;
+  --lw-accent-strong: #a8821f;
+
+  --lw-surface: #f7f9fb;
+  --lw-surface-raised: #ffffff;
+  --lw-surface-overlay: #eef2f6;
+  --lw-field: #ffffff;
+  --lw-border: #e2e8f0;
+
+  --lw-content: #1f2933;
+  --lw-content-muted: #5b6b7a;
+  /* faint stays WCAG AA (>=4.5:1) on surface/raised/overlay — verified by the a11y E2E net. */
+  --lw-content-faint: #5f7082;
+
+  --lw-tooltip: #2b3542;
+  --lw-tooltip-content: #f7f9fb;
+
+  /* Status fills carry on-* label text (buttons) and double as icon colours. Depths are tuned so
+     the filled variant's label clears WCAG AA (>=4.5:1) — verified by the a11y token audit. */
+  --lw-positive: #1f7a43;
+  --lw-on-positive: #ffffff;
+  --lw-negative: #d14343;
+  /* Danger *button* fill: deeper than --lw-negative so white text stays AA even on hover; the
+     lighter --lw-negative remains the error-text/icon colour (which needs surface contrast). */
+  --lw-negative-fill: #c62d2d;
+  --lw-on-negative: #ffffff;
+  --lw-caution: #b8841f;
+  /* Near-black on-caution so the warning button's label clears AA on the gold fill (which itself
+     stays #b8841f so the caution icon keeps 3:1 on light surfaces). */
+  --lw-on-caution: #0f1419;
+  --lw-info: #1d7099;
+  --lw-on-info: #ffffff;
+
+  /* Modal/drawer backdrop — semi-transparent, so it adapts if a tenant retints. */
+  --lw-scrim: rgb(0 0 0 / 0.4);
+
+  /* Typography — themeable via ctx.contributeTheme / tenant CSS. Font family is a brand
+     lever, so it lives on :root (both schemes) and rarely differs light/dark. Font *size* is a user
+     preference (the shell text-size setting), not a theme token. */
+  --lw-font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --lw-font-mono: ui-monospace, 'SF Mono', 'Cascadia Code', 'Roboto Mono', monospace;
+}
+
+/* Dark — surfaces in cool near-black, lighter blue brand so it stays legible. */
+:root.dark {
+  color-scheme: dark;
+
+  --lw-brand: #4aa9d6;
+  --lw-brand-strong: #6cbce0;
+  /* On dark surfaces the brand blue already clears AA as text/fill, so both mirror the brand. */
+  --lw-brand-text: #4aa9d6;
+  --lw-brand-fill: #4aa9d6;
+  --lw-on-brand: #0f1419;
+  --lw-accent: #d9b250;
+  --lw-accent-strong: #e6c878;
+
+  --lw-surface: #14191f;
+  --lw-surface-raised: #1b222a;
+  --lw-surface-overlay: #232c36;
+  --lw-field: #1b222a;
+  --lw-border: #2d3743;
+
+  --lw-content: #e6edf3;
+  --lw-content-muted: #9aa7b4;
+  /* faint stays WCAG AA (>=4.5:1) on dark surface/raised/overlay — verified by the a11y E2E net. */
+  --lw-content-faint: #8695a4;
+
+  --lw-tooltip: #e6edf3;
+  --lw-tooltip-content: #14191f;
+
+  --lw-positive: #46c178;
+  --lw-on-positive: #0f1419;
+  --lw-negative: #e06464;
+  /* Danger button fill: deeper than the lighter --lw-negative (which stays the error-text colour,
+     needing contrast against the dark surface) so white button text clears AA. */
+  --lw-negative-fill: #c62d2d;
+  --lw-on-negative: #ffffff;
+  --lw-caution: #d9b250;
+  --lw-on-caution: #14191f;
+  --lw-info: #4aa9d6;
+  --lw-on-info: #0f1419;
+
+  /* Darker on the near-black dark surfaces so the backdrop still reads. */
+  --lw-scrim: rgb(0 0 0 / 0.6);
+}
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   `.lw-btn` — the host button as a CSS-class contract.
+   The button LOOK lives here (one source of truth); the `LwButton` Angular directive
+   is just a thin wrapper that emits these class names. SDK-only plugins (scope:weaver)
+   cannot import the directive across the Nx boundary, but they MAY consume the look via
+   these class names — `<button class="lw-btn lw-btn--primary">` — because a CSS class is
+   contract, not code. This is the general pattern for host `<lw-*>` primitives that plugins
+   should be able to reuse. Uses only semantic tokens, so it adopts any theme/tenant override.
+   Keep the modifier names in sync with LwButtonVariant / LwButtonSize in @loomweaver/plugin-sdk. */
+@layer components {
+  .lw-btn {
+    @apply inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md font-medium
+      transition-colors focus-visible:outline-2 focus-visible:outline-offset-2
+      focus-visible:outline-brand;
+    /* md is the DEFAULT size, baked into the base — so `lw-btn lw-btn--<variant>` alone is a
+       correctly-sized button and a plugin author can't forget a size. `lw-btn--sm` overrides. */
+    @apply h-9 px-3 text-sm;
+  }
+  .lw-btn:disabled,
+  .lw-btn[aria-disabled='true'] {
+    @apply pointer-events-none opacity-50;
+  }
+
+  /* variants (visual weight) */
+  .lw-btn--primary {
+    @apply bg-brand-fill text-on-brand hover:opacity-90;
+  }
+  .lw-btn--default {
+    @apply border border-border bg-surface-raised text-content hover:bg-surface-overlay;
+  }
+  .lw-btn--success {
+    @apply bg-positive text-on-positive hover:opacity-90;
+  }
+  .lw-btn--danger {
+    @apply bg-negative-fill text-on-negative hover:opacity-90;
+  }
+  .lw-btn--warning {
+    @apply bg-caution text-on-caution hover:opacity-90;
+  }
+  .lw-btn--info {
+    @apply bg-info text-on-info hover:opacity-90;
+  }
+  .lw-btn--ghost {
+    @apply text-content-muted hover:bg-surface-overlay hover:text-content;
+  }
+
+  /* smaller size — overrides the base (md) geometry */
+  .lw-btn--sm {
+    @apply h-7 px-2 text-xs;
+  }
+
+  /* icon-only: square (width follows the size's height via aspect-ratio), no horizontal
+     padding. Declared AFTER the sizes so its px-0 wins over the size's padding. */
+  .lw-btn--icon {
+    @apply aspect-square px-0;
+  }
+
+  /* `.lw-icon-btn` — the quiet chrome icon-button core shared by every host toolbar/strip control
+     (pane toolbar, tab-strip trailing controls, sidebar header, panel actions). Size and radius stay
+     per-site utilities (`h-6 w-6`, `rounded-md`, …); tone/hover live here once. */
+  .lw-icon-btn {
+    @apply relative flex shrink-0 items-center justify-center rounded text-content-faint transition-colors hover:bg-surface-overlay hover:text-content;
+  }
+
+  /* `.lw-rail-initials` — one or two letters drawn where a rail item would draw its icon, for an entry
+     the user named (a saved workspace). Sized and weighted to sit beside 16px outline icons of stroke
+     width 1.5 without shouting: measured against the neighbouring icons at 3x, weight 500 read visibly
+     heavier than their strokes, so the badge is normal weight. Colour is
+     inherited, so hover and the active state behave exactly as they do for an icon. Uses the app font
+     token, so a product that changes its typeface takes the badge with it. */
+  .lw-rail-initials {
+    @apply select-none font-sans text-[0.75rem] leading-none font-normal tracking-tight uppercase;
+  }
+
+  /* `.lw-segmented` — a segmented single-choice control (theme mode, text size) as a CSS-class contract
+     (like `.lw-btn`): a native `<fieldset>` of native `<button>`s, so semantics and
+     keyboard come for free. Put `.lw-segmented-item` on each button and drive the selected look from its
+     `aria-pressed` — the accessible state IS the styling hook, so the two can never drift apart.
+     `h-8.5` is the shared bar-control height: `.lw-segmented` and `.lw-select-trigger` pin the same
+     utility so controls sitting side by side in a bar can never drift apart in height. */
+  .lw-segmented {
+    @apply m-0 inline-flex h-8.5 items-center gap-0.5 rounded-md border border-border bg-surface-overlay p-0.5;
+  }
+
+  .lw-segmented-item {
+    @apply relative flex h-7 w-7 items-center justify-center rounded text-content-muted transition-colors hover:text-content;
+  }
+
+  .lw-segmented-item[aria-pressed='true'] {
+    @apply bg-surface-raised text-brand shadow-sm;
+  }
+
+  /* `.lw-field` — the host text-input/textarea look as a CSS-class contract (like
+     `.lw-btn`): put it on a NATIVE `<input>` / `<textarea>` / `<input type="date">` and it themes via the
+     `--lw-*` tokens (mandant-/theme-reactive for free). A native control already carries full semantics,
+     keyboard and a11y, so — unlike `<lw-select>`/`<lw-button>` which wrap non-native elements — a text field
+     needs only styling, not a wrapping web component. Works in an Angular weaver body and (tokens permitting)
+     a sandboxed surface alike. `.lw-field--invalid` marks a validation error. */
+  .lw-field {
+    @apply block w-full rounded-md border border-border bg-field px-3 py-2 text-sm text-content
+      placeholder:text-content-faint transition-colors
+      focus-visible:border-brand focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-brand
+      disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .lw-field--invalid {
+    @apply border-negative focus-visible:border-negative focus-visible:outline-negative;
+  }
+  textarea.lw-field {
+    @apply min-h-20 resize-y;
+  }
+
+  /* `.lw-checkbox` — the host checkbox look on a NATIVE `<input type="checkbox">` (class contract, like
+     `.lw-field`): `accent-color` themes the native tick/fill with the brand, keeping full native semantics
+     and a11y. Just styling, no wrapper WC (WC tranche ①). */
+  .lw-checkbox {
+    @apply h-4 w-4 shrink-0 cursor-pointer;
+    accent-color: var(--lw-brand);
+  }
+  .lw-checkbox:disabled {
+    @apply cursor-not-allowed opacity-60;
+  }
+
+  /* `.lw-progress` — a determinate progress BAR on a NATIVE `<progress value max>` (class contract, WC tranche
+     ②): native `role="progressbar"` + a11y for free; only the fill/track need theming via the vendor pseudo-
+     elements. For a circular ring use `<lw-progress-ring>`; for indeterminate use `<lw-spinner>`. */
+  .lw-progress {
+    @apply h-2 w-full appearance-none overflow-hidden rounded-full border-0;
+    background: var(--lw-border);
+  }
+  .lw-progress::-webkit-progress-bar {
+    background: var(--lw-border);
+  }
+  .lw-progress::-webkit-progress-value {
+    background: var(--lw-brand);
+    border-radius: 9999px;
+  }
+  .lw-progress::-moz-progress-bar {
+    background: var(--lw-brand);
+    border-radius: 9999px;
+  }
+
+  /* `<lw-progress-ring>` — determinate circular progress: the LOOK lives here (tokened strokes),
+     the SVG geometry in the element. */
+  lw-progress-ring {
+    @apply inline-block align-middle;
+  }
+  .lw-progress-ring-svg {
+    @apply block h-full w-full;
+  }
+  .lw-progress-ring-track {
+    fill: none;
+    stroke: var(--lw-border);
+    stroke-width: 3.5;
+  }
+  .lw-progress-ring-value {
+    fill: none;
+    stroke: var(--lw-brand);
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 300ms ease;
+  }
+  .lw-progress-ring-text {
+    fill: var(--lw-content);
+    font-size: 10px;
+    font-weight: 600;
+    text-anchor: middle;
+    dominant-baseline: central;
+  }
+
+  /* `.lw-divider` — a thematic separator on a NATIVE `<hr>` (class contract, WC tranche ④): `<hr>` already
+     carries `role="separator"`; this only tokens the line. Add `.lw-divider--vertical` on an `<hr>` inside a
+     flex row for a vertical rule. */
+  .lw-divider {
+    @apply border-0 border-t border-border;
+    margin: 0;
+  }
+  .lw-divider--vertical {
+    @apply h-full self-stretch border-t-0 border-l border-border;
+  }
+
+  /* `.lw-collapsible` — a disclosure/accordion on a NATIVE `<details>`/`<summary>` (class contract, WC tranche
+     ④): native open/close, keyboard (Enter/Space on the focusable summary) and a11y for free — no JS. This
+     tokens the header + content and swaps the default marker for a chevron that rotates when `[open]`. */
+  .lw-collapsible {
+    @apply overflow-hidden rounded-lg border border-border;
+  }
+  .lw-collapsible > summary {
+    /* gap-3 (not gap-2) so the chevron keeps air from the label even when the summary is shrink-to-fit
+       (width:auto) and `ml-auto` has no free space to consume. */
+    @apply flex cursor-pointer list-none items-center gap-3 bg-surface-raised px-4 py-2.5 text-sm
+      font-medium text-content transition-colors hover:bg-surface-overlay
+      focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand;
+  }
+  .lw-collapsible > summary::-webkit-details-marker {
+    display: none;
+  }
+  .lw-collapsible > summary::after {
+    content: '';
+    @apply ml-auto h-2 w-2 shrink-0 border-r-2 border-b-2 border-content-muted transition-transform;
+    /* Border-trick chevron: the visible "ink" is the box's bottom-right corner, so it reads a touch low —
+       nudge it up ~1px to look vertically centred (and down ~1px when flipped up on [open]). */
+    transform: translateY(-1px) rotate(45deg); /* chevron pointing down */
+  }
+  .lw-collapsible[open] > summary::after {
+    transform: translateY(1px) rotate(-135deg); /* …flips up when open */
+  }
+  .lw-collapsible-body {
+    @apply border-t border-border px-4 py-3 text-sm text-content-muted;
+  }
+
+  /* `.lw-badge` — a small status/count pill on a `<span>` (class contract; pure presentation, no WC). The
+     base is a neutral chip; tone modifiers reuse the semantic fills. */
+  .lw-badge {
+    @apply inline-flex shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded-full
+      bg-surface-overlay px-2 py-0.5 text-xs font-medium text-content-muted;
+    min-width: 1.5rem;
+  }
+  .lw-badge--brand {
+    @apply bg-brand-fill text-on-brand;
+  }
+  .lw-badge--success {
+    @apply bg-positive text-on-positive;
+  }
+  .lw-badge--danger {
+    @apply bg-negative-fill text-on-negative;
+  }
+
+  /* `.lw-radio` — the host radio look on a NATIVE `<input type="radio">` (class contract, like `.lw-checkbox`):
+     `accent-color` themes the native dot with the brand; native name-grouping keeps arrow-key + a11y. */
+  .lw-radio {
+    @apply h-4 w-4 shrink-0 cursor-pointer;
+    accent-color: var(--lw-brand);
+  }
+  .lw-radio:disabled {
+    @apply cursor-not-allowed opacity-60;
+  }
+
+  /* `.lw-range` — a slider on a NATIVE `<input type="range">` (class contract, WC tranche ③): the track is the
+     (appearance-reset) input, the thumb its vendor pseudo-element. Native → full keyboard + a11y, no WC. */
+  .lw-range {
+    @apply h-2 w-full cursor-pointer appearance-none rounded-full bg-border
+      focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand;
+  }
+  .lw-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    @apply h-4 w-4 rounded-full bg-brand shadow-sm;
+  }
+  .lw-range::-moz-range-thumb {
+    @apply h-4 w-4 rounded-full border-0 bg-brand shadow-sm;
+  }
+  .lw-range:disabled {
+    @apply cursor-not-allowed opacity-60;
+  }
+
+  /* `.lw-switch` — an on/off toggle drawn from a NATIVE `<input type="checkbox" role="switch">`: the track is
+     the (appearance-reset) input, the knob is its `::before`. Class contract → themes via tokens; native
+     control keeps keyboard + a11y (add `role="switch"` in markup for the switch semantic). */
+  .lw-switch {
+    @apply relative h-5 w-9 shrink-0 cursor-pointer appearance-none rounded-full bg-border transition-colors
+      focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand;
+  }
+  .lw-switch::before {
+    content: '';
+    @apply absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-surface shadow-sm transition-transform;
+  }
+  .lw-switch:checked {
+    @apply bg-brand;
+  }
+  .lw-switch:checked::before {
+    @apply translate-x-4;
+  }
+  .lw-switch:disabled {
+    @apply cursor-not-allowed opacity-60;
+  }
+
+  /* `.lw-scrim` — the one central backdrop treatment behind any modal surface (dialogs, the
+     compact overlay drawer). Combines the `--lw-scrim` dim with a blur so the treatment lives
+     in ONE place instead of being spelled out per element. Callers add their own layout/animation
+     (e.g. `transition-opacity` on the drawer); this class owns only the appearance. */
+  .lw-scrim {
+    @apply bg-scrim backdrop-blur-xs;
+  }
+
+  /* The CDK's live region for screen-reader announcements ("… moved to the right activity bar"). It is
+     announced, never seen, so it has to be removed from the layout without being removed from the
+     accessibility tree: `display: none` or `visibility: hidden` would silence it. The rule is the CDK's
+     own `a11y-prebuilt.css`, carried here so that a consumer gets it from our stylesheet alone. */
+  .cdk-visually-hidden {
+    position: absolute;
+    left: 0;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    outline: 0;
+    appearance: none;
+  }
+  [dir='rtl'] .cdk-visually-hidden {
+    left: auto;
+    right: 0;
+  }
+
+  /* Drag-reorder feedback via Angular CDK drag-drop: the floating preview under the cursor,
+     the gap the item leaves behind, and the smooth shift of the other items as it sorts. */
+  .cdk-drag-preview {
+    @apply rounded-md border border-border bg-surface-raised shadow-lg;
+  }
+  .cdk-drag-placeholder {
+    @apply opacity-30;
+  }
+  .cdk-drag-animating,
+  .cdk-drop-list-dragging .cdk-drag:not(.cdk-drag-placeholder) {
+    transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+  }
+
+  /* Pane edge drop zones: while a tab is dragged, every pane offers four
+     edge zones (drop = split WITH the tab). The zone is only the HIT area; hovering it lights up the
+     separate `.lw-pane-drop-preview` child, which spans the exact half of the pane the new group would
+     occupy (top/bottom = full width, left/right = full height — Obsidian behaviour). A pane holding no
+     tabs offers one zone spanning the whole pane instead, because splitting against it would only make
+     an empty half. CDK marks the hovered list `.cdk-drop-list-dragging`. Geometry lives in the
+     component; look lives here. */
+  .lw-pane-drop-preview {
+    @apply pointer-events-none absolute rounded-sm border border-dashed border-transparent transition-colors;
+  }
+  .lw-pane-drop-zone.cdk-drop-list-dragging .lw-pane-drop-preview {
+    @apply border-brand bg-brand/15;
+  }
+  .lw-pane-drop-preview--left {
+    inset: 0 50% 0 0;
+  }
+  .lw-pane-drop-preview--right {
+    inset: 0 0 0 50%;
+  }
+  .lw-pane-drop-preview--top {
+    inset: 0 0 50% 0;
+  }
+  .lw-pane-drop-preview--bottom {
+    inset: 50% 0 0 0;
+  }
+  .lw-pane-drop-preview--fill {
+    inset: 0;
+  }
+
+  /* Minimize/restore easing: the pane's flex (its share of the split) glides instead of snapping.
+     The parent turns this OFF while the splitter is being dragged (see `PaneTreeView`), so a live
+     resize stays 1:1 with the pointer. Reduced-motion collapses it via the global rule below. */
+  .lw-pane-animate {
+    transition:
+      flex-grow 160ms ease,
+      flex-basis 160ms ease;
+  }
+  .lw-pane-minimized-strip {
+    animation: lw-fade-in 160ms ease-out;
+    overflow: hidden;
+  }
+  lw-content-grid.fixed {
+    animation: lw-maximize-in 140ms ease-out;
+  }
+
+  @keyframes lw-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes lw-maximize-in {
+    from {
+      opacity: 0.4;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* `<lw-tooltip>` — the host tooltip primitive. The element (lw-tooltip.element.ts) renders
+     the bubble, reveals it (JS `showPopover`) and positions it (JS `left`/`top`); its LOOK lives here so
+     it themes via tokens and crosses the Nx/iframe boundary as contract, not code — the same pattern as
+     `.lw-btn`. Author it as the last child of a `position: relative` trigger; the element shows the bubble
+     on the trigger's hover/focus (mouse only). */
+  lw-tooltip {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  /* The bubble is a `[popover]` (top layer, #13): the UA hides it when closed, so no `display`/`opacity`
+     toggle here. The element sets `left`/`top` in JS (viewport coords) — reset the UA popover box
+     (centering border/inset/margin) so those win. */
+  .lw-tooltip-bubble {
+    @apply rounded-md bg-tooltip px-2 py-1 text-xs font-normal text-tooltip-content shadow-lg;
+    position: fixed;
+    inset: auto;
+    margin: 0;
+    border: 0;
+    width: max-content;
+    white-space: normal;
+    pointer-events: none;
+  }
+
+  /* While a menu is open, suppress hover tooltips — a right-click that pops the context menu should not
+     also pop the tab's tooltip. Hides any bubble that is currently open in the top layer. */
+  body.lw-menu-open .lw-tooltip-bubble {
+    display: none !important;
+  }
+
+  /* `<lw-select>` — the host single-value choice primitive (like `<lw-tooltip>`): behaviour in
+     lw-select.element.ts, LOOK here so it themes via tokens and crosses the Nx/iframe boundary as contract,
+     not code. The `<lw-option>` children are data holders — kept out of layout. */
+  lw-select {
+    @apply relative inline-block;
+  }
+  lw-select > lw-option {
+    display: none;
+  }
+  .lw-select-trigger {
+    @apply flex h-8.5 items-center gap-1.5 rounded-md border border-border bg-surface-overlay px-2 text-sm
+      text-content transition-colors hover:bg-surface-raised
+      focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand
+      disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-surface-overlay;
+  }
+  .lw-select-value {
+    @apply flex items-center gap-1.5;
+  }
+  .lw-select-chevron {
+    @apply text-xs text-content-muted;
+  }
+  .lw-select-listbox {
+    @apply z-50 min-w-40 overflow-auto rounded-md border border-border bg-surface-overlay py-1 text-sm shadow-lg;
+    position: fixed;
+    position-area: block-end span-inline-end;
+    position-try-fallbacks: flip-block, flip-inline;
+    max-height: 16rem;
+    margin-top: 0.25rem;
+  }
+  .lw-select-option {
+    @apply flex cursor-pointer items-center gap-2 px-3 py-1.5 text-content transition-colors;
+    outline: none;
+  }
+  .lw-select-option:hover,
+  .lw-select-option.is-active {
+    @apply bg-surface-raised;
+  }
+  .lw-select-option[aria-selected='true'] {
+    @apply text-brand-text;
+  }
+  .lw-select-option[aria-disabled='true'] {
+    @apply pointer-events-none opacity-50;
+  }
+  .lw-select-glyph {
+    @apply text-base leading-none;
+  }
+
+  /* `<lw-menu>` — the host menu/context-menu primitive. Behaviour in lw-menu.element.ts, LOOK
+     here (tokened) so it themes and crosses the Nx/iframe boundary as contract. The MenuService sets
+     `left`/`top` at the cursor (clamped to the viewport) — a context menu anchors to a point, not an
+     element, so direct fixed positioning is simpler + more robust than CSS anchor positioning here. */
+  lw-menu {
+    @apply z-50 min-w-44 overflow-auto rounded-md border border-border bg-surface-overlay py-1 text-sm shadow-lg;
+    position: fixed;
+    max-height: 24rem;
+    outline: none;
+  }
+  lw-menu-item {
+    @apply flex cursor-pointer items-center gap-2 px-3 py-1.5 text-content transition-colors;
+    outline: none;
+  }
+  lw-menu-item:hover,
+  lw-menu-item:focus {
+    @apply bg-surface-raised;
+  }
+  lw-menu-item[aria-disabled='true'] {
+    @apply pointer-events-none opacity-50;
+  }
+  .lw-menu-item-label {
+    @apply flex-1 truncate;
+  }
+  /* Trailing keyboard-shortcut hint — muted, pushed to the row end. */
+  .lw-menu-item-shortcut {
+    @apply ml-4 shrink-0 text-xs text-content-muted;
+  }
+  /* Leading indicator column (icon, or a check on a checkbox item) — reserved (fixed width) only when the
+     menu actually has leading content, so plain menus stay flush-left (`.lw-menu--leading` set by the host). */
+  .lw-menu-item-lead {
+    @apply hidden w-4 shrink-0 items-center justify-center text-content-muted;
+  }
+  .lw-menu--leading .lw-menu-item-lead {
+    @apply flex;
+  }
+  .lw-menu-separator {
+    @apply my-1 border-t border-border;
+    height: 0;
+  }
+}
+
+/* Clickable controls show the pointer cursor (browsers default buttons to an arrow).
+   In the base layer so utilities like `cursor-default` (e.g. the drawer scrim) win. */
+@layer base {
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']) {
+    cursor: pointer;
+  }
+}
+
+html,
+body {
+  margin: 0;
+}
+
+body {
+  font-family: var(--lw-font-sans);
+  background: var(--lw-surface);
+  color: var(--lw-content);
+}
+
+/* Respect the user's reduced-motion preference (WCAG 2.3.3 / 2.2.2): collapse non-essential
+   transitions and animations to near-zero. The loading spinner is exempt — a busy indicator is
+   essential status feedback, not decorative motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .lw-spinner-ring {
+    animation-duration: 0.8s !important;
+    animation-iteration-count: infinite !important;
+  }
+}

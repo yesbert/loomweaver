@@ -1,0 +1,58 @@
+{
+  "name": "@loomweaver/shell",
+  "version": "0.7.1",
+  "description": "LoomWeaver shell: the neutral host chrome as an Angular library — declarative region engine, plugin loader, command/dialog/settings services and the host UI vocabulary (<lw-*>). Domain-pure.",
+  "keywords": [
+    "loomweaver",
+    "shell",
+    "angular",
+    "plugin-platform",
+    "application-shell",
+    "ui-framework",
+    "extensibility"
+  ],
+  "license": "Apache-2.0",
+  "author": "Norbert Rosenwinkel (https://loomweaver.dev)",
+  "peerDependencies": {
+    "@angular/cdk": "^22.0.0",
+    "@angular/common": "^22.0.0",
+    "@angular/core": "^22.0.0",
+    "@angular/platform-browser": "^22.0.0",
+    "@angular/router": "^22.0.0",
+    "@angular/service-worker": "^22.0.0",
+    "@jsverse/transloco": "^8.4.0",
+    "@loomweaver/plugin-sdk": "0.7.1",
+    "@ng-icons/heroicons": "^34.0.0",
+    "rxjs": "^7.8.0"
+  },
+  "dependencies": {
+    "dompurify": "^3.4.11",
+    "marked": "^18.0.6",
+    "penpal": "^7.0.6",
+    "tslib": "^2.3.0"
+  },
+  "exports": {
+    "./styles/theme.css": {
+      "style": "./styles/theme.css",
+      "default": "./styles/theme.css"
+    },
+    "./i18n/*": "./i18n/*",
+    "./styles/shell.css": {
+      "style": "./styles/shell.css",
+      "default": "./styles/shell.css"
+    }
+  },
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "homepage": "https://loomweaver.dev",
+  "bugs": {
+    "url": "https://github.com/yesbert/loomweaver/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yesbert/loomweaver.git",
+    "directory": "platform/libs/core/shell"
+  }
+}

@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sandbox view</title>
+    <link rel="stylesheet" href="/frame-kit/lw-frame.css" />
+    <style>
+      body {
+        margin: 0;
+        padding: 2.5rem;
+        font-family: var(--lw-font-sans, system-ui, -apple-system, 'Segoe UI', sans-serif);
+        line-height: 1.6;
+        color: var(--lw-content, #0f172a);
+        background: var(--lw-surface, #ffffff);
+      }
+      .badge {
+        position: relative;
+        display: inline-block;
+        padding: 0.25rem 0.6rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        color: var(--lw-on-brand, #ffffff);
+        background: var(--lw-brand, #2e96c9);
+      }
+      h1 {
+        margin: 0.75rem 0 1rem;
+        font-size: 1.5rem;
+      }
+      code {
+        padding: 0.1rem 0.35rem;
+        border-radius: 4px;
+        background: color-mix(in srgb, var(--lw-brand, #2e96c9) 12%, transparent);
+        font-size: 0.9em;
+      }
+      .tabs {
+        display: flex;
+        gap: 0.25rem;
+        border-bottom: 1px solid var(--lw-border, rgba(100, 116, 139, 0.3));
+        margin-bottom: 1rem;
+      }
+      .tab {
+        appearance: none;
+        border: 0;
+        background: none;
+        cursor: pointer;
+        padding: 0.4rem 0.9rem;
+        font: inherit;
+        font-size: 0.9rem;
+        color: var(--lw-content-muted, #64748b);
+        border-bottom: 2px solid transparent;
+        margin-bottom: -1px;
+      }
+      .tab[aria-selected='true'] {
+        color: var(--lw-brand, #2e96c9);
+        border-bottom-color: var(--lw-brand, #2e96c9);
+        font-weight: 600;
+      }
+      .keep {
+        appearance: none;
+        cursor: pointer;
+        margin-left: 0.75rem;
+        padding: 0.15rem 0.6rem;
+        border-radius: 999px;
+        border: 1px solid var(--lw-brand, #2e96c9);
+        background: none;
+        color: var(--lw-brand, #2e96c9);
+        font: inherit;
+        font-size: 0.72rem;
+        font-weight: 600;
+      }
+      .kit-strip {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-top: 1.25rem;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--lw-border, rgba(100, 116, 139, 0.3));
+        border-radius: 0.5rem;
+      }
+      .ctx-note {
+        display: block;
+        margin-top: 1rem;
+        min-height: 1.2rem;
+        font-size: 0.85rem;
+        color: var(--lw-content-muted, #64748b);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">Loading…</div>
+    <output id="ctx-note" class="ctx-note"></output>
+    <script src="/frame-kit/penpal.global.js"></script>
+    <script src="/frame-kit/lw-elements.global.js"></script>
+    <script src="./view.js"></script>
+  </body>
+</html>

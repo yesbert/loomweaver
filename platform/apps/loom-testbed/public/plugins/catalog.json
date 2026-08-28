@@ -1,0 +1,31 @@
+[
+  {
+    "id": "store-full",
+    "name": "Store plugin (full)",
+    "author": "LoomWeaver",
+    "category": "Testbed",
+    "description": "A sandboxed community plugin installed at runtime from the testbed's own catalogue. It adds a tab to the dashboard the moment it is installed and brings its own settings, so the install, settings and uninstall paths are all exercised.",
+    "version": "1.0.0",
+    "downloads": 12842,
+    "updated": "2026-07-15",
+    "repository": "https://example.com/plugins/store-full",
+    "readmeUrl": "/store-full/README.md",
+    "iconUrl": "/store-full/icon.svg",
+    "entryUrl": "/store-full/plugin.html",
+    "capabilities": ["contributions", "ui"]
+  },
+  {
+    "id": "store-minimal",
+    "name": "Store plugin (minimal)",
+    "author": "LoomWeaver",
+    "category": "Testbed",
+    "description": "The smallest possible community plugin: one static dashboard tab, no settings. It is the contrast case that proves a plugin without settings gets no settings entry.",
+    "version": "0.3.1",
+    "downloads": 3417,
+    "updated": "2026-06-30",
+    "readmeUrl": "/store-minimal/README.md",
+    "iconUrl": "/store-minimal/icon.svg",
+    "entryUrl": "/store-minimal/plugin.html",
+    "capabilities": ["contributions"]
+  }
+]

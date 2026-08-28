@@ -1,0 +1,57 @@
+name: Bug report
+description: Something in the platform behaves differently than documented or expected.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Please reproduce against the latest release first — LoomWeaver ships
+        one version line across all seven packages, and fixes land there.
+
+        **Not for security issues.** Email security@loomweaver.dev instead, see `SECURITY.md`.
+
+  - type: textarea
+    id: what-happens
+    attributes:
+      label: What happens
+      description: What you observe, and what you expected instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How to reproduce
+      description: |
+        Steps, or ideally a minimal case. If it needs a distribution, the smallest `provideShell` /
+        `provideLayout` composition that shows it is worth more than a long description.
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Which `@loomweaver/*` version, and which package(s).
+      placeholder: "@loomweaver/shell 0.5.23"
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Browser and OS, plus Node version if it is a build or tooling problem.
+      placeholder: Chrome 141 on macOS 15, Node 24
+    validations:
+      required: false
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Anything else
+      description: |
+        Console errors, a screenshot, or the part of your composition that matters. If you already
+        found where it goes wrong, say so — it saves a lot of time.
+    validations:
+      required: false

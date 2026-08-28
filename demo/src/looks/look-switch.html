@@ -1,0 +1,13 @@
+<div class="flex items-center gap-1.5">
+  <span class="text-xs text-content-muted">{{ 'product.theme' | transloco }}</span>
+  <lw-select
+    [attr.label]="'product.theme' | transloco"
+    [attr.value]="active.id"
+    (lw-select-change)="onChange($event)"
+    data-testid="look-switch"
+  >
+    @for (look of looks; track look.id) {
+      <lw-option [attr.value]="look.id">{{ look.label }}</lw-option>
+    }
+  </lw-select>
+</div>

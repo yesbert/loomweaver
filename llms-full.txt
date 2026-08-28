@@ -1,0 +1,848 @@
+# LoomWeaver — full context for AI assistants
+
+> LoomWeaver is a domain-agnostic plugin & UI platform. A product is a **distribution**: a thin app
+> that composes `@loomweaver/shell` + one or more **weavers** (plugins) from the published packages. The
+> platform core has **zero domain logic**. This file inlines everything an assistant needs to build a
+> distribution or a weaver from the outside — the mental model, the complete public contract, and the
+> canonical code. Prose guides live under `docs/`; this is the single-fetch brief.
+
+## Mental model
+
+- **Platform** (`@loomweaver/shell`, `@loomweaver/plugin-sdk`) renders neutral chrome, holds contributions,
+  brokers capabilities. Domain-pure.
+- **Weaver** (a plugin): an object with `manifest` + `activate(ctx)`. All domain UI/logic here.
+  Imports only `@loomweaver/plugin-sdk`.
+- **Distribution** (a product): composes shell + weavers, declares a layout, grants capabilities,
+  brands itself. ~1 file. This is what you deploy.
+- **Capabilities are default-deny**: a weaver *declares* needs; the distribution *grants* them.
+  Ungranted use throws `CapabilityError`. Coarse: `contributions` (`ctx.register*`,
+  `ctx.contributeIcons`), `ui` (`ctx.ui.*`), `host` (`ctx.host.*`), `navigation`
+  (`ctx.navigateContent`/`openContentTab`/`closeContentTab`), `session` (`ctx.session`),
+  `theme` (`ctx.contributeTheme(tokens, dark?)` — re-skin the whole app: colors + UI font).
+  The token vocabulary is COLOUR AND TYPE ONLY (27 colours + 2 font families) — sizes, radii and spacing
+  have no tokens BY DECISION, because tokenising every number would freeze every rule of the chrome into a
+  promise. A product that must change a size writes plain UNLAYERED CSS, which beats everything the shell
+  paints (all of it is in cascade layers) — target the `.lw-*` class contracts (stable) or the element tags
+  `lw-shell-rail`/`lw-shell-panel`/`lw-content-area`/… (structural, NOT a versioned contract). It does not
+  reach a sandboxed surface's document. See docs/reference/design-tokens.md.
+  Effective = grant ∩ declaration. Enforcement is **live**: a built-in Permissions settings section lets
+  the user revoke any granted runtime capability (`ui`/`host`/`navigation`/`session`/`theme`/`automation`) at runtime, or turn a
+  whole plugin **off** (an on/off switch — the plugin unloads and none of its contributions appear). Both are
+  user-local (the settings store) and take effect at once; a revocation throws `CapabilityError` on the plugin's
+  next call (surfaced as a warning toast, not a silent failure). The user can only narrow, never widen; the
+  settings surface stays reachable via `shell.openSettings` so revoking never locks the user out.
+- **Packages**: npm `@loomweaver/plugin-sdk`, `@loomweaver/shell`, `@loomweaver/mcp` (AI-scaffolding MCP server), `@loomweaver/cli` (scaffolding CLI), `@loomweaver/devkit` (Nx generator collection), `@loomweaver/frame-kit` (static UI assets for sandboxed plugins), `@loomweaver/ag-ui` (AG-UI adapter: the workbench's own commands offered to an agent as tools, headless — no transport/UI/agent; its stability follows AG-UI, not the platform) — seven npm packages, one shared version. The platform ships **no server package**; the backend is the product's.
+
+## The plugin contract (`@loomweaver/plugin-sdk`) — complete
+
+```ts
+interface Plugin {
+  readonly manifest: PluginManifest;
+  activate(ctx: PluginContext): void | Promise<void>;
+  deactivate?(): void;
+}
+interface PluginManifest {
+  readonly id: string;
+  readonly name?: string;
+  readonly capabilities?: readonly Capability[];   // declared; granted by the distribution
+}
+type Capability = 'contributions' | 'ui' | 'host' | 'navigation' | 'session' | 'theme' | 'automation';
+
+interface PluginContext {
+  registerCommand(command: Command): Disposable;
+  registerSurface(surface: Surface): Disposable;         // the ONE author contract: capabilities, not location.
+                                                         //   panel view:   registerSurface({ id, title, docks: [region], component })
+                                                         //   content view: registerSurface({ id, title, routable: { path }, component })
+  registerBarItem(item: BarItem): Disposable;
+  registerRailItem(item: RailItem): Disposable;
+  registerSettingsSection(section: SettingsSection): Disposable;
+  registerMenuItem(item: MenuItem): Disposable;          // add an item to a menu slot, e.g. content/tab/context
+  contributeIcons(icons: Readonly<Record<string, string>>): Disposable;  // name → SVG; flat, collision-safe, sanitized at registration
+  contributeTheme(tokens: Readonly<Record<string, string>>, dark?: Readonly<Record<string, string>>): Disposable; // --lw-* token → value (colors + --lw-font-sans/-mono); re-skins the whole app; optional `dark` overrides tokens only in dark mode; [theme] cap; Product < Plugin < Tenant
+  navigateContent(path: string): void;                   // go to another routable surface            [navigation]
+  openContentTab(input: OpenTabInput): void;             // open a titled dynamic tab + navigate      [navigation]
+  keepContentTab(path: string): void;                    // promote a preview tab to permanent        [navigation]
+  pinContentTab(path: string): void;                     // pin: anchor to front + close-guard         [navigation]
+  unpinContentTab(path: string): void;                   // unpin back to a normal tab                 [navigation]
+  closeContentTab(path: string): void;                   // close a dynamic tab                        [navigation]
+  revealSurface(id: string): void;                       // activate a DOCKED surface's tab wherever the user placed it (sidebar pane — expanding a collapsed panel — or content pane); no-op for unknown/container-child ids. Routable surfaces: use navigateContent  [navigation]
+  readonly activeContent: () => ActiveContent | null;    // signal-shaped read: which routable surface the URL pane
+                                                         // shows + its :params — instead of injecting the host router /
+                                                         // parsing URLs. Trusted rung only.           [navigation]
+  invokeCommand(id: string, args?: CommandArguments): Promise<CommandOutcome>;
+                                                         // run a registered command by id and get what it answered.
+                                                         // ANSWERS a refusal instead of throwing one (a caller working
+                                                         // through a list handles "you may not" as an outcome); the user
+                                                         // is still told. Own commands need no grant.  [automation]
+  readonly invocableCommands: () => readonly InvocableCommand[];
+                                                         // what this caller may run — the workbench's own account, already
+                                                         // narrowed by callable + access + window + grant, texts resolved
+                                                         // to the active language. Read it instead of keeping a second
+                                                         // list: a second list is a second answer to "may this run".
+                                                         // Empty without the grant beyond your own.     [automation]
+  readonly ui: PluginUi;
+  readonly host: PluginHost;
+  readonly session: PluginSession;                       // read login state + roles for self-gating   [session]
+}
+
+interface ActiveContent {           // the read side of the content area (ctx.activeContent)
+  readonly surfaceId: string | null;                     // matched surface's id (null if the route carries none)
+  readonly path: string;                                 // full active content path incl. sub-route segment
+  readonly params: Readonly<Record<string, string>>;     // :param values of the matched route pattern
+}
+
+interface Command {                 // one behaviour, many triggers (items reference it by id)
+  readonly id: string;              // e.g. "notes.add"
+  readonly title: string;           // translation key or literal
+  readonly icon?: string;           // host icon name
+  readonly shortcut?: string;       // chord, e.g. "mod+enter" (mod = ⌘/Ctrl)
+  readonly access?: AccessRequirement;  // gate this command: blocked at the one execute() seam — keybinding + palette too
+  readonly paletteHidden?: boolean;     // hide from the command palette: a context-only command whose run needs a MenuContext the palette can't supply. Menu items + keybindings still invoke it.
+  readonly popout?: boolean;            // OPT-IN: commands are MAIN-WINDOW-ONLY by default; declare popout to offer one in a pop-out window (one surface, no tab strip / rail / sidebar). Unmarked → palette omits it there, keybinding no-ops, bound item does nothing. The quiet default is deliberate: a missing command is a small annoyance, a surprising one in a detached window is worse, and the shell cannot tell them apart for a command it did not write — it marks its own two (palette, Settings) and guesses for none of yours. Independently: content navigation is REFUSED in a pop-out (dev warning), since it would take the window out of /popout/… and silently stop it being a pop-out; and Quick-Open is not registered there at all.
+  readonly description?: string;        // what the command DOES, in prose (key or literal) — for something CHOOSING between
+                                        // actions, not for a control labelling one. No description ⇒ none; the title is never
+                                        // substituted, because a label is not an explanation.
+  readonly arguments?: readonly CommandArgument[];  // checked before run: a missing required argument, a wrong kind or a choice
+                                        // outside the set is REFUSED and the command does not run. For discovery, NOT for safety.
+  readonly answers?: string;            // what the return value means. Declaring it is what makes run()'s return the answer;
+                                        // without it an invocation succeeds carrying nothing. The value must be plain data.
+  readonly callable?: boolean;          // OPT-IN, exactly like popout: let a caller OTHER than this plugin invoke it by id.
+                                        // Unmarked ⇒ unreachable that way by every route and absent from invocableCommands().
+                                        // Its own plugin always reaches it. Opening widens nothing else — access, popout and
+                                        // the caller's grants still decide, so a caller never reaches past what the user could.
+  run(context?: MenuContext, args?: CommandArguments): unknown;  // context from a menu; args from an invocation by id
+}
+
+// text | number | boolean | choice, plus `list: true` for a list of any of them. The set is CLOSED on purpose:
+// a caller has to describe your command to something that has never seen it, and a closed set makes a wrong
+// declaration a compile error instead of a silent no-op. Widening it later is additive; narrowing would not be.
+type CommandArgument =
+  | { name: string; description: string; required?: boolean; list?: boolean; kind: 'text' | 'number' | 'boolean' }
+  | { name: string; description: string; required?: boolean; list?: boolean; kind: 'choice'; choices: readonly string[] };
+type CommandArguments = Readonly<Record<string, string | number | boolean | readonly (string | number | boolean)[]>>;
+type CommandOutcome =
+  | { outcome: 'answered'; value?: CommandAnswer }   // it ran
+  | { outcome: 'refused'; reason: 'unavailable' | 'invalid-arguments' | 'too-deep'; message: string }  // it did not run
+  | { outcome: 'failed'; message: string };          // it ran and broke
+// `unavailable` is deliberately ONE answer for no-such-command / not callable / session does not qualify /
+// wrong window / missing grant — telling them apart would let a caller map what is installed by probing ids.
+interface InvocableCommand { id: string; title: string; description?: string; arguments?: readonly CommandArgument[]; answers?: string }
+
+// Menu contribution. `menu` = slot id (host `content/tab/context`, or your own). Behaviour via a
+// command id (crosses the sandbox boundary) or inline run (trusted). `when` = coarse subset match against the
+// opener's context (serialisable primitives) for visibility. The host draws the menu at the cursor.
+// A RailItem/BarButtonItem/ViewAction may carry `menu?: string` — the host opens that slot as the item's
+// context menu on right-click, region-agnostic, with a `{ targetKind, id, region }` context.
+// ONLY the element that opens a menu suppresses the native one; everywhere else (plugin content, and above
+// all a text field in it) the browser's own right-click menu stays — the shell suppresses nothing globally.
+type MenuContext = Readonly<Record<string, string | number | boolean>>;
+interface MenuItem { id?: string; menu: string; command?: string; run?(c?: MenuContext): void; title?: string; group?: string; order?: number; when?: MenuContext; checkedWhen?: MenuContext; /* checkedWhen ⇒ menuitemcheckbox, checked when it ⊆ context; the item shows its command's icon + shortcut hint. id ⇒ re-registering replaces the entry (last wins) and `provideShell({omit:[id]})` drops it; built-in entries use `menu:<commandId>` (e.g. menu:shell.tab.closeAll), distinct from the command id so the command survives an entry-only omit. Without id: additive. An entry whose `command:` id no longer resolves (omitted or unregistered) is HIDDEN, not rendered as its raw id — so omitting a bare command id cleanly removes it from the palette AND the menu at once. */ }
+interface View {
+  readonly id: string;
+  readonly region: string;          // a region id from the distribution's layout
+  readonly title: string;
+  readonly order?: number;
+  readonly icon?: string;
+  readonly actions?: readonly ViewAction[];
+  readonly access?: AccessRequirement;  // gate the whole view (tab + body); hide-only (mode ignored)
+  readonly instanceable?: boolean;    // opt in to named saved instances (slice 2b): host shows a header switcher to
+                                      // save/name/rename/delete configs, each with its own auto-saved VIEW_STATE blob; the non-deletable
+                                      // default carries the baseline. Component code is unchanged — it just reads/writes VIEW_STATE.
+                                      // The switcher travels with the view: sidebar, content pane, split and pop-out all render it.
+  readonly component?: Type<unknown>;        // an Angular component
+  readonly loadComponent?: () => Promise<Type<unknown>>;  // …or deferred: the host calls it on first mount
+}
+interface ViewAction { id: string; icon: string; title: string; order?: number; menu?: string; command?: string; access?: AccessRequirement; run?(): void | Promise<void>; }
+// Persisted view state (Option B): a DOCKED surface persists its own serialisable state — filter, active
+// sub-tab, expanded nodes, scroll position — so it survives BOTH a hide and a reload. Since the retention rule destroys a
+// hidden, clean surface, this is THE survival path: the rule is "evictable = reload-safe" — anything that must
+// outlive a tab switch/collapse/F5 goes here, local component signals are for genuinely throwaway state only.
+// Inject it and type it: `const vs = inject(VIEW_STATE) as ViewState<MyState>`. value() is Signal-shaped (undefined
+// = fresh instance → apply your own default); the host auto-saves every set() (debounced) to
+// lw.shell.view-state:<instanceId> via the distribution's working-state store. Domain-pure: the platform stores an opaque
+// blob, only the view interprets it. No new capability. TWO TRAPS: set() replaces the WHOLE blob (keep one state
+// shape and spread it — `set({...current, query})` — rather than five signals), and it needs no hand-rolled debounce
+// (call it per keystroke/scroll; the value is live at once, the write follows once the user stops).
+// A ROUTABLE surface has NO handle — decided, not missing: it owns a URL, so shareable state belongs in
+// route params/subRoutes (deep-linkable + history), and unsaved edits are DirtySurface or retain. A SANDBOXED surface
+// (always routable) has none either — nothing of this shape crosses the RPC boundary; it declares retain:'always' and
+// the host hides the iframe in place. Injecting VIEW_STATE outside a docked surface throws.
+interface ViewState<T = unknown> { readonly value: () => T | undefined; set(next: T): void; readonly instanceId: string; }
+const VIEW_STATE: InjectionToken<ViewState>;   // from @loomweaver/plugin-sdk
+
+// ctx.state — THE PLUGIN'S OWN KEYED STORE (working state), where VIEW_STATE is one view INSTANCE's blob. Every
+// surface of the plugin sees the same store (any dock, any instance, EVERY WINDOW), so it is both persistence and the
+// only channel between a plugin's own surfaces — which for a sandboxed plugin is otherwise impossible (each surface is
+// its own opaque origin). Keys live under lw.plugin-state:<pluginId>:<key>; the host prefixes them, the plugin cannot
+// leave the namespace, so there is NO capability (nothing foreign to reach). Working state only: settings have their
+// own path BECAUSE THE USER CAN SEE IT in the settings dialog. Uninstall deletes the store (settings survive).
+// CHECK loaded() BEFORE APPLYING A DEFAULT — with a network-backed store the value lands after the user has typed
+// otherwise (the LWF-02 class of bug). set() replaces the WHOLE value ⇒ one key per unit of editing (a wizard step, not
+// the form) and key by instanceId where a surface can exist more than once. JSON values, debounced writes, size cap per
+// value + count cap per plugin (dev warning at half). SANDBOXED RUNG, both channels: the logic document and each
+// SURFACE call stateWatch/stateSet/stateClear/stateUnwatch and receive stateChanged(key, value, loaded) pushes; the
+// surface channel is what lets two surfaces of one sandboxed plugin agree on anything (a surface holds no ctx). The
+// kit reassembles the pushes into the same handle shape: LwFrame.state.watch(key) + .onChange(fn), feed the push in
+// with LwFrame.state.apply(...) from your methods and call LwFrame.connectState(host) once connected.
+interface PluginState { watch<T = unknown>(key: string): StateHandle<T>; }
+interface StateHandle<T = unknown> { readonly value: () => T | undefined; readonly loaded: () => boolean;
+                                     set(next: T): void; clear(): void; dispose(): void; }
+
+// THE ONE SURFACE CONTRACT: a Surface declares WHAT IT CAN DO — routable (URL-addressable),
+// instanceable (named saved instances), docks (which regions may host it; first = home) — not where it lives; the
+// user arranges panes freely — every pane is a TAB GROUP with its own strip; dragging a tab MOVES it (never copies)
+// onto another group's strip or to an edge (split with the tab) — a pane holding NO tabs takes the whole drop instead
+// of offering edges, so a drag fills the empty content area rather than splitting it; Split right/down in the tab menu MOVES too, while
+// the pane TOOLBAR split DUPLICATES the active tab into a new pane; sidebars are the
+// same groups shown as icon tabs (Obsidian-parity). Every pane is its own VIEW_STATE instance and a moved
+// tab's VIEW_STATE travels with it; every content pane shows ONE toolbar (new tab / split right / split down /
+// minimize / maximize / close — distribution-configurable via provideShellFeatures({ content }):
+// maximize fills the whole viewport over all chrome (Escape restores); minimize collapses a split pane to a strip
+// (icon + active tab name + `+N` badge for extra tabs, click to restore); minimize/close are symmetric on both
+// panes of a split — closing the URL pane dissolves the split and the neighbour takes over). Exactly ONE
+// pane is URL-focused/router-rendered, and the focus is switchable. registerSurface is the only authoring entry:
+// a panel View ≙ a non-routable Surface with docks:[region]; a ContentRoute ≙ a routable one. View/ContentRoute
+// are only the host's internal storage shapes — registerSurface normalises into them.
+// component | loadComponent (deferred: the host calls it the first time the surface is shown — routable surfaces go
+// straight to the router's own loadComponent, host-mounted ones render once it resolves; use it for a surface with a
+// heavy dependency tree so it lands in its own chunk) | iframe | container.
+// container ("workspace-in-a-tab"): the host draws a NESTED pane tree of child surfaces INSIDE this
+// surface's content tab (same drag/split/tab mechanics, one level nested, scoped to the tab). Must be `routable`
+// (the container tab holds its own :id — several open in parallel, deep-linkable). `children` = surface ids the inner
+// picker offers; `initial` = children loaded first. Children are non-routable surfaces declared with `docks: []`
+// ("child-only": never in a sidebar, mounted only inside a container by id) and read the container's :id off Angular's
+// ActivatedRoute — no global "active X". The inner tree is per-window workspace state; a popped-out container carries it.
+// PRESENTATION IS VALID AT EVERY MOUNT POINT: `iframe` is not a routable-only form — a surface with `docks` and
+// no `routable` may be an iframe and the host mounts it at the dock. A docked surface has NO address, so its pushed
+// `tab` is always '' and its channel's `navigate` is a NO-OP with a dev warning (the channel is only safe because it
+// is confined to the surface's own tab root; a docked one has none) — use ctx.navigateContent (`navigation` grant).
+// The pushed state carries `instanceId` (the pane / named instance), so two mounts of one surface stay distinguishable,
+// and `params` (route params for a routable surface, the container's :id for a container child).
+type SurfacePresentation = { component: Type<unknown> } | { loadComponent: () => Promise<Type<unknown>> } | { iframe: string }
+  | { container: ContainerSpec };
+interface SurfaceRoutable { path: string; chromeless?: boolean; title?: string; icon?: string; titleIsLiteral?: boolean; subRoutes?: readonly string[]; rest?: boolean; follows?: boolean; }
+type Surface = {
+  id: string; title: string; icon?: string; order?: number;
+  actions?: readonly ViewAction[]; access?: AccessRequirement;
+  instanceable?: boolean;               // named saved instances (2b)
+  routable?: SurfaceRoutable;           // URL-addressable — can hold the URL pane
+  retain?: 'always' | 'never';          // what happens when HIDDEN (rendered by no pane). Default = the
+                                        // distribution's retention default (itself 'destroy'): a hidden, CLEAN surface is
+                                        // destroyed and rebuilt on return — state that must survive belongs in VIEW_STATE
+                                        // (rule: evictable = reload-safe). 'always' keeps the live instance while hidden
+                                        // (expensive rebuild, live connection); 'never' opts back into destroy.
+                                        // A retained ROUTABLE surface is host-mounted in EVERY pane (the URL pane included;
+                                        // its route only carries the address) and keyed to its pane, so handing the URL role
+                                        // between split panes leaves each pane's instance in place — a split shows two
+                                        // independent instances, deliberately. Price: a host-fabricated ActivatedRoute
+                                        // everywhere — route params work (param change = different tab = different instance),
+                                        // but NO resolvers, NO query params, NO live param streams, and a nested
+                                        // <router-outlet> is inert, so never combine retain with subRoutes (dev-mode warning;
+                                        // read the sub-segment from the address instead).
+                                        // Honoured for SANDBOXED (iframe) surfaces too: a retained iframe is
+                                        // hidden in place, never moved, so the document keeps running (no Penpal handshake
+                                        // per tab switch). It is still rebuilt whenever it would have to MOVE (split, drag
+                                        // to another pane, minimise) — moving an iframe in the DOM reloads it. Container
+                                        // surfaces are always rebuilt. A retained instance is still destroyed when its tab
+                                        // is CLOSED — retention covers hiding.
+  saveOn?: 'hide';                      // auto-save on hide — when a DIRTY instance becomes hidden the host calls its
+                                        // surfaceSave() fire-and-forget. Safe by construction: in-flight/failed save keeps
+                                        // the instance dirty and therefore alive; failure surfaces as an error toast.
+  closable?: boolean;                   // default true. false = the user cannot close a tab of this surface (no ×,
+                                        // no Delete, no close menu entries); moving/splitting/dragging still work.
+                                        // Applies to EVERY tab of the surface — right for a parameterless route
+                                        // like 'dashboard', almost always wrong for 'doc/:id'.
+  padded?: boolean;                     // default true = the host insets the surface 24px from its pane edges.
+                                        // false = the surface owns its edges (viewer, canvas, map, edge-to-edge table).
+                                        // Travels with the surface: URL pane, split, sidebar and pop-out alike.
+                                        // Only the inset is switchable; how WIDE it is stays plain CSS.
+  docks?: readonly string[];            // hostable regions; first = home dock; docks:[] = container-only child
+} & SurfacePresentation;
+
+// Unsaved changes: implement DirtySurface on the surface COMPONENT (per instance — one
+// doc/:id declaration backs many tabs). While surfaceDirty() is true the instance is NEVER destroyed on
+// hide (no hiding gesture is blocked or prompted), and CLOSING asks via the host's own localised dialog:
+// Save (only when surfaceSave exists) · Discard · Cancel. beforeunload prompts while anything is dirty
+// (that prompt's wording/language are the BROWSER's own — pages cannot set them, browser UI language wins).
+// surfaceDirty() is read reactively — read your signals inside. A sandboxed surface pushes its dirty flag
+// over the surface channel instead: parent.setDirty(true|false) — a dirty sandboxed surface survives hiding
+// like any other (S5), and closing/unload asks. saveOn:'hide' is inert for a sandboxed surface (no save
+// channel crosses the RPC boundary; save inside and push setDirty(false)). Routable surfaces have no
+// VIEW_STATE handle by design — for a routed editor, DirtySurface (or retain) is the way unsaved work survives hides.
+interface DirtySurface {
+  surfaceDirty(): boolean;              // unsaved changes? read reactively by the host
+  surfaceSave?(): Promise<void>;        // optional: enables "Save" in the close dialog + the saveOn:'hide' target
+  surfaceBeforeClose?(): boolean | Promise<boolean>; // optional veto for USER-initiated closes: false cancels;
+                                        // runs BEFORE the unsaved-changes dialog and never bypasses it for a
+                                        // still-dirty instance; host-enforced timeout + guaranteed "Close anyway"
+                                        // escape (throw/reject = approve — a broken veto can't make a tab
+                                        // unclosable). NOT consulted for plugin disable/uninstall or workspace
+                                        // reset — those run only the unsaved-changes ask.
+}
+// Programmatic destruction is guarded too: disabling, uninstalling or UPDATING a plugin and
+// resetting a workspace show the unsaved-changes dialog over the affected dirty instances first.
+// SWITCHING a workspace never asks: each workspace remembers its own arrangement, and a dirty surface
+// survives the switch parked under the normal retention rule.
+// Sandbox wires (surface channel: expose beforeClose() next to render(); runtime channel: expose
+// contentTabClosed(path) to learn when a tab you opened via openContentTab closes — the RPC counterpart
+// of the in-process onClose hook, whose callback cannot cross the boundary).
+
+// Content area: URL-addressed. ONE rule since tab groups retired: a pane draws a strip whenever it holds
+// tabs, and a `chromeless` surface draws none while it is active. Visiting ANY non-chromeless, non-`follows`
+// route auto-opens (or re-uses) its closable tab — there are no static tabs any more; the permanent tabs are
+// the `follows` facet tabs, labelled by the surface's title/icon and ordered by its `order`. Every pane has its
+// own strip (see Surface above). Exactly ONE pane carries the address; that role follows the user — clicking a
+// tab (or into a pane) hands it over, and navigating to a target another pane already holds activates it THERE
+// instead of opening a second copy (identity is the tab root, so a sub-route lands on the tab that owns it). Instance state survives a tab switch only via VIEW_STATE or a retain
+// declaration (a hidden, clean surface is destroyed).
+// Surface = an Angular `component` or deferred `loadComponent` (trusted only — cannot cross an RPC boundary),
+// OR an `iframe` URL (serialises over RPC, so it is the form a sandboxed/non-Angular plugin uses),
+// OR a `container` (the host draws a nested pane tree of child surfaces, ; `element`/WC reserved).
+// Host mounts an isolated <iframe sandbox> (no allow-same-origin) for `iframe`. A TRUSTED plugin may also use
+// `iframe` to embed a foreign origin on purpose (dashboard/docs/video): same-origin is enforced only at the RPC
+// seam for sandboxed plugins; for a trusted one the distribution's CSP frame-src decides (defaults to 'self').
+type ContainerSpec = { children: readonly ContainerChild[]; initial?: readonly string[] | ContainerArea };
+type ContainerChild = string | ContainerChildEntry;                  // bare id = no address, as before
+interface ContainerChildEntry { surface: string; segment?: string }  // segment = the child's address INSIDE the container
+// initial = how the inner tree looks when a container tab is opened FRESH. A plain list is shorthand for one
+// tabs area; the ContainerArea form declares an arrangement in the SAME grammar a workspace uses (PaneArea),
+// only its tabs address child surface ids instead of route paths. Declare it whenever the container path
+// carries an :id: the inner tree is kept per instance (container@<path>) and is dropped when the tab closes,
+// so a hand-built arrangement can never become the default for the next instance.
+// A child that declares a `segment` carries an address relative to its container, so one child surface can stand
+// for several open items: { surface: 'sim.item', segment: 'item/:itemId' }. Its tab path is the container's path
+// plus the segment, it gets those values on its ActivatedRoute like a routable surface, and two open items are two
+// tabs with two VIEW_STATE instances. Declare a pane as `{ tabs: [] }` to say where they land — that pane is the
+// only one that survives holding no tabs, and it renders "nothing open yet" until something does.
+// A sibling opens them through ContainerHandle / CONTAINER_HANDLE (a DI token beside VIEW_STATE; null outside a
+// container). The optional second argument is a ContainerTabLabel { title?, titleIsLiteral?, icon? }:
+//   inject(CONTAINER_HANDLE)?.open('item/42', { title: 'Item 42', titleIsLiteral: true })
+// open() focuses an already-open address instead of duplicating it. It is a host call, NOT a navigation, because a
+// container tab may sit in a split pane or a pop-out where it holds no address at all. While it DOES hold the
+// address the URL names the focused child (/sim/abc123/item/42, shareable, deep-linkable); elsewhere the container
+// keeps its pointer and the address just does not express it. A parameterised child cannot appear in `initial` or
+// in the inner picker — neither knows which value to use.
+type PaneArea<T> = PaneTabArea<T> | PaneRowArea<T> | PaneColumnArea<T>;   // all extend PaneAreaBase { size?: number }
+interface PaneTabArea<T> extends PaneAreaBase { tabs: readonly T[]; }
+interface PaneRowArea<T> extends PaneAreaBase { rows: readonly PaneArea<T>[]; }     // top to bottom
+interface PaneColumnArea<T> extends PaneAreaBase { columns: readonly PaneArea<T>[]; } // left to right
+type ContainerArea = PaneArea<ContainerTabEntry>;
+type ContainerTabEntry = string | ContainerTab;   // a child surface id, or:
+interface ContainerTab { surface: string; closable?: boolean; active?: boolean; }
+// A tab naming a child that is not in `children` is dropped with a dev warning, as is a malformed area — the
+// container degrades, it never refuses to register. A child the user may not see KEEPS its place and draws the
+// access placeholder: the declaration is seeded whole and access decides when drawing, so a late session cannot
+// flatten the layout. The baseline applies on every fresh open; while the tab stays open the user's arrangement wins.
+type ContentSurface = { component: Type<unknown> } | { loadComponent: () => Promise<Type<unknown>> } | { iframe: string } | { container: ContainerSpec };
+// subRoutes = nested level-2 tabs as real URL segments under the tab root: doc/:id/code · doc/:id/preview.
+// The route's `path` stays the tab root (one host tab); switching a sub preserves parent state. Angular syntax, so a
+// sub may CARRY A VALUE ('structure/:structureId'); there is NO forced redirect to the first — the bare tab root is a
+// valid address and the surface decides what it shows there.
+// rest: true = own EVERYTHING below `path`: the longest registered prefix wins and the remainder is handed over
+// verbatim, query string included (cedents/:c/programs + rest → "205470/pricing?t=886320"). Without it a deeper
+// address matches no route and the navigation fails. The prefix stays the tab root ⇒ the whole subtree is ONE tab
+// and moving inside it never rebuilds the surface (a parameter change in the pattern may). A sandboxed surface gets
+// it as state.rest and sets its own via the channel's navigate; a trusted component reads/navigates via the router.
+// A prefix of FEWER THAN TWO SEGMENTS owns most of the address space, so declaring rest there also requires the
+// 'navigation' capability (registration throws CapabilityError without it). No forced default for an empty rest.
+// follows: true = this PERMANENT tab is a facet of the current selection, not a document: the host substitutes the
+// parameter values of the address it is on, BY NAME, into this pattern (truncating before the first it does not
+// know). Off by default; only a permanent `tab` follows (declaring it without one warns and does nothing); a copy
+// split into another pane or popped out FREEZES on the address it had. A computed address that leads nowhere means
+// the facet has no selection yet — the host leaves the tab out instead of drawing a dead control. Two following
+// surfaces may share a parameter name only when the pattern BEFORE it is identical, else that one registration is
+// refused with a console error (surfaces that do not follow are never compared). A distribution overrides or extends
+// the computation with provideTabAddressResolver((input) => string | null) — null keeps the host's substitution.
+// tab present ⇒ STATIC tab (from the start, not closable). No tab ⇒ DYNAMIC tab (openContentTab / auto-opened on
+// deep-link, closable); title/icon = default name for that auto-opened tab (a plugin can refine via openContentTab).
+// access: gate a route — unmet shows a neutral "sign-in required" placeholder AT THE SAME URL, or
+// redirects via the distribution's provideUnauthorizedRedirect; reactive (surface appears once the session qualifies —
+// in the New-Tab pane picker too: it offers a gated route iff auth.meets(access), re-evaluated each time it opens).
+// Off-router hosting (the "Split editor" duplicate-split, the hosting picker, edge-drag canHost) gates the same
+// way: a gated bare-path surface is mountable iff auth.meets(access) — never by the mere presence of a gate.
+type ContentRoute = { id?: string; path: string; chromeless?: boolean; subRoutes?: readonly string[]; rest?: boolean; follows?: boolean; title?: string; titleIsLiteral?: boolean; icon?: string; order?: number; access?: AccessRequirement } & ContentSurface;
+// `id` = the originating surface's id, carried through by registerSurface. It is the OMIT handle
+// ('route:<id>'); `path` stays the OVERRIDE handle. Internal storage form — authors write registerSurface.
+// titleIsLiteral: title is shown verbatim, not looked up as a Transloco key (set for a doc name / dynamic label;
+// avoids a missing-translation dev warning). onClose: runs once when THIS tab closes (free per-tab state; in-process only).
+// preview: open in the single reused italic preview slot of the URL strip (VS-Code Preview Editors); a different-path
+// preview open replaces it in place. Promote via ctx.keepContentTab(path), or let the user double-click the tab (the
+// host's escalation cycle, on by default — provideShellFeatures({ content: { escalate: false } }) removes it); a re-open of an
+// existing tab preserves its preview state (title/sub-route refinement never promotes).
+// Distribution can disable: provideShellFeatures({ content: { preview: false } }) → preview ignored, all opens permanent.
+interface OpenTabInput { path: string; title: string; icon?: string; titleIsLiteral?: boolean; onClose?: () => void; preview?: boolean; }
+
+type BarSlot = 'start' | 'center' | 'end';
+type BarItem = BarComponentItem | BarButtonItem;   // both base: { id, bar, slot, order?, access? } — access: hide either kind, disable only the button
+interface BarComponentItem { component: Type<unknown>; /* + base */ }
+interface BarButtonItem { icon?: string; label?: string; tooltip?: string; menu?: string; command?: string; showShortcut?: boolean; run?(): void | Promise<void>; /* + base */ }  // showShortcut (LWF-04): render the bound command's shortcut hint, OS-correct (⌘K / Ctrl+K); needs command to have a shortcut. Default off.
+// `workspace` names a workspace id: the host switches to it on click and marks the entry as the current one
+// (bar + tint + aria-current) while it is active. Provide it INSTEAD of command/run; those are then ignored.
+interface RailItem { id: string; rail: string; icon: string; initials?: string; title: string; order?: number; anchor?: 'top' | 'bottom'; menu?: string; command?: string; access?: AccessRequirement; workspace?: string; run?(): void | Promise<void>; }
+// initials: one or two letters the host draws INSTEAD of the icon, for an entry the user named (a saved workspace, a project, an account) — a fixed glyph makes them all look alike. Two characters max (rail draws them at icon size); app font, inherited colour, so hover/active behave as for an icon; `icon` stays the fallback.
+// The shell derives them for user-saved workspaces itself, in the rail, the workspace dialog and the curation list: initials of the first two words, or for one word its FIRST AND LAST letter (Month End → ME, Review → RW, Reports → RS). First-and-last because first-two collides far too often (Review/Reports/Rechnungen/Recherche all → RE). On a genuine clash only the NEWER one steps aside (first+second, first+third, …), so Kunden keeps KN and Konten becomes KO and no existing badge is ever renamed. Derived, not stored: a rename updates it, deleting a workspace may let a later one simplify back.
+
+interface SettingsSection { id: string; title: string; group?: string; order?: number; rows: readonly SettingRow[]; }
+interface SettingRow { id: string; label: string; description?: string; control: SettingControl; }
+type SettingControl =
+  | { kind: 'select'; options: readonly { value: string; label: string }[]; value: () => string; set: (v: string) => void }
+  | { kind: 'toggle'; value: () => boolean; set: (v: boolean) => void }                                // .lw-switch (WC tranche 1)
+  | { kind: 'text'; value: () => string; set: (v: string) => void; inputType?: string; placeholder?: string }  // .lw-field
+  | { kind: 'slider'; value: () => number; set: (v: number) => void; min?: number; max?: number; step?: number }  // .lw-range (WC tranche ③)
+  | { kind: 'button'; label: string; variant?: LwButtonVariant; command?: string; run?: () => void }  // command id OR inline run
+  | { kind: 'component'; component: Type<unknown> };
+
+interface PluginUi {                // dialogs + toasts + context menus; message fields are Markdown
+  confirm(o: ConfirmOptions): Promise<boolean>;   // ConfirmOptions may carry requireConfirmation (type-to-confirm)
+  alert(o: AlertOptions): Promise<void>;
+  prompt(o: PromptOptions): Promise<string | null>;
+  open<R = unknown>(component: Type<unknown>, o?: OpenOptions): DialogRef<R>;  // OpenOptions: { data?, size?: 'md'|'lg'|'xl', bare?, buttons?, maximizable?, align?: 'center'|'top' } — align 'top' pins the panel's top edge on EVERY width (phones too, floating card instead of the bottom sheet) so a content-driven height (filtering list) grows downward instead of jumping around, and the on-screen keyboard never covers it. Default 'center' = centred desktop panel + mobile bottom sheet.
+  // maximizable: the host frame shows a maximize/restore control; DialogRef.maximized (readonly signal) +
+  // DialogRef.toggleMaximized() let a bare dialog draw its own control (settings + plugin store do).
+  progress(o: ProgressOptions): ProgressHandle;
+  withProgress<T>(o: ProgressOptions, work: Promise<T>): Promise<T>;
+  toast(input: NotificationInput): string;        // { message, kind?: 'info'|'success'|'warning'|'error', action?, timeoutMs?, id? } — action is trusted in-process only; dropped over the sandbox RPC boundary (like OpenTabInput.onClose)
+  openSettings(): DialogRef;
+  openMenu(items: UiMenuItem[], at: {x,y}): void;  // ad-hoc context menu at a point for the weaver's own body (right-click); host draws <lw-menu>
+}
+// UiMenuItem = { label: string (literal), icon?: string, run: () => void }. In-process (trusted) only:
+// `run` is a function, so it does NOT cross the sandbox boundary — a sandboxed plugin self-draws <lw-menu>.
+interface PluginHost {              // read-only; version/updateAvailable are signal-shaped () => T
+  readonly version: () => string;
+  readonly updateAvailable: () => boolean;
+  readonly updatesEnabled: boolean;
+  checkForUpdate(): Promise<void>;
+  activateUpdate(): Promise<void>;
+}
+interface PluginSession {           // ctx.session ([session] cap): imperative self-gating; signal-shaped () => T
+  readonly authenticated: () => boolean;
+  readonly roles: () => readonly string[];   // opaque tokens — match, don't interpret
+  hasRole(role: string): boolean;
+}
+// Auth-aware access gating. LoomWeaver owns NO auth (login/session/IdP = the product, via provideAuthSource).
+// A contribution declares `access`; the host hides (default) / disables / blocks it by login state + roles. Coarse, no
+// expression parser. `mode` applies to chrome items; a whole view / command / route is present-or-not (mode ignored).
+// CLIENT-SIDE GATING IS PRESENTATION, NOT SECURITY — the real boundary is server-side.
+interface AccessRequirement { authenticated?: boolean; anyRole?: readonly string[]; allRoles?: readonly string[]; mode?: 'hide' | 'disable'; }
+// Dialog tones: 'default'|'info'|'success'|'warning'|'danger'. requireConfirmation.validate: (v) => string|null (null=allow, ''=block silently).
+```
+
+## The distribution contract (`@loomweaver/shell` + `@loomweaver/plugin-sdk`)
+
+```ts
+// from @loomweaver/shell
+function provideShell(options?: { omit?: readonly string[]; serviceWorker?: boolean }): (Provider | EnvironmentProviders)[];
+// serviceWorker (default true) — provideShell REGISTERS the service worker itself, inert in dev;
+// never add provideServiceWorker to your own providers. Pass false when the build emits no ngsw-worker.js,
+// or production logs a failed registration. @angular/service-worker stays a peer dependency either way.
+// omit = a LASTING filter of contribution ids (an id a plugin registers later stays hidden), covering EVERY
+// kind: commands, views, bar/rail items, menu items (`menu:<commandId>`), settings (`setting:<id>`) and
+// content routes (`route:<surfaceId>`). Settings need the `setting:` PREFIX (a chrome id and a settings id
+// may coincide — shell.language is both): 'setting:<sectionId>' drops the whole section, 'setting:<rowId>'
+// drops that row, and a section left with no rows disappears. Built-in ids: section setting:shell.general
+// (rows setting:shell.theme / setting:shell.language / setting:shell.textSize), section
+// setting:shell.permissions (row setting:shell.pluginPermissions), and — when a catalog is provided —
+// section setting:shell.pluginStore (row setting:shell.pluginStoreBrowse).
+// OVERRIDE (re-registering to replace, last-in wins) keys by `id` for every kind EXCEPT content routes,
+// which key by `path` (contribution-registry: addContentRoute matches on route.path). So re-registering a
+// surface with an existing route *id* does NOT override — it adds a second route; use the same `path`.
+// CONTENT ROUTES need the `route:` PREFIX + the SURFACE ID: 'route:<surfaceId>' drops a routable
+// surface's route — gone from the tab strip, the pane target picker and the deep-link auto-open; its URL
+// renders the host's neutral "not available" placeholder instead of falling back to home (the placeholder
+// covers the tab root only; a deep-link into a sub-route of an omitted route falls back to home).
+// Omit keys by ID, override keys by PATH (register your own surface on the same `path` = last-in wins, use
+// that to put your own view at that URL instead of nothing). A rail item/command pointing at an omitted
+// route is a SEPARATE contribution with its own id — omit it too or it stays drawn and dead.
+function provideLayout(layout: ShellLayout): Provider;
+function providePlugins(...plugins: Plugin[]): (Provider | EnvironmentProviders)[];   // trusted, in-process weavers
+// Sandboxed (non-Angular) plugins: code runs in an isolated <iframe sandbox>, gets `ctx` over Penpal RPC
+// through the SAME default-deny broker. Experimental first rung; exposed ctx currently minimal (routes/nav/toasts).
+// Hardened seam: RPC surfaces are re-validated ({iframe} or {container} form — component/loadComponent cannot cross;
+// an iframe URL must be same-origin, no foreign origins/javascript:/data:), effective capabilities = grant ∩
+// declaration, surface-channel navigate() is confined to the route's own tab root (cross-plugin navigation needs the
+// `navigation` grant via ctx.navigateContent). A sandboxed surface may be DOCKED (`docks`, no address — navigate is
+// then a no-op with a dev warning) as well as routable, and may declare a `container` (which must be routable).
+// `access` stays rejected: a sandboxed surface gates itself from the pushed session state.
+// The host pushes {locale, theme, tokens, rootFontSize, icons, tab, preview} into the surface; `tokens` is the FULL
+// LW_TOKENS vocabulary as resolved values, and `icons` carries the DISTRIBUTION's replacement glyphs (never a
+// plugin's own contributions), so <lw-icon> in a surface draws what the chrome beside it draws. It pushes `session`
+// ONLY if the plugin holds the `session` capability — otherwise the field is absent (NOT a
+// signed-out snapshot: "not granted" != "signed out"). Read it as state.session?.roles ?? []. Revoking the
+// capability stops the push live. Default-deny reaches the sandbox surface, not just `ctx`.
+interface FramePlugin { id: string; entryUrl: string; capabilities?: readonly Capability[]; }
+function provideFramePlugins(...plugins: FramePlugin[]): (Provider | EnvironmentProviders)[];
+// Sandbox UI kit: the distribution serves @loomweaver/frame-kit's dist/ SAME-ORIGIN under /frame-kit/
+// (assets glob { input: "node_modules/@loomweaver/frame-kit/dist", glob: "**", output: "frame-kit" }). A sandboxed
+// surface references — never vendors — three files: /frame-kit/lw-frame.css (the .lw-* class contracts
+// compiled to plain CSS on var(--lw-*), with light/dark fallbacks), /frame-kit/penpal.global.js
+// (globalThis.Penpal) and /frame-kit/lw-elements.global.js — the whole <lw-*> element family (tooltip ·
+// select/option · menu/menu-item · button · markdown · icon · progress-ring) with the built-in icon set seeded,
+// plus globalThis.LwFrame: setIcon(name, svg) / removeIcon / hasIcon (plugin-own icons, sanitized) and
+// applySurfaceState(state) — call it from your render handler to apply the pushed tokens/rootFontSize/theme.
+// The kit shares the platform version line, so the paint always matches the shell the plugin runs in.
+// Plugin store: a curated, SAME-ORIGIN catalog of sandboxed plugins the USER installs at RUNTIME —
+// no rebuild, no reload. providePluginCatalog('/plugins/catalog.json') (same-origin JSON array of PluginCatalogEntry,
+// parsed defensively: junk/foreign-origin/unknown-capability entries drop) or a custom PluginCatalog implementation.
+// Adds the built-in "Plugin store" settings section (id `setting:shell.pluginStore`, omit-able). Installing shows a
+// consent dialog listing the DECLARED capabilities; accepting grants exactly that declaration — for installed plugins
+// the user's consent replaces the provideCapabilityGrants map (which keeps governing composed plugins). Installed
+// plugins appear in the Permissions settings (same revoke switches + on/off toggle); install spawns live, uninstall
+// unloads live; the installed set persists through the settings store (user-local by default, product-backable). An
+// installed id can NEVER shadow a composed plugin. Curation happens BEFORE the frontend: not in the catalog = does
+// not exist; per-tenant curation = the product backend answers the catalog request tenant-dependently.
+// UPDATES ride on the catalog `version`: a STRICTLY newer version (compared segment-wise, numerically) shows an
+// "Update available" badge + an "Update to vX.Y.Z" button; pressing it swaps the persisted entry and RESPAWNS the
+// plugin live. A version declaring capabilities the user never consented to re-asks consent listing only the ADDED
+// ones — the persisted entry IS the grant for installed plugins, so an update never widens it silently.
+interface PluginCatalogEntry { id: string; name: string; entryUrl: string; capabilities?: readonly Capability[]; version?: string; description?: string; icon?: string; author?: string; category?: string; downloads?: number; updated?: string; repository?: string; readmeUrl?: string; iconUrl?: string; }
+// category: operator-curated, shown as a badge + matched by the search. iconUrl: SAME-ORIGIN image shown in the
+// store lists (a not-yet-installed plugin cannot contribute registry icons — the VS Code marketplace model);
+// `icon` stays the registry-name for the consent dialog. `updated` renders as a RELATIVE time ("2 days ago",
+// Intl.RelativeTimeFormat, localized). The searchable INSTALLED list (per plugin an icon-action row: open its
+// community settings section · uninstall — tooltipped — the standard .lw-switch enable/disable toggle, and an
+// "Update to vX.Y.Z" button when the catalog carries a newer version) lives in TWO places sharing one
+// component: directly on the Plugin-store settings PAGE (Obsidian settings model, own search field) and as the
+// store dialog's segmented "Installed" view.
+interface PluginCatalog { load(): Promise<readonly PluginCatalogEntry[]>; }
+// options.title brands the store per product (transloco key, e.g. 'product.marketplace'). The STORE is the
+// management surface for installed plugins (install/uninstall — the VS Code Extensions-view / Obsidian model);
+// installed plugins appear in the "Permissions" section like every plugin (on/off + capability switches).
+// The store opens as a DIALOG (settings section's Browse button or the `shell.openPluginStore` palette command):
+// an Obsidian-style browse surface — searchable list (matches name/author/category/description; cards show name, author,
+// downloads, last update, description, Installed badge; sorted by downloads) + a detail pane with metadata, a plain
+// external `repository` link and the plugin's README rendered IN-APP (fetched from the same-origin `readmeUrl`,
+// sanitized — never an embedded foreign page). author/downloads/updated/repository/readmeUrl are parsed defensively
+// (foreign-origin readmeUrl / non-http repository / junk downloads drop, the entry stays).
+function providePluginCatalog(source: PluginCatalog | string, options?: { title?: string }): (Provider | EnvironmentProviders)[];
+function urlPluginCatalog(url: string): PluginCatalog;   // same-origin JSON loader (the string overload uses it)
+// Sandboxed plugin settings (the VS Code contributes.configuration model): a sandboxed plugin registers a
+// DATA-ONLY settings section over RPC (control kind + DEFAULT value — value()/set() callbacks cannot cross the wire).
+// The host renders the controls, OWNS the storage (lw.plugin-settings:<pluginId>:<sectionId> via the settings store) and
+// pushes current values back by calling the plugin's exposed `settingsChanged(sectionId, values)` RPC method — once
+// after registration (restored state), then on every change. Labels/titles may be literals (no plugin translations).
+// The HOST stamps the nav group — installed plugin → "Community plugins", composed frame plugin → "App plugins"
+// (settings.group.community / settings.group.plugins); a plugin can never masquerade as part of the app.
+type FrameSettingControl = { kind: 'toggle'; value: boolean } | { kind: 'text'; value: string; inputType?: 'text'|'date'|'email'|'number'|'password'; placeholder?: string }
+  | { kind: 'select'; value: string; options: readonly SelectOption[] } | { kind: 'slider'; value: number; min?: number; max?: number; step?: number };
+interface FrameSettingRow { id: string; label: string; description?: string; control: FrameSettingControl; }
+interface FrameSettingsSection { id: string; title: string; order?: number; rows: readonly FrameSettingRow[]; }   // no `group` — host-stamped
+function provideTranslationNamespaces(...names: string[]): Provider;   // ADD your strings under name.* — cannot collide with a host key
+function provideTranslationOverrides(basePath?: string): Provider;   // basePath defaults to '/i18n/overrides'
+  // REWORD the shell: serve <basePath>/<lang>.json, merged over everything else KEY BY KEY and applied last
+  // (so it also reaches a bundled weaver's strings). Name only what you change and inherit the rest, including keys a
+  // later release adds — forking the host bundle would leave you behind on every update. Dev-warns for a language with
+  // no overlay and for an overlay key nothing ships (otherwise a typo is a string that never appears).
+  // basePath lets ONE build carry several wordings and pick one while composing (white-label, or a demo that switches
+  // product). A product with a backend does not need it — the default path is same-origin, so its server can vary the
+  // bytes per tenant; the argument is for the static case. A path that resolves to '/' is rejected, since it would
+  // quietly fetch the host bundle as its own overlay.
+function provideCapabilityGrants(grants: Readonly<Record<string, readonly Capability[]>>): Provider;
+// Auth-aware gating: the distribution feeds the session (the platform owns no auth). Map the product's
+// session (OIDC/custom) to a Signal<AuthSnapshot>; default is anonymous. Changing this ONE signal re-gates the whole
+// shell reactively (chrome, palette, keybindings, route guards) — no "refresh" call. Signing out = set it to ANONYMOUS.
+// The login UI (page or dialog) is the PRODUCT's own weaver surface (a routable surface at 'login' / ctx.ui.open) — the platform
+// ships none and NEVER opens it by itself: unmet chrome merely hides/disables; only an unauthorized navigation into a gated
+// content route actively goes anywhere, and only via provideUnauthorizedRedirect (return null → the host's in-place placeholder
+// at the same URL). Convention: pass the attempted path as ?from=…; after sign-in the login view navigates back to '/'+from.
+// AuthSnapshot/ANONYMOUS come from @loomweaver/plugin-sdk; provideAuthSource/provideUnauthorizedRedirect from @loomweaver/shell.
+interface AuthSnapshot { authenticated: boolean; roles: readonly string[]; claims: Readonly<Record<string, string | readonly string[]>>; subject?: string; displayName?: string; }  // subject/displayName: optional, display-only
+const ANONYMOUS: AuthSnapshot;   // { authenticated: false, roles: [], claims: {} } — the bare/signed-out snapshot
+// subject is the IDENTITY ANCHOR: the identity-change policy compares it and an identity-scoped
+// settings store namespaces by it; omit it and both stay inert. onIdentityChange: 'reload' fires ONLY when an
+// established subject is replaced by a DIFFERENT one (first sign-in and sign-out never reload).
+interface AuthSourceOptions { onIdentityChange?: 'reload' | 'ignore'; }   // default 'ignore'
+function provideAuthSource(factory: () => Signal<AuthSnapshot>, options?: AuthSourceOptions): EnvironmentProviders;
+function provideUnauthorizedRedirect(handler: (attemptedPath: string) => string | null): Provider;
+function provideIcons(icons: Readonly<Partial<Record<LoomIconName | (string & {}), string>>>): EnvironmentProviders;
+  // distribution-level icons (name → SVG). Naming a shipped icon REPLACES it app-wide (that is how a product
+  // re-skins the workbench) and the replacement also travels into sandboxed surfaces, so one screen has one
+  // icon set. A weaver's ctx.contributeIcons stays first-wins and can never shadow a first-party or
+  // distribution name. LoomIconName is exported.
+// Persistence port: the shell's user-local chrome state (pane trees = tab groups/splits, panel sizes, item order, panel collapse,
+// theme, language, saved view instances and NAMED WORKSPACES — there is ALWAYS exactly one active workspace
+// (built-in id 'default'); workspaces are SELF-REMEMBERING: switching restores each workspace's own live
+// arrangement without asking (a dirty surface survives parked), and each workspace has a BASELINE — user
+// workspaces save one via "Save as new"/"Save workspace" in the `shell.workspace.manage` dialog;
+// `shell.workspace.reset` discards the active workspace's live arrangement and re-applies its baseline after a
+// confirm (for the default workspace: the declared factory layout), keeping saved workspaces/theme/language/named
+// views; a DISTRIBUTION ships ready-made workspaces with provideWorkspaces(...definitions) — baseline in code,
+// so the user can switch, rearrange and reset one but never overwrite, rename or delete it; the dialog keeps
+// them in their own list and opens on whichever list holds the active workspace. A SECOND reset,
+// `shell.app.reset` (palette + a "Reset layout" button under General in settings), puts back the
+// arrangement that lives BESIDE every workspace: rail curation, collapsed sidebars, panel widths, hand
+// sorting, named view instances and their state. It never touches saved workspaces, theme, language,
+// text size, permissions or installed plugins, and it is guarded like the workspace reset.
+// omit: ['shell.app.reset'] drops it, settings button included (a button naming an unregistered
+// command is dropped, never drawn dead). Put one in the rail with a
+// RailItem carrying `workspace: <id>`; the rail itself is never workspace state, it is the fixed anchor you
+// switch from; the USER curates it the way they curate a sidebar: right-click an entry for "Hide",
+// right-click the rail for "Customize activity bar", which opens the placement dialog, and move an entry to the other rail
+// from its menu, by drag, or with Alt+Shift+Arrow. An entry is either hidden or in EXACTLY ONE rail; registered entries start in
+// their declared `rail` (a start, not a binding), the user's own saved workspaces are hidden until placed
+// Curation happens in a DIALOG, opened by the commands `shell.rail.customize` / `shell.views.customize` (also
+// offered as a menu entry on a right-click of empty rail space / the view strip): one row per entry with where it
+// sits — Hidden / Left / Right, or Hidden / Shown where the layout has only one such bar — plus a search field, and
+// it scrolls. Picking a place hides or moves in one control. Palette-reachable, bindable, omittable (the menu entry
+// separately, as `menu:shell.rail.customize`).
+// (that IS "pinning"). Visibility and placement are app-wide, never per workspace.
+// A workspace's `sidebars` names the VISIBLE views per panel region (empty array = show none of
+// them, the sidebar itself stays; a region left out keeps whatever the user has) — whether a sidebar EXISTS,
+// is open and how wide it is belongs to the WINDOW, so switching never collapses, resizes or removes one.
+// The declaration vocabulary (all from @loomweaver/shell; content areas nest freely, exactly one of tabs/rows/columns each,
+// `size` = percentage with unsized siblings sharing the remainder, first `tabs` area in reading order = the URL pane):
+interface WorkspaceDefinition { id: string; title: string; icon?: string; initial?: boolean; sidebars?: Readonly<Record<string, readonly string[]>>; content?: WorkspaceArea; }
+//   initial: the workspace a FRESH install opens in. Applies once, on a first boot with nothing stored; the choice is
+//   written immediately, so the user's own later switch is what the next boot reads. A deep link still wins — the
+//   baseline is laid out but the booted address is navigated to. Two declarations claiming it: the first wins.
+type WorkspaceArea = PaneArea<WorkspaceTabEntry>;   // the shared grammar over route paths; the aliases below are the same types
+type WorkspaceAreaBase = PaneAreaBase;
+type WorkspaceTabArea = PaneTabArea<WorkspaceTabEntry>;
+type WorkspaceRowArea = PaneRowArea<WorkspaceTabEntry>;
+type WorkspaceColumnArea = PaneColumnArea<WorkspaceTabEntry>;
+type WorkspaceTabEntry = string | WorkspaceTab;   // a route path, or:
+interface WorkspaceTab { path: string; closable?: boolean; active?: boolean; }   // closable:false survives "Close all" and cannot be dragged away
+function provideWorkspaces(...definitions: WorkspaceDefinition[]): EnvironmentProviders;
+//   provideWorkspaces({ id: 'acme.review', title: 'product.workspace.review', icon: 'workspaces',
+//     sidebars: { primary: ['acme.nav'] },
+//     content: { columns: [ { size: 35, tabs: [{ path: 'entry/e-01', closable: false }] },
+//                           { rows: [{ size: 60, tabs: ['search'] }, { tabs: ['notes'] }] } ] } })
+// Invalid declarations warn in dev mode naming what is ignored; nothing fails silently at runtime.
+// A view lives in EXACTLY ONE sidebar, curated like the rail: right-click a view tab for "Move to other
+// sidebar"/"Hide", right-click the strip for "Customize views", whose dialog lists every view with where it sits
+// (hidden / left / right; a view dragged into the content area reads as hidden) and moves it there when you pick
+// a place, so a view hidden on the left comes back wherever you send it.
+// Which views a sidebar holds is workspace state (unlike the rail's curation, which is app-wide).
+// Each view tab's context menu offers "Reset view"
+// to clear that instance's VIEW_STATE blob) is read/written through TWO ports of ONE KeyValueStore shape
+//. SETTINGS_STORE carries genuine SETTINGS only (deliberate decisions: theme, lang, text size, plugin
+// settings, installed/disabled plugins, capability revocations, saved-workspaces list) — rare, small, roaming-worthy
+// writes; this is the port a product backs with its backend over /api (the platform ships no server), and
+// the guarantee is STRUCTURAL: working state can never reach a settings backend. WORKING_STATE_STORE carries working
+// state (view state, view instances, palette MRU) and the window-local layout keys — frequent debounced writes;
+// defaults to the device. Back it with provideWorkingStateStore ONLY to let working state travel across devices:
+// a fresh tab then hydrates the last persisted state at boot; for LIVE cross-device updates pair it with a push
+// transport that calls StateSyncService.notifyRemoteChange(key). Conflicts are last-write-wins per key everywhere
+// (state convergence, NOT collaborative editing — no merge, no CRDT). Both default to localStorage (no wiring).
+// Plain string KV; callers serialise. Optional sync `peek` = zero-flash bootstrap fast-path (theme/language);
+// a network store omits it and the shell hydrates async + reconciles.
+interface KeyValueStore { get(key: string): Promise<string | undefined>; set(key: string, value: string): Promise<void>; delete(key: string): Promise<void>; peek?(key: string): string | undefined; }
+class LocalStorageStore implements KeyValueStore { }                                     // the default behind BOTH ports
+function provideSettingsStore(store: KeyValueStore | Type<KeyValueStore>): Provider;     // place AFTER provideShell() (last wins)
+function provideWorkingStateStore(store: KeyValueStore | Type<KeyValueStore>): Provider; // place AFTER provideShell() (last wins)
+// Storage-key inventory (authoritative; three axes. PORT: settings = SETTINGS_STORE, working state =
+// WORKING_STATE_STORE. SCOPE: device = stays with the browser, identity = belongs to the
+// signed-in user — the shell does NOT namespace by user/tenant itself; scoping is a distribution decision at the
+// store seams. SYNC: synced = follows the app's other windows live (cross-tab sync, below), per-window =
+// stays local so windows can differ; the layout keys are per-window on purpose AND share one persisted slot per
+// workspace — the window that last changed its layout shapes the next boot (a permanently different setup is its
+// own workspace). Layout keys are sliced PER WORKSPACE (`…:<workspaceId>`, built-in default id 'default'):
+//   settings,      device,   synced:     lw.shell.theme · lw.shell.lang · lw.shell.font-scale
+//   settings,      identity, synced:     lw.shell.workspaces (user workspaces: name + saved baseline) · lw.shell.disabled-plugins ·
+//                  lw.shell.capability-revocations · lw.shell.installed-plugins · lw.plugin-settings:<pluginId>:<sectionId> ·
+//                  lw.shell.rail-items (which entries are hidden and which rail each one sits in; app-wide)
+//   working state, identity, per-window: lw.shell.active-workspace ·
+//                  lw.shell.pane-trees:<workspaceId> (per-dock { tree, primary } — per-tab path + LITERAL title + icon + instance + tab order + the URL-pane pointer, clear text) ·
+//                  lw.shell.panels · lw.shell.panel-sizes (the sidebar FRAME is window state, never per workspace) ·
+//                  lw.shell.hidden-views:<workspaceId> (which views that workspace hides) · lw.shell.item-order
+//   working state, identity, synced:     lw.shell.view-instances:<viewId> · lw.shell.view-state:<instanceId> ·
+//                  lw.shell.command-mru (palette "Recently used")
+// Identity scoping: the standard per-user wrapper for multi-user browsers — it wraps BOTH ports through one
+// shared boot latch, so another user's view state and layout are scoped away like their settings.
+// identity() is read synchronously — null/undefined/'' = anonymous = plain keys (a distribution without auth is
+// untouched); signed in, identity-level keys become lw.id.<encodeURIComponent(identity)>:<key>. The stores LATCH the
+// first non-empty identity per boot and never follow a live switch: a different subject only takes
+// effect across the reload boundary, so in-flight writes during a login transition stay in the departing user's
+// namespace; anonymous→first-sign-in re-latches once, sign-out stays latched. Return the live subject — the wrapper
+// owns the latching. deviceKeys REPLACES the default list (spread DEVICE_LEVEL_KEYS to extend) and applies to both
+// ports. peek exists on a wrapper only when the wrapped store has it. Pair with
+// provideAuthSource(..., { onIdentityChange: 'reload' }) so a user switch re-hydrates from the new namespace.
+const DEVICE_LEVEL_KEYS: readonly string[];   // ['lw.shell.theme', 'lw.shell.lang', 'lw.shell.font-scale']
+interface IdentityScopedStoreOptions { identity: () => string | null | undefined; deviceKeys?: readonly string[]; settingsStore?: KeyValueStore; workingStateStore?: KeyValueStore; }
+function provideIdentityScopedStores(options: IdentityScopedStoreOptions): Provider;   // place AFTER provideShell(); replaces provideSettingsStore
+// CROSS-TAB LIVE SYNC — ON BY DEFAULT, NO WIRING. Whatever stores are in place, BOTH ports are
+// wrapped so every write broadcasts its KEY (not its value) to the other browser windows of this origin; a window
+// that registered a reaction reads the fresh value back through the registered source's store and applies it — so it
+// works with a network-backed store too. The shell registers its own keys: theme, lang, font-scale,
+// installed-plugins, disabled-plugins, capability-revocations, lw.plugin-settings:* (pushed on to the sandboxed
+// plugin via settingsChanged), lw.shell.view-state:*, lw.shell.view-instances:*, lw.shell.workspaces,
+// lw.shell.command-mru. Plugins inherit it for free (host-managed stores).
+// LAYOUT KEYS ARE DELIBERATELY NOT SYNCED (pane-trees:<workspaceId>, panel-sizes, panels,
+// hidden-views:<workspaceId>, active-workspace, item-order) — windows are
+// meant to be able to show different layouts. An applier MUST NOT persist again (that would ping-pong forever).
+// POP-OUT WINDOWS — any content tab or sidebar view opens in its OWN browser window from its context
+// menu ("Open in new window"). The pop-out boots the SAME app at /popout/… and renders exactly ONE surface: no rail,
+// no sidebars, no pane tree. It DUPLICATES (the original tab stays) and shares one VIEW_STATE instance, so the two
+// windows mirror live via the sync below. A pop-out NEVER writes layout keys and does not register layout-mutating
+// commands. URLs: /popout/view/<viewId> for any registered view, /popout/<contentPath> for a routable surface.
+// Nothing to declare — no plugin or distribution change is needed. Pop-up blocked ⇒ the host offers a retry dialog.
+// A gated route in a pop-out renders NO surface and does NOT redirect (a login flow in a chrome-less window leads
+// nowhere) — the off-router placeholder text is context-sensitive (popout.unavailable, not the split text).
+// SUB-ROUTE RULE (authoring): a surface that draws its own sub-tabs must switch them LOCALLY when host-mounted —
+// the host supplies a synthetic ActivatedRoute whose routeConfig === null; branch on it (keep sub-tab local
+// off-router, navigate the global router only in the URL pane). An absolute navigateByUrl from a pop-out drags the
+// URL out of the /popout/ prefix so its reload opens the full app. Sub-tab-less views need nothing.
+class PopoutService {
+  readonly active: boolean;          // is THIS window a pop-out? latched from location at boot
+  open(paneTarget: string): void;    // 'view:<viewId>' or a content path like 'doc/42'
+}
+class ThemeService {                 // owns light/dark for the whole app; toggles the `dark` class on <html>, which flips the --lw-* ladder
+  readonly mode: Signal<ThemeMode>;              // 'light' | 'dark' | 'system' — what the USER picked
+  readonly resolvedTheme: Signal<ResolvedTheme>; // 'light' | 'dark' — what is RENDERED, `system` already resolved against the OS
+  setMode(mode: ThemeMode): void;
+}
+// Mirror `resolvedTheme`, NEVER `mode`: `mode` can be 'system' and no other framework knows what that means.
+// Let the shell lead — its mode is persisted, synced across tabs and pushed into sandboxed surfaces.
+type SyncSource = 'settings' | 'working-state' | 'external';       // where the fresh value is read back from;
+                                                                   // 'external' = out-of-port state, applier gets undefined
+type ApplySyncedState = (raw: string | undefined, key: string) => void;
+class StateSyncService {
+  register(source: SyncSource, key: string, apply: ApplySyncedState): () => void;         // exact key; one applier per key, re-register replaces; returns a disposer
+  registerPrefix(source: SyncSource, prefix: string, apply: ApplySyncedState): () => void; // key family, e.g. 'lw.shell.view-state:'; exact wins
+  announce(key: string): void;             // announce a write to OUT-OF-PORT state (product session) to the OTHER windows
+  notifyRemoteChange(key: string): void;   // run the registered applier in THIS window (backend push transport → live cross-device sync)
+}
+// ONE home for every user-facing GESTURE. A contribution (command, bar/rail item, settings row,
+// menu entry) is not a gesture — remove those with provideShell({ omit }).
+// A switch takes the affordance AND the gesture: content.splitRight off removes the toolbar button,
+// the left/right drop edges and mod+\ alike. Fields merge group by group; every default is true.
+interface ContentFeatures { close: boolean; pin: boolean; escalate: boolean; moveTabs: boolean; preview: boolean; newTab: boolean; splitRight: boolean; splitDown: boolean; maximize: boolean; minimize: boolean; reorderTabs: boolean }
+interface SidebarFeatures { collapse: boolean; resize: boolean; reorderViews: boolean; moveViews: boolean; hideViews: boolean; curate: boolean; stackViews: boolean; acceptTabs: boolean; openViewInContent: boolean; resetViewState: boolean; instances: boolean }
+interface RailFeatures { reorder: boolean; moveItems: boolean; hideItems: boolean; curate: boolean }
+// Sorting and moving are separate: reorderViews / rail.reorder order items WITHIN one bar; moveViews /
+// rail.moveItems carry one to the OTHER bar and take the menu entry, the drag and Alt+Shift+Arrow together.
+// stackViews = the "Stack below" entry and dropping a view on a sidebar edge; acceptTabs = parking a
+// foreign tab in a sidebar (strip or edge); curate = the right-click checklist of what lives here.
+interface WorkspaceFeatures { enabled: boolean }   // the manage/reset commands + workspace rail entries
+interface WindowFeatures { popout: boolean }      // "Open in new window" on a tab and on a docked view
+interface CommandFeatures { shortcuts: boolean; recentlyUsed: boolean }
+// shortcuts: false takes the global key listener AND every chord hint the shell prints (menu entry,
+// palette row, bar button), so nothing advertises a key that does nothing; commands stay reachable by
+// button and palette. workspaces.enabled: false leaves storage scoping alone — the active workspace
+// still names the layout keys, the user just never meets the concept.
+// A rail or bar item naming a command nobody registered is dropped, like an orphaned menu entry.
+interface ShellFeatures { content: ContentFeatures; sidebar: SidebarFeatures; rail: RailFeatures; workspaces: WorkspaceFeatures; windows: WindowFeatures; commands: CommandFeatures }
+type ShellFeaturesInput = { [G in keyof ShellFeatures]?: Partial<ShellFeatures[G]> };
+const DEFAULT_SHELL_FEATURES: ShellFeatures;           // the default workbench: every field true
+const SHELL_FEATURES: InjectionToken<ShellFeatures>;
+function provideShellFeatures(features: ShellFeaturesInput): EnvironmentProviders;
+type RetentionDefault = 'destroy' | 'retain';          // storage policy, set via provideShell({ retention })
+   // retention: the app-wide default for HIDDEN surfaces — 'destroy' (default) destroys a hidden, clean
+   // surface (tab switch, minimised pane, collapsed sidebar, closed compact drawer; VIEW_STATE is the survival path);
+   // 'retain' keeps every hidden instance alive. A surface's own retain: 'always' | 'never' wins over this default.
+function provideCommandPaletteEntry(options?: { bar?: string; slot?: BarSlot; order?: number }): EnvironmentProviders;  // LWF-05: a built badge-styled top-bar entry (search icon + OS-correct shortcut) opening shell.commandPalette. Opt-in; id 'shell.commandPaletteEntry' (omittable). Defaults: top-bar / end / order 5.
+// The palette itself (mod+k) matches by SUBSEQUENCE (fuzzy — "rst" finds "Reset list"), surfaces the commands the user
+// last picked IN IT in a "Recently used" section on top (persisted at lw.shell.command-mru, VS-Code MRU behaviour —
+// no other trigger adds to it: a command driven by its shortcut is one you can already reach without searching) and shows a
+// keyboard-hint footer (↑↓ · ↵ · Esc). All host-internal — no authoring or distribution API.
+// Quick-Open (amendment): a SECOND host command shell.quickOpen (mod+p) opens the same palette in tabs mode —
+// every open tab across all content panes + every parameter-free, non-chromeless registered route, most-recent-first
+// with relative time; Enter reveals the tab WHERE IT LIVES (a secondary pane is activated in place, not duplicated in the
+// primary); → opens the tab's context menu. Source: ContentTabsService.quickOpenTargets / .revealContentTab
+// (@loomweaver/shell, additive; QuickOpenTarget is exported). The tab last-active timestamps are session-only (no storage key).
+function formatChord(chord: string): string;  // LWF-04: OS-correct chord for display — formatChord('mod+k') → '⌘K' (macOS) / 'Ctrl+K'. Same token vocabulary as Command.shortcut.
+function provideShellRouter(extraRoutes?: Routes): (Provider | EnvironmentProviders)[];  // content-area routing; use INSTEAD of provideRouter([])
+const Shell;   // the root component: <lw-shell></lw-shell>
+
+interface ShellLayout { readonly regions: readonly LayoutRegion[]; }
+interface LayoutRegion { readonly id: string; readonly type: 'bar'|'rail'|'panel'|'content'; readonly dock: 'top'|'bottom'|'left'|'right'|'center'; }
+
+// from @loomweaver/plugin-sdk
+function provideProductIdentity(identity: { name: string; tagline: string; logoUrl: string }): Provider;
+```
+
+## Canonical distribution
+
+The shell is an ordinary standalone component, so it renders INSIDE the generated app rather than
+replacing it. Angular's own shape is kept — `main.ts` bootstraps `App`, `App` renders `<lw-shell />`,
+and every provider lives in `app.config.ts`. Identical under the Angular CLI and Nx.
+
+```ts
+// src/main.ts — unchanged from `ng new`
+bootstrapApplication(App, appConfig).catch((err) => console.error(err));
+
+// src/app/app.ts
+@Component({ selector: 'app-root', imports: [Shell], templateUrl: './app.html' })
+export class App {}
+
+// src/app/app.html   →   <lw-shell />
+
+// src/app/app.config.ts — the composition root
+import { ApplicationConfig } from '@angular/core';
+import { Shell, provideShell, provideShellRouter, provideLayout, providePlugins, provideTranslationNamespaces, provideCapabilityGrants } from '@loomweaver/shell';
+import { provideProductIdentity } from '@loomweaver/plugin-sdk';
+import { notesWeaver } from '@my/notes-weaver';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideShellRouter(),   // content-area routing — replaces provideRouter([])
+    provideShell(),
+    provideLayout({ regions: [
+      { id: 'top-bar', type: 'bar', dock: 'top' },
+      { id: 'activity', type: 'rail', dock: 'left' },
+      { id: 'primary', type: 'panel', dock: 'left' },
+      { id: 'main', type: 'content', dock: 'center' },
+      { id: 'status-bar', type: 'bar', dock: 'bottom' },
+    ] }),
+    provideProductIdentity({ name: 'Notes Studio', tagline: 'product.tagline', logoUrl: 'logo.png' }),
+    provideTranslationNamespaces('notes', 'product'),
+    provideCapabilityGrants({ notes: ['contributions', 'ui', 'host'] }),
+    // Optional: provideShellFeatures({ content, sidebar, rail, workspaces, windows, commands }) — switch user-facing gestures off
+    // (every gesture is ON by default). Reordering: content.reorderTabs + rail.reorder + sidebar.reorderViews
+    // let users sort within a band; sidebar.moveViews drags a VIEW between the left/right sidebars
+    // (Obsidian-style, Alt+Shift+Left/Right by keyboard). A content tab's order lives on the pane that
+    // holds it (in lw.shell.pane-trees), rail/view order in lw.shell.item-order — both user-local.
+    // Uses @angular/cdk (a @loomweaver/shell peer dep).
+    ...providePlugins(notesWeaver),   // variadic + returns an array: spread it
+  ],
+};
+```
+
+**Which provider does a decision go through?** There is deliberately no god-provider — folding these into one options bag would give each decision two doors. Indexed by intent: identity/layout/look = `provideProductIdentity` · `provideLayout` · the `--lw-*` tokens · `provideIcons` (replaces a shipped icon app-wide) · `provideTranslationOverrides` (rewords the shell) · `provideTranslationNamespaces` (adds your own strings). What users may DO = `provideShellFeatures` (gestures) · `provideShell({ omit })` (contributions) · `provideWorkspaces` (ready-made layouts); `shell.app.reset` ships, so "put the arrangement back" needs no wiring. What ships inside = `providePlugins` + `provideCapabilityGrants` · `provideFramePlugins` · `providePluginCatalog` · `provideBarItems`/`provideRailItems`/`provideViews` · `provideCommandPaletteEntry`. What it talks to = `provideAuthSource` · `provideUnauthorizedRedirect` · `provideSettingsStore` · `provideWorkingStateStore` · `provideIdentityScopedStores` · `provideTabAddressResolver` · `provideShellRouter` · `provideShell({ serviceWorker, retention })`.
+
+**Dev-mode composition report.** `loomweaver.report()` in the browser console (dev only, nothing reaches a production build) prints the declared regions, the switched-off capabilities and the omitted ids, then warns about what lands nowhere: an `omit` that **matched nothing**, naming the prefix you probably meant (bare `shell.permissions` hides a command or item of that id; the settings section of that name needs `setting:shell.permissions`, and the bare form fails silently), and a settings button or menu entry pointing at a **command no one registers** (or one your own `omit` removed) — the shell drops such a control rather than drawing a dead one, and this says why it vanished. One check does not wait for the console because it is decidable at startup and is warned about immediately: a bar/rail/view contribution aimed at a region the layout does not declare, or declares with another anatomy, naming the regions of the right type that do exist (the `status` versus `status-bar` mistake, which otherwise ships a silently empty status bar).
+
+## Canonical weaver
+
+```ts
+import { Plugin } from '@loomweaver/plugin-sdk';
+export const notesWeaver: Plugin = {
+  manifest: { id: 'notes', name: 'Notes', capabilities: ['contributions', 'ui', 'host'] },
+  activate(ctx) {
+    ctx.registerCommand({ id: 'notes.add', title: 'notes.add', icon: 'add', shortcut: 'mod+enter', run: () => store.add() });
+    ctx.registerSurface({ id: 'notes.list', docks: ['primary'], title: 'notes.list.title', icon: 'navigator',
+      actions: [{ id: 'notes.list.add', icon: 'add', title: 'notes.add', command: 'notes.add' }], component: NotesListView });
+    ctx.registerBarItem({ id: 'notes.add.btn', bar: 'status-bar', slot: 'start', icon: 'add', tooltip: 'notes.add', command: 'notes.add' });
+    ctx.registerRailItem({ id: 'notes.settings', rail: 'activity', icon: 'settings', title: 'notes.settings', anchor: 'bottom', run: () => ctx.ui.openSettings() });
+    ctx.registerSettingsSection({ id: 'notes', title: 'notes.name', group: 'settings.group.plugins', order: 100, rows: [] });
+  },
+};
+```
+
+## Setup essentials
+
+- **Install:** `npm install @loomweaver/shell @loomweaver/plugin-sdk @angular/cdk @jsverse/transloco @ng-icons/heroicons @angular/service-worker@<your Angular version>`. Pin that last one to the `@angular/core` version already in the app: Angular packages peer-depend on each other by EXACT version, so the one Angular package an app does not already have is the one npm gets to choose, and it picks the newest — which demands a newer core and fails with `ERESOLVE`. Do **NOT** run `ng add @angular/pwa`: it writes `provideServiceWorker` into `app.config.ts`, which is exactly the registration `provideShell()` already owns (see `serviceWorker` above). What the build still needs is `"serviceWorker": "ngsw-config.json"` plus `"optimization": { "styles": { "inlineCritical": false } }` in its production configuration — the latter is not optional, because Angular's critical-CSS pass loads the stylesheet with an inline `onload` handler that the strict `script-src 'self'` blocks, leaving the app completely unstyled in production builds only. The packages are not on the public registry yet; until the first public release they come from LoomWeaver's own feed, configured for the `@loomweaver` scope in an `.npmrc`.
+- **Styles, two paths.** (a) **Tailwind 4** — `@import 'tailwindcss'; @source '../node_modules/@loomweaver/shell'; @import '@loomweaver/shell/styles/theme.css';`. Use semantic tokens only (`bg-surface`, `text-content`, `text-brand`); needed if you write Tailwind utilities of your own. (b) **Pre-compiled, Tailwind optional** — `@import '@loomweaver/shell/styles/shell.css';` alone (tokens + the `.lw-*` class contracts + every utility the shell's own templates use, ~67 KB / 11 KB gzipped). Take (b) when your product is themed with something else. Everything in it sits in cascade layers except two deliberate `html, body` rules, so your own unlayered CSS outranks ours — which means a foreign framework must be imported INTO a layer or its element rules (Bootstrap's Reboot: `button { border-radius: 0 }`) silently strip the chrome: `@import 'bootstrap/dist/css/bootstrap.css' layer(vendor);`. Re-theme by pointing the `--lw-*` tokens at your framework's variables in `@layer lw-tenant-theme` (`loom theme --name acme --preset bootstrap` writes that mapping for Bootstrap 5.3). Both halves are scaffolded: `loom distribution --name acme-studio --styles precompiled` emits (b) as the stylesheet, `--styles tailwind` (the default) emits (a).
+- **Weaver body primitives:** semantic tokens · `prose-lw` · the host **`<lw-*>` custom elements** (used by tag, no `@loomweaver/shell` import; Angular weaver needs `schemas:[CUSTOM_ELEMENTS_SCHEMA]`): `<lw-icon name size>` · `<lw-button variant size>` (or the `.lw-btn` class contract on a native `<button>`) · `.lw-field` class contract on a native `<input>`/`<textarea>`/`<input type=date>` (+ `.lw-field--invalid`; no wrapper WC — native controls have full semantics) · `.lw-checkbox` / `.lw-switch` class contracts on a native `<input type=checkbox>` (switch adds `role=switch`) · `.lw-radio` / `.lw-range` class contracts on native `<input type=radio>` / `<input type=range>` (range needs an `aria-label`) · `.lw-progress` class contract on a native `<progress value max>` (bar) + `<lw-progress-ring value max size>` WC (ring — both need an `aria-label`; `size` is a CSS LENGTH like `2.5rem` [default], a bare number is silently ignored) · `.lw-badge` (+ `--brand`/`--success`/`--danger`) status pill on a `<span>` · `.lw-divider` on a native `<hr>` · `.lw-collapsible` on a native `<details>`/`<summary>` (+ `.lw-collapsible-body`; native disclosure, no JS) · `<lw-markdown source>` (marked+DOMPurify) · `<lw-select>`+`<lw-option>` (event `lw-select-change`) · `<lw-tooltip text position>` as last child of a `position:relative` trigger (a top-layer `[popover]` → NOT clipped inside a scrolling/virtualized or `transform`ed ancestor). **Custom elements do NOT survive `[innerHTML]`** — Angular's DomSanitizer strips them; use `<lw-*>` in your template, and for interactive bits on innerHTML content keep a preserved attribute (native `title`) or render a real element. Context menus, three cases: (1) host chrome — contribute items with `ctx.registerMenuItem` (host draws `<lw-menu>`) or a `menu?` slot on your rail/bar/view items; (2) your OWN in-process body — `ctx.ui.openMenu(items, {x,y})` (ad-hoc items with in-process `run`, host draws `<lw-menu>` at the cursor; body-level, never clipped); (3) your OWN sandboxed surface — draw `<lw-menu>` yourself and `openAt(x,y)` at the local cursor (in-process, no host RPC). **A weaver's OWN `customElements.define()` is the escape hatch (rung 4): allowed for trusted (build-time composed) plugins because they share the host document, but NOT a supported path — there is no `ctx` surface for it and it is the one contribution the platform cannot undo.** No `undefine` exists, so a tag outlives disable/update/uninstall; re-enabling a plugin runs `activate` again and an unguarded second `define()` throws `NotSupportedError`, which the runtime reports as an activation failure and the plugin loses ALL its contributions → always `if (!customElements.get(tag))`. It also does not survive a move to the sandbox rung (registry is per document; `<lw-*>` only reaches iframes because the host serves the script there), there is no collision handling (unlike first-wins `contributeIcons`) so prefix your own tags and never claim `lw-`, and a tag must not be offered to other plugins (undecided in-process, impossible across the sandbox). Prefer `<lw-*>`, the `.lw-*` class contracts and `ctx.ui`; if you do define one, paint it with the semantic tokens so theming reaches it.
+- **i18n:** serve `@loomweaver/shell/i18n/**` at `/i18n/`; each namespace at `/i18n/<name>/{lang}.json` (nests under `<name>.*`, can't collide with host keys).
+- **index.html:** `<lw-shell></lw-shell>`. **Angular 22 standalone, zoneless** (the shell declares zoneless change detection).
+
+## Backend (optional, product-owned — the platform ships no server)
+
+- The backend seam is expressed only as **frontend ports** with local/anonymous defaults: implement the `KeyValueStore` shape and provide it via `provideSettingsStore` (settings; the REST-worthy port) and optionally `provideWorkingStateStore` (working state; device-local by default), and feed `AuthSource` (a `Signal<AuthSnapshot>`) via `provideAuthSource`, against **your own backend** (any stack). The UI runs standalone with no backend.
+- Settings persistence, auth/session, per-tenant secrets, credentialed egress and capability grants live in the product's backend — you need them anyway, and they can't be client-side. Third-party plugin credentialed egress will be a small **contract** (not a shipped server) defined when the first such plugin arrives.
+
+## Scaffolding & tooling (dev-time, deterministic)
+
+Prefer generating over hand-wiring. Three dev-time `scope:tooling` packages, published on the same version line as the platform (none are part of the runtime `ctx` contract). One `ScaffoldDescriptor` per scaffold feeds all three adapters, so their options and output are identical; they differ only in what each is handed: the Nx adapter gets a virtual tree (writes AND changes existing files), the CLI gets a target directory (writes), MCP gets nothing (returns a file map).
+
+- **`@loomweaver/devkit`** — the **Nx generator collection**, installed as a dev dependency (`npm i -D @loomweaver/devkit`; peers `@nx/devkit`). The fullest adapter: it is the only one that also *changes* files — it registers the project, adds the tsconfig alias and wires the weaver's i18n assets glob into the composing app. Placement is read from the consumer workspace, not assumed: `--directory`, `--project-name`, `--import-path` (defaults to your root manifest's npm scope), `--app` (inferred when there is exactly one application, an error naming the candidates when there are several), `--tags`, `--prefix`, `--unit-test-runner`. Generators: `weaver` (feature-composable — flags `--command`/`--shortcut`/`--menu=<slot>`/`--bar-item`/`--settings`/`--about`/`--instanceable`/`--container`/`--access=<req>`/`--no-spec`; capabilities are derived from the chosen features, so it's correct-by-construction. `--instanceable` and `--container` shape the surface itself and are mutually exclusive: `--instanceable` **docks** it into `primary` and drops `routable`, because named instances exist only for a non-routable surface — the host does not carry `instanceable` onto a content route — and the rail item then uses `ctx.revealSurface`; `--container` makes it a routable container at `<id>/:id` holding a nested pane tree, emitting two children with `docks: []` whose components read the container's `:id` off an injected `ActivatedRoute`) · `frame-plugin` (framework-agnostic iframe/Penpal) · `distribution` (runnable composition root; `--styles precompiled` emits the Tailwind-free stylesheet, default `tailwind`) · `auth-source` · `settings-store` · `theme` (`--preset bootstrap` maps all 29 `--lw-*` tokens onto Bootstrap 5.3's `--bs-*`) · `layout`. E.g. `nx g @loomweaver/devkit:weaver --id=notes --settings --about`. Generated test wiring is `@nx/angular:unit-test` (Vitest). Plus the pure cores: `generate(recipe, input) → FileMap` and `validateManifest` / `validateI18nParity` / `validateCatalog` → `Finding[]`.
+- **`@loomweaver/cli`** — the scaffolding **CLI** (adapter 2), the primary path for a product repo: no Nx workspace, no checkout, no assistant. `npx @loomweaver/cli weaver --id notes --command --shortcut 'mod+shift+n' --out src/lib/notes` · `list` · `validate-manifest` · `validate-i18n --dir <dir>` · `validate-catalog --file <path>`. Flags: `--out` (default `.`), `--dry-run` (also names files that already exist), `--force` (an existing file otherwise stops the run and is named), `--strict` (validation warnings fail the exit code, for CI). As the writing adapter it owns the guards: a path escaping `--out` is refused, a symlink inside `--out` is replaced rather than followed, and an unknown `--flag` fails the run instead of being dropped silently. Self-contained esbuild bundle, version == the platform version. It wraps the SAME pure core as MCP, so identical output; the difference is only who writes: the CLI does it, over MCP the assistant does.
+- **`@loomweaver/mcp`** — an MCP server (stdio) exposing the same as tools for AI assistants: `list_generators` · `scaffold_*` · `validate_manifest` / `validate_i18n` / `validate_catalog` (return findings). **`scaffold_*` never touch the filesystem** — they return a file map of *relative* paths, and the client writes it, choosing the target root against its own layout (the server cannot know it). This is the mirror image of the Nx adapter: that one may write because it dictates the layout. Transport-neutral core; `nx bundle mcp` → self-contained `dist/main.mjs` (devkit + the MCP SDK inlined). Published as a bin package, so a product repo already consuming `@loomweaver/*` registers it in `.mcp.json` with `{ "command": "npx", "args": ["-y", "@loomweaver/mcp"] }` — scaffolding LoomWeaver artifacts without LoomWeaver's Nx workspace. Remote/HTTP transport is a thin later layer over the same `createMcpServer()`. (See `platform/libs/tooling/mcp/README.md`.)
+
+## Full docs (prose, examples)
+
+- docs/architecture.md · docs/getting-started.md · docs/manual-setup.md · docs/samples.md · docs/authoring-a-weaver.md · docs/building-a-distribution.md · docs/plugins.md · docs/scaffolding.md · docs/backend-integration.md
+- docs/reference/{shell-anatomy,design-tokens,accessibility,host-services,access-gating}.md
+- Scaffolding: docs/scaffolding.md and platform/libs/tooling/{devkit,cli,mcp}/README.md
+- A PLUGIN's public API is exactly `@loomweaver/plugin-sdk`'s exports (typings ship in the package); nothing else is public API for a plugin.
+-   A DISTRIBUTION additionally composes `@loomweaver/shell`'s exports (provideShell, provideShellRouter, the provide* ports, StateSyncService, PopoutService, PluginInstallService, …) — everything in its packed .d.ts.

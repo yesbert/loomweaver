@@ -1,0 +1,63 @@
+{
+  "name": "shell",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/core/shell/src",
+  "prefix": "lw",
+  "projectType": "library",
+  "tags": ["scope:platform", "type:core"],
+  "targets": {
+    "package": {
+      "executor": "@nx/angular:package",
+      "outputs": ["{workspaceRoot}/dist/libs/core/shell"],
+      "options": {
+        "project": "libs/core/shell/ng-package.json",
+        "tsConfig": "libs/core/shell/tsconfig.lib.json"
+      },
+      "dependsOn": ["^package"]
+    },
+    "test": {
+      "executor": "@nx/angular:unit-test",
+      "outputs": ["{workspaceRoot}/coverage/{projectName}"],
+      "options": {
+        "buildTarget": "shell:package",
+        "watch": false
+      }
+    },
+    "lint": {
+      "inputs": [
+        "default",
+        "^default",
+        "{workspaceRoot}/.eslintrc.json",
+        "{workspaceRoot}/.eslintignore",
+        "{workspaceRoot}/eslint.config.mjs",
+        "{workspaceRoot}/tools/eslint-rules/**/*",
+        {
+          "externalDependencies": ["eslint"]
+        }
+      ]
+    },
+    "styles": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["package"],
+      "outputs": ["{workspaceRoot}/dist/libs/core/shell/styles/shell.css"],
+      "inputs": [
+        "{projectRoot}/src/**/*",
+        "{projectRoot}/build-styles.mjs",
+        "{projectRoot}/package.json",
+        {
+          "externalDependencies": [
+            "tailwindcss",
+            "@tailwindcss/postcss",
+            "@tailwindcss/typography",
+            "postcss",
+            "esbuild"
+          ]
+        }
+      ],
+      "options": {
+        "cwd": "libs/core/shell",
+        "command": "node build-styles.mjs"
+      }
+    }
+  }
+}

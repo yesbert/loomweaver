@@ -1,0 +1,58 @@
+@if (fills()) {
+  @if (accepts()) {
+    <div
+      class="lw-pane-drop-zone col-span-3 row-span-3 col-start-1 row-start-1"
+      cdkDropList
+      [cdkDropListEnterPredicate]="enterPredicate"
+      [id]="fillZoneId()"
+      (cdkDropListDropped)="onFill($event)"
+    >
+      <div class="lw-pane-drop-preview lw-pane-drop-preview--fill"></div>
+    </div>
+  }
+} @else {
+  @if (has('left')) {
+    <div
+      class="lw-pane-drop-zone col-start-1 row-span-3 row-start-1"
+      cdkDropList
+      [cdkDropListEnterPredicate]="enterPredicate"
+      [id]="zoneId('left')"
+      (cdkDropListDropped)="onDrop('left', $event)"
+    >
+      <div class="lw-pane-drop-preview lw-pane-drop-preview--left"></div>
+    </div>
+  }
+  @if (has('right')) {
+    <div
+      class="lw-pane-drop-zone col-start-3 row-span-3 row-start-1"
+      cdkDropList
+      [cdkDropListEnterPredicate]="enterPredicate"
+      [id]="zoneId('right')"
+      (cdkDropListDropped)="onDrop('right', $event)"
+    >
+      <div class="lw-pane-drop-preview lw-pane-drop-preview--right"></div>
+    </div>
+  }
+  @if (has('top')) {
+    <div
+      class="lw-pane-drop-zone col-start-2 row-start-1"
+      cdkDropList
+      [cdkDropListEnterPredicate]="enterPredicate"
+      [id]="zoneId('top')"
+      (cdkDropListDropped)="onDrop('top', $event)"
+    >
+      <div class="lw-pane-drop-preview lw-pane-drop-preview--top"></div>
+    </div>
+  }
+  @if (has('bottom')) {
+    <div
+      class="lw-pane-drop-zone col-start-2 row-start-3"
+      cdkDropList
+      [cdkDropListEnterPredicate]="enterPredicate"
+      [id]="zoneId('bottom')"
+      (cdkDropListDropped)="onDrop('bottom', $event)"
+    >
+      <div class="lw-pane-drop-preview lw-pane-drop-preview--bottom"></div>
+    </div>
+  }
+}

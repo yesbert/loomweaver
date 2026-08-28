@@ -1,0 +1,108 @@
+<div class="@container flex h-full flex-col gap-4">
+  <div class="flex flex-wrap items-center gap-3">
+    <label class="sr-only" for="quotes-search">{{ 'quotes.list.search' | transloco }}</label>
+    <input
+      id="quotes-search"
+      type="search"
+      class="lw-field w-full min-w-40 flex-1 @md:w-auto @2xl:max-w-sm"
+      [attr.placeholder]="'quotes.list.searchPlaceholder' | transloco"
+      [value]="search()"
+      (input)="onSearch($event)"
+    />
+    <lw-select
+      [attr.label]="'quotes.list.statusLabel' | transloco"
+      [attr.value]="status()"
+      (lw-select-change)="onStatus($event)"
+    >
+      @for (option of statusFilters; track option) {
+        <lw-option [attr.value]="option">{{ 'quotes.list.status.' + option | transloco }}</lw-option>
+      }
+    </lw-select>
+  </div>
+
+  <div
+    class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border bg-surface-raised"
+  >
+    <div
+      class="hidden shrink-0 grid-cols-[7rem_minmax(0,1fr)_6rem_6rem_6.5rem_7rem] gap-3 border-b border-border px-4 py-2.5 text-xs font-medium text-content-muted @2xl:grid"
+    >
+      <span>{{ 'quotes.list.column.number' | transloco }}</span>
+      <span>{{ 'quotes.list.column.customer' | transloco }}</span>
+      <span>{{ 'quotes.list.column.issued' | transloco }}</span>
+      <span>{{ 'quotes.list.column.validUntil' | transloco }}</span>
+      <span>{{ 'quotes.list.column.status' | transloco }}</span>
+      <span class="text-right">{{ 'quotes.list.column.total' | transloco }}</span>
+    </div>
+
+    <div class="min-h-0 flex-1 overflow-auto">
+      <ul data-testid="quotes-list">
+        @for (row of rows(); track row.quote.id) {
+          <li class="border-b border-border last:border-b-0" [attr.data-quote]="row.quote.number">
+            <button
+              type="button"
+              (click)="preview(row.quote)"
+              (dblclick)="keep(row.quote)"
+              class="w-full cursor-pointer px-4 py-3 text-left transition-colors hover:bg-surface-overlay @2xl:py-2.5"
+              [class.bg-surface-overlay]="row.quote.id === activeId()"
+              [attr.aria-current]="row.quote.id === activeId() ? 'true' : null"
+              [attr.aria-label]="row.quote.number + ' · ' + row.customer"
+            >
+              <span
+                class="hidden grid-cols-[7rem_minmax(0,1fr)_6rem_6rem_6.5rem_7rem] items-center gap-3 @2xl:grid"
+              >
+                <span class="font-mono text-sm text-content-muted">{{ row.quote.number }}</span>
+                <span class="min-w-0">
+                  <span class="block truncate text-content">{{ row.customer }}</span>
+                  <span class="block truncate text-xs text-content-faint">{{ row.city }}</span>
+                </span>
+                <span class="text-sm text-content-muted tabular-nums">{{ row.issuedOn }}</span>
+                <span class="text-sm text-content-muted tabular-nums">{{ row.validUntil }}</span>
+                <span
+                  ><span [class]="row.badge">{{
+                    'quotes.list.status.' + row.quote.status | transloco
+                  }}</span></span
+                >
+                <span class="text-right text-sm font-medium text-content tabular-nums">{{
+                  row.total
+                }}</span>
+              </span>
+
+              <span class="flex flex-col gap-1 @2xl:hidden">
+                <span class="flex items-baseline justify-between gap-3">
+                  <span class="font-mono text-xs text-content-faint">{{ row.quote.number }}</span>
+                  <span class="text-sm font-medium text-content tabular-nums">{{ row.total }}</span>
+                </span>
+                <span class="truncate font-medium text-content">{{ row.customer }}</span>
+                <span class="flex items-center gap-2 text-xs text-content-faint">
+                  <span [class]="row.badge">{{
+                    'quotes.list.status.' + row.quote.status | transloco
+                  }}</span>
+                  <span>{{ row.city }}</span>
+                  <span aria-hidden="true">·</span>
+                  <span class="tabular-nums">{{ row.issuedOn }}</span>
+                </span>
+              </span>
+            </button>
+          </li>
+        } @empty {
+          <li class="px-4 py-10 text-center text-sm text-content-muted">
+            {{ 'quotes.list.empty' | transloco }}
+          </li>
+        }
+      </ul>
+    </div>
+
+    <div
+      class="flex shrink-0 items-baseline justify-between gap-3 border-t border-border px-4 py-2.5 text-sm"
+      data-testid="quotes-footer"
+    >
+      <span class="text-content-muted">{{
+        'quotes.list.shown' | transloco: { shown: shownCount(), total: totalCount() }
+      }}</span>
+      <span class="flex items-baseline gap-2">
+        <span class="text-xs text-content-muted">{{ 'quotes.list.column.total' | transloco }}</span>
+        <span class="font-medium text-content tabular-nums">{{ shownTotal() }}</span>
+      </span>
+    </div>
+  </div>
+</div>

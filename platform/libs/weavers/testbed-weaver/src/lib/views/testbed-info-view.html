@@ -1,0 +1,86 @@
+<dl class="flex flex-col gap-2 text-sm">
+  @for (fact of facts; track fact[0]) {
+  <div class="flex items-baseline justify-between gap-2">
+    <dt class="text-content-muted">{{ fact[0] | transloco }}</dt>
+    <dd class="text-content">{{ fact[1] }}</dd>
+  </div>
+  }
+  <div class="flex items-baseline justify-between gap-2">
+    <dt class="text-content-muted">{{ 'testbed.info.session' | transloco }}</dt>
+    <dd class="text-content" data-testid="testbed-session">
+      {{ session.summary() }}
+    </dd>
+  </div>
+  <div class="flex items-baseline justify-between gap-2">
+    <dt class="text-content-muted">{{ 'testbed.info.activeContent' | transloco }}</dt>
+    <dd class="text-content" data-testid="testbed-active-content">
+      {{ activeContent.summary() }}
+    </dd>
+  </div>
+</dl>
+
+<label class="mt-4 flex flex-col gap-1 border-t border-border pt-4 text-sm">
+  <span class="text-content-muted">{{ 'testbed.info.scratch' | transloco }}</span>
+  <input
+    class="lw-field"
+    data-testid="scratch-input"
+    [value]="scratch.note()"
+    (input)="onScratch($event)"
+  />
+</label>
+
+<form class="mt-4 flex flex-col gap-3 border-t border-border pt-4">
+  <label class="flex flex-col gap-1 text-sm">
+    <span class="text-content-muted">{{ 'testbed.info.followUp' | transloco }}</span>
+    <input
+      class="lw-field"
+      [value]="title()"
+      (input)="onInput(title, $event)"
+      [attr.placeholder]="'testbed.info.followUp' | transloco"
+    />
+  </label>
+  <label class="flex flex-col gap-1 text-sm">
+    <span class="text-content-muted">{{ 'testbed.info.dueDate' | transloco }}</span>
+    <input
+      type="date"
+      class="lw-field"
+      [value]="due()"
+      (input)="onInput(due, $event)"
+    />
+  </label>
+  <label class="flex flex-col gap-1 text-sm">
+    <span class="text-content-muted">{{ 'testbed.info.notes' | transloco }}</span>
+    <textarea
+      class="lw-field"
+      [value]="notes()"
+      (input)="onInput(notes, $event)"
+      [attr.placeholder]="'testbed.info.notes' | transloco"
+    ></textarea>
+  </label>
+  <label class="flex items-center gap-2 text-sm text-content">
+    <input
+      type="checkbox"
+      class="lw-checkbox"
+      [checked]="favorite()"
+      (change)="onCheck(favorite, $event)"
+    />
+    {{ 'testbed.info.watch' | transloco }}
+  </label>
+  <fieldset class="flex flex-col gap-1 text-sm">
+    <legend class="text-content-muted">{{ 'testbed.info.priority' | transloco }}</legend>
+    <div class="flex gap-4">
+      @for (p of priorities; track p) {
+      <label class="flex items-center gap-1.5 text-content capitalize">
+        <input
+          type="radio"
+          name="testbed-priority"
+          class="lw-radio"
+          [checked]="priority() === p"
+          (change)="priority.set(p)"
+        />
+        {{ p }}
+      </label>
+      }
+    </div>
+  </fieldset>
+</form>

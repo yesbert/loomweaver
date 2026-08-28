@@ -1,0 +1,293 @@
+{
+  "appReset": {
+    "action": "Reset layout",
+    "confirm": "Reset the app layout?\n\nThis puts back: the activity bar you curated, collapsed sidebars, sidebar widths, your hand sorting, and named view instances with their state.\n\nThis stays: your saved workspaces and their layouts, colour scheme, language, text size, permissions and installed plugins.",
+    "desc": "Puts the arrangement back the way this app shipped it.",
+    "title": "Reset app layout"
+  },
+  "auth": {
+    "requiredTitle": "Sign-in required",
+    "requiredMessage": "Sign in with an account that has permission to see this content.",
+    "deniedTitle": "No access",
+    "deniedMessage": "Your account does not have access to this content. Ask your administrator for the permission it needs."
+  },
+  "content": {
+    "closeTab": "Close tab",
+    "moreTabs": "All open tabs",
+    "pinnedHint": "Pinned — click to unpin",
+    "pluginSurface": "Plugin content",
+    "previewHint": "Preview — double-click to keep open",
+    "unpinTab": "Unpin tab",
+    "split": {
+      "open": "Split editor",
+      "resize": "Resize split",
+      "unavailable": "This view can’t be shown in a split yet.",
+      "splitRight": "Split right",
+      "splitDown": "Split down",
+      "closePane": "Close pane",
+      "pick": "Choose content",
+      "home": "Home",
+      "newTab": "New tab",
+      "maximize": "Maximize (fill the whole screen)",
+      "restore": "Restore",
+      "minimize": "Minimize to a strip",
+      "restoreMinimized": "Restore pane",
+      "restoreMinimizedCount": "Restore pane ({{count}} tabs)",
+      "awaiting": "Nothing open yet. Pick something to show here."
+    },
+    "tabMenu": {
+      "close": "Close",
+      "closeOthers": "Close Others",
+      "closeRight": "Close to the Right",
+      "closeAll": "Close All",
+      "pinned": "Pinned",
+      "openInNewWindow": "Open in New Window"
+    }
+  },
+  "curation": {
+    "empty": "Nothing to place here.",
+    "hidden": "Hidden",
+    "left": "Left",
+    "right": "Right",
+    "search": "Search",
+    "shown": "Shown"
+  },
+  "dialog": {
+    "ok": "OK",
+    "cancel": "Cancel",
+    "close": "Close",
+    "maximize": "Maximize",
+    "restore": "Restore"
+  },
+  "language": {
+    "label": "Language",
+    "desc": "Display language of the interface.",
+    "en": "English",
+    "de": "Deutsch"
+  },
+  "notification": {
+    "region": "Notifications",
+    "dismiss": "Dismiss"
+  },
+  "palette": {
+    "title": "Command palette",
+    "placeholder": "Type a command…",
+    "empty": "No matching commands",
+    "recent": "Recently used",
+    "all": "All commands",
+    "hint": {
+      "navigate": "Select",
+      "run": "Run",
+      "close": "Close",
+      "actions": "Actions"
+    },
+    "tabsPlaceholder": "Go to open tab…",
+    "tabsEmpty": "No open tabs",
+    "quickOpenTitle": "Go to open tab…"
+  },
+  "panel": {
+    "collapse": "Collapse panel",
+    "expand": "Expand panel",
+    "open": "Open panel",
+    "close": "Close panel",
+    "resize": "Resize panel",
+    "viewMenu": {
+      "moveToOtherSidebar": "Move to other sidebar",
+      "stackBelow": "Stack below",
+      "openInContent": "Open in content",
+      "resetState": "Reset view",
+      "openInNewWindow": "Open in new window",
+      "hide": "Hide"
+    },
+    "stack": {
+      "unstack": "Unstack view"
+    },
+    "viewMove": {
+      "announce": "{{view}} moved to {{target}}",
+      "targetLeft": "left sidebar",
+      "targetRight": "right sidebar"
+    },
+    "customizeViews": "Customize views"
+  },
+  "permission": {
+    "blocked": "This action was blocked because a permission it needs is turned off. Open Settings → Permissions to change it.",
+    "openSettings": "Open settings"
+  },
+  "popout": {
+    "unavailable": "This view isn’t available in a separate window.",
+    "blocked": {
+      "title": "Pop-up blocked",
+      "message": "Your browser blocked the new window. Click the button below to open it — or allow pop-ups for this site to skip this step next time.",
+      "open": "Open window"
+    }
+  },
+  "progress": {
+    "busy": "Working"
+  },
+  "rail": {
+    "label": "Activity bar",
+    "labelRight": "Right activity bar",
+    "menu": {
+      "moveToOther": "Move to other activity bar",
+      "hide": "Hide"
+    },
+    "move": {
+      "announce": "{{item}} moved to {{target}}",
+      "targetLeft": "left activity bar",
+      "targetRight": "right activity bar"
+    },
+    "customize": "Customize activity bar"
+  },
+  "reorder": {
+    "announce": "{{label}}: {{position}} of {{total}}"
+  },
+  "retention": {
+    "unsavedTitle": "Unsaved changes",
+    "unsavedMessage": "There are unsaved changes here. What should happen to them?",
+    "save": "Save",
+    "discard": "Discard",
+    "saveFailed": "Saving failed — your changes are kept and the surface stays open",
+    "stillDirty": "The surface still reports unsaved changes after saving — closing was cancelled",
+    "vetoPendingTitle": "Waiting for the plugin",
+    "vetoPendingMessage": "This tab's plugin has not finished its close check yet. You can close the tab anyway.",
+    "closeAnyway": "Close anyway"
+  },
+  "route": {
+    "unavailableTitle": "View not available",
+    "unavailableMessage": "This view does not exist in this application. The link may come from a different environment."
+  },
+  "settings": {
+    "capability": {
+      "contributions": "Contribute to the UI",
+      "ui": "Show dialogs and messages",
+      "host": "Read app version & updates",
+      "navigation": "Open and close content tabs",
+      "session": "Read your sign-in state",
+      "theme": "Change the app colors",
+      "automation": "Run actions other plugins added"
+    },
+    "capabilityDesc": {
+      "contributions": "Register commands, views, menu items, icons and routes.",
+      "ui": "Show dialogs, prompts, messages, menus and the settings surface.",
+      "host": "Read the app version and update state.",
+      "navigation": "Navigate the content area and open, pin or close tabs.",
+      "session": "Read whether you are signed in and which roles you hold.",
+      "theme": "Recolor the whole app by contributing design tokens (never overrides tenant branding).",
+      "automation": "Run actions other plugins contributed, and list which ones it may run. It reaches only actions their authors opened, and only where you could have run them yourself."
+    },
+    "empty": "No settings available",
+    "general": "General",
+    "group": {
+      "options": "Options",
+      "plugins": "App plugins",
+      "community": "Community plugins"
+    },
+    "permissions": "Permissions",
+    "permissionsDesc": "Turn a whole plugin on or off, or manage what each one is allowed to do. Changes take effect immediately; the distribution can never grant more than what is listed here.",
+    "permissionsEmpty": "No plugins are installed.",
+    "permissionsProvided": "Provided by your organisation. These permissions were issued with the plugin and cannot be withdrawn here.",
+    "pluginDisabled": "This plugin is turned off. Turn it on to manage its permissions.",
+    "pluginEnabled": "Enabled",
+    "pluginLevel": {
+      "trusted": "Runs inside this application — what holds it back is what you granted it below, not the browser.",
+      "embedded": "Runs embedded — it keeps an origin of its own and is not held back from this application.",
+      "isolated": "Runs isolated — it cannot reach this application, its storage or your session."
+    },
+    "pluginStore": "Plugin store",
+    "storeActionDisable": "Disable",
+    "storeActionEnable": "Enable",
+    "storeActionSettings": "Open settings",
+    "storeBrowse": "Browse plugins",
+    "storeBy": "by {{author}}",
+    "storeConsent": "**{{name}}** requests the following permissions:",
+    "storeConsentNone": "**{{name}}** requests no permissions.",
+    "storeDesc": "Install reviewed plugins from this product's store. A plugin only gets the permissions shown when you install it; you can revoke them or uninstall the plugin at any time.",
+    "storeDownloads": "{{count}} downloads",
+    "storeEmpty": "The plugin catalog is empty.",
+    "storeError": "The plugin catalog could not be loaded.",
+    "storeInstall": "Install",
+    "storeInstallTitle": "Install {{name}}?",
+    "storeInstalledBadge": "Installed",
+    "storeLoading": "Loading the plugin catalog…",
+    "storeNoInstalled": "Nothing installed yet — browse the catalog to get started.",
+    "storeNoResults": "No plugins match your search.",
+    "storeProvidedBadge": "Provided",
+    "storeProvidedHint": "Provided by your organisation — it cannot be turned off or removed here.",
+    "storeRepository": "Repository",
+    "storeSearch": "Search plugins by name, author or description…",
+    "storeSelectHint": "Select a plugin on the left to see its details.",
+    "storeTabBrowse": "Browse",
+    "storeTabInstalled": "Installed",
+    "storeUninstall": "Uninstall",
+    "storeUninstallConfirm": "**{{name}}** will be removed and its contributions disappear immediately. Its settings are kept in case you install it again later.",
+    "storeUninstallTitle": "Uninstall {{name}}?",
+    "storeUpdate": "Update",
+    "storeUpdateAvailable": "Update available",
+    "storeUpdateConsent": "Version {{version}} of **{{name}}** requests additional permissions:",
+    "storeUpdateTitle": "Update {{name}}?",
+    "storeUpdateTo": "Update to v{{version}}",
+    "storeUpdated": "updated {{date}}",
+    "title": "Settings"
+  },
+  "shell": {
+    "tagline": "Plugin & UI platform — the loom"
+  },
+  "skip": {
+    "toContent": "Skip to main content"
+  },
+  "textSize": {
+    "label": "Text size",
+    "desc": "Scale the whole interface up or down.",
+    "sm": "Small",
+    "md": "Default",
+    "lg": "Large",
+    "xl": "Extra large"
+  },
+  "theme": {
+    "label": "Theme",
+    "desc": "Light, dark, or follow the system.",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "update": {
+    "check": "Check for updates",
+    "available": "Update available — reload",
+    "reload": "Reload",
+    "upToDate": "You're on the latest version",
+    "checkUnavailable": "Can't check for updates — please reload the page",
+    "failed": "Update couldn't be installed — reload to retry",
+    "broken": "This app's offline cache is broken. Repairing rebuilds it from scratch.",
+    "repair": "Repair and reload"
+  },
+  "viewInstance": {
+    "default": "Default",
+    "switcher": "Saved views",
+    "new": "New view…",
+    "rename": "Rename…",
+    "delete": "Delete",
+    "newTitle": "New saved view",
+    "renameTitle": "Rename view",
+    "namePlaceholder": "View name",
+    "deleteConfirm": "Delete the saved view “{{name}}”? This cannot be undone."
+  },
+  "workspace": {
+    "title": "Workspaces",
+    "save": "Save as new",
+    "namePlaceholder": "Workspace name",
+    "rename": "Rename",
+    "delete": "Delete",
+    "deleteConfirm": "Delete the workspace “{{name}}”?",
+    "reset": "Reset layout",
+    "resetConfirm": "Reset this workspace? Its layout returns to the saved baseline; your saved workspaces are kept.",
+    "default": "Default",
+    "saveBaseline": "Apply changes",
+    "saveBaselineHint": "Makes the current arrangement this workspace’s new baseline.",
+    "applyConfirm": "Make the current arrangement this workspace’s new baseline? The previously saved one is replaced.",
+    "resetHint": "Discards this workspace’s changes and returns to its saved baseline.",
+    "saveAsHint": "Saves the current arrangement as a new workspace and switches to it.",
+    "tabMine": "Mine",
+    "tabProvided": "Provided",
+    "variantOf": "Variant of {{name}}"
+  }
+}

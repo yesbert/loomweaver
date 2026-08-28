@@ -1,0 +1,44 @@
+import { defineLwIcon, LW_ICON_TAG } from './lw-icon.element';
+
+function mount(attrs: Record<string, string>): HTMLElement {
+  const el = document.createElement(LW_ICON_TAG);
+  for (const [name, value] of Object.entries(attrs)) {
+    el.setAttribute(name, value);
+  }
+  document.body.append(el);
+  return el;
+}
+
+describe('<lw-icon> custom element', () => {
+  beforeAll(() => defineLwIcon());
+  afterEach(() => document.body.replaceChildren());
+
+  it('is registered as a custom element', () => {
+    expect(customElements.get(LW_ICON_TAG)).toBeDefined();
+  });
+
+  it('resolves a first-party name to its SVG and applies the size', () => {
+    const el = mount({ name: 'close', size: '1rem' });
+    const svg = el.querySelector('svg');
+    expect(svg).not.toBeNull();
+    expect(svg?.getAttribute('width')).toBe('1rem');
+    expect(svg?.getAttribute('height')).toBe('1rem');
+  });
+
+  it('renders nothing for an unknown name (safe fallback)', () => {
+    expect(mount({ name: 'does.not.exist' }).querySelector('svg')).toBeNull();
+  });
+
+  it('is decorative by default, and an image when given an aria-label', () => {
+    expect(mount({ name: 'close' }).getAttribute('aria-hidden')).toBe('true');
+    const labelled = mount({ name: 'close', 'aria-label': 'Close' });
+    expect(labelled.getAttribute('role')).toBe('img');
+    expect(labelled.getAttribute('aria-hidden')).toBeNull();
+  });
+
+  it('re-renders when the name changes', () => {
+    const el = mount({ name: 'close' });
+    el.setAttribute('name', 'search');
+    expect(el.querySelector('svg')).not.toBeNull();
+  });
+});

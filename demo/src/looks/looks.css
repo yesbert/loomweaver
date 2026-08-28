@@ -1,0 +1,138 @@
+@layer lw-tenant-theme {
+  :root.look-aurora {
+    --lw-font-sans: 'Avenir Next', 'Segoe UI', Roboto, system-ui, sans-serif;
+
+    --lw-brand: #c59a2f;
+    --lw-brand-strong: #a37d20;
+    --lw-brand-text: #7d5e16;
+    --lw-brand-fill: #8a681b;
+    --lw-on-brand: #ffffff;
+    --lw-accent: #1d7099;
+    --lw-accent-strong: #155a7c;
+
+    --lw-surface: #f7f3ea;
+    --lw-surface-raised: #fffdf8;
+    --lw-surface-overlay: #efe8da;
+    --lw-border: #e3dac6;
+    --lw-field: #fffdf8;
+
+    --lw-content: #292317;
+    --lw-content-muted: #6b6353;
+    --lw-content-faint: #999080;
+  }
+
+  :root.look-aurora.dark {
+    --lw-brand: #d9b055;
+    --lw-brand-strong: #e6c470;
+    --lw-brand-text: #dcb75f;
+    --lw-brand-fill: #8a681b;
+    --lw-on-brand: #ffffff;
+    --lw-accent: #5eb3d9;
+    --lw-accent-strong: #83c7e4;
+
+    --lw-surface: #1a1712;
+    --lw-surface-raised: #232019;
+    --lw-surface-overlay: #2e2a21;
+    --lw-border: #3a3527;
+    --lw-field: #232019;
+
+    --lw-content: #ede7da;
+    --lw-content-muted: #b0a892;
+    --lw-content-faint: #857d69;
+  }
+}
+
+:root.look-aurora .lw-btn {
+  border-radius: 0.625rem;
+}
+
+:root.look-aurora .lw-field {
+  border-radius: 0.625rem;
+}
+
+@layer lw-tenant-theme {
+  :root.look-breeze {
+    --lw-brand: #0d9488;
+    --lw-brand-strong: #0f766e;
+    --lw-brand-text: #0f766e;
+    --lw-brand-fill: #0d9488;
+    --lw-on-brand: #ffffff;
+    --lw-accent: #7c3aed;
+    --lw-accent-strong: #6d28d9;
+
+    --lw-surface: #fbfbfa;
+    --lw-surface-raised: #ffffff;
+    --lw-surface-overlay: #f2f2f0;
+    --lw-border: #e6e6e2;
+    --lw-field: #ffffff;
+
+    --lw-content: #1c1c1a;
+    --lw-content-muted: #63635e;
+    --lw-content-faint: #91918a;
+  }
+
+  :root.look-breeze.dark {
+    --lw-brand: #2dd4bf;
+    --lw-brand-strong: #5eead4;
+    --lw-brand-text: #5eead4;
+    --lw-brand-fill: #0d9488;
+    --lw-on-brand: #ffffff;
+    --lw-accent: #a78bfa;
+    --lw-accent-strong: #c4b5fd;
+
+    --lw-surface: #16171a;
+    --lw-surface-raised: #1e2024;
+    --lw-surface-overlay: #292c31;
+    --lw-border: #34383e;
+    --lw-field: #1e2024;
+
+    --lw-content: #ecedee;
+    --lw-content-muted: #a6a9ad;
+    --lw-content-faint: #74777c;
+  }
+}
+
+:root.look-breeze .lw-btn {
+  border-radius: 9999px;
+  padding-inline: 1rem;
+}
+
+:root.look-breeze .lw-select-trigger {
+  border-radius: 9999px;
+  padding-inline: 0.75rem;
+}
+
+:root.look-breeze .lw-field,
+:root.look-breeze .lw-select-listbox,
+:root.look-breeze .lw-collapsible,
+:root.look-breeze .lw-tooltip-bubble {
+  border-radius: 0.875rem;
+}
+
+:root.look-breeze .lw-icon-btn,
+:root.look-breeze .lw-segmented,
+:root.look-breeze .lw-segmented-item {
+  border-radius: 9999px;
+}
+
+:root.look-breeze .lw-field {
+  height: 2.5rem;
+  padding-inline: 0.75rem;
+}
+
+:root.look-breeze lw-shell-rail nav {
+  width: 56px;
+}
+
+:root.look-breeze lw-shell-bar header {
+  height: 3.5rem;
+  padding-inline: 1.25rem;
+}
+
+:root.look-breeze lw-pane-tab-strip {
+  height: 3.25rem;
+}
+
+:root.look-breeze lw-shell-panel {
+  --lw-panel-gap: 1rem;
+}

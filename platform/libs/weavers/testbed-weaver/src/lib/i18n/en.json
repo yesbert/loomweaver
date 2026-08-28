@@ -1,0 +1,244 @@
+{
+  "name": "Testbed weaver",
+  "aboutRow": "About the testbed",
+  "settings": {
+    "density": "Density",
+    "densityComfortable": "Comfortable",
+    "densityCompact": "Compact",
+    "notifications": "Notifications",
+    "notificationsDesc": "Show a toast when an entry changes",
+    "displayName": "Display name",
+    "displayNamePlaceholder": "Your name",
+    "fontSize": "Font size",
+    "fontSizeDesc": "Editor font size in points"
+  },
+  "nav": {
+    "title": "Navigator",
+    "add": "New item",
+    "sort": "Sort A–Z",
+    "scratch": "Scratch note (shared by this plugin)",
+    "lock": "Sort (members only)"
+  },
+  "outline": {
+    "title": "Outline"
+  },
+  "home": {
+    "title": "Home",
+    "heading": "Surfaces under test",
+    "intro": "The test app for the LoomWeaver platform. Every surface here exists to exercise one platform feature, not to look like a product.",
+    "primitives": "Feedback primitives",
+    "live": "live",
+    "ring": "Progress ring",
+    "bar": "Progress bar",
+    "badgeSuccess": "2 resolved",
+    "badgeDanger": "3 urgent",
+    "badgeNeutral": "1 waiting",
+    "panes": "Panes and tab groups",
+    "tryIt": "try it",
+    "paneOpenTwo": "Open two entries from the entry list on the left. Every pane is a tab group with its own strip.",
+    "paneDrag": "Drag an entry tab to a pane edge to place it beside another one. The tab moves; the group keeps the rest.",
+    "paneMenu": "Right-click a tab and pick Split right or Split down for the same result from the menu.",
+    "paneAdaptive": "Drag the entry list itself into the centre: the same view switches to a card grid, because it lays itself out from the width it is given.",
+    "paneDirty": "Start typing a draft, then switch tabs. The draft survives, and closing the tab asks before discarding it.",
+    "detailsSummary": "What is under test here",
+    "detailsBody": "The entries are a plugin; the panes, tabs, palette, settings and theming around them are the platform. Every control on this page is either a plain CSS class on a native element or a small <lw-*> web component where no native element exists.",
+    "openList": "Open the entry list",
+    "openDashboard": "Open the dashboard"
+  },
+  "list": {
+    "title": "Entry list",
+    "sortLabel": "Sort by",
+    "sortWaiting": "Waiting time",
+    "sortPriority": "Priority",
+    "ctxOpen": "Open entry",
+    "ctxPreview": "Open preview",
+    "focus": "Focus the entry list",
+    "openCount": "{{count}} entries are open",
+    "waiting": "{{time}} waiting",
+    "priority": {
+      "urgent": "Urgent",
+      "high": "High",
+      "normal": "Normal",
+      "low": "Low"
+    },
+    "status": {
+      "open": "Open",
+      "waiting": "Waiting",
+      "resolved": "Resolved"
+    }
+  },
+  "tab": {
+    "reveal": "Reveal in the entry list",
+    "revealed": "Revealed the entry in the list"
+  },
+  "dash": {
+    "title": "Dashboard",
+    "overview": "Overview",
+    "trends": "Trends",
+    "export": "Export",
+    "updated": "Updated a moment ago",
+    "kpi": {
+      "waiting": "Waiting",
+      "urgent": "Urgent",
+      "firstReply": "Median wait",
+      "resolved": "Resolved",
+      "vsYesterday": "vs. previous",
+      "target": "target"
+    },
+    "byStatus": "By status",
+    "longestWaiting": "Longest waiting",
+    "volumeTitle": "Entries per step",
+    "replyTitle": "Wait time (minutes)",
+    "exportIntro": "Pick a range to see a disabled action with a stated reason.",
+    "exportRange": "Range",
+    "rangeWeek": "Short",
+    "rangeMonth": "Long",
+    "exportAction": "Download report",
+    "exportNote": "Disabled in the testbed — there is no backend behind it."
+  },
+  "search": {
+    "title": "Search",
+    "heading": "Search",
+    "intro": "A group-less perspective: it owns the whole content area and has no tab strip. Switching to it and back is what the perspective tests exercise."
+  },
+  "notes": {
+    "title": "Notes",
+    "heading": "Notes",
+    "intro": "Saves itself the moment it is hidden (saveOn: 'hide'), so nothing is lost without a dialog."
+  },
+  "retired": {
+    "title": "Retired"
+  },
+  "theme": {
+    "toggle": "Toggle the plugin theme"
+  },
+  "sandbox": {
+    "title": "Sandbox (iframe)",
+    "toast": "Sandbox plugin activated — ctx over iframe + Penpal RPC."
+  },
+  "sandboxStatic": {
+    "title": "Sandbox (static tab)",
+    "docked": "Sandbox (docked)"
+  },
+  "storeFull": {
+    "title": "Store plugin (full)"
+  },
+  "dockedFrame": {
+    "title": "Docked frame"
+  },
+  "info": {
+    "title": "Info",
+    "scratch": "Shared scratch note",
+    "session": "Session",
+    "activeContent": "Active content",
+    "followUp": "Follow-up",
+    "dueDate": "Due date",
+    "notes": "Notes",
+    "priority": "Priority",
+    "assigned": "Assigned to U1",
+    "resolved": "Resolved",
+    "median": "Median wait",
+    "watch": "Watch this entry"
+  },
+  "admin": {
+    "title": "Gated rail item",
+    "bar": "Admin bar item",
+    "view": "Admin view",
+    "route": "Admin route",
+    "area": "Admin area"
+  },
+  "locked": {
+    "title": "Members area"
+  },
+  "auth": {
+    "cycle": "Switch user",
+    "asAnon": "Now: signed out",
+    "asUser": "Now: signed in (user)",
+    "asAdmin": "Now: signed in (admin)",
+    "signOut": "Sign out",
+    "signedOut": "Signed out.",
+    "dropAdmin": "Drop admin role",
+    "droppedAdmin": "Admin role dropped — now a plain user.",
+    "grace": "Switch to the second user"
+  },
+  "status": {
+    "ready": "Ready",
+    "items": "items",
+    "add": "Add item"
+  },
+  "cmd": {
+    "reset": "Reset list",
+    "resetConfirm": "**All items** will be permanently removed. This cannot be undone.",
+    "resetGuardLabel": "Type **Reset** to confirm.",
+    "settings": "Settings",
+    "about": "About",
+    "secret": "Admin-only command",
+    "secretDone": "Ran the admin-only command."
+  },
+  "entry": {
+    "title": "Entry editor",
+    "tab": {
+      "detail": "Thread",
+      "meta": "Fields"
+    },
+    "owner": "Owner",
+    "group": "Group",
+    "priority": "Priority",
+    "status": "Status",
+    "waiting": "waiting {{time}}",
+    "ago": "{{time}} ago",
+    "message": "Message {{n}}",
+    "pick": "Open",
+    "picked": "Open in the address",
+    "replyLabel": "Your draft",
+    "replyPlaceholder": "Type a draft…",
+    "send": "Save draft",
+    "unsaved": "Draft not saved yet",
+    "missing": "This entry no longer exists."
+  },
+  "owner": {
+    "queue": "Queue",
+    "profile": "Profile",
+    "body": "Two facets of one owner: pick an owner on either tab and the other follows, because the host substitutes the parameter value it knows by name."
+  },
+  "login": {
+    "title": "Sign in",
+    "heading": "Sign in to continue",
+    "intro": "You were sent here because you are not signed in with the required role. The distribution wired a login redirect for this route. You were headed to",
+    "action": "Sign in as admin"
+  },
+  "workspace": {
+    "title": "Containers",
+    "simId": "Container {{id}}",
+    "frame": "Frame child",
+    "canvas": "Canvas",
+    "details": "Details",
+    "audit": "Audit (admin)",
+    "auditIntro": "A container child gated to the admin role. It is seeded into the arrangement whatever the session, so its pane shows the access placeholder until an admin signs in.",
+    "world": "Child body",
+    "status": "Status",
+    "running": "Running",
+    "agents": "Items",
+    "ticks": "Steps",
+    "region": "Region",
+    "list": "Items",
+    "item": "Item"
+  },
+  "escalations": {
+    "title": "Admin route",
+    "intro": "Reachable only with the admin role. Everyone else gets the placeholder or the login redirect, depending on the route."
+  },
+  "team": {
+    "intro": "Open entries per assignee.",
+    "open": "{{count}} open"
+  },
+  "overview": {
+    "title": "Overview (stays open)"
+  },
+  "arranged": {
+    "title": "Arranged container"
+  },
+  "browse": {
+    "title": "Browse container"
+  }
+}

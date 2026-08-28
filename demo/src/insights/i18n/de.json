@@ -1,0 +1,44 @@
+{
+  "title": "Übersicht",
+  "pipeline": {
+    "title": "Pipeline",
+    "out": "Beim Kunden",
+    "count": "{{count}} Angebote",
+    "status": {
+      "draft": "Entwurf",
+      "sent": "Versendet",
+      "accepted": "Angenommen",
+      "declined": "Abgelehnt",
+      "expired": "Abgelaufen"
+    }
+  },
+  "deadlines": {
+    "title": "Läuft ab",
+    "none": "In den nächsten Wochen läuft nichts ab.",
+    "days": "in {{days}} Tagen",
+    "today": "heute",
+    "gone": "abgelaufen"
+  },
+  "dashboard": {
+    "title": "Übersicht",
+    "subtitle": "Wie die Angebote heute stehen"
+  },
+  "cards": {
+    "out": "Beim Kunden",
+    "outHint": "in {{count}} offenen Angeboten",
+    "rate": "Angenommen",
+    "rateHint": "der entschiedenen Angebote, {{count}} insgesamt",
+    "margin": "Gewonnene Marge",
+    "marginHint": "{{percent}}% auf {{revenue}} Umsatz",
+    "quoted": "Angebotsvolumen je Monat",
+    "pipeline": "Pipeline nach Status",
+    "deadlines": "Läuft als Nächstes ab"
+  },
+  "command": {
+    "overview": {
+      "title": "Übersicht anzeigen",
+      "description": "Zeigt das Dashboard, das die ganze Inhaltsfläche einnimmt und kein Dokument ist.",
+      "answers": "Welcher Bildschirm jetzt im Inhaltsbereich steht."
+    }
+  }
+}

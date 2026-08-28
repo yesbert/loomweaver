@@ -1,0 +1,34 @@
+{
+  "name": "@loomweaver/mcp",
+  "version": "0.7.1",
+  "description": "LoomWeaver MCP server: exposes LoomWeaver's scaffolding and validation as MCP tools, so an AI assistant in any product repo can scaffold and validate weavers, distributions and integrations without a LoomWeaver checkout.",
+  "keywords": [
+    "loomweaver",
+    "mcp",
+    "model-context-protocol",
+    "scaffolding",
+    "codegen",
+    "ai-tools"
+  ],
+  "license": "Apache-2.0",
+  "author": "Norbert Rosenwinkel (https://loomweaver.dev)",
+  "type": "module",
+  "bin": {
+    "loomweaver-mcp": "./dist/main.mjs"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "homepage": "https://loomweaver.dev",
+  "bugs": {
+    "url": "https://github.com/yesbert/loomweaver/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yesbert/loomweaver.git",
+    "directory": "platform/libs/tooling/mcp"
+  }
+}

@@ -1,0 +1,87 @@
+<div class="mx-auto flex max-w-2xl flex-col gap-4">
+  <header class="flex flex-col gap-1">
+    <h2 class="text-xl font-semibold text-content">
+      {{ 'testbed.home.heading' | transloco }}
+    </h2>
+    <p class="text-sm text-content-muted">
+      {{ 'testbed.home.intro' | transloco }}
+    </p>
+  </header>
+
+  <div
+    data-testid="testbed-feedback-card"
+    class="flex flex-col gap-3 rounded-lg border border-border bg-surface-raised p-4"
+  >
+    <div class="flex items-center gap-2">
+      <h3 class="text-sm font-semibold text-content">
+        {{ 'testbed.home.primitives' | transloco }}
+      </h3>
+      <span class="lw-badge lw-badge--brand">{{
+        'testbed.home.live' | transloco
+      }}</span>
+    </div>
+    <div class="flex items-center gap-4">
+      <lw-progress-ring
+        value="72"
+        size="3rem"
+        [attr.aria-label]="'testbed.home.ring' | transloco"
+      ></lw-progress-ring>
+      <div class="flex flex-1 flex-col gap-1">
+        <div class="flex items-center justify-between text-xs text-content-muted">
+          <span>{{ 'testbed.home.bar' | transloco }}</span
+          ><span class="lw-badge">60%</span>
+        </div>
+        <progress
+          class="lw-progress"
+          value="60"
+          max="100"
+          [attr.aria-label]="'testbed.home.bar' | transloco"
+        ></progress>
+      </div>
+    </div>
+    <div class="flex gap-2">
+      <span class="lw-badge lw-badge--success">{{
+        'testbed.home.badgeSuccess' | transloco
+      }}</span>
+      <span class="lw-badge lw-badge--danger">{{
+        'testbed.home.badgeDanger' | transloco
+      }}</span>
+      <span class="lw-badge">{{ 'testbed.home.badgeNeutral' | transloco }}</span>
+    </div>
+  </div>
+
+  <div class="flex flex-col gap-2 rounded-lg border border-border bg-surface-raised p-4">
+    <div class="flex items-center gap-2">
+      <h3 class="text-sm font-semibold text-content">
+        {{ 'testbed.home.panes' | transloco }}
+      </h3>
+      <span class="lw-badge lw-badge--brand">{{
+        'testbed.home.tryIt' | transloco
+      }}</span>
+    </div>
+    <ul class="flex list-disc flex-col gap-1.5 pl-5 text-sm text-content-faint">
+      <li>{{ 'testbed.home.paneOpenTwo' | transloco }}</li>
+      <li>{{ 'testbed.home.paneDrag' | transloco }}</li>
+      <li>{{ 'testbed.home.paneMenu' | transloco }}</li>
+      <li>{{ 'testbed.home.paneAdaptive' | transloco }}</li>
+      <li>{{ 'testbed.home.paneDirty' | transloco }}</li>
+    </ul>
+  </div>
+
+  <hr class="lw-divider" />
+  <details class="lw-collapsible">
+    <summary>{{ 'testbed.home.detailsSummary' | transloco }}</summary>
+    <div class="lw-collapsible-body">
+      {{ 'testbed.home.detailsBody' | transloco }}
+    </div>
+  </details>
+
+  <div class="flex gap-2">
+    <button type="button" class="lw-btn lw-btn--primary" (click)="list()">
+      {{ 'testbed.home.openList' | transloco }}
+    </button>
+    <button type="button" class="lw-btn lw-btn--default" (click)="dashboard()">
+      {{ 'testbed.home.openDashboard' | transloco }}
+    </button>
+  </div>
+</div>

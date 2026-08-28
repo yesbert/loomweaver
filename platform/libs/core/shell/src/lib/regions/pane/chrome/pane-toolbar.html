@@ -1,0 +1,86 @@
+@if (canNewTab()) {
+  <button
+    type="button"
+    class="lw-icon-btn h-6 w-6 self-center"
+    (click)="newTab.emit($event)"
+    [attr.aria-label]="'content.split.newTab' | transloco"
+    [attr.data-testid]="newTabTestId() || null"
+  >
+    <lw-icon name="add" size="0.875rem" />
+    <lw-tooltip
+      [text]="'content.split.newTab' | transloco"
+      position="bottom"
+    />
+  </button>
+}
+@if (canSplitRight()) {
+  <button
+    type="button"
+    class="lw-icon-btn h-6 w-6 self-center"
+    (click)="splitRight.emit()"
+    [attr.aria-label]="'content.split.splitRight' | transloco"
+    [attr.data-testid]="splitRightTestId() || null"
+  >
+    <lw-icon name="splitPanes" size="0.875rem" />
+    <lw-tooltip
+      [text]="'content.split.splitRight' | transloco"
+      position="bottom"
+    />
+  </button>
+}
+@if (canSplitDown()) {
+  <button
+    type="button"
+    class="lw-icon-btn h-6 w-6 self-center"
+    (click)="splitDown.emit()"
+    [attr.aria-label]="'content.split.splitDown' | transloco"
+    [attr.data-testid]="splitDownTestId() || null"
+  >
+    <lw-icon name="splitPanesDown" size="0.875rem" />
+    <lw-tooltip
+      [text]="'content.split.splitDown' | transloco"
+      position="bottom"
+    />
+  </button>
+}
+@if (canMinimize()) {
+  <button
+    type="button"
+    class="lw-icon-btn h-6 w-6 self-center"
+    (click)="minimize.emit()"
+    [attr.aria-label]="'content.split.minimize' | transloco"
+    data-testid="pane-minimize"
+  >
+    <lw-icon name="minimize" size="0.875rem" />
+    <lw-tooltip
+      [text]="'content.split.minimize' | transloco"
+      position="bottom"
+    />
+  </button>
+}
+@if (canMaximize()) {
+  <button
+    type="button"
+    class="lw-icon-btn h-6 w-6 self-center"
+    (click)="toggleMaximize.emit()"
+    [attr.aria-label]="(maximized() ? 'content.split.restore' : 'content.split.maximize') | transloco"
+    data-testid="pane-maximize"
+  >
+    <lw-icon [name]="maximized() ? 'restore' : 'maximize'" size="0.875rem" />
+    <lw-tooltip
+      [text]="(maximized() ? 'content.split.restore' : 'content.split.maximize') | transloco"
+      position="bottom"
+    />
+  </button>
+}
+@if (canClose()) {
+  <button
+    type="button"
+    class="lw-icon-btn h-6 w-6 self-center"
+    (click)="closePane.emit()"
+    [attr.aria-label]="closeLabel() | transloco"
+  >
+    <lw-icon name="close" size="0.875rem" />
+    <lw-tooltip [text]="closeLabel() | transloco" position="bottom" />
+  </button>
+}

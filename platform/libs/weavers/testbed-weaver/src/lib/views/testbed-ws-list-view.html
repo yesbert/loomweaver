@@ -1,0 +1,19 @@
+<div data-testid="testbed-ws-list">
+  <p class="text-sm font-semibold text-content">
+    {{ 'testbed.workspace.simId' | transloco: { id: simId } }} · {{ 'testbed.workspace.list' | transloco }}
+  </p>
+  <ul class="mt-2 flex flex-col gap-1">
+    @for (item of items; track item) {
+      <li>
+        <button
+          type="button"
+          class="lw-btn lw-btn--ghost w-full justify-start"
+          [attr.data-testid]="'ws-list-' + item"
+          (click)="open(item)"
+        >
+          {{ item }}
+        </button>
+      </li>
+    }
+  </ul>
+</div>

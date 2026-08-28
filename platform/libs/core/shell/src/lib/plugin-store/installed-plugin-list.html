@@ -1,0 +1,125 @@
+<ul class="flex flex-col gap-1">
+  @if (rows().length === 0) {
+    <li class="p-3 text-sm text-content-muted">
+      {{
+        installs.installed().length === 0 &&
+        deployment.deployed().length === 0
+          ? ('settings.storeNoInstalled' | transloco)
+          : ('settings.storeNoResults' | transloco)
+      }}
+    </li>
+  } @else {
+    @for (row of rows(); track row.id) {
+      <li
+        class="flex items-center gap-3 rounded-md px-3 py-2"
+        [class.opacity-60]="!row.enabled"
+        [attr.data-testid]="'store-installed-' + row.id"
+      >
+        @if (row.iconUrl) {
+          <img
+            class="size-8 shrink-0 rounded-md"
+            [src]="row.iconUrl"
+            alt=""
+          />
+        } @else {
+          <span
+            class="flex size-8 shrink-0 items-center justify-center rounded-md bg-surface-overlay text-content-muted"
+          >
+            <lw-icon name="plugin" size="1rem" />
+          </span>
+        }
+        <span class="min-w-0 flex-1">
+          <span class="flex items-center gap-2">
+            <span class="truncate text-sm font-semibold text-content">{{
+              row.name
+            }}</span>
+            @if (row.version) {
+              <span class="text-xs text-content-muted"
+                >v{{ row.version }}</span
+              >
+            }
+            @if (row.category) {
+              <span class="lw-badge">{{ row.category }}</span>
+            }
+            @if (row.provided) {
+              <span
+                class="lw-badge"
+                [attr.data-testid]="'store-provided-' + row.id"
+                >{{ 'settings.storeProvidedBadge' | transloco }}</span
+              >
+            }
+          </span>
+          @if (row.author) {
+            <span class="block text-xs text-content-muted">{{
+              'settings.storeBy' | transloco: { author: row.author }
+            }}</span>
+          }
+          @if (row.provided) {
+            <span class="block text-xs text-content-muted">{{
+              'settings.storeProvidedHint' | transloco
+            }}</span>
+          }
+        </span>
+        <span class="flex shrink-0 items-center gap-1">
+          @if (row.update; as pending) {
+            <button
+              class="lw-btn lw-btn--primary lw-btn--sm"
+              [attr.data-testid]="'store-update-' + row.id"
+              (click)="update(pending)"
+            >
+              {{
+                'settings.storeUpdateTo'
+                  | transloco: { version: pending.version }
+              }}
+            </button>
+          }
+          @if (row.settingsSectionId) {
+            <button
+              type="button"
+              class="lw-icon-btn relative size-7 rounded-md"
+              [attr.aria-label]="'settings.storeActionSettings' | transloco"
+              [attr.data-testid]="'store-settings-' + row.id"
+              (click)="openPluginSettings(row.settingsSectionId)"
+            >
+              <lw-icon name="settings" size="1rem" />
+              <lw-tooltip
+                [text]="'settings.storeActionSettings' | transloco"
+                position="top"
+              />
+            </button>
+          }
+          @if (!row.provided) {
+            <input
+              type="checkbox"
+              role="switch"
+              class="lw-switch shrink-0"
+              [checked]="row.enabled"
+              [attr.aria-checked]="row.enabled"
+              [attr.aria-label]="
+                (row.enabled
+                  ? 'settings.storeActionDisable'
+                  : 'settings.storeActionEnable'
+                ) | transloco
+              "
+              [attr.data-testid]="'store-toggle-' + row.id"
+              (change)="togglePlugin(row.id, $event)"
+            />
+            <button
+              type="button"
+              class="lw-icon-btn relative size-7 rounded-md"
+              [attr.aria-label]="'settings.storeUninstall' | transloco"
+              [attr.data-testid]="'store-remove-' + row.id"
+              (click)="uninstall(row)"
+            >
+              <lw-icon name="trash" size="1rem" />
+              <lw-tooltip
+                [text]="'settings.storeUninstall' | transloco"
+                position="top"
+              />
+            </button>
+          }
+        </span>
+      </li>
+    }
+  }
+</ul>

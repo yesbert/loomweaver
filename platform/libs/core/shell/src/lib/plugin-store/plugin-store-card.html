@@ -1,0 +1,72 @@
+@if (entry(); as entry) {
+  <button
+    type="button"
+    class="flex w-full items-start gap-3 rounded-md px-3 py-2 text-left transition-colors"
+    [class]="selected() ? 'bg-brand/10' : 'hover:bg-surface-overlay'"
+    [attr.data-testid]="'store-card-' + entry.id"
+    [attr.aria-current]="selected() ? 'true' : null"
+    (click)="picked.emit()"
+  >
+    @if (entry.iconUrl) {
+      <img
+        class="mt-0.5 size-8 shrink-0 rounded-md"
+        [src]="entry.iconUrl"
+        alt=""
+      />
+    } @else {
+      <span
+        class="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-md bg-surface-overlay text-content-muted"
+      >
+        <lw-icon name="plugin" size="1rem" />
+      </span>
+    }
+    <span class="min-w-0 flex-1">
+      <span class="flex items-center gap-2">
+        <span class="truncate text-sm font-semibold text-content">{{
+          entry.name
+        }}</span>
+        @if (entry.category) {
+          <span class="lw-badge">{{ entry.category }}</span>
+        }
+        @if (hasUpdate()) {
+          <span
+            class="lw-badge lw-badge--brand"
+            [attr.data-testid]="'store-update-badge-' + entry.id"
+            >{{ 'settings.storeUpdateAvailable' | transloco }}</span
+          >
+        } @else if (installed()) {
+          <span class="lw-badge lw-badge--brand">{{
+            'settings.storeInstalledBadge' | transloco
+          }}</span>
+        }
+      </span>
+      @if (entry.author) {
+        <span class="block text-xs text-content-muted">{{
+          'settings.storeBy' | transloco: { author: entry.author }
+        }}</span>
+      }
+      <span class="flex items-center gap-1 text-xs text-content-faint">
+        @if (entry.downloads !== undefined) {
+          <lw-icon name="download" size="0.8rem" />
+          {{
+            'settings.storeDownloads'
+              | transloco: { count: count(entry.downloads) }
+          }}
+        }
+        @if (entry.downloads !== undefined && entry.updated) {
+          ·
+        }
+        @if (entry.updated) {
+          {{
+            'settings.storeUpdated' | transloco: { date: updated(entry.updated) }
+          }}
+        }
+      </span>
+      @if (entry.description) {
+        <span class="mt-1 line-clamp-2 block text-xs text-content-muted">{{
+          entry.description
+        }}</span>
+      }
+    </span>
+  </button>
+}

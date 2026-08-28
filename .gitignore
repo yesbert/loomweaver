@@ -1,0 +1,58 @@
+# See https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+
+# compiled output
+dist
+tmp
+out-tsc
+.tmp-*
+
+# Playwright output (both install roots write these)
+test-results
+playwright-report
+
+# dependencies
+node_modules
+
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# misc
+/.sass-cache
+/connect.lock
+/coverage
+/libpeerconnection.log
+npm-debug.log
+yarn-error.log
+testem.log
+/typings
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# Nx caches (match at any depth — the workspace lives under platform/)
+.nx/
+
+# The Claude Code context lives in its own private repository and is linked in.
+.claude
+
+.angular
+
+# .NET (BFF, P1.4+)
+bin/
+obj/
+*.user
+.vs/

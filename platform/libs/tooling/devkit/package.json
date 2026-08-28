@@ -1,0 +1,37 @@
+{
+  "name": "@loomweaver/devkit",
+  "version": "0.7.1",
+  "description": "LoomWeaver scaffolding for Nx workspaces: generators for weavers, distributions, frame plugins and the integration seams, plus the manifest and i18n validators.",
+  "keywords": [
+    "loomweaver",
+    "nx",
+    "nx-plugin",
+    "generator",
+    "scaffolding",
+    "angular",
+    "plugin-platform"
+  ],
+  "license": "Apache-2.0",
+  "author": "Norbert Rosenwinkel (https://loomweaver.dev)",
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "generators": "./generators.json",
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "peerDependencies": {
+    "@nx/devkit": ">=23.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "homepage": "https://loomweaver.dev",
+  "bugs": {
+    "url": "https://github.com/yesbert/loomweaver/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yesbert/loomweaver.git",
+    "directory": "platform/libs/tooling/devkit"
+  }
+}

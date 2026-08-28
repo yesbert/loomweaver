@@ -1,0 +1,22 @@
+<p class="mb-4 text-sm text-content-muted">
+  {{ 'settings.storeDesc' | transloco }}
+</p>
+<div class="mb-4 flex items-center gap-3">
+  <input
+    class="lw-field w-full"
+    type="search"
+    data-testid="store-settings-search"
+    [attr.placeholder]="'settings.storeSearch' | transloco"
+    [attr.aria-label]="'settings.storeSearch' | transloco"
+    [value]="query()"
+    (input)="query.set($any($event.target).value)"
+  />
+  <button
+    class="lw-btn lw-btn--primary shrink-0"
+    data-testid="store-browse"
+    (click)="browse()"
+  >
+    {{ 'settings.storeBrowse' | transloco }}
+  </button>
+</div>
+<lw-installed-plugin-list [query]="query()" />

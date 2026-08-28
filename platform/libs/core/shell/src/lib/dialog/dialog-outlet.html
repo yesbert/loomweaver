@@ -1,0 +1,149 @@
+@for (d of dialogs(); track d.id) {
+  <div [class]="wrapperClasses(d)">
+    <button
+      type="button"
+      class="lw-scrim absolute inset-0 cursor-default"
+      [disabled]="!d.dismissable"
+      [attr.aria-label]="'dialog.close' | transloco"
+      (click)="dismiss(d)"
+    ></button>
+
+    @if (d.bare) {
+      <dialog
+        #panel
+        open
+        class="relative z-10 m-0 flex max-h-full w-full flex-col overflow-hidden rounded-t-xl border border-border bg-surface-raised shadow-xl sm:rounded-xl"
+        [class.rounded-xl]="d.align === 'top'"
+        [class]="panelWidth(d)"
+        aria-modal="true"
+        [attr.aria-label]="d.title ? (d.title | transloco) : null"
+        tabindex="-1"
+      >
+        <ng-container
+          [ngComponentOutlet]="d.component ?? null"
+          [ngComponentOutletInjector]="d.injector"
+        />
+      </dialog>
+    } @else {
+      <dialog
+        #panel
+        open
+        class="relative z-10 m-0 flex max-h-full w-full flex-col gap-4 overflow-y-auto rounded-t-xl border border-border bg-surface-raised p-5 shadow-xl sm:rounded-xl"
+        [class.rounded-xl]="d.align === 'top'"
+        [class]="panelWidth(d)"
+        aria-modal="true"
+        [attr.aria-label]="d.title ? (d.title | transloco) : null"
+        tabindex="-1"
+      >
+        <div class="flex gap-3.5">
+          @if (d.icon; as icon) {
+            <span
+              class="grid h-10 w-10 shrink-0 place-items-center rounded-full"
+              [class]="toneCircle(d.tone)"
+              aria-hidden="true"
+            >
+              <lw-icon [name]="icon" size="1.25rem" />
+            </span>
+          }
+
+          <div class="flex min-w-0 flex-1 flex-col gap-3">
+            @if (d.title || (d.kind === 'custom' && d.dismissable)) {
+              <div class="flex items-start justify-between gap-4">
+                <h2 class="min-w-0 text-lg font-semibold text-content">
+                  @if (d.title) {
+                    {{ d.title | transloco }}
+                  }
+                </h2>
+                <span class="flex shrink-0 items-center gap-1">
+                  @if (d.maximizable) {
+                    <button
+                      lwButton
+                      variant="ghost"
+                      size="sm"
+                      iconOnly
+                      type="button"
+                      class="-mt-1"
+                      [attr.aria-label]="
+                        (d.ref.maximized() ? 'dialog.restore' : 'dialog.maximize') | transloco
+                      "
+                      (click)="d.ref.toggleMaximized()"
+                    >
+                      <lw-icon [name]="d.ref.maximized() ? 'restore' : 'maximize'" size="1rem" />
+                    </button>
+                  }
+                  @if (d.kind === 'custom' && d.dismissable) {
+                    <button
+                      lwButton
+                      variant="ghost"
+                      size="sm"
+                      iconOnly
+                      type="button"
+                      class="-mt-1 -mr-1"
+                      [attr.aria-label]="'dialog.close' | transloco"
+                      (click)="dismiss(d)"
+                    >
+                      <lw-icon name="close" size="1rem" />
+                    </button>
+                  }
+                </span>
+              </div>
+            }
+
+            @if (d.component) {
+              <ng-container
+                [ngComponentOutlet]="d.component"
+                [ngComponentOutletInjector]="d.injector"
+              />
+            } @else if (d.kind === 'progress') {
+              <div class="flex items-center gap-3 text-sm text-content">
+                <lw-spinner [label]="'progress.busy' | transloco" />
+                @if (d.progressMessage) {
+                  <span>{{ d.progressMessage() | transloco }}</span>
+                }
+              </div>
+            } @else {
+              @if (d.message) {
+                <lw-markdown [source]="d.message | transloco" />
+              }
+              @if (d.requireLabel) {
+                <lw-markdown [source]="d.requireLabel | transloco" />
+              }
+              @if (d.promptValue) {
+                <input
+                  type="text"
+                  class="lw-field"
+                  [class.lw-field--invalid]="guardError(d)"
+                  [value]="d.promptValue()"
+                  [attr.placeholder]="d.placeholder ? (d.placeholder | transloco) : null"
+                  (input)="onPromptInput(d, $event)"
+                  (keydown.enter)="onEnter(d)"
+                  data-lw-autofocus
+                />
+                @if (guardError(d); as error) {
+                  <p class="text-xs text-negative">{{ error | transloco }}</p>
+                }
+              }
+            }
+          </div>
+        </div>
+
+        @if (d.buttons.length) {
+          <div class="flex justify-end gap-2">
+            @for (b of d.buttons; track $index) {
+              <button
+                lwButton
+                [variant]="b.variant"
+                type="button"
+                [disabled]="confirmBlocked(d, b)"
+                [attr.data-lw-autofocus]="b.autofocus ? '' : null"
+                (click)="onButton(d, b)"
+              >
+                {{ b.label | transloco }}
+              </button>
+            }
+          </div>
+        }
+      </dialog>
+    }
+  </div>
+}

@@ -1,0 +1,188 @@
+<div
+  class="flex w-full flex-col overflow-hidden"
+  [class]="ref.maximized() ? 'h-full' : 'h-[80vh] max-h-[85vh]'"
+>
+  <header
+    class="flex items-center justify-between gap-4 border-b border-border px-5 py-3"
+  >
+    <h2 class="text-lg font-semibold text-content">
+      {{ 'settings.title' | transloco }}
+    </h2>
+    <span class="flex items-center gap-1">
+      <button
+        lwButton
+        variant="ghost"
+        size="sm"
+        iconOnly
+        type="button"
+        data-testid="dialog-maximize"
+        [attr.aria-label]="
+          (ref.maximized() ? 'dialog.restore' : 'dialog.maximize')
+            | transloco
+        "
+        (click)="ref.toggleMaximized()"
+      >
+        <lw-icon
+          [name]="ref.maximized() ? 'restore' : 'maximize'"
+          size="1rem"
+        />
+      </button>
+      <button
+        lwButton
+        variant="ghost"
+        size="sm"
+        iconOnly
+        type="button"
+        [attr.aria-label]="'dialog.close' | transloco"
+        (click)="close()"
+      >
+        <lw-icon name="close" size="1rem" />
+      </button>
+    </span>
+  </header>
+
+  <div class="flex min-h-0 flex-1 flex-col sm:flex-row">
+    <nav
+      class="flex shrink-0 gap-1 overflow-x-auto border-b border-border p-2 sm:w-52 sm:flex-col sm:overflow-x-visible sm:overflow-y-auto sm:border-r sm:border-b-0"
+    >
+      @for (group of groups(); track group.key) {
+        @if (group.label) {
+          <p
+            class="px-2 pt-2 pb-1 text-xs font-semibold tracking-wide text-content-muted uppercase max-sm:hidden"
+          >
+            {{ group.label | transloco }}
+          </p>
+        }
+        @for (section of group.sections; track section.id) {
+          <button
+            type="button"
+            class="shrink-0 rounded-md px-3 py-1.5 text-left text-sm transition-colors"
+            [class]="
+              section.id === active()?.id
+                ? 'bg-brand/10 font-medium text-brand-text'
+                : 'text-content-muted hover:bg-surface-overlay hover:text-content'
+            "
+            [attr.aria-current]="
+              section.id === active()?.id ? 'true' : null
+            "
+            (click)="activeId.set(section.id)"
+          >
+            {{ section.title | transloco }}
+          </button>
+        }
+      }
+    </nav>
+
+    <div class="min-h-0 flex-1 overflow-y-auto p-5">
+      @if (active(); as section) {
+        <div
+          class="divide-y divide-border overflow-hidden rounded-lg border border-border"
+        >
+          @for (row of section.rows; track row.id) {
+            @if (
+              row.control.kind === 'component' && row.control.fullWidth
+            ) {
+              <div class="p-4">
+                <ng-container [ngComponentOutlet]="row.control.component" />
+              </div>
+            } @else {
+              <lw-setting-row
+                [label]="row.label | transloco"
+                [description]="
+                  row.description ? (row.description | transloco) : ''
+                "
+              >
+                @switch (row.control.kind) {
+                  @case ('select') {
+                    <lw-select
+                      [attr.value]="row.control.value()"
+                      [attr.label]="row.label | transloco"
+                      (lw-select-change)="
+                        row.control.set($any($event).detail.value)
+                      "
+                    >
+                      @for (
+                        option of row.control.options;
+                        track option.value
+                      ) {
+                        <lw-option [attr.value]="option.value">{{
+                          option.label | transloco
+                        }}</lw-option>
+                      }
+                    </lw-select>
+                  }
+                  @case ('toggle') {
+                    <input
+                      type="checkbox"
+                      role="switch"
+                      class="lw-switch"
+                      [checked]="row.control.value()"
+                      [attr.aria-checked]="row.control.value()"
+                      [attr.aria-label]="row.label | transloco"
+                      (change)="
+                        row.control.set($any($event.target).checked)
+                      "
+                    />
+                  }
+                  @case ('text') {
+                    <input
+                      class="lw-field w-56"
+                      [attr.type]="row.control.inputType ?? 'text'"
+                      [value]="row.control.value()"
+                      [attr.placeholder]="
+                        row.control.placeholder
+                          ? (row.control.placeholder | transloco)
+                          : null
+                      "
+                      [attr.aria-label]="row.label | transloco"
+                      (input)="row.control.set($any($event.target).value)"
+                    />
+                  }
+                  @case ('slider') {
+                    <div class="flex w-56 items-center gap-3">
+                      <input
+                        type="range"
+                        class="lw-range"
+                        [min]="row.control.min ?? 0"
+                        [max]="row.control.max ?? 100"
+                        [step]="row.control.step ?? 1"
+                        [value]="row.control.value()"
+                        [attr.aria-label]="row.label | transloco"
+                        (input)="
+                          row.control.set(+$any($event.target).value)
+                        "
+                      />
+                      <span
+                        class="w-8 text-right text-sm text-content-muted tabular-nums"
+                        >{{ row.control.value() }}</span
+                      >
+                    </div>
+                  }
+                  @case ('button') {
+                    <button
+                      lwButton
+                      [variant]="row.control.variant ?? 'default'"
+                      type="button"
+                      (click)="runButton(row.control)"
+                    >
+                      {{ row.control.label | transloco }}
+                    </button>
+                  }
+                  @case ('component') {
+                    <ng-container
+                      [ngComponentOutlet]="row.control.component"
+                    />
+                  }
+                }
+              </lw-setting-row>
+            }
+          }
+        </div>
+      } @else {
+        <p class="text-sm text-content-muted">
+          {{ 'settings.empty' | transloco }}
+        </p>
+      }
+    </div>
+  </div>
+</div>

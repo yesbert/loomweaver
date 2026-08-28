@@ -1,0 +1,60 @@
+<nav
+  class="flex h-full w-10 shrink-0 flex-col items-center gap-1 bg-surface py-2"
+  [attr.aria-label]="labelKey() | transloco"
+  cdkDropList
+  cdkDropListOrientation="vertical"
+  [id]="dropListId()"
+  [cdkDropListConnectedTo]="connectedRails()"
+  [cdkDropListDisabled]="!draggable"
+  [cdkDropListSortingDisabled]="!reorderable"
+  [cdkDropListEnterPredicate]="enterPredicate"
+  [cdkDropListSortPredicate]="sortPredicate"
+  (cdkDropListDropped)="onDrop($event)"
+  [lwReorderable]="containerId()"
+  [lwReorderableEnabled]="reorderable"
+  (reorder)="onReorder($event)"
+  [lwContextMenu]="railMenu"
+>
+  @for (item of items(); track item.id) {
+    <button
+      type="button"
+      cdkDrag
+      [cdkDragData]="item.id"
+      [cdkDragDisabled]="!draggable"
+      [disabled]="disabled(item)"
+      (click)="run(item)"
+      (keydown)="onKeydown($event)"
+      [lwContextMenu]="menusFor(item)"
+      [lwContextMenuContext]="{ targetKind: 'rail-item', id: item.id, region: region().id }"
+      [attr.aria-label]="item.title | transloco"
+      [attr.aria-current]="current(item) ? 'true' : null"
+      [attr.data-rail-item]="item.id"
+      [attr.data-reorder-id]="reorderable ? item.id : null"
+      [attr.data-reorder-band]="item.anchor ?? 'top'"
+      [class.mt-auto]="item.id === firstBottomId()"
+      [class.text-content]="current(item)"
+      [class.bg-surface-overlay]="current(item)"
+      class="relative flex h-9 w-9 items-center justify-center rounded-lg text-content-faint transition-colors hover:bg-surface-overlay hover:text-content disabled:pointer-events-none disabled:opacity-40"
+    >
+      @if (current(item)) {
+        <span
+          aria-hidden="true"
+          class="absolute inset-y-1 w-0.5 rounded-full bg-brand"
+          [class.left-0]="region().dock !== 'right'"
+          [class.right-0]="region().dock === 'right'"
+        ></span>
+      }
+      @if (item.initials) {
+        <span
+          aria-hidden="true"
+          data-testid="rail-initials"
+          class="lw-rail-initials"
+          >{{ item.initials }}</span
+        >
+      } @else {
+        <lw-icon [name]="item.icon" size="1rem" />
+      }
+      <lw-tooltip [text]="item.title | transloco" [position]="region().dock === 'right' ? 'left' : 'right'" />
+    </button>
+  }
+</nav>

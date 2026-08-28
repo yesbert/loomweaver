@@ -1,0 +1,12 @@
+@import 'tailwindcss' source(none);
+@plugin '@tailwindcss/typography';
+
+@source '../../shell/src/lib/elements/button';
+@source '../../shell/src/lib/elements/icon';
+@source '../../shell/src/lib/elements/markdown';
+@source '../../shell/src/lib/elements/menu';
+@source '../../shell/src/lib/elements/progress';
+@source '../../shell/src/lib/elements/select';
+@source '../../shell/src/lib/elements/tooltip';
+
+@import '../../shell/src/lib/styles/theme.css';

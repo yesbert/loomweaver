@@ -1,0 +1,21 @@
+<button
+  type="button"
+  class="relative flex min-h-0 min-w-0 flex-1 items-center gap-2 border border-border bg-surface-overlay text-content-faint hover:text-content"
+  [class.flex-col]="vertical()"
+  [class.px-2]="!vertical()"
+  [class.py-2]="vertical()"
+  (click)="restore()"
+  [attr.aria-label]="restoreKey() | transloco: { count: tabCount() }"
+  data-testid="pane-minimized-strip"
+>
+  <lw-icon [name]="icon() ?? 'document'" size="0.875rem" />
+  @if (vertical()) {
+    <span class="min-h-0 truncate text-xs" style="writing-mode: vertical-rl">{{ label().literalTitle ? label().title : (label().title | transloco) }}</span>
+  } @else {
+    <span class="min-w-0 truncate text-xs">{{ label().literalTitle ? label().title : (label().title | transloco) }}</span>
+  }
+  @if (tabCount() > 1) {
+    <span class="lw-badge lw-badge--brand shrink-0 px-1.5 py-0 text-xs" aria-hidden="true">+{{ extraTabs() }}</span>
+  }
+  <lw-tooltip [text]="restoreKey() | transloco: { count: tabCount() }" [position]="vertical() ? 'right' : 'bottom'" />
+</button>

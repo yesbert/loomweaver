@@ -1,0 +1,99 @@
+{
+  "name": "loom-shell",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "lw",
+  "sourceRoot": "apps/loom-shell/src",
+  "tags": ["scope:platform", "type:app"],
+  "targets": {
+    "stamp-version": {},
+    "build": {
+      "executor": "@angular/build:application",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/apps/loom-shell",
+        "browser": "apps/loom-shell/src/main.ts",
+        "tsConfig": "apps/loom-shell/tsconfig.app.json",
+        "serviceWorker": "ngsw-config.json",
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "apps/loom-shell/public"
+          },
+          {
+            "glob": "**/*.json",
+            "input": "libs/core/shell/src/lib/i18n",
+            "output": "i18n"
+          }
+        ],
+        "styles": ["apps/loom-shell/src/styles.css"]
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "4kb",
+              "maximumError": "8kb"
+            }
+          ],
+          "outputHashing": "all",
+          "optimization": {
+            "scripts": true,
+            "fonts": true,
+            "styles": {
+              "minify": true,
+              "inlineCritical": false
+            }
+          }
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      }
+    },
+    "serve": {
+      "continuous": true,
+      "executor": "@angular/build:dev-server",
+      "defaultConfiguration": "development",
+      "configurations": {
+        "production": {
+          "buildTarget": "loom-shell:build:production"
+        },
+        "development": {
+          "buildTarget": "loom-shell:build:development"
+        }
+      }
+    },
+    "lint": {
+      "inputs": [
+        "default",
+        "^default",
+        "{workspaceRoot}/.eslintrc.json",
+        "{workspaceRoot}/.eslintignore",
+        "{workspaceRoot}/eslint.config.mjs",
+        "{workspaceRoot}/tools/eslint-rules/**/*",
+        {
+          "externalDependencies": ["eslint"]
+        }
+      ]
+    },
+    "serve-static": {
+      "continuous": true,
+      "executor": "@nx/web:file-server",
+      "options": {
+        "buildTarget": "loom-shell:build",
+        "staticFilePath": "dist/apps/loom-shell/browser",
+        "spa": true
+      }
+    }
+  }
+}

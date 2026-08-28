@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Store plugin (minimal)</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+      }
+      body {
+        margin: 0;
+        padding: 2.5rem;
+        font-family: var(--lw-font-sans, system-ui, -apple-system, 'Segoe UI', sans-serif);
+        line-height: 1.6;
+        color: var(--lw-content, #0f172a);
+        background: var(--lw-surface, #ffffff);
+        color-scheme: light;
+      }
+      body.dark {
+        color-scheme: dark;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Hello from the store 👋</h1>
+    <p>
+      A second, minimal community plugin — it only adds this tab. It exists so the testbed's plugin
+      store has a real list to search, and to show that a plugin <em>without</em> declared settings
+      gets no "Community plugins" settings entry.
+    </p>
+    <script src="/frame-kit/penpal.global.js"></script>
+    <script src="/frame-kit/lw-elements.global.js"></script>
+    <script src="./view.js"></script>
+  </body>
+</html>

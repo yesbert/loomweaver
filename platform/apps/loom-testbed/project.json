@@ -1,0 +1,131 @@
+{
+  "name": "loom-testbed",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "lw",
+  "sourceRoot": "apps/loom-testbed/src",
+  "tags": ["scope:distribution", "type:app"],
+  "targets": {
+    "stamp-version": {},
+    "build": {
+      "executor": "@angular/build:application",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "dependsOn": [
+        {
+          "projects": ["frame-kit"],
+          "target": "bundle"
+        }
+      ],
+      "options": {
+        "outputPath": "dist/apps/loom-testbed",
+        "browser": "apps/loom-testbed/src/main.ts",
+        "tsConfig": "apps/loom-testbed/tsconfig.app.json",
+        "serviceWorker": "ngsw-config.json",
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "apps/loom-testbed/public"
+          },
+          {
+            "glob": "**/*",
+            "input": "libs/core/frame-kit/dist",
+            "output": "frame-kit"
+          },
+          {
+            "glob": "**/*.json",
+            "input": "libs/core/shell/src/lib/i18n",
+            "output": "i18n"
+          },
+          {
+            "glob": "**/*.json",
+            "input": "libs/weavers/testbed-weaver/src/lib/i18n",
+            "output": "i18n/testbed"
+          }
+        ],
+        "styles": ["apps/loom-testbed/src/styles.css"]
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "4kb",
+              "maximumError": "8kb"
+            }
+          ],
+          "outputHashing": "all",
+          "optimization": {
+            "scripts": true,
+            "fonts": true,
+            "styles": {
+              "minify": true,
+              "inlineCritical": false
+            }
+          }
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      }
+    },
+    "serve": {
+      "continuous": true,
+      "executor": "@angular/build:dev-server",
+      "defaultConfiguration": "development",
+      "dependsOn": [
+        {
+          "projects": ["frame-kit"],
+          "target": "bundle"
+        }
+      ],
+      "options": {
+        "proxyConfig": "apps/loom-testbed/proxy.conf.js"
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "loom-testbed:build:production"
+        },
+        "development": {
+          "buildTarget": "loom-testbed:build:development"
+        }
+      }
+    },
+    "lint": {
+      "inputs": [
+        "default",
+        "^default",
+        "{workspaceRoot}/.eslintrc.json",
+        "{workspaceRoot}/.eslintignore",
+        "{workspaceRoot}/eslint.config.mjs",
+        "{workspaceRoot}/tools/eslint-rules/**/*",
+        {
+          "externalDependencies": ["eslint"]
+        }
+      ]
+    },
+    "test": {
+      "executor": "@nx/angular:unit-test",
+      "outputs": ["{workspaceRoot}/coverage/{projectName}"],
+      "options": {
+        "watch": false
+      }
+    },
+    "serve-static": {
+      "continuous": true,
+      "executor": "@nx/web:file-server",
+      "options": {
+        "buildTarget": "loom-testbed:build",
+        "staticFilePath": "dist/apps/loom-testbed/browser",
+        "spa": true
+      }
+    }
+  }
+}

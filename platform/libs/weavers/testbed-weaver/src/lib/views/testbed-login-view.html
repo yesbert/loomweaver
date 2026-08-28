@@ -1,0 +1,12 @@
+<div class="mx-auto flex max-w-md flex-col items-center gap-4 py-12 text-center">
+  <h2 class="text-lg font-semibold text-content">
+    {{ 'testbed.login.heading' | transloco }}
+  </h2>
+  <p class="text-sm text-content-muted">
+    {{ 'testbed.login.intro' | transloco }}
+    <code>/{{ from }}</code>
+  </p>
+  <button type="button" class="lw-btn lw-btn--default" (click)="signIn()">
+    {{ 'testbed.login.action' | transloco }}
+  </button>
+</div>

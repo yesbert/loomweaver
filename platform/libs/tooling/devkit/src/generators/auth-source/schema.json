@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "$id": "LoomWeaverAuthSource",
+  "title": "Scaffold a provider-neutral AuthSource that feeds the session",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Source name in kebab-case, e.g. 'dev'.",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+    },
+    "app": {
+      "type": "string",
+      "description": "Application to drop into. Inferred when the workspace has exactly one."
+    }
+  },
+  "required": ["name"]
+}

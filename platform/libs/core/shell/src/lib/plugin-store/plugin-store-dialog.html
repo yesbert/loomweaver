@@ -1,0 +1,142 @@
+<div
+  class="flex w-full flex-col overflow-hidden"
+  [class]="ref.maximized() ? 'h-full' : 'h-[80vh] max-h-[85vh]'"
+>
+  <header
+    class="flex items-center justify-between gap-4 border-b border-border px-5 py-3"
+  >
+    <h2 class="text-lg font-semibold text-content">
+      {{ title() | transloco }}
+    </h2>
+    <span class="flex items-center gap-1">
+      <button
+        lwButton
+        variant="ghost"
+        size="sm"
+        iconOnly
+        type="button"
+        data-testid="dialog-maximize"
+        [attr.aria-label]="
+          (ref.maximized() ? 'dialog.restore' : 'dialog.maximize')
+            | transloco
+        "
+        (click)="ref.toggleMaximized()"
+      >
+        <lw-icon
+          [name]="ref.maximized() ? 'restore' : 'maximize'"
+          size="1rem"
+        />
+      </button>
+      <button
+        lwButton
+        variant="ghost"
+        size="sm"
+        iconOnly
+        type="button"
+        [attr.aria-label]="'dialog.close' | transloco"
+        (click)="close()"
+      >
+        <lw-icon name="close" size="1rem" />
+      </button>
+    </span>
+  </header>
+
+  <div class="flex items-center gap-3 border-b border-border px-5 py-3">
+    <div class="lw-segmented shrink-0">
+      <button
+        type="button"
+        class="lw-segmented-item w-auto px-3 text-sm"
+        data-testid="store-tab-browse"
+        [attr.aria-pressed]="view() === 'browse'"
+        (click)="view.set('browse')"
+      >
+        {{ 'settings.storeTabBrowse' | transloco }}
+      </button>
+      <button
+        type="button"
+        class="lw-segmented-item w-auto px-3 text-sm"
+        data-testid="store-tab-installed"
+        [attr.aria-pressed]="view() === 'installed'"
+        (click)="view.set('installed')"
+      >
+        {{ 'settings.storeTabInstalled' | transloco }} ({{
+          installs.installed().length
+        }})
+      </button>
+    </div>
+    <input
+      class="lw-field w-full"
+      type="search"
+      data-testid="store-search"
+      [attr.placeholder]="'settings.storeSearch' | transloco"
+      [attr.aria-label]="'settings.storeSearch' | transloco"
+      [value]="query()"
+      (input)="query.set($any($event.target).value)"
+    />
+  </div>
+
+  @if (view() === 'browse') {
+    <div class="flex min-h-0 flex-1">
+      <ul
+        class="flex w-80 shrink-0 flex-col gap-1 overflow-y-auto border-r border-border p-2 max-sm:w-full"
+      >
+        @if (failed()) {
+          <li
+            class="p-3 text-sm text-content-muted"
+            data-testid="store-error"
+          >
+            {{ 'settings.storeError' | transloco }}
+          </li>
+        } @else if (entries(); as list) {
+          @if (list.length === 0) {
+            <li class="p-3 text-sm text-content-muted">
+              {{ 'settings.storeEmpty' | transloco }}
+            </li>
+          } @else if (filtered().length === 0) {
+            <li class="p-3 text-sm text-content-muted">
+              {{ 'settings.storeNoResults' | transloco }}
+            </li>
+          } @else {
+            @for (entry of filtered(); track entry.id) {
+              <li>
+                <lw-plugin-store-card
+                  [entry]="entry"
+                  [selected]="entry.id === selectedId()"
+                  [installed]="installs.isInstalled(entry.id)"
+                  [hasUpdate]="hasUpdate(entry)"
+                  (picked)="selectedId.set(entry.id)"
+                />
+              </li>
+            }
+          }
+        } @else {
+          <li class="p-3 text-sm text-content-muted">
+            {{ 'settings.storeLoading' | transloco }}
+          </li>
+        }
+      </ul>
+
+      <div class="min-h-0 flex-1 overflow-y-auto p-5 max-sm:hidden">
+        @if (selected(); as entry) {
+          <lw-plugin-store-detail
+            [entry]="entry"
+            (install)="requestInstall($event)"
+            (uninstall)="requestUninstall($event)"
+            (updateRequested)="requestUpdate($event)"
+          />
+        } @else {
+          <p class="text-sm text-content-muted">
+            {{ 'settings.storeSelectHint' | transloco }}
+          </p>
+        }
+      </div>
+    </div>
+  } @else {
+    <div class="min-h-0 flex-1 overflow-y-auto p-3">
+      <lw-installed-plugin-list
+        [query]="query()"
+        (settingsOpened)="close()"
+      />
+    </div>
+  }
+</div>

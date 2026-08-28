@@ -1,0 +1,244 @@
+{
+  "name": "Testbed-Weaver",
+  "aboutRow": "Über das Testbed",
+  "settings": {
+    "density": "Dichte",
+    "densityComfortable": "Komfortabel",
+    "densityCompact": "Kompakt",
+    "notifications": "Benachrichtigungen",
+    "notificationsDesc": "Einen Hinweis zeigen, wenn sich ein Eintrag ändert",
+    "displayName": "Anzeigename",
+    "displayNamePlaceholder": "Ihr Name",
+    "fontSize": "Schriftgröße",
+    "fontSizeDesc": "Schriftgröße im Editor in Punkt"
+  },
+  "nav": {
+    "title": "Navigator",
+    "add": "Neues Element",
+    "sort": "A–Z sortieren",
+    "scratch": "Notiz (von diesem Plugin geteilt)",
+    "lock": "Sortieren (nur für Mitglieder)"
+  },
+  "outline": {
+    "title": "Gliederung"
+  },
+  "home": {
+    "title": "Start",
+    "heading": "Prüfflächen",
+    "intro": "Die Test-App der LoomWeaver-Plattform. Jede Fläche hier prüft genau eine Plattform-Funktion und will kein Produkt sein.",
+    "primitives": "Rückmelde-Bausteine",
+    "live": "live",
+    "ring": "Fortschrittsring",
+    "bar": "Fortschrittsbalken",
+    "badgeSuccess": "2 erledigt",
+    "badgeDanger": "3 dringend",
+    "badgeNeutral": "1 wartend",
+    "panes": "Bereiche und Tab-Gruppen",
+    "tryIt": "ausprobieren",
+    "paneOpenTwo": "Öffnen Sie links zwei Einträge aus der Eintragsliste. Jeder Bereich ist eine Tab-Gruppe mit eigenem Streifen.",
+    "paneDrag": "Ziehen Sie einen Eintrags-Tab an eine Bereichskante, um ihn neben einen anderen zu legen. Der Tab wandert, die Gruppe behält den Rest.",
+    "paneMenu": "Rechtsklick auf einen Tab, dann „Rechts teilen“ oder „Unten teilen“ — dasselbe Ergebnis über das Menü.",
+    "paneAdaptive": "Ziehen Sie die Eintragsliste selbst in die Mitte: dieselbe Ansicht wechselt zum Kachelraster, weil sie sich nach der Breite richtet, die sie bekommt.",
+    "paneDirty": "Tippen Sie einen Entwurf und wechseln Sie den Tab. Der Entwurf überlebt, und das Schließen fragt vorher nach.",
+    "detailsSummary": "Was hier geprüft wird",
+    "detailsBody": "Die Einträge sind ein Plugin; Bereiche, Tabs, Palette, Einstellungen und Themes darum herum sind die Plattform. Jedes Bedienelement auf dieser Seite ist entweder eine schlichte CSS-Klasse auf einem nativen Element oder ein kleines <lw-*>-Web-Component, wo es kein natives Element gibt.",
+    "openList": "Eintragsliste öffnen",
+    "openDashboard": "Dashboard öffnen"
+  },
+  "list": {
+    "title": "Eintragsliste",
+    "sortLabel": "Sortieren nach",
+    "sortWaiting": "Wartezeit",
+    "sortPriority": "Priorität",
+    "ctxOpen": "Eintrag öffnen",
+    "ctxPreview": "Vorschau öffnen",
+    "focus": "Eintragsliste fokussieren",
+    "openCount": "{{count}} Einträge sind offen",
+    "waiting": "{{time}} wartend",
+    "priority": {
+      "urgent": "Dringend",
+      "high": "Hoch",
+      "normal": "Normal",
+      "low": "Niedrig"
+    },
+    "status": {
+      "open": "Offen",
+      "waiting": "Wartend",
+      "resolved": "Erledigt"
+    }
+  },
+  "tab": {
+    "reveal": "In der Eintragsliste zeigen",
+    "revealed": "Eintrag in der Liste hervorgehoben"
+  },
+  "dash": {
+    "title": "Dashboard",
+    "overview": "Überblick",
+    "trends": "Verlauf",
+    "export": "Export",
+    "updated": "Gerade aktualisiert",
+    "kpi": {
+      "waiting": "Wartend",
+      "urgent": "Dringend",
+      "firstReply": "Mittlere Wartezeit",
+      "resolved": "Erledigt",
+      "vsYesterday": "ggü. vorher",
+      "target": "Ziel"
+    },
+    "byStatus": "Nach Status",
+    "longestWaiting": "Längste Wartezeit",
+    "volumeTitle": "Einträge je Schritt",
+    "replyTitle": "Wartezeit (Minuten)",
+    "exportIntro": "Wählen Sie einen Bereich, um eine deaktivierte Aktion mit Begründung zu sehen.",
+    "exportRange": "Bereich",
+    "rangeWeek": "Kurz",
+    "rangeMonth": "Lang",
+    "exportAction": "Bericht herunterladen",
+    "exportNote": "Im Testbed deaktiviert — es steht kein Backend dahinter."
+  },
+  "search": {
+    "title": "Suche",
+    "heading": "Suche",
+    "intro": "Eine gruppenlose Perspektive: sie besitzt den ganzen Inhaltsbereich und hat keinen Tab-Streifen. Der Wechsel dorthin und zurück ist genau das, was die Perspektiven-Tests prüfen."
+  },
+  "notes": {
+    "title": "Notizen",
+    "heading": "Notizen",
+    "intro": "Speichert sich selbst, sobald die Fläche versteckt wird (saveOn: 'hide') — nichts geht ohne Dialog verloren."
+  },
+  "retired": {
+    "title": "Stillgelegt"
+  },
+  "theme": {
+    "toggle": "Plugin-Theme umschalten"
+  },
+  "sandbox": {
+    "title": "Sandbox (iframe)",
+    "toast": "Sandbox-Plugin aktiviert — ctx über iframe + Penpal-RPC."
+  },
+  "sandboxStatic": {
+    "title": "Sandbox (statischer Tab)",
+    "docked": "Sandbox (angedockt)"
+  },
+  "storeFull": {
+    "title": "Store-Plugin (voll)"
+  },
+  "dockedFrame": {
+    "title": "Angedockter Rahmen"
+  },
+  "info": {
+    "title": "Info",
+    "scratch": "Gemeinsame Notiz",
+    "session": "Sitzung",
+    "activeContent": "Aktiver Inhalt",
+    "followUp": "Wiedervorlage",
+    "dueDate": "Fällig am",
+    "notes": "Notizen",
+    "priority": "Priorität",
+    "assigned": "Zugewiesen an U1",
+    "resolved": "Erledigt",
+    "median": "Mittlere Wartezeit",
+    "watch": "Diesen Eintrag beobachten"
+  },
+  "admin": {
+    "title": "Gesperrtes Leistenelement",
+    "bar": "Admin-Leistenelement",
+    "view": "Admin-Ansicht",
+    "route": "Admin-Route",
+    "area": "Admin-Bereich"
+  },
+  "locked": {
+    "title": "Mitglieder-Bereich"
+  },
+  "auth": {
+    "cycle": "Benutzer wechseln",
+    "asAnon": "Jetzt: abgemeldet",
+    "asUser": "Jetzt: angemeldet (Benutzer)",
+    "asAdmin": "Jetzt: angemeldet (Admin)",
+    "signOut": "Abmelden",
+    "signedOut": "Abgemeldet.",
+    "dropAdmin": "Admin-Rolle ablegen",
+    "droppedAdmin": "Admin-Rolle abgelegt — jetzt einfacher Benutzer.",
+    "grace": "Zum zweiten Benutzer wechseln"
+  },
+  "status": {
+    "ready": "Bereit",
+    "items": "Elemente",
+    "add": "Element hinzufügen"
+  },
+  "cmd": {
+    "reset": "Liste zurücksetzen",
+    "resetConfirm": "**Alle Elemente** werden dauerhaft entfernt. Das lässt sich nicht rückgängig machen.",
+    "resetGuardLabel": "Zum Bestätigen **Reset** eingeben.",
+    "settings": "Einstellungen",
+    "about": "Über",
+    "secret": "Nur-Admin-Befehl",
+    "secretDone": "Nur-Admin-Befehl ausgeführt."
+  },
+  "entry": {
+    "title": "Eintrags-Editor",
+    "tab": {
+      "detail": "Verlauf",
+      "meta": "Felder"
+    },
+    "owner": "Eigentümer",
+    "group": "Gruppe",
+    "priority": "Priorität",
+    "status": "Status",
+    "waiting": "wartet {{time}}",
+    "ago": "vor {{time}}",
+    "message": "Nachricht {{n}}",
+    "pick": "Öffnen",
+    "picked": "In der Adresse geöffnet",
+    "replyLabel": "Ihr Entwurf",
+    "replyPlaceholder": "Entwurf tippen…",
+    "send": "Entwurf speichern",
+    "unsaved": "Entwurf noch nicht gespeichert",
+    "missing": "Diesen Eintrag gibt es nicht mehr."
+  },
+  "owner": {
+    "queue": "Warteschlange",
+    "profile": "Profil",
+    "body": "Zwei Facetten eines Bearbeiters: wähle ihn auf einem Reiter, der andere folgt, weil der Wirt den ihm bekannten Parameterwert einsetzt."
+  },
+  "login": {
+    "title": "Anmelden",
+    "heading": "Zum Fortfahren anmelden",
+    "intro": "Sie wurden hierher geschickt, weil Sie nicht mit der nötigen Rolle angemeldet sind. Die Distribution hat für diese Route eine Login-Weiterleitung hinterlegt. Ihr Ziel war",
+    "action": "Als Admin anmelden"
+  },
+  "workspace": {
+    "title": "Container",
+    "simId": "Container {{id}}",
+    "frame": "Rahmen-Kind",
+    "canvas": "Leinwand",
+    "details": "Details",
+    "audit": "Prüfprotokoll (Admin)",
+    "auditIntro": "Ein Container-Kind, das die Admin-Rolle verlangt. Es wird unabhängig von der Sitzung in die Anordnung gesät, deshalb zeigt seine Fläche den Zugriffs-Platzhalter, bis sich eine Administration anmeldet.",
+    "world": "Kind-Inhalt",
+    "status": "Status",
+    "running": "Läuft",
+    "agents": "Elemente",
+    "ticks": "Schritte",
+    "region": "Region",
+    "list": "Einträge",
+    "item": "Eintrag"
+  },
+  "escalations": {
+    "title": "Admin-Route",
+    "intro": "Nur mit der Admin-Rolle erreichbar. Alle anderen bekommen den Platzhalter oder die Login-Weiterleitung, je nach Route."
+  },
+  "team": {
+    "intro": "Offene Einträge je Bearbeiter.",
+    "open": "{{count}} offen"
+  },
+  "overview": {
+    "title": "Übersicht (bleibt offen)"
+  },
+  "arranged": {
+    "title": "Angeordneter Container"
+  },
+  "browse": {
+    "title": "Browse-Container"
+  }
+}

@@ -1,0 +1,289 @@
+import { WritableSignal, signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+import { TranslocoTestingModule } from '@jsverse/transloco';
+import { ANONYMOUS, AuthSnapshot } from '@loomweaver/plugin-sdk';
+import { ShellRail } from './shell-rail';
+import { LayoutRegion } from '../../layout/layout';
+import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { AUTH_SOURCE } from '../../auth/auth-context';
+import { ActiveWorkspaceService } from '../../workspace/active-workspace.service';
+import { WorkspaceService } from '../../workspace/workspace.service';
+import { RailItem } from '../../foundation/rail-item';
+import { RailItemsService } from './rail-items.service';
+
+const railRegion: LayoutRegion = { id: 'activity', type: 'rail', dock: 'left' };
+
+function transloco() {
+  return TranslocoTestingModule.forRoot({
+    langs: {
+      en: {
+        rail: { label: 'Ribbon', labelRight: 'Right ribbon' },
+        cmd: { reset: 'Reset' },
+      },
+    },
+    translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
+    preloadLangs: true,
+  });
+}
+
+function setup(auth: WritableSignal<AuthSnapshot>, ...items: RailItem[]) {
+  TestBed.configureTestingModule({
+    imports: [ShellRail, transloco()],
+    providers: [{ provide: AUTH_SOURCE, useValue: auth }],
+  });
+  const registry = TestBed.inject(ContributionRegistry);
+  items.forEach((item) => registry.addRailItem(item));
+  const fixture = TestBed.createComponent(ShellRail);
+  fixture.componentRef.setInput('region', railRegion);
+  fixture.detectChanges();
+  return fixture;
+}
+
+function buttonsOf(fixture: ReturnType<typeof setup>) {
+  return fixture.nativeElement.querySelectorAll(
+    'button',
+  ) as NodeListOf<HTMLButtonElement>;
+}
+
+function render(...items: RailItem[]) {
+  return buttonsOf(setup(signal(ANONYMOUS), ...items));
+}
+
+describe('ShellRail', () => {
+  it('renders rail command items and runs them on click', () => {
+    let ran = 0;
+    const buttons = render({
+      id: 'r',
+      rail: 'activity',
+      icon: 'reset',
+      title: 'cmd.reset',
+      run: () => (ran += 1),
+    });
+
+    expect(buttons.length).toBe(1);
+    buttons[0].click();
+    expect(ran).toBe(1);
+  });
+
+  it('shows only items targeting this rail', () => {
+    const buttons = render({
+      id: 'other',
+      rail: 'other-rail',
+      icon: 'reset',
+      title: 'cmd.reset',
+      run: () => undefined,
+    });
+
+    expect(buttons.length).toBe(0);
+  });
+
+  it('renders top-anchored items first, then bottom-anchored ones pinned to the foot', () => {
+    const item = (id: string, anchor?: 'top' | 'bottom'): RailItem => ({
+      id,
+      rail: 'activity',
+      icon: 'reset',
+      title: 'cmd.reset',
+      anchor,
+      run: () => undefined,
+    });
+    const buttons = render(item('settings', 'bottom'), item('files'));
+
+    expect(buttons.length).toBe(2);
+    expect([...buttons].map((b) => b.getAttribute('aria-label'))).toEqual([
+      'Reset',
+      'Reset',
+    ]);
+    expect(buttons[0].classList).not.toContain('mt-auto');
+    expect(buttons[1].classList).toContain('mt-auto');
+  });
+
+  describe('landmark label', () => {
+    function navLabelFor(region: LayoutRegion): string | null {
+      TestBed.configureTestingModule({
+        imports: [ShellRail, transloco()],
+        providers: [{ provide: AUTH_SOURCE, useValue: signal(ANONYMOUS) }],
+      });
+      const fixture = TestBed.createComponent(ShellRail);
+      fixture.componentRef.setInput('region', region);
+      fixture.detectChanges();
+      const nav = fixture.nativeElement.querySelector('nav') as HTMLElement;
+      return nav.getAttribute('aria-label');
+    }
+
+    it('labels a left-docked rail with the default key', () => {
+      expect(navLabelFor(railRegion)).toBe('Ribbon');
+    });
+
+    it('labels a right-docked rail distinctly so the landmarks stay unique', () => {
+      expect(
+        navLabelFor({ id: 'activity-right', type: 'rail', dock: 'right' }),
+      ).toBe('Right ribbon');
+    });
+  });
+
+  describe('auth gating', () => {
+    const gated = (id: string, access: RailItem['access']): RailItem => ({
+      id,
+      rail: 'activity',
+      icon: 'reset',
+      title: 'cmd.reset',
+      access,
+      run: () => undefined,
+    });
+    const asAdmin: AuthSnapshot = {
+      authenticated: true,
+      roles: ['admin'],
+      claims: {},
+    };
+
+    it('hides an item whose requirement is unmet (default hide mode)', () => {
+      const auth = signal<AuthSnapshot>(ANONYMOUS);
+      const fixture = setup(auth, gated('admin', { anyRole: ['admin'] }));
+      expect(buttonsOf(fixture).length).toBe(0);
+
+      auth.set(asAdmin);
+      fixture.detectChanges();
+      expect(buttonsOf(fixture).length).toBe(1);
+    });
+
+    it('keeps a disable-mode item visible but inert until the requirement is met', () => {
+      let ran = 0;
+      const auth = signal<AuthSnapshot>(ANONYMOUS);
+      const item: RailItem = {
+        ...gated('members', { authenticated: true, mode: 'disable' }),
+        run: () => (ran += 1),
+      };
+      const fixture = setup(auth, item);
+      const [button] = buttonsOf(fixture);
+
+      expect(button.disabled).toBe(true);
+      button.click();
+      expect(ran).toBe(0);
+
+      auth.set(asAdmin);
+      fixture.detectChanges();
+      expect(button.disabled).toBe(false);
+      button.click();
+      expect(ran).toBe(1);
+    });
+  });
+
+  describe('workspace entries', () => {
+    const switched: string[] = [];
+    let activeId: WritableSignal<string>;
+
+    function setupWorkspaces(active: string, ...items: RailItem[]) {
+      localStorage.clear();
+      switched.length = 0;
+      activeId = signal(active);
+      TestBed.configureTestingModule({
+        imports: [ShellRail, transloco()],
+        providers: [
+          { provide: AUTH_SOURCE, useValue: signal(ANONYMOUS) },
+          {
+            provide: ActiveWorkspaceService,
+            useValue: { id: activeId.asReadonly() },
+          },
+          {
+            provide: WorkspaceService,
+            useValue: {
+              switchTo: (id: string) => {
+                switched.push(id);
+                return Promise.resolve();
+              },
+            },
+          },
+        ],
+      });
+      const registry = TestBed.inject(ContributionRegistry);
+      items.forEach((item) => registry.addRailItem(item));
+      const fixture = TestBed.createComponent(ShellRail);
+      fixture.componentRef.setInput('region', railRegion);
+      fixture.detectChanges();
+      return fixture;
+    }
+
+    const entry = (id: string, workspace: string): RailItem => ({
+      id,
+      rail: 'activity',
+      icon: 'reset',
+      title: 'cmd.reset',
+      workspace,
+    });
+
+    it('marks the entry of the active workspace and no other', () => {
+      const fixture = setupWorkspaces(
+        'beta',
+        entry('a', 'alpha'),
+        entry('b', 'beta'),
+      );
+      const [alpha, beta] = buttonsOf(fixture);
+
+      expect(alpha.getAttribute('aria-current')).toBeNull();
+      expect(beta.getAttribute('aria-current')).toBe('true');
+    });
+
+    it('moves the marking when the active workspace changes', () => {
+      const fixture = setupWorkspaces(
+        'alpha',
+        entry('a', 'alpha'),
+        entry('b', 'beta'),
+      );
+
+      activeId.set('beta');
+      fixture.detectChanges();
+      const [alpha, beta] = buttonsOf(fixture);
+
+      expect(alpha.getAttribute('aria-current')).toBeNull();
+      expect(beta.getAttribute('aria-current')).toBe('true');
+    });
+
+    it('leaves an ordinary item unmarked whichever workspace is active', () => {
+      const fixture = setupWorkspaces('alpha', {
+        id: 'plain',
+        rail: 'activity',
+        icon: 'reset',
+        title: 'cmd.reset',
+        run: () => undefined,
+      });
+
+      expect(buttonsOf(fixture)[0].getAttribute('aria-current')).toBeNull();
+    });
+
+    it('drops an entry the user hid from this rail and keeps it out after a rebuild', () => {
+      const fixture = setupWorkspaces(
+        'alpha',
+        entry('a', 'alpha'),
+        entry('b', 'beta'),
+      );
+      expect(buttonsOf(fixture)).toHaveLength(2);
+
+      TestBed.inject(RailItemsService).hide('b');
+      fixture.detectChanges();
+
+      expect(buttonsOf(fixture)).toHaveLength(1);
+      expect(buttonsOf(fixture)[0].getAttribute('aria-current')).toBe('true');
+    });
+
+    it('takes an item out of this rail once it is placed in another one', () => {
+      const fixture = setupWorkspaces('alpha', entry('a', 'alpha'));
+      TestBed.inject(RailItemsService).show('a', 'activity-right');
+      fixture.detectChanges();
+
+      expect(buttonsOf(fixture)).toHaveLength(0);
+    });
+
+    it('switches on click, ignoring a command the item also names', () => {
+      let ran = 0;
+      const fixture = setupWorkspaces('alpha', {
+        ...entry('b', 'beta'),
+        run: () => (ran += 1),
+      });
+
+      buttonsOf(fixture)[0].click();
+
+      expect(switched).toEqual(['beta']);
+      expect(ran).toBe(0);
+    });
+  });
+});

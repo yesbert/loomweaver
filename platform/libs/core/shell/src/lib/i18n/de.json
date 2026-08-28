@@ -1,0 +1,293 @@
+{
+  "appReset": {
+    "action": "Layout zurücksetzen",
+    "confirm": "App-Layout zurücksetzen?\n\nDas kommt zurück: die von dir kuratierte Leiste, eingeklappte Seitenleisten, Seitenleisten-Breiten, deine Hand-Sortierung und benannte Ansichts-Instanzen samt ihrem Zustand.\n\nDas bleibt: deine gespeicherten Arbeitsbereiche samt Layout, Farbschema, Sprache, Textgröße, Berechtigungen und installierte Plugins.",
+    "desc": "Stellt die Anordnung so her, wie diese App ausgeliefert wurde.",
+    "title": "App-Layout zurücksetzen"
+  },
+  "auth": {
+    "requiredTitle": "Anmeldung erforderlich",
+    "requiredMessage": "Melde dich mit einem Konto an, das die nötige Berechtigung hat.",
+    "deniedTitle": "Kein Zugriff",
+    "deniedMessage": "Dein Konto hat keinen Zugriff auf diesen Inhalt. Für die nötige Berechtigung wende dich an die Administration."
+  },
+  "content": {
+    "closeTab": "Tab schließen",
+    "moreTabs": "Alle geöffneten Tabs",
+    "pinnedHint": "Angeheftet — Klick zum Lösen",
+    "pluginSurface": "Plugin-Inhalt",
+    "previewHint": "Vorschau — Doppelklick zum Anheften",
+    "unpinTab": "Tab lösen",
+    "split": {
+      "open": "Editor teilen",
+      "resize": "Teilung anpassen",
+      "unavailable": "Diese Ansicht lässt sich noch nicht geteilt anzeigen.",
+      "splitRight": "Rechts teilen",
+      "splitDown": "Unten teilen",
+      "closePane": "Pane schließen",
+      "pick": "Inhalt wählen",
+      "home": "Start",
+      "newTab": "Neuer Tab",
+      "maximize": "Maximieren (ganzen Bildschirm füllen)",
+      "restore": "Wiederherstellen",
+      "minimize": "Auf einen Streifen minimieren",
+      "restoreMinimized": "Pane wiederherstellen",
+      "restoreMinimizedCount": "Pane wiederherstellen ({{count}} Tabs)",
+      "awaiting": "Noch nichts geöffnet. Wähle etwas aus, das hier erscheinen soll."
+    },
+    "tabMenu": {
+      "close": "Schließen",
+      "closeOthers": "Andere schließen",
+      "closeRight": "Rechts schließen",
+      "closeAll": "Alle schließen",
+      "pinned": "Angeheftet",
+      "openInNewWindow": "In neuem Fenster öffnen"
+    }
+  },
+  "curation": {
+    "empty": "Hier ist nichts zu platzieren.",
+    "hidden": "Ausgeblendet",
+    "left": "Links",
+    "right": "Rechts",
+    "search": "Suchen",
+    "shown": "Sichtbar"
+  },
+  "dialog": {
+    "ok": "OK",
+    "cancel": "Abbrechen",
+    "close": "Schließen",
+    "maximize": "Maximieren",
+    "restore": "Wiederherstellen"
+  },
+  "language": {
+    "label": "Sprache",
+    "desc": "Anzeigesprache der Oberfläche.",
+    "en": "English",
+    "de": "Deutsch"
+  },
+  "notification": {
+    "region": "Benachrichtigungen",
+    "dismiss": "Schließen"
+  },
+  "palette": {
+    "title": "Befehlspalette",
+    "placeholder": "Befehl eingeben…",
+    "empty": "Keine passenden Befehle",
+    "recent": "Zuletzt verwendet",
+    "all": "Alle Befehle",
+    "hint": {
+      "navigate": "Auswählen",
+      "run": "Ausführen",
+      "close": "Schließen",
+      "actions": "Aktionen"
+    },
+    "tabsPlaceholder": "Zu offenem Tab…",
+    "tabsEmpty": "Keine offenen Tabs",
+    "quickOpenTitle": "Zu offenem Tab wechseln…"
+  },
+  "panel": {
+    "collapse": "Panel einklappen",
+    "expand": "Panel ausklappen",
+    "open": "Panel öffnen",
+    "close": "Panel schließen",
+    "resize": "Panelbreite ändern",
+    "viewMenu": {
+      "moveToOtherSidebar": "In andere Seitenleiste verschieben",
+      "stackBelow": "Darunter stapeln",
+      "openInContent": "Im Content öffnen",
+      "resetState": "Ansicht zurücksetzen",
+      "openInNewWindow": "In neuem Fenster öffnen",
+      "hide": "Ausblenden"
+    },
+    "stack": {
+      "unstack": "Stapel lösen"
+    },
+    "viewMove": {
+      "announce": "{{view}} in {{target}} verschoben",
+      "targetLeft": "linke Seitenleiste",
+      "targetRight": "rechte Seitenleiste"
+    },
+    "customizeViews": "Ansichten anpassen"
+  },
+  "permission": {
+    "blocked": "Diese Aktion wurde blockiert, weil eine benötigte Berechtigung ausgeschaltet ist. Öffne Einstellungen → Berechtigungen, um sie zu ändern.",
+    "openSettings": "Einstellungen öffnen"
+  },
+  "popout": {
+    "unavailable": "Diese Ansicht ist in einem eigenen Fenster nicht verfügbar.",
+    "blocked": {
+      "title": "Pop-up blockiert",
+      "message": "Der Browser hat das neue Fenster blockiert. Klicke unten, um es zu öffnen — oder erlaube Pop-ups für diese Seite, dann entfällt der Schritt künftig.",
+      "open": "Fenster öffnen"
+    }
+  },
+  "progress": {
+    "busy": "Vorgang läuft"
+  },
+  "rail": {
+    "label": "Aktivitätsleiste",
+    "labelRight": "Rechte Aktivitätsleiste",
+    "menu": {
+      "moveToOther": "In andere Aktivitätsleiste verschieben",
+      "hide": "Ausblenden"
+    },
+    "move": {
+      "announce": "{{item}} in {{target}} verschoben",
+      "targetLeft": "linke Aktivitätsleiste",
+      "targetRight": "rechte Aktivitätsleiste"
+    },
+    "customize": "Leiste anpassen"
+  },
+  "reorder": {
+    "announce": "{{label}}: {{position}} von {{total}}"
+  },
+  "retention": {
+    "unsavedTitle": "Ungespeicherte Änderungen",
+    "unsavedMessage": "Hier gibt es ungespeicherte Änderungen. Was soll damit geschehen?",
+    "save": "Speichern",
+    "discard": "Verwerfen",
+    "saveFailed": "Speichern fehlgeschlagen — deine Änderungen bleiben erhalten und die Ansicht offen",
+    "stillDirty": "Die Ansicht meldet nach dem Speichern weiterhin ungespeicherte Änderungen — das Schließen wurde abgebrochen",
+    "vetoPendingTitle": "Warten auf das Plugin",
+    "vetoPendingMessage": "Das Plugin dieses Tabs hat seine Schließen-Prüfung noch nicht beantwortet. Du kannst den Tab trotzdem schließen.",
+    "closeAnyway": "Trotzdem schließen"
+  },
+  "route": {
+    "unavailableTitle": "Ansicht nicht verfügbar",
+    "unavailableMessage": "Diese Ansicht gibt es in dieser Anwendung nicht. Möglicherweise stammt der Link aus einer anderen Umgebung."
+  },
+  "settings": {
+    "capability": {
+      "contributions": "Zur Oberfläche beitragen",
+      "ui": "Dialoge und Hinweise anzeigen",
+      "host": "App-Version & Updates lesen",
+      "navigation": "Inhalts-Tabs öffnen und schließen",
+      "session": "Anmeldestatus lesen",
+      "theme": "App-Farben ändern",
+      "automation": "Aktionen anderer Plugins ausführen"
+    },
+    "capabilityDesc": {
+      "contributions": "Befehle, Ansichten, Menüeinträge, Icons und Routen registrieren.",
+      "ui": "Dialoge, Eingaben, Hinweise, Menüs und die Einstellungsfläche anzeigen.",
+      "host": "App-Version und Update-Status lesen.",
+      "navigation": "In der Inhaltsfläche navigieren und Tabs öffnen, anheften oder schließen.",
+      "session": "Lesen, ob du angemeldet bist, und welche Rollen du hast.",
+      "theme": "Die ganze App über Design-Tokens umfärben (überstimmt nie das Tenant-Branding).",
+      "automation": "Aktionen ausführen, die andere Plugins beigetragen haben, und auflisten, welche es ausführen darf. Es erreicht nur Aktionen, die deren Autoren geöffnet haben, und nur dort, wo du sie selbst hättest ausführen können."
+    },
+    "empty": "Keine Einstellungen verfügbar",
+    "general": "Allgemein",
+    "group": {
+      "options": "Optionen",
+      "plugins": "App-Plugins",
+      "community": "Community-Plugins"
+    },
+    "permissions": "Berechtigungen",
+    "permissionsDesc": "Schalte ein ganzes Plugin ein oder aus oder verwalte, was es darf. Änderungen wirken sofort; die Distribution kann nie mehr gewähren, als hier aufgeführt ist.",
+    "permissionsEmpty": "Keine Plugins installiert.",
+    "permissionsProvided": "Von Ihrer Organisation bereitgestellt. Diese Berechtigungen wurden mit dem Plugin vergeben und lassen sich hier nicht entziehen.",
+    "pluginDisabled": "Dieses Plugin ist ausgeschaltet. Schalte es ein, um seine Berechtigungen zu verwalten.",
+    "pluginEnabled": "Aktiviert",
+    "pluginLevel": {
+      "trusted": "Läuft in dieser Anwendung — was es zurückhält, ist das unten Gewährte, nicht der Browser.",
+      "embedded": "Läuft eingebettet — behält eine eigene Herkunft und wird von dieser Anwendung nicht ferngehalten.",
+      "isolated": "Läuft isoliert — kein Zugriff auf diese Anwendung, ihren Speicher oder Ihre Sitzung."
+    },
+    "pluginStore": "Plugin-Store",
+    "storeActionDisable": "Deaktivieren",
+    "storeActionEnable": "Aktivieren",
+    "storeActionSettings": "Einstellungen öffnen",
+    "storeBrowse": "Plugins durchsuchen",
+    "storeBy": "von {{author}}",
+    "storeConsent": "**{{name}}** fordert folgende Berechtigungen an:",
+    "storeConsentNone": "**{{name}}** fordert keine Berechtigungen an.",
+    "storeDesc": "Installiere geprüfte Plugins aus dem Store dieses Produkts. Ein Plugin erhält nur die beim Installieren angezeigten Berechtigungen; du kannst sie jederzeit widerrufen oder das Plugin deinstallieren.",
+    "storeDownloads": "{{count}} Downloads",
+    "storeEmpty": "Der Plugin-Katalog ist leer.",
+    "storeError": "Der Plugin-Katalog konnte nicht geladen werden.",
+    "storeInstall": "Installieren",
+    "storeInstallTitle": "{{name}} installieren?",
+    "storeInstalledBadge": "Installiert",
+    "storeLoading": "Plugin-Katalog wird geladen …",
+    "storeNoInstalled": "Noch nichts installiert — durchsuche den Katalog, um zu starten.",
+    "storeNoResults": "Keine Plugins passen zur Suche.",
+    "storeProvidedBadge": "Bereitgestellt",
+    "storeProvidedHint": "Von Ihrer Organisation bereitgestellt — hier weder abschaltbar noch entfernbar.",
+    "storeRepository": "Repository",
+    "storeSearch": "Plugins nach Name, Autor oder Beschreibung durchsuchen …",
+    "storeSelectHint": "Wähle links ein Plugin, um seine Details zu sehen.",
+    "storeTabBrowse": "Durchsuchen",
+    "storeTabInstalled": "Installiert",
+    "storeUninstall": "Deinstallieren",
+    "storeUninstallConfirm": "**{{name}}** wird entfernt und seine Beiträge verschwinden sofort. Seine Einstellungen bleiben erhalten, falls du es später erneut installierst.",
+    "storeUninstallTitle": "{{name}} deinstallieren?",
+    "storeUpdate": "Aktualisieren",
+    "storeUpdateAvailable": "Update verfügbar",
+    "storeUpdateConsent": "Version {{version}} von **{{name}}** fordert zusätzliche Berechtigungen an:",
+    "storeUpdateTitle": "{{name}} aktualisieren?",
+    "storeUpdateTo": "Auf v{{version}} aktualisieren",
+    "storeUpdated": "aktualisiert {{date}}",
+    "title": "Einstellungen"
+  },
+  "shell": {
+    "tagline": "Plugin- & UI-Plattform — der Webstuhl"
+  },
+  "skip": {
+    "toContent": "Zum Hauptinhalt springen"
+  },
+  "textSize": {
+    "label": "Textgröße",
+    "desc": "Die ganze Oberfläche größer oder kleiner skalieren.",
+    "sm": "Klein",
+    "md": "Standard",
+    "lg": "Groß",
+    "xl": "Sehr groß"
+  },
+  "theme": {
+    "label": "Darstellung",
+    "desc": "Hell, dunkel oder dem System folgen.",
+    "light": "Hell",
+    "dark": "Dunkel",
+    "system": "System"
+  },
+  "update": {
+    "check": "Auf Updates prüfen",
+    "available": "Update verfügbar — neu laden",
+    "reload": "Neu laden",
+    "upToDate": "Du bist auf dem neuesten Stand",
+    "checkUnavailable": "Update-Prüfung nicht möglich — bitte die Seite neu laden",
+    "failed": "Update konnte nicht installiert werden — zum Wiederholen neu laden",
+    "broken": "Der Offline-Speicher dieser App ist beschädigt. Beim Reparieren wird er neu aufgebaut.",
+    "repair": "Reparieren und neu laden"
+  },
+  "viewInstance": {
+    "default": "Standard",
+    "switcher": "Gespeicherte Ansichten",
+    "new": "Neue Ansicht…",
+    "rename": "Umbenennen…",
+    "delete": "Löschen",
+    "newTitle": "Neue gespeicherte Ansicht",
+    "renameTitle": "Ansicht umbenennen",
+    "namePlaceholder": "Name der Ansicht",
+    "deleteConfirm": "Gespeicherte Ansicht „{{name}}“ löschen? Das kann nicht rückgängig gemacht werden."
+  },
+  "workspace": {
+    "title": "Workspaces",
+    "save": "Als neu speichern",
+    "namePlaceholder": "Workspace-Name",
+    "rename": "Umbenennen",
+    "delete": "Löschen",
+    "deleteConfirm": "Workspace „{{name}}“ löschen?",
+    "reset": "Layout zurücksetzen",
+    "resetConfirm": "Diesen Workspace zurücksetzen? Das Layout kehrt zum gespeicherten Ausgangszustand zurück; deine gespeicherten Workspaces bleiben erhalten.",
+    "default": "Standard",
+    "saveBaseline": "Änderungen übernehmen",
+    "saveBaselineHint": "Übernimmt den aktuellen Stand als neuen Ausgangszustand dieses Workspace.",
+    "applyConfirm": "Aktuellen Stand als neuen Ausgangszustand dieses Workspace übernehmen? Der bisher gespeicherte Stand wird ersetzt.",
+    "resetHint": "Verwirft die Änderungen dieses Workspace und kehrt zum gespeicherten Ausgangszustand zurück.",
+    "saveAsHint": "Speichert den aktuellen Stand als neuen Workspace und wechselt hinein.",
+    "tabMine": "Meine",
+    "tabProvided": "Vorgegeben",
+    "variantOf": "Variante von {{name}}"
+  }
+}

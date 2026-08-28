@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "$id": "LoomWeaverFramePlugin",
+  "title": "Scaffold a framework-agnostic iframe plugin (Penpal + the frame UI kit)",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Plugin id in kebab-case, e.g. 'notes'.",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable name. Defaults to a title-cased id."
+    },
+    "app": {
+      "type": "string",
+      "description": "Application to drop into. Inferred when the workspace has exactly one."
+    }
+  },
+  "required": ["id"]
+}

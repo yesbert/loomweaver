@@ -1,0 +1,133 @@
+<div class="flex flex-col gap-6">
+  <header class="flex flex-wrap items-baseline justify-between gap-2">
+    <h2 class="text-lg font-semibold text-content">
+      {{ 'testbed.dash.' + section() | transloco }}
+    </h2>
+    <span class="text-xs text-content-faint">
+      {{ 'testbed.dash.updated' | transloco }}
+    </span>
+  </header>
+
+  @if (section() === 'trends') {
+    <section class="grid gap-4 lg:grid-cols-2">
+      <article class="flex flex-col gap-3 rounded-lg border border-border bg-surface-raised p-4">
+        <h3 class="text-sm font-medium text-content">
+          {{ 'testbed.dash.volumeTitle' | transloco }}
+        </h3>
+        <svg
+          [attr.viewBox]="'0 0 ' + chart.width + ' ' + chart.height"
+          class="h-24 w-full"
+          role="img"
+          [attr.aria-label]="'testbed.dash.volumeTitle' | transloco"
+        >
+          <path [attr.d]="volumeArea()" class="fill-brand/10" />
+          <polyline
+            [attr.points]="volumeLine()"
+            fill="none"
+            class="stroke-brand"
+            stroke-width="2"
+            stroke-linejoin="round"
+            stroke-linecap="round"
+          />
+        </svg>
+        <ol class="flex justify-between text-xs text-content-faint">
+          @for (point of volume; track point.day) {
+            <li>{{ point.day }}</li>
+          }
+        </ol>
+      </article>
+
+      <article class="flex flex-col gap-3 rounded-lg border border-border bg-surface-raised p-4">
+        <h3 class="text-sm font-medium text-content">
+          {{ 'testbed.dash.replyTitle' | transloco }}
+        </h3>
+        <div class="flex h-24 items-end gap-2" data-testid="reply-bars">
+          @for (point of replyMinutes; track point.day) {
+            <span
+              class="min-h-1 flex-1 rounded-t bg-brand/70"
+              [style.height.%]="barHeight(point.count)"
+              [attr.title]="point.day + ': ' + point.count + 'm'"
+            ></span>
+          }
+        </div>
+        <ol class="flex gap-2 text-xs text-content-faint">
+          @for (point of replyMinutes; track point.day) {
+            <li class="flex-1 text-center">{{ point.day }}</li>
+          }
+        </ol>
+      </article>
+    </section>
+  } @else if (section() === 'export') {
+    <section class="flex max-w-md flex-col gap-4 rounded-lg border border-border bg-surface-raised p-4">
+      <p class="text-sm text-content-muted">
+        {{ 'testbed.dash.exportIntro' | transloco }}
+      </p>
+      <div class="flex flex-col gap-1 text-sm">
+        <span class="text-content-muted">{{ 'testbed.dash.exportRange' | transloco }}</span>
+        <lw-select [attr.label]="'testbed.dash.exportRange' | transloco" value="week">
+          <lw-option value="week">{{ 'testbed.dash.rangeWeek' | transloco }}</lw-option>
+          <lw-option value="month">{{ 'testbed.dash.rangeMonth' | transloco }}</lw-option>
+        </lw-select>
+      </div>
+      <button type="button" class="lw-btn lw-btn--primary self-start" disabled>
+        {{ 'testbed.dash.exportAction' | transloco }}
+      </button>
+      <p class="text-xs text-content-faint">
+        {{ 'testbed.dash.exportNote' | transloco }}
+      </p>
+    </section>
+  } @else {
+    <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" data-testid="dash-kpis">
+      @for (kpi of kpis; track kpi.id) {
+        <article class="flex flex-col gap-1 rounded-lg border border-border bg-surface-raised p-4">
+          <span class="text-xs text-content-muted">
+            {{ 'testbed.dash.kpi.' + kpi.id | transloco }}
+          </span>
+          <span class="text-3xl font-semibold text-content">{{ kpi.value }}</span>
+          <span class="flex items-center gap-1 text-xs">
+            <span [class]="kpi.good ? 'text-positive' : 'text-negative'">{{ kpi.delta }}</span>
+            <span class="text-content-faint">{{ kpi.deltaKey | transloco }}</span>
+          </span>
+        </article>
+      }
+    </section>
+
+    <section class="grid gap-4 lg:grid-cols-2">
+      <article class="flex flex-col gap-3 rounded-lg border border-border bg-surface-raised p-4">
+        <h3 class="text-sm font-medium text-content">
+          {{ 'testbed.dash.byStatus' | transloco }}
+        </h3>
+        <ol class="flex flex-col gap-3">
+          @for (bar of statusBars; track bar.id) {
+            <li class="flex flex-col gap-1">
+              <span class="flex items-baseline justify-between text-xs">
+                <span class="text-content">{{ 'testbed.list.status.' + bar.id | transloco }}</span>
+                <span class="text-content-faint">{{ bar.count }}</span>
+              </span>
+              <span class="h-2 w-full overflow-hidden rounded-full bg-surface">
+                <span class="block h-full rounded-full" [class]="bar.tone" [style.width.%]="bar.percent"></span>
+              </span>
+            </li>
+          }
+        </ol>
+      </article>
+
+      <article class="flex flex-col gap-3 rounded-lg border border-border bg-surface-raised p-4">
+        <h3 class="text-sm font-medium text-content">
+          {{ 'testbed.dash.longestWaiting' | transloco }}
+        </h3>
+        <ol class="flex flex-col divide-y divide-border">
+          @for (entry of longestWaiting; track entry.id) {
+            <li class="flex items-baseline justify-between gap-3 py-2 first:pt-0 last:pb-0">
+              <span class="min-w-0">
+                <span class="block truncate text-sm text-content">{{ entry.subject }}</span>
+                <span class="block text-xs text-content-faint">{{ entry.group }}</span>
+              </span>
+              <span class="shrink-0 text-xs font-medium text-caution">{{ waiting(entry) }}</span>
+            </li>
+          }
+        </ol>
+      </article>
+    </section>
+  }
+</div>

@@ -1,0 +1,52 @@
+# SonarQube analysis, on a schedule and on main.
+#
+# Never on a pull request. The scanner needs a token, a fork's run gets no secrets, and a workflow
+# that quietly does nothing on half the pull requests is worse than one that does not claim to run
+# on them at all. Analysis after the merge is what this repository did before the move too.
+name: SonarQube
+
+on:
+  schedule:
+    - cron: "0 2 * * *"
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: sonar-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  analyse:
+    name: Analyse
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Sonar assigns new issues to the commit that introduced them, which needs the history.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: platform/package-lock.json
+
+      - name: Install dependencies
+        working-directory: platform
+        run: npm install
+
+      - name: Unit tests with coverage
+        working-directory: platform
+        run: npx nx run-many --target=test --all --configuration=ci
+
+      # Pinned to a commit rather than a tag: a tag can be moved, and this step is handed a token.
+      - name: Scan
+        uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602 # v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}

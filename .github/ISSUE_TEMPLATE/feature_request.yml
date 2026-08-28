@@ -1,0 +1,52 @@
+name: Proposal
+description: Suggest a capability, a contract change, or a change in behaviour.
+labels: [proposal]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        LoomWeaver's core is deliberately small — it contains **no domain logic**, and products build
+        on it as plugins. So the first question for any proposal is whether it belongs in the
+        platform at all, or in a plugin on top of it. Asking costs you nothing; both answers are
+        useful.
+
+        What the platform guarantees is stated in `openspec/specs/`, one file per capability. If
+        your proposal cuts against one, say which — that is a conversation worth having, not a
+        blocker.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: |
+        What are you trying to do that you currently cannot, or can only do awkwardly? Describe the
+        situation rather than the solution — it often turns out the platform already has a way.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you propose
+      description: The change you have in mind. A rough API sketch is welcome but not required.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What you tried or considered
+      description: |
+        Workarounds you are using today, or approaches you rejected and why. This is often the most
+        useful part of a proposal.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: layer
+    attributes:
+      label: Where do you think this belongs?
+      options:
+        - label: The platform — it is domain-agnostic and every product would need it
+        - label: A plugin — but the platform is missing an extension point to make it possible
+        - label: Not sure

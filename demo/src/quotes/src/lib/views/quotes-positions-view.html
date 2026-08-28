@@ -1,0 +1,93 @@
+@if (quote(); as quote) {
+  <div class="@container flex h-full flex-col overflow-auto" data-testid="quote-positions">
+    <div class="overflow-hidden rounded-lg border border-border bg-surface-raised">
+      <div
+        class="hidden grid-cols-[2.5rem_minmax(0,1fr)_7rem_7rem_7rem] gap-3 border-b border-border px-4 py-2.5 text-xs font-medium text-content-muted @2xl:grid"
+      >
+        <span>{{ 'quotes.document.column.position' | transloco }}</span>
+        <span>{{ 'quotes.document.column.description' | transloco }}</span>
+        <span class="text-right">{{ 'quotes.document.column.quantity' | transloco }}</span>
+        <span class="text-right">{{ 'quotes.document.column.unitPrice' | transloco }}</span>
+        <span class="text-right">{{ 'quotes.document.column.net' | transloco }}</span>
+      </div>
+
+      <ul data-testid="quote-lines">
+        @for (line of lines(); track line.position) {
+          <li class="border-b border-border px-4 py-3 last:border-b-0 @2xl:py-2.5">
+            <span
+              class="hidden grid-cols-[2.5rem_minmax(0,1fr)_7rem_7rem_7rem] items-baseline gap-3 @2xl:grid"
+            >
+              <span class="text-sm text-content-faint tabular-nums">{{ line.position }}</span>
+              <span class="min-w-0">
+                <span class="block truncate text-content">{{ line.descriptionKey | transloco }}</span>
+                <span class="block text-xs text-content-faint">
+                  {{ line.articleNumber }}
+                  @if (line.discountPercent) {
+                    <span aria-hidden="true">·</span>
+                    {{ 'quotes.document.discount' | transloco: { percent: line.discountPercent } }}
+                  }
+                </span>
+              </span>
+              <span class="text-right text-sm text-content-muted tabular-nums">
+                {{ line.quantity }} {{ line.unitKey | transloco }}
+              </span>
+              <span class="text-right text-sm text-content-muted tabular-nums">
+                {{ line.unitPrice }}
+              </span>
+              <span class="text-right text-sm font-medium text-content tabular-nums">
+                {{ line.net }}
+              </span>
+            </span>
+
+            <span class="flex flex-col gap-1 @2xl:hidden">
+              <span class="flex items-baseline justify-between gap-3">
+                <span class="truncate font-medium text-content">
+                  {{ line.descriptionKey | transloco }}
+                </span>
+                <span class="text-sm font-medium text-content tabular-nums">{{ line.net }}</span>
+              </span>
+              <span class="text-xs text-content-faint tabular-nums">
+                {{ line.quantity }} {{ line.unitKey | transloco }}
+                <span aria-hidden="true">×</span>
+                {{ line.unitPrice }}
+                @if (line.discountPercent) {
+                  <span aria-hidden="true">·</span>
+                  {{ 'quotes.document.discount' | transloco: { percent: line.discountPercent } }}
+                }
+              </span>
+            </span>
+          </li>
+        }
+      </ul>
+
+      <dl
+        class="flex flex-col gap-1.5 border-t border-border px-4 py-3 text-sm @2xl:ml-auto @2xl:w-80"
+        data-testid="quote-totals"
+      >
+        <div class="flex items-baseline justify-between gap-3">
+          <dt class="text-content-muted">{{ 'accounting.totals.net' | transloco }}</dt>
+          <dd class="text-content tabular-nums">{{ net() }}</dd>
+        </div>
+        @for (bucket of buckets(); track bucket.rate) {
+          <div class="flex items-baseline justify-between gap-3 text-xs">
+            <dt class="text-content-faint">
+              {{ 'accounting.totals.vat' | transloco: { rate: bucket.rate } }}
+              <span class="tabular-nums">({{ bucket.net }})</span>
+            </dt>
+            <dd class="text-content-muted tabular-nums">{{ bucket.tax }}</dd>
+          </div>
+        }
+        <div
+          class="flex items-baseline justify-between gap-3 border-t border-border pt-1.5 font-medium"
+        >
+          <dt class="text-content">{{ 'accounting.totals.gross' | transloco }}</dt>
+          <dd class="text-content tabular-nums" data-testid="quote-gross">{{ gross() }}</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+} @else {
+  <p class="px-4 py-10 text-center text-sm text-content-muted" data-testid="quote-missing">
+    {{ 'quotes.document.missing' | transloco }}
+  </p>
+}

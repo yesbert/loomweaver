@@ -1,0 +1,72 @@
+{
+  "title": "Quotes",
+  "list": {
+    "search": "Search quotes",
+    "searchPlaceholder": "Search …",
+    "statusLabel": "Status",
+    "status": {
+      "all": "All",
+      "draft": "Draft",
+      "sent": "Sent",
+      "accepted": "Accepted",
+      "declined": "Declined",
+      "expired": "Expired"
+    },
+    "column": {
+      "number": "Number",
+      "customer": "Customer",
+      "issued": "Issued",
+      "validUntil": "Valid until",
+      "status": "Status",
+      "total": "Total"
+    },
+    "empty": "No quote matches the current filter.",
+    "shown": "{{shown}} of {{total}} quotes"
+  },
+  "margin": {
+    "revenue": "Revenue (net)",
+    "cost": "Cost",
+    "total": "Margin"
+  },
+  "document": {
+    "positions": "Positions",
+    "customer": "Customer",
+    "margin": "Margin",
+    "title": "Quote",
+    "column": {
+      "position": "Pos.",
+      "description": "Description",
+      "quantity": "Quantity",
+      "unitPrice": "Unit price",
+      "net": "Net"
+    },
+    "discount": "{{percent}}% discount",
+    "missing": "This quote no longer exists."
+  },
+  "command": {
+    "open": {
+      "title": "Open quote",
+      "description": "Opens a quote document in the content area and keeps it as a tab.",
+      "answers": "The number of the quote that was opened.",
+      "arg": {
+        "number": "The quote number, for example Q-0007."
+      }
+    },
+    "send": {
+      "title": "Send quote to customer",
+      "description": "Sends a quote to its customer and marks it as sent. This is a consequential step: the customer sees it.",
+      "answers": "The quote's number and its new status.",
+      "arg": {
+        "number": "The quote number, for example Q-0007."
+      }
+    },
+    "margin": {
+      "title": "Read a quote's margin",
+      "description": "Answers the revenue, cost and margin of a quote. Only accounting may see margins.",
+      "answers": "The quote's revenue, cost and margin.",
+      "arg": {
+        "number": "The quote number, for example Q-0007."
+      }
+    }
+  }
+}

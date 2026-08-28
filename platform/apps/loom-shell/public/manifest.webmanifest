@@ -1,0 +1,13 @@
+{
+  "name": "LoomWeaver",
+  "short_name": "LoomWeaver",
+  "description": "Domain-agnostic plugin & UI platform — the loom.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2E96C9",
+  "icons": [
+    { "src": "icon-192.png", "type": "image/png", "sizes": "192x192" },
+    { "src": "icon-512.png", "type": "image/png", "sizes": "512x512" }
+  ]
+}

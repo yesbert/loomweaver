@@ -1,0 +1,131 @@
+schema: spec-driven
+
+context: |
+  LoomWeaver is a domain-agnostic plugin and UI platform (the "loom"). Products such as
+  TreeWeaver, HiveWeaver and NextPA run as plugin bundles ("weavers") on top of it; the platform
+  itself contains ZERO domain logic. Model: VS Code / Backstage / Eclipse Theia — a thin core that
+  can only do plugins.
+
+  The platform is FRONTEND-ONLY. It ships no server. The backend seam (settings, working state,
+  auth) is expressed only as frontend ports that the product's own backend implements; the platform
+  keeps local/anonymous defaults so the UI runs standalone.
+
+  Published surface — seven npm packages on one version line:
+    @loomweaver/plugin-sdk   the plugin author contract (types only, framework-neutral)
+    @loomweaver/shell        the shell chrome, region engine, plugin loader, host services
+    @loomweaver/frame-kit    static UI assets served to sandboxed iframe plugins
+    @loomweaver/devkit       Nx generator collection
+    @loomweaver/cli          scaffolding CLI
+    @loomweaver/mcp          scaffolding/validation MCP server
+    @loomweaver/ag-ui        AG-UI adapter: the workbench's commands offered to an agent
+  The published contract is what lands in the packed .d.ts, not what the source barrels export.
+
+  Stack: Angular 22 (standalone-only, signals, zoneless, new control flow, inject()) + Nx 23,
+  TypeScript strict + strictTemplates. Tailwind 4 is optional for consumers — the shell ships a
+  precompiled stylesheet and its visual contract is a set of `.lw-*` CSS classes plus `--lw-*`
+  design tokens.
+
+  Nx tag boundary, enforced by lint: scope:platform (core/shell/contract) · scope:weaver (domain
+  plugins, may import only type:contract) · scope:distribution (composition apps, may import
+  platform + weaver + contract) · scope:tooling. The platform must never depend on a weaver.
+
+  Two RPC boundaries exist, and must never be conflated: plugin↔core (in-browser postMessage, Penpal
+  for a sandboxed iframe UI) and core↔product server (the product's own HTTP API, reached through the
+  frontend ports). A third was designed and never built: Treadle, a local companion agent speaking
+  MCP. No source file implements it and no capability carries it, so do not specify against it.
+  Worker-hosted plugin logic is likewise unbuilt. A plugin only ever sees a uniform `ctx`; a
+  capability broker routes each call and enforces default-deny.
+
+  Hard prohibitions:
+    - No comments in source. The only exceptions are JSDoc on the published contract, functional
+      directives (eslint-disable, @ts-*, generated banners) and comments inside template literals
+      that are emitted into consumer code.
+    - No raw palette colours in templates — semantic design tokens only.
+    - No inline Angular templates; every component has its own .html file.
+    - No type-named directories (services/, components/, utils/) — vertical slices by feature.
+  Details: CONTRIBUTING.md, section "Code conventions".
+
+  Language: everything that crosses the public GitHub mirror is English — code, docs, specs,
+  commit messages and pull-request text alike.
+
+rules:
+  specs:
+    - >-
+      Write specs in English. The structural markers are not translatable.
+    - >-
+      Never name a TypeScript type, an Angular class, a library, a file path or an injection token
+      in a requirement. Name the observable behaviour instead. Test: could the implementation change
+      without making this statement false? Then it is not a requirement.
+    - >-
+      Never cite a decision record (ADR-00NN) in a spec. Rationale lives in the change's design
+      note; the spec states the guarantee itself.
+    - >-
+      Where a guarantee was verified on only one surface (host-rendered, sandboxed iframe, CLI,
+      generator), say which one in the scenario rather than implying parity.
+    - >-
+      State the limits of a guarantee next to the guarantee, not as a footnote.
+  proposal:
+    - >-
+      Open every proposal with the line "> **Status:** proposed — not approved for implementation
+      yet." The owner flips proposed to approved. Never mark a change approved retroactively.
+    - >-
+      The Impact section lists every legacy source the change dissolves, by its own identifier
+      (decision-record number, file path). This is the only machine-discoverable concordance
+      afterwards.
+  design:
+    - >-
+      This is where the rationale of a dissolved decision record lands: the context, the option
+      chosen, the alternatives rejected, the consequences, and the original number and date.
+      Decision history must not be lost to the migration; it only changes location.
+  tasks:
+    - >-
+      In a backfill the work is verification, not implementation. One task per requirement, naming
+      the test or code location that backs it, and recording which of the three the evidence is: a
+      test, the implementation, or a documented statement.
+
+operations:
+  apply:
+    guidance:
+      - >-
+        Angular 22 idiomatic only. Standalone components, signals (signal/computed/effect/
+        linkedSignal), signal inputs and outputs, inject() over constructor injection, the new
+        control flow (@if/@for/@switch/@defer), OnPush and zoneless. Never reintroduce NgModule,
+        *ngIf/*ngFor, @Input/@Output decorators or constructor injection in new code.
+      - >-
+        No comments. Code explains itself; a place that needs an explanatory comment gets
+        restructured instead. The only exceptions are JSDoc on the published contract, functional
+        directives and comments inside template literals emitted into consumer code.
+      - >-
+        Never cite a decision record (ADR-00NN) anywhere: not in a comment, a JSDoc block, a test
+        name, a package description or a guide. The corpus was dissolved and the records deleted,
+        so a number resolves to nothing for a reader. State the thing itself, or point at the
+        capability that guarantees it.
+      - >-
+        Class member order is enforced by lint: fields, constructor, then public, protected and
+        private methods. Accessors sort with the methods of their visibility; an arrow-function
+        property counts as a method.
+      - >-
+        Every Angular component keeps its template in its own .html file. Inline templates are a
+        lint error, except for trivial stubs of at most three lines and test hosts inside spec files.
+      - >-
+        Folders are cut by feature, never by technical type. Named cross-cutting folders are the
+        only exception and stay small. A folder holds at most 12 concepts and a source file over
+        400 lines must be justified, where a concept is one non-spec .ts file. A folder that
+        exceeds the threshold is cut into sub-themes named for what they do, never into folders
+        named for a technical kind. Enforced by `npm run structure-check` against
+        platform/tools/structure-baseline.json, a ratchet that may shrink and may never grow.
+      - >-
+        Small functions doing one thing at one level of abstraction; command-query separation; guard
+        clauses over nesting; fail fast with a clear message; validate at the RPC and port
+        boundaries rather than trusting input.
+      - >-
+        Tests run on Vitest and follow F.I.R.S.T. A bug fix is test-first: the red test that
+        reproduces the defect comes before the fix. Run on the pinned Node version.
+      - >-
+        Templates use semantic design tokens and the .lw-* class contract, never raw palette colours.
+        A lint guardrail rejects unknown utility classes.
+      - >-
+        Verify the published contract by inspecting the packed .d.ts, not the source barrels — they
+        export more than is published.
+      - >-
+        Never mark a symbol deprecated and keep it. Remove it, and announce the removal loudly.

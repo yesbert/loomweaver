@@ -1,0 +1,73 @@
+# LoomWeaver documentation
+
+**LoomWeaver is a domain-agnostic plugin & UI platform.** Products ("weavers") are built as thin
+**distributions** that consume the published `@loomweaver/*` npm packages — you never need this repository
+to build one. The platform is frontend-only; your product brings its own backend.
+
+## Pick your path
+
+| You want to…                               | Start here                                                                                                 |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| **See it running first**                   | the live demo at [demo.loomweaver.dev](https://demo.loomweaver.dev) — being rebuilt, so it is thin for now |
+| **Try it in five minutes**                 | [Getting started](getting-started.md) — scaffold a running, branded product                                |
+| **Understand how it works**                | [Architecture](architecture.md) — platform / weaver / distribution, the uniform `ctx`                      |
+| **Build a plugin (a "weaver")**            | [Authoring a weaver](authoring-a-weaver.md), with copyable recipes in [Samples](samples.md)                |
+| **Compose and brand a product**            | [Building a distribution](building-a-distribution.md)                                                      |
+| **Use Bootstrap or your own CSS framework**| [Manual setup → bring your own CSS framework](manual-setup.md#bringing-your-own-css-framework)             |
+| **Wire your own backend**                  | [Backend integration](backend-integration.md)                                                              |
+| **Look something up**                      | the [reference pages](#reference) below                                                                    |
+
+## Guides
+
+1. [Architecture](architecture.md) — the mental model: platform / weaver / distribution, the uniform
+   `ctx`, default-deny capabilities, auth-aware access gating, the three RPC boundaries. **Read this first.**
+2. [Getting started](getting-started.md) — scaffold a running, branded product with a plugin in it (~5 min).
+3. [Manual setup](manual-setup.md) — the same app wired by hand, plus the Nx, SSR and Module
+   Federation answers (~15 min).
+4. [Samples](samples.md) — complete, copyable recipes: a sidebar view with persisted state, a routable
+   surface, a command with its triggers, a settings section, access gating, dialogs.
+5. [Authoring a weaver](authoring-a-weaver.md) — build UI: views, commands, access gating, dialogs, settings, i18n.
+6. [Building a distribution](building-a-distribution.md) — compose weavers into a branded product.
+7. [The plugin system](plugins.md) — the four ways in (trusted, frame plugin, operator-deployed, community-installed),
+   default-deny capabilities, and what the user can revoke, disable or uninstall.
+8. [Scaffolding](scaffolding.md) — generate weavers, distributions and integrations with the
+   `@loomweaver/cli` command line, the `@loomweaver/devkit` Nx generators or the `@loomweaver/mcp` server for AI
+   assistants, all in your own repository.
+9. [Backend integration](backend-integration.md) — the product hand-off: settings, session and
+   translations against your own backend. The platform ships no server.
+
+## Reference
+
+- [Shell anatomy](reference/shell-anatomy.md) — the region vocabulary (rail / panel / bar / content)
+  and docks a distribution declares.
+- [Host services](reference/host-services.md) — the runtime services a distribution may inject:
+  dialogs, toasts, settings, commands, session, tabs, updates, sync.
+- [Access gating](reference/access-gating.md) — the complete `access` reference: what gates where,
+  identity changes, and why client-side gating is not a security boundary.
+- [Callable commands](reference/callable-commands.md) — opening a command to a caller that is not the
+  user: described arguments, answers, the `automation` capability and why the default is closed.
+- [Agent tools](reference/agent-tools.md) — `@loomweaver/ag-ui`: letting an AG-UI agent reach the
+  workbench's own commands, with a hook for confirming or declining a call before it runs.
+- [Design tokens & `<lw-*>` vocabulary](reference/design-tokens.md) — the semantic tokens and host UI
+  building blocks to use in templates (never raw palette colors).
+- [Operations](reference/operations.md) — what bites when you run, edit or verify something here,
+  and the guards that fail on it
+- [Accessibility](reference/accessibility.md) — the WCAG 2.1 AA guardrail the host meets and weavers
+  inherit.
+
+The per-symbol reference is the packages themselves: `@loomweaver/plugin-sdk` and `@loomweaver/shell` ship typed
+declarations with JSDoc on every public member, which your editor shows in place. The pages above
+cover the concepts; a repository check verifies that no published export is missing from them.
+
+## For AI assistants
+
+[`../llms.txt`](../llms.txt) (curated map) and [`../llms-full.txt`](../llms-full.txt) (the full set,
+inlined) let an assistant ingest everything needed to build a distribution.
+
+`llms.txt` stays a curated map and never becomes a dump of everything written here. Its worth is the
+choosing: an assistant reading it under a tight context budget should reach the pages that matter,
+not the longest ones. `llms-full.txt` is where completeness belongs.
+
+## License
+
+[Apache License 2.0](../LICENSE).

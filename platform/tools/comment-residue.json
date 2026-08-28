@@ -1,0 +1,4 @@
+{
+  "_": "Comments that predate the guard. Empty, and it stays empty: the checker fails on a new comment and on a stale entry alike. If this list ever grows again, the growth is the defect.",
+  "files": {}
+}

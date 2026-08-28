@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Docked frame</title>
+    <link rel="stylesheet" href="/frame-kit/lw-frame.css" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0.75rem;
+        font-family: var(--lw-font-sans, system-ui, sans-serif);
+        font-size: 0.8125rem;
+        line-height: 1.5;
+        color: var(--lw-content, #0f172a);
+        background: var(--lw-surface, #ffffff);
+      }
+      dt {
+        font-size: 0.6875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--lw-content-faint, #64748b);
+      }
+      dd {
+        margin: 0 0 0.6rem;
+        font-weight: 600;
+      }
+      input {
+        width: 100%;
+        box-sizing: border-box;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 style="margin: 0 0 0.5rem; font-size: 0.9rem" data-testid="frame-title">
+      Docked frame
+    </h1>
+    <dl>
+      <dt>Instance</dt>
+      <dd data-testid="frame-instance">—</dd>
+      <dt>Tab</dt>
+      <dd data-testid="frame-tab">—</dd>
+      <dt>Theme</dt>
+      <dd data-testid="frame-theme">—</dd>
+      <dt>Params</dt>
+      <dd data-testid="frame-params">—</dd>
+    </dl>
+    <label for="draft" style="display: block; margin-bottom: 0.25rem"
+      >Draft</label
+    >
+    <input id="draft" class="lw-field" data-testid="frame-draft" />
+    <button
+      type="button"
+      class="lw-btn lw-btn--default"
+      style="margin-top: 0.6rem"
+      data-testid="frame-navigate"
+    >
+      Try to navigate
+    </button>
+    <dl>
+      <dt>Navigate result</dt>
+      <dd data-testid="frame-nav-result">—</dd>
+    </dl>
+    <script src="/frame-kit/penpal.global.js"></script>
+    <script src="/frame-kit/lw-elements.global.js"></script>
+    <script src="./view.js"></script>
+  </body>
+</html>

@@ -1,0 +1,14 @@
+<fieldset class="lw-segmented" [attr.aria-label]="'theme.label' | transloco">
+  @for (m of modes; track m) {
+    <button
+      type="button"
+      (click)="select(m)"
+      [attr.aria-pressed]="mode() === m"
+      [attr.aria-label]="'theme.' + m | transloco"
+      class="lw-segmented-item"
+    >
+      <lw-icon [name]="iconFor(m)" size="1rem" />
+      <lw-tooltip [text]="'theme.' + m | transloco" position="bottom" />
+    </button>
+  }
+</fieldset>

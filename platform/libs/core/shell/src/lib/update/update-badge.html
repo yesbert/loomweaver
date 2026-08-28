@@ -1,0 +1,20 @@
+@if (enabled) {
+  <button
+    type="button"
+    class="relative flex items-center gap-1 rounded px-1.5 py-0.5 text-content-faint transition-colors hover:bg-surface-overlay hover:text-content"
+    [class.text-brand]="available()"
+    [attr.aria-label]="label() | transloco"
+    (click)="onClick()"
+  >
+    <lw-icon name="reset" size="1rem" />
+    @if (available() || failed()) {
+      <span
+        class="absolute top-0 right-0 h-2 w-2 rounded-full ring-2 ring-surface"
+        [class.bg-brand]="available()"
+        [class.bg-caution]="!available() && failed()"
+        aria-hidden="true"
+      ></span>
+    }
+    <lw-tooltip [text]="label() | transloco" position="bottom" />
+  </button>
+}

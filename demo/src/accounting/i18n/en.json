@@ -1,0 +1,27 @@
+{
+  "article": {
+    "consulting": "Consulting",
+    "development": "Software development",
+    "workshop": "On-site workshop",
+    "hosting": "Managed hosting",
+    "support": "Support contract",
+    "handbook": "Printed handbook"
+  },
+  "unit": {
+    "hour": "hrs",
+    "day": "days",
+    "piece": "pcs",
+    "month": "mth"
+  },
+  "totals": {
+    "net": "Net",
+    "vat": "VAT {{rate}}%",
+    "gross": "Total"
+  },
+  "customer": {
+    "number": "Customer no.",
+    "vatId": "VAT ID",
+    "terms": "Payment terms",
+    "termsDays": "{{days}} days net"
+  }
+}

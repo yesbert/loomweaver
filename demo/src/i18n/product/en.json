@@ -1,0 +1,27 @@
+{
+  "tagline": "A product built on LoomWeaver",
+  "search": "Search",
+  "signIn": "Sign in",
+  "switchAccount": "Switch account",
+  "signOut": "Sign out",
+  "signedInAs": "Signed in as {{name}}",
+  "theme": "Theme",
+  "workspace": {
+    "quotes": "Quotes",
+    "dashboard": "Dashboard",
+    "payments": "Payments"
+  },
+  "payments": {
+    "title": "Payment matching"
+  },
+  "looks": {
+    "command": {
+      "title": "Change the look",
+      "description": "Switches the whole application to another look — colours, letterforms, icons and wording. Applying it reloads the page, because this product composes its looks at startup.",
+      "answers": "Which look is active, whether it changed, and whether the page reloads.",
+      "arg": {
+        "look": "Which look to apply: default, aurora or breeze."
+      }
+    }
+  }
+}

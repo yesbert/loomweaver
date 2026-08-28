@@ -1,0 +1,14 @@
+<div class="flex h-full flex-col gap-3" data-testid="testbed-ws-canvas">
+  <p class="text-sm font-semibold text-content" data-testid="testbed-ws-sim">
+    {{ 'testbed.workspace.simId' | transloco: { id: simId } }} · {{ 'testbed.workspace.world' | transloco }}
+  </p>
+  <div class="grid flex-1 grid-cols-3 grid-rows-2 gap-3">
+    @for (node of nodes; track node) {
+      <div
+        class="flex items-center justify-center rounded-lg border border-border bg-surface-raised text-sm text-content-muted"
+      >
+        {{ node }}
+      </div>
+    }
+  </div>
+</div>

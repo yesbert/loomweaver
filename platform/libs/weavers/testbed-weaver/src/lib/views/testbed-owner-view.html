@@ -1,0 +1,11 @@
+<div class="mx-auto flex w-full max-w-3xl flex-col gap-3">
+  <h2 class="text-lg font-semibold text-content">
+    {{ 'testbed.owner.' + facet | transloco }}
+  </h2>
+  <p class="text-sm text-content-muted">
+    {{ 'testbed.owner.body' | transloco }}
+  </p>
+  <p class="font-mono text-sm text-content" data-testid="owner-id">
+    {{ ownerId }}
+  </p>
+</div>

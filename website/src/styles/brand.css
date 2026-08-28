@@ -1,0 +1,12 @@
+/* LoomWeaver brand: blue #2E96C9 warp, gold #C59A2F accent threads. */
+:root {
+  --sl-color-accent-low: #10303f;
+  --sl-color-accent: #2e96c9;
+  --sl-color-accent-high: #a9d8ec;
+}
+
+:root[data-theme='light'] {
+  --sl-color-accent-low: #d3ebf6;
+  --sl-color-accent: #1d7099;
+  --sl-color-accent-high: #0f4a66;
+}

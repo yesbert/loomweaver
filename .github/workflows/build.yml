@@ -1,0 +1,200 @@
+# The build and test gate. Runs on every pull request and on every push to main.
+#
+# Only `pull_request` and `push` are used. A fork's pull-request run gets a read-only token and no
+# secrets, which is what makes it safe to run a stranger's code here at all. `pull_request_target`
+# and `workflow_run` would run in this repository's context with access to secrets, and neither is
+# used anywhere in this repository for that reason.
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# A new push to a pull request cancels the run it supersedes. On main every commit is built.
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  platform:
+    name: Build + test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: platform
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: platform/package-lock.json
+
+      - name: Lint shell scripts (shellcheck)
+        working-directory: .
+        run: |
+          set -euo pipefail
+          mapfile -t scripts < <(find scripts -type f -name '*.sh' 2>/dev/null | sort)
+          if [[ ${#scripts[@]} -eq 0 ]]; then
+            echo "No shell scripts under scripts/ — skipping shellcheck."
+            exit 0
+          fi
+          echo "Linting ${#scripts[@]} script(s): ${scripts[*]}"
+          shellcheck "${scripts[@]}"
+          echo "shellcheck: clean"
+
+      # npm install rather than npm ci: transitive peer ranges make a strict `npm ci` fail EUSAGE on
+      # a clean agent, while `npm install` honours the pinned lockfile versions and reconciles those
+      # peers. It passes locally either way, so a local check proves nothing about this.
+      - name: Nx lint + test + build
+        run: |
+          set -euo pipefail
+          node --version
+          npm install
+          npx nx run-many --target=lint --target=test --target=build --all
+
+      # Which way the shell's imports point, at two scales. A cycle between files is a latent
+      # initialisation-order bug and its baseline is zero. A mutually dependent pair of slices is not
+      # a defect — it is the distance to an Nx library split, which Nx refuses while a cycle exists.
+      # Both baselines are ratchets: they may shrink and may never grow.
+      - name: Imports point one way
+        run: npm run import-cycles-check
+
+      # How wide a folder is and how long a file is. Both rules were written down long before either
+      # was measured, and both had quietly failed. The baseline records today's numbers honestly and
+      # is a ratchet; a stale entry fails too.
+      - name: Folders and files stay readable
+        run: npm run structure-check
+
+      # The build above compiles the apps, which consume the libraries from source through tsconfig
+      # paths. Packaging is a different path — ng-packagr's exports map, ESM emission, asset copying —
+      # so a packaging regression would otherwise surface only at release time or in a consumer.
+      #
+      # Package them separately and in order, not with run-many: co-building parallelises Nx'
+      # buildable-lib path rewriting, which breaks ng-packagr's resolution of the SDK from the shell.
+      - name: Package the seven publishable packages
+        run: |
+          set -euo pipefail
+          npx nx package plugin-sdk
+          npx nx package shell
+          npx nx run shell:styles
+          npx nx package devkit
+          npx nx package ag-ui
+          npx nx bundle frame-kit
+          npx nx bundle cli
+          npx nx bundle mcp
+
+      # A manifest is a set of promises — exports, main, types, bin all name files a consumer may
+      # resolve. The shell's styles/shell.css is written by `shell:styles`, not by `package shell`,
+      # so dropping that one line above would publish an exports map pointing at a file that was
+      # never built, and the consumer would be the one to find out.
+      - name: Package manifest promises
+        run: npm run package-exports-check
+
+      # "The documentation is feature complete" is a claim that rots quietly. This reads the packed
+      # declarations — the contract consumers actually see — and fails when an exported name appears
+      # nowhere in the documentation.
+      - name: API documentation coverage
+        run: npm run api-docs-check
+
+      # The comment rule is semantic rather than syntactic — JSDoc is allowed on a symbol a consumer
+      # can reach — so only the packed declarations can settle it, which is why this is a checker and
+      # not a lint rule.
+      - name: Comment policy
+        run: npm run comments-check
+
+      # Region ids are strings the shell and the scaffolds have to agree on, and disagreeing is free
+      # at build time: a contribution aimed at a region nobody declared renders nothing and says
+      # nothing. The devkit cannot import the shell, so this compares the sources.
+      - name: Region ids agree
+        run: npm run region-ids-check
+
+      # Fail if a production dependency ships a licence outside the permissive allowlist.
+      # devDependencies are not shipped and are out of scope; the workspace package itself is private.
+      - name: Licence check
+        run: |
+          set -euo pipefail
+          npx --yes license-checker --production \
+            --onlyAllow "MIT;ISC;Apache-2.0;BSD-2-Clause;BSD-3-Clause;0BSD;Python-2.0;CC0-1.0;Unlicense;BlueOak-1.0.0" \
+            --excludePackages "@loomweaver/source@0.0.0"
+          echo "licence-check: all production dependencies use allowed licences"
+
+  demo:
+    name: Demo product
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: demo
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: demo/package-lock.json
+
+      # The demo installs the published packages from a registry rather than building from source,
+      # which is the point of it: it deploys what a consumer would get. It therefore needs no
+      # credential and no secret, and a fork's pull request can run it like any other.
+      - name: npm install
+        run: npm install
+
+      - name: Lint the demo
+        run: npm run lint
+
+      - name: Build the demo
+        run: npm run build
+
+      # A manifest without icons cannot be installed, and a service worker that skips the
+      # translations serves an app whose every label is a raw key offline. Neither fails a build on
+      # its own, and both were true of this demo until this step existed.
+      - name: Installable app is whole
+        run: npm run pwa-check
+
+      - name: Unit tests
+        run: npm test
+
+      # The demo is the one place that may pull in third-party UI libraries, which makes it the one
+      # place a copyleft dependency can arrive unnoticed.
+      - name: Licence check
+        run: npm run licence-check
+
+  site:
+    name: Docs site
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: website
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+
+      - name: npm install
+        run: npm install
+
+      - name: Lint the site
+        run: npm run lint
+
+      # The sync step rewrites every relative link in the documentation to a site route and fails on
+      # a target it cannot resolve. That makes this job the guardrail for documentation edits:
+      # renaming or removing a page breaks the build here instead of shipping a dead link.
+      - name: Build the Starlight site
+        run: npm run build
+
+      - name: Licence check
+        run: npm run licence-check

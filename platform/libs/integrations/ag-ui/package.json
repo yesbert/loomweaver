@@ -1,0 +1,45 @@
+{
+  "name": "@loomweaver/ag-ui",
+  "version": "0.7.1",
+  "description": "LoomWeaver AG-UI adapter: describes the workbench's own commands to an agent and runs what it asks for, so a weaver keeps no tool registry of its own. Headless — no transport, no UI, no agent.",
+  "keywords": [
+    "loomweaver",
+    "ag-ui",
+    "agent",
+    "agentic-ui",
+    "tool-calling",
+    "plugin-platform"
+  ],
+  "license": "Apache-2.0",
+  "author": "Norbert Rosenwinkel (https://loomweaver.dev)",
+  "type": "module",
+  "main": "./src/index.js",
+  "module": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "peerDependencies": {
+    "@ag-ui/core": "0.0.x",
+    "@loomweaver/plugin-sdk": "0.7.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "homepage": "https://loomweaver.dev",
+  "bugs": {
+    "url": "https://github.com/yesbert/loomweaver/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yesbert/loomweaver.git",
+    "directory": "platform/libs/integrations/ag-ui"
+  }
+}

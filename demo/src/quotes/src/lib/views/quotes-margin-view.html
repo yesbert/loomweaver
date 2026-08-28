@@ -1,0 +1,36 @@
+@if (quote()) {
+  <div class="flex flex-col gap-3" data-testid="quote-margin">
+    <dl class="flex flex-col gap-1.5 text-sm">
+      <div class="flex items-baseline justify-between gap-3">
+        <dt class="text-content-muted">{{ 'quotes.margin.revenue' | transloco }}</dt>
+        <dd class="text-content tabular-nums">{{ revenue() }}</dd>
+      </div>
+      <div class="flex items-baseline justify-between gap-3">
+        <dt class="text-content-muted">{{ 'quotes.margin.cost' | transloco }}</dt>
+        <dd class="text-content tabular-nums">{{ cost() }}</dd>
+      </div>
+      <div
+        class="flex items-baseline justify-between gap-3 border-t border-border pt-1.5 font-medium"
+      >
+        <dt class="text-content">{{ 'quotes.margin.total' | transloco }}</dt>
+        <dd class="text-content tabular-nums" data-testid="quote-margin-total">
+          {{ margin() }}
+          <span class="ml-1 text-xs font-normal text-content-muted">({{ percent() }}%)</span>
+        </dd>
+      </div>
+    </dl>
+
+    <ul class="flex flex-col gap-1 border-t border-border pt-3">
+      @for (row of rows(); track row.lineId) {
+        <li class="flex items-baseline justify-between gap-3 text-xs">
+          <span class="min-w-0 truncate text-content-muted">
+            {{ row.descriptionKey | transloco }}
+          </span>
+          <span class="shrink-0 tabular-nums" [class]="row.thin ? 'text-caution' : 'text-content'">
+            {{ row.margin }} ({{ row.percent }}%)
+          </span>
+        </li>
+      }
+    </ul>
+  </div>
+}

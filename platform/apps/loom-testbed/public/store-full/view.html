@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Store plugin (full)</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+      }
+      body {
+        margin: 0;
+        padding: 2.5rem;
+        font-family: var(--lw-font-sans, system-ui, -apple-system, 'Segoe UI', sans-serif);
+        line-height: 1.6;
+        color: var(--lw-content, #0f172a);
+        background: var(--lw-surface, #ffffff);
+        color-scheme: light;
+      }
+      .badge {
+        display: inline-block;
+        padding: 0.25rem 0.6rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #06240f;
+        background: #4ade80;
+      }
+      h1 {
+        margin: 0.75rem 0 0.5rem;
+        font-size: 1.5rem;
+      }
+      code {
+        padding: 0.1rem 0.35rem;
+        border-radius: 4px;
+        background: rgba(74, 222, 128, 0.18);
+        font-size: 0.9em;
+      }
+      body.dark {
+        color-scheme: dark;
+      }
+    </style>
+  </head>
+  <body>
+    <span class="badge">sandboxed · installed from the store</span>
+    <h1>Installed at runtime 🛍️</h1>
+    <p>
+      This plugin is <strong>not</strong> composed in the app's <code>main.ts</code>. It lives in the
+      testbed's plugin catalog and you installed it from <strong>Settings → Plugin store</strong> — it
+      spawned the moment you accepted the install dialog, without a reload.
+    </p>
+    <p>
+      Its permissions are exactly what that dialog listed (here: contribute to the UI, nothing else),
+      and you stay in charge: revoke rights or uninstall it under Settings, and this tab disappears
+      again — live. Same <code>&lt;iframe sandbox&gt;</code> isolation and default-deny broker as every
+      sandboxed plugin.
+    </p>
+    <script src="/frame-kit/penpal.global.js"></script>
+    <script src="/frame-kit/lw-elements.global.js"></script>
+    <script src="./view.js"></script>
+  </body>
+</html>

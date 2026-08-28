@@ -1,0 +1,13 @@
+<div
+  class="flex h-full flex-col items-center justify-center gap-3 p-8 text-center"
+  role="status"
+  data-testid="access-placeholder"
+>
+  <lw-icon name="lock" size="2rem" class="text-content-muted" />
+  <h2 class="text-lg font-semibold text-content">
+    {{ titleKey() | transloco }}
+  </h2>
+  <p class="max-w-sm text-sm text-content-muted">
+    {{ messageKey() | transloco }}
+  </p>
+</div>

@@ -1,0 +1,40 @@
+{
+  "name": "mcp",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/tooling/mcp/src",
+  "projectType": "library",
+  "tags": ["scope:tooling", "type:tool"],
+  "targets": {
+    "bundle": {
+      "executor": "nx:run-commands",
+      "outputs": ["{projectRoot}/dist"],
+      "options": {
+        "cwd": "libs/tooling/mcp",
+        "command": "node esbuild.mjs"
+      }
+    },
+    "test": {
+      "options": {
+        "config": "./vite.config.mts"
+      },
+      "configurations": {
+        "ci": {
+          "mode": "coverage"
+        }
+      }
+    },
+    "lint": {
+      "inputs": [
+        "default",
+        "^default",
+        "{workspaceRoot}/.eslintrc.json",
+        "{workspaceRoot}/.eslintignore",
+        "{workspaceRoot}/eslint.config.mjs",
+        "{workspaceRoot}/tools/eslint-rules/**/*",
+        {
+          "externalDependencies": ["eslint"]
+        }
+      ]
+    }
+  }
+}

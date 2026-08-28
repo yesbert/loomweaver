@@ -1,0 +1,86 @@
+# Shell anatomy — named areas (reference)
+
+<!-- derived-from-specs -->
+> **This is a guide, not the contract.** What the platform guarantees is specified under
+> `openspec/specs/` — for this page: `shell-layout` · `panes`. Where this page and a specification
+> disagree, the specification is right, and that is a defect in this page: change the behaviour
+> there, then explain it here.
+
+> **Purpose:** binding names for the visible shell areas, so conversations, code and docs mean the
+> same thing — the spatial sketch for the region-type vocabulary from
+> [Building a distribution](../building-a-distribution.md#layout-regions--docks).
+> **Neutral frame** (core chrome) — plugins contribute the contents.
+
+## Base layout (desktop, fully equipped)
+
+The **top band** is **not** one continuous bar across the edges, but three segments side by side at
+the **same height**, which together read like *one* bar from left to right: the **sidebar headers**
+on the left and right, the **bar (top)** in the middle.
+
+```
++----------------+---------------------------+----------------+
+| Sidebar header |         Bar (top)         | Sidebar header |   <- top band
+|    (left)      |  start · center · end     |    (right)     |      (one height)
+| View tabs +    |  Logo · Language · Theme  | View tabs +    |
+| Collapse       |                           | Collapse       |
++-------+--------+---------------------------+--------+-------+
+|       |        |                           |        |       |
+| RAIL  | PANEL  |       CONTENT AREA        | PANEL  | RAIL  |
+|(left) |(left)  |        (center)           |(right) |(right,|
+|       |        |                           |        | opt.) |
+| Rail  | View   | tabs · tab.titleActions   | View   |       |
+| items | header | body                      | header | Rail  |
+|(cmds) | +body  |                           | +body  | items |
++-------+--------+---------------------------+--------+-------+
+|              Bar (bottom) — status bar                      |   <- bottom band
+|              start · center · end                           |
++-------------------------------------------------------------+
+```
+
+## Names (glossary)
+
+| Area in the sketch | Canonical name | Region type / code | Role | Sub-slots |
+|---|---|---|---|---|
+| Top **middle** segment | **Bar (top)** (colloquially "header") | `bar`, dock `top` — e.g. `{ id: 'top-bar' }` | brand/tool strip above the content | `start` · `center` · `end` → **bar items** |
+| Strip **above rail+panel** (left/right) | **Sidebar header** | `ShellSidebarHeader` (part of the sidebar) | view switching + collapse/expand | **view tabs** (automatic) · **collapse** |
+| Outer icon strip | **Rail** (ribbon) | `rail`, dock `left`/`right` | **independent commands** (not view switching), and workspace entries via `workspace: <id>`; user-curated, each entry in exactly one rail | `anchor: 'top' \| 'bottom'` + `order` → **rail items** |
+| Collapsible side area | **Panel** | `panel`, dock `left`/`right` | a tab group like the centre: icon tab strip (in the sidebar header) + active tab in the body; further groups below it can be split/stacked | `header.title` · `header.actions` · `body` |
+| Rail + panel + sidebar header together | **Sidebar** | (composition) | one complete side bar | — |
+| Main area (centre) | **Content area** | `content`, dock `center` | main working surface | `tabs` · `tab.titleActions` · `body` |
+| Bottom strip | **Bar (bottom)** / status bar | `bar`, dock `bottom` — e.g. `{ id: 'status-bar' }` | status/info | `start` · `center` · `end` → **bar items** |
+| Contents of a sidebar | **Surface** | `ctx.registerSurface` (plugin; the only authoring entry point — `View` is only the host's internal storage form) | title · icon · `header.actions` · body | — |
+
+> **Rule of thumb (4):** **rail = global commands · sidebar-header tabs = view switching ·
+> view header = functions of the active view.** The **bar** is neutral core chrome; its items are
+> contributions (brand/language/theme are only the *defaults*, not wiring).
+
+## Variant: no middle segment (bar (top) omitted)
+
+If a distribution declares **no** top `bar` (no logo, no switchers), **the top band does not
+disappear** — the **sidebar headers remain** (the width of rail+panel), and in the middle the
+**content moves up** and uses the full height. The bar justifies itself through its contents:
+*no contents → no middle bar → more content height.*
+
+```
++-------+--------+---------------------------+--------+-------+
+| Sidebar header |                           | Sidebar header |
++-------+--------+                           +--------+-------+
+| RAIL  | PANEL  |       CONTENT AREA        | PANEL  | RAIL  |
+|       |        |    (uses the full height) |        |       |
++-------+--------+---------------------------+--------+-------+
+```
+
+Every **edge is optional** in the same way: with no sidebars the content expands into
+them; with no bottom bar there is no status line.
+
+## Compact / mobile (< `md`, 768px)
+
+Below the `md` breakpoint the **panels become overlay drawers** (they slide over the content, with a
+scrim), the **rails stay** visible, and the content gets the full width. Each sidebar is
+opened/closed through the affordance in its **sidebar header** (built; this answers the earlier open
+question about where the opener belongs).
+
+## See also
+
+- [Building a distribution → Layout: regions & docks](../building-a-distribution.md#layout-regions--docks) — how a distribution declares these regions (`provideLayout`).
+- [Authoring a weaver → Rail & bar items](../authoring-a-weaver.md#rail--bar-items--command-triggers-in-the-chrome) and [Panel surfaces](../authoring-a-weaver.md#panel-surfaces--your-ui-in-a-panel) — how a weaver hooks views/items into these regions, with the slot/anchor properties in use.

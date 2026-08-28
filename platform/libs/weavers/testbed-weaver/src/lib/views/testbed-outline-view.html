@@ -1,0 +1,18 @@
+<div class="mb-2 flex justify-end">
+  <button
+    type="button"
+    class="lw-btn lw-btn--sm lw-btn--ghost"
+    data-testid="outline-sort"
+    (click)="toggleSort()"
+  >
+    {{ sort() === 'alpha' ? 'Sort: A–Z' : 'Sort: outline order' }}
+  </button>
+</div>
+<ol class="flex flex-col gap-0.5 text-sm">
+  @for (section of sections(); track section; let i = $index) {
+    <li class="flex items-baseline gap-2 rounded px-2 py-1.5 text-content hover:bg-surface-overlay">
+      <span class="text-content-faint">{{ i + 1 }}</span>
+      <span>{{ section }}</span>
+    </li>
+  }
+</ol>

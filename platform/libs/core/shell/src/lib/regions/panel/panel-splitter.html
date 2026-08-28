@@ -1,0 +1,17 @@
+<div
+  role="separator"
+  tabindex="0"
+  aria-orientation="vertical"
+  [attr.aria-label]="'panel.resize' | transloco"
+  [attr.aria-valuenow]="width()"
+  [attr.aria-valuemin]="size.minWidth"
+  [attr.aria-valuemax]="size.maxWidth"
+  class="absolute inset-y-0 z-10 w-1.5 cursor-col-resize touch-none transition-colors select-none hover:bg-brand/40 focus-visible:bg-brand/60 focus-visible:outline-none"
+  [class.right-0]="dock() === 'left'"
+  [class.left-0]="dock() === 'right'"
+  (pointerdown)="onPointerDown($event)"
+  (pointermove)="onPointerMove($event)"
+  (pointerup)="onPointerUp($event)"
+  (pointercancel)="onPointerUp($event)"
+  (keydown)="onKeydown($event)"
+></div>

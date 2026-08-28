@@ -1,0 +1,130 @@
+@if (entry; as t) {
+  <div class="mx-auto flex h-full w-full max-w-3xl flex-col gap-4">
+    <header class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+      <span class="font-mono text-xs tracking-wide text-content-faint">{{
+        t.reference
+      }}</span>
+      <h2 class="text-lg font-semibold text-content">{{ t.subject }}</h2>
+      <span class="w-full text-sm text-content-muted">
+        {{ t.owner }} · {{ t.group }} ·
+        {{ 'testbed.entry.waiting' | transloco: { time: waiting(t.waitingMinutes) } }}
+      </span>
+    </header>
+
+    <div class="flex gap-1 border-b border-border" role="tablist">
+      @for (s of subTabs; track s) {
+        <button
+          type="button"
+          role="tab"
+          [attr.aria-selected]="sub() === s"
+          (click)="openSub(s)"
+          class="border-b-2 px-3 py-1.5 text-sm transition-colors"
+          [class.border-brand]="sub() === s"
+          [class.text-content]="sub() === s"
+          [class.border-transparent]="sub() !== s"
+          [class.text-content-faint]="sub() !== s"
+        >
+          {{ 'testbed.entry.tab.' + s | transloco }}
+        </button>
+      }
+    </div>
+
+    @if (sub() === 'meta') {
+      <dl
+        class="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm"
+        data-testid="entry-meta"
+      >
+        <dt class="text-content-muted">
+          {{ 'testbed.entry.owner' | transloco }}
+        </dt>
+        <dd class="text-content">{{ t.owner }}</dd>
+        <dt class="text-content-muted">
+          {{ 'testbed.entry.group' | transloco }}
+        </dt>
+        <dd class="text-content">{{ t.group }}</dd>
+        <dt class="text-content-muted">
+          {{ 'testbed.entry.priority' | transloco }}
+        </dt>
+        <dd class="text-content">
+          {{ 'testbed.list.priority.' + t.priority | transloco }}
+        </dd>
+        <dt class="text-content-muted">
+          {{ 'testbed.entry.status' | transloco }}
+        </dt>
+        <dd class="text-content">
+          {{ 'testbed.list.status.' + t.status | transloco }}
+        </dd>
+      </dl>
+    } @else {
+      <ol class="flex flex-col gap-3">
+        @for (message of t.conversation; track $index) {
+          <li
+            class="rounded-md border p-3"
+            [class.bg-surface-raised]="message.fromOther"
+            [class.border-brand]="picked($index)"
+            [class.border-border]="!picked($index)"
+          >
+            <p class="mb-1 flex items-baseline gap-2 text-xs">
+              <span class="font-medium text-content">{{ author(message) }}</span>
+              <span class="text-content-faint">{{
+                'testbed.entry.ago' | transloco: { time: waiting(message.minutesAgo) }
+              }}</span>
+              <button
+                type="button"
+                class="lw-btn lw-btn--ghost lw-btn--sm ml-auto"
+                [attr.data-testid]="'entry-message-' + ($index + 1)"
+                (click)="openMessage($index)"
+              >
+                {{ 'testbed.entry.pick' | transloco }}
+              </button>
+            </p>
+            <p class="text-sm text-content">
+              {{ 'testbed.entry.message' | transloco: { n: $index + 1 } }}
+            </p>
+            @if (picked($index)) {
+              <p class="mt-2 text-xs text-brand" data-testid="entry-message-open">
+                {{ 'testbed.entry.picked' | transloco }}
+              </p>
+            }
+          </li>
+        }
+      </ol>
+
+      <div class="mt-auto flex flex-col gap-2">
+        <label class="text-xs font-medium text-content-muted" for="testbed-reply">
+          {{ 'testbed.entry.replyLabel' | transloco }}
+        </label>
+        <textarea
+          id="testbed-reply"
+          class="lw-field min-h-24"
+          rows="3"
+          [attr.placeholder]="'testbed.entry.replyPlaceholder' | transloco"
+          [value]="draft()"
+          (input)="onInput($event)"
+        ></textarea>
+        <div class="flex items-center gap-3">
+          <button
+            type="button"
+            class="lw-btn lw-btn--primary lw-btn--sm"
+            data-testid="entry-send"
+            [disabled]="!dirty()"
+            (click)="send()"
+          >
+            {{ 'testbed.entry.send' | transloco }}
+          </button>
+          @if (dirty()) {
+            <span class="text-xs text-caution" data-testid="entry-dirty">
+              {{ 'testbed.entry.unsaved' | transloco }}
+            </span>
+          }
+        </div>
+      </div>
+    }
+
+    <router-outlet />
+  </div>
+} @else {
+  <p class="text-sm text-content-muted">
+    {{ 'testbed.entry.missing' | transloco }}
+  </p>
+}

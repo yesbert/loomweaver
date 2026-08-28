@@ -1,0 +1,57 @@
+{
+  "name": "frame-kit",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/core/frame-kit/src",
+  "projectType": "library",
+  "tags": ["scope:platform", "type:core"],
+  "implicitDependencies": ["shell"],
+  "targets": {
+    "bundle": {
+      "executor": "nx:run-commands",
+      "outputs": ["{projectRoot}/dist"],
+      "inputs": [
+        "{projectRoot}/**/*",
+        "!{projectRoot}/dist/**",
+        "{workspaceRoot}/libs/core/shell/src/**/*",
+        "{workspaceRoot}/libs/core/plugin-sdk/src/**/*",
+        {
+          "externalDependencies": [
+            "tailwindcss",
+            "@tailwindcss/postcss",
+            "@tailwindcss/typography",
+            "postcss",
+            "esbuild",
+            "penpal"
+          ]
+        }
+      ],
+      "options": {
+        "cwd": "libs/core/frame-kit",
+        "command": "node build.mjs"
+      }
+    },
+    "test": {
+      "options": {
+        "config": "./vite.config.mts"
+      },
+      "configurations": {
+        "ci": {
+          "mode": "coverage"
+        }
+      }
+    },
+    "lint": {
+      "inputs": [
+        "default",
+        "^default",
+        "{workspaceRoot}/.eslintrc.json",
+        "{workspaceRoot}/.eslintignore",
+        "{workspaceRoot}/eslint.config.mjs",
+        "{workspaceRoot}/tools/eslint-rules/**/*",
+        {
+          "externalDependencies": ["eslint"]
+        }
+      ]
+    }
+  }
+}

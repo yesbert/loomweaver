@@ -1,0 +1,51 @@
+{
+  "title": "Assistent",
+  "scripted": "Dieser Assistent ist gescriptet. Er nimmt seine Antworten aus einem kurzen Drehbuch, sonst ist nichts an ihm gespielt: Er liest die Aktionen, die ihm die Workbench anbietet, spricht echte Protokoll-Ereignisse, und jeder Aufruf läuft durch die Workbench selbst. Kein Modell, kein Schlüssel, kein Netz.",
+  "empty": "Noch nichts. Wähl unten einen Satz und sieh zu, was er darf.",
+  "suggestions": "Probier einen davon",
+  "offered": "Liest gerade, was er darf: {{count}} Aktionen.",
+  "notOffered": "{{command}} ist nicht dabei. Er fragt trotzdem, damit du siehst, wer Nein sagt.",
+  "confirm": {
+    "title": "Angebot senden?",
+    "message": "Der Assistent möchte das Angebot an den Kunden senden, und der Kunde sieht es dann. Sag Nein und sieh, was dem Assistenten geantwortet wird.",
+    "yes": "Senden",
+    "no": "Jetzt nicht"
+  },
+  "result": {
+    "answered": "Die Workbench hat es ausgeführt und geantwortet: {{content}}",
+    "refused": "Die Workbench hat es nicht ausgeführt."
+  },
+  "beat": {
+    "openQuote": {
+      "prompt": "Öffne das Angebot für Nordwind Logistik.",
+      "says": "Nordwind Logistik hängt an Angebot Q-0007. Ich öffne es.",
+      "closes": "Es steht jetzt im Inhaltsbereich und bleibt als Tab stehen.",
+      "refused": "Ich durfte es nicht öffnen, also ist nichts passiert."
+    },
+    "overview": {
+      "prompt": "Zeig mir die Übersicht.",
+      "says": "Ich hole das Dashboard nach vorn.",
+      "closes": "Das Dashboard hat jetzt den ganzen Inhaltsbereich. Es ist kein Dokument, hat also keinen Tab bekommen, und neu geladen wurde nichts.",
+      "refused": "Ich durfte es nicht zeigen, du stehst also weiter da, wo du warst."
+    },
+    "sendQuote": {
+      "prompt": "Sende Angebot Q-0004 an den Kunden.",
+      "says": "Q-0004 ist noch ein Entwurf. Ich sende es an den Kunden.",
+      "closes": "Es ist raus, und das Angebot ist als gesendet vermerkt.",
+      "refused": "Du hast Nein gesagt, also lief es nie. Die Workbench wurde gar nicht erst gefragt."
+    },
+    "margin": {
+      "prompt": "Wie hoch ist die Marge bei Q-0007?",
+      "says": "Ich lese die Marge von Q-0007.",
+      "closes": "Da ist sie: Umsatz, Kosten und was übrig bleibt. Das darf nur die Buchhaltung sehen, und genau darauf bist du gerade angemeldet.",
+      "refused": "Margen sind Sache der Buchhaltung, und das Konto, auf dem du angemeldet bist, gehört nicht dazu. Wechsle das Konto und frag mich noch einmal."
+    },
+    "look": {
+      "prompt": "Gib dem Produkt einen anderen Look.",
+      "warns": "Dieser lädt die Seite neu, und das Gespräch endet damit. Ein Look wird hier beim Start komponiert: Farben, Schrift, Icons und ein Teil der Wortwahl werden einmal entschieden, wenn die Anwendung hochfährt. Genau das macht ihn zu einer Komposition und nicht zu einem Farbschalter.",
+      "says": "Ich stelle das Produkt auf {{look}} um. Sieh zu, wie sich alles ändert.",
+      "closes": "Der Look ist unterwegs.",
+      "refused": "Ich durfte den Look nicht ändern."
+    }
+  }
+}

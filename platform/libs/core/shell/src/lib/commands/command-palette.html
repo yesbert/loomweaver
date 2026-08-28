@@ -1,0 +1,110 @@
+<div class="flex max-h-[60vh] w-full flex-col overflow-hidden">
+  <div class="flex items-center gap-2 border-b border-border px-4">
+    <lw-icon name="search" size="1.1rem" class="text-content-muted" />
+    <input
+      data-lw-autofocus
+      type="text"
+      role="combobox"
+      aria-controls="lw-palette-list"
+      [attr.aria-expanded]="true"
+      [attr.aria-activedescendant]="activeId()"
+      [attr.aria-label]="'palette.title' | transloco"
+      [value]="query()"
+      [placeholder]="
+        (mode() === 'tabs' ? 'palette.tabsPlaceholder' : 'palette.placeholder')
+          | transloco
+      "
+      class="flex-1 bg-transparent py-3 text-sm text-content outline-none placeholder:text-content-faint"
+      (input)="onQuery($event)"
+      (keydown.arrowdown)="move($event, 1)"
+      (keydown.arrowup)="move($event, -1)"
+      (keydown.arrowright)="openTabActions($event)"
+      (keydown.enter)="runActive($event)"
+    />
+  </div>
+
+  <ul
+    id="lw-palette-list"
+    role="listbox"
+    class="min-h-0 flex-1 overflow-y-auto p-1"
+  >
+    @for (entry of results(); track entry.id; let i = $index) {
+      @if (recentCount() > 0 && i === 0) {
+        <li
+          role="presentation"
+          data-testid="palette-section-recent"
+          class="px-3 pt-2 pb-1 text-xs font-medium text-content-faint"
+        >
+          {{ 'palette.recent' | transloco }}
+        </li>
+      }
+      @if (recentCount() > 0 && i === recentCount()) {
+        <li
+          role="presentation"
+          data-testid="palette-section-all"
+          class="px-3 pt-2 pb-1 text-xs font-medium text-content-faint"
+        >
+          {{ 'palette.all' | transloco }}
+        </li>
+      }
+      <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
+      <li
+        role="option"
+        [id]="optionId(i)"
+        [attr.aria-selected]="i === activeIndex()"
+        class="flex cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-sm"
+        [class]="
+          i === activeIndex()
+            ? 'bg-brand/10 text-brand-text'
+            : 'text-content hover:bg-surface-overlay'
+        "
+        (click)="select(entry)"
+        (mouseenter)="setActive(i)"
+      >
+        @if (entry.icon; as icon) {
+          <lw-icon [name]="icon" size="1rem" class="text-content-muted" />
+        }
+        <span class="flex-1 truncate">{{ entry.label }}</span>
+        @if (timeOf(entry); as time) {
+          <span class="shrink-0 text-xs text-content-faint">{{ time }}</span>
+        }
+        @if (shortcutOf(entry); as shortcut) {
+          <kbd
+            class="rounded border border-border px-1.5 py-0.5 text-xs text-content-muted"
+            >{{ shortcut }}</kbd
+          >
+        }
+      </li>
+    } @empty {
+      <li class="px-3 py-6 text-center text-sm text-content-muted">
+        {{
+          (mode() === 'tabs' ? 'palette.tabsEmpty' : 'palette.empty') | transloco
+        }}
+      </li>
+    }
+  </ul>
+
+  <div
+    data-testid="palette-footer"
+    class="flex items-center gap-4 border-t border-border px-4 py-2 text-xs text-content-faint"
+  >
+    <span class="flex items-center gap-1.5">
+      <kbd class="rounded border border-border px-1 py-0.5">↑↓</kbd>
+      {{ 'palette.hint.navigate' | transloco }}
+    </span>
+    <span class="flex items-center gap-1.5">
+      <kbd class="rounded border border-border px-1 py-0.5">↵</kbd>
+      {{ 'palette.hint.run' | transloco }}
+    </span>
+    @if (mode() === 'tabs') {
+      <span class="flex items-center gap-1.5" data-testid="palette-hint-actions">
+        <kbd class="rounded border border-border px-1 py-0.5">→</kbd>
+        {{ 'palette.hint.actions' | transloco }}
+      </span>
+    }
+    <span class="ml-auto flex items-center gap-1.5">
+      <kbd class="rounded border border-border px-1 py-0.5">Esc</kbd>
+      {{ 'palette.hint.close' | transloco }}
+    </span>
+  </div>
+</div>

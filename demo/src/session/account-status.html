@@ -1,0 +1,17 @@
+@if (auth.authenticated()) {
+  <span class="relative flex items-center gap-1 px-1.5 py-0.5 text-content-faint">
+    <lw-icon name="account" size="1rem" />
+    <span data-testid="account-name">{{ name() }}</span>
+    <lw-tooltip [text]="'product.signedInAs' | transloco: { name: name() }" position="top" />
+  </span>
+} @else {
+  <button
+    type="button"
+    (click)="signIn()"
+    data-testid="sign-in"
+    class="relative flex items-center gap-1 rounded px-1.5 py-0.5 text-content-faint transition-colors hover:bg-surface-overlay hover:text-content"
+  >
+    <lw-icon name="account" size="1rem" />
+    <span>{{ 'product.signIn' | transloco }}</span>
+  </button>
+}

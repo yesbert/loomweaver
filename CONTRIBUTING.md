@@ -1,0 +1,249 @@
+# Contributing to LoomWeaver
+
+Thanks for taking an interest. LoomWeaver is a domain-agnostic plugin & UI platform, and it stays
+useful only if the core stays small — so the most valuable contributions are often the smallest ones.
+
+## How work happens here
+
+This repository is where LoomWeaver is developed. There is no upstream, no mirror and no replay: your
+pull request is reviewed and merged here, under your own name.
+
+- **Fork, branch, pull request.** `main` is protected and takes no direct pushes, including from
+  maintainers. Name a branch `feature/…`, `fix/…`, `refactor/…`, `docs/…` or `chore/…` for what it
+  does.
+- **The checks run on your pull request** and have to pass before it can merge. They are the same
+  ones described below, so running them locally first costs you a round trip.
+- **A fork's run gets no secrets.** That is deliberate and it means one thing for you: a check that
+  needs a credential, such as the code-quality analysis, does not run on a fork's pull request. It
+  runs after the merge instead.
+
+The history before the first public commit is not here. LoomWeaver was developed privately until
+2026 and opened at a fixed state, so `main` starts with one commit rather than several thousand.
+
+## What to contribute
+
+**Issues are the main channel** — bug reports, questions, and proposals are all welcome, and a
+proposal costs you nothing if the answer turns out to be "that belongs in a plugin, not the core."
+
+**Small, self-contained pull requests are welcome too**: typo and documentation fixes, a failing test
+that pins a bug, a focused fix. These are cheap to review and genuinely helpful.
+
+**For anything larger, please open an issue first.** Not bureaucracy — what LoomWeaver guarantees is
+specified under `openspec/specs/`, one file per capability, and a change that cuts against one of
+those guarantees needs a conversation before you spend an evening on it. An issue gets you that
+conversation before the work, not after.
+
+This is maintained alongside other work, so please don't expect a fast turnaround. We would rather
+say that plainly than promise a response time we cannot keep.
+
+## Sign your commits (DCO)
+
+LoomWeaver uses the [Developer Certificate of Origin](https://developercertificate.org/). There is no
+CLA to sign and no copyright to assign — you keep the copyright to your contribution, and Apache-2.0
+§5 already places it under the project's licence.
+
+What the DCO adds is a per-commit statement of provenance: that you wrote the change, or took it from
+a source whose licence permits submitting it here. You make that statement by adding a line to each
+commit message:
+
+```
+Signed-off-by: Jane Doe <jane@example.com>
+```
+
+`git commit -s` adds it for you (`git commit --amend -s` fixes a commit you already made). Use your
+real name and a working email address — the sign-off is a public, permanent part of the history.
+
+## Getting set up
+
+You need **Node 24** (see [`.nvmrc`](.nvmrc)). Everything lives in the Nx workspace under `platform/`:
+
+```bash
+cd platform
+npm ci
+npm run start:testbed        # the testbed weaver on https://127.0.0.1:4200
+```
+
+The dev server is HTTPS. A `prestart` hook generates a self-signed `localhost` certificate into
+`platform/.certs/` when one is missing; trust it once so the browser accepts the page — on macOS:
+
+```bash
+sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain platform/.certs/aspnet-dev.pem
+```
+
+It binds the IPv4 loopback, so an IPv6 `localhost` may not answer — use `127.0.0.1`. The dev server
+runs without a service worker on purpose; `npm run preview:testbed` serves a production build on
+`https://127.0.0.1:4300` if you need to exercise the PWA install and update flow.
+
+Before you push:
+
+```bash
+npx nx run-many -t lint --all
+npx nx run-many -t test --all
+npx nx build loom-testbed
+```
+
+Unit tests run on **Vitest**: Angular projects through `@nx/angular:unit-test` (no config file — the
+builder compiles with the project's build options and sets up the TestBed), plain-TypeScript ones
+through the inferred `@nx/vitest` plugin with a `vite.config.mts` that delegates to the shared
+`platform/tools/vitest-base.mts`. If you change that base, keep it listed in `namedInputs.sharedGlobals`
+in `nx.json` — it sits outside every project root, so without that entry Nx will not invalidate the
+cached test results.
+
+**Use the Node version in `.nvmrc`.** Node 25 exposes an experimental Web Storage global that shadows
+jsdom's `localStorage`, which fails dozens of specs with `localStorage.clear is not a function`.
+
+End-to-end tests are Playwright: `npx nx e2e loom-testbed-e2e`. If a previous run left a dev server on
+port 4200, kill it first — otherwise the suite tests a stale build.
+
+If your change adds something to the published API, run the documentation coverage check too. It
+reads the packed type declarations and fails when an exported name appears nowhere in `docs/`:
+
+```bash
+npx nx package plugin-sdk && npx nx package shell
+npm run api-docs-check
+```
+
+A name that legitimately needs no prose of its own goes into the exemption list in
+`platform/tools/check-api-docs.mjs` — with a reason, so the decision is visible in review.
+
+Three more checks read nothing but sources, so they are the cheapest to run while you work:
+
+```bash
+npm run import-cycles-check   # which way the shell's imports point
+npm run structure-check       # how wide a folder is and how long a file is
+npm run comments-check        # needs the packages packed first
+```
+
+`import-cycles-check` fails on a new import cycle between files, and on a new mutually dependent pair
+of feature slices. The first is a latent initialisation-order bug. The second is not a defect — it is
+the distance to splitting the shell into separate libraries, which Nx cannot do while a cycle exists
+in the graph. Both baselines live in `platform/tools/cycle-baseline.json` and are ratchets: they may
+shrink and may never grow, and the check also fails on an entry that is no longer true, so the list
+gets trimmed as the tangle does.
+
+`structure-check` fails on a folder holding more than 12 concepts and on a source file longer than
+400 lines, where a concept is one non-spec `.ts` file. Its baseline in
+`platform/tools/structure-baseline.json` is the same kind of ratchet, and it records today's numbers
+honestly rather than pretending they are zero.
+
+### Changing behaviour
+
+**A change to what the platform guarantees is proposed as a change**, not written into a guide.
+Create one under `openspec/changes/`, state the new guarantee as a spec delta, and put the reasoning
+— the alternatives you rejected, the consequences — in its design note. That way the reasoning
+survives without becoming a second place the guarantee is stated.
+
+The workflow is scripted, so you do not have to remember the artifacts: `/opsx:propose` creates a
+change, `/opsx:update` revises one, `/opsx:apply` implements an approved one, and `/opsx:archive`
+folds a finished one back into the specifications. `openspec list`, `openspec show <id>` and
+`openspec validate --all --strict` read the same material from the command line; the last of those is
+what CI-worthy work is checked with.
+
+Every proposal opens with a status line:
+
+```markdown
+> **Status:** proposed — not approved for implementation yet.
+```
+
+A maintainer changes `proposed` to `approved`, and **an approved change is the licence to
+implement**. Nothing is ever marked approved retroactively.
+
+Work that changes no guarantee but still needs a worklist — several slices, an order, a place to tick
+things off — is also a change; it sets `skip_specs: true` beside `schema: spec-driven` in the change's
+`.openspec.yaml` and then validates, lists, applies and archives without touching a capability. The
+demo application is worked this way.
+
+What goes straight to a branch is what needs no list at all: a dependency bump, a pipeline fix, a
+focused cleanup, a correction to a guide.
+
+**Before writing a spec delta, read the capability.** The specifications state more than most people
+remember, so "we should build X" is often "X is required and the implementation does not do it".
+That is a defect, and it gets a change naming the requirement it fails and a test that pins it — not
+a new requirement restating what is already there.
+
+**There are no decision records.** Sixty-three of them were dissolved into the specifications in
+August 2026 and then deleted: what the platform guarantees is in `openspec/specs/`, and why it
+guarantees it is in the design note of the change that specified it, under `openspec/changes/archive/`.
+Do not write new ones, and **do not cite a decision number in code, in a comment or in a guide** — a
+number a reader cannot resolve is noise rather than provenance. State the thing itself.
+
+If your change touches what a package ships — an entry in `exports`, a new asset, a build step that
+writes into a package — check that the manifest's promises survive packing. The check inspects built
+output rather than sources, so build all seven packages first:
+
+```bash
+npx nx package plugin-sdk && npx nx package shell && npx nx run shell:styles
+npx nx package devkit
+npx nx bundle frame-kit && npx nx bundle cli && npx nx bundle mcp
+npm run package-exports-check
+```
+
+It reads the packed file list of each package and fails when an entry in `exports`, `main`, `types`
+or `bin` resolves to nothing. Note that `@loomweaver/shell` needs `nx run shell:styles` on top of
+`nx package shell`: the stylesheet it exports is written by that separate target.
+
+## Code conventions
+
+Most of these are enforced by `nx lint`, so the fastest feedback is to run it. What fails when a rule is
+broken is listed in [`docs/reference/operations.md`](docs/reference/operations.md).
+
+- **Angular 22, idiomatically.** Standalone only, signals for state, `inject()`, the `@if`/`@for`
+  control flow, zoneless/OnPush. No `NgModule` for feature code, no `*ngIf`, no decorator
+  `@Input`/`@Output`. TypeScript `strict` and `strictTemplates`.
+- **No comments in code.** If a spot needs an explaining comment, the code is not readable enough —
+  restructure it instead. The only exception is what third parties consume: JSDoc on a symbol a
+  consumer can reach in the packed declarations — which includes a published interface's base type
+  and excludes a `private` member, since that is emitted as a bare name with nothing callable under
+  it — plus functional directives (`eslint-disable`, `@ts-…`) and scaffold output emitted from
+  template literals. Rationale belongs
+  in the design note of the change that made the decision, not in a function body; version control is
+  the memory, not a commented-out block. This applies to the demo plugin and example plugins too —
+  the teaching lives in `docs/`.
+- **Semantic design tokens only** — `bg-surface`, `text-content`, `text-brand`, `border-border`, never
+  raw palette colours. A distribution retints the whole workbench by overriding tokens, and a plugin
+  paints from the same set through the sandbox boundary, so a hard-coded colour is the one thing
+  that cannot follow a theme. See [`docs/reference/design-tokens.md`](docs/reference/design-tokens.md);
+  a lint rule catches mistyped utilities.
+- **Vertical slices, not type folders.** A folder is a feature (service, UI, contracts and specs
+  together), never a `services/` or `components/` bucket. Grouping by type is fine *inside* a slice.
+  A folder holds at most 12 concepts and a source file over 400 lines must be justified; a folder
+  that outgrows the threshold is cut into sub-themes named for what they do, the way
+  `regions/content` and `elements/` already are.
+- **Every component template lives in its own `.html` file** next to the `.ts`. Inline templates are a
+  lint error, apart from trivial stubs and test hosts in specs. The reason is not taste: the Tailwind
+  guardrail that rejects a mistyped utility class reads template files, and markup hidden in a
+  decorator slips past it.
+- **Class members are ordered** fields → constructor → public → protected → private (lint error).
+- **Clean Code, pragmatically**: intention-revealing names, small functions doing one thing at one
+  level of abstraction, command-query separation, early returns instead of nested conditionals,
+  fail-fast with a clear message. YAGNI and KISS beat completeness — don't abstract past the need.
+- **Fix bugs test-first**: a red test that reproduces the bug, then the fix. If you change behaviour,
+  check that the new test actually fails against the old code — a test that passes either way proves
+  nothing.
+
+The platform is **domain-pure**: it must contain no product-specific logic. That boundary is enforced
+by Nx tags, so an import that crosses it fails lint rather than review.
+
+## Commits and pull requests
+
+Keep the change focused; a small diff is reviewed faster than a large one. Write commit messages that
+say *why*, and describe in the pull request how you verified the change — which tests you ran, what
+you checked by hand.
+
+**Write in English.** Everything in this repository is English: code, comments, documentation, commit
+messages and pull request text. The commit history is public, so it is read by people who share no
+other language with you.
+
+Please don't include AI attribution in commit messages or pull request descriptions.
+
+## Security
+
+Do not open a public issue for a vulnerability. See [`SECURITY.md`](SECURITY.md).
+
+## Code of conduct
+
+Participation is covered by our [Code of Conduct](CODE_OF_CONDUCT.md).
+
+## Licence
+
+Contributions are licensed under the [Apache License 2.0](LICENSE), the same licence as the project.

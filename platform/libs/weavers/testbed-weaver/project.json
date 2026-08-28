@@ -1,0 +1,31 @@
+{
+  "name": "testbed-weaver",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/weavers/testbed-weaver/src",
+  "prefix": "lw",
+  "projectType": "library",
+  "tags": ["scope:weaver", "type:app"],
+  "targets": {
+    "test": {
+      "executor": "@nx/angular:unit-test",
+      "outputs": ["{workspaceRoot}/coverage/{projectName}"],
+      "options": {
+        "buildTarget": "loom-testbed:build:development",
+        "watch": false
+      }
+    },
+    "lint": {
+      "inputs": [
+        "default",
+        "^default",
+        "{workspaceRoot}/.eslintrc.json",
+        "{workspaceRoot}/.eslintignore",
+        "{workspaceRoot}/eslint.config.mjs",
+        "{workspaceRoot}/tools/eslint-rules/**/*",
+        {
+          "externalDependencies": ["eslint"]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,92 @@
+# The end-to-end suites, on a schedule rather than in the merge gate.
+#
+# They boot a browser and a dev server, which is too heavy to pay for on every pull request. That is
+# a standing decision, not an oversight: the gate stays fast, and integration regressions that unit
+# tests miss — dialog flows, theming, i18n, the type-to-confirm reset guard — are caught overnight.
+name: Nightly
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: nightly-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  testbed:
+    name: Playwright (testbed)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: platform
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: platform/package-lock.json
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run the end-to-end suite
+        run: CI=1 npx nx e2e loom-testbed-e2e
+
+      - name: Keep the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-testbed
+          path: |
+            platform/playwright-report
+            platform/apps/loom-testbed-e2e/test-results
+          if-no-files-found: ignore
+          retention-days: 14
+
+  demo:
+    name: Playwright (demo smoke)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: demo
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: demo/package-lock.json
+
+      # The demo installs the published packages from the public registry, so this needs no secret
+      # and runs the same way for anybody who forks the repository.
+      - name: npm install
+        run: npm install
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run the demo smoke suite
+        run: CI=1 npm run e2e
+
+      # The demo's suite reports dot + JUnit, with traces beside them; it configures no HTML report.
+      - name: Keep the results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results-demo
+          path: demo/test-results
+          if-no-files-found: ignore
+          retention-days: 14

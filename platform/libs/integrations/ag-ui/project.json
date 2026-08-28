@@ -1,0 +1,54 @@
+{
+  "name": "ag-ui",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/integrations/ag-ui/src",
+  "projectType": "library",
+  "tags": [
+    "scope:integration",
+    "type:adapter"
+  ],
+  "targets": {
+    "lint": {
+      "inputs": [
+        "default",
+        "^default",
+        "{workspaceRoot}/.eslintrc.json",
+        "{workspaceRoot}/.eslintignore",
+        "{workspaceRoot}/eslint.config.mjs",
+        "{workspaceRoot}/tools/eslint-rules/**/*",
+        {
+          "externalDependencies": [
+            "eslint"
+          ]
+        }
+      ]
+    },
+    "package": {
+      "executor": "@nx/js:tsc",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "outputPath": "dist/libs/integrations/ag-ui",
+        "main": "libs/integrations/ag-ui/src/index.ts",
+        "tsConfig": "libs/integrations/ag-ui/tsconfig.lib.json",
+        "assets": [
+          "libs/integrations/ag-ui/*.md"
+        ]
+      },
+      "dependsOn": [
+        "^package"
+      ]
+    },
+    "test": {
+      "options": {
+        "config": "./vite.config.mts"
+      },
+      "configurations": {
+        "ci": {
+          "mode": "coverage"
+        }
+      }
+    }
+  }
+}

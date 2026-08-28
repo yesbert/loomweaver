@@ -1,0 +1,46 @@
+@if (notifications().length) {
+  <section
+    class="pointer-events-none fixed inset-x-0 bottom-0 z-[60] flex flex-col items-center gap-2 p-4 sm:inset-x-auto sm:right-0"
+    [attr.aria-label]="'notification.region' | transloco"
+  >
+    @for (toast of notifications(); track toast.id) {
+      <div
+        [attr.role]="roleFor(toast.kind)"
+        class="pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-lg border border-border bg-surface-raised p-3 shadow-lg"
+      >
+        <lw-icon
+          [name]="iconFor(toast.kind)"
+          size="1.25rem"
+          [class]="'mt-0.5 shrink-0 ' + iconColorFor(toast.kind)"
+        />
+        <div class="flex min-w-0 flex-1 flex-col gap-2">
+          <p class="text-sm text-content">{{ toast.message | transloco }}</p>
+          @if (toast.action; as action) {
+            <button
+              lwButton
+              variant="primary"
+              size="sm"
+              type="button"
+              class="self-start"
+              (click)="runAction(toast)"
+            >
+              {{ action.label | transloco }}
+            </button>
+          }
+        </div>
+        <button
+          lwButton
+          variant="ghost"
+          size="sm"
+          iconOnly
+          type="button"
+          class="shrink-0"
+          [attr.aria-label]="'notification.dismiss' | transloco"
+          (click)="dismiss(toast.id)"
+        >
+          <lw-icon name="close" size="1rem" />
+        </button>
+      </div>
+    }
+  </section>
+}
