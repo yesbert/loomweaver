@@ -70,6 +70,18 @@ jobs:
 
           ask() { curl -sf -u "${SONAR_TOKEN}:" "${SONAR_HOST_URL}/api/$1"; }
           project="${SONAR_HOST_URL}/project/issues?id=loomweaver&resolved=false"
+          gate=$(ask "qualitygates/project_status?projectKey=loomweaver")
+
+          # A failed gate leaves the scanner exiting 3, and the action can only report that number.
+          # Say what actually broke, as an annotation, next to the one nobody can read.
+          failed=$(printf '%s' "${gate}" | jq -r '
+            [.projectStatus.conditions[]
+             | select(.status != "OK")
+             | "\(.metricKey) is \(.actualValue), gate wants \(.comparator) \(.errorThreshold)"]
+            | join("; ")')
+          if [ -n "${failed}" ]; then
+            echo "::error title=SonarQube quality gate failed::${failed}"
+          fi
 
           {
             echo "## SonarQube"
@@ -83,7 +95,7 @@ jobs:
             echo
             echo "| | condition | actual | gate wants |"
             echo "|---|---|---|---|"
-            ask "qualitygates/project_status?projectKey=loomweaver" | jq -r '
+            printf '%s' "${gate}" | jq -r '
               .projectStatus.conditions[]
               | "| \(if .status == "OK" then "✅" else "❌" end) | \(.metricKey) | \(.actualValue) | \(.comparator) \(.errorThreshold) |"'
             echo
