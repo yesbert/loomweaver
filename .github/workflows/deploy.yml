@@ -28,8 +28,10 @@ jobs:
     name: Build and deploy
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    # Holds the deploy key and a required reviewer, so neither an accident nor a compromised
-    # dependency ships unattended.
+    # Holds the deploy key, which is why this never runs on a pull request: a fork's run gets no
+    # secrets. There is no required reviewer, on purpose — an approval gate would stop the autonomous
+    # cadence. The environment's branch policy and its wait timer are what stand between a merge and
+    # the live site, together with the post-deploy check at the end of this job.
     environment: production
     steps:
       - uses: actions/checkout@v7

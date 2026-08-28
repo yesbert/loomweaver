@@ -28,8 +28,11 @@ jobs:
     name: Publish to npm
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    # A human confirms before anything reaches the registry. A published version cannot be taken
-    # back, so this is the one place where a required reviewer is worth the friction.
+    # A published version cannot be taken back, and there is deliberately no required reviewer here:
+    # an approval gate would stop the autonomous cadence this repository runs on. What stands in its
+    # place is that publishing takes an act nothing else performs — pushing a v* tag — plus this
+    # environment's branch policy and the version check against the tag below. The tag push is the
+    # point of no return, not the merge.
     environment: release
     permissions:
       contents: read
