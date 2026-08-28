@@ -34,10 +34,8 @@ from the same build, and a worker checking every asset against that manifest rep
 all, and the preview gets its own port so a registration it leaves behind can never take over the dev
 server's origin.
 
-The `@loomweaver/*` packages are not on the public npm registry yet, so until the first public release they
-come from LoomWeaver's own feed. [`.npmrc`](.npmrc) names that registry but holds no credential; supply a
-token the way the feed expects before the first install. Everything else is a plain Angular
-application.
+The `@loomweaver/*` packages come from the public npm registry, so this needs no registry configuration
+and no credential. Everything else is a plain Angular application.
 
 ```bash
 npm run build          # production build into dist/

@@ -20,12 +20,6 @@ write.
 > generate the same application shape. Where they differ — one file name, one path — it is called
 > out. See also [LoomWeaver and Nx](manual-setup.md#loomweaver-and-nx).
 
-> **Package availability:** the `@loomweaver/*` packages are not on the public npm registry yet — the first
-> public release publishes them. Until then they come from LoomWeaver's own package feed; if you are
-> building against a pre-release, configure that registry for the `@loomweaver` scope in an `.npmrc` next
-> to your `package.json` and authenticate as your feed requires. Everything below is otherwise
-> identical.
-
 ## 1 · An application to put it in
 
 ```bash

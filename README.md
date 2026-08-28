@@ -62,10 +62,6 @@ ng serve
 [Manual setup](docs/manual-setup.md) is the same result wired by hand — including the
 **Bootstrap / no-Tailwind path** via the pre-compiled stylesheet.
 
-> The `@loomweaver/*` packages are not on the public npm registry yet — the first public release publishes
-> them. Until then they come from LoomWeaver's own package feed (configure the `@loomweaver` scope in an
-> `.npmrc`); everything else is identical.
-
 ## What you get out of the box
 
 - **A real workspace** — tab groups with drag-to-split panes (Obsidian-style), pop-out windows,
