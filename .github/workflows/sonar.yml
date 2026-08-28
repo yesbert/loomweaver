@@ -58,7 +58,8 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
 
-      # What the analysis found, in the log, so the answer does not require opening Sonar.
+      # Which gate condition failed, and what the analysis found, in the log, so the answer does not
+      # require opening Sonar. Runs even when the gate failed the step above, hence always().
       - name: Report what was found
         if: always()
         env:
@@ -66,7 +67,16 @@ jobs:
           SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
         run: |
           set -euo pipefail
+
+          ask() { curl -sf -u "${SONAR_TOKEN}:" "${SONAR_HOST_URL}/api/$1"; }
+
+          echo "Quality gate:"
+          ask "qualitygates/project_status?projectKey=loomweaver" | jq -r '
+            "  verdict: \(.projectStatus.status)",
+            (.projectStatus.conditions[]
+              | "  \(.status): \(.metricKey) is \(.actualValue), gate wants \(.comparator) \(.errorThreshold)")'
+
+          echo "Measures:"
           metrics=ncloc,coverage,violations,bugs,vulnerabilities,code_smells,security_hotspots
-          curl -sf -u "${SONAR_TOKEN}:" \
-            "${SONAR_HOST_URL}/api/measures/component?component=loomweaver&metricKeys=${metrics}" \
+          ask "measures/component?component=loomweaver&metricKeys=${metrics}" \
             | jq -r '.component.measures | sort_by(.metric)[] | "  \(.metric): \(.value)"'
