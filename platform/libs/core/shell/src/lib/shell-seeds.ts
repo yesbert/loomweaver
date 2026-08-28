@@ -149,7 +149,7 @@ export function seedHostCommands(
   registry.addCommand({
     id: QUICK_OPEN_COMMAND_ID,
     title: 'palette.quickOpenTitle',
-    icon: 'document',
+    icon: 'openWork',
     shortcut: 'mod+p',
     run: () => {
       dialogs.open(CommandPalette, {
