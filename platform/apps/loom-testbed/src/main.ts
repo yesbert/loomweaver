@@ -11,6 +11,7 @@ import {
   provideIcons,
   provideIdentityScopedStores,
   provideLayout,
+  provideQuickOpenEntry,
   provideRailItems,
   provideShellRouter,
   provideTranslationNamespaces,
@@ -180,6 +181,7 @@ bootstrapApplication(Shell, {
       },
     ),
     provideCommandPaletteEntry(),
+    provideQuickOpenEntry(),
     ...provideBarItems({
       id: 'shell.update',
       bar: 'right-footer',

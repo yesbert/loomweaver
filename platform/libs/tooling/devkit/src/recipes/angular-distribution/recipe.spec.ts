@@ -188,6 +188,27 @@ describe('angularDistribution recipe', () => {
     expect(JSON.parse(files['public/manifest.webmanifest']).name).toBe('Acme Studio');
   });
 
+  it('shows the way into both searches, so a first run does not hide mod+k and mod+p', () => {
+    const config = generate(angularDistribution, { name: 'acme-studio' })[
+      'src/app/app.config.ts'
+    ];
+    expect(config).toContain('provideCommandPaletteEntry()');
+    expect(config).toContain('provideQuickOpenEntry()');
+    expect(config).toMatch(
+      /import \{[^}]*provideCommandPaletteEntry[^}]*\} from '@loomweaver\/shell'/s,
+    );
+    expect(config).toMatch(
+      /import \{[^}]*provideQuickOpenEntry[^}]*\} from '@loomweaver\/shell'/s,
+    );
+  });
+
+  it('names both shortcuts in the notes it writes beside the generated product', () => {
+    const readme = generate(angularDistribution, { name: 'acme-studio' })['LOOMWEAVER.md'];
+    for (const fragment of ['mod+k', 'mod+p', 'shell.commandPaletteEntry', 'shell.quickOpenEntry']) {
+      expect(readme).toContain(fragment);
+    }
+  });
+
   it('supplies every required ProductIdentity field, so the scaffold type-checks', () => {
     const config = generate(angularDistribution, { name: 'acme-studio' })[
       'src/app/app.config.ts'

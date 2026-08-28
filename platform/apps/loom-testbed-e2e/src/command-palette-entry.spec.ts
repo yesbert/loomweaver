@@ -18,6 +18,21 @@ test.describe('Command palette entry & bar shortcut hints', () => {
     ).toBeVisible();
   });
 
+  test('the built status-bar quick-open entry shows the OS shortcut and opens the search over open work', async ({
+    page,
+  }) => {
+    await page.goto('/');
+
+    const entry = page.getByTestId('quick-open-entry');
+    await expect(entry).toBeVisible();
+    await expect(entry.locator('kbd')).toHaveText(isMac ? '⌘P' : 'Ctrl+P');
+
+    await entry.click();
+    await expect(
+      page.getByRole('combobox', { name: 'Command palette' }),
+    ).toHaveAttribute('placeholder', 'Go to open tab…');
+  });
+
   test('a bar button renders its command shortcut hint, OS-correct (LWF-04)', async ({
     page,
   }) => {

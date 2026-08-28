@@ -91,7 +91,7 @@ what you actually want, so you can go straight to the section that covers it.
 | run an isolated plugin | `provideFramePlugins` ([Frame plugins](#frame-plugins)) |
 | offer a plugin catalogue | `providePluginCatalog` ([Plugin store](#plugin-store-runtime-install)) |
 | add chrome of my own | `provideBarItems`, `provideRailItems`, `provideViews` ([Recomposing](#recomposing-host-chrome)) |
-| put a search entry in a bar | `provideCommandPaletteEntry` ([Command palette entry](#command-palette-entry)) |
+| put a search entry in a bar | `provideCommandPaletteEntry`, `provideQuickOpenEntry` ([Command palette entry](#command-palette-entry)) |
 
 **What it talks to**
 
@@ -1638,6 +1638,33 @@ It uses the bar-item id `shell.commandPaletteEntry`, so `provideShell({ omit:
 ['shell.commandPaletteEntry'] })` removes it again. To show a shortcut anywhere else yourself,
 `formatChord('mod+k')` returns the OS-correct display string (⌘K on macOS, Ctrl+K elsewhere) — the
 same platform detection the shell uses, so you never duplicate the `isMac` regex.
+
+`provideQuickOpenEntry()` is the same badge for the other search, `shell.quickOpen` (`mod+p`). It
+defaults to the **status bar's leading edge** rather than the top bar, deliberately: two identical
+search badges side by side read as a duplicate rather than as two different things. Its bar-item id
+is `shell.quickOpenEntry`. The two are independent, so a product may place either, both or neither,
+and may put each wherever it likes:
+
+```ts
+provideCommandPaletteEntry();                            // top bar, end slot, order 5 (default)
+provideQuickOpenEntry();                                 // status bar, start slot, order 5 (default)
+provideQuickOpenEntry({ bar: 'top-bar', order: 4 });     // …or beside the other one after all
+```
+
+**A badge never outlives what it opens.** Omit `shell.commandPalette` or `shell.quickOpen` and its
+badge goes with the command, as does the chord; the same happens where the session does not meet the
+command's `access`, and in a pop-out window, which offers no quick-open at all. You are never left
+with a control that warns to the console and does nothing. Switching the shortcut layer off with
+`provideShellFeatures({ commands: { shortcuts: false } })` is the one exception: the badge stays and
+still opens the search, it simply prints no chord, because nothing here advertises a key that does
+nothing.
+
+Rebinding one of the two chords to a command of your own has **two** supported ways, and one trap.
+Register your command under the built-in id (`shell.commandPalette`) and it replaces it, inheriting
+its place everywhere; or `omit` the built-in and declare `shortcut: 'mod+k'` on a command of your
+own. What not to do is declare the chord on your own command while the built-in one is still
+registered: two commands then hold one chord, the shell warns in the console, and the later
+registration wins — which is a registration order your composition root does not control.
 
 The palette has **two entry points**, one component in two modes: `shell.commandPalette` (`mod+k`)
 lists **commands**, and `shell.quickOpen` (`mod+p`) lists **content to navigate to** — every open tab

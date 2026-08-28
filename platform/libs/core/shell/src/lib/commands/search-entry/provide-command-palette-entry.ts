@@ -1,6 +1,6 @@
 import { EnvironmentProviders, makeEnvironmentProviders } from '@angular/core';
 import { BarSlot } from '@loomweaver/plugin-sdk';
-import { provideBarItems } from '../foundation/bar-item';
+import { provideBarItems } from '../../foundation/bar-item';
 import { CommandPaletteEntry } from './command-palette-entry';
 
 /** Where the built command-palette entry goes (LWF-05). Defaults: top bar, end slot, order 5. */
@@ -24,6 +24,12 @@ export interface CommandPaletteEntryOptions {
  * without a distribution component. Opt-in: omit it for a palette that opens only by shortcut. Uses the
  * `shell.commandPaletteEntry` bar-item id, so `provideShell({ omit: ['shell.commandPaletteEntry'] })`
  * removes it.
+ *
+ * The badge never outlives what it opens: omitting `shell.commandPalette`, or a session that may not
+ * run it, takes the badge with it rather than leaving a control that does nothing. Switching
+ * shortcuts off is the exception — the badge stays and still opens the palette, it simply names no
+ * chord. Independent of {@link provideQuickOpenEntry}, which places the entry to the search over
+ * open work.
  */
 export function provideCommandPaletteEntry(
   options: CommandPaletteEntryOptions = {},

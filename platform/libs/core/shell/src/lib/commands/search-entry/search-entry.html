@@ -1,0 +1,24 @@
+@if (command(); as entry) {
+  <button
+    type="button"
+    (click)="open()"
+    [attr.data-testid]="testId()"
+    [class]="compact ? 'flex items-center rounded px-1.5 py-0.5 text-content-faint transition-colors hover:bg-surface-overlay hover:text-content' : 'lw-segmented'"
+    [attr.aria-label]="entry.title | transloco"
+  >
+    <span
+      [class]="compact ? 'relative flex items-center gap-1' : 'lw-segmented-item w-auto gap-2 px-1.5'"
+    >
+      @if (entry.icon; as icon) {
+        <lw-icon [name]="icon" size="1rem" />
+      }
+      @if (shortcut(); as chord) {
+        <kbd class="text-[0.6875rem] leading-tight text-content-faint">{{ chord }}</kbd>
+      }
+      <lw-tooltip
+        [text]="entry.title | transloco"
+        [position]="compact ? 'top' : 'bottom'"
+      />
+    </span>
+  </button>
+}

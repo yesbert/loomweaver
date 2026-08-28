@@ -1,10 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslocoTestingModule, translocoConfig } from '@jsverse/transloco';
 import { CommandPaletteEntry } from './command-palette-entry';
-import { PALETTE_COMMAND_ID } from './command-palette';
-import { formatChord } from './format-chord';
-import { ContributionRegistry } from '../plugin/contribution-registry';
-import { BAR_CONTEXT, BarContext } from '../regions/bar/bar-context';
+import { PALETTE_COMMAND_ID } from '../command-palette';
+import { formatChord } from '../format-chord';
+import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { BAR_CONTEXT, BarContext } from '../../regions/bar/bar-context';
 
 function transloco() {
   return TranslocoTestingModule.forRoot({
@@ -14,19 +14,23 @@ function transloco() {
   });
 }
 
+function seedPalette(run: () => void = () => undefined): void {
+  TestBed.inject(ContributionRegistry).addCommand({
+    id: PALETTE_COMMAND_ID,
+    title: 'palette.title',
+    icon: 'search',
+    shortcut: 'mod+k',
+    run,
+  });
+}
+
 describe('CommandPaletteEntry', () => {
   it('shows the palette shortcut and opens the palette command on click (LWF-05)', () => {
     let opened = 0;
     TestBed.configureTestingModule({
       imports: [CommandPaletteEntry, transloco()],
     });
-    TestBed.inject(ContributionRegistry).addCommand({
-      id: PALETTE_COMMAND_ID,
-      title: 'palette.title',
-      icon: 'search',
-      shortcut: 'mod+k',
-      run: () => (opened += 1),
-    });
+    seedPalette(() => (opened += 1));
     const fixture = TestBed.createComponent(CommandPaletteEntry);
     fixture.detectChanges();
 
@@ -60,6 +64,7 @@ describe('CommandPaletteEntry — the badge fits the bar it lands in (finding #3
       ],
       providers: context ? [{ provide: BAR_CONTEXT, useValue: context }] : [],
     });
+    seedPalette();
     fixture = TestBed.createComponent(CommandPaletteEntry);
     fixture.detectChanges();
   }
