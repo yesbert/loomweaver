@@ -15,65 +15,71 @@ function tabs(page: Page) {
     .allInnerTexts();
 }
 
+/* Scoped to the list: the rail marks the active workspace with aria-current too. */
+function marked(page: Page) {
+  return page.locator('[data-testid="quotes-list"] [aria-current="true"]');
+}
+
 function row(page: Page, number: string) {
   return page.locator(`li[data-quote="${number}"] button`);
 }
 
+/* The quote list lives in the left panel of the Quotes workspace, and that workspace declares one
+   and these tests enter it at one quote's address, so that tab is open before they start and every
+   tab assertion below counts from it. Seeding the workspace is not enough on its own: the dashboard
+   claims the bare address, so a test that visited '/' would be carried straight back out of the
+   workspace it just asked for. */
+const ENTRY_TAB = 'Q-0005';
+const QUOTES = `/quotes/${ENTRY_TAB.toLowerCase()}`;
+
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() =>
-    localStorage.setItem('lw.shell.active-workspace', 'default'),
+    localStorage.setItem('lw.shell.active-workspace', 'quotes'),
   );
 });
 
-test('the list lives in the sidebar and an empty workspace opens nothing', async ({
+test('the list lives in the sidebar and the workspace opens the quote it declares', async ({
   page,
 }) => {
-  await page.goto('/');
+  await page.goto(QUOTES);
 
   await expect(page.locator(rows)).toHaveCount(7);
-  await expect(page.getByTestId('insights-dashboard')).toBeVisible();
-  await expect.poll(() => tabs(page)).toEqual([]);
+  await expect.poll(() => tabs(page)).toEqual(['Q-0005']);
 });
 
 test('one click previews a quote into a single reused slot', async ({ page }) => {
-  await page.goto('/');
+  await page.goto(QUOTES);
 
   await row(page, 'Q-0007').click();
-  await expect.poll(() => tabs(page)).toEqual(['Q-0007']);
+  await expect.poll(() => tabs(page)).toEqual([ENTRY_TAB, 'Q-0007']);
   await expect(page).toHaveURL(/\/quotes\/q-0007$/);
 
   await row(page, 'Q-0006').click();
-  await expect.poll(() => tabs(page)).toEqual(['Q-0006']);
+  await expect.poll(() => tabs(page)).toEqual([ENTRY_TAB, 'Q-0006']);
 });
 
 /* Re-opening a tab never promotes it, whatever flag is passed — the host preserves its preview
    state — so keeping one is a second call. Without it, browsing would replace the kept tab. */
 test('two clicks keep the quote, and the next preview lands beside it', async ({ page }) => {
-  await page.goto('/');
+  await page.goto(QUOTES);
 
   await row(page, 'Q-0007').dblclick();
-  await expect.poll(() => tabs(page)).toEqual(['Q-0007']);
+  await expect.poll(() => tabs(page)).toEqual([ENTRY_TAB, 'Q-0007']);
 
   await row(page, 'Q-0006').click();
-  await expect.poll(() => tabs(page)).toEqual(['Q-0007', 'Q-0006']);
+  await expect.poll(() => tabs(page)).toEqual([ENTRY_TAB, 'Q-0007', 'Q-0006']);
 });
 
 /* With previews reusing one slot, the row marking is the only thing that says which document is
    on screen. It reads the host's active content rather than tracking clicks itself. */
 test('the list marks the quote the content area is showing', async ({ page }) => {
-  await page.goto('/');
+  await page.goto(QUOTES);
 
   await row(page, 'Q-0007').click();
-  await expect(page.locator('[aria-current="true"]')).toHaveAttribute(
-    'aria-label',
-    /Q-0007/,
-  );
+  await expect(marked(page)).toHaveAttribute('aria-label', /Q-0007/);
 
   await row(page, 'Q-0003').click();
-  await expect(page.locator('[aria-current="true"]')).toHaveAttribute(
-    'aria-label',
-    /Q-0003/,
-  );
+  await expect(marked(page)).toHaveAttribute('aria-label', /Q-0003/);
 });
 
 /* The document and the list row compute their money from the same library, so the two figures
@@ -81,7 +87,7 @@ test('the list marks the quote the content area is showing', async ({ page }) =>
 test('the document total matches the figure the list shows for the same quote', async ({
   page,
 }) => {
-  await page.goto('/');
+  await page.goto(QUOTES);
 
   const listRow = page.locator('li[data-quote="Q-0007"]');
   const listTotal = (await listRow.innerText()).match(/€[\d.,]+/)?.[0];
@@ -96,7 +102,7 @@ test('the document total matches the figure the list shows for the same quote', 
 /* Printed matter is taxed at 7% while services are at 19%, so this document carries two buckets —
    the case a single-rate demo never exercises. */
 test('a document with two tax rates shows one line per rate', async ({ page }) => {
-  await page.goto('/');
+  await page.goto(QUOTES);
   await row(page, 'Q-0006').click();
 
   const totals = page.getByTestId('quote-totals');
