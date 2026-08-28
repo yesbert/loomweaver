@@ -26,9 +26,9 @@ jobs:
       run:
         working-directory: platform
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -45,7 +45,7 @@ jobs:
 
       - name: Keep the report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-report-testbed
           path: |
@@ -62,9 +62,9 @@ jobs:
       run:
         working-directory: demo
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -84,7 +84,7 @@ jobs:
       # The demo's suite reports dot + JUnit, with traces beside them; it configures no HTML report.
       - name: Keep the results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-results-demo
           path: demo/test-results
