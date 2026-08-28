@@ -51,6 +51,22 @@ jobs:
           # The lcov reports name their files relative to platform/, so the scan has to start there
           # or every covered path goes unresolved.
           projectBaseDir: platform
+          # Wait for the server's verdict instead of ending at "uploaded". Without this the job is
+          # green whatever the analysis found, which is worse than no analysis: it looks like a check.
+          args: -Dsonar.qualitygate.wait=true
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+
+      # What the analysis found, in the log, so the answer does not require opening Sonar.
+      - name: Report what was found
+        if: always()
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+        run: |
+          set -euo pipefail
+          metrics=ncloc,coverage,violations,bugs,vulnerabilities,code_smells,security_hotspots
+          curl -sf -u "${SONAR_TOKEN}:" \
+            "${SONAR_HOST_URL}/api/measures/component?component=loomweaver&metricKeys=${metrics}" \
+            | jq -r '.component.measures | sort_by(.metric)[] | "  \(.metric): \(.value)"'
