@@ -2,13 +2,15 @@ import { expect, test } from '@playwright/test';
 
 const rows = '[data-testid="quotes-list"] li';
 
-/* The list is a docked surface, not a route: the host seeds it into its home sidebar and there is
-   no URL that shows it. Reaching it from the address bar is exactly what stopped being possible. */
+/* The list is a docked surface, not a route: it sits in the left panel of the Quotes workspace and
+   there is no URL that shows it. Seeding the workspace is not enough on its own, because the
+   dashboard claims the bare address and would carry the test straight back out of it, so these
+   tests enter through an address the Quotes workspace claims. */
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() =>
-    localStorage.setItem('lw.shell.active-workspace', 'default'),
+    localStorage.setItem('lw.shell.active-workspace', 'quotes'),
   );
-  await page.goto('/');
+  await page.goto('/quotes/q-0005');
   await expect(page.locator(rows).first()).toBeVisible();
 });
 

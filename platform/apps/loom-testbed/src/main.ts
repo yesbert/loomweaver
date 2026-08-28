@@ -33,6 +33,7 @@ import {
 } from './app/testbed-features';
 
 export const INITIAL_WORKSPACE_KEY = 'lw.testbed.initial-workspace';
+export const CLAIMED_ENTRIES_KEY = 'lw.testbed.claimed-entries';
 
 const TESTBED_PLUGIN_ICON =
   '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3.5 21 20H3l9-16.5Z"/></svg>';
@@ -97,7 +98,10 @@ bootstrapApplication(Shell, {
         id: 'testbed.review',
         title: 'product.workspace.review',
         icon: 'workspaces',
-        claims: ['entry/:id'],
+        claims:
+          localStorage.getItem(CLAIMED_ENTRIES_KEY) === 'review'
+            ? ['entry/:id']
+            : [],
         initial: localStorage.getItem(INITIAL_WORKSPACE_KEY) === 'review',
         sidebars: { primary: ['testbed.nav'] },
         content: {

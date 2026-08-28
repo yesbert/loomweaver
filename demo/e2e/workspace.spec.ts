@@ -68,7 +68,7 @@ test('the rail carries the workspace under its own icon and switches to it', asy
   page,
 }) => {
   await page.addInitScript(() =>
-    localStorage.setItem('lw.shell.active-workspace', 'default'),
+    localStorage.setItem('lw.shell.active-workspace', 'dashboard'),
   );
   await page.goto('/');
 
