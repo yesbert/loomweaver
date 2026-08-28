@@ -61,8 +61,15 @@
       result by running it.
 - [ ] 7.2 Rewrite the build-settings step in `docs/getting-started.md` as what the scaffold does, and
       move the by-hand account into `docs/manual-setup.md` rather than deleting it.
-- [ ] 7.3 Reconcile `docs/scaffolding.md` and the devkit README with the new behaviour, and check no
-      other guide still instructs a reader to add wiring the scaffold now writes.
+- [ ] 7.3 Reconcile `docs/scaffolding.md`, `docs/building-a-distribution.md` and the devkit README
+      with the new behaviour. The distribution guide carries its own callout telling the reader to
+      set the release-build style setting by hand, which the scaffold now sets.
+- [ ] 7.4 Update `llms-full.txt`, which instructs a reader to add the service worker and that same
+      style setting themselves. It is what an assistant reads about this platform, so a stale
+      instruction there is repeated rather than merely read.
+- [ ] 7.5 Sweep the remaining guides for any other instruction to add wiring the scaffold now
+      writes, and confirm `docs/reference/design-tokens.md` still describes the platform's own
+      build rather than the consumer's.
 
 ## 8. The guard
 
