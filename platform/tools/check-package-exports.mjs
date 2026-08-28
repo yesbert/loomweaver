@@ -124,7 +124,7 @@ for (const relative of PACKAGE_ROOTS) {
   if (!existsSync(manifestPath)) {
     console.error(
       `check-package-exports: ${relative}/package.json is missing — run the packaging steps first ` +
-        '(see the "Package publishable libs" step in azure-pipelines-build.yml).',
+        '(see the packaging step in .github/workflows/release.yml).',
     );
     process.exit(2);
   }
