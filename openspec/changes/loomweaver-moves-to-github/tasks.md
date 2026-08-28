@@ -112,8 +112,16 @@ hints still naming the old scope without its slash, and two tests that the renam
 - [x] 7.5 Configure branch protection on `main`: required checks, required pull request, no direct
       pushes. The three gate jobs are required, admins included, force pushes and deletion refused.
       Verified by pushing an empty commit straight at `main`: `protected branch hook declined`.
-- [ ] 7.6 Configure the secrets and the environments: Sonar token, deploy key, and the npm trusted
-      publisher, with a required reviewer on the deployment and release environments.
+- [x] 7.6 Configure the secrets and the environments: Sonar token, deploy key, and the npm trusted
+      publisher. The required reviewer is deliberately not set: with one maintainer it is a button
+      you press on yourself a minute after triggering the run, and GitHub's "prevent self-review"
+      would make a release impossible. What the environments got instead is the rule a reviewer was
+      meant to stand in for, in a form that needs no click: `release` accepts only tags matching
+      `v*`, `production` only `main`, and `production` waits five minutes so a mistaken deploy can
+      be cancelled. Verified by dispatching the deploy from a scratch branch: `Branch
+      "test/the-policy-refuses-a-branch" is not allowed to deploy to production due to environment
+      protection rules.` A human reviewer becomes worth having when a second person holds write
+      access.
 - [x] 7.7 Restrict which actions may run, and confirm that fork pull requests need approval before a
       workflow starts. Only GitHub-owned actions and the pinned Sonar scanner may run; every fork
       pull request from an outside contributor waits for approval, not just a first-time one.
