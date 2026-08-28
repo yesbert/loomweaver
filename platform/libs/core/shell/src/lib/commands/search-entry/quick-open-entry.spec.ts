@@ -49,7 +49,7 @@ describe('QuickOpenEntry', () => {
     registry.addCommand({
       id: QUICK_OPEN_COMMAND_ID,
       title: 'palette.quickOpenTitle',
-      icon: 'document',
+      icon: 'openWork',
       shortcut: 'mod+p',
       run: () => opened.push(QUICK_OPEN_COMMAND_ID),
     });

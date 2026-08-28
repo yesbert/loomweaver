@@ -29,6 +29,7 @@ import {
   heroRectangleGroup,
   heroSun,
   heroTrash,
+  heroViewColumns,
   heroXCircle,
   heroXMark,
 } from '@ng-icons/heroicons/outline';
@@ -57,6 +58,7 @@ export const LOOM_ICONS = {
 
   menu: heroBars3,
   document: heroDocument,
+  openWork: heroViewColumns,
   navigator: heroBars3,
   outline: heroListBullet,
   add: heroPlus,

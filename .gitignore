@@ -56,3 +56,6 @@ bin/
 obj/
 *.user
 .vs/
+
+# Local development certificates (mkcert). Never committed: these are private keys.
+.certs/
