@@ -51,6 +51,82 @@ jobs:
           # The lcov reports name their files relative to platform/, so the scan has to start there
           # or every covered path goes unresolved.
           projectBaseDir: platform
+          # Wait for the server's verdict instead of ending at "uploaded". Without this the job is
+          # green whatever the analysis found, which is worse than no analysis: it looks like a check.
+          args: -Dsonar.qualitygate.wait=true
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+
+      # Which gate condition failed, and what the analysis found, in the log, so the answer does not
+      # require opening Sonar. Runs even when the gate failed the step above, hence always().
+      - name: Report what was found
+        if: always()
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+        run: |
+          set -euo pipefail
+
+          ask() { curl -sf -u "${SONAR_TOKEN}:" "${SONAR_HOST_URL}/api/$1"; }
+          project="${SONAR_HOST_URL}/project/issues?id=loomweaver&resolved=false"
+          gate=$(ask "qualitygates/project_status?projectKey=loomweaver")
+
+          # A failed gate leaves the scanner exiting 3, and the action can only report that number.
+          # Say what actually broke, as an annotation, next to the one nobody can read.
+          failed=$(printf '%s' "${gate}" | jq -r '
+            [.projectStatus.conditions[]
+             | select(.status != "OK")
+             | "\(.metricKey) is \(.actualValue), gate wants \(.comparator) \(.errorThreshold)"]
+            | join("; ")')
+          if [ -n "${failed}" ]; then
+            echo "::error title=SonarQube quality gate failed::${failed}"
+          fi
+
+          {
+            echo "## SonarQube"
+            echo
+            echo "[Dashboard](${SONAR_HOST_URL}/dashboard?id=loomweaver) ·"
+            echo "[Open issues](${project}) ·"
+            echo "[Security hotspots](${SONAR_HOST_URL}/security_hotspots?id=loomweaver)"
+            echo
+
+            echo "### Quality gate"
+            echo
+            echo "| | condition | actual | gate wants |"
+            echo "|---|---|---|---|"
+            printf '%s' "${gate}" | jq -r '
+              .projectStatus.conditions[]
+              | "| \(if .status == "OK" then "✅" else "❌" end) | \(.metricKey) | \(.actualValue) | \(.comparator) \(.errorThreshold) |"'
+            echo
+
+            echo "### Measures"
+            echo
+            echo "| metric | value |"
+            echo "|---|---|"
+            metrics=ncloc,coverage,violations,bugs,vulnerabilities,code_smells,security_hotspots
+            ask "measures/component?component=loomweaver&metricKeys=${metrics}" \
+              | jq -r '.component.measures | sort_by(.metric)[] | "| \(.metric) | \(.value) |"'
+            echo
+
+            # The newer parameter is `components`; older servers only know `componentKeys`.
+            issues=$(ask "issues/search?components=loomweaver&resolved=false&ps=100" || true)
+            if ! printf '%s' "${issues}" | jq -e '.issues' >/dev/null 2>&1; then
+              issues=$(ask "issues/search?componentKeys=loomweaver&resolved=false&ps=100" || true)
+            fi
+            if printf '%s' "${issues}" | jq -e '.issues | length > 0' >/dev/null 2>&1; then
+              total=$(printf '%s' "${issues}" | jq -r '.total')
+              shown=$(printf '%s' "${issues}" | jq -r '.issues | length')
+              echo "<details><summary>Open issues: showing ${shown} of ${total} — <a href=\"${project}\">all of them in Sonar</a></summary>"
+              echo
+              echo "| severity | where | rule | message |"
+              echo "|---|---|---|---|"
+              printf '%s' "${issues}" | jq -r --arg host "${SONAR_HOST_URL}" '
+                .issues[]
+                | "| \(.severity // "-") | [\(.component | sub("^[^:]*:"; ""))\(if .line then ":\(.line)" else "" end)](\($host)/project/issues?id=loomweaver&open=\(.key)) | \(.rule) | \(.message | gsub("\\|"; "\\|")) |"'
+              echo
+              echo "</details>"
+            fi
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+          cat "${GITHUB_STEP_SUMMARY}"
