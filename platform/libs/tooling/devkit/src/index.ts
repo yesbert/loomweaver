@@ -17,6 +17,7 @@ export {
   type MergeResult,
 } from './lib/amend/merge';
 export { composeLines, composePlugin, type ComposeResult } from './lib/amend/compose';
+export { describeAmendment } from './lib/amend/describe';
 export { isKebabId, toCamelCase, toPascalCase, toTitleCase } from './lib/generate/casing';
 export {
   angularWeaver,

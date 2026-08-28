@@ -1,4 +1,5 @@
 import {
+  describeAmendment,
   portableOptions,
   ScaffoldDescriptor,
   ScaffoldValues,
@@ -54,7 +55,12 @@ export function scaffold(
   scaffold: ScaffoldDescriptor,
   args: Args,
 ): ToolResult {
-  return ok({ files: scaffold.build(valuesFor(scaffold, args)) });
+  const values = valuesFor(scaffold, args);
+  const remaining = (scaffold.amend?.(values) ?? []).map(describeAmendment);
+  return ok({
+    files: scaffold.build(values),
+    ...(remaining.length > 0 ? { remaining } : {}),
+  });
 }
 
 export function validateManifestTool(a: Args): ToolResult {

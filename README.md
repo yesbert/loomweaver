@@ -58,6 +58,12 @@ npx @loomweaver/cli weaver --id notes --command --shortcut 'mod+shift+n' --out s
 ng serve
 ```
 
+That is the whole list. The scaffold also wires your build — the style pipeline, the asset globs
+that serve the chrome's own strings, the service worker, and the one production setting the
+generated content-security policy requires — and registers the weaver in your composition root, so
+its icon is in the activity rail on the first run. It only ever *adds*: anything you had already
+set is left as you set it, and it names every file it touched.
+
 [Getting started](docs/getting-started.md) walks through these steps and what they generate;
 [Manual setup](docs/manual-setup.md) is the same result wired by hand — including the
 **Bootstrap / no-Tailwind path** via the pre-compiled stylesheet.

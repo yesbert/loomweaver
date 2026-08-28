@@ -52,39 +52,51 @@
 
 ## 6. A route that cannot finish says what is left
 
-- [ ] 6.1 Render the amendment list as named steps with their consequences on the route that has no
+- [x] 6.1 Render the amendment list as named steps with their consequences on the route that has no
       workspace access, and test that every amendment the other routes perform appears there.
 
 ## 7. The guides shrink to what remains
 
-- [ ] 7.1 Reduce the quick start in `README.md` to the commands that now suffice, and verify the
+- [x] 7.1 Reduce the quick start in `README.md` to the commands that now suffice, and verify the
       result by running it.
-- [ ] 7.2 Rewrite the build-settings step in `docs/getting-started.md` as what the scaffold does, and
+- [x] 7.2 Rewrite the build-settings step in `docs/getting-started.md` as what the scaffold does, and
       move the by-hand account into `docs/manual-setup.md` rather than deleting it.
-- [ ] 7.3 Reconcile `docs/scaffolding.md`, `docs/building-a-distribution.md` and the devkit README
+- [x] 7.3 Reconcile `docs/scaffolding.md`, `docs/building-a-distribution.md` and the devkit README
       with the new behaviour. The distribution guide carries its own callout telling the reader to
       set the release-build style setting by hand, which the scaffold now sets.
-- [ ] 7.4 Update `llms-full.txt`, which instructs a reader to add the service worker and that same
+- [x] 7.4 Update `llms-full.txt`, which instructs a reader to add the service worker and that same
       style setting themselves. It is what an assistant reads about this platform, so a stale
       instruction there is repeated rather than merely read.
-- [ ] 7.5 Sweep the remaining guides for any other instruction to add wiring the scaffold now
+- [x] 7.5 Sweep the remaining guides for any other instruction to add wiring the scaffold now
       writes, and confirm `docs/reference/design-tokens.md` still describes the platform's own
       build rather than the consumer's.
 
 ## 8. The guard
 
-- [ ] 8.1 Write the quick-start guard: run the published commands against a fresh application using
+- [x] 8.1 Write the quick-start guard: run the published commands against a fresh application using
       locally packed packages, then assert on the served result — the chrome's classes present in the
       styles, no build-time directive left in the stylesheet, strings resolved rather than shown as
       keys, and the release build styled under its own content-security policy.
-- [ ] 8.2 Make its report distinguish an install failure from an assertion failure, so a transient
+- [x] 8.2 Make its report distinguish an install failure from an assertion failure, so a transient
       registry problem is not read as a regression.
-- [ ] 8.3 Add it to `.github/workflows/nightly.yml`, not to the merge gate.
-- [ ] 8.4 Confirm the guard fails against the current behaviour before the change, and passes after.
+- [x] 8.3 Add it to `.github/workflows/nightly.yml`, not to the merge gate.
+- [x] 8.4 Confirm the guard fails against the current behaviour before the change, and passes after.
 
 ## 9. Close out
 
-- [ ] 9.1 `openspec validate --all --strict`, the repository's own guards, and the unit suites for the
+- [x] 9.1 `openspec validate --all --strict`, the repository's own guards, and the unit suites for the
       tooling libraries.
-- [ ] 9.2 Verify by hand once more in a fresh workspace that the quick start alone produces the
+- [x] 9.2 Verify by hand once more in a fresh workspace that the quick start alone produces the
       working chrome, and record what the run showed.
+
+## Verified
+
+The published quick start was run against a fresh `ng new` application, installing the platform from
+locally packed tarballs, in both the development and the release configuration. Both render the
+branded chrome with its own strings resolved and the scaffolded weaver's icon in the activity rail,
+with no console error and no failed request. The release stylesheet is 71.15 kB and carries the
+chrome's utilities; before this change it was 34.14 kB and carried none, with `@plugin` and `@source`
+surviving into it verbatim.
+
+`npm run quick-start-check` exits 1 against the behaviour before the change, naming all nine
+defects, and 0 after it.

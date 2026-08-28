@@ -7,6 +7,7 @@ import {
   ensureBuildTarget,
   ensurePostcssPlugin,
   ensureStylesheetSource,
+  describeAmendment,
   PostcssAmendment,
   StylesheetSourceAmendment,
 } from '@loomweaver/devkit';
@@ -53,7 +54,7 @@ export function planAmend(
       amendments: [],
       remaining: [
         'No workspace was found above the target directory, so nothing could be wired here. Add it ' +
-          `by hand, or generate inside the workspace: ${amendments.map(describe).join(' · ')}`,
+          `by hand, or generate inside the workspace: ${amendments.map(describeAmendment).join(' · ')}`,
       ],
     };
   }
@@ -64,36 +65,6 @@ export function applyAmend(plan: AmendPlan): void {
   for (const amendment of plan.amendments) {
     writeFileSync(amendment.file, amendment.content, 'utf8');
   }
-}
-
-export function describe(amendment: Amendment): string {
-  if (amendment.kind === 'postcss') {
-    return `${amendment.file} naming ${amendment.plugin}, without which the stylesheet emits no utility class and the workbench renders unstyled`;
-  }
-  if (amendment.kind === 'stylesheet-source') {
-    return `an @source entry for '${amendment.sourceRoot}' in the entry stylesheet, without which none of that code's utilities are emitted`;
-  }
-  if (amendment.kind === 'compose-plugin') {
-    return `${amendment.id} registered in the composition root, without which none of its contributions appear`;
-  }
-  const parts: string[] = [];
-  if (amendment.styles.length > 0) {
-    parts.push(`the stylesheet ${amendment.styles.join(', ')}`);
-  }
-  if (amendment.assets.length > 0) {
-    parts.push(
-      `assets for ${amendment.assets.map((asset) => asset.input).join(', ')}`,
-    );
-  }
-  if (amendment.serviceWorker) {
-    parts.push(`serviceWorker ${amendment.serviceWorker}`);
-  }
-  if (amendment.inlineCritical !== undefined) {
-    parts.push(
-      `production optimization.styles.inlineCritical ${amendment.inlineCritical}, without which a release build renders unstyled under the generated content-security policy`,
-    );
-  }
-  return `a build target carrying ${parts.join('; ')}`;
 }
 
 class Amender {
@@ -172,7 +143,7 @@ class Amender {
     const target = this.buildTarget(project.name);
     if (!target) {
       this.remaining.push(
-        `${project.name} has no build target to wire, so add it by hand: ${describe(amendment)}.`,
+        `${project.name} has no build target to wire, so add it by hand: ${describeAmendment(amendment)}.`,
       );
       return;
     }
@@ -192,7 +163,7 @@ class Amender {
     const entry = this.entryStylesheet(project);
     if (!entry || !existsSync(entry)) {
       this.remaining.push(
-        `No entry stylesheet is wired for ${project.name}, so add it yourself: ${describe(amendment)}.`,
+        `No entry stylesheet is wired for ${project.name}, so add it yourself: ${describeAmendment(amendment)}.`,
       );
       return;
     }
@@ -332,7 +303,7 @@ class Amender {
       this.workspace.kind === 'nx'
         ? "the project's own project.json"
         : 'your build configuration';
-    return `This route wires an Angular CLI workspace only, so add ${describe(amendment)} to ${where} yourself. The Nx generator does it for you.`;
+    return `This route wires an Angular CLI workspace only, so add ${describeAmendment(amendment)} to ${where} yourself. The Nx generator does it for you.`;
   }
 
   private displayName(file: string): string {

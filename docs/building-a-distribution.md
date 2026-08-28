@@ -1379,13 +1379,15 @@ defect: the platform does not second-guess code you compiled in. What stops it i
 browser enforces and no plugin can talk around. So with `frame-src 'self'` such a surface is simply
 blocked — if you want it, widen `frame-src` deliberately to the origins you trust, and no further.
 
-> **CSP × production build — disable `inlineCritical`.** With a strict `script-src 'self'` (no
-> `'unsafe-inline'`/`'unsafe-hashes'`), turn **off** Angular's critical-CSS inlining in the production
-> build: `optimization.styles.inlineCritical: false` (in the build target's `production` configuration).
-> Otherwise Angular emits the full stylesheet as `<link media="print" onload="this.media='all'">` and the
-> **inline `onload` handler is blocked by the CSP** — the stylesheet never activates and the app renders
-> unstyled. Both in-repo distributions set this. (It's invisible in `ng serve` dev builds, which don't
-> inline critical CSS — verify against a production build.)
+> **CSP × production build — `inlineCritical` must be off.** With a strict `script-src 'self'` (no
+> `'unsafe-inline'`/`'unsafe-hashes'`), Angular's critical-CSS inlining has to be **off** in the
+> production build: `optimization.styles.inlineCritical: false`, in the build target's `production`
+> configuration. Otherwise Angular emits the full stylesheet as
+> `<link media="print" onload="this.media='all'">` and the **inline `onload` handler is blocked by the
+> CSP** — the stylesheet never activates and the app renders unstyled. **The scaffold sets this for
+> you**; it is written down here because it is invisible in `ng serve` dev builds, which do not inline
+> critical CSS, so a hand-wired policy meets it for the first time in production. Verify against a
+> production build.
 
 ## Plugin store (runtime install)
 

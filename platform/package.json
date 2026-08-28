@@ -9,6 +9,7 @@
     "prepreview:testbed": "npm run dev-cert",
     "preview:testbed": "nx build loom-testbed --configuration production && node tools/preview-server.mjs dist/apps/loom-testbed/browser 4300",
     "api-docs-check": "node tools/check-api-docs.mjs",
+    "quick-start-check": "node tools/check-quick-start.mjs",
     "comments-check": "node tools/check-comments.mjs",
     "import-cycles-check": "node tools/check-import-cycles.mjs",
     "package-exports-check": "node tools/check-package-exports.mjs",

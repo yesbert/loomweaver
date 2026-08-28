@@ -11,6 +11,15 @@ It takes about fifteen minutes, and afterwards you know what every file is for. 
 reference for adding the shell to an application that already exists, when you would rather not
 have a generator rewrite it.
 
+Everything below is something the scaffold would otherwise write for you: the style pipeline, the
+asset globs, the service worker and the build settings. It is here because knowing *why* each exists
+is worth fifteen minutes, and because a workspace the generator cannot read leaves you doing exactly
+this. One trap belongs to the generated path rather than to this one: the `index.html` the scaffold
+writes ships a strict `script-src 'self'`, which the critical-CSS pass violates, so that path also
+needs `optimization: { styles: { inlineCritical: false } }` in its production configuration. The
+minimal `index.html` below ships no such policy, so it does not need it — adopt the strict policy and
+you inherit the requirement with it.
+
 Nothing here is Angular-CLI-specific. Where **Nx** differs it is called out, and there is a section
 of its own at the end.
 
