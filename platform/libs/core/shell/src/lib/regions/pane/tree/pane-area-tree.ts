@@ -197,6 +197,18 @@ function buildNode(
   return chain(0, 1);
 }
 
+function evenShareOf(
+  remainder: number,
+  declaredSum: number,
+  children: number,
+  unspecified: number,
+): number {
+  if (unspecified === 0) {
+    return 0;
+  }
+  return remainder > 0 ? remainder / unspecified : declaredSum / children;
+}
+
 function fractionsOf(children: readonly CleanArea[]): number[] {
   const declared = children
     .map((child) => child.size)
@@ -204,12 +216,12 @@ function fractionsOf(children: readonly CleanArea[]): number[] {
   const declaredSum = declared.reduce((sum, size) => sum + size, 0);
   const unspecified = children.length - declared.length;
   const remainder = Math.max(0, 100 - declaredSum);
-  const evenShare =
-    unspecified > 0
-      ? remainder > 0
-        ? remainder / unspecified
-        : declaredSum / children.length
-      : 0;
+  const evenShare = evenShareOf(
+    remainder,
+    declaredSum,
+    children.length,
+    unspecified,
+  );
   const weights = children.map((child) => child.size ?? evenShare);
   const total = weights.reduce((sum, weight) => sum + weight, 0);
   return weights.map((weight) => weight / total);

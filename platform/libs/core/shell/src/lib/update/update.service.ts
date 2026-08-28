@@ -214,7 +214,7 @@ export class UpdateService {
       await Promise.all(
         keys
           .filter((key) => key.startsWith(WORKER_CACHE_PREFIX))
-          .map((key) => storage?.delete(key)),
+          .map(async (key) => storage?.delete(key)),
       );
     });
   }

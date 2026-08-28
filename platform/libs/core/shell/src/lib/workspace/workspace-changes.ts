@@ -41,7 +41,7 @@ function canonicalValue(
   shape: ChangeShape,
 ): string {
   if (key === shape.hiddenViewsKey) {
-    return JSON.stringify([...hidden].sort());
+    return JSON.stringify([...hidden].sort((a, b) => a.localeCompare(b)));
   }
   if (key === shape.paneTreesKey) {
     return canonicalTrees(raw, hidden, shape);
@@ -60,7 +60,9 @@ function canonicalTrees(
   try {
     const parsed = JSON.parse(raw) as Record<string, unknown>;
     const out: Record<string, unknown> = {};
-    for (const dock of Object.keys(parsed ?? {}).sort()) {
+    for (const dock of Object.keys(parsed ?? {}).sort((a, b) =>
+      a.localeCompare(b),
+    )) {
       const entry = normalizeDockEntry(parsed[dock]);
       if (entry === null) {
         continue;

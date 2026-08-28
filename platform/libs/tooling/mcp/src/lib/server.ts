@@ -1,6 +1,11 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { portableOptions, ScaffoldDescriptor, SCAFFOLDS } from '@loomweaver/devkit';
-import { z, ZodTypeAny } from 'zod';
+import {
+  portableOptions,
+  ScaffoldDescriptor,
+  ScaffoldOption,
+  SCAFFOLDS,
+} from '@loomweaver/devkit';
+import { z } from 'zod';
 import {
   listGenerators,
   scaffold,
@@ -15,17 +20,21 @@ const FILE_MAP_NOTE =
   'return "remaining": steps the workspace needs that this route cannot perform, each saying what ' +
   'it costs to skip. Carry them out, or the generated output builds and does not work.';
 
+function optionSchema(option: ScaffoldOption): z.ZodType {
+  if (option.type === 'boolean') {
+    return z.boolean();
+  }
+  return option.choices
+    ? z.enum(option.choices as [string, ...string[]])
+    : z.string();
+}
+
 function inputSchema(
   descriptor: ScaffoldDescriptor,
-): Record<string, ZodTypeAny> {
-  const shape: Record<string, ZodTypeAny> = {};
+): Record<string, z.ZodType> {
+  const shape: Record<string, z.ZodType> = {};
   for (const option of portableOptions(descriptor)) {
-    const base =
-      option.type === 'boolean'
-        ? z.boolean()
-        : option.choices
-          ? z.enum(option.choices as [string, ...string[]])
-          : z.string();
+    const base = optionSchema(option);
     const described = base.describe(option.description);
     shape[option.name] = option.required ? described : described.optional();
   }

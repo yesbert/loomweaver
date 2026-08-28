@@ -158,7 +158,7 @@ export function addTailwindSource(
   }
   const from = posix.dirname(stylesheet);
   const target = posix.relative(from, libSourceRoot);
-  if (new RegExp(`@source\\s+['"]${target}/?['"]`).test(css)) {
+  if (new RegExp(String.raw`@source\s+['"]${target}/?['"]`).test(css)) {
     return;
   }
   tree.write(stylesheet, `${css.trimEnd()}\n\n@source '${target}';\n`);

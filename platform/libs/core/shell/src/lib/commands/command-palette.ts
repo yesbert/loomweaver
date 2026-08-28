@@ -132,9 +132,9 @@ export class CommandPalette {
       closable: tab.closable,
       lastActive: tab.lastActive,
       time:
-        tab.lastActive !== undefined
-          ? formatRelativeTime(locale, tab.lastActive, now)
-          : undefined,
+        tab.lastActive === undefined
+          ? undefined
+          : formatRelativeTime(locale, tab.lastActive, now),
     }));
   });
 
@@ -252,7 +252,7 @@ export class CommandPalette {
       return;
     }
     const entry = this.results()[this.activeIndex()];
-    if (!entry || entry.kind !== 'tab') {
+    if (entry?.kind !== 'tab') {
       return;
     }
     event.preventDefault();

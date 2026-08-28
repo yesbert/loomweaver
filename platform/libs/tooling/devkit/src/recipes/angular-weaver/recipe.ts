@@ -86,13 +86,13 @@ function resolveMenuSlot(menu: WeaverFeatures['menu']): string | undefined {
   return typeof menu === 'string' && menu.length ? menu : undefined;
 }
 
-const PLATFORM_BOUND_CHORD_TOKENS = [
+const PLATFORM_BOUND_CHORD_TOKENS = new Set([
   'cmd',
   'command',
   'ctrl',
   'control',
   'meta',
-];
+]);
 
 function assertPlatformNeutralChord(shortcut: string): void {
   const tokens = shortcut
@@ -100,7 +100,7 @@ function assertPlatformNeutralChord(shortcut: string): void {
     .split('+')
     .map((token) => token.trim());
   const bound = tokens.find((token) =>
-    PLATFORM_BOUND_CHORD_TOKENS.includes(token),
+    PLATFORM_BOUND_CHORD_TOKENS.has(token),
   );
   if (bound) {
     throw new Error(

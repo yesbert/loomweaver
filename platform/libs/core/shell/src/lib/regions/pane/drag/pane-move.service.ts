@@ -1,5 +1,5 @@
 import { inject, Service } from '@angular/core';
-import { VIEW_PANE_PREFIX } from '../tree/pane-address';
+import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../tree/pane-address';
 import {
   PRIMARY_LEAF,
   PaneLeaf,
@@ -10,7 +10,6 @@ import {
 import { findLeaf } from '../tree/pane-queries';
 import { splitLeafWith } from '../tree/pane-structure';
 import { insertTab, removeTab, tabWithout } from '../tree/pane-tabs';
-import { CONTENT_DOCK } from '../tree/pane-address';
 import { PaneTreeService } from '../tree/pane-tree.service';
 import { settleMovedTree } from './settle-moved-tree';
 import { PaneDragService, TabDragSource } from './pane-drag.service';

@@ -111,7 +111,7 @@ describe('TranslocoHttpLoader', () => {
 
     http.expectOne('/i18n/en.json').flush({ dialog: { ok: 'OK' } });
     http.expectNone('/i18n/overrides/en.json');
-    await promise;
+    await expect(promise).resolves.toEqual({ dialog: { ok: 'OK' } });
     http.verify();
   });
 

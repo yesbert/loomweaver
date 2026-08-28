@@ -91,6 +91,7 @@ test.describe('Cross-tab live sync', () => {
       .getByRole('button', { name: 'Toggle the plugin theme' })
       .click();
     await expect.poll(() => brand(second)).not.toBe('#ea580c');
+    expect(await brand(first)).toBe(await brand(second));
   });
 
   test('view state mirrors live between two windows showing the same view', async ({

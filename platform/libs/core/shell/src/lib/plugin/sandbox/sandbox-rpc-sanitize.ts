@@ -19,6 +19,41 @@ export function sanitizeRpcSurface(
   permitted?: readonly string[],
 ): Surface {
   const raw = (surface ?? {}) as unknown as Record<string, unknown>;
+  const { id, title } = rpcSurfaceIdentity(pluginId, raw);
+  const container = sanitizeRpcContainer(raw['container']);
+  const iframe =
+    container === undefined
+      ? rpcIframeUrl(pluginId, raw['iframe'], permitted)
+      : undefined;
+  const routable = sanitizeRpcRoutable(raw['routable']);
+  const docks = sanitizeRpcDocks(raw['docks']);
+  assertRpcSurfaceAddress(pluginId, container, routable, docks);
+
+  const shared: Omit<Surface, keyof SurfacePresentation> = {
+    id,
+    title,
+    icon: typeof raw['icon'] === 'string' ? raw['icon'] : undefined,
+    order: typeof raw['order'] === 'number' ? raw['order'] : undefined,
+    instanceable: raw['instanceable'] === true ? true : undefined,
+    retain:
+      raw['retain'] === 'always' || raw['retain'] === 'never'
+        ? raw['retain']
+        : undefined,
+    saveOn: raw['saveOn'] === 'hide' ? 'hide' : undefined,
+    closable: raw['closable'] === false ? false : undefined,
+    padded: raw['padded'] === false ? false : undefined,
+    routable,
+    docks,
+  };
+  return container === undefined
+    ? { ...shared, iframe: iframe as string }
+    : { ...shared, container };
+}
+
+function rpcSurfaceIdentity(
+  pluginId: string,
+  raw: Record<string, unknown>,
+): { id: string; title: string } {
   if (typeof raw['id'] !== 'string' || raw['id'].length === 0) {
     throw new Error(
       `Sandbox plugin "${pluginId}": registerSurface requires a non-empty 'id'.`,
@@ -41,25 +76,35 @@ export function sanitizeRpcSurface(
         `a sandboxed surface gates itself from the pushed session state.`,
     );
   }
-  const container = sanitizeRpcContainer(raw['container']);
-  const iframe = raw['iframe'];
-  if (container === undefined) {
-    if (typeof iframe !== 'string') {
-      throw new Error(
-        `Sandbox plugin "${pluginId}": registerSurface needs an { iframe } URL or a { container } spec.`,
-      );
-    }
-    const origin = surfaceOrigin(iframe);
-    if (origin === null || !permittedOrigins(permitted).has(origin)) {
-      throw new Error(
-        `Sandbox plugin "${pluginId}": the iframe surface must be served from an origin this ` +
-          `distribution permitted for it, got "${iframe}".`,
-      );
-    }
-  }
+  return { id: raw['id'], title: raw['title'] };
+}
 
-  const routable = sanitizeRpcRoutable(raw['routable']);
-  const docks = sanitizeRpcDocks(raw['docks']);
+function rpcIframeUrl(
+  pluginId: string,
+  value: unknown,
+  permitted: readonly string[] | undefined,
+): string {
+  if (typeof value !== 'string') {
+    throw new TypeError(
+      `Sandbox plugin "${pluginId}": registerSurface needs an { iframe } URL or a { container } spec.`,
+    );
+  }
+  const origin = surfaceOrigin(value);
+  if (origin === null || !permittedOrigins(permitted).has(origin)) {
+    throw new Error(
+      `Sandbox plugin "${pluginId}": the iframe surface must be served from an origin this ` +
+        `distribution permitted for it, got "${value}".`,
+    );
+  }
+  return value;
+}
+
+function assertRpcSurfaceAddress(
+  pluginId: string,
+  container: ContainerSpec | undefined,
+  routable: Surface['routable'] | undefined,
+  docks: readonly string[] | undefined,
+): void {
   if (routable === undefined && docks === undefined) {
     throw new Error(
       `Sandbox plugin "${pluginId}": registerSurface needs 'routable.path' (a URL-addressed surface) ` +
@@ -72,26 +117,6 @@ export function sanitizeRpcSurface(
         `its own ':id'.`,
     );
   }
-
-  const shared: Omit<Surface, keyof SurfacePresentation> = {
-    id: raw['id'],
-    title: raw['title'],
-    icon: typeof raw['icon'] === 'string' ? raw['icon'] : undefined,
-    order: typeof raw['order'] === 'number' ? raw['order'] : undefined,
-    instanceable: raw['instanceable'] === true ? true : undefined,
-    retain:
-      raw['retain'] === 'always' || raw['retain'] === 'never'
-        ? raw['retain']
-        : undefined,
-    saveOn: raw['saveOn'] === 'hide' ? 'hide' : undefined,
-    closable: raw['closable'] === false ? false : undefined,
-    padded: raw['padded'] === false ? false : undefined,
-    routable,
-    docks,
-  };
-  return container !== undefined
-    ? { ...shared, container }
-    : { ...shared, iframe: iframe as string };
 }
 
 function sanitizeRpcRoutable(value: unknown): Surface['routable'] | undefined {

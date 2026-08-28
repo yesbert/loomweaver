@@ -1,9 +1,8 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject, input } from '@angular/core';
-import { VIEW_PANE_PREFIX } from './tree/pane-address';
+import { CONTENT_DOCK, VIEW_PANE_PREFIX } from './tree/pane-address';
 import { PaneLeaf, activeTab, leafPath } from './tree/pane-node';
 import { CONTAINER_CONTEXT } from './container/container-context';
 import { isContainerDock } from './container/container-children';
-import { CONTENT_DOCK } from './tree/pane-address';
 import { PaneTreeService } from './tree/pane-tree.service';
 import { PaneContainersService } from './container/pane-containers.service';
 import { PaneChromeService } from './chrome/pane-chrome.service';

@@ -34,7 +34,7 @@ export function ensurePostcssPlugin(
       declined: [`${amendment.file}: "plugins" is not an object`],
     };
   }
-  const next = { ...(plugins ?? {}) };
+  const next = { ...plugins };
   if (amendment.plugin in next) {
     return { value: root, added: [], declined: [] };
   }
@@ -51,10 +51,10 @@ export function ensureBuildTarget(
   amendment: BuildTargetAmendment,
   projectRoot: string,
 ): MergeResult {
-  const next = { ...(asObject(target) ?? {}) };
+  const next = { ...asObject(target) };
   const added: string[] = [];
   const declined: string[] = [];
-  const options = { ...(asObject(next['options']) ?? {}) };
+  const options = { ...asObject(next['options']) };
 
   const styles = ensureStrings(
     options['styles'],
@@ -73,8 +73,8 @@ export function ensureBuildTarget(
   next['options'] = options;
 
   if (amendment.inlineCritical !== undefined || amendment.serviceWorker) {
-    const configurations = { ...(asObject(next['configurations']) ?? {}) };
-    const production = { ...(asObject(configurations['production']) ?? {}) };
+    const configurations = { ...asObject(next['configurations']) };
+    const production = { ...asObject(configurations['production']) };
 
     if (amendment.serviceWorker && production['serviceWorker'] === undefined) {
       production['serviceWorker'] = joinProjectPath(
@@ -111,8 +111,8 @@ export function ensureBuildTarget(
 }
 
 export function ensureStylesheetSource(css: string, source: string): string {
-  const quoted = source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  if (new RegExp(`@source\\s+['"]${quoted}/?['"]`).test(css)) {
+  const quoted = source.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+  if (new RegExp(String.raw`@source\s+['"]${quoted}/?['"]`).test(css)) {
     return css;
   }
   return `${css.trimEnd()}\n\n@source '${source}';\n`;
@@ -125,7 +125,7 @@ function ensureInlineCritical(
   if (typeof optimization === 'boolean') {
     return { value: optimization, changed: false, declined: true };
   }
-  const root = { ...(asObject(optimization) ?? {}) };
+  const root = { ...asObject(optimization) };
   const styles = asObject(root['styles']);
   if (styles === undefined && root['styles'] !== undefined) {
     return { value: optimization, changed: false, declined: true };
@@ -134,7 +134,7 @@ function ensureInlineCritical(
     return { value: optimization, changed: false, declined: false };
   }
   return {
-    value: { ...root, styles: { ...(styles ?? {}), inlineCritical } },
+    value: { ...root, styles: { ...styles, inlineCritical } },
     changed: true,
     declined: false,
   };

@@ -20,7 +20,7 @@ export function planWrite(files: FileMap, root: string): WritePlan {
   const absoluteRoot = resolve(root);
   const planned: { path: string; absolute: string }[] = [];
   const conflicts: string[] = [];
-  for (const path of Object.keys(files).sort()) {
+  for (const path of Object.keys(files).sort((a, b) => a.localeCompare(b))) {
     const absolute = resolve(absoluteRoot, path);
     const inside = relative(absoluteRoot, absolute);
     if (inside.startsWith('..') || isAbsolute(inside)) {

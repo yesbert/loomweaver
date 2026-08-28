@@ -2,9 +2,8 @@ import { computed, inject, isDevMode, Service, signal } from '@angular/core';
 import { SETTINGS_STORE } from '../persistence/settings-store';
 import { WORKING_STATE_STORE } from '../persistence/working-state-store';
 import { ContentTabsService } from '../regions/content/tabs/content-tabs.service';
-import { CONTENT_DOCK } from '../regions/pane/tree/pane-address';
+import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../regions/pane/tree/pane-address';
 import { PaneTreeService } from '../regions/pane/tree/pane-tree.service';
-import { VIEW_PANE_PREFIX } from '../regions/pane/tree/pane-address';
 import { activeTab } from '../regions/pane/tree/pane-node';
 import { findLeaf } from '../regions/pane/tree/pane-queries';
 import { SHELL_LAYOUT } from '../layout/layout';
@@ -157,19 +156,16 @@ export class WorkspaceService {
   });
 
   constructor() {
-    hydrateAsync(this.store, STORAGE_KEY, (raw) => this.list.set(parse(raw)));
-    this.sync.register('settings', STORAGE_KEY, (raw) =>
-      this.list.set(parse(raw)),
-    );
+    const setList = (raw: string | undefined) => this.list.set(parse(raw));
+    hydrateAsync(this.store, STORAGE_KEY, setList);
+    this.sync.register('settings', STORAGE_KEY, setList);
     if (isDevMode()) {
-      for (const problem of auditWorkspaceDefinitions(
-        this.definitionBatches.flat(),
-        this.panelRegions,
-      )) {
-        console.warn(problem);
-      }
+      const definitions = this.definitionBatches.flat();
+      auditWorkspaceDefinitions(definitions, this.panelRegions).forEach(
+        (problem) => console.warn(problem),
+      );
     }
-    void this.active.ready.then(() => this.layOutAdoptedWorkspace());
+    this.layOutAdoptedWorkspaceWhenReady();
   }
 
   async saveCurrent(name: string): Promise<void> {
@@ -408,5 +404,9 @@ export class WorkspaceService {
   private commit(next: Workspace[]): void {
     this.list.set(next);
     void this.store.set(STORAGE_KEY, JSON.stringify(next));
+  }
+
+  private layOutAdoptedWorkspaceWhenReady(): void {
+    void this.active.ready.then(() => this.layOutAdoptedWorkspace());
   }
 }

@@ -56,7 +56,7 @@ export function railRight(page: Page) {
 
 export function markWindow(page: Page): Promise<void> {
   return page.evaluate(() => {
-    (window as unknown as Record<string, unknown>)['__beforeReload'] = true;
+    (globalThis as unknown as Record<string, unknown>)['__beforeReload'] = true;
   });
 }
 
@@ -66,7 +66,7 @@ export function expectFreshWindow(page: Page) {
       page
         .evaluate(
           () =>
-            (window as unknown as Record<string, unknown>)['__beforeReload'] ===
+            (globalThis as unknown as Record<string, unknown>)['__beforeReload'] ===
             undefined,
         )
         .catch(() => false),

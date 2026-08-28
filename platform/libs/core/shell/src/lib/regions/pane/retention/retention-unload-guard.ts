@@ -47,6 +47,5 @@ export class RetentionUnloadGuard implements OnDestroy {
       return;
     }
     event.preventDefault();
-    event.returnValue = '';
   };
 }

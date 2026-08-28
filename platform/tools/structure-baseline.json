@@ -10,6 +10,6 @@
     "platform/libs/core/shell/src/lib/plugin/sandbox/sandbox-plugin-runtime.ts": 485,
     "platform/libs/core/shell/src/lib/workspace/workspace.service.ts": 412,
     "platform/libs/core/shell/src/lib/elements/select/lw-select.element.ts": 409,
-    "platform/libs/core/shell/src/lib/regions/content/tabs/open-tabs.service.ts": 405
+    "platform/libs/core/shell/src/lib/regions/content/tabs/open-tabs.service.ts": 404
   }
 }

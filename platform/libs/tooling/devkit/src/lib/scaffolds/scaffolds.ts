@@ -1,7 +1,4 @@
-import {
-  angularDistribution,
-  type DistributionStyles,
-} from '../../recipes/angular-distribution/recipe';
+import { angularDistribution } from '../../recipes/angular-distribution/recipe';
 import { weaverAmendments } from '../../recipes/angular-weaver/amendments';
 import { angularWeaver } from '../../recipes/angular-weaver/recipe';
 import { authSource } from '../../recipes/auth-source/recipe';

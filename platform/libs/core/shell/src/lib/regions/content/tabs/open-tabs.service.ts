@@ -38,9 +38,8 @@ import {
 import { TabCloseHooks } from './tab-close-hooks';
 import { QuickOpenTarget } from './quick-open-target';
 import { TAB_ADDRESS_RESOLVER, computedTabAddress } from './tab-address';
-import { VIEW_PANE_PREFIX } from '../../pane/tree/pane-address';
+import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../../pane/tree/pane-address';
 import { collectTabs, findLeaf, findLeafWhere } from '../../pane/tree/pane-queries';
-import { CONTENT_DOCK } from '../../pane/tree/pane-address';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 import { isPopoutUrl } from '../../../popout/popout-path';
 
