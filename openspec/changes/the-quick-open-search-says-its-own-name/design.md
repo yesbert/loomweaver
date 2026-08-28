@@ -2,15 +2,16 @@
 
 See `proposal.md` — Why.
 
-Two facts decide most of this. The mode is already a signal on the search component, set from the
-data the opening command passes, so nothing needs to be threaded anywhere to know which mode is
-open. And both names already exist as translation keys, used today for the modes' other text: the
-command search's title, and the title the quick-open command itself carries. Neither the wording nor
-the plumbing has to be invented.
+Three facts decide this, and all three are settled rather than assumed.
 
-The dialog is opened bare and without a title, and the dialog outlet names a dialog only from its
-title. A bare, untitled dialog is therefore unnamed. That is not specific to this surface; it is how
-every bare dialog behaves today.
+The mode is already a signal on the search component, set from the data the opening command passes,
+so nothing has to be threaded anywhere to know which mode is open. Both names already exist as
+translation keys, used today for the modes' other text: the command search's title, and the title
+the quick-open command already carries. Neither the wording nor the plumbing has to be invented.
+
+And a bare dialog takes its title as an accessible name only. The dialog outlet renders a title
+visibly in its non-bare branch; in the bare branch the title becomes the dialog's `aria-label` and
+nothing else is drawn. Naming these two dialogs therefore changes nothing a sighted user sees.
 
 ## Goals / Non-Goals
 
@@ -21,52 +22,37 @@ every bare dialog behaves today.
 
 **Non-Goals:**
 
-- Rewording either name. The existing keys are the product's wording and this change is about which
+- Rewording either name. The existing keys are the product's wording, and this change is about which
   one is used, not what it says.
-- Auditing every other bare dialog in the shell for a missing name. If the fix turns out to belong
-  in the dialog outlet, that becomes a broader question and gets its own change rather than being
-  absorbed here.
 - Changing the placeholder. It stays; it simply stops being the only thing that distinguishes the
   modes.
 
+There is no non-goal about the shell's other bare dialogs, because there is nothing there to
+exclude. Of the six the shell opens, four already pass a title — settings, the plugin store, and the
+two curation dialogs. The two that do not are the two searches, and they are this change. What
+looked like it might be a pattern is two forgotten arguments at one call site.
+
 ## Decisions
 
-**Derive the field's name from the mode.** The search field's accessible name is currently a fixed
-translation key. It becomes a computed one, chosen by the mode signal already on the component.
-This is the whole of the defect as a user meets it, and it is a change to one binding.
+**Derive the field's name from the mode.** The search field's accessible name is a fixed translation
+key today. It becomes a computed one, chosen by the mode signal already on the component. This is
+the whole of the defect as a user meets it, and it is a change to one binding.
 
-**Name the container at the call site, not in the dialog outlet.** The commands that open the search
-pass the mode; they can pass a title alongside it. Fixing it in the dialog outlet instead would mean
-deciding what an unnamed bare dialog should fall back to across every bare dialog the shell opens,
-which is a larger question with more surfaces to check.
+**Name the container where it is opened.** The commands that open the search already pass the mode;
+they pass a title alongside it. This is not a choice between the call site and the dialog outlet: the
+outlet already does its part, and four call sites already prove the route carries. The two that
+forgot are the ones being fixed.
 
-Alternative considered and rejected for now: making the dialog outlet require a name for every
-dialog. That is likely the right end state and it would close the same gap for surfaces nobody has
-looked at yet. It is rejected here only because it is a different change with a different blast
-radius, and bundling it would hide this defect's fix inside a refactor.
-
-Open consequence worth stating: a bare dialog opened with a title today renders that title
-visibly. Whether naming the container can be done without also drawing a heading the design does not
-want is the one thing to check first; if it cannot, the container's name comes from an
-`aria-label`-only path and the outlet gains that, narrowly.
-
-**Test against the name, with the placeholder gone.** The test types into the field before
-asserting, so that it cannot pass on the placeholder that the requirement explicitly refuses to rely
-on.
+**Test against the name with the placeholder gone.** The test types into the field before asserting,
+so it cannot pass on the placeholder that the requirement explicitly refuses to rely on. A test that
+asserted before typing would have gone green against the defect.
 
 ## Risks / Trade-offs
-
-**The container fix may reach further than one call site.** → If naming a bare dialog cannot be done
-without drawing a heading, the outlet needs a narrow addition. That is still small, but it touches a
-shared surface; the task list checks this before writing anything.
 
 **Two names for one component may read as two components to someone scanning the code.** → It is one
 component in two modes, which the mode signal already says plainly. The names follow the mode rather
 than introducing a second concept.
 
-## Open Questions
-
-Whether the dialog container can carry an accessible name without a visible heading, given how the
-outlet renders a titled bare dialog today. This does not change the requirement, the approach or the
-task breakdown: either the call site passes a name, or the outlet gains an aria-label-only path, and
-the first task settles it by looking.
+**The fix is invisible to the guard that would otherwise catch a regression.** → The automated audit
+reports a control named for the wrong thing as correctly named, so it cannot protect this. That is
+why the requirement states the limit and why the change owes a test rather than more auditing.

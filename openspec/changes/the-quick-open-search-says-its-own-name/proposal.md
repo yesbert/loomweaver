@@ -48,9 +48,13 @@ Affected source:
   hard-coded to the command-search title regardless of mode.
 - `platform/libs/core/shell/src/lib/commands/command-palette.ts` — the mode is already a signal
   here, so the name has something to derive from.
-- Possibly `platform/libs/core/shell/src/lib/dialog/dialog-outlet.html`, which leaves a bare dialog
-  without a name when it carries no title. Whether the fix belongs there or at the call site is a
-  design question, not a settled one.
+- `platform/libs/core/shell/src/lib/shell-seeds.ts` — the two commands that open the search open it
+  without a title, which is why the dialog is unnamed. They are the only two of the shell's six bare
+  dialogs that do this; the other four already pass one.
+
+Not affected: `platform/libs/core/shell/src/lib/dialog/dialog-outlet.html`. It is named here only
+because its behaviour is what makes the call-site fix work — a bare dialog uses its title solely as
+an accessible name and draws no heading from it, so naming these two costs nothing visually.
 
 Legacy sources dissolved by this change: none.
 
