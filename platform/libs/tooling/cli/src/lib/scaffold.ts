@@ -1,4 +1,5 @@
 import {
+  Amendment,
   FileMap,
   kebabCase,
   portableOptions,
@@ -79,23 +80,34 @@ function directoryFromOut(out: string | undefined): string {
   return below.startsWith('..') ? '' : below;
 }
 
-export function buildScaffold(
+function scaffoldValues(
   scaffold: ScaffoldDescriptor,
   args: ParsedArgs,
-): FileMap {
+): ScaffoldValues {
   const values = valuesFor(scaffold, args);
   const takesDirectory = scaffold.options.some(
     (option) => option.name === 'directory',
   );
+  if (!takesDirectory) {
+    return values;
+  }
   const out = args.flags['out'];
-  return scaffold.build(
-    takesDirectory
-      ? {
-          ...values,
-          directory: directoryFromOut(
-            typeof out === 'string' ? out : undefined,
-          ),
-        }
-      : values,
-  );
+  return {
+    ...values,
+    directory: directoryFromOut(typeof out === 'string' ? out : undefined),
+  };
+}
+
+export function buildScaffold(
+  scaffold: ScaffoldDescriptor,
+  args: ParsedArgs,
+): FileMap {
+  return scaffold.build(scaffoldValues(scaffold, args));
+}
+
+export function amendmentsFor(
+  scaffold: ScaffoldDescriptor,
+  args: ParsedArgs,
+): readonly Amendment[] {
+  return scaffold.amend?.(scaffoldValues(scaffold, args)) ?? [];
 }

@@ -39,7 +39,8 @@ the result — see [who writes the files](#how-a-file-actually-gets-created).
 
 ## The CLI — `@loomweaver/cli`
 
-It needs nothing installed and no workspace of any kind — the generators are bundled in:
+It needs nothing installed — the generators are bundled in. It runs without a workspace too; where
+it finds one it also wires the build, and where it does not it names what is left:
 
 ```bash
 npx @loomweaver/cli weaver --id notes --command --shortcut 'mod+shift+n' --out src/lib/notes
@@ -51,7 +52,17 @@ Wrote 8 file(s) into /home/you/acme-studio/src/lib/notes:
   src/index.ts
   src/lib/i18n/de.json
   …
+Wired 3 workspace file(s):
+  src/styles.css
+    + @source 'lib/notes/src'
+  src/app/app.config.ts
+    + notesPlugin, its translations and its capability grants
+  angular.json
+    + assets: src/lib/notes/src/lib/i18n
 ```
+
+It finds the workspace by walking up from `--out`, so it wires the build as well as writing the
+files. `--dry-run` previews both and writes nothing.
 
 `loomweaver list` prints every scaffold with its options. `loomweaver --help` prints everything else. The
 version matches the platform packages, so the output always fits the `@loomweaver/shell` you build
@@ -162,18 +173,30 @@ Three consequences worth knowing:
 - **Nothing reaches disk except through your client.** A server started via `npx` is code you did
   not audit. Because it returns data instead of writing files, it stays inside the review path you
   already have. It never gets a write path of its own.
-- **The same generator core serves every path.** The core is a pure function
-  `(recipe, input) → FileMap`: it takes input and returns file contents, and it has no filesystem
-  access at all. The CLI, the MCP server and the Nx generator are thin adapters over it. That is
-  why they cannot drift apart. It is also why the core itself never writes files.
+- **The same generator core serves every path.** The core is a pure function: it takes input and
+  returns *two* things, the file contents to write and a statement of what the workspace around them
+  must carry for them to work. It has no filesystem access at all. The CLI, the MCP server and the
+  Nx generator are thin adapters over it, which is why they cannot drift apart, and why the core
+  itself never writes anything.
 
-Which leaves each adapter doing exactly what its position allows:
+That second product is what keeps a scaffold honest. Sources alone do not run: a stylesheet needs a
+style pipeline, the chrome needs its strings served, a release build needs a setting its own
+content-security policy demands. Stating those as data means each adapter applies as much of it as
+its position allows, and **says what it could not do** rather than leaving a reader to discover it
+in the browser.
 
-| Adapter | Writes files? | Edits existing files? | Because |
+Every amendment is an *ensure this is present*, never a *set this to*. Running a scaffold twice
+changes nothing, and a value you chose yourself is never overruled.
+
+| Adapter | Writes files? | Amends the workspace? | Because |
 | --- | --- | --- | --- |
-| `@loomweaver/devkit` (Nx) | yes | yes — registers the project, adds the tsconfig alias | Nx hands it a virtual tree of your workspace |
-| `@loomweaver/cli` | yes | no | it knows a target directory, not a workspace |
-| `@loomweaver/mcp` | no | no | it returns relative paths so your client stays in the review path |
+| `@loomweaver/devkit` (Nx) | yes | yes — the project registration, the tsconfig alias, the build target, the style pipeline | Nx hands it a virtual tree of your workspace |
+| `@loomweaver/cli` | yes | yes — the style pipeline, the build target, the entry stylesheet, the composition root | it finds the workspace above the target directory it was given |
+| `@loomweaver/mcp` | no | no — it names each step instead, with what it costs to skip | it returns relative paths so your client stays in the review path |
+
+The files a route amends are ones it names for itself, never ones derived from what you passed on
+the command line: the refusal to write outside the target directory governs supplied targets and is
+unchanged.
 
 **`validate_*` tools return findings**, not prose, so an assistant can act on them:
 

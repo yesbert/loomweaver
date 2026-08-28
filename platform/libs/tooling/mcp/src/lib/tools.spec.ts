@@ -107,3 +107,34 @@ describe('mcp tools', () => {
     expect(() => files('weaver', { id: 'Bad Id' })).toThrow(/kebab-case/);
   });
 });
+
+describe('scaffold', () => {
+  it('names the workspace steps it cannot perform itself', () => {
+    const descriptor = findScaffold('distribution');
+    if (!descriptor) {
+      throw new Error('the distribution scaffold is missing');
+    }
+    const result = scaffold(descriptor, { name: 'acme-studio' }) as {
+      content: { text: string }[];
+    };
+    const payload = JSON.parse(result.content[0].text) as {
+      remaining?: string[];
+    };
+    const text = (payload.remaining ?? []).join(' ');
+    expect(text).toContain('.postcssrc.json');
+    expect(text).toContain('renders unstyled');
+    expect(text).toContain('inlineCritical');
+  });
+
+  it('says nothing where the generated output needs nothing', () => {
+    const descriptor = findScaffold('theme');
+    if (!descriptor) {
+      throw new Error('the theme scaffold is missing');
+    }
+    const result = scaffold(descriptor, { name: 'acme' }) as {
+      content: { text: string }[];
+    };
+    expect(JSON.parse(result.content[0].text).remaining).toBeUndefined();
+  });
+});
+

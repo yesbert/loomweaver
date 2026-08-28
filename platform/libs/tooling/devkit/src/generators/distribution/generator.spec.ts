@@ -157,4 +157,24 @@ describe('distribution generator', () => {
       ).rejects.toThrow(/is named "acme-studio"/);
     });
   });
+
+  it('writes the style pipeline the generated stylesheet needs', async () => {
+    await distributionGenerator(tree, { name: 'acme-studio' });
+    expect(JSON.parse(tree.read('.postcssrc.json', 'utf-8') as string)).toEqual({
+      plugins: { '@tailwindcss/postcss': {} },
+    });
+  });
+
+  it('leaves the style pipeline alone for a stylesheet that needs none', async () => {
+    await distributionGenerator(tree, { name: 'acme-studio', styles: 'precompiled' });
+    expect(tree.exists('.postcssrc.json')).toBe(false);
+  });
+
+  it('keeps the plugins a workspace already configured', async () => {
+    tree.write('.postcssrc.json', JSON.stringify({ plugins: { autoprefixer: {} } }));
+    await distributionGenerator(tree, { name: 'acme-studio' });
+    expect(
+      Object.keys(JSON.parse(tree.read('.postcssrc.json', 'utf-8') as string).plugins).sort(),
+    ).toEqual(['@tailwindcss/postcss', 'autoprefixer']);
+  });
 });

@@ -54,6 +54,39 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
+  quick-start:
+    name: Quick start (published commands)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: platform
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: platform/package-lock.json
+
+      - name: Install dependencies
+        run: npm install
+
+      # The guard packs these and installs them into a throwaway application, the same way a reader
+      # installs the published ones. Both are needed: the CLI carries the generators, and the shell
+      # needs its stylesheet built on top of being packaged.
+      - name: Build what a reader would install
+        run: |
+          npx nx run-many -t package --projects=shell,plugin-sdk
+          npx nx run shell:styles
+          npx nx run cli:bundle
+
+      # It runs `ng new` and two installs against the public registry, so a transient registry
+      # failure exits 2 and is reported as setup rather than as a regression.
+      - name: Run the published quick start and check what it serves
+        run: npm run quick-start-check
+
   demo:
     name: Playwright (demo smoke)
     runs-on: ubuntu-latest

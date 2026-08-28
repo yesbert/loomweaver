@@ -94,9 +94,11 @@ PWA manifest, build/serve/lint/test). `nx serve acme-studio` renders the bare sh
 so scaffolding over an existing app can never overwrite the app's own `README.md`.
 
 `--styles` decides how the app is styled. The default `tailwind` compiles the shell's source theme,
-which is also what lets you write Tailwind utilities of your own. `precompiled` imports the
-stylesheet we compiled instead — no `tailwindcss`, no `.postcssrc.json`, no `@source` paths — which
-is what you want if the product is themed with Bootstrap, Bulma or hand-written CSS.
+which is also what lets you write Tailwind utilities of your own; the generator writes the
+`.postcssrc.json` that needs, at the workspace root, merging into one that is already there rather
+than replacing it. `precompiled` imports the stylesheet we compiled instead — no `tailwindcss`, no
+style pipeline, no `@source` paths — which is what you want if the product is themed with Bootstrap,
+Bulma or hand-written CSS.
 
 ## Scaffold backend-integration ports
 

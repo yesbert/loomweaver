@@ -11,7 +11,9 @@ import {
 } from './tools';
 
 const FILE_MAP_NOTE =
-  'Returns a file map (relative path -> content); write the files into your project.';
+  'Returns a file map (relative path -> content); write the files into your project. May also ' +
+  'return "remaining": steps the workspace needs that this route cannot perform, each saying what ' +
+  'it costs to skip. Carry them out, or the generated output builds and does not work.';
 
 function inputSchema(
   descriptor: ScaffoldDescriptor,

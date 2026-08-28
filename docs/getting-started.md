@@ -79,8 +79,10 @@ src/styles.css           Tailwind + the LoomWeaver theme
 ngsw-config.json
 public/logo.svg          placeholder mark, so the top bar has something to show
 public/manifest.webmanifest
-LOOMWEAVER.md            what was written and what to wire next
+LOOMWEAVER.md            what was written, and the little that is still yours
 ```
+
+It also **wires your workspace**, which is step 4 below; the run names every file it touched.
 
 `--force` is what lets it replace the six of those that a generated app already has — all of them
 bootstrap wiring `ng new` just produced. Nothing you wrote is at risk: the scaffold keeps its own
@@ -101,17 +103,49 @@ your artwork: Chromium offers installation only once the manifest names a **192 
 icon. Until you add those the app runs and caches offline, it just is not offered for installation;
 `LOOMWEAVER.md` says exactly what to drop in.
 
-## 4 · Three build settings
+## 4 · What the scaffold wired
 
-Tailwind needs its PostCSS plugin, so create this next to `package.json`:
+Nothing to do here. This step exists because the wiring is worth knowing about, not because it is
+waiting for you. The run you just did named each file it touched and each line it added.
+
+**`.postcssrc.json`**, beside your `package.json`, so Tailwind actually runs. Without it your
+stylesheet is read as ordinary CSS: the tokens arrive, **no utility class does**, and the chrome
+renders unstyled while the build reports success. That is the trap this step used to be.
+
+**Your build target**, in `angular.json` (or `project.json` under Nx), gains four things:
 
 ```jsonc
-// .postcssrc.json
-{ "plugins": { "@tailwindcss/postcss": {} } }
+"styles": ["src/styles.css"],
+"assets": [
+  { "glob": "**/*", "input": "public" },
+  { "glob": "**/*", "input": "node_modules/@loomweaver/shell/i18n", "output": "i18n" },
+  { "glob": "**/*", "input": "node_modules/@loomweaver/frame-kit/dist", "output": "frame-kit" }
+],
 ```
 
-> **Don't want Tailwind?** You don't need it. Re-run step 3 with `--styles precompiled` and skip
-> this file and the Tailwind packages from step 2 entirely — `src/styles.css` becomes one line:
+and, in the **production** configuration:
+
+```jsonc
+"serviceWorker": "ngsw-config.json",
+"optimization": { "styles": { "inlineCritical": false } }
+```
+
+Each earns its place. The **`@loomweaver/shell/i18n` glob** serves the strings the shell fetches at
+runtime; without it every label in the chrome renders as its raw translation key and nothing errors.
+The **frame-kit** glob only matters if you host sandboxed (iframe) plugins, and until you install
+that package it simply matches nothing. **`serviceWorker`** emits the worker `provideShell()` already
+registers for you — never add `provideServiceWorker` yourself; to ship no worker at all, drop
+`ngsw-config.json` and pass `provideShell({ serviceWorker: false })`. **`inlineCritical: false`** is
+not optional: the generated `index.html` ships a strict `script-src 'self'`, and Angular's
+critical-CSS pass loads the stylesheet with an **inline `onload` handler** that the policy blocks —
+the app then renders completely unstyled, and only in production builds.
+
+The scaffold only **adds**. A setting you had already made is left exactly as you made it, so
+re-running a scaffold over a workspace you have configured changes nothing.
+
+> **Don't want Tailwind?** Re-run step 3 with `--styles precompiled` and skip the Tailwind packages
+> from step 2 — `src/styles.css` becomes one line, and no style pipeline is written because none is
+> needed:
 >
 > ```css
 > /* src/styles.css */
@@ -121,31 +155,15 @@ Tailwind needs its PostCSS plugin, so create this next to `package.json`:
 > That is the same stylesheet pre-compiled by us — tokens, the `.lw-*` class contracts and every
 > utility the shell's own templates use, 67 KB minified. You give up writing Tailwind utilities in
 > your own templates; the `--lw-*` tokens stay available to any CSS you write. Themed with
-> Bootstrap? `npx @loomweaver/cli theme --name acme --preset bootstrap` writes the token mapping too. See
-> [bringing your own CSS framework](manual-setup.md#bringing-your-own-css-framework) — the cascade
-> layer it describes is not optional.
+> Bootstrap? `npx @loomweaver/cli theme --name acme --preset bootstrap` writes the token mapping too.
+> See [bringing your own CSS framework](manual-setup.md#bringing-your-own-css-framework) — the
+> cascade layer it describes is not optional.
 
-The shell loads its own UI strings at runtime, so the build has to ship them. Add the glob to your
-build target's `assets` — **`angular.json`** under `projects.<name>.architect.build.options` with the
-Angular CLI, **`apps/<name>/project.json`** under `targets.build.options` in Nx. The path is the same
-either way, because it is resolved from the workspace root:
-
-```jsonc
-{ "glob": "**/*", "input": "node_modules/@loomweaver/shell/i18n", "output": "i18n" }
-```
-
-And in the **production** configuration of that same build target:
-
-```jsonc
-"serviceWorker": "ngsw-config.json",
-"optimization": { "styles": { "inlineCritical": false } }
-```
-
-`serviceWorker` emits the worker that `provideShell()` registers for you. `inlineCritical: false` is
-not optional here: Angular's critical-CSS pass loads the stylesheet with an **inline `onload`
-handler**, which the strict `script-src 'self'` in the generated `index.html` blocks — the app then
-renders completely unstyled, and only in production builds. (Prefer to ship no worker at all? Pass
-`provideShell({ serviceWorker: false })` and drop `ngsw-config.json`.)
+What a scaffold cannot do is written where it happens: a style configuration written as JavaScript
+cannot be merged into, a workspace it cannot find has nothing to wire, and where several projects
+could be the target it names them rather than choosing. In each case the run says so, and says what
+it costs to leave undone. If you would rather see every seam by hand, [manual
+setup](manual-setup.md) writes all of it yourself.
 
 ## 5 · Scaffold a weaver
 
@@ -159,38 +177,27 @@ Write the chord with the **`mod`** token rather than `cmd` or `ctrl`; the host b
 per platform. You get a manifest, a routable surface, a rail item, a command, both translation
 bundles and a starter test — with the capabilities it needs already declared.
 
-## 6 · Wire the weaver in
+## 6 · What the weaver scaffold wired
 
-Three providers in **`src/app/app.config.ts`**, inside the existing `providers` array:
+Also nothing to do. The weaver scaffold registered the plugin for you, in **`src/app/app.config.ts`**:
 
 ```ts
-// src/app/app.config.ts
-import {
-  providePlugins,
-  provideCapabilityGrants,
-  provideTranslationNamespaces,
-} from '@loomweaver/shell';
-import { notesPlugin } from '../notes/src';   // Nx: import through the workspace alias instead
+import { notesPlugin } from '../notes/src';
 
-export const appConfig: ApplicationConfig = {
-  providers: [
-    // …what the scaffold already put here…
     provideTranslationNamespaces('notes'),
     provideCapabilityGrants({ notes: ['contributions', 'ui', 'navigation'] }),
     ...providePlugins(notesPlugin),
-  ],
-};
 ```
 
-Note the **spread**: `providePlugins` is variadic and returns an array. And grant exactly what the
-weaver's manifest declares — the broker is default-deny, so an ungranted plugin throws
-`CapabilityError` rather than quietly doing less.
+The grants are exactly what the weaver's own manifest declares, because the broker is default-deny:
+an ungranted plugin throws `CapabilityError` rather than quietly doing less. It also added the assets
+glob that serves the weaver's translations and the `@source` entry that emits the utilities its
+templates use.
 
-Its translations need serving too, so add one more assets glob next to the one from step 4:
-
-```jsonc
-{ "glob": "**/*.json", "input": "src/notes/src/lib/i18n", "output": "i18n/notes" }
-```
+It does this only while the composition root still presents the shape the distribution scaffold
+generated, since that is the file whose shape we know. Once you have reshaped it, the scaffold does
+not guess: it leaves the file untouched, prints the lines above, and says the plugin was **not**
+registered.
 
 ## 7 · Run
 
