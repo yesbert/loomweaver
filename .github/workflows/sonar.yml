@@ -69,14 +69,52 @@ jobs:
           set -euo pipefail
 
           ask() { curl -sf -u "${SONAR_TOKEN}:" "${SONAR_HOST_URL}/api/$1"; }
+          project="${SONAR_HOST_URL}/project/issues?id=loomweaver&resolved=false"
 
-          echo "Quality gate:"
-          ask "qualitygates/project_status?projectKey=loomweaver" | jq -r '
-            "  verdict: \(.projectStatus.status)",
-            (.projectStatus.conditions[]
-              | "  \(.status): \(.metricKey) is \(.actualValue), gate wants \(.comparator) \(.errorThreshold)")'
+          {
+            echo "## SonarQube"
+            echo
+            echo "[Dashboard](${SONAR_HOST_URL}/dashboard?id=loomweaver) ·"
+            echo "[Open issues](${project}) ·"
+            echo "[Security hotspots](${SONAR_HOST_URL}/security_hotspots?id=loomweaver)"
+            echo
 
-          echo "Measures:"
-          metrics=ncloc,coverage,violations,bugs,vulnerabilities,code_smells,security_hotspots
-          ask "measures/component?component=loomweaver&metricKeys=${metrics}" \
-            | jq -r '.component.measures | sort_by(.metric)[] | "  \(.metric): \(.value)"'
+            echo "### Quality gate"
+            echo
+            echo "| | condition | actual | gate wants |"
+            echo "|---|---|---|---|"
+            ask "qualitygates/project_status?projectKey=loomweaver" | jq -r '
+              .projectStatus.conditions[]
+              | "| \(if .status == "OK" then "✅" else "❌" end) | \(.metricKey) | \(.actualValue) | \(.comparator) \(.errorThreshold) |"'
+            echo
+
+            echo "### Measures"
+            echo
+            echo "| metric | value |"
+            echo "|---|---|"
+            metrics=ncloc,coverage,violations,bugs,vulnerabilities,code_smells,security_hotspots
+            ask "measures/component?component=loomweaver&metricKeys=${metrics}" \
+              | jq -r '.component.measures | sort_by(.metric)[] | "| \(.metric) | \(.value) |"'
+            echo
+
+            # The newer parameter is `components`; older servers only know `componentKeys`.
+            issues=$(ask "issues/search?components=loomweaver&resolved=false&ps=100" || true)
+            if ! printf '%s' "${issues}" | jq -e '.issues' >/dev/null 2>&1; then
+              issues=$(ask "issues/search?componentKeys=loomweaver&resolved=false&ps=100" || true)
+            fi
+            if printf '%s' "${issues}" | jq -e '.issues | length > 0' >/dev/null 2>&1; then
+              total=$(printf '%s' "${issues}" | jq -r '.total')
+              shown=$(printf '%s' "${issues}" | jq -r '.issues | length')
+              echo "<details><summary>Open issues: showing ${shown} of ${total} — <a href=\"${project}\">all of them in Sonar</a></summary>"
+              echo
+              echo "| severity | where | rule | message |"
+              echo "|---|---|---|---|"
+              printf '%s' "${issues}" | jq -r --arg host "${SONAR_HOST_URL}" '
+                .issues[]
+                | "| \(.severity // "-") | [\(.component | sub("^[^:]*:"; ""))\(if .line then ":\(.line)" else "" end)](\($host)/project/issues?id=loomweaver&open=\(.key)) | \(.rule) | \(.message | gsub("\\|"; "\\|")) |"'
+              echo
+              echo "</details>"
+            fi
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+          cat "${GITHUB_STEP_SUMMARY}"
