@@ -234,7 +234,7 @@ export class CompositionReport {
 }
 
 export function installCompositionReport(report: CompositionReport): void {
-  if (typeof globalThis.window === 'undefined') {
+  if (globalThis.window === undefined) {
     return;
   }
   const host = globalThis as unknown as Record<string, unknown>;
