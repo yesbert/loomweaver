@@ -153,7 +153,7 @@ export class OpenTabsService {
   readonly activeViewInstance: Signal<string | undefined> = computed(() => {
     const path = this.activeViewPath();
     if (path === null) {
-      return undefined;
+      return;
     }
     return this.paneTree
       .primaryTabs(CONTENT_DOCK)

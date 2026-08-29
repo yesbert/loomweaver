@@ -72,10 +72,10 @@ describe('IframeSurface', () => {
         callbacks.push(cb);
       }
       observe() {
-        return undefined;
+        return;
       }
       disconnect() {
-        return undefined;
+        return;
       }
     } as unknown as typeof IntersectionObserver;
 

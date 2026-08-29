@@ -235,7 +235,12 @@ export default [
             "unicorn/no-useless-collection-argument": "off",
             "unicorn/no-useless-concat": "off",
             "unicorn/no-useless-promise-resolve-reject": "off",
-            "unicorn/no-useless-undefined": "off",
+            // `f(undefined)` is not `f()` when the parameter is required, and `() => undefined`
+            // may not become `() => {}` while no-empty-function forbids exactly that.
+            "unicorn/no-useless-undefined": [
+                "error",
+                { checkArguments: false, checkArrowFunctionBody: false }
+            ],
             "unicorn/numeric-separators-style": "off",
             "unicorn/prefer-add-event-listener": "off",
             "unicorn/prefer-add-event-listener-options": "off",

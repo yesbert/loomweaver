@@ -20,7 +20,7 @@ export class DialogRef<R = unknown> {
     this.resolveClosed = resolve;
   });
 
-  constructor(readonly data: unknown = undefined) {}
+  constructor(readonly data?: unknown) {}
 
   /**
    * Toggles near-fullscreen. The host frame shows a maximize/restore control when the dialog was
