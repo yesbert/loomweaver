@@ -32,7 +32,9 @@ function setup(auth: WritableSignal<AuthSnapshot>, ...items: RailItem[]) {
     providers: [{ provide: AUTH_SOURCE, useValue: auth }],
   });
   const registry = TestBed.inject(ContributionRegistry);
-  items.forEach((item) => registry.addRailItem(item));
+  for (const item of items) {
+    registry.addRailItem(item);
+  }
   const fixture = TestBed.createComponent(ShellRail);
   fixture.componentRef.setInput('region', railRegion);
   fixture.detectChanges();
@@ -196,7 +198,9 @@ describe('ShellRail', () => {
         ],
       });
       const registry = TestBed.inject(ContributionRegistry);
-      items.forEach((item) => registry.addRailItem(item));
+      for (const item of items) {
+        registry.addRailItem(item);
+      }
       const fixture = TestBed.createComponent(ShellRail);
       fixture.componentRef.setInput('region', railRegion);
       fixture.detectChanges();

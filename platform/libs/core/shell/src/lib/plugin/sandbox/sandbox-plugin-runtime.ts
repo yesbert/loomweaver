@@ -122,9 +122,13 @@ export class FramePluginRuntime {
     this.instances.delete(id);
     instance.connection.destroy();
     instance.frame.remove();
-    instance.watched.forEach((entry) => entry.stop());
+    for (const entry of instance.watched.values()) {
+      entry.stop();
+    }
     instance.ctx.disposeAll();
-    instance.syncCleanups.forEach((cleanup) => cleanup());
+    for (const cleanup of instance.syncCleanups) {
+      cleanup();
+    }
     this.grants.unregister(id);
     this.isolation.unregister(id);
   }

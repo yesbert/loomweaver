@@ -273,8 +273,6 @@ export default [
             // reaching for --fix.
             "unicorn/max-nested-calls": "off",
             "unicorn/no-break-in-nested-loop": "off",
-            "unicorn/no-for-each": "off",
-            "unicorn/no-return-array-push": "off",
             "unicorn/no-unreadable-for-of-expression": "off",
             "unicorn/prefer-promise-try": "off",
             "unicorn/prefer-simple-condition-first": "off",

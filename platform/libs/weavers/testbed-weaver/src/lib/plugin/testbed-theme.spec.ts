@@ -52,7 +52,7 @@ describe('testbedTheme (producer-theme toggle)', () => {
 
   it('the toggle persists the flag, applies/reverts, and announces to other windows', () => {
     const announced: string[] = [];
-    testbedTheme.connectSync({ announce: (key) => announced.push(key) });
+    testbedTheme.connectSync({ announce: (key) => void announced.push(key) });
     const h = harness();
     registerTheme(h.ctx);
 
@@ -70,7 +70,7 @@ describe('testbedTheme (producer-theme toggle)', () => {
   it('refresh re-applies from the flag a peer window wrote — without re-announcing', () => {
     const announced: string[] = [];
     const { key, refresh } = testbedTheme.connectSync({
-      announce: (k) => announced.push(k),
+      announce: (k) => void announced.push(k),
     });
     expect(key).toBe(KEY);
     const h = harness();

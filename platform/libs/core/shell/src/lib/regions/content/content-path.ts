@@ -79,11 +79,11 @@ export function paramsOfPattern(
   const parts = segmentsOf(pattern);
   const segments = segmentsOf(path);
   const params: Record<string, string> = {};
-  parts.forEach((part, index) => {
+  for (const [index, part] of parts.entries()) {
     if (part.startsWith(':') && segments[index] !== undefined) {
       params[part.slice(1)] = segments[index];
     }
-  });
+  }
   return params;
 }
 

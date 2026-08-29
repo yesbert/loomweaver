@@ -17,7 +17,10 @@ function capture() {
   const out: string[] = [];
   const error: string[] = [];
   return {
-    io: { out: (l: string) => out.push(l), err: (l: string) => error.push(l) },
+    io: {
+      out: (l: string) => void out.push(l),
+      err: (l: string) => void error.push(l),
+    },
     out,
     err: error,
     text: () => out.join('\n'),

@@ -160,10 +160,10 @@ export class WorkspaceService {
     hydrateAsync(this.store, STORAGE_KEY, setList);
     this.sync.register('settings', STORAGE_KEY, setList);
     if (isDevMode()) {
-      const definitions = this.definitionBatches.flat();
-      auditWorkspaceDefinitions(definitions, this.panelRegions).forEach(
-        (problem) => console.warn(problem),
-      );
+      const all = this.definitionBatches.flat();
+      for (const problem of auditWorkspaceDefinitions(all, this.panelRegions)) {
+        console.warn(problem);
+      }
     }
     this.layOutAdoptedWorkspaceWhenReady();
   }

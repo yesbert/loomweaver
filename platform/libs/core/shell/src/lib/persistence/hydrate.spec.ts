@@ -16,7 +16,7 @@ describe('hydrateAsync', () => {
     hydrateAsync(
       asyncStore(() => Promise.resolve('dark')),
       'k',
-      (raw) => applied.push(raw),
+      (raw) => void applied.push(raw),
     );
     await Promise.resolve();
 
@@ -31,7 +31,7 @@ describe('hydrateAsync', () => {
       hydrateAsync(
         asyncStore(() => Promise.reject(rejection)),
         'k',
-        (raw) => applied.push(raw),
+        (raw) => void applied.push(raw),
       ),
     ).not.toThrow();
     await Promise.resolve();

@@ -561,7 +561,9 @@ describe('FramePluginRuntime (iframe + Penpal runtime)', () => {
   }
 
   afterEach(() => {
-    document.querySelectorAll('iframe').forEach((f) => f.remove());
+    for (const frame of document.querySelectorAll('iframe')) {
+      frame.remove();
+    }
     localStorage.clear();
   });
 
@@ -1264,7 +1266,9 @@ describe('FramePluginRuntime command invocation', () => {
   }
 
   afterEach(() => {
-    document.querySelectorAll('iframe').forEach((f) => f.remove());
+    for (const frame of document.querySelectorAll('iframe')) {
+      frame.remove();
+    }
     localStorage.clear();
   });
 

@@ -137,7 +137,9 @@ export class TranslocoHttpLoader implements TranslocoLoader {
       map(([host, ...rest]) => {
         const overlay = rest.pop() as Translation;
         const merged: Translation = { ...host };
-        this.namespaces.forEach((name, index) => (merged[name] = rest[index]));
+        for (const [index, name] of this.namespaces.entries()) {
+          merged[name] = rest[index];
+        }
         return this.applyOverrides(merged, overlay, lang);
       }),
     );

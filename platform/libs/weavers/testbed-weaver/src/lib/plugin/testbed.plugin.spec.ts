@@ -40,17 +40,20 @@ function activate(): Captured {
     navigated: [],
   };
   const disposable = { dispose: () => undefined };
+  const capture =
+    <T>(into: T[]) =>
+    (value: T) => {
+      into.push(value);
+      return disposable;
+    };
   const ctx: PluginContext = {
-    registerCommand: (command) => (captured.commands.push(command), disposable),
-    registerSurface: (surface) => (captured.surfaces.push(surface), disposable),
-    registerBarItem: (item) => (captured.barItems.push(item), disposable),
-    registerRailItem: (item) => (captured.railItems.push(item), disposable),
-    registerSettingsSection: (section) => (
-      captured.sections.push(section),
-      disposable
-    ),
-    contributeIcons: (icons) => (captured.icons.push(icons), disposable),
-    registerMenuItem: (item) => (captured.menuItems.push(item), disposable),
+    registerCommand: capture(captured.commands),
+    registerSurface: capture(captured.surfaces),
+    registerBarItem: capture(captured.barItems),
+    registerRailItem: capture(captured.railItems),
+    registerSettingsSection: capture(captured.sections),
+    contributeIcons: capture(captured.icons),
+    registerMenuItem: capture(captured.menuItems),
     navigateContent: (path) => void captured.navigated.push(path),
     openContentTab: (input) => void captured.opened.push(input),
     keepContentTab: () => undefined,
@@ -60,10 +63,10 @@ function activate(): Captured {
     invokeCommand: () => Promise.resolve({ outcome: 'answered' as const }),
     invocableCommands: () => [],
     ui: {
-      confirm: (options) => (
-        captured.confirms.push(options),
-        Promise.resolve(false)
-      ),
+      confirm: (options) => {
+        captured.confirms.push(options);
+        return Promise.resolve(false);
+      },
       alert: () => Promise.resolve(),
       prompt: () => Promise.resolve(null),
       open: <R>() => new DialogRef<R>(),

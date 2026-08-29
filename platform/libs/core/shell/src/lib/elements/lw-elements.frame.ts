@@ -87,9 +87,9 @@ function applyIcons(icons: Readonly<Record<string, string>> | undefined): void {
   for (const [name, svg] of entries) {
     setIcon(name, sanitizeIconSvg(svg));
   }
-  document
-    .querySelectorAll(LW_ICON_TAG)
-    .forEach((element) => (element as LwIconElement).refresh());
+  for (const element of document.querySelectorAll(LW_ICON_TAG)) {
+    (element as LwIconElement).refresh();
+  }
 }
 
 interface Watched {

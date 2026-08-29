@@ -291,7 +291,7 @@ export function validateCatalog(
 
   const findings: Finding[] = [];
   const seen = new Set<string>();
-  catalog.forEach((entry, index) => {
+  for (const [index, entry] of catalog.entries()) {
     findings.push(...validateEntry(entry, index, known));
     const id: unknown = isPlainObject(entry) ? entry['id'] : undefined;
     if (typeof id === 'string' && id.length > 0) {
@@ -305,6 +305,6 @@ export function validateCatalog(
       }
       seen.add(id);
     }
-  });
+  }
   return findings;
 }
