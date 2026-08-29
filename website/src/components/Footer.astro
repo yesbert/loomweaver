@@ -1,0 +1,42 @@
+---
+import Default from '@astrojs/starlight/components/Footer.astro';
+import ConsentBanner from './ConsentBanner.astro';
+---
+
+<Default><slot /></Default>
+
+<nav class="legal" aria-label="Legal">
+  <a href="/imprint/">Imprint</a>
+  <a href="/privacy/">Privacy</a>
+  <button type="button" data-consent-open>Cookie settings</button>
+</nav>
+
+<ConsentBanner />
+
+<style>
+  .legal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    justify-content: center;
+    margin: 1.5rem 0 0.5rem;
+    font-size: var(--sl-text-xs);
+  }
+
+  .legal a,
+  .legal button {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--sl-color-gray-3);
+    font: inherit;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .legal a:hover,
+  .legal button:hover {
+    color: var(--sl-color-white);
+    text-decoration: underline;
+  }
+</style>

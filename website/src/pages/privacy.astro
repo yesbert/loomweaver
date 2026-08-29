@@ -1,0 +1,156 @@
+---
+import LegalPage from '../layouts/LegalPage.astro';
+---
+
+<LegalPage
+  title="Privacy policy"
+  description="What loomweaver.dev processes, on what legal basis, and which rights you have."
+>
+  <h2>Controller</h2>
+  <p>The controller within the meaning of the General Data Protection Regulation (GDPR) is:</p>
+  <address>
+    Norbert Heinz Rosenwinkel<br />
+    Heinrich-Böll-Weg 21<br />
+    30629 Hannover<br />
+    Germany<br />
+    Email: <a href="mailto:info@loomweaver.dev">info@loomweaver.dev</a>
+  </address>
+
+  <h2>Your rights</h2>
+  <p>With regard to your personal data, you have the following rights against us:</p>
+  <ul>
+    <li>Right of access (Art. 15 GDPR)</li>
+    <li>Right to rectification (Art. 16 GDPR)</li>
+    <li>Right to erasure (Art. 17 GDPR)</li>
+    <li>Right to restriction of processing (Art. 18 GDPR)</li>
+    <li>Right to data portability (Art. 20 GDPR)</li>
+    <li>Right to object to processing (Art. 21 GDPR)</li>
+    <li>Right to withdraw consent with effect for the future (Art. 7 (3) GDPR)</li>
+  </ul>
+  <p>
+    You also have the right to lodge a complaint with a data protection supervisory authority about
+    our processing of your personal data (Art. 77 GDPR).
+  </p>
+
+  <h2>Hosting and server log files</h2>
+  <p>
+    This website is hosted by an external service provider (STRATO AG, Otto-Ostrowski-Straße 7,
+    10249 Berlin, Germany). When you visit the site, the host automatically collects data in
+    so-called server log files that your browser transmits: the IP address, date and time of
+    access, the requested resource, the referring page and the browser and operating system used.
+  </p>
+  <p>
+    This data serves the technical delivery of the site, the assurance of stable and secure
+    operation, and the prevention of abuse. The legal basis is our legitimate interest in a secure
+    and functional service (Art. 6 (1) (f) GDPR). The log data is not merged with other data sources
+    and is deleted after a short period unless it is needed to investigate a specific case of abuse.
+  </p>
+  <p>
+    The same applies to the demo application at{' '}
+    <a href="https://demo.loomweaver.dev/">demo.loomweaver.dev</a>, which is hosted by the same
+    provider.
+  </p>
+
+  <h2>Email contact</h2>
+  <p>
+    If you contact us by email, the personal data transmitted with the email (your email address,
+    the content of your message) is stored and processed solely for handling your enquiry. The legal
+    basis is our legitimate interest in answering your enquiry (Art. 6 (1) (f) GDPR); if the contact
+    aims at concluding a contract, additionally Art. 6 (1) (b) GDPR. The data is deleted as soon as
+    it is no longer required for the purpose of its collection, that is, when the respective
+    conversation has ended. Statutory retention periods remain unaffected.
+  </p>
+
+  <h2>Local storage in your browser</h2>
+  <p>
+    So the site can remember your preferences, we store purely functional values in your browser’s
+    local storage (localStorage):
+  </p>
+  <ul>
+    <li>your chosen colour scheme (<code>starlight-theme</code>)</li>
+    <li>your decision on the analytics notice (<code>lw-consent</code>)</li>
+  </ul>
+  <p>
+    These values remain on your device, are not transmitted to us or to third parties, and serve
+    solely the function of the site. This is not tracking. No consent is required for this
+    technically necessary storage; the legal basis is our legitimate interest in providing a
+    functional website (Art. 6 (1) (f) GDPR). You can delete the values at any time via your browser
+    settings.
+  </p>
+  <p>
+    The demo application at <a href="https://demo.loomweaver.dev/">demo.loomweaver.dev</a> likewise
+    keeps everything you enter and configure there in your browser alone. It is not transmitted to a
+    server and we cannot see it.
+  </p>
+
+  <h2>Cookies and web analytics</h2>
+  <p>
+    This site sets no tracking cookies and embeds no advertising networks. Only the technically
+    necessary localStorage values described above are stored. Fonts are served locally from our
+    server; there is no connection to an external font CDN.
+  </p>
+  <p>
+    On your first visit, a notice banner appears through which you can consent to or decline the use
+    of the analytics tool Umami. Your choice is stored in your browser and respected on future
+    visits. This site embeds no further third-party services.
+  </p>
+
+  <h2>Web analytics (Umami)</h2>
+  <p>
+    We use Umami on this website, a privacy-friendly open-source web-analytics tool. Umami is only
+    loaded once you give your consent via the notice banner.
+  </p>
+  <p>
+    Umami collects no personal data and uses no cookies. Only anonymised, aggregated data is
+    recorded, such as page views, visit duration, country of origin and device type. Identifying
+    individual visitors is not possible.
+  </p>
+  <p>
+    The data is processed on servers of Umami Cloud (Umami Software Inc.). Further information can
+    be found in{' '}
+    <a href="https://umami.is/privacy" target="_blank" rel="noopener">Umami’s privacy policy</a>.
+  </p>
+  <p>
+    The legal basis is your consent pursuant to Art. 6 (1) (a) GDPR. You can withdraw your consent
+    at any time with effect for the future:
+  </p>
+  <p>
+    <button type="button" data-consent-revoke class="revoke">Withdraw consent</button>
+  </p>
+
+  <h2>External links</h2>
+  <p>
+    Our site contains links to external services, such as the source code on GitHub. By clicking
+    them you leave this site. We have no influence on the data processing of the linked providers;
+    their respective privacy policies apply.
+  </p>
+
+  <h2>SSL/TLS encryption</h2>
+  <p>
+    For security reasons, this site uses SSL or TLS encryption. You can recognise an encrypted
+    connection by the “https://” in your browser’s address bar.
+  </p>
+
+  <h2>Changes to this privacy policy</h2>
+  <p>
+    We will adapt this privacy policy whenever changes to the site or to the legal situation make it
+    necessary. The current version published here always applies.
+  </p>
+</LegalPage>
+
+<style>
+  .revoke {
+    padding: 0.5rem 1.25rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.375rem;
+    background-color: transparent;
+    color: var(--sl-color-white);
+    font: inherit;
+    font-size: var(--sl-text-sm);
+    cursor: pointer;
+  }
+
+  .revoke:hover {
+    background-color: var(--sl-color-gray-6);
+  }
+</style>

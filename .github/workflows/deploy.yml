@@ -138,6 +138,9 @@ jobs:
             printf '%s' "$headers" | grep -qi -- "$2" || { echo "$3"; exit 1; }
           }
           contains https://loomweaver.dev/ loomweaver "the docs site does not mention itself"
+          contains https://loomweaver.dev/ /imprint/ "the docs site lost its legal links"
+          contains https://loomweaver.dev/imprint/ "5 DDG" "the imprint is not served"
+          contains https://loomweaver.dev/privacy/ Umami "the privacy policy is not served"
           contains https://demo.loomweaver.dev/ '<script' "the demo served no application bundle"
           code=$(curl -s -o /dev/null -w '%{http_code}' https://demo.loomweaver.dev/some/deep/link)
           [ "$code" = "200" ] || { echo "the SPA fallback is missing — deep links answer $code"; exit 1; }

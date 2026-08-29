@@ -17,6 +17,12 @@ export default defineConfig({
         alt: 'LoomWeaver',
       },
       customCss: ['./src/styles/brand.css'],
+      // The footer carries the legal links and the consent banner. Starlight renders it on every
+      // page, the splash landing page included, so overriding it reaches the whole site at once.
+      // Umami itself is not loaded here: the banner appends the script only once somebody agrees.
+      components: {
+        Footer: './src/components/Footer.astro',
+      },
       social: [
         {
           icon: 'github',
