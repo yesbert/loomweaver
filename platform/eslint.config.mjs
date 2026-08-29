@@ -319,19 +319,6 @@ export default [
         }
     },
     {
-        // PluginInstallService.find(id) takes an id, not a predicate. The rule cannot tell it
-        // from Array#find and rewrites the call into nonsense; the method is on the published
-        // contract, so it keeps its name and these three callers keep the rule off.
-        files: [
-            "**/plugin-store/lifecycle/update-consent.ts",
-            "**/plugin-store/plugin-store-detail.ts",
-            "**/plugin-store/plugin-store-dialog.ts"
-        ],
-        rules: {
-            "unicorn/no-array-callback-reference": "off"
-        }
-    },
-    {
         // A `continue` guarding the top of an inner loop is not the ambiguity this rule is named
         // for, and these ten are all that shape, in a file walker and in Tarjan's algorithm where
         // inverting them would nest the body a level deeper. The shape that IS ambiguous, a break

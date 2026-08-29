@@ -74,7 +74,7 @@ export class PluginStoreDialog implements OnInit {
   }
 
   protected hasUpdate(entry: PluginCatalogEntry): boolean {
-    return availableUpdate(this.installs.find(entry.id), entry) !== undefined;
+    return availableUpdate(this.installs.byId(entry.id), entry) !== undefined;
   }
 
   protected requestUpdate(entry: PluginCatalogEntry): void {

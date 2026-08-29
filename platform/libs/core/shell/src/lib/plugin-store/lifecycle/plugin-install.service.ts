@@ -55,7 +55,7 @@ export class PluginInstallService {
   }
 
   /** The installed entry for an id, or `undefined` — the baseline an update is compared against. */
-  find(id: string): InstalledPlugin | undefined {
+  byId(id: string): InstalledPlugin | undefined {
     return this.entries().find((entry) => entry.id === id);
   }
 
