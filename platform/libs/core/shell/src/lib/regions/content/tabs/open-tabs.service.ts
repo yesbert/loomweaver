@@ -42,6 +42,7 @@ import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../../pane/tree/pane-address';
 import { collectTabs, findLeaf, findLeafWhere } from '../../pane/tree/pane-queries';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 import { isPopoutUrl } from '../../../popout/popout-path';
+import { popoutNavigationRefusal } from '../../../popout/popout-refusal';
 
 interface RootedPath {
   readonly routes: readonly ContentRoute[];
@@ -233,9 +234,11 @@ export class OpenTabsService {
       this.paneTree.hydrated();
       untracked(() => {
         if (url !== this.lastUrl) {
+          const previous = this.lastUrl;
           this.lastUrl = url;
           if (this.ownNavigation !== normalizePath(url)) {
             this.viewTabSelection.set(null);
+            this.focusHolderOf(path, this.rootFor(previous).root);
           }
           this.ownNavigation = null;
         }
@@ -258,16 +261,12 @@ export class OpenTabsService {
   navigate(path: string): Promise<boolean> {
     if (this.inPopout) {
       if (isDevMode()) {
-        console.warn(
-          `Content navigation to "${path}" was ignored: this is a pop-out window, which shows one ` +
-            `surface and has no content area to navigate. A command reaches a pop-out's palette only ` +
-            `if it declares popout: true, so leave that off anything that navigates.`,
-        );
+        console.warn(popoutNavigationRefusal(path));
       }
       return Promise.resolve(false);
     }
     const target = normalizePath(path);
-    this.focusHolderOf(target);
+    this.focusHolderOf(target, this.activeTabRoot());
     this.ownNavigation = target;
     this.viewTabSelection.set(null);
     return this.router.navigateByUrl('/' + target + suffixOf(path));
@@ -339,7 +338,7 @@ export class OpenTabsService {
     );
   }
 
-  private focusHolderOf(target: string): void {
+  private focusHolderOf(target: string, previousContent: string): void {
     const routes = this.registry.contentRoutes();
     const root = tabRootOf(routes, target);
     if (root === '') {
@@ -362,7 +361,7 @@ export class OpenTabsService {
       return;
     }
     this.paneTree.setActiveTab(CONTENT_DOCK, holder.id, held.path);
-    this.paneTree.focusPane(CONTENT_DOCK, holder.id, this.activeTabRoot());
+    this.paneTree.focusPane(CONTENT_DOCK, holder.id, previousContent);
   }
 
   private stampActive(root: string): void {

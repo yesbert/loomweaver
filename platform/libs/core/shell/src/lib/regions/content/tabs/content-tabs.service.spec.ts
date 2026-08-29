@@ -8,8 +8,10 @@ import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { ContentReuseStrategy } from '../routing/content-reuse-strategy';
 import { CONTENT_DOCK } from '../../pane/tree/pane-address';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
+import { collectTabs } from '../../pane/tree/pane-queries';
 import { PRIMARY_PANE } from '../../pane/tree/pane-address';
 import { buildContentRoutes } from '../routing/content-router';
+import { BootAddress } from '../routing/boot-address';
 import { provideShellFeatures } from '../../../foundation/shell-features';
 import { ContentTabsService } from './content-tabs.service';
 
@@ -257,6 +259,63 @@ describe('ContentTabsService (findings #8/#11)', () => {
     TestBed.inject(ApplicationRef).tick();
 
     expect(paneTree.serialize()).toBe(before);
+  });
+
+  it('an ordinary navigation reaches the copy another pane already holds', async () => {
+    await harness.navigateByUrl('/doc/a');
+    const paneTree = TestBed.inject(PaneTreeService);
+    paneTree.splitPane('content', PRIMARY_PANE, 'row', 'doc/b');
+    TestBed.inject(ApplicationRef).tick();
+
+    await TestBed.inject(Router).navigateByUrl('/doc/b');
+    TestBed.inject(ApplicationRef).tick();
+
+    expect(paneTree.primaryTabs('content').map((tab) => tab.path)).toEqual([
+      'doc/b',
+    ]);
+    expect(
+      collectTabs(paneTree.tree('content')).filter(
+        (tab) => tab.path === 'doc/b',
+      ),
+    ).toHaveLength(1);
+    expect(
+      collectTabs(paneTree.tree('content')).some((tab) => tab.path === 'doc/a'),
+    ).toBe(true);
+  });
+
+  it("a link and the workbench's own call both reach the pane that holds it", async () => {
+    await harness.navigateByUrl('/doc/a');
+    const paneTree = TestBed.inject(PaneTreeService);
+    paneTree.splitPane('content', PRIMARY_PANE, 'row', 'doc/b');
+    TestBed.inject(ApplicationRef).tick();
+
+    await TestBed.inject(Router).navigateByUrl('/doc/b');
+    TestBed.inject(ApplicationRef).tick();
+    expect(paneTree.primaryTabs('content').map((tab) => tab.path)).toEqual([
+      'doc/b',
+    ]);
+
+    await service.navigate('doc/a');
+    TestBed.inject(ApplicationRef).tick();
+    expect(paneTree.primaryTabs('content').map((tab) => tab.path)).toEqual([
+      'doc/a',
+    ]);
+  });
+
+  it('an ordinary navigation to nothing open lands where the address already is', async () => {
+    await harness.navigateByUrl('/doc/a');
+    const paneTree = TestBed.inject(PaneTreeService);
+    paneTree.splitPane('content', PRIMARY_PANE, 'row', 'doc/b');
+    TestBed.inject(ApplicationRef).tick();
+
+    await TestBed.inject(Router).navigateByUrl('/reports');
+    TestBed.inject(ApplicationRef).tick();
+
+    expect(paneTree.primaryId('content')).toBe(PRIMARY_PANE);
+    expect(paneTree.primaryTabs('content').map((tab) => tab.path)).toEqual([
+      'doc/a',
+      'reports',
+    ]);
   });
 
   it('runCloseHook runs the teardown only once the tab left the URL group', async () => {
@@ -619,6 +678,7 @@ describe('ContentTabsService in a pop-out window', () => {
       providers: [
         provideRouter(buildContentRoutes(ROUTES)),
         { provide: DOCUMENT, useValue: documentAt(pathname) },
+        { provide: BootAddress, useValue: { path: pathname } },
       ],
     });
     const registry = TestBed.inject(ContributionRegistry);
@@ -642,10 +702,33 @@ describe('ContentTabsService in a pop-out window', () => {
     warn.mockRestore();
   });
 
+  it('refuses an ordinary navigation too, so a link cannot leave the pop-out', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    await setUpAt('/popout/reports');
+
+    const moved = await TestBed.inject(Router).navigateByUrl('/reports');
+
+    expect(moved).toBe(false);
+    expect(TestBed.inject(Router).url).toBe('/');
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('pop-out window'),
+    );
+    warn.mockRestore();
+  });
+
   it('navigates normally in the main window', async () => {
     const { service } = await setUpAt('/');
 
     await expect(service.navigate('reports')).resolves.toBe(true);
+    expect(TestBed.inject(Router).url).toBe('/reports');
+  });
+
+  it('lets an ordinary navigation through in the main window', async () => {
+    await setUpAt('/');
+
+    await expect(
+      TestBed.inject(Router).navigateByUrl('/reports'),
+    ).resolves.toBe(true);
     expect(TestBed.inject(Router).url).toBe('/reports');
   });
 });
