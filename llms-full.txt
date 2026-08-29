@@ -194,7 +194,7 @@ interface StateHandle<T = unknown> { readonly value: () => T | undefined; readon
 // onto another group's strip or to an edge (split with the tab) — a pane holding NO tabs takes the whole drop instead
 // of offering edges, so a drag fills the empty content area rather than splitting it; Split right/down in the tab menu MOVES too, while
 // the pane TOOLBAR split DUPLICATES the active tab into a new pane; sidebars are the
-// same groups shown as icon tabs (Obsidian-parity). Every pane is its own VIEW_STATE instance and a moved
+// same groups shown as icon tabs. Every pane is its own VIEW_STATE instance and a moved
 // tab's VIEW_STATE travels with it; every content pane shows ONE toolbar (new tab / split right / split down /
 // minimize / maximize / close — distribution-configurable via provideShellFeatures({ content }):
 // maximize fills the whole viewport over all chrome (Escape restores); minimize collapses a split pane to a strip
@@ -365,7 +365,7 @@ type ContentRoute = { id?: string; path: string; chromeless?: boolean; subRoutes
 // ('route:<id>'); `path` stays the OVERRIDE handle. Internal storage form — authors write registerSurface.
 // titleIsLiteral: title is shown verbatim, not looked up as a Transloco key (set for a doc name / dynamic label;
 // avoids a missing-translation dev warning). onClose: runs once when THIS tab closes (free per-tab state; in-process only).
-// preview: open in the single reused italic preview slot of the URL strip (VS-Code Preview Editors); a different-path
+// preview: open in the single reused italic preview slot of the URL strip; a different-path
 // preview open replaces it in place. Promote via ctx.keepContentTab(path), or let the user double-click the tab (the
 // host's escalation cycle, on by default — provideShellFeatures({ content: { escalate: false } }) removes it); a re-open of an
 // existing tab preserves its preview state (title/sub-route refinement never promotes).
@@ -496,26 +496,26 @@ function provideFramePlugins(...plugins: FramePlugin[]): (Provider | Environment
 // ones — the persisted entry IS the grant for installed plugins, so an update never widens it silently.
 interface PluginCatalogEntry { id: string; name: string; entryUrl: string; capabilities?: readonly Capability[]; version?: string; description?: string; icon?: string; author?: string; category?: string; downloads?: number; updated?: string; repository?: string; readmeUrl?: string; iconUrl?: string; }
 // category: operator-curated, shown as a badge + matched by the search. iconUrl: SAME-ORIGIN image shown in the
-// store lists (a not-yet-installed plugin cannot contribute registry icons — the VS Code marketplace model);
+// store lists (a not-yet-installed plugin cannot contribute registry icons);
 // `icon` stays the registry-name for the consent dialog. `updated` renders as a RELATIVE time ("2 days ago",
 // Intl.RelativeTimeFormat, localized). The searchable INSTALLED list (per plugin an icon-action row: open its
 // community settings section · uninstall — tooltipped — the standard .lw-switch enable/disable toggle, and an
 // "Update to vX.Y.Z" button when the catalog carries a newer version) lives in TWO places sharing one
-// component: directly on the Plugin-store settings PAGE (Obsidian settings model, own search field) and as the
+// component: directly on the Plugin-store settings PAGE (own search field) and as the
 // store dialog's segmented "Installed" view.
 interface PluginCatalog { load(): Promise<readonly PluginCatalogEntry[]>; }
 // options.title brands the store per product (transloco key, e.g. 'product.marketplace'). The STORE is the
-// management surface for installed plugins (install/uninstall — the VS Code Extensions-view / Obsidian model);
+// management surface for installed plugins (install/uninstall);
 // installed plugins appear in the "Permissions" section like every plugin (on/off + capability switches).
 // The store opens as a DIALOG (settings section's Browse button or the `shell.openPluginStore` palette command):
-// an Obsidian-style browse surface — searchable list (matches name/author/category/description; cards show name, author,
+// a browse surface — searchable list (matches name/author/category/description; cards show name, author,
 // downloads, last update, description, Installed badge; sorted by downloads) + a detail pane with metadata, a plain
 // external `repository` link and the plugin's README rendered IN-APP (fetched from the same-origin `readmeUrl`,
 // sanitized — never an embedded foreign page). author/downloads/updated/repository/readmeUrl are parsed defensively
 // (foreign-origin readmeUrl / non-http repository / junk downloads drop, the entry stays).
 function providePluginCatalog(source: PluginCatalog | string, options?: { title?: string }): (Provider | EnvironmentProviders)[];
 function urlPluginCatalog(url: string): PluginCatalog;   // same-origin JSON loader (the string overload uses it)
-// Sandboxed plugin settings (the VS Code contributes.configuration model): a sandboxed plugin registers a
+// Sandboxed plugin settings (declared as data, not callbacks): a sandboxed plugin registers a
 // DATA-ONLY settings section over RPC (control kind + DEFAULT value — value()/set() callbacks cannot cross the wire).
 // The host renders the controls, OWNS the storage (lw.plugin-settings:<pluginId>:<sectionId> via the settings store) and
 // pushes current values back by calling the plugin's exposed `settingsChanged(sectionId, values)` RPC method — once
@@ -732,7 +732,7 @@ type RetentionDefault = 'destroy' | 'retain';          // storage policy, set vi
 function provideCommandPaletteEntry(options?: { bar?: string; slot?: BarSlot; order?: number }): EnvironmentProviders;  // LWF-05: a built badge-styled top-bar entry (search icon + OS-correct shortcut) opening shell.commandPalette. Opt-in; id 'shell.commandPaletteEntry' (omittable). Defaults: top-bar / end / order 5.
 function provideQuickOpenEntry(options?: { bar?: string; slot?: BarSlot; order?: number }): EnvironmentProviders;  // the same badge for the other search: opens shell.quickOpen (mod+p) over open work. Opt-in and independent of the palette entry; id 'shell.quickOpenEntry' (omittable). Defaults: status-bar / start / order 5, apart from the palette badge on purpose. Either badge renders only while its command is registered and available — omit the command and the badge goes with it; with shortcuts off the badge stays and prints no chord.
 // The palette itself (mod+k) matches by SUBSEQUENCE (fuzzy — "rst" finds "Reset list"), surfaces the commands the user
-// last picked IN IT in a "Recently used" section on top (persisted at lw.shell.command-mru, VS-Code MRU behaviour —
+// last picked IN IT in a "Recently used" section on top (persisted at lw.shell.command-mru, most-recently-used behaviour —
 // no other trigger adds to it: a command driven by its shortcut is one you can already reach without searching) and shows a
 // keyboard-hint footer (↑↓ · ↵ · Esc). All host-internal — no authoring or distribution API.
 // Quick-Open (amendment): a SECOND host command shell.quickOpen (mod+p) opens the same palette in tabs mode —
@@ -790,7 +790,7 @@ export const appConfig: ApplicationConfig = {
     // Optional: provideShellFeatures({ content, sidebar, rail, workspaces, windows, commands }) — switch user-facing gestures off
     // (every gesture is ON by default). Reordering: content.reorderTabs + rail.reorder + sidebar.reorderViews
     // let users sort within a band; sidebar.moveViews drags a VIEW between the left/right sidebars
-    // (Obsidian-style, Alt+Shift+Left/Right by keyboard). A content tab's order lives on the pane that
+    // (Alt+Shift+Left/Right by keyboard). A content tab's order lives on the pane that
     // holds it (in lw.shell.pane-trees), rail/view order in lw.shell.item-order — both user-local.
     // Uses @angular/cdk (a @loomweaver/shell peer dep).
     ...providePlugins(notesWeaver),   // variadic + returns an array: spread it

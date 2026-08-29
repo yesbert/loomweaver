@@ -173,10 +173,10 @@ unit, so you can't half-configure it. Pass your own non-content
 routes as `provideShellRouter([...routes])` if the distribution has any. Authoring the routes/tabs
 themselves is the weaver's job — see [authoring a weaver](authoring-a-weaver.md#content-area--routes--tabs).
 
-**Preview tabs (optional).** The content area supports VS-Code "Preview Editors" — a weaver opens with
+**Preview tabs (optional).** The content area supports preview tabs — a weaver opens with
 `preview: true` to reuse a single italic slot. It is **on by default**; opt out for the whole
-distribution with `provideShellFeatures({ content: { preview: false } })` (mirrors
-`workbench.editor.enablePreview`), which makes every `openContentTab` a permanent tab.
+distribution with `provideShellFeatures({ content: { preview: false } })`, which makes every
+`openContentTab` a permanent tab.
 
 **User reordering (optional).** Users can drag or keyboard-reorder the host chrome — content tabs,
 rail items and view tabs within their own band, with the order persisted user-locally. It uses
@@ -185,7 +185,7 @@ container with
 `provideShellFeatures({ content: { reorderTabs: false }, rail: { reorder: false }, sidebar: { reorderViews: false } })`.
 
 **Carrying an item to the *other* bar is a different capability**, because a user meets it as one:
-`sidebar.moveViews` covers moving a view between the left and right sidebars (Obsidian-style) and
+`sidebar.moveViews` covers moving a view between the left and right sidebars and
 `rail.moveItems` the same for rail entries — each taking the menu entry, the drag *and*
 `Alt+Shift+Arrow` together.
 
@@ -204,7 +204,7 @@ bindable to a shortcut, callable from an item of your own, and removable with
 
 **Panes & splits (always on).** Every dock (centre + both sidebars) is a tree of **tab-group panes**.
 Users split a pane by dragging a tab to its edge or via a tab's **Split right / Split down** menu, move
-tabs between groups by dragging onto a strip, and resize with the dividers (Obsidian-style).
+tabs between groups by dragging onto a strip, and resize with the dividers.
 Exactly one centre pane is the **URL pane** (it drives deep links / back-forward); the rest are workspace
 state. The whole arrangement — pane trees, sizes, active tabs — is persisted user-locally and reload-safe.
 There is always **exactly one active workspace**: a fresh installation starts in the built-in *Default*
@@ -1442,18 +1442,16 @@ then throws `CapabilityError`, a missing `version` means the store can never off
 [scaffolding](scaffolding.md#the-cli--loomcli).
 
 Providing a catalog adds the store's entry points: a **Plugin store** settings section (id
-`setting:shell.pluginStore`, `omit`-able) that — the Obsidian settings model — shows the
+`setting:shell.pluginStore`, `omit`-able) that shows the
 **searchable installed-plugins list right on the page** (per plugin the icon actions: open its
 settings · uninstall [with a danger-toned confirmation] — both tooltipped — and the standard enable/disable switch) next to a Browse button; that button — and
 the palette command `shell.openPluginStore` — opens the **store dialog**, a wide two-pane browse
-surface modelled on
-Obsidian's community-plugins browser: a **searchable list** (name, author, category and description
+surface: a **searchable list** (name, author, category and description
 are matched; each card shows the plugin icon, name, author, category badge, download count, a
 **relative** last-update time — "2 days ago", localized — and the short description, plus an
 *Installed* badge) and a **detail pane**. The detail pane shows the metadata, a plain external `repository` link and
 the plugin's **README rendered in-app**. The README is fetched from the same-origin `readmeUrl` and
-sanitized. Like Obsidian — which pulls the author's README from GitHub and renders it inside the
-app — the detail view never embeds a foreign page. A second, equally searchable **Installed** view manages
+sanitized: the detail view renders the author's text itself and never embeds a foreign page. A second, equally searchable **Installed** view manages
 what is installed: per plugin an icon-action row (open its *Community plugins* settings section ·
 enable/disable · uninstall — all tooltipped) plus an **Update to vX.Y.Z** button whenever the catalog
 carries a newer version. `iconUrl` is a **same-origin image** the operator
@@ -1485,7 +1483,7 @@ consented to**, the update asks again and lists exactly the added ones — the p
 grant for installed plugins, so an update can never widen it silently. A version that asks for no
 more than before applies straight away.
 
-The settings nav separates plugin *settings* by provenance (the Obsidian model): sections your
+The settings nav separates plugin *settings* by provenance: sections your
 composed weavers register group under **"App plugins"** (they ship with the app), while an installed
 plugin that [declares its own settings](authoring-a-weaver.md#settings-sections)
 gets its own entry under a **"Community plugins"** group — the host stamps the group, a plugin cannot
