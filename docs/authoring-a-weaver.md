@@ -696,7 +696,7 @@ once when that tab is closed (the host's ×, or `closeContentTab`) — the place
 cancel in-flight work or persist a draft. (In-process weavers only; a sandboxed plugin's `onClose`
 does not cross the RPC boundary.)
 
-**Preview tabs (VS-Code "Preview Editors").** For file-browsing UX, open with `preview: true`: the host
+**Preview tabs.** For file-browsing UX, open with `preview: true`: the host
 uses a **single reused, italic** slot per pane — the next `preview` open of a *different* path replaces
 it in place, so browsing many items doesn't pile up tabs. Promote it to a permanent tab **explicitly**:
 call `ctx.keepContentTab(path)` (e.g. on your list's double-click or when the content is edited).
@@ -936,7 +936,7 @@ is found alive when its workspace is chosen again.
 regex-parsing URLs — it stays stable across host URL-shape changes. Trusted rung only (a sandboxed
 surface already receives its own state over the surface channel).
 
-**Panes & tab groups (Obsidian-style).** The tabs you open aren't confined to one strip. Every pane is
+**Panes & tab groups.** The tabs you open aren't confined to one strip. Every pane is
 a **tab group** with its own strip, and the user can rearrange them — **without any extra API from you**:
 
 - **Drag a tab to a pane edge** to split the area, taking that tab into a new group; **drag it onto
@@ -1186,8 +1186,7 @@ that a version which **declares capabilities the user never consented to** asks 
 listing exactly the added ones — so growing your declaration is safe but never silent.
 
 **Frame-plugin settings — declare data, the host renders and stores.** A sandboxed plugin can contribute
-a settings section over RPC, but in a **data-only** form (the VS Code `contributes.configuration`
-model): each row declares a control kind and its **default value** instead of `value()`/`set()`
+a settings section over RPC, but in a **data-only** form: each row declares a control kind and its **default value** instead of `value()`/`set()`
 callbacks, which cannot cross the wire. The host renders the controls. It also owns the storage (user-local
 through the distribution's settings store). It **pushes the current values back** by calling the
 `settingsChanged(sectionId, values)` method you expose on your RPC channel. That call comes once after
@@ -1253,7 +1252,7 @@ The **rail** (activity bar) holds independent command triggers; a **bar** (top/s
 components or declarative buttons.
 
 ```ts
-// Rail item → triggers a command (VS Code ribbon style). Pin settings to the bottom.
+// Rail item → triggers a command. Pin settings to the bottom.
 ctx.registerRailItem({ id: 'notes.settings', rail: 'activity', icon: 'settings',
   title: 'notes.settings', anchor: 'bottom', run: () => ctx.ui.openSettings() });
 

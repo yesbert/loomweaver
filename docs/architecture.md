@@ -28,11 +28,11 @@ it is thin at the moment.)
 
 ## The one rule: the core has zero domain logic
 
-The model follows VS Code / Backstage / Eclipse Theia: a **thin core that can only do plugins**. The
-"actual app" — whatever product you build on the platform — is a **first-party plugin bundle**,
-mechanically indistinguishable from a third-party one. Domain concepts (documents, trees, tickets) live in a
-plugin, **never** in the platform. The explicit anti-pattern is Obsidian, whose core grew to "do too
-much."
+The model is a **thin core that can only do plugins**. The "actual app" — whatever product you build
+on the platform — is a **first-party plugin bundle**, mechanically indistinguishable from a
+third-party one. Domain concepts (documents, trees, tickets) live in a plugin, **never** in the
+platform. The anti-pattern is a core that grows: once one domain feature is let in because it was
+convenient, the next one has a precedent, and the platform ends up doing too much.
 
 Three roles, and nothing blurs them:
 
@@ -44,8 +44,8 @@ Three roles, and nothing blurs them:
 
 ## Product = distribution
 
-A product is a **distribution** of LoomWeaver, the way VSCodium is a distribution of VS Code: it
-**consumes the platform packages and composes them** — it never forks the core.
+A product is a **distribution** of LoomWeaver: it **consumes the platform packages and composes
+them** — it never forks the core.
 
 - **Frontend:** a thin Angular app composes `@loomweaver/shell` (the host chrome) + one or more weavers,
   declares a layout, grants capabilities, and sets its branding. `@loomweaver/shell` and the weaver both
