@@ -103,8 +103,18 @@ function relativeTo(root: string, target: string): string {
   return relative(root, resolve(target)).split(sep).join('/');
 }
 
+function withoutTrailingSlashes(path: string): string {
+  let end = path.length;
+  while (end > 0 && path[end - 1] === '/') {
+    end -= 1;
+  }
+  return path.slice(0, end);
+}
+
 function normalise(value: unknown): string {
-  return typeof value === 'string' ? value.replace(/^\.?\/*/, '').replace(/\/+$/, '') : '';
+  return typeof value === 'string'
+    ? withoutTrailingSlashes(value.replace(/^\.?\/*/, ''))
+    : '';
 }
 
 function asObject(value: unknown): Record<string, unknown> | undefined {

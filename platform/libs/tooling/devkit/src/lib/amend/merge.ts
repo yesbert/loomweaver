@@ -10,8 +10,17 @@ export interface MergeResult {
   readonly declined: readonly string[];
 }
 
+export function normalizeProjectRoot(value: string): string {
+  const rooted = value.replace(/^\.?\/*/, '');
+  let end = rooted.length;
+  while (end > 0 && rooted[end - 1] === '/') {
+    end -= 1;
+  }
+  return rooted.slice(0, end);
+}
+
 export function joinProjectPath(projectRoot: string, path: string): string {
-  const root = projectRoot.replace(/^\.?\/*/, '').replace(/\/+$/, '');
+  const root = normalizeProjectRoot(projectRoot);
   return root ? `${root}/${path}` : path;
 }
 

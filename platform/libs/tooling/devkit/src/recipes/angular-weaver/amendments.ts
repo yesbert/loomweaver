@@ -1,3 +1,4 @@
+import { normalizeProjectRoot } from '../../lib/amend/merge';
 import { Amendment } from '../../lib/amend/types';
 import { resolveWeaverInput, WeaverInput } from './recipe';
 
@@ -6,7 +7,7 @@ export function weaverAmendments(
   where: string | undefined,
 ): readonly Amendment[] {
   const w = resolveWeaverInput(input);
-  const directory = (where ?? '').replace(/^\.?\/*/, '').replace(/\/+$/, '');
+  const directory = normalizeProjectRoot(where ?? '');
   if (!directory) {
     return [];
   }
