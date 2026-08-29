@@ -15,13 +15,13 @@ import { planWrite, WriteError } from './write';
 
 function capture() {
   const out: string[] = [];
-  const err: string[] = [];
+  const error: string[] = [];
   return {
-    io: { out: (l: string) => out.push(l), err: (l: string) => err.push(l) },
+    io: { out: (l: string) => out.push(l), err: (l: string) => error.push(l) },
     out,
-    err,
+    err: error,
     text: () => out.join('\n'),
-    errText: () => err.join('\n'),
+    errText: () => error.join('\n'),
   };
 }
 

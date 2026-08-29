@@ -1,6 +1,6 @@
-export function upgradeElementProperty(el: HTMLElement, name: string): void {
-  const self = el as unknown as Record<string, unknown>;
-  if (Object.prototype.hasOwnProperty.call(el, name)) {
+export function upgradeElementProperty(element: HTMLElement, name: string): void {
+  const self = element as unknown as Record<string, unknown>;
+  if (Object.prototype.hasOwnProperty.call(element, name)) {
     const value = self[name];
     delete self[name];
     self[name] = value;
@@ -8,13 +8,13 @@ export function upgradeElementProperty(el: HTMLElement, name: string): void {
 }
 
 export function reflectAttribute(
-  el: HTMLElement,
+  element: HTMLElement,
   name: string,
   value: string | null | undefined,
 ): void {
   if (value === null || value === undefined) {
-    el.removeAttribute(name);
+    element.removeAttribute(name);
   } else {
-    el.setAttribute(name, value);
+    element.setAttribute(name, value);
   }
 }

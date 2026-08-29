@@ -779,7 +779,7 @@ describe('FramePluginRuntime (iframe + Penpal runtime)', () => {
     });
 
     expect(
-      registry.menuItems().some((i) => i.menu === 'content/tab/context'),
+      registry.menuItems().some((index) => index.menu === 'content/tab/context'),
     ).toBe(true);
   });
 

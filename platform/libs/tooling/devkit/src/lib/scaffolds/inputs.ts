@@ -1,22 +1,22 @@
 import { DistributionStyles } from '../../recipes/angular-distribution/recipe';
-import { bool, str, ScaffoldValues } from './scaffolds';
+import { bool, str as string_, ScaffoldValues } from './scaffolds';
 
 export function weaverInput(values: ScaffoldValues) {
   return {
-    id: str(values, 'id') ?? '',
-    name: str(values, 'name'),
-    prefix: str(values, 'prefix'),
-    importPath: str(values, 'importPath'),
+    id: string_(values, 'id') ?? '',
+    name: string_(values, 'name'),
+    prefix: string_(values, 'prefix'),
+    importPath: string_(values, 'importPath'),
     features: {
       command: bool(values, 'command'),
-      shortcut: str(values, 'shortcut'),
-      menu: str(values, 'menu'),
+      shortcut: string_(values, 'shortcut'),
+      menu: string_(values, 'menu'),
       barItem: bool(values, 'barItem'),
       settings: bool(values, 'settings'),
       about: bool(values, 'about'),
       instanceable: bool(values, 'instanceable'),
       container: bool(values, 'container'),
-      access: str(values, 'access'),
+      access: string_(values, 'access'),
       spec: bool(values, 'spec'),
     },
   };
@@ -24,10 +24,10 @@ export function weaverInput(values: ScaffoldValues) {
 
 export function distributionInput(values: ScaffoldValues) {
   return {
-    name: str(values, 'name') ?? '',
-    title: str(values, 'title'),
-    directory: str(values, 'directory'),
+    name: string_(values, 'name') ?? '',
+    title: string_(values, 'title'),
+    directory: string_(values, 'directory'),
     styles:
-      (str(values, 'styles') as DistributionStyles | undefined) ?? 'tailwind',
+      (string_(values, 'styles') as DistributionStyles | undefined) ?? 'tailwind',
   };
 }

@@ -59,13 +59,13 @@ describe('Reorderable (keyboard)', () => {
     fixture.detectChanges();
   });
 
-  function btn(id: string): HTMLElement {
+  function button(id: string): HTMLElement {
     return fixture.nativeElement.querySelector(`[data-reorder-id="${CSS.escape(id)}"]`);
   }
 
   function altArrow(id: string, key: string): void {
-    btn(id).focus();
-    btn(id).dispatchEvent(
+    button(id).focus();
+    button(id).dispatchEvent(
       new KeyboardEvent('keydown', { key, altKey: true, bubbles: true }),
     );
   }
@@ -91,8 +91,8 @@ describe('Reorderable (keyboard)', () => {
   });
 
   it('ignores arrows without Alt (leaves normal navigation alone)', () => {
-    btn('a').focus();
-    btn('a').dispatchEvent(
+    button('a').focus();
+    button('a').dispatchEvent(
       new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }),
     );
     expect(host.last()).toBeNull();

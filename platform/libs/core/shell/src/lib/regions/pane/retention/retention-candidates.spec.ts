@@ -8,8 +8,8 @@ import { RetentionCandidates } from './retention-candidates';
 
 const ownedView = { instance: 'owned view' };
 const foreignView = { instance: 'foreign view' };
-const ownedDoc = { instance: 'owned doc' };
-const foreignDoc = { instance: 'foreign doc' };
+const ownedDocument = { instance: 'owned doc' };
+const foreignDocument = { instance: 'foreign doc' };
 const activeComponent = { instance: 'active outlet' };
 
 function setup(url = '/doc/main'): RetentionCandidates {
@@ -29,8 +29,8 @@ function setup(url = '/doc/main'): RetentionCandidates {
         provide: ContentReuseStrategy,
         useValue: {
           parkedHandles: () => [
-            { key: 'doc/main', retained: false, instance: ownedDoc },
-            { key: 'reports', retained: false, instance: foreignDoc },
+            { key: 'doc/main', retained: false, instance: ownedDocument },
+            { key: 'reports', retained: false, instance: foreignDocument },
           ],
         },
       },
@@ -90,8 +90,8 @@ describe('RetentionCandidates', () => {
     expect(candidates.all()).toEqual([
       ownedView,
       foreignView,
-      ownedDoc,
-      foreignDoc,
+      ownedDocument,
+      foreignDocument,
       activeComponent,
     ]);
   });
@@ -101,15 +101,15 @@ describe('RetentionCandidates', () => {
 
     expect(candidates.ofPlugin('testbed')).toEqual([
       ownedView,
-      ownedDoc,
+      ownedDocument,
       activeComponent,
     ]);
-    expect(candidates.ofPlugin('other')).toEqual([foreignView, foreignDoc]);
+    expect(candidates.ofPlugin('other')).toEqual([foreignView, foreignDocument]);
   });
 
   it('ofPlugin() excludes the active outlet when the URL matches no owned route', () => {
     const candidates = setup('/reports');
 
-    expect(candidates.ofPlugin('testbed')).toEqual([ownedView, ownedDoc]);
+    expect(candidates.ofPlugin('testbed')).toEqual([ownedView, ownedDocument]);
   });
 });

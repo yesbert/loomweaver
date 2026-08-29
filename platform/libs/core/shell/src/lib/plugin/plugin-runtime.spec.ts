@@ -56,7 +56,7 @@ describe('PluginRuntime', () => {
     runtime.activateAll();
 
     expect(registry.views().map((v) => v.id)).toEqual(['v']);
-    expect(registry.barItems().map((i) => i.id)).toEqual(['b']);
+    expect(registry.barItems().map((index) => index.id)).toEqual(['b']);
   });
 
   it('isolates a denied plugin (default-deny) without aborting a granted one', () => {

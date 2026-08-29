@@ -25,8 +25,8 @@ function clickTabInPane(
         (a, b) => a.getBoundingClientRect().x - b.getBoundingClientRect().x,
       );
       const pane = which === 'left' ? panes[0] : panes[panes.length - 1];
-      const tab = [...pane.querySelectorAll('[role="tab"]')].find((el) =>
-        (el.textContent ?? '').includes(name),
+      const tab = [...pane.querySelectorAll('[role="tab"]')].find((element) =>
+        (element.textContent ?? '').includes(name),
       );
       tab?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     },
@@ -39,8 +39,8 @@ async function splitNotes(page: Page): Promise<void> {
   await expect(page.getByRole('tab', { name: 'Overview' })).toBeVisible();
   await page.goto('/notes');
   await expect(page.locator('lw-testbed-notes-view textarea')).toBeVisible();
-  const mod = process.platform === 'darwin' ? 'Meta' : 'Control';
-  await page.keyboard.press(`${mod}+\\`);
+  const module_ = process.platform === 'darwin' ? 'Meta' : 'Control';
+  await page.keyboard.press(`${module_}+\\`);
   await expect(page.locator('lw-testbed-notes-view textarea')).toHaveCount(2);
 }
 

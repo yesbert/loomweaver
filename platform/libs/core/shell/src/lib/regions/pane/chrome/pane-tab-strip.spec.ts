@@ -55,7 +55,7 @@ describe('PaneTabStrip', () => {
   function labels(): string[] {
     const host = fixture.nativeElement as HTMLElement;
     return [...host.querySelectorAll<HTMLElement>('[role="tab"]')].map(
-      (el) => el.textContent?.trim() ?? '',
+      (element) => element.textContent?.trim() ?? '',
     );
   }
 

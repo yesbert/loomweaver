@@ -31,8 +31,8 @@ function assign(
 export function parseArgs(argv: readonly string[]): ParsedArgs {
   const flags: Record<string, string | boolean> = {};
   let command = '';
-  for (let i = 0; i < argv.length; i++) {
-    const token = argv[i];
+  for (let index = 0; index < argv.length; index++) {
+    const token = argv[index];
     if (token === '-h' || token === '--help') {
       flags['help'] = true;
       continue;
@@ -42,8 +42,8 @@ export function parseArgs(argv: readonly string[]): ParsedArgs {
       continue;
     }
     if (token.startsWith('--')) {
-      if (assign(flags, token, argv[i + 1])) {
-        i++;
+      if (assign(flags, token, argv[index + 1])) {
+        index++;
       }
       continue;
     }

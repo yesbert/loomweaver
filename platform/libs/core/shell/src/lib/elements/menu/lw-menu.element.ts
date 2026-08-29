@@ -152,7 +152,7 @@ export class LwMenuElement extends HTMLElement {
       return;
     }
     this.active = (index + items.length) % items.length;
-    items.forEach((item, i) => (item.tabIndex = i === this.active ? 0 : -1));
+    items.forEach((item, index_) => (item.tabIndex = index_ === this.active ? 0 : -1));
     const item = items[this.active];
     item.focus();
     item.scrollIntoView?.({ block: 'nearest' });

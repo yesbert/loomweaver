@@ -239,7 +239,7 @@ test.describe('Reordering and instances: the switch takes the gesture too (K1f)'
       .locator(items)
       .evaluateAll((els) =>
         els.map(
-          (el) => el.getAttribute('aria-label') ?? el.textContent?.trim() ?? '',
+          (element) => element.getAttribute('aria-label') ?? element.textContent?.trim() ?? '',
         ),
       );
 

@@ -216,7 +216,7 @@ describe('CommandService auth gating', () => {
 });
 
 describe('CommandService window scope (popout)', () => {
-  const cmd = { id: 'go.somewhere', title: 't', run: vi.fn() };
+  const command = { id: 'go.somewhere', title: 't', run: vi.fn() };
 
   function setUpAt(pathname: string) {
     TestBed.resetTestingModule();
@@ -229,26 +229,26 @@ describe('CommandService window scope (popout)', () => {
       ],
     });
     const registry = TestBed.inject(ContributionRegistry);
-    registry.addCommand(cmd);
+    registry.addCommand(command);
     return TestBed.inject(CommandService);
   }
 
-  beforeEach(() => cmd.run.mockClear());
+  beforeEach(() => command.run.mockClear());
 
   it('leaves an unmarked command alone in the main window', () => {
     const commands = setUpAt('/entry/e-01');
 
-    expect(commands.available(cmd)).toBe(true);
+    expect(commands.available(command)).toBe(true);
     commands.execute('go.somewhere');
-    expect(cmd.run).toHaveBeenCalledTimes(1);
+    expect(command.run).toHaveBeenCalledTimes(1);
   });
 
   it('withholds an unmarked command in a pop-out, for every trigger alike', () => {
     const commands = setUpAt('/popout/search');
 
-    expect(commands.available(cmd)).toBe(false);
+    expect(commands.available(command)).toBe(false);
     commands.execute('go.somewhere');
-    expect(cmd.run).not.toHaveBeenCalled();
+    expect(command.run).not.toHaveBeenCalled();
   });
 
   it('offers a command that declares popout, in a pop-out', () => {

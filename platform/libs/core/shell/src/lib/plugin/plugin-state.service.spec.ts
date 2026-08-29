@@ -127,8 +127,8 @@ describe('PluginStateService', () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 
-    for (let i = 0; i < 64; i += 1) {
-      state.watch<number>(`k${i}`).set(i);
+    for (let index = 0; index < 64; index += 1) {
+      state.watch<number>(`k${index}`).set(index);
     }
     state.watch<string>('one-too-many').set('nope');
     vi.advanceTimersByTime(400);

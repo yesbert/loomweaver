@@ -1,3 +1,3 @@
-import { nodeLibTestConfig } from '../../../tools/vitest-base.mts';
+import { nodeLibTestConfig as nodeLibraryTestConfig } from '../../../tools/vitest-base.mts';
 
-export default nodeLibTestConfig('frame-kit', import.meta.dirname);
+export default nodeLibraryTestConfig('frame-kit', import.meta.dirname);

@@ -73,12 +73,12 @@ function stripOrders(page: Page) {
 async function surfaceIdentity(page: Page): Promise<string> {
   await expect(page.locator('lw-testbed-notes-view')).toBeVisible();
   return page.evaluate(() => {
-    const el = document.querySelector<HTMLElement>('lw-testbed-notes-view');
-    if (!el) {
+    const element = document.querySelector<HTMLElement>('lw-testbed-notes-view');
+    if (!element) {
       return 'absent';
     }
-    el.dataset['probe'] ??= String(performance.now());
-    return el.dataset['probe'];
+    element.dataset['probe'] ??= String(performance.now());
+    return element.dataset['probe'];
   });
 }
 
@@ -150,7 +150,7 @@ function panesLeftToRight(page: Page): Promise<PaneSnapshot[]> {
         .replace(/(.+)\1/, '$1');
       const view = [
         ...pane.querySelectorAll<HTMLElement>('lw-testbed-notes-view'),
-      ].find((el) => el.getBoundingClientRect().width > 0);
+      ].find((element) => element.getBoundingClientRect().width > 0);
       return {
         active,
         marker: view?.dataset['marker'] ?? 'none',
@@ -165,8 +165,8 @@ async function splitAndStamp(page: Page): Promise<void> {
   await expect(page.getByRole('tab', { name: 'Overview' })).toBeVisible();
   await page.goto('/notes');
   await expect(page.locator('lw-testbed-notes-view textarea')).toBeVisible();
-  const mod = process.platform === 'darwin' ? 'Meta' : 'Control';
-  await page.keyboard.press(`${mod}+\\`);
+  const module_ = process.platform === 'darwin' ? 'Meta' : 'Control';
+  await page.keyboard.press(`${module_}+\\`);
   await expect(page.locator('lw-testbed-notes-view textarea')).toHaveCount(2);
   await page.evaluate(() => {
     const views = [
@@ -190,8 +190,8 @@ function clickTabInPane(
         (a, b) => a.getBoundingClientRect().x - b.getBoundingClientRect().x,
       );
       const pane = which === 'left' ? panes[0] : panes[panes.length - 1];
-      const tab = [...pane.querySelectorAll('[role="tab"]')].find((el) =>
-        (el.textContent ?? '').includes(name),
+      const tab = [...pane.querySelectorAll('[role="tab"]')].find((element) =>
+        (element.textContent ?? '').includes(name),
       );
       tab?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     },

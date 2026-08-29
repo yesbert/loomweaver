@@ -31,7 +31,7 @@ describe('ViewInstanceService', () => {
 
     const instances = service.instances('v')();
     expect(instances).toHaveLength(2);
-    const created = instances.find((i) => i.name === 'Alpha');
+    const created = instances.find((index) => index.name === 'Alpha');
     expect(created).toBeDefined();
     expect(service.activeId('v')()).toBe(created?.id);
     expect(service.isDefault('v', created?.id ?? '')).toBe(false);
@@ -47,14 +47,14 @@ describe('ViewInstanceService', () => {
     expect(
       service
         .instances('v')()
-        .find((i) => i.id === id)?.name,
+        .find((index) => index.id === id)?.name,
     ).toBe('Beta');
 
     service.rename('v', 'v', 'Renamed default');
     expect(
       service
         .instances('v')()
-        .find((i) => i.id === 'v')?.name,
+        .find((index) => index.id === 'v')?.name,
     ).toBe('');
   });
 

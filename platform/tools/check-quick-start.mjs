@@ -46,13 +46,13 @@ function run(command, args, cwd, { setup = false } = {}) {
 function packPlatform(into) {
   const packages = [];
   for (const name of ['shell', 'plugin-sdk']) {
-    const dist = join(platformRoot, 'dist/libs/core', name);
-    if (!existsSync(dist)) {
+    const distribution = join(platformRoot, 'dist/libs/core', name);
+    if (!existsSync(distribution)) {
       throw new SetupError(
-        `${dist} does not exist — run "nx run-many -t package" and "nx run shell:styles" first.`,
+        `${distribution} does not exist — run "nx run-many -t package" and "nx run shell:styles" first.`,
       );
     }
-    const output = run('npm', ['pack', dist], into, { setup: true });
+    const output = run('npm', ['pack', distribution], into, { setup: true });
     packages.push(join(into, output.trim().split('\n').pop()));
   }
   return packages;

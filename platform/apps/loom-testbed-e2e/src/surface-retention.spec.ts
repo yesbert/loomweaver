@@ -351,8 +351,8 @@ test.describe('Surface retention (a sandboxed surface is hidden, not rebuilt)', 
       .getByRole('button', { name: 'Sandbox (iframe)', exact: true })
       .click();
 
-    const mod = process.platform === 'darwin' ? 'Meta' : 'Control';
-    await page.keyboard.press(`${mod}+KeyP`);
+    const module_ = process.platform === 'darwin' ? 'Meta' : 'Control';
+    await page.keyboard.press(`${module_}+KeyP`);
     await page.getByRole('combobox').fill('static');
     await page.getByRole('option', { name: /Sandbox \(static tab\)/ }).click();
     await expect(

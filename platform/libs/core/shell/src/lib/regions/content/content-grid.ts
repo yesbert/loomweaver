@@ -41,7 +41,7 @@ export class ContentGrid {
   });
 
   constructor() {
-    const doc = inject(DOCUMENT);
+    const document_ = inject(DOCUMENT);
     const onKeydown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         this.chrome.restore();
@@ -51,8 +51,8 @@ export class ContentGrid {
       if (!this.maximized()) {
         return;
       }
-      doc.addEventListener('keydown', onKeydown);
-      onCleanup(() => doc.removeEventListener('keydown', onKeydown));
+      document_.addEventListener('keydown', onKeydown);
+      onCleanup(() => document_.removeEventListener('keydown', onKeydown));
     });
     effect(() => {
       if (!this.layout.isSplit(CONTENT_DOCK)) {

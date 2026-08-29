@@ -32,15 +32,15 @@ function parseRecord(viewId: string, raw: string | undefined): InstanceRecord {
     const record = parsed as Partial<InstanceRecord>;
     const instances = Array.isArray(record.instances)
       ? record.instances.filter(
-          (i): i is ViewInstance =>
-            !!i && typeof i.id === 'string' && typeof i.name === 'string',
+          (index): index is ViewInstance =>
+            !!index && typeof index.id === 'string' && typeof index.name === 'string',
         )
       : [];
-    const withoutDefault = instances.filter((i) => i.id !== viewId);
+    const withoutDefault = instances.filter((index) => index.id !== viewId);
     const merged = [{ id: viewId, name: '' }, ...withoutDefault];
     const activeId =
       typeof record.activeId === 'string' &&
-      merged.some((i) => i.id === record.activeId)
+      merged.some((index) => index.id === record.activeId)
         ? record.activeId
         : viewId;
     return { instances: merged, activeId };
@@ -90,7 +90,7 @@ export class ViewInstanceService {
 
   setActive(viewId: string, instanceId: string): void {
     const record = this.recordFor(viewId);
-    if (record().instances.some((i) => i.id === instanceId)) {
+    if (record().instances.some((index) => index.id === instanceId)) {
       this.commit(viewId, { ...record(), activeId: instanceId });
     }
   }
@@ -111,8 +111,8 @@ export class ViewInstanceService {
     const record = this.recordFor(viewId);
     this.commit(viewId, {
       ...record(),
-      instances: record().instances.map((i) =>
-        i.id === instanceId ? { ...i, name } : i,
+      instances: record().instances.map((index) =>
+        index.id === instanceId ? { ...index, name } : index,
       ),
     });
   }
@@ -122,7 +122,7 @@ export class ViewInstanceService {
       return;
     }
     const record = this.recordFor(viewId);
-    const instances = record().instances.filter((i) => i.id !== instanceId);
+    const instances = record().instances.filter((index) => index.id !== instanceId);
     const activeId =
       record().activeId === instanceId ? viewId : record().activeId;
     this.commit(viewId, { instances, activeId });

@@ -42,7 +42,7 @@ describe('<lw-menu> custom element', () => {
     ]);
     const items = itemsOf(menu);
     expect(menu.getAttribute('role')).toBe('menu');
-    expect(items.map((i) => i.textContent)).toEqual(['Close', 'Close Others']);
+    expect(items.map((index) => index.textContent)).toEqual(['Close', 'Close Others']);
     expect(items[0].getAttribute('aria-disabled')).toBe('false');
   });
 
@@ -98,10 +98,10 @@ describe('<lw-menu> custom element', () => {
     expect(onDismiss).toHaveBeenCalledTimes(1);
   });
 
-  function mountItem(attrs: Record<string, string>): HTMLElement {
+  function mountItem(attributes: Record<string, string>): HTMLElement {
     const menu = document.createElement(LW_MENU_TAG);
     const item = document.createElement(LW_MENU_ITEM_TAG);
-    for (const [name, value] of Object.entries(attrs)) {
+    for (const [name, value] of Object.entries(attributes)) {
       item.setAttribute(name, value);
     }
     menu.append(item);

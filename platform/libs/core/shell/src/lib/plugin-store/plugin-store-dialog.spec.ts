@@ -239,13 +239,13 @@ describe('PluginStoreDialog', () => {
     ) as HTMLElement;
     expect(detail.textContent).toContain('Store demo');
     expect(detail.textContent).toContain('v1.0.0');
-    const repository = detail.querySelector(
+    const repo = detail.querySelector(
       '[data-testid="store-repository"]',
     ) as HTMLAnchorElement;
-    expect(repository.getAttribute('href')).toBe(
+    expect(repo.getAttribute('href')).toBe(
       'https://example.com/store-full',
     );
-    expect(repository.getAttribute('target')).toBe('_blank');
+    expect(repo.getAttribute('target')).toBe('_blank');
     expect(globalThis.fetch).toHaveBeenCalledWith('/store-full/README.md');
     const markdown = detail.querySelector('lw-markdown') as HTMLElement & {
       source?: string;

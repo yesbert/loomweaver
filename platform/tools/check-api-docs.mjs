@@ -182,7 +182,7 @@ const missing = [];
 const allExported = new Set();
 let checked = 0;
 
-for (const [pkg, relative] of Object.entries(ENTRIES)) {
+for (const [package_, relative] of Object.entries(ENTRIES)) {
   const entry = path.join(repoRoot, relative);
   if (!existsSync(entry)) {
     console.error(
@@ -195,7 +195,7 @@ for (const [pkg, relative] of Object.entries(ENTRIES)) {
     allExported.add(name);
     if (EXEMPT.has(name)) continue;
     if (new RegExp(String.raw`\b${name}\b`).test(blob)) continue;
-    missing.push(`${pkg} · ${name}`);
+    missing.push(`${package_} · ${name}`);
   }
 }
 

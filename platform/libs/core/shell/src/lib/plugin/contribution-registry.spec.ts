@@ -108,7 +108,7 @@ describe('ContributionRegistry', () => {
     registry.addBarItem(barItem);
     registry.addBarItem(override);
 
-    expect(registry.barItems().map((i) => i.id)).toEqual(['a', 'b']);
+    expect(registry.barItems().map((index) => index.id)).toEqual(['a', 'b']);
     expect(registry.barItems()[1]).toBe(override);
   });
 
@@ -157,7 +157,7 @@ describe('ContributionRegistry', () => {
 
     registry.removeMenuItemById('menu:c1');
 
-    expect(registry.menuItems().map((i) => i.command)).toEqual(['c2']);
+    expect(registry.menuItems().map((index) => index.command)).toEqual(['c2']);
   });
 
   describe('content route plugin ownership', () => {

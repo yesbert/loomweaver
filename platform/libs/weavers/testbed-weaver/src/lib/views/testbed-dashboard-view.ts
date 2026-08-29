@@ -62,8 +62,8 @@ export function linePoints(
   const span = max - min || 1;
   const step = (width - pad * 2) / (values.length - 1);
   return values
-    .map((value, i) => {
-      const x = pad + i * step;
+    .map((value, index) => {
+      const x = pad + index * step;
       const y = height - pad - ((value - min) / span) * (height - pad * 2);
       return `${x.toFixed(1)},${y.toFixed(1)}`;
     })

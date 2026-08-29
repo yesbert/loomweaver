@@ -13,6 +13,6 @@ export class TestbedWsCanvasView {
   protected readonly simId = this.route?.snapshot.paramMap.get('id') ?? '—';
   protected readonly nodes = Array.from(
     { length: 6 },
-    (_, i) => `${this.simId}-${i + 1}`,
+    (_, index) => `${this.simId}-${index + 1}`,
   );
 }

@@ -280,10 +280,10 @@ export class OpenTabsService {
   }
 
   updateOpen(
-    fn: (tabs: readonly OpenTab[]) => readonly OpenTab[],
+    function_: (tabs: readonly OpenTab[]) => readonly OpenTab[],
   ): void {
     const current = this.openTabs();
-    const next = fn(current);
+    const next = function_(current);
     if (next === current) {
       return;
     }

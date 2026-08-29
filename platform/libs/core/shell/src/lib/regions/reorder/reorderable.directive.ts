@@ -55,16 +55,16 @@ export class Reorderable {
     const id = item.dataset['reorderId'] ?? '';
     const band = item.dataset['reorderBand'] ?? '';
     const inBand = this.items().filter(
-      (el) => (el.dataset['reorderBand'] ?? '') === band,
+      (element) => (element.dataset['reorderBand'] ?? '') === band,
     );
-    const bandIds = inBand.map((el) => el.dataset['reorderId'] ?? '');
+    const bandIds = inBand.map((element) => element.dataset['reorderId'] ?? '');
     const target = bandIds.indexOf(id) + direction;
     if (target < 0 || target >= bandIds.length) {
       return false;
     }
     const neighbourId = bandIds[target];
     const without = this.items()
-      .map((el) => el.dataset['reorderId'] ?? '')
+      .map((element) => element.dataset['reorderId'] ?? '')
       .filter((x) => x !== id);
     const insertAt = without.indexOf(neighbourId) + (direction > 0 ? 1 : 0);
     without.splice(insertAt, 0, id);
@@ -83,7 +83,7 @@ export class Reorderable {
 
   private focusItem(id: string): void {
     this.items()
-      .find((el) => (el.dataset['reorderId'] ?? '') === id)
+      .find((element) => (element.dataset['reorderId'] ?? '') === id)
       ?.focus();
   }
 }

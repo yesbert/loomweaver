@@ -129,10 +129,10 @@ export class LwSelectElement extends HTMLElement {
     });
   }
 
-  private write(fn: () => void): void {
+  private write(function_: () => void): void {
     this.observer?.disconnect();
     try {
-      fn();
+      function_();
     } finally {
       this.observe();
     }
@@ -307,9 +307,9 @@ export class LwSelectElement extends HTMLElement {
     }
     this.activeIndex = Math.max(0, Math.min(index, options.length - 1));
     this.write(() => {
-      options.forEach((option, i) => {
-        option.classList.toggle('is-active', i === this.activeIndex);
-        option.tabIndex = i === this.activeIndex ? 0 : -1;
+      options.forEach((option, index_) => {
+        option.classList.toggle('is-active', index_ === this.activeIndex);
+        option.tabIndex = index_ === this.activeIndex ? 0 : -1;
       });
     });
     const active = options[this.activeIndex];
