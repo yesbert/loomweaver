@@ -166,7 +166,7 @@ export class MenuService {
         };
       })
       .filter((entry): entry is ResolvedItem => entry !== null)
-      .sort((a, b) => a.group.localeCompare(b.group) || a.order - b.order);
+      .toSorted((a, b) => a.group.localeCompare(b.group) || a.order - b.order);
   }
 
   private createMenu(resolved: readonly ResolvedItem[]): LwMenuElement {

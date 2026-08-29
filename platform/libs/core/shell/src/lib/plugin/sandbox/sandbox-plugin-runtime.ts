@@ -109,7 +109,7 @@ function levelOf(plugin: RunnableFramePlugin): PluginIsolationLevel {
 
 function signatureOf(plugin: RunnableFramePlugin): string {
   const sorted = (values: readonly string[] | undefined): string =>
-    [...(values ?? [])].sort((a, b) => a.localeCompare(b)).join(',');
+    [...(values ?? [])].toSorted((a, b) => a.localeCompare(b)).join(',');
   return `${plugin.entryUrl}|${sorted(plugin.capabilities)}|${sorted(plugin.granted)}|${plugin.version ?? ''}|${levelOf(plugin)}`;
 }
 

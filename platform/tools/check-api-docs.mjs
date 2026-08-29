@@ -158,7 +158,7 @@ function exportedNames(entry) {
       .getTypeChecker()
       .getExportsOfModule(symbol)
       .map((s) => s.getName())
-      .sort();
+      .toSorted();
   }
 
   // No module symbol means the file is a global script, and then everything it declares at the top
@@ -174,7 +174,7 @@ function exportedNames(entry) {
     }
     if (node.name && ts.isIdentifier(node.name)) names.push(node.name.text);
   });
-  return names.sort();
+  return names.toSorted();
 }
 
 const blob = docsBlob();

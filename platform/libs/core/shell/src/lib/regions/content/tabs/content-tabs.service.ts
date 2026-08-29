@@ -108,7 +108,7 @@ export class ContentTabsService {
     this.state.updateOpen((tabs) =>
       tabs
         .map((tab, index) => ({ tab, index }))
-        .sort((a, b) => seat(a.tab, a.index) - seat(b.tab, b.index))
+        .toSorted((a, b) => seat(a.tab, a.index) - seat(b.tab, b.index))
         .map((entry) => entry.tab),
     );
   }

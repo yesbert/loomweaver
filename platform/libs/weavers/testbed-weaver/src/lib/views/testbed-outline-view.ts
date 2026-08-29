@@ -14,16 +14,16 @@ export class TestbedOutlineView {
   private readonly viewState = inject(VIEW_STATE) as ViewState<OutlineState>;
   private readonly base = ['Row C', 'Row A', 'Row D', 'Row B'];
 
-  protected readonly sort = computed<OutlineSort>(
+  protected readonly sortOrder = computed<OutlineSort>(
     () => this.viewState.value()?.sort ?? 'natural',
   );
   protected readonly sections = computed(() =>
-    this.sort() === 'alpha'
-      ? [...this.base].sort((a, b) => a.localeCompare(b))
+    this.sortOrder() === 'alpha'
+      ? [...this.base].toSorted((a, b) => a.localeCompare(b))
       : this.base,
   );
 
   protected toggleSort(): void {
-    this.viewState.set({ sort: this.sort() === 'alpha' ? 'natural' : 'alpha' });
+    this.viewState.set({ sort: this.sortOrder() === 'alpha' ? 'natural' : 'alpha' });
   }
 }

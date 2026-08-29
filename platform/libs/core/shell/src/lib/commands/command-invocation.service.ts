@@ -47,7 +47,7 @@ export class CommandInvocationService implements CommandInvoker {
           this.reachable(entry, callerId, granted),
       )
       .map((entry) => this.describe(entry.command))
-      .sort((a, b) => a.id.localeCompare(b.id));
+      .toSorted((a, b) => a.id.localeCompare(b.id));
   }
 
   async invoke(

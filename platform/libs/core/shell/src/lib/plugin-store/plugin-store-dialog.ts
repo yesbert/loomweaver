@@ -52,7 +52,7 @@ export class PluginStoreDialog implements OnInit {
         this.query(),
       ),
     );
-    return list.sort(
+    return list.toSorted(
       (a, b) =>
         (b.downloads ?? 0) - (a.downloads ?? 0) || a.name.localeCompare(b.name),
     );

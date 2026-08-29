@@ -18,7 +18,7 @@ export class SettingsRegistry {
     return this.sections()
       .map((section) => visibleSection(section, omitted))
       .filter((section): section is SettingsSection => section !== null)
-      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      .toSorted((a, b) => (a.order ?? 0) - (b.order ?? 0));
   });
 
   register(section: SettingsSection): Disposable {

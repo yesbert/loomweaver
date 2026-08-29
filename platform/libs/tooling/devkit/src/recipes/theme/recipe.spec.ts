@@ -48,7 +48,7 @@ describe('theme recipe', () => {
     it('covers the whole token ladder, so nothing silently keeps the product default', () => {
       const declared = [...css.matchAll(/^\s*(--lw-[a-z-]+):/gm)].map((m) => m[1]);
       expect(new Set(declared).size).toBe(declared.length);
-      expect([...declared].sort()).toEqual([...shellTokens()].sort());
+      expect([...declared].toSorted()).toEqual([...shellTokens()].toSorted());
     });
 
     it('reads Bootstrap variables rather than baking in colours', () => {

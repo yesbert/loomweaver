@@ -239,7 +239,7 @@ function baselineSidebars(
         .map((path) => path.slice(VIEW_PANE_PREFIX.length))
         .filter((id) => !sidebars[region].includes(id)),
     )
-    .sort((a, b) => a.localeCompare(b));
+    .toSorted((a, b) => a.localeCompare(b));
   return hidden.length === 0 ? {} : { hiddenViews: JSON.stringify(hidden) };
 }
 

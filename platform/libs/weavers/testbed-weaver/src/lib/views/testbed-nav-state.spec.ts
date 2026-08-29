@@ -22,7 +22,7 @@ describe('testbedNavState', () => {
   });
 
   it('sorts the items alphabetically', () => {
-    testbedNavState.sort();
+    testbedNavState.sortItems();
     expect(testbedNavState.items()).toEqual(['Item A', 'Item B', 'Item C']);
   });
 

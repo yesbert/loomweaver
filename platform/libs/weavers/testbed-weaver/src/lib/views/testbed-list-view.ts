@@ -67,13 +67,13 @@ export class TestbedListView {
   private readonly localSort = signal<SortKey>('waiting');
   private readonly openIds = testbedContent.openEntryIds;
 
-  protected readonly sort = computed<SortKey>(
+  protected readonly sortOrder = computed<SortKey>(
     () => this.state?.value()?.sort ?? this.localSort(),
   );
 
   protected readonly entries = computed<readonly Entry[]>(() => {
-    const by = this.sort();
-    return [...ENTRIES].sort((a, b) =>
+    const by = this.sortOrder();
+    return [...ENTRIES].toSorted((a, b) =>
       by === 'priority'
         ? PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority] ||
           a.waitingMinutes - b.waitingMinutes

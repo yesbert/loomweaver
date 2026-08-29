@@ -179,7 +179,7 @@ describe('PaneMoveService (move semantics)', () => {
     const leaf = paneTree.tree(dock) as PaneLeaf;
     expect(leaf.id).toBe(second);
     expect(paneTree.primaryId(dock)).toBe(second);
-    expect(leaf.tabs.map((t) => t.path).sort()).toEqual(['view:a', 'view:b']);
+    expect(leaf.tabs.map((t) => t.path).toSorted()).toEqual(['view:a', 'view:b']);
   });
 
   it('a preview tab promotes when it moves out of the URL group', async () => {

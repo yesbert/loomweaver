@@ -228,7 +228,6 @@ export default [
             "unicorn/max-nested-calls": "off",
             "unicorn/no-array-callback-reference": "off",
             "unicorn/no-array-reduce": "off",
-            "unicorn/no-array-sort": "off",
             "unicorn/no-await-expression-member": "off",
             "unicorn/no-break-in-nested-loop": "off",
             "unicorn/no-computed-property-existence-check": "off",

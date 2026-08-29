@@ -174,7 +174,7 @@ describe('distribution generator', () => {
     tree.write('.postcssrc.json', JSON.stringify({ plugins: { autoprefixer: {} } }));
     await distributionGenerator(tree, { name: 'acme-studio' });
     expect(
-      Object.keys(JSON.parse(tree.read('.postcssrc.json', 'utf-8') as string).plugins).sort(),
+      Object.keys(JSON.parse(tree.read('.postcssrc.json', 'utf-8') as string).plugins).toSorted(),
     ).toEqual(['@tailwindcss/postcss', 'autoprefixer']);
   });
 });

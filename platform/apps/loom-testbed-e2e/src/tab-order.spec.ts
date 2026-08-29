@@ -43,7 +43,7 @@ function tabOrder(page: Page) {
           (tab.textContent ?? '').trim().replace(/(.+)\1/, '$1'),
         ),
       }))
-      .sort((a, b) => a.x - b.x)
+      .toSorted((a, b) => a.x - b.x)
       .map((pane) => pane.order),
   );
 }

@@ -112,6 +112,6 @@ function withShellSymbols(existing: string): string {
     return existing;
   }
   const multiline = existing.includes('\n');
-  const all = [...present, ...missing].sort((a, b) => a.localeCompare(b));
+  const all = [...present, ...missing].toSorted((a, b) => a.localeCompare(b));
   return multiline ? `\n  ${all.join(',\n  ')},\n` : ` ${all.join(', ')} `;
 }

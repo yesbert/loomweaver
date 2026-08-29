@@ -40,7 +40,7 @@ export function resolveBuildProject(
   }
   const inside = projects
     .filter((project) => contains(project.root, relativeTo(workspace.root, target)))
-    .sort((a, b) => b.root.length - a.root.length);
+    .toSorted((a, b) => b.root.length - a.root.length);
   if (inside.length > 0) {
     return inside[0];
   }

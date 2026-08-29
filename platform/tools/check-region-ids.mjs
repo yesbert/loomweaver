@@ -40,15 +40,15 @@ if (targeted.size === 0 || scaffolded.size === 0) {
   process.exit(1);
 }
 
-const missing = [...targeted].filter((id) => !scaffolded.has(id)).sort();
+const missing = [...targeted].filter((id) => !scaffolded.has(id)).toSorted();
 
 if (missing.length > 0) {
   console.error('check-region-ids: the scaffolds omit a region the shell defaults dock into.\n');
   for (const id of missing) {
     console.error(`  '${id}' — a scaffolded product would silently lose that default.`);
   }
-  console.error(`\n  shell defaults target: ${[...targeted].sort().join(', ')}`);
-  console.error(`  scaffolds emit:        ${[...scaffolded].sort().join(', ')}`);
+  console.error(`\n  shell defaults target: ${[...targeted].toSorted().join(', ')}`);
+  console.error(`  scaffolds emit:        ${[...scaffolded].toSorted().join(', ')}`);
   process.exit(1);
 }
 

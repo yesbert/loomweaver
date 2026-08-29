@@ -206,7 +206,7 @@ export class OpenTabsService {
     const facets = facetTabViews(routes, (route) => this.addressOf(route));
     const open = this.openTabs().filter((tab) => this.strippable(routes, tab));
     const dynamics = dynamicTabViews(routes, open);
-    return [...facets, ...dynamics, ...this.viewTabs()].sort(
+    return [...facets, ...dynamics, ...this.viewTabs()].toSorted(
       (a, b) => a.order - b.order,
     );
   });

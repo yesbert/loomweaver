@@ -80,7 +80,7 @@ export class ShellRail {
         (item) =>
           item.workspace !== undefined || this.commands.triggerable(item),
       )
-      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
+      .toSorted((a, b) => (a.order ?? 0) - (b.order ?? 0)),
   );
 
   protected readonly items = computed(() => {

@@ -8,8 +8,8 @@ describe('framePlugin recipe', () => {
 
   it('produces the iframe plugin file set', () => {
     const files = generate(framePlugin, { id: 'notes', name: 'Notes' });
-    expect(Object.keys(files).sort()).toEqual(
-      ['README.md', 'plugin.html', 'plugin.js', 'view.html'].sort(),
+    expect(Object.keys(files).toSorted()).toEqual(
+      ['README.md', 'plugin.html', 'plugin.js', 'view.html'].toSorted(),
     );
   });
 

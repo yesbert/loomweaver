@@ -63,7 +63,7 @@ function ranked<T extends { label: string }>(
     .filter(
       (scored): scored is { entry: T; score: number } => scored.score !== null,
     )
-    .sort((a, b) => b.score - a.score)
+    .toSorted((a, b) => b.score - a.score)
     .map((scored) => scored.entry);
 }
 
@@ -163,7 +163,7 @@ export class CommandPalette {
     const query = this.query().trim();
     const entries = this.tabEntries();
     if (!query) {
-      return [...entries].sort(
+      return [...entries].toSorted(
         (a, b) => (b.lastActive ?? 0) - (a.lastActive ?? 0),
       );
     }

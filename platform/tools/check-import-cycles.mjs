@@ -141,7 +141,7 @@ function components(edges) {
           onStack.delete(popped);
           group.push(popped);
         } while (popped !== node);
-        if (group.length > 1) found.push(group.sort());
+        if (group.length > 1) found.push(group.toSorted());
       }
     }
   }
@@ -163,14 +163,14 @@ function slicePairs(edges) {
     const [a, b] = key.split(' -> ', 2);
     if (a < b && between.has(`${b} -> ${a}`)) pairs.push(`${a} <-> ${b}`);
   }
-  return pairs.sort();
+  return pairs.toSorted();
 }
 
 const rel = (file) => path.relative(libraryRoot, file);
 
 const files = sources(shellRoot);
 const { values, all } = graph(files);
-const cycles = components(values).sort((a, b) => b.length - a.length);
+const cycles = components(values).toSorted((a, b) => b.length - a.length);
 const pairs = slicePairs(all);
 
 if (process.argv[2] === '--write-baseline') {
@@ -202,12 +202,12 @@ const baseline = JSON.parse(readFileSync(baselinePath, 'utf8'));
 const failures = [];
 
 const allowedCycles = (baseline.fileCycles ?? []).map((group) =>
-  [...group].sort().join('|'),
+  [...group].toSorted().join('|'),
 );
-const actualCycles = new Set(cycles.map((group) => group.map(rel).sort().join('|')));
+const actualCycles = new Set(cycles.map((group) => group.map(rel).toSorted().join('|')));
 
 for (const group of cycles) {
-  const key = group.map(rel).sort().join('|');
+  const key = group.map(rel).toSorted().join('|');
   if (!allowedCycles.includes(key)) {
     failures.push(
       `new import cycle across ${group.length} files:\n      ${group.map(rel).join('\n      ')}`,

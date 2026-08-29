@@ -125,7 +125,7 @@ export class ShellPanel {
   protected readonly actions = computed(() =>
     [...(this.activeView()?.actions ?? [])]
       .filter((action) => this.auth.visible(action.access))
-      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
+      .toSorted((a, b) => (a.order ?? 0) - (b.order ?? 0)),
   );
 
   protected readonly panelPaneOptions = PANEL_PANE_OPTIONS;

@@ -77,7 +77,7 @@ export class CapabilityGrantService {
         })),
       }))
       .filter((entry) => entry.capabilities.length > 0)
-      .sort((a, b) => a.pluginId.localeCompare(b.pluginId));
+      .toSorted((a, b) => a.pluginId.localeCompare(b.pluginId));
   });
 
   constructor() {
