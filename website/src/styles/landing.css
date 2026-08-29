@@ -11,7 +11,7 @@
 }
 
 .lw-landing {
-  --lw-gold: #c59a2f;
+  --lw-gold: #8a6712;
   --lw-max: 74rem;
   display: flex;
   flex-direction: column;
@@ -49,6 +49,10 @@
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+:root[data-theme='dark'] .lw-landing {
+  --lw-gold: #c59a2f;
 }
 
 /* Hero */
@@ -99,7 +103,9 @@
 }
 
 .lw-landing .btn {
-  display: inline-block;
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
   padding: 0.7rem 1.4rem;
   border: 1px solid var(--sl-color-gray-5);
   border-radius: 0.5rem;
@@ -118,19 +124,19 @@
   transform: translateY(-1px);
 }
 
+/* --sl-color-white and --sl-color-black are Starlight's *contrast* pair, not literal colours: they
+   swap with the theme. The accent that carries text is --sl-color-text-accent, which is the light
+   tint in dark mode and the dark one in light mode, so the pair below reads in both. This is what
+   the consent banner does. */
 .lw-landing .btn.primary {
-  border-color: var(--sl-color-accent);
-  background: var(--sl-color-accent);
-  color: var(--sl-color-white);
+  border-color: var(--sl-color-text-accent);
+  background: var(--sl-color-text-accent);
+  color: var(--sl-color-black);
 }
 
 .lw-landing .btn.primary:hover {
-  filter: brightness(1.1);
-}
-
-.lw-landing .btn.ghost {
-  border-color: transparent;
-  color: var(--sl-color-gray-2);
+  opacity: 0.85;
+  transform: translateY(-1px);
 }
 
 /* Screenshots */
