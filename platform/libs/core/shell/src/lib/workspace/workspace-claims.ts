@@ -45,12 +45,12 @@ export function claimFor(
   if (matching.length === 0) {
     return null;
   }
-  const [first, ...rest] = matching;
-  const best = rest.reduce(
-    (winner, claim) =>
-      narrower(claim.pattern, winner.pattern) > 0 ? claim : winner,
-    first,
-  );
+  let best = matching[0];
+  for (const claim of matching) {
+    if (narrower(claim.pattern, best.pattern) > 0) {
+      best = claim;
+    }
+  }
   const tied = matching.filter(
     (claim) =>
       claim.workspaceId !== best.workspaceId &&

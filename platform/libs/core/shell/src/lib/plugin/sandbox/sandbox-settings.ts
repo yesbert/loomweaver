@@ -177,7 +177,7 @@ function typedOverlay(
     for (const [key, value] of Object.entries(
       parsed as Record<string, unknown>,
     )) {
-      if (key in defaults && typeof value === typeof defaults[key]) {
+      if (Object.hasOwn(defaults, key) && typeof value === typeof defaults[key]) {
         merged[key] = value as FrameSettingValue;
       }
     }

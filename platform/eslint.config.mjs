@@ -192,6 +192,22 @@ export default [
             // and our own signatures return it; banning the literal would only move the seam.
             "unicorn/no-null": "off",
 
+            // It reads `if (x) setAttribute(a, v) else removeAttribute(a)` as a toggle. Both of
+            // ours carry a value a reader depends on — an aria-checked of "true" or "false", the
+            // reflected value of a custom element property — and `toggleAttribute` cannot carry one.
+            "unicorn/prefer-toggle-attribute": "off",
+
+            // It rewrites `.then(onValue, onRejection)` into `.then().catch()`, which widens what
+            // the handler sees to include a failure of onValue. All four of ours name the rejection
+            // they report ("surfaceBeforeClose() rejected", "surface failed to load"), and a
+            // widened catch would file the wrong failure under that message.
+            "unicorn/prefer-then-catch": "off",
+
+            // `Number()` is not `Number.parseInt()` where the string has a numeric prefix and a
+            // tail: a semver prerelease ("3-beta") and a CSS duration ("0.2s") are exactly that,
+            // and both of ours read the prefix on purpose.
+            "unicorn/prefer-number-coercion": "off",
+
             // It wants `import path from 'node:path'` where the workspace imports names from
             // every other module. One convention read consistently beats a second one that is
             // right only about Node's built-ins.
@@ -256,37 +272,22 @@ export default [
             // carries a note, its fixer was tried and did damage: read the note before
             // reaching for --fix.
             "unicorn/max-nested-calls": "off",
-            "unicorn/no-array-reduce": "off",
             "unicorn/no-break-in-nested-loop": "off",
-            "unicorn/no-computed-property-existence-check": "off",
-            "unicorn/no-declarations-before-early-exit": "off",
             "unicorn/no-for-each": "off",
-            "unicorn/no-object-as-default-parameter": "off",
-            "unicorn/no-optional-chaining-on-undeclared-variable": "off",
             "unicorn/no-return-array-push": "off",
-            "unicorn/no-top-level-side-effects": "off",
             "unicorn/no-unreadable-for-of-expression": "off",
-            "unicorn/prefer-includes-over-repeated-comparisons": "off",
-            "unicorn/prefer-module": "off",
-            "unicorn/prefer-number-coercion": "off",
             "unicorn/prefer-promise-try": "off",
             "unicorn/prefer-simple-condition-first": "off",
-            "unicorn/prefer-structured-clone": "off",
-            "unicorn/prefer-then-catch": "off",
-            "unicorn/prefer-toggle-attribute": "off",
             // It reads `installs.find(entry.id)` as an array callback, where `find` is a
             // service method taking an id, and rewrites it into nonsense.
             "unicorn/no-array-callback-reference": "off",
-            "unicorn/no-unsafe-string-replacement": "off",
             // `f(undefined)` is not `f()` when the parameter is required, and `() => undefined`
             // may not become `() => {}` while no-empty-function forbids exactly that.
             "unicorn/no-useless-undefined": [
                 "error",
                 { checkArguments: false, checkArrowFunctionBody: false }
             ],
-            "unicorn/prefer-add-event-listener": "off",
             "unicorn/prefer-array-from-map": "off",
-            "unicorn/prefer-else-if": "off",
             "unicorn/prefer-direct-iteration": "off",
             "unicorn/prefer-iterator-helpers": "off",
             "unicorn/prefer-iterator-to-array": "off",
@@ -309,6 +310,15 @@ export default [
         }
     },
     {
+        // Angular's dev server reads this file with require(), so CommonJS is what it has to be.
+        files: [
+            "**/proxy.conf.js"
+        ],
+        rules: {
+            "unicorn/prefer-module": "off"
+        }
+    },
+    {
         // `no-process-exit` names its own exception: a CLI app. These are the CLI entry points,
         // where a script that cannot do its job exits with a status the shell reads, and throwing
         // would print a stack trace at a user who asked for a certificate.
@@ -326,7 +336,8 @@ export default [
             "**/lw-elements.frame.ts"
         ],
         rules: {
-            "unicorn/no-global-object-property-assignment": "off"
+            "unicorn/no-global-object-property-assignment": "off",
+            "unicorn/no-top-level-side-effects": "off"
         }
     },
     {

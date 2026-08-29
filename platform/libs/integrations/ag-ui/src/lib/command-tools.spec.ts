@@ -19,8 +19,10 @@ const OPEN: InvocableCommand = {
   ],
 };
 
+const ANSWERED: CommandOutcome = { outcome: 'answered', value: 'opened' };
+
 function access(
-  outcome: CommandOutcome = { outcome: 'answered', value: 'opened' },
+  outcome: CommandOutcome = ANSWERED,
   commands: readonly InvocableCommand[] = [OPEN],
 ) {
   const invoked: { id: string; args?: CommandArguments }[] = [];

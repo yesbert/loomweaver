@@ -35,19 +35,20 @@ const FLAGS: Readonly<Record<string, ShellFeaturesInput>> = {
 };
 
 export function testbedFeatures(raw: string | null): ShellFeaturesInput {
-  return (raw ?? '')
-    .split(',')
-    .map((flag) => FLAGS[flag.trim()])
-    .filter((patch): patch is ShellFeaturesInput => !!patch)
-    .reduce<ShellFeaturesInput>(
-      (merged, patch) => ({
-        content: { ...merged.content, ...patch.content },
-        sidebar: { ...merged.sidebar, ...patch.sidebar },
-        rail: { ...merged.rail, ...patch.rail },
-        workspaces: { ...merged.workspaces, ...patch.workspaces },
-        windows: { ...merged.windows, ...patch.windows },
-        commands: { ...merged.commands, ...patch.commands },
-      }),
-      {},
-    );
+  let merged: ShellFeaturesInput = {};
+  for (const flag of (raw ?? '').split(',')) {
+    const patch = FLAGS[flag.trim()];
+    if (!patch) {
+      continue;
+    }
+    merged = {
+      content: { ...merged.content, ...patch.content },
+      sidebar: { ...merged.sidebar, ...patch.sidebar },
+      rail: { ...merged.rail, ...patch.rail },
+      workspaces: { ...merged.workspaces, ...patch.workspaces },
+      windows: { ...merged.windows, ...patch.windows },
+      commands: { ...merged.commands, ...patch.commands },
+    };
+  }
+  return merged;
 }

@@ -277,7 +277,7 @@ export class PaneTreeService {
   }
 
   dropDock(dock: string): void {
-    if (!this.docks()[dock]) {
+    if (!this.hasDock(dock)) {
       return;
     }
     this.docks.update((docks) => {
@@ -314,7 +314,7 @@ export class PaneTreeService {
     this.docks.update((current) => {
       const merged = { ...persisted };
       for (const [dock, entry] of Object.entries(current)) {
-        if (isContainerDock(dock) && !(dock in persisted)) {
+        if (isContainerDock(dock) && !Object.hasOwn(persisted, dock)) {
           merged[dock] = entry;
         }
       }

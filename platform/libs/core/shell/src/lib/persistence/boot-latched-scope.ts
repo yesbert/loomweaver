@@ -10,7 +10,7 @@ export class BootLatchedIdentity {
       return this.latched;
     }
     const id = this.read();
-    if (id === null || id === undefined || id === '') {
+    if (!id) {
       return null;
     }
     this.latched = id;

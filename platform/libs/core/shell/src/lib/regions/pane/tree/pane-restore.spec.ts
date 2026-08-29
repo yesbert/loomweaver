@@ -26,7 +26,7 @@ describe('pane tree restore', () => {
   it('persists deep-stack ratios below the interactive clamp (sanitise ≠ interactive bounds)', () => {
     const persisted: PaneSplit = { ...threeStack(), ratio: 0.1 } as PaneSplit;
     const restored = normalizeNode(
-      JSON.parse(JSON.stringify(persisted)),
+      structuredClone(persisted),
     ) as PaneSplit;
     expect(restored.ratio).toBeCloseTo(0.1);
   });
@@ -103,7 +103,7 @@ describe('pane tree restore', () => {
     });
 
     const roundTripped = normalizeNode(
-      JSON.parse(JSON.stringify(moved)),
+      structuredClone(moved),
     ) as PaneNode;
     expect(findLeaf(roundTripped, 'dst')?.tabs).toContainEqual({
       path: 'view:testbed.outline',

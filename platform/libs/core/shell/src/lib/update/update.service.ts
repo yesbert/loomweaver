@@ -222,8 +222,7 @@ export class UpdateService {
   private onVersionEvent(event: VersionEvent): void {
     if (event.type === 'VERSION_READY') {
       this.onUpdateReady();
-    }
-    if (event.type === 'VERSION_INSTALLATION_FAILED') {
+    } else if (event.type === 'VERSION_INSTALLATION_FAILED') {
       this.onUpdateFailed();
     }
   }

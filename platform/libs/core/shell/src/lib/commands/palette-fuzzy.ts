@@ -1,9 +1,9 @@
 export function fuzzyScore(query: string, label: string): number | null {
   const needle = query.toLowerCase();
-  const haystack = label.toLowerCase();
   if (!needle) {
     return 0;
   }
+  const haystack = label.toLowerCase();
   let score = 0;
   let searchFrom = 0;
   let previous = -2;

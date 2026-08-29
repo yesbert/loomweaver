@@ -75,7 +75,7 @@ export class RailItemsService {
 
   isVisible(itemId: string): boolean {
     if (isWorkspaceRailItem(itemId)) {
-      return itemId in this.state().placed;
+      return Object.hasOwn(this.state().placed, itemId);
     }
     return !this.state().hidden.includes(itemId);
   }

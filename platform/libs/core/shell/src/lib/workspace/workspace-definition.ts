@@ -231,7 +231,9 @@ function baselineSidebars(
   if (sidebars === undefined) {
     return {};
   }
-  const listed = deps.panelRegions.filter((region) => region in sidebars);
+  const listed = deps.panelRegions.filter((region) =>
+    Object.hasOwn(sidebars, region),
+  );
   const hidden = listed
     .flatMap((region) =>
       deps

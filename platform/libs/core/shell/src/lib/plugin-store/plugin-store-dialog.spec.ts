@@ -73,8 +73,12 @@ const HELLO: PluginCatalogEntry = {
 
 const originalFetch = globalThis.fetch;
 
+const BOTH_PLUGINS: PluginCatalog = {
+  load: () => Promise.resolve([DEMO, HELLO]),
+};
+
 async function render(
-  catalog: PluginCatalog = { load: () => Promise.resolve([DEMO, HELLO]) },
+  catalog: PluginCatalog = BOTH_PLUGINS,
   confirm = vi.fn().mockResolvedValue(true),
 ) {
   globalThis.fetch = vi.fn().mockResolvedValue({

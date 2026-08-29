@@ -278,13 +278,15 @@ export function sanitizeRpcToastInput(
   };
 }
 
+const NOTIFICATION_KINDS = new Set<NotificationKind>([
+  'info',
+  'success',
+  'warning',
+  'error',
+]);
+
 function isNotificationKind(value: unknown): value is NotificationKind {
-  return (
-    value === 'info' ||
-    value === 'success' ||
-    value === 'warning' ||
-    value === 'error'
-  );
+  return NOTIFICATION_KINDS.has(value as NotificationKind);
 }
 
 export function sanitizeRpcMenuItem(item: MenuItem): MenuItem {
