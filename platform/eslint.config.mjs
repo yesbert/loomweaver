@@ -261,7 +261,6 @@ export default [
             "unicorn/prefer-structured-clone": "off",
             "unicorn/prefer-then-catch": "off",
             "unicorn/prefer-toggle-attribute": "off",
-            "unicorn/prefer-top-level-await": "off",
             "unicorn/no-array-callback-reference": "off",
             // `globalThis.X` yields undefined where a bare `X` throws a ReferenceError,
             // which is exactly what a test that stubs a global relies on
@@ -275,9 +274,6 @@ export default [
             ],
             "unicorn/prefer-add-event-listener": "off",
             "unicorn/prefer-array-from-map": "off",
-            // `.at(-1)` returns `T | undefined`, which is honest and needs each of the
-            // 17 call sites to say what it does when the collection is empty
-            "unicorn/prefer-at": "off",
             // `getHTML()` is a 2024 DOM API that jsdom does not have, so the tests
             // that read rendered markup fail on it
             "unicorn/prefer-dom-node-html-methods": "off",

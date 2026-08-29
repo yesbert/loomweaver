@@ -235,6 +235,6 @@ export class TabClosingService {
     const siblings = this.state.openTabs().filter(
       (tab) => tabRootOf(routes, tab.path) !== root,
     );
-    return siblings.length > 0 ? siblings[siblings.length - 1].path : '';
+    return siblings.at(-1)?.path ?? '';
   }
 }

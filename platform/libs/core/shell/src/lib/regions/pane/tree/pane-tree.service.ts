@@ -91,7 +91,7 @@ export class PaneTreeService {
 
   stackView(dock: string, viewId: string): void {
     const segments = paneSegments(this.tree(dock));
-    const last = segments[segments.length - 1];
+    const last = segments.at(-1);
     if (last) {
       this.splitPane(dock, last.id, 'column', VIEW_PANE_PREFIX + viewId);
     }
@@ -202,7 +202,7 @@ export class PaneTreeService {
     const tree = this.tree(dock);
     const primary = this.primaryId(dock);
     const leaf = paneId === primary ? findLeaf(tree, primary) : undefined;
-    if (leaf && leaf.tabs.every((tab) => tab.path !== tabPath)) {
+    if (leaf?.tabs.every((tab) => tab.path !== tabPath)) {
       return;
     }
     if (leaf && !leaf.declared && leaf.tabs.length <= 1) {

@@ -24,7 +24,7 @@ function clickTabInPane(
       ].toSorted(
         (a, b) => a.getBoundingClientRect().x - b.getBoundingClientRect().x,
       );
-      const pane = which === 'left' ? panes[0] : panes[panes.length - 1];
+      const pane = which === 'left' ? panes[0] : panes.at(-1);
       const tab = [...pane.querySelectorAll('[role="tab"]')].find((element) =>
         (element.textContent ?? '').includes(name),
       );

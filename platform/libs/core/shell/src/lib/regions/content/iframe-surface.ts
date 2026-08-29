@@ -284,7 +284,7 @@ export class IframeSurface implements DirtySurface {
       return;
     }
     this.visibility = new IntersectionObserver((entries) => {
-      const last = entries[entries.length - 1];
+      const last = entries.at(-1);
       if (last) {
         this.shown.set(last.isIntersecting);
       }

@@ -53,167 +53,171 @@ const layout: ShellLayout = {
   ],
 };
 
-bootstrapApplication(Shell, {
-  providers: [
-    provideShellRouter(),
-    provideShell({ omit: ['route:testbed.retired'] }),
-    provideShellFeatures(
-      testbedFeatures(localStorage.getItem(TESTBED_FEATURES_KEY)),
-    ),
-    provideIcons({ plugin: TESTBED_PLUGIN_ICON }),
-    provideTranslationNamespaces('testbed', 'product'),
-    provideTranslationOverrides(),
-    provideProductIdentity(TESTBED_IDENTITY),
-    provideAuthSource(() => testbedAuth.snapshot, {
-      onIdentityChange: 'reload',
-    }),
-    provideIdentityScopedStores({
-      identity: () => testbedAuth.snapshot().subject ?? null,
-    }),
-    provideEnvironmentInitializer(() => {
-      const sync = inject(StateSyncService);
-      const session = testbedAuth.connectSync({
-        announce: (key) => sync.announce(key),
-      });
-      sync.register('external', session.key, () => session.refresh());
-      const theme = testbedTheme.connectSync({
-        announce: (key) => sync.announce(key),
-      });
-      sync.register('external', theme.key, () => theme.refresh());
-    }),
-    provideUnauthorizedRedirect((attemptedPath) =>
-      attemptedPath === 'admin-area'
-        ? `/login?from=${encodeURIComponent(attemptedPath)}`
-        : null,
-    ),
-    provideLayout(layout),
-    provideWorkspaces(
-      {
-        id: 'testbed.home',
-        title: 'product.workspace.home',
-        icon: 'testbedHome',
-        sidebars: { primary: [], secondary: [] },
-        content: { tabs: [{ path: '', closable: false }] },
-      },
-      {
-        id: 'testbed.review',
-        title: 'product.workspace.review',
-        icon: 'workspaces',
-        claims:
-          localStorage.getItem(CLAIMED_ENTRIES_KEY) === 'review'
-            ? ['entry/:id']
-            : [],
-        initial: localStorage.getItem(INITIAL_WORKSPACE_KEY) === 'review',
-        sidebars: { primary: ['testbed.nav'] },
-        content: {
-          columns: [
-            { size: 35, tabs: [{ path: 'entry/e-01', closable: false }] },
-            { rows: [{ size: 60, tabs: ['search'] }, { tabs: ['notes'] }] },
-          ],
+try {
+  await bootstrapApplication(Shell, {
+    providers: [
+      provideShellRouter(),
+      provideShell({ omit: ['route:testbed.retired'] }),
+      provideShellFeatures(
+        testbedFeatures(localStorage.getItem(TESTBED_FEATURES_KEY)),
+      ),
+      provideIcons({ plugin: TESTBED_PLUGIN_ICON }),
+      provideTranslationNamespaces('testbed', 'product'),
+      provideTranslationOverrides(),
+      provideProductIdentity(TESTBED_IDENTITY),
+      provideAuthSource(() => testbedAuth.snapshot, {
+        onIdentityChange: 'reload',
+      }),
+      provideIdentityScopedStores({
+        identity: () => testbedAuth.snapshot().subject ?? null,
+      }),
+      provideEnvironmentInitializer(() => {
+        const sync = inject(StateSyncService);
+        const session = testbedAuth.connectSync({
+          announce: (key) => sync.announce(key),
+        });
+        sync.register('external', session.key, () => session.refresh());
+        const theme = testbedTheme.connectSync({
+          announce: (key) => sync.announce(key),
+        });
+        sync.register('external', theme.key, () => theme.refresh());
+      }),
+      provideUnauthorizedRedirect((attemptedPath) =>
+        attemptedPath === 'admin-area'
+          ? `/login?from=${encodeURIComponent(attemptedPath)}`
+          : null,
+      ),
+      provideLayout(layout),
+      provideWorkspaces(
+        {
+          id: 'testbed.home',
+          title: 'product.workspace.home',
+          icon: 'testbedHome',
+          sidebars: { primary: [], secondary: [] },
+          content: { tabs: [{ path: '', closable: false }] },
         },
-      },
-      {
-        id: 'testbed.dashboard',
-        title: 'product.workspace.dashboard',
-        icon: 'testbedDashboard',
-        sidebars: { primary: [], secondary: [] },
-        content: {
-          tabs: [
-            { path: 'dashboard/overview', closable: false, active: true },
-            { path: 'dashboard/trends', closable: false },
-            { path: 'dashboard/export', closable: false },
-          ],
+        {
+          id: 'testbed.review',
+          title: 'product.workspace.review',
+          icon: 'workspaces',
+          claims:
+            localStorage.getItem(CLAIMED_ENTRIES_KEY) === 'review'
+              ? ['entry/:id']
+              : [],
+          initial: localStorage.getItem(INITIAL_WORKSPACE_KEY) === 'review',
+          sidebars: { primary: ['testbed.nav'] },
+          content: {
+            columns: [
+              { size: 35, tabs: [{ path: 'entry/e-01', closable: false }] },
+              { rows: [{ size: 60, tabs: ['search'] }, { tabs: ['notes'] }] },
+            ],
+          },
         },
-      },
-      {
-        id: 'testbed.search',
-        title: 'product.workspace.search',
-        icon: 'search',
-        content: { tabs: [{ path: 'search', closable: false }] },
-      },
-      {
-        id: 'testbed.notes',
-        title: 'product.workspace.notes',
-        icon: 'edit',
-        content: { tabs: [{ path: 'notes', closable: false }] },
-      },
-    ),
-    ...provideRailItems(
-      {
-        id: 'testbed.workspace.home',
-        rail: 'activity',
-        icon: 'testbedHome',
-        title: 'product.workspace.home',
-        order: 0,
-        workspace: 'testbed.home',
-      },
-      {
-        id: 'testbed.workspace.review',
-        rail: 'activity',
-        icon: 'workspaces',
-        title: 'product.workspace.review',
-        order: 2,
-        workspace: 'testbed.review',
-      },
-      {
-        id: 'testbed.workspace.dashboard',
-        rail: 'activity',
-        icon: 'testbedDashboard',
-        title: 'product.workspace.dashboard',
-        order: 1,
-        workspace: 'testbed.dashboard',
-      },
-      {
-        id: 'testbed.workspace.search',
-        rail: 'activity',
-        icon: 'search',
-        title: 'product.workspace.search',
-        order: 3,
-        workspace: 'testbed.search',
-      },
-      {
-        id: 'testbed.workspace.notes',
-        rail: 'activity',
-        icon: 'edit',
-        title: 'product.workspace.notes',
-        order: 4,
-        workspace: 'testbed.notes',
-      },
-    ),
-    provideCommandPaletteEntry(),
-    provideQuickOpenEntry(),
-    ...provideBarItems({
-      id: 'shell.update',
-      bar: 'right-footer',
-      slot: 'end',
-      component: UpdateBadge,
-    }),
-    provideCapabilityGrants({
-      testbed: [
-        'contributions',
-        'ui',
-        'host',
-        'navigation',
-        'session',
-        'theme',
-      ],
-      'sandbox-rpc': ['contributions', 'ui', 'session'],
-      'sandbox-static': ['contributions', 'navigation'],
-    }),
-    ...providePlugins(testbedPlugin),
-    ...provideFramePlugins(
-      {
-        id: 'sandbox-rpc',
-        name: 'Sandbox (RPC)',
-        entryUrl: '/sandbox-rpc/plugin.html',
-        capabilities: ['contributions', 'ui', 'session'],
-      },
-      {
-        id: 'sandbox-static',
-        entryUrl: '/sandbox-static/plugin.html',
-        capabilities: ['contributions', 'navigation'],
-      },
-    ),
-    ...providePluginCatalog('/plugins/catalog.json'),
-  ],
-}).catch((error) => console.error(error));
+        {
+          id: 'testbed.dashboard',
+          title: 'product.workspace.dashboard',
+          icon: 'testbedDashboard',
+          sidebars: { primary: [], secondary: [] },
+          content: {
+            tabs: [
+              { path: 'dashboard/overview', closable: false, active: true },
+              { path: 'dashboard/trends', closable: false },
+              { path: 'dashboard/export', closable: false },
+            ],
+          },
+        },
+        {
+          id: 'testbed.search',
+          title: 'product.workspace.search',
+          icon: 'search',
+          content: { tabs: [{ path: 'search', closable: false }] },
+        },
+        {
+          id: 'testbed.notes',
+          title: 'product.workspace.notes',
+          icon: 'edit',
+          content: { tabs: [{ path: 'notes', closable: false }] },
+        },
+      ),
+      ...provideRailItems(
+        {
+          id: 'testbed.workspace.home',
+          rail: 'activity',
+          icon: 'testbedHome',
+          title: 'product.workspace.home',
+          order: 0,
+          workspace: 'testbed.home',
+        },
+        {
+          id: 'testbed.workspace.review',
+          rail: 'activity',
+          icon: 'workspaces',
+          title: 'product.workspace.review',
+          order: 2,
+          workspace: 'testbed.review',
+        },
+        {
+          id: 'testbed.workspace.dashboard',
+          rail: 'activity',
+          icon: 'testbedDashboard',
+          title: 'product.workspace.dashboard',
+          order: 1,
+          workspace: 'testbed.dashboard',
+        },
+        {
+          id: 'testbed.workspace.search',
+          rail: 'activity',
+          icon: 'search',
+          title: 'product.workspace.search',
+          order: 3,
+          workspace: 'testbed.search',
+        },
+        {
+          id: 'testbed.workspace.notes',
+          rail: 'activity',
+          icon: 'edit',
+          title: 'product.workspace.notes',
+          order: 4,
+          workspace: 'testbed.notes',
+        },
+      ),
+      provideCommandPaletteEntry(),
+      provideQuickOpenEntry(),
+      ...provideBarItems({
+        id: 'shell.update',
+        bar: 'right-footer',
+        slot: 'end',
+        component: UpdateBadge,
+      }),
+      provideCapabilityGrants({
+        testbed: [
+          'contributions',
+          'ui',
+          'host',
+          'navigation',
+          'session',
+          'theme',
+        ],
+        'sandbox-rpc': ['contributions', 'ui', 'session'],
+        'sandbox-static': ['contributions', 'navigation'],
+      }),
+      ...providePlugins(testbedPlugin),
+      ...provideFramePlugins(
+        {
+          id: 'sandbox-rpc',
+          name: 'Sandbox (RPC)',
+          entryUrl: '/sandbox-rpc/plugin.html',
+          capabilities: ['contributions', 'ui', 'session'],
+        },
+        {
+          id: 'sandbox-static',
+          entryUrl: '/sandbox-static/plugin.html',
+          capabilities: ['contributions', 'navigation'],
+        },
+      ),
+      ...providePluginCatalog('/plugins/catalog.json'),
+    ],
+  });
+} catch (error) {
+  console.error(error);
+}
