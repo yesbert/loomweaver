@@ -191,9 +191,17 @@ export class TabClosingService {
     this.state.updateOpen((tabs) =>
       tabs.filter((tab) => !roots.has(tabRootOf(routes, tab.path))),
     );
-    closing.forEach((tab) => this.closeHooks.runSafely(tab.onClose));
-    roots.forEach((root) => this.closeHooks.delete(root));
-    const evictAll = () => roots.forEach((root) => this.reuse.evict(root));
+    for (const tab of closing) {
+      this.closeHooks.runSafely(tab.onClose);
+    }
+    for (const root of roots) {
+      this.closeHooks.delete(root);
+    }
+    const evictAll = () => {
+      for (const root of roots) {
+        this.reuse.evict(root);
+      }
+    };
     if (activeWentAway) {
       void this.state.navigate(fallbackPath)
         .catch((error: unknown) =>

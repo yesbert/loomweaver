@@ -44,14 +44,14 @@ describe('QuickOpenEntry', () => {
       title: 'palette.title',
       icon: 'search',
       shortcut: 'mod+k',
-      run: () => opened.push(PALETTE_COMMAND_ID),
+      run: () => void opened.push(PALETTE_COMMAND_ID),
     });
     registry.addCommand({
       id: QUICK_OPEN_COMMAND_ID,
       title: 'palette.quickOpenTitle',
       icon: 'openWork',
       shortcut: 'mod+p',
-      run: () => opened.push(QUICK_OPEN_COMMAND_ID),
+      run: () => void opened.push(QUICK_OPEN_COMMAND_ID),
     });
     const fixture = TestBed.createComponent(QuickOpenEntry);
     fixture.detectChanges();

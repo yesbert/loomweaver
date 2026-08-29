@@ -181,7 +181,9 @@ export class IframeSurface implements DirtySurface {
       queueMicrotask(() => this.push({ ...snapshot, ...this.readResolved() }));
     });
     inject(DestroyRef).onDestroy(() => {
-      this.watched.forEach((entry) => entry.stop());
+      for (const entry of this.watched.values()) {
+        entry.stop();
+      }
       this.watched.clear();
       this.visibility?.disconnect();
       this.connection?.destroy();
@@ -241,9 +243,9 @@ export class IframeSurface implements DirtySurface {
       .then((remote) => {
         this.remote = remote;
         this.push({ ...this.reactiveState(), ...this.readResolved() });
-        this.watched.forEach((entry, key) =>
-          this.pushState(key, entry.handle.value(), entry.handle.loaded()),
-        );
+        for (const [key, entry] of this.watched) {
+          this.pushState(key, entry.handle.value(), entry.handle.loaded());
+        }
       })
       .catch(() => undefined);
   }

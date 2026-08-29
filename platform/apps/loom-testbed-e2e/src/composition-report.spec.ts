@@ -5,7 +5,7 @@ test.describe('The dev-mode composition report (K7)', () => {
     page,
   }) => {
     const lines: string[] = [];
-    page.on('console', (message) => lines.push(message.text()));
+    page.on('console', (message) => void lines.push(message.text()));
     await page.goto('/');
 
     await expect

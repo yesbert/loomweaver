@@ -4,7 +4,7 @@ import { StateSyncChannel } from './state-sync-channel';
 
 function fakeChannel(posted: string[]): StateSyncChannel {
   return {
-    post: (key: string) => posted.push(key),
+    post: (key: string) => void posted.push(key),
   } as unknown as StateSyncChannel;
 }
 

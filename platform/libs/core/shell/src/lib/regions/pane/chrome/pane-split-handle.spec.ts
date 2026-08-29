@@ -23,7 +23,7 @@ describe('PaneSplitHandle', () => {
     host = fixture.nativeElement as HTMLElement;
     stream = [];
     commits = 0;
-    fixture.componentInstance.ratioStream.subscribe((v) => stream.push(v));
+    fixture.componentInstance.ratioStream.subscribe((v) => void stream.push(v));
     fixture.componentInstance.ratioCommit.subscribe(() => (commits += 1));
     fixture.detectChanges();
   }

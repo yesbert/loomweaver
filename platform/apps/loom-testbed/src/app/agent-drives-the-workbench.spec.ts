@@ -45,7 +45,7 @@ describe('an agent driving the workbench end to end', () => {
       ctx.registerCommand({
         id: 'notes.secret',
         title: 'Secret',
-        run: () => opened.push('secret'),
+        run: () => void opened.push('secret'),
       });
     },
   };

@@ -129,7 +129,7 @@ describe('seedHostCommands (dialogs that hold the top edge)', () => {
       features: features({}),
       dialogs: {
         open: (_component: unknown, options: Record<string, unknown>) =>
-          opened.push(options),
+          void opened.push(options),
       },
     } as unknown as HostCommandDeps);
     registry.commands().find((command) => command.id === id)?.run?.();

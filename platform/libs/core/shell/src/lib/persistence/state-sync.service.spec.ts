@@ -67,7 +67,7 @@ describe('StateSyncService', () => {
     localStorage.setItem('k', 'fresh');
     const sync = configure();
     const seen: (string | undefined)[] = [];
-    sync.register('settings', 'k', (raw) => seen.push(raw));
+    sync.register('settings', 'k', (raw) => void seen.push(raw));
 
     channel.receive('k');
     await flush();
@@ -81,7 +81,7 @@ describe('StateSyncService', () => {
       workingState: stubStore('from-working-state'),
     });
     const seen: (string | undefined)[] = [];
-    sync.register('working-state', 'k', (raw) => seen.push(raw));
+    sync.register('working-state', 'k', (raw) => void seen.push(raw));
 
     channel.receive('k');
     await flush();
@@ -97,7 +97,7 @@ describe('StateSyncService', () => {
       workingState: { ...stubStore(''), get: workingGet },
     });
     const seen: (string | undefined)[] = [];
-    sync.register('external', 'product.session', (raw) => seen.push(raw));
+    sync.register('external', 'product.session', (raw) => void seen.push(raw));
 
     channel.receive('product.session');
     await flush();
@@ -111,7 +111,7 @@ describe('StateSyncService', () => {
     localStorage.setItem('k', 'pushed');
     const sync = configure();
     const seen: (string | undefined)[] = [];
-    sync.register('settings', 'k', (raw) => seen.push(raw));
+    sync.register('settings', 'k', (raw) => void seen.push(raw));
 
     sync.notifyRemoteChange('k');
     await flush();
@@ -190,7 +190,7 @@ describe('StateSyncService', () => {
     const sync = configure();
     const seen: string[] = [];
     sync.registerPrefix('working-state', 'lw.shell.view-state:', (_raw, key) =>
-      seen.push(key),
+      void seen.push(key),
     );
 
     channel.receive('lw.shell.view-state:outline');

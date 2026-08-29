@@ -78,10 +78,10 @@ export function collidingParam(
 function paramPrefixes(pattern: string): Map<string, string> {
   const prefixes = new Map<string, string>();
   const segments = segmentsOf(pattern);
-  segments.forEach((segment, index) => {
+  for (const [index, segment] of segments.entries()) {
     if (segment.startsWith(':')) {
       prefixes.set(segment.slice(1), segments.slice(0, index).join('/'));
     }
-  });
+  }
   return prefixes;
 }

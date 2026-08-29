@@ -68,7 +68,11 @@ export class PaneDropZones {
   constructor() {
     effect((onCleanup) => {
       const disposers = this.zoneIds().map((id) => this.drag.registerZone(id));
-      onCleanup(() => disposers.forEach((dispose) => dispose()));
+      onCleanup(() => {
+        for (const dispose of disposers) {
+          dispose();
+        }
+      });
     });
   }
 

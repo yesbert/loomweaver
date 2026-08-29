@@ -37,7 +37,9 @@ describe('Shell', () => {
     }).compileComponents();
 
     const registry = TestBed.inject(ContributionRegistry);
-    DEFAULT_BAR_ITEMS.forEach((item) => registry.addBarItem(item));
+    for (const item of DEFAULT_BAR_ITEMS) {
+      registry.addBarItem(item);
+    }
   });
 
   it('renders the LoomWeaver shell brand', async () => {

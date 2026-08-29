@@ -115,7 +115,9 @@ describe('urlPluginCatalog', () => {
 
 describe('providePluginCatalog', () => {
   afterEach(() => {
-    document.querySelectorAll('iframe').forEach((frame) => frame.remove());
+    for (const frame of document.querySelectorAll('iframe')) {
+      frame.remove();
+    }
     localStorage.clear();
   });
 

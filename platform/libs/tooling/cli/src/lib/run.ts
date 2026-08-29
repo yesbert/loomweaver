@@ -169,12 +169,16 @@ function reportAmendments(io: Io, amend: AmendPlan, done: boolean): void {
     );
     for (const amendment of amend.amendments) {
       io.out(`  ${amendment.display}`);
-      amendment.added.forEach((entry) => io.out(`    + ${entry}`));
+      for (const entry of amendment.added) {
+        io.out(`    + ${entry}`);
+      }
     }
   }
   if (amend.remaining.length > 0) {
     io.out('Still to do by hand:');
-    amend.remaining.forEach((entry) => io.out(`  - ${entry}`));
+    for (const entry of amend.remaining) {
+      io.out(`  - ${entry}`);
+    }
   }
 }
 
@@ -194,12 +198,16 @@ function scaffold(args: ParsedArgs, io: Io): number {
 
   if (boolFlag(args, 'dry-run')) {
     io.out(`Would write ${paths.length} file(s) into ${plan.root}:`);
-    paths.forEach((path) => io.out(`  ${path}`));
+    for (const path of paths) {
+      io.out(`  ${path}`);
+    }
     if (plan.conflicts.length > 0) {
       io.out(
         `${plan.conflicts.length} of them already exist and would need --force:`,
       );
-      plan.conflicts.forEach((path) => io.out(`  ${path}`));
+      for (const path of plan.conflicts) {
+        io.out(`  ${path}`);
+      }
     }
     reportAmendments(io, amend, false);
     return 0;
@@ -209,14 +217,18 @@ function scaffold(args: ParsedArgs, io: Io): number {
     io.err(
       `${plan.conflicts.length} file(s) already exist; pass --force to overwrite:`,
     );
-    plan.conflicts.forEach((path) => io.err(`  ${path}`));
+    for (const path of plan.conflicts) {
+      io.err(`  ${path}`);
+    }
     return 1;
   }
 
   applyWrite(files, plan);
   applyAmend(amend);
   io.out(`Wrote ${paths.length} file(s) into ${plan.root}:`);
-  paths.forEach((path) => io.out(`  ${path}`));
+  for (const path of paths) {
+    io.out(`  ${path}`);
+  }
   reportAmendments(io, amend, true);
   return 0;
 }

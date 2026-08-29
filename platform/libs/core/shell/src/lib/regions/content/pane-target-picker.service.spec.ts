@@ -85,7 +85,7 @@ describe('PaneTargetPicker', () => {
     const picker = setup(true);
     const picks: string[] = [];
     picker.openForNavigation(document.createElement('button'), (p) =>
-      picks.push(p),
+      void picks.push(p),
     );
 
     expect(opened).not.toBeNull();
