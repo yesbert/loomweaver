@@ -79,7 +79,7 @@ function graph(files) {
     const valueOut = new Set();
     const allOut = new Set();
     for (const match of text.matchAll(
-      /(?:from|import)\s*\(?\s*['"](\.[^'"]+)['"]/g,
+      /(?:from|import)\s*(?:\(\s*)?['"](\.[^'"]+)['"]/g,
     )) {
       const target = resolve(file, match[1]);
       if (!target || target === file) continue;

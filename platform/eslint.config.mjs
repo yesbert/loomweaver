@@ -1,6 +1,7 @@
 import { fileURLToPath } from "node:url";
 import nx from "@nx/eslint-plugin";
 import betterTailwindcss from "eslint-plugin-better-tailwindcss";
+import regexp from "eslint-plugin-regexp";
 import * as angularTemplateParser from "@angular-eslint/template-parser";
 
 // Tailwind v4 is CSS-first: the class registry is derived from this entry point
@@ -107,6 +108,32 @@ export default [
         ],
         // Override or add rules here
         rules: {}
+    },
+    {
+        // A pattern that can be driven into backtracking is a denial of service waiting for the one
+        // input nobody tried. This is the analysis SonarQube runs for the same finding, moved to the
+        // pull request: `no-super-linear-move` is not in the plugin's recommended set and carries
+        // three of the four patterns this repository had, so it is named here on purpose.
+        // Test files are exempt: a pattern in a spec never meets an input it did not choose.
+        files: [
+            "**/*.ts",
+            "**/*.tsx",
+            "**/*.cts",
+            "**/*.mts",
+            "**/*.js",
+            "**/*.jsx",
+            "**/*.cjs",
+            "**/*.mjs"
+        ],
+        ignores: [
+            "**/*.spec.ts",
+            "**/*.spec.js"
+        ],
+        plugins: { regexp },
+        rules: {
+            "regexp/no-super-linear-backtracking": "error",
+            "regexp/no-super-linear-move": "error"
+        }
     },
     {
         // House member order (engineering-standards.md): fields -> constructor ->
