@@ -60,9 +60,10 @@ function canonicalTrees(
   try {
     const parsed = JSON.parse(raw) as Record<string, unknown>;
     const out: Record<string, unknown> = {};
-    for (const dock of Object.keys(parsed ?? {}).toSorted((a, b) =>
+    const docks = Object.keys(parsed ?? {}).toSorted((a, b) =>
       a.localeCompare(b),
-    )) {
+    );
+    for (const dock of docks) {
       const entry = normalizeDockEntry(parsed[dock]);
       if (entry === null) {
         continue;

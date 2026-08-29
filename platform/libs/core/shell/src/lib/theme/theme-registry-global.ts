@@ -54,10 +54,9 @@ function ownerByToken(
       ...Object.keys(registration.dark ?? {}),
     ];
     for (const name of names) {
-      if (!known.has(name) || owners.has(name)) {
-        continue;
+      if (known.has(name) && !owners.has(name)) {
+        owners.set(name, registration);
       }
-      owners.set(name, registration);
     }
   }
   return owners;

@@ -42,14 +42,23 @@ export function assignWorkspaceInitials(
   const taken = new Set<string>();
   const assigned = new Map<string, string>();
   for (const workspace of workspaces) {
-    for (const candidate of candidatesFor(workspace.name)) {
-      if (taken.has(candidate)) {
-        continue;
-      }
+    const candidate = firstFree(candidatesFor(workspace.name), taken);
+    if (candidate !== undefined) {
       taken.add(candidate);
       assigned.set(workspace.id, candidate);
-      break;
     }
   }
   return assigned;
+}
+
+function firstFree(
+  candidates: Iterable<string>,
+  taken: ReadonlySet<string>,
+): string | undefined {
+  for (const candidate of candidates) {
+    if (!taken.has(candidate)) {
+      return candidate;
+    }
+  }
+  return undefined;
 }

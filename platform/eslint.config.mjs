@@ -192,6 +192,23 @@ export default [
             // and our own signatures return it; banning the literal would only move the seam.
             "unicorn/no-null": "off",
 
+            // It calls `for (const action of view.actions ?? [])` unreadable and wants the
+            // iterable hoisted into a named variable. Twenty of its twenty-four findings are
+            // that shape, where the name would repeat the loop variable and buy a line.
+            "unicorn/no-unreadable-for-of-expression": "off",
+
+            // Three levels of nesting is below what a schema builder and node's path helpers
+            // need in one expression: `z.record(z.string(), z.record(...))` is the schema, and
+            // `readFileSync(fileURLToPath(new URL(...)), 'utf8')` is how a module reads a file
+            // beside itself.
+            "unicorn/max-nested-calls": "off",
+
+            // It reorders the operands of && and ||, which puts the cheap test first and the
+            // intent second: `option.type === 'string' && typeof value !== 'string'` states a
+            // mismatch, and the reverse states nothing. Its own message asks the reader to
+            // verify short-circuit behaviour, which makes it a prompt rather than a rule.
+            "unicorn/prefer-simple-condition-first": "off",
+
             // It reads `if (x) setAttribute(a, v) else removeAttribute(a)` as a toggle. Both of
             // ours carry a value a reader depends on — an aria-checked of "true" or "false", the
             // reflected value of a custom element property — and `toggleAttribute` cannot carry one.
@@ -267,23 +284,20 @@ export default [
                 }
             ],
 
-            // Everything below is switched off only until its findings are cleared, one pull
-            // request per group. A rule that is not in this list is enforced. Where a rule
-            // carries a note, its fixer was tried and did damage: read the note before
-            // reaching for --fix.
-            "unicorn/max-nested-calls": "off",
-            "unicorn/no-break-in-nested-loop": "off",
-            "unicorn/no-unreadable-for-of-expression": "off",
-            "unicorn/prefer-promise-try": "off",
-            "unicorn/prefer-simple-condition-first": "off",
             // `f(undefined)` is not `f()` when the parameter is required, and `() => undefined`
             // may not become `() => {}` while no-empty-function forbids exactly that.
             "unicorn/no-useless-undefined": [
                 "error",
                 { checkArguments: false, checkArrowFunctionBody: false }
             ],
-            "unicorn/prefer-array-from-map": "off",
-            "unicorn/prefer-direct-iteration": "off",
+
+            // Everything below waits on ES2025 in the browser, not on anyone's time.
+            // Iterator.prototype.toArray and Promise.try need Safari 18.2 or 18.4, and most of
+            // the findings are in code that ships to a browser rather than to node. Raising the
+            // language target would enforce these three at the cost of a support floor, for a
+            // gain that is one intermediate array nobody measures. Turn them on when the floor
+            // moves for a reason of its own.
+            "unicorn/prefer-promise-try": "off",
             "unicorn/prefer-iterator-helpers": "off",
             "unicorn/prefer-iterator-to-array": "off",
         }
@@ -315,6 +329,18 @@ export default [
         ],
         rules: {
             "unicorn/no-array-callback-reference": "off"
+        }
+    },
+    {
+        // A `continue` guarding the top of an inner loop is not the ambiguity this rule is named
+        // for, and these ten are all that shape, in a file walker and in Tarjan's algorithm where
+        // inverting them would nest the body a level deeper. The shape that IS ambiguous, a break
+        // inside a switch inside a loop, is gone from everything that ships and stays enforced.
+        files: [
+            "**/tools/**"
+        ],
+        rules: {
+            "unicorn/no-break-in-nested-loop": "off"
         }
     },
     {
