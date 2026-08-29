@@ -1,5 +1,5 @@
 ---
-import { Code } from '@astrojs/starlight/components';
+import { Code, Icon } from '@astrojs/starlight/components';
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 import '../styles/landing.css';
 
@@ -85,7 +85,9 @@ const rungs = [
       <div class="actions">
         <a class="btn primary" href="/getting-started/">Start in 5 minutes</a>
         <a class="btn" href="/architecture/">See the architecture</a>
-        <a class="btn ghost" href="https://github.com/yesbert/loomweaver">GitHub</a>
+        <a class="btn" href="https://github.com/yesbert/loomweaver">
+          <Icon name="github" size="1.1em" />GitHub
+        </a>
       </div>
     </section>
 
@@ -297,7 +299,7 @@ const rungs = [
       <div class="actions">
         <a class="btn primary" href="/getting-started/">Get started</a>
         <a class="btn" href="/samples/">Copyable recipes</a>
-        <a class="btn ghost" href="https://demo.loomweaver.dev">Live demo</a>
+        <a class="btn" href="https://demo.loomweaver.dev">Live demo</a>
       </div>
     </section>
   </div>

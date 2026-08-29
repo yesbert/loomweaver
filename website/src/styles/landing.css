@@ -103,7 +103,9 @@
 }
 
 .lw-landing .btn {
-  display: inline-block;
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
   padding: 0.7rem 1.4rem;
   border: 1px solid var(--sl-color-gray-5);
   border-radius: 0.5rem;
@@ -135,11 +137,6 @@
 .lw-landing .btn.primary:hover {
   opacity: 0.85;
   transform: translateY(-1px);
-}
-
-.lw-landing .btn.ghost {
-  border-color: transparent;
-  color: var(--sl-color-gray-2);
 }
 
 /* Screenshots */
