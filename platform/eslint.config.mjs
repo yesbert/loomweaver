@@ -277,14 +277,10 @@ export default [
             // `getHTML()` is a 2024 DOM API that jsdom does not have, so the tests
             // that read rendered markup fail on it
             "unicorn/prefer-dom-node-html-methods": "off",
-            // adds lines by design, see switch-case-braces
-            "unicorn/prefer-early-return": "off",
             "unicorn/prefer-else-if": "off",
             "unicorn/prefer-direct-iteration": "off",
             "unicorn/prefer-iterator-helpers": "off",
             "unicorn/prefer-iterator-to-array": "off",
-            // adds lines by design, and two files already sit over the 400-line ratchet
-            "unicorn/switch-case-braces": "off",
         }
     },
     {

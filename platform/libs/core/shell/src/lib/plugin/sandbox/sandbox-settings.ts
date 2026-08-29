@@ -247,13 +247,14 @@ function hostControl(
 ): SettingControl {
   const control = row.control;
   switch (control.kind) {
-    case 'toggle':
+    case 'toggle': {
       return {
         kind: 'toggle',
         value: () => values()[row.id] === true,
         set: (value) => set(row.id, value),
       };
-    case 'text':
+    }
+    case 'text': {
       return {
         kind: 'text',
         inputType: control.inputType,
@@ -261,14 +262,16 @@ function hostControl(
         value: () => String(values()[row.id] ?? ''),
         set: (value) => set(row.id, value),
       };
-    case 'select':
+    }
+    case 'select': {
       return {
         kind: 'select',
         options: control.options,
         value: () => String(values()[row.id] ?? control.value),
         set: (value) => set(row.id, value),
       };
-    case 'slider':
+    }
+    case 'slider': {
       return {
         kind: 'slider',
         min: control.min,
@@ -277,5 +280,6 @@ function hostControl(
         value: () => Number(values()[row.id] ?? control.value),
         set: (value) => set(row.id, value),
       };
+    }
   }
 }

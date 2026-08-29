@@ -17,16 +17,20 @@ export function isMacPlatform(): boolean {
 function normaliseKey(key: string): string {
   const lower = key.toLowerCase();
   switch (lower) {
-    case 'esc':
+    case 'esc': {
       return 'escape';
-    case 'return':
+    }
+    case 'return': {
       return 'enter';
+    }
     case 'space':
     case 'spacebar':
-    case ' ':
+    case ' ': {
       return 'space';
-    default:
+    }
+    default: {
       return lower;
+    }
   }
 }
 
@@ -56,29 +60,35 @@ export function chordSignature(chord: string, isMac: boolean): string | null {
       continue;
     }
     switch (token) {
-      case 'mod':
+      case 'mod': {
         if (isMac) parts.meta = true;
         else parts.ctrl = true;
         break;
+      }
       case 'ctrl':
-      case 'control':
+      case 'control': {
         parts.ctrl = true;
         break;
+      }
       case 'meta':
       case 'cmd':
       case 'command':
-      case 'win':
+      case 'win': {
         parts.meta = true;
         break;
+      }
       case 'alt':
-      case 'option':
+      case 'option': {
         parts.alt = true;
         break;
-      case 'shift':
+      }
+      case 'shift': {
         parts.shift = true;
         break;
-      default:
+      }
+      default: {
         parts.key = normaliseKey(token);
+      }
     }
   }
   return parts.key ? toSignature(parts) : null;
@@ -88,35 +98,44 @@ export function formatShortcut(chord: string, isMac: boolean): string {
   const tokens = chord.split('+').map((raw) => {
     const token = raw.trim().toLowerCase();
     switch (token) {
-      case 'mod':
+      case 'mod': {
         return isMac ? '⌘' : 'Ctrl';
+      }
       case 'ctrl':
-      case 'control':
+      case 'control': {
         return isMac ? '⌃' : 'Ctrl';
+      }
       case 'meta':
       case 'cmd':
       case 'command':
-      case 'win':
+      case 'win': {
         return isMac ? '⌘' : 'Meta';
+      }
       case 'alt':
-      case 'option':
+      case 'option': {
         return isMac ? '⌥' : 'Alt';
-      case 'shift':
+      }
+      case 'shift': {
         return isMac ? '⇧' : 'Shift';
+      }
       case 'enter':
-      case 'return':
+      case 'return': {
         return isMac ? '↵' : 'Enter';
+      }
       case 'escape':
-      case 'esc':
+      case 'esc': {
         return 'Esc';
+      }
       case 'space':
       case 'spacebar':
-      case ' ':
+      case ' ': {
         return 'Space';
-      default:
+      }
+      default: {
         return token.length === 1
           ? token.toUpperCase()
           : token.charAt(0).toUpperCase() + token.slice(1);
+      }
     }
   });
 

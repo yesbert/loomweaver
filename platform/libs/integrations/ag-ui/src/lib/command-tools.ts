@@ -134,13 +134,14 @@ export function commandTools(
     receive: async (event) => {
       const raw = event as Record<string, unknown>;
       switch (event.type) {
-        case EventType.TOOL_CALL_START:
+        case EventType.TOOL_CALL_START: {
           open.set(String(raw['toolCallId']), {
             toolCallId: String(raw['toolCallId']),
             commandId: String(raw['toolCallName']),
             json: '',
           });
           return null;
+        }
         case EventType.TOOL_CALL_ARGS: {
           const call = open.get(String(raw['toolCallId']));
           if (call) {
@@ -152,13 +153,16 @@ export function commandTools(
           const call = open.get(String(raw['toolCallId']));
           return call ? finish(call) : null;
         }
-        case EventType.TOOL_CALL_CHUNK:
+        case EventType.TOOL_CALL_CHUNK: {
           return receiveChunk(raw);
+        }
         case EventType.RUN_FINISHED:
-        case EventType.RUN_ERROR:
+        case EventType.RUN_ERROR: {
           return flush();
-        default:
+        }
+        default: {
           return null;
+        }
       }
     },
   };

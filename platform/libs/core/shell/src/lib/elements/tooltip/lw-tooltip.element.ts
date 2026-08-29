@@ -184,17 +184,21 @@ export class LwTooltipElement extends HTMLElement {
       const centerX = t.left + t.width / 2 - b.width / 2;
       const centerY = t.top + t.height / 2 - b.height / 2;
       switch (this.position) {
-        case 'bottom':
+        case 'bottom': {
           [left, top] = [centerX, t.bottom + TOOLTIP_GAP];
           break;
-        case 'left':
+        }
+        case 'left': {
           [left, top] = [t.left - b.width - TOOLTIP_GAP, centerY];
           break;
-        case 'right':
+        }
+        case 'right': {
           [left, top] = [t.right + TOOLTIP_GAP, centerY];
           break;
-        default:
+        }
+        default: {
           [left, top] = [centerX, t.top - b.height - TOOLTIP_GAP];
+        }
       }
     } else {
       return;
@@ -219,10 +223,12 @@ export class LwTooltipElement extends HTMLElement {
   }
 
   private clearTimer(): void {
-    if (this.showTimer !== undefined) {
-      clearTimeout(this.showTimer);
-      this.showTimer = undefined;
+    if (this.showTimer === undefined) {
+      return;
     }
+
+    clearTimeout(this.showTimer);
+    this.showTimer = undefined;
   }
 }
 

@@ -169,18 +169,22 @@ export class LwMenuElement extends HTMLElement {
 
   private handleKeydown(event: KeyboardEvent): void {
     switch (event.key) {
-      case 'ArrowDown':
+      case 'ArrowDown': {
         this.setActive(this.active < 0 ? 0 : this.active + 1);
         break;
-      case 'ArrowUp':
+      }
+      case 'ArrowUp': {
         this.setActive((this.active < 0 ? this.items().length : this.active) - 1);
         break;
-      case 'Home':
+      }
+      case 'Home': {
         this.setActive(0);
         break;
-      case 'End':
+      }
+      case 'End': {
         this.setActive(this.items().length - 1);
         break;
+      }
       case 'Enter':
       case ' ': {
         const item = this.active >= 0 ? this.items()[this.active] : undefined;
@@ -190,11 +194,13 @@ export class LwMenuElement extends HTMLElement {
         break;
       }
       case 'Escape':
-      case 'Tab':
+      case 'Tab': {
         this.dispatchEvent(new CustomEvent(LW_MENU_DISMISS, { bubbles: true }));
         return;
-      default:
+      }
+      default: {
         return;
+      }
     }
     event.preventDefault();
   }

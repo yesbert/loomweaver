@@ -103,10 +103,12 @@ export class RetainedViewStash implements OnDestroy {
       stale: () =>
         entry.tracked && (!owns() || this.entries.get(key) !== entry),
       describe: (mode: SurfaceRetentionMode, retain: boolean) => {
-        if (owns()) {
-          entry.mode = mode;
-          entry.keep = retain;
+        if (!owns()) {
+          return;
         }
+
+        entry.mode = mode;
+        entry.keep = retain;
       },
       release: (retained: boolean) => {
         if (owns()) {

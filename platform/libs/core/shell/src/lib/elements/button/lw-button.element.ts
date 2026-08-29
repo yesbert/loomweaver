@@ -85,10 +85,12 @@ export class LwButtonElement extends HTMLElement {
   }
 
   private readonly onKeydown = (event: KeyboardEvent) => {
-    if ((event.key === 'Enter' || event.key === ' ') && !this.disabled) {
-      event.preventDefault();
-      this.click();
+    if (!(event.key === 'Enter' || event.key === ' ') || this.disabled) {
+      return;
     }
+
+    event.preventDefault();
+    this.click();
   };
 
   private render(): void {

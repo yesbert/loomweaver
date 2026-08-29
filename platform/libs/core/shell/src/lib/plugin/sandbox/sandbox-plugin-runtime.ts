@@ -214,10 +214,12 @@ export class FramePluginRuntime {
     });
 
     connection.promise.catch((error: unknown) => {
-      if (this.instances.has(plugin.id)) {
-        console.error(`Sandbox plugin "${plugin.id}" failed to connect`, error);
-        this.deactivate(plugin.id);
+      if (!this.instances.has(plugin.id)) {
+        return;
       }
+
+      console.error(`Sandbox plugin "${plugin.id}" failed to connect`, error);
+      this.deactivate(plugin.id);
     });
   }
 
