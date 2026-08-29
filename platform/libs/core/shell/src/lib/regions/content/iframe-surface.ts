@@ -144,7 +144,7 @@ export class IframeSurface implements DirtySurface {
 
   private readonly restPath = computed(() => {
     if (!this.ownsRest) {
-      return undefined;
+      return;
     }
     return this.hostMounted
       ? this.hostSub()

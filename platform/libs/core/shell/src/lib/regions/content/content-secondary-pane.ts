@@ -139,7 +139,7 @@ export class ContentSecondaryPane {
   private readonly mountParams = computed(() => {
     const ctx = this.containerCtx;
     if (!ctx) {
-      return undefined;
+      return;
     }
     const match = containerChildForPath(
       this.registry.contentRoutes(),

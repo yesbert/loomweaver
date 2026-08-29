@@ -110,7 +110,7 @@ export class ShellPanel {
   protected readonly activeView = computed(() => {
     const path = this.activePath();
     if (!path?.startsWith(VIEW_PANE_PREFIX)) {
-      return undefined;
+      return;
     }
     return viewForPanePath(this.registry.views(), path);
   });

@@ -55,7 +55,7 @@ export class ShellBarItem {
   protected readonly shortcut = computed<string | undefined>(() => {
     const button = this.asButton();
     if (!button?.showShortcut || !button.command) {
-      return undefined;
+      return;
     }
     return this.commands.shortcutOf(
       this.commands.commands().find((entry) => entry.id === button.command),
