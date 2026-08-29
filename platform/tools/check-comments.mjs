@@ -250,9 +250,17 @@ function lineOf(text, pos) {
   return text.slice(0, pos).split('\n').length;
 }
 
+function withoutTrailingStars(text) {
+  let end = text.length;
+  while (end > 0 && text[end - 1] === '*') {
+    end -= 1;
+  }
+  return text.slice(0, end);
+}
+
 function body(comment) {
-  return comment.text
-    .replace(/^\/\*+|\*+\/$/g, '')
+  const opened = comment.text.replace(/^\/\*+/, '');
+  return (opened.endsWith('*/') ? withoutTrailingStars(opened.slice(0, -2)) : opened)
     .replace(/^\/\//, '')
     .split('\n')
     .map((l) => l.replace(/^\s*\*?\s?/, ''))
