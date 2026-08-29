@@ -156,7 +156,10 @@ A weaver's `registerSurface({ docks: ['primary'] })` / `registerRailItem({ rail:
 
 ## Content-area routing
 
-The content area is URL-addressed. Weavers contribute **routable surfaces**
+The content area is URL-addressed. It is the Angular router underneath, and
+[Routing](reference/routing.md) is the reference for what that means in practice.
+
+Weavers contribute **routable surfaces**
 (`ctx.registerSurface({ routable: { path } })`). Visiting a route opens its tab, and a pane draws a
 tab strip whenever it holds tabs; switching between tabs preserves state. The one exception is a
 surface that declares `routable: { chromeless: true }` — a full-area screen such as login or

@@ -843,7 +843,7 @@ Prefer generating over hand-wiring. Three dev-time `scope:tooling` packages, pub
 ## Full docs (prose, examples)
 
 - docs/architecture.md · docs/getting-started.md · docs/manual-setup.md · docs/samples.md · docs/authoring-a-weaver.md · docs/building-a-distribution.md · docs/plugins.md · docs/scaffolding.md · docs/backend-integration.md
-- docs/reference/{shell-anatomy,design-tokens,accessibility,host-services,access-gating}.md
+- docs/reference/{shell-anatomy,design-tokens,accessibility,host-services,access-gating,routing}.md
 - Scaffolding: docs/scaffolding.md and platform/libs/tooling/{devkit,cli,mcp}/README.md
 - A PLUGIN's public API is exactly `@loomweaver/plugin-sdk`'s exports (typings ship in the package); nothing else is public API for a plugin.
 -   A DISTRIBUTION additionally composes `@loomweaver/shell`'s exports (provideShell, provideShellRouter, the provide* ports, StateSyncService, PopoutService, PluginInstallService, …) — everything in its packed .d.ts.

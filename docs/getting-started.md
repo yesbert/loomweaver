@@ -90,7 +90,8 @@ notes in `LOOMWEAVER.md` precisely so it never touches your `README.md`. Run it 
 first if you want the list; the CLI names each file it would replace and writes nothing.
 
 Three files from `ng new` are now unreferenced: `src/app/app.routes.ts` (the shell owns content
-routing), `src/app/app.css`, and `src/app/app.spec.ts` — that last one now **fails**, because `App`
+routing, and [Routing](reference/routing.md) shows that the router itself is unchanged),
+`src/app/app.css`, and `src/app/app.spec.ts` — that last one now **fails**, because `App`
 pulls the whole shell into a bare `TestBed`. Delete it; the generated `app.config.spec.ts` is the
 replacement starting point, and it tests something worth testing (that the layout still declares the
 region ids your contributions target) without mounting anything.

@@ -109,10 +109,11 @@ Four things about the generated file you are replacing:
   described in [building a distribution → PWA & delivery](building-a-distribution.md#pwa--delivery).
   The [scaffolded quick start](getting-started.md) ships all of that wired, so there PWA is on.
 
-- **`provideRouter(routes)` goes away.** `provideShellRouter()` takes its place. It bundles three
-  things as one unit: `withDisabledInitialNavigation()`, the state-preserving reuse strategy and
+- **`provideRouter(routes)` goes away.** `provideShellRouter()` calls it for you and takes its place.
+  It bundles three things as one unit: `withDisabledInitialNavigation()`, the state-preserving reuse strategy and
   the route sync. One unit means it cannot be half-configured. Pass your own non-content routes as
-  `provideShellRouter([...routes])`. `src/app/app.routes.ts` is then unreferenced.
+  `provideShellRouter([...routes])`. `src/app/app.routes.ts` is then unreferenced. Everything else
+  about the router is unchanged, which [Routing](reference/routing.md) spells out.
 - **`provideBrowserGlobalErrorListeners()` goes away too** — `provideShell()` already includes it,
   and registering it twice means every error is logged twice.
 - All three `ProductIdentity` fields are **required**, and `logoUrl` resolves against your served
