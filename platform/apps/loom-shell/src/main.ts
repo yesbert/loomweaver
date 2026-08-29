@@ -3,4 +3,4 @@ import { Shell, provideShell, provideShellRouter } from '@loomweaver/shell';
 
 bootstrapApplication(Shell, {
   providers: [provideShellRouter(), provideShell()],
-}).catch((err) => console.error(err));
+}).catch((error) => console.error(error));

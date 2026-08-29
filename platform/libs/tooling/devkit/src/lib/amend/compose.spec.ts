@@ -75,7 +75,7 @@ describe('composePlugin', () => {
 
   it('writes the entries against the indentation of the closing line', () => {
     const deeper = GENERATED.replace(/^ {2}providers/m, '    providers')
-      .replace(/^ {4}provide/gm, '      provide')
+      .replaceAll(/^ {4}provide/gm, '      provide')
       .replace(/^ {2}\],/m, '    ],');
     const { source, composed } = composePlugin(deeper, NOTES, '../notes/src');
     expect(composed).toBe(true);

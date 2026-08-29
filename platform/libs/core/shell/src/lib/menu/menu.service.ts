@@ -125,7 +125,7 @@ export class MenuService {
     document.body.classList.add('lw-menu-open');
     menu.openAt(at.x, at.y);
     const listenTimer = setTimeout(() =>
-      document.addEventListener('pointerdown', onOutside, true),
+      document.addEventListener('pointerdown', onOutside, {capture: true}), 0,
     );
     this.current = { menu, onOutside, restore, listenTimer };
   }

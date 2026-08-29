@@ -116,7 +116,7 @@ function createPluginLayerRules(): LayerRules | null {
   }
   const element = document.createElement('style');
   element.dataset['lwPluginTheme'] = '';
-  document.head.appendChild(element);
+  document.head.append(element);
   const sheet = element.sheet;
   if (!sheet) {
     return null;

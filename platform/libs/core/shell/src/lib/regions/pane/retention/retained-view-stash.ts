@@ -318,7 +318,7 @@ export class RetainedViewStash implements OnDestroy {
     const area = this.document.createElement('div');
     area.dataset['lwRetentionHold'] = '';
     area.style.display = 'none';
-    this.document.body.appendChild(area);
+    this.document.body.append(area);
     this.holdingArea = area;
     return area;
   }

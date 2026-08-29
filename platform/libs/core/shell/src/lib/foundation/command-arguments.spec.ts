@@ -49,7 +49,7 @@ describe('checkArguments', () => {
       'a finite number',
     );
     expect(
-      checkArguments(DECLARED, { path: 'a', count: Number.NaN }),
+      checkArguments(DECLARED, { path: 'a', count: NaN }),
     ).toContain('a finite number');
   });
 

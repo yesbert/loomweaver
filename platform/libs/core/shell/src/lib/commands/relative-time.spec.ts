@@ -4,7 +4,7 @@ describe('formatRelativeTime', () => {
   const now = Date.UTC(2026, 0, 15, 12, 0, 0);
 
   it('scales from seconds up to days', () => {
-    expect(formatRelativeTime('en', now - 5_000, now)).toBe('5 seconds ago');
+    expect(formatRelativeTime('en', now - 5000, now)).toBe('5 seconds ago');
     expect(formatRelativeTime('en', now - 5 * 60_000, now)).toBe('5 minutes ago');
     expect(formatRelativeTime('en', now - 5 * 3_600_000, now)).toBe('5 hours ago');
     expect(formatRelativeTime('en', now - 5 * 86_400_000, now)).toBe('5 days ago');

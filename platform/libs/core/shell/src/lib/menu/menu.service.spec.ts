@@ -64,7 +64,7 @@ describe('MenuService', () => {
     service = TestBed.inject(MenuService);
     registry = TestBed.inject(ContributionRegistry);
     commands = TestBed.inject(CommandService);
-    document.body.innerHTML = '';
+    document.body.replaceChildren();
   });
 
   afterEach(() => service.close());

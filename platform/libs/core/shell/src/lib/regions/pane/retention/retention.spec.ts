@@ -230,7 +230,7 @@ class InPlaceHost {
 }
 
 async function afterSweep(): Promise<void> {
-  await new Promise<void>((resolve) => setTimeout(resolve));
+  await new Promise<void>((resolve) => setTimeout(resolve, 0));
 }
 
 function el(fixture: { nativeElement: HTMLElement }, selector: string) {
@@ -845,10 +845,10 @@ describe('surface retention', () => {
       fakeAtomicMove();
       const parent = document.createElement('div');
       const node = document.createElement('span');
-      parent.appendChild(node);
+      parent.append(node);
       const target = document.createElement('div');
-      document.body.appendChild(parent);
-      document.body.appendChild(target);
+      document.body.append(parent);
+      document.body.append(target);
 
       expect(moveNode(target, node, null)).toBe(true);
       expect(node.parentElement).toBe(target);
@@ -972,12 +972,12 @@ describe('surface retention', () => {
       dirtyInstances[0].draft.set('typed');
 
       const dirtyEvent = new Event('beforeunload', { cancelable: true });
-      window.dispatchEvent(dirtyEvent);
+      globalThis.dispatchEvent(dirtyEvent);
       expect(dirtyEvent.defaultPrevented).toBe(true);
 
       dirtyInstances[0].saved.set('typed');
       const cleanEvent = new Event('beforeunload', { cancelable: true });
-      window.dispatchEvent(cleanEvent);
+      globalThis.dispatchEvent(cleanEvent);
       expect(cleanEvent.defaultPrevented).toBe(false);
     });
 

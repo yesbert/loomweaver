@@ -52,7 +52,7 @@ const DEMO: PluginCatalogEntry = {
   category: 'Productivity',
   description: 'Adds a dashboard tab.',
   version: '1.0.0',
-  downloads: 12842,
+  downloads: 12_842,
   updated: new Date(Date.now() - 2 * 86_400_000).toISOString(),
   repository: 'https://example.com/store-full',
   readmeUrl: '/store-full/README.md',

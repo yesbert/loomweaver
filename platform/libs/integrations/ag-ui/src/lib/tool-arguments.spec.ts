@@ -9,7 +9,7 @@ describe('readArguments', () => {
 
   it('reads nothing streamed as a call with no arguments', () => {
     expect(readArguments('')).toEqual({});
-    expect(readArguments('   ')).toEqual({});
+    expect(readArguments(' '.repeat(3))).toEqual({});
   });
 
   it('refuses what is not readable as JSON', () => {

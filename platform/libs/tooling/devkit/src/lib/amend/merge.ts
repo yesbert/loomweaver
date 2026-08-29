@@ -120,7 +120,7 @@ export function ensureBuildTarget(
 }
 
 export function ensureStylesheetSource(css: string, source: string): string {
-  const quoted = source.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+  const quoted = source.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
   if (new RegExp(String.raw`@source\s+['"]${quoted}/?['"]`).test(css)) {
     return css;
   }

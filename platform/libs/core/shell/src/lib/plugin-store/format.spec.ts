@@ -2,8 +2,8 @@ import { formatCount, formatUpdated } from './format';
 
 describe('formatCount', () => {
   it('groups digits for the locale', () => {
-    expect(formatCount('en-US', 1234567)).toBe('1,234,567');
-    expect(formatCount('de-DE', 1234567)).toBe('1.234.567');
+    expect(formatCount('en-US', 1_234_567)).toBe('1,234,567');
+    expect(formatCount('de-DE', 1_234_567)).toBe('1.234.567');
   });
 });
 

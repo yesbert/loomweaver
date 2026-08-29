@@ -118,7 +118,7 @@ describe('KeybindingService', () => {
     });
     keybindings.start();
     const input = document.createElement('input');
-    document.body.appendChild(input);
+    document.body.append(input);
 
     press(input, { key: 'a' });
     expect(execute).not.toHaveBeenCalled();

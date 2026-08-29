@@ -36,7 +36,7 @@ export default [
                 {
                     enforceBuildableLibDependency: true,
                     allow: [
-                        "^.*/eslint(\\.base)?\\.config\\.[cm]?[jt]s$"
+                        String.raw`^.*/eslint(\.base)?\.config\.[cm]?[jt]s$`
                     ],
                     depConstraints: [
                         {
@@ -196,13 +196,17 @@ export default [
             ],
 
             // Everything below is switched off only until its findings are cleared, one pull
-            // request per group. A rule that is not in this list is enforced.
-            "unicorn/catch-error-name": "off",
+            // request per group. A rule that is not in this list is enforced. Where a rule
+            // carries a note, its fixer was tried and did damage: read the note before
+            // reaching for --fix.
             "unicorn/consistent-boolean-name": "off",
             "unicorn/consistent-function-scoping": "off",
+            // `dataset` lives on HTMLElement, and these call sites hold an Element
             "unicorn/dom-node-dataset": "off",
+            // assumes a property named `size` is never negative; ours is a
+            // percentage from a plugin declaration, and its fixer turned `size <= 0` into
+            // `size === 0`, which stopped reporting negative sizes
             "unicorn/explicit-length-check": "off",
-            "unicorn/explicit-timer-delay": "off",
             "unicorn/import-style": "off",
             "unicorn/isolated-functions": "off",
             "unicorn/max-nested-calls": "off",
@@ -222,58 +226,44 @@ export default [
             "unicorn/no-return-array-push": "off",
             "unicorn/no-top-level-assignment-in-function": "off",
             "unicorn/no-top-level-side-effects": "off",
+            // `globalThis.X` yields undefined where a bare `X` throws a ReferenceError,
+            // which is exactly what a test that stubs a global relies on
             "unicorn/no-unnecessary-global-this": "off",
-            "unicorn/no-unnecessary-string-trim": "off",
             "unicorn/no-unreadable-for-of-expression": "off",
             "unicorn/no-unsafe-string-replacement": "off",
-            "unicorn/no-useless-coercion": "off",
-            "unicorn/no-useless-concat": "off",
-            "unicorn/no-useless-promise-resolve-reject": "off",
             // `f(undefined)` is not `f()` when the parameter is required, and `() => undefined`
             // may not become `() => {}` while no-empty-function forbids exactly that.
             "unicorn/no-useless-undefined": [
                 "error",
                 { checkArguments: false, checkArrowFunctionBody: false }
             ],
-            "unicorn/numeric-separators-style": "off",
             "unicorn/prefer-add-event-listener": "off",
-            "unicorn/prefer-add-event-listener-options": "off",
             "unicorn/prefer-array-from-map": "off",
+            // `.at(-1)` returns `T | undefined`, which is honest and needs each of the
+            // 17 call sites to say what it does when the collection is empty
             "unicorn/prefer-at": "off",
             "unicorn/prefer-await": "off",
-            "unicorn/prefer-dom-node-append": "off",
+            // `getHTML()` is a 2024 DOM API that jsdom does not have, so the tests
+            // that read rendered markup fail on it
             "unicorn/prefer-dom-node-html-methods": "off",
-            "unicorn/prefer-dom-node-replace-children": "off",
+            // adds lines by design, see switch-case-braces
             "unicorn/prefer-early-return": "off",
             "unicorn/prefer-else-if": "off",
-            "unicorn/prefer-export-from": "off",
-            "unicorn/prefer-global-number-constants": "off",
-            "unicorn/prefer-global-this": "off",
             "unicorn/prefer-includes-over-repeated-comparisons": "off",
             "unicorn/prefer-direct-iteration": "off",
             "unicorn/prefer-iterator-helpers": "off",
             "unicorn/prefer-iterator-to-array": "off",
             "unicorn/prefer-module": "off",
             "unicorn/prefer-number-coercion": "off",
-            "unicorn/prefer-number-is-safe-integer": "off",
-            "unicorn/prefer-number-properties": "off",
-            "unicorn/prefer-object-define-properties": "off",
             "unicorn/prefer-promise-try": "off",
             "unicorn/prefer-scoped-selector": "off",
-            "unicorn/prefer-set-has": "off",
             "unicorn/prefer-simple-condition-first": "off",
-            "unicorn/prefer-split-limit": "off",
-            "unicorn/prefer-spread": "off",
-            "unicorn/prefer-string-raw": "off",
-            "unicorn/prefer-string-repeat": "off",
-            "unicorn/prefer-string-replace-all": "off",
             "unicorn/prefer-structured-clone": "off",
             "unicorn/prefer-then-catch": "off",
             "unicorn/prefer-toggle-attribute": "off",
             "unicorn/prefer-top-level-await": "off",
-            "unicorn/prefer-unicode-code-point-escapes": "off",
             "unicorn/require-array-sort-compare": "off",
-            "unicorn/require-css-escape": "off",
+            // adds lines by design, and two files already sit over the 400-line ratchet
             "unicorn/switch-case-braces": "off",
             "unicorn/text-encoding-identifier-case": "off"
         }

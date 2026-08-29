@@ -160,7 +160,7 @@ function slicePairs(edges) {
   }
   const pairs = [];
   for (const key of between.keys()) {
-    const [a, b] = key.split(' -> ');
+    const [a, b] = key.split(' -> ', 2);
     if (a < b && between.has(`${b} -> ${a}`)) pairs.push(`${a} <-> ${b}`);
   }
   return pairs.sort();
@@ -204,7 +204,7 @@ const failures = [];
 const allowedCycles = (baseline.fileCycles ?? []).map((group) =>
   [...group].sort().join('|'),
 );
-const actualCycles = cycles.map((group) => group.map(rel).sort().join('|'));
+const actualCycles = new Set(cycles.map((group) => group.map(rel).sort().join('|')));
 
 for (const group of cycles) {
   const key = group.map(rel).sort().join('|');
@@ -215,9 +215,9 @@ for (const group of cycles) {
   }
 }
 for (const allowed of allowedCycles) {
-  if (!actualCycles.includes(allowed)) {
+  if (!actualCycles.has(allowed)) {
     failures.push(
-      `a baselined file cycle is gone — remove it from the baseline:\n      ${allowed.split('|').join('\n      ')}`,
+      `a baselined file cycle is gone — remove it from the baseline:\n      ${allowed.replaceAll('|', '\n      ')}`,
     );
   }
 }

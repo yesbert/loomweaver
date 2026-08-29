@@ -11,8 +11,8 @@ import {
 import { relative, resolve } from 'node:path';
 import { ArgError, ParsedArgs } from './args';
 
-export { SCAFFOLDS } from '@loomweaver/devkit';
-export type { ScaffoldDescriptor };
+export { SCAFFOLDS, type ScaffoldDescriptor } from '@loomweaver/devkit';
+
 
 export function findScaffold(name: string): ScaffoldDescriptor {
   const scaffold = findDescriptor(name);

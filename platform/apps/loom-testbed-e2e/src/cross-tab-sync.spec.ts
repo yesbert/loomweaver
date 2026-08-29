@@ -26,7 +26,7 @@ test.describe('Cross-tab live sync', () => {
     expect(
       await second.evaluate(
         () =>
-          (window as unknown as Record<string, unknown>)['__beforeReload'] ===
+          (globalThis as unknown as Record<string, unknown>)['__beforeReload'] ===
           true,
       ),
     ).toBe(true);
@@ -58,7 +58,7 @@ test.describe('Cross-tab live sync', () => {
     expect(
       await second.evaluate(
         () =>
-          (window as unknown as Record<string, unknown>)['__beforeReload'] ===
+          (globalThis as unknown as Record<string, unknown>)['__beforeReload'] ===
           true,
       ),
     ).toBe(true);

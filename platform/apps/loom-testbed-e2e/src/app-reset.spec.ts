@@ -40,7 +40,7 @@ test.describe('Resetting the app layout (K6)', () => {
     await expect(notes).toHaveCount(1);
   });
 
-  test('leaves saved workspaces alone: that is the workspace reset\u2019s job', async ({
+  test('leaves saved workspaces alone: that is the workspace reset\u{2019}s job', async ({
     page,
   }) => {
     await page.goto('/');

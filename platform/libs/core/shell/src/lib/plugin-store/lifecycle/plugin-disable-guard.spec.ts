@@ -17,7 +17,7 @@ function topDialog() {
 }
 
 async function settle(): Promise<void> {
-  await new Promise<void>((resolve) => setTimeout(resolve));
+  await new Promise<void>((resolve) => setTimeout(resolve, 0));
 }
 
 describe('PluginDisableGuard (programmatic destruction)', () => {

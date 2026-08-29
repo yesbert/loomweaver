@@ -38,9 +38,9 @@ function restoredIndex(): number {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     const parsed = raw === null ? ANON : Number(raw);
-    return Number.isInteger(parsed) && parsed >= 0 && parsed < PRINCIPALS.length
-      ? parsed
-      : ANON;
+    const known =
+      Number.isSafeInteger(parsed) && parsed >= 0 && parsed < PRINCIPALS.length;
+    return known ? parsed : ANON;
   } catch {
     return ANON;
   }

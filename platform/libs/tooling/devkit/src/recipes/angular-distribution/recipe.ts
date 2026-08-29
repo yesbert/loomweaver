@@ -87,7 +87,7 @@ import { provideProductIdentity } from '@loomweaver/plugin-sdk';
    'status-bar' (bar) are what the scaffolded weaver targets. */
 export const layout: ShellLayout = {
   regions: [
-${renderRegions('    ')}
+${renderRegions(' '.repeat(4))}
   ],
 };
 

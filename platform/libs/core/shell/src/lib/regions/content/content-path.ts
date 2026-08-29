@@ -5,7 +5,7 @@ export interface Addressable {
 }
 
 export function normalizePath(url: string): string {
-  return url.split(/[?#]/)[0].replace(/^\/+/, '');
+  return url.split(/[?#]/, 1)[0].replace(/^\/+/, '');
 }
 
 export function segmentsOf(path: string): string[] {
