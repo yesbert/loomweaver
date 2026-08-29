@@ -25,6 +25,7 @@ import { AccountStatus } from '../session/account-status';
 import { demoSession } from '../session/session';
 import { paymentsIcon, paymentsPlugin } from '../payments/payments.plugin';
 import { activeLook } from '../looks/look-choice';
+import { LegalLink } from '../legal/legal-link';
 import { LookSwitch } from '../looks/look-switch';
 
 export const layout: ShellLayout = {
@@ -88,6 +89,13 @@ export const appConfig: ApplicationConfig = {
         slot: 'end',
         order: 90,
         component: UpdateBadge,
+      },
+      {
+        id: 'demo.legal',
+        bar: 'status-bar',
+        slot: 'end',
+        order: 100,
+        component: LegalLink,
       },
     ),
     provideRailItems(
