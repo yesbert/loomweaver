@@ -17,7 +17,10 @@
 
 ---
 
-<img src="assets/media/tour.gif" alt="A tour of a LoomWeaver workbench: opening the command palette, splitting a pane, a sandboxed non-Angular plugin, and a plugin re-skinning the whole application" />
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset="assets/media/tour-light.gif" />
+  <img src="assets/media/tour-dark.gif" alt="A tour of a LoomWeaver workbench: opening the command palette, splitting a pane, a sandboxed non-Angular plugin, and a plugin re-skinning the whole application" />
+</picture>
 
 <p align="center"><sub>Twenty-six seconds, no cuts. The rail, the panes, the palette and the status bar are the platform's. Everything inside them comes from plugins, including the theme at the end. <a href="https://loomweaver.dev">Watch it in better quality</a>.</sub></p>
 
@@ -119,7 +122,10 @@ See [Callable commands](docs/reference/callable-commands.md) and
 [Agent tools](docs/reference/agent-tools.md).
 
 <p align="center">
-  <img src="assets/media/command-palette.png" alt="The LoomWeaver command palette, listing commands contributed by plugins with their keyboard shortcuts" width="620" />
+  <picture>
+    <source media="(prefers-color-scheme: light)" srcset="assets/media/command-palette-light.png" />
+    <img src="assets/media/command-palette-dark.png" alt="The LoomWeaver command palette, listing commands contributed by plugins with their keyboard shortcuts" width="620" />
+  </picture>
 </p>
 
 ## What you would otherwise build twice
