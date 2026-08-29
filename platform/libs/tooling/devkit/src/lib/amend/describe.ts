@@ -9,6 +9,9 @@ export function describeAmendment(amendment: Amendment): string {
   if (amendment.kind === 'postcss') {
     return `Write ${amendment.file} beside your package.json, naming ${amendment.plugin}. Without it the stylesheet is read as plain CSS: no utility class is emitted, the workbench renders unstyled, and the build still reports success.`;
   }
+  if (amendment.kind === 'package') {
+    return `Add ${amendment.name}@${amendment.version} to your project's dependencies and install it. Without it the generated files import a package that is not there, so the very first build fails.`;
+  }
   if (amendment.kind === 'stylesheet-source') {
     return `Add an @source entry for '${amendment.sourceRoot}' to the application's entry stylesheet, resolved from that stylesheet. Without it none of that code's utilities are emitted.`;
   }
@@ -27,7 +30,9 @@ export function describeAmendment(amendment: Amendment): string {
       ? [
           `add assets for ${amendment.assets
             .map((asset) => asset.input)
-            .join(', ')} (the shell fetches its own strings at runtime, so without that glob every label in the chrome renders as its raw translation key)`,
+            .join(
+              ', ',
+            )} (the shell fetches its own strings at runtime, so without that glob every label in the chrome renders as its raw translation key)`,
         ]
       : []),
     ...(amendment.serviceWorker

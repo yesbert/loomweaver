@@ -8,7 +8,8 @@ set -euo pipefail
 # Directory.Build.props (<Version> — the version single-source, verified against the release
 # tag by the publish pipeline) and the seven npm packages — @loomweaver/plugin-sdk, @loomweaver/shell,
 # @loomweaver/mcp, @loomweaver/cli, @loomweaver/frame-kit, @loomweaver/devkit and @loomweaver/ag-ui (their "version", plus
-# @loomweaver/shell's and @loomweaver/ag-ui's peerDependencies["@loomweaver/plugin-sdk"] tracking it).
+# @loomweaver/shell's and @loomweaver/ag-ui's peerDependencies["@loomweaver/plugin-sdk"] tracking it),
+# plus the adapter version the weaver generator records for the agent connection it emits.
 # The tag-driven release workflow (.github/workflows/release.yml) re-stamps the built artifacts from
 # the tag anyway, but keeping the source in lockstep is what stops package.json drifting from reality.
 # (The platform ships no server package — the settings/auth/secret seam is the product's own
@@ -39,6 +40,8 @@ DEVKIT_PKG="${ROOT_DIR}/platform/libs/tooling/devkit/package.json"
 readonly DEVKIT_PKG
 AGUI_PKG="${ROOT_DIR}/platform/libs/integrations/ag-ui/package.json"
 readonly AGUI_PKG
+AGENT_RECIPE="${ROOT_DIR}/platform/libs/tooling/devkit/src/recipes/angular-weaver/agent-files.ts"
+readonly AGENT_RECIPE
 
 usage() {
     echo "Usage: $0 <major|minor|patch>"
@@ -92,7 +95,7 @@ command -v node >/dev/null 2>&1 || {
 }
 # `export` (not a `VAR=... node` command-prefix) because SDK_PKG/SHELL_PKG are readonly — a
 # prefix assignment would try to reassign them and fail with "readonly variable".
-export NEW_VERSION SDK_PKG SHELL_PKG MCP_PKG CLI_PKG KIT_PKG DEVKIT_PKG AGUI_PKG
+export NEW_VERSION SDK_PKG SHELL_PKG MCP_PKG CLI_PKG KIT_PKG DEVKIT_PKG AGUI_PKG AGENT_RECIPE
 node <<'NODE'
 const fs = require('fs');
 const version = process.env.NEW_VERSION;
@@ -114,6 +117,18 @@ rewrite(process.env.AGUI_PKG, (pkg) => {
   pkg.version = version;
   pkg.peerDependencies['@loomweaver/plugin-sdk'] = version;
 });
+// The weaver generator records the adapter version as a literal, because a recipe produces text and
+// cannot read a manifest as it writes. check-agent-versions fails the build when this is forgotten.
+const recipe = process.env.AGENT_RECIPE;
+fs.writeFileSync(
+  recipe,
+  fs
+    .readFileSync(recipe, 'utf8')
+    .replace(
+      /AG_UI_ADAPTER_VERSION = '[^']+'/,
+      `AG_UI_ADAPTER_VERSION = '${version}'`,
+    ),
+);
 NODE
 
 echo "Updated: ${SDK_PKG}"
@@ -123,13 +138,14 @@ echo "Updated: ${CLI_PKG}"
 echo "Updated: ${KIT_PKG}"
 echo "Updated: ${DEVKIT_PKG}"
 echo "Updated: ${AGUI_PKG}"
+echo "Updated: ${AGENT_RECIPE}"
 
 # Stamp the committed app-version module from the new <Version> so the shell (and its published
 # npm package) never drifts from Directory.Build.props. Same generator the production build runs.
 node "${ROOT_DIR}/platform/tools/stamp-version.mjs"
 
 cd "${ROOT_DIR}"
-git add "${PROPS_FILE}" "${SDK_PKG}" "${SHELL_PKG}" "${MCP_PKG}" "${CLI_PKG}" "${KIT_PKG}" "${DEVKIT_PKG}" "${AGUI_PKG}" "${ROOT_DIR}/platform/libs/core/shell/src/lib/version/app-version.ts"
+git add "${PROPS_FILE}" "${SDK_PKG}" "${SHELL_PKG}" "${MCP_PKG}" "${CLI_PKG}" "${KIT_PKG}" "${DEVKIT_PKG}" "${AGUI_PKG}" "${AGENT_RECIPE}" "${ROOT_DIR}/platform/libs/core/shell/src/lib/version/app-version.ts"
 git commit -m "chore: bump version to ${NEW_VERSION}"
 git tag "v${NEW_VERSION}"
 

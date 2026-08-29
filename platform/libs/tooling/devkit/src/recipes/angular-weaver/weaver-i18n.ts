@@ -1,4 +1,4 @@
-import { ResolvedWeaver } from './recipe';
+import type { ResolvedWeaver } from './recipe';
 
 export function i18nBundle(w: ResolvedWeaver): Record<string, unknown> {
   const bundle: Record<string, unknown> = { title: w.name };
@@ -11,6 +11,18 @@ export function i18nBundle(w: ResolvedWeaver): Record<string, unknown> {
     bundle['actionDescription'] = `Shows a short ${w.name} message.`;
   }
   if (w.features.about) bundle['about'] = `About ${w.name}`;
+  if (w.features.agent) {
+    bundle['agent'] = {
+      title: `${w.name} assistant`,
+      confirm: {
+        title: 'Run this command?',
+        message:
+          'An agent asked to run a command that was marked consequential.',
+        yes: 'Run it',
+        no: 'Not now',
+      },
+    };
+  }
   if (w.features.settings)
     bundle['settings'] = { title: w.name, enabled: 'Enabled', note: 'Note' };
   return bundle;

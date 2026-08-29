@@ -1,17 +1,33 @@
 import { normalizeProjectRoot } from '../../lib/amend/merge';
 import { Amendment } from '../../lib/amend/types';
-import { resolveWeaverInput, WeaverInput } from './recipe';
+import { AG_UI_ADAPTER_VERSION, AG_UI_PROTOCOL_VERSION } from './agent-files';
+import { resolveWeaverInput, type WeaverInput } from './recipe';
 
 export function weaverAmendments(
   input: WeaverInput,
   where: string | undefined,
 ): readonly Amendment[] {
   const w = resolveWeaverInput(input);
+  const packages: readonly Amendment[] = w.features.agent
+    ? [
+        {
+          kind: 'package',
+          name: '@loomweaver/ag-ui',
+          version: `^${AG_UI_ADAPTER_VERSION}`,
+        },
+        {
+          kind: 'package',
+          name: '@ag-ui/core',
+          version: AG_UI_PROTOCOL_VERSION,
+        },
+      ]
+    : [];
   const directory = normalizeProjectRoot(where ?? '');
   if (!directory) {
-    return [];
+    return packages;
   }
   return [
+    ...packages,
     {
       kind: 'build-target',
       styles: [],

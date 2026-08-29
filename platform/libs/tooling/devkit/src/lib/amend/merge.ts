@@ -1,4 +1,9 @@
-import { AssetGlob, BuildTargetAmendment, PostcssAmendment } from './types';
+import {
+  AssetGlob,
+  BuildTargetAmendment,
+  PackageAmendment,
+  PostcssAmendment,
+} from './types';
 
 export type JsonObject = Record<string, unknown>;
 
@@ -24,7 +29,10 @@ export function joinProjectPath(projectRoot: string, path: string): string {
   return root ? `${root}/${path}` : path;
 }
 
-export function resolveAssetInput(glob: AssetGlob, projectRoot: string): string {
+export function resolveAssetInput(
+  glob: AssetGlob,
+  projectRoot: string,
+): string {
   return glob.from === 'project'
     ? joinProjectPath(projectRoot, glob.input)
     : glob.input;
@@ -51,6 +59,43 @@ export function ensurePostcssPlugin(
   return {
     value: { ...root, plugins: next },
     added: [`${amendment.file}: ${amendment.plugin}`],
+    declined: [],
+  };
+}
+
+/**
+ * Records a package the generated files need in the project's manifest. A version already recorded
+ * wins wherever it stands — a consumer who pinned it, or moved it to devDependencies, chose that on
+ * purpose and this is an "ensure it is present", not a "set it to".
+ */
+export function ensureDependency(
+  manifest: unknown,
+  amendment: PackageAmendment,
+): MergeResult {
+  const root = asObject(manifest) ?? {};
+  const dependencies = asObject(root['dependencies']);
+  if (dependencies === undefined && root['dependencies'] !== undefined) {
+    return {
+      value: root,
+      added: [],
+      declined: ['package.json: "dependencies" is not an object'],
+    };
+  }
+  const recorded =
+    dependencies?.[amendment.name] ??
+    asObject(root['devDependencies'])?.[amendment.name];
+  if (recorded !== undefined) {
+    return { value: root, added: [], declined: [] };
+  }
+  const next = { ...dependencies, [amendment.name]: amendment.version };
+  return {
+    value: {
+      ...root,
+      dependencies: Object.fromEntries(
+        Object.entries(next).toSorted(([a], [b]) => a.localeCompare(b)),
+      ),
+    },
+    added: [`dependencies: ${amendment.name}@${amendment.version}`],
     declined: [],
   };
 }

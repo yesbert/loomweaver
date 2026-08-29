@@ -51,6 +51,11 @@
       "description": "Make the surface a container: a routable tab at '<id>/:id' holding a nested pane tree of child surfaces, which the host draws. Not combinable with --instanceable.",
       "default": false
     },
+    "agent": {
+      "type": "boolean",
+      "description": "Also scaffold the connection that lets an AG-UI agent run the commands this workbench offers: a docked panel, the seam where a call is decided before it runs, and a local stand-in that speaks the protocol so the whole path works on the first serve. Implies --command.",
+      "default": false
+    },
     "access": {
       "type": "string",
       "description": "Auth-gate the surface and rail item: 'authenticated', 'anonymous' or 'role:<name>'."

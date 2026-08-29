@@ -16,6 +16,7 @@ export function weaverInput(values: ScaffoldValues) {
       about: bool(values, 'about'),
       instanceable: bool(values, 'instanceable'),
       container: bool(values, 'container'),
+      agent: bool(values, 'agent'),
       access: string_(values, 'access'),
       spec: bool(values, 'spec'),
     },
@@ -28,6 +29,7 @@ export function distributionInput(values: ScaffoldValues) {
     title: string_(values, 'title'),
     directory: string_(values, 'directory'),
     styles:
-      (string_(values, 'styles') as DistributionStyles | undefined) ?? 'tailwind',
+      (string_(values, 'styles') as DistributionStyles | undefined) ??
+      'tailwind',
   };
 }

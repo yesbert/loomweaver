@@ -1,10 +1,15 @@
 import {
   ensureBuildTarget,
+  ensureDependency,
   ensurePostcssPlugin,
   ensureStylesheetSource,
   joinProjectPath,
 } from './merge';
-import { BuildTargetAmendment, PostcssAmendment } from './types';
+import {
+  BuildTargetAmendment,
+  PackageAmendment,
+  PostcssAmendment,
+} from './types';
 
 const POSTCSS: PostcssAmendment = {
   kind: 'postcss',
@@ -48,15 +53,21 @@ describe('ensurePostcssPlugin', () => {
   });
 
   it('adds the plugin beside the ones already configured', () => {
-    const result = ensurePostcssPlugin({ plugins: { autoprefixer: {} } }, POSTCSS);
-    expect(Object.keys(result.value['plugins'] as object).toSorted((a, b) => a.localeCompare(b))).toEqual([
-      '@tailwindcss/postcss',
-      'autoprefixer',
-    ]);
+    const result = ensurePostcssPlugin(
+      { plugins: { autoprefixer: {} } },
+      POSTCSS,
+    );
+    expect(
+      Object.keys(result.value['plugins'] as object).toSorted((a, b) =>
+        a.localeCompare(b),
+      ),
+    ).toEqual(['@tailwindcss/postcss', 'autoprefixer']);
   });
 
   it('changes nothing when the plugin is already configured', () => {
-    const existing = { plugins: { '@tailwindcss/postcss': { some: 'option' } } };
+    const existing = {
+      plugins: { '@tailwindcss/postcss': { some: 'option' } },
+    };
     const result = ensurePostcssPlugin(existing, POSTCSS);
     expect(result.value).toEqual(existing);
     expect(result.added).toHaveLength(0);
@@ -152,13 +163,74 @@ describe('ensureBuildTarget', () => {
 
 describe('ensureStylesheetSource', () => {
   it('appends a source the stylesheet does not name', () => {
-    expect(ensureStylesheetSource("@import 'tailwindcss';\n", '../notes/src')).toContain(
-      "@source '../notes/src';",
-    );
+    expect(
+      ensureStylesheetSource("@import 'tailwindcss';\n", '../notes/src'),
+    ).toContain("@source '../notes/src';");
   });
 
   it('leaves a stylesheet that already names it alone', () => {
     const css = "@import 'tailwindcss';\n\n@source '../notes/src';\n";
     expect(ensureStylesheetSource(css, '../notes/src')).toBe(css);
+  });
+});
+
+describe('ensureDependency', () => {
+  const AG_UI: PackageAmendment = {
+    kind: 'package',
+    name: '@loomweaver/ag-ui',
+    version: '^0.7.6',
+  };
+
+  it('records a package the project does not carry', () => {
+    const result = ensureDependency(
+      { dependencies: { rxjs: '^7.8.0' } },
+      AG_UI,
+    );
+    expect(result.value['dependencies']).toEqual({
+      '@loomweaver/ag-ui': '^0.7.6',
+      rxjs: '^7.8.0',
+    });
+    expect(result.added).toEqual(['dependencies: @loomweaver/ag-ui@^0.7.6']);
+  });
+
+  it('records it into a manifest that lists no dependencies at all', () => {
+    const result = ensureDependency({ name: 'my-studio' }, AG_UI);
+    expect(result.value).toEqual({
+      name: 'my-studio',
+      dependencies: { '@loomweaver/ag-ui': '^0.7.6' },
+    });
+  });
+
+  it('leaves a version the consumer already chose alone', () => {
+    const result = ensureDependency(
+      { dependencies: { '@loomweaver/ag-ui': '0.7.4' } },
+      AG_UI,
+    );
+    expect(result.added).toEqual([]);
+    expect(result.value['dependencies']).toEqual({
+      '@loomweaver/ag-ui': '0.7.4',
+    });
+  });
+
+  it('leaves it alone where the consumer put it among the dev dependencies', () => {
+    const result = ensureDependency(
+      { devDependencies: { '@loomweaver/ag-ui': '^0.7.6' } },
+      AG_UI,
+    );
+    expect(result.added).toEqual([]);
+    expect(result.value['dependencies']).toBeUndefined();
+  });
+
+  it('changes nothing the second time', () => {
+    const once = ensureDependency({}, AG_UI);
+    const twice = ensureDependency(once.value, AG_UI);
+    expect(twice.added).toEqual([]);
+    expect(twice.value).toEqual(once.value);
+  });
+
+  it('declines rather than overwriting a dependencies field that is not an object', () => {
+    const result = ensureDependency({ dependencies: 'nonsense' }, AG_UI);
+    expect(result.added).toEqual([]);
+    expect(result.declined).toHaveLength(1);
   });
 });

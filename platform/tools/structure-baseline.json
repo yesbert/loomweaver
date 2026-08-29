@@ -6,7 +6,7 @@
     "platform/libs/weavers/testbed-weaver/src/lib/plugin": 14
   },
   "files": {
-    "platform/libs/tooling/devkit/src/recipes/angular-weaver/recipe.ts": 689,
+    "platform/libs/tooling/devkit/src/recipes/angular-weaver/recipe.ts": 603,
     "platform/libs/core/shell/src/lib/workspace/workspace.service.ts": 410,
     "platform/libs/core/shell/src/lib/regions/content/tabs/open-tabs.service.ts": 403
   }

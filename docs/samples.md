@@ -23,7 +23,7 @@ distribution grant them, or the call throws `CapabilityError`.
 
 ## Half of these you do not type
 
-The first five recipes are what the generator already writes. That is worth knowing before you copy
+Six of these are what the generator already writes. That is worth knowing before you copy
 anything: a generated weaver compiles, passes its own lint, and comes out the same every time, so
 your attention goes to the part that is actually yours.
 
@@ -34,17 +34,19 @@ your attention goes to the part that is actually yours.
 | [3 · One behaviour, many triggers](#one-behaviour-many-triggers) | `weaver --id notes --command --shortcut 'mod+shift+n' --menu content/tab/context --bar-item` |
 | [4 · A settings section](#a-settings-section) | `weaver --id notes --settings` |
 | [5 · Gating a surface behind a login](#gating-a-surface-behind-a-login) | `weaver --id notes --access authenticated` |
+| [10 · Letting an AG-UI agent drive your product](#letting-an-ag-ui-agent-drive-your-product) | `weaver --id notes --agent` — the connection, a panel and a stand-in that works before you have a transport; what you replace is one file |
 
-The options compose, so that is one call and not five:
+The options compose, so that is one call and not six:
 
 ```bash
 npx @loomweaver/cli weaver --id notes --out src/notes \
   --command --shortcut 'mod+shift+n' --menu content/tab/context --bar-item \
-  --settings --access authenticated
+  --settings --access authenticated --agent
 ```
 
-Recipes 6 to 10 have no generator behind them, and that is the honest split: they are the ones where
-you decide something.
+Recipes 6 to 9 have no generator behind them, and that is the honest split: they are the ones where
+you decide something. Recipe 10 sits between the two: `--agent` writes the wiring and something that
+runs on the first serve, and the transport it talks to stays yours.
 
 **It does not matter who invokes it.** One description of each generator serves every route into it,
 so `@loomweaver/cli` on a command line, `@loomweaver/devkit` as an Nx generator and `@loomweaver/mcp`
@@ -807,6 +809,10 @@ has, without you keeping a tool registry or a dispatch switch beside the command
 underneath it: **an agent reaches what the user could have reached, and nothing more.**
 
 **Capabilities:** `automation` · plus `ui` if you confirm before a consequential call
+
+The generator writes all of this: `weaver --id notes --agent` emits the connection below, a docked
+panel to watch it through, and a stand-in that produces the protocol's own events so the whole path
+runs before you have a transport. Read on for what it wrote and where your part begins.
 
 ```bash
 npm install @loomweaver/ag-ui @ag-ui/core

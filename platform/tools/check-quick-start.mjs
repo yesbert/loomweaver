@@ -45,8 +45,12 @@ function run(command, args, cwd, { setup = false } = {}) {
 
 function packPlatform(into) {
   const packages = [];
-  for (const name of ['shell', 'plugin-sdk']) {
-    const distribution = join(platformRoot, 'dist/libs/core', name);
+  for (const [area, name] of [
+    ['core', 'shell'],
+    ['core', 'plugin-sdk'],
+    ['integrations', 'ag-ui'],
+  ]) {
+    const distribution = join(platformRoot, 'dist/libs', area, name);
     if (!existsSync(distribution)) {
       throw new SetupError(
         `${distribution} does not exist — run "nx run-many -t package" and "nx run shell:styles" first.`,
@@ -74,9 +78,15 @@ function quickStart(dir) {
   }
   run('node', [cli, 'distribution', '--name', 'my-studio', '--title', 'My Studio', '--out', '.', '--force'], app);
   run('node', [cli, 'weaver', '--id', 'notes', '--command', '--shortcut', 'mod+shift+n', '--out', 'src/notes'], app);
+  // The agent connection is the one generated feature that needs a package the application does not
+  // already carry. @ag-ui/core is deliberately NOT installed above: the scaffold has to record it,
+  // and the install below is what turns that record into something the build can resolve. If the
+  // route ever stops recording it, the build fails here rather than in a consumer's project.
+  run('node', [cli, 'weaver', '--id', 'copilot', '--agent', '--out', 'src/copilot'], app);
+  run('npm', ['install'], app, { setup: true });
   rmSync(join(app, 'src/app/app.spec.ts'), { force: true });
   run('npx', ['ng', 'build'], app);
-  return join(app, 'dist/my-studio/browser');
+  return { browser: join(app, 'dist/my-studio/browser'), app };
 }
 
 function checkServedOutput(browser) {
@@ -128,14 +138,39 @@ function checkComposition(browser) {
     bundle.includes('notes'),
     'the scaffolded weaver never reached the bundle, so its icon is not in the rail',
   );
+  assert(
+    bundle.includes('copilot.agent'),
+    'the generated agent panel never reached the bundle, so nothing is docked to drive the workbench from',
+  );
+  assert(
+    bundle.includes('stand-in'),
+    'the generated stand-in never reached the bundle, so the first serve has no events to run the path with',
+  );
+}
+
+function checkAgentDependencies(app) {
+  const manifest = JSON.parse(readFileSync(join(app, 'package.json'), 'utf8'));
+  assert(
+    manifest.dependencies?.['@ag-ui/core'] !== undefined,
+    "@ag-ui/core was not recorded in the application's dependencies, so the generated agent connection imports a package nobody installs",
+  );
+  assert(
+    existsSync(join(app, 'node_modules/@ag-ui/core')),
+    'what the scaffold recorded did not resolve to an installed package, so recording it bought the consumer nothing',
+  );
+  assert(
+    existsSync(join(app, 'src/copilot/src/lib/agent/copilot-agent-source.ts')),
+    'the stand-in was not generated, so there is nothing to replace with a real transport',
+  );
 }
 
 let dir;
 try {
   dir = mkdtempSync(join(tmpdir(), 'loom-quick-start-'));
-  const browser = quickStart(dir);
-  checkServedOutput(browser);
-  checkComposition(browser);
+  const generated = quickStart(dir);
+  checkServedOutput(generated.browser);
+  checkComposition(generated.browser);
+  checkAgentDependencies(generated.app);
 } catch (error) {
   if (error instanceof SetupError) {
     console.error(`check-quick-start SETUP FAILED (not a regression):\n${error.message}`);

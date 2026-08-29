@@ -67,7 +67,9 @@ describe('mcp tools', () => {
   it('ignores workspace-shaped options — an MCP client has nowhere to put them', () => {
     const map = files('weaver', { id: 'notes', directory: 'libs/elsewhere' });
     expect(Object.keys(map)).toContain('src/index.ts');
-    expect(Object.keys(map).every((path) => !path.includes('libs/'))).toBe(true);
+    expect(Object.keys(map).every((path) => !path.includes('libs/'))).toBe(
+      true,
+    );
   });
 
   it('validate_manifest flags an unknown capability', () => {
@@ -75,9 +77,9 @@ describe('mcp tools', () => {
       id: 'notes',
       capabilities: ['root'],
     }).structuredContent['findings'] as { code: string }[];
-    expect(
-      findings.some((f) => f.code === 'manifest.capability.unknown'),
-    ).toBe(true);
+    expect(findings.some((f) => f.code === 'manifest.capability.unknown')).toBe(
+      true,
+    );
   });
 
   it('validate_i18n flags a missing key', () => {
@@ -126,6 +128,34 @@ describe('scaffold', () => {
     expect(text).toContain('inlineCritical');
   });
 
+  it('names the packages it cannot install, and what fails without them', () => {
+    const descriptor = findScaffold('weaver');
+    if (!descriptor) {
+      throw new Error('the weaver scaffold is missing');
+    }
+    const result = scaffold(descriptor, { id: 'notes', agent: true }) as {
+      content: { text: string }[];
+    };
+    const payload = JSON.parse(result.content[0].text) as {
+      remaining?: string[];
+    };
+    const text = (payload.remaining ?? []).join(' ');
+    expect(text).toContain('@loomweaver/ag-ui');
+    expect(text).toContain('@ag-ui/core');
+    expect(text).toContain('the very first build fails');
+  });
+
+  it('names no package where no connection was asked for', () => {
+    const descriptor = findScaffold('weaver');
+    if (!descriptor) {
+      throw new Error('the weaver scaffold is missing');
+    }
+    const result = scaffold(descriptor, { id: 'notes' }) as {
+      content: { text: string }[];
+    };
+    expect(JSON.parse(result.content[0].text).remaining).toBeUndefined();
+  });
+
   it('says nothing where the generated output needs nothing', () => {
     const descriptor = findScaffold('theme');
     if (!descriptor) {
@@ -137,4 +167,3 @@ describe('scaffold', () => {
     expect(JSON.parse(result.content[0].text).remaining).toBeUndefined();
   });
 });
-

@@ -10,6 +10,7 @@ export interface WeaverGeneratorSchema {
   about?: boolean;
   instanceable?: boolean;
   container?: boolean;
+  agent?: boolean;
   spec?: boolean;
   directory?: string;
   projectName?: string;
