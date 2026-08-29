@@ -141,7 +141,7 @@
   height: auto;
   border: 1px solid var(--sl-color-gray-5);
   border-radius: 0.75rem;
-  background: #0d1117;
+  background: var(--sl-color-bg);
   box-shadow: 0 1.5rem 4rem -1.5rem rgb(0 0 0 / 55%);
 }
 
@@ -332,4 +332,11 @@
 
 .lw-landing .door .expressive-code {
   font-size: 0.85em;
+}
+
+/* Both themes of a picture ship; the one that does not match is removed from the page, and with it
+   from the accessibility tree, so the alt text is never read twice. */
+:root[data-theme='light'] .lw-landing .only-dark,
+:root[data-theme='dark'] .lw-landing .only-light {
+  display: none;
 }

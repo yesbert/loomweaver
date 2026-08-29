@@ -97,25 +97,57 @@ const rungs = [
         playsinline
         controls
         preload="metadata"
-        poster="/media/tour-poster.jpg"
+        poster="/media/tour-dark-poster.jpg"
         width="1280"
         height="800"
         aria-label="A tour of a LoomWeaver workbench: opening the command palette, splitting a pane, a sandboxed non-Angular plugin, and a plugin re-skinning the whole application"
-      >
-        <source src="/media/tour.webm" type="video/webm" />
-        <source src="/media/tour.mp4" type="video/mp4" />
-      </video>
+      ></video>
       <figcaption>
         Twenty-six seconds, no cuts. The rail, the panes, the palette and the status bar are the
         platform’s. Everything inside them comes from plugins, including the theme at the end.
       </figcaption>
     </figure>
     <script is:inline>
-      const tour = document.querySelector('.tour video');
-      if (tour && matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        tour.autoplay = false;
-        tour.pause();
-      }
+      // The tour was recorded in both themes, and the sources are set here rather than in the
+      // markup so a visitor downloads only the one their theme shows. Starlight resolves "auto"
+      // to a concrete data-theme, and the observer follows the switcher without a reload.
+      (() => {
+        const video = document.querySelector('.tour video');
+        if (!video) return;
+        const stillness = matchMedia('(prefers-reduced-motion: reduce)');
+
+        const apply = () => {
+          const theme = document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
+          if (video.dataset.tourTheme === theme) return;
+          video.dataset.tourTheme = theme;
+
+          const at = video.currentTime;
+          video.poster = `/media/tour-${theme}-poster.jpg`;
+          video.replaceChildren(
+            Object.assign(document.createElement('source'), {
+              src: `/media/tour-${theme}.webm`,
+              type: 'video/webm',
+            }),
+            Object.assign(document.createElement('source'), {
+              src: `/media/tour-${theme}.mp4`,
+              type: 'video/mp4',
+            }),
+          );
+          video.addEventListener('loadedmetadata', () => { video.currentTime = at; }, { once: true });
+          video.load();
+          if (!stillness.matches) video.play().catch(() => {});
+        };
+
+        if (stillness.matches) {
+          video.autoplay = false;
+          video.pause();
+        }
+        apply();
+        new MutationObserver(apply).observe(document.documentElement, {
+          attributes: true,
+          attributeFilter: ['data-theme'],
+        });
+      })();
     </script>
 
     <section class="doors">
@@ -189,7 +221,16 @@ const rungs = [
 
     <figure class="shot narrow">
       <img
-        src="/media/command-palette.png"
+        class="only-dark"
+        src="/media/command-palette-dark.png"
+        alt="The LoomWeaver command palette open over a dashboard, listing commands contributed by plugins"
+        width="1880"
+        height="1400"
+        loading="lazy"
+      />
+      <img
+        class="only-light"
+        src="/media/command-palette-light.png"
         alt="The LoomWeaver command palette open over a dashboard, listing commands contributed by plugins"
         width="1880"
         height="1400"

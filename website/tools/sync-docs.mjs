@@ -131,7 +131,16 @@ for (const file of VERBATIM) {
    the site show the same tour. A missing file fails the build rather than shipping a broken image. */
 const mediaDir = path.join(publicDir, 'media');
 mkdirSync(mediaDir, { recursive: true });
-for (const asset of ['command-palette.png', 'tour.webm', 'tour.mp4', 'tour-poster.jpg']) {
+for (const asset of [
+  'command-palette-dark.png',
+  'command-palette-light.png',
+  'tour-dark.webm',
+  'tour-dark.mp4',
+  'tour-dark-poster.jpg',
+  'tour-light.webm',
+  'tour-light.mp4',
+  'tour-light-poster.jpg',
+]) {
   const from = path.join(repoRoot, 'assets/media', asset);
   if (!existsSync(from)) {
     problems.push(`missing landing media: assets/media/${asset}`);
