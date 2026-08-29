@@ -76,10 +76,12 @@ export class ViewStateService {
     hydrateAsync(this.store, key, (raw) => value.set(parseBlob(raw)));
     let timer: ReturnType<typeof setTimeout> | undefined;
     const cancelPendingSave = () => {
-      if (timer !== undefined) {
-        clearTimeout(timer);
-        timer = undefined;
+      if (timer === undefined) {
+        return;
       }
+
+      clearTimeout(timer);
+      timer = undefined;
     };
     const save = () => {
       cancelPendingSave();

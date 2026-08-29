@@ -37,9 +37,9 @@ function pointer(
 ): Event {
   const event = new Event(type);
   Object.defineProperties(event, {
-  	pointerType: { value: pointerType },
-  	clientX: { value: 40 },
-  	clientY: { value: 20 },
+    pointerType: { value: pointerType },
+    clientX: { value: 40 },
+    clientY: { value: 20 },
   });
   return event;
 }
@@ -113,11 +113,11 @@ describe('<lw-tooltip> custom element', () => {
       });
       const enter = new Event('pointerenter');
       Object.defineProperties(enter, {
-      	pointerType: { value: 'mouse' },
-      	clientX: { value: 40 },
-      	clientY: {
-	        value: window.innerHeight - 8,
-	      },
+        pointerType: { value: 'mouse' },
+        clientX: { value: 40 },
+        clientY: {
+          value: window.innerHeight - 8,
+        },
       });
       trigger.dispatchEvent(enter);
       vi.advanceTimersByTime(0);

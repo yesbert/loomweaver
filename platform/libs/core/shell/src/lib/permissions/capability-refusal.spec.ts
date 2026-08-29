@@ -5,9 +5,15 @@ import { CapabilityError } from '@loomweaver/plugin-sdk';
 import { CommandService } from '../commands/command.service';
 import { ContributionRegistry } from '../plugin/contribution-registry';
 import { NotificationService } from '../notifications/notification.service';
-import { FramePluginRuntime } from '../plugin/sandbox/sandbox-plugin-runtime';
+import {
+  FrameRpcDeps,
+  frameRpcMethods,
+} from '../plugin/sandbox/sandbox-rpc-methods';
 import { provideShell } from '../provide-shell';
-import { ShellErrorHandler } from './capability-refusal';
+import {
+  CapabilityRefusalReporter,
+  ShellErrorHandler,
+} from './capability-refusal';
 
 describe('capability refusal', () => {
   function setup() {
@@ -81,16 +87,18 @@ describe('capability refusal', () => {
 
   it('tells the user about a refusal crossing the frame boundary, handled there or not', () => {
     const { notifications } = setup();
-    const runtime = TestBed.inject(FramePluginRuntime) as unknown as {
-      reportingRefusals(methods: Record<string, unknown>): {
-        navigateContent(path: string): void;
-      };
-    };
-    const methods = runtime.reportingRefusals({
+    const reporter = TestBed.inject(CapabilityRefusalReporter);
+    const ctx = {
       navigateContent: () => {
         throw new CapabilityError('navigation', 'payments');
       },
-    });
+    };
+    const methods = frameRpcMethods({
+      pluginId: 'payments',
+      ctx,
+      watched: new Map(),
+      reportRefusal: (error: unknown) => reporter.report(error),
+    } as unknown as FrameRpcDeps);
 
     expect(() => methods.navigateContent('quotes')).toThrow(CapabilityError);
     expect(notifications.notifications()[0]?.message).toBe(

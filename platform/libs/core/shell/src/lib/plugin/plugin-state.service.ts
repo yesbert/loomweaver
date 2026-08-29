@@ -174,10 +174,12 @@ export class PluginStateService {
   }
 
   private cancelTimer(entry: Entry): void {
-    if (entry.timer !== undefined) {
-      clearTimeout(entry.timer);
-      entry.timer = undefined;
+    if (entry.timer === undefined) {
+      return;
     }
+
+    clearTimeout(entry.timer);
+    entry.timer = undefined;
   }
 
   private withinLimits(

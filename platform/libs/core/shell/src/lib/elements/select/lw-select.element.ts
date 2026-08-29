@@ -251,42 +251,52 @@ export class LwSelectElement extends HTMLElement {
   }
 
   private onTriggerKeydown(event: KeyboardEvent): void {
-    if (['ArrowDown', 'ArrowUp', 'Enter', ' '].includes(event.key)) {
-      event.preventDefault();
-      this.openListbox();
+    if (!['ArrowDown', 'ArrowUp', 'Enter', ' '].includes(event.key)) {
+      return;
     }
+
+    event.preventDefault();
+    this.openListbox();
   }
 
   private onListboxKeydown(event: KeyboardEvent): void {
     const last = this.choices().length - 1;
     switch (event.key) {
-      case 'ArrowDown':
+      case 'ArrowDown': {
         this.setActive(this.activeIndex >= last ? 0 : this.activeIndex + 1);
         break;
-      case 'ArrowUp':
+      }
+      case 'ArrowUp': {
         this.setActive(this.activeIndex <= 0 ? last : this.activeIndex - 1);
         break;
-      case 'Home':
+      }
+      case 'Home': {
         this.setActive(0);
         break;
-      case 'End':
+      }
+      case 'End': {
         this.setActive(last);
         break;
+      }
       case 'Enter':
-      case ' ':
+      case ' ': {
         this.commitActive();
         break;
-      case 'Escape':
+      }
+      case 'Escape': {
         this.close();
         break;
-      case 'Tab':
+      }
+      case 'Tab': {
         this.close(false);
         return;
-      default:
+      }
+      default: {
         if (event.key.length === 1) {
           this.onTypeahead(event.key);
         }
         return;
+      }
     }
     event.preventDefault();
   }

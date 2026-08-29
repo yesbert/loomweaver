@@ -55,20 +55,25 @@ export class PanelSplitter {
     const step = (event.shiftKey ? STEP_COARSE : STEP) * this.edgeSign();
     let next: number;
     switch (event.key) {
-      case 'ArrowRight':
+      case 'ArrowRight': {
         next = this.width() + step;
         break;
-      case 'ArrowLeft':
+      }
+      case 'ArrowLeft': {
         next = this.width() - step;
         break;
-      case 'Home':
+      }
+      case 'Home': {
         next = this.size.minWidth;
         break;
-      case 'End':
+      }
+      case 'End': {
         next = this.size.maxWidth;
         break;
-      default:
+      }
+      default: {
         return;
+      }
     }
     event.preventDefault();
     this.size.setWidth(this.regionId(), next);
