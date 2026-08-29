@@ -66,6 +66,32 @@ describe('composePlugin', () => {
     expect(source).toBe(reshaped);
   });
 
+  it('composes into the array of appConfig, not one that stands before it', () => {
+    const earlier = `export const other = {\n  providers: [\n    somethingElse(),\n  ],\n};\n\n${GENERATED}`;
+    const { source } = composePlugin(earlier, NOTES, '../notes/src');
+    expect(source).toContain('somethingElse(),\n  ],');
+    expect(source).toContain('provideLayout(layout),\n    provideTranslationNamespaces');
+  });
+
+  it('writes the entries against the indentation of the closing line', () => {
+    const deeper = GENERATED.replace(/^ {2}providers/m, '    providers')
+      .replace(/^ {4}provide/gm, '      provide')
+      .replace(/^ {2}\],/m, '    ],');
+    const { source, composed } = composePlugin(deeper, NOTES, '../notes/src');
+    expect(composed).toBe(true);
+    expect(source).toContain('      ...providePlugins(notesPlugin),');
+  });
+
+  it('declines an array that carries no closing line of its own', () => {
+    const inline = GENERATED.replace(
+      /providers: \[[\s\S]*?\],/,
+      'providers: [provideShell()],',
+    );
+    const { source, composed } = composePlugin(inline, NOTES, '../notes/src');
+    expect(composed).toBe(false);
+    expect(source).toBe(inline);
+  });
+
   it('adds nothing a second time', () => {
     const once = composePlugin(GENERATED, NOTES, '../notes/src');
     const twice = composePlugin(once.source, NOTES, '../notes/src');

@@ -5,8 +5,30 @@ export interface ComposeResult {
   readonly composed: boolean;
 }
 
-const PROVIDERS = /(export\s+const\s+appConfig\s*:[^=]*=\s*\{[\s\S]*?providers\s*:\s*\[)([\s\S]*?)(\n(\s*)\],)/;
+const APP_CONFIG = /export\s+const\s+appConfig\s*:[^=]*=\s*\{/;
+const PROVIDERS_OPEN = /providers\s*:\s*\[/g;
+const PROVIDERS_CLOSE = /\n(\s*)\],/g;
 const SHELL_IMPORT = /import\s*\{([^}]*)\}\s*from\s*'@loomweaver\/shell';/;
+
+interface ProvidersBlock {
+  readonly insertAt: number;
+  readonly indent: string;
+}
+
+function providersBlock(source: string): ProvidersBlock | null {
+  const declaration = APP_CONFIG.exec(source);
+  if (!declaration) {
+    return null;
+  }
+  PROVIDERS_OPEN.lastIndex = declaration.index + declaration[0].length;
+  const open = PROVIDERS_OPEN.exec(source);
+  if (!open) {
+    return null;
+  }
+  PROVIDERS_CLOSE.lastIndex = open.index + open[0].length;
+  const close = PROVIDERS_CLOSE.exec(source);
+  return close ? { insertAt: close.index, indent: close[1] ?? '' } : null;
+}
 
 /**
  * Registers a generated plugin in a composition root we generated ourselves. Recognition is the
@@ -21,16 +43,19 @@ export function composePlugin(
   if (source.includes(amendment.symbol)) {
     return { source, composed: true };
   }
-  const providers = PROVIDERS.exec(source);
   const shellImport = SHELL_IMPORT.exec(source);
-  if (!providers || !shellImport) {
+  if (!shellImport || !providersBlock(source)) {
     return { source, composed: false };
   }
   const withImports = source.replace(
     SHELL_IMPORT,
     `import {${withShellSymbols(shellImport[1])}} from '@loomweaver/shell';\nimport { ${amendment.symbol} } from '${importPath}';`,
   );
-  const indent = `${providers[4]}  `;
+  const block = providersBlock(withImports);
+  if (!block) {
+    return { source, composed: false };
+  }
+  const indent = `${block.indent}  `;
   const lines = [
     `${indent}provideTranslationNamespaces('${amendment.id}'),`,
     `${indent}provideCapabilityGrants({ ${amendment.id}: [${amendment.capabilities
@@ -39,11 +64,7 @@ export function composePlugin(
     `${indent}...providePlugins(${amendment.symbol}),`,
   ].join('\n');
   return {
-    source: withImports.replace(
-      PROVIDERS,
-      (_all, head: string, body: string, tail: string) =>
-        `${head}${body}\n${lines}${tail}`,
-    ),
+    source: `${withImports.slice(0, block.insertAt)}\n${lines}${withImports.slice(block.insertAt)}`,
     composed: true,
   };
 }
