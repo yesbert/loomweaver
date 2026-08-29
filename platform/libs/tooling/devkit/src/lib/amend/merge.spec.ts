@@ -49,7 +49,7 @@ describe('ensurePostcssPlugin', () => {
 
   it('adds the plugin beside the ones already configured', () => {
     const result = ensurePostcssPlugin({ plugins: { autoprefixer: {} } }, POSTCSS);
-    expect(Object.keys(result.value['plugins'] as object).toSorted()).toEqual([
+    expect(Object.keys(result.value['plugins'] as object).toSorted((a, b) => a.localeCompare(b))).toEqual([
       '@tailwindcss/postcss',
       'autoprefixer',
     ]);

@@ -21,7 +21,7 @@ describe('angularDistribution recipe', () => {
 
   it('produces the distribution source files', () => {
     const files = generate(angularDistribution, { name: 'acme-studio', title: 'Acme Studio' });
-    expect(Object.keys(files).toSorted()).toEqual(
+    expect(Object.keys(files).toSorted((a, b) => a.localeCompare(b))).toEqual(
       [
         'LOOMWEAVER.md',
         'ngsw-config.json',
@@ -34,7 +34,7 @@ describe('angularDistribution recipe', () => {
         'src/index.html',
         'src/main.ts',
         'src/styles.css',
-      ].toSorted(),
+      ].toSorted((a, b) => a.localeCompare(b)),
     );
   });
 
@@ -138,7 +138,7 @@ describe('angularDistribution recipe', () => {
       const differing = Object.keys(files).filter(
         (path) => files[path] !== tailwind[path],
       );
-      expect(differing.toSorted()).toEqual(['LOOMWEAVER.md', 'src/styles.css']);
+      expect(differing.toSorted((a, b) => a.localeCompare(b))).toEqual(['LOOMWEAVER.md', 'src/styles.css']);
     });
   });
 
