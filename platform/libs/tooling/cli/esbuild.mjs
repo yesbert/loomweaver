@@ -3,13 +3,13 @@ import { chmodSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const devkit = fileURLToPath(new URL('../devkit/src/index.ts', import.meta.url));
-const outfile = fileURLToPath(new URL('./dist/main.mjs', import.meta.url));
+const outfile = fileURLToPath(new URL('dist/main.mjs', import.meta.url));
 const pkg = JSON.parse(
-  readFileSync(fileURLToPath(new URL('./package.json', import.meta.url)), 'utf8'),
+  readFileSync(fileURLToPath(new URL('package.json', import.meta.url)), 'utf8'),
 );
 
 await build({
-  entryPoints: [fileURLToPath(new URL('./src/main.ts', import.meta.url))],
+  entryPoints: [fileURLToPath(new URL('src/main.ts', import.meta.url))],
   outfile,
   bundle: true,
   platform: 'node',
