@@ -2,42 +2,23 @@ import {
   reflectAttribute,
   upgradeElementProperty,
 } from '../custom-element-property';
+import { LW_OPTION_TAG, LwOptionElement } from './lw-option.element';
+import {
+  Choice,
+  createListbox,
+  createOptionRow,
+  createTrigger,
+  fillValueSlot,
+  readChoices,
+} from './lw-select-parts';
 
 export const LW_SELECT_TAG = 'lw-select';
-export const LW_OPTION_TAG = 'lw-option';
 
 export const LW_SELECT_CHANGE = 'lw-select-change';
 
 let nextSelectId = 0;
 
 const TYPEAHEAD_RESET_MS = 500;
-
-interface Choice {
-  readonly value: string;
-  readonly label: string;
-  readonly icon: string | null;
-  readonly disabled: boolean;
-}
-
-export class LwOptionElement extends HTMLElement {
-  get value(): string | null {
-    return this.getAttribute('value');
-  }
-  set value(value: string | null) {
-    reflectAttribute(this, 'value', value);
-  }
-  get icon(): string | null {
-    return this.getAttribute('icon');
-  }
-  set icon(value: string | null) {
-    reflectAttribute(this, 'icon', value);
-  }
-
-  connectedCallback(): void {
-    upgradeElementProperty(this, 'value');
-    upgradeElementProperty(this, 'icon');
-  }
-}
 
 export class LwSelectElement extends HTMLElement {
   static readonly observedAttributes = [
@@ -139,12 +120,7 @@ export class LwSelectElement extends HTMLElement {
   }
 
   private choices(): Choice[] {
-    return [...this.querySelectorAll(LW_OPTION_TAG)].map((option) => ({
-      value: option.getAttribute('value') ?? '',
-      label: (option.textContent ?? '').trim(),
-      icon: option.getAttribute('icon'),
-      disabled: option.hasAttribute('disabled'),
-    }));
+    return readChoices(this);
   }
 
   private selectedChoice(): Choice | undefined {
@@ -153,35 +129,17 @@ export class LwSelectElement extends HTMLElement {
   }
 
   private buildControl(): void {
-    const trigger = document.createElement('button');
-    trigger.type = 'button';
-    trigger.className = 'lw-select-trigger';
-    trigger.setAttribute('aria-haspopup', 'listbox');
-    trigger.setAttribute('aria-expanded', 'false');
-    trigger.setAttribute('aria-controls', this.listboxId);
-    trigger.style.setProperty('anchor-name', this.anchorName);
-    trigger.addEventListener('click', () => this.toggle());
-    trigger.addEventListener('keydown', (event) =>
-      this.onTriggerKeydown(event),
-    );
-
-    const valueSlot = document.createElement('span');
-    valueSlot.className = 'lw-select-value';
-    const chevron = document.createElement('span');
-    chevron.className = 'lw-select-chevron';
-    chevron.setAttribute('aria-hidden', 'true');
-    chevron.textContent = '▾';
-    trigger.append(valueSlot, chevron);
-
-    const listbox = document.createElement('div');
-    listbox.id = this.listboxId;
-    listbox.className = 'lw-select-listbox';
-    listbox.setAttribute('role', 'listbox');
-    listbox.hidden = true;
-    listbox.style.setProperty('position-anchor', this.anchorName);
-    listbox.addEventListener('keydown', (event) =>
-      this.onListboxKeydown(event),
-    );
+    const { trigger, valueSlot } = createTrigger({
+      anchorName: this.anchorName,
+      listboxId: this.listboxId,
+      onToggle: () => this.toggle(),
+      onKeydown: (event) => this.onTriggerKeydown(event),
+    });
+    const listbox = createListbox({
+      anchorName: this.anchorName,
+      listboxId: this.listboxId,
+      onKeydown: (event) => this.onListboxKeydown(event),
+    });
 
     this.append(trigger, listbox);
     this.trigger = trigger;
@@ -198,22 +156,13 @@ export class LwSelectElement extends HTMLElement {
     const label = this.getAttribute('label');
     const selected = this.selectedChoice();
     const text = selected?.label ?? this.getAttribute('placeholder') ?? '';
-    const icon = selected?.icon ?? null;
     this.write(() => {
       trigger.disabled = this.hasAttribute('disabled');
       if (label !== null) {
         trigger.setAttribute('aria-label', label);
         this.listbox?.setAttribute('aria-label', label);
       }
-      valueSlot.textContent = '';
-      if (icon) {
-        const glyph = document.createElement('span');
-        glyph.className = 'lw-select-glyph';
-        glyph.setAttribute('aria-hidden', 'true');
-        glyph.textContent = icon;
-        valueSlot.append(glyph);
-      }
-      valueSlot.append(document.createTextNode(text));
+      fillValueSlot(valueSlot, text, selected?.icon ?? null);
     });
   }
 
@@ -241,7 +190,9 @@ export class LwSelectElement extends HTMLElement {
     const selected = choices.findIndex((choice) => choice.value === this.value);
     this.setActive(Math.max(0, selected));
 
-    document.addEventListener('pointerdown', this.onOutsidePointer, {capture: true});
+    document.addEventListener('pointerdown', this.onOutsidePointer, {
+      capture: true,
+    });
   }
 
   private close(refocusTrigger = true): void {
@@ -263,56 +214,38 @@ export class LwSelectElement extends HTMLElement {
   }
 
   private renderOptions(): void {
-    if (!this.listbox) {
+    const listbox = this.listbox;
+    if (!listbox) {
       return;
     }
-    const items = this.choices().map((choice, index) => {
-      const option = document.createElement('div');
-      option.className = 'lw-select-option';
-      option.setAttribute('role', 'option');
-      option.id = `${this.listboxId}-opt-${index}`;
-      option.dataset['value'] = choice.value;
-      option.setAttribute('aria-selected', String(choice.value === this.value));
-      option.tabIndex = -1;
-      if (choice.disabled) {
-        option.setAttribute('aria-disabled', 'true');
-      }
-      if (choice.icon) {
-        const glyph = document.createElement('span');
-        glyph.className = 'lw-select-glyph';
-        glyph.setAttribute('aria-hidden', 'true');
-        glyph.textContent = choice.icon;
-        option.append(glyph);
-      }
-      option.append(document.createTextNode(choice.label));
-      option.addEventListener('click', () => {
-        if (!choice.disabled) {
-          this.commit(choice.value);
-        }
-      });
-      option.addEventListener('pointermove', () => this.setActive(index));
-      return option;
-    });
-    const listbox = this.listbox;
-    this.write(() => listbox.replaceChildren(...items));
+    const rows = this.choices().map((choice, index) =>
+      createOptionRow({
+        choice,
+        id: `${this.listboxId}-opt-${index}`,
+        selected: choice.value === this.value,
+        onPick: () => this.commit(choice.value),
+        onHover: () => this.setActive(index),
+      }),
+    );
+    this.write(() => listbox.replaceChildren(...rows));
   }
 
   private setActive(index: number): void {
     if (!this.listbox) {
       return;
     }
-    const options = [...this.listbox.children] as HTMLElement[];
-    if (options.length === 0) {
+    const rows = [...this.listbox.children] as HTMLElement[];
+    if (rows.length === 0) {
       return;
     }
-    this.activeIndex = Math.max(0, Math.min(index, options.length - 1));
+    this.activeIndex = Math.max(0, Math.min(index, rows.length - 1));
     this.write(() => {
-      for (const [index_, option] of options.entries()) {
-        option.classList.toggle('is-active', index_ === this.activeIndex);
-        option.tabIndex = index_ === this.activeIndex ? 0 : -1;
+      for (const [index_, row] of rows.entries()) {
+        row.classList.toggle('is-active', index_ === this.activeIndex);
+        row.tabIndex = index_ === this.activeIndex ? 0 : -1;
       }
     });
-    const active = options[this.activeIndex];
+    const active = rows[this.activeIndex];
     active.focus();
     active.scrollIntoView?.({ block: 'nearest' });
   }
