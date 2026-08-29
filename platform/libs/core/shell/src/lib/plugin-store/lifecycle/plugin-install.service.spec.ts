@@ -131,8 +131,8 @@ describe('PluginInstallService', () => {
       }),
     );
 
-    expect(service.find('store.sample')?.version).toBe('2.0.0');
-    expect(service.find('store.sample')?.capabilities).toEqual([
+    expect(service.byId('store.sample')?.version).toBe('2.0.0');
+    expect(service.byId('store.sample')?.capabilities).toEqual([
       'contributions',
       'ui',
       'navigation',
@@ -152,7 +152,7 @@ describe('PluginInstallService', () => {
     expect(() =>
       service.update(entry({ entryUrl: 'https://evil.example/plugin.html' })),
     ).toThrow(/same-origin/);
-    expect(service.find('store.sample')?.entryUrl).toBe(
+    expect(service.byId('store.sample')?.entryUrl).toBe(
       '/store/sample/plugin.html',
     );
   });

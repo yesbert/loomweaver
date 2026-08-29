@@ -23,7 +23,7 @@ export class PluginStoreDetail {
   protected readonly readme = signal<string | undefined>(undefined);
 
   protected readonly update = computed(() =>
-    availableUpdate(this.installs.find(this.entry().id), this.entry()),
+    availableUpdate(this.installs.byId(this.entry().id), this.entry()),
   );
 
   constructor() {

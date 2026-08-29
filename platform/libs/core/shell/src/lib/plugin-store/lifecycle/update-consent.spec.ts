@@ -32,7 +32,7 @@ function fakeDeps(options: {
       translate: (key: string) => key,
     } as unknown as TranslocoService,
     installs: {
-      find: () => installed,
+      byId: () => installed,
       update,
     } as unknown as PluginInstallService,
     disableGuard: { confirmRemoval } as unknown as PluginDisableGuard,

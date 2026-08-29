@@ -8,7 +8,7 @@ export async function confirmUpdate(
   deps: StoreConsentDeps,
   entry: PluginCatalogEntry,
 ): Promise<void> {
-  const installed = deps.installs.find(entry.id);
+  const installed = deps.installs.byId(entry.id);
   if (!installed) {
     return;
   }
