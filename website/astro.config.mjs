@@ -17,19 +17,12 @@ export default defineConfig({
         alt: 'LoomWeaver',
       },
       customCss: ['./src/styles/brand.css'],
-      // Umami counts page views without cookies and without storing anything identifying,
-      // which is why the site carries no consent banner for it. Set here rather than in the
-      // layout so it reaches the hand-written landing page as well.
-      head: [
-        {
-          tag: 'script',
-          attrs: {
-            src: 'https://cloud.umami.is/script.js',
-            'data-website-id': '3cbed8e2-65f2-465d-8414-81a223751f24',
-            defer: true,
-          },
-        },
-      ],
+      // The footer carries the legal links and the consent banner. Starlight renders it on every
+      // page, the splash landing page included, so overriding it reaches the whole site at once.
+      // Umami itself is not loaded here: the banner appends the script only once somebody agrees.
+      components: {
+        Footer: './src/components/Footer.astro',
+      },
       social: [
         {
           icon: 'github',
