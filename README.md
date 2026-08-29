@@ -21,8 +21,8 @@
 
 <p align="center"><sub>Twenty-six seconds, no cuts. The rail, the panes, the palette and the status bar are the platform's. Everything inside them comes from plugins, including the theme at the end. <a href="https://loomweaver.dev">Watch it in better quality</a>.</sub></p>
 
-LoomWeaver gives your product the workbench UI of VS Code or Obsidian **without you building any of
-it**. You write your domain UI as **plugins ("weavers")** against one small contract, compose them
+LoomWeaver gives your product its entire workbench UI **without you building any of it**. You write
+your domain UI as **plugins ("weavers")** against one small contract, compose them
 into a branded **distribution** (mostly one providers array), and ship. The core contains **zero
 domain logic**, and even first-party product UI goes through the same plugin contract a third party
 would use.
@@ -89,7 +89,8 @@ All of it is here. And there is **no privileged host API**: your own product UI 
 exact same door a stranger's plugin does, which is the only reason a published contract does not
 quietly rot. Your community can do everything you can do.
 
-That is how Obsidian got big. The plugins made the product.
+Every tool with a living ecosystem got there the same way. The plugins made the product, not the
+roadmap.
 
 **And the two feed each other.** Somebody who wants to contribute to *your* tool points their own
 assistant at your `llms-full.txt` and starts. Your contributor onboarding is a URL.
@@ -123,7 +124,7 @@ See [Callable commands](docs/reference/callable-commands.md) and
 
 ## What you would otherwise build twice
 
-- **A real workspace** with tab groups, drag-to-split panes (Obsidian-style), pop-out windows, named
+- **A real workspace** with tab groups, drag-to-split panes, pop-out windows, named
   workspaces, a command palette (`⌘K`), quick-open (`⌘P`), preview tabs and pinning.
 - **Theming from semantic tokens** (plain CSS variables). Use the pre-compiled stylesheet with
   Bootstrap or no framework at all, or bring Tailwind. Precedence is product < plugin < tenant.
@@ -165,8 +166,8 @@ Seven npm packages, one shared version:
   theming engine, sandbox RPC, plugin loader. Domain-pure, frontend-only.
 - **Layer 2 — your weavers:** the product UI, mechanically indistinguishable from third-party
   plugins.
-- **A product is a distribution** (like VSCodium is of VS Code): a thin composition of the published
-  packages, and it never forks the core. See
+- **A product is a distribution**: a thin composition of the published packages, and it never forks
+  the core. See
   [Building a distribution](docs/building-a-distribution.md) and
   [Backend integration](docs/backend-integration.md) for the product hand-off.
 
