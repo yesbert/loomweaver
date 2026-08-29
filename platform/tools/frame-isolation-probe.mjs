@@ -156,7 +156,8 @@ const options = { cert: readFileSync(certFile), key: readFileSync(keyFile) };
 
 function handler(request, res) {
   const url = new URL(request.url, `https://${request.headers.host}`);
-  const index = Math.min(Math.max(Number(url.searchParams.get('case') ?? 0) || 0, 0), CASES.length - 1);
+  const asked = Number(url.searchParams.get('case') ?? 0) || 0;
+  const index = Math.min(Math.max(asked, 0), CASES.length - 1);
   const headers = { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' };
   if (CASES[index].oac) {
     headers['origin-agent-cluster'] = '?1';

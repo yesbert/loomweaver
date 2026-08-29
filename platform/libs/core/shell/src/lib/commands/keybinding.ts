@@ -56,42 +56,45 @@ export function chordSignature(chord: string, isMac: boolean): string | null {
   };
   for (const raw of chord.split('+')) {
     const token = raw.trim().toLowerCase();
-    if (!token) {
-      continue;
-    }
-    switch (token) {
-      case 'mod': {
-        if (isMac) parts.meta = true;
-        else parts.ctrl = true;
-        break;
-      }
-      case 'ctrl':
-      case 'control': {
-        parts.ctrl = true;
-        break;
-      }
-      case 'meta':
-      case 'cmd':
-      case 'command':
-      case 'win': {
-        parts.meta = true;
-        break;
-      }
-      case 'alt':
-      case 'option': {
-        parts.alt = true;
-        break;
-      }
-      case 'shift': {
-        parts.shift = true;
-        break;
-      }
-      default: {
-        parts.key = normaliseKey(token);
-      }
+    if (token) {
+      applyToken(parts, token, isMac);
     }
   }
   return parts.key ? toSignature(parts) : null;
+}
+
+function applyToken(parts: ChordParts, token: string, isMac: boolean): void {
+  switch (token) {
+    case 'mod': {
+      if (isMac) parts.meta = true;
+      else parts.ctrl = true;
+      return;
+    }
+    case 'ctrl':
+    case 'control': {
+      parts.ctrl = true;
+      return;
+    }
+    case 'meta':
+    case 'cmd':
+    case 'command':
+    case 'win': {
+      parts.meta = true;
+      return;
+    }
+    case 'alt':
+    case 'option': {
+      parts.alt = true;
+      return;
+    }
+    case 'shift': {
+      parts.shift = true;
+      return;
+    }
+    default: {
+      parts.key = normaliseKey(token);
+    }
+  }
 }
 
 export function formatShortcut(chord: string, isMac: boolean): string {
