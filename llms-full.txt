@@ -832,6 +832,33 @@ export const notesWeaver: Plugin = {
 - The backend seam is expressed only as **frontend ports** with local/anonymous defaults: implement the `KeyValueStore` shape and provide it via `provideSettingsStore` (settings; the REST-worthy port) and optionally `provideWorkingStateStore` (working state; device-local by default), and feed `AuthSource` (a `Signal<AuthSnapshot>`) via `provideAuthSource`, against **your own backend** (any stack). The UI runs standalone with no backend.
 - Settings persistence, auth/session, per-tenant secrets, credentialed egress and capability grants live in the product's backend — you need them anyway, and they can't be client-side. Third-party plugin credentialed egress will be a small **contract** (not a shipped server) defined when the first such plugin arrives.
 
+## Letting an agent drive the product (`@loomweaver/ag-ui`)
+
+The adapter that offers the workbench's OWN commands to an agentic backend speaking [AG-UI](https://docs.ag-ui.com) as tools. **Headless: no transport, no user interface, no agent** — you open the connection, you draw the conversation, you decide what the agent is. No Angular dependency and no observables: it is handed one event at a time, which is also why it is easy to test. `@ag-ui/core` and `@loomweaver/plugin-sdk` are PEER dependencies, so a weaver that also builds its own agent with `@ag-ui/client` resolves one copy of each. Do NOT hand-roll a dispatch over `ctx.invocableCommands()` / `ctx.invokeCommand()` — that is what this package already is.
+
+```ts
+import { commandTools } from '@loomweaver/ag-ui';
+const tools = commandTools(ctx, {
+  before: async (call) => DESTRUCTIVE.has(call.commandId)          // optional hook, may be async
+    ? (await ctx.ui.confirm({ message: 'agent.confirm' })
+        ? { decision: 'run' }
+        : { decision: 'decline', reason: 'the user did not confirm it.' })
+    : { decision: 'run' },
+});
+agent.runAgent({ tools: tools.list(), threadId, runId, messages, context: [] });  // ask again EVERY run
+const answer = await tools.receive(event);   // for every event the run produces
+if (answer) { messages.push(answer); }       // null when the event did not complete a call
+```
+
+- **`list()`** reads `ctx.invocableCommands()` at the moment you call it. **Never keep the answer**: what may be reached changes as plugins load and unload and as the session changes, and a stale list promises actions that are gone. Each entry is already narrowed by everything that would refuse the invocation — the command declared itself `callable`, the session meets its `access`, it belongs in this window, and your plugin holds `automation`.
+- **`receive(event)`** answers a `ToolMessage` when an event completed a call and `null` otherwise; events that are not part of a tool call are ignored, so hand it everything without filtering. **`flush()`** closes a call an agent left open (`receive` already does it when the run reports finished or errored).
+- **The `before` hook** answers `{ decision: 'run' }` (the default with no hook) · `{ decision: 'decline', reason }` (the workbench is never asked; the agent is told it did not run, and why) · `{ decision: 'answer', content }` (you serve the call yourself). **A decision can only NARROW**: letting a call through does not make it reachable, the workbench refuses what it always refused. `CommandToolOptions` carries only `before` today.
+- **What crosses back**, all three faithfully, because the protocol has one `error` field and a tool that failed must be distinguishable from one that succeeded: *answered* → the value as `content` (a command declaring no answer reports plainly that it ran, rather than an empty string an agent would read as failure and retry) · *refused* → empty `content` + an `error` saying the command **did not run** · *failed* → empty `content` + an `error` saying it **ran and failed**.
+- **The refusal wording is ONE wording** for every reason (no such command, not `callable`, session does not qualify, wrong window, no grant) — telling them apart would let an agent map what is installed by calling ids and reading the reason back.
+- **Streamed and chunked calls.** A call arrives as a start, a stream of argument deltas and an end; calls in that form may interleave, because every event carries its own `toolCallId`. The convenience form, where one chunk event carries whichever fields it has, is inherently sequential: a chunk naming a new call closes the one before it. Arguments that are not readable JSON are refused before the workbench is asked; arguments that read fine but do not match what the command declared are refused by the workbench, which is where that check belongs.
+- **The pieces, for less than the whole loop:** `toolFor(command)` / `toolsFor(commands)` (an `InvocableCommand` → a protocol `Tool`, declared arguments as JSON Schema) · `readArguments(json)` (streamed JSON → arguments the workbench can be handed, or `null`) · `resultFor(toolCallId, outcome)` (a `CommandOutcome` → the message that goes back, if you ran the call yourself) · `CommandAccess` (the slice of `ctx` this touches: `invocableCommands` + `invokeCommand`; narrow on purpose, because it states exactly what an agent reaches through here).
+- Its stability follows the AG-UI protocol, not the platform. Full prose: docs/reference/agent-tools.md, worked example in docs/samples.md §10.
+
 ## Scaffolding & tooling (dev-time, deterministic)
 
 Prefer generating over hand-wiring. Three dev-time `scope:tooling` packages, published on the same version line as the platform (none are part of the runtime `ctx` contract). One `ScaffoldDescriptor` per scaffold feeds all three adapters, so their options and output are identical; they differ only in what each is handed: the Nx adapter gets a virtual tree (writes AND changes existing files), the CLI gets a target directory (writes), MCP gets nothing (returns a file map).
@@ -843,7 +870,7 @@ Prefer generating over hand-wiring. Three dev-time `scope:tooling` packages, pub
 ## Full docs (prose, examples)
 
 - docs/architecture.md · docs/getting-started.md · docs/manual-setup.md · docs/samples.md · docs/authoring-a-weaver.md · docs/building-a-distribution.md · docs/plugins.md · docs/scaffolding.md · docs/backend-integration.md
-- docs/reference/{shell-anatomy,design-tokens,accessibility,host-services,access-gating,routing}.md
+- docs/reference/{shell-anatomy,design-tokens,accessibility,host-services,access-gating,routing,callable-commands,agent-tools}.md
 - Scaffolding: docs/scaffolding.md and platform/libs/tooling/{devkit,cli,mcp}/README.md
 - A PLUGIN's public API is exactly `@loomweaver/plugin-sdk`'s exports (typings ship in the package); nothing else is public API for a plugin.
 -   A DISTRIBUTION additionally composes `@loomweaver/shell`'s exports (provideShell, provideShellRouter, the provide* ports, StateSyncService, PopoutService, PluginInstallService, …) — everything in its packed .d.ts.

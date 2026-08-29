@@ -147,3 +147,11 @@ arrive as the value it was is refused rather than arriving stripped.
 
 A sandboxed plugin still cannot *register* a command, because a behaviour is a function and functions
 do not cross the boundary. It contributes a menu item naming a command by id instead.
+
+## Handing the list to an agent
+
+Where the caller is an agentic backend speaking AG-UI, the dispatch is not yours to write:
+`@loomweaver/ag-ui` describes these commands to the agent as tools, assembles a streamed call, and puts
+it through this same seam, with a hook where a product confirms or declines one before it runs.
+Nothing on this page is bypassed by it — a decision there can only narrow what the workbench would
+already have allowed. See [agent tools](agent-tools.md).
