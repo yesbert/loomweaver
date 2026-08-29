@@ -18,9 +18,6 @@ const websiteId = '3cbed8e2-65f2-465d-8414-81a223751f24';
 
 <script is:inline define:vars={{ websiteId }}>
   (function () {
-    if (window.__lwConsentInit) return;
-    window.__lwConsentInit = true;
-
     const KEY = 'lw-consent';
 
     function read() {
@@ -89,7 +86,6 @@ const websiteId = '3cbed8e2-65f2-465d-8414-81a223751f24';
       }
     });
 
-    document.addEventListener('astro:page-load', sync);
     sync();
   })();
 </script>
