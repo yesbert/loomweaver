@@ -85,7 +85,7 @@ function reportFindings(
     io.out('No findings.');
     return 0;
   }
-  findings.forEach((f) => io.err(`${f.level}: ${f.message}`));
+  for (const f of findings) io.err(`${f.level}: ${f.message}`);
   if (findings.some((f) => f.level === 'error')) {
     return 1;
   }

@@ -42,7 +42,7 @@ describe('distribution generator', () => {
       name: 'acme-studio',
       styles: 'precompiled',
     });
-    const styles = tree.read('apps/acme-studio/src/styles.css', 'utf-8') ?? '';
+    const styles = tree.read('apps/acme-studio/src/styles.css', 'utf8') ?? '';
     expect(styles).toContain("@import '@loomweaver/shell/styles/shell.css'");
     expect(styles).not.toContain('tailwindcss');
   });
@@ -69,9 +69,9 @@ describe('distribution generator', () => {
 
   it("keeps Angular's app-root lintable beside the project prefix", async () => {
     await distributionGenerator(tree, { name: 'acme-studio' });
-    const eslint = tree.read('apps/acme-studio/eslint.config.mjs', 'utf-8');
+    const eslint = tree.read('apps/acme-studio/eslint.config.mjs', 'utf8');
     expect(eslint).toContain("prefix: ['lw', 'app']");
-    expect(tree.read('apps/acme-studio/src/app/app.ts', 'utf-8')).toContain(
+    expect(tree.read('apps/acme-studio/src/app/app.ts', 'utf8')).toContain(
       "selector: 'app-root'",
     );
   });
@@ -160,7 +160,7 @@ describe('distribution generator', () => {
 
   it('writes the style pipeline the generated stylesheet needs', async () => {
     await distributionGenerator(tree, { name: 'acme-studio' });
-    expect(JSON.parse(tree.read('.postcssrc.json', 'utf-8') as string)).toEqual({
+    expect(JSON.parse(tree.read('.postcssrc.json', 'utf8') as string)).toEqual({
       plugins: { '@tailwindcss/postcss': {} },
     });
   });
@@ -174,7 +174,7 @@ describe('distribution generator', () => {
     tree.write('.postcssrc.json', JSON.stringify({ plugins: { autoprefixer: {} } }));
     await distributionGenerator(tree, { name: 'acme-studio' });
     expect(
-      Object.keys(JSON.parse(tree.read('.postcssrc.json', 'utf-8') as string).plugins).toSorted((a, b) => a.localeCompare(b)),
+      Object.keys(JSON.parse(tree.read('.postcssrc.json', 'utf8') as string).plugins).toSorted((a, b) => a.localeCompare(b)),
     ).toEqual(['@tailwindcss/postcss', 'autoprefixer']);
   });
 });

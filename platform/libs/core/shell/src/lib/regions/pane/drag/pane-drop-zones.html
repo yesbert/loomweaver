@@ -1,7 +1,7 @@
 @if (fills()) {
   @if (accepts()) {
     <div
-      class="lw-pane-drop-zone col-span-3 row-span-3 col-start-1 row-start-1"
+      class="lw-pane-drop-zone col-span-3 col-start-1 row-span-3 row-start-1"
       cdkDropList
       [cdkDropListEnterPredicate]="enterPredicate"
       [id]="fillZoneId()"

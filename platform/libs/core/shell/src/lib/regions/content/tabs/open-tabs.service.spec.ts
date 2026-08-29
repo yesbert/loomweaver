@@ -42,7 +42,7 @@ describe('OpenTabsService re-reconciles after async hydration (LWF-02b)', () => 
       ],
     });
     const registry = TestBed.inject(ContributionRegistry);
-    ROUTES.forEach((route) => registry.addContentRoute(route));
+    for (const route of ROUTES) registry.addContentRoute(route);
     const service = TestBed.inject(ContentTabsService);
     const harness = await RouterTestingHarness.create();
 
@@ -79,7 +79,7 @@ describe('OpenTabsService strip without groups', () => {
       providers: [provideRouter(buildContentRoutes(MIXED))],
     });
     const registry = TestBed.inject(ContributionRegistry);
-    MIXED.forEach((route) => registry.addContentRoute(route));
+    for (const route of MIXED) registry.addContentRoute(route);
     service = TestBed.inject(ContentTabsService);
     harness = await RouterTestingHarness.create();
   });
@@ -163,7 +163,7 @@ describe('OpenTabsService following tabs (§7)', () => {
       ],
     });
     const registry = TestBed.inject(ContributionRegistry);
-    FACETS.forEach((route) => registry.addContentRoute(route));
+    for (const route of FACETS) registry.addContentRoute(route);
     const service = TestBed.inject(ContentTabsService);
     const harness = await RouterTestingHarness.create();
     return { service, harness };

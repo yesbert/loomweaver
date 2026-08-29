@@ -34,7 +34,7 @@ describe('ContentTabsService (findings #8/#11)', () => {
       providers: [provideRouter(buildContentRoutes(ROUTES))],
     });
     const registry = TestBed.inject(ContributionRegistry);
-    ROUTES.forEach((route) => registry.addContentRoute(route));
+    for (const route of ROUTES) registry.addContentRoute(route);
     service = TestBed.inject(ContentTabsService);
     harness = await RouterTestingHarness.create();
   });
@@ -359,7 +359,7 @@ describe('ContentTabsService preview tabs (#10)', () => {
       providers: [provideRouter(buildContentRoutes(ROUTES))],
     });
     const registry = TestBed.inject(ContributionRegistry);
-    ROUTES.forEach((route) => registry.addContentRoute(route));
+    for (const route of ROUTES) registry.addContentRoute(route);
     service = TestBed.inject(ContentTabsService);
     harness = await RouterTestingHarness.create();
     await harness.navigateByUrl('/');
@@ -427,7 +427,7 @@ describe('ContentTabsService pinned tabs', () => {
       providers: [provideRouter(buildContentRoutes(ROUTES))],
     });
     const registry = TestBed.inject(ContributionRegistry);
-    ROUTES.forEach((route) => registry.addContentRoute(route));
+    for (const route of ROUTES) registry.addContentRoute(route);
     service = TestBed.inject(ContentTabsService);
     harness = await RouterTestingHarness.create();
     await harness.navigateByUrl('/');
@@ -482,7 +482,7 @@ describe('ContentTabsService with preview disabled', () => {
       ],
     });
     const registry = TestBed.inject(ContributionRegistry);
-    ROUTES.forEach((route) => registry.addContentRoute(route));
+    for (const route of ROUTES) registry.addContentRoute(route);
     service = TestBed.inject(ContentTabsService);
     harness = await RouterTestingHarness.create();
     await harness.navigateByUrl('/');
@@ -510,7 +510,7 @@ describe('ContentTabsService view tabs in the URL group', () => {
       providers: [provideRouter(buildContentRoutes(ROUTES))],
     });
     const registry = TestBed.inject(ContributionRegistry);
-    ROUTES.forEach((route) => registry.addContentRoute(route));
+    for (const route of ROUTES) registry.addContentRoute(route);
     registry.addView({
       id: 'outline',
       region: 'primary',
@@ -622,7 +622,7 @@ describe('ContentTabsService in a pop-out window', () => {
       ],
     });
     const registry = TestBed.inject(ContributionRegistry);
-    ROUTES.forEach((route) => registry.addContentRoute(route));
+    for (const route of ROUTES) registry.addContentRoute(route);
     const service = TestBed.inject(ContentTabsService);
     const harness = await RouterTestingHarness.create('/');
     return { service, harness };

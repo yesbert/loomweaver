@@ -41,7 +41,7 @@ describe('PaneMoveService (move semantics)', () => {
       providers: [provideRouter(buildContentRoutes(ROUTES))],
     });
     const registry = TestBed.inject(ContributionRegistry);
-    ROUTES.forEach((route) => registry.addContentRoute(route));
+    for (const route of ROUTES) registry.addContentRoute(route);
     paneMove = TestBed.inject(PaneMoveService);
     paneTree = TestBed.inject(PaneTreeService);
     tabs = TestBed.inject(ContentTabsService);
@@ -224,7 +224,7 @@ describe('PaneMoveService cross-family moves', () => {
       providers: [provideRouter(buildContentRoutes(ROUTES))],
     });
     const registry = TestBed.inject(ContributionRegistry);
-    ROUTES.forEach((route) => registry.addContentRoute(route));
+    for (const route of ROUTES) registry.addContentRoute(route);
     registry.addView({
       id: 'outline',
       region: 'primary',

@@ -103,12 +103,12 @@ describe('weaver generator', () => {
   it('carries the prefix into the generated component selectors', async () => {
     await weaverGenerator(tree, { id: 'notes', prefix: 'ac', about: true });
     expect(
-      tree.read('libs/notes-weaver/src/lib/views/notes-view.ts', 'utf-8'),
+      tree.read('libs/notes-weaver/src/lib/views/notes-view.ts', 'utf8'),
     ).toContain("selector: 'ac-notes-view'");
     expect(
       tree.read(
         'libs/notes-weaver/src/lib/dialogs/notes-about-dialog.ts',
-        'utf-8',
+        'utf8',
       ),
     ).toContain("selector: 'ac-notes-about-dialog'");
   });
@@ -116,7 +116,7 @@ describe('weaver generator', () => {
   it('honours --container', async () => {
     await weaverGenerator(tree, { id: 'notes', container: true });
     expect(
-      tree.read('libs/notes-weaver/src/lib/plugin/notes.plugin.ts', 'utf-8'),
+      tree.read('libs/notes-weaver/src/lib/plugin/notes.plugin.ts', 'utf8'),
     ).toContain("routable: { path: 'notes/:id' }");
     expect(
       tree.exists('libs/notes-weaver/src/lib/views/notes-canvas-view.ts'),
@@ -127,7 +127,7 @@ describe('weaver generator', () => {
     await weaverGenerator(tree, { id: 'notes', instanceable: true });
     const plugin = tree.read(
       'libs/notes-weaver/src/lib/plugin/notes.plugin.ts',
-      'utf-8',
+      'utf8',
     );
     expect(plugin).toContain("docks: ['primary']");
     expect(plugin).toContain('instanceable: true');
@@ -135,7 +135,7 @@ describe('weaver generator', () => {
 
   it('writes the README wiring step against the registered import path', async () => {
     await weaverGenerator(tree, { id: 'notes' });
-    expect(tree.read('libs/notes-weaver/README.md', 'utf-8')).toContain(
+    expect(tree.read('libs/notes-weaver/README.md', 'utf8')).toContain(
       "from '@acme/notes-weaver'",
     );
   });
@@ -152,7 +152,7 @@ describe('weaver generator', () => {
 
   it('scans the weaver templates by pointing the app stylesheet at the library', async () => {
     await weaverGenerator(tree, { id: 'notes' });
-    expect(tree.read('apps/studio/src/styles.css', 'utf-8')).toContain(
+    expect(tree.read('apps/studio/src/styles.css', 'utf8')).toContain(
       "@source '../../../libs/notes-weaver/src';",
     );
   });
@@ -162,7 +162,7 @@ describe('weaver generator', () => {
       id: 'notes',
       directory: 'packages/weavers/notes',
     });
-    expect(tree.read('apps/studio/src/styles.css', 'utf-8')).toContain(
+    expect(tree.read('apps/studio/src/styles.css', 'utf8')).toContain(
       "@source '../../../packages/weavers/notes/src';",
     );
   });
@@ -171,14 +171,14 @@ describe('weaver generator', () => {
     await weaverGenerator(tree, { id: 'notes' });
     tree.delete('libs/notes-weaver/project.json');
     await weaverGenerator(tree, { id: 'notes' });
-    const css = tree.read('apps/studio/src/styles.css', 'utf-8') ?? '';
+    const css = tree.read('apps/studio/src/styles.css', 'utf8') ?? '';
     expect(css.match(/libs\/notes-weaver\/src/g)).toHaveLength(1);
   });
 
   it('leaves a precompiled stylesheet alone — that path runs no Tailwind', async () => {
     tree.write('apps/studio/src/styles.css', PRECOMPILED_STYLESHEET);
     await weaverGenerator(tree, { id: 'notes' });
-    expect(tree.read('apps/studio/src/styles.css', 'utf-8')).toBe(
+    expect(tree.read('apps/studio/src/styles.css', 'utf8')).toBe(
       PRECOMPILED_STYLESHEET,
     );
   });
