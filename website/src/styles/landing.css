@@ -1,0 +1,335 @@
+/* This stylesheet ships only with the landing page, so it may reach outside .lw-landing: the
+   splash template still prints the page title above the hero, and its container is narrower than
+   a landing page wants. */
+.sl-container > h1#_top {
+  display: none;
+}
+
+.content-panel .sl-container,
+.content-panel .sl-markdown-content {
+  max-width: none;
+}
+
+.lw-landing {
+  --lw-gold: #c59a2f;
+  --lw-max: 74rem;
+  display: flex;
+  flex-direction: column;
+  gap: 5rem;
+  margin-inline: auto;
+  max-width: var(--lw-max);
+}
+
+.lw-landing > section,
+.lw-landing > figure {
+  margin: 0;
+}
+
+.lw-landing h2 {
+  margin-block: 0 1.5rem;
+  font-size: clamp(1.6rem, 1.1rem + 1.7vw, 2.2rem);
+  line-height: 1.2;
+}
+
+.lw-landing h3 {
+  margin-block: 0 0.75rem;
+  font-size: 1.15rem;
+  line-height: 1.35;
+}
+
+.lw-landing p {
+  color: var(--sl-color-gray-2);
+  line-height: 1.65;
+}
+
+.lw-landing .eyebrow {
+  margin: 0 0 0.75rem;
+  color: var(--lw-gold);
+  font-size: var(--sl-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Hero */
+
+.lw-landing .hero {
+  position: relative;
+  isolation: isolate;
+  padding-top: 1rem;
+  text-align: center;
+}
+
+.lw-landing .hero::before {
+  position: absolute;
+  z-index: -1;
+  top: -8rem;
+  left: 50%;
+  width: min(60rem, 120%);
+  height: 34rem;
+  background:
+    radial-gradient(closest-side, rgb(46 150 201 / 22%), transparent 70%),
+    radial-gradient(closest-side at 70% 60%, rgb(197 154 47 / 14%), transparent 70%);
+  content: '';
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+.lw-landing .hero h1 {
+  margin: 0 0 1.25rem;
+  font-size: clamp(2.4rem, 1.4rem + 4vw, 4rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.lw-landing .hero .lead {
+  margin-inline: auto;
+  max-width: 46rem;
+  color: var(--sl-color-gray-2);
+  font-size: clamp(1.05rem, 0.95rem + 0.5vw, 1.3rem);
+}
+
+.lw-landing .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.lw-landing .btn {
+  display: inline-block;
+  padding: 0.7rem 1.4rem;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.5rem;
+  color: var(--sl-color-white);
+  font-size: var(--sl-text-sm);
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.lw-landing .btn:hover {
+  border-color: var(--sl-color-accent);
+  transform: translateY(-1px);
+}
+
+.lw-landing .btn.primary {
+  border-color: var(--sl-color-accent);
+  background: var(--sl-color-accent);
+  color: var(--sl-color-white);
+}
+
+.lw-landing .btn.primary:hover {
+  filter: brightness(1.1);
+}
+
+.lw-landing .btn.ghost {
+  border-color: transparent;
+  color: var(--sl-color-gray-2);
+}
+
+/* Screenshots */
+
+.lw-landing .shot video {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.75rem;
+  background: #0d1117;
+  box-shadow: 0 1.5rem 4rem -1.5rem rgb(0 0 0 / 55%);
+}
+
+.lw-landing .shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.75rem;
+  box-shadow: 0 1.5rem 4rem -1.5rem rgb(0 0 0 / 55%);
+}
+
+.lw-landing .shot.narrow {
+  margin-inline: auto;
+  max-width: 52rem;
+}
+
+.lw-landing figcaption {
+  margin-top: 0.9rem;
+  color: var(--sl-color-gray-3);
+  font-size: var(--sl-text-xs);
+  line-height: 1.6;
+  text-align: center;
+}
+
+/* The two doors */
+
+.lw-landing .doors h2 {
+  text-align: center;
+}
+
+.lw-landing .door-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+}
+
+.lw-landing .door {
+  padding: 1.75rem;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.75rem;
+  background: var(--sl-color-bg-nav);
+}
+
+.lw-landing .door h3 {
+  font-size: 1.3rem;
+}
+
+.lw-landing .door .aside {
+  margin-bottom: 0;
+  color: var(--sl-color-gray-3);
+  font-size: var(--sl-text-sm);
+  font-style: italic;
+}
+
+.lw-landing .bridge {
+  margin-top: 2rem;
+  margin-inline: auto;
+  max-width: 46rem;
+  font-size: 1.05rem;
+  text-align: center;
+}
+
+.lw-landing .bridge strong {
+  color: var(--sl-color-white);
+}
+
+/* Alternating feature rows */
+
+.lw-landing .feature {
+  display: grid;
+  gap: 2rem;
+  align-items: center;
+  grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
+}
+
+.lw-landing .feature h2 {
+  font-size: clamp(1.4rem, 1.1rem + 1.2vw, 1.9rem);
+}
+
+.lw-landing .feature .rule {
+  padding-left: 1rem;
+  border-left: 3px solid var(--lw-gold);
+  color: var(--sl-color-white);
+  font-weight: 600;
+}
+
+.lw-landing .feature.reverse .feature-text {
+  order: 2;
+}
+
+/* Checklist */
+
+.lw-landing .checklist h2 {
+  text-align: center;
+}
+
+.lw-landing .checklist ul {
+  display: grid;
+  gap: 0.6rem 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lw-landing .checklist li {
+  position: relative;
+  padding-left: 1.75rem;
+  color: var(--sl-color-gray-2);
+  line-height: 1.6;
+}
+
+.lw-landing .checklist li::before {
+  position: absolute;
+  left: 0;
+  color: var(--sl-color-accent);
+  content: '✓';
+  font-weight: 700;
+}
+
+/* Trust rungs */
+
+.lw-landing .rungs h2 {
+  text-align: center;
+}
+
+.lw-landing .rung-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+}
+
+.lw-landing .rung {
+  padding-top: 1rem;
+  border-top: 2px solid var(--sl-color-gray-5);
+}
+
+.lw-landing .rung .num {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--lw-gold);
+  font-size: var(--sl-text-sm);
+  font-weight: 700;
+}
+
+.lw-landing .rung p {
+  margin-bottom: 0;
+  font-size: var(--sl-text-sm);
+}
+
+/* Closing call to action */
+
+.lw-landing .cta {
+  padding: 3rem 1.5rem;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.75rem;
+  background: var(--sl-color-bg-nav);
+  text-align: center;
+}
+
+.lw-landing .cta p {
+  margin-inline: auto;
+  max-width: 42rem;
+}
+
+@media (max-width: 50rem) {
+  .lw-landing {
+    gap: 3.5rem;
+  }
+
+  .lw-landing .feature.reverse .feature-text {
+    order: 0;
+  }
+}
+
+/* Grid children default to min-width:auto, which lets a wide code block push the row instead of
+   scrolling inside it. */
+.lw-landing .feature > *,
+.lw-landing .door,
+.lw-landing .rung {
+  min-width: 0;
+}
+
+.lw-landing .expressive-code {
+  margin-block: 1.25rem 0;
+}
+
+.lw-landing .door .expressive-code {
+  font-size: 0.85em;
+}

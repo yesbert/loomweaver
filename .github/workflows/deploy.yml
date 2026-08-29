@@ -12,6 +12,7 @@ on:
       - docs/**
       - website/**
       - demo/**
+      - assets/**
       - llms.txt
       - llms-full.txt
   workflow_dispatch:
