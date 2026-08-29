@@ -47,5 +47,13 @@ passthrough image service, so it never even runs.
 
 ## Deployment
 
-None yet. The site is built and reviewed locally; hosting and the loomweaver.dev domain are wired up
-with the public release.
+`.github/workflows/deploy.yml` publishes this site to the root of loomweaver.dev, and the demo to
+demo.loomweaver.dev, on merges to `main` that touch `docs/`, `website/`, `demo/` or the `llms*.txt`
+files. It never runs on a pull request, because it holds a deploy key and a fork's run gets no
+secrets.
+
+Apache serves the result, so the cache headers are `.htaccess` files the workflow writes: hashed
+assets under `_astro/` are immutable, everything the browser has to compare against revalidates.
+After uploading, the job asks the live domains what they actually serve — that the site mentions
+itself, that the legal pages resolve, that the demo's deep links fall back to `index.html`. A deploy
+that reports success while the site is broken is worse than one that fails.
