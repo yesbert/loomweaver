@@ -284,18 +284,20 @@ export default [
                 }
             ],
 
-            // Everything below is switched off only until its findings are cleared, one pull
-            // request per group. A rule that is not in this list is enforced. Where a rule
-            // carries a note, its fixer was tried and did damage: read the note before
-            // reaching for --fix.
-            "unicorn/prefer-promise-try": "off",
             // `f(undefined)` is not `f()` when the parameter is required, and `() => undefined`
             // may not become `() => {}` while no-empty-function forbids exactly that.
             "unicorn/no-useless-undefined": [
                 "error",
                 { checkArguments: false, checkArrowFunctionBody: false }
             ],
-            "unicorn/prefer-direct-iteration": "off",
+
+            // Everything below waits on ES2025 in the browser, not on anyone's time.
+            // Iterator.prototype.toArray and Promise.try need Safari 18.2 or 18.4, and most of
+            // the findings are in code that ships to a browser rather than to node. Raising the
+            // language target would enforce these three at the cost of a support floor, for a
+            // gain that is one intermediate array nobody measures. Turn them on when the floor
+            // moves for a reason of its own.
+            "unicorn/prefer-promise-try": "off",
             "unicorn/prefer-iterator-helpers": "off",
             "unicorn/prefer-iterator-to-array": "off",
         }

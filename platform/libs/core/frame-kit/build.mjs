@@ -41,7 +41,7 @@ function emitGlobalScriptDeclaration(entry) {
   });
   program.emit(undefined, (name, text) => emitted.set(name, text), undefined, true);
 
-  const declaration = [...emitted.entries()].find(([name]) =>
+  const declaration = [...emitted].find(([name]) =>
     name.endsWith('lw-elements.frame.d.ts'),
   );
   if (!declaration) {
