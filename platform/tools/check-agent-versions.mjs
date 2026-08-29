@@ -30,15 +30,16 @@ const recorded = {
   adapter: literal('AG_UI_ADAPTER_VERSION'),
   protocol: literal('AG_UI_PROTOCOL_VERSION'),
 };
-const resolved = {
-  adapter: adapter.version,
-  protocol: adapter.peerDependencies?.['@ag-ui/core'],
-};
 
 if (!recorded.adapter || !recorded.protocol) {
   console.error(`check-agent-versions: read no version from ${RECIPE} — it changed shape.`);
   process.exit(1);
 }
+
+const resolved = {
+  adapter: adapter.version,
+  protocol: adapter.peerDependencies?.['@ag-ui/core'],
+};
 
 const failures = [];
 if (recorded.adapter !== resolved.adapter) {
