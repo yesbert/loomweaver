@@ -47,7 +47,7 @@ export class PluginDeploymentService {
     this.persist(
       entries
         .filter((entry) => entry.deployed === true)
-        .map(withoutCatalogMetadata),
+        .map((entry) => withoutCatalogMetadata(entry)),
     );
   }
 

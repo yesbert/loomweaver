@@ -41,7 +41,7 @@ export function toolFor(command: InvocableCommand): Tool {
 
 /** Describes every command in the list, in the order the workbench gave them. */
 export function toolsFor(commands: readonly InvocableCommand[]): readonly Tool[] {
-  return commands.map(toolFor);
+  return commands.map((command) => toolFor(command));
 }
 
 function parametersFor(

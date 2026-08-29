@@ -95,7 +95,7 @@ export class ShellRail {
       inRail.filter((item) => !isBottom(item)),
       key,
     );
-    const bottom = this.userOrder.applyOrder(id, inRail.filter(isBottom), key);
+    const bottom = this.userOrder.applyOrder(id, inRail.filter((item) => isBottom(item)), key);
     return [...top, ...bottom];
   });
 

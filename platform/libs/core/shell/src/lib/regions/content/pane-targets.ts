@@ -38,12 +38,12 @@ export function offRouterPaneTargets(
   const routes = registry
     .contentRoutes()
     .filter((route) => offRouterMountable(registry, auth, route.path))
-    .map(routeTarget);
+    .map((route) => routeTarget(route));
 
   const views = registry
     .views()
     .filter((view) => auth.meets(view.access))
-    .map(viewTarget);
+    .map((view) => viewTarget(view));
   return [...routes, ...views];
 }
 
@@ -61,7 +61,7 @@ export function containerChildTargets(
     .filter(
       (view): view is View => view !== undefined && auth.meets(view.access),
     )
-    .map(viewTarget);
+    .map((view) => viewTarget(view));
 }
 
 export function routerPaneTargets(
@@ -75,7 +75,7 @@ export function routerPaneTargets(
         barePathHostableRoute(registry, route.path) !== null &&
         auth.meets(route.access),
     )
-    .map(routeTarget);
+    .map((route) => routeTarget(route));
 }
 
 export function paneTargetEntries(

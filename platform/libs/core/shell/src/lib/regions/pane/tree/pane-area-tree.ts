@@ -158,7 +158,7 @@ function cleanTabsArea<T>(
 function collectTabs(area: CleanArea): PaneTab[] {
   return area.kind === 'tabs'
     ? [...area.tabs]
-    : area.children.flatMap(collectTabs);
+    : area.children.flatMap((child) => collectTabs(child));
 }
 
 function buildNode(

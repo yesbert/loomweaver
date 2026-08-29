@@ -179,7 +179,7 @@ if (process.argv[2] === '--write-baseline') {
     `${JSON.stringify(
       {
         _: 'Mutually dependent slices in @loomweaver/shell. Not defects: different files in each slice point different ways, which is acyclic at file level. They are the distance to an Nx library split, because Nx refuses a project graph with a cycle in it. This list may shrink and may never grow.',
-        fileCycles: cycles.map((group) => group.map(rel)),
+        fileCycles: cycles.map((group) => group.map((target) => rel(target))),
         slicePairs: pairs,
       },
       null,
@@ -204,13 +204,13 @@ const failures = [];
 const allowedCycles = (baseline.fileCycles ?? []).map((group) =>
   [...group].toSorted((a, b) => a.localeCompare(b)).join('|'),
 );
-const actualCycles = new Set(cycles.map((group) => group.map(rel).toSorted((a, b) => a.localeCompare(b)).join('|')));
+const actualCycles = new Set(cycles.map((group) => group.map((target) => rel(target)).toSorted((a, b) => a.localeCompare(b)).join('|')));
 
 for (const group of cycles) {
-  const key = group.map(rel).toSorted((a, b) => a.localeCompare(b)).join('|');
+  const key = group.map((target) => rel(target)).toSorted((a, b) => a.localeCompare(b)).join('|');
   if (!allowedCycles.includes(key)) {
     failures.push(
-      `new import cycle across ${group.length} files:\n      ${group.map(rel).join('\n      ')}`,
+      `new import cycle across ${group.length} files:\n      ${group.map((target) => rel(target)).join('\n      ')}`,
     );
   }
 }

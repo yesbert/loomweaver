@@ -276,9 +276,6 @@ export default [
             "unicorn/no-unreadable-for-of-expression": "off",
             "unicorn/prefer-promise-try": "off",
             "unicorn/prefer-simple-condition-first": "off",
-            // It reads `installs.find(entry.id)` as an array callback, where `find` is a
-            // service method taking an id, and rewrites it into nonsense.
-            "unicorn/no-array-callback-reference": "off",
             // `f(undefined)` is not `f()` when the parameter is required, and `() => undefined`
             // may not become `() => {}` while no-empty-function forbids exactly that.
             "unicorn/no-useless-undefined": [
@@ -305,6 +302,19 @@ export default [
             "unicorn/no-await-expression-member": "off",
             "unicorn/no-global-object-property-assignment": "off",
             "unicorn/prefer-scoped-selector": "off"
+        }
+    },
+    {
+        // PluginInstallService.find(id) takes an id, not a predicate. The rule cannot tell it
+        // from Array#find and rewrites the call into nonsense; the method is on the published
+        // contract, so it keeps its name and these three callers keep the rule off.
+        files: [
+            "**/plugin-store/lifecycle/update-consent.ts",
+            "**/plugin-store/plugin-store-detail.ts",
+            "**/plugin-store/plugin-store-dialog.ts"
+        ],
+        rules: {
+            "unicorn/no-array-callback-reference": "off"
         }
     },
     {

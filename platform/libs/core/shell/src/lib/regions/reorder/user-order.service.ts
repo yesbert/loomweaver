@@ -53,7 +53,7 @@ export class UserOrderService {
     const ranked = (item: T) => rank.has(key(item));
 
     const knownInUserOrder = items
-      .filter(ranked)
+      .filter((item) => ranked(item))
       .toSorted((a, b) => (rank.get(key(a)) ?? 0) - (rank.get(key(b)) ?? 0));
     let next = 0;
     return items.map((item) =>

@@ -204,7 +204,7 @@ export class UpdateService {
       const registrations = (await container?.getRegistrations()) ?? [];
       await Promise.all(
         registrations
-          .filter(isShellWorker)
+          .filter((registration) => isShellWorker(registration))
           .map((registration) => registration.unregister()),
       );
     });

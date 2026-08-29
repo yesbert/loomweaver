@@ -127,7 +127,7 @@ function comparableTab(tab: PaneTab): PaneTab {
 
 function comparableNode(node: PaneNode): PaneNode {
   if (node.kind === 'leaf') {
-    return { ...node, tabs: node.tabs.map(comparableTab) };
+    return { ...node, tabs: node.tabs.map((tab) => comparableTab(tab)) };
   }
   return {
     ...node,

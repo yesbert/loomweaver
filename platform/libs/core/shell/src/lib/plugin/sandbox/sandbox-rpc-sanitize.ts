@@ -182,7 +182,7 @@ function sanitizeRpcArea(
   const raw = value as Record<string, unknown>;
   const size = typeof raw['size'] === 'number' ? { size: raw['size'] } : {};
   if (Array.isArray(raw['tabs'])) {
-    return { ...size, tabs: raw['tabs'].flatMap(sanitizeRpcContainerTab) };
+    return { ...size, tabs: raw['tabs'].flatMap((value) => sanitizeRpcContainerTab(value)) };
   }
   for (const kind of ['rows', 'columns'] as const) {
     const declared = raw[kind];

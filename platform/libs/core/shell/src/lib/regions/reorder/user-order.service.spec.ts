@@ -13,7 +13,7 @@ describe('UserOrderService', () => {
 
   it('returns the declared order when no user order is stored', () => {
     const svc = TestBed.inject(UserOrderService);
-    expect(svc.applyOrder('c', items('a', 'b', 'c'), key).map(key)).toEqual([
+    expect(svc.applyOrder('c', items('a', 'b', 'c'), key).map((item) => key(item))).toEqual([
       'a',
       'b',
       'c',
@@ -23,7 +23,7 @@ describe('UserOrderService', () => {
   it('applies the stored user order', () => {
     const svc = TestBed.inject(UserOrderService);
     svc.setOrder('c', ['c', 'a', 'b']);
-    expect(svc.applyOrder('c', items('a', 'b', 'c'), key).map(key)).toEqual([
+    expect(svc.applyOrder('c', items('a', 'b', 'c'), key).map((item) => key(item))).toEqual([
       'c',
       'a',
       'b',
@@ -33,7 +33,7 @@ describe('UserOrderService', () => {
   it('keeps an unknown (newly contributed) item at its declared slot', () => {
     const svc = TestBed.inject(UserOrderService);
     svc.setOrder('c', ['c', 'a']);
-    expect(svc.applyOrder('c', items('a', 'b', 'c'), key).map(key)).toEqual([
+    expect(svc.applyOrder('c', items('a', 'b', 'c'), key).map((item) => key(item))).toEqual([
       'c',
       'b',
       'a',
@@ -43,7 +43,7 @@ describe('UserOrderService', () => {
   it('drops a removed id silently (no hole)', () => {
     const svc = TestBed.inject(UserOrderService);
     svc.setOrder('c', ['c', 'x', 'a', 'b']);
-    expect(svc.applyOrder('c', items('a', 'b', 'c'), key).map(key)).toEqual([
+    expect(svc.applyOrder('c', items('a', 'b', 'c'), key).map((item) => key(item))).toEqual([
       'c',
       'a',
       'b',
@@ -54,9 +54,9 @@ describe('UserOrderService', () => {
     const svc = TestBed.inject(UserOrderService);
     svc.setOrder('rail:left', ['b', 'a']);
     expect(
-      svc.applyOrder('content-tabs:x', items('a', 'b'), key).map(key),
+      svc.applyOrder('content-tabs:x', items('a', 'b'), key).map((item) => key(item)),
     ).toEqual(['a', 'b']);
-    expect(svc.applyOrder('rail:left', items('a', 'b'), key).map(key)).toEqual([
+    expect(svc.applyOrder('rail:left', items('a', 'b'), key).map((item) => key(item))).toEqual([
       'b',
       'a',
     ]);
@@ -71,7 +71,7 @@ describe('UserOrderService', () => {
     expect(
       TestBed.inject(UserOrderService)
         .applyOrder('c', items('a', 'b'), key)
-        .map(key),
+        .map((item) => key(item)),
     ).toEqual(['b', 'a']);
   });
 
@@ -81,15 +81,15 @@ describe('UserOrderService', () => {
       JSON.stringify({ c: 'nope', d: [1, 2], e: ['b', 'a'] }),
     );
     const svc = TestBed.inject(UserOrderService);
-    expect(svc.applyOrder('c', items('a', 'b'), key).map(key)).toEqual([
+    expect(svc.applyOrder('c', items('a', 'b'), key).map((item) => key(item))).toEqual([
       'a',
       'b',
     ]);
-    expect(svc.applyOrder('d', items('a', 'b'), key).map(key)).toEqual([
+    expect(svc.applyOrder('d', items('a', 'b'), key).map((item) => key(item))).toEqual([
       'a',
       'b',
     ]);
-    expect(svc.applyOrder('e', items('a', 'b'), key).map(key)).toEqual([
+    expect(svc.applyOrder('e', items('a', 'b'), key).map((item) => key(item))).toEqual([
       'b',
       'a',
     ]);
@@ -100,7 +100,7 @@ describe('UserOrderService', () => {
     expect(
       TestBed.inject(UserOrderService)
         .applyOrder('e', items('a', 'b'), key)
-        .map(key),
+        .map((item) => key(item)),
     ).toEqual(['a', 'b']);
   });
 });
