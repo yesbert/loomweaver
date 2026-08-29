@@ -176,6 +176,18 @@ export default [
             // `granted` — and `isRetained` reads no better, only longer.
             "unicorn/consistent-boolean-name": "off",
 
+            // Where a function is declared is the author's call. `consistent-function-scoping`
+            // and `isolated-functions` would move 133 helpers out of the closures that name them,
+            // and in a component built on signals the closure is often the point: the helper reads
+            // like part of the thing it serves. Neither rule describes a defect.
+            "unicorn/consistent-function-scoping": "off",
+            "unicorn/isolated-functions": "off",
+
+            // `prefer-await` rewrites a `.then` chain into await. Ours sit where awaiting would
+            // change when the work runs: a constructor that must not block, a fire-and-forget
+            // notification, a chain the caller deliberately does not join.
+            "unicorn/prefer-await": "off",
+
             // It bans `null`. Angular and the DOM hand us `null` (queryParamMap.get, querySelector)
             // and our own signatures return it; banning the literal would only move the seam.
             "unicorn/no-null": "off",
@@ -216,7 +228,6 @@ export default [
             // request per group. A rule that is not in this list is enforced. Where a rule
             // carries a note, its fixer was tried and did damage: read the note before
             // reaching for --fix.
-            "unicorn/consistent-function-scoping": "off",
             // `dataset` lives on HTMLElement, and these call sites hold an Element
             "unicorn/dom-node-dataset": "off",
             // assumes a property named `size` is never negative; ours is a
@@ -224,7 +235,6 @@ export default [
             // `size === 0`, which stopped reporting negative sizes
             "unicorn/explicit-length-check": "off",
             "unicorn/import-style": "off",
-            "unicorn/isolated-functions": "off",
             "unicorn/max-nested-calls": "off",
             // It reads `installs.find(entry.id)` as an array callback, where `find` is a
             // service method taking an id, and rewrites it into nonsense.
@@ -258,7 +268,6 @@ export default [
             // `.at(-1)` returns `T | undefined`, which is honest and needs each of the
             // 17 call sites to say what it does when the collection is empty
             "unicorn/prefer-at": "off",
-            "unicorn/prefer-await": "off",
             // `getHTML()` is a 2024 DOM API that jsdom does not have, so the tests
             // that read rendered markup fail on it
             "unicorn/prefer-dom-node-html-methods": "off",
