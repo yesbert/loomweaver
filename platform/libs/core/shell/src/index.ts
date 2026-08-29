@@ -69,6 +69,7 @@ export * from './lib/commands/search-entry/provide-command-palette-entry';
 export * from './lib/commands/search-entry/provide-quick-open-entry';
 export * from './lib/plugin/plugin';
 export * from './lib/plugin/plugin-runtime';
+export * from './lib/plugin/sandbox/frame-plugin';
 export * from './lib/plugin/sandbox/sandbox-plugin-runtime';
 export * from './lib/foundation/command-invoker';
 export * from './lib/commands/command-invocation.service';

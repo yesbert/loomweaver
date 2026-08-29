@@ -1,9 +1,14 @@
-import { effect, EnvironmentInjector, EnvironmentProviders, inject, InjectionToken, provideEnvironmentInitializer, Provider, Service, untracked } from '@angular/core';
-import { Connection, WindowMessenger, connect } from 'penpal';
 import {
-  Capability,
-  StateHandle,
-} from '@loomweaver/plugin-sdk';
+  EnvironmentInjector,
+  EnvironmentProviders,
+  Provider,
+  Service,
+  effect,
+  inject,
+  provideEnvironmentInitializer,
+  untracked,
+} from '@angular/core';
+import { Connection, WindowMessenger, connect } from 'penpal';
 import { SETTINGS_STORE } from '../../persistence/settings-store';
 import { StateSyncService } from '../../persistence/state-sync.service';
 import { HostPluginContext } from '../host-plugin-context';
@@ -15,73 +20,19 @@ import { PluginInstallService } from '../../plugin-store/lifecycle/plugin-instal
 import { CapabilityRefusalReporter } from '../../permissions/capability-refusal';
 import {
   CATALOG_MAX_ISOLATION_LEVEL,
-  DEFAULT_ISOLATION_LEVEL,
   PluginIsolationLevel,
   PluginIsolationLevelService,
-  exceedsLevel,
 } from '../../foundation/plugin-isolation-level';
 import { PluginDeploymentService } from '../../plugin-store/lifecycle/plugin-deployment.service';
+import { FRAME_PLUGIN, FramePlugin } from './frame-plugin';
 import {
-  FrameSettingValues,
-  buildFrameSection,
-  sanitizeRpcSettingsSection,
-} from './sandbox-settings';
-import {
-  sanitizeRpcMenuItem,
-  sanitizeRpcSurface,
-  sanitizeRpcTabInput,
-  sanitizeRpcToastInput,
-} from './sandbox-rpc-sanitize';
-import {
-  FrameRemote,
-  FrameRpc,
-  invokeRpcCommand,
-} from './sandbox-rpc-contract';
-
-/**
- * A **sandboxed** plugin a distribution registers: its code is not an in-process
- * {@link Plugin} object but a URL to an isolated document, loaded into an `<iframe sandbox>` and given
- * `ctx` over RPC. Contrast {@link providePlugins} (trusted, in-process).
- */
-export interface FramePlugin {
-  /** Stable plugin id — the same id the distribution grants capabilities to (default-deny). */
-  readonly id: string;
-  /**
-   * What the workbench calls this plugin where it names it to the user — the permissions surface,
-   * the plugin list. Omit it and the id is shown, which is a poor name but a correct one: nothing is
-   * derived from it. Grants, collisions and the user's stored decisions all follow {@link id}, never
-   * this, so naming a plugin changes what is read and nothing else.
-   */
-  readonly name?: string;
-  /** URL of the plugin's entry document (served by the distribution, e.g. `/my-plugin/plugin.html`). */
-  readonly entryUrl: string;
-  /** Capabilities the plugin declares it needs; the distribution still has to grant them. */
-  readonly capabilities?: readonly Capability[];
-  /**
-   * Origins this plugin's own surfaces may be served from, beyond the application's own — the seam
-   * refuses anything else, and refuses an address that would execute or carry its content inline at
-   * any level. Omit it and the application's own origin is the only one, which is the right answer
-   * for a plugin whose files the distribution serves itself.
-   *
-   * A sibling subdomain belongs here: it is what gives an embedded application its own storage and
-   * keeps it out of the hosting document, while a session cookie scoped to the shared domain still
-   * reaches it.
-   */
-  readonly origins?: readonly string[];
-  /**
-   * How much the browser holds this plugin back. Omitted means
-   * {@link PluginIsolationLevel `'isolated'`} — the frame is stripped of an origin and reaches
-   * neither the hosting document nor any storage. `'embedded'` lets it keep an origin, which is what
-   * a first-party application composed for its own deployment needs and what a plugin you did not
-   * write must never be given.
-   */
-  readonly level?: PluginIsolationLevel;
-}
-
-/** Multi-provider token: each contribution adds one sandboxed plugin to load. */
-export const FRAME_PLUGIN = new InjectionToken<readonly FramePlugin[]>(
-  'FRAME_PLUGIN',
-);
+  RunnableFramePlugin,
+  levelOf,
+  runnablePlugins,
+  signatureOf,
+} from './sandbox-runnable-plugins';
+import { WatchedKey, frameRpcMethods } from './sandbox-rpc-methods';
+import { FrameRemote } from './sandbox-rpc-contract';
 
 interface FrameInstance {
   readonly ctx: HostPluginContext;
@@ -90,27 +41,6 @@ interface FrameInstance {
   readonly signature: string;
   readonly syncCleanups: (() => void)[];
   readonly watched: Map<string, WatchedKey>;
-}
-
-interface WatchedKey {
-  readonly handle: StateHandle;
-  readonly stop: () => void;
-}
-
-interface RunnableFramePlugin extends FramePlugin {
-  readonly granted?: readonly Capability[];
-  readonly version?: string;
-  readonly provided?: boolean;
-}
-
-function levelOf(plugin: RunnableFramePlugin): PluginIsolationLevel {
-  return plugin.level ?? DEFAULT_ISOLATION_LEVEL;
-}
-
-function signatureOf(plugin: RunnableFramePlugin): string {
-  const sorted = (values: readonly string[] | undefined): string =>
-    [...(values ?? [])].toSorted((a, b) => a.localeCompare(b)).join(',');
-  return `${plugin.entryUrl}|${sorted(plugin.capabilities)}|${sorted(plugin.granted)}|${plugin.version ?? ''}|${levelOf(plugin)}`;
 }
 
 /**
@@ -212,7 +142,12 @@ export class FramePluginRuntime {
     installed: readonly InstalledPlugin[],
     deployed: readonly InstalledPlugin[],
   ): void {
-    const runnable = this.runnablePlugins(installed, deployed);
+    const runnable = runnablePlugins(
+      this.plugins,
+      installed,
+      deployed,
+      this.catalogCap,
+    );
     for (const plugin of runnable) {
       this.enablement.register(plugin.id, plugin.name ?? plugin.id);
       const enabled = plugin.provided === true || !disabled.has(plugin.id);
@@ -227,40 +162,6 @@ export class FramePluginRuntime {
       }
     }
     this.dropUninstalled(runnable);
-  }
-
-  private runnablePlugins(
-    installed: readonly InstalledPlugin[],
-    deployed: readonly InstalledPlugin[],
-  ): readonly RunnableFramePlugin[] {
-    const claimed = new Set(this.plugins.map((plugin) => plugin.id));
-    const provided = new Set(deployed.map((plugin) => plugin.id));
-    const fromCatalog: RunnableFramePlugin[] = [];
-    for (const plugin of [...deployed, ...installed]) {
-      if (claimed.has(plugin.id)) {
-        continue;
-      }
-      const asked = plugin.level ?? DEFAULT_ISOLATION_LEVEL;
-      if (exceedsLevel(asked, this.catalogCap)) {
-        console.error(
-          `Plugin "${plugin.id}" asks to run ${asked}, which this catalog may not confer ` +
-            `(its cap is ${this.catalogCap}). It is not started.`,
-        );
-        continue;
-      }
-      claimed.add(plugin.id);
-      fromCatalog.push({
-        id: plugin.id,
-        entryUrl: plugin.entryUrl,
-        capabilities: plugin.capabilities,
-        name: plugin.name,
-        granted: plugin.capabilities ?? [],
-        version: plugin.version,
-        level: asked,
-        provided: provided.has(plugin.id) || undefined,
-      });
-    }
-    return [...this.plugins, ...fromCatalog];
   }
 
   private dropUninstalled(runnable: readonly RunnableFramePlugin[]): void {
@@ -289,15 +190,19 @@ export class FramePluginRuntime {
     const watched = new Map<string, WatchedKey>();
     const connection = connect<FrameRemote>({
       messenger,
-      methods: this.reportingRefusals(
-        this.rpcMethods(
-          plugin.id,
-          ctx,
-          syncCleanups,
-          watched,
-          plugin.origins,
-        ),
-      ),
+      methods: frameRpcMethods({
+        pluginId: plugin.id,
+        ctx,
+        origins: plugin.origins,
+        install: this.install,
+        store: this.store,
+        sync: this.sync,
+        syncCleanups,
+        watched,
+        watchState: (key) => this.watchState(plugin.id, ctx, watched, key),
+        notify: (send) => this.notify(plugin.id, send),
+        reportRefusal: (error) => this.refusals.report(error),
+      }),
     });
     this.instances.set(plugin.id, {
       ctx,
@@ -331,76 +236,6 @@ export class FramePluginRuntime {
     return frame;
   }
 
-  private reportingRefusals(methods: FrameRpc): FrameRpc {
-    const reported = Object.entries(methods).map(([name, method]) => [
-      name,
-      (...args: unknown[]) => {
-        try {
-          return (method as (...rest: unknown[]) => unknown)(...args);
-        } catch (error) {
-          this.refusals.report(error);
-          throw error;
-        }
-      },
-    ]);
-    return Object.fromEntries(reported) as FrameRpc;
-  }
-
-  private rpcMethods(
-    pluginId: string,
-    ctx: HostPluginContext,
-    syncCleanups: (() => void)[],
-    watched: Map<string, WatchedKey>,
-    origins: readonly string[] | undefined,
-  ): FrameRpc {
-    return {
-      registerSurface: (surface) => {
-        ctx.registerSurface(sanitizeRpcSurface(pluginId, surface, origins));
-      },
-      registerMenuItem: (item) => {
-        ctx.registerMenuItem(sanitizeRpcMenuItem(item));
-      },
-      registerSettingsSection: (section) => {
-        const built = buildFrameSection({
-          pluginId,
-          wire: sanitizeRpcSettingsSection(pluginId, section),
-          group: this.install.isInstalled(pluginId)
-            ? 'settings.group.community'
-            : 'settings.group.plugins',
-          store: this.store,
-          sync: this.sync,
-          notify: (sectionId, values) =>
-            this.notifySettings(pluginId, sectionId, values),
-        });
-        syncCleanups.push(built.disposeSync);
-        ctx.registerSettingsSection(built.section);
-      },
-      navigateContent: (path) => ctx.navigateContent(path),
-      openContentTab: (input) => {
-        const sanitized = sanitizeRpcTabInput(input);
-        ctx.openContentTab({
-          ...sanitized,
-          onClose: () => this.notifyTabClosed(pluginId, sanitized.path),
-        });
-      },
-      keepContentTab: (path) => ctx.keepContentTab(path),
-      pinContentTab: (path) => ctx.pinContentTab(path),
-      unpinContentTab: (path) => ctx.unpinContentTab(path),
-      closeContentTab: (path) => ctx.closeContentTab(path),
-      revealSurface: (id) => ctx.revealSurface(id),
-      invokeCommand: (id, args) => invokeRpcCommand(ctx, id, args),
-      invocableCommands: () => ctx.invocableCommands(),
-      toast: (input) => ctx.ui.toast(sanitizeRpcToastInput(input)),
-      stateWatch: (key) => this.watchState(pluginId, ctx, watched, key),
-      stateSet: (key, value) => watched.get(key)?.handle.set(value),
-      stateClear: (key) => watched.get(key)?.handle.clear(),
-      stateUnwatch: (key) => {
-        watched.get(key)?.stop();
-        watched.delete(key);
-      },
-    };
-  }
-
   private watchState(
     pluginId: string,
     ctx: HostPluginContext,
@@ -415,7 +250,11 @@ export class FramePluginRuntime {
       () => {
         const value = handle.value();
         const loaded = handle.loaded();
-        untracked(() => this.notifyState(pluginId, key, value, loaded));
+        untracked(() =>
+          this.notify(pluginId, (remote) =>
+            remote.stateChanged(key, value, loaded),
+          ),
+        );
       },
       { injector: this.injector },
     );
@@ -428,43 +267,15 @@ export class FramePluginRuntime {
     });
   }
 
-  private notifyState(
+  private notify(
     pluginId: string,
-    key: string,
-    value: unknown,
-    loaded: boolean,
+    send: (remote: FrameRemote) => void,
   ): void {
     const instance = this.instances.get(pluginId);
     if (!instance) {
       return;
     }
-    void instance.connection.promise
-      .then((remote) => remote.stateChanged(key, value, loaded))
-      .catch(() => undefined);
-  }
-
-  private notifyTabClosed(pluginId: string, path: string): void {
-    const instance = this.instances.get(pluginId);
-    if (!instance) {
-      return;
-    }
-    void instance.connection.promise
-      .then((remote) => remote.contentTabClosed(path))
-      .catch(() => undefined);
-  }
-
-  private notifySettings(
-    pluginId: string,
-    sectionId: string,
-    values: FrameSettingValues,
-  ): void {
-    const instance = this.instances.get(pluginId);
-    if (!instance) {
-      return;
-    }
-    void instance.connection.promise
-      .then((remote) => remote.settingsChanged(sectionId, values))
-      .catch(() => undefined);
+    void instance.connection.promise.then(send).catch(() => undefined);
   }
 }
 

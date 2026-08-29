@@ -7,7 +7,6 @@
   },
   "files": {
     "platform/libs/tooling/devkit/src/recipes/angular-weaver/recipe.ts": 689,
-    "platform/libs/core/shell/src/lib/plugin/sandbox/sandbox-plugin-runtime.ts": 485,
     "platform/libs/core/shell/src/lib/workspace/workspace.service.ts": 410,
     "platform/libs/core/shell/src/lib/regions/content/tabs/open-tabs.service.ts": 404
   }
