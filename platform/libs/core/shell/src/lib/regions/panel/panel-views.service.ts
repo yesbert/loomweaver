@@ -28,7 +28,7 @@ export class PanelViewsService {
     const declared = this.registry
       .views()
       .filter((view) => view.region === regionId)
-      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      .toSorted((a, b) => (a.order ?? 0) - (b.order ?? 0));
     return this.order.applyOrder(
       panelViewsContainerId(regionId),
       declared,
@@ -53,7 +53,7 @@ export class PanelViewsService {
             (holder === null || !panelRegions.has(holder))),
       )
       .map(({ view, holder }) => ({ view, here: holder === regionId }))
-      .sort(
+      .toSorted(
         (a, b) =>
           Number(b.here) - Number(a.here) ||
           (a.view.order ?? 0) - (b.view.order ?? 0),

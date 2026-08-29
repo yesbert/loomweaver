@@ -115,7 +115,7 @@ export function registerCommands(ctx: PluginContext): void {
     id: 'testbed.nav.sort',
     title: 'testbed.nav.sort',
     icon: 'sort',
-    run: () => testbedNavState.sort(),
+    run: () => testbedNavState.sortItems(),
   });
   ctx.registerCommand({
     id: 'testbed.secret',

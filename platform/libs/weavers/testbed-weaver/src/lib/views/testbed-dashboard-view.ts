@@ -155,7 +155,7 @@ export class TestbedDashboardView {
   });
 
   protected readonly longestWaiting: readonly Entry[] = [...this.unresolved]
-    .sort((a, b) => b.waitingMinutes - a.waitingMinutes)
+    .toSorted((a, b) => b.waitingMinutes - a.waitingMinutes)
     .slice(0, 3);
 
   protected readonly volume = VOLUME;

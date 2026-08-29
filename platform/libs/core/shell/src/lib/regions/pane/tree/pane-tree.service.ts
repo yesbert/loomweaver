@@ -134,7 +134,7 @@ export class PaneTreeService {
       return;
     }
     const rank = new Map(order.map((path, index) => [path, index]));
-    const tabs = [...leaf.tabs].sort(
+    const tabs = [...leaf.tabs].toSorted(
       (a, b) =>
         (rank.get(a.path) ?? leaf.tabs.indexOf(a)) -
         (rank.get(b.path) ?? leaf.tabs.indexOf(b)),

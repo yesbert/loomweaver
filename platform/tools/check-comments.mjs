@@ -106,7 +106,7 @@ function collect(roots, extensions) {
     const full = path.join(repoRoot, r);
     if (existsSync(full)) walk(full, out, extensions);
   }
-  return out.sort();
+  return out.toSorted();
 }
 
 // What a consumer can actually see: every declaration the packed .d.ts carries, and the members of
@@ -243,7 +243,7 @@ function commentsOf(source, text) {
     ts.forEachChild(node, visit);
   };
   visit(source);
-  return [...found.values()].sort((a, b) => a.pos - b.pos);
+  return [...found.values()].toSorted((a, b) => a.pos - b.pos);
 }
 
 function lineOf(text, pos) {
@@ -356,7 +356,7 @@ const counts = {};
 for (const v of reported) counts[v.file] = (counts[v.file] ?? 0) + 1;
 
 const failures = [];
-for (const [file, count] of Object.entries(counts).sort()) {
+for (const [file, count] of Object.entries(counts).toSorted()) {
   const allowed = residue[file] ?? 0;
   if (count > allowed) {
     for (const v of reported.filter((v) => v.file === file).slice(allowed)) {
@@ -365,7 +365,7 @@ for (const [file, count] of Object.entries(counts).sort()) {
     failures.push(`${file}: ${count} comments, residue allows ${allowed}`);
   }
 }
-for (const [file, allowed] of Object.entries(residue).sort()) {
+for (const [file, allowed] of Object.entries(residue).toSorted()) {
   const count = counts[file] ?? 0;
   if (count < allowed) {
     failures.push(

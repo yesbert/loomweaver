@@ -59,7 +59,7 @@ export class HiddenViewsService {
   }
 
   serialize(): string {
-    return JSON.stringify([...this.ids()].sort((a, b) => a.localeCompare(b)));
+    return JSON.stringify([...this.ids()].toSorted((a, b) => a.localeCompare(b)));
   }
 
   private commit(next: ReadonlySet<string>): void {

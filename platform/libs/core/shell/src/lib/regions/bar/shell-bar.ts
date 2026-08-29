@@ -33,6 +33,6 @@ export class ShellBar {
       .filter((item) => item.bar === this.region().id && item.slot === slot)
       .filter((item) => this.auth.visible(item.access))
       .filter((item) => 'component' in item || this.commands.triggerable(item))
-      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      .toSorted((a, b) => (a.order ?? 0) - (b.order ?? 0));
   }
 }

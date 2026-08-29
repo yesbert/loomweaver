@@ -3,7 +3,7 @@ import { Page, expect, test } from '@playwright/test';
 function panesLeftToRight(page: Page) {
   return page.evaluate(() =>
     [...document.querySelectorAll('lw-content-area, lw-pane-view')]
-      .sort((a, b) => a.getBoundingClientRect().x - b.getBoundingClientRect().x)
+      .toSorted((a, b) => a.getBoundingClientRect().x - b.getBoundingClientRect().x)
       .map((pane) => ({
         tag: pane.tagName,
         stripId:
@@ -21,7 +21,7 @@ function clickTabInPane(
     ([which, name]) => {
       const panes = [
         ...document.querySelectorAll('lw-content-area, lw-pane-view'),
-      ].sort(
+      ].toSorted(
         (a, b) => a.getBoundingClientRect().x - b.getBoundingClientRect().x,
       );
       const pane = which === 'left' ? panes[0] : panes[panes.length - 1];

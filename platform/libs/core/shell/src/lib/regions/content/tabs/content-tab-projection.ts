@@ -128,7 +128,7 @@ export function facetTabViews(
       (entry): entry is typeof entry & { address: string } =>
         entry.address !== null,
     )
-    .sort(
+    .toSorted(
       (a, b) =>
         (a.route.order ?? 0) - (b.route.order ?? 0) ||
         a.route.path.localeCompare(b.route.path),

@@ -5,7 +5,7 @@
     data-testid="outline-sort"
     (click)="toggleSort()"
   >
-    {{ sort() === 'alpha' ? 'Sort: A–Z' : 'Sort: outline order' }}
+    {{ sortOrder() === 'alpha' ? 'Sort: A–Z' : 'Sort: outline order' }}
   </button>
 </div>
 <ol class="flex flex-col gap-0.5 text-sm">

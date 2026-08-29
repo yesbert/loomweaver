@@ -42,7 +42,7 @@ describe('pane tree queries', () => {
       first: { kind: 'leaf', id: 'a', tabs: [{ path: 'x' }, { path: 'y' }] },
       second: leafOf('b', 'view:z'),
     };
-    expect(collectTabPaths(tree).sort()).toEqual(['view:z', 'x', 'y']);
+    expect(collectTabPaths(tree).toSorted()).toEqual(['view:z', 'x', 'y']);
   });
 
   it('collectTabs returns the full tab objects across every leaf', () => {

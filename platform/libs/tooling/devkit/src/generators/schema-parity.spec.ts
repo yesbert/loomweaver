@@ -38,8 +38,8 @@ describe('Nx generator schemas', () => {
   it.each(SCAFFOLDS.map((scaffold) => [scaffold.name, scaffold] as const))(
     'keeps %s/schema.d.ts in step with the scaffold descriptor',
     (name, scaffold) => {
-      expect(schemaTypeProperties(name).sort()).toEqual(
-        scaffold.options.map((option) => option.name).sort(),
+      expect(schemaTypeProperties(name).toSorted()).toEqual(
+        scaffold.options.map((option) => option.name).toSorted(),
       );
     },
   );

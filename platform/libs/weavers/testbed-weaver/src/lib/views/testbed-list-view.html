@@ -5,7 +5,7 @@
     </p>
     <lw-select
       [attr.label]="'testbed.list.sortLabel' | transloco"
-      [attr.value]="sort()"
+      [attr.value]="sortOrder()"
       (lw-select-change)="onSort($event)"
     >
       <lw-option value="waiting">{{

@@ -62,7 +62,7 @@ describe('PaneDropZones', () => {
     ]);
     fixture.detectChanges();
 
-    expect([...contentZoneIds()].sort()).toEqual([
+    expect([...contentZoneIds()].toSorted()).toEqual([
       `pane-zone:${CONTENT_DOCK}:${PRIMARY_PANE}:bottom`,
       `pane-zone:${CONTENT_DOCK}:${PRIMARY_PANE}:left`,
       `pane-zone:${CONTENT_DOCK}:${PRIMARY_PANE}:right`,

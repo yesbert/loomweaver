@@ -69,7 +69,7 @@ for (const root of roots) {
 }
 
 const sortedByCount = (map) =>
-  Object.fromEntries([...map].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])));
+  Object.fromEntries([...map].toSorted((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])));
 
 if (process.argv[2] === '--write-baseline') {
   writeFileSync(

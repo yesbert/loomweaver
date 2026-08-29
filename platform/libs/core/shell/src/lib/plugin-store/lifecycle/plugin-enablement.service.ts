@@ -35,7 +35,7 @@ export class PluginEnablementService {
     const disabled = this.disabledSet();
     return [...this.names().entries()]
       .map(([id, name]) => ({ id, name, enabled: !disabled.has(id) }))
-      .sort((a, b) => a.name.localeCompare(b.name));
+      .toSorted((a, b) => a.name.localeCompare(b.name));
   });
 
   constructor() {
