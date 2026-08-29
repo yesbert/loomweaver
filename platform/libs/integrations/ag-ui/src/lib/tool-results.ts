@@ -58,6 +58,6 @@ function message(
     role: 'tool',
     toolCallId,
     content,
-    ...(error === undefined ? {} : { error }),
+    ...(error !== undefined && { error }),
   };
 }

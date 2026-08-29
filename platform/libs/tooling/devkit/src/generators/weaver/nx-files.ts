@@ -60,15 +60,13 @@ function projectJson(p: NxWeaverProject): string {
       projectType: 'library',
       tags: p.tags,
       targets: {
-        ...(p.buildTarget
-          ? {
+        ...(p.buildTarget && {
               test: {
                 executor: '@nx/angular:unit-test',
                 outputs: ['{workspaceRoot}/coverage/{projectName}'],
                 options: { buildTarget: p.buildTarget, watch: false },
               },
-            }
-          : {}),
+            }),
         lint: { executor: '@nx/eslint:lint' },
       },
     },
@@ -119,9 +117,7 @@ export function nxWeaverFiles(p: NxWeaverProject): FileMap {
     'project.json': projectJson(p) + '\n',
     'tsconfig.json': tsconfig(p) + '\n',
     'tsconfig.lib.json': tsconfigLib(p) + '\n',
-    ...(p.buildTarget
-      ? { 'tsconfig.spec.json': sharedTsconfigSpec(p.depth) + '\n' }
-      : {}),
+    ...(p.buildTarget && { 'tsconfig.spec.json': sharedTsconfigSpec(p.depth) + '\n' }),
     'eslint.config.mjs': sharedEslintConfig(p.depth, p.prefix),
   };
 }

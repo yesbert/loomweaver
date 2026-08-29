@@ -174,7 +174,7 @@ export class WorkspaceService {
     const origin = this.originOf(this.active.id());
     this.commit([
       ...this.list(),
-      { id, name, baseline, ...(origin === null ? {} : { origin }) },
+      { id, name, baseline, ...(origin !== null && { origin }) },
     ]);
     this.active.set(id);
     this.applyState(baseline);
@@ -317,10 +317,8 @@ export class WorkspaceService {
       declaredPaths: (region) => this.panelGroups.declaredPaths(region),
     });
     return {
-      ...(state.hiddenViews === undefined
-        ? {}
-        : { [HIDDEN_VIEWS_KEY]: state.hiddenViews }),
-      ...(state.trees === undefined ? {} : { [PANE_TREES_KEY]: state.trees }),
+      ...(state.hiddenViews !== undefined && { [HIDDEN_VIEWS_KEY]: state.hiddenViews }),
+      ...(state.trees !== undefined && { [PANE_TREES_KEY]: state.trees }),
     };
   }
 

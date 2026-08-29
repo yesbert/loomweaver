@@ -7,12 +7,7 @@
 // hint stays visible.
 const target = process.env.API_HTTPS || process.env.API_HTTP;
 
-if (!target) {
-  console.warn(
-    '[proxy] API endpoint not configured — /api proxy disabled. Run via Aspire (`aspire run`) for a working backend.',
-  );
-  module.exports = {};
-} else {
+if (target) {
   module.exports = {
     '/api': {
       target,
@@ -20,4 +15,9 @@ if (!target) {
       changeOrigin: true,
     },
   };
+} else {
+  console.warn(
+    '[proxy] API endpoint not configured — /api proxy disabled. Run via Aspire (`aspire run`) for a working backend.',
+  );
+  module.exports = {};
 }

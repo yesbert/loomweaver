@@ -62,10 +62,12 @@ export class RailWorkspaceEntries {
   private reconcile(): void {
     const wanted = this.wantedItems();
     for (const [id, registration] of this.registered) {
-      if (!wanted.has(id)) {
-        registration.disposable.dispose();
-        this.registered.delete(id);
+      if (wanted.has(id)) {
+        continue;
       }
+
+      registration.disposable.dispose();
+      this.registered.delete(id);
     }
     for (const [id, item] of wanted) {
       const current = this.registered.get(id);

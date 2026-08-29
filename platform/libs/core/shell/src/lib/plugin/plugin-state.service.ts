@@ -66,11 +66,13 @@ export class PluginStateService {
   removePlugin(pluginId: string): void {
     const snapshot = [...this.entries];
     for (const [storageKey, entry] of snapshot) {
-      if (entry.pluginId === pluginId) {
-        this.cancelPending(entry);
-        entry.value.set(undefined);
-        this.entries.delete(storageKey);
+      if (entry.pluginId !== pluginId) {
+        continue;
       }
+
+      this.cancelPending(entry);
+      entry.value.set(undefined);
+      this.entries.delete(storageKey);
     }
     this.keysByPlugin.delete(pluginId);
     void readStoredValue(this.store, INDEX_PREFIX + pluginId).then((raw) => {

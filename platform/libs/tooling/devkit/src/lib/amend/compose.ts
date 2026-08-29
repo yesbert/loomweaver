@@ -106,7 +106,7 @@ function withShellSymbols(existing: string): string {
     .map((symbol) => symbol.trim())
     .filter(Boolean);
   const missing = wanted.filter(
-    (symbol) => !present.some((entry) => entry.replace(/^type\s+/, '') === symbol),
+    (symbol) => present.every((entry) => entry.replace(/^type\s+/, '') !== symbol),
   );
   if (missing.length === 0) {
     return existing;

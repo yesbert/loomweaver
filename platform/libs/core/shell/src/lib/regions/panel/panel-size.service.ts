@@ -24,11 +24,13 @@ function parseWidths(raw: string | undefined): Record<string, number> {
     }
     const result: Record<string, number> = {};
     for (const [key, value] of Object.entries(parsed)) {
-      if (typeof value === 'number' && Number.isFinite(value)) {
-        const clamped = clampWidth(value);
-        if (clamped !== DEFAULT_PANEL_WIDTH) {
-          result[key] = clamped;
-        }
+      if (!(typeof value === 'number' && Number.isFinite(value))) {
+        continue;
+      }
+
+      const clamped = clampWidth(value);
+      if (clamped !== DEFAULT_PANEL_WIDTH) {
+        result[key] = clamped;
       }
     }
     return result;

@@ -372,7 +372,7 @@ export class LwSelectElement extends HTMLElement {
         !choice.disabled &&
         choice.label.toLowerCase().startsWith(this.typeahead),
     );
-    if (match >= 0) {
+    if (match !== -1) {
       this.setActive(match);
     }
   }

@@ -381,7 +381,7 @@ export class OpenTabsService {
       const index = tabs.findIndex(
         (tab) => tabRootOf(routes, tab.path) === root,
       );
-      if (index >= 0) {
+      if (index !== -1) {
         return withRefreshedPath(tabs, index, path);
       }
       const opened = autoOpenedTab(route, root, path);
@@ -398,7 +398,7 @@ export class OpenTabsService {
       route !== undefined &&
       route.chromeless !== true &&
       route.follows !== true &&
-      !(normalizePath(route.path) === '' && normalizePath(tab.path) !== '')
+      (normalizePath(route.path) !== '' || normalizePath(tab.path) === '')
     );
   }
 }

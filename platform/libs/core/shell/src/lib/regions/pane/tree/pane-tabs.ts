@@ -11,7 +11,7 @@ export function insertTab(
     const existingIndex = leaf.tabs.findIndex(
       (existing) => existing.path === tab.path,
     );
-    if (existingIndex >= 0) {
+    if (existingIndex !== -1) {
       const tabs = leaf.tabs.map((existing, i) =>
         i === existingIndex ? tab : existing,
       );
@@ -71,7 +71,7 @@ function refineLeafTitles(
       ...tab,
       title: patch.title,
       literalTitle: patch.literalTitle,
-      ...(patch.icon === undefined ? {} : { icon: patch.icon }),
+      ...(patch.icon !== undefined && { icon: patch.icon }),
     };
   });
   return found
@@ -147,7 +147,7 @@ export function pinTab(
 ): PaneNode {
   return transformLeaf(node, paneId, (leaf) => {
     const index = leaf.tabs.findIndex((tab) => tab.path === tabPath);
-    if (index < 0 || leaf.tabs[index].pinned === true) {
+    if (index === -1 || leaf.tabs[index].pinned === true) {
       return leaf;
     }
     const pinned: PaneTab = {
@@ -167,7 +167,7 @@ export function unpinTab(
     const index = leaf.tabs.findIndex(
       (tab) => tab.path === tabPath && tab.pinned,
     );
-    if (index < 0) {
+    if (index === -1) {
       return leaf;
     }
     const unpinned = tabWithout(leaf.tabs[index], 'pinned');

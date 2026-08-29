@@ -45,7 +45,7 @@ export class PaneChromeService {
   clearMinimized(dock: string): void {
     const prefix = `${dock}:`;
     const current = this.min();
-    if (![...current].some((id) => id.startsWith(prefix))) {
+    if ([...current].every((id) => !id.startsWith(prefix))) {
       return;
     }
     this.min.set(new Set([...current].filter((id) => !id.startsWith(prefix))));

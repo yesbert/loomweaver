@@ -41,7 +41,7 @@ export function addedCapabilities(
   entry: PluginCatalogEntry,
   installed: InstalledPlugin,
 ): readonly Capability[] {
-  const consented = new Set(installed.capabilities ?? []);
+  const consented = new Set(installed.capabilities);
   return (entry.capabilities ?? []).filter(
     (capability) => !consented.has(capability),
   );

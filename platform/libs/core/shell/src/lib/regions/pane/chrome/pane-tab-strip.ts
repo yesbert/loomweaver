@@ -206,7 +206,7 @@ export class PaneTabStrip {
         targetKind: 'view-tab',
         viewId: tab.path.slice(VIEW_PANE_PREFIX.length),
         region: this.contextGroup(),
-        ...(tab.instance ? { instance: tab.instance } : {}),
+        ...(tab.instance && { instance: tab.instance }),
       };
     }
     return {

@@ -59,7 +59,7 @@ export function scaffold(
   const remaining = (scaffold.amend?.(values) ?? []).map(describeAmendment);
   return ok({
     files: scaffold.build(values),
-    ...(remaining.length > 0 ? { remaining } : {}),
+    ...(remaining.length > 0 && { remaining }),
   });
 }
 

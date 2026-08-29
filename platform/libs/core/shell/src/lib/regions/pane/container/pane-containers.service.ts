@@ -60,13 +60,11 @@ export class PaneContainersService {
     const tab: PaneTab = {
       path,
       instance: `${dock}::${path}`,
-      ...(label?.title === undefined
-        ? {}
-        : {
+      ...(label?.title !== undefined && {
             title: label.title,
             literalTitle: label.titleIsLiteral ?? false,
           }),
-      ...(label?.icon === undefined ? {} : { icon: label.icon }),
+      ...(label?.icon !== undefined && { icon: label.icon }),
     };
     this.paneTree.commit(dock, setActiveTab(insertTab(tree, target, tab), target, path));
   }

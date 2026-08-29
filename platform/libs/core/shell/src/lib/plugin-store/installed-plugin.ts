@@ -171,7 +171,7 @@ function dedupeById<T extends { readonly id: string }>(
 ): readonly T[] {
   const result: T[] = [];
   for (const item of items) {
-    if (item && !result.some((existing) => existing.id === item.id)) {
+    if (item && result.every((existing) => existing.id !== item.id)) {
       result.push(item);
     }
   }

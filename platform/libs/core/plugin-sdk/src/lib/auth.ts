@@ -66,8 +66,8 @@ export function meetsAccess(
     return false;
   }
   const held = new Set(snapshot.roles);
-  if (access.anyRole?.length && !access.anyRole.some((role) => held.has(role))) return false;
-  if (access.allRoles?.length && !access.allRoles.every((role) => held.has(role))) return false;
+  if (access.anyRole?.length && access.anyRole.every((role) => !held.has(role))) return false;
+  if (access.allRoles?.length && access.allRoles.some((role) => !held.has(role))) return false;
   return true;
 }
 

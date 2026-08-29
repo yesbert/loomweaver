@@ -128,7 +128,7 @@ export class ContentTabsService {
       const index = tabs.findIndex(
         (tab) => tabRootOf(routes, tab.path) === root,
       );
-      return index < 0 || tabs[index].pinned
+      return index === -1 || tabs[index].pinned
         ? tabs
         : reseatPinned(tabs, index, tabs[index]);
     });
@@ -307,7 +307,7 @@ export class ContentTabsService {
       const index = tabs.findIndex(
         (tab) => tabRootOf(routes, tab.path) === root,
       );
-      if (index < 0 || tabs[index].pinned === pinned) {
+      if (index === -1 || tabs[index].pinned === pinned) {
         return tabs;
       }
       const updated = pinned

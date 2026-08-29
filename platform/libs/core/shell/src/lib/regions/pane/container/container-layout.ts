@@ -90,7 +90,7 @@ function bakeChild(
   return {
     tab: {
       ...containerChildTab(dock, spec, declared.surface),
-      ...(declared.closable === false ? { closable: false } : {}),
+      ...(declared.closable === false && { closable: false }),
     },
     active: declared.active === true,
   };

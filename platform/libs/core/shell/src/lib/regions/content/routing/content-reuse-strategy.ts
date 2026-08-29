@@ -91,11 +91,13 @@ export class ContentReuseStrategy implements RouteReuseStrategy {
 
   pruneExcept(isLive: (key: string) => boolean): void {
     for (const [key, handle] of this.handles) {
-      if (!isLive(key)) {
-        (handle as HandleWithRef).componentRef?.destroy();
-        this.handles.delete(key);
-        this.changes.update((value) => value + 1);
+      if (isLive(key)) {
+        continue;
       }
+
+      (handle as HandleWithRef).componentRef?.destroy();
+      this.handles.delete(key);
+      this.changes.update((value) => value + 1);
     }
   }
 }

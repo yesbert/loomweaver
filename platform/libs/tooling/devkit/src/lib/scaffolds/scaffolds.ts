@@ -360,9 +360,9 @@ export function nxSchemaFor(
     properties[option.name] = {
       type: option.type,
       description: option.description,
-      ...(option.pattern ? { pattern: option.pattern } : {}),
-      ...(option.choices ? { enum: option.choices } : {}),
-      ...(option.default === undefined ? {} : { default: option.default }),
+      ...(option.pattern && { pattern: option.pattern }),
+      ...(option.choices && { enum: option.choices }),
+      ...(option.default !== undefined && { default: option.default }),
     };
   }
   return {
