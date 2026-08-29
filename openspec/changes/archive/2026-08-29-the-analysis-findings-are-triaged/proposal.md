@@ -1,4 +1,7 @@
-> **Status:** proposed — not approved for implementation yet.
+> **Status:** approved — the owner released the whole triage on 2026-08-29 ("es ist alles
+> freigegeben") and the work ran from that instruction rather than from this file. What it did,
+> and where it went beyond what this proposal foresaw, is in design.md under *What the work
+> decided that this note did not*.
 
 ## Why
 

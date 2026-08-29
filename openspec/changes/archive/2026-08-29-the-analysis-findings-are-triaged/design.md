@@ -109,3 +109,42 @@ No deployment and nothing to roll back. The sequence is the only ordering that m
 4. The judgement slices last: `S2871`, then the complexity findings.
 5. The hotspots are reviewed once, at the end, together.
 6. The final run is checked for a green gate. If it is not green, the remainder is named.
+
+## What the work decided that this note did not
+
+Written after the fact, on 2026-08-29, because the work departed from the plan above in four ways
+and an archive that does not say so is worse than no archive.
+
+**The count had moved, and by more than a little.** This note was written against 83 findings and 3
+hotspots. The run the work started from carried 93 violations, 10 bugs, 83 code smells and 7
+hotspots, all seven of them the same super-linear regular expression in seven files. Task 1.1
+existed for exactly this and was the first thing done.
+
+**Most of the recorded "no" went into ESLint, not into `sonar-project.properties`.** The decision
+above was that a refusal has to be readable in the repository rather than in a server's database,
+and that still holds. What changed is where. Only one exemption ended up in the properties file, for
+the two `MouseEventWithoutKeyboardEquivalentCheck` findings on the tab strip. Everything else that
+needed a written refusal ended up beside a rule in `platform/eslint.config.mjs`, because the work
+turned from clearing findings into preventing them: `eslint-plugin-regexp` now carries the two rules
+that produce the same super-linear analysis SonarQube runs, and `eslint-plugin-unicorn` carries 285
+of the rules that produced most of the 93. Both run in the pull request, where the properties file's
+verdicts are read only overnight.
+
+**Prevention was not in scope and turned out to be the point.** Clearing 93 findings buys one green
+run. The rules that now fail a pull request buy the state. The same reasoning extended twice more:
+the language target rose from ES2015/ES2020 to ES2022/ES2023, which is what let the analysis see
+`.at()`, `Object.hasOwn` and top-level await as available at all, and `platform/tools/` became an Nx
+project so that the scripts enforcing this repository's own rules are themselves linted. Neither was
+foreseen here, and both found defects: the raised target surfaced three reads past the end of an
+array, and the newly linted `tools/` had been scanned by nothing at all.
+
+**The hotspots were fixed rather than reviewed.** The plan was to set each of the three to a verdict
+in Sonar and record the reasoning here, since review state is server-side. All seven were instead
+rewritten so the pattern cannot backtrack, which needs no server-side state and leaves nothing for a
+recreated project to lose. The `PROVIDERS` pattern in `devkit/src/lib/amend/compose.ts` was the one
+that resisted, and it is now a small scan rather than a regular expression.
+
+One thing this note got right and is worth keeping: the finding count is the wrong measure of value.
+The three real defects came from rules with one, seven and five findings, while the largest single
+rule in the sweep, 40 instances of a callback passed by reference, turned up nothing at all.
+
