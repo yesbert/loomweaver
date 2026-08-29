@@ -23,7 +23,10 @@ npm run build    # static site into dist/
   brand assets come from `assets/brand/`
 
 `generated/` and `public/` are therefore build output and are gitignored. Edit `docs/`, never the
-copies. The landing page is hand-written and lives in `landing/index.mdx`.
+copies. The landing page is not documentation: it is `src/pages/index.astro` with
+`src/styles/landing.css`, and it renders through `StarlightPage` so the header, the search and the
+footer stay the site's. Its screenshots are single-sourced in `assets/screenshots/`, copied into
+`public/screenshots/` by the sync, and a missing one fails the build.
 
 ## The pages that are not documentation
 

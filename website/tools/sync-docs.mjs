@@ -126,8 +126,19 @@ for (const file of VERBATIM) {
   copyFileSync(from, path.join(publicDir, file));
 }
 
-const landing = path.join(websiteRoot, 'landing/index.mdx');
-copyFileSync(landing, path.join(contentDir, 'index.mdx'));
+/* The landing page is src/pages/index.astro, so nothing is copied into the docs collection for
+   the root route. What it does need is its media, single-sourced in assets/media so the README and
+   the site show the same tour. A missing file fails the build rather than shipping a broken image. */
+const mediaDir = path.join(publicDir, 'media');
+mkdirSync(mediaDir, { recursive: true });
+for (const asset of ['command-palette.png', 'tour.webm', 'tour.mp4', 'tour-poster.jpg']) {
+  const from = path.join(repoRoot, 'assets/media', asset);
+  if (!existsSync(from)) {
+    problems.push(`missing landing media: assets/media/${asset}`);
+    continue;
+  }
+  copyFileSync(from, path.join(mediaDir, asset));
+}
 
 /** Brand assets stay single-sourced in assets/brand; the site copies what it needs. */
 const assetsDir = path.join(websiteRoot, 'generated/assets');

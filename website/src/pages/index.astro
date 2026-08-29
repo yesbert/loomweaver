@@ -1,0 +1,263 @@
+---
+import { Code } from '@astrojs/starlight/components';
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import '../styles/landing.css';
+
+const mcpConfig = `{
+  "mcpServers": {
+    "loomweaver": { "command": "npx", "args": ["-y", "@loomweaver/mcp"] }
+  }
+}`;
+
+const commandExample = `ctx.registerCommand({
+  id: 'invoices.export',
+  title: 'invoices.export',
+  description: 'Export the selected invoices as CSV',
+  arguments: [
+    { name: 'range', kind: 'choice', choices: ['month', 'quarter', 'year'], required: true },
+  ],
+  callable: true,
+  run: (_context, args) => exportInvoices(String(args?.['range'])),
+});`;
+
+const quickStart = `# a fresh Angular app, or the one you already have
+ng new my-studio --style=css --ssr=false && cd my-studio
+
+# the platform
+npm install @loomweaver/shell @loomweaver/plugin-sdk @angular/cdk @jsverse/transloco \\
+  @ng-icons/heroicons @angular/service-worker
+npm install -D tailwindcss @tailwindcss/postcss @tailwindcss/typography
+
+# your product, and a first plugin already contributing to it
+npx @loomweaver/cli distribution --name my-studio --title "My Studio" --out . --force
+npx @loomweaver/cli weaver --id notes --command --shortcut 'mod+shift+n' --out src/notes
+
+ng serve`;
+
+const included = [
+  'Tab groups with drag-to-split panes, and any tab pops out into its own window',
+  'A command palette (⌘K) and quick open (⌘P), with preview tabs and pinning',
+  'Named workspaces that remember their own arrangement',
+  'Theming from semantic tokens: bring Tailwind, bring Bootstrap, bring nothing',
+  'i18n with namespaced composition, so two plugins can never collide on a key',
+  'WCAG 2.1 AA accessibility the host meets and your plugins inherit',
+  'An installable PWA with an update flow that actually works',
+  'Live state sync across windows and tabs',
+  'Save, discard or cancel when an editor closes with unsaved work',
+  'Auth-aware chrome: contributions declare the access they need, the shell reacts',
+];
+
+const rungs = [
+  {
+    name: 'Trusted, in-process',
+    body: 'Your own weavers, composed at build time. Full reach, because you wrote them.',
+  },
+  {
+    name: 'Sandboxed iframe',
+    body: 'Somebody else’s code in its own JS context, opaque origin, no reach into your DOM. Write the body in React, Vue, Svelte or plain JS.',
+  },
+  {
+    name: 'Installed at runtime',
+    body: 'From your curated catalog, with a consent dialog the user answers and an update path driven by the catalog version.',
+  },
+];
+---
+
+<StarlightPage
+  frontmatter={{
+    title: 'LoomWeaver',
+    description:
+      'The workbench your product runs in: panes, tabs, a command palette, theming and a plugin store, ready on day one. Your domain arrives as a plugin, and so does everyone else’s.',
+    template: 'splash',
+    tableOfContents: false,
+  }}
+  hasSidebar={false}
+>
+  <div class="lw-landing">
+    <section class="hero">
+      <p class="eyebrow">Apache 2.0 · seven npm packages · ships no server</p>
+      <h1>Build the product.<br />Not the workbench.</h1>
+      <p class="lead">
+        LoomWeaver gives your app the workbench of VS&nbsp;Code or Obsidian on the first day: panes,
+        tabs, a command palette, theming, i18n and a plugin store. Your domain arrives as a plugin.
+        So does everyone else’s.
+      </p>
+      <div class="actions">
+        <a class="btn primary" href="/getting-started/">Start in 5 minutes</a>
+        <a class="btn" href="/architecture/">See the architecture</a>
+        <a class="btn ghost" href="https://github.com/yesbert/loomweaver">GitHub</a>
+      </div>
+    </section>
+
+    <figure class="shot tour">
+      <video
+        autoplay
+        muted
+        loop
+        playsinline
+        controls
+        preload="metadata"
+        poster="/media/tour-poster.jpg"
+        width="1280"
+        height="800"
+        aria-label="A tour of a LoomWeaver workbench: opening the command palette, splitting a pane, a sandboxed non-Angular plugin, and a plugin re-skinning the whole application"
+      >
+        <source src="/media/tour.webm" type="video/webm" />
+        <source src="/media/tour.mp4" type="video/mp4" />
+      </video>
+      <figcaption>
+        Twenty-six seconds, no cuts. The rail, the panes, the palette and the status bar are the
+        platform’s. Everything inside them comes from plugins, including the theme at the end.
+      </figcaption>
+    </figure>
+    <script is:inline>
+      const tour = document.querySelector('.tour video');
+      if (tour && matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        tour.autoplay = false;
+        tour.pause();
+      }
+    </script>
+
+    <section class="doors">
+      <h2>Two reasons people pick this up</h2>
+      <div class="door-grid">
+        <article class="door">
+          <p class="eyebrow">If you build with an AI assistant</p>
+          <h3>It learns this UI once, then it knows every project you start.</h3>
+          <p>
+            Right now every new project means teaching it your structure, your routing and your
+            conventions all over again. You write another instructions file, and it still invents
+            things. The UI is exactly where it invents most.
+          </p>
+          <p>
+            LoomWeaver is the same workbench every time, and it is written down for machines:
+            <a href="/llms.txt">llms.txt</a> as the map, <a href="/llms-full.txt">llms-full.txt</a> as
+            the whole contract in a single fetch, and <code>@loomweaver/mcp</code> so your assistant
+            scaffolds a weaver with tools instead of guesses.
+          </p>
+          <Code code={mcpConfig} lang="json" title=".mcp.json" />
+          <p class="aside">
+            Then just ask for it: “add a weaver called invoices with a command and a settings
+            section”.
+          </p>
+        </article>
+
+        <article class="door">
+          <p class="eyebrow">If you want your users to extend it</p>
+          <h3>A plugin system is not a feature. It is half a year. This one is already here.</h3>
+          <p>
+            You built a good tool. People have ideas, and some of them would build those ideas
+            themselves if they could. They can’t, because there is no way in, and opening one means
+            isolation, permissions, a store, updates and an API you promise not to break.
+          </p>
+          <p>
+            All of that is here. And there is no privileged host API: your own product UI goes
+            through the exact same door a stranger’s plugin does, which is the only reason a
+            published contract does not quietly rot. Your community can do everything you can do.
+          </p>
+          <p class="aside">
+            That is how Obsidian got big. The plugins made the product, not the roadmap.
+          </p>
+        </article>
+      </div>
+
+      <p class="bridge">
+        And the two feed each other. Somebody who wants to contribute to <em>your</em> tool points
+        their own assistant at your <code>llms-full.txt</code> and starts.
+        <strong>Your contributor onboarding is a URL.</strong>
+      </p>
+    </section>
+
+    <section class="feature">
+      <div class="feature-text">
+        <h2>Register the action once. It is a button, a shortcut, a palette entry and an agent tool.</h2>
+        <p>
+          The rail item, the keystroke, the context menu and the command palette already point at the
+          same command. <code>callable: true</code> adds one more caller: an agent, through
+          <code>@loomweaver/ag-ui</code>. You never keep a second list of tools beside the first, and
+          the guarantee holds without you writing a line of it.
+        </p>
+        <p class="rule">An agent reaches what the user could have reached, and nothing more.</p>
+        <p>
+          <a href="/reference/callable-commands/">Callable commands</a> ·
+          <a href="/reference/agent-tools/">Agent tools</a>
+        </p>
+      </div>
+      <Code code={commandExample} lang="ts" title="your weaver" />
+    </section>
+
+    <figure class="shot narrow">
+      <img
+        src="/media/command-palette.png"
+        alt="The LoomWeaver command palette open over a dashboard, listing commands contributed by plugins"
+        width="1880"
+        height="1400"
+        loading="lazy"
+      />
+      <figcaption>
+        Every command in the palette was contributed by a plugin. So was the dashboard behind it.
+      </figcaption>
+    </figure>
+
+    <section class="checklist">
+      <h2>What you would otherwise build twice</h2>
+      <ul>
+        {included.map((item) => <li>{item}</li>)}
+      </ul>
+    </section>
+
+    <section class="rungs">
+      <h2>Three rungs of trust, not one switch</h2>
+      <div class="rung-grid">
+        {
+          rungs.map((rung, index) => (
+            <article class="rung">
+              <span class="num">{index + 1}</span>
+              <h3>{rung.name}</h3>
+              <p>{rung.body}</p>
+            </article>
+          ))
+        }
+      </div>
+      <p class="bridge">
+        All three consume the same <code>ctx</code>, behind a default-deny capability broker the user
+        can inspect and revoke. Moving a plugin down a rung is a change of trust, not a rewrite.
+      </p>
+    </section>
+
+    <section class="feature reverse">
+      <div class="feature-text">
+        <h2>Frontend only, on purpose</h2>
+        <p>
+          LoomWeaver ships no server. Settings, working state and auth are frontend ports with local
+          defaults, so the UI runs standalone from the first minute and you wire it to your own
+          backend, in any stack, when you are ready.
+        </p>
+        <p>
+          Nothing about your domain lives in the core, and nothing ever can. A product is a
+          distribution that composes the published packages, the way VSCodium is of VS&nbsp;Code. It
+          never forks anything.
+        </p>
+        <p>
+          <a href="/backend-integration/">Backend integration</a> ·
+          <a href="/building-a-distribution/">Building a distribution</a>
+        </p>
+      </div>
+      <Code code={quickStart} lang="bash" frame="terminal" />
+    </section>
+
+    <section class="cta">
+      <h2>Five minutes to a running product</h2>
+      <p>
+        The scaffold wires the build, the styles, the service worker and the content-security policy,
+        registers your first weaver in the composition root, and names every file it touched. It only
+        ever adds.
+      </p>
+      <div class="actions">
+        <a class="btn primary" href="/getting-started/">Get started</a>
+        <a class="btn" href="/samples/">Copyable recipes</a>
+        <a class="btn ghost" href="https://demo.loomweaver.dev">Live demo</a>
+      </div>
+    </section>
+  </div>
+</StarlightPage>
