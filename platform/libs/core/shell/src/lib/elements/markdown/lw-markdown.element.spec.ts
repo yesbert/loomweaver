@@ -1,10 +1,10 @@
 import { defineLwMarkdown, LW_MARKDOWN_TAG } from './lw-markdown.element';
 
 function render(source: string): string {
-  const el = document.createElement(LW_MARKDOWN_TAG);
-  el.setAttribute('source', source);
-  document.body.append(el);
-  return el.querySelector('.prose')?.innerHTML ?? '';
+  const element = document.createElement(LW_MARKDOWN_TAG);
+  element.setAttribute('source', source);
+  document.body.append(element);
+  return element.querySelector('.prose')?.innerHTML ?? '';
 }
 
 describe('<lw-markdown> custom element', () => {
@@ -32,10 +32,10 @@ describe('<lw-markdown> custom element', () => {
   });
 
   it('re-renders when the source attribute changes', () => {
-    const el = document.createElement(LW_MARKDOWN_TAG);
-    el.setAttribute('source', '*one*');
-    document.body.append(el);
-    el.setAttribute('source', '*two*');
-    expect(el.querySelector('.prose')?.innerHTML).toContain('<em>two</em>');
+    const element = document.createElement(LW_MARKDOWN_TAG);
+    element.setAttribute('source', '*one*');
+    document.body.append(element);
+    element.setAttribute('source', '*two*');
+    expect(element.querySelector('.prose')?.innerHTML).toContain('<em>two</em>');
   });
 });

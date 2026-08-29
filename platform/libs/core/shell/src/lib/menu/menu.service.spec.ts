@@ -146,7 +146,7 @@ describe('MenuService', () => {
 
     service.open('m', context, { x: 0, y: 0 });
 
-    expect(items().map((i) => i.getAttribute('command'))).toEqual([
+    expect(items().map((index) => index.getAttribute('command'))).toEqual([
       'c.a',
       'c.b',
     ]);
@@ -165,8 +165,8 @@ describe('MenuService', () => {
     service.open('m', context, { x: 0, y: 0 });
 
     const rendered = items();
-    expect(rendered.map((i) => i.getAttribute('command'))).toEqual(['c.close']);
-    expect(rendered.some((i) => i.getAttribute('label') === 'c.omitted')).toBe(
+    expect(rendered.map((index) => index.getAttribute('command'))).toEqual(['c.close']);
+    expect(rendered.some((index) => index.getAttribute('label') === 'c.omitted')).toBe(
       false,
     );
   });
@@ -347,7 +347,7 @@ describe('MenuService', () => {
 
     service.open('m', context, { x: 0, y: 0 });
 
-    expect(items().map((i) => i.getAttribute('label'))).toEqual(['Close']);
+    expect(items().map((index) => index.getAttribute('label'))).toEqual(['Close']);
   });
 
   it('does not leak the outside listener of a menu replaced before its listener attached', () => {
@@ -408,11 +408,11 @@ describe('MenuService', () => {
       );
 
       const rows = items();
-      expect(rows.map((i) => i.getAttribute('command'))).toEqual([
+      expect(rows.map((index) => index.getAttribute('command'))).toEqual([
         'doc/a',
         'doc/b',
       ]);
-      expect(rows.map((i) => i.getAttribute('label'))).toEqual([
+      expect(rows.map((index) => index.getAttribute('label'))).toEqual([
         'a.ts',
         'b.ts',
       ]);

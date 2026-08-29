@@ -12,8 +12,8 @@ export function insertTab(
       (existing) => existing.path === tab.path,
     );
     if (existingIndex !== -1) {
-      const tabs = leaf.tabs.map((existing, i) =>
-        i === existingIndex ? tab : existing,
+      const tabs = leaf.tabs.map((existing, index_) =>
+        index_ === existingIndex ? tab : existing,
       );
       return { ...leaf, tabs, active: tab.path };
     }

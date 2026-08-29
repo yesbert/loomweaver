@@ -1,3 +1,3 @@
-import { nodeLibTestConfig } from '../../../tools/vitest-base.mts';
+import { nodeLibTestConfig as nodeLibraryTestConfig } from '../../../tools/vitest-base.mts';
 
-export default nodeLibTestConfig('devkit', import.meta.dirname);
+export default nodeLibraryTestConfig('devkit', import.meta.dirname);

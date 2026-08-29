@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 const devkit = fileURLToPath(new URL('../devkit/src/index.ts', import.meta.url));
 const outfile = fileURLToPath(new URL('dist/main.mjs', import.meta.url));
-const pkg = JSON.parse(
+const package_ = JSON.parse(
   readFileSync(fileURLToPath(new URL('package.json', import.meta.url)), 'utf8'),
 );
 
@@ -17,7 +17,7 @@ await build({
   target: 'node20',
   banner: { js: '#!/usr/bin/env node' },
   alias: { '@loomweaver/devkit': devkit },
-  define: { 'process.env.LOOM_CLI_VERSION': JSON.stringify(pkg.version) },
+  define: { 'process.env.LOOM_CLI_VERSION': JSON.stringify(package_.version) },
 });
 
 chmodSync(outfile, 0o755);

@@ -42,20 +42,20 @@ export function resolveApp(tree: Tree, app?: string): ResolvedApp {
     }
     return { name: app, root: project.root };
   }
-  const applications = [...projects].filter(
+  const apps = [...projects].filter(
     ([, project]) =>
       project.projectType === 'application' && project.targets?.['build'],
   );
-  if (applications.length === 1) {
-    return { name: applications[0][0], root: applications[0][1].root };
+  if (apps.length === 1) {
+    return { name: apps[0][0], root: apps[0][1].root };
   }
-  if (applications.length === 0) {
+  if (apps.length === 0) {
     throw new Error(
       'This workspace has no application project with a build target. Pass --app with the target project name.',
     );
   }
   throw new Error(
-    `This workspace has several applications (${applications
+    `This workspace has several applications (${apps
       .map(([name]) => name)
       .join(', ')}). Pass --app to choose one.`,
   );
@@ -153,7 +153,7 @@ function usesTailwind(css: string): boolean {
 export function addTailwindSource(
   tree: Tree,
   app: string,
-  libSourceRoot: string,
+  librarySourceRoot: string,
 ): void {
   const project = readProjectConfiguration(tree, app);
   const stylesheet = entryStylesheet(
@@ -167,7 +167,7 @@ export function addTailwindSource(
     return;
   }
   const from = posix.dirname(stylesheet);
-  const target = posix.relative(from, libSourceRoot);
+  const target = posix.relative(from, librarySourceRoot);
   if (new RegExp(String.raw`@source\s+['"]${target}/?['"]`).test(css)) {
     return;
   }

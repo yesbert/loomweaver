@@ -90,21 +90,21 @@ const DIRECTIVE =
 // A file whose every comment is a provenance or generation banner it did not write itself.
 const GENERATED_FILE = /\b(GENERATED|DO NOT EDIT|auto-generated)\b/i;
 
-function walk(dir, out, exts) {
+function walk(dir, out, extensions) {
   for (const entry of readdirSync(dir)) {
     if (SKIP_DIRS.has(entry)) continue;
     const full = path.join(dir, entry);
-    if (statSync(full).isDirectory()) walk(full, out, exts);
-    else if (exts.some((e) => entry.endsWith(e)) && !CONFIG_FILE.test(entry))
+    if (statSync(full).isDirectory()) walk(full, out, extensions);
+    else if (extensions.some((e) => entry.endsWith(e)) && !CONFIG_FILE.test(entry))
       out.push(full);
   }
 }
 
-function collect(roots, exts) {
+function collect(roots, extensions) {
   const out = [];
   for (const r of roots) {
     const full = path.join(repoRoot, r);
-    if (existsSync(full)) walk(full, out, exts);
+    if (existsSync(full)) walk(full, out, extensions);
   }
   return out.sort();
 }

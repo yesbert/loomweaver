@@ -21,17 +21,17 @@ function transloco() {
   });
 }
 
-function setup(opts: {
+function setup(options: {
   enabled: boolean;
   available: boolean;
   failed?: boolean;
   broken?: boolean;
 }) {
   const fake = {
-    enabled: opts.enabled,
-    updateAvailable: signal(opts.available),
-    updateFailed: signal(opts.failed ?? false),
-    updateBroken: signal(opts.broken ?? false),
+    enabled: options.enabled,
+    updateAvailable: signal(options.available),
+    updateFailed: signal(options.failed ?? false),
+    updateBroken: signal(options.broken ?? false),
     checkForUpdate: vi.fn(),
     activateUpdate: vi.fn(),
   };

@@ -53,19 +53,19 @@ export class PaneSplitHandle {
       return;
     }
     const rect = parent.getBoundingClientRect();
-    const el = this.host.nativeElement;
-    el.setPointerCapture(event.pointerId);
+    const element = this.host.nativeElement;
+    element.setPointerCapture(event.pointerId);
     event.preventDefault();
     const move = (e: PointerEvent) =>
       this.ratioStream.emit(this.fraction(e, rect));
     const up = (e: PointerEvent) => {
-      el.releasePointerCapture(e.pointerId);
-      el.removeEventListener('pointermove', move);
-      el.removeEventListener('pointerup', up);
+      element.releasePointerCapture(e.pointerId);
+      element.removeEventListener('pointermove', move);
+      element.removeEventListener('pointerup', up);
       this.ratioCommit.emit();
     };
-    el.addEventListener('pointermove', move);
-    el.addEventListener('pointerup', up);
+    element.addEventListener('pointermove', move);
+    element.addEventListener('pointerup', up);
   }
 
   protected onKeydown(event: KeyboardEvent): void {

@@ -275,21 +275,21 @@ export class PaneTabStrip {
   }
 
   private observeResize(): void {
-    const el = this.strip()?.nativeElement;
-    if (!el || typeof ResizeObserver === 'undefined') {
+    const element = this.strip()?.nativeElement;
+    if (!element || typeof ResizeObserver === 'undefined') {
       return;
     }
     const observer = new ResizeObserver(
       () => this.overflow() && this.measureOverflow(),
     );
-    observer.observe(el);
+    observer.observe(element);
     this.destroyRef.onDestroy(() => observer.disconnect());
   }
 
   private measureOverflow(): void {
-    const el = this.strip()?.nativeElement;
+    const element = this.strip()?.nativeElement;
     this.overflowing.set(
-      !!el && el.scrollWidth - el.clientWidth > EDGE_TOLERANCE_PX,
+      !!element && element.scrollWidth - element.clientWidth > EDGE_TOLERANCE_PX,
     );
   }
 

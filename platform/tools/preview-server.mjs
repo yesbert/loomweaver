@@ -82,8 +82,8 @@ const fileFor = (url) => {
 
 const server = createServer(
   { cert: readFileSync(certFile), key: readFileSync(keyFile) },
-  (req, res) => {
-    const file = fileFor(req.url ?? '/');
+  (request, res) => {
+    const file = fileFor(request.url ?? '/');
     if (!file) {
       res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' });
       res.end('Not found');

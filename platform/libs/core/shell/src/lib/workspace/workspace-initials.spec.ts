@@ -2,9 +2,9 @@ import { assignWorkspaceInitials, baseInitials } from './workspace-initials';
 
 function assign(...names: string[]): string[] {
   const map = assignWorkspaceInitials(
-    names.map((name, i) => ({ id: String(i), name })),
+    names.map((name, index) => ({ id: String(index), name })),
   );
-  return names.map((_, i) => map.get(String(i)) ?? '');
+  return names.map((_, index) => map.get(String(index)) ?? '');
 }
 
 describe('workspace initials', () => {

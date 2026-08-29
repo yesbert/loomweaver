@@ -28,8 +28,8 @@ function* candidatesFor(name: string): Generator<string> {
   }
   yield base;
   const letters = [...(wordsOf(name)[0] ?? '')];
-  for (let i = 1; i < letters.length; i++) {
-    yield (letters[0] + letters[i]).toUpperCase();
+  for (let index = 1; index < letters.length; index++) {
+    yield (letters[0] + letters[index]).toUpperCase();
   }
   for (let digit = 2; digit <= LAST_RESORT_DIGITS; digit++) {
     yield letters[0].toUpperCase() + digit;

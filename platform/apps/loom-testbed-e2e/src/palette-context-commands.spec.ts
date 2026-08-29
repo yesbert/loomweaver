@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-const mod = process.platform === 'darwin' ? 'Meta' : 'Control';
+const module_ = process.platform === 'darwin' ? 'Meta' : 'Control';
 
 test.describe('Command palette omits context-only commands', () => {
   test('the tab/view context commands do not leak into the palette', async ({
@@ -9,7 +9,7 @@ test.describe('Command palette omits context-only commands', () => {
     await page.goto('/');
 
     const palette = page.getByRole('combobox', { name: 'Command palette' });
-    await page.keyboard.press(`${mod}+KeyK`);
+    await page.keyboard.press(`${module_}+KeyK`);
     await expect(palette).toBeVisible();
 
     await palette.fill('Focus');

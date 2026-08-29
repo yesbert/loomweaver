@@ -176,9 +176,15 @@ export default [
             // Abbreviations are expanded, except the ones that are names rather than shorthand:
             // `ctx` is what every plugin author knows the context by, `args`, `ref` and `deps` sit
             // in the published contract or in type names built on it.
+            // Off for now: what its fixer could rename safely is renamed, and the 50 left
+            // need a reader. `e` is an event in one place and an entry in the next, and the
+            // rule offers `event_` for both.
             "unicorn/name-replacements": [
-                "error",
+                "off",
                 {
+                    // A filename follows the framework that reads it: proxy.conf.js is what
+                    // Angular looks for, and renaming it would only break the reference.
+                    checkFilenames: false,
                     replacements: {
                         arg: false,
                         args: false,
@@ -190,7 +196,11 @@ export default [
                         prop: false,
                         props: false,
                         ref: false,
-                        refs: false
+                        refs: false,
+                        // Where the rule offers several spellings it cannot choose between,
+                        // the workspace names one so the fix is not left to whoever reads it.
+                        dir: { directory: true },
+                        str: { text: true }
                     }
                 }
             ],
@@ -210,7 +220,6 @@ export default [
             "unicorn/import-style": "off",
             "unicorn/isolated-functions": "off",
             "unicorn/max-nested-calls": "off",
-            "unicorn/name-replacements": "off",
             "unicorn/no-array-callback-reference": "off",
             "unicorn/no-array-reduce": "off",
             "unicorn/no-array-sort": "off",

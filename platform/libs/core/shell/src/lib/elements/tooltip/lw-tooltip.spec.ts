@@ -1,29 +1,29 @@
 import { defineLwTooltip, LW_TOOLTIP_TAG } from './lw-tooltip.element';
 import type { Mock } from 'vitest';
 
-function mount(attrs: Record<string, string>): HTMLElement {
-  const el = document.createElement(LW_TOOLTIP_TAG);
-  for (const [name, value] of Object.entries(attrs)) {
-    el.setAttribute(name, value);
+function mount(attributes: Record<string, string>): HTMLElement {
+  const element = document.createElement(LW_TOOLTIP_TAG);
+  for (const [name, value] of Object.entries(attributes)) {
+    element.setAttribute(name, value);
   }
-  document.body.append(el);
-  return el;
+  document.body.append(element);
+  return element;
 }
 
-function mountInTrigger(attrs: Record<string, string>): {
+function mountInTrigger(attributes: Record<string, string>): {
   trigger: HTMLElement;
   bubble: HTMLElement;
   showPopover: Mock;
   hidePopover: Mock;
 } {
   const trigger = document.createElement('button');
-  const el = document.createElement(LW_TOOLTIP_TAG);
-  for (const [name, value] of Object.entries(attrs)) {
-    el.setAttribute(name, value);
+  const element = document.createElement(LW_TOOLTIP_TAG);
+  for (const [name, value] of Object.entries(attributes)) {
+    element.setAttribute(name, value);
   }
-  trigger.append(el);
+  trigger.append(element);
   document.body.append(trigger);
-  const bubble = el.querySelector<HTMLElement>('[role="tooltip"]')!;
+  const bubble = element.querySelector<HTMLElement>('[role="tooltip"]')!;
   const showPopover = vi.fn();
   const hidePopover = vi.fn();
   bubble.showPopover = showPopover;
@@ -63,19 +63,19 @@ describe('<lw-tooltip> custom element', () => {
   });
 
   it('reflects the position attribute (placement is computed in JS on show, not via CSS anchor)', () => {
-    const el = mount({ text: 'Add', position: 'bottom' });
-    const bubble = el.querySelector<HTMLElement>('[role="tooltip"]');
-    expect((el as unknown as { position: string }).position).toBe('bottom');
+    const element = mount({ text: 'Add', position: 'bottom' });
+    const bubble = element.querySelector<HTMLElement>('[role="tooltip"]');
+    expect((element as unknown as { position: string }).position).toBe('bottom');
     expect(bubble?.style.getPropertyValue('position-area')).toBe('');
-    expect(el.style.getPropertyValue('anchor-name')).toBe('');
+    expect(element.style.getPropertyValue('anchor-name')).toBe('');
   });
 
   it('updates the bubble text when the attribute changes, and removes it when cleared', () => {
-    const el = mount({ text: 'One' });
-    el.setAttribute('text', 'Two');
-    expect(el.querySelector('[role="tooltip"]')?.textContent).toBe('Two');
-    el.setAttribute('text', '');
-    expect(el.querySelector('[role="tooltip"]')).toBeNull();
+    const element = mount({ text: 'One' });
+    element.setAttribute('text', 'Two');
+    expect(element.querySelector('[role="tooltip"]')?.textContent).toBe('Two');
+    element.setAttribute('text', '');
+    expect(element.querySelector('[role="tooltip"]')).toBeNull();
   });
 
   it('renders the bubble as a manual popover (top layer, #13)', () => {

@@ -29,13 +29,13 @@ export class ContentReuseStrategy implements RouteReuseStrategy {
 
   shouldReuseRoute(
     future: ActivatedRouteSnapshot,
-    curr: ActivatedRouteSnapshot,
+    current: ActivatedRouteSnapshot,
   ): boolean {
-    if (!isContentRoute(future) || !isContentRoute(curr)) {
-      return future.routeConfig === curr.routeConfig;
+    if (!isContentRoute(future) || !isContentRoute(current)) {
+      return future.routeConfig === current.routeConfig;
     }
 
-    return future.routeConfig === curr.routeConfig && sameParams(future, curr);
+    return future.routeConfig === current.routeConfig && sameParams(future, current);
   }
 
   shouldDetach(route: ActivatedRouteSnapshot): boolean {

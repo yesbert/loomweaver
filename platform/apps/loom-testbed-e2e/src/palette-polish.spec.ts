@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-const mod = process.platform === 'darwin' ? 'Meta' : 'Control';
+const module_ = process.platform === 'darwin' ? 'Meta' : 'Control';
 
 test.describe('Command palette polish (MRU · fuzzy · footer)', () => {
   test('a run command surfaces under "Recently used" and survives a reload', async ({
@@ -9,14 +9,14 @@ test.describe('Command palette polish (MRU · fuzzy · footer)', () => {
     await page.goto('/');
 
     const palette = page.getByRole('combobox', { name: 'Command palette' });
-    await page.keyboard.press(`${mod}+KeyK`);
+    await page.keyboard.press(`${module_}+KeyK`);
     await expect(palette).toBeVisible();
     await expect(page.getByTestId('palette-section-recent')).toHaveCount(0);
 
     await palette.fill('Focus the entry list');
     await page.getByRole('option', { name: 'Focus the entry list' }).click();
 
-    await page.keyboard.press(`${mod}+KeyK`);
+    await page.keyboard.press(`${module_}+KeyK`);
     await expect(page.getByTestId('palette-section-recent')).toBeVisible();
     await expect(page.getByTestId('palette-section-all')).toBeVisible();
     await expect(page.getByRole('option').first()).toHaveText(
@@ -25,7 +25,7 @@ test.describe('Command palette polish (MRU · fuzzy · footer)', () => {
     await page.keyboard.press('Escape');
 
     await page.reload();
-    await page.keyboard.press(`${mod}+KeyK`);
+    await page.keyboard.press(`${module_}+KeyK`);
     await expect(page.getByTestId('palette-section-recent')).toBeVisible();
     await expect(page.getByRole('option').first()).toHaveText(
       /Focus the entry list/,
@@ -38,7 +38,7 @@ test.describe('Command palette polish (MRU · fuzzy · footer)', () => {
     await page.goto('/');
 
     const palette = page.getByRole('combobox', { name: 'Command palette' });
-    await page.keyboard.press(`${mod}+KeyK`);
+    await page.keyboard.press(`${module_}+KeyK`);
     await expect(palette).toBeVisible();
 
     const footer = page.getByTestId('palette-footer');
@@ -56,7 +56,7 @@ test.describe('Command palette polish (MRU · fuzzy · footer)', () => {
     page,
   }) => {
     await page.goto('/');
-    await page.keyboard.press(`${mod}+KeyK`);
+    await page.keyboard.press(`${module_}+KeyK`);
 
     const panel = page.locator('dialog', { has: page.getByRole('listbox') });
     await expect(panel).toBeVisible();
@@ -79,7 +79,7 @@ test.describe('Command palette polish (MRU · fuzzy · footer)', () => {
       page,
     }) => {
       await page.goto('/');
-      await page.keyboard.press(`${mod}+KeyK`);
+      await page.keyboard.press(`${module_}+KeyK`);
 
       const panel = page.locator('dialog', { has: page.getByRole('listbox') });
       await expect(panel).toBeVisible();
@@ -100,7 +100,7 @@ test.describe('Command palette polish (MRU · fuzzy · footer)', () => {
     page,
   }) => {
     await page.goto('/');
-    await page.keyboard.press(`${mod}+KeyK`);
+    await page.keyboard.press(`${module_}+KeyK`);
     await expect(
       page.getByRole('combobox', { name: 'Command palette' }),
     ).toBeVisible();

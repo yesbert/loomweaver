@@ -68,8 +68,8 @@ describe('IframeSurface', () => {
     const callbacks: ((entries: { isIntersecting: boolean }[]) => void)[] = [];
     const original = globalThis.IntersectionObserver;
     globalThis.IntersectionObserver = class {
-      constructor(cb: (entries: { isIntersecting: boolean }[]) => void) {
-        callbacks.push(cb);
+      constructor(callback: (entries: { isIntersecting: boolean }[]) => void) {
+        callbacks.push(callback);
       }
       observe() {
         return;

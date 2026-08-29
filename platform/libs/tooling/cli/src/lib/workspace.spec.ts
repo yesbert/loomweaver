@@ -7,7 +7,7 @@ function angularJson(projects: Record<string, unknown>): string {
   return JSON.stringify({ version: 1, projects });
 }
 
-function application(root: string): unknown {
+function app(root: string): unknown {
   return { projectType: 'application', root, architect: { build: { options: {} } } };
 }
 
@@ -66,22 +66,22 @@ describe('resolveBuildProject', () => {
   }
 
   it('takes the only application when the target names no project', () => {
-    const workspace = workspaceWith({ studio: application('') });
+    const workspace = workspaceWith({ studio: app('') });
     expect(resolveBuildProject(workspace, dir).name).toBe('studio');
   });
 
   it('takes the project the target sits inside', () => {
     const workspace = workspaceWith({
-      studio: application('apps/studio'),
-      other: application('apps/other'),
+      studio: app('apps/studio'),
+      other: app('apps/other'),
     });
     expect(resolveBuildProject(workspace, join(dir, 'apps', 'other')).name).toBe('other');
   });
 
   it('names the candidates rather than choosing between them', () => {
     const workspace = workspaceWith({
-      studio: application('apps/studio'),
-      other: application('apps/other'),
+      studio: app('apps/studio'),
+      other: app('apps/other'),
     });
     expect(() => resolveBuildProject(workspace, dir)).toThrow(WorkspaceError);
     expect(() => resolveBuildProject(workspace, dir)).toThrow(/studio, other/);

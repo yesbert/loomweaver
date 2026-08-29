@@ -23,7 +23,7 @@ const repoRoot = path.resolve(
   '../..',
 );
 const shellRoot = path.join(repoRoot, 'platform/libs/core/shell/src');
-const libRoot = path.join(shellRoot, 'lib');
+const libraryRoot = path.join(shellRoot, 'lib');
 const baselinePath = path.join(
   repoRoot,
   'platform/tools/cycle-baseline.json',
@@ -47,7 +47,7 @@ function sources(dir, out = []) {
 // upward because the <lw-*> kit is one cross-cutting unit. Files directly in lib/ are the
 // composition root.
 function sliceOf(file) {
-  const parts = path.relative(libRoot, file).split(path.sep);
+  const parts = path.relative(libraryRoot, file).split(path.sep);
   if (parts.length === 1) return '(root)';
   if (parts[0] === 'regions' && parts.length > 2) return `regions/${parts[1]}`;
   if (parts[0] === 'elements') return 'elements';
@@ -166,7 +166,7 @@ function slicePairs(edges) {
   return pairs.sort();
 }
 
-const rel = (file) => path.relative(libRoot, file);
+const rel = (file) => path.relative(libraryRoot, file);
 
 const files = sources(shellRoot);
 const { values, all } = graph(files);

@@ -3,13 +3,13 @@ import {
   defineLwProgressRing,
 } from './lw-progress-ring.element';
 
-function mount(attrs: Record<string, string>): HTMLElement {
-  const el = document.createElement(LW_PROGRESS_RING_TAG);
-  for (const [name, value] of Object.entries(attrs)) {
-    el.setAttribute(name, value);
+function mount(attributes: Record<string, string>): HTMLElement {
+  const element = document.createElement(LW_PROGRESS_RING_TAG);
+  for (const [name, value] of Object.entries(attributes)) {
+    element.setAttribute(name, value);
   }
-  document.body.append(el);
-  return el;
+  document.body.append(element);
+  return element;
 }
 
 describe('<lw-progress-ring> custom element', () => {

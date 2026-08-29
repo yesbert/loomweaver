@@ -1,12 +1,12 @@
 import { defineLwIcon, LW_ICON_TAG } from './lw-icon.element';
 
-function mount(attrs: Record<string, string>): HTMLElement {
-  const el = document.createElement(LW_ICON_TAG);
-  for (const [name, value] of Object.entries(attrs)) {
-    el.setAttribute(name, value);
+function mount(attributes: Record<string, string>): HTMLElement {
+  const element = document.createElement(LW_ICON_TAG);
+  for (const [name, value] of Object.entries(attributes)) {
+    element.setAttribute(name, value);
   }
-  document.body.append(el);
-  return el;
+  document.body.append(element);
+  return element;
 }
 
 describe('<lw-icon> custom element', () => {
@@ -18,8 +18,8 @@ describe('<lw-icon> custom element', () => {
   });
 
   it('resolves a first-party name to its SVG and applies the size', () => {
-    const el = mount({ name: 'close', size: '1rem' });
-    const svg = el.querySelector('svg');
+    const element = mount({ name: 'close', size: '1rem' });
+    const svg = element.querySelector('svg');
     expect(svg).not.toBeNull();
     expect(svg?.getAttribute('width')).toBe('1rem');
     expect(svg?.getAttribute('height')).toBe('1rem');
@@ -37,8 +37,8 @@ describe('<lw-icon> custom element', () => {
   });
 
   it('re-renders when the name changes', () => {
-    const el = mount({ name: 'close' });
-    el.setAttribute('name', 'search');
-    expect(el.querySelector('svg')).not.toBeNull();
+    const element = mount({ name: 'close' });
+    element.setAttribute('name', 'search');
+    expect(element.querySelector('svg')).not.toBeNull();
   });
 });

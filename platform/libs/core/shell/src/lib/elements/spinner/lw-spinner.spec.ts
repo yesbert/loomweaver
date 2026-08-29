@@ -8,10 +8,10 @@ describe('LwSpinner', () => {
     fixture.componentRef.setInput('label', 'Bitte warten');
     fixture.detectChanges();
 
-    const el = (fixture.nativeElement as HTMLElement).querySelector('span');
-    expect(el?.getAttribute('role')).toBe('status');
-    expect(el?.getAttribute('aria-label')).toBe('Bitte warten');
-    expect((el as HTMLElement).style.width).toBe('1rem');
-    expect(el?.className).toContain('animate-spin');
+    const element = (fixture.nativeElement as HTMLElement).querySelector('span');
+    expect(element?.getAttribute('role')).toBe('status');
+    expect(element?.getAttribute('aria-label')).toBe('Bitte warten');
+    expect((element as HTMLElement).style.width).toBe('1rem');
+    expect(element?.className).toContain('animate-spin');
   });
 });

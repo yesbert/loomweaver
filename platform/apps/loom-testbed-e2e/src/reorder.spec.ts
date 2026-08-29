@@ -16,7 +16,7 @@ async function tabOrder(page: Page): Promise<string[]> {
   return page
     .locator('lw-content-area [role="tab"][data-reorder-id]')
     .evaluateAll((els) =>
-      els.map((el) => (el as HTMLElement).dataset['reorderId'] ?? ''),
+      els.map((element) => (element as HTMLElement).dataset['reorderId'] ?? ''),
     );
 }
 
@@ -67,7 +67,7 @@ test.describe('User reorder', () => {
       rail
         .locator('[data-reorder-id]')
         .evaluateAll((els) =>
-          els.map((el) => (el as HTMLElement).dataset['reorderId'] ?? ''),
+          els.map((element) => (element as HTMLElement).dataset['reorderId'] ?? ''),
         );
     const before = await railOrder();
     expect(before.length).toBeGreaterThan(1);

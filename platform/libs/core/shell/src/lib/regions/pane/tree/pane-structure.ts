@@ -12,13 +12,13 @@ import { DEFAULT_RATIO } from './pane-ratio';
 export function transformLeaf(
   node: PaneNode,
   paneId: string,
-  fn: (leaf: PaneLeaf) => PaneLeaf,
+  function_: (leaf: PaneLeaf) => PaneLeaf,
 ): PaneNode {
   if (node.kind === 'leaf') {
-    return node.id === paneId ? fn(node) : node;
+    return node.id === paneId ? function_(node) : node;
   }
-  const first = transformLeaf(node.first, paneId, fn);
-  const second = transformLeaf(node.second, paneId, fn);
+  const first = transformLeaf(node.first, paneId, function_);
+  const second = transformLeaf(node.second, paneId, function_);
   return first === node.first && second === node.second
     ? node
     : { ...node, first, second };
@@ -27,13 +27,13 @@ export function transformLeaf(
 export function collapseLeaf(
   node: PaneNode,
   paneId: string,
-  fn: (leaf: PaneLeaf) => PaneNode | null,
+  function_: (leaf: PaneLeaf) => PaneNode | null,
 ): PaneNode | null {
   if (node.kind === 'leaf') {
-    return node.id === paneId ? fn(node) : node;
+    return node.id === paneId ? function_(node) : node;
   }
-  const first = collapseLeaf(node.first, paneId, fn);
-  const second = collapseLeaf(node.second, paneId, fn);
+  const first = collapseLeaf(node.first, paneId, function_);
+  const second = collapseLeaf(node.second, paneId, function_);
   if (first === null) {
     return second;
   }

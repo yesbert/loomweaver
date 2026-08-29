@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { rail } from './support/helpers';
 
-const mod = process.platform === 'darwin' ? 'Meta' : 'Control';
+const module_ = process.platform === 'darwin' ? 'Meta' : 'Control';
 
 test.describe('Curating from a dialog (K5)', () => {
   test('the palette opens the rail dialog, and a place change moves the entry', async ({
@@ -16,7 +16,7 @@ test.describe('Curating from a dialog (K5)', () => {
     await expect(notes).toHaveCount(1);
 
     const palette = page.getByRole('combobox', { name: 'Command palette' });
-    await page.keyboard.press(`${mod}+KeyK`);
+    await page.keyboard.press(`${module_}+KeyK`);
     await palette.fill('Customize');
     await page.getByRole('option', { name: 'Customize activity bar' }).click();
 

@@ -71,8 +71,8 @@ test.describe('Sandbox UI kit — /frame-kit/ assets inside the iframe', () => {
 
     const button = surface.getByTestId('frame-kit-button');
     await expect(button).toHaveClass(/lw-btn--primary/);
-    const paint = await button.evaluate((el) => {
-      const styles = getComputedStyle(el);
+    const paint = await button.evaluate((element) => {
+      const styles = getComputedStyle(element);
       return { background: styles.backgroundColor, cursor: styles.cursor };
     });
     expect(paint.cursor).toBe('pointer');

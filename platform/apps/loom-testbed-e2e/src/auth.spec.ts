@@ -58,12 +58,12 @@ test.describe('Auth gating', () => {
   }) => {
     await page.goto('/');
 
-    const mod = process.platform === 'darwin' ? 'Meta' : 'Control';
+    const module_ = process.platform === 'darwin' ? 'Meta' : 'Control';
     const cycle = railRight(page).getByRole('button', { name: 'Switch user' });
     const palette = page.getByRole('combobox', { name: 'Command palette' });
     const secret = page.getByRole('option', { name: 'Admin-only command' });
 
-    await page.keyboard.press(`${mod}+KeyK`);
+    await page.keyboard.press(`${module_}+KeyK`);
     await expect(palette).toBeVisible();
     await palette.fill('Admin-only');
     await expect(secret).toHaveCount(0);
@@ -71,7 +71,7 @@ test.describe('Auth gating', () => {
 
     await cycle.click();
     await cycle.click();
-    await page.keyboard.press(`${mod}+KeyK`);
+    await page.keyboard.press(`${module_}+KeyK`);
     await palette.fill('Admin-only');
     await expect(secret).toBeVisible();
   });

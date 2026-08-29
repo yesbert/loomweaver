@@ -93,7 +93,7 @@ function tsconfig(p: NxWeaverProject): string {
   );
 }
 
-function tsconfigLib(p: NxWeaverProject): string {
+function tsconfigLibrary(p: NxWeaverProject): string {
   return JSON.stringify(
     {
       extends: './tsconfig.json',
@@ -116,7 +116,7 @@ export function nxWeaverFiles(p: NxWeaverProject): FileMap {
   return {
     'project.json': projectJson(p) + '\n',
     'tsconfig.json': tsconfig(p) + '\n',
-    'tsconfig.lib.json': tsconfigLib(p) + '\n',
+    'tsconfig.lib.json': tsconfigLibrary(p) + '\n',
     ...(p.buildTarget && { 'tsconfig.spec.json': sharedTsconfigSpec(p.depth) + '\n' }),
     'eslint.config.mjs': sharedEslintConfig(p.depth, p.prefix),
   };

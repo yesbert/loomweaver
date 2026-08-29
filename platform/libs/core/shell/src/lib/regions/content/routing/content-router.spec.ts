@@ -300,8 +300,8 @@ describe('ContentRouter', () => {
           provide: Location,
           useValue: {
             path: () => path,
-            subscribe: (cb: () => void) => {
-              popState = cb;
+            subscribe: (callback: () => void) => {
+              popState = callback;
               return { unsubscribe: () => undefined };
             },
           },

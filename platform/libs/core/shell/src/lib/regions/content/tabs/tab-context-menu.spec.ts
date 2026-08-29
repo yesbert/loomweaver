@@ -60,7 +60,7 @@ describe('registerTabContextMenu', () => {
       ]),
     );
     expect(
-      registry.menuItems().filter((i) => i.menu === TAB_CONTEXT_MENU),
+      registry.menuItems().filter((index) => index.menu === TAB_CONTEXT_MENU),
     ).toHaveLength(8);
   });
 

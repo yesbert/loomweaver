@@ -10,7 +10,7 @@ async function expectPadding(
       page
         .locator(selector)
         .first()
-        .evaluate((el) => getComputedStyle(el).padding),
+        .evaluate((element) => getComputedStyle(element).padding),
     )
     .toBe(expected);
 }

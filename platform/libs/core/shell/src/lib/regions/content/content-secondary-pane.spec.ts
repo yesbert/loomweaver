@@ -196,29 +196,29 @@ describe('A host-mounted pane says why it is empty', () => {
   };
 
   it('shows the access placeholder for a gated route, asking a signed-out visitor to sign in', () => {
-    const el = mount(ANONYMOUS, 'secret', (registry) =>
+    const element = mount(ANONYMOUS, 'secret', (registry) =>
       registry.addContentRoute(GATED),
     );
 
     expect(
-      el.querySelector('[data-testid="access-placeholder"]'),
+      element.querySelector('[data-testid="access-placeholder"]'),
     ).not.toBeNull();
-    expect(el.textContent).toContain('auth.requiredTitle');
+    expect(element.textContent).toContain('auth.requiredTitle');
   });
 
   it('tells a signed-in principal without the role that their account has no access', () => {
-    const el = mount(
+    const element = mount(
       { authenticated: true, roles: ['user'], claims: {} },
       'secret',
       (registry) => registry.addContentRoute(GATED),
     );
 
-    expect(el.textContent).toContain('auth.deniedTitle');
-    expect(el.textContent).not.toContain('auth.requiredTitle');
+    expect(element.textContent).toContain('auth.deniedTitle');
+    expect(element.textContent).not.toContain('auth.requiredTitle');
   });
 
   it('shows the access placeholder for a gated container child, which is seeded whatever the session', () => {
-    const el = mount(ANONYMOUS, 'view:runs.audit', (registry) =>
+    const element = mount(ANONYMOUS, 'view:runs.audit', (registry) =>
       registry.addView({
         id: 'runs.audit',
         title: 'runs.audit',
@@ -229,25 +229,25 @@ describe('A host-mounted pane says why it is empty', () => {
     );
 
     expect(
-      el.querySelector('[data-testid="access-placeholder"]'),
+      element.querySelector('[data-testid="access-placeholder"]'),
     ).not.toBeNull();
   });
 
   it('says "view not available" for a path nothing registers, rather than rendering home under it', () => {
-    const el = mount(ANONYMOUS, 'gone/away', (registry) =>
+    const element = mount(ANONYMOUS, 'gone/away', (registry) =>
       registry.addContentRoute({ path: '', component: ParamView }),
     );
 
-    expect(el.textContent).toContain('route.unavailableTitle');
-    expect(el.querySelector('[data-testid="param"]')).toBeNull();
+    expect(element.textContent).toContain('route.unavailableTitle');
+    expect(element.querySelector('[data-testid="param"]')).toBeNull();
   });
 
   it('keeps the split text where it is true — the surface exists and simply cannot be mounted here', () => {
-    const el = mount(ANONYMOUS, 'headless', (registry) =>
+    const element = mount(ANONYMOUS, 'headless', (registry) =>
       registry.addContentRoute({ path: 'headless' } as ContentRoute),
     );
 
-    expect(el.textContent).toContain('content.split.unavailable');
+    expect(element.textContent).toContain('content.split.unavailable');
   });
 });
 
@@ -261,8 +261,8 @@ describe('ContentSecondaryPane (host-mounts ANY content route)', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    const el: HTMLElement = fixture.nativeElement;
-    expect(el.querySelector('[data-testid="param"]')?.textContent).toBe('main');
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelector('[data-testid="param"]')?.textContent).toBe('main');
   });
 
   it('remounts with the real route once it registers after the pane (async sandbox registration)', async () => {

@@ -13,9 +13,9 @@ test.describe('Reveal a docked surface (finding #29)', () => {
     await outline.click();
     await expect(outline).toHaveAttribute('aria-selected', 'true');
 
-    const mod = process.platform === 'darwin' ? 'Meta' : 'Control';
+    const module_ = process.platform === 'darwin' ? 'Meta' : 'Control';
     const palette = page.getByRole('combobox', { name: 'Command palette' });
-    await page.keyboard.press(`${mod}+KeyK`);
+    await page.keyboard.press(`${module_}+KeyK`);
     await expect(palette).toBeVisible();
     await palette.fill('Focus the entry list');
     await page.getByRole('option', { name: 'Focus the entry list' }).click();
@@ -36,9 +36,9 @@ test.describe('Reveal a docked surface (finding #29)', () => {
       .click();
     await runCommand(page, 'Home');
 
-    const mod = process.platform === 'darwin' ? 'Meta' : 'Control';
+    const module_ = process.platform === 'darwin' ? 'Meta' : 'Control';
     const palette = page.getByRole('combobox', { name: 'Command palette' });
-    await page.keyboard.press(`${mod}+KeyK`);
+    await page.keyboard.press(`${module_}+KeyK`);
     await palette.fill('Focus the entry list');
     await page.getByRole('option', { name: 'Focus the entry list' }).click();
 

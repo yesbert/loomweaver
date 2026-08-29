@@ -222,9 +222,9 @@ test.describe('Workspaces are self-remembering', () => {
     page,
   }) => {
     await page.addInitScript(() => {
-      const many = Array.from({ length: 25 }, (_, i) => ({
-        id: `ws-${i}`,
-        name: `Workspace number ${i + 1}`,
+      const many = Array.from({ length: 25 }, (_, index) => ({
+        id: `ws-${index}`,
+        name: `Workspace number ${index + 1}`,
         baseline: {},
       }));
       localStorage.setItem('lw.shell.workspaces', JSON.stringify(many));
@@ -234,7 +234,7 @@ test.describe('Workspaces are self-remembering', () => {
 
     const panel = page.getByRole('dialog');
     await expect(panel).toBeInViewport();
-    await panel.locator('ul').evaluate((el) => el.scrollTo(0, el.scrollHeight));
+    await panel.locator('ul').evaluate((element) => element.scrollTo(0, element.scrollHeight));
 
     await expect(
       page.getByRole('button', { name: 'Workspace number 25' }),

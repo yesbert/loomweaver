@@ -233,7 +233,7 @@ async function afterSweep(): Promise<void> {
   await new Promise<void>((resolve) => setTimeout(resolve, 0));
 }
 
-function el(fixture: { nativeElement: HTMLElement }, selector: string) {
+function element(fixture: { nativeElement: HTMLElement }, selector: string) {
   return fixture.nativeElement.querySelector(selector);
 }
 
@@ -286,7 +286,7 @@ describe('surface retention', () => {
       expect(destroyed).toBe(0);
       TestBed.tick();
       expect(
-        el(fixture, '[data-testid="slot-b"] [data-testid="probe"]')
+        element(fixture, '[data-testid="slot-b"] [data-testid="probe"]')
           ?.textContent,
       ).toBe('typed');
     });
@@ -317,7 +317,7 @@ describe('surface retention', () => {
       expect(destroyed).toBe(0);
       TestBed.tick();
       expect(
-        el(fixture, '[data-testid="slot-b"] [data-testid="probe"]')
+        element(fixture, '[data-testid="slot-b"] [data-testid="probe"]')
           ?.textContent,
       ).toBe('typed');
     });
@@ -373,7 +373,7 @@ describe('surface retention', () => {
       expect(destroyed).toBe(0);
       TestBed.tick();
       expect(
-        el(fixture, '[data-testid="slot-b"] [data-testid="probe"]')
+        element(fixture, '[data-testid="slot-b"] [data-testid="probe"]')
           ?.textContent,
       ).toBe('typed');
     });
@@ -434,7 +434,7 @@ describe('surface retention', () => {
 
       expect(instances).toHaveLength(1);
       expect(
-        el(fixture, '[data-testid="slot-a"] [data-testid="probe"]')
+        element(fixture, '[data-testid="slot-a"] [data-testid="probe"]')
           ?.textContent,
       ).toBe('typed');
     });

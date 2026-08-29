@@ -136,7 +136,7 @@ describe('registerViewStackMenu', () => {
     expect(
       TestBed.inject(ContributionRegistry)
         .menuItems()
-        .some((i) => i.id === 'menu:shell.view.stackBelow'),
+        .some((index) => index.id === 'menu:shell.view.stackBelow'),
     ).toBe(true);
   });
 

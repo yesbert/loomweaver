@@ -18,8 +18,8 @@ function harness(): Harness {
     ctx: {} as PluginContext,
   };
   h.ctx = {
-    registerCommand: (cmd: { run: () => void }) => {
-      h.run = cmd.run;
+    registerCommand: (command: { run: () => void }) => {
+      h.run = command.run;
       return { dispose: () => undefined };
     },
     registerRailItem: () => ({ dispose: () => undefined }),

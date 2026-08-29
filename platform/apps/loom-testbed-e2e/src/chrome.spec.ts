@@ -104,7 +104,7 @@ test.describe('Neutral host chrome', () => {
 
     const duration = await page
       .getByRole('button', { name: 'Dark' })
-      .evaluate((el) => getComputedStyle(el).transitionDuration);
+      .evaluate((element) => getComputedStyle(element).transitionDuration);
     const maxMs = Math.max(
       ...duration
         .split(',')
