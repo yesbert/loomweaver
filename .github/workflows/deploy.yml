@@ -138,6 +138,7 @@ jobs:
             printf '%s' "$headers" | grep -qi -- "$2" || { echo "$3"; exit 1; }
           }
           contains https://loomweaver.dev/ loomweaver "the docs site does not mention itself"
+          contains https://loomweaver.dev/ cloud.umami.is "the docs site counts no visitors"
           contains https://demo.loomweaver.dev/ '<script' "the demo served no application bundle"
           code=$(curl -s -o /dev/null -w '%{http_code}' https://demo.loomweaver.dev/some/deep/link)
           [ "$code" = "200" ] || { echo "the SPA fallback is missing — deep links answer $code"; exit 1; }

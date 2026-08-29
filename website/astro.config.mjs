@@ -17,6 +17,19 @@ export default defineConfig({
         alt: 'LoomWeaver',
       },
       customCss: ['./src/styles/brand.css'],
+      // Umami counts page views without cookies and without storing anything identifying,
+      // which is why the site carries no consent banner for it. Set here rather than in the
+      // layout so it reaches the hand-written landing page as well.
+      head: [
+        {
+          tag: 'script',
+          attrs: {
+            src: 'https://cloud.umami.is/script.js',
+            'data-website-id': '3cbed8e2-65f2-465d-8414-81a223751f24',
+            defer: true,
+          },
+        },
+      ],
       social: [
         {
           icon: 'github',
