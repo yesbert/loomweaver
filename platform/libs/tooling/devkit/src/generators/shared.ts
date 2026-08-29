@@ -129,6 +129,16 @@ export function addI18nAssetsGlob(
   updateProjectConfiguration(tree, app, project);
 }
 
+function usesTailwind(css: string): boolean {
+  return css.split('\n').some((line) => {
+    const directive = line.trimStart();
+    return (
+      /^@import\s+['"]tailwindcss['"]/.test(directive) ||
+      /^@source\s/.test(directive)
+    );
+  });
+}
+
 /**
  * Registers a library's sources with the application's Tailwind entry stylesheet, so utilities
  * written in that library's templates are emitted. Tailwind 4 also detects sources automatically,
@@ -153,7 +163,7 @@ export function addTailwindSource(
     return;
   }
   const css = tree.read(stylesheet, 'utf-8');
-  if (!css || !/@import\s+['"]tailwindcss['"]|^\s*@source\s/m.test(css)) {
+  if (!css || !usesTailwind(css)) {
     return;
   }
   const from = posix.dirname(stylesheet);
