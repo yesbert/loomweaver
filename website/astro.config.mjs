@@ -56,6 +56,7 @@ export default defineConfig({
             { label: 'Shell anatomy', link: '/reference/shell-anatomy/' },
             { label: 'Host services', link: '/reference/host-services/' },
             { label: 'Access gating', link: '/reference/access-gating/' },
+            { label: 'Routing', link: '/reference/routing/' },
             { label: 'Callable commands', link: '/reference/callable-commands/' },
             { label: 'Agent tools', link: '/reference/agent-tools/' },
             { label: 'Design tokens', link: '/reference/design-tokens/' },

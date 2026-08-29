@@ -25,7 +25,8 @@ to build one. The platform is frontend-only; your product brings its own backend
 3. [Manual setup](manual-setup.md) — the same app wired by hand, plus the Nx, SSR and Module
    Federation answers (~15 min).
 4. [Samples](samples.md) — complete, copyable recipes: a sidebar view with persisted state, a routable
-   surface, a command with its triggers, a settings section, access gating, dialogs.
+   surface, a command with its triggers, a settings section, access gating, dialogs. It says which of
+   them the generator already writes, so you only type the rest.
 5. [Authoring a weaver](authoring-a-weaver.md) — build UI: views, commands, access gating, dialogs, settings, i18n.
 6. [Building a distribution](building-a-distribution.md) — compose weavers into a branded product.
 7. [The plugin system](plugins.md) — the four ways in (trusted, frame plugin, operator-deployed, community-installed),
@@ -44,6 +45,8 @@ to build one. The platform is frontend-only; your product brings its own backend
   dialogs, toasts, settings, commands, session, tabs, updates, sync.
 - [Access gating](reference/access-gating.md) — the complete `access` reference: what gates where,
   identity changes, and why client-side gating is not a security boundary.
+- [Routing](reference/routing.md) — the content area is the Angular router: what carries over
+  unchanged, where a route comes from, and the two places a surface is mounted off-router.
 - [Callable commands](reference/callable-commands.md) — opening a command to a caller that is not the
   user: described arguments, answers, the `automation` capability and why the default is closed.
 - [Agent tools](reference/agent-tools.md) — `@loomweaver/ag-ui`: letting an AG-UI agent reach the
