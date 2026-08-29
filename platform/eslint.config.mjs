@@ -169,6 +169,13 @@ export default [
             // enforces ours, and two orders cannot both hold.
             "unicorn/consistent-class-member-order": "off",
 
+            // It wants every boolean to start with is/has/can. Two of its 132 findings are on
+            // the published contract (`meetsAccess`, `SettingToggle.value`), where renaming costs
+            // a major version, and `SettingToggle.value` is right as it stands: it is the value of
+            // the toggle. The rest are domain words — a view is `retained`, a capability is
+            // `granted` — and `isRetained` reads no better, only longer.
+            "unicorn/consistent-boolean-name": "off",
+
             // It bans `null`. Angular and the DOM hand us `null` (queryParamMap.get, querySelector)
             // and our own signatures return it; banning the literal would only move the seam.
             "unicorn/no-null": "off",
@@ -209,7 +216,6 @@ export default [
             // request per group. A rule that is not in this list is enforced. Where a rule
             // carries a note, its fixer was tried and did damage: read the note before
             // reaching for --fix.
-            "unicorn/consistent-boolean-name": "off",
             "unicorn/consistent-function-scoping": "off",
             // `dataset` lives on HTMLElement, and these call sites hold an Element
             "unicorn/dom-node-dataset": "off",
