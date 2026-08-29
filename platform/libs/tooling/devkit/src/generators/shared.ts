@@ -62,7 +62,7 @@ export function resolveApp(tree: Tree, app?: string): ResolvedApp {
 }
 
 export function workspaceScope(tree: Tree): string | undefined {
-  const raw = tree.read('package.json', 'utf-8');
+  const raw = tree.read('package.json', 'utf8');
   if (!raw) {
     return undefined;
   }
@@ -162,7 +162,7 @@ export function addTailwindSource(
   if (!stylesheet) {
     return;
   }
-  const css = tree.read(stylesheet, 'utf-8');
+  const css = tree.read(stylesheet, 'utf8');
   if (!css || !usesTailwind(css)) {
     return;
   }
@@ -206,7 +206,7 @@ export function addPostcssPlugin(
     return;
   }
   const existing = tree.exists(amendment.file)
-    ? (JSON.parse(tree.read(amendment.file, 'utf-8') ?? '{}') as unknown)
+    ? (JSON.parse(tree.read(amendment.file, 'utf8') ?? '{}') as unknown)
     : undefined;
   const result = ensurePostcssPlugin(existing, amendment);
   if (result.added.length === 0) {

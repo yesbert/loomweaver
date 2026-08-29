@@ -307,10 +307,10 @@ export class LwSelectElement extends HTMLElement {
     }
     this.activeIndex = Math.max(0, Math.min(index, options.length - 1));
     this.write(() => {
-      options.forEach((option, index_) => {
+      for (const [index_, option] of options.entries()) {
         option.classList.toggle('is-active', index_ === this.activeIndex);
         option.tabIndex = index_ === this.activeIndex ? 0 : -1;
-      });
+      }
     });
     const active = options[this.activeIndex];
     active.focus();

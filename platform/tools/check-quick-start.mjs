@@ -151,7 +151,7 @@ try {
 
 if (failures.length > 0) {
   console.error('check-quick-start: the published quick start does not produce a working workbench');
-  failures.forEach((failure) => console.error(`  - ${failure}`));
+  for (const failure of failures) console.error(`  - ${failure}`);
   process.exit(1);
 }
 

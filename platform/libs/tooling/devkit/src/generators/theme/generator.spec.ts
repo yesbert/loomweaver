@@ -16,7 +16,7 @@ describe('theme generator', () => {
 
   it('honours the preset', async () => {
     await themeGenerator(tree, { name: 'acme', preset: 'bootstrap' });
-    const css = tree.read('apps/studio/src/themes/acme.css', 'utf-8') ?? '';
+    const css = tree.read('apps/studio/src/themes/acme.css', 'utf8') ?? '';
     expect(css).toContain('var(--bs-primary)');
   });
 

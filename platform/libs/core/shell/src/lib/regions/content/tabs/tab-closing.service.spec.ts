@@ -53,7 +53,7 @@ describe('TabClosingService close others/all/right', () => {
       providers: [provideRouter(buildContentRoutes(ROUTES))],
     });
     const registry = TestBed.inject(ContributionRegistry);
-    ROUTES.forEach((route) => registry.addContentRoute(route));
+    for (const route of ROUTES) registry.addContentRoute(route);
     service = TestBed.inject(ContentTabsService);
     harness = await RouterTestingHarness.create();
     await harness.navigateByUrl('/');
@@ -135,7 +135,7 @@ describe('TabClosingService close guarding', () => {
       ],
     });
     const registry = TestBed.inject(ContributionRegistry);
-    ROUTES.forEach((route) => registry.addContentRoute(route));
+    for (const route of ROUTES) registry.addContentRoute(route);
     const service = TestBed.inject(ContentTabsService);
     const harness = await RouterTestingHarness.create();
     return { guard, service, harness };

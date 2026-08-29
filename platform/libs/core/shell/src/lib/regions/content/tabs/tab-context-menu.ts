@@ -148,9 +148,8 @@ export function registerTabContextMenu(
     },
   ];
   const registered = new Set(commands.map((command) => command.id));
-  commands.forEach((command) =>
-    registry.addCommand({ ...command, paletteHidden: true }),
-  );
+  for (const command of commands) registry.addCommand({ ...command, paletteHidden: true })
+  ;
   items
     .filter(
       (item) => item.command !== undefined && registered.has(item.command),

@@ -234,11 +234,10 @@ export default [
             // percentage from a plugin declaration, and its fixer turned `size <= 0` into
             // `size === 0`, which stopped reporting negative sizes
             "unicorn/explicit-length-check": "off",
-            "unicorn/import-style": "off",
-            "unicorn/max-nested-calls": "off",
             // It reads `installs.find(entry.id)` as an array callback, where `find` is a
             // service method taking an id, and rewrites it into nonsense.
-            "unicorn/no-array-callback-reference": "off",
+            "unicorn/import-style": "off",
+            "unicorn/max-nested-calls": "off",
             "unicorn/no-array-reduce": "off",
             "unicorn/no-await-expression-member": "off",
             "unicorn/no-break-in-nested-loop": "off",
@@ -252,10 +251,21 @@ export default [
             "unicorn/no-return-array-push": "off",
             "unicorn/no-top-level-assignment-in-function": "off",
             "unicorn/no-top-level-side-effects": "off",
+            "unicorn/no-unreadable-for-of-expression": "off",
+            "unicorn/prefer-includes-over-repeated-comparisons": "off",
+            "unicorn/prefer-module": "off",
+            "unicorn/prefer-number-coercion": "off",
+            "unicorn/prefer-promise-try": "off",
+            "unicorn/prefer-scoped-selector": "off",
+            "unicorn/prefer-simple-condition-first": "off",
+            "unicorn/prefer-structured-clone": "off",
+            "unicorn/prefer-then-catch": "off",
+            "unicorn/prefer-toggle-attribute": "off",
+            "unicorn/prefer-top-level-await": "off",
+            "unicorn/no-array-callback-reference": "off",
             // `globalThis.X` yields undefined where a bare `X` throws a ReferenceError,
             // which is exactly what a test that stubs a global relies on
             "unicorn/no-unnecessary-global-this": "off",
-            "unicorn/no-unreadable-for-of-expression": "off",
             "unicorn/no-unsafe-string-replacement": "off",
             // `f(undefined)` is not `f()` when the parameter is required, and `() => undefined`
             // may not become `() => {}` while no-empty-function forbids exactly that.
@@ -274,22 +284,11 @@ export default [
             // adds lines by design, see switch-case-braces
             "unicorn/prefer-early-return": "off",
             "unicorn/prefer-else-if": "off",
-            "unicorn/prefer-includes-over-repeated-comparisons": "off",
             "unicorn/prefer-direct-iteration": "off",
             "unicorn/prefer-iterator-helpers": "off",
             "unicorn/prefer-iterator-to-array": "off",
-            "unicorn/prefer-module": "off",
-            "unicorn/prefer-number-coercion": "off",
-            "unicorn/prefer-promise-try": "off",
-            "unicorn/prefer-scoped-selector": "off",
-            "unicorn/prefer-simple-condition-first": "off",
-            "unicorn/prefer-structured-clone": "off",
-            "unicorn/prefer-then-catch": "off",
-            "unicorn/prefer-toggle-attribute": "off",
-            "unicorn/prefer-top-level-await": "off",
             // adds lines by design, and two files already sit over the 400-line ratchet
             "unicorn/switch-case-braces": "off",
-            "unicorn/text-encoding-identifier-case": "off"
         }
     },
     {

@@ -15,7 +15,7 @@ describe('frame-plugin generator', () => {
     expect(tree.exists(`${root}/plugin.html`)).toBe(true);
     expect(tree.exists(`${root}/plugin.js`)).toBe(true);
     expect(tree.exists(`${root}/view.html`)).toBe(true);
-    expect(tree.read(`${root}/plugin.js`, 'utf-8')).toContain(
+    expect(tree.read(`${root}/plugin.js`, 'utf8')).toContain(
       '/notes/view.html',
     );
   });

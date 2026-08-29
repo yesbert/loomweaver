@@ -34,7 +34,7 @@ export class IconRegistry {
       setIcon(name, safe);
       added.push(name);
     }
-    return { dispose: () => added.forEach((name) => removeIcon(name)) };
+    return { dispose: () => { for (const name of added) removeIcon(name) } };
   }
 
   resolve(name: string): string | undefined {

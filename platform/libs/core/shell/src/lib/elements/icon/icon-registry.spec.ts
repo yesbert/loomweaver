@@ -12,7 +12,7 @@ describe('IconRegistry (delegates to the module-global registry)', () => {
     registry = new IconRegistry();
     disposers = [];
   });
-  afterEach(() => disposers.forEach((d) => d.dispose()));
+  afterEach(() => { for (const d of disposers) d.dispose() });
 
   const register = (
     plugin: string,
