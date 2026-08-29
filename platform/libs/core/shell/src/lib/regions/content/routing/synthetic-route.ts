@@ -77,8 +77,8 @@ export function syntheticDockedRoute(
     url: [],
     params,
     data: {
-      ...(view.iframe === undefined ? {} : { iframe: view.iframe }),
-      ...(view.pluginId ? { pluginId: view.pluginId } : {}),
+      ...(view.iframe !== undefined && { iframe: view.iframe }),
+      ...(view.pluginId && { pluginId: view.pluginId }),
       docked: true,
       instanceId,
     },
@@ -99,13 +99,13 @@ export function syntheticRouteFor(
     url: segments.map((segment) => new UrlSegment(segment, {})),
     params,
     data: {
-      ...('iframe' in route ? { iframe: route.iframe } : {}),
-      ...('container' in route ? { container: route.container } : {}),
-      ...(route.pluginId ? { pluginId: route.pluginId } : {}),
-      ...(route.rest === true ? { rest: true } : {}),
-      ...(sub ? { sub } : {}),
-      ...(options.urlDriven ? { urlDriven: true } : {}),
-      ...(options.instanceId ? { instanceId: options.instanceId } : {}),
+      ...('iframe' in route && { iframe: route.iframe }),
+      ...('container' in route && { container: route.container }),
+      ...(route.pluginId && { pluginId: route.pluginId }),
+      ...(route.rest === true && { rest: true }),
+      ...(sub && { sub }),
+      ...(options.urlDriven && { urlDriven: true }),
+      ...(options.instanceId && { instanceId: options.instanceId }),
     },
   });
 }

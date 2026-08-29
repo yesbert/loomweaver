@@ -283,7 +283,7 @@ function bakeTab(
   return {
     tab: {
       path: tab.path,
-      ...(tab.closable === false ? { closable: false } : {}),
+      ...(tab.closable === false && { closable: false }),
     },
     active: tab.active === true,
   };

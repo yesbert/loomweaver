@@ -64,7 +64,7 @@ function parametersFor(
 function propertyFor(argument: CommandArgument): JsonSchemaProperty {
   const scalar = {
     type: SCALAR_TYPE[argument.kind] ?? 'string',
-    ...(argument.kind === 'choice' ? { enum: argument.choices } : {}),
+    ...(argument.kind === 'choice' && { enum: argument.choices }),
   };
   return argument.list === true
     ? { type: 'array', description: argument.description, items: scalar }

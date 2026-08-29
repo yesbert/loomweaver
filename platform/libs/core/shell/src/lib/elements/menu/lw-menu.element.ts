@@ -173,9 +173,7 @@ export class LwMenuElement extends HTMLElement {
         this.setActive(this.active < 0 ? 0 : this.active + 1);
         break;
       case 'ArrowUp':
-        this.setActive(
-          this.active < 0 ? this.items().length - 1 : this.active - 1,
-        );
+        this.setActive((this.active < 0 ? this.items().length : this.active) - 1);
         break;
       case 'Home':
         this.setActive(0);

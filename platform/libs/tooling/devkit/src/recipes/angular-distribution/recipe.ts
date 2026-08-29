@@ -281,7 +281,7 @@ export const angularDistribution: Recipe<DistributionInput> = {
     return {
       'src/main.ts': mainTs(),
       'src/app/app.config.ts': appConfigTs(d),
-      ...(d.withTests ? { 'src/app/app.config.spec.ts': appConfigSpec() } : {}),
+      ...(d.withTests && { 'src/app/app.config.spec.ts': appConfigSpec() }),
       'src/app/app.ts': appTs(),
       'src/app/app.html': appHtml(),
       'src/index.html': indexHtml(d),

@@ -138,7 +138,7 @@ for (const relative of PACKAGE_ROOTS) {
       `${manifest.name} · ${promise}  (declared in ${relative}/package.json)`,
     );
   }
-  if (![...files].some((file) => !BOILERPLATE.test(file))) {
+  if ([...files].every((file) => BOILERPLATE.test(file))) {
     broken.push(
       `${manifest.name} · packs no payload, only boilerplate  (from ${relative})`,
     );

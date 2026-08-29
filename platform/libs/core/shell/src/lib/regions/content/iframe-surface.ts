@@ -224,7 +224,7 @@ export class IframeSurface implements DirtySurface {
             this.tabs.keep(this.tabRoot);
           }
         },
-        setDirty: (dirty: boolean) => this.dirty.set(dirty === true),
+        setDirty: (dirty: boolean) => this.dirty.set(dirty),
         stateWatch: (key: string) => this.watchState(String(key)),
         stateSet: (key: string, value: unknown) =>
           this.watched.get(String(key))?.handle.set(value),
@@ -308,19 +308,15 @@ export class IframeSurface implements DirtySurface {
       theme: this.theme.resolvedTheme(),
       preview: this.isPreview(),
       shown: this.shown(),
-      ...(this.instanceId ? { instanceId: this.instanceId } : {}),
-      ...(Object.keys(this.routeParams).length > 0
-        ? { params: this.routeParams }
-        : {}),
-      ...(rest === undefined ? {} : { rest }),
-      ...(this.sessionGranted()
-        ? {
+      ...(this.instanceId && { instanceId: this.instanceId }),
+      ...(Object.keys(this.routeParams).length > 0 && { params: this.routeParams }),
+      ...(rest !== undefined && { rest }),
+      ...(this.sessionGranted() && {
             session: {
               authenticated: this.auth.authenticated(),
               roles: this.auth.roles(),
             },
-          }
-        : {}),
+          }),
     };
   }
 
@@ -337,7 +333,7 @@ export class IframeSurface implements DirtySurface {
     return {
       tokens,
       rootFontSize: styles.fontSize,
-      ...(Object.keys(icons).length > 0 ? { icons } : {}),
+      ...(Object.keys(icons).length > 0 && { icons }),
     };
   }
 

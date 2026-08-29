@@ -156,10 +156,12 @@ function ensureStrings(
   const list = Array.isArray(existing) ? [...existing] : [];
   const added: string[] = [];
   for (const entry of wanted) {
-    if (!list.includes(entry)) {
-      list.push(entry);
-      added.push(entry);
+    if (list.includes(entry)) {
+      continue;
     }
+
+    list.push(entry);
+    added.push(entry);
   }
   return { value: list, added };
 }
@@ -179,7 +181,7 @@ function ensureAssets(
     list.push({
       glob: glob.glob,
       input,
-      ...(glob.output === undefined ? {} : { output: glob.output }),
+      ...(glob.output !== undefined && { output: glob.output }),
     });
     added.push(input);
   }

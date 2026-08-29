@@ -57,7 +57,7 @@ function surfaceRoute(
 function subStub(path: string, pathMatch?: 'full'): Route {
   return {
     path,
-    ...(pathMatch ? { pathMatch } : {}),
+    ...(pathMatch && { pathMatch }),
     component: ContentSubStub,
     data: { content: true, sub: true },
   };

@@ -13,15 +13,13 @@ function normalizeTab(value: unknown): PaneTab | null {
   }
   return {
     path: tab['path'],
-    ...(tab['pinned'] === true ? { pinned: true } : {}),
-    ...(tab['preview'] === true ? { preview: true } : {}),
-    ...(tab['closable'] === false ? { closable: false } : {}),
-    ...(typeof tab['title'] === 'string' ? { title: tab['title'] } : {}),
-    ...(tab['literalTitle'] === true ? { literalTitle: true } : {}),
-    ...(typeof tab['icon'] === 'string' ? { icon: tab['icon'] } : {}),
-    ...(typeof tab['instance'] === 'string'
-      ? { instance: tab['instance'] }
-      : {}),
+    ...(tab['pinned'] === true && { pinned: true }),
+    ...(tab['preview'] === true && { preview: true }),
+    ...(tab['closable'] === false && { closable: false }),
+    ...(typeof tab['title'] === 'string' && { title: tab['title'] }),
+    ...(tab['literalTitle'] === true && { literalTitle: true }),
+    ...(typeof tab['icon'] === 'string' && { icon: tab['icon'] }),
+    ...(typeof tab['instance'] === 'string' && { instance: tab['instance'] }),
   };
 }
 

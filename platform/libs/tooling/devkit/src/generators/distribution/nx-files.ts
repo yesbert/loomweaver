@@ -117,15 +117,13 @@ function projectJson(d: NxDistribution): string {
           },
         },
         lint: { executor: '@nx/eslint:lint' },
-        ...(d.withTests
-          ? {
+        ...(d.withTests && {
               test: {
                 executor: '@nx/angular:unit-test',
                 outputs: ['{workspaceRoot}/coverage/{projectName}'],
                 options: { watch: false },
               },
-            }
-          : {}),
+            }),
         'serve-static': {
           continuous: true,
           executor: '@nx/web:file-server',
@@ -178,9 +176,7 @@ export function nxDistributionFiles(d: NxDistribution): FileMap {
     'project.json': projectJson(d) + '\n',
     'tsconfig.json': tsconfig(d) + '\n',
     'tsconfig.app.json': tsconfigApp(d) + '\n',
-    ...(d.withTests
-      ? { 'tsconfig.spec.json': sharedTsconfigSpec(d.depth) + '\n' }
-      : {}),
+    ...(d.withTests && { 'tsconfig.spec.json': sharedTsconfigSpec(d.depth) + '\n' }),
     'eslint.config.mjs': sharedEslintConfig(d.depth, [d.prefix, 'app']),
   };
 }

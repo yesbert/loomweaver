@@ -68,7 +68,7 @@ export function leafWith(
     kind: 'leaf',
     id,
     tabs,
-    ...(active === undefined ? {} : { active }),
-    ...(declared ? { declared: true } : {}),
+    ...(active !== undefined && { active }),
+    ...(declared && { declared: true }),
   };
 }

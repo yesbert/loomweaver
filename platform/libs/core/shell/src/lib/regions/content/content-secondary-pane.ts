@@ -148,9 +148,7 @@ export class ContentSecondaryPane {
     );
     return {
       ...ctx.params,
-      ...(match
-        ? paramsOfPattern(match.declaration.segment ?? '', match.segmentPath)
-        : {}),
+      ...(match && paramsOfPattern(match.declaration.segment ?? '', match.segmentPath)),
     };
   });
 

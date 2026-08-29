@@ -210,8 +210,8 @@ function sanitizeRpcContainerTab(value: unknown): ContainerTabEntry[] {
   return [
     {
       surface: raw['surface'],
-      ...(raw['closable'] === false ? { closable: false } : {}),
-      ...(raw['active'] === true ? { active: true } : {}),
+      ...(raw['closable'] === false && { closable: false }),
+      ...(raw['active'] === true && { active: true }),
     },
   ];
 }

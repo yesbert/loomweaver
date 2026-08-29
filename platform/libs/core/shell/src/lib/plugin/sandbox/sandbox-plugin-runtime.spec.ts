@@ -548,9 +548,9 @@ describe('FramePluginRuntime (iframe + Penpal runtime)', () => {
           id: 'p1',
           entryUrl: '/p1/plugin.html',
           capabilities: ['contributions', 'ui', 'navigation'],
-          ...(name ? { name } : {}),
-          ...(level ? { level } : {}),
-          ...(origins ? { origins } : {}),
+          ...(name && { name }),
+          ...(level && { level }),
+          ...(origins && { origins }),
         }),
       ],
     });

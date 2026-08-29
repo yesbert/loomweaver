@@ -202,7 +202,7 @@ export class PaneTreeService {
     const tree = this.tree(dock);
     const primary = this.primaryId(dock);
     const leaf = paneId === primary ? findLeaf(tree, primary) : undefined;
-    if (leaf && !leaf.tabs.some((tab) => tab.path === tabPath)) {
+    if (leaf && leaf.tabs.every((tab) => tab.path !== tabPath)) {
       return;
     }
     if (leaf && !leaf.declared && leaf.tabs.length <= 1) {

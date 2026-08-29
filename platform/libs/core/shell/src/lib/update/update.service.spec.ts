@@ -70,7 +70,7 @@ function workerWithNeighboursTheRepairMustLeaveStanding() {
   ];
   const cacheDelete = vi.fn(async (key: string) => {
     const at = keys.indexOf(key);
-    if (at >= 0) {
+    if (at !== -1) {
       keys.splice(at, 1);
     }
     return true;

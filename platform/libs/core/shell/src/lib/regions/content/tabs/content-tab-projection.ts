@@ -109,11 +109,11 @@ export function toPaneTab(tab: OpenTab): PaneTab {
   return {
     path: tab.path,
     title: tab.title,
-    ...(tab.literalTitle ? { literalTitle: true } : {}),
-    ...(tab.icon === undefined ? {} : { icon: tab.icon }),
-    ...(tab.pinned ? { pinned: true } : {}),
-    ...(tab.preview ? { preview: true } : {}),
-    ...(tab.closable ? {} : { closable: false }),
+    ...(tab.literalTitle && { literalTitle: true }),
+    ...(tab.icon !== undefined && { icon: tab.icon }),
+    ...(tab.pinned && { pinned: true }),
+    ...(tab.preview && { preview: true }),
+    ...(!tab.closable && { closable: false }),
   };
 }
 
