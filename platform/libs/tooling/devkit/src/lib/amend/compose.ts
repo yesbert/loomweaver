@@ -7,12 +7,28 @@ export interface ComposeResult {
 
 const APP_CONFIG = /export\s+const\s+appConfig\s*:[^=]*=\s*\{/;
 const PROVIDERS_OPEN = /providers\s*:\s*\[/g;
-const PROVIDERS_CLOSE = /\n(\s*)\],/g;
 const SHELL_IMPORT = /import\s*\{([^}]*)\}\s*from\s*'@loomweaver\/shell';/;
 
 interface ProvidersBlock {
   readonly insertAt: number;
   readonly indent: string;
+}
+
+function closingLine(source: string, from: number): ProvidersBlock | null {
+  let close = source.indexOf('],', from);
+  while (close !== -1) {
+    let start = close;
+    while (start > from && source.charAt(start - 1).trim() === '') {
+      start -= 1;
+    }
+    const gap = source.slice(start, close);
+    const newline = gap.indexOf('\n');
+    if (newline !== -1) {
+      return { insertAt: start + newline, indent: gap.slice(newline + 1) };
+    }
+    close = source.indexOf('],', close + 2);
+  }
+  return null;
 }
 
 function providersBlock(source: string): ProvidersBlock | null {
@@ -22,12 +38,7 @@ function providersBlock(source: string): ProvidersBlock | null {
   }
   PROVIDERS_OPEN.lastIndex = declaration.index + declaration[0].length;
   const open = PROVIDERS_OPEN.exec(source);
-  if (!open) {
-    return null;
-  }
-  PROVIDERS_CLOSE.lastIndex = open.index + open[0].length;
-  const close = PROVIDERS_CLOSE.exec(source);
-  return close ? { insertAt: close.index, indent: close[1] ?? '' } : null;
+  return open ? closingLine(source, open.index + open[0].length) : null;
 }
 
 /**
