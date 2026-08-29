@@ -18,7 +18,7 @@ export function baseInitials(name: string): string {
   if (letters.length === 1) {
     return letters[0].toUpperCase();
   }
-  return (letters[0] + letters[letters.length - 1]).toUpperCase();
+  return (letters[0] + (letters.at(-1) ?? '')).toUpperCase();
 }
 
 function* candidatesFor(name: string): Generator<string> {

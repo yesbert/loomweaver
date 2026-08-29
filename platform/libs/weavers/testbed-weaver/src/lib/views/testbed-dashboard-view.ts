@@ -94,7 +94,7 @@ export class TestbedDashboardView {
 
   protected readonly section = toSignal(
     this.route.url.pipe(
-      map((segments) => segments[segments.length - 1]?.path ?? 'overview'),
+      map((segments) => segments.at(-1)?.path ?? 'overview'),
     ),
     { initialValue: 'overview' },
   );

@@ -64,8 +64,8 @@ export class DialogOutlet {
       if (!this.dialogs().length || !panels.length) {
         return;
       }
-      const top = panels[panels.length - 1].nativeElement;
-      if (top.contains(this.document.activeElement)) {
+      const top = panels.at(-1)?.nativeElement;
+      if (!top || top.contains(this.document.activeElement)) {
         return;
       }
       (top.querySelector<HTMLElement>('[data-lw-autofocus]') ?? top).focus();
@@ -97,10 +97,10 @@ export class DialogOutlet {
       return;
     }
     const first = focusables[0];
-    const last = focusables[focusables.length - 1];
+    const last = focusables.at(-1);
     const active = this.document.activeElement;
     if (backward && active === first) {
-      last.focus();
+      last?.focus();
       event.preventDefault();
     } else if (!backward && active === last) {
       first.focus();
@@ -184,7 +184,7 @@ export class DialogOutlet {
 
   private topPanel(): HTMLElement | undefined {
     const panels = this.panels();
-    return panels.length ? panels[panels.length - 1].nativeElement : undefined;
+    return panels.at(-1)?.nativeElement;
   }
 
   private focusable(root: HTMLElement): HTMLElement[] {
@@ -195,6 +195,6 @@ export class DialogOutlet {
 
   private top(): DialogInstance | undefined {
     const list = this.dialogs();
-    return list[list.length - 1];
+    return list.at(-1);
   }
 }

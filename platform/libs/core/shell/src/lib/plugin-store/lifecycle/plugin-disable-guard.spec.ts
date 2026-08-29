@@ -13,7 +13,11 @@ class DirtyProbe implements DirtySurface {
 
 function topDialog() {
   const dialogs = TestBed.inject(DialogService).dialogs();
-  return dialogs[dialogs.length - 1];
+  const top = dialogs.at(-1);
+  if (!top) {
+    throw new Error('expected a dialog to be open');
+  }
+  return top;
 }
 
 async function settle(): Promise<void> {

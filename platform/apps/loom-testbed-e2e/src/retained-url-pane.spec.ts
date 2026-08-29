@@ -189,7 +189,7 @@ function clickTabInPane(
       ].toSorted(
         (a, b) => a.getBoundingClientRect().x - b.getBoundingClientRect().x,
       );
-      const pane = which === 'left' ? panes[0] : panes[panes.length - 1];
+      const pane = which === 'left' ? panes[0] : panes.at(-1);
       const tab = [...pane.querySelectorAll('[role="tab"]')].find((element) =>
         (element.textContent ?? '').includes(name),
       );
@@ -227,7 +227,7 @@ test('state typed into one pane never appears in the other (TreeWeaver #42)', as
     const panes = [
       ...document.querySelectorAll('lw-content-area, lw-pane-view'),
     ].toSorted((a, b) => a.getBoundingClientRect().x - b.getBoundingClientRect().x);
-    panes[panes.length - 1]
+    panes.at(-1)
       .querySelector<HTMLTextAreaElement>('lw-testbed-notes-view textarea')
       ?.focus();
   });

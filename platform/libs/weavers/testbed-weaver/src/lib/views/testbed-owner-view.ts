@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 function lastSegment(url: readonly { readonly path: string }[]): string {
-  return url.length > 0 ? url[url.length - 1].path : 'queue';
+  return url.at(-1)?.path ?? 'queue';
 }
 
 @Component({

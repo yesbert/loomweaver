@@ -1,6 +1,6 @@
 export function upgradeElementProperty(element: HTMLElement, name: string): void {
   const self = element as unknown as Record<string, unknown>;
-  if (Object.prototype.hasOwnProperty.call(element, name)) {
+  if (Object.hasOwn(element, name)) {
     const value = self[name];
     delete self[name];
     self[name] = value;

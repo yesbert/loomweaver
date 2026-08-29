@@ -111,7 +111,7 @@ function components(edges) {
     if (index.has(start)) continue;
     const work = [[start, 0]];
     while (work.length > 0) {
-      const frame = work[work.length - 1];
+      const frame = work.at(-1);
       const [node] = frame;
       if (frame[1] === 0) {
         index.set(node, counter);
@@ -130,7 +130,7 @@ function components(edges) {
       }
       work.pop();
       if (work.length > 0) {
-        const parent = work[work.length - 1][0];
+        const parent = work.at(-1)[0];
         low.set(parent, Math.min(low.get(parent), low.get(node)));
       }
       if (low.get(node) === index.get(node)) {
