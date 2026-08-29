@@ -168,8 +168,9 @@ onboarding, which never becomes a tab and shows no strip while it is active.
 Exactly **one** pane carries the address at a time; every other pane renders what it holds. That role
 follows the user: clicking a tab (or into a pane) hands the address to that pane, and navigating to a
 surface another pane already holds reaches it **there** instead of opening a second copy beside the
-current one. A workspace that parks a surface in its own pane therefore keeps working when a rail item
-or command points at it. For this to work, the distribution sets up the router with
+current one. That holds however the navigation was started — an ordinary link inside content, a rail
+item, a command, browser history — so a workspace that parks a surface in its own pane keeps working
+whatever points at it. For this to work, the distribution sets up the router with
 **`provideShellRouter()`**. Call it **instead of** `provideRouter([])`. It bundles
 `withDisabledInitialNavigation()`, the state-preserving reuse strategy, and the route sync as one
 unit, so you can't half-configure it. Pass your own non-content

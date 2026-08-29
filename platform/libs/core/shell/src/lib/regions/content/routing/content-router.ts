@@ -15,6 +15,7 @@ import { RouteUnavailableView } from '../access/route-unavailable-view';
 import { accessCanMatch } from '../access/content-access';
 import { BootAddress } from './boot-address';
 import { ContentReuseStrategy } from './content-reuse-strategy';
+import { keepPopout } from './keep-popout.guard';
 import { settleWorkspace } from './settle-workspace.guard';
 import {
   RetentionDefault,
@@ -34,6 +35,7 @@ export function buildContentRoutes(
   const placeholders: Routes = omitted.map((route) => ({
     path: route.path,
     component: RouteUnavailableView,
+    canActivate: [keepPopout],
     data: { content: true, routePlaceholder: true },
   }));
   return [...buildRegisteredRoutes(contentRoutes, retention), ...placeholders];
@@ -90,7 +92,7 @@ function buildRegisteredRoutes(
     const angular: Route = {
       path: route.path,
       ...surfaceRoute(route, retained),
-      canActivate: [settleWorkspace],
+      canActivate: [keepPopout, settleWorkspace],
       data: {
         content: true,
         chromeless: route.chromeless,
@@ -110,6 +112,7 @@ function buildRegisteredRoutes(
       const placeholder: Route = {
         path: route.path,
         component: AuthRequiredView,
+        canActivate: [keepPopout],
         data: {
           content: true,
           authPlaceholder: true,

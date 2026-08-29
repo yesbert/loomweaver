@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import type { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { WORKSPACE_CLAIMS } from '../../../foundation/workspace-claims';
 import { buildContentRoutes } from './content-router';
+import { keepPopout } from './keep-popout.guard';
 import { settleWorkspace } from './settle-workspace.guard';
 
 describe('settling the workspace before content is shown', () => {
@@ -18,10 +19,12 @@ describe('settling the workspace before content is shown', () => {
       } as never,
     ]);
 
-    const guarded = routes.filter((route) => route.canActivate !== undefined);
+    const guarded = routes.filter((route) =>
+      route.canActivate?.includes(settleWorkspace),
+    );
     expect(guarded).toHaveLength(3);
     for (const route of guarded) {
-      expect(route.canActivate).toEqual([settleWorkspace]);
+      expect(route.canActivate).toEqual([keepPopout, settleWorkspace]);
     }
   });
 

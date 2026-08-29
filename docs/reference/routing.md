@@ -68,18 +68,19 @@ Inside your own surface, a link is a link:
 That opens the tab, is a real anchor with a real URL for middle-click and "copy link address", and
 costs no capability, because it is not a `ctx` call.
 
-`ctx.navigateContent(path)` does the same navigation and two things more, which is why chrome-level
-callers use it. It hands the address to a pane that **already holds** that content, so a rail item
-pointing at a surface the user parked in a split pane reaches it there instead of opening a second
-copy beside the current one. And in a pop-out window it refuses with an explanation, where a
-`routerLink` would navigate the pop-out's own router, which is not something a pop-out has an area
-for.
+It also reaches the content **where it already is**: if the user parked that surface in a split pane,
+the link lands there rather than opening a second copy beside what they were looking at, and inside a
+pop-out window it is refused with an explanation instead of navigating the window away from the one
+surface it exists to show. That is the workbench's behaviour for every navigation, whoever started
+it — a link, a programmatic `router.navigate`, a command, browser history — so there is no rule here
+to remember and no wrong way to navigate.
 
-So the rule is short:
-
-- **a link the user clicks inside your surface** — `routerLink`, every time;
-- **a rail item, a command, a bar item, anything the chrome triggers** — `ctx.navigateContent`, so it
-  finds the copy the user already has open.
+`ctx.navigateContent(path)` performs the same navigation, and it exists for reasons that are not
+behavioural: it is gated by the `navigation` capability, so a distribution can refuse it; it is the
+form a **sandboxed** plugin has, which cannot reach the router at all because it runs in another
+document; and it is the one that reports back whether the navigation happened. Use it from a plugin
+that may be sandboxed and from chrome-level code that wants that answer. Inside your own surface, use
+`routerLink`.
 
 `ctx.openContentTab({ path, title })` is the third one, and it is not navigation with a nicer name:
 it is how you give a tab a title the URL does not carry (a document name), and how you attach an
