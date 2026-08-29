@@ -27,14 +27,15 @@ copies. The landing page is hand-written and lives in `landing/index.mdx`.
 
 ## The pages that are not documentation
 
-`src/pages/impressum.astro` and `src/pages/datenschutz.astro` are the legal pages, written in
-German because that is the language they are owed in. They are not synced from `docs/`, and they
-stay out of the sidebar and out of the search index.
+`src/pages/imprint.astro` and `src/pages/privacy.astro` are the legal pages. They quote German law
+because the operator is in Germany, but they are written in the language this site speaks, like
+every other page here. They are not synced from `docs/`, and they stay out of the sidebar and out
+of the search index.
 
 `src/components/Footer.astro` overrides Starlight's footer to carry the links to them, and it
 renders `ConsentBanner.astro`. The banner is what loads Umami: the analytics script is appended
-only once a visitor agrees, the answer is remembered in `localStorage` under `lw-consent`, and
-the footer's "Cookie-Einstellungen" and the button in the privacy policy take it back.
+only once a visitor agrees, the answer is remembered in `localStorage` under `lw-consent`, and both
+the footer's "Cookie settings" and the button in the privacy policy take it back.
 
 ## Licences
 
