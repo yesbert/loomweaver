@@ -1248,7 +1248,9 @@ Now any item can trigger it with `command: 'notes.add'` instead of its own `run(
 A command can also take **described arguments**, **answer with a result**, and be **opened to a caller
 that is not the user** — another plugin, a script, an assistant driving the app — so that nobody has
 to build a second list of your actions beside this one. It is closed to such callers until it says
-otherwise. See [callable commands](reference/callable-commands.md).
+otherwise. See [callable commands](reference/callable-commands.md), and, where that caller is an
+AG-UI agent, [agent tools](reference/agent-tools.md) for the adapter that describes your commands to
+it and runs what it asks for, so you write no dispatch of your own.
 
 ## Rail & bar items — command triggers in the chrome
 
