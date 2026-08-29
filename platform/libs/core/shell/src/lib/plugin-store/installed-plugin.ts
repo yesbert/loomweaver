@@ -189,7 +189,7 @@ export function parseInstalledList(
     if (!Array.isArray(parsed)) {
       return [];
     }
-    return dedupeById(parsed.map(parseInstalledPlugin));
+    return dedupeById(parsed.map((raw) => parseInstalledPlugin(raw)));
   } catch {
     return [];
   }
@@ -199,5 +199,5 @@ export function parseCatalogList(raw: unknown): readonly PluginCatalogEntry[] {
   if (!Array.isArray(raw)) {
     return [];
   }
-  return dedupeById(raw.map(parseCatalogEntry));
+  return dedupeById(raw.map((entry) => parseCatalogEntry(entry)));
 }

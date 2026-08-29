@@ -12,7 +12,7 @@ function isUnsafePath(path: string): boolean {
 
 export function generate<Input>(recipe: Recipe<Input>, input: Input): FileMap {
   const files = recipe.build(input);
-  const unsafe = Object.keys(files).find(isUnsafePath);
+  const unsafe = Object.keys(files).find((path) => isUnsafePath(path));
   if (unsafe !== undefined) {
     throw new Error(`Recipe "${recipe.id}" produced an unsafe path: "${unsafe}".`);
   }

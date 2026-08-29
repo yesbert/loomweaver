@@ -54,7 +54,7 @@ export function planAmend(
       amendments: [],
       remaining: [
         'No workspace was found above the target directory, so nothing could be wired here. Add it ' +
-          `by hand, or generate inside the workspace: ${amendments.map(describeAmendment).join(' · ')}`,
+          `by hand, or generate inside the workspace: ${amendments.map((amendment) => describeAmendment(amendment)).join(' · ')}`,
       ],
     };
   }

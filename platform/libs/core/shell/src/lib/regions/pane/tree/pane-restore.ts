@@ -33,7 +33,7 @@ function normalizeLeafNode(
   }
   const rawTabs = node['tabs'];
   const tabs = Array.isArray(rawTabs)
-    ? rawTabs.map(normalizeTab).filter((tab): tab is PaneTab => tab !== null)
+    ? rawTabs.map((value) => normalizeTab(value)).filter((tab): tab is PaneTab => tab !== null)
     : [];
   const rawActive = node['active'];
   return leafWith(

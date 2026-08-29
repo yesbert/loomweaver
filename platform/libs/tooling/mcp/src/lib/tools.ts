@@ -56,7 +56,7 @@ export function scaffold(
   args: Args,
 ): ToolResult {
   const values = valuesFor(scaffold, args);
-  const remaining = (scaffold.amend?.(values) ?? []).map(describeAmendment);
+  const remaining = (scaffold.amend?.(values) ?? []).map((amendment) => describeAmendment(amendment));
   return ok({
     files: scaffold.build(values),
     ...(remaining.length > 0 && { remaining }),

@@ -96,7 +96,7 @@ export class ContributionRegistry {
         : docked.filter(
             (entry) => entry.id === undefined || !omitted.has(entry.id),
           );
-    return visible.map(entryToView);
+    return visible.map((entry) => entryToView(entry));
   });
 
   readonly barItems: Signal<readonly BarItem[]> = this.visible(
@@ -114,7 +114,7 @@ export class ContributionRegistry {
    */
   readonly contentRoutes: Signal<readonly RegisteredContentRoute[]> = computed(
     () => {
-      const routes = this.routableSurfaces().map(entryToContentRoute);
+      const routes = this.routableSurfaces().map((entry) => entryToContentRoute(entry));
       const omitted = this.omittedSignal();
       if (omitted.size === 0) {
         return routes;
@@ -135,7 +135,7 @@ export class ContributionRegistry {
         return NO_ROUTES;
       }
       return this.routableSurfaces()
-        .map(entryToContentRoute)
+        .map((entry) => entryToContentRoute(entry))
         .filter((route) => isRouteOmitted(route, omitted));
     });
 

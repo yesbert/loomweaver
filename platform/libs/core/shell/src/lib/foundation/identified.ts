@@ -7,7 +7,7 @@ export function upsertBy<T>(
   item: T,
   matches: (existing: T) => boolean,
 ): readonly T[] {
-  const index = items.findIndex(matches);
+  const index = items.findIndex((existing) => matches(existing));
   if (index === -1) {
     return [...items, item];
   }
