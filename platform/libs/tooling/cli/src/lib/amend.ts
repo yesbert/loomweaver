@@ -5,9 +5,11 @@ import {
   ComposePluginAmendment,
   composePlugin,
   ensureBuildTarget,
+  ensureDependency,
   ensurePostcssPlugin,
   ensureStylesheetSource,
   describeAmendment,
+  PackageAmendment,
   PostcssAmendment,
   StylesheetSourceAmendment,
 } from '@loomweaver/devkit';
@@ -71,7 +73,9 @@ class Amender {
   private readonly planned: PlannedAmendment[] = [];
   private readonly remaining: string[] = [];
   private readonly configAdded: string[] = [];
+  private readonly manifestAdded: string[] = [];
   private config?: Record<string, unknown>;
+  private manifest?: Record<string, unknown>;
   private project?: BuildProject;
 
   constructor(
@@ -84,12 +88,17 @@ class Amender {
       this.planOne(amendment);
     }
     this.flushConfig();
+    this.flushManifest();
     return { amendments: this.planned, remaining: this.remaining };
   }
 
   private planOne(amendment: Amendment): void {
     if (amendment.kind === 'postcss') {
       this.planPostcss(amendment);
+      return;
+    }
+    if (amendment.kind === 'package') {
+      this.planPackage(amendment);
       return;
     }
     if (this.workspace.kind !== 'angular') {
@@ -134,6 +143,42 @@ class Amender {
       added: result.added,
       content: `${JSON.stringify(result.value, null, 2)}\n`,
     });
+  }
+
+  private planPackage(amendment: PackageAmendment): void {
+    const file = resolve(this.workspace.root, 'package.json');
+    if (!existsSync(file)) {
+      this.remaining.push(describeAmendment(amendment));
+      return;
+    }
+    const manifest = this.manifest ?? readJsonFile(file);
+    const result = ensureDependency(manifest, amendment);
+    this.remaining.push(...result.declined);
+    if (result.added.length === 0) {
+      return;
+    }
+    this.manifest = result.value;
+    this.manifestAdded.push(...result.added);
+  }
+
+  private flushManifest(): void {
+    if (this.manifestAdded.length === 0 || !this.manifest) {
+      return;
+    }
+    const file = resolve(this.workspace.root, 'package.json');
+    this.planned.push({
+      file,
+      display: this.displayName(file),
+      added: this.manifestAdded,
+      content: `${JSON.stringify(this.manifest, null, 2)}\n`,
+    });
+    this.remaining.push(
+      `Install what was just recorded in ${this.displayName(file)} (${this.manifestAdded
+        .map((entry) => entry.replace('dependencies: ', ''))
+        .join(
+          ', ',
+        )}) — recording it is not installing it, and the build fails until you do.`,
+    );
   }
 
   private planBuildTarget(
@@ -216,7 +261,9 @@ class Amender {
     this.planned.push({
       file: root,
       display: this.displayName(root),
-      added: [`${amendment.symbol}, its translations and its capability grants`],
+      added: [
+        `${amendment.symbol}, its translations and its capability grants`,
+      ],
       content: result.source,
     });
   }
@@ -286,16 +333,19 @@ class Amender {
   }
 
   private entryStylesheet(project: BuildProject): string | undefined {
-    const styles = asObject(asObject(this.buildTarget(project.name)?.value)?.['options'])?.[
-      'styles'
-    ];
+    const styles = asObject(
+      asObject(this.buildTarget(project.name)?.value)?.['options'],
+    )?.['styles'];
     if (!Array.isArray(styles)) {
       return undefined;
     }
     const entry = styles.find(
-      (style): style is string => typeof style === 'string' && style.endsWith('.css'),
+      (style): style is string =>
+        typeof style === 'string' && style.endsWith('.css'),
     );
-    return entry === undefined ? undefined : resolve(this.workspace.root, entry);
+    return entry === undefined
+      ? undefined
+      : resolve(this.workspace.root, entry);
   }
 
   private nonAngularNote(amendment: Amendment): string {

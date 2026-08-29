@@ -41,8 +41,12 @@ describe('angularWeaver recipe', () => {
     expect(plugin).toContain("routable: { path: 'notes' }");
     expect(plugin).toContain('ctx.registerRailItem(');
     expect(plugin).toContain("ctx.navigateContent('notes')");
-    expect(files['src/index.ts']).toBe("export { notesPlugin } from './lib/plugin/notes.plugin';\n");
-    expect(JSON.parse(files['src/lib/i18n/en.json'])).toEqual({ title: 'Notes' });
+    expect(files['src/index.ts']).toBe(
+      "export { notesPlugin } from './lib/plugin/notes.plugin';\n",
+    );
+    expect(JSON.parse(files['src/lib/i18n/en.json'])).toEqual({
+      title: 'Notes',
+    });
   });
 
   it('gives chrome items collision-safe ids distinct from surface and command ids', () => {
@@ -82,7 +86,10 @@ describe('angularWeaver recipe', () => {
   it('scaffolds a command + derives the ui capability', () => {
     const w = resolveWeaverInput({ id: 'notes', features: { command: true } });
     expect(w.capabilities).toEqual(['contributions', 'ui', 'navigation']);
-    const files = generate(angularWeaver, { id: 'notes', features: { command: true } });
+    const files = generate(angularWeaver, {
+      id: 'notes',
+      features: { command: true },
+    });
     const plugin = files['src/lib/plugin/notes.plugin.ts'];
     expect(plugin).toContain('ctx.registerCommand(');
     expect(plugin).toContain("id: 'notes.hello'");
@@ -91,7 +98,10 @@ describe('angularWeaver recipe', () => {
   });
 
   it('hooks a menu item into a slot (implying a command)', () => {
-    const files = generate(angularWeaver, { id: 'notes', features: { menu: 'content/tab/context' } });
+    const files = generate(angularWeaver, {
+      id: 'notes',
+      features: { menu: 'content/tab/context' },
+    });
     const plugin = files['src/lib/plugin/notes.plugin.ts'];
     expect(plugin).toContain('ctx.registerMenuItem(');
     expect(plugin).toContain("menu: 'content/tab/context'");
@@ -100,7 +110,10 @@ describe('angularWeaver recipe', () => {
   });
 
   it('scaffolds a settings section with signal-backed owners', () => {
-    const files = generate(angularWeaver, { id: 'notes', features: { settings: true } });
+    const files = generate(angularWeaver, {
+      id: 'notes',
+      features: { settings: true },
+    });
     const plugin = files['src/lib/plugin/notes.plugin.ts'];
     expect(plugin).toContain("import { signal } from '@angular/core'");
     expect(plugin).toContain('ctx.registerSettingsSection(');
@@ -112,19 +125,23 @@ describe('angularWeaver recipe', () => {
   });
 
   it('auth-gates the surface and rail with an access requirement', () => {
-    const plugin = generate(angularWeaver, { id: 'notes', features: { access: 'role:admin' } })[
-      'src/lib/plugin/notes.plugin.ts'
-    ];
+    const plugin = generate(angularWeaver, {
+      id: 'notes',
+      features: { access: 'role:admin' },
+    })['src/lib/plugin/notes.plugin.ts'];
     expect(plugin).toContain("access: { anyRole: ['admin'] }");
-    expect(generate(angularWeaver, { id: 'notes', features: { access: 'authenticated' } })[
-      'src/lib/plugin/notes.plugin.ts'
-    ]).toContain('access: { authenticated: true }');
+    expect(
+      generate(angularWeaver, {
+        id: 'notes',
+        features: { access: 'authenticated' },
+      })['src/lib/plugin/notes.plugin.ts'],
+    ).toContain('access: { authenticated: true }');
   });
 
   it('rejects an unknown access spec', () => {
-    expect(() => resolveWeaverInput({ id: 'notes', features: { access: 'nope' } })).toThrow(
-      /Unknown access/,
-    );
+    expect(() =>
+      resolveWeaverInput({ id: 'notes', features: { access: 'nope' } }),
+    ).toThrow(/Unknown access/);
   });
 
   it('rejects a role with quotes or backslashes (scaffold injection)', () => {
@@ -139,14 +156,19 @@ describe('angularWeaver recipe', () => {
       prefix: 'acme',
       features: { about: true },
     });
-    expect(files['src/lib/views/notes-view.ts']).toContain("selector: 'acme-notes-view'");
+    expect(files['src/lib/views/notes-view.ts']).toContain(
+      "selector: 'acme-notes-view'",
+    );
     expect(files['src/lib/dialogs/notes-about-dialog.ts']).toContain(
       "selector: 'acme-notes-about-dialog'",
     );
   });
 
   it('writes the wiring README against the import path the workspace registers', () => {
-    const scoped = generate(angularWeaver, { id: 'notes', importPath: '@acme/notes-weaver' });
+    const scoped = generate(angularWeaver, {
+      id: 'notes',
+      importPath: '@acme/notes-weaver',
+    });
     expect(scoped['README.md']).toContain("from '@acme/notes-weaver'");
     const unscoped = generate(angularWeaver, { id: 'notes' });
     expect(unscoped['README.md']).toContain("from '@loomweaver/notes-weaver'");
@@ -163,25 +185,31 @@ describe('angularWeaver recipe', () => {
       generate(angularWeaver, { id: 'notes', features: { shortcut: 'cmd+k' } }),
     ).toThrow(/'mod'/);
     expect(() =>
-      generate(angularWeaver, { id: 'notes', features: { shortcut: 'ctrl+shift+p' } }),
+      generate(angularWeaver, {
+        id: 'notes',
+        features: { shortcut: 'ctrl+shift+p' },
+      }),
     ).toThrow(/'mod'/);
   });
 
   it('defaults the command shortcut and lets it be overridden', () => {
-    const auto = generate(angularWeaver, { id: 'notes', features: { command: true } })[
-      'src/lib/plugin/notes.plugin.ts'
-    ];
+    const auto = generate(angularWeaver, {
+      id: 'notes',
+      features: { command: true },
+    })['src/lib/plugin/notes.plugin.ts'];
     expect(auto).toContain("shortcut: 'mod+shift+n'");
-    const custom = generate(angularWeaver, { id: 'notes', features: { shortcut: 'mod+k' } })[
-      'src/lib/plugin/notes.plugin.ts'
-    ];
+    const custom = generate(angularWeaver, {
+      id: 'notes',
+      features: { shortcut: 'mod+k' },
+    })['src/lib/plugin/notes.plugin.ts'];
     expect(custom).toContain("shortcut: 'mod+k'");
   });
 
   it('adds a status-bar button (implying a command)', () => {
-    const plugin = generate(angularWeaver, { id: 'notes', features: { barItem: true } })[
-      'src/lib/plugin/notes.plugin.ts'
-    ];
+    const plugin = generate(angularWeaver, {
+      id: 'notes',
+      features: { barItem: true },
+    })['src/lib/plugin/notes.plugin.ts'];
     expect(plugin).toContain('ctx.registerBarItem(');
     expect(plugin).toContain("bar: 'status-bar'");
     expect(plugin).toContain('ctx.registerCommand(');
@@ -189,11 +217,23 @@ describe('angularWeaver recipe', () => {
 
   it('scaffolds an About dialog + derives ui and host capabilities', () => {
     const w = resolveWeaverInput({ id: 'notes', features: { about: true } });
-    expect(w.capabilities).toEqual(['contributions', 'ui', 'host', 'navigation']);
-    const files = generate(angularWeaver, { id: 'notes', features: { about: true } });
+    expect(w.capabilities).toEqual([
+      'contributions',
+      'ui',
+      'host',
+      'navigation',
+    ]);
+    const files = generate(angularWeaver, {
+      id: 'notes',
+      features: { about: true },
+    });
     const plugin = files['src/lib/plugin/notes.plugin.ts'];
-    expect(files['src/lib/dialogs/notes-about-dialog.ts']).toContain('class NotesAboutDialog');
-    expect(files['src/lib/dialogs/notes-about-dialog.html']).toContain('host.version()');
+    expect(files['src/lib/dialogs/notes-about-dialog.ts']).toContain(
+      'class NotesAboutDialog',
+    );
+    expect(files['src/lib/dialogs/notes-about-dialog.html']).toContain(
+      'host.version()',
+    );
     expect(plugin).toContain('ctx.ui.open(NotesAboutDialog');
     expect(plugin).toContain('data: ctx.host');
   });
@@ -211,7 +251,9 @@ describe('angularWeaver recipe', () => {
 
     it('persists the view through VIEW_STATE, the only path that survives a hide', () => {
       const view = files['src/lib/views/notes-view.ts'];
-      expect(view).toContain("import { VIEW_STATE, type ViewState } from '@loomweaver/plugin-sdk'");
+      expect(view).toContain(
+        "import { VIEW_STATE, type ViewState } from '@loomweaver/plugin-sdk'",
+      );
       expect(view).toContain('inject(VIEW_STATE)');
       expect(view).toContain('this.viewState.value() ?? FRESH');
       expect(view).toContain('...this.state(),');
@@ -251,7 +293,7 @@ describe('angularWeaver recipe', () => {
 
     it('gives the children components that read the container id', () => {
       const canvas = files['src/lib/views/notes-canvas-view.ts'];
-      expect(canvas).toContain("inject(ActivatedRoute, { optional: true })");
+      expect(canvas).toContain('inject(ActivatedRoute, { optional: true })');
       expect(canvas).toContain("paramMap.get('id')");
       expect(files['src/lib/views/notes-details-view.ts']).toBeDefined();
     });
@@ -283,7 +325,10 @@ describe('angularWeaver recipe', () => {
   });
 
   it('omits the starter spec when spec is false', () => {
-    const files = generate(angularWeaver, { id: 'notes', features: { spec: false } });
+    const files = generate(angularWeaver, {
+      id: 'notes',
+      features: { spec: false },
+    });
     expect(files['src/lib/plugin/notes.plugin.spec.ts']).toBeUndefined();
   });
 
@@ -291,5 +336,172 @@ describe('angularWeaver recipe', () => {
     const readme = generate(angularWeaver, { id: 'notes' })['README.md'];
     expect(readme).toContain('...providePlugins(notesPlugin)');
     expect(readme).not.toMatch(/providePlugins\(\[/);
+  });
+});
+
+describe('angularWeaver agent connection', () => {
+  const agentWeaver = () =>
+    generate(angularWeaver, {
+      id: 'notes',
+      name: 'Notes',
+      features: { agent: true },
+    });
+
+  it('emits the connection, a panel, a stand-in and a test of the whole path', () => {
+    expect(
+      Object.keys(agentWeaver())
+        .filter((path) => path.includes('/agent/'))
+        .toSorted((a, b) => a.localeCompare(b)),
+    ).toEqual([
+      'src/lib/agent/notes-agent-panel.html',
+      'src/lib/agent/notes-agent-panel.ts',
+      'src/lib/agent/notes-agent-source.ts',
+      'src/lib/agent/notes-agent.spec.ts',
+      'src/lib/agent/notes-agent.ts',
+    ]);
+  });
+
+  it('declares the permission that reaching other plugins commands needs', () => {
+    const w = resolveWeaverInput({ id: 'notes', features: { agent: true } });
+    expect(w.capabilities).toContain('automation');
+    expect(w.capabilities).toContain('ui');
+    expect(agentWeaver()['src/lib/plugin/notes.plugin.ts']).toContain(
+      "'automation'",
+    );
+  });
+
+  it('gives the connection something to offer, because one that offers nothing shows nothing', () => {
+    const w = resolveWeaverInput({ id: 'notes', features: { agent: true } });
+    expect(w.features.command).toBe(true);
+    expect(agentWeaver()['src/lib/plugin/notes.plugin.ts']).toContain(
+      "id: 'notes.hello'",
+    );
+  });
+
+  it('docks the panel and clears the connection when the plugin goes away', () => {
+    const plugin = agentWeaver()['src/lib/plugin/notes.plugin.ts'];
+    expect(plugin).toContain("id: 'notes.agent'");
+    expect(plugin).toContain("docks: ['right-panel']");
+    expect(plugin).toContain('notesAgent.set(notesConnection(ctx));');
+    expect(plugin).toContain('deactivate()');
+  });
+
+  it('generates no transport, no credential and no model', () => {
+    for (const source of Object.values(agentWeaver())) {
+      expect(source).not.toMatch(
+        /\bfetch\(|EventSource|WebSocket|apiKey|API_KEY|Authorization/,
+      );
+    }
+  });
+
+  it('says in the stand-in itself that it is one, and what replaces it', () => {
+    const standIn = agentWeaver()['src/lib/agent/notes-agent-source.ts'];
+    expect(standIn).toContain('a stand-in for an agent, and not an agent');
+    expect(standIn).toContain('this file, and only this file');
+    expect(agentWeaver()['src/lib/agent/notes-agent-panel.html']).toContain(
+      'This is a stand-in, not an assistant',
+    );
+  });
+
+  it('confines the stand-in to one file the panel does not name', () => {
+    const panel = agentWeaver()['src/lib/agent/notes-agent-panel.ts'];
+    expect(panel).toContain("from './notes-agent-source'");
+    expect(panel).not.toContain('stand-in');
+  });
+
+  it('asks the workbench for the offered list on every run rather than keeping one', () => {
+    const panel = agentWeaver()['src/lib/agent/notes-agent-panel.ts'];
+    expect(
+      panel.match(/tools\.list\(\)|Agent\(\)\?\.list\(\)/g)?.length,
+    ).toBeGreaterThan(1);
+    expect(panel).toContain('const offered = tools.list();');
+  });
+
+  it('names the weaver own command as consequential and declines it by asking', () => {
+    const connection = agentWeaver()['src/lib/agent/notes-agent.ts'];
+    expect(connection).toContain(
+      "const CONSEQUENTIAL = new Set(['notes.hello']);",
+    );
+    expect(connection).toContain('ctx.ui.confirm(');
+    expect(connection).toContain("{ decision: 'decline'");
+  });
+
+  it('emits a test that drives a real call and a declined one', () => {
+    const spec = agentWeaver()['src/lib/agent/notes-agent.spec.ts'];
+    expect(spec).toContain('EventType.TOOL_CALL_START');
+    expect(spec).toContain('EventType.TOOL_CALL_ARGS');
+    expect(spec).toContain('EventType.TOOL_CALL_END');
+    expect(spec).toContain(
+      'never reaches the workbench when a consequential call is declined',
+    );
+  });
+
+  it('omits the agent test where no starter test was asked for', () => {
+    const files = generate(angularWeaver, {
+      id: 'notes',
+      features: { agent: true, spec: false },
+    });
+    expect(files['src/lib/agent/notes-agent.spec.ts']).toBeUndefined();
+    expect(files['src/lib/agent/notes-agent.ts']).toBeDefined();
+  });
+
+  it('emits nothing of the kind without the feature', () => {
+    const files = generate(angularWeaver, { id: 'notes' });
+    expect(Object.keys(files).some((path) => path.includes('/agent/'))).toBe(
+      false,
+    );
+  });
+
+  it('translates every string the connection puts through the host', () => {
+    const files = agentWeaver();
+    const en = JSON.parse(files['src/lib/i18n/en.json']);
+    expect(en.agent.title).toBeTruthy();
+    expect(en.agent.confirm.yes).toBeTruthy();
+    expect(
+      validateI18nParity({ en, de: JSON.parse(files['src/lib/i18n/de.json']) }),
+    ).toEqual([]);
+  });
+});
+
+describe('angularWeaver agent connection beside the other features', () => {
+  it('is imported from one place only, so replacing the stand-in touches nothing else', () => {
+    const files = generate(angularWeaver, {
+      id: 'notes',
+      features: { agent: true },
+    });
+    const importing = Object.entries(files)
+      .filter(([, source]) => source.includes("from './notes-agent-source'"))
+      .map(([path]) => path);
+    expect(importing).toEqual(['src/lib/agent/notes-agent-panel.ts']);
+    expect(files['src/lib/agent/notes-agent-panel.ts']).toContain(
+      "import { askAgent } from './notes-agent-source';",
+    );
+    expect(files['README.md']).toContain('Replace that one file with');
+  });
+
+  it.each([
+    ['instanceable', { instanceable: true }],
+    ['container', { container: true }],
+    ['gated', { access: 'authenticated' }],
+    ['settings and about', { settings: true, about: true }],
+  ])('composes with a %s surface without reshaping either', (_, extra) => {
+    const files = generate(angularWeaver, {
+      id: 'notes',
+      features: { agent: true, ...extra },
+    });
+    const plugin = files['src/lib/plugin/notes.plugin.ts'];
+    expect(files['src/lib/agent/notes-agent.ts']).toBeDefined();
+    expect(plugin).toContain("id: 'notes.agent'");
+    expect(plugin).toContain("docks: ['right-panel']");
+    expect(plugin).toContain('deactivate()');
+  });
+
+  it('leaves the agent panel ungated, because gating the surface is not gating the connection', () => {
+    const plugin = generate(angularWeaver, {
+      id: 'notes',
+      features: { agent: true, access: 'authenticated' },
+    })['src/lib/plugin/notes.plugin.ts'];
+    const panel = plugin.slice(plugin.indexOf("id: 'notes.agent'"));
+    expect(panel).not.toContain('access:');
   });
 });

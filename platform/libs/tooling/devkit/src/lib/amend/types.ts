@@ -9,7 +9,8 @@ export type Amendment =
   | PostcssAmendment
   | BuildTargetAmendment
   | StylesheetSourceAmendment
-  | ComposePluginAmendment;
+  | ComposePluginAmendment
+  | PackageAmendment;
 
 /**
  * An entry in a build target's `assets` array. Where the input is resolved from differs per entry
@@ -73,4 +74,16 @@ export interface ComposePluginAmendment {
   readonly capabilities: readonly string[];
   /** Workspace-relative, because only the applying route knows where the composition root sits. */
   readonly sourceRoot: string;
+}
+
+/**
+ * A package the generated files import and the consumer's project may not carry. Stated as a need
+ * rather than as a version to set: a route that can reach the workspace records it, a route that
+ * cannot names it, and a version the consumer already chose is never overwritten.
+ */
+export interface PackageAmendment {
+  readonly kind: 'package';
+  readonly name: string;
+  /** The range to record when nothing is recorded yet. */
+  readonly version: string;
 }

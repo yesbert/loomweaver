@@ -1,4 +1,11 @@
-import { formatFiles, Tree, updateJson } from '@nx/devkit';
+import {
+  addDependenciesToPackageJson,
+  formatFiles,
+  GeneratorCallback,
+  Tree,
+  updateJson,
+} from '@nx/devkit';
+import { Amendment } from '../../lib/amend/types';
 import { generate } from '../../lib/generate/generate';
 import {
   addI18nAssetsGlob,
@@ -8,6 +15,7 @@ import {
   workspaceScope,
   writeFiles,
 } from '../shared';
+import { weaverAmendments } from '../../recipes/angular-weaver/amendments';
 import { angularWeaver } from '../../recipes/angular-weaver/recipe';
 import { nxWeaverFiles, nxWeaverProject } from './nx-files';
 import { WeaverGeneratorSchema } from './schema';
@@ -15,7 +23,7 @@ import { WeaverGeneratorSchema } from './schema';
 export async function weaverGenerator(
   tree: Tree,
   options: WeaverGeneratorSchema,
-): Promise<void> {
+): Promise<GeneratorCallback | void> {
   const baseTsconfig = tsconfigPathsFile(tree);
   const app = appFor(tree, options);
   const project = nxWeaverProject({
@@ -33,7 +41,7 @@ export async function weaverGenerator(
     throw new Error(`A project already exists at ${project.projectRoot}.`);
   }
 
-  const source = generate(angularWeaver, {
+  const input = {
     id: options.id,
     name: options.name,
     prefix: project.prefix,
@@ -48,9 +56,11 @@ export async function weaverGenerator(
       about: options.about,
       instanceable: options.instanceable,
       container: options.container,
+      agent: options.agent,
       spec: options.spec,
     },
-  });
+  };
+  const source = generate(angularWeaver, input);
   writeFiles(tree, project.projectRoot, source, nxWeaverFiles(project));
 
   updateJson(tree, baseTsconfig, (json) => {
@@ -70,7 +80,28 @@ export async function weaverGenerator(
     addTailwindSource(tree, app, `${project.projectRoot}/src`);
   }
 
+  const installed = addPackages(
+    tree,
+    weaverAmendments(input, project.projectRoot),
+  );
+
   await formatFiles(tree);
+  return installed;
+}
+
+function addPackages(
+  tree: Tree,
+  amendments: readonly Amendment[],
+): GeneratorCallback | undefined {
+  const wanted: Record<string, string> = {};
+  for (const amendment of amendments) {
+    if (amendment.kind === 'package') {
+      wanted[amendment.name] = amendment.version;
+    }
+  }
+  return Object.keys(wanted).length === 0
+    ? undefined
+    : addDependenciesToPackageJson(tree, wanted, {});
 }
 
 function appFor(

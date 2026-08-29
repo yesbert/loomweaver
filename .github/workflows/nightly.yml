@@ -78,7 +78,7 @@ jobs:
       # needs its stylesheet built on top of being packaged.
       - name: Build what a reader would install
         run: |
-          npx nx run-many -t package --projects=shell,plugin-sdk
+          npx nx run-many -t package --projects=shell,plugin-sdk,ag-ui
           npx nx run shell:styles
           npx nx run cli:bundle
 

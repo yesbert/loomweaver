@@ -172,6 +172,13 @@ export const SCAFFOLDS: readonly ScaffoldDescriptor[] = [
         default: false,
       },
       {
+        name: 'agent',
+        type: 'boolean',
+        description:
+          'Also scaffold the connection that lets an AG-UI agent run the commands this workbench offers: a docked panel, the seam where a call is decided before it runs, and a local stand-in that speaks the protocol so the whole path works on the first serve. Implies --command.',
+        default: false,
+      },
+      {
         name: 'access',
         type: 'string',
         description:
@@ -200,7 +207,8 @@ export const SCAFFOLDS: readonly ScaffoldDescriptor[] = [
       ...PLACEMENT_OPTIONS,
     ],
     build: (values) => generate(angularWeaver, weaverInput(values)),
-    amend: (values) => weaverAmendments(weaverInput(values), str(values, 'directory')),
+    amend: (values) =>
+      weaverAmendments(weaverInput(values), str(values, 'directory')),
   },
   {
     name: 'frame-plugin',
@@ -260,7 +268,8 @@ export const SCAFFOLDS: readonly ScaffoldDescriptor[] = [
       ...PLACEMENT_OPTIONS,
     ],
     build: (values) => generate(angularDistribution, distributionInput(values)),
-    amend: (values) => amendments(angularDistribution, distributionInput(values)),
+    amend: (values) =>
+      amendments(angularDistribution, distributionInput(values)),
   },
   {
     name: 'auth-source',

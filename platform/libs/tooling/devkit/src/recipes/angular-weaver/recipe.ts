@@ -6,6 +6,9 @@ import {
   toTitleCase,
 } from '../../lib/generate/casing';
 import { KNOWN_CAPABILITIES } from '../../lib/validate/manifest';
+import { agentFiles, agentSurfaceBlock } from './agent-files';
+import { CONTAINER_EXAMPLE_ID, capabilityItems } from './weaver-terms';
+import { readmeFile } from './weaver-readme';
 import { i18nFile } from './weaver-i18n';
 
 export interface WeaverFeatures {
@@ -18,6 +21,7 @@ export interface WeaverFeatures {
   readonly about?: boolean;
   readonly instanceable?: boolean;
   readonly container?: boolean;
+  readonly agent?: boolean;
   readonly spec?: boolean;
 }
 
@@ -42,6 +46,7 @@ interface ResolvedFeatures {
   readonly about: boolean;
   readonly instanceable: boolean;
   readonly container: boolean;
+  readonly agent: boolean;
   readonly spec: boolean;
 }
 
@@ -99,9 +104,7 @@ function assertPlatformNeutralChord(shortcut: string): void {
     .toLowerCase()
     .split('+')
     .map((token) => token.trim());
-  const bound = tokens.find((token) =>
-    PLATFORM_BOUND_CHORD_TOKENS.has(token),
-  );
+  const bound = tokens.find((token) => PLATFORM_BOUND_CHORD_TOKENS.has(token));
   if (bound) {
     throw new Error(
       `Shortcut "${shortcut}" binds the platform-specific "${bound}" key. Use the neutral 'mod' token (e.g. 'mod+shift+k') — the host renders it as ⌘ on macOS and Ctrl elsewhere.`,
@@ -126,12 +129,14 @@ function resolveFeatures(
       'A surface cannot be both a container and instanceable: a container tab holds its own ":id" and is therefore routable, while named instances exist only for a docked, non-routable surface. Pick one.',
     );
   }
+  const agent = Boolean(input?.agent);
   return {
     command:
       Boolean(input?.command) ||
       menuSlot !== undefined ||
       barItem ||
-      hasShortcut,
+      hasShortcut ||
+      agent,
     menuSlot,
     settings: Boolean(input?.settings),
     access: input?.access ? accessLiteral(input.access) : undefined,
@@ -140,6 +145,7 @@ function resolveFeatures(
     about: Boolean(input?.about),
     instanceable,
     container,
+    agent,
     spec: input?.spec !== false,
   };
 }
@@ -150,6 +156,10 @@ function deriveCapabilities(features: ResolvedFeatures): string[] {
   if (features.about) {
     set.add('ui');
     set.add('host');
+  }
+  if (features.agent) {
+    set.add('ui');
+    set.add('automation');
   }
   return KNOWN_CAPABILITIES.filter((capability) => set.has(capability));
 }
@@ -175,12 +185,6 @@ export function resolveWeaverInput(input: WeaverInput): ResolvedWeaver {
     importPath: input.importPath?.trim() || `@loomweaver/${input.id}-weaver`,
   };
 }
-
-function capabilityItems(capabilities: readonly string[]): string {
-  return capabilities.map((capability) => `'${capability}'`).join(', ');
-}
-
-const CONTAINER_EXAMPLE_ID = 'example';
 
 function containerChildIds(w: ResolvedWeaver): readonly string[] {
   return [`${w.id}.canvas`, `${w.id}.details`];
@@ -359,6 +363,12 @@ function pluginFile(w: ResolvedWeaver): string {
       `import { ${w.className}AboutDialog } from '../dialogs/${w.id}-about-dialog';`,
     );
   }
+  if (w.features.agent) {
+    imports.push(
+      `import { ${w.propertyName}Agent, ${w.propertyName}Connection } from '../agent/${w.id}-agent';`,
+      `import { ${w.className}AgentPanel } from '../agent/${w.id}-agent-panel';`,
+    );
+  }
   if (w.features.settings) {
     imports.unshift("import { signal } from '@angular/core';");
   }
@@ -372,6 +382,11 @@ function pluginFile(w: ResolvedWeaver): string {
   }
 
   const body = [`    ctx.contributeIcons({ '${w.id}': icon });`];
+  if (w.features.agent) {
+    body.push(
+      `    ${w.propertyName}Agent.set(${w.propertyName}Connection(ctx));`,
+    );
+  }
   if (w.features.command) body.push(commandBlock(w));
   if (w.features.about) body.push(aboutCommandBlock(w));
   body.push(surfaceBlock(w), railBlock(w));
@@ -379,6 +394,11 @@ function pluginFile(w: ResolvedWeaver): string {
   if (w.features.barItem) body.push(barItemBlock(w));
   if (w.features.menuSlot) body.push(menuBlock(w));
   if (w.features.settings) body.push(settingsBlock(w));
+  if (w.features.agent) body.push(agentSurfaceBlock(w));
+
+  const deactivate = w.features.agent
+    ? `\n  deactivate() {\n    ${w.propertyName}Agent.set(null);\n  },`
+    : '';
 
   return `${imports.join('\n')}
 
@@ -392,7 +412,7 @@ export const ${w.propertyName}Plugin: Plugin = {
   },
   activate(ctx) {
 ${body.join('\n')}
-  },
+  },${deactivate}
 };
 `;
 }
@@ -533,115 +553,6 @@ describe('${w.propertyName}Plugin', () => {
 `;
 }
 
-function surfaceNotes(w: ResolvedWeaver): readonly string[] {
-  const railNote =
-    'Rail and bar items reference region ids (`primary`, `status`) that must exist in your layout.';
-  if (w.features.container) {
-    return [
-      `The surface is a **container**: it is routable at \`/${w.id}/:id\`, and its tab holds a`,
-      'nested pane tree of child surfaces. The host draws the inner tabs, splits and drag targets; this',
-      'weaver only declares which children it offers.',
-      '',
-      `- \`children\` is what the inner "new tab" picker lists — the host access-gates it for you.`,
-      '- `initial` is what a freshly opened container tab starts with.',
-      `- The children declare \`docks: []\`. That is the container-only convention: they are never seeded`,
-      '  into a sidebar, they exist solely inside this container.',
-      `- Each child reads the container's \`:id\` from an injected \`ActivatedRoute\` — the host supplies a`,
-      '  synthetic one, so a child needs no knowledge of where it is mounted. Two open container tabs are',
-      '  two independent trees, each scoped to its own id.',
-      `- The inner tree is **sealed**: a child cannot be dragged out, and nothing can be dragged in. It`,
-      '  travels with the tab, including into a sidebar or a pop-out window.',
-      '',
-      `The rail item opens the fixed id \`${CONTAINER_EXAMPLE_ID}\`. Replace that with whatever the user`,
-      'actually picked — a document, a run, a project.',
-      '',
-      railNote,
-    ];
-  }
-  if (w.features.instanceable) {
-    return [
-      `The surface is **docked** into the \`primary\` region and marked \`instanceable\`, so the host shows a`,
-      'switcher for saving, naming, renaming and deleting several configurations of it, each with its own',
-      '`VIEW_STATE` blob.',
-      '',
-      'It is deliberately **not** routable. Named instances exist only for a docked surface — a routable',
-      'one holds the URL pane instead, and the host drops `instanceable` on that path. The rail item',
-      'therefore reveals the surface (`ctx.revealSurface`) rather than navigating to a URL, which focuses',
-      'it wherever the user has since moved it.',
-      '',
-      'The generated view already uses that blob for its sort order, because a hidden surface is destroyed',
-      'as soon as it is clean: state kept in a component field survives neither a tab switch nor',
-      'a collapsed sidebar, and never survived a reload. The rule is *evictable = reload-safe* — anything',
-      'that must not be lost goes through `VIEW_STATE`, and `set()` replaces the whole blob, so spread it.',
-      '',
-      railNote,
-    ];
-  }
-  return [
-    `The surface is routable at \`/${w.id}\`; ${railNote.charAt(0).toLowerCase()}${railNote.slice(1)}`,
-    '',
-    'A routable surface has **no `VIEW_STATE` handle** — injecting the token there throws. It owns a URL,',
-    'so anything shareable (a filter, the active sub-tab) belongs in route params or `subRoutes`, where it',
-    'survives a deep link too; unsaved edits are `DirtySurface`, and an instance that is expensive to',
-    'rebuild declares `retain: \'always\'`. Generate with `--instanceable` for the docked, `VIEW_STATE`',
-    'flavour instead.',
-  ];
-}
-
-function readmeFile(w: ResolvedWeaver): string {
-  return [
-    `# ${w.name} weaver`,
-    '',
-    `A LoomWeaver weaver (a domain plugin bundle). It consumes only the public \`@loomweaver/plugin-sdk\` contract.`,
-    '',
-    '## Wire it into a distribution',
-    '',
-    `1. Add the plugin to \`providePlugins\` in \`src/app/app.config.ts\`. It is **variadic** and`,
-    `   returns an array, so spread it:`,
-    '',
-    '   ```ts',
-    `   import { ${w.propertyName}Plugin } from '${w.importPath}';   // Nx: the workspace alias; without one, a relative path to this library's src/index.ts`,
-    `   ...providePlugins(${w.propertyName}Plugin),`,
-    '   ```',
-    '',
-    `2. Grant its capabilities (default-deny) via \`provideCapabilityGrants\`:`,
-    '',
-    '   ```ts',
-    `   provideCapabilityGrants({ '${w.id}': [${capabilityItems(w.capabilities)}] });`,
-    '   ```',
-    '',
-    `3. Compose its translations with \`provideTranslationNamespaces('${w.id}')\` — and serve the`,
-    `   bundle by adding an assets glob to your application's build target, so the loader can fetch`,
-    `   \`/i18n/${w.id}/<lang>.json\` (the Nx generator adds this glob for you):`,
-    '',
-    '   ```json',
-    `   { "glob": "**/*.json", "input": "<path to this library>/src/lib/i18n", "output": "i18n/${w.id}" }`,
-    '   ```',
-    '',
-    `4. If your application compiles the shell's theme with Tailwind, name this library as a source`,
-    `   for it, so the utility classes in these templates are emitted. Tailwind also detects sources`,
-    `   by itself, but that depends on where it resolves the project root and on \`.gitignore\`, and`,
-    `   what the scaffold names covers the application alone (the Nx generator adds this line for`,
-    `   you). Applications scaffolded with \`--styles precompiled\` run no Tailwind and need nothing:`,
-    '',
-    '   ```css',
-    `   @source '<path from that stylesheet to this library>/src';`,
-    '   ```',
-    '',
-    ...surfaceNotes(w),
-    '',
-    '## After scaffolding',
-    '',
-    '- `src/lib/i18n/de.json` starts as a copy of the English strings — translate it.',
-    `- A scaffolded command defaults its shortcut to \`mod+shift+<first letter of the id>\` — two weavers whose ids share a first letter collide; pass \`--shortcut\` or edit the command.`,
-    '- The project is generated **untagged**: Nx tags belong to your `depConstraints`, and inventing',
-    '  one would fail a lint policy you never opted this project into. If your workspace enforces',
-    '  module boundaries, give it tags your constraints allow — `--tags` at generation time, or',
-    '  `tags` in `project.json` afterwards.',
-    '',
-  ].join('\n');
-}
-
 export const angularWeaver: Recipe<WeaverInput> = {
   id: 'angular-weaver',
   build(input: WeaverInput): FileMap {
@@ -680,6 +591,9 @@ export const angularWeaver: Recipe<WeaverInput> = {
       files[`src/lib/dialogs/${w.id}-about-dialog.ts`] = aboutDialogFile(w);
       files[`src/lib/dialogs/${w.id}-about-dialog.html`] =
         aboutDialogTemplateFile(w);
+    }
+    if (w.features.agent) {
+      Object.assign(files, agentFiles(w));
     }
     if (w.features.spec) {
       files[`src/lib/plugin/${w.id}.plugin.spec.ts`] = specFile(w);

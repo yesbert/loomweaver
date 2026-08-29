@@ -110,6 +110,12 @@ jobs:
       - name: Comment policy
         run: npm run comments-check
 
+      # The weaver generator records the adapter's version as a literal, because a recipe produces
+      # text and cannot read a manifest as it writes. Nothing here installs what a consumer installs,
+      # so only a comparison catches a bump that left the generator behind.
+      - name: Agent connection versions agree
+        run: npm run agent-versions-check
+
       # Region ids are strings the shell and the scaffolds have to agree on, and disagreeing is free
       # at build time: a contribution aimed at a region nobody declared renders nothing and says
       # nothing. The devkit cannot import the shell, so this compares the sources.

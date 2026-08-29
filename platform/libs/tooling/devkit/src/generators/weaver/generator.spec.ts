@@ -215,3 +215,53 @@ describe('weaver generator', () => {
     ).rejects.toThrow(/not an application/);
   });
 });
+
+describe('weaver generator with an agent connection', () => {
+  let tree: Tree;
+
+  beforeEach(() => {
+    tree = createConsumerWorkspace();
+  });
+
+  it('records the packages the generated files import', async () => {
+    await weaverGenerator(tree, { id: 'notes', agent: true });
+    const manifest = readJson(tree, 'package.json');
+    expect(manifest.dependencies['@loomweaver/ag-ui']).toBeTruthy();
+    expect(manifest.dependencies['@ag-ui/core']).toBeTruthy();
+  });
+
+  it('leaves a version the consumer already chose in place', async () => {
+    const manifest = readJson(tree, 'package.json');
+    manifest.dependencies = {
+      ...manifest.dependencies,
+      '@ag-ui/core': '0.0.42',
+    };
+    tree.write('package.json', JSON.stringify(manifest, null, 2));
+
+    await weaverGenerator(tree, { id: 'notes', agent: true });
+    expect(readJson(tree, 'package.json').dependencies['@ag-ui/core']).toBe(
+      '0.0.42',
+    );
+  });
+
+  it('records nothing where no connection was asked for', async () => {
+    await weaverGenerator(tree, { id: 'notes' });
+    expect(
+      readJson(tree, 'package.json').dependencies?.['@loomweaver/ag-ui'],
+    ).toBeUndefined();
+  });
+
+  it('writes the connection, its panel, its stand-in and its test', async () => {
+    await weaverGenerator(tree, { id: 'notes', agent: true });
+    const root = 'libs/notes-weaver/src/lib/agent';
+    for (const file of [
+      'notes-agent.ts',
+      'notes-agent.spec.ts',
+      'notes-agent-panel.ts',
+      'notes-agent-panel.html',
+      'notes-agent-source.ts',
+    ]) {
+      expect(tree.exists(`${root}/${file}`)).toBe(true);
+    }
+  });
+});
