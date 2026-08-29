@@ -30,6 +30,14 @@ export const TRANSLATION_OVERRIDES = new InjectionToken<string>(
 
 export const DEFAULT_OVERRIDES_PATH = '/i18n/overrides';
 
+function withoutTrailingSlashes(path: string): string {
+  let end = path.length;
+  while (end > 0 && path[end - 1] === '/') {
+    end -= 1;
+  }
+  return path.slice(0, end);
+}
+
 /**
  * Load `<basePath>/<lang>.json` and merge it over everything else **key by key**, so a product
  * can reword the shell in its own house language ("Save as" rather than "Save as new") without
@@ -51,7 +59,7 @@ export const DEFAULT_OVERRIDES_PATH = '/i18n/overrides';
 export function provideTranslationOverrides(
   basePath: string = DEFAULT_OVERRIDES_PATH,
 ): Provider {
-  const normalized = basePath.replace(/\/+$/, '');
+  const normalized = withoutTrailingSlashes(basePath);
   if (normalized === '') {
     throw new Error(
       'provideTranslationOverrides() needs a directory to load overlays from; ' +
