@@ -82,12 +82,7 @@ export class LwSelectElement extends HTMLElement {
       return;
     }
 
-    if (
-      name === 'value' ||
-      name === 'label' ||
-      name === 'placeholder' ||
-      name === 'disabled'
-    ) {
+    if (LwSelectElement.observedAttributes.includes(name)) {
       this.syncTrigger();
     }
     if (name === 'disabled' && this.hasAttribute('disabled')) {

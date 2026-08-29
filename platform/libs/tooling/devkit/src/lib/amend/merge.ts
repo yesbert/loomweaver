@@ -44,7 +44,7 @@ export function ensurePostcssPlugin(
     };
   }
   const next = { ...plugins };
-  if (amendment.plugin in next) {
+  if (Object.hasOwn(next, amendment.plugin)) {
     return { value: root, added: [], declined: [] };
   }
   next[amendment.plugin] = {};

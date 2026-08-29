@@ -64,7 +64,9 @@ function cleanArea<T>(
     );
     return null;
   }
-  const kinds = ['tabs', 'rows', 'columns'].filter((key) => key in area);
+  const kinds = ['tabs', 'rows', 'columns'].filter((key) =>
+    Object.hasOwn(area, key),
+  );
   if (kinds.length !== 1) {
     problems.push(
       `${options.context}: a pane area must be exactly one of tabs, rows or columns.`,

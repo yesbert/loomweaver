@@ -49,7 +49,9 @@ export class StateSyncChannel {
     }
     try {
       const opened = new BroadcastChannel(CHANNEL_NAME);
-      opened.onmessage = (event: MessageEvent) => this.receive(event.data);
+      opened.addEventListener('message', (event: MessageEvent) =>
+        this.receive(event.data),
+      );
       return opened;
     } catch {
       return null;

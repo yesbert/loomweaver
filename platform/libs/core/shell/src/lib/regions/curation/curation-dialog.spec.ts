@@ -58,8 +58,10 @@ function transloco() {
   });
 }
 
+const VIEWS: CurationDialogData = { kind: 'views' };
+
 function render(
-  data: CurationDialogData = { kind: 'views' },
+  data: CurationDialogData = VIEWS,
   extra: EnvironmentProviders[] = [],
 ) {
   localStorage.clear();

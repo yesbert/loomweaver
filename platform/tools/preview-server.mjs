@@ -29,11 +29,25 @@ const root = resolve(
   workspace,
   process.argv[2] ?? 'dist/apps/loom-testbed/browser',
 );
-const port = Number(process.argv[3] ?? 4300);
-const host = '127.0.0.1';
+if (!existsSync(join(root, 'index.html'))) {
+  console.error(`preview: no build at ${root}`);
+  console.error(
+    'preview: run `nx build loom-testbed --configuration production` first.',
+  );
+  process.exit(1);
+}
 
 const certFile = resolve(workspace, '.certs/aspnet-dev.pem');
 const keyFile = resolve(workspace, '.certs/aspnet-dev.key');
+if (!existsSync(certFile) || !existsSync(keyFile)) {
+  console.error(
+    'preview: missing dev certificate — run `npm run dev-cert` first.',
+  );
+  process.exit(1);
+}
+
+const port = Number(process.argv[3] ?? 4300);
+const host = '127.0.0.1';
 
 const MIME = {
   '.css': 'text/css; charset=utf-8',
@@ -50,21 +64,6 @@ const MIME = {
   '.webmanifest': 'application/manifest+json; charset=utf-8',
   '.woff2': 'font/woff2',
 };
-
-if (!existsSync(join(root, 'index.html'))) {
-  console.error(`preview: no build at ${root}`);
-  console.error(
-    'preview: run `nx build loom-testbed --configuration production` first.',
-  );
-  process.exit(1);
-}
-
-if (!existsSync(certFile) || !existsSync(keyFile)) {
-  console.error(
-    'preview: missing dev certificate — run `npm run dev-cert` first.',
-  );
-  process.exit(1);
-}
 
 const fileFor = (url) => {
   const pathname = decodeURIComponent(

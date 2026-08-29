@@ -60,7 +60,8 @@ export function composePlugin(
   }
   const withImports = source.replace(
     SHELL_IMPORT,
-    `import {${withShellSymbols(shellImport[1])}} from '@loomweaver/shell';\nimport { ${amendment.symbol} } from '${importPath}';`,
+    () =>
+      `import {${withShellSymbols(shellImport[1])}} from '@loomweaver/shell';\nimport { ${amendment.symbol} } from '${importPath}';`,
   );
   const block = providersBlock(withImports);
   if (!block) {
