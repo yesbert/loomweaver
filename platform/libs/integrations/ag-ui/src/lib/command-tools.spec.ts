@@ -358,7 +358,7 @@ describe('commandTools hook', () => {
 
   it('may be asynchronous, which is what a confirmation needs', async () => {
     const { tools, invoked } = withHook(
-      async () => await Promise.resolve({ decision: 'run' as const }),
+      async () => await { decision: 'run' as const },
     );
 
     await play(tools, streamedCall('c1', 'notes.open', '{"path":"a"}'));

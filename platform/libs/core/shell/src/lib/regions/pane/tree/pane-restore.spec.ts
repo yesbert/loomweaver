@@ -35,7 +35,7 @@ describe('pane tree restore', () => {
     const zero = normalizeNode({ ...threeStack(), ratio: 0 }) as PaneSplit;
     const nan = normalizeNode({
       ...threeStack(),
-      ratio: Number.NaN,
+      ratio: NaN,
     }) as PaneSplit;
     expect(zero.ratio).toBeCloseTo(0.02);
     expect(nan.ratio).toBeCloseTo(0.5);

@@ -194,7 +194,7 @@ for (const [pkg, relative] of Object.entries(ENTRIES)) {
     checked++;
     allExported.add(name);
     if (EXEMPT.has(name)) continue;
-    if (new RegExp(`\\b${name}\\b`).test(blob)) continue;
+    if (new RegExp(String.raw`\b${name}\b`).test(blob)) continue;
     missing.push(`${pkg} · ${name}`);
   }
 }

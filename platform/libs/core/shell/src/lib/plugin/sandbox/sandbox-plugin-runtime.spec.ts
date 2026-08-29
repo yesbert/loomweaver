@@ -286,7 +286,7 @@ describe('sanitizeRpcSurface', () => {
         validSurface({ iframe: '//evil.example/phish.html' }),
       ),
     ).toThrow(/permitted/);
-    const scriptUrl = 'javascript' + ':alert(1)';
+    const scriptUrl = 'javascript:alert(1)';
     expect(() =>
       sanitizeRpcSurface('testbed', validSurface({ iframe: scriptUrl })),
     ).toThrow(/permitted/);
@@ -324,7 +324,7 @@ describe('sanitizeRpcSurface', () => {
   });
 
   it('refuses an executing or inline address however many origins were permitted', () => {
-    const scriptUrl = 'javascript' + ':alert(1)';
+    const scriptUrl = 'javascript:alert(1)';
     expect(() =>
       sanitizeRpcSurface('treaties', validSurface({ iframe: scriptUrl }), [
         'https://treaties.example.com',
@@ -415,7 +415,7 @@ describe('sanitizeRpcToastInput', () => {
 
   it('drops an unknown kind and a non-finite timeout', () => {
     const input = sanitizeRpcToastInput(
-      asToast({ message: 'm', kind: 'shiny', timeoutMs: Number.NaN }),
+      asToast({ message: 'm', kind: 'shiny', timeoutMs: NaN }),
     );
 
     expect(input.kind).toBeUndefined();
@@ -817,7 +817,7 @@ describe('FramePluginRuntime (iframe + Penpal runtime)', () => {
     rpc()['openContentTab']({ path: 'b' });
     const input = tabs['open'].mock.calls[0][0] as OpenTabInput;
     input.onClose?.();
-    await new Promise<void>((resolve) => setTimeout(resolve));
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
 
     expect(remote.contentTabClosed).toHaveBeenCalledWith('b');
   });

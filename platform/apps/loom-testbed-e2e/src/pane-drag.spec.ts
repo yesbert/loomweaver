@@ -117,7 +117,7 @@ test.describe('Pane edge drag & drop', () => {
     await page.mouse.move(centre.x, centre.y + 1);
 
     const preview = page.locator(
-      '#pane-zone\\:content\\:main\\:fill .lw-pane-drop-preview',
+      String.raw`#pane-zone\:content\:main\:fill .lw-pane-drop-preview`,
     );
     const box = (await preview.boundingBox())!;
     expect(Math.round(box.width)).toBe(Math.round(content.width));

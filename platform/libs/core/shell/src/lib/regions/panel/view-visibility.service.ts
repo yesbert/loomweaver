@@ -80,7 +80,7 @@ export class ViewVisibilityService {
       .filter(
         (entry) =>
           !entry.key.startsWith(CONTAINER_DOCK_PREFIX) &&
-          entry.key.split('|')[1] === path,
+          entry.key.split('|', 2)[1] === path,
       )
       .map((entry) => entry.instance);
   }

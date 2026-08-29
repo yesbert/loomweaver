@@ -25,7 +25,7 @@ function ok(data: Record<string, unknown>): ToolResult {
 }
 
 export function toolName(scaffold: ScaffoldDescriptor): string {
-  return `scaffold_${scaffold.name.replace(/-/g, '_')}`;
+  return `scaffold_${scaffold.name.replaceAll('-', '_')}`;
 }
 
 export function listGenerators(): ToolResult {

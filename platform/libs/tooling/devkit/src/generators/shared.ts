@@ -70,7 +70,7 @@ export function workspaceScope(tree: Tree): string | undefined {
   if (typeof name !== 'string' || !name.startsWith('@')) {
     return undefined;
   }
-  return name.split('/')[0];
+  return name.split('/', 1)[0];
 }
 
 export function tsconfigPathsFile(tree: Tree): string {

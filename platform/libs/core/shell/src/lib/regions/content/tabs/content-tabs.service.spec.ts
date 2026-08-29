@@ -591,7 +591,7 @@ describe('ContentTabsService view tabs in the URL group', () => {
     paneTree.splitPane('content', PRIMARY_PANE, 'row', 'view:outline');
 
     service.closePrimaryPane();
-    await new Promise((resolve) => setTimeout(resolve));
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(paneTree.isSplit('content')).toBe(false);
     expect(paneTree.primaryTabs('content').map((tab) => tab.path)).toEqual([

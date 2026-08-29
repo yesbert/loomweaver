@@ -17,12 +17,12 @@ const SUB_TABS = ['detail', 'meta'] as const;
 type SubTab = (typeof SUB_TABS)[number];
 
 function toSubTab(rest: string): SubTab {
-  const first = rest.split('/')[0];
+  const first = rest.split('/', 1)[0];
   return SUB_TABS.includes(first as SubTab) ? (first as SubTab) : 'detail';
 }
 
 function toMessageId(rest: string): string {
-  const [head, id] = rest.split('/');
+  const [head, id] = rest.split('/', 2);
   return head === 'message' ? (id ?? '') : '';
 }
 
@@ -60,7 +60,7 @@ export class TestbedEntryView implements DirtySurface {
     if (this.hostMounted) {
       return this.hostSub();
     }
-    const path = this.currentUrl().split(/[?#]/)[0].replace(/^\/+/, '');
+    const path = this.currentUrl().split(/[?#]/, 1)[0].replace(/^\/+/, '');
     return path.startsWith(this.tabRoot + '/')
       ? path.slice(this.tabRoot.length + 1)
       : '';

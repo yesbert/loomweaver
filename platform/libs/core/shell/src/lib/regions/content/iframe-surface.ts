@@ -225,13 +225,13 @@ export class IframeSurface implements DirtySurface {
           }
         },
         setDirty: (dirty: boolean) => this.dirty.set(dirty),
-        stateWatch: (key: string) => this.watchState(String(key)),
+        stateWatch: (key: string) => this.watchState(key),
         stateSet: (key: string, value: unknown) =>
-          this.watched.get(String(key))?.handle.set(value),
+          this.watched.get(key)?.handle.set(value),
         stateClear: (key: string) =>
-          this.watched.get(String(key))?.handle.clear(),
+          this.watched.get(key)?.handle.clear(),
         stateUnwatch: (key: string) => {
-          const name = String(key);
+          const name = key;
           this.watched.get(name)?.stop();
           this.watched.delete(name);
         },
@@ -341,14 +341,14 @@ export class IframeSurface implements DirtySurface {
     if (this.docked) {
       if (isDevMode()) {
         console.warn(
-          `[loom] a docked surface asked to navigate to "${String(path)}" — ignored. ` +
+          `[loom] a docked surface asked to navigate to "${path}" — ignored. ` +
             `A docked surface has no address of its own; the channel's navigate is confined to a tab ` +
             `root and there is none. Use ctx.navigateContent (the 'navigation' grant) instead.`,
         );
       }
       return;
     }
-    const raw = String(path);
+    const raw = path;
     const suffix = suffixOf(raw);
     const target = normalizePath(raw);
     if (target !== this.tabRoot && !target.startsWith(this.tabRoot + '/')) {

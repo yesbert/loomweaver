@@ -7,7 +7,7 @@ function formatterFor(locale: string): Intl.RelativeTimeFormat {
     return new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
   } catch {
     try {
-      return new Intl.RelativeTimeFormat(locale.replace(/_/g, '-'), {
+      return new Intl.RelativeTimeFormat(locale.replaceAll('_', '-'), {
         numeric: 'auto',
       });
     } catch {

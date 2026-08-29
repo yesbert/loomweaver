@@ -48,9 +48,9 @@ function emitGlobalScriptDeclaration(entry) {
     throw new Error('no declaration emitted for the frame entry');
   }
   const asScript = declaration[1]
-    .replace(/^export declare /gm, 'declare ')
-    .replace(/^export /gm, '')
-    .replace(/^export \{\};?\n?/gm, '')
+    .replaceAll(/^export declare /gm, 'declare ')
+    .replaceAll(/^export /gm, '')
+    .replaceAll(/^export \{\};?\n?/gm, '')
     .trim();
   if (/^(import|export)\b/m.test(asScript)) {
     throw new Error(

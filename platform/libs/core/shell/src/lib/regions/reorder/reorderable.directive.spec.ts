@@ -60,7 +60,7 @@ describe('Reorderable (keyboard)', () => {
   });
 
   function btn(id: string): HTMLElement {
-    return fixture.nativeElement.querySelector(`[data-reorder-id="${id}"]`);
+    return fixture.nativeElement.querySelector(`[data-reorder-id="${CSS.escape(id)}"]`);
   }
 
   function altArrow(id: string, key: string): void {

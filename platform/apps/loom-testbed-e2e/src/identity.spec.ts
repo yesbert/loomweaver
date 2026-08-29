@@ -26,7 +26,7 @@ test.describe('Identity-scoped state & identity-change reload', () => {
     expect(
       await page.evaluate(
         () =>
-          (window as unknown as Record<string, unknown>)['__beforeReload'] ===
+          (globalThis as unknown as Record<string, unknown>)['__beforeReload'] ===
           true,
       ),
     ).toBe(true);

@@ -6,7 +6,7 @@ type WindowWithMatch = { matchMedia?: unknown };
 
 function stubMatchMedia(matches: boolean): { fire: MediaChange } {
   let handler: MediaChange | undefined;
-  (window as WindowWithMatch).matchMedia = () => ({
+  (globalThis as WindowWithMatch).matchMedia = () => ({
     matches,
     addEventListener: (_type: string, listener: MediaChange) =>
       (handler = listener),
@@ -15,15 +15,15 @@ function stubMatchMedia(matches: boolean): { fire: MediaChange } {
 }
 
 describe('ViewportService', () => {
-  const original = (window as WindowWithMatch).matchMedia;
+  const original = (globalThis as WindowWithMatch).matchMedia;
 
   afterEach(() => {
-    (window as WindowWithMatch).matchMedia = original;
+    (globalThis as WindowWithMatch).matchMedia = original;
     TestBed.resetTestingModule();
   });
 
   it('defaults to the roomy layout when matchMedia is unavailable (SSR / jsdom)', () => {
-    (window as WindowWithMatch).matchMedia = undefined;
+    (globalThis as WindowWithMatch).matchMedia = undefined;
     expect(TestBed.inject(ViewportService).compact()).toBe(false);
   });
 

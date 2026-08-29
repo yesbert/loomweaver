@@ -27,7 +27,7 @@ import { ShellLayout } from '@loomweaver/shell';
 
 export const ${l.propertyName}Layout: ShellLayout = {
   regions: [
-${renderRegions('    ')}
+${renderRegions(' '.repeat(4))}
   ],
 };
 `;

@@ -327,7 +327,7 @@ export class FramePluginRuntime {
     frame.setAttribute('aria-hidden', 'true');
     frame.style.display = 'none';
     frame.src = entryUrl;
-    document.body.appendChild(frame);
+    document.body.append(frame);
     return frame;
   }
 

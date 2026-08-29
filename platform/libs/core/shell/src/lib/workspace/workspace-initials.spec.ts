@@ -22,7 +22,7 @@ describe('workspace initials', () => {
 
   it('gives a one-letter name that one letter, and a blank name nothing', () => {
     expect(baseInitials('R')).toBe('R');
-    expect(baseInitials('   ')).toBe('');
+    expect(baseInitials(' '.repeat(3))).toBe('');
     expect(assign('')).toEqual(['']);
   });
 

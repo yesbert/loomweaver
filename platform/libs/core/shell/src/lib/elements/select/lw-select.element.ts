@@ -241,7 +241,7 @@ export class LwSelectElement extends HTMLElement {
     const selected = choices.findIndex((choice) => choice.value === this.value);
     this.setActive(Math.max(0, selected));
 
-    document.addEventListener('pointerdown', this.onOutsidePointer, true);
+    document.addEventListener('pointerdown', this.onOutsidePointer, {capture: true});
   }
 
   private close(refocusTrigger = true): void {

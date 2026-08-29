@@ -148,7 +148,7 @@ export class RetentionGc {
 }
 
 function pathOfKey(key: string): string {
-  return key.split('|')[1] ?? '';
+  return key.split('|', 2)[1] ?? '';
 }
 
 function stashKeyLive(
@@ -160,7 +160,7 @@ function stashKeyLive(
   if (key.startsWith(PRIMARY_RETENTION_PREFIX)) {
     return true;
   }
-  const [scope, path] = key.split('|');
+  const [scope, path] = key.split('|', 2);
   if (!tabOpen(open.get(scope), routes, path)) {
     return false;
   }

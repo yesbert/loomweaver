@@ -54,7 +54,7 @@ export function bool(
 
 /** The kebab-case spelling of a camelCase option, for command lines that prefer it. */
 export function kebabCase(name: string): string {
-  return name.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
+  return name.replaceAll(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
 }
 
 const ID_PATTERN = '^[a-z][a-z0-9]*(-[a-z0-9]+)*$';

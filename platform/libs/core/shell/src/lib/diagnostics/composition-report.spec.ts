@@ -175,7 +175,7 @@ describe('CompositionReport (K7)', () => {
 
   it('installs the console entry point once and never overwrites a foreign global', () => {
     const app = setUp();
-    const host = window as unknown as Record<string, unknown>;
+    const host = globalThis as unknown as Record<string, unknown>;
     delete host['loomweaver'];
 
     installCompositionReport(app.report);

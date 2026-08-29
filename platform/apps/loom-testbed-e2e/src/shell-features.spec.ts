@@ -423,18 +423,18 @@ test.describe('Native right-click belongs to whoever draws no menu (K1e)', () =>
     target: Locator,
   ): Promise<boolean | null> {
     await page.evaluate(() => {
-      (window as unknown as Probe).__event = null;
-      window.addEventListener(
+      (globalThis as unknown as Probe).__event = null;
+      globalThis.addEventListener(
         'contextmenu',
         (event) => {
-          (window as unknown as Probe).__event = event;
+          (globalThis as unknown as Probe).__event = event;
         },
         { capture: true, once: true },
       );
     });
     await target.first().click({ button: 'right' });
     return page.evaluate(
-      () => (window as unknown as Probe).__event?.defaultPrevented ?? null,
+      () => (globalThis as unknown as Probe).__event?.defaultPrevented ?? null,
     );
   }
 

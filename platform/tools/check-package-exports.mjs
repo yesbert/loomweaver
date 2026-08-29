@@ -109,7 +109,7 @@ function isKept(promise, files) {
   const pattern = new RegExp(
     `^${target
       .split('*')
-      .map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+      .map((part) => part.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`))
       .join('.*')}$`,
   );
   return [...files].some((file) => pattern.test(file));

@@ -108,7 +108,7 @@ test.describe('Neutral host chrome', () => {
     const maxMs = Math.max(
       ...duration
         .split(',')
-        .map((d) => parseFloat(d) * (d.trim().endsWith('ms') ? 1 : 1000)),
+        .map((d) => Number.parseFloat(d) * (d.trimEnd().endsWith('ms') ? 1 : 1000)),
     );
 
     expect(maxMs).toBeLessThan(20);

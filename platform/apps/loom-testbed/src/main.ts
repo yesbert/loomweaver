@@ -216,4 +216,4 @@ bootstrapApplication(Shell, {
     ),
     ...providePluginCatalog('/plugins/catalog.json'),
   ],
-}).catch((err) => console.error(err));
+}).catch((error) => console.error(error));

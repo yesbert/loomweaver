@@ -76,7 +76,7 @@ describe('PaneSplitHandle', () => {
     const parent = document.createElement('div');
     parent.getBoundingClientRect = () =>
       ({ left: 0, top: 0, width: 100, height: 100 }) as DOMRect;
-    parent.appendChild(host);
+    parent.append(host);
     host.setPointerCapture = () => undefined;
     host.releasePointerCapture = () => undefined;
 

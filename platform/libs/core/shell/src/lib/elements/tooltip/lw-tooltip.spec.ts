@@ -36,9 +36,11 @@ function pointer(
   pointerType: 'mouse' | 'touch',
 ): Event {
   const event = new Event(type);
-  Object.defineProperty(event, 'pointerType', { value: pointerType });
-  Object.defineProperty(event, 'clientX', { value: 40 });
-  Object.defineProperty(event, 'clientY', { value: 20 });
+  Object.defineProperties(event, {
+  	pointerType: { value: pointerType },
+  	clientX: { value: 40 },
+  	clientY: { value: 20 },
+  });
   return event;
 }
 
@@ -56,7 +58,7 @@ describe('<lw-tooltip> custom element', () => {
   });
 
   it('renders no bubble when the text is empty or whitespace', () => {
-    expect(mount({ text: '   ' }).querySelector('[role="tooltip"]')).toBeNull();
+    expect(mount({ text: ' '.repeat(3) }).querySelector('[role="tooltip"]')).toBeNull();
     expect(mount({}).querySelector('[role="tooltip"]')).toBeNull();
   });
 
@@ -110,10 +112,12 @@ describe('<lw-tooltip> custom element', () => {
         'delay-ms': '0',
       });
       const enter = new Event('pointerenter');
-      Object.defineProperty(enter, 'pointerType', { value: 'mouse' });
-      Object.defineProperty(enter, 'clientX', { value: 40 });
-      Object.defineProperty(enter, 'clientY', {
-        value: window.innerHeight - 8,
+      Object.defineProperties(enter, {
+      	pointerType: { value: 'mouse' },
+      	clientX: { value: 40 },
+      	clientY: {
+	        value: window.innerHeight - 8,
+	      },
       });
       trigger.dispatchEvent(enter);
       vi.advanceTimersByTime(0);

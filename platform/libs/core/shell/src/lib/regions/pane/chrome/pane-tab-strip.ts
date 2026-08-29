@@ -297,7 +297,7 @@ export class PaneTabStrip {
     const strip = this.strip()?.nativeElement;
     const active = this.activeId();
     const wrapper = strip?.querySelector<HTMLElement>(
-      `[data-tab-path="${active}"]`,
+      `[data-tab-path="${CSS.escape(active)}"]`,
     )?.parentElement;
     if (!strip || !wrapper) {
       return;

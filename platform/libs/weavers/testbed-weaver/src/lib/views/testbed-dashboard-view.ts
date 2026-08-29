@@ -80,7 +80,7 @@ export function areaPath(
   if (points === '') {
     return '';
   }
-  return `M ${pad},${height} L ${points.replace(/ /g, ' L ')} L ${width - pad},${height} Z`;
+  return `M ${pad},${height} L ${points.replaceAll(' ', ' L ')} L ${width - pad},${height} Z`;
 }
 
 @Component({
