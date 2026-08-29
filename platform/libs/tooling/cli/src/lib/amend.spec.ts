@@ -89,7 +89,7 @@ describe('planAmend', () => {
   it('names every file it would touch and changes nothing until applied', () => {
     const before = readFileSync(join(dir, 'angular.json'), 'utf8');
     const plan = planAmend([POSTCSS, BUILD], dir);
-    expect(plan.amendments.map((a) => a.display).toSorted()).toEqual([
+    expect(plan.amendments.map((a) => a.display).toSorted((a, b) => a.localeCompare(b))).toEqual([
       '.postcssrc.json',
       'angular.json',
     ]);

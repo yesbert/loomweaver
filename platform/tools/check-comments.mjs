@@ -106,7 +106,7 @@ function collect(roots, extensions) {
     const full = path.join(repoRoot, r);
     if (existsSync(full)) walk(full, out, extensions);
   }
-  return out.toSorted();
+  return out.toSorted((a, b) => a.localeCompare(b));
 }
 
 // What a consumer can actually see: every declaration the packed .d.ts carries, and the members of
@@ -356,7 +356,7 @@ const counts = {};
 for (const v of reported) counts[v.file] = (counts[v.file] ?? 0) + 1;
 
 const failures = [];
-for (const [file, count] of Object.entries(counts).toSorted()) {
+for (const [file, count] of Object.entries(counts).toSorted((a, b) => a[0].localeCompare(b[0]))) {
   const allowed = residue[file] ?? 0;
   if (count > allowed) {
     for (const v of reported.filter((v) => v.file === file).slice(allowed)) {
@@ -365,7 +365,7 @@ for (const [file, count] of Object.entries(counts).toSorted()) {
     failures.push(`${file}: ${count} comments, residue allows ${allowed}`);
   }
 }
-for (const [file, allowed] of Object.entries(residue).toSorted()) {
+for (const [file, allowed] of Object.entries(residue).toSorted((a, b) => a[0].localeCompare(b[0]))) {
   const count = counts[file] ?? 0;
   if (count < allowed) {
     failures.push(

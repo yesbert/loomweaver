@@ -226,6 +226,8 @@ export default [
             "unicorn/import-style": "off",
             "unicorn/isolated-functions": "off",
             "unicorn/max-nested-calls": "off",
+            // It reads `installs.find(entry.id)` as an array callback, where `find` is a
+            // service method taking an id, and rewrites it into nonsense.
             "unicorn/no-array-callback-reference": "off",
             "unicorn/no-array-reduce": "off",
             "unicorn/no-await-expression-member": "off",
@@ -276,7 +278,6 @@ export default [
             "unicorn/prefer-then-catch": "off",
             "unicorn/prefer-toggle-attribute": "off",
             "unicorn/prefer-top-level-await": "off",
-            "unicorn/require-array-sort-compare": "off",
             // adds lines by design, and two files already sit over the 400-line ratchet
             "unicorn/switch-case-braces": "off",
             "unicorn/text-encoding-identifier-case": "off"

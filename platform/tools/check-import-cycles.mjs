@@ -141,7 +141,7 @@ function components(edges) {
           onStack.delete(popped);
           group.push(popped);
         } while (popped !== node);
-        if (group.length > 1) found.push(group.toSorted());
+        if (group.length > 1) found.push(group.toSorted((a, b) => a.localeCompare(b)));
       }
     }
   }
@@ -163,7 +163,7 @@ function slicePairs(edges) {
     const [a, b] = key.split(' -> ', 2);
     if (a < b && between.has(`${b} -> ${a}`)) pairs.push(`${a} <-> ${b}`);
   }
-  return pairs.toSorted();
+  return pairs.toSorted((a, b) => a.localeCompare(b));
 }
 
 const rel = (file) => path.relative(libraryRoot, file);
@@ -202,12 +202,12 @@ const baseline = JSON.parse(readFileSync(baselinePath, 'utf8'));
 const failures = [];
 
 const allowedCycles = (baseline.fileCycles ?? []).map((group) =>
-  [...group].toSorted().join('|'),
+  [...group].toSorted((a, b) => a.localeCompare(b)).join('|'),
 );
-const actualCycles = new Set(cycles.map((group) => group.map(rel).toSorted().join('|')));
+const actualCycles = new Set(cycles.map((group) => group.map(rel).toSorted((a, b) => a.localeCompare(b)).join('|')));
 
 for (const group of cycles) {
-  const key = group.map(rel).toSorted().join('|');
+  const key = group.map(rel).toSorted((a, b) => a.localeCompare(b)).join('|');
   if (!allowedCycles.includes(key)) {
     failures.push(
       `new import cycle across ${group.length} files:\n      ${group.map(rel).join('\n      ')}`,

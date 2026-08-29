@@ -17,7 +17,7 @@ describe('angularWeaver recipe', () => {
 
   it('produces a deterministic weaver source tree', () => {
     const files = generate(angularWeaver, { id: 'notes', name: 'Notes' });
-    expect(Object.keys(files).toSorted()).toEqual(
+    expect(Object.keys(files).toSorted((a, b) => a.localeCompare(b))).toEqual(
       [
         'README.md',
         'src/index.ts',
@@ -27,7 +27,7 @@ describe('angularWeaver recipe', () => {
         'src/lib/plugin/notes.plugin.ts',
         'src/lib/views/notes-view.html',
         'src/lib/views/notes-view.ts',
-      ].toSorted(),
+      ].toSorted((a, b) => a.localeCompare(b)),
     );
   });
 
