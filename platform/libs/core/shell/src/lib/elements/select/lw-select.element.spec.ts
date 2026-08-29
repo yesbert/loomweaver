@@ -1,6 +1,6 @@
+import { LW_OPTION_TAG } from './lw-option.element';
 import {
   defineLwSelect,
-  LW_OPTION_TAG,
   LW_SELECT_CHANGE,
   LW_SELECT_TAG,
 } from './lw-select.element';
