@@ -158,7 +158,7 @@ export default [
         rules: {
             ...unicorn.configs.recommended.rules,
 
-            // Four the workspace does not take, each for a reason that outlives the rule:
+            // The rules the workspace does not take, each for a reason that outlives its findings:
 
             // It rewrites a single-line `/** ... */` to `//`, which unmakes every JSDoc line on the
             // published contract — the very lines api-docs-check requires and an IDE reads.
@@ -191,6 +191,33 @@ export default [
             // It bans `null`. Angular and the DOM hand us `null` (queryParamMap.get, querySelector)
             // and our own signatures return it; banning the literal would only move the seam.
             "unicorn/no-null": "off",
+
+            // It wants `import path from 'node:path'` where the workspace imports names from
+            // every other module. One convention read consistently beats a second one that is
+            // right only about Node's built-ins.
+            "unicorn/import-style": "off",
+
+            // It objects to a module-scoped cache or callback slot being written from inside a
+            // function. Ours are exactly that on purpose: a memoised stylesheet, a hook a host
+            // hands the weaver once. Wrapping them in an object renames the module state without
+            // removing it, which is the thing the rule is actually about.
+            "unicorn/no-top-level-assignment-in-function": "off",
+
+            // `dataset` lives on HTMLElement, and these call sites hold an Element.
+            "unicorn/dom-node-dataset": "off",
+
+            // It assumes a property named `size` is never negative; ours is a percentage from a
+            // plugin declaration, and its fixer turned `size <= 0` into `size === 0`, which
+            // stopped reporting negative sizes.
+            "unicorn/explicit-length-check": "off",
+
+            // `globalThis.X` yields undefined where a bare `X` throws a ReferenceError, which is
+            // exactly what a test that stubs a global relies on.
+            "unicorn/no-unnecessary-global-this": "off",
+
+            // `getHTML()` is a 2024 DOM API that jsdom does not have, so the tests that read
+            // rendered markup fail on it.
+            "unicorn/prefer-dom-node-html-methods": "off",
 
             // Abbreviations are expanded, except the ones that are names rather than shorthand:
             // `ctx` is what every plugin author knows the context by, `args`, `ref` and `deps` sit
@@ -228,43 +255,28 @@ export default [
             // request per group. A rule that is not in this list is enforced. Where a rule
             // carries a note, its fixer was tried and did damage: read the note before
             // reaching for --fix.
-            // `dataset` lives on HTMLElement, and these call sites hold an Element
-            "unicorn/dom-node-dataset": "off",
-            // assumes a property named `size` is never negative; ours is a
-            // percentage from a plugin declaration, and its fixer turned `size <= 0` into
-            // `size === 0`, which stopped reporting negative sizes
-            "unicorn/explicit-length-check": "off",
-            // It reads `installs.find(entry.id)` as an array callback, where `find` is a
-            // service method taking an id, and rewrites it into nonsense.
-            "unicorn/import-style": "off",
             "unicorn/max-nested-calls": "off",
             "unicorn/no-array-reduce": "off",
-            "unicorn/no-await-expression-member": "off",
             "unicorn/no-break-in-nested-loop": "off",
             "unicorn/no-computed-property-existence-check": "off",
             "unicorn/no-declarations-before-early-exit": "off",
             "unicorn/no-for-each": "off",
-            "unicorn/no-global-object-property-assignment": "off",
             "unicorn/no-object-as-default-parameter": "off",
             "unicorn/no-optional-chaining-on-undeclared-variable": "off",
-            "unicorn/no-process-exit": "off",
             "unicorn/no-return-array-push": "off",
-            "unicorn/no-top-level-assignment-in-function": "off",
             "unicorn/no-top-level-side-effects": "off",
             "unicorn/no-unreadable-for-of-expression": "off",
             "unicorn/prefer-includes-over-repeated-comparisons": "off",
             "unicorn/prefer-module": "off",
             "unicorn/prefer-number-coercion": "off",
             "unicorn/prefer-promise-try": "off",
-            "unicorn/prefer-scoped-selector": "off",
             "unicorn/prefer-simple-condition-first": "off",
             "unicorn/prefer-structured-clone": "off",
             "unicorn/prefer-then-catch": "off",
             "unicorn/prefer-toggle-attribute": "off",
+            // It reads `installs.find(entry.id)` as an array callback, where `find` is a
+            // service method taking an id, and rewrites it into nonsense.
             "unicorn/no-array-callback-reference": "off",
-            // `globalThis.X` yields undefined where a bare `X` throws a ReferenceError,
-            // which is exactly what a test that stubs a global relies on
-            "unicorn/no-unnecessary-global-this": "off",
             "unicorn/no-unsafe-string-replacement": "off",
             // `f(undefined)` is not `f()` when the parameter is required, and `() => undefined`
             // may not become `() => {}` while no-empty-function forbids exactly that.
@@ -274,13 +286,47 @@ export default [
             ],
             "unicorn/prefer-add-event-listener": "off",
             "unicorn/prefer-array-from-map": "off",
-            // `getHTML()` is a 2024 DOM API that jsdom does not have, so the tests
-            // that read rendered markup fail on it
-            "unicorn/prefer-dom-node-html-methods": "off",
             "unicorn/prefer-else-if": "off",
             "unicorn/prefer-direct-iteration": "off",
             "unicorn/prefer-iterator-helpers": "off",
             "unicorn/prefer-iterator-to-array": "off",
+        }
+    },
+    {
+        // Three rules whose whole subject is production robustness, switched off for test code
+        // rather than left off everywhere. A spec assigns a global because stubbing one is what
+        // it is testing, reads a member off an await because the extra line buys nothing in an
+        // assertion, and searches a mounted host without `:scope` because the host is the
+        // fixture. Enforced for everything that ships.
+        files: [
+            "**/*.spec.ts",
+            "**/*.spec.js"
+        ],
+        rules: {
+            "unicorn/no-await-expression-member": "off",
+            "unicorn/no-global-object-property-assignment": "off",
+            "unicorn/prefer-scoped-selector": "off"
+        }
+    },
+    {
+        // `no-process-exit` names its own exception: a CLI app. These are the CLI entry points,
+        // where a script that cannot do its job exits with a status the shell reads, and throwing
+        // would print a stack trace at a user who asked for a certificate.
+        files: [
+            "**/tools/**"
+        ],
+        rules: {
+            "unicorn/no-process-exit": "off"
+        }
+    },
+    {
+        // The frame kit publishes its API on the global on purpose: that assignment is how a
+        // sandboxed plugin document reaches the host at all.
+        files: [
+            "**/lw-elements.frame.ts"
+        ],
+        rules: {
+            "unicorn/no-global-object-property-assignment": "off"
         }
     },
     {
