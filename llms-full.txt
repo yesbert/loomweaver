@@ -590,7 +590,18 @@ function provideIcons(icons: Readonly<Partial<Record<LoomIconName | (string & {}
 // is open and how wide it is belongs to the WINDOW, so switching never collapses, resizes or removes one.
 // The declaration vocabulary (all from @loomweaver/shell; content areas nest freely, exactly one of tabs/rows/columns each,
 // `size` = percentage with unsized siblings sharing the remainder, first `tabs` area in reading order = the URL pane):
-interface WorkspaceDefinition { id: string; title: string; icon?: string; initial?: boolean; sidebars?: Readonly<Record<string, readonly string[]>>; content?: WorkspaceArea; }
+interface WorkspaceDefinition { id: string; title: string; icon?: string; initial?: boolean; claims?: readonly string[]; sidebars?: Readonly<Record<string, readonly string[]>>; content?: WorkspaceArea; }
+//   claims: the content addresses that BELONG to this workspace, as route paths in the same vocabulary as
+//   `content` — 'quotes/:id' claims every quote document and everything under one. Reaching a claimed address
+//   ACTIVATES that workspace and shows the content inside it, however the address was reached: a link followed
+//   in, a restart, a command, a programmatic navigation, a tab a plugin opened. Content the ACTIVE workspace
+//   claims moves nothing, and an unclaimed address opens where the user already is. This is what turns
+//   workspaces from an arrangement feature into the NAVIGATION model — a rail entry carrying `workspace:` is
+//   the only kind the host marks as current, and a claimed address activates its workspace however it was
+//   reached, so the arrangement IS the navigation. Claiming is the composing product's alone: no plugin and no
+//   user can create one. Two claims of the same shape with neither narrower are dropped from both and named in
+//   a dev message; a narrower claim (more segments, or fewer parameters at the same length) simply wins. A
+//   workspace the USER saved is never a destination, however it came by its claim — it exists on one machine.
 //   initial: the workspace a FRESH install opens in. Applies once, on a first boot with nothing stored; the choice is
 //   written immediately, so the user's own later switch is what the next boot reads. A deep link still wins — the
 //   baseline is laid out but the booted address is navigated to. Two declarations claiming it: the first wins.
@@ -606,6 +617,15 @@ function provideWorkspaces(...definitions: WorkspaceDefinition[]): EnvironmentPr
 //     sidebars: { primary: ['acme.nav'] },
 //     content: { columns: [ { size: 35, tabs: [{ path: 'entry/e-01', closable: false }] },
 //                           { rows: [{ size: 60, tabs: ['search'] }, { tabs: ['notes'] }] } ] } })
+// A workspace the user SAVES is a VARIANT of the one it came from: the workbench records the nearest
+// DECLARED workspace as its origin — saving from a variant produces another variant of the same declared
+// workspace, so the relation is always one step deep — and shows that origin wherever workspaces are listed
+// for switching or managing. A variant CLAIMS whatever its origin claims, read through the origin rather than
+// copied when it was saved, so a claim the product adds later reaches every variant of that workspace; the
+// variant is still never itself a destination. Saving from a workspace the product did not declare leaves it
+// without an origin, and a variant LOSES its origin where the product stops declaring it: it then claims
+// nothing, is shown without one and is otherwise unchanged. An origin cannot be changed after saving — a user
+// who wants their arrangement to belong elsewhere saves it again from there.
 // Invalid declarations warn in dev mode naming what is ignored; nothing fails silently at runtime.
 // A view lives in EXACTLY ONE sidebar, curated like the rail: right-click a view tab for "Move to other
 // sidebar"/"Hide", right-click the strip for "Customize views", whose dialog lists every view with where it sits
@@ -712,13 +732,20 @@ interface RailFeatures { reorder: boolean; moveItems: boolean; hideItems: boolea
 // rail.moveItems carry one to the OTHER bar and take the menu entry, the drag and Alt+Shift+Arrow together.
 // stackViews = the "Stack below" entry and dropping a view on a sidebar edge; acceptTabs = parking a
 // foreign tab in a sidebar (strip or edge); curate = the right-click checklist of what lives here.
-interface WorkspaceFeatures { enabled: boolean }   // the manage/reset commands + workspace rail entries
+interface WorkspaceFeatures { enabled: boolean; savedInRail: boolean }   // the manage/reset commands + workspace rail entries
 interface WindowFeatures { popout: boolean }      // "Open in new window" on a tab and on a docked view
 interface CommandFeatures { shortcuts: boolean; recentlyUsed: boolean }
 // shortcuts: false takes the global key listener AND every chord hint the shell prints (menu entry,
 // palette row, bar button), so nothing advertises a key that does nothing; commands stay reachable by
 // button and palette. workspaces.enabled: false leaves storage scoping alone — the active workspace
 // still names the layout keys, the user just never meets the concept.
+// workspaces.savedInRail: false withdraws the offer to put a workspace the USER saved in the rail, so what
+// stands beside a product's own entries is the product's decision rather than the user's: the user cannot
+// place one, an entry placed before the decision stops being offered while the placement itself is KEPT
+// (deciding the other way again restores it where they had put it), and saving, renaming, resetting and
+// switching all still work with the workspace dialog as the way to them. Nothing is reported about their
+// absence — it is a decision, not an omission. Workspaces the product DECLARED are untouched, and one that
+// nothing offers is still reported.
 // A rail or bar item naming a command nobody registered is dropped, like an orphaned menu entry.
 interface ShellFeatures { content: ContentFeatures; sidebar: SidebarFeatures; rail: RailFeatures; workspaces: WorkspaceFeatures; windows: WindowFeatures; commands: CommandFeatures }
 type ShellFeaturesInput = { [G in keyof ShellFeatures]?: Partial<ShellFeatures[G]> };
