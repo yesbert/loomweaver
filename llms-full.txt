@@ -133,6 +133,14 @@ interface InvocableCommand { id: string; title: string; description?: string; ar
 // opener's context (serialisable primitives) for visibility. The host draws the menu at the cursor.
 // A RailItem/BarButtonItem/ViewAction may carry `menu?: string` — the host opens that slot as the item's
 // context menu on right-click, region-agnostic, with a `{ targetKind, id, region }` context.
+// A RailItem/BarButtonItem may add `menuTrigger?: 'context' | 'primary' | 'both'` (default 'context') to
+// say which gesture opens it: 'primary'/'both' open it on ACTIVATION (click, Enter, Space) ANCHORED to the
+// control — the account entry every workbench needs. Activation offers the item's OWN slot alone (the
+// workbench's entries for that item, hide/move, stay on the right-click); the menu is placed beside the
+// control and flips to its other side rather than covering it; the host sets aria-haspopup/aria-expanded and
+// returns focus on dismiss. Such an item needs NO command/run and is drawn without one — where it names one
+// anyway the menu wins (dev warning), and on an item carrying `workspace:` the click is the switch, so the
+// menu keeps the right-click.
 // ONLY the element that opens a menu suppresses the native one; everywhere else (plugin content, and above
 // all a text field in it) the browser's own right-click menu stays — the shell suppresses nothing globally.
 type MenuContext = Readonly<Record<string, string | number | boolean>>;
@@ -375,10 +383,10 @@ interface OpenTabInput { path: string; title: string; icon?: string; titleIsLite
 type BarSlot = 'start' | 'center' | 'end';
 type BarItem = BarComponentItem | BarButtonItem;   // both base: { id, bar, slot, order?, access? } — access: hide either kind, disable only the button
 interface BarComponentItem { component: Type<unknown>; /* + base */ }
-interface BarButtonItem { icon?: string; label?: string; tooltip?: string; menu?: string; command?: string; showShortcut?: boolean; run?(): void | Promise<void>; /* + base */ }  // showShortcut (LWF-04): render the bound command's shortcut hint, OS-correct (⌘K / Ctrl+K); needs command to have a shortcut. Default off.
+interface BarButtonItem { icon?: string; label?: string; tooltip?: string; menu?: string; menuTrigger?: 'context' | 'primary' | 'both'; command?: string; showShortcut?: boolean; run?(): void | Promise<void>; /* + base */ }  // showShortcut (LWF-04): render the bound command's shortcut hint, OS-correct (⌘K / Ctrl+K); needs command to have a shortcut. Default off.
 // `workspace` names a workspace id: the host switches to it on click and marks the entry as the current one
 // (bar + tint + aria-current) while it is active. Provide it INSTEAD of command/run; those are then ignored.
-interface RailItem { id: string; rail: string; icon: string; initials?: string; title: string; order?: number; anchor?: 'top' | 'bottom'; menu?: string; command?: string; access?: AccessRequirement; workspace?: string; run?(): void | Promise<void>; }
+interface RailItem { id: string; rail: string; icon: string; initials?: string; title: string; order?: number; anchor?: 'top' | 'bottom'; menu?: string; menuTrigger?: 'context' | 'primary' | 'both'; command?: string; access?: AccessRequirement; workspace?: string; run?(): void | Promise<void>; }
 // initials: one or two letters the host draws INSTEAD of the icon, for an entry the user named (a saved workspace, a project, an account) — a fixed glyph makes them all look alike. Two characters max (rail draws them at icon size); app font, inherited colour, so hover/active behave as for an icon; `icon` stays the fallback.
 // The shell derives them for user-saved workspaces itself, in the rail, the workspace dialog and the curation list: initials of the first two words, or for one word its FIRST AND LAST letter (Month End → ME, Review → RW, Reports → RS). First-and-last because first-two collides far too often (Review/Reports/Rechnungen/Recherche all → RE). On a genuine clash only the NEWER one steps aside (first+second, first+third, …), so Kunden keeps KN and Konten becomes KO and no existing badge is ever renamed. Derived, not stored: a rename updates it, deleting a workspace may let a later one simplify back.
 

@@ -11,7 +11,13 @@ import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { CommandService } from '../../commands/command.service';
 import { AuthContext } from '../../auth/auth-context';
 import { RailItem } from '../../foundation/rail-item';
-import { ContextMenuDirective } from '../../menu/context-menu.directive';
+import { MenuTriggerDirective } from '../../menu/menu-trigger.directive';
+import {
+  menuOnActivate,
+  menuOnContext,
+  warnMenuTriggerConflict,
+} from '../../menu/chrome-item-menu';
+import { MenuSide } from '../../elements/menu/lw-menu.element';
 import { RAIL_CONTEXT_MENU, RAIL_ITEM_CONTEXT_MENU } from './rail-context-menu';
 import { RailItemsService } from './rail-items.service';
 import { RailMoveService } from './rail-move.service';
@@ -28,7 +34,7 @@ import { WorkspaceService } from '../../workspace/workspace.service';
     Reorderable,
     CdkDropList,
     CdkDrag,
-    ContextMenuDirective,
+    MenuTriggerDirective,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './shell-rail.html',
@@ -63,6 +69,9 @@ export class ShellRail {
   protected readonly labelKey = computed(() =>
     this.region().dock === 'right' ? 'rail.labelRight' : 'rail.label',
   );
+  protected readonly menuSide = computed<MenuSide>(() =>
+    this.region().dock === 'right' ? 'left' : 'right',
+  );
   protected readonly reorderable = this.features.reorder;
 
   protected readonly draggable =
@@ -78,7 +87,9 @@ export class ShellRail {
       .filter((item) => this.auth.visible(item.access))
       .filter(
         (item) =>
-          item.workspace !== undefined || this.commands.triggerable(item),
+          item.workspace !== undefined ||
+          menuOnActivate(item) !== undefined ||
+          this.commands.triggerable(item),
       )
       .toSorted((a, b) => (a.order ?? 0) - (b.order ?? 0)),
   );
@@ -114,9 +125,12 @@ export class ShellRail {
   }
 
   protected menusFor(item: RailItem): readonly string[] {
-    return item.menu
-      ? [RAIL_ITEM_CONTEXT_MENU, item.menu]
-      : [RAIL_ITEM_CONTEXT_MENU];
+    const own = menuOnContext(item);
+    return own ? [RAIL_ITEM_CONTEXT_MENU, own] : [RAIL_ITEM_CONTEXT_MENU];
+  }
+
+  protected activateMenuFor(item: RailItem): string | undefined {
+    return menuOnActivate(item);
   }
 
   protected onKeydown(event: KeyboardEvent): void {
@@ -144,6 +158,10 @@ export class ShellRail {
 
   protected run(item: RailItem): void {
     if (this.disabled(item)) return;
+    warnMenuTriggerConflict(item);
+    if (menuOnActivate(item)) {
+      return;
+    }
     const workspace = item.workspace;
     if (workspace !== undefined) {
       void this.workspaces.switchTo(workspace);

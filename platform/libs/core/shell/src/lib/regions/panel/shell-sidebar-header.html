@@ -47,7 +47,7 @@
     (selectTab)="select($event)"
     (reorderTabs)="onReorder($event)"
     (keydown)="onStripKeydown($event)"
-    [lwContextMenu]="stripMenu"
+    [lwMenu]="stripMenu"
   />
   <ng-template #trailing>
     @if (canCollapse()) {

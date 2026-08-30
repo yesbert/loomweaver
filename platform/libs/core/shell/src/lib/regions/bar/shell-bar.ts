@@ -1,6 +1,7 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { LayoutRegion } from '../../layout/layout';
 import { BarItem, BarSlot } from '../../foundation/bar-item';
+import { menuOnActivate } from '../../menu/chrome-item-menu';
 import { ShellBarItem } from './shell-bar-item';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { AuthContext } from '../../auth/auth-context';
@@ -32,7 +33,12 @@ export class ShellBar {
       .barItems()
       .filter((item) => item.bar === this.region().id && item.slot === slot)
       .filter((item) => this.auth.visible(item.access))
-      .filter((item) => 'component' in item || this.commands.triggerable(item))
+      .filter(
+        (item) =>
+          'component' in item ||
+          menuOnActivate(item) !== undefined ||
+          this.commands.triggerable(item),
+      )
       .toSorted((a, b) => (a.order ?? 0) - (b.order ?? 0));
   }
 }

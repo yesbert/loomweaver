@@ -56,6 +56,7 @@ export class PaneTargetPicker {
       entries,
       { x: rect.left, y: rect.bottom + MENU_ANCHOR_GAP },
       onPick,
+      anchor,
     );
   }
 }

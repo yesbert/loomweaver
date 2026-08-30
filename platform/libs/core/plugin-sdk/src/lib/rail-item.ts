@@ -1,4 +1,5 @@
 import { AccessRequirement } from './auth.js';
+import { MenuTrigger } from './menu.js';
 
 /**
  * A Rail/Ribbon item: an **independent command** triggered from the far
@@ -34,6 +35,12 @@ export interface RailItem {
    * Contribute items to the slot with `ctx.registerMenuItem({ menu, … })`. Omit for no context menu.
    */
   readonly menu?: string;
+  /**
+   * Which gesture opens {@link menu}. Defaults to `'context'`, so an item that says nothing keeps
+   * the right-click it always had. Ignored without {@link menu}, and on an item that names a
+   * {@link workspace}, where activating it is the switch.
+   */
+  readonly menuTrigger?: MenuTrigger;
   /**
    * Id of a registered {@link Command} this item triggers. Provide this **or** {@link run}; when
    * set, the host runs that command (so a keybinding/palette can share the same behaviour).

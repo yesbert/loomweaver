@@ -3,8 +3,10 @@
     type="button"
     (click)="run(btn)"
     [disabled]="disabled()"
-    [lwContextMenu]="btn.menu"
-    [lwContextMenuContext]="{ targetKind: 'bar-item', id: btn.id, bar: btn.bar }"
+    [lwMenu]="contextMenu()"
+    [lwMenuOnActivate]="activateMenu()"
+    [lwMenuSide]="menuSide()"
+    [lwMenuContext]="{ targetKind: 'bar-item', id: btn.id, bar: btn.bar }"
     class="relative flex items-center gap-1 rounded px-1.5 py-0.5 text-content-faint transition-colors hover:bg-surface-overlay hover:text-content disabled:pointer-events-none disabled:opacity-40"
     [attr.aria-label]="(btn.tooltip ?? btn.label ?? '') | transloco"
   >

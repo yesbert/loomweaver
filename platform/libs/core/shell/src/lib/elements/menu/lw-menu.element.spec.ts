@@ -4,6 +4,8 @@ import {
   LW_MENU_ITEM_TAG,
   LW_MENU_SELECT,
   LW_MENU_TAG,
+  LwMenuElement,
+  MenuAnchorRect,
 } from './lw-menu.element';
 
 function mount(
@@ -166,14 +168,61 @@ describe('<lw-menu> custom element', () => {
   });
 
   it('openAt positions the menu at the point, clamped into the viewport', () => {
-    const menu = mount([
-      ['a', 'Close'],
-    ]) as import('./lw-menu.element').LwMenuElement;
+    const menu = mount([['a', 'Close']]) as LwMenuElement;
     menu.openAt(120, 80);
     expect(menu.style.left).toBe('120px');
     expect(menu.style.top).toBe('80px');
     menu.openAt(5000, 5000);
     expect(menu.style.left).toBe(`${window.innerWidth - 4}px`);
     expect(menu.style.top).toBe(`${window.innerHeight - 4}px`);
+  });
+
+  describe('openBeside', () => {
+    const sized = (width: number, height: number) => {
+      const menu = mount([['a', 'Sign out']]) as LwMenuElement;
+      menu.getBoundingClientRect = () =>
+        ({ width, height, top: 0, left: 0, right: width, bottom: height }) as DOMRect;
+      return menu;
+    };
+    const rect = (
+      left: number,
+      top: number,
+      width: number,
+      height: number,
+    ): MenuAnchorRect => ({
+      left,
+      top,
+      right: left + width,
+      bottom: top + height,
+    });
+
+    it('places the menu on the preferred side when it fits', () => {
+      const menu = sized(200, 150);
+      menu.openBeside(rect(0, 100, 40, 36), 'right');
+      expect(menu.style.left).toBe('44px');
+      expect(menu.style.top).toBe('100px');
+    });
+
+    it('flips to the opposite side when the preferred one has no room', () => {
+      const menu = sized(200, 150);
+      menu.openBeside(rect(window.innerWidth - 40, 100, 40, 36), 'right');
+      expect(menu.style.left).toBe(`${window.innerWidth - 40 - 4 - 200}px`);
+    });
+
+    it('aligns to the far edge of the control rather than running off screen', () => {
+      const menu = sized(200, 150);
+      const control = rect(0, window.innerHeight - 68, 40, 36);
+      menu.openBeside(control, 'right');
+      expect(menu.style.left).toBe('44px');
+      expect(menu.style.top).toBe(`${control.bottom - 150}px`);
+    });
+
+    it('never covers the control it was opened from', () => {
+      const menu = sized(200, 150);
+      const control = rect(window.innerWidth - 104, 0, 100, 32);
+      menu.openBeside(control, 'bottom');
+      expect(menu.style.top).toBe('36px');
+      expect(menu.style.left).toBe(`${control.right - 200}px`);
+    });
   });
 });

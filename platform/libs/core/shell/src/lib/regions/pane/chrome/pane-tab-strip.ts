@@ -10,7 +10,7 @@ import {
 } from '@angular/cdk/drag-drop';
 import { MenuContext, ViewAction } from '@loomweaver/plugin-sdk';
 import { MENU_ANCHOR_GAP, MenuService } from '../../../menu/menu.service';
-import { ContextMenuDirective } from '../../../menu/context-menu.directive';
+import { MenuTriggerDirective } from '../../../menu/menu-trigger.directive';
 import { Reorderable } from '../../reorder/reorderable.directive';
 import { VIEW_PANE_PREFIX } from '../tree/pane-address';
 import { resolveTitle } from '../drag/pane-label';
@@ -26,7 +26,7 @@ const EDGE_TOLERANCE_PX = 1;
   imports: [
     NgTemplateOutlet,
     TranslocoPipe,
-    ContextMenuDirective,
+    MenuTriggerDirective,
     Reorderable,
     CdkDropList,
     CdkDrag,
@@ -164,7 +164,8 @@ export class PaneTabStrip {
   }
 
   protected openOverflow(event: Event): void {
-    const anchor = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const control = event.currentTarget as HTMLElement;
+    const anchor = control.getBoundingClientRect();
     const entries = this.tabs().map((tab) => ({
       key: tab.path,
       label: this.label(tab),
@@ -180,6 +181,7 @@ export class PaneTabStrip {
           this.selectTab.emit(tab);
         }
       },
+      control,
     );
   }
 

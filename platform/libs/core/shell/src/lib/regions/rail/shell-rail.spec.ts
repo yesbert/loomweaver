@@ -10,6 +10,12 @@ import { ActiveWorkspaceService } from '../../workspace/active-workspace.service
 import { WorkspaceService } from '../../workspace/workspace.service';
 import { RailItem } from '../../foundation/rail-item';
 import { RailItemsService } from './rail-items.service';
+import { RAIL_ITEM_CONTEXT_MENU } from './rail-context-menu';
+import {
+  defineLwMenu,
+  LW_MENU_ITEM_TAG,
+  LW_MENU_TAG,
+} from '../../elements/menu/lw-menu.element';
 
 const railRegion: LayoutRegion = { id: 'activity', type: 'rail', dock: 'left' };
 
@@ -288,6 +294,106 @@ describe('ShellRail', () => {
 
       expect(switched).toEqual(['beta']);
       expect(ran).toBe(0);
+    });
+  });
+  describe('a menu opened by activating the item', () => {
+    const account: RailItem = {
+      id: 'account',
+      rail: 'activity',
+      icon: 'user',
+      title: 'cmd.reset',
+      anchor: 'bottom',
+      menu: 'acme/account',
+      menuTrigger: 'primary',
+    };
+
+    beforeAll(() => defineLwMenu());
+    afterEach(() => document.body.querySelector(LW_MENU_TAG)?.remove());
+
+    function setupMenu(item: RailItem) {
+      TestBed.configureTestingModule({
+        imports: [ShellRail, transloco()],
+        providers: [{ provide: AUTH_SOURCE, useValue: signal(ANONYMOUS) }],
+      });
+      const registry = TestBed.inject(ContributionRegistry);
+      registry.addCommand({
+        id: 'c.signOut',
+        title: 'cmd.reset',
+        run: () => undefined,
+      });
+      registry.addCommand({
+        id: 'c.hide',
+        title: 'cmd.reset',
+        run: () => undefined,
+      });
+      registry.addMenuItem({ menu: 'acme/account', command: 'c.signOut' });
+      registry.addMenuItem({ menu: RAIL_ITEM_CONTEXT_MENU, command: 'c.hide' });
+      registry.addRailItem(item);
+      const fixture = TestBed.createComponent(ShellRail);
+      fixture.componentRef.setInput('region', railRegion);
+      fixture.detectChanges();
+      return fixture;
+    }
+
+    function offered(): string[] {
+      return [
+        ...(document.body
+          .querySelector(LW_MENU_TAG)
+          ?.querySelectorAll(LW_MENU_ITEM_TAG) ?? []),
+      ].map((item) => item.getAttribute('command') ?? '');
+    }
+
+    it('draws an item whose only purpose is its menu, and opens it on click', () => {
+      const fixture = setupMenu(account);
+      const button = buttonsOf(fixture)[0];
+
+      expect(button.getAttribute('aria-haspopup')).toBe('menu');
+      expect(button.getAttribute('aria-expanded')).toBe('false');
+
+      button.click();
+      fixture.detectChanges();
+
+      expect(offered()).toEqual(['c.signOut']);
+      expect(button.getAttribute('aria-expanded')).toBe('true');
+    });
+
+    it('keeps the workbench own entries on the right-click', () => {
+      const fixture = setupMenu(account);
+
+      buttonsOf(fixture)[0].dispatchEvent(
+        new MouseEvent('contextmenu', { bubbles: true, cancelable: true }),
+      );
+
+      expect(offered()).toEqual(['c.hide']);
+    });
+
+    it('offers both slots on the right-click when the item asks for both gestures', () => {
+      const fixture = setupMenu({ ...account, menuTrigger: 'both' });
+
+      buttonsOf(fixture)[0].dispatchEvent(
+        new MouseEvent('contextmenu', { bubbles: true, cancelable: true }),
+      );
+
+      expect(offered().toSorted((a, b) => a.localeCompare(b))).toEqual([
+        'c.hide',
+        'c.signOut',
+      ]);
+    });
+
+    it('leaves an item that declares no gesture on the right-click alone', () => {
+      const fixture = setupMenu({
+        ...account,
+        menuTrigger: undefined,
+        run: () => undefined,
+      });
+      const button = buttonsOf(fixture)[0];
+
+      expect(button.getAttribute('aria-haspopup')).toBeNull();
+
+      button.click();
+      fixture.detectChanges();
+
+      expect(document.body.querySelector(LW_MENU_TAG)).toBeNull();
     });
   });
 });

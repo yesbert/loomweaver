@@ -47,3 +47,15 @@ export interface MenuItem {
    */
   readonly checkedWhen?: MenuContext;
 }
+
+/**
+ * Which gesture opens the menu slot a chrome item names: its context menu on right-click (the
+ * default), its primary activation — a click, Enter or Space — with the menu anchored to the
+ * control the host drew, or both.
+ *
+ * Activation opens the item's **own** slot alone: the workbench's entries for that item, such as
+ * the ones that hide or move it, stay on the right-click, where a curation entry beside "Sign out"
+ * would be noise. An item whose activation opens its menu needs no `command` or `run` of its own,
+ * and the host draws it all the same.
+ */
+export type MenuTrigger = 'context' | 'primary' | 'both';

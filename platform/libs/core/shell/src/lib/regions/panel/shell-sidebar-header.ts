@@ -15,7 +15,7 @@ import { PaneMoveService, stripIdOf } from '../pane/drag/pane-move.service';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
 import { PaneTabStrip } from '../pane/chrome/pane-tab-strip';
 import { StripTab } from '../pane/chrome/strip-tab';
-import { ContextMenuDirective } from '../../menu/context-menu.directive';
+import { MenuTriggerDirective } from '../../menu/menu-trigger.directive';
 import { toStripTab } from '../pane/drag/pane-label';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { SHELL_FEATURES } from '../../foundation/shell-features';
@@ -24,7 +24,7 @@ export type SidebarHeaderContext = 'edge' | 'drawer' | 'floating';
 
 @Component({
   selector: 'lw-shell-sidebar-header',
-  imports: [TranslocoPipe, PaneTabStrip, ContextMenuDirective],
+  imports: [TranslocoPipe, PaneTabStrip, MenuTriggerDirective],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './shell-sidebar-header.html',
 })

@@ -1,5 +1,6 @@
 import { Type } from '@angular/core';
 import { AccessRequirement } from './auth.js';
+import { MenuTrigger } from './menu.js';
 
 /** Bar slots. */
 export type BarSlot = 'start' | 'center' | 'end';
@@ -46,6 +47,11 @@ export interface BarButtonItem extends BarItemBase {
    * Contribute items to the slot with `ctx.registerMenuItem({ menu, … })`. Omit for no context menu.
    */
   readonly menu?: string;
+  /**
+   * Which gesture opens {@link menu}. Defaults to `'context'`, so a button that says nothing keeps
+   * the right-click it always had. Ignored without {@link menu}.
+   */
+  readonly menuTrigger?: MenuTrigger;
   /**
    * Id of a registered {@link Command} this button triggers. Provide this **or** {@link run}; when
    * set, the host runs that command (so a keybinding/palette can share the same behaviour).
