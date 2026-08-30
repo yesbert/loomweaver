@@ -1,6 +1,6 @@
 {
   "name": "@loomweaver/mcp",
-  "version": "0.7.7",
+  "version": "0.7.8",
   "description": "LoomWeaver MCP server: exposes LoomWeaver's scaffolding and validation as MCP tools, so an AI assistant in any product repo can scaffold and validate weavers, distributions and integrations without a LoomWeaver checkout.",
   "keywords": [
     "loomweaver",
