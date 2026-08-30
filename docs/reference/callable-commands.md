@@ -154,4 +154,5 @@ Where the caller is an agentic backend speaking AG-UI, the dispatch is not yours
 `@loomweaver/ag-ui` describes these commands to the agent as tools, assembles a streamed call, and puts
 it through this same seam, with a hook where a product confirms or declines one before it runs.
 Nothing on this page is bypassed by it — a decision there can only narrow what the workbench would
-already have allowed. See [agent tools](agent-tools.md).
+already have allowed. See [driving a product with an agent](../agent-driven-products.md) for the
+path end to end, and [agent tools](agent-tools.md) for the adapter itself.

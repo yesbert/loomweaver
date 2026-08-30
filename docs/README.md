@@ -14,6 +14,7 @@ to build one. The platform is frontend-only; your product brings its own backend
 | **Build a plugin (a "weaver")**            | [Authoring a weaver](authoring-a-weaver.md), with copyable recipes in [Samples](samples.md)                |
 | **Compose and brand a product**            | [Building a distribution](building-a-distribution.md)                                                      |
 | **Use Bootstrap or your own CSS framework**| [Manual setup → bring your own CSS framework](manual-setup.md#bringing-your-own-css-framework)             |
+| **Let an agent drive your product**        | [Driving a product with an agent](agent-driven-products.md)                                                |
 | **Wire your own backend**                  | [Backend integration](backend-integration.md)                                                              |
 | **Look something up**                      | the [reference pages](#reference) below                                                                    |
 
@@ -34,8 +35,11 @@ to build one. The platform is frontend-only; your product brings its own backend
 8. [Scaffolding](scaffolding.md) — generate weavers, distributions and integrations with the
    `@loomweaver/cli` command line, the `@loomweaver/devkit` Nx generators or the `@loomweaver/mcp` server for AI
    assistants, all in your own repository.
-9. [Backend integration](backend-integration.md) — the product hand-off: settings, session and
-   translations against your own backend. The platform ships no server.
+9. [Driving a product with an agent](agent-driven-products.md) — generate the AG-UI connection,
+   watch a call go through, decide which calls to ask about, and replace the stand-in with your own
+   transport.
+10. [Backend integration](backend-integration.md) — the product hand-off: settings, session and
+    translations against your own backend. The platform ships no server.
 
 ## Reference
 

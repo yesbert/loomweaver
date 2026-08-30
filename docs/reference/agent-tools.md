@@ -7,6 +7,9 @@ and runs what the agent asks for through the same seam every other trigger runs 
 The rule underneath it is the one from [callable commands](callable-commands.md): **an agent reaches
 what the user could have reached, and nothing more.** This package adds no way past that.
 
+This page is the adapter, function by function. For the path from a generator command to a product an
+agent drives, read [driving a product with an agent](../agent-driven-products.md) first.
+
 ## The whole integration
 
 ```ts

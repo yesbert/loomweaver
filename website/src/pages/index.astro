@@ -20,6 +20,27 @@ const commandExample = `ctx.registerCommand({
   run: (_context, args) => exportInvoices(String(args?.['range'])),
 });`;
 
+const agentExample = `// Which calls are worth asking about is yours to decide.
+const CONSEQUENTIAL = new Set(['quotes.send']);
+
+async function decide(
+  ctx: PluginContext,
+  call: PendingToolCall,
+): Promise<ToolDecision> {
+  if (!CONSEQUENTIAL.has(call.commandId)) {
+    return { decision: 'run' };
+  }
+  return (await ctx.ui.confirm(prompt))
+    ? { decision: 'run' }
+    : { decision: 'decline', reason: 'you said no.' };
+}
+
+export function agentConnection(ctx: PluginContext) {
+  return commandTools(ctx, {
+    before: (call) => decide(ctx, call),
+  });
+}`;
+
 const quickStart = `# a fresh Angular app, or the one you already have
 ng new my-studio --style=css --ssr=false && cd my-studio
 
@@ -240,6 +261,54 @@ const rungs = [
       />
       <figcaption>
         Every command in the palette was contributed by a plugin. So was the dashboard behind it.
+      </figcaption>
+    </figure>
+
+    <section class="feature reverse">
+      <div class="feature-text">
+        <h2>An agent can drive your product. It still cannot reach further than the person at the keyboard.</h2>
+        <p>
+          Generate a weaver with <code>--agent</code> and you get the whole path: a docked panel, the
+          seam that decides about a call before it runs, and a local stand-in that speaks the protocol
+          so it works on the first serve. No transport, no key and no model are generated, because
+          those are yours.
+        </p>
+        <p>
+          Every call goes through the same seam a button, a shortcut and the palette already go
+          through, so an agent inherits the permissions and the access gating that were already there.
+          A refusal reads the same whatever its reason, so nothing can be learned about what is
+          installed by asking for it.
+        </p>
+        <p class="rule">Say no, and the workbench is never asked.</p>
+        <p>
+          <a href="/agent-driven-products/">Driving a product with an agent</a> ·
+          <a href="/reference/agent-tools/">Agent tools</a> ·
+          <a href="https://demo.loomweaver.dev">Try it in the demo</a>
+        </p>
+      </div>
+      <Code code={agentExample} lang="ts" title="your weaver" />
+    </section>
+
+    <figure class="shot">
+      <img
+        class="only-dark"
+        src="/media/agent-panel-dark.png"
+        alt="A LoomWeaver workbench with a quote open, beside an assistant panel showing the tool call that opened it, the workbench's answer, and a second call that was declined and never ran"
+        width="1806"
+        height="1389"
+        loading="lazy"
+      />
+      <img
+        class="only-light"
+        src="/media/agent-panel-light.png"
+        alt="A LoomWeaver workbench with a quote open, beside an assistant panel showing the tool call that opened it, the workbench's answer, and a second call that was declined and never ran"
+        width="1806"
+        height="1389"
+        loading="lazy"
+      />
+      <figcaption>
+        The agent opened the quote on the left by calling the same command a menu item calls. The
+        second call was declined, and the workbench was never asked to run it.
       </figcaption>
     </figure>
 

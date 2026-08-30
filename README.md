@@ -128,6 +128,27 @@ See [Callable commands](docs/reference/callable-commands.md) and
   </picture>
 </p>
 
+## An agent can drive your product. It still cannot reach further than the person at the keyboard.
+
+Generate a weaver with `--agent` and you get the whole path: a docked panel, the seam that decides
+about a call before it runs, and a local stand-in that speaks the protocol so it works on the first
+serve. No transport, no key and no model are generated, because those are yours.
+
+Every call goes through the same seam a button, a shortcut and the palette already go through, so an
+agent inherits the permissions and the access gating that were already there. A refusal reads the
+same whatever its reason, so nothing can be learned about what is installed by asking for it. **Say
+no, and the workbench is never asked.**
+
+See [Driving a product with an agent](docs/agent-driven-products.md), or open the
+[live demo](https://demo.loomweaver.dev) and decline a call yourself.
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: light)" srcset="assets/media/agent-panel-light.png" />
+    <img src="assets/media/agent-panel-dark.png" alt="A LoomWeaver workbench with a quote open, beside an assistant panel showing the tool call that opened it, the workbench's answer, and a second call that was declined and never ran" width="820" />
+  </picture>
+</p>
+
 ## What you would otherwise build twice
 
 - **A real workspace** with tab groups, drag-to-split panes, pop-out windows, named
