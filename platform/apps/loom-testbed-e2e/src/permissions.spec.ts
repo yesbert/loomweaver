@@ -106,7 +106,7 @@ test.describe('Plugin permissions', () => {
     await expect(page.getByTestId('perm-testbed-session')).not.toBeChecked();
   });
 
-  test('a plugin the distribution cannot run without has no switch, and keeps its own', async ({
+  test('a plugin the distribution cannot run without loses its own switch and no other', async ({
     page,
   }) => {
     await page.goto('/');
@@ -114,8 +114,6 @@ test.describe('Plugin permissions', () => {
 
     await expect(page.getByTestId('perm-required-sandbox-rpc')).toBeVisible();
     await expect(page.getByTestId('plugin-enabled-sandbox-rpc')).toHaveCount(0);
-
-    // Withholding the plugin's switch withholds only that one.
     await expect(page.getByTestId('perm-sandbox-rpc-ui')).toBeVisible();
   });
 

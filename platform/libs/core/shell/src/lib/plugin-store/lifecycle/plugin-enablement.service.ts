@@ -3,7 +3,7 @@ import { SETTINGS_STORE } from '../../persistence/settings-store';
 import { hydrateAsync } from '../../persistence/hydrate';
 import { StateSyncService } from '../../persistence/state-sync.service';
 import { parseIdSet, toggledIdSet } from '../../persistence/persisted-id-set';
-import { REQUIRED_PLUGINS } from '../../permissions/required-plugins';
+import { REQUIRED_PLUGINS } from '../../foundation/required-plugins';
 import { PluginInfo } from './plugin-info';
 
 const STORAGE_KEY = 'lw.shell.disabled-plugins';

@@ -6,7 +6,7 @@ import { PluginEnablementService } from '../plugin-store/lifecycle/plugin-enable
 import { PluginDeploymentService } from '../plugin-store/lifecycle/plugin-deployment.service';
 import { PluginIsolationLevelService } from '../foundation/plugin-isolation-level';
 import type { PluginManifest } from '@loomweaver/plugin-sdk';
-import { provideRequiredPlugins } from './required-plugins';
+import { provideRequiredPlugins } from '../foundation/required-plugins';
 
 function transloco() {
   return TranslocoTestingModule.forRoot({

@@ -4,7 +4,7 @@ import { HostContextFactory } from './host-context-factory';
 import { Plugin } from './plugin';
 import { CapabilityGrantService } from '../permissions/capability-grant.service';
 import { PluginEnablementService } from '../plugin-store/lifecycle/plugin-enablement.service';
-import { REQUIRED_PLUGINS } from '../permissions/required-plugins';
+import { REQUIRED_PLUGINS } from '../foundation/required-plugins';
 import { FRAME_PLUGIN } from './sandbox/frame-plugin';
 
 /** Multi-provider token: each contribution adds one plugin to load. */
