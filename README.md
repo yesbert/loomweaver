@@ -170,6 +170,10 @@ See [Driving your product with an AG-UI agent](docs/ag-ui-agents.md), or open th
   or blocks them reactively. Your product brings the session, from whatever auth you already run.
 - **No server in the platform.** Settings, working state and auth are **frontend ports** with local
   defaults. Wire them to your own backend (any stack) or run fully standalone.
+- **[AG-UI](https://docs.ag-ui.com) already spoken.** Every command you register can be offered to an
+  agent that speaks the standard, through an adapter that ships with the platform. You write no
+  dispatch and keep no second list of tools, and the agent still reaches only what the user could
+  have reached.
 - **The rest**: an installable PWA with an update flow, i18n with namespaced composition, WCAG 2.1 AA
   accessibility, cross-window state sync, and save/discard/cancel for editors with unsaved work.
 
@@ -196,7 +200,7 @@ Seven npm packages, one shared version:
 | `@loomweaver/cli`        | scaffolding from the command line                 |
 | `@loomweaver/devkit`     | the same scaffolds as Nx generators               |
 | `@loomweaver/mcp`        | the same scaffolds over MCP, for AI assistants    |
-| `@loomweaver/ag-ui`      | the adapter that offers the workbench's commands to an agent |
+| `@loomweaver/ag-ui`      | the AG-UI adapter: the workbench's commands, offered to an agent |
 
 ## How it fits together
 
