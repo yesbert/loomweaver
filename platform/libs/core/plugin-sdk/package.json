@@ -1,6 +1,6 @@
 {
   "name": "@loomweaver/plugin-sdk",
-  "version": "0.7.6",
+  "version": "0.7.7",
   "description": "LoomWeaver plugin contract: the public SDK a weaver depends on — ProductIdentity, Command, PluginContext and the host UI vocabulary.",
   "keywords": [
     "loomweaver",
