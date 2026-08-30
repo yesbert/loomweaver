@@ -1,6 +1,6 @@
 {
   "appReset": {
-    "action": "Reset layout",
+    "action": "Reset app layout",
     "confirm": "Reset the app layout?\n\nThis puts back: the activity bar you curated, collapsed sidebars, sidebar widths, your hand sorting, and named view instances with their state.\n\nThis stays: your saved workspaces and their layouts, colour scheme, language, text size, permissions and installed plugins.",
     "desc": "Puts the arrangement back the way this app shipped it.",
     "title": "Reset app layout"
@@ -278,7 +278,7 @@
     "rename": "Rename",
     "delete": "Delete",
     "deleteConfirm": "Delete the workspace “{{name}}”?",
-    "reset": "Reset layout",
+    "reset": "Reset workspace layout",
     "resetConfirm": "Reset this workspace? Its layout returns to the saved baseline; your saved workspaces are kept.",
     "default": "Default",
     "saveBaseline": "Apply changes",

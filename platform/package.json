@@ -11,6 +11,7 @@
     "api-docs-check": "node tools/check-api-docs.mjs",
     "agent-versions-check": "node tools/check-agent-versions.mjs",
     "quick-start-check": "node tools/check-quick-start.mjs",
+    "command-names-check": "node tools/check-command-names.mjs",
     "comments-check": "node tools/check-comments.mjs",
     "import-cycles-check": "node tools/check-import-cycles.mjs",
     "package-exports-check": "node tools/check-package-exports.mjs",
