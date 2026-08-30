@@ -15,6 +15,14 @@ import { MenuSide } from '../../elements/menu/lw-menu.element';
 import { BarButtonItem, BarComponentItem, BarItem } from '../../foundation/bar-item';
 import { BAR_CONTEXT } from './bar-context';
 
+const MENU_SIDE_BY_DOCK: Readonly<Record<DockPosition, MenuSide>> = {
+  top: 'bottom',
+  bottom: 'top',
+  left: 'right',
+  right: 'left',
+  center: 'bottom',
+};
+
 @Component({
   selector: 'lw-shell-bar-item',
   imports: [NgComponentOutlet, TranslocoPipe, MenuTriggerDirective],
@@ -41,8 +49,8 @@ export class ShellBarItem {
   protected readonly tooltipPosition = computed<TooltipPosition>(() =>
     this.dock() === 'bottom' ? 'top' : 'bottom',
   );
-  protected readonly menuSide = computed<MenuSide>(() =>
-    this.dock() === 'bottom' ? 'top' : 'bottom',
+  protected readonly menuSide = computed<MenuSide>(
+    () => MENU_SIDE_BY_DOCK[this.dock()],
   );
   protected readonly contextMenu = computed<string | undefined>(() => {
     const button = this.asButton();

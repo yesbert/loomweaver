@@ -182,6 +182,36 @@ function registerBarItems(ctx: PluginContext): void {
     command: 'testbed.about',
   });
   ctx.registerBarItem({
+    id: 'testbed.bar.account',
+    bar: 'left-footer',
+    slot: 'end',
+    order: -1,
+    icon: 'testbedUsers',
+    tooltip: 'testbed.account.title',
+    menu: 'testbed.account/menu',
+    menuTrigger: 'primary',
+    menuHeader: {
+      title: 'testbed.account.name',
+      detail: 'testbed.account.detail',
+      image: TESTBED_ACCOUNT_PICTURE,
+    },
+  });
+  ctx.registerBarItem({
+    id: 'testbed.status.account',
+    bar: 'status-bar',
+    slot: 'end',
+    order: 1,
+    icon: 'testbedUsers',
+    label: 'testbed.account.name',
+    menu: 'testbed.account/menu',
+    menuTrigger: 'primary',
+    menuHeader: {
+      title: 'testbed.account.name',
+      detail: 'testbed.account.detail',
+      image: TESTBED_ACCOUNT_PICTURE,
+    },
+  });
+  ctx.registerBarItem({
     id: 'testbed.count',
     bar: 'status-bar',
     slot: 'start',
