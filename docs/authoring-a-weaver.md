@@ -1003,6 +1003,29 @@ ctx.registerMenuItem({ menu: 'content/tab/context', command: 'my.tab.togglePin',
 `{ targetKind, id, region }` context. Contribute items to that slot the same way; e.g. the
 built-in view-tab menu offers "Move to other sidebar". One mechanism, every region.
 
+**A menu on the plain click.** A `RailItem` or a `BarButtonItem` may add
+`menuTrigger?: MenuTrigger` — `'context'` (the default, the right-click above), `'primary'` or
+`'both'` — to say which gesture opens its slot. With `'primary'` or `'both'` the menu opens when the
+item is activated, by click, Enter or Space alike, anchored beside the control the host drew and
+flipped to its other side rather than covering it. That is the account entry a workbench with a
+signed-in user needs:
+
+```ts
+ctx.registerRailItem({
+  id: 'notes.account', rail: 'activity', anchor: 'bottom', icon: 'user', initials: 'AR',
+  title: 'notes.account.title', menu: 'notes.account/menu', menuTrigger: 'primary',
+});
+ctx.registerMenuItem({ menu: 'notes.account/menu', command: 'notes.signOut', group: '9_session' });
+```
+
+Activation offers **your** slot alone: the workbench's own entries for that item, the ones that hide
+it or move it to the other rail, stay on the right-click, where a curation entry beside "Sign out"
+would be noise. Such an item needs no `command` or `run`, and the host draws it without one; where it
+names one anyway the menu wins and a development-mode message names what is never run. On an item
+carrying `workspace:` the click is the switch, so its menu keeps the right-click. The host owns the
+rest: it announces the control as opening a menu, tracks whether it is open, and returns focus to it
+when the menu is dismissed.
+
 **The browser's own menu stays where nobody draws one.** Only the element that opens a menu suppresses
 the native context menu; everywhere else — your view body, and above all a text field inside it — a
 right-click still gives the user cut, copy, paste and spellcheck. Draw your own only where you mean to
