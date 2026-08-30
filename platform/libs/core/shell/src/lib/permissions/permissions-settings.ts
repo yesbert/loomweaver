@@ -28,6 +28,7 @@ interface PluginRow {
   readonly name: string;
   readonly enabled: boolean;
   readonly provided: boolean;
+  readonly required: boolean;
   readonly rungNote: string | null;
   readonly capabilities: readonly PluginCapabilityState[];
 }
@@ -48,10 +49,12 @@ export class PermissionsSettings {
     const caps = this.grants.permissions();
     return this.enablement.plugins().map((plugin) => {
       const provided = this.deployment.isDeployed(plugin.id);
+      const required = this.enablement.isRequired(plugin.id);
       return {
         ...plugin,
         enabled: provided || plugin.enabled,
         provided,
+        required,
         rungNote: rungNoteKey(this.isolation.rungOf(plugin.id)),
         capabilities:
           caps.find((entry) => entry.pluginId === plugin.id)?.capabilities ??

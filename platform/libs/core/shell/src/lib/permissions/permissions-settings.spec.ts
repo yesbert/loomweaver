@@ -5,6 +5,8 @@ import { CapabilityGrantService } from './capability-grant.service';
 import { PluginEnablementService } from '../plugin-store/lifecycle/plugin-enablement.service';
 import { PluginDeploymentService } from '../plugin-store/lifecycle/plugin-deployment.service';
 import { PluginIsolationLevelService } from '../foundation/plugin-isolation-level';
+import type { PluginManifest } from '@loomweaver/plugin-sdk';
+import { provideRequiredPlugins } from '../foundation/required-plugins';
 
 function transloco() {
   return TranslocoTestingModule.forRoot({
@@ -14,6 +16,7 @@ function transloco() {
           permissionsDesc: 'Permissions desc',
           permissionsEmpty: 'No plugins are installed.',
           permissionsProvided: 'Provided by your organisation',
+          permissionsRequired: 'Part of this application',
           pluginEnabled: 'Enabled',
           pluginLevel: {
             trusted: 'Runs inside this application',
@@ -34,9 +37,10 @@ function transloco() {
 describe('PermissionsSettings', () => {
   afterEach(() => localStorage.clear());
 
-  function render() {
+  function render(required: readonly string[] = []) {
     TestBed.configureTestingModule({
       imports: [PermissionsSettings, transloco()],
+      providers: [provideRequiredPlugins(...required)],
     });
     TestBed.inject(PluginEnablementService).register('treaties', 'Treaties');
     TestBed.inject(CapabilityGrantService).register('treaties', ['ui'], ['ui']);
@@ -105,5 +109,63 @@ describe('PermissionsSettings', () => {
       host.querySelector('[data-testid="plugin-enabled-treaties"]'),
     ).toBeNull();
     expect(host.querySelector('[data-testid="perm-treaties-ui"]')).toBeNull();
+  });
+
+  it('offers no switch for a plugin the distribution cannot run without', () => {
+    const { host } = render(['treaties']);
+
+    expect(host.textContent).toContain('Part of this application');
+    expect(
+      host.querySelector('[data-testid="plugin-enabled-treaties"]'),
+    ).toBeNull();
+  });
+
+  it('still lets the user withdraw what such a plugin may do', () => {
+    const { host } = render(['treaties']);
+
+    expect(host.textContent).toContain('Interface');
+    expect(
+      host.querySelector('[data-testid="perm-treaties-ui"]'),
+    ).not.toBeNull();
+  });
+
+  it('shows a required plugin as on even where the user had switched it off', () => {
+    localStorage.setItem('lw.shell.disabled-plugins', JSON.stringify(['treaties']));
+    const { host } = render(['treaties']);
+
+    expect(host.textContent).not.toContain('Turned off');
+    expect(host.textContent).toContain('Interface');
+    expect(
+      host.querySelector('[data-testid="plugin-enabled-treaties"]'),
+    ).toBeNull();
+  });
+
+  it('keeps the switch for a plugin nobody declared required', () => {
+    const { host } = render(['something-else']);
+
+    expect(host.textContent).not.toContain('Part of this application');
+    expect(
+      host.querySelector('[data-testid="plugin-enabled-treaties"]'),
+    ).not.toBeNull();
+  });
+
+  it('ignores a plugin that claims to be required in its own manifest', () => {
+    const manifest = {
+      id: 'treaties',
+      name: 'Treaties',
+      required: true,
+      essential: true,
+    } as unknown as PluginManifest;
+    const { host } = render();
+
+    TestBed.inject(PluginEnablementService).register(
+      manifest.id,
+      manifest.name ?? manifest.id,
+    );
+
+    expect(host.textContent).not.toContain('Part of this application');
+    expect(
+      host.querySelector('[data-testid="plugin-enabled-treaties"]'),
+    ).not.toBeNull();
   });
 });

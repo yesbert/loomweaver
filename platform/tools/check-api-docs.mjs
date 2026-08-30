@@ -59,6 +59,7 @@ const EXEMPT = new Map([
   ['FRAME_PLUGIN', 'token behind provideFramePlugins'],
   ['SHELL_LAYOUT', 'token behind provideLayout'],
   ['CAPABILITY_GRANTS', 'token behind provideCapabilityGrants'],
+  ['REQUIRED_PLUGINS', 'token behind provideRequiredPlugins'],
   ['PLUGIN_CATALOG', 'token behind providePluginCatalog'],
   ['AUTH_SOURCE', 'token behind provideAuthSource'],
   ['TRANSLATION_NAMESPACES', 'token behind provideTranslationNamespaces'],
@@ -93,6 +94,7 @@ const EXEMPT = new Map([
   ['QuickOpenEntryOptions', 'options object of provideQuickOpenEntry'],
   ['PluginCatalogOptions', 'options object of providePluginCatalog'],
   ['CapabilityGrants', 'map shape of provideCapabilityGrants'],
+  ['RequiredPlugins', 'list shape of provideRequiredPlugins'],
   ['ContentTabView', 'rendered form of a content tab'],
   ['SelectOption', 'option shape of the select control'],
   // The settings control kinds are documented by their `kind:` value, which is what an author writes.

@@ -186,6 +186,7 @@
     "permissionsDesc": "Schalte ein ganzes Plugin ein oder aus oder verwalte, was es darf. Änderungen wirken sofort; die Distribution kann nie mehr gewähren, als hier aufgeführt ist.",
     "permissionsEmpty": "Keine Plugins installiert.",
     "permissionsProvided": "Von Ihrer Organisation bereitgestellt. Diese Berechtigungen wurden mit dem Plugin vergeben und lassen sich hier nicht entziehen.",
+    "permissionsRequired": "Teil dieser Anwendung. Sie lässt sich hier nicht abschalten; was sie darf, kann weiterhin geändert werden.",
     "pluginDisabled": "Dieses Plugin ist ausgeschaltet. Schalte es ein, um seine Berechtigungen zu verwalten.",
     "pluginEnabled": "Aktiviert",
     "pluginLevel": {
