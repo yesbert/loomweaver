@@ -392,6 +392,7 @@ describe('MenuService', () => {
       detail?: string;
       icon?: string;
       initials?: string;
+      image?: string;
     }): void {
       registry.addCommand({
         id: 'c.close',
@@ -434,6 +435,36 @@ describe('MenuService', () => {
       expect(heading()?.getAttribute('aria-hidden')).toBe('true');
       expect(heading()?.getAttribute('role')).toBeNull();
       expect(items()).toHaveLength(1);
+    });
+
+    it('draws a picture where one is given, in place of the initials', () => {
+      open({
+        title: 'menu.close',
+        initials: 'AL',
+        image: 'https://example.test/ada.png',
+      });
+
+      const mark = heading()?.querySelector('.lw-menu-header-mark');
+      expect(
+        mark?.querySelector<HTMLImageElement>('img')?.getAttribute('src'),
+      ).toBe('https://example.test/ada.png');
+      expect(mark?.textContent).toBe('');
+    });
+
+    it('gives way to the initials when the picture cannot be shown', () => {
+      open({
+        title: 'menu.close',
+        detail: 'ada@example.com',
+        initials: 'AL',
+        image: 'https://example.test/ada.png',
+      });
+      const mark = heading()?.querySelector('.lw-menu-header-mark');
+
+      mark?.querySelector('img')?.dispatchEvent(new Event('error'));
+
+      expect(mark?.querySelector('img')).toBeNull();
+      expect(mark?.textContent).toBe('AL');
+      expect(menu()?.getAttribute('aria-label')).toBe('Close, ada@example.com');
     });
 
     it('draws an icon where no initials are given', () => {

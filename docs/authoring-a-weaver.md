@@ -1033,6 +1033,27 @@ The heading is not an entry: nothing activates it, the arrow keys pass over it t
 a separator, and the menu is announced by what it names, so the name reaches the user once rather
 than twice. A menu opened at the pointer carries none, because what it acts on is under the pointer.
 
+**A picture where you have one.** Both the entry and the heading take `image`, anything an `<img>`
+accepts, drawn round in place of the icon and the initials:
+
+```ts
+ctx.registerRailItem({
+  id: 'notes.account', rail: 'activity', anchor: 'bottom', icon: 'user', initials: 'AR',
+  image: person.avatarUrl,
+  title: 'notes.account.title', menu: 'notes.account/menu', menuTrigger: 'primary',
+  menuHeader: { title: person.name, detail: person.email, initials: 'AR', image: person.avatarUrl },
+});
+```
+
+The ladder is picture, then initials, then icon, and **the host falls back**: a picture that is
+missing or that fails to load leaves the control looking exactly as it would without one, so you do
+not have to handle the ordinary case of a person having no photograph. Re-register the item with the
+same id when the picture arrives and the rail redraws.
+
+The workbench does not fetch anything for you: the address is yours, and a picture served from
+another origin has to be allowed by your own content policy. The picture is decoration, so the entry
+stays announced by its title and the menu by its heading, rather than naming the person twice.
+
 Activation offers **your** slot alone: the workbench's own entries for that item, the ones that hide
 it or move it to the other rail, stay on the right-click, where a curation entry beside "Sign out"
 would be noise. Such an item needs no `command` or `run`, and the host draws it without one; where it

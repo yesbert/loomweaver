@@ -296,6 +296,71 @@ describe('ShellRail', () => {
       expect(ran).toBe(0);
     });
   });
+  describe('an entry drawn as a picture', () => {
+    const withPicture = (overrides: Partial<RailItem> = {}): RailItem => ({
+      id: 'account',
+      rail: 'activity',
+      icon: 'reset',
+      initials: 'AL',
+      title: 'cmd.reset',
+      image: 'https://example.test/ada.png',
+      run: () => undefined,
+      ...overrides,
+    });
+
+    function picture(fixture: ReturnType<typeof setup>): HTMLImageElement | null {
+      return fixture.nativeElement.querySelector('[data-testid="rail-picture"]');
+    }
+
+    function initials(fixture: ReturnType<typeof setup>): HTMLElement | null {
+      return fixture.nativeElement.querySelector('[data-testid="rail-initials"]');
+    }
+
+    it('draws the picture in place of the mark and the icon', () => {
+      const fixture = setup(signal(ANONYMOUS), withPicture());
+
+      expect(picture(fixture)?.getAttribute('src')).toBe(
+        'https://example.test/ada.png',
+      );
+      expect(picture(fixture)?.getAttribute('alt')).toBe('');
+      expect(initials(fixture)).toBeNull();
+      expect(fixture.nativeElement.querySelector('lw-icon')).toBeNull();
+    });
+
+    it('gives way to the mark when the picture cannot be shown', () => {
+      const fixture = setup(signal(ANONYMOUS), withPicture());
+
+      picture(fixture)?.dispatchEvent(new Event('error'));
+      fixture.detectChanges();
+
+      expect(picture(fixture)).toBeNull();
+      expect(initials(fixture)?.textContent).toBe('AL');
+    });
+
+    it('gives way to the icon where the entry has no mark', () => {
+      const fixture = setup(
+        signal(ANONYMOUS),
+        withPicture({ initials: undefined }),
+      );
+
+      picture(fixture)?.dispatchEvent(new Event('error'));
+      fixture.detectChanges();
+
+      expect(picture(fixture)).toBeNull();
+      const icon = fixture.nativeElement.querySelector('lw-icon') as {
+        name?: string;
+      } | null;
+      expect(icon?.name).toBe('reset');
+    });
+
+    it('keeps the entry announced by its title alone', () => {
+      const fixture = setup(signal(ANONYMOUS), withPicture());
+
+      expect(buttonsOf(fixture)[0].getAttribute('aria-label')).toBe('Reset');
+      expect(picture(fixture)?.getAttribute('aria-hidden')).toBe('true');
+    });
+  });
+
   describe('a menu opened by activating the item', () => {
     const account: RailItem = {
       id: 'account',

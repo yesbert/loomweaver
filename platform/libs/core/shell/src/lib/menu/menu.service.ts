@@ -254,17 +254,8 @@ export class MenuService {
     element.className = 'lw-menu-header';
     element.setAttribute('aria-hidden', 'true');
 
-    if (header.initials || header.icon) {
-      const mark = document.createElement('span');
-      mark.className = 'lw-menu-header-mark';
-      if (header.initials) {
-        mark.textContent = header.initials;
-      } else {
-        const icon = document.createElement('lw-icon');
-        icon.setAttribute('name', header.icon ?? '');
-        icon.setAttribute('size', '1rem');
-        mark.append(icon);
-      }
+    const mark = this.createHeaderMark(header);
+    if (mark) {
       element.append(mark);
     }
 
@@ -282,6 +273,42 @@ export class MenuService {
     }
     element.append(lines);
     return element;
+  }
+
+  private createHeaderMark(header: MenuHeader): HTMLElement | undefined {
+    if (!header.image && !header.initials && !header.icon) {
+      return undefined;
+    }
+    const mark = document.createElement('span');
+    mark.className = 'lw-menu-header-mark';
+    mark.append(...this.markContent(header));
+    if (header.image) {
+      const picture = mark.firstElementChild as HTMLImageElement;
+      picture.addEventListener('error', () =>
+        mark.replaceChildren(...this.markContent({ ...header, image: undefined })),
+      );
+    }
+    return mark;
+  }
+
+  private markContent(header: MenuHeader): Node[] {
+    if (header.image) {
+      const picture = document.createElement('img');
+      picture.src = header.image;
+      picture.alt = '';
+      picture.className = 'lw-menu-header-picture';
+      return [picture];
+    }
+    if (header.initials) {
+      return [document.createTextNode(header.initials)];
+    }
+    if (header.icon) {
+      const icon = document.createElement('lw-icon');
+      icon.setAttribute('name', header.icon);
+      icon.setAttribute('size', '1rem');
+      return [icon];
+    }
+    return [];
   }
 
   private createListMenu(entries: readonly MenuListEntry[]): LwMenuElement {

@@ -23,6 +23,18 @@ export interface RailItem {
    * so hover and the active marker behave exactly as elsewhere.
    */
   readonly initials?: string;
+  /**
+   * A picture of what this entry stands for — a person, a project, a tenant — as anything an image
+   * element accepts, an address you serve or a data URL. Drawn in place of {@link icon} and
+   * {@link initials}, cropped round.
+   *
+   * The order is picture, then {@link initials}, then {@link icon}, and the **host** falls back: a
+   * picture that is absent or fails to load leaves the entry exactly as it would look without one,
+   * so you never have to handle the ordinary case of there being no photograph. Reaching the picture
+   * at all is yours: the workbench does not fetch it, and another origin has to be allowed by your
+   * own content policy.
+   */
+  readonly image?: string;
   /** Transloco key (or literal) for the tooltip/label. */
   readonly title: string;
   /** Lower renders first within its anchor group (default 0). */

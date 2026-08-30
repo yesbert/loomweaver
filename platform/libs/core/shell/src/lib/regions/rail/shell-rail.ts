@@ -1,4 +1,11 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject, input } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  computed,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import {
   CdkDrag,
@@ -110,6 +117,8 @@ export class ShellRail {
     return [...top, ...bottom];
   });
 
+  private readonly brokenPictures = signal<ReadonlySet<string>>(new Set());
+
   protected readonly firstBottomId = computed(
     () => this.items().find((item) => item.anchor === 'bottom')?.id,
   );
@@ -119,6 +128,14 @@ export class ShellRail {
     list: CdkDropList,
   ): boolean =>
     list.id === this.dropListId() ? this.reorderable : this.features.moveItems;
+
+  protected pictureOf(item: RailItem): string | undefined {
+    return this.brokenPictures().has(item.id) ? undefined : item.image;
+  }
+
+  protected onPictureError(item: RailItem): void {
+    this.brokenPictures.update((broken) => new Set(broken).add(item.id));
+  }
 
   protected disabled(item: RailItem): boolean {
     return this.auth.disabled(item.access);

@@ -47,7 +47,16 @@
           [class.right-0]="region().dock === 'right'"
         ></span>
       }
-      @if (item.initials) {
+      @if (pictureOf(item); as picture) {
+        <img
+          [src]="picture"
+          alt=""
+          aria-hidden="true"
+          data-testid="rail-picture"
+          class="lw-rail-picture"
+          (error)="onPictureError(item)"
+        />
+      } @else if (item.initials) {
         <span
           aria-hidden="true"
           data-testid="rail-initials"

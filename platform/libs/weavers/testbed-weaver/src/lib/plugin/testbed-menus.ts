@@ -15,6 +15,24 @@ export function registerMenus(ctx: PluginContext): void {
     when: { closable: true },
   });
   ctx.registerMenuItem({
+    menu: 'testbed.account/menu',
+    command: 'testbed.openSettings',
+    group: '1_account',
+    order: 0,
+  });
+  ctx.registerMenuItem({
+    menu: 'testbed.account/menu',
+    command: 'testbed.auth.cycle',
+    group: '1_account',
+    order: 1,
+  });
+  ctx.registerMenuItem({
+    menu: 'testbed.account/menu',
+    command: 'testbed.auth.signOut',
+    group: '2_session',
+    order: 0,
+  });
+  ctx.registerMenuItem({
     menu: 'testbed.rail/context',
     command: 'testbed.openSettings',
     group: '1_demo',

@@ -243,6 +243,14 @@
     @apply select-none font-sans text-[0.75rem] leading-none font-normal tracking-tight uppercase;
   }
 
+  /* `.lw-rail-picture` — a picture drawn where a rail item would draw its icon, for an entry standing
+     for a person or a project. Round and covered rather than fitted, so a portrait is cropped to its
+     middle instead of squashed. Sized to the icon's own box, so the row keeps its rhythm whether the
+     entry shows a picture, two letters or a glyph. */
+  .lw-rail-picture {
+    @apply h-6 w-6 shrink-0 rounded-full object-cover;
+  }
+
   /* `.lw-segmented` — a segmented single-choice control (theme mode, text size) as a CSS-class contract
      (like `.lw-btn`): a native `<fieldset>` of native `<button>`s, so semantics and
      keyboard come for free. Put `.lw-segmented-item` on each button and drive the selected look from its
@@ -678,6 +686,9 @@
   .lw-menu-header-mark {
     @apply flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface-raised text-content-muted;
     @apply select-none font-sans text-[0.75rem] leading-none font-normal tracking-tight uppercase;
+  }
+  .lw-menu-header-picture {
+    @apply h-full w-full rounded-full object-cover;
   }
   .lw-menu-header-lines {
     @apply flex min-w-0 flex-col;
