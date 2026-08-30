@@ -82,6 +82,12 @@ jobs:
           npx nx run shell:styles
           npx nx run cli:bundle
 
+      # The last leg of the check opens the built application, because a surface can be delivered
+      # whole and still never appear. A browser that will not start is reported as setup, not as a
+      # regression, the same way a registry failure is.
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
       # It runs `ng new` and two installs against the public registry, so a transient registry
       # failure exits 2 and is reported as setup rather than as a regression.
       - name: Run the published quick start and check what it serves

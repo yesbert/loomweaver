@@ -41,13 +41,20 @@
 
 - [x] 4.1 Recipe tests: the emitted file map, the derived permission, the implied command, and that no
       transport, credential or model is emitted.
-- [ ] 4.2 Extend the nightly check that generates into a fresh application and asserts on what is
+- [x] 4.2 Extend the nightly check that generates into a fresh application and asserts on what is
       served, so that it reaches the panel, runs a command from it and sees the outcome.
       - [x] The check now generates a weaver with the connection, installs only what the scaffold
             recorded, builds, and asserts the panel and the stand-in reached the served bundle and
             that the recorded package resolved to an installed one.
-      - [ ] Reaching the panel and running a command from it needs a browser, which that check does
-            not have. Open: give it one, or assert it from the Playwright suite instead.
+      - [x] The check serves what it built and opens it in Chromium, driven by Playwright as a
+            library. Asserting it from an existing Playwright suite was considered and dropped: both
+            suites point at an application that lives in this repository, while the one under test
+            is created by the generator and takes the whole install-and-build the check already
+            does. The demo's own panel shares no code with the generated one, so asserting there
+            would be green without covering the generator at all.
+      - [x] It reaches the panel, sees exactly the command the generator declared callable, is asked
+            before a consequential call, and reads both outcomes: declining stops it, confirming
+            runs it. A browser that will not start is reported as setup, like a registry failure.
 - [x] 4.3 Repository check that the two recorded versions agree with what the platform itself
       resolves, so a bump cannot leave the generator behind quietly.
 - [x] 4.4 Generate with the connection and with each of the surface-shaping features in turn, and
@@ -64,4 +71,4 @@
 ## 6. Hand over
 
 - [x] 6.1 `openspec validate --all --strict` and the repository's own guards for the touched projects.
-- [ ] 6.2 Open the pull request naming what a consumer gets on the first serve and what stays theirs.
+- [x] 6.2 Open the pull request naming what a consumer gets on the first serve and what stays theirs.
