@@ -126,6 +126,21 @@ for (const file of VERBATIM) {
   copyFileSync(from, path.join(publicDir, file));
 }
 
+/* A crawler that reads only robots.txt never learns the sitemap exists, and every page here is meant
+   to be found. The address is read from astro.config.mjs rather than written twice: the sitemap
+   integration builds its URLs from that same value, so a second copy here could disagree with the
+   file it points at. */
+const configSource = readFileSync(path.join(websiteRoot, 'astro.config.mjs'), 'utf8');
+const site = configSource.match(/site:\s*'([^']+)'/)?.[1];
+if (site) {
+  writeFileSync(
+    path.join(publicDir, 'robots.txt'),
+    ['User-agent: *', 'Allow: /', '', `Sitemap: ${site}/sitemap-index.xml`, ''].join('\n'),
+  );
+} else {
+  problems.push('astro.config.mjs declares no site, so robots.txt cannot name the sitemap');
+}
+
 /* The landing page is src/pages/index.astro, so nothing is copied into the docs collection for
    the root route. What it does need is its media, single-sourced in assets/media so the README and
    the site show the same tour. A missing file fails the build rather than shipping a broken image. */
