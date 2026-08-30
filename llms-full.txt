@@ -145,7 +145,7 @@ interface InvocableCommand { id: string; title: string; description?: string; ar
 // entry itself (no menuitem role, the arrow keys pass over it like a separator, nothing activates it), and
 // the menu is labelled from it so the name is announced exactly once. Only for a menu opened by activation;
 // a menu at the pointer carries none, because what it acts on is under the pointer.
-// A RailItem and a MenuHeader may carry `image?: string` — anything an <img> takes, an address you serve
+// A RailItem, a BarButtonItem and a MenuHeader may carry `image?: string` — anything an <img> takes, an address you serve
 // or a data URL — drawn round in place of icon/initials. The ladder is PICTURE, then initials, then icon,
 // and the HOST falls back: a picture that is absent or fails to load leaves the control exactly as it
 // would look without one, so a product never has to handle the ordinary case of there being no photo. The
@@ -394,7 +394,7 @@ interface OpenTabInput { path: string; title: string; icon?: string; titleIsLite
 type BarSlot = 'start' | 'center' | 'end';
 type BarItem = BarComponentItem | BarButtonItem;   // both base: { id, bar, slot, order?, access? } — access: hide either kind, disable only the button
 interface BarComponentItem { component: Type<unknown>; /* + base */ }
-interface BarButtonItem { icon?: string; label?: string; tooltip?: string; menu?: string; menuTrigger?: 'context' | 'primary' | 'both'; menuHeader?: MenuHeader; command?: string; showShortcut?: boolean; run?(): void | Promise<void>; /* + base */ }  // showShortcut (LWF-04): render the bound command's shortcut hint, OS-correct (⌘K / Ctrl+K); needs command to have a shortcut. Default off.
+interface BarButtonItem { icon?: string; initials?: string; image?: string; label?: string; tooltip?: string; menu?: string; menuTrigger?: 'context' | 'primary' | 'both'; menuHeader?: MenuHeader; command?: string; showShortcut?: boolean; run?(): void | Promise<void>; /* + base */ }  // showShortcut (LWF-04): render the bound command's shortcut hint, OS-correct (⌘K / Ctrl+K); needs command to have a shortcut. Default off.
 // `workspace` names a workspace id: the host switches to it on click and marks the entry as the current one
 // (bar + tint + aria-current) while it is active. Provide it INSTEAD of command/run; those are then ignored.
 interface RailItem { id: string; rail: string; icon: string; initials?: string; image?: string; title: string; order?: number; anchor?: 'top' | 'bottom'; menu?: string; menuTrigger?: 'context' | 'primary' | 'both'; menuHeader?: MenuHeader; command?: string; access?: AccessRequirement; workspace?: string; run?(): void | Promise<void>; }

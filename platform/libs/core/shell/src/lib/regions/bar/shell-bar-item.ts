@@ -1,5 +1,6 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, Injector, computed, inject, input } from '@angular/core';
 import { NgComponentOutlet } from '@angular/common';
+import { signal } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { DockPosition } from '../../layout/layout';
 import { TooltipPosition } from '../../elements/tooltip/lw-tooltip.element';
@@ -46,6 +47,8 @@ export class ShellBarItem {
     const item = this.item();
     return 'component' in item ? null : item;
   });
+  private readonly brokenPicture = signal(false);
+
   protected readonly tooltipPosition = computed<TooltipPosition>(() =>
     this.dock() === 'bottom' ? 'top' : 'bottom',
   );
@@ -86,6 +89,14 @@ export class ShellBarItem {
       this.commands.commands().find((entry) => entry.id === button.command),
     );
   });
+
+  protected pictureOf(button: BarButtonItem): string | undefined {
+    return this.brokenPicture() ? undefined : button.image;
+  }
+
+  protected onPictureError(): void {
+    this.brokenPicture.set(true);
+  }
 
   protected run(button: BarButtonItem): void {
     if (this.disabled()) return;

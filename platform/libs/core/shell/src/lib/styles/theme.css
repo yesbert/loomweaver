@@ -243,12 +243,12 @@
     @apply select-none font-sans text-[0.75rem] leading-none font-normal tracking-tight uppercase;
   }
 
-  /* `.lw-rail-picture` — a picture drawn where a rail item would draw its icon, for an entry standing
-     for a person or a project. Round and covered rather than fitted, so a portrait is cropped to its
-     middle instead of squashed. Sized to the icon's own box, so the row keeps its rhythm whether the
-     entry shows a picture, two letters or a glyph. */
-  .lw-rail-picture {
-    @apply h-6 w-6 shrink-0 rounded-full object-cover;
+  /* `.lw-chrome-picture` — a picture drawn where a rail entry or a bar button would draw its icon,
+     for a control standing for a person or a project. Round and covered rather than fitted, so a
+     portrait is cropped to its middle instead of squashed. The size comes from where it is used, so
+     each band keeps its own rhythm whether the control shows a picture, two letters or a glyph. */
+  .lw-chrome-picture {
+    @apply shrink-0 rounded-full object-cover;
   }
 
   /* `.lw-segmented` — a segmented single-choice control (theme mode, text size) as a CSS-class contract

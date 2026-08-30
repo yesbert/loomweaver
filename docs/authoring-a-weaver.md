@@ -1033,8 +1033,8 @@ The heading is not an entry: nothing activates it, the arrow keys pass over it t
 a separator, and the menu is announced by what it names, so the name reaches the user once rather
 than twice. A menu opened at the pointer carries none, because what it acts on is under the pointer.
 
-**A picture where you have one.** Both the entry and the heading take `image`, anything an `<img>`
-accepts, drawn round in place of the icon and the initials:
+**A picture where you have one.** A launcher entry, a bar button and a menu heading all take
+`image`, anything an `<img>` accepts, drawn round in place of the icon and the initials:
 
 ```ts
 ctx.registerRailItem({
@@ -1049,6 +1049,10 @@ The ladder is picture, then initials, then icon, and **the host falls back**: a 
 missing or that fails to load leaves the control looking exactly as it would without one, so you do
 not have to handle the ordinary case of a person having no photograph. Re-register the item with the
 same id when the picture arrives and the rail redraws.
+
+The same two fields sit on a bar button, so the account can live in a bar rather than in the rail;
+the host derives which way its menu opens from the bar's own edge, downwards from a top bar, upwards
+from a status bar, sideways from a bar docked left or right.
 
 The workbench does not fetch anything for you: the address is yours, and a picture served from
 another origin has to be allowed by your own content policy. The picture is decoration, so the entry

@@ -1,9 +1,9 @@
 ## ADDED Requirements
 
-### Requirement: A rail entry may be drawn as a picture of what it stands for
+### Requirement: A chrome entry may be drawn as a picture of what it stands for
 
-An entry contributed to a rail MAY carry a picture of what it stands for, and the workbench SHALL
-draw that picture in its place. Where the entry carries none, or where the one it carries cannot be
+An entry contributed to a rail, and a button contributed to a bar, MAY carry a picture of what it
+stands for, and the workbench SHALL draw that picture in its place. Where the entry carries none, or where the one it carries cannot be
 shown, the workbench SHALL fall back to the short mark the entry declares, and to its icon where it
 declares no mark. Falling back SHALL be the workbench's own doing, so a product that declares a
 picture never has to handle the picture's absence, which is the ordinary case rather than the
@@ -17,14 +17,14 @@ neither serves it nor knows where it comes from.
 
 #### Scenario: An entry stands for a person and shows their picture
 
-- **WHEN** a rail entry carries a picture and it can be shown
+- **WHEN** a rail entry or a bar button carries a picture and it can be shown
 - **THEN** the picture is drawn in place of the entry's icon and its short mark
 
 #### Scenario: A picture that cannot be shown gives way
 
-- **WHEN** the picture a rail entry carries fails to load
-- **THEN** the entry draws its short mark instead, or its icon where it declares no mark
-- **AND** the entry stays usable, with no broken image in the rail
+- **WHEN** the picture such a control carries fails to load
+- **THEN** the control draws its short mark instead, or its icon where it declares no mark
+- **AND** the control stays usable, with no broken image in the chrome
 
 #### Scenario: The picture is not announced
 
