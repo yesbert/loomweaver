@@ -1,6 +1,6 @@
 import { inject, Service, signal } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
-import { MenuContext, MenuItem } from '@loomweaver/plugin-sdk';
+import { MenuContext, MenuHeader, MenuItem } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../plugin/contribution-registry';
 import { CommandService } from '../commands/command.service';
 import {
@@ -18,6 +18,11 @@ export { MENU_ANCHOR_GAP } from '../elements/menu/lw-menu.element';
 export type MenuAnchor =
   | { readonly x: number; readonly y: number }
   | { readonly rect: MenuAnchorRect; readonly side: MenuSide };
+
+export interface MenuOpenOptions {
+  readonly trigger?: HTMLElement;
+  readonly header?: MenuHeader;
+}
 
 interface ResolvedItem {
   readonly key: string;
@@ -64,7 +69,7 @@ export class MenuService {
     menuId: string | readonly string[],
     context: MenuContext,
     at: MenuAnchor,
-    trigger?: HTMLElement,
+    options: MenuOpenOptions = {},
   ): void {
     this.close();
     const resolved = this.resolve(
@@ -74,7 +79,7 @@ export class MenuService {
     if (resolved.length === 0) {
       return;
     }
-    const menu = this.createMenu(resolved);
+    const menu = this.createMenu(resolved, options.header);
     const byKey = new Map(resolved.map((entry) => [entry.key, entry.item]));
     this.present(
       menu,
@@ -85,7 +90,7 @@ export class MenuService {
           this.run(item, context);
         }
       },
-      trigger,
+      options.trigger,
     );
   }
 
@@ -198,10 +203,16 @@ export class MenuService {
       .toSorted((a, b) => a.group.localeCompare(b.group) || a.order - b.order);
   }
 
-  private createMenu(resolved: readonly ResolvedItem[]): LwMenuElement {
+  private createMenu(
+    resolved: readonly ResolvedItem[],
+    header?: MenuHeader,
+  ): LwMenuElement {
     const menu = document.createElement(LW_MENU_TAG) as LwMenuElement;
     if (resolved.some((entry) => entry.icon || entry.checkbox)) {
       menu.classList.add('lw-menu--leading');
+    }
+    if (header) {
+      menu.append(this.createHeader(header, menu));
     }
     let lastGroup: string | undefined;
     for (const entry of resolved) {
@@ -230,6 +241,47 @@ export class MenuService {
       menu.append(item);
     }
     return menu;
+  }
+
+  private createHeader(header: MenuHeader, menu: LwMenuElement): HTMLElement {
+    const title = this.transloco.translate(header.title);
+    const detail = header.detail
+      ? this.transloco.translate(header.detail)
+      : undefined;
+    menu.setAttribute('aria-label', detail ? `${title}, ${detail}` : title);
+
+    const element = document.createElement('div');
+    element.className = 'lw-menu-header';
+    element.setAttribute('aria-hidden', 'true');
+
+    if (header.initials || header.icon) {
+      const mark = document.createElement('span');
+      mark.className = 'lw-menu-header-mark';
+      if (header.initials) {
+        mark.textContent = header.initials;
+      } else {
+        const icon = document.createElement('lw-icon');
+        icon.setAttribute('name', header.icon ?? '');
+        icon.setAttribute('size', '1rem');
+        mark.append(icon);
+      }
+      element.append(mark);
+    }
+
+    const lines = document.createElement('span');
+    lines.className = 'lw-menu-header-lines';
+    const name = document.createElement('span');
+    name.className = 'lw-menu-header-title';
+    name.textContent = title;
+    lines.append(name);
+    if (detail) {
+      const second = document.createElement('span');
+      second.className = 'lw-menu-header-detail';
+      second.textContent = detail;
+      lines.append(second);
+    }
+    element.append(lines);
+    return element;
   }
 
   private createListMenu(entries: readonly MenuListEntry[]): LwMenuElement {

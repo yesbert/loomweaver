@@ -1,5 +1,5 @@
 import { AccessRequirement } from './auth.js';
-import { MenuTrigger } from './menu.js';
+import { MenuHeader, MenuTrigger } from './menu.js';
 
 /**
  * A Rail/Ribbon item: an **independent command** triggered from the far
@@ -41,6 +41,11 @@ export interface RailItem {
    * {@link workspace}, where activating it is the switch.
    */
   readonly menuTrigger?: MenuTrigger;
+  /**
+   * A heading naming what the menu is about, drawn above its first entry. Only where activation
+   * opens the menu, since a right-click already points at this item; ignored otherwise.
+   */
+  readonly menuHeader?: MenuHeader;
   /**
    * Id of a registered {@link Command} this item triggers. Provide this **or** {@link run}; when
    * set, the host runs that command (so a keybinding/palette can share the same behaviour).

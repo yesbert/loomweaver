@@ -26,6 +26,7 @@
       (keydown)="onKeydown($event)"
       [lwMenu]="menusFor(item)"
       [lwMenuOnActivate]="activateMenuFor(item)"
+      [lwMenuHeader]="item.menuHeader"
       [lwMenuSide]="menuSide()"
       [lwMenuContext]="{ targetKind: 'rail-item', id: item.id, region: region().id }"
       [attr.aria-label]="item.title | transloco"

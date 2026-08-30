@@ -6,7 +6,7 @@ import {
   inject,
   input,
 } from '@angular/core';
-import { MenuContext } from '@loomweaver/plugin-sdk';
+import { MenuContext, MenuHeader } from '@loomweaver/plugin-sdk';
 import { MenuSide } from '../elements/menu/lw-menu.element';
 import { MenuService } from './menu.service';
 
@@ -39,6 +39,10 @@ export class MenuTriggerDirective {
   readonly context = input<MenuContext>({}, { alias: 'lwMenuContext' });
 
   readonly side = input<MenuSide>('bottom', { alias: 'lwMenuSide' });
+
+  readonly header = input<MenuHeader | undefined>(undefined, {
+    alias: 'lwMenuHeader',
+  });
 
   readonly state = input(false, {
     alias: 'lwMenuState',
@@ -86,7 +90,7 @@ export class MenuTriggerDirective {
       slots,
       this.context(),
       { rect: control.getBoundingClientRect(), side: this.side() },
-      control,
+      { trigger: control, header: this.header() },
     );
   }
 }

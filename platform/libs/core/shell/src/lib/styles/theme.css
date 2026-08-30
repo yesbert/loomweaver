@@ -668,6 +668,26 @@
     @apply my-1 border-t border-border;
     height: 0;
   }
+  /* `.lw-menu-header` — the non-interactive heading naming what a menu was opened against (an account,
+     a document). It carries no menuitem role, so the keyboard passes over it like a separator, and the
+     menu itself carries the name for assistive technology. Drawn tight to the menu's top edge, which is
+     why it pulls back the list's own leading padding. */
+  .lw-menu-header {
+    @apply -mt-1 mb-1 flex items-center gap-2 border-b border-border px-3 py-2;
+  }
+  .lw-menu-header-mark {
+    @apply flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface-raised text-content-muted;
+    @apply select-none font-sans text-[0.75rem] leading-none font-normal tracking-tight uppercase;
+  }
+  .lw-menu-header-lines {
+    @apply flex min-w-0 flex-col;
+  }
+  .lw-menu-header-title {
+    @apply truncate font-semibold text-content;
+  }
+  .lw-menu-header-detail {
+    @apply truncate text-xs text-content-muted;
+  }
 }
 
 /* Clickable controls show the pointer cursor (browsers default buttons to an arrow).
