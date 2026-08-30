@@ -106,6 +106,19 @@ test.describe('Plugin permissions', () => {
     await expect(page.getByTestId('perm-testbed-session')).not.toBeChecked();
   });
 
+  test('a plugin the distribution cannot run without has no switch, and keeps its own', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await openPermissions(page);
+
+    await expect(page.getByTestId('perm-required-sandbox-rpc')).toBeVisible();
+    await expect(page.getByTestId('plugin-enabled-sandbox-rpc')).toHaveCount(0);
+
+    // Withholding the plugin's switch withholds only that one.
+    await expect(page.getByTestId('perm-sandbox-rpc-ui')).toBeVisible();
+  });
+
   test('a whole plugin can be turned off and back on, live', async ({
     page,
   }) => {

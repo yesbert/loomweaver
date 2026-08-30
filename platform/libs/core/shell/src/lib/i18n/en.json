@@ -186,6 +186,7 @@
     "permissionsDesc": "Turn a whole plugin on or off, or manage what each one is allowed to do. Changes take effect immediately; the distribution can never grant more than what is listed here.",
     "permissionsEmpty": "No plugins are installed.",
     "permissionsProvided": "Provided by your organisation. These permissions were issued with the plugin and cannot be withdrawn here.",
+    "permissionsRequired": "Part of this application. It cannot be switched off here; what it is allowed to do can still be changed.",
     "pluginDisabled": "This plugin is turned off. Turn it on to manage its permissions.",
     "pluginEnabled": "Enabled",
     "pluginLevel": {

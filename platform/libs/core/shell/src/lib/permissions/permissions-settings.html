@@ -13,7 +13,7 @@
           <h3 class="text-sm font-semibold text-content">
             {{ plugin.name }}
           </h3>
-          @if (!plugin.provided) {
+          @if (!plugin.provided && !plugin.required) {
             <input
               type="checkbox"
               role="switch"
@@ -40,6 +40,13 @@
             [attr.data-testid]="'perm-provided-' + plugin.id"
           >
             {{ 'settings.permissionsProvided' | transloco }}
+          </p>
+        } @else if (plugin.required) {
+          <p
+            class="text-xs text-content-muted"
+            [attr.data-testid]="'perm-required-' + plugin.id"
+          >
+            {{ 'settings.permissionsRequired' | transloco }}
           </p>
         }
         @if (plugin.enabled) {

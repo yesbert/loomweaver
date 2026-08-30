@@ -17,6 +17,7 @@ import {
   provideTranslationNamespaces,
   provideTranslationOverrides,
   providePlugins,
+  provideRequiredPlugins,
   StateSyncService,
   providePluginCatalog,
   provideFramePlugins,
@@ -202,6 +203,7 @@ try {
         'sandbox-static': ['contributions', 'navigation'],
       }),
       ...providePlugins(testbedPlugin),
+      provideRequiredPlugins('sandbox-rpc'),
       ...provideFramePlugins(
         {
           id: 'sandbox-rpc',

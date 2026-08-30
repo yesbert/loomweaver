@@ -74,6 +74,7 @@ export * from './lib/plugin/sandbox/sandbox-plugin-runtime';
 export * from './lib/foundation/command-invoker';
 export * from './lib/commands/command-invocation.service';
 export * from './lib/permissions/capability-grants';
+export * from './lib/permissions/required-plugins';
 export * from './lib/permissions/capability-grant.service';
 export * from './lib/plugin-store/lifecycle/plugin-enablement.service';
 export { type PluginInfo } from './lib/plugin-store/lifecycle/plugin-info';

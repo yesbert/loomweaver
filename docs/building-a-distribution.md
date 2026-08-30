@@ -88,6 +88,7 @@ what you actually want, so you can go straight to the section that covers it.
 | I want to … | provider |
 | --- | --- |
 | compose my weaver | `providePlugins` + `provideCapabilityGrants` ([Capabilities](#capabilities-default-deny)) |
+| keep a plugin from being switched off | `provideRequiredPlugins` ([A plugin your application cannot run without](#a-plugin-your-application-cannot-run-without)) |
 | run an isolated plugin | `provideFramePlugins` ([Frame plugins](#frame-plugins)) |
 | offer a plugin catalogue | `providePluginCatalog` ([Plugin store](#plugin-store-runtime-install)) |
 | add chrome of my own | `provideBarItems`, `provideRailItems`, `provideViews` ([Recomposing](#recomposing-host-chrome)) |
@@ -717,6 +718,27 @@ contributions appear, and turning it back on reloads it, live. Per enabled plugi
 enabling/disabling reconciles activation reactively, and a capability revocation reads the live grant on
 the plugin's next `ctx` call. The user can only narrow, never widen beyond what you granted here, so least
 privilege is preserved. Nothing to wire — it appears automatically.
+
+### A plugin your application cannot run without
+
+A routable surface can only come from a plugin, so the weaver carrying your starting place is a
+plugin like any other — and, by default, one the user can switch off. Switching off the plugin that
+registers `home` and the sign-out control leaves a signed-in person with no starting place and no way
+out until they find Settings again.
+
+`provideRequiredPlugins('sign-in')` says that plugin is not optional. The Permissions section then
+lists it, states what it holds, and offers **no switch to turn it off**; it stays active whatever the
+user chose before, so a plugin that was already off comes back on.
+
+It withholds that one switch and nothing else. **The capabilities such a plugin was granted stay
+revocable**, because needing a plugin says nothing about needing everything it asked for. That is
+what separates this from a plugin an operator deployed through the store, where both the plugin and
+its capabilities are fixed.
+
+The declaration is yours, not the plugin's, and there is deliberately no manifest field for it:
+everything a plugin says about itself here is a request you grant, so a manifest field would be the
+one exemption a plugin could award itself. Naming a plugin you do not compose is reported in
+development and otherwise ignored, the same way a grant for an undeclared capability is.
 
 Two things keep this safe by default, both host-provided: (1) a blocked `ctx` call that runs through a
 command surfaces a **warning toast** ("… open Settings → Permissions") instead of failing silently; and
