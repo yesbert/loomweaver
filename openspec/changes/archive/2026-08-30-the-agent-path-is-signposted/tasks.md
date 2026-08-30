@@ -6,7 +6,7 @@
 - [x] 1.2 Put the pair in `assets/media/` as `agent-panel-light.png` and `agent-panel-dark.png`, and
   name both in the media list in `website/tools/sync-docs.mjs`, which fails the build on a file it
   cannot find.
-- [ ] 1.3 Show the pair to the owner before anything is written around it. If the frame does not carry
+- [x] 1.3 Show the pair to the owner before anything is written around it. If the frame does not carry
   the loop, recapture rather than describing what is missing in prose.
 
 ## 2. The landing section
@@ -53,6 +53,6 @@
 
 - [x] 6.1 Build the site in `website/`, which rewrites every relative link and fails on one it cannot
   resolve, and confirm the new page and both images are in the output.
-- [ ] 6.2 Look at the finished landing page in both themes and confirm the new section reads as its own
+- [x] 6.2 Look at the finished landing page in both themes and confirm the new section reads as its own
   claim rather than as a repeat of the one above it.
 - [x] 6.3 Run `openspec validate --all --strict` at the repo root.
