@@ -43,7 +43,7 @@ export default defineConfig({
             { label: 'Building a distribution', link: '/building-a-distribution/' },
             { label: 'The plugin system', link: '/plugins/' },
             { label: 'Scaffolding', link: '/scaffolding/' },
-            { label: 'Driving a product with an agent', link: '/agent-driven-products/' },
+            { label: 'AG-UI agents', link: '/ag-ui-agents/' },
             { label: 'Backend integration', link: '/backend-integration/' },
           ],
         },

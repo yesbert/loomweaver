@@ -1,4 +1,4 @@
-# Driving a product with an agent
+# Driving your product with an AG-UI agent
 
 <!-- derived-from-specs -->
 > **This is a guide, not the contract.** What the platform guarantees is specified under
@@ -6,10 +6,15 @@
 > page and a specification disagree, the specification is right, and that is a defect in this page:
 > change the behaviour there, then explain it here.
 
-An agent that speaks [AG-UI](https://docs.ag-ui.com) can run the actions your product already has.
-You do not describe those actions a second time, and you do not write a dispatch: the commands you
-registered are the tools, and a call comes back through the same seam a button, a shortcut, a menu
-item and the command palette already run through.
+[AG-UI](https://docs.ag-ui.com) is the open protocol between a user-facing application and an
+agentic backend. LoomWeaver speaks it, so any backend that speaks it drives your product: you are not
+adopting a mechanism of ours, you are adopting a standard we implement, and you can leave for another
+implementation of it without rewriting your product.
+
+What LoomWeaver contributes is the part on this side of the protocol. You do not describe your
+actions a second time and you do not write a dispatch: the commands you already registered are the
+tools an AG-UI agent is offered, and a call comes back through the same seam a button, a shortcut, a
+menu item and the command palette already run through.
 
 That is also the limit, and it is the reason this is safe to ship: **an agent reaches what the user
 could have reached, and nothing more.** Permissions and access gating are not consulted again for
@@ -93,3 +98,5 @@ guessed. They are your product's, and they are usually the part that is already 
   hand.
 - The [live demo](https://demo.loomweaver.dev) carries a panel of its own with a scripted agent, and
   declining a call there shows what an agent is told.
+- [docs.ag-ui.com](https://docs.ag-ui.com) is the protocol itself, which is not ours: its events, its
+  message shapes and the other implementations that speak it.

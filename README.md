@@ -30,6 +30,11 @@ into a branded **distribution** (mostly one providers array), and ship. The core
 domain logic**, and even first-party product UI goes through the same plugin contract a third party
 would use.
 
+It also speaks **[AG-UI](https://docs.ag-ui.com)**, the open protocol between a user-facing
+application and an agentic backend. Every command your product registers can be offered to an agent
+that speaks it, through an adapter that ships with the platform — and an agent still reaches only
+what the user could have reached.
+
 ## Quick start
 
 ```bash
@@ -114,9 +119,10 @@ ctx.registerCommand({
 ```
 
 The rail item, the keystroke, the context menu and the command palette already point at the same
-command. `callable: true` adds one more caller: an agent, through `@loomweaver/ag-ui`. You never keep
-a second list of tools beside the first, and the guarantee holds without you writing a line of it:
-**an agent reaches what the user could have reached, and nothing more.**
+command. `callable: true` adds one more caller: an agent speaking [AG-UI](https://docs.ag-ui.com),
+an open standard we implement rather than one we invented. You never keep a second list of tools
+beside the first, and the guarantee holds without you writing a line of it: **an agent reaches what
+the user could have reached, and nothing more.**
 
 See [Callable commands](docs/reference/callable-commands.md) and
 [Agent tools](docs/reference/agent-tools.md).
@@ -128,18 +134,23 @@ See [Callable commands](docs/reference/callable-commands.md) and
   </picture>
 </p>
 
-## An agent can drive your product. It still cannot reach further than the person at the keyboard.
+## Any AG-UI agent can drive your product. It still cannot reach further than the person at the keyboard.
 
-Generate a weaver with `--agent` and you get the whole path: a docked panel, the seam that decides
-about a call before it runs, and a local stand-in that speaks the protocol so it works on the first
-serve. No transport, no key and no model are generated, because those are yours.
+[AG-UI](https://docs.ag-ui.com) is the open protocol between a user-facing application and an agentic
+backend, and it is not ours. LoomWeaver ships the adapter, so a backend that already speaks it drives
+your product with nothing in between. You adopt a standard, not a mechanism of ours, and the thing on
+the other end can be swapped for another implementation of it.
+
+Generate a weaver with `--agent` and you get the whole path on this side: a docked panel, the seam
+that decides about a call before it runs, and a local stand-in that speaks the protocol so it works
+on the first serve. No transport, no key and no model are generated, because those are yours.
 
 Every call goes through the same seam a button, a shortcut and the palette already go through, so an
 agent inherits the permissions and the access gating that were already there. A refusal reads the
 same whatever its reason, so nothing can be learned about what is installed by asking for it. **Say
 no, and the workbench is never asked.**
 
-See [Driving a product with an agent](docs/agent-driven-products.md), or open the
+See [Driving your product with an AG-UI agent](docs/ag-ui-agents.md), or open the
 [live demo](https://demo.loomweaver.dev) and decline a call yourself.
 
 <p align="center">
