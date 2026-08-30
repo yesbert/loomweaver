@@ -359,12 +359,6 @@ a tenant secret the browser must never see). First-party bundles don't need it �
 domain API directly. When the first third-party plugin arrives we'll define a small egress **contract**
 your backend implements; there is still no LoomWeaver server. Until then, nothing to do.
 
-## Treadle is separate
-
-The local companion agent **Treadle** (RPC boundary 2, MCP) runs on the *user's* machine under the
-user's authority — a different boundary from your per-tenant backend. It is the one server-ish thing
-the platform owns, and it is unrelated to the ports above.
-
 ---
 
 Back to [architecture](architecture.md) · [building a distribution](building-a-distribution.md).

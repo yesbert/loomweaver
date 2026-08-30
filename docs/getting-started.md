@@ -9,7 +9,7 @@
 Scaffold a running product in about five minutes: the LoomWeaver chrome, branded, with one plugin of
 your own already contributing to it. Every command below was run against a fresh Angular app to
 produce exactly what the last step shows. The [live demo](https://demo.loomweaver.dev) runs the same
-shell, though it is being rebuilt and is thin at the moment.
+shell, built the same way.
 
 If you would rather understand each file instead of generating it, [set it up by
 hand](manual-setup.md) — same result, roughly fifteen minutes, and it explains what the generators
