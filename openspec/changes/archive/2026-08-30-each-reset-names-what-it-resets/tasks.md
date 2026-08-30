@@ -32,5 +32,5 @@
 - [x] 4.2 The end-to-end suites that drive either reset by name still pass, and any that match on the
   old wording are updated.
 - [x] 4.3 `openspec validate --all --strict` at the repo root.
-- [ ] 4.4 Open the pull request naming the reported defect, what each command is called now, and that
+- [x] 4.4 Open the pull request naming the reported defect, what each command is called now, and that
   no key was removed.
