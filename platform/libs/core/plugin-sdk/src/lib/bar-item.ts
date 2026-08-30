@@ -39,6 +39,19 @@ export interface BarButtonItem extends BarItemBase {
   readonly icon?: string;
   /** Transloco key/literal for a visible text label (optional). */
   readonly label?: string;
+  /**
+   * One or two letters the host draws **instead of** {@link icon}, for a button standing for
+   * someone or something named rather than for an action. Keep it to two characters.
+   */
+  readonly initials?: string;
+  /**
+   * A picture of what this button stands for, as anything an image element accepts. Drawn in place
+   * of {@link icon} and {@link initials}, cropped round. The order is picture, then initials, then
+   * icon, and the host falls back on its own where the picture is absent or fails to load. Reaching
+   * it is yours: the workbench does not fetch it, and another origin has to be allowed by your own
+   * content policy.
+   */
+  readonly image?: string;
   /** Transloco key/literal for the tooltip; falls back to {@link label}. */
   readonly tooltip?: string;
   /**

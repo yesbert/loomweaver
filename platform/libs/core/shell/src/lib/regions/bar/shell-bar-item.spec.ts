@@ -8,6 +8,7 @@ import { AUTH_SOURCE } from '../../auth/auth-context';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { formatChord } from '../../commands/format-chord';
 import { defineLwTooltip } from '../../elements/tooltip/lw-tooltip.element';
+import { MenuService } from '../../menu/menu.service';
 import {
   defineLwMenu,
   LW_MENU_ITEM_TAG,
@@ -158,6 +159,51 @@ describe('ShellBarItem', () => {
     button.click();
     expect(ran).toBe(1);
   });
+  describe('a button drawn as a picture', () => {
+    const account = (overrides: Partial<BarItem> = {}): BarItem =>
+      ({
+        id: 'account',
+        bar: 'status-bar',
+        slot: 'end',
+        icon: 'add',
+        initials: 'AL',
+        tooltip: 'status.add',
+        image: 'https://example.test/ada.png',
+        run: () => undefined,
+        ...overrides,
+      }) as BarItem;
+
+    it('draws the picture in place of the mark and the icon', () => {
+      const host = render(account());
+
+      expect(
+        host
+          .querySelector('[data-testid="bar-picture"]')
+          ?.getAttribute('src'),
+      ).toBe('https://example.test/ada.png');
+      expect(host.querySelector('[data-testid="bar-initials"]')).toBeNull();
+    });
+
+    it('gives way to the mark when the picture cannot be shown', () => {
+      TestBed.configureTestingModule({ imports: [ShellBarItem, transloco()] });
+      const fixture = TestBed.createComponent(ShellBarItem);
+      fixture.componentRef.setInput('item', account());
+      fixture.componentRef.setInput('dock', 'bottom');
+      fixture.detectChanges();
+      const host = fixture.nativeElement as HTMLElement;
+
+      host
+        .querySelector('[data-testid="bar-picture"]')
+        ?.dispatchEvent(new Event('error'));
+      fixture.detectChanges();
+
+      expect(host.querySelector('[data-testid="bar-picture"]')).toBeNull();
+      expect(
+        host.querySelector('[data-testid="bar-initials"]')?.textContent?.trim(),
+      ).toBe('AL');
+    });
+  });
+
   describe('a menu opened by activating the button', () => {
     beforeAll(() => defineLwMenu());
     afterEach(() => document.body.querySelector(LW_MENU_TAG)?.remove());
@@ -212,6 +258,43 @@ describe('ShellBarItem', () => {
       expect(offered()).toEqual(['c.profile']);
       expect(ran).toBe(0);
       expect(button.getAttribute('aria-expanded')).toBe('true');
+    });
+
+    it('opens beside the bar rather than over it, whichever edge the bar sits on', () => {
+      const open = vi.fn();
+      TestBed.configureTestingModule({
+        imports: [ShellBarItem, transloco()],
+        providers: [
+          {
+            provide: MenuService,
+            useValue: { open, openTrigger: signal(null) },
+          },
+        ],
+      });
+      const item: BarItem = {
+        id: 'account',
+        bar: 'left-footer',
+        slot: 'end',
+        icon: 'add',
+        tooltip: 'status.add',
+        menu: 'acme/account',
+        menuTrigger: 'primary',
+      };
+      const sideFor = (dock: 'top' | 'bottom' | 'left' | 'right') => {
+        const fixture = TestBed.createComponent(ShellBarItem);
+        fixture.componentRef.setInput('item', item);
+        fixture.componentRef.setInput('dock', dock);
+        fixture.detectChanges();
+        (fixture.nativeElement as HTMLElement)
+          .querySelector('button')
+          ?.click();
+        return open.mock.lastCall?.[2].side;
+      };
+
+      expect(sideFor('bottom')).toBe('top');
+      expect(sideFor('top')).toBe('bottom');
+      expect(sideFor('left')).toBe('right');
+      expect(sideFor('right')).toBe('left');
     });
 
     it('keeps a button that declares no gesture on the right-click', () => {

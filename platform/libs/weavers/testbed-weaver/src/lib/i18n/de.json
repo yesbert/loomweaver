@@ -240,5 +240,13 @@
   },
   "browse": {
     "title": "Browse-Container"
+  },
+  "account": {
+    "title": "Konto",
+    "name": "Ada Lovelace",
+    "detail": "ada@testbed.local",
+    "brokenTitle": "Konto ohne Bild",
+    "brokenName": "Grace Hopper",
+    "brokenDetail": "grace@testbed.local"
   }
 }

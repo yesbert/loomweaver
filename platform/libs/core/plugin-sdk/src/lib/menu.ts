@@ -77,6 +77,12 @@ export interface MenuHeader {
   /** Icon name drawn beside the name, resolved by the host icon registry. */
   readonly icon?: string;
   /**
+   * A picture of what the menu was opened against, drawn in place of {@link icon} and
+   * {@link initials} and cropped round. Same ladder as a launcher entry's: picture, initials, icon,
+   * with the host falling back on its own where the picture is absent or fails to load.
+   */
+  readonly image?: string;
+  /**
    * One or two letters the host draws **instead of** {@link icon}, for a name that is the user's
    * rather than yours. Same rule as a launcher entry's: keep it to two characters.
    */

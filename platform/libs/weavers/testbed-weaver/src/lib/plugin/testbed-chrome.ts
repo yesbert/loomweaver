@@ -2,6 +2,9 @@ import { PluginContext } from '@loomweaver/plugin-sdk';
 import { TestbedStatusItem } from '../views/testbed-status-item';
 import { TestbedStatusCount } from '../views/testbed-status-count';
 
+const TESTBED_ACCOUNT_PICTURE =
+  'data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA2NCA2NCc+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSdnJyB4MT0nMCcgeTE9JzAnIHgyPScxJyB5Mj0nMSc+PHN0b3Agb2Zmc2V0PScwJyBzdG9wLWNvbG9yPScjMkU5NkM5Jy8+PHN0b3Agb2Zmc2V0PScxJyBzdG9wLWNvbG9yPScjQzU5QTJGJy8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3Qgd2lkdGg9JzY0JyBoZWlnaHQ9JzY0JyBmaWxsPSd1cmwoI2cpJy8+PGNpcmNsZSBjeD0nMzInIGN5PScyNScgcj0nMTEnIGZpbGw9JyNmZmZmZmYnIGZpbGwtb3BhY2l0eT0nMC45Jy8+PHBhdGggZD0nTTEwIDYwYzQtMTMgMTItMTkgMjItMTlzMTggNiAyMiAxOXonIGZpbGw9JyNmZmZmZmYnIGZpbGwtb3BhY2l0eT0nMC45Jy8+PC9zdmc+';
+
 export function registerChrome(ctx: PluginContext): void {
   registerRailItems(ctx);
   registerBarItems(ctx);
@@ -124,6 +127,42 @@ function registerRailItems(ctx: PluginContext): void {
     access: { authenticated: true },
   });
   ctx.registerRailItem({
+    id: 'testbed.rail.account',
+    rail: 'activity',
+    icon: 'testbedUsers',
+    initials: 'AL',
+    title: 'testbed.account.title',
+    anchor: 'bottom',
+    order: -3,
+    image: TESTBED_ACCOUNT_PICTURE,
+    menu: 'testbed.account/menu',
+    menuTrigger: 'primary',
+    menuHeader: {
+      title: 'testbed.account.name',
+      detail: 'testbed.account.detail',
+      initials: 'AL',
+      image: TESTBED_ACCOUNT_PICTURE,
+    },
+  });
+  ctx.registerRailItem({
+    id: 'testbed.rail.account.broken',
+    rail: 'activity',
+    icon: 'testbedUsers',
+    initials: 'GH',
+    title: 'testbed.account.brokenTitle',
+    anchor: 'bottom',
+    order: -2.8,
+    image: 'https://testbed.invalid/no-such-picture.png',
+    menu: 'testbed.account/menu',
+    menuTrigger: 'primary',
+    menuHeader: {
+      title: 'testbed.account.brokenName',
+      detail: 'testbed.account.brokenDetail',
+      initials: 'GH',
+      image: 'https://testbed.invalid/no-such-picture.png',
+    },
+  });
+  ctx.registerRailItem({
     id: 'testbed.rail.settings',
     rail: 'activity',
     icon: 'settings',
@@ -141,6 +180,40 @@ function registerBarItems(ctx: PluginContext): void {
     icon: 'help',
     tooltip: 'testbed.cmd.about',
     command: 'testbed.about',
+  });
+  ctx.registerBarItem({
+    id: 'testbed.bar.account',
+    bar: 'left-footer',
+    slot: 'end',
+    order: -1,
+    icon: 'testbedUsers',
+    initials: 'GH',
+    image: 'https://testbed.invalid/no-such-picture.png',
+    tooltip: 'testbed.account.title',
+    menu: 'testbed.account/menu',
+    menuTrigger: 'primary',
+    menuHeader: {
+      title: 'testbed.account.name',
+      detail: 'testbed.account.detail',
+      image: TESTBED_ACCOUNT_PICTURE,
+    },
+  });
+  ctx.registerBarItem({
+    id: 'testbed.status.account',
+    bar: 'status-bar',
+    slot: 'end',
+    order: 1,
+    icon: 'testbedUsers',
+    initials: 'AL',
+    image: TESTBED_ACCOUNT_PICTURE,
+    label: 'testbed.account.name',
+    menu: 'testbed.account/menu',
+    menuTrigger: 'primary',
+    menuHeader: {
+      title: 'testbed.account.name',
+      detail: 'testbed.account.detail',
+      image: TESTBED_ACCOUNT_PICTURE,
+    },
   });
   ctx.registerBarItem({
     id: 'testbed.count',

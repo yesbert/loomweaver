@@ -11,7 +11,20 @@
     class="relative flex items-center gap-1 rounded px-1.5 py-0.5 text-content-faint transition-colors hover:bg-surface-overlay hover:text-content disabled:pointer-events-none disabled:opacity-40"
     [attr.aria-label]="(btn.tooltip ?? btn.label ?? '') | transloco"
   >
-    @if (btn.icon; as icon) {
+    @if (pictureOf(btn); as picture) {
+      <img
+        [src]="picture"
+        alt=""
+        aria-hidden="true"
+        data-testid="bar-picture"
+        class="lw-chrome-picture h-5 w-5"
+        (error)="onPictureError()"
+      />
+    } @else if (btn.initials) {
+      <span aria-hidden="true" data-testid="bar-initials" class="lw-rail-initials">{{
+        btn.initials
+      }}</span>
+    } @else if (btn.icon; as icon) {
       <lw-icon [name]="icon" size="1rem" />
     }
     @if (btn.label; as label) {
