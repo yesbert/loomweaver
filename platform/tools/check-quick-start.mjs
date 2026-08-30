@@ -7,11 +7,16 @@
 //
 // Install failures and assertion failures are reported apart on purpose: a registry hiccup at three
 // in the morning must not read as a regression, or the report gets ignored within a month.
+//
+// The last leg opens the built application in a browser, because everything before it can only see
+// that a file was delivered. A surface can sit whole in the bundle and still never appear, so being
+// present and being reachable are two claims and only one of them is checked by reading bytes.
 
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
+import { createServer } from 'node:http';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { extname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const platformRoot = resolve(fileURLToPath(import.meta.url), '../..');
@@ -164,6 +169,156 @@ function checkAgentDependencies(app) {
   );
 }
 
+const CONTENT_TYPES = {
+  '.css': 'text/css',
+  '.html': 'text/html',
+  '.ico': 'image/x-icon',
+  '.js': 'text/javascript',
+  '.json': 'application/json',
+  '.png': 'image/png',
+  '.svg': 'image/svg+xml',
+  '.webmanifest': 'application/manifest+json',
+  '.woff2': 'font/woff2',
+};
+
+// The built output, over http rather than from disk. A file:// page has no origin, and the shell
+// stores per-origin, so serving it is what makes the application behave as it does for a reader.
+// Anything the directory does not hold falls back to index.html, the way any host of a single-page
+// application must answer.
+function serveBuilt(root) {
+  const server = createServer((request, response) => {
+    const asked = decodeURIComponent(
+      new URL(request.url, 'http://localhost').pathname,
+    );
+    const wanted = join(root, asked);
+    const file =
+      wanted.startsWith(root) && existsSync(wanted) && statSync(wanted).isFile()
+        ? wanted
+        : join(root, 'index.html');
+    response.writeHead(200, {
+      'content-type':
+        CONTENT_TYPES[extname(file)] ?? 'application/octet-stream',
+    });
+    response.end(readFileSync(file));
+  });
+  return new Promise((listening) => {
+    server.listen(0, '127.0.0.1', () =>
+      listening({
+        origin: `http://127.0.0.1:${server.address().port}`,
+        close: () => new Promise((closed) => server.close(closed)),
+      }),
+    );
+  });
+}
+
+// The checks above read the delivered files. This one drives them: it opens the panel the generator
+// wrote, runs the command it declared callable, and reads the outcome the workbench gave back. Each
+// step names what its own failure would mean, because a bare timeout says only that something did
+// not appear, and the whole point of this leg is to say which claim broke.
+async function checkInTheBrowser(built) {
+  let chromium;
+  try {
+    ({ chromium } = await import('@playwright/test'));
+  } catch (error) {
+    throw new SetupError(`Playwright is not installed here: ${error.message}`);
+  }
+
+  const site = await serveBuilt(built);
+  let runner;
+  try {
+    runner = await chromium.launch();
+  } catch (error) {
+    await site.close();
+    throw new SetupError(
+      `Chromium would not start — run "npx playwright install --with-deps chromium": ${error.message}`,
+    );
+  }
+
+  // The build emits a service worker on purpose and the checks above assert that it does. Letting it
+  // claim this page would answer the second run from a cache, so what is under test would be
+  // whatever the first run happened to store.
+  const context = await runner.newContext({
+    serviceWorkers: 'block',
+    viewport: { width: 1600, height: 900 },
+  });
+  const page = await context.newPage();
+  try {
+    await drivePanel(page, site.origin);
+  } catch (error) {
+    failures.push(
+      `${error.step ?? 'the generated agent connection'} — ${error.message.split('\n')[0]}`,
+    );
+  } finally {
+    await runner.close();
+    await site.close();
+  }
+}
+
+// Wraps a step so its failure reads as the claim that broke rather than as a selector that timed out.
+async function step(what, act) {
+  try {
+    return await act();
+  } catch (error) {
+    error.step = what;
+    throw error;
+  }
+}
+
+async function drivePanel(page, origin) {
+  const { expect } = await import('@playwright/test');
+
+  await step('the generated application would not load at all', async () => {
+    await page.goto(`${origin}/`, { waitUntil: 'domcontentloaded' });
+  });
+
+  const panel = page.locator('lw-copilot-agent-panel');
+  await step(
+    'the generated agent panel is in the bundle but never appears on screen, so a reader serving this finds nothing to drive the workbench from',
+    async () => {
+      await expect(panel).toBeVisible({ timeout: 30_000 });
+      await expect(panel).toContainText('This is a stand-in, not an assistant');
+    },
+  );
+
+  const offered = panel.getByRole('button');
+  await step(
+    'the panel offers no command, so the list the workbench hands an agent never arrived',
+    async () => {
+      await expect(offered).toHaveCount(1);
+    },
+  );
+
+  await step(
+    'a consequential call ran without asking the person at the keyboard, so the decision hook the generator wired is not in the path',
+    async () => {
+      await offered.click();
+      await expect(page.getByRole('dialog')).toContainText('Run this command?');
+    },
+  );
+
+  await step(
+    'declining the confirmation did not stop the call, so declining costs nothing and the hook is decoration',
+    async () => {
+      await page.getByRole('button', { name: 'Not now' }).click();
+      await expect(panel).toContainText('The command did not run', {
+        timeout: 30_000,
+      });
+    },
+  );
+
+  await step(
+    'confirming the call produced no outcome, so the generated path reaches the workbench but never hears back',
+    async () => {
+      await expect(offered).toBeEnabled({ timeout: 30_000 });
+      await offered.click();
+      await page.getByRole('button', { name: 'Run it' }).click();
+      await expect(panel).toContainText('The command ran.', {
+        timeout: 30_000,
+      });
+    },
+  );
+}
+
 let dir;
 try {
   dir = mkdtempSync(join(tmpdir(), 'loom-quick-start-'));
@@ -171,6 +326,7 @@ try {
   checkServedOutput(generated.browser);
   checkComposition(generated.browser);
   checkAgentDependencies(generated.app);
+  await checkInTheBrowser(generated.browser);
 } catch (error) {
   if (error instanceof SetupError) {
     console.error(`check-quick-start SETUP FAILED (not a regression):\n${error.message}`);
@@ -190,4 +346,6 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log('check-quick-start: the published quick start serves a styled, translated workbench');
+console.log(
+  'check-quick-start: the published quick start serves a styled, translated workbench, and the generated agent panel runs a command in it',
+);
