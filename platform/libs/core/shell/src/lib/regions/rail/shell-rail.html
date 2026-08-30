@@ -13,7 +13,7 @@
   [lwReorderable]="containerId()"
   [lwReorderableEnabled]="reorderable"
   (reorder)="onReorder($event)"
-  [lwContextMenu]="railMenu"
+  [lwMenu]="railMenu"
 >
   @for (item of items(); track item.id) {
     <button
@@ -24,8 +24,10 @@
       [disabled]="disabled(item)"
       (click)="run(item)"
       (keydown)="onKeydown($event)"
-      [lwContextMenu]="menusFor(item)"
-      [lwContextMenuContext]="{ targetKind: 'rail-item', id: item.id, region: region().id }"
+      [lwMenu]="menusFor(item)"
+      [lwMenuOnActivate]="activateMenuFor(item)"
+      [lwMenuSide]="menuSide()"
+      [lwMenuContext]="{ targetKind: 'rail-item', id: item.id, region: region().id }"
       [attr.aria-label]="item.title | transloco"
       [attr.aria-current]="current(item) ? 'true' : null"
       [attr.data-rail-item]="item.id"

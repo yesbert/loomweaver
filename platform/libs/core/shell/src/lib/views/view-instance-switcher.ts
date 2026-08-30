@@ -7,11 +7,12 @@ import {
   MenuListEntry,
   MenuService,
 } from '../menu/menu.service';
+import { MenuTriggerDirective } from '../menu/menu-trigger.directive';
 import { ViewInstance, ViewInstanceService } from './view-instance.service';
 
 @Component({
   selector: 'lw-view-instance-switcher',
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, MenuTriggerDirective],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   host: { class: 'flex min-w-0 flex-1' },
   templateUrl: './view-instance-switcher.html',
@@ -62,11 +63,13 @@ export class ViewInstanceSwitcher {
         { key: 'delete', label: t('viewInstance.delete') },
       );
     }
-    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const control = event.currentTarget as HTMLElement;
+    const rect = control.getBoundingClientRect();
     this.menu.openList(
       entries,
       { x: rect.left, y: rect.bottom + MENU_ANCHOR_GAP },
       (key) => this.onPick(key),
+      control,
     );
   }
 

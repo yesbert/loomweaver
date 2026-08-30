@@ -629,8 +629,9 @@
 
   /* `<lw-menu>` — the host menu/context-menu primitive. Behaviour in lw-menu.element.ts, LOOK
      here (tokened) so it themes and crosses the Nx/iframe boundary as contract. The MenuService sets
-     `left`/`top` at the cursor (clamped to the viewport) — a context menu anchors to a point, not an
-     element, so direct fixed positioning is simpler + more robust than CSS anchor positioning here. */
+     `left`/`top` itself: at the cursor (clamped to the viewport) for a context menu, or beside the control
+     that opened it (flipped to its other side rather than covering it) for a menu opened by activation —
+     direct fixed positioning is simpler + more robust than CSS anchor positioning here. */
   lw-menu {
     @apply z-50 min-w-44 overflow-auto rounded-md border border-border bg-surface-overlay py-1 text-sm shadow-lg;
     position: fixed;

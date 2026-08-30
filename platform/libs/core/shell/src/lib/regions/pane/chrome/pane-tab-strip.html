@@ -28,8 +28,8 @@
           [cdkDragDisabled]="!canDrag(tab)"
           (cdkDragStarted)="onDragStarted(tab)"
           (cdkDragEnded)="onDragEnded()"
-          [lwContextMenu]="menuSlotFor(tab)"
-          [lwContextMenuContext]="tabContext(tab)"
+          [lwMenu]="menuSlotFor(tab)"
+          [lwMenuContext]="tabContext(tab)"
           [attr.aria-selected]="isActive(tab)"
           [attr.aria-label]="title"
           [attr.data-reorder-id]="canReorder(tab) ? tab.path : null"
@@ -55,8 +55,8 @@
           [class.border-brand]="isActive(tab) && urlDriven()"
           [class.border-content-faint]="isActive(tab) && !urlDriven()"
           [class.border-transparent]="!isActive(tab)"
-          [lwContextMenu]="menuSlotFor(tab)"
-          [lwContextMenuContext]="tabContext(tab)"
+          [lwMenu]="menuSlotFor(tab)"
+          [lwMenuContext]="tabContext(tab)"
         >
           <button
             type="button"
@@ -123,6 +123,7 @@
     <button
       type="button"
       (click)="addTab.emit($event)"
+      lwMenuState
       class="lw-icon-btn w-8"
       [class.self-stretch]="icons()"
       [attr.aria-label]="'content.split.newTab' | transloco"
@@ -137,6 +138,7 @@
     <button
       type="button"
       (click)="openOverflow($event)"
+      lwMenuState
       class="lw-icon-btn w-8"
       [class.self-stretch]="icons()"
       [attr.aria-label]="'content.moreTabs' | transloco"

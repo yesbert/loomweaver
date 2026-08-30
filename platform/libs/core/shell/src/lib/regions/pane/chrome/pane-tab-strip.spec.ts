@@ -59,6 +59,18 @@ describe('PaneTabStrip', () => {
     );
   }
 
+  it('announces the control that opens the new-tab menu, collapsed until it opens', () => {
+    create([tab()]);
+    fixture.componentRef.setInput('canAddTab', true);
+    fixture.detectChanges();
+
+    const button = (fixture.nativeElement as HTMLElement).querySelector(
+      '[data-testid="pane-add-tab"]',
+    );
+    expect(button?.getAttribute('aria-haspopup')).toBe('menu');
+    expect(button?.getAttribute('aria-expanded')).toBe('false');
+  });
+
   it('never paints a raw translation key while the bundle is still in flight', () => {
     create([tab()]);
     expect(labels()[0]).not.toContain('quotes.document.title');

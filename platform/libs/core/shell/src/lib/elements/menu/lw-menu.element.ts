@@ -8,9 +8,52 @@ export const LW_MENU_ITEM_TAG = 'lw-menu-item';
 
 const VIEWPORT_MARGIN = 4;
 
+export const MENU_ANCHOR_GAP = 4;
+
 export const LW_MENU_SELECT = 'lw-menu-select';
 
 export const LW_MENU_DISMISS = 'lw-menu-dismiss';
+
+export type MenuSide = 'top' | 'right' | 'bottom' | 'left';
+
+export interface MenuAnchorRect {
+  readonly top: number;
+  readonly right: number;
+  readonly bottom: number;
+  readonly left: number;
+}
+
+function fits(start: number, size: number, limit: number): boolean {
+  return start >= VIEWPORT_MARGIN && start + size <= limit - VIEWPORT_MARGIN;
+}
+
+function clamp(start: number, size: number, limit: number): number {
+  return Math.max(
+    VIEWPORT_MARGIN,
+    Math.min(start, limit - size - VIEWPORT_MARGIN),
+  );
+}
+
+function beside(
+  preferred: number,
+  opposite: number,
+  size: number,
+  limit: number,
+): number {
+  if (fits(preferred, size, limit)) {
+    return preferred;
+  }
+  return fits(opposite, size, limit) ? opposite : clamp(preferred, size, limit);
+}
+
+function aligned(
+  near: number,
+  far: number,
+  size: number,
+  limit: number,
+): number {
+  return fits(near, size, limit) ? near : clamp(far - size, size, limit);
+}
 
 export class LwMenuItemElement extends HTMLElement {
   static readonly observedAttributes = [
@@ -115,10 +158,36 @@ export class LwMenuElement extends HTMLElement {
 
   openAt(x: number, y: number): void {
     const { width, height } = this.getBoundingClientRect();
-    const maxLeft = window.innerWidth - width - VIEWPORT_MARGIN;
-    const maxTop = window.innerHeight - height - VIEWPORT_MARGIN;
-    this.style.left = `${Math.max(VIEWPORT_MARGIN, Math.min(x, maxLeft))}px`;
-    this.style.top = `${Math.max(VIEWPORT_MARGIN, Math.min(y, maxTop))}px`;
+    this.place(
+      clamp(x, width, window.innerWidth),
+      clamp(y, height, window.innerHeight),
+    );
+  }
+
+  openBeside(rect: MenuAnchorRect, side: MenuSide): void {
+    const { width, height } = this.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const after = { x: rect.right + MENU_ANCHOR_GAP, y: rect.bottom + MENU_ANCHOR_GAP };
+    const before = {
+      x: rect.left - MENU_ANCHOR_GAP - width,
+      y: rect.top - MENU_ANCHOR_GAP - height,
+    };
+    if (side === 'left' || side === 'right') {
+      const preferred = side === 'right' ? after.x : before.x;
+      const opposite = side === 'right' ? before.x : after.x;
+      this.place(
+        beside(preferred, opposite, width, viewportWidth),
+        aligned(rect.top, rect.bottom, height, viewportHeight),
+      );
+      return;
+    }
+    const preferred = side === 'bottom' ? after.y : before.y;
+    const opposite = side === 'bottom' ? before.y : after.y;
+    this.place(
+      aligned(rect.left, rect.right, width, viewportWidth),
+      beside(preferred, opposite, height, viewportHeight),
+    );
   }
 
   private readonly onKeydown = (event: KeyboardEvent) =>
@@ -132,6 +201,11 @@ export class LwMenuElement extends HTMLElement {
       this.select(item);
     }
   };
+
+  private place(left: number, top: number): void {
+    this.style.left = `${left}px`;
+    this.style.top = `${top}px`;
+  }
 
   private items(): HTMLElement[] {
     return [...this.querySelectorAll<HTMLElement>('[role^="menuitem"]')].filter(

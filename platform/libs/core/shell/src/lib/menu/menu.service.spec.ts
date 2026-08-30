@@ -386,6 +386,72 @@ describe('MenuService', () => {
     expect(() => service.close()).not.toThrow();
   });
 
+  describe('anchoring and the control that opened the menu', () => {
+    function slot(): HTMLElement {
+      registry.addCommand({
+        id: 'c.close',
+        title: 'cmd.close',
+        run: () => undefined,
+      });
+      registry.addMenuItem({ menu: 'm', command: 'c.close' });
+      const button = document.createElement('button');
+      document.body.append(button);
+      return button;
+    }
+
+    it('places a menu opened at a point where the point is', () => {
+      slot();
+      service.open('m', context, { x: 40, y: 60 });
+      expect(menu()?.style.top).toBe('60px');
+      expect(menu()?.style.left).toBe('40px');
+    });
+
+    it('places a menu opened against a control beside that control', () => {
+      slot();
+      service.open('m', context, {
+        rect: { left: 0, top: 100, right: 40, bottom: 136 },
+        side: 'right',
+      });
+      expect(menu()?.style.left).toBe('44px');
+      expect(menu()?.style.top).toBe('100px');
+    });
+
+    it('reports the control the open menu belongs to and forgets it on close', () => {
+      const button = slot();
+      expect(service.openTrigger()).toBeNull();
+
+      service.open('m', context, { x: 0, y: 0 }, button);
+      expect(service.openTrigger()).toBe(button);
+
+      service.close();
+      expect(service.openTrigger()).toBeNull();
+    });
+
+    it('moves the reported control when another menu opens', () => {
+      const first = slot();
+      const second = document.createElement('button');
+      document.body.append(second);
+
+      service.open('m', context, { x: 0, y: 0 }, first);
+      service.openList([{ key: 'a', label: 'A' }], { x: 0, y: 0 }, () => undefined, second);
+
+      expect(service.openTrigger()).toBe(second);
+    });
+
+    it('forgets the control and gives it the focus back when the menu is dismissed', () => {
+      const button = slot();
+      button.focus();
+      const restore = vi.spyOn(button, 'focus');
+      service.open('m', context, { x: 0, y: 0 }, button);
+
+      menu()?.dispatchEvent(new CustomEvent(LW_MENU_DISMISS, { bubbles: true }));
+
+      expect(menu()).toBeNull();
+      expect(restore).toHaveBeenCalled();
+      expect(service.openTrigger()).toBeNull();
+    });
+  });
+
   describe('openList (ad-hoc list menu — content-tab overflow dropdown)', () => {
     it('does nothing for an empty list', () => {
       service.openList([], { x: 0, y: 0 }, () => undefined);

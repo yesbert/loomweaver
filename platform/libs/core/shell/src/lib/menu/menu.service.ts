@@ -1,4 +1,4 @@
-import { inject, Service } from '@angular/core';
+import { inject, Service, signal } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 import { MenuContext, MenuItem } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../plugin/contribution-registry';
@@ -9,7 +9,15 @@ import {
   LW_MENU_SELECT,
   LW_MENU_TAG,
   LwMenuElement,
+  MenuAnchorRect,
+  MenuSide,
 } from '../elements/menu/lw-menu.element';
+
+export { MENU_ANCHOR_GAP } from '../elements/menu/lw-menu.element';
+
+export type MenuAnchor =
+  | { readonly x: number; readonly y: number }
+  | { readonly rect: MenuAnchorRect; readonly side: MenuSide };
 
 interface ResolvedItem {
   readonly key: string;
@@ -38,8 +46,6 @@ export interface MenuListEntry {
   readonly checked?: boolean;
 }
 
-export const MENU_ANCHOR_GAP = 4;
-
 @Service()
 export class MenuService {
   private readonly registry = inject(ContributionRegistry);
@@ -48,12 +54,17 @@ export class MenuService {
 
   private readonly transloco = inject(TranslocoService);
 
+  private readonly trigger = signal<HTMLElement | null>(null);
+
   private current?: OpenMenu;
+
+  readonly openTrigger = this.trigger.asReadonly();
 
   open(
     menuId: string | readonly string[],
     context: MenuContext,
-    at: { x: number; y: number },
+    at: MenuAnchor,
+    trigger?: HTMLElement,
   ): void {
     this.close();
     const resolved = this.resolve(
@@ -65,29 +76,40 @@ export class MenuService {
     }
     const menu = this.createMenu(resolved);
     const byKey = new Map(resolved.map((entry) => [entry.key, entry.item]));
-    this.present(menu, at, (key) => {
-      const item = key === null ? undefined : byKey.get(key);
-      if (item) {
-        this.run(item, context);
-      }
-    });
+    this.present(
+      menu,
+      at,
+      (key) => {
+        const item = key === null ? undefined : byKey.get(key);
+        if (item) {
+          this.run(item, context);
+        }
+      },
+      trigger,
+    );
   }
 
   openList(
     entries: readonly MenuListEntry[],
-    at: { x: number; y: number },
+    at: MenuAnchor,
     onPick: (key: string) => void,
+    trigger?: HTMLElement,
   ): void {
     this.close();
     if (entries.length === 0) {
       return;
     }
     const menu = this.createListMenu(entries);
-    this.present(menu, at, (key) => {
-      if (key !== null) {
-        onPick(key);
-      }
-    });
+    this.present(
+      menu,
+      at,
+      (key) => {
+        if (key !== null) {
+          onPick(key);
+        }
+      },
+      trigger,
+    );
   }
 
   close(): void {
@@ -96,6 +118,7 @@ export class MenuService {
       return;
     }
     this.current = undefined;
+    this.trigger.set(null);
     clearTimeout(open.listenTimer);
     document.removeEventListener('pointerdown', open.onOutside, true);
     document.body.classList.remove('lw-menu-open');
@@ -105,8 +128,9 @@ export class MenuService {
 
   private present(
     menu: LwMenuElement,
-    at: { x: number; y: number },
+    at: MenuAnchor,
     onSelect: (key: string | null) => void,
+    trigger?: HTMLElement,
   ): void {
     const restore = document.activeElement as HTMLElement | null;
     menu.addEventListener(LW_MENU_SELECT, (event) => {
@@ -123,7 +147,12 @@ export class MenuService {
     };
     document.body.append(menu);
     document.body.classList.add('lw-menu-open');
-    menu.openAt(at.x, at.y);
+    if ('rect' in at) {
+      menu.openBeside(at.rect, at.side);
+    } else {
+      menu.openAt(at.x, at.y);
+    }
+    this.trigger.set(trigger ?? null);
     const listenTimer = setTimeout(() =>
       document.addEventListener('pointerdown', onOutside, {capture: true}), 0,
     );

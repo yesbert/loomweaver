@@ -8,6 +8,11 @@ import { AUTH_SOURCE } from '../../auth/auth-context';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { formatChord } from '../../commands/format-chord';
 import { defineLwTooltip } from '../../elements/tooltip/lw-tooltip.element';
+import {
+  defineLwMenu,
+  LW_MENU_ITEM_TAG,
+  LW_MENU_TAG,
+} from '../../elements/menu/lw-menu.element';
 
 @Component({ selector: 'lw-dummy', template: 'dummy' })
 class Dummy {}
@@ -152,5 +157,84 @@ describe('ShellBarItem', () => {
     expect(button.disabled).toBe(false);
     button.click();
     expect(ran).toBe(1);
+  });
+  describe('a menu opened by activating the button', () => {
+    beforeAll(() => defineLwMenu());
+    afterEach(() => document.body.querySelector(LW_MENU_TAG)?.remove());
+
+    function renderWithMenu(item: BarItem) {
+      TestBed.configureTestingModule({
+        imports: [ShellBarItem, transloco()],
+      });
+      const registry = TestBed.inject(ContributionRegistry);
+      registry.addCommand({
+        id: 'c.profile',
+        title: 'status.add',
+        run: () => undefined,
+      });
+      registry.addMenuItem({ menu: 'acme/overflow', command: 'c.profile' });
+      const fixture = TestBed.createComponent(ShellBarItem);
+      fixture.componentRef.setInput('item', item);
+      fixture.componentRef.setInput('dock', 'top');
+      fixture.detectChanges();
+      return fixture;
+    }
+
+    function offered(): string[] {
+      return [
+        ...(document.body
+          .querySelector(LW_MENU_TAG)
+          ?.querySelectorAll(LW_MENU_ITEM_TAG) ?? []),
+      ].map((entry) => entry.getAttribute('command') ?? '');
+    }
+
+    it('opens the menu instead of running the action the button also names', () => {
+      let ran = 0;
+      const fixture = renderWithMenu({
+        id: 'overflow',
+        bar: 'top-bar',
+        slot: 'end',
+        icon: 'add',
+        tooltip: 'status.add',
+        menu: 'acme/overflow',
+        menuTrigger: 'primary',
+        run: () => (ran += 1),
+      });
+      const button = (fixture.nativeElement as HTMLElement).querySelector(
+        'button',
+      ) as HTMLButtonElement;
+
+      expect(button.getAttribute('aria-haspopup')).toBe('menu');
+
+      button.click();
+      fixture.detectChanges();
+
+      expect(offered()).toEqual(['c.profile']);
+      expect(ran).toBe(0);
+      expect(button.getAttribute('aria-expanded')).toBe('true');
+    });
+
+    it('keeps a button that declares no gesture on the right-click', () => {
+      let ran = 0;
+      const fixture = renderWithMenu({
+        id: 'overflow',
+        bar: 'top-bar',
+        slot: 'end',
+        icon: 'add',
+        tooltip: 'status.add',
+        menu: 'acme/overflow',
+        run: () => (ran += 1),
+      });
+      const button = (fixture.nativeElement as HTMLElement).querySelector(
+        'button',
+      ) as HTMLButtonElement;
+
+      button.click();
+      fixture.detectChanges();
+
+      expect(button.getAttribute('aria-haspopup')).toBeNull();
+      expect(document.body.querySelector(LW_MENU_TAG)).toBeNull();
+      expect(ran).toBe(1);
+    });
   });
 });
