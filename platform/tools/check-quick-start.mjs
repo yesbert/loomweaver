@@ -246,7 +246,7 @@ async function checkInTheBrowser(built) {
     await drivePanel(page, site.origin);
   } catch (error) {
     failures.push(
-      `${error.step ?? 'the generated agent connection'} — ${error.message.split('\n')[0]}`,
+      `${error.step ?? 'the generated agent connection'} — ${error.message.split('\n', 1)[0]}`,
     );
   } finally {
     await runner.close();
