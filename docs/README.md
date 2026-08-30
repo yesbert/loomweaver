@@ -8,7 +8,7 @@ to build one. The platform is frontend-only; your product brings its own backend
 
 | You want to…                               | Start here                                                                                                 |
 | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
-| **See it running first**                   | the live demo at [demo.loomweaver.dev](https://demo.loomweaver.dev) — being rebuilt, so it is thin for now |
+| **See it running first**                   | the live demo at [demo.loomweaver.dev](https://demo.loomweaver.dev) — a product built on the published packages |
 | **Try it in five minutes**                 | [Getting started](getting-started.md) — scaffold a running, branded product                                |
 | **Understand how it works**                | [Architecture](architecture.md) — platform / weaver / distribution, the uniform `ctx`                      |
 | **Build a plugin (a "weaver")**            | [Authoring a weaver](authoring-a-weaver.md), with copyable recipes in [Samples](samples.md)                |
@@ -20,7 +20,7 @@ to build one. The platform is frontend-only; your product brings its own backend
 ## Guides
 
 1. [Architecture](architecture.md) — the mental model: platform / weaver / distribution, the uniform
-   `ctx`, default-deny capabilities, auth-aware access gating, the three RPC boundaries. **Read this first.**
+   `ctx`, default-deny capabilities, auth-aware access gating, the two RPC boundaries. **Read this first.**
 2. [Getting started](getting-started.md) — scaffold a running, branded product with a plugin in it (~5 min).
 3. [Manual setup](manual-setup.md) — the same app wired by hand, plus the Nx, SSR and Module
    Federation answers (~15 min).

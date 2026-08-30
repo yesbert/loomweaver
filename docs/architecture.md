@@ -8,8 +8,7 @@
 
 LoomWeaver is a **domain-agnostic plugin & UI platform** — the *loom* on which products weave.
 This page is the mental model you need before building on it. (The [live
-demo](https://demo.loomweaver.dev) is a product built exactly this way — currently being rebuilt, so
-it is thin at the moment.)
+demo](https://demo.loomweaver.dev) is a product built exactly this way, from the published packages.)
 
 ```
 ┌───────────────────────────────────────────────┐
@@ -117,17 +116,13 @@ not security** — the real boundary is server-side. The complete matrix of ever
 examples are [building a distribution → auth
 integration](building-a-distribution.md#auth-integration-access-gating).
 
-## The three RPC boundaries (never conflated)
+## The two RPC boundaries (never conflated)
 
 A plugin only ever sees the uniform `ctx`; a **broker** routes each call to the right boundary:
 
 1. **Plugin ↔ Core** — in-browser `postMessage` (Worker/iframe when sandboxed). This is the `ctx`
    proxy the plugin holds.
-2. **Core ↔ Treadle** — **MCP** to a small user-installed companion agent for system-near local
-   work (files, shell, OCR) that a browser cannot do. Runs on the user's machine, under the user's
-   authority; capability-gated. Treadle is not built yet — there is no integration doc to follow;
-   this boundary describes the design.
-3. **Core ↔ product server** — the product's own HTTP API (its backend behind the settings-store /
+2. **Core ↔ product server** — the product's own HTTP API (its backend behind the settings-store /
    auth-source ports, or a weaver's domain API). LoomWeaver ships no server of its own here.
 
 ## The server/security seam is the product's

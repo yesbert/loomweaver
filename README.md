@@ -180,18 +180,18 @@ Seven npm packages, one shared version:
 Read [Architecture](docs/architecture.md) for the mental model, and [Samples](docs/samples.md) for
 copyable recipes: views, commands, dialogs, settings, sync.
 
-System-near local execution a browser cannot do (files, shell, OCR) is the job of **Treadle**, a
-small user-installed companion agent that speaks MCP: opt-in, capability-gated, and scoped to the
-user's own machine.
-
 ## The live demo
 
-> **The [live demo](https://demo.loomweaver.dev) is being rebuilt.** It has moved out of this
-> repository into a standalone product that installs the platform from a registry exactly as any
-> other consumer would, and it comes back one reviewable slice at a time. Quotes, the dashboard, an
-> agent and a sandboxed payment matcher are in; orders and invoices follow. The recording at the top
-> is the platform's own testbed, which exercises more of the shell than the demo does today, and
-> [Getting started](docs/getting-started.md) gets you the real thing in five minutes.
+The [live demo](https://demo.loomweaver.dev) is a product, not a sample app. It sits beside the
+platform in `demo/` as its own Angular workspace and installs the published `@loomweaver/*` packages
+from the registry exactly as any other consumer would, so nothing it shows depends on being next to
+the source. Every merge to `main` that touches it deploys it.
+
+It carries quotes and their documents, a dashboard, an agent driving the workbench through its own
+commands, a sandboxed payment matcher, several visibly different themes and access-gated content.
+Orders and invoices are still to come. The recording at the top is the platform's own testbed, which
+exercises more of the shell than the demo does, and [Getting started](docs/getting-started.md) gets
+you your own product in five minutes.
 
 ## Working in this repo
 
