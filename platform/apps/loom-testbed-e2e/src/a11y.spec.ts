@@ -68,6 +68,24 @@ test.describe('Accessibility (WCAG 2.1 AA)', () => {
     await scan(page);
   });
 
+  test('command search open', async ({ page }) => {
+    await page.goto('/');
+    await page.getByTestId('command-palette-entry').click();
+    await expect(
+      page.getByRole('combobox', { name: 'Command palette' }),
+    ).toBeVisible();
+    await scan(page);
+  });
+
+  test('search over open work open', async ({ page }) => {
+    await page.goto('/');
+    await page.getByTestId('quick-open-entry').click();
+    await expect(
+      page.getByRole('combobox', { name: 'Go to open tab…' }),
+    ).toBeVisible();
+    await scan(page);
+  });
+
   test('content tab strip with closable tabs', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('tab', { name: 'Entry list' }).click();

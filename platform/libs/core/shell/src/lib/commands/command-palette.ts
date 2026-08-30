@@ -94,6 +94,9 @@ export class CommandPalette {
       ? 'tabs'
       : 'commands',
   );
+  protected readonly title = computed(() =>
+    this.mode() === 'tabs' ? 'palette.quickOpenTitle' : 'palette.title',
+  );
   protected readonly query = signal('');
   private readonly rawIndex = signal(0);
 
