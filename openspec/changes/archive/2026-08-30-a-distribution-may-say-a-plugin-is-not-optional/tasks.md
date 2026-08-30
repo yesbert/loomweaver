@@ -39,4 +39,4 @@
 
 - [x] 7.1 Shell unit suite, `npx nx run-many --target=lint --all`, and the repository's own checks.
 - [x] 7.2 `openspec validate --all --strict`.
-- [ ] 7.3 Open the pull request naming the report, the shape chosen, and why it is not a manifest field.
+- [x] 7.3 Open the pull request naming the report, the shape chosen, and why it is not a manifest field.
