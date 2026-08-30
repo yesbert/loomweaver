@@ -132,6 +132,8 @@ for (const file of VERBATIM) {
 const mediaDir = path.join(publicDir, 'media');
 mkdirSync(mediaDir, { recursive: true });
 for (const asset of [
+  'agent-panel-dark.png',
+  'agent-panel-light.png',
   'command-palette-dark.png',
   'command-palette-light.png',
   'tour-dark.webm',
@@ -162,18 +164,25 @@ for (const asset of ['loomweaver-icon.png', 'loomweaver-logo-full.png']) {
   if (asset === 'loomweaver-icon.png') copyFileSync(from, path.join(publicDir, asset));
 }
 
-/* Every reference page has to be reachable from the sidebar. Starlight's `autogenerate` cannot do
-   that for us: it derives the tree from its own collection, and these pages come from our glob()
-   loader, so the group rendered empty and the pages were navigable only through inline links and
-   search. The list in astro.config.mjs is therefore hand-kept, and this check is what keeps it
-   honest when someone adds a file under docs/reference/. */
+/* Every page has to be reachable from the sidebar. Starlight's `autogenerate` cannot do that for us:
+   it derives the tree from its own collection, and these pages come from our glob() loader, so the
+   group rendered empty and the pages were navigable only through inline links and search. The list
+   in astro.config.mjs is therefore hand-kept, and this check is what keeps it honest when someone
+   adds a page. It covers guides as well as reference pages: a guide nobody can reach is the same
+   defect, and it was the likelier one, because guides used to go unchecked. */
 const sidebarSource = readFileSync(path.join(websiteRoot, 'astro.config.mjs'), 'utf8');
-for (const file of readdirSync(path.join(contentDir, 'reference'))) {
-  const slug = file.replace(/\.mdx?$/, '');
-  if (!sidebarSource.includes(`/reference/${slug}/`)) {
-    problems.push(
-      `docs/reference/${file} is not linked from the sidebar in astro.config.mjs — add it, or it is reachable only through search`,
-    );
+for (const entry of readdirSync(contentDir, { withFileTypes: true })) {
+  const pages = entry.isDirectory()
+    ? readdirSync(path.join(contentDir, entry.name)).map((f) => `${entry.name}/${f}`)
+    : [entry.name];
+  for (const page of pages) {
+    if (!/\.mdx?$/.test(page)) continue;
+    const route = `/${page.replace(/\.mdx?$/, '')}/`;
+    if (!sidebarSource.includes(route)) {
+      problems.push(
+        `docs/${page} is not linked from the sidebar in astro.config.mjs — add it, or it is reachable only through search`,
+      );
+    }
   }
 }
 
