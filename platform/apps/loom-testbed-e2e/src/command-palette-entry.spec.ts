@@ -16,6 +16,9 @@ test.describe('Command palette entry & bar shortcut hints', () => {
     await expect(
       page.getByRole('combobox', { name: 'Command palette' }),
     ).toBeVisible();
+    await expect(
+      page.getByRole('dialog', { name: 'Command palette' }),
+    ).toBeVisible();
   });
 
   test('the built status-bar quick-open entry shows the OS shortcut and opens the search over open work', async ({
@@ -28,9 +31,17 @@ test.describe('Command palette entry & bar shortcut hints', () => {
     await expect(entry.locator('kbd')).toHaveText(isMac ? '⌘P' : 'Ctrl+P');
 
     await entry.click();
+    const search = page.getByRole('combobox', { name: 'Go to open tab…' });
+    await expect(search).toBeVisible();
     await expect(
-      page.getByRole('combobox', { name: 'Command palette' }),
-    ).toHaveAttribute('placeholder', 'Go to open tab…');
+      page.getByRole('dialog', { name: 'Go to open tab…' }),
+    ).toBeVisible();
+
+    await search.fill('over');
+    await expect(search).toHaveValue('over');
+    await expect(
+      page.getByRole('combobox', { name: 'Go to open tab…' }),
+    ).toBeVisible();
   });
 
   test('a bar button renders its command shortcut hint, OS-correct (LWF-04)', async ({

@@ -131,7 +131,12 @@ export function seedHostCommands(
     shortcut: 'mod+k',
     popout: true,
     run: () => {
-      dialogs.open(CommandPalette, { bare: true, size: 'lg', align: 'top' });
+      dialogs.open(CommandPalette, {
+        bare: true,
+        size: 'lg',
+        align: 'top',
+        title: 'palette.title',
+      });
     },
   });
   registry.addCommand({
@@ -156,6 +161,7 @@ export function seedHostCommands(
         bare: true,
         size: 'lg',
         align: 'top',
+        title: 'palette.quickOpenTitle',
         data: { mode: 'tabs' },
       });
     },

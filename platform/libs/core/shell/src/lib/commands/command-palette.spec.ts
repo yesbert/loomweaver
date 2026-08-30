@@ -33,6 +33,7 @@ function transloco() {
           tabsPlaceholder: 'Go to open tab…',
           empty: 'No matching commands',
           tabsEmpty: 'No open tabs',
+          quickOpenTitle: 'Go to open tab…',
           recent: 'Recently used',
           all: 'All commands',
           hint: {
@@ -476,5 +477,39 @@ describe('CommandPalette', () => {
     expect(
       host.querySelector('[data-testid="palette-hint-actions"]'),
     ).not.toBeNull();
+  });
+
+  it('names the field for searching commands in command mode', () => {
+    const { host } = render(OPEN_TABS);
+    const input = host.querySelector('input') as HTMLInputElement;
+
+    expect(input.getAttribute('aria-label')).toBe('Command palette');
+  });
+
+  it('names the field for searching open work in Quick-Open mode', () => {
+    const { host } = render(OPEN_TABS, 'tabs');
+    const input = host.querySelector('input') as HTMLInputElement;
+
+    expect(input.getAttribute('aria-label')).toBe('Go to open tab…');
+  });
+
+  it('keeps the Quick-Open name once typing has removed the placeholder', () => {
+    const { host, fixture } = render(OPEN_TABS, 'tabs');
+    type(fixture, 'two');
+    const input = host.querySelector('input') as HTMLInputElement;
+
+    expect(input.value).not.toBe('');
+    expect(input.hasAttribute('aria-label')).toBe(true);
+    expect(input.getAttribute('aria-label')).toBe('Go to open tab…');
+  });
+
+  it('names the command search from its own label, not from its placeholder', () => {
+    const { host, fixture } = render(OPEN_TABS);
+    type(fixture, 'reset');
+    const input = host.querySelector('input') as HTMLInputElement;
+
+    expect(input.value).not.toBe('');
+    expect(input.placeholder).toBe('Type…');
+    expect(input.getAttribute('aria-label')).toBe('Command palette');
   });
 });

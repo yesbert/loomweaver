@@ -8,7 +8,7 @@
       aria-controls="lw-palette-list"
       [attr.aria-expanded]="true"
       [attr.aria-activedescendant]="activeId()"
-      [attr.aria-label]="'palette.title' | transloco"
+      [attr.aria-label]="title() | transloco"
       [value]="query()"
       [placeholder]="
         (mode() === 'tabs' ? 'palette.tabsPlaceholder' : 'palette.placeholder')
