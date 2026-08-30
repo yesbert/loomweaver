@@ -167,6 +167,30 @@ describe('<lw-menu> custom element', () => {
     expect(onSelect).toHaveBeenCalledWith('shell.tab.togglePin');
   });
 
+  it('passes over a heading: the keyboard reaches the first entry and a click on it does nothing', () => {
+    const menu = mount([
+      ['a', 'Profile'],
+      ['b', 'Sign out'],
+    ]);
+    const header = document.createElement('div');
+    header.className = 'lw-menu-header';
+    header.textContent = 'Ada Lovelace';
+    menu.prepend(header);
+    const onSelect = vi.fn();
+    menu.addEventListener(LW_MENU_SELECT, (e) =>
+      onSelect((e as CustomEvent).detail.command),
+    );
+
+    header.click();
+    expect(onSelect).not.toHaveBeenCalled();
+
+    key(menu, 'ArrowDown');
+    expect(document.activeElement).toBe(itemsOf(menu)[0]);
+
+    key(menu, 'Enter');
+    expect(onSelect).toHaveBeenCalledWith('a');
+  });
+
   it('openAt positions the menu at the point, clamped into the viewport', () => {
     const menu = mount([['a', 'Close']]) as LwMenuElement;
     menu.openAt(120, 80);

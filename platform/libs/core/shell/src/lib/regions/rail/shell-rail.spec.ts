@@ -357,6 +357,24 @@ describe('ShellRail', () => {
       expect(button.getAttribute('aria-expanded')).toBe('true');
     });
 
+    it('heads the menu with what the entry stands for', () => {
+      const fixture = setupMenu({
+        ...account,
+        menuHeader: { title: 'Ada Lovelace', detail: 'ada@example.com', initials: 'AL' },
+      });
+
+      buttonsOf(fixture)[0].click();
+      fixture.detectChanges();
+
+      const menu = document.body.querySelector(LW_MENU_TAG);
+      expect(
+        menu?.querySelector('.lw-menu-header-title')?.textContent,
+      ).toBe('Ada Lovelace');
+      expect(menu?.getAttribute('aria-label')).toBe(
+        'Ada Lovelace, ada@example.com',
+      );
+    });
+
     it('keeps the workbench own entries on the right-click', () => {
       const fixture = setupMenu(account);
 

@@ -1,6 +1,6 @@
 import { Type } from '@angular/core';
 import { AccessRequirement } from './auth.js';
-import { MenuTrigger } from './menu.js';
+import { MenuHeader, MenuTrigger } from './menu.js';
 
 /** Bar slots. */
 export type BarSlot = 'start' | 'center' | 'end';
@@ -52,6 +52,11 @@ export interface BarButtonItem extends BarItemBase {
    * the right-click it always had. Ignored without {@link menu}.
    */
   readonly menuTrigger?: MenuTrigger;
+  /**
+   * A heading naming what the menu is about, drawn above its first entry. Only where activation
+   * opens the menu, since a right-click already points at this button; ignored otherwise.
+   */
+  readonly menuHeader?: MenuHeader;
   /**
    * Id of a registered {@link Command} this button triggers. Provide this **or** {@link run}; when
    * set, the host runs that command (so a keybinding/palette can share the same behaviour).

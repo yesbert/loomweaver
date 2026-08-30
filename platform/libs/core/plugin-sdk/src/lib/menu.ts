@@ -59,3 +59,26 @@ export interface MenuItem {
  * and the host draws it all the same.
  */
 export type MenuTrigger = 'context' | 'primary' | 'both';
+
+/**
+ * A heading for a menu, naming the thing it was opened against — an account, a document, a tenant.
+ * The host draws it above the first entry of a menu opened by ACTIVATION (see {@link MenuTrigger});
+ * a menu opened at the pointer carries none, because what it acts on is under the pointer.
+ *
+ * It is not an entry: it cannot be focused or activated, and the keyboard passes over it the way it
+ * passes over a separator. The menu is announced by what it names, so the name reaches the user
+ * exactly once.
+ */
+export interface MenuHeader {
+  /** The name — Transloco key or literal. */
+  readonly title: string;
+  /** A second line under the name, for an address, a role or a tenant — key or literal. */
+  readonly detail?: string;
+  /** Icon name drawn beside the name, resolved by the host icon registry. */
+  readonly icon?: string;
+  /**
+   * One or two letters the host draws **instead of** {@link icon}, for a name that is the user's
+   * rather than yours. Same rule as a launcher entry's: keep it to two characters.
+   */
+  readonly initials?: string;
+}

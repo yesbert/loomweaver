@@ -89,7 +89,7 @@ describe('MenuTriggerDirective', () => {
       'demo/account',
       { targetKind: 'rail-item', id: 'x' },
       { rect: button().getBoundingClientRect(), side: 'right' },
-      button(),
+      { trigger: button(), header: undefined },
     );
   });
 

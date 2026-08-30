@@ -386,6 +386,65 @@ describe('MenuService', () => {
     expect(() => service.close()).not.toThrow();
   });
 
+  describe('a heading naming what the menu was opened against', () => {
+    function open(header?: {
+      title: string;
+      detail?: string;
+      icon?: string;
+      initials?: string;
+    }): void {
+      registry.addCommand({
+        id: 'c.close',
+        title: 'cmd.close',
+        run: () => undefined,
+      });
+      registry.addMenuItem({ menu: 'm', command: 'c.close' });
+      service.open('m', context, { x: 0, y: 0 }, { header });
+    }
+
+    function heading(): HTMLElement | null | undefined {
+      return menu()?.querySelector('.lw-menu-header');
+    }
+
+    it('draws no heading where none is given', () => {
+      open();
+      expect(heading()).toBeNull();
+      expect(menu()?.getAttribute('aria-label')).toBeNull();
+    });
+
+    it('draws the name, its second line and its mark above the first entry', () => {
+      open({ title: 'menu.close', detail: 'ada@example.com', initials: 'AL' });
+
+      expect(heading()?.querySelector('.lw-menu-header-title')?.textContent).toBe(
+        'Close',
+      );
+      expect(
+        heading()?.querySelector('.lw-menu-header-detail')?.textContent,
+      ).toBe('ada@example.com');
+      expect(heading()?.querySelector('.lw-menu-header-mark')?.textContent).toBe(
+        'AL',
+      );
+      expect(menu()?.firstElementChild).toBe(heading());
+    });
+
+    it('names the menu once and keeps the heading out of the entries', () => {
+      open({ title: 'menu.close', detail: 'ada@example.com' });
+
+      expect(menu()?.getAttribute('aria-label')).toBe('Close, ada@example.com');
+      expect(heading()?.getAttribute('aria-hidden')).toBe('true');
+      expect(heading()?.getAttribute('role')).toBeNull();
+      expect(items()).toHaveLength(1);
+    });
+
+    it('draws an icon where no initials are given', () => {
+      open({ title: 'menu.close', icon: 'user' });
+
+      expect(
+        heading()?.querySelector('lw-icon')?.getAttribute('name'),
+      ).toBe('user');
+    });
+  });
+
   describe('anchoring and the control that opened the menu', () => {
     function slot(): HTMLElement {
       registry.addCommand({
@@ -420,7 +479,7 @@ describe('MenuService', () => {
       const button = slot();
       expect(service.openTrigger()).toBeNull();
 
-      service.open('m', context, { x: 0, y: 0 }, button);
+      service.open('m', context, { x: 0, y: 0 }, { trigger: button });
       expect(service.openTrigger()).toBe(button);
 
       service.close();
@@ -432,8 +491,13 @@ describe('MenuService', () => {
       const second = document.createElement('button');
       document.body.append(second);
 
-      service.open('m', context, { x: 0, y: 0 }, first);
-      service.openList([{ key: 'a', label: 'A' }], { x: 0, y: 0 }, () => undefined, second);
+      service.open('m', context, { x: 0, y: 0 }, { trigger: first });
+      service.openList(
+        [{ key: 'a', label: 'A' }],
+        { x: 0, y: 0 },
+        () => undefined,
+        second,
+      );
 
       expect(service.openTrigger()).toBe(second);
     });
@@ -442,7 +506,7 @@ describe('MenuService', () => {
       const button = slot();
       button.focus();
       const restore = vi.spyOn(button, 'focus');
-      service.open('m', context, { x: 0, y: 0 }, button);
+      service.open('m', context, { x: 0, y: 0 }, { trigger: button });
 
       menu()?.dispatchEvent(new CustomEvent(LW_MENU_DISMISS, { bubbles: true }));
 

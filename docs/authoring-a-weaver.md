@@ -1018,6 +1018,21 @@ ctx.registerRailItem({
 ctx.registerMenuItem({ menu: 'notes.account/menu', command: 'notes.signOut', group: '9_session' });
 ```
 
+Add `menuHeader: { title, detail?, icon?, initials? }` and the host draws a heading above the first
+entry, which is where the name belongs when the control itself is a two-letter badge:
+
+```ts
+ctx.registerRailItem({
+  id: 'notes.account', rail: 'activity', anchor: 'bottom', icon: 'user', initials: 'AR',
+  title: 'notes.account.title', menu: 'notes.account/menu', menuTrigger: 'primary',
+  menuHeader: { title: displayName, detail: emailAddress, initials: 'AR' },
+});
+```
+
+The heading is not an entry: nothing activates it, the arrow keys pass over it the way they pass over
+a separator, and the menu is announced by what it names, so the name reaches the user once rather
+than twice. A menu opened at the pointer carries none, because what it acts on is under the pointer.
+
 Activation offers **your** slot alone: the workbench's own entries for that item, the ones that hide
 it or move it to the other rail, stay on the right-click, where a curation entry beside "Sign out"
 would be noise. Such an item needs no `command` or `run`, and the host draws it without one; where it
