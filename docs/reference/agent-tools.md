@@ -8,7 +8,7 @@ The rule underneath it is the one from [callable commands](callable-commands.md)
 what the user could have reached, and nothing more.** This package adds no way past that.
 
 This page is the adapter, function by function. For the path from a generator command to a product an
-agent drives, read [driving a product with an agent](../agent-driven-products.md) first.
+agent drives, read [driving your product with an AG-UI agent](../ag-ui-agents.md) first.
 
 ## The whole integration
 
