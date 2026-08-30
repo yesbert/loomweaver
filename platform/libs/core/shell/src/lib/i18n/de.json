@@ -1,7 +1,7 @@
 {
   "appReset": {
-    "action": "Layout zurücksetzen",
-    "confirm": "App-Layout zurücksetzen?\n\nDas kommt zurück: die von dir kuratierte Leiste, eingeklappte Seitenleisten, Seitenleisten-Breiten, deine Hand-Sortierung und benannte Ansichts-Instanzen samt ihrem Zustand.\n\nDas bleibt: deine gespeicherten Arbeitsbereiche samt Layout, Farbschema, Sprache, Textgröße, Berechtigungen und installierte Plugins.",
+    "action": "App-Layout zurücksetzen",
+    "confirm": "App-Layout zurücksetzen?\n\nDas kommt zurück: die von dir kuratierte Leiste, eingeklappte Seitenleisten, Seitenleisten-Breiten, deine Hand-Sortierung und benannte Ansichts-Instanzen samt ihrem Zustand.\n\nDas bleibt: deine gespeicherten Workspaces samt Layout, Farbschema, Sprache, Textgröße, Berechtigungen und installierte Plugins.",
     "desc": "Stellt die Anordnung so her, wie diese App ausgeliefert wurde.",
     "title": "App-Layout zurücksetzen"
   },
@@ -278,7 +278,7 @@
     "rename": "Umbenennen",
     "delete": "Löschen",
     "deleteConfirm": "Workspace „{{name}}“ löschen?",
-    "reset": "Layout zurücksetzen",
+    "reset": "Workspace-Layout zurücksetzen",
     "resetConfirm": "Diesen Workspace zurücksetzen? Das Layout kehrt zum gespeicherten Ausgangszustand zurück; deine gespeicherten Workspaces bleiben erhalten.",
     "default": "Standard",
     "saveBaseline": "Änderungen übernehmen",

@@ -122,6 +122,13 @@ jobs:
       - name: Region ids agree
         run: npm run region-ids-check
 
+      # Two commands sharing a name is invisible where it lives — the strings sit in different files
+      # under different keys, each correct alone — and expensive where it is met, because the user
+      # runs the wrong one. This resolves what each shipped command is called in each shipped
+      # language and compares them.
+      - name: Command names are their own
+        run: npm run command-names-check
+
       # Fail if a production dependency ships a licence outside the permissive allowlist.
       # devDependencies are not shipped and are out of scope; the workspace package itself is private.
       - name: Licence check
