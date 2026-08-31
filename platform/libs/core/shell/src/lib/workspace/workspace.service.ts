@@ -189,14 +189,12 @@ export class WorkspaceService {
     this.commit(this.list().map((w) => (w.id === id ? { ...w, baseline } : w)));
   }
 
+  wouldSettle(path: string): boolean {
+    return this.settlementDestination(path) !== null;
+  }
+
   async settle(path: string): Promise<void> {
-    const here = this.active.id();
-    const destination = settlementFor(
-      this.claims(),
-      this.claimsOfWorkspace(here),
-      here,
-      path,
-    );
+    const destination = this.settlementDestination(path);
     if (destination !== null) {
       await this.switchTo(destination, { keepAddress: true });
     }
@@ -407,4 +405,14 @@ export class WorkspaceService {
   private layOutAdoptedWorkspaceWhenReady(): void {
     void this.active.ready.then(() => this.layOutAdoptedWorkspace());
   }
+  private settlementDestination(path: string): string | null {
+    const here = this.active.id();
+    return settlementFor(
+      this.claims(),
+      this.claimsOfWorkspace(here),
+      here,
+      path,
+    );
+  }
+
 }

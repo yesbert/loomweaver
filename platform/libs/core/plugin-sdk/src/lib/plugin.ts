@@ -208,6 +208,10 @@ export interface PluginContext {
    * path again just re-activates it (`navigation`). Set `titleIsLiteral` for a
    * non-translatable title, `onClose` to free per-tab state when the tab is closed, and `preview` to
    * open it as a single reused *preview* slot (see {@link OpenTabInput}).
+   *
+   * Where the product has given the address to a workspace of its own, that workspace is activated
+   * first and the tab opens there, so a document is never laid over an arrangement built for
+   * something else. The call still returns at once; the tab appears when the switch has happened.
    */
   openContentTab(input: OpenTabInput): void;
   /**

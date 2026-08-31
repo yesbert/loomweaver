@@ -1,13 +1,21 @@
 import { DOCUMENT } from '@angular/common';
-import { inject, Service } from '@angular/core';
+import { inject, isDevMode, Service } from '@angular/core';
 import { WORKING_STATE_STORE } from '../../../persistence/working-state-store';
 import { hydrateAsync } from '../../../persistence/hydrate';
 import { isPopoutUrl } from '../../../popout/popout-path';
 import { ActiveWorkspaceService } from '../../../workspace/active-workspace.service';
-import { DockEntry, normalizeDockEntry } from './pane-restore';
+import { DockEntry, normalizeDockEntry, withoutTabs } from './pane-restore';
 import { PaneNode } from './pane-node';
+import { WORKSPACE_DEFINITIONS } from '../../../workspace/provide-workspaces';
+import { claimsOf } from '../../../workspace/workspace-definition';
+import {
+  claimFor,
+  withoutConflicts,
+} from '../../../workspace/workspace-claims';
 
 const STORAGE_KEY = 'lw.shell.pane-trees';
+
+const WORKSPACES_KEY = 'lw.shell.workspaces';
 
 const HYDRATION_RETRY_MS = 500;
 
@@ -34,6 +42,24 @@ function parse(raw: string | undefined): Record<string, DockEntry> {
   }
 }
 
+function originsIn(raw: string | undefined): ReadonlyMap<string, string> {
+  const origins = new Map<string, string>();
+  if (!raw) {
+    return origins;
+  }
+  try {
+    for (const saved of JSON.parse(raw) as readonly unknown[]) {
+      const entry = saved as { id?: unknown; origin?: unknown };
+      if (typeof entry.id === 'string' && typeof entry.origin === 'string') {
+        origins.set(entry.id, entry.origin);
+      }
+    }
+  } catch {
+    return origins;
+  }
+  return origins;
+}
+
 function serializeDocks(docks: Record<string, DockEntry>): string {
   const out: Record<string, { tree: PaneNode; primary: string }> = {};
   for (const [dock, entry] of Object.entries(docks)) {
@@ -47,12 +73,16 @@ export class PaneTreeStorage {
   private readonly store = inject(WORKING_STATE_STORE);
   private readonly workspace = inject(ActiveWorkspaceService);
 
+  private readonly definitions = inject(WORKSPACE_DEFINITIONS, {
+    optional: true,
+  })?.flat();
+
   private readonly popout = isPopoutUrl(
     inject(DOCUMENT).location?.pathname ?? '',
   );
 
   peek(): Record<string, DockEntry> {
-    return parse(this.store.peek?.(this.key()));
+    return this.settled(parse(this.store.peek?.(this.key())));
   }
 
   hydrate(
@@ -86,7 +116,41 @@ export class PaneTreeStorage {
   }
 
   parsed(raw: string | undefined): Record<string, DockEntry> {
-    return parse(raw);
+    return this.settled(parse(raw));
+  }
+
+  private settled(
+    docks: Record<string, DockEntry>,
+  ): Record<string, DockEntry> {
+    const declared = this.definitions ?? [];
+    const here = this.declaredHome();
+    if (declared.every((definition) => definition.id !== here)) {
+      return docks;
+    }
+    const claims = withoutConflicts(claimsOf(declared));
+    const out: Record<string, DockEntry> = {};
+    const dropped: string[] = [];
+    for (const [dock, entry] of Object.entries(docks)) {
+      const filtered = withoutTabs(
+        entry.node,
+        (path) => (claimFor(claims, path)?.workspaceId ?? here) !== here,
+      );
+      dropped.push(...filtered.dropped);
+      out[dock] = { ...entry, node: filtered.node };
+    }
+    if (dropped.length > 0 && isDevMode()) {
+      console.warn(
+        `Workspace "${this.workspace.id()}": stored content at ` +
+          `${dropped.map((path) => `"${path}"`).join(', ')} belongs to another ` +
+          `workspace that claims it — the tab is dropped rather than restored here.`,
+      );
+    }
+    return out;
+  }
+
+  private declaredHome(): string {
+    const active = this.workspace.id();
+    return originsIn(this.store.peek?.(WORKSPACES_KEY)).get(active) ?? active;
   }
 
   private key(): string {

@@ -386,6 +386,23 @@ export class OpenTabsService {
       const opened = autoOpenedTab(route, root, path);
       return opened ? [...tabs, opened] : tabs;
     });
+    this.recordActiveTab(routes, root);
+  }
+
+  private recordActiveTab(
+    routes: readonly ContentRoute[],
+    root: string,
+  ): void {
+    const held = this.paneTree
+      .primaryTabs(CONTENT_DOCK)
+      .find((tab) => tabRootOf(routes, tab.path) === root);
+    if (held) {
+      this.paneTree.setActiveTab(
+        CONTENT_DOCK,
+        this.paneTree.primaryId(CONTENT_DOCK),
+        held.path,
+      );
+    }
   }
 
   private strippable(routes: readonly ContentRoute[], tab: OpenTab): boolean {

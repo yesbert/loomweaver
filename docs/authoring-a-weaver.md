@@ -702,6 +702,11 @@ ctx.openContentTab({
 ctx.closeContentTab(`doc/${doc.id}`); // the host activates a neighbour
 ```
 
+Your plugin does not decide, and does not need to know, which workspace the tab lands in. Where the
+product has given that address to a workspace of its own, the host activates that workspace first and
+opens the tab there. The call returns straight away either way; the tab appears once the switch has
+happened.
+
 Docked (non-routable) surfaces have their own opener: `ctx.revealSurface(id)` activates the
 surface's tab **wherever the user has placed it** — its sidebar panel (expanding a collapsed one) or a
 content pane — so a palette command like "Focus Library" works no matter where the view lives. It is a
