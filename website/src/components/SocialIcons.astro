@@ -1,0 +1,38 @@
+---
+import { Icon } from '@astrojs/starlight/components';
+import Default from '@astrojs/starlight/components/SocialIcons.astro';
+---
+
+<a class="demo" href="https://demo.loomweaver.dev" target="_blank" rel="noopener">
+  <Icon name="rocket" />
+  Demo<span class="sr-only"> (opens in a new tab)</span>
+</a>
+
+<Default />
+
+<style>
+  /* --sl-color-black is Starlight's contrast counterpart to the accent that carries text, so the
+     filled hover state reads in both themes. The landing page's primary button pairs them the same
+     way. */
+  .demo {
+    display: inline-flex;
+    gap: 0.4rem;
+    align-items: center;
+    padding: 0.3rem 0.7rem;
+    border: 1px solid var(--sl-color-text-accent);
+    border-radius: 0.4rem;
+    color: var(--sl-color-text-accent);
+    font-size: var(--sl-text-sm);
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
+  }
+
+  .demo:hover {
+    background: var(--sl-color-text-accent);
+    color: var(--sl-color-black);
+  }
+</style>

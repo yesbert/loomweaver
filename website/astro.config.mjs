@@ -22,6 +22,11 @@ export default defineConfig({
       // Umami itself is not loaded here: the banner appends the script only once somebody agrees.
       components: {
         Footer: './src/components/Footer.astro',
+        // The demo is the fastest way to understand what this is, but it was reachable only from the
+        // landing page. Overriding SocialIcons rather than Header puts a link to it beside the GitHub
+        // icon on every page, and reaches the mobile menu too, because Starlight renders the same
+        // component in both places.
+        SocialIcons: './src/components/SocialIcons.astro',
       },
       social: [
         {
