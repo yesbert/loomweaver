@@ -43,10 +43,12 @@ export function warnMenuTriggerConflict(item: ChromeItemMenu): void {
   }
   if (menuOnActivate(item) && (item.command !== undefined || item.run !== undefined)) {
     warned.add(item.id);
+    const behaviour =
+      item.command === undefined ? 'inline behaviour' : `command "${item.command}"`;
     console.warn(
       `Item "${item.id}" opens the menu "${item.menu}" on activation, so its ` +
-        `${item.command === undefined ? 'inline behaviour' : `command "${item.command}"`} is ` +
-        `never run from here. Reach it from a menu entry, a shortcut or the palette instead.`,
+        `${behaviour} is never run from here. Reach it from a menu entry, a shortcut ` +
+        `or the palette instead.`,
     );
   }
 }

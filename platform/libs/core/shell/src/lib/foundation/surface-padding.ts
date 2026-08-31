@@ -14,5 +14,5 @@ export function effectivePadding(
   declared: boolean | undefined,
   fallback: PaddingDefault,
 ): boolean {
-  return declared === undefined ? fallback === 'inset' : declared;
+  return declared ?? fallback === 'inset';
 }
