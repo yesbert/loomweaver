@@ -14,6 +14,7 @@ function transloco() {
 function hostStub(overrides: Partial<PluginHost> = {}): PluginHost {
   return {
     version: () => '1.2.3',
+    isPreview: () => false,
     updateAvailable: () => false,
     updatesEnabled: true,
     checkForUpdate: () => Promise.resolve(),

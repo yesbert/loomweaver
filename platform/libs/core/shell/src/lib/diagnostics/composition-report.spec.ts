@@ -10,6 +10,7 @@ import {
   installCompositionReport,
 } from './composition-report';
 import { provideShellFeatures } from '../foundation/shell-features';
+import { VersionService } from '../version/version.service';
 import type { MockInstance } from 'vitest';
 
 const LAYOUT: ShellLayout = {
@@ -163,6 +164,34 @@ describe('CompositionReport (K7)', () => {
     const message = String(info.mock.calls[0][0]);
     expect(message).toContain('top-bar (bar/top)');
     expect(message).toContain('content.pin');
+  });
+
+  it('reports the running version, so nobody has to look elsewhere for it', () => {
+    const app = setUp([
+      {
+        provide: VersionService,
+        useValue: { version: () => '0.7.9', isPreview: () => false },
+      },
+    ]);
+
+    app.report.print();
+
+    const message = String(info.mock.calls[0][0]);
+    expect(message).toContain('Version: 0.7.9');
+    expect(message).not.toContain('preview');
+  });
+
+  it('says when that version is a preview', () => {
+    const app = setUp([
+      {
+        provide: VersionService,
+        useValue: { version: () => '0.8.0-preview.3', isPreview: () => true },
+      },
+    ]);
+
+    app.report.print();
+
+    expect(String(info.mock.calls[0][0])).toContain('Version: 0.8.0-preview.3 (preview)');
   });
 
   it('says so plainly when a distribution switches nothing off', () => {

@@ -9,6 +9,7 @@ import { ROUTE_OMIT_PREFIX } from '../plugin/route-omit';
 import { SETTING_OMIT_PREFIX } from '../settings/setting-omit';
 import { SettingsService } from '../settings/settings.service';
 import { DEFAULT_SHELL_FEATURES, SHELL_FEATURES } from '../foundation/shell-features';
+import { VersionService } from '../version/version.service';
 
 @Service()
 export class CompositionReport {
@@ -19,6 +20,7 @@ export class CompositionReport {
   private readonly barItems = inject(BAR_ITEM, { optional: true }) ?? [];
   private readonly railItems = inject(RAIL_ITEM, { optional: true }) ?? [];
   private readonly views = inject(VIEW, { optional: true }) ?? [];
+  private readonly versions = inject(VersionService);
 
   checkStaticContributions(): void {
     for (const problem of this.staticProblems()) {
@@ -28,6 +30,7 @@ export class CompositionReport {
 
   print(): void {
     const lines = [
+      `Version: ${this.versions.version()}${this.versions.isPreview() ? ' (preview)' : ''}`,
       `Layout: ${this.layout.regions
         .map((region) => `${region.id} (${region.type}/${region.dock})`)
         .join(', ')}`,

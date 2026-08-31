@@ -86,6 +86,15 @@ export interface PluginUi {
 export interface PluginHost {
   /** The running app version (e.g. "1.2.3"). */
   readonly version: () => string;
+  /**
+   * Whether {@link version} is a preview of a line that has not been released — `0.8.0-preview.3`
+   * rather than `0.7.9`. Ask this instead of taking the version apart yourself.
+   *
+   * **Announcing it is yours.** The host marks a preview nowhere on its own: how loudly a product
+   * tells its users that it is running something unfinished is the product's judgement, the same
+   * way showing the version at all is.
+   */
+  readonly isPreview: () => boolean;
   /** True once a new version is downloaded and ready to activate. */
   readonly updateAvailable: () => boolean;
   /** Whether update checks are possible (a service worker is registered and enabled). */

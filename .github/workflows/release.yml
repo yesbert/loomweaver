@@ -65,8 +65,14 @@ jobs:
             echo "Bump with scripts/bump-version.sh so the tag and the manifests match, then re-tag." >&2
             exit 1
           fi
+          # The dist-tag is read out of the version, never passed alongside it: a preview that
+          # reached "latest" would be what every plain install resolves to, and a published version
+          # cannot be withdrawn. scripts/dist-tag.mjs owns that rule, so it lives in one place and
+          # can be exercised without a release.
+          dist="$(node scripts/dist-tag.mjs "${tag}")"
           echo "value=${tag}" >> "$GITHUB_OUTPUT"
-          echo "Publishing version ${tag}"
+          echo "dist=${dist}" >> "$GITHUB_OUTPUT"
+          echo "Publishing version ${tag} to dist-tag ${dist}"
 
       - name: Install dependencies
         working-directory: platform
@@ -125,6 +131,7 @@ jobs:
       - name: Publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          DIST_TAG: ${{ steps.version.outputs.dist }}
         run: |
           set -euo pipefail
           for dir in \
@@ -136,6 +143,6 @@ jobs:
             platform/libs/tooling/cli \
             platform/libs/core/frame-kit
           do
-            echo "publishing ${dir}"
-            ( cd "${dir}" && npm publish )
+            echo "publishing ${dir} to ${DIST_TAG}"
+            ( cd "${dir}" && npm publish --tag "${DIST_TAG}" )
           done
