@@ -89,3 +89,10 @@ real time at least once, and every one of them fails in a way that looks like so
 
 The end-to-end suite, including the accessibility audit, runs in the nightly rather than in the merge
 gate — a standing decision to keep the gate fast.
+
+Two gates in the merge run against the pull request rather than against the tree, so there is no
+local command for them. **Sign-off** fails when a commit in the branch carries no `Signed-off-by`
+line naming its own author; the DCO section of `CONTRIBUTING.md` says what that line states and how
+to add it to commits already written. Copilot reviews every pull request automatically, which blocks
+nothing by itself, but `main` requires conversation resolution, so a thread it opens holds the merge
+until someone answers it.
