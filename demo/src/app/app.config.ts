@@ -27,6 +27,7 @@ import { paymentsIcon, paymentsPlugin } from '../payments/payments.plugin';
 import { activeLook } from '../looks/look-choice';
 import { LegalLink } from '../legal/legal-link';
 import { LookSwitch } from '../looks/look-switch';
+import { PreviewBadge } from '../preview/preview-badge';
 
 export const layout: ShellLayout = {
   regions: [
@@ -89,6 +90,13 @@ export const appConfig: ApplicationConfig = {
         slot: 'end',
         order: 90,
         component: UpdateBadge,
+      },
+      {
+        id: 'demo.preview',
+        bar: 'status-bar',
+        slot: 'end',
+        order: 95,
+        component: PreviewBadge,
       },
       {
         id: 'demo.legal',
