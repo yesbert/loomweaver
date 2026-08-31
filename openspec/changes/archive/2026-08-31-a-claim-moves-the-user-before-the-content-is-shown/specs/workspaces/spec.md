@@ -37,7 +37,7 @@ worse than leaving one stale tab in it.
 #### Scenario: The developer is told what was dropped
 
 - **WHEN** stored content is dropped because a declaration now places it elsewhere
-- **THEN** the developer is told, in development, which workspace held it and which address went
+- **THEN** the developer is told, in development, which workspace held it and which address was dropped
 - **AND** nothing is shown to the user
 
 #### Scenario: Unclaimed content is left where it was
