@@ -24,5 +24,6 @@
         "look": "Which look to apply: default, aurora or breeze."
       }
     }
-  }
+  },
+  "preview": "Preview"
 }

@@ -18,6 +18,11 @@ it needs to look good, while the platform stays lean.
 It is also the honest test of the platform. If installing and wiring LoomWeaver is awkward, this is
 where we find out, because there are no shortcuts available here that a customer would not have.
 
+Which published line it consumes is a choice, and `package.json` is where it is written down. It
+usually tracks the released one. While a preview series is worth showing it tracks that instead,
+which is still a line a customer can install, and the status bar says so. A range over a preview
+also covers the version that ends the series, so the demo returns to the released line by itself.
+
 ## Running it
 
 ```bash
