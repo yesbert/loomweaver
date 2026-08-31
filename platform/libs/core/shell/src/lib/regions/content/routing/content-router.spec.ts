@@ -5,7 +5,7 @@ import {
   signal,
 } from '@angular/core';
 import { Location } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, Routes } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
 import { ANONYMOUS, AuthSnapshot } from '@loomweaver/plugin-sdk';
 import { buildContentRoutes, ContentRouter } from './content-router';
@@ -376,7 +376,9 @@ describe('ContentRouter', () => {
     tick();
     await Promise.resolve();
 
-    expect(router.navigateByUrl).toHaveBeenCalledWith('/doc/7');
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/doc/7', {
+      onSameUrlNavigation: 'reload',
+    });
   });
 
   it('does not chase a deep-link once the user has navigated away (popstate)', () => {
@@ -400,7 +402,54 @@ describe('ContentRouter', () => {
     tick();
     await Promise.resolve();
 
-    expect(router.navigateByUrl).toHaveBeenCalledWith('/doc/7');
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/doc/7', {
+      onSameUrlNavigation: 'reload',
+    });
+  });
+
+  it('gives a pending deep-link something to land on, so the initial navigation matches', () => {
+    const content = setup('/doc/7');
+    registry.addContentRoute({ path: 'search', component: TestRoute });
+
+    content.start();
+
+    const config = router.resetConfig.mock.calls[0][0] as Routes;
+    const placeholder = config.find((route) => route.path === 'doc/7');
+    expect(placeholder).toBeDefined();
+    expect(placeholder?.component).toBe(RouteUnavailableView);
+  });
+
+  it('still lands the deep-link where a home route would swallow it as a prefix', () => {
+    const content = setup('/doc/7');
+    registry.addContentRoute({ path: '', component: TestRoute });
+
+    content.start();
+
+    const config = router.resetConfig.mock.calls[0][0] as Routes;
+    expect(config.some((route) => route.path === 'doc/7')).toBe(true);
+  });
+
+  it('leaves an address a real route already answers to that route', () => {
+    const content = setup('/doc/7');
+    registry.addContentRoute({ path: 'doc/:id', component: TestRoute });
+
+    content.start();
+
+    const config = router.resetConfig.mock.calls[0][0] as Routes;
+    expect(config.some((route) => route.path === 'doc/7')).toBe(false);
+  });
+
+  it('drops the placeholder once the route that answers the address registers', async () => {
+    const content = setup('/doc/7');
+    content.start();
+
+    registry.addContentRoute({ path: 'doc/:id', component: TestRoute });
+    tick();
+    await Promise.resolve();
+
+    const config = router.resetConfig.mock.calls.at(-1)?.[0] as Routes;
+    expect(config.some((route) => route.path === 'doc/7')).toBe(false);
+    expect(config.some((route) => route.path === 'doc/:id')).toBe(true);
   });
 
   it('captures no deep-link for the home URL', () => {

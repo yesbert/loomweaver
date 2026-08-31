@@ -5,6 +5,7 @@
     "dashboard": "Dashboard",
     "review": "Review",
     "search": "Search",
-    "notes": "Notes"
+    "notes": "Notes",
+    "sandbox": "Isolated"
   }
 }

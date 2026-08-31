@@ -140,6 +140,7 @@ export class ContentRouter {
   private lastOmitted: readonly ContentRoute[] = [];
 
   private pendingDeepLink: string | null = null;
+  private parkedOnPlaceholder = false;
   private userNavigated = false;
 
   start(): void {
@@ -168,10 +169,11 @@ export class ContentRouter {
         }
         this.lastRoutes = routes;
         this.lastOmitted = omitted;
+        const wasParked = this.parkedOnPlaceholder;
         this.applyConfig(routes, omitted);
 
         this.reuse.pruneExcept((key) => matchRoute(routes, key) !== undefined);
-        this.retryDeepLink();
+        this.retryDeepLink(wasParked);
       },
       { injector: this.injector },
     );
@@ -205,19 +207,44 @@ export class ContentRouter {
     routes: readonly RegisteredContentRoute[],
     omitted: readonly ContentRoute[],
   ): void {
+    const pending = this.pendingPlaceholder(routes);
+    this.parkedOnPlaceholder = pending.length > 0;
     this.router.resetConfig([
       { path: `${POPOUT_PREFIX}/**`, component: PopoutView },
       ...buildContentRoutes(routes, omitted, this.retention),
+      ...pending,
     ]);
   }
 
-  private retryDeepLink(): void {
+  private pendingPlaceholder(
+    routes: readonly RegisteredContentRoute[],
+  ): Routes {
+    const target = this.pendingDeepLink;
+    if (target === null) {
+      return [];
+    }
+    const path = normalizePath(target);
+    const matched = matchRoute(routes, path);
+    if (path === '' || segmentsOf(matched?.path ?? '').length > 0) {
+      return [];
+    }
+    return [
+      {
+        path,
+        component: RouteUnavailableView,
+        canActivate: [keepPopout],
+        data: { content: true, routePlaceholder: true },
+      },
+    ];
+  }
+
+  private retryDeepLink(wasParked: boolean): void {
     const target = this.pendingDeepLink;
     if (!target) {
       return;
     }
     const here = normalizePath(this.router.url);
-    if (here === normalizePath(target) || this.userNavigated) {
+    if ((here === normalizePath(target) && !wasParked) || this.userNavigated) {
       this.pendingDeepLink = null;
       return;
     }
@@ -227,7 +254,7 @@ export class ContentRouter {
       return;
     }
     void this.router
-      .navigateByUrl(target)
+      .navigateByUrl(target, { onSameUrlNavigation: 'reload' })
       .then((ok) => {
         if (ok) {
           this.pendingDeepLink = null;
