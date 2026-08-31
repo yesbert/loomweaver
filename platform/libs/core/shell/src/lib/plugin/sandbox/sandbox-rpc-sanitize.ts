@@ -41,7 +41,7 @@ export function sanitizeRpcSurface(
         : undefined,
     saveOn: raw['saveOn'] === 'hide' ? 'hide' : undefined,
     closable: raw['closable'] === false ? false : undefined,
-    padded: raw['padded'] === false ? false : undefined,
+    padded: typeof raw['padded'] === 'boolean' ? raw['padded'] : undefined,
     routable,
     docks,
   };

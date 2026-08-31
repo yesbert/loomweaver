@@ -661,17 +661,33 @@ ctx.registerSurface({ id: 'dashboard', title: 'dashboard.title', component: Dash
 
 ### Reaching the pane edges
 
-The host insets a surface 24px from its pane edges — right for the prose, forms and lists most
-surfaces are. A surface that **is** the content declares **`padded: false`** and gets the edges: a
-document viewer, a canvas, a map, an edge-to-edge table.
+The host insets nothing. A surface fills the pane it is mounted in, and what stands between its
+content and the pane edge is whatever the surface itself draws.
+
+Most products want air around their prose, forms and lists, and say so once when they compose:
+
+```ts
+provideShell({ padding: 'inset' })
+```
+
+A surface that differs from its product declares **`padded`**, in either direction. `false` where
+the product insets everything and this surface **is** the content — a document viewer, a canvas, a
+map, an edge-to-edge table:
 
 ```ts
 ctx.registerSurface({ id: 'viewer', title: 'viewer.title', component: ViewerView,
   routable: { path: 'doc/:id' }, padded: false });
 ```
 
+And `true` where the product insets nothing but this one surface reads better with air:
+
+```ts
+ctx.registerSurface({ id: 'settings', title: 'settings.title', component: SettingsView,
+  routable: { path: 'settings' }, padded: true });
+```
+
 It travels with the surface, so it holds wherever the user puts it — the URL pane, a split, a
-sidebar, a pop-out window. Only the inset is yours to switch off; how wide it is stays a styling
+sidebar, a pop-out window. Only whether there is an inset is yours; how wide it is stays a styling
 question, so a product that wants a different amount everywhere writes plain unlayered CSS.
 
 Open a tab yourself with:

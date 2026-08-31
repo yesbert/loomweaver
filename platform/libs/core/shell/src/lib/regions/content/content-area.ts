@@ -19,6 +19,10 @@ import { StripTab } from '../pane/chrome/strip-tab';
 import { PaneToolbar } from '../pane/chrome/pane-toolbar';
 import { RetainedComponent } from '../pane/retention/retained-component';
 import {
+  effectivePadding,
+  SURFACE_PADDING,
+} from '../../foundation/surface-padding';
+import {
   paneRetentionScope,
   retainSurfacePath,
   routeRetains,
@@ -52,6 +56,7 @@ export class ContentArea {
   private readonly auth = inject(AuthContext);
   protected readonly features = inject(SHELL_FEATURES).content;
   private readonly retention = inject(SURFACE_RETENTION);
+  private readonly padding = inject(SURFACE_PADDING);
 
   private readonly componentLoader = inject(ComponentLoader);
 
@@ -177,7 +182,7 @@ export class ContentArea {
       this.registry.contentRoutes(),
       this.tabs.activeTabRoot(),
     );
-    return route?.padded !== false;
+    return effectivePadding(route?.padded, this.padding);
   });
 
   protected readonly canMinimize = computed(

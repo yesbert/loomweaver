@@ -32,6 +32,10 @@ import {
 import { paramsOfPattern } from './content-path';
 import { RetainedComponent } from '../pane/retention/retained-component';
 import {
+  effectivePadding,
+  SURFACE_PADDING,
+} from '../../foundation/surface-padding';
+import {
   retainSurfacePath,
   SURFACE_RETENTION,
   surfaceRetentionKey,
@@ -64,6 +68,7 @@ export class ContentSecondaryPane {
   readonly instanceReleased = output<void>();
 
   private readonly registry = inject(ContributionRegistry);
+  private readonly padding = inject(SURFACE_PADDING);
   private readonly viewMount = inject(ViewMountService);
   private readonly componentLoader = inject(ComponentLoader);
   private readonly auth = inject(AuthContext);
@@ -109,7 +114,9 @@ export class ContentSecondaryPane {
     () => this.declaredRoute()?.container !== undefined,
   );
 
-  private readonly padded = computed(() => this.declared()?.padded !== false);
+  private readonly padded = computed(() =>
+    effectivePadding(this.declared()?.padded, this.padding),
+  );
 
   protected readonly hostClass = computed(() => {
     if (this.isContainerSurface()) {

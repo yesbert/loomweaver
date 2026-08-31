@@ -211,9 +211,8 @@ export interface ContentRouteBase {
   /** Whether the user may close a tab of this route — carried through from {@link Surface.closable}. */
   readonly closable?: boolean;
   /**
-   * Whether the host insets this surface from its pane edges (default `true`). Declare `false` for a
-   * surface that owns its own edges — a viewer, a canvas, a map, an edge-to-edge table. See
-   * `SurfaceBase.padded`.
+   * Whether the host insets this surface from its pane edges. Absent, the product's own default
+   * applies, which is no inset unless the distribution asked for one. See `SurfaceBase.padded`.
    */
   readonly padded?: boolean;
 }

@@ -197,13 +197,18 @@ export interface SurfaceBase {
    */
   readonly closable?: boolean;
   /**
-   * Whether the host insets this surface from its pane edges. Defaults to `true` — comfortable for the
-   * prose, forms and lists most surfaces are. Declare `false` for a surface that **is** the content and
-   * owns its own edges: a viewer, a canvas, a map, an edge-to-edge table. It travels with the surface,
-   * so it holds wherever the user puts it — the URL pane, a split, a sidebar, a pop-out window.
+   * Whether the host insets this surface from its pane edges. Leave it out and the product decides:
+   * the host insets nothing unless the distribution asked it to, with `padding` on `provideShell`.
    *
-   * Only the inset is yours to switch off; how wide it is stays a styling question, so a product that
-   * wants a different amount everywhere writes plain unlayered CSS rather than asking for a token.
+   * Declare it where this surface differs from the product's answer, in either direction. `true` for
+   * the prose, forms and lists that read better with air around them; `false` for a surface that
+   * **is** the content and owns its own edges — a viewer, a canvas, a map, an edge-to-edge table —
+   * in a product that insets everything else. It travels with the surface, so it holds wherever the
+   * user puts it: the URL pane, a split, a sidebar, a pop-out window.
+   *
+   * Only whether there is an inset is yours; how wide it is stays a styling question, so a product
+   * that wants a different amount everywhere writes plain unlayered CSS rather than asking for a
+   * token.
    */
   readonly padded?: boolean;
   /**
