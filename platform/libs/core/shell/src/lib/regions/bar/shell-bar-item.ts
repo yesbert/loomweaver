@@ -1,6 +1,13 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, Injector, computed, inject, input } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  Injector,
+  computed,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
 import { NgComponentOutlet } from '@angular/common';
-import { signal } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { DockPosition } from '../../layout/layout';
 import { TooltipPosition } from '../../elements/tooltip/lw-tooltip.element';
