@@ -23,6 +23,10 @@ belongs nowhere in particular belongs where the user left it.
 The announcement SHALL be a development-time message and SHALL NOT reach the user, who did nothing
 and can do nothing about it.
 
+Where a product's working state can only be read back asynchronously, the repair SHALL NOT apply and
+the stored arrangement SHALL be restored unchanged. Emptying part of an arrangement on a guess is
+worse than leaving one stale tab in it.
+
 #### Scenario: A tab another workspace now claims does not come back
 
 - **WHEN** a workspace's stored arrangement holds content at an address a declared workspace claims,
@@ -33,7 +37,7 @@ and can do nothing about it.
 #### Scenario: The developer is told what was dropped
 
 - **WHEN** stored content is dropped because a declaration now places it elsewhere
-- **THEN** the developer is told, in development, which workspace held it and which address went
+- **THEN** the developer is told, in development, which workspace held it and which address was dropped
 - **AND** nothing is shown to the user
 
 #### Scenario: Unclaimed content is left where it was
@@ -45,3 +49,8 @@ and can do nothing about it.
 
 - **WHEN** stored content cannot be read as an arrangement at all
 - **THEN** it is dropped without a message, because it names nothing anyone could act on
+
+#### Scenario: A product whose working state reads back asynchronously is left alone
+
+- **WHEN** a workspace's arrangement is restored from working state that cannot be read back at once
+- **THEN** it is restored as it was stored, with nothing dropped
