@@ -1,0 +1,93 @@
+# Every commit in a pull request carries a Signed-off-by line naming its author.
+#
+# CONTRIBUTING.md explains what the sign-off states; this is what enforces it. The check is written
+# out here rather than pulled from a third-party action because the repository's Actions allowlist
+# admits only GitHub's own plus the Sonar scanner, and a provenance gate is a poor place to make the
+# first exception.
+#
+# It reads the pull request's commits over the API instead of checking out the branch: the commit
+# messages are all it needs, and a fork's pull request then runs it with nothing but a read token.
+name: Sign-off
+
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: dco-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  dco:
+    name: Sign-off
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Every commit is signed off by its author
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+
+          # One line per commit: the sha, the author's address, and the addresses its sign-off lines
+          # name. Merge commits are exempt — a merge is not anyone's contribution.
+          commits="$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR}/commits" --paginate --jq '
+            .[]
+            | select(.parents | length < 2)
+            | [ .sha,
+                (.commit.author.email | ascii_downcase),
+                ( [ .commit.message
+                    | split("\n")[]
+                    | capture("^\\s*signed-off-by:[^<]*<(?<address>[^>]+)>\\s*$"; "i")
+                    | .address
+                    | ascii_downcase
+                  ] | join(",") )
+              ]
+            | @tsv')"
+
+          missing=0
+          while IFS=$'\t' read -r sha author addresses; do
+            if [ -z "${sha}" ]; then
+              continue
+            fi
+            # Wrapping both sides in commas is what makes this an exact match on one address
+            # rather than a substring of a longer one.
+            if printf '%s' ",${addresses}," | grep -qF ",${author},"; then
+              echo "  ok       ${sha:0:8}  ${author}"
+            else
+              echo "  MISSING  ${sha:0:8}  ${author}"
+              missing=$((missing + 1))
+            fi
+          done <<< "${commits}"
+
+          if [ "${missing}" -eq 0 ]; then
+            echo ""
+            echo "Every commit is signed off."
+            exit 0
+          fi
+
+          echo "::error title=Commits are not signed off::${missing} commit(s) carry no Signed-off-by line naming the author's own address. See the DCO section in CONTRIBUTING.md."
+
+          {
+            echo "## Sign-off"
+            echo
+            echo "${missing} commit(s) carry no \`Signed-off-by\` line naming the author's own address."
+            echo
+            echo "What the sign-off states, and why this project asks for it, is the DCO section of"
+            echo "\`CONTRIBUTING.md\`. To add it to what you have already committed:"
+            echo
+            echo '```bash'
+            echo "git rebase --signoff main   # every commit on the branch"
+            echo "git commit --amend -s       # or just the last one"
+            echo "git push --force-with-lease"
+            echo '```'
+            echo
+            echo "The address in the line has to be the one that authored the commit."
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+          exit 1

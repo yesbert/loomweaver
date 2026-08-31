@@ -53,6 +53,10 @@ Signed-off-by: Jane Doe <jane@example.com>
 `git commit -s` adds it for you (`git commit --amend -s` fixes a commit you already made). Use your
 real name and a working email address — the sign-off is a public, permanent part of the history.
 
+A required check reads every commit in a pull request and fails when one carries no sign-off naming
+its own author, so this is enforced rather than requested. `git rebase --signoff main` adds the line
+to a branch you have already written, and the check's summary says the same thing when it fails.
+
 ## Getting set up
 
 You need **Node 24** (see [`.nvmrc`](.nvmrc)). Everything lives in the Nx workspace under `platform/`:
