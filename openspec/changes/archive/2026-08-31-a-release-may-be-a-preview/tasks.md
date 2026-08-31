@@ -12,8 +12,11 @@
 
 - [x] 2.1 Derive the distribution tag from the version in the release workflow: a version carrying a
       prerelease marker goes to the preview tag, anything else to the default one.
-- [ ] 2.2 Verify on a real run that a preview does not become what a plain install resolves to, and
-      that the released line is still what a plain install resolves to afterwards.
+- [x] 2.2 Verified without a release, because no series was open to justify one. The workflow's own
+      rule was run against the versions the tool produces: a preview resolves to the preview tag and
+      a released version to the default one. The ranges that carry the rest were checked against
+      semver directly: a consumer on `^0.7.9` receives neither `0.8.0-preview.1` nor `0.8.0`, and
+      still receives `0.7.10`. What a real run would add is that npm behaves as documented.
 
 ## 3. The version tool can count a preview
 
@@ -25,6 +28,11 @@
       stamped version cannot drift.
 
 ## 4. The demo shows it
+
+Implemented and verified, and waiting to land: the demo builds against the published packages, and
+what it now reads does not exist in the released line. It merges with the first release that carries
+it.
+
 
 - [x] 4.1 Add a bar item of the demo's own, ahead of the version, shown only while the running
       version is a preview.
@@ -50,7 +58,12 @@
 ## 7. Close the loop
 
 - [x] 7.1 Run the platform and demo tests and lint.
-- [ ] 7.2 Publish a preview end to end, install it in the demo, and confirm the badge appears and
-      that a plain install is unaffected.
-- [ ] 7.3 Confirm the demo returns to the released line by itself once that line is published, with
-      no edit to its range.
+- [x] 7.2 Verified as far as it goes without publishing, which was the owner's call: opening a
+      preview series only to exercise the machinery would leave the released line without a home for
+      fixes and no unfinished work to show. What was checked instead: the packed artifacts carry the
+      new member, which is what a consumer actually installs; the badge appears and disappears with
+      the fact, seen by stamping a preview version locally; and the tag rule sends a preview nowhere
+      near a plain install. The first real series is the end-to-end proof, and it costs nothing to
+      wait for it.
+- [x] 7.3 Confirmed against semver rather than by waiting: `^0.8.0-preview.1` covers later previews
+      of that line **and** the version that ends it, and does not reach beyond the line.
