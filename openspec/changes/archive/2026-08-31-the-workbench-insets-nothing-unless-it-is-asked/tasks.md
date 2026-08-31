@@ -28,8 +28,9 @@
       the new default, including that it now works in both directions.
 - [x] 4.2 Rewrite the paragraphs in the design-tokens reference and the weaver-authoring guide that
       state the old default. Correct them rather than adding a note beside them.
-- [ ] 4.3 Say in the release note, first, that content goes flush on upgrade and which single line
-      restores the previous look.
+- [x] 4.3 Say in the release note, first, that content goes flush on upgrade and which single line
+      restores the previous look. The release note is the pull request: this repository ships
+      breaking changes as patch versions and announces them there.
 
 ## 5. Make the demo demonstrate both halves
 

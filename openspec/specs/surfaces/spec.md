@@ -101,11 +101,25 @@ one instance that cannot be removed.
 - **THEN** the surface falls back to its default instance
 - **AND** the default instance itself cannot be removed
 
-### Requirement: A surface may own its own edges
+### Requirement: A surface owns its edges unless something asks otherwise
 
-A surface MAY declare that it supplies its own padding, in which case the workbench SHALL give it
-the full area of the pane at every mount point. What the surface owns is the contract; how wide any
-padding is remains a matter of styling.
+The workbench SHALL apply no inset of its own. A surface SHALL fill the pane it is mounted in, at
+every mount point, and what stands between its content and the pane edge SHALL be whatever the
+surface itself draws.
+
+A distribution MAY ask that everything it composes be inset, and a surface's own declaration SHALL
+win over that default. The declaration SHALL work in both directions: a surface MAY ask to be inset
+where the distribution asks for nothing, and MAY ask to be flush where the distribution asks for an
+inset.
+
+A surface's declaration SHALL travel with the surface, so it holds wherever the user puts it — the
+content pane, a split, a sidebar, a pop-out window. Whether there is an inset is the contract; how
+wide it is remains a matter of styling.
+
+#### Scenario: A surface nothing was said about fills its pane
+
+- **WHEN** a surface is shown and neither it nor the distribution asks for an inset
+- **THEN** it fills the pane, with nothing applied by the workbench
 
 #### Scenario: An edge-owning surface is flush in every pane
 
@@ -114,8 +128,14 @@ padding is remains a matter of styling.
 
 #### Scenario: An ordinary surface is inset consistently
 
-- **WHEN** a surface does not claim its edges
+- **WHEN** a distribution asks for an inset and a surface declares nothing
 - **THEN** the workbench applies the same inset at every mount point
+- **AND** a surface that declares its own is unaffected
+
+#### Scenario: A surface asks to be inset where the product asks for nothing
+
+- **WHEN** a surface declares that it wants an inset and the distribution asks for none
+- **THEN** the workbench insets that surface and no other
 
 ### Requirement: The declaration carries the labels the workbench draws
 
