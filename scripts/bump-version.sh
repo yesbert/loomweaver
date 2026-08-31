@@ -44,21 +44,27 @@ AGENT_RECIPE="${ROOT_DIR}/platform/libs/tooling/devkit/src/recipes/angular-weave
 readonly AGENT_RECIPE
 
 usage() {
-    echo "Usage: $0 <major|minor|patch>"
+    echo "Usage: $0 <major|minor|patch|preminor|prerelease|release>"
     echo ""
-    echo "Examples:"
+    echo "Released line:"
     echo "  $0 patch          # 0.1.0 → 0.1.1, commit + tag v0.1.1"
     echo "  $0 minor          # 0.1.0 → 0.2.0, commit + tag v0.2.0"
     echo "  $0 major          # 0.1.0 → 1.0.0, commit + tag v1.0.0"
+    echo ""
+    echo "Preview line (published to the npm dist-tag 'next', never to 'latest'):"
+    echo "  $0 preminor       # 0.7.9 → 0.8.0-preview.1, starts a series"
+    echo "  $0 prerelease     # 0.8.0-preview.1 → 0.8.0-preview.2, advances it"
+    echo "  $0 release        # 0.8.0-preview.2 → 0.8.0, lands it"
     exit 1
 }
 
 [[ $# -ne 1 ]] && usage
 
 BUMP_TYPE="$1"
-if [[ "${BUMP_TYPE}" != "major" && "${BUMP_TYPE}" != "minor" && "${BUMP_TYPE}" != "patch" ]]; then
-    usage
-fi
+case "${BUMP_TYPE}" in
+    major|minor|patch|preminor|prerelease|release) ;;
+    *) usage ;;
+esac
 
 CURRENT="$(sed -n 's/.*<Version>\([^<]*\)<\/Version>.*/\1/p' "${PROPS_FILE}")"
 if [[ -z "${CURRENT}" ]]; then
@@ -66,15 +72,46 @@ if [[ -z "${CURRENT}" ]]; then
     exit 1
 fi
 
-IFS='.' read -r MAJOR MINOR PATCH <<< "${CURRENT}"
+CORE="${CURRENT%%-*}"
+PRE=""
+[[ "${CURRENT}" == *-* ]] && PRE="${CURRENT#*-}"
+
+IFS='.' read -r MAJOR MINOR PATCH <<< "${CORE}"
+
+# A preview is a different kind of version, so the operations do not mix. Moving the released line
+# while a preview is open would invent a number nobody asked for, and advancing a preview that does
+# not exist has nothing to advance. Both refuse and say which operation was meant.
+if [[ -n "${PRE}" && ("${BUMP_TYPE}" == "major" || "${BUMP_TYPE}" == "minor" || "${BUMP_TYPE}" == "patch") ]]; then
+    echo "Error: ${CURRENT} is a preview. Land it with 'release' first, or advance it with 'prerelease'." >&2
+    exit 1
+fi
+if [[ -z "${PRE}" && ("${BUMP_TYPE}" == "prerelease" || "${BUMP_TYPE}" == "release") ]]; then
+    echo "Error: ${CURRENT} is not a preview. Start a series with 'preminor'." >&2
+    exit 1
+fi
+if [[ -n "${PRE}" && "${BUMP_TYPE}" == "preminor" ]]; then
+    echo "Error: ${CURRENT} is already a preview of ${CORE}. Advance it with 'prerelease'." >&2
+    exit 1
+fi
 
 case "${BUMP_TYPE}" in
     major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
     minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
     patch) PATCH=$((PATCH + 1)) ;;
+    preminor) MINOR=$((MINOR + 1)); PATCH=0; PRE="preview.1" ;;
+    prerelease)
+        COUNT="${PRE##*.}"
+        if [[ ! "${COUNT}" =~ ^[0-9]+$ ]]; then
+            echo "Error: cannot advance '${PRE}' — it does not end in a number." >&2
+            exit 1
+        fi
+        PRE="${PRE%.*}.$((COUNT + 1))"
+        ;;
+    release) PRE="" ;;
 esac
 
 NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
+[[ -n "${PRE}" ]] && NEW_VERSION="${NEW_VERSION}-${PRE}"
 
 echo "Bumping version (<Version>): ${CURRENT} → ${NEW_VERSION}"
 

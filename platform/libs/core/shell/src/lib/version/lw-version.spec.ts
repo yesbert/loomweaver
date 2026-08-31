@@ -14,7 +14,7 @@ function render(prefix?: string) {
 describe('LwVersion', () => {
   beforeEach(() => {
     TestBed.overrideProvider(VersionService, {
-      useValue: { version: () => '1.2.3' },
+      useValue: { version: () => '1.2.3', isPreview: () => false },
     });
   });
 
@@ -24,5 +24,13 @@ describe('LwVersion', () => {
 
   it('drops the prefix when set to empty', () => {
     expect(render('')).toBe('1.2.3');
+  });
+
+  it('marks a preview nowhere on its own — the version is all the workbench says', () => {
+    TestBed.overrideProvider(VersionService, {
+      useValue: { version: () => '0.8.0-preview.3', isPreview: () => true },
+    });
+
+    expect(render()).toBe('v0.8.0-preview.3');
   });
 });

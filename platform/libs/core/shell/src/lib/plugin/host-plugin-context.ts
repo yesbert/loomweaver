@@ -126,6 +126,7 @@ export class HostPluginContext implements PluginContext {
     };
     this.hostFacts = {
       version: version.version,
+      isPreview: version.isPreview,
       updateAvailable: update.updateAvailable,
       updatesEnabled: update.enabled,
       checkForUpdate: () => update.checkForUpdate(),
