@@ -112,6 +112,9 @@ workspace.
 
 ## Open Questions
 
-- Whether the same hole exists on the pop-out window path, which has its own guard and its own boot
-  address. It can be answered while implementing without changing the specs, the approach or the
-  task breakdown; if it does exist, it is the same fix in a second place.
+- ~~Whether the same hole exists on the pop-out window path.~~ **Answered while implementing: it does
+  not.** A pop-out address is served by a wildcard route the workbench registers unconditionally and
+  first, so the router always matches it and can never report it as unreachable. Which surface is
+  shown is then resolved by the pane from the registry rather than by the router, and that path
+  already re-mounts when a plugin registers after the pane, with a test that says so. Nothing to fix
+  in a second place.

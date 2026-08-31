@@ -139,6 +139,13 @@ try {
           icon: 'edit',
           content: { tabs: [{ path: 'notes', closable: false }] },
         },
+        {
+          id: 'testbed.sandbox',
+          title: 'product.workspace.sandbox',
+          icon: 'testbedSandbox',
+          claims: ['sandbox-rpc'],
+          content: { tabs: [{ path: 'sandbox-rpc', closable: false }] },
+        },
       ),
       ...provideRailItems(
         {
@@ -172,6 +179,14 @@ try {
           title: 'product.workspace.search',
           order: 3,
           workspace: 'testbed.search',
+        },
+        {
+          id: 'testbed.workspace.sandbox',
+          rail: 'activity',
+          icon: 'testbedSandbox',
+          title: 'product.workspace.sandbox',
+          order: 5,
+          workspace: 'testbed.sandbox',
         },
         {
           id: 'testbed.workspace.notes',

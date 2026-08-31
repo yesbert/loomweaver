@@ -54,6 +54,12 @@ on the left and right, the **bar (top)** in the middle.
 > view header = functions of the active view.** The **bar** is neutral core chrome; its items are
 > contributions (brand/language/theme are only the *defaults*, not wiring).
 
+**Only a workspace entry is ever marked as current.** A rail entry carrying `workspace: <id>` is
+highlighted while that workspace is active. An entry carrying a command is not, not even while the
+address its command opened is the one on screen, because a command may do anything and the host
+cannot tell what "being there" would mean for it. An entry meant to read as a place the user is *in*
+therefore belongs to a workspace; a command entry reads as an action, and looks like one.
+
 ## Variant: no middle segment (bar (top) omitted)
 
 If a distribution declares **no** top `bar` (no logo, no switchers), **the top band does not

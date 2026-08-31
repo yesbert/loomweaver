@@ -61,6 +61,11 @@ export interface RailItem {
   /**
    * Id of a registered {@link Command} this item triggers. Provide this **or** {@link run}; when
    * set, the host runs that command (so a keybinding/palette can share the same behaviour).
+   *
+   * The host never marks such an item as current, not even while the address its command opened is
+   * the one on screen: only a {@link workspace} entry is marked, because a command may do anything
+   * and the host cannot tell what "being there" would mean for it. An entry meant to read as a
+   * place the user is *in* belongs to a workspace, not to a command that navigates.
    */
   readonly command?: string;
   /**
