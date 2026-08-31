@@ -78,6 +78,7 @@ function activate(): Captured {
     },
     host: {
       version: () => '0.0.0',
+      isPreview: () => false,
       updateAvailable: () => false,
       updatesEnabled: false,
       checkForUpdate: () => Promise.resolve(),
