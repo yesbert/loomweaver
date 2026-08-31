@@ -36,6 +36,7 @@ import {
   withRefreshedPath,
 } from './content-tab-projection';
 import { TabCloseHooks } from './tab-close-hooks';
+import { syncActiveTab } from './active-tab-sync';
 import { QuickOpenTarget } from './quick-open-target';
 import { TAB_ADDRESS_RESOLVER, computedTabAddress } from './tab-address';
 import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../../pane/tree/pane-address';
@@ -242,7 +243,16 @@ export class OpenTabsService {
           }
           this.ownNavigation = null;
         }
-        this.syncActiveTab(route, root, path);
+        syncActiveTab(
+          {
+            routes: this.registry.contentRoutes(),
+            paneTree: this.paneTree,
+            updateOpen: (change) => this.updateOpen(change),
+          },
+          route,
+          root,
+          path,
+        );
         if (root) {
           this.stampActive(root);
         }
@@ -370,40 +380,6 @@ export class OpenTabsService {
     this.lastActive.set(next);
   }
 
-  private syncActiveTab(
-    route: ContentRoute | undefined,
-    root: string,
-    path: string,
-  ): void {
-    const routes = this.registry.contentRoutes();
-    this.updateOpen((tabs) => {
-      const index = tabs.findIndex(
-        (tab) => tabRootOf(routes, tab.path) === root,
-      );
-      if (index !== -1) {
-        return withRefreshedPath(tabs, index, path);
-      }
-      const opened = autoOpenedTab(route, root, path);
-      return opened ? [...tabs, opened] : tabs;
-    });
-    this.recordActiveTab(routes, root);
-  }
-
-  private recordActiveTab(
-    routes: readonly ContentRoute[],
-    root: string,
-  ): void {
-    const held = this.paneTree
-      .primaryTabs(CONTENT_DOCK)
-      .find((tab) => tabRootOf(routes, tab.path) === root);
-    if (held) {
-      this.paneTree.setActiveTab(
-        CONTENT_DOCK,
-        this.paneTree.primaryId(CONTENT_DOCK),
-        held.path,
-      );
-    }
-  }
 
   private strippable(routes: readonly ContentRoute[], tab: OpenTab): boolean {
     if (isHomePath(tab.path)) {

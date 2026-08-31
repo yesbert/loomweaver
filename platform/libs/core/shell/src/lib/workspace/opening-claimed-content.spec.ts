@@ -145,6 +145,15 @@ describe('opening content at an address another workspace claims', () => {
     expect(contentPaths(panes)).not.toContain('quotes/q-0007');
   });
 
+  it('leaves no empty dock behind where every stored tab was dropped', async () => {
+    seedOverviewDock('quotes/q-0007');
+
+    const { panes } = await compose();
+    await settled();
+
+    expect(Object.keys(panes.dockTrees())).not.toContain('content');
+  });
+
   it('restores a stored tab no workspace claims', async () => {
     seedOverviewDock('payments');
 

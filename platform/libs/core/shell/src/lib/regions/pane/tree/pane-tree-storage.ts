@@ -136,7 +136,10 @@ export class PaneTreeStorage {
         (path) => (claimFor(claims, path)?.workspaceId ?? here) !== here,
       );
       dropped.push(...filtered.dropped);
-      out[dock] = { ...entry, node: filtered.node };
+      const repaired = { ...entry, node: filtered.node };
+      if (!isDefault(repaired)) {
+        out[dock] = repaired;
+      }
     }
     if (dropped.length > 0 && isDevMode()) {
       console.warn(
