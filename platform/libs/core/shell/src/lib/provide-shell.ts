@@ -61,6 +61,10 @@ import {
 } from './regions/pane/retention/retention-policy';
 import { SHELL_FEATURES } from './foundation/shell-features';
 import {
+  PaddingDefault,
+  SURFACE_PADDING,
+} from './foundation/surface-padding';
+import {
   CompositionReport,
   installCompositionReport,
 } from './diagnostics/composition-report';
@@ -123,6 +127,22 @@ export interface ShellOptions {
    * lives here rather than in `provideShellFeatures`.
    */
   readonly retention?: RetentionDefault;
+
+  /**
+   * The app-wide inset default for surfaces: `'none'` (the default) hands every surface the full
+   * area of the pane it is mounted in, so what stands between its content and the pane edge is
+   * whatever the surface itself draws; `'inset'` insets every surface the product composes, which
+   * is comfortable for the prose, forms and lists most surfaces are.
+   *
+   * A surface's own `padded` declaration wins over this default, in both directions: a surface may
+   * ask to be inset where the product asks for nothing, and to be flush where the product asks for
+   * an inset. The declaration travels with the surface, so it holds at every mount point.
+   *
+   * Only whether there is an inset is settled here. How wide it is stays a styling question, so a
+   * product that wants a different amount writes plain unlayered CSS rather than asking for a
+   * token.
+   */
+  readonly padding?: PaddingDefault;
 }
 
 /**
@@ -145,6 +165,10 @@ export function provideShell(
     ...(options.retention === undefined
       ? []
       : [{ provide: SURFACE_RETENTION, useValue: options.retention }]),
+
+    ...(options.padding === undefined
+      ? []
+      : [{ provide: SURFACE_PADDING, useValue: options.padding }]),
 
     ...(options.serviceWorker === false
       ? []

@@ -88,9 +88,11 @@ into a promise we could never revise without breaking somebody's product. The on
 without one.
 
 One measurement is not a size question at all and therefore *is* in the contract: whether the host
-insets a surface from its pane edges. A surface that owns its edges — a viewer, a canvas, a map —
-declares [`padded: false`](../authoring-a-weaver.md#reaching-the-pane-edges) instead of fighting the
-inset from CSS. How *wide* the inset is stays a stylesheet question, below.
+insets a surface from its pane edges. The host insets nothing of its own, so a surface fills the pane
+it is mounted in. A product that wants its surfaces inset asks for it once, with
+[`padding: 'inset'`](../authoring-a-weaver.md#reaching-the-pane-edges) on `provideShell`, and a
+single surface that differs says so with `padded`. How *wide* the inset is stays a stylesheet
+question, below.
 
 If your product must change a size anyway, you can, with plain CSS and no API. Everything the shell
 paints lives in a cascade layer, and **unlayered CSS beats layered CSS** regardless of specificity or

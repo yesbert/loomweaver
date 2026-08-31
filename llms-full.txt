@@ -271,10 +271,12 @@ type Surface = {
                                         // no Delete, no close menu entries); moving/splitting/dragging still work.
                                         // Applies to EVERY tab of the surface — right for a parameterless route
                                         // like 'dashboard', almost always wrong for 'doc/:id'.
-  padded?: boolean;                     // default true = the host insets the surface 24px from its pane edges.
-                                        // false = the surface owns its edges (viewer, canvas, map, edge-to-edge table).
+  padded?: boolean;                     // absent = the product decides: the host insets NOTHING unless the
+                                        // distribution asked for it with provideShell({ padding: 'inset' }).
+                                        // true = inset this surface anyway; false = this surface owns its edges
+                                        // (viewer, canvas, map, edge-to-edge table) in a product that insets.
                                         // Travels with the surface: URL pane, split, sidebar and pop-out alike.
-                                        // Only the inset is switchable; how WIDE it is stays plain CSS.
+                                        // Only WHETHER there is an inset is switchable; how WIDE stays plain CSS.
   docks?: readonly string[];            // hostable regions; first = home dock; docks:[] = container-only child
 } & SurfacePresentation;
 

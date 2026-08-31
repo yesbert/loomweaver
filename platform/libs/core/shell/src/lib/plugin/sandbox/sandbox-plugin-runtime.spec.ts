@@ -128,6 +128,18 @@ describe('sanitizeRpcSurface', () => {
     expect(junk.saveOn).toBeUndefined();
   });
 
+  it('lets a sandboxed surface ask for an inset and ask to be flush, and refuses anything else', () => {
+    expect(
+      sanitizeRpcSurface('testbed', validSurface({ padded: true })).padded,
+    ).toBe(true);
+    expect(
+      sanitizeRpcSurface('testbed', validSurface({ padded: false })).padded,
+    ).toBe(false);
+    expect(
+      sanitizeRpcSurface('testbed', validSurface({ padded: 'yes' })).padded,
+    ).toBeUndefined();
+  });
+
   it('rejects a missing or empty id', () => {
     expect(() =>
       sanitizeRpcSurface('testbed', validSurface({ id: undefined })),

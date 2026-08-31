@@ -5,6 +5,10 @@ import { TranslocoTestingModule } from '@jsverse/transloco';
 import { ANONYMOUS, AuthSnapshot, ContentRoute } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { AUTH_SOURCE, AuthContext } from '../../auth/auth-context';
+import {
+  PaddingDefault,
+  SURFACE_PADDING,
+} from '../../foundation/surface-padding';
 import { ContentSecondaryPane } from './content-secondary-pane';
 import { offRouterPaneTargets, routerPaneTargets } from './pane-targets';
 import { syntheticRouteFor } from './routing/synthetic-route';
@@ -295,5 +299,71 @@ describe('ContentSecondaryPane (host-mounts ANY content route)', () => {
       'iframe',
     );
     expect(iframe?.getAttribute('src')).toBe('/sandbox-rpc/view.html');
+  });
+});
+
+describe('ContentSecondaryPane — the inset holds wherever the surface is put', () => {
+  const CONTENT_INSET = 'p-6';
+  const PANEL_INSET = 'p-3';
+
+  async function paneFor(
+    padding: PaddingDefault | undefined,
+    declared: boolean | undefined,
+    variant: 'content' | 'panel' = 'content',
+  ): Promise<HTMLElement> {
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter([]),
+        ...(padding === undefined
+          ? []
+          : [{ provide: SURFACE_PADDING, useValue: padding }]),
+      ],
+    });
+    TestBed.inject(ContributionRegistry).addContentRoute({
+      path: 'doc',
+      component: ParamView,
+      ...(declared !== undefined && { padded: declared }),
+    } as ContentRoute);
+
+    const fixture = TestBed.createComponent(ContentSecondaryPane);
+    fixture.componentRef.setInput('path', 'doc');
+    fixture.componentRef.setInput('variant', variant);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    return fixture.nativeElement as HTMLElement;
+  }
+
+  it('leaves a surface flush where neither it nor the product asks for an inset', async () => {
+    expect((await paneFor(undefined, undefined)).classList).not.toContain(
+      CONTENT_INSET,
+    );
+  });
+
+  it('insets a surface where the product asks for it and the surface says nothing', async () => {
+    expect((await paneFor('inset', undefined)).classList).toContain(
+      CONTENT_INSET,
+    );
+  });
+
+  it('insets a surface that asks for it although the product asks for none', async () => {
+    expect((await paneFor('none', true)).classList).toContain(CONTENT_INSET);
+  });
+
+  it('leaves flush a surface that asks for it although the product insets', async () => {
+    expect((await paneFor('inset', false)).classList).not.toContain(
+      CONTENT_INSET,
+    );
+  });
+
+  it('carries a surface asking for an inset into a sidebar, where the inset is the panel one', async () => {
+    expect((await paneFor('none', true, 'panel')).classList).toContain(
+      PANEL_INSET,
+    );
+  });
+
+  it('carries a surface asking to be flush into a sidebar too', async () => {
+    expect((await paneFor('inset', false, 'panel')).classList).not.toContain(
+      PANEL_INSET,
+    );
   });
 });
