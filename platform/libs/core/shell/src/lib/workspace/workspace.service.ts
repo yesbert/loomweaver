@@ -37,6 +37,7 @@ import { declarationGaps } from './workspace-warnings';
 import { stateDiffers, type ChangeShape } from './workspace-changes';
 import { WORKSPACE_DEFINITIONS } from './provide-workspaces';
 import { assignWorkspaceInitials } from './workspace-initials';
+import { activeContentPath } from './active-content-path';
 
 const STORAGE_KEY = 'lw.shell.workspaces';
 
@@ -189,14 +190,12 @@ export class WorkspaceService {
     this.commit(this.list().map((w) => (w.id === id ? { ...w, baseline } : w)));
   }
 
+  wouldSettle(path: string): boolean {
+    return this.settlementDestination(path) !== null;
+  }
+
   async settle(path: string): Promise<void> {
-    const here = this.active.id();
-    const destination = settlementFor(
-      this.claims(),
-      this.claimsOfWorkspace(here),
-      here,
-      path,
-    );
+    const destination = this.settlementDestination(path);
     if (destination !== null) {
       await this.switchTo(destination, { keepAddress: true });
     }
@@ -231,7 +230,7 @@ export class WorkspaceService {
     }
     this.warnDeclarationGaps(id);
     if (options.keepAddress !== true) {
-      this.tabs.navigateTo(this.activeContentPath());
+      this.tabs.navigateTo(activeContentPath(this.paneTree));
     }
   }
 
@@ -239,7 +238,7 @@ export class WorkspaceService {
     const id = this.active.id();
     this.applyState(this.baselineOf(id));
     this.warnDeclarationGaps(id);
-    this.tabs.navigateTo(this.activeContentPath());
+    this.tabs.navigateTo(activeContentPath(this.paneTree));
   }
 
   rename(id: string, name: string): void {
@@ -377,7 +376,7 @@ export class WorkspaceService {
     this.applyState(this.baselineOf(id));
     this.warnDeclarationGaps(id);
     if (isHomePath(this.bootAddress.path)) {
-      this.tabs.navigateTo(this.activeContentPath());
+      this.tabs.navigateTo(activeContentPath(this.paneTree));
     }
   }
 
@@ -387,17 +386,6 @@ export class WorkspaceService {
     }
   }
 
-  private activeContentPath(): string {
-    const primary = findLeaf(
-      this.paneTree.tree(CONTENT_DOCK),
-      this.paneTree.primaryId(CONTENT_DOCK),
-    );
-    const path = primary ? activeTab(primary)?.path : undefined;
-    if (!path || path.startsWith(VIEW_PANE_PREFIX)) {
-      return '';
-    }
-    return path;
-  }
 
   private commit(next: Workspace[]): void {
     this.list.set(next);
@@ -407,4 +395,14 @@ export class WorkspaceService {
   private layOutAdoptedWorkspaceWhenReady(): void {
     void this.active.ready.then(() => this.layOutAdoptedWorkspace());
   }
+  private settlementDestination(path: string): string | null {
+    const here = this.active.id();
+    return settlementFor(
+      this.claims(),
+      this.claimsOfWorkspace(here),
+      here,
+      path,
+    );
+  }
+
 }

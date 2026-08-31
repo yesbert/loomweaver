@@ -7,7 +7,6 @@
   },
   "files": {
     "platform/libs/tooling/devkit/src/recipes/angular-weaver/recipe.ts": 603,
-    "platform/libs/core/shell/src/lib/workspace/workspace.service.ts": 410,
-    "platform/libs/core/shell/src/lib/regions/content/tabs/open-tabs.service.ts": 403
+    "platform/libs/core/shell/src/lib/workspace/workspace.service.ts": 408
   }
 }

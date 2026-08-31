@@ -11,6 +11,7 @@ import { OpenTabsService } from './open-tabs.service';
 import { TabClosingService } from './tab-closing.service';
 import { refineTabTitles, reseatPinned } from '../../pane/tree/pane-tabs';
 import { CONTENT_DOCK } from '../../pane/tree/pane-address';
+import { ClaimOrdering } from './claim-ordering';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 
 /**
@@ -35,6 +36,8 @@ export class ContentTabsService {
   private readonly features = inject(SHELL_FEATURES).content;
 
   private readonly paneTree = inject(PaneTreeService);
+
+  private readonly claimOrder = inject(ClaimOrdering);
 
   private readonly closeHooks = inject(TabCloseHooks);
 
@@ -183,37 +186,7 @@ export class ContentTabsService {
    * mere title/sub-route refinement never promotes); promotion is explicit via {@link keep}.
    */
   open(input: OpenTabInput): void {
-    const routes = this.registry.contentRoutes();
-    const path = normalizePath(input.path);
-    const root = tabRootOf(routes, path);
-    const previewSlot = (input.preview ?? false) && this.features.preview;
-    const existing = this.state.openTabRootedAt(routes, root);
-    this.closeHooks.set(root, input.onClose);
-    if (!existing && this.refineElsewhere(root, input)) {
-      return;
-    }
-    const stored: OpenTab = {
-      path: existing?.path ?? path,
-      title: input.title,
-      literalTitle: input.titleIsLiteral ?? false,
-      icon: input.icon,
-      onClose: input.onClose,
-      preview: existing ? existing.preview : previewSlot,
-      pinned: existing ? existing.pinned : false,
-      closable: existing ? existing.closable : true,
-    };
-    if (previewSlot && !existing) {
-      this.replacePreviewSlot(root, stored);
-    } else {
-      this.state.updateOpen((tabs) =>
-        existing
-          ? tabs.map((tab) =>
-              tabRootOf(routes, tab.path) === root ? stored : tab,
-            )
-          : [...tabs, stored],
-      );
-    }
-    this.navigateTo(stored.path);
+    this.claimOrder.run(normalizePath(input.path), () => this.openHere(input));
   }
 
   /**
@@ -221,14 +194,7 @@ export class ContentTabsService {
    * "Keep Open" (`ctx.keepContentTab`, a double-click, or an edit). No-op if it is already permanent.
    */
   keep(path: string): void {
-    const { routes, root } = this.state.rootFor(path);
-    this.state.updateOpen((tabs) =>
-      tabs.map((tab) =>
-        tabRootOf(routes, tab.path) === root && tab.preview
-          ? { ...tab, preview: false }
-          : tab,
-      ),
-    );
+    this.claimOrder.run(null, () => this.keepHere(path));
   }
 
   /**
@@ -359,4 +325,51 @@ export class ContentTabsService {
     }
     return foundAnywhere;
   }
+
+
+  private openHere(input: OpenTabInput): void {
+    const routes = this.registry.contentRoutes();
+    const path = normalizePath(input.path);
+    const root = tabRootOf(routes, path);
+    const previewSlot = (input.preview ?? false) && this.features.preview;
+    const existing = this.state.openTabRootedAt(routes, root);
+    this.closeHooks.set(root, input.onClose);
+    if (!existing && this.refineElsewhere(root, input)) {
+      return;
+    }
+    const stored: OpenTab = {
+      path: existing?.path ?? path,
+      title: input.title,
+      literalTitle: input.titleIsLiteral ?? false,
+      icon: input.icon,
+      onClose: input.onClose,
+      preview: existing ? existing.preview : previewSlot,
+      pinned: existing ? existing.pinned : false,
+      closable: existing ? existing.closable : true,
+    };
+    if (previewSlot && !existing) {
+      this.replacePreviewSlot(root, stored);
+    } else {
+      this.state.updateOpen((tabs) =>
+        existing
+          ? tabs.map((tab) =>
+              tabRootOf(routes, tab.path) === root ? stored : tab,
+            )
+          : [...tabs, stored],
+      );
+    }
+    this.navigateTo(stored.path);
+  }
+
+  private keepHere(path: string): void {
+    const { routes, root } = this.state.rootFor(path);
+    this.state.updateOpen((tabs) =>
+      tabs.map((tab) =>
+        tabRootOf(routes, tab.path) === root && tab.preview
+          ? { ...tab, preview: false }
+          : tab,
+      ),
+    );
+  }
+
 }
