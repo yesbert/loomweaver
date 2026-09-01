@@ -370,8 +370,9 @@ and that message SHALL NOT reach the user, who did nothing about it.
 An address no declared workspace claims SHALL NOT be recognised as a contradiction, wherever it is
 stored. Content that belongs nowhere in particular belongs where the user left it.
 
-This holds however a product's working state reads back. Recognition needs no synchronous read and
-carries no risk of emptying an arrangement on a guess, so no product is exempt from it.
+This holds for every product, whether its working state reads back at once or only after a wait.
+Recognition needs no synchronous read and carries no risk of emptying an arrangement on a guess, so
+no product is exempt from it.
 
 Stored content that cannot be read as an arrangement at all SHALL be dropped without a message,
 because there is nothing to keep and it names nothing anyone could act on.
