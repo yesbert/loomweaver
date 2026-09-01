@@ -1,4 +1,4 @@
-<div class="p-4 @sm:p-6" data-testid="insights-dashboard">
+<div class="p-6 @max-sm:p-4" data-testid="insights-dashboard">
   <div class="mx-auto flex max-w-6xl flex-col gap-4">
     <header class="flex flex-col gap-1">
       <h1 class="text-lg font-medium text-content">
@@ -12,7 +12,7 @@
     <div class="grid grid-cols-1 gap-4 @md:grid-cols-2 @3xl:grid-cols-3">
       <article class="flex min-w-0 flex-col gap-1 rounded-lg border border-border bg-surface-raised p-4">
         <span class="text-sm text-content-muted">{{ 'insights.cards.out' | transloco }}</span>
-        <span class="text-xl break-words text-content tabular-nums @sm:text-2xl" data-testid="insights-out">
+        <span class="text-2xl break-words text-content tabular-nums @max-sm:text-xl" data-testid="insights-out">
           {{ out() }}
         </span>
         <span class="text-xs text-content-faint">
@@ -22,7 +22,7 @@
 
       <article class="flex min-w-0 flex-col gap-1 rounded-lg border border-border bg-surface-raised p-4">
         <span class="text-sm text-content-muted">{{ 'insights.cards.rate' | transloco }}</span>
-        <span class="text-xl break-words text-content tabular-nums @sm:text-2xl" data-testid="insights-rate">
+        <span class="text-2xl break-words text-content tabular-nums @max-sm:text-xl" data-testid="insights-rate">
           {{ acceptRate() }}%
         </span>
         <span class="text-xs text-content-faint">
@@ -36,7 +36,7 @@
           data-testid="insights-won-margin"
         >
           <span class="text-sm text-content-muted">{{ 'insights.cards.margin' | transloco }}</span>
-          <span class="text-xl break-words text-content tabular-nums @sm:text-2xl" data-testid="insights-margin-total">
+          <span class="text-2xl break-words text-content tabular-nums @max-sm:text-xl" data-testid="insights-margin-total">
             {{ wonMargin() }}
           </span>
           <span class="text-xs text-content-faint">
@@ -54,7 +54,7 @@
         <h2 class="text-sm font-medium text-content">
           {{ 'insights.cards.quoted' | transloco }}
         </h2>
-        <div class="h-40 min-w-0 @sm:h-56">
+        <div class="h-56 min-w-0 @max-sm:h-40">
           <lw-insights-chart [config]="quotedPerMonth()" />
         </div>
       </article>
@@ -66,7 +66,7 @@
         <h2 class="text-sm font-medium text-content">
           {{ 'insights.cards.pipeline' | transloco }}
         </h2>
-        <div class="h-32 min-w-0 @sm:h-40">
+        <div class="h-40 min-w-0 @max-sm:h-32">
           <lw-insights-chart [config]="pipeline()" />
         </div>
         <ul class="flex flex-col gap-1">
@@ -106,7 +106,7 @@
               <span class="flex shrink-0 items-baseline gap-3">
                 <span class="text-sm text-content tabular-nums">{{ deadline.gross }}</span>
                 <span
-                  class="w-16 text-right text-xs tabular-nums @sm:w-24"
+                  class="w-24 text-right text-xs tabular-nums @max-sm:w-16"
                   [class]="deadline.pressing ? 'text-caution' : 'text-content-faint'"
                 >
                   @if (deadline.days < 0) {

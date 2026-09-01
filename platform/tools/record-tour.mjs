@@ -19,7 +19,7 @@
 // Usage: node platform/tools/record-tour.mjs [--url http://localhost:4200] [--only light|dark]
 // Needs the testbed served at that URL, and ffmpeg on PATH. Nothing in CI runs it.
 
-import { chromium } from 'playwright';
+import { chromium } from '@playwright/test';
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
