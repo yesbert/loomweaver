@@ -36,17 +36,28 @@ const POSTER_AT = '00:00:13';
 const CURSOR_TRAVEL_MS = 420;
 const SETTLE_MS = 260;
 
+const THEMES = ['light', 'dark'];
+
 function arg(name, fallback) {
-  const hit = process.argv.find((value) => value.startsWith(`--${name}=`));
-  if (hit) {
-    return hit.slice(name.length + 3);
+  const inline = process.argv.find((value) => value.startsWith(`--${name}=`));
+  if (inline) {
+    return inline.slice(name.length + 3);
   }
   const index = process.argv.indexOf(`--${name}`);
-  return index >= 0 ? process.argv[index + 1] : fallback;
+  if (index === -1) {
+    return fallback;
+  }
+  const next = process.argv[index + 1];
+  return next === undefined || next.startsWith('--') ? fallback : next;
 }
 
 const baseUrl = arg('url', 'http://localhost:4200');
 const only = arg('only', '');
+
+if (only !== '' && !THEMES.includes(only)) {
+  console.error(`record-tour: --only takes ${THEMES.join(' or ')}, not "${only}".`);
+  process.exit(1);
+}
 
 function ffmpeg(args) {
   const done = spawnSync('ffmpeg', ['-hide_banner', '-loglevel', 'error', ...args], {
@@ -112,7 +123,7 @@ async function installOverlay(page) {
       const make = (id) => {
         const node = document.createElement('div');
         node.id = id;
-        document.body.appendChild(node);
+        document.body.append(node);
         return node;
       };
       const cursor = make('lw-tour-cursor');
@@ -121,7 +132,8 @@ async function installOverlay(page) {
       const caption = make('lw-tour-caption');
       const place = (x, y) => {
         cursor.style.transform = `translate(${x}px, ${y}px)`;
-        ring.style.transform = `translate(${x}px, ${y}px)`;
+        ring.style.left = `${x}px`;
+        ring.style.top = `${y}px`;
       };
       place(start.x, start.y);
       const api = {
@@ -303,7 +315,7 @@ async function main() {
   requireFfmpeg();
   mkdirSync(mediaDir, { recursive: true });
   const workDir = mkdtempSync(join(tmpdir(), 'lw-tour-'));
-  const themes = only === '' ? ['light', 'dark'] : [only];
+  const themes = only === '' ? THEMES : [only];
   try {
     for (const theme of themes) {
       process.stdout.write(`recording ${theme}…\n`);

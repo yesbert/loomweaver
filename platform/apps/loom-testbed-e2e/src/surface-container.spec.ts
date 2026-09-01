@@ -67,26 +67,34 @@ test.describe('A surface is measured against its pane, not the window', () => {
     await page.goto('/dashboard/overview');
     await splitContentRight(page);
 
-    const named = await page.evaluate(() =>
-      ['lw-content-area main', 'lw-content-secondary-pane', 'lw-shell-panel'].map(
-        (selector) =>
-          [...document.querySelectorAll(selector)].some((root) =>
-            [root, ...root.querySelectorAll('*')].some(
-              (el) =>
-                getComputedStyle(el).containerName === 'surface' &&
-                getComputedStyle(el).containerType === 'inline-size',
-            ),
-          ),
-      ),
-    );
-    expect(named).toEqual([true, true, true]);
+    for (const selector of [
+      'lw-content-area main',
+      'lw-content-secondary-pane',
+    ]) {
+      const host = page.locator(selector).first();
+      await expect(host).toBeVisible();
+      expect(await reference(host)).toEqual({
+        name: 'surface',
+        type: 'inline-size',
+      });
+    }
+
+    const dockedHost = page
+      .locator('lw-shell-panel')
+      .first()
+      .locator(String.raw`.\@container\/surface`);
+    await expect(dockedHost).toHaveCount(1);
+    expect(await reference(dockedHost)).toEqual({
+      name: 'surface',
+      type: 'inline-size',
+    });
   });
 
   test('a surface that brought its own reference keeps it', async ({ page }) => {
     await page.goto('/');
     await openEntryList(page);
 
-    const own = page.locator('lw-testbed-list-view > .\\@container').first();
+    const own = page.locator(String.raw`lw-testbed-list-view > .\@container`).first();
     await expect(own).toBeAttached();
 
     const style = await reference(own);

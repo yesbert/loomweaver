@@ -17,8 +17,9 @@ function overflowing(root: Locator): Promise<readonly string[]> {
         );
       }
     };
-    measure(el);
-    el.querySelectorAll('*').forEach(measure);
+    for (const node of [el, ...el.querySelectorAll('*')]) {
+      measure(node);
+    }
     return found;
   });
 }
