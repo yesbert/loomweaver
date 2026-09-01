@@ -60,6 +60,7 @@
 - [x] 7.1 Run the demo against the recorded state end to end and confirm the payments workspace is
       reachable, names its condition, and repairs from the dialog without touching the quotes
       arrangement
-- [ ] 7.2 Run the full check the repository gates on, and `openspec validate --all --strict`
-- [ ] 7.3 Delete `/Volumes/Daten/Projects/ClaudeProjectContext/LoomWeaver/tests/damaged-payments-workspace.js`,
-      whose purpose the test in 7.1 has taken over
+- [x] 7.2 Run the full check the repository gates on, and `openspec validate --all --strict`
+- [ ] 7.3 Delete `/Volumes/Daten/Projects/ClaudeProjectContext/LoomWeaver/tests/damaged-payments-workspace.js`
+      once the owner has replayed the damaged profile in their own browser and seen the fix; the test
+      in 7.1 has taken over its purpose in the repository
