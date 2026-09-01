@@ -24,7 +24,7 @@ export class UnusableWorkspacesService implements UnusableWorkspaces {
 
   readonly announces = inject(ANNOUNCE_UNUSABLE_WORKSPACES);
 
-  readonly ids = computed(() =>
+  readonly unusable = computed(() =>
     unusableWorkspaceIds({
       workspaces: everyWorkspaceOrigin(
         this.workspaces.definitions,
@@ -42,7 +42,11 @@ export class UnusableWorkspacesService implements UnusableWorkspaces {
     }),
   );
 
+  ids(): ReadonlySet<string> {
+    return this.unusable();
+  }
+
   announced(): boolean {
-    return this.announces && this.ids().has(this.active.id());
+    return this.announces && this.unusable().has(this.active.id());
   }
 }

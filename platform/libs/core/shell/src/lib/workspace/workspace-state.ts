@@ -35,7 +35,9 @@ export function parseWorkspaces(raw: string | undefined): Workspace[] {
         !!workspace &&
         typeof (workspace as Workspace).id === 'string' &&
         typeof (workspace as Workspace).name === 'string' &&
-        typeof (workspace as Workspace).baseline === 'object',
+        typeof (workspace as Workspace).baseline === 'object' &&
+        (workspace as Workspace).baseline !== null &&
+        !Array.isArray((workspace as Workspace).baseline),
     );
   } catch {
     return [];

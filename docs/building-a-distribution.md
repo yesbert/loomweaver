@@ -271,6 +271,12 @@ provideWorkspaces(
 (`ANNOUNCE_UNUSABLE_WORKSPACES` is the token behind that feature; a distribution never injects it
 itself.)
 
+What the workbench recognised is readable through **`UNUSABLE_WORKSPACES`**, an injectable
+`UnusableWorkspaces` whose `ids()` names the workspaces that cannot work as declared and whose
+`announced()` says whether the workbench is speaking for the workspace the user is in. Reading it is
+how a product that silenced the notice draws its own, or offers `shell.workspace.reset` with the
+workspace named.
+
 ### Telling saved workspaces apart
 
 A workspace a **user** saved has no icon to declare, so the shell derives a two-letter badge from its

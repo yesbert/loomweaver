@@ -51,6 +51,10 @@ export class WorkspaceDialog {
     return this.unusableWorkspaces.ids().has(id);
   }
 
+  protected resetTestId(id: string): string {
+    return this.activeId() === id ? 'workspace-reset' : `workspace-reset-${id}`;
+  }
+
   protected resettable(id: string): boolean {
     return this.changed(id) || this.unusable(id);
   }

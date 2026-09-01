@@ -75,7 +75,7 @@
           [disabled]="!resettable(defaultId)"
           (click)="resetLayout(defaultId)"
           [attr.aria-label]="'workspace.reset' | transloco"
-          data-testid="workspace-reset"
+          [attr.data-testid]="resetTestId(defaultId)"
         >
           <lw-icon name="undo" size="1rem" />
           <lw-tooltip
@@ -129,7 +129,7 @@
             [disabled]="!resettable(definition.id)"
             (click)="resetLayout(definition.id)"
             [attr.aria-label]="'workspace.reset' | transloco"
-            data-testid="workspace-reset"
+            [attr.data-testid]="resetTestId(definition.id)"
           >
             <lw-icon name="undo" size="1rem" />
             <lw-tooltip
@@ -209,7 +209,7 @@
             [disabled]="!resettable(workspace.id)"
             (click)="resetLayout(workspace.id)"
             [attr.aria-label]="'workspace.reset' | transloco"
-            data-testid="workspace-reset"
+            [attr.data-testid]="resetTestId(workspace.id)"
           >
             <lw-icon name="undo" size="1rem" />
             <lw-tooltip
