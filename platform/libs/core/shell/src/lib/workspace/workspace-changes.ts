@@ -136,3 +136,67 @@ function comparableNode(node: PaneNode): PaneNode {
     second: comparableNode(node.second),
   };
 }
+
+export interface ChangedReading {
+  readonly activeId: string;
+  readonly activeDiffers: boolean;
+  readonly canReadBack: boolean;
+  readonly candidates: readonly {
+    id: string;
+    baseline: Readonly<Record<string, string>>;
+  }[];
+  readonly storedDiffers: (candidate: {
+    id: string;
+    baseline: Readonly<Record<string, string>>;
+  }) => boolean;
+}
+
+export function changedWorkspaceIds(reading: ChangedReading): Set<string> {
+  const ids = new Set<string>();
+  if (reading.activeDiffers) {
+    ids.add(reading.activeId);
+  }
+  if (!reading.canReadBack) {
+    return ids;
+  }
+  for (const candidate of reading.candidates) {
+    if (candidate.id !== reading.activeId && reading.storedDiffers(candidate)) {
+      ids.add(candidate.id);
+    }
+  }
+  return ids;
+}
+
+export function storedStateDiffers(
+  peek: ((key: string) => string | undefined) | undefined,
+  scopedKey: (key: string, id: string) => string,
+  workspace: { id: string; baseline: Readonly<Record<string, string>> },
+  shape: ChangeShape,
+): boolean {
+  return stateDiffers(
+    (key) => peek?.(scopedKey(key, workspace.id)),
+    (key) => workspace.baseline[key],
+    shape,
+  );
+}
+
+export function workspaceChangeShape(
+  keys: readonly string[],
+  hiddenViewsKey: string,
+  paneTreesKey: string,
+  declaredPaths: (dock: string) => readonly string[],
+): ChangeShape {
+  return { keys, hiddenViewsKey, paneTreesKey, declaredPaths };
+}
+
+export function activeStateDiffers(
+  channels: Record<string, { serialize: () => string }>,
+  baseline: Readonly<Record<string, string>>,
+  shape: ChangeShape,
+): boolean {
+  return stateDiffers(
+    (key) => channels[key].serialize(),
+    (key) => baseline[key],
+    shape,
+  );
+}

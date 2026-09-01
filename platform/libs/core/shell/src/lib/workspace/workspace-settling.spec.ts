@@ -148,7 +148,27 @@ describe('settling an address in the workspace that claims it', () => {
   it('claims the address that names nothing where a workspace asked for it', async () => {
     const ws = compose();
     await ws.switchTo('quotes');
+    await ws.settle('quotes/q-0007');
 
+    await ws.settle('');
+
+    expect(ws.activeId()).toBe('overview');
+  });
+
+  it('does not hand the user on where the address only follows the workspace they chose', async () => {
+    const ws = compose();
+
+    await ws.switchTo('quotes');
+    await ws.settle('');
+
+    expect(ws.activeId()).toBe('quotes');
+  });
+
+  it('settles an address the user asks for after the workspace they chose', async () => {
+    const ws = compose();
+
+    await ws.switchTo('quotes');
+    await ws.settle('');
     await ws.settle('');
 
     expect(ws.activeId()).toBe('overview');

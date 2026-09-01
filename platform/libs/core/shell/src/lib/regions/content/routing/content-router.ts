@@ -140,8 +140,13 @@ export class ContentRouter {
   private lastOmitted: readonly ContentRoute[] = [];
 
   private pendingDeepLink: string | null = null;
+  private heldAddress: string | null = null;
   private parkedOnPlaceholder = false;
   private userNavigated = false;
+
+  hold(address: string): void {
+    this.heldAddress = normalizePath(address) === '' ? null : address;
+  }
 
   start(): void {
     if (this.started) {
@@ -174,6 +179,7 @@ export class ContentRouter {
 
         this.reuse.pruneExcept((key) => matchRoute(routes, key) !== undefined);
         this.retryDeepLink(wasParked);
+        this.retryHeld();
       },
       { injector: this.injector },
     );
@@ -236,6 +242,24 @@ export class ContentRouter {
         data: { content: true, routePlaceholder: true },
       },
     ];
+  }
+
+  private retryHeld(): void {
+    const target = this.heldAddress;
+    if (!target) {
+      return;
+    }
+    if (normalizePath(this.router.url) === normalizePath(target)) {
+      this.heldAddress = null;
+      return;
+    }
+    if (matchRoute(this.lastRoutes, target) === undefined) {
+      return;
+    }
+    this.heldAddress = null;
+    void this.router
+      .navigateByUrl(target, { onSameUrlNavigation: 'reload' })
+      .catch(() => undefined);
   }
 
   private retryDeepLink(wasParked: boolean): void {

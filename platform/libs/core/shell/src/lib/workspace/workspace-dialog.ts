@@ -4,6 +4,7 @@ import { DialogRef } from '../dialog/dialog-ref';
 import { DialogService } from '../dialog/dialog.service';
 import { DEFAULT_WORKSPACE_ID } from './active-workspace.service';
 import { WorkspaceService } from './workspace.service';
+import { UnusableWorkspacesService } from './usability/unusable-workspaces.service';
 import { CommandService } from '../commands/command.service';
 
 @Component({
@@ -14,6 +15,7 @@ import { CommandService } from '../commands/command.service';
 })
 export class WorkspaceDialog {
   private readonly ws = inject(WorkspaceService);
+  private readonly unusableWorkspaces = inject(UnusableWorkspacesService);
   private readonly ref = inject<DialogRef>(DialogRef);
   private readonly dialogs = inject(DialogService);
   private readonly transloco = inject(TranslocoService);
@@ -43,6 +45,14 @@ export class WorkspaceDialog {
 
   protected changed(id: string): boolean {
     return this.ws.changedIds().has(id);
+  }
+
+  protected unusable(id: string): boolean {
+    return this.unusableWorkspaces.ids().has(id);
+  }
+
+  protected resettable(id: string): boolean {
+    return this.changed(id) || this.unusable(id);
   }
 
   protected save(): void {
@@ -82,9 +92,9 @@ export class WorkspaceDialog {
       .then((name) => name?.trim() && this.ws.rename(id, name.trim()));
   }
 
-  protected resetLayout(): void {
+  protected resetLayout(id: string): void {
     this.ref.close();
-    this.commands.execute('shell.workspace.reset');
+    this.commands.execute('shell.workspace.reset', { workspace: id });
   }
 
   protected remove(id: string, name: string): void {

@@ -2,14 +2,12 @@ import { computed, inject, isDevMode, Service, signal } from '@angular/core';
 import { SETTINGS_STORE } from '../persistence/settings-store';
 import { WORKING_STATE_STORE } from '../persistence/working-state-store';
 import { ContentTabsService } from '../regions/content/tabs/content-tabs.service';
-import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../regions/pane/tree/pane-address';
 import { PaneTreeService } from '../regions/pane/tree/pane-tree.service';
-import { activeTab } from '../regions/pane/tree/pane-node';
-import { findLeaf } from '../regions/pane/tree/pane-queries';
 import { SHELL_LAYOUT } from '../layout/layout';
 import { ContributionRegistry } from '../plugin/contribution-registry';
 import { BootAddress } from '../regions/content/routing/boot-address';
-import { isHomePath } from '../regions/content/content-path';
+import { ContentRouter } from '../regions/content/routing/content-router';
+import { isHomePath, normalizePath } from '../regions/content/content-path';
 import { PanelGroupService } from '../regions/panel/panel-group.service';
 import { RetainedViewStash } from '../regions/pane/retention/retained-view-stash';
 import { HiddenViewsService } from '../regions/panel/hidden-views.service';
@@ -25,7 +23,6 @@ import {
   auditWorkspaceDefinitions,
   claimsOf,
   dedupedDefinitions,
-  workspaceBaseline,
 } from './workspace-definition';
 import {
   claimFor,
@@ -33,47 +30,30 @@ import {
   withoutConflicts,
   type WorkspaceClaim,
 } from './workspace-claims';
-import { declarationGaps } from './workspace-warnings';
-import { stateDiffers, type ChangeShape } from './workspace-changes';
+import { warnDeclarationGaps } from './workspace-warnings';
+import {
+  activeStateDiffers,
+  changedWorkspaceIds,
+  storedStateDiffers,
+  workspaceChangeShape,
+  type ChangeShape,
+} from './workspace-changes';
 import { WORKSPACE_DEFINITIONS } from './provide-workspaces';
+import { everyWorkspaceOrigin } from './usability/workspace-usability';
+import {
+  definitionBaseline,
+  parseWorkspaces,
+  stateChannels,
+  readWorkspaceState,
+  writeWorkspaceState,
+  HIDDEN_VIEWS_KEY,
+  PANE_TREES_KEY,
+  WORKSPACE_KEYS,
+  WORKSPACES_KEY as STORAGE_KEY,
+  type Workspace,
+} from './workspace-state';
 import { assignWorkspaceInitials } from './workspace-initials';
 import { activeContentPath } from './active-content-path';
-
-const STORAGE_KEY = 'lw.shell.workspaces';
-
-const HIDDEN_VIEWS_KEY = 'lw.shell.hidden-views';
-
-const PANE_TREES_KEY = 'lw.shell.pane-trees';
-
-const WORKSPACE_KEYS = [HIDDEN_VIEWS_KEY, PANE_TREES_KEY] as const;
-
-export interface Workspace {
-  readonly id: string;
-  readonly name: string;
-  readonly baseline: Readonly<Record<string, string>>;
-  readonly origin?: string;
-}
-
-function parse(raw: string | undefined): Workspace[] {
-  if (!raw) {
-    return [];
-  }
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    if (!Array.isArray(parsed)) {
-      return [];
-    }
-    return parsed.filter(
-      (w): w is Workspace =>
-        !!w &&
-        typeof (w as Workspace).id === 'string' &&
-        typeof (w as Workspace).name === 'string' &&
-        typeof (w as Workspace).baseline === 'object',
-    );
-  } catch {
-    return [];
-  }
-}
 
 @Service()
 export class WorkspaceService {
@@ -86,6 +66,7 @@ export class WorkspaceService {
   private readonly hiddenViews = inject(HiddenViewsService);
   private readonly tabs = inject(ContentTabsService);
   private readonly bootAddress = inject(BootAddress);
+  private readonly contentRouter = inject(ContentRouter);
   private readonly sync = inject(StateSyncService);
   private readonly registry = inject(ContributionRegistry);
   private readonly panelRegions = inject(SHELL_LAYOUT)
@@ -99,65 +80,55 @@ export class WorkspaceService {
   );
 
   private readonly list = signal<Workspace[]>(
-    parse(this.store.peek?.(STORAGE_KEY)),
+    parseWorkspaces(this.store.peek?.(STORAGE_KEY)),
   );
+
+  private chosenAddress: string | null = null;
+
   readonly workspaces = this.list.asReadonly();
   readonly activeId = this.active.id;
 
   readonly initials = computed(() => assignWorkspaceInitials(this.list()));
 
-  private readonly keyed: Record<
-    string,
-    {
-      hydrate: (raw: string | undefined) => void;
-      serialize: () => string;
-    }
-  > = {
-    [HIDDEN_VIEWS_KEY]: {
-      hydrate: (raw) => this.hiddenViews.hydrate(raw),
-      serialize: () => this.hiddenViews.serialize(),
-    },
-    [PANE_TREES_KEY]: {
-      hydrate: (raw) => this.paneTree.hydrate(raw),
-      serialize: () => this.paneTree.serialize(),
-    },
-  };
-
-  readonly hasChanges = computed(() => {
-    const baseline = this.baselineOf(this.active.id());
-    return stateDiffers(
-      (key) => this.keyed[key].serialize(),
-      (key) => baseline[key],
-      this.changeShape(),
-    );
+  private readonly keyed = stateChannels(this.hiddenViews, this.paneTree, {
+    hiddenViews: HIDDEN_VIEWS_KEY,
+    paneTrees: PANE_TREES_KEY,
   });
 
-  readonly changedIds = computed(() => {
-    const ids = new Set<string>();
-    const activeId = this.active.id();
-    if (this.hasChanges()) {
-      ids.add(activeId);
-    }
-    if (!this.workingState.peek) {
-      return ids;
-    }
-    for (const workspace of [
-      { id: DEFAULT_WORKSPACE_ID, baseline: {} as Record<string, string> },
-      ...this.definitions.map((definition) => ({
-        id: definition.id,
-        baseline: this.definitionBaselineOf(definition),
-      })),
-      ...this.list(),
-    ]) {
-      if (workspace.id !== activeId && this.storedDiffers(workspace)) {
-        ids.add(workspace.id);
-      }
-    }
-    return ids;
-  });
+  readonly hasChanges = computed(() =>
+    activeStateDiffers(
+      this.keyed,
+      this.baselineOf(this.active.id()),
+      this.shape(),
+    ),
+  );
+
+  readonly changedIds = computed(() =>
+    changedWorkspaceIds({
+      activeId: this.active.id(),
+      activeDiffers: this.hasChanges(),
+      canReadBack: this.workingState.peek !== undefined,
+      candidates: [
+        { id: DEFAULT_WORKSPACE_ID, baseline: {} },
+        ...this.definitions.map((definition) => ({
+          id: definition.id,
+          baseline: this.definitionBaselineOf(definition),
+        })),
+        ...this.list(),
+      ],
+      storedDiffers: (candidate) =>
+        storedStateDiffers(
+          this.workingState.peek?.bind(this.workingState),
+          workspaceScopedKey,
+          candidate,
+          this.shape(),
+        ),
+    }),
+  );
 
   constructor() {
-    const setList = (raw: string | undefined) => this.list.set(parse(raw));
+    const setList = (raw: string | undefined) =>
+      this.list.set(parseWorkspaces(raw));
     hydrateAsync(this.store, STORAGE_KEY, setList);
     this.sync.register('settings', STORAGE_KEY, setList);
     if (isDevMode()) {
@@ -166,7 +137,7 @@ export class WorkspaceService {
         console.warn(problem);
       }
     }
-    this.layOutAdoptedWorkspaceWhenReady();
+    void this.active.ready.then(() => this.layOutAdoptedWorkspace());
   }
 
   async saveCurrent(name: string): Promise<void> {
@@ -191,10 +162,18 @@ export class WorkspaceService {
   }
 
   wouldSettle(path: string): boolean {
-    return this.settlementDestination(path) !== null;
+    return (
+      this.chosenAddress !== normalizePath(path) &&
+      this.settlementDestination(path) !== null
+    );
   }
 
   async settle(path: string): Promise<void> {
+    const chosen = this.chosenAddress;
+    this.chosenAddress = null;
+    if (chosen !== null && chosen === normalizePath(path)) {
+      return;
+    }
     const destination = this.settlementDestination(path);
     if (destination !== null) {
       await this.switchTo(destination, { keepAddress: true });
@@ -230,15 +209,38 @@ export class WorkspaceService {
     }
     this.warnDeclarationGaps(id);
     if (options.keepAddress !== true) {
-      this.tabs.navigateTo(activeContentPath(this.paneTree));
+      this.chooseAddress(activeContentPath(this.paneTree));
     }
   }
 
-  reset(): void {
-    const id = this.active.id();
+  reset(id: string = this.active.id()): void {
+    if (!this.exists(id)) {
+      return;
+    }
+    if (id !== this.active.id()) {
+      this.stash.evictWorkspace(id);
+      writeWorkspaceState(
+        this.workingState,
+        id,
+        this.baselineOf(id),
+        WORKSPACE_KEYS,
+      );
+      return;
+    }
     this.applyState(this.baselineOf(id));
     this.warnDeclarationGaps(id);
-    this.tabs.navigateTo(activeContentPath(this.paneTree));
+    this.chooseAddress(activeContentPath(this.paneTree));
+  }
+
+  resetAll(): void {
+    for (const workspace of everyWorkspaceOrigin(
+      this.definitions,
+      this.list(),
+      (id) => this.originOf(id),
+    )) {
+      this.reset(workspace.id);
+    }
+    this.reset(DEFAULT_WORKSPACE_ID);
   }
 
   rename(id: string, name: string): void {
@@ -283,6 +285,15 @@ export class WorkspaceService {
     return claimFor(this.claims(), path)?.workspaceId ?? null;
   }
 
+  private shape(): ChangeShape {
+    return workspaceChangeShape(
+      WORKSPACE_KEYS,
+      HIDDEN_VIEWS_KEY,
+      PANE_TREES_KEY,
+      (dock) => this.panelGroups.declaredPaths(dock),
+    );
+  }
+
   private claims(): readonly WorkspaceClaim[] {
     return withoutConflicts(claimsOf(this.definitions));
   }
@@ -291,7 +302,7 @@ export class WorkspaceService {
     return (
       id === DEFAULT_WORKSPACE_ID ||
       this.definitionOf(id) !== undefined ||
-      this.list().some((w) => w.id === id)
+      this.list().some((workspace) => workspace.id === id)
     );
   }
 
@@ -311,14 +322,12 @@ export class WorkspaceService {
   private definitionBaselineOf(
     definition: WorkspaceDefinition,
   ): Record<string, string> {
-    const state = workspaceBaseline(definition, {
+    return definitionBaseline(definition, {
       panelRegions: this.panelRegions,
       declaredPaths: (region) => this.panelGroups.declaredPaths(region),
+      hiddenViewsKey: HIDDEN_VIEWS_KEY,
+      paneTreesKey: PANE_TREES_KEY,
     });
-    return {
-      ...(state.hiddenViews !== undefined && { [HIDDEN_VIEWS_KEY]: state.hiddenViews }),
-      ...(state.trees !== undefined && { [PANE_TREES_KEY]: state.trees }),
-    };
   }
 
   private warnDeclarationGaps(id: string): void {
@@ -326,46 +335,18 @@ export class WorkspaceService {
     if (!isDevMode() || definition === undefined) {
       return;
     }
-    for (const gap of declarationGaps(definition, {
+    warnDeclarationGaps(definition, {
       routes: this.registry.contentRoutes(),
       declaredPaths: (region) => this.panelGroups.declaredPaths(region),
-    })) {
-      console.warn(gap);
-    }
+    });
   }
 
-  private storedDiffers(workspace: {
-    id: string;
-    baseline: Readonly<Record<string, string>>;
-  }): boolean {
-    return stateDiffers(
-      (key) => this.workingState.peek?.(workspaceScopedKey(key, workspace.id)),
-      (key) => workspace.baseline[key],
-      this.changeShape(),
+  private currentState(): Promise<Record<string, string>> {
+    return readWorkspaceState(
+      this.workingState,
+      (key) => this.active.scopedKey(key),
+      WORKSPACE_KEYS,
     );
-  }
-
-  private changeShape(): ChangeShape {
-    return {
-      keys: WORKSPACE_KEYS,
-      hiddenViewsKey: HIDDEN_VIEWS_KEY,
-      paneTreesKey: PANE_TREES_KEY,
-      declaredPaths: (dock) => this.panelGroups.declaredPaths(dock),
-    };
-  }
-
-  private async currentState(): Promise<Record<string, string>> {
-    const state: Record<string, string> = {};
-    for (const key of WORKSPACE_KEYS) {
-      const raw = await readStoredValue(
-        this.workingState,
-        this.active.scopedKey(key),
-      );
-      if (raw != null) {
-        state[key] = raw;
-      }
-    }
-    return state;
   }
 
   private layOutAdoptedWorkspace(): void {
@@ -376,7 +357,7 @@ export class WorkspaceService {
     this.applyState(this.baselineOf(id));
     this.warnDeclarationGaps(id);
     if (isHomePath(this.bootAddress.path)) {
-      this.tabs.navigateTo(activeContentPath(this.paneTree));
+      this.chooseAddress(activeContentPath(this.paneTree));
     }
   }
 
@@ -392,9 +373,12 @@ export class WorkspaceService {
     void this.store.set(STORAGE_KEY, JSON.stringify(next));
   }
 
-  private layOutAdoptedWorkspaceWhenReady(): void {
-    void this.active.ready.then(() => this.layOutAdoptedWorkspace());
+  private chooseAddress(path: string): void {
+    this.chosenAddress = normalizePath(path);
+    this.contentRouter.hold(path);
+    this.tabs.navigateTo(path);
   }
+
   private settlementDestination(path: string): string | null {
     const here = this.active.id();
     return settlementFor(

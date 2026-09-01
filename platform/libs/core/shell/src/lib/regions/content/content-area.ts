@@ -1,5 +1,6 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, EnvironmentInjector, Injector, Type, computed, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { UnusableWorkspaceNotice } from './unusable-workspace-notice';
 import { ViewAction } from '@loomweaver/plugin-sdk';
 import { CommandService } from '../../commands/command.service';
 import { ContentTabsService } from './tabs/content-tabs.service';
@@ -37,6 +38,7 @@ import { surfaceInjectorFactory } from './routing/surface-injector';
   selector: 'lw-content-area',
   imports: [
     RouterOutlet,
+    UnusableWorkspaceNotice,
     PaneTabStrip,
     PaneToolbar,
     ContentSecondaryPane,

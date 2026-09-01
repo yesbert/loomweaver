@@ -226,18 +226,50 @@ It rides on the same [persistence stores](#persistence-stores-optional) as the r
 
 ### Resetting the app layout
 
-The workspace reset is deliberately narrow: it puts back what belongs to the active workspace. The
+The workspace reset takes the workspace it is given: the workspace dialog offers it on every row, so a
+workspace can be put back without being entered first, and the reset acts on the active one where no
+workspace is named. It puts back what belongs to that workspace, and nothing else. The
 arrangement that lives beside every workspace — the activity bar the user curated, collapsed
 sidebars, sidebar widths, hand sorting of tabs and rail entries, and named view instances with their
 state — has its own reset, **`shell.app.reset`**. It sits in the palette and as a *Reset layout*
 button under **General** in the settings dialog, and it asks first, naming what comes back and what
-stays: saved workspaces and their layouts, colour scheme, language, text size, granted permissions
-and installed plugins are never touched. A surface with unsaved work is guarded exactly as it is on a
-workspace reset.
+stays: colour scheme, language, text size, granted permissions and installed plugins are never
+touched. Saved workspaces and their layouts stay as well, unless the user ticks the box that extends
+the reset across every workspace. That box describes the one reset being asked for and is not
+remembered as a setting. A surface with unsaved work is guarded exactly as it is on a workspace reset.
 
 Take it away like any other contribution: `omit: ['shell.app.reset']` drops the command, and with it
 the settings button, because a button naming a command nobody registered is dropped rather than drawn
 dead.
+
+### A workspace that can no longer work as declared
+
+A workspace's stored arrangement is read against the declarations in force now, not the ones in force
+when it was written, and where the two disagree the workbench says so rather than rewriting what the
+user stored. Content stored at an address another workspace now claims is restored where it was, and
+the disagreement is reported to the console in dev mode. Nothing is dropped on the user's behalf.
+
+One disagreement reaches the user, because only the user can settle it: a workspace that declares
+content of its own and whose stored arrangement leaves it with none cannot show anything. Such a
+workspace is still entered, never exchanged for whichever workspace claims the starting address, and
+the workbench names the condition in the content area and offers the reset that repairs it.
+
+A product that would rather answer that itself takes **`withoutUnusableWorkspaceNotice()`**, a
+{@link WorkspacesFeature} passed among the declarations. It settles the question for the whole
+composition rather than per workspace, and it silences only the message: the arrangement is still
+restored untouched, the workspace is still entered, and which workspaces are affected stays readable,
+so the product can draw its own notice or reset them on its own terms.
+
+```ts
+provideWorkspaces(
+  { id: 'dashboard', title: 'product.workspace.dashboard', initial: true, claims: [''] },
+  { id: 'payments', title: 'product.workspace.payments', claims: ['payments'] },
+  withoutUnusableWorkspaceNotice(),
+),
+```
+
+(`ANNOUNCE_UNUSABLE_WORKSPACES` is the token behind that feature; a distribution never injects it
+itself.)
 
 ### Telling saved workspaces apart
 
