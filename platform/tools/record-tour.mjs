@@ -54,11 +54,6 @@ function arg(name, fallback) {
 const baseUrl = arg('url', 'http://localhost:4200');
 const only = arg('only', '');
 
-if (only !== '' && !THEMES.includes(only)) {
-  console.error(`record-tour: --only takes ${THEMES.join(' or ')}, not "${only}".`);
-  process.exit(1);
-}
-
 function ffmpeg(args) {
   const done = spawnSync('ffmpeg', ['-hide_banner', '-loglevel', 'error', ...args], {
     stdio: 'inherit',
@@ -66,6 +61,16 @@ function ffmpeg(args) {
   if (done.error || done.status !== 0) {
     throw new Error(`ffmpeg failed: ffmpeg ${args.join(' ')}`);
   }
+}
+
+function requireTheme() {
+  if (only === '' || THEMES.includes(only)) {
+    return;
+  }
+  console.error(
+    `record-tour: --only takes ${THEMES.join(' or ')}, not "${only}".`,
+  );
+  process.exit(1);
 }
 
 function requireFfmpeg() {
@@ -312,6 +317,7 @@ function encode(rawWebm, theme) {
 }
 
 async function main() {
+  requireTheme();
   requireFfmpeg();
   mkdirSync(mediaDir, { recursive: true });
   const workDir = mkdtempSync(join(tmpdir(), 'lw-tour-'));
