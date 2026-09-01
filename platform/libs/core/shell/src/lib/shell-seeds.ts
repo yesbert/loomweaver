@@ -45,6 +45,11 @@ import {
   CurationDialog,
 } from './regions/curation/curation-dialog';
 import { AppResetService } from './layout/app-reset.service';
+import {
+  AppResetChoice,
+  AppResetDialog,
+} from './layout/app-reset-dialog';
+import { menuContextString } from './menu/menu-context';
 
 export interface ShellRegions {
   readonly regions: readonly {
@@ -203,19 +208,23 @@ export function seedHostCommands(
     title: 'appReset.title',
     icon: 'undo',
     run: () => {
-      void dialogs
-        .confirm({
-          title: transloco.translate('appReset.title'),
-          message: transloco.translate('appReset.confirm'),
-        })
-        .then(async (ok) => {
-          if (!ok) {
-            return;
+      const ref = dialogs.open<AppResetChoice>(AppResetDialog, {
+        size: 'md',
+        title: transloco.translate('appReset.title'),
+        icon: 'undo',
+        data: { workspaces: features.workspaces.enabled },
+      });
+      void ref.closed.then(async (choice) => {
+        if (choice === undefined) {
+          return;
+        }
+        if (await closeGuard.confirmDiscard(retention.all())) {
+          appReset.reset();
+          if (choice.workspaces) {
+            workspace.resetAll();
           }
-          if (await closeGuard.confirmDiscard(retention.all())) {
-            appReset.reset();
-          }
-        });
+        }
+      });
     },
   });
   if (features.content.splitRight) {
@@ -258,7 +267,9 @@ export function seedHostCommands(
     id: 'shell.workspace.reset',
     title: 'workspace.reset',
     icon: 'undo',
-    run: () => {
+    run: (context) => {
+      const named = menuContextString(context, 'workspace');
+      const elsewhere = named !== '' && named !== workspace.activeId();
       void dialogs
         .confirm({
           title: transloco.translate('workspace.reset'),
@@ -266,6 +277,10 @@ export function seedHostCommands(
         })
         .then(async (ok) => {
           if (!ok) {
+            return;
+          }
+          if (elsewhere) {
+            workspace.reset(named);
             return;
           }
           if (await closeGuard.confirmDiscard(retention.all())) {

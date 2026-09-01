@@ -135,23 +135,26 @@ describe('opening content at an address another workspace claims', () => {
     expect(stored).not.toContain('quotes/q-0007');
   });
 
-  it('drops a stored tab another workspace claims when the arrangement loads', async () => {
+  it('keeps a stored tab another workspace claims when the arrangement loads', async () => {
     seedOverviewDock('quotes/q-0007');
 
     const { workspaces, panes } = await compose();
     await settled();
 
     expect(workspaces.activeId()).toBe('overview');
-    expect(contentPaths(panes)).not.toContain('quotes/q-0007');
+    expect(contentPaths(panes)).toContain('quotes/q-0007');
   });
 
-  it('leaves no empty dock behind where every stored tab was dropped', async () => {
+  it('does not hand the claiming workspace content stored under another', async () => {
     seedOverviewDock('quotes/q-0007');
 
-    const { panes } = await compose();
+    const { workspaces, panes } = await compose();
     await settled();
 
-    expect(Object.keys(panes.dockTrees())).not.toContain('content');
+    await workspaces.switchTo('quotes');
+    await settled();
+
+    expect(contentPaths(panes)).not.toContain('quotes/q-0007');
   });
 
   it('restores a stored tab no workspace claims', async () => {
@@ -172,13 +175,13 @@ describe('opening content at an address another workspace claims', () => {
     expect(contentPaths(panes)).toContain('quotes/q-0007');
   });
 
-  it('drops foreign content from a saved copy too', async () => {
+  it('keeps contested content in a saved copy too', async () => {
     seedSavedWorkspace('ws-my-overview', 'overview', 'quotes/q-0007');
 
     const { panes } = await compose();
     await settled();
 
-    expect(contentPaths(panes)).not.toContain('quotes/q-0007');
+    expect(contentPaths(panes)).toContain('quotes/q-0007');
   });
 
   it('keeps two opens in the order they were made', async () => {

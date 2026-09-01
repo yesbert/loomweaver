@@ -29,6 +29,8 @@ import { ContributionRegistry } from './plugin/contribution-registry';
 import { ShellErrorHandler } from './permissions/capability-refusal';
 import { COMMAND_INVOKER } from './foundation/command-invoker';
 import { WORKSPACE_CLAIMS } from './foundation/workspace-claims';
+import { UNUSABLE_WORKSPACES } from './foundation/unusable-workspaces';
+import { UnusableWorkspacesService } from './workspace/usability/unusable-workspaces.service';
 import { CommandInvocationService } from './commands/command-invocation.service';
 import { KeybindingService } from './commands/keybinding.service';
 import { DialogService } from './dialog/dialog.service';
@@ -159,6 +161,7 @@ export function provideShell(
     { provide: ErrorHandler, useClass: ShellErrorHandler },
     { provide: COMMAND_INVOKER, useExisting: CommandInvocationService },
     { provide: WORKSPACE_CLAIMS, useExisting: WorkspaceService },
+    { provide: UNUSABLE_WORKSPACES, useExisting: UnusableWorkspacesService },
 
     provideHttpClient(),
 

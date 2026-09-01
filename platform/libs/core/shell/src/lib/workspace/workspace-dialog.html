@@ -69,22 +69,20 @@
             ></span>
           }
         </button>
-        @if (activeId() === defaultId) {
-          <button
-            type="button"
-            class="lw-icon-btn h-7 w-7 rounded-md disabled:opacity-40"
-            [disabled]="!hasChanges()"
-            (click)="resetLayout()"
-            [attr.aria-label]="'workspace.reset' | transloco"
-            data-testid="workspace-reset"
-          >
-            <lw-icon name="undo" size="1rem" />
-            <lw-tooltip
-              [text]="'workspace.resetHint' | transloco"
-              position="bottom"
-            />
-          </button>
-        }
+        <button
+          type="button"
+          class="lw-icon-btn h-7 w-7 rounded-md disabled:opacity-40"
+          [disabled]="!resettable(defaultId)"
+          (click)="resetLayout(defaultId)"
+          [attr.aria-label]="'workspace.reset' | transloco"
+          [attr.data-testid]="resetTestId(defaultId)"
+        >
+          <lw-icon name="undo" size="1rem" />
+          <lw-tooltip
+            [text]="'workspace.resetHint' | transloco"
+            position="bottom"
+          />
+        </button>
       </li>
     }
     @if (tab() === 'provided') {
@@ -112,23 +110,33 @@
                 data-testid="workspace-changed"
               ></span>
             }
-          </button>
-          @if (activeId() === definition.id) {
-            <button
-              type="button"
-              class="lw-icon-btn h-7 w-7 rounded-md disabled:opacity-40"
-              [disabled]="!hasChanges()"
-              (click)="resetLayout()"
-              [attr.aria-label]="'workspace.reset' | transloco"
-              data-testid="workspace-reset"
-            >
-              <lw-icon name="undo" size="1rem" />
+            @if (unusable(definition.id)) {
+              <lw-icon
+                name="warning"
+                size="0.9rem"
+                class="shrink-0 text-negative"
+                data-testid="workspace-unusable"
+              />
               <lw-tooltip
-                [text]="'workspace.resetHint' | transloco"
+                [text]="'workspace.unusableMark' | transloco"
                 position="bottom"
               />
-            </button>
-          }
+            }
+          </button>
+          <button
+            type="button"
+            class="lw-icon-btn h-7 w-7 rounded-md disabled:opacity-40"
+            [disabled]="!resettable(definition.id)"
+            (click)="resetLayout(definition.id)"
+            [attr.aria-label]="'workspace.reset' | transloco"
+            [attr.data-testid]="resetTestId(definition.id)"
+          >
+            <lw-icon name="undo" size="1rem" />
+            <lw-tooltip
+              [text]="'workspace.resetHint' | transloco"
+              position="bottom"
+            />
+          </button>
         </li>
       }
     }
@@ -170,6 +178,14 @@
                 data-testid="workspace-changed"
               ></span>
             }
+            @if (unusable(workspace.id)) {
+              <lw-icon
+                name="warning"
+                size="0.9rem"
+                class="ml-0.5 inline-block align-middle text-negative"
+                data-testid="workspace-unusable"
+              />
+            }
           </button>
           @if (activeId() === workspace.id) {
             <button
@@ -186,21 +202,21 @@
                 position="bottom"
               />
             </button>
-            <button
-              type="button"
-              class="lw-icon-btn h-7 w-7 rounded-md disabled:opacity-40"
-              [disabled]="!hasChanges()"
-              (click)="resetLayout()"
-              [attr.aria-label]="'workspace.reset' | transloco"
-              data-testid="workspace-reset"
-            >
-              <lw-icon name="undo" size="1rem" />
-              <lw-tooltip
-                [text]="'workspace.resetHint' | transloco"
-                position="bottom"
-              />
-            </button>
           }
+          <button
+            type="button"
+            class="lw-icon-btn h-7 w-7 rounded-md disabled:opacity-40"
+            [disabled]="!resettable(workspace.id)"
+            (click)="resetLayout(workspace.id)"
+            [attr.aria-label]="'workspace.reset' | transloco"
+            [attr.data-testid]="resetTestId(workspace.id)"
+          >
+            <lw-icon name="undo" size="1rem" />
+            <lw-tooltip
+              [text]="'workspace.resetHint' | transloco"
+              position="bottom"
+            />
+          </button>
           <button
             type="button"
             class="lw-icon-btn h-7 w-7 rounded-md"

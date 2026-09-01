@@ -1,9 +1,11 @@
 {
   "appReset": {
     "action": "App-Layout zurücksetzen",
-    "confirm": "App-Layout zurücksetzen?\n\nDas kommt zurück: die von dir kuratierte Leiste, eingeklappte Seitenleisten, Seitenleisten-Breiten, deine Hand-Sortierung und benannte Ansichts-Instanzen samt ihrem Zustand.\n\nDas bleibt: deine gespeicherten Workspaces samt Layout, Farbschema, Sprache, Textgröße, Berechtigungen und installierte Plugins.",
+    "confirm": "Das kommt zurück: die von dir kuratierte Leiste, eingeklappte Seitenleisten, Seitenleisten-Breiten, deine Hand-Sortierung und benannte Ansichts-Instanzen samt ihrem Zustand.\n\nDas bleibt: deine gespeicherten Workspaces, Farbschema, Sprache, Textgröße, Berechtigungen und installierte Plugins. Die Layouts der Workspaces bleiben ebenfalls, sofern du sie unten nicht einbeziehst.",
     "desc": "Stellt die Anordnung so her, wie diese App ausgeliefert wurde.",
-    "title": "App-Layout zurücksetzen"
+    "title": "App-Layout zurücksetzen",
+    "includeWorkspaces": "Auch alle Workspace-Layouts zurücksetzen",
+    "includeWorkspacesHint": "Jeder Workspace kehrt zu seinem Ausgangszustand zurück. Nimm das, wenn ein Workspace nicht mehr funktioniert wie er soll."
   },
   "auth": {
     "requiredTitle": "Anmeldung erforderlich",
@@ -289,6 +291,10 @@
     "saveAsHint": "Speichert den aktuellen Stand als neuen Workspace und wechselt hinein.",
     "tabMine": "Meine",
     "tabProvided": "Vorgegeben",
-    "variantOf": "Variante von {{name}}"
+    "variantOf": "Variante von {{name}}",
+    "unusableTitle": "Dieser Workspace hat keinen Inhalt mehr",
+    "unusableBody": "Sein gespeichertes Layout enthält den Inhalt nicht mehr, den dieser Workspace deklariert, also ist hier nichts zu zeigen. Zurücksetzen stellt das Layout wieder her, mit dem er deklariert wurde. Deine anderen Workspaces bleiben unberührt.",
+    "unusableAction": "Diesen Workspace zurücksetzen",
+    "unusableMark": "Funktioniert nicht wie deklariert"
   }
 }

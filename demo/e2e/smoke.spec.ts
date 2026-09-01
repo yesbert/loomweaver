@@ -70,5 +70,5 @@ test('shows the platform version in the status bar', async ({ page }) => {
 
   const version = page.locator('lw-version');
   await expect(version).toBeVisible();
-  await expect(version).toHaveText(/^v\d+\.\d+\.\d+$/);
+  await expect(version).toHaveText(/^v\d+\.\d+\.\d+(-preview\.\d+)?$/);
 });

@@ -7,8 +7,8 @@ import { ActiveWorkspaceService } from '../../../workspace/active-workspace.serv
 import {
   DockEntry,
   normalizeDockEntry,
+  tabPathsWhere,
   withoutBorrowedLabels,
-  withoutTabs,
 } from './pane-restore';
 import { PaneNode } from './pane-node';
 import { WORKSPACE_DEFINITIONS } from '../../../workspace/provide-workspaces';
@@ -31,7 +31,7 @@ export function isDefault(entry: DockEntry): boolean {
   return entry.node.kind === 'leaf' && entry.node.tabs.length === 0;
 }
 
-function parse(raw: string | undefined): Record<string, DockEntry> {
+export function parseDocks(raw: string | undefined): Record<string, DockEntry> {
   if (!raw) {
     return {};
   }
@@ -90,7 +90,7 @@ export class PaneTreeStorage {
   );
 
   peek(): Record<string, DockEntry> {
-    return this.settled(parse(this.store.peek?.(this.key())));
+    return this.settled(parseDocks(this.store.peek?.(this.key())));
   }
 
   hydrate(
@@ -124,7 +124,7 @@ export class PaneTreeStorage {
   }
 
   parsed(raw: string | undefined): Record<string, DockEntry> {
-    return this.settled(parse(raw));
+    return this.settled(parseDocks(raw));
   }
 
   private settled(
@@ -141,44 +141,45 @@ export class PaneTreeStorage {
     const isDeclared = (path: string) =>
       ownTabs.some((own) => path === own || path.startsWith(`${own}/`));
     const out: Record<string, DockEntry> = {};
-    const dropped: string[] = [];
+    const contested: string[] = [];
     const stripped: string[] = [];
     for (const [dock, entry] of Object.entries(docks)) {
-      const filtered = withoutTabs(
-        entry.node,
-        (path) => (claimFor(claims, path)?.workspaceId ?? here) !== here,
+      contested.push(
+        ...tabPathsWhere(
+          entry.node,
+          (path) => (claimFor(claims, path)?.workspaceId ?? here) !== here,
+        ),
       );
-      dropped.push(...filtered.dropped);
       const relabelled = withoutBorrowedLabels(
-        filtered.node,
+        entry.node,
         (tab) =>
           tab.title !== undefined &&
           tab.literalTitle !== true &&
           isDeclared(tab.path),
       );
       stripped.push(...relabelled.stripped);
-      const repaired = { ...entry, node: relabelled.node };
-      if (!isDefault(repaired)) {
-        out[dock] = repaired;
+      const kept = { ...entry, node: relabelled.node };
+      if (!isDefault(kept)) {
+        out[dock] = kept;
       }
     }
-    if (isDevMode() && (dropped.length > 0 || stripped.length > 0)) {
-      this.reportRepair(dropped, stripped);
+    if (isDevMode() && (contested.length > 0 || stripped.length > 0)) {
+      this.reportFindings(contested, stripped);
     }
     return out;
   }
 
-  private reportRepair(
-    dropped: readonly string[],
+  private reportFindings(
+    contested: readonly string[],
     stripped: readonly string[],
   ): void {
     const quoted = (paths: readonly string[]) =>
       paths.map((path) => `"${path}"`).join(', ');
     const notes: string[] = [];
-    if (dropped.length > 0) {
+    if (contested.length > 0) {
       notes.push(
-        `stored content at ${quoted(dropped)} belongs to another workspace ` +
-          `that claims it — the tab is dropped rather than restored here`,
+        `stored content at ${quoted(contested)} is claimed by another workspace — ` +
+          `it is restored here as it was stored, and the address is contested`,
       );
     }
     if (stripped.length > 0) {

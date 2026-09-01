@@ -1,9 +1,11 @@
 {
   "appReset": {
     "action": "Reset app layout",
-    "confirm": "Reset the app layout?\n\nThis puts back: the activity bar you curated, collapsed sidebars, sidebar widths, your hand sorting, and named view instances with their state.\n\nThis stays: your saved workspaces and their layouts, colour scheme, language, text size, permissions and installed plugins.",
+    "confirm": "This puts back: the activity bar you curated, collapsed sidebars, sidebar widths, your hand sorting, and named view instances with their state.\n\nThis stays: your saved workspaces, colour scheme, language, text size, permissions and installed plugins. Workspace layouts stay too, unless you include them below.",
     "desc": "Puts the arrangement back the way this app shipped it.",
-    "title": "Reset app layout"
+    "title": "Reset app layout",
+    "includeWorkspaces": "Reset every workspace layout as well",
+    "includeWorkspacesHint": "Each workspace goes back to its baseline. Use this when a workspace no longer works as it should."
   },
   "auth": {
     "requiredTitle": "Sign-in required",
@@ -289,6 +291,10 @@
     "saveAsHint": "Saves the current arrangement as a new workspace and switches to it.",
     "tabMine": "Mine",
     "tabProvided": "Provided",
-    "variantOf": "Variant of {{name}}"
+    "variantOf": "Variant of {{name}}",
+    "unusableTitle": "This workspace has no content left",
+    "unusableBody": "Its saved layout no longer holds the content this workspace declares, so there is nothing here to show. Resetting puts back the layout it was declared with. Your other workspaces are untouched.",
+    "unusableAction": "Reset this workspace",
+    "unusableMark": "Cannot work as declared"
   }
 }

@@ -1,6 +1,7 @@
 export * from './lib/shell';
 export * from './lib/provide-shell';
 export * from './lib/foundation/shell-features';
+export * from './lib/foundation/unusable-workspaces';
 export type { RetentionDefault } from './lib/regions/pane/retention/retention-policy';
 export {
   provideTranslationNamespaces,

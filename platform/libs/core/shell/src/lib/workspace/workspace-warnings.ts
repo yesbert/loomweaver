@@ -75,3 +75,12 @@ function sidebarGaps(
     },
   );
 }
+
+export function warnDeclarationGaps(
+  definition: WorkspaceDefinition,
+  around: DeclarationSurroundings,
+): void {
+  for (const gap of declarationGaps(definition, around)) {
+    console.warn(gap);
+  }
+}

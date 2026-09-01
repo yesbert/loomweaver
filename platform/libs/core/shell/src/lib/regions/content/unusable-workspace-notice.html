@@ -1,0 +1,22 @@
+@if (shown()) {
+  <div
+    class="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-surface-raised p-6 text-center"
+    data-testid="workspace-unusable-notice"
+  >
+    <lw-icon name="warning" size="1.5rem" class="text-negative" />
+    <p class="text-sm font-medium text-content">
+      {{ 'workspace.unusableTitle' | transloco }}
+    </p>
+    <p class="max-w-prose text-sm text-content-faint">
+      {{ 'workspace.unusableBody' | transloco }}
+    </p>
+    <button
+      type="button"
+      class="lw-btn lw-btn--primary"
+      (click)="reset()"
+      data-testid="workspace-unusable-reset"
+    >
+      {{ 'workspace.unusableAction' | transloco }}
+    </button>
+  </div>
+}

@@ -115,33 +115,17 @@ export function healedPrimary(
     : collectLeafIds(node)[0];
 }
 
-export function withoutTabs(
+export function tabPathsWhere(
   node: PaneNode,
-  drop: (path: string) => boolean,
-): { node: PaneNode; dropped: readonly string[] } {
+  match: (path: string) => boolean,
+): readonly string[] {
   if (node.kind === 'leaf') {
-    const kept = node.tabs.filter((tab) => !drop(tab.path));
-    if (kept.length === node.tabs.length) {
-      return { node, dropped: [] };
-    }
-    const dropped = node.tabs
-      .filter((tab) => drop(tab.path))
-      .map((tab) => tab.path);
-    const active =
-      node.active !== undefined && dropped.includes(node.active)
-        ? kept[0]?.path
-        : node.active;
-    return { node: { ...node, tabs: kept, active }, dropped };
+    return node.tabs.filter((tab) => match(tab.path)).map((tab) => tab.path);
   }
-  const first = withoutTabs(node.first, drop);
-  const second = withoutTabs(node.second, drop);
-  if (first.dropped.length === 0 && second.dropped.length === 0) {
-    return { node, dropped: [] };
-  }
-  return {
-    node: { ...node, first: first.node, second: second.node },
-    dropped: [...first.dropped, ...second.dropped],
-  };
+  return [
+    ...tabPathsWhere(node.first, match),
+    ...tabPathsWhere(node.second, match),
+  ];
 }
 
 export function withoutBorrowedLabels(
