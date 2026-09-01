@@ -58,7 +58,7 @@ try {
   await bootstrapApplication(Shell, {
     providers: [
       provideShellRouter(),
-      provideShell({ omit: ['route:testbed.retired'] }),
+      provideShell({ padding: 'inset', omit: ['route:testbed.retired'] }),
       provideShellFeatures(
         testbedFeatures(localStorage.getItem(TESTBED_FEATURES_KEY)),
       ),

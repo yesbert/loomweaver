@@ -89,3 +89,18 @@
       forms: the Tailwind variant and the plain-CSS `@container surface (...)` for a product not on
       Tailwind.
 - [x] 6.4 Run `openspec validate --all --strict`, the unit suites and lint for platform and demo.
+
+## 7. The testbed asks for the inset
+
+- [x] 7.1 Set `padding: 'inset'` on the testbed distribution's `provideShell`. The workbench insets
+      nothing of its own, and the testbed had never asked, so every surface sat flush against its pane
+      edges. The `surfaces` capability already grants a distribution this, so nothing is specified
+      here; this is one distribution taking up an existing offer.
+- [x] 7.2 Re-record the tour, because the inset is what the viewer sees in every frame.
+- [x] 7.3 Re-run the narrow-pane and container suites against the inset, since it takes another
+      48px out of the width a card has at the narrowest pane. All eight stayed green.
+      It also turned one of the ten pre-existing testbed failures green: `surface-padding` asserts
+      that a surface declaring `padded: false` stops the host insetting it, and with the
+      distribution default at `none` there was no inset to stop. The full suite now stands at
+      303 passed and 9 failed, against 302 and 10 before; the remaining nine are the sandbox and
+      workspaces failures that predate this change and are untouched by it.
