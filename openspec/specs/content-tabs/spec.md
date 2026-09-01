@@ -234,7 +234,7 @@ as it loads, so a profile written before this recovers without the user clearing
 
 #### Scenario: A profile carrying a borrowed label recovers on its own
 
-- **WHEN** stored panes hold a tab labelled with a title the tab could not have carried, and the
-  application is opened
-- **THEN** that label is dropped as the panes load, and the tab is labelled from its own content
+- **WHEN** stored panes hold a tab carrying a title and icon the tab could not have carried, and
+  the application is opened
+- **THEN** both are dropped as the panes load, and the tab is labelled from its own content
 
