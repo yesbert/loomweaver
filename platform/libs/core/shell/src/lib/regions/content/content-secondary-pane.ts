@@ -124,12 +124,12 @@ export class ContentSecondaryPane {
     }
     if (this.variant() === 'panel') {
       return this.padded()
-        ? 'block h-full min-h-0 overflow-auto p-3 text-content'
-        : 'block h-full min-h-0 overflow-auto text-content';
+        ? '@container/surface block h-full min-h-0 overflow-auto p-3 text-content'
+        : '@container/surface block h-full min-h-0 overflow-auto text-content';
     }
     return this.padded()
-      ? 'block h-full overflow-auto bg-surface-raised p-6 text-content'
-      : 'block h-full overflow-auto bg-surface-raised text-content';
+      ? '@container/surface block h-full overflow-auto bg-surface-raised p-6 text-content'
+      : '@container/surface block h-full overflow-auto bg-surface-raised text-content';
   });
 
   protected readonly unavailableKey = isPopoutUrl(

@@ -61,6 +61,12 @@ real time at least once, and every one of them fails in a way that looks like so
 - **Upgrade through `npx nx migrate <version>`, not `npm update`.**
   `scripts/update-all-dependencies.sh` deliberately stays inside the semver ranges and only reports
   the majors that are waiting.
+- **The tour on the README and the landing page is recorded, not hand-made.** Serve the testbed, then
+  `node platform/tools/record-tour.mjs` writes `assets/media/tour-{light,dark}` as webm, mp4, gif and
+  a poster still, which is exactly the set `website/tools/sync-docs.mjs` refuses to build without. It
+  needs `ffmpeg` on PATH and nothing in CI runs it. Re-record when you change the workbench chrome the
+  tour shows: the first tour had no script, so a dashboard that overflowed a split pane stayed on the
+  front page until someone noticed.
 
 ## Verifying
 

@@ -47,7 +47,7 @@
 
     <ng-template #activeViewPane>
       @if (activeView(); as view) {
-        <div class="flex min-h-0 min-w-0 flex-1 flex-col overflow-auto p-3 text-content">
+        <div class="@container/surface flex min-h-0 min-w-0 flex-1 flex-col overflow-auto p-3 text-content">
           @if (view.iframe) {
             <ng-container
               [lwRetainedComponent]="iframeComponent"

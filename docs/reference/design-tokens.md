@@ -94,6 +94,49 @@ it is mounted in. A product that wants its surfaces inset asks for it once, with
 single surface that differs says so with `padded`. How *wide* the inset is stays a stylesheet
 question, below.
 
+## Size against the pane, never against the window
+
+**This is the mistake to know about before you write a template.** A surface is mounted in a pane,
+and the user decides how wide that pane is. Splitting the content area halves the pane while the
+browser window stays exactly as wide as it was, so a layout built on viewport breakpoints keeps a
+shape that no longer fits and its content runs out of the box meant to hold it.
+
+The workbench therefore gives every surface it renders a sizing reference that tracks the pane, named
+`surface`. You do not arrange it, and it follows the surface wherever the user puts it — the content
+pane, a split, a sidebar, a pop-out window.
+
+With Tailwind, use the container variants rather than `sm:` / `lg:` / `xl:`:
+
+```html
+<!-- wrong: fires on the window, which the user did not resize -->
+<div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+
+<!-- right: fires on the pane the surface was given -->
+<div class="grid gap-4 @sm:grid-cols-2 @2xl:grid-cols-4">
+```
+
+The numbers are not the same numbers. A viewport breakpoint counts the launcher rail, any open side
+panel and the pane's own padding; the container one counts only the width your content actually has.
+Pick each from the width at which that layout stops fitting.
+
+Bare `@sm:` resolves against the nearest reference, which is the workbench's unless your own template
+declares one with `@container`. Where you need the pane from inside your own nested container, name
+it: `@2xl/surface:grid-cols-3`.
+
+Without Tailwind it is an ordinary container query, and the name is the whole contract:
+
+```css
+@container surface (width >= 42rem) {
+  .my-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+```
+
+Two things that bite even with the right variants. A grid or flex child does not shrink below its
+content unless you say `min-w-0`, and a chart canvas reports a content width — so a card holding one
+will hold its column open no matter what the breakpoints say. And a surface presented as an isolated
+document needs none of this: its frame *is* the pane, so ordinary viewport queries inside it are
+already pane queries.
+
 If your product must change a size anyway, you can, with plain CSS and no API. Everything the shell
 paints lives in a cascade layer, and **unlayered CSS beats layered CSS** regardless of specificity or
 load order — so a normal stylesheet in your app wins by construction, without `!important`:

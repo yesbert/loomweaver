@@ -1,4 +1,4 @@
-<div class="flex flex-col gap-6">
+<div class="flex flex-col gap-6" data-testid="testbed-dashboard">
   <header class="flex flex-wrap items-baseline justify-between gap-2">
     <h2 class="text-lg font-semibold text-content">
       {{ 'testbed.dash.' + section() | transloco }}
@@ -9,9 +9,9 @@
   </header>
 
   @if (section() === 'trends') {
-    <section class="grid gap-4 lg:grid-cols-2">
-      <article class="flex flex-col gap-3 rounded-lg border border-border bg-surface-raised p-4">
-        <h3 class="text-sm font-medium text-content">
+    <section class="grid gap-4 @2xl:grid-cols-2">
+      <article class="flex min-w-0 flex-col gap-3 rounded-lg border border-border bg-surface-raised p-3 @sm:p-4">
+        <h3 class="text-sm font-medium break-words text-content">
           {{ 'testbed.dash.volumeTitle' | transloco }}
         </h3>
         <svg
@@ -30,15 +30,15 @@
             stroke-linecap="round"
           />
         </svg>
-        <ol class="flex justify-between text-xs text-content-faint">
+        <ol class="hidden justify-between text-xs text-content-faint @xs:flex">
           @for (point of volume; track point.day) {
             <li>{{ point.day }}</li>
           }
         </ol>
       </article>
 
-      <article class="flex flex-col gap-3 rounded-lg border border-border bg-surface-raised p-4">
-        <h3 class="text-sm font-medium text-content">
+      <article class="flex min-w-0 flex-col gap-3 rounded-lg border border-border bg-surface-raised p-3 @sm:p-4">
+        <h3 class="text-sm font-medium break-words text-content">
           {{ 'testbed.dash.replyTitle' | transloco }}
         </h3>
         <div class="flex h-24 items-end gap-2" data-testid="reply-bars">
@@ -50,7 +50,7 @@
             ></span>
           }
         </div>
-        <ol class="flex gap-2 text-xs text-content-faint">
+        <ol class="hidden gap-2 text-xs text-content-faint @xs:flex">
           @for (point of replyMinutes; track point.day) {
             <li class="flex-1 text-center">{{ point.day }}</li>
           }
@@ -58,7 +58,7 @@
       </article>
     </section>
   } @else if (section() === 'export') {
-    <section class="flex max-w-md flex-col gap-4 rounded-lg border border-border bg-surface-raised p-4">
+    <section class="flex max-w-md min-w-0 flex-col gap-4 rounded-lg border border-border bg-surface-raised p-3 @sm:p-4">
       <p class="text-sm text-content-muted">
         {{ 'testbed.dash.exportIntro' | transloco }}
       </p>
@@ -77,14 +77,14 @@
       </p>
     </section>
   } @else {
-    <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" data-testid="dash-kpis">
+    <section class="grid gap-4 @sm:grid-cols-2 @2xl:grid-cols-4" data-testid="dash-kpis">
       @for (kpi of kpis; track kpi.id) {
-        <article class="flex flex-col gap-1 rounded-lg border border-border bg-surface-raised p-4">
-          <span class="text-xs text-content-muted">
+        <article class="flex min-w-0 flex-col gap-1 rounded-lg border border-border bg-surface-raised p-3 @sm:p-4">
+          <span class="text-xs break-words text-content-muted">
             {{ 'testbed.dash.kpi.' + kpi.id | transloco }}
           </span>
-          <span class="text-3xl font-semibold text-content">{{ kpi.value }}</span>
-          <span class="flex items-center gap-1 text-xs">
+          <span class="text-2xl font-semibold text-content tabular-nums @sm:text-3xl">{{ kpi.value }}</span>
+          <span class="flex flex-wrap items-center gap-1 text-xs">
             <span [class]="kpi.good ? 'text-positive' : 'text-negative'">{{ kpi.delta }}</span>
             <span class="text-content-faint">{{ kpi.deltaKey | transloco }}</span>
           </span>
@@ -92,16 +92,16 @@
       }
     </section>
 
-    <section class="grid gap-4 lg:grid-cols-2">
-      <article class="flex flex-col gap-3 rounded-lg border border-border bg-surface-raised p-4">
-        <h3 class="text-sm font-medium text-content">
+    <section class="grid gap-4 @2xl:grid-cols-2">
+      <article class="flex min-w-0 flex-col gap-3 rounded-lg border border-border bg-surface-raised p-3 @sm:p-4">
+        <h3 class="text-sm font-medium break-words text-content">
           {{ 'testbed.dash.byStatus' | transloco }}
         </h3>
         <ol class="flex flex-col gap-3">
           @for (bar of statusBars; track bar.id) {
             <li class="flex flex-col gap-1">
-              <span class="flex items-baseline justify-between text-xs">
-                <span class="text-content">{{ 'testbed.list.status.' + bar.id | transloco }}</span>
+              <span class="flex items-baseline justify-between gap-2 text-xs">
+                <span class="min-w-0 truncate text-content">{{ 'testbed.list.status.' + bar.id | transloco }}</span>
                 <span class="text-content-faint">{{ bar.count }}</span>
               </span>
               <span class="h-2 w-full overflow-hidden rounded-full bg-surface">
@@ -112,8 +112,8 @@
         </ol>
       </article>
 
-      <article class="flex flex-col gap-3 rounded-lg border border-border bg-surface-raised p-4">
-        <h3 class="text-sm font-medium text-content">
+      <article class="flex min-w-0 flex-col gap-3 rounded-lg border border-border bg-surface-raised p-3 @sm:p-4">
+        <h3 class="text-sm font-medium break-words text-content">
           {{ 'testbed.dash.longestWaiting' | transloco }}
         </h3>
         <ol class="flex flex-col divide-y divide-border">
