@@ -143,3 +143,32 @@ export function withoutTabs(
     dropped: [...first.dropped, ...second.dropped],
   };
 }
+
+export function withoutBorrowedLabels(
+  node: PaneNode,
+  borrowed: (tab: PaneTab) => boolean,
+): { node: PaneNode; stripped: readonly string[] } {
+  if (node.kind === 'leaf') {
+    const stripped = node.tabs.filter((tab) => borrowed(tab)).map((tab) => tab.path);
+    if (stripped.length === 0) {
+      return { node, stripped: [] };
+    }
+    const tabs = node.tabs.map((tab) => {
+      if (!borrowed(tab)) {
+        return tab;
+      }
+      const { title, literalTitle, icon, ...rest } = tab;
+      return rest;
+    });
+    return { node: { ...node, tabs }, stripped };
+  }
+  const first = withoutBorrowedLabels(node.first, borrowed);
+  const second = withoutBorrowedLabels(node.second, borrowed);
+  if (first.stripped.length === 0 && second.stripped.length === 0) {
+    return { node, stripped: [] };
+  }
+  return {
+    node: { ...node, first: first.node, second: second.node },
+    stripped: [...first.stripped, ...second.stripped],
+  };
+}

@@ -346,6 +346,7 @@ export class ContentTabsService {
       preview: existing ? existing.preview : previewSlot,
       pinned: existing ? existing.pinned : false,
       closable: existing ? existing.closable : true,
+      ownLabel: true,
     };
     if (previewSlot && !existing) {
       this.replacePreviewSlot(root, stored);

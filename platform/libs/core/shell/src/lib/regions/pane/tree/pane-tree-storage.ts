@@ -4,10 +4,18 @@ import { WORKING_STATE_STORE } from '../../../persistence/working-state-store';
 import { hydrateAsync } from '../../../persistence/hydrate';
 import { isPopoutUrl } from '../../../popout/popout-path';
 import { ActiveWorkspaceService } from '../../../workspace/active-workspace.service';
-import { DockEntry, normalizeDockEntry, withoutTabs } from './pane-restore';
+import {
+  DockEntry,
+  normalizeDockEntry,
+  withoutBorrowedLabels,
+  withoutTabs,
+} from './pane-restore';
 import { PaneNode } from './pane-node';
 import { WORKSPACE_DEFINITIONS } from '../../../workspace/provide-workspaces';
-import { claimsOf } from '../../../workspace/workspace-definition';
+import {
+  claimsOf,
+  declaredTabPaths,
+} from '../../../workspace/workspace-definition';
 import {
   claimFor,
   withoutConflicts,
@@ -128,27 +136,56 @@ export class PaneTreeStorage {
       return docks;
     }
     const claims = withoutConflicts(claimsOf(declared));
+    const home = declared.find((definition) => definition.id === here);
+    const ownTabs = new Set(home ? declaredTabPaths(home) : []);
     const out: Record<string, DockEntry> = {};
     const dropped: string[] = [];
+    const stripped: string[] = [];
     for (const [dock, entry] of Object.entries(docks)) {
       const filtered = withoutTabs(
         entry.node,
         (path) => (claimFor(claims, path)?.workspaceId ?? here) !== here,
       );
       dropped.push(...filtered.dropped);
-      const repaired = { ...entry, node: filtered.node };
+      const relabelled = withoutBorrowedLabels(
+        filtered.node,
+        (tab) =>
+          tab.title !== undefined &&
+          tab.literalTitle !== true &&
+          ownTabs.has(tab.path),
+      );
+      stripped.push(...relabelled.stripped);
+      const repaired = { ...entry, node: relabelled.node };
       if (!isDefault(repaired)) {
         out[dock] = repaired;
       }
     }
-    if (dropped.length > 0 && isDevMode()) {
-      console.warn(
-        `Workspace "${this.workspace.id()}": stored content at ` +
-          `${dropped.map((path) => `"${path}"`).join(', ')} belongs to another ` +
-          `workspace that claims it — the tab is dropped rather than restored here.`,
-      );
+    if (isDevMode() && (dropped.length > 0 || stripped.length > 0)) {
+      this.reportRepair(dropped, stripped);
     }
     return out;
+  }
+
+  private reportRepair(
+    dropped: readonly string[],
+    stripped: readonly string[],
+  ): void {
+    const quoted = (paths: readonly string[]) =>
+      paths.map((path) => `"${path}"`).join(', ');
+    const notes: string[] = [];
+    if (dropped.length > 0) {
+      notes.push(
+        `stored content at ${quoted(dropped)} belongs to another workspace ` +
+          `that claims it — the tab is dropped rather than restored here`,
+      );
+    }
+    if (stripped.length > 0) {
+      notes.push(
+        `stored labels on ${quoted(stripped)} were worked out rather than ` +
+          `carried — they are dropped so the tab is labelled from its own content`,
+      );
+    }
+    console.warn(`Workspace "${this.workspace.id()}": ${notes.join('; ')}.`);
   }
 
   private declaredHome(): string {
