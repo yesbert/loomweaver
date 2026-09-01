@@ -1,6 +1,6 @@
 {
   "name": "@loomweaver/cli",
-  "version": "0.8.0-preview.4",
+  "version": "0.8.0-preview.5",
   "description": "LoomWeaver scaffolding CLI: generates weavers, distributions and integrations into any project — no Nx workspace, no LoomWeaver checkout and no AI assistant required.",
   "keywords": [
     "loomweaver",
