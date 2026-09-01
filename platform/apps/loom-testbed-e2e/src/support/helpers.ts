@@ -1,4 +1,4 @@
-import { Page, expect } from '@playwright/test';
+import { Locator, Page, expect } from '@playwright/test';
 
 export async function dragTo(
   page: Page,
@@ -72,4 +72,30 @@ export function expectFreshWindow(page: Page) {
         .catch(() => false),
     )
     .toBe(true);
+}
+
+export async function splitContentRight(page: Page): Promise<Locator> {
+  await page
+    .locator('lw-content-area lw-pane-toolbar button[aria-label="Split right"]')
+    .click();
+  const divider = page.getByRole('separator', { name: 'Resize split' });
+  await expect(divider).toBeVisible();
+  return divider;
+}
+
+export async function narrowPrimaryPane(
+  page: Page,
+  divider: Locator,
+): Promise<void> {
+  const floor = (await divider.getAttribute('aria-valuemin')) ?? '';
+  for (let press = 0; press < 12; press++) {
+    const before = (await divider.getAttribute('aria-valuenow')) ?? '';
+    if (before === floor) {
+      break;
+    }
+    await divider.focus();
+    await page.keyboard.press('Shift+ArrowLeft');
+    await expect(divider).not.toHaveAttribute('aria-valuenow', before);
+  }
+  await expect(divider).toHaveAttribute('aria-valuenow', floor);
 }
