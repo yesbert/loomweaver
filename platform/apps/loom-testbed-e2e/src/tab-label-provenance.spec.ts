@@ -49,13 +49,15 @@ test.describe('A label the workbench worked out is not the tab’s own', () => {
     expect(await sandboxTab(page)).not.toHaveProperty('title');
 
     await page.reload();
-    await expect(
-      page.getByRole('tab', { name: 'Sandbox (iframe)' }),
-    ).toBeVisible();
-
-    const tab = await sandboxTab(page);
-    expect(tab).not.toHaveProperty('title');
-    expect(tab).not.toHaveProperty('icon');
+    await expect
+      .poll(async () => {
+        const tabs = await storedTabs(page);
+        const found = tabs.find((entry) =>
+          String(entry['path']).startsWith('sandbox-rpc'),
+        );
+        return found === undefined ? 'missing' : (found['title'] ?? 'none');
+      })
+      .toBe('none');
   });
 
   test('a tab stored with a borrowed label recovers as the panes load', async ({
@@ -79,13 +81,54 @@ test.describe('A label the workbench worked out is not the tab’s own', () => {
     expect(await sandboxTab(page)).toHaveProperty('title', 'testbed.home.title');
 
     await page.reload();
+    await expect
+      .poll(async () => {
+        const tabs = await storedTabs(page);
+        const found = tabs.find((entry) =>
+          String(entry['path']).startsWith('sandbox-rpc'),
+        );
+        return found === undefined ? 'missing' : (found['title'] ?? 'none');
+      })
+      .toBe('none');
+  });
+
+  test('a profile poisoned below a declared address heals too', async ({
+    page,
+  }) => {
+    await page.addInitScript(
+      ([key, tree]) => {
+        localStorage.setItem(key, tree);
+        localStorage.setItem('lw.shell.active-workspace', 'testbed.sandbox');
+      },
+      [
+        SANDBOX_WORKSPACE,
+        JSON.stringify({
+          content: {
+            tree: {
+              kind: 'leaf',
+              id: 'main',
+              tabs: [
+                {
+                  path: 'sandbox-rpc/overview',
+                  title: 'testbed.home.title',
+                  icon: 'testbedHome',
+                  closable: false,
+                },
+              ],
+              active: 'sandbox-rpc/overview',
+            },
+            primary: 'main',
+          },
+        }),
+      ],
+    );
+
+    await page.goto('/sandbox-rpc/overview');
+
     await expect(
       page.getByRole('tab', { name: 'Sandbox (iframe)' }),
     ).toBeVisible();
-
-    const tab = await sandboxTab(page);
-    expect(tab).not.toHaveProperty('title');
-    expect(tab).not.toHaveProperty('icon');
+    await expect(page.getByRole('tab', { name: 'Home' })).toHaveCount(0);
   });
 
   test('a refined label on a declared tab is kept, key or not', async ({

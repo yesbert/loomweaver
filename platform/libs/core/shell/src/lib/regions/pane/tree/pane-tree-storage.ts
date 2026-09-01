@@ -137,7 +137,9 @@ export class PaneTreeStorage {
     }
     const claims = withoutConflicts(claimsOf(declared));
     const home = declared.find((definition) => definition.id === here);
-    const ownTabs = new Set(home ? declaredTabPaths(home) : []);
+    const ownTabs = home ? declaredTabPaths(home) : [];
+    const isDeclared = (path: string) =>
+      ownTabs.some((own) => path === own || path.startsWith(`${own}/`));
     const out: Record<string, DockEntry> = {};
     const dropped: string[] = [];
     const stripped: string[] = [];
@@ -152,7 +154,7 @@ export class PaneTreeStorage {
         (tab) =>
           tab.title !== undefined &&
           tab.literalTitle !== true &&
-          ownTabs.has(tab.path),
+          isDeclared(tab.path),
       );
       stripped.push(...relabelled.stripped);
       const repaired = { ...entry, node: relabelled.node };
