@@ -2,7 +2,7 @@ import { AccessRequirement, ContentRoute, ViewAction } from '@loomweaver/plugin-
 import { View } from '../../../layout/view';
 import { PaneTab } from '../../pane/tree/pane-node';
 import { overlayTabTitle } from '../../pane/drag/pane-label';
-import { matchRoute, tabRootOf } from '../content-path';
+import { matchRoute, normalizePath, segmentsOf, tabRootOf } from '../content-path';
 
 const DYNAMIC_TAB_ORDER_BASE = 1000;
 const VIEW_TAB_ORDER_BASE = 2000;
@@ -12,6 +12,7 @@ export interface OpenTab {
   readonly title: string;
   readonly icon?: string;
   readonly literalTitle: boolean;
+  readonly ownLabel: boolean;
   readonly onClose?: () => void;
   readonly preview: boolean;
   readonly pinned: boolean;
@@ -36,6 +37,19 @@ export interface ContentTabView {
   /** A pinned tab is sorted to the group's front and shows an unpin control instead of close. */
   readonly pinned: boolean;
   readonly actions?: readonly ViewAction[];
+}
+
+export function declaringRoute(
+  routes: readonly ContentRoute[],
+  path: string,
+): ContentRoute | undefined {
+  const route = matchRoute(routes, path);
+  if (route === undefined) {
+    return undefined;
+  }
+  return segmentsOf(route.path).length === 0 && segmentsOf(path).length > 0
+    ? undefined
+    : route;
 }
 
 export function defaultTabTitle(
@@ -76,6 +90,7 @@ export function autoOpenedTab(
     path,
     ...defaultTabTitle(route, root),
     icon: route.icon,
+    ownLabel: false,
     preview: false,
     pinned: false,
     closable: route.closable !== false,
@@ -87,8 +102,9 @@ export function toOpenTab(
   tab: PaneTab,
   onClose: (() => void) | undefined,
 ): OpenTab {
-  const root = tabRootOf(routes, tab.path);
-  const route = matchRoute(routes, tab.path);
+  const route = declaringRoute(routes, tab.path);
+  const root =
+    route === undefined ? normalizePath(tab.path) : tabRootOf(routes, tab.path);
   const effective = overlayTabTitle(tab, {
     ...defaultTabTitle(route, root),
     icon: route?.icon,
@@ -98,6 +114,7 @@ export function toOpenTab(
     title: effective.title,
     literalTitle: effective.literalTitle,
     icon: effective.icon,
+    ownLabel: tab.title !== undefined,
     onClose,
     preview: tab.preview ?? false,
     pinned: tab.pinned ?? false,
@@ -108,9 +125,9 @@ export function toOpenTab(
 export function toPaneTab(tab: OpenTab): PaneTab {
   return {
     path: tab.path,
-    title: tab.title,
-    ...(tab.literalTitle && { literalTitle: true }),
-    ...(tab.icon !== undefined && { icon: tab.icon }),
+    ...(tab.ownLabel && { title: tab.title }),
+    ...(tab.ownLabel && tab.literalTitle && { literalTitle: true }),
+    ...(tab.ownLabel && tab.icon !== undefined && { icon: tab.icon }),
     ...(tab.pinned && { pinned: true }),
     ...(tab.preview && { preview: true }),
     ...(!tab.closable && { closable: false }),
