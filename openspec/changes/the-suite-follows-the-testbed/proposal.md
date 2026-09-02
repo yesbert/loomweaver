@@ -29,9 +29,10 @@ The suite gains no coverage and loses none: every test keeps the behaviour it wa
   expectation is derived from the distribution rather than restated, so that the next workspace the
   testbed gains does not break it again.
 
-Nothing in `libs/` changes. If any of the twelve turns out to rest on a shell defect rather than on
-a stale expectation, that test is left failing and the defect gets its own change naming the
-requirement it fails.
+Nothing in the platform changes. The testbed weaver gains a command and a title, because the
+distribution's own fixtures are what the tests drive; the shell is untouched. If any of the twelve
+turns out to rest on a shell defect rather than on a stale expectation, that test is left failing and
+the defect gets its own change naming the requirement it fails.
 
 ## Capabilities
 
@@ -54,6 +55,9 @@ Test sources only, all under `platform/apps/loom-testbed-e2e/src/`:
 - `pane-focus-drag.spec.ts` — one test
 - `app-reset.spec.ts` — two tests
 - `workspaces.spec.ts` — one test
+
+Two fixture files carry the added address, `apps/loom-testbed/public/sandbox-rpc/plugin.js` and the
+testbed weaver's command, title and content entry. Neither is platform code.
 
 The behaviour each group meets was set by three merged changes, kept here so the reasoning stays
 findable: the testbed's sandbox workspace and its claim arrived with `a-deep-link-waits-for-the-plugin-that-answers-it`,
