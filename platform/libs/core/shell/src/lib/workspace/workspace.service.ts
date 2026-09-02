@@ -137,7 +137,7 @@ export class WorkspaceService {
         console.warn(problem);
       }
     }
-    void this.active.ready.then(() => this.layOutAdoptedWorkspace());
+    this.layOutWhenWorkspaceReady();
   }
 
   async saveCurrent(name: string): Promise<void> {
@@ -347,6 +347,10 @@ export class WorkspaceService {
       (key) => this.active.scopedKey(key),
       WORKSPACE_KEYS,
     );
+  }
+
+  private layOutWhenWorkspaceReady(): void {
+    void this.active.ready.then(() => this.layOutAdoptedWorkspace());
   }
 
   private layOutAdoptedWorkspace(): void {
