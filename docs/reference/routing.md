@@ -99,6 +99,8 @@ Your component renders them through an ordinary `<router-outlet>`, and moving be
 inside one tab and does not rebuild you. The bare address stays valid: the host never redirects
 `doc/7` to `doc/7/code`, and what the tab root shows is your decision.
 
+## Mounting an app that brings its own routes
+
 Where the segments are not a fixed list — a value in the segment, a third level, an existing routing
 tree of your own that you want to keep — declare `rest: true` instead and the surface owns everything
 below its path, handed over verbatim including the query string. That is the seam for mounting a

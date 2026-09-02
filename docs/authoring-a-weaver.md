@@ -14,6 +14,11 @@ supported surface throughout. There is one deliberate way past it:
 [defining your own custom element](#your-own-custom-element--the-escape-hatch). That path is an escape
 hatch, and its costs are ones the platform cannot absorb for you.
 
+Nothing in that contract changes how you write Angular. Your views are ordinary standalone
+components, the router is the one you already use, and the iframe sandbox is for code you did not
+write. The smallest useful weaver is a single surface that owns your whole route tree, which is how
+an application you already have moves in behind one plugin.
+
 > **Where the snippets go.** A snippet that starts with `ctx.` belongs **inside `activate(ctx)`** in
 > your plugin file — `src/lib/plugin/<id>.plugin.ts` in a scaffolded weaver. Anything that belongs
 > somewhere else names its file on the first line. Components live beside it under `src/lib/views/`,
