@@ -27,13 +27,11 @@ import {
 import {
   ContentTabView,
   OpenTab,
-  autoOpenedTab,
   dynamicTabViews,
   facetTabViews,
   toOpenTab,
   toPaneTab,
   viewTabViews,
-  withRefreshedPath,
 } from './content-tab-projection';
 import { TabCloseHooks } from './tab-close-hooks';
 import { syncActiveTab } from './active-tab-sync';
