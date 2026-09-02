@@ -61,9 +61,10 @@
       expectation is gone.
 - [x] 5.2 Run the demo smoke suite and the unit tests, to confirm the added surface registration reached
       nothing else.
-- [ ] 5.3 Raise the defect from 2.2 as its own change: a deep link into an address a workspace claims
+- [x] 5.3 Raise the defect from 2.2 as its own change, `a-claimed-address-shows-its-content`: a deep link into an address a workspace claims
       leaves a retained surface parked and the pane blank. Name the requirement it fails rather than
       restating the symptom.
-- [ ] 5.4 Report the contradiction between `sandbox-rpc` declaring both `retain: 'always'` and
-      `subRoutes` and the shell's boot warning that the two do not combine. It is adjacent to 5.3 and
-      may belong in the same change; decide there, not here.
+- [x] 5.4 Report the contradiction between `sandbox-rpc` declaring both `retain: 'always'` and
+      `subRoutes` and the shell's boot warning that the two do not combine. It is carried by the same
+      change as 5.3, which cannot write its fix without settling whether a retained surface sees the
+      router.
