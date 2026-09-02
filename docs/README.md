@@ -60,6 +60,8 @@ standard can run your product's own commands.
   workbench's own commands, with a hook for confirming or declining a call before it runs.
 - [Design tokens & `<lw-*>` vocabulary](reference/design-tokens.md) — the semantic tokens and host UI
   building blocks to use in templates (never raw palette colors).
+- [Icons](reference/icons.md) — every icon name the workbench ships, with its glyph, and how a
+  weaver or a distribution adds its own.
 - [Operations](reference/operations.md) — what bites when you run, edit or verify something here,
   and the guards that fail on it
 - [Accessibility](reference/accessibility.md) — the WCAG 2.1 AA guardrail the host meets and weavers

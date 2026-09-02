@@ -66,6 +66,7 @@ export default defineConfig({
             { label: 'Callable commands', link: '/reference/callable-commands/' },
             { label: 'Agent tools', link: '/reference/agent-tools/' },
             { label: 'Design tokens', link: '/reference/design-tokens/' },
+            { label: 'Icons', link: '/reference/icons/' },
             { label: 'Accessibility', link: '/reference/accessibility/' },
             { label: 'Operations', link: '/reference/operations/' },
           ],
