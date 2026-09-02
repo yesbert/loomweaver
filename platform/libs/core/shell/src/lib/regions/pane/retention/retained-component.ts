@@ -134,7 +134,9 @@ export class RetainedComponent implements OnChanges, OnDestroy {
       this.sync();
       return;
     }
-    this.queueRepair();
+    if (this.displaced(mounted.slot.rootNodes)) {
+      this.queueRepair();
+    }
   }
 
   private queueRepair(): void {
