@@ -54,11 +54,24 @@ to expect the sandbox workspace. A scenario whose subject is a surface *among ne
 beside a dashboard tab, being dragged to an edge, surviving a switch to another tab, needs an
 address that does not move the user, and belongs at `sandbox-static`.
 
-**Where a coexistence scenario needs something `sandbox-static` does not declare, extend
-`sandbox-static`.** Its surface declares neither `retain` nor `subRoutes`, which the retention
-scenarios need. Adding them there is additive and weakens no existing coverage, whereas weakening
-the claim removes some. This is the one distribution edit the change permits, and it is confined to
-`apps/loom-testbed/public/sandbox-static/plugin.js`.
+**The unclaimed address is a second registration of the same sandbox view, not a second plugin.**
+Six of the nine need the sandbox surface where no workspace claims it: three because a tab a
+workspace declares is neither a preview nor closable, and three because they need a neighbour tab
+the claiming workspace does not have. `sandbox-static` cannot carry them. Its view is a thirty-line
+stub with none of the affordances they exercise, no draft field, no veto toggle, no promotion
+button, so moving them there would mean copying most of the four-hundred-line `sandbox-rpc` view
+across, which is the drift this design set out to avoid. One of the nine also depends on
+`sandbox-static` *not* retaining, so giving it `retain` would break the coverage it already carries.
+
+Instead the `sandbox-rpc` plugin registers its existing view a second time, at a routable path no
+workspace claims, with its own iframe query so the two are told apart by a locator. It keeps
+`retain: 'always'` and declares no sub-routes, since the sub-route scenarios stay at the claimed
+address. This is one added registration in
+`apps/loom-testbed/public/sandbox-rpc/plugin.js` and the only distribution edit the change permits.
+
+An earlier draft of this design put the edit in `sandbox-static` and called for adding `retain` and
+`subRoutes` there. That was written before the two views were compared and does not survive the
+comparison; it is recorded here so the reasoning is not repeated.
 
 **The workspace count is derived, not restated.** The failing assertion hard-codes five where the
 testbed now ships six. Replacing five with six would fail again the next time the testbed gains a
@@ -83,9 +96,9 @@ sub-route scenario pins behaviour the shell tells the developer not to rely on. 
 the test is brought back to green against current behaviour, and the contradiction between the
 fixture and the warning is reported for its own change rather than resolved in passing.
 
-**Extending `sandbox-static` could drift it into a copy of `sandbox-rpc`.** → Only `retain` and
-`subRoutes` are added, and only if a moved scenario needs them. The two plugins stay distinguished
-by the thing that matters, one address is claimed and one is not.
+**A second registration of one view could read as two surfaces where there is one.** → The two
+registrations differ in exactly the thing under test, one address is claimed and one is not, and
+they are named for that. Nothing is copied, so they cannot drift apart.
 
 **The suite is green again and drifts again.** → Not solved by this change. The nightly's failures
 have to be looked at when they appear; nothing here makes that automatic, and putting the suite in

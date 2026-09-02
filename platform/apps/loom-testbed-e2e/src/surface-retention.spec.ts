@@ -219,13 +219,13 @@ test.describe('Surface retention (beforeClose + programmatic destruction)', () =
     page,
   }) => {
     await page.goto('/');
-    await page
-      .getByRole('button', { name: 'Sandbox (iframe)', exact: true })
-      .click();
-    const tab = page.getByRole('tab', { name: 'Sandbox (iframe)' });
+    await runCommand(page, 'Sandbox (unclaimed)');
+    const tab = page.getByRole('tab', { name: 'Sandbox (unclaimed)' });
     await expect(tab).toBeVisible();
 
-    const surface = page.frameLocator('iframe[src*="/sandbox-rpc/view.html"]');
+    const surface = page.frameLocator(
+      'iframe[src*="/sandbox-rpc/view.html?unclaimed=1"]',
+    );
     await surface.getByTestId('sandbox-veto-toggle').check();
 
     const closeAffordance = tab.locator('..').getByTestId('tab-close');
@@ -296,24 +296,23 @@ test.describe('Surface retention (beforeClose + programmatic destruction)', () =
 });
 
 test.describe('Surface retention (a sandboxed surface is hidden, not rebuilt)', () => {
-  const testbedFrame = 'iframe[src*="/sandbox-rpc/view.html"]';
+  const claimedFrame = 'iframe[src$="/sandbox-rpc/view.html"]';
+  const unclaimedFrame = 'iframe[src*="/sandbox-rpc/view.html?unclaimed=1"]';
   const infoFrame = 'iframe[src*="/sandbox-static/view.html"]';
 
   test('a retained sandbox surface keeps its own state across a tab switch', async ({
     page,
   }) => {
     await page.goto('/dashboard/overview');
-    await page
-      .getByRole('button', { name: 'Sandbox (iframe)', exact: true })
-      .click();
-    const surface = page.frameLocator(testbedFrame);
+    await runCommand(page, 'Sandbox (unclaimed)');
+    const surface = page.frameLocator(unclaimedFrame);
     await surface.getByTestId('sandbox-draft').fill('KEPT-IN-PLACE');
 
     await page.getByRole('tab', { name: 'Overview' }).click();
     await expect(page.locator('lw-testbed-dashboard-view')).toBeVisible();
-    await expect(page.locator(testbedFrame)).toHaveCount(1);
+    await expect(page.locator(unclaimedFrame)).toHaveCount(1);
 
-    await page.getByRole('tab', { name: 'Sandbox (iframe)' }).click();
+    await page.getByRole('tab', { name: 'Sandbox (unclaimed)' }).click();
     await expect(surface.getByTestId('sandbox-draft')).toHaveValue(
       'KEPT-IN-PLACE',
     );
@@ -326,12 +325,12 @@ test.describe('Surface retention (a sandboxed surface is hidden, not rebuilt)', 
     await page
       .getByRole('button', { name: 'Sandbox (iframe)', exact: true })
       .click();
-    const surface = page.frameLocator(testbedFrame);
+    const surface = page.frameLocator(claimedFrame);
     await surface.getByTestId('sandbox-draft').fill('KEPT-ACROSS-WORKSPACES');
 
     await page.getByRole('button', { name: 'Review', exact: true }).click();
     await expect(page).toHaveURL(/entry\/e-01/);
-    await expect(page.locator(testbedFrame)).toHaveCount(1);
+    await expect(page.locator(claimedFrame)).toHaveCount(1);
 
     await page.getByRole('button', { name: 'Home', exact: true }).click();
     await page
@@ -347,9 +346,7 @@ test.describe('Surface retention (a sandboxed surface is hidden, not rebuilt)', 
     page,
   }) => {
     await page.goto('/dashboard/overview');
-    await page
-      .getByRole('button', { name: 'Sandbox (iframe)', exact: true })
-      .click();
+    await runCommand(page, 'Sandbox (unclaimed)');
 
     const module_ = process.platform === 'darwin' ? 'Meta' : 'Control';
     await page.keyboard.press(`${module_}+KeyP`);
@@ -364,14 +361,14 @@ test.describe('Surface retention (a sandboxed surface is hidden, not rebuilt)', 
     await expect(page.locator('lw-testbed-dashboard-view')).toBeVisible();
 
     await expect(page.locator(infoFrame)).toHaveCount(0);
-    await expect(page.locator(testbedFrame)).toHaveCount(1);
+    await expect(page.locator(unclaimedFrame)).toHaveCount(1);
   });
 
   test('the retained surface keeps its state across its own sub-routes', async ({
     page,
   }) => {
     await page.goto('/sandbox-rpc');
-    const surface = page.frameLocator(testbedFrame);
+    const surface = page.frameLocator(claimedFrame);
     await surface.getByTestId('sandbox-draft').fill('ACROSS-SUB-ROUTES');
 
     await surface.getByRole('tab', { name: 'Architecture' }).click();
@@ -385,14 +382,12 @@ test.describe('Surface retention (a sandboxed surface is hidden, not rebuilt)', 
     page,
   }) => {
     await page.goto('/');
-    await page
-      .getByRole('button', { name: 'Sandbox (iframe)', exact: true })
-      .click();
-    const surface = page.frameLocator(testbedFrame);
+    await runCommand(page, 'Sandbox (unclaimed)');
+    const surface = page.frameLocator(unclaimedFrame);
     await surface.getByTestId('sandbox-draft').pressSequentially('DIRTY-RPC');
 
     const closeAffordance = page
-      .getByRole('tab', { name: 'Sandbox (iframe)' })
+      .getByRole('tab', { name: 'Sandbox (unclaimed)' })
       .locator('..')
       .getByTestId('tab-close');
     await closeAffordance.click();
@@ -403,13 +398,13 @@ test.describe('Surface retention (a sandboxed surface is hidden, not rebuilt)', 
     await expect(dialog.getByRole('button', { name: 'Save' })).toHaveCount(0);
     await dialog.getByRole('button', { name: 'Cancel' }).click();
     await expect(
-      page.getByRole('tab', { name: 'Sandbox (iframe)' }),
+      page.getByRole('tab', { name: 'Sandbox (unclaimed)' }),
     ).toBeVisible();
 
     await closeAffordance.click();
     await dialog.getByRole('button', { name: 'Discard' }).click();
     await expect(
-      page.getByRole('tab', { name: 'Sandbox (iframe)' }),
+      page.getByRole('tab', { name: 'Sandbox (unclaimed)' }),
     ).toHaveCount(0);
   });
 });

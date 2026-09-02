@@ -22,6 +22,16 @@
             subRoutes: ['overview', 'architecture'],
           },
         }),
+        ctx.registerSurface({
+          id: 'sandbox-rpc.unclaimed',
+          title: 'testbed.sandbox.unclaimed',
+          icon: 'testbedSandbox',
+          iframe: '/sandbox-rpc/view.html?unclaimed=1',
+          retain: 'always',
+          routable: {
+            path: 'sandbox-unclaimed',
+          },
+        }),
       ]);
     })
     .catch(function (error) {

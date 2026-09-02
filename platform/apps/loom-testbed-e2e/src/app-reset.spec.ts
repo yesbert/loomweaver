@@ -27,11 +27,7 @@ test.describe('Resetting the app layout (K6)', () => {
 
     await page.getByRole('button', { name: 'Settings' }).click();
     await page.getByRole('button', { name: 'Reset app layout' }).click();
-    await page
-      .getByRole('dialog')
-      .last()
-      .getByRole('button', { name: 'OK' })
-      .click();
+    await page.getByTestId('app-reset-confirm').click();
 
     await expect(notes).toHaveCount(1);
     await expect(page.locator(left).getByRole('tab').first()).toBeVisible();
@@ -52,11 +48,7 @@ test.describe('Resetting the app layout (K6)', () => {
 
     await page.getByRole('button', { name: 'Settings' }).click();
     await page.getByRole('button', { name: 'Reset app layout' }).click();
-    await page
-      .getByRole('dialog')
-      .last()
-      .getByRole('button', { name: 'OK' })
-      .click();
+    await page.getByTestId('app-reset-confirm').click();
     await page.keyboard.press('Escape');
 
     await page.getByRole('button', { name: 'Workspaces' }).click();
