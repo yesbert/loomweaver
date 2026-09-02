@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { dragTo, openEntry, useFeatures } from './support/helpers';
+import { dragTo, openEntry, runCommand, useFeatures } from './support/helpers';
 
 test.describe('Every tab is draggable — focus handoff on arrival', () => {
   test('a router-bound doc tab dragged to an edge splits WITH it; the target becomes the URL pane, renders the doc, URL follows, and focus is reversible (R6/R9)', async ({
@@ -49,16 +49,14 @@ test.describe('Every tab is draggable — focus handoff on arrival', () => {
     page,
   }) => {
     await page.goto('/dashboard/overview');
-    await page
-      .getByRole('button', { name: 'Sandbox (iframe)', exact: true })
-      .click();
+    await runCommand(page, 'Sandbox (unclaimed)');
     await expect(
-      page.getByRole('tab', { name: 'Sandbox (iframe)' }),
+      page.getByRole('tab', { name: 'Sandbox (unclaimed)' }),
     ).toBeVisible();
-    await expect(page).toHaveURL(/sandbox-rpc/);
+    await expect(page).toHaveURL(/sandbox-unclaimed/);
 
     const content = (await page.locator('#lw-main-content').boundingBox())!;
-    await dragTo(page, '[role="tab"][aria-label="Sandbox (iframe)"]', {
+    await dragTo(page, '[role="tab"][aria-label="Sandbox (unclaimed)"]', {
       x: content.x + content.width - 12,
       y: content.y + content.height / 2,
     });
@@ -66,9 +64,9 @@ test.describe('Every tab is draggable — focus handoff on arrival', () => {
     await expect(
       page.locator('lw-content-grid lw-pane-split-handle'),
     ).toHaveCount(1);
-    await expect(page).toHaveURL(/sandbox-rpc/);
+    await expect(page).toHaveURL(/sandbox-unclaimed/);
     const surface = page.frameLocator(
-      'lw-content-area iframe[src*="/sandbox-rpc/view.html"]',
+      'lw-content-area iframe[src*="/sandbox-rpc/view.html?unclaimed=1"]',
     );
     await expect(
       surface.getByRole('heading', { name: /isolated iframe/ }),

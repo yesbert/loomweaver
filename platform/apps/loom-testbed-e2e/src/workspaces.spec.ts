@@ -325,10 +325,17 @@ test.describe('Workspaces are self-remembering', () => {
     await expect(page.getByTestId('workspace-def-testbed.review')).toHaveCount(
       0,
     );
-    await expect(page.getByTestId('workspace-tab-provided')).toContainText('5');
-
     await page.getByTestId('workspace-tab-provided').click();
     await expect(page.getByTestId('workspace-default')).toHaveCount(0);
+    await expect(page.getByTestId('workspace-def-testbed.review')).toBeVisible();
+
+    const provided = await page
+      .locator('[data-testid^="workspace-def-"]')
+      .count();
+    await expect(page.getByTestId('workspace-tab-provided')).toContainText(
+      `(${provided})`,
+    );
+
     await page.getByTestId('workspace-def-testbed.review').click();
 
     await page.getByRole('button', { name: 'Workspaces' }).click();

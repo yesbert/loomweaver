@@ -63,6 +63,12 @@ export function registerCommands(ctx: PluginContext): void {
     run: () => testbedContent.goSandbox(),
   });
   ctx.registerCommand({
+    id: 'testbed.go.sandboxUnclaimed',
+    title: 'testbed.sandbox.unclaimed',
+    icon: 'testbedSandbox',
+    run: () => testbedContent.goSandboxUnclaimed(),
+  });
+  ctx.registerCommand({
     id: 'testbed.go.workspace',
     title: 'testbed.workspace.title',
     icon: 'splitPanes',

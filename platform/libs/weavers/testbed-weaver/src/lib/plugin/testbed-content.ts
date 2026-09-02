@@ -88,6 +88,17 @@ class TestbedContentActions {
     );
   }
 
+  goSandboxUnclaimed(): void {
+    this.withCtx((ctx) =>
+      ctx.openContentTab({
+        path: 'sandbox-unclaimed',
+        title: 'testbed.sandbox.unclaimed',
+        icon: 'testbedSandbox',
+        preview: true,
+      }),
+    );
+  }
+
   openWorkspace(id: string): void {
     this.withCtx((ctx) =>
       ctx.openContentTab({

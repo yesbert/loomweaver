@@ -114,6 +114,7 @@
   },
   "sandbox": {
     "title": "Sandbox (iframe)",
+    "unclaimed": "Sandbox (unclaimed)",
     "toast": "Sandbox plugin activated — ctx over iframe + Penpal RPC."
   },
   "sandboxStatic": {

@@ -1,6 +1,9 @@
 import { expect, test } from '@playwright/test';
 import { runCommand } from './support/helpers';
 
+const claimedFrame = 'iframe[src$="/sandbox-rpc/view.html"]';
+const unclaimedFrame = 'iframe[src*="/sandbox-rpc/view.html?unclaimed=1"]';
+
 test.describe('Sandbox stage — iframe plugin over Penpal', () => {
   test('the sandboxed plugin reaches the host over RPC (localised startup toast)', async ({
     page,
@@ -14,16 +17,14 @@ test.describe('Sandbox stage — iframe plugin over Penpal', () => {
     page,
   }) => {
     await page.goto('/dashboard/export');
-    await page
-      .getByRole('button', { name: 'Sandbox (iframe)', exact: true })
-      .click();
+    await runCommand(page, 'Sandbox (unclaimed)');
 
     await expect(page.getByRole('tab', { name: 'Export' })).toBeVisible();
     await expect(
-      page.getByRole('tab', { name: 'Sandbox (iframe)' }),
+      page.getByRole('tab', { name: 'Sandbox (unclaimed)' }),
     ).toBeVisible();
 
-    const surface = page.frameLocator('iframe[src*="/sandbox-rpc/view.html"]');
+    const surface = page.frameLocator(unclaimedFrame);
     await expect(
       surface.getByRole('heading', { name: /isolated iframe/ }),
     ).toBeVisible();
@@ -36,7 +37,7 @@ test.describe('Sandbox stage — iframe plugin over Penpal', () => {
     await page
       .getByRole('button', { name: 'Sandbox (iframe)', exact: true })
       .click();
-    const surface = page.frameLocator('iframe[src*="/sandbox-rpc/view.html"]');
+    const surface = page.frameLocator(claimedFrame);
 
     await surface.getByRole('tab', { name: 'Architecture' }).click();
     await expect(page).toHaveURL(/sandbox-rpc\/architecture/);
@@ -48,7 +49,7 @@ test.describe('Sandbox stage — iframe plugin over Penpal', () => {
   }) => {
     await page.goto('/sandbox-rpc/architecture');
     await expect(page).toHaveURL(/sandbox-rpc\/architecture/);
-    const surface = page.frameLocator('iframe[src*="/sandbox-rpc/view.html"]');
+    const surface = page.frameLocator(claimedFrame);
     await expect(
       surface.getByRole('tab', { name: 'Architecture', selected: true }),
     ).toBeVisible();
@@ -82,7 +83,7 @@ test.describe('Sandbox stage — iframe plugin over Penpal', () => {
     await page
       .getByRole('button', { name: 'Sandbox (iframe)', exact: true })
       .click();
-    const surface = page.frameLocator('iframe[src*="/sandbox-rpc/view.html"]');
+    const surface = page.frameLocator(claimedFrame);
     await surface.getByRole('tab', { name: 'Architecture' }).click();
     await expect(page).toHaveURL(/sandbox-rpc\/architecture/);
 
@@ -105,7 +106,7 @@ test.describe('Sandbox stage — iframe plugin over Penpal', () => {
     await page
       .getByRole('button', { name: 'Sandbox (iframe)', exact: true })
       .click();
-    const surface = page.frameLocator('iframe[src*="/sandbox-rpc/view.html"]');
+    const surface = page.frameLocator(claimedFrame);
 
     await expect(surface.locator('lw-tooltip [role="tooltip"]')).toBeAttached();
   });
@@ -114,14 +115,12 @@ test.describe('Sandbox stage — iframe plugin over Penpal', () => {
     page,
   }) => {
     await page.goto('/');
-    await page
-      .getByRole('button', { name: 'Sandbox (iframe)', exact: true })
-      .click();
+    await runCommand(page, 'Sandbox (unclaimed)');
 
-    const tab = page.getByRole('tab', { name: 'Sandbox (iframe)' });
+    const tab = page.getByRole('tab', { name: 'Sandbox (unclaimed)' });
     await expect(tab).toHaveClass(/italic/);
 
-    const surface = page.frameLocator('iframe[src*="/sandbox-rpc/view.html"]');
+    const surface = page.frameLocator(unclaimedFrame);
     await surface.getByRole('button', { name: 'Keep open' }).click();
     await expect(tab).not.toHaveClass(/italic/);
   });
@@ -133,7 +132,7 @@ test.describe('Sandbox stage — iframe plugin over Penpal', () => {
     await page
       .getByRole('button', { name: 'Sandbox (iframe)', exact: true })
       .click();
-    const surface = page.frameLocator('iframe[src*="/sandbox-rpc/view.html"]');
+    const surface = page.frameLocator(claimedFrame);
     await expect(
       surface.getByRole('heading', { name: /isolated iframe/ }),
     ).toBeVisible();
@@ -157,7 +156,7 @@ test.describe('Sandbox stage — iframe plugin over Penpal', () => {
     await page
       .getByRole('button', { name: 'Sandbox (iframe)', exact: true })
       .click();
-    const surface = page.frameLocator('iframe[src*="/sandbox-rpc/view.html"]');
+    const surface = page.frameLocator(claimedFrame);
     await expect(
       surface.getByRole('heading', { name: /isolated iframe/ }),
     ).toBeVisible();
