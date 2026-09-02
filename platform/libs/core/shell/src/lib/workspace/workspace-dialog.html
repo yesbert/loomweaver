@@ -48,11 +48,12 @@
 
   <ul class="flex max-h-[45vh] flex-col gap-1.5 overflow-y-auto px-0.5 py-0.5">
     @if (tab() === 'mine') {
-      <li
-        class="flex items-center gap-1 rounded-md border p-1.5"
-        [class.border-brand]="activeId() === defaultId"
-        [class.border-border]="activeId() !== defaultId"
-      >
+      <li class="flex items-center gap-1.5">
+        <div
+          class="flex min-w-0 flex-1 items-center gap-1 rounded-md border p-1.5"
+          [class.border-brand]="activeId() === defaultId"
+          [class.border-border]="activeId() !== defaultId"
+        >
         <button
           type="button"
           class="flex-1 truncate rounded px-2 py-1 text-left text-sm text-content transition-colors hover:bg-surface-overlay"
@@ -69,9 +70,10 @@
             ></span>
           }
         </button>
+        </div>
         <button
           type="button"
-          class="lw-icon-btn h-7 w-7 rounded-md disabled:opacity-40"
+          class="lw-icon-btn h-8 w-8 shrink-0 rounded-md text-negative hover:text-negative disabled:opacity-40"
           [disabled]="!resettable(defaultId)"
           (click)="resetLayout(defaultId)"
           [attr.aria-label]="'workspace.reset' | transloco"
@@ -87,11 +89,12 @@
     }
     @if (tab() === 'provided') {
       @for (definition of definitions; track definition.id) {
-        <li
-          class="flex items-center gap-1 rounded-md border p-1.5"
-          [class.border-brand]="activeId() === definition.id"
-          [class.border-border]="activeId() !== definition.id"
-        >
+        <li class="flex items-center gap-1.5">
+          <div
+            class="flex min-w-0 flex-1 items-center gap-1 rounded-md border p-1.5"
+            [class.border-brand]="activeId() === definition.id"
+            [class.border-border]="activeId() !== definition.id"
+          >
           <button
             type="button"
             class="flex min-w-0 flex-1 items-center gap-1.5 rounded px-2 py-1 text-left text-sm text-content transition-colors hover:bg-surface-overlay"
@@ -123,9 +126,10 @@
               />
             }
           </button>
+          </div>
           <button
             type="button"
-            class="lw-icon-btn h-7 w-7 rounded-md disabled:opacity-40"
+            class="lw-icon-btn h-8 w-8 shrink-0 rounded-md text-negative hover:text-negative disabled:opacity-40"
             [disabled]="!resettable(definition.id)"
             (click)="resetLayout(definition.id)"
             [attr.aria-label]="'workspace.reset' | transloco"
@@ -142,11 +146,12 @@
     }
     @if (tab() === 'mine') {
       @for (workspace of workspaces(); track workspace.id) {
-        <li
-          class="flex items-center gap-1 rounded-md border p-1.5"
-          [class.border-brand]="activeId() === workspace.id"
-          [class.border-border]="activeId() !== workspace.id"
-        >
+        <li class="flex items-center gap-1.5">
+          <div
+            class="flex min-w-0 flex-1 items-center gap-1 rounded-md border p-1.5"
+            [class.border-brand]="activeId() === workspace.id"
+            [class.border-border]="activeId() !== workspace.id"
+          >
           <button
             type="button"
             class="flex flex-1 items-center gap-2 truncate rounded px-2 py-1 text-left text-sm text-content transition-colors hover:bg-surface-overlay"
@@ -205,20 +210,6 @@
           }
           <button
             type="button"
-            class="lw-icon-btn h-7 w-7 rounded-md disabled:opacity-40"
-            [disabled]="!resettable(workspace.id)"
-            (click)="resetLayout(workspace.id)"
-            [attr.aria-label]="'workspace.reset' | transloco"
-            [attr.data-testid]="resetTestId(workspace.id)"
-          >
-            <lw-icon name="undo" size="1rem" />
-            <lw-tooltip
-              [text]="'workspace.resetHint' | transloco"
-              position="bottom"
-            />
-          </button>
-          <button
-            type="button"
             class="lw-icon-btn h-7 w-7 rounded-md"
             (click)="rename(workspace.id, workspace.name)"
             [attr.aria-label]="'workspace.rename' | transloco"
@@ -238,6 +229,21 @@
             <lw-icon name="trash" size="1rem" />
             <lw-tooltip
               [text]="'workspace.delete' | transloco"
+              position="bottom"
+            />
+          </button>
+          </div>
+          <button
+            type="button"
+            class="lw-icon-btn h-8 w-8 shrink-0 rounded-md text-negative hover:text-negative disabled:opacity-40"
+            [disabled]="!resettable(workspace.id)"
+            (click)="resetLayout(workspace.id)"
+            [attr.aria-label]="'workspace.reset' | transloco"
+            [attr.data-testid]="resetTestId(workspace.id)"
+          >
+            <lw-icon name="undo" size="1rem" />
+            <lw-tooltip
+              [text]="'workspace.resetHint' | transloco"
               position="bottom"
             />
           </button>
