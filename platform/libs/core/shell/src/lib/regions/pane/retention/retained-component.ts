@@ -41,16 +41,12 @@ export class RetainedComponent implements OnChanges, OnDestroy {
 
   private mounted: MountedComponent | null = null;
 
+  private repairQueued = false;
+
   constructor() {
     effect(() => {
       this.stash.version();
-      if (this.mounted?.slot.stale() !== true) {
-        return;
-      }
-      untracked(() => {
-        this.park();
-        this.sync();
-      });
+      untracked(() => this.reconcile());
     });
   }
 
@@ -126,6 +122,46 @@ export class RetainedComponent implements OnChanges, OnDestroy {
       return;
     }
     mounted.slot.discard();
+  }
+
+  private reconcile(): void {
+    const mounted = this.mounted;
+    if (!mounted) {
+      return;
+    }
+    if (mounted.slot.stale()) {
+      this.park();
+      this.sync();
+      return;
+    }
+    this.queueRepair();
+  }
+
+  private queueRepair(): void {
+    if (this.repairQueued) {
+      return;
+    }
+    this.repairQueued = true;
+    setTimeout(() => {
+      this.repairQueued = false;
+      const mounted = this.mounted;
+      if (
+        mounted &&
+        !mounted.slot.stale() &&
+        this.displaced(mounted.slot.rootNodes)
+      ) {
+        this.place(mounted.slot.rootNodes);
+      }
+    });
+  }
+
+  private displaced(nodes: readonly Node[]): boolean {
+    const parent = this.anchor.parentNode;
+    return (
+      parent !== null &&
+      nodes.length > 0 &&
+      nodes.some((node) => node.parentNode !== parent)
+    );
   }
 
   private place(nodes: readonly Node[]): void {

@@ -164,6 +164,7 @@ export class RetainedViewStash implements OnDestroy {
     if (!this.atomicMove) {
       return;
     }
+    let moved = false;
     for (const entry of this.entries.values()) {
       if (
         entry.inUse &&
@@ -172,7 +173,11 @@ export class RetainedViewStash implements OnDestroy {
         entry.key.startsWith(scopePrefix)
       ) {
         this.moveToHoldingArea(entry);
+        moved = true;
       }
+    }
+    if (moved) {
+      this.bump();
     }
   }
 
