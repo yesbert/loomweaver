@@ -152,15 +152,13 @@ export class RetainedComponent implements OnChanges, OnDestroy {
       ) {
         this.place(mounted.slot.rootNodes);
       }
-    });
+    }, 0);
   }
 
   private displaced(nodes: readonly Node[]): boolean {
     const parent = this.anchor.parentNode;
     return (
-      parent !== null &&
-      nodes.length > 0 &&
-      nodes.some((node) => node.parentNode !== parent)
+      parent !== null && nodes.some((node) => node.parentNode !== parent)
     );
   }
 

@@ -167,14 +167,15 @@ export class RetainedViewStash implements OnDestroy {
     let moved = false;
     for (const entry of this.entries.values()) {
       if (
-        entry.inUse &&
-        entry.keep &&
-        entry.mode === 'in-place' &&
-        entry.key.startsWith(scopePrefix)
+        !entry.inUse ||
+        !entry.keep ||
+        entry.mode !== 'in-place' ||
+        !entry.key.startsWith(scopePrefix)
       ) {
-        this.moveToHoldingArea(entry);
-        moved = true;
+        continue;
       }
+      this.moveToHoldingArea(entry);
+      moved = true;
     }
     if (moved) {
       this.bump();
