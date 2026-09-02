@@ -175,6 +175,17 @@
   text-align: center;
 }
 
+/* What stays Angular */
+
+.lw-landing .stays {
+  margin-inline: auto;
+  max-width: 46rem;
+}
+
+.lw-landing .stays h2 {
+  text-align: center;
+}
+
 /* The two doors */
 
 .lw-landing .doors h2 {

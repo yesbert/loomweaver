@@ -5,7 +5,7 @@
 <p align="center">
   <b>Build the product. Not the workbench.</b><br>
   Panes, tabs, a command palette, theming, i18n and a plugin store, ready on the first day.<br>
-  Your domain arrives as a plugin. So does everyone else's.
+  Your domain moves in. So does everyone else's.
 </p>
 
 <p align="center">
@@ -22,13 +22,18 @@
   <img src="assets/media/tour-dark.gif" alt="A tour of a LoomWeaver workbench: opening the command palette, splitting a pane, a sandboxed non-Angular plugin, and a plugin re-skinning the whole application" />
 </picture>
 
-<p align="center"><sub>Twenty-six seconds, no cuts. The rail, the panes, the palette and the status bar are the platform's. Everything inside them comes from plugins, including the theme at the end. <a href="https://loomweaver.dev">Watch it in better quality</a>.</sub></p>
+<p align="center"><sub>Twenty-six seconds, no cuts. The rail, the panes, the palette and the status bar are the platform's. Everything inside them can come from plugins, the theme at the end included. <a href="https://loomweaver.dev">Watch it in better quality</a>.</sub></p>
 
 LoomWeaver gives your product its entire workbench UI **without you building any of it**. You write
 your domain UI as **plugins ("weavers")** against one small contract, compose them
 into a branded **distribution** (mostly one providers array), and ship. The core contains **zero
 domain logic**, and even first-party product UI goes through the same plugin contract a third party
 would use.
+
+That contract changes nothing about how you write Angular. A weaver is a manifest and one
+`activate()`, and what it hands the workbench are ordinary standalone components against the router
+you already use. One surface can own your whole route tree, so an app you already have moves in
+behind a single plugin; you split it into several when you want two documents side by side.
 
 It also speaks **[AG-UI](https://docs.ag-ui.com)**, the open protocol between a user-facing
 application and an agentic backend. Every command your product registers can be offered to an agent

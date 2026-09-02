@@ -89,7 +89,7 @@ const rungs = [
   frontmatter={{
     title: 'LoomWeaver',
     description:
-      'The workbench your product runs in: panes, tabs, a command palette, theming, a plugin store and an AG-UI adapter, ready on day one. Your domain arrives as a plugin, and so does everyone else’s.',
+      'The workbench your product runs in: panes, tabs, a command palette, theming, a plugin store and an AG-UI adapter, ready on day one. Your domain moves in, and so does everyone else’s.',
     template: 'splash',
     tableOfContents: false,
   }}
@@ -101,8 +101,8 @@ const rungs = [
       <h1>Build the product.<br />Not the workbench.</h1>
       <p class="lead">
         Panes the user can split, tabs that pop out into their own window, a command palette,
-        theming, i18n and a plugin store. All of it there on day one. Your domain arrives as
-        a plugin. So does everyone else’s. And because the workbench speaks <a
+        theming, i18n and a plugin store. All of it there on day one. Your domain moves in. So
+        does everyone else’s. And because the workbench speaks <a
           href="https://docs.ag-ui.com">AG-UI</a>, an agent can drive it without you writing an
         adapter.
       </p>
@@ -130,7 +130,7 @@ const rungs = [
       ></video>
       <figcaption>
         Twenty-six seconds, no cuts. The rail, the panes, the palette and the status bar are the
-        platform’s. Everything inside them comes from plugins, including the theme at the end.
+        platform’s. Everything inside them can come from plugins, the theme at the end included.
       </figcaption>
     </figure>
     <script is:inline>
@@ -175,6 +175,25 @@ const rungs = [
         });
       })();
     </script>
+
+    <section class="stays">
+      <h2>What you write is still Angular</h2>
+      <p>
+        A weaver is a manifest and one <code>activate()</code>. What it hands the workbench are the
+        components you would have written anyway, and the router is Angular’s own: <code
+          >routerLink</code
+        >, <code>ActivatedRoute</code>, guards, back and forward all behave. The iframe sandbox is a
+        choice you make for code you did not write, never for your own. What runs in there does not
+        have to be Angular either: React, Vue, Svelte and plain JavaScript all work.
+      </p>
+      <p>
+        <a href="/reference/routing/#mounting-an-app-that-brings-its-own-routes"
+          >One surface can own your whole route tree</a
+        >, so an app you already have moves in behind a single plugin. Split it into several the day
+        you want two documents open side by side. That is a change inside your app, not a decision
+        about the platform.
+      </p>
+    </section>
 
     <section class="doors">
       <h2>Two reasons people pick this up</h2>
