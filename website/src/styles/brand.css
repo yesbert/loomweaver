@@ -10,3 +10,10 @@
   --sl-color-accent: #1d7099;
   --sl-color-accent-high: #0f4a66;
 }
+
+/* Starlight centres the article in whatever is left over beside the two sidebars, so on a wide
+   screen a 45rem column leaves a wide empty gutter between the navigation and the first word.
+   These docs carry wide tables and code blocks that were wrapping while that gutter sat idle. */
+:root {
+  --sl-content-width: 60rem;
+}
