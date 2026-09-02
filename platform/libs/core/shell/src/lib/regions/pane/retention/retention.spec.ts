@@ -883,6 +883,24 @@ describe('surface retention', () => {
       expect(instances[0]).toBe(first);
       expect(probeElement(fixture)).toBe(element);
     });
+
+    it('brings an evacuated in-place surface back when the arrangement it made way for leaves its mount standing', async () => {
+      fakeAtomicMove();
+      const fixture = TestBed.createComponent(InPlaceHost);
+      fixture.detectChanges();
+      const first = instances[0];
+      const element = probeElement(fixture);
+      expect(element).not.toBeNull();
+
+      TestBed.inject(RetainedViewStash).evacuate('content:main|');
+      fixture.detectChanges();
+      await afterSweep();
+
+      expect(destroyed).toBe(0);
+      expect(instances).toHaveLength(1);
+      expect(instances[0]).toBe(first);
+      expect(probeElement(fixture)).toBe(element);
+    });
   });
 
   describe('dirty keeps a hidden instance alive', () => {

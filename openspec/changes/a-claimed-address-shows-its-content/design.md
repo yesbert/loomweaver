@@ -37,15 +37,28 @@ claim it should allow, or the layout running before there is a pane to claim int
 
 ## Decisions
 
-**The root cause is established first, and the fix follows it.** The two candidate seams are the
-retention stash's claim rule, in `libs/core/shell/src/lib/regions/pane/retention/`, and the path that
-lays out an adopted workspace, in `libs/core/shell/src/lib/workspace/`. The decision rule: instrument
-both paths on the same navigation and compare the order in which the pane appears and the claim is
-attempted. If the claim is attempted and refused, the stash is at fault. If no claim is attempted,
-the layout is.
+**The root cause was established first, and it was neither seam this design named.** The rule
+written here, that a refused claim means the stash and no claim means the workspace layout, did not
+fit what the instrumentation showed, and is left standing as the wrong guess it was rather than
+quietly replaced.
 
-The alternative, patching whichever side makes the tests green, is rejected. Both sides can be made
-to produce a mounted surface, and only one of them is the place where the rule is actually wrong.
+What the instrumentation showed: both paths mount the surface correctly. On arrival, and only there,
+the pane tree afterwards hydrates from stored working state and evacuates the entire content dock,
+which moves in-use retained surfaces into the holding area. Evacuation exists so a retained surface
+survives an arrangement being swapped, and it relies on the new arrangement re-mounting the surface.
+Where hydration produces an arrangement that renders identically, no host re-mounts, and the surface
+is left in the holding area.
+
+So the fault is a half-finished pair: evacuation has no matching return, and the host that owns the
+surface is never told its nodes were taken. The fix completes the pair. The stash announces an
+evacuation the way it announces every other change, and a retained host that finds its nodes
+elsewhere puts them back.
+
+**The return is deferred by one task, and that is not a detail.** An eager return runs inside the
+very swap the evacuation exists to survive: it put a docked surface back into a sidebar that was
+about to be destroyed, and the surface lost its state. Deferring by one task lets the swap finish, so
+a host that was re-created has already re-acquired, a host that was destroyed no longer holds a
+mount, and only a genuinely stranded surface is left to repair.
 
 **The fix is covered by a unit test at the seam, not only by the end-to-end tests.** The two failing
 end-to-end tests are the proof that the symptom is gone. They are slow and they run nightly, so they

@@ -47,6 +47,7 @@ export function warnUnsupportedRetain(pluginId: string, surface: Surface): void 
   }
   if (
     surface.retain === 'always' &&
+    surface.iframe === undefined &&
     (surface.routable?.subRoutes?.length ?? 0) > 0
   ) {
     console.warn(

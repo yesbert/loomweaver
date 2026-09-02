@@ -628,6 +628,48 @@ describe('HostPluginContext', () => {
   });
 });
 
+describe('the retain and subRoutes warning', () => {
+  let warn: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+  });
+
+  afterEach(() => warn.mockRestore());
+
+  it('warns a component surface that declares both, because its outlet stays inert', () => {
+    const { ctx } = makeContext();
+
+    ctx.registerSurface({
+      id: 'x.view',
+      title: 't',
+      component: DummyComponent,
+      retain: 'always',
+      routable: { path: 'x', subRoutes: ['a', 'b'] },
+    });
+
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('declares subRoutes'),
+    );
+  });
+
+  it('stays quiet for a sandboxed surface, which has no outlet to leave inert', () => {
+    const { ctx } = makeContext();
+
+    ctx.registerSurface({
+      id: 'x.frame',
+      title: 't',
+      iframe: '/x/view.html',
+      retain: 'always',
+      routable: { path: 'x', subRoutes: ['a', 'b'] },
+    });
+
+    expect(warn).not.toHaveBeenCalledWith(
+      expect.stringContaining('declares subRoutes'),
+    );
+  });
+});
+
 describe('region warnings for bar and rail items', () => {
   const BARS: readonly LayoutRegion[] = [
     { id: 'status-bar', type: 'bar', dock: 'bottom' },
