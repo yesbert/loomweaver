@@ -6,7 +6,8 @@ import {
   ActiveWorkspaceService,
   workspaceScopedKey,
 } from '../active-workspace.service';
-import { activeContentPath } from '../active-content-path';
+import { CONTENT_DOCK } from '../../regions/pane/tree/pane-address';
+import { collectTabs } from '../../regions/pane/tree/pane-queries';
 import { ANNOUNCE_UNUSABLE_WORKSPACES } from '../provide-workspaces';
 import { PANE_TREES_KEY } from '../workspace-state';
 import {
@@ -32,7 +33,8 @@ export class UnusableWorkspacesService implements UnusableWorkspaces {
         (id) => this.workspaces.originOf(id),
       ),
       activeId: this.active.id(),
-      activeContentPath: activeContentPath(this.paneTree),
+      activeHasContent:
+        collectTabs(this.paneTree.tree(CONTENT_DOCK)).length > 0,
       definitionOf: (id) =>
         this.workspaces.definitions.find(
           (definition) => definition.id === id,

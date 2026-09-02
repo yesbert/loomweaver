@@ -73,7 +73,7 @@
         </div>
         <button
           type="button"
-          class="lw-icon-btn h-8 w-8 shrink-0 rounded-md text-negative hover:text-negative disabled:opacity-40"
+          class="lw-btn lw-btn--danger lw-btn--sm lw-btn--icon shrink-0"
           [disabled]="!resettable(defaultId)"
           (click)="resetLayout(defaultId)"
           [attr.aria-label]="'workspace.reset' | transloco"
@@ -129,7 +129,7 @@
           </div>
           <button
             type="button"
-            class="lw-icon-btn h-8 w-8 shrink-0 rounded-md text-negative hover:text-negative disabled:opacity-40"
+            class="lw-btn lw-btn--danger lw-btn--sm lw-btn--icon shrink-0"
             [disabled]="!resettable(definition.id)"
             (click)="resetLayout(definition.id)"
             [attr.aria-label]="'workspace.reset' | transloco"
@@ -235,7 +235,7 @@
           </div>
           <button
             type="button"
-            class="lw-icon-btn h-8 w-8 shrink-0 rounded-md text-negative hover:text-negative disabled:opacity-40"
+            class="lw-btn lw-btn--danger lw-btn--sm lw-btn--icon shrink-0"
             [disabled]="!resettable(workspace.id)"
             (click)="resetLayout(workspace.id)"
             [attr.aria-label]="'workspace.reset' | transloco"

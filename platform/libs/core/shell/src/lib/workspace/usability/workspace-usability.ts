@@ -1,6 +1,6 @@
 import { CONTENT_DOCK } from '../../regions/pane/tree/pane-address';
 import { parseDocks } from '../../regions/pane/tree/pane-tree-storage';
-import { contentPathOf } from '../active-content-path';
+import { collectTabs } from '../../regions/pane/tree/pane-queries';
 import { WorkspaceDefinition, declaredTabPaths } from '../workspace-definition';
 
 export interface WorkspaceOrigin {
@@ -28,7 +28,7 @@ export function everyWorkspaceOrigin(
 export interface UsabilityReading {
   readonly workspaces: readonly WorkspaceOrigin[];
   readonly activeId: string;
-  readonly activeContentPath: string;
+  readonly activeHasContent: boolean;
   readonly definitionOf: (id: string) => WorkspaceDefinition | undefined;
   readonly storedTrees: (id: string) => string | undefined;
 }
@@ -41,7 +41,7 @@ export function unusableWorkspaceIds(
     if (!declaresContent(reading, origin)) {
       continue;
     }
-    if (contentPathFor(reading, id) === '') {
+    if (!hasContent(reading, id)) {
       ids.add(id);
     }
   }
@@ -59,12 +59,14 @@ function declaresContent(
   return definition !== undefined && declaredTabPaths(definition).length > 0;
 }
 
-function contentPathFor(reading: UsabilityReading, id: string): string {
+function hasContent(reading: UsabilityReading, id: string): boolean {
   if (id === reading.activeId) {
-    return reading.activeContentPath;
+    return reading.activeHasContent;
   }
   const raw = reading.storedTrees(id);
-  return raw === undefined
-    ? 'declared'
-    : contentPathOf(parseDocks(raw)[CONTENT_DOCK]);
+  if (raw === undefined) {
+    return true;
+  }
+  const entry = parseDocks(raw)[CONTENT_DOCK];
+  return entry !== undefined && collectTabs(entry.node).length > 0;
 }

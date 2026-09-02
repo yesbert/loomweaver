@@ -84,6 +84,28 @@ describe('a workspace whose stored arrangement leaves it without content', () =>
     expect(unusable.ids().has('payments')).toBe(true);
   });
 
+  it('is not named where its declared content is the starting address itself', async () => {
+    const home = {
+      id: 'home',
+      title: 'Home',
+      initial: true,
+      claims: [''],
+      content: { tabs: [{ path: '', closable: false }] },
+    };
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter([{ path: '**', children: [] }]),
+        provideLayout(LAYOUT as never),
+        provideWorkspaces(home as never, PAYMENTS as never),
+      ],
+    });
+    const ws = TestBed.inject(WorkspaceService);
+    const unusable = TestBed.inject(UnusableWorkspacesService);
+    await ws.switchTo('home');
+
+    expect(unusable.ids().has('home')).toBe(false);
+  });
+
   it('is not named where the stored arrangement still holds its content', async () => {
     const { ws, unusable } = compose();
     await ws.switchTo('payments');
