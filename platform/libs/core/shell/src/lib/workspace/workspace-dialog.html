@@ -54,22 +54,22 @@
           [class.border-brand]="activeId() === defaultId"
           [class.border-border]="activeId() !== defaultId"
         >
-        <button
-          type="button"
-          class="flex-1 truncate rounded px-2 py-1 text-left text-sm text-content transition-colors hover:bg-surface-overlay"
-          [attr.aria-current]="activeId() === defaultId ? 'true' : null"
-          (click)="switchTo(defaultId)"
-          data-testid="workspace-default"
-        >
-          {{ 'workspace.default' | transloco }}
-          @if (changed(defaultId)) {
-            <span
-              aria-hidden="true"
-              class="ml-0.5 inline-block h-1.5 w-1.5 rounded-full bg-brand align-middle"
-              data-testid="workspace-changed"
-            ></span>
-          }
-        </button>
+          <button
+            type="button"
+            class="flex-1 truncate rounded px-2 py-1 text-left text-sm text-content transition-colors hover:bg-surface-overlay"
+            [attr.aria-current]="activeId() === defaultId ? 'true' : null"
+            (click)="switchTo(defaultId)"
+            data-testid="workspace-default"
+          >
+            {{ 'workspace.default' | transloco }}
+            @if (changed(defaultId)) {
+              <span
+                aria-hidden="true"
+                class="ml-0.5 inline-block h-1.5 w-1.5 rounded-full bg-brand align-middle"
+                data-testid="workspace-changed"
+              ></span>
+            }
+          </button>
         </div>
         <button
           type="button"
@@ -95,37 +95,37 @@
             [class.border-brand]="activeId() === definition.id"
             [class.border-border]="activeId() !== definition.id"
           >
-          <button
-            type="button"
-            class="flex min-w-0 flex-1 items-center gap-1.5 rounded px-2 py-1 text-left text-sm text-content transition-colors hover:bg-surface-overlay"
-            [attr.aria-current]="activeId() === definition.id ? 'true' : null"
-            (click)="switchTo(definition.id)"
-            [attr.data-testid]="'workspace-def-' + definition.id"
-          >
-            @if (definition.icon) {
-              <lw-icon [name]="definition.icon" size="0.9rem" class="shrink-0" />
-            }
-            <span class="truncate">{{ definition.title | transloco }}</span>
-            @if (changed(definition.id)) {
-              <span
-                aria-hidden="true"
-                class="h-1.5 w-1.5 shrink-0 rounded-full bg-brand"
-                data-testid="workspace-changed"
-              ></span>
-            }
-            @if (unusable(definition.id)) {
-              <lw-icon
-                name="warning"
-                size="0.9rem"
-                class="shrink-0 text-negative"
-                data-testid="workspace-unusable"
-              />
-              <lw-tooltip
-                [text]="'workspace.unusableMark' | transloco"
-                position="bottom"
-              />
-            }
-          </button>
+            <button
+              type="button"
+              class="flex min-w-0 flex-1 items-center gap-1.5 rounded px-2 py-1 text-left text-sm text-content transition-colors hover:bg-surface-overlay"
+              [attr.aria-current]="activeId() === definition.id ? 'true' : null"
+              (click)="switchTo(definition.id)"
+              [attr.data-testid]="'workspace-def-' + definition.id"
+            >
+              @if (definition.icon) {
+                <lw-icon [name]="definition.icon" size="0.9rem" class="shrink-0" />
+              }
+              <span class="truncate">{{ definition.title | transloco }}</span>
+              @if (changed(definition.id)) {
+                <span
+                  aria-hidden="true"
+                  class="h-1.5 w-1.5 shrink-0 rounded-full bg-brand"
+                  data-testid="workspace-changed"
+                ></span>
+              }
+              @if (unusable(definition.id)) {
+                <lw-icon
+                  name="warning"
+                  size="0.9rem"
+                  class="shrink-0 text-negative"
+                  data-testid="workspace-unusable"
+                />
+                <lw-tooltip
+                  [text]="'workspace.unusableMark' | transloco"
+                  position="bottom"
+                />
+              }
+            </button>
           </div>
           <button
             type="button"
@@ -152,86 +152,86 @@
             [class.border-brand]="activeId() === workspace.id"
             [class.border-border]="activeId() !== workspace.id"
           >
-          <button
-            type="button"
-            class="flex flex-1 items-center gap-2 truncate rounded px-2 py-1 text-left text-sm text-content transition-colors hover:bg-surface-overlay"
-            [attr.aria-current]="activeId() === workspace.id ? 'true' : null"
-            (click)="switchTo(workspace.id)"
-          >
-            @if (initials().get(workspace.id); as badge) {
-              <span
-                aria-hidden="true"
-                class="lw-rail-initials shrink-0 text-content-faint"
-                data-testid="workspace-initials"
-                >{{ badge }}</span
-              >
-            }
-            <span class="min-w-0 flex-1 truncate">
-              <span class="block truncate">{{ workspace.name }}</span>
-              @if (originName(workspace.id); as origin) {
-                <span
-                  class="block truncate text-xs text-content-faint"
-                  data-testid="workspace-origin"
-                  >{{ 'workspace.variantOf' | transloco: { name: origin } }}</span
-                >
-              }
-            </span>
-            @if (changed(workspace.id)) {
-              <span
-                aria-hidden="true"
-                class="ml-0.5 inline-block h-1.5 w-1.5 rounded-full bg-brand align-middle"
-                data-testid="workspace-changed"
-              ></span>
-            }
-            @if (unusable(workspace.id)) {
-              <lw-icon
-                name="warning"
-                size="0.9rem"
-                class="ml-0.5 inline-block align-middle text-negative"
-                data-testid="workspace-unusable"
-              />
-            }
-          </button>
-          @if (activeId() === workspace.id) {
             <button
               type="button"
-              class="lw-icon-btn h-7 w-7 rounded-md disabled:opacity-40"
-              [disabled]="!hasChanges()"
-              (click)="applyChanges()"
-              [attr.aria-label]="'workspace.saveBaseline' | transloco"
-              data-testid="workspace-save-baseline"
+              class="flex flex-1 items-center gap-2 truncate rounded px-2 py-1 text-left text-sm text-content transition-colors hover:bg-surface-overlay"
+              [attr.aria-current]="activeId() === workspace.id ? 'true' : null"
+              (click)="switchTo(workspace.id)"
             >
-              <lw-icon name="save" size="1rem" />
+              @if (initials().get(workspace.id); as badge) {
+                <span
+                  aria-hidden="true"
+                  class="lw-rail-initials shrink-0 text-content-faint"
+                  data-testid="workspace-initials"
+                  >{{ badge }}</span
+                >
+              }
+              <span class="min-w-0 flex-1 truncate">
+                <span class="block truncate">{{ workspace.name }}</span>
+                @if (originName(workspace.id); as origin) {
+                  <span
+                    class="block truncate text-xs text-content-faint"
+                    data-testid="workspace-origin"
+                    >{{ 'workspace.variantOf' | transloco: { name: origin } }}</span
+                  >
+                }
+              </span>
+              @if (changed(workspace.id)) {
+                <span
+                  aria-hidden="true"
+                  class="ml-0.5 inline-block h-1.5 w-1.5 rounded-full bg-brand align-middle"
+                  data-testid="workspace-changed"
+                ></span>
+              }
+              @if (unusable(workspace.id)) {
+                <lw-icon
+                  name="warning"
+                  size="0.9rem"
+                  class="ml-0.5 inline-block align-middle text-negative"
+                  data-testid="workspace-unusable"
+                />
+              }
+            </button>
+            @if (activeId() === workspace.id) {
+              <button
+                type="button"
+                class="lw-icon-btn h-7 w-7 rounded-md disabled:opacity-40"
+                [disabled]="!hasChanges()"
+                (click)="applyChanges()"
+                [attr.aria-label]="'workspace.saveBaseline' | transloco"
+                data-testid="workspace-save-baseline"
+              >
+                <lw-icon name="save" size="1rem" />
+                <lw-tooltip
+                  [text]="'workspace.saveBaselineHint' | transloco"
+                  position="bottom"
+                />
+              </button>
+            }
+            <button
+              type="button"
+              class="lw-icon-btn h-7 w-7 rounded-md"
+              (click)="rename(workspace.id, workspace.name)"
+              [attr.aria-label]="'workspace.rename' | transloco"
+            >
+              <lw-icon name="edit" size="1rem" />
               <lw-tooltip
-                [text]="'workspace.saveBaselineHint' | transloco"
+                [text]="'workspace.rename' | transloco"
                 position="bottom"
               />
             </button>
-          }
-          <button
-            type="button"
-            class="lw-icon-btn h-7 w-7 rounded-md"
-            (click)="rename(workspace.id, workspace.name)"
-            [attr.aria-label]="'workspace.rename' | transloco"
-          >
-            <lw-icon name="edit" size="1rem" />
-            <lw-tooltip
-              [text]="'workspace.rename' | transloco"
-              position="bottom"
-            />
-          </button>
-          <button
-            type="button"
-            class="lw-icon-btn h-7 w-7 rounded-md hover:text-negative"
-            (click)="remove(workspace.id, workspace.name)"
-            [attr.aria-label]="'workspace.delete' | transloco"
-          >
-            <lw-icon name="trash" size="1rem" />
-            <lw-tooltip
-              [text]="'workspace.delete' | transloco"
-              position="bottom"
-            />
-          </button>
+            <button
+              type="button"
+              class="lw-icon-btn h-7 w-7 rounded-md hover:text-negative"
+              (click)="remove(workspace.id, workspace.name)"
+              [attr.aria-label]="'workspace.delete' | transloco"
+            >
+              <lw-icon name="trash" size="1rem" />
+              <lw-tooltip
+                [text]="'workspace.delete' | transloco"
+                position="bottom"
+              />
+            </button>
           </div>
           <button
             type="button"
