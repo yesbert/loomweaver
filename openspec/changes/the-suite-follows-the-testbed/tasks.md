@@ -2,9 +2,9 @@
 
 - [ ] 1.1 Point both `app-reset.spec.ts` tests at the dedicated dialog: match
       `data-testid="app-reset-confirm"` instead of a button named `OK`. Verify both pass.
-- [ ] 1.2 Derive the provided-workspace count in `workspaces.spec.ts:319` from the testbed's own
-      declaration rather than the literal five, so the next workspace does not break it. Verify it
-      passes.
+- [ ] 1.2 In `workspaces.spec.ts`, derive the provided-workspace count asserted by *the dialog opens
+      on the list holding the active workspace* from the testbed's own declaration rather than from
+      the literal five, so the next workspace the testbed gains does not break it. Verify it passes.
 
 ## 2. Sort the nine
 
