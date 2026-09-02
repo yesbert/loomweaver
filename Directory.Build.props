@@ -2,8 +2,8 @@
   <!-- Shared SemVer line for the platform. LoomWeaver ships only the frontend packages
        (@loomweaver/plugin-sdk, @loomweaver/shell); this single <Version> is the source of truth read by
        scripts/bump-version.sh and verified against the release tag by .github/workflows/release.yml.
-       No .NET projects live in this repo anymore — the server/security seam belongs to the product
-. This file remains only as the version single-source. -->
+       No .NET projects live in this repo anymore — the server/security seam belongs to the product.
+       This file remains only as the version single-source. -->
   <PropertyGroup>
     <Version>0.8.0-preview.6</Version>
   </PropertyGroup>
