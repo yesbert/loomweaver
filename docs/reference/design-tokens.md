@@ -239,9 +239,8 @@ separated.
 
 ## Host building blocks (`<lw-*>`) instead of hand work
 
-- **Icons:** `<lw-icon name="add" size="1rem" />`. Names come from the semantic first-party registry
-  `libs/core/shell/src/lib/elements/icon/loom-icons.ts` (e.g. `add`, `close`, `menu`, `chevronDown`,
-  `check`, `reset`, `sort`, `info`). **Contributable names:** a **distribution** adds its
+- **Icons:** `<lw-icon name="add" size="1rem" />`. Names are semantic rather than pictorial;
+  [Icons](icons.md) is the catalogue, every shipped name with its glyph. **Contributable names:** a **distribution** adds its
   own with `provideIcons({ name: svgRef })` (from `@loomweaver/shell`), a **weaver** adds them at runtime
   with `ctx.contributeIcons({ name: svg })`. A distribution may also **replace** a first-party glyph
   by naming it, and the replacement travels into sandboxed surfaces; a weaver never can, so an

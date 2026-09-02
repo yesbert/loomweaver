@@ -110,6 +110,12 @@ jobs:
       - name: Comment policy
         run: npm run comments-check
 
+      # The icon catalogue is generated from the shell's own icon map, because adding an icon and
+      # remembering a table in another directory are two separate acts and the second one gets
+      # forgotten. This fails when the page and the map have parted company.
+      - name: Icon catalogue is current
+        run: npm run icon-docs-check
+
       # The weaver generator records the adapter's version as a literal, because a recipe produces
       # text and cannot read a manifest as it writes. Nothing here installs what a consumer installs,
       # so only a comparison catches a bump that left the generator behind.
