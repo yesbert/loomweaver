@@ -48,7 +48,7 @@ change declares `skip_specs: true`.
 
 ## Impact
 
-Test sources only, all under `platform/apps/loom-testbed-e2e/src/`:
+Test sources, all under `platform/apps/loom-testbed-e2e/src/`:
 
 - `sandbox.spec.ts` — three tests
 - `surface-retention.spec.ts` — five tests
