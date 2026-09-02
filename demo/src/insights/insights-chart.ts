@@ -1,4 +1,13 @@
-import { Component, ElementRef, afterNextRender, effect, input, viewChild } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  ElementRef,
+  afterNextRender,
+  effect,
+  inject,
+  input,
+  viewChild,
+} from '@angular/core';
 import {
   ArcElement,
   BarController,
@@ -23,7 +32,8 @@ Chart.register(
 
 @Component({
   selector: 'lw-insights-chart',
-  template: '<canvas #canvas class="h-full w-full"></canvas>',
+  host: { class: 'block h-full w-full min-w-0' },
+  template: '<canvas #canvas></canvas>',
 })
 export class InsightsChart {
   readonly config = input.required<ChartConfiguration>();
@@ -31,17 +41,30 @@ export class InsightsChart {
   private readonly canvas =
     viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
 
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+
   private chart: Chart | undefined;
   private ready = false;
+  private sizes: ResizeObserver | undefined;
 
   constructor() {
+    const destroyRef = inject(DestroyRef);
+
     afterNextRender(() => {
       this.ready = true;
       this.render();
+      this.sizes = new ResizeObserver(() => this.chart?.resize());
+      this.sizes.observe(this.host.nativeElement);
     });
+
     effect(() => {
       this.config();
       this.render();
+    });
+
+    destroyRef.onDestroy(() => {
+      this.sizes?.disconnect();
+      this.chart?.destroy();
     });
   }
 

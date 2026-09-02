@@ -70,3 +70,33 @@ test('the dashboard fits a content area the sidebar has narrowed', async ({
 
   await expect.poll(() => overflowing(dashboard)).toEqual([]);
 });
+
+test('one step of the pane is enough for the charts to follow it', async ({
+  page,
+}) => {
+  await page.setViewportSize(WIDE);
+  await page.goto('/');
+
+  const cards = ['insights-quoted', 'insights-pipeline'];
+  for (const card of cards) {
+    await expect(page.getByTestId(card).locator('canvas')).toBeVisible();
+  }
+
+  await page.setViewportSize(NARROW);
+
+  for (const card of cards) {
+    await expect
+      .poll(() =>
+        page.getByTestId(card).evaluate((el) => {
+          const canvas = el.querySelector('canvas') as HTMLCanvasElement;
+          return Math.round(
+            canvas.getBoundingClientRect().width -
+              el.getBoundingClientRect().width,
+          );
+        }),
+      )
+      .toBeLessThanOrEqual(0);
+  }
+
+  await expect.poll(() => overflowing(page.getByTestId('insights-dashboard'))).toEqual([]);
+});
