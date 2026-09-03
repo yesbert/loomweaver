@@ -42,7 +42,7 @@ panes.moveTab('doc/readme', handle);
 
 ## Switched off
 
-`content.splitRight`, `splitDown`, `maximize`, `minimize` and `close` take the toolbar buttons, drop edges and `mod+\\` away from the user. Every action here keeps working for you, which is how you offer it from your own control.
+`content.splitRight`, `content.splitDown`, `content.maximize`, `content.minimize` and `content.close` take the toolbar buttons, drop edges and `mod+\\` away from the user. Every action here keeps working for you, which is how you offer it from your own control.
 
 ## In depth
 

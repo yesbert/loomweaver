@@ -8,10 +8,6 @@
 
 There is no single god-provider, on purpose: each decision has its own provider, so the same decision never has two doors. This page is the whole surface indexed by what you want; each row points at the guide section that tells the story.
 
-There is no single god-provider, on purpose: each of these has its own shape, and folding them into
-one options bag would give the same decision two doors. Instead, here is the whole surface indexed by
-what you actually want, so you can go straight to the section that covers it.
-
 **What the product *is***
 
 | I want to … | provider |
