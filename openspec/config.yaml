@@ -48,7 +48,7 @@ context: |
   Rules for shaping the surface (every new switch, service or hook; details in CONTRIBUTING.md,
   section "Shaping the surface"):
     - A switch moves the control, it does not remove the capability. It takes away every route
-      the USER can take; the distribution's code keeps reaching the capability.
+      the user can take; the distribution's code keeps reaching the capability.
     - The twin is the same code. Behaviour lives in one service; commands, buttons, menu entries
       and programmatic calls are triggers without behaviour of their own.
     - Same names to declare, to switch and to read, and typed. No free strings for identities.
