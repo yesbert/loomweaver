@@ -323,7 +323,8 @@ remain.
 The default surface is **routable**: it lives at `/<id>`, holds the URL pane, and is what a deep link
 and the browser's back button address. Two flags trade that for something else.
 
-`--instanceable` **docks** the surface into the `primary` region and drops `routable`. That is not
+`--instanceable` **docks** the surface into the left panel (`left-panel` in the scaffolded layout) and
+drops `routable`. That is not
 a detail. Named instances exist only for a docked surface; a routable surface holds the URL pane
 instead. The rail item then reveals the surface (`ctx.revealSurface`) rather than navigating to it.
 Revealing also means the rail item finds the surface wherever the user has since dragged it.

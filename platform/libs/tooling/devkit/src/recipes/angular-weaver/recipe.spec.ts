@@ -260,8 +260,8 @@ describe('angularWeaver recipe', () => {
       expect(files['src/lib/views/notes-view.html']).toContain('toggleSort()');
     });
 
-    it('docks it instead of routing it, since the host drops the flag on a routable surface', () => {
-      expect(plugin).toContain("docks: ['primary']");
+    it('docks it into a panel instead of routing it, since the host drops the flag on a routable surface', () => {
+      expect(plugin).toContain("docks: ['left-panel']");
       expect(plugin).not.toContain('routable:');
     });
 
