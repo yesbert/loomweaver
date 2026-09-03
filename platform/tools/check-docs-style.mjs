@@ -28,10 +28,10 @@ const HEADER = '<!-- derived-from-specs -->';
 const HEADER_EXEMPT = new Set(['docs/README.md', 'docs/glossary.md', 'docs/reference/operations.md']);
 const VARIANTS = [
   [/\bplug-ins?\b/gi, 'plugin'],
-  [/\bside ?bars?\b(?<!sidebars?)/gi, 'sidebar'],
-  [/\bwork ?spaces?\b(?<!workspaces?)/gi, 'workspace'],
-  [/\btool ?bars?\b(?<!toolbars?)/gi, 'toolbar'],
-  [/\bsub ?routes?\b(?<!sub-routes?)/gi, 'sub-route'],
+  [/\bside bars?\b/gi, 'sidebar'],
+  [/\bwork spaces?\b/gi, 'workspace'],
+  [/\btool bars?\b/gi, 'toolbar'],
+  [/\bsub routes?\b/gi, 'sub-route'],
 ];
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
