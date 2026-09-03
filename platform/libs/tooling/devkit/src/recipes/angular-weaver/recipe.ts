@@ -236,7 +236,7 @@ function surfaceBlock(w: ResolvedWeaver): string {
     `      component: ${w.className}View,`,
   ];
   if (w.features.instanceable) {
-    lines.push("      docks: ['primary'],", '      instanceable: true,');
+    lines.push("      docks: ['left-panel'],", '      instanceable: true,');
   } else {
     lines.push(`      routable: { path: '${w.id}' },`);
   }

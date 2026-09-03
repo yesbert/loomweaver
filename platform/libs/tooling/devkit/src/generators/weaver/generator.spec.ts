@@ -129,7 +129,7 @@ describe('weaver generator', () => {
       'libs/notes-weaver/src/lib/plugin/notes.plugin.ts',
       'utf8',
     );
-    expect(plugin).toContain("docks: ['primary']");
+    expect(plugin).toContain("docks: ['left-panel']");
     expect(plugin).toContain('instanceable: true');
   });
 
