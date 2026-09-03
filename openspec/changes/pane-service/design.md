@@ -79,13 +79,22 @@ minimized }`, in tree order. `isSplit()`, `maximized(): PaneHandle | null` and
 ratios is published; a distribution that needs the tree has asked for something this change does
 not give.
 
+**Two layers: the behaviour is dock-aware and internal, the published face is the content area.**
+`PaneView` draws panes in every dock (the content area, containers, sidebars), so the behaviour it
+calls has to take a `dock`. An internal `PaneActions` service holds it, with `dock` and `paneId`
+arguments; the published `PaneService` is the face over `CONTENT_DOCK` that translates handles and
+holds no behaviour of its own. This is the shape the rules ask for (a facade translates, the
+behaviour lives once) and it keeps the way open for a sidebar face later without touching the
+behaviour.
+
 **Split duplicates, and checks first.** `splitRight(handle?)` and `splitDown(handle?)` take the
-pane's shown path and call `paneTree.splitPane(CONTENT_DOCK, paneId, orientation, path)`, exactly as
-both controls do today. Before that, the service applies the duplicate check the command applies
-(`offRouterMountable` for off-router paths; a routable path is always mountable; the home path and
-a view path are not duplicated). A split that cannot produce a showable sibling is a no-op. The
-toolbar buttons gain the check by calling the service, which closes a gap rather than changing what
-a user can reach: the buttons are already hidden where `splittable()` is false.
+pane's shown path and call `paneTree.splitPane(dock, paneId, orientation, path)`, exactly as both
+controls do today. Before that, the service applies the check the drag already applies when it
+decides what a pane may host (`offRouterMountable`: a bare, parameterless, component-backed route
+the session may reach; a view path always; the home path never). The seeded command used the same
+check; the content area's toolbar used a looser one (any matching route), which could offer a split
+whose sibling the pane cannot show. The one predicate now lives in the actions service and the
+content area's `splittable` reads it, so a visible button never leads to a dead split.
 
 **Closing a pane has one implementation, and it is the guarded one.** `closePane(handle?)` collects
 the unsaved-work candidates of every tab in the pane and runs them through `SurfaceCloseGuard`. For

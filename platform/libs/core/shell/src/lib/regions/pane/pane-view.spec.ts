@@ -77,6 +77,7 @@ const tabs = {
   activeTabRoot: vi.fn(() => 'home'),
   navigate: vi.fn(),
   navigateTo: vi.fn(),
+  closePrimaryPane: vi.fn(),
 };
 const drag = {
   canHost: vi.fn((path: string) => path.startsWith('view:')),
@@ -286,12 +287,13 @@ describe('PaneView (content pane)', () => {
       'a',
       'b',
     ]);
+    drag.canHost.mockReturnValueOnce(true);
     c.splitPane('row');
     expect(tree.splitPane).toHaveBeenCalledWith(
       'content',
       'p1',
       'row',
-      'search',
+      'doc/a',
     );
     c.closePane();
     expect(tree.closePane).toHaveBeenCalledWith('content', 'p1');
@@ -358,12 +360,13 @@ describe('PaneView (primary leaf — no dead affordances)', () => {
     expect(c.canClose()).toBe(true);
   });
 
-  it('closing the primary pane collapses the split instead of a silent no-op', () => {
+  it('closing the primary pane goes through the guarded, navigating close', () => {
     const c = build(CONTENT_PANE_OPTIONS, undefined, 'view:a', {
       leaf: primarySoleTab,
     });
+    tree.tree.mockReturnValueOnce(primarySoleTab);
     c.closePane();
-    expect(tree.collapsePrimary).toHaveBeenCalledWith('content');
+    expect(tabs.closePrimaryPane).toHaveBeenCalledTimes(1);
     expect(tree.closePane).not.toHaveBeenCalled();
   });
 });

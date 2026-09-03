@@ -19,6 +19,7 @@ import { FeatureSwitches } from '../../features/feature-switches.service';
 import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../pane/tree/pane-address';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
 import { PaneChromeService } from '../pane/chrome/pane-chrome.service';
+import { PaneActions } from '../pane/pane-actions.service';
 import { matchRoute } from './content-path';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { AuthContext } from '../../auth/auth-context';
@@ -61,6 +62,7 @@ export class ContentArea {
   protected readonly tabs = inject(ContentTabsService);
   protected readonly tabContextMenu = TAB_CONTEXT_MENU;
   private readonly chrome = inject(PaneChromeService);
+  private readonly actions = inject(PaneActions);
   private readonly layout = inject(PaneTreeService);
   private readonly registry = inject(ContributionRegistry);
   private readonly auth = inject(AuthContext);
@@ -158,16 +160,9 @@ export class ContentArea {
   private readonly activeSplitPath = computed(
     () => this.tabs.activeViewPath() ?? this.tabs.activeTabRoot(),
   );
-  private readonly splittable = computed(() => {
-    if (this.tabs.activeViewPath() !== null) {
-      return true;
-    }
-    const route = matchRoute(
-      this.registry.contentRoutes(),
-      this.tabs.activeTabRoot(),
-    );
-    return route !== undefined && this.auth.meets(route.access);
-  });
+  private readonly splittable = computed(() =>
+    this.actions.duplicable(this.activeSplitPath()),
+  );
 
   protected readonly canSplitRight = computed(
     () => this.features.splitRight() && this.splittable(),
@@ -277,24 +272,23 @@ export class ContentArea {
   }
 
   protected toggleMaximize(): void {
-    this.chrome.toggleMaximize(CONTENT_DOCK, this.urlPaneId());
+    if (this.maximized()) {
+      this.actions.restore(CONTENT_DOCK, this.urlPaneId());
+      return;
+    }
+    this.actions.maximize(CONTENT_DOCK, this.urlPaneId());
   }
 
   protected minimize(): void {
-    this.chrome.toggleMinimize(CONTENT_DOCK, this.urlPaneId());
+    this.actions.minimize(CONTENT_DOCK, this.urlPaneId());
   }
 
   protected closePrimary(): void {
-    this.tabs.closePrimaryPane();
+    this.actions.close(CONTENT_DOCK, this.urlPaneId());
   }
 
   protected split(orientation: 'row' | 'column'): void {
-    this.layout.splitPane(
-      CONTENT_DOCK,
-      this.urlPaneId(),
-      orientation,
-      this.activeSplitPath(),
-    );
+    this.actions.split(CONTENT_DOCK, this.urlPaneId(), orientation);
   }
 
   protected newTab(event: Event): void {
