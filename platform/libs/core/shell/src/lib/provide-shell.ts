@@ -63,6 +63,7 @@ import {
   SURFACE_RETENTION,
 } from './regions/pane/retention/retention-policy';
 import { FeatureSwitches } from './features/feature-switches.service';
+import { PaneService } from './regions/pane/pane.service';
 import { PaddingDefault, SURFACE_PADDING } from './foundation/surface-padding';
 import {
   CompositionReport,
@@ -190,13 +191,12 @@ export function provideShell(
       const registry = inject(ContributionRegistry);
       seedHostCommands(registry, inject(SHELL_LAYOUT), {
         dialogs: inject(DialogService),
-        paneTree: inject(PaneTreeService),
         tabs: inject(ContentTabsService),
+        panes: inject(PaneService),
         workspace: inject(WorkspaceService),
         transloco: inject(TranslocoService),
         settings: inject(SettingsService),
         popout: inject(PopoutService),
-        auth: inject(AuthContext),
         closeGuard: inject(SurfaceCloseGuard),
         retention: inject(RetentionCandidates),
         appReset: inject(AppResetService),

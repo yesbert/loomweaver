@@ -56,6 +56,8 @@ export {
   type UnauthorizedHandler,
 } from './lib/regions/content/access/content-access';
 export * from './lib/regions/content/tabs/content-tabs.service';
+export * from './lib/regions/pane/pane.service';
+export { type PaneHandle } from './lib/regions/pane/pane-handle';
 export { type QuickOpenTarget } from './lib/regions/content/tabs/quick-open-target';
 export { type ContentTabView } from './lib/regions/content/tabs/content-tab-projection';
 export {

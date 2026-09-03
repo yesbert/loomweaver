@@ -272,3 +272,35 @@ describe('the seeds follow the switches live', () => {
     expect(commandIds(registry)).not.toContain('shell.view.hide');
   });
 });
+
+describe('shell.content.splitRight is a toggle over the pane service', () => {
+  function seedWithPanes(isSplit: boolean) {
+    const panes = { isSplit: () => isSplit, splitRight: vi.fn(), unsplit: vi.fn() };
+    switchesFor({});
+    const registry = TestBed.inject(ContributionRegistry);
+    seedHostCommands(registry, layout, {
+      popout: { active: false },
+      features: TestBed.inject(FeatureSwitches),
+      injector: TestBed.inject(Injector),
+      panes,
+    } as unknown as HostCommandDeps);
+    flush();
+    registry
+      .commands()
+      .find((command) => command.id === 'shell.content.splitRight')
+      ?.run?.();
+    return panes;
+  }
+
+  it('splits through the service when the area is not split', () => {
+    const panes = seedWithPanes(false);
+    expect(panes.splitRight).toHaveBeenCalledTimes(1);
+    expect(panes.unsplit).not.toHaveBeenCalled();
+  });
+
+  it('unsplits through the service when the area is split', () => {
+    const panes = seedWithPanes(true);
+    expect(panes.unsplit).toHaveBeenCalledTimes(1);
+    expect(panes.splitRight).not.toHaveBeenCalled();
+  });
+});

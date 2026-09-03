@@ -1,6 +1,5 @@
 import { Injector } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
-import { AuthContext } from './auth/auth-context';
 import { ContributionRegistry } from './plugin/contribution-registry';
 import { DialogService } from './dialog/dialog.service';
 import { SettingsService } from './settings/settings.service';
@@ -12,9 +11,7 @@ import {
 } from './commands/command-palette';
 import { WorkspaceDialog } from './workspace/workspace-dialog';
 import { ContentTabsService } from './regions/content/tabs/content-tabs.service';
-import { offRouterMountable } from './regions/content/pane-targets';
-import { CONTENT_DOCK } from './regions/pane/tree/pane-address';
-import { PaneTreeService } from './regions/pane/tree/pane-tree.service';
+import { PaneService } from './regions/pane/pane.service';
 import { RetentionCandidates } from './regions/pane/retention/retention-candidates';
 import { SurfaceCloseGuard } from './regions/pane/close/surface-close-guard';
 import { PopoutService } from './popout/popout.service';
@@ -42,13 +39,12 @@ function hasRegion(layout: ShellRegions, type: string): boolean {
 
 export interface HostCommandDeps {
   readonly dialogs: DialogService;
-  readonly paneTree: PaneTreeService;
+  readonly panes: PaneService;
   readonly tabs: ContentTabsService;
   readonly workspace: WorkspaceService;
   readonly transloco: TranslocoService;
   readonly settings: SettingsService;
   readonly popout: PopoutService;
-  readonly auth: AuthContext;
   readonly closeGuard: SurfaceCloseGuard;
   readonly retention: RetentionCandidates;
   readonly appReset: AppResetService;
@@ -74,13 +70,12 @@ export function seedHostCommands(
 ): void {
   const {
     dialogs,
-    paneTree,
+    panes,
     tabs,
     workspace,
     transloco,
     settings,
     popout,
-    auth,
     closeGuard,
     retention,
     appReset,
@@ -196,16 +191,11 @@ export function seedHostCommands(
       icon: 'splitPanes',
       shortcut: 'mod+\\',
       run: () => {
-        if (paneTree.isSplit(CONTENT_DOCK)) {
-          paneTree.unsplit(CONTENT_DOCK);
-        } else if (offRouterMountable(registry, auth, tabs.activeTabRoot())) {
-          paneTree.splitPane(
-            CONTENT_DOCK,
-            paneTree.primaryId(CONTENT_DOCK),
-            'row',
-            tabs.activeTabRoot(),
-          );
+        if (panes.isSplit()) {
+          panes.unsplit();
+          return;
         }
+        panes.splitRight();
       },
     }),
   );

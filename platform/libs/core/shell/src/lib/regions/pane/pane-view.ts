@@ -12,6 +12,7 @@ import { isContainerDock } from './container/container-children';
 import { PaneTreeService } from './tree/pane-tree.service';
 import { PaneContainersService } from './container/pane-containers.service';
 import { PaneChromeService } from './chrome/pane-chrome.service';
+import { PaneActions } from './pane-actions.service';
 import { TabDragSource } from './drag/pane-drag.service';
 import { PaneTabStrip } from './chrome/pane-tab-strip';
 import { StripTab } from './chrome/strip-tab';
@@ -47,6 +48,7 @@ export class PaneView {
 
   private readonly features = inject(FeatureSwitches).content;
   private readonly paneTree = inject(PaneTreeService);
+  private readonly actions = inject(PaneActions);
   private readonly containers = inject(PaneContainersService);
   private readonly registry = inject(ContributionRegistry);
   private readonly picker = inject(PaneTargetPicker);
@@ -222,44 +224,27 @@ export class PaneView {
   }
 
   protected splitPane(orientation: 'row' | 'column'): void {
-    this.paneTree.splitPane(
-      this.dock(),
-      this.leaf().id,
-      orientation,
-      this.path(),
-    );
+    this.actions.split(this.dock(), this.leaf().id, orientation);
   }
 
   protected closePane(): void {
-    const candidates = this.leaf().tabs.flatMap((tab) =>
-      this.closeCandidates(tab.path),
-    );
-    this.closeGuard.guarded(candidates, () => {
-      if (this.isPrimary()) {
-        this.paneTree.collapsePrimary(this.dock());
-        return;
-      }
-      this.paneTree.closePane(this.dock(), this.leaf().id);
-    });
+    this.actions.close(this.dock(), this.leaf().id);
   }
 
   protected toggleMaximize(): void {
-    this.chrome.toggleMaximize(this.dock(), this.leaf().id);
+    if (this.maximized()) {
+      this.actions.restore(this.dock(), this.leaf().id);
+      return;
+    }
+    this.actions.maximize(this.dock(), this.leaf().id);
   }
 
   protected minimize(): void {
-    this.chrome.toggleMinimize(this.dock(), this.leaf().id);
+    this.actions.minimize(this.dock(), this.leaf().id);
   }
 
   protected focusPane(): void {
-    const path = this.paneTree.focusPane(
-      this.dock(),
-      this.leaf().id,
-      this.tabs.activeTabRoot(),
-    );
-    if (path !== null) {
-      this.tabs.navigateTo(path);
-    }
+    this.actions.focus(this.dock(), this.leaf().id);
   }
 
   protected openPicker(event: Event): void {
