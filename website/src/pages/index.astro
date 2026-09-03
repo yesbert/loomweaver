@@ -55,6 +55,18 @@ npx @loomweaver/cli weaver --id notes --command --shortcut 'mod+shift+n' --out s
 
 ng serve`;
 
+const distributionExample = `// your product's own toolbar, not a plugin
+const panes = inject(PaneService);
+const switches = inject(FeatureSwitches);
+
+// hide our split button for your users …
+switches.update({ content: { splitRight: false } });
+
+// … and offer the same action from yours. Same code, same guards.
+protected split(): void {
+  this.panes.splitRight();
+}`;
+
 const included = [
   'Tab groups with drag-to-split panes, and any tab pops out into its own window',
   'A command palette (⌘K) and quick open (⌘P), with preview tabs and pinning',
@@ -66,6 +78,7 @@ const included = [
   'Live state sync across windows and tabs',
   'Save, discard or cancel when an editor closes with unsaved work',
   'Auth-aware chrome: contributions declare the access they need, the shell reacts',
+  'Every workbench action as a service for your own code, with the same guards the controls have',
   'An AG-UI adapter, so any agent speaking that standard can run your commands',
 ];
 
@@ -106,8 +119,13 @@ const rungs = [
           href="https://docs.ag-ui.com">AG-UI</a>, an agent can drive it without you writing an
         adapter.
       </p>
+      <p class="fit">
+        For Angular teams building a product that is a workbench: several things open at once, and a
+        surface other people extend. Not a component library, and not for a site of plain pages.
+      </p>
       <div class="actions">
         <a class="btn primary" href="/getting-started/">Start in 5 minutes</a>
+        <a class="btn" href="https://demo.loomweaver.dev">Live demo</a>
         <a class="btn" href="/architecture/">See the architecture</a>
         <a class="btn" href="https://github.com/yesbert/loomweaver">
           <Icon name="github" size="1.1em" />GitHub
@@ -341,6 +359,25 @@ const rungs = [
         second call was declined, and the workbench was never asked to run it.
       </figcaption>
     </figure>
+
+    <section class="feature">
+      <div class="feature-text">
+        <h2>Everything the user does by hand, your code can do too.</h2>
+        <p>
+          Every pane, workspace, sidebar and switch the workbench offers is also a service your own
+          code injects. Turn a built-in control off for your users and offer the action from your own
+          toolbar, your own menu, your own admin page. The service runs the same code the control
+          runs, asks the same question about unsaved work, and keeps working when the control is gone.
+        </p>
+        <p class="rule">A switch removes the control, never the capability.</p>
+        <p>
+          <a href="/reference/distribution/">Distribution API</a> ·
+          <a href="/reference/distribution/switches/">Switches</a> ·
+          <a href="/reference/distribution/panes/">Panes</a>
+        </p>
+      </div>
+      <Code code={distributionExample} lang="ts" title="your distribution" />
+    </section>
 
     <section class="checklist">
       <h2>What you would otherwise build twice</h2>

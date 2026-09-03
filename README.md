@@ -35,6 +35,10 @@ That contract changes nothing about how you write Angular. A weaver is a manifes
 you already use. One surface can own your whole route tree, so an app you already have moves in
 behind a single plugin; you split it into several when you want two documents side by side.
 
+**Who it is for.** Angular teams building a product that is a workbench: several things open at
+once, panes and tabs, a surface other people extend. It is not a component library, and it is not for
+a site of plain pages.
+
 It also speaks **[AG-UI](https://docs.ag-ui.com)**, the open protocol between a user-facing
 application and an agentic backend. Every command your product registers can be offered to an agent
 that speaks it, through an adapter that ships with the platform — and an agent still reaches only
@@ -165,6 +169,23 @@ See [Driving your product with an AG-UI agent](docs/ag-ui-agents.md), or open th
   </picture>
 </p>
 
+## Everything the user does by hand, your code can do too
+
+```ts
+// your product's own toolbar, not a plugin
+const panes = inject(PaneService);
+const switches = inject(FeatureSwitches);
+
+switches.update({ content: { splitRight: false } }); // hide our split button for your users …
+panes.splitRight();                                  // … and offer the same action from yours
+```
+
+Every pane, workspace, sidebar and switch the workbench offers is also a service your own code
+injects. Turn a built-in control off and offer the action from your own toolbar, menu or admin page.
+The service runs the same code the control runs, asks the same question about unsaved work, and keeps
+working when the control is gone. **A switch removes the control, never the capability.** The
+[Distribution API](docs/reference/distribution/index.md) is indexed by "I want to …".
+
 ## What you would otherwise build twice
 
 - **A real workspace** with tab groups, drag-to-split panes, pop-out windows, named
@@ -179,10 +200,6 @@ See [Driving your product with an AG-UI agent](docs/ag-ui-agents.md), or open th
   agent that speaks the standard, through an adapter that ships with the platform. You write no
   dispatch and keep no second list of tools, and the agent still reaches only what the user could
   have reached.
-- **Everything the user does by hand, your code can do too.** Switch a built-in control off and
-  offer the action from your own UI: the shell's services for panes, workspaces, sidebars, the
-  capability switches, text size and the plugin store are part of the published contract, run the
-  same code the controls run and keep the same guards for unsaved work.
 - **The rest**: an installable PWA with an update flow, i18n with namespaced composition, WCAG 2.1 AA
   accessibility, cross-window state sync, and save/discard/cancel for editors with unsaved work.
 
