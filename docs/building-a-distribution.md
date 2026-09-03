@@ -139,6 +139,9 @@ The report exists in dev only; nothing of it reaches a production build.
 `provideLayout` declares which **regions** sit where in the border topology. A region has a `type`
 (its anatomy) and a `dock` (where it sits):
 
+Collapsing, resizing and hiding views in the sidebars from your own code is `SidebarService` in the
+[host services](reference/host-services.md#sidebars--sidebarservice).
+
 - **Docks:** `top` · `bottom` · `left` · `right` · `center`.
 - **Region types:**
   - `bar` — a thin strip of items in `start | center | end` slots (top bar, status bar, sidebar footer).
@@ -1470,6 +1473,9 @@ blocked — if you want it, widen `frame-src` deliberately to the origins you tr
 `provideFramePlugins(...)` composes sandboxed plugins at build time. On top of that, a distribution
 can offer a **plugin store**: a curated catalog of sandboxed plugins the *user* installs at runtime —
 no rebuild, no reload:
+
+Opening the store from your own control is `PluginStoreService` in the
+[host services](reference/host-services.md#plugin-store--pluginstoreservice).
 
 ```ts
 // src/app/app.config.ts — in the providers array

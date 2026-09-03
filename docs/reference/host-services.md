@@ -3,7 +3,8 @@
 <!-- derived-from-specs -->
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `ui-primitives` · `commands` · `theming` · `product-
-> identity` · `host-services` · `gesture-configuration` · `panes` · `workspaces`. Where this page and a specification disagree, the specification is right, and that is
+> identity` · `host-services` · `gesture-configuration` · `panes` · `workspaces` · `shell-layout` ·
+> `plugin-store`. Where this page and a specification disagree, the specification is right, and that is
 > a defect in this page: change the behaviour there, then explain it here.
 
 The shell's runtime services are part of the published contract, so a distribution can drive the
@@ -315,6 +316,54 @@ With `workspaces: true` the question is asked once for both parts, through the s
 `APP_RESET_WORKSPACES` token is how the composition root hands the frame's reset the workspaces'
 reset without the two slices depending on each other; `provideShell()` provides it, and you only
 meet it if you build your own composition root.
+
+## Sidebars — `SidebarService`
+
+```ts
+const sidebars = inject(SidebarService);
+
+sidebars.regions();               // SidebarFacts[]: regionId, collapsed, width, per declared panel
+sidebars.isCollapsed('primary');  // reactive where it is read
+sidebars.width('primary');
+sidebars.hiddenViews();           // readonly string[]: the ids of the hidden views
+
+sidebars.collapse('primary'); sidebars.expand('primary'); sidebars.toggle('primary');
+sidebars.setWidth('primary', 320);      // clamped to the usable range, remembered like a released drag
+sidebars.hideView('acme.outline');      // asks about unsaved work exactly as the view menu does
+sidebars.showView('acme.outline');      // back where it was declared, or in the region you name
+```
+
+The ids are yours: the panel regions that you declared with `provideLayout`, the view ids that you
+or your plugins registered. A region id that no declared panel carries does nothing. Every action is the one the
+sidebar header, the splitter and the view menu run, with the same guards, and it keeps working when
+you have switched `sidebar.collapse`, `sidebar.resize` or `sidebar.hideViews` off for your users,
+which is how you offer the action from your own control.
+
+## Text size — `FontScaleService`
+
+```ts
+const textSize = inject(FontScaleService);
+
+textSize.scale();        // FontScale: 'sm' | 'md' | 'lg' | 'xl'
+textSize.setScale('lg'); // persists through the settings store, mirrors to other tabs
+```
+
+`md` is the default and imposes nothing, so the browser's own setting decides. Bind your own control
+to `scale()` and it follows the built-in toggle in the settings, and the other way round.
+
+## Plugin store — `PluginStoreService`
+
+```ts
+const store = inject(PluginStoreService);
+
+store.open();   // the store dialog, as from the settings row or the palette command
+store.title();  // the title the catalogue configured
+```
+
+Opening works whether or not you kept the built-in entries (`setting:shell.pluginStore`,
+`shell.openPluginStore`), and with no catalogue composed the store opens and offers nothing to
+install, showing only what is installed or deployed. `configure(title)` is what
+`providePluginCatalog` uses to brand the title; you do not call it yourself.
 
 ## Version and updates — `UpdateService`, `VersionService`
 
