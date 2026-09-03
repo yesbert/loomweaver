@@ -2,7 +2,7 @@
   "_": "Sentences over 40 words per documentation page, measured by check-docs-style.mjs. A ratchet: a page may only go down, and the check fails on an entry that is no longer true. Rewrite with `npm run docs-style-check -- --write-baseline` after shortening a page.",
   "longSentences": {
     "docs/distribution/workspaces.md": 14,
-    "docs/reference/design-tokens.md": 14,
+    "docs/reference/design-tokens.md": 11,
     "CONTRIBUTING.md": 8,
     "docs/distribution/recomposing-chrome.md": 8,
     "docs/distribution/plugin-store.md": 7,
