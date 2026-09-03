@@ -2,7 +2,7 @@ import { inject, Service, Signal } from '@angular/core';
 import { ActiveContent, OpenTabInput } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { ContentReuseStrategy } from '../routing/content-reuse-strategy';
-import { SHELL_FEATURES } from '../../../foundation/shell-features';
+import { FeatureSwitches } from '../../../features/feature-switches.service';
 import { normalizePath, tabRootOf } from '../content-path';
 import { ContentTabView, OpenTab } from './content-tab-projection';
 import { TabCloseHooks } from './tab-close-hooks';
@@ -33,7 +33,7 @@ export class ContentTabsService {
 
   private readonly reuse = inject(ContentReuseStrategy);
 
-  private readonly features = inject(SHELL_FEATURES).content;
+  private readonly features = inject(FeatureSwitches).content;
 
   private readonly paneTree = inject(PaneTreeService);
 
@@ -55,12 +55,14 @@ export class ContentTabsService {
    * off-router mount re-checks the session, so a target the session no longer qualifies for renders the
    * neutral placeholder rather than its content.
    */
-  readonly quickOpenTargets: Signal<readonly QuickOpenTarget[]> = this.state.quickOpenTargets;
+  readonly quickOpenTargets: Signal<readonly QuickOpenTarget[]> =
+    this.state.quickOpenTargets;
 
   /** The active `view:` tab of the URL group, or `null` when the router drives the area (R9). */
   readonly activeViewPath: Signal<string | null> = this.state.activeViewPath;
 
-  readonly activeViewInstance: Signal<string | undefined> = this.state.activeViewInstance;
+  readonly activeViewInstance: Signal<string | undefined> =
+    this.state.activeViewInstance;
 
   /** Active content path (no leading slash, no query), including the sub-route, e.g. `doc/abc/preview`. */
   readonly activePath: Signal<string> = this.state.activePath;
@@ -69,7 +71,8 @@ export class ContentTabsService {
   readonly activeTabRoot: Signal<string> = this.state.activeTabRoot;
 
   /** The active content read a plugin reaches through `ctx.activeContent` (finding #19). */
-  readonly activeContent: Signal<ActiveContent | null> = this.state.activeContent;
+  readonly activeContent: Signal<ActiveContent | null> =
+    this.state.activeContent;
 
   /**
    * Whether the tab strip renders: whenever the pane holds tabs — and never while a **chromeless**
@@ -326,12 +329,11 @@ export class ContentTabsService {
     return foundAnywhere;
   }
 
-
   private openHere(input: OpenTabInput): void {
     const routes = this.registry.contentRoutes();
     const path = normalizePath(input.path);
     const root = tabRootOf(routes, path);
-    const previewSlot = (input.preview ?? false) && this.features.preview;
+    const previewSlot = (input.preview ?? false) && this.features.preview();
     const existing = this.state.openTabRootedAt(routes, root);
     this.closeHooks.set(root, input.onClose);
     if (!existing && this.refineElsewhere(root, input)) {
@@ -372,5 +374,4 @@ export class ContentTabsService {
       ),
     );
   }
-
 }

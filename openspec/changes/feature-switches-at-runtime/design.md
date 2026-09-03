@@ -37,8 +37,11 @@ surface* and in `openspec/config.yaml`. The design follows them rather than re-d
 ## Decisions
 
 **A small service holds the current switches; the token keeps the declaration.** `SHELL_FEATURES`
-stays what `provideShellFeatures` provides and is read exactly once, by a new root service (working
-name `FeatureSwitches`) that seeds a writable signal from it. The service exposes the groups with one
+stays what `provideShellFeatures` provides, in `foundation/` where composition facts live, and is
+read exactly once, by a new root service (working name `FeatureSwitches`) that seeds a writable
+signal from it. The service lives in a slice of its own, `features/`, not in `foundation/`: the
+house rule admits composition facts there and excludes a service that holds feature state, however
+many slices read it. The service exposes the groups with one
 `Signal<boolean>` per switch (`switches.content.splitRight()`), the whole set as one signal for the
 few readers that need it, and `update(input: ShellFeaturesInput)` that merges group by group, exactly
 as the provider does today. Readers inject the service; nothing outside it injects the token any

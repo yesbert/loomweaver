@@ -1,11 +1,18 @@
-import { afterNextRender, effect, inject, Injector, isDevMode, Service } from '@angular/core';
+import {
+  afterNextRender,
+  effect,
+  inject,
+  Injector,
+  isDevMode,
+  Service,
+} from '@angular/core';
 import { Disposable } from '@loomweaver/plugin-sdk';
 import { SHELL_LAYOUT } from '../../layout/layout';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { RailItem } from '../../foundation/rail-item';
 import { WorkspaceService } from '../../workspace/workspace.service';
 import { RailItemsService, workspaceRailItemId } from './rail-items.service';
-import { SHELL_FEATURES } from '../../foundation/shell-features';
+import { FeatureSwitches } from '../../features/feature-switches.service';
 
 const WORKSPACE_ENTRY_ORDER = 1000;
 
@@ -23,13 +30,12 @@ export class RailWorkspaceEntries {
   private readonly rails = inject(SHELL_LAYOUT)
     .regions.filter((region) => region.type === 'rail')
     .map((region) => region.id);
-  private readonly features = inject(SHELL_FEATURES).workspaces;
-  private readonly enabled = this.features.enabled;
+  private readonly features = inject(FeatureSwitches).workspaces;
 
   private readonly registered = new Map<string, Registration>();
 
   start(): void {
-    if (this.rails.length === 0 || !this.enabled) {
+    if (this.rails.length === 0) {
       return;
     }
     effect(() => this.reconcile(), { injector: this.injector });
@@ -83,10 +89,15 @@ export class RailWorkspaceEntries {
   }
 
   private wantedItems(): Map<string, RailItem> {
+    if (!this.features.enabled()) {
+      return new Map<string, RailItem>();
+    }
     const wanted = new Map<string, RailItem>();
     const initials = this.workspaces.initials();
     let order = WORKSPACE_ENTRY_ORDER;
-    const offered = this.features.savedInRail ? this.workspaces.workspaces() : [];
+    const offered = this.features.savedInRail()
+      ? this.workspaces.workspaces()
+      : [];
     for (const workspace of offered) {
       const id = workspaceRailItemId(workspace.id);
       if (!this.railItems.isVisible(id)) {

@@ -85,7 +85,7 @@
 
             <lw-tooltip
               [text]="
-                tab.preview && escalatable
+                tab.preview && escalatable()
                   ? title + ' — ' + ('content.previewHint' | transloco)
                   : title
               "

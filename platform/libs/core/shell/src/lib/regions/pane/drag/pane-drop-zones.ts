@@ -1,6 +1,6 @@
 import { Component, computed, effect, inject, input } from '@angular/core';
 import { CdkDrag, CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
-import { SHELL_FEATURES } from '../../../foundation/shell-features';
+import { FeatureSwitches } from '../../../features/feature-switches.service';
 import { PaneDragService } from './pane-drag.service';
 import { isContainerDock } from '../container/container-children';
 import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../tree/pane-address';
@@ -30,8 +30,8 @@ export class PaneDropZones {
   readonly paneId = input.required<string>();
 
   private readonly drag = inject(PaneDragService);
-  private readonly features = inject(SHELL_FEATURES).content;
-  private readonly sidebar = inject(SHELL_FEATURES).sidebar;
+  private readonly features = inject(FeatureSwitches).content;
+  private readonly sidebar = inject(FeatureSwitches).sidebar;
 
   private readonly contentSide = computed(
     () => this.dock() === CONTENT_DOCK || isContainerDock(this.dock()),
@@ -49,20 +49,20 @@ export class PaneDropZones {
 
   protected readonly edges = computed<readonly PaneDropEdge[]>(() => {
     if (!this.contentSide()) {
-      return this.sidebar.stackViews || this.sidebar.acceptTabs
+      return this.sidebar.stackViews() || this.sidebar.acceptTabs()
         ? ['top', 'bottom', 'left', 'right']
         : [];
     }
     return [
-      ...(this.features.splitDown ? (['top', 'bottom'] as const) : []),
-      ...(this.features.splitRight ? (['left', 'right'] as const) : []),
+      ...(this.features.splitDown() ? (['top', 'bottom'] as const) : []),
+      ...(this.features.splitRight() ? (['left', 'right'] as const) : []),
     ];
   });
 
   protected readonly accepts = computed(() =>
     this.contentSide()
-      ? this.features.moveTabs
-      : this.sidebar.moveViews || this.sidebar.acceptTabs,
+      ? this.features.moveTabs()
+      : this.sidebar.moveViews() || this.sidebar.acceptTabs(),
   );
 
   constructor() {
@@ -85,9 +85,9 @@ export class PaneDropZones {
       return true;
     }
     if (!String(drag.data ?? '').startsWith(VIEW_PANE_PREFIX)) {
-      return this.sidebar.acceptTabs;
+      return this.sidebar.acceptTabs();
     }
-    return this.fills() ? this.sidebar.moveViews : this.sidebar.stackViews;
+    return this.fills() ? this.sidebar.moveViews() : this.sidebar.stackViews();
   };
 
   protected zoneId(edge: PaneDropEdge): string {

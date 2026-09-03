@@ -9,7 +9,7 @@ import {
   isEditableTarget,
   isMacPlatform,
 } from './keybinding';
-import { SHELL_FEATURES } from '../foundation/shell-features';
+import { FeatureSwitches } from '../features/feature-switches.service';
 
 interface BindingsBuild {
   readonly map: ReadonlyMap<string, string>;
@@ -57,7 +57,7 @@ export class KeybindingService {
   private readonly document = inject(DOCUMENT);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
-  private readonly enabled = inject(SHELL_FEATURES).commands.shortcuts;
+  private readonly enabled = inject(FeatureSwitches).commands.shortcuts;
   private readonly isMac = isMacPlatform();
   private started = false;
 
@@ -69,9 +69,9 @@ export class KeybindingService {
     () => this.build().map,
   );
 
-  /** Attaches the global listener once; auto-detached on destroy. No-op where shortcuts are off. */
+  /** Attaches the global listener once; auto-detached on destroy. A chord is ignored while shortcuts are off. */
   start(): void {
-    if (this.started || !this.enabled) {
+    if (this.started) {
       return;
     }
     this.started = true;
@@ -91,6 +91,9 @@ export class KeybindingService {
   }
 
   private onKeydown(event: KeyboardEvent): void {
+    if (!this.enabled()) {
+      return;
+    }
     const hasCommandModifier = event.ctrlKey || event.metaKey || event.altKey;
     if (!hasCommandModifier && isEditableTarget(event.target)) {
       return;

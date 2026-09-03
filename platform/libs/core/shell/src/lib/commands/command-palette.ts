@@ -5,7 +5,7 @@ import { CommandService } from './command.service';
 import { fuzzyScore } from './palette-fuzzy';
 import { formatRelativeTime } from './relative-time';
 import { PaletteMruService } from './palette-mru.service';
-import { SHELL_FEATURES } from '../foundation/shell-features';
+import { FeatureSwitches } from '../features/feature-switches.service';
 import { DialogRef } from '../dialog/dialog-ref';
 import { ContentTabsService } from '../regions/content/tabs/content-tabs.service';
 import { MenuService, MENU_ANCHOR_GAP } from '../menu/menu.service';
@@ -81,7 +81,7 @@ export class CommandPalette {
   private readonly menu = inject(MenuService);
   private readonly transloco = inject(TranslocoService);
   private readonly element = inject<ElementRef<HTMLElement>>(ElementRef);
-  private readonly recentlyUsed = inject(SHELL_FEATURES).commands.recentlyUsed;
+  private readonly recentlyUsed = inject(FeatureSwitches).commands.recentlyUsed;
   private readonly lang = toSignal(this.transloco.langChanges$, {
     initialValue: this.transloco.getActiveLang(),
   });
@@ -145,7 +145,7 @@ export class CommandPalette {
     const query = this.query().trim();
     const entries = this.commandEntries();
     const byId = new Map(entries.map((entry) => [entry.id, entry]));
-    const recent = this.recentlyUsed
+    const recent = this.recentlyUsed()
       ? this.mru
           .ids()
           .map((id) => byId.get(id))
@@ -239,7 +239,7 @@ export class CommandPalette {
 
   protected select(entry: PaletteEntry): void {
     if (entry.kind === 'command') {
-      if (this.recentlyUsed) {
+      if (this.recentlyUsed()) {
         this.mru.record(entry.id);
       }
       this.ref.close();

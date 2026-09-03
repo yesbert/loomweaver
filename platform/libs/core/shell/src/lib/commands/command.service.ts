@@ -4,7 +4,7 @@ import { Command, CommandArguments, MenuContext } from '@loomweaver/plugin-sdk';
 import { isPopoutUrl } from '../popout/popout-path';
 import { ContributionRegistry } from '../plugin/contribution-registry';
 import { AuthContext } from '../auth/auth-context';
-import { SHELL_FEATURES } from '../foundation/shell-features';
+import { FeatureSwitches } from '../features/feature-switches.service';
 import { formatChord } from './format-chord';
 
 interface Triggerable {
@@ -23,7 +23,7 @@ export class CommandService {
   private readonly registry = inject(ContributionRegistry);
   private readonly auth = inject(AuthContext);
   private readonly errors = inject(ErrorHandler);
-  private readonly shortcuts = inject(SHELL_FEATURES).commands.shortcuts;
+  private readonly shortcuts = inject(FeatureSwitches).commands.shortcuts;
   private readonly inPopout = isPopoutUrl(inject(DOCUMENT).location.pathname);
 
   /** The registered commands — the source list for a command palette. */
@@ -48,7 +48,7 @@ export class CommandService {
    * palette row, bar button) asks here.
    */
   shortcutOf(command: Command | undefined): string | undefined {
-    if (!command?.shortcut || !this.shortcuts) {
+    if (!command?.shortcut || !this.shortcuts()) {
       return undefined;
     }
     return formatChord(command.shortcut);

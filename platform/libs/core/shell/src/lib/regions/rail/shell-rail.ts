@@ -30,7 +30,7 @@ import { RailItemsService } from './rail-items.service';
 import { RailMoveService } from './rail-move.service';
 import { Reorderable } from '../reorder/reorderable.directive';
 import { UserOrderService } from '../reorder/user-order.service';
-import { SHELL_FEATURES } from '../../foundation/shell-features';
+import { FeatureSwitches } from '../../features/feature-switches.service';
 import { ActiveWorkspaceService } from '../../workspace/active-workspace.service';
 import { WorkspaceService } from '../../workspace/workspace.service';
 
@@ -53,14 +53,16 @@ export class ShellRail {
   private readonly commands = inject(CommandService);
   private readonly auth = inject(AuthContext);
   private readonly userOrder = inject(UserOrderService);
-  private readonly features = inject(SHELL_FEATURES).rail;
+  private readonly features = inject(FeatureSwitches).rail;
   private readonly activeWorkspace = inject(ActiveWorkspaceService);
   private readonly railItems = inject(RailItemsService);
   private readonly railMove = inject(RailMoveService);
   private readonly layout = inject(SHELL_LAYOUT);
   private readonly workspaces = inject(WorkspaceService);
 
-  protected readonly railMenu = this.features.curate ? [RAIL_CONTEXT_MENU] : [];
+  protected readonly railMenu = computed(() =>
+    this.features.curate() ? [RAIL_CONTEXT_MENU] : [],
+  );
 
   protected readonly containerId = computed(() => `rail:${this.region().id}`);
   protected readonly dropListId = computed(
@@ -79,10 +81,11 @@ export class ShellRail {
   protected readonly menuSide = computed<MenuSide>(() =>
     this.region().dock === 'right' ? 'left' : 'right',
   );
-  protected readonly reorderable = this.features.reorder;
+  protected readonly reorderable = computed(() => this.features.reorder());
 
-  protected readonly draggable =
-    this.features.reorder || this.features.moveItems;
+  protected readonly draggable = computed(
+    () => this.features.reorder() || this.features.moveItems(),
+  );
 
   private readonly registered = computed(() =>
     this.registry
@@ -113,7 +116,11 @@ export class ShellRail {
       inRail.filter((item) => !isBottom(item)),
       key,
     );
-    const bottom = this.userOrder.applyOrder(id, inRail.filter((item) => isBottom(item)), key);
+    const bottom = this.userOrder.applyOrder(
+      id,
+      inRail.filter((item) => isBottom(item)),
+      key,
+    );
     return [...top, ...bottom];
   });
 
@@ -127,7 +134,9 @@ export class ShellRail {
     _drag: CdkDrag<string>,
     list: CdkDropList,
   ): boolean =>
-    list.id === this.dropListId() ? this.reorderable : this.features.moveItems;
+    list.id === this.dropListId()
+      ? this.reorderable()
+      : this.features.moveItems();
 
   protected pictureOf(item: RailItem): string | undefined {
     return this.brokenPictures().has(item.id) ? undefined : item.image;
@@ -216,7 +225,7 @@ export class ShellRail {
   };
 
   private dockForChord(event: KeyboardEvent): 'left' | 'right' | null {
-    if (!this.features.moveItems || !event.altKey || !event.shiftKey) {
+    if (!this.features.moveItems() || !event.altKey || !event.shiftKey) {
       return null;
     }
     if (event.key === 'ArrowRight') {

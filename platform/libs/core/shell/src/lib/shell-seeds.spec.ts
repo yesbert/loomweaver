@@ -1,14 +1,11 @@
+import { ApplicationRef, Injector } from '@angular/core';
+import { FeatureSwitches } from './features/feature-switches.service';
 import { TestBed } from '@angular/core/testing';
 import { ContributionRegistry } from './plugin/contribution-registry';
+import { HostCommandDeps, seedHostCommands } from './shell-seeds';
+import { BuiltInMenuDeps, seedBuiltInMenus } from './shell-menu-seeds';
 import {
-  BuiltInMenuDeps,
-  HostCommandDeps,
-  seedBuiltInMenus,
-  seedHostCommands,
-} from './shell-seeds';
-import {
-  DEFAULT_SHELL_FEATURES,
-  ShellFeatures,
+  provideShellFeatures,
   ShellFeaturesInput,
 } from './foundation/shell-features';
 
@@ -22,28 +19,25 @@ const layout = {
   ],
 };
 
-function features(input: ShellFeaturesInput): ShellFeatures {
-  return {
-    content: { ...DEFAULT_SHELL_FEATURES.content, ...input.content },
-    sidebar: { ...DEFAULT_SHELL_FEATURES.sidebar, ...input.sidebar },
-    rail: { ...DEFAULT_SHELL_FEATURES.rail, ...input.rail },
-    workspaces: {
-      ...DEFAULT_SHELL_FEATURES.workspaces,
-      ...input.workspaces,
-    },
-    windows: { ...DEFAULT_SHELL_FEATURES.windows, ...input.windows },
-    commands: { ...DEFAULT_SHELL_FEATURES.commands, ...input.commands },
-  };
+function switchesFor(input: ShellFeaturesInput): FeatureSwitches {
+  TestBed.resetTestingModule();
+  TestBed.configureTestingModule({ providers: [provideShellFeatures(input)] });
+  return TestBed.inject(FeatureSwitches);
+}
+
+function flush(): void {
+  TestBed.inject(ApplicationRef).tick();
 }
 
 function seed(input: ShellFeaturesInput): ContributionRegistry {
-  TestBed.resetTestingModule();
-  TestBed.configureTestingModule({});
+  const features = switchesFor(input);
   const registry = TestBed.inject(ContributionRegistry);
   seedBuiltInMenus(registry, layout, {
     popout: { active: false },
-    features: features(input),
+    features,
+    injector: TestBed.inject(Injector),
   } as unknown as BuiltInMenuDeps);
+  flush();
   return registry;
 }
 
@@ -52,13 +46,14 @@ function commandIds(registry: ContributionRegistry): readonly string[] {
 }
 
 function seedCommands(input: ShellFeaturesInput): ContributionRegistry {
-  TestBed.resetTestingModule();
-  TestBed.configureTestingModule({});
+  const features = switchesFor(input);
   const registry = TestBed.inject(ContributionRegistry);
   seedHostCommands(registry, layout, {
     popout: { active: false },
-    features: features(input),
+    features,
+    injector: TestBed.inject(Injector),
   } as unknown as HostCommandDeps);
+  flush();
   return registry;
 }
 
@@ -108,8 +103,10 @@ describe('seedHostCommands (K5: curation commands)', () => {
     const registry = TestBed.inject(ContributionRegistry);
     seedHostCommands(registry, { regions: [{ type: 'content' }] }, {
       popout: { active: false },
-      features: features({}),
-      } as unknown as HostCommandDeps);
+      features: TestBed.inject(FeatureSwitches),
+      injector: TestBed.inject(Injector),
+    } as unknown as HostCommandDeps);
+    flush();
 
     const ids = commandIds(registry);
     expect(ids).not.toContain('shell.rail.customize');
@@ -126,13 +123,18 @@ describe('seedHostCommands (dialogs that hold the top edge)', () => {
     const opened: Record<string, unknown>[] = [];
     seedHostCommands(registry, layout, {
       popout: { active: false },
-      features: features({}),
+      features: TestBed.inject(FeatureSwitches),
+      injector: TestBed.inject(Injector),
       dialogs: {
         open: (_component: unknown, options: Record<string, unknown>) =>
           void opened.push(options),
       },
     } as unknown as HostCommandDeps);
-    registry.commands().find((command) => command.id === id)?.run?.();
+    flush();
+    registry
+      .commands()
+      .find((command) => command.id === id)
+      ?.run?.();
     return opened[0];
   }
 
@@ -212,5 +214,61 @@ describe('seedBuiltInMenus (K1c: sidebar and rail capabilities)', () => {
     expect(ids).not.toContain('shell.view.openInWindow');
     expect(ids).not.toContain('shell.tab.openInWindow');
     expect(ids).toContain('shell.tab.close');
+  });
+});
+
+describe('the seeds follow the switches live', () => {
+  it('registers the split command when its switch turns on, and drops it when it turns off', () => {
+    const registry = seedCommands({ content: { splitRight: false } });
+    expect(commandIds(registry)).not.toContain('shell.content.splitRight');
+
+    TestBed.inject(FeatureSwitches).update({ content: { splitRight: true } });
+    flush();
+
+    const split = registry
+      .commands()
+      .find((command) => command.id === 'shell.content.splitRight');
+    expect(split?.shortcut).toBe('mod+\\');
+    expect(split?.paletteHidden).not.toBe(true);
+
+    TestBed.inject(FeatureSwitches).update({ content: { splitRight: false } });
+    flush();
+
+    expect(commandIds(registry)).not.toContain('shell.content.splitRight');
+  });
+
+  it('the workspace commands come and go together with their switch', () => {
+    const registry = seedCommands({ workspaces: { enabled: false } });
+    expect(commandIds(registry)).not.toContain('shell.workspace.manage');
+
+    TestBed.inject(FeatureSwitches).update({ workspaces: { enabled: true } });
+    flush();
+    expect(commandIds(registry)).toEqual(
+      expect.arrayContaining([
+        'shell.workspace.manage',
+        'shell.workspace.reset',
+      ]),
+    );
+
+    TestBed.inject(FeatureSwitches).update({ workspaces: { enabled: false } });
+    flush();
+    expect(commandIds(registry)).not.toContain('shell.workspace.manage');
+    expect(commandIds(registry)).not.toContain('shell.workspace.reset');
+  });
+
+  it('a menu entry follows its switch', () => {
+    const registry = seed({ sidebar: { hideViews: false } });
+    const menuCommands = () => registry.menuItems().map((item) => item.command);
+    expect(menuCommands()).not.toContain('shell.view.hide');
+
+    TestBed.inject(FeatureSwitches).update({ sidebar: { hideViews: true } });
+    flush();
+    expect(menuCommands()).toContain('shell.view.hide');
+    expect(commandIds(registry)).toContain('shell.view.hide');
+
+    TestBed.inject(FeatureSwitches).update({ sidebar: { hideViews: false } });
+    flush();
+    expect(menuCommands()).not.toContain('shell.view.hide');
+    expect(commandIds(registry)).not.toContain('shell.view.hide');
   });
 });

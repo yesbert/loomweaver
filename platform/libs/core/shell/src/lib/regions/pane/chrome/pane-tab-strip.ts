@@ -1,4 +1,19 @@
-import { afterNextRender, afterRenderEffect, Component, CUSTOM_ELEMENTS_SCHEMA, DestroyRef, ElementRef, TemplateRef, computed, effect, inject, input, output, signal, viewChild } from '@angular/core';
+import {
+  afterNextRender,
+  afterRenderEffect,
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  DestroyRef,
+  ElementRef,
+  TemplateRef,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import {
@@ -14,9 +29,13 @@ import { MenuTriggerDirective } from '../../../menu/menu-trigger.directive';
 import { Reorderable } from '../../reorder/reorderable.directive';
 import { VIEW_PANE_PREFIX } from '../tree/pane-address';
 import { resolveTitle } from '../drag/pane-label';
-import { SHELL_FEATURES } from '../../../foundation/shell-features';
+import { FeatureSwitches } from '../../../features/feature-switches.service';
 import { PaneDragService, TabDragSource } from '../drag/pane-drag.service';
-import { PaneMoveService, stripIdOf, stripSourceOf } from '../drag/pane-move.service';
+import {
+  PaneMoveService,
+  stripIdOf,
+  stripSourceOf,
+} from '../drag/pane-move.service';
 import { StripTab, TabAcceptance } from './strip-tab';
 
 const EDGE_TOLERANCE_PX = 1;
@@ -92,7 +111,7 @@ export class PaneTabStrip {
 
   private readonly strip = viewChild<ElementRef<HTMLElement>>('tabStrip');
 
-  protected readonly escalatable = inject(SHELL_FEATURES).content.escalate;
+  protected readonly escalatable = inject(FeatureSwitches).content.escalate;
 
   private pickedHere: string | null = null;
 
@@ -291,7 +310,8 @@ export class PaneTabStrip {
   private measureOverflow(): void {
     const element = this.strip()?.nativeElement;
     this.overflowing.set(
-      !!element && element.scrollWidth - element.clientWidth > EDGE_TOLERANCE_PX,
+      !!element &&
+        element.scrollWidth - element.clientWidth > EDGE_TOLERANCE_PX,
     );
   }
 
