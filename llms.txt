@@ -22,7 +22,7 @@ This is a curated map for people, and their AI assistants, building on or integr
   - [Containers](docs/weaver/containers.md): a workspace in a tab, a child per item, relative addresses, pop-outs.
   - [The content area](docs/weaver/content-area.md): routable surfaces, tabs per pane, chromeless, closable, preview and pinned tabs, panes and tab groups.
   - [Sub-routes and follows](docs/weaver/sub-routes-and-follows.md): `subRoutes`, the rest of the address, tabs that follow the selection, `activeContent`.
-  - [Context menus](docs/weaver/menus.md): `registerMenuItem`, item menu slots, `ctx.ui.openMenu`.
+  - [Menus](docs/weaver/menus.md): `registerMenuItem`, item menu slots, `ctx.ui.openMenu`.
   - [Sandboxed surfaces](docs/weaver/sandboxed-surfaces.md): `component` or `iframe`, the sandbox bootstrap, the frame UI kit.
   - [Commands and their triggers](docs/weaver/commands.md): one behaviour behind shortcut, bar and rail items, palette and menu.
   - [Access gating](docs/weaver/access-gating.md): `access` on contributions and `ctx.session`.

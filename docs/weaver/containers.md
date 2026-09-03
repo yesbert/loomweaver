@@ -13,9 +13,9 @@ A container is a surface that holds an arrangement of child surfaces: a small wo
 A **container** surface does not render one view. Instead it renders a host-managed **nested pane
 tree** of child surfaces *inside its own content tab*. The tree has the same drag/split/tab mechanics
 as the top level, one level nested and scoped to that tab. Use it for a "one X = one tab, with inner panes" layout (e.g. a run/sim
-tab holding its feed, graph and details side by side). A container is always `routable` (its tab holds
-its own `:id`, so several open in parallel and each is deep-linkable); its children are non-routable
-surfaces declared with **`docks: []`** — "child-only", never seeded into a sidebar, mounted only inside
+tab holding its feed, graph and details side by side). A container is always `routable`: its tab holds
+its own `:id`, so several open in parallel and each is deep-linkable. Its children are non-routable
+surfaces declared with **`docks: []`**, "child-only": never seeded into a sidebar, mounted only inside
 a container by id. The host draws the tree; you only declare which children it offers and which load
 first.
 
@@ -62,7 +62,7 @@ arrangement wins, across reloads. Closing the tab and opening it again is theref
 gets your arrangement back.
 
 Two rules worth knowing before you debug something odd. A tab naming a child you did **not** list in
-`children` is dropped with a developer warning, as is a malformed area — the container degrades to
+`children` is dropped with a developer warning, as is a malformed area. The container degrades to
 whatever still makes sense rather than refusing to appear, so check the console when the layout is not
 what you wrote. And a child the current user may **not** see still takes its place in the layout and
 shows the host's access placeholder; the arrangement does not rearrange itself per role, and it cannot
@@ -122,11 +122,11 @@ address twice focuses the tab that is already there rather than adding a second 
 call `open` on every click without checking.
 
 It is a call rather than a navigation on purpose, and that is worth understanding before you reach for
-the router instead: a container tab may sit in a split pane or in a pop-out, where it holds no browser
+the router instead. A container tab may sit in a split pane or in a pop-out, where it holds no browser
 address at all, and a list whose rows only worked in the main window would not be much of a list.
 
 While the container tab *does* hold the address, the URL names the focused child
-(`/sim/abc123/item/42`), so such a link is shareable and a deep link opens what it names — into that
+(`/sim/abc123/item/42`), so such a link is shareable. A deep link opens what it names: into that
 same declared pane, and into an existing tab when one is already open. Elsewhere the container keeps
 its own idea of what is focused and the address simply does not express it.
 
@@ -134,38 +134,11 @@ A child whose segment carries a value cannot appear in `initial` or in the inner
 which value to use. That is what the declared-empty pane is for. A child with no segment keeps
 behaving exactly as before — reachable from the picker, one instance, no address.
 
-## Sub-routes and pop-out windows
-
-One thing to get right if your surface draws its own **sub-tabs**: switch them **locally when you are
-host-mounted**, not by pushing an absolute URL onto the global router. Your surface can be mounted
-where the global URL does not belong to it: a split pane, a sidebar, a pop-out. An absolute
-`navigateByUrl('/doc/42/code')` from there hijacks the window. In a pop-out it drags the URL out of
-the `/popout/` prefix, so a reload opens the full app.
-
-The host tells you which case you are in: when it host-mounts you it supplies a **synthetic
-`ActivatedRoute` whose `routeConfig` is `null`**. Branch on it — keep sub-tab state local off-router,
-and only reflect it into the URL when you own it:
-
-```ts
-// Inside your route component (tabRoot = the route's path with params resolved, e.g. 'doc/' + id):
-private readonly route = inject(ActivatedRoute);
-// Host-mounted (split/sidebar/pop-out) = the host built a synthetic route: routeConfig is null,
-// and data['sub'] carries the active sub-segment instead of the URL.
-private readonly hostMounted = this.route.snapshot.routeConfig === null;
-private readonly localSub = signal(String(this.route.snapshot.data['sub'] ?? '') || 'code');
-
-openSub(sub: string): void {
-  if (this.hostMounted) {
-    this.localSub.set(sub);        // split / sidebar / pop-out — stay put
-    return;
-  }
-  void this.router.navigateByUrl('/' + this.tabRoot + '/' + sub);   // URL pane — shareable, back/forward
-}
-```
-
-Sub-tab-less views (the common case) need none of this.
+A surface that draws its own sub-tabs must switch them locally wherever the host mounts it off-router,
+a pop-out included; [Sub-routes and pop-out windows](sub-routes-and-follows.md#sub-routes-and-pop-out-windows) shows the branch.
 
 ## Where next
 
-- [Authoring a weaver](../authoring-a-weaver.md): the map of these pages.
-- [Samples](../samples.md): complete recipes to copy.
+- [The content area](content-area.md): the routable surface a container is, and the tabs it opens into.
+- [Sub-routes, the rest, and tabs that follow](sub-routes-and-follows.md): addresses below a tab root, and sub-tabs when the host mounts you off-router.
+- [The address](../concepts/the-address.md): why one pane carries it and what inside a container has none.

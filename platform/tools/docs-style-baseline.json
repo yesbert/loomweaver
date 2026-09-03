@@ -7,14 +7,10 @@
     "docs/distribution/recomposing-chrome.md": 8,
     "docs/distribution/plugin-store.md": 7,
     "docs/samples.md": 7,
-    "docs/weaver/sandboxed-surfaces.md": 6,
     "docs/distribution/frame-plugins.md": 5,
-    "docs/weaver/menus.md": 5,
     "docs/distribution/icons-and-i18n.md": 4,
     "docs/distribution/pwa.md": 4,
     "docs/plugins.md": 4,
-    "docs/weaver/containers.md": 4,
-    "docs/weaver/sub-routes-and-follows.md": 4,
     "docs/weaver/view-state.md": 4,
     "docs/backend-integration.md": 3,
     "docs/distribution/capabilities.md": 3,
@@ -33,8 +29,6 @@
     "docs/distribution/windows-and-sync.md": 2,
     "docs/reference/access-gating.md": 2,
     "docs/reference/callable-commands.md": 2,
-    "docs/weaver/plugin-state.md": 2,
-    "docs/weaver/sidebar-surfaces.md": 2,
     "docs/distribution-api/commands.md": 1,
     "docs/distribution-api/composition.md": 1,
     "docs/distribution-api/plugins-at-runtime.md": 1,
@@ -46,8 +40,6 @@
     "docs/distribution/switching-capabilities-off.md": 1,
     "docs/manual-setup.md": 1,
     "docs/reference/agent-tools.md": 1,
-    "docs/reference/shell-anatomy.md": 1,
-    "docs/weaver/commands.md": 1,
-    "docs/weaver/content-area.md": 1
+    "docs/reference/shell-anatomy.md": 1
   }
 }

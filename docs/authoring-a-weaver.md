@@ -9,8 +9,8 @@
 
 A **weaver** is a LoomWeaver plugin — where all your domain UI and logic live. It imports only
 `@loomweaver/plugin-sdk` (nothing else is public API) and contributes through the uniform `ctx` it receives
-on activation. This page is a tour of that contract with complete, copyable examples. `ctx` is the
-supported surface throughout. There is one deliberate way past it:
+on activation. This page gives the shape of a weaver and maps the how-to pages that follow. `ctx` is
+the supported surface throughout. There is one deliberate way past it:
 [defining your own custom element](weaver/sidebar-surfaces.md#your-own-custom-element--the-escape-hatch). That path is an escape
 hatch, and its costs are ones the platform cannot absorb for you.
 
@@ -77,20 +77,22 @@ yourself; otherwise the host disposes it when the plugin unloads.
 
 ## The pages
 
-- [Surfaces in a sidebar](weaver/sidebar-surfaces.md)
-- [View state that survives](weaver/view-state.md)
-- [Unsaved changes](weaver/unsaved-changes.md)
-- [Your plugin's own store](weaver/plugin-state.md)
-- [Containers: a workspace in a tab](weaver/containers.md)
-- [The content area: routes and tabs](weaver/content-area.md)
-- [Sub-routes, the rest, and tabs that follow](weaver/sub-routes-and-follows.md)
-- [Context menus](weaver/menus.md)
-- [Sandboxed surfaces](weaver/sandboxed-surfaces.md)
-- [Commands and their triggers](weaver/commands.md)
-- [Access gating in a weaver](weaver/access-gating.md)
-- [Icons and theme](weaver/icons-and-theme.md)
-- [Host UI and host facts](weaver/host-ui-and-facts.md)
-- [Settings sections](weaver/settings.md)
-- [Translations](weaver/i18n.md)
+The order follows a weaver from its first surface to what it needs once it is shipped.
 
-Each page is one task with complete, copyable code. [Samples](samples.md) has the same material as whole files, and [Concepts](concepts/surfaces-and-panes.md) explains why the workbench behaves as it does.
+- [Surfaces in a sidebar](weaver/sidebar-surfaces.md): a docked surface, what its body may use, and the custom-element escape hatch.
+- [The content area](weaver/content-area.md): routable surfaces, tabs per pane, chromeless, closable, preview and pinned tabs, panes and tab groups.
+- [Containers](weaver/containers.md): a workspace in a tab, a child per item, relative addresses.
+- [Sub-routes and follows](weaver/sub-routes-and-follows.md): `subRoutes`, sub-tabs when the host mounts you off-router, the rest of the address, tabs that follow the selection, `activeContent`.
+- [Commands and their triggers](weaver/commands.md): one behaviour behind shortcut, bar and rail items, palette and menu.
+- [Menus](weaver/menus.md): `registerMenuItem`, a menu on a rail or bar item, and the menu you draw in a sandbox.
+- [Host UI and host facts](weaver/host-ui-and-facts.md): `ctx.ui` dialogs, toasts and `openMenu`, `ctx.host`.
+- [View state that survives](weaver/view-state.md): `VIEW_STATE`: filter, sub-tab, scroll position in one shape.
+- [Unsaved changes](weaver/unsaved-changes.md): `DirtySurface` and the Save, Discard, Cancel question.
+- [Your plugin's own store](weaver/plugin-state.md): `ctx.state`, one store shared by every surface of your plugin.
+- [Settings sections](weaver/settings.md): `registerSettingsSection`, controls the host draws and you store.
+- [Access gating](weaver/access-gating.md): `access` on contributions and `ctx.session`.
+- [Sandboxed surfaces](weaver/sandboxed-surfaces.md): `component` or `iframe`, the sandbox bootstrap, the frame UI kit, the plugin store.
+- [Translations](weaver/i18n.md): titles and labels as keys in a namespace of your own; body text stays yours.
+- [Icons and theme](weaver/icons-and-theme.md): `ctx.contributeIcons`, `ctx.contributeTheme`.
+
+Each page opens with what it does and when you need it, and closes with where to go next. [Samples](samples.md) has the same material as whole files, and [Concepts](concepts/surfaces-and-panes.md) explains why the workbench behaves as it does.

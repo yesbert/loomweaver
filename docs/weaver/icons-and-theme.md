@@ -2,7 +2,7 @@
 
 <!-- derived-from-specs -->
 > **This is a guide, not the contract.** What the platform guarantees is specified under
-> `openspec/specs/` — for this page: `theming`. Where this page and a specification disagree, the
+> `openspec/specs/` — for this page: `theming` · `ui-primitives`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
 > explain it here.
 
@@ -96,5 +96,6 @@ function apply(ctx: PluginContext): void {
 
 ## Where next
 
-- [Authoring a weaver](../authoring-a-weaver.md): the map of these pages.
-- [Samples](../samples.md): complete recipes to copy.
+- [Design tokens](../reference/design-tokens.md): the `--lw-*` vocabulary a theme sets and a view body reads.
+- [Icons](../reference/icons.md): every name `<lw-icon>` resolves out of the box.
+- [Icons, translations and rewording](../distribution/icons-and-i18n.md): `provideIcons`, the distribution's replacement of a shipped glyph.

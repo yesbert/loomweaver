@@ -90,7 +90,7 @@ export default defineConfig({
               label: 'Sub-routes and follows',
               link: '/weaver/sub-routes-and-follows/',
             },
-            { label: 'Context menus', link: '/weaver/menus/' },
+            { label: 'Menus', link: '/weaver/menus/' },
             {
               label: 'Sandboxed surfaces',
               link: '/weaver/sandboxed-surfaces/',

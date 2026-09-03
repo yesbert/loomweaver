@@ -6,8 +6,16 @@
 > specification is right, and that is a defect in this page: change the behaviour there, then
 > explain it here.
 
-**Surface presentation — `component` or `iframe`.** A surface renders either from an Angular `component`
-(the trusted, in-process form, see [The content area](content-area.md)) or from an `iframe` URL, and that choice is independent of whether a
+A sandboxed surface is an `iframe` the host mounts in isolation, which is how a plugin written in any
+technology contributes a view. This page declares one, routable or docked, shows how a sandboxed
+plugin gets its `ctx`, and introduces the frame UI kit its surfaces paint with. It closes with what a
+plugin needs once a store distributes it: an honest capability declaration, a monotonic version and
+data-only settings.
+
+## Presentation: `component` or `iframe`
+
+A surface renders either from an Angular `component` (the trusted, in-process form, see
+[The content area](content-area.md)) or from an `iframe` URL. That choice is independent of whether a
 URL points at the surface:
 
 ```ts
@@ -15,19 +23,20 @@ ctx.registerSurface({ id: 'report', title: 'report.title', iframe: '/my-plugin/r
   routable: { path: 'report/:id' } });
 ```
 
-The `iframe` form is how a **sandboxed, non-Angular** plugin contributes a content view — the host mounts
+The `iframe` form is how a **sandboxed, non-Angular** plugin contributes a content view: the host mounts
 the URL in an isolated `<iframe sandbox>` (own JS context, no host access). A plain string, it serialises
 across the `ctx`-RPC boundary, unlike an Angular class. For a **sandboxed** plugin the URL must be
-**same-origin** (served by the distribution, like the plugin itself) — a foreign origin, `javascript:` or
+**same-origin** (served by the distribution, like the plugin itself). A foreign origin, `javascript:` or
 `data:` URL is rejected at the RPC seam, so an untrusted plugin cannot point the host chrome wherever it
 likes. A sandboxed surface may be **docked** (`docks`) as well as routable, and it may declare a
-`container`; the seam rejects `access` instead of silently dropping it, because a sandboxed surface gates
-itself from the session state the host pushes. A **trusted** plugin may use the same `iframe` form to embed a foreign origin on purpose (a
-dashboard, a docs site, a video); there the distribution decides what may be framed through its CSP
-`frame-src`, which the browser enforces. The tab strip works identically — it only sees the
-`path`. This is the first sandbox rung; see
+`container`. The seam rejects `access` instead of silently dropping it, because a sandboxed surface gates
+itself from the session state the host pushes. A **trusted** plugin may use the same `iframe` form to
+embed a foreign origin on purpose (a dashboard, a docs site, a video). There the distribution decides
+what may be framed through its CSP `frame-src`, which the browser enforces. The tab strip works
+identically, since it only sees the `path`. This is the first sandbox rung; see
 [building a distribution](../distribution/frame-plugins.md) for wiring a sandboxed
-plugin, and [Capabilities and trust](../concepts/capabilities-and-trust.md) for the isolation model. Trusted in-process weavers keep using `component`.
+plugin, and [Capabilities and trust](../concepts/capabilities-and-trust.md) for the isolation model.
+Trusted in-process weavers keep using `component`.
 
 An iframe surface is a first-class content view: the host gives it a small two-way channel (Penpal). The
 host **pushes** the active UI language, the active sub-route segment, the preview state, and the
@@ -42,23 +51,24 @@ plugin (logic) channel's `ctx.navigateContent` (the `navigation` capability). Th
 static iframe that never connects just renders. (A worked example ships in the testbed's
 `sandbox-rpc` plugin.)
 
-**A docked iframe surface.** The same `iframe` form works at a dock, so a surface that is not routable can
-still be an iframe:
+## A docked iframe surface
+
+The same `iframe` form works at a dock, so a surface that is not routable can still be an iframe:
 
 ```ts
 ctx.registerSurface({ id: 'notes.frame', title: 'notes.frame.title',
   docks: ['secondary'], iframe: '/my-plugin/panel.html' });
 ```
 
-It receives the same pushed state, with two differences that follow from having **no address**: its `tab`
-is always empty (there is no tab root and no sub-route to reflect), and `navigate` is a **no-op with a
-development warning** rather than an error — the channel is only safe because it is confined to the
-surface's own tab root, and a docked surface has none. To move the user somewhere, go through the plugin
-channel's `ctx.navigateContent` (the `navigation` grant). The pushed state also carries an `instanceId`:
-the pane or named instance this mount belongs to, so two mounts of the same surface can keep their own
-per-instance data apart, and `params` — the route params for a routable surface, and the container's
-`:id` for a **container child**, which is how an iframe child learns which container it is inside
-(a component child injects the same values off its route).
+It receives the same pushed state, with two differences that follow from having **no address**. Its
+`tab` is always empty, because there is no tab root and no sub-route to reflect. And `navigate` is a
+**no-op with a development warning** rather than an error: the channel is only safe because it is
+confined to the surface's own tab root, and a docked surface has none. To move the user somewhere, go
+through the plugin channel's `ctx.navigateContent` (the `navigation` grant). The pushed state also
+carries an `instanceId`: the pane or named instance this mount belongs to, so two mounts of the same
+surface can keep their own per-instance data apart. It carries `params` as well: the route params for a
+routable surface, and the container's `:id` for a **container child**, which is how an iframe child
+learns which container it is inside. A component child injects the same values off its route.
 
 ## The sandbox bootstrap — how a sandboxed plugin gets `ctx`
 
@@ -103,11 +113,11 @@ Penpal.connect({ messenger })
   .catch((error) => console.error('[my-plugin] activation failed', error));
 ```
 
-The RPC `ctx` is **flat** — unlike the in-process `ctx` the other how-to pages use, there is no `ctx.ui`
-facade: the endpoints are `registerSurface` · `registerMenuItem` · `registerSettingsSection` ·
+The RPC `ctx` is **flat**: unlike the in-process `ctx` the other how-to pages use, there is no `ctx.ui`
+facade. The endpoints are `registerSurface` · `registerMenuItem` · `registerSettingsSection` ·
 `navigateContent` · `openContentTab` / `keepContentTab` / `pinContentTab` / `unpinContentTab` /
 `closeContentTab` · `revealSurface` · `toast`. Every call runs through the same default-deny
-capability broker as a trusted plugin — an ungranted capability rejects, so `.catch` and degrade.
+capability broker as a trusted plugin. An ungranted capability rejects, so `.catch` and degrade.
 (Generate this whole layout with `nx g @loomweaver/devkit:sandbox-plugin` or the MCP
 `scaffold_frame_plugin` — see [scaffolding](../scaffolding.md).)
 
@@ -137,10 +147,11 @@ The kit is versioned **with the distribution's shell** — you reference it, you
 your paint always matches the host the plugin actually runs in. For development outside a
 distribution, copy the files from the `@loomweaver/frame-kit` npm package.
 
-**Writing the surface in TypeScript.** The package ships `dist/lw-frame.d.ts`, a description of the
-global the script installs. It is an ambient declaration rather than a module, because you load the
-kit with a `<script>` tag and never import it — so you reference it once and `LwFrame` is typed
-everywhere:
+### Writing the surface in TypeScript
+
+The package ships `dist/lw-frame.d.ts`, a description of the global the script installs. It is an
+ambient declaration rather than a module, because you load the kit with a `<script>` tag and never
+import it. So you reference it once and `LwFrame` is typed everywhere:
 
 ```jsonc
 // tsconfig.json
@@ -164,26 +175,33 @@ same source the bundle is built from, so the two cannot disagree. What it descri
 - **`LwStateHost`** — the host methods your Penpal connection exposes for the store. You pass the
   resolved connection to `connectState`; you do not call these yourself.
 
-**Distributing through a plugin store.** A sandboxed plugin needs nothing extra to be store-installable:
-a distribution lists it in its [plugin catalog](../distribution/plugin-store.md)
-(id, entry URL, display metadata) and users install it at runtime. Two things matter to you as the author. First, **declare your capabilities honestly**. The install
-dialog shows exactly the declared set to the user, and accepting grants exactly that. An undeclared
-capability is never granted; a declared one the user can still revoke later. Second, expect your files
-to be **copied into the product's own origin**. The store is same-origin by design, so getting listed
-means passing the operator's review, not hosting anything yourself. Ship a **README.md** with your plugin: the operator copies it into the store next
-to your files and the store's detail pane renders it in-app — it is your plugin's storefront page.
-(The testbed's `store-full` plugin is the worked example.)
+## Distributing through a plugin store
 
-**Shipping a new version.** Updates ride on the catalog's `version` field: the operator raises it
-together with your files, and every installed user is offered an update that swaps the entry and
-respawns your plugin live. Two consequences for you: keep the version **monotonic** (segments are
-compared numerically, `1.10.0` beats `1.9.0`; only a strictly newer version is offered), and know
-that a version which **declares capabilities the user never consented to** asks for consent again,
-listing exactly the added ones — so growing your declaration is safe but never silent.
+A sandboxed plugin needs nothing extra to be store-installable: a distribution lists it in its
+[plugin catalog](../distribution/plugin-store.md) (id, entry URL, display metadata) and users install
+it at runtime. Two things matter to you as the author. First, **declare your capabilities honestly**.
+The install dialog shows exactly the declared set to the user, and accepting grants exactly that. An
+undeclared capability is never granted; a declared one the user can still revoke later. Second, expect
+your files to be **copied into the product's own origin**. The store is same-origin by design, so
+getting listed means passing the operator's review, not hosting anything yourself. Ship a
+**README.md** with your plugin: the operator copies it into the store next to your files and the
+store's detail pane renders it in-app. It is your plugin's storefront page. (The testbed's
+`store-full` plugin is the worked example.)
 
-**Frame-plugin settings — declare data, the host renders and stores.** A sandboxed plugin can contribute
-a settings section over RPC, but in a **data-only** form: each row declares a control kind and its **default value** instead of `value()`/`set()`
-callbacks, which cannot cross the wire. The host renders the controls. It also owns the storage (user-local
+## Shipping a new version
+
+Updates ride on the catalog's `version` field: the operator raises it together with your files, and
+every installed user is offered an update that swaps the entry and respawns your plugin live. Two
+consequences for you. Keep the version **monotonic**: segments are compared numerically, `1.10.0`
+beats `1.9.0`, and only a strictly newer version is offered. And a version which **declares
+capabilities the user never consented to** asks for consent again, listing exactly the added ones, so
+growing your declaration is safe but never silent.
+
+## Settings: declare data, the host renders and stores
+
+A sandboxed plugin can contribute a settings section over RPC, but in a **data-only** form. Each row
+declares a control kind and its **default value** instead of `value()`/`set()` callbacks, which cannot
+cross the wire. The host renders the controls. It also owns the storage (user-local
 through the distribution's settings store). It **pushes the current values back** by calling the
 `settingsChanged(sectionId, values)` method you expose on your RPC channel. That call comes once after
 registration with the restored state, then on every change — **including a change made in another
@@ -221,5 +239,6 @@ Penpal.connect({
 
 ## Where next
 
-- [Authoring a weaver](../authoring-a-weaver.md): the map of these pages.
-- [Samples](../samples.md): complete recipes to copy.
+- [Frame plugins](../distribution/frame-plugins.md): how a distribution composes a sandboxed plugin and serves the kit.
+- [Plugin store](../distribution/plugin-store.md): the catalog, runtime install and updates on the operator's side.
+- [Your plugin's own store](plugin-state.md): the store both documents of a sandboxed plugin share.
