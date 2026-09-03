@@ -13,7 +13,6 @@ Pop-out windows, state that follows across windows, and the version and update f
 ```ts
 const popout = inject(PopoutService);
 
-popout.active;                    // is *this* window a pop-out?
 popout.open('view:acme.inspector');
 popout.open('doc/readme');
 ```
@@ -35,37 +34,62 @@ const version = inject(VersionService);
 version.version.set(await fetchBuildVersion());   // writable: point it at your own build info
 
 const updates = inject(UpdateService);
-updates.enabled;              // is a service worker registered at all?
-updates.updateAvailable();    // a new version has been fetched
-updates.updateFailed();       // installation failed / worker unrecoverable — do not claim "up to date"
 await updates.checkForUpdate();
 await updates.activateUpdate();
 ```
 
-## Pop-out windows, in depth
+## Read it
 
-`open` duplicates rather than moves — the original tab stays. `active` is decided once from the URL
-at startup, which is why it is a plain boolean and not a signal.
+```ts
+popout.active;                // is *this* window a pop-out? A plain boolean, fixed at startup
 
-## Cross-tab sync, in depth
+version.version();            // the running build's version
+version.isPreview();          // whether that version is a preview of an unreleased line
 
-Every write through either persistence port (`SETTINGS_STORE` / `WORKING_STATE_STORE`)
-broadcasts its **key** to the app's other windows; a window that registered a reaction reads the
-fresh value back through the registered source's store and applies it. The shell registers its own
-keys, so plugin state inherits the behaviour. A distribution registers whatever else should follow,
-most usefully its product session key, as the `acme.session` registration under *Do it* shows.
+updates.enabled;              // is a service worker registered at all?
+updates.updateAvailable();    // a new version has been fetched
+updates.updateFailed();       // installation failed / worker unrecoverable — do not claim "up to date"
+updates.updateBroken();       // the harsher half of updateFailed: the worker cannot repair itself
+```
 
-Two rules: an applier must **not** write back (or two windows ping-pong forever), and a broadcast
-never fires in the window that made the change — a `BroadcastChannel` does not deliver to its own
-sender. `notifyRemoteChange` is the deliberate exception: a backend-backed store with a push
+`register` and `registerPrefix` return a disposer; there is nothing else to read on `StateSyncService`.
+
+## What asks about unsaved work
+
+Nothing on this page asks. `open` duplicates rather than moves, so the original tab stays. `activateUpdate` reloads the window once the new version is active.
+
+## Switched off
+
+`windows.popout` takes "Open in new window" off the tab menu and the docked view's menu; `popout.open` keeps working for you. Sync, version and updates have no switch.
+
+## In depth
+
+**Pop-out windows.** `open` duplicates rather than moves: the original tab stays. `active` is decided
+once from the URL at startup, which is why it is a plain boolean and not a signal. If the pop-up
+blocker swallows the window, the user gets a dialog whose button is a fresh gesture.
+
+**Sync across windows.** Every write through either persistence port (`SETTINGS_STORE`,
+`WORKING_STATE_STORE`) broadcasts its **key** to the app's other windows. A window that registered a
+reaction reads the fresh value back through the registered source's store and applies it. The shell
+registers its own keys, so plugin state inherits the behaviour. A distribution registers whatever
+else should follow, most usefully its product session key, as the `acme.session` registration under
+*Do it* shows.
+
+**Two rules.** An applier must **not** write back, or two windows ping-pong forever. A broadcast
+never fires in the window that made the change, because a `BroadcastChannel` does not deliver to its
+own sender. The deliberate exception is `notifyRemoteChange`: a backend-backed store with a push
 transport calls it to apply a change made on another device.
 
-## Version and updates, in depth
-
-The shell already drives a toast and the update badge from these signals; inject the service only if
-you want your own affordance. `updateFailed` exists because a silent failure is worse than a visible
-one — see [PWA & delivery](../distribution/pwa.md).
+**Version and updates.** The shell already drives a toast and the update badge from these signals;
+inject the service only if you want your own affordance. The signal `updateFailed` exists because a
+silent failure is worse than a visible one; see [PWA & delivery](../distribution/pwa.md). Its harsher
+half is `updateBroken`: the worker cannot repair itself, and `activateUpdate` drops the worker
+instead of reloading into the same wall. Announcing `isPreview` is yours: the workbench marks a
+preview nowhere on its own.
 
 ## Where the story is told
 
-- [Pop-out windows](../distribution/windows-and-sync.md#pop-out-windows), [Cross-tab live sync](../distribution/windows-and-sync.md#cross-tab-live-sync) and [PWA & delivery](../distribution/pwa.md) in the guide.
+- [Pop-out windows](../distribution/windows-and-sync.md#pop-out-windows): what a pop-out shows and what it refuses.
+- [Cross-tab live sync](../distribution/windows-and-sync.md#cross-tab-live-sync): the ports, the channel and the shell's own registrations.
+- [PWA & delivery](../distribution/pwa.md): the service worker, the badge and the failure toast.
+- [Sync your own state across browser windows](../samples.md#9--sync-your-own-state-across-browser-windows): a complete recipe.

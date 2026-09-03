@@ -7,7 +7,7 @@
 > explain it here.
 
 The read side of [auth](../backend-integration.md#2--auth--session--authsource). `provideAuthSource`
-feeds the snapshot in; this reads it back out — including the exact predicates the chrome uses to
+feeds the snapshot in; this reads it back out, including the exact predicates the chrome uses to
 hide or disable contributions.
 
 ## Do it
@@ -15,17 +15,36 @@ hide or disable contributions.
 ```ts
 const auth = inject(AuthContext);
 
+auth.hasRole('admin');
+auth.meets({ anyRole: ['admin', 'owner'] });  // "may this happen at all?"
+auth.visible(access); auth.disabled(access);  // "how should a chrome item render?"
+```
+
+## Read it
+
+```ts
 auth.state();                                 // the whole AuthSnapshot
 auth.authenticated();                         // boolean signal
 auth.roles();                                 // readonly string[] signal
-auth.hasRole('admin');
-auth.meets({ anyRole: ['admin', 'owner'] });  // "may this happen at all?"
-auth.visible(access) / auth.disabled(access); // "how should a chrome item render?"
 ```
+
+`state()` is the whole `AuthSnapshot`; `authenticated()` and `roles()` are derived from it. `hasRole`, `meets`, `visible` and `disabled` read the same snapshot, so they are reactive where they are called.
+
+## What asks about unsaved work
+
+Nothing on this page asks; reading the session closes nothing.
+
+## Switched off
+
+No switch governs the session. `provideAuthSource` decides what the snapshot holds, and the `access` on a contribution decides what the chrome does with it.
 
 ## In depth
 
-Client-side gating is presentation. Enforce for real in your backend.
+**Presentation, not security.** Client-side gating is presentation. Enforce for real in your backend.
+
+**The chrome's own predicates.** `visible(access)` and `disabled(access)` are the exact predicates
+the chrome uses to hide or disable a contribution, so a control of yours can agree with a built-in
+one.
 
 ## Where the story is told
 
