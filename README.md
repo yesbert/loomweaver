@@ -191,7 +191,7 @@ Every pane, workspace, sidebar and switch the workbench offers is also a service
 injects. Turn a built-in control off and offer the action from your own toolbar, menu or admin page.
 The service runs the same code the control runs, asks the same question about unsaved work, and keeps
 working when the control is gone. **A switch removes the control, never the capability.** The
-[Distribution API](docs/reference/distribution/index.md) is indexed by "I want to …".
+[Distribution API](docs/distribution-api/index.md) is indexed by "I want to …".
 
 ## What you would otherwise build twice
 

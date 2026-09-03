@@ -57,4 +57,4 @@ Wire your own settings launcher (rail item, menu) to `shell.openSettings` rather
 ## Where next
 
 - [Building a distribution](../building-a-distribution.md): the composition root and the map of these pages.
-- [Distribution API](../reference/distribution/index.md): everything your own code can do once the product runs.
+- [Distribution API](../distribution-api/index.md): everything your own code can do once the product runs.

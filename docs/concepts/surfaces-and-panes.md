@@ -47,5 +47,5 @@ The workbench's job is to make those transitions predictable and to lose no work
   [The content area](../weaver/content-area.md): declaring a surface for either place.
 - [Containers](../weaver/containers.md): a surface that is itself a small arrangement.
 - [Layout](../distribution/layout.md): which regions a product has for panes to live in.
-- [Panes](../reference/distribution/panes.md) and [Tabs](../reference/distribution/tabs.md): the
+- [Panes](../distribution-api/panes.md) and [Tabs](../distribution-api/tabs.md): the
   same splits, moves and tab changes from a distribution's own code.

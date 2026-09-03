@@ -41,7 +41,7 @@ effect(() => {
 
 Use `resolvedTheme` for that, never `mode`: `mode` can be `system`, which is not a value any other
 framework understands. See [bringing your own CSS
-framework](../../manual-setup.md#bringing-your-own-css-framework).
+framework](../manual-setup.md#bringing-your-own-css-framework).
 
 ## Text size, in depth
 
@@ -50,8 +50,8 @@ to `scale()` and it follows the built-in toggle in the settings, and the other w
 
 ## Colours and icons
 
-Colours are the `--lw-*` design tokens, set in CSS by the distribution or contributed by a plugin: see [Design tokens](../design-tokens.md). Icons are replaced with `provideIcons`: see [Icons](../icons.md).
+Colours are the `--lw-*` design tokens, set in CSS by the distribution or contributed by a plugin: see [Design tokens](../reference/design-tokens.md). Icons are replaced with `provideIcons`: see [Icons](../reference/icons.md).
 
 ## Where the story is told
 
-- [Branding](../../distribution/branding.md#branding) and [Bringing your own CSS framework](../../manual-setup.md#bringing-your-own-css-framework).
+- [Branding](../distribution/branding.md#branding) and [Bringing your own CSS framework](../manual-setup.md#bringing-your-own-css-framework).

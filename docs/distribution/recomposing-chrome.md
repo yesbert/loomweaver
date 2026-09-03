@@ -15,7 +15,7 @@ distribution can:
 
 Replace and move use the same mechanism, and a distribution does it **without a plugin** — the
 `provideViews` / `provideRailItems` / `provideBarItems` providers register chrome directly (see
-[host services → contributing chrome without a plugin](../reference/distribution/index.md)). The in-repo
+[host services → contributing chrome without a plugin](../distribution-api/index.md)). The in-repo
 demo moves the update badge into the right sidebar's footer bar exactly like this:
 
 ```ts
@@ -165,4 +165,4 @@ Two things worth knowing:
 ## Where next
 
 - [Building a distribution](../building-a-distribution.md): the composition root and the map of these pages.
-- [Distribution API](../reference/distribution/index.md): everything your own code can do once the product runs.
+- [Distribution API](../distribution-api/index.md): everything your own code can do once the product runs.

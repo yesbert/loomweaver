@@ -43,7 +43,7 @@ Three rules to know before you reach for `update`:
   control left to expand it. Put the state where you want it before you take the way away.
 - **The shell does not remember a switch.** `update` writes nothing to any store, and the next start
   begins from the declaration. If a change should survive, and for whom (device, user, tenant), store
-  it yourself with the [persistence stores](../../distribution/persistence.md)
+  it yourself with the [persistence stores](../distribution/persistence.md)
   and replay it with `update` at start.
 
 `SHELL_FEATURES` stays exported as the declaration itself; read the current value from the service,
@@ -51,4 +51,4 @@ never from the token.
 
 ## Where the story is told
 
-- [Switching capabilities off](../../distribution/switching-capabilities-off.md#switching-capabilities-off): every switch, what it takes away, and the declaration with `provideShellFeatures`.
+- [Switching capabilities off](../distribution/switching-capabilities-off.md#switching-capabilities-off): every switch, what it takes away, and the declaration with `provideShellFeatures`.

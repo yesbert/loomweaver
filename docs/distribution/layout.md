@@ -10,7 +10,7 @@
 (its anatomy) and a `dock` (where it sits):
 
 Collapsing, resizing and hiding views in the sidebars from your own code is `SidebarService` in the
-[host services](../reference/distribution/sidebars.md).
+[host services](../distribution-api/sidebars.md).
 
 - **Docks:** `top` · `bottom` · `left` · `right` · `center`.
 - **Region types:**
@@ -31,4 +31,4 @@ A weaver's `registerSurface({ docks: ['primary'] })` / `registerRailItem({ rail:
 ## Where next
 
 - [Building a distribution](../building-a-distribution.md): the composition root and the map of these pages.
-- [Distribution API](../reference/distribution/index.md): everything your own code can do once the product runs.
+- [Distribution API](../distribution-api/index.md): everything your own code can do once the product runs.

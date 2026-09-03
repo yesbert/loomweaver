@@ -6,7 +6,7 @@
 > specification is right, and that is a defect in this page: change the behaviour there, then
 > explain it here.
 
-The read side of [auth](../../backend-integration.md#2--auth--session--authsource). `provideAuthSource`
+The read side of [auth](../backend-integration.md#2--auth--session--authsource). `provideAuthSource`
 feeds the snapshot in; this reads it back out — including the exact predicates the chrome uses to
 hide or disable contributions.
 
@@ -29,5 +29,5 @@ Client-side gating is presentation. Enforce for real in your backend.
 
 ## Where the story is told
 
-- [Access gating](../access-gating.md): the complete `access` reference.
-- [Auth integration](../../distribution/auth.md): feeding the session, owning the login UI, redirecting gated routes.
+- [Access gating](../reference/access-gating.md): the complete `access` reference.
+- [Auth integration](../distribution/auth.md): feeding the session, owning the login UI, redirecting gated routes.

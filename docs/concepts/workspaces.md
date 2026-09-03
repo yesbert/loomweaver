@@ -47,5 +47,5 @@ item the user picked, opened, moved and closed as a unit. See
 
 - [Workspaces a product ships](../distribution/workspaces.md): declaring them.
 - [Resetting the arrangement](../distribution/resetting.md): the reset control and what it asks.
-- [Workspaces](../reference/distribution/workspaces.md) and [Resetting](../reference/distribution/reset.md):
+- [Workspaces](../distribution-api/workspaces.md) and [Resetting](../distribution-api/reset.md):
   switching, saving and resetting from a distribution's own code.

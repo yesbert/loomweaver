@@ -11,7 +11,7 @@ can offer a **plugin store**: a curated catalog of sandboxed plugins the *user* 
 no rebuild, no reload:
 
 Opening the store from your own control is `PluginStoreService` in the
-[host services](../reference/distribution/plugins-at-runtime.md).
+[host services](../distribution-api/plugins-at-runtime.md).
 
 ```ts
 // src/app/app.config.ts — in the providers array
@@ -119,4 +119,4 @@ provide your own `PluginCatalog` implementation instead of a URL.
 ## Where next
 
 - [Building a distribution](../building-a-distribution.md): the composition root and the map of these pages.
-- [Distribution API](../reference/distribution/index.md): everything your own code can do once the product runs.
+- [Distribution API](../distribution-api/index.md): everything your own code can do once the product runs.

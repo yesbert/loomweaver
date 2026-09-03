@@ -37,9 +37,9 @@ Three services back the plugin management UI. Everything they do is also reachab
 Permissions and Plugin store settings, so reach for them only when your product needs its own
 front-end for it.
 
-They are described together in [the plugin system](../../plugins.md).
+They are described together in [the plugin system](../plugins.md).
 
 ## Where the story is told
 
-- [Plugin store](../../distribution/plugin-store.md): the catalogue and the consent dialog.
-- [The plugin system](../../plugins.md): the three rungs, capabilities and what the user controls.
+- [Plugin store](../distribution/plugin-store.md): the catalogue and the consent dialog.
+- [The plugin system](../plugins.md): the three rungs, capabilities and what the user controls.

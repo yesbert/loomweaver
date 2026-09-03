@@ -34,7 +34,7 @@ await commands.run(someCommand);           // fire a resolved command and get wh
 `execute` fires and forgets; `run` is the same one place the behaviour happens, but it answers what
 the command returned and rejects with what it threw, for a caller that has to tell the two apart. A
 plugin reaches the same thing through `ctx.invokeCommand` — see
-[callable commands](../callable-commands.md).
+[callable commands](../reference/callable-commands.md).
 
 The seam a plugin reaches through has a name of its own: `CommandInvoker`, bound to the
 `COMMAND_INVOKER` token and implemented by `CommandInvocationService`. `provideShell()` binds it, and
@@ -53,6 +53,6 @@ hint can never disagree with the binding.
 
 ## Where the story is told
 
-- [Callable commands](../callable-commands.md): opening a command to a caller that is not the user.
-- [Command palette entry](../../distribution/recomposing-chrome.md#command-palette-entry): the built badges for the palette and quick-open.
-- [One behaviour, many triggers](../../samples.md#3--one-behaviour-many-triggers): a complete recipe.
+- [Callable commands](../reference/callable-commands.md): opening a command to a caller that is not the user.
+- [Command palette entry](../distribution/recomposing-chrome.md#command-palette-entry): the built badges for the palette and quick-open.
+- [One behaviour, many triggers](../samples.md#3--one-behaviour-many-triggers): a complete recipe.

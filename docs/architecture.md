@@ -64,7 +64,7 @@ them** — it never forks the core.
   what its users do by hand: switch capabilities on and off at runtime, split and close panes,
   switch and reset workspaces, collapse sidebars, set the text size, open the plugin store. A switch
   removes the user's control, never the capability, and every service action is the same code the
-  control runs, guards included. See [Host services](reference/distribution/index.md).
+  control runs, guards included. See [Host services](distribution-api/index.md).
 
 You never need this repository to build a distribution — the published packages plus these docs are
 enough. (Building a real product from the outside is exactly how we validate that.)
