@@ -41,5 +41,5 @@ place instead of re-opening a duplicate in the primary pane.
 
 ## Where the story is told
 
-- [Content area: routes and tabs](../../weaver/content-area.md): how a surface becomes a tab.
-- [Following tabs](../../distribution/content-routing.md#following-tabs) and [Routing](../routing.md).
+- [Content area: routes and tabs](../weaver/content-area.md): how a surface becomes a tab.
+- [Following tabs](../distribution/content-routing.md#following-tabs) and [Routing](../reference/routing.md).

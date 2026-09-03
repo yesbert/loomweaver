@@ -19,7 +19,7 @@ the reset across every workspace. That box describes the one reset being asked f
 remembered as a setting. A surface with unsaved work is guarded exactly as it is on a workspace reset.
 
 Driving the reset from your own code, with or without the workspaces and with the same unsaved-work
-question, is `AppResetService` in the [host services](../reference/distribution/reset.md).
+question, is `AppResetService` in the [host services](../distribution-api/reset.md).
 
 Take it away like any other contribution: `omit: ['shell.app.reset']` drops the command, and with it
 the settings button, because a button naming a command nobody registered is dropped rather than drawn
@@ -28,4 +28,4 @@ dead.
 ## Where next
 
 - [Building a distribution](../building-a-distribution.md): the composition root and the map of these pages.
-- [Distribution API](../reference/distribution/index.md): everything your own code can do once the product runs.
+- [Distribution API](../distribution-api/index.md): everything your own code can do once the product runs.

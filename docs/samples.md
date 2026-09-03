@@ -359,7 +359,7 @@ ctx.registerCommand({
 
 **You get:** a modal in the host's own vocabulary — tinted icon, danger-red confirm button, Escape
 and backdrop dismissal, focus trapped — then a non-dismissable progress dialog while the work runs.
-The whole `ctx.ui` surface is listed in [host services](reference/distribution/index.md).
+The whole `ctx.ui` surface is listed in [host services](distribution-api/index.md).
 
 <a id="everything-a-view-must-persist"></a>
 

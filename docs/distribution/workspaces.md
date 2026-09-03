@@ -102,7 +102,7 @@ switch. Invalid declarations are reported to the console in dev mode, naming wha
 ignored; nothing fails silently at runtime.
 
 Switching, saving, resetting, renaming and removing workspaces from your own code is
-`WorkspaceService` in the [host services](../reference/distribution/workspaces.md).
+`WorkspaceService` in the [host services](../distribution-api/workspaces.md).
 
 **Declaring a workspace does not put it in front of anyone.** The dialog lists it, and that is all —
 the workbench draws entries only for the workspaces a *user* saved, because those have nothing but a
@@ -267,4 +267,4 @@ host's *Hide* is added to that menu rather than replacing it.
 ## Where next
 
 - [Building a distribution](../building-a-distribution.md): the composition root and the map of these pages.
-- [Distribution API](../reference/distribution/index.md): everything your own code can do once the product runs.
+- [Distribution API](../distribution-api/index.md): everything your own code can do once the product runs.

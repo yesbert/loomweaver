@@ -85,7 +85,7 @@ that may be sandboxed and from chrome-level code that wants that answer. Inside 
 `ctx.openContentTab({ path, title })` is the third one, and it is not navigation with a nicer name:
 it is how you give a tab a title the URL does not carry (a document name), and how you attach an
 `onClose`. Both need the `navigation` capability. The complete set, including pinning, preview tabs
-and closing, is in [host services](distribution/index.md).
+and closing, is in [host services](../distribution-api/index.md).
 
 ## Sub-routes are child routes
 

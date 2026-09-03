@@ -14,7 +14,7 @@ The declaration is the **starting value**, not a constant. Inject `FeatureSwitch
 current value of any switch as a signal and to change switches while the application runs, with the
 same partial shape you declare with. The controls follow live, switching off never undoes what the
 user built, and nothing about a switch is persisted by the shell. The reference has the details:
-[Switches](../reference/distribution/switches.md).
+[Switches](../distribution-api/switches.md).
 
 A switch takes the **affordance and the gesture**. Turning `splitRight` off removes the toolbar
 button, the left/right drop edges *and* `mod+\`, so the capability cannot come back through a second
@@ -129,4 +129,4 @@ chromeless screen is left; a tab the strip does not draw would be a tab nobody c
 ## Where next
 
 - [Building a distribution](../building-a-distribution.md): the composition root and the map of these pages.
-- [Distribution API](../reference/distribution/index.md): everything your own code can do once the product runs.
+- [Distribution API](../distribution-api/index.md): everything your own code can do once the product runs.

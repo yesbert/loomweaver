@@ -60,8 +60,8 @@ That's the whole product wiring. The shell renders the chrome; the weaver fills 
 
 There is no single god-provider, on purpose: each decision has its own provider, so the same decision
 never has two doors. The whole surface, indexed by what you want, is one page in the reference:
-[Composition: the provider surface](reference/distribution/composition.md). Everything your own code
-can do at runtime is the rest of that area: [Distribution API](reference/distribution/index.md).
+[Composition: the provider surface](distribution-api/composition.md). Everything your own code
+can do at runtime is the rest of that area: [Distribution API](distribution-api/index.md).
 
 ## Seeing what you composed
 
@@ -108,4 +108,4 @@ The report exists in dev only; nothing of it reaches a production build.
 - [Recomposing host chrome](distribution/recomposing-chrome.md)
 - [PWA and delivery](distribution/pwa.md)
 
-Each page is one decision a distribution makes. [Distribution API](reference/distribution/index.md) is what your own code can do once the product runs.
+Each page is one decision a distribution makes. [Distribution API](distribution-api/index.md) is what your own code can do once the product runs.

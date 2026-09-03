@@ -3,6 +3,28 @@ import { defineConfig, passthroughImageService } from 'astro/config';
 
 export default defineConfig({
   site: 'https://loomweaver.dev',
+  // The Distribution API spent its first day under /reference/distribution/ before it became a
+  // group of its own; a bookmark or a search index from that day lands on the moved page.
+  redirects: {
+    '/reference/distribution/': '/distribution-api/',
+    '/reference/distribution/appearance/': '/distribution-api/appearance/',
+    '/reference/distribution/commands/': '/distribution-api/commands/',
+    '/reference/distribution/composition/': '/distribution-api/composition/',
+    '/reference/distribution/dialogs-and-toasts/':
+      '/distribution-api/dialogs-and-toasts/',
+    '/reference/distribution/panes/': '/distribution-api/panes/',
+    '/reference/distribution/plugins-at-runtime/':
+      '/distribution-api/plugins-at-runtime/',
+    '/reference/distribution/reset/': '/distribution-api/reset/',
+    '/reference/distribution/session/': '/distribution-api/session/',
+    '/reference/distribution/settings/': '/distribution-api/settings/',
+    '/reference/distribution/sidebars/': '/distribution-api/sidebars/',
+    '/reference/distribution/switches/': '/distribution-api/switches/',
+    '/reference/distribution/tabs/': '/distribution-api/tabs/',
+    '/reference/distribution/windows-and-sync/':
+      '/distribution-api/windows-and-sync/',
+    '/reference/distribution/workspaces/': '/distribution-api/workspaces/',
+  },
   // Passthrough keeps sharp (and its LGPL libvips binary) out of the tree; the site
   // ships two brand PNGs, so optimisation buys nothing worth a copyleft dependency.
   image: { service: passthroughImageService() },
@@ -129,50 +151,50 @@ export default defineConfig({
           label: 'Distribution API',
           collapsed: true,
           items: [
-            { label: 'Overview', link: '/reference/distribution/' },
+            { label: 'Overview', link: '/distribution-api/' },
             {
               label: 'Composition',
-              link: '/reference/distribution/composition/',
+              link: '/distribution-api/composition/',
             },
             {
               label: 'Switches',
-              link: '/reference/distribution/switches/',
+              link: '/distribution-api/switches/',
             },
-            { label: 'Tabs', link: '/reference/distribution/tabs/' },
-            { label: 'Panes', link: '/reference/distribution/panes/' },
+            { label: 'Tabs', link: '/distribution-api/tabs/' },
+            { label: 'Panes', link: '/distribution-api/panes/' },
             {
               label: 'Workspaces',
-              link: '/reference/distribution/workspaces/',
+              link: '/distribution-api/workspaces/',
             },
             {
               label: 'Sidebars',
-              link: '/reference/distribution/sidebars/',
+              link: '/distribution-api/sidebars/',
             },
-            { label: 'Resetting', link: '/reference/distribution/reset/' },
+            { label: 'Resetting', link: '/distribution-api/reset/' },
             {
               label: 'Dialogs and toasts',
-              link: '/reference/distribution/dialogs-and-toasts/',
+              link: '/distribution-api/dialogs-and-toasts/',
             },
             {
               label: 'Settings',
-              link: '/reference/distribution/settings/',
+              link: '/distribution-api/settings/',
             },
             {
               label: 'Commands',
-              link: '/reference/distribution/commands/',
+              link: '/distribution-api/commands/',
             },
-            { label: 'Session', link: '/reference/distribution/session/' },
+            { label: 'Session', link: '/distribution-api/session/' },
             {
               label: 'Appearance',
-              link: '/reference/distribution/appearance/',
+              link: '/distribution-api/appearance/',
             },
             {
               label: 'Plugins at runtime',
-              link: '/reference/distribution/plugins-at-runtime/',
+              link: '/distribution-api/plugins-at-runtime/',
             },
             {
               label: 'Windows, sync and updates',
-              link: '/reference/distribution/windows-and-sync/',
+              link: '/distribution-api/windows-and-sync/',
             },
           ],
         },

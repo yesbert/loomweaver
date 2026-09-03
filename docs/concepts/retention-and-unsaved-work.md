@@ -47,5 +47,5 @@ answer in time, the action proceeds.
 - [Unsaved changes](../weaver/unsaved-changes.md): implementing `DirtySurface`.
 - [View state that survives](../weaver/view-state.md): `VIEW_STATE`.
 - [Surface retention](../distribution/surface-retention.md): the product-wide default.
-- [Workspaces](../reference/distribution/workspaces.md), [Resetting](../reference/distribution/reset.md)
-  and [Tabs](../reference/distribution/tabs.md): which calls ask, and how they answer.
+- [Workspaces](../distribution-api/workspaces.md), [Resetting](../distribution-api/reset.md)
+  and [Tabs](../distribution-api/tabs.md): which calls ask, and how they answer.

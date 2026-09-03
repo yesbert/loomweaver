@@ -32,5 +32,5 @@ meet it if you build your own composition root.
 
 ## Where the story is told
 
-- [Resetting the app layout](../../distribution/resetting.md): the built-in command and dialog.
+- [Resetting the app layout](../distribution/resetting.md): the built-in command and dialog.
 - [Workspaces](workspaces.md): resetting one workspace, or all.
