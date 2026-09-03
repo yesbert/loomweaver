@@ -2,7 +2,7 @@
 
 <!-- derived-from-specs -->
 > **This is a guide, not the contract.** What the platform guarantees is specified under
-> `openspec/specs/` — for this page: `surfaces` · `shell-layout`. Where this page and a specification disagree, the
+> `openspec/specs/` — for this page: `surfaces` · `shell-layout` · `ui-primitives`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
 > explain it here.
 
@@ -42,7 +42,9 @@ ctx.registerSurface({
 Use **semantic design tokens** in templates (`text-content`, `bg-surface`, `text-brand`), never raw
 colors — see [design tokens](../reference/design-tokens.md).
 
-**What your view's own body can use.** A weaver depends only on `@loomweaver/plugin-sdk`, so inside your
+## What your view's own body can use
+
+A weaver depends only on `@loomweaver/plugin-sdk`, so inside your
 component's template you have: semantic tokens, the `prose-lw` markdown utility, and the host **`<lw-*>`
 custom elements** (all documented in [design tokens](../reference/design-tokens.md)). These are
 framework-agnostic, so you consume them **by tag** — no `@loomweaver/shell` import; in an Angular
@@ -80,7 +82,7 @@ semantics, keyboard support and a11y, so it needs only theming, not a web compon
 `<input type="range">` · `.lw-progress` on `<progress>` · `.lw-badge` on `<span>` · `.lw-divider` on
 `<hr>` · `.lw-collapsible` on `<details>`. Full list + tokens: [design-tokens.md](../reference/design-tokens.md).
 
-Context menus come in three flavours. On **host chrome** (rail / bar / view / content-tab), contribute items
+A context menu comes in three flavours. On **host chrome** (rail / bar / view / content-tab), contribute items
 with `ctx.registerMenuItem` (and/or a `menu?` slot on your rail/bar/view items) — the host draws
 `<lw-menu>`. On your **own in-process view body** (a right-click on a list row), call
 **`ctx.ui.openMenu(items, { x, y })`**. You pass ad-hoc items with in-process `run` handlers. The host
@@ -97,10 +99,12 @@ graphics" between the host vocabulary and a full iframe.
 
 So it is **allowed, and it is not supported**. There is no `ctx` surface for it, the host never learns about
 it, and it is the one contribution shape the platform cannot clean up after you. The four costs below are
-the price of the escape hatch, not a to-do list we forgot; weigh them before reaching past `<lw-*>`, the
-`.lw-*` class contracts and `ctx.ui`.
+the price of the escape hatch. Weigh them before reaching past `<lw-*>`, the `.lw-*` class contracts and
+`ctx.ui`.
 
-**1. It cannot be undone.** The registry has no `undefine`, so a tag stays defined for the lifetime of the
+### 1. It cannot be undone
+
+The registry has no `undefine`, so a tag stays defined for the lifetime of the
 document. Every other contribution you make returns a `Disposable` and vanishes when your plugin is
 disabled, updated or uninstalled. A defined tag does not.
 
@@ -119,29 +123,36 @@ if (!customElements.get('notes-graph')) {
 The same asymmetry means a new version of your element cannot take over at runtime: the constructor that
 claimed the tag first keeps it until the page is reloaded.
 
-**2. It does not travel up the isolation ladder.** The registry is **per document**. Your weaver is
+### 2. It does not travel up the isolation ladder
+
+The registry is **per document**. Your weaver is
 deliberately separated from the shell by the Nx boundary so that it *can* move to the sandbox rung later,
 and a `customElements.define()` in the host document is the one thing that silently will not come along.
 (The `<lw-*>` family works inside sandboxed iframes only because the host serves the element *script* into
 each one, `/frame-kit/lw-elements.global.js`.) If sandboxing your weaver is ever on the table, this is a
 migration cost you are choosing today.
 
-**3. Nothing manages collisions.** `ctx.contributeIcons` is first-wins, dev-warned and disposable because
+### 3. Nothing manages collisions
+
+`ctx.contributeIcons` is first-wins, dev-warned and disposable because
 the host owns that registry; `customElements.define` is a global land grab that throws hard on the second
 claim. Prefix your tags with something you own (`notes-graph`, not `graph`). **The `lw-` prefix belongs to
 the host** — claiming it collides with a shipped element or shadows one added in a later release.
 
-**4. Do not offer your tag to other plugins.** Whether one plugin may consume another plugin's element is
-deliberately undecided, and across the sandbox boundary it cannot work at all: separate registries, and
+### 4. Do not offer your tag to other plugins
+
+Whether one plugin may consume another plugin's element is
+deliberately undecided. Across the sandbox boundary it cannot work at all: separate registries, and
 carrying it over would mean running your code inside someone else's isolation boundary. Treat the element
 as private to your own views.
 
 If you go ahead, paint it with the semantic tokens or the `.lw-*` class contracts so that theme, tenant
-branding and the text-size setting reach it like everything else, and keep it to the graphics the host
+branding and the text-size setting reach it like everything else. Keep it to the graphics the host
 vocabulary genuinely cannot express. Anything with a native equivalent is better served by a class contract
 on that native element.
 
 ## Where next
 
-- [Authoring a weaver](../authoring-a-weaver.md): the map of these pages.
-- [Samples](../samples.md): complete recipes to copy.
+- [View state that survives](view-state.md): the `VIEW_STATE` handle a docked surface persists its filters and scroll in.
+- [The content area](content-area.md): the same declaration with an address, opened as a tab.
+- [Design tokens](../reference/design-tokens.md): the tokens, `<lw-*>` elements and `.lw-*` class contracts in full.

@@ -126,7 +126,7 @@ user gesture and retries.
 A surface that draws its own sub-tabs should switch them **locally when it is host-mounted** rather
 than navigate the global router — otherwise a pop-out's URL drifts out of the `/popout/` prefix and
 reloading that window opens the full app. The rule is one line and applies to splits too; see
-[authoring a weaver](../weaver/containers.md#sub-routes-and-pop-out-windows).
+[authoring a weaver](../weaver/sub-routes-and-follows.md#sub-routes-and-pop-out-windows).
 
 ## Where next
 

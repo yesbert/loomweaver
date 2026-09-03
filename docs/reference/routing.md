@@ -105,7 +105,7 @@ Where the segments are not a fixed list — a value in the segment, a third leve
 tree of your own that you want to keep — declare `rest: true` instead and the surface owns everything
 below its path, handed over verbatim including the query string. That is the seam for mounting a
 sub-application that brings its own routes. It is written up with its trade-offs in
-[authoring a weaver](../weaver/containers.md#sub-routes-and-pop-out-windows); the one rule to carry
+[authoring a weaver](../weaver/sub-routes-and-follows.md#sub-routes-and-pop-out-windows); the one rule to carry
 here is that a claim shorter than two segments also needs the `navigation` capability, because at
 that width the claim stops being a boundary.
 
@@ -138,7 +138,7 @@ development). A surface that needs live routing should not be retained; for unsa
 there, which you can see: its `ActivatedRoute` has a `routeConfig` of `null`. Branch on that and keep
 sub-tab state local instead of pushing it onto the global router, or the same component will misbehave
 in exactly one of its two homes. The pattern is in
-[authoring a weaver](../weaver/containers.md#sub-routes-and-pop-out-windows).
+[authoring a weaver](../weaver/sub-routes-and-follows.md#sub-routes-and-pop-out-windows).
 
 ## What the address is, and what it is not
 

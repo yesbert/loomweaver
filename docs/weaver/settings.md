@@ -43,5 +43,6 @@ Control kinds: `select` (single choice), `toggle` (on/off), `text` (a string fie
 
 ## Where next
 
-- [Authoring a weaver](../authoring-a-weaver.md): the map of these pages.
-- [Samples](../samples.md): complete recipes to copy.
+- [Sandboxed surfaces](sandboxed-surfaces.md#settings-declare-data-the-host-renders-and-stores): the data-only form a sandboxed plugin contributes over RPC.
+- [Your plugin's own store](plugin-state.md): working state, which is not a setting.
+- [Recomposing host chrome](../distribution/recomposing-chrome.md#curating-the-settings-surface): how a distribution curates what your section shows.

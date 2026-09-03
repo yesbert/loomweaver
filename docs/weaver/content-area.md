@@ -6,6 +6,12 @@
 > specification is right, and that is a defect in this page: change the behaviour there, then
 > explain it here.
 
+The content area is where a routable surface opens as a tab. This page declares one, opens and
+refines tabs from code, and explains preview, pinned and unclosable tabs, the panes the user splits
+them into, and the bridge that lets a component call `ctx`.
+
+## Routable surfaces
+
 The center (a `content` region) is **URL-addressed**, not a panel: a surface reaches it by declaring
 `routable`, which makes it a shareable deep-link with browser back/forward. The distribution must set up the
 router with [`provideShellRouter()`](../distribution/content-routing.md).
@@ -29,10 +35,10 @@ The host draws a tab strip **per pane**, and every pane is a tab group the user 
 strip shows **everything that pane holds**, and the rule is one sentence: a pane shows a strip when it
 holds tabs; a **chromeless** surface shows none. Visiting any routable surface — by click, deep-link
 or browser history — opens (or refines) its tab; a chromeless surface owns the whole content area
-while active and is excluded from splits, drags and the new-tab picker. Permanent arrangements of
-tabs are no longer declared on the surface — they are **workspaces**, declared by the distribution
-with [`provideWorkspaces`](../distribution/workspaces.md#developer-defined-workspaces), where a declared
-tab can be unclosable.
+while active and is excluded from splits, drags and the new-tab picker. A permanent arrangement of
+tabs is a **workspace**, declared by the distribution with
+[`provideWorkspaces`](../distribution/workspaces.md#developer-defined-workspaces), where a declared
+tab can be unclosable. The surface itself declares no arrangement.
 
 A surface can also refuse closing on its own with **`closable: false`** — the overview screen a
 product keeps open while its other tabs come and go. It removes the ×, the `Delete` key and the
@@ -45,7 +51,11 @@ ctx.registerSurface({ id: 'dashboard', title: 'dashboard.title', component: Dash
   routable: { path: 'dashboard' }, closable: false });
 ```
 
-### Reaching the pane edges
+A route component reads its params the normal Angular way (`inject(ActivatedRoute)`), so `doc/:id`
+resolves `id` itself. Don't draw your own top-level tab bar — open into the host strip; a **nested**
+sub-tab bar *inside* one document's body (Edit | Preview) is fine, it's a level down.
+
+## Reaching the pane edges
 
 The host insets nothing. A surface fills the pane it is mounted in, and what stands between its
 content and the pane edge is whatever the surface itself draws.
@@ -76,6 +86,8 @@ It travels with the surface, so it holds wherever the user puts it — the URL p
 sidebar, a pop-out window. Only whether there is an inset is yours; how wide it is stays a styling
 question, so a product that wants a different amount everywhere writes plain unlayered CSS.
 
+## Opening tabs from code
+
 Open a tab yourself with:
 
 ```ts
@@ -88,14 +100,17 @@ ctx.openContentTab({
 ctx.closeContentTab(`doc/${doc.id}`); // the host activates a neighbour
 ```
 
+`registerSurface` needs the `contributions` capability. `navigateContent`, `openContentTab`,
+`keepContentTab`, `pinContentTab`, `unpinContentTab` and `closeContentTab` need `navigation`.
+
 Your plugin does not decide, and does not need to know, which workspace the tab lands in. Where the
 product has given that address to a workspace of its own, the host activates that workspace first and
 opens the tab there. The call returns straight away either way; the tab appears once the switch has
 happened.
 
 Docked (non-routable) surfaces have their own opener: `ctx.revealSurface(id)` activates the
-surface's tab **wherever the user has placed it** — its sidebar panel (expanding a collapsed one) or a
-content pane — so a palette command like "Focus Library" works no matter where the view lives. It is a
+surface's tab **wherever the user has placed it**, its sidebar panel (expanding a collapsed one) or a
+content pane. So a palette command like "Focus Library" works no matter where the view lives. It is a
 no-op for an unknown id, and container-only children (`docks: []`) stay inside their container.
 Routable surfaces are reached with `navigateContent` instead. Requires `navigation`.
 
@@ -107,7 +122,9 @@ once when that tab is closed (the host's ×, or `closeContentTab`) — the place
 cancel in-flight work or persist a draft. (In-process weavers only; a sandboxed plugin's `onClose`
 does not cross the RPC boundary.)
 
-**Preview tabs.** For file-browsing UX, open with `preview: true`: the host
+## Preview tabs
+
+For file-browsing UX, open with `preview: true`: the host
 uses a **single reused, italic** slot per pane — the next `preview` open of a *different* path replaces
 it in place, so browsing many items doesn't pile up tabs. Promote it to a permanent tab **explicitly**:
 call `ctx.keepContentTab(path)` (e.g. on your list's double-click or when the content is edited).
@@ -126,11 +143,15 @@ A distribution can turn the whole behaviour off (`provideShellFeatures({ content
 in which case `preview` is ignored and every open is permanent — so treat preview as a hint, not a
 guarantee.
 
-**Pinned tabs.** The permanence ladder has a top rung: `ctx.pinContentTab(path)` / `ctx.unpinContentTab(path)`
+## Pinned tabs
+
+The permanence ladder has a top rung: `ctx.pinContentTab(path)` / `ctx.unpinContentTab(path)`
 pin a tab to the **front** of its strip and guard it against accidental close (its close control becomes an
 unpin control). Pinning also promotes a preview tab. It's a post-hoc action (not an open-time flag) and
 survives a re-open. The host also has a double-click cycle on the tab (preview → keep → pin → unpin),
 **on by default** and switchable off by the distribution.
+
+## A deep link opens its tab too
 
 Navigating to a dynamic route **without** opening it (a shared deep-link, browser history,
 `navigateContent`) **auto-opens** its tab too — so shared links land with a proper tab, not just bare
@@ -145,42 +166,40 @@ ctx.registerSurface({ id: 'doc', title: 'doc.title', icon: 'document', component
   routable: { path: 'doc/:id', title: 'Document', titleIsLiteral: true } });
 ```
 
-> **Calling `ctx` from a component.** `ctx` is handed to `activate(ctx)`, but you usually open a
-> document from a click *inside* a component (a tree/list) that holds no `ctx`. Bridge it with a tiny
-> service the plugin fills at activation and the component injects:
->
-> ```ts
-> import { PluginContext } from '@loomweaver/plugin-sdk';
->
-> class NotesNav {
->   private ctx?: Pick<PluginContext, 'openContentTab'>;
->   bind(ctx: Pick<PluginContext, 'openContentTab'>): void { this.ctx = ctx; }
->   unbind(): void { this.ctx = undefined; }
->   open(doc: { id: string; name: string }): void {
->     this.ctx?.openContentTab({ path: `doc/${doc.id}`, title: doc.name, titleIsLiteral: true });
->   }
-> }
-> export const notesNav = new NotesNav();
-> // in activate(ctx):   notesNav.bind(ctx);
-> // in deactivate():    notesNav.unbind();
-> // the list component imports { notesNav } and calls notesNav.open(doc) in its click handler
-> ```
->
-> Use a **module-level facade** (a plain exported instance), not an Angular `@Injectable` filled via
-> `inject()` inside `activate()`. Activation is *not guaranteed* to run in Angular's injection context.
-> It re-runs, for instance, when the user re-enables your plugin at runtime. An `inject()` there can
-> therefore throw. The testbed weaver's `testbedContent` bridge is this exact pattern.
->
-> (A trusted in-process component may also inject Angular's `Router` directly, but the bridge keeps the
-> weaver on the public `ctx` surface — the same path a sandboxed plugin gets later.)
+## Calling `ctx` from a component
 
-A route component reads its params the normal Angular way (`inject(ActivatedRoute)`), so `doc/:id`
-resolves `id` itself. Don't draw your own top-level tab bar — open into the host strip; a **nested**
-sub-tab bar *inside* one document's body (Edit | Preview) is fine, it's a level down.
+`ctx` is handed to `activate(ctx)`, but you usually open a
+document from a click *inside* a component (a tree/list) that holds no `ctx`. Bridge it with a tiny
+service the plugin fills at activation and the component imports:
 
-### Panes and tab groups
+```ts
+import { PluginContext } from '@loomweaver/plugin-sdk';
 
-**Panes & tab groups.** The tabs you open aren't confined to one strip. Every pane is
+class NotesNav {
+  private ctx?: Pick<PluginContext, 'openContentTab'>;
+  bind(ctx: Pick<PluginContext, 'openContentTab'>): void { this.ctx = ctx; }
+  unbind(): void { this.ctx = undefined; }
+  open(doc: { id: string; name: string }): void {
+    this.ctx?.openContentTab({ path: `doc/${doc.id}`, title: doc.name, titleIsLiteral: true });
+  }
+}
+export const notesNav = new NotesNav();
+// in activate(ctx):   notesNav.bind(ctx);
+// in deactivate():    notesNav.unbind();
+// the list component imports { notesNav } and calls notesNav.open(doc) in its click handler
+```
+
+Use a **module-level facade** (a plain exported instance), not an Angular `@Injectable` filled via
+`inject()` inside `activate()`. Activation is *not guaranteed* to run in Angular's injection context.
+It re-runs, for instance, when the user re-enables your plugin at runtime. An `inject()` there can
+therefore throw. The testbed weaver's `testbedContent` bridge is this exact pattern.
+
+A trusted in-process component may also inject Angular's `Router` directly, but the bridge keeps the
+weaver on the public `ctx` surface, the same path a sandboxed plugin gets later.
+
+## Panes and tab groups
+
+The tabs you open aren't confined to one strip. Every pane is
 a **tab group** with its own strip, and the user can rearrange them — **without any extra API from you**:
 
 - **Drag a tab to a pane edge** to split the area, taking that tab into a new group; **drag it onto
@@ -200,5 +219,6 @@ provides the pane/tab behaviour on top. Reload restores the whole arrangement.
 
 ## Where next
 
-- [Authoring a weaver](../authoring-a-weaver.md): the map of these pages.
-- [Samples](../samples.md): complete recipes to copy.
+- [Sub-routes, the rest, and tabs that follow](sub-routes-and-follows.md): addresses below the tab root, and sub-tabs off-router.
+- [Containers: a workspace in a tab](containers.md): a routable surface that holds a pane tree of its own.
+- [Surfaces and panes](../concepts/surfaces-and-panes.md): why a pane is a tab group and a surface goes anywhere.

@@ -2,7 +2,7 @@
 
 <!-- derived-from-specs -->
 > **This is a guide, not the contract.** What the platform guarantees is specified under
-> `openspec/specs/` — for this page: `commands` · `menus`. Where this page and a specification disagree, the
+> `openspec/specs/` — for this page: `commands` · `shell-layout`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
 > explain it here.
 
@@ -23,8 +23,8 @@ Now any item can trigger it with `command: 'notes.add'` instead of its own `run(
 (`mod+k`) and the shortcut reach the same behaviour.
 
 A command can also take **described arguments**, **answer with a result**, and be **opened to a caller
-that is not the user** — another plugin, a script, an assistant driving the app — so that nobody has
-to build a second list of your actions beside this one. It is closed to such callers until it says
+that is not the user**: another plugin, a script, an assistant driving the app. Then nobody has to
+build a second list of your actions beside this one. It is closed to such callers until it says
 otherwise. See [callable commands](../reference/callable-commands.md), and, where that caller is an
 AG-UI agent, [agent tools](../reference/agent-tools.md) for the adapter that describes your commands to
 it and runs what it asks for, so you write no dispatch of your own.
@@ -53,5 +53,6 @@ Bar slots are `start | center | end`; rail items anchor `top` (default) or `bott
 
 ## Where next
 
-- [Authoring a weaver](../authoring-a-weaver.md): the map of these pages.
-- [Samples](../samples.md): complete recipes to copy.
+- [Menus](menus.md): a menu entry names a command by id, and a rail or bar item can carry a menu.
+- [Callable commands](../reference/callable-commands.md): arguments, answers and opening a command to a caller that is not the user.
+- [Access gating in a weaver](access-gating.md): a command blocked at its one `execute()` seam until the session qualifies.

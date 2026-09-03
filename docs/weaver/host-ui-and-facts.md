@@ -6,8 +6,13 @@
 > specification is right, and that is a defect in this page: change the behaviour there, then
 > explain it here.
 
-Dialogs and toasts, brokered so you never import host services directly. `message` fields are
-Markdown.
+This page is the host UI a weaver reaches through `ctx.ui`: dialogs, toasts, progress and a menu on
+your own view body, all brokered so you never import host services directly. It closes with
+`ctx.host`, the read-only facts about the running product that an About surface needs.
+
+## Dialogs, toasts and menus: `ctx.ui`
+
+`message` fields are Markdown.
 
 ```ts
 // Confirm, with a type-to-confirm guard for a destructive action:
@@ -61,5 +66,6 @@ if (ctx.host.updateAvailable()) await ctx.host.activateUpdate();
 
 ## Where next
 
-- [Authoring a weaver](../authoring-a-weaver.md): the map of these pages.
-- [Samples](../samples.md): complete recipes to copy.
+- [Menus](menus.md): the menus the host draws in its own chrome, and the one you draw in a sandbox.
+- [Settings sections](settings.md): the surface `ctx.ui.openSettings()` opens, and what you contribute to it.
+- [Access gating in a weaver](access-gating.md): a login dialog opened through `ctx.ui.open`.

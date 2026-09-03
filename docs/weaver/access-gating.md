@@ -55,7 +55,7 @@ ctx.session.hasRole('admin');  // convenience
 ```
 
 Components hold no `ctx`, so hand the session through the same module-level bridge as any other
-`ctx` piece (see ["Calling `ctx` from a component"](content-area.md)):
+`ctx` piece (see ["Calling `ctx` from a component"](content-area.md#calling-ctx-from-a-component)):
 
 ```ts
 // bridge:  in activate(ctx): notesSession.bind(ctx.session);
@@ -88,5 +88,6 @@ snapshot to anonymous). Complete, copyable components for both shapes — includ
 
 ## Where next
 
-- [Authoring a weaver](../authoring-a-weaver.md): the map of these pages.
-- [Samples](../samples.md): complete recipes to copy.
+- [Auth integration](../distribution/auth.md): the distribution's `provideAuthSource`, and complete login page and dialog components.
+- [Access gating](../reference/access-gating.md): the complete `access` reference, gated routes and the readers of the session.
+- [Capabilities and trust](../concepts/capabilities-and-trust.md): why access is not a capability.
