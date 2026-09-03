@@ -1,4 +1,14 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, EnvironmentInjector, Injector, Type, computed, effect, inject, input } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  EnvironmentInjector,
+  Injector,
+  Type,
+  computed,
+  effect,
+  inject,
+  input,
+} from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { View } from '@loomweaver/plugin-sdk';
 import { LayoutRegion, SHELL_LAYOUT } from '../../layout/layout';
@@ -32,7 +42,7 @@ import { ShellBar } from '../bar/shell-bar';
 import { PanelState } from './panel-state';
 import { PanelSizeService } from './panel-size.service';
 import { PanelSplitter } from './panel-splitter';
-import { SHELL_FEATURES } from '../../foundation/shell-features';
+import { FeatureSwitches } from '../../features/feature-switches.service';
 
 @Component({
   selector: 'lw-shell-panel',
@@ -80,7 +90,7 @@ export class ShellPanel {
     inject(EnvironmentInjector),
   );
 
-  protected readonly features = inject(SHELL_FEATURES).sidebar;
+  protected readonly features = inject(FeatureSwitches).sidebar;
 
   protected readonly iframeComponent = IframeSurface;
 
@@ -96,7 +106,11 @@ export class ShellPanel {
   });
 
   protected readonly splitterDock = computed<'left' | 'right' | null>(() => {
-    if (!this.features.resize || this.viewport.compact() || this.collapsed()) {
+    if (
+      !this.features.resize() ||
+      this.viewport.compact() ||
+      this.collapsed()
+    ) {
       return null;
     }
     const dock = this.region().dock;

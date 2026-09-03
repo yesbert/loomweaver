@@ -501,6 +501,12 @@ Every capability the shell offers its users is on by default: the platform ships
 and a product that would overwhelm its users switches parts off with **`provideShellFeatures`**.
 Fields merge group by group, so name only what you turn off.
 
+The declaration is the **starting value**, not a constant. Inject `FeatureSwitches` to read the
+current value of any switch as a signal and to change switches while the application runs, with the
+same partial shape you declare with. The controls follow live, switching off never undoes what the
+user built, and nothing about a switch is persisted by the shell. The reference has the details:
+[Switches](reference/host-services.md#switches--featureswitches).
+
 A switch takes the **affordance and the gesture**. Turning `splitRight` off removes the toolbar
 button, the left/right drop edges *and* `mod+\`, so the capability cannot come back through a second
 door.

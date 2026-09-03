@@ -1,4 +1,10 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject, input } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  computed,
+  inject,
+  input,
+} from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LayoutRegion, SHELL_LAYOUT } from '../../layout/layout';
 import { LoomIconName } from '../../elements/icon/loom-icons';
@@ -18,7 +24,7 @@ import { StripTab } from '../pane/chrome/strip-tab';
 import { MenuTriggerDirective } from '../../menu/menu-trigger.directive';
 import { toStripTab } from '../pane/drag/pane-label';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
-import { SHELL_FEATURES } from '../../foundation/shell-features';
+import { FeatureSwitches } from '../../features/feature-switches.service';
 
 export type SidebarHeaderContext = 'edge' | 'drawer' | 'floating';
 
@@ -39,21 +45,24 @@ export class ShellSidebarHeader {
   private readonly paneMove = inject(PaneMoveService);
   private readonly registry = inject(ContributionRegistry);
   private readonly layout = inject(SHELL_LAYOUT);
-  private readonly features = inject(SHELL_FEATURES).sidebar;
+  private readonly features = inject(FeatureSwitches).sidebar;
 
   protected readonly viewContextMenu = VIEW_CONTEXT_MENU;
 
-  protected readonly stripMenu = this.features.curate
-    ? [PANEL_STRIP_CONTEXT_MENU]
-    : [];
+  protected readonly stripMenu = computed(() =>
+    this.features.curate() ? [PANEL_STRIP_CONTEXT_MENU] : [],
+  );
 
-  protected readonly viewsReorderable = this.features.reorderViews;
+  protected readonly viewsReorderable = computed(() =>
+    this.features.reorderViews(),
+  );
 
-  protected readonly viewsDraggable =
-    this.features.reorderViews || this.features.moveViews;
+  protected readonly viewsDraggable = computed(
+    () => this.features.reorderViews() || this.features.moveViews(),
+  );
 
   protected readonly canCollapse = computed(
-    () => this.viewport.compact() || this.features.collapse,
+    () => this.viewport.compact() || this.features.collapse(),
   );
 
   protected readonly source = computed<TabDragSource>(() => ({
@@ -94,8 +103,8 @@ export class ShellSidebarHeader {
 
   protected readonly acceptsTab = (path: string): boolean =>
     path.startsWith(VIEW_PANE_PREFIX)
-      ? this.features.moveViews
-      : this.features.acceptTabs;
+      ? this.features.moveViews()
+      : this.features.acceptTabs();
 
   protected select(tab: StripTab): void {
     this.panelGroup.select(this.region().id, tab.path);
@@ -146,7 +155,7 @@ export class ShellSidebarHeader {
   }
 
   private dockForChord(event: KeyboardEvent): 'left' | 'right' | null {
-    if (!this.features.moveViews || !event.altKey || !event.shiftKey) {
+    if (!this.features.moveViews() || !event.altKey || !event.shiftKey) {
       return null;
     }
     if (event.key === 'ArrowRight') {

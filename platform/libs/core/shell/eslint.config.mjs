@@ -50,6 +50,28 @@ export default [
     },
   },
   {
+    // SHELL_FEATURES is the declaration and is read exactly once, by FeatureSwitches. Every other
+    // reader takes the current value from that service, so a switch changed at runtime reaches it;
+    // a copy taken from the token would hold the boot-time value forever. The composition report
+    // is the one deliberate exception: it says what the application was composed with.
+    files: ['src/lib/**/*.ts'],
+    ignores: [
+      'src/lib/features/**',
+      'src/lib/diagnostics/composition-report.ts',
+    ],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector:
+            'CallExpression[callee.name="inject"] > Identifier[name="SHELL_FEATURES"]',
+          message:
+            'Read the current switches from FeatureSwitches; SHELL_FEATURES is the declaration and is read once.',
+        },
+      ],
+    },
+  },
+  {
     files: ['**/*.spec.ts'],
     rules: {
       '@angular-eslint/component-max-inline-declarations': 'off',

@@ -6,6 +6,7 @@ import {
   SHELL_FEATURES,
   ShellFeatures,
 } from '../../foundation/shell-features';
+import { FeatureSwitches } from '../../features/feature-switches.service';
 import { ContentTabsService } from '../content/tabs/content-tabs.service';
 import { PaneTargetPicker } from '../content/pane-target-picker.service';
 import { PaneChromeService } from './chrome/pane-chrome.service';
@@ -182,6 +183,23 @@ describe('PaneView (content pane)', () => {
     expect(c.canSplitDown()).toBe(false);
     expect(c.canMaximize()).toBe(false);
     expect(c.canMinimize()).toBe(false);
+  });
+
+  it('the toolbar affordances follow a switch flipped at runtime', () => {
+    const c = build(CONTENT_PANE_OPTIONS);
+    const switches = TestBed.inject(FeatureSwitches);
+    expect(c.canSplitRight()).toBe(true);
+
+    switches.update({
+      content: { splitRight: false, maximize: false, newTab: false },
+    });
+    expect(c.canSplitRight()).toBe(false);
+    expect(c.canMaximize()).toBe(false);
+    expect(c.canAddTab()).toBe(false);
+    expect(c.canSplitDown()).toBe(true);
+
+    switches.update({ content: { splitRight: true } });
+    expect(c.canSplitRight()).toBe(true);
   });
 
   it('canMinimize needs a split and no active maximize', () => {

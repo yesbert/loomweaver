@@ -1,11 +1,10 @@
+import { Injector } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 import { AuthContext } from './auth/auth-context';
 import { ContributionRegistry } from './plugin/contribution-registry';
 import { DialogService } from './dialog/dialog.service';
 import { SettingsService } from './settings/settings.service';
 import { WorkspaceService } from './workspace/workspace.service';
-import { ViewStateService } from './views/view-state.service';
-import { ViewInstanceService } from './views/view-instance.service';
 import {
   CommandPalette,
   PALETTE_COMMAND_ID,
@@ -14,41 +13,20 @@ import {
 import { WorkspaceDialog } from './workspace/workspace-dialog';
 import { ContentTabsService } from './regions/content/tabs/content-tabs.service';
 import { offRouterMountable } from './regions/content/pane-targets';
-import { registerTabContextMenu } from './regions/content/tabs/tab-context-menu';
 import { CONTENT_DOCK } from './regions/pane/tree/pane-address';
 import { PaneTreeService } from './regions/pane/tree/pane-tree.service';
-import { PaneMoveService } from './regions/pane/drag/pane-move.service';
 import { RetentionCandidates } from './regions/pane/retention/retention-candidates';
 import { SurfaceCloseGuard } from './regions/pane/close/surface-close-guard';
-import {
-  registerViewContextMenu,
-  registerViewHideMenu,
-  registerViewStackMenu,
-  registerViewOpenInContentMenu,
-  registerViewPopoutMenu,
-  registerViewResetMenu,
-  registerViewCustomizeMenu,
-} from './regions/panel/view-context-menu';
-import { ViewMoveService } from './regions/panel/view-move.service';
-import {
-  registerRailContextMenu,
-  registerRailCustomizeMenu,
-  registerRailMoveMenu,
-} from './regions/rail/rail-context-menu';
-import { RailItemsService } from './regions/rail/rail-items.service';
-import { RailMoveService } from './regions/rail/rail-move.service';
-import { ViewVisibilityService } from './regions/panel/view-visibility.service';
 import { PopoutService } from './popout/popout.service';
-import { ShellFeatures } from './foundation/shell-features';
+import { FeatureSwitches } from './features/feature-switches.service';
+import { whileOn } from './features/while-on';
+import { disposeTogether } from './plugin/dispose-together';
 import {
   CURATION_CHROME,
   CurationDialog,
 } from './regions/curation/curation-dialog';
 import { AppResetService } from './layout/app-reset.service';
-import {
-  AppResetChoice,
-  AppResetDialog,
-} from './layout/app-reset-dialog';
+import { AppResetChoice, AppResetDialog } from './layout/app-reset-dialog';
 import { menuContextString } from './menu/menu-context';
 
 export interface ShellRegions {
@@ -60,14 +38,6 @@ export interface ShellRegions {
 
 function hasRegion(layout: ShellRegions, type: string): boolean {
   return layout.regions.some((region) => region.type === type);
-}
-
-function docks(layout: ShellRegions, type: string): number {
-  return new Set(
-    layout.regions
-      .filter((region) => region.type === type)
-      .map((region) => region.dock),
-  ).size;
 }
 
 export interface HostCommandDeps {
@@ -82,21 +52,8 @@ export interface HostCommandDeps {
   readonly closeGuard: SurfaceCloseGuard;
   readonly retention: RetentionCandidates;
   readonly appReset: AppResetService;
-  readonly features: ShellFeatures;
-}
-
-export interface BuiltInMenuDeps {
-  readonly tabs: ContentTabsService;
-  readonly paneMove: PaneMoveService;
-  readonly viewMove: ViewMoveService;
-  readonly viewVisibility: ViewVisibilityService;
-  readonly railItems: RailItemsService;
-  readonly railMove: RailMoveService;
-  readonly paneTree: PaneTreeService;
-  readonly viewStates: ViewStateService;
-  readonly viewInstances: ViewInstanceService;
-  readonly popout: PopoutService;
-  readonly features: ShellFeatures;
+  readonly features: FeatureSwitches;
+  readonly injector: Injector;
 }
 
 export interface SeedInput {
@@ -128,6 +85,7 @@ export function seedHostCommands(
     retention,
     appReset,
     features,
+    injector,
   } = deps;
   registry.addCommand({
     id: PALETTE_COMMAND_ID,
@@ -171,37 +129,41 @@ export function seedHostCommands(
       });
     },
   });
-  if (features.rail.curate && hasRegion(layout, 'rail')) {
-    registry.addCommand({
-      id: 'shell.rail.customize',
-      title: CURATION_CHROME.rail.title,
-      icon: CURATION_CHROME.rail.icon,
-      run: () => {
-        dialogs.open(CurationDialog, {
-          bare: true,
-          size: 'lg',
-          align: 'top',
-          title: CURATION_CHROME.rail.title,
-          data: { kind: 'rail' },
-        });
-      },
-    });
+  if (hasRegion(layout, 'rail')) {
+    whileOn(injector, features.rail.curate, () =>
+      registry.addCommand({
+        id: 'shell.rail.customize',
+        title: CURATION_CHROME.rail.title,
+        icon: CURATION_CHROME.rail.icon,
+        run: () => {
+          dialogs.open(CurationDialog, {
+            bare: true,
+            size: 'lg',
+            align: 'top',
+            title: CURATION_CHROME.rail.title,
+            data: { kind: 'rail' },
+          });
+        },
+      }),
+    );
   }
-  if (features.sidebar.curate && hasRegion(layout, 'panel')) {
-    registry.addCommand({
-      id: 'shell.views.customize',
-      title: CURATION_CHROME.views.title,
-      icon: CURATION_CHROME.views.icon,
-      run: () => {
-        dialogs.open(CurationDialog, {
-          bare: true,
-          size: 'lg',
-          align: 'top',
-          title: CURATION_CHROME.views.title,
-          data: { kind: 'views' },
-        });
-      },
-    });
+  if (hasRegion(layout, 'panel')) {
+    whileOn(injector, features.sidebar.curate, () =>
+      registry.addCommand({
+        id: 'shell.views.customize',
+        title: CURATION_CHROME.views.title,
+        icon: CURATION_CHROME.views.icon,
+        run: () => {
+          dialogs.open(CurationDialog, {
+            bare: true,
+            size: 'lg',
+            align: 'top',
+            title: CURATION_CHROME.views.title,
+            data: { kind: 'views' },
+          });
+        },
+      }),
+    );
   }
   registry.addCommand({
     id: 'shell.app.reset',
@@ -212,7 +174,7 @@ export function seedHostCommands(
         size: 'md',
         title: transloco.translate('appReset.title'),
         icon: 'undo',
-        data: { workspaces: features.workspaces.enabled },
+        data: { workspaces: features.workspaces.enabled() },
       });
       void ref.closed.then(async (choice) => {
         if (choice === undefined) {
@@ -227,7 +189,7 @@ export function seedHostCommands(
       });
     },
   });
-  if (features.content.splitRight) {
+  whileOn(injector, features.content.splitRight, () =>
     registry.addCommand({
       id: 'shell.content.splitRight',
       title: 'content.split.open',
@@ -245,127 +207,51 @@ export function seedHostCommands(
           );
         }
       },
-    });
-  }
-  if (!features.workspaces.enabled) {
-    return;
-  }
-  registry.addCommand({
-    id: 'shell.workspace.manage',
-    title: 'workspace.title',
-    icon: 'workspaces',
-    run: () => {
-      dialogs.open(WorkspaceDialog, {
-        size: 'md',
-        align: 'top',
+    }),
+  );
+  whileOn(injector, features.workspaces.enabled, () =>
+    disposeTogether([
+      registry.addCommand({
+        id: 'shell.workspace.manage',
         title: 'workspace.title',
         icon: 'workspaces',
-      });
-    },
-  });
-  registry.addCommand({
-    id: 'shell.workspace.reset',
-    title: 'workspace.reset',
-    icon: 'undo',
-    run: (context) => {
-      const named = menuContextString(context, 'workspace');
-      const elsewhere = named !== '' && named !== workspace.activeId();
-      void dialogs
-        .confirm({
-          title: transloco.translate('workspace.reset'),
-          message: transloco.translate('workspace.resetConfirm'),
-        })
-        .then(async (ok) => {
-          if (!ok) {
-            return;
-          }
-          if (elsewhere) {
-            workspace.reset(named);
-            return;
-          }
-          if (await closeGuard.confirmDiscard(retention.all())) {
-            workspace.reset();
-          }
-        });
-    },
-  });
-}
-
-export function seedBuiltInMenus(
-  registry: ContributionRegistry,
-  layout: ShellRegions,
-  deps: BuiltInMenuDeps,
-): void {
-  if (deps.popout.active) {
-    return;
-  }
-  registerTabContextMenu(
-    registry,
-    deps.tabs,
-    deps.paneMove,
-    deps.popout,
-    deps.features,
+        run: () => {
+          dialogs.open(WorkspaceDialog, {
+            size: 'md',
+            align: 'top',
+            title: 'workspace.title',
+            icon: 'workspaces',
+          });
+        },
+      }),
+      registry.addCommand({
+        id: 'shell.workspace.reset',
+        title: 'workspace.reset',
+        icon: 'undo',
+        run: (context) => {
+          const named = menuContextString(context, 'workspace');
+          const elsewhere = named !== '' && named !== workspace.activeId();
+          void dialogs
+            .confirm({
+              title: transloco.translate('workspace.reset'),
+              message: transloco.translate('workspace.resetConfirm'),
+            })
+            .then(async (ok) => {
+              if (!ok) {
+                return;
+              }
+              if (elsewhere) {
+                workspace.reset(named);
+                return;
+              }
+              if (await closeGuard.confirmDiscard(retention.all())) {
+                workspace.reset();
+              }
+            });
+        },
+      }),
+    ]),
   );
-  seedRailMenus(registry, layout, deps);
-  seedViewMenus(registry, layout, deps);
-}
-
-function seedRailMenus(
-  registry: ContributionRegistry,
-  layout: ShellRegions,
-  deps: BuiltInMenuDeps,
-): void {
-  const railCount = layout.regions.filter(
-    (region) => region.type === 'rail',
-  ).length;
-  const rail = deps.features.rail;
-  if (railCount >= 1 && rail.hideItems) {
-    registerRailContextMenu(registry, deps.railItems);
-  }
-  if (docks(layout, 'rail') >= 2 && rail.moveItems) {
-    registerRailMoveMenu(registry, deps.railMove);
-  }
-  if (railCount >= 1 && rail.curate) {
-    registerRailCustomizeMenu(registry);
-  }
-}
-
-function seedViewMenus(
-  registry: ContributionRegistry,
-  layout: ShellRegions,
-  deps: BuiltInMenuDeps,
-): void {
-  const sidebar = deps.features.sidebar;
-  if (sidebar.resetViewState) {
-    registerViewResetMenu(registry, deps.viewStates, deps.viewInstances);
-  }
-  if (deps.features.windows.popout) {
-    registerViewPopoutMenu(registry, deps.popout);
-  }
-  const panelCount = layout.regions.filter(
-    (region) => region.type === 'panel',
-  ).length;
-  if (docks(layout, 'panel') >= 2 && sidebar.moveViews) {
-    registerViewContextMenu(registry, deps.viewMove);
-  }
-  if (panelCount === 0) {
-    return;
-  }
-  if (sidebar.curate) {
-    registerViewCustomizeMenu(registry);
-  }
-  if (sidebar.hideViews) {
-    registerViewHideMenu(registry, deps.viewVisibility);
-  }
-  if (sidebar.stackViews) {
-    registerViewStackMenu(registry, deps.paneTree);
-  }
-  if (
-    sidebar.openViewInContent &&
-    layout.regions.some((region) => region.type === 'content')
-  ) {
-    registerViewOpenInContentMenu(registry, deps.paneTree);
-  }
 }
 
 export function seedContributions(

@@ -1,4 +1,12 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, EnvironmentInjector, Injector, Type, computed, inject } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  EnvironmentInjector,
+  Injector,
+  Type,
+  computed,
+  inject,
+} from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { UnusableWorkspaceNotice } from './unusable-workspace-notice';
 import { ViewAction } from '@loomweaver/plugin-sdk';
@@ -7,7 +15,7 @@ import { ContentTabsService } from './tabs/content-tabs.service';
 import { ContentSecondaryPane } from './content-secondary-pane';
 import { PaneTargetPicker } from './pane-target-picker.service';
 import { TAB_CONTEXT_MENU } from './tabs/tab-context-menu';
-import { SHELL_FEATURES } from '../../foundation/shell-features';
+import { FeatureSwitches } from '../../features/feature-switches.service';
 import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../pane/tree/pane-address';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
 import { PaneChromeService } from '../pane/chrome/pane-chrome.service';
@@ -56,7 +64,7 @@ export class ContentArea {
   private readonly layout = inject(PaneTreeService);
   private readonly registry = inject(ContributionRegistry);
   private readonly auth = inject(AuthContext);
-  protected readonly features = inject(SHELL_FEATURES).content;
+  protected readonly features = inject(FeatureSwitches).content;
   private readonly retention = inject(SURFACE_RETENTION);
   private readonly padding = inject(SURFACE_PADDING);
 
@@ -140,8 +148,8 @@ export class ContentArea {
     ),
   );
 
-  protected readonly canAddTab = computed(() => this.features.newTab);
-  protected readonly canMaximize = computed(() => this.features.maximize);
+  protected readonly canAddTab = computed(() => this.features.newTab());
+  protected readonly canMaximize = computed(() => this.features.maximize());
   protected readonly maximized = computed(() =>
     this.chrome.isMaximized(CONTENT_DOCK, this.urlPaneId()),
   );
@@ -162,10 +170,10 @@ export class ContentArea {
   });
 
   protected readonly canSplitRight = computed(
-    () => this.features.splitRight && this.splittable(),
+    () => this.features.splitRight() && this.splittable(),
   );
   protected readonly canSplitDown = computed(
-    () => this.features.splitDown && this.splittable(),
+    () => this.features.splitDown() && this.splittable(),
   );
 
   protected readonly activeIsContainer = computed(() => {
@@ -188,14 +196,14 @@ export class ContentArea {
   });
 
   protected readonly canMinimize = computed(
-    () => this.features.minimize && this.isSplit() && !this.maximized(),
+    () => this.features.minimize() && this.isSplit() && !this.maximized(),
   );
   protected readonly canClose = computed(
     () => this.isSplit() && !this.maximized(),
   );
 
   protected readonly canNewTabFloating = computed(
-    () => this.features.newTab && !this.maximized(),
+    () => this.features.newTab() && !this.maximized(),
   );
   protected readonly canSplitRightFloating = computed(
     () => this.canSplitRight() && !this.maximized(),
@@ -214,18 +222,22 @@ export class ContentArea {
         this.canClose()),
   );
 
-  protected readonly tabsReorderable = this.features.reorderTabs;
+  protected readonly tabsReorderable = computed(() =>
+    this.features.reorderTabs(),
+  );
 
-  protected readonly tabsDraggable =
-    this.features.reorderTabs ||
-    this.features.moveTabs ||
-    this.features.splitRight ||
-    this.features.splitDown;
+  protected readonly tabsDraggable = computed(
+    () =>
+      this.features.reorderTabs() ||
+      this.features.moveTabs() ||
+      this.features.splitRight() ||
+      this.features.splitDown(),
+  );
 
   protected readonly stripTabs = computed<StripTab[]>(() =>
     this.tabs.tabs().map((tab) => ({
       ...tab,
-      closable: tab.closable && this.features.close,
+      closable: tab.closable && this.features.close(),
     })),
   );
 
@@ -242,12 +254,12 @@ export class ContentArea {
   }
 
   protected escalate(tab: StripTab): void {
-    if (!this.features.escalate || tab.path.startsWith(VIEW_PANE_PREFIX)) {
+    if (!this.features.escalate() || tab.path.startsWith(VIEW_PANE_PREFIX)) {
       return;
     }
     if (tab.preview) {
       this.tabs.keep(tab.path);
-    } else if (!this.features.pin) {
+    } else if (!this.features.pin()) {
       return;
     } else if (tab.pinned) {
       this.tabs.unpin(tab.path);

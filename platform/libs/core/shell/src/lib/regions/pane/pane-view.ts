@@ -1,4 +1,10 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject, input } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  computed,
+  inject,
+  input,
+} from '@angular/core';
 import { CONTENT_DOCK, VIEW_PANE_PREFIX } from './tree/pane-address';
 import { PaneLeaf, activeTab, leafPath } from './tree/pane-node';
 import { CONTAINER_CONTEXT } from './container/container-context';
@@ -22,7 +28,7 @@ import { ContentSecondaryPane } from '../content/content-secondary-pane';
 import { isHomePath } from '../content/content-path';
 import { PaneTargetPicker } from '../content/pane-target-picker.service';
 import { ContentTabsService } from '../content/tabs/content-tabs.service';
-import { SHELL_FEATURES } from '../../foundation/shell-features';
+import { FeatureSwitches } from '../../features/feature-switches.service';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { VIEW_CONTEXT_MENU } from '../panel/view-context-menu';
 import { CONTENT_PANE_OPTIONS, PaneViewOptions } from './pane-view-options';
@@ -39,7 +45,7 @@ export class PaneView {
   readonly leaf = input.required<PaneLeaf>();
   readonly options = input<PaneViewOptions>(CONTENT_PANE_OPTIONS);
 
-  private readonly features = inject(SHELL_FEATURES).content;
+  private readonly features = inject(FeatureSwitches).content;
   private readonly paneTree = inject(PaneTreeService);
   private readonly containers = inject(PaneContainersService);
   private readonly registry = inject(ContributionRegistry);
@@ -51,19 +57,19 @@ export class PaneView {
   private readonly closeGuard = inject(SurfaceCloseGuard);
 
   protected readonly canAddTab = computed(() =>
-    this.options().body === 'panel' ? true : this.features.newTab,
+    this.options().body === 'panel' ? true : this.features.newTab(),
   );
 
   protected readonly canSplitRight = computed(
-    () => this.options().split && this.features.splitRight,
+    () => this.options().split && this.features.splitRight(),
   );
 
   protected readonly canSplitDown = computed(
-    () => this.options().split && this.features.splitDown,
+    () => this.options().split && this.features.splitDown(),
   );
 
   protected readonly canMaximize = computed(
-    () => this.options().maximize && this.features.maximize,
+    () => this.options().maximize && this.features.maximize(),
   );
 
   protected readonly maximized = computed(() =>
@@ -73,7 +79,7 @@ export class PaneView {
   protected readonly canMinimize = computed(
     () =>
       this.options().split &&
-      this.features.minimize &&
+      this.features.minimize() &&
       !this.maximized() &&
       this.paneTree.isSplit(this.dock()),
   );
@@ -116,7 +122,7 @@ export class PaneView {
   private readonly tabsClosable = computed(
     () =>
       (!this.isPrimary() || this.canCloseLastPrimaryTab()) &&
-      (!this.contentSide() || this.features.close),
+      (!this.contentSide() || this.features.close()),
   );
 
   private readonly contentSide = computed(
@@ -124,20 +130,20 @@ export class PaneView {
   );
 
   protected readonly tabsReorderable = computed(
-    () => !this.contentSide() || this.features.reorderTabs,
+    () => !this.contentSide() || this.features.reorderTabs(),
   );
 
   protected readonly acceptsTabs = computed(
-    () => !this.contentSide() || this.features.moveTabs,
+    () => !this.contentSide() || this.features.moveTabs(),
   );
 
   protected readonly tabsDraggable = computed(
     () =>
       !this.contentSide() ||
-      this.features.reorderTabs ||
-      this.features.moveTabs ||
-      this.features.splitRight ||
-      this.features.splitDown,
+      this.features.reorderTabs() ||
+      this.features.moveTabs() ||
+      this.features.splitRight() ||
+      this.features.splitDown(),
   );
 
   protected readonly stripTabs = computed<StripTab[]>(() => {
@@ -176,7 +182,7 @@ export class PaneView {
   protected onEscalate(tab: StripTab): void {
     if (
       !this.contentSide() ||
-      !this.features.escalate ||
+      !this.features.escalate() ||
       tab.path.startsWith(VIEW_PANE_PREFIX)
     ) {
       return;
@@ -185,7 +191,7 @@ export class PaneView {
     const paneId = this.leaf().id;
     if (tab.preview) {
       this.paneTree.keepTab(dock, paneId, tab.path);
-    } else if (!this.features.pin) {
+    } else if (!this.features.pin()) {
       return;
     } else if (tab.pinned) {
       this.paneTree.unpinTab(dock, paneId, tab.path);

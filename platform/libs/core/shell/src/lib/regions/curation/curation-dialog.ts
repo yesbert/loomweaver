@@ -1,4 +1,10 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { DialogRef } from '../../dialog/dialog-ref';
 import { SHELL_LAYOUT } from '../../layout/layout';
@@ -14,7 +20,7 @@ import { PaneTreeService } from '../pane/tree/pane-tree.service';
 import { VIEW_PANE_PREFIX } from '../pane/tree/pane-address';
 import { ViewVisibilityService } from '../panel/view-visibility.service';
 import { WorkspaceService } from '../../workspace/workspace.service';
-import { SHELL_FEATURES } from '../../foundation/shell-features';
+import { FeatureSwitches } from '../../features/feature-switches.service';
 
 export type CurationKind = 'rail' | 'views';
 
@@ -63,7 +69,7 @@ export class CurationDialog {
   private readonly paneTree = inject(PaneTreeService);
   private readonly visibility = inject(ViewVisibilityService);
   private readonly workspaces = inject(WorkspaceService);
-  private readonly features = inject(SHELL_FEATURES);
+  private readonly features = inject(FeatureSwitches);
 
   protected readonly query = signal('');
 
@@ -149,9 +155,9 @@ export class CurationDialog {
       }));
     const known = new Set(this.registry.railItems().map((item) => item.id));
     const initials = this.workspaces.initials();
-    const saved = (this.features.workspaces.savedInRail
-      ? this.workspaces.workspaces()
-      : [])
+    const saved = (
+      this.features.workspaces.savedInRail() ? this.workspaces.workspaces() : []
+    )
       .filter((workspace) => !known.has(workspaceRailItemId(workspace.id)))
       .map((workspace) => ({
         id: workspaceRailItemId(workspace.id),

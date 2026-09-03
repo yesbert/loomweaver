@@ -3,6 +3,7 @@ import {
   InjectionToken,
   makeEnvironmentProviders,
 } from '@angular/core';
+import { mergeShellFeatures } from './merge-shell-features';
 
 /**
  * Gestures the content area offers on tabs and panes. Each field takes the **affordance and the
@@ -175,6 +176,11 @@ export const DEFAULT_SHELL_FEATURES: ShellFeatures = {
   commands: { shortcuts: true, recentlyUsed: true },
 };
 
+/**
+ * The switches as the distribution **declared** them: the starting value of every switch, fixed at
+ * composition. The current value can change while the application runs, so read it from
+ * `FeatureSwitches` rather than from this token; the shell itself reads this token exactly once.
+ */
 export const SHELL_FEATURES = new InjectionToken<ShellFeatures>(
   'lw.shell-features',
   {
@@ -189,9 +195,11 @@ export type ShellFeaturesInput = {
 };
 
 /**
- * Switches shell capabilities off for this distribution, e.g.
+ * Declares which shell capabilities this distribution starts with switched off, e.g.
  * `provideShellFeatures({ content: { splitDown: false, maximize: false } })`. Omit for the full
  * workbench; fields merge group by group, so a partial override leaves the rest of that group alone.
+ * The declaration is the starting value: `FeatureSwitches.update` changes switches from there while
+ * the application runs.
  */
 export function provideShellFeatures(
   features: ShellFeaturesInput,
@@ -199,17 +207,7 @@ export function provideShellFeatures(
   return makeEnvironmentProviders([
     {
       provide: SHELL_FEATURES,
-      useValue: {
-        content: { ...DEFAULT_SHELL_FEATURES.content, ...features.content },
-        sidebar: { ...DEFAULT_SHELL_FEATURES.sidebar, ...features.sidebar },
-        rail: { ...DEFAULT_SHELL_FEATURES.rail, ...features.rail },
-        workspaces: {
-          ...DEFAULT_SHELL_FEATURES.workspaces,
-          ...features.workspaces,
-        },
-        windows: { ...DEFAULT_SHELL_FEATURES.windows, ...features.windows },
-        commands: { ...DEFAULT_SHELL_FEATURES.commands, ...features.commands },
-      },
+      useValue: mergeShellFeatures(DEFAULT_SHELL_FEATURES, features),
     },
   ]);
 }

@@ -1,4 +1,6 @@
-import { DEFAULT_SHELL_FEATURES } from '../../../foundation/shell-features';
+import { ApplicationRef, Injector } from '@angular/core';
+import { provideShellFeatures } from '../../../foundation/shell-features';
+import { FeatureSwitches } from '../../../features/feature-switches.service';
 import { TestBed } from '@angular/core/testing';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { CommandService } from '../../../commands/command.service';
@@ -41,8 +43,10 @@ describe('registerTabContextMenu', () => {
       TestBed.inject(ContentTabsService),
       TestBed.inject(PaneMoveService),
       popout,
-      DEFAULT_SHELL_FEATURES,
+      TestBed.inject(FeatureSwitches),
+      TestBed.inject(Injector),
     );
+    TestBed.inject(ApplicationRef).tick();
   });
 
   it('contributes the built-in tab commands and their menu items', () => {
@@ -115,6 +119,9 @@ describe('registerTabContextMenu', () => {
       providers: [
         { provide: ContentTabsService, useValue: tabs },
         { provide: PaneMoveService, useValue: paneMove },
+        provideShellFeatures({
+          content: { close: false, pin: false, splitDown: false },
+        }),
       ],
     });
     const bed = TestBed.inject(ContributionRegistry);
@@ -123,16 +130,10 @@ describe('registerTabContextMenu', () => {
       TestBed.inject(ContentTabsService),
       TestBed.inject(PaneMoveService),
       popout,
-      {
-        ...DEFAULT_SHELL_FEATURES,
-        content: {
-          ...DEFAULT_SHELL_FEATURES.content,
-          close: false,
-          pin: false,
-          splitDown: false,
-        },
-      },
+      TestBed.inject(FeatureSwitches),
+      TestBed.inject(Injector),
     );
+    TestBed.inject(ApplicationRef).tick();
     const ids = bed.commands().map((command) => command.id);
     expect(ids).not.toContain('shell.tab.close');
     expect(ids).not.toContain('shell.tab.closeOthers');

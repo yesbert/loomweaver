@@ -37,8 +37,8 @@
     [tabs]="stripTabs()"
     [activeId]="activeTabPath()"
     [source]="source()"
-    [reorderable]="viewsReorderable"
-    [draggable]="viewsDraggable"
+    [reorderable]="viewsReorderable()"
+    [draggable]="viewsDraggable()"
     [acceptsTabs]="acceptsTab"
     [viewContextMenuSlot]="viewContextMenu"
     [contextGroup]="region().id"
@@ -47,7 +47,7 @@
     (selectTab)="select($event)"
     (reorderTabs)="onReorder($event)"
     (keydown)="onStripKeydown($event)"
-    [lwMenu]="stripMenu"
+    [lwMenu]="stripMenu()"
   />
   <ng-template #trailing>
     @if (canCollapse()) {

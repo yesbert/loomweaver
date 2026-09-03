@@ -1,11 +1,12 @@
 import {
   EnvironmentProviders,
   ErrorHandler,
-  Provider,
   inject,
+  Injector,
   isDevMode,
   provideBrowserGlobalErrorListeners,
   provideEnvironmentInitializer,
+  Provider,
   provideZonelessChangeDetection,
 } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
@@ -61,21 +62,15 @@ import {
   RetentionDefault,
   SURFACE_RETENTION,
 } from './regions/pane/retention/retention-policy';
-import { SHELL_FEATURES } from './foundation/shell-features';
-import {
-  PaddingDefault,
-  SURFACE_PADDING,
-} from './foundation/surface-padding';
+import { FeatureSwitches } from './features/feature-switches.service';
+import { PaddingDefault, SURFACE_PADDING } from './foundation/surface-padding';
 import {
   CompositionReport,
   installCompositionReport,
 } from './diagnostics/composition-report';
 import { registerDefaultSettings } from './default-settings';
-import {
-  seedBuiltInMenus,
-  seedContributions,
-  seedHostCommands,
-} from './shell-seeds';
+import { seedContributions, seedHostCommands } from './shell-seeds';
+import { seedBuiltInMenus } from './shell-menu-seeds';
 
 /** Options a distribution can pass to {@link provideShell}. */
 export interface ShellOptions {
@@ -205,7 +200,8 @@ export function provideShell(
         closeGuard: inject(SurfaceCloseGuard),
         retention: inject(RetentionCandidates),
         appReset: inject(AppResetService),
-        features: inject(SHELL_FEATURES),
+        features: inject(FeatureSwitches),
+        injector: inject(Injector),
       });
       seedBuiltInMenus(registry, inject(SHELL_LAYOUT), {
         tabs: inject(ContentTabsService),
@@ -218,7 +214,8 @@ export function provideShell(
         viewStates: inject(ViewStateService),
         viewInstances: inject(ViewInstanceService),
         popout: inject(PopoutService),
-        features: inject(SHELL_FEATURES),
+        features: inject(FeatureSwitches),
+        injector: inject(Injector),
       });
       seedContributions(registry, {
         views: inject(VIEW, { optional: true }) ?? [],
