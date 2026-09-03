@@ -1,8 +1,8 @@
 # LoomWeaver documentation
 
-**LoomWeaver is a domain-agnostic plugin & UI platform.** Products ("weavers") are built as thin
-**distributions** that consume the published `@loomweaver/*` npm packages — you never need this repository
-to build one. The platform is frontend-only; your product brings its own backend.
+**LoomWeaver is a domain-agnostic plugin & UI platform.** Your domain UI is written as plugins
+("weavers"); a product is a thin **distribution** that composes them with the published
+`@loomweaver/*` npm packages. You never need this repository to build one. The platform is frontend-only; your product brings its own backend.
 
 It speaks **[AG-UI](https://docs.ag-ui.com)** as well, so an agentic backend that already talks that
 standard can run your product's own commands.
@@ -33,7 +33,7 @@ standard can run your product's own commands.
    them the generator already writes, so you only type the rest.
 5. [Authoring a weaver](authoring-a-weaver.md) — build UI: views, commands, access gating, dialogs, settings, i18n.
 6. [Building a distribution](building-a-distribution.md) — compose weavers into a branded product.
-7. [The plugin system](plugins.md) — the four ways in (trusted, frame plugin, operator-deployed, community-installed),
+7. [The plugin system](plugins.md) — the three rungs of trust and the four ways a plugin arrives (trusted, frame plugin, operator-deployed, community-installed),
    default-deny capabilities, and what the user can revoke, disable or uninstall.
 8. [Scaffolding](scaffolding.md) — generate weavers, distributions and integrations with the
    `@loomweaver/cli` command line, the `@loomweaver/devkit` Nx generators or the `@loomweaver/mcp` server for AI
@@ -68,6 +68,8 @@ standard can run your product's own commands.
   and the guards that fail on it
 - [Accessibility](reference/accessibility.md) — the WCAG 2.1 AA guardrail the host meets and weavers
   inherit.
+- [Glossary](glossary.md) — the words these pages use, and the four that name the same thing
+  (platform, shell, host, workbench).
 
 The per-symbol reference is the packages themselves: `@loomweaver/plugin-sdk` and `@loomweaver/shell` ship typed
 declarations with JSDoc on every public member, which your editor shows in place. The pages above

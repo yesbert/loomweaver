@@ -10,6 +10,10 @@ LoomWeaver is a **domain-agnostic plugin & UI platform** — the *loom* on which
 This page is the mental model you need before building on it. (The [live
 demo](https://demo.loomweaver.dev) is a product built exactly this way, from the published packages.)
 
+Four words in these pages name the same thing: the **platform**, the **shell** (its package), the
+**host** (its role towards a plugin) and the **workbench** (what the user sees). The
+[glossary](glossary.md) has the rest.
+
 ```
 ┌───────────────────────────────────────────────┐
 │ DISTRIBUTION — your deployable product        │   branding · layout · grants  (~1 file)

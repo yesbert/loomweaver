@@ -20,6 +20,9 @@ needs `optimization: { styles: { inlineCritical: false } }` in its production co
 minimal `index.html` below ships no such policy, so it does not need it — adopt the strict policy and
 you inherit the requirement with it.
 
+> **Prerequisites:** Node 24 and an **Angular 22** workspace, Angular CLI or Nx. Same as for the
+> scaffolded path; where the two flavours differ, it is called out.
+
 Nothing here is Angular-CLI-specific. Where **Nx** differs it is called out, and there is a section
 of its own at the end.
 

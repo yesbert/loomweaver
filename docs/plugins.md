@@ -8,8 +8,8 @@
 
 LoomWeaver is a plugin platform with no domain logic of its own. That means "how plugins are loaded,
 trusted and controlled" *is* the platform. This page describes it from the distribution's point of
-view. It covers three things: the four ways a plugin can reach a running app, what the capability
-broker does in each case, and what the user can turn off.
+view. It covers three things: the four ways a plugin can reach a running app and the three rungs of trust
+they map to, what the capability broker does in each case, and what the user can turn off.
 
 For the plugin author's view — what `ctx` offers and how to build a weaver — see
 [authoring a weaver](authoring-a-weaver.md).
@@ -17,7 +17,9 @@ For the plugin author's view — what `ctx` offers and how to build a weaver —
 ## Four ways in, one contract
 
 Every plugin implements the same `Plugin` interface and receives the same `ctx`. What differs is
-isolation, how it arrives — and **whose decision it was**:
+isolation, how it arrives — and **whose decision it was**. Four ways, three rungs of trust: trusted
+and frame plugins are the first two rungs; operator-deployed and community-installed plugins are both
+the third, installed at runtime, and differ only in whose decision it was:
 
 | | Trusted | Frame plugin | Operator-deployed | Community-installed |
 | --- | --- | --- | --- | --- |

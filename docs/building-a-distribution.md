@@ -101,7 +101,7 @@ what you actually want, so you can go straight to the section that covers it.
 | I want to … | provider |
 | --- | --- |
 | feed the signed-in user in | `provideAuthSource` ([Auth integration](#auth-integration-access-gating)) |
-| send gated routes to my login | `provideUnauthorizedRedirect` ([Redirect](#3-redirect-gated-routes-to-your-login--provideunauthorizedredirect)) |
+| send gated routes to my login | `provideUnauthorizedRedirect` ([Redirect](#3--redirect-gated-routes-to-your-login--provideunauthorizedredirect)) |
 | store settings in my backend | `provideSettingsStore` ([Persistence stores](#persistence-stores-optional)) |
 | store working state in my backend | `provideWorkingStateStore` ([Persistence stores](#persistence-stores-optional)) |
 | keep two users in one browser apart | `provideIdentityScopedStores` ([Identity-scoped stores](#identity-scoped-stores-multi-user-browsers)) |
@@ -809,7 +809,7 @@ product (OIDC / your own identity platform / …). The platform only *reacts* to
 gate themselves by login state and roles (see [authoring a weaver → `access`](authoring-a-weaver.md)).
 Integrating a real product is two providers plus your own login UI.
 
-### 1. Feed the session — `provideAuthSource`
+### 1 · Feed the session — `provideAuthSource`
 
 Map your product's session into a `Signal<AuthSnapshot>`. The factory runs in the injection context, so
 it can `inject()` your own session service. The bare default is anonymous.
@@ -857,7 +857,7 @@ anonymous) never fire — an async session restore at boot causes no reload flic
 [identity-scoped stores](#identity-scoped-stores-multi-user-browsers): the namespace then only
 ever changes across a reload boundary, so the new session re-hydrates entirely from its own state.
 
-### 2. Own the login UI (page or dialog)
+### 2 · Own the login UI (page or dialog)
 
 The platform ships **no** login screen — and it never opens yours on its own. Knowing exactly *when*
 an unmet `access` requirement leads to your login UI is the key to wiring it correctly. There are
@@ -987,7 +987,7 @@ ctx.registerCommand({
 });
 ```
 
-### 3. Redirect gated routes to your login — `provideUnauthorizedRedirect`
+### 3 · Redirect gated routes to your login — `provideUnauthorizedRedirect`
 
 **When it fires:** every time a navigation targets a gated content route whose `access` the current
 session does not meet. That covers a deep link on first load, a tab click, and an in-app
@@ -1927,5 +1927,5 @@ exists for.
 
 ---
 
-**Next:** [The plugin system](plugins.md) — the four ways in, capabilities and what the user controls ·
+**Next:** [The plugin system](plugins.md) — the three rungs of trust and the four ways in, capabilities and what the user controls ·
 [Backend integration](backend-integration.md) — wiring your own backend behind the three seams.
