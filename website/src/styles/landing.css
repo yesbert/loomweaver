@@ -96,6 +96,13 @@
   font-size: clamp(1.05rem, 0.95rem + 0.5vw, 1.3rem);
 }
 
+.lw-landing .hero .fit {
+  margin: 0.75rem auto 0;
+  max-width: 44rem;
+  font-size: 0.95rem;
+  color: var(--sl-color-gray-2);
+}
+
 .lw-landing .actions {
   display: flex;
   flex-wrap: wrap;
