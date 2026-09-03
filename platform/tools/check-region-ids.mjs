@@ -46,7 +46,9 @@ const regionTypes = new Map(
   ),
 );
 const docked = new Set(
-  matchAll(read(SOURCES.weaver), /\bdocks:\s*\['([^']+)'\]/g),
+  matchAll(read(SOURCES.weaver), /\bdocks:\s*\[([^\]]*)\]/g).flatMap((list) =>
+    matchAll(list, /'([^']+)'/g),
+  ),
 );
 
 if (targeted.size === 0 || scaffolded.size === 0) {
