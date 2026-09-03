@@ -49,7 +49,9 @@ standard can run your product's own commands.
 - [Shell anatomy](reference/shell-anatomy.md) — the region vocabulary (rail / panel / bar / content)
   and docks a distribution declares.
 - [Host services](reference/host-services.md) — the runtime services a distribution may inject:
-  dialogs, toasts, settings, commands, session, tabs, updates, sync.
+  dialogs, toasts, settings, commands, session, tabs, panes, workspaces, sidebars, the switches at
+  runtime, text size, the plugin store, the application reset, updates, sync. Everything a user does
+  by hand, your own code can do too, with the same guards.
 - [Access gating](reference/access-gating.md) — the complete `access` reference: what gates where,
   identity changes, and why client-side gating is not a security boundary.
 - [Routing](reference/routing.md) — the content area is the Angular router: what carries over
