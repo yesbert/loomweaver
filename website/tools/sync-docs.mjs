@@ -87,7 +87,7 @@ function rewriteLinks(md, repoPath, knownTargets, problems) {
 
         if (resolved.startsWith('assets/media/') && existsSync(path.join(repoRoot, resolved))) {
           docsMedia.add(path.basename(resolved));
-          return `${open}/media/${path.basename(resolved)}${close}`;
+          return `${open}/media/${path.basename(resolved)}${suffix}${close}`;
         }
 
         problems.push(`${repoPath}: cannot resolve link target "${target}"`);
