@@ -79,6 +79,8 @@ what you actually want, so you can go straight to the section that covers it.
 | I want to … | provider |
 | --- | --- |
 | take a gesture away (splitting, pinning, pop-out, shortcuts …) | `provideShellFeatures` ([Switching capabilities off](#switching-capabilities-off)) |
+| change a switch while the app runs, or read it | `FeatureSwitches` ([Switches](reference/host-services.md#switches--featureswitches)) |
+| offer a pane, workspace, sidebar or reset action from my own control | the host services ([Panes](reference/host-services.md#panes--paneservice), [Workspaces](reference/host-services.md#workspaces--workspaceservice), [Sidebars](reference/host-services.md#sidebars--sidebarservice), [Resetting](reference/host-services.md#resetting-the-application--appresetservice)) |
 | drop a built-in command, item, settings row, menu entry or route | `provideShell({ omit })` ([Recomposing host chrome](#recomposing-host-chrome)) |
 | hand out layouts the product defines | `provideWorkspaces` ([Developer-defined workspaces](#developer-defined-workspaces)) |
 | let users put the arrangement back | nothing: `shell.app.reset` ships ([Resetting](#resetting-the-app-layout)) |

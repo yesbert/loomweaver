@@ -179,6 +179,10 @@ See [Driving your product with an AG-UI agent](docs/ag-ui-agents.md), or open th
   agent that speaks the standard, through an adapter that ships with the platform. You write no
   dispatch and keep no second list of tools, and the agent still reaches only what the user could
   have reached.
+- **Everything the user does by hand, your code can do too.** Switch a built-in control off and
+  offer the action from your own UI: the shell's services for panes, workspaces, sidebars, the
+  capability switches, text size and the plugin store are part of the published contract, run the
+  same code the controls run and keep the same guards for unsaved work.
 - **The rest**: an installable PWA with an update flow, i18n with namespaced composition, WCAG 2.1 AA
   accessibility, cross-window state sync, and save/discard/cancel for editors with unsaved work.
 

@@ -56,6 +56,12 @@ them** — it never forks the core.
   against **its own backend** (any stack). The UI runs standalone with no backend. See
   [Backend integration](backend-integration.md).
 
+- **Driving it:** the distribution injects the shell's published services to do from its own code
+  what its users do by hand: switch capabilities on and off at runtime, split and close panes,
+  switch and reset workspaces, collapse sidebars, set the text size, open the plugin store. A switch
+  removes the user's control, never the capability, and every service action is the same code the
+  control runs, guards included. See [Host services](reference/host-services.md).
+
 You never need this repository to build a distribution — the published packages plus these docs are
 enough. (Building a real product from the outside is exactly how we validate that.)
 
