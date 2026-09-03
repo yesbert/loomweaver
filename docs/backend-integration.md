@@ -95,7 +95,7 @@ It also carries the user's installed community plugins, and their persisted capa
 their grant. It carries their capability revocations too, and plugin settings blobs that may
 contain whatever a plugin puts there. Treat it as **user data with integrity requirements**: authorize every read/write against the
 session. The authoritative storage-key inventory is in
-[building-a-distribution.md](distribution/persistence.md). It also lists
+[Persistence stores](distribution/persistence.md). It also lists
 which keys are device-level and how `provideIdentityScopedStores` separates users on a shared
 browser. A convenient wire shape is a flat `{ key → value }` map with `get-all` + `set-value`; the
 reference implementation used it. But the shape is yours to choose. The frontend only needs the

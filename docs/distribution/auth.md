@@ -8,7 +8,7 @@
 
 LoomWeaver owns **no** authentication — login, session, tokens and the identity provider live in your
 product (OIDC / your own identity platform / …). The platform only *reacts* to a **session snapshot** so contributions can
-gate themselves by login state and roles (see [authoring a weaver → `access`](../authoring-a-weaver.md)).
+gate themselves by login state and roles (see [Access gating in a weaver](../weaver/access-gating.md)).
 Integrating a real product is two providers plus your own login UI.
 
 ## 1 · Feed the session — `provideAuthSource`
@@ -273,7 +273,7 @@ the guard again and shows the placeholder — no loop, because the gate route it
 
 **Client-side gating is presentation, not security** — your own backend is the real boundary, and a
 hidden control is a UX affordance, not an access check. Auth gating (what a *user* may see) is orthogonal
-to capability grants (what a *plugin* may do, above).
+to capability grants (what a *plugin* may do, see [Capabilities](capabilities.md)).
 
 ## Where next
 

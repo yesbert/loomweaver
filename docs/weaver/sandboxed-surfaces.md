@@ -7,7 +7,7 @@
 > explain it here.
 
 **Surface presentation — `component` or `iframe`.** A surface renders either from an Angular `component`
-(the trusted, in-process form above) or from an `iframe` URL, and that choice is independent of whether a
+(the trusted, in-process form, see [The content area](content-area.md)) or from an `iframe` URL, and that choice is independent of whether a
 URL points at the surface:
 
 ```ts

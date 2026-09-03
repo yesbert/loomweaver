@@ -41,7 +41,7 @@ moment a dirty instance becomes hidden — the auto-save pattern of the testbed'
 (`setDirty(true|false)`). It is then treated like any other dirty surface: it survives hiding and is
 guarded at close and unload. But `saveOn: 'hide'` is inert for it, because no save call crosses the RPC
 boundary. Save inside the surface instead, and push `setDirty(false)`. Second, a **routable** surface
-has no `VIEW_STATE` handle by design (see below). For it, `DirtySurface` — or `retain` — is the way to
+has no `VIEW_STATE` handle by design (see [View state that survives](view-state.md)). For it, `DirtySurface` — or `retain` — is the way to
 keep unsaved work across hides.
 
 ### `surfaceBeforeClose` — veto a close with your own flow
