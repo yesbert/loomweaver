@@ -128,15 +128,19 @@ jobs:
       - name: Check what is actually served
         run: |
           set -euo pipefail
+          # Here-strings, not a pipe into grep: with pipefail, `grep -q` exits on the first match, the
+          # printf still writing the rest of a large page gets a broken pipe, and the whole check fails
+          # on a page that was correct. That is why the deploys of 2026-09-03 failed after the upload
+          # had succeeded.
           contains() {
             local body
             body=$(curl -fsS "$1")
-            printf '%s' "$body" | grep -qi -- "$2" || { echo "$3"; exit 1; }
+            grep -qi -- "$2" <<<"$body" || { echo "$3"; exit 1; }
           }
           header_has() {
             local headers
             headers=$(curl -fsSI "$1")
-            printf '%s' "$headers" | grep -qi -- "$2" || { echo "$3"; exit 1; }
+            grep -qi -- "$2" <<<"$headers" || { echo "$3"; exit 1; }
           }
           contains https://loomweaver.dev/ loomweaver "the docs site does not mention itself"
           contains https://loomweaver.dev/ /imprint/ "the docs site lost its legal links"
