@@ -142,7 +142,8 @@ SHALL be visible to every reader at once.
 #### Scenario: A change is visible where it is read
 
 - **WHEN** the distribution changes a switch
-- **THEN** a reader that depends on that switch re-evaluates without being asked to
+- **THEN** a reader that depends on that switch re-evaluates on its own, without polling and
+  without being told
 
 ### Requirement: The affordances follow the switch live
 
