@@ -128,10 +128,9 @@ jobs:
       - name: Check what is actually served
         run: |
           set -euo pipefail
-          # Here-strings, not a pipe into grep: with pipefail, `grep -q` exits on the first match, the
-          # printf still writing the rest of a large page gets a broken pipe, and the whole check fails
-          # on a page that was correct. That is why the deploys of 2026-09-03 failed after the upload
-          # had succeeded.
+          # Here-strings, not a pipe into grep: with pipefail, `grep -q` exits on the first match, a
+          # printf still writing the rest of a large page gets a broken pipe, and the check fails on a
+          # page that was correct.
           contains() {
             local body
             body=$(curl -fsS "$1")
