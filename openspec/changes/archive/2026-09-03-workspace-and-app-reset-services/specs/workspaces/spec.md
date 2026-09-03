@@ -25,10 +25,11 @@ asked by the service wherever the action would destroy work.
 - **THEN** the same question is asked that the reset command would ask, and the workspace is reset
   only if the answer allows it
 
-#### Scenario: Resetting a workspace the user is not in asks nothing
+#### Scenario: Resetting a workspace the user is not in asks no unsaved-work question
 
 - **WHEN** the distribution resets a workspace that is not active
-- **THEN** it returns to its baseline without a question, because no live work is in it
+- **THEN** it returns to its baseline without the unsaved-work question, because no live work is in
+  it; whether a control confirms the reset first remains that control's decision
 
 #### Scenario: The facts follow a switch
 
