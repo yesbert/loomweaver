@@ -126,6 +126,57 @@ export default defineConfig({
           ],
         },
         {
+          label: 'Distribution API',
+          collapsed: true,
+          items: [
+            { label: 'Overview', link: '/reference/distribution/' },
+            {
+              label: 'Composition',
+              link: '/reference/distribution/composition/',
+            },
+            {
+              label: 'Switches',
+              link: '/reference/distribution/switches/',
+            },
+            { label: 'Tabs', link: '/reference/distribution/tabs/' },
+            { label: 'Panes', link: '/reference/distribution/panes/' },
+            {
+              label: 'Workspaces',
+              link: '/reference/distribution/workspaces/',
+            },
+            {
+              label: 'Sidebars',
+              link: '/reference/distribution/sidebars/',
+            },
+            { label: 'Resetting', link: '/reference/distribution/reset/' },
+            {
+              label: 'Dialogs and toasts',
+              link: '/reference/distribution/dialogs-and-toasts/',
+            },
+            {
+              label: 'Settings',
+              link: '/reference/distribution/settings/',
+            },
+            {
+              label: 'Commands',
+              link: '/reference/distribution/commands/',
+            },
+            { label: 'Session', link: '/reference/distribution/session/' },
+            {
+              label: 'Appearance',
+              link: '/reference/distribution/appearance/',
+            },
+            {
+              label: 'Plugins at runtime',
+              link: '/reference/distribution/plugins-at-runtime/',
+            },
+            {
+              label: 'Windows, sync and updates',
+              link: '/reference/distribution/windows-and-sync/',
+            },
+          ],
+        },
+        {
           label: 'Concepts',
           items: [
             {
@@ -149,60 +200,9 @@ export default defineConfig({
         // nothing and this group rendered empty. sync-docs.mjs fails the build if a file under
         // docs/reference/ is missing here, which is the guard the autogeneration used to be.
         {
-          label: 'Reference',
+          label: 'Platform reference',
           items: [
             { label: 'Shell anatomy', link: '/reference/shell-anatomy/' },
-            {
-              label: 'Distribution API',
-              collapsed: true,
-              items: [
-                { label: 'Overview', link: '/reference/distribution/' },
-                {
-                  label: 'Composition',
-                  link: '/reference/distribution/composition/',
-                },
-                {
-                  label: 'Switches',
-                  link: '/reference/distribution/switches/',
-                },
-                { label: 'Tabs', link: '/reference/distribution/tabs/' },
-                { label: 'Panes', link: '/reference/distribution/panes/' },
-                {
-                  label: 'Workspaces',
-                  link: '/reference/distribution/workspaces/',
-                },
-                {
-                  label: 'Sidebars',
-                  link: '/reference/distribution/sidebars/',
-                },
-                { label: 'Resetting', link: '/reference/distribution/reset/' },
-                {
-                  label: 'Dialogs and toasts',
-                  link: '/reference/distribution/dialogs-and-toasts/',
-                },
-                {
-                  label: 'Settings',
-                  link: '/reference/distribution/settings/',
-                },
-                {
-                  label: 'Commands',
-                  link: '/reference/distribution/commands/',
-                },
-                { label: 'Session', link: '/reference/distribution/session/' },
-                {
-                  label: 'Appearance',
-                  link: '/reference/distribution/appearance/',
-                },
-                {
-                  label: 'Plugins at runtime',
-                  link: '/reference/distribution/plugins-at-runtime/',
-                },
-                {
-                  label: 'Windows, sync and updates',
-                  link: '/reference/distribution/windows-and-sync/',
-                },
-              ],
-            },
             { label: 'Access gating', link: '/reference/access-gating/' },
             { label: 'Routing', link: '/reference/routing/' },
             {
