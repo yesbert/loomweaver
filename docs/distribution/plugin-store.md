@@ -71,8 +71,8 @@ then throws `CapabilityError`, a missing `version` means the store can never off
 
 Providing a catalog adds the store's entry points. The first is a **Plugin store** settings section
 (id `setting:shell.pluginStore`, `omit`-able) that shows the **searchable installed-plugins list right
-on the page** next to a Browse button. Per plugin it offers the icon actions open its settings and
-uninstall (with a danger-toned confirmation), both tooltipped, and the standard enable/disable switch.
+on the page** next to a Browse button. Per plugin it offers two tooltipped icon actions, open its settings and
+uninstall (the latter with a danger-toned confirmation), and the standard enable/disable switch.
 
 That Browse button, and the palette command `shell.openPluginStore`, opens the **store dialog**, a
 wide two-pane browse surface. Its **searchable list** matches name, author, category and description;
@@ -82,8 +82,8 @@ last-update time ("2 days ago", localized), the short description and an *Instal
 rendered in-app**. The README is fetched from the same-origin `readmeUrl` and sanitized: the detail
 view renders the author's text itself and never embeds a foreign page.
 
-A second, equally searchable **Installed** view manages what is installed: per plugin an icon-action
-row (open its *Community plugins* settings section · enable/disable · uninstall, all tooltipped) plus
+A second, equally searchable **Installed** view manages what is installed: per plugin a row of tooltipped
+icon actions (open its *Community plugins* settings section, enable or disable, uninstall) plus
 an **Update to vX.Y.Z** button whenever the catalog carries a newer version. **The store is the
 management surface** for installed plugins; brand its title per product with
 `providePluginCatalog(source, { title: 'product.marketplace' })` (a Transloco key you own). Both the
