@@ -56,15 +56,19 @@ npx @loomweaver/cli weaver --id notes --command --shortcut 'mod+shift+n' --out s
 ng serve`;
 
 const distributionExample = `// your product's own toolbar, not a plugin
-const panes = inject(PaneService);
-const switches = inject(FeatureSwitches);
+export class Toolbar {
+  private readonly panes = inject(PaneService);
+  private readonly switches = inject(FeatureSwitches);
 
-// hide our split button for your users …
-switches.update({ content: { splitRight: false } });
+  constructor() {
+    // hide our split button for your users …
+    this.switches.update({ content: { splitRight: false } });
+  }
 
-// … and offer the same action from yours. Same code, same guards.
-protected split(): void {
-  this.panes.splitRight();
+  // … and offer the same action from yours. Same code, same guards.
+  protected split(): void {
+    this.panes.splitRight();
+  }
 }`;
 
 const included = [

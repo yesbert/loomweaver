@@ -173,11 +173,18 @@ See [Driving your product with an AG-UI agent](docs/ag-ui-agents.md), or open th
 
 ```ts
 // your product's own toolbar, not a plugin
-const panes = inject(PaneService);
-const switches = inject(FeatureSwitches);
+export class Toolbar {
+  private readonly panes = inject(PaneService);
+  private readonly switches = inject(FeatureSwitches);
 
-switches.update({ content: { splitRight: false } }); // hide our split button for your users …
-panes.splitRight();                                  // … and offer the same action from yours
+  constructor() {
+    this.switches.update({ content: { splitRight: false } }); // hide our split button …
+  }
+
+  protected split(): void {
+    this.panes.splitRight(); // … and offer the same action from yours
+  }
+}
 ```
 
 Every pane, workspace, sidebar and switch the workbench offers is also a service your own code
