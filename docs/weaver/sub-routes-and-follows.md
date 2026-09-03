@@ -110,6 +110,7 @@ and only reflect it into the URL when you own it:
 
 ```ts
 // Inside your route component (tabRoot = the route's path with params resolved, e.g. 'doc/' + id):
+private readonly router = inject(Router);
 private readonly route = inject(ActivatedRoute);
 // Host-mounted (split/sidebar/pop-out) = the host built a synthetic route: routeConfig is null,
 // and data['sub'] carries the active sub-segment instead of the URL.

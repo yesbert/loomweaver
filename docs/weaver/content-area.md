@@ -170,7 +170,7 @@ ctx.registerSurface({ id: 'doc', title: 'doc.title', icon: 'document', component
 
 `ctx` is handed to `activate(ctx)`, but you usually open a
 document from a click *inside* a component (a tree/list) that holds no `ctx`. Bridge it with a tiny
-service the plugin fills at activation and the component injects:
+service the plugin fills at activation and the component imports:
 
 ```ts
 import { PluginContext } from '@loomweaver/plugin-sdk';
