@@ -69,6 +69,7 @@ export default defineConfig({
             { label: 'Icons', link: '/reference/icons/' },
             { label: 'Accessibility', link: '/reference/accessibility/' },
             { label: 'Operations', link: '/reference/operations/' },
+            { label: 'Glossary', link: '/glossary/' },
           ],
         },
         {

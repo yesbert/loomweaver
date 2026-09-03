@@ -1,5 +1,10 @@
 # Operations — what bites, and what it costs
 
+> **This page is about working in this repository**, not about what the platform guarantees. The
+> contract is under `openspec/specs/`; this page names the guards that run here and the traps they
+> catch.
+
+
 Working knowledge that decays between sessions. **Traps, not run numbers**: each entry below cost
 real time at least once, and every one of them fails in a way that looks like something else.
 

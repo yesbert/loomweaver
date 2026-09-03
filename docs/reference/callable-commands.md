@@ -1,5 +1,12 @@
 # Callable commands — letting something other than the user run an action
 
+<!-- derived-from-specs -->
+> **This is a guide, not the contract.** What the platform guarantees is specified under
+> `openspec/specs/` — for this page: `commands`. Where this page and a specification disagree, the
+> specification is right, and that is a defect in this page: change the behaviour there, then
+> explain it here.
+
+
 A `Command` is the workbench's one anchor for an action: a rail item, a keystroke and a palette entry
 all point at the same `id`, and one seam decides whether it may run. This page is about opening that
 same anchor to a caller that is **not** the user — an assistant driving the application, a script, a

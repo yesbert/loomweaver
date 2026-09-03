@@ -1,5 +1,12 @@
 # Agent tools — letting an AG-UI agent drive the workbench
 
+<!-- derived-from-specs -->
+> **This is a guide, not the contract.** What the platform guarantees is specified under
+> `openspec/specs/` — for this page: `commands` · `platform-composition`. Where this page and a specification disagree, the
+> specification is right, and that is a defect in this page: change the behaviour there, then
+> explain it here.
+
+
 [AG-UI](https://docs.ag-ui.com) is the protocol between a user-facing application and an agentic
 backend. `@loomweaver/ag-ui` is the adapter: it describes the workbench's own commands to an agent as tools,
 and runs what the agent asks for through the same seam every other trigger runs through.
