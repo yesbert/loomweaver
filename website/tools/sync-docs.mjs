@@ -24,6 +24,9 @@ const VERBATIM = ['llms.txt', 'llms-full.txt', 'LICENSE', 'NOTICE'];
    404 for the assistant that fetched them. They are therefore rewritten on the way: a page becomes
    its absolute site address, anything else in the tree its address on GitHub. */
 const LLMS = ['llms.txt', 'llms-full.txt'];
+
+/** Images a page under docs/ embeds from assets/media; copied beside the landing media below. */
+const docsMedia = new Set();
 const GITHUB_BLOB = 'https://github.com/yesbert/loomweaver/blob/main/';
 
 /** Source markdown → path under generated/docs. */
@@ -81,6 +84,11 @@ function rewriteLinks(md, repoPath, knownTargets, problems) {
 
         const mapped = knownTargets.get(resolved);
         if (mapped) return `${open}${mapped}${suffix}${close}`;
+
+        if (resolved.startsWith('assets/media/') && existsSync(path.join(repoRoot, resolved))) {
+          docsMedia.add(path.basename(resolved));
+          return `${open}/media/${path.basename(resolved)}${suffix}${close}`;
+        }
 
         problems.push(`${repoPath}: cannot resolve link target "${target}"`);
         return whole;
@@ -188,6 +196,7 @@ if (site) {
 const mediaDir = path.join(publicDir, 'media');
 mkdirSync(mediaDir, { recursive: true });
 for (const asset of [
+  ...docsMedia,
   'agent-panel-dark.png',
   'agent-panel-light.png',
   'command-palette-dark.png',
