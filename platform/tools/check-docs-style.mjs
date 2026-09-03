@@ -48,7 +48,7 @@ function pages() {
   };
   walk(path.join(repoRoot, 'docs'));
   found.push(path.join(repoRoot, 'README.md'), path.join(repoRoot, 'CONTRIBUTING.md'));
-  return found.map(rel).toSorted();
+  return found.map((file) => rel(file)).toSorted((a, b) => a.localeCompare(b));
 }
 
 function rel(target) {
@@ -67,8 +67,8 @@ function prose(markdown) {
     .replaceAll(/`[^`\n]*`/g, 'code')
     .replaceAll(/^> \*\*This is a guide, not the contract\.\*\*[\s\S]*?explain it here\.$/gm, '')
     .replaceAll(/^> ?/gm, '')
-    .replaceAll(/\[([^\]]*)\]\([^)]*\)/g, '$1')
-    .replaceAll(/\n(?!\n|\s*(?:[-*]|\d+\.) )/g, ' ');
+    .replaceAll(/\[([^\][]*)\]\([^)]*\)/g, '$1')
+    .replaceAll(/\n(?![\t ]*(?:\n|[-*] |\d+\. ))/g, ' ');
 }
 
 function longSentences(text) {
@@ -134,7 +134,7 @@ for (const [page, count] of Object.entries(counts)) {
   }
 }
 for (const page of Object.keys(baseline)) {
-  if (!counts[page]) faults.push(`${page}: recorded with long sentences but has none — remove the entry`);
+  if (!Object.hasOwn(counts, page)) faults.push(`${page}: recorded with long sentences but has none — remove the entry`);
 }
 
 if (process.argv[2] === '--list') {
