@@ -1,0 +1,36 @@
+# Resetting the application
+
+<!-- derived-from-specs -->
+> **This is a guide, not the contract.** What the platform guarantees is specified under
+> `openspec/specs/` — for this page: `workspaces` · `shell-layout` · `host-services`. Where this page and a specification disagree, the
+> specification is right, and that is a defect in this page: change the behaviour there, then
+> explain it here.
+
+The frame's own arrangement back to its defaults, and every workspace with it if you ask.
+
+## Do it
+
+```ts
+const appReset = inject(AppResetService);
+
+await appReset.reset();                      // the frame: rail, sidebars, sizes, order, view instances
+await appReset.reset({ workspaces: true });  // and every workspace, asking about unsaved work once
+```
+
+## What asks about unsaved work
+
+`reset()` asks before it touches anything and answers whether it was allowed. With `workspaces: true` the question is asked once for both parts.
+
+## In depth
+
+`reset()` asks about unsaved work before it touches anything and answers whether it was allowed.
+With `workspaces: true` the question is asked once for both parts, through the same path
+`WorkspaceService.resetAll` takes, and nothing is reset if the answer is no. The
+`APP_RESET_WORKSPACES` token is how the composition root hands the frame's reset the workspaces'
+reset without the two slices depending on each other; `provideShell()` provides it, and you only
+meet it if you build your own composition root.
+
+## Where the story is told
+
+- [Resetting the app layout](../../building-a-distribution.md#resetting-the-app-layout): the built-in command and dialog.
+- [Workspaces](workspaces.md): resetting one workspace, or all.
