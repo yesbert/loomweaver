@@ -263,6 +263,32 @@ broken is listed in [`docs/reference/operations.md`](docs/reference/operations.m
 The platform is **domain-pure**: it must contain no product-specific logic. That boundary is enforced
 by Nx tags, so an import that crosses it fails lint rather than review.
 
+## Writing the docs
+
+The pages under `docs/` are guides: they explain and show, and the contract stays in `openspec/specs/`.
+They follow [Diátaxis](https://diataxis.fr/): a tutorial (`getting-started.md`) teaches by doing, a
+how-to page (`docs/weaver/`, `docs/distribution/`) does one task, a reference page (`docs/reference/`)
+states facts for lookup, and a concept page (`docs/concepts/`) explains why. A page that does two of
+these does neither well; when you find yourself explaining in a how-to, link to the concept instead.
+
+Four rules for the sentences, three of them measured by `npm run docs-style-check`:
+
+- **One thought per sentence, and under forty words.** An aside becomes its own sentence. The checker
+  counts sentences over forty words per page and keeps the number from growing
+  (`platform/tools/docs-style-baseline.json` is the ratchet; rewrite it with `--write-baseline` after
+  you shorten a page).
+- **Condition first, then consequence.** "If the surface is clean, it is destroyed", not "It is
+  destroyed, provided the surface is clean."
+- **No dash as a sentence joint.** A dash that stitches two clauses hides a second thought; use a full
+  stop, a comma or a colon. A dash inside a heading or a table cell is fine.
+- **One word, one spelling, the glossary's.** `docs/glossary.md` says which of two words names a
+  thing; the checker flags the spellings it does not use (a hyphenated plugin, a two-word sidebar).
+
+Every page under `docs/` opens with a single `# Title` and the derived-from-specs header naming the
+capabilities it explains, so a reader knows where the guarantee is. The three maps (the docs index,
+the glossary, the operations notes) are exempt by name. Keep the tone: the reasons, the traps by name,
+and nothing glossed over are what make these pages worth reading, so shorten sentences, not content.
+
 ## Commits and pull requests
 
 Keep the change focused; a small diff is reviewed faster than a large one. Write commit messages that

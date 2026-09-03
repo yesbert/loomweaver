@@ -81,9 +81,9 @@ omitted, and then warns about the things that quietly land nowhere:
 - a settings button or menu entry pointing at a **command no one registers** (or one your own `omit`
   removed): the shell drops the control rather than drawing a dead one, and this says why it vanished
 
-One check does not wait for the console, because it is already decidable at startup: a bar, rail or
+One check does not wait for the console, because it is already decidable at startup. A bar, rail or
 view contribution aimed at a region your layout does not declare, or declares with another anatomy,
-is warned about immediately and told which regions of the right type do exist. That is the
+is warned about immediately, and the warning names the regions of the right type that do exist. That is the
 `status` versus `status-bar` mistake, which otherwise ships a product whose status bar is simply
 empty.
 
