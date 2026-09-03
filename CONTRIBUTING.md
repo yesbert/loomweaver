@@ -186,6 +186,41 @@ It reads the packed file list of each package and fails when an entry in `export
 or `bin` resolves to nothing. Note that `@loomweaver/shell` needs `nx run shell:styles` on top of
 `nx package shell`: the stylesheet it exports is written by that separate target.
 
+### Shaping the surface
+
+A few rules govern how the workbench exposes what it can do. They came out of the work on the
+distribution API in September 2026 and apply to every new switch, service or hook.
+
+- **A switch moves the control, it does not remove the capability.** Whether the user can see and
+  reach something, and whether the distribution's code can reach it, are two questions. A switch
+  answers the first: it takes away every route the user can take. The capability stays reachable to
+  the distribution that made the decision, so it can offer it again in its own place and shape.
+- **The twin is the same code.** Behaviour lives in exactly one service. A command, a button, a
+  menu entry and a programmatic call are triggers that call it and carry no behaviour of their own.
+  Where behaviour sits in a trigger today, it moves into the service the moment a second trigger
+  needs it.
+- **Same names to declare, to switch and to read, and typed.** The declaration passed to
+  `provideShellFeatures`, the runtime update and the signal that reads the current value share one
+  vocabulary and one type. A free string would make every typo a silent no-op.
+- **Offer the ability, not the reason.** The platform does not model why a distribution switches
+  something: a role, a mode, an admin page. It offers the switch; the reason is the product's.
+- **The platform remembers no switch; the distribution does.** A switch holds for the session and
+  starts from the declaration. Whether a runtime change survives, and for whom, is decided and
+  stored by the distribution through the ports it already has.
+- **Switching off acts forward, not backward.** It removes the route from now on and never undoes
+  what the user built with it. Whoever switches a toggle off while it sits in the inconvenient
+  position locks the user out; put the state where you want it first.
+- **Whoever may switch off an automatic behaviour must be able to learn its moment.** A switch
+  that silences something the workbench does on its own, with no way to notice when it would have
+  run, is a silent loss rather than a switch.
+- **Report through state.** Facts are signals; whoever needs the moment of a change reads the
+  signal in an effect. An event exists only for a moment that leaves no state behind.
+- **Prevention belongs to the owner.** What holds the work decides whether it may be closed; nobody
+  else vetoes it. A veto must be allowed to run into nothing, so a hook that does not answer has
+  agreed, and a veto never guards the platform against itself.
+- **One door.** Extend the surface that exists, the injectable shell services for a distribution
+  and `ctx` for a plugin, rather than opening a second one beside it.
+
 ## Code conventions
 
 Most of these are enforced by `nx lint`, so the fastest feedback is to run it. What fails when a rule is
