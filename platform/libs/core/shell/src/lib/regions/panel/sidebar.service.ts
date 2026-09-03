@@ -28,9 +28,9 @@ export interface SidebarFacts {
  * sidebars.hideView('outline');         // asks about unsaved work like the view menu
  * ```
  *
- * Every action is the same code the control runs. A region id no declared panel carries does
- * nothing. The capability switches do not reach this service: what a distribution switched off for
- * its users it can still do from here.
+ * Every action is the same code the control runs. A region id that no declared panel carries
+ * does nothing. The capability switches do not reach this service: what a distribution has
+ * switched off for its users, it can still do from here.
  */
 @Service()
 export class SidebarService {

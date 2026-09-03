@@ -325,7 +325,7 @@ const sidebars = inject(SidebarService);
 sidebars.regions();               // SidebarFacts[]: regionId, collapsed, width, per declared panel
 sidebars.isCollapsed('primary');  // reactive where it is read
 sidebars.width('primary');
-sidebars.hiddenViews();           // Signal<readonly string[]>
+sidebars.hiddenViews();           // readonly string[]: the ids of the hidden views
 
 sidebars.collapse('primary'); sidebars.expand('primary'); sidebars.toggle('primary');
 sidebars.setWidth('primary', 320);      // clamped to the usable range, remembered like a released drag
@@ -333,8 +333,8 @@ sidebars.hideView('acme.outline');      // asks about unsaved work exactly as th
 sidebars.showView('acme.outline');      // back where it was declared, or in the region you name
 ```
 
-The ids are yours: the panel regions you declared with `provideLayout`, the view ids you or your
-plugins registered. A region id no declared panel carries does nothing. Every action is the one the
+The ids are yours: the panel regions that you declared with `provideLayout`, the view ids that you
+or your plugins registered. A region id that no declared panel carries does nothing. Every action is the one the
 sidebar header, the splitter and the view menu run, with the same guards, and it keeps working when
 you have switched `sidebar.collapse`, `sidebar.resize` or `sidebar.hideViews` off for your users,
 which is how you offer the action from your own control.
