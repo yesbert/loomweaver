@@ -20,6 +20,7 @@ import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../pane/tree/pane-address';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
 import { PaneChromeService } from '../pane/chrome/pane-chrome.service';
 import { PaneActions } from '../pane/pane-actions.service';
+import { escalationStep } from '../pane/chrome/tab-escalation';
 import { matchRoute } from './content-path';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { AuthContext } from '../../auth/auth-context';
@@ -249,17 +250,12 @@ export class ContentArea {
   }
 
   protected escalate(tab: StripTab): void {
-    if (!this.features.escalate() || tab.path.startsWith(VIEW_PANE_PREFIX)) {
-      return;
-    }
-    if (tab.preview) {
-      this.tabs.keep(tab.path);
-    } else if (!this.features.pin()) {
-      return;
-    } else if (tab.pinned) {
-      this.tabs.unpin(tab.path);
-    } else if (tab.closable) {
-      this.tabs.pin(tab.path);
+    const step = escalationStep(tab, {
+      escalate: this.features.escalate(),
+      pin: this.features.pin(),
+    });
+    if (step !== null) {
+      this.tabs[step](tab.path);
     }
   }
 

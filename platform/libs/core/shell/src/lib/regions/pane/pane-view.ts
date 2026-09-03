@@ -17,6 +17,7 @@ import { TabDragSource } from './drag/pane-drag.service';
 import { PaneTabStrip } from './chrome/pane-tab-strip';
 import { StripTab } from './chrome/strip-tab';
 import { PaneToolbar } from './chrome/pane-toolbar';
+import { escalationStep } from './chrome/tab-escalation';
 import { toStripTab } from './drag/pane-label';
 import { RetainedViewStash } from './retention/retained-view-stash';
 import {
@@ -182,23 +183,15 @@ export class PaneView {
   }
 
   protected onEscalate(tab: StripTab): void {
-    if (
-      !this.contentSide() ||
-      !this.features.escalate() ||
-      tab.path.startsWith(VIEW_PANE_PREFIX)
-    ) {
+    if (!this.contentSide()) {
       return;
     }
-    const dock = this.dock();
-    const paneId = this.leaf().id;
-    if (tab.preview) {
-      this.paneTree.keepTab(dock, paneId, tab.path);
-    } else if (!this.features.pin()) {
-      return;
-    } else if (tab.pinned) {
-      this.paneTree.unpinTab(dock, paneId, tab.path);
-    } else if (tab.closable) {
-      this.paneTree.pinTab(dock, paneId, tab.path);
+    const step = escalationStep(tab, {
+      escalate: this.features.escalate(),
+      pin: this.features.pin(),
+    });
+    if (step !== null) {
+      this.paneTree[`${step}Tab`](this.dock(), this.leaf().id, tab.path);
     }
   }
 
