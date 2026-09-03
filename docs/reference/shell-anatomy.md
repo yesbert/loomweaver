@@ -8,7 +8,7 @@
 
 > **Purpose:** binding names for the visible shell areas, so conversations, code and docs mean the
 > same thing — the spatial sketch for the region-type vocabulary from
-> [Building a distribution](../building-a-distribution.md#layout-regions--docks).
+> [Building a distribution](../distribution/layout.md).
 > **Neutral frame** (core chrome) — plugins contribute the contents.
 
 ## Base layout (desktop, fully equipped)
@@ -88,5 +88,5 @@ question about where the opener belongs).
 
 ## See also
 
-- [Building a distribution → Layout: regions & docks](../building-a-distribution.md#layout-regions--docks) — how a distribution declares these regions (`provideLayout`).
-- [Authoring a weaver → Rail & bar items](../authoring-a-weaver.md#rail--bar-items--command-triggers-in-the-chrome) and [Panel surfaces](../authoring-a-weaver.md#panel-surfaces--your-ui-in-a-panel) — how a weaver hooks views/items into these regions, with the slot/anchor properties in use.
+- [Building a distribution → Layout: regions & docks](../distribution/layout.md) — how a distribution declares these regions (`provideLayout`).
+- [Authoring a weaver → Rail & bar items](../weaver/commands.md#rail--bar-items--command-triggers-in-the-chrome) and [Panel surfaces](../weaver/sidebar-surfaces.md#panel-surfaces--your-ui-in-a-panel) — how a weaver hooks views/items into these regions, with the slot/anchor properties in use.

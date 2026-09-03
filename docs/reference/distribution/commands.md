@@ -54,5 +54,5 @@ hint can never disagree with the binding.
 ## Where the story is told
 
 - [Callable commands](../callable-commands.md): opening a command to a caller that is not the user.
-- [Command palette entry](../../building-a-distribution.md#command-palette-entry): the built badges for the palette and quick-open.
+- [Command palette entry](../../distribution/recomposing-chrome.md#command-palette-entry): the built badges for the palette and quick-open.
 - [One behaviour, many triggers](../../samples.md#3--one-behaviour-many-triggers): a complete recipe.

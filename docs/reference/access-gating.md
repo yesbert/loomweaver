@@ -15,7 +15,7 @@ reference: the vocabulary, exactly which surface reacts how, and the boundaries 
 
 Narrative introductions live elsewhere —
 [wiring the session](../backend-integration.md#2--auth--session--authsource) for a distribution,
-[`access` and `ctx.session`](../authoring-a-weaver.md#auth-aware-access-gating--access) for a weaver.
+[`access` and `ctx.session`](../weaver/access-gating.md) for a weaver.
 
 ## The snapshot
 
@@ -112,7 +112,7 @@ for a layout problem that does not exist:
 
 The padlock uses the `lock` icon, so a distribution can replace it through `provideIcons`, and the two
 messages come from `auth.requiredTitle`/`requiredMessage` and `auth.deniedTitle`/`deniedMessage`, which
-[translation overrides](../building-a-distribution.md#rewording-the-shell) can reword.
+[translation overrides](../distribution/icons-and-i18n.md#rewording-the-shell) can reword.
 
 ## Gated routes
 
@@ -131,7 +131,7 @@ Returning `null` keeps the in-place placeholder, so one handler can do both. The
 distribution's, because only it knows whether a login route exists. The complete flow — the login
 page reading `?from=` and navigating back, the dialog variant, sign-out — is worked through with
 copyable components in
-[building a distribution → Auth integration](../building-a-distribution.md#auth-integration-access-gating).
+[building a distribution → Auth integration](../distribution/auth.md).
 
 The placeholder covers the **tab root**. A deep link into a sub-route of a gated surface falls back
 to home rather than to the placeholder.
@@ -179,7 +179,7 @@ session restore at boot causes no flicker. A reload is a blunt instrument on pur
 way to guarantee that no in-memory state of the previous user survives.
 
 Pair it with
-[identity-scoped stores](../building-a-distribution.md#identity-scoped-stores-multi-user-browsers)
+[identity-scoped stores](../distribution/persistence.md#identity-scoped-stores-multi-user-browsers)
 so the stored state is separated too. That store latches the first non-empty identity per boot and
 never follows a live switch, which is what keeps a write still in flight during the login transition
 out of the next user's namespace.
@@ -209,5 +209,5 @@ UI for clarity; enforce on the server for real.
 ---
 
 **See also:** [backend integration](../backend-integration.md) ·
-[authoring a weaver](../authoring-a-weaver.md#auth-aware-access-gating--access) ·
+[authoring a weaver](../weaver/access-gating.md) ·
 [host services](distribution/session.md)

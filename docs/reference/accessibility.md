@@ -35,7 +35,7 @@ the binding guardrail; it complements [`design-tokens.md`](design-tokens.md) (co
 1. **Use the host vocabulary** (`<lw-button>`, dialogs via `ctx.ui.*`, `<lw-icon>`, `<lw-markdown>` …) —
    it is already accessible (focus, contrast, keyboard). Your own web component/iframe is an emergency
    exit only — and it costs more than accessibility work, see
-   [your own custom element](../authoring-a-weaver.md#your-own-custom-element--the-escape-hatch).
+   [your own custom element](../weaver/sidebar-surfaces.md#your-own-custom-element--the-escape-hatch).
 2. **An accessible name for everything interactive:** visible text **or** `aria-label`. Icon-only
    buttons **require** `aria-label`.
 3. **Semantic colour tokens only** (never raw hex). In particular:

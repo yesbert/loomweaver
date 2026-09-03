@@ -124,7 +124,7 @@ plugin is not sandboxed**. Compose only code you would ship yourself.
 Sharing the context also means sharing globals the platform does not broker. The custom element
 registry is one of them. A trusted plugin can define its own element. Nothing can take that tag back
 for the lifetime of the document — not disabling the plugin, not uninstalling it. That is a
-[documented escape hatch](authoring-a-weaver.md#your-own-custom-element--the-escape-hatch) rather than
+[documented escape hatch](weaver/sidebar-surfaces.md#your-own-custom-element--the-escape-hatch) rather than
 a supported path. It is also one more reason the trusted rung is a review decision, not a default.
 
 ### A frame plugin — an iframe over RPC
@@ -162,13 +162,13 @@ Penpal.connect({ messenger }).promise.then((ctx) =>
 
 The complete worked example — both documents, the flat RPC `ctx` surface, receiving pushed state —
 is in [authoring a weaver → the sandbox
-bootstrap](authoring-a-weaver.md#the-sandbox-bootstrap--how-a-sandboxed-plugin-gets-ctx); the
+bootstrap](weaver/sandboxed-surfaces.md#the-sandbox-bootstrap--how-a-sandboxed-plugin-gets-ctx); the
 `scaffold_frame_plugin` generator emits this exact layout ([scaffolding](scaffolding.md)).
 
 `entryUrl` must be **same-origin**: you serve the plugin's files yourself. That is what makes review
 a meaningful control. The plugin's visible UI is a second iframe, called the surface. The host
 paints the design tokens into it, so a sandboxed plugin looks native without importing anything from
-you — see [the frame UI kit](authoring-a-weaver.md#the-frame-ui-kit).
+you — see [the frame UI kit](weaver/sandboxed-surfaces.md#the-frame-ui-kit).
 
 Only data crosses an RPC boundary, so a sandboxed plugin reaches a **subset** of `ctx`:
 
@@ -254,7 +254,7 @@ The install dialog lists the capabilities the plugin declares, and **agreeing is
 is no separate grant map for installed plugins. Consequently an update that widens the declaration
 asks again, listing only what was added; an update that does not, applies silently.
 
-See [plugin store](building-a-distribution.md#plugin-store-runtime-install) for the catalog schema.
+See [plugin store](distribution/plugin-store.md) for the catalog schema.
 
 ## Capabilities: default-deny
 

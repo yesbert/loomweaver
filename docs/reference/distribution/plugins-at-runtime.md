@@ -41,5 +41,5 @@ They are described together in [the plugin system](../../plugins.md).
 
 ## Where the story is told
 
-- [Plugin store](../../building-a-distribution.md#plugin-store-runtime-install): the catalogue and the consent dialog.
+- [Plugin store](../../distribution/plugin-store.md): the catalogue and the consent dialog.
 - [The plugin system](../../plugins.md): the three rungs, capabilities and what the user controls.

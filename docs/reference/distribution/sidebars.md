@@ -46,5 +46,5 @@ which is how you offer the action from your own control.
 
 ## Where the story is told
 
-- [Layout: regions and docks](../../building-a-distribution.md#layout-regions--docks): declaring the panels.
+- [Layout: regions and docks](../../distribution/layout.md): declaring the panels.
 - [Shell anatomy](../shell-anatomy.md): the region vocabulary.

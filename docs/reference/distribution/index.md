@@ -11,7 +11,7 @@ lookup for it: what a distribution may inject and call, the rules behind it, and
 
 **A plugin never injects these.** A weaver gets a brokered subset through `ctx` — `ctx.ui.confirm()`,
 `ctx.registerSettingsSection()`, `ctx.session` — and the broker checks a capability first
-([default-deny](../../building-a-distribution.md#capabilities-default-deny)). That indirection is the
+([default-deny](../../distribution/capabilities.md)). That indirection is the
 whole isolation story: it is what lets the same weaver run sandboxed in an iframe, where a direct
 injection would be impossible.
 

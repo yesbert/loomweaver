@@ -55,5 +55,5 @@ the user declined.
 
 ## Where the story is told
 
-- [Developer-defined workspaces](../../building-a-distribution.md#developer-defined-workspaces): `provideWorkspaces` and what it declares.
+- [Developer-defined workspaces](../../distribution/workspaces.md#developer-defined-workspaces): `provideWorkspaces` and what it declares.
 - [Resetting the application](reset.md): every workspace and the frame in one guarded call.

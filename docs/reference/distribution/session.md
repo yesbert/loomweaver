@@ -30,4 +30,4 @@ Client-side gating is presentation. Enforce for real in your backend.
 ## Where the story is told
 
 - [Access gating](../access-gating.md): the complete `access` reference.
-- [Auth integration](../../building-a-distribution.md#auth-integration-access-gating): feeding the session, owning the login UI, redirecting gated routes.
+- [Auth integration](../../distribution/auth.md): feeding the session, owning the login UI, redirecting gated routes.
