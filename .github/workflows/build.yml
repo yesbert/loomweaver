@@ -73,6 +73,12 @@ jobs:
       - name: Folders and files stay readable
         run: npm run structure-check
 
+      # The documentation has style rules the same way the code has conventions, and the same
+      # experience: a rule that is not measured does not hold. Sentence length is a ratchet against a
+      # baseline; the header and the spelling are absolute.
+      - name: Documentation style
+        run: npm run docs-style-check
+
       # The build above compiles the apps, which consume the libraries from source through tsconfig
       # paths. Packaging is a different path — ng-packagr's exports map, ESM emission, asset copying —
       # so a packaging regression would otherwise surface only at release time or in a consumer.

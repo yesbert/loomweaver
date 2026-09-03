@@ -84,10 +84,10 @@ first if you want the list; the CLI names each file it would replace and writes 
 
 Three files from `ng new` are now unreferenced: `src/app/app.routes.ts` (the shell owns content
 routing, and [Routing](reference/routing.md) shows that the router itself is unchanged),
-`src/app/app.css`, and `src/app/app.spec.ts` — that last one now **fails**, because `App`
-pulls the whole shell into a bare `TestBed`. Delete it; the generated `app.config.spec.ts` is the
-replacement starting point, and it tests something worth testing (that the layout still declares the
-region ids your contributions target) without mounting anything.
+`src/app/app.css`, and `src/app/app.spec.ts`. That last one now **fails**, because `App` pulls the
+whole shell into a bare `TestBed`. Delete it; the generated `app.config.spec.ts` is the replacement
+starting point. It tests something worth testing, that the layout still declares the region ids your
+contributions target, without mounting anything.
 
 The logo at `public/logo.svg` is the LoomWeaver mark, there so the top bar renders something from the
 first run; replace it with your own square image whenever you like. It is the app icon too, and until
@@ -120,10 +120,10 @@ and, in the **production** configuration:
 "optimization": { "styles": { "inlineCritical": false } }
 ```
 
-Each has a reason, told where the manual setup makes the same edit: the i18n glob serves the shell's
-own strings ([Serve the host translations](manual-setup.md#5--serve-the-host-translations)), the
-frame-kit glob matters only once you host sandboxed plugins ([Frame plugins](distribution/frame-plugins.md)),
-and `serviceWorker` with `inlineCritical: false` is the PWA side ([PWA and delivery](distribution/pwa.md)).
+Each has a reason, told where the manual setup makes the same edit. The i18n glob serves the shell's
+own strings ([Serve the host translations](manual-setup.md#5--serve-the-host-translations)). The
+frame-kit glob matters only once you host sandboxed plugins ([Frame plugins](distribution/frame-plugins.md)).
+`serviceWorker` and `inlineCritical: false` are the PWA side ([PWA and delivery](distribution/pwa.md)).
 One trap belongs here: `inlineCritical: false` is not optional, because the generated `index.html`
 ships a strict `script-src 'self'` that blocks Angular's inline critical-CSS handler, and the app then
 renders unstyled, only in production builds.
@@ -210,6 +210,8 @@ build target as [Manual setup → Run](manual-setup.md#7--run) describes.
 
 ---
 
-**Next:** [Samples](samples.md) — complete, copyable recipes for the things you will build next ·
-[Authoring a weaver](authoring-a-weaver.md) — the full contract behind what you just scaffolded ·
-[Manual setup](manual-setup.md) — the same app wired by hand, if you want to see every seam.
+**Next:**
+
+- [Samples](samples.md): complete, copyable recipes for the things you will build next.
+- [Authoring a weaver](authoring-a-weaver.md): the full contract behind what you just scaffolded.
+- [Manual setup](manual-setup.md): the same app wired by hand, if you want to see every seam.

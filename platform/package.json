@@ -18,6 +18,7 @@
     "import-cycles-check": "node tools/check-import-cycles.mjs",
     "package-exports-check": "node tools/check-package-exports.mjs",
     "region-ids-check": "node tools/check-region-ids.mjs",
+    "docs-style-check": "node tools/check-docs-style.mjs",
     "structure-check": "node tools/check-structure.mjs"
   },
   "private": true,
