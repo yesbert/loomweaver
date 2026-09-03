@@ -8,7 +8,7 @@ This is a curated map for people, and their AI assistants, building on or integr
 
 - [Glossary](docs/glossary.md): the words the docs use, one line each; platform, shell, host and workbench name the same thing.
 - [Getting started](docs/getting-started.md): scaffold a running, branded product with a plugin already contributing to it, in ~5 minutes, using `@loomweaver/cli`. Start here.
-- [Architecture](docs/architecture.md): the mental model: platform / weaver / distribution, the uniform `ctx`, default-deny capabilities, the two RPC boundaries. Read it once the tutorial has run.
+- [Architecture](docs/architecture.md): the mental model, platform / weaver / distribution, the uniform `ctx`, default-deny capabilities, the two RPC boundaries. Read it once the tutorial has run.
 - [Manual setup](docs/manual-setup.md): the same app wired by hand (~15 min); the shell renders inside the generated `app-root`, so nothing of `ng new`/Nx is deleted. Read it for the Nx differences, SSR (`RenderMode.Client`) and why Module Federation is not the plugin transport.
 - [Samples](docs/samples.md): complete copyable recipes, each compiling against the published contract: sidebar view with `VIEW_STATE`, routable surface, one command behind several triggers, settings, access gating, dialogs. It opens by naming which recipes the generator already writes, so scaffold those and type only the rest.
 

@@ -174,7 +174,7 @@ You get the branded chrome: a top bar with your name, logo and the theme and lan
 activity rail on the left with **your weaver's icon in it**, and a collapsible sidebar on each side.
 Click that icon and the app navigates to `/notes`, where your surface fills the content area.
 
-<!-- screenshot: scaffolded product after step 5 -->
+![The scaffolded product after the first run: the top bar with the product name, the notes weaver open in a tab, the shell's version in the status bar.](../assets/media/quick-start-light.png)
 
 That icon in the rail is the whole point: the platform drew every piece of chrome around it, and your
 plugin only declared what it wanted to contribute.
