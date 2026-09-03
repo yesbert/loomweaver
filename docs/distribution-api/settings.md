@@ -7,7 +7,7 @@
 > explain it here.
 
 The host settings surface is a registry: the shell registers its own sections, plugins contribute
-through `ctx`, and a distribution can do both, add sections and hide any of them.
+through `ctx`, and a distribution can do both: add sections and hide any of them.
 
 ## Do it
 
