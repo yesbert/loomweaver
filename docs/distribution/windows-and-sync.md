@@ -25,7 +25,7 @@ synced** — `lw.shell.pane-trees:<workspaceId>`, `hidden-views:<workspaceId>`, 
 because two windows are meant to be able to show different layouts.
 
 A distribution registers its own keys the same way. The most useful one is your session key: when
-it changes, the other window's `AuthSnapshot` flips and the `onIdentityChange` policy above takes
+it changes, the other window's `AuthSnapshot` flips and the `onIdentityChange` policy in [Auth integration](auth.md) takes
 over — no auth-specific sync machinery.
 
 ```ts

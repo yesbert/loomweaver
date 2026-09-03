@@ -265,7 +265,7 @@ contrast with the fill rather than follow it.
 
 It writes **no dark block**, and that is not an omission: Bootstrap redefines its own `--bs-*` under
 `[data-bs-theme="dark"]`, so every `var()` already resolves to the dark value — as long as you
-mirror the attribute as shown above. Note what that buys you: our light/dark switch drives your
+mirror the attribute as shown below. Note what that buys you: our light/dark switch drives your
 framework's, and one stylesheet covers both.
 
 The contrast guarantee travels with the values. Our own palette is verified against WCAG 2.1 AA;

@@ -111,8 +111,8 @@ does not cross the RPC boundary.)
 uses a **single reused, italic** slot per pane — the next `preview` open of a *different* path replaces
 it in place, so browsing many items doesn't pile up tabs. Promote it to a permanent tab **explicitly**:
 call `ctx.keepContentTab(path)` (e.g. on your list's double-click or when the content is edited).
-The host's own double-click cycle on the tab is **off by default** — a distribution can switch it on,
-so do not build your flow on it. Re-opening an already-open tab just refines it (title/sub-route) and **keeps** its
+The host's own double-click cycle on the tab is the distribution's to switch off, so do not build
+your flow on it. Re-opening an already-open tab just refines it (title/sub-route) and **keeps** its
 preview state — so a view can safely call `openContentTab` on mount to set the real title without
 accidentally promoting itself:
 
@@ -169,7 +169,7 @@ ctx.registerSurface({ id: 'doc', title: 'doc.title', icon: 'document', component
 > Use a **module-level facade** (a plain exported instance), not an Angular `@Injectable` filled via
 > `inject()` inside `activate()`. Activation is *not guaranteed* to run in Angular's injection context.
 > It re-runs, for instance, when the user re-enables your plugin at runtime. An `inject()` there can
-> therefore throw. The in-repo the testbed weaver's `testbedContent` bridge is this exact pattern.
+> therefore throw. The testbed weaver's `testbedContent` bridge is this exact pattern.
 >
 > (A trusted in-process component may also inject Angular's `Router` directly, but the bridge keeps the
 > weaver on the public `ctx` surface — the same path a sandboxed plugin gets later.)

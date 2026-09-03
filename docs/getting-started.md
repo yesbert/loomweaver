@@ -136,7 +136,7 @@ re-running a scaffold over a workspace you have configured changes nothing.
 > [Bringing your own CSS framework](manual-setup.md#bringing-your-own-css-framework) says what you
 > give up and how a Bootstrap theme fits.
 
-What a scaffold cannot do, the run says so, and says what it costs to leave undone;
+When a scaffold cannot do something, the run says so and says what it costs to leave undone.
 [Scaffolding](scaffolding.md) lists those cases.
 
 ## 5 · Scaffold a weaver

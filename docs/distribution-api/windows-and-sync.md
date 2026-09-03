@@ -52,8 +52,8 @@ at startup, which is why it is a plain boolean and not a signal.
 Every write through either persistence port (`SETTINGS_STORE` / `WORKING_STATE_STORE`)
 broadcasts its **key** to the app's other windows; a window that registered a reaction reads the
 fresh value back through the registered source's store and applies it. The shell registers its own
-keys, so plugin state inherits the behaviour. A distribution registers whatever else should follow
-— most usefully its product session key:
+keys, so plugin state inherits the behaviour. A distribution registers whatever else should follow,
+most usefully its product session key, as the `acme.session` registration under *Do it* shows.
 
 Two rules: an applier must **not** write back (or two windows ping-pong forever), and a broadcast
 never fires in the window that made the change — a `BroadcastChannel` does not deliver to its own

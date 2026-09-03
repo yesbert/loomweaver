@@ -27,7 +27,7 @@ the binding guardrail; it complements [`design-tokens.md`](design-tokens.md) (co
 - **Text size (WCAG 1.4.4):** the shell ships a user setting "text size"
   (Settings → Options → General) that scales the whole UI through the `:root` `font-size`
   (90/100/112.5/125 %, **relative** to the browser's base font). Every distribution inherits it.
-- **Automated net:** an **axe-core E2E** (`apps/loom-testbed-e2e/src/a11y.spec.ts`) checks every core
+- **Automated net:** an **axe-core E2E** (`platform/apps/loom-testbed-e2e/src/a11y.spec.ts`) checks every core
   screen against WCAG 2.1 A/AA and turns the nightly CI red as soon as a violation appears.
 
 ## Rules for plugin authors (checklist)

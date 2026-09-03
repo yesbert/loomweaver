@@ -74,7 +74,7 @@ the [getting-started layout](../getting-started.md)) — a contribution addressi
 declares simply renders nowhere (views log a dev-mode warning).
 
 Because ids are the addressing scheme everywhere, using an existing id **replaces** that
-contribution — which is how the testbed moves the update badge into a sidebar footer. `provideShell({
+contribution — which is how the demo moves the update badge into a sidebar footer. `provideShell({
 omit: [...] })` removes one. `ContributionRegistry` is the registry underneath; injecting it lets you
 add and remove contributions at runtime (`addRailItem` returns a disposer), but prefer the providers
 when the answer is known at composition time.

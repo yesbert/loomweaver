@@ -97,7 +97,15 @@ real time at least once, and every one of them fails in a way that looks like so
 | `npm run structure-check` | `platform/` | a folder over 12 concepts or a source file over 400 lines, where a concept is one non-spec `.ts` file. Baseline in `tools/structure-baseline.json`, a ratchet: five folders and ten files are recorded today, and the check fails on a new entry, a worse one, an improved one still over the threshold, and one that no longer applies |
 | `npx nx run-many --target=lint --all` | `platform/` | module-boundary violations, member ordering, inline templates, unknown Tailwind utilities |
 | `npm run lint` | `demo/`, `website/` | the same conventions in the two products that live outside the Nx workspace |
-| `openspec validate --specs --strict` | repo root | a malformed or scenario-less specification |
+| `npm run icon-docs-check` | `platform/` | the icon catalogue in `docs/reference/icons.md` no longer matching the shell's icon map; `--write` regenerates it |
+| `npm run agent-versions-check` | `platform/` | the two agent packages the weaver generator emits as literals drifting from the versions the workspace installs |
+| `npm run command-names-check` | `platform/` | two shipped commands presenting the same name to a user, or one command labelled two ways |
+| `npm run pwa-check` | `demo/` | a promise the product makes to the browser and never to itself: the manifest, the icons and the service worker it advertises |
+| `npm run licence-check` | `platform/`, `demo/`, `website/` | a production dependency under a licence outside the allow-list |
+| `shellcheck scripts/*.sh` | repo root | a shell script warning |
+| `npm run quick-start-check` | `platform/`, nightly | the Getting started commands no longer producing a running product against the published packages |
+
+`openspec validate --all --strict` is run by hand before a change is handed over; no pipeline runs it.
 
 The end-to-end suite, including the accessibility audit, runs in the nightly rather than in the merge
 gate — a standing decision to keep the gate fast.

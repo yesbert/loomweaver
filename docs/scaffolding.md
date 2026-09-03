@@ -111,7 +111,7 @@ consequence rather than the rule:
 
 ```
 error: catalog[0].capabilities contains "uii", which the host filters out silently — the plugin
-       then throws CapabilityError at runtime. Known: contributions, ui, host, navigation, session, theme.
+       then throws CapabilityError at runtime. Known: contributions, ui, host, navigation, session, theme, automation.
 warning: catalog[0].discription is not one of the fields the host reads (…), so it is ignored
        without a word — which is exactly what a misspelled field looks like.
 warning: catalog[1] carries no version. Update detection compares catalog versions, so the store

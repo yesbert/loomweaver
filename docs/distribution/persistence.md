@@ -87,8 +87,7 @@ it. Each key has three independent axes. **Port** — which store it flows throu
 **Scope** — **device** keys hold preferences that reasonably stay with the browser. Every other key
 holds **identity** state. With the default `localStorage` store on a shared browser, identity state
 survives sign-out and reload, and is re-hydrated for whoever uses the app next. **Sync** — a
-**synced** key follows across the app's other windows of the same origin live (cross-tab sync,
-below). **Per-window** keys stay local, so two windows can look different. The
+**synced** key follows across the app's other windows of the same origin live ([cross-tab sync](windows-and-sync.md#cross-tab-live-sync)). **Per-window** keys stay local, so two windows can look different. The
 layout keys are per-window on purpose — and they share **one** persisted slot per workspace: the
 window that last changed its layout shapes the next boot (a permanently different setup is its own
 workspace). The layout keys are sliced **per workspace** (`…:<workspaceId>`; the built-in default
@@ -129,7 +128,7 @@ table is a choice rather than an arrangement, and neither reset touches it.
 The shell does not namespace these keys by user or tenant itself — scoping is a distribution
 decision, made at the seams above (`provideSettingsStore` / `provideWorkingStateStore`, or the
 identity wrapper below). The **sync** axis is likewise handled for you: the shell registers each
-synced key with `StateSyncService`; a distribution only wires its own keys (below).
+synced key with `StateSyncService`; a distribution only wires its own keys ([Windows and sync](windows-and-sync.md#cross-tab-live-sync)).
 
 ## Identity-scoped stores (multi-user browsers)
 

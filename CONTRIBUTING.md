@@ -177,7 +177,7 @@ output rather than sources, so build all seven packages first:
 
 ```bash
 npx nx package plugin-sdk && npx nx package shell && npx nx run shell:styles
-npx nx package devkit
+npx nx package devkit && npx nx package ag-ui
 npx nx bundle frame-kit && npx nx bundle cli && npx nx bundle mcp
 npm run package-exports-check
 ```
@@ -271,7 +271,7 @@ how-to page (`docs/weaver/`, `docs/distribution/`) does one task, a reference pa
 states facts for lookup, and a concept page (`docs/concepts/`) explains why. A page that does two of
 these does neither well; when you find yourself explaining in a how-to, link to the concept instead.
 
-Four rules for the sentences, three of them measured by `npm run docs-style-check`:
+Four rules for the sentences, two of them measured by `npm run docs-style-check`:
 
 - **One thought per sentence, and under forty words.** An aside becomes its own sentence. The checker
   counts sentences over forty words per page and keeps the number from growing

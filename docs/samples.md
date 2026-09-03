@@ -790,7 +790,7 @@ in *this* window (that is the live tier of a cross-device
 host-managed storage, so a change in one window is pushed to its copy in the other window via
 `settingsChanged` — nothing to do. A **trusted** weaver that persists its own storage (outside the
 ports) exposes the same two hooks the session store above has, and the distribution wires them; the
-demo does exactly this for its theme toggle and its auth stub:
+testbed does exactly this for its theme toggle and its auth stub:
 
 ```ts
 // the weaver exposes: connectSync({ announce }) → { key, refresh }

@@ -19,6 +19,13 @@ const publicDir = path.join(websiteRoot, 'public');
 /** Repo-root files the site serves verbatim, so docs may link to them. */
 const VERBATIM = ['llms.txt', 'llms-full.txt', 'LICENSE', 'NOTICE'];
 
+/* The two llms files are written for the repository, so their links are repo-relative: docs/x.md for
+   a page, platform/... for a source file. Served from the site unchanged, every one of them was a
+   404 for the assistant that fetched them. They are therefore rewritten on the way: a page becomes
+   its absolute site address, anything else in the tree its address on GitHub. */
+const LLMS = ['llms.txt', 'llms-full.txt'];
+const GITHUB_BLOB = 'https://github.com/yesbert/loomweaver/blob/main/';
+
 /** Source markdown → path under generated/docs. */
 function targetFor(repoPath) {
   const rel = path.relative('docs', repoPath);
@@ -82,6 +89,33 @@ function rewriteLinks(md, repoPath, knownTargets, problems) {
     .join('');
 }
 
+function rewriteLinksForSite(md, repoPath, knownTargets, site, problems) {
+  return segments(md)
+    .map(({ code, text }) => {
+      if (code) return text;
+      return text.replace(/(\[[^\]]*\]\()([^)\s]+)(\))/g, (whole, open, target, close) => {
+        if (/^(https?:|mailto:|#)/.test(target)) return whole;
+        const [file, anchor] = target.split('#');
+        if (!file) return whole;
+        const resolved = path.normalize(path.join(path.dirname(repoPath), file));
+        const suffix = anchor ? `#${anchor}` : '';
+
+        if (VERBATIM.includes(resolved)) return `${open}${site}/${resolved}${suffix}${close}`;
+
+        const mapped = knownTargets.get(resolved);
+        if (mapped) return `${open}${site}${mapped}${suffix}${close}`;
+
+        if (existsSync(path.join(repoRoot, resolved))) {
+          return `${open}${GITHUB_BLOB}${resolved}${suffix}${close}`;
+        }
+
+        problems.push(`${repoPath}: cannot resolve link target "${target}"`);
+        return whole;
+      });
+    })
+    .join('');
+}
+
 function frontmatter(md, repoPath, problems) {
   const match = md.match(/^#\s+(.+?)\s*$/m);
   if (!match || md.slice(0, match.index).trim() !== '') {
@@ -116,6 +150,12 @@ for (const source of sources) {
   writeFileSync(target, page);
 }
 
+/* The site address is read from astro.config.mjs rather than written twice: the sitemap integration
+   builds its URLs from that same value, so a second copy here could disagree with the file it points
+   at. It names the sitemap in robots.txt and makes the llms links absolute. */
+const configSource = readFileSync(path.join(websiteRoot, 'astro.config.mjs'), 'utf8');
+const site = configSource.match(/site:\s*'([^']+)'/)?.[1];
+
 mkdirSync(publicDir, { recursive: true });
 for (const file of VERBATIM) {
   const from = path.join(repoRoot, file);
@@ -123,15 +163,16 @@ for (const file of VERBATIM) {
     problems.push(`missing repo file the site links to: ${file}`);
     continue;
   }
-  copyFileSync(from, path.join(publicDir, file));
+  if (LLMS.includes(file) && site) {
+    const rewritten = rewriteLinksForSite(readFileSync(from, 'utf8'), file, knownTargets, site, problems);
+    writeFileSync(path.join(publicDir, file), rewritten);
+  } else {
+    copyFileSync(from, path.join(publicDir, file));
+  }
 }
 
 /* A crawler that reads only robots.txt never learns the sitemap exists, and every page here is meant
-   to be found. The address is read from astro.config.mjs rather than written twice: the sitemap
-   integration builds its URLs from that same value, so a second copy here could disagree with the
-   file it points at. */
-const configSource = readFileSync(path.join(websiteRoot, 'astro.config.mjs'), 'utf8');
-const site = configSource.match(/site:\s*'([^']+)'/)?.[1];
+   to be found. */
 if (site) {
   writeFileSync(
     path.join(publicDir, 'robots.txt'),

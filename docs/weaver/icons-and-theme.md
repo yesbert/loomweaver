@@ -6,7 +6,7 @@
 > specification is right, and that is a defect in this page: change the behaviour there, then
 > explain it here.
 
-A weaver can add icon names of its own and re-skin the whole application. Both go through `ctx`, and both are first-wins, so an installed plugin cannot repaint what a product or an earlier plugin has set.
+A weaver can add icon names of its own and re-skin the whole application. Both go through `ctx`. Icons are first-wins: a plugin cannot take a name the workbench or an earlier plugin already ships. A theme sits between the product's defaults and the tenant's branding, so a plugin restyles what the product left open and never what the distribution set explicitly.
 
 ## Custom icons — `ctx.contributeIcons`
 

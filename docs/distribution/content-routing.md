@@ -67,7 +67,7 @@ workspaces** (`shell.workspace.manage`) are self-remembering — switching resto
 live arrangement exactly, without asking and without discarding anything. Each workspace also has a
 **baseline**: for a user-saved workspace the explicitly saved snapshot ("Save as new" captures the
 current arrangement and switches to it; "Save workspace" updates the active one's baseline). **Reset
-layout** (`shell.workspace.reset`) discards the active workspace's live arrangement and re-applies its
+workspace layout** (`shell.workspace.reset`) discards the active workspace's live arrangement and re-applies its
 baseline after a confirm — for the Default workspace that is the declared factory layout. It is
 reachable from the palette, and also as a button in the workspaces dialog. Saved workspaces,
 theme, language and named view instances are kept. This is core behaviour with no provider to wire.

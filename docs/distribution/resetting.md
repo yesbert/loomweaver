@@ -11,7 +11,7 @@ workspace can be put back without being entered first, and the reset acts on the
 workspace is named. It puts back what belongs to that workspace, and nothing else. The
 arrangement that lives beside every workspace — the activity bar the user curated, collapsed
 sidebars, sidebar widths, hand sorting of tabs and rail entries, and named view instances with their
-state — has its own reset, **`shell.app.reset`**. It sits in the palette and as a *Reset layout*
+state — has its own reset, **`shell.app.reset`**. It sits in the palette and as a *Reset app layout*
 button under **General** in the settings dialog, and it asks first, naming what comes back and what
 stays: colour scheme, language, text size, granted permissions and installed plugins are never
 touched. Saved workspaces and their layouts stay as well, unless the user ticks the box that extends

@@ -130,7 +130,7 @@ integration](distribution/auth.md).
 
 A plugin only ever sees the uniform `ctx`; a **broker** routes each call to the right boundary:
 
-1. **Plugin ↔ Core** — in-browser `postMessage` (Worker/iframe when sandboxed). This is the `ctx`
+1. **Plugin ↔ Core** — in-browser `postMessage` (an iframe when sandboxed). This is the `ctx`
    proxy the plugin holds.
 2. **Core ↔ product server** — the product's own HTTP API (its backend behind the settings-store /
    auth-source ports, or a weaver's domain API). LoomWeaver ships no server of its own here.
@@ -149,8 +149,8 @@ The platform is built and **published as seven versioned npm packages** on one s
 `@loomweaver/shell` (the host chrome), `@loomweaver/plugin-sdk` (the contract), `@loomweaver/frame-kit` (assets for
 sandboxed plugins), the scaffolding trio `@loomweaver/cli`, `@loomweaver/devkit` and `@loomweaver/mcp`, and
 `@loomweaver/ag-ui` (the [AG-UI](reference/agent-tools.md) adapter, whose stability follows that protocol
-rather than the platform). There is no LoomWeaver server package. The in-repo dogfood is **the testbed weaver**, a distribution built from
-source that exercises every contract. The [live demo](https://demo.loomweaver.dev) is a separate
+rather than the platform). There is no LoomWeaver server package. The in-repo dogfood is **the testbed**, a distribution built from
+source whose weaver exercises every contract. The [live demo](https://demo.loomweaver.dev) is a separate
 product that installs the published packages instead, which is how real products build: against the
 registry, in their own repos, with their own backend.
 

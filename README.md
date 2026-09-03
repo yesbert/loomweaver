@@ -22,7 +22,7 @@
   <img src="assets/media/tour-dark.gif" alt="A tour of a LoomWeaver workbench: opening the command palette, splitting a pane, a sandboxed non-Angular plugin, and a plugin re-skinning the whole application" />
 </picture>
 
-<p align="center"><sub>Twenty-six seconds, no cuts. The rail, the panes, the palette and the status bar are the platform's. Everything inside them can come from plugins, the theme at the end included. <a href="https://loomweaver.dev">Watch it in better quality</a>.</sub></p>
+<p align="center"><sub>Twenty-seven seconds, no cuts. The rail, the panes, the palette and the status bar are the platform's. Everything inside them can come from plugins, the theme at the end included. <a href="https://loomweaver.dev">Watch it in better quality</a>.</sub></p>
 
 LoomWeaver gives your product its entire workbench UI **without you building any of it**. You write
 your domain UI as **plugins ("weavers")** against one small contract, compose them
@@ -258,9 +258,7 @@ the source. Every merge to `main` that touches it deploys it.
 
 It carries quotes and their documents, a dashboard, an agent driving the workbench through its own
 commands, a sandboxed payment matcher, several visibly different themes and access-gated content.
-Orders and invoices are still to come. The recording at the top is the platform's own testbed, which
-exercises more of the shell than the demo does, and [Getting started](docs/getting-started.md) gets
-you your own product in five minutes.
+[Getting started](docs/getting-started.md) gets you your own product in five minutes.
 
 ## Working in this repo
 
