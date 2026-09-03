@@ -774,7 +774,7 @@ const DEFAULT_SHELL_FEATURES: ShellFeatures;           // the default workbench:
 const SHELL_FEATURES: InjectionToken<ShellFeatures>;
 function provideShellFeatures(features: ShellFeaturesInput): EnvironmentProviders;
 // The switches are LIVE. provideShellFeatures is the starting value; FeatureSwitches holds the current set:
-class FeatureSwitches { current: Signal<ShellFeatures>; content: SwitchSignals<ContentFeatures>; sidebar; rail; workspaces; windows; commands; update(input: ShellFeaturesInput): void }
+class FeatureSwitches { current: Signal<ShellFeatures>; content: SwitchSignals<ContentFeatures>; sidebar: SwitchSignals<SidebarFeatures>; rail: SwitchSignals<RailFeatures>; workspaces: SwitchSignals<WorkspaceFeatures>; windows: SwitchSignals<WindowFeatures>; commands: SwitchSignals<CommandFeatures>; update(input: ShellFeaturesInput): void }
 type SwitchSignals<G> = { [K in keyof G]: Signal<boolean> };   // switches.content.splitRight() — one read-only signal per switch
    // A switch removes the USER's routes (button, menu entry, drop target, shortcut) and never the capability: the distribution's
    // own code keeps reaching it through the services below. Switching off acts forward only (a split stays split). The shell
@@ -783,7 +783,7 @@ type SwitchSignals<G> = { [K in keyof G]: Signal<boolean> };   // switches.conte
 class PaneService { panes: Signal<readonly PaneFacts[]>; activePane: Signal<PaneHandle>; isSplit: Signal<boolean>; maximized: Signal<PaneHandle | null>; minimized: Signal<readonly PaneHandle[]>;
   splitRight(pane?: PaneHandle): void; splitDown(pane?: PaneHandle): void; closePane(pane?: PaneHandle): void; unsplit(): void;
   maximize(pane?: PaneHandle): void; minimize(pane?: PaneHandle): void; restore(pane?: PaneHandle): void; focus(pane: PaneHandle): void; moveTab(path: string, pane: PaneHandle): void; exists(pane: PaneHandle): boolean }
-type PaneHandle;   // opaque, stable while the pane exists; a stale handle does nothing. Without a handle an action means the address pane.
+type PaneHandle;   // opaque, stable while the pane exists; a stale handle does nothing. Without a handle an action means the URL pane (the one carrying the address).
 interface PaneFacts { handle: PaneHandle; showing: string | null; itemCount: number; carriesAddress: boolean; maximized: boolean; minimized: boolean }
 class WorkspaceService { workspaces: Signal<readonly Workspace[]>; activeId: Signal<string>; hasChanges: Signal<boolean>; changedIds: Signal<readonly string[]>;
   switchTo(id: string): Promise<void>; saveCurrent(name: string): Promise<void>; saveBaseline(): Promise<void>; rename(id: string, name: string): void;
