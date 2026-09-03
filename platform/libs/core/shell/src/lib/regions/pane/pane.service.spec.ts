@@ -194,6 +194,16 @@ describe('PaneService actions', () => {
     expect(tabs.closePrimaryPane).toHaveBeenCalledTimes(1);
   });
 
+  it('closing the only pane does nothing and asks nothing', () => {
+    const { panes, paneTree, tabs, guard } = setUp();
+
+    panes.closePane();
+
+    expect(tabs.closePrimaryPane).not.toHaveBeenCalled();
+    expect(guard.captured).toHaveLength(0);
+    expect(paneTree.isSplit(CONTENT_DOCK)).toBe(false);
+  });
+
   it('unsplit asks the guard for the siblings and collapses to the address pane', () => {
     const { panes, paneTree, guard } = setUp();
     panes.splitRight();

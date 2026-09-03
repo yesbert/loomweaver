@@ -40,6 +40,9 @@ export class PaneActions {
       return;
     }
     const primary = paneId === this.paneTree.primaryId(dock);
+    if (primary && !this.paneTree.isSplit(dock)) {
+      return;
+    }
     if (primary && dock === CONTENT_DOCK) {
       this.tabs.closePrimaryPane();
       return;
