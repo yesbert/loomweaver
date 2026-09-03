@@ -189,5 +189,6 @@ the latching.
 
 ## Where next
 
-- [Building a distribution](../building-a-distribution.md): the composition root and the map of these pages.
-- [Distribution API](../distribution-api/index.md): everything your own code can do once the product runs.
+- [Backend integration](../backend-integration.md): putting your own backend behind the two ports.
+- [Windows and sync](windows-and-sync.md): how a store's writes reach the other windows of the same origin.
+- [Settings](../distribution-api/settings.md): the settings surface that reads the settings store.

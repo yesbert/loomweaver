@@ -34,7 +34,7 @@ This is a curated map for people, and their AI assistants, building on or integr
   - [Layout](docs/distribution/layout.md): regions and docks.
   - [Content-area routing](docs/distribution/content-routing.md): `provideShellRouter`, following tabs.
   - [Workspaces](docs/distribution/workspaces.md): `provideWorkspaces`, an unusable workspace, telling saved ones apart.
-  - [Resetting](docs/distribution/resetting.md): the reset control and what it asks.
+  - [Resetting the arrangement](docs/distribution/resetting.md): the reset control and what it asks.
   - [Switching capabilities off](docs/distribution/switching-capabilities-off.md): `provideShellFeatures`, the switch takes the gesture and the affordance.
   - [Surface retention](docs/distribution/surface-retention.md): the product-wide default.
   - [Branding](docs/distribution/branding.md)

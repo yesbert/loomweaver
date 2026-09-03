@@ -6,42 +6,185 @@
 > specification is right, and that is a defect in this page: change the behaviour there, then
 > explain it here.
 
-A distribution ships workspaces with `provideWorkspaces`. This page covers what happens when a shipped workspace can no longer work as declared, how saved workspaces are told apart, and how one is declared.
+A distribution ships workspaces with `provideWorkspaces`. This page covers how one is declared, how a
+rail item offers it, which content it claims, what happens when a shipped workspace can no longer
+work as declared, and how saved workspaces are told apart.
 
-## A workspace that can no longer work as declared
+## Developer-defined workspaces
 
-A workspace's stored arrangement is read against the declarations in force now, not the ones in force
-when it was written, and where the two disagree the workbench says so rather than rewriting what the
-user stored. Content stored at an address another workspace now claims is restored where it was, and
-the disagreement is reported to the console in dev mode. Nothing is dropped on the user's behalf.
+A distribution can ship ready-made workspaces next to the user's own with **`provideWorkspaces`**.
+They are switchable and self-remembering like any workspace and resettable to their declaration, but
+their baseline lives in code, so the user cannot overwrite, rename or delete them. Because they behave
+differently, the workspace dialog keeps them in **their own list**, beside the user's: it opens on
+whichever list holds the **active** workspace, and each label carries its count, so a visitor who has
+saved nothing yet still sees that the product ships some. A distribution that ships none never sees the
+switch. Invalid declarations are reported to the console in dev mode, naming what is
+ignored; nothing fails silently at runtime.
 
-One disagreement reaches the user, because only the user can settle it: a workspace that declares
-content of its own and whose stored arrangement leaves it with none cannot show anything. Such a
-workspace is still entered, never exchanged for whichever workspace claims the starting address, and
-the workbench names the condition in the content area and offers the reset that repairs it.
-
-A product that would rather answer that itself takes **`withoutUnusableWorkspaceNotice()`**, a
-`WorkspacesFeature` passed among the declarations. It settles the question for the whole
-composition rather than per workspace, and it silences only the message: the arrangement is still
-restored untouched, the workspace is still entered, and which workspaces are affected stays readable,
-so the product can draw its own notice or reset them on its own terms.
+There is always **exactly one active workspace**: a fresh installation starts in the built-in
+*Default* workspace, and everything the user rearranges belongs to the workspace they are standing
+in. **Named workspaces** (`shell.workspace.manage`) are self-remembering: switching restores each
+workspace's own live arrangement exactly, without asking and without discarding anything. Each
+workspace also has a **baseline**. For a user-saved workspace that is the explicitly saved snapshot:
+"Save as new" captures the current arrangement and switches to it, and "Save workspace" updates the
+active one's baseline. Putting a workspace back to its baseline is
+[Resetting the arrangement](resetting.md).
 
 ```ts
-provideWorkspaces(
-  { id: 'dashboard', title: 'product.workspace.dashboard', initial: true, claims: [''] },
-  { id: 'payments', title: 'product.workspace.payments', claims: ['payments'] },
-  withoutUnusableWorkspaceNotice(),
-),
+// src/app/app.config.ts — in the providers array
+import { provideWorkspaces } from '@loomweaver/shell';
+
+provideWorkspaces({
+  id: 'acme.review',
+  title: 'product.workspace.review', // a Transloco key (or a literal — unknown keys render as-is)
+  icon: 'workspaces',
+  sidebars: { primary: ['acme.nav'] }, // visible views per panel region; {} hides every sidebar
+  content: {
+    columns: [
+      { size: 35, tabs: [{ path: 'entry/e-01', closable: false }] },
+      { rows: [{ size: 60, tabs: ['search'] }, { tabs: ['notes'] }] },
+    ],
+  },
+});
 ```
 
-(`ANNOUNCE_UNUSABLE_WORKSPACES` is the token behind that feature; a distribution never injects it
-itself.)
+Each declaration is a **`WorkspaceDefinition`**. Its `content` is a **`WorkspaceArea`**: exactly one
+of `tabs` (a **`WorkspaceTabArea`** — the pane's tabs), `rows` (a **`WorkspaceRowArea`** — panes
+stacked top-to-bottom) or `columns` (a **`WorkspaceColumnArea`** — side by side), nested freely. All
+three extend **`WorkspaceAreaBase`**, whose only member is `size`: a percentage; unsized siblings
+share the remainder, and sizes that do not add up are normalised proportionally. A tab (a
+**`WorkspaceTabEntry`**) is a route path string, or a
+**`WorkspaceTab`** object to mark it `active` or `closable: false` — an unclosable tab survives
+*Close all* and cannot be dragged away. The first `tabs` area in reading order becomes the URL pane.
+`sidebars` names the **visible** views per panel region: listed views show in that order and the
+region's other declared views are hidden (the user can re-show them from the panel header menu, in
+whichever sidebar they right-click). List a region with an **empty array** to show none of its views —
+the sidebar itself stays, empty. A region you leave out, or omitting `sidebars` entirely, keeps
+whatever the user has there. A region can only list views declared for it; a view the user has moved
+to the other sidebar stays where they put it.
+(`WORKSPACE_DEFINITIONS` is the token behind the provider; a distribution never injects it itself.)
 
-What the workbench recognised is readable through **`UNUSABLE_WORKSPACES`**, an injectable
-`UnusableWorkspaces` whose `ids()` names the workspaces that cannot work as declared and whose
-`announced()` says whether the workbench is speaking for the workspace the user is in. Reading it is
-how a product that silenced the notice draws its own, or offers `shell.workspace.reset` with the
-workspace named.
+**`initial: true` makes one of them the workspace a fresh install opens in**, instead of the empty
+`default`. It applies **once**, on a first boot with nothing stored yet, and the choice is written
+immediately — so a user who switches away is not sent back on the next reload. A **deep link still
+wins**: the baseline is laid out, but the address the app booted with is the one you land on, so a
+shared link opens what it names rather than the workspace's own tab. If two declarations set it, the
+first wins, as with a duplicate id.
+
+```ts
+provideWorkspaces({
+  id: 'acme.review',
+  title: 'product.workspace.review',
+  initial: true, // where a fresh install starts; the user's own later choice wins from then on
+  content: { tabs: ['entry/e-01'] },
+});
+```
+
+Switching, saving, resetting, renaming and removing workspaces from your own code is
+`WorkspaceService` in the [host services](../distribution-api/workspaces.md).
+
+### Claiming the content that belongs to a workspace
+
+A workspace can say which content addresses belong to it, and reaching one of them then takes the
+user there. Without it, a document opens wherever the user happens to be: a shared link, a
+notification, the command palette or a plugin opening a tab all leave a quote laid over a dashboard
+built to hold none.
+
+```ts
+provideWorkspaces({
+  id: 'acme.quotes',
+  title: 'product.workspace.quotes',
+  claims: ['quotes/:id'], // every quote document, and everything below one
+  sidebars: { 'left-panel': ['quotes'] },
+  content: { tabs: [{ path: 'quotes/q-0005', closable: false }] },
+});
+```
+
+**A claim moves the user whenever the address is reached**, not only when they arrive from outside:
+a link, a restart, a command, a programmatic navigation, a tab a plugin opened. There is deliberately
+no exception for an address reached from inside the application, because a rule that holds only
+sometimes cannot be predicted by the person it moves. The rail marks the workspace as current by
+itself, since that follows the active workspace and nothing else.
+
+Claim only what genuinely belongs to a workspace. A narrower claim wins over a wider one, the way a
+specific route already wins over a general one, so `quotes/new` and `quotes/:id` can live in
+different workspaces. Two workspaces claiming addresses of the *same shape* is a configuration error:
+the claim is dropped from both and the console names them, because a product that declared two homes
+for one document has not decided where it belongs.
+
+A workspace the **user** saved is never where an address leads. It exists on one machine only, and an
+address that led somewhere different for every user would not be an address. It does keep content
+its origin claims, which is what [variants](#telling-saved-workspaces-apart) are about.
+
+**Whether a sidebar exists, is open, and how wide it is belongs to the window rather than to the
+workspace.** Your layout decides which sidebars the app has, the user decides whether they are open
+and how wide, and switching never collapses, resizes or removes one: the user sets that once and it
+holds everywhere, the same way the rail stays put. A workspace decides what is *in* the sidebars; the
+frame around them is the anchor you switch from. A workspace that wants a distraction-free screen
+lists its regions empty — the sidebar is then simply empty, and it is the user, not the workspace,
+who decides whether to fold it away.
+
+### Putting a workspace in the rail
+
+**Declaring a workspace does not put it in front of anyone.** The dialog lists it, and that is all:
+the workbench draws entries only for the workspaces a *user* saved, because those have nothing but a
+typed name to go on. A workspace you declared is yours to offer, so that switching costs one click
+instead of a dialog. Give a rail item the workspace's id with `workspace` and the icon you want it
+under, and the host does the rest: the click switches, and while that workspace is active the entry
+is marked as the current one (a brand bar on the rail's outer edge, a tint, and `aria-current="true"`
+for screen readers), so the item needs no command of its own. Provide `workspace` **instead of**
+`command`/`run`; when it is set those are ignored. An entry pointing at a workspace that is neither
+declared nor saved warns in the console in dev mode rather than failing silently, and a declared
+workspace that nothing offers is reported in dev mode too.
+
+```ts
+// src/app/app.config.ts — in the providers array
+import { provideRailItems } from '@loomweaver/shell';
+
+...provideRailItems({
+  id: 'acme.workspace.review',
+  rail: 'activity',
+  icon: 'review',       // yours, not a derived marker — that is for workspaces the user saved
+  title: 'product.workspace.review',
+  workspace: 'acme.review', // the id declared in provideWorkspaces
+}),
+```
+
+The rail is deliberately **not** part of workspace state: it is the fixed anchor you switch from, so
+its entries and the user's ordering of them stay put across every switch. The built-in default
+workspace has no declaration and therefore no rail entry of its own; the workspace dialog remains the
+way back to it.
+
+## Curating the rail
+
+**The user curates the rail, exactly the way they curate a sidebar's views.** A right-click on an
+entry offers *Move to other activity bar* and *Hide*; a right-click on the rail itself offers
+**Customize activity bar**, which opens a dialog listing every entry with where it sits: hidden,
+left, or right. An entry is either hidden or in **exactly one** rail, and it moves between rails from
+that dialog, from the entry's menu, by dragging it across, or by focusing it and pressing
+`Alt+Shift+←/→`. Where a layout has a bar on only one side, the dialog offers *Hidden* and *Shown*
+rather than two sides, and the *Move to other …* menu entry is not registered at all: it would have
+nowhere to move to.
+
+The dialog is the command `shell.rail.customize`, with the same consequences: palette, shortcut, your
+own trigger, or `omit`; the menu entry is `menu:shell.rail.customize`. Switching the capability off
+(`rail: { curate: false }`) removes command, menu entry and right-click together.
+
+The list holds two kinds. The entries your distribution and its plugins registered are shown in their
+declared rail until the user hides or moves one. The user's **own saved workspaces** are hidden until
+the user puts one somewhere; that is all "pinning" is, and the entry then behaves like a declared
+one, marking itself while its workspace is active. Both the visibility and the placement are stored
+app-wide rather than per workspace, for the same reason the rail itself is.
+
+`rail` is therefore where an entry **starts**, not where it is bound to stay, just as a surface's home
+dock is where a view starts before the user moves it to the other sidebar. Nothing changes for a user
+who never moves anything.
+
+Two consequences worth knowing. A hidden entry takes its affordance with it, including for something
+like *Settings* or *Sign out*: nothing becomes unreachable, because the command palette still runs
+every command and the same right-click brings the entry back, but a distribution cannot assume its
+rail is intact. And an entry that declares its own context menu with `menu` keeps it, because the
+host's *Hide* is added to that menu rather than replacing it.
 
 ## Telling saved workspaces apart
 
@@ -90,181 +233,43 @@ Your own rail items can do the same with `initials` on a `RailItem`, for entries
 colour the icon would have taken, so hover and the active marker behave as they do everywhere else;
 `icon` stays required as the fallback.
 
-## Developer-defined workspaces
+## A workspace that can no longer work as declared
 
-A distribution can ship ready-made workspaces next to the user's own with **`provideWorkspaces`**.
-They are switchable and self-remembering like any workspace and resettable to their declaration — but
-their baseline lives in code, so the user cannot overwrite, rename or delete them. Because they behave
-differently, the workspace dialog keeps them in **their own list**, beside the user's: it opens on
-whichever list holds the **active** workspace, and each label carries its count, so a visitor who has
-saved nothing yet still sees that the product ships some. A distribution that ships none never sees the
-switch. Invalid declarations are reported to the console in dev mode, naming what is
-ignored; nothing fails silently at runtime.
+A workspace's stored arrangement is read against the declarations in force now, not the ones in force
+when it was written, and where the two disagree the workbench says so rather than rewriting what the
+user stored. Content stored at an address another workspace now claims is restored where it was, and
+the disagreement is reported to the console in dev mode. Nothing is dropped on the user's behalf.
 
-Switching, saving, resetting, renaming and removing workspaces from your own code is
-`WorkspaceService` in the [host services](../distribution-api/workspaces.md).
+One disagreement reaches the user, because only the user can settle it: a workspace that declares
+content of its own and whose stored arrangement leaves it with none cannot show anything. Such a
+workspace is still entered, never exchanged for whichever workspace claims the starting address, and
+the workbench names the condition in the content area and offers the reset that repairs it.
 
-**Declaring a workspace does not put it in front of anyone.** The dialog lists it, and that is all —
-the workbench draws entries only for the workspaces a *user* saved, because those have nothing but a
-typed name to go on. A workspace you declared is yours to offer: register a rail item carrying
-`workspace: '<id>'` and the icon you want it under, and the host does the rest — it performs the
-switch and marks the entry while that workspace is active, so the item needs no command of its own.
-A declared workspace that nothing offers is reported in dev mode.
+A product that would rather answer that itself takes **`withoutUnusableWorkspaceNotice()`**, a
+`WorkspacesFeature` passed among the declarations. It settles the question for the whole
+composition rather than per workspace, and it silences only the message: the arrangement is still
+restored untouched, the workspace is still entered, and which workspaces are affected stays readable,
+so the product can draw its own notice or reset them on its own terms.
 
 ```ts
-// src/app/app.config.ts — in the providers array
-import { provideRailItems, provideWorkspaces } from '@loomweaver/shell';
-
-provideRailItems({
-  id: 'acme.rail.review',
-  rail: 'activity',
-  icon: 'review',       // yours, not a derived marker — that is for workspaces the user saved
-  title: 'product.workspace.review',
-  workspace: 'acme.review',
-});
-
-provideWorkspaces({
-  id: 'acme.review',
-  title: 'product.workspace.review', // a Transloco key (or a literal — unknown keys render as-is)
-  icon: 'workspaces',
-  sidebars: { primary: ['acme.nav'] }, // visible views per panel region; {} hides every sidebar
-  content: {
-    columns: [
-      { size: 35, tabs: [{ path: 'entry/e-01', closable: false }] },
-      { rows: [{ size: 60, tabs: ['search'] }, { tabs: ['notes'] }] },
-    ],
-  },
-});
+provideWorkspaces(
+  { id: 'dashboard', title: 'product.workspace.dashboard', initial: true, claims: [''] },
+  { id: 'payments', title: 'product.workspace.payments', claims: ['payments'] },
+  withoutUnusableWorkspaceNotice(),
+),
 ```
 
-Each declaration is a **`WorkspaceDefinition`**. Its `content` is a **`WorkspaceArea`**: exactly one
-of `tabs` (a **`WorkspaceTabArea`** — the pane's tabs), `rows` (a **`WorkspaceRowArea`** — panes
-stacked top-to-bottom) or `columns` (a **`WorkspaceColumnArea`** — side by side), nested freely. All
-three extend **`WorkspaceAreaBase`**, whose only member is `size`: a percentage; unsized siblings
-share the remainder, and sizes that do not add up are normalised proportionally. A tab (a
-**`WorkspaceTabEntry`**) is a route path string, or a
-**`WorkspaceTab`** object to mark it `active` or `closable: false` — an unclosable tab survives
-*Close all* and cannot be dragged away. The first `tabs` area in reading order becomes the URL pane.
-`sidebars` names the **visible** views per panel region: listed views show in that order and the
-region's other declared views are hidden (the user can re-show them from the panel header menu, in
-whichever sidebar they right-click). List a region with an **empty array** to show none of its views —
-the sidebar itself stays, empty. A region you leave out, or omitting `sidebars` entirely, keeps
-whatever the user has there. A region can only list views declared for it; a view the user has moved
-to the other sidebar stays where they put it.
-(`WORKSPACE_DEFINITIONS` is the token behind the provider; a distribution never injects it itself.)
+(`ANNOUNCE_UNUSABLE_WORKSPACES` is the token behind that feature; a distribution never injects it
+itself.)
 
-**`initial: true` makes one of them the workspace a fresh install opens in**, instead of the empty
-`default`. It applies **once**, on a first boot with nothing stored yet, and the choice is written
-immediately — so a user who switches away is not sent back on the next reload. A **deep link still
-wins**: the baseline is laid out, but the address the app booted with is the one you land on, so a
-shared link opens what it names rather than the workspace's own tab. If two declarations set it, the
-first wins, as with a duplicate id.
-
-```ts
-provideWorkspaces({
-  id: 'acme.review',
-  title: 'product.workspace.review',
-  initial: true, // where a fresh install starts; the user's own later choice wins from then on
-  content: { tabs: ['entry/e-01'] },
-});
-```
-
-### Claiming the content that belongs to a workspace
-
-A workspace can say which content addresses belong to it, and reaching one of them then takes the
-user there. Without it, a document opens wherever the user happens to be: a shared link, a
-notification, the command palette or a plugin opening a tab all leave a quote laid over a dashboard
-built to hold none.
-
-```ts
-provideWorkspaces({
-  id: 'acme.quotes',
-  title: 'product.workspace.quotes',
-  claims: ['quotes/:id'], // every quote document, and everything below one
-  sidebars: { 'left-panel': ['quotes'] },
-  content: { tabs: [{ path: 'quotes/q-0005', closable: false }] },
-});
-```
-
-**A claim moves the user whenever the address is reached**, not only when they arrive from outside:
-a link, a restart, a command, a programmatic navigation, a tab a plugin opened. There is deliberately
-no exception for an address reached from inside the application, because a rule that holds only
-sometimes cannot be predicted by the person it moves. The rail marks the workspace as current by
-itself, since that follows the active workspace and nothing else.
-
-Claim only what genuinely belongs to a workspace. A narrower claim wins over a wider one, the way a
-specific route already wins over a general one, so `quotes/new` and `quotes/:id` can live in
-different workspaces. Two workspaces claiming addresses of the *same shape* is a configuration error:
-the claim is dropped from both and the console names them, because a product that declared two homes
-for one document has not decided where it belongs.
-
-A workspace the **user** saved is never where an address leads. It exists on one machine only, and an
-address that led somewhere different for every user would not be an address. It does keep content
-its origin claims, which is what [variants](#telling-saved-workspaces-apart) are about.
-
-**Whether a sidebar exists, is open, and how wide it is belongs to the window rather than to the
-workspace.** Your layout decides which sidebars the app has, the user decides whether they are open
-and how wide, and switching never collapses, resizes or removes one: the user sets that once and it
-holds everywhere, the same way the rail stays put. A workspace decides what is *in* the sidebars; the
-frame around them is the anchor you switch from. A workspace that wants a distraction-free screen
-lists its regions empty — the sidebar is then simply empty, and it is the user, not the workspace,
-who decides whether to fold it away.
-
-A workspace can also sit **in the rail**, so switching costs one click instead of a dialog. Give a
-rail item the workspace's id with `workspace` and the host does the rest: the click switches, and
-while that workspace is active the entry is marked as the current one — a brand bar on the rail's
-outer edge, a tint, and `aria-current="true"` for screen readers. Provide `workspace` **instead of**
-`command`/`run`; when it is set those are ignored. An entry pointing at a workspace that is neither
-declared nor saved warns in the console in dev mode rather than failing silently.
-
-```ts
-// src/app/app.config.ts — in the providers array
-import { provideRailItems } from '@loomweaver/shell';
-
-...provideRailItems({
-  id: 'acme.workspace.review',
-  rail: 'activity',
-  icon: 'workspaces',
-  title: 'product.workspace.review',
-  workspace: 'acme.review', // the id declared in provideWorkspaces
-}),
-```
-
-The rail is deliberately **not** part of workspace state: it is the fixed anchor you switch from, so
-its entries and the user's ordering of them stay put across every switch. The built-in default
-workspace has no declaration and therefore no rail entry of its own; the workspace dialog remains the
-way back to it.
-
-**The user curates the rail, exactly the way they curate a sidebar's views.** A right-click on an
-entry offers *Move to other activity bar* and *Hide*; a right-click on the rail itself offers
-**Customize activity bar**, which opens a dialog listing every entry with where it sits: hidden,
-left, or right. An entry is either hidden or in **exactly one** rail, and it moves between rails from
-that dialog, from the entry's menu, by dragging it across, or by focusing it and pressing
-`Alt+Shift+←/→`. Where a layout has a bar on only one side, the dialog offers *Hidden* and *Shown*
-rather than two sides, and the *Move to other …* menu entry is not registered at all: it would have
-nowhere to move to.
-
-The dialog is the command `shell.rail.customize`, with the same consequences: palette, shortcut, your
-own trigger, or `omit`; the menu entry is `menu:shell.rail.customize`. Switching the capability off
-(`rail: { curate: false }`) removes command, menu entry and right-click together.
-
-The list holds two kinds. The entries your distribution and its plugins registered are shown in their
-declared rail until the user hides or moves one. The user's **own saved workspaces** are hidden until
-the user puts one somewhere; that is all "pinning" is, and the entry then behaves like a declared
-one, marking itself while its workspace is active. Both the visibility and the placement are stored
-app-wide rather than per workspace, for the same reason the rail itself is.
-
-`rail` is therefore where an entry **starts**, not where it is bound to stay — the same thing
-`provideViews`' `region` became once views could move between sidebars. Nothing changes for a user
-who never moves anything.
-
-Two consequences worth knowing. A hidden entry takes its affordance with it, including for something
-like *Settings* or *Sign out*: nothing becomes unreachable, because the command palette still runs
-every command and the same right-click brings the entry back, but a distribution cannot assume its
-rail is intact. And an entry that declares its own context menu with `menu` keeps it, because the
-host's *Hide* is added to that menu rather than replacing it.
+What the workbench recognised is readable through **`UNUSABLE_WORKSPACES`**, an injectable
+`UnusableWorkspaces` whose `ids()` names the workspaces that cannot work as declared and whose
+`announced()` says whether the workbench is speaking for the workspace the user is in. Reading it is
+how a product that silenced the notice draws its own, or offers `shell.workspace.reset` with the
+workspace named.
 
 ## Where next
 
-- [Building a distribution](../building-a-distribution.md): the composition root and the map of these pages.
-- [Distribution API](../distribution-api/index.md): everything your own code can do once the product runs.
+- [Workspaces](../distribution-api/workspaces.md): `WorkspaceService`, switching, saving and resetting from your own code.
+- [Workspaces](../concepts/workspaces.md): what a workspace is, its baseline and its two origins.
+- [Resetting the arrangement](resetting.md): the two resets and what each puts back.

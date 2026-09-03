@@ -2,9 +2,7 @@
 
 <!-- derived-from-specs -->
 > **This is a guide, not the contract.** What the platform guarantees is specified under
-> `openspec/specs/` — for this page: `platform-composition` · `shell-layout` · `gesture-
-> configuration` · `persistence-ports` · `access-gating` · `product-identity` · `workspaces` ·
-> `plugin-store` · `theming` · `i18n`. Where this page and a specification disagree, the
+> `openspec/specs/` — for this page: `platform-composition` · `shell-layout`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
 > explain it here.
 
@@ -91,21 +89,24 @@ The report exists in dev only; nothing of it reaches a production build.
 
 ## The pages
 
-- [Layout: regions and docks](distribution/layout.md)
-- [Content-area routing](distribution/content-routing.md)
-- [Workspaces a product ships](distribution/workspaces.md)
-- [Resetting the arrangement](distribution/resetting.md)
-- [Switching capabilities off](distribution/switching-capabilities-off.md)
-- [Surface retention](distribution/surface-retention.md)
-- [Branding](distribution/branding.md)
-- [Capabilities](distribution/capabilities.md)
-- [Auth integration](distribution/auth.md)
-- [Persistence stores](distribution/persistence.md)
-- [Windows and sync](distribution/windows-and-sync.md)
-- [Frame plugins](distribution/frame-plugins.md)
-- [Plugin store](distribution/plugin-store.md)
-- [Icons, translations and rewording](distribution/icons-and-i18n.md)
-- [Recomposing host chrome](distribution/recomposing-chrome.md)
-- [PWA and delivery](distribution/pwa.md)
+Each page below holds one area a distribution configures, with the provider that does it. Where a
+decision needs the reasoning first, the page names the concept page under `concepts/` that carries it.
 
-Each page is one decision a distribution makes. [Distribution API](distribution-api/index.md) is what your own code can do once the product runs.
+- [Layout: regions and docks](distribution/layout.md): `provideLayout`, the regions and their docks, panes and sidebar curation. Why: [Surfaces and panes](concepts/surfaces-and-panes.md).
+- [Content-area routing](distribution/content-routing.md): `provideShellRouter`, the pane that carries the address, following tabs. Why: [The address](concepts/the-address.md).
+- [Workspaces a product ships](distribution/workspaces.md): `provideWorkspaces`, claims, rail items, unusable workspaces, saved workspaces. Why: [Workspaces](concepts/workspaces.md).
+- [Resetting the arrangement](distribution/resetting.md): the workspace reset and the app layout reset, and what each puts back.
+- [Switching capabilities off](distribution/switching-capabilities-off.md): `provideShellFeatures`, one switch per gesture and its affordance.
+- [Surface retention](distribution/surface-retention.md): the product-wide `retention` default and the unsaved-work question. Why: [Retention and unsaved work](concepts/retention-and-unsaved-work.md).
+- [Branding](distribution/branding.md): `provideProductIdentity`, the `--lw-*` tenant theme, Tailwind or your own CSS framework.
+- [Capabilities](distribution/capabilities.md): `provideCapabilityGrants`, the Permissions section, `provideRequiredPlugins`. Why: [Capabilities and trust](concepts/capabilities-and-trust.md).
+- [Auth integration](distribution/auth.md): `provideAuthSource`, your own login UI, `provideUnauthorizedRedirect`.
+- [Persistence stores](distribution/persistence.md): the two `KeyValueStore` ports, the storage-key inventory, identity-scoped stores.
+- [Windows and sync](distribution/windows-and-sync.md): cross-tab live sync and pop-out windows, and where a product hooks in.
+- [Frame plugins](distribution/frame-plugins.md): `provideFramePlugins`, the frame kit you serve, your CSP. Why: [Capabilities and trust](concepts/capabilities-and-trust.md).
+- [Plugin store](distribution/plugin-store.md): `providePluginCatalog`, the catalog, consent and updates.
+- [Icons, translations and rewording](distribution/icons-and-i18n.md): `provideIcons`, translation namespaces, `provideTranslationOverrides`.
+- [Recomposing host chrome](distribution/recomposing-chrome.md): replacing, hiding and moving default chrome, the palette entry, curating settings, dropping a route.
+- [PWA and delivery](distribution/pwa.md): the service worker, the manifest, and validating the update flow against a build.
+
+[Distribution API](distribution-api/index.md) is what your own code can do once the product runs.

@@ -277,5 +277,6 @@ to capability grants (what a *plugin* may do, see [Capabilities](capabilities.md
 
 ## Where next
 
-- [Building a distribution](../building-a-distribution.md): the composition root and the map of these pages.
-- [Distribution API](../distribution-api/index.md): everything your own code can do once the product runs.
+- [Session](../distribution-api/session.md): reading the snapshot back out, with the predicates the chrome gates on.
+- [Access gating in a weaver](../weaver/access-gating.md): how a contribution gates itself by login state and roles.
+- [Backend integration](../backend-integration.md): the auth port beside the other ports your product implements.

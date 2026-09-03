@@ -164,5 +164,6 @@ Two things worth knowing:
 
 ## Where next
 
-- [Building a distribution](../building-a-distribution.md): the composition root and the map of these pages.
-- [Distribution API](../distribution-api/index.md): everything your own code can do once the product runs.
+- [Commands](../distribution-api/commands.md): running and inspecting commands from your own code.
+- [Settings](../distribution-api/settings.md): adding and hiding settings sections from your own code.
+- [Switching capabilities off](switching-capabilities-off.md): removing a gesture rather than a contribution.

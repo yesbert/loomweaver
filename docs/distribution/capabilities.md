@@ -7,16 +7,24 @@
 > explain it here.
 
 `provideCapabilityGrants({ <pluginId>: [...capabilities] })` is the grant authority. Grant each
-weaver exactly the capabilities its manifest declares — nothing is granted implicitly, and the
-effective set is the **intersection** of grant and declaration (a grant for an undeclared capability
-is inert; dev mode warns). The coarse
-capabilities are `contributions` (register views/commands/items/routes/icons), `ui` (dialogs, toasts,
-settings), `host` (version/update facts), `navigation` (drive the content area —
-`navigateContent`/`openContentTab`/`closeContentTab`), `session` (read login state + roles via
-`ctx.session` for self-gating), `theme` (contribute `--lw-*` tokens — colors and the UI font — that re-skin the whole
-app via `ctx.contributeTheme`), and `automation` (run actions *other* plugins contributed, via
-`ctx.invokeCommand`/`ctx.invocableCommands`, and only those their authors declared `callable`). (Later your own per-tenant backend can become this grant
-source without changing the seam.)
+weaver exactly the capabilities its manifest declares: nothing is granted implicitly, and the
+effective set is the **intersection** of grant and declaration. A grant for an undeclared capability
+is inert; dev mode warns. Later your own per-tenant backend can become this grant source without
+changing the seam.
+
+## The coarse capabilities
+
+| Capability | What it grants |
+| --- | --- |
+| `contributions` | register views/commands/items/routes/icons |
+| `ui` | dialogs, toasts, settings |
+| `host` | version/update facts |
+| `navigation` | drive the content area: `navigateContent`/`openContentTab`/`closeContentTab` |
+| `session` | read login state and roles via `ctx.session` for self-gating |
+| `theme` | contribute `--lw-*` tokens (colors and the UI font) that re-skin the whole app via `ctx.contributeTheme` |
+| `automation` | run actions *other* plugins contributed, via `ctx.invokeCommand`/`ctx.invocableCommands`, and only those their authors declared `callable` |
+
+## The Permissions section
 
 The shell ships a built-in **Permissions** settings section (under Options). It lists every plugin.
 The user can **turn a whole plugin off** with an on/off switch: the plugin unloads and none of its
@@ -56,5 +64,6 @@ Wire your own settings launcher (rail item, menu) to `shell.openSettings` rather
 
 ## Where next
 
-- [Building a distribution](../building-a-distribution.md): the composition root and the map of these pages.
-- [Distribution API](../distribution-api/index.md): everything your own code can do once the product runs.
+- [Capabilities and trust](../concepts/capabilities-and-trust.md): default-deny, the three rungs, and why access is not a capability.
+- [Plugins at runtime](../distribution-api/plugins-at-runtime.md): doing from your own code what the Permissions section does.
+- [Access gating in a weaver](../weaver/access-gating.md): gating by login state and role, which is not a capability.

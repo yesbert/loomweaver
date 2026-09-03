@@ -59,5 +59,6 @@ variables. If your own UI has to follow light and dark, inject
 
 ## Where next
 
-- [Building a distribution](../building-a-distribution.md): the composition root and the map of these pages.
-- [Distribution API](../distribution-api/index.md): everything your own code can do once the product runs.
+- [Icons, translations and rewording](icons-and-i18n.md): the glyphs and the strings beside the identity and the tokens.
+- [Appearance](../distribution-api/appearance.md): `ThemeService`, light and dark and the text size from your own code.
+- [Design tokens](../reference/design-tokens.md): every `--lw-*` name a theme file may set.

@@ -130,5 +130,6 @@ reloading that window opens the full app. The rule is one line and applies to sp
 
 ## Where next
 
-- [Building a distribution](../building-a-distribution.md): the composition root and the map of these pages.
-- [Distribution API](../distribution-api/index.md): everything your own code can do once the product runs.
+- [Windows, sync and updates](../distribution-api/windows-and-sync.md): pop-out windows and cross-window state from your own code.
+- [Persistence stores](persistence.md): the stores whose writes are mirrored.
+- [View state that survives](../weaver/view-state.md): what a surface keeps when it is shown in a second window.
