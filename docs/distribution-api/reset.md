@@ -17,18 +17,26 @@ await appReset.reset();                      // the frame: rail, sidebars, sizes
 await appReset.reset({ workspaces: true });  // and every workspace, asking about unsaved work once
 ```
 
+## Read it
+
+Nothing here is a signal. `reset()` answers whether it was allowed, and the frame's facts are read on [Panes](panes.md), [Sidebars](sidebars.md) and [Workspaces](workspaces.md).
+
 ## What asks about unsaved work
 
-`reset()` asks before it touches anything and answers whether it was allowed. With `workspaces: true` the question is asked once for both parts.
+`reset()` asks before it touches anything and answers whether it was allowed. With `workspaces: true` the question is asked once for both parts, and nothing is reset if the answer is no.
+
+## Switched off
+
+No switch governs this page; `reset()` stays reachable whatever you switched off elsewhere.
 
 ## In depth
 
-`reset()` asks about unsaved work before it touches anything and answers whether it was allowed.
-With `workspaces: true` the question is asked once for both parts, through the same path
-`WorkspaceService.resetAll` takes, and nothing is reset if the answer is no. The
-`APP_RESET_WORKSPACES` token is how the composition root hands the frame's reset the workspaces'
-reset without the two slices depending on each other; `provideShell()` provides it, and you only
-meet it if you build your own composition root.
+**One question for two parts.** With `workspaces: true` the question goes through the same path
+`WorkspaceService.resetAll` takes, so the user is asked once.
+
+**The token.** The `APP_RESET_WORKSPACES` token is how the composition root hands the frame's reset
+the workspaces' reset without the two slices depending on each other. `provideShell()` provides it;
+you only meet it if you build your own composition root.
 
 ## Where the story is told
 

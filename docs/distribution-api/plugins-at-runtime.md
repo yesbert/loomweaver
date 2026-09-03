@@ -12,32 +12,66 @@ Opening the store, and doing from your own code what the Permissions and Plugin 
 
 ```ts
 const store = inject(PluginStoreService);
-
 store.open();   // the store dialog, as from the settings row or the palette command
-store.title();  // the title the catalogue configured
 ```
 
 ```ts
 // src/app/… — inside an injection context
-inject(CapabilityGrantService).setGranted('notes', 'navigation', false);  // user revocation
-inject(PluginEnablementService).setEnabled('notes', false);               // unload the whole plugin
-inject(PluginInstallService).uninstall('community-charts');               // installed-at-runtime only
+const grants = inject(CapabilityGrantService);
+const enablement = inject(PluginEnablementService);
+const install = inject(PluginInstallService);
+
+grants.setGranted('notes', 'navigation', false);   // user revocation
+enablement.setEnabled('notes', false);             // unload the whole plugin
+install.uninstall('community-charts');             // installed-at-runtime only
 ```
 
-## The store, in depth
+## Read it
 
-Opening works whether or not you kept the built-in entries (`setting:shell.pluginStore`,
-`shell.openPluginStore`), and with no catalogue composed the store opens and offers nothing to
-install, showing only what is installed or deployed. `configure(title)` is what
+```ts
+store.title();                              // the title the catalogue configured
+
+grants.permissions();                       // every plugin with its base-granted capabilities and their effective state
+grants.isGranted('notes', 'navigation');    // base-granted and not revoked by the user
+
+enablement.plugins();                       // every known plugin with its enabled state
+enablement.disabled();                      // the disabled plugin ids
+enablement.isEnabled('notes');
+
+install.installed();                        // the plugins installed at runtime
+install.isInstalled('community-charts');
+install.byId('community-charts');           // the installed entry, or undefined
+```
+
+`permissions()`, `plugins()` and `installed()` are the rows the built-in Permissions and Plugin store settings draw. The predicates read the same signals and are reactive where they are called.
+
+## What asks about unsaved work
+
+Nothing on this page asks by itself. The built-in Permissions and Plugin store settings ask about unsaved work before they call `setEnabled(id, false)` or `uninstall`; the services do not repeat the question. A front-end of your own is what asks.
+
+## Switched off
+
+No switch governs the store or plugin management. `provideShell({ omit })` can drop the settings row and the palette command, and `open()` still works.
+
+## In depth
+
+**The store.** Opening works whether or not you kept the built-in entries
+(`setting:shell.pluginStore`, `shell.openPluginStore`). With no catalogue composed the store opens
+and offers nothing to install, showing only what is installed or deployed. `configure(title)` is what
 `providePluginCatalog` uses to brand the title; you do not call it yourself.
 
-## Managing plugins, in depth
+**Managing plugins.** Three services back the plugin management UI:
 
-Three services back the plugin management UI. Everything they do is also reachable from the built-in
-Permissions and Plugin store settings, so reach for them only when your product needs its own
-front-end for it.
+- `CapabilityGrantService` holds the user's revocations of base-granted capabilities.
+- `PluginEnablementService` turns a whole plugin on or off, and the runtimes load or unload it.
+- `PluginInstallService` holds the plugins installed at runtime; `uninstall` also deletes the
+  plugin's own store, while its settings survive for a reinstall.
 
-They are described together in [the plugin system](../plugins.md).
+Everything they do is also reachable from the built-in Permissions and Plugin store settings, so
+reach for them only when your product needs its own front-end.
+
+**Required plugins.** Turning off a plugin the distribution declared it cannot run without does
+nothing: the surface offers no switch for one, and `setEnabled` gives the same answer.
 
 ## Where the story is told
 

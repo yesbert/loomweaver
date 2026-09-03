@@ -12,10 +12,11 @@ how-to pages linked at the end show the code.
 ## Content has an address
 
 Content in the main area has an address, so a link can be shared, the browser's back and forward
-buttons work, and a reload returns the user to where they were. The platform owns the mechanics:
-`provideShellRouter()` is the Angular router, a `routable` surface becomes an ordinary route once
-plugins have activated, and `routerLink`, `ActivatedRoute` and query parameters behave as they do
-anywhere. What an address *means* below its first segments belongs to the plugin that claimed it.
+buttons work, and a reload returns the user to where they were. The platform owns the mechanics.
+The distribution sets up the router once ([Content-area routing](../distribution/content-routing.md)),
+and a routable surface becomes an ordinary route once plugins have activated. Links, route
+parameters and query parameters behave as they do anywhere in an Angular application. What an
+address *means* below its first segments belongs to the plugin that claimed it.
 
 ## One pane carries it
 
@@ -27,16 +28,18 @@ a plugin's own call.
 
 ## What has no address
 
-A surface docked in a sidebar has no address; a plugin's `navigate` on it is a no-op with a warning in
-development. A pop-out window is a viewer onto one surface: it freezes the address it opened with and
-refuses content navigation, because there is nothing else in that window to navigate to. A retained
-surface is mounted off the router on a fabricated route, which is why it cannot carry `subRoutes`.
+A surface docked in a sidebar has no address; a plugin that navigates it does nothing, with a warning
+in development. A pop-out window is a viewer onto one surface: it freezes the address it opened with
+and refuses content navigation, because there is nothing else in that window to navigate to. A
+retained surface is mounted off the router, on a route the workbench fabricates for it. That is why a
+kept surface cannot carry sub-routes of its own; what keeping buys is on
+[Retention and unsaved work](retention-and-unsaved-work.md).
 
 ## Inside a container
 
-A container is a workspace in a tab, and a child inside it may carry a relative address
-(`{ surface, segment }`). The browser address then names the focused child, so deep links, back and
-forward and reload work inside the container as they do outside it.
+A container is a workspace in a tab, and a child inside it may carry a relative address: the child
+surface and a segment below it. The browser address then names the focused child, so deep links,
+back and forward and reload work inside the container as they do outside it.
 
 ## Where to act on it
 

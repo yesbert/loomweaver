@@ -9,8 +9,8 @@
 Everything a user does in the workbench by hand, your product's own code can do too. This area is the
 lookup for it: what a distribution may inject and call, the rules behind it, and one page per area.
 
-**A plugin never injects these.** A weaver gets a brokered subset through `ctx` — `ctx.ui.confirm()`,
-`ctx.registerSettingsSection()`, `ctx.session` — and the broker checks a capability first
+**A plugin never injects these.** A weaver gets a brokered subset through `ctx` (`ctx.ui.confirm()`,
+`ctx.registerSettingsSection()`, `ctx.session`), and the broker checks a capability first
 ([default-deny](../distribution/capabilities.md)). That indirection is the
 whole isolation story: it is what lets the same weaver run sandboxed in an iframe, where a direct
 injection would be impossible.
@@ -19,9 +19,8 @@ injection would be impossible.
 components are the application, not a guest in it. Every service below is `providedIn: 'root'`, so
 `inject(TheService)` is all it takes.
 
-The `Shell` component already renders the dialog and toast outlets, so there is nothing to place in a
-template. `DialogOutlet` and `ToastOutlet` are exported only for a distribution that builds its own
-root component instead of using `Shell`.
+`Shell` renders the dialog and toast outlets, so there is nothing to place in a template.
+`DialogOutlet` and `ToastOutlet` exist for a distribution that builds its own root component instead.
 
 ## The rules behind every page
 
@@ -40,40 +39,46 @@ root component instead of using `Shell`.
 | I want to … | Call | Page |
 | --- | --- | --- |
 | decide what the product is made of | the providers, indexed by intent | [Composition](composition.md) |
-| add chrome without a plugin | `provideViews`, `provideBarItems`, `provideRailItems` | [Composition](composition.md#contributing-chrome-without-a-plugin) |
-| read a capability switch | `switches.content.splitRight()` | [Switches](switches.md) |
-| change a switch while the app runs | `switches.update({ content: { splitRight: false } })` | [Switches](switches.md) |
-| open a document as a tab | `tabs.open({ path, title })`, `tabs.navigateTo(path)` | [Tabs](tabs.md) |
-| pin, keep or close a tab | `tabs.pin(path)`, `tabs.keep(path)`, `tabs.close(path)` | [Tabs](tabs.md) |
-| know which tab is active | `tabs.activeContent()`, `tabs.tabs()` | [Tabs](tabs.md) |
-| split the content area | `panes.splitRight()`, `panes.splitDown(handle)` | [Panes](panes.md) |
-| close a pane or undo the split | `panes.closePane(handle)`, `panes.unsplit()` | [Panes](panes.md) |
-| fill the area with one pane, or collapse one | `panes.maximize(handle)`, `panes.minimize(handle)`, `panes.restore()` | [Panes](panes.md) |
-| move the address to a pane, move a tab into one | `panes.focus(handle)`, `panes.moveTab(path, handle)` | [Panes](panes.md) |
-| read the arrangement | `panes.panes()`, `panes.isSplit()`, `panes.activePane()` | [Panes](panes.md) |
-| switch to a workspace | `workspaces.switchTo(id)` | [Workspaces](workspaces.md) |
-| save the arrangement as a workspace, or as the baseline | `workspaces.saveCurrent(name)`, `workspaces.saveBaseline()` | [Workspaces](workspaces.md) |
-| reset one workspace, or all | `await workspaces.reset(id?)`, `await workspaces.resetAll()` | [Workspaces](workspaces.md) |
-| rename or remove a saved workspace | `workspaces.rename(id, name)`, `await workspaces.remove(id)` | [Workspaces](workspaces.md) |
-| know which workspace is active, and which changed | `workspaces.activeId()`, `workspaces.hasChanges()`, `workspaces.changedIds()` | [Workspaces](workspaces.md) |
-| collapse or expand a sidebar | `sidebars.collapse(regionId)`, `sidebars.expand(regionId)` | [Sidebars](sidebars.md) |
-| set a sidebar's width | `sidebars.setWidth(regionId, px)` | [Sidebars](sidebars.md) |
-| hide a view, or show it again | `sidebars.hideView(viewId)`, `sidebars.showView(viewId)` | [Sidebars](sidebars.md) |
-| read the sidebars | `sidebars.regions()`, `sidebars.hiddenViews()` | [Sidebars](sidebars.md) |
-| put the whole arrangement back | `await appReset.reset({ workspaces: true })` | [Resetting](reset.md) |
-| ask the user something | `dialogs.confirm(…)`, `dialogs.prompt(…)`, `dialogs.open(MyDialog)` | [Dialogs and toasts](dialogs-and-toasts.md) |
-| show a toast | `toasts.show({ message, kind })` | [Dialogs and toasts](dialogs-and-toasts.md) |
-| add or open a settings section | `settings.register(…)`, `settings.open(sectionId)` | [Settings](settings.md) |
-| run a command from code | `commands.execute(id)`, `await commands.run(command)` | [Commands](commands.md) |
-| show a shortcut the way the shell does | `formatChord('mod+k')` | [Commands](commands.md) |
-| know who is signed in | `auth.authenticated()`, `auth.roles()`, `auth.meets(access)` | [Session](session.md) |
-| follow light and dark in my own UI | `theme.resolvedTheme()`, `theme.setMode(mode)` | [Appearance](appearance.md) |
-| set the text size | `textSize.setScale('lg')` | [Appearance](appearance.md) |
-| open the plugin store | `store.open()` | [Plugins at runtime](plugins-at-runtime.md) |
-| turn a plugin off, revoke a capability, uninstall | `enablement.setEnabled(plugin, false)`, `grants.setGranted(plugin, capability, false)`, `install.uninstall(plugin)` | [Plugins at runtime](plugins-at-runtime.md) |
-| open a surface in its own window | `popout.open(target)` | [Windows, sync and updates](windows-and-sync.md) |
-| make my own state follow across windows | `sync.register(…)`, `sync.announce(key)` | [Windows, sync and updates](windows-and-sync.md) |
-| react to a new version | `updates.updateAvailable()`, `await updates.activateUpdate()` | [Windows, sync and updates](windows-and-sync.md) |
+| add chrome without a plugin | `provideViews`, `provideBarItems`, `provideRailItems` | [Composition](composition.md#do-it) |
+| read a capability switch | `switches.content.splitRight()` | [Switches](switches.md#read-it) |
+| change a switch while the app runs | `switches.update({ content: { splitRight: false } })` | [Switches](switches.md#do-it) |
+| open a document as a tab | `tabs.open({ path, title })`, `tabs.navigateTo(path)` | [Tabs](tabs.md#do-it) |
+| pin, keep or close a tab | `tabs.pin(path)`, `tabs.keep(path)`, `tabs.close(path)` | [Tabs](tabs.md#do-it) |
+| bring a tab to the front where it already lives | `tabs.revealContentTab(path)` | [Tabs](tabs.md#do-it) |
+| know which tab is active | `tabs.activeContent()`, `tabs.tabs()` | [Tabs](tabs.md#read-it) |
+| split the content area | `panes.splitRight()`, `panes.splitDown(handle)` | [Panes](panes.md#do-it) |
+| close a pane or undo the split | `panes.closePane(handle)`, `panes.unsplit()` | [Panes](panes.md#do-it) |
+| fill the area with one pane, or collapse one | `panes.maximize(handle)`, `panes.minimize(handle)`, `panes.restore()` | [Panes](panes.md#do-it) |
+| move the address to a pane, move a tab into one | `panes.focus(handle)`, `panes.moveTab(path, handle)` | [Panes](panes.md#do-it) |
+| read the arrangement | `panes.panes()`, `panes.isSplit()`, `panes.activePane()` | [Panes](panes.md#read-it) |
+| switch to a workspace | `workspaces.switchTo(id)` | [Workspaces](workspaces.md#do-it) |
+| save the arrangement as a workspace, or as the baseline | `workspaces.saveCurrent(name)`, `workspaces.saveBaseline()` | [Workspaces](workspaces.md#do-it) |
+| reset one workspace, or all | `await workspaces.reset(id?)`, `await workspaces.resetAll()` | [Workspaces](workspaces.md#do-it) |
+| rename or remove a saved workspace | `workspaces.rename(id, name)`, `await workspaces.remove(id)` | [Workspaces](workspaces.md#do-it) |
+| know which workspace is active, and which changed | `workspaces.activeId()`, `workspaces.hasChanges()`, `workspaces.changedIds()` | [Workspaces](workspaces.md#read-it) |
+| collapse or expand a sidebar | `sidebars.collapse(regionId)`, `sidebars.expand(regionId)`, `sidebars.toggle(regionId)` | [Sidebars](sidebars.md#do-it) |
+| set a sidebar's width | `sidebars.setWidth(regionId, px)` | [Sidebars](sidebars.md#do-it) |
+| hide a view, or show it again | `sidebars.hideView(viewId)`, `sidebars.showView(viewId)` | [Sidebars](sidebars.md#do-it) |
+| read the sidebars | `sidebars.regions()`, `sidebars.hiddenViews()` | [Sidebars](sidebars.md#read-it) |
+| put the whole arrangement back | `await appReset.reset({ workspaces: true })` | [Resetting](reset.md#do-it) |
+| ask the user something | `dialogs.confirm(…)`, `dialogs.prompt(…)`, `dialogs.open(MyDialog)` | [Dialogs and toasts](dialogs-and-toasts.md#do-it) |
+| show progress while a promise runs | `await dialogs.withProgress({ message }, work)` | [Dialogs and toasts](dialogs-and-toasts.md#do-it) |
+| show a toast, or take it down again | `toasts.show({ message, kind })`, `toasts.dismiss(id)` | [Dialogs and toasts](dialogs-and-toasts.md#do-it) |
+| add or open a settings section | `settings.register(…)`, `settings.open(sectionId)` | [Settings](settings.md#do-it) |
+| remove a settings section again | `handle.dispose()` on what `register` returned | [Settings](settings.md#do-it) |
+| run a command from code | `commands.execute(id)`, `await commands.run(command)` | [Commands](commands.md#do-it) |
+| show a shortcut the way the shell does | `formatChord('mod+k')` | [Commands](commands.md#in-depth) |
+| know who is signed in | `auth.authenticated()`, `auth.roles()`, `auth.meets(access)` | [Session](session.md#read-it) |
+| follow light and dark in my own UI | `theme.resolvedTheme()`, `theme.setMode(mode)` | [Appearance](appearance.md#read-it) |
+| set the text size | `textSize.setScale('lg')` | [Appearance](appearance.md#do-it) |
+| open the plugin store | `store.open()` | [Plugins at runtime](plugins-at-runtime.md#do-it) |
+| turn a plugin off, revoke a capability, uninstall | `enablement.setEnabled(plugin, false)`, `grants.setGranted(plugin, capability, false)`, `install.uninstall(plugin)` | [Plugins at runtime](plugins-at-runtime.md#do-it) |
+| open a surface in its own window | `popout.open(target)` | [Windows, sync and updates](windows-and-sync.md#do-it) |
+| make my own state follow across windows | `sync.register(…)`, `sync.announce(key)` | [Windows, sync and updates](windows-and-sync.md#do-it) |
+| apply a change my backend pushed from another device | `sync.notifyRemoteChange(key)` | [Windows, sync and updates](windows-and-sync.md#do-it) |
+| point the version at my own build info | `version.version.set(v)` | [Windows, sync and updates](windows-and-sync.md#do-it) |
+| react to a new version | `updates.updateAvailable()`, `await updates.activateUpdate()` | [Windows, sync and updates](windows-and-sync.md#read-it) |
+| check for a new version by hand | `await updates.checkForUpdate()` | [Windows, sync and updates](windows-and-sync.md#do-it) |
 
 ## The pages
 

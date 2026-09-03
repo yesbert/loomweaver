@@ -13,11 +13,6 @@ Everything the workspace dialog and the rail do, from your own code, under the i
 ```ts
 const workspaces = inject(WorkspaceService);
 
-workspaces.workspaces();          // Signal<readonly Workspace[]>: the saved workspaces
-workspaces.activeId();            // Signal<string>
-workspaces.hasChanges();          // the active workspace differs from its baseline
-workspaces.changedIds();          // every workspace that differs from its baseline
-
 await workspaces.switchTo('review');     // never asks, never loses work
 await workspaces.saveCurrent('Mine');    // the current arrangement as a new workspace
 await workspaces.saveBaseline();         // the current arrangement becomes the baseline
@@ -30,11 +25,18 @@ const removed = await workspaces.remove(id);    // asks for the work parked unde
 
 ## Read it
 
-`workspaces()` is the list the user saved (the declared ones come from `provideWorkspaces`), `activeId()` the active one, `hasChanges()` whether it differs from its baseline, `changedIds()` every workspace that does.
+```ts
+workspaces.workspaces();          // Signal<readonly Workspace[]>: the saved workspaces
+workspaces.activeId();            // Signal<string>
+workspaces.hasChanges();          // the active workspace differs from its baseline
+workspaces.changedIds();          // every workspace that differs from its baseline
+```
+
+`workspaces()` is the list the user saved; the declared ones come from `provideWorkspaces`. `activeId()` is the active one, `hasChanges()` whether it differs from its baseline, `changedIds()` every workspace that does.
 
 ## What asks about unsaved work
 
-Resetting the active workspace, `resetAll()` and `remove()` ask the question the built-in commands ask, inside the service, and answer whether they ran. Resetting a workspace you are not in asks nothing, because no live work is in it. `switchTo` never asks and never loses work. The "really reset?" confirmation is your control's decision, not the service's.
+Resetting the active workspace, `resetAll()` and `remove()` ask the question the built-in commands ask, inside the service, and answer whether they ran. Resetting a workspace you are not in asks nothing, because no live work is in it. `switchTo` never asks and never loses work: it parks the work, as the capability requires. The "really reset?" confirmation the dialog shows is your control's decision, not the service's.
 
 ## Switched off
 
@@ -42,16 +44,12 @@ Resetting the active workspace, `resetAll()` and `remove()` ask the question the
 
 ## In depth
 
-The declared workspaces come from `provideWorkspaces`; what the user saved is in `workspaces()`.
-Everything the workspace dialog and the rail do is here, under the ids you declared or the facts hand
-you, and it keeps working when you have switched `workspaces.enabled` off for your users.
+**Declared and saved.** The declared workspaces come from `provideWorkspaces`; what the user saved
+is in `workspaces()`. Everything the workspace dialog and the rail do is here, under the ids you
+declared or the facts hand you.
 
-**What asks and what does not.** A switch parks work and asks nothing, as the capability requires.
-Resetting the *active* workspace, resetting all of them and removing a workspace destroy work that
-may be unsaved, so they ask the same question the built-in commands ask, inside the service. The
-"really reset?" confirmation the dialog shows is not asked here: that is your control's decision to
-make in your own words. Every asking action answers whether it ran, so a chain of them can stop when
-the user declined.
+**Answers.** Every asking action answers whether it ran, so a chain of them can stop when the user
+declined. Which actions ask is listed under *What asks about unsaved work*.
 
 ## Where the story is told
 

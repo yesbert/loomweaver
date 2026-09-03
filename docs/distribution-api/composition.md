@@ -39,7 +39,7 @@ There is no single god-provider, on purpose: each decision has its own provider,
 | keep a plugin from being switched off | `provideRequiredPlugins` ([A plugin your application cannot run without](../distribution/capabilities.md#a-plugin-your-application-cannot-run-without)) |
 | run an isolated plugin | `provideFramePlugins` ([Frame plugins](../distribution/frame-plugins.md)) |
 | offer a plugin catalogue | `providePluginCatalog` ([Plugin store](../distribution/plugin-store.md)) |
-| add chrome of my own | `provideBarItems`, `provideRailItems`, `provideViews` ([Recomposing](../distribution/recomposing-chrome.md)) |
+| add chrome of my own | `provideBarItems`, `provideRailItems`, `provideViews` (*Do it* below) |
 | put a search entry in a bar | `provideCommandPaletteEntry`, `provideQuickOpenEntry` ([Command palette entry](../distribution/recomposing-chrome.md#command-palette-entry)) |
 
 **What it talks to**
@@ -56,7 +56,7 @@ There is no single god-provider, on purpose: each decision has its own provider,
 | ship without a service worker | `provideShell({ serviceWorker: false })` ([PWA](../distribution/pwa.md)) |
 | keep hidden surfaces alive by default | `provideShell({ retention })` ([Surface retention](../distribution/surface-retention.md#surface-retention)) |
 
-## Contributing chrome without a plugin
+## Do it
 
 A distribution does not need a plugin to add chrome. Three providers contribute the same shapes a
 weaver contributes, statically at composition time:
@@ -69,30 +69,47 @@ weaver contributes, statically at composition time:
                       command: 'acme.openHelp' }),
 ```
 
-`region` / `bar` / `rail` must name a region id declared in your `provideLayout` (the ids above match
-the [getting-started layout](../getting-started.md)) — a contribution addressing an id no region
-declares simply renders nowhere (views log a dev-mode warning).
+## Read it
 
-Because ids are the addressing scheme everywhere, using an existing id **replaces** that
-contribution — which is how the demo moves the update badge into a sidebar footer. `provideShell({
-omit: [...] })` removes one. `ContributionRegistry` is the registry underneath; injecting it lets you
-add and remove contributions at runtime (`addRailItem` returns a disposer), but prefer the providers
-when the answer is known at composition time.
-
-Two signals on it answer questions about your own composition, and are what
+`ContributionRegistry` is the registry underneath the providers. Three of its signals answer
+questions about your own composition, and are what
 [`loomweaver.report()`](../building-a-distribution.md#seeing-what-you-composed) reads:
 
 | Signal | Holds |
 | --- | --- |
 | `omitted` | the ids your `omit` list names, exactly as you wrote them, prefixes and all |
 | `registeredIds` | every id registered so far, of any kind, **including** the ones `omit` hides |
-| `registeredCommands` | every command with the plugin the host stamped on it as its owner (`RegisteredCommand`) — what tells one plugin's commands from another's and from the shell's own, which carry no owner |
+| `registeredCommands` | every command with the plugin the host stamped on it as its owner (`RegisteredCommand`); the shell's own commands carry no owner, which is what tells one plugin's commands from another's |
 
-`registeredIds` is the only way to tell an `omit` that hid something from one that hit nothing at all:
-an omitted contribution is by construction absent from every other signal here. Reach for the report
-first — it already phrases the answer, including which prefix you probably meant.
+## What asks about unsaved work
+
+Nothing on this page asks; a provider runs once at composition time, before any surface exists.
+
+## Switched off
+
+No switch governs the providers. `provideShellFeatures` is where the switches themselves are declared; [Switches](switches.md) reads and changes them while the app runs.
+
+## In depth
+
+**Ids address regions.** `region`, `bar` and `rail` must name a region id declared in your
+`provideLayout`; the ids above match the [getting-started layout](../getting-started.md). A
+contribution addressing an id no region declares renders nowhere, and a view logs a dev-mode warning.
+
+**Ids replace.** Because ids are the addressing scheme everywhere, using an existing id **replaces**
+that contribution, which is how the demo moves the update badge into a sidebar footer.
+`provideShell({ omit: [...] })` removes one.
+
+**At runtime.** Injecting `ContributionRegistry` lets you add and remove contributions while the
+app runs; `addRailItem` returns a disposer. Prefer the providers when the answer is known at
+composition time.
+
+**Reading `registeredIds`.** It is the only way to tell an `omit` that hid something from one that
+hit nothing at all, because an omitted contribution is by construction absent from every other
+signal. Reach for the report first: it already phrases the answer, including which prefix you
+probably meant.
 
 ## Where the story is told
 
 - [Building a distribution](../building-a-distribution.md): the composition root and every provider in context.
 - [Seeing what you composed](../building-a-distribution.md#seeing-what-you-composed): the development-time composition report.
+- [Recomposing host chrome](../distribution/recomposing-chrome.md): the ids you can omit, and where a contribution of yours lands.

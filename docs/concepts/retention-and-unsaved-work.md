@@ -21,14 +21,15 @@ fifty live component trees; they mean fifty tabs, each of which is recreated whe
 
 ## What survives a destroy
 
-The surface's own memory does not, unless the plugin puts it somewhere. `VIEW_STATE` is that
-somewhere: the filter, the active sub-tab, the expanded nodes, the scroll position, written as one
-shape and restored on the next mount. It travels with the tab when the tab moves, so a split or a
-drag into a sidebar changes nothing the user can see.
+The surface's own memory does not, unless the plugin puts it somewhere. View state is that
+somewhere ([View state that survives](../weaver/view-state.md)): the filter, the active sub-tab, the
+expanded nodes, the scroll position, written as one shape and restored on the next mount. It travels
+with the tab when the tab moves, so a split or a drag into a sidebar changes nothing the user can see.
 
-A surface may ask to be kept regardless, with `retain: 'always'`, or never, with `retain: 'never'`.
-Keeping has a price: the instance is mounted off the router on a fabricated route, so there are no
-resolvers, no query parameters and no `subRoutes`.
+A surface may ask to be kept regardless, or never to be kept
+([Keeping a hidden surface alive](../weaver/view-state.md#keeping-a-hidden-surface-alive)). Keeping
+has a price: a kept instance lives off the router, so it has no resolvers, no query parameters and no
+sub-routes. [The address](the-address.md#what-has-no-address) says why.
 
 ## The unsaved-work question
 
@@ -38,7 +39,8 @@ by the action, not by the button that triggered it. Closing the browser window a
 browser's own words. A distribution
 that closes a tab from its own code asks the same question, and its call answers whether it ran.
 
-A plugin takes part by implementing `DirtySurface`: it reports whether it is dirty, it saves on
+A plugin takes part by implementing the unsaved-changes contract
+([Unsaved changes](../weaver/unsaved-changes.md)): it reports whether it is dirty, it saves on
 request, and it may say what should happen before a close. A sandboxed surface pushes the same facts
 over its channel. The owner of the work decides; the workbench only asks. If the owner does not answer within a
 bounded wait, the user is offered a way to close anyway, and an answer that still arrives counts.

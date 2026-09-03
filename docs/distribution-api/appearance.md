@@ -12,25 +12,36 @@ Light and dark, and the text size, from your own code; colours and icons are dec
 
 ```ts
 const theme = inject(ThemeService);
+theme.setMode('dark');   // persists, and mirrors to the app's other browser windows
 
-theme.mode();            // ThemeMode — what the user picked: 'light' | 'dark' | 'system'
-theme.resolvedTheme();   // ResolvedTheme — what is actually rendered: 'light' | 'dark'
-theme.setMode('dark');   // persists, and mirrors to other tabs
+const textSize = inject(FontScaleService);
+textSize.setScale('lg'); // persists through the settings store, mirrors to the app's other browser windows
 ```
+
+## Read it
 
 ```ts
-const textSize = inject(FontScaleService);
-
+theme.mode();            // ThemeMode — what the user picked: 'light' | 'dark' | 'system'
+theme.resolvedTheme();   // ResolvedTheme — what is actually rendered: 'light' | 'dark'
 textSize.scale();        // FontScale: 'sm' | 'md' | 'lg' | 'xl'
-textSize.setScale('lg'); // persists through the settings store, mirrors to other tabs
 ```
 
-## Light and dark, in depth
+`mode()` is what the user picked and `resolvedTheme()` what is rendered; the two differ when the pick is `system`. `scale()` is the text size in force.
 
-The shell already ships a mode switch, persists the choice through the settings store and toggles
-the `dark` class on `<html>`, which is what flips the `--lw-*` token ladder. Inject the service when
-**your own UI has to agree with it** — most often to mirror the mode onto another framework's
-switch, so the page cannot end up half dark:
+## What asks about unsaved work
+
+Nothing on this page asks; a mode or a text size changes the rendering and closes nothing.
+
+## Switched off
+
+No switch governs appearance. The built-in mode switch and text size toggle live in the settings, and `provideShell({ omit })` is what removes a settings row.
+
+## In depth
+
+**Light and dark.** The shell already ships a mode switch, persists the choice through the settings
+store and toggles the `dark` class on `<html>`. That class is what flips the `--lw-*` token ladder.
+Inject the service when **your own UI has to agree with it**, most often to mirror the mode onto
+another framework's switch, so the page cannot end up half dark:
 
 ```ts
 // Bootstrap 5.3 reads data-bs-theme; keep it in step with ours.
@@ -43,15 +54,15 @@ Use `resolvedTheme` for that, never `mode`: `mode` can be `system`, which is not
 framework understands. See [bringing your own CSS
 framework](../manual-setup.md#bringing-your-own-css-framework).
 
-## Text size, in depth
+**Text size.** `md` is the default and imposes nothing, so the browser's own setting decides. Bind
+your own control to `scale()` and it follows the built-in toggle in the settings, and the other way
+round.
 
-`md` is the default and imposes nothing, so the browser's own setting decides. Bind your own control
-to `scale()` and it follows the built-in toggle in the settings, and the other way round.
-
-## Colours and icons
-
-Colours are the `--lw-*` design tokens, set in CSS by the distribution or contributed by a plugin: see [Design tokens](../reference/design-tokens.md). Icons are replaced with `provideIcons`: see [Icons](../reference/icons.md).
+**Colours and icons.** Colours are the `--lw-*` design tokens, set in CSS by the distribution or
+contributed by a plugin: see [Design tokens](../reference/design-tokens.md). Icons are replaced with
+`provideIcons`: see [Icons](../reference/icons.md).
 
 ## Where the story is told
 
-- [Branding](../distribution/branding.md#branding) and [Bringing your own CSS framework](../manual-setup.md#bringing-your-own-css-framework).
+- [Branding](../distribution/branding.md#branding): name, logo, tagline and colours.
+- [Bringing your own CSS framework](../manual-setup.md#bringing-your-own-css-framework): keeping a foreign framework in step with the mode.

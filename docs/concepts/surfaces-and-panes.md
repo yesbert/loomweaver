@@ -12,13 +12,12 @@ The how-to pages linked at the end show the code.
 ## One contract for everything shown
 
 A plugin author declares a **surface**: a title, a component (or an iframe, or an arrangement of
-child surfaces) and what the surface can do, such as `routable` for an address of its own or
-`instanceable` for several named copies. The plugin does not say where the surface will appear. The
-workbench decides that, and the user changes it.
+child surfaces) and what the surface can do, such as having an address of its own or existing as
+several named copies. The plugin does not say where the surface will appear. The workbench decides
+that, and the user changes it.
 
-This replaced an older arrangement in which a docked view and an addressable screen were two
-separate declarations that could not be moved between. It is why a user can drag a sidebar view into
-the main area and have it keep working: the surface never knew which one it was in.
+A docked view and an addressable screen are one declaration, not two. That is why a user can drag a
+sidebar view into the main area and have it keep working: the surface never knew which one it was in.
 
 ## A pane is a tab group
 
@@ -35,8 +34,9 @@ The workbench's job is to make those transitions predictable and to lose no work
 
 - A surface fills its pane; the host insets nothing of its own. A product asks for an inset once, and
   a single surface may differ.
-- State that should survive a move travels with the tab, not with the pane. That is what `VIEW_STATE`
-  is for; see [Retention and unsaved work](retention-and-unsaved-work.md).
+- State that should survive a move travels with the tab, not with the pane. That is what a surface's
+  view state is for; see [View state that survives](../weaver/view-state.md) and
+  [Retention and unsaved work](retention-and-unsaved-work.md).
 - The arrangement of panes and the content inside them are two things with two owners. A tab is
   content and belongs to the plugin that contributed the surface; the split around it is arrangement
   and belongs to the user, or to the distribution when it declares a [workspace](workspaces.md).
