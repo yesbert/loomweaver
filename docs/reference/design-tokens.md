@@ -60,7 +60,7 @@ A later layer wins → **product default (`lw-base`) < plugin (`lw-plugin-theme`
 (`lw-tenant-theme`)**. A plugin contributes tokens through `ctx.contributeTheme(tokens, dark?)`
 (injected into `lw-plugin-theme` as `:root`/`:root.dark`, **never** inline styles — those would beat
 every layer); the optional second `dark` argument overrides tokens in dark mode only (worked example
-in [authoring a weaver → custom theme](../authoring-a-weaver.md#custom-theme--ctxcontributetheme)). A
+in [authoring a weaver → custom theme](../weaver/icons-and-theme.md#custom-theme--ctxcontributetheme)). A
 distribution/tenant theme CSS uses `lw-tenant-theme` (the devkit `theme` generator emits that) and
 thereby overrules every plugin. Layer order beats specificity, so that also holds against a
 `:root.dark` token from a lower layer. A minimal tenant override:
@@ -90,7 +90,7 @@ without one.
 One measurement is not a size question at all and therefore *is* in the contract: whether the host
 insets a surface from its pane edges. The host insets nothing of its own, so a surface fills the pane
 it is mounted in. A product that wants its surfaces inset asks for it once, with
-[`padding: 'inset'`](../authoring-a-weaver.md#reaching-the-pane-edges) on `provideShell`, and a
+[`padding: 'inset'`](../weaver/content-area.md#reaching-the-pane-edges) on `provideShell`, and a
 single surface that differs says so with `padded`. How *wide* the inset is stays a stylesheet
 question, below.
 

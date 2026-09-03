@@ -95,7 +95,7 @@ It also carries the user's installed community plugins, and their persisted capa
 their grant. It carries their capability revocations too, and plugin settings blobs that may
 contain whatever a plugin puts there. Treat it as **user data with integrity requirements**: authorize every read/write against the
 session. The authoritative storage-key inventory is in
-[building-a-distribution.md](building-a-distribution.md#persistence-stores-optional). It also lists
+[building-a-distribution.md](distribution/persistence.md). It also lists
 which keys are device-level and how `provideIdentityScopedStores` separates users on a shared
 browser. A convenient wire shape is a flat `{ key → value }` map with `get-all` + `set-value`; the
 reference implementation used it. But the shape is yours to choose. The frontend only needs the
@@ -150,7 +150,7 @@ the handler above. The `from` parameter is how your login page navigates back af
 sign-in. Render your login as a weaver surface — a page or a dialog. Sign out by setting the
 snapshot back to `ANONYMOUS`.
 Complete login-page and login-dialog components live in
-[building a distribution → Auth integration](building-a-distribution.md#auth-integration-access-gating).
+[building a distribution → Auth integration](distribution/auth.md).
 Client-side gating is **presentation, not security** — enforce for real in your backend (reject
 unauthorized calls).
 
@@ -171,7 +171,7 @@ auth.meets({ anyRole: ['admin', 'owner'] }); // the same predicate that gates co
 On a shared browser, pair `provideAuthSource` with `{ onIdentityChange: 'reload' }` and
 `provideIdentityScopedStores` — the first guarantees no in-memory state of the previous user
 survives a switch, the second keeps their stored state in separate namespaces. Both are described in
-[building a distribution](building-a-distribution.md#identity-scoped-stores-multi-user-browsers).
+[building a distribution](distribution/persistence.md#identity-scoped-stores-multi-user-browsers).
 
 ## 3 · Translations — static files or your API
 

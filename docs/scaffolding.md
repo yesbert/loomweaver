@@ -102,7 +102,7 @@ A missing translation key is a *warning*: it reports and exits 0, so it will not
 build. `--strict` turns warnings into a non-zero exit when you do want to gate on parity.
 
 `validate-catalog` earns its place for one reason: the shell parses a
-[plugin store catalog](building-a-distribution.md#plugin-store-runtime-install) **defensively** —
+[plugin store catalog](distribution/plugin-store.md) **defensively** —
 it tolerates bad input instead of failing on it. A field it does not recognise is skipped. A
 malformed field is dropped. An entry missing `id` or `entryUrl` disappears entirely. All of this
 happens without a word, because a store that throws on one bad entry serves nobody. That is the

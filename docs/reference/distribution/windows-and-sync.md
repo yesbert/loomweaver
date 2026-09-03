@@ -64,8 +64,8 @@ transport calls it to apply a change made on another device.
 
 The shell already drives a toast and the update badge from these signals; inject the service only if
 you want your own affordance. `updateFailed` exists because a silent failure is worse than a visible
-one — see [PWA & delivery](../../building-a-distribution.md#pwa--delivery).
+one — see [PWA & delivery](../../distribution/pwa.md).
 
 ## Where the story is told
 
-- [Pop-out windows](../../building-a-distribution.md#pop-out-windows), [Cross-tab live sync](../../building-a-distribution.md#cross-tab-live-sync) and [PWA & delivery](../../building-a-distribution.md#pwa--delivery) in the guide.
+- [Pop-out windows](../../distribution/windows-and-sync.md#pop-out-windows), [Cross-tab live sync](../../distribution/windows-and-sync.md#cross-tab-live-sync) and [PWA & delivery](../../distribution/pwa.md) in the guide.

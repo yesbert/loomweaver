@@ -49,7 +49,7 @@ const result = await ref.closed;
 await dialogs.withProgress({ message: 'Migrating…' }, migrateEverything());
 ```
 
-`open()` returns a [`DialogRef`](../../authoring-a-weaver.md#host-ui--ctxui): `closed` (a promise of the
+`open()` returns a [`DialogRef`](../../weaver/host-ui-and-facts.md): `closed` (a promise of the
 result), `close(result)`, and `maximized`/`toggleMaximized()` for dialogs opened with
 `maximizable: true`. `progress()` returns a handle you close yourself; `withProgress()` ties the
 dialog to a promise and is what you want almost always.
@@ -92,5 +92,5 @@ instead of stacking a second one, and `notifications` is a signal of what is cur
 
 ## Where the story is told
 
-- [Host UI in a weaver](../../authoring-a-weaver.md#host-ui--ctxui): the same three lanes through `ctx.ui`.
+- [Host UI in a weaver](../../weaver/host-ui-and-facts.md): the same three lanes through `ctx.ui`.
 - [Asking before doing something destructive](../../samples.md#6--asking-before-doing-something-destructive): a complete recipe.

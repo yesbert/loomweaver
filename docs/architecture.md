@@ -101,7 +101,7 @@ capability gets a loud `CapabilityError`, not a silent no-op. The capabilities a
 (`contributions`, `ui`, `host`, `navigation`, `session`, `theme`, `automation`) and can split into finer
 ones later
 without changing the model. Wiring and examples:
-[building a distribution → capabilities](building-a-distribution.md#capabilities-default-deny).
+[building a distribution → capabilities](distribution/capabilities.md).
 
 ## Auth-aware access gating
 
@@ -124,7 +124,7 @@ capabilities (what a *plugin* may do vs. what a *user* may see). **Client-side g
 not security** — the real boundary is server-side. The complete matrix of every gated surface is
 [reference → access gating](reference/access-gating.md); the wiring, login UI and redirect with full
 examples are [building a distribution → auth
-integration](building-a-distribution.md#auth-integration-access-gating).
+integration](distribution/auth.md).
 
 ## The two RPC boundaries (never conflated)
 

@@ -76,4 +76,4 @@ proportions are not published. Bind your own controls to the signals and they fo
 ## Where the story is told
 
 - [Tabs](tabs.md): the content side of the same area.
-- [Splitting and moving in the guide](../../building-a-distribution.md#switching-capabilities-off): what the toolbar offers and how to take it away.
+- [Splitting and moving in the guide](../../distribution/switching-capabilities-off.md#switching-capabilities-off): what the toolbar offers and how to take it away.

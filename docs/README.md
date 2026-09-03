@@ -13,7 +13,7 @@ standard can run your product's own commands.
 | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
 | **See it running first**                   | the live demo at [demo.loomweaver.dev](https://demo.loomweaver.dev) — a product built on the published packages |
 | **Try it in five minutes**                 | [Getting started](getting-started.md) — scaffold a running, branded product                                |
-| **Understand how it works**                | [Architecture](architecture.md) — platform / weaver / distribution, the uniform `ctx`                      |
+| **Understand how it works**                | [Architecture](architecture.md), then the [concept pages](#concepts) for why the workbench behaves as it does |
 | **Build a plugin (a "weaver")**            | [Authoring a weaver](authoring-a-weaver.md), with copyable recipes in [Samples](samples.md)                |
 | **Compose and brand a product**            | [Building a distribution](building-a-distribution.md)                                                      |
 | **Use Bootstrap or your own CSS framework**| [Manual setup → bring your own CSS framework](manual-setup.md#bringing-your-own-css-framework)             |
@@ -32,8 +32,12 @@ standard can run your product's own commands.
 4. [Samples](samples.md) — complete, copyable recipes: a sidebar view with persisted state, a routable
    surface, a command with its triggers, a settings section, access gating, dialogs. It says which of
    them the generator already writes, so you only type the rest.
-5. [Authoring a weaver](authoring-a-weaver.md) — build UI: views, commands, access gating, dialogs, settings, i18n.
-6. [Building a distribution](building-a-distribution.md) — compose weavers into a branded product.
+5. [Authoring a weaver](authoring-a-weaver.md) — the shape of a weaver and the map of fifteen how-to pages
+   under `weaver/`: surfaces in a sidebar, the content area, containers, commands, menus, unsaved changes,
+   sandboxed surfaces, access gating, settings, i18n. One task per page.
+6. [Building a distribution](building-a-distribution.md) — the composition root and the map of sixteen
+   how-to pages under `distribution/`: layout, routing, workspaces, switching capabilities off, branding,
+   capabilities, auth, persistence, frame plugins, the plugin store, PWA. One decision per page.
 7. [The plugin system](plugins.md) — the three rungs of trust and the four ways a plugin arrives (trusted, frame plugin, operator-deployed, community-installed),
    default-deny capabilities, and what the user can revoke, disable or uninstall.
 8. [Scaffolding](scaffolding.md) — generate weavers, distributions and integrations with the
@@ -44,6 +48,16 @@ standard can run your product's own commands.
    transport.
 10. [Backend integration](backend-integration.md) — the product hand-off: settings, session and
     translations against your own backend. The platform ships no server.
+
+## Concepts
+
+Why the workbench behaves as it does, each short, each linking to the how-to pages that act on it.
+
+- [Surfaces and panes](concepts/surfaces-and-panes.md) — one contract for everything shown, and a pane as a tab group.
+- [The address](concepts/the-address.md) — what the address bar means with several panes open.
+- [Retention and unsaved work](concepts/retention-and-unsaved-work.md) — hiding is not closing, and who asks about unsaved work.
+- [Capabilities and trust](concepts/capabilities-and-trust.md) — default-deny, the three rungs, and why access is not a capability.
+- [Workspaces](concepts/workspaces.md) — a whole way of working, its baseline, and its two origins.
 
 ## Reference
 

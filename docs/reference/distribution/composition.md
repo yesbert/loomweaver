@@ -12,49 +12,49 @@ There is no single god-provider, on purpose: each decision has its own provider,
 
 | I want to … | provider |
 | --- | --- |
-| set the name, logo and tagline | `provideProductIdentity` ([Branding](../../building-a-distribution.md#branding)) |
-| decide which regions exist and where | `provideLayout` ([Layout](../../building-a-distribution.md#layout-regions--docks)) |
+| set the name, logo and tagline | `provideProductIdentity` ([Branding](../../distribution/branding.md#branding)) |
+| decide which regions exist and where | `provideLayout` ([Layout](../../distribution/layout.md)) |
 | recolour the whole app | the design tokens ([tokens](../design-tokens.md)) |
 | change sizes, radii, density | your own CSS on the class contracts ([tokens](../design-tokens.md)) |
-| replace a built-in icon | `provideIcons` ([Icons](../../building-a-distribution.md#icons)) |
-| reword the shell itself ("Folder" instead of "View") | `provideTranslationOverrides` ([Rewording](../../building-a-distribution.md#rewording-the-shell)) |
-| ship my own translations | `provideTranslationNamespaces` ([i18n](../../building-a-distribution.md#i18n)) |
+| replace a built-in icon | `provideIcons` ([Icons](../../distribution/icons-and-i18n.md#icons)) |
+| reword the shell itself ("Folder" instead of "View") | `provideTranslationOverrides` ([Rewording](../../distribution/icons-and-i18n.md#rewording-the-shell)) |
+| ship my own translations | `provideTranslationNamespaces` ([i18n](../../distribution/icons-and-i18n.md#i18n)) |
 
 **What users are allowed to *do***
 
 | I want to … | provider |
 | --- | --- |
-| take a gesture away (splitting, pinning, pop-out, shortcuts …) | `provideShellFeatures` ([Switching capabilities off](../../building-a-distribution.md#switching-capabilities-off)) |
+| take a gesture away (splitting, pinning, pop-out, shortcuts …) | `provideShellFeatures` ([Switching capabilities off](../../distribution/switching-capabilities-off.md#switching-capabilities-off)) |
 | change a switch while the app runs, or read it | `FeatureSwitches` ([Switches](switches.md)) |
 | offer a pane, workspace, sidebar or reset action from my own control | the services on these pages ([Panes](panes.md), [Workspaces](workspaces.md), [Sidebars](sidebars.md), [Resetting](reset.md)) |
-| drop a built-in command, item, settings row, menu entry or route | `provideShell({ omit })` ([Recomposing host chrome](../../building-a-distribution.md#recomposing-host-chrome)) |
-| hand out layouts the product defines | `provideWorkspaces` ([Developer-defined workspaces](../../building-a-distribution.md#developer-defined-workspaces)) |
-| let users put the arrangement back | nothing: `shell.app.reset` ships ([Resetting](../../building-a-distribution.md#resetting-the-app-layout)) |
+| drop a built-in command, item, settings row, menu entry or route | `provideShell({ omit })` ([Recomposing host chrome](../../distribution/recomposing-chrome.md)) |
+| hand out layouts the product defines | `provideWorkspaces` ([Developer-defined workspaces](../../distribution/workspaces.md#developer-defined-workspaces)) |
+| let users put the arrangement back | nothing: `shell.app.reset` ships ([Resetting](../../distribution/resetting.md)) |
 
 **What ships inside**
 
 | I want to … | provider |
 | --- | --- |
-| compose my weaver | `providePlugins` + `provideCapabilityGrants` ([Capabilities](../../building-a-distribution.md#capabilities-default-deny)) |
-| keep a plugin from being switched off | `provideRequiredPlugins` ([A plugin your application cannot run without](../../building-a-distribution.md#a-plugin-your-application-cannot-run-without)) |
-| run an isolated plugin | `provideFramePlugins` ([Frame plugins](../../building-a-distribution.md#frame-plugins)) |
-| offer a plugin catalogue | `providePluginCatalog` ([Plugin store](../../building-a-distribution.md#plugin-store-runtime-install)) |
-| add chrome of my own | `provideBarItems`, `provideRailItems`, `provideViews` ([Recomposing](../../building-a-distribution.md#recomposing-host-chrome)) |
-| put a search entry in a bar | `provideCommandPaletteEntry`, `provideQuickOpenEntry` ([Command palette entry](../../building-a-distribution.md#command-palette-entry)) |
+| compose my weaver | `providePlugins` + `provideCapabilityGrants` ([Capabilities](../../distribution/capabilities.md)) |
+| keep a plugin from being switched off | `provideRequiredPlugins` ([A plugin your application cannot run without](../../distribution/capabilities.md#a-plugin-your-application-cannot-run-without)) |
+| run an isolated plugin | `provideFramePlugins` ([Frame plugins](../../distribution/frame-plugins.md)) |
+| offer a plugin catalogue | `providePluginCatalog` ([Plugin store](../../distribution/plugin-store.md)) |
+| add chrome of my own | `provideBarItems`, `provideRailItems`, `provideViews` ([Recomposing](../../distribution/recomposing-chrome.md)) |
+| put a search entry in a bar | `provideCommandPaletteEntry`, `provideQuickOpenEntry` ([Command palette entry](../../distribution/recomposing-chrome.md#command-palette-entry)) |
 
 **What it talks to**
 
 | I want to … | provider |
 | --- | --- |
-| feed the signed-in user in | `provideAuthSource` ([Auth integration](../../building-a-distribution.md#auth-integration-access-gating)) |
-| send gated routes to my login | `provideUnauthorizedRedirect` ([Redirect](../../building-a-distribution.md#3--redirect-gated-routes-to-your-login--provideunauthorizedredirect)) |
-| store settings in my backend | `provideSettingsStore` ([Persistence stores](../../building-a-distribution.md#persistence-stores-optional)) |
-| store working state in my backend | `provideWorkingStateStore` ([Persistence stores](../../building-a-distribution.md#persistence-stores-optional)) |
-| keep two users in one browser apart | `provideIdentityScopedStores` ([Identity-scoped stores](../../building-a-distribution.md#identity-scoped-stores-multi-user-browsers)) |
-| compute a following tab's address myself | `provideTabAddressResolver` ([Following tabs](../../building-a-distribution.md#following-tabs)) |
-| route the content area | `provideShellRouter` ([Content-area routing](../../building-a-distribution.md#content-area-routing)) |
-| ship without a service worker | `provideShell({ serviceWorker: false })` ([PWA](../../building-a-distribution.md#pwa--delivery)) |
-| keep hidden surfaces alive by default | `provideShell({ retention })` ([Surface retention](../../building-a-distribution.md#surface-retention)) |
+| feed the signed-in user in | `provideAuthSource` ([Auth integration](../../distribution/auth.md)) |
+| send gated routes to my login | `provideUnauthorizedRedirect` ([Redirect](../../distribution/auth.md#3--redirect-gated-routes-to-your-login--provideunauthorizedredirect)) |
+| store settings in my backend | `provideSettingsStore` ([Persistence stores](../../distribution/persistence.md)) |
+| store working state in my backend | `provideWorkingStateStore` ([Persistence stores](../../distribution/persistence.md)) |
+| keep two users in one browser apart | `provideIdentityScopedStores` ([Identity-scoped stores](../../distribution/persistence.md#identity-scoped-stores-multi-user-browsers)) |
+| compute a following tab's address myself | `provideTabAddressResolver` ([Following tabs](../../distribution/content-routing.md#following-tabs)) |
+| route the content area | `provideShellRouter` ([Content-area routing](../../distribution/content-routing.md)) |
+| ship without a service worker | `provideShell({ serviceWorker: false })` ([PWA](../../distribution/pwa.md)) |
+| keep hidden surfaces alive by default | `provideShell({ retention })` ([Surface retention](../../distribution/surface-retention.md#surface-retention)) |
 
 ## Contributing chrome without a plugin
 

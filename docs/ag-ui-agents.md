@@ -92,7 +92,7 @@ guessed. They are your product's, and they are usually the part that is already 
   the hook, the three outcomes, the streamed-call rules.
 - [Callable commands](reference/callable-commands.md) — opening a command to a caller that is not the
   user: described arguments, answers, the `automation` capability, and why the default is closed.
-- [Samples, recipe 10](samples.md#letting-an-ag-ui-agent-drive-your-product) — the same connection as
+- [Samples, recipe 10](samples.md#10--letting-an-ag-ui-agent-drive-your-product) — the same connection as
   code to copy, for a project that is not generating. This page runs the generator; that one shows
   what the generator would have written. Read this page first, and that one if you are writing it by
   hand.

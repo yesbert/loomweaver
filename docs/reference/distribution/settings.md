@@ -34,13 +34,13 @@ handle.dispose();                  // remove the section again
 ## In depth
 
 Control kinds and the "each control owns its own storage" rule are the same ones a weaver uses —
-see [authoring a weaver](../../authoring-a-weaver.md#settings-sections). Registering an existing id
+see [authoring a weaver](../../weaver/settings.md#settings-sections). Registering an existing id
 replaces that section in place. To *remove* built-in settings, prefer
 `provideShell({ omit: ['setting:…'] })`, which is declarative and lasting;
-[curating the settings surface](../../building-a-distribution.md#curating-the-settings-surface) lists
+[curating the settings surface](../../distribution/recomposing-chrome.md#curating-the-settings-surface) lists
 the ids.
 
 ## Where the story is told
 
-- [Settings sections in a weaver](../../authoring-a-weaver.md#settings-sections): control kinds and the storage rule.
-- [Curating the settings surface](../../building-a-distribution.md#curating-the-settings-surface): the ids you can omit.
+- [Settings sections in a weaver](../../weaver/settings.md#settings-sections): control kinds and the storage rule.
+- [Curating the settings surface](../../distribution/recomposing-chrome.md#curating-the-settings-surface): the ids you can omit.

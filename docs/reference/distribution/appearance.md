@@ -54,4 +54,4 @@ Colours are the `--lw-*` design tokens, set in CSS by the distribution or contri
 
 ## Where the story is told
 
-- [Branding](../../building-a-distribution.md#branding) and [Bringing your own CSS framework](../../manual-setup.md#bringing-your-own-css-framework).
+- [Branding](../../distribution/branding.md#branding) and [Bringing your own CSS framework](../../manual-setup.md#bringing-your-own-css-framework).

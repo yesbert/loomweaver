@@ -45,17 +45,10 @@ These are runtime dependencies of your application, not dev tooling: `@angular/c
 reorder and accessibility, Transloco the translations, `@ng-icons/heroicons` the first-party icon
 set. Tailwind is build-time only.
 
-The last argument pins `@angular/service-worker` — a peer dependency of the shell — to the Angular
-version you already have. Leave it off and the install fails with `ERESOLVE`: Angular packages
-peer-depend on each other by *exact* version, so the one Angular package your app does not already
-have is the one npm gets to choose, and it picks the newest, which demands a newer `@angular/core`
-than your workspace pins.
-
-Note that it reads the version from **`node_modules`**, not from `package.json`. What stands in
-`package.json` is a range — `^22.1.0` — and its lower bound is not what npm installed: a fresh
-`ng new` resolves that range to the newest matching patch. Pinning to the bound therefore asks for
-an older service worker than the core you have, which is the same `ERESOLVE`, arrived at from the
-other side.
+The last argument pins `@angular/service-worker`, a peer dependency of the shell, to the Angular version
+you already have; leave it off and the install fails with `ERESOLVE`.
+[Manual setup → Install](manual-setup.md#1--install) explains why, and why the version is read from
+`node_modules` rather than `package.json`.
 
 ## 3 · Scaffold the distribution
 
@@ -96,22 +89,18 @@ pulls the whole shell into a bare `TestBed`. Delete it; the generated `app.confi
 replacement starting point, and it tests something worth testing (that the layout still declares the
 region ids your contributions target) without mounting anything.
 
-The logo the scaffold drops at `public/logo.svg` is the LoomWeaver mark, there so the top bar renders
-something from the first run. Replace it with your own square image whenever you like; `logoUrl`
-resolves against your served root. That same file is the app icon too — the browser tab reads it and
-the manifest names it. One gap is left on purpose, because a scaffold writes text and cannot invent
-your artwork: Chromium offers installation only once the manifest names a **192 and a 512 raster**
-icon. Until you add those the app runs and caches offline, it just is not offered for installation;
-`LOOMWEAVER.md` says exactly what to drop in.
+The logo at `public/logo.svg` is the LoomWeaver mark, there so the top bar renders something from the
+first run; replace it with your own square image whenever you like. It is the app icon too, and until
+you add a 192 and a 512 raster icon the browser does not offer installation: see
+[PWA and delivery](distribution/pwa.md).
 
 ## 4 · What the scaffold wired
 
 Nothing to do here. This step exists because the wiring is worth knowing about, not because it is
 waiting for you. The run you just did named each file it touched and each line it added.
 
-**`.postcssrc.json`**, beside your `package.json`, so Tailwind actually runs. Without it your
-stylesheet is read as ordinary CSS: the tokens arrive, **no utility class does**, and the chrome
-renders unstyled while the build reports success. That is the trap this step used to be.
+**`.postcssrc.json`**, beside your `package.json`, so Tailwind runs at all. Without it the chrome renders
+unstyled while the build reports success ([Styles](manual-setup.md#4--styles)).
 
 **Your build target**, in `angular.json` (or `project.json` under Nx), gains four things:
 
@@ -131,40 +120,24 @@ and, in the **production** configuration:
 "optimization": { "styles": { "inlineCritical": false } }
 ```
 
-Each earns its place. The **`@loomweaver/shell/i18n` glob** serves the strings the shell fetches at
-runtime; without it every label in the chrome renders as its raw translation key and nothing errors.
-The **frame-kit** glob only matters if you host sandboxed (iframe) plugins, and until you install
-that package it simply matches nothing. **`serviceWorker`** emits the worker `provideShell()` already
-registers for you — never add `provideServiceWorker` yourself; to ship no worker at all, drop
-`ngsw-config.json` and pass `provideShell({ serviceWorker: false })`. **`inlineCritical: false`** is
-not optional: the generated `index.html` ships a strict `script-src 'self'`, and Angular's
-critical-CSS pass loads the stylesheet with an **inline `onload` handler** that the policy blocks —
-the app then renders completely unstyled, and only in production builds.
+Each has a reason, told where the manual setup makes the same edit: the i18n glob serves the shell's
+own strings ([Serve the host translations](manual-setup.md#5--serve-the-host-translations)), the
+frame-kit glob matters only once you host sandboxed plugins ([Frame plugins](distribution/frame-plugins.md)),
+and `serviceWorker` with `inlineCritical: false` is the PWA side ([PWA and delivery](distribution/pwa.md)).
+One trap belongs here: `inlineCritical: false` is not optional, because the generated `index.html`
+ships a strict `script-src 'self'` that blocks Angular's inline critical-CSS handler, and the app then
+renders unstyled, only in production builds.
 
 The scaffold only **adds**. A setting you had already made is left exactly as you made it, so
 re-running a scaffold over a workspace you have configured changes nothing.
 
 > **Don't want Tailwind?** Re-run step 3 with `--styles precompiled` and skip the Tailwind packages
-> from step 2 — `src/styles.css` becomes one line, and no style pipeline is written because none is
-> needed:
->
-> ```css
-> /* src/styles.css */
-> @import '@loomweaver/shell/styles/shell.css';
-> ```
->
-> That is the same stylesheet pre-compiled by us — tokens, the `.lw-*` class contracts and every
-> utility the shell's own templates use, 67 KB minified. You give up writing Tailwind utilities in
-> your own templates; the `--lw-*` tokens stay available to any CSS you write. Themed with
-> Bootstrap? `npx @loomweaver/cli theme --name acme --preset bootstrap` writes the token mapping too.
-> See [bringing your own CSS framework](manual-setup.md#bringing-your-own-css-framework) — the
-> cascade layer it describes is not optional.
+> from step 2; `src/styles.css` becomes one import of the stylesheet we pre-compiled.
+> [Bringing your own CSS framework](manual-setup.md#bringing-your-own-css-framework) says what you
+> give up and how a Bootstrap theme fits.
 
-What a scaffold cannot do is written where it happens: a style configuration written as JavaScript
-cannot be merged into, a workspace it cannot find has nothing to wire, and where several projects
-could be the target it names them rather than choosing. In each case the run says so, and says what
-it costs to leave undone. If you would rather see every seam by hand, [manual
-setup](manual-setup.md) writes all of it yourself.
+What a scaffold cannot do, the run says so, and says what it costs to leave undone;
+[Scaffolding](scaffolding.md) lists those cases.
 
 ## 5 · Scaffold a weaver
 
@@ -212,9 +185,8 @@ Click that icon and the app navigates to `/notes`, where your surface fills the 
 
 The status bar along the bottom shows the running version, which the shell contributes itself.
 
-Navigating there opens a tab for it, so the pane draws a tab strip above your surface — that is the
-rule for every routable surface; only one that declares `chromeless: true` fills the area without a
-strip. See [content area](authoring-a-weaver.md#content-area--routes--tabs).
+Navigating there opens a tab, so the pane draws a tab strip above your surface, as it does for every
+routable surface ([The content area](weaver/content-area.md)).
 
 One thing is deliberately empty, and it names the next thing to build: **the home route renders
 nothing**, because no surface claims `/` yet.
@@ -226,18 +198,15 @@ many triggers](samples.md#one-behaviour-many-triggers).
 on a real shortcut, there to be replaced.
 
 Two shortcuts are the shell's own and work from this first run: **`mod+k`** opens the command
-search, **`mod+p`** the search over everything you have open (`mod` is ⌘ on macOS, Ctrl elsewhere).
-You do not have to remember them, because the scaffold put both on screen: the badge at the right of
-the top bar is the command search, the one at the left of the status bar is quick-open, and each
-prints its own chord. Both badges are two lines in your `app.config.ts` and yours to move or delete;
-`LOOMWEAVER.md` says how, and how to drop either search altogether.
+search, **`mod+p`** the search over everything you have open. The scaffold put both on screen as
+badges that print their own chord, two lines in your `app.config.ts` and yours to move or delete;
+`LOOMWEAVER.md` says how.
 
 That icon in the rail is the whole point: the platform drew every piece of chrome around it, and your
 plugin only declared what it wanted to contribute.
 
-Your first production build warns `bundle initial exceeded maximum budget` against Angular's 500 kB
-default. The shell is a whole application chrome, so raise the budgets in your build target —
-`maximumError` sits at 1 MB and a product of any size will reach it.
+Your first production build warns `bundle initial exceeded maximum budget`; raise the budgets in your
+build target as [Manual setup → Run](manual-setup.md#7--run) describes.
 
 ---
 

@@ -938,7 +938,7 @@ Prefer generating over hand-wiring. Three dev-time `scope:tooling` packages, pub
 
 ## Full docs (prose, examples)
 
-- docs/architecture.md · docs/getting-started.md · docs/manual-setup.md · docs/samples.md · docs/authoring-a-weaver.md · docs/building-a-distribution.md · docs/plugins.md · docs/scaffolding.md · docs/backend-integration.md
+- docs/architecture.md · docs/getting-started.md · docs/manual-setup.md · docs/samples.md · docs/authoring-a-weaver.md (+ docs/weaver/*.md, one how-to per page) · docs/building-a-distribution.md (+ docs/distribution/*.md, one decision per page) · docs/concepts/*.md (why the workbench behaves as it does) · docs/plugins.md · docs/scaffolding.md · docs/backend-integration.md
 - docs/reference/{shell-anatomy,design-tokens,icons,accessibility,access-gating,routing,callable-commands,agent-tools}.md
 - docs/reference/distribution/{index,composition,switches,tabs,panes,workspaces,sidebars,reset,dialogs-and-toasts,settings,commands,session,appearance,plugins-at-runtime,windows-and-sync}.md — the Distribution API, indexed by intent
 - Scaffolding: docs/scaffolding.md and platform/libs/tooling/{devkit,cli,mcp}/README.md

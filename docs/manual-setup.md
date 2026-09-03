@@ -109,7 +109,7 @@ Four things about the generated file you are replacing:
   `serviceWorker: false` skips it; `UpdateService.enabled` reports `false` and no update chrome ever
   appears. To *become* a PWA later, drop the option and add the build side:
   `ngsw-config.json`, the `serviceWorker` build option and a `manifest.webmanifest`. The steps are
-  described in [building a distribution → PWA & delivery](building-a-distribution.md#pwa--delivery).
+  described in [building a distribution → PWA & delivery](distribution/pwa.md).
   The [scaffolded quick start](getting-started.md) ships all of that wired, so there PWA is on.
 
 - **`provideRouter(routes)` goes away.** `provideShellRouter()` calls it for you and takes its place.
@@ -369,7 +369,7 @@ constraint cannot depend on any libraries"*. Give the new projects tags your con
 `--tags` when generating or in `project.json` afterwards. The scaffold deliberately does not relax
 that rule for you.
 
-In an Nx workspace prefer **[`@loomweaver/devkit`](scaffolding.md#the-nx-generators--loomdevkit)** over
+In an Nx workspace prefer **[`@loomweaver/devkit`](scaffolding.md#the-nx-generators--loomweaverdevkit)** over
 the CLI. It is the only adapter that can *change* files as well as write them. It registers the
 project, adds the tsconfig path alias and wires the translation assets glob into the composing
 application. The CLI can only describe those steps.

@@ -34,7 +34,7 @@ your attention goes to the part that is actually yours.
 | [3 · One behaviour, many triggers](#one-behaviour-many-triggers) | `weaver --id notes --command --shortcut 'mod+shift+n' --menu content/tab/context --bar-item` |
 | [4 · A settings section](#a-settings-section) | `weaver --id notes --settings` |
 | [5 · Gating a surface behind a login](#gating-a-surface-behind-a-login) | `weaver --id notes --access authenticated` |
-| [10 · Letting an AG-UI agent drive your product](#letting-an-ag-ui-agent-drive-your-product) | `weaver --id notes --agent` — the connection, a panel and a stand-in that works before you have a transport; what you replace is one file |
+| [10 · Letting an AG-UI agent drive your product](#10--letting-an-ag-ui-agent-drive-your-product) | `weaver --id notes --agent` — the connection, a panel and a stand-in that works before you have a transport; what you replace is one file |
 
 The options compose, so that is one call and not six:
 
@@ -784,7 +784,7 @@ Two rules keep it convergent: an applier must **set state without persisting aga
 write back and forth forever), and a broadcast never reaches the window that sent it — so `announce`
 notifies only the *other* windows, while `notifyRemoteChange` is the deliberate way to run the applier
 in *this* window (that is the live tier of a cross-device
-[working-state store](building-a-distribution.md#persistence-stores-optional)).
+[working-state store](distribution/persistence.md)).
 
 **A plugin's own state.** A **sandboxed** plugin inherits all of this: its settings live in
 host-managed storage, so a change in one window is pushed to its copy in the other window via
