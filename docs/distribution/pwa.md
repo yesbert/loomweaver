@@ -104,8 +104,6 @@ exists for.
 
 ## Where next
 
-- [The plugin system](../plugins.md): the rungs of trust and the ways in.
-- [Backend integration](../backend-integration.md): your own backend behind the ports.
-
-- [Building a distribution](../building-a-distribution.md): the composition root and the map of these pages.
-- [Distribution API](../distribution-api/index.md): everything your own code can do once the product runs.
+- [Windows, sync and updates](../distribution-api/windows-and-sync.md): `UpdateService`, the version and update flow from your own code.
+- [Branding](branding.md): the identity the manifest and the About dialog read.
+- [Manual setup](../manual-setup.md): the setup that deliberately starts without a worker.

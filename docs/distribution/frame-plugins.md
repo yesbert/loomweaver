@@ -39,10 +39,10 @@ Grants work identically (default-deny, same map). The plugin contributes content
 plain-string, data-oriented `ctx` slice crosses the boundary; an Angular class cannot. Everything
 arriving over the wire is re-validated at the RPC seam. Only the `{ iframe }` surface form is
 accepted. The surface URL must be **same-origin** (distribution-served) — foreign origins,
-`javascript:` and `data:` URLs are rejected. This is the **first sandbox
-rung** — the exposed `ctx` is currently minimal (routes, navigation, toasts) and grows as the rung
-matures, so treat it as experimental. The isolation guarantee is the iframe sandbox: the plugin runs in
-its own JS context and origin, with no access to the host DOM, variables or storage.
+`javascript:` and `data:` URLs are rejected. What the sandboxed `ctx` carries, and how a surface
+paints and talks back, is [Sandboxed surfaces](../weaver/sandboxed-surfaces.md). The isolation
+guarantee is the iframe sandbox: the plugin runs in its own JS context and origin, with no access to
+the host DOM, variables or storage.
 
 Because a sandboxed surface has none of the host's `--lw-*` design tokens, the host **pushes the resolved
 token values** to the surface (alongside the active locale and light/dark theme); the surface sets them as
@@ -99,5 +99,6 @@ blocked — if you want it, widen `frame-src` deliberately to the origins you tr
 
 ## Where next
 
-- [Building a distribution](../building-a-distribution.md): the composition root and the map of these pages.
-- [Distribution API](../distribution-api/index.md): everything your own code can do once the product runs.
+- [Sandboxed surfaces](../weaver/sandboxed-surfaces.md): the bootstrap, the pushed tokens and the frame kit from the plugin's side.
+- [Plugin store](plugin-store.md): the same sandboxed plugins, installed by the user at runtime instead of composed.
+- [Capabilities and trust](../concepts/capabilities-and-trust.md): the three rungs and where the sandbox sits among them.

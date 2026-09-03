@@ -48,6 +48,8 @@ Three layers compose, and none can clobber another:
 - **Each namespace** you register with `provideTranslationNamespaces('notes', 'product')` loads from
   `/i18n/<name>/{lang}.json` and nests under `<name>.*`. Your weaver owns `notes.*`; your branding
   owns `product.*`.
+- **Overrides** you opt into with `provideTranslationOverrides()` are applied last, key by key, and
+  are the only layer that may change a host string; see [Rewording the shell](#rewording-the-shell).
 
 Serve the namespace files as assets (`public/i18n/notes/en.json`, `public/i18n/product/en.json`) and
 copy the shell's host keys (getting-started §5). A namespace file does **not** repeat its namespace —
@@ -97,5 +99,6 @@ has to happen in the composition root.
 
 ## Where next
 
-- [Building a distribution](../building-a-distribution.md): the composition root and the map of these pages.
-- [Distribution API](../distribution-api/index.md): everything your own code can do once the product runs.
+- [Branding](branding.md): the identity and the `--lw-*` tokens beside these icons and strings.
+- [Icons and theme](../weaver/icons-and-theme.md): `ctx.contributeIcons`, the icons a weaver brings at runtime.
+- [Translations](../weaver/i18n.md): how a weaver fills the namespace you registered for it.

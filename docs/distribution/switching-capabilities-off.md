@@ -20,12 +20,16 @@ A switch takes the **affordance and the gesture**. Turning `splitRight` off remo
 button, the left/right drop edges *and* `mod+\`, so the capability cannot come back through a second
 door.
 
-Every capability is on by default. `content.escalate` is the double-click cycle on a tab
-(preview → keep → pin → unpin); its first step is the one users arrive expecting, and a preview tab
-says so itself — its tooltip reads "double-click to keep open". Switch it off with
-`provideShellFeatures({ content: { escalate: false } })` and the tooltip drops that promise, so no
-hint advertises a gesture that does nothing. Every step of the cycle stays reachable from the tab's
-context menu either way.
+**Preview tabs.** The content area supports preview tabs: a weaver opens with `preview: true` to
+reuse a single italic slot. It is **on by default**; opt out for the whole distribution with
+`provideShellFeatures({ content: { preview: false } })`, which makes every `openContentTab` a
+permanent tab.
+
+`content.escalate` is the double-click cycle on a tab (preview → keep → pin → unpin); its first step
+is the one users arrive expecting, and a preview tab says so itself: its tooltip reads "double-click
+to keep open". Switch it off with `provideShellFeatures({ content: { escalate: false } })` and the
+tooltip drops that promise, so no hint advertises a gesture that does nothing. Every step of the
+cycle stays reachable from the tab's context menu either way.
 
 ```ts
 // src/app/app.config.ts — in the providers array
@@ -90,6 +94,12 @@ active workspace still names the layout keys, the user simply never meets the co
 A rail or bar item that names a command **nobody registered** is dropped rather than drawn, the same
 way an orphaned menu entry is: switching a capability off never leaves a dead button behind.
 
+**User reordering.** Users can drag or keyboard-reorder the host chrome: content tabs, rail items and
+view tabs within their own band, with the order persisted user-locally. It uses
+`@angular/cdk/drag-drop` (a `@loomweaver/shell` peer dependency) and is **on by default**. Toggle per
+container with
+`provideShellFeatures({ content: { reorderTabs: false }, rail: { reorder: false }, sidebar: { reorderViews: false } })`.
+
 Sorting and moving are separate on purpose. `reorderViews` and `rail.reorder` govern the order
 **inside** one bar; carrying an item **to the other** bar is `moveViews` and `rail.moveItems`, and
 that one switch covers the menu entry, the drag and `Alt+Shift+Arrow` together.
@@ -128,5 +138,6 @@ chromeless screen is left; a tab the strip does not draw would be a tab nobody c
 
 ## Where next
 
-- [Building a distribution](../building-a-distribution.md): the composition root and the map of these pages.
-- [Distribution API](../distribution-api/index.md): everything your own code can do once the product runs.
+- [Switches](../distribution-api/switches.md): `FeatureSwitches`, reading and changing a switch while the application runs.
+- [Recomposing host chrome](recomposing-chrome.md): removing a contribution rather than a gesture, with `omit`.
+- [Surface retention](surface-retention.md): the `retention` policy in full, and what it costs a retained surface.
