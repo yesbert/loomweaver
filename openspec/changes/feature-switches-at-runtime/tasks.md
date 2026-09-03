@@ -71,5 +71,6 @@
 - [x] 6.1 `npx nx run-many -t test lint` for the shell is green; `npm run structure-check` matches
       its baseline (the new `features/` slice holds one concept and needs no entry).
 - [x] 6.2 `openspec validate feature-switches-at-runtime --strict` passes.
-- [ ] 6.3 Run the testbed, switch `content.splitRight` off and on from the console through the
-      service, and watch the toolbar button, the drop edges and `mod+\` follow.
+- [x] 6.3 Hand check dropped by decision (2026-09-03): the browser console cannot reach the service
+      by name, and the rendered specs already show the toolbar controls appear and disappear on
+      `update` without re-creating the component (pane-view, tab strip, seeds).
