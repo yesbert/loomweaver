@@ -9,7 +9,7 @@ import {
 import { CONTENT_DOCK } from '../../regions/pane/tree/pane-address';
 import { collectTabs } from '../../regions/pane/tree/pane-queries';
 import { ANNOUNCE_UNUSABLE_WORKSPACES } from '../provide-workspaces';
-import { PANE_TREES_KEY } from '../workspace-state';
+import { PANE_TREES_KEY } from '../baseline/workspace-state';
 import {
   everyWorkspaceOrigin,
   unusableWorkspaceIds,

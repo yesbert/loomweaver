@@ -57,6 +57,9 @@ export {
 } from './lib/regions/content/access/content-access';
 export * from './lib/regions/content/tabs/content-tabs.service';
 export * from './lib/regions/pane/pane.service';
+export * from './lib/workspace/workspace.service';
+export { type Workspace } from './lib/workspace/baseline/workspace-state';
+export * from './lib/regions/reset/app-reset.service';
 export { type PaneHandle } from './lib/regions/pane/pane-handle';
 export { type QuickOpenTarget } from './lib/regions/content/tabs/quick-open-target';
 export { type ContentTabView } from './lib/regions/content/tabs/content-tab-projection';

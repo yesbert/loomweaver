@@ -1,10 +1,10 @@
-import { KeyValueStore } from '../persistence/key-value-store';
-import { readStoredValue } from '../persistence/hydrate';
-import { workspaceScopedKey } from './active-workspace.service';
+import { KeyValueStore } from '../../persistence/key-value-store';
+import { readStoredValue } from '../../persistence/hydrate';
+import { workspaceScopedKey } from '../active-workspace.service';
 import {
   WorkspaceDefinition,
   workspaceBaseline,
-} from './workspace-definition';
+} from '../workspace-definition';
 
 export const WORKSPACES_KEY = 'lw.shell.workspaces';
 

@@ -1,11 +1,11 @@
-import { PaneNode, PaneTab } from '../regions/pane/tree/pane-node';
-import { tabWithout } from '../regions/pane/tree/pane-tabs';
-import { normalizeDockEntry } from '../regions/pane/tree/pane-restore';
+import { PaneNode, PaneTab } from '../../regions/pane/tree/pane-node';
+import { tabWithout } from '../../regions/pane/tree/pane-tabs';
+import { normalizeDockEntry } from '../../regions/pane/tree/pane-restore';
 import {
   PRIMARY_PANE,
   VIEW_PANE_PREFIX,
-} from '../regions/pane/tree/pane-address';
-import { parseHiddenViews } from '../regions/panel/hidden-views.service';
+} from '../../regions/pane/tree/pane-address';
+import { parseHiddenViews } from '../../regions/panel/hidden-views.service';
 
 export type ReadState = (key: string) => string | undefined;
 

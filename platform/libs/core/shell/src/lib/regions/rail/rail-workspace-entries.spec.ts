@@ -66,7 +66,7 @@ describe('RailWorkspaceEntries', () => {
     TestBed.tick();
     expect(railIds(registry)).toHaveLength(1);
 
-    workspaces.remove(saved.id);
+    await workspaces.remove(saved.id);
     TestBed.tick();
 
     expect(railIds(registry)).toEqual([]);

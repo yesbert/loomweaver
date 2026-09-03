@@ -238,6 +238,9 @@ touched. Saved workspaces and their layouts stay as well, unless the user ticks 
 the reset across every workspace. That box describes the one reset being asked for and is not
 remembered as a setting. A surface with unsaved work is guarded exactly as it is on a workspace reset.
 
+Driving the reset from your own code, with or without the workspaces and with the same unsaved-work
+question, is `AppResetService` in the [host services](reference/host-services.md#resetting-the-application--appresetservice).
+
 Take it away like any other contribution: `omit: ['shell.app.reset']` drops the command, and with it
 the settings button, because a button naming a command nobody registered is dropped rather than drawn
 dead.
@@ -334,6 +337,9 @@ whichever list holds the **active** workspace, and each label carries its count,
 saved nothing yet still sees that the product ships some. A distribution that ships none never sees the
 switch. Invalid declarations are reported to the console in dev mode, naming what is
 ignored; nothing fails silently at runtime.
+
+Switching, saving, resetting, renaming and removing workspaces from your own code is
+`WorkspaceService` in the [host services](reference/host-services.md#workspaces--workspaceservice).
 
 **Declaring a workspace does not put it in front of anyone.** The dialog lists it, and that is all —
 the workbench draws entries only for the workspaces a *user* saved, because those have nothing but a

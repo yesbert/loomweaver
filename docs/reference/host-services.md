@@ -3,7 +3,7 @@
 <!-- derived-from-specs -->
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `ui-primitives` · `commands` · `theming` · `product-
-> identity` · `host-services` · `gesture-configuration` · `panes`. Where this page and a specification disagree, the specification is right, and that is
+> identity` · `host-services` · `gesture-configuration` · `panes` · `workspaces`. Where this page and a specification disagree, the specification is right, and that is
 > a defect in this page: change the behaviour there, then explain it here.
 
 The shell's runtime services are part of the published contract, so a distribution can drive the
@@ -268,6 +268,53 @@ proportions are not published. Bind your own controls to the signals and they fo
 ```
 
 `PaneService` addresses the content area. Panes inside sidebars are not reachable through it.
+
+## Workspaces — `WorkspaceService`
+
+```ts
+const workspaces = inject(WorkspaceService);
+
+workspaces.workspaces();          // Signal<readonly Workspace[]>: the saved workspaces
+workspaces.activeId();            // Signal<string>
+workspaces.hasChanges();          // the active workspace differs from its baseline
+workspaces.changedIds();          // every workspace that differs from its baseline
+
+await workspaces.switchTo('review');     // never asks, never loses work
+await workspaces.saveCurrent('Mine');    // the current arrangement as a new workspace
+await workspaces.saveBaseline();         // the current arrangement becomes the baseline
+workspaces.rename(id, 'Reviews');
+const reset = await workspaces.reset();          // active workspace; asks about unsaved work
+await workspaces.reset('review');               // a workspace you are not in; asks nothing
+const all = await workspaces.resetAll();        // asks once for all of them
+const removed = await workspaces.remove(id);    // asks for the work parked under it
+```
+
+The declared workspaces come from `provideWorkspaces`; what the user saved is in `workspaces()`.
+Everything the workspace dialog and the rail do is here, under the ids you declared or the facts hand
+you, and it keeps working when you have switched `workspaces.enabled` off for your users.
+
+**What asks and what does not.** A switch parks work and asks nothing, as the capability requires.
+Resetting the *active* workspace, resetting all of them and removing a workspace destroy work that
+may be unsaved, so they ask the same question the built-in commands ask, inside the service. The
+"really reset?" confirmation the dialog shows is not asked here: that is your control's decision to
+make in your own words. Every asking action answers whether it ran, so a chain of them can stop when
+the user declined.
+
+## Resetting the application — `AppResetService`
+
+```ts
+const appReset = inject(AppResetService);
+
+await appReset.reset();                      // the frame: rail, sidebars, sizes, order, view instances
+await appReset.reset({ workspaces: true });  // and every workspace, asking about unsaved work once
+```
+
+`reset()` asks about unsaved work before it touches anything and answers whether it was allowed.
+With `workspaces: true` the question is asked once for both parts, through the same path
+`WorkspaceService.resetAll` takes, and nothing is reset if the answer is no. The
+`APP_RESET_WORKSPACES` token is how the composition root hands the frame's reset the workspaces'
+reset without the two slices depending on each other; `provideShell()` provides it, and you only
+meet it if you build your own composition root.
 
 ## Version and updates — `UpdateService`, `VersionService`
 

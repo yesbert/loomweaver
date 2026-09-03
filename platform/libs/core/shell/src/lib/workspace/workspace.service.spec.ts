@@ -10,7 +10,10 @@ import {
 } from './active-workspace.service';
 import { SETTINGS_STORE } from '../persistence/settings-store';
 import { ContributionRegistry } from '../plugin/contribution-registry';
-import { PRIMARY_PANE, VIEW_PANE_PREFIX } from '../regions/pane/tree/pane-address';
+import {
+  PRIMARY_PANE,
+  VIEW_PANE_PREFIX,
+} from '../regions/pane/tree/pane-address';
 import { paneSegments } from '../regions/pane/tree/pane-queries';
 import { CONTENT_DOCK } from '../regions/pane/tree/pane-address';
 import { PaneTreeService } from '../regions/pane/tree/pane-tree.service';
@@ -128,7 +131,7 @@ describe('WorkspaceService', () => {
     const paneId = paneSegments(paneTree.tree('primary')).at(-1)?.id ?? '';
     paneTree.closePane('primary', paneId);
 
-    ws.reset();
+    await ws.reset();
     expect(paneTree.isSplit(CONTENT_DOCK)).toBe(true);
     expect(paneSegments(paneTree.tree('primary')).map((s) => s.path)).toEqual([
       undefined,
@@ -145,7 +148,7 @@ describe('WorkspaceService', () => {
     await ws.switchTo(DEFAULT_WORKSPACE_ID);
     expect(paneTree.isSplit(CONTENT_DOCK)).toBe(true);
 
-    ws.reset();
+    await ws.reset();
 
     expect(paneTree.isSplit(CONTENT_DOCK)).toBe(false);
     expect(ws.workspaces().map((w) => w.name)).toEqual(['keep-me']);
@@ -162,7 +165,7 @@ describe('WorkspaceService', () => {
       localStorage.getItem(scoped('lw.shell.pane-trees', id)),
     ).not.toBeNull();
 
-    ws.remove(id);
+    await ws.remove(id);
 
     expect(ws.workspaces()).toEqual([]);
     expect(ws.activeId()).toBe(DEFAULT_WORKSPACE_ID);
@@ -187,7 +190,7 @@ describe('WorkspaceService', () => {
     expect(ws.hasChanges()).toBe(false);
 
     paneTree.splitPane(CONTENT_DOCK, PRIMARY_PANE, 'row', 'search');
-    ws.reset();
+    await ws.reset();
     expect(ws.hasChanges()).toBe(false);
   });
 
@@ -254,7 +257,7 @@ describe('WorkspaceService', () => {
     paneTree.splitPane(CONTENT_DOCK, PRIMARY_PANE, 'row', 'search');
     expect(ws.hasChanges()).toBe(true);
 
-    ws.reset();
+    await ws.reset();
     expect(ws.hasChanges()).toBe(false);
     expect(paneTree.isSplit(CONTENT_DOCK)).toBe(false);
   });
@@ -322,7 +325,7 @@ describe('WorkspaceService', () => {
     groups.seed('primary');
     expect(ws.hasChanges()).toBe(true);
 
-    ws.reset();
+    await ws.reset();
     expect(hidden.isHidden('outline')).toBe(true);
     expect(ws.hasChanges()).toBe(false);
 
@@ -445,7 +448,7 @@ describe('WorkspaceService with developer definitions', () => {
     paneTree.unsplit(CONTENT_DOCK);
     expect(ws.hasChanges()).toBe(true);
 
-    ws.reset();
+    await ws.reset();
 
     expect(paneTree.isSplit(CONTENT_DOCK)).toBe(true);
     expect(ws.hasChanges()).toBe(false);
@@ -459,7 +462,7 @@ describe('WorkspaceService with developer definitions', () => {
     expect(ws.hasChanges()).toBe(true);
 
     ws.rename('dev.review', 'other');
-    ws.remove('dev.review');
+    await ws.remove('dev.review');
     expect(ws.definitions[0].title).toBe('k.review');
     expect(ws.activeId()).toBe('dev.review');
     expect(ws.workspaces()).toEqual([]);

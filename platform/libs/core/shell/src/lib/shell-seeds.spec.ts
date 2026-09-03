@@ -275,7 +275,11 @@ describe('the seeds follow the switches live', () => {
 
 describe('shell.content.splitRight is a toggle over the pane service', () => {
   function seedWithPanes(isSplit: boolean) {
-    const panes = { isSplit: () => isSplit, splitRight: vi.fn(), unsplit: vi.fn() };
+    const panes = {
+      isSplit: () => isSplit,
+      splitRight: vi.fn(),
+      unsplit: vi.fn(),
+    };
     switchesFor({});
     const registry = TestBed.inject(ContributionRegistry);
     seedHostCommands(registry, layout, {
@@ -302,5 +306,81 @@ describe('shell.content.splitRight is a toggle over the pane service', () => {
     const panes = seedWithPanes(true);
     expect(panes.unsplit).toHaveBeenCalledTimes(1);
     expect(panes.splitRight).not.toHaveBeenCalled();
+  });
+});
+
+describe('the reset commands keep their dialogs and call the guarded services', () => {
+  function seedResets(choice: { workspaces: boolean } | undefined) {
+    const workspace = {
+      reset: vi.fn(async () => true),
+      activeId: () => 'overview',
+    };
+    const appReset = { reset: vi.fn(async () => true) };
+    switchesFor({});
+    const registry = TestBed.inject(ContributionRegistry);
+    seedHostCommands(registry, layout, {
+      popout: { active: false },
+      features: TestBed.inject(FeatureSwitches),
+      injector: TestBed.inject(Injector),
+      workspace,
+      appReset,
+      transloco: { translate: (key: string) => key },
+      dialogs: {
+        confirm: () => Promise.resolve(true),
+        open: () => ({ closed: Promise.resolve(choice) }),
+      },
+    } as unknown as HostCommandDeps);
+    flush();
+    return { registry, workspace, appReset };
+  }
+
+  async function settle(): Promise<void> {
+    for (let i = 0; i < 4; i++) {
+      await Promise.resolve();
+    }
+  }
+
+  it('the workspace reset command resets the named workspace through the service', async () => {
+    const { registry, workspace } = seedResets(undefined);
+    registry
+      .commands()
+      .find((command) => command.id === 'shell.workspace.reset')
+      ?.run?.({ workspace: 'orders' });
+    await settle();
+
+    expect(workspace.reset).toHaveBeenCalledWith('orders');
+  });
+
+  it('the workspace reset command resets the active workspace when none is named', async () => {
+    const { registry, workspace } = seedResets(undefined);
+    registry
+      .commands()
+      .find((command) => command.id === 'shell.workspace.reset')
+      ?.run?.();
+    await settle();
+
+    expect(workspace.reset).toHaveBeenCalledWith(undefined);
+  });
+
+  it('the app reset command passes the dialog choice to the service', async () => {
+    const { registry, appReset } = seedResets({ workspaces: true });
+    registry
+      .commands()
+      .find((command) => command.id === 'shell.app.reset')
+      ?.run?.();
+    await settle();
+
+    expect(appReset.reset).toHaveBeenCalledWith({ workspaces: true });
+  });
+
+  it('a dismissed app reset dialog calls nothing', async () => {
+    const { registry, appReset } = seedResets(undefined);
+    registry
+      .commands()
+      .find((command) => command.id === 'shell.app.reset')
+      ?.run?.();
+    await settle();
+
+    expect(appReset.reset).not.toHaveBeenCalled();
   });
 });

@@ -28,15 +28,12 @@ function compose(): WorkspaceService {
     providers: [
       provideRouter([{ path: '**', children: [] }]),
       provideLayout(LAYOUT as never),
-      provideWorkspaces(
-        { id: 'overview', title: 'Overview', initial: true },
-        {
-          id: 'orders',
-          title: 'Orders',
-          claims: ['orders/:id'],
-          content: { tabs: [{ path: 'orders/o-0', closable: false }] },
-        } as never,
-      ),
+      provideWorkspaces({ id: 'overview', title: 'Overview', initial: true }, {
+        id: 'orders',
+        title: 'Orders',
+        claims: ['orders/:id'],
+        content: { tabs: [{ path: 'orders/o-0', closable: false }] },
+      } as never),
     ],
   });
   return TestBed.inject(WorkspaceService);
@@ -49,12 +46,12 @@ function storedOrders(): string {
 describe('resetting a workspace', () => {
   beforeEach(() => localStorage.clear());
 
-  it('acts on the workspace it names, leaving the user where they are', () => {
+  it('acts on the workspace it names, leaving the user where they are', async () => {
     localStorage.setItem('lw.shell.pane-trees:orders', REARRANGED);
     const ws = compose();
     expect(ws.activeId()).toBe('overview');
 
-    ws.reset('orders');
+    await ws.reset('orders');
 
     expect(ws.activeId()).toBe('overview');
     expect(storedOrders()).not.toContain('orders/o-1');
@@ -66,26 +63,26 @@ describe('resetting a workspace', () => {
     await ws.switchTo('orders');
     localStorage.setItem('lw.shell.pane-trees:orders', REARRANGED);
 
-    ws.reset();
+    await ws.reset();
 
     expect(ws.activeId()).toBe('orders');
     expect(storedOrders()).toContain('orders/o-0');
   });
 
-  it('does nothing for a workspace nobody declared or saved', () => {
+  it('does nothing for a workspace nobody declared or saved', async () => {
     localStorage.setItem('lw.shell.pane-trees:orders', REARRANGED);
     const ws = compose();
 
-    ws.reset('nothing-here');
+    await ws.reset('nothing-here');
 
     expect(storedOrders()).toContain('orders/o-1');
   });
 
-  it('returns every workspace to its baseline when asked for all of them', () => {
+  it('returns every workspace to its baseline when asked for all of them', async () => {
     localStorage.setItem('lw.shell.pane-trees:orders', REARRANGED);
     const ws = compose();
 
-    ws.resetAll();
+    await ws.resetAll();
 
     expect(storedOrders()).toContain('orders/o-0');
     expect(storedOrders()).not.toContain('orders/o-1');

@@ -44,8 +44,6 @@ import { defineLwProgressRing } from './elements/progress/lw-progress-ring.eleme
 import { ContentTabsService } from './regions/content/tabs/content-tabs.service';
 import { PaneTreeService } from './regions/pane/tree/pane-tree.service';
 import { PaneMoveService } from './regions/pane/drag/pane-move.service';
-import { RetentionCandidates } from './regions/pane/retention/retention-candidates';
-import { SurfaceCloseGuard } from './regions/pane/close/surface-close-guard';
 import { WorkspaceService } from './workspace/workspace.service';
 import { ViewStateService } from './views/view-state.service';
 import { ViewInstanceService } from './views/view-instance.service';
@@ -55,8 +53,10 @@ import { RailItemsService } from './regions/rail/rail-items.service';
 import { RailMoveService } from './regions/rail/rail-move.service';
 import { RailWorkspaceEntries } from './regions/rail/rail-workspace-entries';
 import { PopoutService } from './popout/popout.service';
-import { AuthContext } from './auth/auth-context';
-import { AppResetService } from './layout/app-reset.service';
+import {
+  APP_RESET_WORKSPACES,
+  AppResetService,
+} from './regions/reset/app-reset.service';
 import { SHELL_LAYOUT } from './layout/layout';
 import {
   RetentionDefault,
@@ -191,14 +191,11 @@ export function provideShell(
       const registry = inject(ContributionRegistry);
       seedHostCommands(registry, inject(SHELL_LAYOUT), {
         dialogs: inject(DialogService),
-        tabs: inject(ContentTabsService),
         panes: inject(PaneService),
         workspace: inject(WorkspaceService),
         transloco: inject(TranslocoService),
         settings: inject(SettingsService),
         popout: inject(PopoutService),
-        closeGuard: inject(SurfaceCloseGuard),
-        retention: inject(RetentionCandidates),
         appReset: inject(AppResetService),
         features: inject(FeatureSwitches),
         injector: inject(Injector),
@@ -235,6 +232,13 @@ export function provideShell(
     }),
 
     provideEnvironmentInitializer(() => inject(KeybindingService).start()),
+    {
+      provide: APP_RESET_WORKSPACES,
+      useFactory: () => {
+        const workspaces = inject(WorkspaceService);
+        return () => workspaces.resetAll();
+      },
+    },
 
     provideEnvironmentInitializer(() => inject(RailWorkspaceEntries).start()),
 
