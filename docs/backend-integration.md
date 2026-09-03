@@ -158,7 +158,7 @@ Your own distribution code reads the same session back through `AuthContext` —
 chrome itself uses, so a component of yours and a gated rail item can never disagree:
 
 ```ts
-// src/app/api-translation-loader.ts
+// any distribution code inside an injection context
 import { AuthContext } from '@loomweaver/shell';
 
 const auth = inject(AuthContext);

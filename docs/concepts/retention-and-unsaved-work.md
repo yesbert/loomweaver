@@ -33,14 +33,15 @@ resolvers, no query parameters and no `subRoutes`.
 ## The unsaved-work question
 
 Wherever an action would destroy work, the workbench asks: Save, Discard or Cancel. Closing a tab,
-disabling or uninstalling a plugin, resetting a workspace and closing the browser window all ask,
-because the question is asked by the action, not by the button that triggered it. A distribution
+disabling or uninstalling a plugin and resetting a workspace all ask, because the question is asked
+by the action, not by the button that triggered it. Closing the browser window asks too, in the
+browser's own words. A distribution
 that closes a tab from its own code asks the same question, and its call answers whether it ran.
 
 A plugin takes part by implementing `DirtySurface`: it reports whether it is dirty, it saves on
 request, and it may say what should happen before a close. A sandboxed surface pushes the same facts
-over its channel. The owner of the work decides; the workbench only asks, and if the owner does not
-answer in time, the action proceeds.
+over its channel. The owner of the work decides; the workbench only asks. If the owner does not answer within a
+bounded wait, the user is offered a way to close anyway, and an answer that still arrives counts.
 
 ## Where to act on it
 

@@ -21,7 +21,7 @@ workspace is still entered, never exchanged for whichever workspace claims the s
 the workbench names the condition in the content area and offers the reset that repairs it.
 
 A product that would rather answer that itself takes **`withoutUnusableWorkspaceNotice()`**, a
-{@link WorkspacesFeature} passed among the declarations. It settles the question for the whole
+`WorkspacesFeature` passed among the declarations. It settles the question for the whole
 composition rather than per workspace, and it silences only the message: the arrangement is still
 restored untouched, the workspace is still entered, and which workspaces are affected stays readable,
 so the product can draw its own notice or reset them on its own terms.

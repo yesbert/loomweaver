@@ -27,7 +27,7 @@ dashboard, a docs site, a video); there the distribution decides what may be fra
 `frame-src`, which the browser enforces. The tab strip works identically — it only sees the
 `path`. This is the first sandbox rung; see
 [building a distribution](../distribution/frame-plugins.md) for wiring a sandboxed
-plugin, and the ADRs for the isolation model. Trusted in-process weavers keep using `component`.
+plugin, and [Capabilities and trust](../concepts/capabilities-and-trust.md) for the isolation model. Trusted in-process weavers keep using `component`.
 
 An iframe surface is a first-class content view: the host gives it a small two-way channel (Penpal). The
 host **pushes** the active UI language, the active sub-route segment, the preview state, and the
@@ -39,7 +39,7 @@ the surface can **call back** `navigate('<path>')` to drive the router, so its s
 browser-navigable. Surface navigation is confined to the route's **own tab root** (its sub-routes) — the
 surface channel carries no capability grant, so anything beyond the plugin's own view goes through the
 plugin (logic) channel's `ctx.navigateContent` (the `navigation` capability). The channel is opt-in — a
-static iframe that never connects just renders. (A worked example ships in the testbed weaver distribution's
+static iframe that never connects just renders. (A worked example ships in the testbed's
 `sandbox-rpc` plugin.)
 
 **A docked iframe surface.** The same `iframe` form works at a dock, so a surface that is not routable can
@@ -103,7 +103,7 @@ Penpal.connect({ messenger })
   .catch((error) => console.error('[my-plugin] activation failed', error));
 ```
 
-The RPC `ctx` is **flat** — unlike the in-process `ctx` on the rest of this page there is no `ctx.ui`
+The RPC `ctx` is **flat** — unlike the in-process `ctx` the other how-to pages use, there is no `ctx.ui`
 facade: the endpoints are `registerSurface` · `registerMenuItem` · `registerSettingsSection` ·
 `navigateContent` · `openContentTab` / `keepContentTab` / `pinContentTab` / `unpinContentTab` /
 `closeContentTab` · `revealSurface` · `toast`. Every call runs through the same default-deny
@@ -172,7 +172,7 @@ capability is never granted; a declared one the user can still revoke later. Sec
 to be **copied into the product's own origin**. The store is same-origin by design, so getting listed
 means passing the operator's review, not hosting anything yourself. Ship a **README.md** with your plugin: the operator copies it into the store next
 to your files and the store's detail pane renders it in-app — it is your plugin's storefront page.
-(The the testbed weaver distribution's `store-full` plugin is the worked example.)
+(The testbed's `store-full` plugin is the worked example.)
 
 **Shipping a new version.** Updates ride on the catalog's `version` field: the operator raises it
 together with your files, and every installed user is offered an update that swaps the entry and

@@ -13,7 +13,8 @@ The words these pages use, one line each. Where two words name the same thing, t
 - **Region**: one area of the frame a distribution declares: a **bar** (top or bottom), a **rail**
   (the icon strip beside a sidebar), a **panel** (a sidebar) or the **content** area. Each has a
   **dock**: top, bottom, left, right or center.
-- **Sidebar**: a panel region, in everyday words. The layout says `panel`; the guides say sidebar.
+- **Sidebar**: one side of the workbench: its panel, its rail if it has one, and the header above
+  them. The layout declares the parts; the guides say sidebar for the whole.
 - **Content area**: the center region. It is URL-addressed: what it shows is what the address bar
   says.
 - **Pane**: one tab group. The content area is a tree of panes the user splits; a sidebar is a pane
@@ -41,7 +42,7 @@ The words these pages use, one line each. Where two words name the same thing, t
 - **Contribution**: something a plugin registers through `ctx`: a surface, a command, a menu item, a
   bar or rail item, a settings section. A distribution can remove one by naming it (`omit`).
 - **Surface**: the one author contract for anything the workbench shows. A surface declares what it
-  can do (routable, dockable, instanceable), and the host places it.
+  can do (routable, docks, instanceable), and the host places it.
 - **View**: the older word for a surface docked in a sidebar. It survives in a few names
   (`provideViews`, `VIEW_STATE`); a view is a surface.
 - **Routable surface**: a surface with an address; visiting the address opens it as a tab in the

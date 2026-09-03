@@ -18,7 +18,7 @@ consume them — not a requirement.
 
 | You are…                                           | You consume the tokens through…                                                                                                                                                                                                                                                                                             |
 | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Using Bootstrap, another framework, or no framework** | the pre-compiled `@loomweaver/shell/styles/shell.css` — no Tailwind install needed. Setup: [bringing your own CSS framework](../manual-setup.md#bringing-your-own-css-framework). `loom theme --preset bootstrap` maps the tokens onto Bootstrap's own variables so both worlds share one palette. In your own CSS, read a token directly: `color: var(--lw-content)`. |
+| **Using Bootstrap, another framework, or no framework** | the pre-compiled `@loomweaver/shell/styles/shell.css` — no Tailwind install needed. Setup: [bringing your own CSS framework](../manual-setup.md#bringing-your-own-css-framework). `npx @loomweaver/cli theme --preset bootstrap` maps the tokens onto Bootstrap's own variables so both worlds share one palette. In your own CSS, read a token directly: `color: var(--lw-content)`. |
 | **Using Tailwind**                                 | the [setup below](#setup-with-tailwind) — every token doubles as a semantic utility (`bg-surface`, `text-brand`, …).                                                                                                                                                                                                          |
 | **Writing a frame plugin**            | the frame UI kit: `<link rel="stylesheet" href="/frame-kit/lw-frame.css">` — the same tokens and `.lw-*` contracts; the host pushes its resolved token values into your iframe over RPC.                                                                                                                               |
 
@@ -204,6 +204,7 @@ itself uses, so the shell renders correctly without any of this.
 | `surface-raised`   | raised surface (card, active tab, panel body)                |
 | `surface-overlay`  | overlay/popup/chrome controls (dropdown, toolbar buttons)    |
 | `field`            | input-field background                                       |
+| `scrim`            | the backdrop behind a dialog and the mobile drawer           |
 | `border`           | default divider/border (`border-border`)                     |
 
 ### Text

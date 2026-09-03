@@ -46,7 +46,8 @@ ng new my-studio --style=css --ssr=false && cd my-studio
 
 # the platform
 npm install @loomweaver/shell @loomweaver/plugin-sdk @angular/cdk @jsverse/transloco \\
-  @ng-icons/heroicons @angular/service-worker
+  @ng-icons/heroicons \\
+  @angular/service-worker@$(node -p "require('@angular/core/package.json').version")
 npm install -D tailwindcss @tailwindcss/postcss @tailwindcss/typography
 
 # your product, and a first plugin already contributing to it
@@ -151,7 +152,7 @@ const rungs = [
         aria-label="A tour of a LoomWeaver workbench: opening the command palette, splitting a pane, a sandboxed non-Angular plugin, and a plugin re-skinning the whole application"
       ></video>
       <figcaption>
-        Twenty-six seconds, no cuts. The rail, the panes, the palette and the status bar are the
+        Twenty-seven seconds, no cuts. The rail, the panes, the palette and the status bar are the
         platform’s. Everything inside them can come from plugins, the theme at the end included.
       </figcaption>
     </figure>

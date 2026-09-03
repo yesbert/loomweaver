@@ -28,7 +28,7 @@ on the left and right, the **bar (top)** in the middle.
 | RAIL  | PANEL  |       CONTENT AREA        | PANEL  | RAIL  |
 |(left) |(left)  |        (center)           |(right) |(right,|
 |       |        |                           |        | opt.) |
-| Rail  | View   | tabs · tab.titleActions   | View   |       |
+| Rail  | View   | tabs                      | View   |       |
 | items | header | body                      | header | Rail  |
 |(cmds) | +body  |                           | +body  | items |
 +-------+--------+---------------------------+--------+-------+
@@ -46,7 +46,7 @@ on the left and right, the **bar (top)** in the middle.
 | Outer icon strip | **Rail** (ribbon) | `rail`, dock `left`/`right` | **independent commands** (not view switching), and workspace entries via `workspace: <id>`; user-curated, each entry in exactly one rail | `anchor: 'top' \| 'bottom'` + `order` → **rail items** |
 | Collapsible side area | **Panel** | `panel`, dock `left`/`right` | a tab group like the centre: icon tab strip (in the sidebar header) + active tab in the body; further groups below it can be split/stacked | `header.title` · `header.actions` · `body` |
 | Rail + panel + sidebar header together | **Sidebar** | (composition) | one complete side bar | — |
-| Main area (centre) | **Content area** | `content`, dock `center` | main working surface | `tabs` · `tab.titleActions` · `body` |
+| Main area (centre) | **Content area** | `content`, dock `center` | main working surface | `tabs` · `body` |
 | Bottom strip | **Bar (bottom)** / status bar | `bar`, dock `bottom` — e.g. `{ id: 'status-bar' }` | status/info | `start` · `center` · `end` → **bar items** |
 | Contents of a sidebar | **Surface** | `ctx.registerSurface` (plugin; the only authoring entry point — `View` is only the host's internal storage form) | title · icon · `header.actions` · body | — |
 

@@ -70,7 +70,7 @@ root component instead of using `Shell`.
 | follow light and dark in my own UI | `theme.resolvedTheme()`, `theme.setMode(mode)` | [Appearance](appearance.md) |
 | set the text size | `textSize.setScale('lg')` | [Appearance](appearance.md) |
 | open the plugin store | `store.open()` | [Plugins at runtime](plugins-at-runtime.md) |
-| turn a plugin off, revoke a capability, uninstall | `PluginEnablementService`, `CapabilityGrantService`, `PluginInstallService` | [Plugins at runtime](plugins-at-runtime.md) |
+| turn a plugin off, revoke a capability, uninstall | `enablement.setEnabled(plugin, false)`, `grants.setGranted(plugin, capability, false)`, `install.uninstall(plugin)` | [Plugins at runtime](plugins-at-runtime.md) |
 | open a surface in its own window | `popout.open(target)` | [Windows, sync and updates](windows-and-sync.md) |
 | make my own state follow across windows | `sync.register(…)`, `sync.announce(key)` | [Windows, sync and updates](windows-and-sync.md) |
 | react to a new version | `updates.updateAvailable()`, `await updates.activateUpdate()` | [Windows, sync and updates](windows-and-sync.md) |

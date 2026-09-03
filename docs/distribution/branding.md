@@ -55,7 +55,7 @@ framework imported *unlayered* outranks all of ours regardless of specificity, s
 layer of its own. On Bootstrap 5.3 you do not have to write the token mapping at all:
 `loomweaver theme --name acme --preset bootstrap` points the `--lw-*` ladder at Bootstrap's `--bs-*`
 variables. If your own UI has to follow light and dark, inject
-[`ThemeService`](../distribution-api/index.md) and mirror `resolvedTheme()`.
+[`ThemeService`](../distribution-api/appearance.md) and mirror `resolvedTheme()`.
 
 ## Where next
 

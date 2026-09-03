@@ -102,12 +102,10 @@ worker script fetch still fails the certificate check with "An SSL certificate e
 fetching the script". Nothing registers, and the preview silently stops previewing the one thing it
 exists for.
 
----
-
-**Next:** [The plugin system](../plugins.md) — the three rungs of trust and the four ways in, capabilities and what the user controls ·
-[Backend integration](../backend-integration.md) — wiring your own backend behind the three seams.
-
 ## Where next
+
+- [The plugin system](../plugins.md): the rungs of trust and the ways in.
+- [Backend integration](../backend-integration.md): your own backend behind the ports.
 
 - [Building a distribution](../building-a-distribution.md): the composition root and the map of these pages.
 - [Distribution API](../distribution-api/index.md): everything your own code can do once the product runs.
