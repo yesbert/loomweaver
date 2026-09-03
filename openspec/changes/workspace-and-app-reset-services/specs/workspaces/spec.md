@@ -76,8 +76,8 @@ before removing it, and SHALL leave the workspace in place if the answer does no
 ### Requirement: The application reset is reachable to the distribution
 
 The distribution SHALL be able to reset the application's own arrangement from its own code, with
-the same unsaved-work question the reset command asks, and SHALL be able to include every workspace
-by asking for both in turn. The question SHALL be asked once for the pair, not once per part.
+the same unsaved-work question the reset command asks, and SHALL be able to ask for every workspace
+to be included. The question SHALL be asked once for the pair, not once per part.
 
 #### Scenario: Resetting the application from code asks like the command
 
@@ -87,5 +87,6 @@ by asking for both in turn. The question SHALL be asked once for the pair, not o
 
 #### Scenario: Application and workspaces together ask once
 
-- **WHEN** the distribution resets every workspace and then the application's arrangement
+- **WHEN** the distribution resets the application's arrangement and asks for the workspaces to be
+  included
 - **THEN** the unsaved-work question is asked at most once, and both resets happen if it is allowed

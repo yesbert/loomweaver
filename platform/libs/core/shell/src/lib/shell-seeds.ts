@@ -10,10 +10,7 @@ import {
   QUICK_OPEN_COMMAND_ID,
 } from './commands/command-palette';
 import { WorkspaceDialog } from './workspace/workspace-dialog';
-import { ContentTabsService } from './regions/content/tabs/content-tabs.service';
 import { PaneService } from './regions/pane/pane.service';
-import { RetentionCandidates } from './regions/pane/retention/retention-candidates';
-import { SurfaceCloseGuard } from './regions/pane/close/surface-close-guard';
 import { PopoutService } from './popout/popout.service';
 import { FeatureSwitches } from './features/feature-switches.service';
 import { whileOn } from './features/while-on';
@@ -22,7 +19,7 @@ import {
   CURATION_CHROME,
   CurationDialog,
 } from './regions/curation/curation-dialog';
-import { AppResetService } from './layout/app-reset.service';
+import { AppResetService } from './regions/reset/app-reset.service';
 import { AppResetChoice, AppResetDialog } from './layout/app-reset-dialog';
 import { menuContextString } from './menu/menu-context';
 
@@ -40,13 +37,10 @@ function hasRegion(layout: ShellRegions, type: string): boolean {
 export interface HostCommandDeps {
   readonly dialogs: DialogService;
   readonly panes: PaneService;
-  readonly tabs: ContentTabsService;
   readonly workspace: WorkspaceService;
   readonly transloco: TranslocoService;
   readonly settings: SettingsService;
   readonly popout: PopoutService;
-  readonly closeGuard: SurfaceCloseGuard;
-  readonly retention: RetentionCandidates;
   readonly appReset: AppResetService;
   readonly features: FeatureSwitches;
   readonly injector: Injector;
@@ -71,13 +65,10 @@ export function seedHostCommands(
   const {
     dialogs,
     panes,
-    tabs,
     workspace,
     transloco,
     settings,
     popout,
-    closeGuard,
-    retention,
     appReset,
     features,
     injector,
@@ -175,12 +166,7 @@ export function seedHostCommands(
         if (choice === undefined) {
           return;
         }
-        if (await closeGuard.confirmDiscard(retention.all())) {
-          appReset.reset();
-          if (choice.workspaces) {
-            workspace.resetAll();
-          }
-        }
+        await appReset.reset({ workspaces: choice.workspaces });
       });
     },
   });
@@ -220,22 +206,14 @@ export function seedHostCommands(
         icon: 'undo',
         run: (context) => {
           const named = menuContextString(context, 'workspace');
-          const elsewhere = named !== '' && named !== workspace.activeId();
           void dialogs
             .confirm({
               title: transloco.translate('workspace.reset'),
               message: transloco.translate('workspace.resetConfirm'),
             })
-            .then(async (ok) => {
-              if (!ok) {
-                return;
-              }
-              if (elsewhere) {
-                workspace.reset(named);
-                return;
-              }
-              if (await closeGuard.confirmDiscard(retention.all())) {
-                workspace.reset();
+            .then((ok) => {
+              if (ok) {
+                void workspace.reset(named === '' ? undefined : named);
               }
             });
         },

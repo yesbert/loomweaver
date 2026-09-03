@@ -145,6 +145,13 @@ export class RetainedViewStash implements OnDestroy {
       .filter((instance) => instance !== undefined);
   }
 
+  parkedInstancesOf(workspaceId: string): unknown[] {
+    return [...this.entries.values()]
+      .filter((entry) => !entry.inUse && entry.workspace === workspaceId)
+      .map((entry) => entry.instance)
+      .filter((instance) => instance !== undefined);
+  }
+
   keyedInstances(): { key: string; instance: unknown }[] {
     return [...this.entries.values()]
       .filter((entry) => entry.instance !== undefined)

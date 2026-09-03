@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { AppResetService } from './app-reset.service';
-import { ContributionRegistry } from '../plugin/contribution-registry';
-import { PanelSizeService } from '../regions/panel/panel-size.service';
-import { PanelState } from '../regions/panel/panel-state';
-import { RailItemsService } from '../regions/rail/rail-items.service';
-import { UserOrderService } from '../regions/reorder/user-order.service';
-import { ViewInstanceService } from '../views/view-instance.service';
-import { ViewStateService } from '../views/view-state.service';
+import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { PanelSizeService } from '../panel/panel-size.service';
+import { PanelState } from '../panel/panel-state';
+import { RailItemsService } from '../rail/rail-items.service';
+import { UserOrderService } from '../reorder/user-order.service';
+import { ViewInstanceService } from '../../views/view-instance.service';
+import { ViewStateService } from '../../views/view-state.service';
 
 @Component({ selector: 'lw-stub', template: '' })
 class Stub {}
@@ -36,7 +36,7 @@ function setUp() {
 }
 
 describe('AppResetService (K6)', () => {
-  it('puts the app-wide arrangement back and drops its keys', () => {
+  it('puts the app-wide arrangement back and drops its keys', async () => {
     const app = setUp();
     app.railItems.hide('notes');
     app.panels.toggle('primary');
@@ -44,7 +44,7 @@ describe('AppResetService (K6)', () => {
     app.sizes.commit();
     app.order.setOrder('rail:left', ['b', 'a']);
 
-    app.reset.reset();
+    await app.reset.reset();
 
     expect(app.railItems.isVisible('notes')).toBe(true);
     expect(app.panels.isCollapsed('primary')).toBe(false);
@@ -63,14 +63,14 @@ describe('AppResetService (K6)', () => {
     }
   });
 
-  it('takes named view instances with it, along with their state', () => {
+  it('takes named view instances with it, along with their state', async () => {
     const app = setUp();
     app.instances.create('outline', 'Mine');
     const created = app.instances.activeId('outline')();
     app.states.handle(created).set({ sort: 'alpha' });
     app.states.handle('outline').set({ sort: 'alpha' });
 
-    app.reset.reset();
+    await app.reset.reset();
 
     expect(app.instances.instances('outline')()).toEqual([
       { id: 'outline', name: '' },
@@ -79,14 +79,14 @@ describe('AppResetService (K6)', () => {
     expect(app.states.handle('outline').value()).toBeUndefined();
   });
 
-  it('leaves choices alone: theme, language and saved workspaces are none of its business', () => {
+  it('leaves choices alone: theme, language and saved workspaces are none of its business', async () => {
     const app = setUp();
     localStorage.setItem('lw.shell.theme', '"dark"');
     localStorage.setItem('lw.shell.lang', '"de"');
     localStorage.setItem('lw.shell.workspaces', '[{"id":"a"}]');
     localStorage.setItem('lw.shell.pane-trees:default', '{"content":{}}');
 
-    app.reset.reset();
+    await app.reset.reset();
 
     expect(localStorage.getItem('lw.shell.theme')).toBe('"dark"');
     expect(localStorage.getItem('lw.shell.lang')).toBe('"de"');

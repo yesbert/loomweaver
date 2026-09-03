@@ -56,20 +56,22 @@ runs them through `confirmDiscard` first. This adds a question the dialog never 
 question `surface-retention` requires wherever work would be destroyed, and the removal confirmation
 the dialog shows is a different question (a decision, not a rescue).
 
-**The app reset stays in its slice and does not import workspaces.** `AppResetService.reset()`
-guards with all retained candidates and resets the frame. Including the workspaces is done by the
-caller in the order that asks once: first `workspace.resetAll()`, which asks and, if allowed,
-re-applies every baseline (destroying the dirty surfaces it asked about), then `appReset.reset()`,
-whose guard finds nothing dirty and asks nothing. The command does exactly this and stops if the
-first answer was no. The alternative, a combined operation inside `AppResetService`, would import
-the workspace slice from the layout slice and open a mutual pair the ratchet forbids; a shared
-"reset everything" helper elsewhere would be a third door.
+**The app reset includes the workspaces through a token the composition root provides.**
+`AppResetService.reset({ workspaces? })` asks once and resets the frame; when the workspaces are
+included, it asks through the workspace reset instead, which asks once with the same candidates and
+re-applies every baseline, and then resets the frame without a second question. The frame's slice
+does not import the workspace slice: it declares a token for "reset every workspace, asking once"
+and the composition root provides it from `WorkspaceService.resetAll`. This keeps the import-cycle
+ratchet intact, keeps one implementation of the workspace reset, publishes no unguarded entry, and
+makes "reset everything" one call for the command and for a distribution alike. Two guarded calls in
+sequence were rejected: a retained surface with unsaved work survives a workspace reset by design, so
+the second call would ask the same question again.
 
 **The commands keep their dialogs.** `shell.workspace.reset` still asks "really reset?" (for both the
 active and a named workspace) and then calls `reset(named?)`; the unsaved-work question comes from
 the service when the target is active. `shell.app.reset` still opens its dialog with the
-"include workspaces" choice and then makes the two calls. Nothing about the user's experience
-changes: one confirmation, then at most one unsaved-work question.
+"include workspaces" choice and then makes one call with that choice. Nothing about the user's
+experience changes: one confirmation, then at most one unsaved-work question.
 
 **Facts stay as they are.** `workspaces`, `activeId`, `hasChanges` and `changedIds` are already
 signals with the right names. The `Workspace` record type becomes part of the published contract
@@ -86,5 +88,5 @@ entries do, which they already do reactively.
   dialog, which run the commands. Tests that call `reset()` synchronously await it.
 - [`remove` now asks where it never did] → Only when a parked surface is dirty, which is exactly
   when silent eviction lost work before.
-- [The two-call order for "reset everything" is subtle] → It is stated in the reference next to the
-  code sample, and the command is the worked example.
+- [A distribution provides its own value for the workspace-reset token] → It is a composition seam
+  like every other provider; whoever replaces it owns the question it asks.
