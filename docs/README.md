@@ -19,6 +19,7 @@ standard can run your product's own commands.
 | **Use Bootstrap or your own CSS framework**| [Manual setup → bring your own CSS framework](manual-setup.md#bringing-your-own-css-framework)             |
 | **Let an AG-UI agent drive your product**  | [Driving your product with an AG-UI agent](ag-ui-agents.md)                                                |
 | **Wire your own backend**                  | [Backend integration](backend-integration.md)                                                              |
+| **Do something from my own code**          | [Distribution API](reference/distribution/index.md) — indexed by "I want to …"                             |
 | **Look something up**                      | the [reference pages](#reference) below                                                                    |
 
 ## Guides
@@ -48,10 +49,10 @@ standard can run your product's own commands.
 
 - [Shell anatomy](reference/shell-anatomy.md) — the region vocabulary (rail / panel / bar / content)
   and docks a distribution declares.
-- [Host services](reference/host-services.md) — the runtime services a distribution may inject:
-  dialogs, toasts, settings, commands, session, tabs, panes, workspaces, sidebars, the switches at
-  runtime, text size, the plugin store, the application reset, updates, sync. Everything a user does
-  by hand, your own code can do too, with the same guards.
+- [Distribution API](reference/distribution/index.md) — everything your product's own code may inject
+  and call, indexed by intent: switches, tabs, panes, workspaces, sidebars, dialogs, settings,
+  commands, session, appearance, plugins at runtime, windows and sync, reset. Everything a user does
+  by hand, your code can do too, with the same guards.
 - [Access gating](reference/access-gating.md) — the complete `access` reference: what gates where,
   identity changes, and why client-side gating is not a security boundary.
 - [Routing](reference/routing.md) — the content area is the Angular router: what carries over

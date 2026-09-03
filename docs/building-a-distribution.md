@@ -58,57 +58,10 @@ That's the whole product wiring. The shell renders the chrome; the weaver fills 
 
 ## Which door does my decision go through?
 
-There is no single god-provider, on purpose: each of these has its own shape, and folding them into
-one options bag would give the same decision two doors. Instead, here is the whole surface indexed by
-what you actually want, so you can go straight to the section that covers it.
-
-**What the product *is***
-
-| I want to … | provider |
-| --- | --- |
-| set the name, logo and tagline | `provideProductIdentity` ([Branding](#branding)) |
-| decide which regions exist and where | `provideLayout` ([Layout](#layout-regions--docks)) |
-| recolour the whole app | the design tokens ([tokens](reference/design-tokens.md)) |
-| change sizes, radii, density | your own CSS on the class contracts ([tokens](reference/design-tokens.md)) |
-| replace a built-in icon | `provideIcons` ([Icons](#icons)) |
-| reword the shell itself ("Folder" instead of "View") | `provideTranslationOverrides` ([Rewording](#rewording-the-shell)) |
-| ship my own translations | `provideTranslationNamespaces` ([i18n](#i18n)) |
-
-**What users are allowed to *do***
-
-| I want to … | provider |
-| --- | --- |
-| take a gesture away (splitting, pinning, pop-out, shortcuts …) | `provideShellFeatures` ([Switching capabilities off](#switching-capabilities-off)) |
-| change a switch while the app runs, or read it | `FeatureSwitches` ([Switches](reference/host-services.md#switches--featureswitches)) |
-| offer a pane, workspace, sidebar or reset action from my own control | the host services ([Panes](reference/host-services.md#panes--paneservice), [Workspaces](reference/host-services.md#workspaces--workspaceservice), [Sidebars](reference/host-services.md#sidebars--sidebarservice), [Resetting](reference/host-services.md#resetting-the-application--appresetservice)) |
-| drop a built-in command, item, settings row, menu entry or route | `provideShell({ omit })` ([Recomposing host chrome](#recomposing-host-chrome)) |
-| hand out layouts the product defines | `provideWorkspaces` ([Developer-defined workspaces](#developer-defined-workspaces)) |
-| let users put the arrangement back | nothing: `shell.app.reset` ships ([Resetting](#resetting-the-app-layout)) |
-
-**What ships inside**
-
-| I want to … | provider |
-| --- | --- |
-| compose my weaver | `providePlugins` + `provideCapabilityGrants` ([Capabilities](#capabilities-default-deny)) |
-| keep a plugin from being switched off | `provideRequiredPlugins` ([A plugin your application cannot run without](#a-plugin-your-application-cannot-run-without)) |
-| run an isolated plugin | `provideFramePlugins` ([Frame plugins](#frame-plugins)) |
-| offer a plugin catalogue | `providePluginCatalog` ([Plugin store](#plugin-store-runtime-install)) |
-| add chrome of my own | `provideBarItems`, `provideRailItems`, `provideViews` ([Recomposing](#recomposing-host-chrome)) |
-| put a search entry in a bar | `provideCommandPaletteEntry`, `provideQuickOpenEntry` ([Command palette entry](#command-palette-entry)) |
-
-**What it talks to**
-
-| I want to … | provider |
-| --- | --- |
-| feed the signed-in user in | `provideAuthSource` ([Auth integration](#auth-integration-access-gating)) |
-| send gated routes to my login | `provideUnauthorizedRedirect` ([Redirect](#3--redirect-gated-routes-to-your-login--provideunauthorizedredirect)) |
-| store settings in my backend | `provideSettingsStore` ([Persistence stores](#persistence-stores-optional)) |
-| store working state in my backend | `provideWorkingStateStore` ([Persistence stores](#persistence-stores-optional)) |
-| keep two users in one browser apart | `provideIdentityScopedStores` ([Identity-scoped stores](#identity-scoped-stores-multi-user-browsers)) |
-| compute a following tab's address myself | `provideTabAddressResolver` ([Following tabs](#following-tabs)) |
-| route the content area | `provideShellRouter` ([Content-area routing](#content-area-routing)) |
-| ship without a service worker | `provideShell({ serviceWorker: false })` ([PWA](#pwa--delivery)) |
-| keep hidden surfaces alive by default | `provideShell({ retention })` ([Surface retention](#surface-retention)) |
+There is no single god-provider, on purpose: each decision has its own provider, so the same decision
+never has two doors. The whole surface, indexed by what you want, is one page in the reference:
+[Composition: the provider surface](reference/distribution/composition.md). Everything your own code
+can do at runtime is the rest of that area: [Distribution API](reference/distribution/index.md).
 
 ### Seeing what you composed
 
@@ -142,7 +95,7 @@ The report exists in dev only; nothing of it reaches a production build.
 (its anatomy) and a `dock` (where it sits):
 
 Collapsing, resizing and hiding views in the sidebars from your own code is `SidebarService` in the
-[host services](reference/host-services.md#sidebars--sidebarservice).
+[host services](reference/distribution/sidebars.md).
 
 - **Docks:** `top` · `bottom` · `left` · `right` · `center`.
 - **Region types:**
@@ -244,7 +197,7 @@ the reset across every workspace. That box describes the one reset being asked f
 remembered as a setting. A surface with unsaved work is guarded exactly as it is on a workspace reset.
 
 Driving the reset from your own code, with or without the workspaces and with the same unsaved-work
-question, is `AppResetService` in the [host services](reference/host-services.md#resetting-the-application--appresetservice).
+question, is `AppResetService` in the [host services](reference/distribution/reset.md).
 
 Take it away like any other contribution: `omit: ['shell.app.reset']` drops the command, and with it
 the settings button, because a button naming a command nobody registered is dropped rather than drawn
@@ -344,7 +297,7 @@ switch. Invalid declarations are reported to the console in dev mode, naming wha
 ignored; nothing fails silently at runtime.
 
 Switching, saving, resetting, renaming and removing workspaces from your own code is
-`WorkspaceService` in the [host services](reference/host-services.md#workspaces--workspaceservice).
+`WorkspaceService` in the [host services](reference/distribution/workspaces.md).
 
 **Declaring a workspace does not put it in front of anyone.** The dialog lists it, and that is all —
 the workbench draws entries only for the workspaces a *user* saved, because those have nothing but a
@@ -516,7 +469,7 @@ The declaration is the **starting value**, not a constant. Inject `FeatureSwitch
 current value of any switch as a signal and to change switches while the application runs, with the
 same partial shape you declare with. The controls follow live, switching off never undoes what the
 user built, and nothing about a switch is persisted by the shell. The reference has the details:
-[Switches](reference/host-services.md#switches--featureswitches).
+[Switches](reference/distribution/switches.md).
 
 A switch takes the **affordance and the gesture**. Turning `splitRight` off removes the toolbar
 button, the left/right drop edges *and* `mod+\`, so the capability cannot come back through a second
@@ -750,7 +703,7 @@ framework imported *unlayered* outranks all of ours regardless of specificity, s
 layer of its own. On Bootstrap 5.3 you do not have to write the token mapping at all:
 `loomweaver theme --name acme --preset bootstrap` points the `--lw-*` ladder at Bootstrap's `--bs-*`
 variables. If your own UI has to follow light and dark, inject
-[`ThemeService`](reference/host-services.md) and mirror `resolvedTheme()`.
+[`ThemeService`](reference/distribution/index.md) and mirror `resolvedTheme()`.
 
 ## Capabilities (default-deny)
 
@@ -1477,7 +1430,7 @@ can offer a **plugin store**: a curated catalog of sandboxed plugins the *user* 
 no rebuild, no reload:
 
 Opening the store from your own control is `PluginStoreService` in the
-[host services](reference/host-services.md#plugin-store--pluginstoreservice).
+[host services](reference/distribution/plugins-at-runtime.md).
 
 ```ts
 // src/app/app.config.ts — in the providers array
@@ -1680,7 +1633,7 @@ distribution can:
 
 Replace and move use the same mechanism, and a distribution does it **without a plugin** — the
 `provideViews` / `provideRailItems` / `provideBarItems` providers register chrome directly (see
-[host services → contributing chrome without a plugin](reference/host-services.md)). The in-repo
+[host services → contributing chrome without a plugin](reference/distribution/index.md)). The in-repo
 demo moves the update badge into the right sidebar's footer bar exactly like this:
 
 ```ts

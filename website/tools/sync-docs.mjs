@@ -186,18 +186,19 @@ for (const asset of ['loomweaver-icon.png', 'loomweaver-logo-full.png']) {
    adds a page. It covers guides as well as reference pages: a guide nobody can reach is the same
    defect, and it was the likelier one, because guides used to go unchecked. */
 const sidebarSource = readFileSync(path.join(websiteRoot, 'astro.config.mjs'), 'utf8');
-for (const entry of readdirSync(contentDir, { withFileTypes: true })) {
-  const pages = entry.isDirectory()
-    ? readdirSync(path.join(contentDir, entry.name)).map((f) => `${entry.name}/${f}`)
-    : [entry.name];
-  for (const page of pages) {
-    if (!/\.mdx?$/.test(page)) continue;
-    const route = `/${page.replace(/\.mdx?$/, '')}/`;
-    if (!sidebarSource.includes(route)) {
-      problems.push(
-        `docs/${page} is not linked from the sidebar in astro.config.mjs — add it, or it is reachable only through search`,
-      );
-    }
+const pagesUnder = (dir, prefix) =>
+  readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
+    entry.isDirectory()
+      ? pagesUnder(path.join(dir, entry.name), `${prefix}${entry.name}/`)
+      : [`${prefix}${entry.name}`],
+  );
+for (const page of pagesUnder(contentDir, '')) {
+  if (!/\.mdx?$/.test(page)) continue;
+  const route = `/${page.replace(/\.mdx?$/, '')}/`.replace(/\/index\/$/, '/');
+  if (!sidebarSource.includes(route)) {
+    problems.push(
+      `docs/${page} is not linked from the sidebar in astro.config.mjs — add it, or it is reachable only through search`,
+    );
   }
 }
 

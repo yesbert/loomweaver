@@ -210,4 +210,4 @@ UI for clarity; enforce on the server for real.
 
 **See also:** [backend integration](../backend-integration.md) ·
 [authoring a weaver](../authoring-a-weaver.md#auth-aware-access-gating--access) ·
-[host services](host-services.md#session--authcontext)
+[host services](distribution/session.md)

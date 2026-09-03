@@ -302,7 +302,7 @@ revisit.
 
 The built-in **Permissions** and **Plugin store** settings sections expose all three. Your own
 front-end can drive the same state through `CapabilityGrantService`, `PluginEnablementService` and
-`PluginInstallService` — see [host services](reference/host-services.md#plugins-at-runtime).
+`PluginInstallService` — see [host services](reference/distribution/plugins-at-runtime.md).
 
 You can also remove those sections entirely (`provideShell({ omit: ['setting:shell.permissions'] })`)
 if your product decides these are not the user's call.
@@ -312,7 +312,7 @@ if your product decides these are not the user's call.
 Two runtimes implement the rungs behind the same abstraction: `PluginRuntime` for composed plugins
 and `FramePluginRuntime` for iframe ones. That is why a plugin's lifecycle reads the same either
 way. Neither is something a distribution wires up — `providePlugins` and `provideFramePlugins` do
-that. The services in [host services](reference/host-services.md#plugins-at-runtime) are the
+that. The services in [host services](reference/distribution/plugins-at-runtime.md) are the
 supported way to intervene.
 
 `activate(ctx)` runs once when the plugin loads; whatever it registers returns a `Disposable`, and
@@ -363,4 +363,4 @@ If that trade does not fit your product, do not enable the runtime store.
 
 **Next:** [Backend integration](backend-integration.md) — wiring your own backend behind the three
 seams. **See also:** [authoring a weaver](authoring-a-weaver.md) — the other side of this contract ·
-[host services](reference/host-services.md) — the services behind the management UI
+[host services](reference/distribution/index.md) — the services behind the management UI
