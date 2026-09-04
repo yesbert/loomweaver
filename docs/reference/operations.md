@@ -27,6 +27,33 @@ in a way that looks like something else, which is what makes it expensive.
 - **zsh has a readonly `status` variable**, and does not word-split an unquoted variable. Both fail
   silently.
 
+## Scaffolding from inside this repository
+
+The generators are published, so a product repository reaches them through `@loomweaver/cli` or the
+MCP server. Working in this repository is the one case that does not: the collection is used through
+the workspace path alias, and the placement is passed explicitly.
+
+```bash
+cd platform
+nx g @loomweaver/devkit:weaver --id notes --directory libs/weavers/notes-weaver \
+  --import-path @loomweaver/notes-weaver --app loom-testbed
+```
+
+To point an MCP client at a local build rather than the published package, bundle it first and name
+the bundle:
+
+```bash
+cd platform && nx bundle mcp
+```
+
+```json
+{
+  "mcpServers": {
+    "loomweaver": { "command": "node", "args": ["platform/libs/tooling/mcp/dist/main.mjs"] }
+  }
+}
+```
+
 ## Editing
 
 - **Never run Prettier over the Angular template files.** Its HTML parser does not know the control
