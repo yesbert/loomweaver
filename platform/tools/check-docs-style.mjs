@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Fails when a documentation page breaks one of the three style rules that can be measured.
+// Fails when a documentation page breaks one of the four style rules that can be measured.
 //
 // The documentation audit of 2026-09-03 found the same three faults on most pages: sentences that
 // carry two or three thoughts, pages that state platform behaviour without saying where the
@@ -10,7 +10,10 @@
 //      by its text. Forty is where the audit's sample stopped being readable in one pass.
 //   2. The derived-from-specs header on every page under docs/. The three pages that are maps rather
 //      than guides (the index, the glossary, the operations notes) are exempt by name.
-//   3. A word the glossary does not use: "plug-in" for plugin, "URL pane" for address pane,
+//   3. A dash used as a sentence joint. Counted in the same prose, so a dash in a heading, a table
+//      cell or code is untouched. This one is absolute rather than a ratchet: the corpus reached
+//      zero in one pass, and a rule at zero needs no baseline to argue with.
+//   4. A word the glossary does not use: "plug-in" for plugin, "URL pane" for address pane,
 //      "activity bar" for rail, and American spellings beside the British ones the pages use. One
 //      word, one spelling, so that a search finds every mention. Code and a quoted workbench label
 //      (*Customize activity bar*) are exempt: they are what they are.
@@ -36,10 +39,10 @@ const VARIANTS = [
   [/\bwork spaces?\b/gi, 'workspace'],
   [/\btool bars?\b/gi, 'toolbar'],
   [/\bsub routes?\b/gi, 'sub-route'],
-  [/\bURL panes?\b/g, 'address pane'],
+  [/\bURL[ -]panes?\b/g, 'address pane'],
   [/\bprimary panes?\b/gi, 'address pane'],
-  [/\bactivity bars?\b/gi, 'rail'],
-  [/\blauncher rails?\b/gi, 'rail'],
+  [/\bactivity[ -]bars?\b/gi, 'rail'],
+  [/\blauncher[ -]rails?\b/gi, 'rail'],
   [/\bcatalogs?\b/gi, 'catalogue'],
   [/\bcolors?\b/gi, 'colour'],
   [/\blocalized\b/gi, 'localised'],
@@ -110,6 +113,10 @@ for (const page of pages()) {
       faults.push(`${page}: "${hit[0]}" is "${canonical}" in the glossary`);
     }
   }
+  for (const hit of text.matchAll(/[—–]/g)) {
+    const around = text.slice(Math.max(0, hit.index - 40), hit.index + 40).replaceAll('\n', ' ');
+    faults.push(`${page}: a dash joins two clauses, use a full stop, a comma or a colon: …${around}…`);
+  }
   const long = longSentences(text);
   if (long.length > 0) measured.set(page, long);
 }
@@ -171,5 +178,5 @@ if (faults.length > 0) {
 
 const total = Object.values(counts).reduce((sum, n) => sum + n, 0);
 console.log(
-  `check-docs-style: ${pages().length} pages, every page under docs/ carries its header, one spelling per term, ${total} long sentences on ${Object.keys(counts).length} pages, none new`,
+  `check-docs-style: ${pages().length} pages, every page under docs/ carries its header, one spelling per term, no dash joining two clauses, ${total} long sentences on ${Object.keys(counts).length} pages, none new`,
 );

@@ -3,7 +3,7 @@
 <!-- derived-from-specs -->
 
 > **This is a guide, not the contract.** What the platform guarantees is specified under
-> `openspec/specs/` — for this page: `scaffolding`. Where this page and a specification disagree,
+> `openspec/specs/`. For this page: `scaffolding`. Where this page and a specification disagree,
 > the specification is right, and that is a defect in this page: change the behaviour there, then
 > explain it here.
 
@@ -419,29 +419,6 @@ The generated test target is `@nx/angular:unit-test` (Vitest), which is what Ang
 default to. A weaver library has no build of its own, so its specs compile with the build options of
 the application that composes it. That is what `--app` resolves. If your workspace runs a different
 runner, `--unit-test-runner none` emits no test wiring at all and leaves it to you.
-
-Inside this repository the same collection is used through the workspace path alias, with the
-placement passed explicitly:
-
-```bash
-cd platform
-nx g @loomweaver/devkit:weaver --id notes --directory libs/weavers/notes-weaver \
-  --import-path @loomweaver/notes-weaver --app loom-testbed
-```
-
-To point an MCP client at a local build rather than the published package:
-
-```bash
-cd platform && nx bundle mcp
-```
-
-```json
-{
-  "mcpServers": {
-    "loomweaver": { "command": "node", "args": ["platform/libs/tooling/mcp/dist/main.mjs"] }
-  }
-}
-```
 
 ---
 

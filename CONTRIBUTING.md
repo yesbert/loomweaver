@@ -270,7 +270,7 @@ how-to page (`docs/weaver/`, `docs/distribution/`) does one task, a reference pa
 states facts for lookup, and a concept page (`docs/concepts/`) explains why. A page that does two of
 these does neither well; when you find yourself explaining in a how-to, link to the concept instead.
 
-Four rules for the sentences, two of them measured by `npm run docs-style-check`:
+Four rules for the sentences, three of them measured by `npm run docs-style-check`:
 
 - **One thought per sentence, and under forty words.** An aside becomes its own sentence. The checker
   counts sentences over forty words per page and keeps the number from growing
@@ -279,7 +279,9 @@ Four rules for the sentences, two of them measured by `npm run docs-style-check`
 - **Condition first, then consequence.** "If the surface is clean, it is destroyed", not "It is
   destroyed, provided the surface is clean."
 - **No dash as a sentence joint.** A dash that stitches two clauses hides a second thought; use a full
-  stop, a comma or a colon. A dash inside a heading or a table cell is fine.
+  stop, a comma or a colon. A dash inside a heading, a table cell or code is fine, and the checker
+  looks only at prose. This one has no baseline: the corpus is at zero, so any dash the check reports
+  is one you added.
 - **One word, one spelling, the glossary's.** `docs/glossary.md` says which of two words names a
   thing; the checker flags the spellings it does not use (a hyphenated plugin, a two-word sidebar).
 
