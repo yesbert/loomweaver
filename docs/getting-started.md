@@ -119,7 +119,8 @@ The scaffold only **adds**. A setting you had already made is left exactly as yo
 re-running a scaffold over a workspace you have configured changes nothing.
 
 > **Don't want Tailwind?** Re-run this step with `--styles precompiled` and skip the Tailwind packages
-> from step 2; `src/styles.css` becomes one import of the stylesheet we pre-compiled.
+> from step 2; `src/styles.css` becomes one import of the stylesheet `@loomweaver/shell` ships
+> pre-compiled.
 > [Bringing your own CSS framework](distribution/css-frameworks.md) says what you
 > give up and how a Bootstrap theme fits.
 
@@ -161,7 +162,7 @@ glob that serves the weaver's translations and the `@source` entry that emits th
 templates use.
 
 It does this only while the composition root still presents the shape the distribution scaffold
-generated, since that is the file whose shape we know. Once you have reshaped it, the scaffold does
+generated, since that is the shape it knows how to edit. Once you have reshaped it, the scaffold does
 not guess: it leaves the file untouched, prints the lines above, and says the plugin was **not**
 registered.
 
@@ -171,8 +172,8 @@ registered.
 ng serve
 ```
 
-You get the branded chrome: a top bar with your name, logo and the theme and language controls, an
-activity rail on the left with **your weaver's icon in it**, and a collapsible sidebar on each side.
+You get the branded chrome: a top bar with your name, logo and the theme and language controls, a
+rail on the left with **your weaver's icon in it**, and a collapsible sidebar on each side.
 Click that icon and the app navigates to `/notes`, where your surface fills the content area.
 
 ![The scaffolded product after the first run: the top bar with the product name, the notes weaver open in a tab, the shell's version in the status bar.](../assets/media/quick-start-light.png)

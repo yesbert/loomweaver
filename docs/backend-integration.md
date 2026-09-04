@@ -30,7 +30,7 @@ not a port; it is listed here because the swap is made in the same place.
 | Auth / session (port)          | an `AuthSource` signal                  | everyone is anonymous       |
 | Translations (provider)        | a Transloco loader                      | static files under `/i18n/` |
 
-They are independent — adopt any subset. Each is a provider in your distribution's
+They are independent: adopt any subset. Each is a provider in your distribution's
 `bootstrapApplication` call, placed **after `provideShell()`** so it wins the last-in-wins race for
 the token the shell already filled with its default.
 
@@ -39,10 +39,10 @@ the token the shell already filled with its default.
 A **string key-value** port with the `KeyValueStore` shape. The shell writes its genuine
 **settings** through this seam: theme, language, text size, plugin settings, installed and disabled
 plugins, capability revocations and the saved-workspaces list. It writes **nothing else** here.
-Working state — view state, layout, usage traces — lives behind the separate `WORKING_STATE_STORE`
+Working state (view state, layout, usage traces) lives behind the separate `WORKING_STATE_STORE`
 port and never reaches your backend. Writes here are rare, small and worth roaming across devices.
-That is what makes a REST call per write appropriate. Values are opaque — callers serialise their
-own payloads — so any backend that can store a string under a string key qualifies. The default is
+That is what makes a REST call per write appropriate. Values are opaque: callers serialise their
+own payloads, so any backend that can store a string under a string key qualifies. The default is
 `LocalStorageStore`, which is exported: wrap it rather than reimplement it if you only want to
 observe or mirror what the shell stores.
 
@@ -72,16 +72,16 @@ provideSettingsStore(HttpSettingsStore),
 
 The optional `peek` is what tells the shell which world it is in. **Its mere presence is the
 switch.** Every consumer reads `peek` first. It falls back to the asynchronous path only when the
-store has no `peek` at all — a store that answers synchronously is assumed to have answered. So
+store has no `peek` at all. A store that answers synchronously is assumed to have answered. So
 consider a store that implements `peek` but returns `undefined` for keys it happens not to have
 cached. It does **not** quietly fall back to `get`. Those settings are lost without a trace.
 
 Two shapes are supported, and the choice is per store, not per key:
 
-- **`peek` present** — reads are synchronous, so theme, layout and panel sizes apply before the first
+- **`peek` present**: reads are synchronous, so theme, layout and panel sizes apply before the first
   paint. Nothing is ever re-read afterwards, so the value your `peek` returns at construction is the
   value that session uses.
-- **`peek` absent** — reads are asynchronous. Each consumer starts from its default and reconciles
+- **`peek` absent**: reads are asynchronous. Each consumer starts from its default and reconciles
   when the promise resolves, which is a brief flash of the default for anything visible.
 
 A store that answers _some_ keys locally and others over the network therefore cannot be expressed
@@ -103,9 +103,8 @@ contain whatever a plugin puts there. Treat it as **user data with integrity req
 session. The authoritative storage-key inventory is in
 [Persistence stores](distribution/persistence.md). It also lists
 which keys are device-level and how `provideIdentityScopedStores` separates users on a shared
-browser. A convenient wire shape is a flat `{ key → value }` map with `get-all` + `set-value`; the
-reference implementation used it. But the shape is yours to choose. The frontend only needs the
-three async methods above.
+browser. A convenient wire shape is a flat `{ key → value }` map with `get-all` and `set-value`,
+but the shape is yours to choose. The frontend only needs the three async methods above.
 
 ## 1b · Working state — the `WORKING_STATE_STORE` port (optional)
 
@@ -114,11 +113,11 @@ instances, the palette's recently-used list, and the window-local layout keys. I
 `KeyValueStore` shape but the opposite write profile: frequent, debounced writes. That is why it
 defaults to the device (`localStorage`), and why most distributions never touch it. Three tiers:
 
-1. **Local** (default) — do nothing.
-2. **Cross-device at boot** — provide a backend-backed store with `provideWorkingStateStore(...)`;
+1. **Local** (default): do nothing.
+2. **Cross-device at boot**: provide a backend-backed store with `provideWorkingStateStore(...)`;
    a fresh tab hydrates the last persisted state through the ordinary boot path. Expect the write
    volume: every filter keystroke lands here after a 400 ms debounce.
-3. **Cross-device live** — additionally pair the store with a push transport and call
+3. **Cross-device live**: additionally pair the store with a push transport and call
    `StateSyncService.notifyRemoteChange(key)` when the backend reports a change from another
    device. The two rules that keep this convergent, and why it is not collaborative editing, are on
    [Windows and sync](distribution-api/windows-and-sync.md#in-depth).
@@ -129,7 +128,7 @@ A provider-neutral **session snapshot signal**. You reduce your product's sessio
 `AuthSnapshot`. The source can be OIDC, your own identity platform, or something custom. Whenever
 the signal changes, the shell reacts: it hides or disables gated chrome, gates routes, and updates
 `ctx.session`. Roles are opaque strings: the platform matches them but never interprets them. The
-claim bag stays in your own composition — no plugin receives it and no gate evaluates it.
+claim bag stays in your own composition. No plugin receives it and no gate evaluates it.
 
 ```ts
 // src/app/app.config.ts — in the providers array
@@ -153,14 +152,14 @@ provideUnauthorizedRedirect((attemptedPath) => `/login?from=${encodeURIComponent
 Sign-in and sign-out are **yours**: there is no platform login, and the shell never opens one on its
 own. Chrome whose requirement is unmet hides or disables. Only a gated content route redirects, via
 the handler above. The `from` parameter is how your login page navigates back after a successful
-sign-in. Render your login as a weaver surface — a page or a dialog. Sign out by setting the
+sign-in. Render your login as a weaver surface, a page or a dialog. Sign out by setting the
 snapshot back to `ANONYMOUS`.
 Complete login-page and login-dialog components live in
 [building a distribution → Auth integration](distribution/auth.md).
-Client-side gating is **presentation, not security** — enforce for real in your backend (reject
-unauthorized calls).
+Client-side gating is **presentation, not security**. Enforce it for real in your backend, by
+rejecting unauthorized calls.
 
-Your own distribution code reads the same session back through `AuthContext` — the service the host
+Your own distribution code reads the same session back through `AuthContext`, the service the host
 chrome itself uses, so a component of yours and a gated rail item can never disagree:
 
 ```ts
@@ -175,7 +174,7 @@ auth.meets({ anyRole: ['admin', 'owner'] }); // the same predicate that gates co
 ```
 
 On a shared browser, pair `provideAuthSource` with `{ onIdentityChange: 'reload' }` and
-`provideIdentityScopedStores` — the first guarantees no in-memory state of the previous user
+`provideIdentityScopedStores`: the first guarantees no in-memory state of the previous user
 survives a switch, the second keeps their stored state in separate namespaces. Both are described in
 [building a distribution](distribution/persistence.md#identity-scoped-stores-multi-user-browsers).
 
@@ -184,8 +183,8 @@ survives a switch, the second keeps their stored state in separate namespaces. B
 By default the shell fetches its host keys from `/i18n/{lang}.json`. Each namespace you registered
 with `provideTranslationNamespaces('notes', 'product')` is fetched from `/i18n/<name>/{lang}.json`.
 The shell then nests each namespace under its own key, so it can never collide with a host key. That
-is a plain [Transloco](https://jsverse.github.io/transloco/) loader. Transloco — not LoomWeaver —
-owns the seam, so you swap the source with Transloco's own provider:
+is a plain [Transloco](https://jsverse.github.io/transloco/) loader. Transloco owns that seam, not
+LoomWeaver, so you swap the source with Transloco's own provider:
 
 ```ts
 // src/app/api-translation-loader.ts
@@ -210,7 +209,7 @@ provideTranslocoLoader(ApiTranslationLoader),
 **Your loader replaces the whole composition.** `provideTranslationNamespaces` is read by the
 built-in loader and by nothing else, so once you provide your own, it stops having any effect: the
 object you return _is_ the translation table, and it must already contain the host keys plus each
-namespace nested under its name — host keys **flat**, namespaces **nested**:
+namespace nested under its name. Host keys go **flat**, namespaces **nested**:
 
 ```jsonc
 // GET /api/i18n/en — the merged bundle your endpoint returns
@@ -221,7 +220,7 @@ namespace nested under its name — host keys **flat**, namespaces **nested**:
 }
 ```
 
-The simplest split is to let your endpoint do the merging (as above) — your build can read the
+The simplest split is to let your endpoint do the merging, as above. Your build can read the
 shell's own bundles out of `node_modules/@loomweaver/shell/i18n/` and seed them into your translation
 store, so the host strings stay in step with the version you ship:
 
@@ -235,19 +234,19 @@ for (const lang of ['en', 'de']) {
 ```
 
 Nothing else changes: the language switcher, `reRenderOnLangChange`, and the plugin-facing rule that
-keys are resolved for contribution metadata all work exactly as before.
+keys are resolved for contribution metadata are untouched by the swap.
 
 ### The first paint
 
 The active language is stored under `lw.shell.lang` and therefore travels through your
-settings store like every other setting — but the _initial_ language is decided **before dependency
-injection exists**, when Transloco's config is built. That early read goes straight to
+settings store like every other setting. The _initial_ language, though, is decided **before
+dependency injection exists**, when Transloco's config is built. That early read goes straight to
 `localStorage`, not through your store, and falls back to the browser's languages and then English.
 
 With a network-backed store the consequence is visible: a fresh browser boots in the browser's
 language and flips to the stored one once the store answers. If you want the very first paint to be
 right, write the language into `localStorage` under `lw.shell.lang` before `bootstrapApplication`
-runs — for example from a cookie your server already sets:
+runs, for example from a cookie your server already sets:
 
 ```ts
 // src/main.ts, ABOVE bootstrapApplication(…) — the value is the bare code ('de'), not JSON:
@@ -275,8 +274,8 @@ provideTranslocoConfig({
 }),
 ```
 
-You then serve a complete host bundle for the new language (`/i18n/fr.json` — copy the shipped
-English one and translate it) **and** a bundle for every namespace you registered; a missing
+You then serve a complete host bundle for the new language (`/i18n/fr.json`, copied from the shipped
+English one and translated) **and** a bundle for every namespace you registered; a missing
 namespace file is not fatal, but its keys render as raw ids with a console warning. Switching the
 language at runtime and persisting the choice become yours too: call Transloco's `setActiveLang` from
 your own switcher and store the value wherever you like. One rough edge to know about: the `lang`
@@ -321,7 +320,7 @@ export const appConfig: ApplicationConfig = {
 };
 ```
 
-A distribution that adopts none of this still runs — that is the point of the defaults. Adopt them
+A distribution that adopts none of this still runs. That is the point of the defaults. Adopt them
 when you have a backend to put behind them, one seam at a time.
 
 **One port, one provider.** `provideSettingsStore` and `provideIdentityScopedStores` both fill the
@@ -349,12 +348,12 @@ resolves: `localStorage.setItem('acme.last-subject', session.subject)` on login/
 idea as the language cache in [The first paint](#the-first-paint).
 
 The wrapped instance is constructed outside an injection context, so keep such a store free of
-`inject()` — the `fetch`-based one above qualifies, an `HttpClient`-based one does not.
+`inject()`: the `fetch`-based one above qualifies, an `HttpClient`-based one does not.
 
 ## The security seam lives in your backend
 
 Per-tenant secrets, credential-injecting egress and per-tenant capability grants are **your
-backend's** job — you need them anyway, with or without LoomWeaver's UI, and they can't live in the
+backend's** job. You need them anyway, with or without LoomWeaver's UI, and they cannot live in the
 browser. If your backend platform already provides per-tenant secret storage, session context and
 request dispatch, those are exactly the pieces to build on. LoomWeaver keeps only the frontend
 default-deny capability broker (which plugin may do what) and the grant map your backend feeds it.

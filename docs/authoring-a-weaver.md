@@ -8,7 +8,7 @@
 > `i18n`. Where this page and a specification disagree, the specification is right, and that is a
 > defect in this page: change the behaviour there, then explain it here.
 
-A **weaver** is a LoomWeaver plugin — where all your domain UI and logic live. It imports only
+A **weaver** is a LoomWeaver plugin, and all your domain UI and logic live in it. It imports only
 `@loomweaver/plugin-sdk` (nothing else is public API) and contributes through the uniform `ctx` it receives
 on activation. This page gives the shape of a weaver and maps the how-to pages that follow. `ctx` is
 the supported surface throughout. There is one deliberate way past it:
@@ -21,7 +21,7 @@ write. The smallest useful weaver is a single surface that owns your whole route
 an application you already have moves in behind one plugin.
 
 > **Where the snippets go.** A snippet that starts with `ctx.` belongs **inside `activate(ctx)`** in
-> your plugin file — `src/lib/plugin/<id>.plugin.ts` in a scaffolded weaver. Anything that belongs
+> your plugin file, `src/lib/plugin/<id>.plugin.ts` in a scaffolded weaver. Anything that belongs
 > somewhere else names its file on the first line. Components live beside it under `src/lib/views/`,
 > and providers always mean the `providers` array in the distribution's `src/app/app.config.ts`.
 > [Samples](samples.md) has the same material as whole files you can copy in one piece.
@@ -48,13 +48,13 @@ export const notesWeaver: Plugin = {
 };
 ```
 
-Every `ctx.register*` call returns a `Disposable` — keep it if you want to remove a contribution
+Every `ctx.register*` call returns a `Disposable`. Keep it if you want to remove a contribution
 yourself; otherwise the host disposes it when the plugin unloads.
 
 > **Surfaces (the one contract):** `ctx.registerSurface` **is** the author contract for anything the
-> host renders. A `Surface` declares _what it can do_ — `routable` (URL-addressable), `instanceable`
-> (multiple saved instances), `docks` (which regions may host it) — rather than _where it lives_; the
-> user arranges it from there.
+> host renders. A `Surface` declares _what it can do_ rather than _where it lives_: `routable`
+> (URL-addressable), `instanceable` (multiple saved instances), `docks` (which regions may host it).
+> The user arranges it from there.
 >
 > **Heavy surface? Defer it.** Instead of `component`, give a `loadComponent: () => import('./graph-view').then(m => m.GraphView)`.
 > The host calls it the first time the surface is actually shown. Routable surfaces go straight to the
@@ -67,12 +67,12 @@ yourself; otherwise the host disposes it when the plugin unloads.
 > auto-opens a tab).
 
 > **Capabilities:** the manifest _declares_ what the plugin needs; the distribution _grants_ it
-> (`provideCapabilityGrants`). A declaration alone grants nothing — using an ungranted surface throws
+> (`provideCapabilityGrants`). A declaration alone grants nothing. Using an ungranted surface throws
 > `CapabilityError`. The coarse capabilities map to slices of `ctx`: `contributions` (`register*`),
 > `ui` (`ctx.ui.*`), `host` (`ctx.host.*`), `navigation` (`navigateContent`/`openContentTab`/…),
 > `session` (`ctx.session`), `theme` (`ctx.contributeTheme`), `automation`
-> (`ctx.invokeCommand`/`ctx.invocableCommands` — running actions _other_ plugins contributed; your own
-> need no grant). The user can also **revoke** any granted capability at runtime
+> (`ctx.invokeCommand`/`ctx.invocableCommands`, for running actions _other_ plugins contributed; your
+> own need no grant). The user can also **revoke** any granted capability at runtime
 > from the built-in Permissions settings. A revoked surface then throws `CapabilityError` on the next
 > call. So treat a `CapabilityError` as a normal denial: catch it, rather than treating it as an invariant.
 

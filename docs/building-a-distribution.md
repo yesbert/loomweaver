@@ -8,11 +8,11 @@
 > explain it here.
 
 A **distribution** is your product: a thin app that composes `@loomweaver/shell` + your weaver(s), declares
-a layout, grants capabilities and sets branding. It's mostly one file — the composition root.
+a layout, grants capabilities and sets branding. It's mostly one file: the composition root.
 
 ## The composition root
 
-Everything a distribution is lives in **one providers array**, in `src/app/app.config.ts` — the file
+Everything a distribution is lives in **one providers array**, in `src/app/app.config.ts`, the file
 `ng new` and Nx both generate. Every "add this provider" instruction in these guides means that array.
 `src/main.ts`, `src/app/app.ts` and `src/app/app.html` stay as generated, except that `App` renders
 `<lw-shell />`; see [manual setup](manual-setup.md) for those three files.

@@ -36,11 +36,11 @@ Which tool depends on how you want to drive it:
 
 All three read the same scaffold descriptors and call the same generator core, so a weaver scaffolded
 any of the three ways has byte-identical source. What differs is what each one is allowed to do with
-the result — see [who writes the files](#how-a-file-actually-gets-created).
+the result. See [who writes the files](#how-a-file-actually-gets-created).
 
 ## The CLI — `@loomweaver/cli`
 
-It needs nothing installed — the generators are bundled in. It runs without a workspace too; where
+It needs nothing installed: the generators are bundled in. It runs without a workspace too; where
 it finds one it also wires the build, and where it does not it names what is left:
 
 ```bash
@@ -100,8 +100,8 @@ A missing translation key is a _warning_: it reports and exits 0, so it will not
 build. `--strict` turns warnings into a non-zero exit when you do want to gate on parity.
 
 `validate-catalog` earns its place for one reason: the shell parses a
-[plugin store catalogue](distribution/plugin-store.md) **defensively** —
-it tolerates bad input instead of failing on it. A field it does not recognise is skipped. A
+[plugin store catalogue](distribution/plugin-store.md) **defensively**.
+It tolerates bad input instead of failing on it. A field it does not recognise is skipped. A
 malformed field is dropped. An entry missing `id` or `entryUrl` disappears entirely. All of this
 happens without a word, because a store that throws on one bad entry serves nobody. That is the
 right runtime behaviour, and a terrible authoring experience. So every finding names the
@@ -124,10 +124,10 @@ root-relative paths alone, because those are same-origin by construction.
 ## The MCP server — `@loomweaver/mcp`
 
 Same generators, driven by conversation rather than by flags: you describe what you want and your
-assistant picks the options. Where the CLI writes the files itself, here **your assistant does** —
-see [how a file actually gets created](#how-a-file-actually-gets-created) below.
+assistant picks the options. Where the CLI writes the files itself, here **your assistant does**.
+See [how a file actually gets created](#how-a-file-actually-gets-created) below.
 
-`@loomweaver/mcp` is a self-contained [Model Context Protocol](https://modelcontextprotocol.io/) server —
+`@loomweaver/mcp` is a self-contained [Model Context Protocol](https://modelcontextprotocol.io/) server:
 the generators and validators are bundled in, so there is no transitive install and no LoomWeaver
 checkout. Register it in your repository's `.mcp.json` and your AI assistant gains the tools:
 
@@ -146,7 +146,7 @@ version you are building against.
 
 ### How a file actually gets created
 
-**`scaffold_*` tools do not write files.** They return a file map — relative path to content — and
+**`scaffold_*` tools do not write files.** They return a file map, relative path to content, and
 your assistant writes it:
 
 ```json
@@ -155,19 +155,19 @@ your assistant writes it:
 
 End to end, asking for a plugin looks like this:
 
-1. You ask your assistant for a weaver — say a `notes` plugin with a command on `mod+shift+n`.
+1. You ask your assistant for a weaver, say a `notes` plugin with a command on `mod+shift+n`.
 2. It calls `scaffold_weaver { "id": "notes", "command": true, "shortcut": "mod+shift+n" }`.
 3. The server generates in memory and answers with the file map. **Nothing has touched disk.**
 4. Your assistant picks the target directory and writes each file with its ordinary file-writing
-   tool — so this is where your usual permission prompt or diff review appears.
+   tool, so this is where your usual permission prompt or diff review appears.
 5. You do the wiring the generated README lists: grant the declared capabilities, compose the
    translations, translate `de.json`.
 
 Three consequences worth knowing:
 
 - **You choose where the files land.** The paths in the map are relative. The server has no idea
-  whether you run a monorepo, where your library root is, or what your projects are called — so it
-  states structure, not location, and your assistant resolves it against your layout.
+  whether you run a monorepo, where your library root is, or what your projects are called. It
+  therefore states structure, not location, and your assistant resolves it against your layout.
 - **Nothing reaches disk except through your client.** A server started via `npx` is code you did
   not audit. Because it returns data instead of writing files, it stays inside the review path you
   already have. It never gets a write path of its own.
@@ -230,7 +230,7 @@ unchanged.
 ## The weaver generator
 
 This is the one you will use most, and the only one with real options. Each feature you switch on
-pulls in what it needs — ask for a command and the `ui` capability is declared for you; ask for an
+pulls in what it needs: ask for a command and the `ui` capability is declared for you; ask for an
 About dialog and `host` comes with it.
 
 <a id="weaver-options"></a>
@@ -260,8 +260,9 @@ generator says so rather than emitting something that quietly does nothing.
 Write shortcuts with the **`mod`** token rather than `cmd` or `ctrl`: the host binds and displays it
 per platform (⌘ on macOS, Ctrl elsewhere).
 
-Either way — `loomweaver weaver --id notes --command --shortcut 'mod+shift+n'`, or the MCP argument
-`{ "id": "notes", "command": true, "shortcut": "mod+shift+n" }` — you get the same eight files:
+Either way, whether `loomweaver weaver --id notes --command --shortcut 'mod+shift+n'` or the MCP
+argument `{ "id": "notes", "command": true, "shortcut": "mod+shift+n" }`, you get the same eight
+files:
 
 ```
 src/index.ts
@@ -294,13 +295,13 @@ from the offered list through a streamed call to its outcome, with no backend, n
 
 Three files land under `src/lib/agent/`:
 
-- `<id>-agent.ts` — the connection. The workbench's own commands become the tools, and a call comes
+- `<id>-agent.ts`: the connection. The workbench's own commands become the tools, and a call comes
   back through the same seam every other trigger runs through. It also carries the place where your
   product says no before a call runs; the generated weaver names its own command as consequential, as
   an example to replace with the ones that actually cost something.
-- `<id>-agent-panel.ts` — a docked panel showing what is offered, the call as its arguments stream in,
+- `<id>-agent-panel.ts`: a docked panel showing what is offered, the call as its arguments stream in,
   and what came back.
-- `<id>-agent-source.ts` — a **stand-in**, and it says so where you cannot miss it. It produces the
+- `<id>-agent-source.ts`: a **stand-in**, and it says so where you cannot miss it. It produces the
   protocol's own events and nothing else. Replace that one file with your transport; the panel and the
   connection stay as they are. Nothing is generated for the transport, the credentials or the model,
   because none of those can be guessed.
@@ -363,7 +364,7 @@ protected readonly instanceId = this.route?.snapshot.paramMap.get('id') ?? '—'
 ```
 
 The inner tree is **sealed**: nothing can be dragged out of it and nothing into it. It travels with
-the tab — including into a sidebar or a pop-out window.
+the tab, including into a sidebar or a pop-out window.
 
 ## The Nx generators — `@loomweaver/devkit`
 
@@ -398,11 +399,11 @@ nx g @loomweaver/devkit:distribution --name acme-studio --directory apps/acme-st
 That replaces the bootstrap files this scaffold owns, and it merges the scaffold's build targets
 into the project. The wiring the shell needs lands this way: the i18n and frame-kit assets, the
 stylesheet, the service worker, and `inlineCritical: false`. What the application already declares
-is not discarded — its own targets, its `implicitDependencies` and its tags survive. The generator
+is not discarded: its own targets, its `implicitDependencies` and its tags survive. The generator
 refuses to rename a project. If the occupant is called something else, pass that name instead,
 because renaming would break every reference to it.
 
-It reads your workspace rather than assuming ours:
+It reads your workspace rather than assuming its shape:
 
 | It needs to know                  | How it decides                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -416,7 +417,7 @@ It reads your workspace rather than assuming ours:
 
 The generated test target is `@nx/angular:unit-test` (Vitest), which is what Angular 21+ and Nx both
 default to. A weaver library has no build of its own, so its specs compile with the build options of
-the application that composes it — that is what `--app` resolves. If your workspace runs a different
+the application that composes it. That is what `--app` resolves. If your workspace runs a different
 runner, `--unit-test-runner none` emits no test wiring at all and leaves it to you.
 
 Inside this repository the same collection is used through the workspace path alias, with the
@@ -444,4 +445,5 @@ cd platform && nx bundle mcp
 
 ---
 
-**Next:** [Authoring a weaver](authoring-a-weaver.md) — what to do with the plugin once it exists.
+**Next:** [Authoring a weaver](authoring-a-weaver.md) says what to do with the plugin once it
+exists.
