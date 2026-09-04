@@ -19,7 +19,7 @@
 A weaver targets a region by its **id**, never by its dock or type: `registerSurface({ docks:
 ['left-panel'] })`, `registerRailItem({ rail: 'primary' })` and `registerBarItem({ bar: 'status-bar' })`
 name the ids the scaffold declares. Left and right are symmetric; [shell
-anatomy](../reference/shell-anatomy.md) has the full vocabulary.
+anatomy](../reference/shell-anatomy.md#the-region-ids-the-scaffold-declares) lists the ids.
 
 > **Non-routable surfaces render only in `panel` regions.** A surface's home dock (`docks[0]`) may name
 > any region id, but one docked into a `content` (or `bar`/`rail`) region is a silent no-op (dev-mode
