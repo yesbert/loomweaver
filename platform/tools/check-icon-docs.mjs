@@ -16,6 +16,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
+import * as prettier from 'prettier';
 import * as heroicons from '@ng-icons/heroicons/outline';
 
 const repoRoot = resolve(fileURLToPath(import.meta.url), '../../..');
@@ -121,7 +122,15 @@ function replaceBlock(page, block) {
 const pagePath = join(repoRoot, PAGE);
 const page = readFileSync(pagePath, 'utf8');
 const icons = readIcons();
-const wanted = replaceBlock(page, table(icons));
+
+// The generated table goes through Prettier before it is compared or written. Markdown under docs/
+// is formatted and `docs-format-check` holds it, so a table emitted with single-dash separators
+// would fail that check, and formatting it by hand would fail this one. Running the formatter here
+// is what keeps the two guards from pulling in opposite directions.
+const wanted = await prettier.format(replaceBlock(page, table(icons)), {
+  ...(await prettier.resolveConfig(pagePath)),
+  filepath: pagePath,
+});
 
 if (process.argv.includes('--write')) {
   writeFileSync(pagePath, wanted);
