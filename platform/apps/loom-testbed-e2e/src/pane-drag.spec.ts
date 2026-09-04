@@ -10,7 +10,7 @@ test.describe('Pane edge drag & drop', () => {
 
     await dragTo(
       page,
-      '#panel-views-primary [role="tab"][aria-label="Outline"]',
+      '#panel-views-left-panel [role="tab"][aria-label="Outline"]',
       {
         x: content.x + content.width - 12,
         y: content.y + content.height / 2,
@@ -25,7 +25,7 @@ test.describe('Pane edge drag & drop', () => {
     ).toHaveCount(1);
 
     await expect(
-      page.locator('#panel-views-primary [role="tab"][aria-label="Outline"]'),
+      page.locator('#panel-views-left-panel [role="tab"][aria-label="Outline"]'),
     ).toHaveCount(0);
 
     await page.reload();
@@ -33,7 +33,7 @@ test.describe('Pane edge drag & drop', () => {
       page.locator('lw-content-secondary-pane lw-testbed-outline-view'),
     ).toBeVisible();
     await expect(
-      page.locator('#panel-views-primary [role="tab"][aria-label="Outline"]'),
+      page.locator('#panel-views-left-panel [role="tab"][aria-label="Outline"]'),
     ).toHaveCount(0);
   });
 
@@ -45,7 +45,7 @@ test.describe('Pane edge drag & drop', () => {
 
     await dragTo(
       page,
-      '#panel-views-primary [role="tab"][aria-label="Outline"]',
+      '#panel-views-left-panel [role="tab"][aria-label="Outline"]',
       {
         x: content.x + 12,
         y: content.y + content.height / 2,
@@ -73,7 +73,7 @@ test.describe('Pane edge drag & drop', () => {
 
     await dragTo(
       page,
-      '#panel-views-primary [role="tab"][aria-label="Outline"]',
+      '#panel-views-left-panel [role="tab"][aria-label="Outline"]',
       {
         x: panel.x + panel.width / 2,
         y: panel.y + panel.height - 40,
@@ -94,7 +94,7 @@ test.describe('Pane edge drag & drop', () => {
       ),
     ).toHaveCount(1);
     await expect(
-      page.locator('#panel-views-primary [role="tab"][aria-label="Outline"]'),
+      page.locator('#panel-views-left-panel [role="tab"][aria-label="Outline"]'),
     ).toHaveCount(0);
   });
 
@@ -104,7 +104,7 @@ test.describe('Pane edge drag & drop', () => {
     await page.goto('/');
     const content = (await page.locator('#lw-main-content').boundingBox())!;
     const tab = (await page
-      .locator('#panel-views-primary [role="tab"][aria-label="Outline"]')
+      .locator('#panel-views-left-panel [role="tab"][aria-label="Outline"]')
       .boundingBox())!;
     const centre = {
       x: content.x + content.width / 2,
@@ -142,7 +142,7 @@ test.describe('Pane edge drag & drop', () => {
 
     await dragTo(
       page,
-      '#panel-views-primary [role="tab"][aria-label="Outline"]',
+      '#panel-views-left-panel [role="tab"][aria-label="Outline"]',
       {
         x: content.x + content.width - 12,
         y: content.y + content.height / 2,

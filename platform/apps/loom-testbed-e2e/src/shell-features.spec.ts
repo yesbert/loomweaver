@@ -35,7 +35,7 @@ test.describe('Switching a capability off takes the gesture too (K1b)', () => {
     const content = (await page.locator('#lw-main-content').boundingBox())!;
     await dragTo(
       page,
-      '#panel-views-primary [role="tab"][aria-label="Outline"]',
+      '#panel-views-left-panel [role="tab"][aria-label="Outline"]',
       { x: content.x + content.width - 12, y: content.y + content.height / 2 },
     );
     await page.keyboard.press('Control+\\');
@@ -51,7 +51,7 @@ test.describe('Switching a capability off takes the gesture too (K1b)', () => {
     const content = (await page.locator('#lw-main-content').boundingBox())!;
     await dragTo(
       page,
-      '#panel-views-primary [role="tab"][aria-label="Outline"]',
+      '#panel-views-left-panel [role="tab"][aria-label="Outline"]',
       { x: content.x + content.width - 12, y: content.y + content.height / 2 },
     );
     await expect(page.locator(SPLIT_HANDLE)).toHaveCount(1);
@@ -130,8 +130,8 @@ test.describe('Switching a capability off takes the gesture too (K1b)', () => {
 });
 
 test.describe('Sidebar and rail capabilities (K1c)', () => {
-  const left = '#panel-views-primary';
-  const right = '#panel-views-secondary';
+  const left = '#panel-views-left-panel';
+  const right = '#panel-views-right-panel';
   const outline = { name: 'Outline' };
 
   test('sidebar.resize off: no splitter to drag', async ({ page }) => {
@@ -247,7 +247,7 @@ test.describe('Reordering and instances: the switch takes the gesture too (K1f)'
     page.locator(`${scope} [data-reorder-id]`);
 
   const CONTENT_TABS = 'lw-content-area [role="tab"]';
-  const VIEW_TABS = '#panel-views-primary [role="tab"]';
+  const VIEW_TABS = '#panel-views-left-panel [role="tab"]';
   const RAIL_ITEMS = 'lw-shell-rail button[aria-label]';
 
   test('content.reorderTabs off: no drag handle, and neither Alt+Arrow nor a drag moves a tab', async ({
@@ -288,7 +288,7 @@ test.describe('Reordering and instances: the switch takes the gesture too (K1f)'
     await page.goto('/');
     await expect(page.locator(VIEW_TABS).first()).toBeVisible();
 
-    await expect(handles(page, '#panel-views-primary')).toHaveCount(0);
+    await expect(handles(page, '#panel-views-left-panel')).toHaveCount(0);
     const before = await orderOf(page, VIEW_TABS);
     expect(before.length).toBeGreaterThan(1);
 
@@ -321,7 +321,7 @@ test.describe('Reordering and instances: the switch takes the gesture too (K1f)'
     await useFeatures(page, 'sidebar-instances');
     await page.goto('/');
     await page
-      .locator('#panel-views-primary')
+      .locator('#panel-views-left-panel')
       .getByRole('tab', { name: 'Outline' })
       .click();
 
@@ -370,7 +370,7 @@ test.describe('Workspaces, windows and commands (K1d)', () => {
     await page.keyboard.press('Escape');
 
     await page
-      .locator('#panel-views-primary')
+      .locator('#panel-views-left-panel')
       .getByRole('tab', { name: 'Outline' })
       .click({ button: 'right' });
     await expect(

@@ -278,7 +278,7 @@ test.describe('Workspaces are self-remembering', () => {
     page,
   }) => {
     await page.goto('/');
-    const navigator = page.locator('#panel-views-primary');
+    const navigator = page.locator('#panel-views-left-panel');
     await expect(navigator).toHaveCount(1);
 
     await page.getByRole('button', { name: 'Collapse panel' }).first().click();
@@ -300,7 +300,7 @@ test.describe('Workspaces are self-remembering', () => {
     page,
   }) => {
     await page.goto('/');
-    const strip = page.locator('#panel-views-primary');
+    const strip = page.locator('#panel-views-left-panel');
     await expect(strip.getByRole('tab')).not.toHaveCount(0);
 
     await rail(page)

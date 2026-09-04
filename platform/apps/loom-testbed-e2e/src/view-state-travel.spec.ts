@@ -7,7 +7,7 @@ test.describe('View state travels with a moved view tab', () => {
   }) => {
     await page.goto('/entry/e-01');
     await page
-      .locator('#panel-views-primary')
+      .locator('#panel-views-left-panel')
       .getByRole('tab', { name: 'Outline' })
       .click();
 
@@ -25,7 +25,7 @@ test.describe('View state travels with a moved view tab', () => {
     const content = (await page.locator('#lw-main-content').boundingBox())!;
     await dragTo(
       page,
-      '#panel-views-primary [role="tab"][aria-label="Outline"]',
+      '#panel-views-left-panel [role="tab"][aria-label="Outline"]',
       {
         x: content.x + content.width - 12,
         y: content.y + content.height / 2,

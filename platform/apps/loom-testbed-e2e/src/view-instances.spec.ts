@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 test.describe('Saved view instances', () => {
-  const left = '#panel-views-primary';
+  const left = '#panel-views-left-panel';
   const switcher = () => 'view-switcher';
 
   test('create, switch, persist and delete a named saved view', async ({

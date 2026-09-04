@@ -68,7 +68,7 @@ test.describe('Surface retention (hidden and clean means destroyed)', () => {
   }) => {
     await page.goto('/');
     await page
-      .locator('#panel-views-primary')
+      .locator('#panel-views-left-panel')
       .getByRole('tab', { name: 'Outline' })
       .click();
     const sortButton = page.getByTestId('outline-sort');

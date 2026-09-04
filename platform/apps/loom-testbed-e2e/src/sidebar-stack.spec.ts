@@ -11,7 +11,7 @@ test.describe('Sidebar view stacking', () => {
     await page.goto('/');
 
     await page
-      .locator('#panel-views-primary')
+      .locator('#panel-views-left-panel')
       .getByRole('tab', { name: 'Outline' })
       .click({ button: 'right' });
     await page.getByRole('menuitem', { name: 'Stack below' }).click();
@@ -19,7 +19,7 @@ test.describe('Sidebar view stacking', () => {
     await expect(page.locator(outlines)).toHaveCount(2);
 
     await page
-      .locator('#panel-views-primary')
+      .locator('#panel-views-left-panel')
       .getByRole('tab', { name: 'Outline' })
       .click({ button: 'right' });
     await page.getByRole('menuitem', { name: 'Stack below' }).click();

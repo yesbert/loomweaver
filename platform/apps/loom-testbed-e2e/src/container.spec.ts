@@ -153,7 +153,7 @@ test.describe('Container surface / workspace-in-a-tab', () => {
     ).toBeVisible();
 
     const strip = (await page
-      .locator('#panel-views-primary [role="tablist"]')
+      .locator('#panel-views-left-panel [role="tablist"]')
       .boundingBox())!;
     await dragTo(
       page,
@@ -166,7 +166,7 @@ test.describe('Container surface / workspace-in-a-tab', () => {
 
     await expect(
       page.locator(
-        '#panel-views-primary [role="tab"][aria-label="Container alpha"]',
+        '#panel-views-left-panel [role="tab"][aria-label="Container alpha"]',
       ),
     ).toBeVisible();
     const sideHost = page.locator('lw-shell-panel lw-container-pane-host');

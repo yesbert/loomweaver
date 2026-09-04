@@ -6,7 +6,7 @@ import {
   railRight,
 } from './support/helpers';
 
-const left = '#panel-views-primary';
+const left = '#panel-views-left-panel';
 
 test.describe('Cross-tab live sync', () => {
   test('a theme change in one window follows into the other without a reload', async ({

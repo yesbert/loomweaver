@@ -6,7 +6,7 @@ test.describe('Reveal a docked surface (finding #29)', () => {
     page,
   }) => {
     await page.goto('/');
-    const left = page.locator('#panel-views-primary');
+    const left = page.locator('#panel-views-left-panel');
     const library = left.getByRole('tab', { name: 'Entry list' });
     const outline = left.getByRole('tab', { name: 'Outline' });
 
@@ -27,7 +27,7 @@ test.describe('Reveal a docked surface (finding #29)', () => {
     page,
   }) => {
     await page.goto('/');
-    const left = page.locator('#panel-views-primary');
+    const left = page.locator('#panel-views-left-panel');
     await left
       .getByRole('tab', { name: 'Entry list' })
       .click({ button: 'right' });

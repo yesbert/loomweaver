@@ -76,7 +76,7 @@ distribution's to choose; the scaffold declares these six, and the guides use th
 | `status-bar`  | `bar`     | `bottom` | the status bar                                           |
 
 A distribution with other ids works the same way; only the names in the weaver's declarations
-change. The testbed, for one, names its rail `activity` and its left panel `primary`.
+change.
 
 ## Variant: no middle segment (bar (top) omitted)
 

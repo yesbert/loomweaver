@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { rail } from './support/helpers';
 
-const left = '#panel-views-primary';
+const left = '#panel-views-left-panel';
 
 test.describe('Pop-out windows', () => {
   test('a view pop-out shows only the view — no rail, no sidebar, titled window', async ({

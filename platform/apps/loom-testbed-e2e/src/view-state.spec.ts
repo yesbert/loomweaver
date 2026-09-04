@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 test.describe('Persisted view state', () => {
-  const left = '#panel-views-primary';
+  const left = '#panel-views-left-panel';
 
   test('the outline sort choice is saved and restored across a reload', async ({
     page,

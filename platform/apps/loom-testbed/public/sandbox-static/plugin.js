@@ -21,7 +21,7 @@
           id: 'sandbox-static.docked',
           title: 'testbed.sandboxStatic.docked',
           icon: 'info',
-          docks: ['secondary'],
+          docks: ['right-panel'],
           order: 2,
           iframe: '/docked-frame/view.html?sandbox=1',
         }),

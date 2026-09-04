@@ -15,7 +15,7 @@ test.describe('Sidebar ⇄ center tab moves', () => {
 
     await dragTo(
       page,
-      '#panel-views-primary [role="tab"][aria-label="Outline"]',
+      '#panel-views-left-panel [role="tab"][aria-label="Outline"]',
       {
         x: strip.x + strip.width - 40,
         y: strip.y + strip.height / 2,
@@ -30,7 +30,7 @@ test.describe('Sidebar ⇄ center tab moves', () => {
     ).toHaveCount(0);
 
     await expect(
-      page.locator('#panel-views-primary [role="tab"][aria-label="Outline"]'),
+      page.locator('#panel-views-left-panel [role="tab"][aria-label="Outline"]'),
     ).toHaveCount(0);
 
     await expect(
@@ -63,7 +63,7 @@ test.describe('Sidebar ⇄ center tab moves', () => {
     await expect(page.getByRole('tab', { name: 'E-01' })).toBeVisible();
 
     const strip = (await page
-      .locator('#panel-views-primary [role="tablist"]')
+      .locator('#panel-views-left-panel [role="tablist"]')
       .boundingBox())!;
     await dragTo(page, 'lw-content-area [role="tab"][aria-label="E-01"]', {
       x: strip.x + strip.width - 24,
@@ -71,7 +71,7 @@ test.describe('Sidebar ⇄ center tab moves', () => {
     });
 
     await expect(
-      page.locator('#panel-views-primary [role="tab"][aria-label="E-01"]'),
+      page.locator('#panel-views-left-panel [role="tab"][aria-label="E-01"]'),
     ).toBeVisible();
 
     await expect(
@@ -84,7 +84,7 @@ test.describe('Sidebar ⇄ center tab moves', () => {
 
     await page.reload();
     await expect(
-      page.locator('#panel-views-primary [role="tab"][aria-label="E-01"]'),
+      page.locator('#panel-views-left-panel [role="tab"][aria-label="E-01"]'),
     ).toBeVisible();
   });
 });
