@@ -41,8 +41,8 @@ a site of plain pages.
 
 It also speaks **[AG-UI](https://docs.ag-ui.com)**, the open protocol between a user-facing
 application and an agentic backend. Every command your product registers can be offered to an agent
-that speaks it, through an adapter that ships with the platform — and an agent still reaches only
-what the user could have reached.
+that speaks it, through an adapter that ships with the platform. An agent still reaches only what
+the user could have reached.
 
 ## Quick start
 
@@ -212,10 +212,10 @@ working when the control is gone. **A switch removes the control, never the capa
 
 ## Three rungs of trust, not one switch
 
-1. **Trusted, in-process** — your own weavers, composed at build time.
-2. **Sandboxed iframe** — somebody else's code in its own JS context, opaque origin, no reach into
+1. **Trusted, in-process**: your own weavers, composed at build time.
+2. **Sandboxed iframe**: somebody else's code in its own JS context, opaque origin, no reach into
    your DOM. Write the plugin body in **any framework**.
-3. **Installed at runtime** — from your curated catalogue, with a consent dialog the user answers and
+3. **Installed at runtime**: from your curated catalogue, with a consent dialog the user answers and
    updates driven by the catalogue version.
 
 All three consume the same `ctx`, behind a **default-deny capability broker** the user can inspect
@@ -237,9 +237,9 @@ Seven npm packages, one shared version:
 
 ## How it fits together
 
-- **Layer 1 — LoomWeaver (this repo):** plugin registry, extension points, capability broker,
+- **Layer 1, LoomWeaver (this repo):** plugin registry, extension points, capability broker,
   theming engine, sandbox RPC, plugin loader. Domain-pure, frontend-only.
-- **Layer 2 — your weavers:** the product UI, mechanically indistinguishable from third-party
+- **Layer 2, your weavers:** the product UI, mechanically indistinguishable from third-party
   plugins.
 - **A product is a distribution**: a thin composition of the published packages, and it never forks
   the core. See
@@ -265,14 +265,9 @@ commands, a sandboxed payment matcher, several visibly different themes and acce
 - **This is where LoomWeaver is developed.** `main` is protected and takes no direct pushes; work
   arrives through pull requests that have to pass the checks first. The history before the first
   public commit is not here: the project was developed privately and opened at a fixed state.
-- Frontend: Angular + Nx under `platform/`, and this repo is frontend-only. Run the testbed with
-  `npm run start:testbed` (from `platform/`; serves HTTPS on `https://127.0.0.1:4200`, binding the
-  IPv4 loopback, so an IPv6 `localhost` may not answer). A `prestart:testbed` hook generates a
-  self-signed `localhost` certificate into `platform/.certs/` via `openssl` when one is missing;
-  trust it once so the browser accepts the page. On macOS:
-  `sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain platform/.certs/aspnet-dev.pem`.
-  The dev server runs without a service worker on purpose; to exercise the PWA install and the
-  update flow, use `npm run preview:testbed` (production build, served on `https://127.0.0.1:4300`).
+- Frontend: Angular + Nx under `platform/`, and this repo is frontend-only. Running the testbed
+  takes a certificate you trust once and a port that answers on IPv4;
+  [`CONTRIBUTING.md`](CONTRIBUTING.md) walks through it.
 - Documentation source: [`docs/`](docs/), the same content published at
   [loomweaver.dev](https://loomweaver.dev). Start at the [docs index](docs/README.md).
 - AI-facing map (for integrators and their assistants): [`llms.txt`](llms.txt) +
