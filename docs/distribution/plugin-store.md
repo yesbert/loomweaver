@@ -48,6 +48,12 @@ the user installs it — plus display metadata for the store:
 ]
 ```
 
+Two optional fields the sample leaves out change who decides. Setting `deployed: true` makes the
+entry active for every user without a consent dialog, on the operator's authority
+([The plugin system](../plugins.md)). The `level` field asks for the isolation level the entry runs
+at, and the catalogue's `maxLevel` caps what it may be given
+([Frame plugins](frame-plugins.md#the-level-a-frame-plugin-runs-at)).
+
 `iconUrl` is a **same-origin image** the operator ships with the plugin (a not-yet-installed plugin
 cannot contribute registry icons); `category` is your curated taxonomy; `downloads`/`updated` are
 display-only operator stats. All metadata is parsed defensively: a foreign-origin

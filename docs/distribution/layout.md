@@ -41,7 +41,7 @@ in [Switching capabilities off](switching-capabilities-off.md).
 ## Curating a sidebar
 
 The user curates a sidebar the way they curate the rail. A right-click on a view tab offers *Move
-to other sidebar* and *Hide*; a right-click on the strip offers **Customize views**, which opens a
+to other sidebar* and *Hide*; a right-click on the strip offers *Customize views*, which opens a
 dialog listing every view with **where it sits**: hidden, left, or right. Picking a place moves it
 there, so the dialog does the hiding and the moving in one control, and a view hidden on the left
 comes back wherever you send it. The dialog has a search field and scrolls, because a product with
