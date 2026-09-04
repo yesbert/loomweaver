@@ -1,4 +1,4 @@
-# LoomWeaver — accessibility (a11y)
+# Accessibility (a11y)
 
 <!-- derived-from-specs -->
 
@@ -7,8 +7,8 @@
 > disagree, the specification is right, and that is a defect in this page: change the behaviour
 > there, then explain it here.
 
-**Target: WCAG 2.1 Level AA.** a11y lives in the **core** — every weaver that uses the host
-vocabulary inherits it automatically (the same way it inherits the permission broker). This file is
+**Target: WCAG 2.1 Level AA.** a11y lives in the **core**, so every weaver that uses the host
+vocabulary inherits it automatically, the same way it inherits the permission broker. This file is
 the binding guardrail; it complements [`design-tokens.md`](design-tokens.md) (colours/contrast).
 
 ## What the platform already brings (inherited)
@@ -22,9 +22,9 @@ the binding guardrail; it complements [`design-tokens.md`](design-tokens.md) (co
   collapse; the loading spinner stays, as essential status feedback).
 - **Contrast:** all semantic tokens are **AA-verified** (see the token rules below).
 - **Tab strips:** every pane strip is a real `role="tablist"` with `role="tab"` children. Because ARIA
-  specifies `tab` as "children presentational", the **× (close) and 📌 (unpin) are not focusable
-  buttons** but pure pointer affordances (`aria-hidden`); the keyboard equivalent is **`Delete`** on
-  the focused tab (announced via `aria-keyshortcuts`), plus the tab context menu.
+  specifies `tab` as "children presentational", the **close and unpin controls on a tab are not
+  focusable buttons** but pure pointer affordances (`aria-hidden`). The keyboard equivalent is
+  **`Delete`** on the focused tab (announced via `aria-keyshortcuts`), plus the tab context menu.
 - **Text size (WCAG 1.4.4):** the shell ships a user setting "text size"
   (Settings → Options → General) that scales the whole UI through the `:root` `font-size`
   (90/100/112.5/125 %, **relative** to the browser's base font). Every distribution inherits it.
@@ -33,9 +33,10 @@ the binding guardrail; it complements [`design-tokens.md`](design-tokens.md) (co
 
 ## Rules for plugin authors (checklist)
 
-1. **Use the host vocabulary** (`<lw-button>`, dialogs via `ctx.ui.*`, `<lw-icon>`, `<lw-markdown>` …) —
-   it is already accessible (focus, contrast, keyboard). Your own web component/iframe is an emergency
-   exit only — and it costs more than accessibility work, see
+1. **Use the host vocabulary** (`<lw-button>`, dialogs via `ctx.ui.*`, `<lw-icon>`, `<lw-markdown>` …):
+   it is already accessible (focus, contrast, keyboard). A web component or an iframe of your own is
+   the last rung of the ladder, for the graphics that vocabulary does not cover, and there everything
+   the host brings is yours to build and to keep. What else it costs is in
    [your own custom element](../weaver/sidebar-surfaces.md#your-own-custom-element--the-escape-hatch).
 2. **An accessible name for everything interactive:** visible text **or** `aria-label`. Icon-only
    buttons **require** `aria-label`.
@@ -43,15 +44,15 @@ the binding guardrail; it complements [`design-tokens.md`](design-tokens.md) (co
    - Brand blue as **text** → `text-brand-text` (not `text-brand`, which is AA only as a fill/icon).
    - Filled **action surfaces with a label** → use the `<lw-button>` variants (they carry the
      AA-capable `*-fill` tones); do **not** build `bg-brand` + text yourself.
-4. **Never rely on colour alone** — also convey state through an icon/text/shape.
+4. **Never rely on colour alone.** Convey state through an icon, a text or a shape as well.
 5. **Keyboard:** everything reachable by Tab; your own menus/popups follow the ARIA pattern (arrow
-   keys, Escape, focus restore) — never `role="menu"` without the keyboard behaviour (a role without
-   its behaviour is worse than no role).
+   keys, Escape, focus restore). Never write `role="menu"` without the keyboard behaviour, because a
+   role without its behaviour is worse than no role.
 6. **Motion:** reduced-motion is inherited; gate your own animations behind the media query too.
 7. **Images:** meaningful `alt`; purely decorative ones → `alt=""`.
 8. **Font sizes in `rem`, never in `px`.** The text-size setting works through the `:root`
-   `font-size` — sizing text in `px` **silently** opts out of the user's choice (and ignores an
-   enlarged browser base font). Tailwind's `text-*` utilities are already `rem`, so: use the
+   `font-size`, so sizing text in `px` **silently** opts out of the user's choice, and ignores an
+   enlarged browser base font. Tailwind's `text-*` utilities are already `rem`, so: use the
    utilities and avoid raw `px` font sizes.
 
 ## Colour token rules (AA)
@@ -69,7 +70,8 @@ the binding guardrail; it complements [`design-tokens.md`](design-tokens.md) (co
 
 - `nx e2e loom-testbed-e2e` runs the axe net. For a **new screen/state**, add an
   `new AxeBuilder({ page }).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze()` scan
-  (import `AxeBuilder` from `@axe-core/playwright`) — the existing scans in
+  (import `AxeBuilder` from `@axe-core/playwright`). The existing scans in
   `platform/apps/loom-testbed-e2e/src/a11y.spec.ts` are the template to copy.
-- **axe only covers what a machine can check** (~⅓–½): labels, contrast, ARIA, roles. **Test focus
-  order, keyboard completeness and meaningful alt text by hand.**
+- **axe only covers what a machine can check**, roughly a third to a half of what WCAG asks for:
+  labels, contrast, ARIA, roles. **Test focus order, keyboard completeness and meaningful alt text by
+  hand.**

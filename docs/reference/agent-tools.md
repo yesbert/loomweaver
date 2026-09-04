@@ -41,7 +41,7 @@ part of a tool call are ignored, so you can hand it everything without filtering
 
 The package is **headless**. It brings no transport, no user interface and no agent: you open the
 connection, you draw the conversation, and you decide what the agent is. It has no Angular dependency
-and no observables — you hand it one event at a time, which is also why it is easy to test.
+and no observables: you hand it one event at a time, which is also why it is easy to test.
 
 `@ag-ui/core` and `@loomweaver/plugin-sdk` are peer dependencies, so a weaver that also builds its own agent
 with `@ag-ui/client` resolves one copy of each rather than two.
@@ -90,8 +90,8 @@ const tools = commandTools(ctx, {
 });
 ```
 
-`before` receives a `PendingToolCall` — the `toolCallId`, the `commandId` and the assembled `args` —
-and answers a `ToolDecision`:
+`before` receives a `PendingToolCall` holding the `toolCallId`, the `commandId` and the assembled
+`args`, and answers a `ToolDecision`:
 
 | Decision                          | What happens                                                                         |
 | --------------------------------- | ------------------------------------------------------------------------------------ |
@@ -124,9 +124,10 @@ broke" and choose differently.
 
 ## What the agent never learns
 
-The refusal wording is the same for every reason a command cannot be reached — no such command, not
-`callable`, the session does not qualify, the wrong window, no grant. That is deliberate: telling them
-apart would let an agent map what is installed by calling ids and reading the reason back.
+The refusal wording is the same for every reason a command cannot be reached: no such command, not
+`callable`, the session does not qualify, the wrong window, no grant. That is deliberate, because
+telling them apart would let an agent map what is installed by calling ids and reading the reason
+back.
 
 ## Streamed and chunked calls
 

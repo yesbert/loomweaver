@@ -1,4 +1,4 @@
-# Shell anatomy — named areas (reference)
+# Shell anatomy — named areas
 
 <!-- derived-from-specs -->
 
@@ -8,9 +8,9 @@
 > there, then explain it here.
 
 > **Purpose:** binding names for the visible shell areas, so conversations, code and docs mean the
-> same thing — the spatial sketch for the region-type vocabulary from
+> same thing. It is the spatial sketch for the region-type vocabulary from
 > [Building a distribution](../distribution/layout.md).
-> **Neutral frame** (core chrome) — plugins contribute the contents.
+> The frame itself is **neutral core chrome**, and plugins contribute the contents.
 
 ## Base layout (desktop, fully equipped)
 
@@ -81,7 +81,7 @@ change.
 ## Variant: no middle segment (bar (top) omitted)
 
 If a distribution declares **no** top `bar` (no logo, no switchers), **the top band does not
-disappear** — the **sidebar headers remain** (the width of rail+panel), and in the middle the
+disappear**. The **sidebar headers remain** (the width of rail+panel), and in the middle the
 **content moves up** and uses the full height. The bar justifies itself through its contents:
 _no contents → no middle bar → more content height._
 
@@ -105,5 +105,5 @@ opened/closed through the affordance in its **sidebar header**.
 
 ## See also
 
-- [Building a distribution → Layout: regions & docks](../distribution/layout.md) — how a distribution declares these regions (`provideLayout`).
-- [Authoring a weaver → Rail & bar items](../weaver/commands.md#rail--bar-items--command-triggers-in-the-chrome) and [Panel surfaces](../weaver/sidebar-surfaces.md#panel-surfaces--your-ui-in-a-panel) — how a weaver hooks views/items into these regions, with the slot/anchor properties in use.
+- [Building a distribution → Layout: regions & docks](../distribution/layout.md): how a distribution declares these regions (`provideLayout`).
+- [Authoring a weaver → Rail & bar items](../weaver/commands.md#rail--bar-items--command-triggers-in-the-chrome) and [Panel surfaces](../weaver/sidebar-surfaces.md#panel-surfaces--your-ui-in-a-panel): how a weaver hooks views/items into these regions, with the slot/anchor properties in use.

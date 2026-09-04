@@ -92,8 +92,8 @@ You are not limited to this set, and nothing above is a ceiling on what a produc
   repainting the workbench around it.
 - A **distribution** registers glyphs at build time with `provideIcons`, described in
   [Building a distribution](../building-a-distribution.md). A distribution _may_ name one of the
-  icons above, and its drawing then replaces ours everywhere the chrome draws it, sandboxed surfaces
-  included.
+  icons above, and its drawing then replaces the shipped one everywhere the chrome draws it, sandboxed
+  surfaces included.
 
 Contributed SVG is sanitised at registration. The rules, and the rest of the `<lw-*>` vocabulary, are
 in [Design tokens](design-tokens.md).
