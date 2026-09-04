@@ -1,13 +1,14 @@
 # The plugin system
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `plugin-runtime` · `plugin-permissions` · `plugin-sandbox` ·
 > `plugin-store`. Where this page and a specification disagree, the specification is right, and
 > that is a defect in this page: change the behaviour there, then explain it here.
 
 LoomWeaver is a plugin platform with no domain logic of its own. That means "how plugins are loaded,
-trusted and controlled" *is* the platform. This page describes it from the distribution's point of
+trusted and controlled" _is_ the platform. This page describes it from the distribution's point of
 view. It covers three things: the four ways a plugin can reach a running app and the three rungs of trust
 they map to, what the capability broker does in each case, and what the user can turn off.
 
@@ -21,23 +22,23 @@ isolation, how it arrives — and **whose decision it was**. Four ways, three ru
 and frame plugins are the first two rungs; operator-deployed and community-installed plugins are both
 the third, installed at runtime, and differ only in whose decision it was:
 
-| | Trusted | Frame plugin | Operator-deployed | Community-installed |
-| --- | --- | --- | --- | --- |
-| Arrives via | `providePlugins()` | `provideFramePlugins()` | a catalogue entry marked `deployed` | the user, from a catalogue |
-| Runs in | the app itself | an `<iframe>`, at the level the composition chooses | an `<iframe>`, at the level the catalogue allows | `<iframe sandbox="allow-scripts">` |
-| `ctx` is | a direct object | a Penpal RPC proxy | a Penpal RPC proxy | a Penpal RPC proxy |
-| Written in | Angular | anything | anything | anything |
-| Grant comes from | your composition root | your composition root | the entry itself | the install dialog |
-| Decided at | build time | build time | run time, by the operator | run time, by the user |
-| The user may turn it off, or revoke a capability | yes | yes | **no** | yes |
-| The user may remove it | no | no | no | yes |
+|                                                  | Trusted               | Frame plugin                                        | Operator-deployed                                | Community-installed                |
+| ------------------------------------------------ | --------------------- | --------------------------------------------------- | ------------------------------------------------ | ---------------------------------- |
+| Arrives via                                      | `providePlugins()`    | `provideFramePlugins()`                             | a catalogue entry marked `deployed`              | the user, from a catalogue         |
+| Runs in                                          | the app itself        | an `<iframe>`, at the level the composition chooses | an `<iframe>`, at the level the catalogue allows | `<iframe sandbox="allow-scripts">` |
+| `ctx` is                                         | a direct object       | a Penpal RPC proxy                                  | a Penpal RPC proxy                               | a Penpal RPC proxy                 |
+| Written in                                       | Angular               | anything                                            | anything                                         | anything                           |
+| Grant comes from                                 | your composition root | your composition root                               | the entry itself                                 | the install dialog                 |
+| Decided at                                       | build time            | build time                                          | run time, by the operator                        | run time, by the user              |
+| The user may turn it off, or revoke a capability | yes                   | yes                                                 | **no**                                           | yes                                |
+| The user may remove it                           | no                    | no                                                  | no                                               | yes                                |
 
 The ladder is deliberate: the transport changes, the broker does not. A capability check runs at
 exactly the same place for all four.
 
 **Authority is the axis the last three rows describe, and it is worth stating on its own.** What the
 user chose is theirs end to end: they consented to it, and they can revoke, disable and remove it.
-What the operator decided is not theirs to remove — and for a *deployed* plugin, not theirs to
+What the operator decided is not theirs to remove — and for a _deployed_ plugin, not theirs to
 disable either. The difference between composed and deployed is deliberate: a composed plugin ships
 as part of one artefact the user can see whole, while a deployed one is managed centrally and can be
 withdrawn centrally, which only works if the centre can rely on what it rolled out being there.
@@ -46,7 +47,7 @@ what the user installed.
 
 A frame plugin runs at one of two levels, and the composition chooses: `isolated`, the default,
 strips the frame of an origin, while `embedded` lets it keep one. **`embedded` is not a weaker
-sandbox. It is not a sandbox.** The level separates *deployments*, so several teams can ship
+sandbox. It is not a sandbox.** The level separates _deployments_, so several teams can ship
 independently into one workbench, and it is a decision about trust the composition makes on the
 operator's behalf. A plugin never decides it for itself; a catalogue entry may ask for a level, and
 the catalogue's wiring caps what it may confer. The keys, the cap and where to serve an embedded
@@ -115,15 +116,15 @@ you — see [the frame UI kit](weaver/sandboxed-surfaces.md#the-frame-ui-kit).
 
 Only data crosses an RPC boundary, so a sandboxed plugin reaches a **subset** of `ctx`:
 
-| Reaches the host | Trusted only |
-| --- | --- |
-| `registerSurface` (`{ iframe }` or `{ container }`, routable **or** docked) | `registerCommand`, `registerBarItem`, `registerRailItem` |
-| `registerMenuItem`, `registerSettingsSection`¹ | `contributeIcons`, `contributeTheme` |
+| Reaches the host                                                                       | Trusted only                                                       |
+| -------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| `registerSurface` (`{ iframe }` or `{ container }`, routable **or** docked)            | `registerCommand`, `registerBarItem`, `registerRailItem`           |
+| `registerMenuItem`, `registerSettingsSection`¹                                         | `contributeIcons`, `contributeTheme`                               |
 | `navigateContent`, `openContentTab`, `keep/pin/unpin/closeContentTab`, `revealSurface` | `ui` beyond `toast` — dialogs, prompts, `openMenu`, `openSettings` |
-| `ui.toast` | `ctx.host`, `ctx.activeContent`, `ctx.session`² |
+| `ui.toast`                                                                             | `ctx.host`, `ctx.activeContent`, `ctx.session`²                    |
 
 ¹ as **data** — the control kinds carry values, not callbacks, and the host owns the storage.
-² the session is *pushed* into the plugin's surface instead, if it was granted `session`.
+² the session is _pushed_ into the plugin's surface instead, if it was granted `session`.
 
 The pattern behind the split is simple. Anything whose contract is a function cannot be serialised —
 `run`, `onClose`, a notification action. A sandboxed plugin therefore does that work itself, for
@@ -142,7 +143,7 @@ sidebar and a closed pane are safe too, wherever the browser can move a node wit
 (Chromium and Firefox today; WebKit rebuilds instead). **A split, a drag into another pane and a
 minimise rebuild it everywhere**, because moving an `<iframe>` the ordinary way reloads it. That is
 the one place where a sandboxed surface is weaker than a trusted one, and it is worth weighing before
-you choose the rung: a surface a user is likely to want *beside* something else pays for it. Nothing
+you choose the rung: a surface a user is likely to want _beside_ something else pays for it. Nothing
 is lost that the surface has written to `ctx.state`. And instead of the trusted `DirtySurface`
 interface, the surface channel carries `setDirty(true|false)` plus an optional `beforeClose()`
 veto — see [Unsaved changes](weaver/unsaved-changes.md).
@@ -169,7 +170,7 @@ Three consequences follow, and none of them is decoration:
 - **A catalogue that deploys is read at startup**, not only when someone opens the store. What it last
   deployed is remembered separately from what the user installed, so a catalogue that cannot be
   reached leaves those plugins running rather than starting an application without its features. A
-  catalogue that *answers* is authoritative: an entry it no longer carries stops running.
+  catalogue that _answers_ is authoritative: an entry it no longer carries stops running.
 - **The user sees it and cannot remove it.** It is listed, badged as provided, its own settings are
   one click away — and there is no off switch, no removal, and no switch in the permissions surface.
   Withdrawing a capability from software somebody was issued does not restrain it, it breaks it.
@@ -190,7 +191,7 @@ A distribution can offer a curated catalogue; the user installs from it at runti
 Installation is **user-local** and persisted through the settings store, so it follows the user the
 same way their other state does. Everything else is identical to the sandboxed rung: same iframe,
 same broker, same same-origin rule. The catalogue lives on your origin, and you copy approved plugins
-into it. Operator review plus same-origin *is* the integrity boundary. That is why plugin signatures
+into it. Operator review plus same-origin _is_ the integrity boundary. That is why plugin signatures
 are not part of the model today.
 
 The install dialog lists the capabilities the plugin declares, and **agreeing is the grant** — there
@@ -216,7 +217,7 @@ says why. What each capability unlocks, and how to grant it, is
 **Over the plugins that are theirs**, three independent switches, all persisted and all reversible:
 
 - **Revoke a capability** — the plugin stays loaded, but that `ctx` surface starts refusing. It
-  takes effect at the *next* call, so contributions already registered stay. Revocation works
+  takes effect at the _next_ call, so contributions already registered stay. Revocation works
   forward. Only capabilities that were granted can be revoked; a grant is never widened past the
   distribution. `contributions` is not revocable at runtime. It is checked at registration time, so
   turning it off after activation would change nothing.

@@ -1,13 +1,14 @@
 # Scaffolding
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `scaffolding`. Where this page and a specification disagree,
 > the specification is right, and that is a defect in this page: change the behaviour there, then
 > explain it here.
 
-LoomWeaver ships its own generators. They exist because the platform is easy to *use* and fiddly to
-*wire up*. Before a weaver does anything at all, it needs a manifest, a surface, an i18n bundle and
+LoomWeaver ships its own generators. They exist because the platform is easy to _use_ and fiddly to
+_wire up_. Before a weaver does anything at all, it needs a manifest, a surface, an i18n bundle and
 the right capability declaration. Getting one of those wrong fails quietly. The generators emit all
 of it consistently. They also derive the capabilities from the features you ask for. A scaffolded
 plugin is therefore correct by construction rather than by review.
@@ -16,22 +17,22 @@ plugin is therefore correct by construction rather than by review.
 
 Two different things carry a `@loomweaver` name, and only one of them belongs in your application:
 
-| | Package | Installed where | Purpose |
-| --- | --- | --- | --- |
-| **Runtime** | `@loomweaver/shell`, `@loomweaver/plugin-sdk`, `@loomweaver/frame-kit` | your app's `dependencies` | your app boots the shell with them |
-| **Tool** | `@loomweaver/cli`, `@loomweaver/mcp` | **nowhere in your app** — run on demand, or registered with your assistant | generate source files |
-| **Tool (Nx)** | `@loomweaver/devkit` | your workspace's `devDependencies` | adds `nx g` generators |
+|               | Package                                                                | Installed where                                                            | Purpose                            |
+| ------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------- | ---------------------------------- |
+| **Runtime**   | `@loomweaver/shell`, `@loomweaver/plugin-sdk`, `@loomweaver/frame-kit` | your app's `dependencies`                                                  | your app boots the shell with them |
+| **Tool**      | `@loomweaver/cli`, `@loomweaver/mcp`                                   | **nowhere in your app** — run on demand, or registered with your assistant | generate source files              |
+| **Tool (Nx)** | `@loomweaver/devkit`                                                   | your workspace's `devDependencies`                                         | adds `nx g` generators             |
 
 Only the Nx collection is installed, and only as a dev dependency, because Nx loads generators from
 `node_modules`. The other two run as separate processes and know nothing about your codebase.
 
 Which tool depends on how you want to drive it:
 
-| You want… | Use | |
-| --- | --- | --- |
+| You want…                                                        | Use                      |                                                     |
+| ---------------------------------------------------------------- | ------------------------ | --------------------------------------------------- |
 | an Nx workspace to generate the way it generates everything else | **`@loomweaver/devkit`** | writes into the workspace and registers the project |
-| a command you can run, script and put in CI | **`@loomweaver/cli`** | deterministic, no workspace of any kind |
-| to ask in prose and let an assistant fill in the options | **`@loomweaver/mcp`** | your assistant writes the files |
+| a command you can run, script and put in CI                      | **`@loomweaver/cli`**    | deterministic, no workspace of any kind             |
+| to ask in prose and let an assistant fill in the options         | **`@loomweaver/mcp`**    | your assistant writes the files                     |
 
 All three read the same scaffold descriptors and call the same generator core, so a weaver scaffolded
 any of the three ways has byte-identical source. What differs is what each one is allowed to do with
@@ -72,20 +73,20 @@ Three scaffolds carry options worth knowing before you read that list. The
 [weaver](#the-weaver-generator) composes its features from flags. The other two decide how your
 product is styled, and they work together:
 
-| Flag | What it changes |
-| --- | --- |
+| Flag                                | What it changes                                                                                                                                                                                                                                                                                      |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `distribution --styles precompiled` | emits a one-line `src/styles.css` that imports the stylesheet **we** compiled, so the application needs **no Tailwind** — no packages, no `.postcssrc.json`, no `@source` hops. The default, `tailwind`, compiles the shell's source theme and is what lets you write Tailwind utilities of your own |
-| `theme --preset bootstrap` | maps all 29 `--lw-*` tokens onto Bootstrap 5.3's `--bs-*` variables instead of emitting literal colours, so the shell follows your Bootstrap theme live |
+| `theme --preset bootstrap`          | maps all 29 `--lw-*` tokens onto Bootstrap 5.3's `--bs-*` variables instead of emitting literal colours, so the shell follows your Bootstrap theme live                                                                                                                                              |
 
 Together they are the whole Bootstrap path, and the framework itself has to go into a cascade layer:
 [Bringing your own CSS framework](distribution/css-frameworks.md) has the import order and the mapping.
 
-| Option | Effect |
-| --- | --- |
-| `--out <dir>` | where to write; defaults to the current directory |
-| `--dry-run` | list the files it would write — naming any that already exist — and write nothing |
-| `--force` | overwrite files that already exist — without it, an existing file stops the run and is named |
-| `--strict` | make validation warnings fail the exit code, for CI |
+| Option        | Effect                                                                                       |
+| ------------- | -------------------------------------------------------------------------------------------- |
+| `--out <dir>` | where to write; defaults to the current directory                                            |
+| `--dry-run`   | list the files it would write — naming any that already exist — and write nothing            |
+| `--force`     | overwrite files that already exist — without it, an existing file stops the run and is named |
+| `--strict`    | make validation warnings fail the exit code, for CI                                          |
 
 The three validators work the same way, which is what makes them useful in a pipeline:
 
@@ -95,7 +96,7 @@ npx @loomweaver/cli validate-i18n --dir src/lib/notes/src/lib/i18n --strict
 npx @loomweaver/cli validate-catalog --file public/plugins/catalog.json --strict
 ```
 
-A missing translation key is a *warning*: it reports and exits 0, so it will not break an unrelated
+A missing translation key is a _warning_: it reports and exits 0, so it will not break an unrelated
 build. `--strict` turns warnings into a non-zero exit when you do want to gate on parity.
 
 `validate-catalog` earns its place for one reason: the shell parses a
@@ -171,7 +172,7 @@ Three consequences worth knowing:
   not audit. Because it returns data instead of writing files, it stays inside the review path you
   already have. It never gets a write path of its own.
 - **The same generator core serves every path.** The core is a pure function: it takes input and
-  returns *two* things, the file contents to write and a statement of what the workspace around them
+  returns _two_ things, the file contents to write and a statement of what the workspace around them
   must carry for them to work. It has no filesystem access at all. The CLI, the MCP server and the
   Nx generator are thin adapters over it, which is why they cannot drift apart, and why the core
   itself never writes anything.
@@ -182,14 +183,14 @@ content-security policy demands. Stating those as data means each adapter applie
 its position allows, and **says what it could not do** rather than leaving a reader to discover it
 in the browser.
 
-Every amendment is an *ensure this is present*, never a *set this to*. Running a scaffold twice
+Every amendment is an _ensure this is present_, never a _set this to_. Running a scaffold twice
 changes nothing, and a value you chose yourself is never overruled.
 
-| Adapter | Writes files? | Amends the workspace? | Because |
-| --- | --- | --- | --- |
-| `@loomweaver/devkit` (Nx) | yes | yes — the project registration, the tsconfig alias, the build target, the style pipeline, a package the output needs | Nx hands it a virtual tree of your workspace |
-| `@loomweaver/cli` | yes | yes — the style pipeline, the build target, the entry stylesheet, the composition root, a package the output needs | it finds the workspace above the target directory it was given |
-| `@loomweaver/mcp` | no | no — it names each step instead, with what it costs to skip | it returns relative paths so your client stays in the review path |
+| Adapter                   | Writes files? | Amends the workspace?                                                                                                | Because                                                           |
+| ------------------------- | ------------- | -------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `@loomweaver/devkit` (Nx) | yes           | yes — the project registration, the tsconfig alias, the build target, the style pipeline, a package the output needs | Nx hands it a virtual tree of your workspace                      |
+| `@loomweaver/cli`         | yes           | yes — the style pipeline, the build target, the entry stylesheet, the composition root, a package the output needs   | it finds the workspace above the target directory it was given    |
+| `@loomweaver/mcp`         | no            | no — it names each step instead, with what it costs to skip                                                          | it returns relative paths so your client stays in the review path |
 
 The files a route amends are ones it names for itself, never ones derived from what you passed on
 the command line: the refusal to write outside the target directory governs supplied targets and is
@@ -212,19 +213,19 @@ unchanged.
 
 ### The tools
 
-| Tool | Arguments | Gives you |
-| --- | --- | --- |
-| `list_generators` | — | the available generators and what they emit |
-| `scaffold_weaver` | see [below](#weaver-options) | a complete plugin: manifest, surface, rail item, i18n, test |
-| `scaffold_frame_plugin` | `id`, `name` | a framework-agnostic iframe plugin (Penpal + the frame UI kit) |
-| `scaffold_distribution` | `name`, `title`, `styles` | a runnable composition root that boots the shell |
-| `scaffold_auth_source` | `name` | an `AuthSource` implementation to feed the session |
-| `scaffold_settings_store` | `name` | a settings-store implementation backed by your API |
-| `scaffold_theme` | `name`, `preset` | a token-override stylesheet in `@layer lw-tenant-theme` |
-| `scaffold_layout` | `name` | a `ShellLayout` with the regions a weaver expects |
-| `validate_manifest` | `id`, `name`, `capabilities` | findings on a plugin manifest |
-| `validate_catalog` | `catalog` — the parsed catalogue JSON array | findings on a plugin store catalogue, including fields the host never reads |
-| `validate_i18n` | `bundles` — the parsed language files keyed by language, e.g. `{ "en": { "notes.list": "Notes" }, "de": { "notes.list": "Notizen" } }` | findings on translation-bundle parity (keys missing in one language) |
+| Tool                      | Arguments                                                                                                                              | Gives you                                                                   |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| `list_generators`         | —                                                                                                                                      | the available generators and what they emit                                 |
+| `scaffold_weaver`         | see [below](#weaver-options)                                                                                                           | a complete plugin: manifest, surface, rail item, i18n, test                 |
+| `scaffold_frame_plugin`   | `id`, `name`                                                                                                                           | a framework-agnostic iframe plugin (Penpal + the frame UI kit)              |
+| `scaffold_distribution`   | `name`, `title`, `styles`                                                                                                              | a runnable composition root that boots the shell                            |
+| `scaffold_auth_source`    | `name`                                                                                                                                 | an `AuthSource` implementation to feed the session                          |
+| `scaffold_settings_store` | `name`                                                                                                                                 | a settings-store implementation backed by your API                          |
+| `scaffold_theme`          | `name`, `preset`                                                                                                                       | a token-override stylesheet in `@layer lw-tenant-theme`                     |
+| `scaffold_layout`         | `name`                                                                                                                                 | a `ShellLayout` with the regions a weaver expects                           |
+| `validate_manifest`       | `id`, `name`, `capabilities`                                                                                                           | findings on a plugin manifest                                               |
+| `validate_catalog`        | `catalog` — the parsed catalogue JSON array                                                                                            | findings on a plugin store catalogue, including fields the host never reads |
+| `validate_i18n`           | `bundles` — the parsed language files keyed by language, e.g. `{ "en": { "notes.list": "Notes" }, "de": { "notes.list": "Notizen" } }` | findings on translation-bundle parity (keys missing in one language)        |
 
 ## The weaver generator
 
@@ -237,21 +238,21 @@ About dialog and `host` comes with it.
 The CLI spells these as flags (`--bar-item`) and MCP as arguments (`barItem`); they are the same
 option, so the table gives both.
 
-| CLI flag | MCP argument | Effect |
-| --- | --- | --- |
-| `--id <id>` **required** | `id` | plugin id in kebab-case, e.g. `notes` |
-| `--name <name>` | `name` | display name; defaults to a title-cased `id` |
-| `--command` | `command` | also register a command; its `run` raises a toast — a placeholder action on a real shortcut |
-| `--shortcut <chord>` | `shortcut` | keyboard chord for it, e.g. `mod+shift+n` (implies `command`) |
-| `--menu <slot>` | `menu` | hook a menu item into a slot, e.g. `content/tab/context` (implies `command`) |
-| `--bar-item` | `barItem` | a status-bar button that triggers the command (implies `command`) |
-| `--settings` | `settings` | a settings section with a toggle and a text field |
-| `--about` | `about` | an About dialog that reads `ctx.host`, plus its command |
-| `--instanceable` | `instanceable` | named saved instances with a switcher — this **docks** the surface instead of routing it (see below) |
-| `--container` | `container` | make the surface a [container](#container-surfaces): a routable tab holding a nested pane tree |
-| `--agent` | `agent` | wire the weaver up for an [AG-UI agent](#the-agent-connection) to drive: a docked panel, the seam that decides about a call before it runs, and a stand-in that works on the first serve (implies `command`) |
-| `--access <req>` | `access` | auth-gate the surface and rail item: `authenticated`, `anonymous`, or a role requirement |
-| `--no-spec` | `spec: false` | skip the starter unit test, which is generated by default |
+| CLI flag                 | MCP argument   | Effect                                                                                                                                                                                                       |
+| ------------------------ | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `--id <id>` **required** | `id`           | plugin id in kebab-case, e.g. `notes`                                                                                                                                                                        |
+| `--name <name>`          | `name`         | display name; defaults to a title-cased `id`                                                                                                                                                                 |
+| `--command`              | `command`      | also register a command; its `run` raises a toast — a placeholder action on a real shortcut                                                                                                                  |
+| `--shortcut <chord>`     | `shortcut`     | keyboard chord for it, e.g. `mod+shift+n` (implies `command`)                                                                                                                                                |
+| `--menu <slot>`          | `menu`         | hook a menu item into a slot, e.g. `content/tab/context` (implies `command`)                                                                                                                                 |
+| `--bar-item`             | `barItem`      | a status-bar button that triggers the command (implies `command`)                                                                                                                                            |
+| `--settings`             | `settings`     | a settings section with a toggle and a text field                                                                                                                                                            |
+| `--about`                | `about`        | an About dialog that reads `ctx.host`, plus its command                                                                                                                                                      |
+| `--instanceable`         | `instanceable` | named saved instances with a switcher — this **docks** the surface instead of routing it (see below)                                                                                                         |
+| `--container`            | `container`    | make the surface a [container](#container-surfaces): a routable tab holding a nested pane tree                                                                                                               |
+| `--agent`                | `agent`        | wire the weaver up for an [AG-UI agent](#the-agent-connection) to drive: a docked panel, the seam that decides about a call before it runs, and a stand-in that works on the first serve (implies `command`) |
+| `--access <req>`         | `access`       | auth-gate the surface and rail item: `authenticated`, `anonymous`, or a role requirement                                                                                                                     |
+| `--no-spec`              | `spec: false`  | skip the starter unit test, which is generated by default                                                                                                                                                    |
 
 `--instanceable` and `--container` shape the surface itself and are therefore mutually exclusive; the
 generator says so rather than emitting something that quietly does nothing.
@@ -321,7 +322,7 @@ Revealing also means the rail item finds the surface wherever the user has since
 
 <a id="container-surfaces"></a>
 
-`--container` goes the other way and makes the surface *more* routable: a container tab lives at
+`--container` goes the other way and makes the surface _more_ routable: a container tab lives at
 `/<id>/:id` and holds a **nested pane tree** of child surfaces.
 The host draws the inner tabs, splits and drop targets; the weaver only declares which children it
 offers:
@@ -367,7 +368,7 @@ the tab — including into a sidebar or a pop-out window.
 ## The Nx generators — `@loomweaver/devkit`
 
 If your workspace is an Nx workspace, this is the fullest of the three. It is the only adapter that
-can *change* files as well as write them, because Nx hands it a virtual tree of your workspace. It
+can _change_ files as well as write them, because Nx hands it a virtual tree of your workspace. It
 registers the project and adds the tsconfig path alias. The other two adapters can only describe
 those steps.
 
@@ -403,15 +404,15 @@ because renaming would break every reference to it.
 
 It reads your workspace rather than assuming ours:
 
-| It needs to know | How it decides |
-| --- | --- |
-| where the project goes | `--directory`, defaulting to `libs/<project name>` |
-| what to call the import alias | `--import-path`, defaulting to your root manifest's npm scope |
-| which application to drop into | `--app`; with one **buildable** application it is inferred, and with several it fails naming them rather than guessing. E2E projects are applications to Nx but build nothing, so they are never candidates — otherwise the usual `<app>` + `<app>-e2e` pair would defeat inference |
-| Nx tags and the selector prefix | `--tags` and `--prefix` — the prefix is carried into the generated component selectors. Without `--tags` a project is generated untagged, because tag names only mean something inside your own `depConstraints`; see [LoomWeaver and Nx](manual-setup.md#loomweaver-and-nx) |
-| how deep the project sits | derived from the directory, not hard-coded |
-| serving the weaver's translations | an assets glob for `/i18n/<id>/` is added to the composing application's build |
-| styling the weaver's templates | a `@source` for the new library is appended to the composing application's entry stylesheet, so its utilities are emitted. Tailwind 4 also detects sources by itself, and in a plain workspace that already reaches a sibling library — but that detection depends on where it resolves the project root and on `.gitignore`, and the scaffolded `@source './'` names the application alone. Left untouched when the application runs no Tailwind, as with `--styles precompiled`. The other two adapters write no foreign files, so there it is a step in the generated `README.md` |
+| It needs to know                  | How it decides                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| where the project goes            | `--directory`, defaulting to `libs/<project name>`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| what to call the import alias     | `--import-path`, defaulting to your root manifest's npm scope                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| which application to drop into    | `--app`; with one **buildable** application it is inferred, and with several it fails naming them rather than guessing. E2E projects are applications to Nx but build nothing, so they are never candidates — otherwise the usual `<app>` + `<app>-e2e` pair would defeat inference                                                                                                                                                                                                                                                                                                  |
+| Nx tags and the selector prefix   | `--tags` and `--prefix` — the prefix is carried into the generated component selectors. Without `--tags` a project is generated untagged, because tag names only mean something inside your own `depConstraints`; see [LoomWeaver and Nx](manual-setup.md#loomweaver-and-nx)                                                                                                                                                                                                                                                                                                         |
+| how deep the project sits         | derived from the directory, not hard-coded                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| serving the weaver's translations | an assets glob for `/i18n/<id>/` is added to the composing application's build                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| styling the weaver's templates    | a `@source` for the new library is appended to the composing application's entry stylesheet, so its utilities are emitted. Tailwind 4 also detects sources by itself, and in a plain workspace that already reaches a sibling library — but that detection depends on where it resolves the project root and on `.gitignore`, and the scaffolded `@source './'` names the application alone. Left untouched when the application runs no Tailwind, as with `--styles precompiled`. The other two adapters write no foreign files, so there it is a step in the generated `README.md` |
 
 The generated test target is `@nx/angular:unit-test` (Vitest), which is what Angular 21+ and Nx both
 default to. A weaver library has no build of its own, so its specs compile with the build options of

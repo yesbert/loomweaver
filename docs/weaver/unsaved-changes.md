@@ -1,6 +1,7 @@
 # Unsaved changes
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `surface-retention`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
@@ -37,8 +38,8 @@ export class EditorView implements DirtySurface {
 While `surfaceDirty()` is `true` the instance is **never destroyed on hide**, so no gesture that
 merely hides is ever blocked or prompted; which gestures hide, and which actions ask, is on
 [Retention and unsaved work](../concepts/retention-and-unsaved-work.md#the-unsaved-work-question).
-**Closing asks**: the host shows its own localised dialog with *Save* (only when `surfaceSave` exists),
-*Discard* and *Cancel*, with the same wording and keyboard behaviour across every plugin. A failed or
+**Closing asks**: the host shows its own localised dialog with _Save_ (only when `surfaceSave` exists),
+_Discard_ and _Cancel_, with the same wording and keyboard behaviour across every plugin. A failed or
 in-flight save keeps the instance dirty and therefore alive; failures surface as an error toast, never
 as silent loss. Declare `saveOn: 'hide'` on the surface registration and the host calls `surfaceSave`
 fire-and-forget the moment a dirty instance becomes hidden, which is the auto-save pattern of a notes
@@ -56,10 +57,10 @@ or `retain` is the way to keep unsaved work across hides.
 When the standard dialog is the wrong shape for your surface, implement the optional
 `surfaceBeforeClose(): boolean | Promise<boolean>` member of `DirtySurface`. It runs on every
 **user-initiated close** of that instance: tab ×, `Delete`, close pane, close others/all/to the right,
-`ctx.closeContentTab`. It runs *before* the host's unsaved-changes dialog. Return `false` to cancel the
+`ctx.closeContentTab`. It runs _before_ the host's unsaved-changes dialog. Return `false` to cancel the
 close, `true` to let it continue. Typically you draw your own dialog first and resolve the promise with
 the user's answer. An approved close does **not** bypass the safety net. If the instance is still dirty
-afterwards, the standard *Save · Discard · Cancel* ask still runs. So approve-and-stay-dirty never
+afterwards, the standard _Save · Discard · Cancel_ ask still runs. So approve-and-stay-dirty never
 discards silently. Resolve your own save/discard first, and the surface closes without a second dialog.
 The host enforces a timeout with a guaranteed **"Close anyway"** escape, and a hook that throws or
 rejects counts as approval — a broken or hung veto can never make a tab unclosable. Programmatic

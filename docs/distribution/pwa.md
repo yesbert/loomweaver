@@ -1,6 +1,7 @@
 # PWA and delivery
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `platform-composition`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
@@ -19,10 +20,10 @@ whether or not you ship a worker.
 
 What you supply is the build side, and only the first line is required for the update flow:
 
-| | Where | Needed for |
-| --- | --- | --- |
+|                                                          | Where                                           | Needed for                                               |
+| -------------------------------------------------------- | ----------------------------------------------- | -------------------------------------------------------- |
 | `ngsw-config.json` + `serviceWorker` in the build target | project root · `angular.json` or `project.json` | the worker exists at all — without it, registration 404s |
-| `manifest.webmanifest` + icons | `public/` | installability (home screen, standalone window) |
+| `manifest.webmanifest` + icons                           | `public/`                                       | installability (home screen, standalone window)          |
 
 Build with the production configuration to exercise either; the update badge and toast read one
 signal, so the version/update chrome works with no wiring.
@@ -30,7 +31,7 @@ signal, so the version/update chrome works with no wiring.
 **Two of those details decide whether the app is really installable and really offline, and neither
 one fails a build.**
 
-*Icons.* A manifest without an `icons` entry cannot be installed at all, and Chromium only offers
+_Icons._ A manifest without an `icons` entry cannot be installed at all, and Chromium only offers
 installation once the manifest names a **192 and a 512 raster** icon; an SVG is fine for the browser
 tab and is what the scaffold points at, but it does not satisfy that check, and iOS ignores manifest
 icons entirely in favour of an `apple-touch-icon` link. So ship `icon-192.png` and `icon-512.png`,
@@ -38,7 +39,7 @@ name them in the manifest, and add the `apple-touch-icon` link. Keep `purpose: "
 `purpose: "maskable"` on **separate files** — a maskable icon is cropped to a circle or a squircle
 and needs padding that an edge-to-edge mark does not have, so one file cannot be correct as both.
 
-*Translations.* The shell fetches its UI strings at runtime, so an asset group that does not cover
+_Translations._ The shell fetches its UI strings at runtime, so an asset group that does not cover
 them produces an app that installs, opens offline and renders **every label as its raw translation
 key**. Nothing errors. Cache them explicitly:
 
@@ -66,9 +67,9 @@ navigation.
 
 The two ways an update goes wrong are told apart, because only one of them a reload can fix:
 
-| State | What it means | What the affordance does |
-| --- | --- | --- |
-| `UpdateService.updateFailed` | An update could not be installed. The worker is healthy and the client keeps running its current version. | Reloads, which retries the install. |
+| State                        | What it means                                                                                                | What the affordance does                                                          |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
+| `UpdateService.updateFailed` | An update could not be installed. The worker is healthy and the client keeps running its current version.    | Reloads, which retries the install.                                               |
 | `UpdateService.updateBroken` | The worker reported an unrecoverable state: its cached asset table no longer matches what the server serves. | Unregisters the worker, drops its caches, then reloads into a fresh registration. |
 
 The distinction matters because a plain reload cannot leave the second state. The broken registration
@@ -82,7 +83,7 @@ differently in your own UI; the built-in toast and badge already do.
 **Validate the service worker against a build, never against the dev server.** The Angular dev
 server transforms files per request. The bytes it serves therefore do not match the hashes in the
 `ngsw.json` it emits from the same build. The worker verifies every asset against that manifest. So
-serving the *production* configuration through `ng serve` makes each watch-mode rebuild end in
+serving the _production_ configuration through `ng serve` makes each watch-mode rebuild end in
 `VERSION_INSTALLATION_FAILED` — the sticky "update failed" toast, permanently, from a perfectly
 healthy build. That failure is indistinguishable from a broken deploy by design (the client only
 sees a hash mismatch), so do not paper over it in the update chrome: run the dev server with the

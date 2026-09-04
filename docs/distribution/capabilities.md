@@ -1,6 +1,7 @@
 # Capabilities
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `plugin-permissions`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
@@ -14,15 +15,15 @@ Later your own per-tenant backend can become this grant source without changing 
 
 ## The coarse capabilities
 
-| Capability | What it grants |
-| --- | --- |
-| `contributions` | register views/commands/items/routes/icons |
-| `ui` | dialogs, toasts, settings |
-| `host` | version/update facts |
-| `navigation` | drive the content area: `navigateContent`/`openContentTab`/`closeContentTab` |
-| `session` | read login state and roles via `ctx.session` for self-gating |
-| `theme` | contribute `--lw-*` tokens (colours and the UI font) that re-skin the whole app via `ctx.contributeTheme` |
-| `automation` | run actions *other* plugins contributed, via `ctx.invokeCommand`/`ctx.invocableCommands`, and only those their authors declared `callable` |
+| Capability      | What it grants                                                                                                                             |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `contributions` | register views/commands/items/routes/icons                                                                                                 |
+| `ui`            | dialogs, toasts, settings                                                                                                                  |
+| `host`          | version/update facts                                                                                                                       |
+| `navigation`    | drive the content area: `navigateContent`/`openContentTab`/`closeContentTab`                                                               |
+| `session`       | read login state and roles via `ctx.session` for self-gating                                                                               |
+| `theme`         | contribute `--lw-*` tokens (colours and the UI font) that re-skin the whole app via `ctx.contributeTheme`                                  |
+| `automation`    | run actions _other_ plugins contributed, via `ctx.invokeCommand`/`ctx.invocableCommands`, and only those their authors declared `callable` |
 
 ## The Permissions section
 

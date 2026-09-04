@@ -102,7 +102,9 @@ for (const page of pages()) {
     faults.push(`${page}: no derived-from-specs header (every page under docs/ says where its guarantees are)`);
   }
   const text = prose(markdown);
-  const vocabulary = text.replaceAll(/(?<!\*)\*[^*\n]+\*(?!\*)/g, 'label');
+  const vocabulary = text
+    .replaceAll(/(?<!\*)\*[^*\n]+\*(?!\*)/g, 'label')
+    .replaceAll(/(?<!_)_[^_\n]+_(?!_)/g, 'label');
   for (const [pattern, canonical] of VOCABULARY_EXEMPT.has(page) ? [] : VARIANTS) {
     for (const hit of vocabulary.matchAll(pattern)) {
       faults.push(`${page}: "${hit[0]}" is "${canonical}" in the glossary`);

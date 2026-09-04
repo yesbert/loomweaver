@@ -1,6 +1,7 @@
 # Sandboxed surfaces
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `plugin-sandbox` · `surfaces`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
@@ -75,7 +76,7 @@ learns which container it is inside. A component child injects the same values o
 A sandboxed plugin is **two documents**, and knowing which is which is half the model:
 
 - the **entry (logic) document** — the `entryUrl` the distribution composes or the catalogue lists.
-  The host loads it in a *hidden* sandboxed iframe; it never renders. Its whole job is the Penpal
+  The host loads it in a _hidden_ sandboxed iframe; it never renders. Its whole job is the Penpal
   handshake: connect to the parent, receive `ctx`, make your registrations.
 - the **view (surface) document(s)** — the `iframe:` URL(s) your `registerSurface` calls point at.
   These are the visible surfaces; they load the [frame UI kit](#the-frame-ui-kit) below and
@@ -207,7 +208,7 @@ through the distribution's settings store). It **pushes the current values back*
 registration with the restored state, then on every change — **including a change made in another
 browser window**. Plugin settings ride the shell's cross-tab sync, so every window's copy stays
 current; there is nothing to wire. Labels may be plain literals (you cannot contribute
-translations). The host decides where your section appears: an *installed* plugin's section lands
+translations). The host decides where your section appears: an _installed_ plugin's section lands
 under the **"Community plugins"** nav group, a composed frame plugin's under **"App plugins"** —
 never your choice, so nothing can masquerade as the app.
 

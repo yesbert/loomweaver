@@ -1,6 +1,7 @@
 # Recomposing host chrome
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `platform-composition` · `commands` · `routing`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
@@ -105,7 +106,7 @@ declare `popout: true` to appear in a [pop-out window](windows-and-sync.md#pop-o
 ## Curating the settings surface
 
 `omit` covers **settings** too — so a distribution decides which settings its app shows. Settings are
-addressed with a **`setting:` prefix**: a *section* id drops the whole section, a *row* id drops just
+addressed with a **`setting:` prefix**: a _section_ id drops the whole section, a _row_ id drops just
 that row, and a section that omission leaves without rows disappears from the nav:
 
 ```ts
@@ -129,7 +130,7 @@ Built-in settings ids — section `setting:shell.general` (rows `setting:shell.t
 (last-in wins), so you can swap a built-in section for your own.
 
 `omit` is a **lasting** filter — an id a plugin registers later at activation time stays hidden too.
-(To *replace* a default rather than hide it, register your own contribution with the same id and do
+(To _replace_ a default rather than hide it, register your own contribution with the same id and do
 **not** omit it.)
 
 ## Dropping a content route
@@ -142,19 +143,19 @@ provideShell({ omit: ['route:acme.notes.archive'] }); // a surface one of your w
 ```
 
 The route then appears in no tab strip, no pane target picker, and is never auto-opened on a deep-link.
-Its URL still answers — with the host's neutral *"View not available"* placeholder, so a link shared from
+Its URL still answers — with the host's neutral _"View not available"_ placeholder, so a link shared from
 another environment explains itself instead of silently bouncing to home. (Like the auth placeholder, it
-covers the route's tab root; a deep-link into a *sub-route* of an omitted route falls back to home.)
+covers the route's tab root; a deep-link into a _sub-route_ of an omitted route falls back to home.)
 
 Two things worth knowing:
 
 - **Omit addresses the id, override addresses the path.** Two handles for two operations: `omit:
-  ['route:acme.notes.archive']` drops the route, while registering *your own* surface on the same `path`
+['route:acme.notes.archive']` drops the route, while registering _your own_ surface on the same `path`
   replaces it (last-in wins) — use that when you want your own view at that URL rather than nothing.
   Read the id off the surface's `registerSurface` call; **do not guess it from the URL**. They often
   differ — a sandboxed plugin conventionally declares surface id `<pluginId>.view` while routing at
   `<pluginId>`, so the view at `/charts` is dropped with `route:charts.view`.
-- **A route is not its triggers.** A rail item or command that navigates there is a *separate*
+- **A route is not its triggers.** A rail item or command that navigates there is a _separate_
   contribution with its own id; omitting the route leaves it drawn (and dead). List them too.
 
 ## Where next

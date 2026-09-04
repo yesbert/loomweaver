@@ -1,6 +1,7 @@
 # View state that survives
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `persistence-ports` · `surfaces` · `surface-retention`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
@@ -48,7 +49,7 @@ distribution's [working-state store](../distribution/persistence.md); default
 
 **A routable surface has no `VIEW_STATE` handle.** It owns a
 URL, and the URL is the better store for everything shareable: put the filter and the active sub-tab in
-route params or `subRoutes` and they survive a reload *and* a deep link, take part in browser history and
+route params or `subRoutes` and they survive a reload _and_ a deep link, take part in browser history and
 can be sent to a colleague. What the URL should not carry, unsaved edits, is what [`DirtySurface`](unsaved-changes.md) and
 `retain` are for. A **sandboxed** surface has no handle either, because nothing of the `VIEW_STATE`
 shape crosses the RPC boundary; it declares `retain: 'always'` instead
@@ -66,7 +67,7 @@ fallback (as above) is all you need for this to work.
 **Named saved instances.** Set `instanceable: true` on the view and the host adds a **switcher** to the
 view header: the user can save, name, rename and delete several configurations of your view, each with its
 own auto-saved `VIEW_STATE` blob. Your component code does not change — it just reads/writes `VIEW_STATE`;
-the host binds it to whichever instance is active and manages the list (the non-deletable *default*
+the host binds it to whichever instance is active and manages the list (the non-deletable _default_
 instance carries the baseline state). The switcher **travels with the view**: it is rendered wherever the
 host mounts it — sidebar, content pane, split, pop-out window — so instance management never disappears
 when the user moves your view. A pane that was deliberately born as its **own** instance (stacked below

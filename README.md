@@ -64,7 +64,7 @@ ng serve
 That is the whole list. The scaffold also wires your build (the style pipeline, the asset globs that
 serve the chrome's own strings, the service worker, and the one production setting the generated
 content-security policy requires) and registers the weaver in your composition root, so its icon is
-in the rail on the first run. It only ever *adds*: anything you had already set is left as
+in the rail on the first run. It only ever _adds_: anything you had already set is left as
 you set it, and it names every file it touched.
 
 [Getting started](docs/getting-started.md) walks through these steps and what they generate.
@@ -91,7 +91,7 @@ fetch, and `@loomweaver/mcp` so your assistant scaffolds with tools instead of g
 }
 ```
 
-Then just ask for it: *"add a weaver called invoices with a command and a settings section"*. The
+Then just ask for it: _"add a weaver called invoices with a command and a settings section"_. The
 same generators run three ways, so it does not matter whether a person, a CLI or an assistant
 invokes them: `@loomweaver/cli` from any command line, `@loomweaver/devkit` as Nx generators, and
 `@loomweaver/mcp` over MCP.
@@ -109,7 +109,7 @@ quietly rot. Your community can do everything you can do.
 Every tool with a living ecosystem got there the same way. The plugins made the product, not the
 roadmap.
 
-**And the two feed each other.** Somebody who wants to contribute to *your* tool points their own
+**And the two feed each other.** Somebody who wants to contribute to _your_ tool points their own
 assistant at your `llms-full.txt` and starts. Your contributor onboarding is a URL.
 
 ## Register the action once. It is a button, a shortcut, a palette entry and an agent tool.
@@ -225,14 +225,14 @@ and revoke. Moving a plugin down a rung is a change of trust, not a rewrite.
 
 Seven npm packages, one shared version:
 
-| Package           | What it is                                        |
-| ----------------- | ------------------------------------------------- |
-| `@loomweaver/plugin-sdk` | the plugin contract (what a weaver imports)       |
-| `@loomweaver/shell`      | the neutral host chrome (Angular)                 |
-| `@loomweaver/frame-kit`| UI assets for sandboxed (iframe) plugins          |
-| `@loomweaver/cli`        | scaffolding from the command line                 |
-| `@loomweaver/devkit`     | the same scaffolds as Nx generators               |
-| `@loomweaver/mcp`        | the same scaffolds over MCP, for AI assistants    |
+| Package                  | What it is                                                       |
+| ------------------------ | ---------------------------------------------------------------- |
+| `@loomweaver/plugin-sdk` | the plugin contract (what a weaver imports)                      |
+| `@loomweaver/shell`      | the neutral host chrome (Angular)                                |
+| `@loomweaver/frame-kit`  | UI assets for sandboxed (iframe) plugins                         |
+| `@loomweaver/cli`        | scaffolding from the command line                                |
+| `@loomweaver/devkit`     | the same scaffolds as Nx generators                              |
+| `@loomweaver/mcp`        | the same scaffolds over MCP, for AI assistants                   |
 | `@loomweaver/ag-ui`      | the AG-UI adapter: the workbench's commands, offered to an agent |
 
 ## How it fits together

@@ -1,6 +1,7 @@
 # Commands and their triggers
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `commands` · `shell-layout`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
@@ -31,7 +32,7 @@ it and runs what it asks for, so you write no dispatch of your own.
 
 ## Rail & bar items — command triggers in the chrome
 
-The **rail** holds independent command triggers (the workbench labels it *Activity bar* in its own
+The **rail** holds independent command triggers (the workbench labels it _Activity bar_ in its own
 menus); a **bar** (top/status) holds components or declarative buttons.
 
 ```ts

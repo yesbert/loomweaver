@@ -1,6 +1,7 @@
 # Building a distribution
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `platform-composition` · `shell-layout`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
@@ -73,7 +74,7 @@ It prints the regions your layout declares, the capabilities you switched off an
 omitted, and then warns about the things that quietly land nowhere:
 
 - an `omit` that **matched nothing**, with the prefix you probably meant: omitting `shell.permissions`
-  hides a *command or item* by that id, while the settings section of that name needs
+  hides a _command or item_ by that id, while the settings section of that name needs
   `setting:shell.permissions`, and the bare form fails in silence
 - a settings button or menu entry pointing at a **command no one registers** (or one your own `omit`
   removed): the shell drops the control rather than drawing a dead one, and this says why it vanished

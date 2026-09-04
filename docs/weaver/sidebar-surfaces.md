@@ -1,6 +1,7 @@
 # Surfaces in a sidebar
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `surfaces` · `shell-layout` · `ui-primitives`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
@@ -59,7 +60,7 @@ in [Host building blocks](../reference/design-tokens.md#host-building-blocks):
 ```
 
 > **`<lw-*>` elements don't survive `[innerHTML]`.** Angular's `DomSanitizer` strips unknown elements
-> from a string you bind with `[innerHTML]`, so an `<lw-tooltip>`/`<lw-icon>` written *inside* such a
+> from a string you bind with `[innerHTML]`, so an `<lw-tooltip>`/`<lw-icon>` written _inside_ such a
 > string is silently removed. Consume the `<lw-*>` elements in your **template** (as above), not inside an
 > HTML string. For interactive affordances on `[innerHTML]` content, keep a plain attribute the sanitiser
 > preserves (e.g. a native `title` for a basic tooltip) or render that part as a real template element.
@@ -111,9 +112,9 @@ claimed the tag first keeps it until the page is reloaded.
 ### 2. It does not travel up the isolation ladder
 
 The registry is **per document**. Your weaver is
-deliberately separated from the shell by the Nx boundary so that it *can* move to the sandbox rung later,
+deliberately separated from the shell by the Nx boundary so that it _can_ move to the sandbox rung later,
 and a `customElements.define()` in the host document is the one thing that silently will not come along.
-(The `<lw-*>` family works inside sandboxed iframes only because the host serves the element *script* into
+(The `<lw-*>` family works inside sandboxed iframes only because the host serves the element _script_ into
 each one, `/frame-kit/lw-elements.global.js`.) If sandboxing your weaver is ever on the table, this is a
 migration cost you are choosing today.
 

@@ -1,6 +1,7 @@
 # Branding
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `product-identity` · `theming`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
@@ -10,7 +11,7 @@
 neutral shell reads it (header, About, PWA manifest). `name` is a literal; `tagline` is a translation
 key (put it in your `product` namespace). Without it, the bare LoomWeaver identity shows.
 
-**Colours (tenant/product theme).** Override the `--lw-*` design tokens by importing a theme CSS *after*
+**Colours (tenant/product theme).** Override the `--lw-*` design tokens by importing a theme CSS _after_
 the shell theme in your `styles.css`, wrapped in `@layer lw-tenant-theme` so it beats any plugin's
 `ctx.contributeTheme` (precedence is Product < Plugin < **Tenant**):
 

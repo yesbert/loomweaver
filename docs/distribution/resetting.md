@@ -1,6 +1,7 @@
 # Resetting the arrangement
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `workspaces` · `shell-layout`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
@@ -28,7 +29,7 @@ workspace is named. It puts back what belongs to that workspace, and nothing els
 ## Resetting the app layout
 
 The arrangement that lives beside every workspace has its own reset, **`shell.app.reset`**. It sits in
-the palette and as a *Reset app layout* button under **General** in the settings dialog. It asks
+the palette and as a _Reset app layout_ button under **General** in the settings dialog. It asks
 first, naming what comes back and what stays: colour scheme, language, text size, granted permissions
 and installed plugins are never touched. Saved workspaces and their layouts stay as well, unless the
 user ticks the box that extends the reset across every workspace. That box describes the one reset

@@ -1,6 +1,7 @@
 # Composition: the provider surface
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `platform-composition` · `host-services`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
@@ -8,53 +9,53 @@
 
 There is no single god-provider, on purpose: each decision has its own provider, so the same decision never has two doors. This page is the whole surface indexed by what you want; each row points at the guide section that tells the story.
 
-**What the product *is***
+**What the product _is_**
 
-| I want to … | provider |
-| --- | --- |
-| set the name, logo and tagline | `provideProductIdentity` ([Branding](../distribution/branding.md#branding)) |
-| decide which regions exist and where | `provideLayout` ([Layout](../distribution/layout.md)) |
-| recolour the whole app | the design tokens ([tokens](../reference/design-tokens.md)) |
-| change sizes, radii, density | your own CSS on the class contracts ([tokens](../reference/design-tokens.md)) |
-| replace a built-in icon | `provideIcons` ([Icons](../distribution/icons-and-i18n.md#icons)) |
+| I want to …                                          | provider                                                                                           |
+| ---------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| set the name, logo and tagline                       | `provideProductIdentity` ([Branding](../distribution/branding.md#branding))                        |
+| decide which regions exist and where                 | `provideLayout` ([Layout](../distribution/layout.md))                                              |
+| recolour the whole app                               | the design tokens ([tokens](../reference/design-tokens.md))                                        |
+| change sizes, radii, density                         | your own CSS on the class contracts ([tokens](../reference/design-tokens.md))                      |
+| replace a built-in icon                              | `provideIcons` ([Icons](../distribution/icons-and-i18n.md#icons))                                  |
 | reword the shell itself ("Folder" instead of "View") | `provideTranslationOverrides` ([Rewording](../distribution/icons-and-i18n.md#rewording-the-shell)) |
-| ship my own translations | `provideTranslationNamespaces` ([i18n](../distribution/icons-and-i18n.md#i18n)) |
+| ship my own translations                             | `provideTranslationNamespaces` ([i18n](../distribution/icons-and-i18n.md#i18n))                    |
 
-**What users are allowed to *do***
+**What users are allowed to _do_**
 
-| I want to … | provider |
-| --- | --- |
-| take a gesture away (splitting, pinning, pop-out, shortcuts …) | `provideShellFeatures` ([Switching capabilities off](../distribution/switching-capabilities-off.md#switching-capabilities-off)) |
-| change a switch while the app runs, or read it | `FeatureSwitches` ([Switches](switches.md)) |
+| I want to …                                                          | provider                                                                                                                                     |
+| -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| take a gesture away (splitting, pinning, pop-out, shortcuts …)       | `provideShellFeatures` ([Switching capabilities off](../distribution/switching-capabilities-off.md#switching-capabilities-off))              |
+| change a switch while the app runs, or read it                       | `FeatureSwitches` ([Switches](switches.md))                                                                                                  |
 | offer a pane, workspace, sidebar or reset action from my own control | the services on these pages ([Panes](panes.md), [Workspaces](workspaces.md), [Sidebars](sidebars.md), [Resetting the application](reset.md)) |
-| drop a built-in command, item, settings row, menu entry or route | `provideShell({ omit })` ([Recomposing host chrome](../distribution/recomposing-chrome.md)) |
-| hand out layouts the product defines | `provideWorkspaces` ([Developer-defined workspaces](../distribution/workspaces.md#developer-defined-workspaces)) |
-| let users put the arrangement back | nothing: `shell.app.reset` ships ([Resetting the arrangement](../distribution/resetting.md)) |
+| drop a built-in command, item, settings row, menu entry or route     | `provideShell({ omit })` ([Recomposing host chrome](../distribution/recomposing-chrome.md))                                                  |
+| hand out layouts the product defines                                 | `provideWorkspaces` ([Developer-defined workspaces](../distribution/workspaces.md#developer-defined-workspaces))                             |
+| let users put the arrangement back                                   | nothing: `shell.app.reset` ships ([Resetting the arrangement](../distribution/resetting.md))                                                 |
 
 **What ships inside**
 
-| I want to … | provider |
-| --- | --- |
-| compose my weaver | `providePlugins` + `provideCapabilityGrants` ([Capabilities](../distribution/capabilities.md)) |
+| I want to …                           | provider                                                                                                                                                |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| compose my weaver                     | `providePlugins` + `provideCapabilityGrants` ([Capabilities](../distribution/capabilities.md))                                                          |
 | keep a plugin from being switched off | `provideRequiredPlugins` ([A plugin your application cannot run without](../distribution/capabilities.md#a-plugin-your-application-cannot-run-without)) |
-| run an isolated plugin | `provideFramePlugins` ([Frame plugins](../distribution/frame-plugins.md)) |
-| offer a plugin catalogue | `providePluginCatalog` ([Plugin store](../distribution/plugin-store.md)) |
-| add chrome of my own | `provideBarItems`, `provideRailItems`, `provideViews` (*Do it* below) |
-| put a search entry in a bar | `provideCommandPaletteEntry`, `provideQuickOpenEntry` ([Command palette entry](../distribution/recomposing-chrome.md#command-palette-entry)) |
+| run an isolated plugin                | `provideFramePlugins` ([Frame plugins](../distribution/frame-plugins.md))                                                                               |
+| offer a plugin catalogue              | `providePluginCatalog` ([Plugin store](../distribution/plugin-store.md))                                                                                |
+| add chrome of my own                  | `provideBarItems`, `provideRailItems`, `provideViews` (_Do it_ below)                                                                                   |
+| put a search entry in a bar           | `provideCommandPaletteEntry`, `provideQuickOpenEntry` ([Command palette entry](../distribution/recomposing-chrome.md#command-palette-entry))            |
 
 **What it talks to**
 
-| I want to … | provider |
-| --- | --- |
-| feed the signed-in user in | `provideAuthSource` ([Auth integration](../distribution/auth.md)) |
-| send gated routes to my login | `provideUnauthorizedRedirect` ([Redirect](../distribution/auth.md#3--redirect-gated-routes-to-your-login--provideunauthorizedredirect)) |
-| store settings in my backend | `provideSettingsStore` ([Persistence stores](../distribution/persistence.md)) |
-| store working state in my backend | `provideWorkingStateStore` ([Persistence stores](../distribution/persistence.md)) |
-| keep two users in one browser apart | `provideIdentityScopedStores` ([Identity-scoped stores](../distribution/persistence.md#identity-scoped-stores-multi-user-browsers)) |
-| compute a following tab's address myself | `provideTabAddressResolver` ([Following tabs](../distribution/content-routing.md#following-tabs)) |
-| route the content area | `provideShellRouter` ([Content-area routing](../distribution/content-routing.md)) |
-| ship without a service worker | `provideShell({ serviceWorker: false })` ([PWA](../distribution/pwa.md)) |
-| keep hidden surfaces alive by default | `provideShell({ retention })` ([Surface retention](../distribution/surface-retention.md#surface-retention)) |
+| I want to …                              | provider                                                                                                                                |
+| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| feed the signed-in user in               | `provideAuthSource` ([Auth integration](../distribution/auth.md))                                                                       |
+| send gated routes to my login            | `provideUnauthorizedRedirect` ([Redirect](../distribution/auth.md#3--redirect-gated-routes-to-your-login--provideunauthorizedredirect)) |
+| store settings in my backend             | `provideSettingsStore` ([Persistence stores](../distribution/persistence.md))                                                           |
+| store working state in my backend        | `provideWorkingStateStore` ([Persistence stores](../distribution/persistence.md))                                                       |
+| keep two users in one browser apart      | `provideIdentityScopedStores` ([Identity-scoped stores](../distribution/persistence.md#identity-scoped-stores-multi-user-browsers))     |
+| compute a following tab's address myself | `provideTabAddressResolver` ([Following tabs](../distribution/content-routing.md#following-tabs))                                       |
+| route the content area                   | `provideShellRouter` ([Content-area routing](../distribution/content-routing.md))                                                       |
+| ship without a service worker            | `provideShell({ serviceWorker: false })` ([PWA](../distribution/pwa.md))                                                                |
+| keep hidden surfaces alive by default    | `provideShell({ retention })` ([Surface retention](../distribution/surface-retention.md#surface-retention))                             |
 
 ## Do it
 
@@ -75,10 +76,10 @@ weaver contributes, statically at composition time:
 questions about your own composition, and are what
 [`loomweaver.report()`](../building-a-distribution.md#seeing-what-you-composed) reads:
 
-| Signal | Holds |
-| --- | --- |
-| `omitted` | the ids your `omit` list names, exactly as you wrote them, prefixes and all |
-| `registeredIds` | every id registered so far, of any kind, **including** the ones `omit` hides |
+| Signal               | Holds                                                                                                                                                                                      |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `omitted`            | the ids your `omit` list names, exactly as you wrote them, prefixes and all                                                                                                                |
+| `registeredIds`      | every id registered so far, of any kind, **including** the ones `omit` hides                                                                                                               |
 | `registeredCommands` | every command with the plugin the host stamped on it as its owner (`RegisteredCommand`); the shell's own commands carry no owner, which is what tells one plugin's commands from another's |
 
 ## What asks about unsaved work

@@ -1,6 +1,7 @@
 # Workspaces
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `workspaces` · `host-services`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
@@ -45,7 +46,7 @@ Resetting the active workspace, `resetAll()` and `remove()` ask the question the
 ## In depth
 
 **Answers.** Every asking action answers whether it ran, so a chain of them can stop when the user
-declined. Which actions ask is listed under *What asks about unsaved work*.
+declined. Which actions ask is listed under _What asks about unsaved work_.
 
 ## Where the story is told
 

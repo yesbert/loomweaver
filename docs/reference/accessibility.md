@@ -1,6 +1,7 @@
 # LoomWeaver — accessibility (a11y)
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `accessibility`. Where this page and a specification
 > disagree, the specification is right, and that is a defect in this page: change the behaviour
@@ -55,14 +56,14 @@ the binding guardrail; it complements [`design-tokens.md`](design-tokens.md) (co
 
 ## Colour token rules (AA)
 
-| Purpose                       | Token                       | Rule |
-| ----------------------------- | --------------------------- | ----- |
-| Body text / labels            | `content` / `content-muted` / `content-faint` | all ≥4.5:1 on every surface |
-| Brand as **text**             | `brand-text`                | deeper tone, ≥4.5:1 (not `brand`) |
-| Brand as **fill+label**       | `brand-fill` (+ `on-brand`) | primary-button fill; `brand` stays the identity (logo/icon) |
-| Danger **button**             | `negative-fill` (+ `on-negative`) | deeper than `negative`; `negative` stays error text/icon |
-| Status icons/text             | `positive`/`negative`/`caution`/`info` | ≥3:1 as an icon; ≥4.5:1 as text |
-| Borders/dividers              | `border`                    | decorative (exempt from 1.4.11); interaction boundaries additionally carry a focus ring/fill |
+| Purpose                 | Token                                         | Rule                                                                                         |
+| ----------------------- | --------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Body text / labels      | `content` / `content-muted` / `content-faint` | all ≥4.5:1 on every surface                                                                  |
+| Brand as **text**       | `brand-text`                                  | deeper tone, ≥4.5:1 (not `brand`)                                                            |
+| Brand as **fill+label** | `brand-fill` (+ `on-brand`)                   | primary-button fill; `brand` stays the identity (logo/icon)                                  |
+| Danger **button**       | `negative-fill` (+ `on-negative`)             | deeper than `negative`; `negative` stays error text/icon                                     |
+| Status icons/text       | `positive`/`negative`/`caution`/`info`        | ≥3:1 as an icon; ≥4.5:1 as text                                                              |
+| Borders/dividers        | `border`                                      | decorative (exempt from 1.4.11); interaction boundaries additionally carry a focus ring/fill |
 
 ## Checking
 

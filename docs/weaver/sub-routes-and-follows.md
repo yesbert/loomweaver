@@ -1,6 +1,7 @@
 # Sub-routes, the rest, and tabs that follow
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `routing` · `content-tabs`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
@@ -13,7 +14,7 @@ arrangement, and how a sidebar surface reads which content is focused.
 
 ## Nested sub-tabs: `subRoutes`
 
-A route's own level-2 tabs should live *in the route* (shareable,
+A route's own level-2 tabs should live _in the route_ (shareable,
 back/forward, restored on reload), not in local state. Declare them with `subRoutes` and they become real
 path segments under the route's tab root:
 
@@ -25,7 +26,7 @@ ctx.registerSurface({ id: 'doc', title: 'doc.title', component: DocView,
 
 The route's `path` stays the **tab root** (one host tab per document); switching a sub-route stays in that
 tab and **preserves the parent's state** (edits, scroll). The host synthesises the child routes — your
-*parent* component stays mounted, renders a `<router-outlet />` (the children are empty stubs), reads
+_parent_ component stays mounted, renders a `<router-outlet />` (the children are empty stubs), reads
 the active sub from the URL and navigates to `doc/<id>/<sub>` to switch.
 
 A sub-route is written in Angular syntax, so a segment may **carry a value**:
@@ -146,7 +147,7 @@ ctx.registerSurface({ id: 'programs', title: 'programs.title', iframe: '/program
 Without the flag a deeper address matches no route at all and the navigation fails, so this is what
 makes domain-first, deep addresses reachable. Three consequences worth knowing:
 
-- **Your prefix stays the tab root**, so the whole subtree is *one* tab and moving around inside it
+- **Your prefix stays the tab root**, so the whole subtree is _one_ tab and moving around inside it
   never rebuilds your surface. That is the trade: what you put in the rest is cheap, what you put in
   the pattern is a parameter change and may rebuild you. You choose where the boundary sits.
 - **A sandboxed surface** reads `state.rest` from its `render` push and sets its own with the channel's
@@ -191,7 +192,7 @@ Four things bound the feature deliberately:
 - **A copy that leaves the pane carrying the browser address freezes.** Split a facet into another
   pane or pop it out and it keeps the address it had — which is how you park one program beside another.
 - **A shared parameter name must mean the same thing.** Two following surfaces may only use the same
-  name when the pattern *before* it is identical. Otherwise the host would fill one surface's address
+  name when the pattern _before_ it is identical. Otherwise the host would fill one surface's address
   with the other's value, so it refuses that one registration with a message. Surfaces that do not
   follow are never compared, so ordinary document routes like `ask/:id` and `doc/:id` are untouched.
 

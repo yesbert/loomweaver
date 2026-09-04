@@ -1,11 +1,11 @@
 # Agent tools — letting an AG-UI agent drive the workbench
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `commands` · `platform-composition`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
 > explain it here.
-
 
 [AG-UI](https://docs.ag-ui.com) is the protocol between a user-facing application and an agentic
 backend. `@loomweaver/ag-ui` is the adapter: it describes the workbench's own commands to an agent as tools,
@@ -62,14 +62,14 @@ the `automation` capability.
 
 ## The pieces, if you want less than the loop
 
-| Export | What it is |
-| --- | --- |
-| `commandTools(ctx, options?)` | The whole integration: the list, the loop and the hook. Returns `CommandTools`. |
-| `CommandTools` | `list()`, `receive(event)` and `flush()`. `flush` closes a call an agent left open; `receive` already does it when the run reports that it finished or errored. |
-| `CommandAccess` | The slice of a plugin context this touches: `invocableCommands` and `invokeCommand`. Your `ctx` satisfies it; it is narrower on purpose, because it says exactly what an agent reaches through here. |
-| `toolFor(command)` / `toolsFor(commands)` | The mapping alone, if you assemble the request yourself. An `InvocableCommand` becomes a protocol `Tool`, with the declared arguments as JSON Schema. |
-| `readArguments(json)` | Reads the JSON an agent streamed into arguments the workbench can be handed, or `null` where it cannot. |
-| `resultFor(toolCallId, outcome)` | Turns a `CommandOutcome` into the message that goes back, if you ran the call yourself. |
+| Export                                    | What it is                                                                                                                                                                                           |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `commandTools(ctx, options?)`             | The whole integration: the list, the loop and the hook. Returns `CommandTools`.                                                                                                                      |
+| `CommandTools`                            | `list()`, `receive(event)` and `flush()`. `flush` closes a call an agent left open; `receive` already does it when the run reports that it finished or errored.                                      |
+| `CommandAccess`                           | The slice of a plugin context this touches: `invocableCommands` and `invokeCommand`. Your `ctx` satisfies it; it is narrower on purpose, because it says exactly what an agent reaches through here. |
+| `toolFor(command)` / `toolsFor(commands)` | The mapping alone, if you assemble the request yourself. An `InvocableCommand` becomes a protocol `Tool`, with the declared arguments as JSON Schema.                                                |
+| `readArguments(json)`                     | Reads the JSON an agent streamed into arguments the workbench can be handed, or `null` where it cannot.                                                                                              |
+| `resultFor(toolCallId, outcome)`          | Turns a `CommandOutcome` into the message that goes back, if you ran the call yourself.                                                                                                              |
 
 ## The hook: confirming, declining, answering
 
@@ -93,11 +93,11 @@ const tools = commandTools(ctx, {
 `before` receives a `PendingToolCall` — the `toolCallId`, the `commandId` and the assembled `args` —
 and answers a `ToolDecision`:
 
-| Decision | What happens |
-| --- | --- |
-| `{ decision: 'run' }` | The call goes to the workbench. This is what happens when you supply no hook at all. |
-| `{ decision: 'decline', reason }` | The workbench is never asked. The agent is told the call did not run, and why. |
-| `{ decision: 'answer', content }` | You serve the call yourself. The agent gets your content as the result. |
+| Decision                          | What happens                                                                         |
+| --------------------------------- | ------------------------------------------------------------------------------------ |
+| `{ decision: 'run' }`             | The call goes to the workbench. This is what happens when you supply no hook at all. |
+| `{ decision: 'decline', reason }` | The workbench is never asked. The agent is told the call did not run, and why.       |
+| `{ decision: 'answer', content }` | You serve the call yourself. The agent gets your content as the result.              |
 
 It may be asynchronous, which is what a confirmation needs.
 
@@ -113,11 +113,11 @@ The workbench answers one of three things, and all three cross faithfully, becau
 one `error` field and its own reason for having it: without it, a tool that failed cannot be told from
 one that succeeded.
 
-| Outcome | Result |
-| --- | --- |
+| Outcome  | Result                                                                                                                                                                   |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | answered | The value as `content`. A command that declares no answer reports plainly that it ran, rather than returning an empty string an agent would read as a failure and retry. |
-| refused | An empty `content` and an `error` saying the command **did not run**. |
-| failed | An empty `content` and an `error` saying the command **ran and failed**. |
+| refused  | An empty `content` and an `error` saying the command **did not run**.                                                                                                    |
+| failed   | An empty `content` and an `error` saying the command **ran and failed**.                                                                                                 |
 
 The wording keeps the distinction the workbench preserved, so an agent can tell "you may not" from "it
 broke" and choose differently.

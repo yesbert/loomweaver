@@ -1,6 +1,7 @@
 # Authoring a weaver
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `surfaces` · `plugin-runtime` · `commands` · `menus` ·
 > `content-tabs` · `routing` · `surface-retention` · `containers` · `ui-primitives` · `theming` ·
@@ -51,8 +52,8 @@ Every `ctx.register*` call returns a `Disposable` — keep it if you want to rem
 yourself; otherwise the host disposes it when the plugin unloads.
 
 > **Surfaces (the one contract):** `ctx.registerSurface` **is** the author contract for anything the
-> host renders. A `Surface` declares *what it can do* — `routable` (URL-addressable), `instanceable`
-> (multiple saved instances), `docks` (which regions may host it) — rather than *where it lives*; the
+> host renders. A `Surface` declares _what it can do_ — `routable` (URL-addressable), `instanceable`
+> (multiple saved instances), `docks` (which regions may host it) — rather than _where it lives_; the
 > user arranges it from there.
 >
 > **Heavy surface? Defer it.** Instead of `component`, give a `loadComponent: () => import('./graph-view').then(m => m.GraphView)`.
@@ -65,12 +66,12 @@ yourself; otherwise the host disposes it when the plugin unloads.
 > `<plugin>.<surface>`), the title is its tab label (and the fallback title when a deep-link
 > auto-opens a tab).
 
-> **Capabilities:** the manifest *declares* what the plugin needs; the distribution *grants* it
+> **Capabilities:** the manifest _declares_ what the plugin needs; the distribution _grants_ it
 > (`provideCapabilityGrants`). A declaration alone grants nothing — using an ungranted surface throws
 > `CapabilityError`. The coarse capabilities map to slices of `ctx`: `contributions` (`register*`),
 > `ui` (`ctx.ui.*`), `host` (`ctx.host.*`), `navigation` (`navigateContent`/`openContentTab`/…),
 > `session` (`ctx.session`), `theme` (`ctx.contributeTheme`), `automation`
-> (`ctx.invokeCommand`/`ctx.invocableCommands` — running actions *other* plugins contributed; your own
+> (`ctx.invokeCommand`/`ctx.invocableCommands` — running actions _other_ plugins contributed; your own
 > need no grant). The user can also **revoke** any granted capability at runtime
 > from the built-in Permissions settings. A revoked surface then throws `CapabilityError` on the next
 > call. So treat a `CapabilityError` as a normal denial: catch it, rather than treating it as an invariant.
