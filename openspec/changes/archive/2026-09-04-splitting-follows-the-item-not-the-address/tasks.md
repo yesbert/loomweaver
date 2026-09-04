@@ -30,16 +30,19 @@
 
 ## 4. Release the fix
 
-- [ ] 4.1 Bump to `0.8.1` on a `chore/` branch, delete the tag the script creates, sign the commit
+- [x] 4.1 Bump to `0.8.1` on a `chore/` branch, delete the tag the script creates, sign the commit
       off, merge, then tag `main` and push the tag. A patch, because the released line carries the
       defect and a consumer on `^0.8.0` should pick this up without acting.
-- [ ] 4.2 After the publish, confirm the dist-tag `latest` moved to `0.8.1` on all seven packages.
-- [ ] 4.3 Point the demo at `0.8.1`.
+- [x] 4.2 After the publish, confirm the dist-tag `latest` moved to `0.8.1` on all seven packages.
+- [x] 4.3 Point the demo at `0.8.1`.
 
 ## 5. Close the gap that let it through
 
-- [ ] 5.1 Read the next nightly end-to-end run rather than assuming it. Its last green report ran on
+- [x] 5.1 Read the next nightly end-to-end run rather than assuming it. Its last green report ran on
       code that predates the pane service, so the suite has never reported on this area.
-- [ ] 5.2 Write down, in the private operations notes, that a cancelled nightly is not a pass, and
+      *Run on 2026-09-04 against the merged fix: Playwright (testbed) green, demo smoke green. The
+      third job, the published quick start, fails for an unrelated reason: a peer range that
+      excludes the current release of an icon package. That is its own change.*
+- [x] 5.2 Write down, in the private operations notes, that a cancelled nightly is not a pass, and
       what to look at after a release. Whether the suite should join the merge gate is the owner's
       decision and is not taken here.
