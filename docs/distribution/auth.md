@@ -117,8 +117,8 @@ export class LoginView {
 }
 ```
 
-(The in-repo testbed ships exactly this flow — `testbed-login-view.ts` in `@loomweaver/testbed-weaver` plus the
-`admin-area` redirect in `loom-testbed/main.ts` — if you want to see it run.)
+(The testbed ships exactly this flow, a login view plus a redirect for its admin area, if you want to
+see it run.)
 
 **Shape B — a login dialog.** Opened from your own entry points through the host dialog service. On
 success it just closes itself — no navigation needed, because every gated surface re-evaluates the
@@ -135,7 +135,7 @@ ctx.registerCommand({
 });
 ctx.registerRailItem({
   id: 'app.rail.signIn',
-  rail: 'activity',
+  rail: 'primary',
   icon: 'settings',
   title: 'app.signIn.title',
   anchor: 'bottom',
@@ -179,8 +179,8 @@ flips the snapshot back to `ANONYMOUS` — the shell hides everything that requi
 the signal changes. Give it an entry point that is itself gated, so it only shows while signed in:
 
 ```ts
-// `run` executes outside Angular's injection context — resolve your session facade in activate()
-// (or use a module-level facade, as the in-repo testbed's `testbedAuth` does), not via inject() in run().
+// `run` executes outside Angular's injection context: resolve your session facade in activate(),
+// or keep a module-level facade as the testbed does. Never inject() inside run().
 ctx.registerCommand({
   id: 'app.signOut',
   title: 'app.signOut',

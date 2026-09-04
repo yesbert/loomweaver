@@ -60,7 +60,7 @@ components are the application, not a guest in it. Every service below is `provi
 | set a sidebar's width | `sidebars.setWidth(regionId, px)` | [Sidebars](sidebars.md#do-it) |
 | hide a view, or show it again | `sidebars.hideView(viewId)`, `sidebars.showView(viewId)` | [Sidebars](sidebars.md#do-it) |
 | read the sidebars | `sidebars.regions()`, `sidebars.hiddenViews()` | [Sidebars](sidebars.md#read-it) |
-| put the whole arrangement back | `await appReset.reset({ workspaces: true })` | [Resetting](reset.md#do-it) |
+| put the whole arrangement back | `await appReset.reset({ workspaces: true })` | [Resetting the application](reset.md#do-it) |
 | ask the user something | `dialogs.confirm(…)`, `dialogs.prompt(…)`, `dialogs.open(MyDialog)` | [Dialogs and toasts](dialogs-and-toasts.md#do-it) |
 | show progress while a promise runs | `await dialogs.withProgress({ message }, work)` | [Dialogs and toasts](dialogs-and-toasts.md#do-it) |
 | show a toast, or take it down again | `toasts.show({ message, kind })`, `toasts.dismiss(id)` | [Dialogs and toasts](dialogs-and-toasts.md#do-it) |
@@ -83,7 +83,7 @@ components are the application, not a guest in it. Every service below is `provi
 ## The pages
 
 - [Composition](composition.md): the provider surface, and chrome without a plugin
-- [Switches](switches.md) · [Tabs](tabs.md) · [Panes](panes.md) · [Workspaces](workspaces.md) · [Sidebars](sidebars.md) · [Resetting](reset.md)
+- [Switches](switches.md) · [Tabs](tabs.md) · [Panes](panes.md) · [Workspaces](workspaces.md) · [Sidebars](sidebars.md) · [Resetting the application](reset.md)
 - [Dialogs and toasts](dialogs-and-toasts.md) · [Settings](settings.md) · [Commands](commands.md) · [Session](session.md)
 - [Appearance](appearance.md) · [Plugins at runtime](plugins-at-runtime.md) · [Windows, sync and updates](windows-and-sync.md)
 

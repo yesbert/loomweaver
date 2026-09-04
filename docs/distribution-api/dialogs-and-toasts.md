@@ -84,4 +84,4 @@ the toast instead of stacking a second one.
 ## Where the story is told
 
 - [Host UI in a weaver](../weaver/host-ui-and-facts.md): the same three lanes through `ctx.ui`.
-- [Asking before doing something destructive](../samples.md#6--asking-before-doing-something-destructive): a complete recipe.
+- [Asking before doing something destructive](../samples.md#asking-before-doing-something-destructive): a complete recipe.

@@ -45,7 +45,7 @@ Every pane of the content area is listed by `panes()`, in layout order, as `Pane
 
 ## Switched off
 
-`content.splitRight`, `content.splitDown`, `content.maximize`, `content.minimize` and `content.close` take the toolbar buttons, the drop edges and `mod+\\` away from the user. Every action here keeps working for you, which is how you offer it from your own control.
+`content.splitRight`, `content.splitDown`, `content.maximize`, `content.minimize` and `content.close` take the toolbar buttons, the drop edges and `mod+\` away from the user. Every action here keeps working for you, which is how you offer it from your own control.
 
 ## In depth
 
@@ -64,8 +64,18 @@ the address, which is what a toolbar on that pane means too.
 `shell.content.splitRight` chord run, with the guards listed under *What asks about unsaved work*.
 The switches do not reach the service, as *Switched off* says.
 
-**Facts, not the tree.** The signals under *Read it* tell you what exists and what each pane shows.
-Nothing else about the tree is published.
+**What the controls do.** Every content pane shows the same inline toolbar: New tab, Split right,
+Split down, Minimize, Maximize and Close. The toolbar split **duplicates** the active tab into a new
+pane and the tab stays where it is; dragging a tab, or its Split right/down menu entry, **moves** it.
+The split buttons appear only when the active content can be shown in a second pane. **Maximize**
+fills the whole viewport over all chrome; Escape or the button restores it. **Minimize** collapses a
+pane in a split to a thin strip showing the active tab's icon and name, with the tab count when the
+pane holds several; clicking the strip restores the pane. Minimize and Close appear on both panes of
+a split, and closing the address pane dissolves the split, the neighbour taking over the address.
+With a single pane only Maximize is shown. A pane that holds no tabs has no strip and gets a
+floating toolbar instead, and a chromeless screen shows no strip at all, however many tabs are
+parked behind it. Both regain the strip as soon as they hold a tab and the chromeless screen is left,
+because a tab the strip does not draw would be a tab nobody can reach again.
 
 **Scope.** `PaneService` addresses the content area. Panes inside sidebars are not reachable through
 it.

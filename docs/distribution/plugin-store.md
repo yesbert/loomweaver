@@ -7,7 +7,7 @@
 > explain it here.
 
 `provideFramePlugins(...)` composes sandboxed plugins at build time. On top of that, a distribution
-can offer a **plugin store**: a curated catalog of sandboxed plugins the *user* installs at runtime,
+can offer a **plugin store**: a curated catalogue of sandboxed plugins the *user* installs at runtime,
 with no rebuild and no reload. This page is what you serve, what the store then shows, and how consent
 and updates work.
 
@@ -22,9 +22,9 @@ import { providePluginCatalog } from '@loomweaver/shell';
 Opening the store from your own control is `PluginStoreService` in the
 [host services](../distribution-api/plugins-at-runtime.md).
 
-## The catalog
+## The catalogue
 
-The catalog is a same-origin JSON array; each entry (`PluginCatalogEntry`) is the installable part —
+The catalogue is a same-origin JSON array; each entry (`PluginCatalogEntry`) is the installable part —
 `InstalledPlugin`, the same shape `provideFramePlugins` takes and the shape that is persisted once
 the user installs it — plus display metadata for the store:
 
@@ -53,7 +53,7 @@ cannot contribute registry icons); `category` is your curated taxonomy; `downloa
 display-only operator stats. All metadata is parsed defensively: a foreign-origin
 `readmeUrl`/`iconUrl` or a non-http `repository` is dropped, the entry stays.
 
-**Check the catalog before you ship it.** Everything below is parsed defensively — an unrecognised
+**Check the catalogue before you ship it.** Everything below is parsed defensively — an unrecognised
 field is skipped, a malformed one dropped, an entry without `id` or `entryUrl` discarded, all
 silently, because a store that throws on one bad entry serves nobody. That makes a typo invisible
 until a user notices something missing, so run the validator in the pipeline that publishes it:
@@ -69,7 +69,7 @@ then throws `CapabilityError`, a missing `version` means the store can never off
 
 ## Entry points
 
-Providing a catalog adds the store's entry points. The first is a **Plugin store** settings section
+Providing a catalogue adds the store's entry points. The first is a **Plugin store** settings section
 (id `setting:shell.pluginStore`, `omit`-able) that shows the **searchable installed-plugins list right
 on the page** next to a Browse button. Per plugin it offers two tooltipped icon actions, open its settings and
 uninstall (the latter with a danger-toned confirmation), and the standard enable/disable switch.
@@ -77,14 +77,14 @@ uninstall (the latter with a danger-toned confirmation), and the standard enable
 That Browse button, and the palette command `shell.openPluginStore`, opens the **store dialog**, a
 wide two-pane browse surface. Its **searchable list** matches name, author, category and description;
 each card shows the plugin icon, name, author, category badge, download count, a **relative**
-last-update time ("2 days ago", localized), the short description and an *Installed* badge. Its
+last-update time ("2 days ago", localised), the short description and an *Installed* badge. Its
 **detail pane** shows the metadata, a plain external `repository` link and the plugin's **README
-rendered in-app**. The README is fetched from the same-origin `readmeUrl` and sanitized: the detail
+rendered in-app**. The README is fetched from the same-origin `readmeUrl` and sanitised: the detail
 view renders the author's text itself and never embeds a foreign page.
 
 A second, equally searchable **Installed** view manages what is installed. Per plugin it draws a row
 of tooltipped icon actions (open its *Community plugins* settings section, enable or disable,
-uninstall) plus an **Update to vX.Y.Z** button whenever the catalog carries a newer version. **The store is the
+uninstall) plus an **Update to vX.Y.Z** button whenever the catalogue carries a newer version. **The store is the
 management surface** for installed plugins; brand its title per product with
 `providePluginCatalog(source, { title: 'product.marketplace' })` (a Transloco key you own). Both the
 settings dialog and the store dialog are near-full-height; the maximize control any dialog can offer
@@ -103,7 +103,7 @@ backend decides so.
 
 ## Updates
 
-**Updates** ride on the catalog's `version` field. Raise it (together with the entry's files) and
+**Updates** ride on the catalogue's `version` field. Raise it (together with the entry's files) and
 every installed user sees an *Update available* badge in the store list and an **Update to vX.Y.Z**
 button in the detail pane and the installed list. Pressing it swaps the persisted entry and respawns
 the plugin live, with no reload. The respawn re-creates the plugin's iframe, so the browser re-fetches
@@ -111,7 +111,7 @@ the entry document under your **cache headers**: serve plugin files so they reva
 plugin can come back from cache as the old build.
 
 Versions are compared segment by segment, numerically (`1.10.0` beats `1.9.0`; a pre-release suffix
-is not ordered), and only a strictly newer version is offered, so pinning a catalog back never nags
+is not ordered), and only a strictly newer version is offered, so pinning a catalogue back never nags
 the user. If the new version **declares capabilities the user never consented to**, the update asks
 again and lists exactly the added ones: the persisted entry *is* the grant for installed plugins, so
 an update can never widen it silently. A version that asks for no more than before applies straight
@@ -127,13 +127,13 @@ choose it, so a community plugin can never masquerade as part of the app.
 
 ## Curation is yours
 
-The curation is yours and happens **before** the frontend: whatever is not in the catalog does not
-exist for the shell. Everything stays same-origin — the catalog URL, each `entryUrl`, and every
+The curation is yours and happens **before** the frontend: whatever is not in the catalogue does not
+exist for the shell. Everything stays same-origin — the catalogue URL, each `entryUrl`, and every
 surface a plugin registers. The RPC seam enforces this. "Reviewing a plugin" therefore means *you
 copy its files into your own origin*. That copy is the integrity boundary. Entries are parsed
 defensively (junk shapes, foreign-origin URLs and unknown capability names are dropped), an installed
 id can never shadow a composed plugin, and the persisted install set is re-validated on every load.
-Per-tenant curation = your backend answering the catalog request tenant-dependently; for a non-JSON
+Per-tenant curation = your backend answering the catalogue request tenant-dependently; for a non-JSON
 source, provide your own `PluginCatalog` implementation instead of a URL.
 
 ## Where next

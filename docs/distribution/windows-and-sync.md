@@ -6,7 +6,7 @@
 > specification is right, and that is a defect in this page: change the behaviour there, then
 > explain it here.
 
-State the workbench keeps can be mirrored live across same-origin windows, and any surface can be shown in a browser window of its own. Neither needs wiring; this page says what each does and where the product hooks in.
+State the workbench keeps can be mirrored live across same-origin windows, and any surface can be shown in a browser window of its own. Neither needs wiring; this page says what each does for the user and where the product hooks in.
 
 ## Cross-tab live sync
 
@@ -25,40 +25,15 @@ synced** — `lw.shell.pane-trees:<workspaceId>`, `hidden-views:<workspaceId>`, 
 because two windows are meant to be able to show different layouts.
 
 A distribution registers its own keys the same way. The most useful one is your session key: when
-it changes, the other window's `AuthSnapshot` flips and the `onIdentityChange` policy in [Auth integration](auth.md) takes
-over — no auth-specific sync machinery.
+it changes, the other window's `AuthSnapshot` flips and the `onIdentityChange` policy in
+[Auth integration](auth.md) takes over, with no auth-specific sync machinery. Registering a key,
+announcing a write made outside the ports, and applying a change your backend pushed are the three
+calls on `StateSyncService` under [Windows, sync and updates](../distribution-api/windows-and-sync.md#do-it).
 
-```ts
-// src/app/app.config.ts — in the providers array
-import { inject, provideEnvironmentInitializer } from '@angular/core';
-import { StateSyncService } from '@loomweaver/shell';
-
-// in the bootstrap providers array; mySession is YOUR OWN session service —
-// reload()/onChange() stand in for whatever refresh/subscribe API it has:
-provideEnvironmentInitializer(() => {
-  const sync = inject(StateSyncService);
-  // React to a remote write. The first argument names where the fresh value is read back from:
-  // 'settings' / 'working-state' for keys on the ports, 'external' for state persisted elsewhere
-  // (the applier then receives undefined and re-reads its own storage).
-  sync.register('external', 'my.product.session', () => mySession.reload());
-  // State persisted OUTSIDE the ports (a product session store usually is) must announce itself
-  // when you write it — nothing else can know.
-  mySession.onChange(() => sync.announce('my.product.session'));
-}),
-```
-
-The same two hooks generalise to a **trusted weaver** that persists its own storage outside the
-ports: the weaver exposes `{ key, refresh }` plus a way to receive `announce`, and the distribution
-wires them exactly like the session key above — the testbed does this for its theme toggle and its
-auth stub. The complete recipe, including the which-store decision table, is
-[recipe 9 in Samples](../samples.md#sync-your-own-state-across-browser-windows).
-
-A backend with a push transport rings the same bell for its **own** window:
-`sync.notifyRemoteChange(key)` runs the registered applier locally, reading the fresh value back
-through the registered store — that is the live tier of a cross-device working-state store.
-
-An applier must set its state **without persisting again**, or two windows would write back and
-forth forever.
+This page owns what follows by itself and what stays per window.
+[Sync your own state across browser windows](../samples.md#sync-your-own-state-across-browser-windows)
+is the worked sample: a session key, a backend push and a weaver that persists outside the ports,
+with the table that decides which store a piece of state belongs in.
 
 ## Pop-out windows
 
@@ -75,35 +50,15 @@ retention/dirty protocol guards the main window, so treat a pop-out as a viewer 
 shared state rather than the place where unsaved work lives.
 
 **A pop-out only offers what belongs beside a single surface.** It has one surface and no tab strip,
-so **Quick-Open does not exist** in it: `shell.quickOpen` is not registered and `mod+p` does nothing.
-The command palette stays, but commands are **main-window-only by default** and reach a pop-out only
-by declaring it:
-
-```ts
-// src/notes/notes.plugin.ts — inside activate(ctx)
-ctx.registerCommand({
-  id: 'notes.about',
-  title: 'notes.about',
-  icon: 'help',
-  popout: true,             // belongs beside a single surface
-  run: () => ctx.ui.open(AboutDialog),
-});
-
-ctx.registerCommand({
-  id: 'notes.focusList',
-  title: 'notes.focusList',
-  icon: 'navigator',        // no popout: needs the sidebar, which a pop-out has none of
-  run: () => ctx.revealSurface('notes.list'),
-});
-```
+so **quick-open does not exist** in it: `shell.quickOpen` is not registered and `mod+p` does nothing.
+The command palette stays, but commands are **main-window-only by default**: a command reaches a
+pop-out only when its author declares `popout: true` on it.
 
 The quiet default is deliberate. A command **missing** from a pop-out is a small annoyance, while one
 that does something surprising in a detached window is the larger failure, and the shell cannot tell
 the two apart for a command it did not write. So it never guesses: it marks its own two (the palette
-and Settings) and leaves the rest to you.
-
-`popout` flows through the one seam every trigger uses, so an unmarked command is omitted from the
-palette, its keybinding no-ops and a UI item bound to it does nothing.
+and Settings) and leaves the rest to the command's author. An unmarked command is omitted from the
+pop-out's palette, its keybinding no-ops and a UI item bound to it does nothing.
 
 As a backstop, **content navigation is refused in a pop-out** (with a dev-mode warning) whether or not
 a command is marked. Without that, one navigation would take the window's address out of `/popout/…`
@@ -111,22 +66,13 @@ and it would quietly stop being a pop-out: chrome-less until the next reload, an
 it. Same reasoning as a docked surface, whose `navigate` is a no-op for want of a content area.
 
 Nothing is required from a distribution or a plugin: the entries appear by themselves, and
-`/popout/view/<viewId>` works for every registered view. To open one programmatically:
+`/popout/view/<viewId>` works for every registered view. Opening one from your own code is
+`PopoutService` in [Windows, sync and updates](../distribution-api/windows-and-sync.md#do-it).
 
-```ts
-// src/app/… — inside an injection context (a component or a service)
-import { PopoutService } from '@loomweaver/shell';
-
-inject(PopoutService).open('view:my.outline');   // or a content path: 'doc/42'
-```
-
-If the browser's pop-up blocker swallows the window, the host shows a dialog whose button is a fresh
-user gesture and retries.
-
-A surface that draws its own sub-tabs should switch them **locally when it is host-mounted** rather
-than navigate the global router — otherwise a pop-out's URL drifts out of the `/popout/` prefix and
-reloading that window opens the full app. The rule is one line and applies to splits too; see
-[authoring a weaver](../weaver/sub-routes-and-follows.md#sub-routes-and-pop-out-windows).
+A surface that draws its own sub-tabs must switch them locally while it is host-mounted, or a
+pop-out's URL drifts out of the `/popout/` prefix and reloading that window opens the full app. The
+rule and its one-line test are in
+[Sub-routes, the rest, and tabs that follow](../weaver/sub-routes-and-follows.md#sub-routes-and-pop-out-windows).
 
 ## Where next
 

@@ -9,7 +9,7 @@
 The workbench has two resets, and each puts back one part of the arrangement. **Reset workspace
 layout** (`shell.workspace.reset`) discards a workspace's live arrangement and re-applies its
 baseline. **Reset app layout** (`shell.app.reset`) puts back what lives beside every workspace: the
-activity bar the user curated, collapsed sidebars, sidebar widths, the hand sorting of tabs and rail
+rail the user curated, collapsed sidebars, sidebar widths, the hand sorting of tabs and rail
 entries, and named view instances with their state. Each asks before it runs, and a surface with
 unsaved work is guarded on both.
 

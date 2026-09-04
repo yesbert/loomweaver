@@ -19,7 +19,7 @@ await appReset.reset({ workspaces: true });  // and every workspace, asking abou
 
 ## Read it
 
-Nothing here is a signal. `reset()` answers whether it was allowed, and the frame's facts are read on [Panes](panes.md), [Sidebars](sidebars.md) and [Workspaces](workspaces.md).
+Nothing here is a signal; the frame's facts are read on [Panes](panes.md), [Sidebars](sidebars.md) and [Workspaces](workspaces.md).
 
 ## What asks about unsaved work
 
@@ -31,8 +31,8 @@ No switch governs this page; `reset()` stays reachable whatever you switched off
 
 ## In depth
 
-**One question for two parts.** With `workspaces: true` the question goes through the same path
-`WorkspaceService.resetAll` takes, so the user is asked once.
+**The same path as `resetAll`.** With `workspaces: true` the workspaces' half runs through
+`WorkspaceService.resetAll`, which is why the two halves share one question.
 
 **The token.** The `APP_RESET_WORKSPACES` token is how the composition root hands the frame's reset
 the workspaces' reset without the two slices depending on each other. `provideShell()` provides it;
@@ -40,5 +40,5 @@ you only meet it if you build your own composition root.
 
 ## Where the story is told
 
-- [Resetting the app layout](../distribution/resetting.md): the built-in command and dialog.
+- [Resetting the arrangement](../distribution/resetting.md): the built-in commands and the dialog each one asks with.
 - [Workspaces](workspaces.md): resetting one workspace, or all.

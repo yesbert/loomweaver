@@ -44,10 +44,6 @@ Resetting the active workspace, `resetAll()` and `remove()` ask the question the
 
 ## In depth
 
-**Declared and saved.** The declared workspaces come from `provideWorkspaces`; what the user saved
-is in `workspaces()`. Everything the workspace dialog and the rail do is here, under the ids you
-declared or the facts hand you.
-
 **Answers.** Every asking action answers whether it ran, so a chain of them can stop when the user
 declined. Which actions ask is listed under *What asks about unsaved work*.
 

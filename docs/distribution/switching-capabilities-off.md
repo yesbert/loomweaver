@@ -8,28 +8,15 @@
 
 Every capability the shell offers its users is on by default: the platform ships the full workbench,
 and a product that would overwhelm its users switches parts off with **`provideShellFeatures`**.
-Fields merge group by group, so name only what you turn off.
-
-The declaration is the **starting value**, not a constant. Inject `FeatureSwitches` to read the
-current value of any switch as a signal and to change switches while the application runs, with the
-same partial shape you declare with. The controls follow live, switching off never undoes what the
-user built, and nothing about a switch is persisted by the shell. The reference has the details:
+Fields merge group by group, so name only what you turn off. The declaration is the starting value:
+reading a switch and changing it while the application runs is `FeatureSwitches` in
 [Switches](../distribution-api/switches.md).
 
 A switch takes the **affordance and the gesture**. Turning `splitRight` off removes the toolbar
 button, the left/right drop edges *and* `mod+\`, so the capability cannot come back through a second
 door.
 
-**Preview tabs.** The content area supports preview tabs: a weaver opens with `preview: true` to
-reuse a single italic slot. It is **on by default**; opt out for the whole distribution with
-`provideShellFeatures({ content: { preview: false } })`, which makes every `openContentTab` a
-permanent tab.
-
-`content.escalate` is the double-click cycle on a tab (preview → keep → pin → unpin); its first step
-is the one users arrive expecting, and a preview tab says so itself: its tooltip reads "double-click
-to keep open". Switch it off with `provideShellFeatures({ content: { escalate: false } })` and the
-tooltip drops that promise, so no hint advertises a gesture that does nothing. Every step of the
-cycle stays reachable from the tab's context menu either way.
+## Every switch
 
 ```ts
 // src/app/app.config.ts — in the providers array
@@ -50,8 +37,8 @@ provideShellFeatures({
     reorderTabs: true,  // default: drag or Alt+Arrow within a band
   },
   sidebar: {
-    collapse: true,           // default: collapsing and expanding a panel
-    resize: true,             // default: the splitter that changes a panel's width
+    collapse: true,           // default: collapsing and expanding a sidebar
+    resize: true,             // default: the splitter that changes a sidebar's width
     reorderViews: true,       // default: sorting views *within* one sidebar
     moveViews: true,          // default: menu entry + drag + Alt+Shift+Arrow to the other sidebar
     hideViews: true,          // default: the "Hide" menu entry
@@ -60,7 +47,7 @@ provideShellFeatures({
     acceptTabs: true,         // default: parking a foreign tab in a sidebar
     openViewInContent: true,  // default: the menu entry
     resetViewState: true,     // default: the menu entry
-    instances: true,          // default: the named-instance switcher in the panel header
+    instances: true,          // default: the named-instance switcher in the sidebar header
   },
   rail: {
     reorder: true,    // default: sorting items *within* one rail
@@ -94,11 +81,32 @@ active workspace still names the layout keys, the user simply never meets the co
 A rail or bar item that names a command **nobody registered** is dropped rather than drawn, the same
 way an orphaned menu entry is: switching a capability off never leaves a dead button behind.
 
-**User reordering.** Users can drag or keyboard-reorder the host chrome: content tabs, rail items and
-view tabs within their own band, with the order persisted user-locally. It uses
-`@angular/cdk/drag-drop` (a `@loomweaver/shell` peer dependency) and is **on by default**. Toggle per
-container with
-`provideShellFeatures({ content: { reorderTabs: false }, rail: { reorder: false }, sidebar: { reorderViews: false } })`.
+## Content tabs and the pane toolbar
+
+**Preview tabs.** The content area supports preview tabs: a weaver opens with `preview: true` to
+reuse a single italic slot. It is **on by default**; opt out for the whole distribution with
+`provideShellFeatures({ content: { preview: false } })`, which makes every `openContentTab` a
+permanent tab.
+
+`content.escalate` is the double-click cycle on a tab (preview → keep → pin → unpin); its first step
+is the one users arrive expecting, and a preview tab says so itself: its tooltip reads "double-click
+to keep open". Switch it off with `provideShellFeatures({ content: { escalate: false } })` and the
+tooltip drops that promise, so no hint advertises a gesture that does nothing. Every step of the
+cycle stays reachable from the tab's context menu either way.
+
+Every content pane, the address pane and secondary panes alike, shows the **same** inline toolbar:
+New tab, Split right, Split down, Minimize, Maximize and Close. The switches `newTab`, `splitRight`,
+`splitDown`, `minimize`, `maximize` and `close` each take one button away together with the gesture
+behind it, and fields merge, so the others stay on. A pane that holds no tabs offers the same buttons on a
+floating toolbar, under the same switches. What each button does for the user is in
+[Panes](../distribution-api/panes.md#in-depth).
+
+## Sorting and moving
+
+Users can drag or keyboard-reorder the host chrome: content tabs, rail items and view tabs within
+their own band, with the order persisted user-locally. Reordering uses `@angular/cdk/drag-drop` (a
+`@loomweaver/shell` peer dependency) and is **on by default**; `content.reorderTabs`, `rail.reorder`
+and `sidebar.reorderViews` switch it off per container.
 
 Sorting and moving are separate on purpose. `reorderViews` and `rail.reorder` govern the order
 **inside** one bar; carrying an item **to the other** bar is `moveViews` and `rail.moveItems`, and
@@ -107,34 +115,15 @@ that one switch covers the menu entry, the drag and `Alt+Shift+Arrow` together.
 A **container** surface's nested pane tree inherits these switches like any other pane, so a product
 that turns splitting off does not get it back inside a "workspace-in-a-tab".
 
+## Gestures, not contributions
+
 `provideShellFeatures` is the home for **gestures**. A *contribution* (a command, a bar or rail item,
 a settings row, a menu entry) is not a gesture and is removed with
 [`provideShell({ omit })`](recomposing-chrome.md#recomposing-host-chrome) instead.
 
-The retention default is **not** a user-facing capability but a storage policy, so it lives on
-`provideShell` (`RetentionDefault` is `'destroy' | 'retain'`):
-
-```ts
-// src/app/app.config.ts
-provideShell({ retention: 'destroy' }), // default
-```
-
-Every content pane — the URL pane and secondary panes alike — shows the **same** inline toolbar via one
-component: New Tab · Split right · Split down · **Minimize** · **Maximize** · Close. The two
-split gestures have one consistent meaning everywhere. The **toolbar split duplicates** the active
-tab into a new pane; the tab stays where it is. **Dragging a tab or its Split right/down menu moves
-it**. The split buttons only appear when the active content can be duplicated. **Maximize**
-fills the whole viewport over all chrome (header, sidebars, other panes); Escape or the button restores it.
-**Minimize** collapses a pane in a split to a thin strip. The strip shows the active tab's icon and
-name, plus a `+N` badge when the pane holds several tabs. Clicking the strip restores the pane.
-Minimize and Close appear on both panes of a split. Closing the URL pane dissolves the split and the
-neighbour takes over the URL. With a single pane only Maximize is shown, since there is nothing to
-minimize into or close. Hide any affordance distribution-wide with
-`provideShellFeatures({ content: { splitDown: false, maximize: false, minimize: false } })` (fields merge,
-so the others stay on). A pane that holds no tabs stays strip-less and gets a floating toolbar
-instead — it honours the same `toolbar` options — and a chromeless screen shows no strip at all,
-however many tabs are parked behind it. Both regain the strip as soon as they hold a tab and the
-chromeless screen is left; a tab the strip does not draw would be a tab nobody can reach again.
+The retention default is a storage policy rather than a gesture, so it lives on
+`provideShell({ retention })`: the default and what flipping it costs are in
+[Surface retention](surface-retention.md#the-rule).
 
 ## Where next
 

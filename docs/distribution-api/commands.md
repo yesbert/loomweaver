@@ -64,8 +64,16 @@ starts it, and there is nothing to call yourself.
 `@loomweaver/shell`. It returns ⌘K on macOS and Ctrl+K elsewhere, using the same platform detection
 as the shell, so your hint can never disagree with the binding.
 
+**Two searches, one component.** The palette has two entry points. Under `shell.commandPalette`
+(`mod+k`) it lists **commands**. Under `shell.quickOpen` (`mod+p`) it lists **content to navigate
+to**: every open tab across all split content panes, plus every registered route you could open that
+takes no parameter and is not `chromeless`. Most recent comes first, with a relative-time hint. Enter reveals the tab where it
+already lives, so a tab in a secondary pane is activated in place rather than re-opened in the
+address pane; `→` opens that tab's context menu. Both are host commands, so `omit` and rebinding
+work the usual way. A pop-out window has no tab strip, so `shell.quickOpen` is not registered there.
+
 ## Where the story is told
 
 - [Callable commands](../reference/callable-commands.md): opening a command to a caller that is not the user.
 - [Command palette entry](../distribution/recomposing-chrome.md#command-palette-entry): the built badges for the palette and quick-open.
-- [One behaviour, many triggers](../samples.md#3--one-behaviour-many-triggers): a complete recipe.
+- [One behaviour, many triggers](../samples.md#one-behaviour-many-triggers): a complete recipe.

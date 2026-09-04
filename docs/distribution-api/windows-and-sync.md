@@ -78,7 +78,8 @@ else should follow, most usefully its product session key, as the `acme.session`
 **Two rules.** An applier must **not** write back, or two windows ping-pong forever. A broadcast
 never fires in the window that made the change, because a `BroadcastChannel` does not deliver to its
 own sender. The deliberate exception is `notifyRemoteChange`: a backend-backed store with a push
-transport calls it to apply a change made on another device.
+transport calls it to apply a change made on another device. Conflicts stay last-write-wins per key:
+this is state convergence, not collaborative editing.
 
 **Version and updates.** The shell already drives a toast and the update badge from these signals;
 inject the service only if you want your own affordance. The signal `updateFailed` exists because a
@@ -92,4 +93,4 @@ preview nowhere on its own.
 - [Pop-out windows](../distribution/windows-and-sync.md#pop-out-windows): what a pop-out shows and what it refuses.
 - [Cross-tab live sync](../distribution/windows-and-sync.md#cross-tab-live-sync): the ports, the channel and the shell's own registrations.
 - [PWA & delivery](../distribution/pwa.md): the service worker, the badge and the failure toast.
-- [Sync your own state across browser windows](../samples.md#9--sync-your-own-state-across-browser-windows): a complete recipe.
+- [Sync your own state across browser windows](../samples.md#sync-your-own-state-across-browser-windows): a complete recipe.

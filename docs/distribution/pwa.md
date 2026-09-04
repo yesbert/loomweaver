@@ -87,9 +87,9 @@ serving the *production* configuration through `ng serve` makes each watch-mode 
 healthy build. That failure is indistinguishable from a broken deploy by design (the client only
 sees a hash mismatch), so do not paper over it in the update chrome: run the dev server with the
 development configuration, where the shell never registers a worker, and exercise the PWA and
-update flow against a served build instead. This repo does both, in both install roots: the platform
-has `npm run start:testbed` and `npm run preview:testbed`, the demo has `npm start` and
-`npm run preview`. Two details of that pattern are worth copying rather than rediscovering.
+update flow against a served build instead. The testbed and the demo both work this way: one script
+serves the development configuration, another serves a production build. Two details of that
+pattern are worth copying rather than rediscovering.
 
 **Give the preview its own port.** A worker's scope is the origin, so a registration a preview leaves
 behind keeps controlling the dev server on the same port and serves you the stale cached build
