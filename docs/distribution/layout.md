@@ -12,10 +12,10 @@
 
 - **Docks:** `top` · `bottom` · `left` · `right` · `center`.
 - **Region types:**
-  - `bar` — a thin strip of items in `start | center | end` slots (top bar, status bar).
-  - `rail` — the rail, which the workbench labels _Activity bar_: icon triggers for commands.
-  - `panel` — a sidebar surface that hosts views (the host auto-tabs multiple views).
-  - `content` — the main content area (docks `center`). **URL-addressed** (routes), not views.
+  - `bar`: a thin strip of items in `start | center | end` slots (top bar, status bar).
+  - `rail`: the rail, which the workbench labels _Activity bar_, holding icon triggers for commands.
+  - `panel`: a sidebar surface that hosts views (the host auto-tabs multiple views).
+  - `content`: the main content area (docks `center`). **URL-addressed** (routes), not views.
 
 A weaver targets a region by its **id**, never by its dock or type: `registerSurface({ docks:
 ['left-panel'] })`, `registerRailItem({ rail: 'primary' })` and `registerBarItem({ bar: 'status-bar' })`
@@ -24,7 +24,7 @@ anatomy](../reference/shell-anatomy.md#the-region-ids-the-scaffold-declares) lis
 
 > **Non-routable surfaces render only in `panel` regions.** A surface's home dock (`docks[0]`) may name
 > any region id, but one docked into a `content` (or `bar`/`rail`) region is a silent no-op (dev-mode
-> warns). The content area is **routed** — a weaver fills it with a surface that declares
+> warns). The content area is **routed**: a weaver fills it with a surface that declares
 > `routable: { path }` (see [The content area](../weaver/content-area.md)).
 
 Collapsing, resizing and hiding views in the sidebars from your own code is `SidebarService` in the

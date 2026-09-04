@@ -36,13 +36,13 @@ the shell theme in your `styles.css`, wrapped in `@layer lw-tenant-theme` so it 
 }
 ```
 
-The `theme` generator scaffolds exactly this file with the full token ladder — see
+The `theme` generator scaffolds exactly this file with the full token ladder, see
 [Scaffolding](../scaffolding.md); the token names live in
 [design tokens](../reference/design-tokens.md). A plugin can re-skin the app, but your branding stays
 unassailable.
 
 The tokens cover **colour and type only**. Sizes, radii and spacing deliberately have none, because
-tokenising every number would freeze every rule of our chrome into a promise; if your product has to
+tokenising every number would freeze every rule of the workbench's chrome into a promise; if your product has to
 change one, plain unlayered CSS wins over everything the shell paints, and
 [design tokens → dimensions](../reference/design-tokens.md#dimensions-there-are-no-tokens-and-how-to-change-them-anyway)
 gives the recipe and its two honest limits.

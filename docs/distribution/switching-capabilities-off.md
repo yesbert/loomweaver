@@ -76,8 +76,8 @@ partial you pass.
 
 `commands.shortcuts: false` takes the global key listener **and** every chord hint the shell prints,
 so no menu entry or palette row advertises a key that does nothing. Commands stay reachable by their
-buttons and by the palette. `workspaces.enabled: false` leaves storage scoping untouched — the
-active workspace still names the layout keys, the user simply never meets the concept.
+buttons and by the palette. `workspaces.enabled: false` leaves storage scoping untouched: the
+active workspace still names the layout keys, and the user simply never meets the concept.
 
 A rail or bar item that names a command **nobody registered** is dropped rather than drawn, the same
 way an orphaned menu entry is: switching a capability off never leaves a dead button behind.

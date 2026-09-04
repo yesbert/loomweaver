@@ -14,7 +14,7 @@ distribution can:
 - **Hide** a default: `provideShell({ omit: ['shell.language'] })`.
 - **Move** a default: re-register it with the same id at the new spot.
 
-Replace and move use the same mechanism, and a distribution does it **without a plugin** — the
+Replace and move use the same mechanism, and a distribution does it **without a plugin**: the
 `provideViews` / `provideRailItems` / `provideBarItems` providers register chrome directly (see
 [Contributing chrome without a plugin](../distribution-api/composition.md#do-it)). A product that
 wants the update badge in the right sidebar's footer bar moves it exactly like this:
@@ -35,7 +35,7 @@ import { UpdateBadge, provideBarItems } from '@loomweaver/shell';
 ## Command palette entry
 
 The command palette is always reachable by shortcut (`mod+k`), but the shell places **no visible
-entry** in the top bar. `provideCommandPaletteEntry()` adds one — a badge-styled affordance (search
+entry** in the top bar. `provideCommandPaletteEntry()` adds one: a badge-styled affordance (search
 icon + the palette's OS-correct shortcut, ⌘K / Ctrl+K) that opens `shell.commandPalette`,
 correct-by-construction and without a distribution component:
 
@@ -49,7 +49,7 @@ provideCommandPaletteEntry({ bar: 'status-bar' });        // …or in a status b
 The badge **adapts to the bar it lands in**, because bars are not the same shape: a top bar is a
 fixed band, so there the entry pins the shared bar-control height and lines up with the theme and
 language controls beside it. A bottom bar takes the height of its tallest item, so there the entry
-renders like a plain bar item — otherwise it would grow the bar and quietly take that height off the
+renders like a plain bar item. Otherwise it would grow the bar and quietly take that height off the
 content area.
 
 It uses the bar-item id `shell.commandPaletteEntry`, so `provideShell({ omit:
@@ -81,23 +81,23 @@ Register your command under the built-in id (`shell.commandPalette`) and it repl
 its place everywhere; or `omit` the built-in and declare `shortcut: 'mod+k'` on a command of your
 own. What not to do is declare the chord on your own command while the built-in one is still
 registered: two commands then hold one chord, the shell warns in the console, and the later
-registration wins — which is a registration order your composition root does not control.
+registration wins. That is a registration order your composition root does not control.
 
 The palette and quick-open are one component in two modes, and both are host commands, so `omit`
 and rebinding work the usual way; what each lists is in [Commands](../distribution-api/commands.md#in-depth).
 
 This covers **built-in menu entries** too: every standard entry carries the id
-`menu:<commandId>` — e.g. `omit: ['menu:shell.tab.closeAll']` hides "Close all" from the tab context
-menu while the command itself (palette, shortcuts) stays available; omit the command id as well to
+`menu:<commandId>`. For example, `omit: ['menu:shell.tab.closeAll']` hides "Close all" from the tab
+context menu while the command itself (palette, shortcuts) stays available; omit the command id as well to
 remove the behaviour entirely. Registering a menu item with an existing id replaces that entry.
 Tab menu: `menu:shell.tab.splitRight/.splitDown/.close/.closeOthers/.closeRight/.closeAll/.togglePin` ·
 view menu: `menu:shell.view.moveToOtherSidebar/.stackBelow/.openInContent/.resetState`.
 
 A menu entry whose `command:` id no longer resolves (you omitted the command, or it was never
-registered) is **hidden**, not rendered as its raw id — so omitting a bare command id cleanly removes
+registered) is **hidden**, not rendered as its raw id, so omitting a bare command id cleanly removes
 it from the palette **and** the menu at once, rather than corrupting the menu entry.
 
-The host's own **context-only** commands (`shell.tab.*`, `shell.view.*` — close / close-others /
+The host's own **context-only** commands (`shell.tab.*`, `shell.view.*`: close / close-others /
 split / stack / reset / …) are marked `paletteHidden`, so they never appear in the command palette
 (they need a tab/view context the palette can't supply). Your weaver can set `paletteHidden` on its
 own context-only commands the same way. A separate axis: commands are main-window-only by default and
@@ -105,7 +105,7 @@ declare `popout: true` to appear in a [pop-out window](windows-and-sync.md#pop-o
 
 ## Curating the settings surface
 
-`omit` covers **settings** too — so a distribution decides which settings its app shows. Settings are
+`omit` covers **settings** too, so a distribution decides which settings its app shows. Settings are
 addressed with a **`setting:` prefix**: a _section_ id drops the whole section, a _row_ id drops just
 that row, and a section that omission leaves without rows disappears from the nav:
 
@@ -120,16 +120,16 @@ provideShell({
 ```
 
 The prefix is deliberate (same reason built-in menu entries carry `menu:<commandId>`): a chrome id and
-a settings id may coincide — `shell.language` is **both** the top-bar item and the General settings
-row — so `omit: ['shell.language']` stays chrome-only and never silently strips the setting too. To
+a settings id may coincide. `shell.language` is **both** the top-bar item and the General settings
+row, so `omit: ['shell.language']` stays chrome-only and never silently strips the setting too. To
 remove both, list both: `['shell.language', 'setting:shell.language']`.
 
-Built-in settings ids — section `setting:shell.general` (rows `setting:shell.theme`,
+Built-in settings ids: section `setting:shell.general` (rows `setting:shell.theme`,
 `setting:shell.language`, `setting:shell.textSize`) and section `setting:shell.permissions`
 (row `setting:shell.pluginPermissions`). Registering a section with an existing id **replaces** it
 (last-in wins), so you can swap a built-in section for your own.
 
-`omit` is a **lasting** filter — an id a plugin registers later at activation time stays hidden too.
+`omit` is a **lasting** filter: an id a plugin registers later at activation time stays hidden too.
 (To _replace_ a default rather than hide it, register your own contribution with the same id and do
 **not** omit it.)
 
@@ -143,7 +143,7 @@ provideShell({ omit: ['route:acme.notes.archive'] }); // a surface one of your w
 ```
 
 The route then appears in no tab strip, no pane target picker, and is never auto-opened on a deep-link.
-Its URL still answers — with the host's neutral _"View not available"_ placeholder, so a link shared from
+Its URL still answers with the host's neutral _"View not available"_ placeholder, so a link shared from
 another environment explains itself instead of silently bouncing to home. (Like the auth placeholder, it
 covers the route's tab root; a deep-link into a _sub-route_ of an omitted route falls back to home.)
 
@@ -151,9 +151,9 @@ Two things worth knowing:
 
 - **Omit addresses the id, override addresses the path.** Two handles for two operations: `omit:
 ['route:acme.notes.archive']` drops the route, while registering _your own_ surface on the same `path`
-  replaces it (last-in wins) — use that when you want your own view at that URL rather than nothing.
+  replaces it (last-in wins). Use that when you want your own view at that URL rather than nothing.
   Read the id off the surface's `registerSurface` call; **do not guess it from the URL**. They often
-  differ — a sandboxed plugin conventionally declares surface id `<pluginId>.view` while routing at
+  differ: a sandboxed plugin conventionally declares surface id `<pluginId>.view` while routing at
   `<pluginId>`, so the view at `/charts` is dropped with `route:charts.view`.
 - **A route is not its triggers.** A rail item or command that navigates there is a _separate_
   contribution with its own id; omitting the route leaves it drawn (and dead). List them too.

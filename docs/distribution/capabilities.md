@@ -11,7 +11,8 @@
 weaver exactly the capabilities its manifest declares: the effective set is the **intersection** of
 grant and declaration, and a grant for an undeclared capability is inert (dev mode warns). Why
 nothing is granted implicitly is [Capabilities and trust](../concepts/capabilities-and-trust.md#default-deny).
-Later your own per-tenant backend can become this grant source without changing the seam.
+The composition root is the authoritative grant source, and a product backend can feed per-tenant
+grants behind the same seam.
 
 ## The coarse capabilities
 
@@ -30,15 +31,15 @@ Later your own per-tenant backend can become this grant source without changing 
 The shell ships a built-in **Permissions** settings section (under Options). It lists every plugin.
 The user can **turn a whole plugin off** with an on/off switch: the plugin unloads and none of its
 contributions appear, and turning it back on reloads it, live. Per enabled plugin, the user can also
-**revoke** individual capabilities. Both are user-local (persisted through the settings store) and take effect immediately —
-enabling/disabling reconciles activation reactively, and a capability revocation reads the live grant on
-the plugin's next `ctx` call. The user can only narrow, never widen beyond what you granted here, so least
-privilege is preserved. Nothing to wire — it appears automatically.
+**revoke** individual capabilities. Both are user-local (persisted through the settings store) and
+take effect immediately: enabling or disabling reconciles activation reactively, and a capability
+revocation reads the live grant on the plugin's next `ctx` call. The user can only narrow, never
+widen beyond what you granted here, so least privilege is preserved. Nothing to wire: it appears automatically.
 
 ## A plugin your application cannot run without
 
 A routable surface can only come from a plugin, so the weaver carrying your starting place is a
-plugin like any other — and, by default, one the user can switch off. Switching off the plugin that
+plugin like any other, and by default one the user can switch off. Switching off the plugin that
 registers `home` and the sign-out control leaves a signed-in person with no starting place and no way
 out until they find Settings again.
 
@@ -59,7 +60,8 @@ capability is.
 Two things keep this safe by default, both host-provided: (1) a blocked `ctx` call that runs through a
 command surfaces a **warning toast** ("… open Settings → Permissions") instead of failing silently; and
 (2) the host command **`shell.openSettings`** opens the settings surface without any plugin capability,
-so the user can never lock themselves out — it is always reachable from the command palette (`mod+k`).
+so the user can never lock themselves out. It is always reachable from the command palette
+(`mod+k`).
 Wire your own settings launcher (rail item, menu) to `shell.openSettings` rather than a plugin's gated
 `ctx.ui.openSettings`, so it keeps working even when a plugin's capabilities are revoked.
 
