@@ -60,7 +60,7 @@ rather than fighting it.
 55 class names exist in both Tailwind and Bootstrap, and the shell's own templates use a dozen of
 them: `border`, `rounded`, `shadow`, and spacing like `p-3`, `px-3`, `gap-3`. The values differ.
 `p-3` is 0.75rem in Tailwind and 1rem in Bootstrap; `gap-2` and `py-2` happen to agree. Whichever
-layer comes last wins those names everywhere. With the import order above, the shell's win, which is
+layer comes last wins those names everywhere. With the import order above, the shell's values win, which is
 what keeps the chrome looking like itself. In *your* markup that means `class="p-3"` gives you the
 shell's 0.75rem, not Bootstrap's 1rem. Put the vendor layer last instead if you would rather have it
 the other way; the shell will then drift with it. Bootstrap's component classes (`.btn`, `.card`,

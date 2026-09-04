@@ -61,7 +61,7 @@ runs at one of two levels, and the composition chooses:
 | --- | --- | --- |
 | The frame | `<iframe sandbox="allow-scripts">`, no origin of its own | a plain `<iframe>`, it keeps its origin |
 | Storage, cookies, the session they carry | none | whatever the browser grants that origin |
-| Can reach the hosting document | no | **yes** |
+| Can reach the hosting document | no | **yes** when served from the same origin; a sibling subdomain keeps it out |
 | Written for | code you did not write | your own teams, deploying separately |
 
 ```ts
@@ -80,8 +80,8 @@ whose files you serve yourself. A sibling subdomain belongs there: it gives an e
 its own storage and keeps it out of the hosting document, while a session cookie scoped to the shared
 domain still reaches it.
 
-**`embedded` is not a weaker sandbox. It is not a sandbox.** An embedded application can reach the
-hosting document, its storage and your session. The level exists to separate *deployments*, so
+**`embedded` is not a weaker sandbox. It is not a sandbox.** An embedded application served from your
+origin can reach the hosting document, its storage and your session. The level exists to separate *deployments*, so
 several teams can ship independently into one workbench, and it is a decision about trust that the
 composition makes on the operator's behalf. Compose only code you would ship yourself, exactly as
 with a trusted weaver.

@@ -219,7 +219,7 @@ interface StateHandle<T = unknown> { readonly value: () => T | undefined; readon
 // maximize fills the whole viewport over all chrome (Escape restores); minimize collapses a split pane to a strip
 // (icon + active tab name + `+N` badge for extra tabs, click to restore); minimize/close are symmetric on both
 // panes of a split — closing the address pane dissolves the split and the neighbour takes over). Exactly ONE
-// pane is URL-focused/router-rendered, and the focus is switchable. registerSurface is the only authoring entry:
+// pane is the address pane, router-rendered, and the focus is switchable. registerSurface is the only authoring entry:
 // a panel View ≙ a non-routable Surface with docks:[region]; a ContentRoute ≙ a routable one. View/ContentRoute
 // are only the host's internal storage shapes — registerSurface normalises into them.
 // component | loadComponent (deferred: the host calls it the first time the surface is shown — routable surfaces go
@@ -251,7 +251,7 @@ type Surface = {
                                         // (rule: evictable = reload-safe). 'always' keeps the live instance while hidden
                                         // (expensive rebuild, live connection); 'never' opts back into destroy.
                                         // A retained ROUTABLE surface is host-mounted in EVERY pane (the address pane included;
-                                        // its route only carries the address) and keyed to its pane, so handing the URL role
+                                        // its route only carries the address) and keyed to its pane, so handing the address role
                                         // between split panes leaves each pane's instance in place — a split shows two
                                         // independent instances, deliberately. Price: a host-fabricated ActivatedRoute
                                         // everywhere — route params work (param change = different tab = different instance),

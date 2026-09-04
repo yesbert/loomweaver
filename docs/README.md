@@ -42,7 +42,7 @@ standard can run your product's own commands.
    sandboxed surfaces, access gating, settings, i18n. One task per page.
 6. [Building a distribution](building-a-distribution.md): the composition root and the map of seventeen
    how-to pages under `distribution/`. Layout, routing, workspaces, switching capabilities off, branding,
-   capabilities, auth, persistence, frame plugins, the plugin store, PWA. One decision per page.
+   capabilities, auth, persistence, your own CSS framework, frame plugins, the plugin store, PWA. One decision per page.
 7. [The plugin system](plugins.md): the three rungs of trust and the four ways a plugin arrives (trusted,
    frame plugin, operator-deployed, community-installed), default-deny capabilities, and what the user
    can revoke, disable or uninstall.
