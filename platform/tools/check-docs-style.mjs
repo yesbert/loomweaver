@@ -79,7 +79,7 @@ function prose(markdown) {
     .replaceAll(/^\|.*$/gm, '')
     .replaceAll(/^#+ .*$/gm, '')
     .replaceAll(/<!--[\s\S]*?-->/g, '')
-    .replaceAll(/<[^>\n]+>/g, '')
+    .replaceAll(/<[^<>\n]+>/g, '')
     .replaceAll(/`[^`\n]*`/g, 'code')
     .replaceAll(/^> \*\*This is a guide, not the contract\.\*\*[\s\S]*?explain it here\.$/gm, '')
     .replaceAll(/^> ?/gm, '')
