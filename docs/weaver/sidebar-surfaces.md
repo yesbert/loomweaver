@@ -41,7 +41,7 @@ ctx.registerSurface({
 ```
 
 Use **semantic design tokens** in templates (`text-content`, `bg-surface`, `text-brand`), never raw
-colours — see [design tokens](../reference/design-tokens.md).
+colours (see [design tokens](../reference/design-tokens.md)).
 
 ## What your view's own body can use
 
@@ -123,14 +123,13 @@ migration cost you are choosing today.
 `ctx.contributeIcons` is first-wins, dev-warned and disposable because
 the host owns that registry; `customElements.define` is a global land grab that throws hard on the second
 claim. Prefix your tags with something you own (`notes-graph`, not `graph`). **The `lw-` prefix belongs to
-the host** — claiming it collides with a shipped element or shadows one added in a later release.
+the host.** Claiming it collides with a shipped element or shadows one added in a later release.
 
 ### 4. Do not offer your tag to other plugins
 
-Whether one plugin may consume another plugin's element is
-deliberately undecided. Across the sandbox boundary it cannot work at all: separate registries, and
-carrying it over would mean running your code inside someone else's isolation boundary. Treat the element
-as private to your own views.
+Nothing in the contract lets one plugin consume another plugin's element. Across the sandbox
+boundary it cannot work at all: separate registries, and carrying it over would mean running your
+code inside someone else's isolation boundary. Treat the element as private to your own views.
 
 If you go ahead, paint it with the semantic tokens or the `.lw-*` class contracts so that theme, tenant
 branding and the text-size setting reach it like everything else. Keep it to the graphics the host

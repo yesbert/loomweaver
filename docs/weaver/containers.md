@@ -54,7 +54,7 @@ container: {
 ```
 
 Declare this whenever your container's path carries an `:id`. Its inner tree is kept **per instance**,
-so an arrangement a user builds by hand belongs to that one run and is gone when the tab closes — a
+so an arrangement a user builds by hand belongs to that one run and is gone when the tab closes. A
 sensible default can only come from your declaration. The plain list stays valid and means one tabs
 area.
 
@@ -69,21 +69,21 @@ what you wrote. And a child the current user may **not** see still takes its pla
 shows the host's access placeholder; the arrangement does not rearrange itself per role, and it cannot
 collapse just because a session arrived late.
 
-Each child receives the **container's route params** — read the `:id` off Angular's `ActivatedRoute`
+Each child receives the **container's route params**: read the `:id` off Angular's `ActivatedRoute`
 (`route.snapshot.paramMap.get('id')`), the same idiom as a routable surface. So a child is contextualised
 by its parent tab alone; there is **no global "active X"**. The inner tree is workspace state, not URL:
 each open container tab keeps its own inner layout, it travels with the tab, and it survives reload
 (persisted per window). The inner "new tab" picker offers only your declared `children` (access-gated),
 and a popped-out container carries its whole inner tree.
 
-`loomweaver weaver --id sim --container` scaffolds this whole shape — the container, two children with
-`docks: []`, and child components that already read the `:id` — so you start from a running example
+`loomweaver weaver --id sim --container` scaffolds this whole shape: the container, two children with
+`docks: []`, and child components that already read the `:id`. So you start from a running example
 rather than from this page.
 
 ## A child that stands for one item
 
 The children above are facets of one subject: a feed, a graph, a details panel, one of each. A child
-that is a **list** needs its sibling to stand for one _item_ of that list, several at a time — and for
+that is a **list** needs its sibling to stand for one _item_ of that list, several at a time. For
 that the child needs an address of its own. Declare a `segment`:
 
 ```ts
@@ -117,7 +117,7 @@ container?.open(`item/${item.id}`, { title: item.name, titleIsLiteral: true });
 
 `CONTAINER_HANDLE` resolves to `null` outside a container, so a surface that appears in both places
 checks before it calls. The optional second argument is a `ContainerTabLabel` (`title`,
-`titleIsLiteral`, `icon`) — give the tab one, or every open item reads as the child surface's own
+`titleIsLiteral`, `icon`). Give the tab one, or every open item reads as the child surface's own
 title. Opening the same
 address twice focuses the tab that is already there rather than adding a second one, so a list may
 call `open` on every click without checking.
@@ -132,8 +132,8 @@ same declared pane, and into an existing tab when one is already open. Elsewhere
 its own idea of what is focused and the address simply does not express it.
 
 A child whose segment carries a value cannot appear in `initial` or in the inner picker: neither knows
-which value to use. That is what the declared-empty pane is for. A child with no segment keeps
-behaving exactly as before — reachable from the picker, one instance, no address.
+which value to use. That is what the declared-empty pane is for. A child with no segment needs
+none of this: it is reachable from the picker, exists once and has no address.
 
 A surface that draws its own sub-tabs must switch them locally wherever the host mounts it off-router,
 a pop-out included; [Sub-routes and pop-out windows](sub-routes-and-follows.md#sub-routes-and-pop-out-windows) shows the branch.

@@ -8,7 +8,7 @@
 > explain it here.
 
 Contribute a section to the host settings surface (opened via `ctx.ui.openSettings()`). Each control
-**owns its own storage** — the host only reads `value()` and calls `set()`, so the platform never
+**owns its own storage**: the host only reads `value()` and calls `set()`, so the platform never
 persists your data.
 
 ```ts
@@ -38,7 +38,7 @@ ctx.registerSettingsSection({
 ```
 
 Control kinds: `select` (single choice), `toggle` (on/off), `text` (a string field, `inputType?`/
-`placeholder?`), `slider` (a number, `min`/`max`/`step`), `button` (an action — inline `run`, or
+`placeholder?`), `slider` (a number, `min`/`max`/`step`), `button` (an action: inline `run`, or
 `command: '<id>'` to reuse a registered command so the palette/keybindings share it), `component`
 (embed your own widget). Each value control owns its `value()`/`set()`.
 

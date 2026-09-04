@@ -47,7 +47,7 @@ const onContextMenu = (event: MouseEvent, note: Note) =>
 ## Host facts — `ctx.host`
 
 Read-only version + update state, so an About surface stays SDK-only. `version`/`updateAvailable`
-are signal-shaped (`() => T`) — read them in a template and they stay reactive.
+are signal-shaped (`() => T`). Read them in a template and they stay reactive.
 
 ```ts
 ctx.host.version();          // "1.2.3"

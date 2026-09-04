@@ -34,15 +34,15 @@ ctx.registerSurface({ id: 'login', title: 'login.title', component: LoginView,
 
 The host draws a tab strip **per pane**, and every pane is a tab group the user can split and move. The
 strip shows **everything that pane holds**, and the rule is one sentence: a pane shows a strip when it
-holds tabs; a **chromeless** surface shows none. Visiting any routable surface — by click, deep-link
-or browser history — opens (or refines) its tab; a chromeless surface owns the whole content area
+holds tabs; a **chromeless** surface shows none. Visiting any routable surface, by click, deep-link
+or browser history, opens (or refines) its tab; a chromeless surface owns the whole content area
 while active and is excluded from splits, drags and the new-tab picker. A permanent arrangement of
 tabs is a **workspace**, declared by the distribution with
 [`provideWorkspaces`](../distribution/workspaces.md#developer-defined-workspaces), where a declared
 tab can be unclosable. The surface itself declares no arrangement.
 
-A surface can also refuse closing on its own with **`closable: false`** — the overview screen a
-product keeps open while its other tabs come and go. It removes the ×, the `Delete` key and the
+A surface can also refuse closing on its own with **`closable: false`**. That is the overview screen
+a product keeps open while its other tabs come and go. It removes the ×, the `Delete` key and the
 menu's close entries; moving, splitting and dragging the tab still work. It applies to **every** tab
 of that surface, so it fits a parameterless route like `dashboard` and is almost always wrong for
 `doc/:id`, where it would make no document closable at all.
@@ -53,7 +53,7 @@ ctx.registerSurface({ id: 'dashboard', title: 'dashboard.title', component: Dash
 ```
 
 A route component reads its params the normal Angular way (`inject(ActivatedRoute)`), so `doc/:id`
-resolves `id` itself. Don't draw your own top-level tab bar — open into the host strip; a **nested**
+resolves `id` itself. Don't draw your own top-level tab bar. Open into the host strip; a **nested**
 sub-tab bar _inside_ one document's body (Edit | Preview) is fine, it's a level down.
 
 ## Reaching the pane edges
@@ -68,8 +68,8 @@ provideShell({ padding: 'inset' })
 ```
 
 A surface that differs from its product declares **`padded`**, in either direction. `false` where
-the product insets everything and this surface **is** the content — a document viewer, a canvas, a
-map, an edge-to-edge table:
+the product insets everything and this surface **is** the content, such as a document viewer, a
+canvas, a map or an edge-to-edge table:
 
 ```ts
 ctx.registerSurface({ id: 'viewer', title: 'viewer.title', component: ViewerView,
@@ -83,7 +83,7 @@ ctx.registerSurface({ id: 'settings', title: 'settings.title', component: Settin
   routable: { path: 'settings' }, padded: true });
 ```
 
-It travels with the surface, so it holds wherever the user puts it — the address pane, a split, a
+It travels with the surface, so it holds wherever the user puts it: the address pane, a split, a
 sidebar, a pop-out window. Only whether there is an inset is yours; how wide it is stays a styling
 question, so a product that wants a different amount everywhere writes plain unlayered CSS.
 
@@ -116,22 +116,22 @@ no-op for an unknown id, and container-only children (`docks: []`) stay inside t
 Routable surfaces are reached with `navigateContent` instead. Requires `navigation`.
 
 A dynamic tab title is usually a runtime **literal** (a document name, an entity label). Set
-`titleIsLiteral: true` so the host renders it verbatim instead of treating it as a translation key —
-otherwise the value is looked up and a benign "missing translation" warning is logged in dev. Omit it
+`titleIsLiteral: true` so the host renders it verbatim instead of treating it as a translation key.
+Otherwise the value is looked up and a benign "missing translation" warning is logged in dev. Omit it
 (default `false`) when the title genuinely is a Transloco key. Pass `onClose` to run teardown exactly
-once when that tab is closed (the host's ×, or `closeContentTab`) — the place to free per-tab state,
-cancel in-flight work or persist a draft. (In-process weavers only; a sandboxed plugin's `onClose`
+once when that tab is closed (the host's ×, or `closeContentTab`). That is the place to free per-tab
+state, cancel in-flight work or persist a draft. (In-process weavers only; a sandboxed plugin's `onClose`
 does not cross the RPC boundary.)
 
 ## Preview tabs
 
 For file-browsing UX, open with `preview: true`: the host
-uses a **single reused, italic** slot per pane — the next `preview` open of a _different_ path replaces
+uses a **single reused, italic** slot per pane: the next `preview` open of a _different_ path replaces
 it in place, so browsing many items doesn't pile up tabs. Promote it to a permanent tab **explicitly**:
 call `ctx.keepContentTab(path)` (e.g. on your list's double-click or when the content is edited).
 The host's own double-click cycle on the tab is the distribution's to switch off, so do not build
 your flow on it. Re-opening an already-open tab just refines it (title/sub-route) and **keeps** its
-preview state — so a view can safely call `openContentTab` on mount to set the real title without
+preview state, so a view can safely call `openContentTab` on mount to set the real title without
 accidentally promoting itself:
 
 ```ts
@@ -141,7 +141,7 @@ onDoubleClick(doc) { ctx.keepContentTab(`doc/${doc.id}`); }
 ```
 
 A distribution can turn the whole behaviour off (`provideShellFeatures({ content: { preview: false } })`),
-in which case `preview` is ignored and every open is permanent — so treat preview as a hint, not a
+in which case `preview` is ignored and every open is permanent. Treat preview as a hint, not a
 guarantee.
 
 ## Pinned tabs
@@ -155,9 +155,10 @@ survives a re-open. The host also has a double-click cycle on the tab (preview �
 ## A deep link opens its tab too
 
 Navigating to a dynamic route **without** opening it (a shared deep-link, browser history,
-`navigateContent`) **auto-opens** its tab too — so shared links land with a proper tab, not just bare
-content. If the tab is already open in **another pane** — a split, or a pane the user's workspace
-declares — nothing is duplicated: that pane takes the address and activates the tab it already holds.
+`navigateContent`) **auto-opens** its tab too, so shared links land with a proper tab, not just bare
+content. If the tab is already open in **another pane**, whether a split or a pane the user's
+workspace declares, nothing is duplicated: that pane takes the address and activates the tab it
+already holds.
 Give the route a default `title`/`icon` for that auto-opened tab; you can still refine it via
 `openContentTab` (e.g. the real document name):
 
@@ -201,19 +202,19 @@ weaver on the public `ctx` surface, the same path a sandboxed plugin gets later.
 ## Panes and tab groups
 
 The tabs you open aren't confined to one strip. Every pane is
-a **tab group** with its own strip, and the user can rearrange them — **without any extra API from you**:
+a **tab group** with its own strip, and the user can rearrange them **without any extra API from you**:
 
 - **Drag a tab to a pane edge** to split the area, taking that tab into a new group; **drag it onto
   another group's strip** to move it there. Dropping the last tab out of a group collapses it. A tab's
   context menu offers **Split right / Split down** as the keyboard/touch equivalent.
-- A pane **holding no tabs** — the content area before anything is open — takes the whole drop instead
+- A pane **holding no tabs**, the content area before anything is open, takes the whole drop instead
   of offering edges, so a dragged tab fills it rather than splitting it against an empty half. The
   highlight while dragging spans the whole pane, which is exactly what the drop will do.
-- Dragging **moves** a tab (never copies) — the source group loses it. This holds for every tab,
+- Dragging **moves** a tab (never copies): the source group loses it. This holds for every tab,
   including parameterised (`doc/:id`) and sandboxed iframe routes: exactly one pane is the **address pane**
   (it drives the deep link and back/forward), and moving a routed tab hands that role to its new pane.
-- The **sidebars are the same tab groups**, just shown as **icon tabs** — a view can be dragged into the
-  centre (it becomes a titled tab beside your documents) and a document into a sidebar, and back.
+- The **sidebars are the same tab groups**, just shown as **icon tabs**. A view can be dragged into
+  the centre (it becomes a titled tab beside your documents) and a document into a sidebar, and back.
 
 None of this changes your contract: you keep contributing routes and views the same way; the host
 provides the pane/tab behaviour on top. Reload restores the whole arrangement.
