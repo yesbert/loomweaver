@@ -1,5 +1,5 @@
 {
-  "_": "Sentences over 40 words per documentation page, measured by check-docs-style.mjs. A ratchet: a page may only go down, and the check fails on an entry that is no longer true. Rewrite with `npm run docs-style-check -- --write-baseline` after shortening a page.",
+  "_": "Sentences over 40 words per documentation page, measured by check-docs-style.mjs. A ratchet: a page may only go down, and the check fails on an entry that is no longer true. Rewrite with `npm run docs-style-check -- --write-baseline` after shortening a page. proseDashes counts dashes used as a sentence joint, the same way and for the same reason: fewer of them, not none.",
   "longSentences": {
     "docs/distribution/workspaces.md": 12,
     "docs/reference/design-tokens.md": 8,
@@ -28,5 +28,6 @@
     "docs/reference/agent-tools.md": 1,
     "docs/reference/shell-anatomy.md": 1,
     "docs/weaver/view-state.md": 1
-  }
+  },
+  "proseDashes": {}
 }
