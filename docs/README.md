@@ -85,7 +85,7 @@ Why the workbench behaves as it does, each short, each linking to the how-to pag
 - [Agent tools](reference/agent-tools.md): `@loomweaver/ag-ui`, letting an AG-UI agent reach the
   workbench's own commands, with a hook for confirming or declining a call before it runs.
 - [Design tokens & `<lw-*>` vocabulary](reference/design-tokens.md): the semantic tokens and host UI
-  building blocks to use in templates (never raw palette colors).
+  building blocks to use in templates (never raw palette colours).
 - [Icons](reference/icons.md): every icon name the workbench ships, with its glyph, and how a
   weaver or a distribution adds its own.
 - [Accessibility](reference/accessibility.md): the WCAG 2.1 AA guardrail the host meets and weavers
