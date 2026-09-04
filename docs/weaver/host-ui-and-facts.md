@@ -37,8 +37,10 @@ ctx.ui.openSettings();                                              // open the 
 // Open your own component as a dialog body (the host paints the frame):
 ctx.ui.open(NotesAboutDialog, { data: ctx.host, size: 'md' });
 
-// Right-click a row in your OWN view body → a host-drawn context menu at the cursor (trusted rung only):
-ctx.ui.openMenu([{ label: 'Open', icon: 'document', run: () => this.open(note) }], { x: event.clientX, y: event.clientY });
+// Right-click a row in your OWN view body: a host-drawn context menu at the cursor (trusted rung only).
+// The handler gets the MouseEvent and the row; what the items may carry is on Menus.
+const onContextMenu = (event: MouseEvent, note: Note) =>
+  ctx.ui.openMenu([{ label: 'Open', icon: 'document', run: () => openNote(note) }], { x: event.clientX, y: event.clientY });
 ```
 
 ## Host facts — `ctx.host`
