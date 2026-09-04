@@ -9,7 +9,7 @@ import { standInFile } from './agent-stand-in';
  * declares as a peer: two different ranges resolve to two copies, and an event built by one is not
  * the event the other switches on. `check-agent-versions` fails the build when either drifts.
  */
-export const AG_UI_ADAPTER_VERSION = '0.8.1';
+export const AG_UI_ADAPTER_VERSION = '0.8.2';
 export const AG_UI_PROTOCOL_VERSION = '0.0.x';
 
 function connectionFile(w: ResolvedWeaver): string {
