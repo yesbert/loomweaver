@@ -10,6 +10,8 @@
 - [ ] 2.1 The owner writes or dictates the argument; the assistant produces the full post in the
       owner's voice, problem first, "my own project" in the first line, one link at the end.
 - [ ] 2.2 Title and flair chosen against the sub's conventions.
+- [ ] 2.3 A written answer to "why not SCION Workbench, Luigi or Module Federation", in the owner's
+      voice, ready before posting; reuse the one from `dev-to-tutorial-article` if it exists.
 
 ## 3. Post and record
 

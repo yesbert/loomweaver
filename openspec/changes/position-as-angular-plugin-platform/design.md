@@ -123,15 +123,21 @@ description still reading the architecture sentence. Topics keep their current s
 
 ## Open Questions
 
-The outside review raised two points that change copy rather than order, and both are the owner's
-call, to be decided before task 2 starts:
+The outside review raised two points that change copy rather than order. One is decided, one is
+the owner's call before task 2 starts:
 
-- **Whether the fit paragraph names the alternatives.** SCION Workbench is an active Angular
-  library that uses the word workbench and splits panes across windows; Luigi and Module Federation
-  are the other two things a senior Angular developer will name in the first comment. A short
-  "how it compares" paragraph that names them and states what this platform adds (plugins
-  installed at runtime behind a consent dialog, a default-deny broker the user can revoke, AG-UI)
-  would answer the question before it is asked. Today nothing on the first screen does.
+- **No comparison paragraph on the first screen.** The review named SCION Workbench (an active
+  Angular library that uses the word workbench for a drag-and-drop layout, with a separate
+  microfrontend platform of manifests, capabilities and intentions), Luigi and Module Federation as
+  what a senior Angular developer will ask about. The owner looked at SCION on 2026-09-04 and does
+  not read it as a competitor: it owns the layout, not a plugin model. The first screen therefore
+  stays as designed, and the question is prepared for where it will be asked, in the comments
+  under a post. `dev-to-tutorial-article` and `second-reddit-post` each carry a task for a written
+  answer, ready before publishing, that says what the two have in common (panes the user
+  arranges, Angular) and what this platform adds (plugins as the unit of everything, installed at
+  runtime behind a consent dialog, a default-deny broker the user can revoke, sandboxed bodies in
+  any framework, AG-UI). The wording "an open-source plugin platform" keeps "an" for the same
+  reason: the category is shared, the model is not.
 - **Whether the fit paragraph states the project's state plainly.** One maintainer, one star at
   the time of writing, the API still moving on patch releases before 1.0, the demo as the reference
   consumer. The reviewer's argument: the sentence disarms the objection, hiding it does not.

@@ -11,6 +11,8 @@
       sentence and the demo link.
 - [ ] 2.2 Build and run the example; every snippet in the article comes from it.
 - [ ] 2.3 Cover with the existing cover tooling; tags chosen with the topic.
+- [ ] 2.4 A written answer to "why not SCION Workbench, Luigi or Module Federation", in the owner's
+      voice, ready before publishing; the positioning change's design says what it covers.
 
 ## 3. Publish and record
 
