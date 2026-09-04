@@ -7,8 +7,8 @@
 > specification is right, and that is a defect in this page: change the behaviour there, then
 > explain it here.
 
-This page gives your plugin one store that all of its surfaces share: `ctx.state`, namespaced to your
-plugin id and visible in every dock, every instance and every browser window. You need it when several
+Your plugin has one store that all of its surfaces share: `ctx.state`, namespaced to your plugin id
+and visible in every dock, every instance and every browser window. You need it when several
 of your surfaces have to agree on something. One example is a wizard whose step form is popped out into
 a second window while the main window has to see what the user types. The `VIEW_STATE` handle
 ([View state that survives](view-state.md)), in which a docked surface keeps its own filters and
@@ -27,8 +27,8 @@ input.addEventListener('input', () => step.set({ customer: input.value }));
 step.dispose();
 ```
 
-Every surface of your plugin sees the same store — any dock, any number of instances, every browser
-window — so it is both your persistence and the only channel between your own surfaces. The host
+Every surface of your plugin sees the same store, in any dock, in any number of instances and in
+every browser window, so it is both your persistence and the only channel between your own surfaces. The host
 prefixes every key with your plugin id and you cannot leave that namespace, which is why there is no
 capability to grant: there is nothing foreign to reach.
 
@@ -36,14 +36,14 @@ capability to grant: there is nothing foreign to reach.
 
 - **Check `loaded()` before you apply a default.** With a local store it is true at once. With a
   network-backed one there is a real window in which the store has not answered, and a default applied
-  in that window is overwritten the moment the value lands — after the user has started typing.
+  in that window is overwritten the moment the value lands, after the user has started typing.
 - **`set` replaces the whole value; nothing is merged.** Use **one key per unit of editing**: a wizard
   step, not the whole form. Where your surface can exist more than once, key by instance too
   (a sandboxed surface receives its `instanceId` with its pushed state). Two windows writing two keys
   converge; two windows replacing one key means last write wins, which costs the user's typing.
 - **It holds working state, not settings.** Settings have their own path precisely because the user
   can _see_ and change them in the settings dialog; a free-form settings store would be a back door
-  around that. Uninstalling your plugin deletes this store — a settings section survives, an abandoned
+  around that. Uninstalling your plugin deletes this store: a settings section survives, an abandoned
   draft is litter.
 - **Values are JSON and writes are debounced.** Siblings in the same window see a change at once;
   other windows see it once the debounced write lands. There is a size cap per value and a count cap
@@ -54,7 +54,7 @@ capability to grant: there is nothing foreign to reach.
 A **sandboxed** plugin gets the same store on both of its channels. Its logic document calls
 `stateWatch` / `stateSet` / `stateClear` / `stateUnwatch` on the `ctx` it already has, and the host
 pushes every change back as `stateChanged(key, value, loaded)`. A **surface** has the same four
-methods on its own channel — which matters, because a surface holds no `ctx` at all and this is the
+methods on its own channel. That matters, because a surface holds no `ctx` at all and this is the
 only way two surfaces of one sandboxed plugin can agree on anything. The kit reassembles the pushes
 into the handle shape above, so the code reads the same as on the trusted rung:
 

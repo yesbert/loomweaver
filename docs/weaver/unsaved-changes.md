@@ -14,7 +14,7 @@ on [View state that survives](view-state.md) is the lighter tool.
 ## `DirtySurface`
 
 For an editor-like surface the guard is not `retain` but **dirty state**. Implement the `DirtySurface`
-interface on your **component** (per instance — one `doc/:id` declaration backs many open tabs, and
+interface on your **component** (per instance: one `doc/:id` declaration backs many open tabs, and
 "this tab has unsaved changes" is a question about one of them):
 
 ```ts
@@ -63,13 +63,13 @@ the user's answer. An approved close does **not** bypass the safety net. If the 
 afterwards, the standard _Save · Discard · Cancel_ ask still runs. So approve-and-stay-dirty never
 discards silently. Resolve your own save/discard first, and the surface closes without a second dialog.
 The host enforces a timeout with a guaranteed **"Close anyway"** escape, and a hook that throws or
-rejects counts as approval — a broken or hung veto can never make a tab unclosable. Programmatic
+rejects counts as approval. A broken or hung veto can never make a tab unclosable. Programmatic
 destruction (your plugin being disabled or uninstalled, a workspace reset) does **not** consult the
 hook; only the unsaved-changes dialog guards those, because a plugin must not be able to veto its own
 removal.
 
 A **sandboxed** surface takes part through its surface channel: push `setDirty(true|false)` to report
-unsaved work, and optionally expose `beforeClose()` next to the `render` receiver — the host calls it
+unsaved work, and optionally expose `beforeClose()` next to the `render` receiver. The host calls it
 over RPC and applies the same timeout. Both wires in one place:
 
 ```js

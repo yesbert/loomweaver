@@ -20,7 +20,7 @@ ctx.registerCommand({
 });
 ```
 
-Now any item can trigger it with `command: 'notes.add'` instead of its own `run()` — and the palette
+Now any item can trigger it with `command: 'notes.add'` instead of its own `run()`. The palette
 (`mod+k`) and the shortcut reach the same behaviour.
 
 A command can also take **described arguments**, **answer with a result**, and be **opened to a caller

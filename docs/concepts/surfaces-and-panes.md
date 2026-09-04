@@ -7,8 +7,8 @@
 > specification is right, and that is a defect in this page: change the behaviour there, then
 > explain it here.
 
-This page explains why a plugin declares one kind of thing and why the user can put it anywhere.
-The how-to pages linked at the end show the code.
+A plugin declares one kind of thing, a surface, and the user decides where it appears. The how-to
+pages linked at the end show the code.
 
 ## One contract for everything shown
 

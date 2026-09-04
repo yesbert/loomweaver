@@ -10,7 +10,7 @@
 Your contributions can react to the signed-in user's login state and roles, without the platform owning
 any authentication. LoomWeaver only reacts to a session snapshot the **distribution** supplies (see
 [building a distribution](../building-a-distribution.md)); a weaver just declares an `access` requirement on
-a contribution and the host hides, disables or blocks it. Roles are opaque strings — the host
+a contribution and the host hides, disables or blocks it. Roles are opaque strings: the host
 matches, never interprets. The snapshot's claim bag reaches neither your `access` requirements nor
 `ctx.session`; only the login state and the roles do.
 
@@ -40,12 +40,12 @@ ctx.registerSurface({ id: 'admin', title: 'admin.title', component: AdminView,
 `access` fields: `authenticated?` (must be signed in / only-anonymous), `anyRole?` (at least one),
 `allRoles?` (every), and `mode?: 'hide' | 'disable'` for chrome items (default `hide`). `mode` is
 ignored where an item is inherently present-or-not (a whole view, a command, a route). **Client-side
-gating is presentation, not security** — enforce for real on your server; a hidden control is not a
+gating is presentation, not security.** Enforce for real on your server; a hidden control is not a
 boundary. Gating is orthogonal to plugin **capabilities** (what your plugin may do): a granted plugin
 can still gate an individual contribution by user role.
 
 For **imperative** self-gating (branching your own logic, or gating your own view body), read the session
-through `ctx.session` — the counterpart to declarative `access`, gated by the `session` capability:
+through `ctx.session`, the counterpart to declarative `access`, gated by the `session` capability:
 
 ```ts
 // src/lib/plugin/session.ts — a module-level facade your components inject
@@ -70,11 +70,11 @@ protected readonly canPurge = computed(() => notesSession.session?.hasRole('admi
 A **sandboxed** surface has no `ctx` in its own frame, so the host _pushes_ the session into the surface
 state instead. The same capability gates it: declare `session` (and have it granted) or the host omits
 the field, and your surface sees `state.session === undefined`. That is deliberately **not** a signed-out
-snapshot — "not granted" and "signed out" are different facts, so read it defensively
+snapshot: "not granted" and "signed out" are different facts, so read it defensively
 (`state.session?.roles ?? []`) and draw nothing session-dependent when it is absent. Revoking the
 capability at runtime stops the push live, without a reload.
 
-The **login UI itself is yours**, not the platform's — and the platform never opens it on its own.
+The **login UI itself is yours**, not the platform's, and the platform never opens it on its own.
 Unmet chrome simply hides or disables; only a gated **content route** actively sends the visitor
 anywhere, and only if the distribution registered a redirect. So a login has two shapes, and both are plain weaver contributions. A login **page** is an ungated
 routable surface:
@@ -82,9 +82,9 @@ routable surface:
 The distribution's `provideUnauthorizedRedirect` points gated routes at it. A login **dialog**
 opens from your own entry point through `ctx.ui.open(MyLoginDialog)`. Either way its "sign in"
 action calls your product's auth service, which updates the session snapshot the distribution feeds
-to the platform — the whole shell re-gates reactively, no reload (**signing out** just resets that
-snapshot to anonymous). Complete, copyable components for both shapes — including the
-`?from=` return-path round trip — live in
+to the platform. The whole shell re-gates reactively, with no reload (**signing out** just resets
+that snapshot to anonymous). Complete, copyable components for both shapes, including the
+`?from=` return-path round trip, live in
 [building a distribution → Auth integration](../distribution/auth.md).
 
 ## Where next

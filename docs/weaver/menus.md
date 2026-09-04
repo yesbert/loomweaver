@@ -15,9 +15,9 @@ sandboxed surface.
 ## Items in a host menu
 
 Add an item to a host menu slot with `ctx.registerMenuItem` (capability `contributions`).
-It names a {@link Command} by id (invoked with the menu's context) and may declare a coarse `when` filter —
-the item shows only when every `when` key equals the same key in the opener's context. The host draws the
-menu; a right-click on the content tab strip opens the `content/tab/context` slot with
+It names a {@link Command} by id (invoked with the menu's context) and may declare a coarse `when`
+filter. The item shows only when every `when` key equals the same key in the opener's context. The
+host draws the menu; a right-click on the content tab strip opens the `content/tab/context` slot with
 `{ targetKind, tabId, pinned, closable }`:
 
 ```ts
@@ -26,16 +26,17 @@ ctx.registerMenuItem({ menu: 'content/tab/context', command: 'my.tab.reveal', gr
 ```
 
 The host's own tab actions (Close, Close Others/All/to-the-Right, and a "Pinned" checkbox) live in the same
-slot — your item joins them. Command behaviour crosses the sandbox boundary because it is referenced by
+slot, and your item joins them. Command behaviour crosses the sandbox boundary because it is referenced by
 **id** (the context is plain, serialisable data); an inline `run` on a menu item is trusted, in-process only.
 
 A menu item may carry its own optional `id`: re-registering that id **replaces** the entry (last-in wins),
 the same rule as every other contribution. The built-in entries use `menu:<commandId>` ids
-(e.g. `menu:shell.tab.closeAll`), so a distribution can hide or swap a standard entry — see
-[building a distribution](../building-a-distribution.md). Without an `id` your item is purely additive.
+(e.g. `menu:shell.tab.closeAll`), so a distribution can hide or swap a standard entry.
+[Building a distribution](../building-a-distribution.md) shows how. Without an `id` your item is
+purely additive.
 
 A menu item shows its referenced command's **icon** and **keyboard-shortcut** hint automatically. Add
-`checkedWhen` to make it a **checkbox** (`role="menuitemcheckbox"`) — it is checked when `checkedWhen` is a
+`checkedWhen` to make it a **checkbox** (`role="menuitemcheckbox"`): it is checked when `checkedWhen` is a
 subset of the opener's context, so one toggle item replaces a Pin/Unpin pair (the command reads the state
 from the context and flips it):
 
@@ -56,7 +57,7 @@ ctx.registerMenuItem({ menu: 'content/tab/context', command: 'my.tab.togglePin',
 
 ## Item-attached menus (any region)
 
-A context menu is not tied to the tab strip — a `RailItem`,
+A context menu is not tied to the tab strip: a `RailItem`,
 `BarButtonItem` or `ViewAction` can carry a `menu?: string` slot, and the host opens it on right-click with a
 `{ targetKind, id, region }` context. Contribute items to that slot the same way; e.g. the
 built-in view-tab menu offers "Move to other sidebar". One mechanism, every region.
@@ -64,8 +65,8 @@ built-in view-tab menu offers "Move to other sidebar". One mechanism, every regi
 ## A menu on the plain click
 
 A `RailItem` or a `BarButtonItem` may add
-`menuTrigger?: MenuTrigger` — `'context'` (the default, the right-click above), `'primary'` or
-`'both'` — to say which gesture opens its slot. With `'primary'` or `'both'` the menu opens when the
+`menuTrigger?: MenuTrigger` to say which gesture opens its slot: `'context'` (the default, the
+right-click above), `'primary'` or `'both'`. With `'primary'` or `'both'` the menu opens when the
 item is activated, by click, Enter or Space alike, anchored beside the control the host drew and
 flipped to its other side rather than covering it. That is the account entry a workbench with a
 signed-in user needs:

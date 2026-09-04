@@ -14,9 +14,9 @@ A weaver can add icon names of its own and re-skin the whole application. Both g
 `icon` is a host-registry name. The shell ships a small first-party set (`add`, `search`, `settings`,
 `outline`, `document`, …); your domain needs more (`graph`, `upload`, …). Contribute your own names at
 activation, then reference them like any other icon. Names are **first-wins**: a name the shell already
-ships (like `document`) cannot be overridden — pick unique, ideally prefixed names. Only the product
+ships (like `document`) cannot be overridden. Pick unique, ideally prefixed names. Only the product
 itself may replace a shipped glyph, with `provideIcons`; when it does, the replacement reaches your
-view too, so `<lw-icon name="trash">` draws the product's glyph rather than ours:
+view too, so `<lw-icon name="trash">` draws the product's glyph rather than the shipped one:
 
 ```ts
 ctx.contributeIcons({
@@ -30,19 +30,19 @@ ctx.registerSurface({ id: 'notes.list', title: 'notes.list.title', docks: ['left
 
 Names are flat and **collision-safe**: a name already registered by the shell or another plugin is
 ignored (first-wins, dev-warned), so pick unique names. Contributed SVG is **sanitised at registration**
-(DOMPurify, SVG profile) — `<script>`, event handlers and `javascript:` hrefs are stripped, and an icon
+(DOMPurify, SVG profile): `<script>`, event handlers and `javascript:` hrefs are stripped, and an icon
 whose markup does not survive sanitisation is dropped (dev-warned); ship plain vector markup. The host
 paints the icon wherever your contribution appears (rail/bar/view/command), and you can also render a
-contributed (or first-party) name **in your own view body** with `<lw-icon name="…">` — see
-[design tokens](../reference/design-tokens.md).
+contributed (or first-party) name **in your own view body** with `<lw-icon name="…">` (see
+[design tokens](../reference/design-tokens.md)).
 
 ## Custom theme — `ctx.contributeTheme`
 
-Contribute `--lw-*` design tokens to re-skin the whole app — host chrome **and** every plugin, since
-all read the same tokens. The vocabulary covers colours **and** the UI font
+Contribute `--lw-*` design tokens to re-skin the whole app, host chrome **and** every plugin alike,
+since all read the same tokens. The vocabulary covers colours **and** the UI font
 (`--lw-font-sans` / `--lw-font-mono`). Requires the `theme` capability. Only whitelisted `--lw-*` names
 apply; unknown names are ignored (dev-warned). The returned `Disposable` removes exactly these tokens
-and the app reverts — so a theme can be toggled on and off. (Font _size_ is a user preference, not a
+and the app reverts, so a theme can be toggled on and off. (Font _size_ is a user preference, not a
 theme token.)
 
 ```ts
@@ -64,14 +64,14 @@ activate(ctx) {
 ```
 
 The first argument applies in **both** light and dark mode. Pass the optional second `dark` map to
-override specific tokens only when dark mode is active — tokens absent from it keep their base value
+override specific tokens only when dark mode is active. Tokens absent from it keep their base value
 across both modes, so you only list what actually differs (typically surfaces and content colours).
 
 Precedence is **Product default < Plugin < Tenant**: a plugin themes freely, but a token the tenant
 (the distribution's own branding CSS) explicitly set is never overridden. See
 [design tokens](../reference/design-tokens.md) for the token vocabulary and cascade layers.
 
-A theme contribution is **live per-window session state**, not a stored setting — it does not cross
+A theme contribution is **live per-window session state**, not a stored setting: it does not cross
 either persistence port, so it neither survives a reload nor rides [cross-tab sync](../distribution/windows-and-sync.md#cross-tab-live-sync)
 on its own. If you want a theme toggle to persist and mirror across windows, persist your own on/off
 flag and re-apply it. The testbed's theme toggle does exactly this, trimmed:

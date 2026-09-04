@@ -13,11 +13,11 @@ routable one; `retain` keeps a live instance alive where neither fits.
 
 ## The `VIEW_STATE` handle
 
-A **docked** surface persists its own serialisable state — filters, sort, scroll position, expanded
-nodes, the active sub-tab — through the host-provided `VIEW_STATE` handle, so it survives both a hide and
-a reload. Inject it and type it to your own state shape; the host **auto-saves** every `set`
+A **docked** surface persists its own serialisable state (filters, sort, scroll position, expanded
+nodes, the active sub-tab) through the host-provided `VIEW_STATE` handle, so it survives both a hide
+and a reload. Inject it and type it to your own state shape; the host **auto-saves** every `set`
 (debounced) and hands the saved blob back on the next mount. You never touch storage, and the platform
-stays domain-pure — it stores an opaque blob, only your view reads it.
+stays domain-pure: it stores an opaque blob, only your view reads it.
 
 ```ts
 // src/lib/views/outline-view.ts
@@ -38,14 +38,13 @@ export class OutlineView {
 ```
 
 Two things to know before you scale that up. `set` replaces the **whole** blob, so spread the current
-value when you change one field — keep one state shape rather than five separate signals and there is
+value when you change one field. Keep one state shape rather than five separate signals and there is
 nothing to merge. And call `set` as often as you like: the value is live immediately and the write is
-debounced, so even a per-keystroke `set` costs one save once typing stops. The full treatment — form
+debounced, so even a per-keystroke `set` costs one save once typing stops.
+[Recipe 7 in Samples](../samples.md#everything-a-view-must-persist) is the full treatment: form
 value, scroll position, expanded nodes, active sub-tab and filter in a single shape, next to the
-counter-example that loses all of it — is
-[recipe 7 in Samples](../samples.md#everything-a-view-must-persist). (Persistence is backed by the
-distribution's [working-state store](../distribution/persistence.md); default
-`localStorage`.)
+counter-example that loses all of it. (Persistence is backed by the distribution's
+[working-state store](../distribution/persistence.md); default `localStorage`.)
 
 **A routable surface has no `VIEW_STATE` handle.** It owns a
 URL, and the URL is the better store for everything shareable: put the filter and the active sub-tab in
@@ -55,24 +54,24 @@ can be sent to a colleague. What the URL should not carry, unsaved edits, is wha
 shape crosses the RPC boundary; it declares `retain: 'always'` instead
 ([below](#a-sandboxed-surface-and-the-atomic-move)).
 
-**State travels with the tab.** When the user drags your view's tab to another pane — sidebar into the
-centre, into a split, back again — the same `VIEW_STATE` stays bound to it, so filters and sort survive
+**State travels with the tab.** The user can drag your view's tab from a sidebar into the centre,
+into a split, and back again. The same `VIEW_STATE` stays bound to it, so filters and sort survive
 the move. Deliberately independent copies (stacking the same view, split-born panes) each get their own
 state; your component code is identical in both cases.
 
 **The user can reset it.** The view tab's context menu offers **Reset view**: the host clears
-that instance's blob and `value()` flips back to `undefined` — live, without a remount. Your `?? default`
-fallback (as above) is all you need for this to work.
+that instance's blob and `value()` flips back to `undefined`. That happens live, without a remount.
+Your `?? default` fallback (as above) is all you need for this to work.
 
 **Named saved instances.** Set `instanceable: true` on the view and the host adds a **switcher** to the
 view header: the user can save, name, rename and delete several configurations of your view, each with its
-own auto-saved `VIEW_STATE` blob. Your component code does not change — it just reads/writes `VIEW_STATE`;
-the host binds it to whichever instance is active and manages the list (the non-deletable _default_
-instance carries the baseline state). The switcher **travels with the view**: it is rendered wherever the
-host mounts it — sidebar, content pane, split, pop-out window — so instance management never disappears
-when the user moves your view. A pane that was deliberately born as its **own** instance (stacked below
-another, or split off) keeps its independent state until the user picks an instance from the switcher —
-that pick re-binds the pane to the named instance.
+own auto-saved `VIEW_STATE` blob. Your component code does not change. It just reads/writes
+`VIEW_STATE`; the host binds it to whichever instance is active and manages the list (the
+non-deletable _default_ instance carries the baseline state). The switcher **travels with the view**:
+it is rendered wherever the host mounts it, in a sidebar, a content pane, a split or a pop-out window,
+so instance management never disappears when the user moves your view. A pane that was deliberately
+born as its **own** instance (stacked below another, or split off) keeps its independent state until
+the user picks an instance from the switcher. That pick re-binds the pane to the named instance.
 
 ```ts
 ctx.registerSurface({ id: 'library', title: 'library.title', docks: ['left-panel'], instanceable: true, component: LibraryView });
@@ -80,7 +79,7 @@ ctx.registerSurface({ id: 'library', title: 'library.title', docks: ['left-panel
 
 **It also works in a pop-out window.** The user can open any view or content tab in its own browser
 window (for a second monitor) from its context menu. Your surface is mounted there exactly as it is
-in a pane — **nothing to declare, nothing to change**. Both windows share one `VIEW_STATE` instance,
+in a pane: **nothing to declare, nothing to change**. Both windows share one `VIEW_STATE` instance,
 so they mirror each other live.
 
 ## Keeping a hidden surface alive

@@ -43,13 +43,13 @@ An iframe surface is a first-class content view: the host gives it a small two-w
 host **pushes** the active UI language, the active sub-route segment, the preview state, and the
 resolved light/dark **theme**. A sandboxed iframe has none of the host's `--lw-*` tokens, so the host
 also pushes the **full resolved `--lw-*` token values plus the root font size**. Apply them with
-`LwFrame.applySurfaceState` — see [The frame UI kit](#the-frame-ui-kit). With this the surface
+`LwFrame.applySurfaceState` (see [The frame UI kit](#the-frame-ui-kit)). With this the surface
 can localise, reflect its own level-2 sub-tabs and match the theme **without reloading**;
 the surface can **call back** `navigate('<path>')` to drive the router, so its sub-tabs are shareable and
-browser-navigable. Surface navigation is confined to the route's **own tab root** (its sub-routes) — the
-surface channel carries no capability grant, so anything beyond the plugin's own view goes through the
-plugin (logic) channel's `ctx.navigateContent` (the `navigation` capability). The channel is opt-in — a
-static iframe that never connects just renders. (A worked example ships in the testbed's
+browser-navigable. Surface navigation is confined to the route's **own tab root** (its sub-routes).
+The surface channel carries no capability grant, so anything beyond the plugin's own view goes through
+the plugin (logic) channel's `ctx.navigateContent` (the `navigation` capability). The channel is
+opt-in: a static iframe that never connects just renders. (A worked example ships in the testbed's
 `sandbox-rpc` plugin.)
 
 ## A docked iframe surface
@@ -75,10 +75,10 @@ learns which container it is inside. A component child injects the same values o
 
 A sandboxed plugin is **two documents**, and knowing which is which is half the model:
 
-- the **entry (logic) document** — the `entryUrl` the distribution composes or the catalogue lists.
+- the **entry (logic) document** is the `entryUrl` the distribution composes or the catalogue lists.
   The host loads it in a _hidden_ sandboxed iframe; it never renders. Its whole job is the Penpal
   handshake: connect to the parent, receive `ctx`, make your registrations.
-- the **view (surface) document(s)** — the `iframe:` URL(s) your `registerSurface` calls point at.
+- the **view (surface) document(s)** are the `iframe:` URL(s) your `registerSurface` calls point at.
   These are the visible surfaces; they load the [frame UI kit](#the-frame-ui-kit) below and
   receive pushed state (`render`) instead of holding a `ctx`.
 
@@ -120,12 +120,12 @@ facade. The endpoints are `registerSurface` · `registerMenuItem` · `registerSe
 `closeContentTab` · `revealSurface` · `toast`. Every call runs through the same default-deny
 capability broker as a trusted plugin. An ungranted capability rejects, so `.catch` and degrade.
 (Generate this whole layout with `nx g @loomweaver/devkit:sandbox-plugin` or the MCP
-`scaffold_frame_plugin` — see [scaffolding](../scaffolding.md).)
+`scaffold_frame_plugin`, described in [scaffolding](../scaffolding.md).)
 
 ## The frame UI kit
 
-A sandboxed **surface** (the view document) does not import `@loomweaver/shell` — instead the **distribution
-serves the frame UI kit** (`@loomweaver/frame-kit`) same-origin under the well-known path
+A sandboxed **surface** (the view document) does not import `@loomweaver/shell`. Instead the
+**distribution serves the frame UI kit** (`@loomweaver/frame-kit`) same-origin under the well-known path
 `/frame-kit/`, and your surface references it:
 
 ```html
@@ -136,15 +136,15 @@ serves the frame UI kit** (`@loomweaver/frame-kit`) same-origin under the well-k
 
 - **`lw-elements.global.js`** defines the whole `<lw-*>` element family (`lw-tooltip` ·
   `lw-select`/`lw-option` · `lw-menu`/`lw-menu-item` · `lw-button` · `lw-markdown` · `lw-icon` ·
-  `lw-progress-ring`) with the built-in icon set seeded — the same behaviour source the host runs. It
+  `lw-progress-ring`) with the built-in icon set seeded, the same behaviour source the host runs. It
   also exposes `globalThis.LwFrame`: `setIcon(name, svg)` / `removeIcon` / `hasIcon` for
-  plugin-own icons (sanitised), and `applySurfaceState(state)` — call it from your `render` handler
-  and the pushed tokens, root font size and light/dark theme are applied for you.
+  plugin-own icons (sanitised), and `applySurfaceState(state)`. Call that one from your `render`
+  handler and the pushed tokens, root font size and light/dark theme are applied for you.
 - **`lw-frame.css`** is the host's `.lw-*` class contract compiled to plain CSS on `var(--lw-*)`
-  (with light/dark fallbacks for the blink before the first push) — no hand-kept CSS mirror.
+  (with light/dark fallbacks for the blink before the first push), so there is no hand-kept CSS mirror.
 - **`penpal.global.js`** is the RPC transport (`globalThis.Penpal`).
 
-The kit is versioned **with the distribution's shell** — you reference it, you do not vendor it, so
+The kit is versioned **with the distribution's shell**: you reference it, you do not vendor it, so
 your paint always matches the host the plugin actually runs in. For development outside a
 distribution, copy the files from the `@loomweaver/frame-kit` npm package.
 
@@ -164,16 +164,16 @@ A wrong method name or a wrong argument is then reported while you write it, ins
 changes: plain HTML with a script tag stays exactly as valid, and the declaration is emitted from the
 same source the bundle is built from, so the two cannot disagree. What it describes:
 
-- **`LwFrameApi`** — the shape of `globalThis.LwFrame` itself: the icon methods, `applySurfaceState`,
+- **`LwFrameApi`** is the shape of `globalThis.LwFrame` itself: the icon methods, `applySurfaceState`,
   `connectState` and the `state` store.
-- **`LwSurfaceRenderState`** — what the host pushes to your `render` handler: theme, design tokens,
+- **`LwSurfaceRenderState`** is what the host pushes to your `render` handler: theme, design tokens,
   root font size and the product's replacement glyphs. Hand it to `applySurfaceState` unchanged.
-- **`LwStateApi`** — the surface half of `ctx.state`: `watch(key)` for a handle, and `apply(...)` to
+- **`LwStateApi`** is the surface half of `ctx.state`: `watch(key)` for a handle, and `apply(...)` to
   feed the host's `stateChanged` push in from your `methods`.
-- **`LwStateHandle`** — one key's handle: `value` · `loaded` · `set` · `clear` · `dispose`, plus
+- **`LwStateHandle`** is one key's handle: `value` · `loaded` · `set` · `clear` · `dispose`, plus
   `onChange` so you can re-render. It mirrors what a trusted plugin holds, so the store reads the
   same on both rungs of the isolation ladder.
-- **`LwStateHost`** — the host methods your Penpal connection exposes for the store. You pass the
+- **`LwStateHost`** is the set of host methods your Penpal connection exposes for the store. You pass the
   resolved connection to `connectState`; you do not call these yourself.
 
 ## Distributing through a plugin store
@@ -205,12 +205,12 @@ declares a control kind and its **default value** instead of `value()`/`set()` c
 cross the wire. The host renders the controls. It also owns the storage (user-local
 through the distribution's settings store). It **pushes the current values back** by calling the
 `settingsChanged(sectionId, values)` method you expose on your RPC channel. That call comes once after
-registration with the restored state, then on every change — **including a change made in another
+registration with the restored state, then on every change, **including a change made in another
 browser window**. Plugin settings ride the shell's cross-tab sync, so every window's copy stays
 current; there is nothing to wire. Labels may be plain literals (you cannot contribute
 translations). The host decides where your section appears: an _installed_ plugin's section lands
-under the **"Community plugins"** nav group, a composed frame plugin's under **"App plugins"** —
-never your choice, so nothing can masquerade as the app.
+under the **"Community plugins"** nav group, a composed frame plugin's under **"App plugins"**. The
+group is never your choice, so nothing can masquerade as the app.
 
 ```js
 ctx.registerSettingsSection({

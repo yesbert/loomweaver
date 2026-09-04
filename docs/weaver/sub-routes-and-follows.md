@@ -25,7 +25,7 @@ ctx.registerSurface({ id: 'doc', title: 'doc.title', component: DocView,
 ```
 
 The route's `path` stays the **tab root** (one host tab per document); switching a sub-route stays in that
-tab and **preserves the parent's state** (edits, scroll). The host synthesises the child routes — your
+tab and **preserves the parent's state** (edits, scroll). The host synthesises the child routes: your
 _parent_ component stays mounted, renders a `<router-outlet />` (the children are empty stubs), reads
 the active sub from the URL and navigates to `doc/<id>/<sub>` to switch.
 
@@ -37,7 +37,7 @@ routable: { path: 'programs/:programId', subRoutes: ['structure/:structureId', '
 ```
 
 And the bare tab root is a **valid address**: there is no redirect to the first entry, because that
-cannot work once the first entry carries a value. Decide for yourself what an empty sub shows — a grid,
+cannot work once the first entry carries a value. Decide for yourself what an empty sub shows: a grid,
 a marked first entry, an overview. Reading a value out of a sub-route works like the sub itself: take it
 off the URL under your tab root (the sample below does exactly that). That also keeps working when the
 host mounts you off-router and hands you the sub as a string instead. If you only ever run on the
@@ -91,7 +91,7 @@ export class DocView {
 }
 ```
 
-This is standard Angular nesting — deeper params work the same way. One extra fact matters as soon
+This is standard Angular nesting. Deeper params work the same way. One extra fact matters as soon
 as panes come in. When the host mounts your component **off-router** (a split pane, a sidebar tab, a
 pop-out window), there is no URL to read. The host instead hands you a synthetic route whose
 `data['sub']` carries the active sub-segment, and navigating the global router from there would be
@@ -106,7 +106,7 @@ where the global URL does not belong to it: a split pane, a sidebar, a pop-out. 
 the `/popout/` prefix, so a reload opens the full app.
 
 The host tells you which case you are in: when it host-mounts you it supplies a **synthetic
-`ActivatedRoute` whose `routeConfig` is `null`**. Branch on it — keep sub-tab state local off-router,
+`ActivatedRoute` whose `routeConfig` is `null`**. Branch on it. Keep sub-tab state local off-router,
 and only reflect it into the URL when you own it:
 
 ```ts
@@ -135,7 +135,7 @@ Sub-tab-less views (the common case) need none of this.
 segments and the host mounts one child per name. That stops working as soon as the segment carries a
 value, and it says nothing about a third level. Declare `rest: true` instead and the deal changes: the
 **longest registered prefix wins**, and whatever no more specific surface claims is handed to you as
-**the rest** — verbatim, query string included.
+**the rest**, verbatim, query string included.
 
 ```ts
 ctx.registerSurface({ id: 'programs', title: 'programs.title', iframe: '/programs/view.html',
@@ -151,7 +151,7 @@ makes domain-first, deep addresses reachable. Three consequences worth knowing:
   never rebuilds your surface. That is the trade: what you put in the rest is cheap, what you put in
   the pattern is a parameter change and may rebuild you. You choose where the boundary sits.
 - **A sandboxed surface** reads `state.rest` from its `render` push and sets its own with the channel's
-  `navigate` — both confined to the prefix, each change an ordinary history entry. A **trusted**
+  `navigate`. Both are confined to the prefix, and each change is an ordinary history entry. A **trusted**
   component reads it the ordinary Angular way (its child `ActivatedRoute`, or the router) and navigates
   with the router. Same declaration, different target.
 - **A prefix shorter than two segments** (`cedents` rather than `cedents/:id/programs`) owns most of the
@@ -160,7 +160,7 @@ makes domain-first, deep addresses reachable. Three consequences worth knowing:
   registration fails loudly without it.
 
 There is no forced default: an address with an empty rest is a valid state and you decide what it
-shows — a grid, a marked first entry, an overview. Selecting your tab from the strip returns to the
+shows: a grid, a marked first entry, an overview. Selecting your tab from the strip returns to the
 bare prefix rather than the deepest address you were at; that address is otherwise fully shareable and
 survives reload and back/forward.
 
@@ -168,9 +168,9 @@ survives reload and back/forward.
 
 Some tabs are not independent documents but
 **facets of one choice**: pick a program on one, and the others should show that program. Declare
-`follows: true` on such a surface and the host draws a **permanent facet tab** for it — labelled by the
-surface's own `title`/`icon`, ordered by its `order` — and keeps that tab pointing at the current
-selection. It knows the parameter values of the address it is on, because it knows which pattern
+`follows: true` on such a surface and the host draws a **permanent facet tab** for it, labelled by the
+surface's own `title`/`icon` and ordered by its `order`. That tab keeps pointing at the current
+selection. The host knows the parameter values of the address it is on, because it knows which pattern
 matched, and substitutes them **by name** into every following tab's pattern:
 
 ```ts
@@ -182,15 +182,15 @@ routable: { path: 'cedents/:cedentId/programs/:programId/treaties', follows: tru
 Where a value is unknown the address is truncated before it, which normally lands on a shorter address
 another surface owns (`cedents`, if something is registered there). Where it lands nowhere, the facet
 has nothing to point at yet and the host **leaves the tab out** rather than drawing a control that
-cannot navigate — it reappears as soon as a selection exists.
+cannot navigate. The tab reappears as soon as a selection exists.
 
 Four things bound the feature deliberately:
 
 - **Off by default.** The opposite is right for a tab showing one specific document: nobody wants an
-  open quote rewritten because a parameter changed elsewhere — a tab opened by visiting keeps the
+  open quote rewritten because a parameter changed elsewhere. A tab opened by visiting keeps the
   address it was opened with.
 - **A copy that leaves the pane carrying the browser address freezes.** Split a facet into another
-  pane or pop it out and it keeps the address it had — which is how you park one program beside another.
+  pane or pop it out and it keeps the address it had, which is how you park one program beside another.
 - **A shared parameter name must mean the same thing.** Two following surfaces may only use the same
   name when the pattern _before_ it is identical. Otherwise the host would fill one surface's address
   with the other's value, so it refuses that one registration with a message. Surfaces that do not
@@ -202,7 +202,7 @@ substitution stays the default for every tab that resolver passes on.
 
 ## Switching arrangements
 
-`ctx.navigateContent(path)` just navigates — every open tab stays where it
+`ctx.navigateContent(path)` just navigates: every open tab stays where it
 is, and a target another pane already holds is reached there rather than copied into the current one. Whole-arrangement switching (a different set of tabs, panes and sidebar views) is the user's
 **workspace** mechanism, not a navigation trick; a distribution ships ready-made arrangements with
 `provideWorkspaces`. What happens to the instances behind the tabs a switch hides is the retention
@@ -214,7 +214,7 @@ A sidebar surface that reacts to the focused tab
 (an inspector, a details view) reads the signal-shaped `ctx.activeContent()` (also `navigation`):
 `{ surfaceId, path, params } | null`, with `params` extracted against your route pattern
 (`ask/:id` on `ask/abc` → `{ id: 'abc' }`). Read this instead of injecting the host's router and
-regex-parsing URLs — it stays stable across host URL-shape changes. Trusted rung only (a sandboxed
+regex-parsing URLs. It stays stable across host URL-shape changes. Trusted rung only (a sandboxed
 surface already receives its own state over the surface channel).
 
 ## Where next
