@@ -1,4 +1,4 @@
-# Routing — one router, and it is the one you know
+# Routing
 
 <!-- derived-from-specs -->
 
@@ -73,8 +73,8 @@ It also reaches the content **where it already is**: if the user parked that sur
 the link lands there rather than opening a second copy beside what they were looking at, and inside a
 pop-out window it is refused with an explanation instead of navigating the window away from the one
 surface it exists to show. That is the workbench's behaviour for every navigation, whoever started
-it — a link, a programmatic `router.navigate`, a command, browser history — so there is no rule here
-to remember and no wrong way to navigate.
+it: a link, a programmatic `router.navigate`, a command, browser history. There is no rule here to
+remember and no wrong way to navigate.
 
 `ctx.navigateContent(path)` performs the same navigation, and it exists for reasons that are not
 behavioural: it is gated by the `navigation` capability, so a distribution can refuse it; it is the
@@ -102,10 +102,10 @@ inside one tab and does not rebuild you. The bare address stays valid: the host 
 
 ## Mounting an app that brings its own routes
 
-Where the segments are not a fixed list — a value in the segment, a third level, an existing routing
-tree of your own that you want to keep — declare `rest: true` instead and the surface owns everything
-below its path, handed over verbatim including the query string. That is the seam for mounting a
-sub-application that brings its own routes. It is written up with its trade-offs in
+Sometimes the segments are not a fixed list: a value in the segment, a third level, an existing
+routing tree of your own that you want to keep. Declare `rest: true` instead, and the surface owns
+everything below its path, handed over verbatim including the query string. That is the seam for
+mounting a sub-application that brings its own routes. It is written up with its trade-offs in
 [Sub-routes, the rest, and tabs that follow](../weaver/sub-routes-and-follows.md#owning-everything-below-your-prefix-rest).
 The one rule to carry here: a claim shorter than two segments also needs the `navigation` capability,
 because at that width the claim stops being a boundary.
@@ -121,9 +121,10 @@ provideShellRouter([
 ]);
 ```
 
-They are ordinary routes with no tab, no strip and no pane. For a full-area screen that _is_
-workbench content but must not become a tab — a login page, an onboarding flow — declare the surface
-`routable: { path: 'login', chromeless: true }` instead and keep it inside the plugin that owns it.
+They are ordinary routes with no tab, no strip and no pane. A full-area screen may be workbench
+content and still not belong in a tab: a login page, an onboarding flow. Declare the surface
+`routable: { path: 'login', chromeless: true }` for it instead, and keep it inside the plugin that
+owns it.
 
 ## The two places the router is not the whole story
 

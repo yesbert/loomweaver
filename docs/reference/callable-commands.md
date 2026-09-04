@@ -9,8 +9,8 @@
 
 A `Command` is the workbench's one anchor for an action: a rail item, a keystroke and a palette entry
 all point at the same `id`, and one seam decides whether it may run. This page is about opening that
-same anchor to a caller that is **not** the user — an assistant driving the application, a script, a
-second plugin — without building a second list of actions beside the first.
+same anchor to a caller that is **not** the user, without building a second list of actions beside
+the first. Such a caller is an assistant driving the application, a script, or a second plugin.
 
 The rule underneath everything here: **a caller can never reach an action the user could not have
 triggered themselves.** Opening a command widens what may trigger it, never what it is allowed to do.
@@ -38,13 +38,13 @@ ctx.registerCommand({
 
 **`description`** is not the title. A title is read beside an icon by somebody who can already see
 where they are; a description is read by something deciding between actions it has never seen. A
-command with no description keeps none — the title is never substituted, because a label is not an
+command with no description keeps none: the title is never substituted, because a label is not an
 explanation. Both take a Transloco key or a literal, and the workbench resolves them to the active
 language before handing them to a caller.
 
 **`arguments`** are checked before `run` is reached. A missing required argument, a value of the
 wrong kind or a choice outside the declared set is refused and the command does not run. Four kinds
-exist — `text`, `number`, `boolean` and `choice` — plus `list: true` for a list of any of them. The
+exist: `text`, `number`, `boolean` and `choice`, plus `list: true` for a list of any of them. The
 set is closed on purpose: a caller has to describe your command to something that has never seen it,
 and a closed set turns a wrong declaration into a compile error rather than a silent no-op.
 
@@ -52,9 +52,9 @@ and a closed set turns a wrong declaration into a compile error rather than a si
 > it.
 
 **`answers`** is what makes `run`'s return value the invocation's answer. Without it an invocation
-succeeds carrying nothing, whatever `run` happened to return. The value must be plain data — strings,
-numbers, booleans, `null`, arrays and plain objects — because it crosses the same boundary the
-arguments came from. A command that declares `answers` and returns something else answers with a
+succeeds carrying nothing, whatever `run` happened to return. The value must be plain data: strings,
+numbers, booleans, `null`, arrays and plain objects. It crosses the same boundary the arguments came
+from. A command that declares `answers` and returns something else answers with a
 failure rather than with a value that lost what it was.
 
 **`callable`** opens the command to a caller other than the plugin that registered it. Leave it off
@@ -106,13 +106,13 @@ refuse the invocation:
 - and, for a command you did not register, your plugin holds the `automation` capability.
 
 Everything in that list runs when invoked, and anything that would be refused is absent from it. Keep
-a second list of your own and you have a second answer to "may this run" — and it will not be the one
+a second list of your own and you have a second answer to "may this run", and it will not be the one
 the user can see and withdraw.
 
 ## The `automation` capability
 
 Reaching a command **another** plugin registered needs the `automation` grant. Without it, invoking
-one is refused and `invocableCommands()` holds nothing beyond your own — a refusal must not become a
+one is refused and `invocableCommands()` holds nothing beyond your own. A refusal must not become a
 way of discovering what is installed, so an unknown id and a command you may not reach are refused
 identically.
 
@@ -160,6 +160,6 @@ do not cross the boundary. It contributes a menu item naming a command by id ins
 Where the caller is an agentic backend speaking AG-UI, the dispatch is not yours to write:
 `@loomweaver/ag-ui` describes these commands to the agent as tools, assembles a streamed call, and puts
 it through this same seam, with a hook where a product confirms or declines one before it runs.
-Nothing on this page is bypassed by it — a decision there can only narrow what the workbench would
+Nothing on this page is bypassed by it: a decision there can only narrow what the workbench would
 already have allowed. See [driving your product with an AG-UI agent](../ag-ui-agents.md) for the
 path end to end, and [agent tools](agent-tools.md) for the adapter itself.

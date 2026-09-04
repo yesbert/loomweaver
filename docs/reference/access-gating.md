@@ -14,7 +14,7 @@ reference: the vocabulary, exactly which surface reacts how, and the boundaries 
 > Snippets starting with `ctx.` go inside your plugin's `activate(ctx)`; snippets starting with
 > `provide…` go in the distribution's `src/app/app.config.ts` providers array.
 
-Narrative introductions live elsewhere —
+Narrative introductions live elsewhere:
 [wiring the session](../backend-integration.md#2--auth--session--authsource) for a distribution,
 [`access` and `ctx.session`](../weaver/access-gating.md) for a weaver.
 
@@ -33,12 +33,12 @@ interface AuthSnapshot {
 `ANONYMOUS` is the exported baseline (`{ authenticated: false, roles: [], claims: {} }`) and the
 default when no distribution provides a source.
 
-`claims` is yours alone: no access requirement evaluates it and no plugin receives it — a plugin
+`claims` is yours alone: no access requirement evaluates it and no plugin receives it. A plugin
 permitted the session is told `authenticated` and `roles`, and nothing else. Read it from your own
 composition.
 
 Roles are **opaque**: the platform compares strings and never parses them. `admin`, `tenant:42/owner`
-and a GUID are all equally valid — the meaning is yours.
+and a GUID are all equally valid, and the meaning is yours.
 
 `subject` is worth setting even though it is optional: it is the anchor for the identity-change
 policy and for identity-scoped settings. Encode the tenant into it if switching tenants should count
@@ -57,8 +57,8 @@ interface AccessRequirement {
 
 All present fields must hold. An omitted requirement always passes.
 
-The requirement rides as the `access` property on the contribution itself — the same key on every
-carrier from the table below:
+The requirement rides as the `access` property on the contribution itself, the same key on every
+carrier in the table below:
 
 ```ts
 ctx.registerRailItem({ id: 'acme.admin', rail: 'primary', icon: 'settings', title: 'acme.admin',
@@ -69,9 +69,9 @@ ctx.registerSurface({ id: 'acme.audit', title: 'acme.audit', component: AuditVie
 ```
 
 **`claims` is not matched.** The field travels in the snapshot and your own code can read it through
-`AuthContext`, but no `AccessRequirement` field selects on it — gating is deliberately coarse, with
-no expression parser (the same choice as menu `when` filters). If you need claim-based gating today,
-reduce the claim to a role token when you build the snapshot.
+`AuthContext`, but no `AccessRequirement` field selects on it. Gating is deliberately coarse, with
+no expression parser, the same choice the menu `when` filters make. If you need claim-based gating
+today, reduce the claim to a role token when you build the snapshot.
 
 ## Where it applies
 
@@ -94,10 +94,10 @@ Two consequences worth knowing:
 - The **content tab strip does not gate content tabs.** A static or open tab whose route the session
   no longer satisfies stays in the strip and shows the placeholder when selected, rather than
   vanishing mid-session. The same holds for a `view:` tab in a pane: the tab keeps its place and the
-  pane shows the placeholder. (In a **sidebar**, a gated view is hidden outright — there the tab strip
-  _is_ the list of views.)
+  pane shows the placeholder. (In a **sidebar**, a gated view is hidden outright, because there the
+  tab strip _is_ the list of views.)
 - A gated route is excluded from the pane pickers and from drag-hosting **based on the live session**,
-  not on the mere presence of a requirement — so "split editor" and friends work normally in a fully
+  not on the mere presence of a requirement, so "split editor" and friends work normally in a fully
   gated app.
 
 ### What an empty pane says
@@ -118,7 +118,7 @@ messages come from `auth.requiredTitle`/`requiredMessage` and `auth.deniedTitle`
 ## Gated routes
 
 A gated route registers as a real route plus a **placeholder twin** at the same path. When the
-requirement is unmet the twin renders — the URL stays put and explains itself instead of silently
+requirement is unmet the twin renders: the URL stays put and explains itself instead of silently
 redirecting to home. If you would rather send the user somewhere:
 
 ```ts
@@ -129,10 +129,10 @@ provideUnauthorizedRedirect((attemptedPath) =>
 ```
 
 Returning `null` keeps the in-place placeholder, so one handler can do both. The decision is the
-distribution's, because only it knows whether a login route exists. The complete flow — the login
-page reading `?from=` and navigating back, the dialog variant, sign-out — is worked through with
-copyable components in
-[building a distribution → Auth integration](../distribution/auth.md).
+distribution's, because only it knows whether a login route exists. The complete flow is worked
+through with copyable components in
+[building a distribution → Auth integration](../distribution/auth.md): the login page reading
+`?from=` and navigating back, the dialog variant, and sign-out.
 
 The placeholder covers the **tab root**. A deep link into a sub-route of a gated surface falls back
 to home rather than to the placeholder.
@@ -161,9 +161,9 @@ and render nothing session-dependent when it is absent. Revoking the capability 
 push live.
 
 One retention boundary: when the session loses access to a **retained or dirty sandboxed
-surface's** route, the host stops rendering it but parks the iframe hidden instead of destroying it —
-its script keeps running until the tab closes. Client-side gating is presentation, not enforcement;
-real enforcement stays server-side, as everywhere on this page.
+surface's** route, the host stops rendering it but parks the iframe hidden instead of destroying it,
+and its script keeps running until the tab closes. Client-side gating is presentation, not
+enforcement; real enforcement stays server-side, as everywhere on this page.
 
 ## Identity changes
 
@@ -202,7 +202,7 @@ allowed to see.
 
 Client-side gating is **presentation**. Everything it hides is still in the bundle the browser
 downloaded, and the requirement itself is data an attacker can read. It exists so the UI tells the
-truth about what a user can do — not to keep anyone out.
+truth about what a user can do, not to keep anyone out.
 
 The boundary is your backend: it authenticates the session and rejects unauthorized calls. Gate the
 UI for clarity; enforce on the server for real.
