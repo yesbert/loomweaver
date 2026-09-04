@@ -11,14 +11,15 @@
 
 - **Docks:** `top` · `bottom` · `left` · `right` · `center`.
 - **Region types:**
-  - `bar` — a thin strip of items in `start | center | end` slots (top bar, status bar, sidebar footer).
+  - `bar` — a thin strip of items in `start | center | end` slots (top bar, status bar).
   - `rail` — the rail, which the workbench labels *Activity bar*: icon triggers for commands.
   - `panel` — a sidebar surface that hosts views (the host auto-tabs multiple views).
   - `content` — the main content area (docks `center`). **URL-addressed** (routes), not views.
 
-A weaver's `registerSurface({ docks: ['left-panel'] })` / `registerRailItem({ rail: 'primary' })` /
-`registerBarItem({ bar: 'status-bar' })` target these region ids. Left and right are symmetric — see
-[shell anatomy](../reference/shell-anatomy.md) for the full vocabulary.
+A weaver targets a region by its **id**, never by its dock or type: `registerSurface({ docks:
+['left-panel'] })`, `registerRailItem({ rail: 'primary' })` and `registerBarItem({ bar: 'status-bar' })`
+name the ids the scaffold declares. Left and right are symmetric; [shell
+anatomy](../reference/shell-anatomy.md) has the full vocabulary.
 
 > **Non-routable surfaces render only in `panel` regions.** A surface's home dock (`docks[0]`) may name
 > any region id, but one docked into a `content` (or `bar`/`rail`) region is a silent no-op (dev-mode

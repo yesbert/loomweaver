@@ -138,7 +138,7 @@ A **routable** surface's route is omitted with a `route:` prefix and the **surfa
 
 ```ts
 // src/app/app.config.ts — in the providers array
-provideShell({ omit: ['route:notes.archive'] }); // the weaver still ships it; this app does not want it
+provideShell({ omit: ['route:acme.notes.archive'] }); // a surface one of your weavers ships and this app does not want
 ```
 
 The route then appears in no tab strip, no pane target picker, and is never auto-opened on a deep-link.
@@ -149,7 +149,7 @@ covers the route's tab root; a deep-link into a *sub-route* of an omitted route 
 Two things worth knowing:
 
 - **Omit addresses the id, override addresses the path.** Two handles for two operations: `omit:
-  ['route:notes.archive']` drops the route, while registering *your own* surface on the same `path`
+  ['route:acme.notes.archive']` drops the route, while registering *your own* surface on the same `path`
   replaces it (last-in wins) — use that when you want your own view at that URL rather than nothing.
   Read the id off the surface's `registerSurface` call; **do not guess it from the URL**. They often
   differ — a sandboxed plugin conventionally declares surface id `<pluginId>.view` while routing at
