@@ -278,10 +278,11 @@ Four rules for the sentences, three of them measured by `npm run docs-style-chec
   you shorten a page).
 - **Condition first, then consequence.** "If the surface is clean, it is destroyed", not "It is
   destroyed, provided the surface is clean."
-- **No dash as a sentence joint.** A dash that stitches two clauses hides a second thought; use a full
-  stop, a comma or a colon. A dash inside a heading, a table cell or code is fine, and the checker
-  looks only at prose. This one has no baseline: the corpus is at zero, so any dash the check reports
-  is one you added.
+- **Few dashes as sentence joints.** A dash that stitches two clauses usually hides a second thought;
+  a full stop, a comma or a colon says it better. A dash inside a heading, a table cell or code is
+  fine, and the checker looks only at prose. The aim is fewer of them rather than none, so this is a
+  ratchet like the sentence count: the corpus is at zero today, and a dash you keep on purpose is
+  recorded in the baseline where a reviewer can see the choice.
 - **One word, one spelling, the glossary's.** `docs/glossary.md` says which of two words names a
   thing; the checker flags the spellings it does not use (a hyphenated plugin, a two-word sidebar).
 

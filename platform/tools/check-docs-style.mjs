@@ -11,8 +11,9 @@
 //   2. The derived-from-specs header on every page under docs/. The three pages that are maps rather
 //      than guides (the index, the glossary, the operations notes) are exempt by name.
 //   3. A dash used as a sentence joint. Counted in the same prose, so a dash in a heading, a table
-//      cell or code is untouched. This one is absolute rather than a ratchet: the corpus reached
-//      zero in one pass, and a rule at zero needs no baseline to argue with.
+//      cell or code is untouched. A ratchet like the sentence count, not a prohibition: the goal is
+//      fewer of them, not none, and a dash somebody keeps on purpose is recorded in the baseline
+//      where a reviewer sees it. The corpus reached zero in one pass, so the map starts empty.
 //   4. A word the glossary does not use: "plug-in" for plugin, "URL pane" for address pane,
 //      "activity bar" for rail, and American spellings beside the British ones the pages use. One
 //      word, one spelling, so that a search finds every mention. Code and a quoted workbench label
@@ -98,6 +99,7 @@ function longSentences(text) {
 }
 
 const measured = new Map();
+const dashed = new Map();
 const faults = [];
 for (const page of pages()) {
   const markdown = readFileSync(path.join(repoRoot, page), 'utf8');
@@ -113,16 +115,19 @@ for (const page of pages()) {
       faults.push(`${page}: "${hit[0]}" is "${canonical}" in the glossary`);
     }
   }
-  for (const hit of text.matchAll(/[—–]/g)) {
-    const around = text.slice(Math.max(0, hit.index - 40), hit.index + 40).replaceAll('\n', ' ');
-    faults.push(`${page}: a dash joins two clauses, use a full stop, a comma or a colon: …${around}…`);
-  }
+  const dashes = [...text.matchAll(/[—–]/g)].map((hit) =>
+    text.slice(Math.max(0, hit.index - 40), hit.index + 40).replaceAll('\n', ' '),
+  );
+  if (dashes.length > 0) dashed.set(page, dashes);
   const long = longSentences(text);
   if (long.length > 0) measured.set(page, long);
 }
 
 const counts = Object.fromEntries(
   [...measured].map(([page, long]) => [page, long.length]).toSorted((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])),
+);
+const dashCounts = Object.fromEntries(
+  [...dashed].map(([page, hits]) => [page, hits.length]).toSorted((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])),
 );
 
 if (process.argv[2] === '--write-baseline') {
@@ -134,18 +139,25 @@ if (process.argv[2] === '--write-baseline') {
           `Sentences over ${WORDS_PER_SENTENCE} words per documentation page, measured by ` +
           'check-docs-style.mjs. A ratchet: a page may only go down, and the check fails on an entry ' +
           'that is no longer true. Rewrite with `npm run docs-style-check -- --write-baseline` after ' +
-          'shortening a page.',
+          'shortening a page. proseDashes counts dashes used as a sentence joint, the same way and ' +
+          'for the same reason: fewer of them, not none.',
         longSentences: counts,
+        proseDashes: dashCounts,
       },
       null,
       2,
     )}\n`,
   );
-  console.log(`check-docs-style: baseline written, ${Object.keys(counts).length} pages with long sentences`);
+  console.log(
+    `check-docs-style: baseline written, ${Object.keys(counts).length} pages with long sentences, ` +
+      `${Object.keys(dashCounts).length} with a dash in prose`,
+  );
   process.exit(0);
 }
 
-const baseline = JSON.parse(readFileSync(baselinePath, 'utf8')).longSentences;
+const recorded_ = JSON.parse(readFileSync(baselinePath, 'utf8'));
+const baseline = recorded_.longSentences;
+const dashBaseline = recorded_.proseDashes ?? {};
 for (const [page, count] of Object.entries(counts)) {
   const recorded = baseline[page];
   if (recorded === undefined) {
@@ -162,6 +174,22 @@ for (const [page, count] of Object.entries(counts)) {
 for (const page of Object.keys(baseline)) {
   if (!Object.hasOwn(counts, page)) faults.push(`${page}: recorded with long sentences but has none — remove the entry`);
 }
+for (const [page, count] of Object.entries(dashCounts)) {
+  const was = dashBaseline[page];
+  if (was === undefined) {
+    faults.push(`${page}: ${count} dash(es) joining two clauses, none recorded. Use a full stop, a comma or a colon, or record it`);
+  } else if (count > was) {
+    faults.push(`${page}: ${count} dash(es) joining two clauses, ${was} recorded`);
+  } else if (count < was) {
+    faults.push(`${page}: ${count} dash(es) joining two clauses, ${was} recorded — write the baseline so the improvement holds`);
+  }
+  if (was === undefined || count > was) {
+    for (const hit of dashed.get(page).slice(0, 3)) faults.push(`    …${hit}…`);
+  }
+}
+for (const page of Object.keys(dashBaseline)) {
+  if (!Object.hasOwn(dashCounts, page)) faults.push(`${page}: recorded with a dash in prose but has none — remove the entry`);
+}
 
 if (process.argv[2] === '--list') {
   for (const [page, long] of measured) {
@@ -177,6 +205,7 @@ if (faults.length > 0) {
 }
 
 const total = Object.values(counts).reduce((sum, n) => sum + n, 0);
+const dashTotal = Object.values(dashCounts).reduce((sum, n) => sum + n, 0);
 console.log(
-  `check-docs-style: ${pages().length} pages, every page under docs/ carries its header, one spelling per term, no dash joining two clauses, ${total} long sentences on ${Object.keys(counts).length} pages, none new`,
+  `check-docs-style: ${pages().length} pages, every page under docs/ carries its header, one spelling per term, ${dashTotal} dashes joining two clauses, ${total} long sentences on ${Object.keys(counts).length} pages, none new`,
 );
