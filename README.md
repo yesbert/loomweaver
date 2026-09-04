@@ -64,7 +64,7 @@ ng serve
 That is the whole list. The scaffold also wires your build (the style pipeline, the asset globs that
 serve the chrome's own strings, the service worker, and the one production setting the generated
 content-security policy requires) and registers the weaver in your composition root, so its icon is
-in the activity rail on the first run. It only ever *adds*: anything you had already set is left as
+in the rail on the first run. It only ever *adds*: anything you had already set is left as
 you set it, and it names every file it touched.
 
 [Getting started](docs/getting-started.md) walks through these steps and what they generate.
@@ -215,8 +215,8 @@ working when the control is gone. **A switch removes the control, never the capa
 1. **Trusted, in-process** — your own weavers, composed at build time.
 2. **Sandboxed iframe** — somebody else's code in its own JS context, opaque origin, no reach into
    your DOM. Write the plugin body in **any framework**.
-3. **Installed at runtime** — from your curated catalog, with a consent dialog the user answers and
-   updates driven by the catalog version.
+3. **Installed at runtime** — from your curated catalogue, with a consent dialog the user answers and
+   updates driven by the catalogue version.
 
 All three consume the same `ctx`, behind a **default-deny capability broker** the user can inspect
 and revoke. Moving a plugin down a rung is a change of trust, not a rewrite.
@@ -293,7 +293,7 @@ Security reports go to **security@loomweaver.dev**, never to a public issue. See
 ## Brand
 
 The mark is a woven mat: blue warp threads with gold accent threads woven through (the plugins).
-Colors: **blue `#2E96C9`**, **gold `#C59A2F`**. Assets in [`assets/brand/`](assets/brand/).
+Colours: **blue `#2E96C9`**, **gold `#C59A2F`**. Assets in [`assets/brand/`](assets/brand/).
 
 ## License
 

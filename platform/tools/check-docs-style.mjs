@@ -10,8 +10,10 @@
 //      by its text. Forty is where the audit's sample stopped being readable in one pass.
 //   2. The derived-from-specs header on every page under docs/. The three pages that are maps rather
 //      than guides (the index, the glossary, the operations notes) are exempt by name.
-//   3. A spelling the glossary does not use: "plug-in" for plugin, "side bar" for sidebar, and the
-//      like. One word, one spelling, so that a search finds every mention.
+//   3. A word the glossary does not use: "plug-in" for plugin, "URL pane" for address pane,
+//      "activity bar" for rail, and American spellings beside the British ones the pages use. One
+//      word, one spelling, so that a search finds every mention. Code and a quoted workbench label
+//      (*Customize activity bar*) are exempt: they are what they are.
 //
 // docs-style-baseline.json is a ratchet, the pattern structure-baseline.json already uses: a page
 // with more long sentences than recorded fails, a new page with any fails, and an entry that no
@@ -26,12 +28,25 @@ import { fileURLToPath } from 'node:url';
 const WORDS_PER_SENTENCE = 40;
 const HEADER = '<!-- derived-from-specs -->';
 const HEADER_EXEMPT = new Set(['docs/README.md', 'docs/glossary.md', 'docs/reference/operations.md']);
+// The glossary names the words the pages do not use, so a reader who searches for one lands there.
+const VOCABULARY_EXEMPT = new Set(['docs/glossary.md']);
 const VARIANTS = [
   [/\bplug-ins?\b/gi, 'plugin'],
   [/\bside bars?\b/gi, 'sidebar'],
   [/\bwork spaces?\b/gi, 'workspace'],
   [/\btool bars?\b/gi, 'toolbar'],
   [/\bsub routes?\b/gi, 'sub-route'],
+  [/\bURL panes?\b/g, 'address pane'],
+  [/\bprimary panes?\b/gi, 'address pane'],
+  [/\bactivity bars?\b/gi, 'rail'],
+  [/\blauncher rails?\b/gi, 'rail'],
+  [/\bcatalogs?\b/gi, 'catalogue'],
+  [/\bcolors?\b/gi, 'colour'],
+  [/\blocalized\b/gi, 'localised'],
+  [/\blocalization\b/gi, 'localisation'],
+  [/\bcenter\b/gi, 'centre'],
+  [/\bcustomize\b/gi, 'customise'],
+  [/\bbehaviors?\b/gi, 'behaviour'],
 ];
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -64,6 +79,7 @@ function prose(markdown) {
     .replaceAll(/^\|.*$/gm, '')
     .replaceAll(/^#+ .*$/gm, '')
     .replaceAll(/<!--[\s\S]*?-->/g, '')
+    .replaceAll(/<[^<>\n]+>/g, '')
     .replaceAll(/`[^`\n]*`/g, 'code')
     .replaceAll(/^> \*\*This is a guide, not the contract\.\*\*[\s\S]*?explain it here\.$/gm, '')
     .replaceAll(/^> ?/gm, '')
@@ -86,9 +102,10 @@ for (const page of pages()) {
     faults.push(`${page}: no derived-from-specs header (every page under docs/ says where its guarantees are)`);
   }
   const text = prose(markdown);
-  for (const [pattern, canonical] of VARIANTS) {
-    for (const hit of text.matchAll(pattern)) {
-      faults.push(`${page}: "${hit[0]}" is spelled "${canonical}" in the glossary`);
+  const vocabulary = text.replaceAll(/(?<!\*)\*[^*\n]+\*(?!\*)/g, 'label');
+  for (const [pattern, canonical] of VOCABULARY_EXEMPT.has(page) ? [] : VARIANTS) {
+    for (const hit of vocabulary.matchAll(pattern)) {
+      faults.push(`${page}: "${hit[0]}" is "${canonical}" in the glossary`);
     }
   }
   const long = longSentences(text);

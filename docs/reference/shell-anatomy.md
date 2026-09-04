@@ -50,7 +50,7 @@ on the left and right, the **bar (top)** in the middle.
 | Bottom strip | **Bar (bottom)** / status bar | `bar`, dock `bottom` — e.g. `{ id: 'status-bar' }` | status/info | `start` · `center` · `end` → **bar items** |
 | Contents of a sidebar | **Surface** | `ctx.registerSurface` (plugin; the only authoring entry point — `View` is only the host's internal storage form) | title · icon · `header.actions` · body | — |
 
-> **Rule of thumb (4):** **rail = global commands · sidebar-header tabs = view switching ·
+> **Rule of thumb:** **rail = global commands · sidebar-header tabs = view switching ·
 > view header = functions of the active view.** The **bar** is neutral core chrome; its items are
 > contributions (brand/language/theme are only the *defaults*, not wiring).
 
@@ -59,6 +59,23 @@ highlighted while that workspace is active. An entry carrying a command is not, 
 address its command opened is the one on screen, because a command may do anything and the host
 cannot tell what "being there" would mean for it. An entry meant to read as a place the user is *in*
 therefore belongs to a workspace; a command entry reads as an action, and looks like one.
+
+## The region ids the scaffold declares
+
+A weaver targets a region by its id (`rail: 'primary'`, `region: 'left-panel'`). The ids are the
+distribution's to choose; the scaffold declares these six, and the guides use them:
+
+| Id | Type | Dock | What it is |
+|---|---|---|---|
+| `top-bar` | `bar` | `top` | the top bar: brand, tools, language and theme by default |
+| `primary` | `rail` | `left` | the left rail: command triggers and workspace entries |
+| `left-panel` | `panel` | `left` | the left sidebar's tab group |
+| `right-panel` | `panel` | `right` | the right sidebar's tab group |
+| `main` | `content` | `center` | the content area |
+| `status-bar` | `bar` | `bottom` | the status bar |
+
+A distribution with other ids works the same way; only the names in the weaver's declarations
+change. The testbed, for one, names its rail `activity` and its left panel `primary`.
 
 ## Variant: no middle segment (bar (top) omitted)
 
@@ -83,8 +100,7 @@ them; with no bottom bar there is no status line.
 
 Below the `md` breakpoint the **panels become overlay drawers** (they slide over the content, with a
 scrim), the **rails stay** visible, and the content gets the full width. Each sidebar is
-opened/closed through the affordance in its **sidebar header** (built; this answers the earlier open
-question about where the opener belongs).
+opened/closed through the affordance in its **sidebar header**.
 
 ## See also
 

@@ -19,7 +19,7 @@
 A weaver targets a region by its **id**, never by its dock or type: `registerSurface({ docks:
 ['left-panel'] })`, `registerRailItem({ rail: 'primary' })` and `registerBarItem({ bar: 'status-bar' })`
 name the ids the scaffold declares. Left and right are symmetric; [shell
-anatomy](../reference/shell-anatomy.md) has the full vocabulary.
+anatomy](../reference/shell-anatomy.md#the-region-ids-the-scaffold-declares) lists the ids.
 
 > **Non-routable surfaces render only in `panel` regions.** A surface's home dock (`docks[0]`) may name
 > any region id, but one docked into a `content` (or `bar`/`rail`) region is a silent no-op (dev-mode
@@ -41,7 +41,7 @@ in [Switching capabilities off](switching-capabilities-off.md).
 ## Curating a sidebar
 
 The user curates a sidebar the way they curate the rail. A right-click on a view tab offers *Move
-to other sidebar* and *Hide*; a right-click on the strip offers **Customize views**, which opens a
+to other sidebar* and *Hide*; a right-click on the strip offers *Customize views*, which opens a
 dialog listing every view with **where it sits**: hidden, left, or right. Picking a place moves it
 there, so the dialog does the hiding and the moving in one control, and a view hidden on the left
 comes back wherever you send it. The dialog has a search field and scrolls, because a product with

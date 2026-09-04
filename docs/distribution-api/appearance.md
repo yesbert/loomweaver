@@ -52,7 +52,7 @@ effect(() => {
 
 Use `resolvedTheme` for that, never `mode`: `mode` can be `system`, which is not a value any other
 framework understands. See [bringing your own CSS
-framework](../manual-setup.md#bringing-your-own-css-framework).
+framework](../distribution/css-frameworks.md).
 
 **Text size.** `md` is the default and imposes nothing, so the browser's own setting decides. Bind
 your own control to `scale()` and it follows the built-in toggle in the settings, and the other way
@@ -65,4 +65,4 @@ contributed by a plugin: see [Design tokens](../reference/design-tokens.md). Ico
 ## Where the story is told
 
 - [Branding](../distribution/branding.md#branding): name, logo, tagline and colours.
-- [Bringing your own CSS framework](../manual-setup.md#bringing-your-own-css-framework): keeping a foreign framework in step with the mode.
+- [Bringing your own CSS framework](../distribution/css-frameworks.md): keeping a foreign framework in step with the mode.

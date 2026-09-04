@@ -60,7 +60,7 @@ The requirement rides as the `access` property on the contribution itself — th
 carrier from the table below:
 
 ```ts
-ctx.registerRailItem({ id: 'acme.admin', rail: 'activity', icon: 'settings', title: 'acme.admin',
+ctx.registerRailItem({ id: 'acme.admin', rail: 'primary', icon: 'settings', title: 'acme.admin',
   command: 'acme.admin', access: { anyRole: ['admin'], mode: 'disable' } });
 
 ctx.registerSurface({ id: 'acme.audit', title: 'acme.audit', component: AuditView,
@@ -107,7 +107,7 @@ for a layout problem that does not exist:
 | Situation | What the pane shows |
 | --- | --- |
 | The surface exists, the session does not qualify | a padlock, "sign-in required" when signed out and "no access" when signed in without the role |
-| The surface exists but cannot be mounted outside the URL pane | "this view can't be shown in a split yet" |
+| The surface exists but cannot be mounted outside the address pane | "this view can't be shown in a split yet" |
 | Nothing by that name is registered | "view not available" — a stale link, or a plugin that is no longer composed |
 
 The padlock uses the `lock` icon, so a distribution can replace it through `provideIcons`, and the two

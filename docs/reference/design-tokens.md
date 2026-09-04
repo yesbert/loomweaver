@@ -18,7 +18,7 @@ consume them — not a requirement.
 
 | You are…                                           | You consume the tokens through…                                                                                                                                                                                                                                                                                             |
 | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Using Bootstrap, another framework, or no framework** | the pre-compiled `@loomweaver/shell/styles/shell.css` — no Tailwind install needed. Setup: [bringing your own CSS framework](../manual-setup.md#bringing-your-own-css-framework). `npx @loomweaver/cli theme --preset bootstrap` maps the tokens onto Bootstrap's own variables so both worlds share one palette. In your own CSS, read a token directly: `color: var(--lw-content)`. |
+| **Using Bootstrap, another framework, or no framework** | the pre-compiled `@loomweaver/shell/styles/shell.css` — no Tailwind install needed. Setup: [bringing your own CSS framework](../distribution/css-frameworks.md). `npx @loomweaver/cli theme --preset bootstrap` maps the tokens onto Bootstrap's own variables so both worlds share one palette. In your own CSS, read a token directly: `color: var(--lw-content)`. |
 | **Using Tailwind**                                 | the [setup below](#setup-with-tailwind) — every token doubles as a semantic utility (`bg-surface`, `text-brand`, …).                                                                                                                                                                                                          |
 | **Writing a frame plugin**            | the frame UI kit: `<link rel="stylesheet" href="/frame-kit/lw-frame.css">` — the same tokens and `.lw-*` contracts; the host pushes its resolved token values into your iframe over RPC.                                                                                                                               |
 
@@ -115,7 +115,7 @@ With Tailwind, use the container variants rather than `sm:` / `lg:` / `xl:`:
 <div class="grid gap-4 @sm:grid-cols-2 @2xl:grid-cols-4">
 ```
 
-The numbers are not the same numbers. A viewport breakpoint counts the launcher rail, any open side
+The numbers are not the same numbers. A viewport breakpoint counts the rail, any open side
 panel and the pane's own padding; the container one counts only the width your content actually has.
 Pick each from the width at which that layout stops fitting.
 
@@ -145,7 +145,7 @@ load order — so a normal stylesheet in your app wins by construction, without 
 /* src/styles.css — after the shell import, and NOT inside a @layer */
 .lw-icon-btn      { border-radius: 0; height: 2.5rem; }  /* squarer, roomier buttons */
 .lw-segmented     { height: 3rem; }
-lw-shell-rail nav { width: 64px; }                       /* a wider activity bar */
+lw-shell-rail nav { width: 64px; }                       /* a wider rail */
 ```
 
 Two kinds of target, with different promises:
