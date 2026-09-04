@@ -30,10 +30,18 @@ a plugin's own call.
 
 A surface docked in a sidebar has no address; a plugin that navigates it does nothing, with a warning
 in development. A pop-out window is a viewer onto one surface: it freezes the address it opened with
-and refuses content navigation, because there is nothing else in that window to navigate to. A
-retained surface is mounted off the router, on a route the workbench fabricates for it. That is why a
-kept surface cannot carry sub-routes of its own; what keeping buys is on
-[Retention and unsaved work](retention-and-unsaved-work.md).
+and refuses content navigation, because there is nothing else in that window to navigate to. A kept
+surface is mounted off the router and sees only a fabricated route
+([Retention and unsaved work](retention-and-unsaved-work.md#a-kept-surface-lives-off-the-router)).
+
+## What the address does not carry
+
+The address names the content and its parameters. It never carries the arrangement: which sidebars
+are open, how the panes are split, how wide they are. That is deliberate, and it is what makes a link
+worth sending: the recipient gets your content in their own workbench, not your window.
+
+Two addresses that differ in a parameter are different content. `doc/7` and `doc/9` are two tabs with
+two states, and navigating between them is a real change rather than one instance being reused.
 
 ## Inside a container
 

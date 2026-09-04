@@ -16,9 +16,9 @@ for the content area**, because those addresses belong to plugins that register 
 step after that is Angular.
 
 This page is the router-shaped view of the workbench. The surface declarations themselves are in
-[authoring a weaver → content area](../weaver/content-area.md), and the
-distribution's side in
-[building a distribution → content-area routing](../distribution/content-routing.md).
+[The content area: routes and tabs](../weaver/content-area.md), the distribution's side in
+[Content-area routing](../distribution/content-routing.md), and what the address means in a workbench
+with several panes is on [The address](../concepts/the-address.md).
 
 ## What you already know, and where it lands
 
@@ -105,9 +105,9 @@ Where the segments are not a fixed list — a value in the segment, a third leve
 tree of your own that you want to keep — declare `rest: true` instead and the surface owns everything
 below its path, handed over verbatim including the query string. That is the seam for mounting a
 sub-application that brings its own routes. It is written up with its trade-offs in
-[authoring a weaver](../weaver/sub-routes-and-follows.md#sub-routes-and-pop-out-windows); the one rule to carry
-here is that a claim shorter than two segments also needs the `navigation` capability, because at
-that width the claim stops being a boundary.
+[Sub-routes, the rest, and tabs that follow](../weaver/sub-routes-and-follows.md#owning-everything-below-your-prefix-rest).
+The one rule to carry here: a claim shorter than two segments also needs the `navigation` capability,
+because at that width the claim stops being a boundary.
 
 ## Routes of your own that are not content
 
@@ -129,22 +129,12 @@ workbench content but must not become a tab — a login page, an onboarding flow
 **A retained surface is mounted off-router.** A surface that declares `retain: 'always'` is kept
 alive while hidden, and to make that work the host mounts it in every pane itself rather than letting
 the router build it. It still receives an `ActivatedRoute`, but a fabricated one: route parameters
-are there, and nothing else is. No resolvers, no query parameters, no live parameter streams, and a
-nested `<router-outlet>` stays inert — so never combine `retain` with `subRoutes` (the host warns in
-development). A surface that needs live routing should not be retained; for unsaved work the guard is
-`DirtySurface`, not retention.
+are there, and nothing else is, so never combine `retain` with `subRoutes` (the host warns in
+development). What the fabricated route lacks and why is on
+[Retention and unsaved work](../concepts/retention-and-unsaved-work.md#a-kept-surface-lives-off-the-router).
 
 **A pop-out window shows one surface and has no address to drive.** Your component is host-mounted
 there, which you can see: its `ActivatedRoute` has a `routeConfig` of `null`. Branch on that and keep
 sub-tab state local instead of pushing it onto the global router, or the same component will misbehave
 in exactly one of its two homes. The pattern is in
-[authoring a weaver](../weaver/sub-routes-and-follows.md#sub-routes-and-pop-out-windows).
-
-## What the address is, and what it is not
-
-The address names the content and its parameters. It never carries the arrangement: which panels are
-open, how the panes are split, how wide they are. That is deliberate, and it is what makes a link
-worth sending — the recipient gets your content in their own workbench, not your window.
-
-Two addresses that differ in a parameter are different content: `doc/7` and `doc/9` are two tabs with
-two states, and navigating between them is a real change rather than one instance being reused.
+[Sub-routes, the rest, and tabs that follow](../weaver/sub-routes-and-follows.md#sub-routes-and-pop-out-windows).
