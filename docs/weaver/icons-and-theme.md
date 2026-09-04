@@ -23,14 +23,14 @@ ctx.contributeIcons({
   notesGraph: '<svg viewBox="0 0 24 24" ...>…</svg>',
 });
 
-ctx.registerSurface({ id: 'notes.list', title: 'notes.list.title', docks: ['primary'],
+ctx.registerSurface({ id: 'notes.list', title: 'notes.list.title', docks: ['left-panel'],
   icon: 'notesGraph', component: NotesListView });   // ← your contributed name
 ```
 
 Names are flat and **collision-safe**: a name already registered by the shell or another plugin is
-ignored (first-wins, dev-warned), so pick unique names. Contributed SVG is **sanitized at registration**
+ignored (first-wins, dev-warned), so pick unique names. Contributed SVG is **sanitised at registration**
 (DOMPurify, SVG profile) — `<script>`, event handlers and `javascript:` hrefs are stripped, and an icon
-whose markup does not survive sanitization is dropped (dev-warned); ship plain vector markup. The host
+whose markup does not survive sanitisation is dropped (dev-warned); ship plain vector markup. The host
 paints the icon wherever your contribution appears (rail/bar/view/command), and you can also render a
 contributed (or first-party) name **in your own view body** with `<lw-icon name="…">` — see
 [design tokens](../reference/design-tokens.md).
@@ -38,7 +38,7 @@ contributed (or first-party) name **in your own view body** with `<lw-icon name=
 ## Custom theme — `ctx.contributeTheme`
 
 Contribute `--lw-*` design tokens to re-skin the whole app — host chrome **and** every plugin, since
-all read the same tokens. The vocabulary covers colors **and** the UI font
+all read the same tokens. The vocabulary covers colours **and** the UI font
 (`--lw-font-sans` / `--lw-font-mono`). Requires the `theme` capability. Only whitelisted `--lw-*` names
 apply; unknown names are ignored (dev-warned). The returned `Disposable` removes exactly these tokens
 and the app reverts — so a theme can be toggled on and off. (Font *size* is a user preference, not a
@@ -64,7 +64,7 @@ activate(ctx) {
 
 The first argument applies in **both** light and dark mode. Pass the optional second `dark` map to
 override specific tokens only when dark mode is active — tokens absent from it keep their base value
-across both modes, so you only list what actually differs (typically surfaces and content colors).
+across both modes, so you only list what actually differs (typically surfaces and content colours).
 
 Precedence is **Product default < Plugin < Tenant**: a plugin themes freely, but a token the tenant
 (the distribution's own branding CSS) explicitly set is never overridden. See
@@ -73,7 +73,7 @@ Precedence is **Product default < Plugin < Tenant**: a plugin themes freely, but
 A theme contribution is **live per-window session state**, not a stored setting — it does not cross
 either persistence port, so it neither survives a reload nor rides [cross-tab sync](../distribution/windows-and-sync.md#cross-tab-live-sync)
 on its own. If you want a theme toggle to persist and mirror across windows, persist your own on/off
-flag and re-apply it — the testbed weaver's theme toggle does exactly this (`testbed-theme.ts`, trimmed):
+flag and re-apply it. The testbed's theme toggle does exactly this, trimmed:
 
 ```ts
 const STORAGE_KEY = 'my.theme.enabled';

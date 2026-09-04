@@ -212,7 +212,7 @@ export interface SurfaceBase {
    */
   readonly padded?: boolean;
   /**
-   * Which docks (region ids, e.g. `'primary'`/`'secondary'`, or `'content'`) this surface may be hosted in
+   * Which docks (region ids, e.g. `'left-panel'`/`'right-panel'`, or `'content'`) this surface may be hosted in
    * — capabilities, not location: the *user* decides where a surface finally lands. The first
    * entry is the surface's **home** dock (where a non-routable surface first appears). Omit only for a
    * routable surface (its home is the content area); a non-routable surface **must** declare `docks` —

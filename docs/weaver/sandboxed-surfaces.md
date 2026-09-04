@@ -57,7 +57,7 @@ The same `iframe` form works at a dock, so a surface that is not routable can st
 
 ```ts
 ctx.registerSurface({ id: 'notes.frame', title: 'notes.frame.title',
-  docks: ['secondary'], iframe: '/my-plugin/panel.html' });
+  docks: ['right-panel'], iframe: '/my-plugin/panel.html' });
 ```
 
 It receives the same pushed state, with two differences that follow from having **no address**. Its
@@ -74,7 +74,7 @@ learns which container it is inside. A component child injects the same values o
 
 A sandboxed plugin is **two documents**, and knowing which is which is half the model:
 
-- the **entry (logic) document** — the `entryUrl` the distribution composes or the catalog lists.
+- the **entry (logic) document** — the `entryUrl` the distribution composes or the catalogue lists.
   The host loads it in a *hidden* sandboxed iframe; it never renders. Its whole job is the Penpal
   handshake: connect to the parent, receive `ctx`, make your registrations.
 - the **view (surface) document(s)** — the `iframe:` URL(s) your `registerSurface` calls point at.
@@ -137,7 +137,7 @@ serves the frame UI kit** (`@loomweaver/frame-kit`) same-origin under the well-k
   `lw-select`/`lw-option` · `lw-menu`/`lw-menu-item` · `lw-button` · `lw-markdown` · `lw-icon` ·
   `lw-progress-ring`) with the built-in icon set seeded — the same behaviour source the host runs. It
   also exposes `globalThis.LwFrame`: `setIcon(name, svg)` / `removeIcon` / `hasIcon` for
-  plugin-own icons (sanitized), and `applySurfaceState(state)` — call it from your `render` handler
+  plugin-own icons (sanitised), and `applySurfaceState(state)` — call it from your `render` handler
   and the pushed tokens, root font size and light/dark theme are applied for you.
 - **`lw-frame.css`** is the host's `.lw-*` class contract compiled to plain CSS on `var(--lw-*)`
   (with light/dark fallbacks for the blink before the first push) — no hand-kept CSS mirror.
@@ -178,7 +178,7 @@ same source the bundle is built from, so the two cannot disagree. What it descri
 ## Distributing through a plugin store
 
 A sandboxed plugin needs nothing extra to be store-installable: a distribution lists it in its
-[plugin catalog](../distribution/plugin-store.md) (id, entry URL, display metadata) and users install
+[plugin catalogue](../distribution/plugin-store.md) (id, entry URL, display metadata) and users install
 it at runtime. Two things matter to you as the author. First, **declare your capabilities honestly**.
 The install dialog shows exactly the declared set to the user, and accepting grants exactly that. An
 undeclared capability is never granted; a declared one the user can still revoke later. Second, expect
@@ -190,7 +190,7 @@ store's detail pane renders it in-app. It is your plugin's storefront page. (The
 
 ## Shipping a new version
 
-Updates ride on the catalog's `version` field: the operator raises it together with your files, and
+Updates ride on the catalogue's `version` field: the operator raises it together with your files, and
 every installed user is offered an update that swaps the entry and respawns your plugin live. Two
 consequences for you. Keep the version **monotonic**: segments are compared numerically, `1.10.0`
 beats `1.9.0`, and only a strictly newer version is offered. And a version which **declares
@@ -240,5 +240,5 @@ Penpal.connect({
 ## Where next
 
 - [Frame plugins](../distribution/frame-plugins.md): how a distribution composes a sandboxed plugin and serves the kit.
-- [Plugin store](../distribution/plugin-store.md): the catalog, runtime install and updates on the operator's side.
+- [Plugin store](../distribution/plugin-store.md): the catalogue, runtime install and updates on the operator's side.
 - [Your plugin's own store](plugin-state.md): the store both documents of a sandboxed plugin share.
