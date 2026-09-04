@@ -7,7 +7,7 @@
 > specification is right, and that is a defect in this page: change the behaviour there, then
 > explain it here.
 
-LoomWeaver owns **no** authentication — login, session, tokens and the identity provider live in your
+LoomWeaver owns **no** authentication: login, session, tokens and the identity provider live in your
 product (OIDC / your own identity platform / …). The platform only _reacts_ to a **session snapshot** so contributions can
 gate themselves by login state and roles (see [Access gating in a weaver](../weaver/access-gating.md)).
 Integrating a real product is two providers plus your own login UI.
@@ -33,16 +33,15 @@ provideAuthSource(() => {
 }),
 ```
 
-This signal is the **single hook**: when it changes — login, logout, a role change — the whole shell
-re-gates **reactively**. Rail/bar/view/view-action items, the command palette, keybindings, the pane
-toolbar's New-Tab picker and the content-route guards all re-evaluate automatically; you never call the
-host to "refresh".
+This signal is the **single hook**. When it changes, whether by a login, a logout or a role change,
+the whole shell re-gates **reactively**. Rail/bar/view/view-action items, the command palette,
+keybindings, the pane toolbar's New-Tab picker and the content-route guards all re-evaluate
+automatically; you never call the host to "refresh".
 `AuthSnapshot` is `{ authenticated, roles, claims, subject?, displayName? }`. `roles`/`claims` are
 opaque strings the host matches but never interprets, and `claims` goes no further than your own
-code — a plugin permitted the session is told `authenticated` and `roles` alone. `subject` is the
-**identity anchor**: set it
-whenever your product can name the signed-in principal. Encode the tenant into it if tenant switches
-should count as identity changes. The identity features below stay inert without `subject`.
+code. A plugin permitted the session is told `authenticated` and `roles` alone. `subject` is the
+**identity anchor**: set it whenever your product can name the signed-in principal. Encode the
+tenant into it if tenant switches should count as identity changes. The identity features below stay inert without `subject`.
 
 **Identity-change policy (multi-user browsers).** Gating is presentation-only: when user B signs in
 after user A on the same browser, A's pane trees, tab titles, workspaces and every plugin's in-memory
@@ -56,13 +55,13 @@ provideAuthSource(() => mySnapshot, { onIdentityChange: 'reload' }),
 
 With `'reload'`, the shell performs a full `location.reload()` when one **established** subject is
 replaced by a **different** one. First sign-in (anonymous → subject) and sign-out (subject →
-anonymous) never fire — an async session restore at boot causes no reload flicker. Pair it with
+anonymous) never fire, so an async session restore at boot causes no reload flicker. Pair it with
 [identity-scoped stores](persistence.md#identity-scoped-stores-multi-user-browsers): the namespace then only
 ever changes across a reload boundary, so the new session re-hydrates entirely from its own state.
 
 ## 2 · Own the login UI (page or dialog)
 
-The platform ships **no** login screen — and it never opens yours on its own. Knowing exactly _when_
+The platform ships **no** login screen, and it never opens yours on its own. Knowing exactly _when_
 an unmet `access` requirement leads to your login UI is the key to wiring it correctly. There are
 three situations:
 
@@ -72,9 +71,9 @@ three situations:
 | A gated **content route** — deep link, tab click, in-app navigation | Shows a neutral "sign-in required" placeholder at the same URL.                    | Register a redirect to your login page instead — step 3 below. This is the only place the platform actively sends anyone towards a login. |
 | Inside your own components                                          | Nothing — `AuthContext` (distribution) / `ctx.session` (plugin) just report state. | Open your login dialog imperatively wherever your UX calls for it.                                                                        |
 
-**Shape A — a login page.** An ordinary, ungated routable surface. The component reads the path the
+**Shape A: a login page.** An ordinary, ungated routable surface. The component reads the path the
 visitor was originally headed to (the `from` query parameter your redirect handler sets in step 3),
-signs in through _your_ product's auth service — which flips the `provideAuthSource` signal — and
+signs in through _your_ product's auth service, which flips the `provideAuthSource` signal, and
 navigates back. Reactivity does the rest: the route guard now passes, and every gated rail item,
 command and tab appears without a reload.
 
@@ -121,9 +120,9 @@ export class LoginView {
 (The testbed ships exactly this flow, a login view plus a redirect for its admin area, if you want to
 see it run.)
 
-**Shape B — a login dialog.** Opened from your own entry points through the host dialog service. On
-success it just closes itself — no navigation needed, because every gated surface re-evaluates the
-moment the signal changes. The opened component injects `DialogRef` to close itself:
+**Shape B: a login dialog.** Opened from your own entry points through the host dialog service. On
+success it just closes itself. No navigation is needed, because every gated surface re-evaluates
+the moment the signal changes. The opened component injects `DialogRef` to close itself:
 
 ```ts
 // Entry point — a command; bind it to a rail item, bar button, shortcut or leave it in the palette:
@@ -172,11 +171,11 @@ export class SignInDialog {
 ```
 
 A declaratively gated "Sign in" entry that only shows while signed **out** is intentionally not
-expressible: `access` can require a session, never forbid one. Leave the entry ungated — it is
-harmless while signed in. Or hide it from your own component by reading `AuthContext`.
+expressible: `access` can require a session, never forbid one. Leave the entry ungated, because it
+is harmless while signed in. Or hide it from your own component by reading `AuthContext`.
 
 **Sign out** is symmetric and needs no platform call: your product resets its own session, which
-flips the snapshot back to `ANONYMOUS` — the shell hides everything that required a login the moment
+flips the snapshot back to `ANONYMOUS`. The shell hides everything that required a login the moment
 the signal changes. Give it an entry point that is itself gated, so it only shows while signed in:
 
 ```ts
@@ -199,9 +198,9 @@ gated route (a role drop, a sign-out in another tab), the shell re-runs the navi
 handler fires again. It is **route-only**: hidden chrome items never trigger it.
 
 Without this provider, the unauthorized visit shows the host's neutral "sign-in required"
-placeholder **at the same URL** — fine as a default, but it is not your branded login. The handler
+placeholder **at the same URL**. That is fine as a default, but it is not your branded login. The handler
 receives the attempted path (URL segments without a leading slash or query string, e.g.
-`admin-area` or `doc/42`) and returns an in-app URL to go to instead — or `null` to keep the
+`admin-area` or `doc/42`) and returns an in-app URL to go to instead, or `null` to keep the
 placeholder for that route:
 
 ```ts
@@ -215,7 +214,7 @@ provideUnauthorizedRedirect(
 ```
 
 The `from` parameter closes the loop with the login page from step 2: after a successful sign-in the
-page navigates back to `'/' + from`, and the guard — now met — lets the visitor through.
+page navigates back to `'/' + from`, and the guard, now met, lets the visitor through.
 
 The decision can differ per route; returning `null` keeps the placeholder for routes where an
 in-place message is the better UX:
@@ -231,7 +230,7 @@ provideUnauthorizedRedirect((attemptedPath) =>
 
 **Dialog instead of a page:** the handler returns only URLs, so route the redirect at a small
 ungated "gate" surface whose component opens your sign-in dialog (shape B above) and resolves the
-outcome — forward on success, home on dismiss:
+outcome: forward on success, home on dismiss.
 
 ```ts
 // src/lib/plugin/notes.plugin.ts — in activate(ctx)
@@ -270,9 +269,10 @@ export class SignInGateView {
 
 with `provideUnauthorizedRedirect((path) => '/sign-in-gate?from=' + encodeURIComponent(path))`. If
 the visitor dismissed the dialog without signing in, the navigation to `'/' + from` simply runs into
-the guard again and shows the placeholder — no loop, because the gate route itself is ungated.
+the guard again and shows the placeholder. There is no loop, because the gate route itself is
+ungated.
 
-**Client-side gating is presentation, not security** — your own backend is the real boundary, and a
+**Client-side gating is presentation, not security.** Your own backend is the real boundary, and a
 hidden control is a UX affordance, not an access check. Auth gating (what a _user_ may see) is orthogonal
 to capability grants (what a _plugin_ may do, see [Capabilities](capabilities.md)).
 

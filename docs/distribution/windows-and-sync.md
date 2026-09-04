@@ -14,14 +14,14 @@ State the workbench keeps can be mirrored live across same-origin windows, and a
 Whatever store is in place, the shell wraps it so every write broadcasts its **key** to the app's
 other browser windows of the same origin, and a window that has registered a reaction for that key
 reads the fresh value back through the store and applies it. Only the key travels, so
-the store stays the single source of truth — this works with a network-backed store just as well as
+the store stays the single source of truth. This works with a network-backed store just as well as
 with `localStorage`.
 
 It is on by default and needs no wiring. The shell registers its own keys, so **theme, language,
 text size, installed and disabled plugins, capability revocations, plugin settings, view state and
 view instances, saved workspaces and the user's rail curation follow across windows live**. Plugins
 inherit that for free: their state lives in host-managed stores. **Layout keys are deliberately not
-synced** — `lw.shell.pane-trees:<workspaceId>`, `hidden-views:<workspaceId>`, `panel-sizes`,
+synced**: `lw.shell.pane-trees:<workspaceId>`, `hidden-views:<workspaceId>`, `panel-sizes`,
 `panels`, `active-workspace` and `item-order` stay per window,
 because two windows are meant to be able to show different layouts.
 
@@ -38,14 +38,14 @@ with the table that decides which store a piece of state belongs in.
 
 ## Pop-out windows
 
-Any content tab or sidebar view can be opened in its **own browser window** — for a second monitor —
-from its context menu ("Open in new window"). The pop-out boots the same app from a `/popout/…` URL
-and renders exactly **one** surface: no rail, no sidebars, no pane tree. Theme, text size, dialogs,
+Any content tab or sidebar view can be opened in its **own browser window** from its context menu
+("Open in new window"), which is how a surface reaches a second monitor. The pop-out boots the same
+app from a `/popout/…` URL and renders exactly **one** surface: no rail, no sidebars, no pane tree. Theme, text size, dialogs,
 toasts, permissions and auth all work as usual, because it is the same app.
 
 It **duplicates** rather than moves: the original tab stays in the main window. The two windows share
 one view-state instance, so they mirror each other live through the sync above. The pop-out **never
-writes layout keys** — the main window stays the only layout writer — and the layout-mutating host
+writes layout keys**: the main window stays the only layout writer, and the layout-mutating host
 commands are not registered there. It also closes **without the unsaved-changes ask**: the
 retention/dirty protocol guards the main window, so treat a pop-out as a viewer onto the
 shared state rather than the place where unsaved work lives.

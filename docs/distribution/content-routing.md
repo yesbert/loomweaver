@@ -42,8 +42,8 @@ its own (`routable: { follows: true }`, see
 [authoring a weaver](../weaver/sub-routes-and-follows.md)). The host then
 substitutes the parameter values of the address it is on, by name, into that tab's pattern.
 
-Part of that mapping is domain knowledge the platform cannot have — a query parameter carried by one
-tab deciding a path segment on another, say. Supply it and the platform keeps its substitution for
+Part of that mapping is domain knowledge the platform cannot have, such as a query parameter carried
+by one tab deciding a path segment on another. Supply it and the platform keeps its substitution for
 everything you pass on:
 
 ```ts

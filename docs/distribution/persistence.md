@@ -10,19 +10,19 @@
 The shell persists its user-local state through **two** ports of the same `KeyValueStore` shape,
 split by what the data _is_:
 
-- **`SETTINGS_STORE`** carries genuine **settings** — deliberate decisions: theme, language, text
+- **`SETTINGS_STORE`** carries genuine **settings**, the deliberate decisions: theme, language, text
   size, plugin settings, installed/disabled plugins, capability revocations and the
   saved-workspaces list. Rare, small, roaming-worthy writes; this is the port you back with your
   product backend.
-- **`WORKING_STATE_STORE`** carries **working state** — what accrues from using the app: view state
-  and view instances, the palette's recently-used list, and the window-local layout keys (pane
+- **`WORKING_STATE_STORE`** carries **working state**, which is what accrues from using the app: view
+  state and view instances, the palette's recently-used list, and the window-local layout keys (pane
   trees, panel sizes, collapse state, item order, view placement). Frequent debounced writes; it
   defaults to the device and usually stays there.
 
 The split is structural: nothing but settings can ever reach your settings backend, no matter what
 keys the shell adds later. Both ports default to `localStorage`, so the bare platform and tests
 need no wiring. A distribution that wants **settings** to follow the user across devices (or be
-tenant-scoped) provides its own settings store — e.g. one backed by your own backend over `/api`
+tenant-scoped) provides its own settings store, for example one backed by your own backend over `/api`
 (the platform ships no server; the backend is yours):
 
 ```ts
@@ -60,11 +60,11 @@ provideSettingsStore(BffSettingsStore),
 `KeyValueStore` is a plain string key-value shape (`get`/`set`/`delete`, optional synchronous
 `peek`); callers serialise/validate their own payloads. The same shape backs the working-state
 port: `provideWorkingStateStore(...)` swaps it for a backend-backed one when working state should
-travel across devices — a fresh tab then continues where another device left off. Making that store
+travel across devices. A fresh tab then continues where another device left off. Making that store
 _live_ across devices, with a push transport from your backend, is one call under
 [Windows, sync and updates](../distribution-api/windows-and-sync.md#do-it).
 
-**A rejecting store is safe.** Prefer resolving with `undefined` over rejecting — but the store above
+**A rejecting store is safe.** Prefer resolving with `undefined` over rejecting. The store above
 rejects as written, because `firstValueFrom` on a 401 does. The shell therefore treats a rejected `get`
 as "no value" everywhere it reads: the setting falls back to its default instead of leaving an unhandled
 rejection. The user silently loses that setting, so a store that answers `undefined` on an expected miss
@@ -72,8 +72,8 @@ and rejects only on real faults still gives you the better signal.
 
 **The boot never overwrites your saved layout.** With a `peek`-less store the pane tree
 (`lw.shell.pane-trees:<workspaceId>`) loads asynchronously, so the shell holds back every layout write until that load
-resolves — a tab auto-opened by the boot navigation cannot persist a half-empty tree over the real one,
-and if the load _fails_ nothing is written at all (a rejection is not an empty layout). A failed first
+resolves. A tab auto-opened by the boot navigation cannot persist a half-empty tree over the real
+one, and if the load _fails_ nothing is written at all (a rejection is not an empty layout). A failed first
 load is retried once after a short delay to ride out a transient fault; if that retry also fails the
 shell keeps layout writes disabled for the session rather than overwrite a tree it never read. Once the
 tree resolves, an auto-opened deep-link tab is reconciled back into it rather than dropped, and a deep
@@ -81,16 +81,17 @@ link survives a programmatic redirect during boot (only a real back/forward navi
 
 ## Storage-key inventory
 
-The shell persists its state under the keys below. This list is authoritative — a distribution that
+The shell persists its state under the keys below. This list is authoritative. A distribution that
 swaps or wraps the store (for example to scope state per signed-in identity) keys its decisions off
-it. Each key has three independent axes. **Port** — which store it flows through.
-**Scope** — **device** keys hold preferences that reasonably stay with the browser. Every other key
-holds **identity** state. With the default `localStorage` store on a shared browser, identity state
-survives sign-out and reload, and is re-hydrated for whoever uses the app next. **Sync** — a
-**synced** key follows across the app's other windows of the same origin live ([cross-tab sync](windows-and-sync.md#cross-tab-live-sync)). **Per-window** keys stay local, so two windows can look different. The
-layout keys are per-window on purpose — and they share **one** persisted slot per workspace: the
-window that last changed its layout shapes the next boot (a permanently different setup is its own
-workspace). The layout keys are sliced **per workspace** (`…:<workspaceId>`; the built-in default
+it. Each key has three independent axes. **Port** names the store the key flows through.
+**Scope** marks a key **device** when it holds a preference that reasonably stays with the browser;
+every other key holds **identity** state. With the default `localStorage` store on a shared browser,
+identity state survives sign-out and reload, and is re-hydrated for whoever uses the app next.
+**Sync** marks a key **synced** when it follows across the app's other windows of the same origin
+live ([cross-tab sync](windows-and-sync.md#cross-tab-live-sync)). **Per-window** keys stay local, so
+two windows can look different. The layout keys are per-window on purpose, and they share **one**
+persisted slot per workspace: the window that last changed its layout shapes the next boot (a
+permanently different setup is its own workspace). The layout keys are sliced **per workspace** (`…:<workspaceId>`; the built-in default
 workspace uses the id `default`), so a backend store never re-uploads every workspace on one change.
 Two keys deserve extra care: `lw.shell.pane-trees:<workspaceId>` serialises
 each tab's `path`, **literal `title`**, `icon` and `instance` in clear text, and
@@ -125,7 +126,7 @@ Two resets divide this table between them. `shell.workspace.reset` clears the tw
 `lw.shell.view-instances:*` with the `lw.shell.view-state:*` blobs behind them. Everything else in the
 table is a choice rather than an arrangement, and neither reset touches it.
 
-The shell does not namespace these keys by user or tenant itself — scoping is a distribution
+The shell does not namespace these keys by user or tenant itself. Scoping is a distribution
 decision, made at the seams above (`provideSettingsStore` / `provideWorkingStateStore`, or the
 identity wrapper below). The **sync** axis is likewise handled for you: the shell registers its own
 synced keys, and a distribution registers only its own ([Windows, sync and updates](../distribution-api/windows-and-sync.md#do-it)).
@@ -157,17 +158,17 @@ provideIdentityScopedStores({
 });
 ```
 
-The wrapper covers **both** persistence ports with one shared boot latch — another user's view
+The wrapper covers **both** persistence ports with one shared boot latch. Another user's view
 state and layout are scoped away exactly like their settings. Never list `provideSettingsStore`
-_next to_ this provider — both fill the same `SETTINGS_STORE`
-token, the later silently discards the other. One port, one provider; the composition with a
+_next to_ this provider: both fill the same `SETTINGS_STORE` token, and the later silently discards
+the other. One port, one provider; the composition with a
 remote store is worked through in
 [backend integration → One port, one provider](../backend-integration.md#putting-it-together).
 
 While signed in, identity-level keys are stored as `lw.id.<identity>:<key>`; device keys and the
 anonymous session keep the plain keys, so a distribution without auth is untouched. The shell peeks
-bootstrap-critical keys before first paint, so `identity()` must answer synchronously at boot —
-persist the last-known subject yourself whenever your session resolves, e.g.:
+bootstrap-critical keys before first paint, so `identity()` must answer synchronously at boot.
+Persist the last-known subject yourself whenever your session resolves, for example:
 
 ```ts
 // wherever your session becomes known (login success, session restore):
@@ -180,11 +181,11 @@ Pair the store with `provideAuthSource(..., { onIdentityChange: 'reload' })` so 
 re-hydrates cleanly (see [Auth integration](auth.md)).
 
 The stores **latch the first non-empty identity per boot** and never follow a live switch. A change
-to a _different_ subject only takes effect through the reload boundary. Writes still in flight
-during the login transition — a pending debounce, a commit from the closing login dialog — therefore
-land in the departing user's namespace, never the next user's. The anonymous→first-sign-in upgrade
-— which deliberately never reloads — still re-latches once; after sign-out the latch keeps pointing
-at the signed-out user for the rest of the boot. Return the live session's subject; the store owns
+to a _different_ subject only takes effect through the reload boundary. A write still in flight
+during the login transition, such as a pending debounce or a commit from the closing login dialog,
+therefore lands in the departing user's namespace, never the next user's. The
+anonymous→first-sign-in upgrade, which deliberately never reloads, still re-latches once; after
+sign-out the latch keeps pointing at the signed-out user for the rest of the boot. Return the live session's subject; the store owns
 the latching.
 
 ## Where next

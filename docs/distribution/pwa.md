@@ -7,13 +7,13 @@
 > specification is right, and that is a defect in this page: change the behaviour there, then
 > explain it here.
 
-**PWA is the default, not a requirement** — the whole decision is one option:
+**PWA is the default, not a requirement.** The whole decision is one option:
 `provideShell()` ships it on (installable app, offline shell, the update badge/toast), and
 `provideShell({ serviceWorker: false })` turns it off. Turn it off whenever your build does not emit
-a worker — the [scaffolded quick start](../getting-started.md) wires the PWA side for you, the
+a worker. The [scaffolded quick start](../getting-started.md) wires the PWA side for you, and the
 [manual setup](../manual-setup.md) deliberately starts without it.
 
-`provideShell()` registers the service worker itself, inert in dev — **do not add
+`provideShell()` registers the service worker itself, inert in dev, so **do not add
 `provideServiceWorker` to your own providers.** That is why `@angular/service-worker` is a peer
 dependency rather than an optional extra: the shell imports it, so your build needs it installed
 whether or not you ship a worker.
@@ -36,7 +36,7 @@ installation once the manifest names a **192 and a 512 raster** icon; an SVG is 
 tab and is what the scaffold points at, but it does not satisfy that check, and iOS ignores manifest
 icons entirely in favour of an `apple-touch-icon` link. So ship `icon-192.png` and `icon-512.png`,
 name them in the manifest, and add the `apple-touch-icon` link. Keep `purpose: "any"` and
-`purpose: "maskable"` on **separate files** — a maskable icon is cropped to a circle or a squircle
+`purpose: "maskable"` on **separate files**. A maskable icon is cropped to a circle or a squircle
 and needs padding that an edge-to-edge mark does not have, so one file cannot be correct as both.
 
 _Translations._ The shell fetches its UI strings at runtime, so an asset group that does not cover
@@ -54,13 +54,13 @@ key**. Nothing errors. Cache them explicitly:
 ```
 
 **No worker at all?** Pass `provideShell({ serviceWorker: false })`. Registration is skipped,
-`UpdateService.enabled` reports `false` and no update is ever offered — the service injects
+`UpdateService.enabled` reports `false` and no update is ever offered. The service injects
 `SwUpdate` optionally, so nothing else changes. Use it whenever your build emits no
 `ngsw-worker.js`; otherwise production logs a failed registration for a file that was never built.
 
 The update chrome is honest about failures and long-lived sessions. A failed installation
 (`VERSION_INSTALLATION_FAILED`, e.g. a hash mismatch after a broken deploy) raises a sticky
-"update failed — reload" toast and flips the badge to a caution state instead of claiming the app is
+"update failed" toast and flips the badge to a caution state instead of claiming the app is
 current, and the shell checks for updates in the background (every 30 minutes and whenever the tab
 becomes visible again), so a tab that stays open for days still learns about a deploy without a
 navigation.
@@ -84,8 +84,8 @@ differently in your own UI; the built-in toast and badge already do.
 server transforms files per request. The bytes it serves therefore do not match the hashes in the
 `ngsw.json` it emits from the same build. The worker verifies every asset against that manifest. So
 serving the _production_ configuration through `ng serve` makes each watch-mode rebuild end in
-`VERSION_INSTALLATION_FAILED` — the sticky "update failed" toast, permanently, from a perfectly
-healthy build. That failure is indistinguishable from a broken deploy by design (the client only
+`VERSION_INSTALLATION_FAILED`, which raises the sticky "update failed" toast permanently, from a
+perfectly healthy build. That failure is indistinguishable from a broken deploy by design (the client only
 sees a hash mismatch), so do not paper over it in the update chrome: run the dev server with the
 development configuration, where the shell never registers a worker, and exercise the PWA and
 update flow against a served build instead. The testbed and the demo both work this way: one script

@@ -25,9 +25,9 @@ Opening the store from your own control is `PluginStoreService` in the
 
 ## The catalogue
 
-The catalogue is a same-origin JSON array; each entry (`PluginCatalogEntry`) is the installable part —
-`InstalledPlugin`, the same shape `provideFramePlugins` takes and the shape that is persisted once
-the user installs it — plus display metadata for the store:
+The catalogue is a same-origin JSON array. Each entry (`PluginCatalogEntry`) is the installable part
+plus display metadata for the store. The installable part is `InstalledPlugin`, the same shape
+`provideFramePlugins` takes and the shape that is persisted once the user installs it:
 
 ```json
 [
@@ -60,7 +60,7 @@ cannot contribute registry icons); `category` is your curated taxonomy; `downloa
 display-only operator stats. All metadata is parsed defensively: a foreign-origin
 `readmeUrl`/`iconUrl` or a non-http `repository` is dropped, the entry stays.
 
-**Check the catalogue before you ship it.** Everything below is parsed defensively — an unrecognised
+**Check the catalogue before you ship it.** Everything below is parsed defensively: an unrecognised
 field is skipped, a malformed one dropped, an entry without `id` or `entryUrl` discarded, all
 silently, because a store that throws on one bad entry serves nobody. That makes a typo invisible
 until a user notices something missing, so run the validator in the pipeline that publishes it:
@@ -69,8 +69,8 @@ until a user notices something missing, so run the validator in the pipeline tha
 npx @loomweaver/cli validate-catalog --file public/plugins/catalog.json --strict
 ```
 
-It reports what the host will actually do — an unknown capability is filtered out and the plugin
-then throws `CapabilityError`, a missing `version` means the store can never offer an update — and
+It reports what the host will actually do: an unknown capability is filtered out and the plugin
+then throws `CapabilityError`, and a missing `version` means the store can never offer an update.
 `--strict` turns the warnings into a failing exit code. See
 [scaffolding](../scaffolding.md#the-cli--loomweavercli).
 
@@ -135,7 +135,7 @@ choose it, so a community plugin can never masquerade as part of the app.
 ## Curation is yours
 
 The curation is yours and happens **before** the frontend: whatever is not in the catalogue does not
-exist for the shell. Everything stays same-origin — the catalogue URL, each `entryUrl`, and every
+exist for the shell. Everything stays same-origin: the catalogue URL, each `entryUrl`, and every
 surface a plugin registers. The RPC seam enforces this. "Reviewing a plugin" therefore means _you
 copy its files into your own origin_. That copy is the integrity boundary. Entries are parsed
 defensively (junk shapes, foreign-origin URLs and unknown capability names are dropped), an installed

@@ -45,7 +45,7 @@ Inject the service when **your own UI has to agree with it**, most often to mirr
 another framework's switch, so the page cannot end up half dark:
 
 ```ts
-// Bootstrap 5.3 reads data-bs-theme; keep it in step with ours.
+// Bootstrap 5.3 reads data-bs-theme; keep it in step with the shell's mode.
 effect(() => {
   document.documentElement.setAttribute('data-bs-theme', theme.resolvedTheme());
 });

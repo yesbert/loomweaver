@@ -50,24 +50,25 @@ provideWorkspaces({
 ```
 
 Each declaration is a **`WorkspaceDefinition`**. Its `content` is a **`WorkspaceArea`**: exactly one
-of `tabs` (a **`WorkspaceTabArea`** — the pane's tabs), `rows` (a **`WorkspaceRowArea`** — panes
-stacked top-to-bottom) or `columns` (a **`WorkspaceColumnArea`** — side by side), nested freely. All
+of `tabs` (a **`WorkspaceTabArea`**, holding the pane's tabs), `rows` (a **`WorkspaceRowArea`**,
+panes stacked top-to-bottom) or `columns` (a **`WorkspaceColumnArea`**, panes side by side), nested
+freely. All
 three extend **`WorkspaceAreaBase`**, whose only member is `size`: a percentage; unsized siblings
 share the remainder, and sizes that do not add up are normalised proportionally. A tab (a
 **`WorkspaceTabEntry`**) is a route path string, or a
-**`WorkspaceTab`** object to mark it `active` or `closable: false` — an unclosable tab survives
+**`WorkspaceTab`** object to mark it `active` or `closable: false`. An unclosable tab survives
 _Close all_ and cannot be dragged away. The first `tabs` area in reading order becomes the address pane.
 `sidebars` names the **visible** views per panel region: listed views show in that order and the
 region's other declared views are hidden (the user can re-show them from the sidebar header menu, in
-whichever sidebar they right-click). List a region with an **empty array** to show none of its views —
-the sidebar itself stays, empty. A region you leave out, or omitting `sidebars` entirely, keeps
+whichever sidebar they right-click). List a region with an **empty array** to show none of its views.
+The sidebar itself stays, empty. A region you leave out, or omitting `sidebars` entirely, keeps
 whatever the user has there. A region can only list views declared for it; a view the user has moved
 to the other sidebar stays where they put it.
 (`WORKSPACE_DEFINITIONS` is the token behind the provider; a distribution never injects it itself.)
 
 **`initial: true` makes one of them the workspace a fresh install opens in**, instead of the empty
 `default`. It applies **once**, on a first boot with nothing stored yet, and the choice is written
-immediately — so a user who switches away is not sent back on the next reload. A **deep link still
+immediately, so a user who switches away is not sent back on the next reload. A **deep link still
 wins**: the baseline is laid out, but the address the app booted with is the one you land on, so a
 shared link opens what it names rather than the workspace's own tab. If two declarations set it, the
 first wins, as with a duplicate id.
@@ -122,7 +123,7 @@ workspace.** Your layout decides which sidebars the app has, the user decides wh
 and how wide, and switching never collapses, resizes or removes one: the user sets that once and it
 holds everywhere, the same way the rail stays put. A workspace decides what is _in_ the sidebars; the
 frame around them is the anchor you switch from. A workspace that wants a distraction-free screen
-lists its regions empty — the sidebar is then simply empty, and it is the user, not the workspace,
+lists its regions empty. The sidebar is then simply empty, and it is the user, not the workspace,
 who decides whether to fold it away.
 
 ### Putting a workspace in the rail
@@ -195,9 +196,8 @@ workspace dialog and the rail's curation list.
 
 The letters are the initials of the first two words, or for a single word its **first and last**
 letter: "Month End" reads ME, "Review" reads RW, "Reports" reads RS. First-and-last rather than the
-first two, because the first two collide far too often — over a corpus of realistic names, "first
-two" left more than half of them sharing a badge, since Review, Reports, Rechnungen and Recherche all
-begin RE.
+first two, because the first two collide far too often: Review, Reports, Rechnungen and Recherche all
+begin RE, so more than half of a realistic set of names would share one badge.
 
 When two names would still land on the same badge, only the **newer** one steps aside, to
 first-and-second, first-and-third and so on: Kunden keeps KN and Konten becomes KO. So adding a
@@ -205,7 +205,7 @@ workspace never renames anyone else's badge, and two letters stay two letters un
 
 The badge is derived, not stored: a rename updates it by itself and there is nothing to migrate.
 Deleting a workspace may let a later one simplify back to a shorter form, which is the price of not
-storing it — deletion is far rarer than creation, and the badge gets simpler rather than stranger.
+storing it. Deletion is far rarer than creation, and the badge gets simpler rather than stranger.
 
 **Whether the user may put their own saved workspaces in the rail is yours to decide.** They are
 never there by themselves; the user places one from _Customize activity bar_, and
@@ -219,7 +219,7 @@ save workspaces, which is a different question and has no switch.
 **A saved workspace is a variant of the one it was saved from.** The shell records which
 developer-defined workspace was active when the user saved, shows it under the name in the workspace
 dialog ("Variant of Quotes"), and lets the variant keep whatever content that workspace
-[claims](#claiming-the-content-that-belongs-to-a-workspace) — so a user who built their own way of
+[claims](#claiming-the-content-that-belongs-to-a-workspace), so a user who built their own way of
 working with quotes is not thrown out of it the moment they open one.
 
 The origin is read through rather than copied, so a claim you add later reaches every variant of that

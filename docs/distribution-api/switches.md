@@ -50,7 +50,7 @@ at once.
 
 - **A switch moves the control, it does not remove the capability.** With `content.close` off, the ×
   and the close entries are gone for the user. For you, `ContentTabsService.close()` still works,
-  with the same unsaved-work question the × would have asked. That is what lets you hide our control
+  with the same unsaved-work question the × would have asked. That is what lets you hide the built-in control
   and offer the action from your own.
 - **Switching off acts forward, not backward.** A pane the user split stays split when you turn
   `splitRight` off. A collapsed sidebar stays collapsed when you turn `sidebar.collapse` off, with no
