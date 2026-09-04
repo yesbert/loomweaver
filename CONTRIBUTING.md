@@ -281,8 +281,8 @@ Four rules for the sentences, three of them measured by `npm run docs-style-chec
 - **Few dashes as sentence joints.** A dash that stitches two clauses usually hides a second thought;
   a full stop, a comma or a colon says it better. A dash inside a heading, a table cell or code is
   fine, and the checker looks only at prose. The aim is fewer of them rather than none, so this is a
-  ratchet like the sentence count: the corpus is at zero today, and a dash you keep on purpose is
-  recorded in the baseline where a reviewer can see the choice.
+  ratchet like the sentence count. The corpus is at zero today. A dash you keep on purpose goes into
+  the baseline, where a reviewer sees the choice.
 - **One word, one spelling, the glossary's.** `docs/glossary.md` says which of two words names a
   thing; the checker flags the spellings it does not use (a hyphenated plugin, a two-word sidebar).
 
