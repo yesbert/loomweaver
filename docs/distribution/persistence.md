@@ -59,10 +59,9 @@ provideSettingsStore(BffSettingsStore),
 `KeyValueStore` is a plain string key-value shape (`get`/`set`/`delete`, optional synchronous
 `peek`); callers serialise/validate their own payloads. The same shape backs the working-state
 port: `provideWorkingStateStore(...)` swaps it for a backend-backed one when working state should
-travel across devices — a fresh tab then continues where another device left off. For *live*
-cross-device updates, pair that store with a push transport (SSE, WebSocket) and call
-`StateSyncService.notifyRemoteChange(key)` when your backend reports a change; conflicts stay
-last-write-wins per key (state convergence, not collaborative editing).
+travel across devices — a fresh tab then continues where another device left off. Making that store
+*live* across devices, with a push transport from your backend, is one call under
+[Windows, sync and updates](../distribution-api/windows-and-sync.md#do-it).
 
 **A rejecting store is safe.** Prefer resolving with `undefined` over rejecting — but the store above
 rejects as written, because `firstValueFrom` on a 401 does. The shell therefore treats a rejected `get`
@@ -127,8 +126,8 @@ table is a choice rather than an arrangement, and neither reset touches it.
 
 The shell does not namespace these keys by user or tenant itself — scoping is a distribution
 decision, made at the seams above (`provideSettingsStore` / `provideWorkingStateStore`, or the
-identity wrapper below). The **sync** axis is likewise handled for you: the shell registers each
-synced key with `StateSyncService`; a distribution only wires its own keys ([Windows and sync](windows-and-sync.md#cross-tab-live-sync)).
+identity wrapper below). The **sync** axis is likewise handled for you: the shell registers its own
+synced keys, and a distribution registers only its own ([Windows, sync and updates](../distribution-api/windows-and-sync.md#do-it)).
 
 ## Identity-scoped stores (multi-user browsers)
 

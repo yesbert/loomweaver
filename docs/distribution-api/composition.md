@@ -26,10 +26,10 @@ There is no single god-provider, on purpose: each decision has its own provider,
 | --- | --- |
 | take a gesture away (splitting, pinning, pop-out, shortcuts …) | `provideShellFeatures` ([Switching capabilities off](../distribution/switching-capabilities-off.md#switching-capabilities-off)) |
 | change a switch while the app runs, or read it | `FeatureSwitches` ([Switches](switches.md)) |
-| offer a pane, workspace, sidebar or reset action from my own control | the services on these pages ([Panes](panes.md), [Workspaces](workspaces.md), [Sidebars](sidebars.md), [Resetting](reset.md)) |
+| offer a pane, workspace, sidebar or reset action from my own control | the services on these pages ([Panes](panes.md), [Workspaces](workspaces.md), [Sidebars](sidebars.md), [Resetting the application](reset.md)) |
 | drop a built-in command, item, settings row, menu entry or route | `provideShell({ omit })` ([Recomposing host chrome](../distribution/recomposing-chrome.md)) |
 | hand out layouts the product defines | `provideWorkspaces` ([Developer-defined workspaces](../distribution/workspaces.md#developer-defined-workspaces)) |
-| let users put the arrangement back | nothing: `shell.app.reset` ships ([Resetting](../distribution/resetting.md)) |
+| let users put the arrangement back | nothing: `shell.app.reset` ships ([Resetting the arrangement](../distribution/resetting.md)) |
 
 **What ships inside**
 
@@ -63,9 +63,9 @@ weaver contributes, statically at composition time:
 
 ```ts
 // src/app/app.config.ts — in the providers array
-...provideViews({ id: 'acme.inspector', title: 'acme.inspector.title', region: 'primary', component: Inspector }),
+...provideViews({ id: 'acme.inspector', title: 'acme.inspector.title', region: 'left-panel', component: Inspector }),
 ...provideBarItems({ id: 'acme.status', bar: 'status-bar', slot: 'end', component: BuildStatus }),
-...provideRailItems({ id: 'acme.help', rail: 'activity', icon: 'help', title: 'acme.help', anchor: 'bottom',
+...provideRailItems({ id: 'acme.help', rail: 'primary', icon: 'help', title: 'acme.help', anchor: 'bottom',
                       command: 'acme.openHelp' }),
 ```
 

@@ -15,8 +15,8 @@ distribution can:
 
 Replace and move use the same mechanism, and a distribution does it **without a plugin** — the
 `provideViews` / `provideRailItems` / `provideBarItems` providers register chrome directly (see
-[Contributing chrome without a plugin](../distribution-api/composition.md#do-it)). The in-repo
-demo moves the update badge into the right sidebar's footer bar exactly like this:
+[Contributing chrome without a plugin](../distribution-api/composition.md#do-it)). A product that
+wants the update badge in the right sidebar's footer bar moves it exactly like this:
 
 ```ts
 // src/app/app.config.ts — in the providers array
@@ -53,8 +53,7 @@ content area.
 
 It uses the bar-item id `shell.commandPaletteEntry`, so `provideShell({ omit:
 ['shell.commandPaletteEntry'] })` removes it again. To show a shortcut anywhere else yourself,
-`formatChord('mod+k')` returns the OS-correct display string (⌘K on macOS, Ctrl+K elsewhere) — the
-same platform detection the shell uses, so you never duplicate the `isMac` regex.
+`formatChord` renders it the way the shell does: see [Commands](../distribution-api/commands.md#in-depth).
 
 `provideQuickOpenEntry()` is the same badge for the other search, `shell.quickOpen` (`mod+p`). It
 defaults to the **status bar's leading edge** rather than the top bar, deliberately: two identical
@@ -83,12 +82,8 @@ own. What not to do is declare the chord on your own command while the built-in 
 registered: two commands then hold one chord, the shell warns in the console, and the later
 registration wins — which is a registration order your composition root does not control.
 
-The palette has **two entry points**, one component in two modes: `shell.commandPalette` (`mod+k`)
-lists **commands**, and `shell.quickOpen` (`mod+p`) lists **content to navigate to** — every open tab
-across all split content panes, plus every registered route you could open that takes no parameter
-and is not `chromeless`, most recent first with a relative-time hint. Enter reveals the tab where it already lives (a tab in a
-secondary split pane is activated in place, not re-opened in the primary); `→` opens that tab's
-context menu. Both are host commands, so `omit` and rebinding work the usual way.
+The palette and quick-open are one component in two modes, and both are host commands, so `omit`
+and rebinding work the usual way; what each lists is in [Commands](../distribution-api/commands.md#in-depth).
 
 This covers **built-in menu entries** too: every standard entry carries the id
 `menu:<commandId>` — e.g. `omit: ['menu:shell.tab.closeAll']` hides "Close all" from the tab context
@@ -143,7 +138,7 @@ A **routable** surface's route is omitted with a `route:` prefix and the **surfa
 
 ```ts
 // src/app/app.config.ts — in the providers array
-provideShell({ omit: ['route:testbed.retired'] }); // the weaver still ships it; this app does not want it
+provideShell({ omit: ['route:notes.archive'] }); // the weaver still ships it; this app does not want it
 ```
 
 The route then appears in no tab strip, no pane target picker, and is never auto-opened on a deep-link.
@@ -154,11 +149,11 @@ covers the route's tab root; a deep-link into a *sub-route* of an omitted route 
 Two things worth knowing:
 
 - **Omit addresses the id, override addresses the path.** Two handles for two operations: `omit:
-  ['route:testbed.retired']` drops the route, while registering *your own* surface on the same `path`
+  ['route:notes.archive']` drops the route, while registering *your own* surface on the same `path`
   replaces it (last-in wins) — use that when you want your own view at that URL rather than nothing.
   Read the id off the surface's `registerSurface` call; **do not guess it from the URL**. They often
   differ — a sandboxed plugin conventionally declares surface id `<pluginId>.view` while routing at
-  `<pluginId>`, so the view at `/sandbox-rpc` is dropped with `route:sandbox-rpc.view`.
+  `<pluginId>`, so the view at `/charts` is dropped with `route:charts.view`.
 - **A route is not its triggers.** A rail item or command that navigates there is a *separate*
   contribution with its own id; omitting the route leaves it drawn (and dead). List them too.
 

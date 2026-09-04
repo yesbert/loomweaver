@@ -38,7 +38,7 @@ provideWorkspaces({
   id: 'acme.review',
   title: 'product.workspace.review', // a Transloco key (or a literal — unknown keys render as-is)
   icon: 'workspaces',
-  sidebars: { primary: ['acme.nav'] }, // visible views per panel region; {} hides every sidebar
+  sidebars: { 'left-panel': ['acme.nav'] }, // visible views per panel region; {} hides every sidebar
   content: {
     columns: [
       { size: 35, tabs: [{ path: 'entry/e-01', closable: false }] },
@@ -55,9 +55,9 @@ three extend **`WorkspaceAreaBase`**, whose only member is `size`: a percentage;
 share the remainder, and sizes that do not add up are normalised proportionally. A tab (a
 **`WorkspaceTabEntry`**) is a route path string, or a
 **`WorkspaceTab`** object to mark it `active` or `closable: false` — an unclosable tab survives
-*Close all* and cannot be dragged away. The first `tabs` area in reading order becomes the URL pane.
+*Close all* and cannot be dragged away. The first `tabs` area in reading order becomes the address pane.
 `sidebars` names the **visible** views per panel region: listed views show in that order and the
-region's other declared views are hidden (the user can re-show them from the panel header menu, in
+region's other declared views are hidden (the user can re-show them from the sidebar header menu, in
 whichever sidebar they right-click). List a region with an **empty array** to show none of its views —
 the sidebar itself stays, empty. A region you leave out, or omitting `sidebars` entirely, keeps
 whatever the user has there. A region can only list views declared for it; a view the user has moved
@@ -143,8 +143,8 @@ import { provideRailItems } from '@loomweaver/shell';
 
 ...provideRailItems({
   id: 'acme.workspace.review',
-  rail: 'activity',
-  icon: 'review',       // yours, not a derived marker — that is for workspaces the user saved
+  rail: 'primary',
+  icon: 'document',     // a shipped name, or one you added with provideIcons
   title: 'product.workspace.review',
   workspace: 'acme.review', // the id declared in provideWorkspaces
 }),
@@ -159,7 +159,7 @@ way back to it.
 
 **The user curates the rail, exactly the way they curate a sidebar's views.** A right-click on an
 entry offers *Move to other activity bar* and *Hide*; a right-click on the rail itself offers
-**Customize activity bar**, which opens a dialog listing every entry with where it sits: hidden,
+*Customize activity bar*, which opens a dialog listing every entry with where it sits: hidden,
 left, or right. An entry is either hidden or in **exactly one** rail, and it moves between rails from
 that dialog, from the entry's menu, by dragging it across, or by focusing it and pressing
 `Alt+Shift+←/→`. Where a layout has a bar on only one side, the dialog offers *Hidden* and *Shown*
@@ -190,7 +190,7 @@ host's *Hide* is added to that menu rather than replacing it.
 
 A workspace a **user** saved has no icon to declare, so the shell derives a two-letter badge from its
 name and draws it wherever a developer-defined workspace would draw its icon: the rail entry, the
-workspace dialog and the activity-bar curation list.
+workspace dialog and the rail's curation list.
 
 The letters are the initials of the first two words, or for a single word its **first and last**
 letter: "Month End" reads ME, "Review" reads RW, "Reports" reads RS. First-and-last rather than the

@@ -12,11 +12,11 @@
 - **Docks:** `top` · `bottom` · `left` · `right` · `center`.
 - **Region types:**
   - `bar` — a thin strip of items in `start | center | end` slots (top bar, status bar, sidebar footer).
-  - `rail` — the activity bar: icon triggers for commands.
+  - `rail` — the rail, which the workbench labels *Activity bar*: icon triggers for commands.
   - `panel` — a sidebar surface that hosts views (the host auto-tabs multiple views).
   - `content` — the main content area (docks `center`). **URL-addressed** (routes), not views.
 
-A weaver's `registerSurface({ docks: ['primary'] })` / `registerRailItem({ rail: 'activity' })` /
+A weaver's `registerSurface({ docks: ['left-panel'] })` / `registerRailItem({ rail: 'primary' })` /
 `registerBarItem({ bar: 'status-bar' })` target these region ids. Left and right are symmetric — see
 [shell anatomy](../reference/shell-anatomy.md) for the full vocabulary.
 
@@ -32,7 +32,7 @@ Collapsing, resizing and hiding views in the sidebars from your own code is `Sid
 
 Every dock (centre + both sidebars) is a tree of **tab-group panes**. Users split a pane by dragging a
 tab to its edge or via a tab's **Split right / Split down** menu, move tabs between groups by
-dragging onto a strip, and resize with the dividers. Exactly one centre pane is the **URL pane** (it
+dragging onto a strip, and resize with the dividers. Exactly one centre pane is the **address pane** (it
 drives deep links / back-forward); the rest are workspace state. The whole arrangement (pane trees,
 sizes, active tabs) is persisted user-locally and reload-safe. Each of these gestures has its switch
 in [Switching capabilities off](switching-capabilities-off.md).
