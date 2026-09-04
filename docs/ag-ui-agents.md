@@ -8,9 +8,9 @@
 > change the behaviour there, then explain it here.
 
 [AG-UI](https://docs.ag-ui.com) is the open protocol between a user-facing application and an
-agentic backend. LoomWeaver speaks it, so any backend that speaks it drives your product: you are not
-adopting a mechanism of ours, you are adopting a standard we implement, and you can leave for another
-implementation of it without rewriting your product.
+agentic backend. LoomWeaver speaks it, so any backend that speaks it drives your product. You are
+not adopting a mechanism peculiar to this platform, you are adopting a standard the platform
+implements, and you can leave for another implementation of it without rewriting your product.
 
 What LoomWeaver contributes is the part on this side of the protocol. You do not describe your
 actions a second time and you do not write a dispatch: the commands you already registered are the
@@ -21,9 +21,8 @@ That is also the limit, and it is the reason this is safe to ship: **an agent re
 could have reached, and nothing more.** Permissions and access gating are not consulted again for
 agents, because they were never bypassed in the first place.
 
-Most of this page is about running a generator and reading what it produced. Two things are yours to
-decide, and they get the rest of the space: which calls are worth asking about, and what replaces the
-stand-in.
+The setup is a generator run and a reading of what it produced. Two things stay yours to decide:
+which calls are worth asking about, and what replaces the stand-in.
 
 ## Generate it
 
@@ -89,15 +88,15 @@ guessed. They are your product's, and they are usually the part that is already 
 
 ## Where to go next
 
-- [Agent tools](reference/agent-tools.md) — what the adapter does, function by function: the loop,
-  the hook, the three outcomes, the streamed-call rules.
-- [Callable commands](reference/callable-commands.md) — opening a command to a caller that is not the
-  user: described arguments, answers, the `automation` capability, and why the default is closed.
-- [Samples, recipe 10](samples.md#10--letting-an-ag-ui-agent-drive-your-product) — the same connection as
-  code to copy, for a project that is not generating. This page runs the generator; that one shows
+- [Agent tools](reference/agent-tools.md) describes what the adapter does, function by function: the
+  loop, the hook, the three outcomes, the streamed-call rules.
+- [Callable commands](reference/callable-commands.md) covers opening a command to a caller that is not
+  the user: described arguments, answers, the `automation` capability, and why the default is closed.
+- [Samples, recipe 10](samples.md#10--letting-an-ag-ui-agent-drive-your-product) is the same connection
+  as code to copy, for a project that is not generating. This page runs the generator; that one shows
   what the generator would have written. Read this page first, and that one if you are writing it by
   hand.
 - The [live demo](https://demo.loomweaver.dev) carries a panel of its own with a scripted agent, and
   declining a call there shows what an agent is told.
-- [docs.ag-ui.com](https://docs.ag-ui.com) is the protocol itself, which is not ours: its events, its
-  message shapes and the other implementations that speak it.
+- [docs.ag-ui.com](https://docs.ag-ui.com) is the protocol itself, which the platform does not own:
+  its events, its message shapes and the other implementations that speak it.
