@@ -81,6 +81,7 @@ const tabs = {
 };
 const drag = {
   canHost: vi.fn((path: string) => path.startsWith('view:')),
+  canDuplicate: vi.fn((path: string) => path.startsWith('view:')),
   routerBound: vi.fn(
     (path: string) => !path.startsWith('view:') && !drag.canHost(path),
   ),
@@ -287,7 +288,7 @@ describe('PaneView (content pane)', () => {
       'a',
       'b',
     ]);
-    drag.canHost.mockReturnValueOnce(true);
+    drag.canDuplicate.mockReturnValueOnce(true);
     c.splitPane('row');
     expect(tree.splitPane).toHaveBeenCalledWith(
       'content',
