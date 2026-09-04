@@ -15,12 +15,12 @@ matches, never interprets. The snapshot's claim bag reaches neither your `access
 
 ```ts
 // Rail item only an admin sees (default: hidden when unmet).
-ctx.registerRailItem({ id: 'notes.admin', rail: 'activity', icon: 'settings',
+ctx.registerRailItem({ id: 'notes.admin', rail: 'primary', icon: 'settings',
   title: 'notes.admin', command: 'notes.admin', access: { anyRole: ['admin'] } });
 
 // View action visible but inert until someone is signed in (disable mode) — actions are not
 // registered separately, they ride in the surface's `actions` array:
-ctx.registerSurface({ id: 'notes.list', title: 'notes.list', docks: ['primary'], component: NotesList,
+ctx.registerSurface({ id: 'notes.list', title: 'notes.list', docks: ['left-panel'], component: NotesList,
   actions: [{ id: 'notes.sync', icon: 'upload', title: 'notes.sync', command: 'notes.sync',
     access: { authenticated: true, mode: 'disable' } }] });
 

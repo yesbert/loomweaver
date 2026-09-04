@@ -12,7 +12,8 @@ your own view body, all brokered so you never import host services directly. It 
 
 ## Dialogs, toasts and menus: `ctx.ui`
 
-`message` fields are Markdown.
+`message` fields are Markdown. `openMenu` is here for completeness; what its items may carry and
+where it is allowed is on [Menus](menus.md#a-menu-on-your-own-view-body).
 
 ```ts
 // Confirm, with a type-to-confirm guard for a destructive action:
@@ -36,21 +37,8 @@ ctx.ui.openSettings();                                              // open the 
 // Open your own component as a dialog body (the host paints the frame):
 ctx.ui.open(NotesAboutDialog, { data: ctx.host, size: 'md' });
 
-// Right-click a row in your OWN view body → a host-styled context menu at the cursor. Each item runs
-// in-process; labels are literals (you localise them). The host draws the same <lw-menu> popover as its
-// own menus (positioning, Escape/outside-click dismiss, focus) — it is body-level, so never clipped by a
-// virtual-scroll/transform ancestor. In-process (trusted) only: the `run` functions do not cross the
-// sandbox boundary, so a sandboxed plugin self-draws a <lw-menu> instead.
-onRowContextMenu(event: MouseEvent, note: Note) {
-  event.preventDefault();
-  ctx.ui.openMenu(
-    [
-      { label: 'Open', icon: 'document', run: () => this.open(note) },
-      { label: 'Delete', icon: 'trash', run: () => store.remove(note.id) },
-    ],
-    { x: event.clientX, y: event.clientY },
-  );
-}
+// Right-click a row in your OWN view body → a host-drawn context menu at the cursor (trusted rung only):
+ctx.ui.openMenu([{ label: 'Open', icon: 'document', run: () => this.open(note) }], { x: event.clientX, y: event.clientY });
 ```
 
 ## Host facts — `ctx.host`
@@ -66,6 +54,6 @@ if (ctx.host.updateAvailable()) await ctx.host.activateUpdate();
 
 ## Where next
 
-- [Menus](menus.md): the menus the host draws in its own chrome, and the one you draw in a sandbox.
+- [Menus](menus.md): host menus, the menu on your own view body, and the one you draw in a sandbox.
 - [Settings sections](settings.md): the surface `ctx.ui.openSettings()` opens, and what you contribute to it.
 - [Access gating in a weaver](access-gating.md): a login dialog opened through `ctx.ui.open`.

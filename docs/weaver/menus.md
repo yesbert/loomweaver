@@ -8,7 +8,8 @@
 
 A menu is a named slot the host draws and anything may contribute to. This page adds an item to a host
 menu and gives a rail or bar item a menu of its own. It then opens that menu on the plain click, for an
-account entry with a picture, and draws a menu inside your own sandboxed surface.
+account entry with a picture, opens a menu on your own view body, and draws a menu inside your own
+sandboxed surface.
 
 ## Items in a host menu
 
@@ -70,7 +71,7 @@ signed-in user needs:
 
 ```ts
 ctx.registerRailItem({
-  id: 'notes.account', rail: 'activity', anchor: 'bottom', icon: 'user', initials: 'AR',
+  id: 'notes.account', rail: 'primary', anchor: 'bottom', icon: 'user', initials: 'AR',
   title: 'notes.account.title', menu: 'notes.account/menu', menuTrigger: 'primary',
 });
 ctx.registerMenuItem({ menu: 'notes.account/menu', command: 'notes.signOut', group: '9_session' });
@@ -81,7 +82,7 @@ entry, which is where the name belongs when the control itself is a two-letter b
 
 ```ts
 ctx.registerRailItem({
-  id: 'notes.account', rail: 'activity', anchor: 'bottom', icon: 'user', initials: 'AR',
+  id: 'notes.account', rail: 'primary', anchor: 'bottom', icon: 'user', initials: 'AR',
   title: 'notes.account.title', menu: 'notes.account/menu', menuTrigger: 'primary',
   menuHeader: { title: displayName, detail: emailAddress, initials: 'AR' },
 });
@@ -101,12 +102,12 @@ when the menu is dismissed.
 
 ## A picture where you have one
 
-A launcher entry, a bar button and a menu heading all take
+A rail item, a bar button and a menu heading all take
 `image`, anything an `<img>` accepts, drawn round in place of the icon and the initials:
 
 ```ts
 ctx.registerRailItem({
-  id: 'notes.account', rail: 'activity', anchor: 'bottom', icon: 'user', initials: 'AR',
+  id: 'notes.account', rail: 'primary', anchor: 'bottom', icon: 'user', initials: 'AR',
   image: person.avatarUrl,
   title: 'notes.account.title', menu: 'notes.account/menu', menuTrigger: 'primary',
   menuHeader: { title: person.name, detail: person.email, initials: 'AR', image: person.avatarUrl },
@@ -132,6 +133,32 @@ Only the element that opens a menu suppresses the native context menu. Everywher
 body and above all a text field inside it, a right-click still gives the user cut, copy, paste and
 spellcheck. Draw your own only where you mean to replace it.
 
+## A menu on your own view body
+
+A right-click on your **own in-process view body** (a list row, a canvas node) is not a host slot;
+nothing else contributes to it. Call **`ctx.ui.openMenu(items, { x, y })`** (capability `ui`) with
+ad-hoc items, each a literal `label` you localise yourself, an optional host `icon` name and an
+in-process `run` handler. The host draws them as its own `<lw-menu>` at the cursor, with the same
+positioning, Escape and outside-click dismissal and focus return as its menus. The menu is body-level,
+so a virtual-scroll or `transform`ed ancestor never clips it.
+
+```ts
+// inside the component; `ctx.ui` reaches it through the same bridge as any other ctx piece
+onRowContextMenu(event: MouseEvent, note: Note) {
+  event.preventDefault();
+  ctx.ui.openMenu(
+    [
+      { label: 'Open', icon: 'document', run: () => this.open(note) },
+      { label: 'Delete', icon: 'trash', run: () => store.remove(note.id) },
+    ],
+    { x: event.clientX, y: event.clientY },
+  );
+}
+```
+
+It is **trusted rung only**: `run` is a function, so it does not cross the sandbox boundary. A
+sandboxed surface draws its own menu instead, below.
+
 ## Your own surface menu (sandbox)
 
 Inside your own sandboxed `iframe` surface you draw the menu yourself. Load the
@@ -143,5 +170,5 @@ coordinates, no RPC. The paint follows the host tokens pushed to the surface, so
 ## Where next
 
 - [Commands and their triggers](commands.md): the command a menu entry names, and its rail and bar triggers.
-- [Host UI and host facts](host-ui-and-facts.md): `ctx.ui.openMenu`, a host-drawn menu on your own view body.
+- [Host UI and host facts](host-ui-and-facts.md): the rest of `ctx.ui`, dialogs, toasts and progress.
 - [Sandboxed surfaces](sandboxed-surfaces.md#the-frame-ui-kit): the kit that gives a sandboxed surface `<lw-menu>`.

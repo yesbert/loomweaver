@@ -31,12 +31,12 @@ it and runs what it asks for, so you write no dispatch of your own.
 
 ## Rail & bar items — command triggers in the chrome
 
-The **rail** (activity bar) holds independent command triggers; a **bar** (top/status) holds
-components or declarative buttons.
+The **rail** holds independent command triggers (the workbench labels it *Activity bar* in its own
+menus); a **bar** (top/status) holds components or declarative buttons.
 
 ```ts
 // Rail item → triggers a command. Pin settings to the bottom.
-ctx.registerRailItem({ id: 'notes.settings', rail: 'activity', icon: 'settings',
+ctx.registerRailItem({ id: 'notes.settings', rail: 'primary', icon: 'settings',
   title: 'notes.settings', anchor: 'bottom', run: () => ctx.ui.openSettings() });
 
 // Declarative status-bar button — the host paints button + tooltip from data (no component).

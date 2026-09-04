@@ -84,8 +84,8 @@ The order follows a weaver from its first surface to what it needs once it is sh
 - [Containers](weaver/containers.md): a workspace in a tab, a child per item, relative addresses.
 - [Sub-routes and follows](weaver/sub-routes-and-follows.md): `subRoutes`, sub-tabs when the host mounts you off-router, the rest of the address, tabs that follow the selection, `activeContent`.
 - [Commands and their triggers](weaver/commands.md): one behaviour behind shortcut, bar and rail items, palette and menu.
-- [Menus](weaver/menus.md): `registerMenuItem`, a menu on a rail or bar item, and the menu you draw in a sandbox.
-- [Host UI and host facts](weaver/host-ui-and-facts.md): `ctx.ui` dialogs, toasts and `openMenu`, `ctx.host`.
+- [Menus](weaver/menus.md): `registerMenuItem`, a menu on a rail or bar item, `ctx.ui.openMenu` on your own view body, and the menu you draw in a sandbox.
+- [Host UI and host facts](weaver/host-ui-and-facts.md): `ctx.ui` dialogs, toasts and progress, `ctx.host`.
 - [View state that survives](weaver/view-state.md): `VIEW_STATE`: filter, sub-tab, scroll position in one shape.
 - [Unsaved changes](weaver/unsaved-changes.md): `DirtySurface` and the Save, Discard, Cancel question.
 - [Your plugin's own store](weaver/plugin-state.md): `ctx.state`, one store shared by every surface of your plugin.

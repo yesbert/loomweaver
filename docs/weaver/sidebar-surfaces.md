@@ -31,7 +31,7 @@ ctx.registerSurface({
   title: 'notes.list.title',    // a translation key (or a literal)
   icon: 'navigator',            // host icon name
   order: 0,
-  docks: ['primary'],           // home dock: a PANEL region id (no `routable` ⇒ not URL-addressed)
+  docks: ['left-panel'],        // home dock: a PANEL region id (no `routable` ⇒ not URL-addressed)
   actions: [                    // the surface's own header actions (not view switchers)
     { id: 'notes.list.add', icon: 'add', title: 'notes.add', command: 'notes.add' },
   ],
@@ -40,24 +40,15 @@ ctx.registerSurface({
 ```
 
 Use **semantic design tokens** in templates (`text-content`, `bg-surface`, `text-brand`), never raw
-colors — see [design tokens](../reference/design-tokens.md).
+colours — see [design tokens](../reference/design-tokens.md).
 
 ## What your view's own body can use
 
-A weaver depends only on `@loomweaver/plugin-sdk`, so inside your
-component's template you have: semantic tokens, the `prose-lw` markdown utility, and the host **`<lw-*>`
-custom elements** (all documented in [design tokens](../reference/design-tokens.md)). These are
-framework-agnostic, so you consume them **by tag** — no `@loomweaver/shell` import; in an Angular
-weaver add `schemas: [CUSTOM_ELEMENTS_SCHEMA]`:
-
-| Element | For |
-| --- | --- |
-| `<lw-icon name="…" size="…">` | an icon by name (yours via `ctx.contributeIcons`, or a first-party name) |
-| `<lw-button variant="…">` | a themed button (or use the `.lw-btn` class contract on a native `<button>`) |
-| `<lw-markdown source="…">` | sanitized Markdown (`marked` + DOMPurify) |
-| `<lw-select>` + `<lw-option>` | a single-value dropdown (`lw-select-change` event) |
-| `<lw-tooltip text="…" position="…">` | a hover tooltip — last child of a `position: relative` trigger |
-| `<lw-progress-ring value="…" max="…">` | a determinate circular progress (needs an `aria-label`) |
+A weaver depends only on `@loomweaver/plugin-sdk`, so inside your component's template you have:
+semantic tokens, the `prose-lw` markdown utility, and the host **`<lw-*>` custom elements**. They are
+framework-agnostic, so you consume them **by tag**, with no `@loomweaver/shell` import; in an Angular
+weaver add `schemas: [CUSTOM_ELEMENTS_SCHEMA]`. Which elements exist and what each takes is the table
+in [Host building blocks](../reference/design-tokens.md#host-building-blocks):
 
 ```ts
 @Component({ /* … */ schemas: [CUSTOM_ELEMENTS_SCHEMA], template: `
@@ -70,25 +61,19 @@ weaver add `schemas: [CUSTOM_ELEMENTS_SCHEMA]`:
 > **`<lw-*>` elements don't survive `[innerHTML]`.** Angular's `DomSanitizer` strips unknown elements
 > from a string you bind with `[innerHTML]`, so an `<lw-tooltip>`/`<lw-icon>` written *inside* such a
 > string is silently removed. Consume the `<lw-*>` elements in your **template** (as above), not inside an
-> HTML string. For interactive affordances on `[innerHTML]` content, keep a plain attribute the sanitizer
+> HTML string. For interactive affordances on `[innerHTML]` content, keep a plain attribute the sanitiser
 > preserves (e.g. a native `title` for a basic tooltip) or render that part as a real template element.
-> (`<lw-tooltip>` itself is a top-layer popover, so it is **not** clipped inside a scrolling/virtualized
+> (`<lw-tooltip>` itself is a top-layer popover, so it is **not** clipped inside a scrolling/virtualised
 > or `transform`ed ancestor.)
 
-Everything else is a **CSS class contract on a native element**. A native control already has full
-semantics, keyboard support and a11y, so it needs only theming, not a web component. The contracts are:
-`.lw-btn` on `<button>` · `.lw-field` on `<input>`/`<textarea>`/`<input type="date">` ·
-`.lw-checkbox`/`.lw-switch`/`.lw-radio` on `<input type="checkbox|radio">` · `.lw-range` on
-`<input type="range">` · `.lw-progress` on `<progress>` · `.lw-badge` on `<span>` · `.lw-divider` on
-`<hr>` · `.lw-collapsible` on `<details>`. Full list + tokens: [design-tokens.md](../reference/design-tokens.md).
+Everything else is a **CSS class contract on a native element**: `.lw-btn` on `<button>`, `.lw-field`
+on an input, and so on. A native control already has full semantics, keyboard support and a11y, so it
+needs only theming, not a web component. The full list is in
+[design tokens](../reference/design-tokens.md#host-building-blocks).
 
-A context menu comes in three flavours. On **host chrome** (rail / bar / view / content-tab), contribute items
-with `ctx.registerMenuItem` (and/or a `menu?` slot on your rail/bar/view items) — the host draws
-`<lw-menu>`. On your **own in-process view body** (a right-click on a list row), call
-**`ctx.ui.openMenu(items, { x, y })`**. You pass ad-hoc items with in-process `run` handlers. The host
-draws them as its `<lw-menu>` at the cursor — see [Host UI](host-ui-and-facts.md). The menu is body-level, so
-it is never clipped. The one case where you render the element yourself is your **own sandboxed
-surface**. There you draw `<lw-menu>` and position it with `openAt(x, y)` at the iframe-local cursor.
+A right-click on your **own view body** (a list row) goes through `ctx.ui.openMenu(items, { x, y })`,
+and the host draws it; [Menus](menus.md#a-menu-on-your-own-view-body) has the rules, and the menu you
+draw yourself in a sandboxed surface.
 
 ## Your own custom element — the escape hatch
 
