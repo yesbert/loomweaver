@@ -80,10 +80,10 @@ const tabs = {
   closePrimaryPane: vi.fn(),
 };
 const drag = {
-  canHost: vi.fn((path: string) => path.startsWith('view:')),
+  canOfferAsPaneTarget: vi.fn((path: string) => path.startsWith('view:')),
   canDuplicate: vi.fn((path: string) => path.startsWith('view:')),
   routerBound: vi.fn(
-    (path: string) => !path.startsWith('view:') && !drag.canHost(path),
+    (path: string) => !path.startsWith('view:') && !drag.canOfferAsPaneTarget(path),
   ),
 };
 const picker = {

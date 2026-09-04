@@ -46,9 +46,9 @@ describe('PaneDragService (the one drag model)', () => {
       access: { anyRole: ['admin'] },
     });
 
-    expect(drag.canHost('view:v.open')).toBe(true);
-    expect(drag.canHost('view:v.admin')).toBe(false);
-    expect(drag.canHost('view:v.unknown')).toBe(false);
+    expect(drag.canOfferAsPaneTarget('view:v.open')).toBe(true);
+    expect(drag.canOfferAsPaneTarget('view:v.admin')).toBe(false);
+    expect(drag.canOfferAsPaneTarget('view:v.unknown')).toBe(false);
   });
 
   it('an off-router-safe content route is hostable; a parameterised one is not', () => {
@@ -56,8 +56,8 @@ describe('PaneDragService (the one drag model)', () => {
     registry.addContentRoute({ path: 'search', component: ProbeView });
     registry.addContentRoute({ path: 'doc/:id', component: ProbeView });
 
-    expect(drag.canHost('search')).toBe(true);
-    expect(drag.canHost('doc/abc')).toBe(false);
+    expect(drag.canOfferAsPaneTarget('search')).toBe(true);
+    expect(drag.canOfferAsPaneTarget('doc/abc')).toBe(false);
   });
 
   it('a gated route and view become hostable once the session qualifies (finding #32)', () => {
@@ -87,7 +87,7 @@ describe('PaneDragService (the one drag model)', () => {
       access: { anyRole: ['admin'] },
     });
 
-    expect(drag.canHost('secret')).toBe(true);
-    expect(drag.canHost('view:v.admin')).toBe(true);
+    expect(drag.canOfferAsPaneTarget('secret')).toBe(true);
+    expect(drag.canOfferAsPaneTarget('view:v.admin')).toBe(true);
   });
 });

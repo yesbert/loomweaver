@@ -47,24 +47,13 @@ export class PaneDragService {
       this.strips.update((ids) => ids.filter((existing) => existing !== id));
   }
 
-  /**
-   * Whether `path` may be OFFERED as a target for a pane that shows nothing yet. Nothing is on
-   * screen, so an address standing for one particular thing cannot be offered: a picker entry has no
-   * identifier to put in it. Use {@link canDuplicate} for an item already on screen, where it does.
-   */
-  canHost(path: string): boolean {
+  canOfferAsPaneTarget(path: string): boolean {
     if (path.startsWith(VIEW_PANE_PREFIX)) {
       return this.viewAllowed(path);
     }
     return offRouterMountable(this.registry, this.auth, path);
   }
 
-  /**
-   * Whether the item at `path` can be shown in a second pane beside the one already showing it.
-   * A split duplicates what is on screen, so the shape of the address decides nothing here: the
-   * identifier in it is known. What cannot be duplicated is what the workbench could not show at
-   * all, meaning content the signed-in user may not see.
-   */
   canDuplicate(path: string): boolean {
     if (path.startsWith(VIEW_PANE_PREFIX)) {
       return this.viewAllowed(path);
@@ -74,7 +63,9 @@ export class PaneDragService {
   }
 
   routerBound(path: string): boolean {
-    return !path.startsWith(VIEW_PANE_PREFIX) && !this.canHost(path);
+    return (
+      !path.startsWith(VIEW_PANE_PREFIX) && !this.canOfferAsPaneTarget(path)
+    );
   }
 
   private viewAllowed(path: string): boolean {

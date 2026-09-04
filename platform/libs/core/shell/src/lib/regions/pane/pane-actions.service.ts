@@ -29,7 +29,7 @@ export class PaneActions {
     if (leaf === null) {
       return;
     }
-    const path = leafPath(leaf) ?? this.addressOf(dock, paneId);
+    const path = leafPath(leaf) ?? this.addressCarriedBy(dock, paneId);
     if (path === undefined || !this.duplicable(path)) {
       return;
     }
@@ -120,22 +120,11 @@ export class PaneActions {
     this.moves.moveToStrip(source, path, { dock, paneId });
   }
 
-  /**
-   * Whether a split of the pane showing `path` has something to put in the sibling. The question is
-   * about the item on screen, not the shape of its address: an address of several segments, or one
-   * carrying an identifier, duplicates like any other. Only content the workbench could not show
-   * there at all is refused.
-   */
   duplicable(path: string): boolean {
     return this.drag.canDuplicate(path);
   }
 
-  /**
-   * The address a pane is showing when it holds no tab to read it from. Only the content area's
-   * address pane has one: the empty screen is an address like any other, and splitting it is how the
-   * user opens a second pane to work in.
-   */
-  private addressOf(dock: string, paneId: string): string | undefined {
+  private addressCarriedBy(dock: string, paneId: string): string | undefined {
     const address =
       dock === CONTENT_DOCK && paneId === this.paneTree.primaryId(dock);
     return address ? this.tabs.activeTabRoot() : undefined;
