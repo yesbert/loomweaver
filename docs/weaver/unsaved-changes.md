@@ -97,8 +97,9 @@ input.addEventListener('input', (event) => {
 
 The runtime channel may also expose `contentTabClosed(path)`, the sandbox counterpart of the in-process
 `onClose` tab hook: when a tab your plugin opened via `ctx.openContentTab` closes, the host calls it
-with the path you opened. The complete editor recipe, trusted component, save flow, `saveOn: 'hide'`,
-veto and this sandbox variant, is [recipe 8 in Samples](../samples.md#an-editor-with-unsaved-changes).
+with the path you opened. The trusted editor as one file, with its save flow, `saveOn: 'hide'` and
+veto, is [recipe 8 in Samples](../samples.md#an-editor-with-unsaved-changes); the sandbox variant
+lives only here.
 
 ## Where next
 

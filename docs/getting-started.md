@@ -119,7 +119,7 @@ re-running a scaffold over a workspace you have configured changes nothing.
 
 > **Don't want Tailwind?** Re-run this step with `--styles precompiled` and skip the Tailwind packages
 > from step 2; `src/styles.css` becomes one import of the stylesheet we pre-compiled.
-> [Bringing your own CSS framework](manual-setup.md#bringing-your-own-css-framework) says what you
+> [Bringing your own CSS framework](distribution/css-frameworks.md) says what you
 > give up and how a Bootstrap theme fits.
 
 When a scaffold cannot do something, the run says so and says what it costs to leave undone.
