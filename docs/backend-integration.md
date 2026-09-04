@@ -360,8 +360,8 @@ default-deny capability broker (which plugin may do what) and the grant map your
 
 The same boundary holds for a plugin that calls an external API with a tenant secret. The secret
 lives in your backend, the call is made there, and the browser never sees it. First-party weavers
-call your domain API directly; a third-party plugin that needs such a call reaches it through an
-endpoint your backend offers. The platform defines no egress contract and ships no server for it.
+call your domain API directly. The platform defines no egress contract for third-party plugins and
+ships no server for one; where such a call is needed, it is your backend's to offer.
 
 ---
 
