@@ -20,7 +20,7 @@ standard can run your product's own commands.
 | **Understand how it works**                | [Architecture](architecture.md), then the [concept pages](#concepts) for why the workbench behaves as it does |
 | **Build a plugin (a "weaver")**            | [Authoring a weaver](authoring-a-weaver.md), with copyable recipes in [Samples](samples.md)                |
 | **Compose and brand a product**            | [Building a distribution](building-a-distribution.md)                                                      |
-| **Use Bootstrap or your own CSS framework**| [Manual setup → bring your own CSS framework](manual-setup.md#bringing-your-own-css-framework)             |
+| **Use Bootstrap or your own CSS framework**| [Bringing your own CSS framework](distribution/css-frameworks.md)                                         |
 | **Let an AG-UI agent drive your product**  | [Driving your product with an AG-UI agent](ag-ui-agents.md)                                                |
 | **Wire your own backend**                  | [Backend integration](backend-integration.md)                                                              |
 | **Do something from your own code**        | [Distribution API](distribution-api/index.md): indexed by "I want to …"                                    |
@@ -40,9 +40,9 @@ standard can run your product's own commands.
 5. [Authoring a weaver](authoring-a-weaver.md): the shape of a weaver and the map of fifteen how-to pages
    under `weaver/`. Surfaces in a sidebar, the content area, containers, commands, menus, unsaved changes,
    sandboxed surfaces, access gating, settings, i18n. One task per page.
-6. [Building a distribution](building-a-distribution.md): the composition root and the map of sixteen
+6. [Building a distribution](building-a-distribution.md): the composition root and the map of seventeen
    how-to pages under `distribution/`. Layout, routing, workspaces, switching capabilities off, branding,
-   capabilities, auth, persistence, frame plugins, the plugin store, PWA. One decision per page.
+   capabilities, auth, persistence, your own CSS framework, frame plugins, the plugin store, PWA. One decision per page.
 7. [The plugin system](plugins.md): the three rungs of trust and the four ways a plugin arrives (trusted,
    frame plugin, operator-deployed, community-installed), default-deny capabilities, and what the user
    can revoke, disable or uninstall.

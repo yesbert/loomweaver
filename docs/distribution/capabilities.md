@@ -7,10 +7,10 @@
 > explain it here.
 
 `provideCapabilityGrants({ <pluginId>: [...capabilities] })` is the grant authority. Grant each
-weaver exactly the capabilities its manifest declares: nothing is granted implicitly, and the
-effective set is the **intersection** of grant and declaration. A grant for an undeclared capability
-is inert; dev mode warns. Later your own per-tenant backend can become this grant source without
-changing the seam.
+weaver exactly the capabilities its manifest declares: the effective set is the **intersection** of
+grant and declaration, and a grant for an undeclared capability is inert (dev mode warns). Why
+nothing is granted implicitly is [Capabilities and trust](../concepts/capabilities-and-trust.md#default-deny).
+Later your own per-tenant backend can become this grant source without changing the seam.
 
 ## The coarse capabilities
 
@@ -21,7 +21,7 @@ changing the seam.
 | `host` | version/update facts |
 | `navigation` | drive the content area: `navigateContent`/`openContentTab`/`closeContentTab` |
 | `session` | read login state and roles via `ctx.session` for self-gating |
-| `theme` | contribute `--lw-*` tokens (colors and the UI font) that re-skin the whole app via `ctx.contributeTheme` |
+| `theme` | contribute `--lw-*` tokens (colours and the UI font) that re-skin the whole app via `ctx.contributeTheme` |
 | `automation` | run actions *other* plugins contributed, via `ctx.invokeCommand`/`ctx.invocableCommands`, and only those their authors declared `callable` |
 
 ## The Permissions section
@@ -50,10 +50,10 @@ revocable**, because needing a plugin says nothing about needing everything it a
 what separates this from a plugin an operator deployed through the store, where both the plugin and
 its capabilities are fixed.
 
-The declaration is yours, not the plugin's, and there is deliberately no manifest field for it:
-everything a plugin says about itself here is a request you grant, so a manifest field would be the
-one exemption a plugin could award itself. Naming a plugin you do not compose is reported in
-development and otherwise ignored, the same way a grant for an undeclared capability is.
+The declaration is yours, not the plugin's, and there is deliberately no manifest field for it; the
+concept page says [why](../concepts/capabilities-and-trust.md#default-deny). Naming a plugin you do
+not compose is reported in development and otherwise ignored, the same way a grant for an undeclared
+capability is.
 
 Two things keep this safe by default, both host-provided: (1) a blocked `ctx` call that runs through a
 command surfaces a **warning toast** ("… open Settings → Permissions") instead of failing silently; and

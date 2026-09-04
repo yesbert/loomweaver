@@ -10,7 +10,7 @@
 neutral shell reads it (header, About, PWA manifest). `name` is a literal; `tagline` is a translation
 key (put it in your `product` namespace). Without it, the bare LoomWeaver identity shows.
 
-**Colors (tenant/product theme).** Override the `--lw-*` design tokens by importing a theme CSS *after*
+**Colours (tenant/product theme).** Override the `--lw-*` design tokens by importing a theme CSS *after*
 the shell theme in your `styles.css`, wrapped in `@layer lw-tenant-theme` so it beats any plugin's
 `ctx.contributeTheme` (precedence is Product < Plugin < **Tenant**):
 
@@ -47,18 +47,13 @@ change one, plain unlayered CSS wins over everything the shell paints, and
 gives the recipe and its two honest limits.
 
 **Tailwind is optional.** The snippet above assumes it because it is the default the quickstart sets
-up, but the shell also ships pre-compiled: `@import '@loomweaver/shell/styles/shell.css';` on its own
-replaces both the `tailwindcss` import and the `@source` glob. Take that route when your product is
-themed with a different framework, and read
-[bringing your own CSS framework](../manual-setup.md#bringing-your-own-css-framework) first — a foreign
-framework imported *unlayered* outranks all of ours regardless of specificity, so it has to go into a
-layer of its own. On Bootstrap 5.3 you do not have to write the token mapping at all:
-`loomweaver theme --name acme --preset bootstrap` points the `--lw-*` ladder at Bootstrap's `--bs-*`
-variables. If your own UI has to follow light and dark, inject
-[`ThemeService`](../distribution-api/appearance.md) and mirror `resolvedTheme()`.
+up, but the shell also ships pre-compiled, and a product themed with Bootstrap or another framework
+imports that instead: [Bringing your own CSS framework](css-frameworks.md) has the import order, the
+generated Bootstrap token mapping and the dark-mode mirror.
 
 ## Where next
 
+- [Bringing your own CSS framework](css-frameworks.md): the pre-compiled stylesheet, Bootstrap in a cascade layer, the token mapping.
 - [Icons, translations and rewording](icons-and-i18n.md): the glyphs and the strings beside the identity and the tokens.
 - [Appearance](../distribution-api/appearance.md): `ThemeService`, light and dark and the text size from your own code.
 - [Design tokens](../reference/design-tokens.md): every `--lw-*` name a theme file may set.

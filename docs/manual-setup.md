@@ -2,9 +2,10 @@
 
 <!-- derived-from-specs -->
 > **This is a guide, not the contract.** What the platform guarantees is specified under
-> `openspec/specs/` — for this page: `platform-composition` · `theming`. Where this page and a
-> specification disagree, the specification is right, and that is a defect in this page: change
-> the behaviour there, then explain it here.
+> `openspec/specs/` — for this page: `platform-composition` · `shell-layout` · `routing` ·
+> `product-identity` · `theming` · `i18n`. Where this page and a specification disagree, the
+> specification is right, and that is a defect in this page: change the behaviour there, then
+> explain it here.
 
 This page builds the same result as the [scaffolding quickstart](getting-started.md), wired by hand.
 It takes about fifteen minutes, and afterwards you know what every file is for. It is also the
@@ -14,14 +15,11 @@ have a generator rewrite it.
 Everything below is something the scaffold would otherwise write for you: the style pipeline, the
 asset globs, the service worker and the build settings. It is here because knowing *why* each exists
 is worth fifteen minutes, and because a workspace the generator cannot read leaves you doing exactly
-this. One trap belongs to the generated path rather than to this one: the `index.html` the scaffold
-writes ships a strict `script-src 'self'`, which the critical-CSS pass violates, so that path also
-needs `optimization: { styles: { inlineCritical: false } }` in its production configuration. The
-minimal `index.html` below ships no such policy, so it does not need it — adopt the strict policy and
-you inherit the requirement with it.
+this. The minimal `index.html` below ships no content-security policy; adopt the scaffold's strict
+one and you take on the `inlineCritical` build setting with it, which
+[Frame plugins](distribution/frame-plugins.md) describes.
 
-> **Prerequisites:** Node 24 and an **Angular 22** workspace, Angular CLI or Nx. Same as for the
-> scaffolded path; where the two flavours differ, it is called out.
+> **Prerequisites:** Node 24 and an **Angular 22** workspace, Angular CLI or Nx.
 
 Nothing here is Angular-CLI-specific. Where **Nx** differs it is called out, and there is a section
 of its own at the end.
@@ -183,130 +181,16 @@ how deep the stylesheet sits. From `src/styles.css` in a single application it i
 shell's classes, and the app renders unstyled.
 
 Only ever use **semantic tokens** (`bg-surface`, `text-content`, `text-brand`, `border-border`) in
-your own templates, never raw palette colors — see [design tokens](reference/design-tokens.md).
+your own templates, never raw palette colours — see [design tokens](reference/design-tokens.md).
 
 ### Bringing your own CSS framework
 
 Tailwind is how the shell is *built*, not something it imposes on you. If your product is themed
-with Bootstrap, Bulma or hand-written CSS, import the pre-compiled stylesheet instead and skip
-everything above — no Tailwind packages, no `.postcssrc.json`, no `@source` hops to miscount:
-
-```css
-/* src/styles.css */
-@import '@loomweaver/shell/styles/shell.css';
-```
-
-The [distribution scaffold](scaffolding.md) writes exactly that file for you if you pass
-`--styles precompiled`, and `theme --preset bootstrap` writes the token mapping below.
-
-It carries the design tokens, the `.lw-*` class contracts and every utility the shell's own
-templates use — 67 KB minified, 11 KB over the wire. What you give up is writing Tailwind utilities
-in *your* templates; the `--lw-*` tokens remain available to any CSS you write.
-
-**Import your framework into a cascade layer.** This is not optional housekeeping; it is the one
-thing that decides whether the shell survives:
-
-```css
-/* src/styles.css */
-@layer vendor;
-@import 'bootstrap/dist/css/bootstrap.css' layer(vendor);
-@import '@loomweaver/shell/styles/shell.css';
-@import './themes/acme.css';
-```
-
-Every rule we ship sits in a cascade layer. In CSS, **unlayered CSS outranks layered CSS whatever
-its specificity** — no matter how precisely a selector targets an element. Bootstrap ships
-unlayered. Its Reboot stylesheet contains plain element rules like `button { border-radius: 0 }`.
-Those rules therefore beat our `.lw-icon-btn`, a class selector, without a fight. We measured this
-on a real app: every button and segmented control in the shell lost its corner radius and its
-border, and the top bar lost padding. Adding `layer(vendor)` restored all of it while keeping
-Bootstrap's colours. With the layer in place, both sides are ordered by layer instead of by that
-rule.
-
-Two of our rules are deliberately *unlayered* — `html, body { margin: 0 }` and the `body` font,
-background and text colour — because they set the ground the shell stands on. They read
-`--lw-surface` and `--lw-content`, so pointing those tokens at your own variables re-themes the page
-rather than fighting it.
-
-**Where the two vocabularies overlap.** 55 class names exist in both, and the shell's own templates
-use a dozen of them: `border`, `rounded`, `shadow`, and spacing like `p-3`, `px-3`, `gap-3`. The
-values differ. `p-3` is 0.75rem in Tailwind and 1rem in Bootstrap; `gap-2` and `py-2` happen to
-agree. Whichever layer comes last wins those names everywhere. With the import order above, ours
-win. That is what keeps the chrome looking like itself. In *your* markup that means `class="p-3"` gives you our
-0.75rem, not Bootstrap's 1rem. Put the vendor layer last instead if you would rather have it the
-other way; the shell will then drift with it. Bootstrap's component classes (`.btn`, `.card`,
-`.alert`) never collide, because everything of ours is `.lw-`-prefixed.
-
-To make the shell wear your palette, override the tokens in the tenant layer, which outranks both
-the product default and any plugin theme:
-
-```css
-@layer lw-tenant-theme {
-  :root {
-    --lw-brand:   var(--your-primary);
-    --lw-surface: var(--your-body-bg);
-    --lw-content: var(--your-body-color);
-  }
-}
-```
-
-**On Bootstrap 5.3 you don't have to write that mapping.** Generate it:
-
-```bash
-npx @loomweaver/cli theme --name acme --preset bootstrap --out src/themes
-```
-
-It maps all 29 tokens onto `--bs-*` and writes down where the mapping is deliberately not one to
-one. The short version: LoomWeaver splits a brand colour into three roles — the identity colour,
-the colour that is safe to *read*, and the colour that is safe to *fill* behind white text. Each
-role clears a different WCAG threshold. Bootstrap draws the same distinction with `-text-emphasis`,
-so that is what the text tokens point at. The `on-*` tokens stay literal, because they must
-contrast with the fill rather than follow it.
-
-It writes **no dark block**, and that is not an omission: Bootstrap redefines its own `--bs-*` under
-`[data-bs-theme="dark"]`, so every `var()` already resolves to the dark value — as long as you
-mirror the attribute as shown below. Note what that buys you: our light/dark switch drives your
-framework's, and one stylesheet covers both.
-
-The contrast guarantee travels with the values. Our own palette is verified against WCAG 2.1 AA;
-these are your Bootstrap theme's colours, so if your `--bs-primary` does not clear 4.5:1 behind
-white text, neither will our buttons.
-
-Because these are CSS variables, that mapping is **live**: re-theme your framework at runtime and
-the shell follows without a rebuild.
-
-**Dark mode needs one line of glue.** The shell switches by toggling the class `dark` on `<html>`;
-your framework almost certainly uses something else (Bootstrap 5.3 reads the attribute
-`data-bs-theme`). Two switches, one page, so mirror ours onto yours:
-
-```ts
-// src/app/app.ts — the component from step 3, with the mirror added
-import { Component, DOCUMENT, effect, inject } from '@angular/core';
-import { Shell, ThemeService } from '@loomweaver/shell';
-
-@Component({
-  selector: 'app-root',
-  imports: [Shell],
-  templateUrl: './app.html',
-})
-export class App {
-  private readonly theme = inject(ThemeService);
-  private readonly html = inject(DOCUMENT).documentElement;
-
-  constructor() {
-    effect(() => this.html.setAttribute('data-bs-theme', this.theme.resolvedTheme()));
-  }
-}
-```
-
-It has to sit somewhere with an injection context — a component, or
-`provideEnvironmentInitializer` in `app.config.ts`. At module top level `inject()` throws `NG0203`.
-
-Mirror **`resolvedTheme`**, not `mode`. `mode` can be `system`, which no other framework
-understands. `resolvedTheme` has already resolved that value against the OS preference, so it is
-only ever `light` or `dark`. Drive the mirror in this direction, from ours to yours, and not the
-reverse. The shell's mode is persisted, synced across tabs and pushed into sandboxed plugin
-surfaces. That makes it the one that should lead.
+with Bootstrap, Bulma or hand-written CSS, import the pre-compiled `@loomweaver/shell/styles/shell.css`
+instead and skip everything above. The framework then has to go into a cascade layer, or its
+unlayered rules outrank the shell's: [Bringing your own CSS
+framework](distribution/css-frameworks.md) has the import order, the token mapping and the dark-mode
+mirror.
 
 ## 5 · Serve the host translations
 

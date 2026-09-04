@@ -2,9 +2,10 @@
 
 <!-- derived-from-specs -->
 > **This is a guide, not the contract.** What the platform guarantees is specified under
-> `openspec/specs/` — for this page: `surfaces` · `ui-primitives` · `persistence-ports`. Where
-> this page and a specification disagree, the specification is right, and that is a defect in this
-> page: change the behaviour there, then explain it here.
+> `openspec/specs/` — for this page: `surfaces` · `routing` · `commands` · `ui-primitives` ·
+> `access-gating` · `surface-retention` · `persistence-ports` · `i18n`. Where this page and a
+> specification disagree, the specification is right, and that is a defect in this page: change the
+> behaviour there, then explain it here.
 
 Complete, copyable recipes — whole files with the path they belong at, what to wire, and what you get
 on screen. Every one of them compiles against the published `@loomweaver/plugin-sdk`; they are checked that
@@ -21,10 +22,10 @@ Everything below goes **inside `activate(ctx)`** of your plugin unless the path 
 capabilities each recipe needs are listed with it — declare them in your `manifest` *and* have the
 distribution grant them, or the call throws `CapabilityError`.
 
-## Half of these you do not type
+## What the generator already writes
 
-Six of these are what the generator already writes. That is worth knowing before you copy
-anything: a generated weaver compiles, passes its own lint, and comes out the same every time, so
+Five of these ten recipes are what the generator writes, and a sixth, recipe 10, is half written for
+you. That is worth knowing before you copy anything: a generated weaver compiles, passes its own lint, and comes out the same every time, so
 your attention goes to the part that is actually yours.
 
 | Recipe | The invocation that writes it |
@@ -36,7 +37,7 @@ your attention goes to the part that is actually yours.
 | [5 · Gating a surface behind a login](#gating-a-surface-behind-a-login) | `weaver --id notes --access authenticated` |
 | [10 · Letting an AG-UI agent drive your product](#10--letting-an-ag-ui-agent-drive-your-product) | `weaver --id notes --agent` — the connection, a panel and a stand-in that works before you have a transport; what you replace is one file |
 
-The options compose, so that is one call and not six:
+The options compose, so that is one call:
 
 ```bash
 npx @loomweaver/cli weaver --id notes --out src/notes \
@@ -45,7 +46,7 @@ npx @loomweaver/cli weaver --id notes --out src/notes \
 ```
 
 Recipes 6 to 9 have no generator behind them, and that is the honest split: they are the ones where
-you decide something. Recipe 10 sits between the two: `--agent` writes the wiring and something that
+you decide something. Recipe 10 is the half-way case: `--agent` writes the wiring and something that
 runs on the first serve, and the transport it talks to stays yours.
 
 **It does not matter who invokes it.** One description of each generator serves every route into it,
@@ -365,13 +366,11 @@ The whole `ctx.ui` surface is listed in [host services](distribution-api/index.m
 
 ## 7 · Everything a view must persist
 
-A hidden surface is destroyed as soon as it is clean, so **anything that must outlive a tab switch, a
-collapsed sidebar or an F5 lives in `VIEW_STATE`** — filter text, the active sub-tab, which nodes are
-expanded, where the list was scrolled to. This is recipe 1 grown up: one state shape instead of five
-signals, and one place that writes it.
+A hidden surface is destroyed as soon as it is clean, so anything that must outlive a tab switch, a
+collapsed sidebar or a reload lives in `VIEW_STATE`. This is recipe 1 grown up: one state shape
+instead of five signals, and one place that writes it.
 
-**Capabilities:** `contributions` · **applies to:** a **docked** surface (a routable one has no handle —
-see below)
+**Capabilities:** `contributions` · **applies to:** a **docked** surface; a routable one has no handle
 
 ```ts
 // src/notes/src/lib/views/notes-workspace.ts
@@ -498,11 +497,10 @@ ctx.registerSurface({
 });
 ```
 
-**You get:** a view you can filter, switch, expand and scroll — then move to another pane, collapse the
+**You get:** a view you can filter, switch, expand and scroll, then move to another pane, collapse the
 sidebar, reload the browser, and find it exactly as you left it. The host writes the blob for you,
-debounced.
-
-**The counter-example.** The same view written the obvious way:
+debounced. The same view written with local signals loses the filter and the expanded rows the
+moment the surface is hidden, and it always lost them on reload:
 
 ```ts
 export class NotesWorkspaceLocal {
@@ -511,32 +509,9 @@ export class NotesWorkspaceLocal {
 }
 ```
 
-Nothing here is wrong on screen, and nothing warns you. It simply loses the filter and the expanded rows
-the moment the surface is hidden — switching to another tab in the same pane, collapsing the sidebar,
-closing the mobile drawer, minimising the pane — and it always lost them on reload. Local signals are for
-state that is genuinely throwaway (a hover, a menu that is open right now); everything else belongs in the
-blob.
-
-**Three things that are easy to get wrong:**
-
-- **`set` replaces, it does not merge.** `set({ query })` would wipe the scroll position and the expanded
-  rows. One `patch` helper that spreads is all it takes — and it is the reason to keep *one* shape rather
-  than five independent signals.
-- **Call it as often as you like.** The value is live immediately and the save is debounced, so a `set`
-  per keystroke or per scroll event costs one write once the user stops. Do not hand-roll a debounce.
-- **Read narrow.** `state()` changes identity on every write; deriving `query()`/`tab()` from it keeps
-  downstream computeds still when an unrelated field moved.
-
-**And its sibling, unsaved work.** `VIEW_STATE` is *view* state: the host saves it silently and never asks
-about it. Unsaved *document* state is `DirtySurface` — [recipe 8](#an-editor-with-unsaved-changes):
-the host keeps that instance alive while it is dirty and asks before closing it. An editor does both — the
-scroll position and the expanded tree in `VIEW_STATE`, the unsaved body behind `surfaceDirty()`.
-
-> **A routable surface has no `VIEW_STATE` handle** — injecting the token there throws. It owns a URL, so
-> shareable state (the filter, the active sub-tab) belongs in route params or `subRoutes`, where it also
-> survives a deep link and takes part in browser history; unsaved edits are `DirtySurface` or
-> `retain: 'always'`. A sandboxed surface is always routable and gets `retain` too: the host hides its
-> iframe in place rather than destroying it.
+The rules behind the recipe (`set` replaces rather than merges, a `set` per keystroke is fine, a
+routable surface has no handle and uses its address instead) are
+[View state that survives](weaver/view-state.md#the-view_state-handle).
 
 ---
 
@@ -544,11 +519,9 @@ scroll position and the expanded tree in `VIEW_STATE`, the unsaved body behind `
 
 ## 8 · An editor with unsaved changes
 
-**A hidden surface is destroyed as soon as it is clean** — and *dirty* is what makes it not
-clean. Implement `DirtySurface` on your component and the host takes over the whole unsaved-work
-protocol: no hiding gesture ever loses the draft or prompts, closing runs one localised
-*Save · Discard · Cancel* dialog across every plugin, and closing the browser window triggers the native
-`beforeunload` prompt. You write two members; everything else is the host's job.
+A hidden surface is destroyed as soon as it is clean, and *dirty* is what makes it not clean.
+Implement `DirtySurface` on your component and the host takes over the unsaved-work protocol. You
+write two members; everything else is the host's job.
 
 **Capabilities:** `contributions`
 
@@ -621,38 +594,11 @@ export class NoteEditor implements DirtySurface {
 }
 ```
 
-What you get, precisely:
-
-- **Hiding never asks and never loses.** Tab switch, minimise, collapse, a move to another screen — while
-  `surfaceDirty()` is `true` the instance stays alive; once the user saves (your button or the host's),
-  the normal destroy-on-hide rule applies again.
-- **Closing asks.** Tab ×, `Delete`, close pane, close others/all/to the right — one host dialog. *Save*
-  appears only because `surfaceSave` exists; a failed or still-dirty save cancels the close and reports,
-  never discards.
-- **`beforeunload`.** Closing the browser window with a dirty instance triggers the native prompt.
-  Its wording and language are the **browser's own** — browsers ignore page-supplied text and show
-  it in the browser UI language, not the app's, so an English browser asks in English even in a
-  German app. Every dialog the host draws is localised; only this one belongs to the browser.
-
-**Auto-save instead of asking.** Declare `saveOn: 'hide'` on the registration and the host calls
-`surfaceSave` fire-and-forget the moment a dirty instance becomes hidden — the tab switch stays instant,
-and a failed save keeps the instance dirty (and therefore alive) plus raises a warning toast:
-
-```ts
-ctx.registerSurface({
-  id: 'notes.editor',
-  title: 'notes.editor.title',
-  component: NoteEditor,
-  routable: { path: 'note-editor' },
-  saveOn: 'hide',
-});
-```
-
-**Your own close flow instead of the standard dialog.** Implement the optional `surfaceBeforeClose`:
-it runs on every user-initiated close *before* the host's ask. Return `false` to cancel; if you resolve
-your own save/discard first, the instance is clean and no second dialog appears. A hook that throws,
-rejects or hangs can never make a tab unclosable — the host enforces a timeout with a guaranteed
-*Close anyway*.
+**You get:** while `surfaceDirty()` is `true` the instance survives every hiding gesture without a
+question; closing runs the host's *Save · Discard · Cancel* dialog, where *Save* appears only because
+`surfaceSave` exists; closing the browser window triggers the native `beforeunload` prompt. Declare
+`saveOn: 'hide'` on the registration and the question becomes an auto-save. The optional
+`surfaceBeforeClose` replaces the dialog with your own flow:
 
 ```ts
   // Optional veto — replace the standard ask with your own close flow.
@@ -673,42 +619,8 @@ rejects or hangs can never make a tab unclosable — the host enforces a timeout
   }
 ```
 
-**The sandboxed (iframe) variant.** Nothing of `DirtySurface` crosses the RPC boundary as an interface —
-instead your surface document **pushes its dirty flag** over the surface channel and may expose a
-`beforeClose` method next to its `render` receiver. The host then treats it like any other dirty
-surface: it survives hiding, closing runs the host dialog (without *Save* — no save call crosses the
-boundary; save inside the surface and push `setDirty(false)`), and your `beforeClose` may veto with its
-own in-iframe dialog:
-
-```js
-// view.js — the surface document (plain JS, any framework)
-let draft = '';
-
-const connection = Penpal.connect({
-  messenger: new Penpal.WindowMessenger({
-    remoteWindow: window.parent,
-    allowedOrigins: ['*'],
-  }),
-  methods: {
-    render(state) {
-      /* locale, tab, theme tokens … — see the sandbox bootstrap */
-    },
-    beforeClose() {
-      // optional veto — draw your own dialog and resolve with the answer;
-      // absent, throwing or hanging all count as consent (host timeout).
-      return draft === '' || confirm('Discard your draft?');
-    },
-  },
-});
-
-input.addEventListener('input', (event) => {
-  draft = event.target.value;
-  connection.promise.then((host) => host.setDirty(draft.length > 0));
-});
-```
-
-The testbed dogfoods both halves: `sandbox-rpc/view.js` pushes `setDirty` from its draft field and draws
-its own veto overlay.
+What each of those does in detail, what a failed save does, and the sandboxed variant that pushes
+`setDirty` over the surface channel are [Unsaved changes](weaver/unsaved-changes.md).
 
 ---
 
@@ -716,10 +628,8 @@ its own veto overlay.
 
 ## 9 · Sync your own state across browser windows
 
-Everything the shell persists already follows across same-origin windows live: every write through the
-two persistence ports broadcasts its **key**, the other window reads the fresh value back **through the
-store** and applies it. Theme, language, view state, plugin settings — nothing to wire.
-This recipe is for **your own** state: a distribution key, a product session, a backend push.
+Everything the shell persists already follows across same-origin windows live, with nothing to
+wire. This recipe is for **your own** state: a distribution key, a product session, a backend push.
 
 First decide where the state lives, because that decides how it syncs:
 
@@ -780,23 +690,12 @@ export const acmeSession = {
 };
 ```
 
-Two rules keep it convergent: an applier must **set state without persisting again** (or two windows
-write back and forth forever), and a broadcast never reaches the window that sent it — so `announce`
-notifies only the *other* windows, while `notifyRemoteChange` is the deliberate way to run the applier
-in *this* window (that is the live tier of a cross-device
-[working-state store](distribution/persistence.md)).
-
-**A plugin's own state.** A **sandboxed** plugin inherits all of this: its settings live in
-host-managed storage, so a change in one window is pushed to its copy in the other window via
-`settingsChanged` — nothing to do. A **trusted** weaver that persists its own storage (outside the
-ports) exposes the same two hooks the session store above has, and the distribution wires them; the
-testbed does exactly this for its theme toggle and its auth stub:
-
-```ts
-// the weaver exposes: connectSync({ announce }) → { key, refresh }
-const theme = testbedTheme.connectSync({ announce: (key) => sync.announce(key) });
-sync.register('external', theme.key, () => theme.refresh());
-```
+**You get:** a density change made in one window applied in every other, a sign-in in one window
+picked up by the rest, and a change your backend pushes applied in the window that received it, all
+by reading the fresh value back through the store. An applier must set state without persisting
+again, or two windows write back and forth forever. How the sync works, what the shell already syncs
+and why layout keys stay per window are
+[Windows and sync](distribution/windows-and-sync.md#cross-tab-live-sync).
 
 ---
 
