@@ -9,8 +9,9 @@
 This page gives your plugin one store that all of its surfaces share: `ctx.state`, namespaced to your
 plugin id and visible in every dock, every instance and every browser window. You need it when several
 of your surfaces have to agree on something. One example is a wizard whose step form is popped out into
-a second window while the main window has to see what the user types. `VIEW_STATE` cannot carry that,
-because it belongs to *one mounted view instance*.
+a second window while the main window has to see what the user types. The `VIEW_STATE` handle
+([View state that survives](view-state.md)), in which a docked surface keeps its own filters and
+scroll position, cannot carry that: it belongs to *one mounted view instance*.
 
 ```ts
 interface Wizard { readonly customer: string; }

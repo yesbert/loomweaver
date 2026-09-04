@@ -9,7 +9,7 @@
 A routable surface's address can go deeper than its tab root. This page declares level-2 sub-tabs
 with `subRoutes`, hands everything below a prefix to one surface with `rest`, and keeps a tab pointing
 at the current selection with `follows`. It closes with what `ctx.navigateContent` does to an
-arrangement, and how a panel reads which content is focused.
+arrangement, and how a sidebar surface reads which content is focused.
 
 ## Nested sub-tabs: `subRoutes`
 
@@ -24,7 +24,7 @@ ctx.registerSurface({ id: 'doc', title: 'doc.title', component: DocView,
 ```
 
 The route's `path` stays the **tab root** (one host tab per document); switching a sub-route stays in that
-tab and **preserves the parent's state** (edits, scroll). The host synthesizes the child routes — your
+tab and **preserves the parent's state** (edits, scroll). The host synthesises the child routes — your
 *parent* component stays mounted, renders a `<router-outlet />` (the children are empty stubs), reads
 the active sub from the URL and navigates to `doc/<id>/<sub>` to switch.
 
@@ -122,7 +122,7 @@ openSub(sub: string): void {
     this.localSub.set(sub);        // split / sidebar / pop-out — stay put
     return;
   }
-  void this.router.navigateByUrl('/' + this.tabRoot + '/' + sub);   // URL pane — shareable, back/forward
+  void this.router.navigateByUrl('/' + this.tabRoot + '/' + sub);   // address pane — shareable, back/forward
 }
 ```
 
@@ -204,15 +204,12 @@ substitution stays the default for every tab that resolver passes on.
 `ctx.navigateContent(path)` just navigates — every open tab stays where it
 is, and a target another pane already holds is reached there rather than copied into the current one. Whole-arrangement switching (a different set of tabs, panes and sidebar views) is the user's
 **workspace** mechanism, not a navigation trick; a distribution ships ready-made arrangements with
-`provideWorkspaces`. The component **instances** behind hidden tabs follow the retention rule:
-destroyed while hidden unless the surface declares `retain: 'always'`; state that must survive belongs
-in `VIEW_STATE`. Switching workspace hides rather than ends what the outgoing arrangement was
-keeping. So a surface that declares `retain: 'always'`, an isolated one included, channel and all,
-is found alive when its workspace is chosen again.
+`provideWorkspaces`. What happens to the instances behind the tabs a switch hides is the retention
+rule, on [Retention and unsaved work](../concepts/retention-and-unsaved-work.md#hiding-is-not-closing).
 
 ## Reading which content is focused: `ctx.activeContent`
 
-A panel that reacts to the focused tab
+A sidebar surface that reacts to the focused tab
 (an inspector, a details view) reads the signal-shaped `ctx.activeContent()` (also `navigation`):
 `{ surfaceId, path, params } | null`, with `params` extracted against your route pattern
 (`ask/:id` on `ask/abc` → `{ id: 'abc' }`). Read this instead of injecting the host's router and

@@ -34,16 +34,15 @@ export class EditorView implements DirtySurface {
 }
 ```
 
-While `surfaceDirty()` is `true` the instance is **never destroyed on hide** — no gesture that merely
-hides (tab switch, minimise, collapse) is ever blocked or prompted, and nothing can be lost. **Closing
-asks**: the host shows its own localised dialog with *Save* (only when `surfaceSave` exists), *Discard*
-and *Cancel*. The wording and keyboard behaviour are the same across every plugin. Closing the browser
-while anything is dirty triggers the native `beforeunload` prompt. Its wording and language are the
-**browser's own**: browsers ignore page-supplied text there and localise it to the browser UI
-language, not the app's. A failed or in-flight save keeps the
-instance dirty and therefore alive; failures surface as an error toast, never as silent loss. Declare
-`saveOn: 'hide'` on the surface registration and the host calls `surfaceSave` fire-and-forget the
-moment a dirty instance becomes hidden, the auto-save pattern of the testbed's notes pad.
+While `surfaceDirty()` is `true` the instance is **never destroyed on hide**, so no gesture that
+merely hides is ever blocked or prompted; which gestures hide, and which actions ask, is on
+[Retention and unsaved work](../concepts/retention-and-unsaved-work.md#the-unsaved-work-question).
+**Closing asks**: the host shows its own localised dialog with *Save* (only when `surfaceSave` exists),
+*Discard* and *Cancel*, with the same wording and keyboard behaviour across every plugin. A failed or
+in-flight save keeps the instance dirty and therefore alive; failures surface as an error toast, never
+as silent loss. Declare `saveOn: 'hide'` on the surface registration and the host calls `surfaceSave`
+fire-and-forget the moment a dirty instance becomes hidden, which is the auto-save pattern of a notes
+pad.
 
 Two limits. First, a **sandboxed** surface pushes its dirty flag over the channel
 (`setDirty(true|false)`). It is then treated like any other dirty surface: it survives hiding and is
@@ -96,12 +95,10 @@ input.addEventListener('input', (event) => {
 });
 ```
 
-The runtime channel may also expose `contentTabClosed(path)` — the sandbox counterpart of the in-process `onClose` tab hook:
-when a tab your plugin opened via `ctx.openContentTab` closes, the host calls it with the path you
-opened. The veto flow is dogfooded by the sandbox testbed plugin (`sandbox-rpc/view.js` pushes
-`setDirty` from its draft field and draws its own in-iframe veto dialog). The complete editor
-recipe — trusted component, save flow, `saveOn: 'hide'`, veto and this sandbox variant — is
-[recipe 8 in Samples](../samples.md#an-editor-with-unsaved-changes).
+The runtime channel may also expose `contentTabClosed(path)`, the sandbox counterpart of the in-process
+`onClose` tab hook: when a tab your plugin opened via `ctx.openContentTab` closes, the host calls it
+with the path you opened. The complete editor recipe, trusted component, save flow, `saveOn: 'hide'`,
+veto and this sandbox variant, is [recipe 8 in Samples](../samples.md#an-editor-with-unsaved-changes).
 
 ## Where next
 

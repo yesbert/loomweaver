@@ -16,8 +16,8 @@ child surfaces) and what the surface can do, such as having an address of its ow
 several named copies. The plugin does not say where the surface will appear. The workbench decides
 that, and the user changes it.
 
-A docked view and an addressable screen are one declaration, not two. That is why a user can drag a
-sidebar view into the main area and have it keep working: the surface never knew which one it was in.
+A docked view and an addressable screen are one declaration. A user can drag a sidebar view into the
+main area and it keeps working, because the surface never knew which of the two it was.
 
 ## A pane is a tab group
 
@@ -34,9 +34,8 @@ The workbench's job is to make those transitions predictable and to lose no work
 
 - A surface fills its pane; the host insets nothing of its own. A product asks for an inset once, and
   a single surface may differ.
-- State that should survive a move travels with the tab, not with the pane. That is what a surface's
-  view state is for; see [View state that survives](../weaver/view-state.md) and
-  [Retention and unsaved work](retention-and-unsaved-work.md).
+- State that should survive a move travels with the tab, not with the pane
+  ([Retention and unsaved work](retention-and-unsaved-work.md#what-survives-a-destroy)).
 - The arrangement of panes and the content inside them are two things with two owners. A tab is
   content and belongs to the plugin that contributed the surface; the split around it is arrangement
   and belongs to the user, or to the distribution when it declares a [workspace](workspaces.md).

@@ -16,6 +16,12 @@ doing. The workbench has to decide, for every surface at every one of those mome
 it alive or let it go. One rule covers all of them: **a hidden surface is destroyed as soon as it is
 clean, and unsaved work is what keeps it alive.**
 
+"Hidden" means rendered by no pane of this window. A tab switch, a minimised pane, a collapsed
+sidebar and the closed compact drawer all hide a surface. Closing is different: a tab that is closed
+takes its instance with it, however the surface was declared, so retention covers hiding and never
+closing. Switching a workspace hides everything the outgoing arrangement held. It asks nothing, and a
+kept surface is found alive when that workspace is chosen again.
+
 That rule is what makes a workbench with many open tabs affordable. Fifty hidden editors do not mean
 fifty live component trees; they mean fifty tabs, each of which is recreated when it is shown again.
 
@@ -26,18 +32,39 @@ somewhere ([View state that survives](../weaver/view-state.md)): the filter, the
 expanded nodes, the scroll position, written as one shape and restored on the next mount. It travels
 with the tab when the tab moves, so a split or a drag into a sidebar changes nothing the user can see.
 
+View state survives a reload as well, which gives the rule an author can write by: **evictable equals
+reload-safe.** Anything that must survive a reload belongs in view state, and once it is there, hiding
+costs nothing.
+
 A surface may ask to be kept regardless, or never to be kept
-([Keeping a hidden surface alive](../weaver/view-state.md#keeping-a-hidden-surface-alive)). Keeping
-has a price: a kept instance lives off the router, so it has no resolvers, no query parameters and no
-sub-routes. [The address](the-address.md#what-has-no-address) says why.
+([Keeping a hidden surface alive](../weaver/view-state.md#keeping-a-hidden-surface-alive)). A product
+chooses the default for every surface that says nothing
+([Surface retention](../distribution/surface-retention.md)), and the surface's own declaration wins
+over that default.
+
+## A kept surface lives off the router
+
+Keeping has a price. The router builds a surface once, for the pane that carries the address, and
+would destroy it when the address moves on. A kept surface is therefore mounted by the workbench
+itself, in every pane that shows it, the address pane included. Its instance is keyed to the pane it
+sits in, so handing the address between split panes moves the address and leaves each pane's instance
+where it is. A split deliberately shows two independent instances.
+
+What the surface receives in such a pane is a route the workbench fabricates for it. Route parameters
+are there, because a different parameter is a different tab and a different instance. Nothing else is:
+no resolvers, no query parameters, no live parameter streams, and a nested router outlet inside the
+surface stays inert. That is why a kept surface cannot carry sub-routes of its own, and why a surface
+that needs live routing should not be kept. For unsaved work, the guard below is the lighter tool.
+What else has no address is on [The address](the-address.md#what-has-no-address).
 
 ## The unsaved-work question
 
 Wherever an action would destroy work, the workbench asks: Save, Discard or Cancel. Closing a tab,
 disabling or uninstalling a plugin and resetting a workspace all ask, because the question is asked
 by the action, not by the button that triggered it. Closing the browser window asks too, in the
-browser's own words. A distribution
-that closes a tab from its own code asks the same question, and its call answers whether it ran.
+browser's own words: browsers ignore page-supplied text there and localise the prompt to the browser's
+language, not the product's. A distribution that closes a tab from its own code asks the same
+question, and its call answers whether it ran.
 
 A plugin takes part by implementing the unsaved-changes contract
 ([Unsaved changes](../weaver/unsaved-changes.md)): it reports whether it is dirty, it saves on

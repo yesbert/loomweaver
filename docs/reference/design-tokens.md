@@ -238,6 +238,8 @@ user setting** (the built-in "text size" under Settings → Options scales the w
 `font-size`) — it is not part of the theme contract; branding and accessibility stay cleanly
 separated.
 
+<a id="host-building-blocks"></a>
+
 ## Host building blocks (`<lw-*>`) instead of hand work
 
 - **Icons:** `<lw-icon name="add" size="1rem" />`. Names are semantic rather than pictorial;

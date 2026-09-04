@@ -12,7 +12,7 @@ them into, and the bridge that lets a component call `ctx`.
 
 ## Routable surfaces
 
-The center (a `content` region) is **URL-addressed**, not a panel: a surface reaches it by declaring
+The centre (a `content` region) is **URL-addressed**, not a panel: a surface reaches it by declaring
 `routable`, which makes it a shareable deep-link with browser back/forward. The distribution must set up the
 router with [`provideShellRouter()`](../distribution/content-routing.md).
 
@@ -82,7 +82,7 @@ ctx.registerSurface({ id: 'settings', title: 'settings.title', component: Settin
   routable: { path: 'settings' }, padded: true });
 ```
 
-It travels with the surface, so it holds wherever the user puts it — the URL pane, a split, a
+It travels with the surface, so it holds wherever the user puts it — the address pane, a split, a
 sidebar, a pop-out window. Only whether there is an inset is yours; how wide it is stays a styling
 question, so a product that wants a different amount everywhere writes plain unlayered CSS.
 
@@ -109,7 +109,7 @@ opens the tab there. The call returns straight away either way; the tab appears 
 happened.
 
 Docked (non-routable) surfaces have their own opener: `ctx.revealSurface(id)` activates the
-surface's tab **wherever the user has placed it**, its sidebar panel (expanding a collapsed one) or a
+surface's tab **wherever the user has placed it**, its sidebar (expanding a collapsed one) or a
 content pane. So a palette command like "Focus Library" works no matter where the view lives. It is a
 no-op for an unknown id, and container-only children (`docks: []`) stay inside their container.
 Routable surfaces are reached with `navigateContent` instead. Requires `navigation`.
@@ -192,7 +192,7 @@ export const notesNav = new NotesNav();
 Use a **module-level facade** (a plain exported instance), not an Angular `@Injectable` filled via
 `inject()` inside `activate()`. Activation is *not guaranteed* to run in Angular's injection context.
 It re-runs, for instance, when the user re-enables your plugin at runtime. An `inject()` there can
-therefore throw. The testbed weaver's `testbedContent` bridge is this exact pattern.
+therefore throw.
 
 A trusted in-process component may also inject Angular's `Router` directly, but the bridge keeps the
 weaver on the public `ctx` surface, the same path a sandboxed plugin gets later.
@@ -209,7 +209,7 @@ a **tab group** with its own strip, and the user can rearrange them — **withou
   of offering edges, so a dragged tab fills it rather than splitting it against an empty half. The
   highlight while dragging spans the whole pane, which is exactly what the drop will do.
 - Dragging **moves** a tab (never copies) — the source group loses it. This holds for every tab,
-  including parameterised (`doc/:id`) and sandboxed iframe routes: exactly one pane is the **URL pane**
+  including parameterised (`doc/:id`) and sandboxed iframe routes: exactly one pane is the **address pane**
   (it drives the deep link and back/forward), and moving a routed tab hands that role to its new pane.
 - The **sidebars are the same tab groups**, just shown as **icon tabs** — a view can be dragged into the
   centre (it becomes a titled tab beside your documents) and a document into a sidebar, and back.

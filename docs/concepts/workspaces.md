@@ -23,8 +23,7 @@ makes experimenting with the arrangement safe: nothing the user does to a worksp
 reset away from how it was declared or first saved.
 
 A reset destroys hidden work, so it asks the unsaved-work question first, like every other action
-that would (see [Retention and unsaved work](retention-and-unsaved-work.md)). A distribution's call
-to reset asks the same question and answers whether it ran.
+that would ([Retention and unsaved work](retention-and-unsaved-work.md#the-unsaved-work-question)).
 
 ## Two origins
 

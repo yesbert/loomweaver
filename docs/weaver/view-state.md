@@ -50,9 +50,9 @@ distribution's [working-state store](../distribution/persistence.md); default
 URL, and the URL is the better store for everything shareable: put the filter and the active sub-tab in
 route params or `subRoutes` and they survive a reload *and* a deep link, take part in browser history and
 can be sent to a colleague. What the URL should not carry, unsaved edits, is what [`DirtySurface`](unsaved-changes.md) and
-`retain` are for. The same holds for a **sandboxed** surface (which is always routable): nothing of the
-`VIEW_STATE` shape crosses the RPC boundary, so declare `retain: 'always'` and the host hides your iframe
-in place instead of destroying it, leaving the document's own state intact.
+`retain` are for. A **sandboxed** surface has no handle either, because nothing of the `VIEW_STATE`
+shape crosses the RPC boundary; it declares `retain: 'always'` instead
+([below](#a-sandboxed-surface-and-the-atomic-move)).
 
 **State travels with the tab.** When the user drags your view's tab to another pane — sidebar into the
 centre, into a split, back again — the same `VIEW_STATE` stays bound to it, so filters and sort survive
@@ -74,7 +74,7 @@ another, or split off) keeps its independent state until the user picks an insta
 that pick re-binds the pane to the named instance.
 
 ```ts
-ctx.registerSurface({ id: 'library', title: 'library.title', docks: ['primary'], instanceable: true, component: LibraryView });
+ctx.registerSurface({ id: 'library', title: 'library.title', docks: ['left-panel'], instanceable: true, component: LibraryView });
 ```
 
 **It also works in a pop-out window.** The user can open any view or content tab in its own browser
@@ -84,34 +84,32 @@ so they mirror each other live.
 
 ## Keeping a hidden surface alive
 
-**A hidden surface is destroyed as soon as it is clean.** Your surface is hidden when no pane renders
-it: a tab switch, a minimised pane, a collapsed sidebar, the closed mobile drawer. The host then
-destroys the instance and rebuilds it on return. Component-local fields do not survive that. They never
-survived a reload either. The rule to author by is **evictable = reload-safe**: anything that must
-survive an F5 belongs in `VIEW_STATE`. Then hiding costs you nothing. A surface that genuinely needs
-its live instance kept while hidden (an expensive rebuild, a live connection) declares
-`retain: 'always'` on its registration; `retain: 'never'` opts back into destruction when
-the distribution flipped the app-wide default.
+A hidden surface is destroyed as soon as it is clean, and anything that must survive a reload belongs
+in `VIEW_STATE`; [Retention and unsaved work](../concepts/retention-and-unsaved-work.md) is the rule
+and the reason. What is left for you to declare is the exception. A surface that genuinely needs its
+live instance kept while hidden (an expensive rebuild, a live connection) declares `retain: 'always'`
+on its registration; `retain: 'never'` opts back into destruction when the distribution flipped the
+app-wide default.
 
-**Where a retained surface lives.** A retained routable surface is mounted by the host in **every**
-pane — the URL-carrying pane included; its route only carries the address. The instance is keyed to
-the pane it sits in, so handing the URL role between split panes moves the role and leaves each
-pane's instance where it is: a split shows **two independent instances** of your surface,
-deliberately. The price: the surface receives a host-fabricated `ActivatedRoute` everywhere — route
-params work (a param change is a different tab, hence a different instance), but there are **no
-resolvers, no query params, no live parameter streams**, and a nested `<router-outlet>` stays inert,
-so **do not combine `retain` with `subRoutes`** (the host warns in dev mode; read the sub-segment
-from the address instead). A surface that needs live routing should not declare `retain`. For
-unsaved work, [`DirtySurface`](unsaved-changes.md) is the guard.
+Two things to check before you declare it. A retained surface is mounted off the router, on a route
+the host fabricates for it, so **do not combine `retain` with `subRoutes`**: a nested `<router-outlet>`
+stays inert there, and the host warns in development. Read the sub-segment from the address instead;
+[A kept surface lives off the router](../concepts/retention-and-unsaved-work.md#a-kept-surface-lives-off-the-router)
+says what else the fabricated route lacks. And where the thing you want to keep is unsaved work,
+[`DirtySurface`](unsaved-changes.md) is the guard, not `retain`.
 
-A **sandboxed** (`iframe`) surface retains too. The host
-hides it in place instead of destroying it. Your document keeps running, and the Penpal handshake is
-not paid again — at a URL and at a dock alike. **Moving** it is where the browser decides: an `<iframe>`
-that is removed and re-inserted the ordinary way reloads, so the host uses the browser's atomic move
-where it exists (Chromium and Firefox today) and the surface then survives a collapsed sidebar and a
-closed pane as well. Where the browser has no atomic move (WebKit today) the surface is rebuilt
-instead. A split, a drag into another pane and a minimise still rebuild everywhere. So write your
-surface so that a rebuild is survivable either way. `container` surfaces are always rebuilt.
+## A sandboxed surface and the atomic move
+
+A **sandboxed** (`iframe`) surface retains too, at a URL and at a dock alike. The host hides it in
+place instead of destroying it, so your document keeps running and the Penpal handshake is not paid
+again. **Moving** it is where the browser decides. An `<iframe>` that is removed and re-inserted the
+ordinary way reloads, so the host uses the browser's atomic move where it exists (Chromium and Firefox
+today). Before the pane around your surface goes away, the host moves the frame into a hidden holding
+area, and it moves it back when the pane returns. Your surface then also survives a collapsed sidebar, a
+minimised pane and a workspace switch. Where the browser has no atomic move (WebKit today) the surface
+is rebuilt in those cases. A split and a drag into another pane rebuild everywhere, because the
+instance is keyed to the pane it sits in. So write your surface so that a rebuild is survivable either
+way. `container` surfaces are always rebuilt.
 
 ## Where next
 
