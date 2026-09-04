@@ -46,6 +46,12 @@ function setUp() {
   const registry = TestBed.inject(ContributionRegistry);
   registry.addContentRoute({ path: 'search', component: Stub });
   registry.addContentRoute({ path: 'doc/:id', component: Stub });
+  registry.addContentRoute({ path: 'dashboard/overview', component: Stub });
+  registry.addContentRoute({
+    path: 'secret',
+    component: Stub,
+    access: { authenticated: true },
+  });
   const paneTree = TestBed.inject(PaneTreeService);
   paneTree.insertTab(CONTENT_DOCK, PRIMARY_PANE, 'search');
   const panes = TestBed.inject(PaneService);
@@ -153,10 +159,44 @@ describe('PaneService actions', () => {
     expect(tree.kind === 'split' && tree.orientation).toBe('column');
   });
 
-  it('does nothing when the shown content cannot be shown twice', () => {
+  it('splits an address that carries a parameter, duplicating the item', () => {
     const { panes, paneTree } = setUp();
     paneTree.insertTab(CONTENT_DOCK, PRIMARY_PANE, 'doc/42');
     paneTree.setActiveTab(CONTENT_DOCK, PRIMARY_PANE, 'doc/42');
+
+    panes.splitRight();
+
+    expect(paneTree.isSplit(CONTENT_DOCK)).toBe(true);
+    expect(panes.panes().map((pane) => pane.showing)).toEqual([
+      'doc/42',
+      'doc/42',
+    ]);
+  });
+
+  it('splits an address of several segments', () => {
+    const { panes, paneTree } = setUp();
+    paneTree.insertTab(CONTENT_DOCK, PRIMARY_PANE, 'dashboard/overview');
+    paneTree.setActiveTab(CONTENT_DOCK, PRIMARY_PANE, 'dashboard/overview');
+
+    panes.splitRight();
+
+    expect(paneTree.isSplit(CONTENT_DOCK)).toBe(true);
+  });
+
+  it('does nothing when the user may not see what the pane shows', () => {
+    const { panes, paneTree } = setUp();
+    paneTree.insertTab(CONTENT_DOCK, PRIMARY_PANE, 'secret');
+    paneTree.setActiveTab(CONTENT_DOCK, PRIMARY_PANE, 'secret');
+
+    panes.splitRight();
+
+    expect(paneTree.isSplit(CONTENT_DOCK)).toBe(false);
+  });
+
+  it('does nothing when no route answers for the address', () => {
+    const { panes, paneTree } = setUp();
+    paneTree.insertTab(CONTENT_DOCK, PRIMARY_PANE, 'nowhere');
+    paneTree.setActiveTab(CONTENT_DOCK, PRIMARY_PANE, 'nowhere');
 
     panes.splitRight();
 

@@ -1,5 +1,4 @@
 import { inject, Service } from '@angular/core';
-import { isHomePath } from '../content/content-path';
 import { ContentTabsService } from '../content/tabs/content-tabs.service';
 import { PaneChromeService } from './chrome/pane-chrome.service';
 import { SurfaceCloseGuard } from './close/surface-close-guard';
@@ -27,8 +26,11 @@ export class PaneActions {
 
   split(dock: string, paneId: string, orientation: 'row' | 'column'): void {
     const leaf = this.leaf(dock, paneId);
-    const path = leaf ? leafPath(leaf) : undefined;
-    if (leaf === null || path === undefined || !this.duplicable(path)) {
+    if (leaf === null) {
+      return;
+    }
+    const path = leafPath(leaf) ?? this.addressCarriedBy(dock, paneId);
+    if (path === undefined || !this.duplicable(path)) {
       return;
     }
     this.paneTree.splitPane(dock, paneId, orientation, path);
@@ -119,7 +121,13 @@ export class PaneActions {
   }
 
   duplicable(path: string): boolean {
-    return path !== '' && !isHomePath(path) && this.drag.canHost(path);
+    return this.drag.canDuplicate(path);
+  }
+
+  private addressCarriedBy(dock: string, paneId: string): string | undefined {
+    const address =
+      dock === CONTENT_DOCK && paneId === this.paneTree.primaryId(dock);
+    return address ? this.tabs.activeTabRoot() : undefined;
   }
 
   private leaf(dock: string, paneId: string): PaneLeaf | null {
