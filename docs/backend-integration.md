@@ -119,8 +119,8 @@ defaults to the device (`localStorage`), and why most distributions never touch 
    volume: every filter keystroke lands here after a 400 ms debounce.
 3. **Cross-device live** — additionally pair the store with a push transport and call
    `StateSyncService.notifyRemoteChange(key)` when the backend reports a change from another
-   device. Conflicts stay **last-write-wins per key** — this is state convergence, not
-   collaborative editing.
+   device. The two rules that keep this convergent, and why it is not collaborative editing, are on
+   [Windows and sync](distribution-api/windows-and-sync.md#in-depth).
 
 ## 2 · Auth / session — `AuthSource`
 

@@ -244,7 +244,7 @@ type Surface = {
   id: string; title: string; icon?: string; order?: number;
   actions?: readonly ViewAction[]; access?: AccessRequirement;
   instanceable?: boolean;               // named saved instances (2b)
-  routable?: SurfaceRoutable;           // URL-addressable — can hold the address pane
+  routable?: SurfaceRoutable;           // URL-addressable: can hold the address pane
   retain?: 'always' | 'never';          // what happens when HIDDEN (rendered by no pane). Default = the
                                         // distribution's retention default (itself 'destroy'): a hidden, CLEAN surface is
                                         // destroyed and rebuilt on return — state that must survive belongs in VIEW_STATE
@@ -462,7 +462,7 @@ function provideShell(options?: { omit?: readonly string[]; serviceWorker?: bool
 // may coincide — shell.language is both): 'setting:<sectionId>' drops the whole section, 'setting:<rowId>'
 // drops that row, and a section left with no rows disappears. Built-in ids: section setting:shell.general
 // (rows setting:shell.theme / setting:shell.language / setting:shell.textSize), section
-// setting:shell.permissions (row setting:shell.pluginPermissions), and — when a catalog is provided —
+// setting:shell.permissions (row setting:shell.pluginPermissions), and — when a catalogue is provided —
 // section setting:shell.pluginStore (row setting:shell.pluginStoreBrowse).
 // OVERRIDE (re-registering to replace, last-in wins) keys by `id` for every kind EXCEPT content routes,
 // which key by `path` (contribution-registry: addContentRoute matches on route.path). So re-registering a
@@ -501,7 +501,7 @@ function provideFramePlugins(...plugins: FramePlugin[]): (Provider | Environment
 // plus globalThis.LwFrame: setIcon(name, svg) / removeIcon / hasIcon (plugin-own icons, sanitized) and
 // applySurfaceState(state) — call it from your render handler to apply the pushed tokens/rootFontSize/theme.
 // The kit shares the platform version line, so the paint always matches the shell the plugin runs in.
-// Plugin store: a curated, SAME-ORIGIN catalog of sandboxed plugins the USER installs at RUNTIME —
+// Plugin store: a curated, SAME-ORIGIN catalogue of sandboxed plugins the USER installs at RUNTIME —
 // no rebuild, no reload. providePluginCatalog('/plugins/catalog.json') (same-origin JSON array of PluginCatalogEntry,
 // parsed defensively: junk/foreign-origin/unknown-capability entries drop) or a custom PluginCatalog implementation.
 // Adds the built-in "Plugin store" settings section (id `setting:shell.pluginStore`, omit-able). Installing shows a
@@ -509,9 +509,9 @@ function provideFramePlugins(...plugins: FramePlugin[]): (Provider | Environment
 // the user's consent replaces the provideCapabilityGrants map (which keeps governing composed plugins). Installed
 // plugins appear in the Permissions settings (same revoke switches + on/off toggle); install spawns live, uninstall
 // unloads live; the installed set persists through the settings store (user-local by default, product-backable). An
-// installed id can NEVER shadow a composed plugin. Curation happens BEFORE the frontend: not in the catalog = does
-// not exist; per-tenant curation = the product backend answers the catalog request tenant-dependently.
-// UPDATES ride on the catalog `version`: a STRICTLY newer version (compared segment-wise, numerically) shows an
+// installed id can NEVER shadow a composed plugin. Curation happens BEFORE the frontend: not in the catalogue = does
+// not exist; per-tenant curation = the product backend answers the catalogue request tenant-dependently.
+// UPDATES ride on the catalogue `version`: a STRICTLY newer version (compared segment-wise, numerically) shows an
 // "Update available" badge + an "Update to vX.Y.Z" button; pressing it swaps the persisted entry and RESPAWNS the
 // plugin live. A version declaring capabilities the user never consented to re-asks consent listing only the ADDED
 // ones — the persisted entry IS the grant for installed plugins, so an update never widens it silently.
@@ -521,7 +521,7 @@ interface PluginCatalogEntry { id: string; name: string; entryUrl: string; capab
 // `icon` stays the registry-name for the consent dialog. `updated` renders as a RELATIVE time ("2 days ago",
 // Intl.RelativeTimeFormat, localized). The searchable INSTALLED list (per plugin an icon-action row: open its
 // community settings section · uninstall — tooltipped — the standard .lw-switch enable/disable toggle, and an
-// "Update to vX.Y.Z" button when the catalog carries a newer version) lives in TWO places sharing one
+// "Update to vX.Y.Z" button when the catalogue carries a newer version) lives in TWO places sharing one
 // component: directly on the Plugin-store settings PAGE (own search field) and as the
 // store dialog's segmented "Installed" view.
 interface PluginCatalog { load(): Promise<readonly PluginCatalogEntry[]>; }
