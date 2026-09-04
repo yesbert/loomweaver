@@ -22,10 +22,10 @@ test.describe('Developer-defined workspaces', () => {
       page.locator('lw-content-secondary-pane').filter({ hasText: 'Notes' }),
     ).toBeVisible();
 
-    const leftTabs = page.locator('#panel-views-primary').getByRole('tab');
+    const leftTabs = page.locator('#panel-views-left-panel').getByRole('tab');
     await expect(leftTabs).toHaveCount(1);
     await expect(leftTabs.first()).toHaveAccessibleName('Navigator');
-    await expect(page.locator('#panel-views-secondary')).toHaveCount(1);
+    await expect(page.locator('#panel-views-right-panel')).toHaveCount(1);
 
     await page.reload();
     await expect(page).toHaveURL(/entry\/e-01/);

@@ -1,8 +1,8 @@
 import { expect, test } from '@playwright/test';
 
 test.describe('Cross-panel view move', () => {
-  const left = '#panel-views-primary';
-  const right = '#panel-views-secondary';
+  const left = '#panel-views-left-panel';
+  const right = '#panel-views-right-panel';
 
   test('moves a view to the other sidebar and the placement persists', async ({
     page,

@@ -1,8 +1,8 @@
 import { expect, test } from '@playwright/test';
 
 test.describe('Hidden sidebar views', () => {
-  const left = '#panel-views-primary';
-  const right = '#panel-views-secondary';
+  const left = '#panel-views-left-panel';
+  const right = '#panel-views-right-panel';
 
   test('hide via the view-tab menu, reveal from the customise dialog', async ({
     page,

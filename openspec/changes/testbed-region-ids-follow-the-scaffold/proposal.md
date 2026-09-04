@@ -1,4 +1,4 @@
-> **Status:** proposed — not approved for implementation yet.
+> **Status:** approved.
 
 ## Why
 
@@ -58,6 +58,9 @@ None. Region ids are a distribution's own naming, not a platform guarantee, so n
 - `platform/libs/weavers/testbed-weaver/src/lib/plugin/testbed-surfaces.ts`,
   `testbed-chrome.ts` and `testbed-theme.ts`: `docks`, `rail` and `bar` targets.
 - `platform/libs/weavers/testbed-weaver/src/lib/plugin/testbed.plugin.spec.ts`: the ids it pins.
+- `platform/apps/loom-testbed/public/sandbox-static/plugin.js`: a sandboxed plugin served as plain
+  JavaScript, which docks a surface by id like any other. Found while verifying rather than while
+  listing, which is the point of the verification steps.
 - `docs/reference/shell-anatomy.md`: the deviation sentence added in #166 is deleted.
 - `platform/apps/loom-testbed-e2e`: expected to need no change. Its matches on "activity" are the
   workbench label *Customize activity bar*, not a region id. The tasks verify this rather than

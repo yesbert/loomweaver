@@ -43,12 +43,12 @@ const TESTBED_PLUGIN_ICON =
 const layout: ShellLayout = {
   regions: [
     { id: 'top-bar', type: 'bar', dock: 'top' },
-    { id: 'activity', type: 'rail', dock: 'left' },
-    { id: 'primary', type: 'panel', dock: 'left' },
+    { id: 'primary', type: 'rail', dock: 'left' },
+    { id: 'left-panel', type: 'panel', dock: 'left' },
     { id: 'left-footer', type: 'bar', dock: 'left' },
     { id: 'main', type: 'content', dock: 'center' },
-    { id: 'secondary', type: 'panel', dock: 'right' },
-    { id: 'activity-right', type: 'rail', dock: 'right' },
+    { id: 'right-panel', type: 'panel', dock: 'right' },
+    { id: 'secondary', type: 'rail', dock: 'right' },
     { id: 'right-footer', type: 'bar', dock: 'right' },
     { id: 'status-bar', type: 'bar', dock: 'bottom' },
   ],
@@ -94,7 +94,7 @@ try {
           id: 'testbed.home',
           title: 'product.workspace.home',
           icon: 'testbedHome',
-          sidebars: { primary: [], secondary: [] },
+          sidebars: { 'left-panel': [], 'right-panel': [] },
           content: { tabs: [{ path: '', closable: false }] },
         },
         {
@@ -106,7 +106,7 @@ try {
               ? ['entry/:id']
               : [],
           initial: localStorage.getItem(INITIAL_WORKSPACE_KEY) === 'review',
-          sidebars: { primary: ['testbed.nav'] },
+          sidebars: { 'left-panel': ['testbed.nav'] },
           content: {
             columns: [
               { size: 35, tabs: [{ path: 'entry/e-01', closable: false }] },
@@ -118,7 +118,7 @@ try {
           id: 'testbed.dashboard',
           title: 'product.workspace.dashboard',
           icon: 'testbedDashboard',
-          sidebars: { primary: [], secondary: [] },
+          sidebars: { 'left-panel': [], 'right-panel': [] },
           content: {
             tabs: [
               { path: 'dashboard/overview', closable: false, active: true },
@@ -150,7 +150,7 @@ try {
       ...provideRailItems(
         {
           id: 'testbed.workspace.home',
-          rail: 'activity',
+          rail: 'primary',
           icon: 'testbedHome',
           title: 'product.workspace.home',
           order: 0,
@@ -158,7 +158,7 @@ try {
         },
         {
           id: 'testbed.workspace.review',
-          rail: 'activity',
+          rail: 'primary',
           icon: 'workspaces',
           title: 'product.workspace.review',
           order: 2,
@@ -166,7 +166,7 @@ try {
         },
         {
           id: 'testbed.workspace.dashboard',
-          rail: 'activity',
+          rail: 'primary',
           icon: 'testbedDashboard',
           title: 'product.workspace.dashboard',
           order: 1,
@@ -174,7 +174,7 @@ try {
         },
         {
           id: 'testbed.workspace.search',
-          rail: 'activity',
+          rail: 'primary',
           icon: 'search',
           title: 'product.workspace.search',
           order: 3,
@@ -182,7 +182,7 @@ try {
         },
         {
           id: 'testbed.workspace.sandbox',
-          rail: 'activity',
+          rail: 'primary',
           icon: 'testbedSandbox',
           title: 'product.workspace.sandbox',
           order: 5,
@@ -190,7 +190,7 @@ try {
         },
         {
           id: 'testbed.workspace.notes',
-          rail: 'activity',
+          rail: 'primary',
           icon: 'edit',
           title: 'product.workspace.notes',
           order: 4,

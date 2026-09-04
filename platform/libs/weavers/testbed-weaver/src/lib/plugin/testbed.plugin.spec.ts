@@ -152,13 +152,13 @@ describe('testbedPlugin', () => {
 
     const list = surfaces.find((s) => s.id === 'testbed.list');
     expect(list?.routable).toBeUndefined();
-    expect(list?.docks).toEqual(['primary']);
+    expect(list?.docks).toEqual(['left-panel']);
   });
 
   it('registers the outline as a non-routable panel surface with docks + instanceable', () => {
     const outline = activate().surfaces.find((s) => s.id === 'testbed.outline');
     expect(outline?.routable).toBeUndefined();
-    expect(outline?.docks).toEqual(['primary']);
+    expect(outline?.docks).toEqual(['left-panel']);
     expect(outline?.instanceable).toBe(true);
   });
 

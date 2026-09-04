@@ -6,7 +6,7 @@ test.describe('Input field contract (.lw-field)', () => {
   }) => {
     await page.goto('/');
     await page
-      .locator('#panel-views-secondary')
+      .locator('#panel-views-right-panel')
       .getByRole('tab', { name: 'Info' })
       .click();
 

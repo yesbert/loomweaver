@@ -7,7 +7,7 @@ import {
 } from './support/helpers';
 
 test.describe('Identity-scoped state & identity-change reload', () => {
-  const left = '#panel-views-primary';
+  const left = '#panel-views-left-panel';
 
   const outlineTab = (page: Page) =>
     page.locator(left).getByRole('tab', { name: 'Outline' });

@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { rail } from './support/helpers';
 
 test.describe('Resetting the app layout (K6)', () => {
-  const left = '#panel-views-primary';
+  const left = '#panel-views-left-panel';
 
   test('brings back a hidden rail entry and a collapsed sidebar, and holds over a reload', async ({
     page,

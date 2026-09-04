@@ -75,7 +75,7 @@ export function registerTheme(ctx: PluginContext): void {
   });
   ctx.registerRailItem({
     id: 'testbed.rail.theme',
-    rail: 'activity',
+    rail: 'primary',
     icon: 'testbedPalette',
     title: 'testbed.theme.toggle',
     anchor: 'bottom',

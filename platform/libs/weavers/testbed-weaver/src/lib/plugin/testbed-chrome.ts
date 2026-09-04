@@ -13,7 +13,7 @@ export function registerChrome(ctx: PluginContext): void {
 function registerRailItems(ctx: PluginContext): void {
   ctx.registerRailItem({
     id: 'testbed.rail.sandbox',
-    rail: 'activity',
+    rail: 'primary',
     icon: 'testbedSandbox',
     title: 'testbed.sandbox.title',
     order: 5,
@@ -22,7 +22,7 @@ function registerRailItems(ctx: PluginContext): void {
   });
   ctx.registerRailItem({
     id: 'testbed.rail.workspace',
-    rail: 'activity',
+    rail: 'primary',
     icon: 'splitPanes',
     title: 'testbed.workspace.title',
     order: 6,
@@ -30,7 +30,7 @@ function registerRailItems(ctx: PluginContext): void {
   });
   ctx.registerRailItem({
     id: 'testbed.rail.arranged',
-    rail: 'activity',
+    rail: 'primary',
     icon: 'splitPanesDown',
     title: 'testbed.arranged.title',
     order: 6.5,
@@ -38,7 +38,7 @@ function registerRailItems(ctx: PluginContext): void {
   });
   ctx.registerRailItem({
     id: 'testbed.rail.browse',
-    rail: 'activity',
+    rail: 'primary',
     icon: 'testbedList',
     title: 'testbed.browse.title',
     order: 6.7,
@@ -46,7 +46,7 @@ function registerRailItems(ctx: PluginContext): void {
   });
   ctx.registerRailItem({
     id: 'testbed.admin',
-    rail: 'activity',
+    rail: 'primary',
     icon: 'testbedShield',
     title: 'testbed.admin.title',
     order: 7,
@@ -55,7 +55,7 @@ function registerRailItems(ctx: PluginContext): void {
   });
   ctx.registerRailItem({
     id: 'testbed.locked',
-    rail: 'activity-right',
+    rail: 'secondary',
     icon: 'testbedUsers',
     title: 'testbed.locked.title',
     order: 7,
@@ -64,7 +64,7 @@ function registerRailItems(ctx: PluginContext): void {
   });
   ctx.registerRailItem({
     id: 'testbed.rail.secret',
-    rail: 'activity-right',
+    rail: 'secondary',
     icon: 'testbedKey',
     title: 'testbed.admin.route',
     order: 8,
@@ -72,7 +72,7 @@ function registerRailItems(ctx: PluginContext): void {
   });
   ctx.registerRailItem({
     id: 'testbed.rail.adminArea',
-    rail: 'activity-right',
+    rail: 'secondary',
     icon: 'testbedBuilding',
     title: 'testbed.admin.area',
     order: 9,
@@ -80,7 +80,7 @@ function registerRailItems(ctx: PluginContext): void {
   });
   ctx.registerRailItem({
     id: 'testbed.workspaces',
-    rail: 'activity-right',
+    rail: 'secondary',
     icon: 'workspaces',
     title: 'workspace.title',
     anchor: 'bottom',
@@ -89,7 +89,7 @@ function registerRailItems(ctx: PluginContext): void {
   });
   ctx.registerRailItem({
     id: 'testbed.auth',
-    rail: 'activity-right',
+    rail: 'secondary',
     icon: 'testbedUserSwitch',
     title: 'testbed.auth.cycle',
     anchor: 'bottom',
@@ -98,7 +98,7 @@ function registerRailItems(ctx: PluginContext): void {
   });
   ctx.registerRailItem({
     id: 'testbed.rail.grace',
-    rail: 'activity',
+    rail: 'primary',
     icon: 'testbedUser',
     title: 'testbed.auth.grace',
     anchor: 'bottom',
@@ -108,7 +108,7 @@ function registerRailItems(ctx: PluginContext): void {
   });
   ctx.registerRailItem({
     id: 'testbed.rail.dropAdmin',
-    rail: 'activity',
+    rail: 'primary',
     icon: 'testbedStepDown',
     title: 'testbed.auth.dropAdmin',
     anchor: 'bottom',
@@ -118,7 +118,7 @@ function registerRailItems(ctx: PluginContext): void {
   });
   ctx.registerRailItem({
     id: 'testbed.rail.signOut',
-    rail: 'activity',
+    rail: 'primary',
     icon: 'testbedSignOut',
     title: 'testbed.auth.signOut',
     anchor: 'bottom',
@@ -128,7 +128,7 @@ function registerRailItems(ctx: PluginContext): void {
   });
   ctx.registerRailItem({
     id: 'testbed.rail.account',
-    rail: 'activity',
+    rail: 'primary',
     icon: 'testbedUsers',
     initials: 'AL',
     title: 'testbed.account.title',
@@ -146,7 +146,7 @@ function registerRailItems(ctx: PluginContext): void {
   });
   ctx.registerRailItem({
     id: 'testbed.rail.account.broken',
-    rail: 'activity',
+    rail: 'primary',
     icon: 'testbedUsers',
     initials: 'GH',
     title: 'testbed.account.brokenTitle',
@@ -164,7 +164,7 @@ function registerRailItems(ctx: PluginContext): void {
   });
   ctx.registerRailItem({
     id: 'testbed.rail.settings',
-    rail: 'activity',
+    rail: 'primary',
     icon: 'settings',
     title: 'testbed.cmd.settings',
     anchor: 'bottom',

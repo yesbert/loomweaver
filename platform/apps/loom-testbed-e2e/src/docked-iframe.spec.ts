@@ -12,7 +12,7 @@ function dockedFrame(page: Page): FrameLocator {
 
 function sidebarTab(page: Page, name: string): Locator {
   return page.locator(
-    `#panel-views-secondary [role="tab"][aria-label="${name}"]`,
+    `#panel-views-right-panel [role="tab"][aria-label="${name}"]`,
   );
 }
 
@@ -110,13 +110,13 @@ test.describe('A sandboxed plugin docks a sidebar view', () => {
 
     await expect(
       page.locator(
-        '#panel-views-secondary [role="tab"][aria-label="Sandbox (docked)"]',
+        '#panel-views-right-panel [role="tab"][aria-label="Sandbox (docked)"]',
       ),
     ).toBeVisible();
 
     await page
       .locator(
-        '#panel-views-secondary [role="tab"][aria-label="Sandbox (docked)"]',
+        '#panel-views-right-panel [role="tab"][aria-label="Sandbox (docked)"]',
       )
       .click();
 
