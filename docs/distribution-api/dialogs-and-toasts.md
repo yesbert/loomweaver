@@ -1,6 +1,7 @@
 # Dialogs and toasts
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `ui-primitives` · `host-services`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
@@ -60,16 +61,16 @@ promise and is what you want almost always.
 
 **Your own component as the body.** `OpenOptions`:
 
-| Option | Effect |
-| --- | --- |
-| `title`, `icon`, `tone` | the host-drawn frame around your component |
-| `data` | passed to your component through the `DialogRef` |
-| `buttons` | host-drawn footer buttons; each `{ label, variant?, value? }` resolves `closed` with its `value` |
-| `size` | `md` (default), `lg`, `xl` |
-| `dismissable` | backdrop click and Escape close the dialog; default `true` |
-| `maximizable` | the frame offers a maximize/restore control |
-| `bare` | render only your component — no frame, no padding, no footer; you own the chrome |
-| `align` | `center` (default) or `top`, which pins the panel near the top on every width |
+| Option                  | Effect                                                                                           |
+| ----------------------- | ------------------------------------------------------------------------------------------------ |
+| `title`, `icon`, `tone` | the host-drawn frame around your component                                                       |
+| `data`                  | passed to your component through the `DialogRef`                                                 |
+| `buttons`               | host-drawn footer buttons; each `{ label, variant?, value? }` resolves `closed` with its `value` |
+| `size`                  | `md` (default), `lg`, `xl`                                                                       |
+| `dismissable`           | backdrop click and Escape close the dialog; default `true`                                       |
+| `maximizable`           | the frame offers a maximize/restore control                                                      |
+| `bare`                  | render only your component — no frame, no padding, no footer; you own the chrome                 |
+| `align`                 | `center` (default) or `top`, which pins the panel near the top on every width                    |
 
 **When the frame does not fit.** `bare` and `align: 'top'` exist for the two cases the standard frame
 does not fit. One is a surface that draws its own two-column chrome, such as the settings dialog.

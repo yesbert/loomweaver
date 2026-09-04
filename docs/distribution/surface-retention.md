@@ -1,6 +1,7 @@
 # Surface retention
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `surface-retention`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
@@ -46,7 +47,7 @@ and the workbench asks before any action would destroy it
 ([The unsaved-work question](../concepts/retention-and-unsaved-work.md#the-unsaved-work-question)).
 Three of those actions are the product's own:
 
-- Disabling, uninstalling or updating a plugin, from the switches in *Permissions* and from the plugin
+- Disabling, uninstalling or updating a plugin, from the switches in _Permissions_ and from the plugin
   store, runs the unsaved-changes dialog over the affected instances before anything is destroyed. The
   surface's `surfaceBeforeClose` veto is deliberately not consulted there: a plugin cannot veto its
   own removal.

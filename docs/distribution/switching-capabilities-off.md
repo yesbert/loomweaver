@@ -1,6 +1,7 @@
 # Switching capabilities off
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `gesture-configuration`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
@@ -13,7 +14,7 @@ reading a switch and changing it while the application runs is `FeatureSwitches`
 [Switches](../distribution-api/switches.md).
 
 A switch takes the **affordance and the gesture**. Turning `splitRight` off removes the toolbar
-button, the left/right drop edges *and* `mod+\`, so the capability cannot come back through a second
+button, the left/right drop edges _and_ `mod+\`, so the capability cannot come back through a second
 door.
 
 ## Every switch
@@ -117,7 +118,7 @@ that turns splitting off does not get it back inside a "workspace-in-a-tab".
 
 ## Gestures, not contributions
 
-`provideShellFeatures` is the home for **gestures**. A *contribution* (a command, a bar or rail item,
+`provideShellFeatures` is the home for **gestures**. A _contribution_ (a command, a bar or rail item,
 a settings row, a menu entry) is not a gesture and is removed with
 [`provideShell({ omit })`](recomposing-chrome.md#recomposing-host-chrome) instead.
 

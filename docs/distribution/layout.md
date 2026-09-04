@@ -1,6 +1,7 @@
 # Layout: regions and docks
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `shell-layout`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
@@ -12,7 +13,7 @@
 - **Docks:** `top` · `bottom` · `left` · `right` · `center`.
 - **Region types:**
   - `bar` — a thin strip of items in `start | center | end` slots (top bar, status bar).
-  - `rail` — the rail, which the workbench labels *Activity bar*: icon triggers for commands.
+  - `rail` — the rail, which the workbench labels _Activity bar_: icon triggers for commands.
   - `panel` — a sidebar surface that hosts views (the host auto-tabs multiple views).
   - `content` — the main content area (docks `center`). **URL-addressed** (routes), not views.
 
@@ -40,8 +41,8 @@ in [Switching capabilities off](switching-capabilities-off.md).
 
 ## Curating a sidebar
 
-The user curates a sidebar the way they curate the rail. A right-click on a view tab offers *Move
-to other sidebar* and *Hide*; a right-click on the strip offers *Customize views*, which opens a
+The user curates a sidebar the way they curate the rail. A right-click on a view tab offers _Move
+to other sidebar_ and _Hide_; a right-click on the strip offers _Customize views_, which opens a
 dialog listing every view with **where it sits**: hidden, left, or right. Picking a place moves it
 there, so the dialog does the hiding and the moving in one control, and a view hidden on the left
 comes back wherever you send it. The dialog has a search field and scrolls, because a product with

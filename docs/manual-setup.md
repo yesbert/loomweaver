@@ -1,6 +1,7 @@
 # Manual setup
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `platform-composition` · `shell-layout` · `routing` ·
 > `product-identity` · `theming` · `i18n`. Where this page and a specification disagree, the
@@ -13,7 +14,7 @@ reference for adding the shell to an application that already exists, when you w
 have a generator rewrite it.
 
 Everything below is something the scaffold would otherwise write for you: the style pipeline, the
-asset globs, the service worker and the build settings. It is here because knowing *why* each exists
+asset globs, the service worker and the build settings. It is here because knowing _why_ each exists
 is worth fifteen minutes, and because a workspace the generator cannot read leaves you doing exactly
 this. The minimal `index.html` below ships no content-security policy; adopt the scaffold's strict
 one and you take on the `inlineCritical` build setting with it, which
@@ -51,7 +52,7 @@ npm install -D tailwindcss @tailwindcss/postcss @tailwindcss/typography
 
 That last argument pins `@angular/service-worker` to the Angular version your workspace already
 has. The package is a peer dependency of the shell. Leave the pin off and npm installs the newest
-version instead. That newest version demands the matching, newer `@angular/core` as its *exact*
+version instead. That newest version demands the matching, newer `@angular/core` as its _exact_
 peer, and the install fails with `ERESOLVE`. The reason: Angular packages peer-depend on each other
 by exact version. So the one Angular package your app does not already have is the one npm gets to
 choose — and it chooses wrong.
@@ -105,7 +106,7 @@ Four things about the generated file you are replacing:
   Angular service worker itself by default — but this minimal setup emits no
   `ngsw-worker.js`, so the default registration would 404 in every production build.
   `serviceWorker: false` skips it; `UpdateService.enabled` reports `false` and no update chrome ever
-  appears. To *become* a PWA later, drop the option and add the build side:
+  appears. To _become_ a PWA later, drop the option and add the build side:
   `ngsw-config.json`, the `serviceWorker` build option and a `manifest.webmanifest`. The steps are
   described in [building a distribution → PWA & delivery](distribution/pwa.md).
   The [scaffolded quick start](getting-started.md) ships all of that wired, so there PWA is on.
@@ -174,7 +175,7 @@ whether `App` has styles; `styleUrl: './app.css'` can stay or go.
 { "plugins": { "@tailwindcss/postcss": {} } }
 ```
 
-**Count the `../` hops carefully.** `@source` is resolved from *this file*, so the path depends on
+**Count the `../` hops carefully.** `@source` is resolved from _this file_, so the path depends on
 how deep the stylesheet sits. From `src/styles.css` in a single application it is
 `../node_modules/…`. From `apps/studio/src/styles.css` in a monorepo it is
 `../../../node_modules/…`. Get it wrong and nothing errors. Tailwind simply emits none of the
@@ -185,7 +186,7 @@ your own templates, never raw palette colours — see [design tokens](reference/
 
 ### Bringing your own CSS framework
 
-Tailwind is how the shell is *built*, not something it imposes on you. If your product is themed
+Tailwind is how the shell is _built_, not something it imposes on you. If your product is themed
 with Bootstrap, Bulma or hand-written CSS, import the pre-compiled `@loomweaver/shell/styles/shell.css`
 instead and skip everything above. The framework then has to go into a cascade layer, or its
 unlayered rules outrank the shell's: [Bringing your own CSS
@@ -223,7 +224,7 @@ them. An unknown key renders as-is, so a plain string in `tagline` works too.
 ng serve
 ```
 
-You should see the neutral chrome branded as *My Studio* — and nothing in it, because no plugin is
+You should see the neutral chrome branded as _My Studio_ — and nothing in it, because no plugin is
 loaded yet. [Authoring a weaver](authoring-a-weaver.md) fills it; [samples](samples.md) has complete
 recipes to copy.
 
@@ -239,22 +240,22 @@ Nx is the common case for Angular monorepos and nothing about LoomWeaver works d
 Angular application generator produces the same `main.ts` / `app.ts` / `app.config.ts` / `app.html`
 shape the Angular CLI does, so every step above applies verbatim. Four differences:
 
-| | Angular CLI | Nx |
-| --- | --- | --- |
-| Build configuration | `angular.json` → `projects.<name>.architect.build.options` | `apps/<name>/project.json` → `targets.build.options` |
-| `@source` depth in `styles.css` | `../node_modules/…` | `../../../node_modules/…` from `apps/<name>/src/` |
-| Assets `input` paths | relative to the workspace root | the same — already workspace-relative |
-| Generators | `@loomweaver/cli` | `@loomweaver/devkit` (`nx g @loomweaver/devkit:weaver …`) |
+|                                 | Angular CLI                                                | Nx                                                        |
+| ------------------------------- | ---------------------------------------------------------- | --------------------------------------------------------- |
+| Build configuration             | `angular.json` → `projects.<name>.architect.build.options` | `apps/<name>/project.json` → `targets.build.options`      |
+| `@source` depth in `styles.css` | `../node_modules/…`                                        | `../../../node_modules/…` from `apps/<name>/src/`         |
+| Assets `input` paths            | relative to the workspace root                             | the same — already workspace-relative                     |
+| Generators                      | `@loomweaver/cli`                                          | `@loomweaver/devkit` (`nx g @loomweaver/devkit:weaver …`) |
 
 A generated project carries **no Nx tags**, because tag names only mean something inside your own
 `depConstraints`. If your workspace enforces module boundaries — the Nx Angular template does — the
-first `nx lint` after composing a weaver says *"a project without tags matching at least one
-constraint cannot depend on any libraries"*. Give the new projects tags your constraints allow, with
+first `nx lint` after composing a weaver says _"a project without tags matching at least one
+constraint cannot depend on any libraries"_. Give the new projects tags your constraints allow, with
 `--tags` when generating or in `project.json` afterwards. The scaffold deliberately does not relax
 that rule for you.
 
 In an Nx workspace prefer **[`@loomweaver/devkit`](scaffolding.md#the-nx-generators--loomweaverdevkit)** over
-the CLI. It is the only adapter that can *change* files as well as write them. It registers the
+the CLI. It is the only adapter that can _change_ files as well as write them. It registers the
 project, adds the tsconfig path alias and wires the translation assets glob into the composing
 application. The CLI can only describe those steps.
 
@@ -293,7 +294,7 @@ is how LoomWeaver loads plugins**, and we do not test either as a plugin transpo
 
 If your own application shell already uses federation, LoomWeaver does not stand in the way: within a
 host or a remote, `@loomweaver/shell` is an ordinary Angular library, and the steps above are unchanged.
-Just do not expect to serve *weavers* as federated remotes — that is untested, and the supported
+Just do not expect to serve _weavers_ as federated remotes — that is untested, and the supported
 answer for third-party code is the sandbox.
 
 ---

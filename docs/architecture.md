@@ -1,13 +1,14 @@
 # Architecture
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `platform-composition` · `plugin-runtime` ·
 > `plugin-permissions` · `plugin-sandbox` · `access-gating` · `persistence-ports`. Where this page
 > and a specification disagree, the specification is right, and that is a defect in this page:
 > change the behaviour there, then explain it here.
 
-LoomWeaver is a **domain-agnostic plugin & UI platform** — the *loom* on which products weave.
+LoomWeaver is a **domain-agnostic plugin & UI platform** — the _loom_ on which products weave.
 This page is the mental model you need before building on it. (The [live
 demo](https://demo.loomweaver.dev) is a product built exactly this way, from the published packages.)
 
@@ -90,7 +91,7 @@ export const myWeaver: Plugin = {
 };
 ```
 
-There is **no privileged host API**. A domain capability like `acme.search` is *provided by* the
+There is **no privileged host API**. A domain capability like `acme.search` is _provided by_ the
 product's own weaver and consumed by others through the broker — the same path a third-party plugin
 uses. Everything a plugin may import is in `@loomweaver/plugin-sdk`; nothing else is public API.
 
@@ -105,7 +106,7 @@ A plugin **declares** the capabilities it needs in its manifest and the **distri
 ## Auth-aware access gating
 
 LoomWeaver owns **no** authentication — login, session, tokens and the identity provider live in the
-product's own stack. The platform only *reacts* to a session snapshot the distribution supplies
+product's own stack. The platform only _reacts_ to a session snapshot the distribution supplies
 via `provideAuthSource` (a reactive `AuthSnapshot` signal; roles/claims are opaque strings). On top of
 that, a contribution declares an `access` requirement, and the host reacts to the session by login
 state and roles:
@@ -119,7 +120,7 @@ state and roles:
 A plugin can
 also read the session imperatively through `ctx.session` (gated by the `session` capability), and the
 host push-adapts it into a sandboxed surface so an iframe plugin self-gates too. This is orthogonal to
-capabilities (what a *plugin* may do vs. what a *user* may see). **Client-side gating is presentation,
+capabilities (what a _plugin_ may do vs. what a _user_ may see). **Client-side gating is presentation,
 not security** — the real boundary is server-side. The complete matrix of every gated surface is
 [reference → access gating](reference/access-gating.md); the wiring, login UI and redirect with full
 examples are [building a distribution → auth

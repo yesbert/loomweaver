@@ -1,0 +1,11 @@
+{
+  "overrides": [
+    {
+      "files": "*.md",
+      "options": {
+        "singleQuote": true,
+        "embeddedLanguageFormatting": "off"
+      }
+    }
+  ]
+}

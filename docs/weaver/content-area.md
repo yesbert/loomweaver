@@ -1,6 +1,7 @@
 # The content area: routes and tabs
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `content-tabs` · `routing` · `panes`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
@@ -53,7 +54,7 @@ ctx.registerSurface({ id: 'dashboard', title: 'dashboard.title', component: Dash
 
 A route component reads its params the normal Angular way (`inject(ActivatedRoute)`), so `doc/:id`
 resolves `id` itself. Don't draw your own top-level tab bar — open into the host strip; a **nested**
-sub-tab bar *inside* one document's body (Edit | Preview) is fine, it's a level down.
+sub-tab bar _inside_ one document's body (Edit | Preview) is fine, it's a level down.
 
 ## Reaching the pane edges
 
@@ -125,7 +126,7 @@ does not cross the RPC boundary.)
 ## Preview tabs
 
 For file-browsing UX, open with `preview: true`: the host
-uses a **single reused, italic** slot per pane — the next `preview` open of a *different* path replaces
+uses a **single reused, italic** slot per pane — the next `preview` open of a _different_ path replaces
 it in place, so browsing many items doesn't pile up tabs. Promote it to a permanent tab **explicitly**:
 call `ctx.keepContentTab(path)` (e.g. on your list's double-click or when the content is edited).
 The host's own double-click cycle on the tab is the distribution's to switch off, so do not build
@@ -169,7 +170,7 @@ ctx.registerSurface({ id: 'doc', title: 'doc.title', icon: 'document', component
 ## Calling `ctx` from a component
 
 `ctx` is handed to `activate(ctx)`, but you usually open a
-document from a click *inside* a component (a tree/list) that holds no `ctx`. Bridge it with a tiny
+document from a click _inside_ a component (a tree/list) that holds no `ctx`. Bridge it with a tiny
 service the plugin fills at activation and the component imports:
 
 ```ts
@@ -190,7 +191,7 @@ export const notesNav = new NotesNav();
 ```
 
 Use a **module-level facade** (a plain exported instance), not an Angular `@Injectable` filled via
-`inject()` inside `activate()`. Activation is *not guaranteed* to run in Angular's injection context.
+`inject()` inside `activate()`. Activation is _not guaranteed_ to run in Angular's injection context.
 It re-runs, for instance, when the user re-enables your plugin at runtime. An `inject()` there can
 therefore throw.
 

@@ -13,18 +13,18 @@ standard can run your product's own commands.
 
 ## Pick your path
 
-| You want to…                               | Start here                                                                                                 |
-| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
-| **See it running first**                   | the live demo at [demo.loomweaver.dev](https://demo.loomweaver.dev): a product built on the published packages |
-| **Try it in five minutes**                 | [Getting started](getting-started.md): scaffold a running, branded product                                 |
-| **Understand how it works**                | [Architecture](architecture.md), then the [concept pages](#concepts) for why the workbench behaves as it does |
-| **Build a plugin (a "weaver")**            | [Authoring a weaver](authoring-a-weaver.md), with copyable recipes in [Samples](samples.md)                |
-| **Compose and brand a product**            | [Building a distribution](building-a-distribution.md)                                                      |
-| **Use Bootstrap or your own CSS framework**| [Bringing your own CSS framework](distribution/css-frameworks.md)                                         |
-| **Let an AG-UI agent drive your product**  | [Driving your product with an AG-UI agent](ag-ui-agents.md)                                                |
-| **Wire your own backend**                  | [Backend integration](backend-integration.md)                                                              |
-| **Do something from your own code**        | [Distribution API](distribution-api/index.md): indexed by "I want to …"                                    |
-| **Look something up**                      | the [reference pages](#platform-reference) below                                                           |
+| You want to…                                | Start here                                                                                                     |
+| ------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **See it running first**                    | the live demo at [demo.loomweaver.dev](https://demo.loomweaver.dev): a product built on the published packages |
+| **Try it in five minutes**                  | [Getting started](getting-started.md): scaffold a running, branded product                                     |
+| **Understand how it works**                 | [Architecture](architecture.md), then the [concept pages](#concepts) for why the workbench behaves as it does  |
+| **Build a plugin (a "weaver")**             | [Authoring a weaver](authoring-a-weaver.md), with copyable recipes in [Samples](samples.md)                    |
+| **Compose and brand a product**             | [Building a distribution](building-a-distribution.md)                                                          |
+| **Use Bootstrap or your own CSS framework** | [Bringing your own CSS framework](distribution/css-frameworks.md)                                              |
+| **Let an AG-UI agent drive your product**   | [Driving your product with an AG-UI agent](ag-ui-agents.md)                                                    |
+| **Wire your own backend**                   | [Backend integration](backend-integration.md)                                                                  |
+| **Do something from your own code**         | [Distribution API](distribution-api/index.md): indexed by "I want to …"                                        |
+| **Look something up**                       | the [reference pages](#platform-reference) below                                                               |
 
 ## Guides
 

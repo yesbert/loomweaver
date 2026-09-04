@@ -1,6 +1,7 @@
 # Samples
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `surfaces` · `routing` · `commands` · `ui-primitives` ·
 > `access-gating` · `surface-retention` · `persistence-ports` · `i18n`. Where this page and a
@@ -19,7 +20,7 @@ npx @loomweaver/cli weaver --id notes --out src/notes
 ```
 
 Everything below goes **inside `activate(ctx)`** of your plugin unless the path says otherwise. The
-capabilities each recipe needs are listed with it — declare them in your `manifest` *and* have the
+capabilities each recipe needs are listed with it — declare them in your `manifest` _and_ have the
 distribution grant them, or the call throws `CapabilityError`.
 
 ## What the generator already writes
@@ -28,13 +29,13 @@ Five of these ten recipes are what the generator writes, and a sixth, recipe 10,
 you. That is worth knowing before you copy anything: a generated weaver compiles, passes its own lint, and comes out the same every time, so
 your attention goes to the part that is actually yours.
 
-| Recipe | The invocation that writes it |
-| --- | --- |
-| [1 · A sidebar view](#a-sidebar-view-that-remembers-its-state) | `weaver --id notes --instanceable` — the docked surface and its rail item; the persisted state is yours |
-| [2 · A content surface with its own URL](#a-content-surface-with-its-own-url) | `weaver --id notes` — the default shape, at `/notes`; the `:id` is what you add |
-| [3 · One behaviour, many triggers](#one-behaviour-many-triggers) | `weaver --id notes --command --shortcut 'mod+shift+n' --menu content/tab/context --bar-item` |
-| [4 · A settings section](#a-settings-section) | `weaver --id notes --settings` |
-| [5 · Gating a surface behind a login](#gating-a-surface-behind-a-login) | `weaver --id notes --access authenticated` |
+| Recipe                                                                                           | The invocation that writes it                                                                                                             |
+| ------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| [1 · A sidebar view](#a-sidebar-view-that-remembers-its-state)                                   | `weaver --id notes --instanceable` — the docked surface and its rail item; the persisted state is yours                                   |
+| [2 · A content surface with its own URL](#a-content-surface-with-its-own-url)                    | `weaver --id notes` — the default shape, at `/notes`; the `:id` is what you add                                                           |
+| [3 · One behaviour, many triggers](#one-behaviour-many-triggers)                                 | `weaver --id notes --command --shortcut 'mod+shift+n' --menu content/tab/context --bar-item`                                              |
+| [4 · A settings section](#a-settings-section)                                                    | `weaver --id notes --settings`                                                                                                            |
+| [5 · Gating a surface behind a login](#gating-a-surface-behind-a-login)                          | `weaver --id notes --access authenticated`                                                                                                |
 | [10 · Letting an AG-UI agent drive your product](#10--letting-an-ag-ui-agent-drive-your-product) | `weaver --id notes --agent` — the connection, a panel and a stand-in that works before you have a transport; what you replace is one file |
 
 The options compose, so that is one call:
@@ -52,8 +53,8 @@ runs on the first serve, and the transport it talks to stays yours.
 **It does not matter who invokes it.** One description of each generator serves every route into it,
 so `@loomweaver/cli` on a command line, `@loomweaver/devkit` as an Nx generator and `@loomweaver/mcp`
 over MCP produce the same files from the same options. An assistant with the MCP server registered
-scaffolds a weaver with a tool instead of writing plugin code from memory — ask it for *"a weaver
-called notes with a settings section and a command on mod+shift+n"* and what lands in your diff is
+scaffolds a weaver with a tool instead of writing plugin code from memory — ask it for _"a weaver
+called notes with a settings section and a command on mod+shift+n"_ and what lands in your diff is
 the output above, not an invention you have to review line by line. See
 [scaffolding](scaffolding.md) for the full option table and the three adapters.
 
@@ -193,7 +194,7 @@ export class NoteDetail {
 }
 ```
 
-**You get:** a rail icon that opens `/note/roadmap` as a tab titled *Roadmap*.
+**You get:** a rail icon that opens `/note/roadmap` as a tab titled _Roadmap_.
 `titleIsLiteral: true` says the title is text, not a translation key. The URL is shareable,
 back/forward work, and the user can split the tab into its own pane. Add `chromeless: true` and
 everything still works except the tab: the surface then fills the area on its own with no strip,
@@ -282,7 +283,7 @@ ctx.registerSettingsSection({
 });
 ```
 
-**You get:** a *Notes* entry in the settings dialog's left nav with a switch and a text field, saving
+**You get:** a _Notes_ entry in the settings dialog's left nav with a switch and a text field, saving
 as you type. To persist across reloads, write the values through your own storage in `set` — see
 [backend integration](backend-integration.md) for doing it through the distribution's settings store.
 
@@ -297,7 +298,7 @@ session changes.
 and on the rail item together, which is the pairing you want. A role requirement and `mode` you
 write yourself.
 
-**Capabilities:** `contributions` (plus `session` only if you also want to *read* the session)
+**Capabilities:** `contributions` (plus `session` only if you also want to _read_ the session)
 
 ```ts
 // in activate(ctx)
@@ -519,7 +520,7 @@ routable surface has no handle and uses its address instead) are
 
 ## 8 · An editor with unsaved changes
 
-A hidden surface is destroyed as soon as it is clean, and *dirty* is what makes it not clean.
+A hidden surface is destroyed as soon as it is clean, and _dirty_ is what makes it not clean.
 Implement `DirtySurface` on your component and the host takes over the unsaved-work protocol. You
 write two members; everything else is the host's job.
 
@@ -595,7 +596,7 @@ export class NoteEditor implements DirtySurface {
 ```
 
 **You get:** while `surfaceDirty()` is `true` the instance survives every hiding gesture without a
-question; closing runs the host's *Save · Discard · Cancel* dialog, where *Save* appears only because
+question; closing runs the host's _Save · Discard · Cancel_ dialog, where _Save_ appears only because
 `surfaceSave` exists; closing the browser window triggers the native `beforeunload` prompt. Declare
 `saveOn: 'hide'` on the registration and the question becomes an auto-save. The optional
 `surfaceBeforeClose` replaces the dialog with your own flow:
@@ -633,11 +634,11 @@ wire. This recipe is for **your own** state: a distribution key, a product sessi
 
 First decide where the state lives, because that decides how it syncs:
 
-| Your state is…                              | Persist it…                     | Sync story                                             |
-| ------------------------------------------- | ------------------------------- | ------------------------------------------------------ |
-| a deliberate user decision (a preference)   | through `SETTINGS_STORE`        | broadcasts by itself — register a reaction             |
-| usage state (drafts-of-layout, MRU, traces) | through `WORKING_STATE_STORE`   | broadcasts by itself — register a reaction             |
-| outside both ports (a product session)      | wherever it lives today         | `announce` on write + `register('external', …)`        |
+| Your state is…                              | Persist it…                   | Sync story                                      |
+| ------------------------------------------- | ----------------------------- | ----------------------------------------------- |
+| a deliberate user decision (a preference)   | through `SETTINGS_STORE`      | broadcasts by itself — register a reaction      |
+| usage state (drafts-of-layout, MRU, traces) | through `WORKING_STATE_STORE` | broadcasts by itself — register a reaction      |
+| outside both ports (a product session)      | wherever it lives today       | `announce` on write + `register('external', …)` |
 
 **Capabilities:** none — this is distribution wiring (`app.config.ts`), not a plugin API.
 

@@ -1,6 +1,7 @@
 # Your plugin's own store
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `persistence-ports`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
@@ -11,7 +12,7 @@ plugin id and visible in every dock, every instance and every browser window. Yo
 of your surfaces have to agree on something. One example is a wizard whose step form is popped out into
 a second window while the main window has to see what the user types. The `VIEW_STATE` handle
 ([View state that survives](view-state.md)), in which a docked surface keeps its own filters and
-scroll position, cannot carry that: it belongs to *one mounted view instance*.
+scroll position, cannot carry that: it belongs to _one mounted view instance_.
 
 ```ts
 interface Wizard { readonly customer: string; }
@@ -41,7 +42,7 @@ capability to grant: there is nothing foreign to reach.
   (a sandboxed surface receives its `instanceId` with its pushed state). Two windows writing two keys
   converge; two windows replacing one key means last write wins, which costs the user's typing.
 - **It holds working state, not settings.** Settings have their own path precisely because the user
-  can *see* and change them in the settings dialog; a free-form settings store would be a back door
+  can _see_ and change them in the settings dialog; a free-form settings store would be a back door
   around that. Uninstalling your plugin deletes this store — a settings section survives, an abandoned
   draft is litter.
 - **Values are JSON and writes are debounced.** Siblings in the same window see a change at once;

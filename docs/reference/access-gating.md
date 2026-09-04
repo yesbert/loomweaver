@@ -1,6 +1,7 @@
 # Access gating
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `access-gating`. Where this page and a specification
 > disagree, the specification is right, and that is a defect in this page: change the behaviour
@@ -74,15 +75,15 @@ reduce the claim to a role token when you build the snapshot.
 
 ## Where it applies
 
-| Carries `access` | Unmet, `hide` (default) | Unmet, `disable` |
-| --- | --- | --- |
-| Rail item | not rendered | rendered, inert |
-| Bar item (host-drawn button) | not rendered | rendered, inert |
-| Bar item (your component) | not rendered | *not supported* — it owns its cell, so it is only hidden |
-| View action | not rendered | rendered, inert |
-| View (panel surface) | tab and body hidden | *ignored* — a view is present or it is not |
-| Command | omitted from the palette, `execute()` and its keybinding no-op | *ignored* — blocked either way |
-| Content route / routable surface | placeholder at the same URL, absent from the new-tab picker | *ignored* — blocked either way |
+| Carries `access`                 | Unmet, `hide` (default)                                        | Unmet, `disable`                                         |
+| -------------------------------- | -------------------------------------------------------------- | -------------------------------------------------------- |
+| Rail item                        | not rendered                                                   | rendered, inert                                          |
+| Bar item (host-drawn button)     | not rendered                                                   | rendered, inert                                          |
+| Bar item (your component)        | not rendered                                                   | _not supported_ — it owns its cell, so it is only hidden |
+| View action                      | not rendered                                                   | rendered, inert                                          |
+| View (panel surface)             | tab and body hidden                                            | _ignored_ — a view is present or it is not               |
+| Command                          | omitted from the palette, `execute()` and its keybinding no-op | _ignored_ — blocked either way                           |
+| Content route / routable surface | placeholder at the same URL, absent from the new-tab picker    | _ignored_ — blocked either way                           |
 
 Everything is **reactive**. A sign-in, a sign-out or a role change re-evaluates every one of these
 without a reload: gated chrome appears and disappears, a gated route the user is currently on falls
@@ -94,7 +95,7 @@ Two consequences worth knowing:
   no longer satisfies stays in the strip and shows the placeholder when selected, rather than
   vanishing mid-session. The same holds for a `view:` tab in a pane: the tab keeps its place and the
   pane shows the placeholder. (In a **sidebar**, a gated view is hidden outright — there the tab strip
-  *is* the list of views.)
+  _is_ the list of views.)
 - A gated route is excluded from the pane pickers and from drag-hosting **based on the live session**,
   not on the mere presence of a requirement — so "split editor" and friends work normally in a fully
   gated app.
@@ -104,11 +105,11 @@ Two consequences worth knowing:
 A pane that cannot show its surface tells you which of three things happened, so nobody goes hunting
 for a layout problem that does not exist:
 
-| Situation | What the pane shows |
-| --- | --- |
-| The surface exists, the session does not qualify | a padlock, "sign-in required" when signed out and "no access" when signed in without the role |
-| The surface exists but cannot be mounted outside the address pane | "this view can't be shown in a split yet" |
-| Nothing by that name is registered | "view not available" — a stale link, or a plugin that is no longer composed |
+| Situation                                                         | What the pane shows                                                                           |
+| ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| The surface exists, the session does not qualify                  | a padlock, "sign-in required" when signed out and "no access" when signed in without the role |
+| The surface exists but cannot be mounted outside the address pane | "this view can't be shown in a split yet"                                                     |
+| Nothing by that name is registered                                | "view not available" — a stale link, or a plugin that is no longer composed                   |
 
 The padlock uses the `lock` icon, so a distribution can replace it through `provideIcons`, and the two
 messages come from `auth.requiredTitle`/`requiredMessage` and `auth.deniedTitle`/`deniedMessage`, which
@@ -174,7 +175,7 @@ provideAuthSource(() => mySessionSignal, { onIdentityChange: 'reload' }),
 ```
 
 With this policy the app performs a full reload when an **established** `subject` is replaced by a
-*different* one. First sign-in (anonymous → subject) and sign-out never fire, so an asynchronous
+_different_ one. First sign-in (anonymous → subject) and sign-out never fire, so an asynchronous
 session restore at boot causes no flicker. A reload is a blunt instrument on purpose: it is the only
 way to guarantee that no in-memory state of the previous user survives.
 
@@ -186,15 +187,15 @@ out of the next user's namespace.
 
 ## Two axes that look alike
 
-| | Capability grants | Access gating |
-| --- | --- | --- |
-| Answers | may this **plugin** use this platform surface? | may this **user** see this contribution? |
-| Granted by | the distribution (or the install dialog) | nobody — it is evaluated per session |
-| Enforced at | the `ctx` broker | the host chrome, the router, the command seam |
-| Fails as | `CapabilityError` | hidden, disabled, or a placeholder |
+|             | Capability grants                              | Access gating                                 |
+| ----------- | ---------------------------------------------- | --------------------------------------------- |
+| Answers     | may this **plugin** use this platform surface? | may this **user** see this contribution?      |
+| Granted by  | the distribution (or the install dialog)       | nobody — it is evaluated per session          |
+| Enforced at | the `ctx` broker                               | the host chrome, the router, the command seam |
+| Fails as    | `CapabilityError`                              | hidden, disabled, or a placeholder            |
 
 They compose without interacting: a plugin holding every capability still hides an admin-only rail
-item from a non-admin, and revoking `session` from a plugin does not change what the *user* is
+item from a non-admin, and revoking `session` from a plugin does not change what the _user_ is
 allowed to see.
 
 ## What this is not

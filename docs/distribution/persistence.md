@@ -1,13 +1,14 @@
 # Persistence stores
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `persistence-ports`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
 > explain it here.
 
 The shell persists its user-local state through **two** ports of the same `KeyValueStore` shape,
-split by what the data *is*:
+split by what the data _is_:
 
 - **`SETTINGS_STORE`** carries genuine **settings** — deliberate decisions: theme, language, text
   size, plugin settings, installed/disabled plugins, capability revocations and the
@@ -60,7 +61,7 @@ provideSettingsStore(BffSettingsStore),
 `peek`); callers serialise/validate their own payloads. The same shape backs the working-state
 port: `provideWorkingStateStore(...)` swaps it for a backend-backed one when working state should
 travel across devices — a fresh tab then continues where another device left off. Making that store
-*live* across devices, with a push transport from your backend, is one call under
+_live_ across devices, with a push transport from your backend, is one call under
 [Windows, sync and updates](../distribution-api/windows-and-sync.md#do-it).
 
 **A rejecting store is safe.** Prefer resolving with `undefined` over rejecting — but the store above
@@ -72,7 +73,7 @@ and rejects only on real faults still gives you the better signal.
 **The boot never overwrites your saved layout.** With a `peek`-less store the pane tree
 (`lw.shell.pane-trees:<workspaceId>`) loads asynchronously, so the shell holds back every layout write until that load
 resolves — a tab auto-opened by the boot navigation cannot persist a half-empty tree over the real one,
-and if the load *fails* nothing is written at all (a rejection is not an empty layout). A failed first
+and if the load _fails_ nothing is written at all (a rejection is not an empty layout). A failed first
 load is retried once after a short delay to ride out a transient fault; if that retry also fails the
 shell keeps layout writes disabled for the session rather than overwrite a tree it never read. Once the
 tree resolves, an auto-opened deep-link tab is reconciled back into it rather than dropped, and a deep
@@ -95,28 +96,28 @@ Two keys deserve extra care: `lw.shell.pane-trees:<workspaceId>` serialises
 each tab's `path`, **literal `title`**, `icon` and `instance` in clear text, and
 `lw.plugin-settings:*` carries plugin-owned data.
 
-| Key | Holds | Port | Scope | Sync |
-| --- | --- | --- | --- | --- |
-| `lw.shell.theme` | light/dark choice | settings | device | synced |
-| `lw.shell.lang` | active language | settings | device | synced |
-| `lw.shell.font-scale` | text-size setting | settings | device | synced |
-| `lw.shell.active-workspace` | id of the active workspace | working state | identity | per-window |
-| `lw.shell.pane-trees:<workspaceId>` | pane/tab layout of every dock, incl. per-tab path/title/icon/instance, the **order of each pane's tabs** and which pane carries the URL (per-dock `{ tree, primary }` — pane ids are stable, the URL role is the pointer) | working state | identity | per-window |
-| `lw.shell.hidden-views:<workspaceId>` | which sidebar views that workspace hides | working state | identity | per-window |
-| `lw.shell.rail-items` | which rail entries the user hid, and which rail each one sits in | settings | identity | synced |
-| `lw.shell.panels` | which sidebars the user collapsed | working state | identity | per-window |
-| `lw.shell.panel-sizes` | sidebar widths | working state | identity | per-window |
-| `lw.shell.item-order` | user reorder of rail items and sidebar views (content tabs order on their pane, above) | working state | identity | per-window |
-| `lw.shell.workspaces` | user-defined workspaces — name + saved baseline | settings | identity | synced |
-| `lw.shell.view-instances:<viewId>` | named saved instances of a view | working state | identity | synced |
-| `lw.shell.view-state:<instanceId>` | a view instance's opaque `VIEW_STATE` blob | working state | identity | synced |
-| `lw.shell.disabled-plugins` | plugins the user turned off | settings | identity | synced |
-| `lw.shell.capability-revocations` | user capability revocations | settings | identity | synced |
-| `lw.shell.installed-plugins` | community plugins installed at runtime | settings | identity | synced |
-| `lw.shell.command-mru` | recently used palette commands ("Recently used" section) | working state | identity | synced |
-| `lw.plugin-settings:<pluginId>:<sectionId>` | a sandboxed plugin's settings values | settings | identity | synced |
-| `lw.plugin-state:<pluginId>:<key>` | a plugin's own working state (`ctx.state`) | working state | identity | synced |
-| `lw.plugin-state-keys:<pluginId>` | which keys that plugin has used, so an uninstall can delete them | working state | identity | synced |
+| Key                                         | Holds                                                                                                                                                                                                                     | Port          | Scope    | Sync       |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | -------- | ---------- |
+| `lw.shell.theme`                            | light/dark choice                                                                                                                                                                                                         | settings      | device   | synced     |
+| `lw.shell.lang`                             | active language                                                                                                                                                                                                           | settings      | device   | synced     |
+| `lw.shell.font-scale`                       | text-size setting                                                                                                                                                                                                         | settings      | device   | synced     |
+| `lw.shell.active-workspace`                 | id of the active workspace                                                                                                                                                                                                | working state | identity | per-window |
+| `lw.shell.pane-trees:<workspaceId>`         | pane/tab layout of every dock, incl. per-tab path/title/icon/instance, the **order of each pane's tabs** and which pane carries the URL (per-dock `{ tree, primary }` — pane ids are stable, the URL role is the pointer) | working state | identity | per-window |
+| `lw.shell.hidden-views:<workspaceId>`       | which sidebar views that workspace hides                                                                                                                                                                                  | working state | identity | per-window |
+| `lw.shell.rail-items`                       | which rail entries the user hid, and which rail each one sits in                                                                                                                                                          | settings      | identity | synced     |
+| `lw.shell.panels`                           | which sidebars the user collapsed                                                                                                                                                                                         | working state | identity | per-window |
+| `lw.shell.panel-sizes`                      | sidebar widths                                                                                                                                                                                                            | working state | identity | per-window |
+| `lw.shell.item-order`                       | user reorder of rail items and sidebar views (content tabs order on their pane, above)                                                                                                                                    | working state | identity | per-window |
+| `lw.shell.workspaces`                       | user-defined workspaces — name + saved baseline                                                                                                                                                                           | settings      | identity | synced     |
+| `lw.shell.view-instances:<viewId>`          | named saved instances of a view                                                                                                                                                                                           | working state | identity | synced     |
+| `lw.shell.view-state:<instanceId>`          | a view instance's opaque `VIEW_STATE` blob                                                                                                                                                                                | working state | identity | synced     |
+| `lw.shell.disabled-plugins`                 | plugins the user turned off                                                                                                                                                                                               | settings      | identity | synced     |
+| `lw.shell.capability-revocations`           | user capability revocations                                                                                                                                                                                               | settings      | identity | synced     |
+| `lw.shell.installed-plugins`                | community plugins installed at runtime                                                                                                                                                                                    | settings      | identity | synced     |
+| `lw.shell.command-mru`                      | recently used palette commands ("Recently used" section)                                                                                                                                                                  | working state | identity | synced     |
+| `lw.plugin-settings:<pluginId>:<sectionId>` | a sandboxed plugin's settings values                                                                                                                                                                                      | settings      | identity | synced     |
+| `lw.plugin-state:<pluginId>:<key>`          | a plugin's own working state (`ctx.state`)                                                                                                                                                                                | working state | identity | synced     |
+| `lw.plugin-state-keys:<pluginId>`           | which keys that plugin has used, so an uninstall can delete them                                                                                                                                                          | working state | identity | synced     |
 
 Two resets divide this table between them. `shell.workspace.reset` clears the two
 `<workspaceId>`-scoped keys of the active workspace; **`shell.app.reset`** clears
@@ -158,7 +159,7 @@ provideIdentityScopedStores({
 
 The wrapper covers **both** persistence ports with one shared boot latch — another user's view
 state and layout are scoped away exactly like their settings. Never list `provideSettingsStore`
-*next to* this provider — both fill the same `SETTINGS_STORE`
+_next to_ this provider — both fill the same `SETTINGS_STORE`
 token, the later silently discards the other. One port, one provider; the composition with a
 remote store is worked through in
 [backend integration → One port, one provider](../backend-integration.md#putting-it-together).
@@ -179,7 +180,7 @@ Pair the store with `provideAuthSource(..., { onIdentityChange: 'reload' })` so 
 re-hydrates cleanly (see [Auth integration](auth.md)).
 
 The stores **latch the first non-empty identity per boot** and never follow a live switch. A change
-to a *different* subject only takes effect through the reload boundary. Writes still in flight
+to a _different_ subject only takes effect through the reload boundary. Writes still in flight
 during the login transition — a pending debounce, a commit from the closing login dialog — therefore
 land in the departing user's namespace, never the next user's. The anonymous→first-sign-in upgrade
 — which deliberately never reloads — still re-latches once; after sign-out the latch keeps pointing

@@ -1,6 +1,7 @@
 # Menus
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `menus`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then

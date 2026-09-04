@@ -1,6 +1,7 @@
 # The address
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `routing` · `content-tabs` · `containers` · `popout-windows`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
@@ -16,7 +17,7 @@ buttons work, and a reload returns the user to where they were. The platform own
 The distribution sets up the router once ([Content-area routing](../distribution/content-routing.md)),
 and a routable surface becomes an ordinary route once plugins have activated. Links, route
 parameters and query parameters behave as they do anywhere in an Angular application. What an
-address *means* below its first segments belongs to the plugin that claimed it.
+address _means_ below its first segments belongs to the plugin that claimed it.
 
 ## One pane carries it
 

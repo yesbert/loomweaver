@@ -1,6 +1,7 @@
 # Design tokens & the `<lw-*>` vocabulary
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `theming` · `ui-primitives`. Where this page and a
 > specification disagree, the specification is right, and that is a defect in this page: change
@@ -16,11 +17,11 @@ consume them — not a requirement.
 
 ## Which path am I on?
 
-| You are…                                           | You consume the tokens through…                                                                                                                                                                                                                                                                                             |
-| -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| You are…                                                | You consume the tokens through…                                                                                                                                                                                                                                                                                                                                      |
+| ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Using Bootstrap, another framework, or no framework** | the pre-compiled `@loomweaver/shell/styles/shell.css` — no Tailwind install needed. Setup: [bringing your own CSS framework](../distribution/css-frameworks.md). `npx @loomweaver/cli theme --preset bootstrap` maps the tokens onto Bootstrap's own variables so both worlds share one palette. In your own CSS, read a token directly: `color: var(--lw-content)`. |
-| **Using Tailwind**                                 | the [setup below](#setup-with-tailwind) — every token doubles as a semantic utility (`bg-surface`, `text-brand`, …).                                                                                                                                                                                                          |
-| **Writing a frame plugin**            | the frame UI kit: `<link rel="stylesheet" href="/frame-kit/lw-frame.css">` — the same tokens and `.lw-*` contracts; the host pushes its resolved token values into your iframe over RPC.                                                                                                                               |
+| **Using Tailwind**                                      | the [setup below](#setup-with-tailwind) — every token doubles as a semantic utility (`bg-surface`, `text-brand`, …).                                                                                                                                                                                                                                                 |
+| **Writing a frame plugin**                              | the frame UI kit: `<link rel="stylesheet" href="/frame-kit/lw-frame.css">` — the same tokens and `.lw-*` contracts; the host pushes its resolved token values into your iframe over RPC.                                                                                                                                                                             |
 
 Everything below applies on **all three paths**, because the token names and class contracts are
 identical either way. The one rule everywhere: **use only the semantic tokens, never raw palette
@@ -84,14 +85,14 @@ The token vocabulary is **colour and type only** — 27 colours plus the two fon
 radii, spacing and border widths are ordinary utility classes in the shell's own templates, and that
 is a decision rather than an omission: tokenising every number would turn every rule of our chrome
 into a promise we could never revise without breaking somebody's product. The one measurement that
-*is* a contract is the shared bar-control height (see below), and it exists because it drifted twice
+_is_ a contract is the shared bar-control height (see below), and it exists because it drifted twice
 without one.
 
-One measurement is not a size question at all and therefore *is* in the contract: whether the host
+One measurement is not a size question at all and therefore _is_ in the contract: whether the host
 insets a surface from its pane edges. The host insets nothing of its own, so a surface fills the pane
 it is mounted in. A product that wants its surfaces inset asks for it once, with
 [`padding: 'inset'`](../weaver/content-area.md#reaching-the-pane-edges) on `provideShell`, and a
-single surface that differs says so with `padded`. How *wide* the inset is stays a stylesheet
+single surface that differs says so with `padded`. How _wide_ the inset is stays a stylesheet
 question, below.
 
 ## Size against the pane, never against the window
@@ -134,7 +135,7 @@ Without Tailwind it is an ordinary container query, and the name is the whole co
 Two things that bite even with the right variants. A grid or flex child does not shrink below its
 content unless you say `min-w-0`, and a chart canvas reports a content width — so a card holding one
 will hold its column open no matter what the breakpoints say. And a surface presented as an isolated
-document needs none of this: its frame *is* the pane, so ordinary viewport queries inside it are
+document needs none of this: its frame _is_ the pane, so ordinary viewport queries inside it are
 already pane queries.
 
 If your product must change a size anyway, you can, with plain CSS and no API. Everything the shell
@@ -187,53 +188,59 @@ in a Bootstrap override. The pre-compiled `shell.css` already contains every uti
 itself uses, so the shell renders correctly without any of this.
 
 ### Brand / accent
-| Utility stem       | Meaning                                     |
-| ------------------ | ------------------------------------------- |
-| `brand`            | primary brand (LoomWeaver blue) — logo/fills/icons |
-| `brand-strong`     | brand, stronger (hover/active)              |
-| `brand-text`       | brand as **text** — deeper tone, WCAG AA (≥4.5:1) on surfaces |
-| `brand-fill`       | brand as a **filled surface with a label** (primary button) — deeper, so `on-brand` text stays AA |
-| `on-brand`         | text colour **on** brand surfaces (contrast) |
-| `accent`           | accent (gold)                               |
-| `accent-strong`    | accent, stronger                            |
+
+| Utility stem    | Meaning                                                                                           |
+| --------------- | ------------------------------------------------------------------------------------------------- |
+| `brand`         | primary brand (LoomWeaver blue) — logo/fills/icons                                                |
+| `brand-strong`  | brand, stronger (hover/active)                                                                    |
+| `brand-text`    | brand as **text** — deeper tone, WCAG AA (≥4.5:1) on surfaces                                     |
+| `brand-fill`    | brand as a **filled surface with a label** (primary button) — deeper, so `on-brand` text stays AA |
+| `on-brand`      | text colour **on** brand surfaces (contrast)                                                      |
+| `accent`        | accent (gold)                                                                                     |
+| `accent-strong` | accent, stronger                                                                                  |
 
 ### Surfaces & borders (elevation ladder)
-| Utility stem       | Meaning                                                      |
-| ------------------ | ------------------------------------------------------------ |
-| `surface`          | the app's base background                                    |
-| `surface-raised`   | raised surface (card, active tab, panel body)                |
-| `surface-overlay`  | overlay/popup/chrome controls (dropdown, toolbar buttons)    |
-| `field`            | input-field background                                       |
-| `scrim`            | the backdrop behind a dialog and the mobile drawer           |
-| `border`           | default divider/border (`border-border`)                     |
+
+| Utility stem      | Meaning                                                   |
+| ----------------- | --------------------------------------------------------- |
+| `surface`         | the app's base background                                 |
+| `surface-raised`  | raised surface (card, active tab, panel body)             |
+| `surface-overlay` | overlay/popup/chrome controls (dropdown, toolbar buttons) |
+| `field`           | input-field background                                    |
+| `scrim`           | the backdrop behind a dialog and the mobile drawer        |
+| `border`          | default divider/border (`border-border`)                  |
 
 ### Text
-| Utility stem       | Meaning                                     |
-| ------------------ | ------------------------------------------- |
-| `content`          | primary text                                |
-| `content-muted`    | secondary text (labels, metadata)           |
-| `content-faint`    | tertiary/decorative (placeholders, disabled)|
+
+| Utility stem    | Meaning                                      |
+| --------------- | -------------------------------------------- |
+| `content`       | primary text                                 |
+| `content-muted` | secondary text (labels, metadata)            |
+| `content-faint` | tertiary/decorative (placeholders, disabled) |
 
 ### States
-| Utility stem       | Meaning                      |
-| ------------------ | ---------------------------- |
-| `positive`         | success / valid (green)      |
-| `on-positive`      | text **on** `positive` surfaces (success button) |
-| `negative`         | error / destructive (red) — error text & icon |
-| `negative-fill`    | danger **button** fill — deeper than `negative`, so `on-negative` text stays AA |
-| `on-negative`      | text **on** `negative` surfaces (danger button) |
-| `caution`          | warning (amber)              |
-| `on-caution`       | text **on** `caution` surfaces (warning button) |
-| `info`             | info (blue)                  |
-| `on-info`          | text **on** `info` surfaces (info button)        |
+
+| Utility stem    | Meaning                                                                         |
+| --------------- | ------------------------------------------------------------------------------- |
+| `positive`      | success / valid (green)                                                         |
+| `on-positive`   | text **on** `positive` surfaces (success button)                                |
+| `negative`      | error / destructive (red) — error text & icon                                   |
+| `negative-fill` | danger **button** fill — deeper than `negative`, so `on-negative` text stays AA |
+| `on-negative`   | text **on** `negative` surfaces (danger button)                                 |
+| `caution`       | warning (amber)                                                                 |
+| `on-caution`    | text **on** `caution` surfaces (warning button)                                 |
+| `info`          | info (blue)                                                                     |
+| `on-info`       | text **on** `info` surfaces (info button)                                       |
 
 ### Tooltip (special case, normally not used directly)
+
 `tooltip` / `tooltip-content` — reserved for `<lw-tooltip>`.
 
 ### Typography
+
 `--lw-font-sans` (the UI font, driving `body` plus Tailwind's `font-sans` utility) and `--lw-font-mono`
 (code) are theme tokens as well — a theme/tenant can set the brand font through
-`ctx.contributeTheme` / tenant CSS, like any colour. **Font *size* is deliberately NOT a token but a
+`ctx.contributeTheme` / tenant CSS, like any colour. **Font _size_ is deliberately NOT a token but a
 user setting** (the built-in "text size" under Settings → Options scales the whole UI via the `:root`
 `font-size`) — it is not part of the theme contract; branding and accessibility stay cleanly
 separated.
@@ -274,7 +281,7 @@ separated.
   automatically.
 - **Single-value selection (`<lw-select>` + `<lw-option>`):** a **framework-agnostic custom element**
   (like `<lw-tooltip>`) for "one value out of a set" (language, theme, settings) — a
-  *select*, **not a menu** (actions are `<lw-menu>`). Options are **light-DOM children** (like native
+  _select_, **not a menu** (actions are `<lw-menu>`). Options are **light-DOM children** (like native
   `<select><option>`), and it works in Angular **and** plain HTML/iframes:
   ```html
   <lw-select [attr.label]="'language.label' | transloco" [attr.value]="lang()" (lw-select-change)="onSelect($event)">
@@ -332,7 +339,7 @@ separated.
   hover in one place. For labelled buttons keep using `.lw-btn`.
 - **Segmented selection (`.lw-segmented` / `.lw-segmented-item`):** a container with one button per
   option (theme mode, text size). The selected state hangs off **`aria-pressed`** — the a11y state
-  *is* the style hook, there is no `--active` class. **Pitfall:** `.lw-segmented-item` is by contract
+  _is_ the style hook, there is no `--active` class. **Pitfall:** `.lw-segmented-item` is by contract
   a **square icon field** (7×7); for text segments override the size at the call site
   (`w-auto px-3 text-sm`) — "size stays per-site utilities", as with `.lw-icon-btn`.
   **Shared bar-control height:** `.lw-segmented` and `.lw-select-trigger` both pin `h-8.5`
@@ -396,7 +403,7 @@ The fix: `position: fixed` + CSS anchor positioning — `anchor-name` on the tri
 sets `anchor-name`/`position-anchor`; the `position-area` lives in `libs/core/shell/src/lib/styles/theme.css`).
 
 **Caution — a `transform` ancestor beats `position: fixed`:** if an ancestor has a `transform` (e.g. a
-CDK virtual-scroll row with `translateY`), it becomes the *containing block* for `fixed` → the popup
+CDK virtual-scroll row with `translateY`), it becomes the _containing block_ for `fixed` → the popup
 positions relative to it and **is** clipped by its `overflow` after all. Only the **browser top layer**
 escapes that: `<lw-tooltip>` uses a **`[popover]`** (`showPopover`) for it and positions the bubble
 **in JS** (at the cursor on mouse hover, otherwise at the element — no CSS anchor positioning). If a
@@ -411,6 +418,7 @@ The ESLint guardrail ignores `^lw-` — those are **not** Tailwind utilities.
 ## Guardrail
 
 `eslint-plugin-better-tailwindcss` runs in the `nx lint` gate over `**/*.html`:
+
 - `no-unregistered-classes` (**error**) — reports mistyped/non-existent utilities
   (ignores `^lw-` and Angular structure like `ng-*`).
 - `enforce-consistent-class-order` (**warn**) — stable class order, `--fix`-able.

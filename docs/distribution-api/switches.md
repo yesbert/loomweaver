@@ -1,6 +1,7 @@
 # Switches
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `gesture-configuration` · `host-services`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
@@ -36,7 +37,7 @@ Nothing on this page asks: `update` moves controls and closes no surface. Switch
 
 ## Switched off
 
-Every switch is on this page. The services on the other pages stay reachable whatever you switch off, which is the first rule under *In depth*.
+Every switch is on this page. The services on the other pages stay reachable whatever you switch off, which is the first rule under _In depth_.
 
 ## In depth
 

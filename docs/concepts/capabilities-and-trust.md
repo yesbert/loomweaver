@@ -1,6 +1,7 @@
 # Capabilities and trust
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `plugin-permissions` · `plugin-sandbox` · `plugin-store` · `access-gating`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
@@ -41,7 +42,7 @@ with no on/off switch, because the decision was made before the user opened the 
 
 ## Access is not a capability
 
-A capability answers what a *plugin* may do. Access gating answers who a contribution is *for*: a
+A capability answers what a _plugin_ may do. Access gating answers who a contribution is _for_: a
 contribution says which login state and roles it needs, and the workbench hides, disables or blocks
 it as the session changes. The platform owns no sign-in; it only reacts to a session snapshot the
 product feeds it. The two are orthogonal, and neither is security. A grant governs a brokered call; a

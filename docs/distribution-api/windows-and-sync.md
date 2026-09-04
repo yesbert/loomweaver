@@ -1,6 +1,7 @@
 # Windows, sync and updates
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `popout-windows` · `persistence-ports` · `host-services`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
@@ -73,7 +74,7 @@ blocker swallows the window, the user gets a dialog whose button is a fresh gest
 reaction reads the fresh value back through the registered source's store and applies it. The shell
 registers its own keys, so plugin state inherits the behaviour. A distribution registers whatever
 else should follow, most usefully its product session key, as the `acme.session` registration under
-*Do it* shows.
+_Do it_ shows.
 
 **Two rules.** An applier must **not** write back, or two windows ping-pong forever. A broadcast
 never fires in the window that made the change, because a `BroadcastChannel` does not deliver to its

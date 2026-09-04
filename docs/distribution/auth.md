@@ -1,13 +1,14 @@
 # Auth integration
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `access-gating`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
 > explain it here.
 
 LoomWeaver owns **no** authentication — login, session, tokens and the identity provider live in your
-product (OIDC / your own identity platform / …). The platform only *reacts* to a **session snapshot** so contributions can
+product (OIDC / your own identity platform / …). The platform only _reacts_ to a **session snapshot** so contributions can
 gate themselves by login state and roles (see [Access gating in a weaver](../weaver/access-gating.md)).
 Integrating a real product is two providers plus your own login UI.
 
@@ -61,19 +62,19 @@ ever changes across a reload boundary, so the new session re-hydrates entirely f
 
 ## 2 · Own the login UI (page or dialog)
 
-The platform ships **no** login screen — and it never opens yours on its own. Knowing exactly *when*
+The platform ships **no** login screen — and it never opens yours on its own. Knowing exactly _when_
 an unmet `access` requirement leads to your login UI is the key to wiring it correctly. There are
 three situations:
 
-| Where access fails                                                    | What the shell does                                                              | Where your login UI comes in                                                          |
-| --------------------------------------------------------------------- | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| Chrome — rail/bar items, view actions, commands, palette entries       | Hides the item (or disables it with `mode: 'disable'`). **Nothing opens.**        | Offer your own always-visible entry point (a "Sign in" rail item or command).           |
-| A gated **content route** — deep link, tab click, in-app navigation    | Shows a neutral "sign-in required" placeholder at the same URL.                   | Register a redirect to your login page instead — step 3 below. This is the only place the platform actively sends anyone towards a login. |
-| Inside your own components                                             | Nothing — `AuthContext` (distribution) / `ctx.session` (plugin) just report state. | Open your login dialog imperatively wherever your UX calls for it.                      |
+| Where access fails                                                  | What the shell does                                                                | Where your login UI comes in                                                                                                              |
+| ------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Chrome — rail/bar items, view actions, commands, palette entries    | Hides the item (or disables it with `mode: 'disable'`). **Nothing opens.**         | Offer your own always-visible entry point (a "Sign in" rail item or command).                                                             |
+| A gated **content route** — deep link, tab click, in-app navigation | Shows a neutral "sign-in required" placeholder at the same URL.                    | Register a redirect to your login page instead — step 3 below. This is the only place the platform actively sends anyone towards a login. |
+| Inside your own components                                          | Nothing — `AuthContext` (distribution) / `ctx.session` (plugin) just report state. | Open your login dialog imperatively wherever your UX calls for it.                                                                        |
 
 **Shape A — a login page.** An ordinary, ungated routable surface. The component reads the path the
 visitor was originally headed to (the `from` query parameter your redirect handler sets in step 3),
-signs in through *your* product's auth service — which flips the `provideAuthSource` signal — and
+signs in through _your_ product's auth service — which flips the `provideAuthSource` signal — and
 navigates back. Reactivity does the rest: the route guard now passes, and every gated rail item,
 command and tab appears without a reload.
 
@@ -193,7 +194,7 @@ ctx.registerCommand({
 
 **When it fires:** every time a navigation targets a gated content route whose `access` the current
 session does not meet. That covers a deep link on first load, a tab click, and an in-app
-`navigateContent`. It also fires *live*: if the session changes while the visitor is standing on a
+`navigateContent`. It also fires _live_: if the session changes while the visitor is standing on a
 gated route (a role drop, a sign-out in another tab), the shell re-runs the navigation and the
 handler fires again. It is **route-only**: hidden chrome items never trigger it.
 
@@ -272,8 +273,8 @@ the visitor dismissed the dialog without signing in, the navigation to `'/' + fr
 the guard again and shows the placeholder — no loop, because the gate route itself is ungated.
 
 **Client-side gating is presentation, not security** — your own backend is the real boundary, and a
-hidden control is a UX affordance, not an access check. Auth gating (what a *user* may see) is orthogonal
-to capability grants (what a *plugin* may do, see [Capabilities](capabilities.md)).
+hidden control is a UX affordance, not an access check. Auth gating (what a _user_ may see) is orthogonal
+to capability grants (what a _plugin_ may do, see [Capabilities](capabilities.md)).
 
 ## Where next
 

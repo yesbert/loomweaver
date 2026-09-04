@@ -79,6 +79,12 @@ jobs:
       - name: Documentation style
         run: npm run docs-style-check
 
+      # Markdown is formatted like the code is. Prettier decides the skeleton (table widths, italic
+      # markers, the blank line after the header) so nobody argues about it in review, and a root
+      # .prettierrc leaves the code blocks alone: a sample's density is the author's decision.
+      - name: Documentation formatting
+        run: npm run docs-format-check
+
       # The build above compiles the apps, which consume the libraries from source through tsconfig
       # paths. Packaging is a different path — ng-packagr's exports map, ESM emission, asset copying —
       # so a packaging regression would otherwise surface only at release time or in a consumer.

@@ -1,6 +1,7 @@
 # Sidebars
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `shell-layout` · `host-services`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
@@ -43,7 +44,7 @@ sidebars.hiddenViews();           // readonly string[]: the ids of the hidden vi
 **Unknown ids.** A region id that no declared panel carries does nothing.
 
 **Same code as the controls.** Every action is the one the sidebar header, the splitter and the
-view menu run, with the guard named above. The switches do not reach the service, as *Switched off*
+view menu run, with the guard named above. The switches do not reach the service, as _Switched off_
 says.
 
 ## Where the story is told

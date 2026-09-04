@@ -1,6 +1,7 @@
 # Backend integration
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `persistence-ports` · `access-gating` · `i18n`. Where this
 > page and a specification disagree, the specification is right, and that is a defect in this
@@ -22,12 +23,12 @@ Each is a token the shell fills with a local, anonymous default and your product
 Translations are the fourth thing a backend usually answers, but the loader is a Transloco provider,
 not a port; it is listed here because the swap is made in the same place.
 
-| Seam | What you provide | Without it |
-| --- | --- | --- |
-| Settings persistence (port) | a settings store (`KeyValueStore`) | `localStorage` |
-| Working state (port, optional) | a working-state store (`KeyValueStore`) | `localStorage` |
-| Auth / session (port) | an `AuthSource` signal | everyone is anonymous |
-| Translations (provider) | a Transloco loader | static files under `/i18n/` |
+| Seam                           | What you provide                        | Without it                  |
+| ------------------------------ | --------------------------------------- | --------------------------- |
+| Settings persistence (port)    | a settings store (`KeyValueStore`)      | `localStorage`              |
+| Working state (port, optional) | a working-state store (`KeyValueStore`) | `localStorage`              |
+| Auth / session (port)          | an `AuthSource` signal                  | everyone is anonymous       |
+| Translations (provider)        | a Transloco loader                      | static files under `/i18n/` |
 
 They are independent — adopt any subset. Each is a provider in your distribution's
 `bootstrapApplication` call, placed **after `provideShell()`** so it wins the last-in-wins race for
@@ -83,20 +84,20 @@ Two shapes are supported, and the choice is per store, not per key:
 - **`peek` absent** — reads are asynchronous. Each consumer starts from its default and reconciles
   when the promise resolves, which is a brief flash of the default for anything visible.
 
-A store that answers *some* keys locally and others over the network therefore cannot be expressed
+A store that answers _some_ keys locally and others over the network therefore cannot be expressed
 by returning `undefined` from `peek`. You have two options. Either keep everything local: mirror
 writes to your API in the background and let the next load converge. Or keep everything remote and
 accept the reconcile. If you wrap another store, bind `peek` only when the inner one has it. That is
 what the shell's own identity-scoping and cross-tab wrappers do, so the signal stays truthful.
 
-A *running* window does not poll your server. If your backend can push (SSE, WebSocket), call
+A _running_ window does not poll your server. If your backend can push (SSE, WebSocket), call
 `StateSyncService.notifyRemoteChange(key)` when it reports a changed key: the window then re-reads
 that key through the store and applies it, exactly as it does for a change made in another
 browser tab. Without a push transport, a reload is the refresh boundary.
 
 Your backend keys the store **per tenant** off the authenticated session (never off the wire). It
 holds no credentials, so plaintext storage is fine. It is **not all trivial preferences**, though.
-It also carries the user's installed community plugins, and their persisted capability list *is*
+It also carries the user's installed community plugins, and their persisted capability list _is_
 their grant. It carries their capability revocations too, and plugin settings blobs that may
 contain whatever a plugin puts there. Treat it as **user data with integrity requirements**: authorize every read/write against the
 session. The authoritative storage-key inventory is in
@@ -108,7 +109,7 @@ three async methods above.
 
 ## 1b · Working state — the `WORKING_STATE_STORE` port (optional)
 
-The second persistence port carries what accrues from *using* the app: view state and view
+The second persistence port carries what accrues from _using_ the app: view state and view
 instances, the palette's recently-used list, and the window-local layout keys. It has the same
 `KeyValueStore` shape but the opposite write profile: frequent, debounced writes. That is why it
 defaults to the device (`localStorage`), and why most distributions never touch it. Three tiers:
@@ -208,7 +209,7 @@ provideTranslocoLoader(ApiTranslationLoader),
 
 **Your loader replaces the whole composition.** `provideTranslationNamespaces` is read by the
 built-in loader and by nothing else, so once you provide your own, it stops having any effect: the
-object you return *is* the translation table, and it must already contain the host keys plus each
+object you return _is_ the translation table, and it must already contain the host keys plus each
 namespace nested under its name — host keys **flat**, namespaces **nested**:
 
 ```jsonc
@@ -239,7 +240,7 @@ keys are resolved for contribution metadata all work exactly as before.
 ### The first paint
 
 The active language is stored under `lw.shell.lang` and therefore travels through your
-settings store like every other setting — but the *initial* language is decided **before dependency
+settings store like every other setting — but the _initial_ language is decided **before dependency
 injection exists**, when Transloco's config is built. That early read goes straight to
 `localStorage`, not through your store, and falls back to the browser's languages and then English.
 
@@ -327,7 +328,7 @@ when you have a backend to put behind them, one seam at a time.
 same `SETTINGS_STORE` token. Listing both does not combine them: the later one wins and the other is
 silently discarded. Usually you want only one of the two. A backend-backed store already isolates
 users on the server, and that is exactly what identity scoping simulates for `localStorage`.
-Sometimes you do need both: a shared browser *and* a remote store, so that a signed-out reload
+Sometimes you do need both: a shared browser _and_ a remote store, so that a signed-out reload
 cannot re-hydrate the previous user from a local cache. In that case, pass your store **into** the
 scoping provider. It wraps both ports and shares one boot latch:
 

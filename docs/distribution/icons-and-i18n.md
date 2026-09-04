@@ -1,6 +1,7 @@
 # Icons, translations and rewording
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `i18n` · `theming`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
@@ -62,7 +63,7 @@ the loader nests it under the name:
 
 ## Rewording the shell
 
-Namespaces let you *add* strings and can never collide with a host key, which is what keeps a plugin
+Namespaces let you _add_ strings and can never collide with a host key, which is what keeps a plugin
 from renaming your Cancel button. Rewording the shell itself is the opposite job, so it is a separate,
 deliberate opt-in: call `provideTranslationOverrides()` and serve
 `public/i18n/overrides/{lang}.json`.

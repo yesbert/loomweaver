@@ -1,6 +1,7 @@
 # Frame plugins
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `plugin-sandbox` · `plugin-permissions`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
@@ -48,7 +49,7 @@ the host DOM, variables or storage.
 Because a sandboxed surface has none of the host's `--lw-*` design tokens, the host **pushes the resolved
 token values** to the surface (alongside the active locale and light/dark theme); the surface sets them as
 CSS variables and paints with `var(--lw-…)` just like host chrome. The push carries the **full `--lw-*`
-vocabulary** (every `LW_TOKENS` entry), and the values are the *effective* ones, so
+vocabulary** (every `LW_TOKENS` entry), and the values are the _effective_ ones, so
 a theme switch — and any tenant/product token override, plus the user's text size — carries into the sandbox
 with no hardcoded colours or fonts to keep in sync.
 
@@ -57,12 +58,12 @@ with no hardcoded colours or fonts to keep in sync.
 **How a plugin arrives and how much the browser holds it back are two questions.** A frame plugin
 runs at one of two levels, and the composition chooses:
 
-| | `isolated` (the default) | `embedded` |
-| --- | --- | --- |
-| The frame | `<iframe sandbox="allow-scripts">`, no origin of its own | a plain `<iframe>`, it keeps its origin |
-| Storage, cookies, the session they carry | none | whatever the browser grants that origin |
-| Can reach the hosting document | no | **yes** when served from the same origin; a sibling subdomain keeps it out |
-| Written for | code you did not write | your own teams, deploying separately |
+|                                          | `isolated` (the default)                                 | `embedded`                                                                 |
+| ---------------------------------------- | -------------------------------------------------------- | -------------------------------------------------------------------------- |
+| The frame                                | `<iframe sandbox="allow-scripts">`, no origin of its own | a plain `<iframe>`, it keeps its origin                                    |
+| Storage, cookies, the session they carry | none                                                     | whatever the browser grants that origin                                    |
+| Can reach the hosting document           | no                                                       | **yes** when served from the same origin; a sibling subdomain keeps it out |
+| Written for                              | code you did not write                                   | your own teams, deploying separately                                       |
 
 ```ts
 ...provideFramePlugins({
@@ -81,12 +82,12 @@ its own storage and keeps it out of the hosting document, while a session cookie
 domain still reaches it.
 
 **`embedded` is not a weaker sandbox. It is not a sandbox.** An embedded application served from your
-origin can reach the hosting document, its storage and your session. The level exists to separate *deployments*, so
+origin can reach the hosting document, its storage and your session. The level exists to separate _deployments_, so
 several teams can ship independently into one workbench, and it is a decision about trust that the
 composition makes on the operator's behalf. Compose only code you would ship yourself, exactly as
 with a trusted weaver.
 
-A plugin never decides this for itself. A catalogue entry may *ask* for a level, and the wiring for
+A plugin never decides this for itself. A catalogue entry may _ask_ for a level, and the wiring for
 that catalogue carries the highest one it may confer: `providePluginCatalog(source, { maxLevel })`,
 strict by default. An entry at or below the cap runs at what it asked for. One above it is refused
 and reported rather than started lower, because something running below what it needs fails in ways
@@ -97,13 +98,13 @@ nobody traces back to a line of configuration.
 This is a deployment decision with consequences the platform cannot take back for you, so it is
 worth making deliberately. Measured against a child frame burning CPU for 1.5 s:
 
-| | Re-hosted under one origin | Sibling subdomain | Cross-site origin |
-| --- | --- | --- | --- |
-| Session from a domain-wide cookie | yes | yes, same site | no |
-| Storage of its own | no | yes | yes |
-| Can corrupt the hosting document | yes | no | no |
-| Can seize the origin's service worker | yes, unless you prevent it | no | no |
-| Survives a frozen application | no | **Chromium only** | yes |
+|                                       | Re-hosted under one origin | Sibling subdomain | Cross-site origin |
+| ------------------------------------- | -------------------------- | ----------------- | ----------------- |
+| Session from a domain-wide cookie     | yes                        | yes, same site    | no                |
+| Storage of its own                    | no                         | yes               | yes               |
+| Can corrupt the hosting document      | yes                        | no                | no                |
+| Can seize the origin's service worker | yes, unless you prevent it | no                | no                |
+| Survives a frozen application         | no                         | **Chromium only** | yes               |
 
 **The sibling subdomain is the recommendation, and fault isolation is not the reason.** It buys the
 three properties that hold in every engine while leaving single sign-on free. Surviving a frozen
@@ -151,8 +152,8 @@ in-repo distributions do — plus `default-src 'self'`, `object-src 'none'`, `ba
 with the same-origin surface check at the RPC seam as defence in depth for sandboxed surfaces. Angular's
 component styles need `style-src 'unsafe-inline'`.
 
-**`frame-src` is yours to decide, and it is the real gate for trusted embeds.** A *sandboxed* plugin can
-never choose the origin — the RPC seam rejects anything not same-origin. A *trusted* weaver, however, may
+**`frame-src` is yours to decide, and it is the real gate for trusted embeds.** A _sandboxed_ plugin can
+never choose the origin — the RPC seam rejects anything not same-origin. A _trusted_ weaver, however, may
 point an [`iframe` surface](../weaver/content-area.md) at a foreign
 origin on purpose (a Grafana dashboard, a docs site, a video), and that is an intended capability, not a
 defect: the platform does not second-guess code you compiled in. What stops it is your CSP, which the

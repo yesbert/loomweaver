@@ -1,6 +1,7 @@
 # Icons and theme
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `theming` · `ui-primitives`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
@@ -41,7 +42,7 @@ Contribute `--lw-*` design tokens to re-skin the whole app — host chrome **and
 all read the same tokens. The vocabulary covers colours **and** the UI font
 (`--lw-font-sans` / `--lw-font-mono`). Requires the `theme` capability. Only whitelisted `--lw-*` names
 apply; unknown names are ignored (dev-warned). The returned `Disposable` removes exactly these tokens
-and the app reverts — so a theme can be toggled on and off. (Font *size* is a user preference, not a
+and the app reverts — so a theme can be toggled on and off. (Font _size_ is a user preference, not a
 theme token.)
 
 ```ts

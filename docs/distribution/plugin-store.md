@@ -1,13 +1,14 @@
 # Plugin store
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `plugin-store`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
 > explain it here.
 
 `provideFramePlugins(...)` composes sandboxed plugins at build time. On top of that, a distribution
-can offer a **plugin store**: a curated catalogue of sandboxed plugins the *user* installs at runtime,
+can offer a **plugin store**: a curated catalogue of sandboxed plugins the _user_ installs at runtime,
 with no rebuild and no reload. This page is what you serve, what the store then shows, and how consent
 and updates work.
 
@@ -83,13 +84,13 @@ uninstall (the latter with a danger-toned confirmation), and the standard enable
 That Browse button, and the palette command `shell.openPluginStore`, opens the **store dialog**, a
 wide two-pane browse surface. Its **searchable list** matches name, author, category and description;
 each card shows the plugin icon, name, author, category badge, download count, a **relative**
-last-update time ("2 days ago", localised), the short description and an *Installed* badge. Its
+last-update time ("2 days ago", localised), the short description and an _Installed_ badge. Its
 **detail pane** shows the metadata, a plain external `repository` link and the plugin's **README
 rendered in-app**. The README is fetched from the same-origin `readmeUrl` and sanitised: the detail
 view renders the author's text itself and never embeds a foreign page.
 
 A second, equally searchable **Installed** view manages what is installed. Per plugin it draws a row
-of tooltipped icon actions (open its *Community plugins* settings section, enable or disable,
+of tooltipped icon actions (open its _Community plugins_ settings section, enable or disable,
 uninstall) plus an **Update to vX.Y.Z** button whenever the catalogue carries a newer version. **The store is the
 management surface** for installed plugins; brand its title per product with
 `providePluginCatalog(source, { title: 'product.marketplace' })` (a Transloco key you own). Both the
@@ -110,7 +111,7 @@ backend decides so.
 ## Updates
 
 **Updates** ride on the catalogue's `version` field. Raise it (together with the entry's files) and
-every installed user sees an *Update available* badge in the store list and an **Update to vX.Y.Z**
+every installed user sees an _Update available_ badge in the store list and an **Update to vX.Y.Z**
 button in the detail pane and the installed list. Pressing it swaps the persisted entry and respawns
 the plugin live, with no reload. The respawn re-creates the plugin's iframe, so the browser re-fetches
 the entry document under your **cache headers**: serve plugin files so they revalidate, or an updated
@@ -119,13 +120,13 @@ plugin can come back from cache as the old build.
 Versions are compared segment by segment, numerically (`1.10.0` beats `1.9.0`; a pre-release suffix
 is not ordered), and only a strictly newer version is offered, so pinning a catalogue back never nags
 the user. If the new version **declares capabilities the user never consented to**, the update asks
-again and lists exactly the added ones: the persisted entry *is* the grant for installed plugins, so
+again and lists exactly the added ones: the persisted entry _is_ the grant for installed plugins, so
 an update can never widen it silently. A version that asks for no more than before applies straight
 away.
 
 ## Settings by provenance
 
-The settings nav separates plugin *settings* by provenance: sections your
+The settings nav separates plugin _settings_ by provenance: sections your
 composed weavers register group under **"App plugins"** (they ship with the app), while an installed
 plugin that [declares its own settings](../weaver/settings.md#settings-sections)
 gets its own entry under a **"Community plugins"** group. The host stamps the group, a plugin cannot
@@ -135,8 +136,8 @@ choose it, so a community plugin can never masquerade as part of the app.
 
 The curation is yours and happens **before** the frontend: whatever is not in the catalogue does not
 exist for the shell. Everything stays same-origin — the catalogue URL, each `entryUrl`, and every
-surface a plugin registers. The RPC seam enforces this. "Reviewing a plugin" therefore means *you
-copy its files into your own origin*. That copy is the integrity boundary. Entries are parsed
+surface a plugin registers. The RPC seam enforces this. "Reviewing a plugin" therefore means _you
+copy its files into your own origin_. That copy is the integrity boundary. Entries are parsed
 defensively (junk shapes, foreign-origin URLs and unknown capability names are dropped), an installed
 id can never shadow a composed plugin, and the persisted install set is re-validated on every load.
 Per-tenant curation = your backend answering the catalogue request tenant-dependently; for a non-JSON

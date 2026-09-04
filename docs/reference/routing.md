@@ -1,6 +1,7 @@
 # Routing — one router, and it is the one you know
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `routing` · `content-tabs` · `panes` · `surface-retention`.
 > Where this page and a specification disagree, the specification is right, and that is a defect in
@@ -22,17 +23,17 @@ with several panes is on [The address](../concepts/the-address.md).
 
 ## What you already know, and where it lands
 
-| Angular | Here |
-| --- | --- |
-| `routerLink`, `router.navigate`, `navigateByUrl` | work as they do anywhere: the address resolves and the workbench opens or refines the tab that holds it |
-| `ActivatedRoute` and `paramMap` | work; a surface at `doc/:id` reads `id` the ordinary way |
-| a query string and a fragment | work, and are not part of a tab's identity, so `doc/7?view=raw` stays the tab that `doc/7` is |
-| `<router-outlet>` inside your own component | works, for the sub-routes you declared |
-| back, forward, reload and a pasted link | work, and are the reason the content area is addressed at all |
-| `provideRouter(routes)` | `provideShellRouter(routes)` instead, once, in the distribution |
-| a `Routes` array for your content | you write none: a surface declares `routable: { path }` |
-| a `canActivate` of your own on contributed content | not attachable; declare `access` and the host gates it for you |
-| resolvers and live parameter streams | fine, except on a **retained** surface (below) |
+| Angular                                            | Here                                                                                                    |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `routerLink`, `router.navigate`, `navigateByUrl`   | work as they do anywhere: the address resolves and the workbench opens or refines the tab that holds it |
+| `ActivatedRoute` and `paramMap`                    | work; a surface at `doc/:id` reads `id` the ordinary way                                                |
+| a query string and a fragment                      | work, and are not part of a tab's identity, so `doc/7?view=raw` stays the tab that `doc/7` is           |
+| `<router-outlet>` inside your own component        | works, for the sub-routes you declared                                                                  |
+| back, forward, reload and a pasted link            | work, and are the reason the content area is addressed at all                                           |
+| `provideRouter(routes)`                            | `provideShellRouter(routes)` instead, once, in the distribution                                         |
+| a `Routes` array for your content                  | you write none: a surface declares `routable: { path }`                                                 |
+| a `canActivate` of your own on contributed content | not attachable; declare `access` and the host gates it for you                                          |
+| resolvers and live parameter streams               | fine, except on a **retained** surface (below)                                                          |
 
 ## Where a route comes from
 
@@ -120,7 +121,7 @@ provideShellRouter([
 ]);
 ```
 
-They are ordinary routes with no tab, no strip and no pane. For a full-area screen that *is*
+They are ordinary routes with no tab, no strip and no pane. For a full-area screen that _is_
 workbench content but must not become a tab — a login page, an onboarding flow — declare the surface
 `routable: { path: 'login', chromeless: true }` instead and keep it inside the plugin that owns it.
 

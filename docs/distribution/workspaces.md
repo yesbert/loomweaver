@@ -1,6 +1,7 @@
 # Workspaces a product ships
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `workspaces`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
@@ -22,7 +23,7 @@ switch. Invalid declarations are reported to the console in dev mode, naming wha
 ignored; nothing fails silently at runtime.
 
 There is always **exactly one active workspace**: a fresh installation starts in the built-in
-*Default* workspace, and everything the user rearranges belongs to the workspace they are standing
+_Default_ workspace, and everything the user rearranges belongs to the workspace they are standing
 in. **Named workspaces** (`shell.workspace.manage`) are self-remembering: switching restores each
 workspace's own live arrangement exactly, without asking and without discarding anything. Each
 workspace also has a **baseline**. For a user-saved workspace that is the explicitly saved snapshot:
@@ -55,7 +56,7 @@ three extend **`WorkspaceAreaBase`**, whose only member is `size`: a percentage;
 share the remainder, and sizes that do not add up are normalised proportionally. A tab (a
 **`WorkspaceTabEntry`**) is a route path string, or a
 **`WorkspaceTab`** object to mark it `active` or `closable: false` — an unclosable tab survives
-*Close all* and cannot be dragged away. The first `tabs` area in reading order becomes the address pane.
+_Close all_ and cannot be dragged away. The first `tabs` area in reading order becomes the address pane.
 `sidebars` names the **visible** views per panel region: listed views show in that order and the
 region's other declared views are hidden (the user can re-show them from the sidebar header menu, in
 whichever sidebar they right-click). List a region with an **empty array** to show none of its views —
@@ -108,7 +109,7 @@ itself, since that follows the active workspace and nothing else.
 
 Claim only what genuinely belongs to a workspace. A narrower claim wins over a wider one, the way a
 specific route already wins over a general one, so `quotes/new` and `quotes/:id` can live in
-different workspaces. Two workspaces claiming addresses of the *same shape* is a configuration error:
+different workspaces. Two workspaces claiming addresses of the _same shape_ is a configuration error:
 the claim is dropped from both and the console names them, because a product that declared two homes
 for one document has not decided where it belongs.
 
@@ -119,7 +120,7 @@ its origin claims, which is what [variants](#telling-saved-workspaces-apart) are
 **Whether a sidebar exists, is open, and how wide it is belongs to the window rather than to the
 workspace.** Your layout decides which sidebars the app has, the user decides whether they are open
 and how wide, and switching never collapses, resizes or removes one: the user sets that once and it
-holds everywhere, the same way the rail stays put. A workspace decides what is *in* the sidebars; the
+holds everywhere, the same way the rail stays put. A workspace decides what is _in_ the sidebars; the
 frame around them is the anchor you switch from. A workspace that wants a distraction-free screen
 lists its regions empty — the sidebar is then simply empty, and it is the user, not the workspace,
 who decides whether to fold it away.
@@ -127,7 +128,7 @@ who decides whether to fold it away.
 ### Putting a workspace in the rail
 
 **Declaring a workspace does not put it in front of anyone.** The dialog lists it, and that is all:
-the workbench draws entries only for the workspaces a *user* saved, because those have nothing but a
+the workbench draws entries only for the workspaces a _user_ saved, because those have nothing but a
 typed name to go on. A workspace you declared is yours to offer, so that switching costs one click
 instead of a dialog. Give a rail item the workspace's id with `workspace` and the icon you want it
 under, and the host does the rest: the click switches, and while that workspace is active the entry
@@ -158,12 +159,12 @@ way back to it.
 ## Curating the rail
 
 **The user curates the rail, exactly the way they curate a sidebar's views.** A right-click on an
-entry offers *Move to other activity bar* and *Hide*; a right-click on the rail itself offers
-*Customize activity bar*, which opens a dialog listing every entry with where it sits: hidden,
+entry offers _Move to other activity bar_ and _Hide_; a right-click on the rail itself offers
+_Customize activity bar_, which opens a dialog listing every entry with where it sits: hidden,
 left, or right. An entry is either hidden or in **exactly one** rail, and it moves between rails from
 that dialog, from the entry's menu, by dragging it across, or by focusing it and pressing
-`Alt+Shift+←/→`. Where a layout has a bar on only one side, the dialog offers *Hidden* and *Shown*
-rather than two sides, and the *Move to other …* menu entry is not registered at all: it would have
+`Alt+Shift+←/→`. Where a layout has a bar on only one side, the dialog offers _Hidden_ and _Shown_
+rather than two sides, and the _Move to other …_ menu entry is not registered at all: it would have
 nowhere to move to.
 
 The dialog is the command `shell.rail.customize`, with the same consequences: palette, shortcut, your
@@ -181,10 +182,10 @@ dock is where a view starts before the user moves it to the other sidebar. Nothi
 who never moves anything.
 
 Two consequences worth knowing. A hidden entry takes its affordance with it, including for something
-like *Settings* or *Sign out*: nothing becomes unreachable, because the command palette still runs
+like _Settings_ or _Sign out_: nothing becomes unreachable, because the command palette still runs
 every command and the same right-click brings the entry back, but a distribution cannot assume its
 rail is intact. And an entry that declares its own context menu with `menu` keeps it, because the
-host's *Hide* is added to that menu rather than replacing it.
+host's _Hide_ is added to that menu rather than replacing it.
 
 ## Telling saved workspaces apart
 
@@ -207,7 +208,7 @@ Deleting a workspace may let a later one simplify back to a shorter form, which 
 storing it — deletion is far rarer than creation, and the badge gets simpler rather than stranger.
 
 **Whether the user may put their own saved workspaces in the rail is yours to decide.** They are
-never there by themselves; the user places one from *Customize activity bar*, and
+never there by themselves; the user places one from _Customize activity bar_, and
 `workspaces: { savedInRail: false }` withdraws that offer, so the rail holds what your product put
 there and nothing else. An entry a user had placed before you switched it off stops being drawn, and
 their placement is kept rather than erased, so switching it back on restores what each of them had.

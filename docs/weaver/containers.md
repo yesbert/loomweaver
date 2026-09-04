@@ -1,6 +1,7 @@
 # Containers: a workspace in a tab
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `containers` · `routing`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
@@ -11,7 +12,7 @@ A container is a surface that holds an arrangement of child surfaces: a small wo
 ## Container surfaces (workspace-in-a-tab)
 
 A **container** surface does not render one view. Instead it renders a host-managed **nested pane
-tree** of child surfaces *inside its own content tab*. The tree has the same drag/split/tab mechanics
+tree** of child surfaces _inside its own content tab_. The tree has the same drag/split/tab mechanics
 as the top level, one level nested and scoped to that tab. Use it for a "one X = one tab, with inner panes" layout (e.g. a run/sim
 tab holding its feed, graph and details side by side). A container is always `routable`: its tab holds
 its own `:id`, so several open in parallel and each is deep-linkable. Its children are non-routable
@@ -82,7 +83,7 @@ rather than from this page.
 ## A child that stands for one item
 
 The children above are facets of one subject: a feed, a graph, a details panel, one of each. A child
-that is a **list** needs its sibling to stand for one *item* of that list, several at a time — and for
+that is a **list** needs its sibling to stand for one _item_ of that list, several at a time — and for
 that the child needs an address of its own. Declare a `segment`:
 
 ```ts
@@ -125,7 +126,7 @@ It is a call rather than a navigation on purpose, and that is worth understandin
 the router instead. A container tab may sit in a split pane or in a pop-out, where it holds no browser
 address at all, and a list whose rows only worked in the main window would not be much of a list.
 
-While the container tab *does* hold the address, the URL names the focused child
+While the container tab _does_ hold the address, the URL names the focused child
 (`/sim/abc123/item/42`), so such a link is shareable. A deep link opens what it names: into that
 same declared pane, and into an existing tab when one is already open. Elsewhere the container keeps
 its own idea of what is focused and the address simply does not express it.

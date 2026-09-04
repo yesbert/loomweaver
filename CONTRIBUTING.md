@@ -244,7 +244,7 @@ broken is listed in [`docs/reference/operations.md`](docs/reference/operations.m
   that cannot follow a theme. See [`docs/reference/design-tokens.md`](docs/reference/design-tokens.md);
   a lint rule catches mistyped utilities.
 - **Vertical slices, not type folders.** A folder is a feature (service, UI, contracts and specs
-  together), never a `services/` or `components/` bucket. Grouping by type is fine *inside* a slice.
+  together), never a `services/` or `components/` bucket. Grouping by type is fine _inside_ a slice.
   A folder holds at most 12 concepts and a source file over 400 lines must be justified; a folder
   that outgrows the threshold is cut into sub-themes named for what they do, the way
   `regions/content` and `elements/` already are.
@@ -284,6 +284,11 @@ Four rules for the sentences, two of them measured by `npm run docs-style-check`
 - **One word, one spelling, the glossary's.** `docs/glossary.md` says which of two words names a
   thing; the checker flags the spellings it does not use (a hyphenated plugin, a two-word sidebar).
 
+The shape of the file is Prettier's, not yours: run `npx prettier --write` on a page you touched, or
+`npm run docs-format-check` to see what it wants. It decides table widths, italic markers and the
+blank line after the header, and it leaves the code blocks alone, so how dense a sample reads is
+still your call.
+
 Every page under `docs/` opens with a single `# Title` and the derived-from-specs header naming the
 capabilities it explains, so a reader knows where the guarantee is. The three maps (the docs index,
 the glossary, the operations notes) are exempt by name. Keep the tone: the reasons, the traps by name,
@@ -292,7 +297,7 @@ and nothing glossed over are what make these pages worth reading, so shorten sen
 ## Commits and pull requests
 
 Keep the change focused; a small diff is reviewed faster than a large one. Write commit messages that
-say *why*, and describe in the pull request how you verified the change — which tests you ran, what
+say _why_, and describe in the pull request how you verified the change — which tests you ran, what
 you checked by hand.
 
 **Write in English.** Everything in this repository is English: code, comments, documentation, commit

@@ -1,6 +1,7 @@
 # Driving your product with an AG-UI agent
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `scaffolding` · `commands` · `plugin-permissions`. Where this
 > page and a specification disagree, the specification is right, and that is a defect in this page:

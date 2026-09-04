@@ -1,6 +1,7 @@
 # Access gating in a weaver
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `access-gating`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
@@ -66,7 +67,7 @@ export const notesSession = { session: undefined as PluginSession | undefined,
 protected readonly canPurge = computed(() => notesSession.session?.hasRole('admin') ?? false);
 ```
 
-A **sandboxed** surface has no `ctx` in its own frame, so the host *pushes* the session into the surface
+A **sandboxed** surface has no `ctx` in its own frame, so the host _pushes_ the session into the surface
 state instead. The same capability gates it: declare `session` (and have it granted) or the host omits
 the field, and your surface sees `state.session === undefined`. That is deliberately **not** a signed-out
 snapshot — "not granted" and "signed out" are different facts, so read it defensively

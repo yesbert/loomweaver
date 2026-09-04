@@ -1,11 +1,11 @@
 # Callable commands — letting something other than the user run an action
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `commands`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
 > explain it here.
-
 
 A `Command` is the workbench's one anchor for an action: a rail item, a keystroke and a palette entry
 all point at the same `id`, and one seam decides whether it may run. This page is about opening that
@@ -63,7 +63,7 @@ a caller may run.
 
 ## Why the default is closed
 
-The same reason `popout` is: a command *missing* from what an automated caller can reach is a small
+The same reason `popout` is: a command _missing_ from what an automated caller can reach is a small
 annoyance, while one that does something surprising because something other than the user triggered
 it is the larger failure, and the shell cannot tell the two apart for a command it did not write.
 
@@ -92,7 +92,7 @@ caller working through a list of actions has to handle "you may not" as an outco
 exception. The user is still told, exactly as they are for every other refused route.
 
 The three outcomes are distinct because they mean different things, and none may be presented as
-another: *answered* is a result, *refused* means the command never ran, *failed* means it ran and
+another: _answered_ is a result, _refused_ means the command never ran, _failed_ means it ran and
 broke.
 
 ### Read the list, do not keep one
@@ -125,26 +125,26 @@ time; the next call is refused and the list empties, without a reload.
 
 ## Refusal reasons
 
-| Reason | What happened |
-| --- | --- |
-| `unavailable` | No such command, or not `callable`, or the session does not qualify, or the window does not host it, or the grant is missing. Deliberately one answer for all of them. |
-| `invalid-arguments` | The call did not match what the command declares. |
-| `too-deep` | Commands invoked each other past the workbench's nesting limit — a loop rather than a chain. |
+| Reason              | What happened                                                                                                                                                          |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `unavailable`       | No such command, or not `callable`, or the session does not qualify, or the window does not host it, or the grant is missing. Deliberately one answer for all of them. |
+| `invalid-arguments` | The call did not match what the command declares.                                                                                                                      |
+| `too-deep`          | Commands invoked each other past the workbench's nesting limit — a loop rather than a chain.                                                                           |
 
 ## The types, and where each is used
 
 Everything below is exported from `@loomweaver/plugin-sdk`.
 
-| Type | What it is |
-| --- | --- |
-| `CommandArgument` | one declared argument: `SimpleCommandArgument` for `text`/`number`/`boolean`, `ChoiceCommandArgument` for a value out of a fixed `choices` list. Both extend `CommandArgumentBase`, which carries the `name`, the `description`, `required` and `list`. |
-| `CommandScalar` | a single value an argument or an answer may carry: a string, a number or a boolean. |
-| `CommandArgumentValue` | what one argument may be given — a `CommandScalar`, or a list of them where the declaration says `list: true`. |
-| `CommandArguments` | the whole call: argument names to `CommandArgumentValue`. |
-| `CommandAnswer` | what a command may answer with — scalars, `null`, arrays and plain objects, nested. |
-| `CommandOutcome` | the union an invocation answers with: `CommandAnswered`, `CommandRefused` or `CommandFailed`. Switch on `outcome`. |
-| `CommandRefusalReason` | why a refusal happened — `unavailable`, `invalid-arguments` or `too-deep`. See the table above. |
-| `InvocableCommand` | one entry of `ctx.invocableCommands()`: id, title, and the optional description, arguments and `answers`, every text already translated. |
+| Type                   | What it is                                                                                                                                                                                                                                              |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CommandArgument`      | one declared argument: `SimpleCommandArgument` for `text`/`number`/`boolean`, `ChoiceCommandArgument` for a value out of a fixed `choices` list. Both extend `CommandArgumentBase`, which carries the `name`, the `description`, `required` and `list`. |
+| `CommandScalar`        | a single value an argument or an answer may carry: a string, a number or a boolean.                                                                                                                                                                     |
+| `CommandArgumentValue` | what one argument may be given — a `CommandScalar`, or a list of them where the declaration says `list: true`.                                                                                                                                          |
+| `CommandArguments`     | the whole call: argument names to `CommandArgumentValue`.                                                                                                                                                                                               |
+| `CommandAnswer`        | what a command may answer with — scalars, `null`, arrays and plain objects, nested.                                                                                                                                                                     |
+| `CommandOutcome`       | the union an invocation answers with: `CommandAnswered`, `CommandRefused` or `CommandFailed`. Switch on `outcome`.                                                                                                                                      |
+| `CommandRefusalReason` | why a refusal happened — `unavailable`, `invalid-arguments` or `too-deep`. See the table above.                                                                                                                                                         |
+| `InvocableCommand`     | one entry of `ctx.invocableCommands()`: id, title, and the optional description, arguments and `answers`, every text already translated.                                                                                                                |
 
 ## Across the sandbox boundary
 
@@ -152,7 +152,7 @@ A sandboxed plugin invokes and lists exactly as an in-process one does, and gets
 the same call. Arguments and answers are constrained to data on both rungs, so a value that could not
 arrive as the value it was is refused rather than arriving stripped.
 
-A sandboxed plugin still cannot *register* a command, because a behaviour is a function and functions
+A sandboxed plugin still cannot _register_ a command, because a behaviour is a function and functions
 do not cross the boundary. It contributes a menu item naming a command by id instead.
 
 ## Handing the list to an agent

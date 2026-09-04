@@ -1,6 +1,7 @@
 # Panes
 
 <!-- derived-from-specs -->
+
 > **This is a guide, not the contract.** What the platform guarantees is specified under
 > `openspec/specs/` — for this page: `panes` · `host-services`. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
@@ -61,8 +62,8 @@ nothing rather than acting on another pane. Without a handle an action means the
 the address, which is what a toolbar on that pane means too.
 
 **Same code as the controls.** Each action is the one the pane toolbar, the tab menu and the
-`shell.content.splitRight` chord run, with the guards listed under *What asks about unsaved work*.
-The switches do not reach the service, as *Switched off* says.
+`shell.content.splitRight` chord run, with the guards listed under _What asks about unsaved work_.
+The switches do not reach the service, as _Switched off_ says.
 
 **What the controls do.** Every content pane shows the same inline toolbar: New tab, Split right,
 Split down, Minimize, Maximize and Close. The toolbar split **duplicates** the active tab into a new
