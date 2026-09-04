@@ -19,7 +19,7 @@ This is a curated map for people, and their AI assistants, building on or integr
   - [View state that survives](docs/weaver/view-state.md): `VIEW_STATE`: filter, sub-tab, scroll position in one shape.
   - [Unsaved changes](docs/weaver/unsaved-changes.md): `DirtySurface` and the Save, Discard, Cancel question.
   - [Your plugin's own store](docs/weaver/plugin-state.md): `ctx.state`.
-  - [Containers](docs/weaver/containers.md): a workspace in a tab, a child per item, relative addresses, pop-outs.
+  - [Containers](docs/weaver/containers.md): a workspace in a tab, the arrangement it opens with, a child that stands for one item through `segment` and `CONTAINER_HANDLE`.
   - [The content area](docs/weaver/content-area.md): routable surfaces, tabs per pane, chromeless, closable, preview and pinned tabs, panes and tab groups.
   - [Sub-routes and follows](docs/weaver/sub-routes-and-follows.md): `subRoutes`, the rest of the address, tabs that follow the selection, `activeContent`.
   - [Menus](docs/weaver/menus.md): `registerMenuItem`, item menu slots, `ctx.ui.openMenu`.
@@ -38,6 +38,7 @@ This is a curated map for people, and their AI assistants, building on or integr
   - [Switching capabilities off](docs/distribution/switching-capabilities-off.md): `provideShellFeatures`, the switch takes the gesture and the affordance.
   - [Surface retention](docs/distribution/surface-retention.md): the product-wide default.
   - [Branding](docs/distribution/branding.md)
+  - [Bringing your own CSS framework](docs/distribution/css-frameworks.md): the pre-compiled stylesheet instead of Tailwind, your framework in a cascade layer, `theme --preset bootstrap` for the token mapping. Read it before importing Bootstrap next to the shell.
   - [Capabilities](docs/distribution/capabilities.md): grants, default-deny, `provideRequiredPlugins`.
   - [Auth integration](docs/distribution/auth.md): `provideAuthSource`, your login UI, `provideUnauthorizedRedirect`.
   - [Persistence stores](docs/distribution/persistence.md): two ports of one shape, the storage-key inventory, identity-scoped stores.
@@ -49,7 +50,7 @@ This is a curated map for people, and their AI assistants, building on or integr
   - [PWA and delivery](docs/distribution/pwa.md)
 - [Driving your product with an AG-UI agent](docs/ag-ui-agents.md): the path from `weaver --id <id> --agent` to a product an AG-UI agent drives, including which calls get a confirmation (the `before` hook can only narrow). Read it before [agent tools](docs/reference/agent-tools.md), which is the adapter function by function.
 - [The plugin system](docs/plugins.md): the distribution's view of plugins: three rungs (trusted composed, sandboxed iframe over RPC, community-installed at runtime) against one contract, which parts of `ctx` cross the sandbox, default-deny capabilities, the lifecycle. Read it before deciding how a plugin arrives or what a user may revoke, disable or uninstall.
-- [Backend integration](docs/backend-integration.md): the product hand-off; the platform ships no server, and your backend sits behind four seams: settings store, working-state store, `AuthSource`, translations. Read it when wiring a real backend behind the local, anonymous defaults.
+- [Backend integration](docs/backend-integration.md): the product hand-off; the platform ships no server and has three ports (settings store, working-state store, auth source) plus a translation loader, which is a provider, not a port. Read it when wiring a real backend behind the local, anonymous defaults.
 
 ## Concepts
 

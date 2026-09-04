@@ -77,11 +77,8 @@ product is styled, and they work together:
 | `distribution --styles precompiled` | emits a one-line `src/styles.css` that imports the stylesheet **we** compiled, so the application needs **no Tailwind** — no packages, no `.postcssrc.json`, no `@source` hops. The default, `tailwind`, compiles the shell's source theme and is what lets you write Tailwind utilities of your own |
 | `theme --preset bootstrap` | maps all 29 `--lw-*` tokens onto Bootstrap 5.3's `--bs-*` variables instead of emitting literal colours, so the shell follows your Bootstrap theme live |
 
-Together they are the whole Bootstrap path. Scaffold the distribution with `--styles precompiled`.
-Scaffold a theme with `--preset bootstrap`. Import Bootstrap **into a cascade layer**, and import
-the theme after ours. That last part is not housekeeping. See
-[bringing your own CSS framework](manual-setup.md#bringing-your-own-css-framework) for what
-unlayered CSS does to the chrome.
+Together they are the whole Bootstrap path, and the framework itself has to go into a cascade layer:
+[Bringing your own CSS framework](distribution/css-frameworks.md) has the import order and the mapping.
 
 | Option | Effect |
 | --- | --- |
@@ -102,7 +99,7 @@ A missing translation key is a *warning*: it reports and exits 0, so it will not
 build. `--strict` turns warnings into a non-zero exit when you do want to gate on parity.
 
 `validate-catalog` earns its place for one reason: the shell parses a
-[plugin store catalog](distribution/plugin-store.md) **defensively** —
+[plugin store catalogue](distribution/plugin-store.md) **defensively** —
 it tolerates bad input instead of failing on it. A field it does not recognise is skipped. A
 malformed field is dropped. An entry missing `id` or `entryUrl` disappears entirely. All of this
 happens without a word, because a store that throws on one bad entry serves nobody. That is the
@@ -226,7 +223,7 @@ unchanged.
 | `scaffold_theme` | `name`, `preset` | a token-override stylesheet in `@layer lw-tenant-theme` |
 | `scaffold_layout` | `name` | a `ShellLayout` with the regions a weaver expects |
 | `validate_manifest` | `id`, `name`, `capabilities` | findings on a plugin manifest |
-| `validate_catalog` | `catalog` — the parsed catalog JSON array | findings on a plugin store catalog, including fields the host never reads |
+| `validate_catalog` | `catalog` — the parsed catalogue JSON array | findings on a plugin store catalogue, including fields the host never reads |
 | `validate_i18n` | `bundles` — the parsed language files keyed by language, e.g. `{ "en": { "notes.list": "Notes" }, "de": { "notes.list": "Notizen" } }` | findings on translation-bundle parity (keys missing in one language) |
 
 ## The weaver generator
@@ -307,25 +304,18 @@ Three files land under `src/lib/agent/`:
   connection stay as they are. Nothing is generated for the transport, the credentials or the model,
   because none of those can be guessed.
 
-The point is not the thirty lines. Three things are easy to get wrong and invisible when they are:
-the offered list must be asked for again every run, every event must be handed over unfiltered, and a
-decision before a call can only narrow what the workbench would have allowed anyway. The generated
-code does all three, and the generated test fails when one of them is broken.
-
-Asking for the connection also asks for a command, because a connection that offers nothing
-demonstrates nothing. It derives the `automation` capability — reaching commands other plugins
-registered — and it needs two packages your project may not carry: `@loomweaver/ag-ui` and
-`@ag-ui/core`. The Nx generator and the CLI record them for you; MCP names them among the steps that
-remain.
+What the connection guarantees, which calls to ask about and how to replace the stand-in is
+[Driving your product with an AG-UI agent](ag-ui-agents.md#generate-it); that page also names the
+two packages `--agent` needs and the `automation` capability it derives.
 
 ### Three shapes of surface
 
-The default surface is **routable**: it lives at `/<id>`, holds the URL pane, and is what a deep link
+The default surface is **routable**: it lives at `/<id>`, holds the address pane, and is what a deep link
 and the browser's back button address. Two flags trade that for something else.
 
 `--instanceable` **docks** the surface into the left panel (`left-panel` in the scaffolded layout) and
 drops `routable`. That is not
-a detail. Named instances exist only for a docked surface; a routable surface holds the URL pane
+a detail. Named instances exist only for a docked surface; a routable surface holds the address pane
 instead. The rail item then reveals the surface (`ctx.revealSurface`) rather than navigating to it.
 Revealing also means the rail item finds the surface wherever the user has since dragged it.
 

@@ -29,11 +29,10 @@ import { notesWeaver } from '@my/notes-weaver';
 const layout: ShellLayout = {
   regions: [
     { id: 'top-bar', type: 'bar', dock: 'top' },
-    { id: 'activity', type: 'rail', dock: 'left' },
-    { id: 'primary', type: 'panel', dock: 'left' },
-    { id: 'left-footer', type: 'bar', dock: 'left' },
+    { id: 'primary', type: 'rail', dock: 'left' },
+    { id: 'left-panel', type: 'panel', dock: 'left' },
     { id: 'main', type: 'content', dock: 'center' },
-    { id: 'secondary', type: 'panel', dock: 'right' },
+    { id: 'right-panel', type: 'panel', dock: 'right' },
     { id: 'status-bar', type: 'bar', dock: 'bottom' },
   ],
 };
@@ -98,13 +97,14 @@ decision needs the reasoning first, the page names the concept page under `conce
 - [Resetting the arrangement](distribution/resetting.md): the workspace reset and the app layout reset, and what each puts back.
 - [Switching capabilities off](distribution/switching-capabilities-off.md): `provideShellFeatures`, one switch per gesture and its affordance.
 - [Surface retention](distribution/surface-retention.md): the product-wide `retention` default and the unsaved-work question. Why: [Retention and unsaved work](concepts/retention-and-unsaved-work.md).
-- [Branding](distribution/branding.md): `provideProductIdentity`, the `--lw-*` tenant theme, Tailwind or your own CSS framework.
+- [Branding](distribution/branding.md): `provideProductIdentity` and the `--lw-*` tenant theme.
+- [Bringing your own CSS framework](distribution/css-frameworks.md): the pre-compiled stylesheet, your framework in a cascade layer, the Bootstrap token mapping and the dark-mode mirror.
 - [Capabilities](distribution/capabilities.md): `provideCapabilityGrants`, the Permissions section, `provideRequiredPlugins`. Why: [Capabilities and trust](concepts/capabilities-and-trust.md).
 - [Auth integration](distribution/auth.md): `provideAuthSource`, your own login UI, `provideUnauthorizedRedirect`.
 - [Persistence stores](distribution/persistence.md): the two `KeyValueStore` ports, the storage-key inventory, identity-scoped stores.
 - [Windows and sync](distribution/windows-and-sync.md): cross-tab live sync and pop-out windows, and where a product hooks in.
 - [Frame plugins](distribution/frame-plugins.md): `provideFramePlugins`, the frame kit you serve, your CSP. Why: [Capabilities and trust](concepts/capabilities-and-trust.md).
-- [Plugin store](distribution/plugin-store.md): `providePluginCatalog`, the catalog, consent and updates.
+- [Plugin store](distribution/plugin-store.md): `providePluginCatalog`, the catalogue, consent and updates.
 - [Icons, translations and rewording](distribution/icons-and-i18n.md): `provideIcons`, translation namespaces, `provideTranslationOverrides`.
 - [Recomposing host chrome](distribution/recomposing-chrome.md): replacing, hiding and moving default chrome, the palette entry, curating settings, dropping a route.
 - [PWA and delivery](distribution/pwa.md): the service worker, the manifest, and validating the update flow against a build.

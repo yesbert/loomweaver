@@ -127,6 +127,10 @@ export default defineConfig({
               link: '/distribution/surface-retention/',
             },
             { label: 'Branding', link: '/distribution/branding/' },
+            {
+              label: 'Bringing your own CSS framework',
+              link: '/distribution/css-frameworks/',
+            },
             { label: 'Capabilities', link: '/distribution/capabilities/' },
             { label: 'Auth integration', link: '/distribution/auth/' },
             { label: 'Persistence stores', link: '/distribution/persistence/' },

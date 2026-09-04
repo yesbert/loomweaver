@@ -2,7 +2,8 @@
 
 <!-- derived-from-specs -->
 > **This is a guide, not the contract.** What the platform guarantees is specified under
-> `openspec/specs/` — for this page: `platform-composition` · `plugin-runtime`. Where this page
+> `openspec/specs/` — for this page: `platform-composition` · `plugin-runtime` ·
+> `plugin-permissions` · `plugin-sandbox` · `access-gating` · `persistence-ports`. Where this page
 > and a specification disagree, the specification is right, and that is a defect in this page:
 > change the behaviour there, then explain it here.
 
@@ -95,12 +96,10 @@ uses. Everything a plugin may import is in `@loomweaver/plugin-sdk`; nothing els
 
 ## Capabilities are default-deny
 
-A plugin **declares** the capabilities it needs in its manifest; the **distribution grants** them
-(`provideCapabilityGrants`). A declaration alone grants nothing — a plugin that was not granted a
-capability gets a loud `CapabilityError`, not a silent no-op. The capabilities are coarse on purpose
-(`contributions`, `ui`, `host`, `navigation`, `session`, `theme`, `automation`) and can split into finer
-ones later
-without changing the model. Wiring and examples:
+A plugin **declares** the capabilities it needs in its manifest and the **distribution grants** them
+(`provideCapabilityGrants`); a declaration alone grants nothing, and a call beyond the grant raises a
+`CapabilityError`. Why the model is default-deny, and why the capabilities are coarse, is
+[Capabilities and trust](concepts/capabilities-and-trust.md#default-deny); the wiring is
 [building a distribution → capabilities](distribution/capabilities.md).
 
 ## Auth-aware access gating

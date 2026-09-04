@@ -15,7 +15,8 @@ A plugin reaches host services and host state through one context object, `ctx`,
 context will do for it is decided by grants. The model is default-deny: a plugin holds only what it
 was explicitly granted, the grant can never exceed what the plugin itself declared, and the person
 using the application can take any of it back. A plugin that acts beyond its grant gets a
-`CapabilityError`, never a quiet no-op.
+`CapabilityError`, never a quiet no-op. The capabilities are coarse on purpose: splitting one later is
+compatible, merging two is not.
 
 Everything a plugin declares about itself is a request. That is why "this plugin is required" is not
 a manifest field: a distribution says it, so the one exemption a plugin could award itself does not

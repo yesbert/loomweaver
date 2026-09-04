@@ -15,14 +15,19 @@ and real auth.
 
 This page is the hand-off: what a product built on the platform provides.
 
-## The four seams
+## Three ports and a translation loader
+
+The platform has **three ports**: the settings store, the working-state store and the auth source.
+Each is a token the shell fills with a local, anonymous default and your product overrides.
+Translations are the fourth thing a backend usually answers, but the loader is a Transloco provider,
+not a port; it is listed here because the swap is made in the same place.
 
 | Seam | What you provide | Without it |
 | --- | --- | --- |
-| Settings persistence | a settings store (`KeyValueStore`) | `localStorage` |
-| Working state (optional) | a working-state store (`KeyValueStore`) | `localStorage` |
-| Auth / session | an `AuthSource` signal | everyone is anonymous |
-| Translations | a Transloco loader | static files under `/i18n/` |
+| Settings persistence (port) | a settings store (`KeyValueStore`) | `localStorage` |
+| Working state (port, optional) | a working-state store (`KeyValueStore`) | `localStorage` |
+| Auth / session (port) | an `AuthSource` signal | everyone is anonymous |
+| Translations (provider) | a Transloco loader | static files under `/i18n/` |
 
 They are independent — adopt any subset. Each is a provider in your distribution's
 `bootstrapApplication` call, placed **after `provideShell()`** so it wins the last-in-wins race for
@@ -279,7 +284,7 @@ set it yourself if you rely on it.
 
 ## Putting it together
 
-All the seams in one composition root. Everything below `provideShell()` overrides a default the
+All three ports and the loader in one composition root. Everything below `provideShell()` overrides a default the
 shell already provided, which is why the order matters:
 
 ```ts
@@ -353,11 +358,10 @@ browser. If your backend platform already provides per-tenant secret storage, se
 request dispatch, those are exactly the pieces to build on. LoomWeaver keeps only the frontend
 default-deny capability broker (which plugin may do what) and the grant map your backend feeds it.
 
-One server-side concern is genuinely LoomWeaver-shaped and **not yet designed**: per-tenant secret
-injection + allow-listed egress for **third-party** plugins (a plugin that calls an external API with
-a tenant secret the browser must never see). First-party bundles don't need it — they call your
-domain API directly. When the first third-party plugin arrives we'll define a small egress **contract**
-your backend implements; there is still no LoomWeaver server. Until then, nothing to do.
+The same boundary holds for a plugin that calls an external API with a tenant secret. The secret
+lives in your backend, the call is made there, and the browser never sees it. First-party weavers
+call your domain API directly; a third-party plugin that needs such a call reaches it through an
+endpoint your backend offers. The platform defines no egress contract and ships no server for it.
 
 ---
 

@@ -66,7 +66,7 @@ interface PluginContext {
   unpinContentTab(path: string): void;                   // unpin back to a normal tab                 [navigation]
   closeContentTab(path: string): void;                   // close a dynamic tab                        [navigation]
   revealSurface(id: string): void;                       // activate a DOCKED surface's tab wherever the user placed it (sidebar pane — expanding a collapsed panel — or content pane); no-op for unknown/container-child ids. Routable surfaces: use navigateContent  [navigation]
-  readonly activeContent: () => ActiveContent | null;    // signal-shaped read: which routable surface the URL pane
+  readonly activeContent: () => ActiveContent | null;    // signal-shaped read: which routable surface the address pane
                                                          // shows + its :params — instead of injecting the host router /
                                                          // parsing URLs. Trusted rung only.           [navigation]
   invokeCommand(id: string, args?: CommandArguments): Promise<CommandOutcome>;
@@ -218,7 +218,7 @@ interface StateHandle<T = unknown> { readonly value: () => T | undefined; readon
 // minimize / maximize / close — distribution-configurable via provideShellFeatures({ content }):
 // maximize fills the whole viewport over all chrome (Escape restores); minimize collapses a split pane to a strip
 // (icon + active tab name + `+N` badge for extra tabs, click to restore); minimize/close are symmetric on both
-// panes of a split — closing the URL pane dissolves the split and the neighbour takes over). Exactly ONE
+// panes of a split — closing the address pane dissolves the split and the neighbour takes over). Exactly ONE
 // pane is URL-focused/router-rendered, and the focus is switchable. registerSurface is the only authoring entry:
 // a panel View ≙ a non-routable Surface with docks:[region]; a ContentRoute ≙ a routable one. View/ContentRoute
 // are only the host's internal storage shapes — registerSurface normalises into them.
@@ -244,13 +244,13 @@ type Surface = {
   id: string; title: string; icon?: string; order?: number;
   actions?: readonly ViewAction[]; access?: AccessRequirement;
   instanceable?: boolean;               // named saved instances (2b)
-  routable?: SurfaceRoutable;           // URL-addressable — can hold the URL pane
+  routable?: SurfaceRoutable;           // URL-addressable — can hold the address pane
   retain?: 'always' | 'never';          // what happens when HIDDEN (rendered by no pane). Default = the
                                         // distribution's retention default (itself 'destroy'): a hidden, CLEAN surface is
                                         // destroyed and rebuilt on return — state that must survive belongs in VIEW_STATE
                                         // (rule: evictable = reload-safe). 'always' keeps the live instance while hidden
                                         // (expensive rebuild, live connection); 'never' opts back into destroy.
-                                        // A retained ROUTABLE surface is host-mounted in EVERY pane (the URL pane included;
+                                        // A retained ROUTABLE surface is host-mounted in EVERY pane (the address pane included;
                                         // its route only carries the address) and keyed to its pane, so handing the URL role
                                         // between split panes leaves each pane's instance in place — a split shows two
                                         // independent instances, deliberately. Price: a host-fabricated ActivatedRoute
@@ -275,7 +275,7 @@ type Surface = {
                                         // distribution asked for it with provideShell({ padding: 'inset' }).
                                         // true = inset this surface anyway; false = this surface owns its edges
                                         // (viewer, canvas, map, edge-to-edge table) in a product that insets.
-                                        // Travels with the surface: URL pane, split, sidebar and pop-out alike.
+                                        // Travels with the surface: address pane, split, sidebar and pop-out alike.
                                         // Only WHETHER there is an inset is switchable; how WIDE stays plain CSS.
   docks?: readonly string[];            // hostable regions; first = home dock; docks:[] = container-only child
 } & SurfacePresentation;
@@ -610,7 +610,7 @@ function provideIcons(icons: Readonly<Partial<Record<LoomIconName | (string & {}
 // them, the sidebar itself stays; a region left out keeps whatever the user has) — whether a sidebar EXISTS,
 // is open and how wide it is belongs to the WINDOW, so switching never collapses, resizes or removes one.
 // The declaration vocabulary (all from @loomweaver/shell; content areas nest freely, exactly one of tabs/rows/columns each,
-// `size` = percentage with unsized siblings sharing the remainder, first `tabs` area in reading order = the URL pane):
+// `size` = percentage with unsized siblings sharing the remainder, first `tabs` area in reading order = the address pane):
 interface WorkspaceDefinition { id: string; title: string; icon?: string; initial?: boolean; claims?: readonly string[]; sidebars?: Readonly<Record<string, readonly string[]>>; content?: WorkspaceArea; }
 //   claims: the content addresses that BELONG to this workspace, as route paths in the same vocabulary as
 //   `content` — 'quotes/:id' claims every quote document and everything under one. Reaching a claimed address
@@ -720,7 +720,7 @@ function provideIdentityScopedStores(options: IdentityScopedStoreOptions): Provi
 // nowhere) — the off-router placeholder text is context-sensitive (popout.unavailable, not the split text).
 // SUB-ROUTE RULE (authoring): a surface that draws its own sub-tabs must switch them LOCALLY when host-mounted —
 // the host supplies a synthetic ActivatedRoute whose routeConfig === null; branch on it (keep sub-tab local
-// off-router, navigate the global router only in the URL pane). An absolute navigateByUrl from a pop-out drags the
+// off-router, navigate the global router only in the address pane). An absolute navigateByUrl from a pop-out drags the
 // URL out of the /popout/ prefix so its reload opens the full app. Sub-tab-less views need nothing.
 class PopoutService {
   readonly active: boolean;          // is THIS window a pop-out? latched from location at boot
@@ -783,7 +783,7 @@ type SwitchSignals<G> = { [K in keyof G]: Signal<boolean> };   // switches.conte
 class PaneService { panes: Signal<readonly PaneFacts[]>; activePane: Signal<PaneHandle>; isSplit: Signal<boolean>; maximized: Signal<PaneHandle | null>; minimized: Signal<readonly PaneHandle[]>;
   splitRight(pane?: PaneHandle): void; splitDown(pane?: PaneHandle): void; closePane(pane?: PaneHandle): void; unsplit(): void;
   maximize(pane?: PaneHandle): void; minimize(pane?: PaneHandle): void; restore(pane?: PaneHandle): void; focus(pane: PaneHandle): void; moveTab(path: string, pane: PaneHandle): void; exists(pane: PaneHandle): boolean }
-type PaneHandle;   // opaque, stable while the pane exists; a stale handle does nothing. Without a handle an action means the URL pane (the one carrying the address).
+type PaneHandle;   // opaque, stable while the pane exists; a stale handle does nothing. Without a handle an action means the address pane (the one carrying the address).
 interface PaneFacts { handle: PaneHandle; showing: string | null; itemCount: number; carriesAddress: boolean; maximized: boolean; minimized: boolean }
 class WorkspaceService { workspaces: Signal<readonly Workspace[]>; activeId: Signal<string>; hasChanges: Signal<boolean>; changedIds: Signal<readonly string[]>;
   switchTo(id: string): Promise<void>; saveCurrent(name: string): Promise<void>; saveBaseline(): Promise<void>; rename(id: string, name: string): void;
@@ -848,8 +848,8 @@ export const appConfig: ApplicationConfig = {
     provideShell(),
     provideLayout({ regions: [
       { id: 'top-bar', type: 'bar', dock: 'top' },
-      { id: 'activity', type: 'rail', dock: 'left' },
-      { id: 'primary', type: 'panel', dock: 'left' },
+      { id: 'primary', type: 'rail', dock: 'left' },
+      { id: 'left-panel', type: 'panel', dock: 'left' },
       { id: 'main', type: 'content', dock: 'center' },
       { id: 'status-bar', type: 'bar', dock: 'bottom' },
     ] }),
@@ -882,7 +882,7 @@ export const notesWeaver: Plugin = {
     ctx.registerSurface({ id: 'notes.list', docks: ['primary'], title: 'notes.list.title', icon: 'navigator',
       actions: [{ id: 'notes.list.add', icon: 'add', title: 'notes.add', command: 'notes.add' }], component: NotesListView });
     ctx.registerBarItem({ id: 'notes.add.btn', bar: 'status-bar', slot: 'start', icon: 'add', tooltip: 'notes.add', command: 'notes.add' });
-    ctx.registerRailItem({ id: 'notes.settings', rail: 'activity', icon: 'settings', title: 'notes.settings', anchor: 'bottom', run: () => ctx.ui.openSettings() });
+    ctx.registerRailItem({ id: 'notes.settings', rail: 'primary', icon: 'settings', title: 'notes.settings', anchor: 'bottom', run: () => ctx.ui.openSettings() });
     ctx.registerSettingsSection({ id: 'notes', title: 'notes.name', group: 'settings.group.plugins', order: 100, rows: [] });
   },
 };
@@ -898,8 +898,8 @@ export const notesWeaver: Plugin = {
 
 ## Backend (optional, product-owned — the platform ships no server)
 
-- The backend seam is expressed only as **frontend ports** with local/anonymous defaults: implement the `KeyValueStore` shape and provide it via `provideSettingsStore` (settings; the REST-worthy port) and optionally `provideWorkingStateStore` (working state; device-local by default), and feed `AuthSource` (a `Signal<AuthSnapshot>`) via `provideAuthSource`, against **your own backend** (any stack). The UI runs standalone with no backend.
-- Settings persistence, auth/session, per-tenant secrets, credentialed egress and capability grants live in the product's backend — you need them anyway, and they can't be client-side. Third-party plugin credentialed egress will be a small **contract** (not a shipped server) defined when the first such plugin arrives.
+- The platform has three ports (settings store, working-state store, auth source) plus a translation loader, which is a provider, not a port. The backend seam is expressed only as **frontend ports** with local/anonymous defaults: implement the `KeyValueStore` shape and provide it via `provideSettingsStore` (settings; the REST-worthy port) and optionally `provideWorkingStateStore` (working state; device-local by default), and feed `AuthSource` (a `Signal<AuthSnapshot>`) via `provideAuthSource`, against **your own backend** (any stack). The UI runs standalone with no backend.
+- Settings persistence, auth/session, per-tenant secrets, credentialed egress and capability grants live in the product's backend — you need them anyway, and they can't be client-side. A plugin that calls an external API with a tenant secret does so through the product's backend, which holds the secret and makes the call; the platform defines no egress contract and ships no server.
 
 ## Letting an agent drive the product (`@loomweaver/ag-ui`)
 
@@ -932,7 +932,7 @@ if (answer) { messages.push(answer); }       // null when the event did not comp
 
 Prefer generating over hand-wiring. Three dev-time `scope:tooling` packages, published on the same version line as the platform (none are part of the runtime `ctx` contract). One `ScaffoldDescriptor` per scaffold feeds all three adapters, so their options and output are identical; they differ only in what each is handed: the Nx adapter gets a virtual tree (writes AND changes existing files), the CLI gets a target directory (writes), MCP gets nothing (returns a file map).
 
-- **`@loomweaver/devkit`** — the **Nx generator collection**, installed as a dev dependency (`npm i -D @loomweaver/devkit`; peers `@nx/devkit`). The fullest adapter: it is the only one that also *changes* files — it registers the project, adds the tsconfig alias, wires the weaver's i18n assets glob into the composing app and records a package the generated output needs in the consumer's manifest. Placement is read from the consumer workspace, not assumed: `--directory`, `--project-name`, `--import-path` (defaults to your root manifest's npm scope), `--app` (inferred when there is exactly one application, an error naming the candidates when there are several), `--tags`, `--prefix`, `--unit-test-runner`. Generators: `weaver` (feature-composable — flags `--command`/`--shortcut`/`--menu=<slot>`/`--bar-item`/`--settings`/`--about`/`--instanceable`/`--container`/`--agent`/`--access=<req>`/`--no-spec`; capabilities are derived from the chosen features, so it's correct-by-construction. `--instanceable` and `--container` shape the surface itself and are mutually exclusive: `--instanceable` **docks** it into `primary` and drops `routable`, because named instances exist only for a non-routable surface — the host does not carry `instanceable` onto a content route — and the rail item then uses `ctx.revealSurface`; `--container` makes it a routable container at `<id>/:id` holding a nested pane tree, emitting two children with `docks: []` whose components read the container's `:id` off an injected `ActivatedRoute`. `--agent` emits the AG-UI connection described above: a docked panel, `commandTools` with the `before` seam and one consequential command as an example, and a local stand-in in a single file that produces the protocol's own events — so the generated product demonstrates the whole path on the first serve, with no transport, credential or model generated for it. It implies `--command`, derives the `automation` capability, and states `@loomweaver/ag-ui` + `@ag-ui/core` as packages the output needs) · `frame-plugin` (framework-agnostic iframe/Penpal) · `distribution` (runnable composition root; `--styles precompiled` emits the Tailwind-free stylesheet, default `tailwind`) · `auth-source` · `settings-store` · `theme` (`--preset bootstrap` maps all 29 `--lw-*` tokens onto Bootstrap 5.3's `--bs-*`) · `layout`. E.g. `nx g @loomweaver/devkit:weaver --id=notes --settings --about`. Generated test wiring is `@nx/angular:unit-test` (Vitest). Plus the pure cores: `generate(recipe, input) → FileMap` and `validateManifest` / `validateI18nParity` / `validateCatalog` → `Finding[]`.
+- **`@loomweaver/devkit`** — the **Nx generator collection**, installed as a dev dependency (`npm i -D @loomweaver/devkit`; peers `@nx/devkit`). The fullest adapter: it is the only one that also *changes* files — it registers the project, adds the tsconfig alias, wires the weaver's i18n assets glob into the composing app and records a package the generated output needs in the consumer's manifest. Placement is read from the consumer workspace, not assumed: `--directory`, `--project-name`, `--import-path` (defaults to your root manifest's npm scope), `--app` (inferred when there is exactly one application, an error naming the candidates when there are several), `--tags`, `--prefix`, `--unit-test-runner`. Generators: `weaver` (feature-composable — flags `--command`/`--shortcut`/`--menu=<slot>`/`--bar-item`/`--settings`/`--about`/`--instanceable`/`--container`/`--agent`/`--access=<req>`/`--no-spec`; capabilities are derived from the chosen features, so it's correct-by-construction. `--instanceable` and `--container` shape the surface itself and are mutually exclusive: `--instanceable` **docks** it into `left-panel` and drops `routable`, because named instances exist only for a non-routable surface — the host does not carry `instanceable` onto a content route — and the rail item then uses `ctx.revealSurface`; `--container` makes it a routable container at `<id>/:id` holding a nested pane tree, emitting two children with `docks: []` whose components read the container's `:id` off an injected `ActivatedRoute`. `--agent` emits the AG-UI connection described above: a docked panel, `commandTools` with the `before` seam and one consequential command as an example, and a local stand-in in a single file that produces the protocol's own events — so the generated product demonstrates the whole path on the first serve, with no transport, credential or model generated for it. It implies `--command`, derives the `automation` capability, and states `@loomweaver/ag-ui` + `@ag-ui/core` as packages the output needs) · `frame-plugin` (framework-agnostic iframe/Penpal) · `distribution` (runnable composition root; `--styles precompiled` emits the Tailwind-free stylesheet, default `tailwind`) · `auth-source` · `settings-store` · `theme` (`--preset bootstrap` maps all 29 `--lw-*` tokens onto Bootstrap 5.3's `--bs-*`) · `layout`. E.g. `nx g @loomweaver/devkit:weaver --id=notes --settings --about`. Generated test wiring is `@nx/angular:unit-test` (Vitest). Plus the pure cores: `generate(recipe, input) → FileMap` and `validateManifest` / `validateI18nParity` / `validateCatalog` → `Finding[]`.
 - **`@loomweaver/cli`** — the scaffolding **CLI** (adapter 2), the primary path for a product repo: no Nx workspace, no checkout, no assistant. `npx @loomweaver/cli weaver --id notes --command --shortcut 'mod+shift+n' --out src/lib/notes` · `list` · `validate-manifest` · `validate-i18n --dir <dir>` · `validate-catalog --file <path>`. Flags: `--out` (default `.`), `--dry-run` (also names files that already exist), `--force` (an existing file otherwise stops the run and is named), `--strict` (validation warnings fail the exit code, for CI). As the writing adapter it owns the guards: a path escaping `--out` is refused, a symlink inside `--out` is replaced rather than followed, and an unknown `--flag` fails the run instead of being dropped silently. Self-contained esbuild bundle, version == the platform version. It wraps the SAME pure core as MCP, so identical output; the difference is only who writes: the CLI does it, over MCP the assistant does.
 - **`@loomweaver/mcp`** — an MCP server (stdio) exposing the same as tools for AI assistants: `list_generators` · `scaffold_*` · `validate_manifest` / `validate_i18n` / `validate_catalog` (return findings). **`scaffold_*` never touch the filesystem** — they return a file map of *relative* paths, and the client writes it, choosing the target root against its own layout (the server cannot know it). This is the mirror image of the Nx adapter: that one may write because it dictates the layout. Transport-neutral core; `nx bundle mcp` → self-contained `dist/main.mjs` (devkit + the MCP SDK inlined). Published as a bin package, so a product repo already consuming `@loomweaver/*` registers it in `.mcp.json` with `{ "command": "npx", "args": ["-y", "@loomweaver/mcp"] }` — scaffolding LoomWeaver artifacts without LoomWeaver's Nx workspace. Remote/HTTP transport is a thin later layer over the same `createMcpServer()`. (See `platform/libs/tooling/mcp/README.md`.)
 
