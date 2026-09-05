@@ -41,11 +41,15 @@
 
 - [x] 4.1 `grep -rn "plugin platform for Angular workbenches"` finds the landing page, the site
       config, the README and `llms.txt`.
-- [ ] 4.2 Open the deployed landing page and the GitHub repository side by side: same headline, same
-      qualifier, same lead.
+- [x] 4.2 Open the deployed landing page and the GitHub repository side by side: same headline, same
+      qualifier, same lead. Verified on 2026-09-05 after the deploy from `main`: title, headline,
+      lead, `llms.txt` and the GitHub description all carry the same words.
 - [x] 4.3 Record the baseline in this change before merging: stars and forks, the last fourteen
       days of `gh api repos/yesbert/loomweaver/traffic/referrers` and `.../traffic/views`, and the
       dev.to article's reactions and comments from its API.
-- [ ] 4.4 The day the site deploys with the new first screen, the owner emails hn@ycombinator.com
+- [x] 4.4 The day the site deploys with the new first screen, the owner emails hn@ycombinator.com
       asking for a review of the flagged Show HN, with the demo link and the qualifier sentence.
+      Sent on 2026-09-04, a day before the deploy and therefore with the earlier wording. No reply
+      by 2026-09-05, and the item is still dead. Not sent a second time; one request is a request,
+      two are a nuisance.
 - [x] 4.5 `openspec validate position-as-angular-plugin-platform --strict` passes.
