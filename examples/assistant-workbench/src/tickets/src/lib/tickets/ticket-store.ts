@@ -1,4 +1,4 @@
-import { computed, signal } from '@angular/core';
+import { signal } from '@angular/core';
 
 export type TicketStatus = 'open' | 'in progress' | 'done';
 
@@ -40,11 +40,9 @@ const SEED: readonly Ticket[] = [
 ];
 
 const tickets = signal<readonly Ticket[]>(SEED);
-const selectedNumber = signal<string | null>(null);
 
 export const ticketStore = {
   tickets: tickets.asReadonly(),
-  selected: computed(() => tickets().find((one) => one.number === selectedNumber()) ?? null),
 
   list(status?: TicketStatus): readonly TicketSummary[] {
     return tickets()
@@ -52,10 +50,8 @@ export const ticketStore = {
       .map(summary);
   },
 
-  open(number: string): Ticket {
-    const found = find(number);
-    selectedNumber.set(found.number);
-    return found;
+  get(number: string): Ticket {
+    return find(number);
   },
 
   assign(number: string, to: Assignee): TicketSummary {
@@ -83,7 +79,6 @@ export const ticketStore = {
 
   reset(): void {
     tickets.set(SEED);
-    selectedNumber.set(null);
   },
 };
 
@@ -114,6 +109,5 @@ function find(number: string): Ticket {
 function update(number: string, change: (one: Ticket) => Ticket): Ticket {
   const changed = change(find(number));
   tickets.update((all) => all.map((one) => (one.number === changed.number ? changed : one)));
-  selectedNumber.set(changed.number);
   return changed;
 }

@@ -26,7 +26,8 @@ marked as consequential.
 ## What is where
 
 - `src/tickets/` is the domain: an in-memory ticket store, five callable commands with described
-  arguments, and the view with the buttons a person would click.
+  arguments, a list docked in the left sidebar, and a ticket view that opens as a tab per ticket,
+  with the buttons a person would click.
 - `src/assistant/` is the assistant: the AG-UI connection the platform scaffolds, a panel, and the
   agent that calls OpenRouter and speaks the protocol back.
 - `src/app/` is the composition root the CLI wrote.

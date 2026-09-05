@@ -17,7 +17,11 @@
       and points at the article.
       Built 2026-09-05 on 0.8.3. The domain is a support inbox: a ticket store and five callable
       commands (`tickets.list`, `.open`, `.assign`, `.reply`, `.status`), `tickets.reply` marked
-      consequential. The model is `minimax/minimax-m2.7:free`, named once in the agent source;
+      consequential. The list is docked in the left sidebar and every ticket opens as a tab of
+      its own (preview on click, kept on double click), the demo's pattern, so the example is a
+      workbench and not a page. The assistant weaver is called `assistant`, not `copilot`, because
+      that is a product name a reader attaches to Microsoft. All texts come from the weavers'
+      bundles in English and German. The model is `minimax/minimax-m2.7:free`, named once in the agent source;
       `nvidia/nemotron-3-super-120b-a12b:free` also passed the tool-calling probe, the Gemma and
       GLM free variants answered 429 upstream all afternoon. The agent is an async generator of
       protocol events, the same shape the generated stand-in has, so the panel's loop did not
@@ -36,8 +40,8 @@
       again. The two numbers and the workflow go into the article as they are.
       Counted 2026-09-05 in a headless browser on the example. The workflow: open the ticket about
       the blank invoice PDF, assign it to Dana, reply that the fix ships on Monday. By hand: five
-      clicks (ticket row, assignee select, the option, the reply field, send) and one typed reply;
-      six if the Tickets view is not open yet. Through the assistant: two clicks (the prompt field
+      clicks (ticket row in the sidebar, assignee select, the option, the reply field, send) and
+      one typed reply. Through the assistant: two clicks (the prompt field
       and the confirmation of the reply) and one typed sentence. The model called list, assign and
       reply in under ten seconds; it skipped `open` in one run and used it in another, so the
       article does not promise the exact sequence of calls.
