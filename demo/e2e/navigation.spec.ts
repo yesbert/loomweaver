@@ -35,18 +35,23 @@ test('a deep link marks the view it sits under, and names that view its area', a
   await expect(sidebarName(page)).toHaveAttribute('aria-label', 'Order handling');
 });
 
-/* Renaming does not rebuild the surface, so a fold the visitor made survives the rename that
-   following them into another area performs. */
+function areaHeading(page: Page, area: string) {
+  return page.locator(`[data-nav-area="${area}"] .lw-nav-group-heading`);
+}
+
+/* Renaming does not rebuild the surface, and the tree keeps the fold beside itself rather than on
+   the instance, so a fold the visitor made survives the rename that following them into another
+   area performs. */
 test('folding survives the visitor moving between areas', async ({ page }) => {
   await page.goto('/sales/customers');
 
-  await page.locator('[data-nav-toggle="customers"]').click();
-  await expect(navEntry(page, 'sales/contacts')).toHaveCount(0);
+  await areaHeading(page, 'customers').click();
+  await expect(navEntry(page, 'sales/contacts')).toBeHidden();
 
   await navEntry(page, 'sales/quotes').click();
   await expect(sidebarName(page)).toHaveAttribute('aria-label', 'Order handling');
 
-  await expect(page.locator('[data-nav-toggle="customers"]')).toHaveAttribute(
+  await expect(areaHeading(page, 'customers')).toHaveAttribute(
     'aria-expanded',
     'false',
   );

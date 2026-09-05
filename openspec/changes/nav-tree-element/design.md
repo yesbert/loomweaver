@@ -133,3 +133,25 @@ because a tag and an event name are contract from the day they publish and canno
 - Light DOM means a consumer's stylesheet can reach inside the control and a product could quietly
   depend on its internals → the classes it draws with are part of what the workbench's stylesheet
   contract already covers, and are named as such rather than treated as private.
+
+## What the demo found
+
+Putting the demo in front of the element is the part of this change that could not be reasoned out
+in advance, so what it turned up is recorded here rather than in a commit message nobody re-reads.
+
+- **A group holding nothing offered a fold that opened nothing.** The demo declares areas whose
+  views are not built yet and draws them as a heading saying so. Fixed in the element: such a group
+  is drawn, because it was declared, and simply offers no fold. It was not worked around in the
+  demo.
+- **A folded entry is hidden rather than removed.** The demo's own tree dropped folded entries from
+  the markup; the element leaves them in place and hides them. Both are absent from the
+  accessibility tree, and leaving the markup alone is what lets a fold be remembered without the
+  tree being rebuilt. One test had to ask whether an entry is hidden instead of counting it, which
+  is the only place the migration touched a test that was about behaviour rather than markup.
+- **The demo stopped carrying a chevron.** It had contributed a right-pointing one because the
+  workbench has none. The element turns the chevron the workbench already has, so the demo's icon
+  went away rather than moving.
+- **Marking lands one microtask after the view is drawn**, because the tree reads its children
+  through an observer and Angular attaches them after the element is connected. Imperceptible in
+  the product; three unit tests in the demo now await it, which is worth knowing before someone
+  reads it as flakiness.
