@@ -1,6 +1,5 @@
 {
   "rail": {
-    "label": "Werkzeugleiste",
-    "labelRight": "Rechte Werkzeugleiste"
+    "customize": "Einträge wählen"
   }
 }

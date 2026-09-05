@@ -370,7 +370,7 @@ test.describe('User workspaces get initials instead of one shared icon', () => {
       .first()
       .click({ button: 'right', position: { x: 20, y: 480 } });
     await page
-      .getByRole('menuitem', { name: 'Customize activity bar' })
+      .getByRole('menuitem', { name: 'Choose the entries' })
       .click();
     await page.getByRole('button', { name: 'Kunden: Left' }).first().click();
     await page.keyboard.press('Escape');

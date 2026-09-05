@@ -36,6 +36,19 @@ test.describe('Accessibility (WCAG 2.1 AA)', () => {
     await scan(page);
   });
 
+  test('rail with names, at a height that makes it scroll', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 520 });
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Settings' }).click();
+    await page.getByRole('switch', { name: 'Left activity bar', exact: true }).click();
+    await page
+      .getByRole('dialog', { name: 'Settings' })
+      .getByLabel('Close')
+      .click();
+    await expect(page.getByTestId('rail-label').first()).toBeVisible();
+    await scan(page);
+  });
+
   test('settings dialog open', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('button', { name: 'Settings' }).click();

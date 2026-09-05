@@ -103,7 +103,7 @@ test.describe('Rail-item context menu', () => {
     await page.goto('/');
 
     await page
-      .getByRole('navigation', { name: 'Toolbar' })
+      .getByRole('navigation', { name: 'Left activity bar' })
       .getByRole('button', { name: 'Sandbox (iframe)' })
       .click({ button: 'right' });
 

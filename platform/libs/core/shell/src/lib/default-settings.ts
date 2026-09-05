@@ -1,8 +1,30 @@
+import { inject } from '@angular/core';
 import { SettingsService } from './settings/settings.service';
+import { SettingRow } from './settings/settings-model';
+import { SHELL_LAYOUT } from './layout/layout';
+import { RailLabelsService } from './regions/rail/rail-labels.service';
+import { railNameKey } from './regions/rail/rail-name';
 import { ThemeToggle } from './theme/theme-toggle';
 import { TextSizeToggle } from './text-size/text-size-toggle';
 import { LanguageSwitcher } from './i18n/language-switcher';
 import { PermissionsSettings } from './permissions/permissions-settings';
+
+function railLabelRows(): SettingRow[] {
+  const layout = inject(SHELL_LAYOUT);
+  const labels = inject(RailLabelsService);
+  return layout.regions
+    .filter((region) => region.type === 'rail')
+    .map((region) => ({
+      id: `shell.railLabels.${region.id}`,
+      label: railNameKey(region, layout),
+      description: 'railLabels.desc',
+      control: {
+        kind: 'toggle',
+        value: () => labels.labelled(region.id),
+        set: (labelled: boolean) => labels.show(region.id, labelled),
+      },
+    }));
+}
 
 export function registerDefaultSettings(settings: SettingsService): void {
   settings.register({
@@ -29,6 +51,7 @@ export function registerDefaultSettings(settings: SettingsService): void {
         description: 'textSize.desc',
         control: { kind: 'component', component: TextSizeToggle },
       },
+      ...railLabelRows(),
       {
         id: 'shell.appReset',
         label: 'appReset.title',

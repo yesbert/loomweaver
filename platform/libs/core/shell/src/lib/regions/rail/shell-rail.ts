@@ -1,11 +1,15 @@
 import {
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
+  DestroyRef,
+  ElementRef,
+  afterEveryRender,
   computed,
   inject,
   input,
   signal,
 } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
 import {
   CdkDrag,
@@ -13,6 +17,7 @@ import {
   CdkDropList,
   moveItemInArray,
 } from '@angular/cdk/drag-drop';
+import { CdkScrollable } from '@angular/cdk/scrolling';
 import { LayoutRegion, SHELL_LAYOUT } from '../../layout/layout';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { CommandService } from '../../commands/command.service';
@@ -33,14 +38,19 @@ import { UserOrderService } from '../reorder/user-order.service';
 import { FeatureSwitches } from '../../features/feature-switches.service';
 import { ActiveWorkspaceService } from '../../workspace/active-workspace.service';
 import { WorkspaceService } from '../../workspace/workspace.service';
+import { RailLabelsService } from './rail-labels.service';
+import { sameIds, shortenedLabelIds } from './rail-label-fit';
+import { railNameKey } from './rail-name';
 
 @Component({
   selector: 'lw-shell-rail',
   imports: [
+    NgTemplateOutlet,
     TranslocoPipe,
     Reorderable,
     CdkDropList,
     CdkDrag,
+    CdkScrollable,
     MenuTriggerDirective,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -59,6 +69,11 @@ export class ShellRail {
   private readonly railMove = inject(RailMoveService);
   private readonly layout = inject(SHELL_LAYOUT);
   private readonly workspaces = inject(WorkspaceService);
+  private readonly railLabels = inject(RailLabelsService);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly destroyRef = inject(DestroyRef);
+
+  private readonly shortenedIds = signal<ReadonlySet<string>>(new Set());
 
   protected readonly railMenu = computed(() =>
     this.features.curate() ? [RAIL_CONTEXT_MENU] : [],
@@ -76,12 +91,15 @@ export class ShellRail {
       .map((region) => `rail-items-${region.id}`),
   );
   protected readonly labelKey = computed(() =>
-    this.region().dock === 'right' ? 'rail.labelRight' : 'rail.label',
+    railNameKey(this.region(), this.layout),
   );
   protected readonly menuSide = computed<MenuSide>(() =>
     this.region().dock === 'right' ? 'left' : 'right',
   );
   protected readonly reorderable = computed(() => this.features.reorder());
+  protected readonly labelled = computed(() =>
+    this.railLabels.labelled(this.region().id),
+  );
 
   protected readonly draggable = computed(
     () => this.features.reorder() || this.features.moveItems(),
@@ -124,11 +142,20 @@ export class ShellRail {
     return [...top, ...bottom];
   });
 
+  protected readonly topItems = computed(() =>
+    this.items().filter((item) => item.anchor !== 'bottom'),
+  );
+
+  protected readonly bottomItems = computed(() =>
+    this.items().filter((item) => item.anchor === 'bottom'),
+  );
+
   private readonly brokenPictures = signal<ReadonlySet<string>>(new Set());
 
-  protected readonly firstBottomId = computed(
-    () => this.items().find((item) => item.anchor === 'bottom')?.id,
-  );
+  constructor() {
+    afterEveryRender(() => this.measureShortened());
+    this.observeResize();
+  }
 
   protected readonly enterPredicate = (
     _drag: CdkDrag<string>,
@@ -137,6 +164,10 @@ export class ShellRail {
     list.id === this.dropListId()
       ? this.reorderable()
       : this.features.moveItems();
+
+  protected shortened(itemId: string): boolean {
+    return this.shortenedIds().has(itemId);
+  }
 
   protected pictureOf(item: RailItem): string | undefined {
     return this.brokenPictures().has(item.id) ? undefined : item.image;
@@ -157,6 +188,10 @@ export class ShellRail {
 
   protected activateMenuFor(item: RailItem): string | undefined {
     return menuOnActivate(item);
+  }
+
+  protected onFocus(event: FocusEvent): void {
+    (event.target as HTMLElement | null)?.scrollIntoView({ block: 'nearest' });
   }
 
   protected onKeydown(event: KeyboardEvent): void {
@@ -223,6 +258,22 @@ export class ShellRail {
       (dragged.anchor ?? 'top') === (target.anchor ?? 'top')
     );
   };
+
+  private measureShortened(): void {
+    const shortened = shortenedLabelIds(this.host.nativeElement);
+    if (!sameIds(shortened, this.shortenedIds())) {
+      this.shortenedIds.set(shortened);
+    }
+  }
+
+  private observeResize(): void {
+    if (typeof ResizeObserver === 'undefined') {
+      return;
+    }
+    const observer = new ResizeObserver(() => this.measureShortened());
+    observer.observe(this.host.nativeElement);
+    this.destroyRef.onDestroy(() => observer.disconnect());
+  }
 
   private dockForChord(event: KeyboardEvent): 'left' | 'right' | null {
     if (!this.features.moveItems() || !event.altKey || !event.shiftKey) {

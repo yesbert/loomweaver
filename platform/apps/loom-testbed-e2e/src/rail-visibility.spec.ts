@@ -21,7 +21,7 @@ test.describe('Rail entries the user curates', () => {
 
     await rail(page).click({ button: 'right', position: { x: 20, y: 480 } });
     await page
-      .getByRole('menuitem', { name: 'Customize activity bar' })
+      .getByRole('menuitem', { name: 'Choose the entries' })
       .click();
     await page.getByRole('button', { name: 'Notes: Left' }).click();
     await page.keyboard.press('Escape');
@@ -37,7 +37,7 @@ test.describe('Rail entries the user curates', () => {
       name: 'Notes',
       exact: true,
     });
-    const right = page.getByRole('navigation', { name: 'Right toolbar' });
+    const right = page.getByRole('navigation', { name: 'Right activity bar' });
     await expect(notes).toHaveCount(1);
 
     await notes.focus();
@@ -61,7 +61,7 @@ test.describe('Rail entries the user curates', () => {
       name: 'Notes',
       exact: true,
     });
-    const right = page.getByRole('navigation', { name: 'Right toolbar' });
+    const right = page.getByRole('navigation', { name: 'Right activity bar' });
 
     await notes.click({ button: 'right' });
     await page
@@ -91,7 +91,7 @@ test.describe('Rail entries the user curates', () => {
 
     await rail(page).click({ button: 'right', position: { x: 20, y: 480 } });
     await page
-      .getByRole('menuitem', { name: 'Customize activity bar' })
+      .getByRole('menuitem', { name: 'Choose the entries' })
       .click();
     await page.getByRole('button', { name: 'Quarter close: Left' }).click();
     await page.keyboard.press('Escape');

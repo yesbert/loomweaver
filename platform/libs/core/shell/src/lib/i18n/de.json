@@ -128,6 +128,7 @@
   },
   "rail": {
     "label": "Aktivitätsleiste",
+    "labelLeft": "Linke Aktivitätsleiste",
     "labelRight": "Rechte Aktivitätsleiste",
     "menu": {
       "moveToOther": "In andere Aktivitätsleiste verschieben",
@@ -296,5 +297,8 @@
     "unusableBody": "Sein gespeichertes Layout enthält den Inhalt nicht mehr, den dieser Workspace deklariert, also ist hier nichts zu zeigen. Zurücksetzen stellt das Layout wieder her, mit dem er deklariert wurde. Deine anderen Workspaces bleiben unberührt.",
     "unusableAction": "Diesen Workspace zurücksetzen",
     "unusableMark": "Funktioniert nicht wie deklariert"
+  },
+  "railLabels": {
+    "desc": "Den Namen jedes Eintrags unter seinem Symbol anzeigen."
   }
 }

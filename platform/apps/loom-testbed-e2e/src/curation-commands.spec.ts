@@ -12,13 +12,13 @@ test.describe('Curating from a dialog (K5)', () => {
       name: 'Notes',
       exact: true,
     });
-    const right = page.getByRole('navigation', { name: 'Right toolbar' });
+    const right = page.getByRole('navigation', { name: 'Right activity bar' });
     await expect(notes).toHaveCount(1);
 
     const palette = page.getByRole('combobox', { name: 'Command palette' });
     await page.keyboard.press(`${module_}+KeyK`);
-    await palette.fill('Customize');
-    await page.getByRole('option', { name: 'Customize activity bar' }).click();
+    await palette.fill('Choose the');
+    await page.getByRole('option', { name: 'Choose the entries' }).click();
 
     await page.getByRole('button', { name: 'Notes: Right' }).click();
     await page.keyboard.press('Escape');
@@ -33,7 +33,7 @@ test.describe('Curating from a dialog (K5)', () => {
     await page.goto('/');
     await rail(page).click({ button: 'right', position: { x: 20, y: 480 } });
     await page
-      .getByRole('menuitem', { name: 'Customize activity bar' })
+      .getByRole('menuitem', { name: 'Choose the entries' })
       .click();
 
     const rows = page.locator('[data-curation-row]');
@@ -53,7 +53,7 @@ test.describe('Curating from a dialog (K5)', () => {
     await rail(page).click({ button: 'right', position: { x: 20, y: 480 } });
 
     await expect(
-      page.getByRole('menuitem', { name: 'Customize activity bar' }),
+      page.getByRole('menuitem', { name: 'Choose the entries' }),
     ).toBeVisible();
   });
 });
