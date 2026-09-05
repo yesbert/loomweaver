@@ -1,10 +1,13 @@
 import {
   describeAmendment,
+  loadTypeScript,
   portableOptions,
+  RUNTIME_NOTE,
   ScaffoldDescriptor,
-  ScaffoldValues,
   SCAFFOLDS,
+  ScaffoldValues,
   validateCatalog,
+  validateCommands,
   validateI18nParity,
   validateManifest,
 } from '@loomweaver/devkit';
@@ -83,4 +86,23 @@ export function validateI18nTool(a: Args): ToolResult {
     Record<string, unknown>
   >;
   return ok({ findings: validateI18nParity(bundles) });
+}
+
+export function validateCommandsTool(a: Args): ToolResult {
+  const files = (a['files'] ?? {}) as Record<string, string>;
+  const ts = loadTypeScript(process.cwd());
+  if (!ts) {
+    return ok({
+      findings: [
+        {
+          level: 'error',
+          code: 'commands.typescript',
+          message:
+            'typescript is not installed where this server runs; the check reads sources with the TypeScript compiler API, so start the server inside the project.',
+        },
+      ],
+    });
+  }
+  const sources = Object.entries(files).map(([path, text]) => ({ path, text }));
+  return ok({ findings: validateCommands(sources, ts), note: RUNTIME_NOTE });
 }

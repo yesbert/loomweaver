@@ -15,8 +15,9 @@ offered to an agent; offered but described in a way that leaves the agent guessi
 argument or the answer that lacks a description; or not offered, naming what closes it. Because a
 command's reach is finally decided at runtime by grants and access, the check SHALL say that it
 judged the registration alone. A strict mode SHALL fail on a command that is offered without a
-description, SHALL warn on an argument without one, and SHALL NOT fail on a command that is simply
-not offered, because closed is the default the platform intends.
+description; it SHALL report an argument without a description and a returned value without a
+declared answer without failing on them; and it SHALL NOT fail on a command that is simply not
+offered, because closed is the default the platform intends.
 
 #### Scenario: A finding says what it will cost
 
