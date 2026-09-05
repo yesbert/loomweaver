@@ -7,12 +7,12 @@ function surface(page: Page): FrameLocator {
 async function openPayments(page: Page): Promise<void> {
   await page
     .getByRole('navigation', { name: 'Activity bar' })
-    .getByRole('button', { name: 'Payments' })
+    .getByRole('button', { name: 'Finance' })
     .click();
-  await expect(page).toHaveURL(/\/payments$/);
+  await expect(page).toHaveURL(/\/finance\/matching$/);
 }
 
-test('the payments workspace opens a surface the application does not contain', async ({
+test('the finance module opens a surface the application does not contain', async ({
   page,
 }) => {
   await page.goto('/');
@@ -69,7 +69,7 @@ test('a fetch that fails is reported in the view, not shown as an empty one', as
   await expect(view.getByTestId('open-items')).toHaveCount(0);
 });
 
-test('confirmations survive leaving the workspace and coming back', async ({
+test('confirmations survive leaving the module and coming back', async ({
   page,
 }) => {
   await page.goto('/');
@@ -80,11 +80,11 @@ test('confirmations survive leaving the workspace and coming back', async ({
   await expect(view.getByTestId('still-open')).toHaveText('€4,494.25');
 
   const rail = page.getByRole('navigation', { name: 'Activity bar' });
-  await rail.getByRole('button', { name: 'Quotes' }).click();
-  await expect(page).toHaveURL(/\/quotes\/q-0005$/);
+  await rail.getByRole('button', { name: 'Sales' }).click();
+  await expect(page).toHaveURL(/\/sales\/customers$/);
 
-  await rail.getByRole('button', { name: 'Payments' }).click();
-  await expect(page).toHaveURL(/\/payments$/);
+  await rail.getByRole('button', { name: 'Finance' }).click();
+  await expect(page).toHaveURL(/\/finance\/matching$/);
 
   await expect(surface(page).getByTestId('still-open')).toHaveText('€4,494.25');
 });

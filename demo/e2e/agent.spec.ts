@@ -35,14 +35,14 @@ test('opening a quote moves the content area to that document and keeps it', asy
   await page.goto('/');
   await ask(page, 'openQuote');
 
-  await expect(page).toHaveURL(/\/quotes\/q-0007$/);
+  await expect(page).toHaveURL(/\/sales\/quotes\/q-0007$/);
   await expect(page.getByRole('tab', { name: 'Q-0007' })).toBeVisible();
 });
 
-/* The quote belongs to the quotes workspace, so opening one from the overview takes the visitor
-   there rather than laying the document over a dashboard built to hold none. The agent is only one
-   way in; a plain link has to land in the same place, which is the point of the claim. */
-test('opening a quote from the overview lands in the workspace quotes belong to', async ({
+/* A quote belongs to the sales module, so opening one from the overview takes the visitor there
+   rather than laying the document over a dashboard built to hold none. The agent is only one way
+   in; a plain link has to land in the same place, which is the point of the claim. */
+test('opening a quote from the overview lands in the module quotes belong to', async ({
   page,
 }) => {
   await page.goto('/');
@@ -50,20 +50,23 @@ test('opening a quote from the overview lands in the workspace quotes belong to'
 
   await ask(page, 'openQuote');
 
-  await expect(page.getByTestId('quotes-list')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Quotes' }).first()).toHaveAttribute(
+  await expect(page.getByRole('tab', { name: 'Q-0007' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Sales' }).first()).toHaveAttribute(
     'aria-current',
     'true',
+  );
+  await expect(page.locator('[data-nav-view="sales/quotes"]')).toHaveAttribute(
+    'aria-current',
+    'page',
   );
 });
 
 test('a shared link to a quote lands there too, with no agent involved', async ({
   page,
 }) => {
-  await page.goto('/quotes/q-0007');
+  await page.goto('/sales/quotes/q-0007');
 
-  await expect(page.getByTestId('quotes-list')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Quotes' }).first()).toHaveAttribute(
+  await expect(page.getByRole('button', { name: 'Sales' }).first()).toHaveAttribute(
     'aria-current',
     'true',
   );
@@ -73,8 +76,8 @@ test('a shared link to a quote lands there too, with no agent involved', async (
 test('the overview beat brings the visitor back to the overview workspace', async ({
   page,
 }) => {
-  await page.goto('/quotes/q-0007');
-  await expect(page.getByTestId('quotes-list')).toBeVisible();
+  await page.goto('/sales/quotes/q-0007');
+  await expect(page.getByRole('tab', { name: 'Q-0007' })).toBeVisible();
 
   await ask(page, 'overview');
 
@@ -113,7 +116,8 @@ test('declining the confirmation leaves the quote where it was', async ({
 
   await expect(conversation(page)).toContainText('it never ran');
 
-  await page.getByRole('button', { name: 'Quotes' }).first().click();
+  await page.getByRole('button', { name: 'Sales' }).first().click();
+  await page.locator('[data-nav-view="sales/quotes"]').click();
   await expect(
     page.locator('[data-quote="Q-0004"]'),
   ).toContainText('Draft');
@@ -141,8 +145,8 @@ test('the conversation survives the panel being rebuilt in another workspace', a
   await ask(page, 'openQuote');
   const spoken = await conversation(page).textContent();
 
-  await page.getByRole('button', { name: 'Payments' }).first().click();
-  await page.getByRole('button', { name: 'Quotes' }).first().click();
+  await page.getByRole('button', { name: 'Finance' }).first().click();
+  await page.getByRole('button', { name: 'Sales' }).first().click();
 
   await expect(conversation(page)).toHaveText(spoken ?? '');
 });

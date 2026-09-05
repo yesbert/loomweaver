@@ -19,7 +19,7 @@ test('workspaces opens the workspace dialog on the list holding the active one',
   await page.getByRole('button', { name: 'Workspaces' }).click();
 
   await expect(page.getByRole('dialog')).toContainText('Overview');
-  await expect(page.getByRole('dialog')).toContainText('Quotes');
+  await expect(page.getByRole('dialog')).toContainText('Sales');
 });
 
 test('settings opens the settings dialog', async ({ page }) => {

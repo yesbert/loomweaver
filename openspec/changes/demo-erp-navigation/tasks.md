@@ -16,7 +16,7 @@
 - [x] 1.6 Every label of the tree in both languages.
 - [x] 1.7 Unit tests: the tree draws the active module's areas, marks the open view, and opens a
       view by its address; a module without areas draws no tree.
-- [ ] 1.8 End-to-end: switching modules from the rail restores what was open in the module returned
+- [x] 1.8 End-to-end: switching modules from the rail restores what was open in the module returned
       to, which is the thing a menu tree cannot do.
 - [ ] 1.9 Show it and stop. Look at Overview and Sales in both themes, with the rail's names on and
       off, before any further module is built.

@@ -25,7 +25,8 @@ export const navigationActions = {
     titles.set(surfaceId, titleKey);
   },
   retitle(surfaceId: string, titleKey: string, icon: string): void {
-    if (!ctx || !view || titles.get(surfaceId) === titleKey) {
+    const known = titles.get(surfaceId);
+    if (!ctx || !view || known === undefined || known === titleKey) {
       return;
     }
     titles.set(surfaceId, titleKey);

@@ -19,8 +19,9 @@ test('the overview holds no quote list, so a click cannot bury it', async ({
 
   await page
     .getByRole('navigation', { name: 'Activity bar' })
-    .getByRole('button', { name: 'Quotes' })
+    .getByRole('button', { name: 'Sales' })
     .click();
+  await page.locator('[data-nav-view="sales/quotes"]').click();
 
   await expect(page.locator('[data-testid="quotes-list"] li')).toHaveCount(7);
 });
@@ -63,25 +64,25 @@ test('the sales account meets the dashboard without the margin card', async ({
   await expect(page.getByTestId('insights-quoted')).toBeVisible();
 });
 
-test('the overview is a workspace of its own, so switching marks it and leaves quotes', async ({
+test('the overview is a workspace of its own, so switching marks it and leaves sales', async ({
   page,
 }) => {
   const rail = page.getByRole('navigation', { name: 'Activity bar' });
   const overview = rail.getByRole('button', { name: 'Overview' });
-  const quotes = rail.getByRole('button', { name: 'Quotes' });
+  const sales = rail.getByRole('button', { name: 'Sales' });
   await page.goto('/');
 
   await expect(overview).toHaveAttribute('aria-current', 'true');
 
-  await quotes.click();
-  await expect(page).toHaveURL(/\/quotes\/q-0005$/);
-  await expect(quotes).toHaveAttribute('aria-current', 'true');
+  await sales.click();
+  await expect(page).toHaveURL(/\/sales\/customers$/);
+  await expect(sales).toHaveAttribute('aria-current', 'true');
   await expect(overview).not.toHaveAttribute('aria-current', 'true');
 
   await overview.click();
   await expect(page.getByTestId('insights-dashboard')).toBeVisible();
   await expect(overview).toHaveAttribute('aria-current', 'true');
-  await expect(quotes).not.toHaveAttribute('aria-current', 'true');
+  await expect(sales).not.toHaveAttribute('aria-current', 'true');
 });
 
 test('moving between them leaves neither workspace counting as changed', async ({
@@ -90,8 +91,8 @@ test('moving between them leaves neither workspace counting as changed', async (
   const rail = page.getByRole('navigation', { name: 'Activity bar' });
   await page.goto('/');
 
-  await rail.getByRole('button', { name: 'Quotes' }).click();
-  await expect(page).toHaveURL(/\/quotes\/q-0005$/);
+  await rail.getByRole('button', { name: 'Sales' }).click();
+  await expect(page).toHaveURL(/\/sales\/customers$/);
   await rail.getByRole('button', { name: 'Overview' }).click();
   await expect(page.getByTestId('insights-dashboard')).toBeVisible();
 
