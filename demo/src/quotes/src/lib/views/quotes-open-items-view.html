@@ -1,0 +1,32 @@
+<div class="flex h-full flex-col gap-2 overflow-y-auto p-3">
+  @if (rows().length === 0) {
+    <p class="px-1 text-sm text-content-faint">{{ 'quotes.openItems.none' | transloco }}</p>
+  } @else {
+    <p class="px-1 text-xs text-content-faint">{{ 'quotes.openItems.hint' | transloco }}</p>
+    <ul class="flex flex-col gap-1" data-testid="open-items">
+      @for (row of rows(); track row.quote.id) {
+        <li>
+          <button
+            type="button"
+            (click)="open(row)"
+            [attr.data-open-item]="row.quote.number"
+            class="flex w-full cursor-pointer flex-col gap-0.5 rounded-md border border-border bg-surface-raised px-3 py-2 text-left transition-colors hover:bg-surface-overlay"
+          >
+            <span class="flex items-baseline justify-between gap-2">
+              <span class="font-mono text-xs text-content-muted">{{ row.quote.number }}</span>
+              <span class="text-sm text-content tabular-nums">{{ row.total }}</span>
+            </span>
+            <span class="truncate text-sm text-content">{{ row.customer }}</span>
+            <span
+              class="text-xs"
+              [class.text-content-faint]="row.daysLeft > 7"
+              [class.text-caution]="row.daysLeft <= 7"
+            >
+              {{ 'quotes.openItems.daysLeft' | transloco: { days: row.daysLeft } }}
+            </span>
+          </button>
+        </li>
+      }
+    </ul>
+  }
+</div>

@@ -94,8 +94,8 @@ export class QuotesListView {
     quotesActions.open(quote, { preview: true });
   }
 
-  protected keep(quote: Quote): void {
-    quotesActions.keep(quote);
+  protected create(): void {
+    void quotesActions.create();
   }
 
   protected onSearch(event: Event): void {

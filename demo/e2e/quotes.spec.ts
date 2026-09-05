@@ -2,18 +2,13 @@ import { expect, test } from '@playwright/test';
 
 const rows = '[data-testid="quotes-list"] li';
 
-/* The list is a docked surface, not a route: it sits in the left panel of the Quotes workspace and
-   there is no URL that shows it. Seeding the workspace is not enough on its own, because the
-   dashboard claims the bare address and would carry the test straight back out of it, so these
-   tests enter through an address the Quotes workspace claims. */
+/* The list is a view of the Sales module: it has an address of its own, and going to it enters the
+   module the address belongs to. A quote's address shows the document instead, so these tests enter
+   at the list. */
 test.beforeEach(async ({ page }) => {
-  await page.addInitScript(() =>
-    localStorage.setItem('lw.shell.active-workspace', 'quotes'),
-  );
-  await page.goto('/quotes/q-0005');
+  await page.goto('/sales/quotes');
   await expect(page.locator(rows).first()).toBeVisible();
 });
-
 
 test('lists the sample quotes newest first', async ({ page }) => {
   await expect(page.locator(rows)).toHaveCount(7);

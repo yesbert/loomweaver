@@ -4,8 +4,6 @@ import { ChartConfiguration } from 'chart.js';
 import { inject } from '@angular/core';
 import {
   type QuoteStatus,
-  customerById,
-  formatDate,
   formatMoney,
   localeOf,
   marginOf,
@@ -28,23 +26,10 @@ const STATUS_ORDER: readonly QuoteStatus[] = [
 ];
 
 const MONTHS_SHOWN = 6;
-const DEADLINES_SHOWN = 4;
-const DAY_MS = 86_400_000;
-const PRESSING_DAYS = 7;
-
 export interface StatusShare {
   readonly status: QuoteStatus;
   readonly count: number;
   readonly colour: string;
-}
-
-export interface Deadline {
-  readonly id: string;
-  readonly customer: string;
-  readonly validUntil: string;
-  readonly gross: string;
-  readonly days: number;
-  readonly pressing: boolean;
 }
 
 @Component({
@@ -109,21 +94,6 @@ export class InsightsDashboardView {
     const { revenue, margin } = this.wonTotals();
     return revenue === 0 ? 0 : Math.round((margin / revenue) * 100);
   });
-
-  protected readonly deadlines = computed<readonly Deadline[]>(() =>
-    quotes()
-      .filter((quote) => quote.status === 'sent')
-      .map((quote) => ({
-        id: quote.id,
-        customer: customerById(quote.customerId)?.name ?? quote.customerId,
-        validUntil: formatDate(quote.validUntil, this.lang()),
-        gross: formatMoney(quoteTotals(quote).gross, this.lang()),
-        days: daysLeft(quote.validUntil),
-        pressing: daysLeft(quote.validUntil) <= PRESSING_DAYS,
-      }))
-      .sort((a, b) => a.days - b.days)
-      .slice(0, DEADLINES_SHOWN),
-  );
 
   protected readonly shares = computed<readonly StatusShare[]>(() => {
     const colours = this.colours();
@@ -215,10 +185,6 @@ export class InsightsDashboardView {
       },
     };
   });
-}
-
-function daysLeft(iso: string): number {
-  return Math.round((Date.parse(iso) - today().getTime()) / DAY_MS);
 }
 
 function lastMonths(count: number): readonly string[] {

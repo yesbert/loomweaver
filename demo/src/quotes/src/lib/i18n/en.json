@@ -68,5 +68,25 @@
         "number": "The quote number, for example Q-0007."
       }
     }
+  },
+  "create": {
+    "title": "New quote",
+    "message": "Which customer is it for?",
+    "placeholder": "Part of the customer name",
+    "confirm": "Create",
+    "noMatch": "No customer found under that name.",
+    "done": "Quote created.",
+    "action": "New quote",
+    "description": "Creates a quote for a customer and opens it.",
+    "answers": "Whether a quote was created and which id it was given.",
+    "arg": {
+      "customer": "Part of the name of the customer the quote is for."
+    }
+  },
+  "openItems": {
+    "title": "Open quotes",
+    "hint": "Sent and not yet decided.",
+    "daysLeft": "{{days}} days left",
+    "none": "Nothing open."
   }
 }

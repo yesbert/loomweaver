@@ -1,11 +1,11 @@
-import { expect, test } from '@playwright/test';
-import damaged from './fixtures/damaged-payments-workspace.json' with { type: 'json' };
+import { expect, type Page, test } from '@playwright/test';
+import damaged from './fixtures/damaged-finance-workspace.json' with { type: 'json' };
 
-function railButton(page: import('@playwright/test').Page, name: string) {
+function railButton(page: Page, name: string) {
   return page.getByRole('navigation').first().getByRole('button', { name });
 }
 
-async function restoreDamagedProfile(page: import('@playwright/test').Page) {
+async function restoreDamagedProfile(page: Page) {
   await page.goto('/');
   await page.evaluate((stored: Record<string, string>) => {
     localStorage.clear();
@@ -17,24 +17,24 @@ async function restoreDamagedProfile(page: import('@playwright/test').Page) {
   await expect(page.getByTestId('insights-out')).toBeVisible();
 }
 
-test('a payments workspace that lost its content is entered rather than swapped for the dashboard', async ({
+test('a finance workspace that lost its content is entered rather than swapped for the overview', async ({
   page,
 }) => {
   await restoreDamagedProfile(page);
 
-  await railButton(page, 'Zahlungen').click();
+  await railButton(page, 'Finanzen').click();
 
   await expect(page.getByTestId('workspace-unusable-notice')).toBeVisible();
   await expect(
     await page.evaluate(() => localStorage.getItem('lw.shell.active-workspace')),
-  ).toBe('payments');
+  ).toBe('finance');
 });
 
 test('resetting from that notice brings the payments surface back', async ({
   page,
 }) => {
   await restoreDamagedProfile(page);
-  await railButton(page, 'Zahlungen').click();
+  await railButton(page, 'Finanzen').click();
 
   await page.getByTestId('workspace-unusable-reset').click();
   await page.getByRole('button', { name: 'OK', exact: true }).click();
@@ -42,9 +42,9 @@ test('resetting from that notice brings the payments surface back', async ({
   await expect(page.getByTestId('workspace-unusable-notice')).toBeHidden();
   await expect(
     await page.evaluate(() =>
-      localStorage.getItem('lw.shell.pane-trees:payments'),
+      localStorage.getItem('lw.shell.pane-trees:finance'),
     ),
-  ).toContain('"payments"');
+  ).toContain('"finance/matching"');
 
   await page.reload();
 
@@ -53,14 +53,14 @@ test('resetting from that notice brings the payments surface back', async ({
   ).toBeVisible();
 });
 
-test('the quotes arrangement the profile carried is left alone', async ({
+test('the sales arrangement the profile carried is left alone', async ({
   page,
 }) => {
   await restoreDamagedProfile(page);
 
-  await railButton(page, 'Angebote').click();
+  await railButton(page, 'Vertrieb').click();
 
-  await expect(page.getByRole('tab', { name: 'Q-0005' })).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Kundenliste' })).toBeVisible();
   await expect(page.getByRole('tab', { name: 'Q-0007' })).toBeVisible();
   await expect(page.getByRole('tab', { name: 'Q-0006' })).toBeVisible();
 });

@@ -18,6 +18,14 @@
         <lw-option [attr.value]="option">{{ 'quotes.list.status.' + option | transloco }}</lw-option>
       }
     </lw-select>
+    <button
+      type="button"
+      class="lw-btn lw-btn--primary"
+      (click)="create()"
+      data-testid="quote-create"
+    >
+      {{ 'quotes.create.action' | transloco }}
+    </button>
   </div>
 
   <div
@@ -41,7 +49,6 @@
             <button
               type="button"
               (click)="preview(row.quote)"
-              (dblclick)="keep(row.quote)"
               class="w-full cursor-pointer px-4 py-3 text-left transition-colors hover:bg-surface-overlay @2xl:py-2.5"
               [class.bg-surface-overlay]="row.quote.id === activeId()"
               [attr.aria-current]="row.quote.id === activeId() ? 'true' : null"

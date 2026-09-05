@@ -1,0 +1,12 @@
+{
+  "localStorage": {
+    "demo.session.account": "0",
+    "lw.shell.active-workspace": "overview",
+    "lw.shell.item-order": "{\"rail:primary\":[\"demo.module.overview\",\"demo.module.sales\",\"demo.module.finance\",\"demo.module.procurement\",\"demo.module.inventory\",\"demo.module.people\",\"demo.workspaces\",\"demo.settings\",\"demo.switchAccount\",\"demo.signOut\"]}",
+    "lw.shell.lang": "de",
+    "lw.shell.pane-trees:overview": "{\"right-panel\":{\"tree\":{\"kind\":\"leaf\",\"id\":\"main\",\"tabs\":[{\"path\":\"view:agent.chat\"}],\"active\":\"view:agent.chat\"},\"primary\":\"main\"}}",
+    "lw.shell.pane-trees:finance": "{\"right-panel\":{\"tree\":{\"kind\":\"leaf\",\"id\":\"main\",\"tabs\":[{\"path\":\"view:agent.chat\"}],\"active\":\"view:agent.chat\"},\"primary\":\"main\"}}",
+    "lw.shell.pane-trees:sales": "{\"content\":{\"tree\":{\"kind\":\"leaf\",\"id\":\"main\",\"tabs\":[{\"path\":\"sales/customers\",\"closable\":false},{\"path\":\"sales/quotes/q-0007\",\"title\":\"Q-0007\",\"literalTitle\":true,\"icon\":\"quotes\"},{\"path\":\"sales/quotes/q-0006\",\"title\":\"Q-0006\",\"literalTitle\":true,\"icon\":\"quotes\",\"preview\":true}],\"active\":\"sales/quotes/q-0007\"},\"primary\":\"main\"},\"right-panel\":{\"tree\":{\"kind\":\"leaf\",\"id\":\"main\",\"tabs\":[{\"path\":\"view:agent.chat\"}],\"active\":\"view:agent.chat\"},\"primary\":\"main\"}}",
+    "lw.shell.panel-sizes": "{\"left-panel\":348,\"right-panel\":477}"
+  }
+}

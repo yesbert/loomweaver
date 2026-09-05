@@ -18,6 +18,9 @@ import {
 } from '@loomweaver/shell';
 import { provideProductIdentity } from '@loomweaver/plugin-sdk';
 import { agentPlugin } from '../agent/agent.plugin';
+import { customersPlugin } from '../customers/customers.plugin';
+import { navigationPlugin } from '../navigation/navigation.plugin';
+import { MODULES, navSurfaceId } from '../navigation/module-tree';
 import { insightsPlugin } from '../insights/insights.plugin';
 import { looksPlugin } from '../looks/looks.plugin';
 import { quotesPlugin } from '../quotes/src';
@@ -107,30 +110,14 @@ export const appConfig: ApplicationConfig = {
       },
     ),
     provideRailItems(
-      {
-        id: 'demo.workspace.dashboard',
+      ...MODULES.map((module, index) => ({
+        id: `demo.module.${module.id}`,
         rail: 'primary',
-        icon: 'insights',
-        title: 'insights.dashboard.title',
-        order: 0,
-        workspace: 'dashboard',
-      },
-      {
-        id: 'demo.workspace.quotes',
-        rail: 'primary',
-        icon: 'quotes',
-        title: 'product.workspace.quotes',
-        order: 1,
-        workspace: 'quotes',
-      },
-      {
-        id: 'demo.workspace.payments',
-        rail: 'primary',
-        icon: 'payments',
-        title: 'product.workspace.payments',
-        order: 2,
-        workspace: 'payments',
-      },
+        icon: module.icon,
+        title: module.titleKey,
+        order: index,
+        workspace: module.id,
+      })),
       {
         id: 'demo.workspaces',
         rail: 'primary',
@@ -171,52 +158,41 @@ export const appConfig: ApplicationConfig = {
       },
     ),
     provideCapabilityGrants({
+      navigation: ['contributions', 'navigation'],
+      customers: ['contributions', 'navigation', 'ui'],
       quotes: ['contributions', 'navigation'],
       insights: ['contributions', 'navigation'],
       looks: ['contributions'],
       agent: ['contributions', 'ui', 'automation'],
       payments: ['contributions', 'session'],
     }),
-    ...providePlugins(quotesPlugin, insightsPlugin, looksPlugin, agentPlugin),
+    ...providePlugins(
+      navigationPlugin,
+      customersPlugin,
+      quotesPlugin,
+      insightsPlugin,
+      looksPlugin,
+      agentPlugin,
+    ),
     ...provideFramePlugins(paymentsPlugin),
     provideWorkspaces(
-      {
-        id: 'dashboard',
-        title: 'insights.dashboard.title',
-        icon: 'insights',
-        initial: true,
-        claims: [''],
+      ...MODULES.map((module) => ({
+        id: module.id,
+        title: module.titleKey,
+        icon: module.icon,
+        initial: module.id === 'overview',
+        claims: [module.prefix],
         sidebars: {
-          'left-panel': [],
+          'left-panel':
+            module.areas.length > 0
+              ? [navSurfaceId(module.id)]
+              : ['quotes.openItems'],
           'right-panel': ['agent.chat'],
         },
-      },
-      {
-        id: 'quotes',
-        title: 'product.workspace.quotes',
-        icon: 'quotes',
-        claims: ['quotes/:id'],
-        sidebars: {
-          'left-panel': ['quotes'],
-          'right-panel': ['agent.chat'],
-        },
-        content: {
-          tabs: [{ path: 'quotes/q-0005', closable: false }],
-        },
-      },
-      {
-        id: 'payments',
-        title: 'product.workspace.payments',
-        icon: 'payments',
-        claims: ['payments'],
-        sidebars: {
-          'left-panel': [],
-          'right-panel': ['agent.chat'],
-        },
-        content: {
-          tabs: [{ path: 'payments', closable: false }],
-        },
-      },
+        ...(module.landing === null
+          ? {}
+          : { content: { tabs: [{ path: module.landing, closable: false }] } }),
+      })),
     ),
     provideProductIdentity({
       name: 'LoomWeaver Demo',

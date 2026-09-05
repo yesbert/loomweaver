@@ -96,8 +96,9 @@ describe('quotesPlugin', () => {
     expect(
       recorded.surfaces.map(({ id, path, docks }) => ({ id, path, docks })),
     ).toEqual([
-      { id: 'quotes', path: undefined, docks: ['left-panel'] },
-      { id: 'quotes.document', path: 'quotes/:id', docks: undefined },
+      { id: 'quotes', path: 'sales/quotes', docks: [] },
+      { id: 'quotes.openItems', path: undefined, docks: ['left-panel'] },
+      { id: 'quotes.document', path: 'sales/quotes/:id', docks: undefined },
       { id: 'quotes.positions', path: undefined, docks: [] },
       { id: 'quotes.customer', path: undefined, docks: [] },
       { id: 'quotes.margin', path: undefined, docks: [] },
@@ -139,6 +140,7 @@ describe('quotesPlugin', () => {
     const { commands } = activateWithRecorder();
 
     expect(commands.map((command) => command.id)).toEqual([
+      'quotes.create',
       'quotes.open',
       'quotes.send',
       'quotes.margin',
@@ -146,7 +148,14 @@ describe('quotesPlugin', () => {
     for (const command of commands) {
       expect(command.callable).toBe(true);
       expect(command.description).toBeDefined();
-      expect(command.argumentNames).toEqual(['number']);
     }
+    expect(
+      commands
+        .filter((command) => command.id !== 'quotes.create')
+        .map((command) => command.argumentNames),
+    ).toEqual([['number'], ['number'], ['number']]);
+    expect(
+      commands.find((command) => command.id === 'quotes.create')?.argumentNames,
+    ).toEqual(['customer']);
   });
 });

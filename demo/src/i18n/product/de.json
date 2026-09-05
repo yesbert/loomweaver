@@ -7,11 +7,6 @@
   "signOut": "Abmelden",
   "signedInAs": "Angemeldet als {{name}}",
   "theme": "Theme",
-  "workspace": {
-    "quotes": "Angebote",
-    "dashboard": "Übersicht",
-    "payments": "Zahlungen"
-  },
   "payments": {
     "title": "Zahlungsabgleich"
   },
@@ -25,5 +20,86 @@
       }
     }
   },
-  "preview": "Preview"
+  "preview": "Preview",
+  "module": {
+    "overview": "Übersicht",
+    "sales": "Vertrieb",
+    "finance": "Finanzen",
+    "procurement": "Einkauf",
+    "inventory": "Lager",
+    "people": "Personal"
+  },
+  "area": {
+    "customers": "Kunden",
+    "orderHandling": "Auftragsabwicklung",
+    "receivables": "Debitoren",
+    "payables": "Kreditoren",
+    "matching": "Zahlungsabgleich",
+    "ledger": "Hauptbuch",
+    "closing": "Abschluss",
+    "dunning": "Mahnwesen",
+    "suppliers": "Lieferanten",
+    "purchasing": "Bestellwesen",
+    "stock": "Bestandsführung",
+    "movements": "Warenbewegung",
+    "employees": "Mitarbeiter",
+    "payroll": "Gehalt und Abrechnung"
+  },
+  "view": {
+    "customerList": "Kundenliste",
+    "contactHistory": "Kontaktverlauf",
+    "quotes": "Angebote",
+    "paymentMatching": "Zahlungsabgleich"
+  },
+  "nav": {
+    "title": "Navigation",
+    "notYet": "Bereiche ohne Einträge warten noch auf ihren Inhalt."
+  },
+  "customers": {
+    "search": "Kunden durchsuchen",
+    "searchPlaceholder": "Name, Nummer oder Ort",
+    "termsDays": "{{days}} Tage",
+    "column": {
+      "number": "Nummer",
+      "name": "Kunde",
+      "city": "Ort",
+      "terms": "Zahlungsziel",
+      "contacts": "Kontakte"
+    },
+    "create": {
+      "action": "Neuer Kunde",
+      "title": "Neuer Kunde",
+      "nameMessage": "Wie heißt der Kunde?",
+      "namePlaceholder": "Firmenname",
+      "cityMessage": "In welchem Ort sitzt er?",
+      "cityPlaceholder": "Ort",
+      "confirm": "Anlegen",
+      "done": "Kunde angelegt.",
+      "description": "Legt einen Kunden an und fragt dabei nach Name und Ort.",
+      "answers": "Ob ein Kunde angelegt wurde und welche Kennung er bekommen hat."
+    }
+  },
+  "contacts": {
+    "column": {
+      "date": "Datum",
+      "customer": "Kunde",
+      "channel": "Kanal",
+      "subject": "Thema"
+    },
+    "channel": {
+      "call": "Telefon",
+      "email": "E-Mail",
+      "visit": "Besuch"
+    }
+  },
+  "contact": {
+    "subject": {
+      "quoteFollowUp": "Nachfassen zum Angebot",
+      "priceRequest": "Preisanfrage",
+      "onSite": "Termin vor Ort",
+      "deliveryDate": "Liefertermin abgestimmt",
+      "complaint": "Reklamation aufgenommen",
+      "renewal": "Verlängerung besprochen"
+    }
+  }
 }

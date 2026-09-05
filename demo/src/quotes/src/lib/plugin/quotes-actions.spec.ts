@@ -28,7 +28,7 @@ describe('quotesActions', () => {
 
     expect(recorded.opened).toEqual([
       {
-        path: 'quotes/q-0007',
+        path: 'sales/quotes/q-0007',
         title: quote!.number,
         titleIsLiteral: true,
         icon: 'quotes',
@@ -44,7 +44,7 @@ describe('quotesActions', () => {
     quotesActions.keep(quoteById('q-0007')!);
 
     expect(recorded.opened.map((input) => input.preview)).toEqual([false]);
-    expect(recorded.kept).toEqual(['quotes/q-0007']);
+    expect(recorded.kept).toEqual(['sales/quotes/q-0007']);
   });
 
   it('turns opening a tab into a no-op once a disabled plugin lost its context, rather than throwing inside a click handler', () => {

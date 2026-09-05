@@ -1,11 +1,11 @@
 import { expect, type Page, test } from '@playwright/test';
 
-/* The list is a sidebar surface and each quote opens as a content tab. One click previews into a
-   single reused slot; two keep the tab. */
+/* The quote list is a view of the Sales module and each quote opens as a content tab beside it.
+   One click previews into a single reused slot; the shell's own gesture on the tab keeps it. */
 
 const rows = '[data-testid="quotes-list"] li';
 
-/* Scoped to the URL pane's own strip: the sidebar draws icon tabs with the same role, and the
+/* Scoped to the URL pane's own strip: the rail draws icon tabs with the same role, and the
    document is a container whose children draw strips of their own inside the content area. Read as
    rendered text, because each tab carries its tooltip in the same element and a textContent
    assertion sees every label twice. */
@@ -15,71 +15,66 @@ function tabs(page: Page) {
     .allInnerTexts();
 }
 
-/* Scoped to the list: the rail marks the active workspace with aria-current too. */
-function marked(page: Page) {
-  return page.locator('[data-testid="quotes-list"] [aria-current="true"]');
+function tab(page: Page, path: string) {
+  return page.locator(
+    `[id="pane-strip:content:main"] [role="tab"][data-tab-path="${path}"]`,
+  );
 }
 
 function row(page: Page, number: string) {
   return page.locator(`li[data-quote="${number}"] button`);
 }
 
-/* The quote list lives in the left panel of the Quotes workspace, and that workspace declares one
-   and these tests enter it at one quote's address, so that tab is open before they start and every
-   tab assertion below counts from it. Seeding the workspace is not enough on its own: the dashboard
-   claims the bare address, so a test that visited '/' would be carried straight back out of the
-   workspace it just asked for. */
-const ENTRY_TAB = 'Q-0005';
-const QUOTES = `/quotes/${ENTRY_TAB.toLowerCase()}`;
+/* The Sales module opens its customer list as a tab it never closes, so every tab assertion below
+   counts from it. The list itself is the second one, and opening a quote from it hands the pane to
+   the document — coming back to a row means going back through the list's tab. */
+const LANDING_TAB = 'Customer list';
+const LIST_TAB = 'Quotes';
+const LIST = '/sales/quotes';
 
-test.beforeEach(async ({ page }) => {
-  await page.addInitScript(() =>
-    localStorage.setItem('lw.shell.active-workspace', 'quotes'),
-  );
-});
+async function backToList(page: Page): Promise<void> {
+  await tab(page, 'sales/quotes').click();
+  await expect(page.locator(rows).first()).toBeVisible();
+}
 
-test('the list lives in the sidebar and the workspace opens the quote it declares', async ({
+test('the list is a view of the module, opened beside the tab the module lands on', async ({
   page,
 }) => {
-  await page.goto(QUOTES);
+  await page.goto(LIST);
 
   await expect(page.locator(rows)).toHaveCount(7);
-  await expect.poll(() => tabs(page)).toEqual(['Q-0005']);
+  await expect.poll(() => tabs(page)).toEqual([LANDING_TAB, LIST_TAB]);
 });
 
 test('one click previews a quote into a single reused slot', async ({ page }) => {
-  await page.goto(QUOTES);
+  await page.goto(LIST);
 
   await row(page, 'Q-0007').click();
-  await expect.poll(() => tabs(page)).toEqual([ENTRY_TAB, 'Q-0007']);
-  await expect(page).toHaveURL(/\/quotes\/q-0007$/);
+  await expect.poll(() => tabs(page)).toEqual([LANDING_TAB, LIST_TAB, 'Q-0007']);
+  await expect(page).toHaveURL(/\/sales\/quotes\/q-0007$/);
 
+  await backToList(page);
   await row(page, 'Q-0006').click();
-  await expect.poll(() => tabs(page)).toEqual([ENTRY_TAB, 'Q-0006']);
+  await expect.poll(() => tabs(page)).toEqual([LANDING_TAB, LIST_TAB, 'Q-0006']);
 });
 
-/* Re-opening a tab never promotes it, whatever flag is passed — the host preserves its preview
-   state — so keeping one is a second call. Without it, browsing would replace the kept tab. */
-test('two clicks keep the quote, and the next preview lands beside it', async ({ page }) => {
-  await page.goto(QUOTES);
-
-  await row(page, 'Q-0007').dblclick();
-  await expect.poll(() => tabs(page)).toEqual([ENTRY_TAB, 'Q-0007']);
-
-  await row(page, 'Q-0006').click();
-  await expect.poll(() => tabs(page)).toEqual([ENTRY_TAB, 'Q-0007', 'Q-0006']);
-});
-
-/* With previews reusing one slot, the row marking is the only thing that says which document is
-   on screen. It reads the host's active content rather than tracking clicks itself. */
-test('the list marks the quote the content area is showing', async ({ page }) => {
-  await page.goto(QUOTES);
+/* Keeping a preview is the shell's gesture on the tab, not the list's on the row: the first click
+   on a row hands the pane to the document, so a second one never reaches the list again. */
+test('a preview kept from the strip survives the next one', async ({ page }) => {
+  await page.goto(LIST);
 
   await row(page, 'Q-0007').click();
-  await expect(marked(page)).toHaveAttribute('aria-label', /Q-0007/);
+  const kept = tab(page, 'sales/quotes/q-0007');
+  await expect(kept).toHaveCSS('font-style', 'italic');
 
-  await row(page, 'Q-0003').click();
-  await expect(marked(page)).toHaveAttribute('aria-label', /Q-0003/);
+  await kept.dblclick();
+  await expect(kept).toHaveCSS('font-style', 'normal');
+
+  await backToList(page);
+  await row(page, 'Q-0006').click();
+  await expect
+    .poll(() => tabs(page))
+    .toEqual([LANDING_TAB, LIST_TAB, 'Q-0007', 'Q-0006']);
 });
 
 /* The document and the list row compute their money from the same library, so the two figures
@@ -87,7 +82,7 @@ test('the list marks the quote the content area is showing', async ({ page }) =>
 test('the document total matches the figure the list shows for the same quote', async ({
   page,
 }) => {
-  await page.goto(QUOTES);
+  await page.goto(LIST);
 
   const listRow = page.locator('li[data-quote="Q-0007"]');
   const listTotal = (await listRow.innerText()).match(/€[\d.,]+/)?.[0];
@@ -102,7 +97,7 @@ test('the document total matches the figure the list shows for the same quote', 
 /* Printed matter is taxed at 7% while services are at 19%, so this document carries two buckets —
    the case a single-rate demo never exercises. */
 test('a document with two tax rates shows one line per rate', async ({ page }) => {
-  await page.goto(QUOTES);
+  await page.goto(LIST);
   await row(page, 'Q-0006').click();
 
   const totals = page.getByTestId('quote-totals');
@@ -111,21 +106,22 @@ test('a document with two tax rates shows one line per rate', async ({ page }) =
 });
 
 /* A deep link opens the tab before anything has read the document, so the host labels it from the
-   surface title. The view refines it; without that the tab reads "Quote". */
+   surface title. The view refines it; without that the tab reads "Quote". The list is not part of
+   it: a link into a document opens the module, not the view the document happens to sit under. */
 test('a deep link labels its tab with the document number', async ({ page }) => {
-  await page.goto('/quotes/q-0004');
+  await page.goto('/sales/quotes/q-0004');
 
-  await expect.poll(() => tabs(page)).toEqual(['Q-0004']);
+  await expect.poll(() => tabs(page)).toEqual([LANDING_TAB, 'Q-0004']);
 });
 
 test('a link to a quote that does not exist says so', async ({ page }) => {
-  await page.goto('/quotes/nope');
+  await page.goto('/sales/quotes/nope');
 
   await expect(page.getByTestId('quote-missing')).toBeVisible();
 });
 
 test('the document reads in German', async ({ page }) => {
-  await page.goto('/quotes/q-0007');
+  await page.goto('/sales/quotes/q-0007');
   await page.getByRole('button', { name: 'Language' }).click();
   await page.getByRole('option', { name: 'Deutsch' }).click();
 
@@ -137,7 +133,7 @@ test('the document reads in German', async ({ page }) => {
 test('the document opens as an arrangement: positions beside customer and margin', async ({
   page,
 }) => {
-  await page.goto('/quotes/q-0007');
+  await page.goto('/sales/quotes/q-0007');
 
   const host = page.locator('lw-container-pane-host');
   await expect(host.locator('lw-pane-view')).toHaveCount(3);
@@ -149,7 +145,7 @@ test('the document opens as an arrangement: positions beside customer and margin
 });
 
 test('the margin is visible to accounting and locked for everyone else', async ({ page }) => {
-  await page.goto('/quotes/q-0007');
+  await page.goto('/sales/quotes/q-0007');
 
   await expect(page.getByTestId('quote-margin')).toBeVisible();
   await expect(page.getByTestId('quote-margin-total')).toContainText('%');

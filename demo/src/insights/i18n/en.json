@@ -12,13 +12,6 @@
       "expired": "Expired"
     }
   },
-  "deadlines": {
-    "title": "Running out",
-    "none": "Nothing expires in the next weeks.",
-    "days": "in {{days}} days",
-    "today": "today",
-    "gone": "expired"
-  },
   "dashboard": {
     "title": "Overview",
     "subtitle": "Where the quotes stand today"
@@ -31,8 +24,7 @@
     "margin": "Margin won",
     "marginHint": "{{percent}}% on {{revenue}} revenue",
     "quoted": "Quoted per month",
-    "pipeline": "Pipeline by status",
-    "deadlines": "Running out next"
+    "pipeline": "Pipeline by status"
   },
   "command": {
     "overview": {
