@@ -103,3 +103,11 @@ None left open. The topic is decided above; the example is a directory of this r
 demo's assistant stays scripted because giving it a model is its own change; the outbound links
 carry `?ref=devto`, the convention the positioning change set. The isolation topic the review preferred
 is not lost: if it is worth writing, it is its own change.
+
+## Publication
+
+Planned by the owner for Tuesday 2026-09-08 or Wednesday 2026-09-09. Before it: 0.9.0 on the npm
+dist-tag `latest`, because the article's install lines carry no tag and the reader gets `latest`;
+the tag `v0.9.0` in the repository, because the degit line points at it; and the nightly green on
+the code that ships. On the day: the free model still exists (task 2.6), cover f, the three cropped
+screenshots, tags `angular`, `ai`, `tutorial`, `webdev`.
