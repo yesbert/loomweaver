@@ -39,8 +39,9 @@
 - [ ] 4.2 The tutorial example under `examples/assistant-workbench/` keeps its single merged call;
       the change confirms it still builds and tests against the fixed shell only once a release
       carrying the fix is published, by bumping its dependency range in a follow-up alongside the
-      tag. Open: main moved to the 0.9.0 preview line on 2026-09-05, so which release carries the
-      fix for the tutorial's readers is the owner's call.
+      tag. Decided 2026-09-05: the fix ships in the 0.9.0 preview series and the tutorial points
+      at `v0.9.0`, which ends the series; the example moves to that line when the next preview is
+      published.
 - [x] 4.3 `openspec validate scaffold-output-activates-and-tests-green --strict` passes; the pull
       request names the reproduction (two weavers from the 0.8.3 CLI) and the tutorial that waits
       on 0.8.4.

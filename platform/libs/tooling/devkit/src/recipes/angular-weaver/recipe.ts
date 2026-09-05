@@ -275,10 +275,29 @@ function commandBlock(w: ResolvedWeaver): string {
     `      id: '${w.id}.hello',`,
     `      title: '${w.id}.action',`,
     `      description: '${w.id}.actionDescription',`,
+    '      arguments: [',
+    `        { name: 'tone', kind: 'choice', choices: ['info', 'success', 'warning'], description: '${w.id}.actionTone' },`,
+    '      ],',
+    `      answers: '${w.id}.actionAnswers',`,
     `      shortcut: '${w.features.shortcut}',`,
     '      callable: true,',
-    `      run: () => ctx.ui.toast({ message: '${w.id}.action', kind: 'info' }),`,
+    '      run: (_context, args) => {',
+    "        const tone = toneOf(args?.['tone']);",
+    `        ctx.ui.toast({ message: '${w.id}.action', kind: tone });`,
+    '        return { tone };',
+    '      },',
     '    });',
+  ].join('\n');
+}
+
+function toneHelper(): string {
+  return [
+    "type Tone = 'info' | 'success' | 'warning';",
+    '',
+    '// The workbench already refused anything outside the declared choices; this narrows the type.',
+    'function toneOf(value: unknown): Tone {',
+    "  return value === 'success' || value === 'warning' ? value : 'info';",
+    '}',
   ].join('\n');
 }
 
@@ -399,10 +418,11 @@ function pluginFile(w: ResolvedWeaver): string {
   const deactivate = w.features.agent
     ? `\n  deactivate() {\n    ${w.propertyName}Agent.set(null);\n  },`
     : '';
+  if (w.features.command) consts.push(toneHelper());
 
   return `${imports.join('\n')}
 
-${consts.join('\n')}
+${consts.join('\n\n')}
 
 export const ${w.propertyName}Plugin: Plugin = {
   manifest: {

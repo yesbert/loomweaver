@@ -8,7 +8,9 @@ export function i18nBundle(w: ResolvedWeaver): Record<string, unknown> {
   }
   if (w.features.command) {
     bundle['action'] = `${w.name} action`;
-    bundle['actionDescription'] = `Shows a short ${w.name} message.`;
+    bundle['actionDescription'] = `Shows a short ${w.name} message in the tone the caller chooses.`;
+    bundle['actionTone'] = 'How the message is shown: info, success or warning. Use info unless the caller asked for emphasis.';
+    bundle['actionAnswers'] = 'The tone the message was shown in.';
   }
   if (w.features.about) bundle['about'] = `About ${w.name}`;
   if (w.features.agent) {

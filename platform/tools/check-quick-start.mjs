@@ -317,7 +317,7 @@ async function drivePanel(page, origin) {
       await expect(offered).toBeEnabled({ timeout: 30_000 });
       await offered.click();
       await page.getByRole('button', { name: 'Run it' }).click();
-      await expect(panel).toContainText('The command ran.', {
+      await expect(panel).toContainText('"tone"', {
         timeout: 30_000,
       });
     },

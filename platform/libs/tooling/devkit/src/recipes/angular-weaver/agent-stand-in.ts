@@ -44,10 +44,10 @@ export async function* askAgent(
       toolCallName: picked.name,
     });
     // Arguments arrive in pieces, exactly as they do from a real model. The adapter assembles them;
-    // nothing downstream ever sees a half-written call. A real agent fills them from the JSON Schema
-    // the workbench described in picked.parameters; a stand-in has nothing to fill them from, so it
-    // sends none and lets the command apply its own defaults.
-    for (const piece of chunks(JSON.stringify({}), 4)) {
+    // nothing downstream ever sees a half-written call. The values come from the JSON Schema the
+    // workbench described in picked.parameters: the first declared choice of the first argument that
+    // has choices, and nothing for the rest, so the command applies its own defaults there.
+    for (const piece of chunks(JSON.stringify(sampleArguments(picked)), 4)) {
       yield event(EventType.TOOL_CALL_ARGS, { toolCallId, delta: piece });
       await pause();
     }
@@ -70,6 +70,18 @@ async function* speak(
     await pause();
   }
   yield event(EventType.TEXT_MESSAGE_END, { messageId });
+}
+
+function sampleArguments(tool: Tool): Record<string, unknown> {
+  const schema = tool.parameters as
+    | { properties?: Record<string, { enum?: readonly unknown[] }> }
+    | undefined;
+  for (const [name, property] of Object.entries(schema?.properties ?? {})) {
+    if (property.enum && property.enum.length > 0) {
+      return { [name]: property.enum[0] };
+    }
+  }
+  return {};
 }
 
 function chunks(text: string, size: number): readonly string[] {
