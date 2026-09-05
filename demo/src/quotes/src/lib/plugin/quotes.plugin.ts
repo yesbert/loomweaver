@@ -2,6 +2,7 @@ import { Plugin } from '@loomweaver/plugin-sdk';
 import { QuotesCustomerView } from '../views/quotes-customer-view';
 import { QuotesListView } from '../views/quotes-list-view';
 import { QuotesMarginView } from '../views/quotes-margin-view';
+import { QuotesOpenItemsView } from '../views/quotes-open-items-view';
 import { QuotesPositionsView } from '../views/quotes-positions-view';
 import { quotesActions } from './quotes-actions';
 import { registerQuoteCommands } from './quotes-commands';
@@ -27,15 +28,24 @@ export const quotesPlugin: Plugin = {
       id: 'quotes',
       title: 'quotes.title',
       icon: 'quotes',
+      routable: { path: 'sales/quotes' },
+      docks: [],
       component: QuotesListView,
+    });
+
+    ctx.registerSurface({
+      id: 'quotes.openItems',
+      title: 'quotes.openItems.title',
+      icon: 'quotes',
       docks: ['left-panel'],
+      component: QuotesOpenItemsView,
     });
 
     ctx.registerSurface({
       id: 'quotes.document',
       title: 'quotes.document.title',
       icon: 'quotes',
-      routable: { path: 'quotes/:id' },
+      routable: { path: 'sales/quotes/:id' },
       container: {
         children: [
           'quotes.positions',

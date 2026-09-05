@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { Cents } from './money';
 import { TaxRate, Unit } from './document';
 
@@ -20,7 +21,7 @@ export interface Article {
   readonly taxRate: TaxRate;
 }
 
-export const CUSTOMERS: readonly Customer[] = [
+const CUSTOMER_SEEDS: readonly Customer[] = [
   { id: 'c-nordwind', number: 'K-1001', name: 'Nordwind Logistik GmbH', city: 'Hamburg', vatId: 'DE811502345', paymentTermsDays: 14 },
   { id: 'c-auerbach', number: 'K-1002', name: 'Auerbach & Sohn KG', city: 'Leipzig', vatId: 'DE216740881', paymentTermsDays: 30 },
   { id: 'c-vitalis', number: 'K-1003', name: 'Vitalis Praxisbedarf GmbH', city: 'Freiburg', vatId: 'DE145908772', paymentTermsDays: 14 },
@@ -38,8 +39,33 @@ export const ARTICLES: readonly Article[] = [
   { id: 'a-handbook', number: 'W-300', descriptionKey: 'article.handbook', unit: 'piece', unitPrice: 3900, costPrice: 2600, taxRate: 7 },
 ];
 
+const customerStore = signal<readonly Customer[]>(CUSTOMER_SEEDS);
+
+export const customers = customerStore.asReadonly();
+
+export function resetCustomers(): void {
+  customerStore.set(CUSTOMER_SEEDS);
+}
+
+export function addCustomer(input: {
+  readonly name: string;
+  readonly city: string;
+}): Customer {
+  const seq = customerStore().length + 1001;
+  const created: Customer = {
+    id: `c-${seq}`,
+    number: `K-${seq}`,
+    name: input.name,
+    city: input.city,
+    vatId: '',
+    paymentTermsDays: 14,
+  };
+  customerStore.update((all) => [...all, created]);
+  return created;
+}
+
 export function customerById(id: string): Customer | undefined {
-  return CUSTOMERS.find((customer) => customer.id === id);
+  return customerStore().find((customer) => customer.id === id);
 }
 
 export function articleById(id: string): Article | undefined {

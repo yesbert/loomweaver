@@ -68,5 +68,25 @@
         "number": "Die Angebotsnummer, zum Beispiel Q-0007."
       }
     }
+  },
+  "create": {
+    "title": "Neues Angebot",
+    "message": "Für welchen Kunden?",
+    "placeholder": "Teil des Kundennamens",
+    "confirm": "Anlegen",
+    "noMatch": "Kein Kunde mit diesem Namen gefunden.",
+    "done": "Angebot angelegt.",
+    "action": "Neues Angebot",
+    "description": "Legt ein Angebot für einen Kunden an und öffnet es.",
+    "answers": "Ob ein Angebot angelegt wurde und welche Kennung es bekommen hat.",
+    "arg": {
+      "customer": "Teil des Kundennamens, für den das Angebot gilt."
+    }
+  },
+  "openItems": {
+    "title": "Offene Angebote",
+    "hint": "Verschickt und noch nicht entschieden.",
+    "daysLeft": "Noch {{days}} Tage gültig",
+    "none": "Nichts offen."
   }
 }

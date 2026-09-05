@@ -8,7 +8,16 @@ export {
   lineNet,
   totalsOf,
 } from './document';
-export { type Article, type Customer, ARTICLES, CUSTOMERS, articleById, customerById } from './catalog';
+export {
+  type Article,
+  type Customer,
+  ARTICLES,
+  addCustomer,
+  articleById,
+  customerById,
+  customers,
+  resetCustomers,
+} from './catalog';
 export { type DocumentMargin, type MarginLine, marginOf } from './margin';
 export { isoDaysFromToday, setReferenceDate, today } from './clock';
-export { type Quote, type QuoteStatus, markQuoteSent, openQuoteValue, quoteById, quoteTotals, quotes, resetQuotes } from './quotes';
+export { type Quote, type QuoteStatus, addQuote, markQuoteSent, openQuoteValue, quoteById, quoteTotals, quotes, resetQuotes } from './quotes';

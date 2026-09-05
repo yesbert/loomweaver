@@ -1,0 +1,37 @@
+<div class="@container flex h-full flex-col gap-4 p-4">
+  <div class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border bg-surface-raised">
+    <div
+      class="hidden shrink-0 grid-cols-[8rem_minmax(0,1fr)_7rem_minmax(0,1fr)] gap-3 border-b border-border px-4 py-2.5 text-xs font-medium text-content-muted @2xl:grid"
+    >
+      <span>{{ 'product.contacts.column.date' | transloco }}</span>
+      <span>{{ 'product.contacts.column.customer' | transloco }}</span>
+      <span>{{ 'product.contacts.column.channel' | transloco }}</span>
+      <span>{{ 'product.contacts.column.subject' | transloco }}</span>
+    </div>
+
+    <div class="min-h-0 flex-1 overflow-auto">
+      <ul data-testid="contact-list">
+        @for (row of rows(); track row.contact.id) {
+          <li class="border-b border-border px-4 py-3 last:border-b-0 @2xl:py-2.5">
+            <span class="hidden grid-cols-[8rem_minmax(0,1fr)_7rem_minmax(0,1fr)] items-center gap-3 @2xl:grid">
+              <span class="text-sm text-content-muted tabular-nums">{{ row.on }}</span>
+              <span class="truncate text-content">{{ row.customer }}</span>
+              <span class="text-sm text-content-muted">
+                {{ 'product.contacts.channel.' + row.contact.channel | transloco }}
+              </span>
+              <span class="truncate text-sm text-content-muted">
+                {{ row.contact.subjectKey | transloco }}
+              </span>
+            </span>
+            <span class="flex flex-col gap-0.5 @2xl:hidden">
+              <span class="text-content">{{ row.customer }}</span>
+              <span class="text-xs text-content-faint">
+                {{ row.on }} · {{ 'product.contacts.channel.' + row.contact.channel | transloco }}
+              </span>
+            </span>
+          </li>
+        }
+      </ul>
+    </div>
+  </div>
+</div>

@@ -13,7 +13,7 @@
         iframe: '/payments/view.html',
         retain: 'always',
         closable: false,
-        routable: { path: 'payments' },
+        routable: { path: 'finance/matching' },
       });
     })
     .catch(function (error) {

@@ -1,0 +1,60 @@
+<div class="@container flex h-full flex-col gap-4 p-4">
+  <div class="flex flex-wrap items-center gap-3">
+    <label class="sr-only" for="customer-search">{{ 'product.customers.search' | transloco }}</label>
+    <input
+      id="customer-search"
+      type="search"
+      class="lw-field w-full min-w-40 flex-1 @md:w-auto @2xl:max-w-sm"
+      [attr.placeholder]="'product.customers.searchPlaceholder' | transloco"
+      [value]="search()"
+      (input)="onSearch($event)"
+    />
+    <button
+      type="button"
+      class="lw-btn lw-btn--primary"
+      (click)="create()"
+      data-testid="customer-create"
+    >
+      {{ 'product.customers.create.action' | transloco }}
+    </button>
+  </div>
+
+  <div class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border bg-surface-raised">
+    <div
+      class="hidden shrink-0 grid-cols-[7rem_minmax(0,1fr)_9rem_7rem_6rem] gap-3 border-b border-border px-4 py-2.5 text-xs font-medium text-content-muted @2xl:grid"
+    >
+      <span>{{ 'product.customers.column.number' | transloco }}</span>
+      <span>{{ 'product.customers.column.name' | transloco }}</span>
+      <span>{{ 'product.customers.column.city' | transloco }}</span>
+      <span>{{ 'product.customers.column.terms' | transloco }}</span>
+      <span class="text-right">{{ 'product.customers.column.contacts' | transloco }}</span>
+    </div>
+
+    <div class="min-h-0 flex-1 overflow-auto">
+      <ul data-testid="customer-list">
+        @for (row of rows(); track row.customer.id) {
+          <li
+            class="border-b border-border px-4 py-3 last:border-b-0 @2xl:py-2.5"
+            [attr.data-customer]="row.customer.number"
+          >
+            <span class="hidden grid-cols-[7rem_minmax(0,1fr)_9rem_7rem_6rem] items-center gap-3 @2xl:grid">
+              <span class="font-mono text-sm text-content-muted">{{ row.customer.number }}</span>
+              <span class="truncate text-content">{{ row.customer.name }}</span>
+              <span class="truncate text-sm text-content-muted">{{ row.customer.city }}</span>
+              <span class="text-sm text-content-muted tabular-nums">
+                {{ 'product.customers.termsDays' | transloco: { days: row.customer.paymentTermsDays } }}
+              </span>
+              <span class="text-right text-sm text-content-muted tabular-nums">{{ row.contacts }}</span>
+            </span>
+            <span class="flex flex-col gap-0.5 @2xl:hidden">
+              <span class="text-content">{{ row.customer.name }}</span>
+              <span class="text-xs text-content-faint">
+                {{ row.customer.number }} · {{ row.customer.city }}
+              </span>
+            </span>
+          </li>
+        }
+      </ul>
+    </div>
+  </div>
+</div>

@@ -100,7 +100,34 @@ function quoteMargin(): Command {
   };
 }
 
+function createQuote(): Command {
+  return {
+    id: 'quotes.create',
+    title: 'quotes.create.action',
+    description: 'quotes.create.description',
+    icon: 'quotes',
+    callable: true,
+    answers: 'quotes.create.answers',
+    arguments: [
+      {
+        name: 'customer',
+        kind: 'text',
+        description: 'quotes.create.arg.customer',
+        required: false,
+      },
+    ],
+    run: async (_context, args) => {
+      const customer = args?.['customer'];
+      const id = await quotesActions.create(
+        typeof customer === 'string' ? customer : undefined,
+      );
+      return { created: id ?? null };
+    },
+  };
+}
+
 export function registerQuoteCommands(ctx: PluginContext): void {
+  ctx.registerCommand(createQuote());
   ctx.registerCommand(openQuote());
   ctx.registerCommand(sendQuote());
   ctx.registerCommand(quoteMargin());

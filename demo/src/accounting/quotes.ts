@@ -119,6 +119,21 @@ export function resetQuotes(): void {
   store.set(SEEDS.map(buildQuote));
 }
 
+export function addQuote(customerId: string): Quote {
+  const seq = store().length + 1;
+  const created = buildQuote({
+    id: `q-${String(seq).padStart(4, '0')}-new`,
+    seq,
+    customerId,
+    issuedDaysAgo: 0,
+    validForDays: 30,
+    status: 'draft',
+    lines: [{ articleId: 'a-consulting', quantity: 8 }],
+  });
+  store.update((all) => [created, ...all]);
+  return created;
+}
+
 export function markQuoteSent(id: string): void {
   store.update((all) =>
     all.map((quote) => (quote.id === id ? { ...quote, status: 'sent' } : quote)),

@@ -18,6 +18,14 @@
         <lw-option [attr.value]="option">{{ 'quotes.list.status.' + option | transloco }}</lw-option>
       }
     </lw-select>
+    <button
+      type="button"
+      class="lw-btn lw-btn--primary"
+      (click)="create()"
+      data-testid="quote-create"
+    >
+      {{ 'quotes.create.action' | transloco }}
+    </button>
   </div>
 
   <div

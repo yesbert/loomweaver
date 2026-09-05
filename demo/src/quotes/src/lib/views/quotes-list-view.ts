@@ -98,6 +98,10 @@ export class QuotesListView {
     quotesActions.keep(quote);
   }
 
+  protected create(): void {
+    void quotesActions.create();
+  }
+
   protected onSearch(event: Event): void {
     this.search.set((event.target as HTMLInputElement).value);
   }

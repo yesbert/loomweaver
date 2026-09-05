@@ -7,11 +7,6 @@
   "signOut": "Sign out",
   "signedInAs": "Signed in as {{name}}",
   "theme": "Theme",
-  "workspace": {
-    "quotes": "Quotes",
-    "dashboard": "Dashboard",
-    "payments": "Payments"
-  },
   "payments": {
     "title": "Payment matching"
   },
@@ -25,5 +20,86 @@
       }
     }
   },
-  "preview": "Preview"
+  "preview": "Preview",
+  "module": {
+    "overview": "Overview",
+    "sales": "Sales",
+    "finance": "Finance",
+    "procurement": "Procurement",
+    "inventory": "Inventory",
+    "people": "People"
+  },
+  "area": {
+    "customers": "Customers",
+    "orderHandling": "Order handling",
+    "receivables": "Receivables",
+    "payables": "Payables",
+    "matching": "Payment matching",
+    "ledger": "General ledger",
+    "closing": "Closing",
+    "dunning": "Dunning",
+    "suppliers": "Suppliers",
+    "purchasing": "Purchasing",
+    "stock": "Stock",
+    "movements": "Movements",
+    "employees": "Employees",
+    "payroll": "Payroll"
+  },
+  "view": {
+    "customerList": "Customer list",
+    "contactHistory": "Contact history",
+    "quotes": "Quotes",
+    "paymentMatching": "Payment matching"
+  },
+  "nav": {
+    "title": "Navigation",
+    "notYet": "Areas without entries are still waiting for their content."
+  },
+  "customers": {
+    "search": "Search customers",
+    "searchPlaceholder": "Name, number or city",
+    "termsDays": "{{days}} days",
+    "column": {
+      "number": "Number",
+      "name": "Customer",
+      "city": "City",
+      "terms": "Payment terms",
+      "contacts": "Contacts"
+    },
+    "create": {
+      "action": "New customer",
+      "title": "New customer",
+      "nameMessage": "What is the customer called?",
+      "namePlaceholder": "Company name",
+      "cityMessage": "Which city are they in?",
+      "cityPlaceholder": "City",
+      "confirm": "Create",
+      "done": "Customer created.",
+      "description": "Creates a customer, asking for a name and a city.",
+      "answers": "Whether a customer was created and which id it was given."
+    }
+  },
+  "contacts": {
+    "column": {
+      "date": "Date",
+      "customer": "Customer",
+      "channel": "Channel",
+      "subject": "Subject"
+    },
+    "channel": {
+      "call": "Call",
+      "email": "Email",
+      "visit": "Visit"
+    }
+  },
+  "contact": {
+    "subject": {
+      "quoteFollowUp": "Follow-up on the quote",
+      "priceRequest": "Price request",
+      "onSite": "On-site meeting",
+      "deliveryDate": "Delivery date agreed",
+      "complaint": "Complaint recorded",
+      "renewal": "Renewal discussed"
+    }
+  }
 }
