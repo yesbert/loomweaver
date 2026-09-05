@@ -13,6 +13,9 @@ export {
 export * from './lib/elements/button/lw-button';
 export * from './lib/elements/button/lw-button.element';
 export * from './lib/elements/markdown/lw-markdown.element';
+export * from './lib/elements/nav-tree/lw-nav-group.element';
+export * from './lib/elements/nav-tree/lw-nav-item.element';
+export * from './lib/elements/nav-tree/lw-nav-tree.element';
 export * from './lib/elements/spinner/lw-spinner';
 export * from './lib/elements/tooltip/lw-tooltip.element';
 export * from './lib/version/lw-version';

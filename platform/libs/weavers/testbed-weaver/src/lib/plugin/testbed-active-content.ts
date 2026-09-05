@@ -11,6 +11,10 @@ class TestbedActiveContent {
     this.read = null;
   }
 
+  path(): string {
+    return this.read?.()?.path ?? '';
+  }
+
   summary(): string {
     const active = this.read?.() ?? null;
     if (active === null) {

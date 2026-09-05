@@ -19,6 +19,18 @@
     "scratch": "Notiz (von diesem Plugin geteilt)",
     "lock": "Sortieren (nur für Mitglieder)"
   },
+  "navTree": {
+    "title": "Navigationsbaum",
+    "dashboard": "Dashboard",
+    "overview": "Überblick",
+    "trends": "Verläufe",
+    "export": "Export",
+    "notes": "Notizen",
+    "allNotes": "Alle Notizen",
+    "archive": "Archiv",
+    "retired": "Stillgelegte Inhalte",
+    "search": "Suche"
+  },
   "outline": {
     "title": "Gliederung"
   },

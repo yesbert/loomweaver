@@ -711,6 +711,51 @@
   .lw-menu-header-detail {
     @apply truncate text-xs text-content-muted;
   }
+
+  /* `<lw-nav-tree>` — the sidebar navigation primitive. Behaviour in lw-nav-tree.element.ts, LOOK
+     here (tokened) so it themes and crosses the Nx/iframe boundary as contract. The rows are the
+     elements themselves rather than markup built around them, so whatever a consumer writes inside
+     an item stays on the row after the label. */
+  lw-nav-tree {
+    @apply flex h-full flex-col gap-1 overflow-y-auto px-1.5 py-2;
+  }
+  lw-nav-group {
+    @apply flex flex-col;
+  }
+  .lw-nav-group-heading {
+    @apply flex w-full items-center gap-1.5 rounded-md px-2 py-1.5 text-left text-sm font-semibold
+      text-content transition-colors hover:bg-surface-overlay
+      focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand;
+  }
+  .lw-nav-group-label {
+    @apply truncate;
+  }
+  .lw-nav-chevron {
+    @apply shrink-0 text-content-faint transition-transform;
+  }
+  lw-nav-group[data-open='false'] .lw-nav-chevron {
+    transform: rotate(-90deg);
+  }
+  lw-nav-group[data-open='false'] > lw-nav-item {
+    display: none;
+  }
+  lw-nav-item {
+    @apply flex w-full items-center gap-1.5 rounded-md px-2 py-1.5 text-left text-sm
+      text-content-muted transition-colors hover:bg-surface-overlay hover:text-content
+      focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand;
+  }
+  .lw-nav-item-label {
+    @apply flex-1 truncate;
+  }
+  .lw-nav-glyph {
+    @apply shrink-0;
+  }
+  lw-nav-item[aria-current='page'] {
+    @apply bg-surface-raised font-medium text-content shadow-xs;
+  }
+  lw-nav-item[aria-current='page'] .lw-nav-glyph {
+    @apply text-brand;
+  }
 }
 
 /* Clickable controls show the pointer cursor (browsers default buttons to an arrow).

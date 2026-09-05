@@ -218,6 +218,13 @@
       '<span class="lw-badge lw-badge--brand" data-testid="frame-kit-badge">kit</span>' +
       '<lw-progress-ring value="72" max="100" size="2rem" aria-label="72%" data-testid="frame-kit-ring"></lw-progress-ring>' +
       '</div>' +
+      '<lw-nav-tree current="dashboard/trends" data-testid="frame-kit-nav">' +
+      '<lw-nav-group label="Dashboard" key="sandbox/dashboard">' +
+      '<lw-nav-item path="dashboard/overview" icon="plugin" label="Overview"></lw-nav-item>' +
+      '<lw-nav-item path="dashboard/trends" icon="plugin" label="Trends"></lw-nav-item>' +
+      '</lw-nav-group>' +
+      '<lw-nav-item path="search" icon="plugin" label="Search"></lw-nav-item>' +
+      '</lw-nav-tree>' +
       sessionLine +
       tickerLine +
       adminBlock +

@@ -12,6 +12,7 @@ import {
 } from './icon/lw-icon.element';
 import { defineLwMarkdown } from './markdown/lw-markdown.element';
 import { defineLwMenu } from './menu/lw-menu.element';
+import { defineLwNavTree } from './nav-tree/lw-nav-tree.element';
 import { defineLwProgressRing } from './progress/lw-progress-ring.element';
 import { defineLwSelect } from './select/lw-select.element';
 import { defineLwTooltip } from './tooltip/lw-tooltip.element';
@@ -164,6 +165,7 @@ export function installLwFrame(): LwFrameApi {
   defineLwMarkdown();
   defineLwIcon();
   defineLwProgressRing();
+  defineLwNavTree();
 
   const state = createState();
   const api: LwFrameApi = {

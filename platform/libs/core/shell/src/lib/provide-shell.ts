@@ -36,6 +36,7 @@ import { CommandInvocationService } from './commands/command-invocation.service'
 import { KeybindingService } from './commands/keybinding.service';
 import { DialogService } from './dialog/dialog.service';
 import { defineLwTooltip } from './elements/tooltip/lw-tooltip.element';
+import { defineLwNavTree } from './elements/nav-tree/lw-nav-tree.element';
 import { defineLwSelect } from './elements/select/lw-select.element';
 import { defineLwMenu } from './elements/menu/lw-menu.element';
 import { defineLwMarkdown } from './elements/markdown/lw-markdown.element';
@@ -182,6 +183,7 @@ export function provideShell(
     provideEnvironmentInitializer(() => defineLwIcon()),
     provideEnvironmentInitializer(() => defineLwTooltip()),
     provideEnvironmentInitializer(() => defineLwSelect()),
+    provideEnvironmentInitializer(() => defineLwNavTree()),
     provideEnvironmentInitializer(() => defineLwMenu()),
     provideEnvironmentInitializer(() => defineLwMarkdown()),
     provideEnvironmentInitializer(() => defineLwButton()),

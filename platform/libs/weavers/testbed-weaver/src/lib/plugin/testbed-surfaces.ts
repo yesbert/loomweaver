@@ -1,5 +1,6 @@
 import { PluginContext } from '@loomweaver/plugin-sdk';
 import { TestbedNavView } from '../views/testbed-nav-view';
+import { TestbedNavTreeView } from '../views/testbed-nav-tree-view';
 import { TestbedOutlineView } from '../views/testbed-outline-view';
 import { TestbedHomeView } from '../views/testbed-home-view';
 import { TestbedEntryView } from '../views/testbed-entry-view';
@@ -276,6 +277,15 @@ function registerPanelSurfaces(ctx: PluginContext): void {
       },
     ],
     component: TestbedNavView,
+  });
+  ctx.registerSurface({
+    id: 'testbed.navTree',
+    docks: ['left-panel'],
+    padded: false,
+    title: 'testbed.navTree.title',
+    icon: 'navigator',
+    order: 1,
+    component: TestbedNavTreeView,
   });
   ctx.registerSurface({
     id: 'testbed.outline',
