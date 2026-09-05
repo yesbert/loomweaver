@@ -14,6 +14,7 @@ export * from './lib/elements/button/lw-button';
 export * from './lib/elements/button/lw-button.element';
 export * from './lib/elements/markdown/lw-markdown.element';
 export * from './lib/elements/nav-tree/lw-nav-group.element';
+export { forgetLwNavFolds } from './lib/elements/nav-tree/nav-fold-state';
 export * from './lib/elements/nav-tree/lw-nav-item.element';
 export * from './lib/elements/nav-tree/lw-nav-tree.element';
 export * from './lib/elements/spinner/lw-spinner';

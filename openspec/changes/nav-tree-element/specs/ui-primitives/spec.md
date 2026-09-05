@@ -79,6 +79,10 @@ because a sidebar that hides everything until it is opened tells a first-time us
 What the user folded SHALL survive for as long as the session lasts, including the tree being drawn
 again after being taken off screen, so that following a link does not undo the shape the user made.
 
+A group holding no destinations SHALL still be drawn, because the consumer declared it, and SHALL
+offer no fold: a control that opens nothing is a promise the group cannot keep. Where destinations
+arrive later, the fold SHALL be offered from then on.
+
 The limit of that: nothing is kept beyond the session. The tree stores nothing of its own, so a
 reload starts from what the declaration says.
 
@@ -96,6 +100,11 @@ reload starts from what the declaration says.
 
 - **WHEN** the user shuts a group, the tree is taken off screen, and it is drawn again
 - **THEN** the group is still shut
+
+#### Scenario: A group with nothing in it offers no fold
+
+- **WHEN** a consumer declares a group holding no destinations
+- **THEN** the group is drawn and its heading offers nothing to fold
 
 #### Scenario: A reload starts from the declaration again
 

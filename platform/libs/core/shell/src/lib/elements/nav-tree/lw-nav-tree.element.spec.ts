@@ -6,7 +6,7 @@ import {
   LwNavTreeElement,
   defineLwNavTree,
 } from './lw-nav-tree.element';
-import { forgetFolds } from './nav-fold-state';
+import { forgetLwNavFolds } from './nav-fold-state';
 
 defineLwNavTree();
 
@@ -37,7 +37,7 @@ const SALES = `
   </lw-nav-tree>`;
 
 afterEach(() => {
-  forgetFolds();
+  forgetLwNavFolds();
   document.body.replaceChildren();
 });
 
@@ -263,11 +263,45 @@ describe('lw-nav-tree folding', () => {
       first.querySelector('.lw-nav-group-heading') as HTMLButtonElement
     ).click();
 
-    forgetFolds();
+    forgetLwNavFolds();
     const second = draw(SALES);
 
     const group = second.querySelector(LW_NAV_GROUP_TAG) as HTMLElement;
     expect(group.dataset['open']).toBe('true');
+  });
+
+  it('offers no fold on a group that holds nothing, because there is nothing to open', () => {
+    const tree = draw(`
+      <lw-nav-tree>
+        <lw-nav-group label="Dunning" key="finance/dunning"></lw-nav-group>
+      </lw-nav-tree>`);
+
+    const heading = tree.querySelector(
+      '.lw-nav-group-heading',
+    ) as HTMLButtonElement;
+    expect(heading.disabled).toBe(true);
+    expect(heading.getAttribute('aria-expanded')).toBeNull();
+    expect(heading.querySelector('.lw-nav-chevron')).toBeNull();
+  });
+
+  it('offers the fold once the group is given something to hold', async () => {
+    const tree = draw(`
+      <lw-nav-tree>
+        <lw-nav-group label="Dunning" key="finance/dunning"></lw-nav-group>
+      </lw-nav-tree>`);
+    const group = tree.querySelector(LW_NAV_GROUP_TAG) as HTMLElement;
+
+    const item = document.createElement(LW_NAV_ITEM_TAG) as LwNavItemElement;
+    item.path = 'finance/dunning';
+    item.label = 'Dunning run';
+    group.append(item);
+    await Promise.resolve();
+
+    const heading = group.querySelector(
+      '.lw-nav-group-heading',
+    ) as HTMLButtonElement;
+    expect(heading.disabled).toBe(false);
+    expect(heading.getAttribute('aria-expanded')).toBe('true');
   });
 
   it('keeps folds apart by the key the consumer gave', () => {

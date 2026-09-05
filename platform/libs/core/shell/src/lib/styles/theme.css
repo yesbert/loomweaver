@@ -730,6 +730,9 @@
   .lw-nav-group-label {
     @apply truncate;
   }
+  .lw-nav-group-heading:disabled {
+    @apply cursor-default text-content-faint hover:bg-transparent;
+  }
   .lw-nav-chevron {
     @apply shrink-0 text-content-faint transition-transform;
   }
