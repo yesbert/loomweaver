@@ -1,0 +1,53 @@
+<lw-nav-tree [attr.current]="shown()" (lw-nav-select)="go($event)">
+  <lw-nav-group
+    [attr.label]="'testbed.navTree.dashboard' | transloco"
+    key="testbed/dashboard"
+  >
+    <lw-nav-item
+      path="dashboard/overview"
+      icon="testbedDashboard"
+      [attr.label]="'testbed.navTree.overview' | transloco"
+    ></lw-nav-item>
+    <lw-nav-item
+      path="dashboard/trends"
+      icon="testbedDashboard"
+      [attr.label]="'testbed.navTree.trends' | transloco"
+    ></lw-nav-item>
+    <lw-nav-item
+      path="dashboard/export"
+      icon="testbedDashboard"
+      [attr.label]="'testbed.navTree.export' | transloco"
+    ></lw-nav-item>
+  </lw-nav-group>
+
+  <lw-nav-group
+    [attr.label]="'testbed.navTree.notes' | transloco"
+    key="testbed/notes"
+  >
+    <lw-nav-item
+      path="notes"
+      icon="testbedList"
+      [attr.label]="'testbed.navTree.allNotes' | transloco"
+    >
+      <span class="shrink-0 rounded-full bg-surface-overlay px-1.5 text-xs text-content-muted">3</span>
+    </lw-nav-item>
+  </lw-nav-group>
+
+  <lw-nav-group
+    [attr.label]="'testbed.navTree.archive' | transloco"
+    key="testbed/archive"
+    collapsed
+  >
+    <lw-nav-item
+      path="retired"
+      icon="undo"
+      [attr.label]="'testbed.navTree.retired' | transloco"
+    ></lw-nav-item>
+  </lw-nav-group>
+
+  <lw-nav-item
+    path="search"
+    icon="search"
+    [attr.label]="'testbed.navTree.search' | transloco"
+  ></lw-nav-item>
+</lw-nav-tree>

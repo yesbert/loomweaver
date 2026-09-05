@@ -296,6 +296,31 @@ separated.
   (`detail.value`) fires **only on user selection**, not when `value` is set programmatically (no
   feedback loop). ARIA listbox keyboard handling (↑/↓/Home/End/Enter/Esc + typeahead) and CSS anchor
   positioning sit inside the element; the **look** lives as `.lw-select-*` in `theme.css`.
+- **Sidebar navigation (`<lw-nav-tree>` + `<lw-nav-group>` + `<lw-nav-item>`):** a
+  **framework-agnostic custom element** (like `<lw-select>`) for the list of destinations a product
+  puts in a sidebar. Declared as **light-DOM children**, so the sidebar is legible in the template:
+
+  ```html
+  <lw-nav-tree [attr.current]="shown()" (lw-nav-select)="go($event)">
+    <lw-nav-group [attr.label]="'area.customers' | transloco" key="sales/customers">
+      <lw-nav-item path="sales/customers" icon="customerList"
+        [attr.label]="'view.customerList' | transloco"></lw-nav-item>
+    </lw-nav-group>
+    <lw-nav-item path="search" icon="search" [attr.label]="'view.search' | transloco"></lw-nav-item>
+  </lw-nav-tree>
+  ```
+
+  Shape follows what you declare: an item may stand outside every group, and a group you declare
+  stays a group even with one child. Tell it the address on screen through **`current`** and it
+  marks the item that address lies at or under, breaking on segment boundaries, so
+  `sales/quotesomething` is not under `sales/quotes` and only the longest match is marked. The
+  **`lw-nav-select`** event (`detail.path`) reports the choice; the element navigates nothing.
+  Anything you write inside an item stays on the row after the label, which is where a count or a
+  dot goes: the element neither defines nor styles it. Labels are shown as given, so supply
+  translated text. A group folds, starts shut where you write `collapsed`, and keeps what the user
+  folded under its `key` for the session and no longer. The **look** lives as `.lw-nav-*` in
+  `theme.css`.
+
 - **Menus/context menus (`<lw-menu>`):** on **host chrome** a weaver does **not** draw the menu itself.
   It contributes items through **`ctx.registerMenuItem({ menu, command, when? })`** into a named
   slot (e.g. `content/tab/context`), or attaches a `menu?` slot to its rail/bar/view item

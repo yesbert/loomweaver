@@ -1,6 +1,6 @@
 import { AuthSnapshot, PluginContext } from '@loomweaver/plugin-sdk';
 import { TestbedAboutDialog } from '../dialogs/testbed-about-dialog';
-import { testbedNavState } from '../views/testbed-nav-state';
+import { testbedNavState } from '../views/navigation/testbed-nav-state';
 import { testbedContent } from './testbed-content';
 import { testbedAuth } from './testbed-auth';
 

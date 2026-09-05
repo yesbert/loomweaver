@@ -19,6 +19,18 @@
     "scratch": "Scratch note (shared by this plugin)",
     "lock": "Sort (members only)"
   },
+  "navTree": {
+    "title": "Navigation tree",
+    "dashboard": "Dashboard",
+    "overview": "Overview",
+    "trends": "Trends",
+    "export": "Export",
+    "notes": "Notes",
+    "allNotes": "All notes",
+    "archive": "Archive",
+    "retired": "Retired content",
+    "search": "Search"
+  },
   "outline": {
     "title": "Outline"
   },

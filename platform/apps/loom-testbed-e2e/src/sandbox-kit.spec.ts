@@ -31,6 +31,36 @@ test.describe('Sandbox UI kit — /frame-kit/ assets inside the iframe', () => {
     ).toBeAttached();
   });
 
+  test('<lw-nav-tree> draws, marks and folds inside the sandbox as it does in the chrome', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await page
+      .getByRole('button', { name: 'Sandbox (iframe)', exact: true })
+      .click();
+    const surface = page.frameLocator('iframe[src*="/sandbox-rpc/view.html"]');
+    const tree = surface.getByTestId('frame-kit-nav');
+
+    await expect(tree).toHaveAttribute('role', 'navigation');
+    await expect(
+      tree.locator('lw-nav-item[aria-current="page"]'),
+    ).toHaveAttribute('path', 'dashboard/trends');
+    await expect(tree.locator('lw-nav-item')).toHaveCount(3);
+    await expect(
+      tree.locator('lw-nav-item[path="dashboard/trends"]'),
+    ).not.toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+
+    await tree.locator('.lw-nav-group-heading').click();
+
+    await expect(tree.locator('lw-nav-group')).toHaveAttribute(
+      'data-open',
+      'false',
+    );
+    await expect(
+      tree.locator('lw-nav-item[path="dashboard/trends"]'),
+    ).toBeHidden();
+  });
+
   test("the product's replacement icons reach the surface, so one screen has one icon set", async ({
     page,
   }) => {

@@ -46,7 +46,7 @@ import {
   warnUnsupportedRetain,
   warnUnusableContainerLayout,
 } from './host-context-warnings';
-import { addressIsUnder } from '../regions/content/routing/address-reach';
+import { addressIsUnder } from '../addressing/address-reach';
 
 export class HostPluginContext implements PluginContext {
   private readonly disposables: Disposable[] = [];

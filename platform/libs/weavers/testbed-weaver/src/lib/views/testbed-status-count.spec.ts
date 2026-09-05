@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { TestbedStatusCount } from './testbed-status-count';
-import { testbedNavState } from './testbed-nav-state';
+import { testbedNavState } from './navigation/testbed-nav-state';
 
 function transloco() {
   return TranslocoTestingModule.forRoot({

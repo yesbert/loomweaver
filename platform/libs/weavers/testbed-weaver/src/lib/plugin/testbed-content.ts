@@ -49,6 +49,10 @@ class TestbedContentActions {
     this.withCtx((ctx) => ctx.ui.openMenu(items, at));
   }
 
+  goTo(path: string): void {
+    this.withCtx((ctx) => ctx.navigateContent(path));
+  }
+
   goHome(): void {
     this.withCtx((ctx) => ctx.navigateContent(''));
   }
