@@ -69,7 +69,9 @@ it is the larger failure, and the shell cannot tell the two apart for a command 
 
 So every command you want reachable says so, once. In dev mode the shell tells you when you opened a
 command but gave it no description, because the caller you opened it to then has nothing to go on but
-an id.
+an id. The CLI says the same before anything is served: `validate-commands --dir <dir>` reports every
+command in a directory and names the argument or the answer that would leave an agent guessing. The
+MCP server offers it as `validate_commands`.
 
 ## Calling one
 

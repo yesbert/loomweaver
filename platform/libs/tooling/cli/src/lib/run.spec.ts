@@ -261,6 +261,48 @@ describe('run', () => {
     expect(c.errText()).toContain('en.json');
   });
 
+  describe('validate-commands', () => {
+    const plugin = `
+export const plugin = {
+  activate(ctx) {
+    ctx.registerCommand({
+      id: 'notes.open',
+      description: 'notes.open.description',
+      callable: true,
+      run: () => undefined,
+    });
+    ctx.registerCommand({ id: 'notes.hello', callable: true, run: () => undefined });
+    ctx.registerCommand({ id: 'notes.reset', run: () => undefined });
+  },
+};
+`;
+
+    it('reports every command and passes without --strict', () => {
+      writeFileSync(join(dir, 'notes.plugin.ts'), plugin);
+      const c = capture();
+      expect(run(['validate-commands', '--dir', dir], c.io)).toBe(0);
+      expect(c.text()).toContain('notes.open: offered to an agent');
+      expect(c.text()).toContain('notes.reset: not offered to an agent');
+      expect(c.errText()).toContain('notes.hello: offered to an agent without a description');
+      expect(c.text()).toContain('judged the registrations alone');
+    });
+
+    it('fails under --strict only because of the callable command without a description', () => {
+      writeFileSync(join(dir, 'notes.plugin.ts'), plugin);
+      const c = capture();
+      expect(run(['validate-commands', '--dir', dir, '--strict'], c.io)).toBe(1);
+      writeFileSync(join(dir, 'notes.plugin.ts'), plugin.replace("id: 'notes.hello', callable: true,", "id: 'notes.hello', description: 'd', callable: true,"));
+      const strict = capture();
+      expect(run(['validate-commands', '--dir', dir, '--strict'], strict.io)).toBe(0);
+    });
+
+    it('names a directory without sources rather than reporting nothing', () => {
+      const c = capture();
+      expect(run(['validate-commands', '--dir', dir], c.io)).toBe(1);
+      expect(c.errText()).toContain('No TypeScript sources');
+    });
+  });
+
   describe('validate-catalog', () => {
     const entry = {
       id: 'report-tool',

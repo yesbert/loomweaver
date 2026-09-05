@@ -1,4 +1,4 @@
-export type FindingLevel = 'error' | 'warning';
+export type FindingLevel = 'error' | 'warning' | 'info';
 
 export interface Finding {
   readonly level: FindingLevel;
