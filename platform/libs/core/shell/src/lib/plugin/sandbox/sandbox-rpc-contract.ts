@@ -22,6 +22,7 @@ const UNCARRIABLE_ARGUMENTS: CommandOutcome = {
 
 export type FrameRpc = Methods & {
   registerSurface(surface: Surface): void;
+  retitleSurface(id: string, title: string): void;
   registerMenuItem(item: MenuItem): void;
   registerSettingsSection(section: FrameSettingsSection): void;
   navigateContent(path: string): void;
