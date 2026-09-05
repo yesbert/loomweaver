@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, type ElementRef, effect, signal, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  type ElementRef,
+  effect,
+  signal,
+  viewChild,
+} from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { EventType, type BaseEvent, type Tool, type ToolMessage } from '@ag-ui/core';
 import { copilotAgent } from './copilot-agent';
 import { createAgent, MODEL } from './copilot-agent-source';
@@ -15,12 +24,15 @@ interface Line {
 @Component({
   selector: 'lw-copilot-agent-panel',
   templateUrl: './copilot-agent-panel.html',
+  imports: [TranslocoPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CopilotAgentPanel {
   protected readonly model = MODEL;
 
   protected readonly key = signal(localStorage.getItem(KEY_STORAGE) ?? '');
+
+  protected readonly keyEnding = computed(() => this.key().slice(-4));
 
   protected readonly offered = signal<readonly Tool[]>([]);
 
@@ -72,7 +84,8 @@ export class CopilotAgentPanel {
 
   private async send(prompt: string): Promise<void> {
     const tools = copilotAgent();
-    if (!tools || this.busy() || !this.key()) {
+    const key = this.key() || localStorage.getItem(KEY_STORAGE) || '';
+    if (!tools || this.busy() || !key) {
       return;
     }
     this.busy.set(true);
@@ -84,7 +97,7 @@ export class CopilotAgentPanel {
         runId: `run-${++this.runs}`,
         prompt,
         tools: offered,
-        key: this.key(),
+        key,
         receive: (event: BaseEvent) => this.receive(tools.receive(event)),
       };
       for await (const event of this.agent.ask(request)) {

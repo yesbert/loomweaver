@@ -29,5 +29,19 @@
     "description": "Setzt ein Ticket auf offen, in Bearbeitung oder erledigt.",
     "status": "Der neue Status: open, in progress oder done.",
     "answers": "Das Ticket nach der Änderung."
+  },
+  "view": {
+    "assignee": "Bearbeiter",
+    "status": "Status",
+    "unassigned": "niemand",
+    "noReply": "Noch keine Antwort.",
+    "writeReply": "Antwort schreiben",
+    "sendReply": "Antwort senden",
+    "pickOne": "Wähle links ein Ticket."
+  },
+  "states": {
+    "open": "offen",
+    "inProgress": "in Bearbeitung",
+    "done": "erledigt"
   }
 }

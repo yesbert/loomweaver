@@ -29,5 +29,19 @@
     "description": "Moves a ticket to open, in progress or done.",
     "status": "The new status: open, in progress or done.",
     "answers": "The ticket after the change."
+  },
+  "view": {
+    "assignee": "Assignee",
+    "status": "Status",
+    "unassigned": "unassigned",
+    "noReply": "No reply yet.",
+    "writeReply": "Write a reply",
+    "sendReply": "Send reply",
+    "pickOne": "Pick a ticket on the left."
+  },
+  "states": {
+    "open": "open",
+    "inProgress": "in progress",
+    "done": "done"
   }
 }

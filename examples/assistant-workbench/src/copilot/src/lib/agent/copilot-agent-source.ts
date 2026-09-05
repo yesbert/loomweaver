@@ -4,6 +4,7 @@ export const MODEL = 'minimax/minimax-m2.7:free';
 
 const ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';
 const MAX_ROUNDS = 8;
+const TIMEOUT_MS = 60_000;
 const INSTRUCTIONS =
   'You operate a support workbench for the person at the keyboard. Do what they ask by calling the tools; never describe a step you could take instead of taking it. When a ticket is named by its topic rather than its number, list the tickets first and pick the one that matches. When everything is done, answer in one or two short sentences saying what happened.';
 
@@ -68,9 +69,7 @@ async function* ask(
     }
     yield event(EventType.RUN_FINISHED, thread);
   } catch (failure) {
-    yield event(EventType.RUN_ERROR, {
-      message: failure instanceof Error ? failure.message : String(failure),
-    });
+    yield event(EventType.RUN_ERROR, { message: describe(failure) });
   }
 }
 
@@ -115,8 +114,12 @@ async function complete(
   history: readonly ChatMessage[],
   tools: readonly Tool[],
 ): Promise<ChatMessage> {
+  if (!key) {
+    throw new Error('No OpenRouter key is set. Paste one in the panel first.');
+  }
   const response = await fetchLike(ENDPOINT, {
     method: 'POST',
+    signal: AbortSignal.timeout(TIMEOUT_MS),
     headers: {
       Authorization: `Bearer ${key}`,
       'Content-Type': 'application/json',
@@ -156,6 +159,13 @@ async function* say(messageId: string, text: string): AsyncGenerator<BaseEvent> 
   yield event(EventType.TEXT_MESSAGE_START, { messageId, role: 'assistant' });
   yield event(EventType.TEXT_MESSAGE_CONTENT, { messageId, delta: text });
   yield event(EventType.TEXT_MESSAGE_END, { messageId });
+}
+
+function describe(failure: unknown): string {
+  if (failure instanceof DOMException && failure.name === 'TimeoutError') {
+    return `OpenRouter did not answer within ${TIMEOUT_MS / 1000} seconds. Free models are shared; try again.`;
+  }
+  return failure instanceof Error ? failure.message : String(failure);
 }
 
 function toolName(id: string): string {
