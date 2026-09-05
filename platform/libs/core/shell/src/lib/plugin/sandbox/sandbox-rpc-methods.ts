@@ -63,6 +63,7 @@ export function frameRpcMethods(deps: FrameRpcDeps): FrameRpc {
         deps.syncCleanups.push(built.disposeSync);
         ctx.registerSettingsSection(built.section);
       },
+      retitleSurface: (id, title) => ctx.retitleSurface(id, title),
       navigateContent: (path) => ctx.navigateContent(path),
       openContentTab: (input) => {
         const sanitized = sanitizeRpcTabInput(input);

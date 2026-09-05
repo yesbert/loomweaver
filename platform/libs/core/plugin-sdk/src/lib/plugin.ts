@@ -161,6 +161,14 @@ export interface PluginContext {
    * Both migrations need an `id` and a `title`, which the old contracts did not carry.
    */
   registerSurface(surface: Surface): Disposable;
+  /**
+   * Gives a surface you registered a new title, under the id you registered it with (`contributions`).
+   * Everywhere the workbench names it follows — its tab, the header of the panel it is docked in, a
+   * picker that lists it — and the surface itself is **not** rebuilt, so what the user typed,
+   * scrolled or folded inside it survives. A translation key still translates, and following a
+   * language change. Only the title changes; an id you did not register is a no-op.
+   */
+  retitleSurface(id: string, title: string): void;
   registerBarItem(item: BarItem): Disposable;
   registerRailItem(item: RailItem): Disposable;
   /** Contributes a section to the host settings surface. */
@@ -248,6 +256,13 @@ export interface PluginContext {
    * over the surface channel).
    */
   readonly activeContent: () => ActiveContent | null;
+  /**
+   * Whether what the workbench is showing sits at, or below, the address you name (`navigation`).
+   * The comparison breaks on segment boundaries, so `sales/quotes` is under `sales` and
+   * `sales/quotesomething` is not: the rule a caller would otherwise write with `startsWith` and get
+   * wrong. Reads {@link activeContent}, so it is live in the same way and a template re-reads it.
+   */
+  isShowingUnder(path: string): boolean;
   /**
    * Runs a registered command by id and answers what it did (`automation`, unless the command is
    * one this plugin registered itself — its own need no grant).

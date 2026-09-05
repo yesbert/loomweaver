@@ -9,8 +9,14 @@ import { AUTH_SOURCE } from '../../auth/auth-context';
 import { View } from '../../layout/view';
 import { SURFACE_PADDING } from '../../foundation/surface-padding';
 
+let built = 0;
+
 @Component({ selector: 'lw-nav-stub', template: 'nav' })
-class NavStub {}
+class NavStub {
+  constructor() {
+    built += 1;
+  }
+}
 
 const panelRegion: LayoutRegion = {
   id: 'primary',
@@ -62,6 +68,33 @@ describe('ShellPanel', () => {
 
   it('renders no view tabs (switching lives in the sidebar header)', () => {
     expect(render().querySelectorAll('[role="tab"]').length).toBe(0);
+  });
+
+  describe('a view renamed while it is mounted', () => {
+    it('is named by the new title in the panel header, and is not rebuilt', () => {
+      localStorage.clear();
+      built = 0;
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        imports: [ShellPanel, transloco()],
+        providers: [],
+      });
+      const registry = TestBed.inject(ContributionRegistry);
+      registry.addView(navView);
+      const fixture = TestBed.createComponent(ShellPanel);
+      fixture.componentRef.setInput('region', panelRegion);
+      fixture.detectChanges();
+      const host = fixture.nativeElement as HTMLElement;
+      expect(host.textContent).toContain('Nav');
+      const builtOnce = built;
+
+      registry.retitleSurface('nav', 'act');
+      fixture.detectChanges();
+
+      expect(host.textContent).toContain('Act');
+      expect(host.textContent).not.toContain('Nav');
+      expect(built).toBe(builtOnce);
+    });
   });
 
   describe('the inset a docked view gets', () => {

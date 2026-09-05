@@ -62,11 +62,12 @@ function makeContext(
   const themes = TestBed.inject(ThemeRegistry);
   const authContext = TestBed.inject(AuthContext);
   const menu = TestBed.inject(MenuService);
+  const shown = signal<{ path: string } | null>(null);
   const tabs = {
     navigate: vi.fn(),
     open: vi.fn(),
     close: vi.fn(),
-    activeContent: () => null,
+    activeContent: () => shown(),
   } as unknown as ContentTabsService;
   const grantedSet = new Set(granted);
   const ctx = new HostPluginContext(
@@ -90,6 +91,7 @@ function makeContext(
   );
   return {
     ctx,
+    shown,
     registry,
     dialogs,
     notifications,
@@ -564,6 +566,76 @@ describe('HostPluginContext', () => {
     it('requires the "navigation" capability for ctx.activeContent', () => {
       const { ctx } = makeContext(['contributions']);
       expect(() => ctx.activeContent).toThrow(CapabilityError);
+    });
+  });
+
+  describe('renaming a surface', () => {
+    it('replaces the title the workbench names it by, and nothing else', () => {
+      const { ctx, registry } = makeContext();
+      ctx.registerSurface({
+        id: 'nav',
+        docks: ['primary'],
+        title: 'nav.first',
+        icon: 'navigator',
+        component: DummyComponent,
+      });
+
+      ctx.retitleSurface('nav', 'nav.second');
+
+      const view = registry.views()[0];
+      expect(view.title).toBe('nav.second');
+      expect(view.icon).toBe('navigator');
+      expect(registry.views()).toHaveLength(1);
+    });
+
+    it('leaves an id nothing was registered under alone', () => {
+      const { ctx, registry } = makeContext();
+      ctx.registerSurface({
+        id: 'nav',
+        docks: ['primary'],
+        title: 'nav.first',
+        component: DummyComponent,
+      });
+
+      ctx.retitleSurface('other', 'nav.second');
+
+      expect(registry.views()[0].title).toBe('nav.first');
+    });
+
+    it('needs the "contributions" capability', () => {
+      const { ctx } = makeContext(['ui', 'host']);
+
+      expect(() => ctx.retitleSurface('nav', 'x')).toThrow(CapabilityError);
+    });
+  });
+
+  describe('asking whether the address shown lies under one', () => {
+    it('counts the address itself and anything below it', () => {
+      const { ctx, shown } = makeContext();
+      shown.set({ path: 'sales/quotes/q-0006' });
+
+      expect(ctx.isShowingUnder('sales/quotes')).toBe(true);
+      expect(ctx.isShowingUnder('sales')).toBe(true);
+      expect(ctx.isShowingUnder('sales/quotes/q-0006')).toBe(true);
+    });
+
+    it('does not mistake a longer name for a deeper address', () => {
+      const { ctx, shown } = makeContext();
+      shown.set({ path: 'sales/quotesomething' });
+
+      expect(ctx.isShowingUnder('sales/quotes')).toBe(false);
+    });
+
+    it('answers no while nothing addressable is shown', () => {
+      const { ctx } = makeContext();
+
+      expect(ctx.isShowingUnder('sales')).toBe(false);
+    });
+
+    it('needs the same capability as reading the active content', () => {
+      const { ctx } = makeContext(['contributions']);
+
+      expect(() => ctx.isShowingUnder('sales')).toThrow(CapabilityError);
     });
   });
 
