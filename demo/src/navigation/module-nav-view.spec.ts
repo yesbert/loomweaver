@@ -17,19 +17,21 @@ const langs = {
 
 interface Recorder {
   readonly navigated: string[];
+  readonly retitled: [string, string][];
 }
 
 function bindAt(path: string): Recorder {
   const navigated: string[] = [];
-  navigationActions.bind(
-    {
-      activeContent: () => ({ surfaceId: null, path, params: {} }),
-      navigateContent: (next: string) => navigated.push(next),
-      registerSurface: () => ({ dispose: () => undefined }),
-    } as unknown as PluginContext,
-    ModuleNavView,
-  );
-  return { navigated };
+  const retitled: [string, string][] = [];
+  navigationActions.bind({
+    activeContent: () => ({ surfaceId: null, path, params: {} }),
+    isShowingUnder: (named: string) =>
+      path === named || path.startsWith(`${named}/`),
+    navigateContent: (next: string) => navigated.push(next),
+    retitleSurface: (id: string, title: string) => retitled.push([id, title]),
+    registerSurface: () => ({ dispose: () => undefined }),
+  } as unknown as PluginContext);
+  return { navigated, retitled };
 }
 
 function renderFixture() {
@@ -152,6 +154,13 @@ describe('ModuleNavView', () => {
         ?.getAttribute('aria-expanded'),
     ).toBe('true');
     expect(element.querySelectorAll('[data-nav-view]').length).toBe(1);
+  });
+
+  it('renames its own surface to the area the visitor is in, through the contract', () => {
+    const recorder = bindAt('sales/quotes/q-0006');
+    render();
+
+    expect(recorder.retitled).toEqual([['navigation.sales', 'product.area.orderHandling']]);
   });
 
   it('says once, not per area, that an area is still waiting for content', () => {

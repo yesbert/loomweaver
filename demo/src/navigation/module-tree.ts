@@ -112,16 +112,12 @@ export const MODULES: readonly ProductModule[] = [
   },
 ];
 
-export function isUnder(path: string, viewPath: string): boolean {
-  return path === viewPath || path.startsWith(`${viewPath}/`);
-}
-
-export function areaOfPath(path: string): ModuleArea | null {
-  const module = moduleOfPath(path);
+export function areaShowing(
+  module: ProductModule,
+  shows: (viewPath: string) => boolean,
+): ModuleArea | null {
   return (
-    module.areas.find((area) =>
-      area.views.some((view) => isUnder(path, view.path)),
-    ) ?? null
+    module.areas.find((area) => area.views.some((view) => shows(view.path))) ?? null
   );
 }
 

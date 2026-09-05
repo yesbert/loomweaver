@@ -16,11 +16,11 @@
 
 ## 3. Taking the workarounds out
 
-- [ ] 3.1 The demo's navigation tree renames its surface through the contract instead of registering
+- [x] 3.1 The demo's navigation tree renames its surface through the contract instead of registering
       it again, and asks the workbench about the address instead of comparing strings itself. Waits
       on the platform shipping, because the demo consumes the published package; done on the demo's
       own branch once a version carrying this is out.
-- [ ] 3.2 Confirm in the running demo that the sidebar header still follows the area and a deep link
+- [x] 3.2 Confirm in the running demo that the sidebar header still follows the area and a deep link
       still marks its entry.
 
 ## 4. Saying they exist
