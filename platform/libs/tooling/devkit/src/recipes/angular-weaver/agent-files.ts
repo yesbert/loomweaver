@@ -151,6 +151,7 @@ export function agentSurfaceBlock(w: ResolvedWeaver): string {
     `      title: '${w.id}.agent.title',`,
     `      icon: '${w.id}',`,
     "      docks: ['right-panel'],",
+    '      padded: true,',
     `      component: ${w.className}AgentPanel,`,
     '    });',
   ].join('\n');

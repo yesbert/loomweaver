@@ -19,6 +19,7 @@ export const assistantPlugin: Plugin = {
       title: 'assistant.agent.title',
       icon: 'assistant',
       docks: ['right-panel'],
+      padded: true,
       component: AssistantAgentPanel,
     });
   },
