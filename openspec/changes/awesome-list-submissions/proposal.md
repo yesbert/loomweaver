@@ -25,8 +25,9 @@ overlooked free channel.
   not *framework*.
 - **AG-UI is a relationship, not a pull request.** The protocol's integrations page has no
   self-service route for a frontend; its contribution guide describes agent-framework integrations
-  inside its monorepo with tests and CI. Getting listed means the Discord and the working group,
-  which the owner starts and which this change records but does not wait for.
+  inside its monorepo with tests and CI. Getting listed means the Discord and the working group.
+  The owner starts that conversation once the project is known enough that the request does not
+  read as advertising; this change records the route and does not wait for it.
 - **The owner opens every pull request.** Each entry is drafted here, and the owner submits it from
   their own account, because a submission is public and speaks for the project. The tasks record
   where each was submitted and its state, so the change is archived only when every entry is
