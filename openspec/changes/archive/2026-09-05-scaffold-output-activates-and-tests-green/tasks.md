@@ -36,7 +36,7 @@
 - [x] 4.1 `docs/getting-started.md` and `docs/manual-setup.md`: wherever they describe the composition
       root's grants or the starter test, they describe the new behaviour; the formatter and the
       dash checker pass.
-- [ ] 4.2 The tutorial example under `examples/assistant-workbench/` keeps its single merged call;
+- [x] 4.2 The tutorial example under `examples/assistant-workbench/` keeps its single merged call;
       the change confirms it still builds and tests against the fixed shell only once a release
       carrying the fix is published, by bumping its dependency range in a follow-up alongside the
       tag. Decided 2026-09-05: the fix ships in the 0.9.0 preview series and the tutorial points
