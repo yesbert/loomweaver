@@ -318,8 +318,10 @@ separated.
   Anything you write inside an item stays on the row after the label, which is where a count or a
   dot goes: the element neither defines nor styles it. Labels are shown as given, so supply
   translated text. A group folds, starts shut where you write `collapsed`, and keeps what the user
-  folded under its `key` for the session and no longer. The **look** lives as `.lw-nav-*` in
-  `theme.css`.
+  folded under its `key` for the session and no longer. A group holding nothing is still drawn and
+  offers no fold. The fold memory is process-wide, so that a tree drawn again finds what the user
+  left; **`forgetLwNavFolds()`** clears it, which is what a test between cases needs. The **look**
+  lives as `.lw-nav-*` in `theme.css`.
 
 - **Menus/context menus (`<lw-menu>`):** on **host chrome** a weaver does **not** draw the menu itself.
   It contributes items through **`ctx.registerMenuItem({ menu, command, when? })`** into a named
