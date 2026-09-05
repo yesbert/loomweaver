@@ -29,6 +29,7 @@ export const quotesPlugin: Plugin = {
       icon: 'quotes',
       component: QuotesListView,
       docks: ['left-panel'],
+      padded: false,
     });
 
     ctx.registerSurface({

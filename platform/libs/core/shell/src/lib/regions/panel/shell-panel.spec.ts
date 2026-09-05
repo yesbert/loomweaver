@@ -7,6 +7,7 @@ import { LayoutRegion } from '../../layout/layout';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { AUTH_SOURCE } from '../../auth/auth-context';
 import { View } from '../../layout/view';
+import { SURFACE_PADDING } from '../../foundation/surface-padding';
 
 @Component({ selector: 'lw-nav-stub', template: 'nav' })
 class NavStub {}
@@ -61,6 +62,43 @@ describe('ShellPanel', () => {
 
   it('renders no view tabs (switching lives in the sidebar header)', () => {
     expect(render().querySelectorAll('[role="tab"]').length).toBe(0);
+  });
+
+  describe('the inset a docked view gets', () => {
+    function surfaceOf(
+      padded: boolean | undefined,
+      composition: 'none' | 'inset',
+    ): HTMLElement | null {
+      localStorage.clear();
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        imports: [ShellPanel, transloco()],
+        providers: [{ provide: SURFACE_PADDING, useValue: composition }],
+      });
+      TestBed.inject(ContributionRegistry).addView({ ...navView, padded });
+      const fixture = TestBed.createComponent(ShellPanel);
+      fixture.componentRef.setInput('region', panelRegion);
+      fixture.detectChanges();
+      return (fixture.nativeElement as HTMLElement).querySelector(
+        String.raw`.\@container\/surface`,
+      );
+    }
+
+    it('is none where neither the view nor the composition asks', () => {
+      expect(surfaceOf(undefined, 'none')?.classList).not.toContain('p-3');
+    });
+
+    it('is applied where the composition asks and the view says nothing', () => {
+      expect(surfaceOf(undefined, 'inset')?.classList).toContain('p-3');
+    });
+
+    it('is none where the view owns its edges against a composition that asks', () => {
+      expect(surfaceOf(false, 'inset')?.classList).not.toContain('p-3');
+    });
+
+    it('is applied where the view asks against a composition that does not', () => {
+      expect(surfaceOf(true, 'none')?.classList).toContain('p-3');
+    });
   });
 
   describe('auth gating', () => {

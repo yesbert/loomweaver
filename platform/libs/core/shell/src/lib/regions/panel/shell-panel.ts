@@ -38,6 +38,10 @@ import {
 import { CommandService } from '../../commands/command.service';
 import { AuthContext } from '../../auth/auth-context';
 import { ViewportService } from '../../layout/viewport.service';
+import {
+  SURFACE_PADDING,
+  effectivePadding,
+} from '../../foundation/surface-padding';
 import { ShellBar } from '../bar/shell-bar';
 import { PanelState } from './panel-state';
 import { PanelSizeService } from './panel-size.service';
@@ -68,6 +72,7 @@ export class ShellPanel {
   private readonly panels = inject(PanelState);
 
   protected readonly viewport = inject(ViewportService);
+  private readonly padding = inject(SURFACE_PADDING);
 
   protected readonly size = inject(PanelSizeService);
 
@@ -128,6 +133,10 @@ export class ShellPanel {
     }
     return viewForPanePath(this.registry.views(), path);
   });
+
+  protected readonly padded = computed(() =>
+    effectivePadding(this.activeView()?.padded, this.padding),
+  );
 
   protected readonly activeContentPath = computed(() => {
     const path = this.activePath();
