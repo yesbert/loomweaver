@@ -57,6 +57,17 @@ turn twenty minutes into thirty. The article says in one paragraph what producti
 agent's run moves behind the product's own endpoint, and the panel, the seam and the commands
 stay as they are.
 
+**The example is a directory in this repository, not a repository of its own.** Decided by the
+owner on 2026-09-05. The demo already shows the shape: a directory that installs the published
+packages from the registry and is built by the pipeline on every pull request, so a change to the
+platform that breaks it is caught before it merges. A second repository for one article is the
+kind of side project that goes stale. Two costs are accepted with open eyes. The repository's
+guards apply to the example, the comment ban included; that is bearable because the article is the
+explanation and the code is not. And the code moves on with the platform after publishing, while
+the article's snippets do not; so the article links to the directory at the release tag of
+publishing day, not at `main`, and the reader fetches the directory alone with `npx degit
+yesbert/loomweaver/examples/assistant-workbench`, never the monorepo.
+
 **Problem first; the project where it is first used.** The opening is the problem and the
 workflow, counted in clicks. The build follows the shortest path, and the project is named at the
 first command the reader types, with "my own project" in that sentence. The earlier decision,
@@ -85,7 +96,7 @@ text is always shown whole, never as a fragment.
 
 ## Open Questions
 
-None left open. The topic is decided above; the example is a repository of its own, because the
-demo's assistant is scripted and giving it a model is its own change; the outbound links carry
-`?ref=devto`, the convention the positioning change set. The isolation topic the review preferred
+None left open. The topic is decided above; the example is a directory of this repository, and the
+demo's assistant stays scripted because giving it a model is its own change; the outbound links
+carry `?ref=devto`, the convention the positioning change set. The isolation topic the review preferred
 is not lost: if it is worth writing, it is its own change.

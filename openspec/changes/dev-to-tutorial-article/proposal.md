@@ -21,8 +21,11 @@ owner's own text.
   do the individual steps, and an assistant that can only chat does not cut a single one. The
   article shows the assistant carrying out the steps a user would otherwise click through, and
   reaching nothing the user could not have reached.
-- **A working example the reader can run.** A small repository of its own, pinned to the versions
-  it was built with. The assistant is an AG-UI agent that runs in the browser and calls OpenRouter
+- **A working example the reader can run.** A directory in this repository, `examples/`, built
+  the way the demo is built: it installs the published packages from the registry like any
+  consumer, and the build pipeline lints, builds and tests it on every pull request so it cannot
+  break unnoticed. The article links to it at the release tag of publishing day, so the text and
+  the code stay one snapshot, and tells the reader to fetch only that directory. The assistant is an AG-UI agent that runs in the browser and calls OpenRouter
   directly with the reader's own key, which never leaves the browser; free models exist there, so
   the tutorial costs the reader nothing. One paragraph says what changes for production: the
   agent's run moves behind the product's own endpoint, and nothing else does.
@@ -46,9 +49,10 @@ None. The change declares `skip_specs: true`.
 
 ## Impact
 
-**Repository.** Nothing. The example lives in a repository of its own. The demo keeps its scripted
-assistant; giving it a real model with the visitor's own key is worth doing and is a change of its
-own, proposed after the article is out.
+**Repository.** A new directory `examples/assistant-workbench/` with its own `package.json`, and
+a job in the build pipeline beside the demo's. Nothing under `platform/`. The demo keeps its
+scripted assistant; giving it a real model with the visitor's own key is worth doing and is a
+change of its own, proposed after the article is out.
 
 **External.** One article on dev.to under the owner's account, tags to be chosen with the topic; a
 cover rendered with the existing cover tooling outside the repository.
