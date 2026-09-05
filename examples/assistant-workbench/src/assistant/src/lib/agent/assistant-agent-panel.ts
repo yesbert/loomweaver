@@ -9,8 +9,8 @@ import {
 } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { EventType, type BaseEvent, type Tool, type ToolMessage } from '@ag-ui/core';
-import { copilotAgent } from './copilot-agent';
-import { createAgent, MODEL } from './copilot-agent-source';
+import { assistantAgent } from './assistant-agent';
+import { createAgent, MODEL } from './assistant-agent-source';
 
 const KEY_STORAGE = 'assistant-workbench.openrouter-key';
 
@@ -22,12 +22,12 @@ interface Line {
 }
 
 @Component({
-  selector: 'lw-copilot-agent-panel',
-  templateUrl: './copilot-agent-panel.html',
+  selector: 'lw-assistant-agent-panel',
+  templateUrl: './assistant-agent-panel.html',
   imports: [TranslocoPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CopilotAgentPanel {
+export class AssistantAgentPanel {
   protected readonly model = MODEL;
 
   protected readonly key = signal(localStorage.getItem(KEY_STORAGE) ?? '');
@@ -47,7 +47,7 @@ export class CopilotAgentPanel {
   private runs = 0;
 
   constructor() {
-    this.offered.set(copilotAgent()?.list() ?? []);
+    this.offered.set(assistantAgent()?.list() ?? []);
     effect(() => {
       this.lines();
       const box = this.transcript()?.nativeElement;
@@ -83,7 +83,7 @@ export class CopilotAgentPanel {
   }
 
   private async send(prompt: string): Promise<void> {
-    const tools = copilotAgent();
+    const tools = assistantAgent();
     const key = this.key() || localStorage.getItem(KEY_STORAGE) || '';
     if (!tools || this.busy() || !key) {
       return;

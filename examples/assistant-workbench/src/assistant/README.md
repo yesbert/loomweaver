@@ -1,4 +1,4 @@
-# Copilot weaver
+# Assistant weaver
 
 A LoomWeaver weaver (a domain plugin bundle). It consumes only the public `@loomweaver/plugin-sdk` contract.
 
@@ -8,22 +8,22 @@ A LoomWeaver weaver (a domain plugin bundle). It consumes only the public `@loom
    returns an array, so spread it:
 
    ```ts
-   import { copilotPlugin } from '@loomweaver/copilot-weaver';   // Nx: the workspace alias; without one, a relative path to this library's src/index.ts
-   ...providePlugins(copilotPlugin),
+   import { assistantPlugin } from '@loomweaver/assistant-weaver';   // Nx: the workspace alias; without one, a relative path to this library's src/index.ts
+   ...providePlugins(assistantPlugin),
    ```
 
 2. Grant its capabilities (default-deny) via `provideCapabilityGrants`:
 
    ```ts
-   provideCapabilityGrants({ 'copilot': ['contributions', 'ui', 'navigation', 'automation'] });
+   provideCapabilityGrants({ 'assistant': ['contributions', 'ui', 'navigation', 'automation'] });
    ```
 
-3. Compose its translations with `provideTranslationNamespaces('copilot')` — and serve the
+3. Compose its translations with `provideTranslationNamespaces('assistant')` — and serve the
    bundle by adding an assets glob to your application's build target, so the loader can fetch
-   `/i18n/copilot/<lang>.json` (the Nx generator adds this glob for you):
+   `/i18n/assistant/<lang>.json` (the Nx generator adds this glob for you):
 
    ```json
-   { "glob": "**/*.json", "input": "<path to this library>/src/lib/i18n", "output": "i18n/copilot" }
+   { "glob": "**/*.json", "input": "<path to this library>/src/lib/i18n", "output": "i18n/assistant" }
    ```
 
 4. If your application compiles the shell's theme with Tailwind, name this library as a source
@@ -36,7 +36,7 @@ A LoomWeaver weaver (a domain plugin bundle). It consumes only the public `@loom
    @source '<path from that stylesheet to this library>/src';
    ```
 
-The surface is routable at `/copilot`; rail and bar items reference region ids (`primary`, `status`) that must exist in your layout.
+The surface is routable at `/assistant`; rail and bar items reference region ids (`primary`, `status`) that must exist in your layout.
 
 A routable surface has **no `VIEW_STATE` handle** — injecting the token there throws. It owns a URL,
 so anything shareable (a filter, the active sub-tab) belongs in route params or `subRoutes`, where it
@@ -48,11 +48,11 @@ flavour instead.
 
 `src/lib/agent/` holds three files and one of them is meant to be thrown away.
 
-- `copilot-agent.ts` is the connection: the workbench's own commands offered as tools, and a
+- `assistant-agent.ts` is the connection: the workbench's own commands offered as tools, and a
   seam where this weaver decides about a call before it runs. Nothing is registered twice — the
   list comes from the workbench, already narrowed by everything that would refuse the call.
-- `copilot-agent-panel.ts` shows what is offered, the call as it streams, and the outcome.
-- `copilot-agent-source.ts` is a **stand-in**, not an assistant: it produces the protocol's own
+- `assistant-agent-panel.ts` shows what is offered, the call as it streams, and the outcome.
+- `assistant-agent-source.ts` is a **stand-in**, not an assistant: it produces the protocol's own
   events so the whole path runs before you have connected anything. Replace that one file with
   your transport and nothing else changes. No transport, credential or model is generated for
   you, because none of them can be guessed.

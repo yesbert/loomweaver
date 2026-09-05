@@ -1,6 +1,6 @@
 import { EventType, type BaseEvent } from '@ag-ui/core';
 import type { CommandArguments, PluginContext } from '@loomweaver/plugin-sdk';
-import { copilotConnection } from './copilot-agent';
+import { assistantConnection } from './assistant-agent';
 
 interface Asked {
   readonly id: string;
@@ -24,15 +24,15 @@ function event(type: EventType, fields: Record<string, unknown>): BaseEvent {
   return { type, ...fields } as unknown as BaseEvent;
 }
 
-describe('copilotConnection', () => {
+describe('assistantConnection', () => {
   it('offers what the workbench offers', () => {
-    const tools = copilotConnection(contextThat(true, []));
+    const tools = assistantConnection(contextThat(true, []));
     expect(tools.list().map((tool) => tool.name)).toEqual(['tickets.reply']);
   });
 
   it('assembles a call from its events and answers with the outcome', async () => {
     const ran: Asked[] = [];
-    const tools = copilotConnection(contextThat(true, ran));
+    const tools = assistantConnection(contextThat(true, ran));
 
     expect(
       await tools.receive(
@@ -59,7 +59,7 @@ describe('copilotConnection', () => {
 
   it('never reaches the workbench when a consequential call is declined', async () => {
     const ran: Asked[] = [];
-    const tools = copilotConnection(contextThat(false, ran));
+    const tools = assistantConnection(contextThat(false, ran));
 
     await tools.receive(
       event(EventType.TOOL_CALL_START, {

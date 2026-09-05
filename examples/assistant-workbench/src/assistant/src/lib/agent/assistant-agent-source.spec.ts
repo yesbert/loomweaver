@@ -1,5 +1,5 @@
 import { EventType, type BaseEvent, type ToolMessage } from '@ag-ui/core';
-import { createAgent } from './copilot-agent-source';
+import { createAgent } from './assistant-agent-source';
 
 interface Sent {
   readonly messages: readonly Record<string, unknown>[];
