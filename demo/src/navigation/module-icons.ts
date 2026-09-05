@@ -1,5 +1,10 @@
 import {
   heroArrowsRightLeft,
+  heroArrowTrendingUp,
+  heroBellAlert,
+  heroBookOpen,
+  heroCalendarDays,
+  heroCreditCard,
   heroBanknotes,
   heroChatBubbleLeftRight,
   heroClipboardDocumentList,
@@ -21,5 +26,10 @@ export const moduleIcons: Readonly<Record<string, string>> = {
   customerList: heroIdentification,
   contactHistory: heroChatBubbleLeftRight,
   paymentMatching: heroArrowsRightLeft,
+  receivables: heroArrowTrendingUp,
+  payables: heroCreditCard,
+  ledger: heroBookOpen,
+  closing: heroCalendarDays,
+  dunning: heroBellAlert,
   orderHandling: heroClipboardDocumentList,
 };

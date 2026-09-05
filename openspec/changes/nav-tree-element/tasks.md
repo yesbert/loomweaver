@@ -54,11 +54,11 @@
 
 ## 5. What it was built for
 
-- [ ] 5.1 Build Finance on the element: six areas, one of them shut by default, one holding a single
+- [x] 5.1 Build Finance on the element: six areas, one of them shut by default, one holding a single
       view, and a sidebar long enough to scroll. This is group 2 of `demo-erp-navigation`, which
       moves here so that it is written against the element rather than against what the element
       replaced.
-- [ ] 5.2 End-to-end: a sidebar that scrolls still reaches its last group, and folding survives
+- [x] 5.2 End-to-end: a sidebar that scrolls still reaches its last group, and folding survives
       leaving the module and coming back.
-- [ ] 5.3 Record in `demo-erp-navigation` that its open question about an area with a single child is
+- [x] 5.3 Record in `demo-erp-navigation` that its open question about an area with a single child is
       answered by the declaration deciding the shape, and that task 4.1 is answered by this change.

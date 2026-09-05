@@ -69,9 +69,14 @@ function heading(element: HTMLElement, area: string): HTMLButtonElement {
   ) as HTMLButtonElement;
 }
 
-function shownViews(element: HTMLElement): (string | null)[] {
-  return [...element.querySelectorAll('[data-nav-view]')]
-    .filter((view) => (view as HTMLElement).offsetParent !== null || true)
+function shownViews(element: HTMLElement, area?: string): (string | null)[] {
+  const scope = area
+    ? (element.querySelector(`[data-nav-area="${area}"]`) as HTMLElement | null)
+    : element;
+  if (scope === null) {
+    return [];
+  }
+  return [...scope.querySelectorAll('[data-nav-view]')]
     .filter((view) => {
       const group = view.closest('[data-nav-area]') as HTMLElement | null;
       return group === null || group.dataset['open'] !== 'false';
@@ -151,25 +156,26 @@ describe('ModuleNavView', () => {
     expect(element.querySelector('[data-testid="module-nav"]')).toBeNull();
   });
 
-  it('starts an area closed when the module declares it so', () => {
+  it('starts an area closed when the module declares it so', async () => {
     bindAt('finance/matching');
-    const element = render();
+    const element = await renderMarked();
 
     const collapsed = heading(element, 'matching');
 
     expect(collapsed.getAttribute('aria-expanded')).toBe('false');
-    expect(shownViews(element)).toEqual([]);
+    expect(shownViews(element, 'matching')).toEqual([]);
   });
 
-  it('opens a declared-closed area when the user asks', () => {
+  it('opens a declared-closed area when the user asks', async () => {
     bindAt('finance/matching');
     const fixture = renderFixture();
     const element = fixture.nativeElement as HTMLElement;
+    await Promise.resolve();
 
     heading(element, 'matching').click();
 
     expect(heading(element, 'matching').getAttribute('aria-expanded')).toBe('true');
-    expect(shownViews(element)).toEqual(['finance/matching']);
+    expect(shownViews(element, 'matching')).toEqual(['finance/matching']);
 
     heading(element, 'matching').click();
   });
@@ -182,7 +188,7 @@ describe('ModuleNavView', () => {
   });
 
   it('says once, not per area, that an area is still waiting for content', () => {
-    bindAt('finance/matching');
+    bindAt('procurement/suppliers');
     const element = render();
 
     expect(element.querySelectorAll('[data-testid="nav-waiting"]').length).toBe(1);

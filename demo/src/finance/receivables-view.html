@@ -1,0 +1,51 @@
+<div class="flex h-full flex-col gap-4 p-3">
+  <div class="flex items-baseline justify-between gap-3">
+    <h2 class="text-base font-semibold text-content">
+      {{ 'product.view.receivables' | transloco }}
+    </h2>
+    <span class="text-sm text-content-muted">
+      {{ 'product.finance.outstanding' | transloco }}
+      <span class="ml-1 font-medium text-content tabular-nums" data-testid="receivables-open">{{
+        outstanding()
+      }}</span>
+    </span>
+  </div>
+
+  <div class="min-h-0 flex-1 overflow-auto rounded-lg border border-border bg-surface-raised">
+    <table class="w-full text-sm">
+      <thead class="text-xs text-content-muted">
+        <tr class="border-b border-border">
+          <th class="px-4 py-2.5 text-left font-medium">{{ 'product.finance.column.number' | transloco }}</th>
+          <th class="px-4 py-2.5 text-left font-medium">{{ 'product.finance.column.customer' | transloco }}</th>
+          <th class="px-4 py-2.5 text-left font-medium">{{ 'product.finance.column.due' | transloco }}</th>
+          <th class="px-4 py-2.5 text-right font-medium">{{ 'product.finance.column.gross' | transloco }}</th>
+          <th class="px-4 py-2.5 text-right font-medium">{{ 'product.finance.column.open' | transloco }}</th>
+        </tr>
+      </thead>
+      <tbody data-testid="receivables-list">
+        @for (row of rows(); track row.entry.id) {
+          <tr class="border-b border-border last:border-b-0" [attr.data-receivable]="row.entry.number">
+            <td class="px-4 py-2.5 font-mono text-xs text-content-muted">{{ row.entry.number }}</td>
+            <td class="px-4 py-2.5 text-content">{{ row.customer }}</td>
+            <td class="px-4 py-2.5 text-content-muted tabular-nums">
+              {{ row.due }}
+              @if (row.state === 'open' && row.overdue > 0) {
+                <span class="ml-2 text-xs text-caution" data-testid="receivable-overdue">{{
+                  'product.finance.overdue' | transloco: { days: row.overdue }
+                }}</span>
+              }
+            </td>
+            <td class="px-4 py-2.5 text-right text-content tabular-nums">{{ row.gross }}</td>
+            <td class="px-4 py-2.5 text-right tabular-nums">
+              @if (row.state === 'settled') {
+                <span class="text-content-faint">{{ 'product.finance.settled' | transloco }}</span>
+              } @else {
+                <span class="font-medium text-content">{{ row.open }}</span>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

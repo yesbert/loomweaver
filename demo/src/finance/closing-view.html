@@ -1,0 +1,32 @@
+<div class="flex h-full flex-col gap-4 p-3">
+  <h2 class="text-base font-semibold text-content">
+    {{ 'product.view.closing' | transloco }}
+  </h2>
+
+  <ul class="flex flex-col gap-2" data-testid="closing-list">
+    @for (row of rows(); track row.id) {
+      <li
+        class="flex items-center justify-between gap-3 rounded-lg border border-border bg-surface-raised px-4 py-3"
+        [attr.data-period]="row.month"
+      >
+        <span class="font-medium text-content tabular-nums">{{ row.month }}</span>
+        <span class="flex items-center gap-4 text-sm">
+          <span class="text-content-muted">
+            {{ 'product.finance.openItemsInPeriod' | transloco: { count: row.openItems } }}
+          </span>
+          @if (row.closed) {
+            <span class="text-content-faint" data-testid="period-closed">{{
+              'product.finance.periodClosed' | transloco
+            }}</span>
+          } @else {
+            <span class="text-brand-text">{{ 'product.finance.periodOpen' | transloco }}</span>
+          }
+        </span>
+      </li>
+    }
+  </ul>
+
+  <p class="text-sm text-content-muted" data-testid="closing-blocking">
+    {{ 'product.finance.blocking' | transloco: { count: blocking() } }}
+  </p>
+</div>
