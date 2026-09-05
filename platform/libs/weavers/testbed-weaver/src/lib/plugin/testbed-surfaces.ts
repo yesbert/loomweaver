@@ -284,7 +284,7 @@ function registerPanelSurfaces(ctx: PluginContext): void {
     padded: false,
     title: 'testbed.navTree.title',
     icon: 'navigator',
-    order: 1,
+    order: 3,
     component: TestbedNavTreeView,
   });
   ctx.registerSurface({

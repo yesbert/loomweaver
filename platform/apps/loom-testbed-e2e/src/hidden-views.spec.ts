@@ -43,7 +43,7 @@ test.describe('Hidden sidebar views', () => {
     await page.getByRole('button', { name: 'Outline: Left' }).click();
     await page.keyboard.press('Escape');
     const tabs = page.locator(left).getByRole('tab');
-    await expect(tabs).toHaveCount(3);
+    await expect(tabs).toHaveCount(4);
     await expect(tabs.nth(1)).toHaveAccessibleName('Outline');
   });
 
