@@ -84,8 +84,8 @@ the new command. Nothing to migrate; a consumer who never runs it is unaffected.
 Two ideas came up with this change and are recorded here so they are not lost; neither changes this
 change's scope, and each would be a change of its own if wanted:
 
-- Whether the `--command` scaffold should emit its example command with `arguments` and `answers`
-  filled in, so that the pattern a reader copies is the complete one rather than the two-field one.
+- The `--command` scaffold emitting its example with `arguments` and `answers` is no longer open:
+  it is the change `command-scaffold-shows-arguments-and-answers`.
 - Whether the agent scaffold should offer, behind an explicit option, a browser-side agent against an
   OpenAI-compatible endpoint with the user's own key, as the tutorial builds by hand. The reservation
   is that a key in the browser is right for a tutorial and wrong for generated product code, and a
