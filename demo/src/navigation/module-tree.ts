@@ -8,6 +8,7 @@ export interface ModuleArea {
   readonly id: string;
   readonly titleKey: string;
   readonly views: readonly ModuleView[];
+  readonly expanded?: boolean;
 }
 
 export interface ProductModule {
@@ -62,6 +63,7 @@ export const MODULES: readonly ProductModule[] = [
       {
         id: 'matching',
         titleKey: 'product.area.matching',
+        expanded: false,
         views: [
           {
             titleKey: 'product.view.paymentMatching',
@@ -110,11 +112,15 @@ export const MODULES: readonly ProductModule[] = [
   },
 ];
 
+export function isUnder(path: string, viewPath: string): boolean {
+  return path === viewPath || path.startsWith(`${viewPath}/`);
+}
+
 export function areaOfPath(path: string): ModuleArea | null {
   const module = moduleOfPath(path);
   return (
     module.areas.find((area) =>
-      area.views.some((view) => view.path === path),
+      area.views.some((view) => isUnder(path, view.path)),
     ) ?? null
   );
 }

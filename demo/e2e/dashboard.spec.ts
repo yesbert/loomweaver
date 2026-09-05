@@ -33,9 +33,6 @@ test('the cards carry the figures the data yields', async ({ page }) => {
   await expect(page.getByTestId('insights-margin-total')).toHaveText(
     '€7,821.20',
   );
-  await expect(page.getByTestId('insights-deadlines')).toContainText(
-    'Kranich Medien GmbH',
-  );
 });
 
 test('both charts are drawn, and a change of colour scheme redraws them', async ({

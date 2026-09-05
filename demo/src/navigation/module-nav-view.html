@@ -37,11 +37,19 @@
                   (click)="show(view)"
                   [attr.data-nav-view]="view.path"
                   [attr.aria-current]="current(view) ? 'page' : null"
-                  [class.bg-surface-overlay]="current(view)"
+                  [class.bg-surface-raised]="current(view)"
                   [class.text-content]="current(view)"
-                  class="flex w-full cursor-pointer items-center gap-1.5 rounded-md px-2 py-1.5 text-left text-sm text-content-muted transition-colors hover:bg-surface-overlay hover:text-content"
+                  [class.text-content-muted]="!current(view)"
+                  [class.font-medium]="current(view)"
+                  [class.shadow-xs]="current(view)"
+                  class="flex w-full cursor-pointer items-center gap-1.5 rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-surface-overlay hover:text-content"
                 >
-                  <lw-icon [name]="view.icon" size="1rem" class="shrink-0" />
+                  <lw-icon
+                    [name]="view.icon"
+                    size="1rem"
+                    class="shrink-0"
+                    [class.text-brand]="current(view)"
+                  />
                   <span class="truncate">{{ view.titleKey | transloco }}</span>
                 </button>
               </li>

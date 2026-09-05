@@ -86,42 +86,5 @@
       </article>
     </div>
 
-    <article
-      class="flex flex-col gap-3 rounded-lg border border-border bg-surface-raised p-4"
-      data-testid="insights-deadlines"
-    >
-      <h2 class="text-sm font-medium text-content">
-        {{ 'insights.cards.deadlines' | transloco }}
-      </h2>
-      @if (deadlines().length === 0) {
-        <p class="text-sm text-content-faint">{{ 'insights.deadlines.none' | transloco }}</p>
-      } @else {
-        <ul class="flex flex-col divide-y divide-border">
-          @for (deadline of deadlines(); track deadline.id) {
-            <li class="flex items-baseline justify-between gap-3 py-2 first:pt-0 last:pb-0">
-              <span class="flex min-w-0 flex-col">
-                <span class="truncate text-sm text-content">{{ deadline.customer }}</span>
-                <span class="text-xs text-content-faint">{{ deadline.validUntil }}</span>
-              </span>
-              <span class="flex shrink-0 items-baseline gap-3">
-                <span class="text-sm text-content tabular-nums">{{ deadline.gross }}</span>
-                <span
-                  class="w-24 text-right text-xs tabular-nums @max-sm:w-16"
-                  [class]="deadline.pressing ? 'text-caution' : 'text-content-faint'"
-                >
-                  @if (deadline.days < 0) {
-                    {{ 'insights.deadlines.gone' | transloco }}
-                  } @else if (deadline.days === 0) {
-                    {{ 'insights.deadlines.today' | transloco }}
-                  } @else {
-                    {{ 'insights.deadlines.days' | transloco: { days: deadline.days } }}
-                  }
-                </span>
-              </span>
-            </li>
-          }
-        </ul>
-      }
-    </article>
   </div>
 </div>

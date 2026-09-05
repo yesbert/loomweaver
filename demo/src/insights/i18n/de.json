@@ -12,13 +12,6 @@
       "expired": "Abgelaufen"
     }
   },
-  "deadlines": {
-    "title": "Läuft ab",
-    "none": "In den nächsten Wochen läuft nichts ab.",
-    "days": "in {{days}} Tagen",
-    "today": "heute",
-    "gone": "abgelaufen"
-  },
   "dashboard": {
     "title": "Übersicht",
     "subtitle": "Wie die Angebote heute stehen"
@@ -31,8 +24,7 @@
     "margin": "Gewonnene Marge",
     "marginHint": "{{percent}}% auf {{revenue}} Umsatz",
     "quoted": "Angebotsvolumen je Monat",
-    "pipeline": "Pipeline nach Status",
-    "deadlines": "Läuft als Nächstes ab"
+    "pipeline": "Pipeline nach Status"
   },
   "command": {
     "overview": {

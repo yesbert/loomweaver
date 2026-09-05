@@ -32,7 +32,7 @@ function bindAt(path: string): Recorder {
   return { navigated };
 }
 
-function render(): HTMLElement {
+function renderFixture() {
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     imports: [
@@ -45,7 +45,11 @@ function render(): HTMLElement {
   });
   const fixture = TestBed.createComponent(ModuleNavView);
   fixture.detectChanges();
-  return fixture.nativeElement as HTMLElement;
+  return fixture;
+}
+
+function render(): HTMLElement {
+  return renderFixture().nativeElement as HTMLElement;
 }
 
 function areasOf(element: HTMLElement): (string | null)[] {
@@ -80,6 +84,28 @@ describe('ModuleNavView', () => {
     expect(marked).toEqual(['sales/contacts']);
   });
 
+  it('marks the view a deep link sits under, not only its own address', () => {
+    bindAt('sales/quotes/q-0006');
+    const element = render();
+
+    const marked = [...element.querySelectorAll('[aria-current="page"]')].map(
+      (button) => button.getAttribute('data-nav-view'),
+    );
+
+    expect(marked).toEqual(['sales/quotes']);
+  });
+
+  it('does not mark a neighbour whose address merely starts the same way', () => {
+    bindAt('sales/contacts');
+    const element = render();
+
+    const marked = [...element.querySelectorAll('[aria-current="page"]')].map(
+      (button) => button.getAttribute('data-nav-view'),
+    );
+
+    expect(marked).toEqual(['sales/contacts']);
+  });
+
   it('opens a view by its address', () => {
     const recorder = bindAt('sales/customers');
     const element = render();
@@ -96,6 +122,36 @@ describe('ModuleNavView', () => {
     const element = render();
 
     expect(element.querySelector('[data-testid="module-nav"]')).toBeNull();
+  });
+
+  it('starts an area closed when the module declares it so', () => {
+    bindAt('finance/matching');
+    const element = render();
+
+    const collapsed = element.querySelector(
+      '[data-nav-toggle="matching"]',
+    ) as HTMLButtonElement;
+
+    expect(collapsed.getAttribute('aria-expanded')).toBe('false');
+    expect(element.querySelectorAll('[data-nav-view]').length).toBe(0);
+  });
+
+  it('opens a declared-closed area when the user asks', () => {
+    bindAt('finance/matching');
+    const fixture = renderFixture();
+    const element = fixture.nativeElement as HTMLElement;
+
+    (
+      element.querySelector('[data-nav-toggle="matching"]') as HTMLButtonElement
+    ).click();
+    fixture.detectChanges();
+
+    expect(
+      element
+        .querySelector('[data-nav-toggle="matching"]')
+        ?.getAttribute('aria-expanded'),
+    ).toBe('true');
+    expect(element.querySelectorAll('[data-nav-view]').length).toBe(1);
   });
 
   it('says once, not per area, that an area is still waiting for content', () => {

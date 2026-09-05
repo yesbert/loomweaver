@@ -4,6 +4,7 @@ import {
   type ModuleArea,
   type ModuleView,
   areaOfPath,
+  isUnder,
   moduleOfPath,
   navSurfaceId,
 } from './module-tree';
@@ -38,18 +39,22 @@ export class ModuleNavView {
   }
 
   protected open(area: ModuleArea): boolean {
-    return foldState.isOpen(`${this.module().id}/${area.id}`);
+    return foldState.isOpen(this.keyOf(area), area.expanded ?? true);
   }
 
   protected toggle(area: ModuleArea): void {
-    foldState.toggle(`${this.module().id}/${area.id}`);
+    foldState.toggle(this.keyOf(area), area.expanded ?? true);
   }
 
   protected current(view: ModuleView): boolean {
-    return this.activePath() === view.path;
+    return isUnder(this.activePath(), view.path);
   }
 
   protected show(view: ModuleView): void {
     navigationActions.open(view.path);
+  }
+
+  private keyOf(area: ModuleArea): string {
+    return `${this.module().id}/${area.id}`;
   }
 }

@@ -1,19 +1,15 @@
 import { signal } from '@angular/core';
 
-const collapsed = signal<ReadonlySet<string>>(new Set());
+const choices = signal<ReadonlyMap<string, boolean>>(new Map());
 
 export const foldState = {
-  isOpen(areaId: string): boolean {
-    return !collapsed().has(areaId);
+  isOpen(areaKey: string, declared: boolean): boolean {
+    return choices().get(areaKey) ?? declared;
   },
-  toggle(areaId: string): void {
-    collapsed.update((all) => {
-      const next = new Set(all);
-      if (next.has(areaId)) {
-        next.delete(areaId);
-      } else {
-        next.add(areaId);
-      }
+  toggle(areaKey: string, declared: boolean): void {
+    choices.update((all) => {
+      const next = new Map(all);
+      next.set(areaKey, !(all.get(areaKey) ?? declared));
       return next;
     });
   },
