@@ -24,6 +24,21 @@ agents, because they were never bypassed in the first place.
 The setup is a generator run and a reading of what it produced. Two things stay yours to decide:
 which calls are worth asking about, and what replaces the stand-in.
 
+## Whose code is which
+
+Three things meet in the generated connection. Knowing which is which makes replacing the stand-in a
+small step rather than a leap.
+
+| Part         | Comes from          | What it contributes                                                                                                                                                                                                                                                     |
+| ------------ | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The protocol | `@ag-ui/core`       | Vocabulary only: the event types (`RUN_STARTED`, the `TEXT_MESSAGE` and `TOOL_CALL` events, `TOOL_CALL_RESULT`, `RUN_FINISHED`, `RUN_ERROR`), the shape of a tool and the shape of a tool message. No function of it runs in your product.                              |
+| The adapter  | `@loomweaver/ag-ui` | The logic on the workbench side. `list()` turns the commands the plugin may reach into protocol tools, with the declared arguments as JSON Schema. `receive(event)` assembles a call from its events, asks your hook, runs the command and answers with a tool message. |
+| The agent    | your product        | Whatever talks to a model or to an endpoint and speaks the events back. The generated stand-in is its placeholder, and the one file you replace.                                                                                                                        |
+
+A fourth package, `@ag-ui/client`, is not used here. It is a ready-made client that reads the event
+stream of an AG-UI server over HTTP. Once your agent lives behind your own endpoint, it is the
+shortest route, and its stream goes into the same `receive()` loop.
+
 ## Generate it
 
 ```bash
