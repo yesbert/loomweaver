@@ -40,8 +40,8 @@
               },
               {
                 "glob": "**/*.json",
-                "input": "src/copilot/src/lib/i18n",
-                "output": "i18n/copilot"
+                "input": "src/assistant/src/lib/i18n",
+                "output": "i18n/assistant"
               }
             ],
             "styles": [

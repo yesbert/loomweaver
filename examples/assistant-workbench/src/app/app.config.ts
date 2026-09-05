@@ -10,7 +10,7 @@ import {
   provideTranslationNamespaces,
   type ShellLayout,
 } from '@loomweaver/shell';
-import { copilotPlugin } from '../copilot/src';
+import { assistantPlugin } from '../assistant/src';
 import { ticketsPlugin } from '../tickets/src';
 import { provideProductIdentity } from '@loomweaver/plugin-sdk';
 export const layout: ShellLayout = {
@@ -35,11 +35,11 @@ export const appConfig: ApplicationConfig = {
       tagline: 'Built on LoomWeaver',
       logoUrl: 'logo.svg',
     }),
-    provideTranslationNamespaces('tickets', 'copilot'),
+    provideTranslationNamespaces('tickets', 'assistant'),
     provideCapabilityGrants({
       tickets: ['contributions', 'ui', 'navigation'],
-      copilot: ['contributions', 'ui', 'automation'],
+      assistant: ['contributions', 'ui', 'automation'],
     }),
-    ...providePlugins(ticketsPlugin, copilotPlugin),
+    ...providePlugins(ticketsPlugin, assistantPlugin),
   ],
 };

@@ -48,7 +48,7 @@ async function* ask(
   request: AgentRequest,
   fetchLike: typeof fetch,
 ): AsyncGenerator<BaseEvent> {
-  const thread = { threadId: 'copilot', runId: request.runId };
+  const thread = { threadId: 'assistant', runId: request.runId };
   yield event(EventType.RUN_STARTED, thread);
   history.push({ role: 'user', content: request.prompt });
   try {
