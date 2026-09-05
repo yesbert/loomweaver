@@ -49,7 +49,12 @@
     "customerList": "Kundenliste",
     "contactHistory": "Kontaktverlauf",
     "quotes": "Angebote",
-    "paymentMatching": "Zahlungsabgleich"
+    "paymentMatching": "Zahlungsabgleich",
+    "receivables": "Debitoren",
+    "payables": "Kreditoren",
+    "ledger": "Hauptbuch",
+    "closing": "Abschluss",
+    "dunning": "Mahnwesen"
   },
   "nav": {
     "title": "Navigation",
@@ -100,6 +105,38 @@
       "deliveryDate": "Liefertermin abgestimmt",
       "complaint": "Reklamation aufgenommen",
       "renewal": "Verlängerung besprochen"
+    }
+  },
+  "finance": {
+    "outstanding": "Offen",
+    "overdue": "{{days}} Tage überfällig",
+    "settled": "ausgeglichen",
+    "approved": "freigegeben",
+    "awaitingApproval": "wartet auf Freigabe",
+    "balanced": "Soll gleich Haben",
+    "unbalanced": "Soll und Haben weichen ab",
+    "openItemsInPeriod": "{{count}} offene Posten",
+    "periodClosed": "geschlossen",
+    "periodOpen": "offen",
+    "blocking": "{{count}} offene Forderungen halten die laufende Periode offen.",
+    "startDunning": "Mahnlauf starten",
+    "confirmDunning": "Für jede überfällige Forderung eine Mahnung senden? Jede steigt dabei eine Mahnstufe.",
+    "dunningDone": "Mahnungen versendet.",
+    "nothingOverdue": "Nichts ist überfällig.",
+    "level": "Stufe {{level}}",
+    "dunningDescription": "Sendet für jede überfällige Forderung eine Mahnung und erhöht ihre Mahnstufe.",
+    "dunningAnswers": "Wie viele Forderungen gemahnt wurden.",
+    "column": {
+      "number": "Nummer",
+      "customer": "Kunde",
+      "due": "Fällig",
+      "gross": "Brutto",
+      "open": "Offen",
+      "bookedOn": "Gebucht",
+      "account": "Konto",
+      "reference": "Beleg",
+      "debit": "Soll",
+      "credit": "Haben"
     }
   }
 }

@@ -1,0 +1,40 @@
+<div class="flex h-full flex-col gap-4 p-3">
+  <div class="flex items-baseline justify-between gap-3">
+    <h2 class="text-base font-semibold text-content">
+      {{ 'product.view.ledger' | transloco }}
+    </h2>
+    <span
+      class="text-sm"
+      [class.text-content-muted]="balanced()"
+      [class.text-caution]="!balanced()"
+      data-testid="ledger-balance"
+    >
+      {{ (balanced() ? 'product.finance.balanced' : 'product.finance.unbalanced') | transloco }}
+    </span>
+  </div>
+
+  <div class="min-h-0 flex-1 overflow-auto rounded-lg border border-border bg-surface-raised">
+    <table class="w-full text-sm">
+      <thead class="text-xs text-content-muted">
+        <tr class="border-b border-border">
+          <th class="px-4 py-2.5 text-left font-medium">{{ 'product.finance.column.bookedOn' | transloco }}</th>
+          <th class="px-4 py-2.5 text-left font-medium">{{ 'product.finance.column.account' | transloco }}</th>
+          <th class="px-4 py-2.5 text-left font-medium">{{ 'product.finance.column.reference' | transloco }}</th>
+          <th class="px-4 py-2.5 text-right font-medium">{{ 'product.finance.column.debit' | transloco }}</th>
+          <th class="px-4 py-2.5 text-right font-medium">{{ 'product.finance.column.credit' | transloco }}</th>
+        </tr>
+      </thead>
+      <tbody data-testid="ledger-list">
+        @for (row of rows(); track row.entry.id) {
+          <tr class="border-b border-border last:border-b-0">
+            <td class="px-4 py-2.5 text-content-muted tabular-nums">{{ row.bookedOn }}</td>
+            <td class="px-4 py-2.5 text-content">{{ row.entry.account }}</td>
+            <td class="px-4 py-2.5 font-mono text-xs text-content-muted">{{ row.entry.reference }}</td>
+            <td class="px-4 py-2.5 text-right text-content tabular-nums">{{ row.debit }}</td>
+            <td class="px-4 py-2.5 text-right text-content tabular-nums">{{ row.credit }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

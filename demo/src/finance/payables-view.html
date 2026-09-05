@@ -1,0 +1,38 @@
+<div class="flex h-full flex-col gap-4 p-3">
+  <div class="flex items-baseline justify-between gap-3">
+    <h2 class="text-base font-semibold text-content">
+      {{ 'product.view.payables' | transloco }}
+    </h2>
+    <span class="text-sm text-content-muted">
+      {{ 'product.finance.outstanding' | transloco }}
+      <span class="ml-1 font-medium text-content tabular-nums" data-testid="payables-open">{{
+        outstanding()
+      }}</span>
+    </span>
+  </div>
+
+  <ul class="flex min-h-0 flex-1 flex-col gap-2 overflow-auto" data-testid="payables-list">
+    @for (row of rows(); track row.entry.id) {
+      <li
+        class="flex items-center justify-between gap-3 rounded-lg border border-border bg-surface-raised px-4 py-3"
+        [attr.data-payable]="row.entry.number"
+      >
+        <span class="flex min-w-0 flex-col">
+          <span class="truncate text-content">{{ row.entry.supplier }}</span>
+          <span class="font-mono text-xs text-content-faint">{{ row.entry.number }}</span>
+        </span>
+        <span class="flex items-center gap-4">
+          <span class="text-sm text-content-muted tabular-nums">{{ row.due }}</span>
+          @if (row.entry.approved) {
+            <span class="text-xs text-content-muted">{{ 'product.finance.approved' | transloco }}</span>
+          } @else {
+            <span class="text-xs text-caution" data-testid="payable-unapproved">{{
+              'product.finance.awaitingApproval' | transloco
+            }}</span>
+          }
+          <span class="w-28 text-right font-medium text-content tabular-nums">{{ row.gross }}</span>
+        </span>
+      </li>
+    }
+  </ul>
+</div>

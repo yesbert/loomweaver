@@ -21,3 +21,24 @@ export {
 export { type DocumentMargin, type MarginLine, marginOf } from './margin';
 export { isoDaysFromToday, setReferenceDate, today } from './clock';
 export { type Quote, type QuoteStatus, addQuote, markQuoteSent, openQuoteValue, quoteById, quoteTotals, quotes, resetQuotes } from './quotes';
+export {
+  type JournalEntry,
+  type Payable,
+  type Period,
+  type Receivable,
+  type ReceivableState,
+  daysOverdue,
+  dunningLevel,
+  journal,
+  openAmount,
+  openReceivables,
+  overdueReceivables,
+  payables,
+  payablesOutstanding,
+  periods,
+  receivables,
+  receivablesOutstanding,
+  resetFinance,
+  startDunningRun,
+  stateOf,
+} from './finance';

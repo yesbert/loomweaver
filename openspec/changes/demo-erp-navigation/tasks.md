@@ -23,21 +23,27 @@
 
 ## 2. Finance, where the tree gets long
 
-- [ ] 2.1 Build the six areas of Finance, with an area folding open and shut, remembering which are
+- [x] 2.1 Build the six areas of Finance, with an area folding open and shut, remembering which are
       open, and with the sidebar long enough to scroll.
-- [ ] 2.2 Give Receivables, Payables, General ledger, Closing and Dunning their views, with content
+- [x] 2.2 Give Receivables, Payables, General ledger, Closing and Dunning their views, with content
       that is small but real.
-- [ ] 2.3 Make Payment matching an area holding the sandboxed plugin alone, and answer the open
+- [x] 2.3 Make Payment matching an area holding the sandboxed plugin alone, and answer the open
       question in the design note by looking at it: an area with one child, or a single entry.
-- [ ] 2.4 *Start dunning run* is a button in the dunning view and a command, not an entry in the
+- [x] 2.4 *Start dunning run* is a button in the dunning view and a command, not an entry in the
       tree.
-- [ ] 2.5 Unit tests: an area folds and remembers; a module with six areas draws them all; the
+- [x] 2.5 Unit tests: an area folds and remembers; a module with six areas draws them all; the
       single-child area draws as decided.
-- [ ] 2.6 End-to-end: a Finance sidebar that scrolls still reaches its last area, and folding
+- [x] 2.6 End-to-end: a Finance sidebar that scrolls still reaches its last area, and folding
       survives a switch away and back.
 - [ ] 2.7 Show it and stop.
 
 ## 3. The remaining three modules
+
+Procurement, Inventory and People declare areas but no views, and no landing address, so switching to
+one of them leaves the address where it was and their sidebar draws nothing at all. That is what this
+group fixes; until then their sidebar is empty rather than wrong, and no placeholder page is put
+there to hide it.
+
 
 - [ ] 3.1 Procurement: Suppliers and Purchasing, with content that is small but real.
 - [ ] 3.2 Inventory: Stock and Movements.
@@ -49,6 +55,12 @@
 
 ## 4. What it taught us
 
-- [ ] 4.1 Record whether the navigation view came out the same for all six modules. If it did, that
+- [x] 4.1 Record whether the navigation view came out the same for all six modules. If it did, that
       is the case for a platform primitive, and it gets its own change rather than being smuggled in
-      here.
+      here. **Answered by `nav-tree-element`.** The case did not come from counting modules: the
+      owner needs this navigation in NextPA and later in HiveWeaver and TreeWeaver, which decides it
+      independently of what the demo shows. The demo's own view then became the element's first
+      consumer, and what it could no longer express was fixed in the element rather than worked
+      around here. The open question of group 2.3, an area with a single child, is answered by the
+      element rather than by this change: shape follows the declaration, so a declared area stays an
+      area, and Payment matching is drawn as one.

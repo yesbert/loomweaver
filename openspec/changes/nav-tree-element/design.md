@@ -151,6 +151,11 @@ in advance, so what it turned up is recorded here rather than in a commit messag
 - **The demo stopped carrying a chevron.** It had contributed a right-pointing one because the
   workbench has none. The element turns the chevron the workbench already has, so the demo's icon
   went away rather than moving.
+- **The tree's own scrolling never engages under the workbench's panel.** The surface wrapper the
+  workbench draws around a docked view is the scroller, and the tree is laid out to its content
+  inside it. The element keeps its own rule for a host that bounds its height, but the end-to-end
+  test asks whether the last area is reachable rather than which box scrolls, because the first is
+  what a user notices.
 - **Marking lands one microtask after the view is drawn**, because the tree reads its children
   through an observer and Angular attaches them after the element is connected. Imperceptible in
   the product; three unit tests in the demo now await it, which is worth knowing before someone

@@ -49,7 +49,12 @@
     "customerList": "Customer list",
     "contactHistory": "Contact history",
     "quotes": "Quotes",
-    "paymentMatching": "Payment matching"
+    "paymentMatching": "Payment matching",
+    "receivables": "Receivables",
+    "payables": "Payables",
+    "ledger": "General ledger",
+    "closing": "Closing",
+    "dunning": "Dunning"
   },
   "nav": {
     "title": "Navigation",
@@ -100,6 +105,38 @@
       "deliveryDate": "Delivery date agreed",
       "complaint": "Complaint recorded",
       "renewal": "Renewal discussed"
+    }
+  },
+  "finance": {
+    "outstanding": "Outstanding",
+    "overdue": "{{days}} days overdue",
+    "settled": "settled",
+    "approved": "approved",
+    "awaitingApproval": "awaiting approval",
+    "balanced": "debit equals credit",
+    "unbalanced": "debit and credit disagree",
+    "openItemsInPeriod": "{{count}} open items",
+    "periodClosed": "closed",
+    "periodOpen": "open",
+    "blocking": "{{count}} open receivables keep the current period from closing.",
+    "startDunning": "Start dunning run",
+    "confirmDunning": "Send a reminder for every overdue receivable? Each one moves up a dunning level.",
+    "dunningDone": "Reminders sent.",
+    "nothingOverdue": "Nothing is overdue.",
+    "level": "level {{level}}",
+    "dunningDescription": "Sends a reminder for every overdue receivable and raises its dunning level.",
+    "dunningAnswers": "How many receivables were reminded.",
+    "column": {
+      "number": "Number",
+      "customer": "Customer",
+      "due": "Due",
+      "gross": "Gross",
+      "open": "Open",
+      "bookedOn": "Booked",
+      "account": "Account",
+      "reference": "Reference",
+      "debit": "Debit",
+      "credit": "Credit"
     }
   }
 }

@@ -19,6 +19,7 @@ import {
 import { provideProductIdentity } from '@loomweaver/plugin-sdk';
 import { agentPlugin } from '../agent/agent.plugin';
 import { customersPlugin } from '../customers/customers.plugin';
+import { financePlugin } from '../finance/finance.plugin';
 import { navigationPlugin } from '../navigation/navigation.plugin';
 import { MODULES, navSurfaceId } from '../navigation/module-tree';
 import { insightsPlugin } from '../insights/insights.plugin';
@@ -161,6 +162,7 @@ export const appConfig: ApplicationConfig = {
       navigation: ['contributions', 'navigation'],
       customers: ['contributions', 'navigation', 'ui'],
       quotes: ['contributions', 'navigation'],
+      finance: ['contributions', 'navigation', 'ui'],
       insights: ['contributions', 'navigation'],
       looks: ['contributions'],
       agent: ['contributions', 'ui', 'automation'],
@@ -170,6 +172,7 @@ export const appConfig: ApplicationConfig = {
       navigationPlugin,
       customersPlugin,
       quotesPlugin,
+      financePlugin,
       insightsPlugin,
       looksPlugin,
       agentPlugin,
