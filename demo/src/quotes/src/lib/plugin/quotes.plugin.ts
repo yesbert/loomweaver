@@ -30,6 +30,7 @@ export const quotesPlugin: Plugin = {
       icon: 'quotes',
       routable: { path: 'sales/quotes' },
       docks: [],
+      padded: false,
       component: QuotesListView,
     });
 
@@ -38,6 +39,7 @@ export const quotesPlugin: Plugin = {
       title: 'quotes.openItems.title',
       icon: 'quotes',
       docks: ['left-panel'],
+      padded: false,
       component: QuotesOpenItemsView,
     });
 

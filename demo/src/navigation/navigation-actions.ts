@@ -35,6 +35,7 @@ export const navigationActions = {
       icon,
       component: view,
       docks: ['left-panel'],
+      padded: false,
     });
   },
 };

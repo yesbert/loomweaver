@@ -1,0 +1,18 @@
+@import 'tailwindcss';
+
+/* LoomWeaver design tokens + theme (light/dark, brand colors). Every @import has to precede the
+   other at-rules below: that is what plain CSS requires, and it is what keeps editors from
+   flagging a misplaced @import in a file you did not write. */
+@import '@loomweaver/shell/styles/theme.css';
+
+@plugin '@tailwindcss/typography';
+
+/* Generate the utility classes the shell (and your own components) use. The @source path must
+   reach your workspace's node_modules FROM THIS FILE — adjust the ../ hops if this project does
+   not sit at that depth, or Tailwind silently emits none of the shell's classes. */
+@source '../node_modules/@loomweaver/shell';
+@source './';
+
+@source 'tickets/src';
+
+@source 'assistant/src';

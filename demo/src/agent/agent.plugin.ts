@@ -23,6 +23,7 @@ export const agentPlugin: Plugin = {
       title: 'agent.title',
       icon: 'agent',
       docks: ['right-panel'],
+      padded: false,
       component: AgentChatView,
     });
   },

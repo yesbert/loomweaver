@@ -1,0 +1,56 @@
+<section class="flex h-full min-w-0 flex-col gap-5 overflow-auto p-6">
+  @if (ticket(); as ticket) {
+    <header class="flex flex-col gap-1">
+      <span class="text-xs text-content-faint">{{ ticket.number }} · {{ ticket.customer }}</span>
+      <h2 class="text-lg font-semibold text-content">{{ ticket.subject }}</h2>
+    </header>
+    <p class="max-w-prose text-sm text-content">{{ ticket.body }}</p>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <lw-select
+        [attr.label]="'tickets.view.assignee' | transloco"
+        [attr.placeholder]="'tickets.view.unassigned' | transloco"
+        [attr.value]="ticket.assignee ?? ''"
+        (lw-select-change)="assign(ticket.number, $event)"
+      >
+        @for (person of assignees; track person) {
+          <lw-option [attr.value]="person">{{ person }}</lw-option>
+        }
+      </lw-select>
+      <lw-select
+        [attr.label]="'tickets.view.status' | transloco"
+        [attr.value]="ticket.status"
+        (lw-select-change)="setStatus(ticket.number, $event)"
+      >
+        @for (status of statuses; track status) {
+          <lw-option [attr.value]="status">{{ stateKey(status) | transloco }}</lw-option>
+        }
+      </lw-select>
+    </div>
+
+    <ul class="flex max-w-prose flex-col gap-2">
+      @for (reply of ticket.replies; track reply.at) {
+        <li class="rounded-md border border-border bg-surface-raised px-3 py-2 text-sm text-content">
+          {{ reply.text }}
+        </li>
+      } @empty {
+        <li class="text-xs text-content-faint">{{ 'tickets.view.noReply' | transloco }}</li>
+      }
+    </ul>
+
+    <div class="flex max-w-prose flex-col gap-2">
+      <textarea
+        #reply
+        class="lw-field"
+        rows="3"
+        [placeholder]="'tickets.view.writeReply' | transloco"
+        [attr.aria-label]="'tickets.view.writeReply' | transloco"
+      ></textarea>
+      <button type="button" class="lw-btn lw-btn--primary self-start" (click)="send(ticket.number, reply)">
+        {{ 'tickets.view.sendReply' | transloco }}
+      </button>
+    </div>
+  } @else {
+    <p class="text-sm text-content-faint">{{ 'tickets.view.notFound' | transloco }}</p>
+  }
+</section>

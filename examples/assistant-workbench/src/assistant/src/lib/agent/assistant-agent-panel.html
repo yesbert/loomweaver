@@ -1,0 +1,85 @@
+<div class="flex h-full flex-col gap-3" (focusin)="refreshOffered()">
+  @if (!key()) {
+    <div class="flex shrink-0 flex-col gap-2 rounded-md border border-border bg-surface-raised p-3">
+      <p class="text-xs text-content-muted">{{ 'assistant.panel.keyHint' | transloco }}</p>
+      <input
+        #keyField
+        class="lw-field"
+        type="password"
+        placeholder="sk-or-v1-…"
+        autocomplete="off"
+        [attr.aria-label]="'assistant.panel.keyLabel' | transloco"
+        (keydown.enter)="useKey(keyField)"
+      />
+      @if (keyProblem()) {
+        <p class="text-xs text-negative">{{ 'assistant.panel.keyProblem' | transloco }}</p>
+      }
+      <button type="button" class="lw-btn lw-btn--primary lw-btn--sm self-start" (click)="useKey(keyField)">
+        {{ 'assistant.panel.useKey' | transloco }}
+      </button>
+    </div>
+  }
+
+  <div #transcript class="min-h-0 flex-1 overflow-auto">
+    <ul class="flex flex-col gap-2.5">
+      @for (line of lines(); track $index) {
+        @if (line.kind === 'you') {
+          <li class="max-w-full self-end rounded-lg bg-brand-fill px-3 py-2 text-sm text-on-brand">
+            {{ line.text }}
+          </li>
+        } @else if (line.kind === 'agent') {
+          <li class="max-w-full self-start rounded-lg bg-surface-raised px-3 py-2 text-sm text-content">
+            {{ line.text }}
+          </li>
+        } @else if (line.kind === 'call') {
+          <li class="rounded-md border border-border px-3 py-2 font-mono text-xs break-all text-content-muted">
+            {{ line.text }}<span class="text-content-faint">({{ line.args }})</span>
+          </li>
+        } @else {
+          <li
+            class="line-clamp-3 px-1 text-xs break-all"
+            [class.text-negative]="line.failed"
+            [class.text-content-muted]="!line.failed"
+            [title]="line.text"
+          >
+            {{ line.text }}
+          </li>
+        }
+      } @empty {
+        <li class="px-1 py-6 text-center text-sm text-content-muted">
+          {{ 'assistant.panel.empty' | transloco }}
+        </li>
+      }
+    </ul>
+  </div>
+
+  <form class="flex shrink-0 flex-col gap-2 border-t border-border pt-3" (submit)="submit($event, prompt)">
+    <textarea
+      #prompt
+      class="lw-field"
+      rows="2"
+      [placeholder]="'assistant.panel.prompt' | transloco"
+      [attr.aria-label]="'assistant.panel.prompt' | transloco"
+      [disabled]="busy() || !key()"
+      (keydown.enter)="submit($event, prompt)"
+    ></textarea>
+    <div class="flex items-center justify-between gap-2">
+      <span class="truncate text-xs text-content-faint">
+        {{ model }} · {{ 'assistant.panel.offered' | transloco: { count: offered().length } }}
+        @if (key()) {
+          · {{ 'assistant.panel.keySet' | transloco: { ending: keyEnding() } }}
+        }
+      </span>
+      <div class="flex shrink-0 gap-2">
+        @if (key()) {
+          <button type="button" class="lw-btn lw-btn--default lw-btn--sm" (click)="forgetKey()">
+            {{ 'assistant.panel.forgetKey' | transloco }}
+          </button>
+        }
+        <button type="submit" class="lw-btn lw-btn--primary lw-btn--sm" [disabled]="busy() || !key()">
+          {{ (busy() ? 'assistant.panel.working' : 'assistant.panel.send') | transloco }}
+        </button>
+      </div>
+    </div>
+  </form>
+</div>

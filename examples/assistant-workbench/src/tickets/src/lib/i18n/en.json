@@ -1,0 +1,50 @@
+{
+  "title": "Tickets",
+  "list": {
+    "title": "List tickets",
+    "description": "Lists the support tickets with number, customer, subject, status and assignee. Use it to find a ticket when only its topic is known.",
+    "status": "Only tickets in this status. Leave out to list all of them.",
+    "answers": "The matching tickets, each with number, customer, subject, status, assignee and reply count."
+  },
+  "open": {
+    "title": "Open ticket",
+    "description": "Opens a ticket in the workbench and returns its details, including the customer's message.",
+    "number": "The ticket number, like T-1041.",
+    "answers": "The ticket: number, customer, subject, body, status, assignee and its replies."
+  },
+  "assign": {
+    "title": "Assign ticket",
+    "description": "Assigns a ticket to a team member. An open ticket moves to in progress.",
+    "to": "Who takes the ticket: dana, lee or sam.",
+    "answers": "The ticket after the change."
+  },
+  "reply": {
+    "title": "Reply to ticket",
+    "description": "Sends a reply to the customer on a ticket. The person at the keyboard confirms it first.",
+    "text": "The reply text as the customer will read it.",
+    "answers": "The ticket after the reply was sent."
+  },
+  "status": {
+    "title": "Set ticket status",
+    "description": "Moves a ticket to open, in progress or done.",
+    "status": "The new status: open, in progress or done.",
+    "answers": "The ticket after the change."
+  },
+  "view": {
+    "assignee": "Assignee",
+    "status": "Status",
+    "unassigned": "unassigned",
+    "noReply": "No reply yet.",
+    "writeReply": "Write a reply",
+    "sendReply": "Send reply",
+    "notFound": "There is no such ticket."
+  },
+  "states": {
+    "open": "open",
+    "inProgress": "in progress",
+    "done": "done"
+  },
+  "ticket": {
+    "title": "Ticket"
+  }
+}
