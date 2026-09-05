@@ -15,6 +15,11 @@
       asserts the tone came back through `content`.
 - [ ] 2.3 Scaffold a weaver with `--agent` into a scratch application, serve it, run the generated
       command from the panel and see the argument in the call and the answer in the result.
+- [ ] 2.4 The generated panel reads the offered list in its constructor, before the weaver's
+      translation bundle has loaded, so its buttons show raw keys such as `copilot.actionDescription`
+      until the first run (seen in the quick-start guard's output on 2026-09-05). Read the list once
+      the bundle is there, or re-read it when the panel gains focus, so the first thing a reader sees
+      is the description an agent would read.
 
 ## 3. Documentation and hand-over
 
