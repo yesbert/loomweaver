@@ -44,6 +44,11 @@ This holds for the generated product as it is served, not only as it is compiled
 chrome SHALL render with its own styles applied and its own strings resolved, and nothing the
 generator itself put in place SHALL contradict anything else it put in place.
 
+It holds for the generated product's tests as well. Where the workspace runs unit tests, the tests
+present after a distribution is generated SHALL pass without further edits, including any starter
+test the workspace carried before the generator ran that the generated output made false; the
+generator SHALL replace such a test rather than leave the consumer to delete it.
+
 #### Scenario: A generated project passes its own lint
 
 - **WHEN** a project is generated with a non-default naming prefix
@@ -58,6 +63,14 @@ generator itself put in place SHALL contradict anything else it put in place.
 
 - **WHEN** a project is generated in a workspace that runs no unit tests
 - **THEN** no test wiring and no starter test are emitted
+
+#### Scenario: A generated distribution's tests pass without further edits
+
+- **WHEN** a distribution is generated into a fresh application workspace that runs unit tests, and
+  the workspace's tests are run without further edits
+- **THEN** every test passes
+- **AND** the application's starter test now boots the workbench rather than the page the
+  application had before
 
 #### Scenario: A generated distribution runs without further wiring
 
@@ -325,6 +338,9 @@ SHALL leave that file untouched and SHALL name exactly what to add, because gues
 code is worse than asking for two minutes of their attention. A generator SHALL NOT report a
 composition it did not perform as done.
 
+Composing a second plugin in SHALL leave every plugin composed in before it working. What the
+generator adds for one plugin SHALL NOT replace, shadow or disable what it added for another.
+
 #### Scenario: Adding to an existing project keeps its own declarations
 
 - **WHEN** a generator composes into a project that already exists
@@ -346,6 +362,13 @@ composition it did not perform as done.
   the platform generated
 - **THEN** the plugin is registered there, with the permissions its own manifest declares
 - **AND** serving the distribution shows the plugin's contributions in the chrome
+
+#### Scenario: A second generated plugin leaves the first one working
+
+- **WHEN** two plugins are generated one after the other into the same distribution, and it is
+  served without further edits
+- **THEN** both activate with the permissions their manifests declare
+- **AND** the contributions of both are in the chrome
 
 #### Scenario: A composition root that cannot be recognised is named rather than guessed at
 
