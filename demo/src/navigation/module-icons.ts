@@ -2,7 +2,6 @@ import {
   heroArrowsRightLeft,
   heroBanknotes,
   heroChatBubbleLeftRight,
-  heroChevronRight,
   heroClipboardDocumentList,
   heroCube,
   heroIdentification,
@@ -23,5 +22,4 @@ export const moduleIcons: Readonly<Record<string, string>> = {
   contactHistory: heroChatBubbleLeftRight,
   paymentMatching: heroArrowsRightLeft,
   orderHandling: heroClipboardDocumentList,
-  navCollapsed: heroChevronRight,
 };

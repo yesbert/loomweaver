@@ -1,67 +1,31 @@
 @if (module().areas.length > 0) {
-  <nav
-    class="flex h-full flex-col gap-1 overflow-y-auto px-1.5 py-2"
+  <lw-nav-tree
+    [attr.current]="shown()"
     [attr.aria-label]="module().titleKey | transloco"
+    (lw-nav-select)="show($event)"
     data-testid="module-nav"
   >
     @for (area of module().areas; track area.id) {
-      <div [attr.data-nav-area]="area.id">
-        <button
-          type="button"
-          (click)="toggle(area)"
-          [disabled]="area.views.length === 0"
-          [attr.aria-expanded]="area.views.length > 0 ? open(area) : null"
-          [attr.data-nav-toggle]="area.id"
-          [class.text-content]="area.views.length > 0"
-          [class.text-content-faint]="area.views.length === 0"
-          class="flex w-full cursor-pointer items-center gap-1.5 rounded-md px-2 py-1.5 text-left text-sm font-semibold transition-colors hover:bg-surface-overlay disabled:cursor-default disabled:hover:bg-transparent"
-        >
-          @if (area.views.length > 0) {
-            <lw-icon
-              [name]="open(area) ? 'chevronDown' : 'navCollapsed'"
-              size="0.875rem"
-              class="shrink-0 text-content-faint"
-            />
-          } @else {
-            <span class="w-3.5 shrink-0" aria-hidden="true"></span>
-          }
-          <span class="truncate">{{ area.titleKey | transloco }}</span>
-        </button>
-
-        @if (area.views.length > 0 && open(area)) {
-          <ul class="flex flex-col">
-            @for (view of area.views; track view.path) {
-              <li>
-                <button
-                  type="button"
-                  (click)="show(view)"
-                  [attr.data-nav-view]="view.path"
-                  [attr.aria-current]="current(view) ? 'page' : null"
-                  [class.bg-surface-raised]="current(view)"
-                  [class.text-content]="current(view)"
-                  [class.text-content-muted]="!current(view)"
-                  [class.font-medium]="current(view)"
-                  [class.shadow-xs]="current(view)"
-                  class="flex w-full cursor-pointer items-center gap-1.5 rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-surface-overlay hover:text-content"
-                >
-                  <lw-icon
-                    [name]="view.icon"
-                    size="1rem"
-                    class="shrink-0"
-                    [class.text-brand]="current(view)"
-                  />
-                  <span class="truncate">{{ view.titleKey | transloco }}</span>
-                </button>
-              </li>
-            }
-          </ul>
+      <lw-nav-group
+        [attr.label]="area.titleKey | transloco"
+        [attr.key]="keyOf(area)"
+        [attr.collapsed]="area.expanded === false ? '' : null"
+        [attr.data-nav-area]="area.id"
+      >
+        @for (view of area.views; track view.path) {
+          <lw-nav-item
+            [attr.path]="view.path"
+            [attr.icon]="view.icon"
+            [attr.label]="view.titleKey | transloco"
+            [attr.data-nav-view]="view.path"
+          ></lw-nav-item>
         }
-      </div>
+      </lw-nav-group>
     }
     @if (waiting()) {
       <p class="mt-auto px-2 pt-4 text-xs text-content-faint" data-testid="nav-waiting">
         {{ 'product.nav.notYet' | transloco }}
       </p>
     }
-  </nav>
+  </lw-nav-tree>
 }

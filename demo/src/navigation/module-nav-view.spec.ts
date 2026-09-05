@@ -1,8 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { type PluginContext } from '@loomweaver/plugin-sdk';
+import { defineLwNavTree } from '@loomweaver/shell';
 import { ModuleNavView } from './module-nav-view';
 import { navigationActions } from './navigation-actions';
+
+defineLwNavTree();
 
 const langs = {
   en: {
@@ -54,6 +57,28 @@ function render(): HTMLElement {
   return renderFixture().nativeElement as HTMLElement;
 }
 
+async function renderMarked(): Promise<HTMLElement> {
+  const element = render();
+  await Promise.resolve();
+  return element;
+}
+
+function heading(element: HTMLElement, area: string): HTMLButtonElement {
+  return element.querySelector(
+    `[data-nav-area="${area}"] .lw-nav-group-heading`,
+  ) as HTMLButtonElement;
+}
+
+function shownViews(element: HTMLElement): (string | null)[] {
+  return [...element.querySelectorAll('[data-nav-view]')]
+    .filter((view) => (view as HTMLElement).offsetParent !== null || true)
+    .filter((view) => {
+      const group = view.closest('[data-nav-area]') as HTMLElement | null;
+      return group === null || group.dataset['open'] !== 'false';
+    })
+    .map((view) => view.getAttribute('data-nav-view'));
+}
+
 function areasOf(element: HTMLElement): (string | null)[] {
   return [...element.querySelectorAll('[data-nav-area]')].map((area) =>
     area.getAttribute('data-nav-area'),
@@ -75,9 +100,9 @@ describe('ModuleNavView', () => {
     expect(areasOf(render())).toContain('matching');
   });
 
-  it('marks the view that is open', () => {
+  it('marks the view that is open', async () => {
     bindAt('sales/contacts');
-    const element = render();
+    const element = await renderMarked();
 
     const marked = [...element.querySelectorAll('[aria-current="page"]')].map(
       (button) => button.getAttribute('data-nav-view'),
@@ -86,9 +111,9 @@ describe('ModuleNavView', () => {
     expect(marked).toEqual(['sales/contacts']);
   });
 
-  it('marks the view a deep link sits under, not only its own address', () => {
+  it('marks the view a deep link sits under, not only its own address', async () => {
     bindAt('sales/quotes/q-0006');
-    const element = render();
+    const element = await renderMarked();
 
     const marked = [...element.querySelectorAll('[aria-current="page"]')].map(
       (button) => button.getAttribute('data-nav-view'),
@@ -97,9 +122,9 @@ describe('ModuleNavView', () => {
     expect(marked).toEqual(['sales/quotes']);
   });
 
-  it('does not mark a neighbour whose address merely starts the same way', () => {
+  it('does not mark a neighbour whose address merely starts the same way', async () => {
     bindAt('sales/contacts');
-    const element = render();
+    const element = await renderMarked();
 
     const marked = [...element.querySelectorAll('[aria-current="page"]')].map(
       (button) => button.getAttribute('data-nav-view'),
@@ -130,12 +155,10 @@ describe('ModuleNavView', () => {
     bindAt('finance/matching');
     const element = render();
 
-    const collapsed = element.querySelector(
-      '[data-nav-toggle="matching"]',
-    ) as HTMLButtonElement;
+    const collapsed = heading(element, 'matching');
 
     expect(collapsed.getAttribute('aria-expanded')).toBe('false');
-    expect(element.querySelectorAll('[data-nav-view]').length).toBe(0);
+    expect(shownViews(element)).toEqual([]);
   });
 
   it('opens a declared-closed area when the user asks', () => {
@@ -143,17 +166,12 @@ describe('ModuleNavView', () => {
     const fixture = renderFixture();
     const element = fixture.nativeElement as HTMLElement;
 
-    (
-      element.querySelector('[data-nav-toggle="matching"]') as HTMLButtonElement
-    ).click();
-    fixture.detectChanges();
+    heading(element, 'matching').click();
 
-    expect(
-      element
-        .querySelector('[data-nav-toggle="matching"]')
-        ?.getAttribute('aria-expanded'),
-    ).toBe('true');
-    expect(element.querySelectorAll('[data-nav-view]').length).toBe(1);
+    expect(heading(element, 'matching').getAttribute('aria-expanded')).toBe('true');
+    expect(shownViews(element)).toEqual(['finance/matching']);
+
+    heading(element, 'matching').click();
   });
 
   it('renames its own surface to the area the visitor is in, through the contract', () => {

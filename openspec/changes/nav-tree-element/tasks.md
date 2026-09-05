@@ -44,11 +44,11 @@
 
 ## 4. The demo as its first consumer
 
-- [ ] 4.1 Replace the demo's own tree with the element: its template, its marking and its folding
+- [x] 4.1 Replace the demo's own tree with the element: its template, its marking and its folding
       go, and the structure it declares stays.
-- [ ] 4.2 Keep the demo's end-to-end suite passing unchanged where it describes behaviour rather
+- [x] 4.2 Keep the demo's end-to-end suite passing unchanged where it describes behaviour rather
       than markup, and record every place it had to change and why.
-- [ ] 4.3 Record anything the demo could express before and cannot now. Each is a defect in the
+- [x] 4.3 Record anything the demo could express before and cannot now. Each is a defect in the
       element, fixed here rather than worked around there.
 - [ ] 4.4 Show the demo and stop.
 

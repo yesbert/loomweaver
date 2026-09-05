@@ -2,12 +2,10 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, effect } from '@angular/co
 import { TranslocoPipe } from '@jsverse/transloco';
 import {
   type ModuleArea,
-  type ModuleView,
   areaShowing,
   moduleOfPath,
   navSurfaceId,
 } from './module-tree';
-import { foldState } from './fold-state';
 import { navigationActions } from './navigation-actions';
 
 @Component({
@@ -17,9 +15,9 @@ import { navigationActions } from './navigation-actions';
   templateUrl: './module-nav-view.html',
 })
 export class ModuleNavView {
-  private readonly activePath = computed(() => navigationActions.activePath());
+  protected readonly shown = computed(() => navigationActions.activePath());
 
-  protected readonly module = computed(() => moduleOfPath(this.activePath()));
+  protected readonly module = computed(() => moduleOfPath(this.shown()));
 
   protected readonly waiting = computed(() =>
     this.module().areas.some((area) => area.views.length === 0),
@@ -36,23 +34,11 @@ export class ModuleNavView {
     });
   }
 
-  protected open(area: ModuleArea): boolean {
-    return foldState.isOpen(this.keyOf(area), area.expanded ?? true);
-  }
-
-  protected toggle(area: ModuleArea): void {
-    foldState.toggle(this.keyOf(area), area.expanded ?? true);
-  }
-
-  protected current(view: ModuleView): boolean {
-    return navigationActions.showingUnder(view.path);
-  }
-
-  protected show(view: ModuleView): void {
-    navigationActions.open(view.path);
-  }
-
-  private keyOf(area: ModuleArea): string {
+  protected keyOf(area: ModuleArea): string {
     return `${this.module().id}/${area.id}`;
+  }
+
+  protected show(event: Event): void {
+    navigationActions.open((event as CustomEvent<{ path: string }>).detail.path);
   }
 }
