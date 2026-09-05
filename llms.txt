@@ -1,6 +1,6 @@
 # LoomWeaver
 
-> LoomWeaver is a domain-agnostic plugin & UI platform for Angular: weavers (plugins) consume one uniform `ctx` contract from `@loomweaver/plugin-sdk` under a **default-deny** capability broker, and a thin **distribution** composes them with `@loomweaver/shell` into a product. The platform itself contains **zero domain logic** and ships **no server**; the backend seam is the product's own. Status: the platform is **built and published** as seven versioned npm packages, listed under *Packages* below.
+> LoomWeaver: open-source plugin platform for Angular workbenches. Weavers (plugins) consume one uniform `ctx` contract from `@loomweaver/plugin-sdk` under a **default-deny** capability broker, and a thin **distribution** composes them with `@loomweaver/shell` into a product. The platform itself contains **zero domain logic** and ships **no server**; the backend seam is the product's own. Status: the platform is **built and published** as seven versioned npm packages, listed under *Packages* below.
 
 This is a curated map for people, and their AI assistants, building on or integrating LoomWeaver. For a single-fetch brief with the complete contract inlined, see [`llms-full.txt`](llms-full.txt). Read from the repository, the links are repo-relative; served from loomweaver.dev, they are absolute.
 

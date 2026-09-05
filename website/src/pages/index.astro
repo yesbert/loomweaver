@@ -94,7 +94,7 @@ const rungs = [
   },
   {
     name: 'Sandboxed iframe',
-    body: 'Somebody else’s code in its own JS context, opaque origin, no reach into your DOM. Write the body in React, Vue, Svelte or plain JS.',
+    body: 'Somebody else’s code in its own JS context, opaque origin, no reach into your DOM. Write the body in any framework.',
   },
   {
     name: 'Installed at runtime',
@@ -105,9 +105,9 @@ const rungs = [
 
 <StarlightPage
   frontmatter={{
-    title: 'LoomWeaver',
+    title: 'Open-source plugin platform for Angular workbenches',
     description:
-      'The workbench your product runs in: panes, tabs, a command palette, theming, a plugin store and an AG-UI adapter, ready on day one. Your domain moves in, and so does everyone else’s.',
+      'An open-source plugin platform for Angular workbenches: an application shell with panes the user splits, a command palette, theming, plugins that run isolated in their own sandbox, and plugins your users install at runtime. Add tools as your product grows, without touching the shell.',
     template: 'splash',
     tableOfContents: false,
   }}
@@ -116,17 +116,19 @@ const rungs = [
   <div class="lw-landing">
     <section class="hero">
       <p class="eyebrow">Apache 2.0 · seven npm packages · ships no server</p>
-      <h1>Build the product.<br />Not the workbench.</h1>
+      <h1>Build Angular workbenches<br />that grow with your product.</h1>
       <p class="lead">
-        Panes the user can split, tabs that pop out into their own window, a command palette,
-        theming, i18n and a plugin store. All of it there on day one. Your domain moves in. So
-        does everyone else’s. And because the workbench speaks <a
-          href="https://docs.ag-ui.com">AG-UI</a>, an agent can drive it without you writing an
-        adapter.
+        An open-source plugin platform for Angular workbenches: an application shell with panes the
+        user splits, a command palette, theming, plugins that run isolated in their own sandbox, and
+        plugins your users install at runtime. Add tools as your product grows, without touching the
+        shell.
       </p>
       <p class="fit">
         For Angular teams building a product that is a workbench: several things open at once, and a
-        surface other people extend. Not a component library, and not for a site of plain pages.
+        surface other people extend. Not a component library, and not for a site of plain pages. The
+        workbench also speaks <a href="https://docs.ag-ui.com">AG-UI</a>, so an agent can drive it
+        without you writing an adapter. It is maintained by one person, its API still moves on patch
+        releases before 1.0, and the demo application is its reference consumer.
       </p>
       <div class="actions">
         <a class="btn primary" href="/getting-started/">Start in 5 minutes</a>
@@ -207,7 +209,7 @@ const rungs = [
           >routerLink</code
         >, <code>ActivatedRoute</code>, guards, back and forward all behave. The iframe sandbox is a
         choice you make for code you did not write, never for your own. What runs in there does not
-        have to be Angular either: React, Vue, Svelte and plain JavaScript all work.
+        have to be Angular either: any framework works.
       </p>
       <p>
         <a href="/reference/routing/#mounting-an-app-that-brings-its-own-routes"

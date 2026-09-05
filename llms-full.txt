@@ -1,6 +1,6 @@
 # LoomWeaver — full context for AI assistants
 
-> LoomWeaver is a domain-agnostic plugin & UI platform. A product is a **distribution**: a thin app
+> LoomWeaver: open-source plugin platform for Angular workbenches. A product is a **distribution**: a thin app
 > that composes `@loomweaver/shell` + one or more **weavers** (plugins) from the published packages. The
 > platform core has **zero domain logic**. This file inlines everything an assistant needs to build a
 > distribution or a weaver from the outside — the mental model, the complete public contract, and the

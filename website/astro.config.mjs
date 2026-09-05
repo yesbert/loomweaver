@@ -31,8 +31,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'LoomWeaver',
-      description:
-        'A domain-agnostic plugin & UI platform. Products run as plugin bundles on top of it; the platform itself contains zero domain logic.',
+      description: 'LoomWeaver: open-source plugin platform for Angular workbenches.',
       favicon: '/loomweaver-icon.png',
       logo: {
         src: './generated/assets/loomweaver-icon.png',

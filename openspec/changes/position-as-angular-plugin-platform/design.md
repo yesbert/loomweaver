@@ -123,8 +123,7 @@ description still reading the architecture sentence. Topics keep their current s
 
 ## Open Questions
 
-The outside review raised two points that change copy rather than order. One is decided, one is
-the owner's call before task 2 starts:
+The outside review raised two points that change copy rather than order. Both are decided:
 
 - **No comparison paragraph on the first screen.** The review named SCION Workbench (an active
   Angular library that uses the word workbench for a drag-and-drop layout, with a separate
@@ -138,9 +137,11 @@ the owner's call before task 2 starts:
   runtime behind a consent dialog, a default-deny broker the user can revoke, sandboxed bodies in
   any framework, AG-UI). The wording "an open-source plugin platform" keeps "an" for the same
   reason: the category is shared, the model is not.
-- **Whether the fit paragraph states the project's state plainly.** One maintainer, one star at
-  the time of writing, the API still moving on patch releases before 1.0, the demo as the reference
-  consumer. The reviewer's argument: the sentence disarms the objection, hiding it does not.
+- **The fit paragraph states the project's state plainly.** Decided by the owner on 2026-09-05:
+  the paragraph, on the landing page and in the README, closes with one sentence naming the state.
+  One maintainer, an API that still moves on patch releases before 1.0, and the demo application
+  as the reference consumer. The star count stays out, because it changes and the sentence would
+  age. The reviewer's argument carried: the sentence disarms the objection, hiding it does not.
 
 The reviewer also offered a headline with a concrete second half ("Build Angular workbenches. Ship
 the plugin system on day one.") for the case that "grow with your product" reads as unfalsifiable.
@@ -150,3 +151,23 @@ The owner has chosen the headline as written; the alternative is recorded, not r
 
 One branch, one PR. The site deploys from `main`; the GitHub description is set by hand before the
 PR merges so the two land together. Rollback is a revert of the PR and a second `gh repo edit`.
+
+## Baseline
+
+Recorded on 2026-09-05, before the first screen changed, as the before for every later marketing
+change. GitHub traffic covers the fourteen days ending that morning.
+
+| Measure | Value |
+|---|---|
+| Stars | 1 |
+| Forks | 0 |
+| Views, fourteen days | 226 (6 unique) |
+| Clones, fourteen days | 3471 (243 unique) |
+| Referrer github.com | 70 (1 unique) |
+| Referrer loomweaver.dev | 9 (2 unique) |
+| Referrer news.ycombinator.com | 1 (1 unique) |
+| dev.to launch article (2026-09-04), reactions | 0 |
+| dev.to launch article (2026-09-04), comments | 0 |
+
+The clone count is dominated by CI and package installs, not readers; views and referrers are the
+numbers to compare against.
