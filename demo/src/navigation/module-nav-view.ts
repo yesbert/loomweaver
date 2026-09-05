@@ -3,8 +3,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import {
   type ModuleArea,
   type ModuleView,
-  areaOfPath,
-  isUnder,
+  areaShowing,
   moduleOfPath,
   navSurfaceId,
 } from './module-tree';
@@ -29,11 +28,10 @@ export class ModuleNavView {
   constructor() {
     effect(() => {
       const module = this.module();
-      const area = areaOfPath(this.activePath());
+      const area = areaShowing(module, (path) => navigationActions.showingUnder(path));
       navigationActions.retitle(
         navSurfaceId(module.id),
         area?.titleKey ?? module.titleKey,
-        module.icon,
       );
     });
   }
@@ -47,7 +45,7 @@ export class ModuleNavView {
   }
 
   protected current(view: ModuleView): boolean {
-    return isUnder(this.activePath(), view.path);
+    return navigationActions.showingUnder(view.path);
   }
 
   protected show(view: ModuleView): void {

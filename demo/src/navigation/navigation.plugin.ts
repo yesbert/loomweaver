@@ -11,7 +11,7 @@ export const navigationPlugin: Plugin = {
     capabilities: ['contributions', 'navigation'],
   },
   activate(ctx) {
-    navigationActions.bind(ctx, ModuleNavView);
+    navigationActions.bind(ctx);
     ctx.contributeIcons(moduleIcons);
 
     for (const module of MODULES) {
