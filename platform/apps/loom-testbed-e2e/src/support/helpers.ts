@@ -38,7 +38,7 @@ export async function openEntry(page: Page, reference: string): Promise<void> {
 }
 
 export function rail(page: Page) {
-  return page.getByRole('navigation', { name: 'Toolbar', exact: true });
+  return page.getByRole('navigation', { name: 'Left activity bar', exact: true });
 }
 
 export async function runCommand(page: Page, title: string): Promise<void> {
@@ -51,7 +51,7 @@ export async function runCommand(page: Page, title: string): Promise<void> {
 }
 
 export function railRight(page: Page) {
-  return page.getByRole('navigation', { name: 'Right toolbar', exact: true });
+  return page.getByRole('navigation', { name: 'Right activity bar', exact: true });
 }
 
 export function markWindow(page: Page): Promise<void> {

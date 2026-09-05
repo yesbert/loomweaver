@@ -193,7 +193,7 @@ test.describe('Container surface / workspace-in-a-tab', () => {
     await expect(page.getByTestId('testbed-ws-sim')).toHaveText(
       /Container gamma/,
     );
-    await expect(page.getByRole('navigation', { name: 'Toolbar' })).toHaveCount(
+    await expect(page.getByRole('navigation', { name: 'Left activity bar' })).toHaveCount(
       0,
     );
   });

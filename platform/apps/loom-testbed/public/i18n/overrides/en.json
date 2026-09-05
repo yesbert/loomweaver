@@ -1,6 +1,5 @@
 {
   "rail": {
-    "label": "Toolbar",
-    "labelRight": "Right toolbar"
+    "customize": "Choose the entries"
   }
 }

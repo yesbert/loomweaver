@@ -62,7 +62,7 @@ test.describe('User reorder', () => {
     page,
   }) => {
     await page.goto('/');
-    const rail = page.getByRole('navigation', { name: 'Toolbar' });
+    const rail = page.getByRole('navigation', { name: 'Left activity bar' });
     const railOrder = () =>
       rail
         .locator('[data-reorder-id]')

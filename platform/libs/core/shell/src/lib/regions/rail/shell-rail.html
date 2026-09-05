@@ -1,5 +1,6 @@
 <nav
-  class="flex h-full w-10 shrink-0 flex-col items-center gap-1 bg-surface py-2"
+  class="flex h-full shrink-0 flex-col items-center gap-1 bg-surface py-2"
+  [class]="labelled() ? 'w-18' : 'w-10'"
   [attr.aria-label]="labelKey() | transloco"
   cdkDropList
   cdkDropListOrientation="vertical"
@@ -15,7 +16,28 @@
   (reorder)="onReorder($event)"
   [lwMenu]="railMenu()"
 >
-  @for (item of items(); track item.id) {
+  <div
+    cdkScrollable
+    data-testid="rail-scroll"
+    class="flex min-h-0 w-full flex-1 flex-col items-center gap-1 overflow-x-hidden overflow-y-auto"
+  >
+    @for (item of topItems(); track item.id) {
+      <ng-container [ngTemplateOutlet]="entry" [ngTemplateOutletContext]="{ $implicit: item }" />
+    }
+  </div>
+
+  @if (bottomItems().length > 0) {
+    <div
+      data-testid="rail-anchored"
+      class="flex w-full shrink-0 flex-col items-center gap-1"
+    >
+      @for (item of bottomItems(); track item.id) {
+        <ng-container [ngTemplateOutlet]="entry" [ngTemplateOutletContext]="{ $implicit: item }" />
+      }
+    </div>
+  }
+
+  <ng-template #entry let-item>
     <button
       type="button"
       cdkDrag
@@ -24,6 +46,7 @@
       [disabled]="disabled(item)"
       (click)="run(item)"
       (keydown)="onKeydown($event)"
+      (focus)="onFocus($event)"
       [lwMenu]="menusFor(item)"
       [lwMenuOnActivate]="activateMenuFor(item)"
       [lwMenuHeader]="item.menuHeader"
@@ -34,10 +57,10 @@
       [attr.data-rail-item]="item.id"
       [attr.data-reorder-id]="reorderable() ? item.id : null"
       [attr.data-reorder-band]="item.anchor ?? 'top'"
-      [class.mt-auto]="item.id === firstBottomId()"
       [class.text-content]="current(item)"
       [class.bg-surface-overlay]="current(item)"
-      class="relative flex h-9 w-9 items-center justify-center rounded-lg text-content-faint transition-colors hover:bg-surface-overlay hover:text-content disabled:pointer-events-none disabled:opacity-40"
+      [class]="labelled() ? 'w-16 flex-col gap-1 px-1 py-1.5' : 'h-9 w-9'"
+      class="relative flex shrink-0 items-center justify-center rounded-lg text-content-faint transition-colors hover:bg-surface-overlay hover:text-content disabled:pointer-events-none disabled:opacity-40"
     >
       @if (current(item)) {
         <span
@@ -64,9 +87,20 @@
           >{{ item.initials }}</span
         >
       } @else {
-        <lw-icon [name]="item.icon" size="1rem" />
+        <lw-icon [name]="item.icon" [attr.size]="labelled() ? '1.25rem' : '1rem'" />
       }
-      <lw-tooltip [text]="item.title | transloco" [position]="region().dock === 'right' ? 'left' : 'right'" />
+      @if (labelled()) {
+        <span
+          #railLabel
+          data-testid="rail-label"
+          [attr.data-rail-label]="item.id"
+          class="line-clamp-2 w-full text-center text-[0.625rem] leading-tight break-words"
+          >{{ item.title | transloco }}</span
+        >
+      }
+      @if (!labelled() || shortened(item.id)) {
+        <lw-tooltip [text]="item.title | transloco" [position]="region().dock === 'right' ? 'left' : 'right'" />
+      }
     </button>
-  }
+  </ng-template>
 </nav>

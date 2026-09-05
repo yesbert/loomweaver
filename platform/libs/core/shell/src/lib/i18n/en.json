@@ -128,6 +128,7 @@
   },
   "rail": {
     "label": "Activity bar",
+    "labelLeft": "Left activity bar",
     "labelRight": "Right activity bar",
     "menu": {
       "moveToOther": "Move to other activity bar",
@@ -296,5 +297,8 @@
     "unusableBody": "Its saved layout no longer holds the content this workspace declares, so there is nothing here to show. Resetting puts back the layout it was declared with. Your other workspaces are untouched.",
     "unusableAction": "Reset this workspace",
     "unusableMark": "Cannot work as declared"
+  },
+  "railLabels": {
+    "desc": "Show each entry’s name under its icon."
   }
 }
