@@ -11,6 +11,9 @@
         [attr.aria-label]="'assistant.panel.keyLabel' | transloco"
         (keydown.enter)="useKey(keyField)"
       />
+      @if (keyProblem()) {
+        <p class="text-xs text-negative">{{ 'assistant.panel.keyProblem' | transloco }}</p>
+      }
       <button type="button" class="lw-btn lw-btn--primary lw-btn--sm self-start" (click)="useKey(keyField)">
         {{ 'assistant.panel.useKey' | transloco }}
       </button>

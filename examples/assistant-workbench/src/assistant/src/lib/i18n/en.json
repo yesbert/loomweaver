@@ -19,6 +19,7 @@
     "prompt": "What should happen?",
     "offered": "{{count}} tools offered",
     "send": "Send",
-    "working": "Working…"
+    "working": "Working…",
+    "keyProblem": "That does not look like an OpenRouter key. It starts with sk-or- and is pasted on its own, without Bearer or quotes."
   }
 }
