@@ -28,6 +28,12 @@ export class ${w.className}AgentPanel {
   private runs = 0;
 
   constructor() {
+    this.refreshOffered();
+  }
+
+  // The list is read again whenever the panel gains focus, because the weaver's own translations
+  // and other plugins' commands may arrive after this component was built.
+  protected refreshOffered(): void {
     this.offered.set(${w.propertyName}Agent()?.list() ?? []);
   }
 
@@ -119,7 +125,7 @@ export class ${w.className}AgentPanel {
 }
 
 export function panelTemplateFile(w: ResolvedWeaver): string {
-  return `<div class="flex h-full flex-col gap-3">
+  return `<div class="flex h-full flex-col gap-3" (focusin)="refreshOffered()">
   <p
     class="shrink-0 rounded-md border border-border bg-surface-raised px-3 py-2 text-xs text-content-muted"
   >
