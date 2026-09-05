@@ -1,6 +1,6 @@
 {
   "name": "@loomweaver/devkit",
-  "version": "0.9.0-preview.1",
+  "version": "0.9.0-preview.2",
   "description": "LoomWeaver: open-source plugin platform for Angular workbenches. The Nx generators: weavers, distributions, frame plugins and the integration seams, plus the manifest and i18n validators.",
   "keywords": [
     "loomweaver",
@@ -19,6 +19,14 @@
   "dependencies": {
     "@nx/devkit": "^23.1.1",
     "tslib": "^2.3.0"
+  },
+  "peerDependencies": {
+    "typescript": ">=5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "typescript": {
+      "optional": true
+    }
   },
   "publishConfig": {
     "access": "public"

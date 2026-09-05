@@ -97,6 +97,20 @@ describe('angularWeaver recipe', () => {
     expect(JSON.parse(files['src/lib/i18n/en.json']).action).toBeDefined();
   });
 
+  it('generates the complete command: a described argument and a declared answer', () => {
+    const files = generate(angularWeaver, { id: 'notes', features: { command: true } });
+    const plugin = files['src/lib/plugin/notes.plugin.ts'];
+    expect(plugin).toContain("name: 'tone', kind: 'choice', choices: ['info', 'success', 'warning']");
+    expect(plugin).toContain("description: 'notes.actionTone'");
+    expect(plugin).toContain("answers: 'notes.actionAnswers'");
+    expect(plugin).toContain("args?.['tone']");
+    for (const lang of ['en', 'de']) {
+      const bundle = JSON.parse(files[`src/lib/i18n/${lang}.json`]);
+      expect(bundle.actionTone).toBeDefined();
+      expect(bundle.actionAnswers).toBeDefined();
+    }
+  });
+
   it('hooks a menu item into a slot (implying a command)', () => {
     const files = generate(angularWeaver, {
       id: 'notes',
@@ -382,6 +396,7 @@ describe('angularWeaver agent connection', () => {
     const plugin = agentWeaver()['src/lib/plugin/notes.plugin.ts'];
     expect(plugin).toContain("id: 'notes.agent'");
     expect(plugin).toContain("docks: ['right-panel']");
+    expect(plugin).toContain('padded: true,');
     expect(plugin).toContain('notesAgent.set(notesConnection(ctx));');
     expect(plugin).toContain('deactivate()');
   });
@@ -415,6 +430,18 @@ describe('angularWeaver agent connection', () => {
       panel.match(/tools\.list\(\)|Agent\(\)\?\.list\(\)/g)?.length,
     ).toBeGreaterThan(1);
     expect(panel).toContain('const offered = tools.list();');
+  });
+
+  it('fills the generated argument from the schema instead of sending none', () => {
+    const standIn = agentWeaver()['src/lib/agent/notes-agent-source.ts'];
+    expect(standIn).toContain('sampleArguments(picked)');
+    expect(standIn).toContain('enum');
+    expect(standIn).not.toContain('JSON.stringify({})');
+  });
+
+  it('emits a test that reads the answer the command gave', () => {
+    const spec = agentWeaver()['src/lib/agent/notes-agent.spec.ts'];
+    expect(spec).toContain("JSON.parse(answer?.content ?? '{}').tone");
   });
 
   it('names the weaver own command as consequential and declines it by asking', () => {

@@ -30,6 +30,7 @@ describe('angularDistribution recipe', () => {
         'src/app/app.config.spec.ts',
         'src/app/app.config.ts',
         'src/app/app.html',
+        'src/app/app.spec.ts',
         'src/app/app.ts',
         'src/index.html',
         'src/main.ts',
@@ -261,6 +262,16 @@ describe('angularDistribution recipe', () => {
       withTests: false,
     });
     expect(Object.keys(files)).not.toContain('src/app/app.config.spec.ts');
+    expect(Object.keys(files)).not.toContain('src/app/app.spec.ts');
+  });
+
+  it('replaces the starter test of the application with one that boots the shell', () => {
+    const files = generate(angularDistribution, { name: 'acme-studio' });
+    const spec = files['src/app/app.spec.ts'];
+    expect(spec).toContain("import { appConfig } from './app.config'");
+    expect(spec).toContain('providers: appConfig.providers');
+    expect(spec).toContain("querySelector('lw-shell')");
+    expect(spec).not.toContain('h1');
   });
 
   it('does not reference a stylesheet it never emits', () => {

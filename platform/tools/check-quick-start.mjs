@@ -89,8 +89,10 @@ function quickStart(dir) {
   // route ever stops recording it, the build fails here rather than in a consumer's project.
   run('node', [cli, 'weaver', '--id', 'copilot', '--agent', '--out', 'src/copilot'], app);
   run('npm', ['install'], app, { setup: true });
-  rmSync(join(app, 'src/app/app.spec.ts'), { force: true });
   run('npx', ['ng', 'build'], app);
+  // The generated project's own tests, starter test included: the distribution scaffold replaces
+  // the one `ng new` wrote, and two weavers composed in must both activate for the shell to boot.
+  run('npx', ['ng', 'test', '--watch=false'], app);
   return { browser: join(app, 'dist/my-studio/browser'), app };
 }
 
@@ -280,13 +282,16 @@ async function drivePanel(page, origin) {
     },
   );
 
-  const offered = panel.getByRole('button');
   await step(
-    'the panel offers no command, so the list the workbench hands an agent never arrived',
+    'the panel offers fewer than the two generated commands, so a weaver composed in earlier lost its grants to the one composed in after it, or the list the workbench hands an agent never arrived',
     async () => {
-      await expect(offered).toHaveCount(1);
+      await expect(panel.getByRole('button')).toHaveCount(2);
     },
   );
+  const offeredTexts = await panel.getByRole('button').allTextContents();
+  console.log(`offered: ${offeredTexts.map((text) => text.trim()).join(' | ')}`);
+
+  const offered = panel.getByRole('button').filter({ hasText: /copilot/i });
 
   await step(
     'a consequential call ran without asking the person at the keyboard, so the decision hook the generator wired is not in the path',
@@ -312,7 +317,7 @@ async function drivePanel(page, origin) {
       await expect(offered).toBeEnabled({ timeout: 30_000 });
       await offered.click();
       await page.getByRole('button', { name: 'Run it' }).click();
-      await expect(panel).toContainText('The command ran.', {
+      await expect(panel).toContainText('"tone"', {
         timeout: 30_000,
       });
     },

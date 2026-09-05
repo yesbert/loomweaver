@@ -11,6 +11,7 @@ import {
   scaffold,
   toolName,
   validateCatalogTool,
+  validateCommandsTool,
   validateI18nTool,
   validateManifestTool,
 } from './tools';
@@ -91,6 +92,18 @@ export function createMcpServer(): McpServer {
       },
     },
     async (args) => validateI18nTool(args),
+  );
+
+  server.registerTool(
+    'validate_commands',
+    {
+      description:
+        'Say, per command a plugin registers, whether an agent is offered it and what would leave the agent guessing. Input: files = { <path>: <TypeScript source> }. Only a callable command without a description is a warning; the rest is information.',
+      inputSchema: {
+        files: z.record(z.string(), z.string()),
+      },
+    },
+    async (args) => validateCommandsTool(args),
   );
 
   server.registerTool(

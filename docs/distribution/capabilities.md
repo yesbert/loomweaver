@@ -12,7 +12,9 @@ weaver exactly the capabilities its manifest declares: the effective set is the 
 grant and declaration, and a grant for an undeclared capability is inert (dev mode warns). Why
 nothing is granted implicitly is [Capabilities and trust](../concepts/capabilities-and-trust.md#default-deny).
 The composition root is the authoritative grant source, and a product backend can feed per-tenant
-grants behind the same seam.
+grants behind the same seam. Several calls add up: a plugin named in more than one holds the union
+of what they list. That is why a generator may append one call per weaver it composes in, and why
+one call naming every plugin means what it always meant.
 
 ## The coarse capabilities
 

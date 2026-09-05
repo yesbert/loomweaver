@@ -270,6 +270,19 @@ export class ContributionRegistry {
     this.menuItemsSignal.update((items) => items.filter((index) => index.id !== id));
   }
 
+  /**
+   * Replaces the title of a registered surface in place, leaving everything else it declared alone.
+   * A rename is not a re-registration: the entry keeps its identity, so nothing mounted from it is
+   * rebuilt. An id nothing was registered under is a no-op.
+   */
+  retitleSurface(id: string, title: string): void {
+    this.surfacesSignal.update((entries) =>
+      entries.map((entry) =>
+        entry.id === id && entry.title !== title ? { ...entry, title } : entry,
+      ),
+    );
+  }
+
   private addSurface(entry: RegisteredSurface): Disposable {
     this.surfacesSignal.update((entries) =>
       upsertBy(entries, entry, sameSlotAs(entry)),

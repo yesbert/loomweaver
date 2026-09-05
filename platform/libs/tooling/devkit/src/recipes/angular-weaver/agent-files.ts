@@ -9,7 +9,7 @@ import { standInFile } from './agent-stand-in';
  * declares as a peer: two different ranges resolve to two copies, and an event built by one is not
  * the event the other switches on. `check-agent-versions` fails the build when either drifts.
  */
-export const AG_UI_ADAPTER_VERSION = '0.9.0-preview.1';
+export const AG_UI_ADAPTER_VERSION = '0.9.0-preview.2';
 export const AG_UI_PROTOCOL_VERSION = '0.0.x';
 
 function connectionFile(w: ResolvedWeaver): string {
@@ -77,7 +77,7 @@ function contextThat(confirms: boolean, ran: Asked[]): PluginContext {
     ],
     invokeCommand: (id: string, args?: CommandArguments) => {
       ran.push({ id, args });
-      return Promise.resolve({ outcome: 'answered', value: 'it ran' });
+      return Promise.resolve({ outcome: 'answered', value: { tone: args?.['tone'] ?? 'info' } });
     },
     ui: { confirm: () => Promise.resolve(confirms) },
   } as unknown as PluginContext;
@@ -106,17 +106,17 @@ describe('${w.propertyName}Connection', () => {
       ),
     ).toBeNull();
     await tools.receive(
-      event(EventType.TOOL_CALL_ARGS, { toolCallId: 'c1', delta: '{"who"' }),
+      event(EventType.TOOL_CALL_ARGS, { toolCallId: 'c1', delta: '{"tone"' }),
     );
     await tools.receive(
-      event(EventType.TOOL_CALL_ARGS, { toolCallId: 'c1', delta: ':"you"}' }),
+      event(EventType.TOOL_CALL_ARGS, { toolCallId: 'c1', delta: ':"success"}' }),
     );
     const answer = await tools.receive(
       event(EventType.TOOL_CALL_END, { toolCallId: 'c1' }),
     );
 
-    expect(ran).toEqual([{ id: '${w.id}.hello', args: { who: 'you' } }]);
-    expect(answer?.content).toBe('it ran');
+    expect(ran).toEqual([{ id: '${w.id}.hello', args: { tone: 'success' } }]);
+    expect(JSON.parse(answer?.content ?? '{}').tone).toBe('success');
     expect(answer?.error).toBeUndefined();
   });
 
@@ -151,6 +151,7 @@ export function agentSurfaceBlock(w: ResolvedWeaver): string {
     `      title: '${w.id}.agent.title',`,
     `      icon: '${w.id}',`,
     "      docks: ['right-panel'],",
+    '      padded: true,',
     `      component: ${w.className}AgentPanel,`,
     '    });',
   ].join('\n');

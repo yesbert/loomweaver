@@ -52,6 +52,9 @@ describe('distribution generator', () => {
     expect(tree.exists('apps/acme-studio/src/app/app.config.spec.ts')).toBe(
       true,
     );
+    expect(tree.read('apps/acme-studio/src/app/app.spec.ts', 'utf8')).toContain(
+      "querySelector('lw-shell')",
+    );
   });
 
   it('leaves no spec behind when the workspace runs no unit tests', async () => {
@@ -62,6 +65,7 @@ describe('distribution generator', () => {
     expect(tree.exists('apps/acme-studio/src/app/app.config.spec.ts')).toBe(
       false,
     );
+    expect(tree.exists('apps/acme-studio/src/app/app.spec.ts')).toBe(false);
     expect(
       readJson(tree, 'apps/acme-studio/project.json').targets.test,
     ).toBeUndefined();

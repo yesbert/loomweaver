@@ -88,16 +88,24 @@ Together they are the whole Bootstrap path, and the framework itself has to go i
 | `--force`     | overwrite files that already exist — without it, an existing file stops the run and is named |
 | `--strict`    | make validation warnings fail the exit code, for CI                                          |
 
-The three validators work the same way, which is what makes them useful in a pipeline:
+The four validators work the same way, which is what makes them useful in a pipeline:
 
 ```bash
 npx @loomweaver/cli validate-manifest --id notes --capabilities ui,contributions
 npx @loomweaver/cli validate-i18n --dir src/lib/notes/src/lib/i18n --strict
 npx @loomweaver/cli validate-catalog --file public/plugins/catalog.json --strict
+npx @loomweaver/cli validate-commands --dir src/lib/notes --strict
 ```
 
 A missing translation key is a _warning_: it reports and exits 0, so it will not break an unrelated
 build. `--strict` turns warnings into a non-zero exit when you do want to gate on parity.
+
+The command check, `validate-commands`, reads every registration in a directory. For each command
+it says whether an agent is offered it, what would leave the agent guessing, or that the
+registration could not be read. Guessing means an argument without a description or a returned
+value without `answers`. Only a callable command without a description is a warning, so a plugin
+with private commands passes `--strict`. Every report ends by saying that grants, access and the
+window decide the rest at runtime; the check judges the registrations alone.
 
 `validate-catalog` earns its place for one reason: the shell parses a
 [plugin store catalogue](distribution/plugin-store.md) **defensively**.
@@ -213,19 +221,20 @@ unchanged.
 
 ### The tools
 
-| Tool                      | Arguments                                                                                                                              | Gives you                                                                   |
-| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| `list_generators`         | —                                                                                                                                      | the available generators and what they emit                                 |
-| `scaffold_weaver`         | see [below](#weaver-options)                                                                                                           | a complete plugin: manifest, surface, rail item, i18n, test                 |
-| `scaffold_frame_plugin`   | `id`, `name`                                                                                                                           | a framework-agnostic iframe plugin (Penpal + the frame UI kit)              |
-| `scaffold_distribution`   | `name`, `title`, `styles`                                                                                                              | a runnable composition root that boots the shell                            |
-| `scaffold_auth_source`    | `name`                                                                                                                                 | an `AuthSource` implementation to feed the session                          |
-| `scaffold_settings_store` | `name`                                                                                                                                 | a settings-store implementation backed by your API                          |
-| `scaffold_theme`          | `name`, `preset`                                                                                                                       | a token-override stylesheet in `@layer lw-tenant-theme`                     |
-| `scaffold_layout`         | `name`                                                                                                                                 | a `ShellLayout` with the regions a weaver expects                           |
-| `validate_manifest`       | `id`, `name`, `capabilities`                                                                                                           | findings on a plugin manifest                                               |
-| `validate_catalog`        | `catalog` — the parsed catalogue JSON array                                                                                            | findings on a plugin store catalogue, including fields the host never reads |
-| `validate_i18n`           | `bundles` — the parsed language files keyed by language, e.g. `{ "en": { "notes.list": "Notes" }, "de": { "notes.list": "Notizen" } }` | findings on translation-bundle parity (keys missing in one language)        |
+| Tool                      | Arguments                                                                                                                              | Gives you                                                                      |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `list_generators`         | —                                                                                                                                      | the available generators and what they emit                                    |
+| `scaffold_weaver`         | see [below](#weaver-options)                                                                                                           | a complete plugin: manifest, surface, rail item, i18n, test                    |
+| `scaffold_frame_plugin`   | `id`, `name`                                                                                                                           | a framework-agnostic iframe plugin (Penpal + the frame UI kit)                 |
+| `scaffold_distribution`   | `name`, `title`, `styles`                                                                                                              | a runnable composition root that boots the shell                               |
+| `scaffold_auth_source`    | `name`                                                                                                                                 | an `AuthSource` implementation to feed the session                             |
+| `scaffold_settings_store` | `name`                                                                                                                                 | a settings-store implementation backed by your API                             |
+| `scaffold_theme`          | `name`, `preset`                                                                                                                       | a token-override stylesheet in `@layer lw-tenant-theme`                        |
+| `scaffold_layout`         | `name`                                                                                                                                 | a `ShellLayout` with the regions a weaver expects                              |
+| `validate_manifest`       | `id`, `name`, `capabilities`                                                                                                           | findings on a plugin manifest                                                  |
+| `validate_catalog`        | `catalog` — the parsed catalogue JSON array                                                                                            | findings on a plugin store catalogue, including fields the host never reads    |
+| `validate_i18n`           | `bundles` — the parsed language files keyed by language, e.g. `{ "en": { "notes.list": "Notes" }, "de": { "notes.list": "Notizen" } }` | findings on translation-bundle parity (keys missing in one language)           |
+| `validate_commands`       | `files` — TypeScript sources keyed by path                                                                                             | per command, whether an agent is offered it and what it would have to guess at |
 
 ## The weaver generator
 
@@ -242,7 +251,7 @@ option, so the table gives both.
 | ------------------------ | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `--id <id>` **required** | `id`           | plugin id in kebab-case, e.g. `notes`                                                                                                                                                                        |
 | `--name <name>`          | `name`         | display name; defaults to a title-cased `id`                                                                                                                                                                 |
-| `--command`              | `command`      | also register a command; its `run` raises a toast — a placeholder action on a real shortcut                                                                                                                  |
+| `--command`              | `command`      | also register a command, the complete pattern: a described `choice` argument, a declared answer, `callable`, and a `run` that raises a toast in the tone the caller chose and answers with it                |
 | `--shortcut <chord>`     | `shortcut`     | keyboard chord for it, e.g. `mod+shift+n` (implies `command`)                                                                                                                                                |
 | `--menu <slot>`          | `menu`         | hook a menu item into a slot, e.g. `content/tab/context` (implies `command`)                                                                                                                                 |
 | `--bar-item`             | `barItem`      | a status-bar button that triggers the command (implies `command`)                                                                                                                                            |

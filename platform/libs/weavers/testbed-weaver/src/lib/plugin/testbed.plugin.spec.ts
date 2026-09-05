@@ -49,6 +49,8 @@ function activate(): Captured {
   const ctx: PluginContext = {
     registerCommand: capture(captured.commands),
     registerSurface: capture(captured.surfaces),
+    retitleSurface: () => undefined,
+    isShowingUnder: () => false,
     registerBarItem: capture(captured.barItems),
     registerRailItem: capture(captured.railItems),
     registerSettingsSection: capture(captured.sections),

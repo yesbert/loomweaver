@@ -5,6 +5,6 @@
        No .NET projects live in this repo anymore — the server/security seam belongs to the product.
        This file remains only as the version single-source. -->
   <PropertyGroup>
-    <Version>0.9.0-preview.1</Version>
+    <Version>0.9.0-preview.2</Version>
   </PropertyGroup>
 </Project>

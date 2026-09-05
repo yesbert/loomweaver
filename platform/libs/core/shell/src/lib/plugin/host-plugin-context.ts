@@ -46,6 +46,7 @@ import {
   warnUnsupportedRetain,
   warnUnusableContainerLayout,
 } from './host-context-warnings';
+import { addressIsUnder } from '../regions/content/routing/address-reach';
 
 export class HostPluginContext implements PluginContext {
   private readonly disposables: Disposable[] = [];
@@ -160,6 +161,11 @@ export class HostPluginContext implements PluginContext {
     return this.tabs.activeContent;
   }
 
+  isShowingUnder(path: string): boolean {
+    this.require('navigation');
+    return addressIsUnder(this.tabs.activeContent()?.path, path);
+  }
+
   get invocableCommands(): () => readonly InvocableCommand[] {
     return () =>
       this.invocation.invocable(this.pluginId, this.isGranted('automation'));
@@ -181,6 +187,11 @@ export class HostPluginContext implements PluginContext {
     this.require('contributions');
     warnUndescribedCallable(this.pluginId, command);
     return this.track(this.registry.addCommand(command, this.pluginId));
+  }
+
+  retitleSurface(id: string, title: string): void {
+    this.require('contributions');
+    this.registry.retitleSurface(id, title);
   }
 
   registerSurface(surface: Surface): Disposable {

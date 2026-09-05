@@ -217,6 +217,31 @@ A sidebar surface that reacts to the focused tab
 regex-parsing URLs. It stays stable across host URL-shape changes. Trusted rung only (a sandboxed
 surface already receives its own state over the surface channel).
 
+## Asking whether the address shown is under yours: `ctx.isShowingUnder`
+
+A navigation tree marks where the user is. The question it asks is narrower than the whole address:
+is the content shown at, or below, the address of this entry? `ctx.isShowingUnder('sales/quotes')`
+answers it (also `navigation`). It is `true` for `sales/quotes` and for `sales/quotes/q-0006`.
+
+The comparison breaks on segment boundaries, so `sales/quotesomething` is **not** under
+`sales/quotes`. That is the rule you would otherwise write with `startsWith` and get wrong; the
+symptom is quiet, an entry that never marks or one that marks its neighbour too. It reads
+`activeContent`, so it is live in the same way and a template re-reads it, and it is trusted rung
+only for the same reason.
+
+## Renaming a surface while it is mounted: `ctx.retitleSurface`
+
+A sidebar whose header should say where the user is needs the surface's title to change while it
+runs. `ctx.retitleSurface('navigation.sales', 'product.area.customers')` replaces it under the id you
+registered with (`contributions`). Everywhere the workbench names that surface follows: its tab, the
+panel header, a picker that lists it.
+
+The surface is **not** rebuilt, so what the user typed, scrolled or folded inside it survives. A
+translation key still translates, and still follows a language change.
+
+Only the title changes. The icon, the docks and everything else the declaration carries stay as
+registered, and renaming an id you did not register does nothing.
+
 ## Where next
 
 - [Containers: a workspace in a tab](containers.md): children with a `segment`, the other way an address goes deeper.

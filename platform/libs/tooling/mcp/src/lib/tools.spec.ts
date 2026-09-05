@@ -4,6 +4,7 @@ import {
   scaffold,
   toolName,
   validateCatalogTool,
+  validateCommandsTool,
   validateI18nTool,
   validateManifestTool,
 } from './tools';
@@ -165,5 +166,28 @@ describe('scaffold', () => {
       content: { text: string }[];
     };
     expect(JSON.parse(result.content[0].text).remaining).toBeUndefined();
+  });
+});
+
+describe('validate_commands', () => {
+  it('reports per command from the sources it is handed', () => {
+    const result = validateCommandsTool({
+      files: {
+        'src/lib/plugin/notes.plugin.ts': `
+export const plugin = {
+  activate(ctx) {
+    ctx.registerCommand({ id: 'notes.hello', callable: true, run: () => undefined });
+    ctx.registerCommand({ id: 'notes.reset', run: () => undefined });
+  },
+};`,
+      },
+    });
+    const findings = result.structuredContent['findings'] as { code: string; level: string }[];
+    expect(findings.map((finding) => finding.code)).toEqual([
+      'command.description',
+      'command.private',
+      'commands.runtime',
+    ]);
+    expect(findings[0].level).toBe('warning');
   });
 });

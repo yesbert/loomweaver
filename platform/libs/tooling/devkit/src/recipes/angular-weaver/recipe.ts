@@ -10,6 +10,7 @@ import { agentFiles, agentSurfaceBlock } from './agent-files';
 import { CONTAINER_EXAMPLE_ID, capabilityItems } from './weaver-terms';
 import { readmeFile } from './weaver-readme';
 import { i18nFile } from './weaver-i18n';
+import { commandBlock, toneHelper } from './weaver-command';
 
 export interface WeaverFeatures {
   readonly command?: boolean;
@@ -269,19 +270,6 @@ function railBlock(w: ResolvedWeaver): string {
   return lines.join('\n');
 }
 
-function commandBlock(w: ResolvedWeaver): string {
-  return [
-    '    ctx.registerCommand({',
-    `      id: '${w.id}.hello',`,
-    `      title: '${w.id}.action',`,
-    `      description: '${w.id}.actionDescription',`,
-    `      shortcut: '${w.features.shortcut}',`,
-    '      callable: true,',
-    `      run: () => ctx.ui.toast({ message: '${w.id}.action', kind: 'info' }),`,
-    '    });',
-  ].join('\n');
-}
-
 function barItemBlock(w: ResolvedWeaver): string {
   return [
     '    ctx.registerBarItem({',
@@ -399,10 +387,11 @@ function pluginFile(w: ResolvedWeaver): string {
   const deactivate = w.features.agent
     ? `\n  deactivate() {\n    ${w.propertyName}Agent.set(null);\n  },`
     : '';
+  if (w.features.command) consts.push(toneHelper());
 
   return `${imports.join('\n')}
 
-${consts.join('\n')}
+${consts.join('\n\n')}
 
 export const ${w.propertyName}Plugin: Plugin = {
   manifest: {

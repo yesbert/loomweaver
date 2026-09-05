@@ -1,9 +1,12 @@
 import {
+  type CommandSource,
   I18nBundle,
   kebabCase,
+  loadTypeScript,
   portableOptions,
   usageFor,
   validateCatalog,
+  validateCommands,
   validateI18nParity,
   validateManifest,
 } from '@loomweaver/devkit';
@@ -50,6 +53,7 @@ function help(): string {
     '  validate-manifest --id <id> [--name <name>] [--capabilities <a,b>]',
     '  validate-i18n   --dir <dir>   check <lang>.json bundles for key parity',
     '  validate-catalog --file <path> check a plugin store catalog the host parses defensively',
+    '  validate-commands --dir <dir> say, per command, whether an agent is offered it and what it would guess at',
     '',
     'Options:',
     '  --out <dir>     where to write (default: the current directory)',
@@ -85,11 +89,14 @@ function reportFindings(
     io.out('No findings.');
     return 0;
   }
-  for (const f of findings) io.err(`${f.level}: ${f.message}`);
-  if (findings.some((f) => f.level === 'error')) {
+  for (const f of findings) {
+    (f.level === 'info' ? io.out : io.err)(`${f.level}: ${f.message}`);
+  }
+  const gating = findings.filter((f) => f.level !== 'info');
+  if (gating.some((f) => f.level === 'error')) {
     return 1;
   }
-  return strict ? 1 : 0;
+  return strict && gating.length > 0 ? 1 : 0;
 }
 
 function validateManifestCommand(args: ParsedArgs, io: Io): number {
@@ -135,6 +142,44 @@ function validateI18nCommand(args: ParsedArgs, io: Io): number {
     validateI18nParity(readBundles(requiredFlag(args, 'dir'))),
     boolFlag(args, 'strict') === true,
   );
+}
+
+function readSources(dir: string): CommandSource[] {
+  const sources: CommandSource[] = [];
+  const walk = (folder: string): void => {
+    for (const entry of readdirSync(folder, { withFileTypes: true })) {
+      if (entry.name === 'node_modules' || entry.name === 'dist' || entry.name.startsWith('.')) {
+        continue;
+      }
+      const path = join(folder, entry.name);
+      if (entry.isDirectory()) {
+        walk(path);
+      } else if (entry.name.endsWith('.ts') && !entry.name.endsWith('.d.ts') && !entry.name.endsWith('.spec.ts')) {
+        sources.push({ path, text: readFileSync(path, 'utf8') });
+      }
+    }
+  };
+  try {
+    walk(dir);
+  } catch (error) {
+    throw new ArgError(`Cannot read ${dir}: ${(error as Error).message}`);
+  }
+  if (sources.length === 0) {
+    throw new ArgError(`No TypeScript sources found under ${dir}.`);
+  }
+  return sources;
+}
+
+function validateCommandsCommand(args: ParsedArgs, io: Io): number {
+  rejectUnknownFlags(args, ['dir', 'strict']);
+  const dir = requiredFlag(args, 'dir');
+  const ts = loadTypeScript(dir);
+  if (!ts) {
+    throw new ArgError(
+      `typescript is not installed where ${dir} can reach it; the check reads sources with the TypeScript compiler API, so run it inside the project.`,
+    );
+  }
+  return reportFindings(io, validateCommands(readSources(dir), ts), boolFlag(args, 'strict') === true);
 }
 
 function readCatalog(file: string): unknown {
@@ -267,6 +312,9 @@ export function run(argv: readonly string[], io: Io): number {
     }
     if (args.command === 'validate-catalog') {
       return validateCatalogCommand(args, io);
+    }
+    if (args.command === 'validate-commands') {
+      return validateCommandsCommand(args, io);
     }
     return scaffold(args, io);
   } catch (error) {
