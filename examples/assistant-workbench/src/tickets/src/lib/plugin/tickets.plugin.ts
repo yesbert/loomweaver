@@ -1,6 +1,8 @@
 import { Plugin } from '@loomweaver/plugin-sdk';
-import { TicketsView } from '../views/tickets-view';
+import { TicketListView } from '../views/ticket-list-view';
+import { TicketView } from '../views/ticket-view';
 import { ASSIGNEES, type Assignee, type TicketStatus, ticketStore } from '../tickets/ticket-store';
+import { ticketActions } from './tickets-actions';
 
 const STATUSES: readonly TicketStatus[] = ['open', 'in progress', 'done'];
 
@@ -15,6 +17,7 @@ export const ticketsPlugin: Plugin = {
   },
   activate(ctx) {
     ctx.contributeIcons({ tickets: icon });
+    ticketActions.bind(ctx);
 
     ctx.registerCommand({
       id: 'tickets.list',
@@ -38,8 +41,7 @@ export const ticketsPlugin: Plugin = {
       answers: 'tickets.open.answers',
       callable: true,
       run: (_context, args) => {
-        const opened = ticketStore.open(String(args?.['number']));
-        ctx.navigateContent('tickets');
+        const opened = ticketActions.open(String(args?.['number']));
         return { ...opened, replies: opened.replies.map((reply) => reply.text) };
       },
     });
@@ -54,7 +56,11 @@ export const ticketsPlugin: Plugin = {
       ],
       answers: 'tickets.assign.answers',
       callable: true,
-      run: (_context, args) => ticketStore.assign(String(args?.['number']), args?.['to'] as Assignee),
+      run: (_context, args) => {
+        const changed = ticketStore.assign(String(args?.['number']), args?.['to'] as Assignee);
+        ticketActions.open(changed.number);
+        return changed;
+      },
     });
 
     ctx.registerCommand({
@@ -67,7 +73,11 @@ export const ticketsPlugin: Plugin = {
       ],
       answers: 'tickets.reply.answers',
       callable: true,
-      run: (_context, args) => ticketStore.reply(String(args?.['number']), String(args?.['text'])),
+      run: (_context, args) => {
+        const changed = ticketStore.reply(String(args?.['number']), String(args?.['text']));
+        ticketActions.open(changed.number);
+        return changed;
+      },
     });
 
     ctx.registerCommand({
@@ -80,23 +90,30 @@ export const ticketsPlugin: Plugin = {
       ],
       answers: 'tickets.status.answers',
       callable: true,
-      run: (_context, args) =>
-        ticketStore.setStatus(String(args?.['number']), args?.['status'] as TicketStatus),
+      run: (_context, args) => {
+        const changed = ticketStore.setStatus(String(args?.['number']), args?.['status'] as TicketStatus);
+        ticketActions.open(changed.number);
+        return changed;
+      },
     });
 
     ctx.registerSurface({
       id: 'tickets',
       title: 'tickets.title',
       icon: 'tickets',
-      component: TicketsView,
-      routable: { path: 'tickets' },
+      component: TicketListView,
+      docks: ['left-panel'],
     });
-    ctx.registerRailItem({
-      id: 'tickets.rail',
-      rail: 'primary',
+
+    ctx.registerSurface({
+      id: 'tickets.ticket',
+      title: 'tickets.ticket.title',
       icon: 'tickets',
-      title: 'tickets.title',
-      run: () => ctx.navigateContent('tickets'),
+      component: TicketView,
+      routable: { path: 'tickets/:number' },
     });
+  },
+  deactivate() {
+    ticketActions.unbind();
   },
 };

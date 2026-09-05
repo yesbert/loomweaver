@@ -37,11 +37,14 @@
     "noReply": "Noch keine Antwort.",
     "writeReply": "Antwort schreiben",
     "sendReply": "Antwort senden",
-    "pickOne": "Wähle links ein Ticket."
+    "notFound": "Dieses Ticket gibt es nicht."
   },
   "states": {
     "open": "offen",
     "inProgress": "in Bearbeitung",
     "done": "erledigt"
+  },
+  "ticket": {
+    "title": "Ticket"
   }
 }

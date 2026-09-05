@@ -1,0 +1,27 @@
+<ul class="flex flex-col">
+  @for (ticket of tickets(); track ticket.number) {
+    <li>
+      <button
+        type="button"
+        class="flex w-full flex-col items-start gap-1 border-b border-border px-4 py-3 text-left hover:bg-surface-overlay"
+        [class.bg-surface-overlay]="ticket.number === activeNumber()"
+        [attr.aria-current]="ticket.number === activeNumber() ? 'true' : null"
+        (click)="preview(ticket.number)"
+        (dblclick)="keep(ticket.number)"
+      >
+        <span class="text-xs text-content-faint">{{ ticket.number }} · {{ ticket.customer }}</span>
+        <span class="text-sm text-content">{{ ticket.subject }}</span>
+        <span class="flex items-center gap-2 text-xs text-content-muted">
+          <span
+            class="lw-badge"
+            [class.lw-badge--brand]="ticket.status === 'in progress'"
+            [class.lw-badge--success]="ticket.status === 'done'"
+          >
+            {{ stateKey(ticket.status) | transloco }}
+          </span>
+          {{ ticket.assignee ?? ('tickets.view.unassigned' | transloco) }}
+        </span>
+      </button>
+    </li>
+  }
+</ul>
