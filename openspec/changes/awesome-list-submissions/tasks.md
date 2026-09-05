@@ -74,8 +74,11 @@
 
 ## 3. Submit and record
 
-- [ ] 3.1 The owner opens each PR from their own account; the PR URL is recorded beside the entry
-      here.
+- [x] 3.1 The owner opens each PR from their own account; the PR URL is recorded beside the entry
+      here. Both opened on 2026-09-05 from the owner's account, on the owner's word, through the
+      GitHub API from a fork each:
+      - awesome-angular: https://github.com/PatrickJS/awesome-angular/pull/2486, open.
+      - nx.dev plugin registry: https://github.com/nrwl/nx/pull/36927, open.
 - [ ] 3.2 The owner asks the AG-UI maintainers on their Discord how a frontend gets onto the
       integrations page; the answer is recorded here, and nothing in this change waits for it.
 - [ ] 3.3 Requests from maintainers are answered within the week; a change to the project that a
