@@ -146,3 +146,45 @@ jobs:
             echo "publishing ${dir} to ${DIST_TAG}"
             ( cd "${dir}" && npm publish --tag "${DIST_TAG}" )
           done
+
+  announce:
+    name: Release notes
+    # Only after the packages are actually on npm: a release page for a version nobody can install
+    # is a lie, and this is the page a consumer reaches from the npm listing.
+    needs: publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      # The whole history, because the notes need the tag before this one and a shallow clone has
+      # no tags to look back at.
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Create the release page
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_REF#refs/tags/}"
+          # Whether this is a preview is read out of the version by the same script the dist-tag
+          # comes from, so the rule lives in one place. A preview must not be GitHub's "Latest"
+          # for the same reason it must not be npm's.
+          dist="$(node scripts/dist-tag.mjs "${tag#v}")"
+          notes=(--generate-notes)
+          if [[ "${dist}" != "latest" ]]; then
+            notes+=(--prerelease)
+          fi
+          # Name the tag the notes start from. Left out, GitHub looks for the previous *release*,
+          # and there is none before this job existed, so the first page would have covered the
+          # whole history.
+          previous="$(git describe --tags --abbrev=0 "${tag}^" 2>/dev/null || true)"
+          if [[ -n "${previous}" ]]; then
+            notes+=(--notes-start-tag "${previous}")
+          fi
+          # The notes are generated from the pull requests merged since the previous tag. They are a
+          # view of what is already written there rather than a second list to keep true, which is
+          # why this repository has no CHANGELOG.md.
+          gh release create "${tag}" --title "${tag}" "${notes[@]}"
