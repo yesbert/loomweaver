@@ -8,5 +8,17 @@
       "yes": "Send it",
       "no": "Not now"
     }
+  },
+  "panel": {
+    "keyHint": "Paste an OpenRouter API key. It stays in this browser and is sent to OpenRouter and nowhere else. Free models take about fifty requests a day per key.",
+    "keyLabel": "OpenRouter API key",
+    "useKey": "Use this key",
+    "keySet": "key ending in {{ending}}",
+    "forgetKey": "Forget key",
+    "empty": "Say what should happen. For example: open the ticket about the blank invoice PDF, assign it to Dana and reply that the fix ships on Monday.",
+    "prompt": "What should happen?",
+    "offered": "{{count}} tools offered",
+    "send": "Send",
+    "working": "Working…"
   }
 }

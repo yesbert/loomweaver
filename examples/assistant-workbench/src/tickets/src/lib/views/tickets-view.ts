@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { ASSIGNEES, type Assignee, type TicketStatus, ticketStore } from '../tickets/ticket-store';
 
 const STATUSES: readonly TicketStatus[] = ['open', 'in progress', 'done'];
@@ -6,6 +7,7 @@ const STATUSES: readonly TicketStatus[] = ['open', 'in progress', 'done'];
 @Component({
   selector: 'lw-tickets-view',
   templateUrl: './tickets-view.html',
+  imports: [TranslocoPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
@@ -17,6 +19,10 @@ export class TicketsView {
   protected readonly assignees = ASSIGNEES;
 
   protected readonly statuses = STATUSES;
+
+  protected stateKey(status: TicketStatus): string {
+    return `tickets.states.${status === 'in progress' ? 'inProgress' : status}`;
+  }
 
   protected open(number: string): void {
     ticketStore.open(number);

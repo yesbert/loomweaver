@@ -1,21 +1,18 @@
 <div class="flex h-full flex-col gap-3">
   @if (!key()) {
     <div class="flex shrink-0 flex-col gap-2 rounded-md border border-border bg-surface-raised p-3">
-      <p class="text-xs text-content-muted">
-        Paste an OpenRouter API key. It stays in this browser and is sent to OpenRouter and nowhere
-        else. Free models take about fifty requests a day per key.
-      </p>
+      <p class="text-xs text-content-muted">{{ 'copilot.panel.keyHint' | transloco }}</p>
       <input
         #keyField
         class="lw-field"
         type="password"
         placeholder="sk-or-v1-…"
         autocomplete="off"
-        aria-label="OpenRouter API key"
+        [attr.aria-label]="'copilot.panel.keyLabel' | transloco"
         (keydown.enter)="useKey(keyField)"
       />
       <button type="button" class="lw-btn lw-btn--primary lw-btn--sm self-start" (click)="useKey(keyField)">
-        Use this key
+        {{ 'copilot.panel.useKey' | transloco }}
       </button>
     </div>
   }
@@ -47,8 +44,7 @@
         }
       } @empty {
         <li class="px-1 py-6 text-center text-sm text-content-muted">
-          Say what should happen. For example: open the ticket about the blank invoice PDF, assign it
-          to Dana and reply that the fix ships on Monday.
+          {{ 'copilot.panel.empty' | transloco }}
         </li>
       }
     </ul>
@@ -59,21 +55,26 @@
       #prompt
       class="lw-field"
       rows="2"
-      placeholder="What should happen?"
-      aria-label="Instruction for the assistant"
+      [placeholder]="'copilot.panel.prompt' | transloco"
+      [attr.aria-label]="'copilot.panel.prompt' | transloco"
       [disabled]="busy() || !key()"
       (keydown.enter)="submit($event, prompt)"
     ></textarea>
     <div class="flex items-center justify-between gap-2">
-      <span class="truncate text-xs text-content-faint">{{ model }} · {{ offered().length }} tools offered</span>
+      <span class="truncate text-xs text-content-faint">
+        {{ model }} · {{ 'copilot.panel.offered' | transloco: { count: offered().length } }}
+        @if (key()) {
+          · {{ 'copilot.panel.keySet' | transloco: { ending: keyEnding() } }}
+        }
+      </span>
       <div class="flex shrink-0 gap-2">
         @if (key()) {
           <button type="button" class="lw-btn lw-btn--default lw-btn--sm" (click)="forgetKey()">
-            Forget key
+            {{ 'copilot.panel.forgetKey' | transloco }}
           </button>
         }
         <button type="submit" class="lw-btn lw-btn--primary lw-btn--sm" [disabled]="busy() || !key()">
-          @if (busy()) { Working… } @else { Send }
+          {{ (busy() ? 'copilot.panel.working' : 'copilot.panel.send') | transloco }}
         </button>
       </div>
     </div>

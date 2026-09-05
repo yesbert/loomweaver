@@ -16,9 +16,9 @@
               [class.lw-badge--brand]="ticket.status === 'in progress'"
               [class.lw-badge--success]="ticket.status === 'done'"
             >
-              {{ ticket.status }}
+              {{ stateKey(ticket.status) | transloco }}
             </span>
-            {{ ticket.assignee ?? 'unassigned' }}
+            {{ ticket.assignee ?? ('tickets.view.unassigned' | transloco) }}
           </span>
         </button>
       </li>
@@ -35,8 +35,8 @@
 
       <div class="flex flex-wrap items-center gap-3">
         <lw-select
-          label="Assignee"
-          placeholder="Unassigned"
+          [attr.label]="'tickets.view.assignee' | transloco"
+          [attr.placeholder]="'tickets.view.unassigned' | transloco"
           [attr.value]="ticket.assignee ?? ''"
           (lw-select-change)="assign(ticket.number, $event)"
         >
@@ -45,12 +45,12 @@
           }
         </lw-select>
         <lw-select
-          label="Status"
+          [attr.label]="'tickets.view.status' | transloco"
           [attr.value]="ticket.status"
           (lw-select-change)="setStatus(ticket.number, $event)"
         >
           @for (status of statuses; track status) {
-            <lw-option [attr.value]="status">{{ status }}</lw-option>
+            <lw-option [attr.value]="status">{{ stateKey(status) | transloco }}</lw-option>
           }
         </lw-select>
       </div>
@@ -61,22 +61,24 @@
             {{ reply.text }}
           </li>
         } @empty {
-          <li class="text-xs text-content-faint">No reply yet.</li>
+          <li class="text-xs text-content-faint">{{ 'tickets.view.noReply' | transloco }}</li>
         }
       </ul>
 
       <div class="flex max-w-prose flex-col gap-2">
-        <textarea #reply class="lw-field" rows="3" placeholder="Write a reply"></textarea>
-        <button
-          type="button"
-          class="lw-btn lw-btn--primary self-start"
-          (click)="send(ticket.number, reply)"
-        >
-          Send reply
+        <textarea
+          #reply
+          class="lw-field"
+          rows="3"
+          [placeholder]="'tickets.view.writeReply' | transloco"
+          [attr.aria-label]="'tickets.view.writeReply' | transloco"
+        ></textarea>
+        <button type="button" class="lw-btn lw-btn--primary self-start" (click)="send(ticket.number, reply)">
+          {{ 'tickets.view.sendReply' | transloco }}
         </button>
       </div>
     } @else {
-      <p class="text-sm text-content-faint">Pick a ticket on the left.</p>
+      <p class="text-sm text-content-faint">{{ 'tickets.view.pickOne' | transloco }}</p>
     }
   </section>
 </div>

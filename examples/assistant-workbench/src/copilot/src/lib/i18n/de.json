@@ -8,5 +8,17 @@
       "yes": "Senden",
       "no": "Jetzt nicht"
     }
+  },
+  "panel": {
+    "keyHint": "Füge einen OpenRouter-API-Key ein. Er bleibt in diesem Browser und geht nur an OpenRouter. Freie Modelle erlauben etwa fünfzig Anfragen pro Tag und Key.",
+    "keyLabel": "OpenRouter-API-Key",
+    "useKey": "Diesen Key verwenden",
+    "keySet": "Key endet auf {{ending}}",
+    "forgetKey": "Key vergessen",
+    "empty": "Sag, was passieren soll. Zum Beispiel: öffne das Ticket zum leeren Rechnungs-PDF, weise es Dana zu und antworte, dass der Fix am Montag kommt.",
+    "prompt": "Was soll passieren?",
+    "offered": "{{count}} Werkzeuge angeboten",
+    "send": "Senden",
+    "working": "Arbeitet…"
   }
 }
