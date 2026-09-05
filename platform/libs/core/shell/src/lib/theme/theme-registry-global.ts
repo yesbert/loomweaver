@@ -26,6 +26,8 @@ export const LW_TOKENS = [
   '--lw-info',
   '--lw-on-info',
   '--lw-scrim',
+  '--lw-scroll-thumb',
+  '--lw-scroll-track',
   '--lw-font-sans',
   '--lw-font-mono',
 ] as const;

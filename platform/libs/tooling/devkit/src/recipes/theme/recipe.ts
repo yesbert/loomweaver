@@ -137,6 +137,8 @@ function bootstrapFile(t: ResolvedTheme): string {
     --lw-on-info: #000;
 
     --lw-scrim: rgb(0 0 0 / 0.5);
+    --lw-scroll-thumb: rgb(0 0 0 / 0.3);
+    --lw-scroll-track: transparent;
 
     --lw-font-sans: var(--bs-body-font-family);
     --lw-font-mono: var(--bs-font-monospace);

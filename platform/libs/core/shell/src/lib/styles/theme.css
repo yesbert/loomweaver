@@ -42,6 +42,8 @@
   --color-on-info: var(--lw-on-info);
 
   --color-scrim: var(--lw-scrim);
+  --color-scroll-thumb: var(--lw-scroll-thumb);
+  --color-scroll-track: var(--lw-scroll-track);
 
   --font-sans: var(--lw-font-sans);
   --font-mono: var(--lw-font-mono);
@@ -118,6 +120,12 @@
   /* Modal/drawer backdrop — semi-transparent, so it adapts if a tenant retints. */
   --lw-scrim: rgb(0 0 0 / 0.4);
 
+  /* Scroll indicator — translucent so it reads over whatever it is drawn on, including a rail
+     forty pixels wide. The track stays transparent: a visible groove down a narrow column is
+     louder than the thing it indicates. */
+  --lw-scroll-thumb: rgb(31 41 51 / 0.28);
+  --lw-scroll-track: transparent;
+
   /* Typography — themeable via ctx.contributeTheme / tenant CSS. Font family is a brand
      lever, so it lives on :root (both schemes) and rarely differs light/dark. Font *size* is a user
      preference (the shell text-size setting), not a theme token. */
@@ -166,6 +174,10 @@
 
   /* Darker on the near-black dark surfaces so the backdrop still reads. */
   --lw-scrim: rgb(0 0 0 / 0.6);
+
+  /* Light thumb on dark surfaces, at the same weight the light theme's dark thumb carries. */
+  --lw-scroll-thumb: rgb(226 232 240 / 0.28);
+  --lw-scroll-track: transparent;
 }
 }
 
@@ -713,6 +725,21 @@
 html,
 body {
   margin: 0;
+}
+
+/* Every scrolling area of the workbench draws its indicator from the tokens above, thin, rather
+   than in the operating system's own grey. Deliberately the standard properties only: styling
+   ::-webkit-scrollbar makes Chrome and Safari abandon the overlay indicator for a classic one that
+   takes width from the content, which a forty-pixel rail cannot spare. The colour inherits and the
+   width does not, so the width is stated for every element rather than for the root alone. */
+@layer base {
+  :root {
+    scrollbar-color: var(--lw-scroll-thumb) var(--lw-scroll-track);
+  }
+
+  * {
+    scrollbar-width: thin;
+  }
 }
 
 body {

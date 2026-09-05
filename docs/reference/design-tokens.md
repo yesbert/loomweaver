@@ -207,6 +207,8 @@ itself uses, so the shell renders correctly without any of this.
 | `field`           | input-field background                                    |
 | `scrim`           | the backdrop behind a dialog and the mobile drawer        |
 | `border`          | default divider/border (`border-border`)                  |
+| `scroll-thumb`    | the scroll indicator, drawn over whatever scrolls         |
+| `scroll-track`    | the groove behind it, transparent by default              |
 
 ### Text
 
