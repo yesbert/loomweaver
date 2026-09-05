@@ -1,6 +1,6 @@
 {
   "name": "@loomweaver/mcp",
-  "version": "0.9.0-preview.4",
+  "version": "0.9.0-preview.5",
   "description": "LoomWeaver: open-source plugin platform for Angular workbenches. The MCP server: scaffolding and validation as tools, so an AI assistant in any product repo can build weavers without a checkout.",
   "keywords": [
     "loomweaver",

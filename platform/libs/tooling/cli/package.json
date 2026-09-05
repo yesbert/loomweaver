@@ -1,6 +1,6 @@
 {
   "name": "@loomweaver/cli",
-  "version": "0.9.0-preview.4",
+  "version": "0.9.0-preview.5",
   "description": "LoomWeaver: open-source plugin platform for Angular workbenches. The scaffolding CLI: generates weavers, distributions and integrations into any project, with no Nx workspace and no checkout required.",
   "keywords": [
     "loomweaver",
