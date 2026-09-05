@@ -320,6 +320,7 @@ separated.
   translated text. A group folds, starts shut where you write `collapsed`, and keeps what the user
   folded under its `key` for the session and no longer. The **look** lives as `.lw-nav-*` in
   `theme.css`.
+
 - **Menus/context menus (`<lw-menu>`):** on **host chrome** a weaver does **not** draw the menu itself.
   It contributes items through **`ctx.registerMenuItem({ menu, command, when? })`** into a named
   slot (e.g. `content/tab/context`), or attaches a `menu?` slot to its rail/bar/view item
