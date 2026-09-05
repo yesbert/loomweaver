@@ -11,6 +11,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { EventType, type BaseEvent, type Tool, type ToolMessage } from '@ag-ui/core';
 import { assistantAgent } from './assistant-agent';
 import { createAgent, MODEL } from './assistant-agent-source';
+import { cleanKey, looksLikeKey } from './openrouter-key';
 
 const KEY_STORAGE = 'assistant-workbench.openrouter-key';
 
@@ -33,6 +34,8 @@ export class AssistantAgentPanel {
   protected readonly key = signal(localStorage.getItem(KEY_STORAGE) ?? '');
 
   protected readonly keyEnding = computed(() => this.key().slice(-4));
+
+  protected readonly keyProblem = signal(false);
 
   protected readonly offered = signal<readonly Tool[]>([]);
 
@@ -58,10 +61,12 @@ export class AssistantAgentPanel {
   }
 
   protected useKey(field: HTMLInputElement): void {
-    const key = field.value.trim();
-    if (!key) {
+    const key = cleanKey(field.value);
+    if (!looksLikeKey(key)) {
+      this.keyProblem.set(key.length > 0);
       return;
     }
+    this.keyProblem.set(false);
     localStorage.setItem(KEY_STORAGE, key);
     this.key.set(key);
     field.value = '';

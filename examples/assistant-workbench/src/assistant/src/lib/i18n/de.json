@@ -19,6 +19,7 @@
     "prompt": "Was soll passieren?",
     "offered": "{{count}} Werkzeuge angeboten",
     "send": "Senden",
-    "working": "Arbeitet…"
+    "working": "Arbeitet…",
+    "keyProblem": "Das sieht nicht nach einem OpenRouter-Key aus. Er beginnt mit sk-or- und wird allein eingefügt, ohne Bearer und ohne Anführungszeichen."
   }
 }
