@@ -5,6 +5,7 @@ import {
   provideLayout,
   providePlugins,
   provideQuickOpenEntry,
+  provideRailItems,
   provideShell,
   provideShellRouter,
   provideTranslationNamespaces,
@@ -30,6 +31,15 @@ export const appConfig: ApplicationConfig = {
     provideLayout(layout),
     provideCommandPaletteEntry(),
     provideQuickOpenEntry(),
+    ...provideRailItems({
+      id: 'workbench.settings',
+      rail: 'primary',
+      icon: 'settings',
+      title: 'settings.title',
+      anchor: 'bottom',
+      order: 20,
+      command: 'shell.openSettings',
+    }),
     provideProductIdentity({
       name: 'Assistant Workbench',
       tagline: 'Built on LoomWeaver',

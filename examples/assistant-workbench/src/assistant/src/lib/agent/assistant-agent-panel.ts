@@ -50,7 +50,7 @@ export class AssistantAgentPanel {
   private runs = 0;
 
   constructor() {
-    this.offered.set(assistantAgent()?.list() ?? []);
+    this.refreshOffered();
     effect(() => {
       this.lines();
       const box = this.transcript()?.nativeElement;
@@ -58,6 +58,10 @@ export class AssistantAgentPanel {
         box.scrollTop = box.scrollHeight;
       }
     });
+  }
+
+  protected refreshOffered(): void {
+    this.offered.set(assistantAgent()?.list() ?? []);
   }
 
   protected useKey(field: HTMLInputElement): void {
