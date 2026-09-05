@@ -1,0 +1,144 @@
+import { ChangeDetectionStrategy, Component, type ElementRef, effect, signal, viewChild } from '@angular/core';
+import { EventType, type BaseEvent, type Tool, type ToolMessage } from '@ag-ui/core';
+import { copilotAgent } from './copilot-agent';
+import { createAgent, MODEL } from './copilot-agent-source';
+
+const KEY_STORAGE = 'assistant-workbench.openrouter-key';
+
+interface Line {
+  readonly kind: 'you' | 'agent' | 'call' | 'result';
+  readonly text: string;
+  readonly args?: string;
+  readonly failed?: boolean;
+}
+
+@Component({
+  selector: 'lw-copilot-agent-panel',
+  templateUrl: './copilot-agent-panel.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class CopilotAgentPanel {
+  protected readonly model = MODEL;
+
+  protected readonly key = signal(localStorage.getItem(KEY_STORAGE) ?? '');
+
+  protected readonly offered = signal<readonly Tool[]>([]);
+
+  protected readonly lines = signal<readonly Line[]>([]);
+
+  protected readonly busy = signal(false);
+
+  private readonly agent = createAgent();
+
+  private readonly transcript = viewChild<ElementRef<HTMLElement>>('transcript');
+
+  private runs = 0;
+
+  constructor() {
+    this.offered.set(copilotAgent()?.list() ?? []);
+    effect(() => {
+      this.lines();
+      const box = this.transcript()?.nativeElement;
+      if (box) {
+        box.scrollTop = box.scrollHeight;
+      }
+    });
+  }
+
+  protected useKey(field: HTMLInputElement): void {
+    const key = field.value.trim();
+    if (!key) {
+      return;
+    }
+    localStorage.setItem(KEY_STORAGE, key);
+    this.key.set(key);
+    field.value = '';
+  }
+
+  protected forgetKey(): void {
+    localStorage.removeItem(KEY_STORAGE);
+    this.key.set('');
+  }
+
+  protected submit(event: Event, field: HTMLTextAreaElement): void {
+    event.preventDefault();
+    const prompt = field.value.trim();
+    if (!prompt) {
+      return;
+    }
+    field.value = '';
+    void this.send(prompt);
+  }
+
+  private async send(prompt: string): Promise<void> {
+    const tools = copilotAgent();
+    if (!tools || this.busy() || !this.key()) {
+      return;
+    }
+    this.busy.set(true);
+    try {
+      const offered = tools.list();
+      this.offered.set(offered);
+      this.push({ kind: 'you', text: prompt });
+      const request = {
+        runId: `run-${++this.runs}`,
+        prompt,
+        tools: offered,
+        key: this.key(),
+        receive: (event: BaseEvent) => this.receive(tools.receive(event)),
+      };
+      for await (const event of this.agent.ask(request)) {
+        this.draw(event);
+      }
+      await this.receive(tools.flush());
+    } finally {
+      this.busy.set(false);
+    }
+  }
+
+  private async receive(answer: Promise<ToolMessage | null>): Promise<ToolMessage | null> {
+    const message = await answer;
+    if (message) {
+      this.push({
+        kind: 'result',
+        text: message.error ?? message.content,
+        failed: Boolean(message.error),
+      });
+    }
+    return message;
+  }
+
+  private draw(event: BaseEvent): void {
+    const raw = event as unknown as Record<string, unknown>;
+    switch (event.type) {
+      case EventType.TEXT_MESSAGE_START:
+        this.push({ kind: 'agent', text: '' });
+        break;
+      case EventType.TEXT_MESSAGE_CONTENT:
+        this.grow('text', String(raw['delta'] ?? ''));
+        break;
+      case EventType.TOOL_CALL_START:
+        this.push({ kind: 'call', text: String(raw['toolCallName'] ?? ''), args: '' });
+        break;
+      case EventType.TOOL_CALL_ARGS:
+        this.grow('args', String(raw['delta'] ?? ''));
+        break;
+      case EventType.RUN_ERROR:
+        this.push({ kind: 'result', text: String(raw['message'] ?? ''), failed: true });
+        break;
+      default:
+        break;
+    }
+  }
+
+  private push(line: Line): void {
+    this.lines.update((all) => [...all, line]);
+  }
+
+  private grow(field: 'text' | 'args', delta: string): void {
+    this.lines.update((all) => {
+      const last = all[all.length - 1];
+      return [...all.slice(0, -1), { ...last, [field]: `${last[field] ?? ''}${delta}` }];
+    });
+  }
+}

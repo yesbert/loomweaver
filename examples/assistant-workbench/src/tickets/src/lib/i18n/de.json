@@ -1,0 +1,33 @@
+{
+  "title": "Tickets",
+  "list": {
+    "title": "Tickets auflisten",
+    "description": "Listet die Support-Tickets mit Nummer, Kunde, Betreff, Status und Bearbeiter. Damit findet man ein Ticket, von dem nur das Thema bekannt ist.",
+    "status": "Nur Tickets in diesem Status. Weglassen, um alle zu listen.",
+    "answers": "Die passenden Tickets, jeweils mit Nummer, Kunde, Betreff, Status, Bearbeiter und Anzahl der Antworten."
+  },
+  "open": {
+    "title": "Ticket öffnen",
+    "description": "Öffnet ein Ticket im Workbench und liefert seine Details einschließlich der Nachricht des Kunden.",
+    "number": "Die Ticketnummer, zum Beispiel T-1041.",
+    "answers": "Das Ticket: Nummer, Kunde, Betreff, Text, Status, Bearbeiter und seine Antworten."
+  },
+  "assign": {
+    "title": "Ticket zuweisen",
+    "description": "Weist ein Ticket einem Teammitglied zu. Ein offenes Ticket wechselt auf in Bearbeitung.",
+    "to": "Wer das Ticket übernimmt: dana, lee oder sam.",
+    "answers": "Das Ticket nach der Änderung."
+  },
+  "reply": {
+    "title": "Auf Ticket antworten",
+    "description": "Sendet dem Kunden eine Antwort auf ein Ticket. Die Person an der Tastatur bestätigt sie vorher.",
+    "text": "Der Antworttext, so wie der Kunde ihn lesen wird.",
+    "answers": "Das Ticket, nachdem die Antwort gesendet wurde."
+  },
+  "status": {
+    "title": "Ticketstatus setzen",
+    "description": "Setzt ein Ticket auf offen, in Bearbeitung oder erledigt.",
+    "status": "Der neue Status: open, in progress oder done.",
+    "answers": "Das Ticket nach der Änderung."
+  }
+}

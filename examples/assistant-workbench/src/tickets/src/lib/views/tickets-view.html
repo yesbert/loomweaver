@@ -1,0 +1,82 @@
+<div class="flex h-full min-h-0">
+  <ul class="w-72 shrink-0 overflow-auto border-r border-border">
+    @for (ticket of tickets(); track ticket.number) {
+      <li>
+        <button
+          type="button"
+          class="flex w-full flex-col items-start gap-1 border-b border-border px-4 py-3 text-left hover:bg-surface-overlay"
+          [class.bg-surface-raised]="ticket.number === selected()?.number"
+          (click)="open(ticket.number)"
+        >
+          <span class="text-xs text-content-faint">{{ ticket.number }} · {{ ticket.customer }}</span>
+          <span class="text-sm text-content">{{ ticket.subject }}</span>
+          <span class="flex items-center gap-2 text-xs text-content-muted">
+            <span
+              class="lw-badge"
+              [class.lw-badge--brand]="ticket.status === 'in progress'"
+              [class.lw-badge--success]="ticket.status === 'done'"
+            >
+              {{ ticket.status }}
+            </span>
+            {{ ticket.assignee ?? 'unassigned' }}
+          </span>
+        </button>
+      </li>
+    }
+  </ul>
+
+  <section class="flex min-w-0 flex-1 flex-col gap-5 overflow-auto p-6">
+    @if (selected(); as ticket) {
+      <header class="flex flex-col gap-1">
+        <span class="text-xs text-content-faint">{{ ticket.number }} · {{ ticket.customer }}</span>
+        <h2 class="text-lg font-semibold text-content">{{ ticket.subject }}</h2>
+      </header>
+      <p class="max-w-prose text-sm text-content">{{ ticket.body }}</p>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <lw-select
+          label="Assignee"
+          placeholder="Unassigned"
+          [attr.value]="ticket.assignee ?? ''"
+          (lw-select-change)="assign(ticket.number, $event)"
+        >
+          @for (person of assignees; track person) {
+            <lw-option [attr.value]="person">{{ person }}</lw-option>
+          }
+        </lw-select>
+        <lw-select
+          label="Status"
+          [attr.value]="ticket.status"
+          (lw-select-change)="setStatus(ticket.number, $event)"
+        >
+          @for (status of statuses; track status) {
+            <lw-option [attr.value]="status">{{ status }}</lw-option>
+          }
+        </lw-select>
+      </div>
+
+      <ul class="flex max-w-prose flex-col gap-2">
+        @for (reply of ticket.replies; track reply.at) {
+          <li class="rounded-md border border-border bg-surface-raised px-3 py-2 text-sm text-content">
+            {{ reply.text }}
+          </li>
+        } @empty {
+          <li class="text-xs text-content-faint">No reply yet.</li>
+        }
+      </ul>
+
+      <div class="flex max-w-prose flex-col gap-2">
+        <textarea #reply class="lw-field" rows="3" placeholder="Write a reply"></textarea>
+        <button
+          type="button"
+          class="lw-btn lw-btn--primary self-start"
+          (click)="send(ticket.number, reply)"
+        >
+          Send reply
+        </button>
+      </div>
+    } @else {
+      <p class="text-sm text-content-faint">Pick a ticket on the left.</p>
+    }
+  </section>
+</div>

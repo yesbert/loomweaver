@@ -1,0 +1,81 @@
+<div class="flex h-full flex-col gap-3">
+  @if (!key()) {
+    <div class="flex shrink-0 flex-col gap-2 rounded-md border border-border bg-surface-raised p-3">
+      <p class="text-xs text-content-muted">
+        Paste an OpenRouter API key. It stays in this browser and is sent to OpenRouter and nowhere
+        else. Free models take about fifty requests a day per key.
+      </p>
+      <input
+        #keyField
+        class="lw-field"
+        type="password"
+        placeholder="sk-or-v1-…"
+        autocomplete="off"
+        aria-label="OpenRouter API key"
+        (keydown.enter)="useKey(keyField)"
+      />
+      <button type="button" class="lw-btn lw-btn--primary lw-btn--sm self-start" (click)="useKey(keyField)">
+        Use this key
+      </button>
+    </div>
+  }
+
+  <div #transcript class="min-h-0 flex-1 overflow-auto">
+    <ul class="flex flex-col gap-2.5">
+      @for (line of lines(); track $index) {
+        @if (line.kind === 'you') {
+          <li class="max-w-full self-end rounded-lg bg-brand-fill px-3 py-2 text-sm text-on-brand">
+            {{ line.text }}
+          </li>
+        } @else if (line.kind === 'agent') {
+          <li class="max-w-full self-start rounded-lg bg-surface-raised px-3 py-2 text-sm text-content">
+            {{ line.text }}
+          </li>
+        } @else if (line.kind === 'call') {
+          <li class="rounded-md border border-border px-3 py-2 font-mono text-xs break-all text-content-muted">
+            {{ line.text }}<span class="text-content-faint">({{ line.args }})</span>
+          </li>
+        } @else {
+          <li
+            class="line-clamp-3 px-1 text-xs break-all"
+            [class.text-negative]="line.failed"
+            [class.text-content-muted]="!line.failed"
+            [title]="line.text"
+          >
+            {{ line.text }}
+          </li>
+        }
+      } @empty {
+        <li class="px-1 py-6 text-center text-sm text-content-muted">
+          Say what should happen. For example: open the ticket about the blank invoice PDF, assign it
+          to Dana and reply that the fix ships on Monday.
+        </li>
+      }
+    </ul>
+  </div>
+
+  <form class="flex shrink-0 flex-col gap-2 border-t border-border pt-3" (submit)="submit($event, prompt)">
+    <textarea
+      #prompt
+      class="lw-field"
+      rows="2"
+      placeholder="What should happen?"
+      aria-label="Instruction for the assistant"
+      [disabled]="busy() || !key()"
+      (keydown.enter)="submit($event, prompt)"
+    ></textarea>
+    <div class="flex items-center justify-between gap-2">
+      <span class="truncate text-xs text-content-faint">{{ model }} · {{ offered().length }} tools offered</span>
+      <div class="flex shrink-0 gap-2">
+        @if (key()) {
+          <button type="button" class="lw-btn lw-btn--default lw-btn--sm" (click)="forgetKey()">
+            Forget key
+          </button>
+        }
+        <button type="submit" class="lw-btn lw-btn--primary lw-btn--sm" [disabled]="busy() || !key()">
+          @if (busy()) { Working… } @else { Send }
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
