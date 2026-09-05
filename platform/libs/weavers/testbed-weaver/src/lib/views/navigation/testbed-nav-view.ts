@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { testbedScratch } from '../plugin/testbed-scratch';
+import { testbedScratch } from '../../plugin/testbed-scratch';
 import { testbedNavState } from './testbed-nav-state';
 
 @Component({

@@ -1,7 +1,7 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { testbedActiveContent } from '../plugin/testbed-active-content';
-import { testbedContent } from '../plugin/testbed-content';
+import { testbedActiveContent } from '../../plugin/testbed-active-content';
+import { testbedContent } from '../../plugin/testbed-content';
 
 @Component({
   imports: [TranslocoPipe],

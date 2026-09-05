@@ -2,7 +2,7 @@
   "_": "Folders over 12 concepts and source files over 400 lines, where a concept is one non-spec .ts file. A ratchet: these numbers may shrink and may never grow, and an entry that no longer matches what is measured fails as stale. Refresh with `node tools/check-structure.mjs --write-baseline` only when the change is a resolution.",
   "folders": {
     "platform/libs/core/plugin-sdk/src/lib": 22,
-    "platform/libs/weavers/testbed-weaver/src/lib/views": 22,
+    "platform/libs/weavers/testbed-weaver/src/lib/views": 20,
     "platform/libs/weavers/testbed-weaver/src/lib/plugin": 14
   },
   "files": {

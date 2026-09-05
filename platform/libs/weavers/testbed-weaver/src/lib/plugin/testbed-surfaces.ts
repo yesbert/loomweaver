@@ -1,6 +1,6 @@
 import { PluginContext } from '@loomweaver/plugin-sdk';
-import { TestbedNavView } from '../views/testbed-nav-view';
-import { TestbedNavTreeView } from '../views/testbed-nav-tree-view';
+import { TestbedNavView } from '../views/navigation/testbed-nav-view';
+import { TestbedNavTreeView } from '../views/navigation/testbed-nav-tree-view';
 import { TestbedOutlineView } from '../views/testbed-outline-view';
 import { TestbedHomeView } from '../views/testbed-home-view';
 import { TestbedEntryView } from '../views/testbed-entry-view';

@@ -1,4 +1,4 @@
-import { addressIsUnder } from '../../regions/content/routing/address-reach';
+import { addressIsUnder } from '../../addressing/address-reach';
 import {
   reflectAttribute,
   upgradeElementProperty,

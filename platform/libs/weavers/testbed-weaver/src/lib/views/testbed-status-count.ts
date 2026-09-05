@@ -1,6 +1,6 @@
 import { Component, computed } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { testbedNavState } from './testbed-nav-state';
+import { testbedNavState } from './navigation/testbed-nav-state';
 
 @Component({
   selector: 'lw-testbed-status-count',
