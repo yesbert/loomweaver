@@ -288,7 +288,8 @@ async function drivePanel(page, origin) {
       await expect(panel.getByRole('button')).toHaveCount(2);
     },
   );
-  console.log(`offered: ${(await panel.getByRole('button').allTextContents()).map((text) => text.trim()).join(' | ')}`);
+  const offeredTexts = await panel.getByRole('button').allTextContents();
+  console.log(`offered: ${offeredTexts.map((text) => text.trim()).join(' | ')}`);
 
   const offered = panel.getByRole('button').filter({ hasText: /copilot/i });
 
