@@ -66,4 +66,7 @@
 - [ ] 3.1 The owner publishes on dev.to; the URL is recorded here.
 - [ ] 3.2 Poll reactions and comments through the dev.to API for the first week; answer comments
       in the owner's voice, pasted by the owner.
-- [ ] 3.3 `openspec validate dev-to-tutorial-article --strict` passes.
+- [ ] 3.3 The day after the article, the owner posts the less technical LinkedIn version, which
+      links to the article; the draft and its image live beside the article draft, outside the
+      repository.
+- [ ] 3.4 `openspec validate dev-to-tutorial-article --strict` passes.
