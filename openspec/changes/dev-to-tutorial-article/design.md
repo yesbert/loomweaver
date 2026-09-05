@@ -46,8 +46,11 @@ makes it concrete on one workflow the reader can count: the clicks by hand, then
 to the assistant.
 
 **The assistant is real, runs in the browser, and uses the reader's own key.** An AG-UI agent
-built on the client's agent base class, whose run sends the conversation and the workbench's
-offered tools to OpenRouter and yields the protocol events back. The reader pastes their own
+in the shape the platform's scaffold already uses, an async generator of protocol events, whose
+run sends the conversation and the workbench's offered tools to OpenRouter and yields the events
+back, tool results included, so the generated panel's loop stays as it is. The client SDK's agent
+base class was considered and not used: it adds a dependency and an observable for a loop that is
+twelve lines as a generator. The reader pastes their own
 OpenRouter key into the workbench; it is kept in the browser's local storage and sent to nobody
 but OpenRouter. A free model is chosen on the day the example is built, and it has to support tool
 calling; the article states the daily limit so nobody mistakes it for a defect. The alternative, a

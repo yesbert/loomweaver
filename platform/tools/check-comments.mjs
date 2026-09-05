@@ -59,6 +59,7 @@ const SCAN_ROOTS = [
   'platform/libs',
   'platform/apps',
   'demo/src',
+  'examples/assistant-workbench/src',
   'website/src',
 ];
 

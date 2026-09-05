@@ -1,0 +1,12 @@
+{
+  "title": "Copilot",
+  "agent": {
+    "title": "Assistant",
+    "confirm": {
+      "title": "Send this reply?",
+      "message": "The assistant wants to send a reply to the customer. It goes out only if you say so.",
+      "yes": "Send it",
+      "no": "Not now"
+    }
+  }
+}

@@ -199,6 +199,36 @@ jobs:
       - name: Licence check
         run: npm run licence-check
 
+  example:
+    name: Assistant workbench example
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: examples/assistant-workbench
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: examples/assistant-workbench/package-lock.json
+
+      # Like the demo, the example installs the published packages from the registry: it is what a
+      # reader of the article gets, so it is built the way a reader builds it.
+      - name: npm install
+        run: npm install
+
+      - name: Lint the example
+        run: npm run lint
+
+      - name: Build the example
+        run: npm run build
+
+      - name: Unit tests
+        run: npm test
+
   site:
     name: Docs site
     runs-on: ubuntu-latest
