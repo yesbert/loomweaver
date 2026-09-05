@@ -1,6 +1,6 @@
 {
   "name": "@loomweaver/plugin-sdk",
-  "version": "0.9.0-preview.3",
+  "version": "0.9.0-preview.4",
   "description": "LoomWeaver: open-source plugin platform for Angular workbenches. The plugin contract: the types a weaver depends on, ProductIdentity, Command, PluginContext and the host UI vocabulary.",
   "keywords": [
     "loomweaver",

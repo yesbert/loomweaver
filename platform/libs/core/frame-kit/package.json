@@ -1,6 +1,6 @@
 {
   "name": "@loomweaver/frame-kit",
-  "version": "0.9.0-preview.3",
+  "version": "0.9.0-preview.4",
   "description": "LoomWeaver: open-source plugin platform for Angular workbenches. The frame kit: the <lw-*> custom elements, the compiled .lw-* class contracts and Penpal, served as static assets to sandboxed iframe plugins.",
   "types": "dist/lw-frame.d.ts",
   "keywords": [
