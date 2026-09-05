@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { SETTINGS_STORE } from '../persistence/settings-store';
 import { KeyValueStore } from '../persistence/key-value-store';
-import { CAPABILITY_GRANTS } from './capability-grants';
+import { CAPABILITY_GRANTS, provideCapabilityGrants } from './capability-grants';
 import { CapabilityGrantService } from './capability-grant.service';
 
 const KEY = 'lw.shell.capability-revocations';
@@ -25,8 +25,44 @@ function makeWith(grants: Record<string, string[]>, store: KeyValueStore) {
   return TestBed.inject(CapabilityGrantService);
 }
 
+function makeDeclared(...declarations: Record<string, string[]>[]) {
+  TestBed.resetTestingModule();
+  TestBed.configureTestingModule({
+    providers: declarations.map((grants) =>
+      provideCapabilityGrants(grants as Parameters<typeof provideCapabilityGrants>[0]),
+    ),
+  });
+  return TestBed.inject(CapabilityGrantService);
+}
+
 describe('CapabilityGrantService', () => {
   afterEach(() => localStorage.clear());
+
+  it('composes grants declared in two places, one plugin each', () => {
+    const service = makeDeclared({ first: ['contributions', 'ui'] }, { second: ['contributions', 'navigation'] });
+    service.register('first', ['contributions', 'ui']);
+    service.register('second', ['contributions', 'navigation']);
+
+    expect(service.isGranted('first', 'ui')).toBe(true);
+    expect(service.isGranted('second', 'navigation')).toBe(true);
+  });
+
+  it('composes two declarations for the same plugin into their union', () => {
+    const service = makeDeclared({ p: ['contributions'] }, { p: ['ui'] });
+    service.register('p', ['contributions', 'ui', 'navigation']);
+
+    expect(service.isGranted('p', 'contributions')).toBe(true);
+    expect(service.isGranted('p', 'ui')).toBe(true);
+    expect(service.isGranted('p', 'navigation')).toBe(false);
+  });
+
+  it('a single declaration means what it always meant', () => {
+    const service = makeDeclared({ p: ['contributions', 'ui'] });
+    service.register('p', ['contributions', 'ui', 'host']);
+
+    expect(service.isGranted('p', 'ui')).toBe(true);
+    expect(service.isGranted('p', 'host')).toBe(false);
+  });
 
   it('hydrates revocations from a peek-less store and survives one that rejects', async () => {
     const hydrated = makeWith(

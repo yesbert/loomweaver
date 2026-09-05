@@ -151,8 +151,10 @@ whether `App` has styles; `styleUrl: './app.css'` can stay or go.
 
 > **The generated `app.spec.ts` now fails.** Not for the reason you would guess, the missing
 > heading, but with `NG0201: No provider found for InjectionToken TRANSLOCO_TRANSPILER`. `App` now
-> instantiates the shell. A bare `TestBed` therefore has to satisfy the shell's whole dependency
-> graph. Delete the spec. Test your own components, not the composition root.
+> instantiates the shell, so a bare `TestBed` has to satisfy the shell's whole dependency graph.
+> Give the test your composition root's providers, `providers: appConfig.providers` in
+> `configureTestingModule`, and assert that `lw-shell` rendered; that is the test the
+> `distribution` scaffold writes.
 
 ## 4 · Styles
 

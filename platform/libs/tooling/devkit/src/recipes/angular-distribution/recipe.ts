@@ -149,6 +149,32 @@ describe('layout', () => {
 `;
 }
 
+function appSpec(): string {
+  return `import { TestBed } from '@angular/core/testing';
+import { App } from './app';
+import { appConfig } from './app.config';
+
+/* The application's starter test, rewritten for a root component that renders the shell: it boots
+   with the composition root's own providers, so whatever you compose in is what the test boots
+   with, and it asserts only that the shell mounted. */
+describe('App', () => {
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [App],
+      providers: appConfig.providers,
+    }).compileComponents();
+  });
+
+  it('boots the shell', async () => {
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('lw-shell')).toBeTruthy();
+  });
+});
+`;
+}
+
 function indexHtml(d: ResolvedDistribution): string {
   return `<!DOCTYPE html>
 <html lang="en">
@@ -281,7 +307,10 @@ export const angularDistribution: Recipe<DistributionInput> = {
     return {
       'src/main.ts': mainTs(),
       'src/app/app.config.ts': appConfigTs(d),
-      ...(d.withTests && { 'src/app/app.config.spec.ts': appConfigSpec() }),
+      ...(d.withTests && {
+        'src/app/app.config.spec.ts': appConfigSpec(),
+        'src/app/app.spec.ts': appSpec(),
+      }),
       'src/app/app.ts': appTs(),
       'src/app/app.html': appHtml(),
       'src/index.html': indexHtml(d),

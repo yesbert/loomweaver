@@ -204,12 +204,12 @@ build target as [Manual setup → Run](manual-setup.md#7--run) describes.
 
 ## Tidy up
 
-Three files from `ng new` are now unreferenced: `src/app/app.routes.ts`, `src/app/app.css` and
-`src/app/app.spec.ts`. The shell owns content routing, and [Routing](reference/routing.md) shows that
-the router itself is unchanged. `app.spec.ts` now **fails**, because `App` pulls the whole shell into a bare
-`TestBed`. Delete it; the generated `app.config.spec.ts` is the replacement starting point. It tests
-something worth testing without mounting anything: that the layout still declares the region ids your
-contributions target.
+Two files from `ng new` are now unreferenced: `src/app/app.routes.ts` and `src/app/app.css`. The
+shell owns content routing, and [Routing](reference/routing.md) shows that the router itself is
+unchanged. The starter test `src/app/app.spec.ts` was replaced by one that boots the shell with your
+composition root's providers. Beside it, `app.config.spec.ts` tests something worth testing without
+mounting anything: that the layout still declares the region ids your contributions target.
+`ng test` is green as generated.
 
 The logo at `public/logo.svg` is the LoomWeaver mark, there so the top bar renders something from the
 first run; replace it with your own square image whenever you like. It is the app icon too. Until you
