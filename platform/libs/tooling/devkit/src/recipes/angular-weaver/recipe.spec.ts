@@ -396,6 +396,7 @@ describe('angularWeaver agent connection', () => {
     const plugin = agentWeaver()['src/lib/plugin/notes.plugin.ts'];
     expect(plugin).toContain("id: 'notes.agent'");
     expect(plugin).toContain("docks: ['right-panel']");
+    expect(plugin).toContain('padded: true,');
     expect(plugin).toContain('notesAgent.set(notesConnection(ctx));');
     expect(plugin).toContain('deactivate()');
   });
