@@ -230,6 +230,7 @@ function registerPanelSurfaces(ctx: PluginContext): void {
   ctx.registerSurface({
     id: 'testbed.list',
     title: 'testbed.list.title',
+    padded: true,
     icon: 'testbedList',
     order: 2,
     instanceable: true,
@@ -239,6 +240,7 @@ function registerPanelSurfaces(ctx: PluginContext): void {
   ctx.registerSurface({
     id: 'testbed.nav',
     docks: ['left-panel'],
+    padded: false,
     title: 'testbed.nav.title',
     icon: 'navigator',
     order: 0,
@@ -278,6 +280,7 @@ function registerPanelSurfaces(ctx: PluginContext): void {
   ctx.registerSurface({
     id: 'testbed.outline',
     title: 'testbed.outline.title',
+    padded: true,
     icon: 'outline',
     order: 1,
     instanceable: true,
@@ -287,6 +290,7 @@ function registerPanelSurfaces(ctx: PluginContext): void {
   ctx.registerSurface({
     id: 'testbed.info',
     docks: ['right-panel'],
+    padded: true,
     title: 'testbed.info.title',
     icon: 'info',
     order: 0,
@@ -296,6 +300,7 @@ function registerPanelSurfaces(ctx: PluginContext): void {
   ctx.registerSurface({
     id: 'testbed.dockedFrame',
     docks: ['right-panel'],
+    padded: false,
     title: 'testbed.dockedFrame.title',
     icon: 'testbedSandbox',
     order: 1,
@@ -305,6 +310,7 @@ function registerPanelSurfaces(ctx: PluginContext): void {
   ctx.registerSurface({
     id: 'testbed.adminView',
     docks: ['right-panel'],
+    padded: true,
     title: 'testbed.admin.view',
     icon: 'testbedShield',
     order: 5,
