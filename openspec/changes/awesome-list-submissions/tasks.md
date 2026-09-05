@@ -19,6 +19,8 @@
       `dependency` rather than a `peerDependency` (not met: the devkit declares
       `peerDependencies: { "@nx/devkit": ">=23.0.0" }`). Kept, on the condition that the
       dependency moves and ships in a release first; that change is a branch of its own.
+      Done: PR #194 moved it, 0.8.3 shipped on 2026-09-05, and `npm view @loomweaver/devkit`
+      shows `@nx/devkit` under `dependencies`. The nx PR can be opened.
 - [x] 1.4 For a micro-frontends list, a plugin-architecture list and a Web Components list: record
       repository, contribution rules in one line, last merged PR, whether a comparable entry exists,
       and keep or drop with the reason.
