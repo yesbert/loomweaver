@@ -53,10 +53,11 @@ an alternative to micro-frontends for a product shaped as plugins. Format: `[Loo
 Open-source plugin platform for Angular workbenches; an alternative to micro-frontends for products
 built as plugins.` One PR, appended at the bottom of the section, capitalised title.
 
-**AG-UI is a conversation the owner starts.** The owner joins the protocol's Discord and asks the
-maintainers how a frontend that implements the protocol gets onto the integrations page, with the
-demo link and the qualifier sentence. The task records the answer; the change does not wait for a
-listing.
+**AG-UI is a conversation the owner starts, later.** The owner decided on 2026-09-05 to defer it:
+asked today, by a project nobody in that community has heard of, the question reads as advertising
+and costs goodwill the project will need. It is asked once LoomWeaver is known enough that the
+request reads as a contribution. The route is recorded in the tasks so that day needs no research;
+the change archives without the listing.
 
 **The entry is the qualifier sentence in the list's format.** Base text: *LoomWeaver: open-source
 plugin platform for Angular workbenches. Panes, tabs, command palette, theming, a plugin store and

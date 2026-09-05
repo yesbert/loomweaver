@@ -79,15 +79,19 @@
       GitHub API from a fork each:
       - awesome-angular: https://github.com/PatrickJS/awesome-angular/pull/2486, open.
       - nx.dev plugin registry: https://github.com/nrwl/nx/pull/36927, open.
-- [ ] 3.2 The owner asks the AG-UI maintainers on their Discord how a frontend gets onto the
+- [x] 3.2 The owner asks the AG-UI maintainers on their Discord how a frontend gets onto the
       integrations page; the answer is recorded here, and nothing in this change waits for it.
+      Resolved by decision, not by asking: the owner deferred it on 2026-09-05. A project nobody
+      has heard of asking to be listed reads as advertising, whatever the wording; the question
+      is asked once LoomWeaver is known enough that it reads as a contribution. The route below
+      stays recorded for that day.
       Found on 2026-09-05, before asking: the page is `docs/integrations.mdx` in
       `ag-ui-protocol/ag-ui`, with a *Frontend Integrations* section that lists CopilotKit alone
       and a *Clients* section (CopilotKit, Terminal + Agent, Slack and Teams, React Native); the
       README carries the same *Clients* table with a 1st Party or Community column. The
       contributing guide's docs route is an issue first, then a PR that says `Fixes #<issue>`
-      once assigned; Discord `#-💎-contributing` is where "how do I" questions go. The question
-      is therefore which section, not whether a route exists.
+      once assigned; Discord `#-💎-contributing` is where "how do I" questions go. The question,
+      when it is asked, is which section, not whether a route exists.
 - [ ] 3.3 Requests from maintainers are answered within the week; a change to the project that a
       maintainer asks for goes to its own branch, not this change.
 
