@@ -14,17 +14,22 @@ owner's own text.
 
 ## What Changes
 
-- **One tutorial-shaped article on dev.to.** A hard, real problem for Angular teams that this
-  project solves well, worked through from first principles with a runnable example, and the
-  project introduced only where the hand-built solution starts costing more than it returns.
-  Candidate topics, one to be chosen: plugin isolation in Angular with iframes and RPC (what breaks,
-  what it costs, where the boundary belongs); a desktop-like workbench in Angular (panes, tabs,
-  pop-outs and what the router has to say about it).
-- **A working example the reader can run.** Either a small repository or a section of the demo,
-  decided with the topic.
-- **The one sentence, once.** The project is named with the qualifier from
-  `position-as-angular-plugin-platform` and the demo link, in the closing section, and nowhere
-  before that.
+- **One tutorial-shaped article on dev.to.** Topic, decided by the owner on 2026-09-05: a
+  desktop-like workbench in Angular that an AI assistant can operate end to end, built in about
+  twenty minutes with a real model behind it. The problem the reader already has: the teams around
+  the owner are asked to cut the clicks a user makes by a large share, because the assistant is to
+  do the individual steps, and an assistant that can only chat does not cut a single one. The
+  article shows the assistant carrying out the steps a user would otherwise click through, and
+  reaching nothing the user could not have reached.
+- **A working example the reader can run.** A small repository of its own, pinned to the versions
+  it was built with. The assistant is an AG-UI agent that runs in the browser and calls OpenRouter
+  directly with the reader's own key, which never leaves the browser; free models exist there, so
+  the tutorial costs the reader nothing. One paragraph says what changes for production: the
+  agent's run moves behind the product's own endpoint, and nothing else does.
+- **The one sentence, where the project first appears.** The project is the medium the workbench
+  is built with, so it cannot wait for the closing section. It is named once, with the qualifier
+  from `position-as-angular-plugin-platform`, "my own project" in the same sentence, and the demo
+  link, at the point where the reader first types its name; the opening stays about the problem.
 
 No behaviour changes and no guarantee changes: the article lives on dev.to and any example beside
 the repository, so the change declares `skip_specs`.
@@ -41,8 +46,9 @@ None. The change declares `skip_specs: true`.
 
 ## Impact
 
-**Repository.** Nothing, unless the example is best served by a page in `docs/` that the article
-links to; decided with the topic.
+**Repository.** Nothing. The example lives in a repository of its own. The demo keeps its scripted
+assistant; giving it a real model with the visitor's own key is worth doing and is a change of its
+own, proposed after the article is out.
 
 **External.** One article on dev.to under the owner's account, tags to be chosen with the topic; a
 cover rendered with the existing cover tooling outside the repository.

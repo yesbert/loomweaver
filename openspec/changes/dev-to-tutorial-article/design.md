@@ -9,15 +9,25 @@ See proposal.md, *Why*. What shapes the approach:
   copywriter punch, "my own project" disclosed where the project first appears. The text starts
   from the owner's own draft; the assistant reorders and adds facts.
 - The dash rule of the repository does not apply to dev.to, but the voice rule does.
+- The platform's `--agent` scaffold generates the panel, the seam that decides about a call before
+  it runs, and a stand-in that speaks the protocol and nothing else. The demo's assistant is a
+  scripted one. Neither has a model behind it, and an article that promises an assistant and
+  delivers an echo would be called out in its own comments.
+- OpenRouter offers models with a `:free` variant behind an ordinary API key, limited to 20
+  requests a minute and 50 a day per key without purchased credits. A key shared through the
+  article would be exhausted within the hour; the reader's own key is the only honest setup.
+- The AG-UI TypeScript client ships an agent base class that can run in the browser, so an agent
+  whose run calls OpenRouter and yields protocol events is a legitimate AG-UI agent, not a shortcut
+  around the protocol.
 
 ## Goals / Non-Goals
 
 **Goals:**
 
-- A reader with the problem finishes the article knowing how to solve it by hand and what it
-  costs.
-- The project appears once, late, as the shortest way to the same result, with a link to the demo
-  and the getting-started guide.
+- A reader with the problem finishes the article with a workbench an assistant operates, and
+  understands why the assistant cannot reach further than they can.
+- The project is named once, where it is first used, disclosed as the author's own, with a link to
+  the demo and the getting-started guide.
 
 **Non-Goals:**
 
@@ -26,13 +36,35 @@ See proposal.md, *Why*. What shapes the approach:
 
 ## Decisions
 
-**Topic is chosen tomorrow, between two.** Plugin isolation with iframes and RPC is the sharper
-problem and the one where the project's answer is least common; the desktop-like workbench is the
-broader draw. The decision is the owner's and is recorded here before the draft starts.
+**Topic: a desktop-like workbench an AI assistant operates.** Decided by the owner on 2026-09-05
+over the two candidates from the review. The isolation topic is the cheaper article and the
+workbench topic the broader one; this is the workbench topic with the reason people want one
+today. The owner sees it in their own surroundings: the goal set for teams is to cut the clicks a
+user makes by a large share, because the assistant is to carry out the individual steps. That
+sentence goes into the article as the owner's observation, not as a statistic, and the example
+makes it concrete on one workflow the reader can count: the clicks by hand, then the one sentence
+to the assistant.
 
-**Tutorial first, project last.** The structure is problem, hand-built solution, its cost, then the
-project. The alternative, project first with the tutorial as illustration, is the launch article
-again.
+**The assistant is real, runs in the browser, and uses the reader's own key.** An AG-UI agent
+built on the client's agent base class, whose run sends the conversation and the workbench's
+offered tools to OpenRouter and yields the protocol events back. The reader pastes their own
+OpenRouter key into the workbench; it is kept in the browser's local storage and sent to nobody
+but OpenRouter. A free model is chosen on the day the example is built, and it has to support tool
+calling; the article states the daily limit so nobody mistakes it for a defect. The alternative, a
+small TypeScript server with Mastra and its AG-UI adapter, is closer to production and was
+rejected for the tutorial: a second project, a second start command and a second place to fail
+turn twenty minutes into thirty. The article says in one paragraph what production changes: the
+agent's run moves behind the product's own endpoint, and the panel, the seam and the commands
+stay as they are.
+
+**Problem first; the project where it is first used.** The opening is the problem and the
+workflow, counted in clicks. The build follows the shortest path, and the project is named at the
+first command the reader types, with "my own project" in that sentence. The earlier decision,
+project last after a hand-built solution, does not survive the topic: nobody hand-builds a
+workbench in twenty minutes, and pretending to would be the feature list the reviews warned
+against. What the article does keep from that decision is that it teaches something whether or
+not the reader adopts the project: how a command becomes a tool, why the tool list is not a second
+list, and where the permission check sits.
 
 **Drafted in the owner's voice, from the owner's text.** As with the launch posts: the owner writes
 the first version or dictates the argument, the assistant reorders and fills in facts, and the full
@@ -44,15 +76,16 @@ text is always shown whole, never as a fragment.
   worth documenting, it becomes a docs page and the article links to it; the article stays a story
   with one example.
 - [The example rots] → Pin the versions in the example, and say so.
+- [The free model is retired or its limits change] → The example names the model in one place
+  and the article says how to pick another; the daily limit is stated, not hidden.
+- [A reader ships the key-in-browser pattern to production] → The production paragraph is not
+  optional and sits before the closing, not in a footnote.
+- [The click count reads as a benchmark] → It is one workflow in one example, and the article says
+  so in the sentence that gives the number.
 
 ## Open Questions
 
-- Which of the two topics. The outside review's default: plugin isolation with iframes, opaque
-  origin and RPC, because it is framework-agnostic (the same article travels to a JavaScript
-  audience) and because it does not invite a comparison with SCION Workbench that the first screen
-  has not written yet. Its condition: the cost section says honestly that the hand-built version is
-  about 150 lines and works, and that what the platform adds is the broker, the consent dialog and
-  updates.
-- Whether the example is a small repository or a pointer into the demo.
-- Whether the outbound link carries `?ref=devto`, so the referrer survives. The positioning change
-  decides the marker convention; this article follows it.
+None left open. The topic is decided above; the example is a repository of its own, because the
+demo's assistant is scripted and giving it a model is its own change; the outbound links carry
+`?ref=devto`, the convention the positioning change set. The isolation topic the review preferred
+is not lost: if it is worth writing, it is its own change.
