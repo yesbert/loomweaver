@@ -1,7 +1,7 @@
 {
   "name": "@loomweaver/frame-kit",
   "version": "0.8.2",
-  "description": "LoomWeaver frame UI kit: the whole <lw-*> custom-element family, the compiled .lw-* CSS class contracts and Penpal as static assets. A distribution serves them same-origin under /frame-kit/ so frame plugins paint with the host's primitives and tokens.",
+  "description": "LoomWeaver: open-source plugin platform for Angular workbenches. The frame kit: the <lw-*> custom elements, the compiled .lw-* class contracts and Penpal, served as static assets to sandboxed iframe plugins.",
   "types": "dist/lw-frame.d.ts",
   "keywords": [
     "loomweaver",

@@ -1,7 +1,7 @@
 {
   "name": "@loomweaver/ag-ui",
   "version": "0.8.2",
-  "description": "LoomWeaver AG-UI adapter: describes the workbench's own commands to an agent and runs what it asks for, so a weaver keeps no tool registry of its own. Headless — no transport, no UI, no agent.",
+  "description": "LoomWeaver: open-source plugin platform for Angular workbenches. The AG-UI adapter: offers the workbench's own commands to an agent and runs what it asks for. Headless, with no transport, no UI and no agent.",
   "keywords": [
     "loomweaver",
     "ag-ui",

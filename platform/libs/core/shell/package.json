@@ -1,7 +1,7 @@
 {
   "name": "@loomweaver/shell",
   "version": "0.8.2",
-  "description": "LoomWeaver shell: the neutral host chrome as an Angular library — declarative region engine, plugin loader, command/dialog/settings services and the host UI vocabulary (<lw-*>). Domain-pure.",
+  "description": "LoomWeaver: open-source plugin platform for Angular workbenches. The shell: chrome, regions, plugin loader and host services, as an Angular library.",
   "keywords": [
     "loomweaver",
     "shell",

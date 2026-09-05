@@ -1,7 +1,7 @@
 {
   "name": "@loomweaver/mcp",
   "version": "0.8.2",
-  "description": "LoomWeaver MCP server: exposes LoomWeaver's scaffolding and validation as MCP tools, so an AI assistant in any product repo can scaffold and validate weavers, distributions and integrations without a LoomWeaver checkout.",
+  "description": "LoomWeaver: open-source plugin platform for Angular workbenches. The MCP server: scaffolding and validation as tools, so an AI assistant in any product repo can build weavers without a checkout.",
   "keywords": [
     "loomweaver",
     "mcp",

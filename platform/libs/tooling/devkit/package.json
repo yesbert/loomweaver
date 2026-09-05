@@ -1,7 +1,7 @@
 {
   "name": "@loomweaver/devkit",
   "version": "0.8.2",
-  "description": "LoomWeaver scaffolding for Nx workspaces: generators for weavers, distributions, frame plugins and the integration seams, plus the manifest and i18n validators.",
+  "description": "LoomWeaver: open-source plugin platform for Angular workbenches. The Nx generators: weavers, distributions, frame plugins and the integration seams, plus the manifest and i18n validators.",
   "keywords": [
     "loomweaver",
     "nx",

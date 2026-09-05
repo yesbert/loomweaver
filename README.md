@@ -3,9 +3,9 @@
 </p>
 
 <p align="center">
-  <b>Build the product. Not the workbench.</b><br>
-  Panes, tabs, a command palette, theming, i18n and a plugin store, ready on the first day.<br>
-  Your domain moves in. So does everyone else's.
+  <b>Build Angular workbenches that grow with your product.</b><br>
+  An open-source plugin platform for Angular workbenches: an application shell with panes the user splits, a command palette, theming,<br>
+  plugins that run isolated in their own sandbox, and plugins your users install at runtime. Add tools as your product grows, without touching the shell.
 </p>
 
 <p align="center">
@@ -24,25 +24,21 @@
 
 <p align="center"><sub>Twenty-seven seconds, no cuts. The rail, the panes, the palette and the status bar are the platform's. Everything inside them can come from plugins, the theme at the end included. <a href="https://loomweaver.dev">Watch it in better quality</a>.</sub></p>
 
-LoomWeaver gives your product its entire workbench UI **without you building any of it**. You write
-your domain UI as **plugins ("weavers")** against one small contract, compose them
-into a branded **distribution** (mostly one providers array), and ship. The core contains **zero
-domain logic**, and even first-party product UI goes through the same plugin contract a third party
-would use.
+## What can you build
 
-That contract changes nothing about how you write Angular. A weaver is a manifest and one
-`activate()`, and what it hands the workbench are ordinary standalone components against the router
-you already use. One surface can own your whole route tree, so an app you already have moves in
-behind a single plugin; you split it into several when you want two documents side by side.
+- Admin and operations workbenches
+- Internal developer platforms
+- Monitoring and data consoles
+- Modular business applications, ERP and CRM fronts among them
+- Products that want a plugin ecosystem of their own
 
 **Who it is for.** Angular teams building a product that is a workbench: several things open at
 once, panes and tabs, a surface other people extend. It is not a component library, and it is not for
-a site of plain pages.
-
-It also speaks **[AG-UI](https://docs.ag-ui.com)**, the open protocol between a user-facing
-application and an agentic backend. Every command your product registers can be offered to an agent
-that speaks it, through an adapter that ships with the platform. An agent still reaches only what
-the user could have reached.
+a site of plain pages. It also speaks **[AG-UI](https://docs.ag-ui.com)**, the open protocol between
+a user-facing application and an agentic backend, so every command your product registers can be
+offered to an agent, and an agent still reaches only what the user could have reached. It is
+maintained by one person, its API still moves on patch releases before 1.0, and the demo application
+is its reference consumer.
 
 ## Quick start
 
@@ -70,6 +66,45 @@ you set it, and it names every file it touched.
 [Getting started](docs/getting-started.md) walks through these steps and what they generate.
 [Manual setup](docs/manual-setup.md) is the same result wired by hand, including the
 **Bootstrap / no-Tailwind path** via the pre-compiled stylesheet.
+
+## Register the action once. It is a button, a shortcut, a palette entry and an agent tool.
+
+```ts
+ctx.registerCommand({
+  id: 'invoices.export',
+  title: 'invoices.export',
+  description: 'Export the selected invoices as CSV',
+  arguments: [
+    { name: 'range', kind: 'choice', choices: ['month', 'quarter', 'year'], required: true },
+  ],
+  callable: true,
+  run: (_context, args) => exportInvoices(String(args?.['range'])),
+});
+```
+
+The rail item, the keystroke, the context menu and the command palette already point at the same
+command. `callable: true` adds one more caller: an agent speaking [AG-UI](https://docs.ag-ui.com),
+an open standard we implement rather than one we invented. You never keep a second list of tools
+beside the first, and the guarantee holds without you writing a line of it: **an agent reaches what
+the user could have reached, and nothing more.**
+
+See [Callable commands](docs/reference/callable-commands.md) and
+[Agent tools](docs/reference/agent-tools.md).
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: light)" srcset="assets/media/command-palette-light.png" />
+    <img src="assets/media/command-palette-dark.png" alt="The LoomWeaver command palette, listing commands contributed by plugins with their keyboard shortcuts" width="620" />
+  </picture>
+</p>
+
+## What you write is still Angular
+
+You write your domain UI as **plugins ("weavers")** against one small contract and compose them into
+a branded **distribution**, mostly one providers array. A weaver is a manifest and one `activate()`,
+and what it hands the workbench are ordinary standalone components against the router you already
+use. One surface can own your whole route tree, so an app you already have moves in behind a single
+plugin; you split it into several when you want two documents side by side.
 
 ## Two reasons people pick this up
 
@@ -111,37 +146,6 @@ roadmap.
 
 **And the two feed each other.** Somebody who wants to contribute to _your_ tool points their own
 assistant at your `llms-full.txt` and starts. Your contributor onboarding is a URL.
-
-## Register the action once. It is a button, a shortcut, a palette entry and an agent tool.
-
-```ts
-ctx.registerCommand({
-  id: 'invoices.export',
-  title: 'invoices.export',
-  description: 'Export the selected invoices as CSV',
-  arguments: [
-    { name: 'range', kind: 'choice', choices: ['month', 'quarter', 'year'], required: true },
-  ],
-  callable: true,
-  run: (_context, args) => exportInvoices(String(args?.['range'])),
-});
-```
-
-The rail item, the keystroke, the context menu and the command palette already point at the same
-command. `callable: true` adds one more caller: an agent speaking [AG-UI](https://docs.ag-ui.com),
-an open standard we implement rather than one we invented. You never keep a second list of tools
-beside the first, and the guarantee holds without you writing a line of it: **an agent reaches what
-the user could have reached, and nothing more.**
-
-See [Callable commands](docs/reference/callable-commands.md) and
-[Agent tools](docs/reference/agent-tools.md).
-
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: light)" srcset="assets/media/command-palette-light.png" />
-    <img src="assets/media/command-palette-dark.png" alt="The LoomWeaver command palette, listing commands contributed by plugins with their keyboard shortcuts" width="620" />
-  </picture>
-</p>
 
 ## Any AG-UI agent can drive your product. It still cannot reach further than the person at the keyboard.
 

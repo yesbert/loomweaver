@@ -1,7 +1,7 @@
 {
   "name": "@loomweaver/plugin-sdk",
   "version": "0.8.2",
-  "description": "LoomWeaver plugin contract: the public SDK a weaver depends on — ProductIdentity, Command, PluginContext and the host UI vocabulary.",
+  "description": "LoomWeaver: open-source plugin platform for Angular workbenches. The plugin contract: the types a weaver depends on, ProductIdentity, Command, PluginContext and the host UI vocabulary.",
   "keywords": [
     "loomweaver",
     "plugin",
