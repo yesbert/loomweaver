@@ -45,13 +45,17 @@
       and the confirmation of the reply) and one typed sentence. The model called list, assign and
       reply in under ten seconds; it skipped `open` in one run and used it in another, so the
       article does not promise the exact sequence of calls.
-- [ ] 2.3 The owner writes or dictates the argument; the assistant produces the full draft in the
+- [x] 2.3 The owner writes or dictates the argument; the assistant produces the full draft in the
       owner's voice: the problem and the counted workflow, the shortest path, the project named
       once where it is first used with "my own project" and the qualifier sentence, the production
       paragraph, the demo link with `?ref=devto`. Every snippet comes from the example. Links to
       the code point at the release tag of publishing day, and the fetch instruction is
       `npx degit yesbert/loomweaver/examples/assistant-workbench`.
-- [ ] 2.4 Cover with the existing cover tooling; tags `angular`, `ai`, `agents`, `webdev`.
+- [x] 2.4 Cover with the existing cover tooling; tags `angular`, `ai`, `agents`, `webdev`.
+      Chosen 2026-09-05: `covers/cover-intent-f.png`, eyebrow "TUTORIAL · ANGULAR · AG-UI",
+      headline "Intent-driven UIs: say what you mean.", the workbench in dark behind it. The owner's
+      rule for it: the icon appears as a design element, the brand name does not, so the cover does
+      not read as advertising. Tag `tutorial` added.
 - [ ] 2.5 A written answer to "why not SCION Workbench, Luigi or Module Federation", in the owner's
       voice, ready before publishing; the positioning change's design says what it covers.
 - [ ] 2.6 On publishing day, check the free model still exists and its limits are as the article
