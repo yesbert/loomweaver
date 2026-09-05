@@ -34,12 +34,12 @@
 
 ## 3. Working where the workbench is not
 
-- [ ] 3.1 Make it work in a surface running isolated from the workbench, taking the current
+- [x] 3.1 Make it work in a surface running isolated from the workbench, taking the current
       appearance, and register it wherever the vocabulary is registered for that case.
-- [ ] 3.2 Publish the tags and classes, and give them the documentation on the published contract
+- [x] 3.2 Publish the tags and classes, and give them the documentation on the published contract
       that the other elements carry.
-- [ ] 3.3 Name it in the consumer documentation beside the elements it sits with.
-- [ ] 3.4 Measure the weight the element adds to the built package against the current build, and
+- [x] 3.3 Name it in the consumer documentation beside the elements it sits with.
+- [x] 3.4 Measure the weight the element adds to the built package against the current build, and
       name the figure in the pull request.
 
 ## 4. The demo as its first consumer
