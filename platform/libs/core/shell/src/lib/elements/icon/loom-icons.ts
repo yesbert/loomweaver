@@ -14,6 +14,7 @@ import {
   heroCog6Tooth,
   heroComputerDesktop,
   heroDocument,
+  heroEllipsisHorizontal,
   heroEye,
   heroExclamationTriangle,
   heroInformationCircle,
@@ -68,6 +69,7 @@ export const LOOM_ICONS = {
   workspaces: heroRectangleGroup,
 
   menu: heroBars3,
+  more: heroEllipsisHorizontal,
   document: heroDocument,
   openWork: heroViewColumns,
   navigator: heroBars3,
