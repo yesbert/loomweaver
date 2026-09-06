@@ -13,6 +13,9 @@
     "deniedTitle": "Kein Zugriff",
     "deniedMessage": "Dein Konto hat keinen Zugriff auf diesen Inhalt. Für die nötige Berechtigung wende dich an die Administration."
   },
+  "bar": {
+    "more": "Mehr"
+  },
   "content": {
     "closeTab": "Tab schließen",
     "moreTabs": "Alle geöffneten Tabs",

@@ -22,38 +22,45 @@
       and the entry is announced by the product's name. Written, waiting outside the repository
       until the adoption pull request, so the nightly does not run it against the published
       package.
-- [ ] 1.6 Show the demo on a phone-sized window and stop.
+- [x] 1.6 Show the demo on a phone-sized window and stop. Accepted by the owner on 2026-09-06.
 
 ## 2. The folding bar, second slice
 
-- [ ] 2.1 Rank the entries of a bar in fold order: end slot from highest order down, then centre,
+- [x] 2.1 Rank the entries of a bar in fold order: end slot from highest order down, then centre,
       then start. Pure function, unit-tested with the demo's status bar as the example.
-- [ ] 2.2 Observe the bar's width and each entry's natural width, remembering the last measured
+- [x] 2.2 Observe the bar's width and each entry's natural width, remembering the last measured
       width of every entry by id, and decide which entries fit: entries return from the end of the
       rank until the next would not fit beside the fold control. Unit tests with stubbed widths:
       nothing folds when everything fits; the last entry folds first; a folded entry returns when the
       width allows; a narrowing and widening across one entry's threshold settles without a loop.
-- [ ] 2.3 Draw the fold control at the end of the end group only while something is folded, with an
+      Two things the demo taught: an entry squeezed by the bar reports its squeezed width, so the natural width is read as the larger of its box and its scroll width; and the entries' own sizes change after the bar's, as translations arrive, so every entry host is observed alongside the bar. A bar with no width, one not laid out, folds nothing.
+- [x] 2.3 Draw the fold control at the end of the end group only while something is folded, with an
       icon and an accessible name, keyboard reachable, never itself folded, absent from the
       registry. Add its wording to the shipped translations.
-- [ ] 2.4 Open a tray from the fold control that hosts the folded entries with the bar's own
+- [x] 2.4 Open a tray from the fold control that hosts the folded entries with the bar's own
       renderer, stacked vertically, positioned and dismissed the way the workbench's menus are.
       Unit tests: a declared button in the tray runs its command; a component entry renders in the
       tray; closing the tray returns focus to the control.
-- [ ] 2.5 Check by hand, in the demo, the one component entry with a popover of its own, the look
+      The tray also closes on Escape from anywhere and on a pointer outside it, and an inner popover that takes Escape first, the look switch's list, is left to close on its own.
+- [x] 2.5 Check by hand, in the demo, the one component entry with a popover of its own, the look
       switch, opening from inside the tray.
-- [ ] 2.6 Measure the demo's status bar at 390 pixels: no entry overlaps another, none is cut off,
+      Checked at 250 pixels with the look switch folded: its list opens inside the viewport from within the tray, Escape closes the list and leaves the tray, a second Escape closes the tray and returns focus to the control.
+- [x] 2.6 Measure the demo's status bar at 390 pixels: no entry overlaps another, none is cut off,
       the folded entries are reachable through the control. Record what folded in this file.
-- [ ] 2.7 Write the demo end-to-end test for the status bar at 390 pixels, to land with the adoption
+      Measured 2026-09-06, iPhone 13 viewport, local shell build over the demo. In the bar: search 8 to 107, look 116 to 242, update 250 to 278, preview 286 to 346, the fold control 354 to 382 of 390. Folded: the version and the legal link, in that order of return. No overlaps, nothing cut off; at 320 pixels update and preview fold too, at 1280 everything is back and the control is gone.
+- [x] 2.7 Write the demo end-to-end test for the status bar at 390 pixels, to land with the adoption
       pull request: no two entries overlap, the legal link is reachable through the fold control and
       opens.
-- [ ] 2.8 Run the accessibility checks over a bar with a fold control and an open tray.
+      Written, waiting outside the repository beside the top-bar test until the adoption pull request.
+- [x] 2.8 Run the accessibility checks over a bar with a fold control and an open tray.
+      Axe, WCAG 2.1 AA tags, on the demo at 390 pixels with the tray open and again closed: no violations.
 - [ ] 2.9 Show the demo on a phone-sized window and stop.
 
 ## 3. Closing
 
-- [ ] 3.1 Name the compact forms and the folding in the consumer documentation where the bar's
+- [x] 3.1 Name the compact forms and the folding in the consumer documentation where the bar's
       slots are described, and in `llms-full.txt`.
-- [ ] 3.2 Measure the weight the folding adds to the built shell package against the current build
+- [x] 3.2 Measure the weight the folding adds to the built shell package against the current build
       and name the figure in the pull request.
+      Unminified ES module of the shell: 1,011,621 bytes published as 0.9.0-preview.7, 1,022,078 bytes with this change, about 10 KB more.
 - [ ] 3.3 `openspec validate chrome-bars-on-a-narrow-viewport --strict` passes.

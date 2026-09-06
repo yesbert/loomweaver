@@ -13,6 +13,9 @@
     "deniedTitle": "No access",
     "deniedMessage": "Your account does not have access to this content. Ask your administrator for the permission it needs."
   },
+  "bar": {
+    "more": "More"
+  },
   "content": {
     "closeTab": "Close tab",
     "moreTabs": "All open tabs",

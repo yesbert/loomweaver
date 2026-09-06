@@ -1,4 +1,5 @@
 <header
+  #bar
   class="flex items-center gap-2 overflow-hidden border-border bg-surface px-2 md:px-4"
   [class.border-b]="dock() === 'top'"
   [class.h-12]="dock() === 'top'"
@@ -9,21 +10,56 @@
 >
   <div class="flex min-w-0 items-center gap-2">
     @for (item of startItems(); track item.id) {
-      <lw-shell-bar-item [item]="item" [dock]="dock()" />
+      <lw-shell-bar-item [item]="item" [dock]="dock()" [attr.data-bar-entry]="item.id" />
     }
   </div>
 
   @if (centerItems().length) {
     <div class="mx-auto flex shrink-0 items-center gap-2">
       @for (item of centerItems(); track item.id) {
-        <lw-shell-bar-item [item]="item" [dock]="dock()" />
+        <lw-shell-bar-item [item]="item" [dock]="dock()" [attr.data-bar-entry]="item.id" />
       }
     </div>
   }
 
   <div class="ml-auto flex shrink-0 items-center gap-2">
     @for (item of endItems(); track item.id) {
-      <lw-shell-bar-item [item]="item" [dock]="dock()" />
+      <lw-shell-bar-item [item]="item" [dock]="dock()" [attr.data-bar-entry]="item.id" />
+    }
+    @if (foldedItems().length) {
+      <button
+        #foldControl
+        type="button"
+        data-bar-fold
+        class="lw-icon-btn h-7 w-7"
+        [style.anchor-name]="anchorName()"
+        [attr.aria-expanded]="trayOpen()"
+        [attr.aria-controls]="trayOpen() ? trayId() : null"
+        [attr.aria-label]="'bar.more' | transloco"
+        (click)="toggleTray()"
+      >
+        <lw-icon name="chevronDown" size="1rem" />
+        <lw-tooltip
+          [text]="'bar.more' | transloco"
+          [position]="dock() === 'bottom' ? 'top' : 'bottom'"
+        />
+      </button>
     }
   </div>
+
+  @if (trayOpen()) {
+    <div
+      #tray
+      role="group"
+      [id]="trayId()"
+      class="lw-bar-tray"
+      [class.lw-bar-tray-up]="dock() === 'bottom'"
+      [style.position-anchor]="anchorName()"
+      [attr.aria-label]="'bar.more' | transloco"
+    >
+      @for (item of foldedItems(); track item.id) {
+        <lw-shell-bar-item [item]="item" [dock]="dock()" />
+      }
+    </div>
+  }
 </header>

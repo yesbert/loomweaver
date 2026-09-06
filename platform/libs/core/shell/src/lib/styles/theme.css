@@ -71,114 +71,115 @@
 }
 
 @layer lw-base {
-/* Light (default) — brand = LoomWeaver blue, accent = gold. */
-:root {
-  color-scheme: light;
+  /* Light (default) — brand = LoomWeaver blue, accent = gold. */
+  :root {
+    color-scheme: light;
 
-  --lw-brand: #2e96c9;
-  --lw-brand-strong: #2680b0;
-  /* Brand blue used as *text*: a deeper shade so it stays WCAG AA (>=4.5:1) on light surfaces.
+    --lw-brand: #2e96c9;
+    --lw-brand-strong: #2680b0;
+    /* Brand blue used as *text*: a deeper shade so it stays WCAG AA (>=4.5:1) on light surfaces.
      The #2e96c9 brand stays for the logo, fills, borders and icons (non-text, 3:1). */
-  --lw-brand-text: #256f92;
-  /* Brand blue used as a *filled* surface with on-brand text (e.g. the primary button): a deeper
+    --lw-brand-text: #256f92;
+    /* Brand blue used as a *filled* surface with on-brand text (e.g. the primary button): a deeper
      shade so white label text stays WCAG AA. The #2e96c9 brand stays as the identity colour. */
-  --lw-brand-fill: #1d7099;
-  --lw-on-brand: #ffffff;
-  --lw-accent: #c59a2f;
-  --lw-accent-strong: #a8821f;
+    --lw-brand-fill: #1d7099;
+    --lw-on-brand: #ffffff;
+    --lw-accent: #c59a2f;
+    --lw-accent-strong: #a8821f;
 
-  --lw-surface: #f7f9fb;
-  --lw-surface-raised: #ffffff;
-  --lw-surface-overlay: #eef2f6;
-  --lw-field: #ffffff;
-  --lw-border: #e2e8f0;
+    --lw-surface: #f7f9fb;
+    --lw-surface-raised: #ffffff;
+    --lw-surface-overlay: #eef2f6;
+    --lw-field: #ffffff;
+    --lw-border: #e2e8f0;
 
-  --lw-content: #1f2933;
-  --lw-content-muted: #5b6b7a;
-  /* faint stays WCAG AA (>=4.5:1) on surface/raised/overlay — verified by the a11y E2E net. */
-  --lw-content-faint: #5f7082;
+    --lw-content: #1f2933;
+    --lw-content-muted: #5b6b7a;
+    /* faint stays WCAG AA (>=4.5:1) on surface/raised/overlay — verified by the a11y E2E net. */
+    --lw-content-faint: #5f7082;
 
-  --lw-tooltip: #2b3542;
-  --lw-tooltip-content: #f7f9fb;
+    --lw-tooltip: #2b3542;
+    --lw-tooltip-content: #f7f9fb;
 
-  /* Status fills carry on-* label text (buttons) and double as icon colours. Depths are tuned so
+    /* Status fills carry on-* label text (buttons) and double as icon colours. Depths are tuned so
      the filled variant's label clears WCAG AA (>=4.5:1) — verified by the a11y token audit. */
-  --lw-positive: #1f7a43;
-  --lw-on-positive: #ffffff;
-  --lw-negative: #d14343;
-  /* Danger *button* fill: deeper than --lw-negative so white text stays AA even on hover; the
+    --lw-positive: #1f7a43;
+    --lw-on-positive: #ffffff;
+    --lw-negative: #d14343;
+    /* Danger *button* fill: deeper than --lw-negative so white text stays AA even on hover; the
      lighter --lw-negative remains the error-text/icon colour (which needs surface contrast). */
-  --lw-negative-fill: #c62d2d;
-  --lw-on-negative: #ffffff;
-  --lw-caution: #b8841f;
-  /* Near-black on-caution so the warning button's label clears AA on the gold fill (which itself
+    --lw-negative-fill: #c62d2d;
+    --lw-on-negative: #ffffff;
+    --lw-caution: #b8841f;
+    /* Near-black on-caution so the warning button's label clears AA on the gold fill (which itself
      stays #b8841f so the caution icon keeps 3:1 on light surfaces). */
-  --lw-on-caution: #0f1419;
-  --lw-info: #1d7099;
-  --lw-on-info: #ffffff;
+    --lw-on-caution: #0f1419;
+    --lw-info: #1d7099;
+    --lw-on-info: #ffffff;
 
-  /* Modal/drawer backdrop — semi-transparent, so it adapts if a tenant retints. */
-  --lw-scrim: rgb(0 0 0 / 0.4);
+    /* Modal/drawer backdrop — semi-transparent, so it adapts if a tenant retints. */
+    --lw-scrim: rgb(0 0 0 / 0.4);
 
-  /* Scroll indicator — translucent so it reads over whatever it is drawn on, including a rail
+    /* Scroll indicator — translucent so it reads over whatever it is drawn on, including a rail
      forty pixels wide. The track stays transparent: a visible groove down a narrow column is
      louder than the thing it indicates. */
-  --lw-scroll-thumb: rgb(31 41 51 / 0.28);
-  --lw-scroll-track: transparent;
+    --lw-scroll-thumb: rgb(31 41 51 / 0.28);
+    --lw-scroll-track: transparent;
 
-  /* Typography — themeable via ctx.contributeTheme / tenant CSS. Font family is a brand
+    /* Typography — themeable via ctx.contributeTheme / tenant CSS. Font family is a brand
      lever, so it lives on :root (both schemes) and rarely differs light/dark. Font *size* is a user
      preference (the shell text-size setting), not a theme token. */
-  --lw-font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --lw-font-mono: ui-monospace, 'SF Mono', 'Cascadia Code', 'Roboto Mono', monospace;
-}
+    --lw-font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --lw-font-mono:
+      ui-monospace, 'SF Mono', 'Cascadia Code', 'Roboto Mono', monospace;
+  }
 
-/* Dark — surfaces in cool near-black, lighter blue brand so it stays legible. */
-:root.dark {
-  color-scheme: dark;
+  /* Dark — surfaces in cool near-black, lighter blue brand so it stays legible. */
+  :root.dark {
+    color-scheme: dark;
 
-  --lw-brand: #4aa9d6;
-  --lw-brand-strong: #6cbce0;
-  /* On dark surfaces the brand blue already clears AA as text/fill, so both mirror the brand. */
-  --lw-brand-text: #4aa9d6;
-  --lw-brand-fill: #4aa9d6;
-  --lw-on-brand: #0f1419;
-  --lw-accent: #d9b250;
-  --lw-accent-strong: #e6c878;
+    --lw-brand: #4aa9d6;
+    --lw-brand-strong: #6cbce0;
+    /* On dark surfaces the brand blue already clears AA as text/fill, so both mirror the brand. */
+    --lw-brand-text: #4aa9d6;
+    --lw-brand-fill: #4aa9d6;
+    --lw-on-brand: #0f1419;
+    --lw-accent: #d9b250;
+    --lw-accent-strong: #e6c878;
 
-  --lw-surface: #14191f;
-  --lw-surface-raised: #1b222a;
-  --lw-surface-overlay: #232c36;
-  --lw-field: #1b222a;
-  --lw-border: #2d3743;
+    --lw-surface: #14191f;
+    --lw-surface-raised: #1b222a;
+    --lw-surface-overlay: #232c36;
+    --lw-field: #1b222a;
+    --lw-border: #2d3743;
 
-  --lw-content: #e6edf3;
-  --lw-content-muted: #9aa7b4;
-  /* faint stays WCAG AA (>=4.5:1) on dark surface/raised/overlay — verified by the a11y E2E net. */
-  --lw-content-faint: #8695a4;
+    --lw-content: #e6edf3;
+    --lw-content-muted: #9aa7b4;
+    /* faint stays WCAG AA (>=4.5:1) on dark surface/raised/overlay — verified by the a11y E2E net. */
+    --lw-content-faint: #8695a4;
 
-  --lw-tooltip: #e6edf3;
-  --lw-tooltip-content: #14191f;
+    --lw-tooltip: #e6edf3;
+    --lw-tooltip-content: #14191f;
 
-  --lw-positive: #46c178;
-  --lw-on-positive: #0f1419;
-  --lw-negative: #e06464;
-  /* Danger button fill: deeper than the lighter --lw-negative (which stays the error-text colour,
+    --lw-positive: #46c178;
+    --lw-on-positive: #0f1419;
+    --lw-negative: #e06464;
+    /* Danger button fill: deeper than the lighter --lw-negative (which stays the error-text colour,
      needing contrast against the dark surface) so white button text clears AA. */
-  --lw-negative-fill: #c62d2d;
-  --lw-on-negative: #ffffff;
-  --lw-caution: #d9b250;
-  --lw-on-caution: #14191f;
-  --lw-info: #4aa9d6;
-  --lw-on-info: #0f1419;
+    --lw-negative-fill: #c62d2d;
+    --lw-on-negative: #ffffff;
+    --lw-caution: #d9b250;
+    --lw-on-caution: #14191f;
+    --lw-info: #4aa9d6;
+    --lw-on-info: #0f1419;
 
-  /* Darker on the near-black dark surfaces so the backdrop still reads. */
-  --lw-scrim: rgb(0 0 0 / 0.6);
+    /* Darker on the near-black dark surfaces so the backdrop still reads. */
+    --lw-scrim: rgb(0 0 0 / 0.6);
 
-  /* Light thumb on dark surfaces, at the same weight the light theme's dark thumb carries. */
-  --lw-scroll-thumb: rgb(226 232 240 / 0.28);
-  --lw-scroll-track: transparent;
-}
+    /* Light thumb on dark surfaces, at the same weight the light theme's dark thumb carries. */
+    --lw-scroll-thumb: rgb(226 232 240 / 0.28);
+    --lw-scroll-track: transparent;
+  }
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -645,6 +646,19 @@
   }
   .lw-select-glyph {
     @apply text-base leading-none;
+  }
+
+  .lw-bar-tray {
+    @apply z-50 flex flex-col items-start gap-1 rounded-md border border-border bg-surface-overlay p-2 shadow-lg;
+    position: fixed;
+    position-area: block-end span-inline-start;
+    position-try-fallbacks: flip-block, flip-inline;
+    margin-top: 0.25rem;
+  }
+  .lw-bar-tray-up {
+    position-area: block-start span-inline-start;
+    margin-top: 0;
+    margin-bottom: 0.25rem;
   }
 
   /* `<lw-menu>` — the host menu/context-menu primitive. Behaviour in lw-menu.element.ts, LOOK
