@@ -107,7 +107,7 @@ const rungs = [
   frontmatter={{
     title: 'Open-source plugin platform for Angular workbenches',
     description:
-      'An open-source plugin platform for Angular workbenches: an application shell with panes the user splits, a command palette, theming, plugins that run isolated in their own sandbox, and plugins your users install at runtime. Add tools as your product grows, without touching the shell.',
+      'An open-source plugin platform for Angular workbenches: panes the user splits, a command palette, theming, and plugins that run sandboxed or install at runtime.',
     template: 'splash',
     tableOfContents: false,
   }}
@@ -157,6 +157,16 @@ const rungs = [
         Twenty-seven seconds, no cuts. The rail, the panes, the palette and the status bar are the
         platform’s. Everything inside them can come from plugins, the theme at the end included.
       </figcaption>
+      <details class="transcript">
+        <summary>What the recording shows, in words</summary>
+        <ol>
+          <li>A workbench opens with a rail on the left, one document in the content area and a status bar below.</li>
+          <li><kbd>⌘K</kbd> opens the command palette; it lists commands from several plugins, and one of them runs.</li>
+          <li>A tab is dragged to the right edge and the pane splits, so two documents are open side by side.</li>
+          <li>A plugin written without Angular loads into a sidebar, running inside its own sandboxed iframe.</li>
+          <li>A theme plugin is switched on and re-skins the entire application, chrome included, without a reload.</li>
+        </ol>
+      </details>
     </figure>
     <script is:inline>
       // The tour was recorded in both themes, and the sources are set here rather than in the

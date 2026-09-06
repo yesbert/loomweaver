@@ -35,7 +35,12 @@ jobs:
     # the live site, together with the post-deploy check at the end of this job.
     environment: production
     steps:
+      # Full history: sync-docs.mjs dates every page from its last commit, and those dates are what
+      # the sitemap and the structured data publish. A shallow clone would date the whole site to
+      # the day it was deployed.
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v7
         with:
@@ -155,4 +160,24 @@ jobs:
             "ngsw.json is cacheable — the service worker would never see a new version"
           header_has https://demo.loomweaver.dev/api/open-items.json 'access-control-allow-origin: \*' \
             "the demo's data refuses cross-origin reads — the isolated plugin cannot fetch it"
-          echo "Both domains answer, deep links resolve, and the files that must not go stale revalidate."
+
+          # What a crawler and a link preview are served. Each of these was absent before, and none
+          # of them is visible from a page that looks fine in a browser.
+          contains https://loomweaver.dev/ 'og:image' "the landing page shares as a bare text card"
+          contains https://loomweaver.dev/ 'application/ld+json' "the landing page carries no structured data"
+          contains https://loomweaver.dev/getting-started/ 'og:image' "documentation pages share without a card"
+          contains https://loomweaver.dev/robots.txt 'GPTBot' "robots.txt lost its AI-crawler section"
+          contains https://loomweaver.dev/sitemap-0.xml '<lastmod>' "the sitemap stopped saying when pages changed"
+
+          # The demo leaves the index through noindex, which only works while the crawl is allowed:
+          # a page a crawler may not fetch can never read the tag that would remove it.
+          contains https://demo.loomweaver.dev/ 'noindex' "the demo is indexable again"
+          header_has https://demo.loomweaver.dev/robots.txt 'content-type: text/plain' \
+            "demo robots.txt is being answered by the SPA fallback, so the demo has none"
+          curl -fsS https://demo.loomweaver.dev/robots.txt | grep -qi 'Disallow: /' && {
+            echo "the demo disallows crawling — that keeps its URLs in the index instead of removing them"
+            exit 1
+          } || true
+
+          echo "Both domains answer, deep links resolve, the files that must not go stale revalidate,"
+          echo "and what a crawler is served is what was intended."

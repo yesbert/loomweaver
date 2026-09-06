@@ -56,15 +56,25 @@ const websiteId = '3cbed8e2-65f2-465d-8414-81a223751f24';
       } catch {}
     }
 
-    function setVisible(visible) {
+    let opener = null;
+
+    function setVisible(visible, moveFocus) {
       const banner = document.getElementById('lw-consent-banner');
-      if (banner) banner.style.display = visible ? 'flex' : 'none';
+      if (!banner) return;
+      banner.style.display = visible ? 'flex' : 'none';
+      if (!moveFocus) return;
+      if (visible) {
+        banner.querySelector('button')?.focus();
+      } else if (opener?.isConnected) {
+        opener.focus();
+        opener = null;
+      }
     }
 
     function sync() {
       const consent = read();
       if (consent === 'accepted') loadUmami();
-      setVisible(consent !== 'accepted' && consent !== 'declined');
+      setVisible(consent !== 'accepted' && consent !== 'declined', false);
     }
 
     document.addEventListener('click', (event) => {
@@ -73,12 +83,13 @@ const websiteId = '3cbed8e2-65f2-465d-8414-81a223751f24';
       if (target.closest('[data-consent-accept]')) {
         write('accepted');
         loadUmami();
-        setVisible(false);
+        setVisible(false, true);
       } else if (target.closest('[data-consent-decline]')) {
         write('declined');
-        setVisible(false);
+        setVisible(false, true);
       } else if (target.closest('[data-consent-open]')) {
-        setVisible(true);
+        opener = target.closest('[data-consent-open]');
+        setVisible(true, true);
       } else if (target.closest('[data-consent-revoke]')) {
         clear();
         unloadUmami();
@@ -147,6 +158,11 @@ const websiteId = '3cbed8e2-65f2-465d-8414-81a223751f24';
 
   button:hover {
     opacity: 0.85;
+  }
+
+  button:focus-visible {
+    outline: 2px solid var(--sl-color-text-accent);
+    outline-offset: 3px;
   }
 
   @media (min-width: 40rem) {

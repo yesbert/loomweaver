@@ -111,12 +111,15 @@
   margin-top: 2rem;
 }
 
+/* The border is what makes this read as a button rather than a link, so WCAG 1.4.11 wants 3:1
+   against the page behind it. gray-5 was 1.51:1 in the dark theme and 1.76:1 in the light one;
+   gray-4 is 5.27:1 and 3.37:1. */
 .lw-landing .btn {
   display: inline-flex;
   gap: 0.5rem;
   align-items: center;
   padding: 0.7rem 1.4rem;
-  border: 1px solid var(--sl-color-gray-5);
+  border: 1px solid var(--sl-color-gray-4);
   border-radius: 0.5rem;
   color: var(--sl-color-white);
   font-size: var(--sl-text-sm);
@@ -146,6 +149,14 @@
 .lw-landing .btn.primary:hover {
   opacity: 0.85;
   transform: translateY(-1px);
+}
+
+/* Nothing in the shipped bundle defines a focus state, so every control here fell back to whatever
+   the browser draws. The offset is what makes this work on the primary button: its fill is the same
+   accent the ring is, so a ring drawn on the edge would be invisible on exactly one of these. */
+.lw-landing .btn:focus-visible {
+  outline: 2px solid var(--sl-color-text-accent);
+  outline-offset: 3px;
 }
 
 /* Screenshots */
@@ -182,6 +193,35 @@
   text-align: center;
 }
 
+/* The tour is video with no audio, which WCAG 1.2.1 asks to have a text alternative for. Written
+   open rather than hidden behind sr-only: somebody who would rather read than watch is not
+   necessarily using a screen reader. */
+.lw-landing .transcript {
+  margin-top: 0.75rem;
+  color: var(--sl-color-gray-2);
+  font-size: var(--sl-text-xs);
+  text-align: center;
+}
+
+.lw-landing .transcript summary {
+  cursor: pointer;
+  color: var(--sl-color-gray-3);
+}
+
+.lw-landing .transcript summary:focus-visible {
+  outline: 2px solid var(--sl-color-text-accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.lw-landing .transcript ol {
+  margin: 0.75rem auto 0;
+  max-width: 46rem;
+  padding-left: 1.25rem;
+  text-align: left;
+  line-height: 1.7;
+}
+
 /* What stays Angular */
 
 .lw-landing .stays {
@@ -216,9 +256,11 @@
   font-size: 1.3rem;
 }
 
+/* gray-3 on the card's own gray-6 background is 4.49:1 in the dark theme, one hundredth under the
+   4.5 that WCAG 1.4.3 asks of body text. gray-2 is 8.57:1 and still reads as an aside. */
 .lw-landing .door .aside {
   margin-bottom: 0;
-  color: var(--sl-color-gray-3);
+  color: var(--sl-color-gray-2);
   font-size: var(--sl-text-sm);
   font-style: italic;
 }

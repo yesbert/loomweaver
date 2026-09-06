@@ -39,4 +39,11 @@ import ConsentBanner from './ConsentBanner.astro';
     color: var(--sl-color-white);
     text-decoration: underline;
   }
+
+  .legal a:focus-visible,
+  .legal button:focus-visible {
+    outline: 2px solid var(--sl-color-text-accent);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
 </style>

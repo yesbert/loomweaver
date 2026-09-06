@@ -3,16 +3,20 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "sync": "node tools/sync-docs.mjs",
-    "lint": "eslint .",
-    "predev": "npm run sync",
-    "dev": "astro dev",
-    "prebuild": "npm run sync",
     "build": "astro build",
+    "check": "npm run lint && npm run check-contrast && npm run build && npm run check-head",
+    "check-contrast": "node tools/check-contrast.mjs",
+    "check-head": "node tools/check-head.mjs",
+    "dev": "astro dev",
+    "licence-check": "node tools/check-licences.mjs",
+    "lint": "eslint .",
+    "prebuild": "npm run sync",
+    "predev": "npm run sync",
     "preview": "astro preview",
-    "licence-check": "node tools/check-licences.mjs"
+    "sync": "node tools/sync-docs.mjs"
   },
   "dependencies": {
+    "@astrojs/sitemap": "^3.7.4",
     "@astrojs/starlight": "^0.41.7",
     "astro": "^7.1.6"
   },
