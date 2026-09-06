@@ -54,6 +54,17 @@ export const LOOM_ICONS = {
   splitPanesDown:
     '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5.25h16a.75.75 0 0 1 .75.75v12a.75.75 0 0 1-.75.75H4a.75.75 0 0 1-.75-.75V6a.75.75 0 0 1 .75-.75ZM3.25 12h17.5"/></svg>',
 
+  sidebarLeftOpen:
+    '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path fill="currentColor" fill-opacity=".28" stroke="none" d="M4 5.25h5.5v13.5H4a.75.75 0 0 1-.75-.75V6a.75.75 0 0 1 .75-.75Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M4 5.25h16a.75.75 0 0 1 .75.75v12a.75.75 0 0 1-.75.75H4a.75.75 0 0 1-.75-.75V6a.75.75 0 0 1 .75-.75ZM9.5 5.25v13.5"/></svg>',
+
+  sidebarLeftClosed:
+    '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5.25h16a.75.75 0 0 1 .75.75v12a.75.75 0 0 1-.75.75H4a.75.75 0 0 1-.75-.75V6a.75.75 0 0 1 .75-.75ZM9.5 5.25v13.5"/></svg>',
+
+  sidebarRightOpen:
+    '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path fill="currentColor" fill-opacity=".28" stroke="none" d="M14.5 5.25H20a.75.75 0 0 1 .75.75v12a.75.75 0 0 1-.75.75h-5.5V5.25Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M4 5.25h16a.75.75 0 0 1 .75.75v12a.75.75 0 0 1-.75.75H4a.75.75 0 0 1-.75-.75V6a.75.75 0 0 1 .75-.75ZM14.5 5.25v13.5"/></svg>',
+
+  sidebarRightClosed:
+    '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5.25h16a.75.75 0 0 1 .75.75v12a.75.75 0 0 1-.75.75H4a.75.75 0 0 1-.75-.75V6a.75.75 0 0 1 .75-.75ZM14.5 5.25v13.5"/></svg>',
   workspaces: heroRectangleGroup,
 
   menu: heroBars3,
