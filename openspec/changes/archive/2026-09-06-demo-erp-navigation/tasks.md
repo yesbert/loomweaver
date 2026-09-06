@@ -18,7 +18,7 @@
       view by its address; a module without areas draws no tree.
 - [x] 1.8 End-to-end: switching modules from the rail restores what was open in the module returned
       to, which is the thing a menu tree cannot do.
-- [ ] 1.9 Show it and stop. Look at Overview and Sales in both themes, with the rail's names on and
+- [x] 1.9 Show it and stop. Look at Overview and Sales in both themes, with the rail's names on and
       off, before any further module is built.
 
 ## 2. Finance, where the tree gets long
@@ -35,7 +35,7 @@
       single-child area draws as decided.
 - [x] 2.6 End-to-end: a Finance sidebar that scrolls still reaches its last area, and folding
       survives a switch away and back.
-- [ ] 2.7 Show it and stop.
+- [x] 2.7 Show it and stop.
 
 ## 3. The remaining three modules
 
