@@ -1,3 +1,4 @@
+import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { ShellBar } from './shell-bar';
@@ -7,6 +8,9 @@ import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { defineLwTooltip } from '../../elements/tooltip/lw-tooltip.element';
 
 const topBar: LayoutRegion = { id: 'top-bar', type: 'bar', dock: 'top' };
+
+@Component({ selector: 'lw-test-entry', template: 'Acme' })
+class TestEntry {}
 
 beforeAll(() => defineLwTooltip());
 
@@ -30,7 +34,34 @@ function render(...items: BarItem[]) {
   return (fixture.nativeElement as HTMLElement).querySelectorAll('button');
 }
 
+function renderHosts(...items: BarItem[]) {
+  TestBed.configureTestingModule({ imports: [ShellBar, transloco()] });
+  const registry = TestBed.inject(ContributionRegistry);
+  for (const item of items) {
+    registry.addBarItem(item);
+  }
+  const fixture = TestBed.createComponent(ShellBar);
+  fixture.componentRef.setInput('region', topBar);
+  fixture.detectChanges();
+  return [
+    ...(fixture.nativeElement as HTMLElement).querySelectorAll(
+      'lw-shell-bar-item',
+    ),
+  ];
+}
+
 describe('ShellBar', () => {
+  it('lets an entry shrink, so one that shortens itself can', () => {
+    const [host] = renderHosts({
+      id: 'brand',
+      bar: 'top-bar',
+      slot: 'start',
+      component: TestEntry,
+    });
+
+    expect(host.classList.contains('min-w-0')).toBe(true);
+  });
+
   it('drops a button that names neither an action nor a menu to open', () => {
     expect(
       render({

@@ -79,12 +79,15 @@ export function fillValueSlot(
   slot: HTMLSpanElement,
   text: string,
   icon: string | null,
+  iconOnly: boolean,
 ): void {
   slot.textContent = '';
   if (icon) {
     slot.append(createGlyph(icon));
   }
-  slot.append(document.createTextNode(text));
+  if (!icon || !iconOnly) {
+    slot.append(document.createTextNode(text));
+  }
 }
 
 export function createOptionRow(options: OptionRowOptions): HTMLDivElement {

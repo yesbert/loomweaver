@@ -26,6 +26,7 @@ export class LwSelectElement extends HTMLElement {
     'label',
     'placeholder',
     'disabled',
+    'compact',
   ];
 
   private readonly selectId = nextSelectId++;
@@ -56,6 +57,19 @@ export class LwSelectElement extends HTMLElement {
 
   set value(value: string | null) {
     reflectAttribute(this, 'value', value);
+  }
+
+  /**
+   * `<lw-select compact>` shows the chosen option by its icon alone and names the choice in the
+   * trigger's accessible name instead, so a narrow bar keeps the control without losing what it
+   * says. An option without an icon is shown by its text as usual.
+   */
+  get compact(): boolean {
+    return this.hasAttribute('compact');
+  }
+
+  set compact(value: boolean) {
+    this.toggleAttribute('compact', value);
   }
 
   connectedCallback(): void {
@@ -151,13 +165,17 @@ export class LwSelectElement extends HTMLElement {
     const label = this.getAttribute('label');
     const selected = this.selectedChoice();
     const text = selected?.label ?? this.getAttribute('placeholder') ?? '';
+    const iconOnly = this.compact && selected?.icon != null;
     this.write(() => {
       trigger.disabled = this.hasAttribute('disabled');
       if (label !== null) {
-        trigger.setAttribute('aria-label', label);
+        trigger.setAttribute(
+          'aria-label',
+          iconOnly ? `${label}: ${text}` : label,
+        );
         this.listbox?.setAttribute('aria-label', label);
       }
-      fillValueSlot(valueSlot, text, selected?.icon ?? null);
+      fillValueSlot(valueSlot, text, selected?.icon ?? null, iconOnly);
     });
   }
 

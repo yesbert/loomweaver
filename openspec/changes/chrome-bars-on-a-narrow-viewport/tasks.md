@@ -1,19 +1,27 @@
 ## 1. The top bar, first slice
 
-- [ ] 1.1 Give the element the bar renderer wraps around every entry permission to shrink, so an
+- [x] 1.1 Give the element the bar renderer wraps around every entry permission to shrink, so an
       entry that truncates itself can. Unit test: a bar narrower than its start entry truncates that
       entry instead of overflowing.
-- [ ] 1.2 The brand reads the frame's narrow value: below it, draw the mark alone and carry the
+- [x] 1.2 The brand reads the frame's narrow value: below it, draw the mark alone and carry the
       product's name as the entry's accessible name; above it, draw mark, name and tagline as today.
       Unit tests: both forms, and the accessible name in the compact one.
-- [ ] 1.3 The language switcher reads the same value: below it, show the language's symbol without
+- [x] 1.3 The language switcher reads the same value: below it, show the language's symbol without
       its name, keeping the switcher's accessible name and its list of languages. Unit tests: both
       forms.
-- [ ] 1.4 Measure the demo's top bar at 390 pixels in English and German: brand, switcher and theme
+- [x] 1.4 Measure the demo's top bar at 390 pixels in English and German: brand, switcher and theme
       toggle all inside the viewport, nothing overlapping. Record the widths in this file.
-- [ ] 1.5 Write the demo end-to-end test for the top bar at 390 pixels, to land with the adoption
+      Measured 2026-09-06, iPhone 13 viewport, local shell build over the demo: the bar has 308
+      pixels between the rails; the mark takes 28, the switcher 50, the theme toggle 94, and the
+      last button ends at 338 of 390, in English and in German alike. Before: 416 and 423 in a
+      308-pixel bar. The mark's alternative text is the product name, the switcher's accessible
+      name is "Language: English". The unit test for 1.1 pins the shrink permission on the host,
+      since the test runner lays nothing out; the truncation itself is measured here.
+- [x] 1.5 Write the demo end-to-end test for the top bar at 390 pixels, to land with the adoption
       pull request: the theme toggle is within the viewport, the name is absent, the mark is present
-      and the entry is announced by the product's name.
+      and the entry is announced by the product's name. Written, waiting outside the repository
+      until the adoption pull request, so the nightly does not run it against the published
+      package.
 - [ ] 1.6 Show the demo on a phone-sized window and stop.
 
 ## 2. The folding bar, second slice

@@ -1,6 +1,7 @@
 import { CUSTOM_ELEMENTS_SCHEMA, Component, inject } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LocaleService, SupportedLang } from './locale.service';
+import { ViewportService } from '../layout/viewport.service';
 
 interface LangDisplay {
   readonly label: string;
@@ -21,6 +22,7 @@ const LANG_DISPLAY: Readonly<Record<SupportedLang, LangDisplay>> = {
 export class LanguageSwitcher {
   private readonly locale = inject(LocaleService);
   protected readonly lang = this.locale.lang;
+  protected readonly compact = inject(ViewportService).compact;
 
   protected readonly langs = this.locale.supported.map((value) => ({
     value,

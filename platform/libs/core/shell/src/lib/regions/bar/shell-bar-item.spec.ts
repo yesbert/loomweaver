@@ -177,9 +177,7 @@ describe('ShellBarItem', () => {
       const host = render(account());
 
       expect(
-        host
-          .querySelector('[data-testid="bar-picture"]')
-          ?.getAttribute('src'),
+        host.querySelector('[data-testid="bar-picture"]')?.getAttribute('src'),
       ).toBe('https://example.test/ada.png');
       expect(host.querySelector('[data-testid="bar-initials"]')).toBeNull();
     });
@@ -285,9 +283,7 @@ describe('ShellBarItem', () => {
         fixture.componentRef.setInput('item', item);
         fixture.componentRef.setInput('dock', dock);
         fixture.detectChanges();
-        (fixture.nativeElement as HTMLElement)
-          .querySelector('button')
-          ?.click();
+        (fixture.nativeElement as HTMLElement).querySelector('button')?.click();
         return open.mock.lastCall?.[2].side;
       };
 

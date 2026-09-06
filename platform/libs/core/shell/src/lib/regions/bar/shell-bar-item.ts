@@ -20,7 +20,11 @@ import {
   warnMenuTriggerConflict,
 } from '../../menu/chrome-item-menu';
 import { MenuSide } from '../../elements/menu/lw-menu.element';
-import { BarButtonItem, BarComponentItem, BarItem } from '../../foundation/bar-item';
+import {
+  BarButtonItem,
+  BarComponentItem,
+  BarItem,
+} from '../../foundation/bar-item';
 import { BAR_CONTEXT } from './bar-context';
 
 const MENU_SIDE_BY_DOCK: Readonly<Record<DockPosition, MenuSide>> = {
@@ -35,6 +39,7 @@ const MENU_SIDE_BY_DOCK: Readonly<Record<DockPosition, MenuSide>> = {
   selector: 'lw-shell-bar-item',
   imports: [NgComponentOutlet, TranslocoPipe, MenuTriggerDirective],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  host: { class: 'min-w-0' },
   templateUrl: './shell-bar-item.html',
 })
 export class ShellBarItem {
