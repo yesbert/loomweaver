@@ -293,7 +293,10 @@ still your call.
 
 Every page under `docs/` opens with a single `# Title` and the derived-from-specs header naming the
 capabilities it explains, so a reader knows where the guarantee is. The three maps (the docs index,
-the glossary, the operations notes) are exempt by name. Keep the tone: the reasons, the traps by name,
+the glossary, the operations notes) are exempt by name. After the header, open with a paragraph of
+prose. The documentation site derives the page's meta description from it. A page that starts
+straight into a table, a list or a code block fails the site build, rather than shipping a
+description that says nothing about it. Keep the tone: the reasons, the traps by name,
 and nothing glossed over are what make these pages worth reading, so shorten sentences, not content.
 
 ## Commits and pull requests
