@@ -94,9 +94,20 @@ false`, `types: ["*"]`, `noUncheckedSideEffectImports: false` and `ignoreDepreca
 - **Upgrade through `npx nx migrate <version>`, not `npm update`.**
   `scripts/update-all-dependencies.sh` deliberately stays inside the semver ranges and only reports
   the majors that are waiting.
+- **A page under `docs/` needs an opening paragraph of prose, or the site build fails.**
+  `website/tools/sync-docs.mjs` derives the page's meta description from it, the way it derives the
+  title from the `# Title` heading. Blockquotes, the derived-from-specs header, tables and code
+  blocks are skipped, so the paragraph has to be prose. Without one the page would ship the
+  site-wide fallback description and say nothing about itself in a search result, which is what the
+  failure prevents.
+- **The site dates every page from `git log`, so a shallow checkout dates the whole site to today.**
+  Those dates are the sitemap's `lastmod` and the structured data's `dateModified`. Both workflows
+  that build the site check out with `fetch-depth: 0` for exactly this reason; a local shallow clone
+  has the same effect and there is no error to notice, only wrong dates.
 - **The tour on the README and the landing page is recorded, not hand-made.** Serve the testbed, then
   `node platform/tools/record-tour.mjs` writes `assets/media/tour-{light,dark}` as webm, mp4, gif and
   a poster still, which is exactly the set `website/tools/sync-docs.mjs` refuses to build without. It
+  refuses the same way for the social card and the icon set in `assets/brand/`. It
   needs `ffmpeg` on PATH and nothing in CI runs it. Re-record when you change the workbench chrome
   the tour shows, and follow a written route while recording: an outdated tour leaves a broken layout
   on the front page, where it stays until somebody notices.
@@ -129,6 +140,8 @@ false`, `types: ["*"]`, `noUncheckedSideEffectImports: false` and `ignoreDepreca
 | `npm run agent-versions-check`        | `platform/`                      | the two agent packages the weaver generator emits as literals drifting from the versions the workspace installs                                                                                                                                                                                                                                                                  |
 | `npm run command-names-check`         | `platform/`                      | two shipped commands presenting the same name to a user, or one command labelled two ways                                                                                                                                                                                                                                                                                        |
 | `npm run pwa-check`                   | `demo/`                          | a promise the product makes to the browser and never to itself: the manifest, the icons and the service worker it advertises                                                                                                                                                                                                                                                     |
+| `npm run check-contrast`              | `website/`                       | a colour pair the landing page or the site chrome uses falling below WCAG AA in either theme, at 4.5 for text and 3.0 for a control's boundary. It also fails when its own copy of the palette stops matching `brand.css`, because the ratios are then arithmetic about a site that no longer exists                                                                             |
+| `npm run check-head`                  | `website/`                       | a built page carrying no description of its own, no social card, no icon set, or structured data whose `@id` references do not resolve. Also a sitemap entry without a `lastmod` and a `robots.txt` that lost its AI-crawler section. It reads `dist/`, so the build has to have run                                                                                             |
 | `npm run licence-check`               | `platform/`, `demo/`, `website/` | a production dependency under a licence outside the allow-list                                                                                                                                                                                                                                                                                                                   |
 | `shellcheck scripts/*.sh`             | repo root                        | a shell script warning                                                                                                                                                                                                                                                                                                                                                           |
 | `npm run quick-start-check`           | `platform/`, nightly             | the Getting started commands no longer producing a running, tested product against the published packages: two weavers composed in, built, and the generated tests run                                                                                                                                                                                                           |
