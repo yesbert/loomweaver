@@ -2,6 +2,7 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject } from '@angular/co
 import { TranslocoPipe } from '@jsverse/transloco';
 import { AuthContext } from '@loomweaver/shell';
 import { demoSession } from './session';
+import { sessionActions } from './session-actions';
 
 @Component({
   selector: 'demo-account-status',
@@ -16,6 +17,6 @@ export class AccountStatus {
   );
 
   protected signIn(): void {
-    demoSession.signIn();
+    sessionActions.signIn();
   }
 }

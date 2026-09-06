@@ -7,6 +7,17 @@
   "signOut": "Sign out",
   "signedInAs": "Signed in as {{name}}",
   "theme": "Theme",
+  "account": {
+    "signedOut": "Not signed in",
+    "switchDescription": "Switches to the other demo account, which carries different roles.",
+    "signOutDescription": "Signs out, so what an anonymous session gets to see becomes visible.",
+    "signInDescription": "Signs back in."
+  },
+  "role": {
+    "accounting": "Accounting",
+    "sales": "Sales",
+    "guest": "Guest"
+  },
   "payments": {
     "title": "Payment matching"
   },

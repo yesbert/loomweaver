@@ -18,6 +18,10 @@ const ACCOUNTS: readonly AuthSnapshot[] = [
   },
 ];
 
+export const ACCOUNT_PICTURES: Readonly<Record<string, string>> = {
+  'm.behrens': 'avatar-gambit.jpg',
+};
+
 const SIGNED_OUT_KEY = 'demo.session.signed-out';
 const ACCOUNT_KEY = 'demo.session.account';
 

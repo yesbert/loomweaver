@@ -10,17 +10,17 @@
 
 ## 2. The account, as one entry with a menu
 
-- [ ] 2.1 Give the demo a session plugin that registers the account rail item: drawn from the
+- [x] 2.1 Give the demo a session plugin that registers the account rail item: drawn from the
       signed-in person's initials, opening its menu on an ordinary click, headed by that person's
       name.
-- [ ] 2.2 Register the menu's entries and the commands behind them: switch account and sign out
+- [x] 2.2 Register the menu's entries and the commands behind them: switch account and sign out
       while signed in, sign in while signed out. The two rail items they replace are removed.
-- [ ] 2.3 Re-register the entry as the session changes, so the initials and the heading follow the
+- [x] 2.3 Re-register the entry as the session changes, so the initials and the heading follow the
       account rather than being fixed at start-up.
-- [ ] 2.4 Draw the first account from a photograph the demo serves itself, and leave the second at
+- [x] 2.4 Draw the first account from a photograph the demo serves itself, and leave the second at
       its initials, so switching accounts shows both rungs of the fallback.
-- [ ] 2.5 Every label of the menu in both languages.
-- [ ] 2.6 Unit tests: the entry names the signed-in person and keeps its place when the account
+- [x] 2.5 Every label of the menu in both languages.
+- [x] 2.6 Unit tests: the entry names the signed-in person and keeps its place when the account
       changes; the menu offers signing in while signed out and switching while signed in; the
       account without a picture falls back to its initials.
 

@@ -29,6 +29,7 @@ import { AccountStatus } from '../session/account-status';
 import { demoSession } from '../session/session';
 import { paymentsIcon, paymentsPlugin } from '../payments/payments.plugin';
 import { procurementPlugin } from '../procurement/procurement.plugin';
+import { sessionPlugin } from '../session/session.plugin';
 import { activeLook } from '../looks/look-choice';
 import { LegalLink } from '../legal/legal-link';
 import { LookSwitch } from '../looks/look-switch';
@@ -147,26 +148,6 @@ export const appConfig: ApplicationConfig = {
         order: 20,
         command: 'shell.openSettings',
       },
-      {
-        id: 'demo.switchAccount',
-        rail: 'primary',
-        icon: 'account',
-        title: 'product.switchAccount',
-        anchor: 'bottom',
-        order: 25,
-        access: { authenticated: true },
-        run: () => demoSession.switchAccount(),
-      },
-      {
-        id: 'demo.signOut',
-        rail: 'primary',
-        icon: 'signOut',
-        title: 'product.signOut',
-        anchor: 'bottom',
-        order: 30,
-        access: { authenticated: true },
-        run: () => demoSession.signOut(),
-      },
     ),
     provideCapabilityGrants({
       navigation: ['contributions', 'navigation'],
@@ -177,6 +158,7 @@ export const appConfig: ApplicationConfig = {
       insights: ['contributions', 'navigation'],
       looks: ['contributions'],
       agent: ['contributions', 'navigation', 'ui', 'automation'],
+      session: ['contributions'],
       payments: ['contributions', 'session'],
     }),
     ...providePlugins(
@@ -188,6 +170,7 @@ export const appConfig: ApplicationConfig = {
       insightsPlugin,
       looksPlugin,
       agentPlugin,
+      sessionPlugin,
     ),
     ...provideFramePlugins(paymentsPlugin),
     provideWorkspaces(

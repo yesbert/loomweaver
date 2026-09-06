@@ -7,6 +7,17 @@
   "signOut": "Abmelden",
   "signedInAs": "Angemeldet als {{name}}",
   "theme": "Theme",
+  "account": {
+    "signedOut": "Nicht angemeldet",
+    "switchDescription": "Wechselt auf das andere Demo-Konto, das andere Rollen mitbringt.",
+    "signOutDescription": "Meldet ab, damit sichtbar wird, was eine anonyme Sitzung zu sehen bekommt.",
+    "signInDescription": "Meldet wieder an."
+  },
+  "role": {
+    "accounting": "Buchhaltung",
+    "sales": "Vertrieb",
+    "guest": "Gast"
+  },
   "payments": {
     "title": "Zahlungsabgleich"
   },
