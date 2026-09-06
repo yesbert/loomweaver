@@ -1,15 +1,14 @@
 import { expect, type FrameLocator, type Page, test } from '@playwright/test';
 import { signOut, switchAccount } from './account';
+import { installPaymentMatching } from './store';
 
 function surface(page: Page): FrameLocator {
   return page.frameLocator('iframe[src*="/payments/view.html"]');
 }
 
 async function openPayments(page: Page): Promise<void> {
-  await page
-    .getByRole('navigation', { name: 'Left activity bar' })
-    .getByRole('button', { name: 'Finance' })
-    .click();
+  await installPaymentMatching(page);
+  await page.goto('/finance/matching');
   await expect(page).toHaveURL(/\/finance\/matching$/);
 }
 
@@ -92,6 +91,7 @@ test('confirmations survive leaving the module and coming back', async ({
 
 test('the plugin is listed under the name the demo gave it', async ({ page }) => {
   await page.goto('/');
+  await installPaymentMatching(page);
   await page
     .getByRole('navigation', { name: 'Left activity bar' })
     .getByRole('button', { name: 'Settings' })

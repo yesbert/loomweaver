@@ -1,9 +1,15 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { type PluginContext } from '@loomweaver/plugin-sdk';
-import { defineLwNavTree } from '@loomweaver/shell';
+import { ContributionRegistry, defineLwNavTree } from '@loomweaver/shell';
+import { MODULES } from './module-tree';
 import { ModuleNavView } from './module-nav-view';
 import { navigationActions } from './navigation-actions';
+
+const EVERY_PATH: readonly string[] = MODULES.flatMap((module) =>
+  module.areas.flatMap((area) => area.views.map((view) => view.path)),
+);
 
 defineLwNavTree();
 
@@ -36,7 +42,7 @@ function bindAt(path: string): Recorder {
   return { navigated, retitled };
 }
 
-function renderFixture() {
+function renderFixture(reachable: readonly string[] = EVERY_PATH) {
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     imports: [
@@ -46,14 +52,22 @@ function renderFixture() {
         preloadLangs: true,
       }),
     ],
+    providers: [
+      {
+        provide: ContributionRegistry,
+        useValue: {
+          contentRoutes: signal(reachable.map((path) => ({ path }))),
+        },
+      },
+    ],
   });
   const fixture = TestBed.createComponent(ModuleNavView);
   fixture.detectChanges();
   return fixture;
 }
 
-function render(): HTMLElement {
-  return renderFixture().nativeElement as HTMLElement;
+function render(reachable?: readonly string[]): HTMLElement {
+  return renderFixture(reachable).nativeElement as HTMLElement;
 }
 
 async function renderMarked(): Promise<HTMLElement> {
@@ -186,4 +200,29 @@ describe('ModuleNavView', () => {
     expect(recorder.retitled).toEqual([['navigation.sales', 'product.area.orderHandling']]);
   });
 
+  it('draws an entry only while its address is reachable', () => {
+    bindAt('sales/customers');
+
+    const element = render(EVERY_PATH.filter((path) => path !== 'sales/quotes'));
+
+    expect(shownViews(element)).toEqual(['sales/customers', 'sales/contacts']);
+  });
+
+  it('draws no area once its last entry is gone', () => {
+    bindAt('sales/customers');
+
+    const element = render(EVERY_PATH.filter((path) => path !== 'sales/quotes'));
+
+    expect(areasOf(element)).toEqual(['customers']);
+  });
+
+  it('draws no tree at all once every area of the module has fallen away', () => {
+    bindAt('sales/customers');
+
+    const element = render(
+      EVERY_PATH.filter((path) => !path.startsWith('sales/')),
+    );
+
+    expect(element.querySelector('[data-testid="module-nav"]')).toBeNull();
+  });
 });

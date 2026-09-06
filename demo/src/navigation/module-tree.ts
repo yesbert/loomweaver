@@ -56,7 +56,7 @@ export const MODULES: readonly ProductModule[] = [
     titleKey: 'product.module.finance',
     icon: 'finance',
     prefix: 'finance',
-    landing: 'finance/matching',
+    landing: 'finance/receivables',
     areas: [
       {
         id: 'receivables',

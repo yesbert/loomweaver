@@ -1,5 +1,12 @@
 (function () {
   const OPEN_ITEMS_URL = '/api/open-items.json';
+  const DEFAULT_SETTINGS = {
+    tolerance: 0,
+    autoConfirm: false,
+    sort: 'newest',
+    period: '30',
+  };
+  let settings = { ...DEFAULT_SETTINGS };
   const ACCOUNTING_ROLE = 'accounting';
 
   const STRINGS = {
@@ -87,8 +94,8 @@
       id: 'b-2',
       date: daysAgo(2),
       payer: 'Kranich Medien GmbH',
-      reference: 'Q-0006 TEILZAHLUNG',
-      amount: 200000,
+      reference: 'Q-0006 ABZUEGL. SKONTO',
+      amount: 442200,
     },
     {
       id: 'b-3',
@@ -135,12 +142,30 @@
     return (openItems ?? []).find((item) => line.reference.includes(item.number));
   }
 
+  function withinTolerance(gross, amount) {
+    const allowed = (gross * settings.tolerance) / 100;
+    return Math.abs(gross - amount) <= allowed;
+  }
+
   function outcomeOf(line) {
     const item = matchFor(line);
     if (!item) {
       return 'unassigned';
     }
-    return item.gross === line.amount ? 'confirmed' : 'flagged';
+    return withinTolerance(item.gross, line.amount) ? 'confirmed' : 'flagged';
+  }
+
+  function shownStatement() {
+    const cutoff = Date.now() - Number(settings.period) * 86400000;
+    const shown = STATEMENT.filter((line) => new Date(line.date).getTime() >= cutoff);
+    return settings.sort === 'largest'
+      ? [...shown].sort((a, b) => b.amount - a.amount)
+      : [...shown].sort((a, b) => b.date.localeCompare(a.date));
+  }
+
+  function isExact(line) {
+    const item = matchFor(line);
+    return Boolean(item) && item.gross === line.amount;
   }
 
   function settledNumbers() {
@@ -190,6 +215,9 @@
 
   function actionsFor(line) {
     const t = strings();
+    if (settings.autoConfirm && !decisions.has(line.id) && isExact(line)) {
+      decisions.set(line.id, 'accepted');
+    }
     if (decisions.has(line.id)) {
       return (
         '<lw-button variant="ghost" size="sm" data-undo="' +
@@ -279,7 +307,7 @@
       '<div class="columns"><section><h2>' +
       t.statement +
       '</h2><ul class="rows" data-testid="statement">' +
-      STATEMENT.map(statementRow).join('') +
+      shownStatement().map(statementRow).join('') +
       '</ul></section><section><h2>' +
       t.openItems +
       '</h2><ul class="rows" data-testid="open-items">' +
@@ -366,6 +394,13 @@
       allowedOrigins: ['*'],
     }),
     methods: {
+      stateChanged(key, value) {
+        if (key !== 'settings' || !value) {
+          return;
+        }
+        settings = { ...DEFAULT_SETTINGS, ...value };
+        render();
+      },
       render(next) {
         state = {
           locale: next.locale,
@@ -375,9 +410,11 @@
         render();
       },
     },
-  }).promise.catch((error) => {
-    console.error('[payments view] host connection failed', error);
-  });
+  })
+    .promise.then((host) => host.stateWatch('settings'))
+    .catch((error) => {
+      console.error('[payments view] host connection failed', error);
+    });
 
   render();
   loadOpenItems();

@@ -1,11 +1,11 @@
-@if (module().areas.length > 0) {
+@if (areas().length > 0) {
   <lw-nav-tree
     [attr.current]="shown()"
     [attr.aria-label]="module().titleKey | transloco"
     (lw-nav-select)="show($event)"
     data-testid="module-nav"
   >
-    @for (area of module().areas; track area.id) {
+    @for (area of areas(); track area.id) {
       <lw-nav-group
         [attr.label]="area.titleKey | transloco"
         [attr.key]="keyOf(area)"

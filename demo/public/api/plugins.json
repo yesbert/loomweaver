@@ -1,0 +1,16 @@
+[
+  {
+    "id": "payments",
+    "name": "Payment matching",
+    "entryUrl": "/payments/plugin.html",
+    "capabilities": ["contributions", "session"],
+    "description": "Matches incoming bank payments against open receivables and says where the amounts disagree.",
+    "icon": "payments",
+    "category": "Finance",
+    "author": "LoomWeaver Demo",
+    "downloads": 128,
+    "updated": "2026-09-06",
+    "readmeUrl": "/payments/README.md",
+    "repository": "https://github.com/yesbert/loomweaver"
+  }
+]

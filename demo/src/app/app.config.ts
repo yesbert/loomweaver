@@ -4,8 +4,8 @@ import {
   provideAuthSource,
   provideBarItems,
   provideCapabilityGrants,
-  provideFramePlugins,
   provideIcons,
+  providePluginCatalog,
   provideLayout,
   providePlugins,
   provideRailItems,
@@ -26,7 +26,7 @@ import { insightsPlugin } from '../insights/insights.plugin';
 import { looksPlugin } from '../looks/looks.plugin';
 import { quotesPlugin } from '../quotes/src';
 import { demoSession } from '../session/session';
-import { paymentsIcon, paymentsPlugin } from '../payments/payments.plugin';
+import { paymentsIcon } from '../payments/payments.plugin';
 import { procurementPlugin } from '../procurement/procurement.plugin';
 import { inventoryPlugin } from '../inventory/inventory.plugin';
 import { peoplePlugin } from '../people/people.plugin';
@@ -117,6 +117,15 @@ export const appConfig: ApplicationConfig = {
         workspace: module.id,
       })),
       {
+        id: 'demo.pluginStore',
+        rail: 'secondary',
+        icon: 'plugin',
+        title: 'product.pluginStore',
+        anchor: 'bottom',
+        order: 15,
+        command: 'shell.openPluginStore',
+      },
+      {
         id: 'demo.assistant',
         rail: 'secondary',
         icon: 'agent',
@@ -155,7 +164,6 @@ export const appConfig: ApplicationConfig = {
       looks: ['contributions'],
       agent: ['contributions', 'navigation', 'ui', 'automation'],
       session: ['contributions'],
-      payments: ['contributions', 'session'],
     }),
     ...providePlugins(
       navigationPlugin,
@@ -170,7 +178,9 @@ export const appConfig: ApplicationConfig = {
       agentPlugin,
       sessionPlugin,
     ),
-    ...provideFramePlugins(paymentsPlugin),
+    ...providePluginCatalog('/api/plugins.json', {
+      title: 'product.pluginStore',
+    }),
     provideWorkspaces(
       ...MODULES.map((module) => ({
         id: module.id,
