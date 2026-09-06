@@ -35,7 +35,7 @@ export function buildContentRoutes(
   const placeholders: Routes = omitted.map((route) => ({
     path: route.path,
     component: RouteUnavailableView,
-    canActivate: [keepPopout],
+    canActivate: [keepPopout, settleWorkspace],
     data: { content: true, routePlaceholder: true },
   }));
   return [...buildRegisteredRoutes(contentRoutes, retention), ...placeholders];
@@ -238,7 +238,7 @@ export class ContentRouter {
       {
         path,
         component: RouteUnavailableView,
-        canActivate: [keepPopout],
+        canActivate: [keepPopout, settleWorkspace],
         data: { content: true, routePlaceholder: true },
       },
     ];

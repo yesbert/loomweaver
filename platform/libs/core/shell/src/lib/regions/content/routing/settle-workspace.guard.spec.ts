@@ -28,6 +28,16 @@ describe('settling the workspace before content is shown', () => {
     }
   });
 
+  it('guards the placeholder that stands in for content nobody answers, so its address lands in the workspace that claims it', () => {
+    const routes = buildContentRoutes(
+      [],
+      [{ id: 'testbed.notes', path: 'notes', component: class {} } as never],
+    );
+
+    expect(routes).toHaveLength(1);
+    expect(routes[0].canActivate).toEqual([keepPopout, settleWorkspace]);
+  });
+
   it('hands the address on without its leading slash, and never blocks the navigation', async () => {
     const settled: string[] = [];
     TestBed.configureTestingModule({

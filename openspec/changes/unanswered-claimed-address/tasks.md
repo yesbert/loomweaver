@@ -1,15 +1,15 @@
 ## 1. The decision, where the router already makes one
 
-- [ ] 1.1 Before an unmatched address falls through to the starting screen, ask whether a workspace
+- [x] 1.1 Before an unmatched address falls through to the starting screen, ask whether a workspace
       claims it; where one does, make that workspace active and show the explanation at the address.
-- [ ] 1.2 Leave the waiting path untouched: an address still being waited for explains nothing.
+- [x] 1.2 Leave the waiting path untouched: an address still being waited for explains nothing.
 
 ## 2. What it must keep true
 
-- [ ] 2.1 Unit tests: a claimed address nothing answers lands in its workspace with the explanation;
+- [x] 2.1 Unit tests: a claimed address nothing answers lands in its workspace with the explanation;
       an unclaimed one keeps today's outcome; waiting stays quiet; what is shown instead does not
       enter the workspace's remembered arrangement.
-- [ ] 2.2 A test for the case that started this: an address whose plugin was removed behaves like any
+- [x] 2.2 A test for the case that started this: an address whose plugin was removed behaves like any
       other unanswered claimed address.
 - [ ] 2.3 End-to-end over the testbed: open a claimed address nothing answers and read back which
       workspace is active and what stands at the address.
