@@ -5,7 +5,8 @@ import {
   signal,
 } from '@angular/core';
 import { Location } from '@angular/common';
-import { Router, Routes } from '@angular/router';
+import { NavigationEnd, Router, Routes } from '@angular/router';
+import { Subject } from 'rxjs';
 import { TestBed } from '@angular/core/testing';
 import { ANONYMOUS, AuthSnapshot } from '@loomweaver/plugin-sdk';
 import { buildContentRoutes, ContentRouter } from './content-router';
@@ -281,6 +282,7 @@ describe('ContentRouter', () => {
     initialNavigation: Mock;
     navigateByUrl: Mock;
     url: string;
+    events: Subject<NavigationEnd>;
   };
   let prune: Mock;
   let registry: ContributionRegistry;
@@ -292,6 +294,7 @@ describe('ContentRouter', () => {
       initialNavigation: vi.fn(),
       navigateByUrl: vi.fn().mockResolvedValue(true),
       url: '/',
+      events: new Subject<NavigationEnd>(),
     };
     prune = vi.fn();
     popState = () => undefined;
@@ -395,6 +398,50 @@ describe('ContentRouter', () => {
     expect(router.navigateByUrl).not.toHaveBeenCalled();
   });
 
+  it('resolves an address a workspace switch held once its content registers', async () => {
+    const content = setup('/');
+    registry.addContentRoute({ path: 'sales/customers', component: TestRoute });
+    content.start();
+    content.hold('finance/matching');
+    router.url = '/sales/customers';
+
+    registry.addContentRoute({
+      path: 'finance/matching',
+      component: TestRoute,
+    });
+    tick();
+    await Promise.resolve();
+
+    expect(router.navigateByUrl).toHaveBeenCalledWith('finance/matching', {
+      onSameUrlNavigation: 'reload',
+    });
+  });
+
+  it('lets a held address go once a navigation lands elsewhere, so the user is not pulled back', async () => {
+    const content = setup('/');
+    registry.addContentRoute({ path: 'people/payroll', component: TestRoute });
+    registry.addContentRoute({
+      path: 'people/employees',
+      component: TestRoute,
+    });
+    content.start();
+    content.hold('people/payroll');
+    router.url = '/people/payroll';
+    router.events.next(
+      new NavigationEnd(1, '/people/payroll', '/people/payroll'),
+    );
+    router.url = '/people/employees';
+    router.events.next(
+      new NavigationEnd(2, '/people/employees', '/people/employees'),
+    );
+
+    registry.addContentRoute({ path: 'doc/:id', component: TestRoute });
+    tick();
+    await Promise.resolve();
+
+    expect(router.navigateByUrl).not.toHaveBeenCalled();
+  });
+
   it('recovers a deep-link after the router drifts programmatically during boot (LWF-02a)', async () => {
     const content = setup('/doc/7');
     content.start();
@@ -423,12 +470,17 @@ describe('ContentRouter', () => {
 
   it('settles the workspace for a deep-link nothing answers, so its explanation is read where it belongs', () => {
     const content = setup('/finance/matching');
-    registry.addContentRoute({ path: 'finance/receivables', component: TestRoute });
+    registry.addContentRoute({
+      path: 'finance/receivables',
+      component: TestRoute,
+    });
 
     content.start();
 
     const config = router.resetConfig.mock.calls[0][0] as Routes;
-    const placeholder = config.find((route) => route.path === 'finance/matching');
+    const placeholder = config.find(
+      (route) => route.path === 'finance/matching',
+    );
     expect(placeholder?.component).toBe(RouteUnavailableView);
     expect(placeholder?.canActivate).toEqual([keepPopout, settleWorkspace]);
   });
@@ -482,6 +534,7 @@ describe('ContentRouter auth re-match', () => {
       initialNavigation: vi.fn(),
       navigateByUrl: vi.fn().mockResolvedValue(true),
       url,
+      events: new Subject<NavigationEnd>(),
     };
     TestBed.configureTestingModule({
       providers: [
