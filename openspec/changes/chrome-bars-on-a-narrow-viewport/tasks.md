@@ -54,7 +54,7 @@
       Written, waiting outside the repository beside the top-bar test until the adoption pull request.
 - [x] 2.8 Run the accessibility checks over a bar with a fold control and an open tray.
       Axe, WCAG 2.1 AA tags, on the demo at 390 pixels with the tray open and again closed: no violations.
-- [ ] 2.9 Show the demo on a phone-sized window and stop.
+- [x] 2.9 Show the demo on a phone-sized window and stop. Accepted by the owner on 2026-09-06; the fold control got three dots at their request, a new `more` icon.
 
 ## 3. Closing
 
@@ -63,4 +63,4 @@
 - [x] 3.2 Measure the weight the folding adds to the built shell package against the current build
       and name the figure in the pull request.
       Unminified ES module of the shell: 1,011,621 bytes published as 0.9.0-preview.7, 1,022,078 bytes with this change, about 10 KB more.
-- [ ] 3.3 `openspec validate chrome-bars-on-a-narrow-viewport --strict` passes.
+- [x] 3.3 `openspec validate chrome-bars-on-a-narrow-viewport --strict` passes.
