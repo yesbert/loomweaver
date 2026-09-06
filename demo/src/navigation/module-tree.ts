@@ -141,10 +141,30 @@ export const MODULES: readonly ProductModule[] = [
     titleKey: 'product.module.inventory',
     icon: 'inventory',
     prefix: 'inventory',
-    landing: null,
+    landing: 'inventory/stock',
     areas: [
-      { id: 'stock', titleKey: 'product.area.stock', views: [] },
-      { id: 'movements', titleKey: 'product.area.movements', views: [] },
+      {
+        id: 'stock',
+        titleKey: 'product.area.stock',
+        views: [
+          {
+            titleKey: 'product.view.stockLevels',
+            path: 'inventory/stock',
+            icon: 'stockLevels',
+          },
+        ],
+      },
+      {
+        id: 'movements',
+        titleKey: 'product.area.movements',
+        views: [
+          {
+            titleKey: 'product.view.movements',
+            path: 'inventory/movements',
+            icon: 'movements',
+          },
+        ],
+      },
     ],
   },
   {

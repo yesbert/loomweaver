@@ -1,0 +1,41 @@
+<div class="flex h-full flex-col gap-4 p-3">
+  <div class="flex items-baseline justify-between gap-3">
+    <h2 class="text-base font-semibold text-content">
+      {{ 'product.view.movements' | transloco }}
+    </h2>
+  </div>
+
+  <div class="min-h-0 flex-1 overflow-auto rounded-lg border border-border bg-surface-raised">
+    <table class="w-full text-sm">
+      <thead class="text-xs text-content-muted">
+        <tr class="border-b border-border">
+          <th class="px-4 py-2.5 text-left font-medium">{{ 'product.inventory.column.bookedOn' | transloco }}</th>
+          <th class="px-4 py-2.5 text-left font-medium">{{ 'product.inventory.column.item' | transloco }}</th>
+          <th class="px-4 py-2.5 text-left font-medium">{{ 'product.inventory.column.kind' | transloco }}</th>
+          <th class="px-4 py-2.5 text-left font-medium">{{ 'product.inventory.column.reference' | transloco }}</th>
+          <th class="px-4 py-2.5 text-right font-medium">{{ 'product.inventory.column.quantity' | transloco }}</th>
+        </tr>
+      </thead>
+      <tbody data-testid="movement-list">
+        @for (row of rows(); track row.movement.id) {
+          <tr class="border-b border-border last:border-b-0" [attr.data-movement]="row.movement.reference">
+            <td class="px-4 py-2.5 text-content-muted tabular-nums">{{ row.booked }}</td>
+            <td class="px-4 py-2.5 text-content">
+              {{ row.labelKey | transloco }}
+              <span class="ml-2 font-mono text-xs text-content-faint">{{ row.number }}</span>
+            </td>
+            <td class="px-4 py-2.5 text-content-muted">
+              {{ 'product.inventory.kind.' + row.movement.kind | transloco }}
+            </td>
+            <td class="px-4 py-2.5 font-mono text-xs text-content-muted">{{ row.movement.reference }}</td>
+            <td class="px-4 py-2.5 text-right tabular-nums" [attr.data-direction]="row.incoming ? 'in' : 'out'">
+              <span [class]="row.incoming ? 'text-content' : 'text-content-muted'">
+                {{ row.incoming ? '+' : '−' }}{{ row.quantity }}
+              </span>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

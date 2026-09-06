@@ -66,7 +66,9 @@
     "closing": "Closing",
     "dunning": "Dunning",
     "supplierList": "Supplier master",
-    "purchaseOrders": "Purchase orders"
+    "purchaseOrders": "Purchase orders",
+    "stockLevels": "Stock levels",
+    "movements": "Movements"
   },
   "nav": {
     "title": "Navigation",
@@ -149,6 +151,51 @@
       "reference": "Reference",
       "debit": "Debit",
       "credit": "Credit"
+    }
+  },
+  "inventory": {
+    "belowReorderPoint": "{{count}} below reorder point",
+    "countStock": "Post stock count",
+    "item": {
+      "carton": "Shipping carton size 2",
+      "wrap": "Bubble wrap",
+      "handbook": "Printed handbook",
+      "label": "Shipping labels",
+      "headset": "Headset",
+      "dock": "Docking station"
+    },
+    "unit": {
+      "piece": "pcs",
+      "roll": "rolls",
+      "pack": "packs"
+    },
+    "kind": {
+      "receipt": "Receipt",
+      "issue": "Issue",
+      "transfer": "Transfer",
+      "count": "Stock count"
+    },
+    "count": {
+      "whichItem": "Which item number was counted?",
+      "itemPlaceholder": "e.g. W-410",
+      "howMany": "How many were counted?",
+      "confirm": "Post",
+      "unknownItem": "No item in stock carries that number.",
+      "unchanged": "The counted quantity matches the one on the books.",
+      "done": "Stock count posted.",
+      "description": "Posts a stock count: asks for an item number and the counted quantity, and corrects what is on the books.",
+      "answers": "Which item a stock count was posted for."
+    },
+    "column": {
+      "number": "Number",
+      "item": "Item",
+      "location": "Location",
+      "onHand": "On hand",
+      "reorderPoint": "Reorder point",
+      "bookedOn": "Booked",
+      "kind": "Kind",
+      "reference": "Reference",
+      "quantity": "Quantity"
     }
   },
   "procurement": {

@@ -66,7 +66,9 @@
     "closing": "Abschluss",
     "dunning": "Mahnwesen",
     "supplierList": "Lieferantenstamm",
-    "purchaseOrders": "Bestellungen"
+    "purchaseOrders": "Bestellungen",
+    "stockLevels": "Bestandsführung",
+    "movements": "Warenbewegung"
   },
   "nav": {
     "title": "Navigation",
@@ -149,6 +151,51 @@
       "reference": "Beleg",
       "debit": "Soll",
       "credit": "Haben"
+    }
+  },
+  "inventory": {
+    "belowReorderPoint": "{{count}} unter Meldebestand",
+    "countStock": "Inventur buchen",
+    "item": {
+      "carton": "Versandkarton Größe 2",
+      "wrap": "Luftpolsterfolie",
+      "handbook": "Gedrucktes Handbuch",
+      "label": "Versandetiketten",
+      "headset": "Headset",
+      "dock": "Dockingstation"
+    },
+    "unit": {
+      "piece": "Stk.",
+      "roll": "Rollen",
+      "pack": "Pack"
+    },
+    "kind": {
+      "receipt": "Zugang",
+      "issue": "Abgang",
+      "transfer": "Umlagerung",
+      "count": "Inventur"
+    },
+    "count": {
+      "whichItem": "Welche Artikelnummer wurde gezählt?",
+      "itemPlaceholder": "z. B. W-410",
+      "howMany": "Wie viele wurden gezählt?",
+      "confirm": "Buchen",
+      "unknownItem": "Diese Artikelnummer gibt es im Lager nicht.",
+      "unchanged": "Der gezählte Bestand entspricht dem gebuchten.",
+      "done": "Inventur gebucht.",
+      "description": "Bucht eine Inventur: fragt nach Artikelnummer und gezählter Menge und korrigiert den Bestand.",
+      "answers": "Für welchen Artikel eine Inventur gebucht wurde."
+    },
+    "column": {
+      "number": "Nummer",
+      "item": "Artikel",
+      "location": "Lagerplatz",
+      "onHand": "Bestand",
+      "reorderPoint": "Meldebestand",
+      "bookedOn": "Gebucht",
+      "kind": "Art",
+      "reference": "Beleg",
+      "quantity": "Menge"
     }
   },
   "procurement": {
