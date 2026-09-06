@@ -9,7 +9,10 @@
 
 `provideProductIdentity({ name, tagline, logoUrl })` is your product's identity: the
 neutral shell reads it (header, About, PWA manifest). `name` is a literal; `tagline` is a translation
-key (put it in your `product` namespace). Without it, the bare LoomWeaver identity shows.
+key (put it in your `product` namespace). Without it, the bare LoomWeaver identity shows. On a
+narrow viewport, the one at which the sidebars become overlays, the header shows the mark alone and
+carries `name` as its alternative text; the tagline gives way before the name, and the name before
+the mark.
 
 **Colours (tenant/product theme).** Override the `--lw-*` design tokens by importing a theme CSS _after_
 the shell theme in your `styles.css`, wrapped in `@layer lw-tenant-theme` so it beats any plugin's

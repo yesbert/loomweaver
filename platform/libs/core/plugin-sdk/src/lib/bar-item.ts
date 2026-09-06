@@ -12,7 +12,10 @@ interface BarItemBase {
   readonly bar: string;
   /** Which Bar slot the item renders in. */
   readonly slot: BarSlot;
-  /** Lower renders first within a slot (default 0). */
+  /**
+   * Lower renders first within a slot (default 0). Where a bar cannot show every entry, the
+   * highest order in a slot is folded away first, the end slot before the centre and the start.
+   */
   readonly order?: number;
   /**
    * Declarative auth gating: the host hides (default) or, for a {@link BarButtonItem},

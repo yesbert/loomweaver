@@ -395,6 +395,7 @@ interface OpenTabInput { path: string; title: string; icon?: string; titleIsLite
 
 type BarSlot = 'start' | 'center' | 'end';
 type BarItem = BarComponentItem | BarButtonItem;   // both base: { id, bar, slot, order?, access? } — access: hide either kind, disable only the button
+// A bar too narrow for all its items folds the ones that do not fit into a "More" control at its end (end slot, highest order first; then center; then start) and shows them in a tray as they are. Nothing overlaps, nothing is cut off, everything stays reachable.
 interface BarComponentItem { component: Type<unknown>; /* + base */ }
 interface BarButtonItem { icon?: string; initials?: string; image?: string; label?: string; tooltip?: string; menu?: string; menuTrigger?: 'context' | 'primary' | 'both'; menuHeader?: MenuHeader; command?: string; showShortcut?: boolean; run?(): void | Promise<void>; /* + base */ }  // showShortcut (LWF-04): render the bound command's shortcut hint, OS-correct (⌘K / Ctrl+K); needs command to have a shortcut. Default off.
 // `workspace` names a workspace id: the host switches to it on click and marks the entry as the current one

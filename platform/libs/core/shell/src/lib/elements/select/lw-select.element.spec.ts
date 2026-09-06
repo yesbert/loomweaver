@@ -39,6 +39,22 @@ describe('<lw-select> custom element', () => {
   beforeAll(() => defineLwSelect());
   afterEach(() => document.body.replaceChildren());
 
+  it('compact shows the chosen option by its icon alone and names it for assistive technology', () => {
+    const element = mount('de');
+    element.setAttribute('compact', '');
+
+    expect(trigger(element).textContent).toContain('🇩🇪');
+    expect(trigger(element).textContent).not.toContain('Deutsch');
+    expect(trigger(element).getAttribute('aria-label')).toBe(
+      'Language: Deutsch',
+    );
+
+    element.removeAttribute('compact');
+
+    expect(trigger(element).textContent).toContain('Deutsch');
+    expect(trigger(element).getAttribute('aria-label')).toBe('Language');
+  });
+
   it('registers both tags', () => {
     expect(customElements.get(LW_SELECT_TAG)).toBeDefined();
     expect(customElements.get(LW_OPTION_TAG)).toBeDefined();
@@ -155,7 +171,9 @@ describe('<lw-select> custom element', () => {
   it('pointermove over an option makes it the active one', () => {
     const element = mount('en');
     trigger(element).click();
-    options(element)[1].dispatchEvent(new Event('pointermove', { bubbles: true }));
+    options(element)[1].dispatchEvent(
+      new Event('pointermove', { bubbles: true }),
+    );
     expect(options(element)[1].classList.contains('is-active')).toBe(true);
   });
 
