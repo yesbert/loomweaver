@@ -53,6 +53,8 @@
     "stock": "Stock",
     "movements": "Movements",
     "employees": "Employees",
+    "payrollRuns": "Payroll runs",
+    "employees": "Employees",
     "payroll": "Payroll"
   },
   "view": {
@@ -68,11 +70,12 @@
     "supplierList": "Supplier master",
     "purchaseOrders": "Purchase orders",
     "stockLevels": "Stock levels",
-    "movements": "Movements"
+    "movements": "Movements",
+    "employees": "Employees",
+    "payrollRuns": "Payroll runs"
   },
   "nav": {
-    "title": "Navigation",
-    "notYet": "Areas without entries are still waiting for their content."
+    "title": "Navigation"
   },
   "customers": {
     "search": "Search customers",
@@ -196,6 +199,33 @@
       "kind": "Kind",
       "reference": "Reference",
       "quantity": "Quantity"
+    }
+  },
+  "people": {
+    "headcount": "{{count}} employees",
+    "monthlyGross": "Monthly gross",
+    "weeklyHours": "{{hours}} h/week",
+    "runPayroll": "Run payroll",
+    "confirmPayroll": "Run payroll for the open month? It counts as paid afterwards.",
+    "payrollDone": "Payroll run.",
+    "nothingOpen": "No month is open.",
+    "payrollDescription": "Runs payroll for the open month and marks it paid.",
+    "payrollAnswers": "Which month payroll was run for.",
+    "department": {
+      "workshop": "Workshop",
+      "warehouse": "Warehouse"
+    },
+    "state": {
+      "open": "open",
+      "paid": "paid"
+    },
+    "column": {
+      "number": "Staff no.",
+      "name": "Name",
+      "department": "Area",
+      "joined": "Joined",
+      "hours": "Hours",
+      "gross": "Monthly gross"
     }
   },
   "procurement": {

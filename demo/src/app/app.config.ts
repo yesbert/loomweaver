@@ -29,6 +29,7 @@ import { demoSession } from '../session/session';
 import { paymentsIcon, paymentsPlugin } from '../payments/payments.plugin';
 import { procurementPlugin } from '../procurement/procurement.plugin';
 import { inventoryPlugin } from '../inventory/inventory.plugin';
+import { peoplePlugin } from '../people/people.plugin';
 import { sessionPlugin } from '../session/session.plugin';
 import { activeLook } from '../looks/look-choice';
 import { LegalLink } from '../legal/legal-link';
@@ -149,6 +150,7 @@ export const appConfig: ApplicationConfig = {
       finance: ['contributions', 'navigation', 'ui'],
       procurement: ['contributions', 'navigation', 'ui'],
       inventory: ['contributions', 'navigation', 'ui'],
+      people: ['contributions', 'navigation', 'ui'],
       insights: ['contributions', 'navigation'],
       looks: ['contributions'],
       agent: ['contributions', 'navigation', 'ui', 'automation'],
@@ -162,6 +164,7 @@ export const appConfig: ApplicationConfig = {
       financePlugin,
       procurementPlugin,
       inventoryPlugin,
+      peoplePlugin,
       insightsPlugin,
       looksPlugin,
       agentPlugin,

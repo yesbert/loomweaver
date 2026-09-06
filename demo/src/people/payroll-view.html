@@ -1,0 +1,32 @@
+<div class="flex h-full flex-col gap-4 p-3">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <h2 class="text-base font-semibold text-content">
+      {{ 'product.view.payrollRuns' | transloco }}
+    </h2>
+    <button type="button" class="lw-btn lw-btn--primary" (click)="run()" data-testid="payroll-run">
+      {{ 'product.people.runPayroll' | transloco }}
+    </button>
+  </div>
+
+  <ul class="flex min-h-0 flex-1 flex-col gap-2 overflow-auto" data-testid="payroll-list">
+    @for (row of rows(); track row.run.id) {
+      <li
+        class="flex items-center justify-between gap-3 rounded-lg border border-border bg-surface-raised px-4 py-3"
+        [attr.data-run]="row.run.month"
+      >
+        <span class="flex min-w-0 flex-col">
+          <span class="truncate text-content">{{ row.month }}</span>
+          <span class="text-xs text-content-faint">
+            {{ 'product.people.headcount' | transloco: { count: row.run.headcount } }}
+          </span>
+        </span>
+        <span class="flex items-center gap-4 text-sm">
+          <span [attr.data-state]="row.run.state" [class]="row.run.state === 'open' ? 'text-caution' : 'text-content-faint'">
+            {{ 'product.people.state.' + row.run.state | transloco }}
+          </span>
+          <span class="w-32 text-right font-medium text-content tabular-nums">{{ row.gross }}</span>
+        </span>
+      </li>
+    }
+  </ul>
+</div>

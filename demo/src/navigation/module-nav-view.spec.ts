@@ -13,7 +13,6 @@ const langs = {
       module: { overview: 'Overview', sales: 'Sales', finance: 'Finance' },
       area: { customers: 'Customers', orderHandling: 'Order handling' },
       view: { customerList: 'Customer list', contactHistory: 'Contact history', quotes: 'Quotes' },
-      nav: { notYet: 'Waiting for content.' },
     },
   },
 };
@@ -187,10 +186,4 @@ describe('ModuleNavView', () => {
     expect(recorder.retitled).toEqual([['navigation.sales', 'product.area.orderHandling']]);
   });
 
-  it('says once, not per area, that an area is still waiting for content', () => {
-    bindAt('people/employees');
-    const element = render();
-
-    expect(element.querySelectorAll('[data-testid="nav-waiting"]').length).toBe(1);
-  });
 });

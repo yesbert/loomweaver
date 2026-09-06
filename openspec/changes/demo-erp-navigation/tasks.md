@@ -47,10 +47,10 @@ there to hide it.
 
 - [x] 3.1 Procurement: Suppliers and Purchasing, with content that is small but real.
 - [x] 3.2 Inventory: Stock and Movements.
-- [ ] 3.3 People: Employees and Payroll.
-- [ ] 3.4 The actions of all three beside their content and in the palette, none in the tree.
-- [ ] 3.5 Accessibility checks over a module with a folding tree and over one without.
-- [ ] 3.6 Look at the whole thing once more at a small window height, where six modules, a long tree
+- [x] 3.3 People: Employees and Payroll.
+- [x] 3.4 The actions of all three beside their content and in the palette, none in the tree.
+- [x] 3.5 Accessibility checks over a module with a folding tree and over one without.
+- [x] 3.6 Look at the whole thing once more at a small window height, where six modules, a long tree
       and the anchored band of the rail compete for room.
 
 ## 4. What it taught us

@@ -172,10 +172,30 @@ export const MODULES: readonly ProductModule[] = [
     titleKey: 'product.module.people',
     icon: 'people',
     prefix: 'people',
-    landing: null,
+    landing: 'people/employees',
     areas: [
-      { id: 'employees', titleKey: 'product.area.employees', views: [] },
-      { id: 'payroll', titleKey: 'product.area.payroll', views: [] },
+      {
+        id: 'employees',
+        titleKey: 'product.area.employees',
+        views: [
+          {
+            titleKey: 'product.view.employees',
+            path: 'people/employees',
+            icon: 'employees',
+          },
+        ],
+      },
+      {
+        id: 'payroll',
+        titleKey: 'product.area.payroll',
+        views: [
+          {
+            titleKey: 'product.view.payrollRuns',
+            path: 'people/payroll',
+            icon: 'payrollRuns',
+          },
+        ],
+      },
     ],
   },
 ];

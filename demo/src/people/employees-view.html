@@ -1,0 +1,45 @@
+<div class="flex h-full flex-col gap-4 p-3">
+  <div class="flex flex-wrap items-baseline justify-between gap-3">
+    <h2 class="text-base font-semibold text-content">
+      {{ 'product.view.employees' | transloco }}
+    </h2>
+    <span class="text-sm text-content-muted">
+      {{ 'product.people.headcount' | transloco: { count: count() } }}
+      <span class="ml-2">{{ 'product.people.monthlyGross' | transloco }}</span>
+      <span class="ml-1 font-medium text-content tabular-nums" data-testid="people-gross">{{
+        payroll()
+      }}</span>
+    </span>
+  </div>
+
+  <div class="min-h-0 flex-1 overflow-auto rounded-lg border border-border bg-surface-raised">
+    <table class="w-full text-sm">
+      <thead class="text-xs text-content-muted">
+        <tr class="border-b border-border">
+          <th class="px-4 py-2.5 text-left font-medium">{{ 'product.people.column.number' | transloco }}</th>
+          <th class="px-4 py-2.5 text-left font-medium">{{ 'product.people.column.name' | transloco }}</th>
+          <th class="px-4 py-2.5 text-left font-medium">{{ 'product.people.column.department' | transloco }}</th>
+          <th class="px-4 py-2.5 text-left font-medium">{{ 'product.people.column.joined' | transloco }}</th>
+          <th class="px-4 py-2.5 text-right font-medium">{{ 'product.people.column.hours' | transloco }}</th>
+          <th class="px-4 py-2.5 text-right font-medium">{{ 'product.people.column.gross' | transloco }}</th>
+        </tr>
+      </thead>
+      <tbody data-testid="employee-list">
+        @for (row of rows(); track row.employee.id) {
+          <tr class="border-b border-border last:border-b-0" [attr.data-employee]="row.employee.number">
+            <td class="px-4 py-2.5 font-mono text-xs text-content-muted">{{ row.employee.number }}</td>
+            <td class="px-4 py-2.5 text-content">{{ row.employee.name }}</td>
+            <td class="px-4 py-2.5 text-content-muted">{{ row.employee.departmentKey | transloco }}</td>
+            <td class="px-4 py-2.5 text-content-muted tabular-nums">{{ row.joined }}</td>
+            <td class="px-4 py-2.5 text-right tabular-nums">
+              <span [class]="row.partTime ? 'text-content-muted' : 'text-content'">
+                {{ 'product.people.weeklyHours' | transloco: { hours: row.employee.weeklyHours } }}
+              </span>
+            </td>
+            <td class="px-4 py-2.5 text-right text-content tabular-nums">{{ row.gross }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
