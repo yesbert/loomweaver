@@ -1,6 +1,7 @@
 import { Location } from '@angular/common';
 import { effect, inject, Injector, Service, untracked } from '@angular/core';
-import { Route, Router, Routes } from '@angular/router';
+import { NavigationEnd, Route, Router, Routes } from '@angular/router';
+import { filter } from 'rxjs';
 import { ContentRoute } from '@loomweaver/plugin-sdk';
 import {
   ContributionRegistry,
@@ -159,6 +160,13 @@ export class ContentRouter {
     this.location.subscribe(() => {
       this.userNavigated = true;
     });
+    this.router.events
+      .pipe(
+        filter(
+          (event): event is NavigationEnd => event instanceof NavigationEnd,
+        ),
+      )
+      .subscribe((event) => this.releaseHeld(event.urlAfterRedirects));
 
     this.lastRoutes = this.registry.contentRoutes();
     this.lastOmitted = this.registry.omittedContentRoutes();
@@ -242,6 +250,15 @@ export class ContentRouter {
         data: { content: true, routePlaceholder: true },
       },
     ];
+  }
+
+  private releaseHeld(landed: string): void {
+    if (
+      this.heldAddress !== null &&
+      normalizePath(landed) !== normalizePath(this.heldAddress)
+    ) {
+      this.heldAddress = null;
+    }
   }
 
   private retryHeld(): void {
