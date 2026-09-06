@@ -1,5 +1,9 @@
 {
   "title": "Assistant",
+  "reveal": {
+    "title": "Show the assistant",
+    "description": "Brings the assistant into view, even when its panel is collapsed."
+  },
   "scripted": "This assistant is scripted. It picks its answers from a short script, and nothing else about it is pretend: it reads the actions the workbench offers it, speaks real protocol events, and every call runs through the workbench itself. No model, no key, no network.",
   "empty": "Nothing yet. Pick a prompt below and watch what it may do.",
   "suggestions": "Try one of these",

@@ -1,5 +1,9 @@
 {
   "title": "Assistent",
+  "reveal": {
+    "title": "Assistent zeigen",
+    "description": "Holt den Assistenten in den Blick, auch wenn seine Leiste zugeklappt ist."
+  },
   "scripted": "Dieser Assistent ist gescriptet. Er nimmt seine Antworten aus einem kurzen Drehbuch, sonst ist nichts an ihm gespielt: Er liest die Aktionen, die ihm die Workbench anbietet, spricht echte Protokoll-Ereignisse, und jeder Aufruf läuft durch die Workbench selbst. Kein Modell, kein Schlüssel, kein Netz.",
   "empty": "Noch nichts. Wähl unten einen Satz und sieh zu, was er darf.",
   "suggestions": "Probier einen davon",

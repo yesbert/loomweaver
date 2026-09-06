@@ -12,7 +12,7 @@ export const agentPlugin: Plugin = {
   manifest: {
     id: 'agent',
     name: 'Assistant',
-    capabilities: ['contributions', 'ui', 'automation'],
+    capabilities: ['contributions', 'navigation', 'ui', 'automation'],
   },
   activate(ctx) {
     agentRunner.bind(ctx);
@@ -25,6 +25,14 @@ export const agentPlugin: Plugin = {
       docks: ['right-panel'],
       padded: false,
       component: AgentChatView,
+    });
+
+    ctx.registerCommand({
+      id: 'agent.reveal',
+      title: 'agent.reveal.title',
+      description: 'agent.reveal.description',
+      icon: 'agent',
+      run: () => ctx.revealSurface('agent.chat'),
     });
   },
   deactivate() {
