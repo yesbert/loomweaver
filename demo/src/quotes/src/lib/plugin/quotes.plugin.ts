@@ -17,7 +17,7 @@ export const quotesPlugin: Plugin = {
   manifest: {
     id: 'quotes',
     name: 'Quotes',
-    capabilities: ['contributions', 'navigation'],
+    capabilities: ['contributions', 'navigation', 'ui'],
   },
   activate(ctx) {
     quotesActions.bind(ctx);

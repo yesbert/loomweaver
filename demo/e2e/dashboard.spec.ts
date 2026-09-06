@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { chooseScheme } from './scheme';
 import { switchAccount } from './account';
 
 test('a first visit lands on the dashboard, shown as a full screen', async ({
@@ -45,7 +46,7 @@ test('both charts are drawn, and a change of colour scheme redraws them', async 
   const charts = page.locator('lw-insights-chart canvas');
   await expect(charts).toHaveCount(2);
 
-  await page.getByRole('button', { name: 'Dark' }).click();
+  await chooseScheme(page, 'Dark');
   await expect(page.locator('html')).toHaveClass(/dark/);
 
   await expect(charts).toHaveCount(2);

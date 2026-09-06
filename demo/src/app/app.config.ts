@@ -155,7 +155,7 @@ export const appConfig: ApplicationConfig = {
     provideCapabilityGrants({
       navigation: ['contributions', 'navigation'],
       customers: ['contributions', 'navigation', 'ui'],
-      quotes: ['contributions', 'navigation'],
+      quotes: ['contributions', 'navigation', 'ui'],
       finance: ['contributions', 'navigation', 'ui'],
       procurement: ['contributions', 'navigation', 'ui'],
       inventory: ['contributions', 'navigation', 'ui'],

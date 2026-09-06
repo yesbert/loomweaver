@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { chooseScheme } from './scheme';
 
 /* The demo is built slice by slice, so this suite deliberately asserts only what must hold for
    every slice: the product boots, its chrome is branded, its strings are translated, and the
@@ -42,10 +43,10 @@ test('the theme control switches light and dark', async ({ page }) => {
   await page.goto('/');
 
   const html = page.locator('html');
-  await page.getByRole('button', { name: 'Dark', exact: true }).click();
+  await chooseScheme(page, 'Dark');
   await expect(html).toHaveClass(/dark/);
 
-  await page.getByRole('button', { name: 'Light', exact: true }).click();
+  await chooseScheme(page, 'Light');
   await expect(html).not.toHaveClass(/dark/);
 });
 

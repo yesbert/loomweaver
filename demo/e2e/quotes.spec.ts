@@ -55,3 +55,17 @@ test('formats money and dates in the active language', async ({ page }) => {
   await expect(page.locator(rows).first()).toContainText('Versendet');
   await expect(page.locator(rows).first()).toContainText(/\d{2}\.\d{2}\.\d{4}/);
 });
+
+/* Creating a quote asks for the customer in a dialog, which the plugin reaches through the `ui`
+   capability. Without that grant the workbench refuses the action instead of asking. */
+test('a new quote asks for the customer and opens once created', async ({ page }) => {
+  await page.getByTestId('quote-create').click();
+
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toContainText('Which customer is it for?');
+  await dialog.getByRole('textbox').fill('Nordwind');
+  await dialog.getByRole('button', { name: 'Create' }).click();
+
+  await expect(page).toHaveURL(/\/sales\/quotes\/q-\d+-new$/);
+  await expect(page.getByRole('status')).toContainText('Quote created.');
+});
