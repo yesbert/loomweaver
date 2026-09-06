@@ -1,5 +1,6 @@
 import {
   heroArrowsRightLeft,
+  heroArrowsUpDown,
   heroArrowTrendingUp,
   heroBellAlert,
   heroBookOpen,
@@ -13,6 +14,7 @@ import {
   heroCube,
   heroIdentification,
   heroRectangleGroup,
+  heroSquares2x2,
   heroShoppingCart,
   heroTruck,
   heroUsers,
@@ -36,4 +38,6 @@ export const moduleIcons: Readonly<Record<string, string>> = {
   orderHandling: heroClipboardDocumentList,
   supplierList: heroBuildingOffice2,
   purchaseOrders: heroClipboardDocumentCheck,
+  stockLevels: heroSquares2x2,
+  movements: heroArrowsUpDown,
 };
