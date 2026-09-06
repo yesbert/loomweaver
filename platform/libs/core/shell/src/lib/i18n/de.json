@@ -116,6 +116,7 @@
   },
   "permission": {
     "blocked": "Diese Aktion wurde blockiert, weil eine benötigte Berechtigung ausgeschaltet ist. Öffne Einstellungen → Berechtigungen, um sie zu ändern.",
+    "unavailable": "Diese Aktion steht in dieser Installation nicht zur Verfügung.",
     "openSettings": "Einstellungen öffnen"
   },
   "popout": {

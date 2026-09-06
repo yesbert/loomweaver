@@ -7,6 +7,7 @@ import { ContributionRegistry } from '../plugin/contribution-registry';
 import { AUTH_SOURCE } from '../auth/auth-context';
 import { NotificationService } from '../notifications/notification.service';
 import { ShellErrorHandler } from '../permissions/capability-refusal';
+import { CapabilityGrantService } from '../permissions/capability-grant.service';
 import { provideShellFeatures } from '../foundation/shell-features';
 import { PaletteMruService } from './palette-mru.service';
 
@@ -144,11 +145,14 @@ describe('CommandService', () => {
     error.mockRestore();
   });
 
-  it('surfaces a denied capability as a warning toast, not a silent console error', () => {
+  it('surfaces a revoked capability as a warning toast, not a silent console error', () => {
     const show = vi.spyOn(TestBed.inject(NotificationService), 'show');
     const error = vi
       .spyOn(console, 'error')
       .mockImplementation(() => undefined);
+    const grants = TestBed.inject(CapabilityGrantService);
+    grants.register('p', ['ui'], ['ui']);
+    grants.setGranted('p', 'ui', false);
     registry.addCommand({
       id: 'do.gated',
       title: 't',

@@ -116,6 +116,7 @@
   },
   "permission": {
     "blocked": "This action was blocked because a permission it needs is turned off. Open Settings → Permissions to change it.",
+    "unavailable": "This action is not available in this installation.",
     "openSettings": "Open settings"
   },
   "popout": {
