@@ -16,6 +16,8 @@ import { RouteUnavailableView } from '../access/route-unavailable-view';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { AUTH_SOURCE } from '../../../auth/auth-context';
 import { ContentReuseStrategy } from './content-reuse-strategy';
+import { keepPopout } from './keep-popout.guard';
+import { settleWorkspace } from './settle-workspace.guard';
 import type { Mock } from 'vitest';
 
 @Component({ selector: 'lw-test-route', template: '' })
@@ -417,6 +419,18 @@ describe('ContentRouter', () => {
     const placeholder = config.find((route) => route.path === 'doc/7');
     expect(placeholder).toBeDefined();
     expect(placeholder?.component).toBe(RouteUnavailableView);
+  });
+
+  it('settles the workspace for a deep-link nothing answers, so its explanation is read where it belongs', () => {
+    const content = setup('/finance/matching');
+    registry.addContentRoute({ path: 'finance/receivables', component: TestRoute });
+
+    content.start();
+
+    const config = router.resetConfig.mock.calls[0][0] as Routes;
+    const placeholder = config.find((route) => route.path === 'finance/matching');
+    expect(placeholder?.component).toBe(RouteUnavailableView);
+    expect(placeholder?.canActivate).toEqual([keepPopout, settleWorkspace]);
   });
 
   it('still lands the deep-link where a home route would swallow it as a prefix', () => {

@@ -143,7 +143,7 @@ try {
           id: 'testbed.sandbox',
           title: 'product.workspace.sandbox',
           icon: 'testbedSandbox',
-          claims: ['sandbox-rpc'],
+          claims: ['sandbox-rpc', 'retired'],
           content: { tabs: [{ path: 'sandbox-rpc', closable: false }] },
         },
       ),
