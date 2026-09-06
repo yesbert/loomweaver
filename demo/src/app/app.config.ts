@@ -28,6 +28,7 @@ import { quotesPlugin } from '../quotes/src';
 import { AccountStatus } from '../session/account-status';
 import { demoSession } from '../session/session';
 import { paymentsIcon, paymentsPlugin } from '../payments/payments.plugin';
+import { procurementPlugin } from '../procurement/procurement.plugin';
 import { activeLook } from '../looks/look-choice';
 import { LegalLink } from '../legal/legal-link';
 import { LookSwitch } from '../looks/look-switch';
@@ -163,6 +164,7 @@ export const appConfig: ApplicationConfig = {
       customers: ['contributions', 'navigation', 'ui'],
       quotes: ['contributions', 'navigation'],
       finance: ['contributions', 'navigation', 'ui'],
+      procurement: ['contributions', 'navigation', 'ui'],
       insights: ['contributions', 'navigation'],
       looks: ['contributions'],
       agent: ['contributions', 'ui', 'automation'],
@@ -173,6 +175,7 @@ export const appConfig: ApplicationConfig = {
       customersPlugin,
       quotesPlugin,
       financePlugin,
+      procurementPlugin,
       insightsPlugin,
       looksPlugin,
       agentPlugin,

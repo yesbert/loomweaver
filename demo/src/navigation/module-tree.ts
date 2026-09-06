@@ -110,10 +110,30 @@ export const MODULES: readonly ProductModule[] = [
     titleKey: 'product.module.procurement',
     icon: 'procurement',
     prefix: 'procurement',
-    landing: null,
+    landing: 'procurement/suppliers',
     areas: [
-      { id: 'suppliers', titleKey: 'product.area.suppliers', views: [] },
-      { id: 'purchasing', titleKey: 'product.area.purchasing', views: [] },
+      {
+        id: 'suppliers',
+        titleKey: 'product.area.suppliers',
+        views: [
+          {
+            titleKey: 'product.view.supplierList',
+            path: 'procurement/suppliers',
+            icon: 'supplierList',
+          },
+        ],
+      },
+      {
+        id: 'purchasing',
+        titleKey: 'product.area.purchasing',
+        views: [
+          {
+            titleKey: 'product.view.purchaseOrders',
+            path: 'procurement/orders',
+            icon: 'purchaseOrders',
+          },
+        ],
+      },
     ],
   },
   {

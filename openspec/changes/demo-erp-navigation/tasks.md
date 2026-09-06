@@ -45,7 +45,7 @@ group fixes; until then their sidebar is empty rather than wrong, and no placeho
 there to hide it.
 
 
-- [ ] 3.1 Procurement: Suppliers and Purchasing, with content that is small but real.
+- [x] 3.1 Procurement: Suppliers and Purchasing, with content that is small but real.
 - [ ] 3.2 Inventory: Stock and Movements.
 - [ ] 3.3 People: Employees and Payroll.
 - [ ] 3.4 The actions of all three beside their content and in the palette, none in the tree.

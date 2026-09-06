@@ -188,7 +188,7 @@ describe('ModuleNavView', () => {
   });
 
   it('says once, not per area, that an area is still waiting for content', () => {
-    bindAt('procurement/suppliers');
+    bindAt('inventory/stock');
     const element = render();
 
     expect(element.querySelectorAll('[data-testid="nav-waiting"]').length).toBe(1);
