@@ -290,7 +290,9 @@ separated.
     }
   </lw-select>
   ```
-  Attributes: `label` (accessible name), `value` (current value), `placeholder`, `disabled`;
+  Attributes: `label` (accessible name), `value` (current value), `placeholder`, `disabled`,
+  `compact` (the chosen option by its icon alone, the choice named in the trigger's accessible
+  name; an option without an icon still shows its text);
   `<lw-option>`: `value`, optionally `icon` (v1 = a **literal glyph/emoji**; registry icon names
   follow with the `<lw-icon>` element), label = text content. The **`lw-select-change`** event
   (`detail.value`) fires **only on user selection**, not when `value` is set programmatically (no

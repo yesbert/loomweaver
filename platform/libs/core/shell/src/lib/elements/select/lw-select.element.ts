@@ -59,11 +59,6 @@ export class LwSelectElement extends HTMLElement {
     reflectAttribute(this, 'value', value);
   }
 
-  /**
-   * `<lw-select compact>` shows the chosen option by its icon alone and names the choice in the
-   * trigger's accessible name instead, so a narrow bar keeps the control without losing what it
-   * says. An option without an icon is shown by its text as usual.
-   */
   get compact(): boolean {
     return this.hasAttribute('compact');
   }
