@@ -1,4 +1,5 @@
 import { expect, type Page, test } from '@playwright/test';
+import { switchAccount } from './account';
 
 /* The quote list is a view of the Sales module and each quote opens as a content tab beside it.
    One click previews into a single reused slot; the shell's own gesture on the tab keeps it. */
@@ -150,12 +151,12 @@ test('the margin is visible to accounting and locked for everyone else', async (
   await expect(page.getByTestId('quote-margin')).toBeVisible();
   await expect(page.getByTestId('quote-margin-total')).toContainText('%');
 
-  await page.getByRole('button', { name: 'Switch account' }).click();
+  await switchAccount(page);
 
   await expect(page.getByTestId('quote-margin')).toHaveCount(0);
   await expect(page.getByTestId('access-placeholder')).toContainText('No access');
   await expect(page.getByTestId('quote-positions')).toBeVisible();
 
-  await page.getByRole('button', { name: 'Switch account' }).click();
+  await switchAccount(page);
   await expect(page.getByTestId('quote-margin')).toBeVisible();
 });

@@ -41,7 +41,7 @@ test('the aurora look restyles the app but keeps the LoomWeaver identity', async
   );
   await expect(page.locator('lw-shell-rail nav').first()).toHaveAttribute(
     'aria-label',
-    'Activity bar',
+    'Left activity bar',
   );
 
   const look = await page.evaluate(() => {

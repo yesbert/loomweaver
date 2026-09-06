@@ -25,10 +25,10 @@ import { MODULES, navSurfaceId } from '../navigation/module-tree';
 import { insightsPlugin } from '../insights/insights.plugin';
 import { looksPlugin } from '../looks/looks.plugin';
 import { quotesPlugin } from '../quotes/src';
-import { AccountStatus } from '../session/account-status';
 import { demoSession } from '../session/session';
 import { paymentsIcon, paymentsPlugin } from '../payments/payments.plugin';
 import { procurementPlugin } from '../procurement/procurement.plugin';
+import { sessionPlugin } from '../session/session.plugin';
 import { activeLook } from '../looks/look-choice';
 import { LegalLink } from '../legal/legal-link';
 import { LookSwitch } from '../looks/look-switch';
@@ -40,6 +40,7 @@ export const layout: ShellLayout = {
     { id: 'primary', type: 'rail', dock: 'left' },
     { id: 'left-panel', type: 'panel', dock: 'left' },
     { id: 'right-panel', type: 'panel', dock: 'right' },
+    { id: 'secondary', type: 'rail', dock: 'right' },
     { id: 'main', type: 'content', dock: 'center' },
     { id: 'status-bar', type: 'bar', dock: 'bottom' },
   ],
@@ -74,13 +75,6 @@ export const appConfig: ApplicationConfig = {
         tooltip: 'palette.title',
         command: 'shell.commandPalette',
         showShortcut: true,
-      },
-      {
-        id: 'demo.account',
-        bar: 'status-bar',
-        slot: 'start',
-        order: 20,
-        component: AccountStatus,
       },
       {
         id: 'demo.look',
@@ -121,8 +115,16 @@ export const appConfig: ApplicationConfig = {
         workspace: module.id,
       })),
       {
+        id: 'demo.assistant',
+        rail: 'secondary',
+        icon: 'agent',
+        title: 'agent.title',
+        order: 10,
+        command: 'agent.reveal',
+      },
+      {
         id: 'demo.workspaces',
-        rail: 'primary',
+        rail: 'secondary',
         icon: 'workspaces',
         title: 'workspace.title',
         anchor: 'bottom',
@@ -138,26 +140,6 @@ export const appConfig: ApplicationConfig = {
         order: 20,
         command: 'shell.openSettings',
       },
-      {
-        id: 'demo.switchAccount',
-        rail: 'primary',
-        icon: 'account',
-        title: 'product.switchAccount',
-        anchor: 'bottom',
-        order: 25,
-        access: { authenticated: true },
-        run: () => demoSession.switchAccount(),
-      },
-      {
-        id: 'demo.signOut',
-        rail: 'primary',
-        icon: 'signOut',
-        title: 'product.signOut',
-        anchor: 'bottom',
-        order: 30,
-        access: { authenticated: true },
-        run: () => demoSession.signOut(),
-      },
     ),
     provideCapabilityGrants({
       navigation: ['contributions', 'navigation'],
@@ -167,7 +149,8 @@ export const appConfig: ApplicationConfig = {
       procurement: ['contributions', 'navigation', 'ui'],
       insights: ['contributions', 'navigation'],
       looks: ['contributions'],
-      agent: ['contributions', 'ui', 'automation'],
+      agent: ['contributions', 'navigation', 'ui', 'automation'],
+      session: ['contributions'],
       payments: ['contributions', 'session'],
     }),
     ...providePlugins(
@@ -179,6 +162,7 @@ export const appConfig: ApplicationConfig = {
       insightsPlugin,
       looksPlugin,
       agentPlugin,
+      sessionPlugin,
     ),
     ...provideFramePlugins(paymentsPlugin),
     provideWorkspaces(

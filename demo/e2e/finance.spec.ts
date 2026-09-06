@@ -66,7 +66,7 @@ test('folding survives leaving the module and coming back', async ({ page }) => 
   await areaHeading(page, 'receivables').click();
   await expect(areaHeading(page, 'receivables')).toHaveAttribute('aria-expanded', 'false');
 
-  const rail = page.getByRole('navigation', { name: 'Activity bar' });
+  const rail = page.getByRole('navigation', { name: 'Left activity bar' });
   await rail.getByRole('button', { name: 'Sales' }).click();
   await expect(page).toHaveURL(/\/sales\/customers$/);
   await rail.getByRole('button', { name: 'Finance' }).click();

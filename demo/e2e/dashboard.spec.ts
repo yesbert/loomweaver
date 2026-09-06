@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { switchAccount } from './account';
 
 test('a first visit lands on the dashboard, shown as a full screen', async ({
   page,
@@ -18,7 +19,7 @@ test('the overview holds no quote list, so a click cannot bury it', async ({
   await expect(page.locator('[data-testid="quotes-list"] li')).toHaveCount(0);
 
   await page
-    .getByRole('navigation', { name: 'Activity bar' })
+    .getByRole('navigation', { name: 'Left activity bar' })
     .getByRole('button', { name: 'Sales' })
     .click();
   await page.locator('[data-nav-view="sales/quotes"]').click();
@@ -57,7 +58,7 @@ test('the sales account meets the dashboard without the margin card', async ({
   await page.goto('/');
   await expect(page.getByTestId('insights-won-margin')).toBeVisible();
 
-  await page.getByRole('button', { name: 'Switch account' }).click();
+  await switchAccount(page);
 
   await expect(page.getByTestId('insights-won-margin')).toHaveCount(0);
   await expect(page.getByTestId('insights-out')).toBeVisible();
@@ -67,7 +68,7 @@ test('the sales account meets the dashboard without the margin card', async ({
 test('the overview is a workspace of its own, so switching marks it and leaves sales', async ({
   page,
 }) => {
-  const rail = page.getByRole('navigation', { name: 'Activity bar' });
+  const rail = page.getByRole('navigation', { name: 'Left activity bar' });
   const overview = rail.getByRole('button', { name: 'Overview' });
   const sales = rail.getByRole('button', { name: 'Sales' });
   await page.goto('/');
@@ -88,7 +89,7 @@ test('the overview is a workspace of its own, so switching marks it and leaves s
 test('moving between them leaves neither workspace counting as changed', async ({
   page,
 }) => {
-  const rail = page.getByRole('navigation', { name: 'Activity bar' });
+  const rail = page.getByRole('navigation', { name: 'Left activity bar' });
   await page.goto('/');
 
   await rail.getByRole('button', { name: 'Sales' }).click();

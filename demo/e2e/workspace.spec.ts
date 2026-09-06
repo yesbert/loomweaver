@@ -11,7 +11,7 @@ function navEntry(page: Page, path: string) {
 async function openSales(page: Page): Promise<void> {
   await page.goto('/');
   await page
-    .getByRole('navigation', { name: 'Activity bar' })
+    .getByRole('navigation', { name: 'Left activity bar' })
     .getByRole('button', { name: 'Sales' })
     .click();
   await expect(page).toHaveURL(/\/sales\/customers$/);
@@ -60,7 +60,7 @@ test('a module returned to still holds what was open in it', async ({ page }) =>
     .poll(() => contentTabs(page))
     .toEqual(['Customer list', 'Quotes', 'Q-0007']);
 
-  const rail = page.getByRole('navigation', { name: 'Activity bar' });
+  const rail = page.getByRole('navigation', { name: 'Left activity bar' });
   await rail.getByRole('button', { name: 'Finance' }).click();
   await expect(page).toHaveURL(/\/finance\/matching$/);
   await expect.poll(() => contentTabs(page)).toEqual(['Payment matching']);
@@ -97,7 +97,7 @@ test('the rail carries the workspace under its own icon and switches to it', asy
   await page.goto('/');
 
   const entry = page
-    .getByRole('navigation', { name: 'Activity bar' })
+    .getByRole('navigation', { name: 'Left activity bar' })
     .getByRole('button', { name: 'Sales' });
   await expect(entry).not.toHaveAttribute('aria-current', 'true');
   await expect(entry.locator('svg')).toHaveCount(1);

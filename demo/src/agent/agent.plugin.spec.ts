@@ -9,17 +9,29 @@ interface Recorded {
   readonly icons: string[];
   readonly surfaces: { id: string; docks?: readonly string[] }[];
   readonly commands: string[];
+  readonly registered: Command[];
+  readonly revealed: string[];
 }
 
 function activate(plugin: Plugin): Recorded {
-  const recorded: Recorded = { icons: [], surfaces: [], commands: [] };
+  const recorded: Recorded = {
+    icons: [],
+    surfaces: [],
+    commands: [],
+    registered: [],
+    revealed: [],
+  };
   const ctx = {
     bind: () => undefined,
     contributeIcons: (icons: Record<string, string>) =>
       recorded.icons.push(...Object.keys(icons)),
     registerSurface: (surface: { id: string; docks?: readonly string[] }) =>
       recorded.surfaces.push({ id: surface.id, docks: surface.docks }),
-    registerCommand: (command: Command) => recorded.commands.push(command.id),
+    registerCommand: (command: Command) => {
+      recorded.commands.push(command.id);
+      recorded.registered.push(command);
+    },
+    revealSurface: (id: string) => recorded.revealed.push(id),
     openContentTab: () => undefined,
     keepContentTab: () => undefined,
     navigateContent: () => undefined,
@@ -37,6 +49,7 @@ describe('agentPlugin', () => {
     expect([...(agentPlugin.manifest.capabilities ?? [])].sort()).toEqual([
       'automation',
       'contributions',
+      'navigation',
       'ui',
     ]);
   });
@@ -48,6 +61,17 @@ describe('agentPlugin', () => {
       { id: 'agent.chat', docks: ['right-panel'] },
     ]);
     expect(recorded.icons).toContain('agent');
+  });
+
+  it('reaches its own chat through a command, so a collapsed panel is not a dead end', () => {
+    const recorded = activate(agentPlugin);
+
+    const reveal = recorded.registered.find(
+      (command) => command.id === 'agent.reveal',
+    );
+    reveal?.run();
+
+    expect(recorded.revealed).toEqual(['agent.chat']);
   });
 
   it('drives only commands the demo actually contributes, so a renamed command fails here rather than in front of a visitor', () => {
