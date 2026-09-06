@@ -95,10 +95,10 @@ export class ShellSidebarHeader {
   protected readonly showExpand = computed(() => this.context() === 'floating');
 
   protected readonly collapseIcon = computed<LoomIconName>(() =>
-    this.region().dock === 'right' ? 'chevronsRight' : 'chevronsLeft',
+    this.region().dock === 'right' ? 'sidebarRightOpen' : 'sidebarLeftOpen',
   );
   protected readonly expandIcon = computed<LoomIconName>(() =>
-    this.region().dock === 'right' ? 'chevronsLeft' : 'chevronsRight',
+    this.region().dock === 'right' ? 'sidebarRightClosed' : 'sidebarLeftClosed',
   );
 
   protected readonly acceptsTab = (path: string): boolean =>
