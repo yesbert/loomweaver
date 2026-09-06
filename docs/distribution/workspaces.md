@@ -134,7 +134,11 @@ typed name to go on. A workspace you declared is yours to offer, so that switchi
 instead of a dialog. Give a rail item the workspace's id with `workspace` and the icon you want it
 under, and the host does the rest: the click switches, and while that workspace is active the entry
 is marked as the current one (a brand bar on the rail's outer edge, a tint, and `aria-current="true"`
-for screen readers), so the item needs no command of its own. Provide `workspace` **instead of**
+for screen readers), so the item needs no command of its own. The entry is marked as well while a
+workspace the user saved **from** yours is active and has no entry of its own in either rail. A
+variant is still your workspace for the rail's purposes, so the rail never goes blank for one. The
+entry stays as it is otherwise, icon, name and tooltip. A click on it switches to your workspace,
+which is also the short way back from the variant. Provide `workspace` **instead of**
 `command`/`run`; when it is set those are ignored. An entry pointing at a workspace that is neither
 declared nor saved warns in the console in dev mode rather than failing silently, and a declared
 workspace that nothing offers is reported in dev mode too.
@@ -212,6 +216,8 @@ never there by themselves; the user places one from _Customize activity bar_, an
 `workspaces: { savedInRail: false }` withdraws that offer, so the rail holds what your product put
 there and nothing else. An entry a user had placed before you switched it off stops being drawn, and
 their placement is kept rather than erased, so switching it back on restores what each of them had.
+The rail still says where the user is: while a saved workspace is active, the entry of the
+workspace it was saved from is marked, because no entry is then the saved workspace's own.
 Everything else about a saved workspace is untouched: saving, renaming, resetting and switching all
 work, with the workspace dialog as the way to them. This says nothing about **whether** a user may
 save workspaces, which is a different question and has no switch.

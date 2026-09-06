@@ -31,7 +31,7 @@ import {
 } from '../../menu/chrome-item-menu';
 import { MenuSide } from '../../elements/menu/lw-menu.element';
 import { RAIL_CONTEXT_MENU, RAIL_ITEM_CONTEXT_MENU } from './rail-context-menu';
-import { RailItemsService } from './rail-items.service';
+import { RailItemsService, workspaceRailItemId } from './rail-items.service';
 import { RailMoveService } from './rail-move.service';
 import { Reorderable } from '../reorder/reorderable.directive';
 import { UserOrderService } from '../reorder/user-order.service';
@@ -64,6 +64,7 @@ export class ShellRail {
   private readonly auth = inject(AuthContext);
   private readonly userOrder = inject(UserOrderService);
   private readonly features = inject(FeatureSwitches).rail;
+  private readonly savedInRail = inject(FeatureSwitches).workspaces.savedInRail;
   private readonly activeWorkspace = inject(ActiveWorkspaceService);
   private readonly railItems = inject(RailItemsService);
   private readonly railMove = inject(RailMoveService);
@@ -211,10 +212,12 @@ export class ShellRail {
   }
 
   protected current(item: RailItem): boolean {
-    return (
-      item.workspace !== undefined &&
-      item.workspace === this.activeWorkspace.id()
-    );
+    const workspace = item.workspace;
+    if (workspace === undefined) {
+      return false;
+    }
+    const active = this.activeWorkspace.id();
+    return workspace === active || this.marksVariant(workspace, active);
   }
 
   protected run(item: RailItem): void {
@@ -283,5 +286,19 @@ export class ShellRail {
       return 'right';
     }
     return event.key === 'ArrowLeft' ? 'left' : null;
+  }
+
+  private marksVariant(workspace: string, active: string): boolean {
+    return (
+      this.workspaces.originOf(active) === workspace &&
+      !this.drawnAsOwnEntry(active)
+    );
+  }
+
+  private drawnAsOwnEntry(workspaceId: string): boolean {
+    return (
+      this.savedInRail() &&
+      this.railItems.isVisible(workspaceRailItemId(workspaceId))
+    );
   }
 }
