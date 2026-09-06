@@ -46,10 +46,10 @@ describe('the account entry', () => {
 
     const entry = current(drawn);
 
-    expect(entry.title).toBe('Merle Behrens');
-    expect(entry.initials).toBe('MB');
+    expect(entry.title).toBe('Gambit the Cat');
+    expect(entry.initials).toBe('GC');
     expect(entry.menuTrigger).toBe('primary');
-    expect(entry.menuHeader?.title).toBe('Merle Behrens');
+    expect(entry.menuHeader?.title).toBe('Gambit the Cat');
     expect(entry.menuHeader?.detail).toBe('product.role.accounting');
   });
 

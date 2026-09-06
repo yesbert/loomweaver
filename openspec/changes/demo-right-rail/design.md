@@ -7,7 +7,7 @@ Everything in the rail is declared statically in `demo/src/app/app.config.ts` th
 session object. The session itself is a small signal store with two accounts and a signed-out state,
 already read by the shell through `provideAuthSource` and by the status bar item beside it.
 
-A statically declared item is a value, not a signal. It cannot say *Merle Behrens* in a menu heading
+A statically declared item is a value, not a signal. It cannot say *Gambit the Cat* in a menu heading
 and then say *Jonas Weiler* after the switch. The contract's answer to that is registration from a
 plugin: `registerRailItem` and `registerMenuItem` both replace by id, so registering the same id
 again is how an entry changes. The demo has no plugin for its session yet.

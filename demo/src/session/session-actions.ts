@@ -8,12 +8,13 @@ let railItem: Disposable | undefined;
 let entries: Disposable[] = [];
 
 function initialsOf(name: string): string {
-  return name
-    .split(' ')
-    .filter((part) => part.length > 0)
-    .slice(0, 2)
-    .map((part) => part[0].toUpperCase())
-    .join('');
+  const words = name.split(' ').filter((part) => part.length > 0);
+  if (words.length === 0) {
+    return '';
+  }
+  const first = words[0];
+  const last = words[words.length - 1];
+  return (first === last ? first[0] : first[0] + last[0]).toUpperCase();
 }
 
 function roleKey(roles: readonly string[]): string {

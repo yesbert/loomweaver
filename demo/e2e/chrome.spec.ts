@@ -48,7 +48,7 @@ test('signing out swaps the rail item for a way back in, and it survives a reloa
   page,
 }) => {
   await page.goto('/');
-  await expect(page.getByTestId('account-name')).toHaveText('Merle Behrens');
+  await expect(page.getByTestId('account-name')).toHaveText('Gambit the Cat');
 
   await page.getByRole('button', { name: 'Sign out' }).click();
 
@@ -59,6 +59,6 @@ test('signing out swaps the rail item for a way back in, and it survives a reloa
   await expect(page.getByTestId('sign-in')).toBeVisible();
 
   await page.getByTestId('sign-in').click();
-  await expect(page.getByTestId('account-name')).toHaveText('Merle Behrens');
+  await expect(page.getByTestId('account-name')).toHaveText('Gambit the Cat');
   await expect(page.getByRole('button', { name: 'Sign out' })).toBeVisible();
 });

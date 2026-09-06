@@ -8,7 +8,7 @@ describe('demoSession', () => {
 
   it('starts with someone signed in', () => {
     expect(demoSession.snapshot().authenticated).toBe(true);
-    expect(demoSession.snapshot().displayName).toBe('Merle Behrens');
+    expect(demoSession.snapshot().displayName).toBe('Gambit the Cat');
   });
 
   it('signs out to an anonymous snapshot, which is what takes the rail item that triggered it off screen', () => {

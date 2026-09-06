@@ -6,8 +6,8 @@ const ACCOUNTS: readonly AuthSnapshot[] = [
     authenticated: true,
     roles: ['accounting'],
     claims: {},
-    subject: 'm.behrens',
-    displayName: 'Merle Behrens',
+    subject: 'gambit',
+    displayName: 'Gambit the Cat',
   },
   {
     authenticated: true,
@@ -19,7 +19,7 @@ const ACCOUNTS: readonly AuthSnapshot[] = [
 ];
 
 export const ACCOUNT_PICTURES: Readonly<Record<string, string>> = {
-  'm.behrens': 'avatar-gambit.jpg',
+  gambit: 'avatar-gambit.jpg',
 };
 
 const SIGNED_OUT_KEY = 'demo.session.signed-out';
