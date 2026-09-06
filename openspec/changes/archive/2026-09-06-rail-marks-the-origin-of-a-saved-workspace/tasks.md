@@ -15,7 +15,7 @@
       of the rail, whether or not the user had placed it before.
 - [x] 2.4 Test that a variant without an origin marks nothing.
 - [x] 2.5 Test that choosing the marked origin switches to the origin.
-- [ ] 2.6 Add the demo assertion: saving the Sales arrangement as a workspace of the user's own and
+- [x] 2.6 Add the demo assertion: saving the Sales arrangement as a workspace of the user's own and
       switching to it keeps the Sales entry marked.
 
 ## 3. Documentation
