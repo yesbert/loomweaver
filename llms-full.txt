@@ -400,6 +400,9 @@ interface BarComponentItem { component: Type<unknown>; /* + base */ }
 interface BarButtonItem { icon?: string; initials?: string; image?: string; label?: string; tooltip?: string; menu?: string; menuTrigger?: 'context' | 'primary' | 'both'; menuHeader?: MenuHeader; command?: string; showShortcut?: boolean; run?(): void | Promise<void>; /* + base */ }  // showShortcut (LWF-04): render the bound command's shortcut hint, OS-correct (⌘K / Ctrl+K); needs command to have a shortcut. Default off.
 // `workspace` names a workspace id: the host switches to it on click and marks the entry as the current one
 // (bar + tint + aria-current) while it is active. Provide it INSTEAD of command/run; those are then ignored.
+// The entry is marked as well while a workspace the USER saved from it (its variant) is active and has no
+// entry of its own in any rail; icon, name and tooltip stay the entry's, and a click switches to the
+// declared workspace. Where the variant's own entry is drawn, that one alone is marked.
 interface RailItem { id: string; rail: string; icon: string; initials?: string; image?: string; title: string; order?: number; anchor?: 'top' | 'bottom'; menu?: string; menuTrigger?: 'context' | 'primary' | 'both'; menuHeader?: MenuHeader; command?: string; access?: AccessRequirement; workspace?: string; run?(): void | Promise<void>; }
 // initials: one or two letters the host draws INSTEAD of the icon, for an entry the user named (a saved workspace, a project, an account) — a fixed glyph makes them all look alike. Two characters max (rail draws them at icon size); app font, inherited colour, so hover/active behave as for an icon; `icon` stays the fallback.
 // The shell derives them for user-saved workspaces itself, in the rail, the workspace dialog and the curation list: initials of the first two words, or for one word its FIRST AND LAST letter (Month End → ME, Review → RW, Reports → RS). First-and-last because first-two collides far too often (Review/Reports/Rechnungen/Recherche all → RE). On a genuine clash only the NEWER one steps aside (first+second, first+third, …), so Kunden keeps KN and Konten becomes KO and no existing badge is ever renamed. Derived, not stored: a rename updates it, deleting a workspace may let a later one simplify back.
@@ -766,8 +769,9 @@ interface CommandFeatures { shortcuts: boolean; recentlyUsed: boolean }
 // place one, an entry placed before the decision stops being offered while the placement itself is KEPT
 // (deciding the other way again restores it where they had put it), and saving, renaming, resetting and
 // switching all still work with the workspace dialog as the way to them. Nothing is reported about their
-// absence — it is a decision, not an omission. Workspaces the product DECLARED are untouched, and one that
-// nothing offers is still reported.
+// absence — it is a decision, not an omission. The rail still says where the user is: while a saved
+// workspace is active, the entry of the workspace it was saved from is marked. Workspaces the product
+// DECLARED are untouched, and one that nothing offers is still reported.
 // A rail or bar item naming a command nobody registered is dropped, like an orphaned menu entry.
 interface ShellFeatures { content: ContentFeatures; sidebar: SidebarFeatures; rail: RailFeatures; workspaces: WorkspaceFeatures; windows: WindowFeatures; commands: CommandFeatures }
 type ShellFeaturesInput = { [G in keyof ShellFeatures]?: Partial<ShellFeatures[G]> };
