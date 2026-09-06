@@ -108,3 +108,24 @@ test('the rail carries the workspace under its own icon and switches to it', asy
   await expect(page).toHaveURL(/\/sales\/customers$/);
   await expect(entry).toHaveAttribute('aria-current', 'true');
 });
+
+test('a workspace saved from Sales keeps the Sales entry marked', async ({ page }) => {
+  await openSales(page);
+  const entry = page
+    .getByRole('navigation', { name: 'Left activity bar' })
+    .getByRole('button', { name: 'Sales' });
+  await expect(entry).toHaveAttribute('aria-current', 'true');
+
+  await page.getByRole('button', { name: 'Workspaces' }).click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByRole('button', { name: /^Mine/ }).click();
+  await dialog.getByLabel('Workspace name').fill('Month end');
+  await dialog.getByTestId('workspace-save').click();
+  await expect(dialog).toContainText('Month end');
+  await page.keyboard.press('Escape');
+
+  await expect(dialog).toHaveCount(0);
+  await expect(entry).toHaveAttribute('aria-current', 'true');
+  await expect(entry.locator('svg')).toHaveCount(1);
+  await expect(entry.locator('.lw-rail-initials')).toHaveCount(0);
+});
