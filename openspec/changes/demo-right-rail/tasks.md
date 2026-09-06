@@ -6,7 +6,7 @@
       of the left rail.
 - [x] 1.3 Give the agent plugin a command that reveals its chat surface, and put an assistant entry
       at the top of the right rail that runs it. The command is in the palette like every other.
-- [ ] 1.4 Look at it once. Two rails, a narrower content area, the assistant open and closed.
+- [x] 1.4 Look at it once. Two rails, a narrower content area, the assistant open and closed.
 
 ## 2. The account, as one entry with a menu
 
@@ -28,7 +28,7 @@
 
 - [x] 3.1 Read the end-to-end suite for what it assumes about the rail, and fix what the second rail
       moved.
-- [ ] 3.2 Accessibility check over the account entry: the menu opens from the keyboard, its heading
+- [x] 3.2 Accessibility check over the account entry: the menu opens from the keyboard, its heading
       is announced once, and the entry is reachable in both rails.
-- [ ] 3.3 Look at the whole thing at a small window, where two rails, a tree and the assistant
+- [x] 3.3 Look at the whole thing at a small window, where two rails, a tree and the assistant
       compete for width.

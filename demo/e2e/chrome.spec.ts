@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { accountEntry } from './account';
 
 /* The rail's foot and the status bar are contributed by the distribution rather than by a weaver,
    which is the one path no plugin test covers: a wrong region id renders nothing and reports
@@ -70,4 +71,25 @@ test('signing out leaves the account entry standing, offering the way back in, a
   await account.click();
   await expect(page.getByRole('menu')).toContainText('Gambit the Cat');
   await expect(page.getByRole('menuitem', { name: 'Sign out' })).toBeVisible();
+});
+
+test('the account menu opens from the keyboard, names who it is about once, and gives the focus back', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const account = accountEntry(page);
+
+  await account.focus();
+  await page.keyboard.press('Enter');
+
+  await expect(page.getByRole('menu')).toHaveAttribute(
+    'aria-label',
+    'Gambit the Cat, Accounting',
+  );
+  await page.keyboard.press('ArrowDown');
+  await expect(page.getByRole('menuitem', { name: 'Switch account' })).toBeFocused();
+
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('menu')).toHaveCount(0);
+  await expect(account).toBeFocused();
 });
