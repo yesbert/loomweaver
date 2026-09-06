@@ -1,19 +1,21 @@
 ## Context
 
-See proposal.md, *Why*. What shapes the approach is that both halves already exist.
+See proposal.md, *Why*. What shapes the approach is how little is missing.
 
-The content router builds its routes from what is registered, and adds a placeholder route for every
-address a distribution removed, so such an address keeps its place and explains itself. The same
-placeholder answers an address the session may not reach. What has no case is an address that is
-neither registered nor removed: it falls through to the router's own catch-all, which is the
-starting screen.
+Measured on the running demo at a plugin address with the plugin uninstalled: the address stays and
+the content area shows the unavailable placeholder. The router already builds that placeholder for an
+address it is waiting on, and separately for an address a distribution removed. That half works.
+
+What no one does is ask which workspace claims the address. The active workspace stays whatever it
+was, which after a fresh start is the one claiming the starting address, so the placeholder is read
+under the wrong sidebar.
 
 Workspaces already say which addresses belong to them, and the workspace machinery already resolves
 an address to the workspace that claims it, since that is how switching to an address enters the
 right workspace.
 
-So the missing piece is a decision, not a mechanism: before the catch-all takes an unmatched address,
-ask whether a workspace claims it.
+So the missing piece is one question asked at one moment: when an address is answered by the
+placeholder rather than by content, ask which workspace claims it and make that one active.
 
 ## Goals / Non-Goals
 
@@ -39,9 +41,10 @@ first segment matches a known prefix as claimed. That would guess where a worksp
 and would answer differently for a product that claims deliberately narrow addresses. Asking the
 workspace machinery costs one call and is right by construction.
 
-**The explanation is the existing one.** A second, more specific wording — "the plugin that showed
-this was removed" — would be more precise and would have to be maintained in every language, and it
-would be wrong whenever the address was never answered by anything. One wording for one situation.
+**The explanation is left exactly as it is.** It already says the right thing in the right place; a
+second, more specific wording — "the plugin that showed this was removed" — would have to be
+maintained in every language and would be wrong whenever the address was never answered by anything.
+The change touches where the user stands, not what they read.
 
 **Waiting keeps precedence.** A deep link that arrives before its plugin is the ordinary case and is
 already quiet. The explanation therefore only applies once waiting has given up, and the change adds

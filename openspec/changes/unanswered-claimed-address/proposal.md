@@ -2,11 +2,13 @@
 
 ## Why
 
-Open the workbench at an address a workspace claims, and let nothing answer it: the user is handed
-to whichever workspace claims the starting address, silently. Nothing says the address is gone, and
-nothing says why they are somewhere else. Measured in the demo, an address a removed plugin used to
-answer is indistinguishable from an address that never existed: both land in the starting workspace
-with the address left in the bar.
+Open the workbench at an address a workspace claims, and let nothing answer it. Measured in the demo,
+at the address of a plugin that is not installed: the address stays in the bar and the content area
+says the view is not available, which is right. But the active workspace is the one that claims the
+starting address, so the user reads that explanation under a foreign sidebar, with the tree of a
+module they did not ask for — and the module they did ask for looks empty rather than incomplete.
+
+The explanation is therefore already there. What is missing is that it is shown in the wrong place.
 
 For every product that lets a user install plugins this is an ordinary Monday. A tab on a plugin's
 address is open, the plugin is removed or the operator drops it from the catalogue, and the next
@@ -22,11 +24,11 @@ covered.
 
 ## What Changes
 
-- An address that a workspace claims and that nothing answers **lands in that workspace** and
-  explains itself there, instead of settling the user into the workspace that claims the starting
-  address.
-- The explanation is the one the workbench already shows for content a distribution removed, so a
-  user meets one wording for one situation rather than two for the same thing.
+- An address that a workspace claims and that nothing answers **makes that workspace the active
+  one**, so the explanation already shown at the address is read in the place it is about, with that
+  workspace's sidebars and its tree.
+- The explanation itself is unchanged. The workbench already keeps the address and says the content
+  is not available; nothing about that wording or its trigger moves.
 - An address **no** workspace claims is unchanged: the starting screen stays the answer for a
   mistyped address, because there is nothing better to be said about it.
 - The waiting a deep link already gets is unchanged: a plugin that has not registered yet is the
@@ -36,16 +38,16 @@ covered.
 
 ### Modified Capabilities
 
-- `routing`: an unanswered address that a workspace claims now has a stated outcome — it lands in
-  that workspace with an explanation — where the capability previously stated only that the
-  workspace's remembered arrangement is left alone.
+- `routing`: an unanswered address that a workspace claims now says which workspace the user is left
+  in, where the capability previously stated only that the workspace's remembered arrangement is
+  left alone and that fallback content may be shown.
 
 ## Impact
 
-- The content router decides what an unmatched address resolves to; it gains the claimed-address
-  case beside the one it already has for removed content.
-- The workspace that claims an address is known to the workspace machinery; the router has to ask it
-  before falling back.
+- The workbench already answers an unmatched address with the unavailable placeholder; that path is
+  untouched.
+- What changes is which workspace is active while that placeholder is shown. The workspace machinery
+  can already name the workspace that claims a path; nothing asks it in this case yet.
 - No published type or provider changes. A distribution that declares no workspaces sees no
   difference, because nothing claims anything.
 

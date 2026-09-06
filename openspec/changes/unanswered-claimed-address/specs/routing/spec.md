@@ -3,10 +3,13 @@
 ### Requirement: An unanswered address a workspace claims is shown where it belongs
 
 Where an address nothing answers lies under one a workspace claims, the workbench SHALL make that
-workspace the active one and SHALL show, at that address, the same explanation it shows for content
-a distribution removed. It SHALL NOT settle the user into the workspace that claims the starting
-address, because being moved elsewhere without a word is worse than an empty place with a reason in
-it.
+workspace the active one while it shows, at that address, the explanation that the content is not
+available. It SHALL NOT leave the user in the workspace that claims the starting address, because an
+explanation read under a foreign sidebar makes the module the user asked for look empty rather than
+incomplete.
+
+What is shown at the address is unchanged by this: the workbench keeps the address and shows the
+explanation exactly as it did.
 
 This SHALL hold however the address came to be unanswered: never registered, registered by a plugin
 that has since been removed, or carried by an arrangement stored before the content went away.
