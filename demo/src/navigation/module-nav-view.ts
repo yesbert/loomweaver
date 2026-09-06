@@ -19,10 +19,6 @@ export class ModuleNavView {
 
   protected readonly module = computed(() => moduleOfPath(this.shown()));
 
-  protected readonly waiting = computed(() =>
-    this.module().areas.some((area) => area.views.length === 0),
-  );
-
   constructor() {
     effect(() => {
       const module = this.module();

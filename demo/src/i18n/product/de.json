@@ -53,6 +53,8 @@
     "stock": "Bestandsführung",
     "movements": "Warenbewegung",
     "employees": "Mitarbeiter",
+    "payrollRuns": "Gehaltsläufe",
+    "employees": "Mitarbeiter",
     "payroll": "Gehalt und Abrechnung"
   },
   "view": {
@@ -68,11 +70,12 @@
     "supplierList": "Lieferantenstamm",
     "purchaseOrders": "Bestellungen",
     "stockLevels": "Bestandsführung",
-    "movements": "Warenbewegung"
+    "movements": "Warenbewegung",
+    "employees": "Mitarbeiter",
+    "payrollRuns": "Gehaltsläufe"
   },
   "nav": {
-    "title": "Navigation",
-    "notYet": "Bereiche ohne Einträge warten noch auf ihren Inhalt."
+    "title": "Navigation"
   },
   "customers": {
     "search": "Kunden durchsuchen",
@@ -196,6 +199,33 @@
       "kind": "Art",
       "reference": "Beleg",
       "quantity": "Menge"
+    }
+  },
+  "people": {
+    "headcount": "{{count}} Mitarbeiter",
+    "monthlyGross": "Monatsbrutto",
+    "weeklyHours": "{{hours}} Std./Woche",
+    "runPayroll": "Abrechnung starten",
+    "confirmPayroll": "Den offenen Monat abrechnen? Er gilt danach als ausgezahlt.",
+    "payrollDone": "Abrechnung ausgeführt.",
+    "nothingOpen": "Kein Monat ist offen.",
+    "payrollDescription": "Rechnet den offenen Monat ab und setzt ihn auf ausgezahlt.",
+    "payrollAnswers": "Welcher Monat abgerechnet wurde.",
+    "department": {
+      "workshop": "Werkstatt",
+      "warehouse": "Lager"
+    },
+    "state": {
+      "open": "offen",
+      "paid": "ausgezahlt"
+    },
+    "column": {
+      "number": "Personalnr.",
+      "name": "Name",
+      "department": "Bereich",
+      "joined": "Eintritt",
+      "hours": "Arbeitszeit",
+      "gross": "Monatsbrutto"
     }
   },
   "procurement": {
