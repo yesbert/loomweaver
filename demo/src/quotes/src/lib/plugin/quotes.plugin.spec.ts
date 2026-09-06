@@ -82,11 +82,12 @@ function activateWithRecorder(): Recorded {
 }
 
 describe('quotesPlugin', () => {
-  it('declares only the capabilities it uses', () => {
+  it('declares only the capabilities it uses, ui among them for the customer prompt', () => {
     expect(quotesPlugin.manifest.id).toBe('quotes');
     expect([...(quotesPlugin.manifest.capabilities ?? [])].sort()).toEqual([
       'contributions',
       'navigation',
+      'ui',
     ]);
   });
 
