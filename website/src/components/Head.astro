@@ -1,0 +1,158 @@
+---
+import Default from '@astrojs/starlight/components/Head.astro';
+import siteMeta from '../../generated/site-meta.json';
+import { sidebar } from '../../sidebar.mjs';
+
+const { head, entry, lastUpdated } = Astro.locals.starlightRoute;
+const site = Astro.site ?? new URL('https://loomweaver.dev');
+const here = Astro.url.pathname;
+const isLanding = here === '/';
+
+// Starlight hardcodes og:type to "article" for every page, which is what an article is, and the
+// landing page is not one. Rewriting the entry it already produced beats appending a second tag:
+// a scraper reading two og:type values picks whichever it meets first.
+Astro.locals.starlightRoute.head = head.map((tag) =>
+  isLanding && tag.tag === 'meta' && tag.attrs?.property === 'og:type'
+    ? { ...tag, attrs: { ...tag.attrs, content: 'website' } }
+    : tag,
+);
+
+const absolute = (pathname) => new URL(pathname, site).href;
+const card = absolute('/social-card.png');
+const cardAlt =
+  'LoomWeaver: build Angular workbenches that grow with your product — an open-source ' +
+  'plugin platform with panes, a command palette and sandboxed plugins.';
+
+const organisation = {
+  '@type': 'Organization',
+  '@id': `${site.origin}/#organisation`,
+  name: 'LoomWeaver',
+  url: site.origin,
+  logo: absolute('/icon-512.png'),
+  sameAs: ['https://github.com/yesbert/loomweaver'],
+};
+
+const website = {
+  '@type': 'WebSite',
+  '@id': `${site.origin}/#website`,
+  name: 'LoomWeaver',
+  url: site.origin,
+  publisher: { '@id': organisation['@id'] },
+  inLanguage: 'en',
+};
+
+const REPOSITORY = 'https://github.com/yesbert/loomweaver';
+const LICENCE = 'https://www.apache.org/licenses/LICENSE-2.0';
+
+const application = {
+  '@type': 'SoftwareApplication',
+  '@id': `${site.origin}/#software`,
+  name: 'LoomWeaver',
+  applicationCategory: 'DeveloperApplication',
+  applicationSubCategory: 'Application framework',
+  operatingSystem: 'Web browser',
+  description:
+    'An open-source plugin platform for Angular workbenches: an application shell with panes ' +
+    'the user splits, a command palette, theming, plugins that run isolated in their own ' +
+    'sandbox, and plugins your users install at runtime.',
+  url: site.origin,
+  softwareVersion: siteMeta.version,
+  license: LICENCE,
+  image: card,
+  author: { '@id': organisation['@id'] },
+  sameAs: [REPOSITORY],
+  isAccessibleForFree: true,
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
+};
+
+/* The repository is its own node rather than two properties on the application: codeRepository and
+   programmingLanguage belong to SoftwareSourceCode, and targetProduct is the property schema.org
+   gives for pointing source at the thing it builds. */
+const sourceCode = {
+  '@type': 'SoftwareSourceCode',
+  '@id': `${site.origin}/#source`,
+  name: 'LoomWeaver',
+  codeRepository: REPOSITORY,
+  programmingLanguage: ['TypeScript', 'Angular'],
+  license: LICENCE,
+  runtimePlatform: 'Angular',
+  targetProduct: { '@id': application['@id'] },
+};
+
+/* The trail a reader can see, restated for a machine: the group this page sits in is the group the
+   sidebar puts it in, read from the same module the navigation renders from. A breadcrumb derived
+   anywhere else would eventually disagree with the one on screen. */
+function trail(pathname) {
+  for (const group of sidebar) {
+    if (group.link === pathname) return [group];
+    const child = group.items?.find((item) => item.link === pathname);
+    if (child) return [group, child];
+  }
+  return [];
+}
+
+const crumbs = isLanding ? [] : trail(here);
+const breadcrumbs = crumbs.length
+  ? {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'LoomWeaver', item: site.origin },
+        ...crumbs.map((crumb, index) => ({
+          '@type': 'ListItem',
+          position: index + 2,
+          name: crumb.label,
+          ...(crumb.link ? { item: absolute(crumb.link) } : {}),
+        })),
+      ],
+    }
+  : undefined;
+
+const article = {
+  '@type': 'TechArticle',
+  '@id': `${absolute(here)}#article`,
+  headline: entry.data.title,
+  description: entry.data.description,
+  url: absolute(here),
+  inLanguage: 'en',
+  image: card,
+  isPartOf: { '@id': website['@id'] },
+  about: { '@id': application['@id'] },
+  author: { '@id': organisation['@id'] },
+  publisher: { '@id': organisation['@id'] },
+  ...(lastUpdated ? { dateModified: lastUpdated.toISOString() } : {}),
+};
+
+/* The application travels with every page, not just the landing one: a documentation page says what
+   it is about, and a reference that resolves to nothing tells a reader of the graph less than no
+   reference at all. */
+const graph = isLanding
+  ? [application, sourceCode, website, organisation]
+  : [article, breadcrumbs, application, website, organisation].filter(Boolean);
+
+const structuredData = JSON.stringify({ '@context': 'https://schema.org', '@graph': graph });
+---
+
+<Default />
+
+{/* Starlight declares twitter:card=summary_large_image and never names an image, so every share
+    rendered as a bare text card. One card for the whole site, drawn once and committed. */}
+<meta property="og:image" content={card} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content={cardAlt} />
+<meta property="og:image:type" content="image/png" />
+<meta name="twitter:image" content={card} />
+<meta name="twitter:image:alt" content={cardAlt} />
+
+{/* The 32 is Starlight's `favicon` option. These are the sizes it has no option for. The brand
+    mark it used to point at is 1280×1117: a favicon has to be square, and a browser asked to
+    scale a 110 KB non-square PNG into a 16px box on every page gets neither a good glyph nor a
+    cheap one. */}
+<link rel="icon" href="/icon-192.png" sizes="192x192" type="image/png" />
+<link rel="apple-touch-icon" href="/icon-180.png" sizes="180x180" />
+<meta name="theme-color" content="#2E96C9" />
+
+{/* What LoomWeaver is, for anything that reads schema.org before deciding whether to fetch the
+    page in full. Every value is derived: the version from Directory.Build.props, the date from
+    git, the breadcrumb from the sidebar module, so none of it can drift from the page it is on. */}
+<script type="application/ld+json" is:inline set:html={structuredData} />

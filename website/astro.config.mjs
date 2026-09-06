@@ -1,5 +1,8 @@
+import sitemap from '@astrojs/sitemap';
 import starlight from '@astrojs/starlight';
 import { defineConfig, passthroughImageService } from 'astro/config';
+import pageMeta from './generated/page-meta.json' with { type: 'json' };
+import { sidebar } from './sidebar.mjs';
 
 export default defineConfig({
   site: 'https://loomweaver.dev',
@@ -29,19 +32,39 @@ export default defineConfig({
   // ships two brand PNGs, so optimisation buys nothing worth a copyleft dependency.
   image: { service: passthroughImageService() },
   integrations: [
+    // Declared here rather than left to Starlight, which adds its own copy only when the list does
+    // not already carry one. Starlight's copy writes <loc> and nothing else; every page here has a
+    // date in its history, and a crawler that is told when a page last changed comes back for the
+    // ones that did. sync-docs.mjs writes generated/page-meta.json from `git log`.
+    sitemap({
+      serialize: (item) => {
+        const url = new URL(item.url);
+        const lastmod = pageMeta[url.pathname];
+        return lastmod ? { ...item, lastmod } : item;
+      },
+    }),
     starlight({
       title: 'LoomWeaver',
       description: 'LoomWeaver: open-source plugin platform for Angular workbenches.',
-      favicon: '/loomweaver-icon.png',
+      // Square, and small enough to be worth fetching. Dropping this option does not remove the
+      // tag — Starlight falls back to /favicon.svg, which this site does not ship.
+      favicon: '/icon-32.png',
+      // The same mark at the resolution the header actually paints it: it renders about 24px
+      // tall, and the 1280px master was 110 KB fetched eagerly on every page for that.
       logo: {
-        src: './generated/assets/loomweaver-icon.png',
-        alt: 'LoomWeaver',
+        src: './generated/assets/loomweaver-icon-256.png',
+        // Decorative: the link it sits in already carries the word "LoomWeaver" beside it, and a
+        // name here made a screen reader read the site title twice.
+        alt: '',
       },
       customCss: ['./src/styles/brand.css'],
       // The footer carries the legal links and the consent banner. Starlight renders it on every
       // page, the splash landing page included, so overriding it reaches the whole site at once.
       // Umami itself is not loaded here: the banner appends the script only once somebody agrees.
       components: {
+        // The social card, the square icon set and og:type on the landing page. Starlight's own
+        // head declares twitter:card=summary_large_image and then names no image at all.
+        Head: './src/components/Head.astro',
         Footer: './src/components/Footer.astro',
         // The demo is the fastest way to understand what this is, but it was reachable only from the
         // landing page. Overriding SocialIcons rather than Header puts a link to it beside the GitHub
@@ -56,208 +79,7 @@ export default defineConfig({
           href: 'https://github.com/yesbert/loomweaver',
         },
       ],
-      sidebar: [
-        { label: 'Overview', link: '/overview/' },
-        {
-          label: 'Guides',
-          items: [
-            { label: 'Architecture', link: '/architecture/' },
-            { label: 'Getting started', link: '/getting-started/' },
-            { label: 'Manual setup', link: '/manual-setup/' },
-            { label: 'Samples', link: '/samples/' },
-            { label: 'The plugin system', link: '/plugins/' },
-            { label: 'Scaffolding', link: '/scaffolding/' },
-            { label: 'AG-UI agents', link: '/ag-ui-agents/' },
-            { label: 'Backend integration', link: '/backend-integration/' },
-          ],
-        },
-        {
-          label: 'Authoring a weaver',
-          collapsed: true,
-          items: [
-            { label: 'Overview', link: '/authoring-a-weaver/' },
-            {
-              label: 'Surfaces in a sidebar',
-              link: '/weaver/sidebar-surfaces/',
-            },
-            { label: 'View state that survives', link: '/weaver/view-state/' },
-            { label: 'Unsaved changes', link: '/weaver/unsaved-changes/' },
-            { label: "Your plugin's own store", link: '/weaver/plugin-state/' },
-            { label: 'Containers', link: '/weaver/containers/' },
-            { label: 'The content area', link: '/weaver/content-area/' },
-            {
-              label: 'Sub-routes and follows',
-              link: '/weaver/sub-routes-and-follows/',
-            },
-            { label: 'Menus', link: '/weaver/menus/' },
-            {
-              label: 'Sandboxed surfaces',
-              link: '/weaver/sandboxed-surfaces/',
-            },
-            { label: 'Commands and their triggers', link: '/weaver/commands/' },
-            { label: 'Access gating', link: '/weaver/access-gating/' },
-            { label: 'Icons and theme', link: '/weaver/icons-and-theme/' },
-            {
-              label: 'Host UI and host facts',
-              link: '/weaver/host-ui-and-facts/',
-            },
-            { label: 'Settings sections', link: '/weaver/settings/' },
-            { label: 'Translations', link: '/weaver/i18n/' },
-          ],
-        },
-        {
-          label: 'Building a distribution',
-          collapsed: true,
-          items: [
-            { label: 'Overview', link: '/building-a-distribution/' },
-            { label: 'Layout', link: '/distribution/layout/' },
-            {
-              label: 'Content-area routing',
-              link: '/distribution/content-routing/',
-            },
-            { label: 'Workspaces', link: '/distribution/workspaces/' },
-            { label: 'Resetting', link: '/distribution/resetting/' },
-            {
-              label: 'Switching capabilities off',
-              link: '/distribution/switching-capabilities-off/',
-            },
-            {
-              label: 'Surface retention',
-              link: '/distribution/surface-retention/',
-            },
-            { label: 'Branding', link: '/distribution/branding/' },
-            {
-              label: 'Bringing your own CSS framework',
-              link: '/distribution/css-frameworks/',
-            },
-            { label: 'Capabilities', link: '/distribution/capabilities/' },
-            { label: 'Auth integration', link: '/distribution/auth/' },
-            { label: 'Persistence stores', link: '/distribution/persistence/' },
-            {
-              label: 'Windows and sync',
-              link: '/distribution/windows-and-sync/',
-            },
-            { label: 'Frame plugins', link: '/distribution/frame-plugins/' },
-            { label: 'Plugin store', link: '/distribution/plugin-store/' },
-            {
-              label: 'Icons, translations and rewording',
-              link: '/distribution/icons-and-i18n/',
-            },
-            {
-              label: 'Recomposing host chrome',
-              link: '/distribution/recomposing-chrome/',
-            },
-            { label: 'PWA and delivery', link: '/distribution/pwa/' },
-          ],
-        },
-        {
-          label: 'Distribution API',
-          collapsed: true,
-          items: [
-            { label: 'Overview', link: '/distribution-api/' },
-            {
-              label: 'Composition',
-              link: '/distribution-api/composition/',
-            },
-            {
-              label: 'Switches',
-              link: '/distribution-api/switches/',
-            },
-            { label: 'Tabs', link: '/distribution-api/tabs/' },
-            { label: 'Panes', link: '/distribution-api/panes/' },
-            {
-              label: 'Workspaces',
-              link: '/distribution-api/workspaces/',
-            },
-            {
-              label: 'Sidebars',
-              link: '/distribution-api/sidebars/',
-            },
-            { label: 'Resetting', link: '/distribution-api/reset/' },
-            {
-              label: 'Dialogs and toasts',
-              link: '/distribution-api/dialogs-and-toasts/',
-            },
-            {
-              label: 'Settings',
-              link: '/distribution-api/settings/',
-            },
-            {
-              label: 'Commands',
-              link: '/distribution-api/commands/',
-            },
-            { label: 'Session', link: '/distribution-api/session/' },
-            {
-              label: 'Appearance',
-              link: '/distribution-api/appearance/',
-            },
-            {
-              label: 'Plugins at runtime',
-              link: '/distribution-api/plugins-at-runtime/',
-            },
-            {
-              label: 'Windows, sync and updates',
-              link: '/distribution-api/windows-and-sync/',
-            },
-          ],
-        },
-        {
-          label: 'Concepts',
-          items: [
-            {
-              label: 'Surfaces and panes',
-              link: '/concepts/surfaces-and-panes/',
-            },
-            { label: 'The address', link: '/concepts/the-address/' },
-            {
-              label: 'Retention and unsaved work',
-              link: '/concepts/retention-and-unsaved-work/',
-            },
-            {
-              label: 'Capabilities and trust',
-              link: '/concepts/capabilities-and-trust/',
-            },
-            { label: 'Workspaces', link: '/concepts/workspaces/' },
-          ],
-        },
-        // Listed rather than autogenerated: Starlight derives `autogenerate` from its own
-        // collection, and we load the synced docs with our own glob() loader, so it matched
-        // nothing and this group rendered empty. sync-docs.mjs fails the build if any page under
-        // docs/ is missing from this sidebar, which is the guard the autogeneration used to be.
-        {
-          label: 'Platform reference',
-          items: [
-            { label: 'Shell anatomy', link: '/reference/shell-anatomy/' },
-            { label: 'Access gating', link: '/reference/access-gating/' },
-            { label: 'Routing', link: '/reference/routing/' },
-            {
-              label: 'Callable commands',
-              link: '/reference/callable-commands/',
-            },
-            { label: 'Agent tools', link: '/reference/agent-tools/' },
-            { label: 'Design tokens', link: '/reference/design-tokens/' },
-            { label: 'Icons', link: '/reference/icons/' },
-            { label: 'Accessibility', link: '/reference/accessibility/' },
-            { label: 'Operations', link: '/reference/operations/' },
-            { label: 'Glossary', link: '/glossary/' },
-          ],
-        },
-        {
-          label: 'For AI assistants',
-          items: [
-            {
-              label: 'llms.txt',
-              link: '/llms.txt',
-              attrs: { target: '_blank' },
-            },
-            {
-              label: 'llms-full.txt',
-              link: '/llms-full.txt',
-              attrs: { target: '_blank' },
-            },
-          ],
-        },
-      ],
+      sidebar,
     }),
   ],
 });

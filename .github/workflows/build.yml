@@ -237,7 +237,12 @@ jobs:
       run:
         working-directory: website
     steps:
+      # Full history, because sync-docs.mjs dates every page from its last commit: that date is the
+      # sitemap's lastmod and the structured data's dateModified. A shallow clone knows one commit,
+      # and every page would claim to have changed on the day of the build.
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v7
         with:
@@ -251,11 +256,21 @@ jobs:
       - name: Lint the site
         run: npm run lint
 
+      # Two of these ratios were defects, each one token away from correct. The check reads the
+      # pairs the landing page and the chrome actually use, in both themes.
+      - name: Contrast check
+        run: npm run check-contrast
+
       # The sync step rewrites every relative link in the documentation to a site route and fails on
       # a target it cannot resolve. That makes this job the guardrail for documentation edits:
       # renaming or removing a page breaks the build here instead of shipping a dead link.
       - name: Build the Starlight site
         run: npm run build
+
+      # What a crawler is served, not what the source intended: a description of its own on every
+      # page, a social card, an icon set, structured data whose references resolve, a dated sitemap.
+      - name: Head and structured-data check
+        run: npm run check-head
 
       - name: Licence check
         run: npm run licence-check

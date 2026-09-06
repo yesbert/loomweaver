@@ -12,6 +12,9 @@
 > [Building a distribution](../distribution/layout.md).
 > The frame itself is **neutral core chrome**, and plugins contribute the contents.
 
+This page names every visible area of the workbench and draws where it sits, so that a conversation,
+a region id in code and a sentence in these guides all mean the same area.
+
 ## Base layout (desktop, fully equipped)
 
 The **top band** is **not** one continuous bar across the edges, but three segments side by side at

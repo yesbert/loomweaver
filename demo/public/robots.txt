@@ -1,0 +1,11 @@
+# The demo is a single-page application that answers every path with the same empty shell, so it
+# has nothing to offer an index. Its document carries <meta name="robots" content="noindex">, and
+# that is what keeps it out.
+#
+# Crawling stays allowed on purpose. Every page of loomweaver.dev links here, and a URL a crawler
+# is forbidden to fetch but finds linked gets indexed from the link alone — as a bare URL, with no
+# snippet, and with no way to ever read the noindex that would have removed it. Disallow is how a
+# page gets stuck in the index, not how it leaves.
+
+User-agent: *
+Allow: /
