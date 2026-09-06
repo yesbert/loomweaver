@@ -9,7 +9,8 @@ import { AUTH_SOURCE } from '../../auth/auth-context';
 import { ActiveWorkspaceService } from '../../workspace/active-workspace.service';
 import { WorkspaceService } from '../../workspace/workspace.service';
 import { RailItem } from '../../foundation/rail-item';
-import { RailItemsService } from './rail-items.service';
+import { RailItemsService, workspaceRailItemId } from './rail-items.service';
+import { provideShellFeatures } from '../../foundation/shell-features';
 import { RailLabelsService } from './rail-labels.service';
 import { RAIL_ITEM_CONTEXT_MENU } from './rail-context-menu';
 import { LW_TOOLTIP_TAG } from '../../elements/tooltip/lw-tooltip.element';
@@ -157,7 +158,6 @@ describe('ShellRail', () => {
       expect(scrolled).toHaveBeenCalledWith({ block: 'nearest' });
     });
   });
-
 
   describe('names under the icons', () => {
     const entry = (id: string, title: string): RailItem => ({
@@ -321,6 +321,14 @@ describe('ShellRail', () => {
     const switched: string[] = [];
     let activeId: WritableSignal<string>;
 
+    beforeEach(() => {
+      origins = {};
+      savedInRail = true;
+    });
+
+    let origins: Record<string, string>;
+    let savedInRail: boolean;
+
     function setupWorkspaces(active: string, ...items: RailItem[]) {
       localStorage.clear();
       switched.length = 0;
@@ -329,6 +337,7 @@ describe('ShellRail', () => {
         imports: [ShellRail, transloco()],
         providers: [
           { provide: AUTH_SOURCE, useValue: signal(ANONYMOUS) },
+          provideShellFeatures({ workspaces: { savedInRail } }),
           {
             provide: ActiveWorkspaceService,
             useValue: { id: activeId.asReadonly() },
@@ -340,6 +349,7 @@ describe('ShellRail', () => {
                 switched.push(id);
                 return Promise.resolve();
               },
+              originOf: (id: string) => origins[id] ?? null,
             },
           },
         ],
@@ -436,6 +446,82 @@ describe('ShellRail', () => {
       expect(switched).toEqual(['beta']);
       expect(ran).toBe(0);
     });
+
+    describe('while a saved workspace is active', () => {
+      beforeEach(() => {
+        origins = { alpha: 'alpha', beta: 'beta', mine: 'alpha' };
+      });
+
+      function placeOwnEntry(rail: string): void {
+        TestBed.inject(RailItemsService).show(
+          workspaceRailItemId('mine'),
+          rail,
+        );
+      }
+
+      it('marks the origin of one the user never placed, and leaves the entry as it is', () => {
+        const fixture = setupWorkspaces(
+          'mine',
+          entry('a', 'alpha'),
+          entry('b', 'beta'),
+        );
+        const [alpha, beta] = buttonsOf(fixture);
+
+        expect(alpha.getAttribute('aria-current')).toBe('true');
+        expect(beta.getAttribute('aria-current')).toBeNull();
+        expect(alpha.getAttribute('aria-label')).toBe('Reset');
+        const icon = alpha.querySelector('lw-icon') as { name?: string } | null;
+        expect(icon?.name).toBe('reset');
+      });
+
+      it('leaves the origin unmarked once the user placed the workspace itself', () => {
+        const fixture = setupWorkspaces('mine', entry('a', 'alpha'));
+        placeOwnEntry('activity');
+        fixture.detectChanges();
+
+        expect(buttonsOf(fixture)[0].getAttribute('aria-current')).toBeNull();
+      });
+
+      it('leaves the origin unmarked when the workspace itself is placed in the other rail', () => {
+        const fixture = setupWorkspaces('mine', entry('a', 'alpha'));
+        placeOwnEntry('activity-right');
+        fixture.detectChanges();
+
+        expect(buttonsOf(fixture)[0].getAttribute('aria-current')).toBeNull();
+      });
+
+      it('marks the origin while the product keeps saved workspaces out of the rail, placed or not', () => {
+        savedInRail = false;
+        const fixture = setupWorkspaces('mine', entry('a', 'alpha'));
+        expect(buttonsOf(fixture)[0].getAttribute('aria-current')).toBe('true');
+
+        placeOwnEntry('activity');
+        fixture.detectChanges();
+
+        expect(buttonsOf(fixture)[0].getAttribute('aria-current')).toBe('true');
+      });
+
+      it('marks nothing for one without an origin', () => {
+        origins = { alpha: 'alpha', beta: 'beta' };
+        const fixture = setupWorkspaces(
+          'mine',
+          entry('a', 'alpha'),
+          entry('b', 'beta'),
+        );
+
+        for (const button of buttonsOf(fixture)) {
+          expect(button.getAttribute('aria-current')).toBeNull();
+        }
+      });
+
+      it('switches to the origin when the marked entry is chosen', () => {
+        const fixture = setupWorkspaces('mine', entry('a', 'alpha'));
+
+        buttonsOf(fixture)[0].click();
+
+        expect(switched).toEqual(['alpha']);
+      });
+    });
   });
   describe('an entry drawn as a picture', () => {
     const withPicture = (overrides: Partial<RailItem> = {}): RailItem => ({
@@ -449,12 +535,18 @@ describe('ShellRail', () => {
       ...overrides,
     });
 
-    function picture(fixture: ReturnType<typeof setup>): HTMLImageElement | null {
-      return fixture.nativeElement.querySelector('[data-testid="rail-picture"]');
+    function picture(
+      fixture: ReturnType<typeof setup>,
+    ): HTMLImageElement | null {
+      return fixture.nativeElement.querySelector(
+        '[data-testid="rail-picture"]',
+      );
     }
 
     function initials(fixture: ReturnType<typeof setup>): HTMLElement | null {
-      return fixture.nativeElement.querySelector('[data-testid="rail-initials"]');
+      return fixture.nativeElement.querySelector(
+        '[data-testid="rail-initials"]',
+      );
     }
 
     it('draws the picture in place of the mark and the icon', () => {
@@ -566,16 +658,20 @@ describe('ShellRail', () => {
     it('heads the menu with what the entry stands for', () => {
       const fixture = setupMenu({
         ...account,
-        menuHeader: { title: 'Ada Lovelace', detail: 'ada@example.com', initials: 'AL' },
+        menuHeader: {
+          title: 'Ada Lovelace',
+          detail: 'ada@example.com',
+          initials: 'AL',
+        },
       });
 
       buttonsOf(fixture)[0].click();
       fixture.detectChanges();
 
       const menu = document.body.querySelector(LW_MENU_TAG);
-      expect(
-        menu?.querySelector('.lw-menu-header-title')?.textContent,
-      ).toBe('Ada Lovelace');
+      expect(menu?.querySelector('.lw-menu-header-title')?.textContent).toBe(
+        'Ada Lovelace',
+      );
       expect(menu?.getAttribute('aria-label')).toBe(
         'Ada Lovelace, ada@example.com',
       );
