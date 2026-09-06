@@ -14,18 +14,21 @@
 - [x] 2.2 Stop composing payment matching. It arrives through the catalogue or not at all.
 - [x] 2.3 Put the store in the right rail, above the account.
 - [x] 2.4 Every label the demo adds for this, in both languages.
-- [ ] 2.5 Walk it once by hand: browse, read the detail, consent, install, and watch the area appear
+- [x] 2.5 Walk it once by hand: browse, read the detail, consent, install, and watch the area appear
       in the Finance tree without a reload. Then remove it and watch it go.
 
 ## 3. The plugin brings settings of its own
 
-- [ ] 3.1 Give payment matching a settings section with four rows: tolerance, confirm exact matches
+- [x] 3.1 Give payment matching a settings section with four rows: tolerance, confirm exact matches
       automatically, sort order, and the period shown.
-- [ ] 3.2 Make the tolerance change what the plugin draws, so a value crossing the sandbox boundary
+- [x] 3.2 Make the tolerance change what the plugin draws, so a value crossing the sandbox boundary
       can be seen taking effect.
-- [ ] 3.3 The section's labels in both languages, inside the plugin, since the plugin owns them.
-- [ ] 3.4 Look at where the workbench put the section, and record whether it grouped it apart from
-      the product's own settings the way the capability says it must.
+- [x] 3.3 The section's labels in both languages, inside the plugin, since the plugin owns them.
+- [x] 3.4 Look at where the workbench put the section, and record whether it grouped it apart from
+      the product's own settings the way the capability says it must. **It does.** The settings
+      dialog lists *General*, *Permissions* and *Plugin store* under **Options**, and the plugin's
+      own section under a second group headed **Community plugins**. The plugin asks for no group
+      and is given none: the grouping follows from it having been installed rather than composed.
 
 ## 4. What the change touches elsewhere
 
