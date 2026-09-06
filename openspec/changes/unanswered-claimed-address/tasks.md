@@ -11,12 +11,13 @@
       enter the workspace's remembered arrangement.
 - [x] 2.2 A test for the case that started this: an address whose plugin was removed behaves like any
       other unanswered claimed address.
-- [ ] 2.3 End-to-end over the testbed: open a claimed address nothing answers and read back which
+- [x] 2.3 End-to-end over the testbed: open a claimed address nothing answers and read back which
       workspace is active and what stands at the address.
 
 ## 3. What it touches elsewhere
 
-- [ ] 3.1 Check the demo against it: opening the payment matching address without the plugin lands in
+- [x] 3.1 Check the demo against it: opening the payment matching address without the plugin lands in
       Finance with the explanation, rather than in Overview.
-- [ ] 3.2 Read the routing guide for what it says about an unanswered address, and correct it where
-      this change makes it wrong.
+- [x] 3.2 Read the routing guide for what it says about an unanswered address, and correct it where
+      this change makes it wrong. **Nothing to correct:** no guide states where an unanswered
+      address leaves the user, so none of them was made wrong by this.

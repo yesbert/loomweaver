@@ -12,6 +12,19 @@ test.describe('Omitted content route', () => {
     await expect(page).toHaveURL(/\/retired$/);
   });
 
+  test('a deep-link to an omitted route a workspace claims lands in that workspace', async ({
+    page,
+  }) => {
+    await page.goto('/retired');
+
+    await expect(
+      page.getByRole('heading', { name: 'View not available' }),
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-rail-item="testbed.workspace.sandbox"]'),
+    ).toHaveAttribute('aria-current', 'true');
+  });
+
   test('an omitted route is gone from the pane target picker', async ({
     page,
   }) => {
