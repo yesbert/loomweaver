@@ -54,7 +54,9 @@
     "payables": "Payables",
     "ledger": "General ledger",
     "closing": "Closing",
-    "dunning": "Dunning"
+    "dunning": "Dunning",
+    "supplierList": "Supplier master",
+    "purchaseOrders": "Purchase orders"
   },
   "nav": {
     "title": "Navigation",
@@ -137,6 +139,35 @@
       "reference": "Reference",
       "debit": "Debit",
       "credit": "Credit"
+    }
+  },
+  "procurement": {
+    "supplierCount": "{{count}} suppliers",
+    "leadTime": "{{days}} days",
+    "noOpenOrders": "none",
+    "onOrder": "On order",
+    "late": "{{days}} days late",
+    "receiveGoods": "Post goods receipt",
+    "confirmReceipt": "Post the goods receipt for the next expected delivery? The order then counts as received.",
+    "receiptDone": "Goods receipt posted.",
+    "nothingExpected": "No delivery is expected.",
+    "receiptDescription": "Posts the goods receipt for the next expected delivery and marks the order received.",
+    "receiptAnswers": "Which purchase order the goods receipt was posted for.",
+    "status": {
+      "ordered": "ordered",
+      "confirmed": "confirmed",
+      "received": "received"
+    },
+    "column": {
+      "number": "Number",
+      "supplier": "Supplier",
+      "city": "City",
+      "leadTime": "Lead time",
+      "openOrders": "Open orders",
+      "ordered": "Ordered",
+      "expected": "Expected",
+      "net": "Net",
+      "status": "Status"
     }
   }
 }
