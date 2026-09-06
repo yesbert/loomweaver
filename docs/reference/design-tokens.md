@@ -290,14 +290,14 @@ separated.
     }
   </lw-select>
   ```
-  Attributes: `label` (accessible name), `value` (current value), `placeholder`, `disabled`,
-  `compact` (the chosen option by its icon alone, the choice named in the trigger's accessible
-  name; an option without an icon still shows its text);
+  Attributes: `label` (accessible name), `value` (current value), `placeholder`, `disabled`;
   `<lw-option>`: `value`, optionally `icon` (v1 = a **literal glyph/emoji**; registry icon names
   follow with the `<lw-icon>` element), label = text content. The **`lw-select-change`** event
   (`detail.value`) fires **only on user selection**, not when `value` is set programmatically (no
   feedback loop). ARIA listbox keyboard handling (↑/↓/Home/End/Enter/Esc + typeahead) and CSS anchor
-  positioning sit inside the element; the **look** lives as `.lw-select-*` in `theme.css`.
+  positioning sit inside the element; the **look** lives as `.lw-select-*` in `theme.css`. With
+  `compact`, the trigger shows the chosen option by its icon alone and names the choice in its
+  accessible name. An option without an icon still shows its text.
 - **Sidebar navigation (`<lw-nav-tree>` + `<lw-nav-group>` + `<lw-nav-item>`):** a
   **framework-agnostic custom element** (like `<lw-select>`) for the list of destinations a product
   puts in a sidebar. Declared as **light-DOM children**, so the sidebar is legible in the template:
