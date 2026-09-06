@@ -56,3 +56,25 @@ test('folding survives the visitor moving between areas', async ({ page }) => {
     'false',
   );
 });
+
+/* Switching workspaces holds the address it lands on so content registering later can answer it.
+   That hold used to outlive the switch and chase the next navigation back, so the first click after
+   returning to a workspace appeared to do nothing. */
+test('the first click after returning to a workspace takes', async ({ page }) => {
+  const rail = page.getByRole('navigation', { name: 'Left activity bar' });
+  await page.goto('/');
+
+  await rail.getByRole('button', { name: 'People' }).click();
+  await navEntry(page, 'people/payroll').click();
+  await expect(page).toHaveURL(/\/people\/payroll$/);
+
+  await rail.getByRole('button', { name: 'Inventory' }).click();
+  await expect(page).toHaveURL(/\/inventory\//);
+
+  await rail.getByRole('button', { name: 'People' }).click();
+  await expect(page).toHaveURL(/\/people\/payroll$/);
+  await navEntry(page, 'people/employees').click();
+
+  await expect(page).toHaveURL(/\/people\/employees$/);
+  await expect(navEntry(page, 'people/employees')).toHaveAttribute('aria-current', 'page');
+});
