@@ -1,4 +1,5 @@
 import { expect, type FrameLocator, type Page, test } from '@playwright/test';
+import { signOut, switchAccount } from './account';
 
 function surface(page: Page): FrameLocator {
   return page.frameLocator('iframe[src*="/payments/view.html"]');
@@ -6,7 +7,7 @@ function surface(page: Page): FrameLocator {
 
 async function openPayments(page: Page): Promise<void> {
   await page
-    .getByRole('navigation', { name: 'Activity bar' })
+    .getByRole('navigation', { name: 'Left activity bar' })
     .getByRole('button', { name: 'Finance' })
     .click();
   await expect(page).toHaveURL(/\/finance\/matching$/);
@@ -79,7 +80,7 @@ test('confirmations survive leaving the module and coming back', async ({
   await view.locator('[data-line="b-1"] lw-button[data-confirm]').click();
   await expect(view.getByTestId('still-open')).toHaveText('€4,494.25');
 
-  const rail = page.getByRole('navigation', { name: 'Activity bar' });
+  const rail = page.getByRole('navigation', { name: 'Left activity bar' });
   await rail.getByRole('button', { name: 'Sales' }).click();
   await expect(page).toHaveURL(/\/sales\/customers$/);
 
@@ -92,7 +93,7 @@ test('confirmations survive leaving the module and coming back', async ({
 test('the plugin is listed under the name the demo gave it', async ({ page }) => {
   await page.goto('/');
   await page
-    .getByRole('navigation', { name: 'Activity bar' })
+    .getByRole('navigation', { name: 'Left activity bar' })
     .getByRole('button', { name: 'Settings' })
     .click();
   const dialog = page.getByRole('dialog');
@@ -111,7 +112,7 @@ test('the sales account is told why it cannot match payments', async ({ page }) 
   await openPayments(page);
   await expect(surface(page).getByTestId('statement')).toBeVisible();
 
-  await page.getByRole('button', { name: 'Switch account' }).click();
+  await switchAccount(page);
 
   const view = surface(page);
   await expect(view.getByTestId('payments-wrong-role')).toContainText('accounting');
@@ -123,7 +124,7 @@ test('a signed-out visitor is asked to sign in', async ({ page }) => {
   await openPayments(page);
   await expect(surface(page).getByTestId('statement')).toBeVisible();
 
-  await page.getByRole('button', { name: 'Sign out' }).click();
+  await signOut(page);
 
   const view = surface(page);
   await expect(view.getByTestId('payments-sign-in')).toBeVisible();
@@ -136,7 +137,7 @@ test('revoking the session grant reaches the mounted surface', async ({ page }) 
   await expect(surface(page).getByTestId('statement')).toBeVisible();
 
   await page
-    .getByRole('navigation', { name: 'Activity bar' })
+    .getByRole('navigation', { name: 'Left activity bar' })
     .getByRole('button', { name: 'Settings' })
     .click();
   const dialog = page.getByRole('dialog');
@@ -160,7 +161,7 @@ test('the colour scheme repaints the surface, and the kit still draws its contro
   );
 
   await page
-    .getByRole('navigation', { name: 'Activity bar' })
+    .getByRole('navigation', { name: 'Left activity bar' })
     .getByRole('button', { name: 'Settings' })
     .click();
   const dialog = page.getByRole('dialog');

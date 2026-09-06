@@ -26,7 +26,7 @@
 
 ## 3. What the change touches elsewhere
 
-- [ ] 3.1 Read the end-to-end suite for what it assumes about the rail, and fix what the second rail
+- [x] 3.1 Read the end-to-end suite for what it assumes about the rail, and fix what the second rail
       moved.
 - [ ] 3.2 Accessibility check over the account entry: the menu opens from the keyboard, its heading
       is announced once, and the entry is reachable in both rails.

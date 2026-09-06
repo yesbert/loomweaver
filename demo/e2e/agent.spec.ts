@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { switchAccount } from './account';
 
 /* Every assertion here is about what the workbench did — where it navigated, which look is active,
    whether the command ran — rather than about what the panel drew. The panel is how a visitor asks;
@@ -131,7 +132,7 @@ test('the margin is answered for the account that may see it, and refused for th
 
   await expect(conversation(page)).toContainText('"margin":');
 
-  await page.getByRole('button', { name: 'Switch account' }).click();
+  await switchAccount(page);
   await ask(page, 'margin');
 
   await expect(conversation(page)).toContainText('Switch accounts and ask me again');

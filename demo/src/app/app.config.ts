@@ -25,7 +25,6 @@ import { MODULES, navSurfaceId } from '../navigation/module-tree';
 import { insightsPlugin } from '../insights/insights.plugin';
 import { looksPlugin } from '../looks/looks.plugin';
 import { quotesPlugin } from '../quotes/src';
-import { AccountStatus } from '../session/account-status';
 import { demoSession } from '../session/session';
 import { paymentsIcon, paymentsPlugin } from '../payments/payments.plugin';
 import { procurementPlugin } from '../procurement/procurement.plugin';
@@ -76,13 +75,6 @@ export const appConfig: ApplicationConfig = {
         tooltip: 'palette.title',
         command: 'shell.commandPalette',
         showShortcut: true,
-      },
-      {
-        id: 'demo.account',
-        bar: 'status-bar',
-        slot: 'start',
-        order: 20,
-        component: AccountStatus,
       },
       {
         id: 'demo.look',

@@ -5,7 +5,6 @@
   "signIn": "Sign in",
   "switchAccount": "Switch account",
   "signOut": "Sign out",
-  "signedInAs": "Signed in as {{name}}",
   "theme": "Theme",
   "account": {
     "signedOut": "Not signed in",

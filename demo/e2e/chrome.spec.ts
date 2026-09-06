@@ -4,12 +4,16 @@ import { expect, test } from '@playwright/test';
    which is the one path no plugin test covers: a wrong region id renders nothing and reports
    nothing. Every assertion here is about something a user can see or click. */
 
-test('the rail foot offers workspaces, settings and sign out', async ({ page }) => {
+test('the feet of both rails offer workspaces, settings and the account', async ({
+  page,
+}) => {
   await page.goto('/');
 
   await expect(page.getByRole('button', { name: 'Workspaces' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Settings' })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Sign out' })).toBeVisible();
+  await expect(
+    page.locator('[data-rail-item="session.account"]'),
+  ).toBeVisible();
 });
 
 test('workspaces opens the workspace dialog on the list holding the active one', async ({
@@ -44,21 +48,26 @@ test('the status bar offers search with its shortcut, and it opens the palette',
   await expect(page.getByPlaceholder('Type a command…')).toBeVisible();
 });
 
-test('signing out swaps the rail item for a way back in, and it survives a reload', async ({
+test('signing out leaves the account entry standing, offering the way back in, and it survives a reload', async ({
   page,
 }) => {
   await page.goto('/');
-  await expect(page.getByTestId('account-name')).toHaveText('Gambit the Cat');
+  const account = page.locator('[data-rail-item="session.account"]');
 
-  await page.getByRole('button', { name: 'Sign out' }).click();
+  await account.click();
+  await expect(page.getByRole('menu')).toContainText('Gambit the Cat');
+  await page.getByRole('menuitem', { name: 'Sign out' }).click();
 
-  await expect(page.getByRole('button', { name: 'Sign out' })).toHaveCount(0);
-  await expect(page.getByTestId('sign-in')).toBeVisible();
+  await account.click();
+  await expect(page.getByRole('menuitem', { name: 'Sign in' })).toBeVisible();
+  await expect(page.getByRole('menuitem', { name: 'Sign out' })).toHaveCount(0);
+  await page.keyboard.press('Escape');
 
   await page.reload();
-  await expect(page.getByTestId('sign-in')).toBeVisible();
+  await account.click();
+  await page.getByRole('menuitem', { name: 'Sign in' }).click();
 
-  await page.getByTestId('sign-in').click();
-  await expect(page.getByTestId('account-name')).toHaveText('Gambit the Cat');
-  await expect(page.getByRole('button', { name: 'Sign out' })).toBeVisible();
+  await account.click();
+  await expect(page.getByRole('menu')).toContainText('Gambit the Cat');
+  await expect(page.getByRole('menuitem', { name: 'Sign out' })).toBeVisible();
 });
