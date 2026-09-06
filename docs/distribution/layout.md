@@ -13,11 +13,11 @@
 - **Docks:** `top` · `bottom` · `left` · `right` · `center`.
 - **Region types:**
   - `bar`: a thin strip of items in `start | center | end` slots (top bar, status bar). A bar that
-    cannot show every item folds the ones that do not fit into a **More** control at its end, the
-    last item of the `end` slot first (highest `order` first, then `center`, then `start`), and the
-    control opens them in a tray as they are. On a narrow viewport, the one at which the sidebars
-    become overlays, the workbench's own top-bar items take a compact form: the product's mark
-    without its name, the language switcher as its symbol alone.
+    cannot show every item folds the ones that do not fit into a **More** control at its end. The
+    last item of the `end` slot folds first, highest `order` first, then `center`, then `start`.
+    The control opens the folded items in a tray, as they are. On a narrow viewport, the one at
+    which the sidebars become overlays, the workbench's own top-bar items take a compact form: the
+    product's mark without its name, the language switcher as its symbol alone.
   - `rail`: the rail, which the workbench labels _Activity bar_, holding icon triggers for commands.
   - `panel`: a sidebar surface that hosts views (the host auto-tabs multiple views).
   - `content`: the main content area (docks `center`). **URL-addressed** (routes), not views.
