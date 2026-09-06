@@ -1,5 +1,12 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, effect } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  computed,
+  effect,
+  inject,
+} from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { ContributionRegistry } from '@loomweaver/shell';
 import {
   type ModuleArea,
   areaShowing,
@@ -15,9 +22,25 @@ import { navigationActions } from './navigation-actions';
   templateUrl: './module-nav-view.html',
 })
 export class ModuleNavView {
+  private readonly registry = inject(ContributionRegistry);
+
+  private readonly reachable = computed(
+    () => new Set(this.registry.contentRoutes().map((route) => route.path)),
+  );
+
   protected readonly shown = computed(() => navigationActions.activePath());
 
   protected readonly module = computed(() => moduleOfPath(this.shown()));
+
+  protected readonly areas = computed<readonly ModuleArea[]>(() => {
+    const reachable = this.reachable();
+    return this.module()
+      .areas.map((area) => ({
+        ...area,
+        views: area.views.filter((view) => reachable.has(view.path)),
+      }))
+      .filter((area) => area.views.length > 0);
+  });
 
   constructor() {
     effect(() => {

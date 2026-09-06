@@ -1,8 +1,8 @@
 ## 1. The tree stops drawing what is not there
 
-- [ ] 1.1 Let the navigation view read the reachable addresses from the workbench and draw an entry
+- [x] 1.1 Let the navigation view read the reachable addresses from the workbench and draw an entry
       only while its address is among them, with no area drawn whose entries are all missing.
-- [ ] 1.2 Unit tests: an entry whose address is gone is not drawn, an area that loses its last entry
+- [x] 1.2 Unit tests: an entry whose address is gone is not drawn, an area that loses its last entry
       is not drawn, and a module whose areas all fall away draws no tree.
 - [ ] 1.3 Show it and stop, with payment matching still composed, so the rule is seen to change
       nothing before anything depends on it.
