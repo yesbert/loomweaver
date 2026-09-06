@@ -8,7 +8,12 @@ function surface(page: Page): FrameLocator {
 
 async function openPayments(page: Page): Promise<void> {
   await installPaymentMatching(page);
-  await page.goto('/finance/matching');
+  await page
+    .getByRole('navigation', { name: 'Left activity bar' })
+    .getByRole('button', { name: 'Finance' })
+    .click();
+  await page.locator('[data-nav-area="matching"] .lw-nav-group-heading').click();
+  await page.locator('[data-nav-view="finance/matching"]').click();
   await expect(page).toHaveURL(/\/finance\/matching$/);
 }
 
