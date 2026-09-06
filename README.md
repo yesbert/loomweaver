@@ -13,6 +13,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="License: Apache 2.0"></a>
   <a href="https://loomweaver.dev"><img src="https://img.shields.io/badge/docs-loomweaver.dev-2E96C9.svg" alt="Documentation"></a>
   <a href="https://demo.loomweaver.dev"><img src="https://img.shields.io/badge/live_demo-demo.loomweaver.dev-C59A2F.svg" alt="Live demo"></a>
+  <a href="https://github.com/yesbert/loomweaver/releases"><img src="https://img.shields.io/github/v/release/yesbert/loomweaver?include_prereleases&label=release&color=2E96C9" alt="Latest release"></a>
 </p>
 
 ---
