@@ -30,7 +30,7 @@ test('a finance workspace that lost its content is entered rather than swapped f
   ).toBe('finance');
 });
 
-test('resetting from that notice brings the payments surface back', async ({
+test('resetting from that notice brings the declared receivables back', async ({
   page,
 }) => {
   await restoreDamagedProfile(page);
@@ -44,13 +44,11 @@ test('resetting from that notice brings the payments surface back', async ({
     await page.evaluate(() =>
       localStorage.getItem('lw.shell.pane-trees:finance'),
     ),
-  ).toContain('"finance/matching"');
+  ).toContain('"finance/receivables"');
 
   await page.reload();
 
-  await expect(
-    page.frameLocator('iframe[src*="/payments/view.html"]').getByTestId('open-items'),
-  ).toBeVisible();
+  await expect(page.getByTestId('receivables-list')).toBeVisible();
 });
 
 test('the sales arrangement the profile carried is left alone', async ({

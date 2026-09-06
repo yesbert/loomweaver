@@ -4,7 +4,7 @@
       only while its address is among them, with no area drawn whose entries are all missing.
 - [x] 1.2 Unit tests: an entry whose address is gone is not drawn, an area that loses its last entry
       is not drawn, and a module whose areas all fall away draws no tree.
-- [ ] 1.3 Show it and stop, with payment matching still composed, so the rule is seen to change
+- [x] 1.3 Show it and stop, with payment matching still composed, so the rule is seen to change
       nothing before anything depends on it.
 
 ## 2. The catalogue, and the store the visitor reaches
@@ -32,8 +32,14 @@
 
 ## 4. What the change touches elsewhere
 
-- [ ] 4.1 Fix the end-to-end suite: the specs that open payment matching install it first, through
+- [x] 4.1 Fix the end-to-end suite: the specs that open payment matching install it first, through
       one shared helper rather than five inline copies.
-- [ ] 4.2 Accessibility check over the store: the list and its detail from the keyboard, and the
-      consent dialog announced as what it is.
-- [ ] 4.3 Look at the store at a small window, where a list, a detail and two rails compete for width.
+- [x] 4.2 Accessibility check over the store: the list and its detail from the keyboard, and the
+      consent dialog announced as what it is. **Checked:** Enter on the rail entry opens the store,
+      which is announced as *Plugin store* and takes the focus; Tab walks maximize, close, the two
+      tabs, the search and the entry, then wraps, so the focus stays inside. Enter on the entry opens
+      its detail, Enter on *Install* opens the consent, which is its own modal dialog announced as
+      *Install Payment matching?*; Escape closes it and hands the focus back to the store.
+- [x] 4.3 Look at the store at a small window, where a list, a detail and two rails compete for width.
+      **Looked at** 1100 × 560 and 900 × 560: the dialog shrinks to the window, list and detail stay
+      side by side, and the *Install* button stays in view.

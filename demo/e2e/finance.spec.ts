@@ -1,4 +1,5 @@
 import { expect, type Page, test } from '@playwright/test';
+import { installPaymentMatching } from './store';
 
 /* Finance is the module the tree was built for: six areas, one shut by the declaration, one holding
    a single view, and a sidebar long enough to scroll. */
@@ -14,7 +15,20 @@ function navEntry(page: Page, path: string) {
 async function openFinance(page: Page): Promise<void> {
   await page.goto('/finance/receivables');
   await expect(page.getByTestId('receivables-list')).toBeVisible();
+  await installPaymentMatching(page);
 }
+
+test('without the plugin the tree draws no payment matching area at all', async ({ page }) => {
+  await page.goto('/finance/receivables');
+  await expect(page.getByTestId('receivables-list')).toBeVisible();
+
+  await expect(page.locator('[data-nav-area]')).toHaveCount(5);
+  await expect(page.locator('[data-nav-area="matching"]')).toHaveCount(0);
+
+  await installPaymentMatching(page);
+
+  await expect(page.locator('[data-nav-area="matching"]')).toHaveCount(1);
+});
 
 test('the module draws all six areas, and the one declared shut starts shut', async ({
   page,

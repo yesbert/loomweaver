@@ -62,8 +62,8 @@ test('a module returned to still holds what was open in it', async ({ page }) =>
 
   const rail = page.getByRole('navigation', { name: 'Left activity bar' });
   await rail.getByRole('button', { name: 'Finance' }).click();
-  await expect(page).toHaveURL(/\/finance\/matching$/);
-  await expect.poll(() => contentTabs(page)).toEqual(['Payment matching']);
+  await expect(page).toHaveURL(/\/finance\/receivables$/);
+  await expect.poll(() => contentTabs(page)).toEqual(['Receivables']);
 
   await rail.getByRole('button', { name: 'Sales' }).click();
 
