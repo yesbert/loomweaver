@@ -9,11 +9,11 @@
 
 ## 2. The catalogue, and the store the visitor reaches
 
-- [ ] 2.1 Serve a catalogue from the demo's own origin carrying payment matching as an offered entry:
+- [x] 2.1 Serve a catalogue from the demo's own origin carrying payment matching as an offered entry:
       its name, what it does, who wrote it, the capabilities it asks for and its address.
-- [ ] 2.2 Stop composing payment matching. It arrives through the catalogue or not at all.
-- [ ] 2.3 Put the store in the right rail, above the account.
-- [ ] 2.4 Every label the demo adds for this, in both languages.
+- [x] 2.2 Stop composing payment matching. It arrives through the catalogue or not at all.
+- [x] 2.3 Put the store in the right rail, above the account.
+- [x] 2.4 Every label the demo adds for this, in both languages.
 - [ ] 2.5 Walk it once by hand: browse, read the detail, consent, install, and watch the area appear
       in the Finance tree without a reload. Then remove it and watch it go.
 

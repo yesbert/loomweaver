@@ -6,6 +6,7 @@
   "switchAccount": "Switch account",
   "signOut": "Sign out",
   "theme": "Theme",
+  "pluginStore": "Plugin store",
   "account": {
     "signedOut": "Not signed in",
     "switchDescription": "Switches to the other demo account, which carries different roles.",

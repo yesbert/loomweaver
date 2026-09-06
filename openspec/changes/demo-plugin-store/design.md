@@ -58,6 +58,12 @@ could fake by ignoring them. The tolerance changes which statement the plugin dr
 so a visitor who moves it sees a value cross the sandbox RPC and take effect. A setting that only
 persists proves nothing about isolation.
 
+**A module never lands on an address a plugin brings.** Finance opened on payment matching, which
+was safe while the plugin was composed and is not once it can be absent: switching to the module then
+lands nowhere, and a tree that reads where it is finds nothing at all — the whole module draws empty,
+not just the one area. Finance opens on Receivables instead. The rule generalises: a workspace's
+landing address must be one the product itself answers.
+
 **The catalogue is a document the demo serves.** `providePluginCatalog` takes an address, the workbench
 refuses anything not same-origin, and the demo already serves JSON from `demo/public/api`. Nothing is
 gained by hand-building a catalogue object in code, and serving it is what a product does.

@@ -6,6 +6,7 @@
   "switchAccount": "Konto wechseln",
   "signOut": "Abmelden",
   "theme": "Theme",
+  "pluginStore": "Plugin-Store",
   "account": {
     "signedOut": "Nicht angemeldet",
     "switchDescription": "Wechselt auf das andere Demo-Konto, das andere Rollen mitbringt.",
