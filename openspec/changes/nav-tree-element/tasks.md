@@ -50,7 +50,10 @@
       than markup, and record every place it had to change and why.
 - [x] 4.3 Record anything the demo could express before and cannot now. Each is a defect in the
       element, fixed here rather than worked around there.
-- [ ] 4.4 Show the demo and stop.
+- [x] 4.4 Show the demo and stop. Shown on 2026-09-06; the first click after returning to a
+      workspace did nothing, traced to the workbench chasing an address a workspace switch held
+      and fixed in the shell (#258), not in the element. Accepted by the owner once the fix was
+      in place.
 
 ## 5. What it was built for
 
