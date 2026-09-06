@@ -135,10 +135,10 @@ instead of a dialog. Give a rail item the workspace's id with `workspace` and th
 under, and the host does the rest: the click switches, and while that workspace is active the entry
 is marked as the current one (a brand bar on the rail's outer edge, a tint, and `aria-current="true"`
 for screen readers), so the item needs no command of its own. The entry is marked as well while a
-workspace the user saved **from** yours is active and has no entry of its own in either rail: a
+workspace the user saved **from** yours is active and has no entry of its own in either rail. A
 variant is still your workspace for the rail's purposes, so the rail never goes blank for one. The
-entry stays as it is otherwise, icon, name and tooltip, and a click on it switches to your
-workspace, which is also the short way back from the variant. Provide `workspace` **instead of**
+entry stays as it is otherwise, icon, name and tooltip. A click on it switches to your workspace,
+which is also the short way back from the variant. Provide `workspace` **instead of**
 `command`/`run`; when it is set those are ignored. An entry pointing at a workspace that is neither
 declared nor saved warns in the console in dev mode rather than failing silently, and a declared
 workspace that nothing offers is reported in dev mode too.
