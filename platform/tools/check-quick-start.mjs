@@ -70,7 +70,7 @@ function packPlatform(into) {
   return packages;
 }
 
-function quickStart(dir) {
+async function quickStart(dir) {
   const packed = packPlatform(dir);
   run('npx', ['-y', ANGULAR, 'new', 'my-studio', '--style=css', '--ssr=false', '--skip-git', '--defaults'], dir, { setup: true });
   const app = join(dir, 'my-studio');
@@ -86,6 +86,11 @@ function quickStart(dir) {
   }
   run('node', [cli, 'distribution', '--name', 'my-studio', '--title', 'My Studio', '--out', '.', '--force'], app);
   run('node', [cli, 'weaver', '--id', 'notes', '--command', '--shortcut', 'mod+shift+n', '--out', 'src/notes'], app);
+  // The tutorial's picture is of exactly this point: the distribution and one weaver, before the
+  // agent and the recipes ride along. Taking it here keeps the picture true to the page it is on.
+  if (process.env.LOOM_QUICK_START_STILLS) {
+    await shootStills(app, process.env.LOOM_QUICK_START_STILLS);
+  }
   // The agent connection is the one generated feature that needs a package the application does not
   // already carry. @ag-ui/core is deliberately NOT installed above: the scaffold has to record it,
   // and the install below is what turns that record into something the build can resolve. If the
@@ -102,6 +107,36 @@ function quickStart(dir) {
   // the one `ng new` wrote, and two weavers composed in must both activate for the shell to boot.
   run('npx', ['ng', 'test', '--watch=false'], app);
   return { browser: join(app, 'dist/my-studio/browser'), app };
+}
+
+// Writes quick-start-{light,dark}.png of the product at /notes, the frame the getting-started page
+// embeds, so the picture is taken by the same run that proves the quick start works rather than by
+// hand. Nothing in CI sets the variable; a maintainer sets it to assets/media after a release.
+async function shootStills(app, into) {
+  run('npx', ['ng', 'build'], app);
+  const { chromium } = await import('@playwright/test');
+  const site = await serveBuilt(join(app, 'dist/my-studio/browser'));
+  const runner = await chromium.launch();
+  try {
+    for (const theme of ['light', 'dark']) {
+      const context = await runner.newContext({
+        serviceWorkers: 'block',
+        viewport: { width: 1280, height: 800 },
+        deviceScaleFactor: 1.5,
+        colorScheme: theme,
+        reducedMotion: 'reduce',
+      });
+      const page = await context.newPage();
+      await page.goto(`${site.origin}/notes`, { waitUntil: 'networkidle' });
+      await page.getByRole('button', { name: 'Notes' }).first().waitFor();
+      await page.waitForTimeout(500);
+      await page.screenshot({ path: join(into, `quick-start-${theme}.png`), animations: 'disabled' });
+      await context.close();
+    }
+  } finally {
+    await runner.close();
+    await site.close();
+  }
 }
 
 const SAMPLES = join(platformRoot, '../docs/samples.md');
@@ -449,7 +484,7 @@ async function driveRecipes(page, origin) {
 let dir;
 try {
   dir = mkdtempSync(join(tmpdir(), 'loom-quick-start-'));
-  const generated = quickStart(dir);
+  const generated = await quickStart(dir);
   checkServedOutput(generated.browser);
   checkComposition(generated.browser);
   checkAgentDependencies(generated.app);
