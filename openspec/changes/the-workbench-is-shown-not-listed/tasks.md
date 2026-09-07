@@ -51,24 +51,27 @@
 
 ## 3. The pictures beside the prose that describes them
 
-- [ ] 3.1 `docs/distribution/plugin-store.md` under Entry points: the store; under Consent: the
+- [x] 3.1 `docs/distribution/plugin-store.md` under Entry points: the store; under Consent: the
       consent prompt. `docs/plugins.md` under community-installed: the consent prompt.
-- [ ] 3.2 `docs/weaver/settings.md`: the settings dialog. `docs/distribution/capabilities.md` under
+- [x] 3.2 `docs/weaver/settings.md`: the settings dialog. `docs/distribution/capabilities.md` under
       The Permissions section: the same picture, with the caption about that section.
-- [ ] 3.3 `docs/concepts/workspaces.md`: the workspace dialog.
-- [ ] 3.4 `docs/distribution/workspaces.md` under Curating the rail: the curation dialog, with the
+- [x] 3.3 `docs/concepts/workspaces.md`: the workspace dialog.
+- [x] 3.4 `docs/distribution/workspaces.md` under Curating the rail: the curation dialog, with the
       caption that names *Customize activity bar* and says once that the pages call it the rail.
       `docs/distribution/layout.md` under Curating a sidebar: the same dialog if the frame reads for
-      views as well, otherwise none.
-- [ ] 3.5 `docs/weaver/menus.md`: the tab menu and the rail menu, with the caption that your entries
+      views as well, otherwise none. It does not: the frame lists rail entries, so the layout page
+      stays without a picture.
+- [x] 3.5 `docs/weaver/menus.md`: the tab menu and the rail menu, with the caption that your entries
       go into these same menus.
-- [ ] 3.6 `docs/getting-started.md` beside its paragraph on ⌘P: quick open.
-- [ ] 3.7 `docs/concepts/retention-and-unsaved-work.md`: the unsaved-work prompt.
-- [ ] 3.8 `docs/reference/shell-anatomy.md` beside the desktop diagram: the split panes.
-- [ ] 3.9 `docs/ag-ui-agents.md` under Watch a call go through: the agent panel picture the README
+- [x] 3.6 `docs/getting-started.md` beside its paragraph on ⌘P: quick open.
+- [x] 3.7 `docs/concepts/retention-and-unsaved-work.md`: the unsaved-work prompt. There is no
+      picture of it, because the demo cannot show it (see 1.3), so the page stays as it is; the
+      guide describes the prompt in words under *What else comes along*.
+- [x] 3.8 `docs/reference/shell-anatomy.md` beside the desktop diagram: the split panes.
+- [x] 3.9 `docs/ag-ui-agents.md` under Watch a call go through: the agent panel picture the README
       already has.
-- [ ] 3.10 Run the docs style check and the site build; `llms-full.txt` is regenerated if the guard
-      says it must.
+- [x] 3.10 Run the docs style check and the site build; `llms-full.txt` is regenerated if the guard
+      says it must. Both pass; the guard asked for nothing beyond the guide's own entry.
 
 ## 4. The landing page and the README
 

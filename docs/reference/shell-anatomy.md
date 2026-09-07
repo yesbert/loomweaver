@@ -41,6 +41,13 @@ on the left and right, the **bar (top)** in the middle.
 +-------------------------------------------------------------+
 ```
 
+![Two panes side by side in the content area, a customer list on the left and a contact history on the right, each with its own tab strip and toolbar.](../../assets/media/split-panes-light.png#gh-light-mode-only)
+
+![Two panes side by side in the content area, a customer list on the left and a contact history on the right, each with its own tab strip and toolbar.](../../assets/media/split-panes-dark.png#gh-dark-mode-only)
+
+The same areas in the demo, with the content area split into two panes: rail and panel on the left,
+the bar across the top, a second panel on the right, the status bar along the bottom.
+
 ## Names (glossary)
 
 | Area in the sketch                      | Canonical name                        | Region type / code                                                                                               | Role                                                                                                                                       | Sub-slots                                              |

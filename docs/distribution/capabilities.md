@@ -38,6 +38,13 @@ take effect immediately: enabling or disabling reconciles activation reactively,
 revocation reads the live grant on the plugin's next `ctx` call. The user can only narrow, never
 widen beyond what you granted here, so least privilege is preserved. Nothing to wire: it appears automatically.
 
+![The Settings dialog on its Permissions section, with a switch per plugin and, under each, a switch per capability the plugin holds.](../../assets/media/settings-light.png#gh-light-mode-only)
+
+![The Settings dialog on its Permissions section, with a switch per plugin and, under each, a switch per capability the plugin holds.](../../assets/media/settings-dark.png#gh-dark-mode-only)
+
+The Permissions section in the demo: one switch per plugin, and under it one per capability the
+plugin holds. Nothing here was wired by the distribution.
+
 ## A plugin your application cannot run without
 
 A routable surface can only come from a plugin, so the weaver carrying your starting place is a

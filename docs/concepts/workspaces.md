@@ -37,6 +37,13 @@ The user saves their own. A saved workspace has no icon to declare, so the workb
 two-letter badge from its name, and only a colliding newcomer steps aside, so no existing badge is
 ever renamed.
 
+![The Workspaces dialog on its Mine tab, showing the Default workspace and a saved one named Month end marked as a variant of Sales, with save, rename, delete and reset controls.](../../assets/media/workspace-dialog-light.png#gh-light-mode-only)
+
+![The Workspaces dialog on its Mine tab, showing the Default workspace and a saved one named Month end marked as a variant of Sales, with save, rename, delete and reset controls.](../../assets/media/workspace-dialog-dark.png#gh-dark-mode-only)
+
+The two origins in one dialog: what the demo provides sits under _Provided_, what the user saved
+under _Mine_, where _Month end_ remembers it was derived from Sales.
+
 ## A workspace in a tab
 
 A container is the same idea one level down: an arrangement of child surfaces that belongs to one

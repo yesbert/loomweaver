@@ -70,6 +70,13 @@ contract is visible in it:
 Then decline one, and read it again. The panel says the workbench was never asked, and that is
 literally true: the decision happens in front of the workbench, not inside it.
 
+![A workbench with a quote open, beside an assistant panel showing the tool call that opened it, the workbench's answer, and a second call that was declined and never ran.](../assets/media/agent-panel-light.png#gh-light-mode-only)
+
+![A workbench with a quote open, beside an assistant panel showing the tool call that opened it, the workbench's answer, and a second call that was declined and never ran.](../assets/media/agent-panel-dark.png#gh-dark-mode-only)
+
+The panel after one call went through and a second was declined: the offered list, the call with
+its arguments, the workbench's answer, and the line saying the workbench was never asked.
+
 ## Decide what to ask about
 
 The generated connection carries a `before` hook and marks the weaver's own command as consequential,
