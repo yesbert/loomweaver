@@ -58,8 +58,19 @@
       not read as advertising. Tag `tutorial` added.
 - [x] 2.5 Dropped by the owner on 2026-09-05: no prepared answer on SCION Workbench, Luigi or
       Module Federation. If a comment asks, it is answered then.
-- [ ] 2.6 On publishing day, check the free model still exists and its limits are as the article
+- [x] 2.6 On publishing day, check the free model still exists and its limits are as the article
       states.
+      Checked 2026-09-07, and it did not: OpenRouter answers `minimax/minimax-m2.7:free` with 404,
+      the free variant is gone and only the paid slug remains. Of the fifteen free models that
+      accept tools, `dots-studio/dots-3-note-preview:free` carried the counted workflow seven times
+      out of seven in seven to ten seconds, so the article's "under ten seconds" still holds;
+      `cohere/north-mini-code:free` also carried it every time but took up to eighteen seconds, and
+      the nemotron free endpoints answered "service temporarily overloaded" in two runs out of
+      three. The model changed in the example and in both drafts. Because a free model will vanish
+      again, the README now says where the constant is and links the list filtered to free models
+      with tool calling, and a 404 from OpenRouter adds that sentence to the message the panel
+      shows. The example's package pins moved from `^0.9.0-preview.2` to `^0.9.0` at the same time,
+      so a reader installs the released packages.
 
 ## 3. Publish and record
 
