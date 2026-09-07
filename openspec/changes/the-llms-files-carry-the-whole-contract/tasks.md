@@ -4,7 +4,10 @@
       on its own branch; if not, do that first, with a test that the packed declaration names it
 - [ ] 1.2 Confirm `the-docs-explain-the-navigation-tree-and-a-session-without-a-backend` has been
       applied, so its page and its llms entries are in place
-- [ ] 1.3 Package `plugin-sdk` and `shell`, re-run both audits against the packed declarations and
+- [ ] 1.3 Decide the eight names `check-api-docs` lists as visible but not exported, each on its
+      own: export it from the barrel and name it in `llms-full.txt`, or take it off the public
+      surface; the map in the checker empties as they are decided
+- [ ] 1.4 Package `plugin-sdk` and `shell`, re-run both audits against the packed declarations and
       the current `docs/`, and mark in the lists below what has changed since 2026-09-07
 
 ## 2. The guards

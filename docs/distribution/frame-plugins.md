@@ -75,6 +75,9 @@ runs at one of two levels, and the composition chooses:
 }),
 ```
 
+The field's type is `PluginIsolationLevel`, exported by the shell for a composition that decides the
+level in code of its own.
+
 `origins` names the origins this plugin's own surfaces may be served from, beyond the application's
 own; omit it and the application's origin is the only one, which is the right answer for a plugin
 whose files you serve yourself. A sibling subdomain belongs there: it gives an embedded application

@@ -84,6 +84,7 @@ export * from './lib/commands/search-entry/provide-quick-open-entry';
 export * from './lib/plugin/plugin';
 export * from './lib/plugin/plugin-runtime';
 export * from './lib/plugin/sandbox/frame-plugin';
+export type { PluginIsolationLevel } from './lib/foundation/plugin-isolation-level';
 export * from './lib/plugin/sandbox/sandbox-plugin-runtime';
 export * from './lib/foundation/command-invoker';
 export * from './lib/commands/command-invocation.service';

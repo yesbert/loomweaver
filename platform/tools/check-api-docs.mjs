@@ -27,6 +27,22 @@ const ENTRIES = {
   '@loomweaver/frame-kit': 'platform/libs/core/frame-kit/dist/lw-frame.d.ts',
 };
 
+// Names a consumer can see in the packed declarations but cannot import: a type a public field is
+// declared with, or a class a public constructor takes, that the barrel never re-exports. The rollup
+// carries every declaration the public surface reaches, so a declaration in it that is not in its
+// export list is exactly that. Each one here is a decision still to be taken, export it or take it
+// off the public surface, and a new one fails until it is taken.
+const VISIBLE_BUT_NOT_EXPORTED = new Map([
+  ['ViewportService', 'undecided: the-llms-files-carry-the-whole-contract'],
+  ['PaddingDefault', 'undecided: the-llms-files-carry-the-whole-contract'],
+  ['LOOM_ICONS', 'undecided: the-llms-files-carry-the-whole-contract'],
+  ['DialogKind', 'undecided: the-llms-files-carry-the-whole-contract'],
+  ['ButtonRole', 'undecided: the-llms-files-carry-the-whole-contract'],
+  ['WorkspaceClaim', 'undecided: the-llms-files-carry-the-whole-contract'],
+  ['PANE_HANDLE', 'undecided: the-llms-files-carry-the-whole-contract'],
+  ['Triggerable', 'undecided: the-llms-files-carry-the-whole-contract'],
+]);
+
 // Names that carry no prose of their own, with the reason each is exempt. Anything not listed here
 // must be documented — adding a name to this list is a deliberate act, visible in review.
 const EXEMPT = new Map([
@@ -187,9 +203,33 @@ function exportedNames(entry) {
   return names.toSorted((a, b) => a.localeCompare(b));
 }
 
+// The names a rollup declares at its top level, exported or not. Only a rollup is read this way:
+// the plugin-sdk entry and the frame-kit script are not bundled declarations, so everything they
+// declare is what they export.
+function declaredNames(entry) {
+  const source = readFileSync(entry, 'utf8');
+  const declared = new Set();
+  for (const match of source.matchAll(
+    /^(?:declare )?(?:abstract class|class|const|enum|function|interface|type) (\w+)/gm,
+  )) {
+    declared.add(match[1]);
+  }
+  return declared;
+}
+
+function leakedNames(entry, exported) {
+  const leaked = [];
+  for (const name of declaredNames(entry)) {
+    if (!exported.has(name)) leaked.push(name);
+  }
+  return leaked.toSorted((a, b) => a.localeCompare(b));
+}
+
 const blob = docsBlob();
 const missing = [];
 const allExported = new Set();
+const leaked = [];
+const seenLeaked = new Set();
 let checked = 0;
 
 for (const [package_, relative] of Object.entries(ENTRIES)) {
@@ -200,13 +240,40 @@ for (const [package_, relative] of Object.entries(ENTRIES)) {
     );
     process.exit(2);
   }
-  for (const name of exportedNames(entry)) {
+  const exported = new Set(exportedNames(entry));
+  for (const name of exported) {
     checked++;
     allExported.add(name);
     if (EXEMPT.has(name)) continue;
     if (new RegExp(String.raw`\b${name}\b`).test(blob)) continue;
     missing.push(`${package_} · ${name}`);
   }
+  if (relative.endsWith('.d.ts') && relative.includes('/types/')) {
+    for (const name of leakedNames(entry, exported)) {
+      seenLeaked.add(name);
+      if (VISIBLE_BUT_NOT_EXPORTED.has(name)) continue;
+      leaked.push(`${package_} · ${name}`);
+    }
+  }
+}
+
+const settled = [...VISIBLE_BUT_NOT_EXPORTED.keys()].filter((name) => !seenLeaked.has(name));
+if (settled.length > 0) {
+  console.error(
+    `check-api-docs: ${settled.length} entr(y|ies) in VISIBLE_BUT_NOT_EXPORTED no longer describe the packed declarations:\n` +
+      settled.map((name) => `  - ${name}`).join('\n') +
+      '\n\nRemove them from VISIBLE_BUT_NOT_EXPORTED in tools/check-api-docs.mjs.',
+  );
+  process.exit(1);
+}
+
+if (leaked.length > 0) {
+  console.error(
+    `check-api-docs: ${leaked.length} declaration(s) a consumer can see but cannot import:\n` +
+      leaked.map((m) => `  - ${m}`).join('\n') +
+      '\n\nExport them from the barrel, or take them off the public surface.',
+  );
+  process.exit(1);
 }
 
 // An exemption for a symbol that no longer ships is invisible drift: it reads like a decision but
@@ -231,5 +298,5 @@ if (missing.length > 0) {
 }
 
 console.log(
-  `check-api-docs: ${checked} published exports, ${EXEMPT.size} exempt, 0 undocumented`,
+  `check-api-docs: ${checked} published exports, ${EXEMPT.size} exempt, 0 undocumented, ${VISIBLE_BUT_NOT_EXPORTED.size} visible but not exported and known`,
 );
