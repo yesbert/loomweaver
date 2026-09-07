@@ -14,6 +14,22 @@ See `proposal.md` — Why. What is known before the reproduction:
   has scrolled.
 - Screenshots taken while sizing the report are under `.claude/tests/breeze-*.png`.
 
+## What the reproduction found (2026-09-07)
+
+- **The element in the screenshot is not an icon tab.** The crop shows the top bar's end on a compact
+  viewport: the pressed "System" option of the scheme toggle (a monitor glyph, drawn as a circle by
+  Breeze's rounding of `.lw-segmented-item`), the bar's edge, the right sidebar's hamburger, the rail's
+  "Assistant" entry with its label on, and the content pane's toolbar beneath. The crop's own top-left
+  corner runs through that circle, which is what reads as a cut.
+- **Nothing clips on macOS.** Measured in Chromium, Firefox and WebKit at 390, 480, 600, 700, 767, 768,
+  900, 1024 and 1280 px, with the rail labels on and off, in Breeze and in the default look: the
+  pressed option is 28 × 28 at 3,3 inside a 94 × 34 control with `overflow: visible`, and no ancestor
+  with a clipping overflow cuts it. The sidebar headers' icon tabs (28 × 28 from 768 px up) are drawn
+  whole as well; below 768 px the panels are overlays and carry no icon strip.
+- **What is left.** Either the reporter's browser on Windows paints the fieldset differently, or the
+  cut is the crop. The change waits for the reporter's browser and an uncropped screenshot before any
+  stylesheet is touched. Screenshots of the runs are under `.claude/tests/repro*.png`.
+
 ## Goals / Non-Goals
 
 **Goals:**
