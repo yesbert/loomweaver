@@ -30,35 +30,47 @@ See `proposal.md` — Why. What is known before the reproduction:
   cut is the crop. The change waits for the reporter's browser and an uncropped screenshot before any
   stylesheet is touched. Screenshots of the runs are under `.claude/tests/repro*.png`.
 
+## What the second look found (2026-09-07, with the owner's reproduction in Chrome)
+
+The owner saw it at once: in Breeze the header bar is taller than in the other looks, and the rows
+beside it are not. Measured: top bar 56 px; sidebar heads 52 px on a wide window and 48 px as
+hamburger boxes on a narrow one; the content strip 52 px. In the default look and in Aurora every
+one of those is 48 px. Breeze's stylesheet sets the bar to 3.5rem and the tab strips to 3.25rem and
+leaves the hamburger and expand boxes alone, so the header line steps at both edges of the bar.
+
 ## Goals / Non-Goals
 
 **Goals:**
 
-- Know the clipping box and the viewport before touching either stylesheet.
-- A fix that holds for every look, not a Breeze-only patch, where the cause is the strip.
+- One bottom edge along the whole header line in Breeze, wide and narrow.
+- A check that keeps it so for every look the demo ships.
 
 **Non-Goals:**
 
-- No rethinking of the looks. Breeze may keep its circles.
-- No change to how the strip scrolls or overflows beyond what the cut needs.
+- No dimension token in the workbench. The guide says why there is none, and this defect is the look
+  not doing what the guide describes, not the workbench lacking a lever.
+- No change to Breeze's circles.
 
 ## Decisions
 
-### Reproduce first, at the reporter's size
+### The look sets one height for every row on the header line
 
-The report is a crop without a window size. The fix differs by cause: a header height that Breeze
-outgrows is a look defect, a row that scrolls its first tab half out of view is a strip defect. A
-guess at either would fix the wrong one. The reproduction is therefore the first task and its result
-is written here before the fix task is started.
+Breeze sets its 3.5rem on the top bar, on the sidebar heads' hamburger and expand boxes, and on the
+icon strips the heads hold, with selectors on the workbench's elements as the guide describes. The
+content pane's tab strip stays at Breeze's 3.25rem, because it hangs below the header line rather
+than standing on it, and its height is a matter of the look's rhythm rather than of alignment.
 
-### Where the strip is at fault, the fix lives in the shell and the change gains a delta
+The alternative, a workbench token for the row height, was rejected: the guide's position that
+dimensions are not tokens is a decision with a reason (every tokenised number becomes a promise no
+release can revise), and one look that forgot two rows is not the case that overturns it.
 
-The demo's looks may round what the shell draws; a strip that cuts a rounded tab cuts it in every
-product that rounds. That is a guarantee about the strip, so it goes to the capability that carries
-the strip, and the fix goes with it. `skip_specs` is then removed from this change.
+### The check measures edges, not pixels
+
+The demo test reads the bottom edge of the top bar and of each sidebar head and asserts they are
+equal, per look, at a wide and a narrow width. It does not compare screenshots, which would fail on
+every font.
 
 ## Risks / Trade-offs
 
-- **The cut cannot be reproduced.** → Ask the reporter for their window size; until then the check
-  is written for the narrowest viewport the demo supports, where the 40 px tabs make the cut most
-  likely.
+- **A future workbench change adds another element to the header line.** → The check catches a
+  step in Breeze the next night, which is the point of it.

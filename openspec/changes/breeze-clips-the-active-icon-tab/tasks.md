@@ -1,23 +1,22 @@
 ## 1. Reproduction
 
-- [x] 1.1 Reproduce the cut in the Breeze look: viewport, panel side, number of views in the panel,
-      and whether the strip's row is scrolled. Record which box clips in `design.md`.
-- [ ] 1.2 Decide from the reproduction whether the strip or the look is at fault. Where it is the
-      strip, update this change with a delta to the capability carrying the strip and remove
-      `skip_specs` before going on.
+- [x] 1.1 Reproduce in the Breeze look and record which box clips in `design.md`. Found: nothing
+      clips; the header rows beside the top bar do not share its height, so the header line steps.
+- [x] 1.2 Decide from the reproduction whether the workbench or the look is at fault. The look:
+      dimensions are a look's stylesheet business by the guide's own decision; `skip_specs` stays.
 
 ## 2. The fix
 
-- [ ] 2.1 Fix the cause where it lives, so that a fully rounded active icon tab is drawn whole.
-- [ ] 2.2 Check every look the demo ships at the reproduced viewport, since the same cut would hide
-      in the others' smaller radius.
+- [x] 2.1 Breeze gives the sidebar heads, their narrow-window boxes and their icon strips the top
+      bar's height, and keeps the content strip's own.
+- [x] 2.2 Check every look the demo ships at a wide and a narrow width.
 
 ## 3. Proving it
 
-- [ ] 3.1 Add the demo end-to-end check that the active icon tab of a sidebar header is not clipped
-      in any shipped look at the reproduced viewport.
+- [x] 3.1 Add the demo end-to-end check that, per look, the top bar and the sidebar heads share one
+      bottom edge, wide and narrow.
 
 ## 4. Verification
 
-- [ ] 4.1 Run what the fix touches: the shell tests where the strip changed, the demo suites.
-- [ ] 4.2 Run `openspec validate --all --strict`.
+- [x] 4.1 Run the demo suites.
+- [x] 4.2 Run `openspec validate --all --strict`.
