@@ -111,6 +111,13 @@ false`, `types: ["*"]`, `noUncheckedSideEffectImports: false` and `ignoreDepreca
   needs `ffmpeg` on PATH and nothing in CI runs it. Re-record when you change the workbench chrome
   the tour shows, and follow a written route while recording: an outdated tour leaves a broken layout
   on the front page, where it stays until somebody notices.
+- **The tutorial's picture is taken by the quick-start check, not by hand.** Run
+  `LOOM_QUICK_START_STILLS=$PWD/../assets/media node tools/check-quick-start.mjs` in `platform/`
+  after packaging (`nx run-many -t package`, `nx run shell:styles`, `nx bundle frame-kit`,
+  `nx bundle cli`), and it writes `quick-start-{light,dark}.png` of the product at the point the
+  page shows, before the agent and the recipes ride along. The status bar in the picture shows the
+  version the working tree is stamped with, so take it after a release, when that is the version a
+  reader gets.
 - **The stills of the dialogs and menus are captured, not hand-made.** They are of the demo.
   Serve it (`npm run start -- --port 4210` in `demo/`), then
   `node platform/tools/capture-screenshots.mjs` writes `assets/media/<motif>-{light,dark}.png` for
