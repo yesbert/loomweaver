@@ -1,6 +1,6 @@
 ## 1. Reproduction
 
-- [ ] 1.1 Reproduce the cut in the Breeze look: viewport, panel side, number of views in the panel,
+- [x] 1.1 Reproduce the cut in the Breeze look: viewport, panel side, number of views in the panel,
       and whether the strip's row is scrolled. Record which box clips in `design.md`.
 - [ ] 1.2 Decide from the reproduction whether the strip or the look is at fault. Where it is the
       strip, update this change with a delta to the capability carrying the strip and remove
