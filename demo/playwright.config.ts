@@ -2,6 +2,9 @@ import { defineConfig, devices } from '@playwright/test';
 
 const baseURL = process.env['BASE_URL'] ?? 'http://localhost:4210';
 
+/* Every test starts as a visitor the demo has welcomed already; welcome.spec.ts clears this. */
+const WELCOMED_KEY = 'lw.plugin-state:about:welcomed';
+
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
@@ -9,7 +12,14 @@ export default defineConfig({
   retries: process.env['CI'] ? 2 : 0,
   workers: process.env['CI'] ? 1 : undefined,
   reporter: process.env['CI'] ? [['dot'], ['junit', { outputFile: 'test-results/junit.xml' }]] : 'list',
-  use: { baseURL, trace: 'on-first-retry' },
+  use: {
+    baseURL,
+    trace: 'on-first-retry',
+    storageState: {
+      cookies: [],
+      origins: [{ origin: baseURL, localStorage: [{ name: WELCOMED_KEY, value: 'true' }] }],
+    },
+  },
   webServer: {
     command: 'npm run start -- --port 4210',
     url: baseURL,

@@ -1,0 +1,13 @@
+<div class="flex flex-col gap-5">
+  <demo-about-body />
+  <div class="flex justify-end">
+    <button
+      type="button"
+      class="lw-btn lw-btn--default"
+      (click)="close()"
+      data-testid="about-got-it"
+    >
+      {{ 'product.about.gotIt' | transloco }}
+    </button>
+  </div>
+</div>

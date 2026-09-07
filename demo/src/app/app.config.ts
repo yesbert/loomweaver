@@ -17,6 +17,8 @@ import {
   type ShellLayout,
 } from '@loomweaver/shell';
 import { provideProductIdentity } from '@loomweaver/plugin-sdk';
+import { AboutBadge } from '../about/about-badge';
+import { aboutPlugin } from '../about/about.plugin';
 import { agentPlugin } from '../agent/agent.plugin';
 import { customersPlugin } from '../customers/customers.plugin';
 import { financePlugin } from '../finance/finance.plugin';
@@ -51,7 +53,7 @@ export const layout: ShellLayout = {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideShellRouter(),
-    provideShell(),
+    provideShell({ omit: ['shell.version'] }),
     provideLayout(layout),
     provideTranslationNamespaces(
       'product',
@@ -98,6 +100,13 @@ export const appConfig: ApplicationConfig = {
         slot: 'end',
         order: 95,
         component: PreviewBadge,
+      },
+      {
+        id: 'demo.about',
+        bar: 'status-bar',
+        slot: 'end',
+        order: 100,
+        component: AboutBadge,
       },
       {
         id: 'demo.legal',
@@ -164,6 +173,7 @@ export const appConfig: ApplicationConfig = {
       looks: ['contributions'],
       agent: ['contributions', 'navigation', 'ui', 'automation'],
       session: ['contributions'],
+      about: ['contributions', 'ui'],
     }),
     ...providePlugins(
       navigationPlugin,
@@ -177,6 +187,7 @@ export const appConfig: ApplicationConfig = {
       looksPlugin,
       agentPlugin,
       sessionPlugin,
+      aboutPlugin,
     ),
     ...providePluginCatalog('/api/plugins.json', {
       title: 'product.pluginStore',
