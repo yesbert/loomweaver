@@ -48,7 +48,7 @@ is its reference consumer.
 ng new my-studio --style=css --ssr=false && cd my-studio
 
 # 2 · Install the platform, then scaffold your product and a first plugin
-npm install @loomweaver/shell @loomweaver/plugin-sdk @angular/cdk @jsverse/transloco @ng-icons/heroicons \
+npm install @loomweaver/shell @loomweaver/plugin-sdk @loomweaver/frame-kit @angular/cdk @jsverse/transloco @ng-icons/heroicons \
   @angular/service-worker@$(node -p "require('@angular/core/package.json').version")
 npm install -D tailwindcss @tailwindcss/postcss @tailwindcss/typography
 npx @loomweaver/cli distribution --name my-studio --title "My Studio" --out . --force
@@ -65,7 +65,8 @@ in the rail on the first run. It only ever _adds_: anything you had already set 
 you set it, and it names every file it touched.
 
 [Getting started](docs/getting-started.md) walks through these steps and what they generate.
-[Manual setup](docs/manual-setup.md) is the same result wired by hand, including the
+[Manual setup](docs/manual-setup.md) is the same application wired by hand, without the service
+worker and the content-security policy the scaffold adds, and including the
 **Bootstrap / no-Tailwind path** via the pre-compiled stylesheet.
 
 ## Register the action once. It is a button, a shortcut, a palette entry and an agent tool.

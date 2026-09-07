@@ -28,15 +28,15 @@ Five of these twelve recipes are what the generator writes, and two more, recipe
 half written for you. That is worth knowing before you copy anything: a generated weaver compiles, passes its own lint, and comes out the same every time, so
 your attention goes to the part that is actually yours.
 
-| Recipe                                                                                           | The invocation that writes it                                                                                                             |
-| ------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| [1 · A sidebar view](#a-sidebar-view-that-remembers-its-state)                                   | `weaver --id notes --instanceable` — the docked surface and its rail item; the persisted state is yours                                   |
-| [2 · A content surface with its own URL](#a-content-surface-with-its-own-url)                    | `weaver --id notes` — the default shape, at `/notes`; the `:id` is what you add                                                           |
-| [3 · One behaviour, many triggers](#one-behaviour-many-triggers)                                 | `weaver --id notes --command --shortcut 'mod+shift+n' --menu content/tab/context --bar-item`                                              |
-| [4 · A settings section](#a-settings-section)                                                    | `weaver --id notes --settings`                                                                                                            |
-| [5 · Gating a surface behind a login](#gating-a-surface-behind-a-login)                          | `weaver --id notes --access authenticated`                                                                                                |
-| [10 · Letting an AG-UI agent drive your product](#10--letting-an-ag-ui-agent-drive-your-product) | `weaver --id notes --agent` — the connection, a panel and a stand-in that works before you have a transport; what you replace is one file |
-| [12 · A session without a backend](#a-session-without-a-backend)                                 | `auth-source --name dev` — the three states and the step around them; the plugin that turns the step into sign-in, switch and sign-out is yours                |
+| Recipe                                                                                           | The invocation that writes it                                                                                                                   |
+| ------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| [1 · A sidebar view](#a-sidebar-view-that-remembers-its-state)                                   | `weaver --id notes --instanceable` — the docked surface and its rail item; the persisted state is yours                                         |
+| [2 · A content surface with its own URL](#a-content-surface-with-its-own-url)                    | `weaver --id notes` — the default shape, at `/notes`; the `:id` is what you add                                                                 |
+| [3 · One behaviour, many triggers](#one-behaviour-many-triggers)                                 | `weaver --id notes --command --shortcut 'mod+shift+n' --menu content/tab/context --bar-item`                                                    |
+| [4 · A settings section](#a-settings-section)                                                    | `weaver --id notes --settings`                                                                                                                  |
+| [5 · Gating a surface behind a login](#gating-a-surface-behind-a-login)                          | `weaver --id notes --access authenticated`                                                                                                      |
+| [10 · Letting an AG-UI agent drive your product](#10--letting-an-ag-ui-agent-drive-your-product) | `weaver --id notes --agent` — the connection, a panel and a stand-in that works before you have a transport; what you replace is one file       |
+| [12 · A session without a backend](#a-session-without-a-backend)                                 | `auth-source --name dev` — the three states and the step around them; the plugin that turns the step into sign-in, switch and sign-out is yours |
 
 The options compose, so that is one call:
 
@@ -365,7 +365,7 @@ ctx.registerCommand({
 **You get:** a modal in the host's own vocabulary, with a tinted icon, a danger-red confirm button,
 Escape and backdrop dismissal and focus trapped. Then a non-dismissable progress dialog while the
 work runs.
-The whole `ctx.ui` surface is listed in [host services](distribution-api/index.md).
+The whole `ctx.ui` surface is listed in the [Distribution API](distribution-api/index.md).
 
 <a id="everything-a-view-must-persist"></a>
 

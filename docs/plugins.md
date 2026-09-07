@@ -199,7 +199,7 @@ is no separate grant map for installed plugins. Consequently an update that wide
 asks again, listing only what was added; an update that does not, applies silently.
 
 The catalogue's display fields (`author`, `category`, `version`, `iconUrl`, `readmeUrl`) are in
-[plugin store → the catalogue](distribution/plugin-store.md#the-catalog). Two entry fields that page
+[plugin store → the catalogue](distribution/plugin-store.md#the-catalogue). Two entry fields that page
 does not show are `deployed`, described above, and `level`, described under
 [Frame plugins](distribution/frame-plugins.md#the-level-a-frame-plugin-runs-at).
 
@@ -234,7 +234,7 @@ plugin keeps its revoke and disable switches.
 
 The built-in **Permissions** and **Plugin store** settings sections expose all three. Your own
 front-end can drive the same state through `CapabilityGrantService`, `PluginEnablementService` and
-`PluginInstallService`. See [host services](distribution-api/plugins-at-runtime.md).
+`PluginInstallService`. See the [Distribution API](distribution-api/plugins-at-runtime.md).
 
 You can also remove those sections entirely (`provideShell({ omit: ['setting:shell.permissions'] })`)
 if your product decides these are not the user's call.
@@ -244,7 +244,7 @@ if your product decides these are not the user's call.
 Two runtimes implement the rungs behind the same abstraction: `PluginRuntime` for composed plugins
 and `FramePluginRuntime` for iframe ones. That is why a plugin's lifecycle reads the same either
 way. Neither is something a distribution wires up: `providePlugins` and `provideFramePlugins` do
-that. The services in [host services](distribution-api/plugins-at-runtime.md) are the
+that. The services in the [Distribution API](distribution-api/plugins-at-runtime.md) are the
 supported way to intervene.
 
 `activate(ctx)` runs once when the plugin loads; whatever it registers returns a `Disposable`, and
@@ -295,4 +295,4 @@ If that trade does not fit your product, do not enable the runtime store.
 
 **Next:** [Backend integration](backend-integration.md) wires your own backend behind the three
 ports. **See also:** [authoring a weaver](authoring-a-weaver.md) for the other side of this contract,
-and [host services](distribution-api/index.md) for the services behind the management UI.
+and the [Distribution API](distribution-api/index.md) for the services behind the management UI.

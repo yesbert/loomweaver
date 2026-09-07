@@ -8,7 +8,9 @@
 > specification is right, and that is a defect in this page: change the behaviour there, then
 > explain it here.
 
-This page builds the same result as the [scaffolding quickstart](getting-started.md), wired by hand.
+This page builds the same application as the [scaffolding quickstart](getting-started.md), wired by
+hand, minus two things the scaffold adds and this page leaves out: the service worker and the
+content-security policy.
 It takes about fifteen minutes, and afterwards you know what every file is for. It is also the
 reference for adding the shell to an application that already exists, when you would rather not
 have a generator rewrite it.
@@ -45,7 +47,7 @@ Angular CLI and Nx. And the third matters most when you read the rest of the doc
 ## 1 · Install
 
 ```bash
-npm install @loomweaver/shell @loomweaver/plugin-sdk @angular/cdk @jsverse/transloco @ng-icons/heroicons \
+npm install @loomweaver/shell @loomweaver/plugin-sdk @loomweaver/frame-kit @angular/cdk @jsverse/transloco @ng-icons/heroicons \
   @angular/service-worker@$(node -p "require('@angular/core/package.json').version")
 npm install -D tailwindcss @tailwindcss/postcss @tailwindcss/typography
 ```

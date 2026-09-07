@@ -7,7 +7,8 @@
 > disagree, the specification is right, and that is a defect in this page: change the behaviour
 > there, then explain it here.
 
-**Target: WCAG 2.1 Level AA.** a11y lives in the **core**, so every weaver that uses the host
+**The workbench meets WCAG 2.1 Level AA.** An axe audit over its principal screens checks what a
+machine can check, and the rules on this page hold the rest. Accessibility lives in the **core**, so every weaver that uses the host
 vocabulary inherits it automatically, the same way it inherits the permission broker. This file is
 the binding guardrail; it complements [`design-tokens.md`](design-tokens.md) (colours/contrast).
 

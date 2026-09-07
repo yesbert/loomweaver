@@ -24,15 +24,17 @@ Two different things carry a `@loomweaver` name, and only one of them belongs in
 | **Tool (Nx)** | `@loomweaver/devkit`                                                   | your workspace's `devDependencies`                                         | adds `nx g` generators             |
 
 Only the Nx collection is installed, and only as a dev dependency, because Nx loads generators from
-`node_modules`. The other two run as separate processes and know nothing about your codebase.
+`node_modules`. The other two run as separate processes. The CLI reads the workspace above the
+directory it writes into and wires what it finds there; the MCP server knows nothing about your
+codebase and names each step instead.
 
 Which tool depends on how you want to drive it:
 
-| You want…                                                        | Use                      |                                                     |
-| ---------------------------------------------------------------- | ------------------------ | --------------------------------------------------- |
-| an Nx workspace to generate the way it generates everything else | **`@loomweaver/devkit`** | writes into the workspace and registers the project |
-| a command you can run, script and put in CI                      | **`@loomweaver/cli`**    | deterministic, no workspace of any kind             |
-| to ask in prose and let an assistant fill in the options         | **`@loomweaver/mcp`**    | your assistant writes the files                     |
+| You want…                                                        | Use                      |                                                         |
+| ---------------------------------------------------------------- | ------------------------ | ------------------------------------------------------- |
+| an Nx workspace to generate the way it generates everything else | **`@loomweaver/devkit`** | writes into the workspace and registers the project     |
+| a command you can run, script and put in CI                      | **`@loomweaver/cli`**    | deterministic; wires the workspace it finds, needs none |
+| to ask in prose and let an assistant fill in the options         | **`@loomweaver/mcp`**    | your assistant writes the files                         |
 
 All three read the same scaffold descriptors and call the same generator core, so a weaver scaffolded
 any of the three ways has byte-identical source. What differs is what each one is allowed to do with
@@ -377,15 +379,14 @@ the tab, including into a sidebar or a pop-out window.
 
 ## The Nx generators — `@loomweaver/devkit`
 
-If your workspace is an Nx workspace, this is the fullest of the three. It is the only adapter that
-can _change_ files as well as write them, because Nx hands it a virtual tree of your workspace. It
-registers the project and adds the tsconfig path alias. The other two adapters can only describe
-those steps.
+If your workspace is an Nx workspace, this is the fullest of the three, because Nx hands it a virtual
+tree of your workspace. Beyond what the CLI wires too, it registers the project and adds the tsconfig
+path alias; the CLI cannot, and the MCP server describes those steps instead.
 
 ```bash
 npm i -D @loomweaver/devkit
 # what the generated source imports — see step 2 of the quickstart for the version pin
-npm i @loomweaver/shell @loomweaver/plugin-sdk @angular/cdk @jsverse/transloco @ng-icons/heroicons
+npm i @loomweaver/shell @loomweaver/plugin-sdk @loomweaver/frame-kit @angular/cdk @jsverse/transloco @ng-icons/heroicons
 # only for a distribution on the default --styles tailwind; `precompiled` needs none of these
 npm i -D tailwindcss @tailwindcss/postcss @tailwindcss/typography
 

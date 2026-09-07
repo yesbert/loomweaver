@@ -33,7 +33,7 @@ anatomy](../reference/shell-anatomy.md#the-region-ids-the-scaffold-declares) lis
 > `routable: { path }` (see [The content area](../weaver/content-area.md)).
 
 Collapsing, resizing and hiding views in the sidebars from your own code is `SidebarService` in the
-[host services](../distribution-api/sidebars.md).
+the [Distribution API](../distribution-api/sidebars.md).
 
 ## Panes and splits
 

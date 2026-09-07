@@ -211,4 +211,4 @@ UI for clarity; enforce on the server for real.
 
 **See also:** [backend integration](../backend-integration.md) ·
 [authoring a weaver](../weaver/access-gating.md) ·
-[host services](../distribution-api/session.md)
+the [Distribution API](../distribution-api/session.md)
