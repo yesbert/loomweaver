@@ -81,5 +81,5 @@
 
 ## 7. Named for later, not built here
 
-- [ ] 7.1 Open the follow-up change for the generator that writes recipe 11 and the commands that
+- [x] 7.1 Open the follow-up change for the generator that writes recipe 11 and the commands that
       recipe 12 adds to what `auth-source` writes, once both recipes have been merged and read
