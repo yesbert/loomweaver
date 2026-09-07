@@ -59,6 +59,10 @@ in [Host building blocks](../reference/design-tokens.md#host-building-blocks):
   </button>` })
 ```
 
+One of them is a whole control rather than an affordance: the navigation tree draws the list of
+destinations a sidebar exists for, marks where the user is and reports what they chose.
+[A navigation tree in the sidebar](navigation-tree.md) builds one from a declaration.
+
 > **`<lw-*>` elements don't survive `[innerHTML]`.** Angular's `DomSanitizer` strips unknown elements
 > from a string you bind with `[innerHTML]`, so an `<lw-tooltip>`/`<lw-icon>` written _inside_ such a
 > string is silently removed. Consume the `<lw-*>` elements in your **template** (as above), not inside an
@@ -138,6 +142,7 @@ on that native element.
 
 ## Where next
 
+- [A navigation tree in the sidebar](navigation-tree.md): the docked surface most products start with, declared as data.
 - [View state that survives](view-state.md): the `VIEW_STATE` handle a docked surface persists its filters and scroll in.
 - [The content area](content-area.md): the same declaration with an address, opened as a tab.
 - [Design tokens](../reference/design-tokens.md): the tokens, `<lw-*>` elements and `.lw-*` class contracts in full.

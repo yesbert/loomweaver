@@ -12,6 +12,24 @@ product (OIDC / your own identity platform / …). The platform only _reacts_ to
 gate themselves by login state and roles (see [Access gating in a weaver](../weaver/access-gating.md)).
 Integrating a real product is two providers plus your own login UI.
 
+## Before you have an identity provider: a stand-in session
+
+The generator writes one. Run `npx @loomweaver/cli auth-source --name dev --out src/auth`, or
+`nx g @loomweaver/devkit:auth-source --name dev`, and `dev-auth-source.ts` lands with three
+snapshots, anonymous, a user and an administrator, a signal holding the current one, and one
+function that steps around that ring. Wire it with `provideAuthSource(() => devAuthSource())` and
+the shell gates on it like on any other session.
+
+What the generator does not write is a way for the user to step: a rail item that shows who is
+signed in, with sign-in, switch and sign-out in its menu.
+[Recipe 12](../samples.md#a-session-without-a-backend) is that plugin, whole. The demo runs the
+same shape, an account switch in the rail, and its margin pane answers the accounting role and
+refuses the sales one.
+
+Say what it is: presentation for a product that has no backend yet. The snapshot lives in the
+browser, and a gated surface is hidden, not withheld. The three sections below are the real
+integration, and the generated file is what they replace.
+
 ## 1 · Feed the session — `provideAuthSource`
 
 Map your product's session into a `Signal<AuthSnapshot>`. The factory runs in the injection context, so
@@ -117,8 +135,8 @@ export class LoginView {
 }
 ```
 
-(The testbed ships exactly this flow, a login view plus a redirect for its admin area, if you want to
-see it run.)
+(The demo runs the stand-in from the first section rather than a login view. `demo/src/session` in
+the repository is the plugin recipe 12 is built from, if you want to see a session flip on screen.)
 
 **Shape B: a login dialog.** Opened from your own entry points through the host dialog service. On
 success it just closes itself. No navigation is needed, because every gated surface re-evaluates

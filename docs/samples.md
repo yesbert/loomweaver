@@ -24,8 +24,8 @@ distribution grant them, or the call throws `CapabilityError`.
 
 ## What the generator already writes
 
-Five of these ten recipes are what the generator writes, and a sixth, recipe 10, is half written for
-you. That is worth knowing before you copy anything: a generated weaver compiles, passes its own lint, and comes out the same every time, so
+Five of these twelve recipes are what the generator writes, and two more, recipes 10 and 12, are
+half written for you. That is worth knowing before you copy anything: a generated weaver compiles, passes its own lint, and comes out the same every time, so
 your attention goes to the part that is actually yours.
 
 | Recipe                                                                                           | The invocation that writes it                                                                                                             |
@@ -36,6 +36,7 @@ your attention goes to the part that is actually yours.
 | [4 · A settings section](#a-settings-section)                                                    | `weaver --id notes --settings`                                                                                                            |
 | [5 · Gating a surface behind a login](#gating-a-surface-behind-a-login)                          | `weaver --id notes --access authenticated`                                                                                                |
 | [10 · Letting an AG-UI agent drive your product](#10--letting-an-ag-ui-agent-drive-your-product) | `weaver --id notes --agent` — the connection, a panel and a stand-in that works before you have a transport; what you replace is one file |
+| [12 · A session without a backend](#a-session-without-a-backend)                                 | `auth-source --name dev` — the three states and the step around them; the plugin that turns the step into sign-in, switch and sign-out is yours                |
 
 The options compose, so that is one call:
 
@@ -45,9 +46,12 @@ npx @loomweaver/cli weaver --id notes --out src/notes \
   --settings --access authenticated --agent
 ```
 
-Recipes 6 to 9 have no generator behind them, and that is the honest split: they are the ones where
-you decide something. Recipe 10 is the half-way case: `--agent` writes the wiring and something that
-runs on the first serve, and the transport it talks to stays yours.
+Recipes 6 to 9 and 11 have no generator behind them, and that is the honest split: they are the
+ones where you decide something. A generator for recipe 11 is intended, once the recipe has been
+read and copied enough to know its shape. Recipes 10 and 12 are the half-way cases. For recipe 10,
+`--agent` writes the wiring and something that runs on the first serve, and the transport it talks
+to stays yours. For recipe 12, `auth-source` writes the session's states, and the plugin that puts
+them in the rail is yours.
 
 **It does not matter who invokes it.** One description of each generator serves every route into it,
 so `@loomweaver/cli` on a command line, `@loomweaver/devkit` as an Nx generator and `@loomweaver/mcp`
@@ -769,6 +773,409 @@ The package brings **no transport, no user interface and no agent**: you open th
 the conversation, and you decide what the agent is. The full contract, including what the agent never
 learns and why, is in [agent tools](reference/agent-tools.md).
 
+<a id="a-navigation-tree-in-the-sidebar"></a>
+
+## 11 · A navigation tree in the sidebar
+
+A sidebar that lists your destinations, grouped and folded, marking the one the user is at. The
+workbench draws the tree from what you declare and reports what the user chose; you navigate. The
+story behind every line is [A navigation tree in the sidebar](weaver/navigation-tree.md).
+
+**Capabilities:** `contributions` · `navigation` (for `activeContent`, `isShowingUnder` and
+`navigateContent`)
+
+```ts
+// src/notes/src/lib/views/notes-navigation.ts
+export interface Destination {
+  readonly path: string;
+  readonly label: string;
+  readonly icon: string;
+}
+
+export interface Group {
+  readonly key: string;
+  readonly label: string;
+  readonly destinations: readonly Destination[];
+  readonly startsShut?: boolean;
+}
+
+export const NOTES_NAVIGATION = {
+  groups: [
+    {
+      key: 'notes/writing',
+      label: 'notes.nav.writing',
+      destinations: [
+        { path: 'notes', label: 'notes.nav.all', icon: 'document' },
+        { path: 'notes/drafts', label: 'notes.nav.drafts', icon: 'edit' },
+      ],
+    },
+    {
+      key: 'notes/archive',
+      label: 'notes.nav.archive',
+      startsShut: true,
+      destinations: [{ path: 'notes/archive', label: 'notes.nav.archived', icon: 'lock' }],
+    },
+  ] as readonly Group[],
+  loose: [{ path: 'notes/search', label: 'notes.nav.search', icon: 'search' }] as readonly Destination[],
+};
+
+export function groupShowing(
+  groups: readonly Group[],
+  showingUnder: (path: string) => boolean,
+): Group | undefined {
+  let deepest: { readonly group: Group; readonly depth: number } | undefined;
+  for (const group of groups) {
+    for (const destination of group.destinations) {
+      if (showingUnder(destination.path) && destination.path.length > (deepest?.depth ?? -1)) {
+        deepest = { group, depth: destination.path.length };
+      }
+    }
+  }
+  return deepest?.group;
+}
+```
+
+```ts
+// src/notes/src/lib/plugin/navigation.ts
+import type { PluginContext } from '@loomweaver/plugin-sdk';
+
+let ctx: PluginContext | undefined;
+let lastTitle: string | undefined;
+
+export const navigation = {
+  bind(next: PluginContext): void {
+    ctx = next;
+  },
+  unbind(): void {
+    ctx = undefined;
+    lastTitle = undefined;
+  },
+  activePath(): string {
+    return ctx?.activeContent()?.path ?? '';
+  },
+  showingUnder(path: string): boolean {
+    return ctx?.isShowingUnder(path) ?? false;
+  },
+  go(path: string): void {
+    ctx?.navigateContent(path);
+  },
+  retitle(surfaceId: string, title: string): void {
+    if (!ctx || lastTitle === title) {
+      return;
+    }
+    lastTitle = title;
+    ctx.retitleSurface(surfaceId, title);
+  },
+};
+```
+
+```ts
+// src/notes/src/lib/views/notes-navigation-view.ts
+import {
+  ChangeDetectionStrategy,
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  computed,
+  effect,
+} from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { navigation } from '../plugin/navigation';
+import { NOTES_NAVIGATION, groupShowing } from './notes-navigation';
+
+@Component({
+  selector: 'lw-notes-navigation',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  imports: [TranslocoPipe],
+  templateUrl: './notes-navigation-view.html',
+})
+export class NotesNavigationView {
+  protected readonly groups = computed(() => NOTES_NAVIGATION.groups);
+  protected readonly loose = NOTES_NAVIGATION.loose;
+  protected readonly shown = computed(() => navigation.activePath());
+
+  constructor() {
+    effect(() => {
+      const group = groupShowing(this.groups(), (path) => navigation.showingUnder(path));
+      navigation.retitle('notes.navigation', group?.label ?? 'notes.nav.title');
+    });
+  }
+
+  protected open(event: Event): void {
+    navigation.go((event as CustomEvent<{ path: string }>).detail.path);
+  }
+}
+```
+
+```html
+<!-- src/notes/src/lib/views/notes-navigation-view.html -->
+<lw-nav-tree
+  [attr.current]="shown()"
+  [attr.aria-label]="'notes.nav.title' | transloco"
+  (lw-nav-select)="open($event)"
+>
+  @for (group of groups(); track group.key) {
+    <lw-nav-group
+      [attr.label]="group.label | transloco"
+      [attr.key]="group.key"
+      [attr.collapsed]="group.startsShut ? '' : null"
+    >
+      @for (destination of group.destinations; track destination.path) {
+        <lw-nav-item
+          [attr.path]="destination.path"
+          [attr.icon]="destination.icon"
+          [attr.label]="destination.label | transloco"
+        ></lw-nav-item>
+      }
+    </lw-nav-group>
+  }
+  @for (destination of loose; track destination.path) {
+    <lw-nav-item
+      [attr.path]="destination.path"
+      [attr.icon]="destination.icon"
+      [attr.label]="destination.label | transloco"
+    ></lw-nav-item>
+  }
+</lw-nav-tree>
+```
+
+```ts
+// in activate(ctx) — the manifest declares ['contributions', 'navigation']
+navigation.bind(ctx);
+ctx.registerSurface({
+  id: 'notes.navigation',
+  title: 'notes.nav.title',
+  icon: 'notes',
+  component: NotesNavigationView,
+  docks: ['left-panel'],
+  padded: false,
+});
+
+// in deactivate()
+navigation.unbind();
+```
+
+**You get:** a tree in the left sidebar with two groups and a loose entry, the archive group shut
+until the user opens it. Choosing an entry navigates the content area; opening a draft marks the
+drafts entry, because `notes/drafts/d-17` lies under `notes/drafts`; the panel header says
+"Writing" or "Archive" for wherever the user is. Fold a group, collapse the sidebar and open it
+again, and the fold is as the user left it. Reload, and the declaration wins again.
+
+> Every group has a `key`, and `collapsed` is set as `''` or removed as `null`. Both are rules,
+> not habits: the [guide](weaver/navigation-tree.md#folding) says what goes wrong without them.
+> Hiding destinations whose route nobody registered is on the same page, and it needs the
+> distribution's registry, which is why it is not in this recipe.
+
+<a id="a-session-without-a-backend"></a>
+
+## 12 · A session without a backend
+
+The platform owns no sign-in. Before your product has an identity provider you still want to see
+gating work: a rail item that says who is signed in, a menu to sign in, switch the account and sign
+out, and every gated surface following. This is a stand-in, presentation for a product without a
+backend yet; the real integration is in [Auth integration](distribution/auth.md).
+
+The first file is not yours to write. `npx @loomweaver/cli auth-source --name dev --out src/auth`
+emits it, as does `nx g @loomweaver/devkit:auth-source --name dev`, and this is what it writes:
+
+```ts
+// src/auth/dev-auth-source.ts — written by the generator, unchanged
+import { signal, Signal } from '@angular/core';
+import { ANONYMOUS, AuthSnapshot } from '@loomweaver/plugin-sdk';
+
+const USER: AuthSnapshot = {
+  authenticated: true,
+  roles: ['user'],
+  claims: {},
+  displayName: 'Signed-in user',
+};
+
+const ADMIN: AuthSnapshot = {
+  authenticated: true,
+  roles: ['user', 'admin'],
+  claims: {},
+  displayName: 'Administrator',
+};
+
+const state = signal<AuthSnapshot>(ANONYMOUS);
+
+export function devAuthSource(): Signal<AuthSnapshot> {
+  return state.asReadonly();
+}
+
+export function cycleDevUser(): void {
+  const current = state();
+  const next = !current.authenticated
+    ? USER
+    : current.roles.includes('admin')
+      ? ANONYMOUS
+      : ADMIN;
+  state.set(next);
+}
+```
+
+A ring of three states and one step around it. The plugin below is the part that is yours: it
+turns the one step into the three verbs a user knows, and puts them where a user looks.
+
+**Capabilities:** `contributions`. This plugin does not read the session through `ctx`; it holds
+the source itself.
+
+```ts
+// src/session/session.plugin.ts — a plugin of the product's own, beside the weavers it composes
+import type { Disposable, Plugin, PluginContext } from '@loomweaver/plugin-sdk';
+import { cycleDevUser, devAuthSource } from '../auth/dev-auth-source';
+
+const MENU = 'session.account/menu';
+const snapshot = devAuthSource();
+
+let drawn: Disposable[] = [];
+
+function signIn(): void {
+  if (!snapshot().authenticated) {
+    cycleDevUser();
+  }
+}
+
+function switchAccount(): void {
+  cycleDevUser();
+  if (!snapshot().authenticated) {
+    cycleDevUser();
+  }
+}
+
+function signOut(): void {
+  while (snapshot().authenticated) {
+    cycleDevUser();
+  }
+}
+
+function initialsOf(name: string): string {
+  return name
+    .split(' ')
+    .map((word) => word[0] ?? '')
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+}
+
+function draw(ctx: PluginContext): void {
+  for (const part of drawn) {
+    part.dispose();
+  }
+  const current = snapshot();
+  const name = current.displayName ?? '';
+  drawn = [
+    ctx.registerRailItem({
+      id: 'session.account',
+      rail: 'primary',
+      icon: 'account',
+      title: current.authenticated ? name : 'session.signIn',
+      anchor: 'bottom',
+      order: 20,
+      menu: MENU,
+      menuTrigger: 'primary',
+      ...(current.authenticated ? { initials: initialsOf(name) } : {}),
+      menuHeader: current.authenticated
+        ? {
+            title: name,
+            detail: `session.role.${current.roles.includes('admin') ? 'admin' : 'user'}`,
+            initials: initialsOf(name),
+          }
+        : { title: 'session.signedOut', icon: 'account' },
+    }),
+    ...(current.authenticated
+      ? [
+          ctx.registerMenuItem({
+            id: 'session.menu.switch',
+            menu: MENU,
+            command: 'session.switchAccount',
+            group: 'account',
+            order: 10,
+          }),
+          ctx.registerMenuItem({
+            id: 'session.menu.signOut',
+            menu: MENU,
+            command: 'session.signOut',
+            group: 'account',
+            order: 20,
+          }),
+        ]
+      : [
+          ctx.registerMenuItem({
+            id: 'session.menu.signIn',
+            menu: MENU,
+            command: 'session.signIn',
+            group: 'account',
+            order: 10,
+          }),
+        ]),
+  ];
+}
+
+export const sessionPlugin: Plugin = {
+  manifest: { id: 'session', name: 'Account', capabilities: ['contributions'] },
+  activate(ctx) {
+    const then = (step: () => void) => () => {
+      step();
+      draw(ctx);
+    };
+    ctx.registerCommand({
+      id: 'session.signIn',
+      title: 'session.signIn',
+      icon: 'account',
+      access: { authenticated: false },
+      run: then(signIn),
+    });
+    ctx.registerCommand({
+      id: 'session.switchAccount',
+      title: 'session.switchAccount',
+      icon: 'account',
+      access: { authenticated: true },
+      run: then(switchAccount),
+    });
+    ctx.registerCommand({
+      id: 'session.signOut',
+      title: 'session.signOut',
+      icon: 'signOut',
+      access: { authenticated: true },
+      run: then(signOut),
+    });
+    draw(ctx);
+  },
+  deactivate() {
+    for (const part of drawn) {
+      part.dispose();
+    }
+    drawn = [];
+  },
+};
+```
+
+```ts
+// src/app/app.config.ts — in the providers array
+import { heroArrowRightStartOnRectangle, heroUserCircle } from '@ng-icons/heroicons/outline';
+import { provideAuthSource, provideCapabilityGrants, provideIcons, providePlugins } from '@loomweaver/shell';
+import { devAuthSource } from '../auth/dev-auth-source';
+import { sessionPlugin } from '../session/session.plugin';
+
+provideAuthSource(() => devAuthSource()),
+provideIcons({ account: heroUserCircle, signOut: heroArrowRightStartOnRectangle }),
+provideCapabilityGrants({ session: ['contributions'] }),
+...providePlugins(sessionPlugin),
+```
+
+**You get:** a rail item at the bottom of the rail that reads "Sign in" for a visitor and
+carries the user's initials once signed in. Its menu offers sign-in to a visitor, and switching and
+signing out to a user; the three are commands, so the palette offers them too, each only when it
+applies. Signing in flips the snapshot, and every surface, rail item and command gated with
+`access` follows without a reload. Switch to the administrator and whatever asks for the `admin`
+role appears; sign out and it goes. The keys `session.*` go in your product's own bundle.
+
+Nothing here protects anything. The snapshot is a signal in the browser, and a gated surface is
+hidden, not withheld. When the product gets its identity provider, the generated file is what you
+replace, with `provideAuthSource` mapping the real session, and this plugin's three verbs become
+calls into it or go away in favour of a [login page or dialog](distribution/auth.md#2--own-the-login-ui-page-or-dialog).
+
 ## Translations for all of the above
 
 Every `title` / `label` / `message` here is a **translation key**. Put them in your bundle:
@@ -780,6 +1187,8 @@ Every `title` / `label` / `message` here is a **translation key**. Put them in y
   "add": "New note",
   "added": "Note created",
   "list": { "title": "All notes" },
+  "nav": { "title": "Notes", "writing": "Writing", "all": "All notes", "drafts": "Drafts",
+           "archive": "Archive", "archived": "Archived notes", "search": "Search" },
   "workspace": { "title": "Workspace" },
   "settings": { "title": "Notes", "compact": "Compact rows" }
 }
