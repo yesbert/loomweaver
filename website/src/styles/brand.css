@@ -17,3 +17,10 @@
 :root {
   --sl-content-width: 60rem;
 }
+
+/* A docs page embeds a picture twice, once per theme, with the fragment GitHub reads for the same
+   purpose, so the markdown shows one picture on GitHub and one here without saying so twice. */
+:root[data-theme='dark'] img[src$='#gh-light-mode-only'],
+:root[data-theme='light'] img[src$='#gh-dark-mode-only'] {
+  display: none;
+}

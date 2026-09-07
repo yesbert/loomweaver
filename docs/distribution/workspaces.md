@@ -172,6 +172,13 @@ that dialog, from the entry's menu, by dragging it across, or by focusing it and
 rather than two sides, and the _Move to other …_ menu entry is not registered at all: it would have
 nowhere to move to.
 
+![The curation dialog for the rail, listing every entry with a Hidden, Left or Right choice for each, and a search field above.](../../assets/media/customize-rail-light.png#gh-light-mode-only)
+
+![The curation dialog for the rail, listing every entry with a Hidden, Left or Right choice for each, and a search field above.](../../assets/media/customize-rail-dark.png#gh-dark-mode-only)
+
+_Customize activity bar_ in the demo, every entry with its side. The workbench's menus say
+_activity bar_; these pages say rail.
+
 The dialog is the command `shell.rail.customize`, with the same consequences: palette, shortcut, your
 own trigger, or `omit`; the menu entry is `menu:shell.rail.customize`. Switching the capability off
 (`rail: { curate: false }`) removes command, menu entry and right-click together.

@@ -194,6 +194,13 @@ same broker, same same-origin rule. The catalogue lives on your origin, and you 
 into it. Operator review plus same-origin _is_ the integrity boundary. That is why plugin signatures
 are not part of the model.
 
+![The install prompt for the Payment matching plugin, listing the two permissions it requests, with Cancel and Install buttons.](../assets/media/plugin-consent-light.png#gh-light-mode-only)
+
+![The install prompt for the Payment matching plugin, listing the two permissions it requests, with Cancel and Install buttons.](../assets/media/plugin-consent-dark.png#gh-dark-mode-only)
+
+What the user sees before a community plugin runs: the capabilities it declared, and one answer.
+Accepting grants exactly that list, and nothing the catalogue did not carry.
+
 The install dialog lists the capabilities the plugin declares, and **agreeing is the grant**: there
 is no separate grant map for installed plugins. Consequently an update that widens the declaration
 asks again, listing only what was added; an update that does not, applies silently.

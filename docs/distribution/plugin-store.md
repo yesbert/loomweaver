@@ -89,6 +89,13 @@ last-update time ("2 days ago", localised), the short description and an _Instal
 rendered in-app**. The README is fetched from the same-origin `readmeUrl` and sanitised: the detail
 view renders the author's text itself and never embeds a foreign page.
 
+![The plugin store dialog with a catalogue card on the left and the Payment matching plugin's detail on the right, with an Install button.](../../assets/media/plugin-store-light.png#gh-light-mode-only)
+
+![The plugin store dialog with a catalogue card on the left and the Payment matching plugin's detail on the right, with an Install button.](../../assets/media/plugin-store-dark.png#gh-dark-mode-only)
+
+The store as the demo serves it: the catalogue's cards on the left, the detail pane with the
+plugin's own readme on the right. The catalogue is yours; the surface came with the shell.
+
 A second, equally searchable **Installed** view manages what is installed. Per plugin it draws a row
 of tooltipped icon actions (open its _Community plugins_ settings section, enable or disable,
 uninstall) plus an **Update to vX.Y.Z** button whenever the catalogue carries a newer version. **The store is the
@@ -107,6 +114,12 @@ every plugin (on/off toggle + capability switches), an install spawns the plugin
 uninstall in the store unloads it live. The installed set persists through the
 [settings store](persistence.md): user-local by default, tenant- or server-held when your store
 backend decides so.
+
+![The install prompt for the Payment matching plugin, listing the two permissions it requests, with Cancel and Install buttons.](../../assets/media/plugin-consent-light.png#gh-light-mode-only)
+
+![The install prompt for the Payment matching plugin, listing the two permissions it requests, with Cancel and Install buttons.](../../assets/media/plugin-consent-dark.png#gh-dark-mode-only)
+
+Before an install, the user sees every capability the plugin declared and answers once.
 
 ## Updates
 

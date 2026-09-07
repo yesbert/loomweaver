@@ -6,6 +6,7 @@
 export const mainNav = [
   { label: 'Docs', link: '/overview/' },
   { label: 'Getting started', link: '/getting-started/' },
+  { label: 'The workbench', link: '/the-workbench/' },
   { label: 'Weavers', link: '/authoring-a-weaver/' },
   { label: 'Distributions', link: '/building-a-distribution/' },
   { label: 'Samples', link: '/samples/' },

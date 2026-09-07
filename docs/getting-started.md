@@ -202,6 +202,13 @@ search, **`mod+p`** the search over everything you have open. The scaffold put b
 badges that print their own chord, two lines in your `app.config.ts` and yours to move or delete;
 `LOOMWEAVER.md` says how.
 
+![The quick open list over the workbench, four open tabs marked now at the top and the other views the product can open below.](../assets/media/quick-open-light.png#gh-light-mode-only)
+
+![The quick open list over the workbench, four open tabs marked now at the top and the other views the product can open below.](../assets/media/quick-open-dark.png#gh-dark-mode-only)
+
+`mod+p` in the demo: the open tabs first, marked *now*, and below them everything else the product
+can open.
+
 Your first production build warns `bundle initial exceeded maximum budget`; raise the budgets in your
 build target as [Manual setup → Run](manual-setup.md#7--run) describes.
 

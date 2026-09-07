@@ -29,6 +29,19 @@ The host's own tab actions (Close, Close Others/All/to-the-Right, and a "Pinned"
 slot, and your item joins them. Command behaviour crosses the sandbox boundary because it is referenced by
 **id** (the context is plain, serialisable data); an inline `run` on a menu item is trusted, in-process only.
 
+![The context menu of a content tab, offering Split right, Split down, Close, Close Others, Close to the Right, Close All, Pinned and Open in New Window.](../../assets/media/tab-menu-light.png#gh-light-mode-only)
+
+![The context menu of a content tab, offering Split right, Split down, Close, Close Others, Close to the Right, Close All, Pinned and Open in New Window.](../../assets/media/tab-menu-dark.png#gh-dark-mode-only)
+
+The host's menu on a content tab. Your item joins this slot beside the host's own actions.
+
+![The context menu of a rail entry, offering to move the entry to the other rail or to hide it.](../../assets/media/rail-menu-light.png#gh-light-mode-only)
+
+![The context menu of a rail entry, offering to move the entry to the other rail or to hide it.](../../assets/media/rail-menu-dark.png#gh-dark-mode-only)
+
+The host's menu on a rail entry, and the same slot for an entry that declares a menu of its own:
+the host's _Hide_ is added to it rather than replacing it.
+
 A menu item may carry its own optional `id`: re-registering that id **replaces** the entry (last-in wins),
 the same rule as every other contribution. The built-in entries use `menu:<commandId>` ids
 (e.g. `menu:shell.tab.closeAll`), so a distribution can hide or swap a standard entry.

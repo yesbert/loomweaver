@@ -11,6 +11,13 @@ Contribute a section to the host settings surface (opened via `ctx.ui.openSettin
 **owns its own storage**: the host only reads `value()` and calls `set()`, so the platform never
 persists your data.
 
+![The Settings dialog on its Permissions section, with a switch per plugin and, under each, a switch per capability the plugin holds.](../../assets/media/settings-light.png#gh-light-mode-only)
+
+![The Settings dialog on its Permissions section, with a switch per plugin and, under each, a switch per capability the plugin holds.](../../assets/media/settings-dark.png#gh-dark-mode-only)
+
+The dialog your section lands in, here on the shell's own Permissions section. The navigation, the
+groups and the row controls are the host's; a section registers its rows and the host paints them.
+
 ```ts
 ctx.registerSettingsSection({
   id: 'notes.settings',

@@ -111,6 +111,16 @@ false`, `types: ["*"]`, `noUncheckedSideEffectImports: false` and `ignoreDepreca
   needs `ffmpeg` on PATH and nothing in CI runs it. Re-record when you change the workbench chrome
   the tour shows, and follow a written route while recording: an outdated tour leaves a broken layout
   on the front page, where it stays until somebody notices.
+- **The stills of the dialogs and menus are captured, not hand-made.** They are of the demo.
+  Serve it (`npm run start -- --port 4210` in `demo/`), then
+  `node platform/tools/capture-screenshots.mjs` writes `assets/media/<motif>-{light,dark}.png` for
+  every motif it lists. The motifs are the plugin store and its consent prompt, the settings dialog,
+  the workspace dialog, the rail's curation dialog, the tab and rail context menus, quick open, and
+  split panes. The guide _The workbench your users get_ and the landing page embed them, and the
+  website sync fails on a missing one. It needs no ffmpeg, and nothing in CI runs it. Re-run it when
+  the chrome of a dialog or menu changes, or when the demo's content behind one changes. Look at
+  every picture before committing: the version in the status bar dates each one, and a motif the
+  demo can no longer reach fails loudly rather than shooting the wrong thing.
 
 ## Verifying
 
