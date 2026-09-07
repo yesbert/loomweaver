@@ -41,7 +41,9 @@ readonly DEVKIT_PKG
 AGUI_PKG="${ROOT_DIR}/platform/libs/integrations/ag-ui/package.json"
 readonly AGUI_PKG
 AGENT_RECIPE="${ROOT_DIR}/platform/libs/tooling/devkit/src/recipes/angular-weaver/agent-files.ts"
+PLATFORM_RECIPE="${ROOT_DIR}/platform/libs/tooling/devkit/src/recipes/platform-version.ts"
 readonly AGENT_RECIPE
+readonly PLATFORM_RECIPE
 
 usage() {
     echo "Usage: $0 <major|minor|patch|preminor|prerelease|release>"
@@ -132,7 +134,7 @@ command -v node >/dev/null 2>&1 || {
 }
 # `export` (not a `VAR=... node` command-prefix) because SDK_PKG/SHELL_PKG are readonly — a
 # prefix assignment would try to reassign them and fail with "readonly variable".
-export NEW_VERSION SDK_PKG SHELL_PKG MCP_PKG CLI_PKG KIT_PKG DEVKIT_PKG AGUI_PKG AGENT_RECIPE
+export NEW_VERSION SDK_PKG SHELL_PKG MCP_PKG CLI_PKG KIT_PKG DEVKIT_PKG AGUI_PKG AGENT_RECIPE PLATFORM_RECIPE
 node <<'NODE'
 const fs = require('fs');
 const version = process.env.NEW_VERSION;
@@ -166,6 +168,14 @@ fs.writeFileSync(
       `AG_UI_ADAPTER_VERSION = '${version}'`,
     ),
 );
+// The distribution generator records the frame kit the same way, as the platform version literal.
+const platformRecipe = process.env.PLATFORM_RECIPE;
+fs.writeFileSync(
+  platformRecipe,
+  fs
+    .readFileSync(platformRecipe, 'utf8')
+    .replace(/PLATFORM_VERSION = '[^']+'/, `PLATFORM_VERSION = '${version}'`),
+);
 NODE
 
 echo "Updated: ${SDK_PKG}"
@@ -176,13 +186,14 @@ echo "Updated: ${KIT_PKG}"
 echo "Updated: ${DEVKIT_PKG}"
 echo "Updated: ${AGUI_PKG}"
 echo "Updated: ${AGENT_RECIPE}"
+echo "Updated: ${PLATFORM_RECIPE}"
 
 # Stamp the committed app-version module from the new <Version> so the shell (and its published
 # npm package) never drifts from Directory.Build.props. Same generator the production build runs.
 node "${ROOT_DIR}/platform/tools/stamp-version.mjs"
 
 cd "${ROOT_DIR}"
-git add "${PROPS_FILE}" "${SDK_PKG}" "${SHELL_PKG}" "${MCP_PKG}" "${CLI_PKG}" "${KIT_PKG}" "${DEVKIT_PKG}" "${AGUI_PKG}" "${AGENT_RECIPE}" "${ROOT_DIR}/platform/libs/core/shell/src/lib/version/app-version.ts"
+git add "${PROPS_FILE}" "${SDK_PKG}" "${SHELL_PKG}" "${MCP_PKG}" "${CLI_PKG}" "${KIT_PKG}" "${DEVKIT_PKG}" "${AGUI_PKG}" "${AGENT_RECIPE}" "${PLATFORM_RECIPE}" "${ROOT_DIR}/platform/libs/core/shell/src/lib/version/app-version.ts"
 git commit -m "chore: bump version to ${NEW_VERSION}"
 git tag "v${NEW_VERSION}"
 
