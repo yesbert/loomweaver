@@ -9,7 +9,9 @@
  * second copy of the protocol package, whose events are not the events the first one switches on.
  * Neither shows up in a build here, because nothing here installs what a consumer installs.
  *
- * So this compares the two literals with what the adapter itself declares.
+ * So this compares the two literals with what the adapter itself declares. The distribution generator
+ * records the frame kit the same way, as the platform version literal, and that one is compared with
+ * the shell's own manifest.
  */
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -18,10 +20,14 @@ import { dirname, join } from 'node:path';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 const RECIPE = 'libs/tooling/devkit/src/recipes/angular-weaver/agent-files.ts';
+const PLATFORM_RECIPE = 'libs/tooling/devkit/src/recipes/platform-version.ts';
 const ADAPTER = 'libs/integrations/ag-ui/package.json';
+const SHELL = 'libs/core/shell/package.json';
 
 const source = readFileSync(join(root, RECIPE), 'utf8');
+const platformSource = readFileSync(join(root, PLATFORM_RECIPE), 'utf8');
 const adapter = JSON.parse(readFileSync(join(root, ADAPTER), 'utf8'));
+const shell = JSON.parse(readFileSync(join(root, SHELL), 'utf8'));
 
 const literal = (name) =>
   source.match(new RegExp(String.raw`${name}\s*=\s*'([^']+)'`))?.[1];
@@ -29,10 +35,15 @@ const literal = (name) =>
 const recorded = {
   adapter: literal('AG_UI_ADAPTER_VERSION'),
   protocol: literal('AG_UI_PROTOCOL_VERSION'),
+  platform: platformSource.match(/PLATFORM_VERSION\s*=\s*'([^']+)'/)?.[1],
 };
 
 if (!recorded.adapter || !recorded.protocol) {
   console.error(`check-agent-versions: read no version from ${RECIPE} — it changed shape.`);
+  process.exit(1);
+}
+if (!recorded.platform) {
+  console.error(`check-agent-versions: read no version from ${PLATFORM_RECIPE} — it changed shape.`);
   process.exit(1);
 }
 
@@ -46,6 +57,12 @@ if (recorded.adapter !== resolved.adapter) {
   failures.push(
     `the generator records @loomweaver/ag-ui@${recorded.adapter}, the platform publishes ${resolved.adapter} — ` +
       'a weaver generated now would ask for a version that is not this one.',
+  );
+}
+if (recorded.platform !== shell.version) {
+  failures.push(
+    `the distribution generator records @loomweaver/frame-kit@${recorded.platform}, the platform publishes ${shell.version} — ` +
+      'a distribution generated now would ask for a frame kit that is not this one.',
   );
 }
 if (recorded.protocol !== resolved.protocol) {
@@ -63,5 +80,5 @@ if (failures.length > 0) {
 }
 
 console.log(
-  `check-agent-versions: the generator records @loomweaver/ag-ui@${recorded.adapter} and @ag-ui/core@${recorded.protocol}, both as the platform resolves them.`,
+  `check-agent-versions: the generators record @loomweaver/ag-ui@${recorded.adapter}, @ag-ui/core@${recorded.protocol} and @loomweaver/frame-kit@${recorded.platform}, all as the platform resolves them.`,
 );

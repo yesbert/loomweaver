@@ -1,10 +1,16 @@
 import { Amendment } from '../../lib/amend/types';
+import { PLATFORM_VERSION } from '../platform-version';
 import { ResolvedDistribution } from './recipe';
 
 export function distributionAmendments(
   d: ResolvedDistribution,
 ): readonly Amendment[] {
   return [
+    {
+      kind: 'package' as const,
+      name: '@loomweaver/frame-kit',
+      version: `^${PLATFORM_VERSION}`,
+    },
     ...(d.styles === 'tailwind'
       ? [
           {

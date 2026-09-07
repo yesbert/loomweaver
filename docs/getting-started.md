@@ -109,7 +109,9 @@ and, in the **production** configuration:
 
 Each has a reason, told where the manual setup makes the same edit. The i18n glob serves the shell's
 own strings ([Serve the host translations](manual-setup.md#5--serve-the-host-translations)). The
-frame-kit glob matters only once you host sandboxed plugins ([Frame plugins](distribution/frame-plugins.md)).
+frame-kit glob matters only once you host sandboxed plugins ([Frame plugins](distribution/frame-plugins.md)),
+and the scaffold records `@loomweaver/frame-kit` in your `package.json` so the glob points at something
+that exists.
 `serviceWorker` and `inlineCritical: false` are the PWA side ([PWA and delivery](distribution/pwa.md)).
 One trap belongs here: `inlineCritical: false` is not optional. The generated `index.html` ships a
 strict `script-src 'self'` that blocks Angular's inline critical-CSS handler, and the app then renders

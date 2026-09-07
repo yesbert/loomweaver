@@ -1,4 +1,5 @@
 import { generate } from '../../lib/generate/generate';
+import { distributionAmendments } from './amendments';
 import { angularDistribution, resolveDistributionInput } from './recipe';
 
 describe('angularDistribution recipe', () => {
@@ -37,6 +38,15 @@ describe('angularDistribution recipe', () => {
         'src/styles.css',
       ].toSorted((a, b) => a.localeCompare(b)),
     );
+  });
+
+  it('records the frame kit its asset glob points at, on the platform version line', () => {
+    const amendments = distributionAmendments(resolveDistributionInput({ name: 'acme-studio' }));
+    expect(amendments).toContainEqual({
+      kind: 'package',
+      name: '@loomweaver/frame-kit',
+      version: expect.stringMatching(/^\^\d+\.\d+\.\d+/),
+    });
   });
 
   it('references the shell as an installed package, never repo-local paths', () => {
