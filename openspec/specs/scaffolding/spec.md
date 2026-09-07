@@ -49,6 +49,11 @@ present after a distribution is generated SHALL pass without further edits, incl
 test the workspace carried before the generator ran that the generated output made false; the
 generator SHALL replace such a test rather than leave the consumer to delete it.
 
+A limit the generator itself replaces SHALL remain a limit. Where a default the generated output
+invalidates is a threshold, the generator SHALL set one the generated output fits and a consumer's
+own growth can still exceed, rather than one placed beyond reach; a threshold nothing can cross
+reports nothing.
+
 #### Scenario: A generated project passes its own lint
 
 - **WHEN** a project is generated with a non-default naming prefix
@@ -109,6 +114,19 @@ generator SHALL replace such a test rather than leave the consumer to delete it.
 
 - **WHEN** the same output is produced by a route that cannot reach the workspace
 - **THEN** the package is named among the steps that remain, together with what fails if it is skipped
+
+#### Scenario: A generated distribution is built for release without a threshold it cannot meet
+
+- **WHEN** a distribution is generated into a fresh application workspace and built for release
+  without further edits
+- **THEN** the build completes
+- **AND** no size threshold the workspace carried before the generator ran stops it
+
+#### Scenario: A threshold the generator sets can still be exceeded
+
+- **WHEN** a distribution is generated and the consumer's own code grows well past what the
+  generated output itself weighs
+- **THEN** the build reports it
 
 ### Requirement: A generated distribution shows the way into its searches
 
