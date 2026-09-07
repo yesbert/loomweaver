@@ -131,3 +131,28 @@ test('switching the look is a reload, and it sticks', async ({ page }) => {
   );
   await expect(page.locator('lw-shell-brand')).toContainText('LoomWeaver Demo');
 });
+
+/* A look may raise the header line, but it has to raise all of it: the top bar and the sidebar heads
+   beside it share one bottom edge, whether the heads are wide or the narrow window's hamburger
+   boxes. Breeze once raised the bar alone, and the line stepped at both of its edges. */
+for (const look of ['default', 'aurora', 'breeze']) {
+  for (const width of [1280, 600]) {
+    test(`the ${look} look keeps one header line at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 800 });
+      await chooseLook(page, look);
+
+      const edges = await page.evaluate(() => {
+        const bottom = (el: Element) => Math.round(el.getBoundingClientRect().bottom);
+        const bar = document.querySelector('lw-shell-bar header');
+        const heads = [...document.querySelectorAll('lw-shell-sidebar-header > *')];
+        return { bar: bar ? bottom(bar) : null, heads: heads.map(bottom) };
+      });
+
+      expect(edges.bar).not.toBeNull();
+      expect(edges.heads.length).toBeGreaterThan(0);
+      for (const head of edges.heads) {
+        expect(head).toBe(edges.bar);
+      }
+    });
+  }
+}

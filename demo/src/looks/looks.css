@@ -129,7 +129,12 @@
   padding-inline: 1.25rem;
 }
 
-:root.look-breeze lw-pane-tab-strip {
+:root.look-breeze lw-shell-sidebar-header > div,
+:root.look-breeze lw-shell-sidebar-header > lw-pane-tab-strip {
+  height: 3.5rem;
+}
+
+:root.look-breeze lw-content-area lw-pane-tab-strip {
   height: 3.25rem;
 }
 

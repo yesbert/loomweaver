@@ -2,28 +2,26 @@
 
 ## Why
 
-A visitor of the live demo reported, with a screenshot, that in the Breeze look the active icon
-tab of a sidebar header is drawn as a circle that is cut off at its top and left edge. The circle is
-Breeze's doing: the look rounds every icon button fully, and the active tab of an icon strip is an
-icon button. The cut is not: the strip's row clips its content, and where the row's box is tighter
-than the tab's, or the row is scrolled, the tab's background is cut. In the default look the same
-cut exists but hides in a small corner radius; a full circle makes it visible.
+A visitor of the live demo reported, with a screenshot, that the Breeze look draws something wrong
+at the top of the window, and the owner reproduced it in Chrome: in Breeze the header rows do not
+line up. The look raises the top bar to 56 px, but the heads of the sidebars beside it stay at 52 px,
+and on a narrow window the hamburger boxes beside it stay at 48 px, so the header line steps down
+on both sides of the bar and the rows beside each other do not share a bottom edge. The screenshot's
+circle is the pressed "System" option of the scheme toggle, which Breeze rounds, standing on that
+stepped edge.
 
-The report comes from the first outside eyes on the demo, so it is worth fixing quickly and worth
-knowing exactly what it is before fixing it. The screenshot shows the row at a size we do not
-reproduce at 1280 px on macOS, so the first step is to find the viewport and the state it appears in.
+The look is at fault, not the workbench. Dimensions are deliberately not tokens: a look changes them
+with its own stylesheet, and Breeze changed the bar's height without changing the rows that stand
+beside it.
 
 ## What Changes
 
-- Reproduce the cut as reported: which viewport, which look, which panel, whether the strip is
-  scrolled or overflowing, and whether the sidebar header's fixed height or the strip's row is the
-  clipping box. Record the answer in the design note.
-- Fix the cause where it is. If the clipping box belongs to the workbench's icon strip, the fix is
-  in the shell and this change gains a delta to the capability that describes the strip. If the cut
-  comes only from the Breeze look's rounding against a box the look does not size, the fix is in the
-  demo's look and no guarantee changes.
-- Pin it with a check that a fully rounded active icon tab is drawn whole in every look the demo
-  ships, at the viewport the report came from.
+- Breeze gives every header row the same height as its top bar: the sidebar heads in their wide
+  form, the hamburger and expand boxes they take on a narrow window, and the icon strips they hold.
+  The content pane's own tab strip keeps the height the look gave it, because it stands below the
+  header line, not on it.
+- A demo check that, in every look the demo ships, the rows on the header line share one bottom
+  edge, on a wide and on a narrow window.
 
 ## Capabilities
 
@@ -33,12 +31,11 @@ None.
 
 ### Modified Capabilities
 
-None yet. This change starts with `skip_specs`, because the reproduction decides whether the
-workbench's strip or the demo's look is at fault. Where the strip turns out to be, the change is
-updated with a delta before the fix is written.
+None. The reproduction found the demo's look at fault, and the workbench's position that dimensions
+are a look's own stylesheet business stands; `skip_specs` stays.
 
 ## Impact
 
-- The Breeze look in the demo, or the pane tab strip in the shell, decided by the reproduction.
+- The Breeze look's stylesheet in the demo.
 - The demo's end-to-end suite, which gains a check for the looks.
 - No legacy source is dissolved by this change.
