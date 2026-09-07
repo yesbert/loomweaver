@@ -140,7 +140,7 @@ const rungs = [
         {mainNav.map(({ label, link }) => <a href={link}>{label}</a>)}
       </nav>
       <p class="eyebrow">Apache 2.0 · seven npm packages · ships no server</p>
-      <h1>Build Angular workbenches<br />that grow with your product.</h1>
+      <h1>Build Angular workbenches <br />that grow with your product.</h1>
       <p class="lead">
         An open-source plugin platform for Angular workbenches: an application shell with panes the
         user splits, a command palette, theming, plugins that run isolated in their own sandbox, and
@@ -157,7 +157,6 @@ const rungs = [
       <div class="actions">
         <a class="btn primary" href="/getting-started/">Start in 5 minutes</a>
         <a class="btn" href="https://demo.loomweaver.dev">Live demo</a>
-        <a class="btn" href="/architecture/">See the architecture</a>
         <a class="btn" href="https://github.com/yesbert/loomweaver">
           <Icon name="github" size="1.1em" />GitHub
         </a>
@@ -266,9 +265,8 @@ const rungs = [
             things. The UI is exactly where it invents most.
           </p>
           <p>
-            LoomWeaver is the same workbench every time, and it is written down for machines:
-            <a href="/llms.txt">llms.txt</a> as the map, <a href="/llms-full.txt">llms-full.txt</a> as
-            the whole contract in a single fetch, and <code>@loomweaver/mcp</code> so your assistant
+            LoomWeaver is the same workbench every time, and it is written down for
+            machines: <a href="/llms.txt">llms.txt</a> as the map, <a href="/llms-full.txt">llms-full.txt</a> as the whole contract in a single fetch, and <code>@loomweaver/mcp</code> so your assistant
             scaffolds a weaver with tools instead of guesses.
           </p>
           <Code code={mcpConfig} lang="json" title=".mcp.json" />
@@ -300,8 +298,8 @@ const rungs = [
 
       <p class="bridge">
         And the two feed each other. Somebody who wants to contribute to <em>your</em> tool points
-        their own assistant at your <code>llms-full.txt</code> and starts.
-        <strong>Your contributor onboarding is a URL.</strong>
+        their own assistant at your <code>llms-full.txt</code> and
+        starts. <strong>Your contributor onboarding is a URL.</strong>
       </p>
     </section>
 
@@ -310,14 +308,14 @@ const rungs = [
         <h2>Register the action once. It is a button, a shortcut, a palette entry and an agent tool.</h2>
         <p>
           The rail item, the keystroke, the context menu and the command palette already point at the
-          same command. <code>callable: true</code> adds one more caller: an agent speaking
-          <a href="https://docs.ag-ui.com">AG-UI</a>, an open standard we implement rather than one
+          same command. <code>callable: true</code> adds one more caller: an agent
+          speaking <a href="https://docs.ag-ui.com">AG-UI</a>, an open standard we implement rather than one
           we invented. You never keep a second list of tools beside the first, and the guarantee holds
           without you writing a line of it.
         </p>
         <p class="rule">An agent reaches what the user could have reached, and nothing more.</p>
-        <p>
-          <a href="/reference/callable-commands/">Callable commands</a> ·
+        <p class="links">
+          <a href="/reference/callable-commands/">Callable commands</a>
           <a href="/reference/agent-tools/">Agent tools</a>
         </p>
       </div>
@@ -369,9 +367,9 @@ const rungs = [
           installed by asking for it.
         </p>
         <p class="rule">Say no, and the workbench is never asked.</p>
-        <p>
-          <a href="/ag-ui-agents/">Driving your product with an AG-UI agent</a> ·
-          <a href="/reference/agent-tools/">The AG-UI adapter</a> ·
+        <p class="links">
+          <a href="/ag-ui-agents/">Driving your product with an AG-UI agent</a>
+          <a href="/reference/agent-tools/">The AG-UI adapter</a>
           <a href="https://demo.loomweaver.dev">Try it in the demo</a>
         </p>
       </div>
@@ -411,9 +409,9 @@ const rungs = [
           runs, asks the same question about unsaved work, and keeps working when the control is gone.
         </p>
         <p class="rule">A switch removes the control, never the capability.</p>
-        <p>
-          <a href="/distribution-api/">Distribution API</a> ·
-          <a href="/distribution-api/switches/">Switches</a> ·
+        <p class="links">
+          <a href="/distribution-api/">Distribution API</a>
+          <a href="/distribution-api/switches/">Switches</a>
           <a href="/distribution-api/panes/">Panes</a>
         </p>
       </div>
@@ -512,8 +510,8 @@ const rungs = [
           Nothing about your domain lives in the core, and nothing ever can. A product is a
           distribution that composes the published packages. It never forks anything.
         </p>
-        <p>
-          <a href="/backend-integration/">Backend integration</a> ·
+        <p class="links">
+          <a href="/backend-integration/">Backend integration</a>
           <a href="/building-a-distribution/">Building a distribution</a>
         </p>
       </div>

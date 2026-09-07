@@ -13,11 +13,50 @@
 .lw-landing {
   --lw-gold: #8a6712;
   --lw-max: 74rem;
+  /* One distance between sections, fluid between phone and desktop, so the page keeps one rhythm
+     instead of a desktop value and a phone value that drift apart. */
+  --lw-section-gap: clamp(3.5rem, 2rem + 4vw, 6rem);
   display: flex;
   flex-direction: column;
-  gap: 5rem;
+  gap: var(--lw-section-gap);
   margin-inline: auto;
   max-width: var(--lw-max);
+}
+
+/* Starlight spaces every sibling inside markdown content by a rem, which put the second card of a
+   row a rem below the first and the second checklist card a quarter rem below. A grid child sits
+   where the grid puts it. */
+.lw-landing .door-grid > *,
+.lw-landing .rung-grid > *,
+.lw-landing .feature > *,
+.lw-landing .checklist li {
+  margin-top: 0;
+}
+
+.lw-landing h1,
+.lw-landing h2,
+.lw-landing h3 {
+  text-wrap: balance;
+}
+
+.lw-landing p,
+.lw-landing li {
+  text-wrap: pretty;
+}
+
+/* A row of links under a feature, separated by a dot the stylesheet draws, so the markup carries no
+   punctuation that a line break can swallow. */
+.lw-landing .links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+}
+
+.lw-landing .links a + a::before {
+  margin-right: 0.75rem;
+  color: var(--sl-color-gray-3);
+  content: '·';
+  font-weight: 700;
 }
 
 .lw-landing > section,
@@ -274,7 +313,13 @@
 .lw-landing .door-grid {
   display: grid;
   gap: 1.5rem;
-  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 56rem) {
+  .lw-landing .door-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .lw-landing .door {
@@ -309,13 +354,29 @@
   color: var(--sl-color-white);
 }
 
-/* Alternating feature rows */
+/* Alternating feature rows: text beside code from a laptop width up, stacked below it, where two
+   columns left the prose a narrow strip beside a code block that scrolled. */
 
 .lw-landing .feature {
   display: grid;
-  gap: 2rem;
-  align-items: center;
-  grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
+  gap: 1.5rem 3rem;
+  align-items: start;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 64rem) {
+  .lw-landing .feature {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  }
+
+  .lw-landing .feature.reverse .feature-text {
+    order: 2;
+  }
+}
+
+/* The picture after a feature belongs to it, so it sits closer than the next section does. */
+.lw-landing .feature + figure {
+  margin-top: calc(var(--lw-section-gap) * -0.45);
 }
 
 .lw-landing .feature h2 {
@@ -327,10 +388,6 @@
   border-left: 3px solid var(--lw-gold);
   color: var(--sl-color-white);
   font-weight: 600;
-}
-
-.lw-landing .feature.reverse .feature-text {
-  order: 2;
 }
 
 /* Checklist */
@@ -365,7 +422,7 @@
 
 /* The lines that have a picture come first, as cards that open the guide's section. */
 .lw-landing .checklist ul.shots {
-  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
   gap: 1.25rem;
   margin-block-end: 1.5rem;
 }
@@ -419,7 +476,7 @@
 .lw-landing .rung-grid {
   display: grid;
   gap: 1.5rem;
-  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
 }
 
 .lw-landing .rung {
@@ -455,13 +512,9 @@
   max-width: 42rem;
 }
 
-@media (max-width: 50rem) {
-  .lw-landing {
-    gap: 3.5rem;
-  }
-
-  .lw-landing .feature.reverse .feature-text {
-    order: 0;
+@media (max-width: 40rem) {
+  .lw-landing .hero h1 br {
+    display: none;
   }
 }
 

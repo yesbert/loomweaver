@@ -106,6 +106,14 @@ the consent dialog beside its three cards, because the third rung describes that
 The README gets the consent picture in its own rungs section and nothing else, as the proposal
 says.
 
+**The landing page is measured, not eyeballed.** A script photographs every section at three widths
+and prints the top edge of every card in a row, before and after a stylesheet change. The defect
+that prompted the pass, three rung cards at three heights, was Starlight's markdown rule that spaces
+every sibling by a rem, and a grid child now has that margin taken away. The rest follows what the
+published surveys of developer-tool landing pages agree on: a centred column, one fluid distance
+between sections, a hero with a primary door and two secondary ones, product pictures with short
+captions, and nothing that moves.
+
 **The explicit media list in the sync grows only by what the landing page uses.** The docs embeds
 are picked up by the link rewrite already; listing them twice would be a second list to keep true.
 

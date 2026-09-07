@@ -91,3 +91,19 @@
 - [x] 4.5 `README.md`: the consent picture in its rungs section, with the alt text and the same
       `<picture>` pattern the palette uses there.
 - [x] 4.6 Look at the landing page in both themes and at a phone width, and stop.
+
+## 5. The landing page's styling, looked at as a whole
+
+- [x] 5.1 Measure before changing: every section at desktop, tablet and phone width, and the top
+      edge of every card in a row. Starlight's sibling margin put the second card of every row a
+      rem below the first, which is what made the three rungs sit at different heights.
+- [x] 5.2 One fluid distance between sections, the grid children freed from the sibling margin,
+      balanced headings and pretty paragraphs, the feature rows stacked below a laptop width and
+      aligned to the top above it, the picture after a feature drawn closer to it, the door cards
+      two across only from a desk width, the checklist and rung cards wrapping two by two on a
+      tablet.
+- [x] 5.3 The spaces Astro's output lost at a line break before a link, and the link rows under the
+      features as a list the stylesheet separates. The hero keeps three doors: start, demo, GitHub.
+- [x] 5.4 Measure again, look at every section in three widths, lint, contrast, head check and the
+      build.
+
