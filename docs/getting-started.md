@@ -60,7 +60,7 @@ shippable.
 npx @loomweaver/cli distribution --name my-studio --title "My Studio" --out . --force
 ```
 
-It writes eleven files and **deletes nothing**:
+It writes twelve files and **deletes nothing**:
 
 ```
 src/main.ts              bootstraps App with appConfig  (Angular's own shape)
@@ -68,6 +68,7 @@ src/app/app.config.ts    ← everything your product is made of lives here
 src/app/app.config.spec.ts
 src/app/app.ts           renders <lw-shell /> inside <app-root>
 src/app/app.html
+src/app/app.spec.ts      boots the shell with this composition root, so ng test is green
 src/index.html           title, CSP, manifest link
 src/styles.css           Tailwind + the LoomWeaver theme
 ngsw-config.json
@@ -76,7 +77,7 @@ public/manifest.webmanifest
 LOOMWEAVER.md            what was written, and the little that is still yours
 ```
 
-`--force` lets it replace the six of those that `ng new` just produced; all six are bootstrap wiring.
+`--force` lets it replace the seven of those that `ng new` just produced; all seven are bootstrap wiring.
 Your `README.md` stays yours, because the scaffold keeps its own notes in `LOOMWEAVER.md`. If you want
 the list first, run it without `--force`: the CLI names each file it would replace and writes nothing.
 

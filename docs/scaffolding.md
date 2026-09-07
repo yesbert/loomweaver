@@ -152,8 +152,11 @@ checkout. Register it in your repository's `.mcp.json` and your AI assistant gai
 }
 ```
 
-The server speaks stdio and reports its version on connect, so the tools always match the platform
-version you are building against.
+The server speaks stdio and reports its version on connect. It is published on the platform's
+version line like the CLI, and its generators emit code for that line; `npx -y @loomweaver/mcp`
+unpinned takes the latest one. A project on an older shell pins the server to it,
+`@loomweaver/mcp@0.9.0` in the `args` above, and the version it reports on connect is how you check
+that the pin took.
 
 <a id="how-a-file-actually-gets-created"></a>
 
@@ -427,7 +430,7 @@ It reads your workspace rather than assuming its shape:
 | Nx tags and the selector prefix   | `--tags` and `--prefix` — the prefix is carried into the generated component selectors. Without `--tags` a project is generated untagged, because tag names only mean something inside your own `depConstraints`; see [LoomWeaver and Nx](manual-setup.md#loomweaver-and-nx)                                                                                                                                                                                                                                                                                                         |
 | how deep the project sits         | derived from the directory, not hard-coded                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | serving the weaver's translations | an assets glob for `/i18n/<id>/` is added to the composing application's build                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| styling the weaver's templates    | a `@source` for the new library is appended to the composing application's entry stylesheet, so its utilities are emitted. Tailwind 4 also detects sources by itself, and in a plain workspace that already reaches a sibling library — but that detection depends on where it resolves the project root and on `.gitignore`, and the scaffolded `@source './'` names the application alone. Left untouched when the application runs no Tailwind, as with `--styles precompiled`. The other two adapters write no foreign files, so there it is a step in the generated `README.md` |
+| styling the weaver's templates    | a `@source` for the new library is appended to the composing application's entry stylesheet, so its utilities are emitted. Tailwind 4 also detects sources by itself, and in a plain workspace that already reaches a sibling library — but that detection depends on where it resolves the project root and on `.gitignore`, and the scaffolded `@source './'` names the application alone. Left untouched when the application runs no Tailwind, as with `--styles precompiled`. The CLI appends the same line when it finds the workspace; over the MCP server your assistant writes it, as a named step |
 
 The generated test target is `@nx/angular:unit-test` (Vitest), which is what Angular 21+ and Nx both
 default to. A weaver library has no build of its own, so its specs compile with the build options of
