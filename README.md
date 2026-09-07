@@ -224,6 +224,13 @@ working when the control is gone. **A switch removes the control, never the capa
 3. **Installed at runtime**: from your curated catalogue, with a consent dialog the user answers and
    updates driven by the catalogue version.
 
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: light)" srcset="assets/media/plugin-consent-light.png" />
+    <img src="assets/media/plugin-consent-dark.png" alt="The install prompt for a plugin from the catalogue, listing the two permissions it requests, with Cancel and Install buttons" width="620" />
+  </picture>
+</p>
+
 All three consume the same `ctx`, behind a **default-deny capability broker** the user can inspect
 and revoke. Moving a plugin down a rung is a change of trust, not a rewrite.
 

@@ -363,6 +363,53 @@
   font-weight: 700;
 }
 
+/* The lines that have a picture come first, as cards that open the guide's section. */
+.lw-landing .checklist ul.shots {
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1.25rem;
+  margin-block-end: 1.5rem;
+}
+
+.lw-landing .checklist ul.shots li {
+  padding-left: 0;
+}
+
+.lw-landing .checklist ul.shots li::before {
+  content: none;
+}
+
+.lw-landing .checklist ul.shots a {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.lw-landing .checklist ul.shots img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-block-end: 0.6rem;
+  border: 1px solid var(--sl-color-hairline);
+  border-radius: 0.5rem;
+  box-shadow: var(--sl-shadow-sm);
+}
+
+.lw-landing .checklist ul.shots a:hover img,
+.lw-landing .checklist ul.shots a:focus-visible img {
+  border-color: var(--sl-color-accent);
+}
+
+.lw-landing .checklist ul.shots span::before {
+  color: var(--sl-color-accent);
+  content: '✓ ';
+  font-weight: 700;
+}
+
+.lw-landing .checklist .bridge {
+  margin-block-start: 1.5rem;
+  text-align: center;
+}
+
 /* Trust rungs */
 
 .lw-landing .rungs h2 {

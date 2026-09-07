@@ -98,8 +98,10 @@ without an answer.
 
 **The landing checklist grows pictures, not entries.** The `included` list becomes items with an
 optional motif; an item with one renders the light and dark picture inside a link to the guide's
-section, and the grid keeps two columns. Six of the twelve lines get a picture: panes, palette and
-quick open, workspaces, unsaved work, the plugin store, auth-aware chrome. The rungs section gets
+section, and the illustrated lines come first as a row of cards above the plain list. Four of the
+twelve lines get a picture: panes, palette and quick open, workspaces, and every action as a
+service, shown by the tab menu that holds those actions. Unsaved work has no picture because the
+demo cannot show the prompt, and auth-aware chrome is a state rather than a dialog. The rungs section gets
 the consent dialog beside its three cards, because the third rung describes that dialog in words.
 The README gets the consent picture in its own rungs section and nothing else, as the proposal
 says.

@@ -75,16 +75,19 @@
 
 ## 4. The landing page and the README
 
-- [ ] 4.1 In `website/src/pages/index.astro`, the `included` items become text with an optional
+- [x] 4.1 In `website/src/pages/index.astro`, the `included` items become text with an optional
       motif and anchor; six of them get one: panes, palette and quick open, workspaces, unsaved
       work, the plugin store, auth-aware chrome. An item with a motif renders its light and dark
       picture inside a link to the guide's section, using the same `<picture>` pattern the palette
-      section uses.
-- [ ] 4.2 `website/src/styles/landing.css`: the checklist grid keeps two columns with the picture
+      section uses. Four lines got one, not six: the unsaved-work and auth-aware lines have no
+      picture to show (see 1.3 for the first; the second is a state, not a dialog), and the fourth
+      is the line about every action as a service, illustrated by the tab menu that holds those
+      actions.
+- [x] 4.2 `website/src/styles/landing.css`: the checklist grid keeps two columns with the picture
       above or beside the line, and reads on a phone.
-- [ ] 4.3 The rungs section gets the consent picture beside its cards, light and dark.
-- [ ] 4.4 The new landing files join the explicit list in `website/tools/sync-docs.mjs`; the
+- [x] 4.3 The rungs section gets the consent picture beside its cards, light and dark.
+- [x] 4.4 The new landing files join the explicit list in `website/tools/sync-docs.mjs`; the
       contrast check and the head check still pass.
-- [ ] 4.5 `README.md`: the consent picture in its rungs section, with the alt text and the same
+- [x] 4.5 `README.md`: the consent picture in its rungs section, with the alt text and the same
       `<picture>` pattern the palette uses there.
-- [ ] 4.6 Look at the landing page in both themes and at a phone width, and stop.
+- [x] 4.6 Look at the landing page in both themes and at a phone width, and stop.

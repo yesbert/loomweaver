@@ -74,18 +74,38 @@ export class Toolbar {
 }`;
 
 const included = [
-  'Tab groups with drag-to-split panes, and any tab pops out into its own window',
-  'A command palette (⌘K) and quick open (⌘P), with preview tabs and pinning',
-  'Named workspaces that remember their own arrangement',
-  'Theming from semantic tokens: bring Tailwind, bring Bootstrap, bring nothing',
-  'i18n with namespaced composition, so two plugins can never collide on a key',
-  'WCAG 2.1 AA accessibility the host meets and your plugins inherit',
-  'An installable PWA with an update flow that actually works',
-  'Live state sync across windows and tabs',
-  'Save, discard or cancel when an editor closes with unsaved work',
-  'Auth-aware chrome: contributions declare the access they need, the shell reacts',
-  'Every workbench action as a service for your own code, with the same guards the controls have',
-  'An AG-UI adapter, so any agent speaking that standard can run your commands',
+  {
+    text: 'Tab groups with drag-to-split panes, and any tab pops out into its own window',
+    shot: 'split-panes',
+    anchor: 'panes-and-tabs',
+    alt: 'Two panes side by side in a LoomWeaver workbench, each with its own tabs and toolbar',
+  },
+  {
+    text: 'A command palette (⌘K) and quick open (⌘P), with preview tabs and pinning',
+    shot: 'quick-open',
+    anchor: 'quick-open-and-the-tab-picker',
+    alt: 'The quick open list over a workbench, open tabs first and every other view below',
+  },
+  {
+    text: 'Named workspaces that remember their own arrangement',
+    shot: 'workspace-dialog',
+    anchor: 'workspaces',
+    alt: 'The Workspaces dialog with a provided workspace and one the user saved',
+  },
+  {
+    text: 'Every workbench action as a service for your own code, with the same guards the controls have',
+    shot: 'tab-menu',
+    anchor: 'context-menus',
+    alt: 'The context menu of a content tab, offering split, close and pin actions',
+  },
+  { text: 'Theming from semantic tokens: bring Tailwind, bring Bootstrap, bring nothing' },
+  { text: 'i18n with namespaced composition, so two plugins can never collide on a key' },
+  { text: 'WCAG 2.1 AA accessibility the host meets and your plugins inherit' },
+  { text: 'An installable PWA with an update flow that actually works' },
+  { text: 'Live state sync across windows and tabs' },
+  { text: 'Save, discard or cancel when an editor closes with unsaved work' },
+  { text: 'Auth-aware chrome: contributions declare the access they need, the shell reacts' },
+  { text: 'An AG-UI adapter, so any agent speaking that standard can run your commands' },
 ];
 
 const rungs = [
@@ -402,9 +422,42 @@ const rungs = [
 
     <section class="checklist">
       <h2>What you would otherwise build twice</h2>
-      <ul>
-        {included.map((item) => <li>{item}</li>)}
+      <ul class="shots">
+        {
+          included
+            .filter((item) => item.shot)
+            .map((item) => (
+              <li>
+                <a href={`/the-workbench/#${item.anchor}`}>
+                  <img
+                    class="only-dark"
+                    src={`/media/${item.shot}-dark.png`}
+                    alt={item.alt}
+                    width="1920"
+                    height="1200"
+                    loading="lazy"
+                  />
+                  <img
+                    class="only-light"
+                    src={`/media/${item.shot}-light.png`}
+                    alt={item.alt}
+                    width="1920"
+                    height="1200"
+                    loading="lazy"
+                  />
+                  <span>{item.text}</span>
+                </a>
+              </li>
+            ))
+        }
       </ul>
+      <ul>
+        {included.filter((item) => !item.shot).map((item) => <li>{item.text}</li>)}
+      </ul>
+      <p class="bridge">
+        <a href="/the-workbench/">Every dialog, menu and search, one picture each</a>, as they look
+        in the live demo.
+      </p>
     </section>
 
     <section class="rungs">
@@ -420,6 +473,27 @@ const rungs = [
           ))
         }
       </div>
+      <figure class="shot narrow">
+        <img
+          class="only-dark"
+          src="/media/plugin-consent-dark.png"
+          alt="The install prompt for a plugin from the catalogue, listing the two permissions it requests, with Cancel and Install buttons"
+          width="1920"
+          height="1200"
+          loading="lazy"
+        />
+        <img
+          class="only-light"
+          src="/media/plugin-consent-light.png"
+          alt="The install prompt for a plugin from the catalogue, listing the two permissions it requests, with Cancel and Install buttons"
+          width="1920"
+          height="1200"
+          loading="lazy"
+        />
+        <figcaption>
+          Before a plugin from the catalogue runs, the user sees what it asked for and answers once.
+        </figcaption>
+      </figure>
       <p class="bridge">
         All three consume the same <code>ctx</code>, behind a default-deny capability broker the user
         can inspect and revoke. Moving a plugin down a rung is a change of trust, not a rewrite.
