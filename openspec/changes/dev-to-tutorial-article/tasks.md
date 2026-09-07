@@ -57,6 +57,11 @@
       commit that put the example on 0.9.1, it publishes nothing because the release workflow
       triggers on `v*` alone, and `npx degit yesbert/loomweaver/examples/assistant-workbench#tutorial-intent-driven`
       was run to confirm it delivers that snapshot.
+      Moved to 0.9.2 on 2026-09-07, after the release that carries the scaffold's budget fix, so a
+      reader fetches the example on the platform the article is published against. Moving a tag is
+      not a thing to make a habit of; this one is a bookmark with no publish behind it and the
+      article was not out yet, so nobody had followed it. The fetch was run again against the moved
+      tag: four pins at ^0.9.2, the model the article names, and a budget a release build fits.
 - [x] 2.4 Cover with the existing cover tooling; tags `angular`, `ai`, `agents`, `webdev`.
       Chosen 2026-09-05: `covers/cover-intent-f.png`, eyebrow "TUTORIAL · ANGULAR · AG-UI",
       headline "Intent-driven UIs: say what you mean.", the workbench in dark behind it. The owner's
