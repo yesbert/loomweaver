@@ -51,6 +51,12 @@
       paragraph, the demo link with `?ref=devto`. Every snippet comes from the example. Links to
       the code point at the release tag of publishing day, and the fetch instruction is
       `npx degit yesbert/loomweaver/examples/assistant-workbench`.
+      The snapshot is the tag `tutorial-intent-driven` rather than a release tag, decided
+      2026-09-07. A release tag cannot carry it: the example pins the packages that tag publishes,
+      so the pins can only be raised after the publish, one commit too late. The tag sits on the
+      commit that put the example on 0.9.1, it publishes nothing because the release workflow
+      triggers on `v*` alone, and `npx degit yesbert/loomweaver/examples/assistant-workbench#tutorial-intent-driven`
+      was run to confirm it delivers that snapshot.
 - [x] 2.4 Cover with the existing cover tooling; tags `angular`, `ai`, `agents`, `webdev`.
       Chosen 2026-09-05: `covers/cover-intent-f.png`, eyebrow "TUTORIAL · ANGULAR · AG-UI",
       headline "Intent-driven UIs: say what you mean.", the workbench in dark behind it. The owner's
