@@ -60,6 +60,12 @@ A side finding, recorded so it is not lost: the settings dialog, quick open, the
 the update badge are named by no specification. That is a gap in the contract, not in this change,
 and it gets its own change if it is to be closed.
 
+*Checked after archiving, 2026-09-07: the finding was wrong, a search by the UI's labels rather than
+by behaviour. Quick open is `commands` (open work is searchable in its own mode), the settings
+surface is `ui-primitives`, the update notice is `product-identity` (a new version is noticed and
+offered, never forced), and the application reset including every workspace is `workspaces`. No
+change was opened for it.*
+
 ## Impact
 
 - `platform/tools/capture-screenshots.mjs`, new, and a line for it in
