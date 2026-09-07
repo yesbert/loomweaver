@@ -88,4 +88,18 @@ describe('createAgent', () => {
     expect(seen.map((event) => event.type)).toEqual([EventType.RUN_STARTED, EventType.RUN_ERROR]);
     expect((seen[1] as unknown as { message: string }).message).toBe('rate limited');
   });
+
+  it('says where the model is set when OpenRouter no longer has it', async () => {
+    const fetchLike: typeof fetch = () =>
+      Promise.resolve(
+        new Response(JSON.stringify({ error: { message: 'This model is unavailable for free.' } }), {
+          status: 404,
+        }),
+      );
+    const seen = await run(fetchLike, () => Promise.resolve(null));
+    const message = (seen[1] as unknown as { message: string }).message;
+    expect(message).toContain('This model is unavailable for free.');
+    expect(message).toContain('MODEL in assistant-agent-source.ts');
+    expect(message).toContain('supported_parameters=tools');
+  });
 });

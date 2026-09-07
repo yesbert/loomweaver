@@ -1,10 +1,12 @@
 import { EventType, type BaseEvent, type Tool, type ToolMessage } from '@ag-ui/core';
 
-export const MODEL = 'minimax/minimax-m2.7:free';
+export const MODEL = 'dots-studio/dots-3-note-preview:free';
 
 const ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';
 const MAX_ROUNDS = 8;
 const TIMEOUT_MS = 60_000;
+const FREE_MODELS = 'https://openrouter.ai/models?fmt=cards&supported_parameters=tools&max_price=0';
+const GONE = `Free models come and go. Put another slug in MODEL in assistant-agent-source.ts; the free ones that can call tools are listed at ${FREE_MODELS}.`;
 const INSTRUCTIONS =
   'You operate a support workbench for the person at the keyboard. Do what they ask by calling the tools; never describe a step you could take instead of taking it. When a ticket is named by its topic rather than its number, list the tickets first and pick the one that matches. When everything is done, answer in one or two short sentences saying what happened.';
 
@@ -135,7 +137,8 @@ async function complete(
   });
   const body = (await response.json()) as ChatCompletion;
   if (!response.ok || body.error) {
-    throw new Error(body.error?.message ?? `OpenRouter answered with status ${response.status}.`);
+    const said = body.error?.message ?? `OpenRouter answered with status ${response.status}.`;
+    throw new Error(response.status === 404 ? `${said} ${GONE}` : said);
   }
   const message = body.choices?.[0]?.message;
   if (!message) {

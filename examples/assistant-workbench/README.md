@@ -16,8 +16,15 @@ npm start          # http://127.0.0.1:4200
 
 Open the assistant panel on the right and paste an [OpenRouter](https://openrouter.ai) API key. The
 key stays in this browser's local storage and is sent to OpenRouter and nowhere else. The model is
-named once, in `src/assistant/src/lib/agent/assistant-agent-source.ts`; the default is a free one, which
-OpenRouter limits to about fifty requests a day per key.
+named once, in the `MODEL` constant at the top of
+`src/assistant/src/lib/agent/assistant-agent-source.ts`; the default is a free one, which OpenRouter
+limits to about fifty requests a day per key.
+
+Free models come and go, so the default may be gone by the time you read this. The panel then shows
+what OpenRouter answered, and the example is not broken: pick another model from
+[the free ones that can call tools](https://openrouter.ai/models?fmt=cards&supported_parameters=tools&max_price=0)
+and put its slug in that one constant. Tool calling is the part that matters, because everything the
+assistant does here it does by calling a command.
 
 Then ask for something, for example: *open the ticket about the blank invoice PDF, assign it to Dana
 and reply that the fix ships on Monday.* The reply asks you first, because it is the one command
