@@ -301,7 +301,8 @@ session changes.
 and on the rail item together, which is the pairing you want. A role requirement and `mode` you
 write yourself.
 
-**Capabilities:** `contributions` (plus `session` only if you also want to _read_ the session)
+**Capabilities:** `contributions` · `navigation` (the rail item calls `navigateContent`) · plus
+`session` only if you also want to _read_ the session
 
 ```ts
 // in activate(ctx)
@@ -339,16 +340,16 @@ your backend too. Full matrix in [access gating](reference/access-gating.md).
 
 ## 6 · Asking before doing something destructive
 
-**Capabilities:** `ui`
+**Capabilities:** `contributions` (the command) · `ui` (the dialogs and the toast)
 
 ```ts
 // in activate(ctx)
 ctx.registerCommand({
   id: 'notes.deleteAll',
-  title: 'notes.deleteAll',
+  title: 'notes.deleteAll.title',
   run: async () => {
     const confirmed = await ctx.ui.confirm({
-      title: 'notes.deleteAll',
+      title: 'notes.deleteAll.title',
       message: 'notes.deleteAll.body',      // rendered as Markdown
       tone: 'danger',
       confirmLabel: 'notes.deleteAll.yes',
@@ -1178,7 +1179,8 @@ calls into it or go away in favour of a [login page or dialog](distribution/auth
 
 ## Translations for all of the above
 
-Every `title` / `label` / `message` here is a **translation key**. Put them in your bundle:
+Every `title` / `label` / `message` in the recipes above is a **translation key**, and this bundle
+carries every one of them, so the recipes render words rather than keys when copied whole:
 
 ```jsonc
 // src/notes/src/lib/i18n/en.json
@@ -1187,10 +1189,20 @@ Every `title` / `label` / `message` here is a **translation key**. Put them in y
   "add": "New note",
   "added": "Note created",
   "list": { "title": "All notes" },
+  "detail": { "title": "Note" },
+  "editor": { "title": "Editor" },
+  "admin": { "title": "Administration" },
+  "workspace": { "title": "Workspace" },
   "nav": { "title": "Notes", "writing": "Writing", "all": "All notes", "drafts": "Drafts",
            "archive": "Archive", "archived": "Archived notes", "search": "Search" },
-  "workspace": { "title": "Workspace" },
-  "settings": { "title": "Notes", "compact": "Compact rows" }
+  "settings": { "title": "Notes", "compact": "Compact rows", "compactDesc": "Less space between notes",
+                "author": "Author", "authorPlaceholder": "Your name" },
+  "deleteAll": { "title": "Delete all notes", "body": "This removes **every** note. There is no undo.",
+                 "yes": "Delete everything" },
+  "deleting": "Deleting…",
+  "deleted": "All notes deleted",
+  "agent": { "confirm": "Let the assistant do this?",
+             "confirmBody": "It asked to run a command that changes your notes." }
 }
 ```
 

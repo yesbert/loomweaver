@@ -68,8 +68,10 @@ It finds the workspace by walking up from `--out`, so it wires the build as well
 files. `--dry-run` previews both and writes nothing.
 
 `loomweaver list` prints every scaffold with its options. `loomweaver --help` prints everything else. The
-version matches the platform packages, so the output always fits the `@loomweaver/shell` you build
-against.
+CLI is published on the platform's version line, and its output fits the `@loomweaver/shell` of the
+same version. Running `npx @loomweaver/cli` unpinned takes the latest one, which is right on the day
+you install the platform. A project on an older shell pins the tool to it, `npx @loomweaver/cli@0.9.0`,
+because a generator from a newer line emits code for that line.
 
 Three scaffolds carry options worth knowing before you read that list. The
 [weaver](#the-weaver-generator) composes its features from flags. The other two decide how your
@@ -385,8 +387,9 @@ path alias; the CLI cannot, and the MCP server describes those steps instead.
 
 ```bash
 npm i -D @loomweaver/devkit
-# what the generated source imports — see step 2 of the quickstart for the version pin
-npm i @loomweaver/shell @loomweaver/plugin-sdk @loomweaver/frame-kit @angular/cdk @jsverse/transloco @ng-icons/heroicons
+# what the generated source imports; the service worker pinned to the Angular version already installed
+npm i @loomweaver/shell @loomweaver/plugin-sdk @loomweaver/frame-kit @angular/cdk @jsverse/transloco @ng-icons/heroicons \
+  @angular/service-worker@$(node -p "require('@angular/core/package.json').version")
 # only for a distribution on the default --styles tailwind; `precompiled` needs none of these
 npm i -D tailwindcss @tailwindcss/postcss @tailwindcss/typography
 
