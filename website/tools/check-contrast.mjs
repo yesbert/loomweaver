@@ -20,6 +20,8 @@ const websiteRoot = path.resolve(fileURLToPath(import.meta.url), '../..');
 const DARK = {
   bg: '#17181c',
   card: '#23262f',
+  /* --sl-color-bg-nav, which Starlight resolves to gray-6 here and gray-7 in the light theme. */
+  nav: '#23262f',
   'gray-1': '#23262f',
   'gray-2': '#c1c3c8',
   'gray-3': '#888c96',
@@ -35,6 +37,7 @@ const DARK = {
 const LIGHT = {
   bg: '#ffffff',
   card: '#f6f7f9',
+  nav: '#f6f7f9',
   'gray-1': '#edeef3',
   'gray-2': '#353841',
   'gray-3': '#555962',
@@ -61,6 +64,10 @@ const PAIRS = [
   ['eyebrow', 'gold', 'bg', TEXT],
   ['rung number', 'gold', 'bg', TEXT],
   ['footer legal links', 'gray-3', 'bg', TEXT],
+  ['header main entry', 'gray-2', 'nav', TEXT],
+  ['header main entry, current page', 'text-accent', 'nav', TEXT],
+  ['landing quick-nav label', 'white', 'bg', TEXT],
+  ['landing quick-nav border', 'gray-4', 'bg', NON_TEXT],
   ['secondary button label', 'white', 'bg', TEXT],
   ['primary button label', 'black', 'text-accent', TEXT],
   ['consent decline label', 'gray-2', 'card', TEXT],

@@ -65,6 +65,10 @@ export default defineConfig({
         // The social card, the square icon set and og:type on the landing page. Starlight's own
         // head declares twitter:card=summary_large_image and then names no image at all.
         Head: './src/components/Head.astro',
+        // The main entries beside the site title, from nav.mjs. Starlight's header has no room
+        // for links of its own, and without them the landing page led into the documentation
+        // only through a button in its hero.
+        Header: './src/components/Header.astro',
         Footer: './src/components/Footer.astro',
         // The demo is the fastest way to understand what this is, but it was reachable only from the
         // landing page. Overriding SocialIcons rather than Header puts a link to it beside the GitHub

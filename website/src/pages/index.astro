@@ -2,6 +2,7 @@
 import { Code, Icon } from '@astrojs/starlight/components';
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 import '../styles/landing.css';
+import { mainNav } from '../../nav.mjs';
 
 const mcpConfig = `{
   "mcpServers": {
@@ -115,6 +116,9 @@ const rungs = [
 >
   <div class="lw-landing">
     <section class="hero">
+      <nav class="quick-nav" aria-label="Site">
+        {mainNav.map(({ label, link }) => <a href={link}>{label}</a>)}
+      </nav>
       <p class="eyebrow">Apache 2.0 · seven npm packages · ships no server</p>
       <h1>Build Angular workbenches<br />that grow with your product.</h1>
       <p class="lead">

@@ -1,0 +1,104 @@
+---
+import config from 'virtual:starlight/user-config';
+import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
+import Search from 'virtual:starlight/components/Search';
+import SiteTitle from 'virtual:starlight/components/SiteTitle';
+import SocialIcons from 'virtual:starlight/components/SocialIcons';
+import ThemeSelect from 'virtual:starlight/components/ThemeSelect';
+import { mainNav } from '../../nav.mjs';
+
+// Starlight's own header is the site title, the search and the icons, and the only way into the
+// documentation from the landing page was a button in the hero. This is the same header with the
+// main entries between the title and the search, on every page, so a visitor who lands anywhere
+// sees where the rest is. Below Starlight's lg breakpoint the row cannot hold five entries and
+// the search, so the header keeps Starlight's arrangement there: a documentation page has its
+// sidebar, and the landing page carries the same entries in its hero.
+const shouldRenderSearch =
+  config.pagefind || config.components.Search !== '@astrojs/starlight/components/Search.astro';
+const here = Astro.url.pathname;
+---
+
+<div class="header">
+  <div class="title-wrapper sl-flex">
+    <SiteTitle />
+  </div>
+  <nav class="sl-hidden lg:sl-flex print:hidden main-nav" aria-label="Site">
+    {
+      mainNav.map(({ label, link }) => (
+        <a href={link} aria-current={here === link ? 'page' : undefined}>
+          {label}
+        </a>
+      ))
+    }
+  </nav>
+  <div class="sl-flex print:hidden search">
+    {shouldRenderSearch && <Search />}
+  </div>
+  <div class="sl-hidden md:sl-flex print:hidden right-group">
+    <div class="sl-flex social-icons">
+      <SocialIcons />
+    </div>
+    <ThemeSelect />
+    <LanguageSelect />
+  </div>
+</div>
+
+<style>
+  .header {
+    display: flex;
+    gap: var(--sl-nav-gap);
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+  }
+
+  .title-wrapper {
+    /* Prevent long titles overflowing and covering the search and menu buttons on narrow viewports. */
+    overflow: clip;
+    /* Avoid clipping focus ring around link inside title wrapper. */
+    padding: 0.25rem;
+    margin: -0.25rem;
+    min-width: 0;
+  }
+
+  .main-nav {
+    gap: 1.25rem;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .main-nav a {
+    color: var(--sl-color-gray-2);
+    font-size: var(--sl-text-sm);
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .main-nav a:hover {
+    color: var(--sl-color-white);
+  }
+
+  .main-nav a[aria-current='page'] {
+    color: var(--sl-color-text-accent);
+  }
+
+  .search {
+    flex: 1;
+    justify-content: flex-end;
+    min-width: 0;
+  }
+
+  .right-group,
+  .social-icons {
+    gap: 1rem;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .social-icons::after {
+    content: '';
+    height: 2rem;
+    border-inline-end: 1px solid var(--sl-color-gray-5);
+  }
+</style>
