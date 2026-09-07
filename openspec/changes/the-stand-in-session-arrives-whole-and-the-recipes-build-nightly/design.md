@@ -101,7 +101,10 @@ stand-in section says the generator writes all of it.
 - **The nightly check gets longer.** → It already scaffolds, builds, tests and serves; two recipes
   and three browser assertions are minutes, not a new job.
 - **The samples page as a fixture makes a docs edit fail a platform test.** → Intended: the page
-  claims the generator writes this, and the test is what makes the claim true.
+  claims the generator writes this, and the test is what makes the claim true. The binding is
+  confined to the repository: the test reads the page from the checkout and runs in this CI, the
+  generator carries its template and reads no page at runtime, and nothing of it ships in a package,
+  so a consumer of the packages is never affected.
 
 ## Open Questions
 

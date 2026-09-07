@@ -1,6 +1,6 @@
 # The stand-in session arrives whole, and the recipes build nightly
 
-> **Status:** proposed — not approved for implementation yet.
+> **Status:** approved.
 
 ## Why
 
