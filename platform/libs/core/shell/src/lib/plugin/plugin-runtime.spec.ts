@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { firstValueFrom, Subject } from 'rxjs';
 import { provideRouter } from '@angular/router';
 import { PLUGIN, PluginRuntime } from './plugin-runtime';
 import { Plugin } from './plugin';
@@ -6,6 +7,7 @@ import { ContributionRegistry } from './contribution-registry';
 import { provideCapabilityGrants } from '../permissions/capability-grants';
 import { PluginEnablementService } from '../plugin-store/lifecycle/plugin-enablement.service';
 import { MenuService } from '../menu/menu.service';
+import { CapabilityGrantService } from '../permissions/capability-grant.service';
 
 class DummyComponent {}
 
@@ -147,5 +149,135 @@ describe('PluginRuntime', () => {
     runtime.deactivate('unload');
     runtime.deactivate('nope');
     expect(deactivate).toHaveBeenCalledTimes(1);
+  });
+
+  it('lets a late failure of a superseded activation leave the newer activation alone', async () => {
+    const first = new Subject<void>();
+    let attempts = 0;
+    const racing: Plugin = {
+      manifest: { id: 'racing', capabilities: ['contributions'] },
+      activate(ctx) {
+        attempts += 1;
+        if (attempts === 1) {
+          return firstValueFrom(first);
+        }
+        ctx.registerCommand({ id: 'racing.current', title: 'Current', run: () => undefined });
+        return Promise.resolve();
+      },
+    };
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter([]),
+        menuStub,
+        { provide: PLUGIN, useValue: racing, multi: true },
+        provideCapabilityGrants({ racing: ['contributions'] }),
+      ],
+    });
+    const runtime = TestBed.inject(PluginRuntime);
+    const registry = TestBed.inject(ContributionRegistry);
+    const enablement = TestBed.inject(PluginEnablementService);
+
+    runtime.activateAll();
+    TestBed.tick();
+    enablement.setEnabled('racing', false);
+    TestBed.tick();
+    enablement.setEnabled('racing', true);
+    TestBed.tick();
+    expect(attempts).toBe(2);
+    expect(registry.commands().some((c) => c.id === 'racing.current')).toBe(true);
+
+    first.error(new Error('late'));
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(registry.commands().some((c) => c.id === 'racing.current')).toBe(true);
+    expect(error).toHaveBeenCalledTimes(1);
+    expect(String(error.mock.calls[0][0])).toContain('superseded');
+    error.mockRestore();
+  });
+
+  it('unloads a plugin completely even when its teardown throws', () => {
+    let activations = 0;
+    const broken: Plugin = {
+      manifest: { id: 'broken', capabilities: ['contributions'] },
+      activate(ctx) {
+        activations += 1;
+        ctx.registerCommand({ id: 'broken.cmd', title: 'Broken', run: () => undefined });
+      },
+      deactivate() {
+        throw new Error('cleanup failed');
+      },
+    };
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter([]),
+        menuStub,
+        { provide: PLUGIN, useValue: broken, multi: true },
+        provideCapabilityGrants({ broken: ['contributions'] }),
+      ],
+    });
+    const runtime = TestBed.inject(PluginRuntime);
+    const registry = TestBed.inject(ContributionRegistry);
+    const grants = TestBed.inject(CapabilityGrantService);
+    const enablement = TestBed.inject(PluginEnablementService);
+    runtime.activateAll();
+    TestBed.tick();
+
+    expect(() => runtime.deactivate('broken')).not.toThrow();
+
+    expect(registry.commands().some((c) => c.id === 'broken.cmd')).toBe(false);
+    expect(grants.isGranted('broken', 'contributions')).toBe(false);
+    expect(error).toHaveBeenCalledTimes(1);
+    enablement.setEnabled('broken', false);
+    TestBed.tick();
+    enablement.setEnabled('broken', true);
+    TestBed.tick();
+    expect(activations).toBe(2);
+    error.mockRestore();
+  });
+
+  it('keeps unloading the other plugins when one teardown throws, and reports afterwards', () => {
+    const broken: Plugin = {
+      manifest: { id: 'broken', capabilities: ['contributions'] },
+      activate(ctx) {
+        ctx.registerCommand({ id: 'broken.cmd', title: 'Broken', run: () => undefined });
+      },
+      deactivate() {
+        throw new Error('cleanup failed');
+      },
+    };
+    const healthy: Plugin = {
+      manifest: { id: 'healthy', capabilities: ['contributions'] },
+      activate(ctx) {
+        ctx.registerCommand({ id: 'healthy.cmd', title: 'Healthy', run: () => undefined });
+      },
+    };
+    const commandsAtReport: number[] = [];
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter([]),
+        menuStub,
+        { provide: PLUGIN, useValue: broken, multi: true },
+        { provide: PLUGIN, useValue: healthy, multi: true },
+        provideCapabilityGrants({ broken: ['contributions'], healthy: ['contributions'] }),
+      ],
+    });
+    const runtime = TestBed.inject(PluginRuntime);
+    const registry = TestBed.inject(ContributionRegistry);
+    const error = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => {
+        commandsAtReport.push(registry.commands().length);
+      });
+    runtime.activateAll();
+    expect(registry.commands()).toHaveLength(2);
+
+    expect(() => runtime.deactivateAll()).not.toThrow();
+
+    expect(registry.commands()).toHaveLength(0);
+    expect(commandsAtReport).toEqual([0]);
+    error.mockRestore();
   });
 });

@@ -49,7 +49,8 @@ Three layers compose, and none can clobber another:
   [getting started §5](../getting-started.md)).
 - **Each namespace** you register with `provideTranslationNamespaces('notes', 'product')` loads from
   `/i18n/<name>/{lang}.json` and nests under `<name>.*`. Your weaver owns `notes.*`; your branding
-  owns `product.*`.
+  owns `product.*`. Declarations accumulate: a second `provideTranslationNamespaces('copilot')`
+  further down loads `copilot` beside `notes`, and a name declared twice is loaded once.
 - **Overrides** you opt into with `provideTranslationOverrides()` are applied last, key by key, and
   are the only layer that may change a host string; see [Rewording the shell](#rewording-the-shell).
 

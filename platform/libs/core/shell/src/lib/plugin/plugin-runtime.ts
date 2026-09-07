@@ -7,6 +7,11 @@ import { PluginEnablementService } from '../plugin-store/lifecycle/plugin-enable
 import { REQUIRED_PLUGINS } from '../foundation/required-plugins';
 import { FRAME_PLUGIN } from './sandbox/frame-plugin';
 
+interface TeardownFailure {
+  readonly id: string;
+  readonly error: unknown;
+}
+
 /** Multi-provider token: each contribution adds one plugin to load. */
 export const PLUGIN = new InjectionToken<readonly Plugin[]>('PLUGIN');
 
@@ -65,21 +70,48 @@ export class PluginRuntime {
    * map from being write-only (a real unload path, needed before an untrusted loader lands).
    */
   deactivate(id: string): void {
-    const ctx = this.active.get(id);
-    if (!ctx) {
-      return;
+    const failure = this.unload(id);
+    if (failure) {
+      this.reportTeardownFailure(failure);
     }
-    ctx.disposeAll();
-    this.plugins.find((plugin) => plugin.manifest.id === id)?.deactivate?.();
-    this.active.delete(id);
-    this.grants.unregister(id);
   }
 
-  /** Unloads every active plugin (e.g. on teardown). */
+  /**
+   * Unloads every active plugin (e.g. on teardown). A teardown that throws does not stop the
+   * others from unloading; failures are reported once the last plugin is gone.
+   */
   deactivateAll(): void {
+    const failures: TeardownFailure[] = [];
     for (const id of this.active.keys()) {
-      this.deactivate(id);
+      const failure = this.unload(id);
+      if (failure) {
+        failures.push(failure);
+      }
     }
+    for (const failure of failures) {
+      this.reportTeardownFailure(failure);
+    }
+  }
+
+  private unload(id: string): TeardownFailure | null {
+    const ctx = this.active.get(id);
+    if (!ctx) {
+      return null;
+    }
+    ctx.disposeAll();
+    try {
+      this.plugins.find((plugin) => plugin.manifest.id === id)?.deactivate?.();
+      return null;
+    } catch (error) {
+      return { id, error };
+    } finally {
+      this.active.delete(id);
+      this.grants.unregister(id);
+    }
+  }
+
+  private reportTeardownFailure({ id, error }: TeardownFailure): void {
+    console.error(`Plugin "${id}" teardown failed; it was unloaded anyway`, error);
   }
 
   private reconcile(disabled: ReadonlySet<string>): void {
@@ -110,18 +142,29 @@ export class PluginRuntime {
       if (result instanceof Promise) {
         result.then(
           () => (activating = false),
-          (error: unknown) => this.onActivationError(id, error),
+          (error: unknown) => this.onActivationError(id, ctx, error),
         );
       } else {
         activating = false;
       }
     } catch (error) {
-      this.onActivationError(id, error);
+      this.onActivationError(id, ctx, error);
     }
   }
 
-  private onActivationError(id: string, error: unknown): void {
-    this.active.get(id)?.disposeAll();
+  private onActivationError(
+    id: string,
+    ctx: HostPluginContext,
+    error: unknown,
+  ): void {
+    if (this.active.get(id) !== ctx) {
+      console.error(
+        `Plugin "${id}" activation failed, but that activation was superseded; the current one is untouched`,
+        error,
+      );
+      return;
+    }
+    ctx.disposeAll();
     this.active.delete(id);
     console.error(`Plugin "${id}" activation failed`, error);
   }

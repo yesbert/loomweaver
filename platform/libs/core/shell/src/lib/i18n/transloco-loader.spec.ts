@@ -102,6 +102,61 @@ describe('TranslocoHttpLoader', () => {
     expect(TestBed.inject(TRANSLATION_NAMESPACES)).toEqual(['weaver', 'product']);
   });
 
+  it('accumulates namespaces declared in more than one place, in declaration order', async () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideTranslationNamespaces('notes'),
+        provideTranslationNamespaces('copilot'),
+      ],
+    });
+    expect(TestBed.inject(TRANSLATION_NAMESPACES)).toEqual(['notes', 'copilot']);
+
+    const loader = TestBed.inject(TranslocoHttpLoader);
+    const http = TestBed.inject(HttpTestingController);
+    const promise = new Promise((r) =>
+      (loader.getTranslation('en') as { subscribe: (f: unknown) => void }).subscribe(r),
+    );
+    http.expectOne('/i18n/en.json').flush({ dialog: { ok: 'OK' } });
+    http.expectOne('/i18n/notes/en.json').flush({ title: 'Notes' });
+    http.expectOne('/i18n/copilot/en.json').flush({ title: 'Copilot' });
+
+    await expect(promise).resolves.toEqual({
+      dialog: { ok: 'OK' },
+      notes: { title: 'Notes' },
+      copilot: { title: 'Copilot' },
+    });
+    http.verify();
+  });
+
+  it('loads a namespace declared twice only once', async () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideTranslationNamespaces('notes'),
+        provideTranslationNamespaces('notes', 'product'),
+      ],
+    });
+    expect(TestBed.inject(TRANSLATION_NAMESPACES)).toEqual(['notes', 'product']);
+
+    const loader = TestBed.inject(TranslocoHttpLoader);
+    const http = TestBed.inject(HttpTestingController);
+    const promise = new Promise((r) =>
+      (loader.getTranslation('en') as { subscribe: (f: unknown) => void }).subscribe(r),
+    );
+    http.expectOne('/i18n/en.json').flush({});
+    http.expectOne('/i18n/notes/en.json').flush({ title: 'Notes' });
+    http.expectOne('/i18n/product/en.json').flush({ tagline: 'Woven' });
+
+    await expect(promise).resolves.toEqual({
+      notes: { title: 'Notes' },
+      product: { tagline: 'Woven' },
+    });
+    http.verify();
+  });
+
   it('asks for no overlay unless the distribution opted in', async () => {
     const { loader, http } = setup();
     const result = loader.getTranslation('en');
