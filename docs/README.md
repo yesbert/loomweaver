@@ -17,6 +17,7 @@ standard can run your product's own commands.
 | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | **See it running first**                    | the live demo at [demo.loomweaver.dev](https://demo.loomweaver.dev): a product built on the published packages |
 | **Try it in five minutes**                  | [Getting started](getting-started.md): scaffold a running, branded product                                     |
+| **See what a product gets for free**        | [The workbench your users get](the-workbench.md): every dialog, menu and search, one picture each              |
 | **Understand how it works**                 | [Architecture](architecture.md), then the [concept pages](#concepts) for why the workbench behaves as it does  |
 | **Build a plugin (a "weaver")**             | [Authoring a weaver](authoring-a-weaver.md), with copyable recipes in [Samples](samples.md)                    |
 | **Compose and brand a product**             | [Building a distribution](building-a-distribution.md)                                                          |
@@ -29,30 +30,32 @@ standard can run your product's own commands.
 ## Guides
 
 1. [Getting started](getting-started.md): scaffold a running, branded product with a plugin in it (~5 min).
-2. [Architecture](architecture.md): the mental model. Platform, weaver and distribution, the uniform
+2. [The workbench your users get](the-workbench.md): panes, the two searches, workspaces, settings,
+   the plugin store, context menus and the shortcuts, one picture each, from the live demo.
+3. [Architecture](architecture.md): the mental model. Platform, weaver and distribution, the uniform
    `ctx`, default-deny capabilities, auth-aware access gating, the two RPC boundaries. Read it once
    the tutorial has run.
-3. [Manual setup](manual-setup.md): the same app wired by hand, plus the Nx, SSR and Module
+4. [Manual setup](manual-setup.md): the same app wired by hand, plus the Nx, SSR and Module
    Federation answers (~15 min).
-4. [Samples](samples.md): complete, copyable recipes. A sidebar view with persisted state, a routable
+5. [Samples](samples.md): complete, copyable recipes. A sidebar view with persisted state, a routable
    surface, a command with its triggers, a settings section, access gating, dialogs. It says which of
    them the generator already writes, so you only type the rest.
-5. [Authoring a weaver](authoring-a-weaver.md): the shape of a weaver and the map of sixteen how-to pages
+6. [Authoring a weaver](authoring-a-weaver.md): the shape of a weaver and the map of sixteen how-to pages
    under `weaver/`. Surfaces in a sidebar, the content area, containers, commands, menus, unsaved changes,
    sandboxed surfaces, access gating, settings, i18n. One task per page.
-6. [Building a distribution](building-a-distribution.md): the composition root and the map of seventeen
+7. [Building a distribution](building-a-distribution.md): the composition root and the map of seventeen
    how-to pages under `distribution/`. Layout, routing, workspaces, switching capabilities off, branding,
    capabilities, auth, persistence, your own CSS framework, frame plugins, the plugin store, PWA. One decision per page.
-7. [The plugin system](plugins.md): the three rungs of trust and the four ways a plugin arrives (trusted,
+8. [The plugin system](plugins.md): the three rungs of trust and the four ways a plugin arrives (trusted,
    frame plugin, operator-deployed, community-installed), default-deny capabilities, and what the user
    can revoke, disable or uninstall.
-8. [Scaffolding](scaffolding.md): generate weavers, distributions and integrations with the
+9. [Scaffolding](scaffolding.md): generate weavers, distributions and integrations with the
    `@loomweaver/cli` command line, the `@loomweaver/devkit` Nx generators or the `@loomweaver/mcp` server for AI
    assistants, all in your own repository.
-9. [Driving your product with an AG-UI agent](ag-ui-agents.md): generate the AG-UI connection,
+10. [Driving your product with an AG-UI agent](ag-ui-agents.md): generate the AG-UI connection,
    watch a call go through, decide which calls to ask about, and replace the stand-in with your own
    transport.
-10. [Backend integration](backend-integration.md): the product hand-off. Settings, session and
+11. [Backend integration](backend-integration.md): the product hand-off. Settings, session and
     translations against your own backend; the platform ships no server.
 
 ## Concepts

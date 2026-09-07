@@ -116,7 +116,7 @@ false`, `types: ["*"]`, `noUncheckedSideEffectImports: false` and `ignoreDepreca
   `node platform/tools/capture-screenshots.mjs` writes `assets/media/<motif>-{light,dark}.png` for
   every motif it lists. The motifs are the plugin store and its consent prompt, the settings dialog,
   the workspace dialog, the rail's curation dialog, the tab and rail context menus, quick open, and
-  split panes. The guide *The workbench your users get* and the landing page embed them, and the
+  split panes. The guide _The workbench your users get_ and the landing page embed them, and the
   website sync fails on a missing one. It needs no ffmpeg, and nothing in CI runs it. Re-run it when
   the chrome of a dialog or menu changes, or when the demo's content behind one changes. Look at
   every picture before committing: the version in the status bar dates each one, and a motif the

@@ -31,22 +31,23 @@
 
 ## 2. The guide
 
-- [ ] 2.1 Write `docs/the-workbench.md`, "The workbench your users get": the derived-from-specs
+- [x] 2.1 Write `docs/the-workbench.md`, "The workbench your users get": the derived-from-specs
       header and the block naming `commands`, `plugin-store`, `plugin-permissions`, `workspaces`,
       `shell-layout`, `menus`, `surface-retention`, `panes`, `popout-windows`; one section per motif
       with the picture, its alt text, a caption of one or two sentences, and a link to the page that
       says how to declare or switch it; the agent panel's section reuses the existing picture.
-- [ ] 2.2 The section on quick open and the tab picker says what the two are, since no page does:
+- [x] 2.2 The section on quick open and the tab picker says what the two are, since no page does:
       one searches what is open, the other offers what could be opened, and both list a plugin's
       surfaces without registration.
-- [ ] 2.3 The table of keyboard shortcuts the shell binds by default, on the guide, each with the
+- [x] 2.3 The table of keyboard shortcuts the shell binds by default, on the guide, each with the
       command it triggers and the page that describes it.
-- [ ] 2.4 List the guide in `docs/README.md` under Guides after Getting started, and in the pick-your-path
+- [x] 2.4 List the guide in `docs/README.md` under Guides after Getting started, and in the pick-your-path
       table as the row for seeing what a product gets.
-- [ ] 2.5 Add it to `website/sidebar.mjs` after Getting started and to `website/nav.mjs`; build the
+- [x] 2.5 Add it to `website/sidebar.mjs` after Getting started and to `website/nav.mjs`; build the
       site and run the docs style check, so a long alt text or a dash in a caption fails here and not
-      in the pull request.
-- [ ] 2.6 Show the page on the site and stop.
+      in the pull request. The sync also wanted the page in `llms.txt`, and `llms-full.txt` lists it
+      beside the other guides.
+- [x] 2.6 Show the page on the site and stop.
 
 ## 3. The pictures beside the prose that describes them
 
