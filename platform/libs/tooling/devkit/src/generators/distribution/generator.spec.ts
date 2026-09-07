@@ -9,6 +9,24 @@ describe('distribution generator', () => {
     tree = createTreeWithEmptyWorkspace();
   });
 
+  it('sets an initial-bundle budget the workbench fits and a product can still exceed', async () => {
+    await distributionGenerator(tree, {
+      name: 'acme-studio',
+      title: 'Acme Studio',
+    });
+
+    const project = readJson(tree, 'apps/acme-studio/project.json');
+    const budgets = project.targets.build.configurations.production.budgets;
+    const initial = budgets.find(
+      (budget: { type: string }) => budget.type === 'initial',
+    );
+    expect(initial).toEqual({
+      type: 'initial',
+      maximumWarning: '1.5MB',
+      maximumError: '2MB',
+    });
+  });
+
   it('scaffolds a runnable distribution app', async () => {
     await distributionGenerator(tree, {
       name: 'acme-studio',

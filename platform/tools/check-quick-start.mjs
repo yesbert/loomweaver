@@ -96,7 +96,6 @@ function quickStart(dir) {
   // is the fixture, so a recipe that stops building against the platform fails here, not at a reader.
   dropNavigationRecipe(app);
   run('node', [cli, 'auth-source', '--name', 'dev', '--out', 'src/auth'], app);
-  raiseBudgets(app);
   run('npm', ['install'], app, { setup: true });
   run('npx', ['ng', 'build'], app);
   // The generated project's own tests, starter test included: the distribution scaffold replaces
@@ -123,26 +122,6 @@ function recipeFile(page, path) {
   }
   const body = page.slice(page.indexOf('\n', start) + 1);
   return body.slice(0, body.indexOf('\n```'));
-}
-
-// Getting started tells a reader that the first production build warns about the initial budget and
-// where to raise it. With two weavers and two recipes composed in, the default budget is a hard
-// error rather than a warning, so the check does what the page says rather than failing on the size
-// of what it chose to include.
-function raiseBudgets(app) {
-  const file = join(app, 'angular.json');
-  const workspace = JSON.parse(readFileSync(file, 'utf8'));
-  for (const project of Object.values(workspace.projects ?? {})) {
-    const production = project.architect?.build?.configurations?.production;
-    for (const budget of production?.budgets ?? []) {
-      if (budget.type !== 'initial') {
-        continue;
-      }
-      budget.maximumWarning = '2MB';
-      budget.maximumError = '3MB';
-    }
-  }
-  writeFileSync(file, `${JSON.stringify(workspace, null, 2)}\n`);
 }
 
 function dropNavigationRecipe(app) {

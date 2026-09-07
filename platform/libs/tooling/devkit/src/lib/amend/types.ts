@@ -48,6 +48,20 @@ export interface BuildTargetAmendment {
    * release build renders completely unstyled while reporting success.
    */
   readonly inlineCritical?: boolean;
+  /**
+   * The initial-bundle budget, replacing the one a fresh application workspace carries. That
+   * default is sized for an empty application, and composing the workbench in spends almost all of
+   * it before the consumer writes a line, so a release build stops on a file they never touched.
+   * The replacement is set from what the workbench measures and leaves room a product's own growth
+   * can still exceed, because a threshold nothing can cross reports nothing.
+   */
+  readonly initialBudget?: BundleBudget;
+}
+
+/** Thresholds for one bundle, in the units a build target states them in. */
+export interface BundleBudget {
+  readonly warning: string;
+  readonly error: string;
 }
 
 /** A source directory the entry stylesheet must name, or its utilities are never emitted. */

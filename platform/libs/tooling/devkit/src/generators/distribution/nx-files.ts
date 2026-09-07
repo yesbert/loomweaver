@@ -1,3 +1,4 @@
+import { DISTRIBUTION_INITIAL_BUDGET } from '../../recipes/angular-distribution/amendments';
 import { FileMap } from '../../lib/generate/types';
 import {
   depthFor,
@@ -84,8 +85,8 @@ function projectJson(d: NxDistribution): string {
               budgets: [
                 {
                   type: 'initial',
-                  maximumWarning: '500kb',
-                  maximumError: '1mb',
+                  maximumWarning: DISTRIBUTION_INITIAL_BUDGET.warning,
+                  maximumError: DISTRIBUTION_INITIAL_BUDGET.error,
                 },
                 {
                   type: 'anyComponentStyle',

@@ -31,7 +31,16 @@ const TARGET: BuildTargetAmendment = {
   ],
   serviceWorker: 'ngsw-config.json',
   inlineCritical: false,
+  initialBudget: { warning: '1.5MB', error: '2MB' },
 };
+
+function budgetsOf(value: unknown): unknown[] {
+  const configurations = (value as Record<string, Record<string, unknown>>)[
+    'configurations'
+  ];
+  const production = configurations['production'] as Record<string, unknown>;
+  return production['budgets'] as unknown[];
+}
 
 describe('joinProjectPath', () => {
   it('leaves a path alone for a project at the workspace root', () => {
@@ -158,6 +167,52 @@ describe('ensureBuildTarget', () => {
       '',
     );
     expect(result.declined.join(' ')).toContain('renders unstyled');
+  });
+
+  it('raises the initial budget a fresh workspace carries and leaves the others', () => {
+    const result = ensureBuildTarget(
+      {
+        configurations: {
+          production: {
+            budgets: [
+              { type: 'initial', maximumWarning: '500kB', maximumError: '1MB' },
+              {
+                type: 'anyComponentStyle',
+                maximumWarning: '4kB',
+                maximumError: '8kB',
+              },
+            ],
+          },
+        },
+      },
+      TARGET,
+      '',
+    );
+    expect(budgetsOf(result.value)).toEqual([
+      { type: 'initial', maximumWarning: '1.5MB', maximumError: '2MB' },
+      { type: 'anyComponentStyle', maximumWarning: '4kB', maximumError: '8kB' },
+    ]);
+    expect(result.added.join(' ')).toContain('production budget initial');
+  });
+
+  it('adds the budget to a workspace that declares none', () => {
+    const result = ensureBuildTarget({}, TARGET, '');
+    expect(budgetsOf(result.value)).toEqual([
+      { type: 'initial', maximumWarning: '1.5MB', maximumError: '2MB' },
+    ]);
+  });
+
+  it('leaves a threshold the consumer set higher alone', () => {
+    const budgets = [
+      { type: 'initial', maximumWarning: '2.5MB', maximumError: '3MB' },
+    ];
+    const result = ensureBuildTarget(
+      { configurations: { production: { budgets } } },
+      TARGET,
+      '',
+    );
+    expect(budgetsOf(result.value)).toEqual(budgets);
+    expect(result.added.join(' ')).not.toContain('budget');
   });
 });
 

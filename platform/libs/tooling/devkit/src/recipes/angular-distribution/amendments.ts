@@ -1,6 +1,17 @@
-import { Amendment } from '../../lib/amend/types';
+import { Amendment, BundleBudget } from '../../lib/amend/types';
 import { PLATFORM_VERSION } from '../platform-version';
 import { ResolvedDistribution } from './recipe';
+
+/**
+ * The initial-bundle budget a generated distribution carries. Stated once, because two figures that
+ * must agree with a measurement cannot live in two files: the workbench alone measures about
+ * 900 kB, so the warning leaves a product some 600 kB of its own before it speaks and the error
+ * roughly twice that before it stops the build.
+ */
+export const DISTRIBUTION_INITIAL_BUDGET: BundleBudget = {
+  warning: '1.5MB',
+  error: '2MB',
+};
 
 export function distributionAmendments(
   d: ResolvedDistribution,
@@ -40,6 +51,7 @@ export function distributionAmendments(
       ],
       serviceWorker: 'ngsw-config.json',
       inlineCritical: false,
+      initialBudget: DISTRIBUTION_INITIAL_BUDGET,
     },
   ];
 }
