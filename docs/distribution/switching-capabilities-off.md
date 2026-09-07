@@ -124,7 +124,7 @@ a settings row, a menu entry) is not a gesture and is removed with
 
 The retention default is a storage policy rather than a gesture, so it lives on
 `provideShell({ retention })`: the default and what flipping it costs are in
-[Surface retention](surface-retention.md#the-rule).
+[Surface retention](surface-retention.md#the-default).
 
 ## Where next
 

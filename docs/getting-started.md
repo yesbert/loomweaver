@@ -37,7 +37,7 @@ it is one line, not a blocker.
 ## 2 · Install the platform
 
 ```bash
-npm install @loomweaver/shell @loomweaver/plugin-sdk @angular/cdk @jsverse/transloco @ng-icons/heroicons \
+npm install @loomweaver/shell @loomweaver/plugin-sdk @loomweaver/frame-kit @angular/cdk @jsverse/transloco @ng-icons/heroicons \
   @angular/service-worker@$(node -p "require('@angular/core/package.json').version")
 npm install -D tailwindcss @tailwindcss/postcss @tailwindcss/typography
 ```

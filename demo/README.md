@@ -53,8 +53,8 @@ npm run licence-check  # production dependencies against the permissive allowlis
 ## What is here
 
 The branded shell from `@loomweaver/shell` — top bar, activity rail, a collapsible sidebar on each side,
-content area — with the product-defining parts in the twenty lines of
-[`src/app/app.config.ts`](src/app/app.config.ts), plus:
+content area — with the product-defining parts in [`src/app/app.config.ts`](src/app/app.config.ts),
+plus:
 
 - [`src/accounting`](src/accounting) — the **shared data library**: amounts in whole cents, VAT
   computed per rate on the summed net, customers, articles, sample quotes and the margin rules.
@@ -65,12 +65,28 @@ content area — with the product-defining parts in the twenty lines of
   A quote opens as an **arrangement** rather than one document — positions on the left, customer
   and margin on the right — because the surface declares how it opens, not just what it holds.
   The margin is gated to the accounting role, so signing in as the sales account leaves that pane
-  saying *why* it is empty instead of leaving it blank. It is the first nested pane tree here.
+  saying _why_ it is empty instead of leaving it blank. It is the first nested pane tree here.
 
   The quotes workspace **claims** the quote document address, so a quote opens where quotes live
   however you reach it: from the assistant, from the command palette, or by following a shared link
   straight into one. Without that a document lands in whatever workspace happened to be active, laid
   over an arrangement built for something else.
+
+- [`src/navigation`](src/navigation) — the **module navigation**: one tree per module in the left
+  sidebar, drawn from a declaration, hiding the areas no plugin answers and renaming the panel to the
+  area the visitor is in. It is the working consumer behind
+  [A navigation tree in the sidebar](../docs/weaver/navigation-tree.md).
+- [`src/customers`](src/customers), [`src/finance`](src/finance), [`src/procurement`](src/procurement),
+  [`src/inventory`](src/inventory) and [`src/people`](src/people) — the **module weavers**, one per
+  module the rail offers: customer list and contact history; receivables, payables, ledger, closing
+  and a dunning run that asks before it acts; suppliers and purchase orders; stock levels and
+  movements; employees and payroll runs. Read-only lists over the shared library, each with its own
+  translations and tests, there so the workbench has enough modules to show workspaces, claims and
+  the navigation tree doing their work.
+- [`src/insights`](src/insights) — the **dashboard** on the overview, the surface the assistant can
+  bring to the whole screen.
+- [`src/about`](src/about) — the **About dialog** behind the status-bar badge: the product's
+  identity, the running version and the link to the documentation.
 - [`src/session`](src/session) — the **account switch**: signed out, an accounting account and a
   sales account. It exists so gating is visible rather than described — the same screen shows the
   margin, hides it behind a reason, or asks you to sign in, depending on who is looking.
@@ -88,12 +104,12 @@ content area — with the product-defining parts in the twenty lines of
   that is fed cannot be restricted: the moment its data arrives inside its own bundle there is no
   longer anywhere to decide what it may see. The file is checked in and a unit test holds it to the
   accounting library, so changing a seed without updating it turns red. Since an isolated frame is a
-  *foreign origin* to the very site that serves it, that response carries
+  _foreign origin_ to the very site that serves it, that response carries
   `Access-Control-Allow-Origin` in all three ways the demo is served — the dev server, the preview
   server and the vhost — and the deploy pipeline's smoke-check asserts it.
 
   Say plainly what this does not show: **a URL that answers everyone is not an API with a security
-  model.** The grant gates what the plugin is *told* — revoke `session` in Settings › Permissions
+  model.** The grant gates what the plugin is _told_ — revoke `session` in Settings › Permissions
   and the push stops mid-flight, the mounted surface falling back to what a signed-out visitor sees,
   with no reload. It does not gate the fetch, and nothing here withholds anything from the plugin.
   Scoping what a plugin may read, and minting whatever proves it may, is the product's own backend
@@ -129,11 +145,11 @@ content area — with the product-defining parts in the twenty lines of
   bar and **reloads**, because icons and wording are bootstrap-bound — they are composition
   decisions, not user preferences. Light and dark stay live within each look.
 
-  A look changes how the app *looks*; it never changes whose app it is. The logo and the product name
+  A look changes how the app _looks_; it never changes whose app it is. The logo and the product name
   are wired once in `app.config.ts` and no look can replace them — the only wording a look owns is
   the tagline behind the name. The three span an axis on purpose: **Standard** in the middle,
   **Aurora** the same shapes in another palette (gold, the second logo colour), and **Breeze** a
-  different palette *and* different geometry — pill controls, softer radii, a wider rail and taller
+  different palette _and_ different geometry — pill controls, softer radii, a wider rail and taller
   chrome.
 
 Two things are deliberately already in place, because retrofitting either is painful:
@@ -147,14 +163,14 @@ Two things are deliberately already in place, because retrofitting either is pai
 
 ## What is not here yet
 
-Orders, and everything after them. The demo is built one reviewable slice at a time, and each slice
-adds its own plugin, its own translations and its own tests next to the ones above.
+Orders and invoices as documents of their own. The modules exist as read-only lists over the shared
+library, so the workbench has enough to show; the demo is built one reviewable slice at a time, and
+each slice adds its own plugin, its own translations and its own tests next to the ones above.
 
-The theme is accounting: quotes, then orders, then invoices, each as a separate plugin over the
-shared data library, with dunning as one installed from the plugin store at runtime. Payment
-matching is done, and is the isolated one.
+The one plugin installed from the plugin store at runtime is payment matching, the isolated one;
+nothing else arrives that way yet.
 
-What a product may *do* (`provideShellFeatures`) is still unexercised, which is worth fixing: a
+What a product may _do_ (`provideShellFeatures`) is still unexercised, which is worth fixing: a
 bookkeeping product would not offer pane splitting at all, and a lever nothing touches is a lever
 nobody checks.
 

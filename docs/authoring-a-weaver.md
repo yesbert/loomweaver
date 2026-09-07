@@ -81,6 +81,7 @@ yourself; otherwise the host disposes it when the plugin unloads.
 The order follows a weaver from its first surface to what it needs once it is shipped.
 
 - [Surfaces in a sidebar](weaver/sidebar-surfaces.md): a docked surface, what its body may use, and the custom-element escape hatch.
+- [A navigation tree in the sidebar](weaver/navigation-tree.md): the tree the workbench draws from your declaration, marking where the user is, folding, and retitling the panel.
 - [The content area](weaver/content-area.md): routable surfaces, tabs per pane, chromeless, closable, preview and pinned tabs, panes and tab groups.
 - [Containers](weaver/containers.md): a workspace in a tab, a child per item, relative addresses.
 - [Sub-routes and follows](weaver/sub-routes-and-follows.md): `subRoutes`, sub-tabs when the host mounts you off-router, the rest of the address, tabs that follow the selection, `activeContent`.

@@ -21,7 +21,7 @@ import { providePluginCatalog } from '@loomweaver/shell';
 ```
 
 Opening the store from your own control is `PluginStoreService` in the
-[host services](../distribution-api/plugins-at-runtime.md).
+the [Distribution API](../distribution-api/plugins-at-runtime.md).
 
 ## The catalogue
 

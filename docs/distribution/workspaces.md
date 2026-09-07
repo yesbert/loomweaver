@@ -83,7 +83,7 @@ provideWorkspaces({
 ```
 
 Switching, saving, resetting, renaming and removing workspaces from your own code is
-`WorkspaceService` in the [host services](../distribution-api/workspaces.md).
+`WorkspaceService` in the [Distribution API](../distribution-api/workspaces.md).
 
 ### Claiming the content that belongs to a workspace
 

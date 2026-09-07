@@ -37,7 +37,7 @@ being asked for and is not remembered as a setting. A surface with unsaved work 
 it is on a workspace reset.
 
 Driving the reset from your own code, with or without the workspaces and with the same unsaved-work
-question, is `AppResetService` in the [host services](../distribution-api/reset.md).
+question, is `AppResetService` in the [Distribution API](../distribution-api/reset.md).
 
 Take it away like any other contribution: `omit: ['shell.app.reset']` drops the command, and with it
 the settings button, because a button naming a command nobody registered is dropped rather than drawn

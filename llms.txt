@@ -1,6 +1,6 @@
 # LoomWeaver
 
-> LoomWeaver: open-source plugin platform for Angular workbenches. Weavers (plugins) consume one uniform `ctx` contract from `@loomweaver/plugin-sdk` under a **default-deny** capability broker, and a thin **distribution** composes them with `@loomweaver/shell` into a product. The platform itself contains **zero domain logic** and ships **no server**; the backend seam is the product's own. Status: the platform is **built and published** as seven versioned npm packages, listed under *Packages* below.
+> LoomWeaver: open-source plugin platform for Angular workbenches. Weavers (plugins) consume one uniform `ctx` contract from `@loomweaver/plugin-sdk` under a **default-deny** capability broker, and a thin **distribution** composes them with `@loomweaver/shell` into a product. The platform itself contains **zero domain logic** and ships **no server**; the backend seam is the product's own. Status: the platform is **built and published** as seven versioned npm packages, listed under *Packages* below. It is maintained by one person, its API still moves on patch releases before 1.0, and the demo application is its reference consumer.
 
 This is a curated map for people, and their AI assistants, building on or integrating LoomWeaver. For a single-fetch brief with the complete contract inlined, see [`llms-full.txt`](llms-full.txt). Read from the repository, the links are repo-relative; served from loomweaver.dev, they are absolute.
 
@@ -9,7 +9,7 @@ This is a curated map for people, and their AI assistants, building on or integr
 - [Glossary](docs/glossary.md): the words the docs use, one line each; platform, shell, host and workbench name the same thing.
 - [Getting started](docs/getting-started.md): scaffold a running, branded product with a plugin already contributing to it, in ~5 minutes, using `@loomweaver/cli`. Start here.
 - [Architecture](docs/architecture.md): the mental model, platform / weaver / distribution, the uniform `ctx`, default-deny capabilities, the two RPC boundaries. Read it once the tutorial has run.
-- [Manual setup](docs/manual-setup.md): the same app wired by hand (~15 min); the shell renders inside the generated `app-root`, so nothing of `ng new`/Nx is deleted. Read it for the Nx differences, SSR (`RenderMode.Client`) and why Module Federation is not the plugin transport.
+- [Manual setup](docs/manual-setup.md): the same app wired by hand (~15 min), without the scaffold's service worker and content-security policy; the shell renders inside the generated `app-root`, so nothing of `ng new`/Nx is deleted. Read it for the Nx differences, SSR (`RenderMode.Client`) and why Module Federation is not the plugin transport.
 - [Samples](docs/samples.md): complete copyable recipes, each compiling against the published contract: sidebar view with `VIEW_STATE`, routable surface, one command behind several triggers, settings, access gating, dialogs. It opens by naming which recipes the generator already writes, so scaffold those and type only the rest.
 
 ## Build
@@ -77,8 +77,8 @@ Why the workbench behaves as it does; short, each linking to the how-to pages th
 Deterministic scaffolding + validation for building on LoomWeaver. Prefer these over hand-wiring.
 
 - [Scaffolding](docs/scaffolding.md): the guide: which of the three adapters applies to you, what the tools return, and every weaver option.
-- [`@loomweaver/devkit`](platform/libs/tooling/devkit/README.md): the **Nx generator collection** (`npm i -D @loomweaver/devkit`), the fullest adapter, since Nx lets it also *change* files. Read it for the generators (`weaver`, `frame-plugin`, `distribution`, `auth-source`, `settings-store`, `theme`, `layout`), their flags and the pure cores `generate(recipe, input)` and `validate*`.
-- [`@loomweaver/cli`](platform/libs/tooling/cli/README.md): the scaffolding **CLI**, the primary path for a product repo because it needs no Nx workspace, no checkout and no assistant. Read it for `--dry-run`/`--force`/`--strict` and the validators `validate-manifest`, `validate-i18n`, `validate-catalog`.
+- [`@loomweaver/devkit`](platform/libs/tooling/devkit/README.md): the **Nx generator collection** (`npm i -D @loomweaver/devkit`), the fullest adapter, since Nx lets it also register the project and add the tsconfig alias. Read it for the generators (`weaver`, `frame-plugin`, `distribution`, `auth-source`, `settings-store`, `theme`, `layout`), their flags and the pure cores `generate(recipe, input)` and `validate*`.
+- [`@loomweaver/cli`](platform/libs/tooling/cli/README.md): the scaffolding **CLI**, the primary path for a product repo because it needs no Nx workspace, no checkout and no assistant. Read it for `--dry-run`/`--force`/`--strict` and the validators `validate-manifest`, `validate-i18n`, `validate-catalog`, `validate-commands`.
 - [`@loomweaver/mcp`](platform/libs/tooling/mcp/README.md): an MCP server exposing the same scaffolding + validation as tools (`scaffold_*` return a file map; `validate_*` return findings) for AI assistants. Register it in `.mcp.json` with `{ "command": "npx", "args": ["-y", "@loomweaver/mcp"] }`.
 
 ## Distribution API

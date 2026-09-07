@@ -37,7 +37,7 @@ standard can run your product's own commands.
 4. [Samples](samples.md): complete, copyable recipes. A sidebar view with persisted state, a routable
    surface, a command with its triggers, a settings section, access gating, dialogs. It says which of
    them the generator already writes, so you only type the rest.
-5. [Authoring a weaver](authoring-a-weaver.md): the shape of a weaver and the map of fifteen how-to pages
+5. [Authoring a weaver](authoring-a-weaver.md): the shape of a weaver and the map of sixteen how-to pages
    under `weaver/`. Surfaces in a sidebar, the content area, containers, commands, menus, unsaved changes,
    sandboxed surfaces, access gating, settings, i18n. One task per page.
 6. [Building a distribution](building-a-distribution.md): the composition root and the map of seventeen
