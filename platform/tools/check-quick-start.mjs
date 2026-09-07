@@ -135,10 +135,11 @@ function raiseBudgets(app) {
   for (const project of Object.values(workspace.projects ?? {})) {
     const production = project.architect?.build?.configurations?.production;
     for (const budget of production?.budgets ?? []) {
-      if (budget.type === 'initial') {
-        budget.maximumWarning = '2MB';
-        budget.maximumError = '3MB';
+      if (budget.type !== 'initial') {
+        continue;
       }
+      budget.maximumWarning = '2MB';
+      budget.maximumError = '3MB';
     }
   }
   writeFileSync(file, `${JSON.stringify(workspace, null, 2)}\n`);
@@ -169,7 +170,8 @@ function dropNavigationRecipe(app) {
     )
     .replace(
       /activate\(ctx\) \{\n/,
-      `activate(ctx) {\n    navigation.bind(ctx);\n${routes}\n    ctx.registerSurface({ id: 'notes.navigation', title: 'notes.title', icon: 'notes', component: NotesNavigationView, docks: ['left-panel'], padded: false });\n`,
+      () =>
+        `activate(ctx) {\n    navigation.bind(ctx);\n${routes}\n    ctx.registerSurface({ id: 'notes.navigation', title: 'notes.title', icon: 'notes', component: NotesNavigationView, docks: ['left-panel'], padded: false });\n`,
     );
   if (patched === source) {
     throw new SetupError('the generated notes plugin no longer has the shape the recipe is dropped into');
