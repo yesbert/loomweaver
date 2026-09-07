@@ -1,4 +1,4 @@
-import { inject, Service, signal } from '@angular/core';
+import { DestroyRef, inject, Service, signal } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 import { MenuContext, MenuHeader, MenuItem } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../plugin/contribution-registry';
@@ -64,6 +64,10 @@ export class MenuService {
   private current?: OpenMenu;
 
   readonly openTrigger = this.trigger.asReadonly();
+
+  constructor() {
+    inject(DestroyRef).onDestroy(() => this.close());
+  }
 
   open(
     menuId: string | readonly string[],
@@ -158,8 +162,10 @@ export class MenuService {
       menu.openAt(at.x, at.y);
     }
     this.trigger.set(trigger ?? null);
-    const listenTimer = setTimeout(() =>
-      document.addEventListener('pointerdown', onOutside, {capture: true}), 0,
+    const listenTimer = setTimeout(
+      () =>
+        document.addEventListener('pointerdown', onOutside, { capture: true }),
+      0,
     );
     this.current = { menu, onOutside, restore, listenTimer };
   }
@@ -285,7 +291,9 @@ export class MenuService {
     if (header.image) {
       const picture = mark.firstElementChild as HTMLImageElement;
       picture.addEventListener('error', () =>
-        mark.replaceChildren(...this.markContent({ ...header, image: undefined })),
+        mark.replaceChildren(
+          ...this.markContent({ ...header, image: undefined }),
+        ),
       );
     }
     return mark;

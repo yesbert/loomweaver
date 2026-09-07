@@ -93,6 +93,22 @@ describe('MenuService', () => {
     expect(document.body.classList.contains('lw-menu-open')).toBe(false);
   });
 
+  it('closes what is open when its injector is destroyed, so the body is not left marked', () => {
+    registry.addCommand({
+      id: 'c.close',
+      title: 'cmd.close',
+      run: () => undefined,
+    });
+    registry.addMenuItem({ menu: 'content/tab/context', command: 'c.close' });
+    service.open('content/tab/context', context, { x: 10, y: 10 });
+    expect(document.body.classList.contains('lw-menu-open')).toBe(true);
+
+    TestBed.resetTestingModule();
+
+    expect(menu()).toBeNull();
+    expect(document.body.classList.contains('lw-menu-open')).toBe(false);
+  });
+
   it('renders a popover for the slot and marks the body while open', () => {
     registry.addCommand({
       id: 'c.close',
@@ -165,10 +181,12 @@ describe('MenuService', () => {
     service.open('m', context, { x: 0, y: 0 });
 
     const rendered = items();
-    expect(rendered.map((index) => index.getAttribute('command'))).toEqual(['c.close']);
-    expect(rendered.some((index) => index.getAttribute('label') === 'c.omitted')).toBe(
-      false,
-    );
+    expect(rendered.map((index) => index.getAttribute('command'))).toEqual([
+      'c.close',
+    ]);
+    expect(
+      rendered.some((index) => index.getAttribute('label') === 'c.omitted'),
+    ).toBe(false);
   });
 
   it('reflects the command icon + shortcut hints and the leading column', () => {
@@ -347,7 +365,9 @@ describe('MenuService', () => {
 
     service.open('m', context, { x: 0, y: 0 });
 
-    expect(items().map((index) => index.getAttribute('label'))).toEqual(['Close']);
+    expect(items().map((index) => index.getAttribute('label'))).toEqual([
+      'Close',
+    ]);
   });
 
   it('does not leak the outside listener of a menu replaced before its listener attached', () => {
@@ -416,15 +436,15 @@ describe('MenuService', () => {
     it('draws the name, its second line and its mark above the first entry', () => {
       open({ title: 'menu.close', detail: 'ada@example.com', initials: 'AL' });
 
-      expect(heading()?.querySelector('.lw-menu-header-title')?.textContent).toBe(
-        'Close',
-      );
+      expect(
+        heading()?.querySelector('.lw-menu-header-title')?.textContent,
+      ).toBe('Close');
       expect(
         heading()?.querySelector('.lw-menu-header-detail')?.textContent,
       ).toBe('ada@example.com');
-      expect(heading()?.querySelector('.lw-menu-header-mark')?.textContent).toBe(
-        'AL',
-      );
+      expect(
+        heading()?.querySelector('.lw-menu-header-mark')?.textContent,
+      ).toBe('AL');
       expect(menu()?.firstElementChild).toBe(heading());
     });
 
@@ -470,9 +490,9 @@ describe('MenuService', () => {
     it('draws an icon where no initials are given', () => {
       open({ title: 'menu.close', icon: 'user' });
 
-      expect(
-        heading()?.querySelector('lw-icon')?.getAttribute('name'),
-      ).toBe('user');
+      expect(heading()?.querySelector('lw-icon')?.getAttribute('name')).toBe(
+        'user',
+      );
     });
   });
 
@@ -539,7 +559,9 @@ describe('MenuService', () => {
       const restore = vi.spyOn(button, 'focus');
       service.open('m', context, { x: 0, y: 0 }, { trigger: button });
 
-      menu()?.dispatchEvent(new CustomEvent(LW_MENU_DISMISS, { bubbles: true }));
+      menu()?.dispatchEvent(
+        new CustomEvent(LW_MENU_DISMISS, { bubbles: true }),
+      );
 
       expect(menu()).toBeNull();
       expect(restore).toHaveBeenCalled();
