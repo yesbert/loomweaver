@@ -43,8 +43,8 @@ const TONE_ICON: Record<DialogTone, LoomIconName | undefined> = {
   danger: 'warning',
 };
 
-type DialogKind = 'confirm' | 'alert' | 'prompt' | 'custom' | 'progress';
-type ButtonRole = 'confirm' | 'cancel' | 'custom';
+export type DialogKind = 'confirm' | 'alert' | 'prompt' | 'custom' | 'progress';
+export type ButtonRole = 'confirm' | 'cancel' | 'custom';
 
 /** A footer button as the dialog outlet renders it. */
 export interface DialogButtonView {

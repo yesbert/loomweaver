@@ -104,7 +104,9 @@ them; with no bottom bar there is no status line.
 
 Below the `md` breakpoint the **panels become overlay drawers** (they slide over the content, with a
 scrim), the **rails stay** visible, and the content gets the full width. Each sidebar is
-opened/closed through the affordance in its **sidebar header**.
+opened/closed through the affordance in its **sidebar header**. The breakpoint is one fact,
+`ViewportService.compact`, a signal the chrome reads and a distribution may read too, so that a
+control of your own folds at the same width as the shell's.
 
 ## See also
 

@@ -33,7 +33,8 @@ rail, the sidebars, tabs, menus, dialogs, settings and the command palette, and 
 **sandboxed surfaces**, so a plugin drawing `<lw-icon name="trash">` shows your glyph rather than
 the shipped one, and one screen never carries two icon sets. The key type suggests the shipped names, so a typo
 in an intended replacement shows up while you write it instead of quietly adding a glyph nothing
-draws; `LoomIconName` is exported if you want to name them in your own code.
+draws; `LoomIconName` is exported if you want to name them in your own code, and `LOOM_ICONS` is the
+shipped map itself, for code that wants to read a glyph rather than draw it.
 
 A **weaver** instead brings icons at runtime with
 [`ctx.contributeIcons`](../weaver/icons-and-theme.md#custom-icons--ctxcontributeicons), and a weaver

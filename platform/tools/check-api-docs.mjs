@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// Fails when a published export is not mentioned anywhere in the public documentation.
+// Fails when a published export is not mentioned anywhere in the public documentation, or not named
+// in llms-full.txt on its own, or is visible in the packed declarations without being exported.
 //
 // "Feature complete" is a claim that rots silently: a new export lands, the guide that would have
 // explained it is never touched, and nothing notices. This reads the PACKED type declarations —
@@ -33,14 +34,7 @@ const ENTRIES = {
 // export list is exactly that. Each one here is a decision still to be taken, export it or take it
 // off the public surface, and a new one fails until it is taken.
 const VISIBLE_BUT_NOT_EXPORTED = new Map([
-  ['ViewportService', 'undecided: the-llms-files-carry-the-whole-contract'],
-  ['PaddingDefault', 'undecided: the-llms-files-carry-the-whole-contract'],
-  ['LOOM_ICONS', 'undecided: the-llms-files-carry-the-whole-contract'],
-  ['DialogKind', 'undecided: the-llms-files-carry-the-whole-contract'],
-  ['ButtonRole', 'undecided: the-llms-files-carry-the-whole-contract'],
-  ['WorkspaceClaim', 'undecided: the-llms-files-carry-the-whole-contract'],
-  ['PANE_HANDLE', 'undecided: the-llms-files-carry-the-whole-contract'],
-  ['Triggerable', 'undecided: the-llms-files-carry-the-whole-contract'],
+  ['PANE_HANDLE', 'the phantom brand of PaneHandle: declared, never a value, nothing to import'],
 ]);
 
 // Names that carry no prose of their own, with the reason each is exempt. Anything not listed here
@@ -226,6 +220,10 @@ function leakedNames(entry, exported) {
 }
 
 const blob = docsBlob();
+// llms-full.txt calls itself the whole contract, so the union is not enough for it: a name that
+// lives on a reference page and nowhere in this file passes the union and fails the claim.
+const llmsFull = readFileSync(path.join(repoRoot, 'llms-full.txt'), 'utf8');
+const missingFromLlms = [];
 const missing = [];
 const allExported = new Set();
 const leaked = [];
@@ -245,7 +243,9 @@ for (const [package_, relative] of Object.entries(ENTRIES)) {
     checked++;
     allExported.add(name);
     if (EXEMPT.has(name)) continue;
-    if (new RegExp(String.raw`\b${name}\b`).test(blob)) continue;
+    const named = new RegExp(String.raw`\b${name}\b`);
+    if (!named.test(llmsFull)) missingFromLlms.push(`${package_} · ${name}`);
+    if (named.test(blob)) continue;
     missing.push(`${package_} · ${name}`);
   }
   if (relative.endsWith('.d.ts') && relative.includes('/types/')) {
@@ -288,6 +288,15 @@ if (stale.length > 0) {
   process.exit(1);
 }
 
+if (missingFromLlms.length > 0) {
+  console.error(
+    `check-api-docs: ${missingFromLlms.length} published export(s) are not named in llms-full.txt, which calls itself the whole contract:\n` +
+      missingFromLlms.map((m) => `  - ${m}`).join('\n') +
+      '\n\nName them in llms-full.txt, or add them to EXEMPT in tools/check-api-docs.mjs with a reason.',
+  );
+  process.exit(1);
+}
+
 if (missing.length > 0) {
   console.error(
     `check-api-docs: ${missing.length} published export(s) appear nowhere in the documentation:\n` +
@@ -298,5 +307,5 @@ if (missing.length > 0) {
 }
 
 console.log(
-  `check-api-docs: ${checked} published exports, ${EXEMPT.size} exempt, 0 undocumented, ${VISIBLE_BUT_NOT_EXPORTED.size} visible but not exported and known`,
+  `check-api-docs: ${checked} published exports, ${EXEMPT.size} exempt, every one documented and named in llms-full.txt, ${VISIBLE_BUT_NOT_EXPORTED.size} visible but not exported and known`,
 );

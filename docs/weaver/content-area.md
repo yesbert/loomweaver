@@ -67,6 +67,9 @@ Most products want air around their prose, forms and lists, and say so once when
 provideShell({ padding: 'inset' })
 ```
 
+The option's type is `PaddingDefault`, `'none'` or `'inset'`, and `'none'` is what an absent option
+means.
+
 A surface that differs from its product declares **`padded`**, in either direction. `false` where
 the product insets everything and this surface **is** the content, such as a document viewer, a
 canvas, a map or an edge-to-edge table:

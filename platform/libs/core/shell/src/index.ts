@@ -1,4 +1,6 @@
 export * from './lib/shell';
+export { ViewportService } from './lib/layout/viewport.service';
+export type { PaddingDefault } from './lib/foundation/surface-padding';
 export * from './lib/provide-shell';
 export * from './lib/foundation/shell-features';
 export * from './lib/features/feature-switches.service';
@@ -33,6 +35,7 @@ export * from './lib/persistence/identity-scoped-stores';
 export * from './lib/persistence/state-sync.service';
 export * from './lib/popout/popout.service';
 export * from './lib/workspace/provide-workspaces';
+export type { WorkspaceClaim } from './lib/workspace/workspace-claims';
 export type {
   WorkspaceArea,
   WorkspaceAreaBase,
@@ -101,6 +104,6 @@ export {
 export * from './lib/plugin-store/catalog/plugin-catalog';
 export * from './lib/plugin-store/catalog/provide-plugin-catalog';
 
-export { type LoomIconName } from './lib/elements/icon/loom-icons';
+export { LOOM_ICONS, type LoomIconName } from './lib/elements/icon/loom-icons';
 export { provideIcons } from './lib/elements/icon/provide-icons';
 export * from './lib/elements/icon/lw-icon.element';
