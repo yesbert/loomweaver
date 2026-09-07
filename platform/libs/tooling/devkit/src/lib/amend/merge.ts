@@ -1,6 +1,7 @@
 import {
   AssetGlob,
   BuildTargetAmendment,
+  BundleBudget,
   PackageAmendment,
   PostcssAmendment,
 } from './types';
@@ -126,7 +127,11 @@ export function ensureBuildTarget(
   }
   next['options'] = options;
 
-  if (amendment.inlineCritical !== undefined || amendment.serviceWorker) {
+  if (
+    amendment.inlineCritical !== undefined ||
+    amendment.serviceWorker ||
+    amendment.initialBudget
+  ) {
     const configurations = { ...asObject(next['configurations']) };
     const production = { ...asObject(configurations['production']) };
 
@@ -157,6 +162,19 @@ export function ensureBuildTarget(
       }
     }
 
+    if (amendment.initialBudget) {
+      const budgets = ensureInitialBudget(
+        production['budgets'],
+        amendment.initialBudget,
+      );
+      if (budgets.changed) {
+        production['budgets'] = budgets.value;
+        added.push(
+          `production budget initial: ${amendment.initialBudget.warning} warning, ${amendment.initialBudget.error} error`,
+        );
+      }
+    }
+
     configurations['production'] = production;
     next['configurations'] = configurations;
   }
@@ -170,6 +188,62 @@ export function ensureStylesheetSource(css: string, source: string): string {
     return css;
   }
   return `${css.trimEnd()}\n\n@source '${source}';\n`;
+}
+
+function ensureInitialBudget(
+  budgets: unknown,
+  wanted: BundleBudget,
+): { value: unknown[]; changed: boolean } {
+  const entries = Array.isArray(budgets) ? [...budgets] : [];
+  const index = entries.findIndex(
+    (entry) => asObject(entry)?.['type'] === 'initial',
+  );
+  if (index === -1) {
+    return {
+      value: [
+        ...entries,
+        {
+          type: 'initial',
+          maximumWarning: wanted.warning,
+          maximumError: wanted.error,
+        },
+      ],
+      changed: true,
+    };
+  }
+  const current = asObject(entries[index]) ?? {};
+  if (!isBelow(current['maximumError'], wanted.error)) {
+    return { value: entries, changed: false };
+  }
+  entries[index] = {
+    ...current,
+    maximumWarning: wanted.warning,
+    maximumError: wanted.error,
+  };
+  return { value: entries, changed: true };
+}
+
+function isBelow(recorded: unknown, wanted: string): boolean {
+  const left = toBytes(recorded);
+  const right = toBytes(wanted);
+  return left !== undefined && right !== undefined && left < right;
+}
+
+function toBytes(size: unknown): number | undefined {
+  if (typeof size !== 'string') {
+    return undefined;
+  }
+  const match = /^([\d.]+)\s*(b|kb|mb|gb)?$/i.exec(size.trim());
+  if (!match) {
+    return undefined;
+  }
+  const units: Record<string, number> = {
+    b: 1,
+    kb: 1000,
+    mb: 1000 * 1000,
+    gb: 1000 * 1000 * 1000,
+  };
+  return Number(match[1]) * units[(match[2] ?? 'b').toLowerCase()];
 }
 
 function ensureInlineCritical(

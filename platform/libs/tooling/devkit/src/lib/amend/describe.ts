@@ -46,6 +46,11 @@ export function describeAmendment(amendment: Amendment): string {
       : [
           `set optimization.styles.inlineCritical to ${amendment.inlineCritical} in the production configuration (the generated content-security policy blocks the inline handler Angular's critical-CSS pass attaches, so a release build renders unstyled)`,
         ]),
+    ...(amendment.initialBudget
+      ? [
+          `raise the initial bundle budget to ${amendment.initialBudget.warning} warning and ${amendment.initialBudget.error} error in the production configuration (a fresh workspace carries one sized for an empty application, and the workbench alone spends almost all of it, so a release build fails)`,
+        ]
+      : []),
   ]
     .map((step, index) => `${index + 1}. ${step}`)
     .join(' ');
