@@ -106,7 +106,7 @@ The platform ships local/anonymous defaults; the product implements two frontend
 own backend. Scaffold either into a distribution's `src/`:
 
 ```sh
-nx g @loomweaver/devkit:auth-source --name=dev --app=acme-studio       # provider-neutral AuthSource
+nx g @loomweaver/devkit:auth-source --name=dev --app=acme-studio       # a stand-in session: AuthSource + the verbs in the rail; --bare for the source alone
 nx g @loomweaver/devkit:settings-store --name=backend --app=acme-studio # backend-backed settings store
 ```
 

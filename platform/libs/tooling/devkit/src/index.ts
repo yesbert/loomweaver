@@ -8,6 +8,8 @@ export type {
   PackageAmendment,
   PostcssAmendment,
   StylesheetSourceAmendment,
+  ImportedSymbols,
+  ProviderLine,
 } from './lib/amend/types';
 export {
   ensureBuildTarget,
@@ -76,13 +78,11 @@ export {
   SCAFFOLDS,
   findScaffold,
   kebabCase,
-  nxSchemaFor,
-  portableOptions,
-  usageFor,
   type ScaffoldDescriptor,
   type ScaffoldOption,
   type ScaffoldValues,
 } from './lib/scaffolds/scaffolds';
+export { nxSchemaFor, portableOptions, usageFor } from './lib/scaffolds/surface';
 export type { Finding, FindingLevel } from './lib/validate/types';
 export {
   validateManifest,

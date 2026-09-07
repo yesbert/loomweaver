@@ -69,6 +69,21 @@ Where the composition root already carries a `provideAuthSource`, the generator 
 so. In Angular the last provider wins, and a stand-in composed after a real session would silently
 replace it. "Ensure present" is read as "one is present", not "this one is present".
 
+### A composed plugin joins the namespace declaration, because a second one replaces the first
+
+Found while carrying the recipes in the nightly check: `provideTranslationNamespaces` is one
+declaration, not an accumulating one, so the line the compose amendment added for each plugin
+replaced the one before it, and the plugin composed in earlier lost its words. With two weavers
+this went unnoticed, because the check read only the words of the one composed in last. The
+amendment now adds a namespace to the call already in the root, and writes a call of its own only
+where there is none; the check asserts that the first weaver's rail item still reads as a word after
+two more plugins were composed in. This is the guarantee "composing a second plugin in leaves every
+plugin composed in before it working" holding for translations too.
+
+*Alternative rejected: making the shell's declaration accumulate.* It would change a published
+behaviour that a product may rely on, one call naming all namespaces, for a defect that lives in
+the tool that writes the call.
+
 ### The plugin the generator writes is recipe 12, and a test holds them together
 
 The plugin source is the fenced block of recipe 12 with the name substituted. A recipe test
@@ -101,7 +116,10 @@ stand-in section says the generator writes all of it.
 - **The nightly check gets longer.** → It already scaffolds, builds, tests and serves; two recipes
   and three browser assertions are minutes, not a new job.
 - **The samples page as a fixture makes a docs edit fail a platform test.** → Intended: the page
-  claims the generator writes this, and the test is what makes the claim true.
+  claims the generator writes this, and the test is what makes the claim true. The binding is
+  confined to the repository: the test reads the page from the checkout and runs in this CI, the
+  generator carries its template and reads no page at runtime, and nothing of it ships in a package,
+  so a consumer of the packages is never affected.
 
 ## Open Questions
 

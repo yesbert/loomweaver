@@ -1,7 +1,8 @@
 import { angularDistribution } from '../../recipes/angular-distribution/recipe';
 import { weaverAmendments } from '../../recipes/angular-weaver/amendments';
+import { authSourceAmendments } from '../../recipes/auth-source/recipe-amendments';
 import { angularWeaver } from '../../recipes/angular-weaver/recipe';
-import { authSource } from '../../recipes/auth-source/recipe';
+import { authSource, type AuthSourceInput } from '../../recipes/auth-source/recipe';
 import { layout } from '../../recipes/layout/recipe';
 import { framePlugin } from '../../recipes/frame-plugin/recipe';
 import { settingsStore } from '../../recipes/settings-store/recipe';
@@ -98,6 +99,10 @@ const APP_OPTION: ScaffoldOption = {
     'Application to drop into. Inferred when the workspace has exactly one.',
   workspaceOnly: true,
 };
+
+function authSourceInput(values: ScaffoldValues): AuthSourceInput {
+  return { name: str(values, 'name') ?? '', bare: bool(values, 'bare') };
+}
 
 export const SCAFFOLDS: readonly ScaffoldDescriptor[] = [
   {
@@ -273,7 +278,8 @@ export const SCAFFOLDS: readonly ScaffoldDescriptor[] = [
   },
   {
     name: 'auth-source',
-    summary: 'a provider-neutral AuthSource that feeds the session',
+    summary:
+      'a stand-in session a user can operate: the AuthSource, the sign-in, switch and sign-out verbs in the rail, composed in',
     options: [
       {
         name: 'name',
@@ -282,10 +288,24 @@ export const SCAFFOLDS: readonly ScaffoldDescriptor[] = [
         required: true,
         pattern: ID_PATTERN,
       },
+      {
+        name: 'bare',
+        type: 'boolean',
+        description:
+          'Write the AuthSource alone, without the verbs, for a product that maps a session of its own onto it.',
+        default: false,
+      },
       APP_OPTION,
+      {
+        name: 'directory',
+        type: 'string',
+        description: 'Where the files land, relative to the workspace root.',
+        workspaceOnly: true,
+      },
     ],
-    build: (values) =>
-      generate(authSource, { name: str(values, 'name') ?? '' }),
+    build: (values) => generate(authSource, authSourceInput(values)),
+    amend: (values) =>
+      authSourceAmendments(authSourceInput(values), str(values, 'directory')),
   },
   {
     name: 'settings-store',
@@ -347,53 +367,4 @@ export const SCAFFOLDS: readonly ScaffoldDescriptor[] = [
 
 export function findScaffold(name: string): ScaffoldDescriptor | undefined {
   return SCAFFOLDS.find((scaffold) => scaffold.name === name);
-}
-
-/** The option surface an adapter that only produces files can offer. */
-export function portableOptions(
-  scaffold: ScaffoldDescriptor,
-): readonly ScaffoldOption[] {
-  return scaffold.options.filter((option) => !option.workspaceOnly);
-}
-
-/**
- * The JSON Schema an Nx generator loads. Nx reads it from disk before any of our code runs, so the
- * file cannot be computed at call time — instead it is checked against this shape by a test, which
- * fails the moment the two drift apart.
- */
-export function nxSchemaFor(
-  scaffold: ScaffoldDescriptor,
-): Record<string, unknown> {
-  const properties: Record<string, unknown> = {};
-  for (const option of scaffold.options) {
-    properties[option.name] = {
-      type: option.type,
-      description: option.description,
-      ...(option.pattern && { pattern: option.pattern }),
-      ...(option.choices && { enum: option.choices }),
-      ...(option.default !== undefined && { default: option.default }),
-    };
-  }
-  return {
-    $schema: 'https://json-schema.org/schema',
-    $id: `LoomWeaver${scaffold.name
-      .split('-')
-      .map((part) => part[0].toUpperCase() + part.slice(1))
-      .join('')}`,
-    title: `Scaffold ${scaffold.summary}`,
-    type: 'object',
-    properties,
-    required: scaffold.options
-      .filter((option) => option.required)
-      .map((option) => option.name),
-  };
-}
-
-export function usageFor(scaffold: ScaffoldDescriptor): string {
-  const parts = portableOptions(scaffold).map((option) => {
-    const flag = `--${kebabCase(option.name)}`;
-    const body = option.type === 'boolean' ? flag : `${flag} <${option.name}>`;
-    return option.required ? body : `[${body}]`;
-  });
-  return [scaffold.name, ...parts].join(' ');
 }

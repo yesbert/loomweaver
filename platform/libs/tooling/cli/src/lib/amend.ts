@@ -263,6 +263,12 @@ class Amender {
       display: this.displayName(root),
       added: [
         `${amendment.symbol}, its translations and its capability grants`,
+        ...(amendment.providers ?? [])
+          .filter((provider) => !result.kept.includes(provider.line))
+          .map((provider) => provider.line.replace(/,$/, '')),
+        ...result.kept.map(
+          (line) => `kept the ${line.split('(', 1)[0]} already there instead of ${line.replace(/,$/, '')}`,
+        ),
       ],
       content: result.source,
     });

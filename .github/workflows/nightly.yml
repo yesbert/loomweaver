@@ -80,6 +80,7 @@ jobs:
         run: |
           npx nx run-many -t package --projects=shell,plugin-sdk,ag-ui
           npx nx run shell:styles
+          npx nx bundle frame-kit
           npx nx run cli:bundle
 
       # The last leg of the check opens the built application, because a surface can be delivered

@@ -73,14 +73,15 @@ same version. Running `npx @loomweaver/cli` unpinned takes the latest one, which
 you install the platform. A project on an older shell pins the tool to it, `npx @loomweaver/cli@0.9.0`,
 because a generator from a newer line emits code for that line.
 
-Three scaffolds carry options worth knowing before you read that list. The
-[weaver](#the-weaver-generator) composes its features from flags. The other two decide how your
-product is styled, and they work together:
+Four scaffolds carry options worth knowing before you read that list. The
+[weaver](#the-weaver-generator) composes its features from flags. Two decide how your product is
+styled, and they work together; the fourth decides how much of a stand-in session you want:
 
 | Flag                                | What it changes                                                                                                                                                                                                                                                                                      |
 | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `distribution --styles precompiled` | emits a one-line `src/styles.css` that imports the stylesheet **we** compiled, so the application needs **no Tailwind** — no packages, no `.postcssrc.json`, no `@source` hops. The default, `tailwind`, compiles the shell's source theme and is what lets you write Tailwind utilities of your own |
 | `theme --preset bootstrap`          | maps all 29 `--lw-*` tokens onto Bootstrap 5.3's `--bs-*` variables instead of emitting literal colours, so the shell follows your Bootstrap theme live                                                                                                                                              |
+| `auth-source --bare`                | writes the `AuthSource` alone. Without it the scaffold also writes the plugin with the sign-in, switch and sign-out verbs, the bundles, and composes them into `app.config.ts`, so a product without an identity provider can operate its session from the rail on the first serve                   |
 
 Together they are the whole Bootstrap path, and the framework itself has to go into a cascade layer:
 [Bringing your own CSS framework](distribution/css-frameworks.md) has the import order and the mapping.
@@ -225,20 +226,20 @@ unchanged.
 
 ### The tools
 
-| Tool                      | Arguments                                                                                                                              | Gives you                                                                      |
-| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| `list_generators`         | —                                                                                                                                      | the available generators and what they emit                                    |
-| `scaffold_weaver`         | see [below](#weaver-options)                                                                                                           | a complete plugin: manifest, surface, rail item, i18n, test                    |
-| `scaffold_frame_plugin`   | `id`, `name`                                                                                                                           | a framework-agnostic iframe plugin (Penpal + the frame UI kit)                 |
-| `scaffold_distribution`   | `name`, `title`, `styles`                                                                                                              | a runnable composition root that boots the shell                               |
-| `scaffold_auth_source`    | `name`                                                                                                                                 | an `AuthSource` implementation to feed the session                             |
-| `scaffold_settings_store` | `name`                                                                                                                                 | a settings-store implementation backed by your API                             |
-| `scaffold_theme`          | `name`, `preset`                                                                                                                       | a token-override stylesheet in `@layer lw-tenant-theme`                        |
-| `scaffold_layout`         | `name`                                                                                                                                 | a `ShellLayout` with the regions a weaver expects                              |
-| `validate_manifest`       | `id`, `name`, `capabilities`                                                                                                           | findings on a plugin manifest                                                  |
-| `validate_catalog`        | `catalog` — the parsed catalogue JSON array                                                                                            | findings on a plugin store catalogue, including fields the host never reads    |
-| `validate_i18n`           | `bundles` — the parsed language files keyed by language, e.g. `{ "en": { "notes.list": "Notes" }, "de": { "notes.list": "Notizen" } }` | findings on translation-bundle parity (keys missing in one language)           |
-| `validate_commands`       | `files` — TypeScript sources keyed by path                                                                                             | per command, whether an agent is offered it and what it would have to guess at |
+| Tool                      | Arguments                                                                                                                              | Gives you                                                                                                                |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `list_generators`         | —                                                                                                                                      | the available generators and what they emit                                                                              |
+| `scaffold_weaver`         | see [below](#weaver-options)                                                                                                           | a complete plugin: manifest, surface, rail item, i18n, test                                                              |
+| `scaffold_frame_plugin`   | `id`, `name`                                                                                                                           | a framework-agnostic iframe plugin (Penpal + the frame UI kit)                                                           |
+| `scaffold_distribution`   | `name`, `title`, `styles`                                                                                                              | a runnable composition root that boots the shell                                                                         |
+| `scaffold_auth_source`    | `name`, `bare`                                                                                                                         | a stand-in session a user can operate: the `AuthSource`, the verbs in the rail, composed in; `bare` for the source alone |
+| `scaffold_settings_store` | `name`                                                                                                                                 | a settings-store implementation backed by your API                                                                       |
+| `scaffold_theme`          | `name`, `preset`                                                                                                                       | a token-override stylesheet in `@layer lw-tenant-theme`                                                                  |
+| `scaffold_layout`         | `name`                                                                                                                                 | a `ShellLayout` with the regions a weaver expects                                                                        |
+| `validate_manifest`       | `id`, `name`, `capabilities`                                                                                                           | findings on a plugin manifest                                                                                            |
+| `validate_catalog`        | `catalog` — the parsed catalogue JSON array                                                                                            | findings on a plugin store catalogue, including fields the host never reads                                              |
+| `validate_i18n`           | `bundles` — the parsed language files keyed by language, e.g. `{ "en": { "notes.list": "Notes" }, "de": { "notes.list": "Notizen" } }` | findings on translation-bundle parity (keys missing in one language)                                                     |
+| `validate_commands`       | `files` — TypeScript sources keyed by path                                                                                             | per command, whether an agent is offered it and what it would have to guess at                                           |
 
 ## The weaver generator
 

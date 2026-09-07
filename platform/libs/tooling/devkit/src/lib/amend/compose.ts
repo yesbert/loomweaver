@@ -1,11 +1,13 @@
-import { ComposePluginAmendment } from './types';
+import { ComposePluginAmendment, ProviderLine } from './types';
 
 export interface ComposeResult {
   readonly source: string;
   readonly composed: boolean;
+  readonly kept: readonly string[];
 }
 
 const APP_CONFIG = /export\s+const\s+appConfig\s*:[^=]*=\s*\{/;
+const NAMESPACES = /provideTranslationNamespaces\(([^)]*)\)/;
 const PROVIDERS_OPEN = /providers\s*:\s*\[/g;
 const SHELL_IMPORT = /import\s*\{([^}]*)\}\s*from\s*'@loomweaver\/shell';/;
 
@@ -52,42 +54,108 @@ export function composePlugin(
   importPath: string,
 ): ComposeResult {
   if (source.includes(amendment.symbol)) {
-    return { source, composed: true };
+    return { source, composed: true, kept: [] };
   }
   const shellImport = SHELL_IMPORT.exec(source);
   if (!shellImport || !providersBlock(source)) {
-    return { source, composed: false };
+    return { source, composed: false, kept: [] };
   }
+  const wanted = providersToAdd(source, amendment);
+  const ownSymbols = [amendment.symbol, ...wanted.flatMap((provider) => provider.own ?? [])];
+  const foreign = wanted.flatMap((provider) => provider.from ?? []);
   const withImports = source.replace(
     SHELL_IMPORT,
     () =>
-      `import {${withShellSymbols(shellImport[1])}} from '@loomweaver/shell';\nimport { ${amendment.symbol} } from '${importPath}';`,
+      [
+        `import {${withShellSymbols(shellImport[1], wanted)}} from '@loomweaver/shell';`,
+        ...foreign.map(
+          (entry) => `import { ${[...entry.symbols].toSorted((a, b) => a.localeCompare(b)).join(', ')} } from '${entry.path}';`,
+        ),
+        `import { ${ownSymbols.toSorted((a, b) => a.localeCompare(b)).join(', ')} } from '${importPath}';`,
+      ].join('\n'),
   );
-  const block = providersBlock(withImports);
+  const joined = joinNamespaces(withImports, amendment.id);
+  const block = providersBlock(joined.source);
   if (!block) {
-    return { source, composed: false };
+    return { source, composed: false, kept: [] };
   }
   const indent = `${block.indent}  `;
   const lines = [
-    `${indent}provideTranslationNamespaces('${amendment.id}'),`,
+    ...wanted.map((provider) => `${indent}${provider.line}`),
+    ...(joined.joined ? [] : [`${indent}provideTranslationNamespaces('${amendment.id}'),`]),
     `${indent}provideCapabilityGrants({ ${amendment.id}: [${amendment.capabilities
       .map((capability) => `'${capability}'`)
       .join(', ')}] }),`,
     `${indent}...providePlugins(${amendment.symbol}),`,
   ].join('\n');
   return {
-    source: `${withImports.slice(0, block.insertAt)}\n${lines}${withImports.slice(block.insertAt)}`,
+    source: `${joined.source.slice(0, block.insertAt)}\n${lines}${joined.source.slice(block.insertAt)}`,
     composed: true,
+    kept: keptProviders(source, amendment).map((provider) => provider.line),
   };
+}
+
+function joinNamespaces(
+  source: string,
+  id: string,
+): { readonly source: string; readonly joined: boolean } {
+  const existing = NAMESPACES.exec(source);
+  if (!existing) {
+    return { source, joined: false };
+  }
+  const names = existing[1]
+    .split(',')
+    .map((name) => name.trim())
+    .filter(Boolean);
+  if (names.includes(`'${id}'`)) {
+    return { source, joined: true };
+  }
+  return {
+    source: source.replace(
+      NAMESPACES,
+      () => `provideTranslationNamespaces(${[...names, `'${id}'`].join(', ')})`,
+    ),
+    joined: true,
+  };
+}
+
+function providersToAdd(
+  source: string,
+  amendment: ComposePluginAmendment,
+): readonly ProviderLine[] {
+  return (amendment.providers ?? []).filter(
+    (provider) => !(provider.unless && source.includes(provider.unless)),
+  );
+}
+
+function keptProviders(
+  source: string,
+  amendment: ComposePluginAmendment,
+): readonly ProviderLine[] {
+  return (amendment.providers ?? []).filter(
+    (provider) => provider.unless !== undefined && source.includes(provider.unless),
+  );
 }
 
 export function composeLines(
   amendment: ComposePluginAmendment,
   importPath: string,
 ): readonly string[] {
+  const providers = amendment.providers ?? [];
+  const own = [amendment.symbol, ...providers.flatMap((provider) => provider.own ?? [])];
+  const shell = [
+    'providePlugins',
+    'provideCapabilityGrants',
+    'provideTranslationNamespaces',
+    ...providers.flatMap((provider) => provider.shell ?? []),
+  ];
   return [
-    `import { ${amendment.symbol} } from '${importPath}';`,
-    "import { providePlugins, provideCapabilityGrants, provideTranslationNamespaces } from '@loomweaver/shell';",
+    `import { ${own.join(', ')} } from '${importPath}';`,
+    `import { ${shell.join(', ')} } from '@loomweaver/shell';`,
+    ...providers
+      .flatMap((provider) => provider.from ?? [])
+      .map((entry) => `import { ${entry.symbols.join(', ')} } from '${entry.path}';`),
+    ...providers.map((provider) => provider.line),
     `provideTranslationNamespaces('${amendment.id}'),`,
     `provideCapabilityGrants({ ${amendment.id}: [${amendment.capabilities
       .map((capability) => `'${capability}'`)
@@ -96,11 +164,15 @@ export function composeLines(
   ];
 }
 
-function withShellSymbols(existing: string): string {
+function withShellSymbols(
+  existing: string,
+  providers: readonly ProviderLine[],
+): string {
   const wanted = [
     'provideCapabilityGrants',
     'providePlugins',
     'provideTranslationNamespaces',
+    ...providers.flatMap((provider) => provider.shell ?? []),
   ];
   const present = existing
     .split(',')
