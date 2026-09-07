@@ -3,7 +3,6 @@ import { ComposePluginAmendment, ProviderLine } from './types';
 export interface ComposeResult {
   readonly source: string;
   readonly composed: boolean;
-  /** Provider lines left as the consumer wrote them, because the file already carried them. */
   readonly kept: readonly string[];
 }
 
@@ -96,9 +95,6 @@ export function composePlugin(
   };
 }
 
-// provideTranslationNamespaces is one declaration, not an accumulating one: a second call replaces
-// the first, and the plugin composed in earlier loses its words. A namespace therefore joins the
-// call that is already there, and only a root without one gets a call of its own.
 function joinNamespaces(
   source: string,
   id: string,
