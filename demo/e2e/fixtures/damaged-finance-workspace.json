@@ -7,6 +7,7 @@
     "lw.shell.pane-trees:overview": "{\"right-panel\":{\"tree\":{\"kind\":\"leaf\",\"id\":\"main\",\"tabs\":[{\"path\":\"view:agent.chat\"}],\"active\":\"view:agent.chat\"},\"primary\":\"main\"}}",
     "lw.shell.pane-trees:finance": "{\"right-panel\":{\"tree\":{\"kind\":\"leaf\",\"id\":\"main\",\"tabs\":[{\"path\":\"view:agent.chat\"}],\"active\":\"view:agent.chat\"},\"primary\":\"main\"}}",
     "lw.shell.pane-trees:sales": "{\"content\":{\"tree\":{\"kind\":\"leaf\",\"id\":\"main\",\"tabs\":[{\"path\":\"sales/customers\",\"closable\":false},{\"path\":\"sales/quotes/q-0007\",\"title\":\"Q-0007\",\"literalTitle\":true,\"icon\":\"quotes\"},{\"path\":\"sales/quotes/q-0006\",\"title\":\"Q-0006\",\"literalTitle\":true,\"icon\":\"quotes\",\"preview\":true}],\"active\":\"sales/quotes/q-0007\"},\"primary\":\"main\"},\"right-panel\":{\"tree\":{\"kind\":\"leaf\",\"id\":\"main\",\"tabs\":[{\"path\":\"view:agent.chat\"}],\"active\":\"view:agent.chat\"},\"primary\":\"main\"}}",
-    "lw.shell.panel-sizes": "{\"left-panel\":348,\"right-panel\":477}"
+    "lw.shell.panel-sizes": "{\"left-panel\":348,\"right-panel\":477}",
+    "lw.plugin-state:about:welcomed": "true"
   }
 }

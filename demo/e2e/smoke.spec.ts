@@ -63,13 +63,17 @@ test('loads without console errors', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
-/* The version and the update affordance live in the status bar. The version is worth an assertion
-   of its own: a contribution aimed at a region id the layout does not declare renders nothing and
-   reports nothing, which is how the status bar stayed empty until the id was corrected. */
+/* The version lives in the status bar, on the demo's own About entry that replaces the shell's
+   version entry. It is worth an assertion of its own: a contribution aimed at a region id the
+   layout does not declare renders nothing and reports nothing, which is how the status bar stayed
+   empty until the id was corrected. */
 test('shows the platform version in the status bar', async ({ page }) => {
   await page.goto('/');
 
-  const version = page.locator('lw-version');
-  await expect(version).toBeVisible();
-  await expect(version).toHaveText(/^v\d+\.\d+\.\d+(-preview\.\d+)?$/);
+  const about = page.getByTestId('about-badge');
+  await expect(about).toBeVisible();
+  await expect(about.getByTestId('about-badge-version')).toHaveText(
+    /^v\d+\.\d+\.\d+(-preview\.\d+)?$/,
+  );
+  await expect(page.locator('lw-version')).toHaveCount(0);
 });

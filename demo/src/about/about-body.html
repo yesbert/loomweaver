@@ -1,0 +1,19 @@
+<div class="flex flex-col items-center gap-4 text-center" data-testid="about-body">
+  <img [src]="identity.logoUrl" [alt]="identity.name" class="h-14 w-14" width="56" height="56" />
+  <div class="flex max-w-prose flex-col gap-3 text-sm text-content">
+    <p>{{ 'product.about.sample' | transloco }}</p>
+    <p>{{ 'product.about.working' | transloco }}</p>
+    <p>{{ 'product.about.today' | transloco }}</p>
+  </div>
+  <a
+    [href]="documentationUrl"
+    target="_blank"
+    rel="noopener"
+    class="lw-btn lw-btn--default"
+    data-testid="about-docs"
+    >{{ 'product.about.docs' | transloco }}</a
+  >
+  <span class="text-xs text-content-muted tabular-nums" data-testid="about-version"
+    >v{{ version() }}</span
+  >
+</div>

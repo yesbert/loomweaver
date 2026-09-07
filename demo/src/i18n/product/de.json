@@ -32,6 +32,16 @@
     }
   },
   "preview": "Preview",
+  "about": {
+    "title": "Über",
+    "welcome": "Willkommen in der LoomWeaver-Demo",
+    "sample": "Das hier ist ein Beispielprodukt, das alle Funktionen von LoomWeaver an einem Ort zeigt. Gut, um zu sehen, was möglich ist, weniger gut, um zu erkennen, was Plattform ist und was Beispiel.",
+    "working": "Daran arbeiten wir: Bald zeigt jeder Teil der Demo auf die Dokumentation und den Code dahinter.",
+    "today": "Wer heute etwas bauen will, fängt am besten in der Dokumentation an. Dort gibt es schon viele Beispiele.",
+    "docs": "Dokumentation öffnen",
+    "gotIt": "Verstanden",
+    "commandDescription": "Zeigt, was diese Demo ist, ihre Version und wo die Dokumentation liegt."
+  },
   "module": {
     "overview": "Übersicht",
     "sales": "Vertrieb",
@@ -55,7 +65,6 @@
     "movements": "Warenbewegung",
     "employees": "Mitarbeiter",
     "payrollRuns": "Gehaltsläufe",
-    "employees": "Mitarbeiter",
     "payroll": "Gehalt und Abrechnung"
   },
   "view": {

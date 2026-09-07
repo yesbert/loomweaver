@@ -1,0 +1,11 @@
+<button
+  type="button"
+  (click)="open()"
+  class="relative flex items-center gap-1 rounded px-1.5 py-0.5 text-xs text-content-muted tabular-nums transition-colors hover:bg-surface-overlay hover:text-content"
+  [attr.aria-label]="'product.about.title' | transloco"
+  data-testid="about-badge"
+>
+  <lw-icon name="info" size="0.875rem" />
+  <span data-testid="about-badge-version">v{{ version() }}</span>
+  <lw-tooltip [text]="'product.about.title' | transloco" position="top" />
+</button>
