@@ -57,6 +57,38 @@
 
 /* Hero */
 
+/* The header's main entries, for the screens the header hides them on. A documentation page has
+   a menu button there; the landing page has no sidebar and so no button, and this is what the
+   visitor gets instead. Hidden here rather than with Starlight's lg:sl-hidden utility, which
+   lives in a cascade layer and loses to any rule outside one. */
+.lw-landing .quick-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.lw-landing .quick-nav a {
+  padding: 0.35rem 0.8rem;
+  border: 1px solid var(--sl-color-gray-4);
+  border-radius: 999px;
+  color: var(--sl-color-white);
+  font-size: var(--sl-text-sm);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.lw-landing .quick-nav a:hover {
+  border-color: var(--sl-color-accent);
+}
+
+@media (min-width: 72rem) {
+  .lw-landing .quick-nav {
+    display: none;
+  }
+}
+
 .lw-landing .hero {
   position: relative;
   isolation: isolate;

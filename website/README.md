@@ -32,6 +32,11 @@ npm run build    # static site into dist/
   into `lastmod` on each sitemap entry; `generated/site-meta.json` carries the version, read from
   `Directory.Build.props` rather than typed a second time
 
+The header's main entries live in `nav.mjs`: `src/components/Header.astro` renders them beside the
+site title from Starlight's `lg` breakpoint up, and the landing page renders the same list in its
+hero below it, because it has no sidebar and so no menu button. Every link there must also be in
+the sidebar.
+
 The navigation tree lives in `sidebar.mjs`, beside the config rather than inside it, because two
 things read it: `astro.config.mjs` renders it, and `src/components/Head.astro` turns the group a page
 sits in into a `BreadcrumbList`. A breadcrumb derived anywhere else would eventually disagree with
