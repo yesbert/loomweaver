@@ -189,6 +189,12 @@ offer a way to the place where it can be undone. The workbench's own route to it
 remain reachable no matter what has been revoked, so a user can never revoke themselves out of the
 ability to restore.
 
+Where a refusal happens because the capability was never granted, whether the distribution did not
+grant it or the plugin did not declare it, the workbench SHALL tell the user that the action is not
+available in this installation and SHALL NOT offer the way to the settings, because there is nothing
+there the user could change. In development the workbench SHALL tell the developer which plugin was
+refused which capability, so that a forgotten grant is visible rather than swallowed.
+
 This SHALL NOT depend on where the refusal arose. An action a plugin takes from inside its own
 surface counts as much as one the workbench invoked on the plugin's behalf, and a refusal that
 nothing catches SHALL reach the user in either case.
@@ -201,8 +207,19 @@ the workbench SHALL NOT claim the quieter behaviour for it.
 
 #### Scenario: A blocked action explains itself
 
-- **WHEN** an action fails because the plugin behind it lacks a capability
+- **WHEN** an action fails because the user revoked a capability the plugin behind it was granted
 - **THEN** the user is told, and offered a way to the permission settings
+
+#### Scenario: An action refused for a capability never granted does not point to the settings
+
+- **WHEN** an action fails because the plugin behind it was never granted the capability
+- **THEN** the user is told the action is not available in this installation
+- **AND** no way to the permission settings is offered
+
+#### Scenario: The developer learns which grant is missing
+
+- **WHEN** a plugin is refused a capability it was never granted, in development
+- **THEN** the developer is told which plugin was refused which capability
 
 #### Scenario: A refusal inside a plugin's own surface is not swallowed
 
