@@ -74,6 +74,31 @@ export interface ComposePluginAmendment {
   readonly capabilities: readonly string[];
   /** Workspace-relative, because only the applying route knows where the composition root sits. */
   readonly sourceRoot: string;
+  /** Provider lines the plugin needs beside its own registration, ensured in the same array. */
+  readonly providers?: readonly ProviderLine[];
+}
+
+/**
+ * One provider line composed beside a plugin, with the imports it needs. A line whose `unless`
+ * marker is already in the file is kept as the consumer wrote it and reported, never doubled: in
+ * Angular the last provider wins, so a second `provideAuthSource` would silently replace a real one.
+ */
+export interface ProviderLine {
+  /** The line as it goes into the providers array, trailing comma included. */
+  readonly line: string;
+  /** Symbols the line needs from the shell. */
+  readonly shell?: readonly string[];
+  /** Symbols the line needs from the plugin's own entry point. */
+  readonly own?: readonly string[];
+  /** Symbols the line needs from other packages. */
+  readonly from?: readonly ImportedSymbols[];
+  /** Text whose presence means the file already carries what this line provides. */
+  readonly unless?: string;
+}
+
+export interface ImportedSymbols {
+  readonly path: string;
+  readonly symbols: readonly string[];
 }
 
 /**

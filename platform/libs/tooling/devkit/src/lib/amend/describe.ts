@@ -16,7 +16,8 @@ export function describeAmendment(amendment: Amendment): string {
     return `Add an @source entry for '${amendment.sourceRoot}' to the application's entry stylesheet, resolved from that stylesheet. Without it none of that code's utilities are emitted.`;
   }
   if (amendment.kind === 'compose-plugin') {
-    return `Register ${amendment.id} in the composition root: import { ${amendment.symbol} }, provideTranslationNamespaces('${amendment.id}'), provideCapabilityGrants({ ${amendment.id}: [${amendment.capabilities
+    const providers = (amendment.providers ?? []).map((provider) => provider.line.replace(/,$/, ''));
+    return `Register ${amendment.id} in the composition root: import { ${amendment.symbol} }, ${providers.map((line) => `${line}, `).join('')}provideTranslationNamespaces('${amendment.id}'), provideCapabilityGrants({ ${amendment.id}: [${amendment.capabilities
       .map((capability) => `'${capability}'`)
       .join(
         ', ',

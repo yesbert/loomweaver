@@ -29,6 +29,27 @@ export const appConfig: ApplicationConfig = {
 };
 `;
 
+const SESSION: ComposePluginAmendment = {
+  kind: 'compose-plugin',
+  id: 'session',
+  symbol: 'devSessionPlugin',
+  capabilities: ['contributions'],
+  sourceRoot: 'src/auth',
+  providers: [
+    {
+      line: 'provideAuthSource(() => devAuthSource()),',
+      shell: ['provideAuthSource'],
+      own: ['devAuthSource'],
+      unless: 'provideAuthSource(',
+    },
+    {
+      line: 'provideIcons({ account: heroUserCircle }),',
+      shell: ['provideIcons'],
+      from: [{ path: '@ng-icons/heroicons/outline', symbols: ['heroUserCircle'] }],
+    },
+  ],
+};
+
 describe('composePlugin', () => {
   it('registers the plugin in a composition root of the generated shape', () => {
     const { source, composed } = composePlugin(GENERATED, NOTES, '../notes/src');
@@ -92,11 +113,53 @@ describe('composePlugin', () => {
     expect(source).toBe(inline);
   });
 
+  it('joins the translation namespaces already declared rather than replacing them', () => {
+    const first = composePlugin(GENERATED, NOTES, '../notes/src').source;
+    const second = composePlugin(first, SESSION, '../auth').source;
+    expect(second).toContain("provideTranslationNamespaces('notes', 'session'),");
+    expect(second).not.toContain("provideTranslationNamespaces('session'),");
+    expect(second.match(/provideTranslationNamespaces\(/g)).toHaveLength(1);
+  });
+
   it('adds nothing a second time', () => {
     const once = composePlugin(GENERATED, NOTES, '../notes/src');
     const twice = composePlugin(once.source, NOTES, '../notes/src');
     expect(twice.source).toBe(once.source);
     expect(twice.composed).toBe(true);
+  });
+});
+
+
+describe('composePlugin with provider lines', () => {
+  it('ensures the lines, their shell symbols and their imports beside the plugin', () => {
+    const { source, composed, kept } = composePlugin(GENERATED, SESSION, '../auth');
+    expect(composed).toBe(true);
+    expect(kept).toEqual([]);
+    expect(source).toContain("import { devAuthSource, devSessionPlugin } from '../auth';");
+    expect(source).toContain("import { heroUserCircle } from '@ng-icons/heroicons/outline';");
+    expect(source).toMatch(/import \{[^}]*provideAuthSource[^}]*provideIcons[^}]*\} from '@loomweaver\/shell'/);
+    expect(source).toContain('    provideAuthSource(() => devAuthSource()),\n    provideIcons({ account: heroUserCircle }),\n    provideTranslationNamespaces');
+  });
+
+  it('keeps a provideAuthSource the consumer already has, and says so', () => {
+    const withOwn = GENERATED.replace(
+      'provideLayout(layout),',
+      'provideLayout(layout),\n    provideAuthSource(() => mySession()),',
+    );
+    const { source, composed, kept } = composePlugin(withOwn, SESSION, '../auth');
+    expect(composed).toBe(true);
+    expect(kept).toEqual(['provideAuthSource(() => devAuthSource()),']);
+    expect(source).toContain('provideAuthSource(() => mySession()),');
+    expect(source).not.toContain('provideAuthSource(() => devAuthSource())');
+    expect(source).toContain("import { devSessionPlugin } from '../auth';");
+    expect(source).toContain('provideIcons({ account: heroUserCircle }),');
+  });
+
+  it('names the provider lines and their imports where it cannot compose', () => {
+    const lines = composeLines(SESSION, '../auth').join('\n');
+    expect(lines).toContain("import { devSessionPlugin, devAuthSource } from '../auth';");
+    expect(lines).toContain('provideAuthSource');
+    expect(lines).toContain("import { heroUserCircle } from '@ng-icons/heroicons/outline';");
   });
 });
 

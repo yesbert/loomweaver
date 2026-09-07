@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/schema",
   "$id": "LoomWeaverAuthSource",
-  "title": "Scaffold a provider-neutral AuthSource that feeds the session",
+  "title": "Scaffold a stand-in session a user can operate: the AuthSource, the sign-in, switch and sign-out verbs in the rail, composed in",
   "type": "object",
   "properties": {
     "name": {
@@ -9,9 +9,18 @@
       "description": "Source name in kebab-case, e.g. 'dev'.",
       "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
     },
+    "bare": {
+      "type": "boolean",
+      "description": "Write the AuthSource alone, without the verbs, for a product that maps a session of its own onto it.",
+      "default": false
+    },
     "app": {
       "type": "string",
       "description": "Application to drop into. Inferred when the workspace has exactly one."
+    },
+    "directory": {
+      "type": "string",
+      "description": "Where the files land, relative to the workspace root."
     }
   },
   "required": ["name"]

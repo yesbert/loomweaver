@@ -1,7 +1,8 @@
 import { angularDistribution } from '../../recipes/angular-distribution/recipe';
 import { weaverAmendments } from '../../recipes/angular-weaver/amendments';
+import { authSourceAmendments } from '../../recipes/auth-source/recipe-amendments';
 import { angularWeaver } from '../../recipes/angular-weaver/recipe';
-import { authSource } from '../../recipes/auth-source/recipe';
+import { authSource, type AuthSourceInput } from '../../recipes/auth-source/recipe';
 import { layout } from '../../recipes/layout/recipe';
 import { framePlugin } from '../../recipes/frame-plugin/recipe';
 import { settingsStore } from '../../recipes/settings-store/recipe';
@@ -98,6 +99,10 @@ const APP_OPTION: ScaffoldOption = {
     'Application to drop into. Inferred when the workspace has exactly one.',
   workspaceOnly: true,
 };
+
+function authSourceInput(values: ScaffoldValues): AuthSourceInput {
+  return { name: str(values, 'name') ?? '', bare: bool(values, 'bare') };
+}
 
 export const SCAFFOLDS: readonly ScaffoldDescriptor[] = [
   {
@@ -273,7 +278,8 @@ export const SCAFFOLDS: readonly ScaffoldDescriptor[] = [
   },
   {
     name: 'auth-source',
-    summary: 'a provider-neutral AuthSource that feeds the session',
+    summary:
+      'a stand-in session a user can operate: the AuthSource, the sign-in, switch and sign-out verbs in the rail, composed in',
     options: [
       {
         name: 'name',
@@ -282,10 +288,24 @@ export const SCAFFOLDS: readonly ScaffoldDescriptor[] = [
         required: true,
         pattern: ID_PATTERN,
       },
+      {
+        name: 'bare',
+        type: 'boolean',
+        description:
+          'Write the AuthSource alone, without the verbs, for a product that maps a session of its own onto it.',
+        default: false,
+      },
       APP_OPTION,
+      {
+        name: 'directory',
+        type: 'string',
+        description: 'Where the files land, relative to the workspace root.',
+        workspaceOnly: true,
+      },
     ],
-    build: (values) =>
-      generate(authSource, { name: str(values, 'name') ?? '' }),
+    build: (values) => generate(authSource, authSourceInput(values)),
+    amend: (values) =>
+      authSourceAmendments(authSourceInput(values), str(values, 'directory')),
   },
   {
     name: 'settings-store',

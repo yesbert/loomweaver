@@ -14,7 +14,7 @@
 
 import { execFileSync } from 'node:child_process';
 import { createServer } from 'node:http';
-import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { extname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -48,17 +48,20 @@ function run(command, args, cwd, { setup = false } = {}) {
   }
 }
 
+// The frame kit is packed from its own folder, because it is a script bundle rather than an Angular
+// package: `nx bundle frame-kit` writes its dist inside the package root, and the manifest points there.
 function packPlatform(into) {
   const packages = [];
-  for (const [area, name] of [
-    ['core', 'shell'],
-    ['core', 'plugin-sdk'],
-    ['integrations', 'ag-ui'],
+  for (const [relative, marker] of [
+    ['dist/libs/core/shell', 'package.json'],
+    ['dist/libs/core/plugin-sdk', 'package.json'],
+    ['dist/libs/integrations/ag-ui', 'package.json'],
+    ['libs/core/frame-kit', 'dist/lw-frame.css'],
   ]) {
-    const distribution = join(platformRoot, 'dist/libs', area, name);
-    if (!existsSync(distribution)) {
+    const distribution = join(platformRoot, relative);
+    if (!existsSync(join(distribution, marker))) {
       throw new SetupError(
-        `${distribution} does not exist — run "nx run-many -t package" and "nx run shell:styles" first.`,
+        `${join(distribution, marker)} does not exist — run "nx run-many -t package", "nx run shell:styles" and "nx bundle frame-kit" first.`,
       );
     }
     const output = run('npm', ['pack', distribution], into, { setup: true });
@@ -88,12 +91,90 @@ function quickStart(dir) {
   // and the install below is what turns that record into something the build can resolve. If the
   // route ever stops recording it, the build fails here rather than in a consumer's project.
   run('node', [cli, 'weaver', '--id', 'copilot', '--agent', '--out', 'src/copilot'], app);
+  // Two recipes from the samples page ride along: the navigation tree as the files the page shows,
+  // dropped into the notes weaver, and the stand-in session as what its generator writes. The page
+  // is the fixture, so a recipe that stops building against the platform fails here, not at a reader.
+  dropNavigationRecipe(app);
+  run('node', [cli, 'auth-source', '--name', 'dev', '--out', 'src/auth'], app);
+  raiseBudgets(app);
   run('npm', ['install'], app, { setup: true });
   run('npx', ['ng', 'build'], app);
   // The generated project's own tests, starter test included: the distribution scaffold replaces
   // the one `ng new` wrote, and two weavers composed in must both activate for the shell to boot.
   run('npx', ['ng', 'test', '--watch=false'], app);
   return { browser: join(app, 'dist/my-studio/browser'), app };
+}
+
+const SAMPLES = join(platformRoot, '../docs/samples.md');
+const NAVIGATION_RECIPE = [
+  'src/notes/src/lib/views/notes-navigation.ts',
+  'src/notes/src/lib/plugin/navigation.ts',
+  'src/notes/src/lib/views/notes-navigation-view.ts',
+  'src/notes/src/lib/views/notes-navigation-view.html',
+];
+
+// A fenced block on the samples page opens with the path it belongs at, as a comment in the block's
+// own language; that line is how a recipe's files are found and where they land.
+function recipeFile(page, path) {
+  const opener = path.endsWith('.html') ? `<!-- ${path} -->` : `// ${path}`;
+  const start = page.indexOf(opener);
+  if (start === -1) {
+    throw new SetupError(`${path} is not a fenced block on the samples page`);
+  }
+  const body = page.slice(page.indexOf('\n', start) + 1);
+  return body.slice(0, body.indexOf('\n```'));
+}
+
+// Getting started tells a reader that the first production build warns about the initial budget and
+// where to raise it. With two weavers and two recipes composed in, the default budget is a hard
+// error rather than a warning, so the check does what the page says rather than failing on the size
+// of what it chose to include.
+function raiseBudgets(app) {
+  const file = join(app, 'angular.json');
+  const workspace = JSON.parse(readFileSync(file, 'utf8'));
+  for (const project of Object.values(workspace.projects ?? {})) {
+    const production = project.architect?.build?.configurations?.production;
+    for (const budget of production?.budgets ?? []) {
+      if (budget.type === 'initial') {
+        budget.maximumWarning = '2MB';
+        budget.maximumError = '3MB';
+      }
+    }
+  }
+  writeFileSync(file, `${JSON.stringify(workspace, null, 2)}\n`);
+}
+
+function dropNavigationRecipe(app) {
+  const page = readFileSync(SAMPLES, 'utf8');
+  for (const path of NAVIGATION_RECIPE) {
+    writeFileSync(join(app, path), `${recipeFile(page, path)}\n`);
+  }
+  const plugin = join(app, 'src/notes/src/lib/plugin/notes.plugin.ts');
+  const source = readFileSync(plugin, 'utf8');
+  const routes = [
+    ['notes.drafts', 'notes/drafts'],
+    ['notes.draft', 'notes/drafts/:id'],
+    ['notes.archive', 'notes/archive'],
+    ['notes.search', 'notes/search'],
+  ]
+    .map(
+      ([id, path]) =>
+        `    ctx.registerSurface({ id: '${id}', title: 'notes.title', icon: 'notes', component: NotesView, routable: { path: '${path}' } });`,
+    )
+    .join('\n');
+  const patched = source
+    .replace(
+      "import { NotesView } from '../views/notes-view';",
+      "import { NotesView } from '../views/notes-view';\nimport { NotesNavigationView } from '../views/notes-navigation-view';\nimport { navigation } from './navigation';",
+    )
+    .replace(
+      /activate\(ctx\) \{\n/,
+      `activate(ctx) {\n    navigation.bind(ctx);\n${routes}\n    ctx.registerSurface({ id: 'notes.navigation', title: 'notes.title', icon: 'notes', component: NotesNavigationView, docks: ['left-panel'], padded: false });\n`,
+    );
+  if (patched === source) {
+    throw new SetupError('the generated notes plugin no longer has the shape the recipe is dropped into');
+  }
+  writeFileSync(plugin, patched);
 }
 
 function checkServedOutput(browser) {
@@ -127,6 +208,14 @@ function checkServedOutput(browser) {
     "the weaver's translations were not served",
   );
   assert(
+    existsSync(join(browser, 'i18n/session/en.json')),
+    "the stand-in session's translations were not served, so its rail item reads as a raw key",
+  );
+  assert(
+    existsSync(join(browser, 'frame-kit/lw-frame.css')),
+    'the frame kit was not served, so the asset glob the scaffold wires points at nothing',
+  );
+  assert(
     existsSync(join(browser, 'ngsw-worker.js')),
     'no service worker was emitted, so the registration provideShell() makes would 404',
   );
@@ -152,6 +241,14 @@ function checkComposition(browser) {
   assert(
     bundle.includes('stand-in'),
     'the generated stand-in never reached the bundle, so the first serve has no events to run the path with',
+  );
+  assert(
+    bundle.includes('lw-nav-tree'),
+    'the navigation tree recipe never reached the bundle, so the samples page shows files that do not build',
+  );
+  assert(
+    bundle.includes('session.account'),
+    'the generated stand-in session never reached the bundle, so auth-source wrote verbs nobody composed in',
   );
 }
 
@@ -246,9 +343,12 @@ async function checkInTheBrowser(built) {
   const page = await context.newPage();
   try {
     await drivePanel(page, site.origin);
+    await driveRecipes(page, site.origin);
   } catch (error) {
     failures.push(
-      `${error.step ?? 'the generated agent connection'} — ${error.message.split('\n', 1)[0]}`,
+      `${error.step ?? 'the generated agent connection'} — ${
+        process.env.LOOM_QUICK_START_DEBUG ? error.message : error.message.split('\n', 1)[0]
+      }`,
     );
   } finally {
     await runner.close();
@@ -324,6 +424,47 @@ async function drivePanel(page, origin) {
   );
 }
 
+// The two recipes the check carries: the tree navigates and marks, a fold survives the panel being
+// collapsed, and the stand-in session signs in and out from the rail with a gated entry following.
+async function driveRecipes(page, origin) {
+  const { expect } = await import('@playwright/test');
+  const item = (path) => page.locator(`lw-nav-item[path="${path}"]`);
+  const heading = (key) => page.locator(`lw-nav-group[key="${key}"] .lw-nav-group-heading`);
+
+  await step('the navigation tree recipe is in the bundle but never appears in the sidebar', async () => {
+    await page.goto(`${origin}/notes`, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('lw-nav-tree')).toBeVisible({ timeout: 30_000 });
+  });
+  await step('the first weaver lost its translations to the ones composed in after it, so its rail item reads as a raw key', async () => {
+    await expect(page.getByRole('button', { name: 'Notes' }).first()).toBeVisible();
+  });
+  await step('choosing a destination in the tree did not navigate, or the marking did not follow', async () => {
+    await item('notes/drafts').click();
+    await expect(page).toHaveURL(/\/notes\/drafts$/);
+    await expect(item('notes/drafts')).toHaveAttribute('aria-current', 'page');
+  });
+  await step('a fold did not survive the panel being collapsed and shown again', async () => {
+    await heading('notes/writing').click();
+    await expect(heading('notes/writing')).toHaveAttribute('aria-expanded', 'false');
+    await page.getByRole('button', { name: 'Collapse panel' }).first().click();
+    await page.getByRole('button', { name: 'Expand panel' }).first().click();
+    await expect(heading('notes/writing')).toHaveAttribute('aria-expanded', 'false');
+  });
+  await step('the stand-in session offers no sign-in in the rail, so auth-source wrote verbs that do not appear', async () => {
+    await page.getByRole('button', { name: 'Sign in' }).first().click();
+    await page.getByRole('menuitem', { name: 'Sign in' }).click();
+    await expect(page.getByRole('button', { name: 'Signed-in user' })).toBeVisible();
+  });
+  await step('a contribution gated on being signed in did not appear after signing in, or stayed after signing out', async () => {
+    await page.getByRole('button', { name: 'Signed-in user' }).click();
+    await expect(page.getByRole('menuitem', { name: 'Sign out' })).toBeVisible();
+    await page.getByRole('menuitem', { name: 'Sign out' }).click();
+    await page.getByRole('button', { name: 'Sign in' }).first().click();
+    await expect(page.getByRole('menuitem', { name: 'Sign in' })).toBeVisible();
+    await expect(page.getByRole('menuitem', { name: 'Sign out' })).toHaveCount(0);
+  });
+}
+
 let dir;
 try {
   dir = mkdtempSync(join(tmpdir(), 'loom-quick-start-'));
@@ -340,8 +481,12 @@ try {
   console.error(`check-quick-start FAILED:\n${error.message}`);
   process.exit(1);
 } finally {
-  if (dir) {
+  // LOOM_QUICK_START_DEBUG keeps the generated product on disk and prints the whole failure, for
+  // the day a step fails and the first line of its message is not enough.
+  if (dir && !process.env.LOOM_QUICK_START_DEBUG) {
     rmSync(dir, { recursive: true, force: true });
+  } else if (dir) {
+    console.error(`check-quick-start: the generated product is kept at ${dir}`);
   }
 }
 
@@ -352,5 +497,5 @@ if (failures.length > 0) {
 }
 
 console.log(
-  'check-quick-start: the published quick start serves a styled, translated workbench, and the generated agent panel runs a command in it',
+  'check-quick-start: the published quick start serves a styled, translated workbench, the generated agent panel runs a command in it, and recipes 11 and 12 from the samples page build and run beside it',
 );

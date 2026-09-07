@@ -14,21 +14,23 @@ Integrating a real product is two providers plus your own login UI.
 
 ## Before you have an identity provider: a stand-in session
 
-The generator writes one. Run `npx @loomweaver/cli auth-source --name dev --out src/auth`, or
-`nx g @loomweaver/devkit:auth-source --name dev`, and `dev-auth-source.ts` lands with three
-snapshots, anonymous, a user and an administrator, a signal holding the current one, and one
-function that steps around that ring. Wire it with `provideAuthSource(() => devAuthSource())` and
-the shell gates on it like on any other session.
+The generator writes one, whole. Run `npx @loomweaver/cli auth-source --name dev --out src/auth`,
+or `nx g @loomweaver/devkit:auth-source --name dev`. Four things land in `src/auth`. The session
+source holds three snapshots, anonymous, a user and an administrator, and one function that steps
+around that ring. The plugin turns the step into the three verbs a user knows, sign in, switch and
+sign out, in a rail item whose menu carries them. An `index.ts` exports both, and two language
+bundles carry the words. The scaffold composes it all into your `app.config.ts`: the
+`provideAuthSource` line, the two icons, the grant and the plugin. Where your composition root no
+longer presents the shape it generated, it names the lines instead. It never adds a second
+`provideAuthSource`: where yours is already there, it stays, and the scaffold says so. `--bare` writes the session source alone, for a product with a session
+of its own to map onto it. [Recipe 12](../samples.md#a-session-without-a-backend) shows every file.
 
-What the generator does not write is a way for the user to step: a rail item that shows who is
-signed in, with sign-in, switch and sign-out in its menu.
-[Recipe 12](../samples.md#a-session-without-a-backend) is that plugin, whole. The demo runs the
-same shape, an account switch in the rail, and its margin pane answers the accounting role and
-refuses the sales one.
+The demo runs the same shape, an account switch in the rail, and its margin pane answers the
+accounting role and refuses the sales one.
 
 Say what it is: presentation for a product that has no backend yet. The snapshot lives in the
 browser, and a gated surface is hidden, not withheld. The three sections below are the real
-integration, and the generated file is what they replace.
+integration, and the generated source is what they replace.
 
 ## 1 · Feed the session — `provideAuthSource`
 

@@ -8,6 +8,8 @@ export type {
   PackageAmendment,
   PostcssAmendment,
   StylesheetSourceAmendment,
+  ImportedSymbols,
+  ProviderLine,
 } from './lib/amend/types';
 export {
   ensureBuildTarget,

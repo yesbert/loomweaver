@@ -24,19 +24,19 @@ distribution grant them, or the call throws `CapabilityError`.
 
 ## What the generator already writes
 
-Five of these twelve recipes are what the generator writes, and two more, recipes 10 and 12, are
-half written for you. That is worth knowing before you copy anything: a generated weaver compiles, passes its own lint, and comes out the same every time, so
+Six of these twelve recipes are what the generator writes, and one more, recipe 10, is half
+written for you. That is worth knowing before you copy anything: a generated weaver compiles, passes its own lint, and comes out the same every time, so
 your attention goes to the part that is actually yours.
 
-| Recipe                                                                                           | The invocation that writes it                                                                                                                   |
-| ------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| [1 · A sidebar view](#a-sidebar-view-that-remembers-its-state)                                   | `weaver --id notes --instanceable` — the docked surface and its rail item; the persisted state is yours                                         |
-| [2 · A content surface with its own URL](#a-content-surface-with-its-own-url)                    | `weaver --id notes` — the default shape, at `/notes`; the `:id` is what you add                                                                 |
-| [3 · One behaviour, many triggers](#one-behaviour-many-triggers)                                 | `weaver --id notes --command --shortcut 'mod+shift+n' --menu content/tab/context --bar-item`                                                    |
-| [4 · A settings section](#a-settings-section)                                                    | `weaver --id notes --settings`                                                                                                                  |
-| [5 · Gating a surface behind a login](#gating-a-surface-behind-a-login)                          | `weaver --id notes --access authenticated`                                                                                                      |
-| [10 · Letting an AG-UI agent drive your product](#10--letting-an-ag-ui-agent-drive-your-product) | `weaver --id notes --agent` — the connection, a panel and a stand-in that works before you have a transport; what you replace is one file       |
-| [12 · A session without a backend](#a-session-without-a-backend)                                 | `auth-source --name dev` — the three states and the step around them; the plugin that turns the step into sign-in, switch and sign-out is yours |
+| Recipe                                                                                           | The invocation that writes it                                                                                                                                   |
+| ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [1 · A sidebar view](#a-sidebar-view-that-remembers-its-state)                                   | `weaver --id notes --instanceable` — the docked surface and its rail item; the persisted state is yours                                                         |
+| [2 · A content surface with its own URL](#a-content-surface-with-its-own-url)                    | `weaver --id notes` — the default shape, at `/notes`; the `:id` is what you add                                                                                 |
+| [3 · One behaviour, many triggers](#one-behaviour-many-triggers)                                 | `weaver --id notes --command --shortcut 'mod+shift+n' --menu content/tab/context --bar-item`                                                                    |
+| [4 · A settings section](#a-settings-section)                                                    | `weaver --id notes --settings`                                                                                                                                  |
+| [5 · Gating a surface behind a login](#gating-a-surface-behind-a-login)                          | `weaver --id notes --access authenticated`                                                                                                                      |
+| [10 · Letting an AG-UI agent drive your product](#10--letting-an-ag-ui-agent-drive-your-product) | `weaver --id notes --agent` — the connection, a panel and a stand-in that works before you have a transport; what you replace is one file                       |
+| [12 · A session without a backend](#a-session-without-a-backend)                                 | `auth-source --name dev` — the session source, the plugin with sign-in, switch and sign-out, the bundles, composed into your app; `--bare` for the source alone |
 
 The options compose, so that is one call:
 
@@ -47,11 +47,10 @@ npx @loomweaver/cli weaver --id notes --out src/notes \
 ```
 
 Recipes 6 to 9 and 11 have no generator behind them, and that is the honest split: they are the
-ones where you decide something. A generator for recipe 11 is intended, once the recipe has been
-read and copied enough to know its shape. Recipes 10 and 12 are the half-way cases. For recipe 10,
-`--agent` writes the wiring and something that runs on the first serve, and the transport it talks
-to stays yours. For recipe 12, `auth-source` writes the session's states, and the plugin that puts
-them in the rail is yours.
+ones where you decide something. Recipe 11 stays a recipe on purpose: a navigation tree is four
+files whose content, the groups, destinations and labels, is yours, and a generator would only
+write placeholders you replace. Recipe 10 is the half-way case: `--agent` writes the wiring and
+something that runs on the first serve, and the transport it talks to stays yours.
 
 **It does not matter who invokes it.** One description of each generator serves every route into it,
 so `@loomweaver/cli` on a command line, `@loomweaver/devkit` as an Nx generator and `@loomweaver/mcp`
@@ -976,11 +975,20 @@ gating work: a rail item that says who is signed in, a menu to sign in, switch t
 out, and every gated surface following. This is a stand-in, presentation for a product without a
 backend yet; the real integration is in [Auth integration](distribution/auth.md).
 
-The first file is not yours to write. `npx @loomweaver/cli auth-source --name dev --out src/auth`
-emits it, as does `nx g @loomweaver/devkit:auth-source --name dev`, and this is what it writes:
+**Generated by** `auth-source --name dev`, whole: the session source, the plugin with the three
+verbs, an `index.ts` and both language bundles, composed into your `app.config.ts`. The flag
+`--bare` writes the session source alone, for a product that has a session of its own to map onto
+it. The files are shown here so that you can read what landed, or copy them into a project the
+scaffold cannot reach.
+
+**Capabilities:** `contributions`. The plugin does not read the session through `ctx`; it holds the
+source itself.
 
 ```ts
-// src/auth/dev-auth-source.ts — written by the generator, unchanged
+// src/auth/dev-auth-source.ts
+// Provider-neutral AuthSource. LoomWeaver owns no authentication — it only reacts to
+// a session snapshot. Wire it with: provideAuthSource(() => devAuthSource()).
+// Replace the dev switcher below by mapping your product's real session onto an AuthSnapshot.
 import { signal, Signal } from '@angular/core';
 import { ANONYMOUS, AuthSnapshot } from '@loomweaver/plugin-sdk';
 
@@ -1015,16 +1023,16 @@ export function cycleDevUser(): void {
 }
 ```
 
-A ring of three states and one step around it. The plugin below is the part that is yours: it
-turns the one step into the three verbs a user knows, and puts them where a user looks.
-
-**Capabilities:** `contributions`. This plugin does not read the session through `ctx`; it holds
-the source itself.
+A ring of three states and one step around it. The plugin turns the one step into the three verbs a
+user knows, and puts them where a user looks:
 
 ```ts
-// src/session/session.plugin.ts — a plugin of the product's own, beside the weavers it composes
+// src/auth/dev-session.plugin.ts
+// The verbs a user needs to operate the stand-in session: sign in, switch the account, sign
+// out, from a rail item whose menu carries them. This is presentation for a product that has no
+// backend yet; nothing here protects anything. Delete it once your own session arrives.
 import type { Disposable, Plugin, PluginContext } from '@loomweaver/plugin-sdk';
-import { cycleDevUser, devAuthSource } from '../auth/dev-auth-source';
+import { cycleDevUser, devAuthSource } from './dev-auth-source';
 
 const MENU = 'session.account/menu';
 const snapshot = devAuthSource();
@@ -1113,7 +1121,7 @@ function draw(ctx: PluginContext): void {
   ];
 }
 
-export const sessionPlugin: Plugin = {
+export const devSessionPlugin: Plugin = {
   manifest: { id: 'session', name: 'Account', capabilities: ['contributions'] },
   activate(ctx) {
     const then = (step: () => void) => () => {
@@ -1152,29 +1160,37 @@ export const sessionPlugin: Plugin = {
 };
 ```
 
+Beside them, `src/auth/index.ts` exports the three symbols, and `src/auth/i18n/en.json` and
+`de.json` carry the `session.*` keys, served under `/i18n/session/` by the assets glob the scaffold
+adds. What the scaffold composes into `app.config.ts`, and what you add by hand where it could not:
+
 ```ts
 // src/app/app.config.ts — in the providers array
 import { heroArrowRightStartOnRectangle, heroUserCircle } from '@ng-icons/heroicons/outline';
-import { provideAuthSource, provideCapabilityGrants, provideIcons, providePlugins } from '@loomweaver/shell';
-import { devAuthSource } from '../auth/dev-auth-source';
-import { sessionPlugin } from '../session/session.plugin';
+import { provideAuthSource, provideCapabilityGrants, provideIcons, providePlugins, provideTranslationNamespaces } from '@loomweaver/shell';
+import { devAuthSource, devSessionPlugin } from '../auth';
 
 provideAuthSource(() => devAuthSource()),
 provideIcons({ account: heroUserCircle, signOut: heroArrowRightStartOnRectangle }),
+provideTranslationNamespaces('session'),
 provideCapabilityGrants({ session: ['contributions'] }),
-...providePlugins(sessionPlugin),
+...providePlugins(devSessionPlugin),
 ```
 
-**You get:** a rail item at the bottom of the rail that reads "Sign in" for a visitor and
-carries the user's initials once signed in. Its menu offers sign-in to a visitor, and switching and
-signing out to a user; the three are commands, so the palette offers them too, each only when it
-applies. Signing in flips the snapshot, and every surface, rail item and command gated with
-`access` follows without a reload. Switch to the administrator and whatever asks for the `admin`
-role appears; sign out and it goes. The keys `session.*` go in your product's own bundle.
+The scaffold never adds a second `provideAuthSource`: where your composition root already carries
+one, it keeps yours and says so, because in Angular the last provider wins and a stand-in composed
+after a real session would silently replace it.
+
+**You get:** a rail item at the bottom of the rail that reads "Sign in" for a visitor and carries
+the user's initials once signed in. Its menu offers sign-in to a visitor, and switching and signing
+out to a user; the three are commands, so the palette offers them too, each only when it applies.
+Signing in flips the snapshot, and every surface, rail item and command gated with `access` follows
+without a reload. Switch to the administrator and whatever asks for the `admin` role appears; sign
+out and it goes.
 
 Nothing here protects anything. The snapshot is a signal in the browser, and a gated surface is
-hidden, not withheld. When the product gets its identity provider, the generated file is what you
-replace, with `provideAuthSource` mapping the real session, and this plugin's three verbs become
+hidden, not withheld. When the product gets its identity provider, the generated source is what you
+replace, with `provideAuthSource` mapping the real session, and the plugin's three verbs become
 calls into it or go away in favour of a [login page or dialog](distribution/auth.md#2--own-the-login-ui-page-or-dialog).
 
 ## Translations for all of the above
