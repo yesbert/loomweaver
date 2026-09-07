@@ -16,7 +16,9 @@ Every section ends with the page that says how to declare, curate or switch off 
 
 ## Panes and tabs
 
-![Two panes side by side in the content area, a customer list on the left and a contact history on the right, each with its own tab strip and toolbar.](../assets/media/split-panes-light.png)
+![Two panes side by side in the content area, a customer list on the left and a contact history on the right, each with its own tab strip and toolbar.](../assets/media/split-panes-light.png#gh-light-mode-only)
+
+![Two panes side by side in the content area, a customer list on the left and a contact history on the right, each with its own tab strip and toolbar.](../assets/media/split-panes-dark.png#gh-dark-mode-only)
 
 Two panes from one click on *Split right*, or from dragging a tab to an edge. Each pane is a tab
 group with its own strip, and the window stays as wide as it was. Tabs can be pinned, opened as a
@@ -29,7 +31,9 @@ Where it is described: [Surfaces and panes](concepts/surfaces-and-panes.md),
 
 ## The command palette
 
-![The command palette open over the workbench, listing commands contributed by plugins with their keyboard shortcuts.](../assets/media/command-palette-light.png)
+![The command palette open over the workbench, listing commands contributed by plugins with their keyboard shortcuts.](../assets/media/command-palette-light.png#gh-light-mode-only)
+
+![The command palette open over the workbench, listing commands contributed by plugins with their keyboard shortcuts.](../assets/media/command-palette-dark.png#gh-dark-mode-only)
 
 `mod+k` opens it anywhere. It lists every command a plugin or the product registered, with the
 chord each one has, and keeps the recently used ones on top. A command declared once is in the
@@ -40,7 +44,9 @@ Where it is described: [Commands and their triggers](weaver/commands.md),
 
 ## Quick open, and the tab picker
 
-![The quick open list over the workbench, four open tabs marked now at the top and the other views the product can open below.](../assets/media/quick-open-light.png)
+![The quick open list over the workbench, four open tabs marked now at the top and the other views the product can open below.](../assets/media/quick-open-light.png#gh-light-mode-only)
+
+![The quick open list over the workbench, four open tabs marked now at the top and the other views the product can open below.](../assets/media/quick-open-dark.png#gh-dark-mode-only)
 
 `mod+p` opens the second search. What is open comes first, marked *now*; below it, everything the
 product could open, so a view that is not open yet is one keystroke away. The tab picker is its
@@ -54,7 +60,9 @@ badge that opens it.
 
 ## Workspaces
 
-![The Workspaces dialog on its Mine tab, showing the Default workspace and a saved one named Month end marked as a variant of Sales, with save, rename, delete and reset controls.](../assets/media/workspace-dialog-light.png)
+![The Workspaces dialog on its Mine tab, showing the Default workspace and a saved one named Month end marked as a variant of Sales, with save, rename, delete and reset controls.](../assets/media/workspace-dialog-light.png#gh-light-mode-only)
+
+![The Workspaces dialog on its Mine tab, showing the Default workspace and a saved one named Month end marked as a variant of Sales, with save, rename, delete and reset controls.](../assets/media/workspace-dialog-dark.png#gh-dark-mode-only)
 
 A workspace is a whole arrangement: which sidebars are open, what is in them, which tabs are in
 which pane. The product provides some, the user saves others, and the dialog keeps the two lists
@@ -66,7 +74,9 @@ Where it is described: [Workspaces](concepts/workspaces.md),
 
 ## The rail and the sidebars, curated
 
-![The curation dialog for the rail, listing every entry with a Hidden, Left or Right choice for each, and a search field above.](../assets/media/customize-rail-light.png)
+![The curation dialog for the rail, listing every entry with a Hidden, Left or Right choice for each, and a search field above.](../assets/media/customize-rail-light.png#gh-light-mode-only)
+
+![The curation dialog for the rail, listing every entry with a Hidden, Left or Right choice for each, and a search field above.](../assets/media/customize-rail-dark.png#gh-dark-mode-only)
 
 A right-click on the rail's empty part offers *Customize activity bar*, and this dialog opens: every
 entry, and whether it sits hidden, left or right. The same dialog exists for the views of a sidebar
@@ -79,9 +89,13 @@ Where it is described: [Curating the rail](distribution/workspaces.md#curating-t
 
 ## Context menus
 
-![The context menu of a content tab, offering Split right, Split down, Close, Close Others, Close to the Right, Close All, Pinned and Open in New Window.](../assets/media/tab-menu-light.png)
+![The context menu of a content tab, offering Split right, Split down, Close, Close Others, Close to the Right, Close All, Pinned and Open in New Window.](../assets/media/tab-menu-light.png#gh-light-mode-only)
 
-![The context menu of a rail entry in the dark theme, offering to move the entry to the other rail or to hide it.](../assets/media/rail-menu-dark.png)
+![The context menu of a content tab, offering Split right, Split down, Close, Close Others, Close to the Right, Close All, Pinned and Open in New Window.](../assets/media/tab-menu-dark.png#gh-dark-mode-only)
+
+![The context menu of a rail entry, offering to move the entry to the other rail or to hide it.](../assets/media/rail-menu-light.png#gh-light-mode-only)
+
+![The context menu of a rail entry, offering to move the entry to the other rail or to hide it.](../assets/media/rail-menu-dark.png#gh-dark-mode-only)
 
 The shell draws its own menus on a tab, on a sidebar view, on a rail entry, and on the empty parts
 of the rail and the sidebar strip. Entries a plugin contributes go into these same menus, beside
@@ -93,7 +107,9 @@ Where it is described: [Menus](weaver/menus.md),
 
 ## Settings and permissions
 
-![The Settings dialog on its Permissions section, with a switch per plugin and, under each, a switch per capability the plugin holds.](../assets/media/settings-light.png)
+![The Settings dialog on its Permissions section, with a switch per plugin and, under each, a switch per capability the plugin holds.](../assets/media/settings-light.png#gh-light-mode-only)
+
+![The Settings dialog on its Permissions section, with a switch per plugin and, under each, a switch per capability the plugin holds.](../assets/media/settings-dark.png#gh-dark-mode-only)
 
 One dialog for the product, with a section per plugin that wants one and the shell's own sections
 beside them. The Permissions section is the shell's: a switch turns a whole plugin off, and under
@@ -106,9 +122,13 @@ Where it is described: [Settings sections](weaver/settings.md),
 
 ## The plugin store
 
-![The plugin store dialog with a catalogue card on the left and the Payment matching plugin's detail on the right, with an Install button.](../assets/media/plugin-store-light.png)
+![The plugin store dialog with a catalogue card on the left and the Payment matching plugin's detail on the right, with an Install button.](../assets/media/plugin-store-light.png#gh-light-mode-only)
 
-![The install prompt for the Payment matching plugin in the dark theme, listing the two permissions it requests, with Cancel and Install buttons.](../assets/media/plugin-consent-dark.png)
+![The plugin store dialog with a catalogue card on the left and the Payment matching plugin's detail on the right, with an Install button.](../assets/media/plugin-store-dark.png#gh-dark-mode-only)
+
+![The install prompt for the Payment matching plugin, listing the two permissions it requests, with Cancel and Install buttons.](../assets/media/plugin-consent-light.png#gh-light-mode-only)
+
+![The install prompt for the Payment matching plugin, listing the two permissions it requests, with Cancel and Install buttons.](../assets/media/plugin-consent-dark.png#gh-dark-mode-only)
 
 A distribution serves a catalogue, and the user gets this. Cards, a search, a detail page from the
 plugin's own readme, an installed list, and an update path driven by the catalogue's version. Before
@@ -121,7 +141,9 @@ Where it is described: [Plugin store](distribution/plugin-store.md),
 
 ## An agent at the keyboard
 
-![A workbench with a quote open, beside an assistant panel showing the tool call that opened it, the workbench's answer, and a second call that was declined and never ran.](../assets/media/agent-panel-light.png)
+![A workbench with a quote open, beside an assistant panel showing the tool call that opened it, the workbench's answer, and a second call that was declined and never ran.](../assets/media/agent-panel-light.png#gh-light-mode-only)
+
+![A workbench with a quote open, beside an assistant panel showing the tool call that opened it, the workbench's answer, and a second call that was declined and never ran.](../assets/media/agent-panel-dark.png#gh-dark-mode-only)
 
 Every command in the palette can be offered to an agent that speaks AG-UI, through an adapter that
 ships with the platform. The panel in the picture is the demo's; the calls going through it reach

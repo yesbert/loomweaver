@@ -48,8 +48,9 @@ See proposal.md, *Why*. What shapes the approach:
 ## Decisions
 
 **A capture script beside the tour recorder, driving the demo.** `platform/tools/capture-screenshots.mjs`,
-Playwright's library, one browser context per theme at 1280 by 800 with a device scale of two, so
-a dialog stays legible when the page shows the frame at a reader's width. The alternative, a
+Playwright's library, one browser context per theme at 1280 by 800 with a device scale of one and a
+half, so a dialog stays legible when the page shows the frame at a reader's width and the set
+stays under a third of a megabyte per file. The alternative, a
 Playwright test with `toHaveScreenshot`, would tie the pictures to the test runner's snapshot
 directory and to its per-platform naming, and a snapshot is made to be compared, not shown. The
 script writes `assets/media/<motif>-{light,dark}.png` and nothing else, and its motifs are a list in
@@ -63,8 +64,12 @@ in the status bar, and that is accepted as it is for the Quick start's picture: 
 picture of nothing in particular.
 
 **One frame, two uses.** Each motif is one file per theme, embedded on the guide and on the page
-whose prose describes it. The landing page uses the same files as small pictures that link to the
-guide's section. A second, cropped variant for the landing was considered and rejected: at a
+whose prose describes it. A docs page embeds both files, the light one with `#gh-light-mode-only`
+and the dark one with `#gh-dark-mode-only` on its address: GitHub reads that fragment and shows one
+of the two, and the site's stylesheet hides the one that does not match `data-theme`, so the same
+markdown follows the reader's mode in both places. A single markdown image per motif, considered
+first, left a page mixing themes and could not follow the toggle at all. The landing page uses the
+same files as small pictures that link to the guide's section. A second, cropped variant for the landing was considered and rejected: at a
 thumbnail the frame is recognisable, and legible is the guide's job, one click away. If a review
 finds a thumbnail unreadable, a crop is one clip option in the motif, not a second pipeline.
 
