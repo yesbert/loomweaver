@@ -259,9 +259,9 @@ constraint cannot depend on any libraries"_. Give the new projects tags your con
 that rule for you.
 
 In an Nx workspace prefer **[`@loomweaver/devkit`](scaffolding.md#the-nx-generators--loomweaverdevkit)** over
-the CLI. It is the only adapter that can _change_ files as well as write them. It registers the
-project, adds the tsconfig path alias and wires the translation assets glob into the composing
-application. The CLI can only describe those steps.
+the CLI. Both wire the build, the styles and the composition root. The Nx adapter additionally
+registers the project and adds the tsconfig path alias, because Nx hands it a virtual tree of the
+workspace; the CLI cannot do those two and names them instead.
 
 <a id="ssr-server-side-rendering"></a>
 
