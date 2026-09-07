@@ -28,6 +28,10 @@ export const sidebar = [
         label: 'Surfaces in a sidebar',
         link: '/weaver/sidebar-surfaces/',
       },
+      {
+        label: 'A navigation tree in the sidebar',
+        link: '/weaver/navigation-tree/',
+      },
       { label: 'View state that survives', link: '/weaver/view-state/' },
       { label: 'Unsaved changes', link: '/weaver/unsaved-changes/' },
       { label: "Your plugin's own store", link: '/weaver/plugin-state/' },

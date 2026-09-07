@@ -219,7 +219,7 @@ surface already receives its own state over the surface channel).
 
 ## Asking whether the address shown is under yours: `ctx.isShowingUnder`
 
-A navigation tree marks where the user is. The question it asks is narrower than the whole address:
+A [navigation tree](navigation-tree.md) marks where the user is. The question it asks is narrower than the whole address:
 is the content shown at, or below, the address of this entry? `ctx.isShowingUnder('sales/quotes')`
 answers it (also `navigation`). It is `true` for `sales/quotes` and for `sales/quotes/q-0006`.
 

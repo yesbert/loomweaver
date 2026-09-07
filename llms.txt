@@ -16,6 +16,7 @@ This is a curated map for people, and their AI assistants, building on or integr
 
 - [Authoring a weaver](docs/authoring-a-weaver.md): the shape of a weaver (manifest, `activate(ctx)`, where snippets go) and the map of the how-to pages, one task each:
   - [Surfaces in a sidebar](docs/weaver/sidebar-surfaces.md): a docked surface, and the custom-element escape hatch.
+  - [A navigation tree in the sidebar](docs/weaver/navigation-tree.md): `<lw-nav-tree>` declared as data; `lw-nav-select` handed to `ctx.navigateContent`, `current` from `ctx.activeContent`, folds kept for the session under `key`, the panel retitled with `ctx.retitleSurface`.
   - [View state that survives](docs/weaver/view-state.md): `VIEW_STATE`: filter, sub-tab, scroll position in one shape.
   - [Unsaved changes](docs/weaver/unsaved-changes.md): `DirtySurface` and the Save, Discard, Cancel question.
   - [Your plugin's own store](docs/weaver/plugin-state.md): `ctx.state`.
