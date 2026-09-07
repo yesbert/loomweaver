@@ -605,22 +605,22 @@
      lw-select.element.ts, LOOK here so it themes via tokens and crosses the Nx/iframe boundary as contract,
      not code. The `<lw-option>` children are data holders — kept out of layout. */
   lw-select {
-    @apply relative inline-block;
+    @apply relative inline-block max-w-full;
   }
   lw-select > lw-option {
     display: none;
   }
   .lw-select-trigger {
-    @apply flex h-8.5 items-center gap-1.5 rounded-md border border-border bg-surface-overlay px-2 text-sm
+    @apply flex h-8.5 max-w-full min-w-0 items-center gap-1.5 rounded-md border border-border bg-surface-overlay px-2 text-sm
       text-content transition-colors hover:bg-surface-raised
       focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand
       disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-surface-overlay;
   }
   .lw-select-value {
-    @apply flex items-center gap-1.5;
+    @apply flex min-w-0 items-center gap-1.5 overflow-hidden whitespace-nowrap;
   }
   .lw-select-chevron {
-    @apply text-xs text-content-muted;
+    @apply shrink-0 text-xs text-content-muted;
   }
   .lw-select-listbox {
     @apply z-50 min-w-40 overflow-auto rounded-md border border-border bg-surface-overlay py-1 text-sm shadow-lg;

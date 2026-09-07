@@ -14,8 +14,9 @@ function overflowing(root: Locator): Promise<readonly string[]> {
         return;
       }
       if (box.scrollWidth - box.clientWidth > 1) {
+        const text = (box.textContent ?? '').trim().replaceAll(/\s+/g, ' ').slice(0, 40);
         found.push(
-          `${box.tagName.toLowerCase()} ${box.scrollWidth}>${box.clientWidth}`,
+          `${box.tagName.toLowerCase()}.${box.className} "${text}" ${box.scrollWidth}>${box.clientWidth} ${getComputedStyle(box).fontFamily.slice(0, 30)}`,
         );
       }
     };

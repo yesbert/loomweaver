@@ -37,6 +37,13 @@ test.describe('A plugin-private store', () => {
     await expect(page.getByTestId('scratch-echo')).toHaveText(
       'typed in window one',
     );
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          localStorage.getItem('lw.plugin-state:testbed:scratch'),
+        ),
+      )
+      .toContain('typed in window one');
 
     const second = await context.newPage();
     await second.goto('/');
