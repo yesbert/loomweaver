@@ -7,7 +7,7 @@ import { AuthContext } from '../auth/auth-context';
 import { FeatureSwitches } from '../features/feature-switches.service';
 import { formatChord } from './format-chord';
 
-interface Triggerable {
+export interface Triggerable {
   readonly command?: string;
   run?(): void | Promise<void>;
 }

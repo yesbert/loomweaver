@@ -79,7 +79,7 @@ thereby overrules every plugin. Layer order beats specificity, so that also hold
 
 ## Dimensions: there are no tokens, and how to change them anyway
 
-The token vocabulary is **colour and type only**: 27 colours plus the two font families. Sizes,
+The token vocabulary is **colour and type only**: 29 colours plus the two font families. Sizes,
 radii, spacing and border widths are ordinary utility classes in the shell's own templates, and that
 is a decision rather than an omission: tokenising every number would turn every rule of the host
 chrome into a promise no release could revise without breaking somebody's product. The one

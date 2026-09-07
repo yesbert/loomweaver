@@ -460,6 +460,20 @@ for (const page of pagesUnder(contentDir, '')) {
   }
 }
 
+/* And every page has to be in llms.txt, the index an assistant reads instead of the sidebar. The
+   same hand-kept list, the same drift: a page that is not in it exists for a reader and not for a
+   model. The link is repo-relative in the source file, docs/<page>, which is what is checked. */
+const llmsIndex = readFileSync(path.join(repoRoot, 'llms.txt'), 'utf8');
+for (const page of pagesUnder(contentDir, '')) {
+  if (!/\.mdx?$/.test(page)) continue;
+  const source = page === 'overview.md' ? 'README.md' : page;
+  if (!llmsIndex.includes(`(docs/${source})`)) {
+    problems.push(
+      `docs/${source} is not linked from llms.txt — add it with a one-line hook, or an assistant never learns it exists`,
+    );
+  }
+}
+
 if (problems.length > 0) {
   console.error(`\nsync-docs failed with ${problems.length} problem(s):`);
   for (const p of problems) console.error(`  - ${p}`);

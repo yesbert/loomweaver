@@ -29,7 +29,12 @@ await commands.run(someCommand);           // fire a resolved command and get wh
 commands.commands();                       // every registered command (signal)
 commands.available(someCommand);           // does the current session satisfy its `access`?
 commands.shortcutOf(someCommand);          // '⌘K' | 'Ctrl+K' | undefined
+commands.triggerable(item);                // can this item fire: a `command` that resolves, or a `run`
+commands.trigger(item);                    // fire it the way a rail or bar item does
 ```
+
+`Triggerable` is the shape every item shares, a `command` id or a `run` of its own, which is what
+lets one seam fire a rail item, a bar item and a view action alike.
 
 The list of every registered command is `commands()`, the source list for a palette. Whether a command can run here and now is `available(command)`: the session meets its `access`, and this window is one the command belongs in. The chord formatted for display is `shortcutOf(command)`; it is `undefined` where there is none or shortcuts are switched off.
 

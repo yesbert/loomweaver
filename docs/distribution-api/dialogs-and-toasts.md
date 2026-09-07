@@ -39,7 +39,7 @@ toasts.dismiss(id);
 
 ## Read it
 
-The open dialogs are `dialogs.dialogs()`, oldest first; the last one is topmost. What is on screen right now is `toasts.notifications()`. Opening your own component returns a [`DialogRef`](../weaver/host-ui-and-facts.md): `closed` is a promise of the result, `close(result)` settles it, and `maximized` with `toggleMaximized()` serve dialogs opened with `maximizable: true`.
+The open dialogs are `dialogs.dialogs()`, oldest first; the last one is topmost. Each is a `DialogInstance` whose `kind` is a `DialogKind`, one of confirm, alert, prompt, custom and progress, and whose buttons are `DialogButtonView`s with a `ButtonRole` of confirm, cancel or custom, which is what a custom outlet reads to draw them. What is on screen right now is `toasts.notifications()`. Opening your own component returns a [`DialogRef`](../weaver/host-ui-and-facts.md): `closed` is a promise of the result, `close(result)` settles it, and `maximized` with `toggleMaximized()` serve dialogs opened with `maximizable: true`.
 
 ## What asks about unsaved work
 

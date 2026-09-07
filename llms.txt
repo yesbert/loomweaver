@@ -84,6 +84,20 @@ Deterministic scaffolding + validation for building on LoomWeaver. Prefer these 
 ## Distribution API
 
 - [Distribution API](docs/distribution-api/index.md): every runtime service a distribution may inject (dialogs, notifications, settings, commands, session, tabs, panes, workspaces, reset, sidebars, feature switches, plugin store, updates, pop-outs, sync) plus contributing chrome without a plugin. Read it when your product's own code must do what a user does by hand; a plugin never injects these, it goes through the brokered `ctx`.
+  - [Composition](docs/distribution-api/composition.md): the provider surface, `provideShell` options, `ContributionRegistry` and its signals, ids that replace and ids that omit.
+  - [Switches](docs/distribution-api/switches.md): `FeatureSwitches`, reading and changing what `provideShellFeatures` declared while the app runs.
+  - [Tabs](docs/distribution-api/tabs.md): `ContentTabsService`, open, close, pin, preview and reveal a tab from your own code.
+  - [Panes](docs/distribution-api/panes.md): `PaneService` and `PaneHandle`, split, maximise, minimise, move a tab, the facts per pane.
+  - [Workspaces](docs/distribution-api/workspaces.md): `WorkspaceService`, switch, save, reset, remove, and the claims a path settles by.
+  - [Sidebars](docs/distribution-api/sidebars.md): `SidebarService`, collapse, expand, width, hide and show a view.
+  - [Reset](docs/distribution-api/reset.md): `AppResetService`, the one question, with or without the workspaces.
+  - [Dialogs and toasts](docs/distribution-api/dialogs-and-toasts.md): `DialogService` and `NotificationService`, the same seam `ctx.ui` uses, `DialogInstance` for an outlet of your own.
+  - [Settings](docs/distribution-api/settings.md): `SettingsService`, register, omit and open a section.
+  - [Commands](docs/distribution-api/commands.md): `CommandService`, execute, run, availability, the chord for display, `Triggerable`, and the `CommandInvoker` seam.
+  - [Session](docs/distribution-api/session.md): `AuthContext`, the snapshot and the predicates the chrome gates on.
+  - [Appearance](docs/distribution-api/appearance.md): `ThemeService` and `FontScaleService`, the mode and the text size.
+  - [Plugins at runtime](docs/distribution-api/plugins-at-runtime.md): `PluginEnablementService`, `CapabilityGrantService`, `PluginInstallService`, on, off, grants and installs from your own code.
+  - [Windows and sync](docs/distribution-api/windows-and-sync.md): `PopoutService`, `StateSyncService`, `UpdateService` and `VersionService`.
 
 ## Platform reference
 
@@ -95,6 +109,8 @@ Deterministic scaffolding + validation for building on LoomWeaver. Prefer these 
 - [Design tokens & `<lw-*>` vocabulary](docs/reference/design-tokens.md): the semantic tokens and host UI building blocks for plugin templates (never raw palette colors); colour and type only, no size tokens by decision. Read it before writing a template or overriding a dimension with plain unlayered CSS.
 - [Icons](docs/reference/icons.md): every icon name `<lw-icon>` resolves out of the box, semantic names, generated from the shell's icon map. Read it before naming an icon or adding your own with `ctx.contributeIcons` or `provideIcons`.
 - [Accessibility](docs/reference/accessibility.md): the WCAG 2.1 AA guardrail the host meets and weavers inherit.
+- [Operations](docs/reference/operations.md): for whoever runs or contributes to the repository: what bites, what it costs, and the guards the repository runs.
+- [Documentation map](docs/README.md): the documentation's own index, guides by task and reference by subject.
 - [`@loomweaver/shell`: the neutral host chrome](platform/libs/core/shell/README.md): renders regions and holds contributions; domain-pure.
 
 ## Packages

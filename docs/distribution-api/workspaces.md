@@ -31,6 +31,8 @@ workspaces.workspaces();          // Signal<readonly Workspace[]>: the saved wor
 workspaces.activeId();            // Signal<string>
 workspaces.hasChanges();          // the active workspace differs from its baseline
 workspaces.changedIds();          // every workspace that differs from its baseline
+workspaces.claimsOfWorkspace(id); // readonly WorkspaceClaim[]: the address prefixes it claims
+workspaces.destinationFor(path);  // the workspace a path would settle in, by those claims
 ```
 
 `workspaces()` is the list the user saved; the declared ones come from `provideWorkspaces`. `activeId()` is the active one, `hasChanges()` whether it differs from its baseline, `changedIds()` every workspace that does.
