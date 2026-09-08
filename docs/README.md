@@ -13,49 +13,53 @@ standard can run your product's own commands.
 
 ## Pick your path
 
-| You want to…                                | Start here                                                                                                     |
-| ------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| **See it running first**                    | the live demo at [demo.loomweaver.dev](https://demo.loomweaver.dev): a product built on the published packages |
-| **Try it in five minutes**                  | [Getting started](getting-started.md): scaffold a running, branded product                                     |
-| **See what a product gets for free**        | [The workbench your users get](the-workbench.md): every dialog, menu and search, one picture each              |
-| **Understand how it works**                 | [Architecture](architecture.md), then the [concept pages](#concepts) for why the workbench behaves as it does  |
-| **Build a plugin (a "weaver")**             | [Authoring a weaver](authoring-a-weaver.md), with copyable recipes in [Samples](samples.md)                    |
-| **Compose and brand a product**             | [Building a distribution](building-a-distribution.md)                                                          |
-| **Use Bootstrap or your own CSS framework** | [Bringing your own CSS framework](distribution/css-frameworks.md)                                              |
-| **Let an AG-UI agent drive your product**   | [Driving your product with an AG-UI agent](ag-ui-agents.md)                                                    |
-| **Wire your own backend**                   | [Backend integration](backend-integration.md)                                                                  |
-| **Do something from your own code**         | [Distribution API](distribution-api/index.md): indexed by "I want to …"                                        |
-| **Look something up**                       | the [reference pages](#platform-reference) below                                                               |
+| You want to…                                | Start here                                                                                                                                                                                                                                                                                   |
+| ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **See it running first**                    | the live demo at [demo.loomweaver.dev](https://demo.loomweaver.dev): a product built on the published packages, and the [assistant workbench](https://github.com/yesbert/loomweaver/tree/main/examples/assistant-workbench), a smaller one an AI assistant operates through its own commands |
+| **Try it in five minutes**                  | [Getting started](getting-started.md): scaffold a running, branded product                                                                                                                                                                                                                   |
+| **Build it with an AI assistant**           | [Building with an AI assistant](building-with-an-assistant.md): the MCP server registered, the prompts that reach it, one run recorded as it happened                                                                                                                                        |
+| **See what a product gets for free**        | [The workbench your users get](the-workbench.md): every dialog, menu and search, one picture each                                                                                                                                                                                            |
+| **Understand how it works**                 | [Architecture](architecture.md), then the [concept pages](#concepts) for why the workbench behaves as it does                                                                                                                                                                                |
+| **Build a plugin (a "weaver")**             | [Authoring a weaver](authoring-a-weaver.md), with copyable recipes in [Samples](samples.md)                                                                                                                                                                                                  |
+| **Compose and brand a product**             | [Building a distribution](building-a-distribution.md)                                                                                                                                                                                                                                        |
+| **Use Bootstrap or your own CSS framework** | [Bringing your own CSS framework](distribution/css-frameworks.md)                                                                                                                                                                                                                            |
+| **Let an AG-UI agent drive your product**   | [Driving your product with an AG-UI agent](ag-ui-agents.md)                                                                                                                                                                                                                                  |
+| **Wire your own backend**                   | [Backend integration](backend-integration.md)                                                                                                                                                                                                                                                |
+| **Do something from your own code**         | [Distribution API](distribution-api/index.md): indexed by "I want to …"                                                                                                                                                                                                                      |
+| **Look something up**                       | the [reference pages](#platform-reference) below                                                                                                                                                                                                                                             |
 
 ## Guides
 
 1. [Getting started](getting-started.md): scaffold a running, branded product with a plugin in it (~5 min).
-2. [The workbench your users get](the-workbench.md): panes, the two searches, workspaces, settings,
+2. [Building with an AI assistant](building-with-an-assistant.md): the same path with an assistant doing
+   the typing from the first weaver on. Registering `@loomweaver/mcp` per tool, the prompts that reach
+   its tools, and one run recorded as it happened.
+3. [The workbench your users get](the-workbench.md): panes, the two searches, workspaces, settings,
    the plugin store, context menus and the shortcuts, one picture each, from the live demo.
-3. [Architecture](architecture.md): the mental model. Platform, weaver and distribution, the uniform
+4. [Architecture](architecture.md): the mental model. Platform, weaver and distribution, the uniform
    `ctx`, default-deny capabilities, auth-aware access gating, the two RPC boundaries. Read it once
    the tutorial has run.
-4. [Manual setup](manual-setup.md): the same app wired by hand, plus the Nx, SSR and Module
+5. [Manual setup](manual-setup.md): the same app wired by hand, plus the Nx, SSR and Module
    Federation answers (~15 min).
-5. [Samples](samples.md): complete, copyable recipes. A sidebar view with persisted state, a routable
+6. [Samples](samples.md): complete, copyable recipes. A sidebar view with persisted state, a routable
    surface, a command with its triggers, a settings section, access gating, dialogs. It says which of
    them the generator already writes, so you only type the rest.
-6. [Authoring a weaver](authoring-a-weaver.md): the shape of a weaver and the map of sixteen how-to pages
+7. [Authoring a weaver](authoring-a-weaver.md): the shape of a weaver and the map of sixteen how-to pages
    under `weaver/`. Surfaces in a sidebar, the content area, containers, commands, menus, unsaved changes,
    sandboxed surfaces, access gating, settings, i18n. One task per page.
-7. [Building a distribution](building-a-distribution.md): the composition root and the map of seventeen
+8. [Building a distribution](building-a-distribution.md): the composition root and the map of seventeen
    how-to pages under `distribution/`. Layout, routing, workspaces, switching capabilities off, branding,
    capabilities, auth, persistence, your own CSS framework, frame plugins, the plugin store, PWA. One decision per page.
-8. [The plugin system](plugins.md): the three rungs of trust and the four ways a plugin arrives (trusted,
+9. [The plugin system](plugins.md): the three rungs of trust and the four ways a plugin arrives (trusted,
    frame plugin, operator-deployed, community-installed), default-deny capabilities, and what the user
    can revoke, disable or uninstall.
-9. [Scaffolding](scaffolding.md): generate weavers, distributions and integrations with the
-   `@loomweaver/cli` command line, the `@loomweaver/devkit` Nx generators or the `@loomweaver/mcp` server for AI
-   assistants, all in your own repository.
-10. [Driving your product with an AG-UI agent](ag-ui-agents.md): generate the AG-UI connection,
-   watch a call go through, decide which calls to ask about, and replace the stand-in with your own
-   transport.
-11. [Backend integration](backend-integration.md): the product hand-off. Settings, session and
+10. [Scaffolding](scaffolding.md): generate weavers, distributions and integrations with the
+    `@loomweaver/cli` command line, the `@loomweaver/devkit` Nx generators or the `@loomweaver/mcp` server for AI
+    assistants, all in your own repository.
+11. [Driving your product with an AG-UI agent](ag-ui-agents.md): generate the AG-UI connection,
+    watch a call go through, decide which calls to ask about, and replace the stand-in with your own
+    transport.
+12. [Backend integration](backend-integration.md): the product hand-off. Settings, session and
     translations against your own backend; the platform ships no server.
 
 ## Concepts
@@ -102,8 +106,11 @@ cover the concepts; a repository check verifies that no published export is miss
 
 ## For AI assistants
 
-[`../llms.txt`](../llms.txt) (curated map) and [`../llms-full.txt`](../llms-full.txt) (the full set,
-inlined) let an assistant ingest everything needed to build a distribution.
+Two files are written for the assistant itself: [`../llms.txt`](../llms.txt), the curated map, and
+[`../llms-full.txt`](../llms-full.txt), the whole contract inlined for a single fetch. `@loomweaver/mcp`
+gives it the generators and validators as tools. [Building with an AI assistant](building-with-an-assistant.md)
+is the guide for the person working with one: registering the server per tool, the prompts, and a
+run recorded as it happened.
 
 ## For contributors
 

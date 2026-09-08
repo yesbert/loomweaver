@@ -16,6 +16,10 @@ If you would rather understand each file instead of generating it, [set it up by
 hand](manual-setup.md). Same result, roughly fifteen minutes, and it explains what the generators
 write.
 
+If an AI assistant is doing the typing, run steps 1 to 3 below as they are and hand it the rest.
+[Building with an AI assistant](building-with-an-assistant.md) is the same path from the first
+weaver on, with a run recorded as it happened.
+
 > **Prerequisites:** Node 24 and an **Angular 22** workspace. Both flavours work and nothing below is
 > specific to either: the **Angular CLI** (`ng new`) and **Nx** (`nx g @nx/angular:application`)
 > generate the same application shape. Where they differ, in one file name or one path, it is called
@@ -208,7 +212,7 @@ badges that print their own chord, two lines in your `app.config.ts` and yours t
 
 ![The quick open list over the workbench, four open tabs marked now at the top and the other views the product can open below.](../assets/media/quick-open-dark.png#gh-dark-mode-only)
 
-`mod+p` in the demo: the open tabs first, marked *now*, and below them everything else the product
+`mod+p` in the demo: the open tabs first, marked _now_, and below them everything else the product
 can open.
 
 Your first production build warns `bundle initial exceeded maximum budget`; raise the budgets in your

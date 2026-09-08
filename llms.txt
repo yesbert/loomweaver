@@ -8,6 +8,7 @@ This is a curated map for people, and their AI assistants, building on or integr
 
 - [Glossary](docs/glossary.md): the words the docs use, one line each; platform, shell, host and workbench name the same thing.
 - [Getting started](docs/getting-started.md): scaffold a running, branded product with a plugin already contributing to it, in ~5 minutes, using `@loomweaver/cli`. Start here.
+- [Building with an AI assistant](docs/building-with-an-assistant.md): the same path with an assistant doing the typing from the first weaver on: registering `@loomweaver/mcp` per tool (Claude Code, Cursor, VS Code), the prompts that reach its tools, and one run recorded as it happened.
 - [The workbench your users get](docs/the-workbench.md): what a product ships before its first plugin, one picture each from the live demo: panes and tabs, the palette and quick open, workspaces, the curation dialogs, context menus, settings and permissions, the plugin store with its consent prompt, and the shell's own keyboard shortcuts.
 - [Architecture](docs/architecture.md): the mental model, platform / weaver / distribution, the uniform `ctx`, default-deny capabilities, the two RPC boundaries. Read it once the tutorial has run.
 - [Manual setup](docs/manual-setup.md): the same app wired by hand (~15 min), without the scaffold's service worker and content-security policy; the shell renders inside the generated `app-root`, so nothing of `ng new`/Nx is deleted. Read it for the Nx differences, SSR (`RenderMode.Client`) and why Module Federation is not the plugin transport.
@@ -117,6 +118,10 @@ Deterministic scaffolding + validation for building on LoomWeaver. Prefer these 
 ## Packages
 
 Seven npm packages, one shared version: `@loomweaver/plugin-sdk`, `@loomweaver/shell`, `@loomweaver/mcp` (the AI-scaffolding MCP server), `@loomweaver/cli` (the scaffolding CLI, same generators driven by flags), `@loomweaver/devkit` (the Nx generator collection), `@loomweaver/frame-kit` (static UI assets a distribution serves under `/frame-kit/` for sandboxed plugins), `@loomweaver/ag-ui` (the AG-UI adapter, headless). No server packages: the platform is frontend-only.
+
+## Examples
+
+- [Assistant workbench](https://github.com/yesbert/loomweaver/tree/main/examples/assistant-workbench): a support inbox built on the published packages that an AI assistant operates through the product's own callable commands over AG-UI, with a real model through OpenRouter and the reader's own key. `npm install && npm start`, then ask it for something.
 
 ## For AI assistants
 

@@ -11,6 +11,7 @@ export const sidebar = [
     items: [
       { label: 'Architecture', link: '/architecture/' },
       { label: 'Getting started', link: '/getting-started/' },
+      { label: 'Building with an AI assistant', link: '/building-with-an-assistant/' },
       { label: 'The workbench your users get', link: '/the-workbench/' },
       { label: 'Manual setup', link: '/manual-setup/' },
       { label: 'Samples', link: '/samples/' },
