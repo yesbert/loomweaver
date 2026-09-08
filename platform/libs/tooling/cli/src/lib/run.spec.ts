@@ -1,6 +1,7 @@
 import {
   existsSync,
   lstatSync,
+  mkdirSync,
   mkdtempSync,
   readdirSync,
   readFileSync,
@@ -201,6 +202,78 @@ describe('run', () => {
     ]) {
       expect(c.text()).toContain(name);
     }
+  });
+
+  function workspace() {
+    writeFileSync(join(dir, 'package.json'), '{}');
+    writeFileSync(
+      join(dir, 'angular.json'),
+      JSON.stringify({
+        version: 1,
+        projects: {
+          studio: {
+            projectType: 'application',
+            root: '',
+            sourceRoot: 'src',
+            architect: {
+              build: { options: { browser: 'src/main.ts', styles: ['src/styles.css'] } },
+            },
+          },
+        },
+      }),
+    );
+    mkdirSync(join(dir, 'src/app'), { recursive: true });
+    writeFileSync(join(dir, 'src/styles.css'), "@import 'tailwindcss';\n");
+    writeFileSync(
+      join(dir, 'src/app/app.config.ts'),
+      [
+        "import { ApplicationConfig } from '@angular/core';",
+        "import { provideShell } from '@loomweaver/shell';",
+        '',
+        'export const appConfig: ApplicationConfig = {',
+        '  providers: [',
+        '    provideShell(),',
+        '  ],',
+        '};',
+        '',
+      ].join('\n'),
+    );
+  }
+
+  const build = () =>
+    JSON.parse(readFileSync(join(dir, 'angular.json'), 'utf8')).projects.studio.architect
+      .build;
+
+  it('wires a weaver written into the workspace root', () => {
+    workspace();
+    const c = capture();
+    const cwd = process.cwd();
+    try {
+      process.chdir(dir);
+      expect(run(['weaver', '--id', 'notes', '--out', '.'], c.io)).toBe(0);
+    } finally {
+      process.chdir(cwd);
+    }
+    expect(JSON.stringify(build())).toContain('"input":"src/lib/i18n"');
+    expect(readFileSync(join(dir, 'src/styles.css'), 'utf8')).toContain("@source '.'");
+    expect(readFileSync(join(dir, 'src/app/app.config.ts'), 'utf8')).toContain(
+      'notesPlugin',
+    );
+  });
+
+  it('wires an auth source written into the workspace root', () => {
+    workspace();
+    const c = capture();
+    const cwd = process.cwd();
+    try {
+      process.chdir(dir);
+      expect(run(['auth-source', '--name', 'dev', '--out', '.'], c.io)).toBe(0);
+    } finally {
+      process.chdir(cwd);
+    }
+    const config = readFileSync(join(dir, 'src/app/app.config.ts'), 'utf8');
+    expect(config).toContain('provideAuthSource');
+    expect(JSON.stringify(build())).toContain('i18n');
   });
 
   it('reaches node_modules from the directory --out actually points at', () => {

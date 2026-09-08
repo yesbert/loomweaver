@@ -76,7 +76,10 @@ export function valuesFor(
 
 function directoryFromOut(out: string | undefined): string {
   const below = relative(process.cwd(), resolve(out ?? '.'));
-  return below.startsWith('..') ? '' : below;
+  if (below.startsWith('..')) {
+    return '';
+  }
+  return below || '.';
 }
 
 function scaffoldValues(

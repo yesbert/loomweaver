@@ -1,3 +1,4 @@
+import { normalizeProjectRoot } from '../../lib/amend/merge';
 import { Amendment } from '../../lib/amend/types';
 import { distributionAmendments } from './amendments';
 import { FileMap, Recipe } from '../../lib/generate/types';
@@ -51,7 +52,7 @@ export function resolveDistributionInput(
     input.directory === undefined
       ? `apps/${input.name}`
       : input.directory.trim();
-  const depth = directory.split('/').filter(Boolean).length;
+  const depth = normalizeProjectRoot(directory).split('/').filter(Boolean).length;
   return {
     name: input.name,
     title: input.title?.trim() || toTitleCase(input.name),
