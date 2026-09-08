@@ -274,7 +274,10 @@ const cli = [
         <div class="panel" data-active={highlights[0].shot}>
           {
             highlights.map((item, index) => (
-              <figure class="frame" data-shot={item.shot} hidden={index > 0}>
+              <figure
+                class:list={['frame', { 'is-active': index === 0 }]}
+                data-shot={item.shot}
+              >
                 <img
                   class="only-dark"
                   src={`/media/${item.shot}-dark.png`}
@@ -306,7 +309,8 @@ const cli = [
     </section>
     <script is:inline>
       // The panel beside the highlights shows the picture of the entry nearest the middle of the
-      // screen. Without this script it shows the first one, which is a complete page too.
+      // screen, cross-fading between them. Without this script it shows the first one, which is a
+      // complete page too.
       (() => {
         const panel = document.querySelector('.get .panel');
         const entries = document.querySelectorAll('.get .highlights > li');
@@ -315,7 +319,7 @@ const cli = [
         const show = (shot) => {
           if (panel.dataset.active === shot) return;
           panel.dataset.active = shot;
-          for (const frame of frames) frame.hidden = frame.dataset.shot !== shot;
+          for (const frame of frames) frame.classList.toggle('is-active', frame.dataset.shot === shot);
         };
         const observer = new IntersectionObserver(
           (records) => {

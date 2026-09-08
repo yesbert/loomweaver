@@ -360,8 +360,32 @@
   display: none;
 }
 
+/* Every picture sits in the same grid cell; the active one is opaque and the others fade out
+   beneath it, so a swap is a cross-fade rather than a cut. Visibility follows the fade with a
+   delay, which keeps a faded picture out of the accessibility tree and away from the pointer. */
 .lw-landing .panel .frame {
   margin: 0;
+  grid-area: 1 / 1;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.5s ease,
+    visibility 0s linear 0.5s;
+}
+
+.lw-landing .panel .frame.is-active {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity 0.5s ease,
+    visibility 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lw-landing .panel .frame,
+  .lw-landing .panel .frame.is-active {
+    transition: none;
+  }
 }
 
 @media (min-width: 64rem) {
@@ -389,7 +413,8 @@
   }
 
   .lw-landing .panel {
-    display: block;
+    display: grid;
+    align-items: start;
     position: sticky;
     /* Below the site header, with a little air. */
     top: calc(var(--sl-nav-height, 4rem) + 1.5rem);
