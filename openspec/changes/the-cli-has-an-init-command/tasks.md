@@ -1,52 +1,57 @@
 ## 1. Detection and installing
 
-- [ ] 1.1 Workspace detection: Angular CLI application, Nx workspace with its applications, or
+- [x] 1.1 Workspace detection: Angular CLI application, Nx workspace with its applications, or
       neither; tests for each, including the refusal outside a workspace with the message that
       names what was expected.
-- [ ] 1.2 Package manager detection from the lockfile with the npm fallback and the
+- [x] 1.2 Package manager detection from the lockfile with the npm fallback and the
       `--package-manager` override; a table of the four spellings for install, dev install, `dlx`
       and serve, with a test.
-- [ ] 1.3 The install step: the runtime packages, the service worker pinned to the installed
+- [x] 1.3 The install step: the runtime packages, the service worker pinned to the installed
       Angular version, the style pipeline unless `--styles precompiled`; skipped per package where
       the manifest already satisfies it; tests against a virtual manifest.
 
 ## 2. The command
 
-- [ ] 2.1 `init` in the Angular CLI path: install, distribution with `--out .`, first weaver into
+- [x] 2.1 `init` in the Angular CLI path: install, distribution with `--out .`, first weaver into
       `src/<id>`, summary with the serve command; `--title`, `--styles`, `--weaver`, `--no-weaver`,
       `--force`, `--dry-run`.
-- [ ] 2.2 `init` in the Nx path: the collection installed as a dev dependency, the two generators
+- [x] 2.2 `init` in the Nx path: the collection installed as a dev dependency, the two generators
       run with the app inferred or named by `--app`, the candidates named when ambiguous, summary
       with `nx serve <app>`.
-- [ ] 2.3 A second run changes nothing and says so; a trial run names everything and writes and
+- [x] 2.3 A second run changes nothing and says so; a trial run names everything and writes and
       installs nothing; tests for both.
-- [ ] 2.4 Help text and `list` name the command; the `--help` of `init` names every option and its
+- [x] 2.4 Help text and `list` name the command; the `--help` of `init` names every option and its
       default.
 
 ## 3. Run it for real
 
-- [ ] 3.1 A fresh `ng new` app under `.claude/tests/`: `npx` from the local build, `init`, serve,
+- [x] 3.1 A fresh `ng new` app under `.claude/tests/`: `npx` from the local build, `init`, serve,
       the rail shows the weaver; run twice, the second run reports nothing to do.
-- [ ] 3.2 A fresh Nx workspace with one Angular application: the same; and one with two
-      applications: the refusal that names both.
-- [ ] 3.3 With pnpm and bun lockfiles: the install and the serve command are spelled for them.
+- [x] 3.2 A fresh Nx workspace with one Angular application: the same; and one with two
+      applications: the refusal that names both. The Nx template ships two applications (api,
+      shop) and an e2e project, so the refusal was the first thing seen; with `--app shop` the run
+      went through. Composition verified with the packed local devkit, because the published one
+      does not compose yet (design, *What the build showed*).
+- [x] 3.3 With pnpm and bun lockfiles: the install and the serve command are spelled for them.
+      Real run with yarn 1 (`yarn add`, `yarn start`, build green); pnpm and bun are not installed
+      on this machine and are covered by the unit tests.
 
 ## 4. The documentation and the site
 
-- [ ] 4.1 The tab group in `website/tools/sync-docs.mjs`: a fence with info string `sh npm`
+- [x] 4.1 The tab group in `website/tools/sync-docs.mjs`: a fence with info string `sh npm`
       renders as npm, pnpm, yarn and bun tabs by rule, plain HTML, with a unit test on the
       rewriting; a style for the tab group in the site's stylesheet, passing `check-contrast`.
-- [ ] 4.2 `docs/getting-started.md` opens with `ng new` as the prerequisite and the one command,
+- [x] 4.2 `docs/getting-started.md` opens with `ng new` as the prerequisite and the one command,
       and keeps steps 2 to 4 as the explanation of what it did; `docs/scaffolding.md` documents
       `init` with its options; `docs/building-with-an-assistant.md` quotes the one command where it
       quoted three.
-- [ ] 4.3 `README.md` quick start, `llms.txt` and `llms-full.txt` carry the one command.
+- [x] 4.3 `README.md` quick start, `llms.txt` and `llms-full.txt` carry the one command.
 - [ ] 4.4 After the release that publishes the CLI with `init`: the landing page's primary action
       becomes the command with the tab group; until then the button stays. Recorded here with the
       version that carried it.
 
 ## 5. Verify
 
-- [ ] 5.1 `nx run-many -t test lint -p cli devkit` green; `docs-style-check` and
+- [x] 5.1 `nx run-many -t test lint -p cli devkit` green; `docs-style-check` and
       `docs-format-check` green; `npm run check` in `website/` green.
-- [ ] 5.2 `openspec validate the-cli-has-an-init-command --strict` passes.
+- [x] 5.2 `openspec validate the-cli-has-an-init-command --strict` passes.

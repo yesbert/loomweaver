@@ -7,16 +7,32 @@
 > specification disagree, the specification is right, and that is a defect in this page: change
 > the behaviour there, then explain it here.
 
-Scaffold a running product in about five minutes: the LoomWeaver chrome, branded, with one plugin of
-your own already contributing to it. Every command below was run against a fresh Angular app to
-produce exactly what the last step shows. The [live demo](https://demo.loomweaver.dev) runs the same
-shell, built the same way.
+A running product in one command: the LoomWeaver chrome, branded, with one plugin of your own
+already contributing to it. In a fresh Angular application, or the one you have:
+
+```sh npm
+ng new my-studio --style=css --ssr=false && cd my-studio
+npx @loomweaver/cli init
+npm start
+```
+
+That is the whole path. `init` installs the platform's packages with the package manager your
+lockfile names, scaffolds the distribution and a first weaver called `notes`, wires the build, and
+ends by naming the command that serves the result. It asks nothing; `--title`, `--styles`,
+`--weaver` and `--no-weaver` change its defaults, `--dry-run` shows the plan and touches nothing, and
+running it twice changes nothing. In an Nx workspace it runs the Nx generators instead, so the
+plugin is a registered project; [Scaffolding](scaffolding.md#one-command-init) has every option.
+
+The rest of this page is what that one command did, step by step, with the commands it ran, so you
+know every file it wrote and why. Every command below was run against a fresh Angular app to produce
+exactly what the last step shows. The [live demo](https://demo.loomweaver.dev) runs the same shell,
+built the same way.
 
 If you would rather understand each file instead of generating it, [set it up by
 hand](manual-setup.md). Same result, roughly fifteen minutes, and it explains what the generators
 write.
 
-If an AI assistant is doing the typing, run steps 1 to 3 below as they are and hand it the rest.
+If an AI assistant is doing the typing, it runs the command above and takes it from there.
 [Building with an AI assistant](building-with-an-assistant.md) is the same path from the first
 weaver on, with a run recorded as it happened.
 
@@ -40,7 +56,9 @@ it is one line, not a blocker.
 
 ## 2 · Install the platform
 
-```bash
+`init` does this first, with your package manager. By hand:
+
+```sh npm
 npm install @loomweaver/shell @loomweaver/plugin-sdk @loomweaver/frame-kit @angular/cdk @jsverse/transloco @ng-icons/heroicons \
   @angular/service-worker@$(node -p "require('@angular/core/package.json').version")
 npm install -D tailwindcss @tailwindcss/postcss @tailwindcss/typography
@@ -58,9 +76,9 @@ you already have; leave it off and the install fails with `ERESOLVE`.
 ## 3 · Scaffold the distribution
 
 A **distribution** is your product: the composition root that assembles the platform into something
-shippable.
+shippable. `init` runs this next; by hand:
 
-```bash
+```sh npm
 npx @loomweaver/cli distribution --name my-studio --title "My Studio" --out . --force
 ```
 
@@ -136,9 +154,9 @@ When a scaffold cannot do something, the run says so and says what it costs to l
 
 ## 4 · Scaffold a weaver
 
-A **weaver** is a plugin: where all your own UI and logic live.
+A **weaver** is a plugin: where all your own UI and logic live. `init` runs this last; by hand:
 
-```bash
+```sh npm
 npx @loomweaver/cli weaver --id notes --command --shortcut 'mod+shift+n' --out src/notes
 ```
 
@@ -175,8 +193,8 @@ registered.
 
 ## 5 · Run
 
-```bash
-ng serve
+```sh npm
+npm start
 ```
 
 You get the branded chrome: a top bar with your name, logo and the theme and language controls, a

@@ -10,9 +10,9 @@ import {
 } from '@loomweaver/devkit';
 import { relative, resolve } from 'node:path';
 import { ArgError, ParsedArgs } from './args';
+import { findWorkspace } from './workspace';
 
 export { SCAFFOLDS, type ScaffoldDescriptor } from '@loomweaver/devkit';
-
 
 export function findScaffold(name: string): ScaffoldDescriptor {
   const scaffold = findDescriptor(name);
@@ -58,9 +58,7 @@ export function valuesFor(
     const value = readFlag(args, option);
     if (value === undefined) {
       if (option.required) {
-        throw new ArgError(
-          `Option --${kebabCase(option.name)} is required.`,
-        );
+        throw new ArgError(`Option --${kebabCase(option.name)} is required.`);
       }
       continue;
     }
@@ -75,7 +73,9 @@ export function valuesFor(
 }
 
 function directoryFromOut(out: string | undefined): string {
-  const below = relative(process.cwd(), resolve(out ?? '.'));
+  const target = resolve(out ?? '.');
+  const base = findWorkspace(target)?.root ?? process.cwd();
+  const below = relative(base, target);
   if (below.startsWith('..')) {
     return '';
   }

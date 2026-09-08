@@ -11,6 +11,7 @@ import {
 } from 'node:fs';
 import path from 'node:path';
 import { fetchReleases, newestDate, renderChangelog, renderUnavailable } from './changelog.mjs';
+import { expandPackageManagerFences } from './package-managers.mjs';
 import { fileURLToPath } from 'node:url';
 
 const websiteRoot = path.resolve(fileURLToPath(import.meta.url), '../..');
@@ -278,7 +279,12 @@ const problems = [];
 for (const source of sources) {
   const raw = readFileSync(path.join(repoRoot, source), 'utf8');
   const withLinks = rewriteLinks(raw, source, knownTargets, problems);
-  const page = frontmatter(withLinks, source, modified.get(source), problems);
+  const page = frontmatter(
+    expandPackageManagerFences(withLinks),
+    source,
+    modified.get(source),
+    problems,
+  );
   const target = path.join(contentDir, targetFor(source));
   mkdirSync(path.dirname(target), { recursive: true });
   writeFileSync(target, page);

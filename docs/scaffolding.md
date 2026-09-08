@@ -40,6 +40,48 @@ All three read the same scaffold descriptors and call the same generator core, s
 any of the three ways has byte-identical source. What differs is what each one is allowed to do with
 the result. See [who writes the files](#how-a-file-actually-gets-created).
 
+## One command: `init`
+
+Run in an Angular CLI application or in an Nx workspace, `init` takes it to a running product in
+one go. It detects which kind of workspace it is in, reads the package manager off the lockfile,
+installs the platform's packages, scaffolds the distribution and a first weaver, and ends by naming
+the command that serves the result. It creates no application; one line of `ng new` before it is
+the prerequisite, and [Getting started](getting-started.md) begins with exactly that.
+
+```sh npm
+npx @loomweaver/cli init
+```
+
+It asks no questions. Every choice is an option with a default:
+
+| Option                                   | Default                                            | Effect                                                                                                                     |
+| ---------------------------------------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `--title <text>`                         | the package name in title case                     | the product name the top bar shows                                                                                         |
+| `--styles tailwind\|precompiled`         | `tailwind`                                         | the style pipeline; `precompiled` installs no Tailwind and imports the stylesheet the shell ships                          |
+| `--weaver <id>`                          | `notes`                                            | the first plugin, with a command on `mod+shift+` and the id's first letter, so the rail shows something on the first serve |
+| `--no-weaver`                            |                                                    | no first plugin; the output says the rail stays empty until one is composed in                                             |
+| `--app <name>`                           | inferred when the Nx workspace has one application | which Nx application to take to a product; with several and none named, the candidates are listed and nothing is written   |
+| `--package-manager npm\|pnpm\|yarn\|bun` | from the lockfile, npm when there is none          | how packages are installed and how the serve command is spelled                                                            |
+| `--dry-run`                              |                                                    | name every package, file and amendment, install and write nothing                                                          |
+
+**In an Angular CLI application** it runs `distribution` over the application with `--force`,
+because the files it replaces are the bootstrap wiring `ng new` produced, then `weaver` into
+`src/<id>`. **In an Nx workspace** it installs `@loomweaver/devkit` as a dev dependency and runs the
+Nx generators, because only they register the project and the import alias; the result is what
+[the Nx generators](#the-nx-generators--loomweaverdevkit) produce. The serve command is `npm start`
+in the first case and `npx nx serve <app>` in the second, each spelled for the package manager
+found.
+
+**Run twice, it changes nothing** and says so: a package the manifest already carries is not
+installed again, a composition root that already boots the shell is not rewritten, a weaver whose
+entry point exists is not generated again. A trial run walks the same steps and names what each
+would do. Its weaver step is planned against the composition root as it is at that moment, so
+before the distribution step has run it says the plugin would not yet compose. That is true until
+that step has happened.
+
+Outside an Angular application or an Nx workspace it refuses, names what it expected to find, and
+says how to create one.
+
 ## The CLI — `@loomweaver/cli`
 
 It needs nothing installed: the generators are bundled in. It runs without a workspace too; where
@@ -67,7 +109,8 @@ Wired 3 workspace file(s):
 It finds the workspace by walking up from `--out`, so it wires the build as well as writing the
 files. `--dry-run` previews both and writes nothing.
 
-`loomweaver list` prints every scaffold with its options. `loomweaver --help` prints everything else. The
+`loomweaver list` prints every scaffold with its options. `loomweaver --help` prints everything else,
+[`init`](#one-command-init) included. The
 CLI is published on the platform's version line, and its output fits the `@loomweaver/shell` of the
 same version. Running `npx @loomweaver/cli` unpinned takes the latest one, which is right on the day
 you install the platform. A project on an older shell pins the tool to it, `npx @loomweaver/cli@0.9.0`,

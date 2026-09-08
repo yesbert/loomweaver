@@ -7,7 +7,7 @@ This is a curated map for people, and their AI assistants, building on or integr
 ## Start here
 
 - [Glossary](docs/glossary.md): the words the docs use, one line each; platform, shell, host and workbench name the same thing.
-- [Getting started](docs/getting-started.md): scaffold a running, branded product with a plugin already contributing to it, in ~5 minutes, using `@loomweaver/cli`. Start here.
+- [Getting started](docs/getting-started.md): a running, branded product with a plugin already contributing to it, in one command: `npx @loomweaver/cli init` inside an Angular application or an Nx workspace. The page then explains each step it ran. Start here.
 - [Building with an AI assistant](docs/building-with-an-assistant.md): the same path with an assistant doing the typing from the first weaver on: registering `@loomweaver/mcp` per tool (Claude Code, Cursor, VS Code), the prompts that reach its tools, and one run recorded as it happened.
 - [The workbench your users get](docs/the-workbench.md): what a product ships before its first plugin, one picture each from the live demo: panes and tabs, the palette and quick open, workspaces, the curation dialogs, context menus, settings and permissions, the plugin store with its consent prompt, and the shell's own keyboard shortcuts.
 - [Architecture](docs/architecture.md): the mental model, platform / weaver / distribution, the uniform `ctx`, default-deny capabilities, the two RPC boundaries. Read it once the tutorial has run.
@@ -80,7 +80,7 @@ Deterministic scaffolding + validation for building on LoomWeaver. Prefer these 
 
 - [Scaffolding](docs/scaffolding.md): the guide: which of the three adapters applies to you, what the tools return, and every weaver option.
 - [`@loomweaver/devkit`](platform/libs/tooling/devkit/README.md): the **Nx generator collection** (`npm i -D @loomweaver/devkit`), the fullest adapter, since Nx lets it also register the project and add the tsconfig alias. Read it for the generators (`weaver`, `frame-plugin`, `distribution`, `auth-source`, `settings-store`, `theme`, `layout`), their flags and the pure cores `generate(recipe, input)` and `validate*`.
-- [`@loomweaver/cli`](platform/libs/tooling/cli/README.md): the scaffolding **CLI**, the primary path for a product repo because it needs no Nx workspace, no checkout and no assistant. Read it for `--dry-run`/`--force`/`--strict` and the validators `validate-manifest`, `validate-i18n`, `validate-catalog`, `validate-commands`.
+- [`@loomweaver/cli`](platform/libs/tooling/cli/README.md): the scaffolding **CLI**, the primary path for a product repo because it needs no Nx workspace, no checkout and no assistant. `init` takes an existing Angular application or Nx workspace to a running product in one command (installs with the lockfile's package manager, scaffolds the distribution and a first weaver, idempotent, `--dry-run`). Read it for `--dry-run`/`--force`/`--strict` and the validators `validate-manifest`, `validate-i18n`, `validate-catalog`, `validate-commands`.
 - [`@loomweaver/mcp`](platform/libs/tooling/mcp/README.md): an MCP server exposing the same scaffolding + validation as tools (`scaffold_*` return a file map; `validate_*` return findings) for AI assistants. Register it in `.mcp.json` with `{ "command": "npx", "args": ["-y", "@loomweaver/mcp"] }`.
 
 ## Distribution API

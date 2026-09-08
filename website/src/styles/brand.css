@@ -24,3 +24,71 @@
 :root[data-theme='light'] img[src$='#gh-dark-mode-only'] {
   display: none;
 }
+
+/* Package-manager tabs. A fenced block written once in the npm spelling arrives from the sync as
+   four panels behind radio inputs; the checked radio's panel shows, its label reads as the active
+   tab. No script: the radios carry the state and the keyboard. */
+.lw-pm {
+  margin-block: 1rem;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.lw-pm-radio {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.lw-pm-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--sl-color-gray-5);
+  background: var(--sl-color-bg-nav);
+}
+
+/* Starlight spaces adjacent siblings inside markdown content by a rem; the tabs and panels are laid
+   out by this block, not by that rhythm. */
+.lw-pm .lw-pm-tabs,
+.lw-pm .lw-pm-tab,
+.lw-pm .lw-pm-panel {
+  margin-top: 0;
+}
+
+.lw-pm-tab {
+  padding: 0.45rem 0.9rem;
+  border-bottom: 2px solid transparent;
+  color: var(--sl-color-gray-2);
+  font-family: var(--sl-font-system-mono);
+  font-size: var(--sl-text-xs);
+  cursor: pointer;
+}
+
+.lw-pm-panel {
+  display: none;
+  margin: 0;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-size: var(--sl-text-sm);
+  line-height: 1.6;
+}
+
+.lw-pm-radio.lw-pm-npm:checked ~ .lw-pm-tabs .lw-pm-tab.lw-pm-npm,
+.lw-pm-radio.lw-pm-pnpm:checked ~ .lw-pm-tabs .lw-pm-tab.lw-pm-pnpm,
+.lw-pm-radio.lw-pm-yarn:checked ~ .lw-pm-tabs .lw-pm-tab.lw-pm-yarn,
+.lw-pm-radio.lw-pm-bun:checked ~ .lw-pm-tabs .lw-pm-tab.lw-pm-bun {
+  border-bottom-color: var(--sl-color-text-accent);
+  color: var(--sl-color-white);
+}
+
+.lw-pm-radio.lw-pm-npm:checked ~ .lw-pm-panel.lw-pm-npm,
+.lw-pm-radio.lw-pm-pnpm:checked ~ .lw-pm-panel.lw-pm-pnpm,
+.lw-pm-radio.lw-pm-yarn:checked ~ .lw-pm-panel.lw-pm-yarn,
+.lw-pm-radio.lw-pm-bun:checked ~ .lw-pm-panel.lw-pm-bun {
+  display: block;
+}
+
+.lw-pm-radio:focus-visible ~ .lw-pm-tabs {
+  outline: 2px solid var(--sl-color-text-accent);
+  outline-offset: -2px;
+}
