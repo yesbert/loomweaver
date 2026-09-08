@@ -35,11 +35,18 @@ See `proposal.md`, Why. The mechanics as they stand:
 **Prefer naming over a README, and keep the README for prose.** The requirement says the steps are
 named in the output at generation time. A `remaining` list is that; a README is a file the client
 writes, which the assistant may or may not read (the recorded weaver run read it, a second run wrote
-it without reading). So the fix makes `authSourceAmendments` return the directory-independent
-amendments when no directory is known, and describes the directory-bound ones with a placeholder
-for the location, the way the weaver's README already phrases its asset glob (`<path to this
-library>`). Alternative: emit a README like the weaver's. Not rejected, but secondary: it helps the
-reader, it does not satisfy the requirement on its own.
+it without reading). Alternative: emit a README like the weaver's. Not rejected, but secondary: it
+helps the reader, it does not satisfy the requirement on its own.
+
+**The fix lives in the MCP route, not in the recipes.** Implementation showed why: the CLI derives
+its directory from `--out`, and `--out .` yields an empty one, so a recipe that returned placeholder
+amendments without a directory would hand the CLI placeholders to write into `angular.json`. The
+MCP route is the only route that names rather than applies, so it is the one that passes a
+placeholder location to `amend`, `<the directory you wrote these files into>`, and every
+directory-bound amendment comes out described with it. The recipes and both writing routes are
+untouched. The first design named `authSourceAmendments` as the place; that was decided before
+the CLI's empty-directory case was seen. Whether the CLI with `--out .` should apply rather than
+drop is a question of its own and is recorded under Risks.
 
 **The test enumerates the scaffolds.** For each descriptor the MCP route offers, generate with no
 directory, and assert that either `remaining` is non-empty or the recipe declares it needs no
@@ -53,3 +60,8 @@ the next recipe cannot ship with the gap.
 - **The plain weaver run then also names steps it did not before**, which changes the existing
   test that expects `remaining` to be undefined. → That test encoded the README as the carrier;
   update it to expect the steps, and keep the README.
+- **The CLI with `--out .` drops the same amendments**, because its directory is empty then and
+  the recipes return nothing for an empty directory; nothing names them either. Not touched here,
+  because this change is the MCP route's; it is a defect of its own against *A route with
+  workspace access leaves nothing to be named* and has its own change,
+  `the-cli-at-the-workspace-root-still-wires`.

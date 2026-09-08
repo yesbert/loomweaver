@@ -17,6 +17,13 @@ function must(name: string) {
   return descriptor;
 }
 
+function remaining(name: string, args: Record<string, unknown>): string {
+  const payload = scaffold(must(name), args).structuredContent as {
+    remaining?: string[];
+  };
+  return (payload.remaining ?? []).join(' ');
+}
+
 function files(name: string, args: Record<string, unknown>) {
   return scaffold(must(name), args).structuredContent['files'] as Record<
     string,
@@ -146,15 +153,73 @@ describe('scaffold', () => {
     expect(text).toContain('the very first build fails');
   });
 
-  it('names no package where no connection was asked for', () => {
-    const descriptor = findScaffold('weaver');
-    if (!descriptor) {
-      throw new Error('the weaver scaffold is missing');
-    }
-    const result = scaffold(descriptor, { id: 'notes' }) as {
-      content: { text: string }[];
+  it('names the composition a plain weaver needs, and no package', () => {
+    const text = remaining('weaver', { id: 'notes' });
+    expect(text).toContain('Register notes in the composition root');
+    expect(text).toContain('i18n/notes');
+    expect(text).not.toContain('Add @');
+  });
+
+  it('names the wiring the auth stand-in needs, icons included', () => {
+    const text = remaining('auth-source', { name: 'dev' });
+    expect(text).toContain('provideAuthSource(() => devAuthSource())');
+    expect(text).toContain(
+      'provideIcons({ account: heroUserCircle, signOut: heroArrowRightStartOnRectangle })',
+    );
+    expect(text).toContain('Register session in the composition root');
+    expect(text).toContain(
+      "import { heroArrowRightStartOnRectangle, heroUserCircle } from '@ng-icons/heroicons/outline'",
+    );
+    expect(text).toContain('i18n/session');
+  });
+
+  it('names nothing for a bare auth source, which composes nothing by design', () => {
+    expect(remaining('auth-source', { name: 'dev', bare: true })).toBe('');
+  });
+
+  it('names a location it cannot know as a placeholder, never as a path', () => {
+    const text = remaining('auth-source', { name: 'dev' });
+    expect(text).toContain('<the directory you wrote these files into>/i18n');
+    expect(text).not.toMatch(/libs\//);
+  });
+
+  it('leaves no scaffold with output that needs wiring nobody names', () => {
+    const wiring: Record<
+      string,
+      { args: Record<string, unknown>; names: string }
+    > = {
+      weaver: {
+        args: { id: 'notes' },
+        names: 'Register notes in the composition root',
+      },
+      'frame-plugin': { args: { id: 'notes' }, names: 'provideFramePlugins(' },
+      distribution: { args: { name: 'acme-studio' }, names: '.postcssrc.json' },
+      'auth-source': { args: { name: 'dev' }, names: 'provideAuthSource(' },
+      'settings-store': {
+        args: { name: 'api' },
+        names: 'provideSettingsStore(',
+      },
+      theme: { args: { name: 'ocean' }, names: "@import './themes/ocean.css'" },
+      layout: { args: {}, names: 'provideLayout(' },
     };
-    expect(JSON.parse(result.content[0].text).remaining).toBeUndefined();
+    for (const descriptor of SCAFFOLDS) {
+      const expected = wiring[descriptor.name];
+      expect(
+        expected,
+        `${descriptor.name} has no wiring expectation`,
+      ).toBeDefined();
+      const payload = scaffold(descriptor, expected.args).structuredContent as {
+        files: Record<string, string>;
+        remaining?: string[];
+      };
+      const named = [
+        ...(payload.remaining ?? []),
+        ...Object.values(payload.files),
+      ].join(' ');
+      expect(named, `${descriptor.name} names its wiring nowhere`).toContain(
+        expected.names,
+      );
+    }
   });
 
   it('says nothing where the generated output needs nothing', () => {
@@ -182,7 +247,10 @@ export const plugin = {
 };`,
       },
     });
-    const findings = result.structuredContent['findings'] as { code: string; level: string }[];
+    const findings = result.structuredContent['findings'] as {
+      code: string;
+      level: string;
+    }[];
     expect(findings.map((finding) => finding.code)).toEqual([
       'command.description',
       'command.private',

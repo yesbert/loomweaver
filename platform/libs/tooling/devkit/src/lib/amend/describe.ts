@@ -22,7 +22,14 @@ export function describeAmendment(amendment: Amendment): string {
     const capabilities = amendment.capabilities
       .map((capability) => `'${capability}'`)
       .join(', ');
-    return `Register ${amendment.id} in the composition root: import { ${amendment.symbol} }, ${providers}provideTranslationNamespaces('${amendment.id}'), provideCapabilityGrants({ ${amendment.id}: [${capabilities}] }) and ...providePlugins(${amendment.symbol}). Without it none of its contributions appear.`;
+    const imports = (amendment.providers ?? [])
+      .flatMap((provider) => provider.from ?? [])
+      .map(
+        (imported) =>
+          ` import { ${imported.symbols.join(', ')} } from '${imported.path}'.`,
+      )
+      .join('');
+    return `Register ${amendment.id} in the composition root: import { ${amendment.symbol} }, ${providers}provideTranslationNamespaces('${amendment.id}'), provideCapabilityGrants({ ${amendment.id}: [${capabilities}] }) and ...providePlugins(${amendment.symbol}).${imports} Without it none of its contributions appear.`;
   }
   return [
     ...(amendment.styles.length > 0
@@ -31,7 +38,11 @@ export function describeAmendment(amendment: Amendment): string {
     ...(amendment.assets.length > 0
       ? [
           `add assets for ${amendment.assets
-            .map((asset) => asset.input)
+            .map((asset) =>
+              asset.output
+                ? `${asset.input} served under ${asset.output}`
+                : asset.input,
+            )
             .join(
               ', ',
             )} (the shell fetches its own strings at runtime, so without that glob every label in the chrome renders as its raw translation key)`,
