@@ -57,7 +57,11 @@ function relativeImport(fromDir: string, toDir: string): string {
   const up = from.slice(shared).map(() => '..');
   const down = to.slice(shared);
   const parts = [...up, ...down];
-  return parts.length === 0 ? '.' : (parts[0] === '..' ? parts : ['.', ...parts]).join('/');
+  if (parts.length === 0) {
+    return '.';
+  }
+  const rooted = parts[0] === '..' ? parts : ['.', ...parts];
+  return rooted.join('/');
 }
 
 export default authSourceGenerator;

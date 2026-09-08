@@ -132,51 +132,14 @@ export function ensureBuildTarget(
     amendment.serviceWorker ||
     amendment.initialBudget
   ) {
-    const configurations = { ...asObject(next['configurations']) };
-    const production = { ...asObject(configurations['production']) };
-
-    if (amendment.serviceWorker && production['serviceWorker'] === undefined) {
-      production['serviceWorker'] = joinProjectPath(
-        projectRoot,
-        amendment.serviceWorker,
-      );
-      added.push(`production serviceWorker: ${production['serviceWorker']}`);
-    }
-
-    if (amendment.inlineCritical !== undefined) {
-      const critical = ensureInlineCritical(
-        production['optimization'],
-        amendment.inlineCritical,
-      );
-      if (critical.declined) {
-        declined.push(
-          'production optimization is a boolean, so inlineCritical cannot be set beside it — ' +
-            'a release build then loads the stylesheet with an inline handler the generated ' +
-            'content-security policy blocks, and renders unstyled',
-        );
-      } else if (critical.changed) {
-        production['optimization'] = critical.value;
-        added.push(
-          `production optimization.styles.inlineCritical: ${amendment.inlineCritical}`,
-        );
-      }
-    }
-
-    if (amendment.initialBudget) {
-      const budgets = ensureInitialBudget(
-        production['budgets'],
-        amendment.initialBudget,
-      );
-      if (budgets.changed) {
-        production['budgets'] = budgets.value;
-        added.push(
-          `production budget initial: ${amendment.initialBudget.warning} warning, ${amendment.initialBudget.error} error`,
-        );
-      }
-    }
-
-    configurations['production'] = production;
-    next['configurations'] = configurations;
+    const production = ensureProductionConfiguration(
+      next['configurations'],
+      amendment,
+      projectRoot,
+    );
+    next['configurations'] = production.value;
+    added.push(...production.added);
+    declined.push(...production.declined);
   }
 
   return { value: next, added, declined };
@@ -188,6 +151,60 @@ export function ensureStylesheetSource(css: string, source: string): string {
     return css;
   }
   return `${css.trimEnd()}\n\n@source '${source}';\n`;
+}
+
+function ensureProductionConfiguration(
+  value: unknown,
+  amendment: BuildTargetAmendment,
+  projectRoot: string,
+): MergeResult {
+  const configurations = { ...asObject(value) };
+  const production = { ...asObject(configurations['production']) };
+  const added: string[] = [];
+  const declined: string[] = [];
+
+  if (amendment.serviceWorker && production['serviceWorker'] === undefined) {
+    production['serviceWorker'] = joinProjectPath(
+      projectRoot,
+      amendment.serviceWorker,
+    );
+    added.push(`production serviceWorker: ${production['serviceWorker']}`);
+  }
+
+  if (amendment.inlineCritical !== undefined) {
+    const critical = ensureInlineCritical(
+      production['optimization'],
+      amendment.inlineCritical,
+    );
+    if (critical.declined) {
+      declined.push(
+        'production optimization is a boolean, so inlineCritical cannot be set beside it — ' +
+          'a release build then loads the stylesheet with an inline handler the generated ' +
+          'content-security policy blocks, and renders unstyled',
+      );
+    } else if (critical.changed) {
+      production['optimization'] = critical.value;
+      added.push(
+        `production optimization.styles.inlineCritical: ${amendment.inlineCritical}`,
+      );
+    }
+  }
+
+  if (amendment.initialBudget) {
+    const budgets = ensureInitialBudget(
+      production['budgets'],
+      amendment.initialBudget,
+    );
+    if (budgets.changed) {
+      production['budgets'] = budgets.value;
+      added.push(
+        `production budget initial: ${amendment.initialBudget.warning} warning, ${amendment.initialBudget.error} error`,
+      );
+    }
+  }
+
+  configurations['production'] = production;
+  return { value: configurations, added, declined };
 }
 
 function ensureInitialBudget(

@@ -88,7 +88,7 @@ function read(ts: TypeScriptModule, file: TS.SourceFile, call: TS.CallExpression
   return {
     at,
     id: id.text,
-    callable: callable !== undefined && callable.kind === ts.SyntaxKind.TrueKeyword,
+    callable: callable?.kind === ts.SyntaxKind.TrueKeyword,
     described: properties.has('description'),
     answers: properties.has('answers'),
     returnsValue: returnsValue(ts, properties.get('run')),
