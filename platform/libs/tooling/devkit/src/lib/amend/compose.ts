@@ -110,10 +110,11 @@ function joinNamespaces(
   if (names.includes(`'${id}'`)) {
     return { source, joined: true };
   }
+  const namespaces = [...names, `'${id}'`].join(', ');
   return {
     source: source.replace(
       NAMESPACES,
-      () => `provideTranslationNamespaces(${[...names, `'${id}'`].join(', ')})`,
+      () => `provideTranslationNamespaces(${namespaces})`,
     ),
     joined: true,
   };

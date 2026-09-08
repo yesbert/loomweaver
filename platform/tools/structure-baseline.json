@@ -5,7 +5,5 @@
     "platform/libs/weavers/testbed-weaver/src/lib/views": 20,
     "platform/libs/weavers/testbed-weaver/src/lib/plugin": 14
   },
-  "files": {
-    "platform/libs/tooling/devkit/src/recipes/angular-weaver/recipe.ts": 592
-  }
+  "files": {}
 }

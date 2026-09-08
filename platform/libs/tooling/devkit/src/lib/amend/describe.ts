@@ -16,12 +16,13 @@ export function describeAmendment(amendment: Amendment): string {
     return `Add an @source entry for '${amendment.sourceRoot}' to the application's entry stylesheet, resolved from that stylesheet. Without it none of that code's utilities are emitted.`;
   }
   if (amendment.kind === 'compose-plugin') {
-    const providers = (amendment.providers ?? []).map((provider) => provider.line.replace(/,$/, ''));
-    return `Register ${amendment.id} in the composition root: import { ${amendment.symbol} }, ${providers.map((line) => `${line}, `).join('')}provideTranslationNamespaces('${amendment.id}'), provideCapabilityGrants({ ${amendment.id}: [${amendment.capabilities
+    const providers = (amendment.providers ?? [])
+      .map((provider) => `${provider.line.replace(/,$/, '')}, `)
+      .join('');
+    const capabilities = amendment.capabilities
       .map((capability) => `'${capability}'`)
-      .join(
-        ', ',
-      )}] }) and ...providePlugins(${amendment.symbol}). Without it none of its contributions appear.`;
+      .join(', ');
+    return `Register ${amendment.id} in the composition root: import { ${amendment.symbol} }, ${providers}provideTranslationNamespaces('${amendment.id}'), provideCapabilityGrants({ ${amendment.id}: [${capabilities}] }) and ...providePlugins(${amendment.symbol}). Without it none of its contributions appear.`;
   }
   return [
     ...(amendment.styles.length > 0

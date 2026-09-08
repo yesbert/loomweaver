@@ -28,7 +28,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SOURCES = {
   defaults: 'libs/core/shell/src/lib/regions/bar/default-bar-items.ts',
   scaffold: 'libs/tooling/devkit/src/recipes/shell-regions.ts',
-  weaver: 'libs/tooling/devkit/src/recipes/angular-weaver/recipe.ts',
+  weaver: 'libs/tooling/devkit/src/recipes/angular-weaver/weaver-plugin.ts',
 };
 
 const read = (path) => readFileSync(join(root, path), 'utf8');
@@ -91,7 +91,7 @@ const notAPanel = [...docked]
 
 if (docked.size === 0) {
   console.error(
-    `check-region-ids: read no dock target from ${SOURCES.weaver} — the recipe changed shape.`,
+    `check-region-ids: read no dock target from ${SOURCES.weaver} — the emitted plugin changed shape.`,
   );
   process.exit(1);
 }
