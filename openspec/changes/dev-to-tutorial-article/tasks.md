@@ -105,7 +105,13 @@
 
 ## 3. Publish and record
 
-- [ ] 3.1 The owner publishes on dev.to; the URL is recorded here.
+- [x] 3.1 The owner publishes on dev.to; the URL is recorded here.
+      Published 2026-09-08 at 14:14 UTC:
+      https://dev.to/norbertrosenwinkel/intent-driven-uis-an-angular-workbench-your-ai-assistant-operates-5kd
+      Checked through the API right after: the four tags, the cover, the three pictures on dev.to's
+      own storage with no local path left, the degit line, eleven minutes reading time. The pasted
+      file had to be unwrapped first, one line per paragraph, because dev.to renders every newline
+      as a line break.
 - [ ] 3.2 Poll reactions and comments through the dev.to API for the first week; answer comments
       in the owner's voice, pasted by the owner.
 - [ ] 3.3 The day after the article, the owner posts the less technical LinkedIn version, which
