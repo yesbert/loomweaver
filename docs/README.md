@@ -30,9 +30,18 @@ workbench around it is not yours to maintain.
 
 ## What is different here
 
-**It stays Angular.** The content area is the Angular router, so routes, guards and resolvers carry
-over unchanged. There is no framework of its own to learn beside it, and the boundary a plugin's UI
-crosses is a Web Component, which is a browser standard rather than an invention here.
+**It sits above your component framework, not beside it.** The platform draws the workbench itself:
+the rail, the panes and their tabs, the command palette, dialogs, settings and the plugin store.
+Inside a surface you keep whatever you already build interfaces with. Tailwind is how the shell is
+built rather than something it imposes, so a product themed with Bootstrap, or with hand-written CSS,
+imports the compiled stylesheet and keeps its own palette.
+
+**It stays Angular, and a plugin does not have to be.** Your product's own code is Angular
+throughout: the content area is the Angular router, so routes, guards and resolvers carry over
+unchanged. A plugin contributes its view across a Web Component boundary, and a sandboxed one is an
+iframe the host mounts in isolation. That is how a plugin written in any technology takes part, and a
+frame kit gives its surfaces the theme, the translations and the navigation the rest of the workbench
+has.
 
 **Capabilities are default-deny, and the user can take them back.** A plugin declares what it needs
 and gets nothing that it did not declare. What was granted is visible to the user, who can revoke,
@@ -129,9 +138,8 @@ run recorded as it happened.
 ## Where this stands
 
 It is for Angular teams building a product that is a workbench: several things open at once, and a
-surface other people extend. It is not a component library, and it is not for a site of plain pages.
-It is maintained by one person, its API still moves on patch releases before 1.0, and the demo
-application is its reference consumer.
+surface other people extend. It is not for a site of plain pages. It is maintained by one person, its
+API still moves on patch releases before 1.0, and the demo application is its reference consumer.
 
 ## License
 
