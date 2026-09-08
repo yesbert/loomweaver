@@ -62,11 +62,22 @@
       not a thing to make a habit of; this one is a bookmark with no publish behind it and the
       article was not out yet, so nobody had followed it. The fetch was run again against the moved
       tag: four pins at ^0.9.2, the model the article names, and a budget a release build fits.
+      Moved once more on 2026-09-08, to the commit that put the example on 0.9.3, for the same
+      reason and under the same conditions: 0.9.3 is the release that publishes `init`, and the
+      article's first step is now that one command, so the snapshot has to sit on the platform the
+      step is written against. The step was rewritten on publishing day from the ten-line install
+      chain to `init --weaver tickets`, the `--agent` weaver and one `npm install`, after the
+      chain had run green against the published 0.9.3 packages; the published Getting started had
+      already shown `init` since #329 with no package carrying it, which is why the release came
+      before the article and not after.
 - [x] 2.4 Cover with the existing cover tooling; tags `angular`, `ai`, `agents`, `webdev`.
       Chosen 2026-09-05: `covers/cover-intent-f.png`, eyebrow "TUTORIAL · ANGULAR · AG-UI",
       headline "Intent-driven UIs: say what you mean.", the workbench in dark behind it. The owner's
       rule for it: the icon appears as a design element, the brand name does not, so the cover does
-      not read as advertising. Tag `tutorial` added.
+      not read as advertising. The tags are `angular`, `ai`, `agents` and `tutorial`, decided
+      2026-09-08: five had been picked and dev.to takes four, so `webdev` went, as the one that
+      says least about the article. The draft carries them as dev.to front matter, which also
+      holds the title, so the body no longer opens with a heading the title field would repeat.
 - [x] 2.5 Dropped by the owner on 2026-09-05: no prepared answer on SCION Workbench, Luigi or
       Module Federation. If a comment asks, it is answered then.
 - [x] 2.6 On publishing day, check the free model still exists and its limits are as the article
@@ -82,6 +93,15 @@
       with tool calling, and a 404 from OpenRouter adds that sentence to the message the panel
       shows. The example's package pins moved from `^0.9.0-preview.2` to `^0.9.0` at the same time,
       so a reader installs the released packages.
+      Checked again on 2026-09-08, publishing day: the model is still listed and still free, the
+      five docs anchors the article links resolve, and degit on the moved tag delivers the example
+      at ^0.9.3. The reader's path was then walked end to end on 0.9.3, the article's own
+      snippets where it shows them and the example's files where it points there: it builds,
+      serves, and the owner drove the counted workflow through it. One hole surfaced: the text
+      never said that the generator's example command, view and rail item on the assistant go,
+      so a reader kept them and saw raw translation keys, and the generated test that pinned the
+      example command failed once step 5 moved the confirmation to `tickets.reply`. Two sentences
+      at the top of step 7 close it, and step 7 now names `openrouter-key.ts`.
 
 ## 3. Publish and record
 
