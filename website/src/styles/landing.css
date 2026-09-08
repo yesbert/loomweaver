@@ -24,12 +24,13 @@
 }
 
 /* Starlight spaces every sibling inside markdown content by a rem, which put the second card of a
-   row a rem below the first and the second checklist card a quarter rem below. A grid child sits
-   where the grid puts it. */
-.lw-landing .door-grid > *,
+   row a rem below the first. A grid child sits where the grid puts it. */
+.lw-landing .card-grid > *,
 .lw-landing .rung-grid > *,
 .lw-landing .feature > *,
-.lw-landing .checklist li {
+.lw-landing .scrolly > *,
+.lw-landing .highlights li,
+.lw-landing .cli dl > * {
   margin-top: 0;
 }
 
@@ -40,7 +41,8 @@
 }
 
 .lw-landing p,
-.lw-landing li {
+.lw-landing li,
+.lw-landing dd {
   text-wrap: pretty;
 }
 
@@ -65,13 +67,13 @@
 }
 
 .lw-landing h2 {
-  margin-block: 0 1.5rem;
+  margin-block: 0 0.75rem;
   font-size: clamp(1.6rem, 1.1rem + 1.7vw, 2.2rem);
   line-height: 1.2;
 }
 
 .lw-landing h3 {
-  margin-block: 0 0.75rem;
+  margin-block: 0 0.5rem;
   font-size: 1.15rem;
   line-height: 1.35;
 }
@@ -79,6 +81,14 @@
 .lw-landing p {
   color: var(--sl-color-gray-2);
   line-height: 1.65;
+}
+
+/* The sentence under a heading: what the heading claims, in one line, before any detail. */
+.lw-landing .sub,
+.lw-landing .first {
+  margin-block: 0 1.5rem;
+  color: var(--sl-color-white);
+  font-size: 1.1rem;
 }
 
 .lw-landing .eyebrow {
@@ -162,16 +172,9 @@
 
 .lw-landing .hero .lead {
   margin-inline: auto;
-  max-width: 46rem;
+  max-width: 44rem;
   color: var(--sl-color-gray-2);
   font-size: clamp(1.05rem, 0.95rem + 0.5vw, 1.3rem);
-}
-
-.lw-landing .hero .fit {
-  margin: 0.75rem auto 0;
-  max-width: 44rem;
-  font-size: 0.95rem;
-  color: var(--sl-color-gray-2);
 }
 
 .lw-landing .actions {
@@ -180,6 +183,17 @@
   gap: 0.75rem;
   justify-content: center;
   margin-top: 2rem;
+}
+
+/* The two quiet links under the one button: text, not buttons, so the hero has one thing to do. */
+.lw-landing .hero .quiet {
+  justify-content: center;
+  margin-top: 1rem;
+  font-size: var(--sl-text-sm);
+}
+
+.lw-landing .hero .quiet a::after {
+  content: ' ›';
 }
 
 /* The border is what makes this read as a button rather than a link, so WCAG 1.4.11 wants 3:1
@@ -251,11 +265,6 @@
   box-shadow: 0 1.5rem 4rem -1.5rem rgb(0 0 0 / 55%);
 }
 
-.lw-landing .shot.narrow {
-  margin-inline: auto;
-  max-width: 52rem;
-}
-
 .lw-landing figcaption {
   margin-top: 0.9rem;
   color: var(--sl-color-gray-3);
@@ -293,53 +302,183 @@
   line-height: 1.7;
 }
 
-/* What stays Angular */
+/* What you get: the highlights scroll, the picture stays.
 
-.lw-landing .stays {
+   Two columns from a laptop width up. The left column is the list; each entry is tall enough that
+   scrolling steps through them one at a time. The right column is one panel that sticks below the
+   header and shows the picture of whichever entry is nearest the middle of the screen; the script
+   on the page swaps it, and without the script the first picture stays, which is a complete page
+   too. Below that width there is no room for two columns, so each picture follows its own entry
+   and the panel is not rendered at all. */
+
+.lw-landing .get h2,
+.lw-landing .get .sub {
+  text-align: center;
+}
+
+.lw-landing .get .sub {
   margin-inline: auto;
-  max-width: 46rem;
+  max-width: 40rem;
 }
 
-.lw-landing .stays h2 {
+.lw-landing .highlights {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lw-landing .highlights li {
+  padding-block: 1.5rem 2rem;
+  border-top: 2px solid var(--sl-color-gray-5);
+}
+
+.lw-landing .highlights h3 a {
+  color: var(--sl-color-white);
+  text-decoration: none;
+}
+
+.lw-landing .highlights h3 a:hover,
+.lw-landing .highlights h3 a:focus-visible {
+  color: var(--sl-color-text-accent);
+}
+
+.lw-landing .highlights p {
+  margin-bottom: 1rem;
+}
+
+.lw-landing .inline-shot img,
+.lw-landing .panel img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.75rem;
+  box-shadow: 0 1.5rem 4rem -1.5rem rgb(0 0 0 / 55%);
+}
+
+.lw-landing .panel {
+  display: none;
+}
+
+.lw-landing .panel .frame {
+  margin: 0;
+}
+
+@media (min-width: 64rem) {
+  .lw-landing .scrolly {
+    display: grid;
+    gap: 3rem;
+    align-items: start;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  }
+
+  .lw-landing .highlights li {
+    /* Tall enough that one entry at a time sits in the middle of the screen, short enough that the
+       list does not outrun the pictures by a screen or two. */
+    min-height: 55vh;
+    padding-block: 2rem;
+  }
+
+  .lw-landing .highlights li:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  .lw-landing .inline-shot {
+    display: none;
+  }
+
+  .lw-landing .panel {
+    display: block;
+    position: sticky;
+    /* Below the site header, with a little air. */
+    top: calc(var(--sl-nav-height, 4rem) + 1.5rem);
+  }
+}
+
+.lw-landing .also {
+  margin: 2rem auto 0;
+  max-width: 50rem;
+  font-size: var(--sl-text-sm);
   text-align: center;
 }
 
-/* The two doors */
+/* Feature row: text beside code from a laptop width up, stacked below it, where two columns left
+   the prose a narrow strip beside a code block that scrolled. */
 
-.lw-landing .doors h2 {
-  text-align: center;
-}
-
-.lw-landing .door-grid {
+.lw-landing .feature {
   display: grid;
-  gap: 1.5rem;
+  gap: 1.5rem 3rem;
+  align-items: start;
   grid-template-columns: minmax(0, 1fr);
 }
 
-@media (min-width: 56rem) {
-  .lw-landing .door-grid {
+@media (min-width: 64rem) {
+  .lw-landing .feature {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  }
+}
+
+.lw-landing .feature h2 {
+  font-size: clamp(1.4rem, 1.1rem + 1.2vw, 1.9rem);
+}
+
+/* Built for humans and agents */
+
+.lw-landing .agents h2,
+.lw-landing .agents .sub {
+  text-align: center;
+}
+
+.lw-landing .agents .sub {
+  margin-inline: auto;
+  max-width: 40rem;
+}
+
+.lw-landing .card-grid {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 40rem) {
+  .lw-landing .card-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-.lw-landing .door {
-  padding: 1.75rem;
+@media (min-width: 64rem) {
+  .lw-landing .card-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.lw-landing .card {
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
   border: 1px solid var(--sl-color-gray-5);
   border-radius: 0.75rem;
   background: var(--sl-color-bg-nav);
 }
 
-.lw-landing .door h3 {
-  font-size: 1.3rem;
+.lw-landing .card h3 {
+  font-size: 1.05rem;
 }
 
-/* gray-3 on the card's own gray-6 background is 4.49:1 in the dark theme, one hundredth under the
-   4.5 that WCAG 1.4.3 asks of body text. gray-2 is 8.57:1 and still reads as an aside. */
-.lw-landing .door .aside {
-  margin-bottom: 0;
-  color: var(--sl-color-gray-2);
+.lw-landing .card p {
+  flex: 1;
+  margin-bottom: 1rem;
   font-size: var(--sl-text-sm);
-  font-style: italic;
+}
+
+.lw-landing .card a {
+  font-size: var(--sl-text-sm);
+  font-weight: 600;
+}
+
+.lw-landing .card a::after {
+  content: ' ›';
 }
 
 .lw-landing .bridge {
@@ -354,123 +493,20 @@
   color: var(--sl-color-white);
 }
 
-/* Alternating feature rows: text beside code from a laptop width up, stacked below it, where two
-   columns left the prose a narrow strip beside a code block that scrolled. */
-
-.lw-landing .feature {
-  display: grid;
-  gap: 1.5rem 3rem;
-  align-items: start;
-  grid-template-columns: minmax(0, 1fr);
-}
-
-@media (min-width: 64rem) {
-  .lw-landing .feature {
-    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
-  }
-
-  .lw-landing .feature.reverse .feature-text {
-    order: 2;
-  }
-}
-
-/* The picture after a feature belongs to it, so it sits closer than the next section does. */
-.lw-landing .feature + figure {
-  margin-top: calc(var(--lw-section-gap) * -0.45);
-}
-
-.lw-landing .feature h2 {
-  font-size: clamp(1.4rem, 1.1rem + 1.2vw, 1.9rem);
-}
-
-.lw-landing .feature .rule {
-  padding-left: 1rem;
-  border-left: 3px solid var(--lw-gold);
-  color: var(--sl-color-white);
-  font-weight: 600;
-}
-
-/* Checklist */
-
-.lw-landing .checklist h2 {
-  text-align: center;
-}
-
-.lw-landing .checklist ul {
-  display: grid;
-  gap: 0.6rem 2rem;
-  grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.lw-landing .checklist li {
-  position: relative;
-  padding-left: 1.75rem;
-  color: var(--sl-color-gray-2);
-  line-height: 1.6;
-}
-
-.lw-landing .checklist li::before {
-  position: absolute;
-  left: 0;
-  color: var(--sl-color-accent);
-  content: '✓';
-  font-weight: 700;
-}
-
-/* The lines that have a picture come first, as cards that open the guide's section. */
-.lw-landing .checklist ul.shots {
-  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
-  gap: 1.25rem;
-  margin-block-end: 1.5rem;
-}
-
-.lw-landing .checklist ul.shots li {
-  padding-left: 0;
-}
-
-.lw-landing .checklist ul.shots li::before {
-  content: none;
-}
-
-.lw-landing .checklist ul.shots a {
-  display: block;
-  color: inherit;
-  text-decoration: none;
-}
-
-.lw-landing .checklist ul.shots img {
-  display: block;
-  width: 100%;
-  height: auto;
-  margin-block-end: 0.6rem;
-  border: 1px solid var(--sl-color-hairline);
-  border-radius: 0.5rem;
-  box-shadow: var(--sl-shadow-sm);
-}
-
-.lw-landing .checklist ul.shots a:hover img,
-.lw-landing .checklist ul.shots a:focus-visible img {
-  border-color: var(--sl-color-accent);
-}
-
-.lw-landing .checklist ul.shots span::before {
-  color: var(--sl-color-accent);
-  content: '✓ ';
-  font-weight: 700;
-}
-
-.lw-landing .checklist .bridge {
-  margin-block-start: 1.5rem;
-  text-align: center;
+.lw-landing .agents figure {
+  margin: 2.5rem 0 0;
 }
 
 /* Trust rungs */
 
-.lw-landing .rungs h2 {
+.lw-landing .rungs h2,
+.lw-landing .rungs .sub {
   text-align: center;
+}
+
+.lw-landing .rungs .sub {
+  margin-inline: auto;
+  max-width: 40rem;
 }
 
 .lw-landing .rung-grid {
@@ -497,6 +533,52 @@
   font-size: var(--sl-text-sm);
 }
 
+/* One CLI */
+
+.lw-landing .cli {
+  margin-inline: auto;
+  max-width: 46rem;
+}
+
+.lw-landing .cli h2,
+.lw-landing .cli .sub {
+  text-align: center;
+}
+
+.lw-landing .cli dl {
+  margin: 0 0 1.25rem;
+}
+
+.lw-landing .cli dl > div {
+  display: grid;
+  gap: 0.25rem 1.25rem;
+  padding-block: 0.75rem;
+  border-top: 1px solid var(--sl-color-gray-5);
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 40rem) {
+  .lw-landing .cli dl > div {
+    grid-template-columns: 11rem minmax(0, 1fr);
+  }
+}
+
+.lw-landing .cli dt code {
+  color: var(--sl-color-white);
+  font-weight: 600;
+}
+
+.lw-landing .cli dd {
+  margin: 0;
+  color: var(--sl-color-gray-2);
+  font-size: var(--sl-text-sm);
+  line-height: 1.6;
+}
+
+.lw-landing .cli .links {
+  justify-content: center;
+}
+
 /* Closing call to action */
 
 .lw-landing .cta {
@@ -512,6 +594,12 @@
   max-width: 42rem;
 }
 
+.lw-landing .cta .expressive-code {
+  margin-inline: auto;
+  max-width: 52rem;
+  text-align: left;
+}
+
 @media (max-width: 40rem) {
   .lw-landing .hero h1 br {
     display: none;
@@ -521,17 +609,14 @@
 /* Grid children default to min-width:auto, which lets a wide code block push the row instead of
    scrolling inside it. */
 .lw-landing .feature > *,
-.lw-landing .door,
-.lw-landing .rung {
+.lw-landing .card,
+.lw-landing .rung,
+.lw-landing .scrolly > * {
   min-width: 0;
 }
 
 .lw-landing .expressive-code {
   margin-block: 1.25rem 0;
-}
-
-.lw-landing .door .expressive-code {
-  font-size: 0.85em;
 }
 
 /* Both themes of a picture ship; the one that does not match is removed from the page, and with it
