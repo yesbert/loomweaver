@@ -104,6 +104,12 @@ false`, `types: ["*"]`, `noUncheckedSideEffectImports: false` and `ignoreDepreca
   with `git ls-files`, so an untracked file is invisible to it. Every link to the new page then
   fails the build as unresolvable while the file sits right there. `git add` the page and the build
   passes; nothing else is wrong.
+- **A change to the Expressive Code options in `website/astro.config.mjs` does not reach a running
+  dev server.** The content cache under `website/.astro/` holds the rendered markdown pages. Each
+  links the code stylesheet by the hash of the options that rendered it. A new option gives the
+  stylesheet a new hash, the cached pages keep the old link, and every code block on the site loses
+  its styling while the build is fine. Stop the server, delete `website/.astro/data-store.json` and
+  start it again; `--force` alone does not clear it.
 - **The site dates every page from `git log`, so a shallow checkout dates the whole site to today.**
   Those dates are the sitemap's `lastmod` and the structured data's `dateModified`. Both workflows
   that build the site check out with `fetch-depth: 0` for exactly this reason; a local shallow clone
