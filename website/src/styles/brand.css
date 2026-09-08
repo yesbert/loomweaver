@@ -60,12 +60,19 @@
   pointer-events: none;
 }
 
+/* Scrollable, because four labels can outgrow a narrow screen, but without a bar: a system set to
+   show scrollbars always drew one across the strip, and there is nothing under it to reveal. */
 .lw-pm-tabs {
   display: flex;
   gap: 1rem;
   padding-inline: 0.75rem;
   border-bottom: 1px solid var(--sl-color-gray-5);
   overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.lw-pm-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 /* Starlight spaces adjacent siblings inside markdown content by a rem; the tabs and panels are laid
