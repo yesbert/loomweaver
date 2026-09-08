@@ -11,6 +11,7 @@ import {
 } from 'node:fs';
 import path from 'node:path';
 import { fetchReleases, newestDate, renderChangelog, renderUnavailable } from './changelog.mjs';
+import { expandCards } from './cards.mjs';
 import { expandPackageManagerFences } from './package-managers.mjs';
 import { fileURLToPath } from 'node:url';
 
@@ -41,7 +42,7 @@ function targetFor(repoPath) {
 
 /** Path under generated/docs → the route Starlight serves it at. */
 function routeFor(target) {
-  const withoutExt = target.replace(/\.md$/, '').split(path.sep).join('/');
+  const withoutExt = target.replace(/\.mdx?$/, '').split(path.sep).join('/');
   const trimmed = withoutExt.replace(/(^|\/)index$/, '');
   return trimmed ? `/${trimmed}/` : '/';
 }
@@ -193,7 +194,7 @@ function description(body) {
   for (const block of prose) {
     const text = block.trim();
     if (!text) continue;
-    if (/^(#{1,6}\s|[>|]|[-*+]\s|\d+\.\s|!\[|<)/.test(text)) continue;
+    if (/^(#{1,6}\s|[>|]|[-*+]\s|\d+\.\s|!\[|<|import\s)/.test(text)) continue;
     opening.push(flatten(text));
     if (opening.join(' ').length >= DESCRIPTION_MIN) break;
   }
@@ -279,13 +280,12 @@ const problems = [];
 for (const source of sources) {
   const raw = readFileSync(path.join(repoRoot, source), 'utf8');
   const withLinks = rewriteLinks(raw, source, knownTargets, problems);
-  const page = frontmatter(
-    expandPackageManagerFences(withLinks),
-    source,
-    modified.get(source),
-    problems,
-  );
-  const target = path.join(contentDir, targetFor(source));
+  /* Cards are the one upgrade that needs components, so a page carrying them is written as MDX.
+     The route is unchanged: it is derived from the source path, not from what is written. */
+  const { body, cards } = expandCards(expandPackageManagerFences(withLinks));
+  const page = frontmatter(body, source, modified.get(source), problems);
+  const name = cards ? targetFor(source).replace(/\.md$/, '.mdx') : targetFor(source);
+  const target = path.join(contentDir, name);
   mkdirSync(path.dirname(target), { recursive: true });
   writeFileSync(target, page);
 }
@@ -509,7 +509,7 @@ for (const page of pagesUnder(contentDir, '')) {
 const llmsIndex = readFileSync(path.join(repoRoot, 'llms.txt'), 'utf8');
 for (const page of pagesUnder(contentDir, '')) {
   if (!/\.mdx?$/.test(page) || page === CHANGELOG) continue;
-  const source = page === 'overview.md' ? 'README.md' : page;
+  const source = /^overview\.mdx?$/.test(page) ? 'README.md' : page;
   if (!llmsIndex.includes(`(docs/${source})`)) {
     problems.push(
       `docs/${source} is not linked from llms.txt — add it with a one-line hook, or an assistant never learns it exists`,
