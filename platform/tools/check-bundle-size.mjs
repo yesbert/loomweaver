@@ -104,7 +104,7 @@ if (names.length === 0) {
   );
 }
 
-const unknown = names.filter((name) => !(name in APPS));
+const unknown = names.filter((name) => APPS[name] === undefined);
 if (unknown.length > 0) {
   fail(
     `check-bundle-size: unknown application(s) ${unknown.join(', ')}.`,
@@ -112,7 +112,7 @@ if (unknown.length > 0) {
   );
 }
 
-const measured = names.map(measure);
+const measured = names.map((name) => measure(name));
 const baseline = existsSync(baselinePath)
   ? JSON.parse(readFileSync(baselinePath, 'utf8'))
   : { apps: {} };
@@ -147,7 +147,7 @@ if (write) {
   process.exit(0);
 }
 
-const orphans = Object.keys(baseline.apps ?? {}).filter((name) => !(name in APPS));
+const orphans = Object.keys(baseline.apps ?? {}).filter((name) => APPS[name] === undefined);
 if (orphans.length > 0) {
   fail(
     `check-bundle-size: the baseline records ${orphans.join(', ')}, which this checker does not know.`,
