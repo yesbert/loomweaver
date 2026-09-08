@@ -1,6 +1,6 @@
 # LoomWeaver documentation
 
-**Build the product. Not the workbench.**
+**Build Angular workbenches that grow with your product.**
 
 LoomWeaver gives your product its entire workbench UI, panes, tabs, command palette and plugin store
 included, without you building any of it. It is a domain-agnostic plugin and UI platform: your domain
@@ -11,10 +11,51 @@ is frontend-only; your product brings its own backend.
 It speaks **[AG-UI](https://docs.ag-ui.com)** as well, so an agentic backend that already talks that
 standard can run your product's own commands.
 
-It is for Angular teams building a product that is a workbench: several things open at once, and a
-surface other people extend. It is not a component library, and it is not for a site of plain
-pages. It is maintained by one person, its API still moves on patch releases before 1.0, and the
-demo application is its reference consumer.
+<!-- cards -->
+
+- [Getting started](getting-started.md): One command takes an Angular application to a running, branded product with a plugin in it.
+- [Building with an AI assistant](building-with-an-assistant.md): The same path, with an assistant doing the typing and one run recorded as it happened.
+
+## Why LoomWeaver exists
+
+A product where several things are open at once raises its hardest questions late. What happens to
+unsaved work when a pane is hidden? What does the address bar mean with three panes open? What may a
+plugin reach, and what can the user take back? Each of those arrives after somebody has already met
+it, and each answer reaches back into everything built so far.
+
+The extension surface is where that hurts most. Fitted afterwards, it grants a plugin more than it
+declared or less than it needs, and both are discovered in production. LoomWeaver answers these
+questions in the platform, before your product meets them. Your domain stays a plugin, and the
+workbench around it is not yours to maintain.
+
+## What is different here
+
+**It sits above your component framework, not beside it.** The platform draws the workbench itself:
+the rail, the panes and their tabs, the command palette, dialogs, settings and the plugin store.
+Inside a surface you keep whatever you already build interfaces with. Tailwind is how the shell is
+built rather than something it imposes, so a product themed with Bootstrap, or with hand-written CSS,
+imports the compiled stylesheet and keeps its own palette.
+
+**It stays Angular, and a plugin does not have to be.** Your product's own code is Angular
+throughout: the content area is the Angular router, so routes, guards and resolvers carry over
+unchanged. A plugin contributes its view across a Web Component boundary, and a sandboxed one is an
+iframe the host mounts in isolation. That is how a plugin written in any technology takes part, and a
+frame kit gives its surfaces the theme, the translations and the navigation the rest of the workbench
+has.
+
+**Capabilities are default-deny, and the user can take them back.** A plugin declares what it needs
+and gets nothing that it did not declare. What was granted is visible to the user, who can revoke,
+disable or uninstall it. Three rungs of trust decide how far a plugin runs from the host, down to an
+iframe reached over RPC.
+
+**There is no privileged host API.** The published contract is the only contract there is, so a gap
+in it is a defect rather than a private route around it. What the typed declarations show your
+editor is what the platform can do.
+
+**An agent reaches your product's own commands.** A command can be opened to a caller that is not
+the user, with described arguments and an answer, and your product may confirm or decline each call
+before it runs. Scaffolding has a server of its own, so an assistant generates a weaver rather than
+guessing one.
 
 ## Pick your path
 
@@ -22,51 +63,20 @@ demo application is its reference consumer.
 | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **See it running first**                    | the live demo at [demo.loomweaver.dev](https://demo.loomweaver.dev): a product built on the published packages, and the [assistant workbench](https://github.com/yesbert/loomweaver/tree/main/examples/assistant-workbench), a smaller one an AI assistant operates through its own commands |
 | **See what changed**                        | the [changelog](https://loomweaver.dev/changelog/): every release, newest first, from the pull requests it merged                                                                                                                                                                            |
-| **Try it in five minutes**                  | [Getting started](getting-started.md): scaffold a running, branded product                                                                                                                                                                                                                   |
-| **Build it with an AI assistant**           | [Building with an AI assistant](building-with-an-assistant.md): the MCP server registered, the prompts that reach it, one run recorded as it happened                                                                                                                                        |
+| **Try it in five minutes**                  | [Getting started](getting-started.md): one command scaffolds a running, branded product with a plugin in it                                                                                                                                                                                  |
+| **Build it with an AI assistant**           | [Building with an AI assistant](building-with-an-assistant.md): the MCP server registered per tool, the prompts that reach it, one run recorded as it happened                                                                                                                               |
+| **Wire it by hand instead**                 | [Manual setup](manual-setup.md): the same application without the generator, plus the Nx, SSR and Module Federation answers                                                                                                                                                                  |
 | **See what a product gets for free**        | [The workbench your users get](the-workbench.md): every dialog, menu and search, one picture each                                                                                                                                                                                            |
 | **Understand how it works**                 | [Architecture](architecture.md), then the [concept pages](#concepts) for why the workbench behaves as it does                                                                                                                                                                                |
-| **Build a plugin (a "weaver")**             | [Authoring a weaver](authoring-a-weaver.md), with copyable recipes in [Samples](samples.md)                                                                                                                                                                                                  |
-| **Compose and brand a product**             | [Building a distribution](building-a-distribution.md)                                                                                                                                                                                                                                        |
+| **Build a plugin (a "weaver")**             | [Authoring a weaver](authoring-a-weaver.md), with copyable recipes in [Samples](samples.md) that say which parts the generator already writes                                                                                                                                                |
+| **Compose and brand a product**             | [Building a distribution](building-a-distribution.md): the composition root, and one decision per page under `distribution/`                                                                                                                                                                |
+| **Know what a plugin may do**               | [The plugin system](plugins.md): the three rungs of trust, the four ways a plugin arrives, and what a user can revoke, disable or uninstall                                                                                                                                                  |
+| **Generate the next piece**                 | [Scaffolding](scaffolding.md): the `@loomweaver/cli` command line, the `@loomweaver/devkit` Nx generators and the `@loomweaver/mcp` server, all in your own repository                                                                                                                       |
 | **Use Bootstrap or your own CSS framework** | [Bringing your own CSS framework](distribution/css-frameworks.md)                                                                                                                                                                                                                            |
 | **Let an AG-UI agent drive your product**   | [Driving your product with an AG-UI agent](ag-ui-agents.md)                                                                                                                                                                                                                                  |
-| **Wire your own backend**                   | [Backend integration](backend-integration.md)                                                                                                                                                                                                                                                |
+| **Wire your own backend**                   | [Backend integration](backend-integration.md): settings, session and translations against your own; the platform ships no server                                                                                                                                                             |
 | **Do something from your own code**         | [Distribution API](distribution-api/index.md): indexed by "I want to …"                                                                                                                                                                                                                      |
 | **Look something up**                       | the [reference pages](#platform-reference) below                                                                                                                                                                                                                                             |
-
-## Guides
-
-1. [Getting started](getting-started.md): scaffold a running, branded product with a plugin in it (~5 min).
-2. [Building with an AI assistant](building-with-an-assistant.md): the same path with an assistant doing
-   the typing from the first weaver on. Registering `@loomweaver/mcp` per tool, the prompts that reach
-   its tools, and one run recorded as it happened.
-3. [The workbench your users get](the-workbench.md): panes, the two searches, workspaces, settings,
-   the plugin store, context menus and the shortcuts, one picture each, from the live demo.
-4. [Architecture](architecture.md): the mental model. Platform, weaver and distribution, the uniform
-   `ctx`, default-deny capabilities, auth-aware access gating, the two RPC boundaries. Read it once
-   the tutorial has run.
-5. [Manual setup](manual-setup.md): the same app wired by hand, plus the Nx, SSR and Module
-   Federation answers (~15 min).
-6. [Samples](samples.md): complete, copyable recipes. A sidebar view with persisted state, a routable
-   surface, a command with its triggers, a settings section, access gating, dialogs. It says which of
-   them the generator already writes, so you only type the rest.
-7. [Authoring a weaver](authoring-a-weaver.md): the shape of a weaver and the map of sixteen how-to pages
-   under `weaver/`. Surfaces in a sidebar, the content area, containers, commands, menus, unsaved changes,
-   sandboxed surfaces, access gating, settings, i18n. One task per page.
-8. [Building a distribution](building-a-distribution.md): the composition root and the map of seventeen
-   how-to pages under `distribution/`. Layout, routing, workspaces, switching capabilities off, branding,
-   capabilities, auth, persistence, your own CSS framework, frame plugins, the plugin store, PWA. One decision per page.
-9. [The plugin system](plugins.md): the three rungs of trust and the four ways a plugin arrives (trusted,
-   frame plugin, operator-deployed, community-installed), default-deny capabilities, and what the user
-   can revoke, disable or uninstall.
-10. [Scaffolding](scaffolding.md): generate weavers, distributions and integrations with the
-    `@loomweaver/cli` command line, the `@loomweaver/devkit` Nx generators or the `@loomweaver/mcp` server for AI
-    assistants, all in your own repository.
-11. [Driving your product with an AG-UI agent](ag-ui-agents.md): generate the AG-UI connection,
-    watch a call go through, decide which calls to ask about, and replace the stand-in with your own
-    transport.
-12. [Backend integration](backend-integration.md): the product hand-off. Settings, session and
-    translations against your own backend; the platform ships no server.
 
 ## Concepts
 
@@ -124,6 +134,12 @@ run recorded as it happened.
   and the guards that fail on it.
 - [Contributing](https://github.com/yesbert/loomweaver/blob/main/CONTRIBUTING.md): how work happens
   here, from fork and branch to the checks a pull request has to pass.
+
+## Where this stands
+
+It is for Angular teams building a product that is a workbench: several things open at once, and a
+surface other people extend. It is not for a site of plain pages. It is maintained by one person, its
+API still moves on patch releases before 1.0, and the demo application is its reference consumer.
 
 ## License
 
