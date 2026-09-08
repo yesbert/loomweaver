@@ -9,6 +9,7 @@
     "prepreview:testbed": "npm run dev-cert",
     "preview:testbed": "nx build loom-testbed --configuration production && node tools/preview-server.mjs dist/apps/loom-testbed/browser 4300",
     "api-docs-check": "node tools/check-api-docs.mjs",
+    "bundle-size-check": "node tools/check-bundle-size.mjs",
     "agent-versions-check": "node tools/check-agent-versions.mjs",
     "quick-start-check": "node tools/check-quick-start.mjs",
     "command-names-check": "node tools/check-command-names.mjs",

@@ -1,0 +1,9 @@
+{
+  "_": "The initial bundle of each application, in kilobytes of a thousand bytes, rounded up to the next 5 kB. A ratchet: growing past a ceiling fails, and dropping a whole step below one fails as stale. Refresh with `node tools/check-bundle-size.mjs <app…> --write-baseline` when the change is a deliberate one. The demo and the example build against the published packages, so their numbers move when a release lands.",
+  "apps": {
+    "assistant-workbench": 1015,
+    "demo": 1320,
+    "loom-shell": 900,
+    "loom-testbed": 1030
+  }
+}

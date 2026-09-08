@@ -60,6 +60,12 @@ jobs:
           npm install
           npx nx run-many --target=lint --target=test --target=build --all
 
+      # What the browser fetches before it renders anything, against a recorded ceiling. The Angular
+      # budget in each application catches a jump; this catches the creep that stays under it. It
+      # reads the build output, so it runs after the build and never on its own.
+      - name: Initial bundle stays under its ceiling
+        run: npm run bundle-size-check -- loom-shell loom-testbed
+
       # Which way the shell's imports point, at two scales. A cycle between files is a latent
       # initialisation-order bug and its baseline is zero. A mutually dependent pair of slices is not
       # a defect — it is the distance to an Nx library split, which Nx refuses while a cycle exists.
@@ -185,6 +191,12 @@ jobs:
       - name: Build the demo
         run: npm run build
 
+      # The checker is plain Node with no imports beyond the standard library, so it runs from this
+      # job without platform's dependencies installed. The demo builds against the published
+      # packages, so its recorded ceiling moves when a release lands.
+      - name: Initial bundle stays under its ceiling
+        run: node ../platform/tools/check-bundle-size.mjs demo
+
       # A manifest without icons cannot be installed, and a service worker that skips the
       # translations serves an app whose every label is a raw key offline. Neither fails a build on
       # its own, and both were true of this demo until this step existed.
@@ -225,6 +237,9 @@ jobs:
 
       - name: Build the example
         run: npm run build
+
+      - name: Initial bundle stays under its ceiling
+        run: node ../../platform/tools/check-bundle-size.mjs assistant-workbench
 
       - name: Unit tests
         run: npm test
