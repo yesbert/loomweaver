@@ -8,7 +8,15 @@
 > the behaviour there, then explain it here.
 
 A running product in one command: the LoomWeaver chrome, branded, with one plugin of your own
-already contributing to it. In a fresh Angular application, or the one you have:
+already contributing to it. The [live demo](https://demo.loomweaver.dev) runs the same shell, built
+the same way.
+
+> **Prerequisites:** Node 24 and an **Angular 22** application, from the Angular CLI (`ng new`) or
+> inside an Nx workspace. The command below creates none; it takes the one you are in. Under Nx it
+> runs the Nx generators, so the plugin becomes a registered project, and where the workspace has
+> more than one application it asks you to name one with `--app`.
+
+## The command
 
 ```sh npm
 ng new my-studio --style=css --ssr=false && cd my-studio
@@ -16,73 +24,67 @@ npx @loomweaver/cli init
 npm start
 ```
 
-That is the whole path. `init` installs the platform's packages with the package manager your
-lockfile names, scaffolds the distribution and a first weaver called `notes`, wires the build, and
-ends by naming the command that serves the result. It asks nothing; `--title`, `--styles`,
-`--weaver` and `--no-weaver` change its defaults, `--dry-run` shows the plan and touches nothing, and
-running it twice changes nothing. In an Nx workspace it runs the Nx generators instead, so the
-plugin is a registered project; [Scaffolding](scaffolding.md#one-command-init) has every option.
+`--ssr=false` because the shell is a **client-rendered** application chrome; a workspace with SSR
+switched on needs [one line](manual-setup.md#ssr-server-side-rendering), not a rewrite.
 
-The rest of this page is what that one command did, step by step, with the commands it ran, so you
-know every file it wrote and why. Every command below was run against a fresh Angular app to produce
-exactly what the last step shows. The [live demo](https://demo.loomweaver.dev) runs the same shell,
-built the same way.
+`init` reads your package manager off the lockfile, installs the platform, scaffolds the
+distribution and a first weaver called `notes`, wires the build, and ends by naming the command
+that serves the result. It asks nothing. `--title`, `--styles precompiled`, `--weaver <id>` and
+`--no-weaver` change its defaults, `--dry-run` shows the plan and touches nothing, and running it a
+second time changes nothing. [Scaffolding](scaffolding.md#one-command-init) has every option.
 
-If you would rather understand each file instead of generating it, [set it up by
-hand](manual-setup.md). Same result, roughly fifteen minutes, and it explains what the generators
-write.
+## What you see
 
-If an AI assistant is doing the typing, it runs the command above and takes it from there.
-[Building with an AI assistant](building-with-an-assistant.md) is the same path from the first
-weaver on, with a run recorded as it happened.
+You get the branded chrome: a top bar with your name, logo and the theme and language controls, a
+rail on the left with **your weaver's icon in it**, and a collapsible sidebar on each side. Click
+that icon and the app navigates to `/notes`, where your surface fills the content area.
 
-> **Prerequisites:** Node 24 and an **Angular 22** workspace. Both flavours work and nothing below is
-> specific to either: the **Angular CLI** (`ng new`) and **Nx** (`nx g @nx/angular:application`)
-> generate the same application shape. Where they differ, in one file name or one path, it is called
-> out. See also [LoomWeaver and Nx](manual-setup.md#loomweaver-and-nx).
+![The scaffolded product after the first run: the top bar with the product name, the notes weaver open in a tab, the shell's version in the status bar.](../assets/media/quick-start-light.png#gh-light-mode-only)
 
-## 1 · An application to put it in
+![The scaffolded product after the first run: the top bar with the product name, the notes weaver open in a tab, the shell's version in the status bar.](../assets/media/quick-start-dark.png#gh-dark-mode-only)
 
-```bash
-ng new my-studio --style=css --ssr=false
-cd my-studio
-```
+That icon in the rail is the whole point: the platform drew every piece of chrome around it, and your
+plugin only declared what it wanted to contribute.
 
-Already have an application (Angular CLI or Nx)? Skip this step and run the rest inside it.
+Navigating there opens a tab, so the pane draws a tab strip above your surface, as it does for every
+routable surface ([The content area](weaver/content-area.md)).
 
-`--ssr=false` because the shell is a **client-rendered** application chrome. If your workspace has
-SSR switched on, as the Nx Angular template does, see [SSR](manual-setup.md#ssr-server-side-rendering);
-it is one line, not a blocker.
+One thing is deliberately empty, and it names the next thing to build: **the home route renders
+nothing**, because no surface claims `/` yet.
 
-## 2 · Install the platform
+The status bar along the bottom shows the running version, which the shell contributes itself. To put
+something of your own there, scaffold a weaver with `--bar-item` or copy [one behaviour, many
+triggers](samples.md#one-behaviour-many-triggers).
 
-`init` does this first, with your package manager. By hand:
+`mod+shift+n` fires the command the scaffold registered, which raises a toast: a placeholder action
+on a real shortcut, there to be replaced. Write chords with the **`mod`** token rather than `cmd` or
+`ctrl`; the host binds and displays it per platform.
 
-```sh npm
-npm install @loomweaver/shell @loomweaver/plugin-sdk @loomweaver/frame-kit @angular/cdk @jsverse/transloco @ng-icons/heroicons \
-  @angular/service-worker@$(node -p "require('@angular/core/package.json').version")
-npm install -D tailwindcss @tailwindcss/postcss @tailwindcss/typography
-```
+Two shortcuts are the shell's own and work from this first run: **`mod+k`** opens the command
+search, **`mod+p`** the search over everything you have open. The scaffold put both on screen as
+badges that print their own chord, two lines in your `app.config.ts` and yours to move or delete;
+`LOOMWEAVER.md` says how.
 
-These are runtime dependencies of your application, not dev tooling: `@angular/cdk` powers drag-drop
-reorder and accessibility, Transloco the translations, `@ng-icons/heroicons` the first-party icon
-set. Tailwind is build-time only.
+![The quick open list over the workbench, four open tabs marked now at the top and the other views the product can open below.](../assets/media/quick-open-light.png#gh-light-mode-only)
 
-The last argument pins `@angular/service-worker`, a peer dependency of the shell, to the Angular version
-you already have; leave it off and the install fails with `ERESOLVE`.
-[Manual setup → Install](manual-setup.md#1--install) explains why, and why the version is read from
-`node_modules` rather than `package.json`.
+![The quick open list over the workbench, four open tabs marked now at the top and the other views the product can open below.](../assets/media/quick-open-dark.png#gh-dark-mode-only)
 
-## 3 · Scaffold the distribution
+`mod+p` in the demo: the open tabs first, marked _now_, and below them everything else the product
+can open.
 
-A **distribution** is your product: the composition root that assembles the platform into something
-shippable. `init` runs this next; by hand:
+## What `init` wrote
 
-```sh npm
-npx @loomweaver/cli distribution --name my-studio --title "My Studio" --out . --force
-```
+Nothing here needs doing; it is worth knowing, and every line links to where it is explained. The
+run itself names each file it wrote and each line it added.
 
-It writes twelve files and **deletes nothing**:
+**Packages.** `@loomweaver/shell`, `@loomweaver/plugin-sdk` and `@loomweaver/frame-kit`. Beside
+them `@angular/cdk` for drag and drop and accessibility, Transloco for the translations and
+`@ng-icons/heroicons` for the first-party icon set, all runtime dependencies. The service worker
+package is pinned to the Angular version you have, because a looser pin fails the install with
+`ERESOLVE` ([why](manual-setup.md#1--install)). Tailwind and its PostCSS plugin come as dev
+dependencies, unless you chose `--styles precompiled`.
+
+**The distribution**, twelve files, none of yours deleted:
 
 ```
 src/main.ts              bootstraps App with appConfig  (Angular's own shape)
@@ -99,81 +101,22 @@ public/manifest.webmanifest
 LOOMWEAVER.md            what was written, and the little that is still yours
 ```
 
-`--force` lets it replace the seven of those that `ng new` just produced; all seven are bootstrap wiring.
-Your `README.md` stays yours, because the scaffold keeps its own notes in `LOOMWEAVER.md`. If you want
-the list first, run it without `--force`: the CLI names each file it would replace and writes nothing.
+Seven of them replace what `ng new` had just produced; all seven are bootstrap wiring. Your
+`README.md` stays yours, because the scaffold keeps its own notes in `LOOMWEAVER.md`.
 
-It also **wires your workspace**; the run names every file it touched and every line it added.
+**The weaver**, eight files under `src/notes/`: a manifest, a routable surface, a rail item, a
+command on `mod+shift+n`, both translation bundles, a starter test and a README, with the
+capabilities it needs already declared.
 
-### What the scaffold wired
-
-Nothing to do here; the wiring is worth knowing about, not waiting for you.
-
-**`.postcssrc.json`**, beside your `package.json`, so Tailwind runs at all. Without it the chrome renders
-unstyled while the build reports success ([Styles](manual-setup.md#4--styles)).
-
-**Your build target**, in `angular.json` (or `project.json` under Nx), gains four things:
-
-```jsonc
-"styles": ["src/styles.css"],
-"assets": [
-  { "glob": "**/*", "input": "public" },
-  { "glob": "**/*", "input": "node_modules/@loomweaver/shell/i18n", "output": "i18n" },
-  { "glob": "**/*", "input": "node_modules/@loomweaver/frame-kit/dist", "output": "frame-kit" }
-],
-```
-
-and, in the **production** configuration:
-
-```jsonc
-"serviceWorker": "ngsw-config.json",
-"optimization": { "styles": { "inlineCritical": false } }
-```
-
-Each has a reason, told where the manual setup makes the same edit. The i18n glob serves the shell's
-own strings ([Serve the host translations](manual-setup.md#5--serve-the-host-translations)). The
-frame-kit glob matters only once you host sandboxed plugins ([Frame plugins](distribution/frame-plugins.md)),
-and the scaffold records `@loomweaver/frame-kit` in your `package.json` so the glob points at something
-that exists.
-`serviceWorker` and `inlineCritical: false` are the PWA side ([PWA and delivery](distribution/pwa.md)).
-One trap belongs here: `inlineCritical: false` is not optional. The generated `index.html` ships a
-strict `script-src 'self'` that blocks Angular's inline critical-CSS handler, and the app then renders
-unstyled, only in production builds.
-
-The scaffold only **adds**. A setting you had already made is left exactly as you made it, so
-re-running a scaffold over a workspace you have configured changes nothing.
-
-> **Don't want Tailwind?** Re-run this step with `--styles precompiled` and skip the Tailwind packages
-> from step 2; `src/styles.css` becomes one import of the stylesheet `@loomweaver/shell` ships
-> pre-compiled.
-> [Bringing your own CSS framework](distribution/css-frameworks.md) says what you
-> give up and how a Bootstrap theme fits.
-
-When a scaffold cannot do something, the run says so and says what it costs to leave undone.
-[Scaffolding](scaffolding.md) lists those cases.
-
-## 4 · Scaffold a weaver
-
-A **weaver** is a plugin: where all your own UI and logic live. `init` runs this last; by hand:
-
-```sh npm
-npx @loomweaver/cli weaver --id notes --command --shortcut 'mod+shift+n' --out src/notes
-```
-
-Write the chord with the **`mod`** token rather than `cmd` or `ctrl`; the host binds and displays it
-per platform. You get a manifest, a routable surface, a rail item, a command, both translation
-bundles and a starter test, with the capabilities it needs already declared.
-
-### What the weaver scaffold wired
-
-Also nothing to do. The weaver scaffold registered the plugin for you, in **`src/app/app.config.ts`**:
-one import at the top of the file,
-
-```ts
-import { notesPlugin } from '../notes/src';
-```
-
-and three lines in the providers array.
+**The wiring.** `.postcssrc.json` beside your `package.json`, so Tailwind runs at all; without it
+the chrome renders unstyled while the build reports success ([Styles](manual-setup.md#4--styles)).
+In `angular.json`, the stylesheet, three asset globs (your `public/`, the shell's own strings, the
+frame kit for sandboxed plugins) and the service worker in the production configuration. There too,
+`inlineCritical: false`, which is not optional: the generated `index.html` ships a strict
+`script-src 'self'` that blocks Angular's inline critical-CSS handler, and the app would render
+unstyled in production builds alone ([PWA and delivery](distribution/pwa.md)). The initial bundle
+budget is raised, because a fresh workspace carries one sized for an empty application. In
+`src/app/app.config.ts`, one import and three lines register the weaver:
 
 ```ts
 provideTranslationNamespaces('notes'),
@@ -181,60 +124,13 @@ provideCapabilityGrants({ notes: ['contributions', 'ui', 'navigation'] }),
 ...providePlugins(notesPlugin),
 ```
 
-The grants are exactly what the weaver's own manifest declares, because the broker is default-deny:
-an ungranted plugin throws `CapabilityError` rather than quietly doing less. It also added the assets
-glob that serves the weaver's translations and the `@source` entry that emits the utilities its
-templates use.
+The grants are exactly what the weaver's manifest declares, because the broker is default-deny: an
+ungranted plugin throws `CapabilityError` rather than quietly doing less. The scaffold composes into
+the root only while it still presents the shape the distribution scaffold generated; once you have
+reshaped it, it prints these lines and says the plugin was **not** registered.
 
-It does this only while the composition root still presents the shape the distribution scaffold
-generated, since that is the shape it knows how to edit. Once you have reshaped it, the scaffold does
-not guess: it leaves the file untouched, prints the lines above, and says the plugin was **not**
-registered.
-
-## 5 · Run
-
-```sh npm
-npm start
-```
-
-You get the branded chrome: a top bar with your name, logo and the theme and language controls, a
-rail on the left with **your weaver's icon in it**, and a collapsible sidebar on each side.
-Click that icon and the app navigates to `/notes`, where your surface fills the content area.
-
-![The scaffolded product after the first run: the top bar with the product name, the notes weaver open in a tab, the shell's version in the status bar.](../assets/media/quick-start-light.png#gh-light-mode-only)
-
-![The scaffolded product after the first run: the top bar with the product name, the notes weaver open in a tab, the shell's version in the status bar.](../assets/media/quick-start-dark.png#gh-dark-mode-only)
-
-That icon in the rail is the whole point: the platform drew every piece of chrome around it, and your
-plugin only declared what it wanted to contribute.
-
-Navigating there opens a tab, so the pane draws a tab strip above your surface, as it does for every
-routable surface ([The content area](weaver/content-area.md)).
-
-One thing is deliberately empty, and it names the next thing to build: **the home route renders
-nothing**, because no surface claims `/` yet.
-
-The status bar along the bottom shows the running version, which the shell contributes itself. To put
-something of your own there, scaffold with `--bar-item` or copy [one behaviour, many
-triggers](samples.md#one-behaviour-many-triggers).
-
-`mod+shift+n` fires the command the scaffold registered, which raises a toast: a placeholder action
-on a real shortcut, there to be replaced.
-
-Two shortcuts are the shell's own and work from this first run: **`mod+k`** opens the command
-search, **`mod+p`** the search over everything you have open. The scaffold put both on screen as
-badges that print their own chord, two lines in your `app.config.ts` and yours to move or delete;
-`LOOMWEAVER.md` says how.
-
-![The quick open list over the workbench, four open tabs marked now at the top and the other views the product can open below.](../assets/media/quick-open-light.png#gh-light-mode-only)
-
-![The quick open list over the workbench, four open tabs marked now at the top and the other views the product can open below.](../assets/media/quick-open-dark.png#gh-dark-mode-only)
-
-`mod+p` in the demo: the open tabs first, marked _now_, and below them everything else the product
-can open.
-
-Your first production build warns `bundle initial exceeded maximum budget`; raise the budgets in your
-build target as [Manual setup → Run](manual-setup.md#7--run) describes.
+Every amendment only **adds**. A setting you had already made is left as you made it, which is why
+`init` can run twice without changing anything.
 
 ## Tidy up
 
@@ -256,4 +152,7 @@ add a 192 and a 512 raster icon, the browser does not offer installation: see
 
 - [Samples](samples.md): complete, copyable recipes for the things you will build next.
 - [Authoring a weaver](authoring-a-weaver.md): the full contract behind what you just scaffolded.
-- [Manual setup](manual-setup.md): the same app wired by hand, if you want to see every seam.
+- [Manual setup](manual-setup.md): the same app wired by hand, step by step, if you want to see every
+  seam; [Scaffolding](scaffolding.md) is each generator on its own, with its options.
+- [Building with an AI assistant](building-with-an-assistant.md): the same path with an assistant
+  doing the typing from the first weaver on.
