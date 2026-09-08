@@ -8,10 +8,9 @@ import { MANAGERS, translate } from '../../tools/package-managers.mjs';
 interface Props {
   code: string;
   id: string;
-  frame?: 'auto' | 'none';
 }
 
-const { code, id, frame = 'auto' } = Astro.props;
+const { code, id } = Astro.props;
 ---
 
 <div class="lw-pm">
@@ -38,7 +37,7 @@ const { code, id, frame = 'auto' } = Astro.props;
   {
     MANAGERS.map((manager) => (
       <div class={`lw-pm-panel lw-pm-${manager}`}>
-        <Code code={translate(code, manager)} lang="sh" frame={frame} />
+        <Code code={translate(code, manager)} lang="sh" />
       </div>
     ))
   }

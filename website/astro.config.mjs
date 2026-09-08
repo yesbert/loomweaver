@@ -58,6 +58,10 @@ export default defineConfig({
         alt: '',
       },
       customCss: ['./src/styles/brand.css'],
+      expressiveCode: {
+        // Rounded like the cards and the package-manager tab groups; Starlight's own default is square.
+        styleOverrides: { borderRadius: '0.5rem' },
+      },
       // The footer carries the legal links and the consent banner. Starlight renders it on every
       // page, the splash landing page included, so overriding it reaches the whole site at once.
       // Umami itself is not loaded here: the banner appends the script only once somebody agrees.

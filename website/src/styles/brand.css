@@ -25,13 +25,32 @@
   display: none;
 }
 
+/* A shell block is a command to copy, not a terminal session, so the title bar with the three dots
+   over a single command line is hidden. The block stays a terminal underneath: a copy still strips
+   the comment lines. A terminal frame that carries a title keeps its bar. */
+.expressive-code .frame.is-terminal:not(.has-title) {
+  --button-spacing: 0.4rem;
+}
+
+.expressive-code .frame.is-terminal:not(.has-title) > .header {
+  display: none;
+}
+
+.expressive-code .frame.is-terminal:not(.has-title) pre {
+  border-top: var(--ec-brdWd) solid var(--ec-brdCol);
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+}
+
 /* Package-manager tabs. A fenced block written once in the npm spelling arrives from the sync as
    four panels behind radio inputs; the checked radio's panel shows, its label reads as the active
-   tab. No script: the radios carry the state and the keyboard. */
+   tab. No script: the radios carry the state and the keyboard. One box: the tab strip is the
+   block's header, so the panels render without a frame of their own and without a second border. */
 .lw-pm {
   margin-block: 1rem;
   border: 1px solid var(--sl-color-gray-5);
   border-radius: 0.5rem;
+  background: var(--sl-color-gray-6);
   overflow: hidden;
 }
 
@@ -41,10 +60,19 @@
   pointer-events: none;
 }
 
+/* Scrollable, because four labels can outgrow a narrow screen, but without a bar: a system set to
+   show scrollbars always drew one across the strip, and there is nothing under it to reveal. */
 .lw-pm-tabs {
   display: flex;
+  gap: 1rem;
+  padding-inline: 0.75rem;
   border-bottom: 1px solid var(--sl-color-gray-5);
-  background: var(--sl-color-bg-nav);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.lw-pm-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 /* Starlight spaces adjacent siblings inside markdown content by a rem; the tabs and panels are laid
@@ -56,12 +84,20 @@
 }
 
 .lw-pm-tab {
-  padding: 0.45rem 0.9rem;
+  margin-bottom: -1px;
+  padding: 0.55rem 0.25rem;
   border-bottom: 2px solid transparent;
-  color: var(--sl-color-gray-2);
-  font-family: var(--sl-font-system-mono);
-  font-size: var(--sl-text-xs);
+  color: var(--sl-color-gray-3);
+  font-family: var(--sl-font-system);
+  font-size: var(--sl-text-sm);
+  font-weight: 500;
+  line-height: var(--sl-line-height-headings);
+  white-space: nowrap;
   cursor: pointer;
+}
+
+.lw-pm-tab:hover {
+  color: var(--sl-color-white);
 }
 
 .lw-pm-panel {
@@ -72,8 +108,11 @@
   margin: 0;
 }
 
+/* The box draws the border and the corners; the block inside draws neither. Expressive Code sizes
+   every border and radius from these two variables, so zeroing them on the frame is enough. */
 .lw-pm-panel .expressive-code .frame {
-  border-radius: 0;
+  --ec-brdWd: 0px;
+  --ec-brdRad: 0px;
   box-shadow: none;
 }
 
