@@ -66,11 +66,15 @@
 
 .lw-pm-panel {
   display: none;
+}
+
+.lw-pm-panel .expressive-code {
   margin: 0;
-  padding: 0.9rem 1rem;
-  overflow-x: auto;
-  font-size: var(--sl-text-sm);
-  line-height: 1.6;
+}
+
+.lw-pm-panel .expressive-code .frame {
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .lw-pm-radio.lw-pm-npm:checked ~ .lw-pm-tabs .lw-pm-tab.lw-pm-npm,
