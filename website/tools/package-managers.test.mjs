@@ -33,13 +33,16 @@ test('turns a "sh npm" fence into a tab group and leaves other fences alone', ()
   const out = expandPackageManagerFences(md);
   assert.match(out, /<div class="lw-pm"><input type="radio" name="pm-1" id="pm-1-npm" class="lw-pm-radio lw-pm-npm" checked>/);
   assert.match(out, /<label for="pm-1-bun" class="lw-pm-tab lw-pm-bun">bun<\/label>/);
-  assert.match(out, /<pre class="lw-pm-panel lw-pm-pnpm"><code>ng new my-studio &amp;&amp; cd my-studio\npnpm dlx @loomweaver\/cli init<\/code><\/pre>/);
+  assert.match(
+    out,
+    /<div class="lw-pm-panel lw-pm-pnpm">\n\n```sh\nng new my-studio && cd my-studio\npnpm dlx @loomweaver\/cli init\n```\n\n<\/div>/,
+  );
   assert.match(out, /```bash\nnpm install left-alone\n```/);
   assert.doesNotMatch(out, /```sh npm/);
 });
 
-test('escapes what a shell line may carry', () => {
+test('keeps a shell line as it is, because the fence is code again', () => {
   resetTabIds();
   const out = expandPackageManagerFences('```sh npm\nnpm install a@$(node -p "1<2")\n```');
-  assert.match(out, /a@\$\(node -p "1&lt;2"\)/);
+  assert.match(out, /```sh\nnpm install a@\$\(node -p "1<2"\)\n```/);
 });

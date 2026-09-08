@@ -3,9 +3,9 @@
    by rule, never written, so the markdown on GitHub shows the npm form and the site shows four
    that cannot disagree with it.
 
-   The tab group is plain HTML with radio inputs, so the synced pages stay markdown: no MDX, no
-   component import, and a page without scripting still shows every tab's content through the
-   first, checked, radio. */
+   The tab group is plain HTML with radio inputs around ordinary fenced blocks, so the synced pages
+   stay markdown: no MDX, no component import, every panel keeps the copy button and the
+   highlighting a fenced block gets, and a page without scripting still shows the first tab. */
 
 export const MANAGERS = ['npm', 'pnpm', 'yarn', 'bun'];
 
@@ -38,12 +38,12 @@ export function translate(block, manager) {
     .join('\n');
 }
 
-function escape(text) {
-  return text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
-}
-
 let counter = 0;
 
+/* The container and the tab strip are raw HTML; each panel opens as raw HTML, then leaves a blank
+   line, so the fenced block inside it is markdown again and Expressive Code renders it with its
+   copy button and highlighting. The closing tags are raw HTML once more. CommonMark ends an HTML
+   block at a blank line, which is what makes the mix work, and the browser nests the tags. */
 export function renderTabs(block, id = `pm-${++counter}`) {
   const inputs = MANAGERS.map(
     (manager, index) =>
@@ -54,15 +54,15 @@ export function renderTabs(block, id = `pm-${++counter}`) {
   ).join('');
   const panels = MANAGERS.map(
     (manager) =>
-      `<pre class="lw-pm-panel lw-pm-${manager}"><code>${escape(translate(block, manager))}</code></pre>`,
-  ).join('');
-  return `<div class="lw-pm">${inputs}<div class="lw-pm-tabs" role="tablist">${labels}</div>${panels}</div>`;
+      `<div class="lw-pm-panel lw-pm-${manager}">\n\n\`\`\`sh\n${translate(block, manager)}\n\`\`\`\n\n</div>`,
+  ).join('\n');
+  return `<div class="lw-pm">${inputs}<div class="lw-pm-tabs" role="tablist">${labels}</div>\n${panels}\n</div>`;
 }
 
 export function expandPackageManagerFences(md) {
   return md.replace(FENCE, (whole, before, indent, fence, body) => {
     if (indent) return whole;
-    return `${before}${renderTabs(body)}`;
+    return `${before}${renderTabs(body)}\n`;
   });
 }
 
