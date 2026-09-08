@@ -44,25 +44,21 @@ is its reference consumer.
 ## Quick start
 
 ```bash
-# 1 · A fresh Angular app (or use the one you have)
+# a fresh Angular app, or the one you have (an Nx workspace works too)
 ng new my-studio --style=css --ssr=false && cd my-studio
 
-# 2 · Install the platform, then scaffold your product and a first plugin
-npm install @loomweaver/shell @loomweaver/plugin-sdk @loomweaver/frame-kit @angular/cdk @jsverse/transloco @ng-icons/heroicons \
-  @angular/service-worker@$(node -p "require('@angular/core/package.json').version")
-npm install -D tailwindcss @tailwindcss/postcss @tailwindcss/typography
-npx @loomweaver/cli distribution --name my-studio --title "My Studio" --out . --force
-npx @loomweaver/cli weaver --id notes --command --shortcut 'mod+shift+n' --out src/notes
+# the platform, your product and a first plugin, in one go
+npx @loomweaver/cli init
 
-# 3 · Run it
-ng serve
+npm start
 ```
 
-That is the whole list. The scaffold also wires your build (the style pipeline, the asset globs that
-serve the chrome's own strings, the service worker, and the one production setting the generated
-content-security policy requires) and registers the weaver in your composition root, so its icon is
-in the rail on the first run. It only ever _adds_: anything you had already set is left as
-you set it, and it names every file it touched.
+That is the whole list. `init` installs the packages with the package manager your lockfile names
+(npm, pnpm, yarn or bun), scaffolds the distribution and a first weaver, and wires your build: the
+style pipeline, the asset globs that serve the chrome's own strings, the service worker, and the one
+production setting the generated content-security policy requires. The weaver is registered in your
+composition root, so its icon is in the rail on the first run. It only ever _adds_: anything you had
+already set is left as you set it, running it twice changes nothing, and `--dry-run` shows the plan.
 
 [Getting started](docs/getting-started.md) walks through these steps and what they generate.
 [Manual setup](docs/manual-setup.md) is the same application wired by hand, without the service

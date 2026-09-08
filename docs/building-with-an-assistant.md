@@ -81,17 +81,13 @@ a project on an older shell pins the server to it, `@loomweaver/mcp@0.9.2` in th
 
 ## The path
 
-Steps 1 to 3 of [Getting started](getting-started.md) stay commands you run yourself: the Angular
-app, the packages, and the distribution.
+The application and its first product stay a command you run yourself, or let the assistant run in
+its shell: the Angular app, then `init`, which installs the packages, scaffolds the distribution and
+a first weaver, and wires the build.
 
-```bash
+```sh npm
 ng new my-studio --style=css --ssr=false && cd my-studio
-
-npm install @loomweaver/shell @loomweaver/plugin-sdk @loomweaver/frame-kit @angular/cdk @jsverse/transloco @ng-icons/heroicons \
-  @angular/service-worker@$(node -p "require('@angular/core/package.json').version")
-npm install -D tailwindcss @tailwindcss/postcss @tailwindcss/typography
-
-npx @loomweaver/cli distribution --name my-studio --title "My Studio" --out . --force
+npx @loomweaver/cli init
 ```
 
 The distribution stays with the CLI on purpose. The CLI finds the workspace above the directory it
@@ -100,10 +96,12 @@ production setting the content-security policy needs. The MCP server, by design,
 your workspace: it returns files and names the steps that remain, and your assistant does them.
 That is the right shape for everything after the app exists, and the wrong one for the app itself,
 where a missed step shows up as an unstyled page. [Who writes the
-files](scaffolding.md#how-a-file-actually-gets-created) has the whole argument. An assistant with a
-shell can of course run that CLI command for you; the tools earn their place from here on.
+files](scaffolding.md#how-a-file-actually-gets-created) has the whole argument; the tools earn their
+place from here on.
 
-Register the server as above, open the project in your assistant, and ask for the first weaver.
+Register the server as above, open the project in your assistant, and ask for the next weaver. The
+run recorded below predates `init` and starts from a distribution the CLI had written the long way;
+what the assistant does from there is the same.
 
 ## One run, as it happened
 

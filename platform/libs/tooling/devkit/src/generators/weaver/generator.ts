@@ -2,10 +2,12 @@ import {
   addDependenciesToPackageJson,
   formatFiles,
   GeneratorCallback,
+  logger,
   Tree,
   updateJson,
 } from '@nx/devkit';
-import { Amendment } from '../../lib/amend/types';
+import { composeLines, composePlugin } from '../../lib/amend/compose';
+import { Amendment, ComposePluginAmendment } from '../../lib/amend/types';
 import { generate } from '../../lib/generate/generate';
 import {
   addI18nAssetsGlob,
@@ -25,7 +27,8 @@ export async function weaverGenerator(
   options: WeaverGeneratorSchema,
 ): Promise<GeneratorCallback | void> {
   const baseTsconfig = tsconfigPathsFile(tree);
-  const app = appFor(tree, options);
+  const resolved = appFor(tree, options);
+  const app = resolved?.name;
   const project = nxWeaverProject({
     id: options.id,
     projectName: options.projectName,
@@ -72,18 +75,17 @@ export async function weaverGenerator(
     return json;
   });
 
-  if (app) {
-    addI18nAssetsGlob(tree, app, {
+  const amendments = weaverAmendments(input, project.projectRoot);
+  if (resolved) {
+    addI18nAssetsGlob(tree, resolved.name, {
       input: `${project.projectRoot}/src/lib/i18n`,
       output: `i18n/${options.id}`,
     });
-    addTailwindSource(tree, app, `${project.projectRoot}/src`);
+    addTailwindSource(tree, resolved.name, `${project.projectRoot}/src`);
+    composeIntoApp(tree, resolved.root, amendments, project.importPath);
   }
 
-  const installed = addPackages(
-    tree,
-    weaverAmendments(input, project.projectRoot),
-  );
+  const installed = addPackages(tree, amendments);
 
   await formatFiles(tree);
   return installed;
@@ -104,14 +106,41 @@ function addPackages(
     : addDependenciesToPackageJson(tree, wanted, {});
 }
 
+function composeIntoApp(
+  tree: Tree,
+  appRoot: string,
+  amendments: readonly Amendment[],
+  importPath: string,
+): void {
+  const amendment = amendments.find(
+    (candidate): candidate is ComposePluginAmendment =>
+      candidate.kind === 'compose-plugin',
+  );
+  const file = `${appRoot}/src/app/app.config.ts`;
+  const source = tree.read(file, 'utf8');
+  if (!amendment || source === null) {
+    return;
+  }
+  const result = composePlugin(source, amendment, importPath);
+  if (result.composed) {
+    if (result.source !== source) {
+      tree.write(file, result.source);
+    }
+    return;
+  }
+  logger.warn(
+    `${file} no longer presents the shape the distribution scaffold generated, so ${amendment.id} was NOT registered and none of its contributions will appear. Add these to it yourself: ${composeLines(amendment, importPath).join(' ')}`,
+  );
+}
+
 function appFor(
   tree: Tree,
   options: WeaverGeneratorSchema,
-): string | undefined {
+): { name: string; root: string } | undefined {
   if (options.unitTestRunner === 'none') {
     return undefined;
   }
-  return resolveApp(tree, options.app).name;
+  return resolveApp(tree, options.app);
 }
 
 export default weaverGenerator;

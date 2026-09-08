@@ -10,6 +10,7 @@ import {
   validateI18nParity,
   validateManifest,
 } from '@loomweaver/devkit';
+import { spawnSync } from 'node:child_process';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
@@ -22,6 +23,7 @@ import {
   stringFlag,
 } from './args';
 import { AmendPlan, applyAmend, planAmend } from './amend';
+import { init, InitDeps } from './init';
 import {
   allowedFlagsFor,
   amendmentsFor,
@@ -49,6 +51,10 @@ function help(): string {
     ...commands,
     '',
     'Other commands:',
+    '  init            take the Angular application or Nx workspace you are in to a running product:',
+    '                  install the platform, scaffold the distribution and a first weaver, say what to serve',
+    '                  [--title <t>] [--styles tailwind|precompiled] [--weaver <id>|--no-weaver] [--app <nx app>]',
+    '                  [--package-manager npm|pnpm|yarn|bun] [--dry-run]',
     '  list            print every scaffold with its options',
     '  validate-manifest --id <id> [--name <name>] [--capabilities <a,b>]',
     '  validate-i18n   --dir <dir>   check <lang>.json bundles for key parity',
@@ -126,7 +132,9 @@ function readBundles(dir: string): Record<string, I18nBundle> {
     try {
       bundles[language] = JSON.parse(readFileSync(join(dir, entry), 'utf8'));
     } catch (error) {
-      throw new ArgError(`${entry} is not valid JSON: ${(error as Error).message}`);
+      throw new ArgError(
+        `${entry} is not valid JSON: ${(error as Error).message}`,
+      );
     }
   }
   if (Object.keys(bundles).length === 0) {
@@ -148,13 +156,21 @@ function readSources(dir: string): CommandSource[] {
   const sources: CommandSource[] = [];
   const walk = (folder: string): void => {
     for (const entry of readdirSync(folder, { withFileTypes: true })) {
-      if (entry.name === 'node_modules' || entry.name === 'dist' || entry.name.startsWith('.')) {
+      if (
+        entry.name === 'node_modules' ||
+        entry.name === 'dist' ||
+        entry.name.startsWith('.')
+      ) {
         continue;
       }
       const path = join(folder, entry.name);
       if (entry.isDirectory()) {
         walk(path);
-      } else if (entry.name.endsWith('.ts') && !entry.name.endsWith('.d.ts') && !entry.name.endsWith('.spec.ts')) {
+      } else if (
+        entry.name.endsWith('.ts') &&
+        !entry.name.endsWith('.d.ts') &&
+        !entry.name.endsWith('.spec.ts')
+      ) {
         sources.push({ path, text: readFileSync(path, 'utf8') });
       }
     }
@@ -179,7 +195,11 @@ function validateCommandsCommand(args: ParsedArgs, io: Io): number {
       `typescript is not installed where ${dir} can reach it; the check reads sources with the TypeScript compiler API, so run it inside the project.`,
     );
   }
-  return reportFindings(io, validateCommands(readSources(dir), ts), boolFlag(args, 'strict') === true);
+  return reportFindings(
+    io,
+    validateCommands(readSources(dir), ts),
+    boolFlag(args, 'strict') === true,
+  );
 }
 
 function readCatalog(file: string): unknown {
@@ -192,7 +212,9 @@ function readCatalog(file: string): unknown {
   try {
     return JSON.parse(raw);
   } catch (error) {
-    throw new ArgError(`${file} is not valid JSON: ${(error as Error).message}`);
+    throw new ArgError(
+      `${file} is not valid JSON: ${(error as Error).message}`,
+    );
   }
 }
 
@@ -278,7 +300,31 @@ function scaffold(args: ParsedArgs, io: Io): number {
   return 0;
 }
 
-export function run(argv: readonly string[], io: Io): number {
+class ExecError extends Error {}
+
+function execInherit(command: readonly string[], cwd: string): void {
+  const result = spawnSync(command[0], command.slice(1), {
+    cwd,
+    stdio: 'inherit',
+    shell: process.platform === 'win32',
+  });
+  if (result.error) {
+    throw new ExecError(
+      `Could not run "${command.join(' ')}": ${result.error.message}`,
+    );
+  }
+  if (result.status !== 0) {
+    throw new ExecError(
+      `"${command.join(' ')}" exited with ${result.status ?? 'a signal'}.`,
+    );
+  }
+}
+
+export function run(
+  argv: readonly string[],
+  io: Io,
+  deps?: Partial<InitDeps>,
+): number {
   let args: ParsedArgs;
   try {
     args = parseArgs(argv);
@@ -301,6 +347,14 @@ export function run(argv: readonly string[], io: Io): number {
   }
 
   try {
+    if (args.command === 'init') {
+      return init(args, io, {
+        cwd: deps?.cwd ?? process.cwd(),
+        exec: deps?.exec ?? execInherit,
+        run: deps?.run ?? ((inner) => run(inner, io, deps)),
+        version: deps?.version ?? VERSION,
+      });
+    }
     if (args.command === 'list') {
       return list(args, io);
     }

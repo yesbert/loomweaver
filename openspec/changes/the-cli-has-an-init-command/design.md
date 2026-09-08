@@ -87,6 +87,38 @@ task is conditional on the publish; until then the button stays, because a comma
 - **A package manager's spelling changes.** → The four are named in one table with a test; the
   override option covers a fifth.
 
+## What the build showed
+
+Recorded 2026-09-08 while implementing.
+
+- **The Nx weaver generator did not compose the plugin into the application.** It registered the
+  project, set the alias, added the asset glob and the Tailwind source, and left the composition
+  root alone, so the generated README's first wiring step fell to the reader. `init`'s Nx scenario
+  promises a composed plugin, and the `scaffolding` requirement *A generator composes into what is
+  already there* asks for it where the composition root still presents the generated shape. The
+  generator now composes through the same recogniser the CLI uses and warns with the exact lines
+  when the root has been reshaped. Three generator tests pin it. Until the devkit that carries this
+  is published, `init` under Nx installs a devkit that leaves the reader the first README step; the
+  local build was verified end to end by installing the packed devkit into the fresh Nx workspace.
+- **Exec spelling for local binaries is not the `dlx` spelling.** `pnpm dlx` and `yarn dlx` fetch a
+  remote package, and yarn 1 has no `dlx` at all; the Nx generators and `nx serve` are local
+  binaries. The command therefore runs them as `npx`, `pnpm exec`, `yarn` and `bunx`. The site's tab
+  group keeps the `dlx` forms, because there the package is remote.
+- **A fresh `ng new` pins npm in `packageManager`**, so yarn 1 refuses the project until the field
+  is removed or Corepack is enabled. Nothing for `init` to do; the lockfile decides, and a yarn user
+  creates the app with yarn.
+- **An e2e project is an application to Nx.** The workspace template ships `shop-e2e` with
+  `projectType: application`; `init` leaves projects whose name ends in `-e2e` out of the
+  candidates.
+- **The CLI derived the scaffold directory from the working directory, not from the workspace
+  root.** Run from a subfolder, or with an absolute `--out` as `init` passes, the directory-bound
+  amendments were dropped. It now derives it from the workspace above the target; the
+  workspace-root case merged separately as #320 is kept.
+- **A trial run's weaver step is planned against the composition root before the distribution
+  step has run**, so it reports the plugin as not composable. The output says so in one line.
+- pnpm and bun were not installed on the machine that ran this; their spellings are covered by the
+  unit tests, npm and yarn by real runs.
+
 ## Open Questions
 
 None that change the specs or the approach. The exact wording of the summary is decided when it

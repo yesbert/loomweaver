@@ -9,6 +9,7 @@ import {
   createConsumerWorkspace,
   PRECOMPILED_STYLESHEET,
 } from '../test-workspace';
+import { distributionGenerator } from '../distribution/generator';
 import { weaverGenerator } from './generator';
 
 describe('weaver generator', () => {
@@ -137,6 +138,48 @@ describe('weaver generator', () => {
     await weaverGenerator(tree, { id: 'notes' });
     expect(tree.read('libs/notes-weaver/README.md', 'utf8')).toContain(
       "from '@acme/notes-weaver'",
+    );
+  });
+
+  it('composes the plugin into the composition root the distribution generator wrote', async () => {
+    await distributionGenerator(tree, {
+      name: 'studio',
+      directory: 'apps/studio',
+      force: true,
+    });
+    await weaverGenerator(tree, { id: 'notes' });
+    const config = tree.read('apps/studio/src/app/app.config.ts', 'utf8') ?? '';
+    expect(config).toContain(
+      "import { notesPlugin } from '@acme/notes-weaver';",
+    );
+    expect(config).toContain("provideTranslationNamespaces('notes')");
+    expect(config).toContain(
+      "provideCapabilityGrants({ notes: ['contributions', 'navigation'] })",
+    );
+    expect(config).toContain('...providePlugins(notesPlugin)');
+  });
+
+  it('composes a second weaver beside the first', async () => {
+    await distributionGenerator(tree, {
+      name: 'studio',
+      directory: 'apps/studio',
+      force: true,
+    });
+    await weaverGenerator(tree, { id: 'notes' });
+    await weaverGenerator(tree, { id: 'invoices', command: true });
+    const config = tree.read('apps/studio/src/app/app.config.ts', 'utf8') ?? '';
+    expect(config).toContain('...providePlugins(notesPlugin)');
+    expect(config).toContain('...providePlugins(invoicesPlugin)');
+  });
+
+  it('leaves a reshaped composition root alone and says what to add', async () => {
+    tree.write(
+      'apps/studio/src/app/app.config.ts',
+      'export const appConfig = { providers: [] };\n',
+    );
+    await weaverGenerator(tree, { id: 'notes' });
+    expect(tree.read('apps/studio/src/app/app.config.ts', 'utf8')).toBe(
+      'export const appConfig = { providers: [] };\n',
     );
   });
 
