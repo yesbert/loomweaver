@@ -1,15 +1,19 @@
-# SonarQube analysis, on a schedule and on main.
+# SonarQube analysis, nightly and on demand.
 #
 # Never on a pull request. The scanner needs a token, a fork's run gets no secrets, and a workflow
 # that quietly does nothing on half the pull requests is worse than one that does not claim to run
-# on them at all. Analysis after the merge is what this repository did before the move too.
+# on them at all. That is also why it is not a required check: it would sit unrun on exactly the
+# contributions that most deserve reading.
+#
+# Not on every push to main either. A whole-project analysis after each merge reports what the next
+# nightly run reports, because the window for new code is the same; what it adds is a red mark on
+# main several times a day, which teaches everyone to look away. One unfixed finding did that for a
+# whole day on 2026-09-08. Nightly is the cadence, and the findings are worked from there.
 name: SonarQube
 
 on:
   schedule:
     - cron: "0 2 * * *"
-  push:
-    branches: [main]
   workflow_dispatch:
 
 concurrency:
