@@ -139,6 +139,15 @@ false`, `types: ["*"]`, `noUncheckedSideEffectImports: false` and `ignoreDepreca
 - **Status lines lie in both directions.** A document can call work pending that shipped weeks
   earlier, and call work done that never landed. Check against the code.
 
+- **A bundle budget that always warns is not a budget.** The shell built at 898 kB against a
+  500 kB limit, the testbed at 1.03 MB against 1 MB. Both warned on every production build, so
+  nobody read the line. Each budget here sits on the next quarter-megabyte above what that build
+  measures, and the error a quarter above the warning. Raise one only after building the thing and
+  reading the number.
+- **The scaffold's budget is not derived that way, on purpose.** `DISTRIBUTION_INITIAL_BUDGET` in
+  the devkit is what a consumer's product gets, and we cannot measure a product we have not seen. It
+  stays generous, and it is the single source for both scaffold paths.
+
 ## Guards this repository runs
 
 | Command                               | Where                            | What it fails on                                                                                                                                                                                                                                                                                                                                                                 |
