@@ -11,6 +11,11 @@ is frontend-only; your product brings its own backend.
 It speaks **[AG-UI](https://docs.ag-ui.com)** as well, so an agentic backend that already talks that
 standard can run your product's own commands.
 
+It is for Angular teams building a product that is a workbench: several things open at once, and a
+surface other people extend. It is not a component library, and it is not for a site of plain
+pages. It is maintained by one person, its API still moves on patch releases before 1.0, and the
+demo application is its reference consumer.
+
 ## Pick your path
 
 | You want to…                                | Start here                                                                                                                                                                                                                                                                                   |

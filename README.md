@@ -143,9 +143,9 @@ You built a good tool. People have ideas, and some of them would build those ide
 they could. They can't, because there is no way in, and opening one means isolation, permissions, a
 store, updates and an API you promise not to break. That is not a feature, that is half a year.
 
-All of it is here. And there is **no privileged host API**: your own product UI goes through the
-exact same door a stranger's plugin does, which is the only reason a published contract does not
-quietly rot. Your community can do everything you can do.
+All of it is here. And there is **no privileged host API**, so the published contract is the only
+contract there is, which is the one reason it does not quietly rot. Your community can do
+everything you can do.
 
 Every tool with a living ecosystem got there the same way. The plugins made the product, not the
 roadmap.
