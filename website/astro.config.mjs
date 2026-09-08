@@ -2,6 +2,7 @@ import sitemap from '@astrojs/sitemap';
 import starlight from '@astrojs/starlight';
 import { defineConfig, passthroughImageService } from 'astro/config';
 import pageMeta from './generated/page-meta.json' with { type: 'json' };
+import rehypeDemoLinks from './tools/rehype-demo-links.mjs';
 import { sidebar } from './sidebar.mjs';
 
 export default defineConfig({
@@ -28,6 +29,10 @@ export default defineConfig({
       '/distribution-api/windows-and-sync/',
     '/reference/distribution/workspaces/': '/distribution-api/workspaces/',
   },
+  // The demo is a running application, not another page here, so a link to it opens in a new tab.
+  // The buttons are written that way by hand; a link inside a sentence has no markdown syntax for
+  // it, so the plugin rewrites those while the page is built.
+  markdown: { rehypePlugins: [rehypeDemoLinks] },
   // Passthrough keeps sharp (and its LGPL libvips binary) out of the tree; the site
   // ships two brand PNGs, so optimisation buys nothing worth a copyleft dependency.
   image: { service: passthroughImageService() },
