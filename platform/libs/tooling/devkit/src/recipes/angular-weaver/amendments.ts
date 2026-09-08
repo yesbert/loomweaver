@@ -1,4 +1,4 @@
-import { normalizeProjectRoot } from '../../lib/amend/merge';
+import { joinProjectPath, normalizeProjectRoot } from '../../lib/amend/merge';
 import { Amendment } from '../../lib/amend/types';
 import { AG_UI_ADAPTER_VERSION, AG_UI_PROTOCOL_VERSION } from './agent-files';
 import { resolveWeaverInput, type WeaverInput } from './recipe';
@@ -22,10 +22,10 @@ export function weaverAmendments(
         },
       ]
     : [];
-  const directory = normalizeProjectRoot(where ?? '');
-  if (!directory) {
+  if (where === undefined || where === '') {
     return packages;
   }
+  const directory = normalizeProjectRoot(where);
   return [
     ...packages,
     {
@@ -34,19 +34,19 @@ export function weaverAmendments(
       assets: [
         {
           glob: '**/*.json',
-          input: `${directory}/src/lib/i18n`,
+          input: joinProjectPath(directory, 'src/lib/i18n'),
           from: 'workspace',
           output: `i18n/${w.id}`,
         },
       ],
     },
-    { kind: 'stylesheet-source', sourceRoot: `${directory}/src` },
+    { kind: 'stylesheet-source', sourceRoot: joinProjectPath(directory, 'src') },
     {
       kind: 'compose-plugin',
       id: w.id,
       symbol: `${w.propertyName}Plugin`,
       capabilities: w.capabilities,
-      sourceRoot: `${directory}/src`,
+      sourceRoot: joinProjectPath(directory, 'src'),
     },
   ];
 }

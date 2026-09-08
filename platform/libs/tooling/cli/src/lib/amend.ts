@@ -216,10 +216,8 @@ class Amender {
     if (!/@import\s+['"]tailwindcss['"]/.test(css)) {
       return;
     }
-    const source = posix.relative(
-      this.displayName(dirname(entry)),
-      amendment.sourceRoot,
-    );
+    const source =
+      posix.relative(this.displayName(dirname(entry)), amendment.sourceRoot) || '.';
     const next = ensureStylesheetSource(css, source);
     if (next === css) {
       return;

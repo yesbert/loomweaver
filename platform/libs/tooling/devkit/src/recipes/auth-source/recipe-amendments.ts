@@ -1,5 +1,5 @@
 import { Amendment } from '../../lib/amend/types';
-import { normalizeProjectRoot } from '../../lib/amend/merge';
+import { joinProjectPath, normalizeProjectRoot } from '../../lib/amend/merge';
 import {
   AuthSourceInput,
   resolveAuthSourceInput,
@@ -12,10 +12,10 @@ export function authSourceAmendments(
   where: string | undefined,
 ): readonly Amendment[] {
   const a = resolveAuthSourceInput(input);
-  const directory = normalizeProjectRoot(where ?? '');
-  if (a.bare || !directory) {
+  if (a.bare || where === undefined || where === '') {
     return [];
   }
+  const directory = normalizeProjectRoot(where);
   return [
     {
       kind: 'build-target',
@@ -23,7 +23,7 @@ export function authSourceAmendments(
       assets: [
         {
           glob: '**/*.json',
-          input: `${directory}/i18n`,
+          input: joinProjectPath(directory, 'i18n'),
           from: 'workspace',
           output: `i18n/${SESSION_PLUGIN_ID}`,
         },
