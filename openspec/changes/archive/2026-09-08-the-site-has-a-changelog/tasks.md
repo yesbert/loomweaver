@@ -21,5 +21,6 @@
 ## 3. Verify
 
 - [x] 3.1 `npm run check` in `website/` green, with and without the token in the environment.
-- [ ] 3.2 The deployed page shows every release from 0.8.x on, with previews marked.
+- [x] 3.2 The deployed page shows every release GitHub has, v0.9.0-preview.3 to v0.9.2, with the
+      previews marked; the 0.8 line predates the release job, so GitHub carries no releases for it.
 - [x] 3.3 `openspec validate the-site-has-a-changelog --strict` passes.
