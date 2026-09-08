@@ -185,7 +185,9 @@ Three consequences worth knowing:
 
 - **You choose where the files land.** The paths in the map are relative. The server has no idea
   whether you run a monorepo, where your library root is, or what your projects are called. It
-  therefore states structure, not location, and your assistant resolves it against your layout.
+  therefore states structure, not location, and your assistant resolves it against your layout. A
+  remaining step that needs the location carries a placeholder for it, and your assistant fills
+  in the directory it chose.
 - **Nothing reaches disk except through your client.** A server started via `npx` is code you did
   not audit. Because it returns data instead of writing files, it stays inside the review path you
   already have. It never gets a write path of its own.

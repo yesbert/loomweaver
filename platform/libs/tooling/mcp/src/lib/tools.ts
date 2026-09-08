@@ -54,12 +54,13 @@ function valuesFor(scaffold: ScaffoldDescriptor, args: Args): ScaffoldValues {
   return values;
 }
 
-export function scaffold(
-  scaffold: ScaffoldDescriptor,
-  args: Args,
-): ToolResult {
+const WHERE_THE_FILES_LAND = '<the directory you wrote these files into>';
+
+export function scaffold(scaffold: ScaffoldDescriptor, args: Args): ToolResult {
   const values = valuesFor(scaffold, args);
-  const remaining = (scaffold.amend?.(values) ?? []).map((amendment) => describeAmendment(amendment));
+  const remaining = (
+    scaffold.amend?.({ ...values, directory: WHERE_THE_FILES_LAND }) ?? []
+  ).map((amendment) => describeAmendment(amendment));
   return ok({
     files: scaffold.build(values),
     ...(remaining.length > 0 && { remaining }),
