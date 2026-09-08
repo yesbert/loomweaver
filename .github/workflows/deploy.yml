@@ -57,8 +57,12 @@ jobs:
           chmod 600 ~/.ssh/loomweaver_deploy
           echo "$DEPLOY_KNOWN_HOSTS" >> ~/.ssh/known_hosts
 
+      # The token is for the changelog: the sync reads the release list from the GitHub API, and
+      # an unauthenticated read shares a rate limit with every other anonymous caller.
       - name: Build the documentation site
         working-directory: website
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           npm install

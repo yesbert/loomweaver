@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "astro build",
-    "check": "npm run lint && npm run check-contrast && npm run build && npm run check-head",
+    "check": "npm run lint && npm run test && npm run check-contrast && npm run build && npm run check-head",
     "check-contrast": "node tools/check-contrast.mjs",
     "check-head": "node tools/check-head.mjs",
     "dev": "astro dev",
@@ -13,7 +13,8 @@
     "prebuild": "npm run sync",
     "predev": "npm run sync",
     "preview": "astro preview",
-    "sync": "node tools/sync-docs.mjs"
+    "sync": "node tools/sync-docs.mjs",
+    "test": "node --test \"tools/*.test.mjs\""
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",

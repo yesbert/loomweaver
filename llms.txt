@@ -119,6 +119,10 @@ Deterministic scaffolding + validation for building on LoomWeaver. Prefer these 
 
 Seven npm packages, one shared version: `@loomweaver/plugin-sdk`, `@loomweaver/shell`, `@loomweaver/mcp` (the AI-scaffolding MCP server), `@loomweaver/cli` (the scaffolding CLI, same generators driven by flags), `@loomweaver/devkit` (the Nx generator collection), `@loomweaver/frame-kit` (static UI assets a distribution serves under `/frame-kit/` for sandboxed plugins), `@loomweaver/ag-ui` (the AG-UI adapter, headless). No server packages: the platform is frontend-only.
 
+## Releases
+
+- [Changelog](https://loomweaver.dev/changelog/): every release, newest first, generated from the pull requests each one merged; the same list as [GitHub releases](https://github.com/yesbert/loomweaver/releases). Packages move on patch releases before 1.0.
+
 ## Examples
 
 - [Assistant workbench](https://github.com/yesbert/loomweaver/tree/main/examples/assistant-workbench): a support inbox built on the published packages that an AI assistant operates through the product's own callable commands over AG-UI, with a real model through OpenRouter and the reader's own key. `npm install && npm start`, then ask it for something.

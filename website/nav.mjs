@@ -6,4 +6,5 @@
 export const mainNav = [
   { label: 'Docs', link: '/overview/' },
   { label: 'Get started', link: '/getting-started/' },
+  { label: 'Changelog', link: '/changelog/' },
 ];

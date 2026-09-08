@@ -10,6 +10,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import path from 'node:path';
+import { fetchReleases, newestDate, renderChangelog, renderUnavailable } from './changelog.mjs';
 import { fileURLToPath } from 'node:url';
 
 const websiteRoot = path.resolve(fileURLToPath(import.meta.url), '../..');
@@ -283,6 +284,31 @@ for (const source of sources) {
   writeFileSync(target, page);
 }
 
+/* The changelog is the one page with no source under docs/: it is read from the GitHub release
+   list, which the release workflow writes and this repository keeps no copy of. Without network,
+   or when GitHub refuses, the page still exists and says where the releases are, because a
+   documentation build must not depend on GitHub being reachable; with the repository token in
+   the environment the fetch is not rate limited. Its date is the newest release, which is the
+   truth about the page. */
+const CHANGELOG = 'changelog.md';
+let changelogDate = new Date().toISOString();
+try {
+  const releases = await fetchReleases();
+  writeFileSync(
+    path.join(contentDir, CHANGELOG),
+    frontmatter(renderChangelog(releases), CHANGELOG, newestDate(releases), problems),
+  );
+  changelogDate = newestDate(releases);
+  console.log(`sync-docs: changelog from ${releases.length} releases`);
+} catch (error) {
+  const reason = error instanceof Error ? error.message : String(error);
+  writeFileSync(
+    path.join(contentDir, CHANGELOG),
+    frontmatter(renderUnavailable(reason), CHANGELOG, changelogDate, problems),
+  );
+  console.warn(`sync-docs: changelog without releases (${reason})`);
+}
+
 /* The same dates again, keyed by route, because astro.config.mjs needs them at a point where it has
    a URL and not a source path: `serialize` sees only the address the sitemap is about to write. The
    three pages that are not documentation are written by hand rather than synced, so they are dated
@@ -299,6 +325,7 @@ writeFileSync(
   `${JSON.stringify(
     {
       ...Object.fromEntries(sources.map((s) => [routeFor(targetFor(s)), modified.get(s)])),
+      '/changelog/': changelogDate,
       ...Object.fromEntries(
         Object.entries(HANDWRITTEN).map(([route, file]) => [route, handwrittenDates.get(file)]),
       ),
@@ -475,7 +502,7 @@ for (const page of pagesUnder(contentDir, '')) {
    model. The link is repo-relative in the source file, docs/<page>, which is what is checked. */
 const llmsIndex = readFileSync(path.join(repoRoot, 'llms.txt'), 'utf8');
 for (const page of pagesUnder(contentDir, '')) {
-  if (!/\.mdx?$/.test(page)) continue;
+  if (!/\.mdx?$/.test(page) || page === CHANGELOG) continue;
   const source = page === 'overview.md' ? 'README.md' : page;
   if (!llmsIndex.includes(`(docs/${source})`)) {
     problems.push(

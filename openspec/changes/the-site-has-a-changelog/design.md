@@ -50,8 +50,12 @@ version and date alone.
 **Prereleases are shown, marked.** A reader on a preview wants to find it. The dist-tag rule
 decides what "latest" is, and the page says "preview" beside those versions.
 
-**The landing page's release line reads the same data.** So the line "v0.9.2 · Apache 2.0" on the
-hero is true by construction. The README's badge already reads GitHub.
+**The landing page's release line reads the repository's version, not the release list.** The
+sync already writes `generated/site-meta.json` from `Directory.Build.props`, the one file the bump
+script writes and the release workflow checks against the tag, so the hero line and the structured
+data say the same thing and neither depends on GitHub answering. The changelog page is the one
+place that reads the release list, because only it needs dates and notes. The README's badge
+already reads GitHub.
 
 ## Risks / Trade-offs
 
