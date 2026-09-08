@@ -58,7 +58,9 @@ over MCP produce the same files from the same options. An assistant with the MCP
 scaffolds a weaver with a tool instead of writing plugin code from memory. Ask it for _"a weaver
 called notes with a settings section and a command on mod+shift+n"_ and what lands in your diff is
 the output above, not an invention you have to review line by line. See
-[scaffolding](scaffolding.md) for the full option table and the three adapters.
+[scaffolding](scaffolding.md) for the full option table and the three adapters, and
+[Building with an AI assistant](building-with-an-assistant.md) for the path with an assistant,
+recorded as it ran.
 
 ## The file layout these recipes assume
 

@@ -130,6 +130,19 @@ gets trimmed as the tangle does.
 `platform/tools/structure-baseline.json` is the same kind of ratchet, and it records today's numbers
 honestly rather than pretending they are zero.
 
+### Working with an assistant
+
+If an AI assistant helps you contribute, it starts from the same two things a product's assistant
+starts from. The file [`llms-full.txt`](llms-full.txt) at the repository root carries the whole
+published contract in one file. The file [`.mcp.json`](.mcp.json) registers the published
+`@loomweaver/mcp` server, so the assistant scaffolds a weaver or a distribution with a tool instead
+of writing one from memory.
+When you are changing the generators themselves, point the client at the local build instead;
+[Operations](docs/reference/operations.md) says how. Everything above applies unchanged to what an
+assistant writes: it is your commit, signed off by you, and the pull request says how you verified
+it. [Building with an AI assistant](docs/building-with-an-assistant.md) is the same path seen from
+the product side.
+
 ### Changing behaviour
 
 **A change to what the platform guarantees is proposed as a change**, not written into a guide.

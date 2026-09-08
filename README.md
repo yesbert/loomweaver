@@ -131,7 +131,11 @@ fetch, and `@loomweaver/mcp` so your assistant scaffolds with tools instead of g
 Then just ask for it: _"add a weaver called invoices with a command and a settings section"_. The
 same generators run three ways, so it does not matter whether a person, a CLI or an assistant
 invokes them: `@loomweaver/cli` from any command line, `@loomweaver/devkit` as Nx generators, and
-`@loomweaver/mcp` over MCP.
+`@loomweaver/mcp` over MCP. Or ask it to check what you have: _"is every command in this product
+something an agent could call, and what would it have to guess at?"_, and it answers from
+`validate_commands` findings instead of from an impression. [Building with an AI
+assistant](docs/building-with-an-assistant.md) is the path from this block to a running product,
+with the server registered in Claude Code, Cursor or VS Code and one run recorded as it happened.
 
 ### If you want your users to extend it
 
@@ -271,7 +275,10 @@ the source. Every merge to `main` that touches it deploys it.
 
 It carries quotes and their documents, a dashboard, an agent driving the workbench through its own
 commands, a sandboxed payment matcher, several visibly different themes and access-gated content.
-[Getting started](docs/getting-started.md) gets you your own product in five minutes.
+Beside it, [`examples/assistant-workbench`](examples/assistant-workbench/) is a smaller product built
+the same way: a support inbox that a real model operates through the product's own commands, with
+your own OpenRouter key. [Getting started](docs/getting-started.md) gets you your own product in
+five minutes.
 
 ## Working in this repo
 

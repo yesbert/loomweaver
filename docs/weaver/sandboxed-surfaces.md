@@ -119,7 +119,7 @@ facade. The endpoints are `registerSurface` · `registerMenuItem` · `registerSe
 `navigateContent` · `openContentTab` / `keepContentTab` / `pinContentTab` / `unpinContentTab` /
 `closeContentTab` · `revealSurface` · `toast`. Every call runs through the same default-deny
 capability broker as a trusted plugin. An ungranted capability rejects, so `.catch` and degrade.
-(Generate this whole layout with `nx g @loomweaver/devkit:sandbox-plugin` or the MCP
+(Generate this whole layout with `nx g @loomweaver/devkit:frame-plugin` or the MCP
 `scaffold_frame_plugin`, described in [scaffolding](../scaffolding.md).)
 
 ## The frame UI kit
