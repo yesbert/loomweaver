@@ -100,6 +100,10 @@ false`, `types: ["*"]`, `noUncheckedSideEffectImports: false` and `ignoreDepreca
   blocks are skipped, so the paragraph has to be prose. Without one the page would ship the
   site-wide fallback description and say nothing about itself in a search result, which is what the
   failure prevents.
+- **A new page under `docs/` has to be staged before the site sees it**. The sync lists the pages
+  with `git ls-files`, so an untracked file is invisible to it. Every link to the new page then
+  fails the build as unresolvable while the file sits right there. `git add` the page and the build
+  passes; nothing else is wrong.
 - **The site dates every page from `git log`, so a shallow checkout dates the whole site to today.**
   Those dates are the sitemap's `lastmod` and the structured data's `dateModified`. Both workflows
   that build the site check out with `fetch-depth: 0` for exactly this reason; a local shallow clone
