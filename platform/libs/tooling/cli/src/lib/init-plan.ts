@@ -120,8 +120,9 @@ export function chooseApplication(
   if (wanted) {
     const app = apps.find((candidate) => candidate.name === wanted);
     if (!app) {
+      const alternatives = apps.length > 0 ? `; there are: ${names}` : '';
       throw new WorkspaceError(
-        `No application named "${wanted}" in this workspace${apps.length > 0 ? `; there are: ${names}` : ''}.`,
+        `No application named "${wanted}" in this workspace${alternatives}.`,
       );
     }
     return app;

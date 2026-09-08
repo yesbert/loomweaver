@@ -188,6 +188,12 @@ false`, `types: ["*"]`, `noUncheckedSideEffectImports: false` and `ignoreDepreca
 The end-to-end suite, including the accessibility audit, runs in the nightly rather than in the merge
 gate, which is a standing decision to keep the gate fast.
 
+**SonarQube runs nightly too, and on demand, never on a pull request.** The scanner needs a token,
+which a run from a fork does not get, so it would report on some contributions and silently skip
+others. That is also why it gates nothing. Its findings are worked from the nightly run: the job
+summary lists the failing quality-gate conditions and the open issues, and the run fails as a whole
+when the gate does. Nothing else is a signal that something broke.
+
 Two gates in the merge run against the pull request rather than against the tree, so there is no
 local command for them. **Sign-off** fails when a commit in the branch carries no `Signed-off-by`
 line naming its own author; the DCO section of `CONTRIBUTING.md` says what that line states and how
