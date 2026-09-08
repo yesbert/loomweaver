@@ -1,6 +1,7 @@
 ---
 import { Code } from '@astrojs/starlight/components';
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import PackageManagerTabs from '../components/PackageManagerTabs.astro';
 import '../styles/landing.css';
 import { mainNav } from '../../nav.mjs';
 /* The released version, from the same generated file the structured data reads: the sync copies
@@ -21,20 +22,15 @@ const commandExample = `ctx.registerCommand({
   run: (_context, args) => exportInvoices(String(args?.['range'])),
 });`;
 
-const quickStart = `# a fresh Angular app, or the one you already have
+const initCommand = 'npx @loomweaver/cli init';
+
+const quickStart = `# a fresh Angular app, or the one you have (an Nx workspace works too)
 ng new my-studio --style=css --ssr=false && cd my-studio
 
-# the platform
-npm install @loomweaver/shell @loomweaver/plugin-sdk @loomweaver/frame-kit @angular/cdk @jsverse/transloco \\
-  @ng-icons/heroicons \\
-  @angular/service-worker@$(node -p "require('@angular/core/package.json').version")
-npm install -D tailwindcss @tailwindcss/postcss @tailwindcss/typography
+# the platform, your product and a first plugin, in one go
+npx @loomweaver/cli init
 
-# your product, and a first plugin already contributing to it
-npx @loomweaver/cli distribution --name my-studio --title "My Studio" --out . --force
-npx @loomweaver/cli weaver --id notes --command --shortcut 'mod+shift+n' --out src/notes
-
-ng serve`;
+npm start`;
 
 /* The five things a product has before its first plugin, each with the picture the guide shows for
    it. On a wide screen the pictures sit in one panel that stays put while the list scrolls past;
@@ -154,10 +150,12 @@ const cli = [
         An open-source plugin platform for Angular workbenches. You write the product; the panes,
         the palette, the theming and a plugin system your users extend are already there.
       </p>
-      <div class="actions">
-        <a class="btn primary" href="/getting-started/">Start in 5 minutes</a>
+      <div class="command">
+        <PackageManagerTabs code={initCommand} id="hero-pm" frame="none" />
+        <p class="hint">In an Angular application or an Nx workspace you already have.</p>
       </div>
       <p class="links quiet">
+        <a href="/getting-started/">Get started</a>
         <a href="/overview/">Read the docs</a>
         <a href="https://demo.loomweaver.dev">Live demo</a>
       </p>
@@ -449,10 +447,10 @@ const cli = [
     <section class="cta">
       <h2>Five minutes to a running product</h2>
       <p>
-        In a fresh Angular app or the one you have. The scaffold wires the build and registers your
-        first weaver, names every file it touched, and only ever adds.
+        In a fresh Angular app or the one you have. One command installs the platform, wires the
+        build, registers your first weaver, names every file it touched, and only ever adds.
       </p>
-      <Code code={quickStart} lang="bash" frame="terminal" />
+      <PackageManagerTabs code={quickStart} id="cta-pm" />
       <div class="actions">
         <a class="btn primary" href="/getting-started/">Get started</a>
         <a class="btn" href="/building-with-an-assistant/">With an AI assistant</a>

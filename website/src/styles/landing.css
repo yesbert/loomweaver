@@ -186,6 +186,23 @@
 }
 
 /* The two quiet links under the one button: text, not buttons, so the hero has one thing to do. */
+/* The command under the headline: the tab group at reading width, the one-line hint beneath it. */
+.lw-landing .hero .command {
+  margin: 2rem auto 0;
+  max-width: 34rem;
+  text-align: left;
+}
+
+.lw-landing .hero .command .lw-pm {
+  margin-block: 0;
+}
+
+.lw-landing .hero .hint {
+  margin: 0.75rem 0 0;
+  font-size: var(--sl-text-sm);
+  text-align: center;
+}
+
 .lw-landing .hero .quiet {
   justify-content: center;
   margin-top: 1rem;
@@ -619,7 +636,7 @@
   max-width: 42rem;
 }
 
-.lw-landing .cta .expressive-code {
+.lw-landing .cta .lw-pm {
   margin-inline: auto;
   max-width: 52rem;
   text-align: left;
@@ -642,6 +659,10 @@
 
 .lw-landing .expressive-code {
   margin-block: 1.25rem 0;
+}
+
+.lw-landing .lw-pm-panel .expressive-code {
+  margin: 0;
 }
 
 /* Both themes of a picture ship; the one that does not match is removed from the page, and with it

@@ -1,0 +1,45 @@
+---
+/* The same tab group the sync renders for a `sh npm` fence in the docs, for the hand-written
+   pages: the lines are written once in the npm spelling and the other three are derived by the
+   same rule, so a command on the landing page can never disagree with the one in Getting started. */
+import { Code } from '@astrojs/starlight/components';
+import { MANAGERS, translate } from '../../tools/package-managers.mjs';
+
+interface Props {
+  code: string;
+  id: string;
+  frame?: 'auto' | 'none';
+}
+
+const { code, id, frame = 'auto' } = Astro.props;
+---
+
+<div class="lw-pm">
+  {
+    MANAGERS.map((manager, index) => (
+      <input
+        type="radio"
+        name={id}
+        id={`${id}-${manager}`}
+        class={`lw-pm-radio lw-pm-${manager}`}
+        checked={index === 0}
+      />
+    ))
+  }
+  <div class="lw-pm-tabs" role="tablist">
+    {
+      MANAGERS.map((manager) => (
+        <label for={`${id}-${manager}`} class={`lw-pm-tab lw-pm-${manager}`}>
+          {manager}
+        </label>
+      ))
+    }
+  </div>
+  {
+    MANAGERS.map((manager) => (
+      <div class={`lw-pm-panel lw-pm-${manager}`}>
+        <Code code={translate(code, manager)} lang="sh" frame={frame} />
+      </div>
+    ))
+  }
+</div>

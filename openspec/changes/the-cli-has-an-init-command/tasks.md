@@ -46,9 +46,9 @@
       `init` with its options; `docs/building-with-an-assistant.md` quotes the one command where it
       quoted three.
 - [x] 4.3 `README.md` quick start, `llms.txt` and `llms-full.txt` carry the one command.
-- [ ] 4.4 After the release that publishes the CLI with `init`: the landing page's primary action
-      becomes the command with the tab group; until then the button stays. Recorded here with the
-      version that carried it.
+- [x] 4.4 After the release that publishes the CLI with `init`: the landing page's primary action
+      becomes the command with the tab group; until then the button stays. Released as 0.9.3 on
+      2026-09-08; the hero and the closing section carry the command from that day.
 
 ## 5. Verify
 
