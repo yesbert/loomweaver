@@ -60,7 +60,7 @@ production setting the generated content-security policy requires. The weaver is
 composition root, so its icon is in the rail on the first run. It only ever _adds_: anything you had
 already set is left as you set it, running it twice changes nothing, and `--dry-run` shows the plan.
 
-[Getting started](docs/getting-started.md) walks through these steps and what they generate.
+[Getting started](docs/getting-started.md) shows what you get and what the command wrote.
 [Manual setup](docs/manual-setup.md) is the same application wired by hand, without the service
 worker and the content-security policy the scaffold adds, and including the
 **Bootstrap / no-Tailwind path** via the pre-compiled stylesheet.
