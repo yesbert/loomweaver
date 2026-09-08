@@ -76,7 +76,7 @@ Each tool reads a file of its own; the command and the arguments are the same in
 
 Any other client that speaks the protocol takes the same command and arguments in its own file.
 Unpinned, `npx` takes the latest server, whose generators emit code for the latest platform line;
-a project on an older shell pins the server to it, `@loomweaver/mcp@0.9.2` in the arguments, as
+a project on an older shell pins the server to it, `@loomweaver/mcp@0.9.3` in the arguments, as
 [Scaffolding](scaffolding.md#the-mcp-server--loomweavermcp) describes.
 
 ## The path
@@ -226,8 +226,8 @@ generated files were adjusted to fit. The generator states structure, the assist
 against your layout, and that is by design.
 
 **It notices what a scaffold forgets, and so did we.** The auth stand-in names two icons the shell
-does not ship. The step that provides them is one the CLI performs and the MCP route, as of 0.9.2,
-does not name. Both runs found the gap by reading the shell's type declarations and
+does not ship. The step that provides them is one the CLI performs and the MCP route, before
+0.9.3, did not name. Both runs found the gap by reading the shell's type declarations and
 contributed the icons from the plugin itself. A reader should not have to depend on that, so the
 missing step is a defect in the tooling and is being fixed there; this page keeps the prompt because
 the product that came out of it worked.
