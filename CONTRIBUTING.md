@@ -299,6 +299,13 @@ Four rules for the sentences, three of them measured by `npm run docs-style-chec
 - **One word, one spelling, the glossary's.** `docs/glossary.md` says which of two words names a
   thing; the checker flags the spellings it does not use (a hyphenated plugin, a two-word sidebar).
 
+A shell block that installs or runs a package is written once, in the npm spelling, with the info
+string `sh npm` instead of `bash`. The site renders it as npm, pnpm, yarn and bun tabs, deriving the
+other three by rule (`npx` becomes `pnpm dlx`, `yarn dlx` and `bunx`; `npm install -D` becomes
+`pnpm add -D`, `yarn add -D` and `bun add -d`; `npm start` follows the manager). On GitHub the block
+reads as the npm form. A block the rule does not cover, a `ng` command alone or a line of output,
+stays `bash`. `website/tools/package-managers.test.mjs` says what the rule covers.
+
 The shape of the file is Prettier's, not yours: run `npx prettier --write` on a page you touched, or
 `npm run docs-format-check` to see what it wants. It decides table widths, italic markers and the
 blank line after the header, and it leaves the code blocks alone, so how dense a sample reads is
