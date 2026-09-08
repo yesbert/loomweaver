@@ -271,6 +271,9 @@ jobs:
       - name: Lint the site
         run: npm run lint
 
+      - name: Test the site's tools
+        run: npm run test
+
       # Two of these ratios were defects, each one token away from correct. The check reads the
       # pairs the landing page and the chrome actually use, in both themes.
       - name: Contrast check
@@ -280,6 +283,8 @@ jobs:
       # a target it cannot resolve. That makes this job the guardrail for documentation edits:
       # renaming or removing a page breaks the build here instead of shipping a dead link.
       - name: Build the Starlight site
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: npm run build
 
       # What a crawler is served, not what the source intended: a description of its own on every

@@ -3,11 +3,12 @@ import { Code } from '@astrojs/starlight/components';
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 import '../styles/landing.css';
 import { mainNav } from '../../nav.mjs';
-/* The released version, read from the shell's own manifest at build time, so the line under the
-   headline is true by construction and the bump script has no second file to remember. */
-import shell from '../../../platform/libs/core/shell/package.json';
+/* The released version, from the same generated file the structured data reads: the sync copies
+   it out of Directory.Build.props, which the bump script writes and the release workflow checks
+   against the tag. The line under the headline is therefore true by construction. */
+import siteMeta from '../../generated/site-meta.json';
 
-const { version } = shell as { version: string };
+const { version } = siteMeta as { version: string };
 
 const commandExample = `ctx.registerCommand({
   id: 'invoices.export',
