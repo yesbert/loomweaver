@@ -112,8 +112,22 @@
       own storage with no local path left, the degit line, eleven minutes reading time. The pasted
       file had to be unwrapped first, one line per paragraph, because dev.to renders every newline
       as a line break.
-- [ ] 3.2 Poll reactions and comments through the dev.to API for the first week; answer comments
+- [x] 3.2 Poll reactions and comments through the dev.to API for the first week; answer comments
       in the owner's voice, pasted by the owner.
+      Polled 2026-09-09 through the authenticated API, one day after publishing: 14 page views,
+      zero reactions, zero comments, nothing to answer. The account has 562 followers, so the
+      article is not reaching its own feed, and the shortfall is distribution rather than the text.
+      The same account for comparison: the launch article of 2026-09-04 has 39 views and one
+      reaction after five days, and the best received article so far, on why AI projects fail
+      (2026-05-31, tags `dotnet`, `ai`, `programming`, `eventsourcing`), has 568 views, nine
+      reactions and 35 comments.
+      One deviation from task 2.4 recorded while reading: the published tags are `ai`, `agents`,
+      `tutorial`, `angular`, so `tutorial` went out in place of the planned `webdev`.
+      Closed on the owner's decision of 2026-09-09: no daily polling, the numbers are fetched when
+      there is a reason to. What the reading is good for beyond this article is written up in the
+      private marketing worksheet, under *Was dev.to hergibt*: the article is visible in the feeds
+      (position 3 in `angular`), the median article in every tag we use has zero reactions, and the
+      ceiling in `angular` is around 36 reactions, so the silence is the platform and not the text.
 - [ ] 3.3 The day after the article, the owner posts the less technical LinkedIn version, which
       links to the article; the draft and its image live beside the article draft, outside the
       repository.
