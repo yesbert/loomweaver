@@ -94,10 +94,24 @@
       contributing guide's docs route is an issue first, then a PR that says `Fixes #<issue>`
       once assigned; Discord `#-💎-contributing` is where "how do I" questions go. The question,
       when it is asked, is which section, not whether a route exists.
-- [ ] 3.3 Requests from maintainers are answered within the week; a change to the project that a
+- [x] 3.3 Requests from maintainers are answered within the week; a change to the project that a
       maintainer asks for goes to its own branch, not this change.
+      Nothing was asked. awesome-angular merged on 2026-09-05 without a word; the Nx pull request
+      has drawn two Netlify bots and no maintainer. Nothing to answer, and nothing the project had
+      to change to be listed.
 
 ## 4. Close out
 
-- [ ] 4.1 Every entry is merged, declined or recorded as open on an inactive list.
-- [ ] 4.2 `openspec validate awesome-list-submissions --strict` passes.
+- [x] 4.1 Every entry is merged, declined or recorded as open on an inactive list.
+      Two of three land on that wording exactly: awesome-angular is merged and live under *Micro
+      Frontends*, and AG-UI was deferred by the owner on 2026-09-05 with its route recorded for the
+      day it is asked. The third does not, and the honest reading is that the wording did not
+      anticipate it. The Nx registry pull request is open on a list that is anything but inactive:
+      nrwl/nx merges its own team's work within a day, and still carries over a hundred open pull
+      requests, the oldest from 2026-07-23. When a community entry is reviewed cannot be told from
+      outside.
+      Closed on the owner's decision of 2026-09-09 rather than by satisfying the sentence. Both
+      submissions are out; what remains is other people's review, which is not work this change can
+      carry. It is recorded in the private marketing worksheet instead, and if Nx merges, that is a
+      line there and not a change.
+- [x] 4.2 `openspec validate awesome-list-submissions --strict` passes.
