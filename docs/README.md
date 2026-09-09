@@ -124,7 +124,9 @@ cover the concepts; a repository check verifies that no published export is miss
 
 Two files are written for the assistant itself: [`../llms.txt`](../llms.txt), the curated map, and
 [`../llms-full.txt`](../llms-full.txt), the whole contract inlined for a single fetch. `@loomweaver/mcp`
-gives it the generators and validators as tools. [Building with an AI assistant](building-with-an-assistant.md)
+gives it the generators and validators as tools. For a tool that reads skills there is also
+[`../skills/loomweaver/SKILL.md`](../skills/loomweaver/SKILL.md), which states the order of work and
+is optional. [Building with an AI assistant](building-with-an-assistant.md)
 is the guide for the person working with one: registering the server per tool, the prompts, and a
 run recorded as it happened.
 

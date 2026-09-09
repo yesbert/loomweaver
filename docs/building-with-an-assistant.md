@@ -14,7 +14,7 @@ page was recorded as it happened, and every prompt at the end was run before it 
 
 ## What the assistant gets
 
-Two things, and they are different in kind.
+Two things, and they are different in kind. A third is optional and comes after them.
 
 **Knowledge.** [`llms.txt`](../llms.txt) is the curated map of this documentation, and
 [`llms-full.txt`](../llms-full.txt) is the whole published contract inlined into one file: every
@@ -30,6 +30,29 @@ the same eight files the CLI would write. Asked whether the product's commands a
 agent, it calls `validate_commands` and answers from findings rather than from an impression. The
 tools are the same generators the CLI and the Nx collection run; [Scaffolding](scaffolding.md) is
 the reference for what each one emits and for the options.
+
+**Procedure, if your tool reads skills.** Some assistants load a skill, a file that states the
+order of work and is pulled in when a task matches its description. The platform ships one,
+[`skills/loomweaver/SKILL.md`](../skills/loomweaver/SKILL.md). It says what these pages say and links
+them for the detail. Reach for the generator before reading the project, place the files once the
+file map is back, run the validators on the result, and hold to the conventions a weaver needs. It
+is the same file for every tool that reads the format; only the directory differs.
+
+| Tool | Where the file goes |
+| --- | --- |
+| Claude Code | `.claude/skills/loomweaver/SKILL.md` ([documentation](https://code.claude.com/docs/en/skills)) |
+| Cursor | `.cursor/skills/loomweaver/SKILL.md`, or `.agents/skills/` ([documentation](https://cursor.com/docs/skills)) |
+| VS Code with Copilot | `.github/skills/`, `.claude/skills/` or `.agents/skills/` ([documentation](https://code.visualstudio.com/docs/agent-customization/agent-skills)) |
+
+From the project root, for Claude Code:
+
+```sh
+curl --create-dirs -o .claude/skills/loomweaver/SKILL.md https://loomweaver.dev/skills/loomweaver/SKILL.md
+```
+
+Nothing here depends on it. The generators and the two files above work the same without a skill
+installed. An assistant that reads neither still reaches the tools; the skill only writes the order
+down for tools that have somewhere to put it.
 
 Why this matters more for a workbench than for a page of forms: the UI is where an assistant
 invents most, because every project has its own. Here it does not. The rail, the panes, the palette

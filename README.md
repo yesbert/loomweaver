@@ -114,7 +114,8 @@ invents most.
 
 LoomWeaver is the same workbench every time, and it is written down for machines:
 [`llms.txt`](llms.txt) as the map, [`llms-full.txt`](llms-full.txt) as the whole contract in a single
-fetch, and `@loomweaver/mcp` so your assistant scaffolds with tools instead of guesses.
+fetch, and `@loomweaver/mcp` so your assistant scaffolds with tools instead of guesses. If your tool
+reads skills, [`skills/loomweaver/SKILL.md`](skills/loomweaver/SKILL.md) states the order of work.
 
 ```json
 {

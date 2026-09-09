@@ -50,9 +50,77 @@ places, and a scaffold that writes into a tool's private directory oversteps. Th
 one-line copy per tool instead, the way it gives the MCP registration per tool.
 
 **Measured, not asserted.** The same first-weaver prompt runs twice with the skill in
-`.claude/skills/` of the test app and twice without, from the same clean state. The guide reports
-turns and tool calls for both. If the skill does not shorten the path, it is rewritten or dropped
-before it ships.
+`.claude/skills/` of the test app and twice without, from the same clean state. If the skill does
+not shorten the path, it is rewritten or dropped before it ships. The measurement is this change's
+own gate and stays in this file; the guide does not report it.
+
+## Measured, 2026-09-09
+
+Four runs of the first-weaver prompt from the assistant guide, *Add a weaver called notes with a
+command on mod+shift+n.*, from the same clean state: `my-studio-base`, a distribution with no weaver
+yet, `@loomweaver/mcp` pinned to 0.9.2, Claude Code headless. Twice without the skill, twice with it
+in the app's `.claude/skills/`. The recipe is `.claude/tests/assistant-path/run.sh`, which no longer
+uses git; `compare.py` beside it produces this table.
+
+| run | turns | tool calls | seconds | USD | first call | steps before the generator |
+|---|---|---|---|---|---|---|
+| plain a | 27 | 26 | 136 | 0.95 | Bash | 6 |
+| plain b | 22 | 21 | 76 | 0.61 | Bash | 4 |
+| skill a | 26 | 24 | 96 | 0.73 | Skill | 5 |
+| skill b | 25 | 23 | 105 | 0.75 | Skill | 5 |
+
+**The skill does not shorten the path.** Five steps precede the first generator call either way, and
+the run is a turn longer with it than without. The exploration it was meant to save happens anyway,
+in the same shape every time: `Bash → ToolSearch → Read`, the assistant looking at the project and
+then loading the tool schemas. Two runs a side is thin, and the plain side alone spreads from 22 to
+27 turns, so the honest reading is that no difference in length was measurable, not that the skill
+costs a turn.
+
+**One thing it does change, reproducibly.** Without the skill both runs validated once, with
+`validate_commands` alone. With it, both ran the full set, `validate_manifest → validate_i18n →
+validate_commands`, in that order. The generated product is byte-identical in all four runs, so this
+is more care taken over the same result, not a different result.
+
+**The first call changes for a trivial reason.** `Skill` appears first because loading an installed
+skill *is* the first step; it is mechanics, not behaviour, and it should not be read as the skill
+changing what the assistant does.
+
+**Why the path did not shorten, and it is this file's fault.** The skill's *Detect* section
+instructs the assistant to read `LOOMWEAVER.md` and the composition root *first*. That is exactly
+the exploration the change set out to remove, prescribed by the artifact meant to remove it. The
+generator needs none of it: `scaffold_weaver` takes an id and a shortcut, and where the files go is
+a question that can be answered after the file map exists, not before.
+
+### Revised, and measured again
+
+The skill was rewritten against that finding on the same day: the reading instruction left *Detect*,
+an opening line made the order explicit (*call the generator before you explore the project*), and
+placing the files moved behind the tool call, where the file map already exists. Two more runs,
+same prompt, same baseline, same pinned server.
+
+| run | turns | tool calls | seconds | USD | steps before the generator | the path to it |
+|---|---|---|---|---|---|---|
+| plain a | 27 | 26 | 136 | 0.95 | 6 | Bash → Bash → Read → Bash → ToolSearch → Read |
+| plain b | 22 | 21 | 76 | 0.61 | 4 | Bash → ToolSearch → Read → Bash |
+| skill a | 26 | 24 | 96 | 0.73 | 5 | Skill → Bash → ToolSearch → Bash → Read |
+| skill b | 25 | 23 | 105 | 0.75 | 5 | Skill → Bash → Read → Bash → ToolSearch |
+| revised a | 26 | 24 | 102 | 0.72 | 3 | Skill → ToolSearch → Bash |
+| revised b | 26 | 24 | 95 | 0.68 | 2 | Skill → ToolSearch |
+
+**The path halves.** Five steps before the generator became two and three; against the plain runs,
+four and six. What disappears is the reading: no `Read` at all in either revised run, and in one of
+them no `Bash` either. What remains is `ToolSearch`, which loads the tool schemas and is the
+harness's own mechanism; a skill cannot spend that step for the assistant.
+
+**The whole run is not shorter, and that is the honest headline.** 26 turns both times, against 24.5
+without the skill. The exploration it saves is spent again on the two extra validators it prompts.
+The skill buys a straighter path and a fuller check, not a cheaper run. Cost is marginally lower
+(0.70 against 0.78 on average) and well inside the spread of the plain runs, so nothing should be
+claimed from it.
+
+**The product is identical in all six runs**, the same three paths touched: `angular.json`,
+`src/app/app.config.ts`, `src/weavers/`. The skill changes how the assistant gets there and how
+thoroughly it checks, never what it builds.
 
 ## Risks / Trade-offs
 
