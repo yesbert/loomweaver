@@ -121,5 +121,5 @@ export class UnsavedWork {
 }
 
 function pathOfKey(key: string): string {
-  return key.split('|')[1] ?? '';
+  return key.split('|', 2)[1] ?? '';
 }
