@@ -20,7 +20,19 @@ export {
 } from './catalog';
 export { type DocumentMargin, type MarginLine, marginOf } from './margin';
 export { isoDaysFromToday, setReferenceDate, today } from './clock';
-export { type Quote, type QuoteStatus, addQuote, markQuoteSent, openQuoteValue, quoteById, quoteTotals, quotes, resetQuotes } from './quotes';
+export {
+  type Quote,
+  type QuoteStatus,
+  addQuote,
+  markQuoteSent,
+  openQuoteValue,
+  quoteById,
+  quoteNote,
+  quoteTotals,
+  quotes,
+  resetQuotes,
+  saveQuoteNote,
+} from './quotes';
 export {
   type JournalEntry,
   type Payable,

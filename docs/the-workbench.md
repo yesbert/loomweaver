@@ -105,6 +105,20 @@ draws a menu, the browser's own stays.
 Where it is described: [Menus](weaver/menus.md),
 [Sorting and moving](distribution/switching-capabilities-off.md#sorting-and-moving).
 
+## Closing asks, when there is something to lose
+
+![The unsaved-changes prompt over a quote document, asking what should happen to the unsaved changes, with Cancel, Discard and Save.](../assets/media/unsaved-changes-light.png#gh-light-mode-only)
+
+![The unsaved-changes prompt over a quote document, asking what should happen to the unsaved changes, with Cancel, Discard and Save.](../assets/media/unsaved-changes-dark.png#gh-dark-mode-only)
+
+A surface that reports unsaved work is never destroyed while it is hidden, and closing it asks
+first. The surface reports one thing, that it is dirty; the prompt, the three answers and the
+wording are the shell's, so every plugin in the product asks the same question. *Save* appears only
+when the surface can save, and a save that fails keeps the work and the tab.
+
+Where it is described: [Retention and unsaved work](concepts/retention-and-unsaved-work.md),
+[Unsaved changes](weaver/unsaved-changes.md) for the plugin's side of it.
+
 ## Settings and permissions
 
 ![The Settings dialog on its Permissions section, with a switch per plugin and, under each, a switch per capability the plugin holds.](../assets/media/settings-light.png#gh-light-mode-only)
@@ -158,9 +172,6 @@ Where it is described: [Driving your product with an AG-UI agent](ag-ui-agents.m
 Some of what a user meets has no picture here, because it is small on screen or lives in a second
 window. All of it is the shell's:
 
-- **The unsaved-work prompt.** Closing a tab whose surface reports unsaved work asks *Save*,
-  *Discard* or *Cancel*. The surface only reports that it is dirty; the prompt and the three
-  answers are the shell's. [Retention and unsaved work](concepts/retention-and-unsaved-work.md).
 - **Pop-out windows.** A tab or a sidebar view opens in a window of its own, and state stays in
   sync across every window and tab of the product. [Windows and sync](distribution/windows-and-sync.md).
 - **Light, dark and system**, a language switch, and four text sizes, in the top bar and in the

@@ -60,6 +60,10 @@ What else has no address is on [The address](the-address.md#what-has-no-address)
 
 ## The unsaved-work question
 
+![The unsaved-changes prompt over a quote document, asking what should happen to the unsaved changes, with Cancel, Discard and Save.](../../assets/media/unsaved-changes-light.png#gh-light-mode-only)
+
+![The unsaved-changes prompt over a quote document, asking what should happen to the unsaved changes, with Cancel, Discard and Save.](../../assets/media/unsaved-changes-dark.png#gh-dark-mode-only)
+
 Wherever an action would destroy work, the workbench asks: Save, Discard or Cancel. Closing a tab,
 disabling or uninstalling a plugin and resetting a workspace all ask, because the question is asked
 by the action, not by the button that triggered it. Closing the browser window asks too, in the

@@ -41,6 +41,8 @@
       "net": "Netto"
     },
     "discount": "{{percent}} % Rabatt",
+    "note": "Notiz",
+    "notePlaceholder": "Geht nicht an den Kunden.",
     "missing": "Dieses Angebot gibt es nicht mehr."
   },
   "command": {

@@ -113,10 +113,21 @@ function buildQuote(seed: QuoteSeed): Quote {
 
 const store = signal<readonly Quote[]>(SEEDS.map(buildQuote));
 
+const notes = signal<Readonly<Record<string, string>>>({});
+
 export const quotes = store.asReadonly();
 
 export function resetQuotes(): void {
   store.set(SEEDS.map(buildQuote));
+  notes.set({});
+}
+
+export function quoteNote(id: string): string {
+  return notes()[id] ?? '';
+}
+
+export function saveQuoteNote(id: string, note: string): void {
+  notes.update((all) => ({ ...all, [id]: note }));
 }
 
 export function addQuote(customerId: string): Quote {
