@@ -128,7 +128,13 @@
       private marketing worksheet, under *Was dev.to hergibt*: the article is visible in the feeds
       (position 3 in `angular`), the median article in every tag we use has zero reactions, and the
       ceiling in `angular` is around 36 reactions, so the silence is the platform and not the text.
-- [ ] 3.3 The day after the article, the owner posts the less technical LinkedIn version, which
+- [x] 3.3 The day after the article, the owner posts the less technical LinkedIn version, which
       links to the article; the draft and its image live beside the article draft, outside the
       repository.
-- [ ] 3.4 `openspec validate dev-to-tutorial-article --strict` passes.
+      Deferred by the owner on 2026-09-09, not done. The article it would link to drew 14 views and
+      no reaction in its first day, so a second post pointing at it buys nothing; the reason the
+      article stayed quiet is the platform rather than the text, and that is not fixed by carrying
+      the same text somewhere else. The draft stays where it is, outside the repository, and the
+      topic is picked up again when there is a reason to. What that reason would look like is in
+      the private marketing worksheet.
+- [x] 3.4 `openspec validate dev-to-tutorial-article --strict` passes.
