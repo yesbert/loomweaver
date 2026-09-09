@@ -71,6 +71,20 @@ browser's own words: browsers ignore page-supplied text there and localise the p
 language, not the product's. A distribution that closes a tab from its own code asks the same
 question, and its call answers whether it ran.
 
+Before it asks, it shows. A tab whose surface holds unsaved work is drawn differently from one whose
+work is saved, and its name says so as well. A user coming back to six open documents can then see
+which one is waiting, rather than trying each in turn. A tab that holds other work is marked when any
+of that work is unsaved: a document whose panel is dirty is marked at the document, because that is
+the tab a user looks at. On a closable tab the mark takes the place of the close control, which
+comes back the moment the pointer is over the tab. A window of its own carries no tab, and closes
+without the question, so there is nothing there to mark.
+
+Whether an address holds unsaved work is also readable, not only visible. A distribution reads it
+among the other workbench facts ([Tabs](../distribution-api/tabs.md)) and a plugin reads it for its
+own surfaces ([Unsaved changes](../weaver/unsaved-changes.md)), so that a list can mark the row a
+document was opened from. Both read the same answer the workbench draws, which is why the two can
+never disagree in the same window.
+
 A plugin takes part by implementing the unsaved-changes contract
 ([Unsaved changes](../weaver/unsaved-changes.md)): it reports whether it is dirty, it saves on
 request, and it may say what should happen before a close. A sandboxed surface pushes the same facts

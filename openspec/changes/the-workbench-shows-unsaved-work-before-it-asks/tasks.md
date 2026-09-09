@@ -36,14 +36,15 @@
 
 ## 4. What it says, and where
 
-- [ ] 4.1 `docs/concepts/retention-and-unsaved-work.md`: what a user now sees before the question is
+- [x] 4.1 `docs/concepts/retention-and-unsaved-work.md`: what a user now sees before the question is
       asked, and that an arrangement answers for what is inside it.
-- [ ] 4.2 `docs/weaver/unsaved-changes.md`: that a plugin may read its own, with the bound and the
+- [x] 4.2 `docs/weaver/unsaved-changes.md`: that a plugin may read its own, with the bound and the
       sandbox limit stated beside it.
-- [ ] 4.3 The distribution's own guide: the fact, beside the other readable facts.
-- [ ] 4.4 `docs/the-workbench.md`: the mark, in the section that now carries the prompt. A picture
-      only if a still of a tab reads at all on that page; a sentence otherwise.
-- [ ] 4.5 Docs style check, the comment guard, the API documentation check, the site sync and build.
+- [x] 4.3 The distribution's own guide: the fact, beside the other readable facts.
+- [x] 4.4 `docs/the-workbench.md`: the mark, in the section that now carries the prompt. A sentence,
+      not a picture: the stills that page embeds are whole windows at 1280 pixels, and a mark of
+      eight pixels does not read at that width.
+- [x] 4.5 Docs style check, the comment guard, the API documentation check, the site sync and build.
 
 ## 5. The demo shows it
 

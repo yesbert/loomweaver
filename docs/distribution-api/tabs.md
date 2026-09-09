@@ -32,9 +32,16 @@ Use `navigateTo` when the address alone says what to show; use `open` when the t
 tabs.activeContent();                          // { surfaceId, path, params } | null
 tabs.tabs();                                   // the visible strip
 tabs.quickOpenTargets();                       // everything `mod+p` can reach
+tabs.hasUnsavedWork('doc/42');                 // boolean, read reactively
 ```
 
 What is active is `activeContent()`: the surface, its path and its parameters, or `null`, as a plugin reads it through `ctx.activeContent`. The strip is `tabs()`, in strip order. What quick-open can reach is `quickOpenTargets()`: the open tabs, and the unopened routes the session may open.
+
+Whether an address holds unsaved work is `hasUnsavedWork(path)`: the fact behind the mark the
+workbench draws on the tab. Draw your own with it where the workbench does not reach, a badge in your
+status bar or a count beside a module. Read it in a `computed` or a template and it follows the work
+being saved. An arrangement answers for what is inside it, and the answer covers every pane the
+address is open in.
 
 ## What asks about unsaved work
 
