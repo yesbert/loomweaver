@@ -24,7 +24,7 @@ import {
   surfaceToEntry,
 } from './surface-normalize';
 import { AuthContext } from '../auth/auth-context';
-import { segmentsOf } from '../regions/content/content-path';
+import { normalizePath, segmentsOf } from '../regions/content/content-path';
 import { collidingParam } from '../regions/content/tabs/tab-address';
 import { ContentTabsService } from '../regions/content/tabs/content-tabs.service';
 import { DialogService } from '../dialog/dialog.service';
@@ -47,6 +47,7 @@ import {
   warnUnusableContainerLayout,
 } from './host-context-warnings';
 import { addressIsUnder } from '../addressing/address-reach';
+import { pathOwnedBy } from './plugin-surface-ownership';
 
 export class HostPluginContext implements PluginContext {
   private readonly disposables: Disposable[] = [];
@@ -164,6 +165,11 @@ export class HostPluginContext implements PluginContext {
   isShowingUnder(path: string): boolean {
     this.require('navigation');
     return addressIsUnder(this.tabs.activeContent()?.path, path);
+  }
+
+  hasUnsavedWork(path: string): boolean {
+    const owns = pathOwnedBy(this.registry, this.pluginId);
+    return owns(normalizePath(path)) && this.tabs.hasUnsavedWork(path);
   }
 
   get invocableCommands(): () => readonly InvocableCommand[] {

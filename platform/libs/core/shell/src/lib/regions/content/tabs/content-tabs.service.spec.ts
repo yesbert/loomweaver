@@ -1,4 +1,4 @@
-import { ApplicationRef, Component } from '@angular/core';
+import { ApplicationRef, Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { DOCUMENT } from '@angular/common';
 import { Router, provideRouter } from '@angular/router';
@@ -18,12 +18,22 @@ import { ContentTabsService } from './content-tabs.service';
 @Component({ selector: 'lw-test-content', template: '' })
 class TestContent {}
 
+const draftDirty = signal(true);
+
+@Component({ selector: 'lw-draft-content', template: '' })
+class DraftContent {
+  surfaceDirty(): boolean {
+    return draftDirty();
+  }
+}
+
 const ROUTES: readonly ContentRoute[] = [
   { path: '', component: TestContent },
   { path: 'doc/:id', component: TestContent, id: 'testbed.doc' },
   { path: 'dashboard/overview', component: TestContent, title: 'k.dash' },
   { path: 'reports', component: TestContent, title: 'k.reports' },
   { path: 'note/:id', component: TestContent, subRoutes: ['preview'] },
+  { path: 'draft/:id', component: DraftContent },
 ];
 
 describe('ContentTabsService (findings #8/#11)', () => {
@@ -394,6 +404,18 @@ describe('ContentTabsService (findings #8/#11)', () => {
     service.bringToFront('doc/zzz');
 
     expect(dynamicOrder()).toEqual(['doc/b', 'doc/a']);
+  });
+
+  it('answers whether an address holds unsaved work, and follows it being saved', async () => {
+    draftDirty.set(true);
+    await harness.navigateByUrl('/draft/a');
+
+    expect(service.hasUnsavedWork('draft/a')).toBe(true);
+    expect(service.hasUnsavedWork('doc/b')).toBe(false);
+
+    draftDirty.set(false);
+
+    expect(service.hasUnsavedWork('draft/a')).toBe(false);
   });
 });
 

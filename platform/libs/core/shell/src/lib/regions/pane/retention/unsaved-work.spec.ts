@@ -1,4 +1,4 @@
-import { signal } from '@angular/core';
+import { computed, signal } from '@angular/core';
 import { EMPTY } from 'rxjs';
 import { TestBed } from '@angular/core/testing';
 import { ChildrenOutletContexts, Router } from '@angular/router';
@@ -169,5 +169,44 @@ describe('UnsavedWork', () => {
     });
 
     expect(work.at('left:main', 'quotes/q-7')).toBe(false);
+  });
+
+  it('answers for every pane the address is open in, not only one', () => {
+    const work = setup({
+      entries: [
+        { key: `${CONTENT_SCOPE}|quotes/q-7`, instance: dirtySurface(false) },
+        { key: 'content:second|quotes/q-7', instance: dirtySurface(true) },
+      ],
+    });
+
+    expect(work.at(CONTENT_SCOPE, 'quotes/q-7')).toBe(false);
+    expect(work.anywhere('quotes/q-7')).toBe(true);
+  });
+
+  it('answers nothing anywhere for an address with nothing open', () => {
+    const work = setup({
+      entries: [{ key: `${CONTENT_SCOPE}|quotes/q-7`, instance: dirtySurface(true) }],
+    });
+
+    expect(work.anywhere('quotes/q-9')).toBe(false);
+  });
+
+  it('follows the surface being saved, with nothing bound in between', () => {
+    const dirty = signal(true);
+    const work = setup({
+      entries: [
+        {
+          key: `${CONTENT_SCOPE}|quotes/q-7`,
+          instance: { surfaceDirty: () => dirty() },
+        },
+      ],
+    });
+    const reader = computed(() => work.anywhere('quotes/q-7'));
+
+    expect(reader()).toBe(true);
+
+    dirty.set(false);
+
+    expect(reader()).toBe(false);
   });
 });

@@ -1,9 +1,9 @@
 import { inject, Service } from '@angular/core';
 import { ChildrenOutletContexts, Router } from '@angular/router';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
+import { pathOwnedBy } from '../../../plugin/plugin-surface-ownership';
 import { ContentReuseStrategy } from '../../content/routing/content-reuse-strategy';
-import { matchRoute, normalizePath } from '../../content/content-path';
-import { VIEW_PANE_PREFIX } from '../tree/pane-address';
+import { normalizePath } from '../../content/content-path';
 import { RetainedViewStash } from './retained-view-stash';
 
 @Service()
@@ -50,24 +50,7 @@ export class RetentionCandidates {
   }
 
   private pathOwnership(pluginId: string): (path: string) => boolean {
-    const routes = this.registry
-      .contentRoutes()
-      .filter((route) => route.pluginId === pluginId);
-    const viewIds = new Set(
-      this.registry
-        .views()
-        .filter((view) => view.pluginId === pluginId)
-        .map((view) => view.id),
-    );
-    return (path) => {
-      if (path === '') {
-        return false;
-      }
-      if (path.startsWith(VIEW_PANE_PREFIX)) {
-        return viewIds.has(path.slice(VIEW_PANE_PREFIX.length));
-      }
-      return matchRoute(routes, path) !== undefined;
-    };
+    return pathOwnedBy(this.registry, pluginId);
   }
 }
 

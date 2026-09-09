@@ -54,6 +54,34 @@ export class UnsavedWork {
     );
   }
 
+  anywhere(path: string): boolean {
+    return this.instancesAnywhere(path).some((instance) =>
+      instanceDirty(instance),
+    );
+  }
+
+  private instancesAnywhere(path: string): unknown[] {
+    this.stash.version();
+    const keyed = this.stash.keyedInstances();
+    const addresses = this.addressesOf(path);
+    const named = new Set(addresses);
+    return [
+      ...new Set([
+        ...keyed
+          .filter((entry) => named.has(pathOfKey(entry.key)))
+          .map((entry) => entry.instance),
+        ...addresses.flatMap((address) =>
+          containerChildInstances(keyed, address),
+        ),
+        ...this.routedInstances(this.contentScope(), addresses.at(-1) ?? path),
+      ]),
+    ];
+  }
+
+  private contentScope(): string {
+    return paneRetentionScope(CONTENT_DOCK, this.paneTree.primaryId(CONTENT_DOCK));
+  }
+
   private addressesOf(path: string): string[] {
     if (path.startsWith(VIEW_PANE_PREFIX)) {
       return [path];
@@ -71,11 +99,7 @@ export class UnsavedWork {
   }
 
   private routedInstances(scope: string, address: string): unknown[] {
-    if (
-      address.startsWith(VIEW_PANE_PREFIX) ||
-      scope !==
-        paneRetentionScope(CONTENT_DOCK, this.paneTree.primaryId(CONTENT_DOCK))
-    ) {
+    if (address.startsWith(VIEW_PANE_PREFIX) || scope !== this.contentScope()) {
       return [];
     }
     this.reuse.version();
@@ -94,4 +118,8 @@ export class UnsavedWork {
     }
     return found;
   }
+}
+
+function pathOfKey(key: string): string {
+  return key.split('|')[1] ?? '';
 }

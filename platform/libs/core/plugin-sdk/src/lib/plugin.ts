@@ -264,6 +264,23 @@ export interface PluginContext {
    */
   isShowingUnder(path: string): boolean;
   /**
+   * Whether the surface at `path` holds **unsaved work** — the same fact the workbench draws as a
+   * mark on the tab, so that a plugin can show it where the workbench cannot reach: the row in the
+   * list a document was opened from, a count beside a group, a badge of its own. An arrangement
+   * answers for what is inside it, so a document whose panel is dirty reads `true` at the
+   * document's own address.
+   *
+   * It is a **reactive read**: call it in a template or a `computed` and the reader follows the
+   * work being saved without further wiring. `false` for an address with nothing open, because a
+   * surface holding unsaved work is never destroyed while it does.
+   *
+   * Bounded to **your own** surfaces, and therefore needing no granted capability, on the same
+   * ground as running a command you registered yourself: a surface another plugin registered reads
+   * `false`, whatever is happening in it. Trusted rung only — a sandboxed surface reports its own
+   * state over its surface channel and is told about its own there.
+   */
+  hasUnsavedWork(path: string): boolean;
+  /**
    * Runs a registered command by id and answers what it did (`automation`, unless the command is
    * one this plugin registered itself — its own need no grant).
    *

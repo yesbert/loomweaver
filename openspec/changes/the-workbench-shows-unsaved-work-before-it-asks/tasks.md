@@ -25,13 +25,13 @@
 
 ## 3. Reading it from outside
 
-- [ ] 3.1 The distribution reads whether an address holds unsaved work, as a workbench fact under
+- [x] 3.1 The distribution reads whether an address holds unsaved work, as a workbench fact under
       the existing rule for facts.
-- [ ] 3.2 A plugin reads it for a surface it registered itself, with no capability consulted, and is
+- [x] 3.2 A plugin reads it for a surface it registered itself, with no capability consulted, and is
       told nothing about a surface another plugin registered.
-- [ ] 3.3 Unit tests for both, including the refusal, and one that binds a reader and checks it
+- [x] 3.3 Unit tests for both, including the refusal, and one that binds a reader and checks it
       follows a save without further wiring.
-- [ ] 3.4 Publish nothing by accident: check the packed declarations for what these two additions
+- [x] 3.4 Publish nothing by accident: check the packed declarations for what these two additions
       expose, and that the API documentation check still passes.
 
 ## 4. What it says, and where
