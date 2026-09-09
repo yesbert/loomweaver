@@ -39,5 +39,20 @@
         </div>
       }
     </dl>
+
+    <div class="flex flex-col gap-1.5 border-t border-border pt-3">
+      <label class="text-xs text-content-muted" [attr.for]="'quote-note-' + quote.id">
+        {{ 'quotes.document.note' | transloco }}
+      </label>
+      <textarea
+        [id]="'quote-note-' + quote.id"
+        rows="3"
+        class="lw-field w-full resize-none text-sm"
+        data-testid="quote-note"
+        [attr.placeholder]="'quotes.document.notePlaceholder' | transloco"
+        [value]="note()"
+        (input)="onNote($event)"
+      ></textarea>
+    </div>
   </div>
 }

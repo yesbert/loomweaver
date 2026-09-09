@@ -1,6 +1,19 @@
-import { afterNextRender, Component, CUSTOM_ELEMENTS_SCHEMA, computed } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  computed,
+  linkedSignal,
+} from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { type Customer, customerById, formatDate } from '../../../../accounting';
+import { DirtySurface } from '@loomweaver/plugin-sdk';
+import {
+  type Customer,
+  customerById,
+  formatDate,
+  quoteNote,
+  saveQuoteNote,
+} from '../../../../accounting';
 import { quotesActions } from '../plugin/quotes-actions';
 import { activeLang, quoteFromRoute } from './quote-context';
 import { STATUS_BADGE } from './quote-status';
@@ -11,7 +24,7 @@ import { STATUS_BADGE } from './quote-status';
   imports: [TranslocoPipe],
   templateUrl: './quotes-customer-view.html',
 })
-export class QuotesCustomerView {
+export class QuotesCustomerView implements DirtySurface {
   private readonly lang = activeLang();
 
   protected readonly quote = quoteFromRoute();
@@ -34,6 +47,13 @@ export class QuotesCustomerView {
     this.date(this.quote()?.validUntil),
   );
 
+  private readonly savedNote = computed(() => {
+    const quote = this.quote();
+    return quote ? quoteNote(quote.id) : '';
+  });
+
+  protected readonly note = linkedSignal(() => this.savedNote());
+
   constructor() {
     afterNextRender(() => {
       const quote = this.quote();
@@ -41,6 +61,21 @@ export class QuotesCustomerView {
         quotesActions.open(quote);
       }
     });
+  }
+
+  surfaceDirty(): boolean {
+    return this.note() !== this.savedNote();
+  }
+
+  async surfaceSave(): Promise<void> {
+    const quote = this.quote();
+    if (quote) {
+      saveQuoteNote(quote.id, this.note());
+    }
+  }
+
+  protected onNote(event: Event): void {
+    this.note.set((event.target as HTMLTextAreaElement).value);
   }
 
   private date(iso: string | undefined): string {

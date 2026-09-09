@@ -143,6 +143,19 @@ const MOTIFS = {
     await settle(page);
   },
 
+  'unsaved-changes': async (page) => {
+    await openSalesWithQuotes(page);
+    await page.getByTestId('quote-note').fill('Call back before the quote expires.');
+    await page
+      .locator(
+        '[id="pane-strip:content:main"] div:has(> [data-tab-path="sales/quotes/q-0007"])' +
+          ' [data-testid="tab-close"]',
+      )
+      .click();
+    await page.getByRole('dialog').filter({ hasText: 'Unsaved changes' }).waitFor();
+    await settle(page);
+  },
+
   'split-panes': async (page) => {
     await openModule(page, 'Sales');
     await openView(page, 'sales/contacts');

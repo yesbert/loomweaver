@@ -41,6 +41,8 @@
       "net": "Net"
     },
     "discount": "{{percent}}% discount",
+    "note": "Note",
+    "notePlaceholder": "Not sent to the customer.",
     "missing": "This quote no longer exists."
   },
   "command": {
