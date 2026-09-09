@@ -77,8 +77,10 @@
 - [x] 3.1 The owner opens each PR from their own account; the PR URL is recorded beside the entry
       here. Both opened on 2026-09-05 from the owner's account, on the owner's word, through the
       GitHub API from a fork each:
-      - awesome-angular: https://github.com/PatrickJS/awesome-angular/pull/2486, open.
-      - nx.dev plugin registry: https://github.com/nrwl/nx/pull/36927, open.
+      - awesome-angular: https://github.com/PatrickJS/awesome-angular/pull/2486, merged
+        2026-09-05 without a request from the maintainer; the entry is live under *Micro Frontends*.
+      - nx.dev plugin registry: https://github.com/nrwl/nx/pull/36927, still open on 2026-09-09.
+        This is the only entry task 4.1 waits on.
 - [x] 3.2 The owner asks the AG-UI maintainers on their Discord how a frontend gets onto the
       integrations page; the answer is recorded here, and nothing in this change waits for it.
       Resolved by decision, not by asking: the owner deferred it on 2026-09-05. A project nobody
