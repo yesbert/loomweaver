@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
@@ -125,6 +125,7 @@ describe('TabClosingService close guarding', () => {
         {
           provide: RetainedViewStash,
           useValue: {
+            version: signal(0),
             instancesFor: () => [],
             evacuate: () => undefined,
             keyedInstances: () => [

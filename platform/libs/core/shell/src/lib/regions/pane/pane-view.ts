@@ -19,11 +19,8 @@ import { StripTab } from './chrome/strip-tab';
 import { PaneToolbar } from './chrome/pane-toolbar';
 import { escalationStep } from './chrome/tab-escalation';
 import { toStripTab } from './drag/pane-label';
-import { RetainedViewStash } from './retention/retained-view-stash';
-import {
-  containerChildInstances,
-  paneRetentionScope,
-} from './retention/retention-policy';
+import { paneRetentionScope } from './retention/retention-policy';
+import { UnsavedWork } from './retention/unsaved-work';
 import { SurfaceCloseGuard } from './close/surface-close-guard';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ContentSecondaryPane } from '../content/content-secondary-pane';
@@ -56,7 +53,7 @@ export class PaneView {
   private readonly tabs = inject(ContentTabsService);
   private readonly chrome = inject(PaneChromeService);
   private readonly containerCtx = inject(CONTAINER_CONTEXT);
-  private readonly stash = inject(RetainedViewStash);
+  private readonly unsavedWork = inject(UnsavedWork);
   private readonly closeGuard = inject(SurfaceCloseGuard);
 
   protected readonly canAddTab = computed(() =>
@@ -270,9 +267,6 @@ export class PaneView {
   }
 
   private closeCandidates(path: string): unknown[] {
-    return [
-      ...this.stash.instancesFor(this.retentionScope(), path),
-      ...containerChildInstances(this.stash.keyedInstances(), path),
-    ];
+    return this.unsavedWork.instancesAt(this.retentionScope(), path);
   }
 }

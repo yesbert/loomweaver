@@ -1,25 +1,27 @@
 ## 1. One rule, before anything reads it
 
-- [ ] 1.1 Extract the answer to *does this address hold unsaved work* into one place, resolving the
+- [x] 1.1 Extract the answer to *does this address hold unsaved work* into one place, resolving the
       surface at the address together with the children of an arrangement it holds, and reading the
       instance store's version so that a tab opened or closed is noticed too. It reads reactively.
-- [ ] 1.2 Make the two existing close paths call it instead of gathering candidates themselves, and
+- [x] 1.2 Make the two existing close paths call it instead of gathering candidates themselves, and
       check that the close behaviour is unchanged: the guard still needs the instances, not only the
       answer, so the shared part is the resolution and not the whole gathering.
-- [ ] 1.3 Unit tests on the rule: a clean address, a dirty one, an arrangement dirty in one child,
+- [x] 1.3 Unit tests on the rule: a clean address, a dirty one, an arrangement dirty in one child,
       an address with nothing open, and a surface whose report throws.
 
 ## 2. The mark on the tab
 
-- [ ] 2.1 Draw the three shapes named in design.md, *Open Questions*, for a pinned tab, look at them
+- [x] 2.1 Draw the three shapes named in design.md, *Open Questions*, for a pinned tab, look at them
       in light and dark, and settle it. Record the answer in design.md before building on it.
-- [ ] 2.2 The strip distinguishes a tab whose address holds unsaved work, in all three places it is
+- [x] 2.2 The strip distinguishes a tab whose address holds unsaved work, in all three places it is
       used, with the settled shape and the control returning on hover where it shares a slot.
-- [ ] 2.3 The tab's accessible name carries the state, in both languages.
-- [ ] 2.4 Unit tests on the strip: marked when dirty, unmarked when saved, marked for an arrangement
+- [x] 2.3 The tab's accessible name carries the state, in both languages.
+- [x] 2.4 Unit tests on the strip: marked when dirty, unmarked when saved, marked for an arrangement
       whose child is dirty and whose child is not on top, and the accessible name in both states.
-- [ ] 2.5 End-to-end in the demo: editing the note marks both the *Customer* tab and the *Q-0007*
-      tab, saving clears both, and a tab in the sidebar behaves the same.
+- [x] 2.5 End-to-end in the demo: editing the note marks both the *Customer* tab and the *Q-0007*
+      tab, saving clears both, and a tab in the sidebar behaves the same. The sidebar leg is a unit
+      test on the icon variant of the strip, because the demo has no sidebar view that can hold
+      unsaved work and inventing one belongs to no requirement here.
 
 ## 3. Reading it from outside
 

@@ -23,6 +23,7 @@
     "pluginSurface": "Plugin content",
     "previewHint": "Preview — double-click to keep open",
     "unpinTab": "Unpin tab",
+    "unsavedTab": "{{title}}, unsaved changes",
     "split": {
       "open": "Split editor",
       "resize": "Resize split",

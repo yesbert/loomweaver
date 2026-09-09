@@ -69,9 +69,16 @@ under the existing rule, which is why the proposal declares no delta on `host-se
 
 **The mark shares the slot the close control uses.** A tab carries a control on its trailing edge
 when it is closable, so a mark that takes that place costs no width and adds no element, and the
-control returns when the pointer is over the tab. This is settled for the ordinary case. It is *not*
-settled for a pinned tab, which already shows a different control in that slot and can hold unsaved
-work like any other. See *Open Questions*.
+control returns when the pointer is over the tab.
+
+**A pinned tab carries the mark beside its title, and keeps its pin.** The three shapes named as an
+open question were drawn against the demo and looked at in both themes. Replacing the pin while the
+work is unsaved costs no width but hides a state the user set: the tab reads as unpinned for as long
+as it is dirty. Putting the mark on the leading edge is loud, but it shifts the title and leaves
+pinned tabs aligned differently from every other tab in the strip. Beside the title the tab grows by
+four pixels, both states stay readable, and the mark sits where the eye already looks for it on the
+tabs next to it. The pictures are beside this note rather than in it, because none of them is a
+guarantee: the requirement asks for a tab that is distinguishable, not for a glyph.
 
 **The accessible name carries the state.** The mark is drawn, and the tab's name says it as well. The
 contract requires it, and a name that says it also survives a user who has turned the drawing down.
@@ -92,19 +99,10 @@ error that already accompanies it be the diagnosis.
 product would contradict the workbench in the same window. → One rule, four callers. This is the
 whole reason the rule is extracted rather than copied a third time.
 
-**The mark competes with two existing controls.** → Settled for closable tabs, open for pinned ones.
+**The mark competes with two existing controls.** → The close control gives up its slot and returns
+on hover; the pin keeps its own and the mark stands beside the title.
 
 **The reasoning behind the mark's shape must not enter the repository.** The project does not name
 other products in its documentation, and describes a capability rather than deriving it. → The guide
 says what a user sees and what a product may read. Where this note needed the comparison to think, it
 stays in this note.
-
-## Open Questions
-
-**Where the mark goes on a pinned tab, and what it looks like when the pointer is elsewhere.** The
-trailing slot is taken by the pin, and a pinned tab holding unsaved work is ordinary rather than
-exotic. Three shapes are worth putting side by side rather than arguing about: the mark beside the
-title, the mark replacing the pin while the tab is dirty, and the mark on the opposite edge. This is
-answered by drawing all three and looking, and it moves neither the requirements, which speak of a
-tab being distinguishable rather than of a glyph, nor the task breakdown, which draws the mark once
-either way.
