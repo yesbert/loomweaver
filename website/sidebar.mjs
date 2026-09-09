@@ -210,6 +210,11 @@ export const sidebar = [
         link: '/llms-full.txt',
         attrs: { target: '_blank' },
       },
+      {
+        label: 'Agent skill',
+        link: '/skills/loomweaver/SKILL.md',
+        attrs: { target: '_blank' },
+      },
     ],
   },
 ];

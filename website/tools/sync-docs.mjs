@@ -20,8 +20,8 @@ const repoRoot = path.resolve(websiteRoot, '..');
 const contentDir = path.join(websiteRoot, 'generated/docs');
 const publicDir = path.join(websiteRoot, 'public');
 
-/** Repo-root files the site serves verbatim, so docs may link to them. */
-const VERBATIM = ['llms.txt', 'llms-full.txt', 'LICENSE', 'NOTICE'];
+/** Repo files the site serves verbatim, path and all, so docs may link to them. */
+const VERBATIM = ['llms.txt', 'llms-full.txt', 'LICENSE', 'NOTICE', 'skills/loomweaver/SKILL.md'];
 
 /* The two llms files are written for the repository, so their links are repo-relative: docs/x.md for
    a page, platform/... for a source file. Served from the site unchanged, every one of them was a
@@ -367,11 +367,13 @@ for (const file of VERBATIM) {
     problems.push(`missing repo file the site links to: ${file}`);
     continue;
   }
+  const to = path.join(publicDir, file);
+  mkdirSync(path.dirname(to), { recursive: true });
   if (LLMS.includes(file) && site) {
     const rewritten = rewriteLinksForSite(readFileSync(from, 'utf8'), file, knownTargets, site, problems);
-    writeFileSync(path.join(publicDir, file), rewritten);
+    writeFileSync(to, rewritten);
   } else {
-    copyFileSync(from, path.join(publicDir, file));
+    copyFileSync(from, to);
   }
 }
 

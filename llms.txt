@@ -130,4 +130,5 @@ Seven npm packages, one shared version: `@loomweaver/plugin-sdk`, `@loomweaver/s
 ## For AI assistants
 
 - [`llms-full.txt`](llms-full.txt): the complete contract (interfaces + provider signatures) and canonical distribution/weaver code, inlined for single-fetch ingestion.
+- [Agent skill](skills/loomweaver/SKILL.md): the order of work as a `SKILL.md`, for tools that read the format (Claude Code, Cursor, VS Code with Copilot). Optional; it states procedure and links the pages, and repeats no part of the contract.
 - [Brand assets](assets/brand/): logo and colors (blue `#2E96C9`, gold `#C59A2F`).

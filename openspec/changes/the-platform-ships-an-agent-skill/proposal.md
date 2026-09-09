@@ -1,4 +1,4 @@
-> **Status:** proposed — not approved for implementation yet.
+> **Status:** approved — approved for implementation on 2026-09-09.
 
 ## Why
 
@@ -23,8 +23,10 @@ skill is next.
   points at the docs; it repeats no contract, so it cannot drift from one.
 - **Served beside `llms.txt`** on the site and named in the "For AI assistants" group, so it is one
   URL away, and **installable with one line** into a project, per tool, from the assistant guide.
-- **One recorded run with the skill in place**, compared with the same prompt without it, so the
-  guide can say what the skill changes rather than that it exists.
+- **One recorded run with the skill in place**, compared with the same prompt without it, as the
+  gate this change passes before the skill ships. The guide names the skill and how to install it;
+  it makes no claim about what the skill changes, because the skill is an offering for people who
+  work with skills and not a feature with a promise.
 
 ## Capabilities
 
