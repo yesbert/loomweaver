@@ -213,8 +213,7 @@ export function navSurfaceId(moduleId: string): string {
   return `navigation.${moduleId}`;
 }
 
-export function moduleOfPath(path: string): ProductModule {
-  const overview = MODULES[0];
+export function moduleOfPath(path: string): ProductModule | undefined {
   const head = path.split('/')[0];
-  return MODULES.find((module) => module.prefix !== '' && module.prefix === head) ?? overview;
+  return MODULES.find((module) => module.prefix !== '' && module.prefix === head);
 }

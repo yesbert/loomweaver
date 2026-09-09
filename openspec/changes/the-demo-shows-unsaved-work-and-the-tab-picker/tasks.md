@@ -16,28 +16,31 @@
       tree, in the address bar. If it reads as a lie beside the module tree, take it out and record
       here that the picker's bare-path rule is the finding, for a change on `content-tabs`.
 
-      **Built, looked at, taken out again.** The dashboard was registered a second time at
-      `overview`, and the picker then offered exactly one entry that opened it in the pane. The
-      address bar read fine. The tree did not: the demo's module navigation derives the module it
-      shows from the active content path, and a path under no module falls back to the Overview
-      module, which has no tree. Opening the dashboard from the Sales workspace therefore emptied
-      the left panel and left it under the heading of the area that was showing before.
+      **Built, taken out, and built again once the real cause was found.** The dashboard is
+      registered a second time at `overview`, because the landing route is chromeless and a
+      chromeless route is not something a pane can host. At the first look the picker offered it
+      and opened it correctly, and the address read right, but the left panel emptied and kept the
+      heading of the area that had been showing.
 
-      Two findings, and they are different in kind. **The picker's rule**: only a route hosted at a
-      bare path is offered, so in a product whose navigation is a tree under modules, the picker
-      can offer nothing a visitor already knows, and the one route it can offer is the one the tree
-      cannot represent. Whether it should also offer routes nested under a module is a question
-      about `content-tabs`, and it belongs to a change of its own. **The demo's navigation**: the
-      module nav view should keep showing the module it was registered for when the active tab
-      belongs to no module, instead of emptying. That is a defect in the demo, not in the platform,
-      and it is what made the bare-path route look wrong here.
+      That was not the picker's rule. It was the demo: `ModuleNavView` derived the module it draws
+      from the active content path, and a path under no module fell back to the Overview module,
+      which has no tree. A tree docked in one module's workspace should keep showing that module,
+      because the visitor has not left it. `moduleOfPath` now says *no module* instead of guessing
+      one, and the view keeps the module it was showing. The heading then reads *Sales*, the tree
+      stays, and nothing in it is marked current, because nothing in it is open.
 
-      Nothing of this is in the branch: `demo/src/insights/insights.plugin.ts` is untouched.
-- [ ] 2.2 End-to-end: the *New tab* button opens a list with at least one entry, and picking it opens
+      With that fixed the bare-path route reads honestly in all three places, so it stays, and the
+      picker's rule needs no change on `content-tabs`. What is left of the original suspicion is
+      only a design observation, not a defect: in a product whose navigation is a tree under
+      modules, the picker can offer only routes that belong to no module, so it will usually be a
+      short list.
+- [x] 2.2 End-to-end: the *New tab* button opens a list with at least one entry, and picking it opens
       the dashboard in that pane.
 
-      Not done, and not doable while 2.1 stands: there is no bare-path route to open, so the button
-      opens an empty list. It waits on whichever of the two findings above is answered first.
+      Two tests: the picker offers the dashboard and opens it in the pane, and opening it leaves
+      the module tree standing with nothing marked current. The second one pins the fix above,
+      which is otherwise only visible by eye. A unit test on `ModuleNavView` pins it from the other
+      side.
 
 ## 3. The pictures
 
@@ -45,8 +48,7 @@
       tab, wait for the prompt) and `tab-picker` (open the picker from the tab strip), each in light
       and dark.
 
-      One motif, not two. `unsaved-changes` is there and has been run, in light and dark;
-      `tab-picker` is left out, as the design said it would be if the route came out again.
+      Both are there and have been run, in light and dark.
 - [x] 3.2 `docs/the-workbench.md`: the prompt gets its picture under *What else comes along*, or a
       section of its own beside the others; the quick open section gets the picker beside quick
       open. `docs/concepts/retention-and-unsaved-work.md` under *The unsaved-work question*: the
@@ -54,6 +56,6 @@
 
       A section of its own, *Closing asks, when there is something to lose*, because *What else
       comes along* opens by saying that what it lists has no picture. The bullet that described the
-      prompt there is gone, since the section now says it with a picture. The quick open section is
-      unchanged: there is no picker picture to put beside it.
+      prompt there is gone, since the section now says it with a picture. The picker sits beside
+      quick open, in the section the two already shared.
 - [x] 3.3 Run the docs style check and the site build, and look at both pages in both themes.

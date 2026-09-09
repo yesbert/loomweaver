@@ -4,11 +4,14 @@ import {
   computed,
   effect,
   inject,
+  linkedSignal,
 } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ContributionRegistry } from '@loomweaver/shell';
 import {
   type ModuleArea,
+  type ProductModule,
+  MODULES,
   areaShowing,
   moduleOfPath,
   navSurfaceId,
@@ -30,7 +33,10 @@ export class ModuleNavView {
 
   protected readonly shown = computed(() => navigationActions.activePath());
 
-  protected readonly module = computed(() => moduleOfPath(this.shown()));
+  protected readonly module = linkedSignal<string, ProductModule>({
+    source: () => this.shown(),
+    computation: (path, kept) => moduleOfPath(path) ?? kept?.value ?? MODULES[0],
+  });
 
   protected readonly areas = computed<readonly ModuleArea[]>(() => {
     const reachable = this.reachable();

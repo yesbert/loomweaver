@@ -48,6 +48,10 @@ Where it is described: [Commands and their triggers](weaver/commands.md),
 
 ![The quick open list over the workbench, four open tabs marked now at the top and the other views the product can open below.](../assets/media/quick-open-dark.png#gh-dark-mode-only)
 
+![The tab picker open from the New tab button on a tab strip, offering the one route this product hosts at a bare path.](../assets/media/tab-picker-light.png#gh-light-mode-only)
+
+![The tab picker open from the New tab button on a tab strip, offering the one route this product hosts at a bare path.](../assets/media/tab-picker-dark.png#gh-dark-mode-only)
+
 `mod+p` opens the second search. What is open comes first, marked *now*; below it, everything the
 product could open, so a view that is not open yet is one keystroke away. The tab picker is its
 sibling on a tab strip: the *New tab* button lists the content a pane can host, and a click opens

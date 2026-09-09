@@ -1,4 +1,4 @@
-import { signal } from '@angular/core';
+import { type WritableSignal, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { type PluginContext } from '@loomweaver/plugin-sdk';
@@ -40,6 +40,17 @@ function bindAt(path: string): Recorder {
     registerSurface: () => ({ dispose: () => undefined }),
   } as unknown as PluginContext);
   return { navigated, retitled };
+}
+
+function bindAtSignal(path: WritableSignal<string>): void {
+  navigationActions.bind({
+    activeContent: () => ({ surfaceId: null, path: path(), params: {} }),
+    isShowingUnder: (named: string) =>
+      path() === named || path().startsWith(`${named}/`),
+    navigateContent: () => undefined,
+    retitleSurface: () => undefined,
+    registerSurface: () => ({ dispose: () => undefined }),
+  } as unknown as PluginContext);
 }
 
 function renderFixture(reachable: readonly string[] = EVERY_PATH) {
@@ -167,6 +178,21 @@ describe('ModuleNavView', () => {
     const element = render();
 
     expect(element.querySelector('[data-testid="module-nav"]')).toBeNull();
+  });
+
+  it('keeps the module it is showing when the content belongs to none', () => {
+    const path = signal('sales/customers');
+    bindAtSignal(path);
+    const fixture = renderFixture();
+    const element = fixture.nativeElement as HTMLElement;
+
+    expect(areasOf(element)).toEqual(['customers', 'orderHandling']);
+
+    path.set('overview');
+    fixture.detectChanges();
+
+    expect(areasOf(element)).toEqual(['customers', 'orderHandling']);
+    expect(shownViews(element)).not.toContain('overview');
   });
 
   it('starts an area closed when the module declares it so', async () => {
