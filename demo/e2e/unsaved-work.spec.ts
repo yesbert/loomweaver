@@ -29,14 +29,22 @@ async function openQuote(page: Page): Promise<void> {
 }
 
 /* The close control is a sibling of the tab button, not a child of it, so it is reached through
-   the wrapper the two share. */
+   the wrapper the two share. On a tab holding unsaved work it also gives its slot to the mark
+   until the pointer is over the tab, which is why the wrapper is hovered first. */
 async function closeTab(page: Page): Promise<void> {
-  await page
-    .locator(
-      '[id="pane-strip:content:main"] div:has(> [data-tab-path="sales/quotes/q-0007"])' +
-        ' [data-testid="tab-close"]',
-    )
-    .click();
+  const wrapper = page.locator(
+    '[id="pane-strip:content:main"] div:has(> [data-tab-path="sales/quotes/q-0007"])',
+  );
+  await wrapper.hover();
+  await wrapper.locator('[data-testid="tab-close"]').click();
+}
+
+/* The mark and the close control share a slot, so both are siblings of the tab button and are
+   reached through the wrapper the three share. */
+function mark(page: Page, path: string) {
+  return page.locator(
+    `div:has(> [data-tab-path="${path}"]) [data-testid="tab-unsaved"]`,
+  );
 }
 
 async function openWithNote(page: Page): Promise<void> {

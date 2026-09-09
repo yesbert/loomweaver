@@ -28,6 +28,8 @@ import { MENU_ANCHOR_GAP, MenuService } from '../../../menu/menu.service';
 import { MenuTriggerDirective } from '../../../menu/menu-trigger.directive';
 import { Reorderable } from '../../reorder/reorderable.directive';
 import { VIEW_PANE_PREFIX } from '../tree/pane-address';
+import { paneRetentionScope } from '../retention/retention-policy';
+import { UnsavedWork } from '../retention/unsaved-work';
 import { resolveTitle } from '../drag/pane-label';
 import { FeatureSwitches } from '../../../features/feature-switches.service';
 import { PaneDragService, TabDragSource } from '../drag/pane-drag.service';
@@ -109,6 +111,8 @@ export class PaneTabStrip {
 
   private readonly paneMove = inject(PaneMoveService);
 
+  private readonly unsavedWork = inject(UnsavedWork);
+
   private readonly strip = viewChild<ElementRef<HTMLElement>>('tabStrip');
 
   protected readonly escalatable = inject(FeatureSwitches).content.escalate;
@@ -129,6 +133,19 @@ export class PaneTabStrip {
   );
 
   protected readonly icons = computed(() => this.variant() === 'icons');
+
+  private readonly retentionScope = computed(() =>
+    paneRetentionScope(this.source().dock, this.source().paneId),
+  );
+
+  private readonly unsavedPaths = computed(() => {
+    const scope = this.retentionScope();
+    return new Set(
+      this.tabs()
+        .filter((tab) => this.unsavedWork.at(scope, tab.path))
+        .map((tab) => tab.path),
+    );
+  });
 
   protected readonly bandClass = computed(() =>
     this.icons()
@@ -209,6 +226,18 @@ export class PaneTabStrip {
       this.pickedHere = tab.path;
     }
     this.selectTab.emit(tab);
+  }
+
+  protected unsaved(tab: StripTab): boolean {
+    return this.unsavedPaths().has(tab.path);
+  }
+
+  protected closeControlClass(tab: StripTab): string {
+    const base =
+      'lw-icon-btn mr-1 h-6 w-6 cursor-pointer opacity-70 hover:opacity-100';
+    return this.unsaved(tab)
+      ? `${base} pointer-fine:hidden pointer-fine:group-hover/tab:flex`
+      : base;
   }
 
   protected isActive(tab: StripTab): boolean {

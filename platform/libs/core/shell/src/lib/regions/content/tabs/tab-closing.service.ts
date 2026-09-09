@@ -1,5 +1,4 @@
 import { inject, Service } from '@angular/core';
-import { ChildrenOutletContexts } from '@angular/router';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { ContentReuseStrategy } from '../routing/content-reuse-strategy';
 import { normalizePath, tabRootOf } from '../content-path';
@@ -7,11 +6,8 @@ import { TabCloseHooks } from './tab-close-hooks';
 import { OpenTabsService } from './open-tabs.service';
 import { CONTENT_DOCK, VIEW_PANE_PREFIX, promotedContentPath } from '../../pane/tree/pane-address';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
-import { RetainedViewStash } from '../../pane/retention/retained-view-stash';
-import {
-  containerChildInstances,
-  paneRetentionScope,
-} from '../../pane/retention/retention-policy';
+import { paneRetentionScope } from '../../pane/retention/retention-policy';
+import { UnsavedWork } from '../../pane/retention/unsaved-work';
 import { SurfaceCloseGuard } from '../../pane/close/surface-close-guard';
 
 @Service()
@@ -24,11 +20,9 @@ export class TabClosingService {
 
   private readonly paneTree = inject(PaneTreeService);
 
-  private readonly stash = inject(RetainedViewStash);
+  private readonly unsavedWork = inject(UnsavedWork);
 
   private readonly closeGuard = inject(SurfaceCloseGuard);
-
-  private readonly outletContexts = inject(ChildrenOutletContexts);
 
   private readonly closeHooks = inject(TabCloseHooks);
 
@@ -78,14 +72,9 @@ export class TabClosingService {
   }
 
   closePrimaryPane(): void {
-    const routes = this.registry.contentRoutes();
     const candidates = this.paneTree
       .primaryTabs(CONTENT_DOCK)
-      .flatMap((tab) =>
-        tab.path.startsWith(VIEW_PANE_PREFIX)
-          ? this.urlPaneViewCandidates(tab.path)
-          : this.urlPaneCandidates(tabRootOf(routes, tab.path)),
-      );
+      .flatMap((tab) => this.urlPaneCandidates(tab.path));
     this.closeGuard.guarded(candidates, () => {
       const promoted = this.paneTree.collapsePrimary(CONTENT_DOCK);
       if (promoted !== null) {
@@ -97,7 +86,7 @@ export class TabClosingService {
   close(path: string): void {
     const normalized = normalizePath(path);
     if (normalized.startsWith(VIEW_PANE_PREFIX)) {
-      this.closeGuard.guarded(this.urlPaneViewCandidates(normalized), () =>
+      this.closeGuard.guarded(this.urlPaneCandidates(normalized), () =>
         this.closeViewTab(normalized),
       );
       return;
@@ -148,31 +137,11 @@ export class TabClosingService {
     );
   }
 
-  private urlPaneViewCandidates(path: string): unknown[] {
-    return this.stash.instancesFor(
+  private urlPaneCandidates(path: string): unknown[] {
+    return this.unsavedWork.instancesAt(
       paneRetentionScope(CONTENT_DOCK, this.paneTree.primaryId(CONTENT_DOCK)),
       path,
     );
-  }
-
-  private urlPaneCandidates(root: string): unknown[] {
-    const candidates: unknown[] = [...this.urlPaneViewCandidates(root)];
-    if (this.state.activeTabRoot() === root) {
-      const outlet = this.outletContexts.getContext('primary')?.outlet;
-      if (outlet?.isActivated) {
-        candidates.push(outlet.component);
-      }
-    }
-    const parked = this.reuse
-      .parkedHandles()
-      .find((handle) => handle.key === root);
-    if (parked?.instance !== undefined) {
-      candidates.push(parked.instance);
-    }
-    candidates.push(
-      ...containerChildInstances(this.stash.keyedInstances(), root),
-    );
-    return candidates;
   }
 
   private closeSetCandidates(roots: ReadonlySet<string>): unknown[] {

@@ -31,22 +31,29 @@
           [lwMenu]="menuSlotFor(tab)"
           [lwMenuContext]="tabContext(tab)"
           [attr.aria-selected]="isActive(tab)"
-          [attr.aria-label]="title"
+          [attr.aria-label]="unsaved(tab) ? ('content.unsavedTab' | transloco: { title }) : title"
           [attr.data-reorder-id]="canReorder(tab) ? tab.path : null"
           [attr.data-reorder-band]="tab.pinned ? 'pinned' : 'dynamic'"
           [attr.data-tab-path]="tab.path"
           (click)="onSelectTab(tab)"
           (dblclick)="escalate.emit(tab)"
-          class="lw-icon-btn h-10 w-10 rounded-md md:h-7 md:w-7"
+          class="lw-icon-btn relative h-10 w-10 rounded-md md:h-7 md:w-7"
           [class.bg-surface-overlay]="isActive(tab)"
           [class.text-content]="isActive(tab)"
         >
           <lw-icon [name]="tab.icon ?? 'document'" size="1rem" />
+          @if (unsaved(tab)) {
+            <span
+              aria-hidden="true"
+              data-testid="tab-unsaved"
+              class="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-current"
+            ></span>
+          }
           <lw-tooltip [text]="title" position="bottom" />
         </button>
       } @else {
         <div
-          class="flex max-w-52 min-w-28 items-center border-b-2 transition-colors"
+          class="group/tab flex max-w-52 min-w-28 items-center border-b-2 transition-colors"
           cdkDrag
           [cdkDragData]="tab.path"
           [cdkDragDisabled]="!canDrag(tab)"
@@ -63,7 +70,7 @@
             role="tab"
             cdkDragHandle
             [attr.aria-selected]="isActive(tab)"
-            [attr.aria-label]="title"
+            [attr.aria-label]="unsaved(tab) ? ('content.unsavedTab' | transloco: { title }) : title"
             [attr.data-reorder-id]="canReorder(tab) ? tab.path : null"
             [attr.data-reorder-band]="tab.pinned ? 'pinned' : 'dynamic'"
             [attr.data-tab-path]="tab.path"
@@ -94,6 +101,15 @@
           </button>
 
           @if (tab.pinned) {
+            @if (unsaved(tab)) {
+              <span
+                aria-hidden="true"
+                data-testid="tab-unsaved"
+                class="flex h-6 w-4 items-center justify-center"
+              >
+                <span class="h-2 w-2 rounded-full bg-current"></span>
+              </span>
+            }
             <span
               aria-hidden="true"
               data-testid="tab-unpin"
@@ -104,14 +120,31 @@
               <lw-tooltip [text]="'content.pinnedHint' | transloco" position="bottom" />
             </span>
           } @else if (tab.closable) {
+            @if (unsaved(tab)) {
+              <span
+                aria-hidden="true"
+                data-testid="tab-unsaved"
+                class="mr-1 flex h-6 w-6 items-center justify-center pointer-fine:group-hover/tab:hidden"
+              >
+                <span class="h-2 w-2 rounded-full bg-current"></span>
+              </span>
+            }
             <span
               aria-hidden="true"
               data-testid="tab-close"
               (click)="onClose($event, tab)"
-              class="lw-icon-btn mr-1 h-6 w-6 cursor-pointer opacity-70 hover:opacity-100"
+              [class]="closeControlClass(tab)"
             >
               <lw-icon name="close" size="0.85rem" />
               <lw-tooltip [text]="'content.closeTab' | transloco" position="bottom" />
+            </span>
+          } @else if (unsaved(tab)) {
+            <span
+              aria-hidden="true"
+              data-testid="tab-unsaved"
+              class="mr-1 flex h-6 w-6 items-center justify-center"
+            >
+              <span class="h-2 w-2 rounded-full bg-current"></span>
             </span>
           }
         </div>

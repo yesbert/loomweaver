@@ -102,6 +102,25 @@ with the path you opened. The trusted editor as one file, with its save flow, `s
 veto, is [recipe 8 in Samples](../samples.md#an-editor-with-unsaved-changes); the sandbox variant
 lives only here.
 
+## Reading it back
+
+The workbench marks the tab for you. Where you want to show it somewhere the workbench cannot reach,
+the row in the list the document was opened from is the usual place, read it:
+
+```ts
+ctx.hasUnsavedWork('doc/42');   // boolean, read reactively
+```
+
+It is a reactive read: call it in a template or a `computed` and your view follows the work being
+saved without anything else wired up. An arrangement answers for what is inside it, so a document
+whose panel is dirty reads `true` at the document's own address. An address with nothing open reads
+`false`, which is sound because a surface holding unsaved work is never destroyed while it does.
+
+Two bounds. It answers about **your own** surfaces only, and needs no granted capability for the same
+reason running your own command needs none; a surface another plugin registered reads `false`,
+whatever is happening in it. And it is trusted rung only: a sandboxed surface reports its own state
+over its surface channel and is told about its own there.
+
 ## Where next
 
 - [View state that survives](view-state.md): `VIEW_STATE` and `retain`.

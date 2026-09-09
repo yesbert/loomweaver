@@ -115,7 +115,10 @@ Where it is described: [Menus](weaver/menus.md),
 
 ![The unsaved-changes prompt over a quote document, asking what should happen to the unsaved changes, with Cancel, Discard and Save.](../assets/media/unsaved-changes-dark.png#gh-dark-mode-only)
 
-A surface that reports unsaved work is never destroyed while it is hidden, and closing it asks
+A tab whose work is unsaved says so before anything asks: it is drawn differently from a saved one,
+its name says it too, and a document is marked when a panel inside it is the one holding the work. On
+a closable tab the mark takes the place of the close control, which comes back under the pointer. A
+surface that reports unsaved work is never destroyed while it is hidden, and closing it asks
 first. The surface reports one thing, that it is dirty; the prompt, the three answers and the
 wording are the shell's, so every plugin in the product asks the same question. *Save* appears only
 when the surface can save, and a save that fails keeps the work and the tab.

@@ -13,6 +13,7 @@ import { refineTabTitles, reseatPinned } from '../../pane/tree/pane-tabs';
 import { CONTENT_DOCK } from '../../pane/tree/pane-address';
 import { ClaimOrdering } from './claim-ordering';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
+import { UnsavedWork } from '../../pane/retention/unsaved-work';
 
 /**
  * The **URL pane's** tab state: the tabs to show (facet tabs of `follows`
@@ -40,6 +41,8 @@ export class ContentTabsService {
   private readonly claimOrder = inject(ClaimOrdering);
 
   private readonly closeHooks = inject(TabCloseHooks);
+
+  private readonly unsavedWork = inject(UnsavedWork);
 
   /**
    * The Quick-Open source for the command palette: every currently **open** tab across
@@ -259,6 +262,21 @@ export class ContentTabsService {
    */
   runCloseHook(path: string): void {
     this.closing.runCloseHook(path);
+  }
+
+  /**
+   * Whether the surface at `path` holds **unsaved work** — the fact behind the mark the workbench
+   * draws on a tab, readable so that a distribution can draw its own: a badge in the status bar, a
+   * count beside a module, a mark on a row in a list. An arrangement answers for what is inside it,
+   * so a document whose panel is dirty reads `true` at the document's own address, and the answer
+   * covers every pane the address is open in.
+   *
+   * It is a **reactive read**: call it inside a `computed` or a template and the reader follows the
+   * work being saved without further wiring. `false` for an address with nothing open, because a
+   * surface holding unsaved work is never destroyed while it does.
+   */
+  hasUnsavedWork(path: string): boolean {
+    return this.unsavedWork.anywhere(path);
   }
 
   /**

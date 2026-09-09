@@ -68,6 +68,7 @@ function makeContext(
     open: vi.fn(),
     close: vi.fn(),
     activeContent: () => shown(),
+    hasUnsavedWork: () => true,
   } as unknown as ContentTabsService;
   const grantedSet = new Set(granted);
   const ctx = new HostPluginContext(
@@ -924,5 +925,31 @@ describe('HostPluginContext command invocation', () => {
 
     expect(warn).not.toHaveBeenCalled();
     warn.mockRestore();
+  });
+
+  it('reads unsaved work for a surface it registered, with nothing granted', () => {
+    const { ctx, registry } = makeContext([]);
+    registry.addContentRoute(
+      { path: 'quotes/:id', component: DummyComponent } as never,
+      'test-plugin',
+    );
+
+    expect(ctx.hasUnsavedWork('quotes/q-7')).toBe(true);
+  });
+
+  it('is told nothing about a surface another plugin registered', () => {
+    const { ctx, registry } = makeContext();
+    registry.addContentRoute(
+      { path: 'invoices/:id', component: DummyComponent } as never,
+      'other-plugin',
+    );
+
+    expect(ctx.hasUnsavedWork('invoices/i-3')).toBe(false);
+  });
+
+  it('is told nothing about an address no plugin registered', () => {
+    const { ctx } = makeContext();
+
+    expect(ctx.hasUnsavedWork('nowhere')).toBe(false);
   });
 });
