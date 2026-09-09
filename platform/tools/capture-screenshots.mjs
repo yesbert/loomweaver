@@ -143,6 +143,13 @@ const MOTIFS = {
     await settle(page);
   },
 
+  'tab-picker': async (page) => {
+    await openModule(page, 'Sales');
+    await page.getByTestId('pane-add-tab').click();
+    await page.getByRole('menu').waitFor();
+    await settle(page);
+  },
+
   'unsaved-changes': async (page) => {
     await openSalesWithQuotes(page);
     await page.getByTestId('quote-note').fill('Call back before the quote expires.');

@@ -27,6 +27,15 @@ export const insightsPlugin: Plugin = {
       component: InsightsDashboardView,
     });
 
+    ctx.registerSurface({
+      id: 'insights.overviewPage',
+      title: 'insights.dashboard.title',
+      icon: 'insights',
+      docks: [],
+      routable: { path: 'overview' },
+      component: InsightsDashboardView,
+    });
+
     ctx.registerCommand({
       id: 'insights.overview',
       title: 'insights.command.overview.title',
