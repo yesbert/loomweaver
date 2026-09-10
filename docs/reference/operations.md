@@ -183,6 +183,12 @@ false`, `types: ["*"]`, `noUncheckedSideEffectImports: false` and `ignoreDepreca
 | `shellcheck scripts/*.sh`             | repo root                         | a shell script warning                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | `npm run quick-start-check`           | `platform/`, nightly              | the Getting started commands no longer producing a running, tested product against the published packages: two weavers composed in, built, and the generated tests run                                                                                                                                                                                                                                                                                                                    |
 
+**The merge run builds the merge, not the branch.** A guard that measures the built output therefore
+sees what `main` plus the branch produces, which is more than the branch produces on its own. The
+bundle ceiling is where this shows up: a branch can measure under its ceiling on a machine and fail
+in the run, because work merged since the branch started counts too. Merge `main` in and build again
+before touching `tools/bundle-size-baseline.json`, or the number written down is the wrong one.
+
 `openspec validate --all --strict` is run by hand before a change is handed over; no pipeline runs it.
 
 The end-to-end suite, including the accessibility audit, runs in the nightly rather than in the merge
