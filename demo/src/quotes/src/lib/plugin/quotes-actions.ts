@@ -23,6 +23,9 @@ export const quotesActions = {
       preview: options.preview ?? false,
     });
   },
+  hasUnsavedWork(quote: Quote): boolean {
+    return ctx?.hasUnsavedWork(pathOf(quote)) ?? false;
+  },
   keep(quote: Quote): void {
     this.open(quote);
     ctx?.keepContentTab(pathOf(quote));

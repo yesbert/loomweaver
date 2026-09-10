@@ -20,6 +20,7 @@
       "status": "Status",
       "total": "Total"
     },
+    "unsaved": "unsaved changes",
     "empty": "No quote matches the current filter.",
     "shown": "{{shown}} of {{total}} quotes"
   },

@@ -49,11 +49,26 @@
             <button
               type="button"
               (click)="preview(row.quote)"
-              class="w-full cursor-pointer px-4 py-3 text-left transition-colors hover:bg-surface-overlay @2xl:py-2.5"
+              class="relative w-full cursor-pointer px-4 py-3 text-left transition-colors hover:bg-surface-overlay @2xl:py-2.5"
               [class.bg-surface-overlay]="row.quote.id === activeId()"
               [attr.aria-current]="row.quote.id === activeId() ? 'true' : null"
-              [attr.aria-label]="row.quote.number + ' · ' + row.customer"
+              [attr.aria-label]="
+                unsaved(row.quote)
+                  ? row.quote.number +
+                    ' · ' +
+                    row.customer +
+                    ' · ' +
+                    ('quotes.list.unsaved' | transloco)
+                  : row.quote.number + ' · ' + row.customer
+              "
             >
+              @if (unsaved(row.quote)) {
+                <span
+                  aria-hidden="true"
+                  data-testid="quote-unsaved"
+                  class="absolute top-1/2 left-1.5 h-2 w-2 -translate-y-1/2 rounded-full bg-unsaved"
+                ></span>
+              }
               <span
                 class="hidden grid-cols-[7rem_minmax(0,1fr)_6rem_6rem_6.5rem_7rem] items-center gap-3 @2xl:grid"
               >

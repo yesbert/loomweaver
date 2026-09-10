@@ -48,6 +48,11 @@ export class QuotesListView {
   });
 
   protected readonly statusFilters = STATUS_FILTERS;
+
+  protected unsaved(quote: Quote): boolean {
+    return quotesActions.hasUnsavedWork(quote);
+  }
+
   protected readonly search = signal('');
   protected readonly status = signal<StatusFilter>('all');
 

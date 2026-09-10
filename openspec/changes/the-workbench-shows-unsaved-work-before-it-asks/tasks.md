@@ -18,13 +18,11 @@
 - [x] 2.3 The tab's accessible name carries the state, in both languages.
 - [x] 2.4 Unit tests on the strip: marked when dirty, unmarked when saved, marked for an arrangement
       whose child is dirty and whose child is not on top, and the accessible name in both states.
-- [ ] 2.5 End-to-end in the demo: editing the note marks both the *Customer* tab and the *Q-0007*
-      tab, saving clears both, and a tab in the sidebar behaves the same. Written and run green
-      against a locally built platform, then held back: the nightly demo smoke installs the
-      published packages, so these would fail until a release carries the mark. They wait beside
-      the change in `.claude/tests/dirty-tab/held-back-e2e.ts`. The sidebar leg is a unit test on
-      the icon variant of the strip, because the demo has no sidebar view that can hold unsaved
-      work and inventing one belongs to no requirement here.
+- [x] 2.5 End-to-end in the demo: editing the note marks both the *Customer* tab and the *Q-0007*
+      tab, saving clears both, and a tab in the sidebar behaves the same. The sidebar leg is a unit
+      test on the icon variant of the strip, because the demo has no sidebar view that can hold
+      unsaved work and inventing one belongs to no requirement here. The three tab tests waited for
+      0.9.4 before they could land, because the demo installs the published packages.
 
 ## 3. Reading it from outside
 
@@ -51,6 +49,6 @@
 
 ## 5. The demo shows it
 
-- [ ] 5.1 The quotes list marks the row of a quote whose document holds unsaved work, using the
+- [x] 5.1 The quotes list marks the row of a quote whose document holds unsaved work, using the
       plugin read. This is the demo's proof that the read is usable, and the reason the read exists.
-- [ ] 5.2 End-to-end: the row is marked while the note is unsaved and unmarked after saving.
+- [x] 5.2 End-to-end: the row is marked while the note is unsaved and unmarked after saving.

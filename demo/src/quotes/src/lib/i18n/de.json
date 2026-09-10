@@ -20,6 +20,7 @@
       "status": "Status",
       "total": "Summe"
     },
+    "unsaved": "ungespeicherte Änderungen",
     "empty": "Kein Angebot passt zum aktuellen Filter.",
     "shown": "{{shown}} von {{total}} Angeboten"
   },
