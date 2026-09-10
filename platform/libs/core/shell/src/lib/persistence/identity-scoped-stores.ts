@@ -1,8 +1,14 @@
-import { Provider } from '@angular/core';
+import {
+  EnvironmentProviders,
+  inject,
+  Provider,
+  provideEnvironmentInitializer,
+} from '@angular/core';
 import { KeyValueStore, LocalStorageStore } from './key-value-store';
 import { SETTINGS_STORE } from './settings-store';
 import { WORKING_STATE_STORE } from './working-state-store';
 import { withCrossTabSync } from './cross-tab-sync-store';
+import { StateSyncService } from './state-sync.service';
 import { BootLatchedIdentity, IdentityScopedStore } from './boot-latched-scope';
 
 /**
@@ -29,7 +35,10 @@ export interface IdentityScopedStoreOptions {
    * departing user — a pending debounce, a commit during the login transition — can never land in
    * the next user's namespace. The shell peeks bootstrap-critical keys before first paint, so the
    * discriminator must be answerable synchronously at boot (persist the last-known subject
-   * yourself).
+   * yourself). Where it cannot be, nothing stored for that person is lost: from the moment an
+   * anonymous session adopts a namespace, writes are held, everything already read is read again
+   * from the adopted namespace, and what was built while nobody was known is kept only where the
+   * adopted namespace answers with nothing. What remains is the flash before the session lands.
    */
   identity: () => string | null | undefined;
   /**
@@ -60,23 +69,39 @@ export interface IdentityScopedStoreOptions {
  */
 export function provideIdentityScopedStores(
   options: IdentityScopedStoreOptions,
-): Provider {
+): (Provider | EnvironmentProviders)[] {
   const latch = new BootLatchedIdentity(options.identity);
   const deviceKeys = new Set(options.deviceKeys ?? DEVICE_LEVEL_KEYS);
-  const scoped = (inner: KeyValueStore | undefined): KeyValueStore =>
+  const scoped = (inner: KeyValueStore | undefined): IdentityScopedStore =>
     new IdentityScopedStore(
       inner ?? new LocalStorageStore(),
       latch,
       deviceKeys,
     );
+  const settings = scoped(options.settingsStore);
+  const workingState = scoped(options.workingStateStore);
   return [
     {
       provide: SETTINGS_STORE,
-      useFactory: () => withCrossTabSync(scoped(options.settingsStore)),
+      useFactory: () => withCrossTabSync(settings),
     },
     {
       provide: WORKING_STATE_STORE,
-      useFactory: () => withCrossTabSync(scoped(options.workingStateStore)),
+      useFactory: () => withCrossTabSync(workingState),
     },
+    provideEnvironmentInitializer(() => {
+      const sync = inject(StateSyncService);
+      latch.watchAdoption(() => {
+        void sync
+          .namespaceAdopted()
+          .then(() =>
+            Promise.all([
+              settings.writeWhereTheNamespaceIsEmpty(),
+              workingState.writeWhereTheNamespaceIsEmpty(),
+            ]),
+          )
+          .finally(() => latch.settle());
+      });
+    }),
   ];
 }

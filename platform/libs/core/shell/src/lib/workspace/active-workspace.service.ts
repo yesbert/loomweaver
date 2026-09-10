@@ -1,4 +1,5 @@
 import { inject, Service, signal } from '@angular/core';
+import { readStoredValue } from '../persistence/hydrate';
 import { WORKING_STATE_STORE } from '../persistence/working-state-store';
 import { WORKSPACE_DEFINITIONS } from './provide-workspaces';
 import { DEFAULT_WORKSPACE_ID } from './workspace-definition';
@@ -36,6 +37,13 @@ export class ActiveWorkspaceService {
     this.adopted = false;
     this.active.set(id);
     void this.store.set(ACTIVE_KEY, id);
+  }
+
+  async reread(): Promise<void> {
+    const id = storedId(await readStoredValue(this.store, ACTIVE_KEY));
+    if (id !== null) {
+      this.active.set(id);
+    }
   }
 
   takeAdoption(): string | null {

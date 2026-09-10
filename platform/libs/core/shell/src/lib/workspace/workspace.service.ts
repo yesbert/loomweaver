@@ -138,6 +138,7 @@ export class WorkspaceService {
       this.list.set(parseWorkspaces(raw));
     hydrateAsync(this.store, STORAGE_KEY, setList);
     this.sync.register('settings', STORAGE_KEY, setList);
+    this.sync.onNamespaceAdopted(() => this.rereadForAdoptedNamespace());
     if (isDevMode()) {
       const all = this.definitionBatches.flat();
       for (const problem of auditWorkspaceDefinitions(all, this.panelRegions)) {
@@ -202,18 +203,8 @@ export class WorkspaceService {
       }
       return;
     }
-    const baseline = this.baselineOf(id);
     this.active.set(id);
-    const stored: Record<string, string | undefined> = {};
-    for (const key of WORKSPACE_KEYS) {
-      stored[key] = await readStoredValue(
-        this.workingState,
-        this.active.scopedKey(key),
-      );
-    }
-    for (const key of WORKSPACE_KEYS) {
-      this.keyed[key].hydrate(stored[key] ?? baseline[key]);
-    }
+    await this.hydrateActive();
     this.warnDeclarationGaps(id);
     if (options.keepAddress !== true) {
       this.chooseAddress(activeContentPath(this.paneTree));
@@ -341,6 +332,25 @@ export class WorkspaceService {
       (key) => this.active.scopedKey(key),
       WORKSPACE_KEYS,
     );
+  }
+
+  private async rereadForAdoptedNamespace(): Promise<void> {
+    await this.active.reread();
+    await this.hydrateActive();
+  }
+
+  private async hydrateActive(): Promise<void> {
+    const baseline = this.baselineOf(this.active.id());
+    const stored: Record<string, string | undefined> = {};
+    for (const key of WORKSPACE_KEYS) {
+      stored[key] = await readStoredValue(
+        this.workingState,
+        this.active.scopedKey(key),
+      );
+    }
+    for (const key of WORKSPACE_KEYS) {
+      this.keyed[key].hydrate(stored[key] ?? baseline[key]);
+    }
   }
 
   private layOutWhenWorkspaceReady(): void {

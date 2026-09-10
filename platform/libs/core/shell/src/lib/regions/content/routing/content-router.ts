@@ -144,9 +144,12 @@ export class ContentRouter {
   private heldAddress: string | null = null;
   private parkedOnPlaceholder = false;
   private userNavigated = false;
+  private landings = 0;
+  private heldAt = 0;
 
   hold(address: string): void {
     this.heldAddress = normalizePath(address) === '' ? null : address;
+    this.heldAt = this.landings;
   }
 
   start(): void {
@@ -166,7 +169,7 @@ export class ContentRouter {
           (event): event is NavigationEnd => event instanceof NavigationEnd,
         ),
       )
-      .subscribe((event) => this.releaseHeld(event.urlAfterRedirects));
+      .subscribe((event) => this.landed(event.urlAfterRedirects));
 
     this.lastRoutes = this.registry.contentRoutes();
     this.lastOmitted = this.registry.omittedContentRoutes();
@@ -252,6 +255,21 @@ export class ContentRouter {
     ];
   }
 
+  private landed(url: string): void {
+    this.landings += 1;
+    this.releaseHeld(url);
+    this.noteUserChoice(url);
+  }
+
+  private noteUserChoice(url: string): void {
+    if (this.landings <= 1 || this.pendingDeepLink === null) {
+      return;
+    }
+    if (normalizePath(url) !== normalizePath(this.pendingDeepLink)) {
+      this.userNavigated = true;
+    }
+  }
+
   private releaseHeld(landed: string): void {
     if (
       this.heldAddress !== null &&
@@ -267,6 +285,10 @@ export class ContentRouter {
       return;
     }
     if (normalizePath(this.router.url) === normalizePath(target)) {
+      this.heldAddress = null;
+      return;
+    }
+    if (this.landings > this.heldAt) {
       this.heldAddress = null;
       return;
     }

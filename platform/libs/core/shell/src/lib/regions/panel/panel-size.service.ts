@@ -1,6 +1,7 @@
 import { inject, Service, signal } from '@angular/core';
 import { WORKING_STATE_STORE } from '../../persistence/working-state-store';
-import { hydrateAsync } from '../../persistence/hydrate';
+import { hydrateAsync, readStoredValue } from '../../persistence/hydrate';
+import { StateSyncService } from '../../persistence/state-sync.service';
 
 const STORAGE_KEY = 'lw.shell.panel-sizes';
 
@@ -42,6 +43,7 @@ function parseWidths(raw: string | undefined): Record<string, number> {
 @Service()
 export class PanelSizeService {
   private readonly store = inject(WORKING_STATE_STORE);
+  private readonly sync = inject(StateSyncService);
 
   readonly minWidth = MIN_PANEL_WIDTH;
   readonly maxWidth = MAX_PANEL_WIDTH;
@@ -52,8 +54,11 @@ export class PanelSizeService {
   private readonly dragging = signal(false);
 
   constructor() {
-    hydrateAsync(this.store, STORAGE_KEY, (raw) =>
-      this.widths.set(parseWidths(raw)),
+    const apply = (raw: string | undefined) =>
+      this.widths.set(parseWidths(raw));
+    hydrateAsync(this.store, STORAGE_KEY, apply);
+    this.sync.onNamespaceAdopted(async () =>
+      apply(await readStoredValue(this.store, STORAGE_KEY)),
     );
   }
 

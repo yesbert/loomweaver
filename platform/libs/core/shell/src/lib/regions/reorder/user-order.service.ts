@@ -1,6 +1,7 @@
 import { inject, Service, signal } from '@angular/core';
 import { WORKING_STATE_STORE } from '../../persistence/working-state-store';
-import { hydrateAsync } from '../../persistence/hydrate';
+import { hydrateAsync, readStoredValue } from '../../persistence/hydrate';
+import { StateSyncService } from '../../persistence/state-sync.service';
 
 const STORAGE_KEY = 'lw.shell.item-order';
 
@@ -30,13 +31,17 @@ function parseOrders(
 @Service()
 export class UserOrderService {
   private readonly store = inject(WORKING_STATE_STORE);
+  private readonly sync = inject(StateSyncService);
   private readonly orders = signal<Record<string, readonly string[]>>(
     parseOrders(this.store.peek?.(STORAGE_KEY)),
   );
 
   constructor() {
-    hydrateAsync(this.store, STORAGE_KEY, (raw) =>
-      this.orders.set(parseOrders(raw)),
+    const apply = (raw: string | undefined) =>
+      this.orders.set(parseOrders(raw));
+    hydrateAsync(this.store, STORAGE_KEY, apply);
+    this.sync.onNamespaceAdopted(async () =>
+      apply(await readStoredValue(this.store, STORAGE_KEY)),
     );
   }
 
