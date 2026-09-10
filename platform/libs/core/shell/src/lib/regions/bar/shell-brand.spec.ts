@@ -5,7 +5,7 @@ import { PRODUCT_IDENTITY } from '@loomweaver/plugin-sdk';
 import { ShellBrand } from './shell-brand';
 import { ViewportService } from '../../layout/viewport.service';
 
-function render(compact: boolean): HTMLElement {
+function render(compact: boolean, pinned?: boolean): HTMLElement {
   TestBed.configureTestingModule({
     imports: [
       ShellBrand,
@@ -28,6 +28,9 @@ function render(compact: boolean): HTMLElement {
     ],
   });
   const fixture = TestBed.createComponent(ShellBrand);
+  if (pinned !== undefined) {
+    fixture.componentRef.setInput('compact', pinned);
+  }
   fixture.detectChanges();
   return fixture.nativeElement as HTMLElement;
 }
@@ -47,5 +50,18 @@ describe('ShellBrand', () => {
     expect(host.textContent).not.toContain('Acme Loom');
     expect(host.textContent).not.toContain('Weaves things');
     expect(host.querySelector('img')?.getAttribute('alt')).toBe('Acme Loom');
+  });
+});
+
+describe('ShellBrand embedded by a distribution', () => {
+  it('takes the narrow form where the caller pins it', () => {
+    const host = render(false, true);
+
+    expect(host.textContent).not.toContain('Acme Loom');
+    expect(host.querySelector('img')?.getAttribute('alt')).toBe('Acme Loom');
+  });
+
+  it('follows the frame where the caller pins nothing', () => {
+    expect(render(true).textContent).not.toContain('Acme Loom');
   });
 });

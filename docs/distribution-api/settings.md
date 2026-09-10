@@ -22,7 +22,7 @@ const handle = settings.register({
   group: 'settings.group.options',
   order: 20,
   rows: [
-    { id: 'acme.autosave', label: 'acme.autosave.label', control: {
+    { id: 'acme.autosave', label: 'acme.autosave.label', icon: 'save', control: {
         kind: 'toggle', value: () => prefs.autosave(), set: (v) => prefs.setAutosave(v),
     } },
   ],

@@ -1,9 +1,19 @@
 <div class="flex items-center justify-between gap-4 px-4 py-3">
-  <div class="flex min-w-0 flex-col gap-0.5">
-    <span class="text-sm font-medium text-content">{{ label() }}</span>
-    @if (description()) {
-      <span class="text-xs text-content-muted">{{ description() }}</span>
+  <div class="flex min-w-0 items-center gap-3">
+    @if (icon()) {
+      <lw-icon
+        aria-hidden="true"
+        class="shrink-0 text-content-muted"
+        [attr.name]="icon()"
+        size="1.125rem"
+      />
     }
+    <div class="flex min-w-0 flex-col gap-0.5">
+      <span class="text-sm font-medium text-content">{{ label() }}</span>
+      @if (description()) {
+        <span class="text-xs text-content-muted">{{ description() }}</span>
+      }
+    </div>
   </div>
   <div class="shrink-0">
     <ng-content />

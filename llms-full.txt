@@ -423,7 +423,7 @@ interface RailItem { id: string; rail: string; icon: string; initials?: string; 
 // The shell derives them for user-saved workspaces itself, in the rail, the workspace dialog and the curation list: initials of the first two words, or for one word its FIRST AND LAST letter (Month End → ME, Review → RW, Reports → RS). First-and-last because first-two collides far too often (Review/Reports/Rechnungen/Recherche all → RE). On a genuine clash only the NEWER one steps aside (first+second, first+third, …), so Kunden keeps KN and Konten becomes KO and no existing badge is ever renamed. Derived, not stored: a rename updates it, deleting a workspace may let a later one simplify back.
 
 interface SettingsSection { id: string; title: string; group?: string; order?: number; rows: readonly SettingRow[]; }
-interface SettingRow { id: string; label: string; description?: string; control: SettingControl; }
+interface SettingRow { id: string; label: string; description?: string; icon?: string; control: SettingControl; }   // icon: registry name drawn before the label, decoration only
 type SettingControl =
   | { kind: 'select'; options: readonly { value: string; label: string }[]; value: () => string; set: (v: string) => void }
   | { kind: 'toggle'; value: () => boolean; set: (v: boolean) => void }                                // .lw-switch (WC tranche 1)
@@ -755,6 +755,7 @@ function provideWorkingStateStore(store: KeyValueStore | Type<KeyValueStore>): P
 const DEVICE_LEVEL_KEYS: readonly string[];   // ['lw.shell.theme', 'lw.shell.lang', 'lw.shell.font-scale']
 interface IdentityScopedStoreOptions { identity: () => string | null | undefined; deviceKeys?: readonly string[]; settingsStore?: KeyValueStore; workingStateStore?: KeyValueStore; }
 function provideIdentityScopedStores(options: IdentityScopedStoreOptions): (Provider | EnvironmentProviders)[];   // place AFTER provideShell(); replaces provideSettingsStore
+class ShellBrand { compact = input<boolean | undefined>(undefined); }   // <lw-shell-brand>: the product's identity as the top bar draws it, embeddable anywhere (about dialog); compact pins the narrow form, unset follows the frame
 // CROSS-TAB LIVE SYNC — ON BY DEFAULT, NO WIRING. Whatever stores are in place, BOTH ports are
 // wrapped so every write broadcasts its KEY (not its value) to the other browser windows of this origin; a window
 // that registered a reaction reads the fresh value back through the registered source's store and applies it — so it
