@@ -49,14 +49,53 @@ describe('PermissionsSettings', () => {
     return { fixture, host: fixture.nativeElement as HTMLElement };
   }
 
+  function renderContributionsOnly(required: readonly string[] = []) {
+    TestBed.configureTestingModule({
+      imports: [PermissionsSettings, transloco()],
+      providers: [provideRequiredPlugins(...required)],
+    });
+    TestBed.inject(PluginEnablementService).register('sign-in', 'Sign In');
+    TestBed.inject(CapabilityGrantService).register(
+      'sign-in',
+      ['contributions'],
+      ['contributions'],
+    );
+    const fixture = TestBed.createComponent(PermissionsSettings);
+    fixture.detectChanges();
+    return { fixture, host: fixture.nativeElement as HTMLElement };
+  }
+
+  it('leaves out a required plugin with nothing that can be withdrawn', () => {
+    const { host } = renderContributionsOnly(['sign-in']);
+
+    expect(host.textContent).not.toContain('Sign In');
+    expect(host.textContent).not.toContain('Part of this application');
+    expect(host.textContent).toContain('No plugins are installed.');
+  });
+
+  it('keeps a plugin whose switch is the thing to operate', () => {
+    const { host } = renderContributionsOnly();
+
+    expect(host.textContent).toContain('Sign In');
+    expect(
+      host.querySelector('[data-testid="plugin-enabled-sign-in"]'),
+    ).not.toBeNull();
+  });
+
   it('states the rung a plugin runs at, and offers no switch for it', () => {
     const { fixture, host } = render();
 
-    TestBed.inject(PluginIsolationLevelService).register('treaties', 'isolated');
+    TestBed.inject(PluginIsolationLevelService).register(
+      'treaties',
+      'isolated',
+    );
     fixture.detectChanges();
     expect(host.textContent).toContain('Runs isolated');
 
-    TestBed.inject(PluginIsolationLevelService).register('treaties', 'embedded');
+    TestBed.inject(PluginIsolationLevelService).register(
+      'treaties',
+      'embedded',
+    );
     fixture.detectChanges();
 
     expect(host.textContent).toContain('Runs embedded');
@@ -130,7 +169,10 @@ describe('PermissionsSettings', () => {
   });
 
   it('shows a required plugin as on even where the user had switched it off', () => {
-    localStorage.setItem('lw.shell.disabled-plugins', JSON.stringify(['treaties']));
+    localStorage.setItem(
+      'lw.shell.disabled-plugins',
+      JSON.stringify(['treaties']),
+    );
     const { host } = render(['treaties']);
 
     expect(host.textContent).not.toContain('Turned off');
