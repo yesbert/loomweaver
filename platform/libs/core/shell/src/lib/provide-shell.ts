@@ -66,6 +66,7 @@ import {
 import { FeatureSwitches } from './features/feature-switches.service';
 import { PaneService } from './regions/pane/pane.service';
 import { PaddingDefault, SURFACE_PADDING } from './foundation/surface-padding';
+import { ANNOUNCE_UPDATES } from './update/announce-updates';
 import {
   CompositionReport,
   installCompositionReport,
@@ -142,6 +143,18 @@ export interface ShellOptions {
    * token.
    */
   readonly padding?: PaddingDefault;
+
+  /**
+   * Whether the workbench announces updates itself — `true` by default. With `false` it shows no
+   * notice about a waiting version, a current one, a check it could not answer, a failed
+   * installation or broken offline storage, for a manual check and its own background checks alike,
+   * and the distribution draws the answer instead.
+   *
+   * Nothing else is withheld: `UpdateService.checkForUpdate()` reports what it found,
+   * `UpdateService.lastCheck` carries the last check the workbench made including its own,
+   * `updateAvailable` still drives whatever marker you keep, and `activateUpdate()` still applies.
+   */
+  readonly announceUpdates?: boolean;
 }
 
 /**
@@ -169,6 +182,10 @@ export function provideShell(
     ...(options.padding === undefined
       ? []
       : [{ provide: SURFACE_PADDING, useValue: options.padding }]),
+
+    ...(options.announceUpdates === undefined
+      ? []
+      : [{ provide: ANNOUNCE_UPDATES, useValue: options.announceUpdates }]),
 
     ...(options.serviceWorker === false
       ? []

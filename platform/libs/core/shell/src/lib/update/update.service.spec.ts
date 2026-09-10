@@ -8,6 +8,7 @@ import {
 import { Subject } from 'rxjs';
 import { UpdateService } from './update.service';
 import { NotificationService } from '../notifications/notification.service';
+import { ANNOUNCE_UPDATES } from './announce-updates';
 
 class FakeSwUpdate {
   isEnabled = true;
@@ -130,6 +131,120 @@ function setupWith(sw: FakeSwUpdate, container: unknown) {
     notifications: TestBed.inject(NotificationService),
   };
 }
+
+describe('UpdateService reporting what it found', () => {
+  it('tells the caller there is nothing new', async () => {
+    const sw = new FakeSwUpdate();
+    sw.checkForUpdate.mockResolvedValue(false);
+    const { service } = setup(sw);
+
+    expect(await service.checkForUpdate()).toBe('current');
+    expect(service.lastCheck()).toMatchObject({
+      outcome: 'current',
+      automatic: false,
+    });
+    expect(service.lastCheck()?.at).toBeGreaterThan(0);
+  });
+
+  it('tells the caller a version is waiting', async () => {
+    const sw = new FakeSwUpdate();
+    sw.checkForUpdate.mockResolvedValue(true);
+    const { service } = setup(sw);
+
+    expect(await service.checkForUpdate()).toBe('waiting');
+  });
+
+  it('distinguishes a question it could not answer from a current one', async () => {
+    vi.useFakeTimers();
+    try {
+      const sw = new FakeSwUpdate();
+      const { container } = fakeSwContainer();
+      const { service } = setupWith(sw, container);
+
+      const pending = service.checkForUpdate();
+      await Promise.resolve();
+      vi.advanceTimersByTime(2500);
+
+      expect(await pending).toBe('unreachable');
+      expect(service.lastCheck()?.outcome).toBe('unreachable');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('records the check the workbench makes by itself', async () => {
+    vi.useFakeTimers();
+    try {
+      const sw = new FakeSwUpdate();
+      sw.checkForUpdate.mockResolvedValue(false);
+      const { service } = setup(sw);
+
+      await vi.advanceTimersByTimeAsync(30 * 60 * 1000);
+
+      expect(service.lastCheck()).toMatchObject({
+        outcome: 'current',
+        automatic: true,
+      });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('tells the caller when there is no offline machinery at all', async () => {
+    const { service } = setup();
+
+    expect(await service.checkForUpdate()).toBe('unavailable');
+    expect(service.lastCheck()?.outcome).toBe('unavailable');
+  });
+});
+
+describe('UpdateService where the product announces', () => {
+  function quiet(sw: FakeSwUpdate) {
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: SwUpdate, useValue: sw },
+        { provide: ANNOUNCE_UPDATES, useValue: false },
+      ],
+    });
+    return {
+      service: TestBed.inject(UpdateService),
+      notifications: TestBed.inject(NotificationService),
+    };
+  }
+
+  it('shows nothing and still reports what it found', async () => {
+    const sw = new FakeSwUpdate();
+    sw.checkForUpdate.mockResolvedValue(false);
+    const { service, notifications } = quiet(sw);
+
+    expect(await service.checkForUpdate()).toBe('current');
+    expect(notifications.notifications()).toHaveLength(0);
+  });
+
+  it('shows nothing when a version becomes ready, and still knows', () => {
+    const sw = new FakeSwUpdate();
+    const { service, notifications } = quiet(sw);
+
+    sw.versionUpdates.next({
+      type: 'VERSION_READY',
+      currentVersion: { hash: 'a' },
+      latestVersion: { hash: 'b' },
+    } as VersionEvent);
+
+    expect(service.updateAvailable()).toBe(true);
+    expect(notifications.notifications()).toHaveLength(0);
+  });
+
+  it('shows nothing when an installation fails, and still knows', () => {
+    const sw = new FakeSwUpdate();
+    const { service, notifications } = quiet(sw);
+
+    sw.versionUpdates.next(installationFailed());
+
+    expect(service.updateFailed()).toBe(true);
+    expect(notifications.notifications()).toHaveLength(0);
+  });
+});
 
 describe('UpdateService', () => {
   it('is inert without a service worker (SwUpdate not provided)', async () => {

@@ -35,8 +35,15 @@ const version = inject(VersionService);
 version.version.set(await fetchBuildVersion());   // writable: point it at your own build info
 
 const updates = inject(UpdateService);
-await updates.checkForUpdate();
+const outcome = await updates.checkForUpdate();   // 'waiting' | 'current' | 'unreachable' | 'failed' | 'unavailable'
 await updates.activateUpdate();
+```
+
+Draw the answer yourself and the workbench should stay quiet about it:
+
+```ts
+// src/app/app.config.ts
+provideShell({ announceUpdates: false });   // no toast about updates, from a manual check or its own
 ```
 
 ## Read it
@@ -51,7 +58,11 @@ updates.enabled;              // is a service worker registered at all?
 updates.updateAvailable();    // a new version has been fetched
 updates.updateFailed();       // installation failed / worker unrecoverable — do not claim "up to date"
 updates.updateBroken();       // the harsher half of updateFailed: the worker cannot repair itself
+updates.lastCheck();          // the last check: { outcome, at, automatic } — including the ones the workbench made itself
 ```
+
+`lastCheck` is how a product draws a background check it never asked for: the workbench checks on an
+interval and when the user comes back, and each of those lands here. Reading it never starts a check.
 
 `register` and `registerPrefix` return a disposer; there is nothing else to read on `StateSyncService`.
 
