@@ -160,7 +160,7 @@ describe('ContentTabsService (findings #8/#11)', () => {
 
     service.revealContentTab('doc/a');
 
-    expect(navigate).toHaveBeenCalledWith('/doc/a');
+    expect(navigate).toHaveBeenCalledWith('/doc/a', { replaceUrl: false });
   });
 
   it('activeContent exposes the matched surface id, path and params (finding #19)', async () => {

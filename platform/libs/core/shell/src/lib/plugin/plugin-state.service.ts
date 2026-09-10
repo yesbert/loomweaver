@@ -55,6 +55,16 @@ export class PluginStateService {
       entry.value.set(parseBlob(raw));
       entry.loaded.set(true);
     });
+    this.sync.onNamespaceAdopted(() => this.rereadEntries());
+  }
+
+  async rereadEntries(): Promise<void> {
+    for (const [storageKey, entry] of this.entries) {
+      const raw = await readStoredValue(this.store, storageKey);
+      this.cancelPending(entry);
+      entry.value.set(parseBlob(raw));
+      entry.loaded.set(true);
+    }
   }
 
   facade(pluginId: string): PluginState {

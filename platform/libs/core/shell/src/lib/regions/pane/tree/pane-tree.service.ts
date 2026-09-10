@@ -42,10 +42,18 @@ export class PaneTreeService {
   private readonly hydratedTree = signal(false);
   readonly hydrated = this.hydratedTree.asReadonly();
 
+  private settleTree: (() => void) | undefined;
+  readonly settled = new Promise<void>((resolve) => {
+    this.settleTree = resolve;
+  });
+
   constructor() {
     this.storage.hydrate(
       (raw) => this.applyHydratedTrees(raw),
-      () => this.hydratedTree.set(true),
+      () => {
+        this.hydratedTree.set(true);
+        this.settleTree?.();
+      },
     );
   }
 

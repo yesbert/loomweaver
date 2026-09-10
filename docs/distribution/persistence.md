@@ -177,6 +177,14 @@ localStorage.setItem('acme.last-subject', session.subject);
 localStorage.removeItem('acme.last-subject');
 ```
 
+Where a session can only be answered after a round trip, the workbench does not lose what the person
+stored. From the moment the identity becomes known, writes are held, everything already read is read
+again from that person's namespace, and writes resume once it has landed. What was built while
+nobody was known is written only where that namespace answers with nothing, so a person new to the
+product keeps it and a returning person keeps theirs. What remains is a flash: the declared
+arrangement is on screen until the session lands. Persisting the last-known subject is what removes
+the flash.
+
 Pair the store with `provideAuthSource(..., { onIdentityChange: 'reload' })` so a user switch
 re-hydrates cleanly (see [Auth integration](auth.md)).
 

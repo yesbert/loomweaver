@@ -7,6 +7,10 @@ import { matchRoute, normalizePath, segmentsOf, tabRootOf } from '../content-pat
 const DYNAMIC_TAB_ORDER_BASE = 1000;
 const VIEW_TAB_ORDER_BASE = 2000;
 
+export interface NavigationOptions {
+  readonly replace?: boolean;
+}
+
 export interface OpenTab {
   readonly path: string;
   readonly title: string;

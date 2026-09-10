@@ -66,18 +66,23 @@ whatever the user has there. A region can only list views declared for it; a vie
 to the other sidebar stays where they put it.
 (`WORKSPACE_DEFINITIONS` is the token behind the provider; a distribution never injects it itself.)
 
-**`initial: true` makes one of them the workspace a fresh install opens in**, instead of the empty
-`default`. It applies **once**, on a first boot with nothing stored yet, and the choice is written
-immediately, so a user who switches away is not sent back on the next reload. A **deep link still
-wins**: the baseline is laid out, but the address the app booted with is the one you land on, so a
-shared link opens what it names rather than the workspace's own tab. If two declarations set it, the
-first wins, as with a duplicate id.
+**`initial: true` makes one of them the workspace the application opens in**, instead of the empty
+`default`. It holds for **every** opening at an address that names no content, not only the first. A user who
+opens the app at its bare address lands there each time, and sees that workspace as they last left
+it rather than as declared. What they built in another workspace is untouched and one switch away. The opening replaces the entry in the browser's history, so going back does not return
+to the bare address.
+
+A **deep link still wins**: an address that names content opens what it names, and where a workspace
+claims that address, it is the one the visitor starts in. Where your declaration names no content of
+its own, there is nothing to land on: an opening then leaves both the address and the active
+workspace alone, so whatever you serve at the bare address is what shows. If two declarations set
+`initial`, the first wins, as with a duplicate id.
 
 ```ts
 provideWorkspaces({
   id: 'acme.review',
   title: 'product.workspace.review',
-  initial: true, // where a fresh install starts; the user's own later choice wins from then on
+  initial: true, // where every opening at the bare address lands
   content: { tabs: ['entry/e-01'] },
 });
 ```

@@ -1,6 +1,7 @@
 import { inject, Service, signal } from '@angular/core';
 import { WORKING_STATE_STORE } from '../../persistence/working-state-store';
-import { hydrateAsync } from '../../persistence/hydrate';
+import { hydrateAsync, readStoredValue } from '../../persistence/hydrate';
+import { StateSyncService } from '../../persistence/state-sync.service';
 import { RetainedViewStash } from '../pane/retention/retained-view-stash';
 
 const STORAGE_KEY = 'lw.shell.panels';
@@ -30,6 +31,7 @@ function parseCollapsed(raw: string | undefined): Record<string, boolean> {
 export class PanelState {
   private readonly store = inject(WORKING_STATE_STORE);
   private readonly stash = inject(RetainedViewStash);
+  private readonly sync = inject(StateSyncService);
   private readonly collapsed = signal<Record<string, boolean>>(
     parseCollapsed(this.store.peek?.(STORAGE_KEY)),
   );
@@ -37,8 +39,11 @@ export class PanelState {
   private readonly overlay = signal<string | null>(null);
 
   constructor() {
-    hydrateAsync(this.store, STORAGE_KEY, (raw) =>
-      this.collapsed.set(parseCollapsed(raw)),
+    const apply = (raw: string | undefined) =>
+      this.collapsed.set(parseCollapsed(raw));
+    hydrateAsync(this.store, STORAGE_KEY, apply);
+    this.sync.onNamespaceAdopted(async () =>
+      apply(await readStoredValue(this.store, STORAGE_KEY)),
     );
   }
 

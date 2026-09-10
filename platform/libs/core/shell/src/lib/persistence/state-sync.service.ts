@@ -51,6 +51,7 @@ export class StateSyncService {
   private readonly channel = inject(StateSyncChannel);
   private readonly exact = new Map<string, Registration>();
   private readonly prefixes = new Map<string, Registration>();
+  private readonly adopters = new Set<() => void | Promise<void>>();
 
   constructor() {
     this.channel.listen((key) => this.applyRemote(key));
@@ -92,6 +93,36 @@ export class StateSyncService {
         this.prefixes.delete(prefix);
       }
     };
+  }
+
+  /**
+   * Reacts to the workbench's storage namespace being adopted after state was already read from
+   * another one — the first sign-in of a session that began anonymously. Registered keys are read
+   * again on their own; this is for state whose keys are not known in advance, such as a family
+   * keyed per plugin or per workspace: the handler re-reads what its owner holds. Returns a
+   * disposer.
+   */
+  onNamespaceAdopted(handler: () => void | Promise<void>): () => void {
+    this.adopters.add(handler);
+    return () => {
+      this.adopters.delete(handler);
+    };
+  }
+
+  /**
+   * Reads every registered key again through its port and runs the handlers registered with
+   * {@link onNamespaceAdopted}. Called by the shell when the identity behind the stores becomes
+   * known after the first read; a distribution that scopes the ports itself calls it when its own
+   * namespace changes under a running application.
+   */
+  async namespaceAdopted(): Promise<void> {
+    for (const [key, registration] of this.exact) {
+      const raw = await this.readBack(registration.source, key);
+      this.channel.whileApplying(() => registration.apply(raw, key));
+    }
+    for (const handler of this.adopters) {
+      await handler();
+    }
   }
 
   /**
