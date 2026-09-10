@@ -234,9 +234,9 @@ export class PaneTabStrip {
 
   protected closeControlClass(tab: StripTab): string {
     const base =
-      'lw-icon-btn mr-1 h-6 w-6 cursor-pointer opacity-70 hover:opacity-100';
+      'lw-icon-btn absolute inset-0 cursor-pointer opacity-70 hover:opacity-100';
     return this.unsaved(tab)
-      ? `${base} pointer-fine:hidden pointer-fine:group-hover/tab:flex`
+      ? `${base} pointer-fine:hidden pointer-fine:group-hover/mark:flex`
       : base;
   }
 

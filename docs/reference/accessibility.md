@@ -65,6 +65,7 @@ the binding guardrail; it complements [`design-tokens.md`](design-tokens.md) (co
 | Brand as **fill+label** | `brand-fill` (+ `on-brand`)                   | primary-button fill; `brand` stays the identity (logo/icon)                                  |
 | Danger **button**       | `negative-fill` (+ `on-negative`)             | deeper than `negative`; `negative` stays error text/icon                                     |
 | Status icons/text       | `positive`/`negative`/`caution`/`info`        | ≥3:1 as an icon; ≥4.5:1 as text                                                              |
+| Unsaved work            | `unsaved`                                     | ≥3:1 on every surface, as a graphical indicator rather than as text                          |
 | Borders/dividers        | `border`                                      | decorative (exempt from 1.4.11); interaction boundaries additionally carry a focus ring/fill |
 
 ## Checking

@@ -24,6 +24,8 @@
   --color-field: var(--lw-field);
   --color-border: var(--lw-border);
 
+  --color-unsaved: var(--lw-unsaved);
+
   --color-content: var(--lw-content);
   --color-content-muted: var(--lw-content-muted);
   --color-content-faint: var(--lw-content-faint);
@@ -98,6 +100,11 @@
     /* faint stays WCAG AA (>=4.5:1) on surface/raised/overlay — verified by the a11y E2E net. */
     --lw-content-faint: #5f7082;
 
+    /* The colour of the mark that says work is not saved yet. Warm, to separate it from `brand`,
+     which says "active", and light enough to read as its own colour rather than as dark text; it
+     clears the >=3:1 a graphical indicator needs on surface/raised/overlay. */
+    --lw-unsaved: #a8761a;
+
     --lw-tooltip: #2b3542;
     --lw-tooltip-content: #f7f9fb;
 
@@ -157,6 +164,8 @@
     --lw-content-muted: #9aa7b4;
     /* faint stays WCAG AA (>=4.5:1) on dark surface/raised/overlay — verified by the a11y E2E net. */
     --lw-content-faint: #8695a4;
+
+    --lw-unsaved: #e0b95c;
 
     --lw-tooltip: #e6edf3;
     --lw-tooltip-content: #14191f;

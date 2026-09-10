@@ -212,11 +212,12 @@ itself uses, so the shell renders correctly without any of this.
 
 ### Text
 
-| Utility stem    | Meaning                                      |
-| --------------- | -------------------------------------------- |
-| `content`       | primary text                                 |
-| `content-muted` | secondary text (labels, metadata)            |
-| `content-faint` | tertiary/decorative (placeholders, disabled) |
+| Utility stem    | Meaning                                                    |
+| --------------- | ---------------------------------------------------------- |
+| `content`       | primary text                                               |
+| `content-muted` | secondary text (labels, metadata)                          |
+| `content-faint` | tertiary/decorative (placeholders, disabled)               |
+| `unsaved`       | the mark that says a tab holds work which is not saved yet |
 
 ### States
 

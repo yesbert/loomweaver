@@ -122,6 +122,7 @@ function bootstrapFile(t: ResolvedTheme): string {
     --lw-content: var(--bs-body-color);
     --lw-content-muted: var(--bs-secondary-color);
     --lw-content-faint: var(--bs-secondary-color);
+    --lw-unsaved: var(--bs-warning-text-emphasis);
 
     --lw-tooltip: var(--bs-emphasis-color);
     --lw-tooltip-content: var(--bs-body-bg);
