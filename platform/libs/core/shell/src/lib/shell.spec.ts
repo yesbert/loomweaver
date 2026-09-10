@@ -31,6 +31,7 @@ function translocoTesting(options: TranslocoTestingOptions = {}) {
 
 describe('Shell', () => {
   beforeEach(async () => {
+    localStorage.clear();
     await TestBed.configureTestingModule({
       imports: [Shell, translocoTesting()],
       providers: [provideRouter([])],
@@ -53,6 +54,8 @@ describe('Shell', () => {
 });
 
 describe('Shell sidebar footer', () => {
+  beforeEach(() => localStorage.clear());
+
   it('renders a bar docked to a side as a footer holding its items', async () => {
     await TestBed.configureTestingModule({
       imports: [Shell, translocoTesting()],
@@ -80,6 +83,7 @@ describe('Shell sidebar footer', () => {
 
     const fixture = TestBed.createComponent(Shell);
     await fixture.whenStable();
+    fixture.detectChanges();
 
     const labels = [...fixture.nativeElement.querySelectorAll('button')].map(
       (b) => (b as HTMLButtonElement).getAttribute('aria-label'),

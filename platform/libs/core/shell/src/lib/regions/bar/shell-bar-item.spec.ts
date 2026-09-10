@@ -199,6 +199,9 @@ describe('ShellBarItem', () => {
       expect(
         host.querySelector('[data-testid="bar-initials"]')?.textContent?.trim(),
       ).toBe('AL');
+      expect(
+        host.querySelector('[data-testid="bar-initials"]')?.className,
+      ).toContain('lw-chrome-mark');
     });
   });
 
