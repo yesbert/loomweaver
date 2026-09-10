@@ -99,3 +99,12 @@ export async function narrowPrimaryPane(
   }
   await expect(divider).toHaveAttribute('aria-valuenow', floor);
 }
+
+// On a tab holding unsaved work the close control shares its place with the mark that says so, and
+// it appears once the pointer is on that place rather than anywhere on the tab. Playwright will not
+// click what it cannot see, so the pointer goes onto the mark first, exactly as a person's would.
+export async function closeDirtyTab(page: Page, name: string): Promise<void> {
+  const wrapper = page.getByRole('tab', { name }).locator('..');
+  await wrapper.getByTestId('tab-unsaved').hover({ force: true });
+  await wrapper.getByTestId('tab-close').click();
+}

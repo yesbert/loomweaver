@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { runCommand } from './support/helpers';
+import { closeDirtyTab, runCommand } from './support/helpers';
 
 test.describe('Surface retention', () => {
   test('an unsaved draft survives splitting and unsplitting the pane', async ({
@@ -90,11 +90,7 @@ test.describe('Surface retention (hidden and clean means destroyed)', () => {
     await page.getByRole('button', { name: 'Alpha' }).click();
     await page.locator('#lw-main-content textarea').fill('DIRTY-DRAFT');
 
-    const closeAffordance = page
-      .getByRole('tab', { name: 'E-01' })
-      .locator('..')
-      .getByTestId('tab-close');
-    await closeAffordance.click();
+    await closeDirtyTab(page, 'E-01');
     await expect(
       page.getByRole('heading', { name: 'Unsaved changes' }),
     ).toBeVisible();
@@ -107,7 +103,7 @@ test.describe('Surface retention (hidden and clean means destroyed)', () => {
       'DIRTY-DRAFT',
     );
 
-    await closeAffordance.click();
+    await closeDirtyTab(page, 'E-01');
     await page
       .getByRole('dialog')
       .getByRole('button', { name: 'Discard' })
@@ -133,11 +129,7 @@ test.describe('Surface retention (hidden and clean means destroyed)', () => {
       .click();
     await page.locator('#lw-main-content textarea').fill('SAVED-VIA-DIALOG');
 
-    await page
-      .getByRole('tab', { name: 'E-02' })
-      .locator('..')
-      .getByTestId('tab-close')
-      .click();
+    await closeDirtyTab(page, 'E-02');
     await page
       .getByRole('dialog')
       .getByRole('button', { name: 'Save' })
@@ -386,11 +378,7 @@ test.describe('Surface retention (a sandboxed surface is hidden, not rebuilt)', 
     const surface = page.frameLocator(unclaimedFrame);
     await surface.getByTestId('sandbox-draft').pressSequentially('DIRTY-RPC');
 
-    const closeAffordance = page
-      .getByRole('tab', { name: 'Sandbox (unclaimed)' })
-      .locator('..')
-      .getByTestId('tab-close');
-    await closeAffordance.click();
+    await closeDirtyTab(page, 'Sandbox (unclaimed)');
     const dialog = page.getByRole('dialog');
     await expect(
       page.getByRole('heading', { name: 'Unsaved changes' }),
@@ -401,7 +389,7 @@ test.describe('Surface retention (a sandboxed surface is hidden, not rebuilt)', 
       page.getByRole('tab', { name: 'Sandbox (unclaimed)' }),
     ).toBeVisible();
 
-    await closeAffordance.click();
+    await closeDirtyTab(page, 'Sandbox (unclaimed)');
     await dialog.getByRole('button', { name: 'Discard' }).click();
     await expect(
       page.getByRole('tab', { name: 'Sandbox (unclaimed)' }),
