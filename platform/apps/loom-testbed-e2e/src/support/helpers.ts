@@ -99,3 +99,9 @@ export async function narrowPrimaryPane(
   }
   await expect(divider).toHaveAttribute('aria-valuenow', floor);
 }
+
+export async function closeDirtyTab(page: Page, name: string): Promise<void> {
+  const wrapper = page.getByRole('tab', { name }).locator('..');
+  await wrapper.getByTestId('tab-unsaved').hover({ force: true });
+  await wrapper.getByTestId('tab-close').click();
+}
