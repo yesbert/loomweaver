@@ -2,11 +2,11 @@
   <img
     class="block h-7 w-7 shrink-0"
     [src]="product.logoUrl"
-    [alt]="compact() ? product.name : ''"
+    [alt]="narrow() ? product.name : ''"
     width="28"
     height="28"
   />
-  @if (!compact()) {
+  @if (!narrow()) {
   <span
     class="truncate text-[1.1rem] font-semibold tracking-tight text-brand-text"
     >{{ product.name }}</span

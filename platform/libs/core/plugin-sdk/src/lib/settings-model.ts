@@ -117,6 +117,11 @@ export interface SettingRow {
   readonly label: string;
   /** Optional Transloco key for a secondary description line. */
   readonly description?: string;
+  /**
+   * Optional icon (registry name) drawn before the label, like every other `icon` field. Decoration
+   * only: the label is what names the row.
+   */
+  readonly icon?: string;
   readonly control: SettingControl;
 }
 

@@ -32,6 +32,20 @@ import { UpdateBadge, provideBarItems } from '@loomweaver/shell';
 }),
 ```
 
+## The product's identity, elsewhere
+
+The block the top bar draws for your identity is yours to place: an about dialog naming the product
+is the usual second home for it.
+
+```html
+<!-- in your own component's template -->
+<lw-shell-brand [compact]="false" />
+```
+
+`ShellBrand` reads what `provideProductIdentity` supplied, so the mark, the name and the tagline stay
+in one place. `compact` pins the narrow form, in which the mark stands for the product alone. Leave
+it unset and the block follows the width of the frame around it, as it does in the bar.
+
 ## Command palette entry
 
 The command palette is always reachable by shortcut (`mod+k`), but the shell places **no visible

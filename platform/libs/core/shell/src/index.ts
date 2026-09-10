@@ -24,6 +24,7 @@ export * from './lib/elements/tooltip/lw-tooltip.element';
 export * from './lib/version/lw-version';
 export * from './lib/notifications/toast-outlet';
 export * from './lib/update/update-badge';
+export * from './lib/regions/bar/shell-brand';
 export * from './lib/dialog/dialog-outlet';
 export * from './lib/settings/lw-setting-row';
 export * from './lib/settings/settings-model';

@@ -88,6 +88,7 @@
             } @else {
               <lw-setting-row
                 [label]="row.label | transloco"
+                [icon]="row.icon ?? ''"
                 [description]="
                   row.description ? (row.description | transloco) : ''
                 "
