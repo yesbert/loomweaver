@@ -83,7 +83,10 @@ told twice, and the owner turned it down on sight. One voice, in one place, is t
 
 **The colour is a token of its own, `unsaved`.** It is neither `brand`, which already means active,
 nor `caution`, which means something is wrong: unsaved work is neither. A distribution that themes
-the workbench can move it without touching either of those. It is a graphical indicator rather than
+the workbench can move it without touching either of those. Pointing it at `accent` instead, so that
+it followed the brand for free, was considered and turned down: in the dark ladder `accent` and
+`caution` already hold the same value, so the mark would have been drawn in the warning colour, and
+a state is not a problem. It stays a value of its own. It is a graphical indicator rather than
 text, so it is held to the 3:1 that asks for, which is what lets it sit light enough to read as a
 colour rather than as dark text.
 
