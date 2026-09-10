@@ -43,5 +43,5 @@
 - [x] 6.1 Check what the seam's documentation asks of a product about answering the identity at
       boot, and say plainly what the workbench now does when it cannot.
 - [x] 6.2 Run the shell's tests, the demo's tests and the repository's guards.
-- [ ] 6.3 Report to NextPA what the upgrade fixes for them and what stays theirs: the flash before
+- [x] 6.3 Report to NextPA what the upgrade fixes for them and what stays theirs: the flash before
       the session lands, which only a persisted last-known subject removes.
