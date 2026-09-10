@@ -42,6 +42,31 @@ and the name before the mark, so that what identifies the product is the last th
 - **THEN** the mark is shown and the name is not
 - **AND** the entry is still announced by the product's name
 
+### Requirement: The product's identity can be presented where the product chooses
+
+The block that presents the product's identity SHALL be available to a distribution to place
+elsewhere in its own interface — an about dialog is the obvious place — and SHALL draw the same
+name, mark and tagline, from the same supplied identity, as the workbench's own frame does.
+
+A caller SHALL be able to ask for the narrow form, in which the mark stands for the product alone,
+rather than having the form follow the width of the frame around it. Where a caller asks for
+nothing, the form SHALL follow the frame, as it does in the workbench's chrome.
+
+#### Scenario: The identity is drawn the same way outside the chrome
+
+- **WHEN** a distribution places the identity block in its own interface
+- **THEN** it shows the same name, mark and tagline as the workbench's frame does
+
+#### Scenario: A caller can ask for the narrow form
+
+- **WHEN** a caller asks for the narrow form
+- **THEN** the mark stands for the product and the name is not drawn, whatever the frame's width
+
+#### Scenario: Asking for nothing follows the frame
+
+- **WHEN** a caller asks for no particular form
+- **THEN** the block follows the width of the frame, as it does in the workbench's own chrome
+
 ### Requirement: A distribution is an installable application
 
 A distribution SHALL be installable as an application in its own right, presenting its own name and
@@ -195,3 +220,66 @@ the workbench's.
 
 - **WHEN** a preview is running and the distribution marks it nowhere
 - **THEN** the workbench adds no marking of its own beyond the version it already showed
+
+### Requirement: A check reports what it found
+
+A check for a new version SHALL report what it found to whoever asked for it, distinguishing at least
+that a version is waiting, that this is the newest one, that the question could not be answered, that
+an installation failed, and that the application has no offline machinery to check with. A caller
+SHALL be able to draw its own answer from that rather than inferring it from silence.
+
+#### Scenario: The caller learns the outcome
+
+- **WHEN** a distribution asks the workbench to check for a new version
+- **THEN** it is told which of those the check found
+
+#### Scenario: An unanswerable check is distinguishable from a current one
+
+- **WHEN** the check cannot be answered
+- **THEN** what the caller is told differs from what it is told when the application is current
+
+### Requirement: The last check is readable, including the ones nobody asked for
+
+The workbench SHALL make the last check it performed readable as state: what it found, when it
+happened, and whether the workbench made it by itself. A distribution SHALL be able to read that
+without asking for a check of its own, so that an automatic check can be drawn in the product's own
+interface rather than reaching the user only as the workbench's notice.
+
+#### Scenario: A background check becomes readable
+
+- **WHEN** the workbench checks by itself and finds nothing
+- **THEN** a distribution can read that a check ran, when, and what it found
+
+#### Scenario: A manual check is readable the same way
+
+- **WHEN** a check is asked for
+- **THEN** it is readable in the same place, marked as one that was asked for
+
+### Requirement: A distribution may announce updates itself
+
+A distribution SHALL be able to take over announcing updates. Where it does, the workbench SHALL show
+no notice of its own about a waiting version, a current one, a check it could not answer, a failed
+installation or broken offline storage, for a manual check and an automatic one alike.
+
+Taking the announcing over SHALL take away nothing else: what the workbench knows stays readable,
+applying an update stays available, and the marker a distribution chooses to keep stays driven by the
+same state.
+
+Where a distribution says nothing, the workbench SHALL announce exactly as it does today. The default
+is the supported case rather than a fallback for the unconfigured one.
+
+#### Scenario: The workbench stays quiet where the product answers
+
+- **WHEN** a distribution announces updates itself and a new version becomes available
+- **THEN** the workbench shows no notice of its own
+- **AND** the product can still read that a version is waiting and apply it
+
+#### Scenario: An automatic check is quiet too
+
+- **WHEN** a distribution announces updates itself and the workbench's own check finds a new version
+- **THEN** no notice is shown, and the product can read what was found
+
+#### Scenario: Saying nothing keeps the workbench's own notices
+
+- **WHEN** a distribution says nothing about announcing
+- **THEN** the workbench announces as it always has

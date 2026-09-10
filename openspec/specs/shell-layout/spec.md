@@ -348,6 +348,11 @@ declares no mark. Falling back SHALL be the workbench's own doing, so a product 
 picture never has to handle the picture's absence, which is the ordinary case rather than the
 exception.
 
+Where the workbench draws a short mark in place of a picture — in a rail entry, in a bar button, in
+a menu heading — the mark SHALL take the shape the picture takes in that place, at the same size, so
+that the two alternatives for one slot read as the same kind of thing. Where the same letters are
+drawn in a list rather than in such a slot, they SHALL keep their plain form.
+
 The picture SHALL be decoration: the entry SHALL still be announced by its title, so that what the
 picture stands for is not read a second time.
 
@@ -364,6 +369,16 @@ neither serves it nor knows where it comes from.
 - **WHEN** the picture such a control carries fails to load
 - **THEN** the control draws its short mark instead, or its icon where it declares no mark
 - **AND** the control stays usable, with no broken image in the chrome
+
+#### Scenario: The mark stands where the picture would have stood
+
+- **WHEN** a rail entry or a bar button draws its short mark because it carries no picture
+- **THEN** the mark is drawn in the same shape and size the picture would have had
+
+#### Scenario: The same letters in a list are left plain
+
+- **WHEN** the workbench draws a short mark in a list rather than in a chrome slot
+- **THEN** the letters are drawn plain, without the slot's shape
 
 #### Scenario: The picture is not announced
 
