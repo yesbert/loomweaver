@@ -1,5 +1,12 @@
 import { Location } from '@angular/common';
-import { effect, inject, Injector, Service, untracked } from '@angular/core';
+import {
+  effect,
+  inject,
+  Injector,
+  isDevMode,
+  Service,
+  untracked,
+} from '@angular/core';
 import { NavigationEnd, Route, Router, Routes } from '@angular/router';
 import { filter } from 'rxjs';
 import { ContentRoute } from '@loomweaver/plugin-sdk';
@@ -15,6 +22,7 @@ import { AuthRequiredView } from '../access/auth-required-view';
 import { RouteUnavailableView } from '../access/route-unavailable-view';
 import { accessCanMatch } from '../access/content-access';
 import { BootAddress } from './boot-address';
+import { DISTRIBUTION_ROUTES, isCatchAll } from './distribution-routes';
 import { ContentReuseStrategy } from './content-reuse-strategy';
 import { keepPopout } from './keep-popout.guard';
 import { settleWorkspace } from './settle-workspace.guard';
@@ -136,6 +144,13 @@ export class ContentRouter {
   private readonly reuse = inject(ContentReuseStrategy);
   private readonly auth = inject(AuthContext);
   private readonly retention = inject(SURFACE_RETENTION);
+  private readonly owned =
+    inject(DISTRIBUTION_ROUTES, { optional: true }) ?? [];
+  private readonly ownedFirst = this.owned.filter(
+    (route) => !isCatchAll(route),
+  );
+  private readonly ownedLast = this.owned.filter((route) => isCatchAll(route));
+  private readonly reportedTwice = new Set<string>();
   private started = false;
   private lastRoutes: readonly ContentRoute[] = [];
   private lastOmitted: readonly ContentRoute[] = [];
@@ -226,11 +241,37 @@ export class ContentRouter {
   ): void {
     const pending = this.pendingPlaceholder(routes);
     this.parkedOnPlaceholder = pending.length > 0;
+    this.reportAddressesDeclaredTwice(routes);
     this.router.resetConfig([
       { path: `${POPOUT_PREFIX}/**`, component: PopoutView },
+      ...this.ownedFirst,
       ...buildContentRoutes(routes, omitted, this.retention),
       ...pending,
+      ...this.ownedLast,
     ]);
+  }
+
+  private reportAddressesDeclaredTwice(
+    routes: readonly RegisteredContentRoute[],
+  ): void {
+    if (!isDevMode()) {
+      return;
+    }
+    for (const route of this.ownedFirst) {
+      const path = normalizePath(route.path ?? '');
+      const contributed = routes.some(
+        (candidate) => normalizePath(candidate.path) === path,
+      );
+      if (!contributed || this.reportedTwice.has(path)) {
+        continue;
+      }
+      this.reportedTwice.add(path);
+      const named = path === '' ? 'The address naming no content' : `"${path}"`;
+      console.warn(
+        `${named} is declared by the distribution and by a plugin — ` +
+          `the distribution's route is what it resolves to.`,
+      );
+    }
   }
 
   private pendingPlaceholder(
