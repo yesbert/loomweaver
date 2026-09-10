@@ -549,6 +549,15 @@ describe('ShellRail', () => {
       );
     }
 
+    it('gives the mark the shape the picture takes', () => {
+      const fixture = setup(
+        signal(ANONYMOUS),
+        withPicture({ image: undefined }),
+      );
+
+      expect(initials(fixture)?.className).toContain('lw-chrome-mark');
+    });
+
     it('draws the picture in place of the mark and the icon', () => {
       const fixture = setup(signal(ANONYMOUS), withPicture());
 
