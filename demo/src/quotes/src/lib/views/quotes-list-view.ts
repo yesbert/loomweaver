@@ -90,6 +90,10 @@ export class QuotesListView {
     ),
   );
 
+  protected unsaved(quote: Quote): boolean {
+    return quotesActions.hasUnsavedWork(quote);
+  }
+
   protected preview(quote: Quote): void {
     quotesActions.open(quote, { preview: true });
   }

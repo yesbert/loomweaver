@@ -118,3 +118,70 @@ test('resetting the workspace with an unsaved note asks first', async ({ page })
 
   await expect(dialog(page)).toContainText('Unsaved changes');
 });
+
+/* The unsaved surface is the customer panel, and the tab a visitor actually looks at is the
+   document's. Both carry the mark, which is the whole point of asking the arrangement rather than
+   the surface on top. */
+test('an unsaved note marks the document tab and the panel tab alike', async ({
+  page,
+}) => {
+  await openWithNote(page);
+
+  await expect(mark(page, 'sales/quotes/q-0007')).toBeVisible();
+  await expect(mark(page, 'view:quotes.customer')).toBeVisible();
+});
+
+test('taking the note back to what was saved clears both marks', async ({
+  page,
+}) => {
+  await openWithNote(page);
+  await expect(mark(page, 'sales/quotes/q-0007')).toBeVisible();
+
+  await note(page).fill('');
+
+  await expect(mark(page, 'sales/quotes/q-0007')).toHaveCount(0);
+  await expect(mark(page, 'view:quotes.customer')).toHaveCount(0);
+});
+
+test('a quote opened again after saving carries the note and no mark', async ({
+  page,
+}) => {
+  await openWithNote(page);
+  await closeTab(page);
+  await dialog(page).getByRole('button', { name: 'Save' }).click();
+
+  await openQuote(page);
+
+  await expect(note(page)).toHaveValue(NOTE);
+  await expect(mark(page, 'sales/quotes/q-0007')).toHaveCount(0);
+  await expect(mark(page, 'view:quotes.customer')).toHaveCount(0);
+});
+
+/* The row is the plugin's own drawing, from the plugin's own read: the workbench marks tabs and
+   knows nothing about a list of quotes. */
+test("the quote's row in the list is marked while its note is unsaved", async ({
+  page,
+}) => {
+  await openWithNote(page);
+
+  await page.locator('[data-nav-view="sales/quotes"]').click();
+  const row = page.locator('li[data-quote="Q-0007"]');
+
+  await expect(row.getByTestId('quote-unsaved')).toBeVisible();
+  await expect(row.getByRole('button')).toHaveAttribute(
+    'aria-label',
+    /unsaved changes$/,
+  );
+});
+
+test('the row is unmarked once the note is saved', async ({ page }) => {
+  await openWithNote(page);
+  await closeTab(page);
+  await dialog(page).getByRole('button', { name: 'Save' }).click();
+
+  await page.locator('[data-nav-view="sales/quotes"]').click();
+  const row = page.locator('li[data-quote="Q-0007"]');
+
+  await expect(row.getByTestId('quote-unsaved')).toHaveCount(0);
+});
+
