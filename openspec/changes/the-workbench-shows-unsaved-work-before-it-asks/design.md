@@ -71,11 +71,20 @@ under the existing rule, which is why the proposal declares no delta on `host-se
 when it is closable, so a mark that takes that place costs no width and adds no element, and the
 control appears when the pointer reaches that place.
 
-The first attempt tied the swap to the whole tab, and looking at it in the demo showed why that is
-wrong: clicking a tab leaves the pointer on it, so the tab a user has just switched to is exactly
-the one whose mark is hidden. The swap is therefore local to the slot the two share. Pointing at a
-tab, or switching to it, never hides its mark; only moving onto the trailing control does, which is
-already a move toward closing.
+The first attempt tied the swap to the whole tab, and looking at it in the demo showed the hole in
+it: clicking a tab leaves the pointer on it, so the tab a user has just switched to is exactly the
+one whose mark is hidden. Narrowing the swap to the slot fixed that and cost something else, because
+reaching the close control then meant finding a 24 pixel target rather than pointing at the tab.
+
+**The tab's own title carries the state, and the mark is the second voice.** With two signals the
+swap costs nothing: the control comes back for the whole tab as it always did, the mark steps aside
+for it, and the title still says that the work is unsaved. That is also the signal that survives a
+user who has turned decoration down, and the one a narrow tab keeps when its trailing slot is busy.
+
+**The colour is a token of its own, `unsaved`.** It is neither `brand`, which already means active,
+nor `caution`, which means something is wrong: unsaved work is neither. A distribution that themes
+the workbench can move it without touching either of those, and it clears WCAG AA on the surfaces a
+strip sits on, because here it is text and not only a dot.
 
 **A pinned tab carries the mark beside its title, and keeps its pin.** The three shapes named as an
 open question were drawn against the demo and looked at in both themes. Replacing the pin while the

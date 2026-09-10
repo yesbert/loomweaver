@@ -236,8 +236,15 @@ export class PaneTabStrip {
     const base =
       'lw-icon-btn absolute inset-0 cursor-pointer opacity-70 hover:opacity-100';
     return this.unsaved(tab)
-      ? `${base} pointer-fine:hidden pointer-fine:group-hover/mark:flex`
+      ? `${base} pointer-fine:hidden pointer-fine:group-hover/tab:flex`
       : base;
+  }
+
+  protected toneClass(tab: StripTab): string {
+    if (this.unsaved(tab)) {
+      return 'text-unsaved';
+    }
+    return this.isActive(tab) ? 'text-content' : 'text-content-faint';
   }
 
   protected isActive(tab: StripTab): boolean {

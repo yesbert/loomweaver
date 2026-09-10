@@ -24,6 +24,8 @@
   --color-field: var(--lw-field);
   --color-border: var(--lw-border);
 
+  --color-unsaved: var(--lw-unsaved);
+
   --color-content: var(--lw-content);
   --color-content-muted: var(--lw-content-muted);
   --color-content-faint: var(--lw-content-faint);
@@ -98,6 +100,11 @@
     /* faint stays WCAG AA (>=4.5:1) on surface/raised/overlay — verified by the a11y E2E net. */
     --lw-content-faint: #5f7082;
 
+    /* The colour of work that is not saved yet: the mark on a tab, and the tab's own title while it
+     carries one. Warm enough to separate it from `brand`, which says "active", and it clears WCAG
+     AA (>=4.5:1) on surface/raised/overlay because it is text as well as a dot. */
+    --lw-unsaved: #8a6210;
+
     --lw-tooltip: #2b3542;
     --lw-tooltip-content: #f7f9fb;
 
@@ -157,6 +164,8 @@
     --lw-content-muted: #9aa7b4;
     /* faint stays WCAG AA (>=4.5:1) on dark surface/raised/overlay — verified by the a11y E2E net. */
     --lw-content-faint: #8695a4;
+
+    --lw-unsaved: #e0b95c;
 
     --lw-tooltip: #e6edf3;
     --lw-tooltip-content: #14191f;

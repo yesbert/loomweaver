@@ -162,17 +162,23 @@ describe('PaneTabStrip', () => {
     expect(marks()).toBe(1);
   });
 
-  it('keeps the mark and the close control in one slot, so pointing at the tab never hides it', () => {
+  it('gives the tab itself the unsaved tone, which no hover takes away', () => {
+    create([tab()], [{ key: 'content:main|quotes/q-1', instance: unsaved() }]);
+    const host = fixture.nativeElement as HTMLElement;
+
+    const button = host.querySelector('[role="tab"]');
+
+    expect(button?.classList.contains('text-unsaved')).toBe(true);
+    expect(button?.classList.contains('text-content')).toBe(false);
+  });
+
+  it('draws the tone from the token, not from whatever the tab inherits', () => {
     create([tab()], [{ key: 'content:main|quotes/q-1', instance: unsaved() }]);
     const host = fixture.nativeElement as HTMLElement;
 
     const mark = host.querySelector('[data-testid="tab-unsaved"]');
-    const close = host.querySelector('[data-testid="tab-close"]');
 
-    expect(mark?.parentElement).toBe(close?.parentElement);
-    expect(close?.parentElement?.contains(host.querySelector('[role="tab"]'))).toBe(
-      false,
-    );
+    expect(mark?.classList.contains('bg-unsaved')).toBe(true);
   });
 
   it('marks a sidebar tab, which carries an icon and no title, the same way', () => {

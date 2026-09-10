@@ -14,6 +14,7 @@ export const LW_TOKENS = [
   '--lw-content',
   '--lw-content-muted',
   '--lw-content-faint',
+  '--lw-unsaved',
   '--lw-tooltip',
   '--lw-tooltip-content',
   '--lw-positive',
