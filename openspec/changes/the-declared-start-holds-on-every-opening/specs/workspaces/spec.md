@@ -25,9 +25,10 @@ nothing: an opening restores a workspace, it does not reset one.
 Taking the declared start SHALL NOT leave a step behind in the user's history, so that going back
 does not return to the address that named no content.
 
-Where the declared workspace holds no content of its own, there is nothing to land on, and the
-opening SHALL leave the address as it is: what a distribution serves at the address that names no
-content is then what the visitor sees.
+Where the declaration names no content of its own, there is nothing to land on, and the opening
+SHALL do nothing at all: the address is left as it is, so is the workspace the visitor would
+otherwise have been left in, and what a distribution serves at the address that names no content is
+what the visitor sees.
 
 An address that names content SHALL win over the declaration. Where that address is claimed by a
 workspace, winning SHALL extend to the active workspace and not only to what is shown: the visitor
@@ -71,9 +72,10 @@ a product serves there: opening the application is not the same as following a l
 
 #### Scenario: A declaration with no content of its own leaves the address alone
 
-- **WHEN** a distribution declares a starting workspace that holds no content of its own, and the
+- **WHEN** a distribution declares a starting workspace that names no content of its own, and the
   application is opened without naming content
 - **THEN** the address is unchanged and what the distribution serves there is shown
+- **AND** the workspace that was active stays active
 
 #### Scenario: A surface served at the bare address does not displace the declaration
 

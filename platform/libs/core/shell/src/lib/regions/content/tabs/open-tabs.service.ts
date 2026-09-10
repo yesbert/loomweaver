@@ -26,6 +26,7 @@ import {
 } from '../content-path';
 import {
   ContentTabView,
+  NavigationOptions,
   OpenTab,
   dynamicTabViews,
   facetTabViews,
@@ -38,7 +39,11 @@ import { syncActiveTab } from './active-tab-sync';
 import { QuickOpenTarget } from './quick-open-target';
 import { TAB_ADDRESS_RESOLVER, computedTabAddress } from './tab-address';
 import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../../pane/tree/pane-address';
-import { collectTabs, findLeaf, findLeafWhere } from '../../pane/tree/pane-queries';
+import {
+  collectTabs,
+  findLeaf,
+  findLeafWhere,
+} from '../../pane/tree/pane-queries';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 import { isPopoutUrl } from '../../../popout/popout-path';
 import { popoutNavigationRefusal } from '../../../popout/popout-refusal';
@@ -266,7 +271,7 @@ export class OpenTabsService {
     }
   }
 
-  navigate(path: string): Promise<boolean> {
+  navigate(path: string, options: NavigationOptions = {}): Promise<boolean> {
     if (this.inPopout) {
       if (isDevMode()) {
         console.warn(popoutNavigationRefusal(path));
@@ -277,11 +282,13 @@ export class OpenTabsService {
     this.focusHolderOf(target, this.activeTabRoot());
     this.ownNavigation = target;
     this.viewTabSelection.set(null);
-    return this.router.navigateByUrl('/' + target + suffixOf(path));
+    return this.router.navigateByUrl('/' + target + suffixOf(path), {
+      replaceUrl: options.replace === true,
+    });
   }
 
-  navigateTo(path: string): void {
-    this.navigate(path).catch((error: unknown) =>
+  navigateTo(path: string, options: NavigationOptions = {}): void {
+    this.navigate(path, options).catch((error: unknown) =>
       console.error('Content navigation failed', error),
     );
   }
@@ -377,7 +384,6 @@ export class OpenTabsService {
     next.set(root, Date.now());
     this.lastActive.set(next);
   }
-
 
   private strippable(routes: readonly ContentRoute[], tab: OpenTab): boolean {
     if (isHomePath(tab.path)) {

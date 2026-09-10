@@ -31,12 +31,18 @@ export class ActiveWorkspaceService {
   readonly id = this.active.asReadonly();
 
   private adopted = false;
+  private chosen = false;
   readonly ready: Promise<string> = this.resolveInitial();
 
   set(id: string): void {
     this.adopted = false;
+    this.chosen = true;
     this.active.set(id);
     void this.store.set(ACTIVE_KEY, id);
+  }
+
+  wasChosen(): boolean {
+    return this.chosen;
   }
 
   async reread(): Promise<void> {

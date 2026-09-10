@@ -669,9 +669,12 @@ interface WorkspaceDefinition { id: string; title: string; icon?: string; initia
 //   user can create one. Two claims of the same shape with neither narrower are dropped from both and named in
 //   a dev message; a narrower claim (more segments, or fewer parameters at the same length) simply wins. A
 //   workspace the USER saved is never a destination, however it came by its claim — it exists on one machine.
-//   initial: the workspace a FRESH install opens in. Applies once, on a first boot with nothing stored; the choice is
-//   written immediately, so the user's own later switch is what the next boot reads. A deep link still wins — the
-//   baseline is laid out but the booted address is navigated to. Two declarations claiming it: the first wins.
+//   initial: the workspace the application OPENS in. Holds for every opening at an address naming no content, not
+//   only the first, and shows that workspace as the user last left it rather than as declared; their other
+//   workspaces keep what they left in them, one switch away. The opening replaces the history entry, so going back
+//   does not return to the bare address. A deep link still wins, and a workspace claiming that address is the one
+//   the visitor starts in. A declaration naming no content of its own leaves both the address and the active
+//   workspace alone. Two declarations claiming initial: the first wins.
 type WorkspaceArea = PaneArea<WorkspaceTabEntry>;   // the shared grammar over route paths; the aliases below are the same types
 type WorkspaceAreaBase = PaneAreaBase;
 type WorkspaceTabArea = PaneTabArea<WorkspaceTabEntry>;

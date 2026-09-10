@@ -1,13 +1,14 @@
 import { computed, inject, isDevMode, Service, signal } from '@angular/core';
 import { SETTINGS_STORE } from '../persistence/settings-store';
 import { WORKING_STATE_STORE } from '../persistence/working-state-store';
-import { ContentTabsService } from '../regions/content/tabs/content-tabs.service';
+import { OpenTabsService } from '../regions/content/tabs/open-tabs.service';
+import { NavigationOptions } from '../regions/content/tabs/content-tab-projection';
 import { PaneTreeService } from '../regions/pane/tree/pane-tree.service';
 import { SHELL_LAYOUT } from '../layout/layout';
 import { ContributionRegistry } from '../plugin/contribution-registry';
 import { BootAddress } from '../regions/content/routing/boot-address';
 import { ContentRouter } from '../regions/content/routing/content-router';
-import { isHomePath, normalizePath } from '../regions/content/content-path';
+import { normalizePath } from '../regions/content/content-path';
 import { PanelGroupService } from '../regions/panel/panel-group.service';
 import { RetainedViewStash } from '../regions/pane/retention/retained-view-stash';
 import { WorkspaceGuard } from './workspace-guard';
@@ -15,7 +16,6 @@ import {
   BaselineContext,
   activeClaims,
   baselineOf,
-  changeCandidates,
   claimsOfWorkspace,
   definitionOf,
   originOf,
@@ -23,7 +23,7 @@ import {
   workspaceExists,
 } from './baseline/workspace-lookup';
 import { HiddenViewsService } from '../regions/panel/hidden-views.service';
-import { hydrateAsync, readStoredValue } from '../persistence/hydrate';
+import { hydrateAsync } from '../persistence/hydrate';
 import { StateSyncService } from '../persistence/state-sync.service';
 import {
   ActiveWorkspaceService,
@@ -37,13 +37,7 @@ import {
 } from './workspace-definition';
 import { claimFor, type WorkspaceClaim } from './workspace-claims';
 import { warnDeclarationGaps } from './workspace-warnings';
-import {
-  activeStateDiffers,
-  changedWorkspaceIds,
-  storedStateDiffers,
-  workspaceChangeShape,
-  type ChangeShape,
-} from './baseline/workspace-changes';
+import { unsavedWorkspaces } from './baseline/unsaved-workspaces';
 import { WORKSPACE_DEFINITIONS } from './provide-workspaces';
 import { everyWorkspaceOrigin } from './usability/workspace-usability';
 import {
@@ -59,6 +53,11 @@ import {
 } from './baseline/workspace-state';
 import { assignWorkspaceInitials } from './workspace-initials';
 import { activeContentPath } from './active-content-path';
+import {
+  atTheOpeningAddress,
+  declaredStart,
+  startWhereTheDistributionSays,
+} from './opening-the-workbench';
 
 @Service()
 export class WorkspaceService {
@@ -70,7 +69,7 @@ export class WorkspaceService {
   private readonly stash = inject(RetainedViewStash);
   private readonly guard = inject(WorkspaceGuard);
   private readonly hiddenViews = inject(HiddenViewsService);
-  private readonly tabs = inject(ContentTabsService);
+  private readonly openTabs = inject(OpenTabsService);
   private readonly bootAddress = inject(BootAddress);
   private readonly contentRouter = inject(ContentRouter);
   private readonly sync = inject(StateSyncService);
@@ -105,33 +104,22 @@ export class WorkspaceService {
     paneTrees: PANE_TREES_KEY,
   });
 
-  readonly hasChanges = computed(() =>
-    activeStateDiffers(
-      this.keyed,
-      this.baselineOf(this.active.id()),
-      this.shape(),
-    ),
-  );
+  private readonly unsaved = unsavedWorkspaces({
+    channels: this.keyed,
+    keys: WORKSPACE_KEYS,
+    hiddenViewsKey: HIDDEN_VIEWS_KEY,
+    paneTreesKey: PANE_TREES_KEY,
+    declaredPaths: (region) => this.panelGroups.declaredPaths(region),
+    activeId: () => this.active.id(),
+    baselineOf: (id) => this.baselineOf(id),
+    workspaces: () => this.list(),
+    definitions: this.definitions,
+    context: this.baselineContext,
+    workingState: this.workingState,
+  });
 
-  readonly changedIds = computed(() =>
-    changedWorkspaceIds({
-      activeId: this.active.id(),
-      activeDiffers: this.hasChanges(),
-      canReadBack: this.workingState.peek !== undefined,
-      candidates: changeCandidates(
-        this.definitions,
-        this.list(),
-        this.baselineContext,
-      ),
-      storedDiffers: (candidate) =>
-        storedStateDiffers(
-          this.workingState.peek?.bind(this.workingState),
-          workspaceScopedKey,
-          candidate,
-          this.shape(),
-        ),
-    }),
-  );
+  readonly hasChanges = this.unsaved.hasChanges;
+  readonly changedIds = this.unsaved.changedIds;
 
   constructor() {
     const setList = (raw: string | undefined) =>
@@ -203,9 +191,7 @@ export class WorkspaceService {
       }
       return;
     }
-    this.active.set(id);
-    await this.hydrateActive();
-    this.warnDeclarationGaps(id);
+    await this.enter(id);
     if (options.keepAddress !== true) {
       this.chooseAddress(activeContentPath(this.paneTree));
     }
@@ -274,15 +260,6 @@ export class WorkspaceService {
     return claimFor(this.claims(), path)?.workspaceId ?? null;
   }
 
-  private shape(): ChangeShape {
-    return workspaceChangeShape(
-      WORKSPACE_KEYS,
-      HIDDEN_VIEWS_KEY,
-      PANE_TREES_KEY,
-      (dock) => this.panelGroups.declaredPaths(dock),
-    );
-  }
-
   private claims(): readonly WorkspaceClaim[] {
     return activeClaims(this.definitions);
   }
@@ -341,32 +318,39 @@ export class WorkspaceService {
 
   private async hydrateActive(): Promise<void> {
     const baseline = this.baselineOf(this.active.id());
-    const stored: Record<string, string | undefined> = {};
-    for (const key of WORKSPACE_KEYS) {
-      stored[key] = await readStoredValue(
-        this.workingState,
-        this.active.scopedKey(key),
-      );
-    }
+    const stored = await this.currentState();
     for (const key of WORKSPACE_KEYS) {
       this.keyed[key].hydrate(stored[key] ?? baseline[key]);
     }
   }
 
   private layOutWhenWorkspaceReady(): void {
-    void this.active.ready.then(() => this.layOutAdoptedWorkspace());
+    void this.active.ready.then(() => this.openWorkbench());
   }
 
-  private layOutAdoptedWorkspace(): void {
-    const id = this.active.takeAdoption();
-    if (id === null) {
-      return;
+  private async openWorkbench(): Promise<void> {
+    const adopted = this.active.takeAdoption();
+    if (adopted !== null) {
+      this.applyState(this.baselineOf(adopted));
+      this.warnDeclarationGaps(adopted);
     }
-    this.applyState(this.baselineOf(id));
+    await startWhereTheDistributionSays({
+      declared: declaredStart(this.definitions),
+      adopted: adopted !== null,
+      atTheOpeningAddress: () =>
+        atTheOpeningAddress(this.bootAddress.path, this.contentRouter.here()),
+      alreadyEntered: () => this.active.wasChosen(),
+      arrangementSettled: () => this.paneTree.settled,
+      enter: (id) => this.enter(id),
+      contentPath: () => activeContentPath(this.paneTree),
+      goTo: (path) => this.chooseAddress(path, { replace: true }),
+    });
+  }
+
+  private async enter(id: string): Promise<void> {
+    this.active.set(id);
+    await this.hydrateActive();
     this.warnDeclarationGaps(id);
-    if (isHomePath(this.bootAddress.path)) {
-      this.chooseAddress(activeContentPath(this.paneTree));
-    }
   }
 
   private applyState(state: Readonly<Record<string, string>>): void {
@@ -380,10 +364,10 @@ export class WorkspaceService {
     void this.store.set(STORAGE_KEY, JSON.stringify(next));
   }
 
-  private chooseAddress(path: string): void {
+  private chooseAddress(path: string, options: NavigationOptions = {}): void {
     this.chosenAddress = normalizePath(path);
     this.contentRouter.hold(path);
-    this.tabs.navigateTo(path);
+    this.openTabs.navigateTo(path, options);
   }
 
   private settlementDestination(path: string): string | null {

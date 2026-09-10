@@ -162,6 +162,10 @@ export class ContentRouter {
   private landings = 0;
   private heldAt = 0;
 
+  here(): string {
+    return normalizePath(this.router.url);
+  }
+
   hold(address: string): void {
     this.heldAddress = normalizePath(address) === '' ? null : address;
     this.heldAt = this.landings;
