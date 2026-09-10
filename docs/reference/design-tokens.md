@@ -150,7 +150,10 @@ lw-shell-rail nav { width: 64px; }                       /* a wider rail */
 Two kinds of target, with different promises:
 
 - **The `.lw-*` class contracts** (`.lw-btn`, `.lw-icon-btn`, `.lw-field`, `.lw-segmented`,
-  `.lw-badge`, …) are documented and stable, the same contract a plugin paints against.
+  `.lw-badge`, …) are documented and stable, the same contract a plugin paints against. Two of them
+  belong to one slot: `.lw-chrome-picture` is the picture a rail entry or a bar button draws for what
+  it stands for, and `.lw-chrome-mark` is the round, bordered slot the initials take when there is no
+  picture. Restyle the slot and both alternatives follow.
 - **The element tags** (`lw-shell-rail`, `lw-shell-panel`, `lw-content-area`, `lw-pane-tab-strip`, …)
   reach the structure, but they are **not** a versioned contract. They move when the chrome is
   restructured, and nothing warns you. Targeting them is supported in the sense that it works and

@@ -21,9 +21,12 @@
         (error)="onPictureError()"
       />
     } @else if (btn.initials) {
-      <span aria-hidden="true" data-testid="bar-initials" class="lw-rail-initials">{{
-        btn.initials
-      }}</span>
+      <span
+        aria-hidden="true"
+        data-testid="bar-initials"
+        class="lw-rail-initials lw-chrome-mark h-5 w-5"
+        >{{ btn.initials }}</span
+      >
     } @else if (btn.icon; as icon) {
       <lw-icon [name]="icon" size="1rem" />
     }

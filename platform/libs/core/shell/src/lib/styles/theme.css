@@ -265,6 +265,19 @@
     @apply select-none font-sans text-[0.75rem] leading-none font-normal tracking-tight uppercase;
   }
 
+  /* `.lw-chrome-mark` — the slot a rail entry or a bar button gives to what stands for a person or a
+     project: round and filled, so two letters read as the same kind of thing a photograph does in the
+     same place. Carries shape and surface only; the letters keep their type from
+     `.lw-rail-initials`, which stays the plain form for a list. The size comes from where it is used,
+     as it does for the picture beside it. The fill is the overlay surface and not the raised one, and
+     it is bordered: measured against the rail in both themes, a raised fill on the rail's own surface
+     is a difference of one or two percent and reads as nothing, and the border is what keeps the slot
+     visible while the button underneath takes the overlay colour on hover. The menu header sits on a
+     menu surface, where its own raised fill reads, and keeps it. */
+  .lw-chrome-mark {
+    @apply flex items-center justify-center rounded-full border border-border bg-surface-overlay text-content-muted;
+  }
+
   /* `.lw-chrome-picture` — a picture drawn where a rail entry or a bar button would draw its icon,
      for a control standing for a person or a project. Round and covered rather than fitted, so a
      portrait is cropped to its middle instead of squashed. The size comes from where it is used, so
