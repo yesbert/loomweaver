@@ -53,7 +53,7 @@
         </button>
       } @else {
         <div
-          class="group/tab flex max-w-52 min-w-28 items-center border-b-2 transition-colors"
+          class="flex max-w-52 min-w-28 items-center border-b-2 transition-colors"
           cdkDrag
           [cdkDragData]="tab.path"
           [cdkDragDisabled]="!canDrag(tab)"
@@ -120,23 +120,23 @@
               <lw-tooltip [text]="'content.pinnedHint' | transloco" position="bottom" />
             </span>
           } @else if (tab.closable) {
-            @if (unsaved(tab)) {
+            <span class="group/mark relative mr-1 flex h-6 w-6 items-center justify-center">
+              @if (unsaved(tab)) {
+                <span
+                  aria-hidden="true"
+                  data-testid="tab-unsaved"
+                  class="h-2 w-2 rounded-full bg-current pointer-fine:group-hover/mark:hidden"
+                ></span>
+              }
               <span
                 aria-hidden="true"
-                data-testid="tab-unsaved"
-                class="mr-1 flex h-6 w-6 items-center justify-center pointer-fine:group-hover/tab:hidden"
+                data-testid="tab-close"
+                (click)="onClose($event, tab)"
+                [class]="closeControlClass(tab)"
               >
-                <span class="h-2 w-2 rounded-full bg-current"></span>
+                <lw-icon name="close" size="0.85rem" />
+                <lw-tooltip [text]="'content.closeTab' | transloco" position="bottom" />
               </span>
-            }
-            <span
-              aria-hidden="true"
-              data-testid="tab-close"
-              (click)="onClose($event, tab)"
-              [class]="closeControlClass(tab)"
-            >
-              <lw-icon name="close" size="0.85rem" />
-              <lw-tooltip [text]="'content.closeTab' | transloco" position="bottom" />
             </span>
           } @else if (unsaved(tab)) {
             <span

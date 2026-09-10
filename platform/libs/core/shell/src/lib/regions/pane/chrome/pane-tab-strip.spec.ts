@@ -162,6 +162,19 @@ describe('PaneTabStrip', () => {
     expect(marks()).toBe(1);
   });
 
+  it('keeps the mark and the close control in one slot, so pointing at the tab never hides it', () => {
+    create([tab()], [{ key: 'content:main|quotes/q-1', instance: unsaved() }]);
+    const host = fixture.nativeElement as HTMLElement;
+
+    const mark = host.querySelector('[data-testid="tab-unsaved"]');
+    const close = host.querySelector('[data-testid="tab-close"]');
+
+    expect(mark?.parentElement).toBe(close?.parentElement);
+    expect(close?.parentElement?.contains(host.querySelector('[role="tab"]'))).toBe(
+      false,
+    );
+  });
+
   it('marks a sidebar tab, which carries an icon and no title, the same way', () => {
     create(
       [tab({ path: 'view:quotes.customer', icon: 'customer' })],

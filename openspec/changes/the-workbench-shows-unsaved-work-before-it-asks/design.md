@@ -69,7 +69,13 @@ under the existing rule, which is why the proposal declares no delta on `host-se
 
 **The mark shares the slot the close control uses.** A tab carries a control on its trailing edge
 when it is closable, so a mark that takes that place costs no width and adds no element, and the
-control returns when the pointer is over the tab.
+control appears when the pointer reaches that place.
+
+The first attempt tied the swap to the whole tab, and looking at it in the demo showed why that is
+wrong: clicking a tab leaves the pointer on it, so the tab a user has just switched to is exactly
+the one whose mark is hidden. The swap is therefore local to the slot the two share. Pointing at a
+tab, or switching to it, never hides its mark; only moving onto the trailing control does, which is
+already a move toward closing.
 
 **A pinned tab carries the mark beside its title, and keeps its pin.** The three shapes named as an
 open question were drawn against the demo and looked at in both themes. Replacing the pin while the

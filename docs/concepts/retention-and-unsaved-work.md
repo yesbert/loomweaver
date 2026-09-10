@@ -75,8 +75,9 @@ Before it asks, it shows. A tab whose surface holds unsaved work is drawn differ
 work is saved, and its name says so as well. A user coming back to six open documents can then see
 which one is waiting, rather than trying each in turn. A tab that holds other work is marked when any
 of that work is unsaved: a document whose panel is dirty is marked at the document, because that is
-the tab a user looks at. On a closable tab the mark takes the place of the close control, which
-comes back the moment the pointer is over the tab. A window of its own carries no tab, and closes
+the tab a user looks at. On a closable tab the mark shares the place of the close
+control, and the control appears when the pointer reaches that place. Pointing at the tab, or
+switching to it, never hides its mark. A window of its own carries no tab, and closes
 without the question, so there is nothing there to mark.
 
 Whether an address holds unsaved work is also readable, not only visible. A distribution reads it
