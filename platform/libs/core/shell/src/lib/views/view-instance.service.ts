@@ -1,7 +1,7 @@
 import { computed, inject, Service, signal, Signal, WritableSignal } from '@angular/core';
 import { WORKING_STATE_STORE } from '../persistence/working-state-store';
 import { ViewStateService } from './view-state.service';
-import { hydrateAsync } from '../persistence/hydrate';
+import { hydrateAsync, readStoredValue } from '../persistence/hydrate';
 import { StateSyncService } from '../persistence/state-sync.service';
 
 const STORAGE_PREFIX = 'lw.shell.view-instances:';
@@ -66,6 +66,14 @@ export class ViewInstanceService {
       const viewId = key.slice(STORAGE_PREFIX.length);
       this.records.get(viewId)?.set(parseRecord(viewId, raw));
     });
+    this.sync.onNamespaceAdopted(() => this.rereadRecords());
+  }
+
+  async rereadRecords(): Promise<void> {
+    for (const [viewId, record] of this.records) {
+      const raw = await readStoredValue(this.store, STORAGE_PREFIX + viewId);
+      record.set(parseRecord(viewId, raw));
+    }
   }
 
   instances(viewId: string): Signal<readonly ViewInstance[]> {

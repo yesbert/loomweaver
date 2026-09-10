@@ -30,6 +30,10 @@ SHALL do nothing at all: the address is left as it is, so is the workspace the v
 otherwise have been left in, and what a distribution serves at the address that names no content is
 what the visitor sees.
 
+Where the distribution itself declares what the address naming no content leads to, that declaration
+SHALL answer and the opening SHALL stand down: a product that says where its bare address goes is not
+overruled by the workbench.
+
 An address that names content SHALL win over the declaration. Where that address is claimed by a
 workspace, winning SHALL extend to the active workspace and not only to what is shown: the visitor
 starts in the claiming workspace rather than in the declared one.
@@ -69,6 +73,13 @@ a product serves there: opening the application is not the same as following a l
 
 - **WHEN** the application is opened without naming content and lands in the declared workspace
 - **THEN** the address that named no content is not a step the user can go back to
+
+#### Scenario: A route the distribution owns for the bare address answers
+
+- **WHEN** a distribution declares both a starting workspace holding content and its own answer for
+  the address that names no content, and the application is opened there
+- **THEN** the distribution's own answer is what happens
+- **AND** the workspace the visitor was last in stays active
 
 #### Scenario: A declaration with no content of its own leaves the address alone
 

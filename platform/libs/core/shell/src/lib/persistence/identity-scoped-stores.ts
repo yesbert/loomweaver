@@ -1,13 +1,16 @@
 import {
   EnvironmentProviders,
+  effect,
   inject,
   Provider,
   provideEnvironmentInitializer,
+  untracked,
 } from '@angular/core';
 import { KeyValueStore, LocalStorageStore } from './key-value-store';
 import { SETTINGS_STORE } from './settings-store';
 import { WORKING_STATE_STORE } from './working-state-store';
 import { withCrossTabSync } from './cross-tab-sync-store';
+import { AuthContext } from '../auth/auth-context';
 import { StateSyncService } from './state-sync.service';
 import { BootLatchedIdentity, IdentityScopedStore } from './boot-latched-scope';
 
@@ -91,16 +94,23 @@ export function provideIdentityScopedStores(
     },
     provideEnvironmentInitializer(() => {
       const sync = inject(StateSyncService);
+      const auth = inject(AuthContext);
       latch.watchAdoption(() => {
         void sync
           .namespaceAdopted()
+          .catch(() => undefined)
           .then(() =>
             Promise.all([
               settings.writeWhereTheNamespaceIsEmpty(),
               workingState.writeWhereTheNamespaceIsEmpty(),
             ]),
           )
+          .catch(() => undefined)
           .finally(() => latch.settle());
+      });
+      effect(() => {
+        auth.state();
+        untracked(() => latch.current());
       });
     }),
   ];

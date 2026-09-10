@@ -211,7 +211,7 @@ export class PaneTreeStorage {
           apply(raw);
           settled();
         })
-        .catch(() => undefined);
+        .catch(() => settled());
     }, HYDRATION_RETRY_MS);
   }
 }

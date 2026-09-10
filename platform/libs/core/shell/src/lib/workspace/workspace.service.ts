@@ -338,7 +338,8 @@ export class WorkspaceService {
       declared: declaredStart(this.definitions),
       adopted: adopted !== null,
       atTheOpeningAddress: () =>
-        atTheOpeningAddress(this.bootAddress.path, this.contentRouter.here()),
+        atTheOpeningAddress(this.bootAddress.path, this.contentRouter.here()) &&
+        !this.contentRouter.ownsTheOpeningAddress(),
       alreadyEntered: () => this.active.wasChosen(),
       arrangementSettled: () => this.paneTree.settled,
       enter: (id) => this.enter(id),

@@ -6,6 +6,7 @@ import { RouterTestingHarness } from '@angular/router/testing';
 import { ContentRoute } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../plugin/contribution-registry';
 import { BootAddress } from '../regions/content/routing/boot-address';
+import { DISTRIBUTION_ROUTES } from '../regions/content/routing/distribution-routes';
 import { provideLayout } from '../layout/layout';
 import { KeyValueStore } from '../persistence/key-value-store';
 import { provideSettingsStore } from '../persistence/settings-store';
@@ -83,6 +84,7 @@ async function open(
   options: {
     declared?: readonly unknown[];
     stores?: Map<string, string>;
+    owns?: readonly unknown[];
   } = {},
 ): Promise<Opened> {
   TestBed.configureTestingModule({
@@ -90,6 +92,9 @@ async function open(
       provideRouter(buildContentRoutes(ROUTES)),
       provideLayout(LAYOUT as never),
       { provide: BootAddress, useValue: { path: address } },
+      ...(options.owns
+        ? [{ provide: DISTRIBUTION_ROUTES, useValue: options.owns }]
+        : []),
       { provide: WORKSPACE_CLAIMS, useExisting: WorkspaceService },
       provideWorkspaces(...((options.declared ?? DECLARED) as never[])),
       ...(options.stores
@@ -219,6 +224,23 @@ describe('opening the application where the distribution says', () => {
 
     expect(opened.workspaces.activeId()).toBe('overview');
     expect(opened.location.path()).toBe('');
+  });
+
+  it('stands down where the distribution answers for the bare address', async () => {
+    const first = await open();
+    await first.workspaces.switchTo('knowledge-base');
+    await settled();
+
+    const kept = keepStorage();
+    TestBed.resetTestingModule();
+    restoreStorage(kept);
+
+    const again = await open('/', {
+      owns: [{ path: '', redirectTo: 'reports', pathMatch: 'full' }],
+    });
+
+    expect(again.workspaces.activeId()).toBe('knowledge-base');
+    expect(again.location.path()).toBe('');
   });
 
   it('lands there with a working state that reads back asynchronously', async () => {

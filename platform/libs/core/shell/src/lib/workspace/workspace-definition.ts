@@ -34,11 +34,15 @@ export interface WorkspaceDefinition {
   /** Optional icon (registry name) shown next to the name in the workspace management UI. */
   readonly icon?: string;
   /**
-   * Makes this the workspace a fresh install opens in, instead of the empty `default` one. It applies
-   * **once**, on a first boot with nothing stored yet: from then on the user's own last choice wins,
-   * so switching away is not undone by the next reload. A deep link still wins over the declaration —
-   * the baseline is laid out, but an incoming address is navigated to, so a shared link opens what it
-   * names. If two declarations set this, the first one wins, as with a duplicate id.
+   * Makes this the workspace the application opens in, instead of the empty `default` one. It holds
+   * for **every** opening at an address that names no content, not only the first, and shows the
+   * workspace as the user last left it rather than as declared; what they built elsewhere keeps
+   * everything, one switch away. The opening replaces the entry in the browser's history, so going
+   * back does not return to the bare address. A deep link still wins over the declaration, and a
+   * workspace claiming that address is the one the visitor starts in. A declaration that names no
+   * content of its own leaves both the address and the active workspace alone, so whatever the
+   * distribution serves at the bare address is what shows. If two declarations set this, the first
+   * one wins, as with a duplicate id.
    */
   readonly initial?: boolean;
   /**

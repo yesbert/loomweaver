@@ -1,7 +1,7 @@
 import { inject, Service, signal, WritableSignal } from '@angular/core';
 import { ViewState } from '@loomweaver/plugin-sdk';
 import { WORKING_STATE_STORE } from '../persistence/working-state-store';
-import { hydrateAsync } from '../persistence/hydrate';
+import { hydrateAsync, readStoredValue } from '../persistence/hydrate';
 import { StateSyncService } from '../persistence/state-sync.service';
 
 const STORAGE_PREFIX = 'lw.shell.view-state:';
@@ -39,6 +39,18 @@ export class ViewStateService {
       entry.cancelPendingSave();
       entry.value.set(parseBlob(raw));
     });
+    this.sync.onNamespaceAdopted(() => this.rereadEntries());
+  }
+
+  async rereadEntries(): Promise<void> {
+    for (const [instanceId, entry] of this.entries) {
+      const raw = await readStoredValue(
+        this.store,
+        STORAGE_PREFIX + instanceId,
+      );
+      entry.cancelPendingSave();
+      entry.value.set(parseBlob(raw));
+    }
   }
 
   clear(instanceId: string): void {

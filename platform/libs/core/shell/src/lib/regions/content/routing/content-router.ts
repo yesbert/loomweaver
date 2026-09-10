@@ -166,6 +166,12 @@ export class ContentRouter {
     return normalizePath(this.router.url);
   }
 
+  ownsTheOpeningAddress(): boolean {
+    return this.ownedFirst.some(
+      (route) => normalizePath(route.path ?? '') === '',
+    );
+  }
+
   hold(address: string): void {
     this.heldAddress = normalizePath(address) === '' ? null : address;
     this.heldAt = this.landings;

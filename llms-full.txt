@@ -754,7 +754,7 @@ function provideWorkingStateStore(store: KeyValueStore | Type<KeyValueStore>): P
 // provideAuthSource(..., { onIdentityChange: 'reload' }) so a user switch re-hydrates from the new namespace.
 const DEVICE_LEVEL_KEYS: readonly string[];   // ['lw.shell.theme', 'lw.shell.lang', 'lw.shell.font-scale']
 interface IdentityScopedStoreOptions { identity: () => string | null | undefined; deviceKeys?: readonly string[]; settingsStore?: KeyValueStore; workingStateStore?: KeyValueStore; }
-function provideIdentityScopedStores(options: IdentityScopedStoreOptions): Provider;   // place AFTER provideShell(); replaces provideSettingsStore
+function provideIdentityScopedStores(options: IdentityScopedStoreOptions): (Provider | EnvironmentProviders)[];   // place AFTER provideShell(); replaces provideSettingsStore
 // CROSS-TAB LIVE SYNC — ON BY DEFAULT, NO WIRING. Whatever stores are in place, BOTH ports are
 // wrapped so every write broadcasts its KEY (not its value) to the other browser windows of this origin; a window
 // that registered a reaction reads the fresh value back through the registered source's store and applies it — so it
