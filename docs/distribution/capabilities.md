@@ -56,6 +56,11 @@ out until they find Settings again.
 lists it, states what it holds, and offers **no switch to turn it off**; it stays active whatever the
 user chose before, so a plugin that was already off comes back on.
 
+Where such a plugin holds nothing that can be withdrawn, the section leaves it out altogether. That
+is the plugin which asked only for the right to register contributions, which is never revocable. A
+page about what may be permitted has nothing to say about a part with nothing to permit, and an empty
+row describing absent controls costs the reader a search.
+
 It withholds that one switch and nothing else. **The capabilities such a plugin was granted stay
 revocable**, because needing a plugin says nothing about needing everything it asked for. That is
 what separates this from a plugin an operator deployed through the store, where both the plugin and

@@ -45,7 +45,11 @@ export class PermissionsSettings {
   private readonly deployment = inject(PluginDeploymentService);
   private readonly isolation = inject(PluginIsolationLevelService);
 
-  protected readonly plugins = computed<readonly PluginRow[]>(() => {
+  protected readonly plugins = computed<readonly PluginRow[]>(() =>
+    this.rows().filter((row) => this.canBePermitted(row)),
+  );
+
+  private readonly rows = computed<readonly PluginRow[]>(() => {
     const caps = this.grants.permissions();
     return this.enablement.plugins().map((plugin) => {
       const provided = this.deployment.isDeployed(plugin.id);
@@ -77,5 +81,9 @@ export class PermissionsSettings {
       capability,
       (event.target as HTMLInputElement).checked,
     );
+  }
+
+  private canBePermitted(row: PluginRow): boolean {
+    return row.capabilities.length > 0 || !(row.provided || row.required);
   }
 }
