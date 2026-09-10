@@ -73,18 +73,19 @@ control appears when the pointer reaches that place.
 
 The first attempt tied the swap to the whole tab, and looking at it in the demo showed the hole in
 it: clicking a tab leaves the pointer on it, so the tab a user has just switched to is exactly the
-one whose mark is hidden. Narrowing the swap to the slot fixed that and cost something else, because
-reaching the close control then meant finding a 24 pixel target rather than pointing at the tab.
+one whose mark is hidden. The swap is therefore local to the slot the two share.
+Pointing at a tab, or switching to it, never hides its mark; only moving onto that place does, which
+is already a move toward closing.
 
-**The tab's own title carries the state, and the mark is the second voice.** With two signals the
-swap costs nothing: the control comes back for the whole tab as it always did, the mark steps aside
-for it, and the title still says that the work is unsaved. That is also the signal that survives a
-user who has turned decoration down, and the one a narrow tab keeps when its trailing slot is busy.
+A second signal was tried and rejected: the tab's title taking the unsaved colour, so that the state
+survived any hover at all. It reads as a second thing wrong with the tab rather than as one fact
+told twice, and the owner turned it down on sight. One voice, in one place, is the shape.
 
 **The colour is a token of its own, `unsaved`.** It is neither `brand`, which already means active,
 nor `caution`, which means something is wrong: unsaved work is neither. A distribution that themes
-the workbench can move it without touching either of those, and it clears WCAG AA on the surfaces a
-strip sits on, because here it is text and not only a dot.
+the workbench can move it without touching either of those. It is a graphical indicator rather than
+text, so it is held to the 3:1 that asks for, which is what lets it sit light enough to read as a
+colour rather than as dark text.
 
 **A pinned tab carries the mark beside its title, and keeps its pin.** The three shapes named as an
 open question were drawn against the demo and looked at in both themes. Replacing the pin while the

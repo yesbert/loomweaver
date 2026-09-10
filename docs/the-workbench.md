@@ -116,9 +116,10 @@ Where it is described: [Menus](weaver/menus.md),
 ![The unsaved-changes prompt over a quote document, asking what should happen to the unsaved changes, with Cancel, Discard and Save.](../assets/media/unsaved-changes-dark.png#gh-dark-mode-only)
 
 A tab whose work is unsaved says so before anything asks: it is drawn differently from a saved one,
-its name says it too, and a document is marked when a panel inside it is the one holding the work. Its title
-takes the colour that means unsaved, and a mark sits on its trailing edge; the mark steps aside for
-the close control when the pointer is over the tab, and the title colour stays. A
+its name says it too, and a document is marked when a panel inside it is the one holding the work. A mark sits on its
+trailing edge, in a colour of its own, sharing that place with the close control. The control appears
+when the pointer reaches that place rather than anywhere on the tab, so switching to a tab never
+hides its mark. A
 surface that reports unsaved work is never destroyed while it is hidden, and closing it asks
 first. The surface reports one thing, that it is dirty; the prompt, the three answers and the
 wording are the shell's, so every plugin in the product asks the same question. *Save* appears only

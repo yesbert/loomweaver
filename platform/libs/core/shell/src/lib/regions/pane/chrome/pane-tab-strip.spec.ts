@@ -162,14 +162,27 @@ describe('PaneTabStrip', () => {
     expect(marks()).toBe(1);
   });
 
-  it('gives the tab itself the unsaved tone, which no hover takes away', () => {
+  it('keeps the mark and the close control in one slot, apart from the tab itself', () => {
+    create([tab()], [{ key: 'content:main|quotes/q-1', instance: unsaved() }]);
+    const host = fixture.nativeElement as HTMLElement;
+
+    const mark = host.querySelector('[data-testid="tab-unsaved"]');
+    const close = host.querySelector('[data-testid="tab-close"]');
+
+    expect(mark?.parentElement).toBe(close?.parentElement);
+    expect(close?.parentElement?.contains(host.querySelector('[role="tab"]'))).toBe(
+      false,
+    );
+  });
+
+  it('leaves the tab its own tone, so only the mark carries the state', () => {
     create([tab()], [{ key: 'content:main|quotes/q-1', instance: unsaved() }]);
     const host = fixture.nativeElement as HTMLElement;
 
     const button = host.querySelector('[role="tab"]');
 
-    expect(button?.classList.contains('text-unsaved')).toBe(true);
-    expect(button?.classList.contains('text-content')).toBe(false);
+    expect(button?.classList.contains('text-content')).toBe(true);
+    expect(button?.classList.contains('text-unsaved')).toBe(false);
   });
 
   it('draws the tone from the token, not from whatever the tab inherits', () => {

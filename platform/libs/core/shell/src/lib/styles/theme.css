@@ -100,10 +100,10 @@
     /* faint stays WCAG AA (>=4.5:1) on surface/raised/overlay — verified by the a11y E2E net. */
     --lw-content-faint: #5f7082;
 
-    /* The colour of work that is not saved yet: the mark on a tab, and the tab's own title while it
-     carries one. Warm enough to separate it from `brand`, which says "active", and it clears WCAG
-     AA (>=4.5:1) on surface/raised/overlay because it is text as well as a dot. */
-    --lw-unsaved: #8a6210;
+    /* The colour of the mark that says work is not saved yet. Warm, to separate it from `brand`,
+     which says "active", and light enough to read as its own colour rather than as dark text; it
+     clears the >=3:1 a graphical indicator needs on surface/raised/overlay. */
+    --lw-unsaved: #a8761a;
 
     --lw-tooltip: #2b3542;
     --lw-tooltip-content: #f7f9fb;
