@@ -131,7 +131,7 @@ export class HostPluginContext implements PluginContext {
       isPreview: version.isPreview,
       updateAvailable: update.updateAvailable,
       updatesEnabled: update.enabled,
-      checkForUpdate: () => update.checkForUpdate(),
+      checkForUpdate: () => update.checkForUpdate().then(() => undefined),
       activateUpdate: () => update.activateUpdate(),
     };
 

@@ -874,7 +874,9 @@ class SettingsService { all: Signal<SettingsSection[]>; registered: Signal<reado
 class CapabilityGrantService { permissions: Signal<readonly PluginPermissions[]>; isGranted(pluginId, capability): boolean; isBaseGranted(pluginId, capability): boolean; setGranted(pluginId, capability, granted): void; register; unregister }
 class PluginEnablementService { disabled: Signal<ReadonlySet<string>>; plugins: Signal<readonly PluginInfo[]>; isEnabled(id): boolean; setEnabled(id, enabled): void; isRequired(id): boolean; register; unregister }
 class PluginRuntime { activateAll(); deactivate(id); deactivateAll() }  class FramePluginRuntime { activateAll(); deactivate(id); deactivateAll() }   // trusted and sandboxed loaders; deactivate undoes every contribution
-class UpdateService { updateAvailable: Signal<boolean>; updateFailed: Signal<boolean>; updateBroken: Signal<boolean>; enabled: boolean; checkForUpdate(): Promise<void>; activateUpdate(): Promise<void> }
+class UpdateService { updateAvailable: Signal<boolean>; updateFailed: Signal<boolean>; updateBroken: Signal<boolean>; enabled: boolean; lastCheck: Signal<UpdateCheck | null>; checkForUpdate(): Promise<UpdateOutcome>; activateUpdate(): Promise<void> }
+type UpdateOutcome = 'waiting' | 'current' | 'unreachable' | 'failed' | 'unavailable';   // what a check found
+interface UpdateCheck { outcome: UpdateOutcome; at: number; automatic: boolean }   // the last check, including the workbench's own; provideShell({ announceUpdates: false }) silences every update notice and leaves the drawing to the product
 class VersionService { version: Signal<string>; isPreview: Signal<boolean> }   // the running build; announcing a preview is the product's own decision
 class ViewportService { compact: Signal<boolean> }   // below the md breakpoint (767.98px): the fact the chrome folds on, for a control of your own
 const APP_RESET_WORKSPACES: InjectionToken<() => Promise<boolean>>;   // what AppResetService.reset({ workspaces: true }) calls to reset them all

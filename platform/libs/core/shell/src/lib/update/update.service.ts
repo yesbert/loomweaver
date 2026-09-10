@@ -1,7 +1,27 @@
 import { DOCUMENT } from '@angular/common';
 import { DestroyRef, inject, Service, signal } from '@angular/core';
 import { SwUpdate, VersionEvent } from '@angular/service-worker';
+import { NotificationInput } from '@loomweaver/plugin-sdk';
 import { NotificationService } from '../notifications/notification.service';
+import { ANNOUNCE_UPDATES } from './announce-updates';
+
+/**
+ * What a check for a new version found. `waiting` means one is downloaded and ready to apply,
+ * `current` that this is the newest version, `unreachable` that the question could not be answered,
+ * `failed` that an installation went wrong, and `unavailable` that the application has no offline
+ * machinery to check with (dev, or a build that ships no service worker).
+ */
+export type UpdateOutcome =
+  'waiting' | 'current' | 'unreachable' | 'failed' | 'unavailable';
+
+/** The last check the workbench made, whether a caller asked for it or the workbench made it itself. */
+export interface UpdateCheck {
+  readonly outcome: UpdateOutcome;
+  /** When it happened, as `Date.now()`. */
+  readonly at: number;
+  /** `true` where the workbench checked by itself, `false` where a caller asked. */
+  readonly automatic: boolean;
+}
 
 const UPDATE_TOAST_ID = 'shell.update';
 const UP_TO_DATE_TOAST_ID = 'shell.update.none';
@@ -51,6 +71,8 @@ export class UpdateService {
 
   private readonly notifications = inject(NotificationService);
 
+  private readonly announces = inject(ANNOUNCE_UPDATES);
+
   private readonly document = inject(DOCUMENT);
 
   private readonly destroyRef = inject(DestroyRef);
@@ -62,6 +84,8 @@ export class UpdateService {
   private readonly broken = signal(false);
 
   private lastSilentCheck = 0;
+
+  private readonly checked = signal<UpdateCheck | null>(null);
 
   /** True once a new version is downloaded and ready to activate. */
   readonly updateAvailable = this.available.asReadonly();
@@ -85,6 +109,14 @@ export class UpdateService {
   /** Whether update checks are possible (a service worker is registered and enabled). */
   readonly enabled = this.swUpdate?.isEnabled ?? false;
 
+  /**
+   * The last check the workbench made, or `null` before the first one. Set by
+   * {@link checkForUpdate} and by the workbench's own background checks alike, so a distribution can
+   * draw what happened — including a check nobody asked for — instead of learning of it through the
+   * toast. Reading it never triggers a check.
+   */
+  readonly lastCheck = this.checked.asReadonly();
+
   constructor() {
     this.swUpdate?.versionUpdates.subscribe((event) =>
       this.onVersionEvent(event),
@@ -93,19 +125,24 @@ export class UpdateService {
     this.startBackgroundChecks();
   }
 
-  /** Manually checks for a new version, noting when already up to date. */
-  async checkForUpdate(): Promise<void> {
+  /**
+   * Checks for a new version and reports what it found, noting when already up to date. The outcome
+   * is also recorded in {@link lastCheck}. Where the distribution announces updates itself
+   * (`provideShell({ announceUpdates: false })`) the workbench shows nothing and the caller draws
+   * the answer.
+   */
+  async checkForUpdate(): Promise<UpdateOutcome> {
     if (!this.swUpdate?.isEnabled) {
-      return;
+      return this.record('unavailable', false);
     }
     if (this.available()) {
       this.showUpdateAvailable();
-      return;
+      return this.record('waiting', false);
     }
 
     if (!(await this.ensureControlled())) {
       this.showReloadNeeded();
-      return;
+      return this.record('unreachable', false);
     }
 
     this.lastSilentCheck = Date.now();
@@ -122,21 +159,22 @@ export class UpdateService {
 
     if (found === timedOut) {
       this.showReloadNeeded();
-      return;
+      return this.record('unreachable', false);
     }
     if (found) {
-      return;
+      return this.record('waiting', false);
     }
     if (this.failed()) {
       this.showUpdateFailed();
-      return;
+      return this.record('failed', false);
     }
-    this.notifications.show({
+    this.announce({
       id: UP_TO_DATE_TOAST_ID,
       kind: 'success',
       message: 'update.upToDate',
       timeoutMs: 4000,
     });
+    return this.record('current', false);
   }
 
   /**
@@ -179,7 +217,7 @@ export class UpdateService {
   }
 
   private showReloadNeeded(): void {
-    this.notifications.show({
+    this.announce({
       id: CHECK_UNAVAILABLE_TOAST_ID,
       kind: 'info',
       message: 'update.checkUnavailable',
@@ -235,7 +273,7 @@ export class UpdateService {
   }
 
   private showUpdateAvailable(): void {
-    this.notifications.show({
+    this.announce({
       id: UPDATE_TOAST_ID,
       kind: 'info',
       message: 'update.available',
@@ -256,7 +294,7 @@ export class UpdateService {
 
   private showUpdateFailed(): void {
     if (this.broken()) {
-      this.notifications.show({
+      this.announce({
         id: BROKEN_CACHE_TOAST_ID,
         kind: 'warning',
         message: 'update.broken',
@@ -267,7 +305,7 @@ export class UpdateService {
       });
       return;
     }
-    this.notifications.show({
+    this.announce({
       id: UPDATE_FAILED_TOAST_ID,
       kind: 'warning',
       message: 'update.failed',
@@ -301,6 +339,25 @@ export class UpdateService {
       return;
     }
     this.lastSilentCheck = now;
-    await this.swUpdate.checkForUpdate().catch(() => undefined);
+    const found = await this.swUpdate
+      .checkForUpdate()
+      .catch(() => 'unreachable' as const);
+    if (found === 'unreachable') {
+      this.record('unreachable', true);
+      return;
+    }
+    this.record(found ? 'waiting' : 'current', true);
+  }
+
+  private record(outcome: UpdateOutcome, automatic: boolean): UpdateOutcome {
+    this.checked.set({ outcome, at: Date.now(), automatic });
+    return outcome;
+  }
+
+  private announce(notice: NotificationInput): void {
+    if (!this.announces) {
+      return;
+    }
+    this.notifications.show(notice);
   }
 }
