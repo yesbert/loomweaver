@@ -24,7 +24,8 @@ import {
   SurfaceCapture,
   readSurfaceCapture,
   withinDeadline,
-} from './surface-capture';
+} from '../../capture/surface-capture';
+import { SurfaceCaptureRegistry } from '../../capture/surface-capture-registry';
 
 interface SurfaceState {
   readonly locale: string;
@@ -85,6 +86,8 @@ export class IframeSurface implements DirtySurface {
   private readonly document = inject(DOCUMENT);
 
   private readonly pluginState = inject(PluginStateService);
+
+  private readonly captureRegistry = inject(SurfaceCaptureRegistry);
 
   private readonly injector = inject(Injector);
 
@@ -176,6 +179,11 @@ export class IframeSurface implements DirtySurface {
   private visibility?: IntersectionObserver;
 
   constructor() {
+    const unregister = this.captureRegistry.register({
+      element: this.host,
+      captureSelf: (scale) => this.surfaceCapture(scale),
+    });
+
     afterNextRender(() => {
       this.connect();
       this.watchVisibility();
@@ -188,6 +196,7 @@ export class IframeSurface implements DirtySurface {
       queueMicrotask(() => this.push({ ...snapshot, ...this.readResolved() }));
     });
     inject(DestroyRef).onDestroy(() => {
+      unregister();
       for (const entry of this.watched.values()) {
         entry.stop();
       }

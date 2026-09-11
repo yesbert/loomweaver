@@ -15,17 +15,17 @@
 
 ## 2. The workbench assembles the picture
 
-- [ ] 2.1 Render the hosting document, then place each surface's answer at the area that surface
+- [x] 2.1 Render the hosting document, then place each surface's answer at the area that surface
       occupies, honouring scroll offset and device pixel ratio.
-- [ ] 2.2 Draw an area whose content could not be obtained as one that states so, distinguishable
+- [x] 2.2 Draw an area whose content could not be obtained as one that states so, distinguishable
       from a surface that was showing nothing.
-- [ ] 2.3 Leave the workbench as found: scroll positions, the address, selection and focus unchanged,
+- [x] 2.3 Leave the workbench as found: scroll positions, the address, selection and focus unchanged,
       and nothing visible on screen while the picture is made.
-- [ ] 2.4 Offer the request on the surface a distribution already injects, documented alongside the
+- [x] 2.4 Offer the request on the surface a distribution already injects, documented alongside the
       others. Offer no path to it from a plugin's context.
-- [ ] 2.5 Exclude a surface the user opened in its own window, and content scrolled out of sight
+- [x] 2.5 Exclude a surface the user opened in its own window, and content scrolled out of sight
       within a region.
-- [ ] 2.6 Test: a picture made with an isolated surface on screen contains that surface's content at
+- [x] 2.6 Test: a picture made with an isolated surface on screen contains that surface's content at
       its place; a plugin has no way to obtain a picture; the arrangement is unchanged afterwards.
 
 ## 3. What a plugin keeps out

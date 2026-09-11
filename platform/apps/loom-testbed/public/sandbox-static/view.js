@@ -4,7 +4,7 @@
       remoteWindow: globalThis.parent,
       allowedOrigins: ['*'],
     }),
-    methods: {
+    methods: globalThis.LwFrame.surfaceMethods({
       render: function (state) {
         globalThis.LwFrame.applySurfaceState(state);
         const rest = document.getElementById('rest');
@@ -12,7 +12,7 @@
           rest.textContent = state.rest ? state.rest : '(none)';
         }
       },
-    },
+    }),
   });
 
   function go(rest) {

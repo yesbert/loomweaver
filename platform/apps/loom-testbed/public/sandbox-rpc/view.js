@@ -401,7 +401,7 @@
       remoteWindow: globalThis.parent,
       allowedOrigins: ['*'],
     }),
-    methods: {
+    methods: globalThis.LwFrame.surfaceMethods({
       render: function (next) {
         state = {
           locale: next.locale,
@@ -418,7 +418,7 @@
       stateChanged: function (key, value, loaded) {
         globalThis.LwFrame.state.apply(key, value, loaded);
       },
-    },
+    }),
   });
 
   connection.promise.then(function (host) {

@@ -5,12 +5,21 @@
     "entryFile": "src/index.ts"
   },
   "allowedNonPeerDependencies": [
+    "@zumer/snapdom",
     "dompurify",
     "marked",
     "penpal"
   ],
   "assets": [
-    { "input": "src/lib/i18n", "glob": "**/*.json", "output": "i18n" },
-    { "input": "src/lib/styles", "glob": "theme.css", "output": "styles" }
+    {
+      "input": "src/lib/i18n",
+      "glob": "**/*.json",
+      "output": "i18n"
+    },
+    {
+      "input": "src/lib/styles",
+      "glob": "theme.css",
+      "output": "styles"
+    }
   ]
 }

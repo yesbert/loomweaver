@@ -35,6 +35,8 @@ export * from './lib/persistence/working-state-store';
 export * from './lib/persistence/identity-scoped-stores';
 export * from './lib/persistence/state-sync.service';
 export * from './lib/popout/popout.service';
+export { WorkbenchCaptureService } from './lib/capture/workbench-capture.service';
+export type { WorkbenchPicture } from './lib/capture/workbench-capture.service';
 export * from './lib/workspace/provide-workspaces';
 export type { WorkspaceClaim } from './lib/workspace/workspace-claims';
 export type {

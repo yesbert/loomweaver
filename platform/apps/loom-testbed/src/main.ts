@@ -1,30 +1,31 @@
 import { bootstrapApplication } from '@angular/platform-browser';
 import { inject, provideEnvironmentInitializer } from '@angular/core';
 import {
-  Shell,
-  ShellLayout,
-  UpdateBadge,
   provideAuthSource,
   provideBarItems,
   provideCapabilityGrants,
   provideCommandPaletteEntry,
+  provideFramePlugins,
   provideIcons,
   provideIdentityScopedStores,
   provideLayout,
+  providePluginCatalog,
+  providePlugins,
   provideQuickOpenEntry,
   provideRailItems,
+  provideRequiredPlugins,
+  provideShell,
+  provideShellFeatures,
   provideShellRouter,
   provideTranslationNamespaces,
   provideTranslationOverrides,
-  providePlugins,
-  provideRequiredPlugins,
-  StateSyncService,
-  providePluginCatalog,
-  provideFramePlugins,
-  provideShell,
-  provideShellFeatures,
   provideUnauthorizedRedirect,
   provideWorkspaces,
+  Shell,
+  ShellLayout,
+  StateSyncService,
+  UpdateBadge,
+  WorkbenchCaptureService,
 } from '@loomweaver/shell';
 import { provideProductIdentity } from '@loomweaver/plugin-sdk';
 import { testbedAuth, testbedPlugin, testbedTheme } from '@loomweaver/testbed-weaver';
@@ -71,6 +72,13 @@ try {
       }),
       provideIdentityScopedStores({
         identity: () => testbedAuth.snapshot().subject ?? null,
+      }),
+      provideEnvironmentInitializer(() => {
+        const capture = inject(WorkbenchCaptureService);
+        Object.defineProperty(globalThis, 'lwCapture', {
+          configurable: true,
+          value: () => capture.capture(),
+        });
       }),
       provideEnvironmentInitializer(() => {
         const sync = inject(StateSyncService);

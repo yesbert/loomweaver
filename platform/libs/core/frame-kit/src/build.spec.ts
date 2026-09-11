@@ -72,4 +72,13 @@ describe('frame-kit build', () => {
     expect(declaration).toContain('LwSurfaceCapture');
     expect(declaration).toContain('capture(request?: LwSurfaceCaptureRequest)');
   });
+
+  it("offers the platform's own surface methods beside the plugin's", () => {
+    const declaration = readFileSync(join(out, 'lw-frame.d.ts'), 'utf8');
+    expect(declaration).toContain('surfaceMethods<T extends LwSurfaceMethods>');
+    expect(declaration).toContain('LwPlatformSurfaceMethods');
+
+    const js = readFileSync(join(out, 'lw-elements.global.js'), 'utf8');
+    expect(js).toContain('surfaceMethods');
+  });
 });

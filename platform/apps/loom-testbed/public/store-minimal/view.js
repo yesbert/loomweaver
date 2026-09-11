@@ -4,11 +4,11 @@
       remoteWindow: globalThis.parent,
       allowedOrigins: ['*'],
     }),
-    methods: {
+    methods: globalThis.LwFrame.surfaceMethods({
       render: function (state) {
         globalThis.LwFrame.applySurfaceState(state);
       },
-    },
+    }),
   });
 
   connection.promise.catch(function (error) {

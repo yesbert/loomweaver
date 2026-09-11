@@ -67,6 +67,14 @@ export interface LwSurfaceCapture {
   readonly height: number;
 }
 
+/** The shape Penpal expects of the methods a surface exposes to the workbench. */
+export type LwSurfaceMethods = Record<string, (...args: never[]) => unknown>;
+
+/** What the workbench may call on a surface without the surface having written it. */
+export interface LwPlatformSurfaceMethods {
+  capture(request?: LwSurfaceCaptureRequest): Promise<LwSurfaceCapture>;
+}
+
 export interface LwFrameApi {
   setIcon(name: string, svg: string): void;
   removeIcon(name: string): void;
@@ -85,6 +93,16 @@ export interface LwFrameApi {
    * the renderer is loaded as a plain script from beside this bundle rather than imported.
    */
   capture(request?: LwSurfaceCaptureRequest): Promise<LwSurfaceCapture>;
+  /**
+   * Your own Penpal methods, plus the ones the workbench may call on any surface. Pass it straight
+   * to `connect({ methods: LwFrame.surfaceMethods({ render }) })` and a surface answers everything
+   * the workbench asks of it, including requests added to the platform after you wrote this.
+   *
+   * The platform's own names win over yours, so a surface cannot shadow them by accident.
+   */
+  surfaceMethods<T extends LwSurfaceMethods>(
+    own: T,
+  ): T & LwPlatformSurfaceMethods;
 }
 
 function applySurfaceState(state: LwSurfaceRenderState): void {
@@ -261,6 +279,10 @@ export function installLwFrame(): LwFrameApi {
     },
     state,
     capture,
+    surfaceMethods: <T extends LwSurfaceMethods>(own: T) => ({
+      ...own,
+      capture,
+    }),
   };
   (globalThis as Record<string, unknown>)['LwFrame'] = api;
   return api;

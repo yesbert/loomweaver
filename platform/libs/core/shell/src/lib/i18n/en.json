@@ -16,6 +16,9 @@
   "bar": {
     "more": "More"
   },
+  "capture": {
+    "surfaceAbsent": "Isolated surface — content not included"
+  },
   "content": {
     "closeTab": "Close tab",
     "moreTabs": "All open tabs",
