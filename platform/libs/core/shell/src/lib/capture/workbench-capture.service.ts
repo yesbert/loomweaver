@@ -1,6 +1,9 @@
 import { DOCUMENT, inject, Service } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
-import { SurfaceCaptureRegistry } from './surface-capture-registry';
+import {
+  CapturableSurface,
+  SurfaceCaptureRegistry,
+} from './surface-capture-registry';
 import { captureScale, placeSurface } from './picture-assembly';
 import { decodeDrawing } from './decode-drawing';
 
@@ -15,6 +18,11 @@ export interface WorkbenchPicture {
    * their content — a surface that failed to draw, or one that withheld itself.
    */
   readonly surfacesAbsent: number;
+}
+
+interface Placement {
+  readonly surface: CapturableSurface;
+  readonly rect: DOMRect;
 }
 
 interface Renderer {
@@ -50,39 +58,60 @@ export class WorkbenchCaptureService {
   private renderer?: Promise<Renderer>;
 
   async capture(): Promise<WorkbenchPicture> {
+    const view = this.window();
+    const renderer = await this.load();
+    const scale = captureScale(view.devicePixelRatio);
+    const root = this.document.body;
+
+    const placements = this.placements();
+    const [drawings, canvas] = await Promise.all([
+      this.drawSurfaces(placements, scale, view),
+      renderer.toCanvas(root, { scale }),
+    ]);
+
+    return this.assemble(canvas, root, placements, drawings, scale);
+  }
+
+  private window(): Window {
     const view = this.document.defaultView;
     if (!view) {
       throw new Error('the workbench has no window to draw');
     }
-    const scale = captureScale(view.devicePixelRatio);
-    const root = this.document.body;
+    return view;
+  }
 
-    const placements = this.surfaces.visible().map((surface) => ({
-      surface,
-      rect: surface.element.getBoundingClientRect(),
-    }));
+  private placements(): readonly Placement[] {
+    return this.surfaces
+      .visible()
+      .map((surface) => ({ surface, rect: surface.element.getBoundingClientRect() }));
+  }
+
+  private async drawSurfaces(
+    placements: readonly Placement[],
+    scale: number,
+    view: Window,
+  ): Promise<readonly (CanvasImageSource | undefined)[]> {
     const answered = await Promise.all(
       placements.map((placement) => placement.surface.captureSelf(scale)),
     );
-    const drawings = await Promise.all(
-      answered.map((drawing) => decodeDrawing(drawing, view)),
-    );
+    return Promise.all(answered.map((drawing) => decodeDrawing(drawing, view)));
+  }
 
-    const renderer = await this.load();
-    const canvas = await renderer.toCanvas(root, { scale });
+  private assemble(
+    canvas: HTMLCanvasElement,
+    root: Element,
+    placements: readonly Placement[],
+    drawings: readonly (CanvasImageSource | undefined)[],
+    scale: number,
+  ): WorkbenchPicture {
     const context = canvas.getContext('2d');
     if (!context) {
       throw new Error('the workbench drawing has no surface to place onto');
     }
-
     const origin = root.getBoundingClientRect();
     const labels = { absent: this.transloco.translate('capture.surfaceAbsent') };
-    let surfacesAbsent = 0;
+
     for (const [index, placement] of placements.entries()) {
-      const drawing = drawings[index];
-      if (!drawing) {
-        surfacesAbsent += 1;
-      }
       placeSurface(
         context,
         {
@@ -90,7 +119,7 @@ export class WorkbenchCaptureService {
           top: placement.rect.top - origin.top,
           width: placement.rect.width,
           height: placement.rect.height,
-          drawing,
+          drawing: drawings[index],
         },
         scale,
         labels,
@@ -101,7 +130,7 @@ export class WorkbenchCaptureService {
       image: canvas.toDataURL('image/png'),
       width: canvas.width,
       height: canvas.height,
-      surfacesAbsent,
+      surfacesAbsent: drawings.filter((drawing) => !drawing).length,
     };
   }
 
