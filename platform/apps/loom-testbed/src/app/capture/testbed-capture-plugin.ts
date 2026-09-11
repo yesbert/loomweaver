@@ -20,7 +20,7 @@ export const testbedCapturePlugin: Plugin = {
       id: 'testbed.capture',
       title: 'Picture of the workbench',
       icon: 'testbedDocument',
-      shortcut: 'mod+shift+s',
+      shortcut: 'mod+alt+p',
       run: async () => {
         if (!injector) {
           return;
