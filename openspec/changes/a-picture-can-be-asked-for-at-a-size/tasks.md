@@ -38,18 +38,37 @@
 
 ## 4. Saying it where consumers read
 
-- [ ] 4.1 Extend the distribution reference page with what may be asked for, what the answer says,
-      and what a request the workbench cannot meet exactly does.
-- [ ] 4.2 Say plainly what compression costs here: small text is what a fault report is read for.
-      Give the guidance rather than presenting the cheaper form as free.
-- [ ] 4.3 Show the attaching case, since it is why this exists: ask for a carried form, convert to
-      bytes, hand it on.
+- [x] 4.1 The distribution reference page gained *Asking for a size and a form*: what may be asked
+      for, what the answer says, and what a request the workbench cannot meet exactly does.
+- [x] 4.2 *What compression costs here* gives the measured numbers rather than an estimate, and says
+      which of the two levers to reach for first: a smaller picture loses detail evenly, a harder
+      compression loses it exactly where the reader is looking.
+- [x] 4.3 *Attaching it to a report* shows the whole case, from the request to the `FormData`, with
+      the extension taken from what came back rather than from what was asked for.
 
 ## 5. Closing
 
-- [ ] 5.1 Exercise it in the testbed at more than one size and form, and keep the pictures beside
-      each other as evidence of what compression actually costs.
-- [ ] 5.2 Run the unit suites, the end-to-end suite and the repository guards.
-- [ ] 5.3 Run `openspec validate --all --strict`.
-- [ ] 5.4 Confirm every requirement in the delta is backed by a test, and name which test backs which
-      requirement.
+- [x] 5.1 Exercised in the testbed across six requests. The pictures and their sizes are in the
+      commit message and in the guide; the headless browser draws at a density of 1, so `'screen'`
+      and `'plain'` coincide there and the density difference is not visible in that evidence.
+- [x] 5.2 The unit suites, the whole end-to-end suite (345 green) and the repository guards all pass.
+- [x] 5.3 `openspec validate --all --strict`: 29 passed, 0 failed.
+- [x] 5.4 Every scenario in the delta is backed:
+      - *A plainer picture is drawn plainer* — `draws fewer pixels when asked for a plainer picture`
+      - *A named width is not exceeded* — `does not exceed a named width, and keeps the proportions`,
+        and end-to-end `is drawn no wider than a width the caller names`
+      - *Asking for nothing draws as before* — `draws at the density of the screen when nothing is
+        asked for`
+      - *An unreasonable request still answers* — `still answers a request beyond what it can draw`
+      - *A compressed picture is smaller than a lossless one* — end-to-end `holds fewer bytes
+        compressed than it does losslessly`, in a real browser because a stub cannot weigh bytes
+      - *Asking for nothing carries it losslessly* — `carries the picture losslessly when nothing is
+        asked for`
+      - *A form the browser refuses is substituted, not failed* — `states the form it got when the
+        browser substituted another`
+      - *The measurements are the picture's own* — `does not exceed a named width, and keeps the
+        proportions`
+      - *A substituted form is stated* — `states the form it got when the browser substituted
+        another`
+      - drawn once rather than reduced — `asks a surface at the size the picture is drawn at` and
+        `asks a surface for the same form the picture is carried in`

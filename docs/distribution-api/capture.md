@@ -18,13 +18,84 @@ const capture = inject(WorkbenchCaptureService);
 
 const picture = await capture.capture();
 picture.image; // a data: URL — show it, let the user annotate it, attach it to a report
-picture.width; // in device pixels
+picture.width; // the picture's own measurements, not the workbench's
 picture.height;
+picture.form; // 'lossless' | 'jpeg' | 'webp', read back from the drawing
 picture.surfacesAbsent; // how many areas say their content is absent rather than showing it
 ```
 
 The picture is handed to you and to nobody else. Whether it is shown, altered or sent anywhere is
 your product's business; the workbench neither stores it nor sends it.
+
+## Asking for a size and a form
+
+A request that says nothing draws at the density of the screen and carries the picture losslessly,
+which is what a person looking at it wants. A tracker with an attachment limit wants something else,
+so say so:
+
+```ts
+const thumbnail = await capture.capture({ size: 'plain' });
+const forCarrying = await capture.capture({
+  size: { withinWidth: 1200 },
+  form: { compressed: 'jpeg', quality: 0.7 },
+});
+```
+
+`size` is `'screen'` (the default), `'plain'` for one picture pixel per CSS pixel, or
+`{ withinWidth }` for a greatest width in picture pixels. A named width keeps the proportions of what
+was pictured, and never enlarges: ask for 4000 on a workbench 1440 wide and you get 1440.
+
+**The size is settled before anything is drawn**, and it reaches every isolated surface as the same
+number. That is the point of asking rather than resizing afterwards: each part of the picture is
+drawn once, at the size the finished picture needs, so none of it is a reduction of something else.
+Two sizes means asking twice.
+
+`form` is `'lossless'` (the default) or `{ compressed, quality }`, where `compressed` is `'jpeg'` or
+`'webp'` and `quality` runs from 0 to 1, defaulting to 0.8.
+
+### What compression costs here
+
+On a picture of the testbed 1440 pixels wide, measured rather than estimated: 335 kB losslessly, and
+131 kB as JPEG at 0.6. That is a real saving, and it is not free. Compression is unkind to small
+text, and small text is most of what a fault report is read for: a stack trace, a field label, a
+number in a table. Reach for it when something downstream has a limit, not by default.
+
+Between the two, prefer a smaller picture to a more compressed one. Halving the width costs detail
+everywhere and evenly; compressing hard costs it exactly where the reader is looking.
+
+### When the workbench cannot do as asked
+
+Neither a size nor a form is refused.
+
+A size outside what can be drawn (below 0.05 or above 4 picture pixels per CSS pixel) becomes the
+nearest size that can be. Someone is filing a fault report, and an error instead of a picture helps
+nobody.
+
+A form the browser will not produce is substituted, silently, by the browser itself: Safari answers a
+request for WebP with a lossless picture and says nothing. **So read `picture.form` rather than
+assuming what you asked for.** It is read back off the drawing, so it is what you actually have.
+
+## Attaching it to a report
+
+This is what the capability is for. Ask for a carried form, turn the address into bytes, hand it on:
+
+```ts
+const picture = await capture.capture({
+  size: { withinWidth: 1600 },
+  form: { compressed: 'jpeg', quality: 0.7 },
+});
+
+const blob = await (await fetch(picture.image)).blob();
+const extension = picture.form === 'lossless' ? 'png' : picture.form;
+
+const body = new FormData();
+body.append('screenshot', new File([blob], `report.${extension}`, { type: blob.type }));
+await fetch('/api/faults', { method: 'POST', body });
+```
+
+The extension comes from `picture.form` and not from the request, for the reason above. The workbench
+offers no second way to get the bytes, because the conversion is the line you just read and holding
+the same picture twice in memory would cost everyone to spare that line for some.
 
 ## Why there is no prompt, and what it costs
 
