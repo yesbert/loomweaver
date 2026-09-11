@@ -66,6 +66,18 @@ writeFileSync(
 );
 
 await build({
+  entryPoints: ['@zumer/snapdom'],
+  outfile: join(outDir, 'snapdom.global.js'),
+  bundle: true,
+  format: 'iife',
+  globalName: 'LwSnapdom',
+  minify: true,
+  target: 'es2022',
+  banner: { js: banner('snapdom.global.js') },
+  absWorkingDir: here('.'),
+});
+
+await build({
   entryPoints: ['penpal'],
   outfile: join(outDir, 'penpal.global.js'),
   bundle: true,

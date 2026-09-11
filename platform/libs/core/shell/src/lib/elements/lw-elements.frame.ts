@@ -1,3 +1,4 @@
+import { drawAbsent } from '../capture/picture-assembly';
 import { defineLwButton } from './button/lw-button.element';
 import {
   hasIcon,
@@ -54,6 +55,39 @@ export interface LwStateApi {
   apply(key: string, value: unknown, loaded: boolean): void;
 }
 
+export interface LwSurfaceCaptureRequest {
+  /** Device pixels per CSS pixel. Clamped to 1..4; the frame's own ratio when absent. */
+  readonly scale?: number;
+  /** What a withheld area says on the picture. The workbench sends it already translated. */
+  readonly withheldLabel?: string;
+}
+
+/**
+ * Mark an element with this attribute and its content stays off any picture of the workbench; the
+ * area says so instead. It is read at the moment a picture is made, so setting or clearing it takes
+ * effect at once and a surface is never told that it is being pictured.
+ *
+ * Marking the surface's own root does nothing: a surface cannot withhold itself as a whole, only
+ * parts of itself.
+ */
+export const LW_WITHHOLD_ATTRIBUTE = 'data-lw-withhold';
+
+/** What a surface hands back when the workbench asks it to draw itself. */
+export interface LwSurfaceCapture {
+  /** The drawing, as a `data:` URL. A function or a live handle could not cross the boundary. */
+  readonly image: string;
+  readonly width: number;
+  readonly height: number;
+}
+
+/** The shape Penpal expects of the methods a surface exposes to the workbench. */
+export type LwSurfaceMethods = Record<string, (...args: never[]) => unknown>;
+
+/** What the workbench may call on a surface without the surface having written it. */
+export interface LwPlatformSurfaceMethods {
+  capture(request?: LwSurfaceCaptureRequest): Promise<LwSurfaceCapture>;
+}
+
 export interface LwFrameApi {
   setIcon(name: string, svg: string): void;
   removeIcon(name: string): void;
@@ -62,6 +96,26 @@ export interface LwFrameApi {
   /** Connect the store to the host once your Penpal connection resolves. */
   connectState(host: LwStateHost): LwStateApi;
   readonly state: LwStateApi;
+  /**
+   * Draws this surface and answers with the result, so that a picture of the workbench holds what
+   * the surface was showing instead of a hole where it sits. Expose it from your Penpal `methods`
+   * as `capture` and the workbench will call it; it is never called for you.
+   *
+   * The renderer is fetched the first time a picture is asked for, so a surface that is never
+   * captured never pays for it. A surface that is isolated has no origin of its own, which is why
+   * the renderer is loaded as a plain script from beside this bundle rather than imported.
+   */
+  capture(request?: LwSurfaceCaptureRequest): Promise<LwSurfaceCapture>;
+  /**
+   * Your own Penpal methods, plus the ones the workbench may call on any surface. Pass it straight
+   * to `connect({ methods: LwFrame.surfaceMethods({ render }) })` and a surface answers everything
+   * the workbench asks of it, including requests added to the platform after you wrote this.
+   *
+   * The platform's own names win over yours, so a surface cannot shadow them by accident.
+   */
+  surfaceMethods<T extends LwSurfaceMethods>(
+    own: T,
+  ): T & LwPlatformSurfaceMethods;
 }
 
 function applySurfaceState(state: LwSurfaceRenderState): void {
@@ -156,6 +210,102 @@ function createState(): LwStateApi & { connect(host: LwStateHost): void } {
   };
 }
 
+interface SnapdomGlobal {
+  readonly snapdom: {
+    toCanvas(
+      target: Element,
+      options: { readonly scale: number },
+    ): Promise<HTMLCanvasElement>;
+  };
+}
+
+const rendererSource = new URL(
+  'snapdom.global.js',
+  (document.currentScript as HTMLScriptElement | null)?.src ?? location.href,
+).href;
+
+let rendererLoad: Promise<void> | undefined;
+
+function loadRenderer(): Promise<void> {
+  rendererLoad ??= new Promise<void>((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = rendererSource;
+    script.addEventListener('load', () => resolve());
+    script.addEventListener('error', () => {
+      rendererLoad = undefined;
+      reject(new Error(`the surface renderer could not be loaded from ${rendererSource}`));
+    });
+    document.head.append(script);
+  });
+  return rendererLoad;
+}
+
+function captureScale(requested: number | undefined): number {
+  const preferred = requested ?? devicePixelRatio;
+  if (!Number.isFinite(preferred) || preferred <= 0) {
+    return 1;
+  }
+  return Math.min(4, Math.max(1, preferred));
+}
+
+const WITHHOLD_SELECTOR = `[${CSS.escape(LW_WITHHOLD_ATTRIBUTE)}]`;
+
+function withheldAreas(root: Element): Element[] {
+  return [...root.querySelectorAll(WITHHOLD_SELECTOR)].filter(
+    (element) =>
+      element !== document.body && element !== document.documentElement,
+  );
+}
+
+function hideWithheld(
+  canvas: HTMLCanvasElement,
+  root: Element,
+  scale: number,
+  label: string,
+): void {
+  const areas = withheldAreas(root);
+  if (areas.length === 0) {
+    return;
+  }
+  const context = canvas.getContext('2d');
+  if (!context) {
+    return;
+  }
+  const origin = root.getBoundingClientRect();
+  for (const area of areas) {
+    const rect = area.getBoundingClientRect();
+    drawAbsent(
+      context,
+      (rect.left - origin.left) * scale,
+      (rect.top - origin.top) * scale,
+      rect.width * scale,
+      rect.height * scale,
+      label,
+    );
+  }
+}
+
+async function capture(
+  request?: LwSurfaceCaptureRequest,
+): Promise<LwSurfaceCapture> {
+  await loadRenderer();
+  const renderer = (globalThis as Record<string, unknown>)['LwSnapdom'] as
+    | SnapdomGlobal
+    | undefined;
+  if (!renderer) {
+    throw new Error('the surface renderer did not install itself');
+  }
+  const target = document.body ?? document.documentElement;
+  const scale = captureScale(request?.scale);
+  const canvas = await renderer.snapdom.toCanvas(target, { scale });
+  hideWithheld(canvas, target, scale, request?.withheldLabel ?? '');
+  return {
+    image: canvas.toDataURL('image/png'),
+    width: canvas.width,
+    height: canvas.height,
+  };
+}
+
 /** @internal The bundle's own bootstrap. Running the script calls it; a consumer never does. */
 export function installLwFrame(): LwFrameApi {
   defineLwTooltip();
@@ -178,6 +328,11 @@ export function installLwFrame(): LwFrameApi {
       return state;
     },
     state,
+    capture,
+    surfaceMethods: <T extends LwSurfaceMethods>(own: T) => ({
+      ...own,
+      capture,
+    }),
   };
   (globalThis as Record<string, unknown>)['LwFrame'] = api;
   return api;

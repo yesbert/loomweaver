@@ -37,6 +37,7 @@
     "@jsverse/transloco": "^8.4.0",
     "@ng-icons/core": "^36.0.0",
     "@ng-icons/heroicons": "^36.0.0",
+    "@zumer/snapdom": "^2.24.18",
     "dompurify": "^3.4.13",
     "marked": "^18.0.9",
     "penpal": "^7.0.6",

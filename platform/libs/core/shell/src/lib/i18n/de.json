@@ -16,6 +16,10 @@
   "bar": {
     "more": "Mehr"
   },
+  "capture": {
+    "areaWithheld": "Inhalt nicht enthalten",
+    "surfaceAbsent": "Isolierte Fläche — Inhalt nicht enthalten"
+  },
   "content": {
     "closeTab": "Tab schließen",
     "moreTabs": "Alle geöffneten Tabs",

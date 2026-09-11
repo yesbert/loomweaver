@@ -57,4 +57,28 @@ describe('frame-kit build', () => {
     expect(js).toContain('Penpal');
     expect(js).toContain('WindowMessenger');
   });
+
+  it('vendors the surface renderer beside the bundle, not inside it', () => {
+    const renderer = readFileSync(join(out, 'snapdom.global.js'), 'utf8');
+    expect(renderer).toContain('LwSnapdom');
+
+    const js = readFileSync(join(out, 'lw-elements.global.js'), 'utf8');
+    expect(js).toContain('snapdom.global.js');
+    expect(js.length).toBeLessThan(renderer.length * 2);
+  });
+
+  it('publishes what a surface answers with when asked to draw itself', () => {
+    const declaration = readFileSync(join(out, 'lw-frame.d.ts'), 'utf8');
+    expect(declaration).toContain('LwSurfaceCapture');
+    expect(declaration).toContain('capture(request?: LwSurfaceCaptureRequest)');
+  });
+
+  it("offers the platform's own surface methods beside the plugin's", () => {
+    const declaration = readFileSync(join(out, 'lw-frame.d.ts'), 'utf8');
+    expect(declaration).toContain('surfaceMethods<T extends LwSurfaceMethods>');
+    expect(declaration).toContain('LwPlatformSurfaceMethods');
+
+    const js = readFileSync(join(out, 'lw-elements.global.js'), 'utf8');
+    expect(js).toContain('surfaceMethods');
+  });
 });

@@ -1,33 +1,38 @@
 import { bootstrapApplication } from '@angular/platform-browser';
-import { inject, provideEnvironmentInitializer } from '@angular/core';
+import { EnvironmentInjector, inject, provideEnvironmentInitializer } from '@angular/core';
 import {
-  Shell,
-  ShellLayout,
-  UpdateBadge,
   provideAuthSource,
   provideBarItems,
   provideCapabilityGrants,
   provideCommandPaletteEntry,
+  provideFramePlugins,
   provideIcons,
   provideIdentityScopedStores,
   provideLayout,
+  providePluginCatalog,
+  providePlugins,
   provideQuickOpenEntry,
   provideRailItems,
+  provideRequiredPlugins,
+  provideShell,
+  provideShellFeatures,
   provideShellRouter,
   provideTranslationNamespaces,
   provideTranslationOverrides,
-  providePlugins,
-  provideRequiredPlugins,
-  StateSyncService,
-  providePluginCatalog,
-  provideFramePlugins,
-  provideShell,
-  provideShellFeatures,
   provideUnauthorizedRedirect,
   provideWorkspaces,
+  Shell,
+  ShellLayout,
+  StateSyncService,
+  UpdateBadge,
+  WorkbenchCaptureService,
 } from '@loomweaver/shell';
 import { provideProductIdentity } from '@loomweaver/plugin-sdk';
 import { testbedAuth, testbedPlugin, testbedTheme } from '@loomweaver/testbed-weaver';
+import {
+  bindCaptureInjector,
+  testbedCapturePlugin,
+} from './app/capture/testbed-capture-plugin';
 import { TESTBED_IDENTITY } from './app/testbed-identity';
 import {
   TESTBED_FEATURES_KEY,
@@ -71,6 +76,14 @@ try {
       }),
       provideIdentityScopedStores({
         identity: () => testbedAuth.snapshot().subject ?? null,
+      }),
+      provideEnvironmentInitializer(() => {
+        const capture = inject(WorkbenchCaptureService);
+        bindCaptureInjector(inject(EnvironmentInjector));
+        Object.defineProperty(globalThis, 'lwCapture', {
+          configurable: true,
+          value: () => capture.capture(),
+        });
       }),
       provideEnvironmentInitializer(() => {
         const sync = inject(StateSyncService);
@@ -214,10 +227,11 @@ try {
           'session',
           'theme',
         ],
+        'testbed-capture': ['contributions', 'ui'],
         'sandbox-rpc': ['contributions', 'ui', 'session'],
         'sandbox-static': ['contributions', 'navigation'],
       }),
-      ...providePlugins(testbedPlugin),
+      ...providePlugins(testbedPlugin, testbedCapturePlugin),
       provideRequiredPlugins('sandbox-rpc'),
       ...provideFramePlugins(
         {

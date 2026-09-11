@@ -175,6 +175,60 @@ same source the bundle is built from, so the two cannot disagree. What it descri
   same on both rungs of the isolation ladder.
 - **`LwStateHost`** is the set of host methods your Penpal connection exposes for the store. You pass the
   resolved connection to `connectState`; you do not call these yourself.
+- **`LwSurfaceCapture`** / **`LwSurfaceCaptureRequest`** are what the workbench asks for and what you
+  answer with when it draws a picture of itself, described next.
+
+## A picture of the workbench, and your part in it
+
+A product can ask the workbench to draw a picture of what the user is seeing, usually for a fault
+report. The browser will not photograph a tab without asking the user's permission and making them
+pick a target every time, so the picture is rendered from the document instead. That stops at your
+surface: it is isolated, so nothing outside it may read what it drew. The workbench therefore asks
+your surface to draw itself.
+
+**Expose the platform's own methods beside yours and this happens for you:**
+
+```js
+Penpal.connect({
+  messenger,
+  methods: LwFrame.surfaceMethods({
+    render(state) {
+      LwFrame.applySurfaceState(state);
+    },
+  }),
+});
+```
+
+`surfaceMethods` returns your methods plus the ones the workbench may call on any surface. Write it
+this way and requests added to the platform later arrive without you editing the plugin again. The
+platform's own names win over yours, so you cannot shadow one by accident. A surface that does not
+expose them is not broken. It simply appears on the picture as an area saying its content is not
+included.
+
+The renderer is fetched from beside the kit the first time a picture is asked for, so a surface that
+is never captured never pays for it.
+
+### Keeping something off the picture
+
+Mark any element and its content stays off every picture; the area says so instead:
+
+```html
+<p data-lw-withhold>Account 8812 3345 9901</p>
+```
+
+It is read at the moment a picture is made, so setting or clearing it takes effect at once, and your
+surface is **never told** that it is being pictured. There is no moment at which it could behave
+differently because it is being observed, which is the whole point of a fault report.
+
+**You cannot refuse to be pictured, and marking your root does nothing.** The user is already looking
+at those pixels and can photograph the screen by other means. A refusal would withhold nothing from
+them, while making the feature useless for the case it exists for: reporting a fault in a plugin.
+What you can do is keep particular content out, which is what the marking is for.
+
+**What is not on the picture at all:** content scrolled out of sight inside a region, and any surface
+the user opened in its own window. The picture is what the user could see. And because it is drawn
+rather than photographed, it is a faithful depiction rather than an exact one, and a surface that paints
+by means that cannot be re-rendered may differ from the screen.
 
 ## Distributing through a plugin store
 

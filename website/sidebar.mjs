@@ -154,6 +154,10 @@ export const sidebar = [
         label: 'Windows, sync and updates',
         link: '/distribution-api/windows-and-sync/',
       },
+      {
+        label: 'A picture of the workbench',
+        link: '/distribution-api/capture/',
+      },
     ],
   },
   {

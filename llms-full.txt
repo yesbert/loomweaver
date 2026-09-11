@@ -540,7 +540,19 @@ function provideFramePlugins(...plugins: FramePlugin[]): (Provider | Environment
 // connectState(host: LwStateHost): LwStateApi — the surface-side half of ctx.state once your Penpal connection resolves, where
 // LwStateHost is the four host methods the connection exposes (stateWatch/stateSet/stateClear/stateUnwatch), LwStateApi is
 // { watch<T>(key): LwStateHandle<T>; apply(key, value, loaded) } and LwStateHandle mirrors a trusted plugin's handle
-// (value/loaded/set/clear/dispose + onChange) so one contract reads the same on both rungs }.
+// (value/loaded/set/clear/dispose + onChange) so one contract reads the same on both rungs;
+// capture(request?: LwSurfaceCaptureRequest { scale? }): Promise<LwSurfaceCapture { image, width, height }> — draws this
+// surface and answers with the drawing as a data: URL, so a picture of the workbench holds what the surface was showing
+// instead of a hole where it sits. The renderer is fetched from beside the bundle the first time a picture is asked for,
+// so a surface that is never captured never pays for it;
+// surfaceMethods<T extends LwSurfaceMethods>(own: T): T & LwPlatformSurfaceMethods — your Penpal methods plus the ones
+// the workbench may call on any surface. Write connect({ methods: LwFrame.surfaceMethods({ render }) }) and the surface
+// answers everything the workbench asks of it, including requests added to the platform after you wrote it. The
+// platform's own names win over yours, so a surface cannot shadow them by accident }.
+// LW_WITHHOLD_ATTRIBUTE ('data-lw-withhold'): mark an element and its content stays off every picture of the workbench;
+// the area says so instead. Read at the moment a picture is made, so setting or clearing it takes effect at once and the
+// surface is never told it is being pictured. Marking the surface's own root does nothing — a surface withholds parts of
+// itself, never itself as a whole.
 // The kit shares the platform version line, so the paint always matches the shell the plugin runs in.
 // Plugin store: a curated, SAME-ORIGIN catalogue of sandboxed plugins the USER installs at RUNTIME —
 // no rebuild, no reload. providePluginCatalog('/plugins/catalog.json') (same-origin JSON array of PluginCatalogEntry,
@@ -782,6 +794,22 @@ class PopoutService {
   readonly active: boolean;          // is THIS window a pop-out? latched from location at boot
   open(paneTarget: string): void;    // 'view:<viewId>' or a content path like 'doc/42'
 }
+type WorkbenchPicture = {            // what a capture answers with
+  image: string;                     // the drawing as a data: URL — show it, annotate it, attach it to a fault report
+  width: number; height: number;
+  surfacesAbsent: number;            // surfaces on the picture as a statement of absence rather than as their content
+};
+class WorkbenchCaptureService {      // a picture of the workbench, with NO browser permission prompt
+  capture(): Promise<WorkbenchPicture>;
+}
+// The browser will not photograph a tab without a picker every time, so the picture is RENDERED from the document.
+// That stops at an isolated surface, so each one is asked to draw itself (LwFrame.surfaceMethods wires the answer)
+// and its drawing is placed where it sits. A surface that fails, withholds itself or does not answer within four
+// seconds is drawn as "content not included", NEVER as a blank — a blank in a fault report reads as evidence.
+// What the user cannot see is not on it: content scrolled out of sight within a region stays out, and a surface in
+// its own pop-out window is not part of it. It is a DEPICTION, not a photograph, so a surface that draws by means
+// that cannot be re-rendered may differ. A DISTRIBUTION's to call — no plugin is offered any path to a picture,
+// because one holds what every other surface on screen is showing.
 class ThemeService {                 // owns light/dark for the whole app; toggles the `dark` class on <html>, which flips the --lw-* ladder
   readonly mode: Signal<ThemeMode>;              // 'light' | 'dark' | 'system' — what the USER picked
   readonly resolvedTheme: Signal<ResolvedTheme>; // 'light' | 'dark' — what is RENDERED, `system` already resolved against the OS

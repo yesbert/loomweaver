@@ -953,3 +953,17 @@ describe('HostPluginContext command invocation', () => {
     expect(ctx.hasUnsavedWork('nowhere')).toBe(false);
   });
 });
+
+describe('a picture of the workbench', () => {
+  it('is offered nowhere in a plugin context, at any grant', () => {
+    const ctx = makeContext(ALL) as unknown as Record<string, unknown>;
+
+    const reachable = [
+      ...Object.keys(ctx),
+      ...Object.keys(ctx['ui'] ?? {}),
+      ...Object.keys(ctx['host'] ?? {}),
+    ];
+
+    expect(reachable.filter((name) => /capture|picture|screenshot/i.test(name))).toEqual([]);
+  });
+});

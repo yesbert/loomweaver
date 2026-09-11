@@ -11,7 +11,7 @@
       remoteWindow: globalThis.parent,
       allowedOrigins: ['*'],
     }),
-    methods: {
+    methods: globalThis.LwFrame.surfaceMethods({
       render: function (state) {
         globalThis.LwFrame.applySurfaceState(state);
         set('frame-instance', state.instanceId || '—');
@@ -22,7 +22,7 @@
           state.params ? JSON.stringify(state.params) : '(none)',
         );
       },
-    },
+    }),
   });
 
   connection.promise.then(

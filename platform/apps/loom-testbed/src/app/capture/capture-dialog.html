@@ -1,0 +1,26 @@
+<div class="flex h-full min-h-0 flex-col gap-3">
+  <p class="text-sm text-content-muted">
+    {{ picture.width }} × {{ picture.height }} ·
+    @if (picture.surfacesAbsent === 0) {
+      every surface drew itself
+    } @else {
+      {{ picture.surfacesAbsent }} surface(s) say their content is absent
+    }
+  </p>
+
+  <img
+    [src]="picture.image"
+    alt="The workbench as it was when the picture was taken"
+    class="min-h-0 w-full flex-1 rounded border border-border bg-surface-raised object-contain"
+    data-testid="capture-dialog-image"
+  />
+
+  <div class="flex justify-end gap-2">
+    <a
+      class="lw-btn lw-btn--default"
+      [href]="picture.image"
+      download="workbench.png"
+      >Save as PNG</a
+    >
+  </div>
+</div>

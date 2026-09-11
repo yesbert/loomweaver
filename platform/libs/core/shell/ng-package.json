@@ -5,6 +5,7 @@
     "entryFile": "src/index.ts"
   },
   "allowedNonPeerDependencies": [
+    "@zumer/snapdom",
     "dompurify",
     "marked",
     "penpal"

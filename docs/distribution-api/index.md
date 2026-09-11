@@ -74,6 +74,7 @@ components are the application, not a guest in it. Every service below is `provi
 | set the text size                                       | `textSize.setScale('lg')`                                                                                           | [Appearance](appearance.md#do-it)                        |
 | open the plugin store                                   | `store.open()`                                                                                                      | [Plugins at runtime](plugins-at-runtime.md#do-it)        |
 | turn a plugin off, revoke a capability, uninstall       | `enablement.setEnabled(plugin, false)`, `grants.setGranted(plugin, capability, false)`, `install.uninstall(plugin)` | [Plugins at runtime](plugins-at-runtime.md#do-it)        |
+| ask for a picture of the workbench                      | `await capture.capture()`                                                                                           | [A picture of the workbench](capture.md)                 |
 | open a surface in its own window                        | `popout.open(target)`                                                                                               | [Windows, sync and updates](windows-and-sync.md#do-it)   |
 | make my own state follow across windows                 | `sync.register(…)`, `sync.announce(key)`                                                                            | [Windows, sync and updates](windows-and-sync.md#do-it)   |
 | apply a change my backend pushed from another device    | `sync.notifyRemoteChange(key)`                                                                                      | [Windows, sync and updates](windows-and-sync.md#do-it)   |
@@ -87,6 +88,7 @@ components are the application, not a guest in it. Every service below is `provi
 - [Switches](switches.md) · [Tabs](tabs.md) · [Panes](panes.md) · [Workspaces](workspaces.md) · [Sidebars](sidebars.md) · [Resetting the application](reset.md)
 - [Dialogs and toasts](dialogs-and-toasts.md) · [Settings](settings.md) · [Commands](commands.md) · [Session](session.md)
 - [Appearance](appearance.md) · [Plugins at runtime](plugins-at-runtime.md) · [Windows, sync and updates](windows-and-sync.md)
+- [A picture of the workbench](capture.md)
 
 The per-symbol reference is the package itself: `@loomweaver/shell` ships typed declarations with JSDoc
 on every public member, which your editor shows in place. A plugin never injects any of this; it goes

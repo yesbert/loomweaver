@@ -4,7 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { filter, map } from 'rxjs';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { DirtySurface, StateHandle } from '@loomweaver/plugin-sdk';
 import { Connection, Methods, WindowMessenger, connect } from 'penpal';
 import { LocaleService } from '../../i18n/locale.service';
@@ -19,6 +19,11 @@ import { CapabilityGrantService } from '../../permissions/capability-grant.servi
 import { PluginIsolationLevelService } from '../../foundation/plugin-isolation-level';
 import { ContentTabsService } from './tabs/content-tabs.service';
 import { normalizePath, restBelow, suffixOf } from './content-path';
+import {
+  SurfaceCapture,
+  askSurfaceToDraw,
+} from '../../capture/surface-capture';
+import { SurfaceCaptureRegistry } from '../../capture/surface-capture-registry';
 
 interface SurfaceState {
   readonly locale: string;
@@ -42,6 +47,10 @@ type SurfaceRemote = Methods & {
   render(state: SurfaceState): Promise<void>;
   beforeClose(): Promise<boolean> | boolean;
   stateChanged(key: string, value: unknown, loaded: boolean): void;
+  capture(request: {
+    readonly scale: number;
+    readonly withheldLabel: string;
+  }): Promise<unknown>;
 };
 
 interface WatchedKey {
@@ -78,6 +87,10 @@ export class IframeSurface implements DirtySurface {
   private readonly document = inject(DOCUMENT);
 
   private readonly pluginState = inject(PluginStateService);
+
+  private readonly captureRegistry = inject(SurfaceCaptureRegistry);
+
+  private readonly transloco = inject(TranslocoService);
 
   private readonly injector = inject(Injector);
 
@@ -169,6 +182,11 @@ export class IframeSurface implements DirtySurface {
   private visibility?: IntersectionObserver;
 
   constructor() {
+    const unregister = this.captureRegistry.register({
+      element: this.host,
+      captureSelf: (scale) => this.surfaceCapture(scale),
+    });
+
     afterNextRender(() => {
       this.connect();
       this.watchVisibility();
@@ -181,6 +199,7 @@ export class IframeSurface implements DirtySurface {
       queueMicrotask(() => this.push({ ...snapshot, ...this.readResolved() }));
     });
     inject(DestroyRef).onDestroy(() => {
+      unregister();
       for (const entry of this.watched.values()) {
         entry.stop();
       }
@@ -205,6 +224,14 @@ export class IframeSurface implements DirtySurface {
         (approved) => approved !== false,
         () => true,
       );
+  }
+
+  surfaceCapture(scale: number): Promise<SurfaceCapture | undefined> {
+    return askSurfaceToDraw(
+      this.remote?.capture,
+      scale,
+      this.transloco.translate('capture.areaWithheld'),
+    );
   }
 
   private connect(): void {
