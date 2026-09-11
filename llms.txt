@@ -100,6 +100,7 @@ Deterministic scaffolding + validation for building on LoomWeaver. Prefer these 
   - [Appearance](docs/distribution-api/appearance.md): `ThemeService` and `FontScaleService`, the mode and the text size.
   - [Plugins at runtime](docs/distribution-api/plugins-at-runtime.md): `PluginEnablementService`, `CapabilityGrantService`, `PluginInstallService`, on, off, grants and installs from your own code.
   - [Windows and sync](docs/distribution-api/windows-and-sync.md): `PopoutService`, `StateSyncService`, `UpdateService` and `VersionService`.
+  - [A picture of the workbench](docs/distribution-api/capture.md): `WorkbenchCaptureService`, a drawing of what the user is seeing with no browser permission prompt and plugin surfaces on it, for a fault report the user writes without leaving the application.
 
 ## Platform reference
 
