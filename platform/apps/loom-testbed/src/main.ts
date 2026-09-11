@@ -26,6 +26,7 @@ import {
   StateSyncService,
   UpdateBadge,
   WorkbenchCaptureService,
+  WorkbenchPictureRequest,
 } from '@loomweaver/shell';
 import { provideProductIdentity } from '@loomweaver/plugin-sdk';
 import { testbedAuth, testbedPlugin, testbedTheme } from '@loomweaver/testbed-weaver';
@@ -82,7 +83,8 @@ try {
         bindCaptureInjector(inject(EnvironmentInjector));
         Object.defineProperty(globalThis, 'lwCapture', {
           configurable: true,
-          value: () => capture.capture(),
+          value: (request?: WorkbenchPictureRequest) =>
+            capture.capture(request),
         });
       }),
       provideEnvironmentInitializer(() => {

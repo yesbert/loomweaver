@@ -796,20 +796,30 @@ class PopoutService {
 }
 type WorkbenchPicture = {            // what a capture answers with
   image: string;                     // the drawing as a data: URL — show it, annotate it, attach it to a fault report
-  width: number; height: number;
+  width: number; height: number;     // the PICTURE's own measurements, not the workbench's
+  form: WorkbenchCarriedForm;        // read back from the drawing, never assumed from the request
   surfacesAbsent: number;            // surfaces on the picture as a statement of absence rather than as their content
 };
 type WorkbenchPictureSize =           // how large to draw it
   | 'screen'                         // the density of the screen it is drawn on — what you get by default
   | 'plain'                          // one picture pixel per CSS pixel
   | { withinWidth: number };         // no wider than this, proportions kept; never enlarges
-type WorkbenchPictureRequest = { size?: WorkbenchPictureSize };
+type WorkbenchCompression = 'jpeg' | 'webp';
+type WorkbenchPictureForm =          // what form to carry it in
+  | 'lossless'                       // PNG — the default, because compression is unkind to small text
+  | { compressed: WorkbenchCompression; quality?: number };  // quality 0..1, default 0.8
+type WorkbenchCarriedForm = 'lossless' | WorkbenchCompression;
+type WorkbenchPictureRequest = { size?: WorkbenchPictureSize; form?: WorkbenchPictureForm };
 class WorkbenchCaptureService {      // a picture of the workbench, with NO browser permission prompt
   capture(request?: WorkbenchPictureRequest): Promise<WorkbenchPicture>;
 }
 // The size is chosen BEFORE anything is drawn and cannot be changed after — the host document and every isolated
 // surface are drawn at the one resolved scale, so a piece is never drawn large and shrunk. A request outside what
 // can be drawn (bounded 0.05..4 picture pixels per CSS pixel) yields the nearest picture rather than an error.
+// The form crosses into each isolated surface too, so a piece is not encoded losslessly only to be compressed again.
+// A browser that cannot produce the form asked for substitutes one SILENTLY (Safari does this for webp), so `form`
+// on the answer is read back from the drawing — never trust what you asked for. Measured on the testbed: a 1440-wide
+// picture is 335 kB lossless and 131 kB as JPEG at 0.6.
 // The browser will not photograph a tab without a picker every time, so the picture is RENDERED from the document.
 // That stops at an isolated surface, so each one is asked to draw itself (LwFrame.surfaceMethods wires the answer)
 // and its drawing is placed where it sits. A surface that fails, withholds itself or does not answer within four

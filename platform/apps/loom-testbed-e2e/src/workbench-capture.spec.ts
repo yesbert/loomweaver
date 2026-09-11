@@ -4,12 +4,22 @@ interface Picture {
   readonly image: string;
   readonly width: number;
   readonly height: number;
+  readonly form: 'lossless' | 'jpeg' | 'webp';
   readonly surfacesAbsent: number;
+}
+
+interface PictureRequest {
+  readonly size?: 'screen' | 'plain' | { readonly withinWidth: number };
+  readonly form?:
+    | 'lossless'
+    | { readonly compressed: 'jpeg' | 'webp'; readonly quality?: number };
 }
 
 declare global {
   // eslint-disable-next-line no-var
-  var lwCapture: (() => Promise<Picture>) | undefined;
+  var lwCapture:
+    | ((request?: PictureRequest) => Promise<Picture>)
+    | undefined;
 }
 
 async function openSandbox(page: Page): Promise<void> {
@@ -44,6 +54,49 @@ test.describe('A picture of the workbench', () => {
     expect(picture.image).toMatch(/^data:image\/png;base64,/);
     expect(picture.width).toBeGreaterThan(0);
     expect(picture.height).toBeGreaterThan(0);
+  });
+
+  test('is drawn no wider than a width the caller names', async ({ page }) => {
+    await openSandbox(page);
+
+    const pictures = await page.evaluate(async () => {
+      const screen = await globalThis.lwCapture!();
+      const narrow = await globalThis.lwCapture!({
+        size: { withinWidth: 400 },
+      });
+      return {
+        screen: { width: screen.width, height: screen.height },
+        narrow: { width: narrow.width, height: narrow.height },
+      };
+    });
+
+    expect(pictures.narrow.width).toBeLessThanOrEqual(400);
+    expect(pictures.narrow.width).toBeLessThan(pictures.screen.width);
+    expect(pictures.narrow.width / pictures.narrow.height).toBeCloseTo(
+      pictures.screen.width / pictures.screen.height,
+      1,
+    );
+  });
+
+  test('holds fewer bytes compressed than it does losslessly', async ({
+    page,
+  }) => {
+    await openSandbox(page);
+
+    const carried = await page.evaluate(async () => {
+      const lossless = await globalThis.lwCapture!();
+      const compressed = await globalThis.lwCapture!({
+        form: { compressed: 'jpeg', quality: 0.6 },
+      });
+      return {
+        lossless: lossless.image.length,
+        compressed: compressed.image.length,
+        form: compressed.form,
+      };
+    });
+
+    expect(carried.form).toBe('jpeg');
+    expect(carried.compressed).toBeLessThan(carried.lossless);
   });
 
   test('asks the browser for no permission along the way', async ({ page }) => {

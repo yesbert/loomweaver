@@ -59,6 +59,14 @@ export interface LwStateApi {
 export interface LwSurfaceCaptureRequest {
   /** Picture pixels per CSS pixel. Bounded to 0.05..4; the frame's own ratio when absent. */
   readonly scale?: number;
+  /**
+   * The form to encode the drawing in — `image/png`, `image/jpeg` or `image/webp`. The workbench
+   * sends the form the finished picture will be carried in, so a surface is not encoded losslessly
+   * only to be compressed again. Lossless when absent.
+   */
+  readonly mediaType?: string;
+  /** How strongly to compress, 0 to 1. Ignored by a lossless form. */
+  readonly quality?: number;
   /** What a withheld area says on the picture. The workbench sends it already translated. */
   readonly withheldLabel?: string;
 }
@@ -293,7 +301,7 @@ async function capture(
   const canvas = await renderer.snapdom.toCanvas(target, { scale });
   hideWithheld(canvas, target, scale, request?.withheldLabel ?? '');
   return {
-    image: canvas.toDataURL('image/png'),
+    image: canvas.toDataURL(request?.mediaType ?? 'image/png', request?.quality),
     width: canvas.width,
     height: canvas.height,
   };

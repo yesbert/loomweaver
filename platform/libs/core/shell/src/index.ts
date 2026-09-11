@@ -41,6 +41,11 @@ export type {
   WorkbenchPictureRequest,
 } from './lib/capture/workbench-capture.service';
 export type { WorkbenchPictureSize } from './lib/capture/picture-size';
+export type {
+  WorkbenchCarriedForm,
+  WorkbenchCompression,
+  WorkbenchPictureForm,
+} from './lib/capture/picture-form';
 export * from './lib/workspace/provide-workspaces';
 export type { WorkspaceClaim } from './lib/workspace/workspace-claims';
 export type {

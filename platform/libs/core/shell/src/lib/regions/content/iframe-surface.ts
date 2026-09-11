@@ -21,6 +21,7 @@ import { ContentTabsService } from './tabs/content-tabs.service';
 import { normalizePath, restBelow, suffixOf } from './content-path';
 import {
   SurfaceCapture,
+  SurfaceDrawing,
   askSurfaceToDraw,
 } from '../../capture/surface-capture';
 import { SurfaceCaptureRegistry } from '../../capture/surface-capture-registry';
@@ -184,7 +185,7 @@ export class IframeSurface implements DirtySurface {
   constructor() {
     const unregister = this.captureRegistry.register({
       element: this.host,
-      captureSelf: (scale) => this.surfaceCapture(scale),
+      captureSelf: (drawing) => this.surfaceCapture(drawing),
     });
 
     afterNextRender(() => {
@@ -226,10 +227,10 @@ export class IframeSurface implements DirtySurface {
       );
   }
 
-  surfaceCapture(scale: number): Promise<SurfaceCapture | undefined> {
+  surfaceCapture(drawing: SurfaceDrawing): Promise<SurfaceCapture | undefined> {
     return askSurfaceToDraw(
       this.remote?.capture,
-      scale,
+      drawing,
       this.transloco.translate('capture.areaWithheld'),
     );
   }

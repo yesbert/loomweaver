@@ -17,23 +17,23 @@
 
 ## 2. The request says in what form
 
-- [ ] 2.1 Accept the form the picture is carried in, and how strongly it is compressed where the form
+- [x] 2.1 Accept the form the picture is carried in, and how strongly it is compressed where the form
       is compressed. Losslessly stays the default.
-- [ ] 2.2 Carry the form to each surface as well, so a piece is not encoded losslessly only to be
+- [x] 2.2 Carry the form to each surface as well, so a piece is not encoded losslessly only to be
       recompressed in the finished picture.
-- [ ] 2.3 Read what actually came back rather than trusting what was asked for, because at least one
+- [x] 2.3 Read what actually came back rather than trusting what was asked for, because at least one
       browser substitutes silently.
-- [ ] 2.4 Test: a compressed picture holds fewer bytes than the lossless one; asking for nothing
+- [x] 2.4 Test: a compressed picture holds fewer bytes than the lossless one; asking for nothing
       carries it losslessly; a form the browser refuses still produces a picture.
 
 ## 3. The answer describes itself
 
-- [ ] 3.1 The measurements already are the picture's own, so this needs a test that pins them rather
+- [x] 3.1 The measurements already are the picture's own, so this needs a test that pins them rather
       than code that produces them. Add the test and say in the pull request that the requirement was
       already kept, so nobody reads a green test as new work.
-- [ ] 3.2 Report the form the picture is carried in, which is what was read back rather than what was
+- [x] 3.2 Report the form the picture is carried in, which is what was read back rather than what was
       asked for.
-- [ ] 3.3 Test: the measurements match a picture drawn within a named width; a substituted form is
+- [x] 3.3 Test: the measurements match a picture drawn within a named width; a substituted form is
       stated.
 
 ## 4. Saying it where consumers read
