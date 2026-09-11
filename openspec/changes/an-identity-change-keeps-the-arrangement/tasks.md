@@ -16,13 +16,14 @@
 
 ## 2. The stale test asserts the current guarantee
 
-- [ ] 2.1 Correct `the choice is remembered, so switching away survives a restart` to assert what
-      the platform now guarantees: an opening at an address that names no content lands in the
-      declared workspace, the first time and every time after. Rename it for what it now says.
-- [ ] 2.2 Read the rest of that spec file for the same staleness, and correct whatever else still
-      encodes the behaviour that governed only a first visit.
-- [ ] 2.3 Search the end-to-end suite for other tests resting on the superseded rule, so this is not
-      found again one red run at a time.
+- [x] 2.1 `the choice is remembered, so switching away survives a restart` now reads `a user last in
+      another workspace still opens in the declared one`, and asserts what the platform guarantees:
+      an opening at an address that names no content lands in the declared workspace, the first time
+      and every time after.
+- [x] 2.2 Read the rest of that file. The other three tests hold under the current requirement; only
+      the file's own heading still said `a fresh install`, and it now says `an opening`.
+- [x] 2.3 Searched the end-to-end suite for the superseded rule. Only this file declares a starting
+      workspace at all, so no other test can rest on it.
 
 ## 3. The suite means something again
 
