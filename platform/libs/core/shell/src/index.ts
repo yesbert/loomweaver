@@ -36,7 +36,16 @@ export * from './lib/persistence/identity-scoped-stores';
 export * from './lib/persistence/state-sync.service';
 export * from './lib/popout/popout.service';
 export { WorkbenchCaptureService } from './lib/capture/workbench-capture.service';
-export type { WorkbenchPicture } from './lib/capture/workbench-capture.service';
+export type {
+  WorkbenchPicture,
+  WorkbenchPictureRequest,
+} from './lib/capture/workbench-capture.service';
+export type { WorkbenchPictureSize } from './lib/capture/picture-size';
+export type {
+  WorkbenchCarriedForm,
+  WorkbenchCompression,
+  WorkbenchPictureForm,
+} from './lib/capture/picture-form';
 export * from './lib/workspace/provide-workspaces';
 export type { WorkspaceClaim } from './lib/workspace/workspace-claims';
 export type {

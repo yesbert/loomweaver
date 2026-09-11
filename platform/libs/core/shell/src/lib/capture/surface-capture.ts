@@ -51,14 +51,22 @@ export function withinDeadline<T>(
   );
 }
 
+export interface SurfaceDrawing {
+  readonly scale: number;
+  readonly mediaType: string;
+  readonly quality: number | undefined;
+}
+
 export type SurfaceDrawHook = (request: {
   readonly scale: number;
+  readonly mediaType: string;
+  readonly quality: number | undefined;
   readonly withheldLabel: string;
 }) => Promise<unknown>;
 
 export function askSurfaceToDraw(
   hook: SurfaceDrawHook | undefined,
-  scale: number,
+  drawing: SurfaceDrawing,
   withheldLabel: string,
 ): Promise<SurfaceCapture | undefined> {
   if (typeof hook !== 'function') {
@@ -66,7 +74,7 @@ export function askSurfaceToDraw(
   }
   return withinDeadline(
     Promise.resolve()
-      .then(() => hook({ scale, withheldLabel }))
+      .then(() => hook({ ...drawing, withheldLabel }))
       .then(readSurfaceCapture),
     SURFACE_CAPTURE_TIMEOUT_MS,
   );

@@ -4,8 +4,24 @@ import {
   CapturableSurface,
   SurfaceCaptureRegistry,
 } from './surface-capture-registry';
-import { captureScale, placeSurface } from './picture-assembly';
+import { placeSurface } from './picture-assembly';
+import { scaleForSize, WorkbenchPictureSize } from './picture-size';
+import {
+  carriedForm,
+  drawingForm,
+  WorkbenchCarriedForm,
+  WorkbenchPictureForm,
+} from './picture-form';
+import { SurfaceDrawing } from './surface-capture';
 import { decodeDrawing } from './decode-drawing';
+
+/** What a caller may ask for about the picture before it is drawn. */
+export interface WorkbenchPictureRequest {
+  /** How large to draw it. The density of the screen when absent. */
+  readonly size?: WorkbenchPictureSize;
+  /** What form to carry it in. Losslessly when absent. */
+  readonly form?: WorkbenchPictureForm;
+}
 
 /** A drawing of the workbench, made without asking the browser for permission. */
 export interface WorkbenchPicture {
@@ -13,6 +29,11 @@ export interface WorkbenchPicture {
   readonly image: string;
   readonly width: number;
   readonly height: number;
+  /**
+   * The form the picture is carried in, read back from the drawing rather than taken from the
+   * request: a browser that cannot produce the form asked for substitutes one silently.
+   */
+  readonly form: WorkbenchCarriedForm;
   /**
    * How many surfaces are on the picture as a statement that their content is absent rather than as
    * their content — a surface that failed to draw, or one that withheld itself.
@@ -57,19 +78,25 @@ export class WorkbenchCaptureService {
 
   private renderer?: Promise<Renderer>;
 
-  async capture(): Promise<WorkbenchPicture> {
+  async capture(request?: WorkbenchPictureRequest): Promise<WorkbenchPicture> {
     const view = this.window();
     const renderer = await this.load();
-    const scale = captureScale(view.devicePixelRatio);
     const root = this.document.body;
+    const scale = scaleForSize(
+      request?.size,
+      view.devicePixelRatio,
+      root.getBoundingClientRect().width,
+    );
+
+    const drawing = { scale, ...drawingForm(request?.form) };
 
     const placements = this.placements();
     const [drawings, canvas] = await Promise.all([
-      this.drawSurfaces(placements, scale, view),
+      this.drawSurfaces(placements, drawing, view),
       renderer.toCanvas(root, { scale }),
     ]);
 
-    return this.assemble(canvas, root, placements, drawings, scale);
+    return this.assemble(canvas, root, placements, drawings, drawing);
   }
 
   private window(): Window {
@@ -88,11 +115,11 @@ export class WorkbenchCaptureService {
 
   private async drawSurfaces(
     placements: readonly Placement[],
-    scale: number,
+    drawing: SurfaceDrawing,
     view: Window,
   ): Promise<readonly (CanvasImageSource | undefined)[]> {
     const answered = await Promise.all(
-      placements.map((placement) => placement.surface.captureSelf(scale)),
+      placements.map((placement) => placement.surface.captureSelf(drawing)),
     );
     return Promise.all(answered.map((drawing) => decodeDrawing(drawing, view)));
   }
@@ -102,7 +129,7 @@ export class WorkbenchCaptureService {
     root: Element,
     placements: readonly Placement[],
     drawings: readonly (CanvasImageSource | undefined)[],
-    scale: number,
+    drawing: SurfaceDrawing,
   ): WorkbenchPicture {
     const context = canvas.getContext('2d');
     if (!context) {
@@ -121,16 +148,18 @@ export class WorkbenchCaptureService {
           height: placement.rect.height,
           drawing: drawings[index],
         },
-        scale,
+        drawing.scale,
         labels,
       );
     }
 
+    const image = canvas.toDataURL(drawing.mediaType, drawing.quality);
     return {
-      image: canvas.toDataURL('image/png'),
+      image,
       width: canvas.width,
       height: canvas.height,
-      surfacesAbsent: drawings.filter((drawing) => !drawing).length,
+      form: carriedForm(image),
+      surfacesAbsent: drawings.filter((answer) => !answer).length,
     };
   }
 

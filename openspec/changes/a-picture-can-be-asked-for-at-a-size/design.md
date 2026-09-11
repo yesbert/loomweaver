@@ -12,6 +12,21 @@ See `proposal.md` — Why. What stands before this change, and what it has to fi
 - Measured on the testbed: 1440 × 860 at the screen's density comes to 0.33 MB carried losslessly,
   drawn in roughly 430 ms.
 
+Read out of the shipped code on 2026-09-11, so that the work does not start by rediscovering it:
+
+- **The measurements already describe the picture.** What comes back carries the drawing canvas's own
+  width and height, not the workbench's. Of the third requirement below, only the form is new; the
+  measurements need a test that pins them, not code that produces them.
+- **Two helpers resolve the size, and they do not agree.** The workbench bounds it to 1..3 and the
+  frame to 1..4, and the frame's bound is stated on the published contract. Today neither bites,
+  because the workbench always sends its own value and it is never above 3. This change is what makes
+  the number the caller's, so the disagreement becomes reachable.
+- **Both helpers refuse anything below 1.** A named greatest width resolves below 1 whenever the
+  picture is to be narrower than the workbench in CSS pixels: 600 within 1440 resolves to 0.42.
+- **A surface drawn at the wrong size is not visibly wrong.** The assembly draws each surface into an
+  explicit destination rectangle, so a surface that answered at a different scale is fitted rather
+  than misplaced. What a divergence costs is work, not correctness.
+
 ## Goals / Non-Goals
 
 **Goals:**
@@ -41,6 +56,14 @@ A request beyond either is brought within it. The alternative, refusing, trades 
 error at the moment someone is trying to report a fault, and the caller learns what happened anyway
 because the answer describes itself.
 
+**One bound, and it reaches below 1.** The two helpers are reconciled into one, because a caller-given
+number that two places bound differently is a number nobody can predict. The ceiling becomes 4, which
+is what the published contract already tells a consumer, so making the workbench agree keeps a
+promise rather than widening one. The floor stops being 1: a greatest width narrower than the
+workbench resolves below 1 by arithmetic, and a floor of 1 would answer such a request by drawing at
+full size and letting the assembly shrink it, which is the redrawing this change exists to avoid. The
+floor becomes small and positive, so that zero and negative numbers still cannot reach the renderer.
+
 **Detect the substituted form rather than trust the request.**
 At least one browser answers a request for a compressed form by quietly producing a lossless one.
 That is documented behaviour of the renderer in use, not a bug to work around. What comes back
@@ -69,12 +92,14 @@ evidence behind it.
   make, the same as choosing what to attach. The workbench states what it drew and does not second-
   guess it.
 - **Two places resolve a size, and they must agree.** The host rendering and each surface request
-  take the same number; if they ever diverge, surfaces land at the wrong scale in the assembled
-  picture. → The number is resolved once and passed, never computed twice, and a test pins that a
-  surface is asked at the same scale the picture is drawn at.
+  take the same number. A divergence does not misplace anything, which was the fear before the code
+  was read: the assembly draws each surface into an explicit destination rectangle, so a surface that
+  answered at another scale is fitted to where it belongs. What it costs is work, and on the
+  surface's side of an isolation boundary at that. → The number is resolved once and passed, never
+  computed twice, and a test pins that a surface is asked at the same scale the picture is drawn at.
 
 ## Open Questions
 
-- Whether a greatest **height** is worth accepting beside a greatest width. A workbench is wider than
-  it is tall far more often than the reverse, so width alone may be the whole need. Adding it later
-  changes nothing decided here.
+None. The one that stood, whether a greatest **height** belongs beside a greatest width, is settled:
+width alone. A workbench is wider than it is tall far more often than the reverse, a height bound
+would decide the same scale by a rarer path, and adding it later changes nothing decided here.

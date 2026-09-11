@@ -1,49 +1,74 @@
 ## 1. The request says how large
 
-- [ ] 1.1 Give the request for a picture a way to say how large: at the screen's density, at a
+- [x] 1.1 Give the request for a picture a way to say how large: at the screen's density, at a
       plainer one, or within a greatest width.
-- [ ] 1.2 Resolve whatever was asked for into one size, from the workbench's own measurements, before
+- [x] 1.2 Resolve whatever was asked for into one size, from the workbench's own measurements, before
       anything is drawn. Bound it by what can be drawn rather than refusing.
-- [ ] 1.3 Carry that one resolved size into both the host rendering and every surface request, so the
+- [x] 1.3 Reconcile the two bounds into one. The workbench stops at 3 and the frame at 4, and the
+      frame's is what the published contract states, so 4 is what both keep. The floor of 1 goes,
+      because a greatest width narrower than the workbench resolves below 1; a small positive floor
+      takes its place. Correct the published JSDoc to whatever the reconciled bound is.
+- [x] 1.4 Carry that one resolved size into both the host rendering and every surface request, so the
       two cannot diverge.
-- [ ] 1.4 Test: a plainer density yields fewer pixels; a named width is not exceeded and the
+- [x] 1.5 Test: a plainer density yields fewer pixels; a named width is not exceeded and the
       proportions hold; asking for nothing draws as it does today; a request beyond the bound still
       answers.
-- [ ] 1.5 Test: a surface is asked at the same size the picture is drawn at, whatever was requested.
+- [x] 1.6 Test: a surface is asked at the same size the picture is drawn at, whatever was requested.
 
 ## 2. The request says in what form
 
-- [ ] 2.1 Accept the form the picture is carried in, and how strongly it is compressed where the form
+- [x] 2.1 Accept the form the picture is carried in, and how strongly it is compressed where the form
       is compressed. Losslessly stays the default.
-- [ ] 2.2 Carry the form to each surface as well, so a piece is not encoded losslessly only to be
+- [x] 2.2 Carry the form to each surface as well, so a piece is not encoded losslessly only to be
       recompressed in the finished picture.
-- [ ] 2.3 Read what actually came back rather than trusting what was asked for, because at least one
+- [x] 2.3 Read what actually came back rather than trusting what was asked for, because at least one
       browser substitutes silently.
-- [ ] 2.4 Test: a compressed picture holds fewer bytes than the lossless one; asking for nothing
+- [x] 2.4 Test: a compressed picture holds fewer bytes than the lossless one; asking for nothing
       carries it losslessly; a form the browser refuses still produces a picture.
 
 ## 3. The answer describes itself
 
-- [ ] 3.1 Report the measurements of the picture as drawn, not of the workbench that was pictured.
-- [ ] 3.2 Report the form the picture is carried in, which is what was read back rather than what was
+- [x] 3.1 The measurements already are the picture's own, so this needs a test that pins them rather
+      than code that produces them. Add the test and say in the pull request that the requirement was
+      already kept, so nobody reads a green test as new work.
+- [x] 3.2 Report the form the picture is carried in, which is what was read back rather than what was
       asked for.
-- [ ] 3.3 Test: the measurements match a picture drawn within a named width; a substituted form is
+- [x] 3.3 Test: the measurements match a picture drawn within a named width; a substituted form is
       stated.
 
 ## 4. Saying it where consumers read
 
-- [ ] 4.1 Extend the distribution reference page with what may be asked for, what the answer says,
-      and what a request the workbench cannot meet exactly does.
-- [ ] 4.2 Say plainly what compression costs here: small text is what a fault report is read for.
-      Give the guidance rather than presenting the cheaper form as free.
-- [ ] 4.3 Show the attaching case, since it is why this exists: ask for a carried form, convert to
-      bytes, hand it on.
+- [x] 4.1 The distribution reference page gained *Asking for a size and a form*: what may be asked
+      for, what the answer says, and what a request the workbench cannot meet exactly does.
+- [x] 4.2 *What compression costs here* gives the measured numbers rather than an estimate, and says
+      which of the two levers to reach for first: a smaller picture loses detail evenly, a harder
+      compression loses it exactly where the reader is looking.
+- [x] 4.3 *Attaching it to a report* shows the whole case, from the request to the `FormData`, with
+      the extension taken from what came back rather than from what was asked for.
 
 ## 5. Closing
 
-- [ ] 5.1 Exercise it in the testbed at more than one size and form, and keep the pictures beside
-      each other as evidence of what compression actually costs.
-- [ ] 5.2 Run the unit suites, the end-to-end suite and the repository guards.
-- [ ] 5.3 Run `openspec validate --all --strict`.
-- [ ] 5.4 Confirm every requirement in the delta is backed by a test, and name which test backs which
-      requirement.
+- [x] 5.1 Exercised in the testbed across six requests. The pictures and their sizes are in the
+      commit message and in the guide; the headless browser draws at a density of 1, so `'screen'`
+      and `'plain'` coincide there and the density difference is not visible in that evidence.
+- [x] 5.2 The unit suites, the whole end-to-end suite (345 green) and the repository guards all pass.
+- [x] 5.3 `openspec validate --all --strict`: 29 passed, 0 failed.
+- [x] 5.4 Every scenario in the delta is backed:
+      - *A plainer picture is drawn plainer* — `draws fewer pixels when asked for a plainer picture`
+      - *A named width is not exceeded* — `does not exceed a named width, and keeps the proportions`,
+        and end-to-end `is drawn no wider than a width the caller names`
+      - *Asking for nothing draws as before* — `draws at the density of the screen when nothing is
+        asked for`
+      - *An unreasonable request still answers* — `still answers a request beyond what it can draw`
+      - *A compressed picture is smaller than a lossless one* — end-to-end `holds fewer bytes
+        compressed than it does losslessly`, in a real browser because a stub cannot weigh bytes
+      - *Asking for nothing carries it losslessly* — `carries the picture losslessly when nothing is
+        asked for`
+      - *A form the browser refuses is substituted, not failed* — `states the form it got when the
+        browser substituted another`
+      - *The measurements are the picture's own* — `does not exceed a named width, and keeps the
+        proportions`
+      - *A substituted form is stated* — `states the form it got when the browser substituted
+        another`
+      - drawn once rather than reduced — `asks a surface at the size the picture is drawn at` and
+        `asks a surface for the same form the picture is carried in`

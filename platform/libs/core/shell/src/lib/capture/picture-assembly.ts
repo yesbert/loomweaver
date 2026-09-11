@@ -18,13 +18,6 @@ const ABSENT_TEXT = '#ffffff';
 
 const STRIPE_STEP = 14;
 
-export function captureScale(preferred: number): number {
-  if (!Number.isFinite(preferred) || preferred <= 0) {
-    return 1;
-  }
-  return Math.min(3, Math.max(1, preferred));
-}
-
 export function placeSurface(
   context: CanvasRenderingContext2D,
   placed: PlacedSurface,
