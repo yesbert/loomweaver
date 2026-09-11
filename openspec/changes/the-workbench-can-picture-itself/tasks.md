@@ -1,16 +1,16 @@
 ## 1. A surface can draw itself
 
-- [ ] 1.1 Add a request to the methods the workbench calls on an isolated surface, asking it to
+- [x] 1.1 Add a request to the methods the workbench calls on an isolated surface, asking it to
       render its own content and answer with the result as data. Keep the shape consistent with the
       requests already carried on that channel.
-- [ ] 1.2 Implement the answering side in the assets served to a frame surface: render the surface's
+- [x] 1.2 Implement the answering side in the assets served to a frame surface: render the surface's
       own document and return the result. Load the renderer on first use, not at surface start.
-- [ ] 1.3 Rebuild the answer field by field on arrival, refusing anything unrecognised, so the
+- [x] 1.3 Rebuild the answer field by field on arrival, refusing anything unrecognised, so the
       existing rule that everything crossing the boundary is validated as data holds for this request
       too.
-- [ ] 1.4 Bound the wait. A surface that does not answer in time is treated as one that could not be
+- [x] 1.4 Bound the wait. A surface that does not answer in time is treated as one that could not be
       pictured, and the workbench carries on.
-- [ ] 1.5 Test: an isolated surface answers with its content; a surface that never answers is
+- [x] 1.5 Test: an isolated surface answers with its content; a surface that never answers is
       reported as unpictured rather than hanging the caller.
 
 ## 2. The workbench assembles the picture

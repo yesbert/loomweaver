@@ -54,6 +54,19 @@ export interface LwStateApi {
   apply(key: string, value: unknown, loaded: boolean): void;
 }
 
+export interface LwSurfaceCaptureRequest {
+  /** Device pixels per CSS pixel. Clamped to 1..4; the frame's own ratio when absent. */
+  readonly scale?: number;
+}
+
+/** What a surface hands back when the workbench asks it to draw itself. */
+export interface LwSurfaceCapture {
+  /** The drawing, as a `data:` URL. A function or a live handle could not cross the boundary. */
+  readonly image: string;
+  readonly width: number;
+  readonly height: number;
+}
+
 export interface LwFrameApi {
   setIcon(name: string, svg: string): void;
   removeIcon(name: string): void;
@@ -62,6 +75,16 @@ export interface LwFrameApi {
   /** Connect the store to the host once your Penpal connection resolves. */
   connectState(host: LwStateHost): LwStateApi;
   readonly state: LwStateApi;
+  /**
+   * Draws this surface and answers with the result, so that a picture of the workbench holds what
+   * the surface was showing instead of a hole where it sits. Expose it from your Penpal `methods`
+   * as `capture` and the workbench will call it; it is never called for you.
+   *
+   * The renderer is fetched the first time a picture is asked for, so a surface that is never
+   * captured never pays for it. A surface that is isolated has no origin of its own, which is why
+   * the renderer is loaded as a plain script from beside this bundle rather than imported.
+   */
+  capture(request?: LwSurfaceCaptureRequest): Promise<LwSurfaceCapture>;
 }
 
 function applySurfaceState(state: LwSurfaceRenderState): void {
@@ -156,6 +179,65 @@ function createState(): LwStateApi & { connect(host: LwStateHost): void } {
   };
 }
 
+interface SnapdomGlobal {
+  readonly snapdom: {
+    toCanvas(
+      target: Element,
+      options: { readonly scale: number },
+    ): Promise<HTMLCanvasElement>;
+  };
+}
+
+const rendererSource = new URL(
+  'snapdom.global.js',
+  (document.currentScript as HTMLScriptElement | null)?.src ?? location.href,
+).href;
+
+let rendererLoad: Promise<void> | undefined;
+
+function loadRenderer(): Promise<void> {
+  rendererLoad ??= new Promise<void>((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = rendererSource;
+    script.addEventListener('load', () => resolve());
+    script.addEventListener('error', () => {
+      rendererLoad = undefined;
+      reject(new Error(`the surface renderer could not be loaded from ${rendererSource}`));
+    });
+    document.head.append(script);
+  });
+  return rendererLoad;
+}
+
+function captureScale(requested: number | undefined): number {
+  const preferred = requested ?? devicePixelRatio;
+  if (!Number.isFinite(preferred) || preferred <= 0) {
+    return 1;
+  }
+  return Math.min(4, Math.max(1, preferred));
+}
+
+async function capture(
+  request?: LwSurfaceCaptureRequest,
+): Promise<LwSurfaceCapture> {
+  await loadRenderer();
+  const renderer = (globalThis as Record<string, unknown>)['LwSnapdom'] as
+    | SnapdomGlobal
+    | undefined;
+  if (!renderer) {
+    throw new Error('the surface renderer did not install itself');
+  }
+  const target = document.body ?? document.documentElement;
+  const canvas = await renderer.snapdom.toCanvas(target, {
+    scale: captureScale(request?.scale),
+  });
+  return {
+    image: canvas.toDataURL('image/png'),
+    width: canvas.width,
+    height: canvas.height,
+  };
+}
+
 /** @internal The bundle's own bootstrap. Running the script calls it; a consumer never does. */
 export function installLwFrame(): LwFrameApi {
   defineLwTooltip();
@@ -178,6 +260,7 @@ export function installLwFrame(): LwFrameApi {
       return state;
     },
     state,
+    capture,
   };
   (globalThis as Record<string, unknown>)['LwFrame'] = api;
   return api;

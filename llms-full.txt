@@ -540,7 +540,12 @@ function provideFramePlugins(...plugins: FramePlugin[]): (Provider | Environment
 // connectState(host: LwStateHost): LwStateApi — the surface-side half of ctx.state once your Penpal connection resolves, where
 // LwStateHost is the four host methods the connection exposes (stateWatch/stateSet/stateClear/stateUnwatch), LwStateApi is
 // { watch<T>(key): LwStateHandle<T>; apply(key, value, loaded) } and LwStateHandle mirrors a trusted plugin's handle
-// (value/loaded/set/clear/dispose + onChange) so one contract reads the same on both rungs }.
+// (value/loaded/set/clear/dispose + onChange) so one contract reads the same on both rungs;
+// capture(request?: LwSurfaceCaptureRequest { scale? }): Promise<LwSurfaceCapture { image, width, height }> — draws this
+// surface and answers with the drawing as a data: URL, so a picture of the workbench holds what the surface was showing
+// instead of a hole where it sits. Expose it from your Penpal methods as `capture`; the workbench calls it, never you.
+// The renderer is fetched from beside the bundle the first time a picture is asked for, so a surface that is never
+// captured never pays for it }.
 // The kit shares the platform version line, so the paint always matches the shell the plugin runs in.
 // Plugin store: a curated, SAME-ORIGIN catalogue of sandboxed plugins the USER installs at RUNTIME —
 // no rebuild, no reload. providePluginCatalog('/plugins/catalog.json') (same-origin JSON array of PluginCatalogEntry,

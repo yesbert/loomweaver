@@ -19,6 +19,12 @@ import { CapabilityGrantService } from '../../permissions/capability-grant.servi
 import { PluginIsolationLevelService } from '../../foundation/plugin-isolation-level';
 import { ContentTabsService } from './tabs/content-tabs.service';
 import { normalizePath, restBelow, suffixOf } from './content-path';
+import {
+  SURFACE_CAPTURE_TIMEOUT_MS,
+  SurfaceCapture,
+  readSurfaceCapture,
+  withinDeadline,
+} from './surface-capture';
 
 interface SurfaceState {
   readonly locale: string;
@@ -42,6 +48,7 @@ type SurfaceRemote = Methods & {
   render(state: SurfaceState): Promise<void>;
   beforeClose(): Promise<boolean> | boolean;
   stateChanged(key: string, value: unknown, loaded: boolean): void;
+  capture(request: { readonly scale: number }): Promise<unknown>;
 };
 
 interface WatchedKey {
@@ -205,6 +212,19 @@ export class IframeSurface implements DirtySurface {
         (approved) => approved !== false,
         () => true,
       );
+  }
+
+  surfaceCapture(scale: number): Promise<SurfaceCapture | undefined> {
+    const hook = this.remote?.capture;
+    if (typeof hook !== 'function') {
+      return Promise.resolve(undefined);
+    }
+    return withinDeadline(
+      Promise.resolve()
+        .then(() => hook({ scale }))
+        .then(readSurfaceCapture),
+      SURFACE_CAPTURE_TIMEOUT_MS,
+    );
   }
 
   private connect(): void {
