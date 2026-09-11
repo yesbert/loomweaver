@@ -43,7 +43,7 @@ export function placeSurface(
   context.drawImage(placed.drawing, left, top, width, height);
 }
 
-function drawAbsent(
+export function drawAbsent(
   context: CanvasRenderingContext2D,
   left: number,
   top: number,

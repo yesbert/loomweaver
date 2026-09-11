@@ -30,26 +30,42 @@
 
 ## 3. What a plugin keeps out
 
-- [ ] 3.1 Give a plugin a way to mark parts of its own surface as withheld, taking effect for any
+- [x] 3.1 Give a plugin a way to mark parts of its own surface as withheld, taking effect for any
       later picture without the plugin being told one is being made.
-- [ ] 3.2 Render a withheld part the same way an unobtainable area is rendered, so the two read alike
+- [x] 3.2 Render a withheld part the same way an unobtainable area is rendered, so the two read alike
       in a report.
-- [ ] 3.3 Ensure a plugin can neither prevent a picture nor withhold its surface as a whole.
-- [ ] 3.4 Test: a marked part is absent from the picture and its area is marked; an attempt to
+- [x] 3.3 Ensure a plugin can neither prevent a picture nor withhold its surface as a whole.
+- [x] 3.4 Test: a marked part is absent from the picture and its area is marked; an attempt to
       withhold the whole surface leaves the surface in the picture.
 
 ## 4. Saying it where consumers read
 
-- [ ] 4.1 Add the request to the distribution API reference, in the index table and on the page it
+- [x] 4.1 Add the request to the distribution API reference, in the index table and on the page it
       belongs to.
-- [ ] 4.2 Say in the weaver guides what a plugin may mark and that it cannot refuse, and why.
-- [ ] 4.3 State the limits next to the capability: a depiction rather than a photograph, the visible
+- [x] 4.2 Say in the weaver guides what a plugin may mark and that it cannot refuse, and why.
+- [x] 4.3 State the limits next to the capability: a depiction rather than a photograph, the visible
       view only, and no other window.
 
 ## 5. Closing
 
-- [ ] 5.1 Run `openspec validate --all --strict`.
-- [ ] 5.2 Confirm every requirement in the delta is backed by a test, and name which test backs
-      which requirement.
-- [ ] 5.3 Exercise it once in the demo against a real isolated surface, and keep the picture as
+- [x] 5.1 Run `openspec validate --all --strict`.
+- [x] 5.2 Every requirement in the delta is backed by a test:
+  - *The workbench can picture itself without the browser's permission* — e2e `workbench-capture`:
+    "asks the browser for no permission along the way".
+  - *A plugin's surface appears in the picture* — e2e `workbench-capture`: "holds the isolated
+    surface rather than a hole where it sits"; e2e `surface-capture`: "it answers with its own
+    content, from an origin it does not have".
+  - *A surface that cannot be pictured is said to be missing, not left blank* — unit
+    `picture-assembly`: "says an absent surface is absent rather than leaving it blank"; unit
+    `workbench-capture`: "counts the surfaces whose content is absent"; unit `surface-capture`:
+    "gives up on a surface that never answers".
+  - *Asking for a picture belongs to the distribution* — unit `host-plugin-context`: "is offered
+    nowhere in a plugin context, at any grant".
+  - *A plugin may keep part of its surface out of the picture* — e2e `surface-withholding`, all
+    three: the marked area, the root that withholds nothing, and the surface that is never told.
+  - *What is pictured is what is on the screen* — unit `workbench-capture`: "leaves out a surface
+    scrolled past the edge of the window" and "leaves out a surface living in another window".
+  - *Making a picture does not disturb the user's work* — e2e `workbench-capture`: "leaves the
+    workbench as it found it" and "leaves nothing of its own behind in the document".
+- [x] 5.3 Exercise it once in the demo against a real isolated surface, and keep the picture as
       evidence.

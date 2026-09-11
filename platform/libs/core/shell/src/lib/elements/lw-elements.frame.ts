@@ -1,3 +1,4 @@
+import { drawAbsent } from '../capture/picture-assembly';
 import { defineLwButton } from './button/lw-button.element';
 import {
   hasIcon,
@@ -57,7 +58,19 @@ export interface LwStateApi {
 export interface LwSurfaceCaptureRequest {
   /** Device pixels per CSS pixel. Clamped to 1..4; the frame's own ratio when absent. */
   readonly scale?: number;
+  /** What a withheld area says on the picture. The workbench sends it already translated. */
+  readonly withheldLabel?: string;
 }
+
+/**
+ * Mark an element with this attribute and its content stays off any picture of the workbench; the
+ * area says so instead. It is read at the moment a picture is made, so setting or clearing it takes
+ * effect at once and a surface is never told that it is being pictured.
+ *
+ * Marking the surface's own root does nothing: a surface cannot withhold itself as a whole, only
+ * parts of itself.
+ */
+export const LW_WITHHOLD_ATTRIBUTE = 'data-lw-withhold';
 
 /** What a surface hands back when the workbench asks it to draw itself. */
 export interface LwSurfaceCapture {
@@ -235,6 +248,43 @@ function captureScale(requested: number | undefined): number {
   return Math.min(4, Math.max(1, preferred));
 }
 
+const WITHHOLD_SELECTOR = `[${CSS.escape(LW_WITHHOLD_ATTRIBUTE)}]`;
+
+function withheldAreas(root: Element): Element[] {
+  return [...root.querySelectorAll(WITHHOLD_SELECTOR)].filter(
+    (element) =>
+      element !== document.body && element !== document.documentElement,
+  );
+}
+
+function hideWithheld(
+  canvas: HTMLCanvasElement,
+  root: Element,
+  scale: number,
+  label: string,
+): void {
+  const areas = withheldAreas(root);
+  if (areas.length === 0) {
+    return;
+  }
+  const context = canvas.getContext('2d');
+  if (!context) {
+    return;
+  }
+  const origin = root.getBoundingClientRect();
+  for (const area of areas) {
+    const rect = area.getBoundingClientRect();
+    drawAbsent(
+      context,
+      (rect.left - origin.left) * scale,
+      (rect.top - origin.top) * scale,
+      rect.width * scale,
+      rect.height * scale,
+      label,
+    );
+  }
+}
+
 async function capture(
   request?: LwSurfaceCaptureRequest,
 ): Promise<LwSurfaceCapture> {
@@ -246,9 +296,9 @@ async function capture(
     throw new Error('the surface renderer did not install itself');
   }
   const target = document.body ?? document.documentElement;
-  const canvas = await renderer.snapdom.toCanvas(target, {
-    scale: captureScale(request?.scale),
-  });
+  const scale = captureScale(request?.scale);
+  const canvas = await renderer.snapdom.toCanvas(target, { scale });
+  hideWithheld(canvas, target, scale, request?.withheldLabel ?? '');
   return {
     image: canvas.toDataURL('image/png'),
     width: canvas.width,

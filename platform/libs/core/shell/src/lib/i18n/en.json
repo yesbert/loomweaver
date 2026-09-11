@@ -17,6 +17,7 @@
     "more": "More"
   },
   "capture": {
+    "areaWithheld": "Content not included",
     "surfaceAbsent": "Isolated surface — content not included"
   },
   "content": {

@@ -549,6 +549,10 @@ function provideFramePlugins(...plugins: FramePlugin[]): (Provider | Environment
 // the workbench may call on any surface. Write connect({ methods: LwFrame.surfaceMethods({ render }) }) and the surface
 // answers everything the workbench asks of it, including requests added to the platform after you wrote it. The
 // platform's own names win over yours, so a surface cannot shadow them by accident }.
+// LW_WITHHOLD_ATTRIBUTE ('data-lw-withhold'): mark an element and its content stays off every picture of the workbench;
+// the area says so instead. Read at the moment a picture is made, so setting or clearing it takes effect at once and the
+// surface is never told it is being pictured. Marking the surface's own root does nothing — a surface withholds parts of
+// itself, never itself as a whole.
 // The kit shares the platform version line, so the paint always matches the shell the plugin runs in.
 // Plugin store: a curated, SAME-ORIGIN catalogue of sandboxed plugins the USER installs at RUNTIME —
 // no rebuild, no reload. providePluginCatalog('/plugins/catalog.json') (same-origin JSON array of PluginCatalogEntry,

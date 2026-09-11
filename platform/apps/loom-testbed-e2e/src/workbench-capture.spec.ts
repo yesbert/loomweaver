@@ -46,6 +46,32 @@ test.describe('A picture of the workbench', () => {
     expect(picture.height).toBeGreaterThan(0);
   });
 
+  test('asks the browser for no permission along the way', async ({ page }) => {
+    await openSandbox(page);
+
+    const asked = await page.evaluate(async () => {
+      const media = navigator.mediaDevices as unknown as Record<string, unknown>;
+      const calls: string[] = [];
+      for (const name of ['getDisplayMedia', 'getUserMedia']) {
+        media[name] = () => {
+          calls.push(name);
+          return Promise.reject(new Error('not permitted in this test'));
+        };
+      }
+      const requested: string[] = [];
+      const permissions = navigator.permissions as unknown as Record<string, unknown>;
+      permissions['query'] = (descriptor: { name: string }) => {
+        requested.push(descriptor.name);
+        return Promise.reject(new Error('not permitted in this test'));
+      };
+
+      await globalThis.lwCapture!();
+      return [...calls, ...requested];
+    });
+
+    expect(asked).toEqual([]);
+  });
+
   test('leaves the workbench as it found it', async ({ page }) => {
     await openSandbox(page);
 

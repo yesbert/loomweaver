@@ -4,7 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { filter, map } from 'rxjs';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { DirtySurface, StateHandle } from '@loomweaver/plugin-sdk';
 import { Connection, Methods, WindowMessenger, connect } from 'penpal';
 import { LocaleService } from '../../i18n/locale.service';
@@ -20,10 +20,8 @@ import { PluginIsolationLevelService } from '../../foundation/plugin-isolation-l
 import { ContentTabsService } from './tabs/content-tabs.service';
 import { normalizePath, restBelow, suffixOf } from './content-path';
 import {
-  SURFACE_CAPTURE_TIMEOUT_MS,
   SurfaceCapture,
-  readSurfaceCapture,
-  withinDeadline,
+  askSurfaceToDraw,
 } from '../../capture/surface-capture';
 import { SurfaceCaptureRegistry } from '../../capture/surface-capture-registry';
 
@@ -49,7 +47,10 @@ type SurfaceRemote = Methods & {
   render(state: SurfaceState): Promise<void>;
   beforeClose(): Promise<boolean> | boolean;
   stateChanged(key: string, value: unknown, loaded: boolean): void;
-  capture(request: { readonly scale: number }): Promise<unknown>;
+  capture(request: {
+    readonly scale: number;
+    readonly withheldLabel: string;
+  }): Promise<unknown>;
 };
 
 interface WatchedKey {
@@ -88,6 +89,8 @@ export class IframeSurface implements DirtySurface {
   private readonly pluginState = inject(PluginStateService);
 
   private readonly captureRegistry = inject(SurfaceCaptureRegistry);
+
+  private readonly transloco = inject(TranslocoService);
 
   private readonly injector = inject(Injector);
 
@@ -224,15 +227,10 @@ export class IframeSurface implements DirtySurface {
   }
 
   surfaceCapture(scale: number): Promise<SurfaceCapture | undefined> {
-    const hook = this.remote?.capture;
-    if (typeof hook !== 'function') {
-      return Promise.resolve(undefined);
-    }
-    return withinDeadline(
-      Promise.resolve()
-        .then(() => hook({ scale }))
-        .then(readSurfaceCapture),
-      SURFACE_CAPTURE_TIMEOUT_MS,
+    return askSurfaceToDraw(
+      this.remote?.capture,
+      scale,
+      this.transloco.translate('capture.areaWithheld'),
     );
   }
 

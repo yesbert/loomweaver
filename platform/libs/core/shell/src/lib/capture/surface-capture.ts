@@ -50,3 +50,24 @@ export function withinDeadline<T>(
     clearTimeout(timer),
   );
 }
+
+export type SurfaceDrawHook = (request: {
+  readonly scale: number;
+  readonly withheldLabel: string;
+}) => Promise<unknown>;
+
+export function askSurfaceToDraw(
+  hook: SurfaceDrawHook | undefined,
+  scale: number,
+  withheldLabel: string,
+): Promise<SurfaceCapture | undefined> {
+  if (typeof hook !== 'function') {
+    return Promise.resolve(undefined);
+  }
+  return withinDeadline(
+    Promise.resolve()
+      .then(() => hook({ scale, withheldLabel }))
+      .then(readSurfaceCapture),
+    SURFACE_CAPTURE_TIMEOUT_MS,
+  );
+}
