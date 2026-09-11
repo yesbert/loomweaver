@@ -78,6 +78,11 @@ omitted, and then warns about the things that quietly land nowhere:
   `setting:shell.permissions`, and the bare form fails in silence
 - a settings button or menu entry pointing at a **command no one registers** (or one your own `omit`
   removed): the shell drops the control rather than drawing a dead one, and this says why it vanished
+- a **keyboard shortcut two commands both claim**, naming both and saying which one the shortcut
+  actually runs. The chord goes to whichever registered last, so the other command's menu entry goes
+  on offering a shortcut that now does something else. That is the part worth seeing: nothing looks
+  broken, it simply does the wrong thing. The comparison is on the chord the keyboard resolves, so it
+  finds a clash between two commands that spelled the same shortcut differently
 
 One check does not wait for the console, because it is already decidable at startup. A bar, rail or
 view contribution aimed at a region your layout does not declare, or declares with another anatomy,

@@ -107,6 +107,73 @@ describe('CompositionReport (K7)', () => {
     expect(warn).not.toHaveBeenCalled();
   });
 
+  it('reports a shortcut two commands claim, and says which one runs', () => {
+    const app = setUp();
+    app.registry.addCommand({
+      id: 'c.settings',
+      title: 't',
+      shortcut: 'mod+shift+s',
+      run: () => undefined,
+    });
+    app.registry.addCommand({
+      id: 'c.picture',
+      title: 't',
+      shortcut: 'mod+shift+s',
+      run: () => undefined,
+    });
+
+    app.report.print();
+
+    expect(warn).toHaveBeenCalledTimes(1);
+    const message = String(warn.mock.calls[0][0]);
+    expect(message).toContain("'c.settings'");
+    expect(message).toContain("'c.picture'");
+    expect(message).toContain('mod+shift+s');
+    expect(message).toMatch(/runs\b[^.]*'c\.picture'/);
+  });
+
+  it('finds the clash where the two spell the same chord differently', () => {
+    const app = setUp();
+    app.registry.addCommand({
+      id: 'c.one',
+      title: 't',
+      shortcut: 'mod+Shift+S',
+      run: () => undefined,
+    });
+    app.registry.addCommand({
+      id: 'c.two',
+      title: 't',
+      shortcut: 'shift+mod+s',
+      run: () => undefined,
+    });
+
+    app.report.print();
+
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(String(warn.mock.calls[0][0])).toContain("'c.two'");
+  });
+
+  it('says nothing about shortcuts where each is claimed once', () => {
+    const app = setUp();
+    app.registry.addCommand({
+      id: 'c.one',
+      title: 't',
+      shortcut: 'mod+shift+s',
+      run: () => undefined,
+    });
+    app.registry.addCommand({
+      id: 'c.two',
+      title: 't',
+      shortcut: 'mod+shift+y',
+      run: () => undefined,
+    });
+
+    app.report.print();
+
+    expect(warn).not.toHaveBeenCalled();
+    expect(String(info.mock.calls.at(-1)?.[0])).toContain('No problems found.');
+  });
+
   it('reports a settings button whose command no one registers', () => {
     const app = setUp();
     app.settings.register({
