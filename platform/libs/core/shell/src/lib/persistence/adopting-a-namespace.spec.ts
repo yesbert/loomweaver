@@ -1,14 +1,22 @@
 import { ApplicationRef, Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
+import {
+  Translation,
+  TranslocoLoader,
+  provideTransloco,
+} from '@jsverse/transloco';
+import { Observable, of } from 'rxjs';
 import { ContentRoute } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../plugin/contribution-registry';
 import { provideLayout } from '../layout/layout';
 import { provideIdentityScopedStores } from './identity-scoped-stores';
 import { buildContentRoutes } from '../regions/content/routing/content-router';
 import { CONTENT_DOCK } from '../regions/pane/tree/pane-address';
+import { collectLeafIds } from '../regions/pane/tree/pane-queries';
 import { PaneTreeService } from '../regions/pane/tree/pane-tree.service';
+import { WORKING_STATE_STORE } from './working-state-store';
 import { WORKSPACE_CLAIMS } from '../foundation/workspace-claims';
 import { WorkspaceService } from '../workspace/workspace.service';
 import { provideWorkspaces } from '../workspace/provide-workspaces';
@@ -16,10 +24,30 @@ import { provideWorkspaces } from '../workspace/provide-workspaces';
 @Component({ selector: 'lw-test-content', template: '' })
 class TestContent {}
 
+class EmptyBundles implements TranslocoLoader {
+  getTranslation(): Observable<Translation> {
+    return of({});
+  }
+}
+
 const ROUTES: readonly ContentRoute[] = [
   { path: 'dashboard', component: TestContent },
   { path: 'knowledge-base', component: TestContent },
+  {
+    path: 'arranged/:id',
+    container: {
+      children: ['canvas', 'details', 'audit'],
+      initial: {
+        columns: [
+          { size: 60, tabs: ['canvas'] },
+          { size: 40, rows: [{ tabs: ['details'] }, { tabs: ['audit'] }] },
+        ],
+      },
+    },
+  },
 ];
+
+const CONTAINER_DOCK = 'container@arranged/alpha';
 
 const LAYOUT = {
   regions: [{ id: 'main', type: 'content', dock: 'center' }],
@@ -59,13 +87,17 @@ async function settled(): Promise<void> {
   await TestBed.inject(ApplicationRef).whenStable();
 }
 
-async function open(): Promise<{
+async function open(at = '/dashboard'): Promise<{
   workspaces: WorkspaceService;
   panes: PaneTreeService;
 }> {
   TestBed.configureTestingModule({
     providers: [
       provideRouter(buildContentRoutes(ROUTES)),
+      provideTransloco({
+        config: { availableLangs: ['en'], defaultLang: 'en' },
+        loader: EmptyBundles,
+      }),
       provideLayout(LAYOUT as never),
       provideIdentityScopedStores({ identity: () => identity }),
       { provide: WORKSPACE_CLAIMS, useExisting: WorkspaceService },
@@ -80,11 +112,21 @@ async function open(): Promise<{
   });
   const registry = TestBed.inject(ContributionRegistry);
   for (const route of ROUTES) registry.addContentRoute(route);
-  await RouterTestingHarness.create('/dashboard');
+  await RouterTestingHarness.create(at);
   const workspaces = TestBed.inject(WorkspaceService);
   const panes = TestBed.inject(PaneTreeService);
   await settled();
   return { workspaces, panes };
+}
+
+async function signIn(id: string): Promise<void> {
+  identity = id;
+  await TestBed.inject(WORKING_STATE_STORE).get('lw.shell.active-workspace');
+  await settled();
+}
+
+function containerPanes(panes: PaneTreeService): readonly string[] {
+  return collectLeafIds(panes.tree(CONTAINER_DOCK));
 }
 
 function storedArrangement(): string | undefined {
@@ -127,6 +169,17 @@ describe('a session that arrives after the workbench has already read', () => {
       'dashboard',
     ]);
     expect(storedArrangement()).toContain('dashboard');
+  });
+
+  it('keeps a container arrangement the adopted namespace holds nothing for', async () => {
+    const { panes } = await open();
+    await TestBed.inject(Router).navigateByUrl('/arranged/alpha');
+    await settled();
+    expect(containerPanes(panes)).toHaveLength(3);
+
+    await signIn('ada');
+
+    expect(containerPanes(panes)).toHaveLength(3);
   });
 
   it('reads once where the identity is known before the first read', async () => {

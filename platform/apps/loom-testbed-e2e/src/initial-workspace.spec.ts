@@ -9,7 +9,7 @@ async function declareInitial(page: Page): Promise<void> {
   );
 }
 
-test.describe('A distribution can declare the workspace a fresh install opens in', () => {
+test.describe('A distribution can declare the workspace an opening starts in', () => {
   test('a first boot lands in the declared workspace and lays out its content', async ({
     page,
   }) => {
@@ -35,7 +35,7 @@ test.describe('A distribution can declare the workspace a fresh install opens in
     );
   });
 
-  test('the choice is remembered, so switching away survives a restart', async ({
+  test('a user last in another workspace still opens in the declared one', async ({
     page,
   }) => {
     await declareInitial(page);
@@ -47,7 +47,8 @@ test.describe('A distribution can declare the workspace a fresh install opens in
     );
     await page.goto('/');
 
-    await expect(page.getByRole('tab', { name: 'E-01' })).toHaveCount(0);
+    await expect(page.getByRole('tab', { name: 'E-01' })).toBeVisible();
+    await expect(page).toHaveURL(/\/entry\/e-01/);
   });
 
   test('a deep link wins over the declaration: a shared address opens what it names', async ({
