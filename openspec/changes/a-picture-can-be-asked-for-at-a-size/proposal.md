@@ -1,4 +1,4 @@
-> **Status:** proposed — not approved for implementation yet.
+> **Status:** approved.
 
 ## Why
 
@@ -46,6 +46,9 @@ None.
 - The published request a distribution makes, and the answer it gets back.
 - The request the workbench already makes of each isolated surface carries a size; it gains the form
   as well, so that a surface draws once at the right size instead of being redrawn afterwards.
+- The bound on that size is stated in two places today and the two disagree, which nothing reaches
+  while the workbench is the only caller. This change hands the number to the caller, so the two are
+  reconciled into one and the published statement of it is corrected.
 - **This change cannot be archived before `the-workbench-can-picture-itself` is**, because the
   capability it modifies is created by that one. It can be worked on beforehand; it cannot land in
   the specs first.

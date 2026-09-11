@@ -4,12 +4,16 @@
       plainer one, or within a greatest width.
 - [ ] 1.2 Resolve whatever was asked for into one size, from the workbench's own measurements, before
       anything is drawn. Bound it by what can be drawn rather than refusing.
-- [ ] 1.3 Carry that one resolved size into both the host rendering and every surface request, so the
+- [ ] 1.3 Reconcile the two bounds into one. The workbench stops at 3 and the frame at 4, and the
+      frame's is what the published contract states, so 4 is what both keep. The floor of 1 goes,
+      because a greatest width narrower than the workbench resolves below 1; a small positive floor
+      takes its place. Correct the published JSDoc to whatever the reconciled bound is.
+- [ ] 1.4 Carry that one resolved size into both the host rendering and every surface request, so the
       two cannot diverge.
-- [ ] 1.4 Test: a plainer density yields fewer pixels; a named width is not exceeded and the
+- [ ] 1.5 Test: a plainer density yields fewer pixels; a named width is not exceeded and the
       proportions hold; asking for nothing draws as it does today; a request beyond the bound still
       answers.
-- [ ] 1.5 Test: a surface is asked at the same size the picture is drawn at, whatever was requested.
+- [ ] 1.6 Test: a surface is asked at the same size the picture is drawn at, whatever was requested.
 
 ## 2. The request says in what form
 
@@ -24,7 +28,9 @@
 
 ## 3. The answer describes itself
 
-- [ ] 3.1 Report the measurements of the picture as drawn, not of the workbench that was pictured.
+- [ ] 3.1 The measurements already are the picture's own, so this needs a test that pins them rather
+      than code that produces them. Add the test and say in the pull request that the requirement was
+      already kept, so nobody reads a green test as new work.
 - [ ] 3.2 Report the form the picture is carried in, which is what was read back rather than what was
       asked for.
 - [ ] 3.3 Test: the measurements match a picture drawn within a named width; a substituted form is
