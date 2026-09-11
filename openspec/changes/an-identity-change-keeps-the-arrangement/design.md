@@ -43,10 +43,31 @@ end-to-end test fails for this reason but says only that a placeholder is missin
 the arrangement collapsed, which is the larger fact and the one that would regress silently. A test
 that names the arrangement comes first.
 
-**Pin it as close to the cause as the cause allows.** Where the collapse turns out to be reachable
-without a browser, the pinning test belongs in the unit suite, which runs in the merge gate; the
-end-to-end suite is nightly and would not catch a regression before it lands. Only where the adoption
-genuinely needs a real reload does the test stay end-to-end.
+**Pin it in the unit suite, in the harness that already renders content.** The merge gate is the
+right home, and the adoption is reachable there: `adopting-a-namespace.spec.ts` boots the workbench
+through the router harness, so a container route really mounts and really builds its pane tree. A
+first attempt at a harness of my own said the opposite, because nothing was rendered in it: with no
+content region the pane tree is empty, the empty tree is written over the store at boot, and every
+assertion about an arrangement is then true of nothing. That is a property of that harness, not of
+the suite.
+
+**The cause, recorded because the search went the long way round.** At the moment of adoption the
+workbench re-read every workspace key and fell back to the workspace baseline wherever the adopted
+namespace answered with nothing. A container's pane tree is built at runtime by the container host
+and appears in no baseline, so the fallback did not restore it, it erased it: the dock left the pane
+tree, `PaneTreeService.tree` answered with the default single leaf, and the host does not rebuild,
+because `ensureContainer` runs once in its constructor. Hence one empty pane where four had been, and
+no gated child left to show a placeholder. Nothing wrong was written down because the held writes
+land in the adopted namespace immediately afterwards, which is also why the next navigation repairs
+it.
+
+Two things this is **not**, both measured: re-reading a key the adopted namespace does hold is
+correct and stays correct, and the gating is sound. The fallback to baseline is the whole defect.
+
+**Fix it where the requirement already says what should happen.** `persistence-ports` states that
+where the adopted namespace holds nothing for a key, what the workbench holds stands. So the adoption
+path hydrates only the keys the adopted namespace answers for and leaves the rest alone. The baseline
+fallback stays where it belongs, on entering a workspace.
 
 **Correct the stale test rather than delete it.** The address that names no content is still worth a
 test; what it should assert changed. Deleting it would quietly reduce what guards the workspaces

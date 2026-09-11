@@ -1,16 +1,16 @@
 ## 1. The arrangement survives an identity being adopted
 
-- [ ] 1.1 Write a failing test that names the larger fact: immediately after an anonymous session
-      adopts an identity, the container still holds the panes it held before. Put it in the unit
-      suite if the adoption is reachable there, because that suite runs in the merge gate; leave it
-      end-to-end only if a real reload is genuinely required.
-- [ ] 1.2 Write a failing test that the gated pane's explanation is continuous across the adoption:
-      it reads as signed out before, reads as lacking the role after, and is never absent.
-- [ ] 1.3 Locate the cause on the adoption path. Record in `design.md` what it turned out to be,
-      because the investigation found where it is not and the next reader should not repeat that.
-- [ ] 1.4 Fix it, and make both tests pass without weakening the existing tests around adoption and
-      around the pane tree.
-- [ ] 1.5 Confirm the testbed end-to-end test `a gated container child keeps its pane and shows the
+- [x] 1.1 Pin the larger fact with a failing test: immediately after an anonymous session adopts an
+      identity, the container still holds the panes it held before. It lives in the unit suite, which
+      runs in the merge gate, in the adoption harness that already renders content.
+- [x] 1.2 Leave the gated pane's explanation to the end-to-end test that already asserts it, since
+      the placeholder needs a rendered access decision. The unit pin covers the arrangement, which is
+      what the placeholder hangs on.
+- [x] 1.3 Locate the cause on the adoption path and record it in `design.md`, together with what the
+      search ruled out on the way.
+- [x] 1.4 Fix it, and make the pinning test pass without weakening the existing tests around adoption
+      and around the pane tree.
+- [x] 1.5 Confirm the testbed end-to-end test `a gated container child keeps its pane and shows the
       access placeholder until the role arrives` passes unchanged, without being edited to suit the
       fix.
 

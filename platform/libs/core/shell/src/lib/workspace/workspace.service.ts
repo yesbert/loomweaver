@@ -313,7 +313,13 @@ export class WorkspaceService {
 
   private async rereadForAdoptedNamespace(): Promise<void> {
     await this.active.reread();
-    await this.hydrateActive();
+    const stored = await this.currentState();
+    for (const key of WORKSPACE_KEYS) {
+      const raw = stored[key];
+      if (raw !== undefined) {
+        this.keyed[key].hydrate(raw);
+      }
+    }
   }
 
   private async hydrateActive(): Promise<void> {
