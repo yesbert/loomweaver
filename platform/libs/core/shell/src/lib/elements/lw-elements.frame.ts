@@ -1,4 +1,5 @@
 import { drawAbsent } from '../capture/picture-assembly';
+import { captureScale } from '../capture/picture-size';
 import { defineLwButton } from './button/lw-button.element';
 import {
   hasIcon,
@@ -56,7 +57,7 @@ export interface LwStateApi {
 }
 
 export interface LwSurfaceCaptureRequest {
-  /** Device pixels per CSS pixel. Clamped to 1..4; the frame's own ratio when absent. */
+  /** Picture pixels per CSS pixel. Bounded to 0.05..4; the frame's own ratio when absent. */
   readonly scale?: number;
   /** What a withheld area says on the picture. The workbench sends it already translated. */
   readonly withheldLabel?: string;
@@ -240,14 +241,6 @@ function loadRenderer(): Promise<void> {
   return rendererLoad;
 }
 
-function captureScale(requested: number | undefined): number {
-  const preferred = requested ?? devicePixelRatio;
-  if (!Number.isFinite(preferred) || preferred <= 0) {
-    return 1;
-  }
-  return Math.min(4, Math.max(1, preferred));
-}
-
 const WITHHOLD_SELECTOR = `[${CSS.escape(LW_WITHHOLD_ATTRIBUTE)}]`;
 
 function withheldAreas(root: Element): Element[] {
@@ -296,7 +289,7 @@ async function capture(
     throw new Error('the surface renderer did not install itself');
   }
   const target = document.body ?? document.documentElement;
-  const scale = captureScale(request?.scale);
+  const scale = captureScale(request?.scale ?? devicePixelRatio);
   const canvas = await renderer.snapdom.toCanvas(target, { scale });
   hideWithheld(canvas, target, scale, request?.withheldLabel ?? '');
   return {

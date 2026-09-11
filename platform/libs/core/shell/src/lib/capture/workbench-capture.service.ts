@@ -4,8 +4,15 @@ import {
   CapturableSurface,
   SurfaceCaptureRegistry,
 } from './surface-capture-registry';
-import { captureScale, placeSurface } from './picture-assembly';
+import { placeSurface } from './picture-assembly';
+import { scaleForSize, WorkbenchPictureSize } from './picture-size';
 import { decodeDrawing } from './decode-drawing';
+
+/** What a caller may ask for about the picture before it is drawn. */
+export interface WorkbenchPictureRequest {
+  /** How large to draw it. The density of the screen when absent. */
+  readonly size?: WorkbenchPictureSize;
+}
 
 /** A drawing of the workbench, made without asking the browser for permission. */
 export interface WorkbenchPicture {
@@ -57,11 +64,15 @@ export class WorkbenchCaptureService {
 
   private renderer?: Promise<Renderer>;
 
-  async capture(): Promise<WorkbenchPicture> {
+  async capture(request?: WorkbenchPictureRequest): Promise<WorkbenchPicture> {
     const view = this.window();
     const renderer = await this.load();
-    const scale = captureScale(view.devicePixelRatio);
     const root = this.document.body;
+    const scale = scaleForSize(
+      request?.size,
+      view.devicePixelRatio,
+      root.getBoundingClientRect().width,
+    );
 
     const placements = this.placements();
     const [drawings, canvas] = await Promise.all([

@@ -15,10 +15,23 @@ function surfaceElement(rect: Partial<DOMRect>): Element {
   return element;
 }
 
+const WORKBENCH_WIDTH = 1440;
+
+const WORKBENCH_HEIGHT = 860;
+
 function setUp(): {
   registry: SurfaceCaptureRegistry;
   service: WorkbenchCaptureService;
 } {
+  document.body.getBoundingClientRect = () =>
+    ({
+      left: 0,
+      top: 0,
+      width: WORKBENCH_WIDTH,
+      height: WORKBENCH_HEIGHT,
+      right: WORKBENCH_WIDTH,
+      bottom: WORKBENCH_HEIGHT,
+    }) as DOMRect;
   TestBed.configureTestingModule({
     providers: [
       SurfaceCaptureRegistry,
@@ -107,6 +120,67 @@ describe('WorkbenchCaptureService', () => {
     expect(new Set(asked).size).toBe(1);
   });
 
+  it('draws at the density of the screen when nothing is asked for', async () => {
+    const { service } = setUp();
+    const scales = drawnAt(service);
+
+    const picture = await service.capture();
+
+    expect(scales).toEqual([window.devicePixelRatio]);
+    expect(picture.width).toBe(Math.round(WORKBENCH_WIDTH * scales[0]));
+  });
+
+  it('draws fewer pixels when asked for a plainer picture', async () => {
+    const { service } = setUp();
+    drawnAt(service);
+
+    const screen = await service.capture();
+    const plain = await service.capture({ size: 'plain' });
+
+    expect(plain.width).toBeLessThanOrEqual(screen.width);
+    expect(plain.width).toBe(WORKBENCH_WIDTH);
+  });
+
+  it('does not exceed a named width, and keeps the proportions', async () => {
+    const { service } = setUp();
+    drawnAt(service);
+
+    const picture = await service.capture({ size: { withinWidth: 600 } });
+
+    expect(picture.width).toBeLessThanOrEqual(600);
+    expect(picture.width / picture.height).toBeCloseTo(
+      WORKBENCH_WIDTH / WORKBENCH_HEIGHT,
+      2,
+    );
+  });
+
+  it('still answers a request beyond what it can draw', async () => {
+    const { service } = setUp();
+    const scales = drawnAt(service);
+
+    const picture = await service.capture({ size: { withinWidth: 1 } });
+
+    expect(scales).toEqual([0.05]);
+    expect(picture.image).toMatch(/^data:image\//);
+  });
+
+  it('asks a surface at the size the picture is drawn at', async () => {
+    const { registry, service } = setUp();
+    const asked: number[] = [];
+    registry.register({
+      element: surfaceElement({}),
+      captureSelf: async (scale) => {
+        asked.push(scale);
+        return undefined;
+      },
+    });
+    const scales = drawnAt(service);
+
+    await service.capture({ size: { withinWidth: 600 } });
+
+    expect(asked).toEqual(scales);
+  });
+
   it('counts the surfaces whose content is absent', async () => {
     const { registry, service } = setUp();
     registry.register({
@@ -133,7 +207,18 @@ const STYLE_PROPERTIES = new Set([
   'lineWidth',
 ]);
 
-function stubCanvas(): HTMLCanvasElement {
+function drawnAt(service: WorkbenchCaptureService): number[] {
+  const scales: number[] = [];
+  vi.spyOn(service as unknown as { load(): unknown }, 'load').mockResolvedValue({
+    toCanvas: async (_: Element, options: { scale: number }) => {
+      scales.push(options.scale);
+      return stubCanvas(options.scale);
+    },
+  });
+  return scales;
+}
+
+function stubCanvas(scale = 1): HTMLCanvasElement {
   const context = new Proxy(
     {},
     {
@@ -143,8 +228,8 @@ function stubCanvas(): HTMLCanvasElement {
     },
   );
   return {
-    width: 800,
-    height: 600,
+    width: Math.round(WORKBENCH_WIDTH * scale),
+    height: Math.round(WORKBENCH_HEIGHT * scale),
     getContext: () => context,
     toDataURL: () => 'data:image/png;base64,AA==',
   } as unknown as HTMLCanvasElement;

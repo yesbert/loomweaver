@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { captureScale, placeSurface } from './picture-assembly';
+import { placeSurface } from './picture-assembly';
 
 const LABELS = { absent: 'Isolated surface — content not included' };
 
@@ -41,21 +41,6 @@ function recordingContext(): {
   } as unknown as CanvasRenderingContext2D;
   return { context, drawn, filled, texts };
 }
-
-describe('captureScale', () => {
-  it.each([
-    [1, 1],
-    [2, 2],
-    [3, 3],
-    [4, 3],
-    [0.5, 1],
-    [0, 1],
-    [NaN, 1],
-    [Infinity, 1],
-  ])('turns a ratio of %s into %s', (given, expected) => {
-    expect(captureScale(given)).toBe(expected);
-  });
-});
 
 describe('placeSurface', () => {
   it('places a drawing where the surface sits, at the scale of the picture', () => {

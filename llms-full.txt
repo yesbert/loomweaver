@@ -799,9 +799,17 @@ type WorkbenchPicture = {            // what a capture answers with
   width: number; height: number;
   surfacesAbsent: number;            // surfaces on the picture as a statement of absence rather than as their content
 };
+type WorkbenchPictureSize =           // how large to draw it
+  | 'screen'                         // the density of the screen it is drawn on — what you get by default
+  | 'plain'                          // one picture pixel per CSS pixel
+  | { withinWidth: number };         // no wider than this, proportions kept; never enlarges
+type WorkbenchPictureRequest = { size?: WorkbenchPictureSize };
 class WorkbenchCaptureService {      // a picture of the workbench, with NO browser permission prompt
-  capture(): Promise<WorkbenchPicture>;
+  capture(request?: WorkbenchPictureRequest): Promise<WorkbenchPicture>;
 }
+// The size is chosen BEFORE anything is drawn and cannot be changed after — the host document and every isolated
+// surface are drawn at the one resolved scale, so a piece is never drawn large and shrunk. A request outside what
+// can be drawn (bounded 0.05..4 picture pixels per CSS pixel) yields the nearest picture rather than an error.
 // The browser will not photograph a tab without a picker every time, so the picture is RENDERED from the document.
 // That stops at an isolated surface, so each one is asked to draw itself (LwFrame.surfaceMethods wires the answer)
 // and its drawing is placed where it sits. A surface that fails, withholds itself or does not answer within four
