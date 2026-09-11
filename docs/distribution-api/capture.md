@@ -97,6 +97,21 @@ The extension comes from `picture.form` and not from the request, for the reason
 offers no second way to get the bytes, because the conversion is the line you just read and holding
 the same picture twice in memory would cost everyone to spare that line for some.
 
+## What it costs a product that never asks
+
+Nothing on the critical path. The renderer that does the drawing arrives in a chunk of its own, and
+a product that never injects the service leaves the whole thing behind. Measured on the demo, which
+takes no pictures: none of the capture code reaches its initial bundle.
+
+One thing is worth knowing if you ship a service worker. The renderer is about 54 kB compressed and
+sits in two places: a chunk beside your application, and a copy under `frame-kit/` that isolated
+surfaces load for themselves. A blanket prefetch rule pulls both down on install, for a feature that
+may never be called.
+
+If you would rather fetch it when someone asks for a picture, give `frame-kit/snapdom.global.js` an
+asset group of its own with `installMode: 'lazy'`. Put it ahead of the group matching the rest of
+`frame-kit`, because the first matching group wins.
+
 ## Why there is no prompt, and what it costs
 
 The browser will not photograph a tab quietly. A permission prompt and a target picker are required
