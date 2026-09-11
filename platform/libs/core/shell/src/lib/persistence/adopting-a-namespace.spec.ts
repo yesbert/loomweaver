@@ -1,9 +1,13 @@
 import { ApplicationRef, Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { Translation, TranslocoLoader, provideTransloco } from '@jsverse/transloco';
-import { Observable, of } from 'rxjs';
 import { RouterTestingHarness } from '@angular/router/testing';
+import {
+  Translation,
+  TranslocoLoader,
+  provideTransloco,
+} from '@jsverse/transloco';
+import { Observable, of } from 'rxjs';
 import { ContentRoute } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../plugin/contribution-registry';
 import { provideLayout } from '../layout/layout';
