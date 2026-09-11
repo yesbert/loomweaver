@@ -3,6 +3,8 @@ import { MenuItem, SettingsSection } from '@loomweaver/plugin-sdk';
 import { BAR_ITEM } from '../foundation/bar-item';
 import { RAIL_ITEM } from '../foundation/rail-item';
 import { VIEW } from '../layout/view';
+import { Command } from '@loomweaver/plugin-sdk';
+import { chordSignature, isMacPlatform } from '../commands/keybinding';
 import { ContributionRegistry } from '../plugin/contribution-registry';
 import { RegionType, SHELL_LAYOUT } from '../layout/layout';
 import { ROUTE_OMIT_PREFIX } from '../plugin/route-omit';
@@ -110,7 +112,34 @@ export class CompositionReport {
   }
 
   private problems(): string[] {
-    return [...this.unmatchedOmits(), ...this.danglingCommands()];
+    return [
+      ...this.unmatchedOmits(),
+      ...this.danglingCommands(),
+      ...this.contestedShortcuts(),
+    ];
+  }
+
+  private contestedShortcuts(): string[] {
+    const claims = new Map<string, Command[]>();
+    const isMac = isMacPlatform();
+    for (const command of this.registry.commands()) {
+      if (!command.shortcut) {
+        continue;
+      }
+      const signature = chordSignature(command.shortcut, isMac);
+      if (signature === null) {
+        continue;
+      }
+      claims.set(signature, [...(claims.get(signature) ?? []), command]);
+    }
+    const problems: string[] = [];
+    for (const contesting of claims.values()) {
+      if (contesting.length < 2) {
+        continue;
+      }
+      problems.push(contestedShortcut(contesting));
+    }
+    return problems;
   }
 
   private unmatchedOmits(): string[] {
@@ -259,6 +288,16 @@ function idsOf(sections: readonly SettingsSection[]): ReadonlySet<string> {
     }
   }
   return ids;
+}
+
+function contestedShortcut(contesting: readonly Command[]): string {
+  const holder = contesting.at(-1) as Command;
+  const named = contesting.map((command) => `'${command.id}'`).join(', ');
+  return (
+    `Composition: the shortcut '${holder.shortcut}' is claimed by ${named}. It runs ` +
+    `'${holder.id}', the last to register it, so a control still offering that shortcut for any ` +
+    `of the others promises something it no longer does.`
+  );
 }
 
 function menuLabel(item: MenuItem): string {
