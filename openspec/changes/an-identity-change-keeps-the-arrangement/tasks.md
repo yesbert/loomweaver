@@ -27,6 +27,7 @@
 
 ## 3. The suite means something again
 
-- [ ] 3.1 Run the whole testbed end-to-end suite and confirm it is green.
-- [ ] 3.2 Run the unit suites and the repository guards, so the fix has not moved a cost elsewhere.
-- [ ] 3.3 Run `openspec validate --all --strict`.
+- [x] 3.1 The whole testbed end-to-end suite is green: 343 passed, none failed.
+- [x] 3.2 The unit suites and the repository guards are green, including the structure, import-cycle
+      and command-name checks and lint across every project.
+- [x] 3.3 `openspec validate --all --strict` reports 30 passed, 0 failed.
