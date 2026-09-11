@@ -32,7 +32,7 @@ test.describe('The testbed can take a picture by hand', () => {
   test('the shortcut takes one too', async ({ page }) => {
     await openSandbox(page);
 
-    await page.keyboard.press(`${mod}+Shift+KeyS`);
+    await page.keyboard.press(`${mod}+Alt+KeyP`);
 
     await expect(page.getByTestId('capture-dialog-image')).toBeVisible({
       timeout: 20_000,
