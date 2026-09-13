@@ -5,12 +5,23 @@ import {
   TranslocoService,
 } from '@jsverse/transloco';
 
+const KEY_SHAPE = /^[\w-]+(?:\.[\w-]+)+$/;
+
+export function hasKeyShape(text: string): boolean {
+  return KEY_SHAPE.test(text);
+}
+
 @Injectable()
 export class ShellMissingTranslationHandler implements TranslocoMissingHandler {
   private readonly injector = inject(Injector);
 
   handle(key: string, config: TranslocoConfig): string {
-    if (isDevMode() && config.missingHandler.logMissingKey && this.loaded()) {
+    if (
+      isDevMode() &&
+      config.missingHandler.logMissingKey &&
+      hasKeyShape(key) &&
+      this.loaded()
+    ) {
       console.warn(
         `%c Missing translation for '${key}'`,
         'font-size: 12px; color: red',

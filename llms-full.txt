@@ -107,7 +107,11 @@ interface ActiveContent {           // the read side of the content area (ctx.ac
 
 interface Command {                 // one behaviour, many triggers (items reference it by id)
   readonly id: string;              // e.g. "notes.add"
-  readonly title: string;           // translation key or literal
+  readonly title: string;           // translation key or literal. A LITERAL is any string without the shape of a key
+                                    // (dot-separated word segments, at least one dot, no whitespace): "DE", "Deutsch", a
+                                    // person's name are shown as they are and never dev-warned as missing; a dotted string
+                                    // no bundle knows IS warned, so a literal like "1.2.3" is the one case that still is.
+                                    // The same rule holds for every "key or literal" field below.
   readonly icon?: string;           // host icon name
   readonly shortcut?: string;       // chord, e.g. "mod+enter" (mod = ⌘/Ctrl)
   readonly access?: AccessRequirement;  // gate this command: blocked at the one execute() seam — keybinding + palette too
