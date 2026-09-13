@@ -94,15 +94,16 @@ SHALL be kept by what it actually ships. Both SHALL be checked automatically.
 
 The workbench SHALL be able to report, during development, the mistakes a composition can make
 silently: a contribution aimed at a region the layout does not declare or that is of the wrong kind,
-a removal instruction that matched nothing, a control pointing at an action nothing registers, and a
-keyboard shortcut more than one action claims.
+a removal instruction that matched nothing, a settings row replacement that matched no row, a
+control pointing at an action nothing registers, and a keyboard shortcut more than one action
+claims.
 
 Where a shortcut is claimed more than once, the report SHALL name the actions claiming it and SHALL
 say which of them the shortcut runs, because that is what the mistake costs: a control goes on
 offering a shortcut that now does something else.
 
-A removal instruction that *did* remove something SHALL NOT be reported, and the report SHALL say so
-plainly when it finds nothing.
+A removal instruction that *did* remove something SHALL NOT be reported, nor SHALL a row replacement
+that did replace a row, and the report SHALL say so plainly when it finds nothing.
 
 #### Scenario: A control pointing at nothing is named
 
@@ -114,6 +115,11 @@ plainly when it finds nothing.
 - **WHEN** a removal instruction matches nothing
 - **THEN** the report names it
 - **AND** where a differently-prefixed form would have matched, it says so
+
+#### Scenario: A row replacement that matched no row is named
+
+- **WHEN** a distribution replaces a settings row under an identity no contributed section carries
+- **THEN** the report names the identity
 
 #### Scenario: A shortcut two actions claim is named, with the one that runs
 
