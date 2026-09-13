@@ -3,11 +3,12 @@ import { TestBed } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { ANONYMOUS, AuthSnapshot } from '@loomweaver/plugin-sdk';
 import { ShellPanel } from './shell-panel';
-import { LayoutRegion } from '../../layout/layout';
+import { LayoutRegion, provideLayout } from '../../layout/layout';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { AUTH_SOURCE } from '../../auth/auth-context';
 import { View } from '../../layout/view';
 import { SURFACE_PADDING } from '../../foundation/surface-padding';
+import { ViewportService } from '../../layout/viewport.service';
 
 let built = 0;
 
@@ -31,6 +32,39 @@ function transloco() {
     preloadLangs: true,
   });
 }
+
+describe('a panel with a declared width', () => {
+  const wide: LayoutRegion = {
+    id: 'chat',
+    type: 'panel',
+    dock: 'right',
+    width: 360,
+  };
+
+  function asideWidth(compact: boolean): string {
+    localStorage.clear();
+    TestBed.configureTestingModule({
+      imports: [ShellPanel, transloco()],
+      providers: [
+        provideLayout({ regions: [wide] }),
+        { provide: ViewportService, useValue: { compact: signal(compact) } },
+      ],
+    });
+    const fixture = TestBed.createComponent(ShellPanel);
+    fixture.componentRef.setInput('region', wide);
+    fixture.detectChanges();
+    return (fixture.nativeElement.querySelector('aside') as HTMLElement).style
+      .width;
+  }
+
+  it('stands beside the content at its declared width', () => {
+    expect(asideWidth(false)).toBe('360px');
+  });
+
+  it('keeps the overlay width of its own on a narrow viewport', () => {
+    expect(asideWidth(true)).toBe('');
+  });
+});
 
 describe('ShellPanel', () => {
   let ran = 0;

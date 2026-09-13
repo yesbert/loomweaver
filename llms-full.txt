@@ -951,7 +951,10 @@ function provideShellRouter(extraRoutes?: Routes): (Provider | EnvironmentProvid
 const Shell;   // the root component: <lw-shell></lw-shell>
 
 interface ShellLayout { readonly regions: readonly LayoutRegion[]; }
-interface LayoutRegion { readonly id: string; readonly type: 'bar'|'rail'|'panel'|'content'; readonly dock: 'top'|'bottom'|'left'|'right'|'center'; }
+type LayoutRegion = PanelRegion | NonPanelRegion;
+interface PanelRegion { readonly id: string; readonly type: 'panel'; readonly dock: 'top'|'bottom'|'left'|'right'|'center';
+  readonly width?: number; readonly minWidth?: number; readonly maxWidth?: number; }   // px, only on a panel; defaults 256 / 180 / 480. width = start + what the layout reset returns to; min/max bound drag, keyboard, SidebarService.setWidth and a stored width (clamped on read). A released width is kept even when it equals width. minWidth > maxWidth, or width outside its bounds → provideLayout throws naming the region. Narrow viewport: overlay keeps its own width.
+interface NonPanelRegion { readonly id: string; readonly type: 'bar'|'rail'|'content'; readonly dock: 'top'|'bottom'|'left'|'right'|'center'; }
 
 // from @loomweaver/plugin-sdk
 function provideProductIdentity(identity: { name: string; tagline: string; logoUrl: string }): Provider;

@@ -19,7 +19,22 @@
     which the sidebars become overlays, the workbench's own top-bar items take a compact form: the
     product's mark without its name, the language switcher as its symbol alone.
   - `rail`: the rail, which the workbench labels _Activity bar_, holding icon triggers for commands.
-  - `panel`: a sidebar surface that hosts views (the host auto-tabs multiple views).
+  - `panel`: a sidebar surface that hosts views (the host auto-tabs multiple views). A panel is the
+    one region a person resizes, so it is the one that may declare its widths in pixels, each
+    optional. Its `width` is what it shows until someone resizes it and what resetting the layout
+    returns to. Its `minWidth` and `maxWidth` bound dragging, the keyboard and a width set from code. Undeclared
+    values stay at 256, 180 and 480. A width a person released is kept even if you later change
+    `width`, and one stored above a new `maxWidth` is shown at the new maximum. On a narrow viewport
+    the panel is an overlay of its own width, so the declaration applies beside the content only.
+
+    ```ts
+    { id: 'right-panel', type: 'panel', dock: 'right', width: 360, minWidth: 280, maxWidth: 640 }
+    ```
+
+    The type only allows these fields on a panel region (`PanelRegion`; a bar, rail or content region
+    is a `NonPanelRegion`). A panel whose `minWidth` exceeds its `maxWidth`, or whose `width` lies
+    outside its own bounds, makes `provideLayout` throw, naming the region.
+
   - `content`: the main content area (docks `center`). **URL-addressed** (routes), not views.
 
 A weaver targets a region by its **id**, never by its dock or type: `registerSurface({ docks:

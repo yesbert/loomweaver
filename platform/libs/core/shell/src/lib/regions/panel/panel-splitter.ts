@@ -14,8 +14,14 @@ export class PanelSplitter {
   readonly regionId = input.required<string>();
   readonly dock = input.required<'left' | 'right'>();
 
-  protected readonly size = inject(PanelSizeService);
+  private readonly size = inject(PanelSizeService);
   protected readonly width = computed(() => this.size.width(this.regionId()));
+  protected readonly minWidth = computed(() =>
+    this.size.minWidth(this.regionId()),
+  );
+  protected readonly maxWidth = computed(() =>
+    this.size.maxWidth(this.regionId()),
+  );
 
   private dragging = false;
   private startX = 0;
@@ -64,11 +70,11 @@ export class PanelSplitter {
         break;
       }
       case 'Home': {
-        next = this.size.minWidth;
+        next = this.minWidth();
         break;
       }
       case 'End': {
-        next = this.size.maxWidth;
+        next = this.maxWidth();
         break;
       }
       default: {
