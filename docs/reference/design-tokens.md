@@ -253,6 +253,14 @@ separated.
 
 ## Host building blocks (`<lw-*>`) instead of hand work
 
+The shell registers every `<lw-*>` element when it starts, so inside a running workbench you only
+use the tag. Content rendered **without** a running shell, typically a weaver body under a unit
+test, has to register each element it uses itself. An unregistered tag stays in the page as an
+unknown element that draws nothing and raises no error. Each has an idempotent registration
+function in `@loomweaver/shell`: `defineLwIcon()`, `defineLwButton()`, `defineLwTooltip()`,
+`defineLwSelect()` (with `<lw-option>`), `defineLwMenu()` (with `<lw-menu-item>`),
+`defineLwMarkdown()`, `defineLwNavTree()` and `defineLwProgressRing()`.
+
 - **Icons:** `<lw-icon name="add" size="1rem" />`. Names are semantic rather than pictorial;
   [Icons](icons.md) is the catalogue, every shipped name with its glyph. **Contributable names:** a **distribution** adds its
   own with `provideIcons({ name: svgRef })` (from `@loomweaver/shell`), a **weaver** adds them at runtime

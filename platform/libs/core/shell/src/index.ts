@@ -15,6 +15,9 @@ export {
 export * from './lib/elements/button/lw-button';
 export * from './lib/elements/button/lw-button.element';
 export * from './lib/elements/markdown/lw-markdown.element';
+export { defineLwMenu } from './lib/elements/menu/lw-menu.element';
+export { defineLwProgressRing } from './lib/elements/progress/lw-progress-ring.element';
+export { defineLwSelect } from './lib/elements/select/lw-select.element';
 export * from './lib/elements/nav-tree/lw-nav-group.element';
 export { forgetLwNavFolds } from './lib/elements/nav-tree/nav-fold-state';
 export * from './lib/elements/nav-tree/lw-nav-item.element';

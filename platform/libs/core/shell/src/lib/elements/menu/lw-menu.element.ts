@@ -282,6 +282,7 @@ export class LwMenuElement extends HTMLElement {
   }
 }
 
+/** Registers `<lw-menu>` and its items once (idempotent), called from {@link provideShell} at bootstrap. */
 export function defineLwMenu(): void {
   if (typeof customElements === 'undefined') {
     return;
