@@ -41,28 +41,45 @@ describe('a panel with a declared width', () => {
     width: 360,
   };
 
-  function asideWidth(compact: boolean): string {
-    localStorage.clear();
+  function asideWidth(compact: boolean, region: LayoutRegion = wide): string {
     TestBed.configureTestingModule({
       imports: [ShellPanel, transloco()],
       providers: [
-        provideLayout({ regions: [wide] }),
+        provideLayout({ regions: [region] }),
         { provide: ViewportService, useValue: { compact: signal(compact) } },
       ],
     });
     const fixture = TestBed.createComponent(ShellPanel);
-    fixture.componentRef.setInput('region', wide);
+    fixture.componentRef.setInput('region', region);
     fixture.detectChanges();
     return (fixture.nativeElement.querySelector('aside') as HTMLElement).style
       .width;
   }
+
+  beforeEach(() => localStorage.clear());
 
   it('stands beside the content at its declared width', () => {
     expect(asideWidth(false)).toBe('360px');
   });
 
   it('keeps the overlay width of its own on a narrow viewport', () => {
-    expect(asideWidth(true)).toBe('');
+    const width = asideWidth(true);
+
+    expect(width).toContain('288px');
+    expect(width).not.toContain('360px');
+  });
+
+  it('takes its declared overlay width on a narrow viewport', () => {
+    expect(asideWidth(true, { ...wide, overlayWidth: 400 })).toContain('400px');
+  });
+
+  it('does not carry a width stored beside the content into the overlay', () => {
+    localStorage.setItem('lw.shell.panel-sizes', JSON.stringify({ chat: 500 }));
+
+    const width = asideWidth(true, { ...wide, overlayWidth: 400 });
+
+    expect(width).toContain('400px');
+    expect(width).not.toContain('500px');
   });
 });
 

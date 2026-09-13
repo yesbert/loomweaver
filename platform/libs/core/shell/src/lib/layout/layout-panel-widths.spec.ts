@@ -1,4 +1,15 @@
 import { LayoutRegion, ShellLayout, provideLayout } from './layout';
+import { overlayWidthStyle } from './panel-widths';
+
+describe('the width of a panel presented as an overlay', () => {
+  it('is the workbench overlay width when the panel declares none, capped by the screen', () => {
+    expect(overlayWidthStyle({})).toBe('min(288px, calc(100vw - 3rem))');
+  });
+
+  it('is the declared overlay width, capped by the screen', () => {
+    expect(overlayWidthStyle({ overlayWidth: 400 })).toBe('min(400px, calc(100vw - 3rem))');
+  });
+});
 
 function layoutWith(region: LayoutRegion): ShellLayout {
   return {
@@ -52,6 +63,32 @@ describe('a panel region declaring its own widths', () => {
       ),
     ).toThrow(/right-panel/);
   });
+
+  it('accepts a positive overlay width, whatever the widths beside the content', () => {
+    expect(() =>
+      provideLayout(
+        layoutWith({
+          id: 'p',
+          type: 'panel',
+          dock: 'right',
+          width: 420,
+          minWidth: 400,
+          overlayWidth: 320,
+        }),
+      ),
+    ).not.toThrow();
+  });
+
+  it.each([0, -1, NaN, Infinity])(
+    'refuses an overlay width of %s, naming the region',
+    (overlayWidth) => {
+      expect(() =>
+        provideLayout(
+          layoutWith({ id: 'chat-panel', type: 'panel', dock: 'right', overlayWidth }),
+        ),
+      ).toThrow(/chat-panel/);
+    },
+  );
 
   it('refuses a start width outside its own bounds once the workbench values are filled in', () => {
     expect(() =>

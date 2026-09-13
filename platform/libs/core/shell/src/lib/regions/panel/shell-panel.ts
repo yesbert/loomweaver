@@ -45,6 +45,7 @@ import {
 import { ShellBar } from '../bar/shell-bar';
 import { PanelState } from './panel-state';
 import { PanelSizeService } from './panel-size.service';
+import { overlayWidthStyle } from '../../layout/panel-widths';
 import { PanelSplitter } from './panel-splitter';
 import { FeatureSwitches } from '../../features/feature-switches.service';
 
@@ -103,11 +104,12 @@ export class ShellPanel {
     () => !this.viewport.compact() && this.panels.isCollapsed(this.region().id),
   );
 
-  protected readonly widthPx = computed(() => {
+  protected readonly widthStyle = computed(() => {
+    const region = this.region();
     if (this.viewport.compact()) {
-      return null;
+      return overlayWidthStyle(region.type === 'panel' ? region : {});
     }
-    return this.collapsed() ? 0 : this.size.width(this.region().id);
+    return `${this.collapsed() ? 0 : this.size.width(region.id)}px`;
   });
 
   protected readonly splitterDock = computed<'left' | 'right' | null>(() => {

@@ -24,16 +24,21 @@
     optional. Its `width` is what it shows until someone resizes it and what resetting the layout
     returns to. Its `minWidth` and `maxWidth` bound dragging, the keyboard and a width set from code. Undeclared
     values stay at 256, 180 and 480. A width a person released is kept even if you later change
-    `width`, and one stored above a new `maxWidth` is shown at the new maximum. On a narrow viewport
-    the panel is an overlay of its own width, so the declaration applies beside the content only.
+    `width`, and one stored above a new `maxWidth` is shown at the new maximum.
+
+    On a narrow viewport the panel becomes an overlay, and its `overlayWidth` sizes it there
+    (default 288). The workbench caps that at the screen's width less a margin, so the overlay never
+    runs off the screen and there is room to dismiss it. The overlay width is not dragged or stored,
+    and the widths beside the content do not reach it.
 
     ```ts
-    { id: 'right-panel', type: 'panel', dock: 'right', width: 360, minWidth: 280, maxWidth: 640 }
+    { id: 'right-panel', type: 'panel', dock: 'right', width: 360, minWidth: 280, maxWidth: 640, overlayWidth: 400 }
     ```
 
     The type only allows these fields on a panel region (`PanelRegion`; a bar, rail or content region
     is a `NonPanelRegion`). A panel whose `minWidth` exceeds its `maxWidth`, or whose `width` lies
-    outside its own bounds, makes `provideLayout` throw, naming the region.
+    outside its own bounds, or whose `overlayWidth` is not a positive number, makes `provideLayout`
+    throw, naming the region.
 
   - `content`: the main content area (docks `center`). **URL-addressed** (routes), not views.
 
