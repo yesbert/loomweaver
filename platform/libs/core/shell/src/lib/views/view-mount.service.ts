@@ -1,6 +1,10 @@
 import { EnvironmentInjector, inject, Injector, Service } from '@angular/core';
-import { VIEW_STATE } from '@loomweaver/plugin-sdk';
+import { SURFACE_HOLD, VIEW_STATE } from '@loomweaver/plugin-sdk';
 import { View } from '../layout/view';
+import {
+  createSurfaceHold,
+  SURFACE_HOLD_STATE,
+} from '../regions/pane/retention/surface-hold';
 import { ViewStateService } from './view-state.service';
 import { ViewInstanceService } from './view-instance.service';
 
@@ -22,10 +26,13 @@ export class ViewMountService {
   injectorForInstance(instanceId: string): Injector {
     let injector = this.injectors.get(instanceId);
     if (!injector) {
+      const hold = createSurfaceHold();
       injector = Injector.create({
         parent: this.env,
         providers: [
           { provide: VIEW_STATE, useValue: this.viewStates.handle(instanceId) },
+          { provide: SURFACE_HOLD, useValue: hold.handle },
+          { provide: SURFACE_HOLD_STATE, useValue: hold.state },
         ],
       });
       this.injectors.set(instanceId, injector);

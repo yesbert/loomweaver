@@ -98,6 +98,38 @@ stays inert there, and the host warns in development. Read the sub-segment from 
 says what else the fabricated route lacks. And where the thing you want to keep is unsaved work,
 [`DirtySurface`](unsaved-changes.md) is the guard, not `retain`.
 
+## Showing a surface somewhere else
+
+Sometimes the one live instance has to go on running somewhere the workbench does not draw, for
+example a chat moved into a floating window during a call. Your product does that itself: it opens
+the window, moves your surface's element into it and takes it back. The workbench offers one thing
+for it, the `SURFACE_HOLD` handle of your docked instance.
+
+```ts
+private readonly hold = inject(SURFACE_HOLD);
+private readonly element = inject(ElementRef<HTMLElement>).nativeElement;
+
+async float(): Promise<void> {
+  this.hold.hold(); // before the element leaves its place
+  const floating = await openYourWindow();
+  floating.document.body.append(this.element);
+  floating.addEventListener('pagehide', () => this.hold.release(), { once: true });
+}
+```
+
+While it is held, the workbench leaves the element where you put it. Collapsing the panel, switching
+the view or the workspace neither takes it out of the document, hides it nor puts it back, and the
+instance is not destroyed for being hidden. Release on every way back, including the window closing by
+itself. You do not need to put the element back yourself. On release the workbench treats the
+instance as if it had never been held: back in its place if that place is visible, otherwise hidden or
+released as usual.
+
+Closing still closes. Closing the view, turning your plugin off or resetting the arrangement ends the
+instance wherever its element is. The workbench notices nothing on its own and offers no window,
+gesture or styling, so mirroring styles and theme into your window is yours. Only a docked surface
+running in the page has the handle. A routable surface has none, and a sandboxed one would reload if
+its document were moved.
+
 ## A sandboxed surface and the atomic move
 
 A **sandboxed** (`iframe`) surface retains too, at a URL and at a dock alike. The host hides it in

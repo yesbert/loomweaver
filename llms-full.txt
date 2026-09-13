@@ -202,6 +202,16 @@ interface ViewAction { id: string; icon: string; title: string; order?: number; 
 // the host hides the iframe in place. Injecting VIEW_STATE outside a docked surface throws.
 interface ViewState<T = unknown> { readonly value: () => T | undefined; set(next: T): void; readonly instanceId: string; }
 const VIEW_STATE: InjectionToken<ViewState>;   // from @loomweaver/plugin-sdk
+// SURFACE_HOLD: a docked in-page instance's switch for being SHOWN ELSEWHERE by the product (e.g. a floating window).
+// const hold = inject(SURFACE_HOLD); call hold.hold() BEFORE moving your element out and hold.release() on EVERY way
+// back, the window closing by itself included. While held, collapsing the panel or switching the view or workspace
+// neither removes, hides, moves back nor destroys-for-being-hidden the instance. On release the workbench re-applies
+// what it deferred (back in its place if visible, else hidden or released as usual), so you need not move it back.
+// Closing (close the view, plugin off, arrangement reset) still ends it wherever its nodes are. The workbench
+// detects nothing and offers no window, gesture or style mirroring. Routable and sandboxed surfaces have none, and
+// injecting it anywhere else throws.
+interface SurfaceHold { readonly held: () => boolean; hold(): void; release(): void; }
+const SURFACE_HOLD: InjectionToken<SurfaceHold>;   // from @loomweaver/plugin-sdk
 
 // ctx.state — THE PLUGIN'S OWN KEYED STORE (working state), where VIEW_STATE is one view INSTANCE's blob. Every
 // surface of the plugin sees the same store (any dock, any instance, EVERY WINDOW), so it is both persistence and the
