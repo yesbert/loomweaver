@@ -494,6 +494,14 @@ type PaddingDefault = 'none' | 'inset';   // the app-wide inset for surfaces; ab
 // (rows setting:shell.theme / setting:shell.language / setting:shell.textSize), section
 // setting:shell.permissions (row setting:shell.pluginPermissions), and — when a catalogue is provided —
 // section setting:shell.pluginStore (row setting:shell.pluginStoreBrowse).
+// ROW REPLACEMENT: inject(SettingsService).replaceRow(row) swaps ONE row by id in place (section, other rows and order
+// kept). Lasting like omit (a section registered later gets it), an omit of the same id wins, dispose() gives the
+// built-in row back, and a replacement matching no row is named by the composition report. A distribution's tool.
+// languages = the WHOLE served set by code (default ['en','de']): add one, leave one out, or serve neither shipped
+// language. Canonicalised and deduplicated; [] or a non-code throws. One list feeds loading, the switcher, the
+// stored and browser preference and <html lang>. For a language the workbench does not ship, serve its workbench
+// strings at /i18n/<code>.json: merged over the shipped English key by key, a missing key shows in English and is
+// named once in dev, and no file at all means English throughout (named once).
 // OVERRIDE (re-registering to replace, last-in wins) keys by `id` for every kind EXCEPT content routes,
 // which key by `path` (contribution-registry: addContentRoute matches on route.path). So re-registering a
 // surface with an existing route *id* does NOT override — it adds a second route; use the same `path`.
@@ -835,6 +843,15 @@ class ThemeService {                 // owns light/dark for the whole app; toggl
 }
 // Mirror `resolvedTheme`, NEVER `mode`: `mode` can be 'system' and no other framework knows what that means.
 // Let the shell lead — its mode is persisted, synced across tabs and pushed into sandboxed surfaces.
+class LocaleService {                // the workbench's language, for a product's own language control
+  readonly lang: Signal<string>;                 // the active code
+  readonly supported: readonly string[];         // the served codes, in declared order
+  readonly languages: readonly ServedLanguage[]; // { code, name }, the name IN that language ("Deutsch", "Français"), as the switcher shows it
+  setLang(code: string): void;                   // same act as the switcher: re-render, <html lang>, persisted, synced; an unserved code changes nothing and warns in dev
+}
+// Built-in bar controls are replaced or moved by re-registering their id, each driving a published service:
+// shell.language → LocaleService · shell.theme → ThemeService · shell.update → UpdateService · shell.version → VersionService.
+// The built-in controls keep their look; a different look is a replacement (bar item by id, settings row by replaceRow).
 type SyncSource = 'settings' | 'working-state' | 'external';       // where the fresh value is read back from;
                                                                    // 'external' = out-of-port state, applier gets undefined
 type ApplySyncedState = (raw: string | undefined, key: string) => void;

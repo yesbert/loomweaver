@@ -96,6 +96,28 @@ describe('CompositionReport (K7)', () => {
     expect(message).toContain("'setting:shell.permissions'");
   });
 
+  it('reports a row replacement that matched no row, and says nothing about one that did', () => {
+    const app = setUp();
+    const toggle = {
+      kind: 'toggle' as const,
+      value: () => false,
+      set: () => undefined,
+    };
+    app.settings.register({
+      id: 'shell.general',
+      title: 'settings.general',
+      rows: [{ id: 'shell.language', label: 'language.label', control: toggle }],
+    });
+    app.settings.replaceRow({ id: 'shell.language', label: 'product.language', control: toggle });
+    app.settings.replaceRow({ id: 'shell.langauge', label: 'product.language', control: toggle });
+
+    app.report.print();
+
+    const messages = warn.mock.calls.map((call) => String(call[0])).join('\n');
+    expect(messages).toContain("row replacement 'shell.langauge' matched no row");
+    expect(messages).not.toContain("'shell.language' matched no row");
+  });
+
   it('says nothing about an omit that hid something, even though the omit hid it', () => {
     const app = setUp();
     app.registry.addCommand({ id: 'c.one', title: 't', run: () => undefined });

@@ -1,43 +1,33 @@
 import { DOCUMENT } from '@angular/common';
-import { inject, Service, signal } from '@angular/core';
+import { inject, isDevMode, Service, signal } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 import { SETTINGS_STORE } from '../persistence/settings-store';
 import { hydrateAsync } from '../persistence/hydrate';
 import { StateSyncService } from '../persistence/state-sync.service';
+import {
+  detectInitialLang,
+  LANGUAGE_STORAGE_KEY,
+  languageName,
+  SERVED_LANGUAGES,
+  servedLanguage,
+} from './served-languages';
 
-export const SUPPORTED_LANGS = ['en', 'de'] as const;
-export type SupportedLang = (typeof SUPPORTED_LANGS)[number];
-
-const STORAGE_KEY = 'lw.shell.lang';
-
-function isSupported(value: string | null | undefined): value is SupportedLang {
-  return (
-    value != null && (SUPPORTED_LANGS as readonly string[]).includes(value)
-  );
+/** One language the workbench serves: its canonical code and its name, written in that language. */
+export interface ServedLanguage {
+  readonly code: string;
+  readonly name: string;
 }
 
-function storedLang(): string | null {
-  try {
-    return localStorage.getItem(STORAGE_KEY);
-  } catch {
-    return null;
-  }
-}
-
-export function detectInitialLang(): SupportedLang {
-  const stored = storedLang();
-  if (isSupported(stored)) {
-    return stored;
-  }
-  for (const candidate of navigator.languages ?? [navigator.language]) {
-    const base = candidate?.slice(0, 2).toLowerCase();
-    if (isSupported(base)) {
-      return base;
-    }
-  }
-  return 'en';
-}
-
+/**
+ * The workbench's language, for a product's own language control. It is the same mechanism the
+ * shipped switcher uses, so a control a distribution registers in place of `shell.language`, in any
+ * bar or as a settings row, changes the language exactly as the switcher does: re-rendered at once,
+ * declared on `<html lang>`, remembered through the settings port and followed by the application's
+ * other windows and isolated surfaces.
+ *
+ * The served set is what the distribution declared with `provideShell({ languages })`, or English and
+ * German when it declared nothing.
+ */
 @Service()
 export class LocaleService {
   private readonly transloco = inject(TranslocoService);
@@ -45,31 +35,59 @@ export class LocaleService {
   private readonly store = inject(SETTINGS_STORE);
   private readonly sync = inject(StateSyncService);
 
-  private readonly langState = signal<SupportedLang>(detectInitialLang());
+  /** The codes of the served languages, in the order the distribution declared them. */
+  readonly supported = inject(SERVED_LANGUAGES);
 
+  /**
+   * The served languages with the name of each in its own language ("Deutsch", "Français"), the same
+   * names the shipped switcher shows. A code the platform cannot name is shown as the code.
+   */
+  readonly languages: readonly ServedLanguage[] = this.supported.map((code) => ({
+    code,
+    name: languageName(code),
+  }));
+
+  private readonly langState = signal<string>(detectInitialLang(this.supported));
+
+  /** The active language code, reactive. */
   readonly lang = this.langState.asReadonly();
-  readonly supported = SUPPORTED_LANGS;
 
   constructor() {
     this.document.documentElement.lang = this.lang();
-    hydrateAsync(this.store, STORAGE_KEY, (raw) => {
-      if (isSupported(raw)) {
-        this.applyLang(raw);
-      }
-    });
-    this.sync.register('settings', STORAGE_KEY, (raw) => {
-      if (isSupported(raw)) {
-        this.applyLang(raw);
-      }
-    });
+    hydrateAsync(this.store, LANGUAGE_STORAGE_KEY, (raw) =>
+      this.applyServed(raw),
+    );
+    this.sync.register('settings', LANGUAGE_STORAGE_KEY, (raw) =>
+      this.applyServed(raw),
+    );
   }
 
-  setLang(lang: SupportedLang): void {
-    this.applyLang(lang);
-    void this.store.set(STORAGE_KEY, lang);
+  /**
+   * Makes `lang` the active language and remembers it. A code the workbench does not serve changes
+   * nothing, and the developer is told in development, rather than silently doing nothing.
+   */
+  setLang(lang: string): void {
+    const served = servedLanguage(lang, this.supported);
+    if (served === undefined) {
+      if (isDevMode()) {
+        console.warn(
+          `LocaleService.setLang("${lang}") changed nothing: the workbench serves ${this.supported.join(', ')}.`,
+        );
+      }
+      return;
+    }
+    this.applyLang(served);
+    void this.store.set(LANGUAGE_STORAGE_KEY, served);
   }
 
-  private applyLang(lang: SupportedLang): void {
+  private applyServed(raw: string | null | undefined): void {
+    const lang = servedLanguage(raw, this.supported);
+    if (lang !== undefined) {
+      this.applyLang(lang);
+    }
+  }
+
+  private applyLang(lang: string): void {
     this.langState.set(lang);
     this.transloco.setActiveLang(lang);
     this.document.documentElement.lang = lang;

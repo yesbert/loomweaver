@@ -1,7 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { DOCUMENT } from '@angular/common';
 import { TranslocoService } from '@jsverse/transloco';
-import { detectInitialLang, LocaleService } from './locale.service';
+import { LocaleService } from './locale.service';
+import { SERVED_LANGUAGES } from './served-languages';
 import { SETTINGS_STORE } from '../persistence/settings-store';
 
 describe('LocaleService', () => {
@@ -54,20 +55,46 @@ describe('LocaleService', () => {
   });
 });
 
-describe('detectInitialLang', () => {
-  beforeEach(() => localStorage.clear());
+describe('LocaleService as a product reads and drives it', () => {
+  function serving(languages: readonly string[]) {
+    localStorage.clear();
+    const setActiveLang = vi.fn();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: TranslocoService, useValue: { setActiveLang } },
+        { provide: SERVED_LANGUAGES, useValue: languages },
+      ],
+    });
+    return { service: TestBed.inject(LocaleService), setActiveLang };
+  }
 
-  it('returns a persisted supported language', () => {
-    localStorage.setItem('lw.shell.lang', 'de');
-    expect(detectInitialLang()).toBe('de');
+  it('names each served language in that language', () => {
+    const { service } = serving(['en', 'de', 'fr']);
+
+    expect(service.languages).toEqual([
+      { code: 'en', name: 'English' },
+      { code: 'de', name: 'Deutsch' },
+      { code: 'fr', name: 'Français' },
+    ]);
   });
 
-  it('ignores an unsupported persisted value', () => {
-    localStorage.setItem('lw.shell.lang', 'xx');
-    expect(['en', 'de']).toContain(detectInitialLang());
+  it('shows the code where no name can be derived', () => {
+    const { service } = serving(['en', 'qaa']);
+
+    expect(service.languages[1]).toEqual({ code: 'qaa', name: 'qaa' });
   });
 
-  it('falls back to en when nothing matches', () => {
-    expect(detectInitialLang()).toBe('en');
+  it('refuses a language that is not served, keeping the active one and telling the developer', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const { service, setActiveLang } = serving(['en', 'fr']);
+    const before = service.lang();
+
+    service.setLang('it');
+
+    expect(service.lang()).toBe(before);
+    expect(setActiveLang).not.toHaveBeenCalled();
+    expect(localStorage.getItem('lw.shell.lang')).toBeNull();
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('"it"'));
+    warn.mockRestore();
   });
 });

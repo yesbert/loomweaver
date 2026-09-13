@@ -16,7 +16,11 @@ import {
   provideTranslocoMissingHandler,
   TranslocoService,
 } from '@jsverse/transloco';
-import { detectInitialLang, SUPPORTED_LANGS } from './i18n/locale.service';
+import {
+  detectInitialLang,
+  resolveServedLanguages,
+  SERVED_LANGUAGES,
+} from './i18n/served-languages';
 import { SettingsService } from './settings/settings.service';
 import { settingOmitIds } from './settings/setting-omit';
 import { ShellMissingTranslationHandler } from './i18n/missing-translation-handler';
@@ -155,6 +159,19 @@ export interface ShellOptions {
    * `updateAvailable` still drives whatever marker you keep, and `activateUpdate()` still applies.
    */
   readonly announceUpdates?: boolean;
+
+  /**
+   * The languages the workbench serves, by language code, as the whole set: add a language the
+   * workbench does not ship, leave one out, or name neither English nor German. Omit it to serve the
+   * shipped `['en', 'de']`. Codes are canonicalised (`pt-br` is `pt-BR`) and a code declared twice is
+   * served once; an empty list or something that is not a language code throws here.
+   *
+   * The set decides what is loaded, what the switcher offers, what a stored or browser preference may
+   * select and what `<html lang>` declares. For a language the workbench does not ship, serve the
+   * workbench's strings at `/i18n/<code>.json`; a string missing there is shown in English and named
+   * in development.
+   */
+  readonly languages?: readonly string[];
 }
 
 /**
@@ -165,6 +182,7 @@ export interface ShellOptions {
 export function provideShell(
   options: ShellOptions = {},
 ): (Provider | EnvironmentProviders)[] {
+  const served = resolveServedLanguages(options.languages);
   return [
     provideZonelessChangeDetection(),
     provideBrowserGlobalErrorListeners(),
@@ -174,6 +192,7 @@ export function provideShell(
     { provide: UNUSABLE_WORKSPACES, useExisting: UnusableWorkspacesService },
 
     provideHttpClient(),
+    { provide: SERVED_LANGUAGES, useValue: served },
 
     ...(options.retention === undefined
       ? []
@@ -268,8 +287,8 @@ export function provideShell(
     }),
     provideTransloco({
       config: {
-        availableLangs: [...SUPPORTED_LANGS],
-        defaultLang: detectInitialLang(),
+        availableLangs: [...served],
+        defaultLang: detectInitialLang(served),
         fallbackLang: 'en',
         reRenderOnLangChange: true,
         prodMode: !isDevMode(),

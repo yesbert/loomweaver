@@ -32,6 +32,30 @@ import { UpdateBadge, provideBarItems } from '@loomweaver/shell';
 }),
 ```
 
+## The built-in controls and what they drive
+
+Each built-in bar control is a bar item you replace or move by registering its id, and each drives a
+published service. A control of your own therefore changes the same state the built-in one does:
+
+| id               | built-in control  | service your control drives                                       |
+| ---------------- | ----------------- | ----------------------------------------------------------------- |
+| `shell.language` | language switcher | `LocaleService`: `lang`, `languages` (code and name), `setLang()` |
+| `shell.theme`    | theme toggle      | `ThemeService`: `mode`, `resolvedTheme`, `setMode()`              |
+| `shell.update`   | update badge      | `UpdateService`                                                   |
+| `shell.version`  | version           | `VersionService`                                                  |
+
+The built-in controls stay as they are, and replacing one is how a product gets a different look.
+Persistence, sync between tabs and what isolated surfaces receive stay the workbench's either way.
+
+```ts
+// your own language control in the status bar, in place of the top-bar switcher
+...provideBarItems({ id: 'shell.language', bar: 'status-bar', slot: 'end', component: MyLanguageMenu }),
+```
+
+`LocaleService.languages` names each served language in that language ("Deutsch", "Français"), the
+same names the built-in switcher shows. `setLang()` with a code that is not served changes nothing
+and warns in development.
+
 ## The product's identity, elsewhere
 
 The block the top bar draws for your identity is yours to place: an about dialog naming the product
@@ -142,6 +166,23 @@ Built-in settings ids: section `setting:shell.general` (rows `setting:shell.them
 `setting:shell.language`, `setting:shell.textSize`) and section `setting:shell.permissions`
 (row `setting:shell.pluginPermissions`). Registering a section with an existing id **replaces** it
 (last-in wins), so you can swap a built-in section for your own.
+
+To show a control of your own in place of one built-in **row** and keep the rest of its section,
+replace the row by its id with `SettingsService.replaceRow()`, typically inside a
+`provideEnvironmentInitializer`:
+
+```ts
+inject(SettingsService).replaceRow({
+  id: 'shell.language',
+  label: 'language.label',
+  control: { kind: 'component', component: MyLanguagePicker },
+});
+```
+
+Like `omit`, a replacement is lasting, so a section registered later carries it too, and an `omit` of
+the same row wins. Dispose the returned handle to give the built-in row back. A replacement that
+matches no row is named by the composition report. This is how the language control in Settings can
+differ from the one in a bar.
 
 `omit` is a **lasting** filter: an id a plugin registers later at activation time stays hidden too.
 (To _replace_ a default rather than hide it, register your own contribution with the same id and do

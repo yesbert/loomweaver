@@ -12,6 +12,7 @@ export {
   TRANSLATION_NAMESPACES,
   TRANSLATION_OVERRIDES,
 } from './lib/i18n/transloco-loader';
+export { LocaleService, type ServedLanguage } from './lib/i18n/locale.service';
 export * from './lib/elements/button/lw-button';
 export * from './lib/elements/button/lw-button.element';
 export * from './lib/elements/markdown/lw-markdown.element';
