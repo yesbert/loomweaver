@@ -275,6 +275,7 @@ export class WorkspaceService {
       );
       return;
     }
+    this.stash.endHolds(id);
     this.applyState(this.baselineOf(id));
     this.warnDeclarationGaps(id);
     this.chooseAddress(activeContentPath(this.paneTree));
