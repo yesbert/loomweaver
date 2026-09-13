@@ -34,6 +34,7 @@
     The type only allows these fields on a panel region (`PanelRegion`; a bar, rail or content region
     is a `NonPanelRegion`). A panel whose `minWidth` exceeds its `maxWidth`, or whose `width` lies
     outside its own bounds, makes `provideLayout` throw, naming the region.
+
   - `content`: the main content area (docks `center`). **URL-addressed** (routes), not views.
 
 A weaver targets a region by its **id**, never by its dock or type: `registerSurface({ docks:
