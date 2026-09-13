@@ -462,9 +462,10 @@ the application's layout returns it to. The declared bounds SHALL constrain ever
 set for that panel: dragging, the keyboard, a width set from code, and a stored width, which is
 brought into the current bounds when it is read. The bounds of one panel SHALL NOT affect another.
 
-Widths SHALL be declarable on panel regions only. A declaration whose narrowest width exceeds its
-widest, or whose start width lies outside its own bounds after the workbench's values are filled in,
-SHALL be refused when the distribution is composed, with a message naming the region.
+Widths SHALL be declarable on panel regions only. A declared width that is not a positive number, a
+declaration whose narrowest width exceeds its widest, or one whose start width lies outside its own
+bounds after the workbench's values are filled in, SHALL be refused when the distribution is composed,
+with a message naming the region.
 
 The declared start width and bounds apply where a panel stands beside the content. On a viewport
 narrow enough for a panel to be presented as an overlay, the overlay SHALL take the overlay width the
@@ -509,6 +510,12 @@ SHALL be refused when the distribution is composed, with a message naming the re
 
 - **WHEN** a panel region declares a narrowest width above its widest, or a start width outside its
   own bounds
+- **THEN** the distribution is refused at composition time with a message naming the region
+
+#### Scenario: A width beside the content that is not a positive number is refused
+
+- **WHEN** a panel region declares a start, narrowest or widest width of zero, a negative number or
+  something not finite
 - **THEN** the distribution is refused at composition time with a message naming the region
 
 #### Scenario: A narrow viewport keeps the overlay's width

@@ -312,7 +312,8 @@ ordinary rules for a hidden surface apply.
 
 Holding SHALL NOT prevent closing. Closing the view, turning off the plugin that contributed it or
 resetting the arrangement it belongs to SHALL end a held instance as it ends any other, with its
-nodes leaving the document wherever they are.
+nodes leaving the document wherever they are. Ending an instance SHALL end its hold, so that a view
+opened again after it was closed starts unheld until it switches holding on itself.
 
 The workbench SHALL NOT detect on its own that nodes were moved, nor offer any gesture, window or
 presentation for showing a surface elsewhere; the switch is the whole of what it provides. A
@@ -355,6 +356,11 @@ another window without being reloaded.
 
 - **WHEN** the view of a held surface is closed, or the plugin that contributed it is turned off
 - **THEN** the instance is ended and its nodes leave the document wherever they are
+
+#### Scenario: A view opened again after a held surface was closed starts unheld
+
+- **WHEN** a held surface was closed and its view is opened again
+- **THEN** the new surface is not held and its nodes are placed where the view is shown
 
 #### Scenario: A surface that never holds is unaffected
 
