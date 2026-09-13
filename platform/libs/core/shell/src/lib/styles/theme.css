@@ -255,6 +255,12 @@
     @apply relative flex shrink-0 items-center justify-center rounded text-content-faint transition-colors hover:bg-surface-overlay hover:text-content;
   }
 
+  /* A toggling action drives its pressed look from `aria-pressed`, like `.lw-segmented-item`: the
+     accessible state is the styling hook, so what is announced and what is seen cannot drift. */
+  .lw-icon-btn[aria-pressed='true'] {
+    @apply bg-surface-raised text-brand;
+  }
+
   /* `.lw-rail-initials` — one or two letters drawn where a rail item would draw its icon, for an entry
      the user named (a saved workspace). Sized and weighted to sit beside 16px outline icons of stroke
      width 1.5 without shouting: measured against the neighbouring icons at 3x, weight 500 read visibly

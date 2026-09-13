@@ -192,6 +192,7 @@
           (click)="runAction.emit(action)"
           class="lw-icon-btn h-8 w-8 rounded-md"
           [attr.aria-label]="action.title | transloco"
+          [attr.aria-pressed]="action.pressed"
         >
           <lw-icon [name]="action.icon" size="1rem" />
           <lw-tooltip [text]="action.title | transloco" position="bottom" />

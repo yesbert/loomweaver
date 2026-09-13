@@ -32,6 +32,13 @@ export interface ViewAction {
    */
   readonly access?: AccessRequirement;
   /**
+   * The state of a toggling action: `true` stands on, `false` stands off. The host draws it as the
+   * control's pressed state, visibly and as `aria-pressed`, so a screen reader announces a toggle
+   * as a toggle. Omit for a plain button, which is drawn and announced without any state. To move
+   * a toggle, replace the action with `ctx.updateSurfaceAction` when the state changes.
+   */
+  readonly pressed?: boolean;
+  /**
    * Inline behaviour, for an action that is not backed by a registered command. May be async; the
    * host fires it fire-and-forget. Typed `() => void` so a one-expression arrow whose handler
    * happens to return a value (e.g. `() => ctx.ui.openSettings()`) still assigns — the return is
