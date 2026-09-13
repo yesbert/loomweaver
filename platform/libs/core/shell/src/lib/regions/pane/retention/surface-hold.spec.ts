@@ -176,6 +176,22 @@ describe('a surface held where its product put it', () => {
       expect(ended).toBe(1);
       expect(app.elsewhere.contains(app.element)).toBe(false);
     });
+
+    it('comes back unheld, in its place, when its view is shown again after being closed', async () => {
+      const app = mounted();
+      app.hold.hold();
+      app.elsewhere.append(app.element);
+      app.hide();
+      await settled();
+      TestBed.inject(RetainedViewStash).evictParked(KEY);
+
+      app.show();
+      await settled();
+
+      expect(app.hold.held()).toBe(false);
+      expect(probes).toHaveLength(2);
+      expect(app.place()?.querySelector('lw-hold-probe')).not.toBeNull();
+    });
   });
 
   describe('the retention collector', () => {

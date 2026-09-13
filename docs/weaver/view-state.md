@@ -125,7 +125,8 @@ instance as if it had never been held: back in its place if that place is visibl
 released as usual.
 
 Closing still closes. Closing the view, turning your plugin off or resetting the arrangement ends the
-instance wherever its element is. The workbench notices nothing on its own and offers no window,
+instance wherever its element is, and it ends the hold with it. When the view is opened again, the new
+instance starts unheld and is placed as usual until it holds itself. The workbench notices nothing on its own and offers no window,
 gesture or styling, so mirroring styles and theme into your window is yours. Only a docked surface
 running in the page has the handle. A routable surface has none, and a sandboxed one would reload if
 its document were moved.

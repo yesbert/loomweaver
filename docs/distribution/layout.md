@@ -36,9 +36,9 @@
     ```
 
     The type only allows these fields on a panel region (`PanelRegion`; a bar, rail or content region
-    is a `NonPanelRegion`). A panel whose `minWidth` exceeds its `maxWidth`, or whose `width` lies
-    outside its own bounds, or whose `overlayWidth` is not a positive number, makes `provideLayout`
-    throw, naming the region.
+    is a `NonPanelRegion`). A panel declaring any of the four widths as something other than a
+    positive number, whose `minWidth` exceeds its `maxWidth`, or whose `width` lies outside its own
+    bounds, makes `provideLayout` throw, naming the region.
 
   - `content`: the main content area (docks `center`). **URL-addressed** (routes), not views.
 

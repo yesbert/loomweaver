@@ -4,6 +4,7 @@ import { SurfaceHold } from '@loomweaver/plugin-sdk';
 export interface SurfaceHoldState {
   readonly held: Signal<boolean>;
   onRelease(listener: () => void): () => void;
+  end(): void;
 }
 
 export const SURFACE_HOLD_STATE = new InjectionToken<SurfaceHoldState>(
@@ -18,19 +19,20 @@ export interface SurfaceHoldPair {
 export function createSurfaceHold(): SurfaceHoldPair {
   const held = signal(false);
   const listeners = new Set<() => void>();
+  const release = () => {
+    if (!held()) {
+      return;
+    }
+    held.set(false);
+    for (const listener of listeners) {
+      listener();
+    }
+  };
   return {
     handle: {
       held: held.asReadonly(),
       hold: () => held.set(true),
-      release: () => {
-        if (!held()) {
-          return;
-        }
-        held.set(false);
-        for (const listener of listeners) {
-          listener();
-        }
-      },
+      release,
     },
     state: {
       held: held.asReadonly(),
@@ -38,6 +40,7 @@ export function createSurfaceHold(): SurfaceHoldPair {
         listeners.add(listener);
         return () => listeners.delete(listener);
       },
+      end: release,
     },
   };
 }

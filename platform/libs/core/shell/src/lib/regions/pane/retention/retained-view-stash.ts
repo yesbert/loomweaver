@@ -355,6 +355,11 @@ export class RetainedViewStash implements OnDestroy {
     if (this.entries.get(entry.key) === entry) {
       this.entries.delete(entry.key);
     }
+    const hold = entry.hold;
+    const shared = [...this.entries.values()].some((other) => other.hold === hold);
+    if (hold && !shared) {
+      hold.end();
+    }
     if (!entry.view.destroyed) {
       this.appRef.detachView(entry.view);
       entry.view.destroy();
