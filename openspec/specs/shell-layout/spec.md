@@ -466,8 +466,13 @@ Widths SHALL be declarable on panel regions only. A declaration whose narrowest 
 widest, or whose start width lies outside its own bounds after the workbench's values are filled in,
 SHALL be refused when the distribution is composed, with a message naming the region.
 
-The declared widths apply where a panel stands beside the content. On a viewport narrow enough for a
-panel to be presented as an overlay, the overlay keeps its own width.
+The declared start width and bounds apply where a panel stands beside the content. On a viewport
+narrow enough for a panel to be presented as an overlay, the overlay SHALL take the overlay width the
+panel region declares, and the workbench's own overlay width where it declares none. The overlay width
+SHALL never exceed the viewport's width less a margin that leaves room to dismiss the overlay beside
+it. It is not resized by the user, not stored, and not changed by a width set from code, and the widths
+beside the content SHALL NOT reach the overlay. A declared overlay width that is not a positive number
+SHALL be refused when the distribution is composed, with a message naming the region.
 
 #### Scenario: A panel starts at its declared width
 
@@ -509,4 +514,28 @@ panel to be presented as an overlay, the overlay keeps its own width.
 #### Scenario: A narrow viewport keeps the overlay's width
 
 - **WHEN** the viewport is narrow enough for panels to be overlays
-- **THEN** a panel with declared widths is presented at the overlay's own width
+- **AND** a panel region declares no overlay width
+- **THEN** the panel is presented at the workbench's own overlay width, whatever widths it declares
+  beside the content
+
+#### Scenario: A declared overlay width is used on a narrow viewport
+
+- **WHEN** the viewport is narrow enough for panels to be overlays
+- **AND** a panel region declares an overlay width that fits the viewport
+- **THEN** the panel is presented as an overlay of that width
+
+#### Scenario: An overlay never runs off the screen
+
+- **WHEN** a panel region declares an overlay width wider than the viewport allows
+- **THEN** the overlay is as wide as the viewport less the margin, and room to dismiss it remains
+
+#### Scenario: The widths beside the content do not reach the overlay
+
+- **WHEN** a panel was resized beside the content, or given a width from code
+- **AND** the viewport becomes narrow enough for panels to be overlays
+- **THEN** the overlay takes its declared or the workbench's overlay width, not that width
+
+#### Scenario: An overlay width that is not a positive number is refused
+
+- **WHEN** a panel region declares an overlay width of zero, a negative number or something not finite
+- **THEN** the distribution is refused at composition time with a message naming the region
