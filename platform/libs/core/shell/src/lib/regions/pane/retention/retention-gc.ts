@@ -82,7 +82,9 @@ export class RetentionGc {
       path: pathOfKey(entry.key),
       dirty: instanceDirty(entry.instance),
       evict: () => this.stash.evictParked(entry.key),
-      tabLive: stashKeyLive(entry.key, open, routes, views),
+      tabLive:
+        stashKeyLive(entry.key, open, routes, views) ||
+        (entry.held && openAnywhere(pathOfKey(entry.key), open, routes)),
       parkedElsewhere: entry.workspace !== active,
     }));
   }
@@ -168,6 +170,14 @@ function stashKeyLive(
     return false;
   }
   return resolvableSurfacePath(routes, views, path);
+}
+
+function openAnywhere(
+  path: string,
+  open: Map<string, Set<string>>,
+  routes: readonly ContentRoute[],
+): boolean {
+  return [...open.values()].some((paths) => tabOpen(paths, routes, path));
 }
 
 function tabOpen(

@@ -44,6 +44,8 @@ export class RetainedComponent implements OnChanges, OnDestroy {
 
   private repairQueued = false;
 
+  private waiting = false;
+
   constructor() {
     effect(() => {
       this.stash.version();
@@ -76,7 +78,13 @@ export class RetainedComponent implements OnChanges, OnDestroy {
     } else {
       this.park();
     }
+    this.waiting = false;
     if (component === null || injector === null) {
+      return;
+    }
+    const hold = injector.get(SURFACE_HOLD_STATE, null);
+    if (this.stash.heldElsewhere(key, hold)) {
+      this.waiting = true;
       return;
     }
     const slot = this.stash.acquire(
@@ -90,10 +98,11 @@ export class RetainedComponent implements OnChanges, OnDestroy {
         return {
           view: componentRef.hostView as EmbeddedViewRef<unknown>,
           instance: componentRef.instance,
-          hold: injector.get(SURFACE_HOLD_STATE, null),
+          hold,
         };
       },
       this.anchor.parentNode,
+      hold,
     );
     if (!slot.attached && !slot.held()) {
       this.place(slot.rootNodes);
@@ -129,6 +138,9 @@ export class RetainedComponent implements OnChanges, OnDestroy {
   private reconcile(): void {
     const mounted = this.mounted;
     if (!mounted) {
+      if (this.waiting) {
+        this.sync();
+      }
       return;
     }
     if (mounted.slot.stale()) {

@@ -205,7 +205,8 @@ const VIEW_STATE: InjectionToken<ViewState>;   // from @loomweaver/plugin-sdk
 // SURFACE_HOLD: a docked in-page instance's switch for being SHOWN ELSEWHERE by the product (e.g. a floating window).
 // const hold = inject(SURFACE_HOLD); call hold.hold() BEFORE moving your element out and hold.release() on EVERY way
 // back, the window closing by itself included. While held, collapsing the panel or switching the view or workspace
-// neither removes, hides, moves back nor destroys-for-being-hidden the instance. On release the workbench re-applies
+// neither removes, hides, moves back nor destroys-for-being-hidden the instance; moving the view to another sidebar or
+// pane keeps that same instance, and release places it where the view now is. On release the workbench re-applies
 // what it deferred (back in its place if visible, else hidden or released as usual), so you need not move it back.
 // Closing (close the view, plugin off) still ends it wherever its nodes are, and ends the hold: the view opened
 // again starts unheld and is placed as usual until it calls hold() itself. Resetting the workspace ends the hold
