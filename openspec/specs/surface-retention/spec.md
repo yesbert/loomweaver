@@ -306,6 +306,10 @@ While an instance is held, the workbench SHALL NOT take its nodes out of the doc
 move them or put them back in their place, whatever it does to the panel, pane or workspace the
 surface belongs to, and SHALL NOT destroy the instance for being hidden.
 
+Moving the view of a held instance to another panel or pane SHALL keep that instance. The workbench
+SHALL NOT build a second one for the place the view arrives at while the hold lasts, and that place
+SHALL be the one the instance belongs to from then on.
+
 When the switch is turned off, the workbench SHALL treat the instance as it would have if it had
 never been held: if the place it belongs to is visible, its nodes are put back there; if not, the
 ordinary rules for a hidden surface apply.
@@ -344,6 +348,18 @@ another window without being reloaded.
 
 - **WHEN** a held surface with nothing unsaved and no request to be kept is hidden
 - **THEN** it is not destroyed
+
+#### Scenario: Moving the view keeps a held surface running
+
+- **WHEN** the view of a held surface is moved to the other sidebar or into another pane
+- **THEN** the same instance keeps running where the product put it
+- **AND** nothing is shown for it at the new place while it is held
+
+#### Scenario: A moved held surface is placed where its view now is
+
+- **WHEN** holding is switched off after the view of a held surface was moved
+- **AND** the place the view was moved to is visible
+- **THEN** the instance's nodes are put in that place
 
 #### Scenario: Turning holding off puts a visible surface back
 
