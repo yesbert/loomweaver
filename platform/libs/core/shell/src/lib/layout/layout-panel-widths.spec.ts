@@ -1,4 +1,4 @@
-import { LayoutRegion, ShellLayout, provideLayout } from './layout';
+import { LayoutRegion, PanelRegion, ShellLayout, provideLayout } from './layout';
 import { overlayWidthStyle } from './panel-widths';
 
 describe('the width of a panel presented as an overlay', () => {
@@ -87,6 +87,16 @@ describe('a panel region declaring its own widths', () => {
           layoutWith({ id: 'chat-panel', type: 'panel', dock: 'right', overlayWidth }),
         ),
       ).toThrow(/chat-panel/);
+    },
+  );
+
+  it.each(['width', 'minWidth', 'maxWidth'] as const)(
+    'refuses a %s that is not a positive number, naming the region',
+    (field) => {
+      for (const value of [0, -1, NaN, Infinity]) {
+        const region = { id: 'odd-panel', type: 'panel', dock: 'left', [field]: value };
+        expect(() => provideLayout(layoutWith(region as PanelRegion))).toThrow(/odd-panel/);
+      }
     },
   );
 

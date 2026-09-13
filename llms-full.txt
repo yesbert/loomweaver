@@ -207,7 +207,8 @@ const VIEW_STATE: InjectionToken<ViewState>;   // from @loomweaver/plugin-sdk
 // back, the window closing by itself included. While held, collapsing the panel or switching the view or workspace
 // neither removes, hides, moves back nor destroys-for-being-hidden the instance. On release the workbench re-applies
 // what it deferred (back in its place if visible, else hidden or released as usual), so you need not move it back.
-// Closing (close the view, plugin off, arrangement reset) still ends it wherever its nodes are. The workbench
+// Closing (close the view, plugin off, arrangement reset) still ends it wherever its nodes are, and ends the hold:
+// the view opened again starts unheld and is placed as usual until it calls hold() itself. The workbench
 // detects nothing and offers no window, gesture or style mirroring. Routable and sandboxed surfaces have none, and
 // injecting it anywhere else throws.
 interface SurfaceHold { readonly held: () => boolean; hold(): void; release(): void; }
@@ -980,7 +981,7 @@ const Shell;   // the root component: <lw-shell></lw-shell>
 interface ShellLayout { readonly regions: readonly LayoutRegion[]; }
 type LayoutRegion = PanelRegion | NonPanelRegion;
 interface PanelRegion { readonly id: string; readonly type: 'panel'; readonly dock: 'top'|'bottom'|'left'|'right'|'center';
-  readonly width?: number; readonly minWidth?: number; readonly maxWidth?: number; readonly overlayWidth?: number; }   // px, only on a panel; defaults 256 / 180 / 480. width = start + what the layout reset returns to; min/max bound drag, keyboard, SidebarService.setWidth and a stored width (clamped on read). A released width is kept even when it equals width. minWidth > maxWidth, or width outside its bounds → provideLayout throws naming the region. Narrow viewport: the overlay takes overlayWidth (px, default 288), capped at the screen width less a margin that leaves room to dismiss it; not dragged, stored or set from code, and width/min/max do not reach it; a non-positive or non-finite overlayWidth → provideLayout throws naming the region.
+  readonly width?: number; readonly minWidth?: number; readonly maxWidth?: number; readonly overlayWidth?: number; }   // px, only on a panel; defaults 256 / 180 / 480. width = start + what the layout reset returns to; min/max bound drag, keyboard, SidebarService.setWidth and a stored width (clamped on read). A released width is kept even when it equals width. A non-positive or non-finite width/minWidth/maxWidth, minWidth > maxWidth, or width outside its bounds → provideLayout throws naming the region. Narrow viewport: the overlay takes overlayWidth (px, default 288), capped at the screen width less a margin that leaves room to dismiss it; not dragged, stored or set from code, and width/min/max do not reach it; a non-positive or non-finite overlayWidth → provideLayout throws naming the region.
 interface NonPanelRegion { readonly id: string; readonly type: 'bar'|'rail'|'content'; readonly dock: 'top'|'bottom'|'left'|'right'|'center'; }
 
 // from @loomweaver/plugin-sdk

@@ -12,6 +12,13 @@ export interface DeclaredPanelWidths {
   readonly overlayWidth?: number;
 }
 
+const DECLARED_WIDTHS = [
+  'width',
+  'minWidth',
+  'maxWidth',
+  'overlayWidth',
+] as const satisfies readonly (keyof DeclaredPanelWidths)[];
+
 export interface PanelWidths {
   readonly start: number;
   readonly min: number;
@@ -41,6 +48,14 @@ export function assertPanelWidths(
   regionId: string,
   declared: DeclaredPanelWidths,
 ): void {
+  for (const field of DECLARED_WIDTHS) {
+    const value = declared[field];
+    if (value !== undefined && !(Number.isFinite(value) && value > 0)) {
+      throw new Error(
+        `provideLayout(): panel "${regionId}" declares ${field} as ${value}; it has to be a positive number of pixels.`,
+      );
+    }
+  }
   const { start, min, max } = resolvePanelWidths(declared);
   if (min > max) {
     throw new Error(
@@ -50,12 +65,6 @@ export function assertPanelWidths(
   if (start < min || start > max) {
     throw new Error(
       `provideLayout(): panel "${regionId}" starts at ${start}, outside its bounds of ${min} to ${max}.`,
-    );
-  }
-  const overlay = declared.overlayWidth;
-  if (overlay !== undefined && !(Number.isFinite(overlay) && overlay > 0)) {
-    throw new Error(
-      `provideLayout(): panel "${regionId}" declares an overlay width of ${overlay}; it has to be a positive number of pixels.`,
     );
   }
 }
