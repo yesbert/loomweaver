@@ -17,15 +17,21 @@ import {
   RetainedViewSource,
 } from './retained-view-model';
 import {
+  adoptHeld,
   elementsOf,
   endHoldsIn,
+  heldInUseElsewhere,
+  instancesAt,
   isHeld,
   lastHolder,
   liveRootNodes,
   orphaned,
+  parkedEntriesOf,
   parkedInPlaceAt,
+  parkedInstancesIn,
   StashEntry,
 } from './stash-entry';
+import { SurfaceHoldState } from './surface-hold';
 
 @Service()
 export class RetainedViewStash implements OnDestroy {
@@ -45,9 +51,11 @@ export class RetainedViewStash implements OnDestroy {
     source: RetainedViewSource,
     create: () => RetainedViewHandle,
     parent: Node | null = null,
+    hold: SurfaceHoldState | null = null,
   ): RetainedSlot {
     const entry =
       this.claimableEntry(key, source, parent) ??
+      adoptHeld(this.entries, key, hold) ??
       this.createEntry(key, source, create);
     const attached = entry.inPlace && parkedInPlaceAt(entry, parent);
     this.reveal(entry);
@@ -95,15 +103,11 @@ export class RetainedViewStash implements OnDestroy {
   }
 
   parked(): ParkedEntry[] {
-    return [...this.entries.values()]
-      .filter((entry) => !entry.inUse)
-      .map((entry) => ({
-        key: entry.key,
-        retained: entry.retained,
-        held: isHeld(entry),
-        workspace: entry.workspace,
-        instance: entry.instance,
-      }));
+    return parkedEntriesOf(this.entries.values());
+  }
+
+  heldElsewhere(key: string, hold: SurfaceHoldState | null): boolean {
+    return heldInUseElsewhere(this.entries.values(), key, hold);
   }
 
   instances(): unknown[] {
@@ -113,10 +117,7 @@ export class RetainedViewStash implements OnDestroy {
   }
 
   parkedInstancesOf(workspaceId: string): unknown[] {
-    return [...this.entries.values()]
-      .filter((entry) => !entry.inUse && entry.workspace === workspaceId)
-      .map((entry) => entry.instance)
-      .filter((instance) => instance !== undefined);
+    return parkedInstancesIn(this.entries.values(), workspaceId);
   }
 
   keyedInstances(): { key: string; instance: unknown }[] {
@@ -126,12 +127,7 @@ export class RetainedViewStash implements OnDestroy {
   }
 
   instancesFor(scope: string, path: string): unknown[] {
-    const exact = `${scope}|${path}`;
-    const prefix = `${exact}|`;
-    return [...this.entries.values()]
-      .filter((entry) => entry.key === exact || entry.key.startsWith(prefix))
-      .map((entry) => entry.instance)
-      .filter((instance) => instance !== undefined);
+    return instancesAt(this.entries.values(), scope, path);
   }
 
   evacuate(scopePrefix: string): void {

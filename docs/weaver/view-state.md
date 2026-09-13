@@ -119,7 +119,9 @@ async float(): Promise<void> {
 
 While it is held, the workbench leaves the element where you put it. Collapsing the panel, switching
 the view or the workspace neither takes it out of the document, hides it nor puts it back, and the
-instance is not destroyed for being hidden. Release on every way back, including the window closing by
+instance is not destroyed for being hidden. Moving the view to the other sidebar or into another pane
+keeps that same instance where you put it, and releasing it places it where the view now is. Release
+on every way back, including the window closing by
 itself. You do not need to put the element back yourself. On release the workbench treats the
 instance as if it had never been held: back in its place if that place is visible, otherwise hidden or
 released as usual.

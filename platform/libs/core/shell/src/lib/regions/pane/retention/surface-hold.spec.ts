@@ -17,6 +17,7 @@ import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { ViewMountService } from '../../../views/view-mount.service';
 import { CONTENT_DOCK } from '../tree/pane-address';
 import { PaneTreeService } from '../tree/pane-tree.service';
+import { paneSegments } from '../tree/pane-queries';
 import { RetainedComponent } from './retained-component';
 import { RetainedViewStash } from './retained-view-stash';
 import { RetentionGc } from './retention-gc';
@@ -66,6 +67,42 @@ class HoldHost {
   readonly visible = signal(true);
   readonly mode = signal<SurfaceRetentionMode>('move');
   readonly retain = signal(false);
+  private readonly pair = createSurfaceHold();
+  readonly injector = Injector.create({
+    parent: inject(Injector),
+    providers: [
+      { provide: SURFACE_HOLD, useValue: this.pair.handle },
+      { provide: SURFACE_HOLD_STATE, useValue: this.pair.state },
+    ],
+  });
+}
+
+@Component({
+  imports: [RetainedComponent],
+  template: `
+    @if (at() === 'a') {
+      <div data-testid="a">
+        <ng-container
+          [lwRetainedComponent]="component"
+          [componentInjector]="injector"
+          retentionKey="left-panel:p1|view:chat|"
+        />
+      </div>
+    }
+    @if (at() === 'b') {
+      <div data-testid="b">
+        <ng-container
+          [lwRetainedComponent]="component"
+          [componentInjector]="injector"
+          retentionKey="right-panel:p2|view:chat|"
+        />
+      </div>
+    }
+  `,
+})
+class MovingHost {
+  readonly component: Type<unknown> = HoldProbe;
+  readonly at = signal<'a' | 'b'>('a');
   private readonly pair = createSurfaceHold();
   readonly injector = Injector.create({
     parent: inject(Injector),
@@ -276,6 +313,24 @@ describe('a surface held where its product put it', () => {
       });
     });
 
+    it('does not take a held surface whose tab moved to another pane for closed', async () => {
+      const paneTree = TestBed.inject(PaneTreeService);
+      paneTree.seedPrimaryTabs(CONTENT_DOCK, ['notes', 'other']);
+      heldParkedEntry('content:main|notes');
+      TestBed.inject(RetentionGc).start();
+      await settled();
+
+      paneTree.splitPane(CONTENT_DOCK, 'main', 'row', 'notes');
+      paneTree.removeTab(CONTENT_DOCK, 'main', 'notes');
+      await settled();
+      expect(ended).toBe(0);
+
+      const moved = paneSegments(paneTree.tree(CONTENT_DOCK)).at(-1)?.id ?? '';
+      paneTree.closePane(CONTENT_DOCK, moved);
+      await settled();
+      expect(ended).toBe(1);
+    });
+
     it('still ends a held surface whose tab is closed', async () => {
       const paneTree = TestBed.inject(PaneTreeService);
       paneTree.seedPrimaryTabs(CONTENT_DOCK, ['notes', 'other']);
@@ -287,6 +342,57 @@ describe('a surface held where its product put it', () => {
       await settled();
 
       expect(ended).toBe(1);
+    });
+  });
+
+  describe('when its view is moved', () => {
+    async function movedWhileHeld(from: 'a' | 'b', to: 'a' | 'b') {
+      const fixture = TestBed.createComponent(MovingHost);
+      fixture.componentInstance.at.set(from);
+      fixture.detectChanges();
+      await settled();
+      const [probe] = probes;
+      const element = fixture.nativeElement.querySelector('lw-hold-probe') as HTMLElement;
+      const elsewhere = document.createElement('div');
+      document.body.append(elsewhere);
+      probe.hold.hold();
+      elsewhere.append(element);
+
+      fixture.componentInstance.at.set(to);
+      fixture.detectChanges();
+      await settled();
+      fixture.detectChanges();
+      await settled();
+      return { fixture, element, elsewhere, probe };
+    }
+
+    it.each([
+      ['a', 'b'],
+      ['b', 'a'],
+    ] as const)('keeps the one instance where its product put it when %s moves to %s', async (from, to) => {
+      const moved = await movedWhileHeld(from, to);
+
+      expect(probes).toHaveLength(1);
+      expect(ended).toBe(0);
+      expect(moved.elsewhere.contains(moved.element)).toBe(true);
+    });
+
+    it.each([
+      ['a', 'b'],
+      ['b', 'a'],
+    ] as const)('is placed where its view now is once released, moved from %s to %s', async (from, to) => {
+      const moved = await movedWhileHeld(from, to);
+
+      moved.probe.hold.release();
+      await settled();
+      moved.fixture.detectChanges();
+      await settled();
+
+      const place = moved.fixture.nativeElement.querySelector(
+        to === 'a' ? '[data-testid="a"]' : '[data-testid="b"]',
+      );
+      expect(place?.contains(moved.element)).toBe(true);
+      expect(probes).toHaveLength(1);
     });
   });
 

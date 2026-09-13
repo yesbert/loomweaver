@@ -1,6 +1,6 @@
 import { EmbeddedViewRef } from '@angular/core';
 import { SurfaceRetentionMode } from './retention-policy';
-import { RetainedViewSource } from './retained-view-model';
+import { ParkedEntry, RetainedViewSource } from './retained-view-model';
 import { SurfaceHoldState } from './surface-hold';
 
 export interface HiddenNode {
@@ -13,7 +13,7 @@ export type DeferredPlacement =
   | { readonly kind: 'park'; readonly retained: boolean };
 
 export interface StashEntry {
-  readonly key: string;
+  key: string;
   readonly source: RetainedViewSource;
   readonly view: EmbeddedViewRef<unknown>;
   readonly instance?: unknown;
@@ -57,6 +57,75 @@ export function orphaned(entry: StashEntry): boolean {
 
 export function isHeld(entry: StashEntry): boolean {
   return entry.hold?.held() === true;
+}
+
+function holderOf(
+  entries: Iterable<StashEntry>,
+  hold: SurfaceHoldState | null,
+): StashEntry | undefined {
+  if (!hold?.held()) {
+    return undefined;
+  }
+  return [...entries].find((entry) => entry.hold === hold);
+}
+
+export function heldInUseElsewhere(
+  entries: Iterable<StashEntry>,
+  key: string,
+  hold: SurfaceHoldState | null,
+): boolean {
+  const holder = holderOf(entries, hold);
+  return holder !== undefined && holder.inUse && holder.key !== key;
+}
+
+export function adoptHeld(
+  entries: Map<string, StashEntry>,
+  key: string,
+  hold: SurfaceHoldState | null,
+): StashEntry | null {
+  const holder = holderOf(entries.values(), hold);
+  if (!holder || holder.inUse) {
+    return null;
+  }
+  entries.delete(holder.key);
+  holder.key = key;
+  entries.set(key, holder);
+  return holder;
+}
+
+export function parkedEntriesOf(entries: Iterable<StashEntry>): ParkedEntry[] {
+  return [...entries]
+    .filter((entry) => !entry.inUse)
+    .map((entry) => ({
+      key: entry.key,
+      retained: entry.retained,
+      held: isHeld(entry),
+      workspace: entry.workspace,
+      instance: entry.instance,
+    }));
+}
+
+export function parkedInstancesIn(
+  entries: Iterable<StashEntry>,
+  workspaceId: string,
+): unknown[] {
+  return [...entries]
+    .filter((entry) => !entry.inUse && entry.workspace === workspaceId)
+    .map((entry) => entry.instance)
+    .filter((instance) => instance !== undefined);
+}
+
+export function instancesAt(
+  entries: Iterable<StashEntry>,
+  scope: string,
+  path: string,
+): unknown[] {
+  const exact = `${scope}|${path}`;
+  const prefix = `${exact}|`;
+  return [...entries]
+    .filter((entry) => entry.key === exact || entry.key.startsWith(prefix))
+    .map((entry) => entry.instance)
+    .filter((instance) => instance !== undefined);
 }
 
 export function lastHolder(
