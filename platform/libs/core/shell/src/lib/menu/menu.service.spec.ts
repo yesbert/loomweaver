@@ -225,6 +225,53 @@ describe('MenuService', () => {
     expect(item.hasAttribute('checked')).toBe(true);
   });
 
+  describe('the leading places a menu reserves', () => {
+    function openWith(entries: { icon?: string; checked?: boolean }[]): void {
+      for (const [index, entry] of entries.entries()) {
+        registry.addCommand({
+          id: `c.${index}`,
+          title: `cmd.${index}`,
+          icon: entry.icon,
+          run: () => undefined,
+        });
+        registry.addMenuItem({
+          menu: 'm',
+          command: `c.${index}`,
+          checkedWhen: entry.checked === undefined ? undefined : { closable: entry.checked },
+        });
+      }
+      service.open('m', context, { x: 0, y: 0 });
+    }
+
+    function places(): string[] {
+      return ['lw-menu--checks', 'lw-menu--leading'].filter((name) =>
+        menu()?.classList.contains(name),
+      );
+    }
+
+    it('reserves only the check place for a menu of checks without icons', () => {
+      openWith([{ checked: true }, { checked: false }]);
+      expect(places()).toEqual(['lw-menu--checks']);
+    });
+
+    it('reserves only the icon place for a menu of icons without checks', () => {
+      openWith([{ icon: 'x' }, {}]);
+      expect(places()).toEqual(['lw-menu--leading']);
+    });
+
+    it('reserves both for a menu whose entries carry a check and an icon', () => {
+      openWith([{ icon: 'themeLight', checked: false }, { icon: 'themeDark', checked: true }]);
+      expect(places()).toEqual(['lw-menu--checks', 'lw-menu--leading']);
+      expect(items()[1].getAttribute('icon')).toBe('themeDark');
+      expect(items()[1].hasAttribute('checked')).toBe(true);
+    });
+
+    it('reserves neither for a plain menu', () => {
+      openWith([{}, {}]);
+      expect(places()).toEqual([]);
+    });
+  });
+
   it('runs the selected item command with the context and closes', () => {
     registry.addCommand({
       id: 'c.close',

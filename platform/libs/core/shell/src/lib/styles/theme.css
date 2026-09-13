@@ -718,11 +718,14 @@
   .lw-menu-item-shortcut {
     @apply ml-4 shrink-0 text-xs text-content-muted;
   }
-  /* Leading indicator column (icon, or a check on a checkbox item) — reserved (fixed width) only when the
-     menu actually has leading content, so plain menus stay flush-left (`.lw-menu--leading` set by the host). */
+  /* Two leading columns, each reserved (fixed width) only when some entry in the menu uses it, so plain
+     menus stay flush-left: the check of a checkbox item (`.lw-menu--checks` set by the host), then the
+     command's icon (`.lw-menu--leading`). Both exist so a checked entry keeps its icon, as native menus do. */
+  .lw-menu-item-check,
   .lw-menu-item-lead {
     @apply hidden w-4 shrink-0 items-center justify-center text-content-muted;
   }
+  .lw-menu--checks .lw-menu-item-check,
   .lw-menu--leading .lw-menu-item-lead {
     @apply flex;
   }
