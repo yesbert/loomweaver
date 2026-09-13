@@ -10,8 +10,8 @@ export type RegionType = 'bar' | 'rail' | 'panel' | 'content';
 /**
  * A side panel the distribution places into the border frame. It is the one kind of region a person
  * resizes, so it is the one kind that may declare its widths, in pixels. Each is optional and falls
- * back to the workbench's own (start 256, narrowest 180, widest 480). The declared widths apply where
- * the panel stands beside the content; on a narrow viewport the panel is an overlay of its own width.
+ * back to the workbench's own (start 256, narrowest 180, widest 480). Those apply where the panel
+ * stands beside the content; on a narrow viewport the panel is an overlay sized by `overlayWidth`.
  */
 export interface PanelRegion {
   /** Stable id (slot targeting, collapse state, ordering). */
@@ -24,6 +24,12 @@ export interface PanelRegion {
   readonly minWidth?: number;
   /** The widest the panel may be made; a stored width above it is shown at this width. */
   readonly maxWidth?: number;
+  /**
+   * The width of this panel when a narrow viewport presents it as an overlay, in pixels (default 288).
+   * The workbench caps it at the viewport's width less a margin that leaves room to dismiss the
+   * overlay. It is not dragged, stored or set from code, and the widths above do not reach it.
+   */
+  readonly overlayWidth?: number;
 }
 
 /** A bar, rail or content region the distribution places into the border frame. */
