@@ -63,6 +63,31 @@ The loader nests it under the name:
 { "tagline": "Weave anything" }   // → resolved as product.tagline
 ```
 
+### Which languages are served
+
+The workbench ships English and German and serves exactly those unless you say otherwise. Declare the
+whole set with `provideShell({ languages })`: add a language, leave one out, or serve neither shipped
+language at all.
+
+```ts
+provideShell({ languages: ['en', 'fr', 'ja'] });
+```
+
+That one list decides what is loaded, what the language switcher offers, what a stored choice or the
+browser's preference may select and what `<html lang>` declares. Codes are canonicalised, so `pt-br`
+and `pt-BR` are one language. An empty list, or something that is not a language code, throws when
+the providers are built.
+
+For a language the workbench does not ship, serve the workbench's own strings beside the shipped ones,
+at `/i18n/<code>.json` (for example `public/i18n/fr.json`). The shipped English strings are the base,
+and your file is merged over them key by key. A string your file does not carry is shown in English
+and named once in the console during development, so a later release's new strings never appear as
+bare keys. With no file at all, the workbench is shown in English while that language is active, and
+the console says so. Namespaces and overrides work for that language exactly as for a shipped one.
+
+A product's own language control reads and sets the language through `LocaleService`, see
+[Recomposing host chrome](recomposing-chrome.md#the-built-in-controls-and-what-they-drive).
+
 ## Rewording the shell
 
 Namespaces let you _add_ strings and can never collide with a host key, which is what keeps a plugin

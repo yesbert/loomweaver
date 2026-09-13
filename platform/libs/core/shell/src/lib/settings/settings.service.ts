@@ -4,7 +4,7 @@ import { SettingsDialog } from './settings-dialog';
 import { SettingsRegistry } from './settings-registry';
 import { DialogRef } from '../dialog/dialog-ref';
 import { DialogService } from '../dialog/dialog.service';
-import { SettingsSection } from './settings-model';
+import { SettingRow, SettingsSection } from './settings-model';
 
 /**
  * Host registry for settings sections (schema-driven). The shell and
@@ -37,6 +37,9 @@ export class SettingsService {
    */
   readonly registered = this.registry.registered;
 
+  /** The row ids a distribution replaced with {@link replaceRow}, for the composition report. */
+  readonly replacedRowIds = this.registry.replacedRowIds;
+
   /**
    * Contributes a section; dispose to remove it (plugin deactivation). Registering an existing
    * id **overrides** the previous section in place (last contribution wins), like every other
@@ -53,6 +56,20 @@ export class SettingsService {
    */
   omit(ids: readonly string[]): void {
     this.registry.omit(ids);
+  }
+
+  /**
+   * Replaces a single row by its id, in place: the section it sits in, the other rows and their order
+   * stay as they were contributed. A **lasting** instruction like {@link omit}, so a section
+   * contributed later, or contributed again, carries the replacement too; an omit of the same id wins.
+   * Dispose it to give the contributed row back.
+   *
+   * This is how a distribution shows a control of its own in place of a built-in row, for example its
+   * own language control as `shell.language` in General, while a different control stands in a bar.
+   * A plugin contributes whole sections of its own and does not replace rows it did not write.
+   */
+  replaceRow(row: SettingRow): Disposable {
+    return this.registry.replaceRow(row);
   }
 
   /**

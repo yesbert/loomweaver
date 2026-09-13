@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, InjectionToken, isDevMode, Provider, Service } from '@angular/core';
 import { Translation, TranslocoLoader } from '@jsverse/transloco';
-import { catchError, forkJoin, map, of } from 'rxjs';
+import { catchError, forkJoin, map, Observable, of } from 'rxjs';
+import { SHIPPED_LANGUAGES } from './served-languages';
 
 const TRANSLATION_NAMESPACE_DECLARATIONS = new InjectionToken<
   readonly (readonly string[])[]
@@ -97,6 +98,10 @@ export function provideTranslationOverrides(
 
 const MISSING_OVERLAY: Translation = {};
 
+const MISSING_HOST: Translation = {};
+
+const ENGLISH = 'en';
+
 function isGroup(value: unknown): value is Translation {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
@@ -134,15 +139,34 @@ export function unknownOverrideKeys(
   return unknown;
 }
 
+function leafKeys(translation: Translation, prefix = ''): string[] {
+  return Object.entries(translation).flatMap(([key, value]) => {
+    const path = prefix ? `${prefix}.${key}` : key;
+    return isGroup(value) ? leafKeys(value, path) : [path];
+  });
+}
+
+function hasKey(translation: Translation, path: string): boolean {
+  let node: unknown = translation;
+  for (const segment of path.split('.')) {
+    if (!isGroup(node) || !Object.hasOwn(node, segment)) {
+      return false;
+    }
+    node = node[segment];
+  }
+  return true;
+}
+
 @Service()
 export class TranslocoHttpLoader implements TranslocoLoader {
   private readonly http = inject(HttpClient);
   private readonly namespaces = inject(TRANSLATION_NAMESPACES);
   private readonly overrides =
     inject(TRANSLATION_OVERRIDES, { optional: true }) ?? null;
+  private readonly reported = new Set<string>();
 
   getTranslation(lang: string): ReturnType<TranslocoLoader['getTranslation']> {
-    const host$ = this.http.get<Translation>(`/i18n/${lang}.json`);
+    const host$ = this.hostStrings$(lang);
     if (this.namespaces.length === 0 && !this.overrides) {
       return host$;
     }
@@ -168,6 +192,51 @@ export class TranslocoHttpLoader implements TranslocoLoader {
         return this.applyOverrides(merged, overlay, lang);
       }),
     );
+  }
+
+  private hostStrings$(lang: string): Observable<Translation> {
+    const supplied$ = this.http.get<Translation>(`/i18n/${lang}.json`);
+    if (SHIPPED_LANGUAGES.includes(lang)) {
+      return supplied$;
+    }
+    return forkJoin([
+      supplied$.pipe(catchError(() => of<Translation>(MISSING_HOST))),
+      this.http.get<Translation>(`/i18n/${ENGLISH}.json`),
+    ]).pipe(
+      map(([supplied, english]) => this.overEnglish(lang, supplied, english)),
+    );
+  }
+
+  private overEnglish(
+    lang: string,
+    supplied: Translation,
+    english: Translation,
+  ): Translation {
+    if (supplied === MISSING_HOST) {
+      this.reportOnce(
+        lang,
+        `No workbench strings for "${lang}" at /i18n/${lang}.json, so the workbench is shown in ` +
+          `English while it is active.`,
+      );
+      return english;
+    }
+    const missing = leafKeys(english).filter((path) => !hasKey(supplied, path));
+    if (missing.length > 0) {
+      this.reportOnce(
+        lang,
+        `Workbench strings for "${lang}" lack ${missing.length} key(s), shown in English instead: ` +
+          `${missing.join(', ')}.`,
+      );
+    }
+    return mergeTranslation(english, supplied);
+  }
+
+  private reportOnce(lang: string, message: string): void {
+    if (this.reported.has(lang)) {
+      return;
+    }
+    this.reported.add(lang);
+    this.warn(message);
   }
 
   private overrides$(lang: string) {

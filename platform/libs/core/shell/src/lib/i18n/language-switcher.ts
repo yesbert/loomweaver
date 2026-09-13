@@ -1,16 +1,11 @@
 import { CUSTOM_ELEMENTS_SCHEMA, Component, inject } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { LocaleService, SupportedLang } from './locale.service';
+import { LocaleService } from './locale.service';
 import { ViewportService } from '../layout/viewport.service';
 
-interface LangDisplay {
-  readonly label: string;
-  readonly flag: string;
-}
-
-const LANG_DISPLAY: Readonly<Record<SupportedLang, LangDisplay>> = {
-  en: { label: 'English', flag: '🇬🇧' },
-  de: { label: 'Deutsch', flag: '🇩🇪' },
+const FLAGS: Readonly<Partial<Record<string, string>>> = {
+  en: '🇬🇧',
+  de: '🇩🇪',
 };
 
 @Component({
@@ -24,13 +19,14 @@ export class LanguageSwitcher {
   protected readonly lang = this.locale.lang;
   protected readonly compact = inject(ViewportService).compact;
 
-  protected readonly langs = this.locale.supported.map((value) => ({
-    value,
-    ...LANG_DISPLAY[value],
+  protected readonly langs = this.locale.languages.map(({ code, name }) => ({
+    value: code,
+    label: name,
+    flag: FLAGS[code] ?? code.toUpperCase(),
   }));
 
   protected onSelect(event: Event): void {
     const value = (event as CustomEvent<{ value: string }>).detail.value;
-    this.locale.setLang(value as SupportedLang);
+    this.locale.setLang(value);
   }
 }

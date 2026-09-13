@@ -114,6 +114,7 @@ export class CompositionReport {
   private problems(): string[] {
     return [
       ...this.unmatchedOmits(),
+      ...this.unmatchedRowReplacements(),
       ...this.danglingCommands(),
       ...this.contestedShortcuts(),
     ];
@@ -153,6 +154,21 @@ export class CompositionReport {
       );
     }
     return problems;
+  }
+
+  private unmatchedRowReplacements(): string[] {
+    const rowIds = new Set(
+      this.settings
+        .registered()
+        .flatMap((section) => section.rows.map((row) => row.id)),
+    );
+    return this.settings
+      .replacedRowIds()
+      .filter((id) => !rowIds.has(id))
+      .map(
+        (id) =>
+          `Composition: row replacement '${id}' matched no row, so it replaces nothing.`,
+      );
   }
 
   private omitMatches(id: string): boolean {
