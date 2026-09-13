@@ -58,3 +58,21 @@ export function orphaned(entry: StashEntry): boolean {
 export function isHeld(entry: StashEntry): boolean {
   return entry.hold?.held() === true;
 }
+
+export function lastHolder(
+  entry: StashEntry,
+  entries: Iterable<StashEntry>,
+): boolean {
+  return [...entries].every((other) => other.hold !== entry.hold);
+}
+
+export function endHoldsIn(
+  entries: Iterable<StashEntry>,
+  workspaceId: string,
+): void {
+  for (const entry of entries) {
+    if (entry.workspace === workspaceId) {
+      entry.hold?.end();
+    }
+  }
+}

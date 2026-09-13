@@ -207,8 +207,10 @@ const VIEW_STATE: InjectionToken<ViewState>;   // from @loomweaver/plugin-sdk
 // back, the window closing by itself included. While held, collapsing the panel or switching the view or workspace
 // neither removes, hides, moves back nor destroys-for-being-hidden the instance. On release the workbench re-applies
 // what it deferred (back in its place if visible, else hidden or released as usual), so you need not move it back.
-// Closing (close the view, plugin off, arrangement reset) still ends it wherever its nodes are, and ends the hold:
-// the view opened again starts unheld and is placed as usual until it calls hold() itself. The workbench
+// Closing (close the view, plugin off) still ends it wherever its nodes are, and ends the hold: the view opened
+// again starts unheld and is placed as usual until it calls hold() itself. Resetting the workspace ends the hold
+// first, then treats the instance as never held. held() turning false without your release means close your
+// window. The workbench
 // detects nothing and offers no window, gesture or style mirroring. Routable and sandboxed surfaces have none, and
 // injecting it anywhere else throws.
 interface SurfaceHold { readonly held: () => boolean; hold(): void; release(): void; }

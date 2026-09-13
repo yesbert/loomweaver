@@ -18,7 +18,9 @@ import {
 } from './retained-view-model';
 import {
   elementsOf,
+  endHoldsIn,
   isHeld,
+  lastHolder,
   liveRootNodes,
   orphaned,
   parkedInPlaceAt,
@@ -169,6 +171,10 @@ export class RetainedViewStash implements OnDestroy {
         this.destroyEntry(entry);
       }
     }
+  }
+
+  endHolds(workspaceId: string): void {
+    endHoldsIn(this.entries.values(), workspaceId);
   }
 
   ngOnDestroy(): void {
@@ -355,10 +361,8 @@ export class RetainedViewStash implements OnDestroy {
     if (this.entries.get(entry.key) === entry) {
       this.entries.delete(entry.key);
     }
-    const hold = entry.hold;
-    const shared = [...this.entries.values()].some((other) => other.hold === hold);
-    if (hold && !shared) {
-      hold.end();
+    if (lastHolder(entry, this.entries.values())) {
+      entry.hold?.end();
     }
     if (!entry.view.destroyed) {
       this.appRef.detachView(entry.view);

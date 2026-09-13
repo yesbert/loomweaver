@@ -10,7 +10,9 @@ import {
   Type,
 } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { SURFACE_HOLD } from '@loomweaver/plugin-sdk';
+import { WorkspaceService } from '../../../workspace/workspace.service';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { ViewMountService } from '../../../views/view-mount.service';
 import { CONTENT_DOCK } from '../tree/pane-address';
@@ -242,6 +244,36 @@ describe('a surface held where its product put it', () => {
       await settled();
 
       expect(ended).toBe(1);
+    });
+
+    describe('when the workspace is reset', () => {
+      const SIDEBAR_KEY = 'primary:left-panel|view:chat';
+
+      beforeEach(() => {
+        TestBed.configureTestingModule({
+          providers: [provideRouter([{ path: '**', children: [] }])],
+        });
+      });
+
+      it('ends the hold of a surface acquired in that workspace', async () => {
+        const hold = heldParkedEntry(SIDEBAR_KEY);
+
+        await TestBed.inject(WorkspaceService).reset();
+
+        expect(hold.held()).toBe(false);
+      });
+
+      it('ends a held surface it no longer shows, as it ends one that never held', async () => {
+        heldParkedEntry(SIDEBAR_KEY);
+        TestBed.inject(RetentionGc).start();
+        await settled();
+        expect(ended).toBe(0);
+
+        await TestBed.inject(WorkspaceService).reset();
+        await settled();
+
+        expect(ended).toBe(1);
+      });
     });
 
     it('still ends a held surface whose tab is closed', async () => {
