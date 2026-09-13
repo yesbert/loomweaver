@@ -22,6 +22,7 @@ import {
 interface ParkedInstance {
   readonly instance?: unknown;
   readonly retained: boolean;
+  readonly held: boolean;
   readonly path: string;
   readonly dirty: boolean;
   readonly evict: () => void;
@@ -77,6 +78,7 @@ export class RetentionGc {
     return this.stash.parked().map((entry) => ({
       instance: entry.instance,
       retained: entry.retained,
+      held: entry.held,
       path: pathOfKey(entry.key),
       dirty: instanceDirty(entry.instance),
       evict: () => this.stash.evictParked(entry.key),
@@ -89,6 +91,7 @@ export class RetentionGc {
     return this.reuse.parkedHandles().map((handle) => ({
       instance: handle.instance,
       retained: false,
+      held: false,
       path: handle.key,
       dirty: instanceDirty(handle.instance),
       evict: () => this.reuse.evict(handle.key),
@@ -115,7 +118,7 @@ export class RetentionGc {
         this.autoSaveOnce(entry, routes, views);
         continue;
       }
-      if (!entry.retained) {
+      if (!entry.retained && !entry.held) {
         entry.evict();
       }
     }

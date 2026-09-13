@@ -17,6 +17,7 @@ import { moveNode } from './atomic-move';
 import { RetainedSlot } from './retained-view-model';
 import { RetainedViewStash } from './retained-view-stash';
 import { SurfaceRetentionMode } from './retention-policy';
+import { SURFACE_HOLD_STATE } from './surface-hold';
 
 interface MountedComponent {
   readonly key: string;
@@ -89,11 +90,12 @@ export class RetainedComponent implements OnChanges, OnDestroy {
         return {
           view: componentRef.hostView as EmbeddedViewRef<unknown>,
           instance: componentRef.instance,
+          hold: injector.get(SURFACE_HOLD_STATE, null),
         };
       },
       this.anchor.parentNode,
     );
-    if (!slot.attached) {
+    if (!slot.attached && !slot.held()) {
       this.place(slot.rootNodes);
     }
     this.mounted = {
@@ -134,7 +136,7 @@ export class RetainedComponent implements OnChanges, OnDestroy {
       this.sync();
       return;
     }
-    if (this.displaced(mounted.slot.rootNodes)) {
+    if (this.misplaced(mounted.slot)) {
       this.queueRepair();
     }
   }
@@ -147,14 +149,14 @@ export class RetainedComponent implements OnChanges, OnDestroy {
     setTimeout(() => {
       this.repairQueued = false;
       const mounted = this.mounted;
-      if (
-        mounted &&
-        !mounted.slot.stale() &&
-        this.displaced(mounted.slot.rootNodes)
-      ) {
+      if (mounted && !mounted.slot.stale() && this.misplaced(mounted.slot)) {
         this.place(mounted.slot.rootNodes);
       }
     }, 0);
+  }
+
+  private misplaced(slot: RetainedSlot): boolean {
+    return !slot.held() && this.displaced(slot.rootNodes);
   }
 
   private displaced(nodes: readonly Node[]): boolean {
