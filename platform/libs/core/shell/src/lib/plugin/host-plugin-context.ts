@@ -16,6 +16,7 @@ import {
   PluginState,
   StateHandle,
   Surface,
+  ViewAction,
 } from '@loomweaver/plugin-sdk';
 import {
   entryToContentRoute,
@@ -198,6 +199,11 @@ export class HostPluginContext implements PluginContext {
   retitleSurface(id: string, title: string): void {
     this.require('contributions');
     this.registry.retitleSurface(id, title);
+  }
+
+  updateSurfaceAction(id: string, action: ViewAction): void {
+    this.require('contributions');
+    this.registry.updateSurfaceAction(id, action);
   }
 
   registerSurface(surface: Surface): Disposable {

@@ -2,7 +2,7 @@ import { computed, Service, signal, Signal, WritableSignal } from '@angular/core
 import { Command, ContentRoute, Disposable, MenuItem } from '@loomweaver/plugin-sdk';
 import { BarItem } from '../foundation/bar-item';
 import { RailItem } from '../foundation/rail-item';
-import { View } from '../layout/view';
+import { View, ViewAction } from '../layout/view';
 import { Identified, upsertBy, upsertById } from '../foundation/identified';
 import { isRouteOmitted } from './route-omit';
 import {
@@ -279,6 +279,21 @@ export class ContributionRegistry {
     this.surfacesSignal.update((entries) =>
       entries.map((entry) =>
         entry.id === id && entry.title !== title ? { ...entry, title } : entry,
+      ),
+    );
+  }
+
+  /**
+   * Replaces one action of a registered surface in place, by the action's id, leaving the entry's
+   * identity and everything else it declared alone. An action id the surface did not carry is added.
+   * A surface id nothing was registered under is a no-op.
+   */
+  updateSurfaceAction(id: string, action: ViewAction): void {
+    this.surfacesSignal.update((entries) =>
+      entries.map((entry) =>
+        entry.id === id
+          ? { ...entry, actions: upsertById(entry.actions ?? [], action) }
+          : entry,
       ),
     );
   }

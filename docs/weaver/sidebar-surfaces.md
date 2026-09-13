@@ -40,6 +40,27 @@ ctx.registerSurface({
 });
 ```
 
+An action is read when the surface is registered, and nothing on it is live. To change one later,
+replace it under its id with `ctx.updateSurfaceAction`: the panel header follows, the surface is not
+rebuilt, and an id the surface did not carry is added. That is how a **toggle** works. Give the
+action a `pressed` state, and the host draws it pressed and announces it as `aria-pressed`, so a
+screen reader hears a toggle rather than a button that seems to do nothing the second time. Replace
+it with the opposite state when the state changes:
+
+```ts
+const floated = signal(false);
+const floatAction = (pressed: boolean) => ({
+  id: 'chat.float', icon: pressed ? 'dock' : 'float',
+  title: pressed ? 'chat.dock' : 'chat.float', pressed,
+  run: () => { floated.set(!floated()); ctx.updateSurfaceAction('chat', floatAction(floated())); },
+});
+ctx.registerSurface({ id: 'chat', /* … */ actions: [floatAction(false)] });
+```
+
+An action without `pressed` is a plain button and carries no `aria-pressed` at all. Renaming the
+surface with `ctx.retitleSurface` leaves its actions alone, and replacing an action leaves its title
+alone; each reaches the one thing it names.
+
 Use **semantic design tokens** in templates (`text-content`, `bg-surface`, `text-brand`), never raw
 colours (see [design tokens](../reference/design-tokens.md)).
 

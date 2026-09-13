@@ -27,7 +27,7 @@ const panelRegion: LayoutRegion = {
 
 function transloco() {
   return TranslocoTestingModule.forRoot({
-    langs: { en: { nav: 'Nav', act: 'Act' } },
+    langs: { en: { nav: 'Nav', act: 'Act', float: 'Float', dock: 'Dock' } },
     translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
     preloadLangs: true,
   });
@@ -145,6 +145,82 @@ describe('ShellPanel', () => {
       expect(host.textContent).toContain('Act');
       expect(host.textContent).not.toContain('Nav');
       expect(built).toBe(builtOnce);
+    });
+  });
+
+  describe("a view's action that carries a toggle state", () => {
+    function renderWith(actions: View['actions']) {
+      localStorage.clear();
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        imports: [ShellPanel, transloco()],
+        providers: [],
+      });
+      const registry = TestBed.inject(ContributionRegistry);
+      registry.addView({ ...navView, actions });
+      const fixture = TestBed.createComponent(ShellPanel);
+      fixture.componentRef.setInput('region', panelRegion);
+      fixture.detectChanges();
+      return { fixture, registry, host: fixture.nativeElement as HTMLElement };
+    }
+
+    function pressedOf(host: HTMLElement, label: string): string | null {
+      return (
+        [...host.querySelectorAll('button[aria-label]')]
+          .find((button) => button.getAttribute('aria-label') === label)
+          ?.getAttribute('aria-pressed') ?? null
+      );
+    }
+
+    it('is announced pressed when it stands on, unpressed when off, and as a plain button without one', () => {
+      const { host } = renderWith([
+        { id: 'on', icon: 'pin', title: 'float', pressed: true },
+        { id: 'off', icon: 'pin', title: 'dock', pressed: false },
+        { id: 'plain', icon: 'add', title: 'act' },
+      ]);
+
+      expect(pressedOf(host, 'Float')).toBe('true');
+      expect(pressedOf(host, 'Dock')).toBe('false');
+      expect(pressedOf(host, 'Act')).toBeNull();
+    });
+
+    it('flips its announced state when replaced with the opposite one, without a rebuild', () => {
+      built = 0;
+      const { fixture, registry, host } = renderWith([
+        { id: 'float', icon: 'pin', title: 'float', pressed: false },
+      ]);
+      const builtOnce = built;
+
+      registry.updateSurfaceAction('nav', {
+        id: 'float',
+        icon: 'pin',
+        title: 'dock',
+        pressed: true,
+      });
+      fixture.detectChanges();
+
+      expect(pressedOf(host, 'Dock')).toBe('true');
+      expect(host.querySelector('[aria-label="Float"]')).toBeNull();
+      expect(built).toBe(builtOnce);
+    });
+
+    it('draws an action added later in the place its order gives it', () => {
+      const { fixture, registry, host } = renderWith([
+        { id: 'a', icon: 'add', title: 'act', order: 10 },
+      ]);
+
+      registry.updateSurfaceAction('nav', {
+        id: 'z',
+        icon: 'pin',
+        title: 'float',
+        order: 0,
+      });
+      fixture.detectChanges();
+
+      const labels = [...host.querySelectorAll('button[aria-label]')]
+        .map((button) => button.getAttribute('aria-label'))
+        .filter((label) => label === 'Float' || label === 'Act');
+      expect(labels).toEqual(['Float', 'Act']);
     });
   });
 

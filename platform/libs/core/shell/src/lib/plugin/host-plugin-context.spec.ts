@@ -610,6 +610,62 @@ describe('HostPluginContext', () => {
     });
   });
 
+  describe("replacing one of a surface's actions", () => {
+    const first = { id: 'a', icon: 'add', title: 'act.add' };
+    const second = { id: 'b', icon: 'pin', title: 'act.pin', pressed: false };
+
+    function registered(granted?: Capability[]) {
+      const made = makeContext(granted);
+      made.ctx.registerSurface({
+        id: 'nav',
+        docks: ['primary'],
+        title: 'nav.first',
+        icon: 'navigator',
+        actions: [first, second],
+        component: DummyComponent,
+      });
+      return made;
+    }
+
+    it('replaces the action named, and leaves the rest of the surface alone', () => {
+      const { ctx, registry } = registered();
+      const flipped = { ...second, icon: 'unpin', title: 'act.unpin', pressed: true };
+
+      ctx.updateSurfaceAction('nav', flipped);
+
+      const view = registry.views()[0];
+      expect(view.actions).toEqual([first, flipped]);
+      expect(view.title).toBe('nav.first');
+      expect(view.icon).toBe('navigator');
+      expect(registry.views()).toHaveLength(1);
+    });
+
+    it('adds an action the surface did not carry', () => {
+      const { ctx, registry } = registered();
+      const third = { id: 'c', icon: 'sort', title: 'act.sort' };
+
+      ctx.updateSurfaceAction('nav', third);
+
+      expect(registry.views()[0].actions).toEqual([first, second, third]);
+    });
+
+    it('leaves a surface id nothing was registered under alone', () => {
+      const { ctx, registry } = registered();
+
+      ctx.updateSurfaceAction('other', { ...first, title: 'act.other' });
+
+      expect(registry.views()[0].actions).toEqual([first, second]);
+    });
+
+    it('needs the "contributions" capability', () => {
+      const { ctx } = makeContext(['ui', 'host']);
+
+      expect(() => ctx.updateSurfaceAction('nav', first)).toThrow(
+        CapabilityError,
+      );
+    });
+  });
+
   describe('asking whether the address shown lies under one', () => {
     it('counts the address itself and anything below it', () => {
       const { ctx, shown } = makeContext();

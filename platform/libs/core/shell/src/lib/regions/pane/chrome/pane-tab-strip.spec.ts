@@ -117,6 +117,25 @@ describe('PaneTabStrip', () => {
     create([tab({ title: 'Q-2026-0001', literalTitle: true })]);
     expect(labels()[0]).toContain('Q-2026-0001');
   });
+
+  it("announces a toggling action's state, and a plain action as a plain button", () => {
+    create([
+      tab({
+        actions: [
+          { id: 'on', icon: 'pin', title: 'on', pressed: true },
+          { id: 'off', icon: 'pin', title: 'off', pressed: false },
+          { id: 'plain', icon: 'add', title: 'plain' },
+        ],
+      }),
+    ]);
+
+    const host = fixture.nativeElement as HTMLElement;
+    const pressed = [...host.querySelectorAll('button[aria-pressed]')].map(
+      (button) => button.getAttribute('aria-pressed'),
+    );
+    expect(pressed).toEqual(['true', 'false']);
+    expect(host.querySelectorAll('button lw-icon').length).toBeGreaterThanOrEqual(3);
+  });
   function marks(): number {
     const host = fixture.nativeElement as HTMLElement;
     return host.querySelectorAll('[data-testid="tab-unsaved"]').length;

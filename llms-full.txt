@@ -58,6 +58,11 @@ interface PluginContext {
   retitleSurface(id: string, title: string): void;   // rename a surface you registered while it is MOUNTED: its tab, the panel header,
                                                          // a picker that lists it all follow; the surface is NOT rebuilt (typed/scrolled/folded
                                                          // state survives); a key still translates; an id you did not register = no-op [contributions]
+  updateSurfaceAction(id: string, action: ViewAction): void;  // replace ONE action of a surface you registered, by the action's id, while it is
+                                                         // MOUNTED: the panel header follows, the surface is NOT rebuilt; an action id the surface
+                                                         // did not carry is ADDED in its `order` place. This is how a toggle moves: replace it with the
+                                                         // opposite `pressed` when the state changes. Surface id you did not register = no-op; a
+                                                         // sandboxed surface carries no actions, so nothing there to replace [contributions]
   registerBarItem(item: BarItem): Disposable;
   registerRailItem(item: RailItem): Disposable;
   registerSettingsSection(section: SettingsSection): Disposable;
@@ -185,7 +190,10 @@ interface View {
   readonly closable?: boolean;               // may the user close its tab (carried through from Surface.closable)
   readonly padded?: boolean;                 // inset from the pane edges, over the product's PaddingDefault
 }
-interface ViewAction { id: string; icon: string; title: string; order?: number; menu?: string; command?: string; access?: AccessRequirement; run?(): void | Promise<void>; }
+interface ViewAction { id: string; icon: string; title: string; order?: number; menu?: string; command?: string; access?: AccessRequirement; pressed?: boolean; run?(): void | Promise<void>; }
+// `pressed` makes the action a TOGGLE: true = on, false = off, drawn as the control's pressed look AND `aria-pressed`
+// (one attribute drives both, so seen and announced cannot drift). Omit for a plain button (no aria-pressed at all).
+// Nothing on an action is live; to move a toggle, call `ctx.updateSurfaceAction(surfaceId, { ...action, pressed })`.
 // Persisted view state (Option B): a DOCKED surface persists its own serialisable state — filter, active
 // sub-tab, expanded nodes, scroll position — so it survives BOTH a hide and a reload. Since the retention rule destroys a
 // hidden, clean surface, this is THE survival path: the rule is "evictable = reload-safe" — anything that must

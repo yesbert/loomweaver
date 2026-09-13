@@ -50,6 +50,7 @@ function activate(): Captured {
     registerCommand: capture(captured.commands),
     registerSurface: capture(captured.surfaces),
     retitleSurface: () => undefined,
+    updateSurfaceAction: () => undefined,
     isShowingUnder: () => false,
     hasUnsavedWork: () => false,
     registerBarItem: capture(captured.barItems),

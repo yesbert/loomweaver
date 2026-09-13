@@ -30,7 +30,9 @@ across the `ctx`-RPC boundary, unlike an Angular class. For a **sandboxed** plug
 **same-origin** (served by the distribution, like the plugin itself). A foreign origin, `javascript:` or
 `data:` URL is rejected at the RPC seam, so an untrusted plugin cannot point the host chrome wherever it
 likes. A sandboxed surface may be **docked** (`docks`) as well as routable, and it may declare a
-`container`. The seam rejects `access` instead of silently dropping it, because a sandboxed surface gates
+`container`. A sandboxed surface carries **no `actions`**: the seam keeps id, title, icon, order and the
+docking fields and drops the rest, so the panel header draws no actions for it and
+`ctx.updateSurfaceAction` has nothing there to replace. The seam rejects `access` instead of silently dropping it, because a sandboxed surface gates
 itself from the session state the host pushes. A **trusted** plugin may use the same `iframe` form to
 embed a foreign origin on purpose (a dashboard, a docs site, a video). There the distribution decides
 what may be framed through its CSP `frame-src`, which the browser enforces. The tab strip works

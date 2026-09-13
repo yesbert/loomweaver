@@ -10,6 +10,7 @@ import {
 import { MenuItem } from './menu.js';
 import { Disposable } from './contribution.js';
 import { Surface } from './surface.js';
+import { ViewAction } from './view.js';
 import { OpenTabInput } from './content-route.js';
 import { BarItem } from './bar-item.js';
 import { RailItem } from './rail-item.js';
@@ -169,6 +170,16 @@ export interface PluginContext {
    * language change. Only the title changes; an id you did not register is a no-op.
    */
   retitleSurface(id: string, title: string): void;
+  /**
+   * Replaces one action of a surface you registered, under the surface's id and the action's `id`
+   * (`contributions`). Wherever the workbench draws that surface's actions follows, the header of the
+   * panel it is docked in first among them, and the surface itself is **not** rebuilt. An action id
+   * the surface did not carry is added, in the place its `order` gives it. This is how a toggle
+   * moves: replace it with the opposite {@link ViewAction.pressed} when its state changes. Only that
+   * one action changes; a surface id you did not register is a no-op. A sandboxed surface carries no
+   * actions, so there is nothing on it to replace.
+   */
+  updateSurfaceAction(id: string, action: ViewAction): void;
   registerBarItem(item: BarItem): Disposable;
   registerRailItem(item: RailItem): Disposable;
   /** Contributes a section to the host settings surface. */
