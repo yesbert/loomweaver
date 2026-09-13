@@ -39,3 +39,11 @@ describe('a settings row led by a symbol', () => {
     expect(symbol?.getAttribute('aria-hidden')).toBe('true');
   });
 });
+
+describe('a settings row in a stack of rows', () => {
+  it('takes a line of its own, so a container can draw on its edges', () => {
+    const row = render('').querySelector('lw-setting-row');
+
+    expect(row?.classList.contains('block')).toBe(true);
+  });
+});

@@ -8,6 +8,7 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, input } from '@angular/core';
  */
 @Component({
   selector: 'lw-setting-row',
+  host: { class: 'block' },
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './lw-setting-row.html',
 })

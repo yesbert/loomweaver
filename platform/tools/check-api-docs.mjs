@@ -41,7 +41,8 @@ const VISIBLE_BUT_NOT_EXPORTED = new Map([
 // must be documented — adding a name to this list is a deliberate act, visible in review.
 const EXEMPT = new Map([
   // Custom-element plumbing: the documented contract is the tag and its CSS classes, not the
-  // registration helper or the class behind it (see reference/design-tokens.md).
+  // class behind it (see reference/design-tokens.md). The registration functions are not exempt:
+  // content rendered without a running shell needs them, so they are documented there.
   ['LW_BUTTON_TAG', 'element tag constant'],
   ['LW_ICON_TAG', 'element tag constant'],
   ['LW_MARKDOWN_TAG', 'element tag constant'],
@@ -50,11 +51,6 @@ const EXEMPT = new Map([
   ['LW_NAV_GROUP_TAG', 'element tag constant'],
   ['LW_NAV_ITEM_TAG', 'element tag constant'],
   ['LW_NAV_SELECT', 'event name constant behind the documented lw-nav-select event'],
-  ['defineLwButton', 'element registration helper'],
-  ['defineLwIcon', 'element registration helper'],
-  ['defineLwMarkdown', 'element registration helper'],
-  ['defineLwTooltip', 'element registration helper'],
-  ['defineLwNavTree', 'element registration helper'],
   ['LwButtonElement', 'class behind <lw-button>'],
   ['LwIconElement', 'class behind <lw-icon>'],
   ['LwMarkdownElement', 'class behind <lw-markdown>'],

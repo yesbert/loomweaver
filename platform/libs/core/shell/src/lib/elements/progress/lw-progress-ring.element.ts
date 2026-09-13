@@ -47,6 +47,7 @@ export class LwProgressRingElement extends HTMLElement {
   }
 }
 
+/** Registers `<lw-progress-ring>` once (idempotent), called from {@link provideShell} at bootstrap. */
 export function defineLwProgressRing(): void {
   if (
     typeof customElements !== 'undefined' &&

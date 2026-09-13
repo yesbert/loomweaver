@@ -347,6 +347,7 @@ export class LwSelectElement extends HTMLElement {
   }
 }
 
+/** Registers `<lw-select>` and `<lw-option>` once (idempotent), called from {@link provideShell} at bootstrap. */
 export function defineLwSelect(): void {
   if (typeof customElements === 'undefined') {
     return;
