@@ -55,6 +55,19 @@ function aligned(
   return fits(near, size, limit) ? near : clamp(far - size, size, limit);
 }
 
+function leadingPlace(className: string, iconName: string | null): HTMLSpanElement {
+  const place = document.createElement('span');
+  place.className = className;
+  place.setAttribute('aria-hidden', 'true');
+  if (iconName) {
+    const icon = document.createElement('lw-icon');
+    icon.setAttribute('name', iconName);
+    icon.setAttribute('size', '0.9rem');
+    place.append(icon);
+  }
+  return place;
+}
+
 export class LwMenuItemElement extends HTMLElement {
   static readonly observedAttributes = [
     'label',
@@ -103,26 +116,13 @@ export class LwMenuItemElement extends HTMLElement {
     }
     this.setAttribute('aria-disabled', String(this.hasAttribute('disabled')));
 
-    const lead = document.createElement('span');
-    lead.className = 'lw-menu-item-lead';
-    lead.setAttribute('aria-hidden', 'true');
-    let iconName: string | null;
-    if (checkbox) {
-      iconName = checked ? 'check' : null;
-    } else {
-      iconName = this.getAttribute('icon');
-    }
-    if (iconName) {
-      const icon = document.createElement('lw-icon');
-      icon.setAttribute('name', iconName);
-      icon.setAttribute('size', '0.9rem');
-      lead.append(icon);
-    }
+    const check = leadingPlace('lw-menu-item-check', checked ? 'check' : null);
+    const lead = leadingPlace('lw-menu-item-lead', this.getAttribute('icon'));
 
     const label = document.createElement('span');
     label.className = 'lw-menu-item-label';
     label.textContent = this.getAttribute('label') ?? '';
-    this.replaceChildren(lead, label);
+    this.replaceChildren(check, lead, label);
 
     const shortcut = this.getAttribute('shortcut');
     if (shortcut) {

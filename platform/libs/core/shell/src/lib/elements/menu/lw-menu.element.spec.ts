@@ -139,7 +139,7 @@ describe('<lw-menu> custom element', () => {
     });
     expect(unchecked.getAttribute('role')).toBe('menuitemcheckbox');
     expect(unchecked.getAttribute('aria-checked')).toBe('false');
-    expect(unchecked.querySelector('.lw-menu-item-lead lw-icon')).toBeNull();
+    expect(unchecked.querySelector('.lw-menu-item-check lw-icon')).toBeNull();
 
     const checked = mountItem({
       command: 'shell.tab.togglePin',
@@ -149,8 +149,52 @@ describe('<lw-menu> custom element', () => {
     });
     expect(checked.getAttribute('aria-checked')).toBe('true');
     expect(
-      checked.querySelector('.lw-menu-item-lead lw-icon')?.getAttribute('name'),
+      checked.querySelector('.lw-menu-item-check lw-icon')?.getAttribute('name'),
     ).toBe('check');
+  });
+
+  describe('a checkbox item that has an icon', () => {
+    function leading(item: HTMLElement): (string | null)[] {
+      return [
+        item.querySelector('.lw-menu-item-check lw-icon')?.getAttribute('name') ?? null,
+        item.querySelector('.lw-menu-item-lead lw-icon')?.getAttribute('name') ?? null,
+      ];
+    }
+
+    it('shows its check and then its icon when checked', () => {
+      const item = mountItem({
+        command: 'theme.dark',
+        label: 'Dark',
+        icon: 'themeDark',
+        checkbox: '',
+        checked: '',
+      });
+
+      expect(leading(item)).toEqual(['check', 'themeDark']);
+      expect(item.getAttribute('aria-checked')).toBe('true');
+      expect(item.querySelector('.lw-menu-item-check')?.getAttribute('aria-hidden')).toBe('true');
+    });
+
+    it('keeps its icon with an empty check place when unchecked', () => {
+      const item = mountItem({
+        command: 'theme.light',
+        label: 'Light',
+        icon: 'themeLight',
+        checkbox: '',
+      });
+
+      expect(leading(item)).toEqual([null, 'themeLight']);
+      expect(item.querySelector('.lw-menu-item-check')).not.toBeNull();
+      expect(item.getAttribute('aria-checked')).toBe('false');
+    });
+
+    it('leaves a plain item with an icon as it was', () => {
+      const item = mountItem({ command: 'a', label: 'Reveal', icon: 'search' });
+
+      expect(leading(item)).toEqual([null, 'search']);
+      expect(item.getAttribute('role')).toBe('menuitem');
+      expect(item.hasAttribute('aria-checked')).toBe(false);
+    });
   });
 
   it('activating a checkbox item still emits its command (role^=menuitem match)', () => {

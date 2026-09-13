@@ -51,7 +51,9 @@ purely additive.
 A menu item shows its referenced command's **icon** and **keyboard-shortcut** hint automatically. Add
 `checkedWhen` to make it a **checkbox** (`role="menuitemcheckbox"`): it is checked when `checkedWhen` is a
 subset of the opener's context, so one toggle item replaces a Pin/Unpin pair (the command reads the state
-from the context and flips it):
+from the context and flips it). A checkbox item keeps its command's icon: the check has a leading place
+of its own and the icon follows it, so a menu of modes that each have a symbol can still mark the one in
+effect. A menu without any checkbox reserves no space for the check, and one without icons none for those.
 
 ```ts
 ctx.registerCommand({

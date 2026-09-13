@@ -214,7 +214,10 @@ export class MenuService {
     header?: MenuHeader,
   ): LwMenuElement {
     const menu = document.createElement(LW_MENU_TAG) as LwMenuElement;
-    if (resolved.some((entry) => entry.icon || entry.checkbox)) {
+    if (resolved.some((entry) => entry.checkbox)) {
+      menu.classList.add('lw-menu--checks');
+    }
+    if (resolved.some((entry) => entry.icon)) {
       menu.classList.add('lw-menu--leading');
     }
     if (header) {
