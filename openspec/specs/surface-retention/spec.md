@@ -310,10 +310,13 @@ When the switch is turned off, the workbench SHALL treat the instance as it woul
 never been held: if the place it belongs to is visible, its nodes are put back there; if not, the
 ordinary rules for a hidden surface apply.
 
-Holding SHALL NOT prevent closing. Closing the view, turning off the plugin that contributed it or
-resetting the arrangement it belongs to SHALL end a held instance as it ends any other, with its
-nodes leaving the document wherever they are. Ending an instance SHALL end its hold, so that a view
-opened again after it was closed starts unheld until it switches holding on itself.
+Holding SHALL NOT prevent closing. Closing the view or turning off the plugin that contributed it
+SHALL end a held instance as it ends any other, with its nodes leaving the document wherever they
+are. Ending an instance SHALL end its hold, so that a view opened again after it was closed starts
+unheld until it switches holding on itself.
+
+Resetting the arrangement a held instance belongs to SHALL end its hold before the reset takes
+effect, so that the reset ends or keeps the instance exactly as it would one that was never held.
 
 The workbench SHALL NOT detect on its own that nodes were moved, nor offer any gesture, window or
 presentation for showing a surface elsewhere; the switch is the whole of what it provides. A
@@ -361,6 +364,12 @@ another window without being reloaded.
 
 - **WHEN** a held surface was closed and its view is opened again
 - **THEN** the new surface is not held and its nodes are placed where the view is shown
+
+#### Scenario: Resetting the workspace ends a hold
+
+- **WHEN** the workspace a held surface belongs to is reset
+- **THEN** the surface is no longer held
+- **AND** it is ended or kept exactly as a surface that never held would be by the same reset
 
 #### Scenario: A surface that never holds is unaffected
 
