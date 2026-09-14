@@ -18,7 +18,7 @@ Add an item to a host menu slot with `ctx.registerMenuItem` (capability `contrib
 It names a {@link Command} by id (invoked with the menu's context) and may declare a coarse `when`
 filter. The item shows only when every `when` key equals the same key in the opener's context. The
 host draws the menu; a right-click on the content tab strip opens the `content/tab/context` slot with
-`{ targetKind, tabId, pinned, closable }`:
+`{ targetKind, tabId, pinned, closable, sole }`, where `sole` says the tab is the only one in its pane:
 
 ```ts
 ctx.registerCommand({ id: 'my.tab.reveal', title: 'my.tab.reveal', run: (ctx) => reveal(ctx?.tabId) });
@@ -26,7 +26,10 @@ ctx.registerMenuItem({ menu: 'content/tab/context', command: 'my.tab.reveal', gr
 ```
 
 The host's own tab actions (Close, Close Others/All/to-the-Right, and a "Pinned" checkbox) live in the same
-slot, and your item joins them. Command behaviour crosses the sandbox boundary because it is referenced by
+slot, and your item joins them. The two split entries take the tab out of its pane into a new one. They are
+offered only while other tabs share the pane, through `when: { sole: false }`. The pane toolbar's split
+duplicates the open item instead, and is the way to split a lone tab. Use the same condition on an entry of
+your own that would leave the pane empty. Command behaviour crosses the sandbox boundary because it is referenced by
 **id** (the context is plain, serialisable data); an inline `run` on a menu item is trusted, in-process only.
 
 ![The context menu of a content tab, offering Split right, Split down, Close, Close Others, Close to the Right, Close All, Pinned and Open in New Window.](../../assets/media/tab-menu-light.png#gh-light-mode-only)
@@ -76,6 +79,12 @@ A context menu is not tied to the tab strip: a `RailItem`,
 `BarButtonItem` or `ViewAction` can carry a `menu?: string` slot, and the host opens it on right-click with a
 `{ targetKind, id, region }` context. Contribute items to that slot the same way; e.g. the
 built-in view-tab menu offers "Move to other sidebar". One mechanism, every region.
+
+A view's tab opens `panel/view/context` with `{ targetKind: 'view-tab', viewId, region, inContent, sole }`
+wherever the tab stands, in a sidebar or in a pane of the main area. `inContent` says the tab stands in
+the main area. The built-in "Open in content" and "Move to other sidebar" carry `when: { inContent: false }`,
+because neither has anywhere to go from there. "Stack below", "Reset view", "Open in new window" and "Hide"
+are offered everywhere. An entry of your own that takes the view somewhere can use the same condition.
 
 ## A menu on the plain click
 

@@ -44,6 +44,7 @@ describe('registerViewContextMenu', () => {
         command: 'shell.view.moveToOtherSidebar',
         group: '1_move',
         order: 0,
+        when: { inContent: false },
       },
     ]);
   });
@@ -176,6 +177,13 @@ describe('registerViewOpenInContentMenu', () => {
       TestBed.inject(PaneTreeService),
     );
     commands = TestBed.inject(CommandService);
+  });
+
+  it('is offered only on a tab outside the main area', () => {
+    const item = TestBed.inject(ContributionRegistry)
+      .menuItems()
+      .find((entry) => entry.command === 'shell.view.openInContent');
+    expect(item?.when).toEqual({ inContent: false });
   });
 
   it('opens the view as a content split', () => {

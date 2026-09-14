@@ -68,6 +68,16 @@ describe('registerTabContextMenu', () => {
     ).toHaveLength(8);
   });
 
+  it('offers the split entries only to a tab that has company in its pane', () => {
+    const splits = registry
+      .menuItems()
+      .filter((item) => item.command?.startsWith('shell.tab.split'));
+    expect(splits).toHaveLength(2);
+    for (const item of splits) {
+      expect(item.when).toEqual({ closable: true, sole: false });
+    }
+  });
+
   it('close/others/right target the tab from the context', () => {
     commands.execute('shell.tab.close', { tabId: 't1' });
     commands.execute('shell.tab.closeOthers', { tabId: 't1' });
