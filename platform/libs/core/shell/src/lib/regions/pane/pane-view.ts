@@ -29,7 +29,7 @@ import { PaneTargetPicker } from '../content/pane-target-picker.service';
 import { ContentTabsService } from '../content/tabs/content-tabs.service';
 import { FeatureSwitches } from '../../features/feature-switches.service';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
-import { VIEW_CONTEXT_MENU } from '../panel/view-context-menu';
+import { VIEW_CONTEXT_MENU } from './chrome/view-menu-slot';
 import { CONTENT_PANE_OPTIONS, PaneViewOptions } from './pane-view-options';
 
 @Component({

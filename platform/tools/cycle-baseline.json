@@ -15,7 +15,6 @@
     "popout <-> regions/pane",
     "regions/content <-> regions/pane",
     "regions/content <-> views",
-    "regions/pane <-> regions/panel",
     "regions/pane <-> workspace",
     "regions/panel <-> views",
     "regions/panel <-> workspace"

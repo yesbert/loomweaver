@@ -11,10 +11,8 @@ import { LoomIconName } from '../../elements/icon/loom-icons';
 import { ViewportService } from '../../layout/viewport.service';
 import { PanelState } from './panel-state';
 import { PanelGroupService } from './panel-group.service';
-import {
-  PANEL_STRIP_CONTEXT_MENU,
-  VIEW_CONTEXT_MENU,
-} from './view-context-menu';
+import { PANEL_STRIP_CONTEXT_MENU } from './view-context-menu';
+import { VIEW_CONTEXT_MENU } from '../pane/chrome/view-menu-slot';
 import { VIEW_PANE_PREFIX } from '../pane/tree/pane-address';
 import { TabDragSource } from '../pane/drag/pane-drag.service';
 import { PaneMoveService, stripIdOf } from '../pane/drag/pane-move.service';
