@@ -8,7 +8,7 @@ import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { MenuTriggerDirective } from '../../menu/menu-trigger.directive';
 import { CONTENT_DOCK } from '../pane/tree/pane-address';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
-import { VIEW_CONTEXT_MENU } from '../panel/view-context-menu';
+import { VIEW_CONTEXT_MENU } from '../pane/chrome/view-menu-slot';
 import { TAB_CONTEXT_MENU } from './tabs/tab-context-menu';
 import { ContentTabsService } from './tabs/content-tabs.service';
 import {

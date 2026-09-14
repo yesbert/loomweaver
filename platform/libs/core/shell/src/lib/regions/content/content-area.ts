@@ -15,7 +15,7 @@ import { ContentTabsService } from './tabs/content-tabs.service';
 import { ContentSecondaryPane } from './content-secondary-pane';
 import { PaneTargetPicker } from './pane-target-picker.service';
 import { TAB_CONTEXT_MENU } from './tabs/tab-context-menu';
-import { VIEW_CONTEXT_MENU } from '../panel/view-context-menu';
+import { VIEW_CONTEXT_MENU } from '../pane/chrome/view-menu-slot';
 import { FeatureSwitches } from '../../features/feature-switches.service';
 import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../pane/tree/pane-address';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';

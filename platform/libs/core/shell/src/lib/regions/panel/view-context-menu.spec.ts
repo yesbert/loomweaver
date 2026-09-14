@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { CommandService } from '../../commands/command.service';
+import { VIEW_CONTEXT_MENU } from '../pane/chrome/view-menu-slot';
 import {
-  VIEW_CONTEXT_MENU,
   registerViewContextMenu,
   registerViewOpenInContentMenu,
   registerViewResetMenu,

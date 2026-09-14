@@ -9,8 +9,7 @@ import { menuContextString } from '../../menu/menu-context';
 import { ViewStateService } from '../../views/view-state.service';
 import { ViewInstanceService } from '../../views/view-instance.service';
 import { PopoutService } from '../../popout/popout.service';
-
-export const VIEW_CONTEXT_MENU = 'panel/view/context';
+import { VIEW_CONTEXT_MENU } from '../pane/chrome/view-menu-slot';
 
 export const PANEL_STRIP_CONTEXT_MENU = 'panel/strip/context';
 
