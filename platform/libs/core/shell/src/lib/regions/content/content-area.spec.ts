@@ -1,9 +1,16 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { ContentRoute } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { MenuTriggerDirective } from '../../menu/menu-trigger.directive';
+import { CONTENT_DOCK } from '../pane/tree/pane-address';
+import { PaneTreeService } from '../pane/tree/pane-tree.service';
+import { VIEW_CONTEXT_MENU } from '../panel/view-context-menu';
+import { TAB_CONTEXT_MENU } from './tabs/tab-context-menu';
+import { ContentTabsService } from './tabs/content-tabs.service';
 import {
   PaddingDefault,
   SURFACE_PADDING,
@@ -68,5 +75,68 @@ describe('ContentArea — the inset a surface gets at its address', () => {
 
   it('leaves flush a surface that asks for it although the product insets', async () => {
     expect((await mainAt('inset', false)).classList).not.toContain(INSET);
+  });
+});
+
+describe('ContentArea — the menu a tab in the unsplit main area offers', () => {
+  async function tabMenus(): Promise<
+    { menu: unknown; context: Record<string, unknown> }[]
+  > {
+    localStorage.clear();
+    TestBed.configureTestingModule({
+      imports: [
+        TranslocoTestingModule.forRoot({
+          langs: { en: {} },
+          translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
+          preloadLangs: true,
+        }),
+      ],
+      providers: [provideRouter([])],
+    });
+    const registry = TestBed.inject(ContributionRegistry);
+    registry.addContentRoute({ path: '', component: HomeView });
+    registry.addContentRoute({ path: 'doc/a', component: HomeView });
+    registry.addView({
+      id: 'outline',
+      region: 'primary',
+      title: 'outline.title',
+      component: HomeView,
+    });
+    TestBed.inject(PaneTreeService).seedPrimaryTabs(CONTENT_DOCK, [
+      'view:outline',
+    ]);
+    TestBed.inject(ContentTabsService).open({
+      path: 'doc/a',
+      title: 'A',
+      titleIsLiteral: true,
+    });
+
+    const fixture = TestBed.createComponent(ContentArea);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    return fixture.debugElement
+      .queryAll(By.directive(MenuTriggerDirective))
+      .map((element) => element.injector.get(MenuTriggerDirective))
+      .map((trigger) => ({ menu: trigger.menu(), context: trigger.context() }));
+  }
+
+  it('gives a view tab the view menu against the content dock', async () => {
+    const viewTab = (await tabMenus()).find(
+      (tab) => tab.context['targetKind'] === 'view-tab',
+    );
+    expect(viewTab).toMatchObject({
+      menu: VIEW_CONTEXT_MENU,
+      context: { viewId: 'outline', region: CONTENT_DOCK },
+    });
+  });
+
+  it('leaves a content tab beside it its own menu', async () => {
+    const contentTab = (await tabMenus()).find(
+      (tab) => tab.context['targetKind'] === 'content-tab',
+    );
+    expect(contentTab).toMatchObject({
+      menu: TAB_CONTEXT_MENU,
+      context: { tabId: 'doc/a' },
+    });
   });
 });
