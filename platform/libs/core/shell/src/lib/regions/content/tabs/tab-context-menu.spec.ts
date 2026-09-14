@@ -6,6 +6,7 @@ import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { CommandService } from '../../../commands/command.service';
 import { ContentTabsService } from './content-tabs.service';
 import { PaneMoveService } from '../../pane/drag/pane-move.service';
+import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 import { registerTabContextMenu, TAB_CONTEXT_MENU } from './tab-context-menu';
 import { PopoutService } from '../../../popout/popout.service';
 import type { Mock } from 'vitest';
@@ -15,6 +16,7 @@ describe('registerTabContextMenu', () => {
   let commands: CommandService;
   let tabs: Record<string, Mock>;
   let paneMove: Record<string, Mock>;
+  let paneTree: Record<string, Mock>;
   let popoutOpen: Mock;
   let popout: PopoutService;
 
@@ -27,13 +29,15 @@ describe('registerTabContextMenu', () => {
       pin: vi.fn(),
       unpin: vi.fn(),
     };
-    paneMove = { splitFromUrlGroup: vi.fn() };
+    paneMove = { splitTabOut: vi.fn() };
+    paneTree = { pinTab: vi.fn(), unpinTab: vi.fn() };
     popoutOpen = vi.fn();
     popout = { open: popoutOpen } as unknown as PopoutService;
     TestBed.configureTestingModule({
       providers: [
         { provide: ContentTabsService, useValue: tabs },
         { provide: PaneMoveService, useValue: paneMove },
+        { provide: PaneTreeService, useValue: paneTree },
       ],
     });
     registry = TestBed.inject(ContributionRegistry);
@@ -42,6 +46,7 @@ describe('registerTabContextMenu', () => {
       registry,
       TestBed.inject(ContentTabsService),
       TestBed.inject(PaneMoveService),
+      TestBed.inject(PaneTreeService),
       popout,
       TestBed.inject(FeatureSwitches),
       TestBed.inject(Injector),
@@ -78,19 +83,57 @@ describe('registerTabContextMenu', () => {
     }
   });
 
+  it('hands every entry the pane from a context that is not the address-carrying pane', () => {
+    const context = {
+      tabId: 't1',
+      group: 'content',
+      paneId: 'p2',
+      primary: false,
+      pinned: false,
+    };
+    const pane = { dock: 'content', paneId: 'p2' };
+    commands.execute('shell.tab.close', context);
+    commands.execute('shell.tab.closeOthers', context);
+    commands.execute('shell.tab.closeRight', context);
+    commands.execute('shell.tab.closeAll', context);
+    commands.execute('shell.tab.togglePin', context);
+    commands.execute('shell.tab.splitRight', context);
+
+    expect(tabs['close']).toHaveBeenCalledWith('t1', pane);
+    expect(tabs['closeOthers']).toHaveBeenCalledWith('t1', pane);
+    expect(tabs['closeToRight']).toHaveBeenCalledWith('t1', pane);
+    expect(tabs['closeAll']).toHaveBeenCalledWith(pane);
+    expect(paneTree['pinTab']).toHaveBeenCalledWith('content', 'p2', 't1');
+    expect(tabs['pin']).not.toHaveBeenCalled();
+    expect(paneMove['splitTabOut']).toHaveBeenCalledWith('t1', 'row', pane);
+  });
+
+  it('hands no pane from the address-carrying pane, so the group path stays', () => {
+    const context = {
+      tabId: 't1',
+      group: 'content',
+      paneId: 'main',
+      primary: true,
+    };
+    commands.execute('shell.tab.close', context);
+    commands.execute('shell.tab.closeAll', context);
+    expect(tabs['close']).toHaveBeenCalledWith('t1', undefined);
+    expect(tabs['closeAll']).toHaveBeenCalledWith(undefined);
+  });
+
   it('close/others/right target the tab from the context', () => {
     commands.execute('shell.tab.close', { tabId: 't1' });
     commands.execute('shell.tab.closeOthers', { tabId: 't1' });
     commands.execute('shell.tab.closeRight', { tabId: 't1' });
 
-    expect(tabs['close']).toHaveBeenCalledWith('t1');
-    expect(tabs['closeOthers']).toHaveBeenCalledWith('t1');
-    expect(tabs['closeToRight']).toHaveBeenCalledWith('t1');
+    expect(tabs['close']).toHaveBeenCalledWith('t1', undefined);
+    expect(tabs['closeOthers']).toHaveBeenCalledWith('t1', undefined);
+    expect(tabs['closeToRight']).toHaveBeenCalledWith('t1', undefined);
   });
 
   it('closeAll clears the whole strip, whatever group the context names', () => {
     commands.execute('shell.tab.closeAll', { group: 'editor' });
-    expect(tabs['closeAll']).toHaveBeenCalledWith();
+    expect(tabs['closeAll']).toHaveBeenCalledWith(undefined);
   });
 
   it('togglePin pins an unpinned tab and unpins a pinned one', () => {
@@ -103,18 +146,23 @@ describe('registerTabContextMenu', () => {
 
   it('split right/down move the context tab into a new group', () => {
     commands.execute('shell.tab.splitRight', { tabId: 'doc/a' });
-    expect(paneMove['splitFromUrlGroup']).toHaveBeenCalledWith('doc/a', 'row');
+    expect(paneMove['splitTabOut']).toHaveBeenCalledWith(
+      'doc/a',
+      'row',
+      undefined,
+    );
 
     commands.execute('shell.tab.splitDown', { tabId: 'doc/a' });
-    expect(paneMove['splitFromUrlGroup']).toHaveBeenCalledWith(
+    expect(paneMove['splitTabOut']).toHaveBeenCalledWith(
       'doc/a',
       'column',
+      undefined,
     );
   });
 
   it('falls back to an empty tab id when the context is missing it', () => {
     commands.execute('shell.tab.close', {});
-    expect(tabs['close']).toHaveBeenCalledWith('');
+    expect(tabs['close']).toHaveBeenCalledWith('', undefined);
   });
 
   it('opens the context tab in its own browser window', () => {
@@ -129,6 +177,7 @@ describe('registerTabContextMenu', () => {
       providers: [
         { provide: ContentTabsService, useValue: tabs },
         { provide: PaneMoveService, useValue: paneMove },
+        { provide: PaneTreeService, useValue: paneTree },
         provideShellFeatures({
           content: { close: false, pin: false, splitDown: false },
         }),
@@ -139,6 +188,7 @@ describe('registerTabContextMenu', () => {
       bed,
       TestBed.inject(ContentTabsService),
       TestBed.inject(PaneMoveService),
+      TestBed.inject(PaneTreeService),
       popout,
       TestBed.inject(FeatureSwitches),
       TestBed.inject(Injector),

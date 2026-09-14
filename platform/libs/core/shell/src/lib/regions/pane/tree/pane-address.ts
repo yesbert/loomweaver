@@ -4,6 +4,11 @@ export const VIEW_PANE_PREFIX = 'view:';
 
 export const CONTENT_DOCK = 'content';
 
+export interface PaneRef {
+  readonly dock: string;
+  readonly paneId: string;
+}
+
 export function viewIdOfPanePath(path: string): string | null {
   return path.startsWith(VIEW_PANE_PREFIX)
     ? path.slice(VIEW_PANE_PREFIX.length)

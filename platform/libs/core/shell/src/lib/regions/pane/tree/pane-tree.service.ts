@@ -1,7 +1,12 @@
 import { inject, Service, signal } from '@angular/core';
 import { RetainedViewStash } from '../retention/retained-view-stash';
 import { paneRetentionScope } from '../retention/retention-policy';
-import { PRIMARY_PANE, VIEW_PANE_PREFIX } from './pane-address';
+import {
+  CONTENT_DOCK,
+  PRIMARY_PANE,
+  VIEW_PANE_PREFIX,
+  PaneRef,
+} from './pane-address';
 import { PRIMARY_LEAF, PaneNode, PaneTab, activeTab } from './pane-node';
 import {
   collectLeafIds,
@@ -71,6 +76,12 @@ export class PaneTreeService {
       out[dock] = entry.node;
     }
     return out;
+  }
+
+  holdsAddress(pane: PaneRef): boolean {
+    return (
+      pane.dock === CONTENT_DOCK && pane.paneId === this.primaryId(CONTENT_DOCK)
+    );
   }
 
   isSplit(dock: string): boolean {

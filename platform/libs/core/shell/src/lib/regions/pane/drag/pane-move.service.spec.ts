@@ -8,7 +8,7 @@ import { buildContentRoutes } from '../../content/routing/content-router';
 import { ContentTabsService } from '../../content/tabs/content-tabs.service';
 import { PRIMARY_PANE } from '../tree/pane-address';
 import { PaneLeaf, PaneSplit, leafPath } from '../tree/pane-node';
-import { paneSegments } from '../tree/pane-queries';
+import { findLeaf, paneSegments } from '../tree/pane-queries';
 import { CONTENT_DOCK } from '../tree/pane-address';
 import { PaneTreeService } from '../tree/pane-tree.service';
 import { PaneContainersService } from '../container/pane-containers.service';
@@ -62,12 +62,36 @@ describe('PaneMoveService (move semantics)', () => {
     expect(stripSourceOf(stripIdOf(source))).toEqual(source);
   });
 
+  it('splits a tab out of a pane that is not the address-carrying one, beside that pane', async () => {
+    await harness.navigateByUrl('/dashboard/overview');
+    paneTree.splitPane(CONTENT_DOCK, PRIMARY_PANE, 'row', 'doc/x');
+    const pane = paneTree.sourceOf('doc/x');
+    if (pane === null) {
+      throw new Error('the split pane did not take doc/x');
+    }
+    paneTree.insertTab(CONTENT_DOCK, pane.paneId, 'doc/y');
+
+    paneMove.splitTabOut('doc/y', 'column', pane);
+
+    expect(paneSegments(paneTree.tree(CONTENT_DOCK))).toHaveLength(3);
+    const from = findLeaf(paneTree.tree(CONTENT_DOCK), pane.paneId);
+    expect(from?.tabs.map((t) => t.path)).toEqual(['doc/x']);
+    const added = paneTree.sourceOf('doc/y');
+    expect(added).not.toBeNull();
+    expect(added?.paneId).not.toBe(pane.paneId);
+    expect(
+      findLeaf(paneTree.tree(CONTENT_DOCK), added?.paneId ?? '')?.tabs.map(
+        (t) => t.path,
+      ),
+    ).toEqual(['doc/y']);
+  });
+
   it('menu "Split right" MOVES a router-bound URL tab into a new group + hands it the focus (R2/R4/E3)', async () => {
     await harness.navigateByUrl('/dashboard/overview');
     tabs.open({ path: 'doc/a', title: 'A.ts', titleIsLiteral: true });
     await harness.fixture.whenStable();
 
-    paneMove.splitFromUrlGroup('doc/a', 'row');
+    paneMove.splitTabOut('doc/a', 'row');
     await harness.fixture.whenStable();
 
     const root = paneTree.tree(CONTENT_DOCK) as PaneSplit;
@@ -163,7 +187,6 @@ describe('PaneMoveService (move semantics)', () => {
   });
 
   it('moving the last child out of a container primary promotes the neighbour', () => {
-
     const containers = TestBed.inject(PaneContainersService);
     const dock = 'container@runs/1';
     containers.ensureContainer(dock, { children: ['a'], initial: ['a'] });
@@ -179,7 +202,9 @@ describe('PaneMoveService (move semantics)', () => {
     const leaf = paneTree.tree(dock) as PaneLeaf;
     expect(leaf.id).toBe(second);
     expect(paneTree.primaryId(dock)).toBe(second);
-    expect(leaf.tabs.map((t) => t.path).toSorted((a, b) => a.localeCompare(b))).toEqual(['view:a', 'view:b']);
+    expect(
+      leaf.tabs.map((t) => t.path).toSorted((a, b) => a.localeCompare(b)),
+    ).toEqual(['view:a', 'view:b']);
   });
 
   it('a preview tab promotes when it moves out of the URL group', async () => {

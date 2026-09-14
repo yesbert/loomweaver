@@ -1,5 +1,5 @@
 import { inject, Service } from '@angular/core';
-import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../tree/pane-address';
+import { CONTENT_DOCK, VIEW_PANE_PREFIX, PaneRef } from '../tree/pane-address';
 import {
   PRIMARY_LEAF,
   PaneLeaf,
@@ -91,8 +91,12 @@ export class PaneMoveService {
     this.afterArrival({ dock: target.dock, paneId: added.id }, moved, follow);
   }
 
-  splitFromUrlGroup(rootPath: string, orientation: 'row' | 'column'): void {
-    const source: TabDragSource = {
+  splitTabOut(
+    rootPath: string,
+    orientation: 'row' | 'column',
+    pane?: PaneRef,
+  ): void {
+    const source: TabDragSource = pane ?? {
       dock: CONTENT_DOCK,
       paneId: this.paneTree.primaryId(CONTENT_DOCK),
     };
@@ -146,10 +150,7 @@ export class PaneMoveService {
   }
 
   private isUrlGroup(source: TabDragSource): boolean {
-    return (
-      source.dock === CONTENT_DOCK &&
-      source.paneId === this.paneTree.primaryId(CONTENT_DOCK)
-    );
+    return this.paneTree.holdsAddress(source);
   }
 
   private tabCount(source: TabDragSource): number {

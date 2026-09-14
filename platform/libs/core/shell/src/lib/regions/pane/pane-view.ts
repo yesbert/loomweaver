@@ -5,7 +5,7 @@ import {
   inject,
   input,
 } from '@angular/core';
-import { CONTENT_DOCK, VIEW_PANE_PREFIX } from './tree/pane-address';
+import { CONTENT_DOCK, PaneRef, VIEW_PANE_PREFIX } from './tree/pane-address';
 import { PaneLeaf, activeTab, leafPath } from './tree/pane-node';
 import { CONTAINER_CONTEXT } from './container/container-context';
 import { isContainerDock } from './container/container-children';
@@ -20,13 +20,12 @@ import { PaneToolbar } from './chrome/pane-toolbar';
 import { escalationStep } from './chrome/tab-escalation';
 import { toStripTab } from './drag/pane-label';
 import { paneRetentionScope } from './retention/retention-policy';
-import { UnsavedWork } from './retention/unsaved-work';
-import { SurfaceCloseGuard } from './close/surface-close-guard';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ContentSecondaryPane } from '../content/content-secondary-pane';
 import { isHomePath } from '../content/content-path';
 import { PaneTargetPicker } from '../content/pane-target-picker.service';
 import { ContentTabsService } from '../content/tabs/content-tabs.service';
+import { TAB_CONTEXT_MENU } from '../content/tabs/tab-context-menu';
 import { FeatureSwitches } from '../../features/feature-switches.service';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { VIEW_CONTEXT_MENU } from './chrome/view-menu-slot';
@@ -53,8 +52,6 @@ export class PaneView {
   private readonly tabs = inject(ContentTabsService);
   private readonly chrome = inject(PaneChromeService);
   private readonly containerCtx = inject(CONTAINER_CONTEXT);
-  private readonly unsavedWork = inject(UnsavedWork);
-  private readonly closeGuard = inject(SurfaceCloseGuard);
 
   protected readonly canAddTab = computed(() =>
     this.options().body === 'panel' ? true : this.features.newTab(),
@@ -87,6 +84,15 @@ export class PaneView {
   protected readonly viewContextMenu = computed(() =>
     this.containerCtx ? '' : VIEW_CONTEXT_MENU,
   );
+
+  protected readonly tabContextMenu = computed(() =>
+    this.containerCtx || this.dock() !== CONTENT_DOCK ? '' : TAB_CONTEXT_MENU,
+  );
+
+  private readonly pane = computed<PaneRef>(() => ({
+    dock: this.dock(),
+    paneId: this.leaf().id,
+  }));
 
   protected readonly source = computed<TabDragSource>(() => ({
     dock: this.dock(),
@@ -193,12 +199,7 @@ export class PaneView {
   }
 
   protected onCloseTab(tab: StripTab): void {
-    this.closeGuard.guarded(this.closeCandidates(tab.path), () => {
-      this.paneTree.removeTab(this.dock(), this.leaf().id, tab.path);
-      if (!tab.path.startsWith(VIEW_PANE_PREFIX)) {
-        this.tabs.runCloseHook(tab.path);
-      }
-    });
+    this.tabs.close(tab.path, this.pane());
   }
 
   protected onUnpinTab(tab: StripTab): void {
@@ -264,9 +265,5 @@ export class PaneView {
 
   private canCloseLastPrimaryTab(): boolean {
     return this.leaf().tabs.length > 1 || this.paneTree.isSplit(this.dock());
-  }
-
-  private closeCandidates(path: string): unknown[] {
-    return this.unsavedWork.instancesAt(this.retentionScope(), path);
   }
 }

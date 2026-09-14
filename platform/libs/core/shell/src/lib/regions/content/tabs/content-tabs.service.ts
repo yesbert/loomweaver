@@ -10,7 +10,7 @@ import { QuickOpenTarget } from './quick-open-target';
 import { OpenTabsService } from './open-tabs.service';
 import { TabClosingService } from './tab-closing.service';
 import { refineTabTitles, reseatPinned } from '../../pane/tree/pane-tabs';
-import { CONTENT_DOCK } from '../../pane/tree/pane-address';
+import { CONTENT_DOCK, PaneRef } from '../../pane/tree/pane-address';
 import { ClaimOrdering } from './claim-ordering';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 import { UnsavedWork } from '../../pane/retention/unsaved-work';
@@ -222,18 +222,18 @@ export class ContentTabsService {
   }
 
   /** Closes every dynamic tab in the strip except the target — pinned and unclosable tabs are kept. */
-  closeOthers(path: string): void {
-    this.closing.closeOthers(path);
+  closeOthers(path: string, pane?: PaneRef): void {
+    this.closing.closeOthers(path, pane);
   }
 
   /** Closes every dynamic tab in the strip — pinned and unclosable tabs are kept. */
-  closeAll(): void {
-    this.closing.closeAll();
+  closeAll(pane?: PaneRef): void {
+    this.closing.closeAll(pane);
   }
 
   /** Closes the dynamic tabs that render after the target in the strip — pinned tabs are kept. */
-  closeToRight(path: string): void {
-    this.closing.closeToRight(path);
+  closeToRight(path: string, pane?: PaneRef): void {
+    this.closing.closeToRight(path, pane);
   }
 
   /**
@@ -251,8 +251,8 @@ export class ContentTabsService {
    * **first**, then evict the stored instance (keyed by the tab root — see {@link ContentReuseStrategy});
    * a background tab is evicted immediately.
    */
-  close(path: string): void {
-    this.closing.close(path);
+  close(path: string, pane?: PaneRef): void {
+    this.closing.close(path, pane);
   }
 
   /**

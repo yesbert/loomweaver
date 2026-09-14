@@ -17,8 +17,10 @@ sandboxed surface.
 Add an item to a host menu slot with `ctx.registerMenuItem` (capability `contributions`).
 It names a {@link Command} by id (invoked with the menu's context) and may declare a coarse `when`
 filter. The item shows only when every `when` key equals the same key in the opener's context. The
-host draws the menu; a right-click on the content tab strip opens the `content/tab/context` slot with
-`{ targetKind, tabId, pinned, closable, sole }`, where `sole` says the tab is the only one in its pane:
+host draws the menu. A right-click on a content tab opens the `content/tab/context` slot, in the
+address-carrying pane and in any split pane of the main area alike. The context is
+`{ targetKind, tabId, paneId, primary, pinned, closable, sole }`. `paneId` names the pane the tab stands
+in, `primary` says that pane carries the address, and `sole` says the tab is the only one in its pane:
 
 ```ts
 ctx.registerCommand({ id: 'my.tab.reveal', title: 'my.tab.reveal', run: (ctx) => reveal(ctx?.tabId) });
@@ -26,7 +28,9 @@ ctx.registerMenuItem({ menu: 'content/tab/context', command: 'my.tab.reveal', gr
 ```
 
 The host's own tab actions (Close, Close Others/All/to-the-Right, and a "Pinned" checkbox) live in the same
-slot, and your item joins them. The two split entries take the tab out of its pane into a new one. They are
+slot, and your item joins them, in every pane of the main area. The host's entries act on the pane named
+in the context. An entry of your own that belongs only to the address-carrying pane declares
+`when: { primary: true }`. The two split entries take the tab out of its pane into a new one. They are
 offered only while other tabs share the pane, through `when: { sole: false }`. The pane toolbar's split
 duplicates the open item instead, and is the way to split a lone tab. Use the same condition on an entry of
 your own that would leave the pane empty. Command behaviour crosses the sandbox boundary because it is referenced by
