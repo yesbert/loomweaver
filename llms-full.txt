@@ -931,6 +931,9 @@ class PaneService { panes: Signal<readonly PaneFacts[]>; activePane: Signal<Pane
   maximize(pane?: PaneHandle): void; minimize(pane?: PaneHandle): void; restore(pane?: PaneHandle): void; focus(pane: PaneHandle): void; moveTab(path: string, pane: PaneHandle): void; exists(pane: PaneHandle): boolean }
 type PaneHandle;   // opaque, stable while the pane exists; a stale handle does nothing. Without a handle an action means the address pane (the one carrying the address).
 interface PaneFacts { handle: PaneHandle; showing: string | null; itemCount: number; carriesAddress: boolean; maximized: boolean; minimized: boolean }
+interface PaneRef { dock: string; paneId: string }   // names a pane: dock 'content' is the main area, otherwise a sidebar region id. A tab's menu context carries both
+                                                     // (as group + paneId, with primary = carries the address); ContentTabsService.close/closeOthers/closeToRight/closeAll
+                                                     // take an optional PaneRef and then act on that pane instead of the address-carrying group.
 class WorkspaceService { definitions: readonly WorkspaceDefinition[]; workspaces: Signal<readonly Workspace[]>; activeId: Signal<string>; hasChanges: Signal<boolean>; changedIds: Signal<ReadonlySet<string>>;
   initials: Signal<ReadonlyMap<string, string>>;   // the one-or-two-letter glyphs the rail draws for user-saved workspaces, by id
   switchTo(id: string, options?: { keepAddress?: boolean }): Promise<void>; saveCurrent(name: string): Promise<void>; saveBaseline(): Promise<void>; rename(id: string, name: string): void;

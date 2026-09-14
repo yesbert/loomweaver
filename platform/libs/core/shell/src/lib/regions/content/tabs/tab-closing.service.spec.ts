@@ -8,6 +8,8 @@ import { CONTENT_DOCK } from '../../pane/tree/pane-address';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 import { PRIMARY_PANE } from '../../pane/tree/pane-address';
 import { RetainedViewStash } from '../../pane/retention/retained-view-stash';
+import { paneRetentionScope } from '../../pane/retention/retention-policy';
+import { findLeaf } from '../../pane/tree/pane-queries';
 import { SurfaceCloseGuard } from '../../pane/close/surface-close-guard';
 import { buildContentRoutes } from '../routing/content-router';
 import { ContentTabsService } from './content-tabs.service';
@@ -168,5 +170,98 @@ describe('TabClosingService close guarding', () => {
     guard.proceed = true;
     service.closePrimaryPane();
     expect(paneTree.isSplit('content')).toBe(false);
+  });
+});
+
+describe('TabClosingService on a pane that is not the address-carrying one', () => {
+  let service: ContentTabsService;
+  let paneTree: PaneTreeService;
+  let guard: CapturingCloseGuard;
+  let pane: { dock: string; paneId: string };
+  let dirtyKey: string;
+
+  const paneTabs = () =>
+    (findLeaf(paneTree.tree(CONTENT_DOCK), pane.paneId)?.tabs ?? []).map(
+      (tab) => tab.path,
+    );
+
+  beforeEach(async () => {
+    localStorage.clear();
+    guard = new CapturingCloseGuard();
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter(buildContentRoutes(ROUTES)),
+        { provide: SurfaceCloseGuard, useValue: guard },
+        {
+          provide: RetainedViewStash,
+          useValue: {
+            version: signal(0),
+            instancesFor: (scope: string, path: string) =>
+              `${scope}|${path}` === dirtyKey
+                ? [{ surfaceDirty: () => true }]
+                : [],
+            keyedInstances: () => [],
+            evacuate: () => undefined,
+          },
+        },
+      ],
+    });
+    const registry = TestBed.inject(ContributionRegistry);
+    for (const route of ROUTES) registry.addContentRoute(route);
+    service = TestBed.inject(ContentTabsService);
+    paneTree = TestBed.inject(PaneTreeService);
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/');
+    service.open({ path: 'doc/a', title: 'a', titleIsLiteral: true });
+    service.open({ path: 'doc/b', title: 'b', titleIsLiteral: true });
+    paneTree.splitPane(CONTENT_DOCK, PRIMARY_PANE, 'row', 'doc/x');
+    const source = paneTree.sourceOf('doc/x');
+    if (source === null) {
+      throw new Error('the split pane did not take doc/x');
+    }
+    pane = source;
+    paneTree.insertTab(CONTENT_DOCK, pane.paneId, 'doc/y');
+    paneTree.insertTab(CONTENT_DOCK, pane.paneId, 'doc/z');
+    dirtyKey = '';
+  });
+
+  it('closeOthers keeps the chosen tab and the pinned ones of that pane, and leaves the group alone', () => {
+    paneTree.pinTab(CONTENT_DOCK, pane.paneId, 'doc/z');
+    service.closeOthers('doc/x', pane);
+    expect(paneTabs().toSorted((a, b) => a.localeCompare(b))).toEqual([
+      'doc/x',
+      'doc/z',
+    ]);
+    expect(
+      service
+        .tabs()
+        .filter((t) => t.closable)
+        .map((t) => t.path),
+    ).toEqual(['doc/a', 'doc/b']);
+  });
+
+  it('closeToRight closes the tabs after the chosen one in that pane', () => {
+    service.closeToRight('doc/x', pane);
+    expect(paneTabs()).toEqual(['doc/x']);
+  });
+
+  it('closeAll empties that pane of its closable tabs and the pane goes away', () => {
+    service.closeAll(pane);
+    expect(paneTabs()).toEqual([]);
+    expect(paneTree.isSplit(CONTENT_DOCK)).toBe(false);
+    expect(service.tabs().filter((t) => t.closable)).toHaveLength(2);
+  });
+
+  it('close removes one tab of that pane', () => {
+    service.close('doc/y', pane);
+    expect(paneTabs()).toEqual(['doc/x', 'doc/z']);
+  });
+
+  it('asks the guard about unsaved work at that pane, not at the group', () => {
+    dirtyKey = `${paneRetentionScope(CONTENT_DOCK, pane.paneId)}|doc/y`;
+    guard.proceed = false;
+    service.closeOthers('doc/x', pane);
+    expect(guard.captured.at(-1)).toHaveLength(1);
+    expect(paneTabs()).toEqual(['doc/x', 'doc/y', 'doc/z']);
   });
 });

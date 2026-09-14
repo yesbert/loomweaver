@@ -298,6 +298,24 @@ describe('PaneTabStrip — what a tab tells its menu about where it stands', () 
     ]);
   });
 
+  it('names the pane a content tab stands in and whether it carries the address', () => {
+    create([tab()], 'content');
+    fixture.componentRef.setInput('urlDriven', true);
+    fixture.detectChanges();
+    expect(contexts()).toEqual([
+      expect.objectContaining({ paneId: 'main', primary: true }),
+    ]);
+  });
+
+  it('says a content tab in another pane is not in the address-carrying one', () => {
+    create([tab()], 'content');
+    fixture.componentRef.setInput('source', { dock: 'content', paneId: 'p2' });
+    fixture.detectChanges();
+    expect(contexts()).toEqual([
+      expect.objectContaining({ paneId: 'p2', primary: false }),
+    ]);
+  });
+
   it('says a view tab in the main area stands in it', () => {
     create([tab({ path: 'view:outline' })], 'content');
     expect(contexts()).toEqual([

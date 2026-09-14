@@ -64,6 +64,7 @@ export function seedBuiltInMenus(
     registry,
     deps.tabs,
     deps.paneMove,
+    deps.paneTree,
     deps.popout,
     deps.features,
     deps.injector,

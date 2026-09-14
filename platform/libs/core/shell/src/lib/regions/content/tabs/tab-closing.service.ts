@@ -4,8 +4,15 @@ import { ContentReuseStrategy } from '../routing/content-reuse-strategy';
 import { normalizePath, tabRootOf } from '../content-path';
 import { TabCloseHooks } from './tab-close-hooks';
 import { OpenTabsService } from './open-tabs.service';
-import { CONTENT_DOCK, VIEW_PANE_PREFIX, promotedContentPath } from '../../pane/tree/pane-address';
+import {
+  CONTENT_DOCK,
+  PaneRef,
+  VIEW_PANE_PREFIX,
+  promotedContentPath,
+} from '../../pane/tree/pane-address';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
+import { PaneTab } from '../../pane/tree/pane-node';
+import { findLeaf } from '../../pane/tree/pane-queries';
 import { paneRetentionScope } from '../../pane/retention/retention-policy';
 import { UnsavedWork } from '../../pane/retention/unsaved-work';
 import { SurfaceCloseGuard } from '../../pane/close/surface-close-guard';
@@ -26,11 +33,19 @@ export class TabClosingService {
 
   private readonly closeHooks = inject(TabCloseHooks);
 
-  closeOthers(path: string): void {
+  closeOthers(path: string, pane?: PaneRef): void {
+    if (this.inOtherPane(pane)) {
+      this.closeInPane(
+        pane,
+        this.closablePaneTabs(pane).filter((tab) => tab.path !== path),
+      );
+      return;
+    }
     const { routes, root: keep } = this.state.rootFor(path);
     const target = this.state.openTabRootedAt(routes, keep);
     const roots = new Set(
-      this.state.openTabs()
+      this.state
+        .openTabs()
         .filter(
           (tab) =>
             !tab.pinned && tab.closable && tabRootOf(routes, tab.path) !== keep,
@@ -42,20 +57,36 @@ export class TabClosingService {
     );
   }
 
-  closeAll(): void {
+  closeAll(pane?: PaneRef): void {
+    if (this.inOtherPane(pane)) {
+      this.closeInPane(pane, this.closablePaneTabs(pane));
+      return;
+    }
     const routes = this.registry.contentRoutes();
     const roots = new Set(
-      this.state.openTabs()
+      this.state
+        .openTabs()
         .filter((tab) => !tab.pinned && tab.closable)
         .map((tab) => tabRootOf(routes, tab.path)),
     );
-    const survivor = this.state.openTabs().find((tab) => tab.pinned || !tab.closable);
+    const survivor = this.state
+      .openTabs()
+      .find((tab) => tab.pinned || !tab.closable);
     this.closeGuard.guarded(this.closeSetCandidates(roots), () =>
       this.closeSet(roots, survivor?.path ?? ''),
     );
   }
 
-  closeToRight(path: string): void {
+  closeToRight(path: string, pane?: PaneRef): void {
+    if (this.inOtherPane(pane)) {
+      const tabs = this.paneTabs(pane);
+      const index = tabs.findIndex((tab) => tab.path === path);
+      this.closeInPane(
+        pane,
+        tabs.slice(index + 1).filter((tab) => closable(tab)),
+      );
+      return;
+    }
     const { routes, root: keep } = this.state.rootFor(path);
     const rendered = this.state.tabs();
     const index = rendered.findIndex((tab) => tab.path === keep);
@@ -83,7 +114,14 @@ export class TabClosingService {
     });
   }
 
-  close(path: string): void {
+  close(path: string, pane?: PaneRef): void {
+    if (this.inOtherPane(pane)) {
+      this.closeInPane(
+        pane,
+        this.paneTabs(pane).filter((tab) => tab.path === path),
+      );
+      return;
+    }
     const normalized = normalizePath(path);
     if (normalized.startsWith(VIEW_PANE_PREFIX)) {
       this.closeGuard.guarded(this.urlPaneCandidates(normalized), () =>
@@ -99,7 +137,9 @@ export class TabClosingService {
 
   runCloseHook(path: string): void {
     const { routes, root } = this.state.rootFor(path);
-    if (this.state.openTabs().some((tab) => tabRootOf(routes, tab.path) === root)) {
+    if (
+      this.state.openTabs().some((tab) => tabRootOf(routes, tab.path) === root)
+    ) {
       return;
     }
     this.closeHooks.runSafely(this.closeHooks.take(root));
@@ -108,6 +148,36 @@ export class TabClosingService {
   neighbourOf(path: string): string {
     const { root } = this.state.rootFor(path);
     return this.neighbourPath(root);
+  }
+
+  private inOtherPane(pane: PaneRef | undefined): pane is PaneRef {
+    return pane !== undefined && !this.paneTree.holdsAddress(pane);
+  }
+
+  private paneTabs(pane: PaneRef): readonly PaneTab[] {
+    return findLeaf(this.paneTree.tree(pane.dock), pane.paneId)?.tabs ?? [];
+  }
+
+  private closablePaneTabs(pane: PaneRef): readonly PaneTab[] {
+    return this.paneTabs(pane).filter((tab) => closable(tab));
+  }
+
+  private closeInPane(pane: PaneRef, tabs: readonly PaneTab[]): void {
+    if (tabs.length === 0) {
+      return;
+    }
+    const scope = paneRetentionScope(pane.dock, pane.paneId);
+    const candidates = tabs.flatMap((tab) =>
+      this.unsavedWork.instancesAt(scope, tab.path),
+    );
+    this.closeGuard.guarded(candidates, () => {
+      for (const tab of tabs) {
+        this.paneTree.removeTab(pane.dock, pane.paneId, tab.path);
+        if (!tab.path.startsWith(VIEW_PANE_PREFIX)) {
+          this.runCloseHook(tab.path);
+        }
+      }
+    });
   }
 
   private closeNow(normalized: string): void {
@@ -153,9 +223,9 @@ export class TabClosingService {
       return;
     }
     const routes = this.registry.contentRoutes();
-    const closing = this.state.openTabs().filter((tab) =>
-      roots.has(tabRootOf(routes, tab.path)),
-    );
+    const closing = this.state
+      .openTabs()
+      .filter((tab) => roots.has(tabRootOf(routes, tab.path)));
     const activeWentAway = roots.has(this.state.activeTabRoot());
     this.state.updateOpen((tabs) =>
       tabs.filter((tab) => !roots.has(tabRootOf(routes, tab.path))),
@@ -172,7 +242,8 @@ export class TabClosingService {
       }
     };
     if (activeWentAway) {
-      void this.state.navigate(fallbackPath)
+      void this.state
+        .navigate(fallbackPath)
         .catch((error: unknown) =>
           console.error('Content navigation failed', error),
         )
@@ -183,7 +254,8 @@ export class TabClosingService {
   }
 
   private navigateAfterClose(target: string): Promise<void> {
-    return this.state.navigate(promotedContentPath(target))
+    return this.state
+      .navigate(promotedContentPath(target))
       .then(() => {
         if (target.startsWith(VIEW_PANE_PREFIX)) {
           this.state.activateViewTab(target);
@@ -209,9 +281,13 @@ export class TabClosingService {
 
   private neighbourPath(root: string): string {
     const routes = this.registry.contentRoutes();
-    const siblings = this.state.openTabs().filter(
-      (tab) => tabRootOf(routes, tab.path) !== root,
-    );
+    const siblings = this.state
+      .openTabs()
+      .filter((tab) => tabRootOf(routes, tab.path) !== root);
     return siblings.at(-1)?.path ?? '';
   }
+}
+
+function closable(tab: PaneTab): boolean {
+  return !tab.pinned && tab.closable !== false;
 }

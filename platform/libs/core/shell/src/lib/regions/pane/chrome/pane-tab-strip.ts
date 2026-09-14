@@ -266,6 +266,8 @@ export class PaneTabStrip {
       targetKind: 'content-tab',
       tabId: tab.path,
       group: this.contextGroup(),
+      paneId: this.source().paneId,
+      primary: this.urlDriven(),
       pinned: tab.pinned,
       closable: tab.closable,
       sole,

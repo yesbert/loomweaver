@@ -46,6 +46,7 @@ interface PaneViewInternals {
   onEscalate(tab: StripTab): void;
   canClose(): boolean;
   viewContextMenu(): string;
+  tabContextMenu(): string;
   stripTabs(): StripTab[];
   path(): string;
   activeTabId(): string;
@@ -75,6 +76,7 @@ const containers = {
 const tabs = {
   runCloseHook: vi.fn(),
   activeTabRoot: vi.fn(() => 'home'),
+  close: vi.fn(),
   navigate: vi.fn(),
   navigateTo: vi.fn(),
   closePrimaryPane: vi.fn(),
@@ -83,7 +85,8 @@ const drag = {
   canOfferAsPaneTarget: vi.fn((path: string) => path.startsWith('view:')),
   canDuplicate: vi.fn((path: string) => path.startsWith('view:')),
   routerBound: vi.fn(
-    (path: string) => !path.startsWith('view:') && !drag.canOfferAsPaneTarget(path),
+    (path: string) =>
+      !path.startsWith('view:') && !drag.canOfferAsPaneTarget(path),
   ),
 };
 const picker = {
@@ -263,15 +266,14 @@ describe('PaneView (content pane)', () => {
     expect(tree.keepTab).not.toHaveBeenCalled();
   });
 
-  it('closing a route tab runs the close hook; a view tab does not', () => {
+  it('closing a tab goes through the one close for a tab in a pane', () => {
     const c = build(CONTENT_PANE_OPTIONS);
     c.onCloseTab(stripTab('search'));
-    expect(tree.removeTab).toHaveBeenCalledWith('content', 'p1', 'search');
-    expect(tabs.runCloseHook).toHaveBeenCalledWith('search');
-
-    tabs.runCloseHook.mockClear();
-    c.onCloseTab(stripTab('view:outline'));
-    expect(tabs.runCloseHook).not.toHaveBeenCalled();
+    expect(tabs.close).toHaveBeenCalledWith('search', {
+      dock: 'content',
+      paneId: 'p1',
+    });
+    expect(tree.removeTab).not.toHaveBeenCalled();
   });
 
   it('unpinning a travelled pinned tab clears the flag on the tree', () => {
@@ -383,6 +385,18 @@ describe('PaneView (container pane — sealing)', () => {
   it('offers the view context menu outside a container', () => {
     const c = build(CONTENT_PANE_OPTIONS, undefined, 'view:a');
     expect(c.viewContextMenu()).not.toBe('');
+  });
+
+  it('offers the tab menu to a content tab in a content pane', () => {
+    const c = build(CONTENT_PANE_OPTIONS, undefined, 'doc/a');
+    expect(c.tabContextMenu()).toBe('content/tab/context');
+  });
+
+  it('offers no tab menu inside a container', () => {
+    const c = build(CONTENT_PANE_OPTIONS, undefined, 'doc/a', {
+      containerChildren: ['a', 'b'],
+    });
+    expect(c.tabContextMenu()).toBe('');
   });
 
   it('the inner picker inserts children container-scoped', () => {

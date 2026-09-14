@@ -11,8 +11,10 @@ import { FeatureSwitches } from '../../../features/feature-switches.service';
 import { whileOn } from '../../../features/while-on';
 import { ContentTabsService } from './content-tabs.service';
 import { PaneMoveService } from '../../pane/drag/pane-move.service';
+import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 import { PopoutService } from '../../../popout/popout.service';
 import { menuContextString } from '../../../menu/menu-context';
+import { PaneRef } from '../../pane/tree/pane-address';
 
 export const TAB_CONTEXT_MENU = 'content/tab/context';
 
@@ -26,6 +28,7 @@ export function registerTabContextMenu(
   registry: ContributionRegistry,
   tabs: ContentTabsService,
   paneMove: PaneMoveService,
+  paneTree: PaneTreeService,
   popout: PopoutService,
   switches: FeatureSwitches,
   injector: Injector,
@@ -38,22 +41,24 @@ export function registerTabContextMenu(
         {
           id: 'shell.tab.close',
           title: 'content.tabMenu.close',
-          run: (c) => tabs.close(menuContextString(c, 'tabId')),
+          run: (c) => tabs.close(menuContextString(c, 'tabId'), paneOf(c)),
         },
         {
           id: 'shell.tab.closeOthers',
           title: 'content.tabMenu.closeOthers',
-          run: (c) => tabs.closeOthers(menuContextString(c, 'tabId')),
+          run: (c) =>
+            tabs.closeOthers(menuContextString(c, 'tabId'), paneOf(c)),
         },
         {
           id: 'shell.tab.closeRight',
           title: 'content.tabMenu.closeRight',
-          run: (c) => tabs.closeToRight(menuContextString(c, 'tabId')),
+          run: (c) =>
+            tabs.closeToRight(menuContextString(c, 'tabId'), paneOf(c)),
         },
         {
           id: 'shell.tab.closeAll',
           title: 'content.tabMenu.closeAll',
-          run: () => tabs.closeAll(),
+          run: (c) => tabs.closeAll(paneOf(c)),
         },
       ],
       items: [
@@ -94,10 +99,23 @@ export function registerTabContextMenu(
         {
           id: 'shell.tab.togglePin',
           title: 'content.tabMenu.pinned',
-          run: (c) =>
-            c?.['pinned']
-              ? tabs.unpin(menuContextString(c, 'tabId'))
-              : tabs.pin(menuContextString(c, 'tabId')),
+          run: (c) => {
+            const tabId = menuContextString(c, 'tabId');
+            const pane = paneOf(c);
+            if (pane) {
+              paneTree[c?.['pinned'] ? 'unpinTab' : 'pinTab'](
+                pane.dock,
+                pane.paneId,
+                tabId,
+              );
+              return;
+            }
+            if (c?.['pinned']) {
+              tabs.unpin(tabId);
+            } else {
+              tabs.pin(tabId);
+            }
+          },
         },
       ],
       items: [
@@ -141,7 +159,11 @@ export function registerTabContextMenu(
           title: 'content.split.splitRight',
           icon: 'splitPanes',
           run: (c) =>
-            paneMove.splitFromUrlGroup(menuContextString(c, 'tabId'), 'row'),
+            paneMove.splitTabOut(
+              menuContextString(c, 'tabId'),
+              'row',
+              paneOf(c),
+            ),
         },
       ],
       items: [
@@ -163,7 +185,11 @@ export function registerTabContextMenu(
           title: 'content.split.splitDown',
           icon: 'splitPanesDown',
           run: (c) =>
-            paneMove.splitFromUrlGroup(menuContextString(c, 'tabId'), 'column'),
+            paneMove.splitTabOut(
+              menuContextString(c, 'tabId'),
+              'column',
+              paneOf(c),
+            ),
         },
       ],
       items: [
@@ -193,4 +219,15 @@ function register(
     ),
     ...group.items.map((item) => registry.addMenuItem(item)),
   ]);
+}
+
+function paneOf(context: MenuContext | undefined): PaneRef | undefined {
+  if (context?.['primary'] !== false) {
+    return undefined;
+  }
+  const dock = context['group'];
+  const paneId = context['paneId'];
+  return typeof dock === 'string' && typeof paneId === 'string'
+    ? { dock, paneId }
+    : undefined;
 }
