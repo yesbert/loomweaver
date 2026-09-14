@@ -87,6 +87,7 @@ export * from './lib/regions/panel/sidebar.service';
 export * from './lib/text-size/font-scale.service';
 export * from './lib/plugin-store/plugin-store.service';
 export { type PaneHandle } from './lib/regions/pane/pane-handle';
+export { type PaneRef } from './lib/regions/pane/tree/pane-address';
 export { type QuickOpenTarget } from './lib/regions/content/tabs/quick-open-target';
 export { type ContentTabView } from './lib/regions/content/tabs/content-tab-projection';
 export {

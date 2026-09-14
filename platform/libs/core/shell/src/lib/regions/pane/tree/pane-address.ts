@@ -4,6 +4,11 @@ export const VIEW_PANE_PREFIX = 'view:';
 
 export const CONTENT_DOCK = 'content';
 
+/**
+ * Names one pane of the workbench: the dock it belongs to (`'content'` for the main area, a
+ * sidebar region's id otherwise) and the pane's id within it. A tab's menu context carries both as
+ * `group` and `paneId`, so a command can act on the pane the tab stands in.
+ */
 export interface PaneRef {
   readonly dock: string;
   readonly paneId: string;

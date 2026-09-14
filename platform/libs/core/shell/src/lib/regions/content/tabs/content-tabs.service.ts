@@ -22,7 +22,8 @@ import { UnsavedWork } from '../../pane/retention/unsaved-work';
  * pane's, so its tabs persist and reload with the tree (R10); only the non-serialisable `onClose`
  * hooks stay session-local. A tab is identified by its **tab root**; sub-routes (`subRoutes`) live
  * under it, so switching sub-routes stays in one tab and is reflected in the URL. A **chromeless**
- * surface shows no strip.
+ * surface shows no strip. The close family takes an optional {@link PaneRef}: named and not the
+ * address-carrying pane, it acts on that pane's tabs instead, guarded for unsaved work there.
  */
 @Service()
 export class ContentTabsService {
