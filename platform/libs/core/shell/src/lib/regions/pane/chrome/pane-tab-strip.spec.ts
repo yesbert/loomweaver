@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import {
   Translation,
   TranslocoLoader,
@@ -7,6 +8,7 @@ import {
 } from '@jsverse/transloco';
 import { Observable, Subject } from 'rxjs';
 import { RetainedViewStash } from '../retention/retained-view-stash';
+import { MenuTriggerDirective } from '../../../menu/menu-trigger.directive';
 import { PaneTabStrip } from './pane-tab-strip';
 import { StripTab } from './strip-tab';
 
@@ -74,7 +76,10 @@ describe('PaneTabStrip', () => {
     fixture = TestBed.createComponent(PaneTabStrip);
     fixture.componentRef.setInput('tabs', tabs);
     fixture.componentRef.setInput('activeId', tabs[0]?.path ?? '');
-    fixture.componentRef.setInput('source', { dock: 'content', paneId: 'main' });
+    fixture.componentRef.setInput('source', {
+      dock: 'content',
+      paneId: 'main',
+    });
     fixture.detectChanges();
   }
 
@@ -134,7 +139,9 @@ describe('PaneTabStrip', () => {
       (button) => button.getAttribute('aria-pressed'),
     );
     expect(pressed).toEqual(['true', 'false']);
-    expect(host.querySelectorAll('button lw-icon').length).toBeGreaterThanOrEqual(3);
+    expect(
+      host.querySelectorAll('button lw-icon').length,
+    ).toBeGreaterThanOrEqual(3);
   });
   function marks(): number {
     const host = fixture.nativeElement as HTMLElement;
@@ -143,11 +150,7 @@ describe('PaneTabStrip', () => {
 
   function tabLabel(): string {
     const host = fixture.nativeElement as HTMLElement;
-    return (
-      host
-        .querySelector('[role="tab"]')
-        ?.getAttribute('aria-label') ?? ''
-    );
+    return host.querySelector('[role="tab"]')?.getAttribute('aria-label') ?? '';
   }
 
   it('marks a tab whose surface holds unsaved work', () => {
@@ -189,9 +192,9 @@ describe('PaneTabStrip', () => {
     const close = host.querySelector('[data-testid="tab-close"]');
 
     expect(mark?.parentElement).toBe(close?.parentElement);
-    expect(close?.parentElement?.contains(host.querySelector('[role="tab"]'))).toBe(
-      false,
-    );
+    expect(
+      close?.parentElement?.contains(host.querySelector('[role="tab"]')),
+    ).toBe(false);
   });
 
   it('leaves the tab its own tone, so only the mark carries the state', () => {
@@ -244,5 +247,77 @@ describe('PaneTabStrip', () => {
     fixture.detectChanges();
 
     expect(tabLabel()).toBe('Q-2026-0001');
+  });
+});
+
+describe('PaneTabStrip — what a tab tells its menu about where it stands', () => {
+  let fixture: ComponentFixture<PaneTabStrip>;
+
+  function create(tabs: StripTab[], contextGroup: string): void {
+    TestBed.configureTestingModule({
+      providers: [
+        provideTransloco({
+          config: { availableLangs: ['en'], defaultLang: 'en' },
+          loader: PendingLoader,
+        }),
+        { provide: RetainedViewStash, useValue: stashOf([]) },
+      ],
+    });
+    fixture = TestBed.createComponent(PaneTabStrip);
+    fixture.componentRef.setInput('tabs', tabs);
+    fixture.componentRef.setInput('activeId', tabs[0]?.path ?? '');
+    fixture.componentRef.setInput('source', {
+      dock: 'content',
+      paneId: 'main',
+    });
+    fixture.componentRef.setInput('contextGroup', contextGroup);
+    fixture.componentRef.setInput('contextMenuSlot', 'content/tab/context');
+    fixture.componentRef.setInput('viewContextMenuSlot', 'panel/view/context');
+    fixture.detectChanges();
+  }
+
+  function contexts(): Record<string, unknown>[] {
+    return fixture.debugElement
+      .queryAll(By.directive(MenuTriggerDirective))
+      .map((element) => element.injector.get(MenuTriggerDirective).context())
+      .filter((context) => 'targetKind' in context);
+  }
+
+  it('says a lone content tab is alone in its pane', () => {
+    create([tab()], 'content');
+    expect(contexts()).toEqual([
+      expect.objectContaining({ targetKind: 'content-tab', sole: true }),
+    ]);
+  });
+
+  it('says a content tab with company is not alone', () => {
+    create([tab(), tab({ path: 'quotes/q-2' })], 'content');
+    expect(contexts()).toEqual([
+      expect.objectContaining({ sole: false }),
+      expect.objectContaining({ sole: false }),
+    ]);
+  });
+
+  it('says a view tab in the main area stands in it', () => {
+    create([tab({ path: 'view:outline' })], 'content');
+    expect(contexts()).toEqual([
+      expect.objectContaining({
+        targetKind: 'view-tab',
+        viewId: 'outline',
+        inContent: true,
+        sole: true,
+      }),
+    ]);
+  });
+
+  it('says a view tab in a sidebar does not stand in the main area', () => {
+    create(
+      [tab({ path: 'view:outline' }), tab({ path: 'view:list' })],
+      'left-panel',
+    );
+    expect(contexts()).toEqual([
+      expect.objectContaining({ inContent: false, sole: false }),
+      expect.objectContaining({ inContent: false, sole: false }),
+    ]);
   });
 });

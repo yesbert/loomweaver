@@ -27,7 +27,7 @@ import { MenuContext, ViewAction } from '@loomweaver/plugin-sdk';
 import { MENU_ANCHOR_GAP, MenuService } from '../../../menu/menu.service';
 import { MenuTriggerDirective } from '../../../menu/menu-trigger.directive';
 import { Reorderable } from '../../reorder/reorderable.directive';
-import { VIEW_PANE_PREFIX } from '../tree/pane-address';
+import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../tree/pane-address';
 import { paneRetentionScope } from '../retention/retention-policy';
 import { UnsavedWork } from '../retention/unsaved-work';
 import { resolveTitle } from '../drag/pane-label';
@@ -251,11 +251,14 @@ export class PaneTabStrip {
   }
 
   protected tabContext(tab: StripTab): MenuContext {
+    const sole = this.tabs().length === 1;
     if (tab.path.startsWith(VIEW_PANE_PREFIX)) {
       return {
         targetKind: 'view-tab',
         viewId: tab.path.slice(VIEW_PANE_PREFIX.length),
         region: this.contextGroup(),
+        inContent: this.contextGroup() === CONTENT_DOCK,
+        sole,
         ...(tab.instance && { instance: tab.instance }),
       };
     }
@@ -265,6 +268,7 @@ export class PaneTabStrip {
       group: this.contextGroup(),
       pinned: tab.pinned,
       closable: tab.closable,
+      sole,
     };
   }
 

@@ -50,6 +50,7 @@ export function registerViewContextMenu(
       command: 'shell.view.moveToOtherSidebar',
       group: '1_move',
       order: 0,
+      when: { inContent: false },
     }),
   ]);
 }
@@ -145,6 +146,7 @@ export function registerViewOpenInContentMenu(
       command: 'shell.view.openInContent',
       group: '2_stack',
       order: 1,
+      when: { inContent: false },
     }),
   ]);
 }
