@@ -261,5 +261,15 @@
     "brokenTitle": "Konto ohne Bild",
     "brokenName": "Grace Hopper",
     "brokenDetail": "grace@testbed.local"
+  },
+  "dialogs": {
+    "form": "Namen bearbeiten (Formular)",
+    "formIntro": "Speichern und Abbrechen sind die einzigen Buttons. Ein Klick neben den Dialog tut nichts; Escape und das Schließen-Symbol brechen ab.",
+    "name": "Name",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "saved": "Name gespeichert.",
+    "draft": "Entwurf schreiben (fragt beim Schließen)",
+    "draftIntro": "Kein Speichern-Button. Wer den Dialog schließt, egal wie, wird gefragt, solange der Text vom zuletzt gespeicherten abweicht."
   }
 }

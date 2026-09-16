@@ -20,7 +20,6 @@ export class PluginStoreService {
       title: this.storeTitle.current(),
       bare: true,
       size: 'xl',
-      dismissable: true,
     });
   }
 }

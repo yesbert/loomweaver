@@ -261,5 +261,15 @@
     "brokenTitle": "Account without a picture",
     "brokenName": "Grace Hopper",
     "brokenDetail": "grace@testbed.local"
+  },
+  "dialogs": {
+    "form": "Edit a name (form)",
+    "formIntro": "Save and Cancel are the only buttons. A click beside the dialog does nothing; Escape and the close control cancel.",
+    "name": "Name",
+    "save": "Save",
+    "cancel": "Cancel",
+    "saved": "Saved the name.",
+    "draft": "Write a draft (asks on closing)",
+    "draftIntro": "No save button. Closing this dialog in any way asks while the text differs from what was last saved."
   }
 }

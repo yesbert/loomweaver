@@ -1,5 +1,6 @@
 import { inject, Service } from '@angular/core';
 import { DialogButton, DirtySurface } from '@loomweaver/plugin-sdk';
+import { DialogCloseGuard } from '../../../dialog/dialog-close-guard';
 import { DialogService } from '../../../dialog/dialog.service';
 import { NotificationService } from '../../../notifications/notification.service';
 import { CloseVetoDialog } from './close-veto-dialog';
@@ -17,7 +18,7 @@ type VetoHook = () => boolean | Promise<boolean>;
 export const BEFORE_CLOSE_TIMEOUT_MS = 5000;
 
 @Service()
-export class SurfaceCloseGuard {
+export class SurfaceCloseGuard implements DialogCloseGuard {
   private readonly dialogs = inject(DialogService);
   private readonly notifications = inject(NotificationService);
 
@@ -25,11 +26,14 @@ export class SurfaceCloseGuard {
     return candidates.some((candidate) => instanceDirty(candidate));
   }
 
+  mustAsk(candidates: readonly unknown[]): boolean {
+    return (
+      this.anyDirty(candidates) || this.vetoHooksOf(candidates).length > 0
+    );
+  }
+
   guarded(candidates: readonly unknown[], proceed: () => void): void {
-    if (
-      !this.anyDirty(candidates) &&
-      this.vetoHooksOf(candidates).length === 0
-    ) {
+    if (!this.mustAsk(candidates)) {
       proceed();
       return;
     }

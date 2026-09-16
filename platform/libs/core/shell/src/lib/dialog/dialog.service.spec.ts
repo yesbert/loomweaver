@@ -73,7 +73,7 @@ describe('DialogService', () => {
     const handle = service.progress({ message: 'Saving…' });
     const dialog = service.dialogs()[0];
     expect(dialog.kind).toBe('progress');
-    expect(dialog.dismissable).toBe(false);
+    expect(dialog.dismiss).toBe('none');
     expect(dialog.buttons.length).toBe(0);
     expect(dialog.progressMessage?.()).toBe('Saving…');
 

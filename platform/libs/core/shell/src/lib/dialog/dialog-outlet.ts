@@ -3,6 +3,7 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, afterRenderEffect, effec
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LwButton } from '../elements/button/lw-button';
 import { LwSpinner } from '../elements/spinner/lw-spinner';
+import { DIALOG_CLOSE_GUARD } from './dialog-close-guard';
 import {
   DialogButtonView,
   DialogInstance,
@@ -49,11 +50,17 @@ const TONE_CIRCLE: Record<DialogTone, string> = {
 export class DialogOutlet {
   private readonly service = inject(DialogService);
 
+  private readonly closeGuard = inject(DIALOG_CLOSE_GUARD);
+
   private readonly document = inject(DOCUMENT);
 
   protected readonly dialogs = this.service.dialogs;
 
   private readonly panels = viewChildren<ElementRef<HTMLElement>>('panel');
+
+  private readonly bodies = viewChildren(NgComponentOutlet);
+
+  private readonly asking = new Set<string>();
 
   constructor() {
     effect(() => {
@@ -74,8 +81,8 @@ export class DialogOutlet {
 
   protected onEscape(): void {
     const top = this.top();
-    if (top?.dismissable) {
-      top.ref.close();
+    if (top && this.closesDeliberately(top)) {
+      this.requestDismiss(top);
     }
   }
 
@@ -108,14 +115,26 @@ export class DialogOutlet {
     }
   }
 
-  protected dismiss(dialog: DialogInstance): void {
-    if (dialog.dismissable) {
-      dialog.ref.close();
+  protected onScrim(dialog: DialogInstance): void {
+    if (dialog.dismiss === 'any') {
+      this.requestDismiss(dialog);
     }
   }
 
+  protected onCloseControl(dialog: DialogInstance): void {
+    if (this.closesDeliberately(dialog)) {
+      this.requestDismiss(dialog);
+    }
+  }
+
+  protected closesDeliberately(dialog: DialogInstance): boolean {
+    return dialog.dismiss !== 'none';
+  }
+
   protected onButton(dialog: DialogInstance, button: DialogButtonView): void {
-    if (button.role === 'custom') {
+    if (button.role === 'custom' && button.value === undefined) {
+      this.requestDismiss(dialog);
+    } else if (button.role === 'custom') {
       dialog.ref.close(button.value);
     } else if (button.role === 'cancel') {
       dialog.ref.close();
@@ -180,6 +199,34 @@ export class DialogOutlet {
       return MAXIMIZED_PANEL;
     }
     return PANEL_WIDTH[dialog.size ?? 'md'];
+  }
+
+  private requestDismiss(dialog: DialogInstance): void {
+    if (this.asking.has(dialog.id)) {
+      return;
+    }
+    const body = this.bodyOf(dialog);
+    const candidates = body ? [body] : [];
+    if (!this.closeGuard.mustAsk(candidates)) {
+      dialog.ref.close();
+      return;
+    }
+    this.asking.add(dialog.id);
+    void this.closeGuard
+      .confirmClose(candidates)
+      .then((approved) => {
+        if (approved) {
+          dialog.ref.close();
+        }
+      })
+      .finally(() => this.asking.delete(dialog.id));
+  }
+
+  private bodyOf(dialog: DialogInstance): unknown {
+    const index = this.dialogs()
+      .filter((open) => open.component)
+      .indexOf(dialog);
+    return index === -1 ? undefined : this.bodies()[index]?.componentInstance;
   }
 
   private topPanel(): HTMLElement | undefined {

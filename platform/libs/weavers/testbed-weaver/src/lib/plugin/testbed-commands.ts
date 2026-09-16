@@ -1,5 +1,7 @@
 import { AuthSnapshot, PluginContext } from '@loomweaver/plugin-sdk';
 import { TestbedAboutDialog } from '../dialogs/testbed-about-dialog';
+import { TestbedDraftDialog } from '../dialogs/testbed-draft-dialog';
+import { TestbedFormDialog } from '../dialogs/testbed-form-dialog';
 import { testbedNavState } from '../views/navigation/testbed-nav-state';
 import { testbedContent } from './testbed-content';
 import { testbedAuth } from './testbed-auth';
@@ -175,6 +177,27 @@ export function registerCommands(ctx: PluginContext): void {
     shortcut: 'mod+shift+s',
     popout: true,
     run: () => ctx.ui.openSettings(),
+  });
+  ctx.registerCommand({
+    id: 'testbed.dialogs.form',
+    title: 'testbed.dialogs.form',
+    icon: 'edit',
+    run: async () => {
+      const name = await ctx.ui
+        .open<string>(TestbedFormDialog, { title: 'testbed.dialogs.form', dismiss: 'explicit' })
+        .closed;
+      if (name !== undefined) {
+        ctx.ui.toast({ message: 'testbed.dialogs.saved', timeoutMs: 3000 });
+      }
+    },
+  });
+  ctx.registerCommand({
+    id: 'testbed.dialogs.draft',
+    title: 'testbed.dialogs.draft',
+    icon: 'edit',
+    run: () => {
+      ctx.ui.open(TestbedDraftDialog, { title: 'testbed.dialogs.draft' });
+    },
   });
   ctx.registerCommand({
     id: 'testbed.about',

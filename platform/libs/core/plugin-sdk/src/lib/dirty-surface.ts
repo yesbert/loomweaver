@@ -14,6 +14,12 @@
  * by any gesture that *moves* its element (a split, a drag into another pane, a minimise), because
  * moving an `<iframe>` in the DOM reloads it; and a **pop-out window** closes without the ask — the
  * unsaved-changes protocol guards the main window, a pop-out is a viewer onto the same state.
+ *
+ * A **dialog body** opened through `open` takes part the same way. While it reports dirty, every way
+ * of dismissing the dialog that its `dismiss` option allows (a backdrop click, Escape, the close
+ * control) and a declared footer button without a `value` first run {@link surfaceBeforeClose} and
+ * then ask the same *Save · Discard · Cancel* question. A footer button with a `value` and
+ * `DialogRef.close` never ask: whoever closes the dialog from code knows what it closes.
  */
 export interface DirtySurface {
   /**

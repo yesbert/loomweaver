@@ -1,0 +1,15 @@
+<div class="flex flex-col gap-3">
+  <p class="text-sm text-content-muted">{{ 'testbed.dialogs.formIntro' | transloco }}</p>
+  <input
+    type="text"
+    class="lw-field"
+    [attr.aria-label]="'testbed.dialogs.name' | transloco"
+    [value]="name()"
+    (input)="onInput($event)"
+    data-lw-autofocus
+  />
+  <div class="flex justify-end gap-2">
+    <lw-button variant="default" (click)="onCancel()">{{ 'testbed.dialogs.cancel' | transloco }}</lw-button>
+    <lw-button variant="primary" (click)="onSave()">{{ 'testbed.dialogs.save' | transloco }}</lw-button>
+  </div>
+</div>

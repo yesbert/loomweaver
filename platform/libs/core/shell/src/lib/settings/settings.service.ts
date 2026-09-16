@@ -88,7 +88,6 @@ export class SettingsService {
       title: 'settings.title',
       bare: true,
       size: 'xl',
-      dismissable: true,
     });
     this.current = ref;
     void ref.closed.then(() => {

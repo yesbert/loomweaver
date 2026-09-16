@@ -330,6 +330,9 @@ type Surface = {
 // like any other (S5), and closing/unload asks. saveOn:'hide' is inert for a sandboxed surface (no save
 // channel crosses the RPC boundary; save inside and push setDirty(false)). Routable surfaces have no
 // VIEW_STATE handle by design — for a routed editor, DirtySurface (or retain) is the way unsaved work survives hides.
+// A DIALOG body opened with ui.open implements the same interface: while dirty, every dismissal its dismiss option
+// allows (backdrop, Escape, close control) and a declared button without a value run surfaceBeforeClose, then ask
+// Save · Discard · Cancel. A button with a value and DialogRef.close never ask.
 interface DirtySurface {
   surfaceDirty(): boolean;              // unsaved changes? read reactively by the host
   surfaceSave?(): Promise<void>;        // optional: enables "Save" in the close dialog + the saveOn:'hide' target
@@ -462,7 +465,7 @@ interface PluginUi {                // dialogs + toasts + context menus; message
   confirm(o: ConfirmOptions): Promise<boolean>;   // ConfirmOptions may carry requireConfirmation (type-to-confirm)
   alert(o: AlertOptions): Promise<void>;
   prompt(o: PromptOptions): Promise<string | null>;
-  open<R = unknown>(component: Type<unknown>, o?: OpenOptions): DialogRef<R>;  // OpenOptions: { title?, tone?, icon?, dismissable?, data?, size?: 'md'|'lg'|'xl', bare?, buttons?, maximizable?, align?: 'center'|'top' } — align 'top' pins the panel's top edge on EVERY width (phones too, floating card instead of the bottom sheet) so a content-driven height (filtering list) grows downward instead of jumping around, and the on-screen keyboard never covers it. Default 'center' = centred desktop panel + mobile bottom sheet.
+  open<R = unknown>(component: Type<unknown>, o?: OpenOptions): DialogRef<R>;  // OpenOptions: { title?, tone?, icon?, dismiss?: 'any'|'explicit'|'none', data?, size?: 'md'|'lg'|'xl', bare?, buttons?, maximizable?, align?: 'center'|'top' } — align 'top' pins the panel's top edge on EVERY width (phones too, floating card instead of the bottom sheet) so a content-driven height (filtering list) grows downward instead of jumping around, and the on-screen keyboard never covers it. Default 'center' = centred desktop panel + mobile bottom sheet. dismiss governs only the user's ways of closing: 'any' (default) = backdrop, Escape and close control; 'explicit' = Escape and close control, a backdrop click does nothing; 'none' = no user way and no close control. Declared buttons and DialogRef.close always work. dismissable was removed: true → omit, false → 'none'. A body implementing DirtySurface is asked Save · Discard · Cancel (after surfaceBeforeClose) by every allowed way and by a declared button without a value while surfaceDirty() is true.
   // maximizable: the host frame shows a maximize/restore control; DialogRef.maximized (readonly signal) +
   // DialogRef.toggleMaximized() let a bare dialog draw its own control (settings + plugin store do).
   progress(o: ProgressOptions): ProgressHandle;
@@ -959,7 +962,7 @@ class ContributionRegistry { registeredCommands: Signal<readonly RegisteredComma
   omittedContentRoutes; omitted: Signal<ReadonlySet<string>>; registeredIds: Signal<ReadonlySet<string>>; omit(ids): void; add*/remove* per kind }
 interface RegisteredCommand { command: Command; ownerId?: string }   // the host stamps the owner; the shell's own carry none, which is what tells plugins' commands apart
 class DialogService { dialogs: Signal<readonly DialogInstance[]>; confirm; alert; prompt; open; progress; withProgress }   // the same seam ctx.ui uses
-interface DialogInstance { id; ref: DialogRef; kind: DialogKind; tone: DialogTone; icon?; title?; message?; component?; buttons: readonly DialogButtonView[]; dismissable; size?; bare?; maximizable?; align? }
+interface DialogInstance { id; ref: DialogRef; kind: DialogKind; tone: DialogTone; icon?; title?; message?; component?; buttons: readonly DialogButtonView[]; dismiss: DialogDismiss; size?; bare?; maximizable?; align? }
 type DialogKind = 'confirm' | 'alert' | 'prompt' | 'custom' | 'progress';  interface DialogButtonView { label; variant: LwButtonVariant; role: ButtonRole; value?; autofocus }  type ButtonRole = 'confirm' | 'cancel' | 'custom';
 class NotificationService { notifications: Signal<readonly Notification[]>; show(input: NotificationInput): string; dismiss(id): void }
 class SettingsService { all: Signal<SettingsSection[]>; registered: Signal<readonly SettingsSection[]>; requestedSection; register(section): Disposable; omit(ids): void; open(sectionId?): DialogRef }
