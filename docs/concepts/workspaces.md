@@ -33,6 +33,10 @@ nested content area of tabs, rows and columns, and a rail item can put one a cli
 whose declaration the running product can no longer satisfy, because a plugin is gone, is marked
 rather than silently emptied.
 
+The workbench brings one workspace of its own, _Default_, which starts empty. A distribution that
+declares where the application opens makes that workspace the default instead. _Default_ is then not
+offered at all, so nobody lands in an empty workbench that shows none of the product.
+
 The user saves their own. A saved workspace has no icon to declare, so the workbench derives a
 two-letter badge from its name, and only a colliding newcomer steps aside, so no existing badge is
 ever renamed.

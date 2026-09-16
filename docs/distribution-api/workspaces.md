@@ -21,7 +21,7 @@ workspaces.rename(id, 'Reviews');
 const reset = await workspaces.reset();          // active workspace; asks about unsaved work
 await workspaces.reset('review');               // a workspace you are not in; asks nothing
 const all = await workspaces.resetAll();        // asks once for all of them
-const removed = await workspaces.remove(id);    // asks for the work parked under it
+const removed = await workspaces.remove(id);    // asks for the work parked under it; if it was active, the user lands in the default workspace
 ```
 
 ## Read it
@@ -35,7 +35,7 @@ workspaces.claimsOfWorkspace(id); // readonly WorkspaceClaim[]: the address pref
 workspaces.destinationFor(path);  // the workspace a path would settle in, by those claims
 ```
 
-`workspaces()` is the list the user saved; the declared ones come from `provideWorkspaces`. `activeId()` is the active one, `hasChanges()` whether it differs from its baseline, `changedIds()` every workspace that does.
+`workspaces()` is the list the user saved; the declared ones come from `provideWorkspaces`. The default workspace is the one declared `initial`, or the built-in `default` where none is. `activeId()` is the active one, `hasChanges()` whether it differs from its baseline, `changedIds()` every workspace that does.
 
 ## What asks about unsaved work
 
@@ -43,7 +43,7 @@ Resetting the active workspace, `resetAll()` and `remove()` ask the question the
 
 ## Switched off
 
-`workspaces.enabled` removes the manage and reset commands and the rail entries for the user; the service keeps working for you.
+`workspaces.enabled` removes the manage and reset commands and the rail entries for the user; the service keeps working for you. A declared workspace that nothing offers is then not reported, because there is no dialog it could be reached through.
 
 ## In depth
 
