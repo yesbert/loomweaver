@@ -6,6 +6,7 @@ import { DialogRef } from './dialog-ref';
 import {
   AlertOptions,
   ConfirmOptions,
+  DialogDismiss,
   DialogSize,
   DialogTone,
   OpenOptions,
@@ -22,6 +23,7 @@ export type {
   AlertOptions,
   PromptOptions,
   DialogButton,
+  DialogDismiss,
   ProgressOptions,
   ProgressHandle,
   OpenOptions,
@@ -76,7 +78,7 @@ export interface DialogInstance {
   /** Validates the guard input; `null` = valid (enables confirm), else an inline error. */
   readonly requireValidate?: (value: string) => string | null;
   readonly buttons: readonly DialogButtonView[];
-  readonly dismissable: boolean;
+  readonly dismiss: DialogDismiss;
   readonly size?: DialogSize;
   /** Render only the component (no host chrome) — the component owns the frame contents. */
   readonly bare?: boolean;
@@ -117,7 +119,7 @@ export class DialogService {
       requireLabel: guard?.label,
       requireValidate: guard?.validate,
       placeholder: guard?.placeholder,
-      dismissable: true,
+      dismiss: 'any',
       buttons: [
         {
           label: options.cancelLabel ?? 'dialog.cancel',
@@ -145,7 +147,7 @@ export class DialogService {
       icon: options.icon ?? TONE_ICON[tone],
       title: options.title,
       message: options.message,
-      dismissable: true,
+      dismiss: 'any',
       buttons: [
         {
           label: options.okLabel ?? 'dialog.ok',
@@ -170,7 +172,7 @@ export class DialogService {
       message: options.message,
       placeholder: options.placeholder,
       promptValue: value,
-      dismissable: true,
+      dismiss: 'any',
       buttons: [
         {
           label: options.cancelLabel ?? 'dialog.cancel',
@@ -222,7 +224,7 @@ export class DialogService {
         component,
         injector,
         buttons,
-        dismissable: options.dismissable ?? true,
+        dismiss: options.dismiss ?? 'any',
         size: options.size,
         bare: options.bare,
         maximizable: options.maximizable,
@@ -244,7 +246,7 @@ export class DialogService {
       tone: 'default',
       title: options.title,
       progressMessage: message,
-      dismissable: false,
+      dismiss: 'none',
       buttons: [],
     });
     return {

@@ -3,9 +3,9 @@
     <button
       type="button"
       class="lw-scrim absolute inset-0 cursor-default"
-      [disabled]="!d.dismissable"
+      [disabled]="d.dismiss !== 'any'"
       [attr.aria-label]="'dialog.close' | transloco"
-      (click)="dismiss(d)"
+      (click)="onScrim(d)"
     ></button>
 
     @if (d.bare) {
@@ -47,7 +47,7 @@
           }
 
           <div class="flex min-w-0 flex-1 flex-col gap-3">
-            @if (d.title || (d.kind === 'custom' && d.dismissable)) {
+            @if (d.title || (d.kind === 'custom' && closesDeliberately(d))) {
               <div class="flex items-start justify-between gap-4">
                 <h2 class="min-w-0 text-lg font-semibold text-content">
                   @if (d.title) {
@@ -71,7 +71,7 @@
                       <lw-icon [name]="d.ref.maximized() ? 'restore' : 'maximize'" size="1rem" />
                     </button>
                   }
-                  @if (d.kind === 'custom' && d.dismissable) {
+                  @if (d.kind === 'custom' && closesDeliberately(d)) {
                     <button
                       lwButton
                       variant="ghost"
@@ -80,7 +80,7 @@
                       type="button"
                       class="-mt-1 -mr-1"
                       [attr.aria-label]="'dialog.close' | transloco"
-                      (click)="dismiss(d)"
+                      (click)="onCloseControl(d)"
                     >
                       <lw-icon name="close" size="1rem" />
                     </button>

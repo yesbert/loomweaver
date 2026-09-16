@@ -82,13 +82,23 @@ export interface ProgressHandle {
   close(): void;
 }
 
+/** Which of the user's ways of closing a dialog work. See {@link OpenOptions.dismiss}. */
+export type DialogDismiss = 'any' | 'explicit' | 'none';
+
 /** Options for opening a custom body component as a dialog. */
 export interface OpenOptions {
   readonly title?: string;
   readonly data?: unknown;
   readonly buttons?: readonly DialogButton[];
-  /** Backdrop click / Escape / close-X dismiss the dialog. Defaults to `true`. */
-  readonly dismissable?: boolean;
+  /**
+   * Which of the user's ways close the dialog. `'any'` (the default): a backdrop click, Escape and
+   * the close control. `'explicit'`: only the deliberate ways, Escape and the close control; a
+   * backdrop click does nothing. `'none'`: no way of the user's, and no close control is drawn.
+   * Declared footer buttons are never affected, and closing through `DialogRef.close` always
+   * works. While the body implements `DirtySurface` and reports unsaved work, every allowed way asks
+   * the same unsaved-changes question closing a tab asks.
+   */
+  readonly dismiss?: DialogDismiss;
   readonly tone?: DialogTone;
   /** Host icon name. */
   readonly icon?: string;

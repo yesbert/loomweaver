@@ -33,6 +33,8 @@ import { VIEW } from './layout/view';
 import { ContributionRegistry } from './plugin/contribution-registry';
 import { ShellErrorHandler } from './permissions/capability-refusal';
 import { COMMAND_INVOKER } from './foundation/command-invoker';
+import { DIALOG_CLOSE_GUARD } from './dialog/dialog-close-guard';
+import { SurfaceCloseGuard } from './regions/pane/close/surface-close-guard';
 import { WORKSPACE_CLAIMS } from './foundation/workspace-claims';
 import { UNUSABLE_WORKSPACES } from './foundation/unusable-workspaces';
 import { UnusableWorkspacesService } from './workspace/usability/unusable-workspaces.service';
@@ -188,6 +190,7 @@ export function provideShell(
     provideBrowserGlobalErrorListeners(),
     { provide: ErrorHandler, useClass: ShellErrorHandler },
     { provide: COMMAND_INVOKER, useExisting: CommandInvocationService },
+    { provide: DIALOG_CLOSE_GUARD, useExisting: SurfaceCloseGuard },
     { provide: WORKSPACE_CLAIMS, useExisting: WorkspaceService },
     { provide: UNUSABLE_WORKSPACES, useExisting: UnusableWorkspacesService },
 

@@ -1,7 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { SwUpdate } from '@angular/service-worker';
 import { TranslocoService } from '@jsverse/transloco';
+import { DIALOG_CLOSE_GUARD } from './dialog/dialog-close-guard';
 import { provideShell } from './provide-shell';
+import { SurfaceCloseGuard } from './regions/pane/close/surface-close-guard';
 
 describe('provideShell service worker registration', () => {
   afterEach(() => TestBed.resetTestingModule());
@@ -48,5 +50,17 @@ describe('provideShell languages', () => {
 
   it('refuses an empty declaration while composing', () => {
     expect(() => provideShell({ languages: [] })).toThrow(/at least one language/);
+  });
+});
+
+describe('provideShell dialog close guard', () => {
+  afterEach(() => TestBed.resetTestingModule());
+
+  it("guards a dialog's dismissal with the question a tab asks", () => {
+    TestBed.configureTestingModule({
+      providers: [provideShell({ serviceWorker: false })],
+    });
+
+    expect(TestBed.inject(DIALOG_CLOSE_GUARD)).toBe(TestBed.inject(SurfaceCloseGuard));
   });
 });

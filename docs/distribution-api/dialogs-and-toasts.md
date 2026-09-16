@@ -67,10 +67,43 @@ promise and is what you want almost always.
 | `data`                  | passed to your component through the `DialogRef`                                                 |
 | `buttons`               | host-drawn footer buttons; each `{ label, variant?, value? }` resolves `closed` with its `value` |
 | `size`                  | `md` (default), `lg`, `xl`                                                                       |
-| `dismissable`           | backdrop click and Escape close the dialog; default `true`                                       |
+| `dismiss`               | which of the user's ways close it: `any` (default), `explicit` or `none`; see below              |
 | `maximizable`           | the frame offers a maximize/restore control                                                      |
 | `bare`                  | render only your component — no frame, no padding, no footer; you own the chrome                 |
 | `align`                 | `center` (default) or `top`, which pins the panel near the top on every width                    |
+
+**How the user may close it.** `dismiss` governs the user only; your component and your own code
+can always call `DialogRef.close`, and declared `buttons` work whatever you choose.
+
+| Value      | Backdrop click | Escape, close control | Close control drawn |
+| ---------- | -------------- | --------------------- | ------------------- |
+| `any`      | closes         | close                 | yes                 |
+| `explicit` | does nothing   | close                 | yes                 |
+| `none`     | does nothing   | do nothing            | no                  |
+
+`dismissable` is gone. Replace `dismissable: true` by nothing and `dismissable: false` by
+`dismiss: 'none'`.
+
+**Keeping unsaved edits.** Three kinds of dialog edit something, and each needs something different:
+
+- _A form with its own Save and Cancel._ Open it with `dismiss: 'explicit'`. A stray click beside it
+  does nothing, while Escape and the close control read as cancel, as your Cancel button does.
+- _A dialog that asks on closing,_ with no Save button of its own. Implement `DirtySurface` on the
+  component, the same interface a tab's content implements. While `surfaceDirty()` returns `true`,
+  every way of closing the user is allowed asks _Save · Discard · Cancel_, with Save offered only
+  when you implement `surfaceSave`. A `surfaceBeforeClose` veto runs first, with the same timeout
+  a tab gets. A declared button without a `value` counts as a cancel and asks too; one with a
+  `value`, and `DialogRef.close`, never ask.
+- _A dialog whose changes apply as they are made,_ such as the settings. Nothing is ever unsaved, so
+  implement nothing and keep the default. If a write may still be in flight when the user closes it,
+  report dirty until the write has succeeded, and the dialog asks rather than losing it.
+
+```ts
+const name = await this.dialogs.open<string>(EditNameForm, {
+  title: 'Edit name',
+  dismiss: 'explicit',
+}).closed;
+```
 
 **When the frame does not fit.** `bare` and `align: 'top'` exist for the two cases the standard frame
 does not fit. One is a surface that draws its own two-column chrome, such as the settings dialog.
