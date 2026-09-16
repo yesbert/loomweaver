@@ -260,7 +260,9 @@
     "detail": "ada@testbed.local",
     "brokenTitle": "Konto ohne Bild",
     "brokenName": "Grace Hopper",
-    "brokenDetail": "grace@testbed.local"
+    "brokenDetail": "grace@testbed.local",
+    "profile": "Profil",
+    "profileOpened": "Die Kopfzeile hat zum Profil geführt."
   },
   "dialogs": {
     "form": "Namen bearbeiten (Formular)",

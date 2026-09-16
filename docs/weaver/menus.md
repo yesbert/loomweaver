@@ -122,6 +122,19 @@ The heading is not an entry: nothing activates it, and the arrow keys pass over 
 over a separator. The menu is announced by what it names, so the name reaches the user once rather
 than twice. A menu opened at the pointer carries none, because what it acts on is under the pointer.
 
+Give the heading a `command` and it leads to what it names, the way a click on the person in an
+account menu opens their profile:
+
+```ts
+menuHeader: { title: displayName, detail: emailAddress, initials: 'AR', command: 'notes.profile' },
+```
+
+The heading is then the menu's first entry. The down arrow reaches it first, a click, Enter or Space
+runs the command with the menu's context and closes the menu, and it looks like an entry under the
+pointer. A screen reader still hears the name once, on the menu, and hears the heading by the
+command's title, such as "Profile". So you need no separate "Profile" entry below it. A command that
+nothing registers leaves the heading a plain heading.
+
 Activation offers **your** slot alone: the workbench's own entries for that item, the ones that hide
 it or move it to the other rail, stay on the right-click, where a curation entry beside "Sign out"
 would be noise. Such an item needs no `command` or `run`, and the host draws it without one; where it

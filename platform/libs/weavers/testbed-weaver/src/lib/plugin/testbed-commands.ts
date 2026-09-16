@@ -179,6 +179,13 @@ export function registerCommands(ctx: PluginContext): void {
     run: () => ctx.ui.openSettings(),
   });
   ctx.registerCommand({
+    id: 'testbed.account.profile',
+    title: 'testbed.account.profile',
+    icon: 'testbedUser',
+    run: () =>
+      ctx.ui.toast({ message: 'testbed.account.profileOpened', timeoutMs: 3000 }),
+  });
+  ctx.registerCommand({
     id: 'testbed.dialogs.form',
     title: 'testbed.dialogs.form',
     icon: 'edit',

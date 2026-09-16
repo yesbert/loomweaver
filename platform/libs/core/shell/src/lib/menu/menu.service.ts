@@ -1,8 +1,9 @@
 import { DestroyRef, inject, Service, signal } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
-import { MenuContext, MenuHeader, MenuItem } from '@loomweaver/plugin-sdk';
+import { Command, MenuContext, MenuHeader, MenuItem } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../plugin/contribution-registry';
 import { CommandService } from '../commands/command.service';
+import { drawMenuHeading, HEADING_KEY } from './menu-heading';
 import {
   LW_MENU_DISMISS,
   LW_MENU_ITEM_TAG,
@@ -80,15 +81,20 @@ export class MenuService {
       typeof menuId === 'string' ? [menuId] : menuId,
       context,
     );
-    if (resolved.length === 0) {
+    const leadsTo = this.headingCommand(options.header);
+    if (resolved.length === 0 && !leadsTo) {
       return;
     }
-    const menu = this.createMenu(resolved, options.header);
+    const menu = this.createMenu(resolved, options.header, leadsTo);
     const byKey = new Map(resolved.map((entry) => [entry.key, entry.item]));
     this.present(
       menu,
       at,
       (key) => {
+        if (key === HEADING_KEY && leadsTo) {
+          this.commands.execute(leadsTo.id, context);
+          return;
+        }
         const item = key === null ? undefined : byKey.get(key);
         if (item) {
           this.run(item, context);
@@ -209,9 +215,20 @@ export class MenuService {
       .toSorted((a, b) => a.group.localeCompare(b.group) || a.order - b.order);
   }
 
+  private headingCommand(header?: MenuHeader): Command | undefined {
+    if (!header?.command) {
+      return undefined;
+    }
+    const command = this.registry
+      .commands()
+      .find((candidate) => candidate.id === header.command);
+    return command?.title ? command : undefined;
+  }
+
   private createMenu(
     resolved: readonly ResolvedItem[],
     header?: MenuHeader,
+    leadsTo?: Command,
   ): LwMenuElement {
     const menu = document.createElement(LW_MENU_TAG) as LwMenuElement;
     if (resolved.some((entry) => entry.checkbox)) {
@@ -221,7 +238,9 @@ export class MenuService {
       menu.classList.add('lw-menu--leading');
     }
     if (header) {
-      menu.append(this.createHeader(header, menu));
+      menu.append(
+        drawMenuHeading(header, menu, (key) => this.transloco.translate(key), leadsTo),
+      );
     }
     let lastGroup: string | undefined;
     for (const entry of resolved) {
@@ -250,76 +269,6 @@ export class MenuService {
       menu.append(item);
     }
     return menu;
-  }
-
-  private createHeader(header: MenuHeader, menu: LwMenuElement): HTMLElement {
-    const title = this.transloco.translate(header.title);
-    const detail = header.detail
-      ? this.transloco.translate(header.detail)
-      : undefined;
-    menu.setAttribute('aria-label', detail ? `${title}, ${detail}` : title);
-
-    const element = document.createElement('div');
-    element.className = 'lw-menu-header';
-    element.setAttribute('aria-hidden', 'true');
-
-    const mark = this.createHeaderMark(header);
-    if (mark) {
-      element.append(mark);
-    }
-
-    const lines = document.createElement('span');
-    lines.className = 'lw-menu-header-lines';
-    const name = document.createElement('span');
-    name.className = 'lw-menu-header-title';
-    name.textContent = title;
-    lines.append(name);
-    if (detail) {
-      const second = document.createElement('span');
-      second.className = 'lw-menu-header-detail';
-      second.textContent = detail;
-      lines.append(second);
-    }
-    element.append(lines);
-    return element;
-  }
-
-  private createHeaderMark(header: MenuHeader): HTMLElement | undefined {
-    if (!header.image && !header.initials && !header.icon) {
-      return undefined;
-    }
-    const mark = document.createElement('span');
-    mark.className = 'lw-menu-header-mark';
-    mark.append(...this.markContent(header));
-    if (header.image) {
-      const picture = mark.firstElementChild as HTMLImageElement;
-      picture.addEventListener('error', () =>
-        mark.replaceChildren(
-          ...this.markContent({ ...header, image: undefined }),
-        ),
-      );
-    }
-    return mark;
-  }
-
-  private markContent(header: MenuHeader): Node[] {
-    if (header.image) {
-      const picture = document.createElement('img');
-      picture.src = header.image;
-      picture.alt = '';
-      picture.className = 'lw-menu-header-picture';
-      return [picture];
-    }
-    if (header.initials) {
-      return [document.createTextNode(header.initials)];
-    }
-    if (header.icon) {
-      const icon = document.createElement('lw-icon');
-      icon.setAttribute('name', header.icon);
-      icon.setAttribute('size', '1rem');
-      return [icon];
-    }
-    return [];
   }
 
   private createListMenu(entries: readonly MenuListEntry[]): LwMenuElement {
