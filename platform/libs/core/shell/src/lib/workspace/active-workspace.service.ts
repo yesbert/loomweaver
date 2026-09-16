@@ -2,7 +2,10 @@ import { inject, Service, signal } from '@angular/core';
 import { readStoredValue } from '../persistence/hydrate';
 import { WORKING_STATE_STORE } from '../persistence/working-state-store';
 import { WORKSPACE_DEFINITIONS } from './provide-workspaces';
-import { DEFAULT_WORKSPACE_ID } from './workspace-definition';
+import {
+  DEFAULT_WORKSPACE_ID,
+  defaultWorkspaceId,
+} from './workspace-definition';
 
 const ACTIVE_KEY = 'lw.shell.active-workspace';
 
@@ -19,14 +22,13 @@ function storedId(raw: string | undefined): string | null {
 @Service()
 export class ActiveWorkspaceService {
   private readonly store = inject(WORKING_STATE_STORE);
+  private readonly defaultId = defaultWorkspaceId(
+    (inject(WORKSPACE_DEFINITIONS, { optional: true }) ?? []).flat(),
+  );
   private readonly declaredInitial =
-    (inject(WORKSPACE_DEFINITIONS, { optional: true }) ?? [])
-      .flat()
-      .find((definition) => definition.initial)?.id ?? null;
+    this.defaultId === DEFAULT_WORKSPACE_ID ? null : this.defaultId;
   private readonly active = signal(
-    storedId(this.store.peek?.(ACTIVE_KEY)) ??
-      (this.store.peek ? this.declaredInitial : null) ??
-      DEFAULT_WORKSPACE_ID,
+    this.fromStore(this.store.peek?.(ACTIVE_KEY)) ?? this.defaultId,
   );
   readonly id = this.active.asReadonly();
 
@@ -46,7 +48,7 @@ export class ActiveWorkspaceService {
   }
 
   async reread(): Promise<void> {
-    const id = storedId(await readStoredValue(this.store, ACTIVE_KEY));
+    const id = this.fromStore(await readStoredValue(this.store, ACTIVE_KEY));
     if (id !== null) {
       this.active.set(id);
     }
@@ -66,21 +68,38 @@ export class ActiveWorkspaceService {
 
   private resolveInitial(): Promise<string> {
     if (this.store.peek) {
-      this.adoptIfUnseen(storedId(this.store.peek(ACTIVE_KEY)));
+      const raw = this.store.peek(ACTIVE_KEY);
+      this.adoptIfUnseen(storedId(raw));
+      this.rewriteSuperseded(raw);
       return Promise.resolve(this.active());
     }
     return this.store
       .get(ACTIVE_KEY)
       .then((raw) => {
-        const id = storedId(raw);
+        const id = this.fromStore(raw);
         if (id) {
           this.active.set(id);
+          this.rewriteSuperseded(raw);
         } else {
           this.adoptIfUnseen(null);
         }
         return this.active();
       })
       .catch(() => this.active());
+  }
+
+  private fromStore(raw: string | undefined): string | null {
+    const id = storedId(raw);
+    return id === DEFAULT_WORKSPACE_ID ? this.defaultId : id;
+  }
+
+  private rewriteSuperseded(raw: string | undefined): void {
+    if (
+      storedId(raw) === DEFAULT_WORKSPACE_ID &&
+      this.declaredInitial !== null
+    ) {
+      void this.store.set(ACTIVE_KEY, this.declaredInitial);
+    }
   }
 
   private adoptIfUnseen(stored: string | null): void {

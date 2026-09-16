@@ -3,6 +3,7 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { DialogRef } from '../dialog/dialog-ref';
 import { DialogService } from '../dialog/dialog.service';
 import { DEFAULT_WORKSPACE_ID } from './active-workspace.service';
+import { defaultWorkspaceId } from './workspace-definition';
 import { WorkspaceService } from './workspace.service';
 import { UnusableWorkspacesService } from './usability/unusable-workspaces.service';
 import { CommandService } from '../commands/command.service';
@@ -27,6 +28,8 @@ export class WorkspaceDialog {
   protected readonly activeId = this.ws.activeId;
   protected readonly hasChanges = this.ws.hasChanges;
   protected readonly defaultId = DEFAULT_WORKSPACE_ID;
+  protected readonly offersBuiltIn =
+    defaultWorkspaceId(this.definitions) === DEFAULT_WORKSPACE_ID;
   protected readonly name = signal('');
 
   protected readonly tab = signal<'mine' | 'provided'>(

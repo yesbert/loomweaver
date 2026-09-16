@@ -43,6 +43,10 @@ export interface WorkspaceDefinition {
    * content of its own leaves both the address and the active workspace alone, so whatever the
    * distribution serves at the bare address is what shows. If two declarations set this, the first
    * one wins, as with a duplicate id.
+   *
+   * It also makes this the **default** workspace. The empty built-in one is then not offered or
+   * counted anywhere, removing the saved workspace the user is in leads here, and a user whose stored
+   * choice was the built-in one starts here; what they had arranged there is not carried over.
    */
   readonly initial?: boolean;
   /**
@@ -189,6 +193,15 @@ function auditDefinition(
       );
     }
   }
+}
+
+export function defaultWorkspaceId(
+  definitions: readonly WorkspaceDefinition[],
+): string {
+  return (
+    dedupedDefinitions(definitions).find((definition) => definition.initial)
+      ?.id ?? DEFAULT_WORKSPACE_ID
+  );
 }
 
 export function dedupedDefinitions(
