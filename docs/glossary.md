@@ -84,8 +84,9 @@ The words these pages use, one line each. Where two words name the same thing, t
 - **Baseline**: what a workspace returns to when it is reset.
 - **Retention**: whether a hidden surface stays alive. A clean hidden surface is destroyed; unsaved
   work keeps it alive; a surface may ask to be kept regardless.
-- **Dirty**: holding unsaved work. A surface says so by implementing `DirtySurface`; the workbench
-  asks the unsaved-work question before it destroys a dirty surface.
+- **Dirty**: holding unsaved work. A surface or a dialog body says so by implementing `DirtySurface`;
+  the workbench asks the unsaved-work question before it destroys a dirty surface or closes a dirty
+  dialog.
 - **Unsaved-work question**: the Save, Discard or Cancel dialog the workbench asks wherever an action
   would destroy work. It is asked by the action, so a distribution's call asks it too.
 - **Address pane**: the one pane whose content the address bar reflects. Focusing another pane moves
