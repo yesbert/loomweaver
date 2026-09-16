@@ -260,7 +260,9 @@
     "detail": "ada@testbed.local",
     "brokenTitle": "Account without a picture",
     "brokenName": "Grace Hopper",
-    "brokenDetail": "grace@testbed.local"
+    "brokenDetail": "grace@testbed.local",
+    "profile": "Profile",
+    "profileOpened": "The heading led to the profile."
   },
   "dialogs": {
     "form": "Edit a name (form)",

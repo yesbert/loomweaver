@@ -142,6 +142,7 @@ function registerRailItems(ctx: PluginContext): void {
       detail: 'testbed.account.detail',
       initials: 'AL',
       image: TESTBED_ACCOUNT_PICTURE,
+      command: 'testbed.account.profile',
     },
   });
   ctx.registerRailItem({

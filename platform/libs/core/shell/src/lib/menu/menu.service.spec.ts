@@ -19,7 +19,7 @@ function transloco() {
     langs: {
       en: {
         menu: { close: 'Close', others: 'Close others', pinned: 'Pinned' },
-        cmd: { close: 'Close tab' },
+        cmd: { close: 'Close tab', profile: 'Profile' },
       },
     },
     translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
@@ -460,6 +460,7 @@ describe('MenuService', () => {
       icon?: string;
       initials?: string;
       image?: string;
+      command?: string;
     }): void {
       registry.addCommand({
         id: 'c.close',
@@ -540,6 +541,99 @@ describe('MenuService', () => {
       expect(heading()?.querySelector('lw-icon')?.getAttribute('name')).toBe(
         'user',
       );
+    });
+
+    describe('that leads to what it names', () => {
+      function profile(): void {
+        registry.addCommand({
+          id: 'c.profile',
+          title: 'cmd.profile',
+          run: () => undefined,
+        });
+      }
+
+      function press(key: string): void {
+        menu()?.dispatchEvent(
+          new KeyboardEvent('keydown', { key, bubbles: true }),
+        );
+      }
+
+      it('runs its command with the menu context on a click and closes the menu', () => {
+        profile();
+        const execute = vi
+          .spyOn(commands, 'execute')
+          .mockImplementation(() => undefined);
+        open({ title: 'menu.close', command: 'c.profile' });
+
+        heading()?.click();
+
+        expect(execute).toHaveBeenCalledWith('c.profile', context);
+        expect(menu()).toBeNull();
+      });
+
+      it('is reached first by the down arrow and runs on Enter and on Space', () => {
+        profile();
+        const execute = vi
+          .spyOn(commands, 'execute')
+          .mockImplementation(() => undefined);
+
+        for (const key of ['Enter', ' ']) {
+          open({ title: 'menu.close', command: 'c.profile' });
+          press('ArrowDown');
+          expect(document.activeElement).toBe(heading());
+          press(key);
+        }
+
+        expect(execute).toHaveBeenCalledTimes(2);
+        expect(execute).toHaveBeenNthCalledWith(2, 'c.profile', context);
+      });
+
+      it('is announced by what its command does while the menu keeps the name', () => {
+        profile();
+        open({ title: 'menu.close', detail: 'ada@example.com', command: 'c.profile' });
+
+        expect(menu()?.getAttribute('aria-label')).toBe('Close, ada@example.com');
+        expect(heading()?.getAttribute('role')).toBe('menuitem');
+        expect(heading()?.getAttribute('aria-label')).toBe('Profile');
+        expect(heading()?.hasAttribute('aria-hidden')).toBe(false);
+      });
+
+      it('stays a plain heading the keyboard passes over when nothing registers its command', () => {
+        const execute = vi
+          .spyOn(commands, 'execute')
+          .mockImplementation(() => undefined);
+        open({ title: 'menu.close', command: 'c.missing' });
+
+        expect(heading()?.getAttribute('role')).toBeNull();
+        expect(heading()?.getAttribute('aria-hidden')).toBe('true');
+        press('ArrowDown');
+        expect(document.activeElement).toBe(items()[0]);
+        heading()?.click();
+        expect(execute).not.toHaveBeenCalled();
+      });
+
+      it('opens a menu whose only entry is the heading', () => {
+        profile();
+        service.open(
+          'empty',
+          context,
+          { x: 0, y: 0 },
+          { header: { title: 'menu.close', command: 'c.profile' } },
+        );
+
+        expect(heading()?.getAttribute('role')).toBe('menuitem');
+      });
+
+      it('still opens nothing when the heading cannot lead anywhere and no entry exists', () => {
+        service.open(
+          'empty',
+          context,
+          { x: 0, y: 0 },
+          { header: { title: 'menu.close', command: 'c.missing' } },
+        );
+
+        expect(menu()).toBeNull();
+      });
     });
   });
 

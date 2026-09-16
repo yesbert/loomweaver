@@ -65,9 +65,9 @@ export type MenuTrigger = 'context' | 'primary' | 'both';
  * The host draws it above the first entry of a menu opened by ACTIVATION (see {@link MenuTrigger});
  * a menu opened at the pointer carries none, because what it acts on is under the pointer.
  *
- * It is not an entry: it cannot be focused or activated, and the keyboard passes over it the way it
- * passes over a separator. The menu is announced by what it names, so the name reaches the user
- * exactly once.
+ * Without {@link command} it is not an entry: it cannot be focused or activated, and the keyboard
+ * passes over it the way it passes over a separator. The menu is announced by what it names, so the
+ * name reaches the user exactly once.
  */
 export interface MenuHeader {
   /** The name — Transloco key or literal. */
@@ -87,4 +87,12 @@ export interface MenuHeader {
    * rather than yours. Same rule as a launcher entry's: keep it to two characters.
    */
   readonly initials?: string;
+  /**
+   * Id of a registered command the heading leads to, such as the account's profile. The
+   * heading then becomes the menu's first entry: the keyboard reaches it first, a click, Enter or
+   * Space runs the command with the menu's context and closes the menu, and it is announced by the
+   * command's title rather than by the name the menu already carries. A command nothing registers,
+   * or one without a title, leaves the heading a plain heading.
+   */
+  readonly command?: string;
 }

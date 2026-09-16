@@ -733,12 +733,21 @@
     @apply my-1 border-t border-border;
     height: 0;
   }
-  /* `.lw-menu-header` — the non-interactive heading naming what a menu was opened against (an account,
-     a document). It carries no menuitem role, so the keyboard passes over it like a separator, and the
-     menu itself carries the name for assistive technology. Drawn tight to the menu's top edge, which is
-     why it pulls back the list's own leading padding. */
+  /* `.lw-menu-header` — the heading naming what a menu was opened against (an account, a document).
+     Without a command it carries no menuitem role, so the keyboard passes over it like a separator, and
+     the menu itself carries the name for assistive technology. With one it takes the menuitem role and
+     the entry's pointer and focus look. Drawn tight to the menu's top edge, which is why it pulls back
+     the list's own leading padding. */
   .lw-menu-header {
     @apply -mt-1 mb-1 flex items-center gap-2 border-b border-border px-3 py-2;
+  }
+  .lw-menu-header[role='menuitem'] {
+    @apply cursor-pointer transition-colors;
+    outline: none;
+  }
+  .lw-menu-header[role='menuitem']:hover,
+  .lw-menu-header[role='menuitem']:focus {
+    @apply bg-surface-raised;
   }
   .lw-menu-header-mark {
     @apply flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface-raised text-content-muted;
