@@ -47,6 +47,9 @@ export class RailWorkspaceEntries {
   }
 
   private reportUnoffered(): void {
+    if (!this.features.enabled()) {
+      return;
+    }
     const offered = new Set(
       this.registry
         .railItems()
