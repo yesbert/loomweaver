@@ -37,6 +37,8 @@ ctx.ui.openSettings();                                              // open the 
 
 // Open your own component as a dialog body (the host paints the frame):
 ctx.ui.open(NotesAboutDialog, { data: ctx.host, size: 'md' });
+// dismiss: 'any' (default), 'explicit' (a click beside it does nothing) or 'none'.
+ctx.ui.open(RenameNoteForm, { title: 'Rename', dismiss: 'explicit' });
 
 // Right-click a row in your OWN view body: a host-drawn context menu at the cursor (trusted rung only).
 // The handler gets the MouseEvent and the row; what the items may carry is on Menus.
@@ -60,3 +62,4 @@ if (ctx.host.updateAvailable()) await ctx.host.activateUpdate();
 - [Menus](menus.md): host menus, the menu on your own view body, and the one you draw in a sandbox.
 - [Settings sections](settings.md): the surface `ctx.ui.openSettings()` opens, and what you contribute to it.
 - [Access gating in a weaver](access-gating.md): a login dialog opened through `ctx.ui.open`.
+- [Unsaved changes](unsaved-changes.md): a dialog body that asks before its edits are lost.

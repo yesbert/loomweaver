@@ -118,7 +118,7 @@ ctx.registerRailItem({
 });
 ```
 
-The heading is not an entry: nothing activates it, and the arrow keys pass over it the way they pass
+Without a command the heading is not an entry: nothing activates it, and the arrow keys pass over it the way they pass
 over a separator. The menu is announced by what it names, so the name reaches the user once rather
 than twice. A menu opened at the pointer carries none, because what it acts on is under the pointer.
 

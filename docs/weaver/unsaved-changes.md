@@ -3,7 +3,7 @@
 <!-- derived-from-specs -->
 
 > **This is a guide, not the contract.** What the platform guarantees is specified under
-> `openspec/specs/`. For this page: `surface-retention`. Where this page and a specification disagree, the
+> `openspec/specs/`. For this page: `surface-retention`, and `ui-primitives` for dialogs. Where this page and a specification disagree, the
 > specification is right, and that is a defect in this page: change the behaviour there, then
 > explain it here.
 
@@ -101,6 +101,24 @@ The runtime channel may also expose `contentTabClosed(path)`, the sandbox counte
 with the path you opened. The trusted editor as one file, with its save flow, `saveOn: 'hide'` and
 veto, is [recipe 8 in Samples](../samples.md#an-editor-with-unsaved-changes); the sandbox variant
 lives only here.
+
+## In a dialog
+
+A component you open with `ctx.ui.open` takes part the same way. Implement `DirtySurface` on it, and
+while `surfaceDirty()` returns `true` every way the user closes the dialog asks _Save · Discard ·
+Cancel_ first, with the same veto and the same timeout. Closing it from your own code, through
+`DialogRef.close` or a footer button that carries a `value`, never asks.
+
+A form with its own Save and Cancel needs none of this. Open it with `dismiss: 'explicit'`, so a
+stray click beside it does nothing while Escape and the close control read as cancel:
+
+```ts
+const name = await ctx.ui.open<string>(RenameNoteForm, { title: 'Rename', dismiss: 'explicit' }).closed;
+```
+
+A dialog whose changes apply as they are made, such as a settings panel, holds nothing unsaved and
+needs neither. [Dialogs and toasts](../distribution-api/dialogs-and-toasts.md) sets the three side by
+side.
 
 ## Reading it back
 
