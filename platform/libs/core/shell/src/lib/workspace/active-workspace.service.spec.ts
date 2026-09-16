@@ -91,11 +91,56 @@ describe('ActiveWorkspaceService', () => {
   });
 
   it('leaves a returning user where they were, even against a declared initial', () => {
+    localStorage.setItem(KEY, 'ws-1');
+    TestBed.configureTestingModule({
+      providers: [
+        provideWorkspaces({ id: 'research', title: 'R', initial: true }),
+      ],
+    });
+
+    expect(TestBed.inject(ActiveWorkspaceService).id()).toBe('ws-1');
+  });
+
+  it('reads a stored choice of the built-in workspace as the declared initial, and stores that', () => {
     localStorage.setItem(KEY, DEFAULT_WORKSPACE_ID);
     TestBed.configureTestingModule({
       providers: [
         provideWorkspaces({ id: 'research', title: 'R', initial: true }),
       ],
+    });
+    const active = TestBed.inject(ActiveWorkspaceService);
+
+    expect(active.id()).toBe('research');
+    expect(active.takeAdoption()).toBeNull();
+    expect(localStorage.getItem(KEY)).toBe('research');
+  });
+
+  it('reads the built-in workspace as the declared initial through a peek-less store too', async () => {
+    const set = vi.fn(() => Promise.resolve());
+    TestBed.configureTestingModule({
+      providers: [
+        {
+          provide: WORKING_STATE_STORE,
+          useValue: {
+            get: () => Promise.resolve(DEFAULT_WORKSPACE_ID),
+            set,
+            delete: () => Promise.resolve(),
+          },
+        },
+        provideWorkspaces({ id: 'research', title: 'R', initial: true }),
+      ],
+    });
+    const active = TestBed.inject(ActiveWorkspaceService);
+
+    await expect(active.ready).resolves.toBe('research');
+    expect(active.takeAdoption()).toBeNull();
+    expect(set).toHaveBeenCalledWith(KEY, 'research');
+  });
+
+  it('keeps a stored choice of the built-in workspace where nothing is declared initial', () => {
+    localStorage.setItem(KEY, DEFAULT_WORKSPACE_ID);
+    TestBed.configureTestingModule({
+      providers: [provideWorkspaces({ id: 'research', title: 'R' })],
     });
 
     expect(TestBed.inject(ActiveWorkspaceService).id()).toBe(

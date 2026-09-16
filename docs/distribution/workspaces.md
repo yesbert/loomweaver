@@ -22,9 +22,9 @@ saved nothing yet still sees that the product ships some. A distribution that sh
 switch. Invalid declarations are reported to the console in dev mode, naming what is
 ignored; nothing fails silently at runtime.
 
-There is always **exactly one active workspace**: a fresh installation starts in the built-in
-_Default_ workspace, and everything the user rearranges belongs to the workspace they are standing
-in. **Named workspaces** (`shell.workspace.manage`) are self-remembering: switching restores each
+There is always **exactly one active workspace**. A fresh installation starts in the built-in
+_Default_ workspace, or in the one you declare `initial` (below). Everything the user rearranges
+belongs to the workspace they are standing in. **Named workspaces** (`shell.workspace.manage`) are self-remembering: switching restores each
 workspace's own live arrangement exactly, without asking and without discarding anything. Each
 workspace also has a **baseline**. For a user-saved workspace that is the explicitly saved snapshot:
 "Save as new" captures the current arrangement and switches to it, and "Save workspace" updates the
@@ -77,6 +77,13 @@ claims that address, it is the one the visitor starts in. Where your declaration
 its own, there is nothing to land on: an opening then leaves both the address and the active
 workspace alone, so whatever you serve at the bare address is what shows. If two declarations set
 `initial`, the first wins, as with a duplicate id.
+
+**The `initial` workspace is also the default.** The empty built-in _Default_ workspace is then not
+offered: the workspace dialog lists only your workspaces and the ones the user saved, and its count
+leaves _Default_ out. Removing the saved workspace the user is in takes them to your `initial`
+workspace. A user whose stored choice is still the built-in one, because your distribution declared
+no `initial` before, starts in yours at the next opening; what they had arranged in _Default_ is not
+carried over. A distribution without `initial` keeps _Default_ exactly as described above.
 
 ```ts
 provideWorkspaces({
@@ -146,7 +153,9 @@ entry stays as it is otherwise, icon, name and tooltip. A click on it switches t
 which is also the short way back from the variant. Provide `workspace` **instead of**
 `command`/`run`; when it is set those are ignored. An entry pointing at a workspace that is neither
 declared nor saved warns in the console in dev mode rather than failing silently, and a declared
-workspace that nothing offers is reported in dev mode too.
+workspace that nothing offers is reported in dev mode too. That report stays silent while you have
+switched the workspace controls off (`workspaces: { enabled: false }`), because there is then no
+dialog it could be reached through.
 
 ```ts
 // src/app/app.config.ts — in the providers array

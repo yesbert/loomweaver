@@ -1,5 +1,9 @@
 import { DEFAULT_WORKSPACE_ID } from '../active-workspace.service';
-import { WorkspaceDefinition, claimsOf } from '../workspace-definition';
+import {
+  WorkspaceDefinition,
+  claimsOf,
+  defaultWorkspaceId,
+} from '../workspace-definition';
 import {
   settlementFor,
   withoutConflicts,
@@ -30,7 +34,7 @@ export function workspaceExists(
   saved: readonly Workspace[],
 ): boolean {
   return (
-    id === DEFAULT_WORKSPACE_ID ||
+    id === defaultWorkspaceId(definitions) ||
     definitionOf(definitions, id) !== undefined ||
     saved.some((workspace) => workspace.id === id)
   );
@@ -112,8 +116,12 @@ export function changeCandidates(
   saved: readonly Workspace[],
   context: BaselineContext,
 ): readonly { id: string; baseline: Readonly<Record<string, string>> }[] {
+  const builtIn =
+    defaultWorkspaceId(definitions) === DEFAULT_WORKSPACE_ID
+      ? [{ id: DEFAULT_WORKSPACE_ID, baseline: {} }]
+      : [];
   return [
-    { id: DEFAULT_WORKSPACE_ID, baseline: {} },
+    ...builtIn,
     ...definitions.map((definition) => ({
       id: definition.id,
       baseline: definitionBaselineOf(definition, context),

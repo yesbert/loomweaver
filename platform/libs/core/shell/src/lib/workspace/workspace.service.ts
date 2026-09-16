@@ -34,6 +34,7 @@ import {
   WorkspaceDefinition,
   auditWorkspaceDefinitions,
   dedupedDefinitions,
+  defaultWorkspaceId,
 } from './workspace-definition';
 import { claimFor, type WorkspaceClaim } from './workspace-claims';
 import { warnDeclarationGaps } from './workspace-warnings';
@@ -87,6 +88,8 @@ export class WorkspaceService {
   readonly definitions: readonly WorkspaceDefinition[] = dedupedDefinitions(
     this.definitionBatches.flat(),
   );
+
+  private readonly defaultId = defaultWorkspaceId(this.definitions);
 
   private readonly list = signal<Workspace[]>(
     parseWorkspaces(this.store.peek?.(STORAGE_KEY)),
@@ -219,7 +222,9 @@ export class WorkspaceService {
     )) {
       this.resetNow(workspace.id);
     }
-    this.resetNow(DEFAULT_WORKSPACE_ID);
+    if (this.defaultId === DEFAULT_WORKSPACE_ID) {
+      this.resetNow(DEFAULT_WORKSPACE_ID);
+    }
     return true;
   }
 
@@ -243,7 +248,7 @@ export class WorkspaceService {
       void this.workingState.delete(workspaceScopedKey(key, id));
     }
     if (id === this.active.id()) {
-      void this.switchTo(DEFAULT_WORKSPACE_ID);
+      void this.switchTo(this.defaultId);
     }
     return true;
   }

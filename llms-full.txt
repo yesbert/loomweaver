@@ -680,7 +680,7 @@ function provideIcons(icons: Readonly<Partial<Record<LoomIconName | (string & {}
   // distribution name. LoomIconName is exported.
 // Persistence port: the shell's user-local chrome state (pane trees = tab groups/splits, panel sizes, item order, panel collapse,
 // theme, language, saved view instances and NAMED WORKSPACES — there is ALWAYS exactly one active workspace
-// (built-in id 'default'); workspaces are SELF-REMEMBERING: switching restores each workspace's own live
+// (built-in id 'default', unless a declared workspace sets initial); workspaces are SELF-REMEMBERING: switching restores each workspace's own live
 // arrangement without asking (a dirty surface survives parked), and each workspace has a BASELINE — user
 // workspaces save one via "Save as new"/"Save workspace" in the `shell.workspace.manage` dialog;
 // `shell.workspace.reset` discards the active workspace's live arrangement and re-applies its baseline after a
@@ -727,7 +727,10 @@ interface WorkspaceDefinition { id: string; title: string; icon?: string; initia
 //   workspaces keep what they left in them, one switch away. The opening replaces the history entry, so going back
 //   does not return to the bare address. A deep link still wins, and a workspace claiming that address is the one
 //   the visitor starts in. A declaration naming no content of its own leaves both the address and the active
-//   workspace alone. Two declarations claiming initial: the first wins.
+//   workspace alone. Two declarations claiming initial: the first wins. The initial workspace is also the DEFAULT:
+//   the built-in empty 'default' is then not offered or counted anywhere, removing the saved workspace the user is
+//   in leads to the initial one, and a user whose stored choice was 'default' starts there (what they arranged in
+//   'default' is not carried over). Without initial, 'default' stays as described above.
 type WorkspaceArea = PaneArea<WorkspaceTabEntry>;   // the shared grammar over route paths; the aliases below are the same types
 type WorkspaceAreaBase = PaneAreaBase;
 type WorkspaceTabArea = PaneTabArea<WorkspaceTabEntry>;
@@ -919,7 +922,7 @@ interface CommandFeatures { shortcuts: boolean; recentlyUsed: boolean }
 // switching all still work with the workspace dialog as the way to them. Nothing is reported about their
 // absence — it is a decision, not an omission. The rail still says where the user is: while a saved
 // workspace is active, the entry of the workspace it was saved from is marked. Workspaces the product
-// DECLARED are untouched, and one that nothing offers is still reported.
+// DECLARED are untouched, and one that nothing offers is still reported, unless workspaces.enabled is false.
 // A rail or bar item naming a command nobody registered is dropped, like an orphaned menu entry.
 interface ShellFeatures { content: ContentFeatures; sidebar: SidebarFeatures; rail: RailFeatures; workspaces: WorkspaceFeatures; windows: WindowFeatures; commands: CommandFeatures }
 type ShellFeaturesInput = { [G in keyof ShellFeatures]?: Partial<ShellFeatures[G]> };

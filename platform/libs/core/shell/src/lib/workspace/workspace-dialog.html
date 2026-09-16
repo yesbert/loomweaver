@@ -8,7 +8,7 @@
         [attr.aria-pressed]="tab() === 'mine'"
         (click)="tab.set('mine')"
       >
-        {{ 'workspace.tabMine' | transloco }} ({{ workspaces().length + 1 }})
+        {{ 'workspace.tabMine' | transloco }} ({{ workspaces().length + (offersBuiltIn ? 1 : 0) }})
       </button>
       <button
         type="button"
@@ -47,7 +47,7 @@
   }
 
   <ul class="flex max-h-[45vh] flex-col gap-1.5 overflow-y-auto px-0.5 py-0.5">
-    @if (tab() === 'mine') {
+    @if (tab() === 'mine' && offersBuiltIn) {
       <li class="flex items-center gap-1.5">
         <div
           class="flex min-w-0 flex-1 items-center gap-1 rounded-md border p-1.5"

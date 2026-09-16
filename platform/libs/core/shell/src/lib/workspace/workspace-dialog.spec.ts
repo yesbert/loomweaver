@@ -10,6 +10,7 @@ import { WorkspaceService } from './workspace.service';
 import { WorkspaceDialog } from './workspace-dialog';
 
 interface DialogInternals {
+  readonly offersBuiltIn: boolean;
   tab(): 'mine' | 'provided';
   originName(id: string): string | null;
 }
@@ -63,6 +64,18 @@ describe('WorkspaceDialog (two lists)', () => {
 
   it('opens on the user list when the distribution ships none', () => {
     expect(build(DEFAULT_WORKSPACE_ID, []).tab()).toBe('mine');
+  });
+});
+
+describe('WorkspaceDialog (the built-in workspace)', () => {
+  it('offers it where the distribution declares no initial workspace', () => {
+    expect(build(DEFAULT_WORKSPACE_ID).offersBuiltIn).toBe(true);
+  });
+
+  it('does not offer it beside a declared initial workspace', () => {
+    const dialog = build('app.review', [{ ...DEFINITIONS[0], initial: true }]);
+
+    expect(dialog.offersBuiltIn).toBe(false);
   });
 });
 

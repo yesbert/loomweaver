@@ -98,7 +98,10 @@ describe('RailWorkspaceEntries reporting a declared workspace nothing offers', (
     ],
   });
 
-  function compose(entries: RailItem[]): void {
+  function compose(
+    entries: RailItem[],
+    extra: EnvironmentProviders[] = [],
+  ): void {
     localStorage.clear();
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
@@ -106,6 +109,7 @@ describe('RailWorkspaceEntries reporting a declared workspace nothing offers', (
         provideRouter([]),
         twoRails,
         provideWorkspaces(DEFINITION),
+        ...extra,
       ],
     });
     const registry = TestBed.inject(ContributionRegistry);
@@ -149,6 +153,20 @@ describe('RailWorkspaceEntries reporting a declared workspace nothing offers', (
       expect.stringContaining('acme.review'),
     );
     warn.mockRestore();
+  });
+
+  it('stays silent while the product has switched the workspace controls off', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    compose([], [provideShellFeatures({ workspaces: { enabled: false } })]);
+
+    await render();
+
+    expect(warn).not.toHaveBeenCalledWith(
+      expect.stringContaining('acme.review'),
+    );
+    warn.mockRestore();
+    await TestBed.inject(WorkspaceService).switchTo('acme.review');
+    expect(TestBed.inject(WorkspaceService).activeId()).toBe('acme.review');
   });
 });
 
