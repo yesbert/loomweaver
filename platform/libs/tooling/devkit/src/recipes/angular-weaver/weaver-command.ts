@@ -12,6 +12,13 @@ export function commandBlock(w: ResolvedWeaver): string {
     `      answers: '${w.id}.actionAnswers',`,
     `      shortcut: '${w.features.shortcut}',`,
     '      callable: true,',
+    ...(w.features.agent
+      ? [
+          "      // What an agent's word is enough for. The platform states it and enforces nothing:",
+          '      // the asking is the connection\'s half, which reads this off the call.',
+          "      agentConsent: 'ask',",
+        ]
+      : []),
     '      run: (_context, args) => {',
     "        const tone = toneOf(args?.['tone']);",
     `        ctx.ui.toast({ message: '${w.id}.action', kind: tone });`,

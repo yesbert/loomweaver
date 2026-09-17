@@ -79,10 +79,23 @@ its arguments, the workbench's answer, and the line saying the workbench was nev
 
 ## Decide what to ask about
 
-The generated connection carries a `before` hook and marks the weaver's own command as consequential,
-as an example. Replace that with the commands that actually cost something.
+A command says for itself what an agent's word is enough for. `agentConsent` takes one of four
+values: `allow`, `ask`, `ask-always`, `never`. It travels with the command, so `call.agentConsent`
+in the `before` hook is what the command declared, and `toolFor` puts it in the tool's `metadata`
+for an agent host that reads it there. The generated connection declares `ask` on the weaver's own
+command and reads it off the call. Keep that shape: no set of command ids beside the commands. Such
+a set drifts from what it describes, and it cannot speak for a command another plugin registered.
 
-A useful test: would you want this to happen while you were looking away? Sending a document to a
+**The platform states it and enforces nothing.** No dialog is shown for you, no answer is
+remembered, and no invocation is refused on this account: a command declaring `ask-always` still
+runs when it is invoked. Acting on the statement is your half, in your own words and your own
+placement, which is what the hook is for. That includes `never`: the generated connection declines
+such a call outright.
+
+Leaving `callable` off is what the platform enforces, and it closes a command to every caller but
+the plugin that registered it.
+
+A useful test for which value a command deserves: would you want this to happen while you were looking away? Sending a document to a
 customer, deleting a batch, moving money, publishing. Reading, navigating, filtering and opening
 almost never belong there. Asking about everything trains people to click through the question, which
 is worse than not asking.

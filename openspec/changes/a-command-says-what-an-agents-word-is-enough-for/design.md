@@ -120,6 +120,20 @@ itself, and the generated `decide` reads `call.agentConsent`, so the generated p
 the whole shape and carries no list to drift. The generated confirm dialog stays exactly where it is:
 it is the product's half, and the scaffold is where a product's half is allowed to be written for it.
 
+### What the hook does with `never` is the hook's to do
+
+The platform cannot enforce `never`, so something has to act on it, and that something is whoever
+runs commands on an agent's behalf. The generated connection therefore declines such a call outright,
+and every written example shows the same three-branch shape: decline `never`, ask for `ask` and
+`ask-always`, run otherwise. A policy that only asked would leave the strongest statement the one
+nothing acted on.
+
+`callable` is the boundary the platform does enforce, and it closes a command to every caller but the
+plugin that registered it. A plugin's own unopened command therefore stays reachable through its own
+context while being absent from the account, so it reaches the hook with nothing stated. That is
+named where it matters — on the property, on `PendingToolCall` and in the guides — rather than
+papered over: a plugin wrote its own commands, so it is the one that knows them.
+
 ## Risks / Trade-offs
 
 - **A declaration nothing reads is a false comfort.** A product may declare `ask-always` and ship no
@@ -130,5 +144,10 @@ it is the product's half, and the scaffold is where a product's half is allowed 
   each naming `callable` as the thing that actually closes a command.
 - **A fifth value later.** The four are a closed union, so widening it is additive for a consumer and
   a compile error for us, which is the right way round. Nothing here depends on the set being four.
+- **The check reads a declaration, not a program.** It takes the value from a string literal, now
+  through a cast or a `satisfies`, and reports an unrecognised value rather than calling it silence.
+  A value behind a constant reference is still read as absent. → The report says what it judged, and
+  a wrong value is a compile error in typed code anyway; the alternative is a type checker inside a
+  text check.
 - **The sandbox rung.** `invocableCommands` crosses the plugin boundary as plain data; a string field
   survives it. Worth one test rather than an assumption, and the tasks carry it.

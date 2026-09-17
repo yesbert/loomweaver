@@ -444,13 +444,41 @@ describe('angularWeaver agent connection', () => {
     expect(spec).toContain("JSON.parse(answer?.content ?? '{}').tone");
   });
 
-  it('names the weaver own command as consequential and declines it by asking', () => {
-    const connection = agentWeaver()['src/lib/agent/notes-agent.ts'];
-    expect(connection).toContain(
-      "const CONSEQUENTIAL = new Set(['notes.hello']);",
-    );
+  it('asks about a consequential call and declines it, reading the command and not a list', () => {
+    const files = agentWeaver();
+    const connection = files['src/lib/agent/notes-agent.ts'];
+
+    expect(connection).toContain("call.agentConsent !== 'ask'");
     expect(connection).toContain('ctx.ui.confirm(');
     expect(connection).toContain("{ decision: 'decline'");
+    expect(connection).not.toContain('CONSEQUENTIAL');
+    expect(connection).not.toContain('new Set([');
+  });
+
+  it('declares on the command itself what an agent word is enough for', () => {
+    expect(agentWeaver()['src/lib/plugin/notes.plugin.ts']).toContain(
+      "agentConsent: 'ask',",
+    );
+  });
+
+  it('declares nothing of the kind on a command generated without an agent', () => {
+    const files = generate(angularWeaver, {
+      id: 'notes',
+      features: { command: true },
+    });
+
+    expect(files['src/lib/plugin/notes.plugin.ts']).toContain(
+      'callable: true,',
+    );
+    expect(files['src/lib/plugin/notes.plugin.ts']).not.toContain(
+      'agentConsent',
+    );
+  });
+
+  it('emits a stand-in account that carries the command own statement', () => {
+    expect(agentWeaver()['src/lib/agent/notes-agent.spec.ts']).toContain(
+      "agentConsent: 'ask'",
+    );
   });
 
   it('emits a test that drives a real call and a declined one', () => {

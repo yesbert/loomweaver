@@ -20,6 +20,23 @@ describe('toolFor', () => {
     expect(toolFor(command()).description).toBe('Open note');
   });
 
+  it("carries what the command says an agent's word is enough for", () => {
+    const tool = toolFor({
+      id: 'notes.delete',
+      title: 'Delete',
+      description: 'Deletes a note',
+      agentConsent: 'ask-always',
+    });
+
+    expect(tool.metadata).toEqual({ agentConsent: 'ask-always' });
+  });
+
+  it('carries no metadata at all for a command that says nothing', () => {
+    expect('metadata' in toolFor({ id: 'notes.open', title: 'Open' })).toBe(
+      false,
+    );
+  });
+
   it('gives a command with no arguments an empty object schema, not a missing one', () => {
     expect(toolFor(command()).parameters).toEqual({
       type: 'object',

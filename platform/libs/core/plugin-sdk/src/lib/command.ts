@@ -96,6 +96,16 @@ export interface CommandFailed {
 export type CommandOutcome = CommandAnswered | CommandRefused | CommandFailed;
 
 /**
+ * What a command says running it on an agent's word alone amounts to.
+ *
+ * - `allow` — the agent's word is enough; consent is given in advance.
+ * - `ask` — the person is asked first.
+ * - `ask-always` — the person is asked every time it is called, with no standing yes.
+ * - `never` — it is not to be run on an agent's word at all.
+ */
+export type AgentConsent = 'allow' | 'ask' | 'ask-always' | 'never';
+
+/**
  * A command as offered to a caller that may invoke it — the workbench's own account of what it can
  * be asked to do. Every text is already resolved to the active language, because a caller outside the
  * application cannot reach the translation bundles and a raw key would be useless to it.
@@ -106,6 +116,8 @@ export interface InvocableCommand {
   readonly description?: string;
   readonly arguments?: readonly CommandArgument[];
   readonly answers?: string;
+  /** What the command says an agent's word is enough for — see {@link Command.agentConsent}. */
+  readonly agentConsent?: AgentConsent;
 }
 
 /**
@@ -202,6 +214,29 @@ export interface Command {
    * caller can never reach through it to something the user could not have triggered themselves.
    */
   readonly callable?: boolean;
+  /**
+   * What running this command on an agent's word alone amounts to: carried out, the person asked
+   * first, the person asked every time, or not on an agent's word at all. Omit it and the command
+   * says nothing, which is the default and what the platform has always done.
+   *
+   * **This is a statement, not a gate**, exactly as {@link Command.access} is a statement about
+   * presentation rather than protection. The platform asks nobody, remembers no answer and refuses
+   * no invocation on this account: a command declaring `ask-always` still runs when invoked, whoever
+   * invoked it. Asking, and remembering an answer, belong to whoever runs commands on an agent's
+   * behalf, because only a product knows how it talks to its users.
+   *
+   * It travels to where that decision is made. A caller reading {@link InvocableCommand} finds it
+   * there, and a description of this command written for an agent to choose from carries it beside
+   * what the command does.
+   *
+   * `never` is a statement too, and the platform cannot enforce it: it has no way to tell an agent
+   * from any other caller. What the platform does enforce is {@link Command.callable}: leaving it off
+   * closes the command to every caller but the plugin that registered it. So `callable` is the
+   * boundary for a foreign command, while a plugin's own unopened command stays reachable through its
+   * own context and is absent from {@link InvocableCommand} lists — a plugin wrote its own commands,
+   * so it is the one that acts on what they say.
+   */
+  readonly agentConsent?: AgentConsent;
   /**
    * The behaviour. May be async; the host fires it and reports a failure rather than throwing.
    * The return type is `unknown` so that a one-expression arrow handler still assigns whatever it

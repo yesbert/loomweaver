@@ -32,6 +32,7 @@ ctx.registerCommand({
   ],
   answers: 'notes.open.answers',             // what the return value means
   callable: true,                            // other plugins may run it
+  agentConsent: 'allow',                     // an agent's word is enough for this one
   run: (_context, args) => store.open(String(args?.['path'])),
 });
 ```
@@ -61,6 +62,14 @@ failure rather than with a value that lost what it was.
 and it cannot be reached that way by any route, and it is absent from everything that lists what such
 a caller may run.
 
+**`agentConsent`** says what running the command on an agent's word alone amounts to: `allow`,
+`ask`, `ask-always` or `never`. It is a statement and not a gate, the way `access` is presentation
+and not protection: the platform asks nobody, remembers no answer and refuses no invocation on that
+account. It travels to where the decision is made, so a caller reading the list finds it there and
+an agent adapter hands it to the place a product decides in. [Agent tools](agent-tools.md) is that
+place. A command that must be beyond an agent's reach is put there by leaving `callable` off, which
+is enforced.
+
 ## Why the default is closed
 
 The same reason `popout` is: a command _missing_ from what an automated caller can reach is a small
@@ -69,8 +78,9 @@ it is the larger failure, and the shell cannot tell the two apart for a command 
 
 So every command you want reachable says so, once. In dev mode the shell tells you when you opened a
 command but gave it no description, because the caller you opened it to then has nothing to go on but
-an id. The CLI says the same before anything is served: `validate-commands --dir <dir>` reports every
-command in a directory and names the argument or the answer that would leave an agent guessing. The
+an id. The CLI says the same before anything is served. `validate-commands --dir <dir>` reports every
+command in a directory and names the argument or the answer that would leave an agent guessing. It
+also says what each one states about an agent's word, including that it states nothing. The
 MCP server offers it as `validate_commands`.
 
 ## Calling one

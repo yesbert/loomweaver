@@ -1263,6 +1263,7 @@ describe('FramePluginRuntime command invocation', () => {
         description: 'Opens a path',
         callable: true,
         answers: 'The path it opened',
+        agentConsent: 'ask-always',
         arguments: [
           { name: 'path', kind: 'text', description: 'Where', required: true },
         ],
@@ -1297,7 +1298,7 @@ describe('FramePluginRuntime command invocation', () => {
     expect(overRpc).toEqual(inProcess);
   });
 
-  it('lists the same commands over the boundary', () => {
+  it('lists the same commands over the boundary, with what they say about an agent', () => {
     const methods = setup();
 
     expect(methods['invocableCommands']()).toEqual([
@@ -1306,6 +1307,7 @@ describe('FramePluginRuntime command invocation', () => {
         title: 'Open',
         description: 'Opens a path',
         answers: 'The path it opened',
+        agentConsent: 'ask-always',
         arguments: [
           { name: 'path', kind: 'text', description: 'Where', required: true },
         ],

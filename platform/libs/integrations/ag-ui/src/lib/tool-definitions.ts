@@ -26,6 +26,10 @@ const SCALAR_TYPE: Readonly<Record<string, string>> = {
  * name, so a call names the same identity the workbench knows it by, and nothing has to be looked up
  * in a table on the way back.
  *
+ * Where the command says what an agent's word is enough for, that statement rides in the protocol's
+ * own place for a property of a tool, under the name it was declared with, so an agent host can
+ * treat a consequential tool differently. A command that says nothing carries no `metadata` at all.
+ *
  * A command with no description of its own gets one derived from its title. The protocol requires a
  * description and an agent chooses between tools by reading it, so an empty string would make the
  * tool unpickable; the title is a poor explanation but it is not nothing, and the workbench warns the
@@ -36,6 +40,9 @@ export function toolFor(command: InvocableCommand): Tool {
     name: command.id,
     description: command.description ?? command.title,
     parameters: parametersFor(command.arguments),
+    ...(command.agentConsent !== undefined && {
+      metadata: { agentConsent: command.agentConsent },
+    }),
   };
 }
 

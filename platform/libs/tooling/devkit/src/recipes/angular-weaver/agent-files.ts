@@ -22,11 +22,6 @@ import {
 } from '@loomweaver/ag-ui';
 import type { PluginContext } from '@loomweaver/plugin-sdk';
 
-// Commands an agent may not run on its own word. Each one asks the person at the keyboard first, and
-// declining stops it: the workbench never sees the call. This weaver's own command is listed as an
-// example — replace it with the ones that actually cost something.
-const CONSEQUENTIAL = new Set(['${w.id}.hello']);
-
 // A factory, not a module-level connection: everything a run needs lives in the closure, so a second
 // one never shares state with the first.
 export function ${w.propertyName}Connection(ctx: PluginContext): CommandTools {
@@ -37,11 +32,21 @@ export function ${w.propertyName}Connection(ctx: PluginContext): CommandTools {
 // deactivate(), so the panel renders an honest empty state either side of that.
 export const ${w.propertyName}Agent = signal<CommandTools | null>(null);
 
+// What an agent's word is enough for is the command's own statement, declared where the command is
+// registered and read off the call here. No list of ids lives beside the commands: a list drifts from
+// what it describes, and it cannot speak for a command another plugin registered. Acting on the
+// statement is this weaver's half: the workbench states it and enforces nothing.
 async function decide(
   ctx: PluginContext,
   call: PendingToolCall,
 ): Promise<ToolDecision> {
-  if (!CONSEQUENTIAL.has(call.commandId)) {
+  if (call.agentConsent === 'never') {
+    return {
+      decision: 'decline',
+      reason: 'an agent may not run this one on its own word.',
+    };
+  }
+  if (call.agentConsent !== 'ask' && call.agentConsent !== 'ask-always') {
     return { decision: 'run' };
   }
   const yes = await ctx.ui.confirm({
@@ -73,7 +78,8 @@ interface Asked {
 function contextThat(confirms: boolean, ran: Asked[]): PluginContext {
   return {
     invocableCommands: () => [
-      { id: '${w.id}.hello', title: '${w.name} action', description: 'Shows a short message.' },
+      // agentConsent travels with the command, which is what the connection reads off the call.
+      { id: '${w.id}.hello', title: '${w.name} action', description: 'Shows a short message.', agentConsent: 'ask' },
     ],
     invokeCommand: (id: string, args?: CommandArguments) => {
       ran.push({ id, args });

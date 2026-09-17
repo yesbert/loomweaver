@@ -327,6 +327,54 @@ describe('commandTools hook', () => {
     ]);
   });
 
+  it("hands the hook what the command says an agent's word is enough for", async () => {
+    const seen: (string | undefined)[] = [];
+    const { ctx } = access(ANSWERED, [
+      { ...OPEN, agentConsent: 'ask-always' },
+      { id: 'notes.list', title: 'List notes' },
+    ]);
+    const tools = commandTools(ctx, {
+      before: (call) => {
+        seen.push(call.agentConsent);
+        return { decision: 'run' };
+      },
+    });
+
+    await play(tools, streamedCall('c1', 'notes.open', '{"path":"a"}'));
+    await play(tools, streamedCall('c2', 'notes.list', '{}'));
+    await play(tools, streamedCall('c3', 'notes.gone', '{}'));
+
+    expect(seen).toEqual(['ask-always', undefined, undefined]);
+  });
+
+  it('asks the account nothing where no hook wants to know', async () => {
+    let asked = 0;
+    const tools = commandTools({
+      invocableCommands: () => {
+        asked += 1;
+        return [OPEN];
+      },
+      invokeCommand: () => Promise.resolve(ANSWERED),
+    });
+
+    await play(tools, streamedCall('c1', 'notes.open', '{"path":"a"}'));
+
+    expect(asked).toBe(0);
+  });
+
+  it('acts on the statement itself in no way at all', async () => {
+    const { ctx, invoked } = access(ANSWERED, [
+      { ...OPEN, agentConsent: 'never' },
+    ]);
+
+    await play(
+      commandTools(ctx, { before: () => ({ decision: 'run' }) }),
+      streamedCall('c1', 'notes.open', '{"path":"a"}'),
+    );
+
+    expect(invoked).toHaveLength(1);
+  });
+
   it('declines without reaching the workbench, and says why', async () => {
     const { tools, invoked } = withHook(() => ({
       decision: 'decline',

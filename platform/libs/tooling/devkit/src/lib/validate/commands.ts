@@ -20,14 +20,17 @@ interface Registration {
   readonly answers: boolean;
   readonly returnsValue: boolean;
   readonly arguments: readonly { readonly name: string; readonly described: boolean }[];
+  readonly agentConsent?: string;
   readonly unreadable?: string;
 }
 
 /**
  * Reads every `registerCommand` literal in the given sources and reports, per command, whether an
  * agent is offered it, what would leave the agent guessing, or that the registration could not be
- * read. Only a callable command without a description is a warning; the rest is information, so a
- * plugin with private commands passes a strict run. The TypeScript compiler is passed in rather
+ * read, and — where it is offered — what the command says an agent's word is enough for, including
+ * that it says nothing. Only a callable command without a description is a warning; the rest is
+ * information, so a plugin with private commands passes a strict run. Nothing is guessed from an id
+ * or a title: saying nothing is a declaration the platform accepts. The TypeScript compiler is passed in rather
  * than imported, so the check costs nothing where it is not used.
  */
 export function validateCommands(
@@ -85,6 +88,7 @@ function read(ts: TypeScriptModule, file: TS.SourceFile, call: TS.CallExpression
     return { ...empty, unreadable: 'its id is not a string literal' };
   }
   const callable = properties.get('callable');
+  const consent = properties.get('agentConsent');
   return {
     at,
     id: id.text,
@@ -93,7 +97,56 @@ function read(ts: TypeScriptModule, file: TS.SourceFile, call: TS.CallExpression
     answers: properties.has('answers'),
     returnsValue: returnsValue(ts, properties.get('run')),
     arguments: readArguments(ts, properties.get('arguments')),
+    ...consentOf(ts, consent),
   };
+}
+
+function consentOf(
+  ts: TypeScriptModule,
+  declared: TS.Expression | undefined,
+): { readonly agentConsent?: string } {
+  const value = unwrapped(ts, declared);
+  return value && ts.isStringLiteral(value)
+    ? { agentConsent: value.text }
+    : {};
+}
+
+function unwrapped(
+  ts: TypeScriptModule,
+  value: TS.Expression | undefined,
+): TS.Expression | undefined {
+  if (!value) {
+    return undefined;
+  }
+  return ts.isAsExpression(value) ||
+    ts.isSatisfiesExpression(value) ||
+    ts.isParenthesizedExpression(value)
+    ? unwrapped(ts, value.expression)
+    : value;
+}
+
+const STATED: readonly string[] = ['allow', 'ask', 'ask-always', 'never'];
+
+function consentLine(consent: string | undefined): string {
+  switch (consent) {
+    case 'allow': {
+      return "says an agent's word is enough to run it.";
+    }
+    case 'ask': {
+      return "says the person is asked first; whoever runs it on an agent's behalf does the asking.";
+    }
+    case 'ask-always': {
+      return "says the person is asked every time; whoever runs it on an agent's behalf does the asking.";
+    }
+    case 'never': {
+      return "says it is not to be run on an agent's word; closing it to other callers is what enforces that.";
+    }
+    default: {
+      return consent === undefined
+        ? "says nothing about whether an agent's word is enough to run it."
+        : `declares "${consent}" about an agent's word, which is none of ${STATED.join(', ')}, so nothing reads it.`;
+    }
+  }
 }
 
 function readArguments(
@@ -204,5 +257,11 @@ function judge(registration: Registration): Finding[] {
       message: `${id}: offered to an agent, with ${count} described argument${count === 1 ? '' : 's'}${registration.answers ? ' and a declared answer' : ''}.`,
     });
   }
+  findings.push({
+    level: 'info',
+    code: 'command.consent',
+    path: at,
+    message: `${id}: ${consentLine(registration.agentConsent)}`,
+  });
   return findings;
 }
