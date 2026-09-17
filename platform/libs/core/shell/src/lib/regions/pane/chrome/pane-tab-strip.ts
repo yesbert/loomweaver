@@ -292,12 +292,16 @@ export class PaneTabStrip {
     this.unpinTab.emit(tab);
   }
 
+  protected bandOf(tab: StripTab): string {
+    return tab.pinned ? 'pinned' : 'dynamic';
+  }
+
   protected canReorder(tab: StripTab): boolean {
-    return this.reorderable() && (tab.closable || tab.pinned);
+    return this.reorderable() && tab.movable;
   }
 
   protected canDrag(tab: StripTab): boolean {
-    return this.draggable() && (tab.closable || tab.pinned);
+    return this.draggable() && tab.movable;
   }
 
   protected readonly enterPredicate = (drag: CdkDrag<string>): boolean => {
@@ -326,7 +330,7 @@ export class PaneTabStrip {
     const tabs = [...this.tabs()];
     moveItemInArray(tabs, event.previousIndex, event.currentIndex);
     this.reorderTabs.emit(
-      tabs.filter((tab) => this.canReorder(tab)).map((tab) => tab.path),
+      tabs.filter((tab) => tab.movable).map((tab) => tab.path),
     );
   }
 
@@ -367,13 +371,6 @@ export class PaneTabStrip {
     if (!fullyVisible) {
       this.revealRequest.emit(active);
     }
-  }
-
-  private bandOf(tab: StripTab): string {
-    if (tab.pinned) {
-      return 'pinned';
-    }
-    return tab.closable ? 'dynamic' : 'static';
   }
 
   private label(tab: StripTab): string {

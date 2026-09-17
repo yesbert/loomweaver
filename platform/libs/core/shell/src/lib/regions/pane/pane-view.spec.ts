@@ -45,6 +45,8 @@ interface PaneViewInternals {
   focusable(): boolean;
   onEscalate(tab: StripTab): void;
   canClose(): boolean;
+  tabsReorderable(): boolean;
+  tabsDraggable(): boolean;
   viewContextMenu(): string;
   tabContextMenu(): string;
   stripTabs(): StripTab[];
@@ -108,6 +110,7 @@ function stripTab(path: string): StripTab {
     title: path,
     literalTitle: true,
     closable: true,
+    movable: true,
     preview: false,
     pinned: false,
   };
@@ -205,6 +208,26 @@ describe('PaneView (content pane)', () => {
 
     switches.update({ content: { splitRight: true } });
     expect(c.canSplitRight()).toBe(true);
+  });
+
+  it('keeps tabs movable when a distribution switches closing off', () => {
+    const c = build(CONTENT_PANE_OPTIONS, { close: false });
+
+    expect(c.tabsReorderable()).toBe(true);
+    expect(c.tabsDraggable()).toBe(true);
+    expect(c.stripTabs().every((tab) => tab.closable)).toBe(false);
+  });
+
+  it('offers neither gesture once the distribution switches both off', () => {
+    const c = build(CONTENT_PANE_OPTIONS, {
+      reorderTabs: false,
+      moveTabs: false,
+      splitRight: false,
+      splitDown: false,
+    });
+
+    expect(c.tabsReorderable()).toBe(false);
+    expect(c.tabsDraggable()).toBe(false);
   });
 
   it('canMinimize needs a split and no active maximize', () => {

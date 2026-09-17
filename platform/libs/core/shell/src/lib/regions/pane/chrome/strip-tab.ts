@@ -6,6 +6,7 @@ export interface StripTab {
   readonly icon?: string;
   readonly navPath?: string;
   readonly closable: boolean;
+  readonly movable: boolean;
   readonly preview: boolean;
   readonly pinned: boolean;
   readonly instance?: string;

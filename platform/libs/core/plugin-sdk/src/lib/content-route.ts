@@ -80,8 +80,9 @@ export interface ContainerTab {
   /** The child surface id the tab mounts; it must be listed in {@link ContainerSpec.children}. */
   readonly surface: string;
   /**
-   * `false` fixes the tab inside this container: it shows no close affordance, "close others" and
-   * "close all" spare it, and it cannot be dragged to another pane of the container.
+   * `false` keeps the tab: it shows no close affordance, and "close others" and "close all" spare
+   * it. Only closing is refused — the user still reorders it and drags it to another pane of the
+   * container.
    */
   readonly closable?: boolean;
   /** Marks the area's initially active tab; without it the first tab is active. */

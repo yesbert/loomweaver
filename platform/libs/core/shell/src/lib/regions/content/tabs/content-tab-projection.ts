@@ -36,6 +36,11 @@ export interface ContentTabView {
   readonly order: number;
   /** Dynamic tabs show a close affordance; static (registered) tabs do not. */
   readonly closable: boolean;
+  /**
+   * Whether the pane really holds this tab, so that moving and reordering it can take effect. A
+   * facet tab is projected from the address rather than held, and has nothing to move.
+   */
+  readonly movable: boolean;
   /** A preview tab renders its title in italics until promoted. */
   readonly preview: boolean;
   /** A pinned tab is sorted to the group's front and shows an unpin control instead of close. */
@@ -163,6 +168,7 @@ export function facetTabViews(
       icon: route.icon,
       order: index,
       closable: false,
+      movable: false,
       preview: false,
       pinned: false,
     }));
@@ -180,6 +186,7 @@ export function dynamicTabViews(
     icon: tab.icon,
     order: DYNAMIC_TAB_ORDER_BASE + index,
     closable: tab.closable,
+    movable: true,
     preview: tab.preview,
     pinned: tab.pinned,
   }));
@@ -207,6 +214,7 @@ export function viewTabViews(
           icon: view.icon,
           order: VIEW_TAB_ORDER_BASE + index,
           closable: view.closable !== false,
+          movable: true,
           preview: false,
           pinned: false,
         },

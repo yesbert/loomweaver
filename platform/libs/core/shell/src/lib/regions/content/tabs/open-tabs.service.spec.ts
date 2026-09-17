@@ -203,6 +203,18 @@ describe('OpenTabsService following tabs (§7)', () => {
     expect(navPathOf(service, 'k.treaties')).toBe('cedents');
   });
 
+  it('offers no move on a following tab, which the pane does not hold', async () => {
+    const { service, harness } = await setup();
+
+    await harness.navigateByUrl('/cedents/US003950/programs/205470/pricing');
+
+    const movable = new Map(
+      service.tabs().map((tab) => [tab.title, tab.movable]),
+    );
+    expect(movable.get('k.pricing')).toBe(false);
+    expect(movable.get('k.treaties')).toBe(false);
+  });
+
   it('leaves a following tab out while its address is nowhere to go', async () => {
     const { service, harness } = await setup();
 
