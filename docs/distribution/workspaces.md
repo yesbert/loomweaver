@@ -57,7 +57,7 @@ three extend **`WorkspaceAreaBase`**, whose only member is `size`: a percentage;
 share the remainder, and sizes that do not add up are normalised proportionally. A tab (a
 **`WorkspaceTabEntry`**) is a route path string, or a
 **`WorkspaceTab`** object to mark it `active` or `closable: false`. An unclosable tab survives
-_Close all_ and cannot be dragged away. The first `tabs` area in reading order becomes the address pane.
+_Close all_; it is still reordered and dragged. The first `tabs` area in reading order becomes the address pane.
 `sidebars` names the **visible** views per panel region: listed views show in that order and the
 region's other declared views are hidden (the user can re-show them from the sidebar header menu, in
 whichever sidebar they right-click). List a region with an **empty array** to show none of its views.

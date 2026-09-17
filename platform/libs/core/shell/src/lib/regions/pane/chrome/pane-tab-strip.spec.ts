@@ -63,7 +63,11 @@ function tab(overrides: Partial<StripTab> = {}): StripTab {
 describe('PaneTabStrip', () => {
   let fixture: ComponentFixture<PaneTabStrip>;
 
-  function create(tabs: StripTab[], entries: readonly StashEntry[] = []): void {
+  function create(
+    tabs: StripTab[],
+    entries: readonly StashEntry[] = [],
+    gestures: { reorderable?: boolean; draggable?: boolean } = {},
+  ): void {
     TestBed.configureTestingModule({
       providers: [
         provideTransloco({
@@ -80,6 +84,8 @@ describe('PaneTabStrip', () => {
       dock: 'content',
       paneId: 'main',
     });
+    fixture.componentRef.setInput('reorderable', gestures.reorderable ?? false);
+    fixture.componentRef.setInput('draggable', gestures.draggable ?? false);
     fixture.detectChanges();
   }
 
@@ -94,6 +100,63 @@ describe('PaneTabStrip', () => {
       (element) => element.textContent?.trim() ?? '',
     );
   }
+
+  function tabByPath(path: string): HTMLElement | null {
+    const host = fixture.nativeElement as HTMLElement;
+    return host.querySelector<HTMLElement>(
+      `[data-tab-path="${CSS.escape(path)}"]`,
+    );
+  }
+
+  function dragHost(path: string): HTMLElement | null {
+    return tabByPath(path)?.closest<HTMLElement>('.cdk-drag') ?? null;
+  }
+
+  const movable = [
+    tab({ path: 'fixed', closable: false }),
+    tab({ path: 'loose' }),
+    tab({ path: 'anchored', pinned: true }),
+  ];
+
+  it('lets a tab that cannot be closed be reordered and dragged', () => {
+    create(movable, [], { reorderable: true, draggable: true });
+
+    expect(tabByPath('fixed')?.dataset['reorderId']).toBe('fixed');
+    expect(dragHost('fixed')?.classList).not.toContain('cdk-drag-disabled');
+  });
+
+  it('keeps each kind of tab in a band of its own, for the pointer and the keyboard alike', () => {
+    create(movable, [], { reorderable: true, draggable: true });
+
+    expect(tabByPath('fixed')?.dataset['reorderBand']).toBe('static');
+    expect(tabByPath('loose')?.dataset['reorderBand']).toBe('dynamic');
+    expect(tabByPath('anchored')?.dataset['reorderBand']).toBe('pinned');
+  });
+
+  it('offers neither gesture where the distribution switched them off', () => {
+    create(movable);
+
+    expect(tabByPath('fixed')?.dataset['reorderId']).toBeUndefined();
+    expect(tabByPath('loose')?.dataset['reorderId']).toBeUndefined();
+    expect(dragHost('loose')?.classList).toContain('cdk-drag-disabled');
+  });
+
+  it('still refuses to close a fixed or a pinned tab from the keyboard', () => {
+    create(movable, [], { reorderable: true, draggable: true });
+    const closed: string[] = [];
+    fixture.componentInstance.closeTab.subscribe((closing) => {
+      closed.push(closing.path);
+    });
+
+    for (const path of ['fixed', 'anchored', 'loose']) {
+      tabByPath(path)?.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'Delete', bubbles: true }),
+      );
+    }
+
+    expect(closed).toEqual(['loose']);
+    expect(tabByPath('fixed')?.getAttribute('aria-keyshortcuts')).toBeNull();
+  });
 
   it('announces the control that opens the new-tab menu, collapsed until it opens', () => {
     create([tab()]);

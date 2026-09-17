@@ -737,7 +737,7 @@ type WorkspaceTabArea = PaneTabArea<WorkspaceTabEntry>;
 type WorkspaceRowArea = PaneRowArea<WorkspaceTabEntry>;
 type WorkspaceColumnArea = PaneColumnArea<WorkspaceTabEntry>;
 type WorkspaceTabEntry = string | WorkspaceTab;   // a route path, or:
-interface WorkspaceTab { path: string; closable?: boolean; active?: boolean; }   // closable:false survives "Close all" and cannot be dragged away
+interface WorkspaceTab { path: string; closable?: boolean; active?: boolean; }   // closable:false survives "Close all"; it is still reordered and dragged
 function provideWorkspaces(...declarations: (WorkspaceDefinition | WorkspacesFeature)[]): EnvironmentProviders;
 // UNUSABLE WORKSPACES: a workspace that declares content of its own and whose STORED arrangement leaves it none (every tab closed, the
 // plugin that answered it gone) is announced by the workbench to the user in it, with a way to reset it. withoutUnusableWorkspaceNotice()
