@@ -14,11 +14,11 @@ distribution cannot be surprised by a route it took itself.
 
 Where the workbench offers a capability through a route that has no handle of its own — chrome the
 workbench draws rather than a contribution a distribution could hide by naming it — the distribution
-SHALL be able to declare that capability in a finer form which leaves that one route out while the
-capability and its other routes stay. The finer form SHALL name only such routes: a route a
-distribution can already remove by naming the contribution behind it SHALL NOT be given a second
-handle here, so that each decision has one place. Declaring a capability off SHALL keep its plain
-meaning, whichever form is used, and remove every route including the finer one.
+SHALL be able to switch that one route off by its own name, while the capability and its other
+routes stay. Only such a route SHALL be switchable this way: a route a distribution can already
+remove by naming the contribution behind it SHALL NOT be given a second handle, so that each
+decision has one place. Switching the capability off SHALL keep its plain meaning and remove every
+route, the separately named one included, whatever that one says.
 
 #### Scenario: A switched-off capability has no remaining route
 
@@ -33,14 +33,14 @@ meaning, whichever form is used, and remove every route including the finer one.
 
 #### Scenario: A capability is offered by dragging alone
 
-- **WHEN** a distribution declares splitting in the finer form, leaving out the button the pane
-  toolbar draws
+- **WHEN** a distribution switches off the split button the pane toolbar draws, and leaves splitting
+  itself on
 - **THEN** no split button is drawn in any pane toolbar
 - **AND** dragging a tab to a pane's edge still splits, and the shortcut and the menu entry still
   reach it
 
-#### Scenario: The finer form does not weaken switching off
+#### Scenario: Naming the route separately does not weaken switching off
 
-- **WHEN** a distribution switches splitting off
-- **THEN** the toolbar button, the drop edges, the shortcut and the menu entry are all gone,
-  whichever form the declaration used
+- **WHEN** a distribution switches splitting off while the switch for its button says the button is
+  offered
+- **THEN** the toolbar button, the drop edges, the shortcut and the menu entry are all gone

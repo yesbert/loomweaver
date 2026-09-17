@@ -9,6 +9,13 @@ import { mergeShellFeatures } from './merge-shell-features';
  * Gestures the content area offers on tabs and panes. Each field takes the **affordance and the
  * gesture**: switching one off removes the button, the drag target and the keyboard shortcut alike,
  * so a capability can never come back through a second door.
+ *
+ * Two fields are finer than that, and say so in their own names: `splitRightButton` and
+ * `splitDownButton` leave out the one route to splitting that has no handle of its own, the button
+ * the pane toolbar draws. Everything else about splitting stays. A route a distribution can already
+ * remove by naming the contribution behind it — the tab menu's entry (`menu:shell.tab.splitRight`),
+ * the command with its shortcut and its palette row (`shell.content.splitRight`) — gets no second
+ * handle here, because one decision belongs in one place.
  */
 export interface ContentFeatures {
   /** Closing a tab: the × affordance, the `Delete` key and the close entries of the tab menu. */
@@ -30,8 +37,17 @@ export interface ContentFeatures {
   readonly newTab: boolean;
   /** Splitting a pane horizontally: the toolbar button, the left/right drop edges and `mod+\`. */
   readonly splitRight: boolean;
+  /**
+   * The pane toolbar's button for splitting horizontally, and nothing else. Switch it off for a
+   * product that offers splitting by dragging a tab to a pane's edge and wants no split control in
+   * the toolbar. The drop edges, `mod+\` and the tab menu's entry are untouched; switching
+   * {@link ContentFeatures.splitRight} off still takes the button with everything else.
+   */
+  readonly splitRightButton: boolean;
   /** Splitting a pane vertically: the toolbar button and the top/bottom drop edges. */
   readonly splitDown: boolean;
+  /** The pane toolbar's button for splitting vertically, and nothing else — see {@link ContentFeatures.splitRightButton}. */
+  readonly splitDownButton: boolean;
   /** Blowing a pane up to the whole content area. */
   readonly maximize: boolean;
   /** Collapsing a pane into the minimised strip. */
@@ -147,7 +163,9 @@ export const DEFAULT_SHELL_FEATURES: ShellFeatures = {
     preview: true,
     newTab: true,
     splitRight: true,
+    splitRightButton: true,
     splitDown: true,
+    splitDownButton: true,
     maximize: true,
     minimize: true,
     reorderTabs: true,

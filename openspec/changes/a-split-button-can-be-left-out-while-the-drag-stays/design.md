@@ -33,46 +33,63 @@ except the shortcut: there is no `shell.content.splitDown`.
 
 ## Decisions
 
-### `boolean | { button?: boolean }`, on `splitRight` and `splitDown` only
+### Two switches of their own, not a union on the existing two
 
 ```ts
-{ content: { splitRight: { button: false } } }
+provideShellFeatures({ content: { splitRightButton: false } });
 ```
 
-The object says: the capability stays, the pane toolbar's button for it is not drawn. `false` keeps
-its meaning, `true` keeps its meaning, and an object that says nothing means the same as `true`.
+`ContentFeatures` gains `splitRightButton` and `splitDownButton`, both on by default. Each says: the
+capability stays, the pane toolbar's button for it is not drawn. A consumer reads them the way it
+reads every other switch, `switches.content.splitRightButton()`, and changes them the way it changes
+every other one.
+
+**This departs from the shape the finding asked for, and from the shape this change first proposed**
+(`splitRight: boolean | { button?: boolean }`). The union looked tidier and cost more than it was
+worth. Every mechanism around a switch is built on "a group of booleans under their own names":
+`mergeShellFeatures` spreads, `FeatureSwitches.group` maps each key to a `Signal<boolean>`,
+`SwitchSignals<Group>` types it, `ShellFeaturesInput` is a `Partial` of each group. A union would
+have needed a normalising step on the way in, a second internal shape to read from, and a name to
+read the button by that is not the name it was declared with — which breaks the rule that the same
+name declares, switches and reads. Two plain switches need none of that: nothing in the merge, the
+service or the input type changes at all.
+
+It also keeps the runtime story simple. `update({ content: { splitRight: false } })` sets the
+capability and leaves the button switch standing, and either can be changed alone, which is what
+naming part of a group has always meant.
 
 Rejected: the finding's `{ button, dropEdge, shortcut }`. Two of those three routes already have a
 handle, and a second one would let a distribution remove the same entry in two places, which is how
 two answers to one question start disagreeing.
 
-Rejected: a separate `splitButtons` switch. It would bundle two capabilities' affordances into one
-decision, and the contract states outright that there are no bundles of switches.
+Rejected: a single `splitButtons` switch for both. It would bundle two capabilities' affordances
+into one decision, and the contract states outright that there are no bundles of switches.
 
 Rejected: giving the fixed chrome an identity so `omit` could reach it. That would make `omit` the
 tool for chrome the workbench draws, which is a far larger promise than this needs, and every other
 gesture's affordance would then want one.
 
-### The reading side stays boolean
+### The capability still wins
 
-`FeatureSwitches` keeps answering `splitRight()` as a boolean: the capability is on or off, which is
-what every existing reader asks. The button's question is its own, answered beside it. So no reader
-changes except the two that draw the button, and a distribution that turns a switch on and off at
-runtime keeps doing it with `true` and `false`.
-
-The declared finer form belongs to the declaration, so a runtime change that passes a boolean sets
-the capability and leaves the declared button decision standing. That is the same rule the group
-merge already follows: naming part of a group leaves the rest alone.
+The button is drawn where the capability is on **and** its own switch is on. So switching splitting
+off removes the button whatever the button switch says, which is what `gesture-configuration`
+requires, and a product cannot accidentally leave a control behind that reaches a capability it
+switched off.
 
 ## Risks / Trade-offs
 
-- **A union where readers expect a boolean.** `ShellFeaturesInput` is `Partial<...>` over the group,
-  so the union has to be accepted where a distribution declares and normalised once on the way in. →
-  Normalise at the boundary, in the merge, and keep every internal reader boolean; the tasks pin it
-  with a test that reads the switch after a partial override.
-- **An invited next key.** Someone will ask for `dropEdge` next. → The spec states the rule that
-  admits a key: only a route with no handle of its own. The answer to `dropEtge` is that switching
-  the capability off is that decision.
+- **Two more names in the switch set.** A reader of `ContentFeatures` now meets four split switches
+  rather than two. → They sit next to each other, the two new ones are named for what they leave
+  out, and their contract comments say which routes they do not touch and where those are handled.
+- **A product could read `splitRightButton: true` while splitting is off and be puzzled.** → The
+  resolution is stated in the contract comment and pinned by a test: the capability wins.
+- **The testbed sat on its bundle ceiling.** Two switches and two reads take the initial bundle from
+  894.7 kB to 895.0 kB, which is over a ceiling of 895. → The growth is meant and tiny, so the
+  ceiling is raised to 900 with the guard's own `--write-baseline` rather than the capability being
+  trimmed to fit a rounding step.
+- **An invited next switch.** Someone will ask for a drop-edge switch next. → The spec states the
+  rule that admits one: only a route with no handle of its own. A drop edge is not that, because
+  switching the capability off is the decision that removes it.
 - **Two ways to reach one outcome.** A product could remove the button and also omit the command,
   and wonder which did what. → They are different routes, not different handles for one route, which
   is exactly the distinction the written contract now states in one place.
