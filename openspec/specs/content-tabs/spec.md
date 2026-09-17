@@ -135,6 +135,19 @@ order SHALL belong to the pane holding them rather than to the work area as a wh
 survive a restart, SHALL leave a newly opened tab at its natural place, and SHALL silently forget
 tabs that are gone.
 
+Whether a tab may be reordered, and whether it may be dragged into another pane, SHALL rest on the
+gestures the distribution offers and on whether the pane really holds that tab, and SHALL NOT rest
+on whether the tab may be closed. A tab the arrangement declares unclosable keeps both gestures, as
+a pinned tab does; only closing is refused it, and it SHALL share its band with the tabs it stands
+among, so that reordering it is something the user can actually carry out.
+
+A tab the workbench projects from the address rather than one the pane holds SHALL offer neither
+gesture, because there is nothing to move: the workbench SHALL NOT advertise a gesture it would
+answer with nothing.
+
+The bands SHALL be one statement for every route, so that a tab the pointer may not move across a
+band cannot be moved across it from the keyboard either.
+
 #### Scenario: Reordering one pane leaves another alone
 
 - **WHEN** the user reorders the tabs of one pane
@@ -154,6 +167,23 @@ tabs that are gone.
 
 - **WHEN** a tab has focus and the user asks to move it
 - **THEN** it moves within its band and the new position is announced
+
+#### Scenario: A tab that cannot be closed is still moved and reordered
+
+- **WHEN** the arrangement declares a tab unclosable and the distribution offers reordering and
+  moving between panes
+- **THEN** that tab can be reordered within its band and dragged into another pane
+- **AND** it still cannot be closed
+
+#### Scenario: A tab the pane does not hold offers no move
+
+- **WHEN** the strip shows a tab the workbench projects from the address beside a tab the pane holds
+- **THEN** the projected tab offers neither reordering nor dragging, and the held tab offers both
+
+#### Scenario: Switching closing off does not take reordering with it
+
+- **WHEN** a distribution switches closing off while reordering and moving between panes stay on
+- **THEN** its tabs can still be reordered and moved
 
 ### Requirement: A strip too narrow to show everything stays usable
 

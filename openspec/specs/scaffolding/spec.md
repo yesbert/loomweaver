@@ -186,6 +186,12 @@ The generated connection SHALL carry the seam where a product decides about a ca
 SHALL declare the permission that reaching commands beyond the weaver's own requires, rather than
 leaving the consumer to add it.
 
+Where the generated output treats a command as consequential, it SHALL take that from what the
+command itself states about an agent's word, read off the command the call names, rather than from a
+list of command identities kept beside the commands. A list beside them is what the generated output
+must not teach: it drifts from the commands it describes, and it cannot speak for a command another
+plugin registered.
+
 #### Scenario: A generated weaver demonstrates the path with no backend
 
 - **WHEN** a weaver is generated with an agent connection and served without further edits
@@ -221,9 +227,15 @@ leaving the consumer to add it.
 
 #### Scenario: A consequential call is stopped by declining it
 
-- **WHEN** the generated output names a command as consequential and an agent calls it
+- **WHEN** the generated output's command states that the person is asked first and an agent calls it
 - **THEN** the user is asked first
 - **AND** declining stops the command from running
+
+#### Scenario: The generated decision reads the command, not a list
+
+- **WHEN** a weaver is generated with an agent connection
+- **THEN** the generated decision asks the command the call names what an agent's word is enough for
+- **AND** the generated output holds no list of consequential command identities
 
 #### Scenario: What is offered is asked for again each run
 
@@ -447,12 +459,17 @@ A check SHALL be able to distinguish something it can judge from something it ca
 
 For command registrations, the check SHALL report each command it finds with one of three outcomes:
 offered to an agent; offered but described in a way that leaves the agent guessing, naming the
-argument or the answer that lacks a description; or not offered, naming what closes it. Because a
-command's reach is finally decided at runtime by grants and access, the check SHALL say that it
-judged the registration alone. A strict mode SHALL fail on a command that is offered without a
+argument or the answer that lacks a description; or not offered, naming what closes it. Where a
+command is offered, the report SHALL also say what the command states about an agent's word being
+enough to run it, and say that it states nothing where it states nothing. Because a command's reach
+is finally decided at runtime by grants and access, the check SHALL say that it judged the
+registration alone. A strict mode SHALL fail on a command that is offered without a
 description; it SHALL report an argument without a description and a returned value without a
 declared answer without failing on them; and it SHALL NOT fail on a command that is simply not
-offered, because closed is the default the platform intends.
+offered, because closed is the default the platform intends. It SHALL NOT fail on, nor warn about, a
+command that states nothing about an agent's word, and SHALL NOT guess from a command's identity or
+its label what running it would cost: saying nothing is a declaration the platform accepts, and a
+guess a consumer cannot act on teaches them to overlook the report.
 
 #### Scenario: A finding says what it will cost
 
@@ -480,6 +497,19 @@ offered, because closed is the default the platform intends.
 - **WHEN** a registered command is opened to other callers but lacks a description, or declares an
   argument without a description, or returns a value without declaring an answer
 - **THEN** the check names the command and the missing piece and says what the agent sees instead
+
+#### Scenario: What a command says about an agent's word is reported
+
+- **WHEN** a registered command is opened to other callers and states that the person is asked every
+  time
+- **THEN** the report says so for that command
+
+#### Scenario: Saying nothing is reported as saying nothing, and fails nothing
+
+- **WHEN** the check runs in strict mode over a plugin with one described callable command that
+  states nothing about an agent's word
+- **THEN** the report says that the command states nothing
+- **AND** the check does not fail and does not warn on that account
 
 #### Scenario: Strict mode gates what closes a command, not what merely narrows it
 
