@@ -16,7 +16,7 @@ export function commandBlock(w: ResolvedWeaver): string {
       ? [
           "      // What an agent's word is enough for. The platform states it and enforces nothing:",
           '      // the asking is the connection\'s half, which reads this off the call.',
-          "      agentConsent: 'ask' as const,",
+          "      agentConsent: 'ask',",
         ]
       : []),
     '      run: (_context, args) => {',

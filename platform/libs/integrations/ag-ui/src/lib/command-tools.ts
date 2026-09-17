@@ -28,9 +28,14 @@ export interface PendingToolCall {
   readonly args: CommandArguments;
   /**
    * What the named command says an agent's word is enough for, read off the workbench's own account
-   * at the moment of the call rather than from a list kept earlier. Undefined where the command says
-   * nothing, and where no such command is reachable — that second case is the workbench's refusal to
-   * make, and it makes it as it always has.
+   * at the moment of the call rather than from a list kept earlier.
+   *
+   * Undefined in three cases, and they are worth telling apart. The command says nothing. Or no such
+   * command is reachable, which is the workbench's refusal to make and it makes it as it always has.
+   * Or the command is one **this plugin registered and never opened**: the account holds what a
+   * caller may reach, and a plugin's own unopened command is not in it, while `invokeCommand` still
+   * runs it for its owner. A weaver wrote its own commands, so it is the one that knows them;
+   * whatever it decides about them belongs in this hook.
    *
    * Nothing here acts on it. Asking, and remembering an answer, are the weaver's, which is what this
    * hook is for; the adapter only makes sure the statement is at hand where the decision is taken.
@@ -117,12 +122,12 @@ export function commandTools(
         'its arguments did not arrive as readable JSON.',
       );
     }
-    const decision = await decide(options, {
+    const decision = await decide(options, () => ({
       toolCallId: call.toolCallId,
       commandId: call.commandId,
       args,
       ...consentOf(ctx, call.commandId),
-    });
+    }));
     if (decision.decision === 'decline') {
       return refusalFor(call.toolCallId, decision.reason);
     }
@@ -206,9 +211,9 @@ export function commandTools(
 
 async function decide(
   options: CommandToolOptions,
-  call: PendingToolCall,
+  call: () => PendingToolCall,
 ): Promise<ToolDecision> {
-  return options.before ? options.before(call) : { decision: 'run' };
+  return options.before ? options.before(call()) : { decision: 'run' };
 }
 
 function consentOf(

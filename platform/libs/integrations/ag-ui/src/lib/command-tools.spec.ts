@@ -347,6 +347,21 @@ describe('commandTools hook', () => {
     expect(seen).toEqual(['ask-always', undefined, undefined]);
   });
 
+  it('asks the account nothing where no hook wants to know', async () => {
+    let asked = 0;
+    const tools = commandTools({
+      invocableCommands: () => {
+        asked += 1;
+        return [OPEN];
+      },
+      invokeCommand: () => Promise.resolve(ANSWERED),
+    });
+
+    await play(tools, streamedCall('c1', 'notes.open', '{"path":"a"}'));
+
+    expect(asked).toBe(0);
+  });
+
   it('acts on the statement itself in no way at all', async () => {
     const { ctx, invoked } = access(ANSWERED, [
       { ...OPEN, agentConsent: 'never' },

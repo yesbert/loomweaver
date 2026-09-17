@@ -79,6 +79,9 @@ where a product's own policy goes.
 ```ts
 const tools = commandTools(ctx, {
   before: async (call) => {
+    if (call.agentConsent === 'never') {
+      return { decision: 'decline', reason: 'it is not run on an agent’s word.' };
+    }
     if (call.agentConsent !== 'ask' && call.agentConsent !== 'ask-always') {
       return { decision: 'run' };
     }
@@ -130,9 +133,13 @@ ctx.registerCommand({
 
 **The platform states it and enforces nothing.** No dialog is shown for you, no answer is
 remembered, and no invocation is refused on this account: a command declaring `ask-always` still
-runs when it is invoked. The asking is yours, which is what this hook is for. `never` is a statement
-too. A command that must be beyond an agent's reach is put there by leaving `callable` off, which is
-enforced.
+runs when it is invoked. Acting on the statement is yours, which is what this hook is for, and that
+includes `never`: decline it here, as the example above does.
+
+Leaving `callable` off is what the platform enforces, and it closes the command to every caller but
+the plugin that registered it. So for a **foreign** command that is the boundary. Your own
+unopened commands stay reachable through your own `ctx`, and they are not in the account, so they
+arrive here with `agentConsent` undefined. You wrote them, so you are the one who knows them.
 
 `toolFor` carries the statement into the tool's `metadata` under the same name, so an agent host
 that treats a consequential tool differently reads it with the tool. A command that says nothing

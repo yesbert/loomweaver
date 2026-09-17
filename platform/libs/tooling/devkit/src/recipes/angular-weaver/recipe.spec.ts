@@ -457,7 +457,7 @@ describe('angularWeaver agent connection', () => {
 
   it('declares on the command itself what an agent word is enough for', () => {
     expect(agentWeaver()['src/lib/plugin/notes.plugin.ts']).toContain(
-      "agentConsent: 'ask' as const,",
+      "agentConsent: 'ask',",
     );
   });
 

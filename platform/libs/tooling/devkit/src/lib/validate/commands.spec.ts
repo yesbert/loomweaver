@@ -24,8 +24,16 @@ export const plugin = {
       title: 'tickets.delete',
       description: 'tickets.delete.description',
       callable: true,
-      agentConsent: 'ask-always',
+      agentConsent: 'ask-always' as const,
       run: () => store.delete(),
+    });
+    ctx.registerCommand({
+      id: 'tickets.publish',
+      title: 'tickets.publish',
+      description: 'tickets.publish.description',
+      callable: true,
+      agentConsent: 'aks',
+      run: () => store.publish(),
     });
     ctx.registerCommand({
       id: 'tickets.assign',
@@ -90,6 +98,9 @@ describe('validateCommands', () => {
     );
     expect(lines.get('tickets.open')).toContain(
       "says nothing about whether an agent's word is enough",
+    );
+    expect(lines.get('tickets.publish')).toContain(
+      'declares "aks" about an agent\'s word, which is none of',
     );
     expect(by('command.consent').every((one) => one.level === 'info')).toBe(
       true,

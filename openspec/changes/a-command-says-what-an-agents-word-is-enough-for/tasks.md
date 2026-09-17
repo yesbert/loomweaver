@@ -36,6 +36,8 @@
   command that is not in the account.
 - [x] 4.3 Spec test: nothing in the adapter asks, refuses or narrows on the statement's account — a
   call for a command declaring `never` still reaches the workbench when `before` answers `run`.
+- [x] 4.4 Resolve it only where a hook wants it, so a connection without one asks the account
+  nothing, with a test that counts the reads.
 
 ## 5. The check
 
@@ -46,6 +48,8 @@
   that no finding is derived from an id or a title.
 - [x] 5.3 Mirror the report's wording in the MCP tool description in
   `platform/libs/tooling/mcp/src/lib/server.ts` where it summarises what the check says.
+- [x] 5.4 Read the value through a cast or a `satisfies`, since the scaffold's own output used one,
+  and report an unrecognised value instead of reporting silence.
 
 ## 6. The scaffold
 
@@ -58,6 +62,8 @@
   decision asks the call what an agent's word is enough for.
 - [x] 6.4 Confirm the generated weaver still demonstrates the whole path: the stand-in run asks, and
   declining stops the command.
+- [x] 6.5 The generated decision declines `never` rather than running it, and every written example
+  shows the same three branches.
 
 ## 7. The written contract
 

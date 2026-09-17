@@ -34,12 +34,18 @@ export const ${w.propertyName}Agent = signal<CommandTools | null>(null);
 
 // What an agent's word is enough for is the command's own statement, declared where the command is
 // registered and read off the call here. No list of ids lives beside the commands: a list drifts from
-// what it describes, and it cannot speak for a command another plugin registered. Asking is this
-// weaver's half — the workbench states, the product decides how it talks to its users.
+// what it describes, and it cannot speak for a command another plugin registered. Acting on the
+// statement is this weaver's half: the workbench states it and enforces nothing.
 async function decide(
   ctx: PluginContext,
   call: PendingToolCall,
 ): Promise<ToolDecision> {
+  if (call.agentConsent === 'never') {
+    return {
+      decision: 'decline',
+      reason: 'an agent may not run this one on its own word.',
+    };
+  }
   if (call.agentConsent !== 'ask' && call.agentConsent !== 'ask-always') {
     return { decision: 'run' };
   }

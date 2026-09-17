@@ -736,6 +736,9 @@ export function notesAgent(ctx: PluginContext) {
     // command (`agentConsent: 'ask'`) and read off the call here. Keep no list of ids: it drifts
     // from the commands, and it cannot speak for a command another plugin registered.
     before: async (call) => {
+      if (call.agentConsent === 'never') {
+        return { decision: 'decline', reason: 'it is not run on an agent’s word.' };
+      }
       if (call.agentConsent !== 'ask' && call.agentConsent !== 'ask-always') {
         return { decision: 'run' };
       }

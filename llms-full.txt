@@ -1134,11 +1134,17 @@ The adapter that offers the workbench's OWN commands to an agentic backend speak
 ```ts
 import { commandTools } from '@loomweaver/ag-ui';
 const tools = commandTools(ctx, {
-  before: async (call) => call.agentConsent === 'ask' || call.agentConsent === 'ask-always'
-    ? (await ctx.ui.confirm({ message: 'agent.confirm' })   // the command says it; you do the asking
-        ? { decision: 'run' }
-        : { decision: 'decline', reason: 'the user did not confirm it.' })
-    : { decision: 'run' },
+  before: async (call) => {                                 // the command states it; you act on it
+    if (call.agentConsent === 'never') {
+      return { decision: 'decline', reason: 'it is not run on an agent\u2019s word.' };
+    }
+    if (call.agentConsent !== 'ask' && call.agentConsent !== 'ask-always') {
+      return { decision: 'run' };
+    }
+    return (await ctx.ui.confirm({ message: 'agent.confirm' }))
+      ? { decision: 'run' }
+      : { decision: 'decline', reason: 'the user did not confirm it.' };
+  },
 });
 agent.runAgent({ tools: tools.list(), threadId, runId, messages, context: [] });  // ask again EVERY run
 const answer = await tools.receive(event);   // for every event the run produces
@@ -1153,7 +1159,7 @@ if (answer) { messages.push(answer); }       // null when the event did not comp
 - **The refusal wording is ONE wording** for every reason (no such command, not `callable`, session does not qualify, wrong window, no grant) — telling them apart would let an agent map what is installed by calling ids and reading the reason back.
 - **Streamed and chunked calls.** A call arrives as a start, a stream of argument deltas and an end; calls in that form may interleave, because every event carries its own `toolCallId`. The convenience form, where one chunk event carries whichever fields it has, is inherently sequential: a chunk naming a new call closes the one before it. Arguments that are not readable JSON are refused before the workbench is asked; arguments that read fine but do not match what the command declared are refused by the workbench, which is where that check belongs.
 - **The pieces, for less than the whole loop:** `toolFor(command)` / `toolsFor(commands)` (an `InvocableCommand` → a protocol `Tool`, declared arguments as JSON Schema) · `readArguments(json)` (streamed JSON → arguments the workbench can be handed, or `null`) · `resultFor(toolCallId, outcome)` (a `CommandOutcome` → the message that goes back, if you ran the call yourself) · `CommandAccess` (the slice of `ctx` this touches: `invocableCommands` + `invokeCommand`; narrow on purpose, because it states exactly what an agent reaches through here).
-- **The names:** `CommandTools` is what `commandTools()` returns (`list`, `receive`, `flush`; the pieces `toolFor`, `toolsFor`, `readArguments`, `resultFor`, `refusalFor`, `answerFor` are exports of their own); `PendingToolCall { toolCallId, commandId, args, agentConsent? }` is what the `before` hook is handed; `ToolDecision` is its answer, `{ decision: 'run' } | { decision: 'decline', reason } | { decision: 'answer', value }`.
+- **The names:** `CommandTools` is what `commandTools()` returns (`list`, `receive`, `flush`; the pieces `toolFor`, `toolsFor`, `readArguments`, `resultFor`, `refusalFor`, `answerFor` are exports of their own); `PendingToolCall { toolCallId, commandId, args, agentConsent? }` is what the `before` hook is handed; `ToolDecision` is its answer, `{ decision: 'run' } | { decision: 'decline', reason } | { decision: 'answer', content }`.
 - Its stability follows the AG-UI protocol, not the platform. Full prose: docs/reference/agent-tools.md, worked example in docs/samples.md §10.
 
 ## Scaffolding & tooling (dev-time, deterministic)

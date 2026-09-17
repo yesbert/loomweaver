@@ -230,8 +230,11 @@ export interface Command {
    * what the command does.
    *
    * `never` is a statement too, and the platform cannot enforce it: it has no way to tell an agent
-   * from any other caller that is not this plugin. A command that must be beyond an agent's reach is
-   * put there by leaving {@link Command.callable} off, which the platform does enforce.
+   * from any other caller. What the platform does enforce is {@link Command.callable}: leaving it off
+   * closes the command to every caller but the plugin that registered it. So `callable` is the
+   * boundary for a foreign command, while a plugin's own unopened command stays reachable through its
+   * own context and is absent from {@link InvocableCommand} lists — a plugin wrote its own commands,
+   * so it is the one that acts on what they say.
    */
   readonly agentConsent?: AgentConsent;
   /**

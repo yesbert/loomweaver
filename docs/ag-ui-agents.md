@@ -88,9 +88,12 @@ a set drifts from what it describes, and it cannot speak for a command another p
 
 **The platform states it and enforces nothing.** No dialog is shown for you, no answer is
 remembered, and no invocation is refused on this account: a command declaring `ask-always` still
-runs when it is invoked. The asking is your half, in your own words and your own placement, which is
-what the hook is for. `never` is a statement too. A command that must be beyond an agent's reach is
-put there by leaving `callable` off, which is enforced.
+runs when it is invoked. Acting on the statement is your half, in your own words and your own
+placement, which is what the hook is for. That includes `never`: the generated connection declines
+such a call outright.
+
+Leaving `callable` off is what the platform enforces, and it closes a command to every caller but
+the plugin that registered it.
 
 A useful test for which value a command deserves: would you want this to happen while you were looking away? Sending a document to a
 customer, deleting a batch, moving money, publishing. Reading, navigating, filtering and opening

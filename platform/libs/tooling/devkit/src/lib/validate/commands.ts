@@ -97,10 +97,35 @@ function read(ts: TypeScriptModule, file: TS.SourceFile, call: TS.CallExpression
     answers: properties.has('answers'),
     returnsValue: returnsValue(ts, properties.get('run')),
     arguments: readArguments(ts, properties.get('arguments')),
-    ...(consent &&
-      ts.isStringLiteral(consent) && { agentConsent: consent.text }),
+    ...consentOf(ts, consent),
   };
 }
+
+function consentOf(
+  ts: TypeScriptModule,
+  declared: TS.Expression | undefined,
+): { readonly agentConsent?: string } {
+  const value = unwrapped(ts, declared);
+  return value && ts.isStringLiteral(value)
+    ? { agentConsent: value.text }
+    : {};
+}
+
+function unwrapped(
+  ts: TypeScriptModule,
+  value: TS.Expression | undefined,
+): TS.Expression | undefined {
+  if (!value) {
+    return undefined;
+  }
+  return ts.isAsExpression(value) ||
+    ts.isSatisfiesExpression(value) ||
+    ts.isParenthesizedExpression(value)
+    ? unwrapped(ts, value.expression)
+    : value;
+}
+
+const STATED: readonly string[] = ['allow', 'ask', 'ask-always', 'never'];
 
 function consentLine(consent: string | undefined): string {
   switch (consent) {
@@ -117,7 +142,9 @@ function consentLine(consent: string | undefined): string {
       return "says it is not to be run on an agent's word; closing it to other callers is what enforces that.";
     }
     default: {
-      return "says nothing about whether an agent's word is enough to run it.";
+      return consent === undefined
+        ? "says nothing about whether an agent's word is enough to run it."
+        : `declares "${consent}" about an agent's word, which is none of ${STATED.join(', ')}, so nothing reads it.`;
     }
   }
 }
