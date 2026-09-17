@@ -901,7 +901,12 @@ class StateSyncService {
 // menu entry) is not a gesture — remove those with provideShell({ omit }).
 // A switch takes the affordance AND the gesture: content.splitRight off removes the toolbar button,
 // the left/right drop edges and mod+\ alike. Fields merge group by group; every default is true.
-interface ContentFeatures { close: boolean; pin: boolean; escalate: boolean; moveTabs: boolean; preview: boolean; newTab: boolean; splitRight: boolean; splitDown: boolean; maximize: boolean; minimize: boolean; reorderTabs: boolean }
+// splitRightButton / splitDownButton are the one exception, and are named for what they leave out:
+// the pane toolbar's split button and nothing else, for a product that offers splitting by dragging
+// a tab to a pane's edge. Splitting has three handles and each decision has one place: the switch
+// (every route), omit 'shell.content.splitRight' (the command, its mod+\ and its palette row),
+// omit 'menu:shell.tab.splitRight' (the tab menu's entry). No key here duplicates those two.
+interface ContentFeatures { close: boolean; pin: boolean; escalate: boolean; moveTabs: boolean; preview: boolean; newTab: boolean; splitRight: boolean; splitRightButton: boolean; splitDown: boolean; splitDownButton: boolean; maximize: boolean; minimize: boolean; reorderTabs: boolean }
 interface SidebarFeatures { collapse: boolean; resize: boolean; reorderViews: boolean; moveViews: boolean; hideViews: boolean; curate: boolean; stackViews: boolean; acceptTabs: boolean; openViewInContent: boolean; resetViewState: boolean; instances: boolean }
 interface RailFeatures { reorder: boolean; moveItems: boolean; hideItems: boolean; curate: boolean }
 // Sorting and moving are separate: reorderViews / rail.reorder order items WITHIN one bar; moveViews /

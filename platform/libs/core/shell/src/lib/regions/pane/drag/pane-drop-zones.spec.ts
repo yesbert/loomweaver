@@ -73,6 +73,42 @@ describe('PaneDropZones', () => {
     ).toBe(4);
   });
 
+  it('keeps the split drop edges when only the toolbar buttons are left out', () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideShellFeatures({
+          content: { splitRightButton: false, splitDownButton: false },
+        }),
+      ],
+    });
+    const fixture = mount();
+    TestBed.inject(PaneTreeService).seedPrimaryTabs(CONTENT_DOCK, [
+      'view:outline',
+    ]);
+    fixture.detectChanges();
+
+    expect(contentZoneIds().length).toBe(4);
+  });
+
+  it('drops the split edges once splitting itself is switched off', () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideShellFeatures({
+          content: { splitRight: false, splitDown: false },
+        }),
+      ],
+    });
+    const fixture = mount();
+    TestBed.inject(PaneTreeService).seedPrimaryTabs(CONTENT_DOCK, [
+      'view:outline',
+    ]);
+    fixture.detectChanges();
+
+    expect(contentZoneIds()).toEqual([]);
+  });
+
   it('offers the four edges of a sidebar while stacking or parking is allowed', () => {
     expect(sidebarZoneCount({})).toBe(4);
     expect(sidebarZoneCount({ sidebar: { stackViews: false } })).toBe(4);

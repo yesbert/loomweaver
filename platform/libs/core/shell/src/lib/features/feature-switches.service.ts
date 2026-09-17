@@ -1,6 +1,7 @@
 import { computed, inject, Service, Signal, signal } from '@angular/core';
 import { mergeShellFeatures } from '../foundation/merge-shell-features';
 import {
+  DEFAULT_SHELL_FEATURES,
   SHELL_FEATURES,
   ShellFeatures,
   ShellFeaturesInput,
@@ -30,7 +31,9 @@ export type SwitchSignals<Group> = {
  */
 @Service()
 export class FeatureSwitches {
-  private readonly state = signal<ShellFeatures>(inject(SHELL_FEATURES));
+  private readonly state = signal<ShellFeatures>(
+    mergeShellFeatures(DEFAULT_SHELL_FEATURES, inject(SHELL_FEATURES)),
+  );
 
   /** The whole set as it stands now. */
   readonly current: Signal<ShellFeatures> = this.state.asReadonly();

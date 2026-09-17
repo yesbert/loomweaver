@@ -58,11 +58,17 @@ export class PaneView {
   );
 
   protected readonly canSplitRight = computed(
-    () => this.options().split && this.features.splitRight(),
+    () =>
+      this.options().split &&
+      this.features.splitRight() &&
+      this.features.splitRightButton(),
   );
 
   protected readonly canSplitDown = computed(
-    () => this.options().split && this.features.splitDown(),
+    () =>
+      this.options().split &&
+      this.features.splitDown() &&
+      this.features.splitDownButton(),
   );
 
   protected readonly canMaximize = computed(

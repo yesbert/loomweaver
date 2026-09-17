@@ -193,6 +193,30 @@ describe('PaneView (content pane)', () => {
     expect(c.canMinimize()).toBe(false);
   });
 
+  it('leaves the split buttons out while splitting itself stays on', () => {
+    const c = build(CONTENT_PANE_OPTIONS, {
+      splitRightButton: false,
+      splitDownButton: false,
+    });
+
+    expect(c.canSplitRight()).toBe(false);
+    expect(c.canSplitDown()).toBe(false);
+    expect(TestBed.inject(FeatureSwitches).content.splitRight()).toBe(true);
+    expect(TestBed.inject(FeatureSwitches).content.splitDown()).toBe(true);
+  });
+
+  it('takes the button with it when splitting is switched off, whatever the button says', () => {
+    const c = build(CONTENT_PANE_OPTIONS, {
+      splitRight: false,
+      splitRightButton: true,
+      splitDown: false,
+      splitDownButton: true,
+    });
+
+    expect(c.canSplitRight()).toBe(false);
+    expect(c.canSplitDown()).toBe(false);
+  });
+
   it('the toolbar affordances follow a switch flipped at runtime', () => {
     const c = build(CONTENT_PANE_OPTIONS);
     const switches = TestBed.inject(FeatureSwitches);

@@ -169,10 +169,16 @@ export class ContentArea {
   );
 
   protected readonly canSplitRight = computed(
-    () => this.features.splitRight() && this.splittable(),
+    () =>
+      this.features.splitRight() &&
+      this.features.splitRightButton() &&
+      this.splittable(),
   );
   protected readonly canSplitDown = computed(
-    () => this.features.splitDown() && this.splittable(),
+    () =>
+      this.features.splitDown() &&
+      this.features.splitDownButton() &&
+      this.splittable(),
   );
 
   protected readonly activeIsContainer = computed(() => {

@@ -17,6 +17,14 @@ A switch takes the **affordance and the gesture**. Turning `splitRight` off remo
 button, the left/right drop edges _and_ `mod+\`, so the capability cannot come back through a second
 door.
 
+Two switches are finer than that, and their names say what they leave out. `splitRightButton` and
+`splitDownButton` take away the pane toolbar's split button alone. Reach for them where a product
+offers splitting by dragging a tab to a pane's edge and wants no split control in its toolbar.
+
+Splitting has three handles, and each decision has one place. The switch takes every route. `omit`
+takes the command with its shortcut and its palette row. `omit` with the `menu:` prefix takes the
+tab menu's entry. [Recomposing chrome](recomposing-chrome.md) is where `omit` lives.
+
 ## Every switch
 
 ```ts
@@ -32,7 +40,9 @@ provideShellFeatures({
     preview: true,      // default: the single reused italic preview slot
     newTab: true,       // default: the "+" button and its picker
     splitRight: true,   // default: button + left/right drop edges + mod+\
+    splitRightButton: true, // default: the toolbar's split-right button alone
     splitDown: true,    // default: button + top/bottom drop edges
+    splitDownButton: true,  // default: the toolbar's split-down button alone
     maximize: true,     // default
     minimize: true,     // default
     reorderTabs: true,  // default: drag or Alt+Arrow within a band
@@ -98,7 +108,9 @@ cycle stays reachable from the tab's context menu either way.
 Every content pane, the address pane and secondary panes alike, shows the **same** inline toolbar:
 New tab, Split right, Split down, Minimize, Maximize and Close. The switches `newTab`, `splitRight`,
 `splitDown`, `minimize`, `maximize` and `close` each take one button away together with the gesture
-behind it, and fields merge, so the others stay on. A pane that holds no tabs offers the same buttons on a
+behind it, and fields merge, so the others stay on. `splitRightButton` and `splitDownButton` take
+the button and leave the gesture. No other button here needs that: no other one is the only route
+to its capability. A pane that holds no tabs offers the same buttons on a
 floating toolbar, under the same switches. What each button does for the user is in
 [Panes](../distribution-api/panes.md#in-depth).
 

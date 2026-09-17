@@ -19,11 +19,12 @@ door per decision.
 
 ## What Changes
 
-- Splitting a pane to the right and splitting it downwards MAY each be declared in a finer form that
-  says the capability stays and the pane toolbar's button for it is not drawn. The plain switch keeps
-  its meaning exactly: switched off, every route goes.
-- The finer form names only the route that has no other handle. The menu entry and the command stay
-  the business of hiding a contribution by its identity, which already works.
+- Two switches are added beside the two they refine, named for what they leave out:
+  `content.splitRightButton` and `content.splitDownButton` take away the pane toolbar's split button
+  and nothing else. The switch for the capability keeps its meaning exactly: switched off, every
+  route goes, the button among them.
+- They name only the route that has no other handle. The menu entry and the command stay the
+  business of hiding a contribution by its identity, which already works.
 - The written contract says the three handles together, because knowing that two of them exist is
   what the product was missing.
 
@@ -36,17 +37,17 @@ None.
 ### Modified Capabilities
 
 - `gesture-configuration`: the requirement that a switch takes the affordance and the gesture
-  together gains the finer form — a capability that the workbench offers through a route with no
-  handle of its own may have that route left out while the capability stays, and switching the
-  capability off still removes every route.
+  together gains the finer statement — a route the workbench offers a capability through, and which
+  has no handle of its own, may be switched off by name while the capability stays, and switching
+  the capability off still removes every route.
 
 ## Impact
 
-- `platform/libs/core/shell/src/lib/foundation/shell-features.ts` — `ContentFeatures.splitRight` and
-  `splitDown` accept the finer form; the defaults and the declared shape stay what they are.
-- `platform/libs/core/shell/src/lib/foundation/merge-shell-features.ts` and
-  `platform/libs/core/shell/src/lib/features/feature-switches.service.ts` — merging a partial
-  override and reading a switch at runtime carry the finer form.
+- `platform/libs/core/shell/src/lib/foundation/shell-features.ts` — `ContentFeatures` gains
+  `splitRightButton` and `splitDownButton`, both on by default.
+- Nothing in `merge-shell-features.ts` or `feature-switches.service.ts` changes: a switch is a
+  boolean under its own name, so declaring, merging, changing at runtime and reading as a signal all
+  carry the two new ones as they stand.
 - `platform/libs/core/shell/src/lib/regions/pane/pane-view.ts` and
   `platform/libs/core/shell/src/lib/regions/content/content-area.ts` — the toolbar button asks
   whether it is drawn; the drop edges, the shortcut and the menu entry keep asking what they ask
