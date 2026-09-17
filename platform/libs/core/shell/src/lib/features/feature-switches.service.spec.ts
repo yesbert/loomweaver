@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import {
   DEFAULT_SHELL_FEATURES,
   provideShellFeatures,
+  SHELL_FEATURES,
   ShellFeatures,
   ShellFeaturesInput,
 } from '../foundation/shell-features';
@@ -49,6 +50,25 @@ describe('FeatureSwitches', () => {
     expect(switches.content.splitRight()).toBe(false);
     expect(switches.content.splitDown()).toBe(true);
     expect(switches.current().content.splitRight).toBe(false);
+  });
+
+  it('answers a switch a directly provided set never mentioned', () => {
+    TestBed.configureTestingModule({
+      providers: [
+        {
+          provide: SHELL_FEATURES,
+          useValue: {
+            ...DEFAULT_SHELL_FEATURES,
+            content: { close: false },
+          } as ShellFeatures,
+        },
+      ],
+    });
+    const switches = TestBed.inject(FeatureSwitches);
+
+    expect(switches.content.close()).toBe(false);
+    expect(switches.content.splitRight()).toBe(true);
+    expect(switches.content.splitRightButton()).toBe(true);
   });
 
   it('answers the full workbench when nothing is declared', () => {

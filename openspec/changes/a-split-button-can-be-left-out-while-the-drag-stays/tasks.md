@@ -3,8 +3,12 @@
 - [x] 1.1 In `platform/libs/core/shell/src/lib/foundation/shell-features.ts`, add
   `splitRightButton` and `splitDownButton` to `ContentFeatures`, on by default, with JSDoc naming
   the route each leaves out and the handles for the routes they do not touch.
-- [x] 1.2 Confirm that nothing in `merge-shell-features.ts` or `feature-switches.service.ts` needs
-  changing, and that the suite covering every switch picks the two new ones up.
+- [x] 1.2 Confirm that nothing in `merge-shell-features.ts` needs changing, and that the suite
+  covering every switch picks the two new ones up.
+- [x] 1.3 Merge a directly provided `SHELL_FEATURES` over the defaults in
+  `feature-switches.service.ts`, so a set assembled before a switch existed answers that switch's
+  default instead of leaving a reader to call `undefined`; test it with a set that names one switch
+  of the group only.
 
 ## 2. The button
 
@@ -15,6 +19,9 @@
 - [x] 2.3 Test: with the capability off and the button switch on, no control is drawn.
 - [x] 2.4 Test: with only the button switches off, the four drop edges stay; with the capability
   off, the split edges go.
+- [x] 2.5 Test the address pane's own toolbar in `content-area.spec.ts`, not only `PaneView`: both
+  controls for the full workbench, neither with the buttons switched off, neither with splitting
+  off. Confirmed each new test fails with its condition removed.
 
 ## 3. The written contract
 

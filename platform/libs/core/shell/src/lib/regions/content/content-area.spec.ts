@@ -15,6 +15,8 @@ import {
   PaddingDefault,
   SURFACE_PADDING,
 } from '../../foundation/surface-padding';
+import { provideShellFeatures } from '../../foundation/shell-features';
+import { ShellFeaturesInput } from '../../foundation/shell-features';
 import { ContentArea } from './content-area';
 
 @Component({ selector: 'lw-test-home', template: '<span>home</span>' })
@@ -138,5 +140,61 @@ describe('ContentArea — the menu a tab in the unsplit main area offers', () =>
       menu: TAB_CONTEXT_MENU,
       context: { tabId: 'doc/a' },
     });
+  });
+});
+
+describe('ContentArea — the split controls of the address pane', () => {
+  async function toolbarWith(
+    features: ShellFeaturesInput,
+  ): Promise<HTMLElement> {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [
+        TranslocoTestingModule.forRoot({
+          langs: { en: {} },
+          translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
+          preloadLangs: true,
+        }),
+      ],
+      providers: [provideRouter([]), provideShellFeatures(features)],
+    });
+    TestBed.inject(ContributionRegistry).addContentRoute({
+      path: '',
+      component: HomeView,
+    });
+    const fixture = TestBed.createComponent(ContentArea);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    return fixture.nativeElement as HTMLElement;
+  }
+
+  const splitControls = (host: HTMLElement) => [
+    host.querySelector('[data-testid="content-split-toggle"]'),
+    host.querySelector('[data-testid="content-split-down"]'),
+  ];
+
+  it('draws both split controls for the full workbench', async () => {
+    expect(splitControls(await toolbarWith({}))).not.toContain(null);
+  });
+
+  it('draws neither where only the buttons are switched off', async () => {
+    const host = await toolbarWith({
+      content: { splitRightButton: false, splitDownButton: false },
+    });
+
+    expect(splitControls(host)).toEqual([null, null]);
+  });
+
+  it('draws neither where splitting itself is off, whatever the buttons say', async () => {
+    const host = await toolbarWith({
+      content: {
+        splitRight: false,
+        splitRightButton: true,
+        splitDown: false,
+        splitDownButton: true,
+      },
+    });
+
+    expect(splitControls(host)).toEqual([null, null]);
   });
 });

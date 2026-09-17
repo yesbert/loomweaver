@@ -69,6 +69,18 @@ Rejected: giving the fixed chrome an identity so `omit` could reach it. That wou
 tool for chrome the workbench draws, which is a far larger promise than this needs, and every other
 gesture's affordance would then want one.
 
+### A directly provided set is merged over the defaults
+
+`FeatureSwitches` reads `SHELL_FEATURES` and now merges it over `DEFAULT_SHELL_FEATURES` before it
+holds it. The token is published, so a distribution may provide it directly rather than through
+`provideShellFeatures`, and a set assembled before these two switches existed would otherwise leave
+`FeatureSwitches.group` deriving no signal for them — a reader would call `undefined` and the first
+pane render would throw, where the honest answer is "on, as the default says".
+
+That makes this addition and every future one safe from the runtime side. TypeScript still asks a
+distribution that writes a complete `ShellFeatures` literal to name the new fields, which is the
+correct-by-construction half and is stated in the pull request.
+
 ### The capability still wins
 
 The button is drawn where the capability is on **and** its own switch is on. So switching splitting
