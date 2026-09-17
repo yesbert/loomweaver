@@ -49,11 +49,32 @@ until a user reports it.
 Rejected: deriving the band inside `Reorderable` from the DOM. The directive is generic over
 reorderable strips and knows nothing about tabs; the band is the strip's knowledge.
 
-### `canDrag` and `canReorder` keep the switch, drop the closability
+### The band keys on pinning, not on closability
 
-They become `this.reorderable()` and `this.draggable()`. Nothing replaces the closability check,
-because there is nothing left for it to decide: `enterPredicate`, `sortPredicate` and the drop
-handling already say what may land where.
+`bandOf` answered three bands — `pinned`, `dynamic`, `static` — and the third one keyed on
+closability. Dropping the closability check from the guards alone would therefore have promised
+something hollow: a lone unclosable tab would sit alone in `static`, `sortPredicate` would reject
+every index outside it and the keyboard path would find no peer, so the tab could be dragged to
+another pane and never reordered where it stands. Keying the band on closability is the same
+conflation this change removes, one level down: closing is not anchoring. So the band is now
+`pinned` or not, which is also what the template said all along, and the template binds `bandOf` so
+that the pointer and the keyboard read one statement.
+
+### Movability is the per-tab condition, and it is not closability
+
+`canDrag` and `canReorder` become `draggable() && tab.movable` and `reorderable() && tab.movable`.
+`StripTab.movable` says whether the pane really holds the tab.
+
+It exists because one kind of strip tab genuinely cannot move: a facet tab, projected from the
+address for a route declaring `follows: true`, whose `path` is the route *pattern*. The pane tree
+holds concrete addresses, so `PaneMoveService.resolveTab` can never find it and a drag would be a
+silent no-op, while `ContentTabsService.reorder` would rank an id nothing matches and shift the
+tabs after it. Those tabs were excluded before by carrying `closable: false`, which is how the two
+meanings came to be folded into one field.
+
+So `ContentTabView` and `StripTab` now carry movability of their own: false for a facet projection,
+true for every tab a pane holds. `onDrop` reports only movable tabs, so a pattern never reaches
+`reorder`.
 
 `data-reorder-id` follows `canReorder`, so a fixed tab becomes keyboard-reorderable in the same
 step and by the same condition.

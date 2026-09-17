@@ -79,6 +79,7 @@ export function toStripTab(
     literalTitle: effective.literalTitle,
     icon: effective.icon,
     closable: tab.closable !== false && surfaceClosable(registry, tab.path),
+    movable: true,
     preview: tab.preview ?? false,
     pinned: tab.pinned ?? false,
     instance: tab.instance,

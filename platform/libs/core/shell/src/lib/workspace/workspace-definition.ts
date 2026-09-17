@@ -108,8 +108,9 @@ export interface WorkspaceTab {
   /** The surface route path the tab opens (sidebar views belong under `sidebars`, not here). */
   readonly path: string;
   /**
-   * `false` fixes the tab in this workspace: it shows no close affordance, "close others" and
-   * "close all" spare it, and it cannot be dragged away. Reset restores it either way.
+   * `false` keeps the tab in this workspace: it shows no close affordance, and "close others" and
+   * "close all" spare it. Only closing is refused — the user still reorders it and drags it to
+   * another pane. Reset restores it either way.
    */
   readonly closable?: boolean;
   /** Marks the area's initially active tab; without it the first tab is active. */

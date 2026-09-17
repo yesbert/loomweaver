@@ -8,10 +8,17 @@ survive a restart, SHALL leave a newly opened tab at its natural place, and SHAL
 tabs that are gone.
 
 Whether a tab may be reordered, and whether it may be dragged into another pane, SHALL rest on the
-gestures the distribution offers and SHALL NOT rest on whether that tab may be closed. A tab the
-arrangement declares unclosable keeps both gestures, as a pinned tab does; only closing is refused
-it. The bands SHALL be one statement for every route, so that a tab the pointer may not move across
-a band cannot be moved across it from the keyboard either.
+gestures the distribution offers and on whether the pane really holds that tab, and SHALL NOT rest
+on whether the tab may be closed. A tab the arrangement declares unclosable keeps both gestures, as
+a pinned tab does; only closing is refused it, and it SHALL share its band with the tabs it stands
+among, so that reordering it is something the user can actually carry out.
+
+A tab the workbench projects from the address rather than one the pane holds SHALL offer neither
+gesture, because there is nothing to move: the workbench SHALL NOT advertise a gesture it would
+answer with nothing.
+
+The bands SHALL be one statement for every route, so that a tab the pointer may not move across a
+band cannot be moved across it from the keyboard either.
 
 #### Scenario: Reordering one pane leaves another alone
 
@@ -39,6 +46,11 @@ a band cannot be moved across it from the keyboard either.
   moving between panes
 - **THEN** that tab can be reordered within its band and dragged into another pane
 - **AND** it still cannot be closed
+
+#### Scenario: A tab the pane does not hold offers no move
+
+- **WHEN** the strip shows a tab the workbench projects from the address beside a tab the pane holds
+- **THEN** the projected tab offers neither reordering nor dragging, and the held tab offers both
 
 #### Scenario: Switching closing off does not take reordering with it
 

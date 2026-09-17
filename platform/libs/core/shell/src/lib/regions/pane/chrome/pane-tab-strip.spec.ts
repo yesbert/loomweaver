@@ -54,6 +54,7 @@ function tab(overrides: Partial<StripTab> = {}): StripTab {
     title: 'quotes.document.title',
     literalTitle: false,
     closable: true,
+    movable: true,
     preview: false,
     pinned: false,
     ...overrides,
@@ -125,12 +126,57 @@ describe('PaneTabStrip', () => {
     expect(dragHost('fixed')?.classList).not.toContain('cdk-drag-disabled');
   });
 
-  it('keeps each kind of tab in a band of its own, for the pointer and the keyboard alike', () => {
+  it('puts a fixed tab in the band an ordinary one is in, so it can move among them', () => {
     create(movable, [], { reorderable: true, draggable: true });
 
-    expect(tabByPath('fixed')?.dataset['reorderBand']).toBe('static');
+    expect(tabByPath('fixed')?.dataset['reorderBand']).toBe('dynamic');
     expect(tabByPath('loose')?.dataset['reorderBand']).toBe('dynamic');
     expect(tabByPath('anchored')?.dataset['reorderBand']).toBe('pinned');
+  });
+
+  it('lets the pointer seat a fixed tab among the tabs it stands with, but not among the pinned', () => {
+    create(movable, [], { reorderable: true, draggable: true });
+    const strip = fixture.componentInstance as unknown as {
+      sortPredicate(index: number, drag: unknown): boolean;
+    };
+    const dragged = { data: 'fixed' };
+
+    expect(strip.sortPredicate(1, dragged)).toBe(true);
+    expect(strip.sortPredicate(2, dragged)).toBe(false);
+  });
+
+  it('carries the fixed tab in the order a reorder reports', () => {
+    create(movable, [], { reorderable: true, draggable: true });
+    const orders: string[][] = [];
+    fixture.componentInstance.reorderTabs.subscribe((order) => {
+      orders.push(order);
+    });
+
+    const strip = fixture.componentInstance as unknown as {
+      onDrop(event: unknown): void;
+    };
+    const container = { id: 'content:main' };
+    strip.onDrop({
+      previousContainer: container,
+      container,
+      previousIndex: 0,
+      currentIndex: 1,
+      item: { data: 'fixed' },
+    });
+
+    expect(orders).toEqual([['loose', 'fixed', 'anchored']]);
+  });
+
+  it('offers neither gesture on a tab the pane does not hold', () => {
+    create(
+      [tab({ path: 'facet', closable: false, movable: false }), tab()],
+      [],
+      { reorderable: true, draggable: true },
+    );
+
+    expect(tabByPath('facet')?.dataset['reorderId']).toBeUndefined();
+    expect(dragHost('facet')?.classList).toContain('cdk-drag-disabled');
+    expect(tabByPath('quotes/q-1')?.dataset['reorderId']).toBe('quotes/q-1');
   });
 
   it('offers neither gesture where the distribution switched them off', () => {

@@ -293,10 +293,15 @@ export class PaneTabStrip {
   }
 
   protected bandOf(tab: StripTab): string {
-    if (tab.pinned) {
-      return 'pinned';
-    }
-    return tab.closable ? 'dynamic' : 'static';
+    return tab.pinned ? 'pinned' : 'dynamic';
+  }
+
+  protected canReorder(tab: StripTab): boolean {
+    return this.reorderable() && tab.movable;
+  }
+
+  protected canDrag(tab: StripTab): boolean {
+    return this.draggable() && tab.movable;
   }
 
   protected readonly enterPredicate = (drag: CdkDrag<string>): boolean => {
@@ -324,7 +329,9 @@ export class PaneTabStrip {
     }
     const tabs = [...this.tabs()];
     moveItemInArray(tabs, event.previousIndex, event.currentIndex);
-    this.reorderTabs.emit(tabs.map((tab) => tab.path));
+    this.reorderTabs.emit(
+      tabs.filter((tab) => tab.movable).map((tab) => tab.path),
+    );
   }
 
   private observeResize(): void {

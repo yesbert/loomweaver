@@ -102,8 +102,9 @@ export class ContentTabsService {
   }
 
   /**
-   * Applies a user drag/keyboard reorder of the strip's dynamic tabs. `ids` is the new full
-   * order of dynamic tab roots (pinned then unpinned — the directive keeps moves within their band).
+   * Applies a user drag/keyboard reorder of the strip's movable tabs. `ids` is the new full order of
+   * their roots (pinned first, then the rest — the directive keeps moves within their band). A facet
+   * tab is left out: the pane does not hold it, so there is nothing to reseat.
    *
    * The order is written to the pane that holds the tabs, exactly as a reorder in any other pane is.
    * It used to be kept beside the tree under one key for the whole content dock, which meant the URL

@@ -7,6 +7,7 @@ function tab(overrides: Partial<StripTab>): StripTab {
     title: 'a',
     literalTitle: true,
     closable: true,
+    movable: true,
     preview: false,
     pinned: false,
     ...overrides,

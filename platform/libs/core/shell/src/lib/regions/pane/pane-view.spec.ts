@@ -110,6 +110,7 @@ function stripTab(path: string): StripTab {
     title: path,
     literalTitle: true,
     closable: true,
+    movable: true,
     preview: false,
     pinned: false,
   };
