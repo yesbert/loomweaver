@@ -158,6 +158,7 @@ export class CommandInvocationService implements CommandInvoker {
       })),
       answers:
         command.answers === undefined ? undefined : this.text(command.answers),
+      agentConsent: command.agentConsent,
     };
   }
 

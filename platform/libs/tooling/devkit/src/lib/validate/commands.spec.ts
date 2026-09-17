@@ -20,6 +20,14 @@ export const plugin = {
       run: () => ctx.ui.toast({ message: 'hi' }),
     });
     ctx.registerCommand({
+      id: 'tickets.delete',
+      title: 'tickets.delete',
+      description: 'tickets.delete.description',
+      callable: true,
+      agentConsent: 'ask-always',
+      run: () => store.delete(),
+    });
+    ctx.registerCommand({
       id: 'tickets.assign',
       title: 'tickets.assign',
       description: 'tickets.assign.description',
@@ -67,6 +75,43 @@ describe('validateCommands', () => {
     expect(by('command.argument')[0].message).toContain('tickets.assign: argument "to" has no description');
     expect(by('command.answers')[0].message).toContain('tickets.assign: run returns a value but declares no answers');
     expect(by('command.argument')[0].level).toBe('info');
+  });
+
+  it("says what each offered command states about an agent's word, including nothing", () => {
+    const lines = new Map(
+      by('command.consent').map((finding) => [
+        finding.message.split(':', 1)[0],
+        finding.message,
+      ]),
+    );
+
+    expect(lines.get('tickets.delete')).toContain(
+      'says the person is asked every time',
+    );
+    expect(lines.get('tickets.open')).toContain(
+      "says nothing about whether an agent's word is enough",
+    );
+    expect(by('command.consent').every((one) => one.level === 'info')).toBe(
+      true,
+    );
+  });
+
+  it('says nothing of the kind about a command no agent is offered', () => {
+    expect(
+      by('command.consent').some((one) => one.message.startsWith('tickets.reset')),
+    ).toBe(false);
+  });
+
+  it('never guesses a consequence from an id or a title', () => {
+    const about = findings().filter((finding) =>
+      finding.message.startsWith('tickets.delete'),
+    );
+
+    expect(about.map((finding) => finding.code)).toEqual([
+      'command.offered',
+      'command.consent',
+    ]);
+    expect(about.some((finding) => finding.level === 'warning')).toBe(false);
   });
 
   it('lists a command that is not callable as information', () => {

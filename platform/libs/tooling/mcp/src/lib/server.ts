@@ -98,7 +98,7 @@ export function createMcpServer(): McpServer {
     'validate_commands',
     {
       description:
-        'Say, per command a plugin registers, whether an agent is offered it and what would leave the agent guessing. Input: files = { <path>: <TypeScript source> }. Only a callable command without a description is a warning; the rest is information.',
+        "Say, per command a plugin registers, whether an agent is offered it, what would leave the agent guessing, and what the command states about an agent's word being enough to run it. Input: files = { <path>: <TypeScript source> }. Only a callable command without a description is a warning; the rest is information, and a command that states nothing about an agent's word is reported as stating nothing rather than faulted.",
       inputSchema: {
         files: z.record(z.string(), z.string()),
       },

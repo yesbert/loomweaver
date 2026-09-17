@@ -253,9 +253,11 @@ export const plugin = {
     }[];
     expect(findings.map((finding) => finding.code)).toEqual([
       'command.description',
+      'command.consent',
       'command.private',
       'commands.runtime',
     ]);
     expect(findings[0].level).toBe('warning');
+    expect(findings[1].level).toBe('info');
   });
 });

@@ -1,5 +1,9 @@
 import { EventType, type BaseEvent, type Tool, type ToolMessage } from '@ag-ui/core';
-import type { CommandArguments, PluginContext } from '@loomweaver/plugin-sdk';
+import type {
+  AgentConsent,
+  CommandArguments,
+  PluginContext,
+} from '@loomweaver/plugin-sdk';
 import { readArguments } from './tool-arguments.js';
 import { toolsFor } from './tool-definitions.js';
 import { answerFor, refusalFor, resultFor } from './tool-results.js';
@@ -22,6 +26,16 @@ export interface PendingToolCall {
   readonly commandId: string;
   /** What it wants to pass, already readable as data but not yet checked against the command. */
   readonly args: CommandArguments;
+  /**
+   * What the named command says an agent's word is enough for, read off the workbench's own account
+   * at the moment of the call rather than from a list kept earlier. Undefined where the command says
+   * nothing, and where no such command is reachable — that second case is the workbench's refusal to
+   * make, and it makes it as it always has.
+   *
+   * Nothing here acts on it. Asking, and remembering an answer, are the weaver's, which is what this
+   * hook is for; the adapter only makes sure the statement is at hand where the decision is taken.
+   */
+  readonly agentConsent?: AgentConsent;
 }
 
 /**
@@ -107,6 +121,7 @@ export function commandTools(
       toolCallId: call.toolCallId,
       commandId: call.commandId,
       args,
+      ...consentOf(ctx, call.commandId),
     });
     if (decision.decision === 'decline') {
       return refusalFor(call.toolCallId, decision.reason);
@@ -194,4 +209,14 @@ async function decide(
   call: PendingToolCall,
 ): Promise<ToolDecision> {
   return options.before ? options.before(call) : { decision: 'run' };
+}
+
+function consentOf(
+  ctx: CommandAccess,
+  commandId: string,
+): Pick<PendingToolCall, 'agentConsent'> {
+  const consent = ctx
+    .invocableCommands()
+    .find((command) => command.id === commandId)?.agentConsent;
+  return consent === undefined ? {} : { agentConsent: consent };
 }

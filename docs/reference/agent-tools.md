@@ -79,7 +79,7 @@ where a product's own policy goes.
 ```ts
 const tools = commandTools(ctx, {
   before: async (call) => {
-    if (!DESTRUCTIVE.has(call.commandId)) {
+    if (call.agentConsent !== 'ask' && call.agentConsent !== 'ask-always') {
       return { decision: 'run' };
     }
     const confirmed = await ctx.ui.confirm({ message: 'agent.confirm' });
@@ -90,8 +90,8 @@ const tools = commandTools(ctx, {
 });
 ```
 
-`before` receives a `PendingToolCall` holding the `toolCallId`, the `commandId` and the assembled
-`args`, and answers a `ToolDecision`:
+`before` receives a `PendingToolCall` holding the `toolCallId`, the `commandId`, the assembled
+`args` and the command's own `agentConsent`, and answers a `ToolDecision`:
 
 | Decision                          | What happens                                                                         |
 | --------------------------------- | ------------------------------------------------------------------------------------ |
@@ -106,6 +106,37 @@ refuses what it always refused, whatever was decided here. The hook is a place t
 say yes to something the user could not have done.
 
 `CommandToolOptions` is the shape you pass; today it carries only `before`.
+
+## What the hook decides from
+
+`call.agentConsent` is what the command declared about an agent's word: `allow`, `ask`,
+`ask-always`, `never`, or `undefined` where the command says nothing. It is read off the workbench's
+own account at the moment of the call, so it is never a list you keep. `undefined` also covers a
+command that is not reachable at all. That refusal is the workbench's to make, and it makes it as it
+always has.
+
+Declare it beside the command, not here:
+
+```ts
+ctx.registerCommand({
+  id: 'notes.deleteAll',
+  title: 'notes.deleteAll',
+  description: 'Deletes every note in the notebook.',
+  callable: true,
+  agentConsent: 'ask-always',
+  run: () => store.clear(),
+});
+```
+
+**The platform states it and enforces nothing.** No dialog is shown for you, no answer is
+remembered, and no invocation is refused on this account: a command declaring `ask-always` still
+runs when it is invoked. The asking is yours, which is what this hook is for. `never` is a statement
+too. A command that must be beyond an agent's reach is put there by leaving `callable` off, which is
+enforced.
+
+`toolFor` carries the statement into the tool's `metadata` under the same name, so an agent host
+that treats a consequential tool differently reads it with the tool. A command that says nothing
+carries no `metadata` at all.
 
 ## What the agent gets back
 

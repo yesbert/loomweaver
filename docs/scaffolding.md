@@ -361,8 +361,9 @@ Three files land under `src/lib/agent/`:
 
 - `<id>-agent.ts`: the connection. The workbench's own commands become the tools, and a call comes
   back through the same seam every other trigger runs through. It also carries the place where your
-  product says no before a call runs; the generated weaver names its own command as consequential, as
-  an example to replace with the ones that actually cost something.
+  product says no before a call runs. The generated command declares `agentConsent: 'ask'` on itself
+  and the connection reads that off the call, so what an agent's word is enough for stays with the
+  command rather than in a list beside it.
 - `<id>-agent-panel.ts`: a docked panel showing what is offered, the call as its arguments stream in,
   and what came back.
 - `<id>-agent-source.ts`: a **stand-in**, and it says so where you cannot miss it. It produces the

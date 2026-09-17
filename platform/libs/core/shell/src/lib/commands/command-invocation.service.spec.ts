@@ -323,6 +323,42 @@ describe('CommandInvocationService', () => {
       expect(listed[1].description).toBe('The last one');
     });
 
+    it("carries what a command says an agent's word is enough for, and nothing where it says nothing", () => {
+      registry.addCommand(
+        open({
+          id: 'other.publish',
+          title: 'Publish',
+          agentConsent: 'ask-always',
+          run: vi.fn(),
+        }),
+        OTHER,
+      );
+
+      const listed = invocation.invocable(CALLER, true);
+      const publish = listed.find((entry) => entry.id === 'other.publish');
+
+      expect(publish?.agentConsent).toBe('ask-always');
+      expect(listed[0].agentConsent).toBeUndefined();
+    });
+
+    it('refuses nothing on that account — the statement is not a gate', async () => {
+      const run = vi.fn();
+      registry.addCommand(
+        open({
+          id: 'other.wipe',
+          title: 'Wipe',
+          agentConsent: 'never',
+          run,
+        }),
+        OTHER,
+      );
+
+      const outcome = await invocation.invoke(CALLER, true, 'other.wipe');
+
+      expect(outcome.outcome).toBe('answered');
+      expect(run).toHaveBeenCalledTimes(1);
+    });
+
     it('holds nothing beyond the caller´s own without the grant', () => {
       registry.addCommand(open({ id: 'mine.open', title: 'M', run: vi.fn() }), CALLER);
 

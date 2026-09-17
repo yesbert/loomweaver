@@ -730,12 +730,13 @@ import type { BaseEvent, Message, Tool } from '@ag-ui/core';
 import { commandTools } from '@loomweaver/ag-ui';
 import type { PluginContext } from '@loomweaver/plugin-sdk';
 
-const CONSEQUENTIAL = new Set(['notes.deleteAll']);
-
 export function notesAgent(ctx: PluginContext) {
   const tools = commandTools(ctx, {
+    // What an agent's word is enough for is the command's own statement, declared beside the
+    // command (`agentConsent: 'ask'`) and read off the call here. Keep no list of ids: it drifts
+    // from the commands, and it cannot speak for a command another plugin registered.
     before: async (call) => {
-      if (!CONSEQUENTIAL.has(call.commandId)) {
+      if (call.agentConsent !== 'ask' && call.agentConsent !== 'ask-always') {
         return { decision: 'run' };
       }
       const confirmed = await ctx.ui.confirm({
