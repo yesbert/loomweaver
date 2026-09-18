@@ -200,3 +200,7 @@ export function removeTab(
     );
   });
 }
+
+export function sparedByBulkClose(tab: PaneTab): boolean {
+  return tab.pinned === true || tab.closable === false;
+}

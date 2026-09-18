@@ -959,6 +959,7 @@ type SwitchSignals<G> = { [K in keyof G]: Signal<boolean> };   // switches.conte
 class PaneService { panes: Signal<readonly PaneFacts[]>; activePane: Signal<PaneHandle>; isSplit: Signal<boolean>; maximized: Signal<PaneHandle | null>; minimized: Signal<readonly PaneHandle[]>;
   splitRight(pane?: PaneHandle): void; splitDown(pane?: PaneHandle): void; closePane(pane?: PaneHandle): void; unsplit(): void;
   maximize(pane?: PaneHandle): void; minimize(pane?: PaneHandle): void; restore(pane?: PaneHandle): void; focus(pane: PaneHandle): void; moveTab(path: string, pane: PaneHandle): void; exists(pane: PaneHandle): boolean }
+// closePane and unsplit spare pinned and unclosable tabs (every tab with content.close off): they join the pane that takes the space.
 type PaneHandle;   // opaque, stable while the pane exists; a stale handle does nothing. Without a handle an action means the address pane (the one carrying the address).
 interface PaneFacts { handle: PaneHandle; showing: string | null; itemCount: number; carriesAddress: boolean; maximized: boolean; minimized: boolean }
 interface PaneRef { dock: string; paneId: string }   // names a pane: dock 'content' is the main area, otherwise a sidebar region id. A tab's menu context carries both

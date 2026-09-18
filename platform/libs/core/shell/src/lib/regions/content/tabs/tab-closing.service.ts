@@ -12,6 +12,8 @@ import {
 } from '../../pane/tree/pane-address';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 import { PaneTab } from '../../pane/tree/pane-node';
+import { TabKeep, keepsNothing } from '../../pane/tree/pane-handover';
+import { sparedByBulkClose } from '../../pane/tree/pane-tabs';
 import { findLeaf } from '../../pane/tree/pane-queries';
 import { paneRetentionScope } from '../../pane/retention/retention-policy';
 import { UnsavedWork } from '../../pane/retention/unsaved-work';
@@ -102,12 +104,12 @@ export class TabClosingService {
     );
   }
 
-  closePrimaryPane(): void {
+  closePrimaryPane(keeps: TabKeep = keepsNothing): void {
     const candidates = this.paneTree
       .primaryTabs(CONTENT_DOCK)
-      .flatMap((tab) => this.urlPaneCandidates(tab.path));
+      .flatMap((tab) => (keeps(tab) ? [] : this.urlPaneCandidates(tab.path)));
     this.closeGuard.guarded(candidates, () => {
-      const promoted = this.paneTree.collapsePrimary(CONTENT_DOCK);
+      const promoted = this.paneTree.collapsePrimary(CONTENT_DOCK, keeps);
       if (promoted !== null) {
         void this.navigateAfterClose(promoted);
       }
@@ -289,5 +291,5 @@ export class TabClosingService {
 }
 
 function closable(tab: PaneTab): boolean {
-  return !tab.pinned && tab.closable !== false;
+  return !sparedByBulkClose(tab);
 }

@@ -11,6 +11,7 @@ import { OpenTabsService } from './open-tabs.service';
 import { TabClosingService } from './tab-closing.service';
 import { refineTabTitles, reseatPinned } from '../../pane/tree/pane-tabs';
 import { CONTENT_DOCK, PaneRef } from '../../pane/tree/pane-address';
+import { keepsOnPaneClose } from '../../pane/tree/pane-handover';
 import { ClaimOrdering } from './claim-ordering';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 import { UnsavedWork } from '../../pane/retention/unsaved-work';
@@ -239,13 +240,15 @@ export class ContentTabsService {
   }
 
   /**
-   * Closes the **primary (URL) pane** of a split — the pane-toolbar "Close pane" on the URL pane: the
-   * primary leaf collapses, a neighbour is promoted to URL pane and navigated to. Guarded like every
-   * other user-initiated close: unsaved changes in any of the primary group's tabs run
-   * the host's Save · Discard · Cancel dialog first.
+   * Closes the **primary (URL) pane** of a split: a neighbour is promoted to URL pane and navigated
+   * to, and receives the pinned and unclosable tabs (every tab while closing is switched off) instead
+   * of closing them. Guarded like every other user-initiated close: unsaved changes in the tabs that
+   * really close run the host's Save · Discard · Cancel dialog first.
    */
   closePrimaryPane(): void {
-    this.closing.closePrimaryPane();
+    this.closing.closePrimaryPane(
+      keepsOnPaneClose(true, this.features.close()),
+    );
   }
 
   /**

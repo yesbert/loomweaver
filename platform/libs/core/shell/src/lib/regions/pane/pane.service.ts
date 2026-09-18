@@ -95,13 +95,18 @@ export class PaneService {
 
   /**
    * Closes the pane, asking about unsaved work first. Closing the pane that carries the address
-   * promotes a neighbour; closing the only pane is a no-op.
+   * promotes a neighbour; closing the only pane is a no-op. Pinned tabs and tabs declared
+   * unclosable are not closed with it: they join the pane that takes its space, and with closing
+   * switched off every tab does.
    */
   closePane(pane: PaneHandle = this.activePane()): void {
     this.actions.close(CONTENT_DOCK, pane);
   }
 
-  /** Collapses the area back to the address pane, asking first if another pane holds unsaved work. */
+  /**
+   * Collapses the area back to the address pane, asking first if another pane holds unsaved work.
+   * Pinned tabs and tabs declared unclosable in the other panes join the address pane.
+   */
   unsplit(): void {
     this.actions.unsplit(CONTENT_DOCK);
   }

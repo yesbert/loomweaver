@@ -1,4 +1,5 @@
 import { inject, Service } from '@angular/core';
+import { FeatureSwitches } from '../../features/feature-switches.service';
 import { ContentTabsService } from '../content/tabs/content-tabs.service';
 import { PaneChromeService } from './chrome/pane-chrome.service';
 import { SurfaceCloseGuard } from './close/surface-close-guard';
@@ -9,7 +10,9 @@ import {
   paneRetentionScope,
 } from './retention/retention-policy';
 import { RetainedViewStash } from './retention/retained-view-stash';
+import { isContainerDock } from './container/container-children';
 import { CONTENT_DOCK } from './tree/pane-address';
+import { TabKeep, keepsOnPaneClose } from './tree/pane-handover';
 import { PaneLeaf, PaneNode, leafPath } from './tree/pane-node';
 import { findLeaf } from './tree/pane-queries';
 import { PaneTreeService } from './tree/pane-tree.service';
@@ -23,6 +26,7 @@ export class PaneActions {
   private readonly closeGuard = inject(SurfaceCloseGuard);
   private readonly stash = inject(RetainedViewStash);
   private readonly drag = inject(PaneDragService);
+  private readonly features = inject(FeatureSwitches).content;
 
   split(dock: string, paneId: string, orientation: 'row' | 'column'): void {
     const leaf = this.leaf(dock, paneId);
@@ -49,12 +53,13 @@ export class PaneActions {
       this.tabs.closePrimaryPane();
       return;
     }
-    this.closeGuard.guarded(this.candidatesOf(dock, leaf), () => {
+    const keeps = this.keepsOnClose(dock);
+    this.closeGuard.guarded(this.candidatesOf(dock, leaf, keeps), () => {
       if (primary) {
-        this.paneTree.collapsePrimary(dock);
+        this.paneTree.collapsePrimary(dock, keeps);
         return;
       }
-      this.paneTree.closePane(dock, paneId);
+      this.paneTree.closePane(dock, paneId, keeps);
     });
   }
 
@@ -63,10 +68,13 @@ export class PaneActions {
       return;
     }
     const primary = this.paneTree.primaryId(dock);
+    const keeps = this.keepsOnClose(dock);
     const candidates = leavesOf(this.paneTree.tree(dock))
       .filter((leaf) => leaf.id !== primary)
-      .flatMap((leaf) => this.candidatesOf(dock, leaf));
-    this.closeGuard.guarded(candidates, () => this.paneTree.unsplit(dock));
+      .flatMap((leaf) => this.candidatesOf(dock, leaf, keeps));
+    this.closeGuard.guarded(candidates, () =>
+      this.paneTree.unsplit(dock, keeps),
+    );
   }
 
   maximize(dock: string, paneId: string): void {
@@ -134,12 +142,27 @@ export class PaneActions {
     return findLeaf(this.paneTree.tree(dock), paneId);
   }
 
-  private candidatesOf(dock: string, leaf: PaneLeaf): unknown[] {
+  private keepsOnClose(dock: string): TabKeep {
+    return keepsOnPaneClose(
+      dock === CONTENT_DOCK || isContainerDock(dock),
+      this.features.close(),
+    );
+  }
+
+  private candidatesOf(
+    dock: string,
+    leaf: PaneLeaf,
+    keeps: TabKeep,
+  ): unknown[] {
     const scope = paneRetentionScope(dock, leaf.id);
-    return leaf.tabs.flatMap((tab) => [
-      ...this.stash.instancesFor(scope, tab.path),
-      ...containerChildInstances(this.stash.keyedInstances(), tab.path),
-    ]);
+    return leaf.tabs.flatMap((tab) =>
+      keeps(tab)
+        ? []
+        : [
+            ...this.stash.instancesFor(scope, tab.path),
+            ...containerChildInstances(this.stash.keyedInstances(), tab.path),
+          ],
+    );
   }
 }
 

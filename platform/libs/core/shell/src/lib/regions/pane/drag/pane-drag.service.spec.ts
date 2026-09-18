@@ -30,6 +30,22 @@ describe('PaneDragService (the one drag model)', () => {
     expect(drag.dropTargetIds()).not.toContain('pane-zone:content:main:left');
   });
 
+  it('keeps a strip registered when an earlier registration of the same pane is disposed', () => {
+    const { drag } = setup();
+    const earlier = drag.registerStrip('pane-strip:content:main');
+    drag.registerStrip('pane-strip:content:main');
+    earlier();
+    expect(drag.dropTargetIds()).toContain('pane-strip:content:main');
+  });
+
+  it('keeps a zone registered when an earlier registration of the same id is disposed', () => {
+    const { drag } = setup();
+    const earlier = drag.registerZone('pane-zone:content:main:left');
+    drag.registerZone('pane-zone:content:main:left');
+    earlier();
+    expect(drag.dropTargetIds()).toContain('pane-zone:content:main:left');
+  });
+
   it('a registered, ungated view is hostable; a gated one is not (anonymous session)', () => {
     const { drag, registry } = setup();
     registry.addView({

@@ -42,7 +42,7 @@ Every pane of the content area is listed by `panes()`, in layout order, as `Pane
 
 ## What asks about unsaved work
 
-`closePane` asks about the unsaved work of the pane it closes, exactly as the pane's × would. `unsplit` asks for every sibling pane it drops. Splitting never asks: it does nothing when what the pane shows cannot be shown in a second pane.
+`closePane` asks about the unsaved work of the pane it closes, exactly as the pane's × would. `unsplit` asks for every sibling pane it drops. Neither closes a pinned tab or a tab declared unclosable: such a tab joins the pane that takes the closed pane's space, and when closing is switched off every tab does. Splitting never asks: it does nothing when what the pane shows cannot be shown in a second pane.
 
 ## Switched off
 

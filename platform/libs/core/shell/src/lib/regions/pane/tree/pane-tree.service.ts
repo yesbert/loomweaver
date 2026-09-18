@@ -15,6 +15,13 @@ import {
   paneSegments,
   tabHolderOf,
 } from './pane-queries';
+import {
+  TabKeep,
+  closedWithHandover,
+  collapsedWithHandover,
+  keepsNothing,
+  unsplitWithHandover,
+} from './pane-handover';
 import { clampRatio, withRatio } from './pane-ratio';
 import { DockEntry, healedPrimary } from './pane-restore';
 import { PaneTreeStorage, isDefault } from './pane-tree-storage';
@@ -88,10 +95,11 @@ export class PaneTreeService {
     return this.tree(dock).kind === 'split';
   }
 
-  unsplit(dock: string): void {
+  unsplit(dock: string, keeps: TabKeep = keepsNothing): void {
     this.commit(
       dock,
-      findLeaf(this.tree(dock), this.primaryId(dock)) ?? PRIMARY_LEAF,
+      unsplitWithHandover(this.tree(dock), this.primaryId(dock), keeps) ??
+        PRIMARY_LEAF,
     );
   }
 
@@ -116,11 +124,14 @@ export class PaneTreeService {
     }
   }
 
-  closePane(dock: string, paneId: string): void {
+  closePane(dock: string, paneId: string, keeps: TabKeep = keepsNothing): void {
     if (paneId === this.primaryId(dock)) {
       return;
     }
-    this.commit(dock, removeLeaf(this.tree(dock), paneId) ?? PRIMARY_LEAF);
+    this.commit(
+      dock,
+      closedWithHandover(this.tree(dock), paneId, keeps) ?? PRIMARY_LEAF,
+    );
   }
 
   insertTab(dock: string, paneId: string, path: string): void {
@@ -248,8 +259,12 @@ export class PaneTreeService {
     this.commit(dock, pinTab(this.tree(dock), paneId, tabPath));
   }
 
-  collapsePrimary(dock: string): string | null {
-    const collapsed = removeLeaf(this.tree(dock), this.primaryId(dock));
+  collapsePrimary(dock: string, keeps: TabKeep = keepsNothing): string | null {
+    const collapsed = collapsedWithHandover(
+      this.tree(dock),
+      this.primaryId(dock),
+      keeps,
+    );
     if (collapsed === null) {
       return null;
     }
