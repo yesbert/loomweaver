@@ -32,7 +32,13 @@ function workbench(offers: string[]): Workbench {
   const ctx = {
     invocableCommands: (): readonly InvocableCommand[] => {
       bench.asked.push([...bench.offers]);
-      return bench.offers.map((id) => ({ id, title: id }));
+      return bench.offers.map((id) => ({
+        id,
+        title: id,
+        // What the workbench answers about a command is what the command declared; quotes.send
+        // asks first, as its registration says.
+        ...(id === 'quotes.send' && { agentConsent: 'ask' as const }),
+      }));
     },
     invokeCommand: async (id: string, args?: CommandArguments) => {
       bench.invoked.push({ id, args });
@@ -81,13 +87,16 @@ describe('the demo agent driving the workbench', () => {
     const bench = workbench(['quotes.open']);
 
     const first = await ask(beat('margin'));
+    const asksOfTheFirstRun = bench.asked.length;
     bench.offers = ['quotes.open', 'quotes.margin'];
     const second = await ask(beat('margin'));
 
-    expect(bench.asked).toEqual([
-      ['quotes.open'],
-      ['quotes.open', 'quotes.margin'],
+    expect(bench.asked[0]).toEqual(['quotes.open']);
+    expect(bench.asked[asksOfTheFirstRun]).toEqual([
+      'quotes.open',
+      'quotes.margin',
     ]);
+    expect(bench.asked.at(-1)).toEqual(['quotes.open', 'quotes.margin']);
     expect(spoke(first, 'agent.notOffered')).toBe(true);
     expect(spoke(second, 'agent.notOffered')).toBe(false);
   });

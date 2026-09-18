@@ -23,7 +23,7 @@ This is a curated map for people, and their AI assistants, building on or integr
   - [Unsaved changes](docs/weaver/unsaved-changes.md): `DirtySurface` and the Save, Discard, Cancel question.
   - [Your plugin's own store](docs/weaver/plugin-state.md): `ctx.state`.
   - [Containers](docs/weaver/containers.md): a workspace in a tab, the arrangement it opens with, a child that stands for one item through `segment` and `CONTAINER_HANDLE`.
-  - [The content area](docs/weaver/content-area.md): routable surfaces, tabs per pane, chromeless, closable, preview and pinned tabs, panes and tab groups.
+  - [The content area](docs/weaver/content-area.md): routable surfaces, tabs per pane, chromeless, closable (which refuses closing and nothing else), preview and pinned tabs, panes and tab groups.
   - [Sub-routes and follows](docs/weaver/sub-routes-and-follows.md): `subRoutes`, the rest of the address, tabs that follow the selection, `activeContent`.
   - [Menus](docs/weaver/menus.md): `registerMenuItem`, item menu slots, `ctx.ui.openMenu`.
   - [Sandboxed surfaces](docs/weaver/sandboxed-surfaces.md): `component` or `iframe`, the sandbox bootstrap, the frame UI kit.
@@ -38,7 +38,7 @@ This is a curated map for people, and their AI assistants, building on or integr
   - [Content-area routing](docs/distribution/content-routing.md): `provideShellRouter`, following tabs.
   - [Workspaces](docs/distribution/workspaces.md): `provideWorkspaces`, an unusable workspace, telling saved ones apart.
   - [Resetting the arrangement](docs/distribution/resetting.md): the reset control and what it asks.
-  - [Switching capabilities off](docs/distribution/switching-capabilities-off.md): `provideShellFeatures`, the switch takes the gesture and the affordance.
+  - [Switching capabilities off](docs/distribution/switching-capabilities-off.md): `provideShellFeatures`, the switch takes the gesture and the affordance; `splitRightButton`/`splitDownButton` take the pane toolbar's split button alone, for a product that offers splitting by dragging to a pane's edge.
   - [Surface retention](docs/distribution/surface-retention.md): the product-wide default.
   - [Branding](docs/distribution/branding.md)
   - [Bringing your own CSS framework](docs/distribution/css-frameworks.md): the pre-compiled stylesheet instead of Tailwind, your framework in a cascade layer, `theme --preset bootstrap` for the token mapping. Read it before importing Bootstrap next to the shell.
@@ -51,7 +51,7 @@ This is a curated map for people, and their AI assistants, building on or integr
   - [Icons, translations and rewording](docs/distribution/icons-and-i18n.md): `provideIcons`, namespaces, `provideTranslationOverrides`.
   - [Recomposing host chrome](docs/distribution/recomposing-chrome.md): palette and quick-open entries, curating settings, dropping a route.
   - [PWA and delivery](docs/distribution/pwa.md)
-- [Driving your product with an AG-UI agent](docs/ag-ui-agents.md): the path from `weaver --id <id> --agent` to a product an AG-UI agent drives, including which calls get a confirmation (the `before` hook can only narrow). Read it before [agent tools](docs/reference/agent-tools.md), which is the adapter function by function.
+- [Driving your product with an AG-UI agent](docs/ag-ui-agents.md): the path from `weaver --id <id> --agent` to a product an AG-UI agent drives, including which calls get a confirmation (a command declares `agentConsent`, your `before` hook acts on it, and a decision can only narrow). Read it before [agent tools](docs/reference/agent-tools.md), which is the adapter function by function.
 - [The plugin system](docs/plugins.md): the distribution's view of plugins: three rungs (trusted composed, sandboxed iframe over RPC, community-installed at runtime) against one contract, which parts of `ctx` cross the sandbox, default-deny capabilities, the lifecycle. Read it before deciding how a plugin arrives or what a user may revoke, disable or uninstall.
 - [Backend integration](docs/backend-integration.md): the product hand-off; the platform ships no server and has three ports (settings store, working-state store, auth source) plus a translation loader, which is a provider, not a port. Read it when wiring a real backend behind the local, anonymous defaults.
 
@@ -105,8 +105,8 @@ Deterministic scaffolding + validation for building on LoomWeaver. Prefer these 
 ## Platform reference
 
 - [Shell anatomy](docs/reference/shell-anatomy.md): the region vocabulary (rail / panel / bar / content) and docks a distribution declares.
-- [Callable commands](docs/reference/callable-commands.md): opening a command to a caller that is not the user: described `arguments`, `answers`, `description`, `callable`, `ctx.invokeCommand`, `ctx.invocableCommands()`. Read it before another plugin or an agent should call your command; reaching another plugin's command needs `automation`.
-- [Agent tools](docs/reference/agent-tools.md): `@loomweaver/ag-ui`, the headless adapter that offers the workbench's own commands to an AG-UI agent as tools: `commandTools(ctx)`, `list()`, `receive(event)`, the `before` hook. Read it after the AG-UI guide, function by function.
+- [Callable commands](docs/reference/callable-commands.md): opening a command to a caller that is not the user: described `arguments`, `answers`, `description`, `callable`, `agentConsent`, `ctx.invokeCommand`, `ctx.invocableCommands()`. Read it before another plugin or an agent should call your command; reaching another plugin's command needs `automation`.
+- [Agent tools](docs/reference/agent-tools.md): `@loomweaver/ag-ui`, the headless adapter that offers the workbench's own commands to an AG-UI agent as tools: `commandTools(ctx)`, `list()`, `receive(event)`, the `before` hook and the `agentConsent` it decides from. Read it after the AG-UI guide, function by function.
 - [Access gating](docs/reference/access-gating.md): the complete `access` reference: the `AuthSnapshot`/`AccessRequirement` vocabulary, `hide`/`disable`, gated routes, the three readers of the session, `onIdentityChange`. Read it for why capability grants and access gating are orthogonal.
 - [Routing](docs/reference/routing.md): the content area **is** the Angular router: `provideShellRouter()` wraps `provideRouter()`, `routable` surfaces become ordinary routes, and `routerLink`/`router.navigate`/`ActivatedRoute` behave normally. Read it for what you do not write (`Routes`, `canActivate`), how every navigation reaches an existing pane, and the two off-router cases.
 - [Design tokens & `<lw-*>` vocabulary](docs/reference/design-tokens.md): the semantic tokens and host UI building blocks for plugin templates (never raw palette colors); colour and type only, no size tokens by decision. Read it before writing a template or overriding a dimension with plain unlayered CSS.

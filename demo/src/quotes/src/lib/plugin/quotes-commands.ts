@@ -45,6 +45,7 @@ function sendQuote(): Command {
     description: 'quotes.command.send.description',
     icon: 'quotes',
     callable: true,
+    agentConsent: 'ask',
     answers: 'quotes.command.send.answers',
     arguments: [
       {
