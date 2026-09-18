@@ -73,6 +73,7 @@ export const ticketsPlugin: Plugin = {
       ],
       answers: 'tickets.reply.answers',
       callable: true,
+      agentConsent: 'ask',
       run: (_context, args) => {
         const changed = ticketStore.reply(String(args?.['number']), String(args?.['text']));
         ticketActions.open(changed.number);

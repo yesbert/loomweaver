@@ -28,7 +28,7 @@ assistant does here it does by calling a command.
 
 Then ask for something, for example: *open the ticket about the blank invoice PDF, assign it to Dana
 and reply that the fix ships on Monday.* The reply asks you first, because it is the one command
-marked as consequential.
+that declares `agentConsent: 'ask'`; the connection reads that off the call.
 
 ## What is where
 
