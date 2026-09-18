@@ -14,8 +14,6 @@ const TEXT_PACE = 35;
 const ARGUMENT_PACE = 55;
 const TURN_PACE = 140;
 
-const NEEDS_CONFIRMING = new Set(['quotes.send']);
-
 type Say = (key: string, params?: Record<string, unknown>) => string;
 
 let ctx: PluginContext | undefined;
@@ -24,7 +22,15 @@ let say: Say = (key) => key;
 let runs = 0;
 
 async function confirmed(call: PendingToolCall): Promise<ToolDecision> {
-  if (!ctx || !NEEDS_CONFIRMING.has(call.commandId)) {
+  if (call.agentConsent === 'never') {
+    return {
+      decision: 'decline',
+      reason: 'an agent may not run this one on its own word.',
+    };
+  }
+  const asks =
+    call.agentConsent === 'ask' || call.agentConsent === 'ask-always';
+  if (!ctx || !asks) {
     return { decision: 'run' };
   }
   const yes = await ctx.ui.confirm({

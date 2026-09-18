@@ -10,7 +10,12 @@ interface Asked {
 function contextThat(confirms: boolean, ran: Asked[]): PluginContext {
   return {
     invocableCommands: () => [
-      { id: 'tickets.reply', title: 'Reply to ticket', description: 'Sends a reply to the customer.' },
+      {
+        id: 'tickets.reply',
+        title: 'Reply to ticket',
+        description: 'Sends a reply to the customer.',
+        agentConsent: 'ask',
+      },
     ],
     invokeCommand: (id: string, args?: CommandArguments) => {
       ran.push({ id, args });

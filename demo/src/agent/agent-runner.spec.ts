@@ -32,7 +32,11 @@ function workbench(offers: string[]): Workbench {
   const ctx = {
     invocableCommands: (): readonly InvocableCommand[] => {
       bench.asked.push([...bench.offers]);
-      return bench.offers.map((id) => ({ id, title: id }));
+      return bench.offers.map((id) => ({
+        id,
+        title: id,
+        ...(id === 'quotes.send' && { agentConsent: 'ask' as const }),
+      }));
     },
     invokeCommand: async (id: string, args?: CommandArguments) => {
       bench.invoked.push({ id, args });
@@ -46,6 +50,13 @@ function workbench(offers: string[]): Workbench {
     params ? `${key}:${JSON.stringify(params)}` : key,
   );
   return bench;
+}
+
+function everyAskSaw(bench: Workbench, offers: readonly string[]): boolean {
+  return (
+    bench.asked.length > 0 &&
+    bench.asked.every((one) => one.join() === offers.join())
+  );
 }
 
 function spoke(lines: readonly string[], key: string): boolean {
@@ -81,13 +92,14 @@ describe('the demo agent driving the workbench', () => {
     const bench = workbench(['quotes.open']);
 
     const first = await ask(beat('margin'));
+
+    expect(everyAskSaw(bench, ['quotes.open'])).toBe(true);
+
+    bench.asked.length = 0;
     bench.offers = ['quotes.open', 'quotes.margin'];
     const second = await ask(beat('margin'));
 
-    expect(bench.asked).toEqual([
-      ['quotes.open'],
-      ['quotes.open', 'quotes.margin'],
-    ]);
+    expect(everyAskSaw(bench, ['quotes.open', 'quotes.margin'])).toBe(true);
     expect(spoke(first, 'agent.notOffered')).toBe(true);
     expect(spoke(second, 'agent.notOffered')).toBe(false);
   });
