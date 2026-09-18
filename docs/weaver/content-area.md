@@ -43,9 +43,10 @@ tab can be unclosable. The surface itself declares no arrangement.
 
 A surface can also refuse closing on its own with **`closable: false`**. That is the overview screen
 a product keeps open while its other tabs come and go. It removes the ×, the `Delete` key and the
-menu's close entries; moving, splitting and dragging the tab still work. It applies to **every** tab
-of that surface, so it fits a parameterless route like `dashboard` and is almost always wrong for
-`doc/:id`, where it would make no document closable at all.
+menu's close entries; moving, splitting and dragging the tab still work. Closing the pane it stands
+in does not take it along either: the tab joins the pane that takes the space. It applies to
+**every** tab of that surface, so it fits a parameterless route like `dashboard` and is almost always
+wrong for `doc/:id`, where it would make no document closable at all.
 
 ```ts
 ctx.registerSurface({ id: 'dashboard', title: 'dashboard.title', component: DashboardView,
