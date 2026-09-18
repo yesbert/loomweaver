@@ -346,7 +346,11 @@ describe('PaneView (content pane)', () => {
       'doc/a',
     );
     c.closePane();
-    expect(tree.closePane).toHaveBeenCalledWith('content', 'p1');
+    expect(tree.closePane).toHaveBeenCalledWith(
+      'content',
+      'p1',
+      expect.any(Function),
+    );
     c.toggleMaximize();
     expect(chrome.isMaximized('content', 'p1')).toBe(true);
     c.minimize();

@@ -11,6 +11,8 @@ import { PaneHandle } from './pane-handle';
 import { PaneService } from './pane.service';
 import { CONTENT_DOCK, PRIMARY_PANE } from './tree/pane-address';
 import { PaneTreeService } from './tree/pane-tree.service';
+import { RetainedViewStash } from './retention/retained-view-stash';
+import { findLeaf } from './tree/pane-queries';
 
 @Component({ selector: 'lw-pane-service-stub', template: '' })
 class Stub {}
@@ -265,6 +267,45 @@ describe('PaneService actions', () => {
     expect(guard.captured).toHaveLength(0);
   });
 
+  it('closing a sibling hands its unclosable tab to the neighbour and asks only about the rest', () => {
+    const { panes, paneTree, guard } = setUp();
+    const stash = TestBed.inject(RetainedViewStash);
+    vi.spyOn(stash, 'instancesFor').mockImplementation((_scope, path) => [
+      `instance of ${path}`,
+    ]);
+    paneTree.commitTree(CONTENT_DOCK, splitWithSibling());
+
+    panes.closePane('other' as PaneHandle);
+
+    expect(guard.captured.at(-1)).toEqual(['instance of doc/ordinary']);
+    expect(tabPaths(paneTree)).toEqual(['search', 'dashboard/overview']);
+  });
+
+  it('with closing switched off, closing a sibling joins all of its tabs to the neighbour', () => {
+    const { panes, paneTree, guard } = setUp();
+    TestBed.inject(FeatureSwitches).update({ content: { close: false } });
+    paneTree.commitTree(CONTENT_DOCK, splitWithSibling());
+
+    panes.closePane('other' as PaneHandle);
+
+    expect(guard.captured.at(-1)).toEqual([]);
+    expect(tabPaths(paneTree)).toEqual([
+      'search',
+      'dashboard/overview',
+      'doc/ordinary',
+    ]);
+  });
+
+  it('undoing a split keeps what cannot close in the remaining pane', () => {
+    const { panes, paneTree } = setUp();
+    paneTree.commitTree(CONTENT_DOCK, splitWithSibling());
+
+    panes.unsplit();
+
+    expect(paneTree.isSplit(CONTENT_DOCK)).toBe(false);
+    expect(tabPaths(paneTree)).toEqual(['search', 'dashboard/overview']);
+  });
+
   it('maximize, minimize and restore are explicit', () => {
     const { panes } = setUp();
     panes.splitRight();
@@ -371,6 +412,36 @@ describe('PaneService and the rules of the surface', () => {
     expect(guard.captured.at(-1)).toEqual(askedByControl);
   });
 });
+
+function splitWithSibling() {
+  return {
+    kind: 'split' as const,
+    id: 'root',
+    orientation: 'row' as const,
+    ratio: 0.5,
+    first: {
+      kind: 'leaf' as const,
+      id: PRIMARY_PANE,
+      tabs: [{ path: 'search' }],
+      active: 'search',
+    },
+    second: {
+      kind: 'leaf' as const,
+      id: 'other',
+      tabs: [
+        { path: 'dashboard/overview', closable: false },
+        { path: 'doc/ordinary' },
+      ],
+      active: 'doc/ordinary',
+    },
+  };
+}
+
+function tabPaths(paneTree: PaneTreeService): string[] {
+  return (findLeaf(paneTree.tree(CONTENT_DOCK), PRIMARY_PANE)?.tabs ?? []).map(
+    (tab) => tab.path,
+  );
+}
 
 function shapeOf(node: {
   kind: string;

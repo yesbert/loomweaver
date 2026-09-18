@@ -681,6 +681,36 @@ describe('ContentTabsService view tabs in the URL group', () => {
     expect(service.showStrip()).toBe(true);
     expect(service.activeViewPath()).toBe('view:outline');
   });
+
+  it('closing the URL pane hands a tab declared unclosable to the promoted neighbour', async () => {
+    paneTree.commitTree('content', {
+      kind: 'split',
+      id: 'root',
+      orientation: 'row',
+      ratio: 0.5,
+      first: {
+        kind: 'leaf',
+        id: PRIMARY_PANE,
+        tabs: [{ path: 'doc/fixed', closable: false }, { path: 'doc/a' }],
+        active: 'doc/a',
+      },
+      second: {
+        kind: 'leaf',
+        id: 'other',
+        tabs: [{ path: 'view:outline' }],
+        active: 'view:outline',
+      },
+    });
+
+    service.closePrimaryPane();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(paneTree.isSplit('content')).toBe(false);
+    expect(paneTree.primaryTabs('content').map((tab) => tab.path)).toEqual([
+      'view:outline',
+      'doc/fixed',
+    ]);
+  });
 });
 
 function documentAt(pathname: string): Document {

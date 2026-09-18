@@ -37,14 +37,12 @@ export class PaneDragService {
 
   registerZone(id: string): () => void {
     this.zones.update((ids) => [...ids, id]);
-    return () =>
-      this.zones.update((ids) => ids.filter((existing) => existing !== id));
+    return () => this.zones.update((ids) => withoutOne(ids, id));
   }
 
   registerStrip(id: string): () => void {
     this.strips.update((ids) => [...ids, id]);
-    return () =>
-      this.strips.update((ids) => ids.filter((existing) => existing !== id));
+    return () => this.strips.update((ids) => withoutOne(ids, id));
   }
 
   canOfferAsPaneTarget(path: string): boolean {
@@ -76,4 +74,9 @@ export class PaneDragService {
     );
     return surface !== undefined && this.auth.meets(surface.access);
   }
+}
+
+function withoutOne(ids: readonly string[], id: string): readonly string[] {
+  const at = ids.indexOf(id);
+  return at === -1 ? ids : [...ids.slice(0, at), ...ids.slice(at + 1)];
 }
