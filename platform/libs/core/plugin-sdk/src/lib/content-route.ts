@@ -230,7 +230,11 @@ export interface ContentRouteBase {
  */
 export type ContentRoute = ContentRouteBase & ContentSurface;
 
-/** Input to `ctx.openContentTab` — opens a titled **dynamic** tab and navigates to it. */
+/**
+ * Input to `ctx.openContentTab` — opens a titled **dynamic** tab and shows it. An ordinary open
+ * navigates to it in the pane carrying the address; one {@link OpenTabInput.beside | beside} that pane
+ * shows it in the neighbouring pane and leaves the address where it is.
+ */
 export interface OpenTabInput {
   /** Concrete path to navigate to, e.g. `'doc/abc'` (not a pattern). */
   readonly path: string;
@@ -267,4 +271,18 @@ export interface OpenTabInput {
    * (a permanent tab). Ignored when the distribution disabled preview (`provideShellFeatures({ content: { preview: false } })`).
    */
   readonly preview?: boolean;
+  /**
+   * Opens this **beside** the pane carrying the address instead of in it — "open to the side", for a
+   * list in the main area that shows its items next to itself. The tab opens in the neighbouring pane,
+   * the one that would take the address pane's place if it were closed; with the area unsplit, the
+   * address pane is split and the tab opens in the new pane to its right. The address does **not**
+   * move: the pane that carried it (the list, since a click into it hands it the address) keeps it, so
+   * the next open beside lands in the same neighbour. With {@link preview}, the tab takes the
+   * neighbour's own preview slot, so browsing a list reuses one tab beside it. Content already open in
+   * the neighbour is shown there, not duplicated; content open in another pane is opened as without
+   * this flag. Where the distribution switched splitting to the right off
+   * (`provideShellFeatures({ content: { splitRight: false } })`), an existing neighbour is used but none
+   * is created, and without one the tab opens as without this flag. Default `false`.
+   */
+  readonly beside?: boolean;
 }

@@ -5,6 +5,7 @@ import {
   pinTab,
   clearTabInstance,
   insertTab,
+  openTabInLeaf,
   removeTab,
   setActiveTab,
   unpinTab,
@@ -108,5 +109,48 @@ describe('tab permanence outside the URL pane', () => {
       { path: 'doc/a' },
       { path: 'doc/c' },
     ]);
+  });
+
+  describe('openTabInLeaf', () => {
+    const side = (tabs: PaneLeaf['tabs']): PaneLeaf => ({
+      kind: 'leaf',
+      id: 'side',
+      tabs,
+      active: tabs[0]?.path,
+    });
+
+    it('replaces the preview in place and makes the new one active', () => {
+      const next = openTabInLeaf(
+        side([{ path: 'doc/a' }, { path: 'doc/b', preview: true }, { path: 'doc/c' }]),
+        'side',
+        { path: 'doc/d', preview: true },
+      ) as PaneLeaf;
+      expect(next.tabs.map((t) => t.path)).toEqual(['doc/a', 'doc/d', 'doc/c']);
+      expect(next.active).toBe('doc/d');
+    });
+
+    it('appends a preview where the leaf holds none', () => {
+      const next = openTabInLeaf(side([{ path: 'doc/a' }]), 'side', {
+        path: 'doc/d',
+        preview: true,
+      }) as PaneLeaf;
+      expect(next.tabs).toEqual([
+        { path: 'doc/a' },
+        { path: 'doc/d', preview: true },
+      ]);
+    });
+
+    it('appends a permanent tab and leaves the preview alone', () => {
+      const next = openTabInLeaf(
+        side([{ path: 'doc/b', preview: true }]),
+        'side',
+        { path: 'doc/d' },
+      ) as PaneLeaf;
+      expect(next.tabs).toEqual([
+        { path: 'doc/b', preview: true },
+        { path: 'doc/d' },
+      ]);
+      expect(next.active).toBe('doc/d');
+    });
   });
 });

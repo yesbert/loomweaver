@@ -73,7 +73,7 @@ test.describe('Weaver-body context menu (ctx.ui.openMenu)', () => {
       menu.getByRole('menuitem', { name: 'Open entry', exact: true }),
     ).toBeVisible();
     await expect(
-      menu.getByRole('menuitem', { name: 'Open preview' }),
+      menu.getByRole('menuitem', { name: 'Open preview', exact: true }),
     ).toBeVisible();
 
     await menu

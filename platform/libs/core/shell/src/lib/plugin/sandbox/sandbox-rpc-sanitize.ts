@@ -253,6 +253,7 @@ export function sanitizeRpcTabInput(input: OpenTabInput): OpenTabInput {
     titleIsLiteral: raw['titleIsLiteral'] === true ? true : undefined,
     icon: typeof raw['icon'] === 'string' ? raw['icon'] : undefined,
     preview: raw['preview'] === true ? true : undefined,
+    beside: raw['beside'] === true ? true : undefined,
   };
 }
 

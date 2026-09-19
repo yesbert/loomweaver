@@ -26,6 +26,24 @@ export function insertTab(
   });
 }
 
+export function openTabInLeaf(
+  node: PaneNode,
+  paneId: string,
+  tab: PaneTab,
+): PaneNode {
+  return transformLeaf(node, paneId, (leaf) => {
+    const slot =
+      tab.preview === true
+        ? leaf.tabs.findIndex((held) => held.preview === true)
+        : -1;
+    const tabs =
+      slot === -1
+        ? [...leaf.tabs, tab]
+        : leaf.tabs.map((held, index) => (index === slot ? tab : held));
+    return { ...leaf, tabs, active: tab.path };
+  });
+}
+
 export interface TabTitlePatch {
   readonly title?: string;
   readonly literalTitle: boolean;

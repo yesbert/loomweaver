@@ -59,11 +59,13 @@
   },
   "list": {
     "title": "Eintragsliste",
+    "browseTitle": "Eintragsübersicht",
     "sortLabel": "Sortieren nach",
     "sortWaiting": "Wartezeit",
     "sortPriority": "Priorität",
     "ctxOpen": "Eintrag öffnen",
     "ctxPreview": "Vorschau öffnen",
+    "ctxBeside": "Vorschau daneben öffnen",
     "focus": "Eintragsliste fokussieren",
     "openCount": "{{count}} Einträge sind offen",
     "waiting": "{{time}} wartend",

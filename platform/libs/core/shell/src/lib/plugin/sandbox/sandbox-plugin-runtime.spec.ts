@@ -383,6 +383,15 @@ describe('sanitizeRpcTabInput', () => {
     });
   });
 
+  it('carries beside through only when it is literally true', () => {
+    expect(
+      sanitizeRpcTabInput(asTabInput({ path: 'doc/a', beside: true })).beside,
+    ).toBe(true);
+    expect(
+      sanitizeRpcTabInput(asTabInput({ path: 'doc/a', beside: 'yes' })).beside,
+    ).toBeUndefined();
+  });
+
   it('drops a proxied onClose function so no host-side callback crosses the wire', () => {
     const input = sanitizeRpcTabInput(
       asTabInput({ path: 'doc/a', title: 'A.ts', onClose: () => 'nope' }),
@@ -821,6 +830,17 @@ describe('FramePluginRuntime (iframe + Penpal runtime)', () => {
     expect(tabs['pin']).toHaveBeenCalledWith('d');
     expect(tabs['unpin']).toHaveBeenCalledWith('e');
     expect(tabs['close']).toHaveBeenCalledWith('f');
+  });
+
+  it('hands a request to open beside through to the same opening an in-process plugin reaches', () => {
+    const { runtime } = setup();
+    runtime.activateAll();
+
+    rpc()['openContentTab']({ path: 'b', preview: true, beside: true });
+
+    expect(tabs['open']).toHaveBeenCalledWith(
+      expect.objectContaining({ path: 'b', preview: true, beside: true }),
+    );
   });
 
   it("openContentTab's close hook notifies the plugin runtime via contentTabClosed", async () => {

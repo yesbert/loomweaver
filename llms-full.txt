@@ -455,7 +455,13 @@ type ContentRoute = { id?: string; path: string; chromeless?: boolean; subRoutes
 // host's escalation cycle, on by default — provideShellFeatures({ content: { escalate: false } }) removes it); a re-open of an
 // existing tab preserves its preview state (title/sub-route refinement never promotes).
 // Distribution can disable: provideShellFeatures({ content: { preview: false } }) → preview ignored, all opens permanent.
-interface OpenTabInput { path: string; title: string; icon?: string; titleIsLiteral?: boolean; onClose?: () => void; preview?: boolean; }
+// beside: open in the pane NEXT TO the one carrying the address ("open to the side") — the pane that would take its
+// place if it closed; unsplit → the address pane splits and the tab opens to its right. The address does NOT move,
+// so a list the user clicked into keeps it and its next open lands beside it again. With preview, the tab takes the
+// neighbour's own preview slot. Already open in the neighbour → shown there; open in another pane → opened as without
+// beside. content.splitRight off → an existing neighbour is used, none is created. Measured from the address pane, not
+// the caller: a list reached by keyboard only, or a docked view shown in a pane of its own, never takes the address.
+interface OpenTabInput { path: string; title: string; icon?: string; titleIsLiteral?: boolean; onClose?: () => void; preview?: boolean; beside?: boolean; }
 
 type BarSlot = 'start' | 'center' | 'end';
 type BarItem = BarComponentItem | BarButtonItem;   // both base: { id, bar, slot, order?, access? } — access: hide either kind, disable only the button

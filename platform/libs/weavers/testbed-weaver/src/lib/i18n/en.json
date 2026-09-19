@@ -59,11 +59,13 @@
   },
   "list": {
     "title": "Entry list",
+    "browseTitle": "Entry browser",
     "sortLabel": "Sort by",
     "sortWaiting": "Waiting time",
     "sortPriority": "Priority",
     "ctxOpen": "Open entry",
     "ctxPreview": "Open preview",
+    "ctxBeside": "Open preview beside",
     "focus": "Focus the entry list",
     "openCount": "{{count}} entries are open",
     "waiting": "{{time}} waiting",

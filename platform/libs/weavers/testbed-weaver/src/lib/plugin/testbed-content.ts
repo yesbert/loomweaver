@@ -11,7 +11,7 @@ type TestbedContentCtx = Pick<
   | 'ui'
 >;
 
-type OpenMode = 'preview' | 'permanent';
+type OpenMode = 'preview' | 'permanent' | 'beside';
 
 class TestbedContentActions {
   private ctx?: TestbedContentCtx;
@@ -35,7 +35,8 @@ class TestbedContentActions {
       icon: 'testbedEntry',
       titleIsLiteral: true,
       onClose: () => this.markClosed(entry.id),
-      preview: mode === 'preview',
+      preview: mode !== 'permanent',
+      beside: mode === 'beside',
     };
     this.markOpen(entry.id);
     this.withCtx((ctx) => ctx.openContentTab(input));

@@ -46,6 +46,14 @@ function registerContentSurfaces(ctx: PluginContext): void {
     component: TestbedDashboardView,
   });
   ctx.registerSurface({
+    id: 'testbed.browse',
+    title: 'testbed.list.browseTitle',
+    icon: 'testbedList',
+    padded: true,
+    routable: { path: 'browse' },
+    component: TestbedListView,
+  });
+  ctx.registerSurface({
     id: 'testbed.dash.trends',
     title: 'testbed.dash.trends',
     icon: 'testbedTrends',

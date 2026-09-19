@@ -24,7 +24,7 @@ tabs.closeToRight('doc/readme'); tabs.closeAll();
 tabs.revealContentTab('doc/readme');           // focus the tab where it already lives
 ```
 
-Use `navigateTo` when the address alone says what to show; use `open` when the tab needs a title the address does not carry, or should open as a preview.
+Use `navigateTo` when the address alone says what to show; use `open` when the tab needs a title the address does not carry, or should open as a preview. With `beside: true`, `open` puts the tab in the pane next to the one carrying the address, splitting to the right if the area is not split, and leaves the address where it is.
 
 ## Read it
 

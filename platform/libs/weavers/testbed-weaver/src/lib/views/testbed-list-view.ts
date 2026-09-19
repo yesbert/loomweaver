@@ -146,6 +146,11 @@ export class TestbedListView {
           icon: 'preview',
           run: () => testbedContent.openEntry(entry, 'preview'),
         },
+        {
+          label: this.transloco.translate('testbed.list.ctxBeside'),
+          icon: 'preview',
+          run: () => testbedContent.openEntry(entry, 'beside'),
+        },
       ],
       { x: event.clientX, y: event.clientY },
     );

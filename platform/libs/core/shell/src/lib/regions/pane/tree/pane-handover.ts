@@ -72,7 +72,10 @@ function adjacentLeafOf(node: PaneNode, paneId: string): string | null {
   );
 }
 
-function promotedLeafOf(node: PaneNode, primaryId: string): string | null {
+export function promotedLeafOf(
+  node: PaneNode,
+  primaryId: string,
+): string | null {
   const collapsed = removeLeaf(node, primaryId);
   return collapsed === null ? null : (collectLeafIds(collapsed)[0] ?? null);
 }

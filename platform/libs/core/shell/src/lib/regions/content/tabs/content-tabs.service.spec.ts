@@ -8,7 +8,9 @@ import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { ContentReuseStrategy } from '../routing/content-reuse-strategy';
 import { CONTENT_DOCK } from '../../pane/tree/pane-address';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
-import { collectTabs } from '../../pane/tree/pane-queries';
+import { collectTabs, findLeaf } from '../../pane/tree/pane-queries';
+import { PaneChromeService } from '../../pane/chrome/pane-chrome.service';
+import { PaneLeaf, PaneNode } from '../../pane/tree/pane-node';
 import { PRIMARY_PANE } from '../../pane/tree/pane-address';
 import { buildContentRoutes } from '../routing/content-router';
 import { BootAddress } from '../routing/boot-address';
@@ -571,6 +573,210 @@ describe('ContentTabsService pinned tabs', () => {
     service.pin('doc/a');
     open('a');
     expect(tab('a')?.pinned).toBe(true);
+  });
+});
+
+describe('ContentTabsService opening beside the pane carrying the address', () => {
+  let service: ContentTabsService;
+  let paneTree: PaneTreeService;
+  let router: Router;
+
+  async function setUp(splitRight = true): Promise<void> {
+    localStorage.clear();
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter(buildContentRoutes(ROUTES)),
+        provideShellFeatures({ content: { splitRight } }),
+      ],
+    });
+    const registry = TestBed.inject(ContributionRegistry);
+    for (const route of ROUTES) registry.addContentRoute(route);
+    service = TestBed.inject(ContentTabsService);
+    paneTree = TestBed.inject(PaneTreeService);
+    router = TestBed.inject(Router);
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/reports');
+  }
+
+  const openBeside = (id: string, preview = false, onClose?: () => void) =>
+    service.open({
+      path: `doc/${id}`,
+      title: `${id}.ts`,
+      titleIsLiteral: true,
+      preview,
+      beside: true,
+      onClose,
+    });
+
+  const leaf = (paneId: string): PaneLeaf | null =>
+    findLeaf(paneTree.tree(CONTENT_DOCK), paneId);
+
+  const paths = (paneId: string) =>
+    leaf(paneId)?.tabs.map((tab) => tab.path) ?? [];
+
+  const neighbourId = (): string => {
+    const other = collectLeafIds().find((id) => id !== PRIMARY_PANE);
+    if (other === undefined) {
+      throw new Error('the area was not split');
+    }
+    return other;
+  };
+
+  const collectLeafIds = (): string[] => {
+    const ids: string[] = [];
+    const walk = (node: PaneNode): void => {
+      if (node.kind === 'leaf') {
+        ids.push(node.id);
+        return;
+      }
+      walk(node.first);
+      walk(node.second);
+    };
+    walk(paneTree.tree(CONTENT_DOCK));
+    return ids;
+  };
+
+  const arrange = (second: PaneNode): void => {
+    paneTree.commitTree(CONTENT_DOCK, {
+      kind: 'split',
+      id: 'split',
+      orientation: 'row',
+      ratio: 0.5,
+      first: leaf(PRIMARY_PANE) ?? {
+        kind: 'leaf',
+        id: PRIMARY_PANE,
+        tabs: [{ path: 'reports' }],
+      },
+      second,
+    });
+  };
+
+  it('splits an unsplit area and shows the item to the right, leaving the list and the address alone', async () => {
+    await setUp();
+    const listTabs = paths(PRIMARY_PANE);
+
+    openBeside('a', true);
+
+    const root = paneTree.tree(CONTENT_DOCK);
+    expect(root.kind).toBe('split');
+    expect(root.kind === 'split' && root.orientation).toBe('row');
+    expect(root.kind === 'split' && root.first.kind === 'leaf' && root.first.id).toBe(
+      PRIMARY_PANE,
+    );
+    const neighbour = leaf(neighbourId());
+    expect(neighbour?.tabs).toEqual([
+      expect.objectContaining({ path: 'doc/a', preview: true, title: 'a.ts' }),
+    ]);
+    expect(neighbour?.active).toBe('doc/a');
+    expect(paneTree.primaryId(CONTENT_DOCK)).toBe(PRIMARY_PANE);
+    expect(paths(PRIMARY_PANE)).toEqual(listTabs);
+    expect(router.url).toBe('/reports');
+  });
+
+  it('lands in the pane the tree promotes when the address pane closes, and creates none', async () => {
+    await setUp();
+    arrange({
+      kind: 'split',
+      id: 'inner',
+      orientation: 'column',
+      ratio: 0.5,
+      first: { kind: 'leaf', id: 'upper', tabs: [{ path: 'doc/x' }], active: 'doc/x' },
+      second: { kind: 'leaf', id: 'lower', tabs: [{ path: 'doc/y' }], active: 'doc/y' },
+    });
+
+    openBeside('a');
+
+    expect(collectLeafIds()).toEqual([PRIMARY_PANE, 'upper', 'lower']);
+    expect(paths('upper')).toEqual(['doc/x', 'doc/a']);
+    expect(leaf('upper')?.active).toBe('doc/a');
+    expect(paths('lower')).toEqual(['doc/y']);
+    expect(router.url).toBe('/reports');
+  });
+
+  it('reuses one preview beside the list, runs the replaced close hooks and adds nothing to the list pane', async () => {
+    await setUp();
+    const closed: string[] = [];
+    const listTabs = paths(PRIMARY_PANE);
+
+    openBeside('a', true, () => {
+      closed.push('a');
+    });
+    openBeside('b', true, () => {
+      closed.push('b');
+    });
+    openBeside('c', true, () => {
+      closed.push('c');
+    });
+
+    expect(paths(neighbourId())).toEqual(['doc/c']);
+    expect(leaf(neighbourId())?.tabs[0].preview).toBe(true);
+    expect(closed).toEqual(['a', 'b']);
+    expect(paths(PRIMARY_PANE)).toEqual(listTabs);
+  });
+
+  it('shows an item already open beside instead of opening it a second time', async () => {
+    await setUp();
+    openBeside('a');
+    openBeside('b');
+
+    openBeside('a');
+
+    expect(paths(neighbourId())).toEqual(['doc/a', 'doc/b']);
+    expect(leaf(neighbourId())?.active).toBe('doc/a');
+    const everywhere = collectTabs(paneTree.tree(CONTENT_DOCK));
+    expect(everywhere.filter((tab) => tab.path === 'doc/a')).toHaveLength(1);
+  });
+
+  it('does not open beside what a sidebar already holds', async () => {
+    await setUp();
+    paneTree.commitTree('primary', {
+      kind: 'leaf',
+      id: PRIMARY_PANE,
+      tabs: [{ path: 'doc/a' }],
+      active: 'doc/a',
+    });
+
+    openBeside('a', true);
+
+    expect(paneTree.isSplit(CONTENT_DOCK)).toBe(false);
+    const content = collectTabs(paneTree.tree(CONTENT_DOCK));
+    expect(content.some((tab) => tab.path === 'doc/a')).toBe(false);
+  });
+
+  it('brings a blown-up address pane back and a minimised neighbour out, so the item is visible', async () => {
+    await setUp();
+    arrange({ kind: 'leaf', id: 'side', tabs: [{ path: 'doc/x' }], active: 'doc/x' });
+    const chrome = TestBed.inject(PaneChromeService);
+    chrome.toggleMaximize(CONTENT_DOCK, PRIMARY_PANE);
+    chrome.toggleMinimize(CONTENT_DOCK, 'side');
+
+    openBeside('a');
+
+    expect(chrome.maximizedPaneIn(CONTENT_DOCK)).toBeNull();
+    expect(chrome.isMinimized(CONTENT_DOCK, 'side')).toBe(false);
+    expect(leaf('side')?.active).toBe('doc/a');
+  });
+
+  describe('with splitting to the right switched off', () => {
+    it('keeps an unsplit area unsplit and opens in the pane carrying the address', async () => {
+      await setUp(false);
+
+      openBeside('a');
+      await TestBed.inject(ApplicationRef).whenStable();
+
+      expect(paneTree.isSplit(CONTENT_DOCK)).toBe(false);
+      expect(paths(PRIMARY_PANE)).toContain('doc/a');
+    });
+
+    it('still uses a neighbour that already exists', async () => {
+      await setUp(false);
+      arrange({ kind: 'leaf', id: 'side', tabs: [{ path: 'doc/x' }], active: 'doc/x' });
+
+      openBeside('a');
+
+      expect(paths('side')).toEqual(['doc/x', 'doc/a']);
+      expect(router.url).toBe('/reports');
+    });
   });
 });
 

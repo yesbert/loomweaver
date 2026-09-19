@@ -152,6 +152,26 @@ A distribution can turn the whole behaviour off (`provideShellFeatures({ content
 in which case `preview` is ignored and every open is permanent. Treat preview as a hint, not a
 guarantee.
 
+### Opening beside a list
+
+A list that lives in the main area covers itself when it opens an item there, because clicking into
+the list gave its pane the address. Add `beside: true` and the item opens in the pane next to it
+instead, splitting the area to the right the first time. The address stays on the list, so every
+further item lands in the same neighbour, and with `preview: true` it reuses that pane's one preview
+tab:
+
+```ts
+// src/lib/views/library-view.ts — inside the component
+onSingleClick(doc) {
+  ctx.openContentTab({ path: `doc/${doc.id}`, title: doc.name, titleIsLiteral: true, preview: true, beside: true });
+}
+```
+
+"Beside" is measured from the pane carrying the address, not from your surface. That holds for a
+list with an address the user clicks into. A docked view shown in a pane of its own never takes the
+address, so its items open beside whichever pane does. Where the distribution switched splitting to
+the right off, an existing neighbour is used and none is created.
+
 ## Pinned tabs
 
 The permanence ladder has a top rung: `ctx.pinContentTab(path)` / `ctx.unpinContentTab(path)`

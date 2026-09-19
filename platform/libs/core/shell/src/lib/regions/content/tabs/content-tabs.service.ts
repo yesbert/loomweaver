@@ -1,19 +1,17 @@
 import { inject, Service, Signal } from '@angular/core';
 import { ActiveContent, OpenTabInput } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
-import { ContentReuseStrategy } from '../routing/content-reuse-strategy';
 import { FeatureSwitches } from '../../../features/feature-switches.service';
 import { normalizePath, tabRootOf } from '../content-path';
 import { ContentTabView, OpenTab } from './content-tab-projection';
-import { TabCloseHooks } from './tab-close-hooks';
 import { QuickOpenTarget } from './quick-open-target';
 import { OpenTabsService } from './open-tabs.service';
 import { TabClosingService } from './tab-closing.service';
-import { refineTabTitles, reseatPinned } from '../../pane/tree/pane-tabs';
-import { CONTENT_DOCK, PaneRef } from '../../pane/tree/pane-address';
+import { TabOpeningService } from './tab-opening.service';
+import { reseatPinned } from '../../pane/tree/pane-tabs';
+import { PaneRef } from '../../pane/tree/pane-address';
 import { keepsOnPaneClose } from '../../pane/tree/pane-handover';
 import { ClaimOrdering } from './claim-ordering';
-import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 import { UnsavedWork } from '../../pane/retention/unsaved-work';
 
 /**
@@ -32,17 +30,13 @@ export class ContentTabsService {
 
   private readonly closing = inject(TabClosingService);
 
-  private readonly registry = inject(ContributionRegistry);
+  private readonly opening = inject(TabOpeningService);
 
-  private readonly reuse = inject(ContentReuseStrategy);
+  private readonly registry = inject(ContributionRegistry);
 
   private readonly features = inject(FeatureSwitches).content;
 
-  private readonly paneTree = inject(PaneTreeService);
-
   private readonly claimOrder = inject(ClaimOrdering);
-
-  private readonly closeHooks = inject(TabCloseHooks);
 
   private readonly unsavedWork = inject(UnsavedWork);
 
@@ -193,9 +187,15 @@ export class ContentTabsService {
    *: a preview open for a *different* path replaces that slot in place (the old instance is
    * evicted + its `onClose` runs). Re-opening an **existing** tab preserves its current preview state (a
    * mere title/sub-route refinement never promotes); promotion is explicit via {@link keep}.
+   *
+   * With `beside`, the tab opens in the pane next to the one carrying the address — splitting the area
+   * to the right when it is not split and `content.splitRight` is on — and the address stays where it
+   * is; a preview there takes that pane's own slot. See `OpenTabInput.beside`.
    */
   open(input: OpenTabInput): void {
-    this.claimOrder.run(normalizePath(input.path), () => this.openHere(input));
+    this.claimOrder.run(normalizePath(input.path), () =>
+      this.opening.open(input),
+    );
   }
 
   /**
@@ -307,84 +307,6 @@ export class ContentTabsService {
         : { ...tabs[index], pinned: false };
       return reseatPinned(tabs, index, updated);
     });
-  }
-
-  private replacePreviewSlot(root: string, slot: OpenTab): void {
-    const routes = this.registry.contentRoutes();
-    const previous = this.state.openTabs().find((tab) => tab.preview);
-    const previousRoot = previous
-      ? tabRootOf(routes, previous.path)
-      : undefined;
-    this.state.updateOpen((tabs) =>
-      previous
-        ? tabs.map((tab) =>
-            tabRootOf(routes, tab.path) === previousRoot ? slot : tab,
-          )
-        : [...tabs, slot],
-    );
-    if (previousRoot !== undefined && previousRoot !== root) {
-      this.reuse.evict(previousRoot);
-      this.closeHooks.runSafely(previous?.onClose);
-      this.closeHooks.delete(previousRoot);
-    }
-  }
-
-  private refineElsewhere(root: string, input: OpenTabInput): boolean {
-    const routes = this.registry.contentRoutes();
-    const urlPane = this.paneTree.primaryId(CONTENT_DOCK);
-    let foundAnywhere = false;
-    for (const [dock, tree] of Object.entries(this.paneTree.dockTrees())) {
-      const { node, found } = refineTabTitles(
-        tree,
-        (leaf) => dock === CONTENT_DOCK && leaf.id === urlPane,
-        (tabPath) => tabRootOf(routes, tabPath) === root,
-        {
-          title: input.title,
-          literalTitle: input.titleIsLiteral ?? false,
-          icon: input.icon,
-        },
-      );
-      if (found) {
-        this.paneTree.commitTree(dock, node);
-        foundAnywhere = true;
-      }
-    }
-    return foundAnywhere;
-  }
-
-  private openHere(input: OpenTabInput): void {
-    const routes = this.registry.contentRoutes();
-    const path = normalizePath(input.path);
-    const root = tabRootOf(routes, path);
-    const previewSlot = (input.preview ?? false) && this.features.preview();
-    const existing = this.state.openTabRootedAt(routes, root);
-    this.closeHooks.set(root, input.onClose);
-    if (!existing && this.refineElsewhere(root, input)) {
-      return;
-    }
-    const stored: OpenTab = {
-      path: existing?.path ?? path,
-      title: input.title,
-      literalTitle: input.titleIsLiteral ?? false,
-      icon: input.icon,
-      onClose: input.onClose,
-      preview: existing ? existing.preview : previewSlot,
-      pinned: existing ? existing.pinned : false,
-      closable: existing ? existing.closable : true,
-      ownLabel: true,
-    };
-    if (previewSlot && !existing) {
-      this.replacePreviewSlot(root, stored);
-    } else {
-      this.state.updateOpen((tabs) =>
-        existing
-          ? tabs.map((tab) =>
-              tabRootOf(routes, tab.path) === root ? stored : tab,
-            )
-          : [...tabs, stored],
-      );
-    }
-    this.navigateTo(stored.path);
   }
 
   private keepHere(path: string): void {
