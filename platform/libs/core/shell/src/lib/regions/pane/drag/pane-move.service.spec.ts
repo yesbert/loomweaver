@@ -234,6 +234,155 @@ describe('PaneMoveService (move semantics)', () => {
     expect(moved).toBeDefined();
     expect(moved?.preview).toBeUndefined();
   });
+
+  describe('a preview moved between panes', () => {
+    const SIDE = 'side';
+    const OTHER = 'other';
+
+    function leafTabs(paneId: string) {
+      return findLeaf(paneTree.tree(CONTENT_DOCK), paneId)?.tabs ?? [];
+    }
+
+    function previewOf(paneId: string, path: string) {
+      return leafTabs(paneId).find((t) => t.path === path)?.preview;
+    }
+
+    function arrange(...leaves: PaneLeaf[]): void {
+      const [first, ...rest] = leaves;
+      let node: PaneLeaf | PaneSplit = first;
+      for (const [index, leaf] of rest.entries()) {
+        node = {
+          kind: 'split',
+          id: `split-${index}`,
+          orientation: 'row',
+          ratio: 0.5,
+          first: node,
+          second: leaf,
+        };
+      }
+      paneTree.commitTree(CONTENT_DOCK, node);
+    }
+
+    beforeEach(async () => {
+      await harness.navigateByUrl('/dashboard/overview');
+    });
+
+    it('arrives kept on the strip of the address pane that shows a preview of its own', async () => {
+      arrange(
+        {
+          kind: 'leaf',
+          id: PRIMARY_PANE,
+          tabs: [{ path: 'dashboard/overview' }, { path: 'doc/a', preview: true }],
+          active: 'dashboard/overview',
+        },
+        {
+          kind: 'leaf',
+          id: SIDE,
+          tabs: [{ path: 'doc/b', preview: true }, { path: 'plain' }],
+          active: 'doc/b',
+        },
+      );
+
+      paneMove.moveToStrip({ dock: CONTENT_DOCK, paneId: SIDE }, 'doc/b', {
+        dock: CONTENT_DOCK,
+        paneId: PRIMARY_PANE,
+      });
+      await harness.fixture.whenStable();
+
+      const address = paneTree.primaryId(CONTENT_DOCK);
+      expect(leafTabs(address).filter((t) => t.preview)).toEqual([
+        expect.objectContaining({ path: 'doc/a' }),
+      ]);
+      expect(previewOf(address, 'doc/b')).toBeUndefined();
+    });
+
+    it('arrives kept between two panes that do not carry the address, on a strip and on an edge', () => {
+      arrange(
+        {
+          kind: 'leaf',
+          id: PRIMARY_PANE,
+          tabs: [{ path: 'dashboard/overview' }],
+          active: 'dashboard/overview',
+        },
+        {
+          kind: 'leaf',
+          id: SIDE,
+          tabs: [
+            { path: 'doc/b', preview: true },
+            { path: 'ndoc/c', preview: true },
+            { path: 'plain' },
+          ],
+          active: 'plain',
+        },
+        {
+          kind: 'leaf',
+          id: OTHER,
+          tabs: [{ path: 'doc/d' }],
+          active: 'doc/d',
+        },
+      );
+
+      paneMove.moveToStrip({ dock: CONTENT_DOCK, paneId: SIDE }, 'doc/b', {
+        dock: CONTENT_DOCK,
+        paneId: OTHER,
+      });
+      paneMove.moveToEdge(
+        { dock: CONTENT_DOCK, paneId: SIDE },
+        'ndoc/c',
+        { dock: CONTENT_DOCK, paneId: OTHER },
+        'bottom',
+      );
+
+      expect(leafTabs(OTHER).find((t) => t.path === 'doc/b')).toBeDefined();
+      expect(previewOf(OTHER, 'doc/b')).toBeUndefined();
+      const edge = paneTree.sourceOf('ndoc/c');
+      expect(edge?.paneId).not.toBe(SIDE);
+      expect(previewOf(edge?.paneId ?? '', 'ndoc/c')).toBeUndefined();
+    });
+
+    it('arrives kept when split out through the command, as by dragging onto an edge', () => {
+      arrange(
+        {
+          kind: 'leaf',
+          id: PRIMARY_PANE,
+          tabs: [{ path: 'dashboard/overview' }],
+          active: 'dashboard/overview',
+        },
+        {
+          kind: 'leaf',
+          id: SIDE,
+          tabs: [{ path: 'doc/b', preview: true }, { path: 'plain' }],
+          active: 'plain',
+        },
+      );
+
+      paneMove.splitTabOut('doc/b', 'row', { dock: CONTENT_DOCK, paneId: SIDE });
+
+      const added = paneTree.sourceOf('doc/b');
+      expect(added?.paneId).not.toBe(SIDE);
+      expect(previewOf(added?.paneId ?? '', 'doc/b')).toBeUndefined();
+    });
+
+    it('stays a preview when reordered within its own strip', () => {
+      arrange({
+        kind: 'leaf',
+        id: PRIMARY_PANE,
+        tabs: [{ path: 'dashboard/overview' }, { path: 'doc/a', preview: true }],
+        active: 'dashboard/overview',
+      });
+
+      paneTree.reorderPaneTabs(CONTENT_DOCK, PRIMARY_PANE, [
+        'doc/a',
+        'dashboard/overview',
+      ]);
+
+      expect(leafTabs(PRIMARY_PANE).map((t) => t.path)).toEqual([
+        'doc/a',
+        'dashboard/overview',
+      ]);
+      expect(previewOf(PRIMARY_PANE, 'doc/a')).toBe(true);
+    });
+  });
 });
 
 describe('PaneMoveService cross-family moves', () => {

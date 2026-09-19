@@ -256,10 +256,12 @@ export interface OpenTabInput {
   readonly onClose?: () => void;
   /**
    * Opens this as a **preview tab** (VS-Code "Preview Editors") — a single, reused, *italic*
-   * slot per pane for transient browsing: a subsequent `openContentTab({ preview: true })` for
-   * a **different** path replaces this tab's content instead of adding a tab, so browsing many items
-   * doesn't pile up tabs. Promotion to a permanent tab is **explicit**: double-click the tab, or call
-   * `ctx.keepContentTab(path)`. Re-opening the **same** path deliberately does *not* promote it and
+   * slot per pane for transient browsing. The preview opens in the slot of the pane carrying the
+   * address, which is the pane the user last focused: a subsequent `openContentTab({ preview: true })`
+   * for a **different** path replaces that pane's preview instead of adding a tab, so browsing many
+   * items doesn't pile up tabs. Promotion to a permanent tab is **explicit**: double-click the tab, call
+   * `ctx.keepContentTab(path)`, or move the tab into another pane — a preview moved between panes
+   * always arrives permanent. Re-opening the **same** path deliberately does *not* promote it and
    * preserves the tab's current state — a view commonly re-opens itself on mount to refine its title,
    * which would otherwise make every preview tab permanent the moment it renders. Default `false`
    * (a permanent tab). Ignored when the distribution disabled preview (`provideShellFeatures({ content: { preview: false } })`).

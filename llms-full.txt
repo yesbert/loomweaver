@@ -449,8 +449,9 @@ type ContentRoute = { id?: string; path: string; chromeless?: boolean; subRoutes
 // ('route:<id>'); `path` stays the OVERRIDE handle. Internal storage form — authors write registerSurface.
 // titleIsLiteral: title is shown verbatim, not looked up as a Transloco key (set for a doc name / dynamic label;
 // avoids a missing-translation dev warning). onClose: runs once when THIS tab closes (free per-tab state; in-process only).
-// preview: open in the single reused italic preview slot of the URL strip; a different-path
-// preview open replaces it in place. Promote via ctx.keepContentTab(path), or let the user double-click the tab (the
+// preview: open in the reused italic preview slot — one per pane — of the pane carrying the address (the pane the
+// user last focused); a different-path preview open replaces it in place. Moving a preview into another pane makes it
+// permanent, in every direction. Promote via ctx.keepContentTab(path), or let the user double-click the tab (the
 // host's escalation cycle, on by default — provideShellFeatures({ content: { escalate: false } }) removes it); a re-open of an
 // existing tab preserves its preview state (title/sub-route refinement never promotes).
 // Distribution can disable: provideShellFeatures({ content: { preview: false } }) → preview ignored, all opens permanent.

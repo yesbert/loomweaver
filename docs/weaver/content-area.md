@@ -131,8 +131,12 @@ does not cross the RPC boundary.)
 
 For file-browsing UX, open with `preview: true`: the host
 uses a **single reused, italic** slot per pane: the next `preview` open of a _different_ path replaces
-it in place, so browsing many items doesn't pile up tabs. Promote it to a permanent tab **explicitly**:
+it in place, so browsing many items doesn't pile up tabs. The preview opens in the pane carrying the
+address, which is the pane the user last focused; when the main area is split, the other panes keep
+their own previews untouched. Promote it to a permanent tab **explicitly**:
 call `ctx.keepContentTab(path)` (e.g. on your list's double-click or when the content is edited).
+A user who drags a preview into another pane promotes it too: a preview never changes panes as a
+preview, so no pane ever holds two.
 The host's own double-click cycle on the tab is the distribution's to switch off, so do not build
 your flow on it. Re-opening an already-open tab just refines it (title/sub-route) and **keeps** its
 preview state, so a view can safely call `openContentTab` on mount to set the real title without

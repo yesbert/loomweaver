@@ -481,6 +481,30 @@ describe('ContentTabsService preview tabs (#10)', () => {
     expect(tab('a')?.preview).toBe(false);
     expect(tab('b')?.preview).toBe(true);
   });
+
+  it('fills the slot of the pane carrying the address and leaves the other pane untouched', () => {
+    const paneTree = TestBed.inject(PaneTreeService);
+    const side = [{ path: 'doc/s', preview: true }, { path: 'reports' }];
+    paneTree.commitTree(CONTENT_DOCK, {
+      kind: 'split',
+      id: 'split',
+      orientation: 'row',
+      ratio: 0.5,
+      first: { kind: 'leaf', id: PRIMARY_PANE, tabs: [{ path: '' }] },
+      second: { kind: 'leaf', id: 'side', tabs: side, active: 'doc/s' },
+    });
+
+    openTab('a', true);
+    openTab('b', true);
+
+    expect(paneTree.primaryId(CONTENT_DOCK)).toBe(PRIMARY_PANE);
+    expect(dynamicTabs().map((t) => t.path)).toEqual(['doc/b']);
+    expect(tab('b')?.preview).toBe(true);
+    const sideLeaf = collectTabs(paneTree.tree(CONTENT_DOCK)).filter((t) =>
+      side.some((s) => s.path === t.path),
+    );
+    expect(sideLeaf).toEqual(side);
+  });
 });
 
 describe('ContentTabsService pinned tabs', () => {

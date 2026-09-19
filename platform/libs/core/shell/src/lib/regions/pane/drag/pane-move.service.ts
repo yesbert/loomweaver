@@ -31,6 +31,10 @@ export function stripIdOf(source: TabDragSource): string {
   return `pane-strip:${source.dock}:${source.paneId}`;
 }
 
+function departedTab(tab: PaneTab): PaneTab {
+  return tab.preview ? tabWithout(tab, 'preview') : tab;
+}
+
 @Service()
 export class PaneMoveService {
   private readonly paneTree = inject(PaneTreeService);
@@ -53,7 +57,7 @@ export class PaneMoveService {
     }
     const at = this.isUrlGroup(target) ? undefined : index;
     const follow = this.urlFollowup(source, tab);
-    const moved = this.departedTab(source, this.isUrlGroup(target), tab);
+    const moved = departedTab(tab);
     this.relocateTab(source, tab, target.dock, (tree) =>
       insertTab(tree, target.paneId, moved, at),
     );
@@ -76,7 +80,7 @@ export class PaneMoveService {
       return;
     }
     const follow = this.urlFollowup(source, tab);
-    const moved = this.departedTab(source, false, tab);
+    const moved = departedTab(tab);
     const orientation = edge === 'left' || edge === 'right' ? 'row' : 'column';
     const position = edge === 'left' || edge === 'top' ? 'before' : 'after';
     const added: PaneLeaf = {
@@ -164,15 +168,6 @@ export class PaneMoveService {
       return true;
     }
     return this.isUrlGroup(source) && this.tabs.neighbourOf(tab.path) !== '';
-  }
-
-  private departedTab(
-    source: TabDragSource,
-    targetIsUrlGroup: boolean,
-    tab: PaneTab,
-  ): PaneTab {
-    const leavesUrlGroup = this.isUrlGroup(source) && !targetIsUrlGroup;
-    return leavesUrlGroup && tab.preview ? tabWithout(tab, 'preview') : tab;
   }
 
   private removeSourceTab(
