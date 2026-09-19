@@ -37,7 +37,7 @@ provideShellFeatures({
     pin: true,          // default: the menu entry and the pin step of the double-click cycle
     escalate: true,     // default: the double-click cycle preview → keep → pin → unpin
     moveTabs: true,     // default: dragging a tab into another pane, or onto an empty one
-    preview: true,      // default: the single reused italic preview slot
+    preview: true,      // default: the one reused italic preview of the main area
     newTab: true,       // default: the "+" button and its picker
     splitRight: true,   // default: button + left/right drop edges + mod+\
     splitRightButton: true, // default: the toolbar's split-right button alone
