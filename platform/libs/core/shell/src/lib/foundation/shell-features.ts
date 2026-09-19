@@ -31,7 +31,7 @@ export interface ContentFeatures {
   readonly escalate: boolean;
   /** Dragging a tab into another pane, and onto an empty pane. */
   readonly moveTabs: boolean;
-  /** The single reused italic **preview** slot (VS-Code "Preview Editors"). With it off, `openContentTab({ preview: true })` opens a permanent tab. */
+  /** The one reused italic **preview** tab of the main area (VS-Code "Preview Editors"). With it off, `openContentTab({ preview: true })` opens a permanent tab. */
   readonly preview: boolean;
   /** The "+" button that opens the new-tab picker. */
   readonly newTab: boolean;

@@ -95,7 +95,7 @@ way an orphaned menu entry is: switching a capability off never leaves a dead bu
 ## Content tabs and the pane toolbar
 
 **Preview tabs.** The content area supports preview tabs: a weaver opens with `preview: true` to
-reuse a single italic slot. It is **on by default**; opt out for the whole distribution with
+reuse the one italic preview of the main area, wherever the user dragged it. It is **on by default**; opt out for the whole distribution with
 `provideShellFeatures({ content: { preview: false } })`, which makes every `openContentTab` a
 permanent tab.
 

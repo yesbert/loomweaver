@@ -1,7 +1,6 @@
 import { inject, Service, Signal } from '@angular/core';
 import { ActiveContent, OpenTabInput } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
-import { ContentReuseStrategy } from '../routing/content-reuse-strategy';
 import { FeatureSwitches } from '../../../features/feature-switches.service';
 import { normalizePath, tabRootOf } from '../content-path';
 import { ContentTabView, OpenTab } from './content-tab-projection';
@@ -9,6 +8,7 @@ import { TabCloseHooks } from './tab-close-hooks';
 import { QuickOpenTarget } from './quick-open-target';
 import { OpenTabsService } from './open-tabs.service';
 import { TabClosingService } from './tab-closing.service';
+import { PreviewSlotService } from './preview-slot.service';
 import { refineTabTitles, reseatPinned } from '../../pane/tree/pane-tabs';
 import { CONTENT_DOCK, PaneRef } from '../../pane/tree/pane-address';
 import { keepsOnPaneClose } from '../../pane/tree/pane-handover';
@@ -32,9 +32,9 @@ export class ContentTabsService {
 
   private readonly closing = inject(TabClosingService);
 
-  private readonly registry = inject(ContributionRegistry);
+  private readonly previewSlot = inject(PreviewSlotService);
 
-  private readonly reuse = inject(ContentReuseStrategy);
+  private readonly registry = inject(ContributionRegistry);
 
   private readonly features = inject(FeatureSwitches).content;
 
@@ -309,26 +309,6 @@ export class ContentTabsService {
     });
   }
 
-  private replacePreviewSlot(root: string, slot: OpenTab): void {
-    const routes = this.registry.contentRoutes();
-    const previous = this.state.openTabs().find((tab) => tab.preview);
-    const previousRoot = previous
-      ? tabRootOf(routes, previous.path)
-      : undefined;
-    this.state.updateOpen((tabs) =>
-      previous
-        ? tabs.map((tab) =>
-            tabRootOf(routes, tab.path) === previousRoot ? slot : tab,
-          )
-        : [...tabs, slot],
-    );
-    if (previousRoot !== undefined && previousRoot !== root) {
-      this.reuse.evict(previousRoot);
-      this.closeHooks.runSafely(previous?.onClose);
-      this.closeHooks.delete(previousRoot);
-    }
-  }
-
   private refineElsewhere(root: string, input: OpenTabInput): boolean {
     const routes = this.registry.contentRoutes();
     const urlPane = this.paneTree.primaryId(CONTENT_DOCK);
@@ -374,7 +354,7 @@ export class ContentTabsService {
       ownLabel: true,
     };
     if (previewSlot && !existing) {
-      this.replacePreviewSlot(root, stored);
+      this.previewSlot.fill(root, stored);
     } else {
       this.state.updateOpen((tabs) =>
         existing

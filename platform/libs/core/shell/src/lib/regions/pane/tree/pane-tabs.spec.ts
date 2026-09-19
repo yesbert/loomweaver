@@ -6,6 +6,7 @@ import {
   clearTabInstance,
   insertTab,
   removeTab,
+  replacePreviewTab,
   setActiveTab,
   unpinTab,
 } from './pane-tabs';
@@ -108,5 +109,24 @@ describe('tab permanence outside the URL pane', () => {
       { path: 'doc/a' },
       { path: 'doc/c' },
     ]);
+  });
+
+  it('replacePreviewTab puts the new tab in the preview seat and makes it active', () => {
+    const leaf: PaneLeaf = {
+      kind: 'leaf',
+      id: 'side',
+      tabs: [{ path: 'doc/x' }, { path: 'doc/a', preview: true }, { path: 'doc/y' }],
+      active: 'doc/y',
+    };
+    const next = replacePreviewTab(leaf, 'side', {
+      path: 'doc/b',
+      preview: true,
+    }) as PaneLeaf;
+    expect(next.tabs).toEqual([
+      { path: 'doc/x' },
+      { path: 'doc/b', preview: true },
+      { path: 'doc/y' },
+    ]);
+    expect(next.active).toBe('doc/b');
   });
 });

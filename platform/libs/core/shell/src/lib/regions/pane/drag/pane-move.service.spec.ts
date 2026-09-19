@@ -234,6 +234,74 @@ describe('PaneMoveService (move semantics)', () => {
     expect(moved).toBeDefined();
     expect(moved?.preview).toBeUndefined();
   });
+
+  describe('a preview moved within the main area', () => {
+    const openPreview = async () => {
+      tabs.open({
+        path: 'doc/a',
+        title: 'A.ts',
+        titleIsLiteral: true,
+        preview: true,
+      });
+      await harness.fixture.whenStable();
+    };
+
+    const previewIn = (paneId: string) =>
+      findLeaf(paneTree.tree(CONTENT_DOCK), paneId)?.tabs.find(
+        (t) => t.path === 'doc/a',
+      )?.preview;
+
+    beforeEach(async () => {
+      await harness.navigateByUrl('/dashboard/overview');
+    });
+
+    it('stays a preview on an edge, and the pane it joined carries its address', async () => {
+      await openPreview();
+
+      paneMove.moveToEdge(
+        { dock: CONTENT_DOCK, paneId: PRIMARY_PANE },
+        'doc/a',
+        { dock: CONTENT_DOCK, paneId: PRIMARY_PANE },
+        'right',
+      );
+      await harness.fixture.whenStable();
+
+      const joined = paneTree.sourceOf('doc/a');
+      expect(joined?.paneId).not.toBe(PRIMARY_PANE);
+      expect(previewIn(joined?.paneId ?? '')).toBe(true);
+      expect(paneTree.primaryId(CONTENT_DOCK)).toBe(joined?.paneId);
+      expect(router.url).toBe('/doc/a');
+    });
+
+    it('stays a preview on the strip of another pane, which then carries its address', async () => {
+      paneTree.splitPane(CONTENT_DOCK, PRIMARY_PANE, 'row', 'plain');
+      const other = (
+        (paneTree.tree(CONTENT_DOCK) as PaneSplit).second as PaneLeaf
+      ).id;
+      await openPreview();
+
+      paneMove.moveToStrip({ dock: CONTENT_DOCK, paneId: PRIMARY_PANE }, 'doc/a', {
+        dock: CONTENT_DOCK,
+        paneId: other,
+      });
+      await harness.fixture.whenStable();
+
+      expect(previewIn(other)).toBe(true);
+      expect(paneTree.primaryId(CONTENT_DOCK)).toBe(other);
+      expect(router.url).toBe('/doc/a');
+    });
+
+    it('stays a preview when split out through the command', async () => {
+      await openPreview();
+
+      paneMove.splitTabOut('doc/a', 'row');
+      await harness.fixture.whenStable();
+
+      const joined = paneTree.sourceOf('doc/a');
+      expect(joined?.paneId).not.toBe(PRIMARY_PANE);
+      expect(previewIn(joined?.paneId ?? '')).toBe(true);
+    });
+  });
 });
 
 describe('PaneMoveService cross-family moves', () => {

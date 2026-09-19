@@ -8,7 +8,9 @@ import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { ContentReuseStrategy } from '../routing/content-reuse-strategy';
 import { CONTENT_DOCK } from '../../pane/tree/pane-address';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
-import { collectTabs } from '../../pane/tree/pane-queries';
+import { collectTabs, findLeaf } from '../../pane/tree/pane-queries';
+import { PaneLeaf, PaneTab } from '../../pane/tree/pane-node';
+import { TabCloseHooks } from './tab-close-hooks';
 import { PRIMARY_PANE } from '../../pane/tree/pane-address';
 import { buildContentRoutes } from '../routing/content-router';
 import { BootAddress } from '../routing/boot-address';
@@ -480,6 +482,114 @@ describe('ContentTabsService preview tabs (#10)', () => {
     expect(dynamicTabs().map((t) => t.path)).toEqual(['doc/a', 'doc/b']);
     expect(tab('a')?.preview).toBe(false);
     expect(tab('b')?.preview).toBe(true);
+  });
+});
+
+describe('ContentTabsService: the one preview in the main area', () => {
+  let service: ContentTabsService;
+  let paneTree: PaneTreeService;
+  let router: Router;
+  let harness: RouterTestingHarness;
+
+  const leaf = (id: string, tabs: PaneTab[]): PaneLeaf => ({
+    kind: 'leaf',
+    id,
+    tabs,
+    active: tabs.at(-1)?.path,
+  });
+
+  const arrange = (main: PaneTab[], side: PaneTab[]): void => {
+    paneTree.commitTree(CONTENT_DOCK, {
+      kind: 'split',
+      id: 'split',
+      orientation: 'row',
+      ratio: 0.5,
+      first: leaf(PRIMARY_PANE, main),
+      second: leaf('side', side),
+    });
+  };
+
+  const tabsOf = (id: string) =>
+    findLeaf(paneTree.tree(CONTENT_DOCK), id)?.tabs.map((tab) => ({
+      path: tab.path,
+      preview: tab.preview === true,
+    }));
+
+  const openPreview = async (id: string) => {
+    service.open({
+      path: `doc/${id}`,
+      title: `${id}.ts`,
+      titleIsLiteral: true,
+      preview: true,
+    });
+    await harness.fixture.whenStable();
+  };
+
+  beforeEach(async () => {
+    localStorage.clear();
+    TestBed.configureTestingModule({
+      providers: [provideRouter(buildContentRoutes(ROUTES))],
+    });
+    const registry = TestBed.inject(ContributionRegistry);
+    for (const route of ROUTES) registry.addContentRoute(route);
+    service = TestBed.inject(ContentTabsService);
+    paneTree = TestBed.inject(PaneTreeService);
+    router = TestBed.inject(Router);
+    harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/reports');
+  });
+
+  it('replaces the preview in the pane it was moved to and hands that pane the address', async () => {
+    const closed: string[] = [];
+    TestBed.inject(TabCloseHooks).set('doc/a', () => {
+      closed.push('a');
+    });
+    arrange(
+      [{ path: 'reports' }],
+      [{ path: 'doc/x' }, { path: 'doc/a', preview: true }, { path: 'doc/y' }],
+    );
+
+    await openPreview('b');
+
+    expect(tabsOf('side')).toEqual([
+      { path: 'doc/x', preview: false },
+      { path: 'doc/b', preview: true },
+      { path: 'doc/y', preview: false },
+    ]);
+    expect(findLeaf(paneTree.tree(CONTENT_DOCK), 'side')?.active).toBe('doc/b');
+    expect(tabsOf(PRIMARY_PANE)).toEqual([{ path: 'reports', preview: false }]);
+    expect(paneTree.primaryId(CONTENT_DOCK)).toBe('side');
+    expect(router.url).toBe('/doc/b');
+    expect(closed).toEqual(['a']);
+  });
+
+  it('replaces the one in the pane carrying the address first when an old arrangement holds several', async () => {
+    arrange(
+      [{ path: 'reports' }, { path: 'doc/m', preview: true }],
+      [{ path: 'doc/s', preview: true }],
+    );
+
+    await openPreview('b');
+
+    expect(tabsOf(PRIMARY_PANE)).toEqual([
+      { path: 'reports', preview: false },
+      { path: 'doc/b', preview: true },
+    ]);
+    expect(tabsOf('side')).toEqual([{ path: 'doc/s', preview: true }]);
+    expect(paneTree.primaryId(CONTENT_DOCK)).toBe(PRIMARY_PANE);
+  });
+
+  it('opens in the pane carrying the address when the main area holds no preview', async () => {
+    arrange([{ path: 'reports' }], [{ path: 'doc/x' }]);
+
+    await openPreview('b');
+
+    expect(tabsOf(PRIMARY_PANE)).toEqual([
+      { path: 'reports', preview: false },
+      { path: 'doc/b', preview: true },
+    ]);
+    expect(tabsOf('side')).toEqual([{ path: 'doc/x', preview: false }]);
+    expect(router.url).toBe('/doc/b');
   });
 });
 

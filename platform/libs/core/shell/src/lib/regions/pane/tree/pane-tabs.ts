@@ -26,6 +26,18 @@ export function insertTab(
   });
 }
 
+export function replacePreviewTab(
+  node: PaneNode,
+  paneId: string,
+  tab: PaneTab,
+): PaneNode {
+  return transformLeaf(node, paneId, (leaf) => ({
+    ...leaf,
+    tabs: leaf.tabs.map((held) => (held.preview === true ? tab : held)),
+    active: tab.path,
+  }));
+}
+
 export interface TabTitlePatch {
   readonly title?: string;
   readonly literalTitle: boolean;
