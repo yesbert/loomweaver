@@ -255,10 +255,13 @@ export interface OpenTabInput {
    */
   readonly onClose?: () => void;
   /**
-   * Opens this as a **preview tab** (VS-Code "Preview Editors") — a single, reused, *italic*
-   * slot per pane for transient browsing: a subsequent `openContentTab({ preview: true })` for
-   * a **different** path replaces this tab's content instead of adding a tab, so browsing many items
-   * doesn't pile up tabs. Promotion to a permanent tab is **explicit**: double-click the tab, or call
+   * Opens this as a **preview tab** (VS-Code "Preview Editors") — the one reused, *italic* tab of
+   * the main area for transient browsing: a subsequent `openContentTab({ preview: true })` for a
+   * **different** path replaces the preview's content instead of adding a tab, so browsing many items
+   * doesn't pile up tabs. It replaces it **wherever it stands**: a user who dragged the preview into
+   * another pane keeps it a preview there, the next preview lands in that pane, and that pane takes the
+   * address. Without a preview in the main area it opens in the pane carrying the address. Moved into a
+   * sidebar, a preview becomes permanent. Promotion to a permanent tab is **explicit**: double-click the tab, or call
    * `ctx.keepContentTab(path)`. Re-opening the **same** path deliberately does *not* promote it and
    * preserves the tab's current state — a view commonly re-opens itself on mount to refine its title,
    * which would otherwise make every preview tab permanent the moment it renders. Default `false`
