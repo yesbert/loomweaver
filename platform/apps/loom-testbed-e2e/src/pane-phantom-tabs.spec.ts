@@ -23,7 +23,7 @@ test.describe('A pane never shows a tab the URL pane hides', () => {
     await page.goto('/');
 
     await splitRight(page);
-    await expect(page.locator('lw-content-grid lw-pane-view')).toHaveCount(1);
+    await expect(page.locator('lw-content-grid lw-pane-view')).toHaveCount(2);
 
     await expect(page.locator(`${OTHER_PANE} [role="tab"]`)).toHaveCount(0);
   });
