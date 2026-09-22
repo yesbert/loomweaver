@@ -36,7 +36,7 @@ test('the content area, not the window, decides the dashboard layout', async ({
   await page.setViewportSize(WIDE);
   await page.goto('/');
 
-  const host = page.locator('lw-content-area main').first();
+  const host = page.locator('#lw-main-content > lw-content-secondary-pane').first();
   await expect(host).toBeVisible();
   const reference = await host.evaluate(
     (el) => getComputedStyle(el).containerName,
@@ -65,7 +65,7 @@ test('the dashboard fits a content area the sidebar has narrowed', async ({
   await expect(dashboard).toBeVisible();
   await expect(page.getByTestId('insights-out')).not.toBeEmpty();
 
-  const main = page.locator('lw-content-area main').first();
+  const main = page.locator('#lw-main-content > lw-content-secondary-pane').first();
   expect(await main.evaluate((el) => el.clientWidth)).toBeLessThan(NARROW.width);
 
   await expect.poll(() => overflowing(dashboard)).toEqual([]);
