@@ -1,5 +1,13 @@
 import { DOCUMENT } from '@angular/common';
-import { inject, Injector, Service, signal, Type, WritableSignal } from '@angular/core';
+import {
+  afterNextRender,
+  inject,
+  Injector,
+  Service,
+  signal,
+  Type,
+  WritableSignal,
+} from '@angular/core';
 import { LwButtonVariant } from '../elements/button/lw-button';
 import { LoomIconName } from '../elements/icon/loom-icons';
 import { DialogRef } from './dialog-ref';
@@ -284,7 +292,15 @@ export class DialogService {
 
     void ref.closed.then(() => {
       this.items.update((list) => list.filter((dialog) => dialog.id !== id));
-      trigger?.focus?.();
+      afterNextRender(() => this.giveFocusBack(trigger), {
+        injector: this.injector,
+      });
     });
+  }
+
+  private giveFocusBack(trigger: HTMLElement | null): void {
+    if (trigger?.isConnected) {
+      trigger.focus();
+    }
   }
 }

@@ -127,6 +127,7 @@ function buildRegisteredRoutes(
           authPlaceholder: true,
           chromeless: route.chromeless,
         },
+        ...(children.length && { children }),
       };
       return [angular, placeholder];
     }

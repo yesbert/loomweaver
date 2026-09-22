@@ -135,6 +135,20 @@ describe('<lw-select> custom element', () => {
     expect(element.getAttribute('value')).toBe('en');
   });
 
+  it('marks its Escape as handled, so a dialog around it stays open', () => {
+    const element = mount('en');
+    trigger(element).click();
+    const escape = new KeyboardEvent('keydown', {
+      key: 'Escape',
+      bubbles: true,
+      cancelable: true,
+    });
+
+    element.querySelector('[role="listbox"]')!.dispatchEvent(escape);
+
+    expect(escape.defaultPrevented).toBe(true);
+  });
+
   it('opens from the trigger keyboard (Space) and a second trigger click closes it', () => {
     const element = mount('en');
     key(element, trigger(element), ' ');

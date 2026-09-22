@@ -100,6 +100,26 @@ describe('<lw-menu> custom element', () => {
     expect(onDismiss).toHaveBeenCalledTimes(1);
   });
 
+  it('marks its Escape as handled, so a dialog around it stays open', () => {
+    const menu = mount([['a', 'Close']]);
+    const escape = new KeyboardEvent('keydown', {
+      key: 'Escape',
+      bubbles: true,
+      cancelable: true,
+    });
+    const tab = new KeyboardEvent('keydown', {
+      key: 'Tab',
+      bubbles: true,
+      cancelable: true,
+    });
+
+    menu.dispatchEvent(escape);
+    menu.dispatchEvent(tab);
+
+    expect(escape.defaultPrevented).toBe(true);
+    expect(tab.defaultPrevented).toBe(false);
+  });
+
   function mountItem(attributes: Record<string, string>): HTMLElement {
     const menu = document.createElement(LW_MENU_TAG);
     const item = document.createElement(LW_MENU_ITEM_TAG);

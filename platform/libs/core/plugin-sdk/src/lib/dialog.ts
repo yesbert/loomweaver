@@ -94,6 +94,8 @@ export interface OpenOptions {
    * Which of the user's ways close the dialog. `'any'` (the default): a backdrop click, Escape and
    * the close control. `'explicit'`: only the deliberate ways, Escape and the close control; a
    * backdrop click does nothing. `'none'`: no way of the user's, and no close control is drawn.
+   * An Escape that closes a list or menu open inside the body closes that alone; a popup of the
+   * body's own gets the same by calling `preventDefault()` on the Escape it handles.
    * Declared footer buttons are never affected, and closing through `DialogRef.close` always
    * works. While the body implements `DirtySurface` and reports unsaved work, every allowed way asks
    * the same unsaved-changes question closing a tab asks.

@@ -81,6 +81,11 @@ can always call `DialogRef.close`, and declared `buttons` work whatever you choo
 | `explicit` | does nothing   | close                 | yes                 |
 | `none`     | does nothing   | do nothing            | no                  |
 
+An Escape pressed in an open `<lw-select>` or `<lw-menu>` inside the dialog closes that list only;
+the next Escape closes the dialog. A popup your component draws itself gets the same by calling
+`preventDefault()` on the Escape it handles. When the dialog closes, by any way, the focus goes back
+to the control that opened it.
+
 `dismissable` is gone. Replace `dismissable: true` by nothing and `dismissable: false` by
 `dismiss: 'none'`.
 

@@ -234,6 +234,42 @@ describe('buildContentRoutes', () => {
     expect(placeholder.canMatch).toBeUndefined();
   });
 
+  it('gives the placeholder of a gated route the same child addresses as the route itself', () => {
+    const [real, placeholder] = buildContentRoutes([
+      {
+        path: 'doc/:id',
+        component: TestRoute,
+        subRoutes: ['code', 'preview'],
+        rest: true,
+        access: { authenticated: true },
+      },
+    ]);
+
+    expect(placeholder.component).toBe(AuthRequiredView);
+    expect(placeholder.children).toEqual(real.children);
+    expect(placeholder.children?.map((child) => child.path)).toEqual([
+      '',
+      'code',
+      'preview',
+      '**',
+    ]);
+  });
+
+  it("gives the placeholder of a gated container its children's segments", () => {
+    const [, placeholder] = buildContentRoutes([
+      {
+        path: 'ws/:id',
+        container: { children: [{ surface: 'a', segment: 'general' }, 'b'] },
+        access: { authenticated: true },
+      } as never,
+    ]);
+
+    expect(placeholder.children?.map((child) => child.path)).toEqual([
+      '',
+      'general',
+    ]);
+  });
+
   it('leaves an ungated route as a single entry without a guard', () => {
     const routes = buildContentRoutes([
       { path: 'search', component: TestRoute },
