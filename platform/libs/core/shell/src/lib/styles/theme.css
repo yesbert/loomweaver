@@ -609,23 +609,32 @@
     inset: 0;
     pointer-events: none;
   }
-  /* The bubble is a `[popover]` (top layer, #13): the UA hides it when closed, so no `display`/`opacity`
-     toggle here. The element sets `left`/`top` in JS (viewport coords) — reset the UA popover box
-     (centering border/inset/margin) so those win. */
+  /* `.lw-tooltip-bubble` is the tooltip's LOOK and nothing else (class contract): a product puts it on
+     its own element inside a container that places it (a grid's tooltip) and is not moved by it. */
   .lw-tooltip-bubble {
     @apply rounded-md bg-tooltip px-2 py-1 text-xs font-normal text-tooltip-content shadow-lg;
+    max-width: 16rem;
+    white-space: normal;
+  }
+  /* A neutral badge inside the bubble takes the bubble's inverted colours; toned badges keep their fill. */
+  .lw-tooltip-bubble .lw-badge:not(.lw-badge--brand, .lw-badge--success, .lw-badge--danger) {
+    @apply bg-tooltip-content/15 text-tooltip-content;
+  }
+  /* The element's own bubble is a `[popover]` (top layer, #13): the UA hides it when closed, so no
+     `display`/`opacity` toggle here. The element sets `left`/`top` in JS (viewport coords) — reset the
+     UA popover box (centering border/inset/margin) so those win. */
+  .lw-tooltip-bubble[popover] {
     position: fixed;
     inset: auto;
     margin: 0;
     border: 0;
     width: max-content;
-    white-space: normal;
     pointer-events: none;
   }
 
   /* While a menu is open, suppress hover tooltips — a right-click that pops the context menu should not
      also pop the tab's tooltip. Hides any bubble that is currently open in the top layer. */
-  body.lw-menu-open .lw-tooltip-bubble {
+  body.lw-menu-open .lw-tooltip-bubble[popover] {
     display: none !important;
   }
 

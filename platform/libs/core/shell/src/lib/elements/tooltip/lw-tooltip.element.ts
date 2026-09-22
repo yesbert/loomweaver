@@ -31,7 +31,9 @@ export const LW_TOOLTIP_TAG = 'lw-tooltip';
  * the **cursor** (native-`title`-like, so a wide trigger's tooltip appears where the mouse is, not at the
  * element's far edge); a **focus** reveal anchors to the trigger element per `position`. Reveal is off the
  * trigger's hover/focus (mouse only — touch never reveals). Its **look** lives in `theme.css`
- * (`.lw-tooltip-bubble`, tokened) like `.lw-btn`. Place it as the last child of a positioned trigger:
+ * (`.lw-tooltip-bubble`, tokened) like `.lw-btn`, and is a class contract of its own: on an element a
+ * product places itself it carries the look without the placement. Place the element as the last child
+ * of a positioned trigger:
  *
  *   <button class="relative …" [attr.aria-label]="'key' | transloco">
  *     <lw-icon name="…" />
