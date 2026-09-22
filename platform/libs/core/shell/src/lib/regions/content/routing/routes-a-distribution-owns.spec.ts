@@ -52,6 +52,10 @@ function landedOn(router: Router): unknown {
 }
 
 describe('routes a distribution owns', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
   it('still resolves once the contributed routes are in place', async () => {
     const router = open(
       [{ path: 'legal', component: OwnedPage }],

@@ -34,12 +34,12 @@ async function splitOffLastEntry(page: Page): Promise<void> {
     content.y + content.height / 2 + 1,
   );
   await page.mouse.up();
-  await expect(page.locator('lw-pane-view')).toHaveCount(1);
+  await expect(page.locator('lw-content-grid lw-pane-view')).toHaveCount(2);
 }
 
 function tabOrder(page: Page) {
   return page.evaluate(() =>
-    [...document.querySelectorAll('lw-content-area, lw-pane-view')]
+    [...document.querySelectorAll('lw-content-grid lw-pane-view')]
       .map((pane) => ({
         x: pane.getBoundingClientRect().x,
         order: [...pane.querySelectorAll('[role="tab"]')].map((tab) =>
