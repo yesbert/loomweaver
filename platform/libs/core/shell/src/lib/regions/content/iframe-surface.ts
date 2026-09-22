@@ -1,5 +1,5 @@
 import { DOCUMENT } from '@angular/common';
-import { Component, DestroyRef, ElementRef, afterNextRender, isDevMode, computed, effect, inject, Injector, signal, viewChild } from '@angular/core';
+import { Component, DestroyRef, ElementRef, afterNextRender, isDevMode, computed, effect, inject, Injector, linkedSignal, signal, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
@@ -119,7 +119,11 @@ export class IframeSurface implements DirtySurface {
     return owner !== undefined && this.grants.isGranted(owner, 'session');
   });
 
-  private readonly hostMounted = this.route.snapshot.data['urlDriven'] !== true;
+  private readonly routeData = toSignal(this.route.data, {
+    initialValue: this.route.snapshot.data,
+  });
+
+  private readonly hostMounted = computed(() => !this.routeData()['urlDriven']);
 
   private readonly docked = this.route.snapshot.data['docked'] === true;
 
@@ -133,8 +137,8 @@ export class IframeSurface implements DirtySurface {
 
   private readonly ownsRest = this.route.snapshot.data['rest'] === true;
 
-  private readonly hostSub = signal<string>(
-    String(this.route.snapshot.data['sub'] ?? ''),
+  private readonly hostSub = linkedSignal(() =>
+    String(this.routeData()['sub'] ?? ''),
   );
 
   private readonly tabRoot = this.route.snapshot.pathFromRoot
@@ -150,7 +154,7 @@ export class IframeSurface implements DirtySurface {
   );
 
   private readonly activeTab = computed(() => {
-    if (this.hostMounted) {
+    if (this.hostMounted()) {
       return normalizePath(this.hostSub());
     }
     return restBelow(this.tabRoot, normalizePath(this.currentUrl()));
@@ -160,7 +164,7 @@ export class IframeSurface implements DirtySurface {
     if (!this.ownsRest) {
       return;
     }
-    return this.hostMounted
+    return this.hostMounted()
       ? this.hostSub()
       : restBelow(this.tabRoot, this.currentUrl());
   });
@@ -172,7 +176,7 @@ export class IframeSurface implements DirtySurface {
   private readonly dirty = signal(false);
 
   private readonly isPreview = computed(() =>
-    this.hostMounted
+    this.hostMounted()
       ? false
       : (this.tabs.tabs().find((tab) => tab.path === this.tabRoot)?.preview ??
         false),
@@ -250,7 +254,7 @@ export class IframeSurface implements DirtySurface {
       methods: {
         navigate: (path: string) => this.navigateWithinTabRoot(path),
         keep: () => {
-          if (!this.hostMounted) {
+          if (!this.hostMounted()) {
             this.tabs.keep(this.tabRoot);
           }
         },
@@ -387,7 +391,7 @@ export class IframeSurface implements DirtySurface {
           `Use the plugin (logic) channel's ctx.navigateContent for anything else ('navigation' grant).`,
       );
     }
-    if (this.hostMounted) {
+    if (this.hostMounted()) {
       this.hostSub.set(restBelow(this.tabRoot, raw));
       return;
     }

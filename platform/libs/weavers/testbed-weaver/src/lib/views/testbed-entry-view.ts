@@ -1,4 +1,12 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, afterNextRender, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  afterNextRender,
+  computed,
+  inject,
+  linkedSignal,
+  signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
   ActivatedRoute,
@@ -43,9 +51,15 @@ export class TestbedEntryView implements DirtySurface {
   protected readonly subTabs = SUB_TABS;
   private readonly tabRoot = 'entry/' + this.id;
 
-  private readonly hostMounted = this.route.snapshot.routeConfig === null;
-  private readonly hostSub = signal<string>(
-    String(this.route.snapshot.data['sub'] ?? ''),
+  private readonly routed = this.route.snapshot.routeConfig !== null;
+  private readonly routeData = toSignal(this.route.data, {
+    initialValue: this.route.snapshot.data,
+  });
+  private readonly hostMounted = computed(
+    () => !this.routed && this.routeData()['urlDriven'] !== true,
+  );
+  private readonly hostSub = linkedSignal(() =>
+    String(this.routeData()['sub'] ?? ''),
   );
 
   private readonly currentUrl = toSignal(
@@ -57,7 +71,7 @@ export class TestbedEntryView implements DirtySurface {
   );
 
   private readonly rest = computed<string>(() => {
-    if (this.hostMounted) {
+    if (this.hostMounted()) {
       return this.hostSub();
     }
     const path = this.currentUrl().split(/[?#]/, 1)[0].replace(/^\/+/, '');
@@ -74,7 +88,7 @@ export class TestbedEntryView implements DirtySurface {
 
   constructor() {
     afterNextRender(() => {
-      if (this.entry && !this.hostMounted) {
+      if (this.entry && !this.hostMounted()) {
         testbedContent.openEntry(this.entry);
       }
     });
@@ -118,7 +132,7 @@ export class TestbedEntryView implements DirtySurface {
   }
 
   private go(rest: string): void {
-    if (this.hostMounted) {
+    if (this.hostMounted()) {
       this.hostSub.set(rest);
       return;
     }

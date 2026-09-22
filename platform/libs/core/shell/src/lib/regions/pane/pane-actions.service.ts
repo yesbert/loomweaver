@@ -1,6 +1,8 @@
 import { inject, Service } from '@angular/core';
 import { FeatureSwitches } from '../../features/feature-switches.service';
 import { ContentTabsService } from '../content/tabs/content-tabs.service';
+import { tabRootOf } from '../content/content-path';
+import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { PaneChromeService } from './chrome/pane-chrome.service';
 import { SurfaceCloseGuard } from './close/surface-close-guard';
 import { PaneDragService } from './drag/pane-drag.service';
@@ -27,6 +29,7 @@ export class PaneActions {
   private readonly stash = inject(RetainedViewStash);
   private readonly drag = inject(PaneDragService);
   private readonly features = inject(FeatureSwitches).content;
+  private readonly registry = inject(ContributionRegistry);
 
   split(dock: string, paneId: string, orientation: 'row' | 'column'): void {
     const leaf = this.leaf(dock, paneId);
@@ -159,7 +162,10 @@ export class PaneActions {
       keeps(tab)
         ? []
         : [
-            ...this.stash.instancesFor(scope, tab.path),
+            ...this.stash.instancesFor(
+              scope,
+              tabRootOf(this.registry.contentRoutes(), tab.path),
+            ),
             ...containerChildInstances(this.stash.keyedInstances(), tab.path),
           ],
     );
