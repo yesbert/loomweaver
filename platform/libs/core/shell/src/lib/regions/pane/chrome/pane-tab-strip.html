@@ -16,6 +16,7 @@
     [lwReorderable]="stripId()"
     [lwReorderableEnabled]="reorderable()"
     (reorder)="reorderTabs.emit($event)"
+    lwRovingTabs
   >
     @for (tab of tabs(); track tab.path) {
       @let title = tab.literalTitle ? tab.title : (tab.title | transloco);
