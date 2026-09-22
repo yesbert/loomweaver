@@ -38,6 +38,7 @@ import {
   stripIdOf,
   stripSourceOf,
 } from '../drag/pane-move.service';
+import { RovingTabs } from './roving-tabs.directive';
 import { StripTab, TabAcceptance } from './strip-tab';
 
 const EDGE_TOLERANCE_PX = 1;
@@ -49,6 +50,7 @@ const EDGE_TOLERANCE_PX = 1;
     TranslocoPipe,
     MenuTriggerDirective,
     Reorderable,
+    RovingTabs,
     CdkDropList,
     CdkDrag,
     CdkDragHandle,

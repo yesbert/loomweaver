@@ -26,6 +26,10 @@ the binding guardrail; it complements [`design-tokens.md`](design-tokens.md) (co
   specifies `tab` as "children presentational", the **close and unpin controls on a tab are not
   focusable buttons** but pure pointer affordances (`aria-hidden`). The keyboard equivalent is
   **`Delete`** on the focused tab (announced via `aria-keyshortcuts`), plus the tab context menu.
+  A strip is **one tab stop**: Tab enters it on the selected tab and the next Tab leaves it. Inside,
+  the left and right arrow keys move the focus from tab to tab and wrap at the ends, Home and End
+  jump to the first and the last. Moving the focus chooses nothing; Enter or Space chooses the
+  focused tab. `Alt` with an arrow still reorders.
 - **Text size (WCAG 1.4.4):** the shell ships a user setting "text size"
   (Settings → Options → General) that scales the whole UI through the `:root` `font-size`
   (90/100/112.5/125 %, **relative** to the browser's base font). Every distribution inherits it.

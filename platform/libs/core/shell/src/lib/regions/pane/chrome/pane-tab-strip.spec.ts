@@ -204,6 +204,33 @@ describe('PaneTabStrip', () => {
     expect(tabByPath('fixed')?.getAttribute('aria-keyshortcuts')).toBeNull();
   });
 
+  it('is one stop in the focus order, and the arrow keys walk its tabs', () => {
+    create(movable);
+    const focusable = () =>
+      [
+        ...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>(
+          '[role="tab"]',
+        ),
+      ]
+        .filter((element) => element.tabIndex === 0)
+        .map((element) => element.dataset['tabPath']);
+
+    expect(focusable()).toEqual(['fixed']);
+
+    tabByPath('fixed')?.focus();
+    tabByPath('fixed')?.dispatchEvent(
+      new KeyboardEvent('keydown', {
+        key: 'ArrowRight',
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+
+    expect(document.activeElement).toBe(tabByPath('loose'));
+    expect(focusable()).toEqual(['loose']);
+    expect(tabByPath('fixed')?.getAttribute('aria-selected')).toBe('true');
+  });
+
   it('announces the control that opens the new-tab menu, collapsed until it opens', () => {
     create([tab()]);
     fixture.componentRef.setInput('canAddTab', true);
