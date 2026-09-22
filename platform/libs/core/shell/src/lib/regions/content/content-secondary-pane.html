@@ -28,7 +28,7 @@
     [mode]="surfaceMode()"
     [retain]="surfaceRetain()"
   />
-} @else if (!iframeSurface()) {
+} @else if (!iframeSurface() && !loading()) {
   @if (blocked()) {
     <lw-auth-required />
   } @else if (unknown()) {

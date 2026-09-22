@@ -1,11 +1,25 @@
-import { Component, EnvironmentInjector, Injector, Type, computed, inject, input, output } from '@angular/core';
+import {
+  Component,
+  EnvironmentInjector,
+  Injector,
+  Type,
+  computed,
+  effect,
+  inject,
+  untracked,
+  input,
+  output,
+} from '@angular/core';
 import { DOCUMENT, NgTemplateOutlet } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
+import { CurrentAddress } from './current-address';
+import { SurfaceAddress } from './routing/live-surface-route';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { CONTAINER_HANDLE, ContentRoute } from '@loomweaver/plugin-sdk';
 import { View } from '../../layout/view';
 import {
   ContributionRegistry,
+  RegisteredContentRoute,
   RegisteredView,
 } from '../../plugin/contribution-registry';
 import { AuthContext } from '../../auth/auth-context';
@@ -29,7 +43,7 @@ import {
   containerChildForPath,
   surfaceForPanePath,
 } from '../pane/pane-surface';
-import { paramsOfPattern } from './content-path';
+import { paramsOfPattern, tabRootOf } from './content-path';
 import { RetainedComponent } from '../pane/retention/retained-component';
 import {
   effectivePadding,
@@ -65,6 +79,8 @@ export class ContentSecondaryPane {
 
   readonly retentionScope = input<string>('');
 
+  readonly carriesAddress = input(false);
+
   readonly instanceReleased = output<void>();
 
   private readonly registry = inject(ContributionRegistry);
@@ -74,6 +90,7 @@ export class ContentSecondaryPane {
   private readonly auth = inject(AuthContext);
   private readonly injector = inject(Injector);
   private readonly environmentInjector = inject(EnvironmentInjector);
+  private readonly currentAddress = inject(CurrentAddress);
 
   private readonly paramInjectors = new Map<string, Injector>();
   private readonly injectorFor = surfaceInjectorFactory(
@@ -155,7 +172,8 @@ export class ContentSecondaryPane {
     );
     return {
       ...ctx.params,
-      ...(match && paramsOfPattern(match.declaration.segment ?? '', match.segmentPath)),
+      ...(match &&
+        paramsOfPattern(match.declaration.segment ?? '', match.segmentPath)),
     };
   });
 
@@ -173,7 +191,21 @@ export class ContentSecondaryPane {
   private readonly retention = inject(SURFACE_RETENTION);
 
   protected readonly surfaceKey = computed(() =>
-    surfaceRetentionKey(this.retentionScope(), this.path()),
+    surfaceRetentionKey(
+      this.retentionScope(),
+      tabRootOf(this.registry.contentRoutes(), this.path()),
+    ),
+  );
+
+  private readonly address = computed<SurfaceAddress>(() =>
+    this.carriesAddress()
+      ? { ...this.currentAddress.snapshot(), carriesAddress: true }
+      : {
+          path: this.path(),
+          carriesAddress: false,
+          queryParams: {},
+          fragment: null,
+        },
   );
 
   protected readonly surfaceMode = computed(() =>
@@ -210,7 +242,7 @@ export class ContentSecondaryPane {
       ? null
       : {
           component: IframeSurface,
-          injector: this.injectorFor(route, this.path(), this.surfaceKey()),
+          injector: this.mountFor(route).injector,
         };
   });
 
@@ -226,10 +258,30 @@ export class ContentSecondaryPane {
     return component
       ? {
           component,
-          injector: this.injectorFor(route, this.path(), this.surfaceKey()),
+          injector: this.mountFor(route).injector,
         }
       : null;
   });
+
+  protected readonly loading = computed(() => {
+    const route = this.activeRoute();
+    return (
+      route !== null &&
+      route.container === undefined &&
+      route.loadComponent !== undefined &&
+      this.surface() === null
+    );
+  });
+
+  constructor() {
+    effect(() => {
+      const route = this.activeRoute();
+      const address = this.address();
+      if (route) {
+        this.mountFor(route).live.update(address);
+      }
+    });
+  }
 
   protected componentFor(view: View): Type<unknown> | null {
     return this.componentLoader.resolve(view);
@@ -251,6 +303,10 @@ export class ContentSecondaryPane {
     return this.containerCtx
       ? this.paramInjectorFor(instanceId ?? view.id, base)
       : base;
+  }
+
+  private mountFor(route: RegisteredContentRoute) {
+    return this.injectorFor(route, this.surfaceKey(), untracked(this.address));
   }
 
   private surfaceComponent(route: ContentRoute): Type<unknown> | null {

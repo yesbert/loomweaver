@@ -4,50 +4,55 @@ import {
   RegisteredContentRoute,
   RegisteredView,
 } from '../../../plugin/contribution-registry';
+import { syntheticDockedRoute } from './synthetic-route';
 import {
-  SyntheticRouteOptions,
-  syntheticDockedRoute,
-  syntheticRouteFor,
-} from './synthetic-route';
+  LiveSurfaceRoute,
+  SurfaceAddress,
+  liveSurfaceRoute,
+} from './live-surface-route';
+
+export interface SurfaceMount {
+  readonly injector: Injector;
+  readonly live: LiveSurfaceRoute;
+}
 
 export type SurfaceInjectorFactory = (
   route: RegisteredContentRoute,
-  path: string,
-  instanceId?: string,
-) => Injector;
+  key: string,
+  address: SurfaceAddress,
+) => SurfaceMount;
 
 export function surfaceInjectorFactory(
   parent: Injector,
   environmentInjector: EnvironmentInjector,
-  options?: SyntheticRouteOptions,
 ): SurfaceInjectorFactory {
-  const cache = new Map<RegisteredContentRoute, Map<string, Injector>>();
-  return (route, path, instanceId) => {
-    let byPath = cache.get(route);
-    if (!byPath) {
-      byPath = new Map();
-      cache.set(route, byPath);
+  const cache = new Map<RegisteredContentRoute, Map<string, SurfaceMount>>();
+  return (route, key, address) => {
+    let byKey = cache.get(route);
+    if (!byKey) {
+      byKey = new Map();
+      cache.set(route, byKey);
     }
-    const key = `${path}|${instanceId ?? ''}`;
-    const cached = byPath.get(key);
+    const cached = byKey.get(key);
     if (cached) {
       return cached;
     }
-    const injector = Injector.create({
-      parent,
-      providers: [
-        {
-          provide: ActivatedRoute,
-          useValue: syntheticRouteFor(route, path, { ...options, instanceId }),
-        },
-        {
-          provide: ChildrenOutletContexts,
-          useValue: new ChildrenOutletContexts(environmentInjector),
-        },
-      ],
-    });
-    byPath.set(key, injector);
-    return injector;
+    const live = liveSurfaceRoute(route, address, key);
+    const mount = {
+      live,
+      injector: Injector.create({
+        parent,
+        providers: [
+          { provide: ActivatedRoute, useValue: live.route },
+          {
+            provide: ChildrenOutletContexts,
+            useValue: new ChildrenOutletContexts(environmentInjector),
+          },
+        ],
+      }),
+    };
+    byKey.set(key, mount);
+    return mount;
   };
 }
 

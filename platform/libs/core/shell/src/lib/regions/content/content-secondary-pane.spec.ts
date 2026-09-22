@@ -1,4 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, RouterOutlet, provideRouter } from '@angular/router';
 import { TranslocoTestingModule } from '@jsverse/transloco';
@@ -11,7 +12,16 @@ import {
 } from '../../foundation/surface-padding';
 import { ContentSecondaryPane } from './content-secondary-pane';
 import { offRouterPaneTargets, routerPaneTargets } from './pane-targets';
-import { syntheticRouteFor } from './routing/synthetic-route';
+import { liveSurfaceRoute } from './routing/live-surface-route';
+import { RegisteredContentRoute } from '../../plugin/contribution-registry';
+
+const paneAt = (route: ContentRoute, path: string) =>
+  liveSurfaceRoute(route as RegisteredContentRoute, {
+    path,
+    carriesAddress: false,
+    queryParams: {},
+    fragment: null,
+  }).route;
 
 @Component({
   selector: 'lw-test-param-view',
@@ -24,19 +34,35 @@ class ParamView {
     inject(ActivatedRoute).snapshot.paramMap.get('id') ?? '';
 }
 
+@Component({
+  selector: 'lw-test-sub-view',
+  template: `<span data-testid="sub">{{ sub() }}</span>`,
+})
+class SubView {
+  private readonly data = toSignal(inject(ActivatedRoute).data, {
+    requireSync: true,
+  });
+  protected readonly sub = computed(() => String(this.data()['sub'] ?? ''));
+}
+
 const DOC_ROUTE: ContentRoute = {
   path: 'doc/:id',
   component: ParamView,
   subRoutes: ['code', 'preview'],
 };
 
-describe('syntheticRouteFor (every pane renders its content)', () => {
+describe('the live surface route (every pane renders its content)', () => {
   it('resolves route params from the stored pane path against the pattern', () => {
-    const route = syntheticRouteFor(DOC_ROUTE, 'doc/main/code');
+    const route = paneAt(DOC_ROUTE, 'doc/main/code');
     expect(route.snapshot.paramMap.get('id')).toBe('main');
-    expect(route.snapshot.url.map((s) => s.path)).toEqual(['doc', 'main']);
+    expect(route.snapshot.url.map((segment) => segment.path)).toEqual([
+      'doc',
+      'main',
+    ]);
     expect(
-      route.snapshot.pathFromRoot.flatMap((r) => r.url.map((s) => s.path)),
+      route.snapshot.pathFromRoot.flatMap((r) =>
+        r.url.map((segment) => segment.path),
+      ),
     ).toEqual(['doc', 'main']);
   });
 
@@ -45,7 +71,7 @@ describe('syntheticRouteFor (every pane renders its content)', () => {
       path: 'sandbox-rpc',
       iframe: '/sandbox-rpc/view.html',
     } as ContentRoute;
-    const route = syntheticRouteFor(iframeRoute, 'sandbox-rpc');
+    const route = paneAt(iframeRoute, 'sandbox-rpc');
     expect(route.snapshot.data['iframe']).toBe('/sandbox-rpc/view.html');
   });
 });
@@ -246,6 +272,18 @@ describe('A host-mounted pane says why it is empty', () => {
     expect(element.querySelector('[data-testid="param"]')).toBeNull();
   });
 
+  it('shows nothing while a lazy surface is still loading, rather than saying it is unavailable', () => {
+    const element = mount(ANONYMOUS, 'later', (registry) =>
+      registry.addContentRoute({
+        path: 'later',
+        loadComponent: () => new Promise(() => undefined),
+      }),
+    );
+
+    expect(element.textContent).not.toContain('content.split.unavailable');
+    expect(element.textContent?.trim()).toBe('');
+  });
+
   it('keeps the split text where it is true — the surface exists and simply cannot be mounted here', () => {
     const element = mount(ANONYMOUS, 'headless', (registry) =>
       registry.addContentRoute({ path: 'headless' } as ContentRoute),
@@ -266,7 +304,34 @@ describe('ContentSecondaryPane (host-mounts ANY content route)', () => {
     await fixture.whenStable();
 
     const element: HTMLElement = fixture.nativeElement;
-    expect(element.querySelector('[data-testid="param"]')?.textContent).toBe('main');
+    expect(element.querySelector('[data-testid="param"]')?.textContent).toBe(
+      'main',
+    );
+  });
+
+  it('keeps the surface when its sub-address changes, and tells it the new one', async () => {
+    TestBed.configureTestingModule({ providers: [provideRouter([])] });
+    TestBed.inject(ContributionRegistry).addContentRoute({
+      ...DOC_ROUTE,
+      component: SubView,
+    });
+
+    const fixture = TestBed.createComponent(ContentSecondaryPane);
+    fixture.componentRef.setInput('path', 'doc/main/code');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const element: HTMLElement = fixture.nativeElement;
+    const first = element.querySelector('[data-testid="sub"]');
+    expect(first?.textContent).toBe('code');
+
+    fixture.componentRef.setInput('path', 'doc/main/preview');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const second = element.querySelector('[data-testid="sub"]');
+    expect(second).toBe(first);
+    expect(second?.textContent).toBe('preview');
   });
 
   it('remounts with the real route once it registers after the pane (async sandbox registration)', async () => {

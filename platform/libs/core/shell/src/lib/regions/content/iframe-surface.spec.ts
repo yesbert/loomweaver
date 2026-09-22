@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, provideRouter } from '@angular/router';
+import { of } from 'rxjs';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { AuthSnapshot } from '@loomweaver/plugin-sdk';
 import { IframeSurface } from './iframe-surface';
@@ -33,6 +34,7 @@ describe('IframeSurface', () => {
         {
           provide: ActivatedRoute,
           useValue: {
+            data: of({ iframe: '/sandbox/view.html', urlDriven: true, pluginId }),
             snapshot: {
               data: { iframe: '/sandbox/view.html', urlDriven: true, pluginId },
               params: {},

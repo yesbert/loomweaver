@@ -5,7 +5,9 @@ import {
   Injector,
   Type,
   computed,
+  effect,
   inject,
+  untracked,
 } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { UnusableWorkspaceNotice } from './unusable-workspace-notice';
@@ -23,7 +25,12 @@ import { PaneChromeService } from '../pane/chrome/pane-chrome.service';
 import { PaneActions } from '../pane/pane-actions.service';
 import { escalationStep } from '../pane/chrome/tab-escalation';
 import { matchRoute } from './content-path';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import {
+  ContributionRegistry,
+  RegisteredContentRoute,
+} from '../../plugin/contribution-registry';
+import { CurrentAddress } from './current-address';
+import { SurfaceAddress } from './routing/live-surface-route';
 import { AuthContext } from '../../auth/auth-context';
 import { TabDragSource } from '../pane/drag/pane-drag.service';
 import { PaneTabStrip } from '../pane/chrome/pane-tab-strip';
@@ -79,8 +86,25 @@ export class ContentArea {
   private readonly surfaceInjectorFor = surfaceInjectorFactory(
     inject(Injector),
     inject(EnvironmentInjector),
-    { urlDriven: true },
   );
+
+  private readonly currentAddress = inject(CurrentAddress);
+
+  private readonly address = computed<SurfaceAddress>(() => ({
+    ...this.currentAddress.snapshot(),
+    carriesAddress: true,
+  }));
+
+  private readonly mountedRoute = computed(() => {
+    if (this.tabs.activeViewPath() !== null) {
+      return null;
+    }
+    const route = matchRoute(
+      this.registry.contentRoutes(),
+      this.tabs.activeTabRoot(),
+    );
+    return route && this.auth.meets(route.access) ? route : null;
+  });
 
   private readonly urlPaneId = computed(() =>
     this.layout.primaryId(CONTENT_DOCK),
@@ -109,7 +133,7 @@ export class ContentArea {
     }
     return {
       component: IframeSurface,
-      injector: this.surfaceInjectorFor(route, path, this.surfaceKey()),
+      injector: this.mountFor(route).injector,
     };
   });
 
@@ -137,7 +161,7 @@ export class ContentArea {
     }
     return {
       component,
-      injector: this.surfaceInjectorFor(route, path, this.surfaceKey()),
+      injector: this.mountFor(route).injector,
     };
   });
 
@@ -250,6 +274,17 @@ export class ContentArea {
     () => this.tabs.activeViewPath() ?? this.tabs.activeTabRoot(),
   );
 
+  constructor() {
+    effect(() => {
+      const hosted = this.iframeSurface() ?? this.retainedSurface();
+      const route = hosted ? this.mountedRoute() : null;
+      const address = this.address();
+      if (route) {
+        this.mountFor(route).live.update(address);
+      }
+    });
+  }
+
   protected select(tab: StripTab): void {
     if (tab.path.startsWith(VIEW_PANE_PREFIX)) {
       this.tabs.activateViewTab(tab.path);
@@ -299,6 +334,14 @@ export class ContentArea {
   protected newTab(event: Event): void {
     this.picker.openForNavigation(event.currentTarget as HTMLElement, (path) =>
       this.tabs.navigateTo(path),
+    );
+  }
+
+  private mountFor(route: RegisteredContentRoute) {
+    return this.surfaceInjectorFor(
+      route,
+      this.surfaceKey(),
+      untracked(this.address),
     );
   }
 }
