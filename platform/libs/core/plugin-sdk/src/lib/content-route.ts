@@ -193,7 +193,9 @@ export interface ContentRouteBase {
    * Declarative auth gating: when the current session does not meet the requirement the host
    * renders a neutral **"sign-in required" placeholder** at this URL instead of the route's surface (the
    * URL is preserved), or — if the distribution provided one via `provideUnauthorizedRedirect` — redirects
-   * to the product's login. Reactive: the surface appears once the session qualifies, no reload. A route
+   * to the product's login. Reactive: the surface appears once the session qualifies, no reload. The
+   * same holds below the route: a sub-address, a container child's segment or an owned remainder is
+   * kept on a cold start and opens once the session qualifies. A route
    * is reachable or not, so `mode` is ignored. Presentation only — real enforcement is server-side. Omit
    * for a route everyone can reach.
    */

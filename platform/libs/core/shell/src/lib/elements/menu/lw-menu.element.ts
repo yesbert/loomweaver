@@ -269,7 +269,10 @@ export class LwMenuElement extends HTMLElement {
         }
         break;
       }
-      case 'Escape':
+      case 'Escape': {
+        this.dispatchEvent(new CustomEvent(LW_MENU_DISMISS, { bubbles: true }));
+        break;
+      }
       case 'Tab': {
         this.dispatchEvent(new CustomEvent(LW_MENU_DISMISS, { bubbles: true }));
         return;

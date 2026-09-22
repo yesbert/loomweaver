@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { DialogDismiss, DirtySurface } from '@loomweaver/plugin-sdk';
@@ -6,6 +6,7 @@ import {
   BEFORE_CLOSE_TIMEOUT_MS,
   SurfaceCloseGuard,
 } from '../regions/pane/close/surface-close-guard';
+import { defineLwSelect } from '../elements/select/lw-select.element';
 import { DIALOG_CLOSE_GUARD } from './dialog-close-guard';
 import { DialogOutlet } from './dialog-outlet';
 import { DialogRef } from './dialog-ref';
@@ -38,6 +39,18 @@ class SavingBody implements DirtySurface {
     }
     this.dirty = false;
     return Promise.resolve();
+  }
+}
+
+@Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `<lw-select label="Parent tag"
+    ><lw-option value="a">A</lw-option><lw-option value="b">B</lw-option></lw-select
+  >`,
+})
+class SelectBody implements DirtySurface {
+  surfaceDirty(): boolean {
+    return true;
   }
 }
 
@@ -90,9 +103,13 @@ function setup() {
     ];
   }
 
-  function pressEscape(): void {
-    document.dispatchEvent(
-      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }),
+  function pressEscape(target: EventTarget = document): void {
+    target.dispatchEvent(
+      new KeyboardEvent('keydown', {
+        key: 'Escape',
+        bubbles: true,
+        cancelable: true,
+      }),
     );
     fixture.detectChanges();
   }
@@ -183,6 +200,45 @@ describe('DialogOutlet: how the user may close a dialog', () => {
       'any',
       'none',
     ]);
+  });
+});
+
+describe('DialogOutlet: Escape closes only what it was pressed in', () => {
+  beforeAll(() => defineLwSelect());
+
+  it('leaves the dialog open for an Escape something inside already handled', async () => {
+    const t = setup();
+    const dialog = t.open(UnsavedBody, 'explicit');
+    const body = t.fixture.nativeElement.querySelector('dialog') as HTMLElement;
+    body.addEventListener('keydown', (event) => event.preventDefault());
+
+    t.pressEscape(body);
+    await settle();
+
+    expect(dialog.closed()).toBe(false);
+    expect(t.titles()).toEqual(['t']);
+  });
+
+  it('closes the open list of a select first, and the dialog on the next Escape', async () => {
+    const t = setup();
+    const dialog = t.open(SelectBody, 'explicit');
+    const host = t.fixture.nativeElement as HTMLElement;
+    const trigger = host.querySelector('.lw-select-trigger') as HTMLButtonElement;
+
+    trigger.click();
+    expect(trigger.getAttribute('aria-expanded')).toBe('true');
+
+    t.pressEscape(host.querySelector('[role="listbox"]') as HTMLElement);
+    await settle();
+
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+    expect(dialog.closed()).toBe(false);
+    expect(t.titles()).toEqual(['t']);
+
+    t.pressEscape(trigger);
+    await settle();
+
+    expect(t.titles().at(-1)).toBe('retention.unsavedTitle');
   });
 });
 

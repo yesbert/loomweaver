@@ -32,8 +32,9 @@ const TONE_CIRCLE: Record<DialogTone, string> = {
  * Renders the open dialogs once, mounted by the shell root. Draws the frame
  * (backdrop, panel, title, close-X, footer buttons) and either the convenience body
  * (message + optional prompt input) or a plugin's custom body via NgComponentOutlet.
- * Owns the modal mechanics: scroll-lock, Escape + backdrop dismiss, focus into the newest
- * dialog + restore on close, and a lightweight focus trap.
+ * Owns the modal mechanics: scroll-lock, Escape + backdrop dismiss (an Escape something inside
+ * already handled is left alone), focus into the newest dialog, and a lightweight focus trap.
+ * `DialogService` returns the focus to the opener once the closed dialog has left the page.
  */
 @Component({
   selector: 'lw-dialog-outlet',
@@ -41,7 +42,7 @@ const TONE_CIRCLE: Record<DialogTone, string> = {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './dialog-outlet.html',
   host: {
-    '(document:keydown.escape)': 'onEscape()',
+    '(document:keydown.escape)': 'onEscape($event)',
     '(document:focusin)': 'onFocusIn($event)',
     '(document:keydown.tab)': 'onTab($event, false)',
     '(document:keydown.shift.tab)': 'onTab($event, true)',
@@ -79,7 +80,10 @@ export class DialogOutlet {
     });
   }
 
-  protected onEscape(): void {
+  protected onEscape(event: Event): void {
+    if (event.defaultPrevented) {
+      return;
+    }
     const top = this.top();
     if (top && this.closesDeliberately(top)) {
       this.requestDismiss(top);
