@@ -86,6 +86,12 @@ SHALL keep the address and explain the situation rather than silently redirectin
 screen. A distribution MAY instead supply a destination to send unauthorized visits to, and MAY
 decide per address.
 
+This SHALL hold for every address the content answers, not only its root: an address below it that
+names a sub-address, a child of a container, or a remainder the content owns SHALL be kept and
+explained in the same way, and SHALL open at that sub-address once the session qualifies. A visit
+that arrives before the session is known SHALL be treated no differently from one that arrives
+after.
+
 The explanation SHALL distinguish being signed out from being signed in without the necessary role,
 because telling a signed-in user to sign in does not help them.
 
@@ -104,6 +110,20 @@ because telling a signed-in user to sign in does not help them.
 
 - **WHEN** the session gains the required role while its address is open
 - **THEN** the content is shown without a reload
+
+#### Scenario: An address below gated content survives a cold start
+
+- **WHEN** an address below gated content, naming one of its sub-addresses or a child of a gated
+  container, is opened directly as the application starts, before the session is known
+- **THEN** no navigation error occurs and the address stays in the address bar
+- **AND** once the session qualifies, the content opens at that sub-address, with that child in
+  focus for a container
+
+#### Scenario: An address below gated content is explained while the session does not qualify
+
+- **WHEN** an address below gated content is opened and the session does not qualify
+- **THEN** the address stays in the address bar and the reason is explained, as for the content's
+  own address
 
 ### Requirement: A plugin may read the session, once it has been granted that
 
