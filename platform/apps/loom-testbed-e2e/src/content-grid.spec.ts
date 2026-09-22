@@ -11,13 +11,21 @@ test.describe('Content grid', () => {
         'lw-content-area lw-pane-toolbar button[aria-label="Split right"]',
       )
       .click();
-    await expect(page.locator('lw-content-secondary-pane')).toHaveCount(1);
+    await expect(
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
+      ),
+    ).toHaveCount(1);
 
     await page
-      .locator('lw-pane-view')
+      .locator('lw-pane-view:not([data-address-pane])')
       .getByRole('button', { name: 'Split down' })
       .click();
-    await expect(page.locator('lw-content-secondary-pane')).toHaveCount(2);
+    await expect(
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
+      ),
+    ).toHaveCount(2);
 
     await expect(page.locator('lw-pane-split-handle')).toHaveCount(2);
     await expect(
@@ -25,14 +33,22 @@ test.describe('Content grid', () => {
     ).toHaveCount(1);
 
     await page.reload();
-    await expect(page.locator('lw-content-secondary-pane')).toHaveCount(2);
+    await expect(
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
+      ),
+    ).toHaveCount(2);
 
     await page
-      .locator('lw-pane-view')
+      .locator('lw-pane-view:not([data-address-pane])')
       .first()
       .getByRole('button', { name: 'Close pane' })
       .click();
-    await expect(page.locator('lw-content-secondary-pane')).toHaveCount(1);
+    await expect(
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
+      ),
+    ).toHaveCount(1);
 
     await page.getByTestId('pane-add-tab').first().click();
     await expect(page.locator('lw-menu')).toBeVisible();

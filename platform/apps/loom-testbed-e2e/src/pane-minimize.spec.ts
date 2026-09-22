@@ -19,10 +19,15 @@ test.describe('Pane minimize', () => {
     const strip = page.getByTestId('pane-minimized-strip');
     await expect(strip).toHaveCount(0);
 
-    await page.locator('lw-pane-view').getByTestId('pane-minimize').click();
+    await page
+      .locator('lw-pane-view:not([data-address-pane])')
+      .getByTestId('pane-minimize')
+      .click();
 
     await expect(strip).toHaveCount(1);
-    await expect(page.locator('lw-pane-view')).toHaveCount(0);
+    await expect(
+      page.locator('lw-pane-view:not([data-address-pane])'),
+    ).toHaveCount(0);
     await expect(
       page.locator('lw-content-grid lw-pane-split-handle'),
     ).toHaveCount(0);
@@ -33,7 +38,9 @@ test.describe('Pane minimize', () => {
 
     await strip.click();
     await expect(page.getByTestId('pane-minimized-strip')).toHaveCount(0);
-    await expect(page.locator('lw-pane-view')).toHaveCount(1);
+    await expect(
+      page.locator('lw-pane-view:not([data-address-pane])'),
+    ).toHaveCount(1);
     await expect(
       page.locator('lw-content-grid lw-pane-split-handle'),
     ).toHaveCount(1);
@@ -48,10 +55,13 @@ test.describe('Pane minimize', () => {
         'lw-content-area lw-pane-toolbar button[aria-label="Split right"]',
       )
       .click();
-    const pane = page.locator('lw-pane-view');
+    const pane = page.locator('lw-pane-view:not([data-address-pane])');
     await expect(pane).toHaveCount(1);
 
-    await page.locator('lw-pane-view').getByTestId('pane-add-tab').click();
+    await page
+      .locator('lw-pane-view:not([data-address-pane])')
+      .getByTestId('pane-add-tab')
+      .click();
     await page.getByRole('menuitem', { name: 'Outline' }).click();
     await expect(pane.locator('[role="tab"]')).toHaveCount(2);
 

@@ -30,11 +30,13 @@ test.describe('Sidebar ⇄ center tab moves', () => {
     ).toHaveCount(0);
 
     await expect(
-      page.locator('#panel-views-left-panel [role="tab"][aria-label="Outline"]'),
+      page.locator(
+        '#panel-views-left-panel [role="tab"][aria-label="Outline"]',
+      ),
     ).toHaveCount(0);
 
     await expect(
-      page.locator('lw-content-area lw-testbed-outline-view'),
+      page.locator('#lw-main-content lw-testbed-outline-view'),
     ).toBeVisible();
     await expect(page).toHaveURL(/dashboard\/overview/);
 
@@ -48,7 +50,7 @@ test.describe('Sidebar ⇄ center tab moves', () => {
       .locator('lw-content-area [role="tab"][aria-label="Outline"]')
       .click();
     await expect(
-      page.locator('lw-content-area lw-testbed-outline-view'),
+      page.locator('#lw-main-content lw-testbed-outline-view'),
     ).toBeVisible();
     await page.getByRole('tab', { name: 'Overview' }).click();
     await expect(page.locator('#lw-main-content')).toBeVisible();

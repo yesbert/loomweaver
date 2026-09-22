@@ -32,9 +32,7 @@ test.describe('Curating from a dialog (K5)', () => {
   test('the search field narrows a long list to one row', async ({ page }) => {
     await page.goto('/');
     await rail(page).click({ button: 'right', position: { x: 20, y: 480 } });
-    await page
-      .getByRole('menuitem', { name: 'Choose the entries' })
-      .click();
+    await page.getByRole('menuitem', { name: 'Choose the entries' }).click();
 
     const rows = page.locator('[data-curation-row]');
     await expect(page.getByTestId('curation-search')).toBeVisible();

@@ -14,7 +14,10 @@ function overflowing(root: Locator): Promise<readonly string[]> {
         return;
       }
       if (box.scrollWidth - box.clientWidth > 1) {
-        const text = (box.textContent ?? '').trim().replaceAll(/\s+/g, ' ').slice(0, 40);
+        const text = (box.textContent ?? '')
+          .trim()
+          .replaceAll(/\s+/g, ' ')
+          .slice(0, 40);
         found.push(
           `${box.tagName.toLowerCase()}.${box.className} "${text}" ${box.scrollWidth}>${box.clientWidth} ${getComputedStyle(box).fontFamily.slice(0, 30)}`,
         );
@@ -33,7 +36,7 @@ test.describe('The dashboard fits the pane it was given', () => {
       page,
     }) => {
       await page.goto(`/dashboard/${section}`);
-      const pane = page.locator('lw-content-area main').first();
+      const pane = page.locator('#lw-main-content').first();
       const dashboard = pane.locator('[data-testid="testbed-dashboard"]');
       await expect(dashboard).toBeVisible();
 

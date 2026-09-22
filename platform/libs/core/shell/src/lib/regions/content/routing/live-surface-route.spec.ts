@@ -53,8 +53,11 @@ describe('a live surface route', () => {
     expect(live.route.snapshot.data['sub']).toBe('detail');
     expect(seen).toEqual([undefined, 'detail']);
     const child = live.route.firstChild;
+    if (child === null) {
+      throw new Error('the sub-address has no child route');
+    }
     expect(
-      (await firstValueFrom(child!.url)).map((segment) => segment.path),
+      (await firstValueFrom(child.url)).map((segment) => segment.path),
     ).toEqual(['detail']);
   });
 

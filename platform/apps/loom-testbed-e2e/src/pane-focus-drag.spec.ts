@@ -24,19 +24,23 @@ test.describe('Every tab is draggable — focus handoff on arrival', () => {
 
     await expect(page).toHaveURL(/entry\/e-01/);
     await expect(
-      page.locator('lw-content-area lw-testbed-entry-view'),
+      page.locator('#lw-main-content lw-testbed-entry-view'),
     ).toContainText('E-01');
 
     await expect(
       page.locator(
-        'lw-pane-view lw-pane-tab-strip [role="tab"][aria-label="E-02"]',
+        'lw-pane-view:not([data-address-pane]) lw-pane-tab-strip [role="tab"][aria-label="E-02"]',
       ),
     ).toHaveCount(1);
     await expect(
-      page.locator('lw-pane-view lw-testbed-entry-view'),
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) lw-testbed-entry-view',
+      ),
     ).toContainText('E-02');
 
-    await page.locator('lw-pane-view lw-testbed-entry-view').click();
+    await page
+      .locator('lw-pane-view:not([data-address-pane]) lw-testbed-entry-view')
+      .click();
     await expect(page).toHaveURL(/entry\/e-02/);
 
     await page.reload();
@@ -66,7 +70,7 @@ test.describe('Every tab is draggable — focus handoff on arrival', () => {
     ).toHaveCount(1);
     await expect(page).toHaveURL(/sandbox-unclaimed/);
     const surface = page.frameLocator(
-      'lw-content-area iframe[src*="/sandbox-rpc/view.html?unclaimed=1"]',
+      '#lw-main-content iframe[src*="/sandbox-rpc/view.html?unclaimed=1"]',
     );
     await expect(
       surface.getByRole('heading', { name: /isolated iframe/ }),

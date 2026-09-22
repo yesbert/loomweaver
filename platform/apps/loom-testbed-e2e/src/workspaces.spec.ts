@@ -12,7 +12,11 @@ test.describe('Workspaces are self-remembering', () => {
         'lw-content-area lw-pane-toolbar button[aria-label="Split right"]',
       )
       .click();
-    await expect(page.locator('lw-content-secondary-pane')).toHaveCount(1);
+    await expect(
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
+      ),
+    ).toHaveCount(1);
 
     await page.getByRole('button', { name: 'Workspaces' }).click();
     await page.getByPlaceholder('Workspace name').fill('morning');
@@ -21,23 +25,39 @@ test.describe('Workspaces are self-remembering', () => {
     await page.keyboard.press('Escape');
 
     await page
-      .locator('lw-pane-view')
+      .locator('lw-pane-view:not([data-address-pane])')
       .getByRole('button', { name: 'Close pane' })
       .click();
-    await expect(page.locator('lw-content-secondary-pane')).toHaveCount(0);
+    await expect(
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
+      ),
+    ).toHaveCount(0);
 
     await page.getByRole('button', { name: 'Workspaces' }).click();
     await page.getByTestId('workspace-default').click();
-    await expect(page.locator('lw-content-secondary-pane')).toHaveCount(1);
+    await expect(
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
+      ),
+    ).toHaveCount(1);
 
     await page.getByRole('button', { name: 'Workspaces' }).click();
     await page.getByRole('button', { name: 'morning' }).click();
-    await expect(page.locator('lw-content-secondary-pane')).toHaveCount(0);
+    await expect(
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
+      ),
+    ).toHaveCount(0);
 
     await page.getByRole('button', { name: 'Workspaces' }).click();
     await page.getByTestId('workspace-reset').click();
     await page.getByRole('dialog').getByRole('button', { name: 'OK' }).click();
-    await expect(page.locator('lw-content-secondary-pane')).toHaveCount(1);
+    await expect(
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
+      ),
+    ).toHaveCount(1);
   });
 
   test('reset in the default workspace restores factory defaults and keeps saved workspaces', async ({
@@ -50,7 +70,11 @@ test.describe('Workspaces are self-remembering', () => {
         'lw-content-area lw-pane-toolbar button[aria-label="Split right"]',
       )
       .click();
-    await expect(page.locator('lw-content-secondary-pane')).toHaveCount(1);
+    await expect(
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
+      ),
+    ).toHaveCount(1);
 
     await page.getByRole('button', { name: 'Workspaces' }).click();
     await page.getByPlaceholder('Workspace name').fill('keep-me');
@@ -58,20 +82,36 @@ test.describe('Workspaces are self-remembering', () => {
     await expect(page.getByRole('button', { name: 'keep-me' })).toBeVisible();
 
     await page.getByTestId('workspace-default').click();
-    await expect(page.locator('lw-content-secondary-pane')).toHaveCount(1);
+    await expect(
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
+      ),
+    ).toHaveCount(1);
 
     await page.getByRole('button', { name: 'Workspaces' }).click();
     await page.getByTestId('workspace-reset').click();
     await page.getByRole('dialog').getByRole('button', { name: 'OK' }).click();
-    await expect(page.locator('lw-content-secondary-pane')).toHaveCount(0);
+    await expect(
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
+      ),
+    ).toHaveCount(0);
 
     await page.reload();
-    await expect(page.locator('lw-content-secondary-pane')).toHaveCount(0);
+    await expect(
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
+      ),
+    ).toHaveCount(0);
 
     await page.getByRole('button', { name: 'Workspaces' }).click();
     await expect(page.getByRole('button', { name: 'keep-me' })).toBeVisible();
     await page.getByRole('button', { name: 'keep-me' }).click();
-    await expect(page.locator('lw-content-secondary-pane')).toHaveCount(1);
+    await expect(
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
+      ),
+    ).toHaveCount(1);
   });
 
   test('“Apply changes” on the active row makes the current arrangement the new baseline', async ({
@@ -84,7 +124,11 @@ test.describe('Workspaces are self-remembering', () => {
         'lw-content-area lw-pane-toolbar button[aria-label="Split right"]',
       )
       .click();
-    await expect(page.locator('lw-content-secondary-pane')).toHaveCount(1);
+    await expect(
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
+      ),
+    ).toHaveCount(1);
 
     await page.getByRole('button', { name: 'Workspaces' }).click();
     await page.getByPlaceholder('Workspace name').fill('foo');
@@ -93,10 +137,14 @@ test.describe('Workspaces are self-remembering', () => {
     await page.keyboard.press('Escape');
 
     await page
-      .locator('lw-pane-view')
+      .locator('lw-pane-view:not([data-address-pane])')
       .getByRole('button', { name: 'Close pane' })
       .click();
-    await expect(page.locator('lw-content-secondary-pane')).toHaveCount(0);
+    await expect(
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
+      ),
+    ).toHaveCount(0);
 
     await page.getByRole('button', { name: 'Workspaces' }).click();
     const fooRow = page.getByRole('listitem').filter({ hasText: 'foo' });
@@ -118,12 +166,20 @@ test.describe('Workspaces are self-remembering', () => {
         'lw-content-area lw-pane-toolbar button[aria-label="Split right"]',
       )
       .click();
-    await expect(page.locator('lw-content-secondary-pane')).toHaveCount(1);
+    await expect(
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
+      ),
+    ).toHaveCount(1);
 
     await page.getByRole('button', { name: 'Workspaces' }).click();
     await page.getByTestId('workspace-reset').click();
     await page.getByRole('dialog').getByRole('button', { name: 'OK' }).click();
-    await expect(page.locator('lw-content-secondary-pane')).toHaveCount(0);
+    await expect(
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
+      ),
+    ).toHaveCount(0);
   });
 
   test('the default workspace reads clean at boot and after a reset', async ({
@@ -234,7 +290,9 @@ test.describe('Workspaces are self-remembering', () => {
 
     const panel = page.getByRole('dialog');
     await expect(panel).toBeInViewport();
-    await panel.locator('ul').evaluate((element) => element.scrollTo(0, element.scrollHeight));
+    await panel
+      .locator('ul')
+      .evaluate((element) => element.scrollTo(0, element.scrollHeight));
 
     await expect(
       page.getByRole('button', { name: 'Workspace number 25' }),
@@ -327,7 +385,9 @@ test.describe('Workspaces are self-remembering', () => {
     );
     await page.getByTestId('workspace-tab-provided').click();
     await expect(page.getByTestId('workspace-default')).toHaveCount(0);
-    await expect(page.getByTestId('workspace-def-testbed.review')).toBeVisible();
+    await expect(
+      page.getByTestId('workspace-def-testbed.review'),
+    ).toBeVisible();
 
     const provided = await page
       .locator('[data-testid^="workspace-def-"]')
@@ -369,9 +429,7 @@ test.describe('User workspaces get initials instead of one shared icon', () => {
       .locator('nav')
       .first()
       .click({ button: 'right', position: { x: 20, y: 480 } });
-    await page
-      .getByRole('menuitem', { name: 'Choose the entries' })
-      .click();
+    await page.getByRole('menuitem', { name: 'Choose the entries' }).click();
     await page.getByRole('button', { name: 'Kunden: Left' }).first().click();
     await page.keyboard.press('Escape');
 

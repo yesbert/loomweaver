@@ -6,6 +6,7 @@ import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { provideLayout } from '../../../layout/layout';
 import { ContentTabsService } from '../tabs/content-tabs.service';
 import { provideShellRouter } from './provide-content-router';
+import { SurfaceRouteStub } from './surface-route-stub';
 
 @Component({ selector: 'lw-test-content', template: '' })
 class TestContent {}
@@ -104,7 +105,7 @@ describe('routes a distribution owns', () => {
     const router = open([{ path: '**', component: OwnedPage }], ['dashboard']);
 
     await router.navigateByUrl('/dashboard');
-    expect(landedOn(router)).toBe(TestContent);
+    expect(landedOn(router)).toBe(SurfaceRouteStub);
 
     await router.navigateByUrl('/nowhere');
     expect(landedOn(router)).toBe(OwnedPage);

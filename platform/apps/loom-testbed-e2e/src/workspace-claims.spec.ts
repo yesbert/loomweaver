@@ -11,7 +11,10 @@ async function letReviewClaimEntries(page: Page): Promise<void> {
 
 async function openBravoFromTheList(page: Page): Promise<void> {
   await page.getByRole('button', { name: 'Open the entry list' }).click();
-  await page.getByRole('button', { name: /^Bravo/ }).first().dblclick();
+  await page
+    .getByRole('button', { name: /^Bravo/ })
+    .first()
+    .dblclick();
 }
 
 test.describe('A workspace claims the content that belongs to it', () => {

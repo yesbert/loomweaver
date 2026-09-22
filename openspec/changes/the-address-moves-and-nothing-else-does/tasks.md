@@ -14,31 +14,38 @@
   the live route.
 - [x] 1.8 Run the shell unit suite and the full testbed e2e suite; open the S1 pull request.
 
-## 2. S2 — one strip model
+## 2. S2 — one strip model (shipped with S3)
 
-- [ ] 2.1 Extract the content area's strip and toolbars into an address-pane chrome component, used by
-  the content area unchanged.
-- [ ] 2.2 Run the unit and e2e suites; open the S2 pull request.
+- [x] 2.1 The content area keeps only the address pane's strip and toolbars (host `display: contents`);
+  its body, router outlet, retained containers and view overlay go.
+- [x] 2.2 Shipped in the S3 pull request: on its own it would have needed a throwaway body component and
+  a second selector migration.
 
 ## 3. S3 — the switch
 
-- [ ] 3.1 Test first, e2e: in a split, a click held for 120 ms on a list row in the pane not carrying
-  the address is received once, and the address moves there.
-- [ ] 3.2 Test first, e2e: a surface that is not kept keeps its instance, scroll position and entered
-  text while the address moves into its pane and out again; its element is not re-inserted.
-- [ ] 3.3 Test first, e2e: a text field clicked in the other pane keeps its focus.
-- [ ] 3.4 Every leaf is a pane view; the address leaf shows the address-pane chrome; the body carries
+- [x] 3.1 Test first, e2e (`address-moves-nothing-else.spec.ts`): in a split, a click held for 120 ms
+  on a control in the pane not carrying the address is received, and the address moves there. Red on
+  the code before S3.
+- [x] 3.2 Test first, e2e: a surface that is not kept keeps its element, never removed from the page,
+  while the address moves into its pane and out again. Red before S3.
+- [x] 3.3 Test first, e2e: a text field clicked in the other pane keeps its focus and takes typing. Red
+  before S3.
+- [x] 3.4 Every leaf is a pane view; the address leaf shows the address-pane chrome; the body carries
   the landmark, the notice and the outlet for distribution pages while its leaf carries the address;
   the body path is the active view tab or the leaf's tab.
-- [ ] 3.5 Content routes, their placeholders and the pending-link placeholder render the empty stub.
-- [ ] 3.6 Remove the retained template and the primary retention prefix from the pane tree.
-- [ ] 3.7 Run the unit and e2e suites; open the S3 pull request.
+- [x] 3.5 Content routes, their placeholders and the pending-link placeholder render the empty stub.
+- [x] 3.6 The content grid hands the pane tree no template. The retained template and the primary
+  retention prefix stay: the sidebars use them for their first leaf.
+- [x] 3.7 Move the end-to-end selectors to `#lw-main-content` and `data-address-pane`; resolve an
+  outer pane's container by its tab root; move unit tests that relied on the router drawing content
+  to draw it through a pane.
+- [x] 3.8 Run the unit and e2e suites; open the S3 pull request.
 
 ## 4. S4 — removing what is left
 
 - [ ] 4.1 Reduce the reuse strategy to never reusing across content addresses; move retention
   collection, unsaved work, tab closing and the preview slot off its parked handles.
-- [ ] 4.2 Move end-to-end selectors that name `lw-content-area` as a surface's host.
+- [ ] 4.2 Bring the bundle ceilings back where the slices leave the bundles.
 - [ ] 4.3 Say it in `llms-full.txt`, `docs/weaver/content-area.md` and the JSDoc on reading the
   sub-address and the remainder.
 - [ ] 4.4 Run `openspec validate --all --strict`, the unit suites, the full testbed e2e suite, lint

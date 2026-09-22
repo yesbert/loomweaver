@@ -1,6 +1,12 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, effect, inject, untracked } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  computed,
+  effect,
+  inject,
+  untracked,
+} from '@angular/core';
 import { DOCUMENT } from '@angular/common';
-import { ContentArea } from './content-area';
 import { findLeaf } from '../pane/tree/pane-queries';
 import { PaneTreeView } from '../pane/pane-tree-view';
 import { PaneChromeService } from '../pane/chrome/pane-chrome.service';
@@ -9,7 +15,7 @@ import { PaneTreeService } from '../pane/tree/pane-tree.service';
 
 @Component({
   selector: 'lw-content-grid',
-  imports: [ContentArea, PaneTreeView],
+  imports: [PaneTreeView],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   host: {
     class: 'flex min-h-0 min-w-0 overflow-hidden',

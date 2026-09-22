@@ -11,7 +11,9 @@ async function sandboxFrame(page: Page): Promise<Frame> {
   await page.goto('/sandbox-static');
   const element = page.locator('iframe[src*="/sandbox-static/view.html"]');
   await expect(element).toBeAttached({ timeout: 20_000 });
-  const frame = await element.elementHandle().then((handle) => handle?.contentFrame());
+  const frame = await element
+    .elementHandle()
+    .then((handle) => handle?.contentFrame());
   if (!frame) {
     throw new Error('the sandboxed surface never attached a document');
   }

@@ -13,7 +13,10 @@ async function openTwoEntries(page: Page): Promise<void> {
 
 async function splitOffNotes(page: Page): Promise<void> {
   const content = await page.locator('#lw-main-content').boundingBox();
-  const tab = await page.getByRole('tab', { name: 'Notes' }).first().boundingBox();
+  const tab = await page
+    .getByRole('tab', { name: 'Notes' })
+    .first()
+    .boundingBox();
   if (!content || !tab) {
     throw new Error('splitOffNotes: missing geometry');
   }
@@ -29,12 +32,14 @@ async function splitOffNotes(page: Page): Promise<void> {
     content.y + content.height / 2 + 1,
   );
   await page.mouse.up();
-  await expect(page.locator('lw-pane-view')).toHaveCount(1);
+  await expect(
+    page.locator('lw-pane-view:not([data-address-pane])'),
+  ).toHaveCount(1);
 }
 
 function rendered(page: Page) {
   return page.evaluate(() =>
-    [...document.querySelectorAll('lw-content-area, lw-pane-view')].map(
+    [...document.querySelectorAll('lw-content-grid lw-pane-view')].map(
       (pane) => {
         const tabs = [...pane.querySelectorAll('[role="tab"]')];
         return {
@@ -62,7 +67,7 @@ function rendered(page: Page) {
 
 function stripOrders(page: Page) {
   return page.evaluate(() =>
-    [...document.querySelectorAll('lw-content-area, lw-pane-view')].map((pane) =>
+    [...document.querySelectorAll('lw-content-grid lw-pane-view')].map((pane) =>
       [...pane.querySelectorAll('lw-pane-tab-strip [role="tab"]')].map((tab) =>
         (tab.textContent ?? '').trim().replace(/(.+)\1/, '$1'),
       ),
@@ -73,7 +78,9 @@ function stripOrders(page: Page) {
 async function surfaceIdentity(page: Page): Promise<string> {
   await expect(page.locator('lw-testbed-notes-view')).toBeVisible();
   return page.evaluate(() => {
-    const element = document.querySelector<HTMLElement>('lw-testbed-notes-view');
+    const element = document.querySelector<HTMLElement>(
+      'lw-testbed-notes-view',
+    );
     if (!element) {
       return 'absent';
     }
@@ -138,8 +145,10 @@ interface PaneSnapshot {
 function panesLeftToRight(page: Page): Promise<PaneSnapshot[]> {
   return page.evaluate(() => {
     const panes = [
-      ...document.querySelectorAll('lw-content-area, lw-pane-view'),
-    ].toSorted((a, b) => a.getBoundingClientRect().x - b.getBoundingClientRect().x);
+      ...document.querySelectorAll('lw-content-grid lw-pane-view'),
+    ].toSorted(
+      (a, b) => a.getBoundingClientRect().x - b.getBoundingClientRect().x,
+    );
     return panes.map((pane) => {
       const tabs = [...pane.querySelectorAll('[role="tab"]')];
       const active = (
@@ -171,7 +180,9 @@ async function splitAndStamp(page: Page): Promise<void> {
   await page.evaluate(() => {
     const views = [
       ...document.querySelectorAll<HTMLElement>('lw-testbed-notes-view'),
-    ].toSorted((a, b) => a.getBoundingClientRect().x - b.getBoundingClientRect().x);
+    ].toSorted(
+      (a, b) => a.getBoundingClientRect().x - b.getBoundingClientRect().x,
+    );
     views[0].dataset['marker'] = 'L';
     views[1].dataset['marker'] = 'R';
   });
@@ -185,7 +196,7 @@ function clickTabInPane(
   return page.evaluate(
     ([which, name]) => {
       const panes = [
-        ...document.querySelectorAll('lw-content-area, lw-pane-view'),
+        ...document.querySelectorAll('lw-content-grid lw-pane-view'),
       ].toSorted(
         (a, b) => a.getBoundingClientRect().x - b.getBoundingClientRect().x,
       );
@@ -225,9 +236,12 @@ test('state typed into one pane never appears in the other (TreeWeaver #42)', as
 
   await page.evaluate(() => {
     const panes = [
-      ...document.querySelectorAll('lw-content-area, lw-pane-view'),
-    ].toSorted((a, b) => a.getBoundingClientRect().x - b.getBoundingClientRect().x);
-    panes.at(-1)
+      ...document.querySelectorAll('lw-content-grid lw-pane-view'),
+    ].toSorted(
+      (a, b) => a.getBoundingClientRect().x - b.getBoundingClientRect().x,
+    );
+    panes
+      .at(-1)
       .querySelector<HTMLTextAreaElement>('lw-testbed-notes-view textarea')
       ?.focus();
   });

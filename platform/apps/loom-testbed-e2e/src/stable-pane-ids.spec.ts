@@ -2,10 +2,12 @@ import { Page, expect, test } from '@playwright/test';
 
 function panesLeftToRight(page: Page) {
   return page.evaluate(() =>
-    [...document.querySelectorAll('lw-content-area, lw-pane-view')]
-      .toSorted((a, b) => a.getBoundingClientRect().x - b.getBoundingClientRect().x)
+    [...document.querySelectorAll('lw-content-grid lw-pane-view')]
+      .toSorted(
+        (a, b) => a.getBoundingClientRect().x - b.getBoundingClientRect().x,
+      )
       .map((pane) => ({
-        tag: pane.tagName,
+        address: pane.hasAttribute('data-address-pane'),
         stripId:
           pane.querySelector('[id^="pane-strip:content:"]')?.id ?? 'none',
       })),
@@ -20,7 +22,7 @@ function clickTabInPane(
   return page.evaluate(
     ([which, name]) => {
       const panes = [
-        ...document.querySelectorAll('lw-content-area, lw-pane-view'),
+        ...document.querySelectorAll('lw-content-grid lw-pane-view'),
       ].toSorted(
         (a, b) => a.getBoundingClientRect().x - b.getBoundingClientRect().x,
       );
@@ -73,8 +75,8 @@ test('the URL role survives a reload as a pointer: the focused pane is still the
   await splitNotes(page);
   await clickTabInPane(page, 'right', 'Notes');
   await expect
-    .poll(async () => (await panesLeftToRight(page))[1]?.tag)
-    .toBe('LW-CONTENT-AREA');
+    .poll(async () => (await panesLeftToRight(page))[1]?.address)
+    .toBe(true);
   const before = (await panesLeftToRight(page)).map((pane) => pane.stripId);
 
   await page.reload();
@@ -82,8 +84,5 @@ test('the URL role survives a reload as a pointer: the focused pane is still the
 
   const after = await panesLeftToRight(page);
   expect(after.map((pane) => pane.stripId)).toEqual(before);
-  expect(after.map((pane) => pane.tag)).toEqual([
-    'LW-PANE-VIEW',
-    'LW-CONTENT-AREA',
-  ]);
+  expect(after.map((pane) => pane.address)).toEqual([false, true]);
 });

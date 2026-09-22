@@ -20,9 +20,7 @@ test.describe('Rail entries the user curates', () => {
     await expect(notes).toHaveCount(0);
 
     await rail(page).click({ button: 'right', position: { x: 20, y: 480 } });
-    await page
-      .getByRole('menuitem', { name: 'Choose the entries' })
-      .click();
+    await page.getByRole('menuitem', { name: 'Choose the entries' }).click();
     await page.getByRole('button', { name: 'Notes: Left' }).click();
     await page.keyboard.press('Escape');
 
@@ -90,9 +88,7 @@ test.describe('Rail entries the user curates', () => {
     await expect(entry).toHaveCount(0);
 
     await rail(page).click({ button: 'right', position: { x: 20, y: 480 } });
-    await page
-      .getByRole('menuitem', { name: 'Choose the entries' })
-      .click();
+    await page.getByRole('menuitem', { name: 'Choose the entries' }).click();
     await page.getByRole('button', { name: 'Quarter close: Left' }).click();
     await page.keyboard.press('Escape');
 

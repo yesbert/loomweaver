@@ -16,6 +16,8 @@ import { buildContentRoutes } from '../routing/content-router';
 import { BootAddress } from '../routing/boot-address';
 import { provideShellFeatures } from '../../../foundation/shell-features';
 import { ContentTabsService } from './content-tabs.service';
+import { ContentSecondaryPane } from '../content-secondary-pane';
+import { paneRetentionScope } from '../../pane/retention/retention-policy';
 
 @Component({ selector: 'lw-test-content', template: '' })
 class TestContent {}
@@ -411,6 +413,14 @@ describe('ContentTabsService (findings #8/#11)', () => {
   it('answers whether an address holds unsaved work, and follows it being saved', async () => {
     draftDirty.set(true);
     await harness.navigateByUrl('/draft/a');
+    const pane = TestBed.createComponent(ContentSecondaryPane);
+    pane.componentRef.setInput('path', 'draft/a');
+    pane.componentRef.setInput('carriesAddress', true);
+    pane.componentRef.setInput(
+      'retentionScope',
+      paneRetentionScope(CONTENT_DOCK, PRIMARY_PANE),
+    );
+    pane.detectChanges();
 
     expect(service.hasUnsavedWork('draft/a')).toBe(true);
     expect(service.hasUnsavedWork('doc/b')).toBe(false);

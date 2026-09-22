@@ -15,11 +15,8 @@ import {
   RegisteredContentRoute,
 } from '../../../plugin/contribution-registry';
 import { AuthContext } from '../../../auth/auth-context';
-import { ContainerPaneHost } from '../../pane/container/container-pane-host';
 import { ContentSubStub } from './content-sub-stub';
 import { SurfaceRouteStub } from './surface-route-stub';
-import { AuthRequiredView } from '../access/auth-required-view';
-import { RouteUnavailableView } from '../access/route-unavailable-view';
 import { accessCanMatch } from '../access/content-access';
 import { BootAddress } from './boot-address';
 import { DISTRIBUTION_ROUTES, isCatchAll } from './distribution-routes';
@@ -43,26 +40,15 @@ export function buildContentRoutes(
 ): Routes {
   const placeholders: Routes = omitted.map((route) => ({
     path: route.path,
-    component: RouteUnavailableView,
+    component: SurfaceRouteStub,
     canActivate: [keepPopout, settleWorkspace],
     data: { content: true, routePlaceholder: true },
   }));
   return [...buildRegisteredRoutes(contentRoutes, retention), ...placeholders];
 }
 
-function surfaceRoute(
-  route: RegisteredContentRoute,
-  retained: boolean,
-): Partial<Route> {
-  if (route.container !== undefined) {
-    return { component: ContainerPaneHost };
-  }
-  if (route.iframe !== undefined || retained) {
-    return { component: SurfaceRouteStub };
-  }
-  return route.loadComponent
-    ? { loadComponent: route.loadComponent }
-    : { component: route.component };
+function surfaceRoute(): Partial<Route> {
+  return { component: SurfaceRouteStub };
 }
 
 function subStub(path: string, pathMatch?: 'full'): Route {
@@ -100,7 +86,7 @@ function buildRegisteredRoutes(
     const retained = routeRetains(route, retention);
     const angular: Route = {
       path: route.path,
-      ...surfaceRoute(route, retained),
+      ...surfaceRoute(),
       canActivate: [keepPopout, settleWorkspace],
       data: {
         content: true,
@@ -120,7 +106,7 @@ function buildRegisteredRoutes(
       angular.canMatch = [accessCanMatch(route.access)];
       const placeholder: Route = {
         path: route.path,
-        component: AuthRequiredView,
+        component: SurfaceRouteStub,
         canActivate: [keepPopout],
         data: {
           content: true,
@@ -300,7 +286,7 @@ export class ContentRouter {
     return [
       {
         path,
-        component: RouteUnavailableView,
+        component: SurfaceRouteStub,
         canActivate: [keepPopout, settleWorkspace],
         data: { content: true, routePlaceholder: true },
       },

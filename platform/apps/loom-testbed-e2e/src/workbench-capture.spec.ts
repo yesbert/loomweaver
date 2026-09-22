@@ -17,9 +17,7 @@ interface PictureRequest {
 
 declare global {
   // eslint-disable-next-line no-var
-  var lwCapture:
-    | ((request?: PictureRequest) => Promise<Picture>)
-    | undefined;
+  var lwCapture: ((request?: PictureRequest) => Promise<Picture>) | undefined;
 }
 
 async function openSandbox(page: Page): Promise<void> {
@@ -103,7 +101,10 @@ test.describe('A picture of the workbench', () => {
     await openSandbox(page);
 
     const asked = await page.evaluate(async () => {
-      const media = navigator.mediaDevices as unknown as Record<string, unknown>;
+      const media = navigator.mediaDevices as unknown as Record<
+        string,
+        unknown
+      >;
       const calls: string[] = [];
       for (const name of ['getDisplayMedia', 'getUserMedia']) {
         media[name] = () => {
@@ -112,7 +113,10 @@ test.describe('A picture of the workbench', () => {
         };
       }
       const requested: string[] = [];
-      const permissions = navigator.permissions as unknown as Record<string, unknown>;
+      const permissions = navigator.permissions as unknown as Record<
+        string,
+        unknown
+      >;
       permissions['query'] = (descriptor: { name: string }) => {
         requested.push(descriptor.name);
         return Promise.reject(new Error('not permitted in this test'));
@@ -150,9 +154,7 @@ test.describe('A picture of the workbench', () => {
   test('leaves nothing of its own behind in the document', async ({ page }) => {
     await openSandbox(page);
 
-    const before = await page.evaluate(
-      () => document.body.childElementCount,
-    );
+    const before = await page.evaluate(() => document.body.childElementCount);
     await page.evaluate(() => globalThis.lwCapture!());
     const after = await page.evaluate(() => document.body.childElementCount);
 

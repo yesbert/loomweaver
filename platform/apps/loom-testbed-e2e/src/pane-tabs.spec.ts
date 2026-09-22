@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 test.describe('Per-pane tab groups', () => {
-  const pane = 'lw-pane-view';
+  const pane = 'lw-pane-view:not([data-address-pane])';
 
   test('a secondary pane is a tab group: own strip, own active tab, add/switch/close, reload-safe', async ({
     page,
@@ -16,25 +16,36 @@ test.describe('Per-pane tab groups', () => {
     await expect(page.locator(pane)).toHaveCount(1);
     await expect(page.locator(`${pane} [role="tab"]`)).toHaveCount(1);
     await expect(
-      page.locator('lw-content-secondary-pane lw-testbed-search-view'),
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane lw-testbed-search-view',
+      ),
     ).toBeVisible();
 
-    await page.locator('lw-pane-view').getByTestId('pane-add-tab').click();
+    await page
+      .locator('lw-pane-view:not([data-address-pane])')
+      .getByTestId('pane-add-tab')
+      .click();
     await page.getByRole('menuitem', { name: 'Outline' }).click();
     await expect(page.locator(`${pane} [role="tab"]`)).toHaveCount(2);
     await expect(
-      page.locator('lw-content-secondary-pane lw-testbed-outline-view'),
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane lw-testbed-outline-view',
+      ),
     ).toBeVisible();
 
     await page.reload();
     await expect(page.locator(`${pane} [role="tab"]`)).toHaveCount(2);
     await expect(
-      page.locator('lw-content-secondary-pane lw-testbed-outline-view'),
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane lw-testbed-outline-view',
+      ),
     ).toBeVisible();
 
     await page.locator(`${pane} [role="tab"]`).first().click();
     await expect(
-      page.locator('lw-content-secondary-pane lw-testbed-search-view'),
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane lw-testbed-search-view',
+      ),
     ).toBeVisible();
 
     await page.locator(`${pane}`).getByTestId('tab-close').first().click();

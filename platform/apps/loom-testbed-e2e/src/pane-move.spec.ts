@@ -22,28 +22,36 @@ test.describe('Tab move semantics', () => {
     await expect(
       page
         .locator(
-          'lw-content-area lw-testbed-entry-view, lw-content-area textarea',
+          '#lw-main-content lw-testbed-entry-view, #lw-main-content textarea',
         )
         .first(),
     ).toBeVisible();
 
     await expect(
-      page.locator('lw-pane-view lw-pane-tab-strip [role="tab"]'),
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) lw-pane-tab-strip [role="tab"]',
+      ),
     ).toHaveCount(1);
     await expect(
       page.locator(
-        'lw-pane-view lw-pane-tab-strip [role="tab"][aria-label="E-02"]',
+        'lw-pane-view:not([data-address-pane]) lw-pane-tab-strip [role="tab"][aria-label="E-02"]',
       ),
     ).toHaveCount(1);
 
     await expect(
-      page.locator('lw-pane-view lw-testbed-entry-view'),
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) lw-testbed-entry-view',
+      ),
     ).toBeVisible();
     await expect(
-      page.locator('lw-pane-view lw-testbed-entry-view'),
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) lw-testbed-entry-view',
+      ),
     ).toContainText('E-02');
 
-    await page.locator('lw-pane-view lw-testbed-entry-view').click();
+    await page
+      .locator('lw-pane-view:not([data-address-pane]) lw-testbed-entry-view')
+      .click();
     await expect(page).toHaveURL(/entry\/e-02/);
 
     await page.reload();
@@ -73,7 +81,7 @@ test.describe('Tab move semantics', () => {
     await expect(page).toHaveURL(/entry\/e-01/);
     await expect(
       page.locator(
-        'lw-pane-view lw-pane-tab-strip [role="tab"][aria-label="E-02"]',
+        'lw-pane-view:not([data-address-pane]) lw-pane-tab-strip [role="tab"][aria-label="E-02"]',
       ),
     ).toHaveCount(1);
   });
@@ -110,7 +118,9 @@ test.describe('Tab move semantics', () => {
         'lw-content-area lw-pane-toolbar button[aria-label="Split right"]',
       )
       .click();
-    await expect(page.locator('lw-pane-view [role="tab"]')).toHaveCount(1);
+    await expect(
+      page.locator('lw-pane-view:not([data-address-pane]) [role="tab"]'),
+    ).toHaveCount(1);
 
     await page.goto('/dashboard/overview');
     await expect(page.getByRole('tab', { name: 'Overview' })).toBeVisible();
@@ -118,12 +128,14 @@ test.describe('Tab move semantics', () => {
     const strip = (await page
       .locator('lw-content-area [role="tablist"]')
       .boundingBox())!;
-    await dragTo(page, 'lw-pane-view [role="tab"]', {
+    await dragTo(page, 'lw-pane-view:not([data-address-pane]) [role="tab"]', {
       x: strip.x + strip.width - 40,
       y: strip.y + strip.height / 2,
     });
 
-    await expect(page.locator('lw-pane-view')).toHaveCount(0);
+    await expect(
+      page.locator('lw-pane-view:not([data-address-pane])'),
+    ).toHaveCount(0);
     await expect(
       page.locator('lw-content-grid lw-pane-split-handle'),
     ).toHaveCount(0);

@@ -2,8 +2,8 @@ import { Locator, Page, expect, test } from '@playwright/test';
 import { narrowPrimaryPane, splitContentRight } from './support/helpers';
 
 const KPIS = '[data-testid="dash-kpis"]';
-const IN_PRIMARY = `${KPIS}:not(lw-content-secondary-pane *)`;
-const IN_SECONDARY = `lw-content-secondary-pane ${KPIS}`;
+const IN_PRIMARY = `${KPIS}:not(lw-pane-view:not([data-address-pane]) *)`;
+const IN_SECONDARY = `lw-pane-view:not([data-address-pane]) lw-content-secondary-pane ${KPIS}`;
 
 function columnCount(target: Locator): Promise<number> {
   return target.evaluate(
@@ -55,7 +55,10 @@ test.describe('A surface is measured against its pane, not the window', () => {
     await narrowPrimaryPane(page, divider);
 
     await expect
-      .poll(async () => (await columnCount(secondary)) - (await columnCount(primary)))
+      .poll(
+        async () =>
+          (await columnCount(secondary)) - (await columnCount(primary)),
+      )
       .toBeGreaterThan(0);
   });
 
@@ -68,8 +71,8 @@ test.describe('A surface is measured against its pane, not the window', () => {
     await splitContentRight(page);
 
     for (const selector of [
-      'lw-content-area main',
-      'lw-content-secondary-pane',
+      '#lw-main-content > lw-content-secondary-pane',
+      'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
     ]) {
       const host = page.locator(selector).first();
       await expect(host).toBeVisible();
@@ -90,11 +93,15 @@ test.describe('A surface is measured against its pane, not the window', () => {
     });
   });
 
-  test('a surface that brought its own reference keeps it', async ({ page }) => {
+  test('a surface that brought its own reference keeps it', async ({
+    page,
+  }) => {
     await page.goto('/');
     await openEntryList(page);
 
-    const own = page.locator(String.raw`lw-testbed-list-view > .\@container`).first();
+    const own = page
+      .locator(String.raw`lw-testbed-list-view > .\@container`)
+      .first();
     await expect(own).toBeAttached();
 
     const style = await reference(own);

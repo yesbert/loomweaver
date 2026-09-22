@@ -15,7 +15,11 @@ test.describe('Content split', () => {
     await toggle.click();
     const divider = page.getByRole('separator', { name: 'Resize split' });
     await expect(divider).toBeVisible();
-    await expect(page.locator('lw-content-secondary-pane')).toBeVisible();
+    await expect(
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
+      ),
+    ).toBeVisible();
 
     await divider.focus();
     await page.keyboard.press('ArrowRight');
@@ -24,13 +28,21 @@ test.describe('Content split', () => {
     await expect(
       page.getByRole('separator', { name: 'Resize split' }),
     ).toBeVisible();
-    await expect(page.locator('lw-content-secondary-pane')).toBeVisible();
+    await expect(
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
+      ),
+    ).toBeVisible();
 
     await page.getByRole('button', { name: 'Close pane' }).first().click();
     await expect(
       page.getByRole('separator', { name: 'Resize split' }),
     ).toHaveCount(0);
-    await expect(page.locator('lw-content-secondary-pane')).toHaveCount(0);
+    await expect(
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
+      ),
+    ).toHaveCount(0);
   });
 
   test('the split toolbar works on an access-gated surface once the session qualifies (finding #32)', async ({
@@ -56,7 +68,11 @@ test.describe('Content split', () => {
     await expect(
       page.getByRole('separator', { name: 'Resize split' }),
     ).toBeVisible();
-    await expect(page.locator('lw-content-secondary-pane')).toBeVisible();
+    await expect(
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
+      ),
+    ).toBeVisible();
   });
 
   test('an empty content area offers New tab in the floating toolbar next to the split controls', async ({
@@ -97,7 +113,11 @@ test.describe('Content split', () => {
     await expect(
       page.locator('lw-content-grid lw-pane-split-handle'),
     ).toHaveCount(0);
-    await expect(page.locator('lw-content-secondary-pane')).toHaveCount(0);
+    await expect(
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
+      ),
+    ).toHaveCount(0);
     await expect(page).toHaveURL(/entry\/e-02/);
   });
 
@@ -127,10 +147,12 @@ test.describe('Content split', () => {
     await expect(
       page.locator('lw-content-area').getByRole('tab', { name: 'E-02' }),
     ).toHaveCount(1);
-    await expect(page.locator('lw-pane-view')).toHaveCount(1);
+    await expect(
+      page.locator('lw-pane-view:not([data-address-pane])'),
+    ).toHaveCount(1);
     await expect(page).toHaveURL(/entry\/e-02/);
 
-    const copy = page.locator('lw-pane-view');
+    const copy = page.locator('lw-pane-view:not([data-address-pane])');
     await expect(copy.getByRole('tab', { name: 'E-02' })).toHaveCount(1);
     await expect(copy.getByRole('tab', { name: 'Entry editor' })).toHaveCount(
       0,
