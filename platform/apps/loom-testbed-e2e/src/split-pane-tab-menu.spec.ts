@@ -18,7 +18,7 @@ test.describe('A content tab in a split pane opens its menu and acts on that pan
     ).toHaveCount(1);
 
     const splitStrip = page.locator(
-      'lw-content-grid lw-pane-view lw-pane-tab-strip',
+      'lw-content-grid lw-pane-view:not([data-address-pane]) lw-pane-tab-strip',
     );
     await expect(splitStrip.locator('[role="tab"]')).toHaveCount(2);
     const target = splitStrip.locator('[role="tab"][aria-label="E-02"]');

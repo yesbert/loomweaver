@@ -11,13 +11,19 @@ async function holdThePluginBack(page: Page, ms: number): Promise<void> {
 }
 
 async function savedContentTabs(page: Page): Promise<readonly string[]> {
-  const raw = await page.evaluate((key) => localStorage.getItem(key), PANES_KEY);
+  const raw = await page.evaluate(
+    (key) => localStorage.getItem(key),
+    PANES_KEY,
+  );
   const tabs = JSON.parse(raw ?? '{}')?.content?.tree?.tabs ?? [];
   return tabs.map((tab: { path: string }) => tab.path);
 }
 
 async function savedActiveTab(page: Page): Promise<string | undefined> {
-  const raw = await page.evaluate((key) => localStorage.getItem(key), PANES_KEY);
+  const raw = await page.evaluate(
+    (key) => localStorage.getItem(key),
+    PANES_KEY,
+  );
   return JSON.parse(raw ?? '{}')?.content?.tree?.active;
 }
 
@@ -35,7 +41,9 @@ test.describe('A deep link survives arriving before the plugin that answers it',
     await holdThePluginBack(page, 3000);
     await page.goto('/sandbox-rpc');
 
-    await expect(page.locator('iframe[src*="/sandbox-rpc/view.html"]')).toBeAttached({
+    await expect(
+      page.locator('iframe[src*="/sandbox-rpc/view.html"]'),
+    ).toBeAttached({
       timeout: 15_000,
     });
     await expect(page).toHaveURL(/\/sandbox-rpc$/);
@@ -51,7 +59,9 @@ test.describe('A deep link survives arriving before the plugin that answers it',
 
     await holdThePluginBack(page, 3000);
     await page.goto('/sandbox-rpc');
-    await expect(page.locator('iframe[src*="/sandbox-rpc/view.html"]')).toBeAttached({
+    await expect(
+      page.locator('iframe[src*="/sandbox-rpc/view.html"]'),
+    ).toBeAttached({
       timeout: 15_000,
     });
 
@@ -67,7 +77,9 @@ test.describe('A deep link survives arriving before the plugin that answers it',
 
     await holdThePluginBack(page, 3000);
     await page.goto('/sandbox-rpc');
-    await expect(page.locator('iframe[src*="/sandbox-rpc/view.html"]')).toBeAttached({
+    await expect(
+      page.locator('iframe[src*="/sandbox-rpc/view.html"]'),
+    ).toBeAttached({
       timeout: 15_000,
     });
 
@@ -76,7 +88,10 @@ test.describe('A deep link survives arriving before the plugin that answers it',
 
     await page.locator(RAIL_ENTRY).click();
     await expect(page).toHaveURL(/\/sandbox-rpc$/);
-    await expect(page.locator(RAIL_ENTRY)).toHaveAttribute('aria-current', 'true');
+    await expect(page.locator(RAIL_ENTRY)).toHaveAttribute(
+      'aria-current',
+      'true',
+    );
   });
 
   test('an address nothing ever answers reads as unavailable and leaves nothing behind', async ({

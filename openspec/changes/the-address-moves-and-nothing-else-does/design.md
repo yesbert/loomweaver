@@ -39,10 +39,24 @@ surface reads its remainder from "its child route or the router".
 
 ## Decisions
 
-**1. One leaf host, with a stable body.** Every leaf of every pane tree is drawn by the pane view. For
+**1. One leaf host, with a stable body.** Every leaf of the content dock's pane tree is drawn by the
+pane view. The sidebars keep drawing their own first leaf through a retained template, because they
+have no address and show a view there without a strip; only the content grid stops handing the tree
+a template. For
 the leaf carrying the content address, the pane view shows the address pane's chrome (strip and
 toolbars) in place of its own. The body, the element the surface is drawn in, is outside that switch
-and never re-created by it. The landmark id `lw-main-content`, the router outlet for distribution
+and never re-created by it. The landmark is the body carrying `role="main"`, because swapping a `div`
+for a `main` element would re-create the node. The pane view marks itself `data-address-pane` while
+it carries the address, a stable hook for styling and tests.
+
+**1a. What the address pane's body shows.** The active view tab if there is one; otherwise the
+address, when the address names a tab this pane holds or content that is never a tab (chromeless,
+following, the start address, an unanswered or distribution-owned address); otherwise the pane's own
+active tab. The last case covers the moment after focus has moved the pointer but before the router
+has arrived at the pane's content: without it, the pane would briefly show the address it is leaving
+and park its own surface. A distribution-owned page is drawn by the router outlet in the body, and the
+pane's surface is not shown meanwhile. An outer pane resolves a container by its tab root, never by
+a child's segment below it. The landmark id `lw-main-content`, the router outlet for distribution
 pages and the unusable-workspace notice are attached to the body of whichever leaf carries the
 address. Rejected: keeping the content area as the address pane's host and moving its surface in
 without re-parenting. Its router outlet is the renderer, and there is no way to hand a live component
@@ -82,10 +96,11 @@ parks nothing worth keeping. It is reduced to "never reuse across content addres
 consumers of its parked handles (retention collection, unsaved work, tab closing, preview slot) read
 the stash, which they already read for panes.
 
-**Slices.** S1 (decisions 3 and 4, plus the secondary pane drawing what the router drew: a loading
-state for lazy surfaces, and chromeless) changes nothing a user sees in the address pane. S2 (decision
-5) extracts the chrome without moving it. S3 (decisions 1 and 2) is the switch and the fix. S4
-(decision 6) removes what S3 left unused and moves the end-to-end selectors.
+**Slices.** S1 (decisions 3 and 4, plus a loading state for lazy surfaces) changes nothing a user
+sees in the address pane. S2 (decision 5) and S3 (decisions 1 and 2) ship together: extracting the
+chrome alone would have needed a throwaway body component and a second migration of the end-to-end
+selectors. S3 also moves the selectors, since the suite has to stay green at the switch. S4 (decision
+6) removes what S3 left unused.
 
 ## Risks / Trade-offs
 
@@ -97,7 +112,8 @@ state for lazy surfaces, and chromeless) changes nothing a user sees in the addr
   in which both render.
 - [The skip link loses its target while the landmark moves] → The id is an attribute binding on a
   stable element; the landmark moves without moving any node.
-- [End-to-end selectors naming `lw-content-area` as a surface's host] → S4 moves them. S3 keeps the
-  `lw-content-area` tag on the address pane's chrome, so toolbar selectors keep working.
+- [End-to-end selectors naming `lw-content-area` as a surface's host] → S3 moves them to
+  `#lw-main-content` and `data-address-pane`. The `lw-content-area` tag stays on the address pane's
+  chrome, so toolbar and strip selectors keep working.
 - [The primary's minimized strip and maximize] → The pane view's minimized branch already covers any
   leaf. The address leaf takes it like others.

@@ -11,19 +11,28 @@ test.describe('View in a content pane', () => {
         'lw-content-area lw-pane-toolbar button[aria-label="Split right"]',
       )
       .click();
-    await page.locator('lw-pane-view').getByTestId('pane-add-tab').click();
+    await page
+      .locator('lw-pane-view:not([data-address-pane])')
+      .getByTestId('pane-add-tab')
+      .click();
     await page.getByRole('menuitem', { name: 'Outline' }).click();
 
     await expect(
-      page.locator('lw-content-secondary-pane lw-testbed-outline-view'),
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane lw-testbed-outline-view',
+      ),
     ).toBeVisible();
     await expect(
-      page.locator('lw-pane-view [role="tab"][aria-label="Outline"]'),
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) [role="tab"][aria-label="Outline"]',
+      ),
     ).toBeVisible();
 
     await page.reload();
     await expect(
-      page.locator('lw-content-secondary-pane lw-testbed-outline-view'),
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane lw-testbed-outline-view',
+      ),
     ).toBeVisible();
   });
 });

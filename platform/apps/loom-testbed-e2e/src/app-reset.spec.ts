@@ -15,9 +15,7 @@ test.describe('Resetting the app layout (K6)', () => {
     await expect(notes).toHaveCount(1);
 
     await rail(page).click({ button: 'right', position: { x: 20, y: 480 } });
-    await page
-      .getByRole('menuitem', { name: 'Choose the entries' })
-      .click();
+    await page.getByRole('menuitem', { name: 'Choose the entries' }).click();
     await page.getByRole('button', { name: 'Notes: Hidden' }).click();
     await page.keyboard.press('Escape');
     await expect(notes).toHaveCount(0);

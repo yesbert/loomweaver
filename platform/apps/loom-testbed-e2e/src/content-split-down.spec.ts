@@ -15,7 +15,11 @@ test.describe('Primary content split-down', () => {
     await expect(
       page.locator('lw-pane-split-handle[aria-orientation="horizontal"]'),
     ).toHaveCount(1);
-    await expect(page.locator('lw-content-secondary-pane')).toHaveCount(1);
+    await expect(
+      page.locator(
+        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
+      ),
+    ).toHaveCount(1);
 
     await page.reload();
     await expect(

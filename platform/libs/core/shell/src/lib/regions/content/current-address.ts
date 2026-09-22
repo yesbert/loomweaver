@@ -22,6 +22,12 @@ export class CurrentAddress {
     { initialValue: this.router.url },
   );
 
+  readonly showsContent: Signal<boolean> = computed(() => {
+    this.url();
+    const shown = this.router.routerState.snapshot.root.firstChild;
+    return shown === null || shown.routeConfig?.data?.['content'] === true;
+  });
+
   readonly snapshot: Signal<AddressParts> = computed(() => {
     const url = this.url();
     const tree = this.router.parseUrl(url);

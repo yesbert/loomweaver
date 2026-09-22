@@ -14,6 +14,9 @@ import { provideLayout } from '../layout/layout';
 import { provideIdentityScopedStores } from './identity-scoped-stores';
 import { buildContentRoutes } from '../regions/content/routing/content-router';
 import { CONTENT_DOCK } from '../regions/pane/tree/pane-address';
+import { ContentSecondaryPane } from '../regions/content/content-secondary-pane';
+import { CONTAINER_PANE_HOST } from '../regions/pane/container/container-context';
+import { ContainerPaneHost } from '../regions/pane/container/container-pane-host';
 import { collectLeafIds } from '../regions/pane/tree/pane-queries';
 import { PaneTreeService } from '../regions/pane/tree/pane-tree.service';
 import { WORKING_STATE_STORE } from './working-state-store';
@@ -100,6 +103,7 @@ async function open(at = '/dashboard'): Promise<{
       }),
       provideLayout(LAYOUT as never),
       provideIdentityScopedStores({ identity: () => identity }),
+      { provide: CONTAINER_PANE_HOST, useValue: ContainerPaneHost },
       { provide: WORKSPACE_CLAIMS, useExisting: WorkspaceService },
       provideWorkspaces({
         id: 'dashboard',
@@ -174,6 +178,9 @@ describe('a session that arrives after the workbench has already read', () => {
   it('keeps a container arrangement the adopted namespace holds nothing for', async () => {
     const { panes } = await open();
     await TestBed.inject(Router).navigateByUrl('/arranged/alpha');
+    const pane = TestBed.createComponent(ContentSecondaryPane);
+    pane.componentRef.setInput('path', 'arranged/alpha');
+    pane.detectChanges();
     await settled();
     expect(containerPanes(panes)).toHaveLength(3);
 

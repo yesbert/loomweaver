@@ -41,8 +41,8 @@ test.describe('<lw-tooltip>', () => {
     const bubble = page.locator('#clip-box lw-tooltip [role="tooltip"]');
     await expect(bubble).toBeVisible();
 
-    expect(await bubble.evaluate((element) => element.matches(':popover-open'))).toBe(
-      true,
-    );
+    expect(
+      await bubble.evaluate((element) => element.matches(':popover-open')),
+    ).toBe(true);
   });
 });

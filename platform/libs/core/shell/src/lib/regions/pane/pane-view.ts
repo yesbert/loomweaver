@@ -21,6 +21,10 @@ import { escalationStep } from './chrome/tab-escalation';
 import { toStripTab } from './drag/pane-label';
 import { paneRetentionScope } from './retention/retention-policy';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { RouterOutlet } from '@angular/router';
+import { ContentArea } from '../content/content-area';
+import { AddressBody } from '../content/address-body';
+import { UnusableWorkspaceNotice } from '../content/unusable-workspace-notice';
 import { ContentSecondaryPane } from '../content/content-secondary-pane';
 import { isHomePath } from '../content/content-path';
 import { PaneTargetPicker } from '../content/pane-target-picker.service';
@@ -33,9 +37,20 @@ import { CONTENT_PANE_OPTIONS, PaneViewOptions } from './pane-view-options';
 
 @Component({
   selector: 'lw-pane-view',
-  imports: [ContentSecondaryPane, PaneTabStrip, PaneToolbar, TranslocoPipe],
+  imports: [
+    ContentArea,
+    ContentSecondaryPane,
+    PaneTabStrip,
+    PaneToolbar,
+    RouterOutlet,
+    TranslocoPipe,
+    UnusableWorkspaceNotice,
+  ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  host: { class: 'flex min-h-0 min-w-0 flex-1 flex-col' },
+  host: {
+    class: 'relative flex min-h-0 min-w-0 flex-1 flex-col',
+    '[attr.data-address-pane]': 'carriesAddress() || null',
+  },
   templateUrl: './pane-view.html',
 })
 export class PaneView {
@@ -52,6 +67,7 @@ export class PaneView {
   private readonly tabs = inject(ContentTabsService);
   private readonly chrome = inject(PaneChromeService);
   private readonly containerCtx = inject(CONTAINER_CONTEXT);
+  private readonly addressBody = inject(AddressBody);
 
   protected readonly canAddTab = computed(() =>
     this.options().body === 'panel' ? true : this.features.newTab(),
@@ -125,6 +141,24 @@ export class PaneView {
 
   private readonly isPrimary = computed(
     () => this.leaf().id === this.paneTree.primaryId(this.dock()),
+  );
+
+  protected readonly carriesAddress = computed(
+    () => this.dock() === CONTENT_DOCK && this.isPrimary(),
+  );
+
+  protected readonly bodyPath = computed(() =>
+    this.carriesAddress() ? this.addressBody.pathFor(this.leaf()) : this.path(),
+  );
+
+  protected readonly bodyInstance = computed(() =>
+    this.carriesAddress()
+      ? this.addressBody.instanceFor(this.leaf())
+      : this.instanceId(),
+  );
+
+  protected readonly showsSurface = computed(
+    () => !this.carriesAddress() || this.addressBody.showsSurface(),
   );
 
   protected readonly canClose = computed(

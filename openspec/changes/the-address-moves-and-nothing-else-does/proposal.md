@@ -34,8 +34,7 @@ NextPA reported the lost click as finding F-036.
 
 It is delivered in four slices, each merged on its own:
 - **S1**, a pane can draw everything the address pane can;
-- **S2**, one tab strip model for both;
-- **S3**, the switch;
+- **S2 and S3**, the address pane's chrome on its own, and the switch, in one pull request;
 - **S4**, removing what the switch leaves unused.
 
 ## Capabilities
@@ -59,8 +58,8 @@ None.
   routes to placeholders; `routing/content-reuse-strategy.ts` loses its parking;
   `routing/synthetic-route.ts` and `routing/surface-injector.ts` give way to a live route.
 - `platform/libs/core/shell/src/lib/regions/pane/`: `pane-tree-view` draws a pane view for every leaf;
-  `pane-view` carries the address pane's chrome and landmark; `retention/retained-template.ts` and the
-  primary retention prefix go; retention keys use the tab root.
+  `pane-view` carries the address pane's chrome and landmark; the content grid stops handing the tree
+  a template (the sidebars keep theirs); retention keys use the tab root.
 - Retention bookkeeping that read the router's parked instances: retention collection, unsaved work,
   tab closing, the preview slot.
 - The testbed's own surfaces that tell router-mounted from host-mounted by `routeConfig`.

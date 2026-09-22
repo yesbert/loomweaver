@@ -67,7 +67,9 @@ test.describe('User reorder', () => {
       rail
         .locator('[data-reorder-id]')
         .evaluateAll((els) =>
-          els.map((element) => (element as HTMLElement).dataset['reorderId'] ?? ''),
+          els.map(
+            (element) => (element as HTMLElement).dataset['reorderId'] ?? '',
+          ),
         );
     const before = await railOrder();
     expect(before.length).toBeGreaterThan(1);

@@ -15,7 +15,10 @@ async function openEntries(page: Page): Promise<void> {
 
 async function splitOffLastEntry(page: Page): Promise<void> {
   const content = await page.locator('#lw-main-content').boundingBox();
-  const tab = await page.getByRole('tab', { name: 'E-05' }).first().boundingBox();
+  const tab = await page
+    .getByRole('tab', { name: 'E-05' })
+    .first()
+    .boundingBox();
   if (!content || !tab) {
     throw new Error('splitOffLastEntry: missing geometry');
   }

@@ -111,18 +111,22 @@ test.describe('Switching a capability off takes the gesture too (K1b)', () => {
         'lw-content-area lw-pane-toolbar button[aria-label="Split right"]',
       )
       .click();
-    await expect(page.locator('lw-pane-view [role="tab"]')).toHaveCount(1);
+    await expect(
+      page.locator('lw-pane-view:not([data-address-pane]) [role="tab"]'),
+    ).toHaveCount(1);
 
     const strip = (await page
       .locator('lw-content-area [role="tablist"]')
       .boundingBox())!;
-    await dragTo(page, 'lw-pane-view [role="tab"]', {
+    await dragTo(page, 'lw-pane-view:not([data-address-pane]) [role="tab"]', {
       x: strip.x + strip.width - 40,
       y: strip.y + strip.height / 2,
     });
 
     await settle(page);
-    await expect(page.locator('lw-pane-view [role="tab"]')).toHaveCount(1);
+    await expect(
+      page.locator('lw-pane-view:not([data-address-pane]) [role="tab"]'),
+    ).toHaveCount(1);
     await expect(
       page.locator('lw-content-grid lw-pane-split-handle'),
     ).toHaveCount(1);
@@ -239,7 +243,10 @@ test.describe('Reordering and instances: the switch takes the gesture too (K1f)'
       .locator(items)
       .evaluateAll((els) =>
         els.map(
-          (element) => element.getAttribute('aria-label') ?? element.textContent?.trim() ?? '',
+          (element) =>
+            element.getAttribute('aria-label') ??
+            element.textContent?.trim() ??
+            '',
         ),
       );
 

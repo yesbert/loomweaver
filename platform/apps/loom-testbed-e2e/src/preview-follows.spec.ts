@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { dragTo } from './support/helpers';
 
 const addressPane = 'lw-content-area';
-const otherPane = 'lw-pane-view';
+const otherPane = 'lw-pane-view:not([data-address-pane])';
 
 test.describe('The one preview in the main area', () => {
   test('stays a preview where it was dragged, and the next preview lands in it', async ({
@@ -16,9 +16,7 @@ test.describe('The one preview in the main area', () => {
     );
     await page.getByRole('button', { name: 'Alpha' }).click();
     await expect(page).toHaveURL(/\/entry\/e-01$/);
-    await expect(page.getByRole('tab', { name: 'E-01' })).toHaveClass(
-      /italic/,
-    );
+    await expect(page.getByRole('tab', { name: 'E-01' })).toHaveClass(/italic/);
 
     const content = (await page.locator('#lw-main-content').boundingBox())!;
     await dragTo(page, `${addressPane} [role="tab"][aria-label="E-01"]`, {
@@ -49,8 +47,6 @@ test.describe('The one preview in the main area', () => {
     await expect(
       page.locator(otherPane).getByRole('tab', { name: 'E-02' }),
     ).toHaveCount(0);
-    await expect(page.locator('[data-entry="e-01"][data-open]')).toHaveCount(
-      0,
-    );
+    await expect(page.locator('[data-entry="e-01"][data-open]')).toHaveCount(0);
   });
 });

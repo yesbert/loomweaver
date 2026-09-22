@@ -1,25 +1,29 @@
-<lw-pane-tab-strip
-  class="shrink-0"
-  [variant]="options().variant"
-  [tabs]="stripTabs()"
-  [activeId]="activeTabId()"
-  [urlDriven]="pointed()"
-  [source]="source()"
-  [reorderable]="tabsReorderable()"
-  [draggable]="tabsDraggable()"
-  [acceptsTabs]="acceptsTabs()"
-  [canAddTab]="canAddTab()"
-  [contextMenuSlot]="tabContextMenu()"
-  [viewContextMenuSlot]="viewContextMenu()"
-  [contextGroup]="dock()"
-  [paneActions]="paneActions"
-  (selectTab)="onSelectTab($event)"
-  (escalate)="onEscalate($event)"
-  (closeTab)="onCloseTab($event)"
-  (unpinTab)="onUnpinTab($event)"
-  (addTab)="openPicker($event)"
-  (reorderTabs)="onReorderTabs($event)"
-/>
+@if (carriesAddress()) {
+  <lw-content-area />
+} @else {
+  <lw-pane-tab-strip
+    class="shrink-0"
+    [variant]="options().variant"
+    [tabs]="stripTabs()"
+    [activeId]="activeTabId()"
+    [urlDriven]="pointed()"
+    [source]="source()"
+    [reorderable]="tabsReorderable()"
+    [draggable]="tabsDraggable()"
+    [acceptsTabs]="acceptsTabs()"
+    [canAddTab]="canAddTab()"
+    [contextMenuSlot]="tabContextMenu()"
+    [viewContextMenuSlot]="viewContextMenu()"
+    [contextGroup]="dock()"
+    [paneActions]="paneActions"
+    (selectTab)="onSelectTab($event)"
+    (escalate)="onEscalate($event)"
+    (closeTab)="onCloseTab($event)"
+    (unpinTab)="onUnpinTab($event)"
+    (addTab)="openPicker($event)"
+    (reorderTabs)="onReorderTabs($event)"
+  />
+}
 <ng-template #paneActions>
   <lw-pane-toolbar
     [canSplitRight]="canSplitRight()"
@@ -37,7 +41,17 @@
   />
 </ng-template>
 
-<div class="flex min-h-0 min-w-0 flex-1 flex-col" (pointerdown)="onBodyPointerDown()">
+<div
+  class="relative flex min-h-0 min-w-0 flex-1 flex-col outline-none"
+  [attr.id]="carriesAddress() ? 'lw-main-content' : null"
+  [attr.role]="carriesAddress() ? 'main' : null"
+  [attr.tabindex]="carriesAddress() ? -1 : null"
+  (pointerdown)="onBodyPointerDown()"
+>
+  @if (carriesAddress()) {
+    <router-outlet />
+    <lw-unusable-workspace-notice />
+  }
   @if (awaitingContent()) {
     <output
       class="flex h-full items-center justify-center p-6 text-center text-sm text-content-faint"
@@ -45,13 +59,14 @@
     >
       {{ 'content.split.awaiting' | transloco }}
     </output>
-  } @else {
+  } @else if (showsSurface()) {
     <lw-content-secondary-pane
       class="min-h-0 min-w-0 flex-1"
-      [path]="path()"
-      [instanceId]="instanceId()"
+      [path]="bodyPath()"
+      [instanceId]="bodyInstance()"
       [variant]="options().body"
       [retentionScope]="retentionScope()"
+      [carriesAddress]="carriesAddress()"
       (instanceReleased)="releaseTabInstance()"
     />
   }

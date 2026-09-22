@@ -43,7 +43,7 @@ import {
   containerChildForPath,
   surfaceForPanePath,
 } from '../pane/pane-surface';
-import { paramsOfPattern, tabRootOf } from './content-path';
+import { matchRoute, paramsOfPattern, tabRootOf } from './content-path';
 import { RetainedComponent } from '../pane/retention/retained-component';
 import {
   effectivePadding,
@@ -108,12 +108,20 @@ export class ContentSecondaryPane {
     optional: true,
   });
 
+  private readonly surfacePath = computed(() => {
+    const path = this.path();
+    const routes = this.registry.contentRoutes();
+    return !this.containerCtx && matchRoute(routes, path)?.container
+      ? tabRootOf(routes, path)
+      : path;
+  });
+
   private readonly declared = computed(
     () =>
       surfaceForPanePath(
         this.registry.contentRoutes(),
         this.registry.views(),
-        this.path(),
+        this.surfacePath(),
       ) ?? null,
   );
 

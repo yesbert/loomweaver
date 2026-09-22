@@ -193,9 +193,9 @@ test.describe('Container surface / workspace-in-a-tab', () => {
     await expect(page.getByTestId('testbed-ws-sim')).toHaveText(
       /Container gamma/,
     );
-    await expect(page.getByRole('navigation', { name: 'Left activity bar' })).toHaveCount(
-      0,
-    );
+    await expect(
+      page.getByRole('navigation', { name: 'Left activity bar' }),
+    ).toHaveCount(0);
   });
 
   test('a container-only child never appears as a sidebar view (docks: [])', async ({
@@ -215,7 +215,9 @@ test.describe('A container declares its arrangement', () => {
     page,
   }) => {
     await page.goto('/');
-    await rail(page).getByRole('button', { name: 'Arranged container' }).click();
+    await rail(page)
+      .getByRole('button', { name: 'Arranged container' })
+      .click();
     await expect(page).toHaveURL(/\/arranged\/alpha$/);
 
     const host = page.locator('lw-container-pane-host');

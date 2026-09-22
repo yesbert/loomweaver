@@ -12,8 +12,6 @@ import { ANONYMOUS, AuthSnapshot } from '@loomweaver/plugin-sdk';
 import { buildContentRoutes, ContentRouter } from './content-router';
 import { SurfaceRouteStub } from './surface-route-stub';
 import { ContentSubStub } from './content-sub-stub';
-import { AuthRequiredView } from '../access/auth-required-view';
-import { RouteUnavailableView } from '../access/route-unavailable-view';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { AUTH_SOURCE } from '../../../auth/auth-context';
 import { ContentReuseStrategy } from './content-reuse-strategy';
@@ -25,16 +23,16 @@ import type { Mock } from 'vitest';
 class TestRoute {}
 
 describe('buildContentRoutes', () => {
-  it('hands a deferred surface to the router as loadComponent (finding #24)', () => {
+  it('leaves a deferred surface to the pane, handing the router only the stub', () => {
     const loadComponent = () => Promise.resolve(TestRoute);
 
     const [route] = buildContentRoutes([{ path: 'graph', loadComponent }]);
 
-    expect(route.loadComponent).toBe(loadComponent);
-    expect(route.component).toBeUndefined();
+    expect(route.loadComponent).toBeUndefined();
+    expect(route.component).toBe(SurfaceRouteStub);
   });
 
-  it('maps a component route straight through, carrying chromeless in data', () => {
+  it('maps a component route to the stub, carrying chromeless in data', () => {
     const [route] = buildContentRoutes([
       {
         path: 'reports',
@@ -44,7 +42,7 @@ describe('buildContentRoutes', () => {
     ]);
 
     expect(route.path).toBe('reports');
-    expect(route.component).toBe(TestRoute);
+    expect(route.component).toBe(SurfaceRouteStub);
     expect(route.data).toMatchObject({
       content: true,
       chromeless: true,
@@ -115,7 +113,8 @@ describe('buildContentRoutes', () => {
     expect(retained.component).toBe(SurfaceRouteStub);
     expect(retained.loadComponent).toBeUndefined();
     expect(retained.data).toMatchObject({ retain: true });
-    expect(plain.component).toBe(TestRoute);
+    expect(plain.component).toBe(SurfaceRouteStub);
+    expect(plain.data).toMatchObject({ retain: false });
   });
 
   it('the retention default flips every undeclared route onto the stub as well', () => {
@@ -223,10 +222,10 @@ describe('buildContentRoutes', () => {
     expect(routes).toHaveLength(2);
     const [real, placeholder] = routes;
     expect(real.path).toBe('secret');
-    expect(real.component).toBe(TestRoute);
+    expect(real.component).toBe(SurfaceRouteStub);
     expect(real.canMatch).toHaveLength(1);
     expect(placeholder.path).toBe('secret');
-    expect(placeholder.component).toBe(AuthRequiredView);
+    expect(placeholder.component).toBe(SurfaceRouteStub);
     expect(placeholder.data).toMatchObject({
       content: true,
       authPlaceholder: true,
@@ -245,7 +244,7 @@ describe('buildContentRoutes', () => {
       },
     ]);
 
-    expect(placeholder.component).toBe(AuthRequiredView);
+    expect(placeholder.component).toBe(SurfaceRouteStub);
     expect(placeholder.children).toEqual(real.children);
     expect(placeholder.children?.map((child) => child.path)).toEqual([
       '',
@@ -286,7 +285,7 @@ describe('buildContentRoutes', () => {
 
     expect(routes).toHaveLength(1);
     expect(routes[0].path).toBe('notes');
-    expect(routes[0].component).toBe(RouteUnavailableView);
+    expect(routes[0].component).toBe(SurfaceRouteStub);
     expect(routes[0].data).toMatchObject({
       content: true,
       routePlaceholder: true,
@@ -299,10 +298,8 @@ describe('buildContentRoutes', () => {
       [{ id: 'testbed.notes', path: 'notes', component: TestRoute }],
     );
 
-    expect(routes.map((route) => route.component)).toEqual([
-      TestRoute,
-      RouteUnavailableView,
-    ]);
+    expect(routes.map((route) => route.path)).toEqual(['search', 'notes']);
+    expect(routes[1].data).toMatchObject({ routePlaceholder: true });
   });
 });
 
@@ -501,7 +498,7 @@ describe('ContentRouter', () => {
     const config = router.resetConfig.mock.calls[0][0] as Routes;
     const placeholder = config.find((route) => route.path === 'doc/7');
     expect(placeholder).toBeDefined();
-    expect(placeholder?.component).toBe(RouteUnavailableView);
+    expect(placeholder?.component).toBe(SurfaceRouteStub);
   });
 
   it('settles the workspace for a deep-link nothing answers, so its explanation is read where it belongs', () => {
@@ -517,7 +514,7 @@ describe('ContentRouter', () => {
     const placeholder = config.find(
       (route) => route.path === 'finance/matching',
     );
-    expect(placeholder?.component).toBe(RouteUnavailableView);
+    expect(placeholder?.component).toBe(SurfaceRouteStub);
     expect(placeholder?.canActivate).toEqual([keepPopout, settleWorkspace]);
   });
 

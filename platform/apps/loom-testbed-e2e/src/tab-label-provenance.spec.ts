@@ -34,7 +34,10 @@ function storedTabs(page: Page): Promise<readonly Record<string, unknown>[]> {
 async function sandboxTab(page: Page): Promise<Record<string, unknown>> {
   const tabs = await storedTabs(page);
   const tab = tabs.find((entry) => entry['path'] === 'sandbox-rpc');
-  expect(tab, 'the sandbox workspace stores a tab at its declared address').toBeDefined();
+  expect(
+    tab,
+    'the sandbox workspace stores a tab at its declared address',
+  ).toBeDefined();
   return tab as Record<string, unknown>;
 }
 
@@ -78,7 +81,10 @@ test.describe('A label the workbench worked out is not the tab’s own', () => {
         ),
       );
     }, SANDBOX_WORKSPACE);
-    expect(await sandboxTab(page)).toHaveProperty('title', 'testbed.home.title');
+    expect(await sandboxTab(page)).toHaveProperty(
+      'title',
+      'testbed.home.title',
+    );
 
     await page.reload();
     await expect

@@ -30,7 +30,7 @@ test.describe('A distribution can declare the workspace an opening starts in', (
     await page.goto('/');
 
     await expect(page).toHaveURL(/\/entry\/e-01/);
-    await expect(page.locator('main').first()).not.toContainText(
+    await expect(page.locator('#lw-main-content')).not.toContainText(
       'Surfaces under test',
     );
   });

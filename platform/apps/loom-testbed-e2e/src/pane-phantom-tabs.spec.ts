@@ -1,7 +1,8 @@
 import { Page, expect, test } from '@playwright/test';
 import { openEntry } from './support/helpers';
 
-const OTHER_PANE = 'lw-content-grid lw-pane-view lw-pane-tab-strip';
+const OTHER_PANE =
+  'lw-content-grid lw-pane-view:not([data-address-pane]) lw-pane-tab-strip';
 
 function paneTree(page: Page): Promise<string> {
   return page.evaluate(
@@ -30,7 +31,9 @@ test.describe('A pane never shows a tab the URL pane hides', () => {
   test('a tab open in two panes stays where the user put the address', async ({
     page,
   }) => {
-    const urlPane = page.locator('lw-content-area lw-pane-tab-strip [role="tab"]');
+    const urlPane = page.locator(
+      'lw-content-area lw-pane-tab-strip [role="tab"]',
+    );
     await page.goto('/');
     await page.getByRole('tab', { name: 'Entry list' }).click();
     await openEntry(page, 'E-01');
@@ -64,9 +67,7 @@ test.describe('A pane never shows a tab the URL pane hides', () => {
     );
     await expect(anywhere).toHaveClass(/italic/);
 
-    await page
-      .locator(`${OTHER_PANE} [role="tab"][aria-label="E-01"]`)
-      .click();
+    await page.locator(`${OTHER_PANE} [role="tab"][aria-label="E-01"]`).click();
     await expect(
       page.locator(`${OTHER_PANE} [role="tab"][aria-label="E-02"]`),
     ).toHaveClass(/italic/);

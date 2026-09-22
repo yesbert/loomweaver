@@ -30,7 +30,10 @@ async function drawAndSample(frame: Frame, selector: string): Promise<Drawn> {
         withheldLabel?: string;
       }): Promise<{ image: string; width: number; height: number }>;
     };
-    const capture = await api.capture({ scale: 1, withheldLabel: 'Content not included' });
+    const capture = await api.capture({
+      scale: 1,
+      withheldLabel: 'Content not included',
+    });
 
     const element = document.querySelector(target);
     const rect = element!.getBoundingClientRect();

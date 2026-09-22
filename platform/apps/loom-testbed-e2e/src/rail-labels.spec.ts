@@ -11,7 +11,10 @@ async function switchOn(
   await expect(control).not.toBeChecked();
   await control.click();
   await expect(control).toBeChecked();
-  await page.getByRole('dialog', { name: 'Settings' }).getByLabel('Close').click();
+  await page
+    .getByRole('dialog', { name: 'Settings' })
+    .getByLabel('Close')
+    .click();
 }
 
 test.describe('Names in the rail', () => {

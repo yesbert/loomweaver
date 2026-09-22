@@ -26,8 +26,9 @@ test.describe('Cross-tab live sync', () => {
     expect(
       await second.evaluate(
         () =>
-          (globalThis as unknown as Record<string, unknown>)['__beforeReload'] ===
-          true,
+          (globalThis as unknown as Record<string, unknown>)[
+            '__beforeReload'
+          ] === true,
       ),
     ).toBe(true);
 
@@ -58,8 +59,9 @@ test.describe('Cross-tab live sync', () => {
     expect(
       await second.evaluate(
         () =>
-          (globalThis as unknown as Record<string, unknown>)['__beforeReload'] ===
-          true,
+          (globalThis as unknown as Record<string, unknown>)[
+            '__beforeReload'
+          ] === true,
       ),
     ).toBe(true);
   });
@@ -122,7 +124,8 @@ test.describe('Cross-tab live sync', () => {
     await first.goto('/search');
     await second.goto('/search');
 
-    const panes = (page: Page) => page.locator('lw-pane-view');
+    const panes = (page: Page) =>
+      page.locator('lw-pane-view:not([data-address-pane])');
     await expect(panes(first)).toHaveCount(0);
 
     await first

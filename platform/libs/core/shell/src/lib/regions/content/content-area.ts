@@ -1,20 +1,12 @@
 import {
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
-  EnvironmentInjector,
-  Injector,
-  Type,
   computed,
-  effect,
   inject,
-  untracked,
 } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { UnusableWorkspaceNotice } from './unusable-workspace-notice';
 import { ViewAction } from '@loomweaver/plugin-sdk';
 import { CommandService } from '../../commands/command.service';
 import { ContentTabsService } from './tabs/content-tabs.service';
-import { ContentSecondaryPane } from './content-secondary-pane';
 import { PaneTargetPicker } from './pane-target-picker.service';
 import { TAB_CONTEXT_MENU } from './tabs/tab-context-menu';
 import { VIEW_CONTEXT_MENU } from '../pane/chrome/view-menu-slot';
@@ -24,46 +16,17 @@ import { PaneTreeService } from '../pane/tree/pane-tree.service';
 import { PaneChromeService } from '../pane/chrome/pane-chrome.service';
 import { PaneActions } from '../pane/pane-actions.service';
 import { escalationStep } from '../pane/chrome/tab-escalation';
-import { matchRoute } from './content-path';
-import {
-  ContributionRegistry,
-  RegisteredContentRoute,
-} from '../../plugin/contribution-registry';
-import { CurrentAddress } from './current-address';
-import { SurfaceAddress } from './routing/live-surface-route';
-import { AuthContext } from '../../auth/auth-context';
 import { TabDragSource } from '../pane/drag/pane-drag.service';
 import { PaneTabStrip } from '../pane/chrome/pane-tab-strip';
 import { StripTab } from '../pane/chrome/strip-tab';
 import { PaneToolbar } from '../pane/chrome/pane-toolbar';
-import { RetainedComponent } from '../pane/retention/retained-component';
-import {
-  effectivePadding,
-  SURFACE_PADDING,
-} from '../../foundation/surface-padding';
-import {
-  paneRetentionScope,
-  retainSurfacePath,
-  routeRetains,
-  SURFACE_RETENTION,
-  surfaceRetentionKey,
-} from '../pane/retention/retention-policy';
-import { ComponentLoader } from '../../views/component-loader.service';
-import { IframeSurface } from './iframe-surface';
-import { surfaceInjectorFactory } from './routing/surface-injector';
 
 @Component({
   selector: 'lw-content-area',
-  imports: [
-    RouterOutlet,
-    UnusableWorkspaceNotice,
-    PaneTabStrip,
-    PaneToolbar,
-    ContentSecondaryPane,
-    RetainedComponent,
-  ],
+  imports: [PaneTabStrip, PaneToolbar],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './content-area.html',
+  host: { class: 'contents' },
 })
 export class ContentArea {
   private readonly commands = inject(CommandService);
@@ -75,36 +38,7 @@ export class ContentArea {
   private readonly chrome = inject(PaneChromeService);
   private readonly actions = inject(PaneActions);
   private readonly layout = inject(PaneTreeService);
-  private readonly registry = inject(ContributionRegistry);
-  private readonly auth = inject(AuthContext);
   protected readonly features = inject(FeatureSwitches).content;
-  private readonly retention = inject(SURFACE_RETENTION);
-  private readonly padding = inject(SURFACE_PADDING);
-
-  private readonly componentLoader = inject(ComponentLoader);
-
-  private readonly surfaceInjectorFor = surfaceInjectorFactory(
-    inject(Injector),
-    inject(EnvironmentInjector),
-  );
-
-  private readonly currentAddress = inject(CurrentAddress);
-
-  private readonly address = computed<SurfaceAddress>(() => ({
-    ...this.currentAddress.snapshot(),
-    carriesAddress: true,
-  }));
-
-  private readonly mountedRoute = computed(() => {
-    if (this.tabs.activeViewPath() !== null) {
-      return null;
-    }
-    const route = matchRoute(
-      this.registry.contentRoutes(),
-      this.tabs.activeTabRoot(),
-    );
-    return route && this.auth.meets(route.access) ? route : null;
-  });
 
   private readonly urlPaneId = computed(() =>
     this.layout.primaryId(CONTENT_DOCK),
@@ -114,69 +48,6 @@ export class ContentArea {
     dock: CONTENT_DOCK,
     paneId: this.urlPaneId(),
   }));
-
-  protected readonly urlGroupScope = computed(() =>
-    paneRetentionScope(CONTENT_DOCK, this.urlPaneId()),
-  );
-
-  protected readonly iframeSurface = computed<{
-    component: Type<unknown>;
-    injector: Injector;
-  } | null>(() => {
-    if (this.tabs.activeViewPath() !== null) {
-      return null;
-    }
-    const path = this.tabs.activeTabRoot();
-    const route = matchRoute(this.registry.contentRoutes(), path);
-    if (route?.iframe === undefined || !this.auth.meets(route.access)) {
-      return null;
-    }
-    return {
-      component: IframeSurface,
-      injector: this.mountFor(route).injector,
-    };
-  });
-
-  protected readonly retainedSurface = computed<{
-    component: Type<unknown>;
-    injector: Injector;
-  } | null>(() => {
-    if (this.tabs.activeViewPath() !== null) {
-      return null;
-    }
-    const path = this.tabs.activeTabRoot();
-    const route = matchRoute(this.registry.contentRoutes(), path);
-    if (
-      route === undefined ||
-      route.iframe !== undefined ||
-      route.container !== undefined ||
-      !routeRetains(route, this.retention) ||
-      !this.auth.meets(route.access)
-    ) {
-      return null;
-    }
-    const component = this.componentLoader.resolve(route);
-    if (component === null) {
-      return null;
-    }
-    return {
-      component,
-      injector: this.mountFor(route).injector,
-    };
-  });
-
-  protected readonly surfaceKey = computed(() =>
-    surfaceRetentionKey(this.urlGroupScope(), this.tabs.activeTabRoot()),
-  );
-
-  protected readonly iframeRetain = computed(() =>
-    retainSurfacePath(
-      this.registry.contentRoutes(),
-      this.registry.views(),
-      this.tabs.activeTabRoot(),
-      this.retention,
-    ),
-  );
 
   protected readonly canAddTab = computed(() => this.features.newTab());
   protected readonly canMaximize = computed(() => this.features.maximize());
@@ -204,25 +75,6 @@ export class ContentArea {
       this.features.splitDownButton() &&
       this.splittable(),
   );
-
-  protected readonly activeIsContainer = computed(() => {
-    const route = matchRoute(
-      this.registry.contentRoutes(),
-      this.tabs.activeTabRoot(),
-    );
-    return route?.container !== undefined;
-  });
-
-  protected readonly activeIsPadded = computed(() => {
-    if (this.activeIsContainer()) {
-      return false;
-    }
-    const route = matchRoute(
-      this.registry.contentRoutes(),
-      this.tabs.activeTabRoot(),
-    );
-    return effectivePadding(route?.padded, this.padding);
-  });
 
   protected readonly canMinimize = computed(
     () => this.features.minimize() && this.isSplit() && !this.maximized(),
@@ -274,17 +126,6 @@ export class ContentArea {
     () => this.tabs.activeViewPath() ?? this.tabs.activeTabRoot(),
   );
 
-  constructor() {
-    effect(() => {
-      const hosted = this.iframeSurface() ?? this.retainedSurface();
-      const route = hosted ? this.mountedRoute() : null;
-      const address = this.address();
-      if (route) {
-        this.mountFor(route).live.update(address);
-      }
-    });
-  }
-
   protected select(tab: StripTab): void {
     if (tab.path.startsWith(VIEW_PANE_PREFIX)) {
       this.tabs.activateViewTab(tab.path);
@@ -334,14 +175,6 @@ export class ContentArea {
   protected newTab(event: Event): void {
     this.picker.openForNavigation(event.currentTarget as HTMLElement, (path) =>
       this.tabs.navigateTo(path),
-    );
-  }
-
-  private mountFor(route: RegisteredContentRoute) {
-    return this.surfaceInjectorFor(
-      route,
-      this.surfaceKey(),
-      untracked(this.address),
     );
   }
 }

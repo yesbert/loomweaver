@@ -21,7 +21,10 @@ test.describe('The inset a sidebar gives a view', () => {
 
   test('is applied for a view that asks for it', async ({ page }) => {
     await page.goto('/');
-    await page.locator(leftPanelTabs).getByRole('tab', { name: 'Outline' }).click();
+    await page
+      .locator(leftPanelTabs)
+      .getByRole('tab', { name: 'Outline' })
+      .click();
     await page.waitForTimeout(300);
 
     expect(await insetOfDockedView(page)).not.toBe('0px');
