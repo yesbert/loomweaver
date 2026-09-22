@@ -1,8 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { ChildrenOutletContexts, Router } from '@angular/router';
 import { ContentRoute, View } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
-import { ContentReuseStrategy } from '../../content/routing/content-reuse-strategy';
 import { RetainedViewStash } from './retained-view-stash';
 import { RetentionCandidates } from './retention-candidates';
 
@@ -10,37 +8,21 @@ const ownedView = { instance: 'owned view' };
 const foreignView = { instance: 'foreign view' };
 const ownedDocument = { instance: 'owned doc' };
 const foreignDocument = { instance: 'foreign doc' };
-const activeComponent = { instance: 'active outlet' };
 
-function setup(url = '/doc/main'): RetentionCandidates {
+function setup(): RetentionCandidates {
+  const kept = [
+    { key: 'left:main|view:testbed.outline|', instance: ownedView },
+    { key: 'left:main|view:other.panel|', instance: foreignView },
+    { key: 'content:main|doc/main', instance: ownedDocument },
+    { key: 'content:main|reports', instance: foreignDocument },
+  ];
   TestBed.configureTestingModule({
     providers: [
       {
         provide: RetainedViewStash,
         useValue: {
-          instances: () => [ownedView, foreignView],
-          keyedInstances: () => [
-            { key: 'left:main|view:testbed.outline|', instance: ownedView },
-            { key: 'left:main|view:other.panel|', instance: foreignView },
-          ],
-        },
-      },
-      {
-        provide: ContentReuseStrategy,
-        useValue: {
-          parkedHandles: () => [
-            { key: 'doc/main', retained: false, instance: ownedDocument },
-            { key: 'reports', retained: false, instance: foreignDocument },
-          ],
-        },
-      },
-      { provide: Router, useValue: { url } },
-      {
-        provide: ChildrenOutletContexts,
-        useValue: {
-          getContext: () => ({
-            outlet: { isActivated: true, component: activeComponent },
-          }),
+          instances: () => kept.map((entry) => entry.instance),
+          keyedInstances: () => kept,
         },
       },
     ],
@@ -84,7 +66,7 @@ function setup(url = '/doc/main'): RetentionCandidates {
 }
 
 describe('RetentionCandidates', () => {
-  it('all() aggregates stash instances, parked handles and the active outlet component', () => {
+  it('all() is every instance the panes keep, the pane carrying the address included', () => {
     const candidates = setup();
 
     expect(candidates.all()).toEqual([
@@ -92,24 +74,16 @@ describe('RetentionCandidates', () => {
       foreignView,
       ownedDocument,
       foreignDocument,
-      activeComponent,
     ]);
   });
 
   it('ofPlugin() keeps only instances whose surface the plugin registered', () => {
     const candidates = setup();
 
-    expect(candidates.ofPlugin('testbed')).toEqual([
-      ownedView,
-      ownedDocument,
-      activeComponent,
-    ]);
-    expect(candidates.ofPlugin('other')).toEqual([foreignView, foreignDocument]);
-  });
-
-  it('ofPlugin() excludes the active outlet when the URL matches no owned route', () => {
-    const candidates = setup('/reports');
-
     expect(candidates.ofPlugin('testbed')).toEqual([ownedView, ownedDocument]);
+    expect(candidates.ofPlugin('other')).toEqual([
+      foreignView,
+      foreignDocument,
+    ]);
   });
 });

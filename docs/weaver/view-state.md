@@ -91,12 +91,10 @@ live instance kept while hidden (an expensive rebuild, a live connection) declar
 on its registration; `retain: 'never'` opts back into destruction when the distribution flipped the
 app-wide default.
 
-Two things to check before you declare it. A retained surface is mounted off the router, on a route
-the host fabricates for it, so **do not combine `retain` with `subRoutes`**: a nested `<router-outlet>`
-stays inert there, and the host warns in development. Read the sub-segment from the address instead;
-[A kept surface lives off the router](../concepts/retention-and-unsaved-work.md#a-kept-surface-lives-off-the-router)
-says what else the fabricated route lacks. And where the thing you want to keep is unsaved work,
+One thing to check before you declare it: where the thing you want to keep is unsaved work,
 [`DirtySurface`](unsaved-changes.md) is the guard, not `retain`.
+[Surfaces live off the router](../concepts/retention-and-unsaved-work.md#surfaces-live-off-the-router)
+says what the route a kept surface receives carries.
 
 ## Showing a surface somewhere else
 

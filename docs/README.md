@@ -69,7 +69,7 @@ guessing one.
 | **See what a product gets for free**        | [The workbench your users get](the-workbench.md): every dialog, menu and search, one picture each                                                                                                                                                                                            |
 | **Understand how it works**                 | [Architecture](architecture.md), then the [concept pages](#concepts) for why the workbench behaves as it does                                                                                                                                                                                |
 | **Build a plugin (a "weaver")**             | [Authoring a weaver](authoring-a-weaver.md), with copyable recipes in [Samples](samples.md) that say which parts the generator already writes                                                                                                                                                |
-| **Compose and brand a product**             | [Building a distribution](building-a-distribution.md): the composition root, and one decision per page under `distribution/`                                                                                                                                                                |
+| **Compose and brand a product**             | [Building a distribution](building-a-distribution.md): the composition root, and one decision per page under `distribution/`                                                                                                                                                                 |
 | **Know what a plugin may do**               | [The plugin system](plugins.md): the three rungs of trust, the four ways a plugin arrives, and what a user can revoke, disable or uninstall                                                                                                                                                  |
 | **Generate the next piece**                 | [Scaffolding](scaffolding.md): the `@loomweaver/cli` command line, the `@loomweaver/devkit` Nx generators and the `@loomweaver/mcp` server, all in your own repository                                                                                                                       |
 | **Use Bootstrap or your own CSS framework** | [Bringing your own CSS framework](distribution/css-frameworks.md)                                                                                                                                                                                                                            |
@@ -102,7 +102,7 @@ Why the workbench behaves as it does, each short, each linking to the how-to pag
 - [Access gating](reference/access-gating.md): the complete `access` reference. What gates where,
   identity changes, and why client-side gating is not a security boundary.
 - [Routing](reference/routing.md): the content area is the Angular router. What carries over
-  unchanged, where a route comes from, and the two places a surface is mounted off-router.
+  unchanged, where a route comes from, and and where the router is not the whole story.
 - [Callable commands](reference/callable-commands.md): opening a command to a caller that is not the
   user. Described arguments, answers, the `automation` capability and why the default is closed.
 - [Agent tools](reference/agent-tools.md): `@loomweaver/ag-ui`, letting an AG-UI agent reach the

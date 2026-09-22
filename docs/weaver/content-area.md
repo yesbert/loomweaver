@@ -17,9 +17,10 @@ The centre (a `content` region) is **URL-addressed**, not a panel: a surface rea
 `routable`, which makes it a shareable deep-link with browser back/forward. The distribution must set up the
 router with [`provideShellRouter()`](../distribution/content-routing.md).
 
-It is the Angular router underneath, so `routerLink`, `ActivatedRoute` and `<router-outlet>` behave
-as they do anywhere. [Routing](../reference/routing.md) is the router-shaped view of this page: what
-carries over unchanged, and the two places a surface is mounted off-router.
+It is the Angular router underneath, so `routerLink` and `ActivatedRoute` behave as they do
+anywhere, with one difference: the workbench, not a `<router-outlet>`, draws your surface.
+[Routing](../reference/routing.md) is the router-shaped view of this page: what carries over
+unchanged, and what that difference means.
 
 ```ts
 // a routable surface opens as a tab when visited — nothing else to declare

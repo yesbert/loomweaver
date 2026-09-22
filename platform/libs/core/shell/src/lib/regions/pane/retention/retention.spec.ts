@@ -13,7 +13,6 @@ import { TestBed } from '@angular/core/testing';
 import { ContentRoute, DirtySurface, View } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { NotificationService } from '../../../notifications/notification.service';
-import { ContentReuseStrategy } from '../../content/routing/content-reuse-strategy';
 import { ActiveWorkspaceService } from '../../../workspace/active-workspace.service';
 import { CONTENT_DOCK } from '../tree/pane-address';
 import { PaneTreeService } from '../tree/pane-tree.service';
@@ -997,34 +996,6 @@ describe('surface retention', () => {
       const cleanEvent = new Event('beforeunload', { cancelable: true });
       globalThis.dispatchEvent(cleanEvent);
       expect(cleanEvent.defaultPrevented).toBe(false);
-    });
-
-    it('keeps a dirty URL-pane handle and evicts it the moment it reports clean', () => {
-      seedOpenTab();
-      TestBed.inject(RetentionGc).start();
-      const strategy = TestBed.inject(ContentReuseStrategy);
-      const dirty = signal(true);
-      const destroySpy = vi.fn();
-      strategy.store(
-        {
-          routeConfig: { data: { content: true, group: 'g', retain: false } },
-          url: [{ path: 'doc' }, { path: 'abc' }],
-          params: { id: 'abc' },
-        } as never,
-        {
-          componentRef: {
-            instance: { surfaceDirty: () => dirty() },
-            destroy: destroySpy,
-          },
-        } as never,
-      );
-      TestBed.tick();
-      expect(destroySpy).not.toHaveBeenCalled();
-
-      dirty.set(false);
-      TestBed.tick();
-
-      expect(destroySpy).toHaveBeenCalledTimes(1);
     });
   });
 });

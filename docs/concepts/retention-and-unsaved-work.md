@@ -43,19 +43,19 @@ chooses the default for every surface that says nothing
 ([Surface retention](../distribution/surface-retention.md)), and the surface's own declaration wins
 over that default.
 
-## A kept surface lives off the router
+## Surfaces live off the router
 
-Keeping has a price. The router builds a surface once, for the pane that carries the address, and
-would destroy it when the address moves on. A kept surface is therefore mounted by the workbench
-itself, in every pane that shows it, the address pane included. Its instance is keyed to the pane it
-sits in, so handing the address between split panes moves the address and leaves each pane's instance
-where it is. A split deliberately shows two independent instances.
+Every surface is drawn by the pane that shows it, the pane carrying the address included, and its
+instance is keyed to that pane. Handing the address between split panes therefore moves the address
+and leaves each pane's instance where it is, whether the surface is kept or not. A split deliberately
+shows two independent instances. What keeping adds is the hidden case: a kept surface survives while
+no pane shows it, where any other is destroyed and rebuilt on return.
 
-What the surface receives in such a pane is a route the workbench fabricates for it. Route parameters
-are there, because a different parameter is a different tab and a different instance. Nothing else is:
-no resolvers, no query parameters, no live parameter streams, and a nested router outlet inside the
-surface stays inert. That is why a kept surface cannot carry sub-routes of its own, and why a surface
-that needs live routing should not be kept. For unsaved work, the guard below is the lighter tool.
+The route a surface receives is the workbench's, and it follows the address. Route parameters are part
+of the tab, because a different parameter is a different tab and a different instance. The sub-address
+or remainder, the query and the fragment follow the address while the pane carries it. There are no
+resolvers, and a nested router outlet inside the surface stays inert. For unsaved work, the guard
+below is the lighter tool than keeping.
 What else has no address is on [The address](the-address.md#what-has-no-address).
 
 ## The unsaved-work question

@@ -5,7 +5,6 @@ import { Router, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { ContentRoute } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
-import { ContentReuseStrategy } from '../routing/content-reuse-strategy';
 import { CONTENT_DOCK } from '../../pane/tree/pane-address';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 import { collectTabs, findLeaf } from '../../pane/tree/pane-queries';
@@ -193,12 +192,10 @@ describe('ContentTabsService (findings #8/#11)', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('logs a rejecting close navigation and still evicts the closed tab (no unhandled rejection)', async () => {
+  it('logs a rejecting close navigation and still closes the tab (no unhandled rejection)', async () => {
     await harness.navigateByUrl('/');
     service.open({ path: 'doc/a', title: 'A.ts' });
     await harness.navigateByUrl('/doc/a');
-    const reuse = TestBed.inject(ContentReuseStrategy);
-    const evict = vi.spyOn(reuse, 'evict');
     vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockRejectedValue(
       new Error('nav failed'),
     );
@@ -215,7 +212,7 @@ describe('ContentTabsService (findings #8/#11)', () => {
       'Content navigation failed',
       expect.any(Error),
     );
-    expect(evict).toHaveBeenCalledWith('doc/a');
+    expect(service.tabs().some((tab) => tab.path === 'doc/a')).toBe(false);
     error.mockRestore();
   });
 

@@ -43,11 +43,22 @@
 
 ## 4. S4 — removing what is left
 
-- [ ] 4.1 Reduce the reuse strategy to never reusing across content addresses; move retention
-  collection, unsaved work, tab closing and the preview slot off its parked handles.
-- [ ] 4.2 Bring the bundle ceilings back where the slices leave the bundles.
-- [ ] 4.3 Say it in `llms-full.txt`, `docs/weaver/content-area.md` and the JSDoc on reading the
-  sub-address and the remainder.
-- [ ] 4.4 Run `openspec validate --all --strict`, the unit suites, the full testbed e2e suite, lint
+- [x] 4.1 Reduce the reuse strategy to never reusing across content addresses; move retention
+  collection, unsaved work, retention candidates, tab closing and the preview slot off its parked
+  handles.
+- [x] 4.2 Bring the bundle ceilings back where the slices leave the bundles: `loom-shell` 925 kB (S3),
+  `loom-testbed` 900 kB (S4).
+- [x] 4.3 Say it in `llms-full.txt`, the routing reference, the retention concept, the sub-routes,
+  content-area, view-state, containers and pop-out guides, and the JSDoc on `loadComponent`,
+  `subRoutes` and `rest`. The live route names a route configuration while its pane carries the
+  address, so the documented once-only `routeConfig === null` check keeps its meaning, and its child
+  route carries a declared sub-route's values. The dev-mode warning against `retain` with `subRoutes`
+  goes: a kept surface follows its sub-address like any other.
+- [x] 4.5 Hand-over to the demo adoption of the next release: `demo/e2e/dashboard-narrow-pane.spec.ts`
+  reads `lw-content-area main`, which becomes `#lw-main-content > lw-content-secondary-pane`. It runs
+  against the published packages, so it moves with the version bump, not before.
+- [x] 4.4 Run `openspec validate --all --strict`, the unit suites, the full testbed e2e suite, lint
   and the repository's guards including the bundle-size check; reconcile this change's artifacts;
   open the S4 pull request.
+  Testbed e2e: 360 of 361; the one failure (`tab-order.spec.ts`, narrow pane) passes five of five
+  alone, as it did before this change.

@@ -253,8 +253,7 @@ export class ContentTabsService {
 
   /**
    * Closes a dynamic tab (by any path under its root). If it was active, we navigate to a neighbour
-   * **first**, then evict the stored instance (keyed by the tab root — see {@link ContentReuseStrategy});
-   * a background tab is evicted immediately.
+   * first. The pane that showed it lets its surface go once the tab is no longer open anywhere.
    */
   close(path: string, pane?: PaneRef): void {
     this.closing.close(path, pane);

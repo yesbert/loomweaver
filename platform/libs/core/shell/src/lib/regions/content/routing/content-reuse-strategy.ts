@@ -1,32 +1,13 @@
-import { ComponentRef, Service, signal, Signal } from '@angular/core';
+import { Service } from '@angular/core';
 import {
   ActivatedRouteSnapshot,
   DetachedRouteHandle,
   RouteReuseStrategy,
 } from '@angular/router';
-import { normalizePath } from '../content-path';
-import {
-  instanceDirty,
-  isContentRoute,
-  reusableRoute,
-} from '../../pane/retention/retention-policy';
-
-interface HandleWithRef {
-  componentRef?: ComponentRef<unknown>;
-}
-
-export interface ParkedHandle {
-  readonly key: string;
-  readonly instance?: unknown;
-}
+import { isContentRoute } from '../../pane/retention/retention-policy';
 
 @Service()
 export class ContentReuseStrategy implements RouteReuseStrategy {
-  private readonly handles = new Map<string, DetachedRouteHandle>();
-  private readonly changes = signal(0);
-
-  readonly version: Signal<number> = this.changes.asReadonly();
-
   shouldReuseRoute(
     future: ActivatedRouteSnapshot,
     current: ActivatedRouteSnapshot,
@@ -34,80 +15,26 @@ export class ContentReuseStrategy implements RouteReuseStrategy {
     if (!isContentRoute(future) || !isContentRoute(current)) {
       return future.routeConfig === current.routeConfig;
     }
-
-    return future.routeConfig === current.routeConfig && sameParams(future, current);
+    return (
+      future.routeConfig === current.routeConfig && sameParams(future, current)
+    );
   }
 
-  shouldDetach(route: ActivatedRouteSnapshot): boolean {
-    return reusableRoute(route);
+  shouldDetach(): boolean {
+    return false;
   }
 
-  store(
-    route: ActivatedRouteSnapshot,
-    handle: DetachedRouteHandle | null,
-  ): void {
-    const key = keyOf(route);
-    if (!key) {
-      return;
-    }
-    if (!handle) {
-      this.handles.delete(key);
-      this.changes.update((value) => value + 1);
-      return;
-    }
-    if (!instanceDirty(instanceOf(handle))) {
-      (handle as HandleWithRef).componentRef?.destroy();
-      return;
-    }
-    this.handles.set(key, handle);
-    this.changes.update((value) => value + 1);
+  store(): void {
+    return;
   }
 
-  parkedHandles(): ParkedHandle[] {
-    return [...this.handles.entries()].map(([key, handle]) => ({
-      key,
-      instance: instanceOf(handle),
-    }));
+  shouldAttach(): boolean {
+    return false;
   }
 
-  shouldAttach(route: ActivatedRouteSnapshot): boolean {
-    return reusableRoute(route) && this.handles.has(keyOf(route));
+  retrieve(): DetachedRouteHandle | null {
+    return null;
   }
-
-  retrieve(route: ActivatedRouteSnapshot): DetachedRouteHandle | null {
-    return this.handles.get(keyOf(route)) ?? null;
-  }
-
-  evict(path: string): void {
-    const key = normalizePath(path);
-    const handle = this.handles.get(key);
-    if (!handle) {
-      return;
-    }
-    (handle as HandleWithRef).componentRef?.destroy();
-    this.handles.delete(key);
-    this.changes.update((value) => value + 1);
-  }
-
-  pruneExcept(isLive: (key: string) => boolean): void {
-    for (const [key, handle] of this.handles) {
-      if (isLive(key)) {
-        continue;
-      }
-
-      (handle as HandleWithRef).componentRef?.destroy();
-      this.handles.delete(key);
-      this.changes.update((value) => value + 1);
-    }
-  }
-}
-
-function keyOf(route: ActivatedRouteSnapshot): string {
-  return route.url.map((segment) => segment.path).join('/');
-}
-
-function instanceOf(handle: DetachedRouteHandle): unknown {
-  return (handle as HandleWithRef).componentRef?.instance;
 }
 
 function sameParams(

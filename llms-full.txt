@@ -278,12 +278,12 @@ interface StateHandle<T = unknown> { readonly value: () => T | undefined; readon
 // maximize fills the whole viewport over all chrome (Escape restores); minimize collapses a split pane to a strip
 // (icon + active tab name + `+N` badge for extra tabs, click to restore); minimize/close are symmetric on both
 // panes of a split — closing the address pane dissolves the split and the neighbour takes over). Exactly ONE
-// pane is the address pane, router-rendered, and the focus is switchable. registerSurface is the only authoring entry:
+// pane is the address pane and the focus is switchable; every pane draws its own surface in place (the router holds
+// only the address, its guards and history), so moving the address moves no surface and rebuilds none. registerSurface is the only authoring entry:
 // a panel View ≙ a non-routable Surface with docks:[region]; a ContentRoute ≙ a routable one. View/ContentRoute
 // are only the host's internal storage shapes — registerSurface normalises into them.
-// component | loadComponent (deferred: the host calls it the first time the surface is shown — routable surfaces go
-// straight to the router's own loadComponent, host-mounted ones render once it resolves; use it for a surface with a
-// heavy dependency tree so it lands in its own chunk) | iframe | container.
+// component | loadComponent (deferred: the host calls it the first time the surface is shown and the pane renders it
+// once it resolves; use it for a surface with a heavy dependency tree so it lands in its own chunk) | iframe | container.
 // container ("workspace-in-a-tab"): the host draws a NESTED pane tree of child surfaces INSIDE this
 // surface's content tab (same drag/split/tab mechanics, one level nested, scoped to the tab). Must be `routable`
 // (the container tab holds its own :id — several open in parallel, deep-linkable). `children` = surface ids the inner
@@ -309,14 +309,14 @@ type Surface = {
                                         // destroyed and rebuilt on return — state that must survive belongs in VIEW_STATE
                                         // (rule: evictable = reload-safe). 'always' keeps the live instance while hidden
                                         // (expensive rebuild, live connection); 'never' opts back into destroy.
-                                        // A retained ROUTABLE surface is host-mounted in EVERY pane (the address pane included;
-                                        // its route only carries the address) and keyed to its pane, so handing the address role
-                                        // between split panes leaves each pane's instance in place — a split shows two
-                                        // independent instances, deliberately. Price: a host-fabricated ActivatedRoute
-                                        // everywhere — route params work (param change = different tab = different instance),
-                                        // but NO resolvers, NO query params, NO live param streams, and a nested
-                                        // <router-outlet> is inert, so never combine retain with subRoutes (dev-mode warning;
-                                        // read the sub-segment from the address instead).
+                                        // EVERY routable surface (kept or not) is drawn by its pane, the address pane included,
+                                        // and keyed to that pane, so handing the address role between split panes leaves each
+                                        // pane's instance in place — a split shows two independent instances, deliberately.
+                                        // Its ActivatedRoute is the host's and LIVE: params (param change = different tab =
+                                        // different instance), data.sub + firstChild (sub-address/rest; child params = the
+                                        // declared sub-route's values), query + fragment while its pane carries the address,
+                                        // data.urlDriven = does it (changes when the address moves). NO resolvers; a nested
+                                        // <router-outlet> is inert — read the sub-segment from the route.
                                         // Honoured for SANDBOXED (iframe) surfaces too: a retained iframe is
                                         // hidden in place, never moved, so the document keeps running (no Penpal handshake
                                         // per tab switch). It is still rebuilt whenever it would have to MOVE (split, drag
@@ -846,10 +846,10 @@ class ShellBrand { compact = input<boolean | undefined>(undefined); }   // <lw-s
 // commands. URLs: /popout/view/<viewId> for any registered view, /popout/<contentPath> for a routable surface.
 // Nothing to declare — no plugin or distribution change is needed. Pop-up blocked ⇒ the host offers a retry dialog.
 // A gated route in a pop-out renders NO surface and does NOT redirect (a login flow in a chrome-less window leads
-// nowhere) — the off-router placeholder text is context-sensitive (popout.unavailable, not the split text).
-// SUB-ROUTE RULE (authoring): a surface that draws its own sub-tabs must switch them LOCALLY when host-mounted —
-// the host supplies a synthetic ActivatedRoute whose routeConfig === null; branch on it (keep sub-tab local
-// off-router, navigate the global router only in the address pane). An absolute navigateByUrl from a pop-out drags the
+// nowhere) — the placeholder text is context-sensitive (popout.unavailable, not the split text).
+// SUB-ROUTE RULE (authoring): a surface that draws its own sub-tabs must switch them LOCALLY while its pane does not
+// carry the address — branch on the live route's data.urlDriven (keep sub-tab local unless true; navigate the global
+// router only then). routeConfig is null when the surface was created in a pane without the address (older check). An absolute navigateByUrl from a pop-out drags the
 // URL out of the /popout/ prefix so its reload opens the full app. Sub-tab-less views need nothing.
 class PopoutService {
   readonly active: boolean;          // is THIS window a pop-out? latched from location at boot

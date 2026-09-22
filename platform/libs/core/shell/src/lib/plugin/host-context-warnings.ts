@@ -5,7 +5,10 @@ import { View } from '../layout/view';
 import { containerLayout } from '../regions/pane/container/container-layout';
 import { CONTAINER_CHILD_REGION } from './surface-normalize';
 
-export function warnUndescribedCallable(pluginId: string, command: Command): void {
+export function warnUndescribedCallable(
+  pluginId: string,
+  command: Command,
+): void {
   if (!isDevMode() || command.callable !== true) {
     return;
   }
@@ -27,7 +30,10 @@ export function warnUndescribedCallable(pluginId: string, command: Command): voi
   }
 }
 
-export function warnUnsupportedRetain(pluginId: string, surface: Surface): void {
+export function warnUnsupportedRetain(
+  pluginId: string,
+  surface: Surface,
+): void {
   if (!isDevMode()) {
     return;
   }
@@ -43,18 +49,6 @@ export function warnUnsupportedRetain(pluginId: string, surface: Surface): void 
       `Plugin "${pluginId}" declares saveOn: '${surface.saveOn}' on surface "${surface.id}" — ` +
         `a sandboxed surface has no save channel across the RPC boundary, so the host cannot save it ` +
         `for you. Save from inside the surface and push setDirty(false). The declaration is ignored.`,
-    );
-  }
-  if (
-    surface.retain === 'always' &&
-    surface.iframe === undefined &&
-    (surface.routable?.subRoutes?.length ?? 0) > 0
-  ) {
-    console.warn(
-      `Plugin "${pluginId}" declares retain: 'always' on surface "${surface.id}", which also ` +
-        `declares subRoutes. A retained surface mounts outside the router — its route activates only ` +
-        `a stub — so a <router-outlet> inside it stays inert and sub-routes will not render there. ` +
-        `Read the sub-segment from the address instead, or drop one of the two declarations.`,
     );
   }
 }

@@ -57,8 +57,8 @@ yourself; otherwise the host disposes it when the plugin unloads.
 > The user arranges it from there.
 >
 > **Heavy surface? Defer it.** Instead of `component`, give a `loadComponent: () => import('./graph-view').then(m => m.GraphView)`.
-> The host calls it the first time the surface is actually shown. Routable surfaces go straight to the
-> router's own `loadComponent`; host-mounted ones render once it resolves. A surface that drags a
+> The host calls it the first time the surface is actually shown, and the pane renders the surface
+> once it resolves. A surface that drags a
 > chart or graph engine behind it therefore lands in its own chunk. A user who never opens it pays
 > nothing for it. Everything else about the surface is unchanged.
 >

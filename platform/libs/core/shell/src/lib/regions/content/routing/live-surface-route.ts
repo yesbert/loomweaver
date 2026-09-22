@@ -4,11 +4,12 @@ import {
   Data,
   ParamMap,
   Params,
+  Route,
   UrlSegment,
   convertToParamMap,
 } from '@angular/router';
 import { BehaviorSubject, Observable, distinctUntilChanged, map } from 'rxjs';
-import { paramsOfPattern, segmentsOf } from '../content-path';
+import { matchRoute, paramsOfPattern, segmentsOf } from '../content-path';
 import { RegisteredContentRoute } from '../../../plugin/contribution-registry';
 
 export interface SurfaceAddress {
@@ -24,12 +25,14 @@ export interface LiveSurfaceRoute {
 }
 
 interface RouteState {
+  readonly routeConfig: Route | null;
   readonly url: UrlSegment[];
   readonly params: Params;
   readonly queryParams: Params;
   readonly fragment: string | null;
   readonly data: Data;
   readonly subUrl: UrlSegment[];
+  readonly subParams: Params;
 }
 
 const same = (a: unknown, b: unknown): boolean =>
@@ -48,11 +51,13 @@ function stateOf(
   const all = segmentsOf(address.path);
   const sub = all.slice(pattern.length);
   return {
+    routeConfig: address.carriesAddress ? { path: route.path } : null,
     url: toSegments(all.slice(0, pattern.length)),
     params: paramsOfPattern(route.path, address.path),
     queryParams: address.queryParams,
     fragment: address.fragment,
     subUrl: toSegments(sub),
+    subParams: subParamsOf(route, sub.join('/')),
     data: {
       ...('iframe' in route && { iframe: route.iframe }),
       ...('container' in route && { container: route.container }),
@@ -63,6 +68,14 @@ function stateOf(
       ...(instanceId && { instanceId }),
     },
   };
+}
+
+function subParamsOf(route: RegisteredContentRoute, sub: string): Params {
+  const declared = matchRoute(
+    (route.subRoutes ?? []).map((path) => ({ path })),
+    sub,
+  );
+  return declared ? paramsOfPattern(declared.path, sub) : {};
 }
 
 function snapshotOf(
@@ -81,7 +94,7 @@ function snapshotOf(
     data: state.data,
     outlet: 'primary',
     component: null,
-    routeConfig: null,
+    routeConfig: state.routeConfig,
     title: undefined,
     parent: null,
     firstChild: child,
@@ -103,8 +116,8 @@ function childSnapshotOf(state: RouteState): Record<string, unknown> | null {
   }
   return {
     url: state.subUrl,
-    params: {},
-    paramMap: convertToParamMap({}),
+    params: state.subParams,
+    paramMap: convertToParamMap(state.subParams),
     queryParams: state.queryParams,
     queryParamMap: convertToParamMap(state.queryParams),
     fragment: state.fragment,
@@ -147,14 +160,14 @@ export function liveSurfaceRoute(
     title: new BehaviorSubject<string | undefined>(undefined),
     outlet: 'primary',
     component: null,
-    routeConfig: null,
     parent: null,
     children: [],
   };
+  const subParams$ = view(state$, (s) => s.subParams);
   const childRoute: Record<string, unknown> = {
     url: child$,
-    params: new BehaviorSubject<Params>({}),
-    paramMap: new BehaviorSubject(convertToParamMap({})),
+    params: subParams$,
+    paramMap: subParams$.pipe(map((p) => convertToParamMap(p))),
     queryParams: queryParams$,
     queryParamMap: queryParams$.pipe(map((p) => convertToParamMap(p))),
     fragment: fragment$,
@@ -171,6 +184,7 @@ export function liveSurfaceRoute(
   });
   Object.defineProperties(live, {
     snapshot: { get: snapshot },
+    routeConfig: { get: () => state$.value.routeConfig },
     firstChild: {
       get: () => (state$.value.subUrl.length > 0 ? childRoute : null),
     },
