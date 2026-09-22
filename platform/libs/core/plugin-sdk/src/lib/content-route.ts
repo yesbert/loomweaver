@@ -172,9 +172,10 @@ export interface ContentRouteBase {
    *. Angular syntax, so a segment may **carry a value** (`'structure/:structureId'`). There is
    * **no forced default**: the bare tab root is a valid address and the surface decides what it shows
    * there. The route's `path` stays the **tab root**: navigating between sub-routes stays in one tab and
-   * preserves the parent component's state. The view reads the active sub from the URL and renders it
-   * (a component view needs a `<router-outlet>`; an `iframe` surface is told the active sub over its
-   * channel).
+   * preserves the parent component's state. A component reads the active sub from its injected route,
+   * which follows the address: `data.sub`, or the child route, whose params carry a sub-route's values.
+   * `data.urlDriven` is `true` while its pane carries the address. An `iframe` surface is told the
+   * active sub over its channel.
    */
   readonly subRoutes?: readonly string[];
   /**

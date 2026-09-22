@@ -135,8 +135,8 @@ A child whose segment carries a value cannot appear in `initial` or in the inner
 which value to use. That is what the declared-empty pane is for. A child with no segment needs
 none of this: it is reachable from the picker, exists once and has no address.
 
-A surface that draws its own sub-tabs must switch them locally wherever the host mounts it off-router,
-a pop-out included; [Sub-routes and pop-out windows](sub-routes-and-follows.md#sub-routes-and-pop-out-windows) shows the branch.
+A surface that draws its own sub-tabs must switch them locally wherever its pane does not carry the
+address, a pop-out included; [Sub-routes and pop-out windows](sub-routes-and-follows.md#sub-routes-and-pop-out-windows) shows the branch.
 
 ## Where next
 

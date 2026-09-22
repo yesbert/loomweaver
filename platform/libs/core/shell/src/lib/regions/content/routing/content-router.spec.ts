@@ -14,7 +14,6 @@ import { SurfaceRouteStub } from './surface-route-stub';
 import { ContentSubStub } from './content-sub-stub';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { AUTH_SOURCE } from '../../../auth/auth-context';
-import { ContentReuseStrategy } from './content-reuse-strategy';
 import { keepPopout } from './keep-popout.guard';
 import { settleWorkspace } from './settle-workspace.guard';
 import type { Mock } from 'vitest';
@@ -317,7 +316,6 @@ describe('ContentRouter', () => {
     url: string;
     events: Subject<NavigationEnd>;
   };
-  let prune: Mock;
   let registry: ContributionRegistry;
   let popState: () => void;
 
@@ -329,7 +327,6 @@ describe('ContentRouter', () => {
       url: '/',
       events: new Subject<NavigationEnd>(),
     };
-    prune = vi.fn();
     popState = () => undefined;
     TestBed.configureTestingModule({
       providers: [
@@ -344,7 +341,6 @@ describe('ContentRouter', () => {
             },
           },
         },
-        { provide: ContentReuseStrategy, useValue: { pruneExcept: prune } },
       ],
     });
     registry = TestBed.inject(ContributionRegistry);
@@ -393,7 +389,7 @@ describe('ContentRouter', () => {
     expect(router.initialNavigation).toHaveBeenCalledTimes(1);
   });
 
-  it('rebuilds the config and prunes stale reuse handles when routes change', async () => {
+  it('rebuilds the config when routes change', async () => {
     const content = setup('/');
     content.start();
     router.resetConfig.mockClear();
@@ -402,7 +398,6 @@ describe('ContentRouter', () => {
     tick();
 
     expect(router.resetConfig).toHaveBeenCalledTimes(1);
-    expect(prune).toHaveBeenCalledTimes(1);
   });
 
   it('resolves a captured deep-link once its route is registered', async () => {
@@ -579,7 +574,6 @@ describe('ContentRouter auth re-match', () => {
             subscribe: () => ({ unsubscribe: () => undefined }),
           },
         },
-        { provide: ContentReuseStrategy, useValue: { pruneExcept: vi.fn() } },
         { provide: AUTH_SOURCE, useValue: auth },
       ],
     });

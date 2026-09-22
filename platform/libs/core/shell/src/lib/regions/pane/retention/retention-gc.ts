@@ -5,7 +5,6 @@ import { isPopoutUrl } from '../../../popout/popout-path';
 import { ActiveWorkspaceService } from '../../../workspace/active-workspace.service';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { NotificationService } from '../../../notifications/notification.service';
-import { ContentReuseStrategy } from '../../content/routing/content-reuse-strategy';
 import { tabRootOf } from '../../content/content-path';
 import { PaneNode } from '../tree/pane-node';
 import { PaneTreeService } from '../tree/pane-tree.service';
@@ -35,7 +34,6 @@ export class RetentionGc {
   private readonly paneTree = inject(PaneTreeService);
   private readonly registry = inject(ContributionRegistry);
   private readonly stash = inject(RetainedViewStash);
-  private readonly reuse = inject(ContentReuseStrategy);
   private readonly notifications = inject(NotificationService);
   private readonly injector = inject(Injector);
   private readonly workspace = inject(ActiveWorkspaceService);
@@ -53,16 +51,12 @@ export class RetentionGc {
     effect(
       () => {
         this.stash.version();
-        this.reuse.version();
         const trees = this.paneTree.dockTrees();
         const routes = this.registry.contentRoutes();
         const views = this.registry.views();
         const open = openPathsByScope(trees);
         const active = this.workspace.id();
-        const parked = [
-          ...this.parkedStash(open, routes, views, active),
-          ...this.parkedHandles(),
-        ];
+        const parked = this.parkedStash(open, routes, views, active);
         untracked(() => this.settle(parked, routes, views));
       },
       { injector: this.injector },
@@ -86,19 +80,6 @@ export class RetentionGc {
         stashKeyLive(entry.key, open, routes, views) ||
         (entry.held && openAnywhere(pathOfKey(entry.key), open, routes)),
       parkedElsewhere: entry.workspace !== active,
-    }));
-  }
-
-  private parkedHandles(): ParkedInstance[] {
-    return this.reuse.parkedHandles().map((handle) => ({
-      instance: handle.instance,
-      retained: false,
-      held: false,
-      path: handle.key,
-      dirty: instanceDirty(handle.instance),
-      evict: () => this.reuse.evict(handle.key),
-      tabLive: true,
-      parkedElsewhere: false,
     }));
   }
 

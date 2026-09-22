@@ -1,6 +1,5 @@
 import { inject, Service } from '@angular/core';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
-import { ContentReuseStrategy } from '../routing/content-reuse-strategy';
 import { matchRoute, tabRootOf } from '../content-path';
 import { OpenTab, toPaneTab } from './content-tab-projection';
 import { TabCloseHooks } from './tab-close-hooks';
@@ -14,8 +13,6 @@ import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 @Service()
 export class PreviewSlotService {
   private readonly registry = inject(ContributionRegistry);
-
-  private readonly reuse = inject(ContentReuseStrategy);
 
   private readonly state = inject(OpenTabsService);
 
@@ -56,7 +53,6 @@ export class PreviewSlotService {
         : [...tabs, slot],
     );
     if (previousRoot !== undefined && previousRoot !== root) {
-      this.reuse.evict(previousRoot);
       this.closeHooks.runSafely(previous?.onClose);
       this.closeHooks.delete(previousRoot);
     }

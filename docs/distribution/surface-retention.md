@@ -27,11 +27,10 @@ instance alive under `'destroy'`, `retain: 'never'` destroys it under `'retain'`
 
 ## What flipping the default costs
 
-A kept surface is mounted off the router, in every pane that shows it, and sees a fabricated route
-without resolvers, query parameters or sub-routes
-([A kept surface lives off the router](../concepts/retention-and-unsaved-work.md#a-kept-surface-lives-off-the-router)).
-Flipping the default to `'retain'` applies that trade to every surface that does not opt out with
-`'never'`, so a product that flips it should know which of its surfaces rely on live routing.
+A kept surface stays alive while no pane shows it, with its memory and whatever it holds open
+([Surfaces live off the router](../concepts/retention-and-unsaved-work.md#surfaces-live-off-the-router)).
+Flipping the default to `'retain'` applies that to every surface that does not opt out with
+`'never'`, so a product that flips it should know which of its surfaces hold much while hidden.
 
 A sandboxed (`iframe`) surface is hidden in place rather than destroyed, and is moved without a reload
 where the browser can move an element atomically; where it cannot, and on a split or a drag into

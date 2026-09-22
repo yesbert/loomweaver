@@ -86,6 +86,34 @@ describe('a live surface route', () => {
     expect(live.route.snapshot.fragment).toBe('top');
   });
 
+  it('gives the child route the values of the sub-route it names', () => {
+    const program = {
+      path: 'programs/:programId',
+      subRoutes: ['structure/:structureId', 'flows/:flowId'],
+    } as unknown as RegisteredContentRoute;
+    const live = liveSurfaceRoute(
+      program,
+      at('programs/205470/structure/9178'),
+    );
+
+    expect(live.route.firstChild?.snapshot.paramMap.get('structureId')).toBe(
+      '9178',
+    );
+    expect(live.route.snapshot.paramMap.get('programId')).toBe('205470');
+  });
+
+  it('names a route configuration only while its pane carries the address', () => {
+    const live = liveSurfaceRoute(entry, at('entry/7'));
+
+    expect(live.route.snapshot.routeConfig).toBeNull();
+    expect(live.route.routeConfig).toBeNull();
+
+    live.update(at('entry/7', { carriesAddress: true }));
+
+    expect(live.route.snapshot.routeConfig).toEqual({ path: 'entry/:id' });
+    expect(live.route.routeConfig).toEqual({ path: 'entry/:id' });
+  });
+
   it('emits nothing when the address is unchanged', () => {
     const live = liveSurfaceRoute(entry, at('entry/7/meta'));
     let emissions = 0;

@@ -70,7 +70,7 @@ Nothing is required from a distribution or a plugin: the entries appear by thems
 `/popout/view/<viewId>` works for every registered view. Opening one from your own code is
 `PopoutService` in [Windows, sync and updates](../distribution-api/windows-and-sync.md#do-it).
 
-A surface that draws its own sub-tabs must switch them locally while it is host-mounted, or a
+A surface that draws its own sub-tabs must switch them locally while its pane does not carry the address, or a
 pop-out's URL drifts out of the `/popout/` prefix and reloading that window opens the full app. The
 rule and its one-line test are in
 [Sub-routes, the rest, and tabs that follow](../weaver/sub-routes-and-follows.md#sub-routes-and-pop-out-windows).

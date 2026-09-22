@@ -31,9 +31,9 @@ a plugin's own call.
 
 A surface docked in a sidebar has no address; a plugin that navigates it does nothing, with a warning
 in development. A pop-out window is a viewer onto one surface: it freezes the address it opened with
-and refuses content navigation, because there is nothing else in that window to navigate to. A kept
-surface is mounted off the router and sees only a fabricated route
-([Retention and unsaved work](retention-and-unsaved-work.md#a-kept-surface-lives-off-the-router)).
+and refuses content navigation, because there is nothing else in that window to navigate to. A surface in
+a pane that does not carry the address reads the address of its own tab, not the address bar
+([Retention and unsaved work](retention-and-unsaved-work.md#surfaces-live-off-the-router)).
 
 ## What the address does not carry
 

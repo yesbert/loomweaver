@@ -126,17 +126,18 @@ content and still not belong in a tab: a login page, an onboarding flow. Declare
 `routable: { path: 'login', chromeless: true }` for it instead, and keep it inside the plugin that
 owns it.
 
-## The two places the router is not the whole story
+## Where the router is not the whole story
 
-**A retained surface is mounted off-router.** A surface that declares `retain: 'always'` is kept
-alive while hidden, and to make that work the host mounts it in every pane itself rather than letting
-the router build it. It still receives an `ActivatedRoute`, but a fabricated one: route parameters
-are there, and nothing else is, so never combine `retain` with `subRoutes` (the host warns in
-development). What the fabricated route lacks and why is on
-[Retention and unsaved work](../concepts/retention-and-unsaved-work.md#a-kept-surface-lives-off-the-router).
+**The workbench draws your surface, not a router outlet.** The router holds the address, its guards
+and its history. The pane that shows a surface draws it, the pane carrying the address like any other,
+so a surface stays where it is when the address moves between panes. Your component still receives an
+`ActivatedRoute`, and it is live: values, sub-address or remainder, query and fragment follow the
+address of the tab its pane shows. `data['urlDriven']` says whether that pane carries the address. A
+nested `<router-outlet>` inside a surface stays inert, so read the sub-address from the route. What
+this means for keeping a surface is on
+[Retention and unsaved work](../concepts/retention-and-unsaved-work.md#surfaces-live-off-the-router).
 
-**A pop-out window shows one surface and has no address to drive.** Your component is host-mounted
-there, which you can see: its `ActivatedRoute` has a `routeConfig` of `null`. Branch on that and keep
-sub-tab state local instead of pushing it onto the global router, or the same component will misbehave
-in exactly one of its two homes. The pattern is in
+**A pop-out window shows one surface and has no address to drive.** Your component never carries the
+address there: `data['urlDriven']` is never `true`. Keep sub-tab state local instead of pushing it onto
+the global router, or the same component will misbehave in exactly one of its homes. The pattern is in
 [Sub-routes, the rest, and tabs that follow](../weaver/sub-routes-and-follows.md#sub-routes-and-pop-out-windows).

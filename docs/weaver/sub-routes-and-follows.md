@@ -25,9 +25,9 @@ ctx.registerSurface({ id: 'doc', title: 'doc.title', component: DocView,
 ```
 
 The route's `path` stays the **tab root** (one host tab per document); switching a sub-route stays in that
-tab and **preserves the parent's state** (edits, scroll). The host synthesises the child routes: your
-_parent_ component stays mounted, renders a `<router-outlet />` (the children are empty stubs), reads
-the active sub from the URL and navigates to `doc/<id>/<sub>` to switch.
+tab and **preserves the parent's state** (edits, scroll). Your component stays mounted and reads the
+active sub from its route: `data['sub']` carries the segments below the tab root, and the child route
+carries them as its URL. Both follow the address. To switch, it navigates to `doc/<id>/<sub>`.
 
 A sub-route is written in Angular syntax, so a segment may **carry a value**:
 
@@ -39,23 +39,20 @@ routable: { path: 'programs/:programId', subRoutes: ['structure/:structureId', '
 And the bare tab root is a **valid address**: there is no redirect to the first entry, because that
 cannot work once the first entry carries a value. Decide for yourself what an empty sub shows: a grid,
 a marked first entry, an overview. Reading a value out of a sub-route works like the sub itself: take it
-off the URL under your tab root (the sample below does exactly that). That also keeps working when the
-host mounts you off-router and hands you the sub as a string instead. If you only ever run on the
-router, `inject(ActivatedRoute).firstChild?.paramMap` is the Angular-native alternative.
+off `data['sub']`, or read `inject(ActivatedRoute).firstChild?.paramMap`, which carries the values of
+the sub-route you declared.
 
 A complete minimal component:
 
 ```ts
 // src/lib/views/doc-view.ts
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, linkedSignal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, NavigationEnd, Router, RouterOutlet } from '@angular/router';
-import { filter, map } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-doc-view',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet],
   template: `
     <nav class="flex gap-2">
       @for (tab of ['code', 'preview']; track tab) {
@@ -63,69 +60,44 @@ import { filter, map } from 'rxjs';
       }
     </nav>
     @if (sub() === 'code') { <p>code body…</p> } @else { <p>preview body…</p> }
-    <router-outlet />
   `,
 })
 export class DocView {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly id = this.route.snapshot.paramMap.get('id') ?? '';
-  private readonly tabRoot = 'doc/' + this.id;
+  private readonly tabRoot = 'doc/' + (this.route.snapshot.paramMap.get('id') ?? '');
+  private readonly data = toSignal(this.route.data, { initialValue: this.route.snapshot.data });
 
-  private readonly url = toSignal(
-    this.router.events.pipe(
-      filter((e): e is NavigationEnd => e instanceof NavigationEnd),
-      map(() => this.router.url),
-    ),
-    { initialValue: this.router.url },
-  );
-  // active sub = whatever stands under the tab root; you pick what an empty one means
-  protected readonly sub = computed(() => {
-    const path = this.url().split(/[?#]/)[0].replace(/^\/+/, '');
-    return path.startsWith(this.tabRoot + '/') ? path.slice(this.tabRoot.length + 1) : 'code';
-  });
+  // whatever stands under the tab root; you pick what an empty one means
+  protected readonly sub = linkedSignal(() => String(this.data()['sub'] ?? '') || 'code');
 
   protected openSub(sub: string): void {
-    void this.router.navigateByUrl('/' + this.tabRoot + '/' + sub);
+    if (this.data()['urlDriven'] !== true) {
+      this.sub.set(sub); // a pane without the address, a sidebar, a pop-out: stay put
+      return;
+    }
+    void this.router.navigateByUrl('/' + this.tabRoot + '/' + sub); // the address: shareable
   }
 }
 ```
 
-This is standard Angular nesting. Deeper params work the same way. One extra fact matters as soon
-as panes come in. When the host mounts your component **off-router** (a split pane, a sidebar tab, a
-pop-out window), there is no URL to read. The host instead hands you a synthetic route whose
-`data['sub']` carries the active sub-segment, and navigating the global router from there would be
-wrong. The next section shows the `hostMounted` branch that handles it.
+The workbench draws your surface in whichever pane shows it, and the route it hands you is live. One
+fact matters as soon as panes come in: only one of them carries the address. `data['urlDriven']` says
+whether yours does, and it changes when the user moves the address. The next section says why the
+branch in `openSub` matters.
 
 ## Sub-routes and pop-out windows
 
-One thing to get right if your surface draws its own **sub-tabs**: switch them **locally when you are
-host-mounted**, not by pushing an absolute URL onto the global router. Your surface can be mounted
-where the global URL does not belong to it: a split pane, a sidebar, a pop-out. An absolute
-`navigateByUrl('/doc/42/code')` from there hijacks the window. In a pop-out it drags the URL out of
-the `/popout/` prefix, so a reload opens the full app.
+One thing to get right if your surface draws its own **sub-tabs**: switch them **locally while your
+pane does not carry the address**, not by pushing an absolute URL onto the global router. Your surface
+can be shown where the global URL does not belong to it: a split pane, a sidebar, a pop-out. An
+absolute `navigateByUrl('/doc/42/code')` from there hijacks the window. In a pop-out it drags the URL
+out of the `/popout/` prefix, so a reload opens the full app.
 
-The host tells you which case you are in: when it host-mounts you it supplies a **synthetic
-`ActivatedRoute` whose `routeConfig` is `null`**. Branch on it. Keep sub-tab state local off-router,
-and only reflect it into the URL when you own it:
-
-```ts
-// Inside your route component (tabRoot = the route's path with params resolved, e.g. 'doc/' + id):
-private readonly router = inject(Router);
-private readonly route = inject(ActivatedRoute);
-// Host-mounted (split/sidebar/pop-out) = the host built a synthetic route: routeConfig is null,
-// and data['sub'] carries the active sub-segment instead of the URL.
-private readonly hostMounted = this.route.snapshot.routeConfig === null;
-private readonly localSub = signal(String(this.route.snapshot.data['sub'] ?? '') || 'code');
-
-openSub(sub: string): void {
-  if (this.hostMounted) {
-    this.localSub.set(sub);        // split / sidebar / pop-out — stay put
-    return;
-  }
-  void this.router.navigateByUrl('/' + this.tabRoot + '/' + sub);   // address pane — shareable, back/forward
-}
-```
+The route tells you which case you are in, live: `data['urlDriven']` is `true` while your pane carries
+the address. The sample above branches on it. An older check still works, read once when the
+component is created: `routeConfig` is `null` when it was created in a pane that did not carry the
+address.
 
 Sub-tab-less views (the common case) need none of this.
 
@@ -246,4 +218,4 @@ registered, and renaming an id you did not register does nothing.
 
 - [Containers: a workspace in a tab](containers.md): children with a `segment`, the other way an address goes deeper.
 - [Content-area routing](../distribution/content-routing.md#following-tabs): the distribution's side of following tabs.
-- [Routing](../reference/routing.md): the router-shaped view, and the two places a surface is mounted off-router.
+- [Routing](../reference/routing.md): the router-shaped view, and where the router is not the whole story.

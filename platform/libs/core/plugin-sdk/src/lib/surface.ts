@@ -11,8 +11,8 @@ import { ViewAction } from './view.js';
  * - `loadComponent` — the same thing, **deferred**: a loader the host calls the first time the surface is
  *   actually shown, mirroring Angular's `Route.loadComponent`. Use it when a surface drags a heavy
  *   dependency tree behind it (a chart engine, a graph layout), so that code lands in its own chunk and a
- *   user who never opens the surface never downloads it. Routable surfaces hand it straight to the router;
- *   host-mounted ones render nothing until it resolves.
+ *   user who never opens the surface never downloads it. The pane showing the surface renders nothing
+ *   until it resolves.
  * - `iframe` — a URL the host mounts as an **isolated** `<iframe sandbox>` surface. A plain string, so it
  *   serialises over the `ctx`-RPC boundary — which is why it is the form a **sandboxed** plugin uses
  *   (the first untrusted rung). A **trusted** plugin may use it too, to embed a foreign origin on purpose
@@ -125,7 +125,7 @@ export interface SurfaceRoutable {
    *
    * How the rest reaches you depends on the rung. A **sandboxed** surface receives it over its channel
    * (`state.rest`) and sets its own with the channel's `navigate` — both confined to this prefix. A
-   * **trusted** component reads it the ordinary Angular way (its child `ActivatedRoute`/the router) and
+   * **trusted** component reads it from its injected route (`data.sub`, or the child route) and
    * navigates with the router.
    *
    * A prefix of **fewer than two segments** owns most of the address space, which is where the surface

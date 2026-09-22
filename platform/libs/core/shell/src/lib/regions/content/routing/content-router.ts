@@ -20,7 +20,6 @@ import { SurfaceRouteStub } from './surface-route-stub';
 import { accessCanMatch } from '../access/content-access';
 import { BootAddress } from './boot-address';
 import { DISTRIBUTION_ROUTES, isCatchAll } from './distribution-routes';
-import { ContentReuseStrategy } from './content-reuse-strategy';
 import { keepPopout } from './keep-popout.guard';
 import { settleWorkspace } from './settle-workspace.guard';
 import {
@@ -128,7 +127,6 @@ export class ContentRouter {
   private readonly location = inject(Location);
   private readonly bootAddress = inject(BootAddress);
   private readonly injector = inject(Injector);
-  private readonly reuse = inject(ContentReuseStrategy);
   private readonly auth = inject(AuthContext);
   private readonly retention = inject(SURFACE_RETENTION);
   private readonly owned =
@@ -200,7 +198,6 @@ export class ContentRouter {
         const wasParked = this.parkedOnPlaceholder;
         this.applyConfig(routes, omitted);
 
-        this.reuse.pruneExcept((key) => matchRoute(routes, key) !== undefined);
         this.retryDeepLink(wasParked);
         this.retryHeld();
       },

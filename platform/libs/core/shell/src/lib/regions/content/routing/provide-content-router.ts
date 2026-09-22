@@ -21,12 +21,13 @@ import { CONTAINER_PANE_HOST } from '../../pane/container/container-context';
 
 /**
  * The distribution's router, set up for the content area — call this **instead of**
- * `provideRouter([])`. It bundles the three pieces that make plugin-contributed content routes work
- * as one foolproof unit, so a distribution author cannot forget the initial-navigation flag:
+ * `provideRouter([])`. It bundles the pieces that make plugin-contributed content routes work as one
+ * foolproof unit, so a distribution author cannot forget the initial-navigation flag. The router holds
+ * the address, its guards and its history; the panes draw the content, so a surface stays where it
+ * is drawn when the address moves between panes:
  *
  * - `withDisabledInitialNavigation()` — the router does not navigate until the plugin routes exist.
- * - `ContentReuseStrategy` — keeps a surface's instance across tab/perspective switches when its
- *   retention policy says so (`retain: 'always'` or a `retention: 'retain'` default).
+ * - `ContentReuseStrategy` — never carries a content route across a change of its values.
  * - an app-initializer that runs {@link ContentRouter.start} after plugins activate: it mirrors the
  *   registered content routes into the router and then performs the deferred initial navigation.
  *

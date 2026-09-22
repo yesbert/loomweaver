@@ -1,6 +1,5 @@
 import { inject, Service } from '@angular/core';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
-import { ContentReuseStrategy } from '../routing/content-reuse-strategy';
 import { normalizePath, tabRootOf } from '../content-path';
 import { TabCloseHooks } from './tab-close-hooks';
 import { OpenTabsService } from './open-tabs.service';
@@ -24,8 +23,6 @@ export class TabClosingService {
   private readonly state = inject(OpenTabsService);
 
   private readonly registry = inject(ContributionRegistry);
-
-  private readonly reuse = inject(ContentReuseStrategy);
 
   private readonly paneTree = inject(PaneTreeService);
 
@@ -192,11 +189,7 @@ export class TabClosingService {
     this.closeHooks.runSafely(closing?.onClose);
     this.closeHooks.delete(root);
     if (wasActive) {
-      void this.navigateAfterClose(this.collapseOrNeighbour(root)).finally(() =>
-        this.reuse.evict(root),
-      );
-    } else {
-      this.reuse.evict(root);
+      void this.navigateAfterClose(this.collapseOrNeighbour(root));
     }
   }
 
@@ -238,20 +231,12 @@ export class TabClosingService {
     for (const root of roots) {
       this.closeHooks.delete(root);
     }
-    const evictAll = () => {
-      for (const root of roots) {
-        this.reuse.evict(root);
-      }
-    };
     if (activeWentAway) {
       void this.state
         .navigate(fallbackPath)
         .catch((error: unknown) =>
           console.error('Content navigation failed', error),
-        )
-        .finally(evictAll);
-    } else {
-      evictAll();
+        );
     }
   }
 
