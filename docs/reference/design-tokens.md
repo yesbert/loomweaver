@@ -290,7 +290,9 @@ function in `@loomweaver/shell`: `defineLwIcon()`, `defineLwButton()`, `defineLw
   as list rows), and anchored to the trigger element via `position` on **keyboard focus**. It is
   therefore **not** clipped by a `transform`/`overflow` ancestor (a virtual-scroll row) or by region
   z-order. The **look** lives as `.lw-tooltip-bubble` in `theme.css` (like `.lw-btn`), so it themes
-  automatically.
+  automatically. The element is text only. For hover content with structure, such as badges in a
+  grid that places its own tooltips, put `.lw-tooltip-bubble` on an element of your own. The class
+  carries the look and nothing else, so the element stays where the grid puts it.
 - **Single-value selection (`<lw-select>` + `<lw-option>`):** a **framework-agnostic custom element**
   (like `<lw-tooltip>`) for "one value out of a set" (language, theme, settings). It is a
   _select_, **not a menu** (actions are `<lw-menu>`). Options are **light-DOM children** (like native
@@ -396,7 +398,9 @@ function in `@loomweaver/shell`: `defineLwIcon()`, `defineLwButton()`, `defineLw
   an accessible name** (`aria-label`/`aria-labelledby`, WCAG `aria-progressbar-name`). Indeterminate =
   `<lw-spinner>`.
 - **Badge (`.lw-badge`):** a status/count pill on a `<span>` (class contract, pure presentation, no
-  custom element). Tints `.lw-badge--brand/--success/--danger` alongside the neutral base.
+  custom element). Tints `.lw-badge--brand/--success/--danger` alongside the neutral base. Inside a
+  `.lw-tooltip-bubble` the neutral base takes the bubble's inverted colours, so it reads in both
+  appearances; a tinted badge keeps its fill.
 - **Divider / collapsible (`.lw-divider` / `.lw-collapsible`):** class contracts on a **native** `<hr>`
   (implicit `role="separator"`; `.lw-divider--vertical` for a vertical line) and a **native**
   `<details>`/`<summary>`, which bring native expand/collapse semantics, keyboard and a11y **without
