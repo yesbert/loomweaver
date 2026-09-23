@@ -178,9 +178,7 @@ export class OpenTabsService {
 
   private ownNavigation: string | null = null;
 
-  private readonly keptAddress = signal<{ readonly path: string } | null>(null);
-
-  private lastKept: { readonly path: string } | null = null;
+  private readonly keptAddress = signal<string | null>(null);
 
   private lastRestored = false;
 
@@ -202,8 +200,10 @@ export class OpenTabsService {
           return;
         }
         const moved = url !== this.lastUrl;
-        const keptHere = kept !== this.lastKept && kept?.path === path;
-        this.lastKept = kept;
+        const keptHere = kept === path;
+        if (kept !== null) {
+          this.keptAddress.set(null);
+        }
         if (
           !moved &&
           !keptHere &&
@@ -234,7 +234,7 @@ export class OpenTabsService {
   }
 
   keepAddress(address: string): void {
-    this.keptAddress.set({ path: normalizePath(address) });
+    this.keptAddress.set(normalizePath(address));
   }
 
   activateViewTab(path: string): void {

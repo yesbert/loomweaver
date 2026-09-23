@@ -10,6 +10,7 @@
 - [x] 1.8 Test and fix: a link into a claiming workspace that holds the content beside another pane does not carry the address left into any pane; the replacement counter starts from its current value
 - [x] 1.9 Test and fix: a navigation the shell starts itself into such a workspace opens the content once
 - [x] 1.10 `active-content-path.ts` moves into the pane layer and the content-path query is shared; the tab sync skips a run in which nothing it reads changed; its branches fold into one focus step; `contentPathOf`, unused, is removed
+- [x] 1.11 Test and fix: adopting a stored arrangement moves the person to the workspace that claims the address shown, without rewriting the arrangement of the workspace left; the kept address is consumed rather than compared; the content-path query lives in one place
 
 ## 2. The language switch as released
 
@@ -27,6 +28,7 @@
 - [x] 3.6 Tests: a point-anchored menu moves with its control; a menu whose words did not change still moves with it; a rect anchor follows a control that grew; a removed or hidden control leaves the menu where it last stood
 - [x] 3.7 Test and fix: `LwMenuElement` measures its full width when placed again, so grown words are not cut off at the edge
 - [x] 3.8 Placement and wording move into `menu-placement.ts` and `menu-wording.ts`
+- [x] 3.10 Tests and fix: a bundle of another language neither re-words nor moves an open menu; a heading detail that translates to nothing draws no line
 - [x] 3.9 Tests and fix: an entry named like a member of every object, and a label that is not a string, are shown as they are; a point anchor follows the edge of the control it was nearest to
 
 ## 4. Close

@@ -186,7 +186,11 @@ export class MenuService {
     const wording = merge(
       this.transloco.langChanges$.pipe(skip(1)),
       this.transloco.events$.pipe(
-        filter((event) => event.type === 'translationLoadSuccess'),
+        filter(
+          (event) =>
+            event.type === 'translationLoadSuccess' &&
+            event.payload.langName === this.transloco.getActiveLang(),
+        ),
       ),
     ).subscribe(() => {
       word();

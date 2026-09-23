@@ -39,6 +39,10 @@ width it measures.
   change of its own.
 - A shared "strings changed" stream for the menus and the command palette. Two readers do not warrant
   a third abstraction.
+- A plugin opening content that the workspace it lands in holds in a pane other than the address
+  pane. Opening refines that tab's title and does not navigate, so the address stays on what the user
+  left, as in 0.13.0; a link to the same content navigates there. Found by the eighth review, it
+  predates these fixes and is a defect of its own for a separate change.
 
 ## Decisions
 
@@ -57,7 +61,9 @@ address it is focused again.
 - The same-address reload after sign-in settles the address, enters the claiming workspace and ends
   with no navigation pending and the kept address shown; the address gets its tab. That is F-038.
 - A link into claimed content keeps the link's address; the effect acts when the navigation ends there.
-- Adopting a signed-in person's stored arrangement keeps the address shown; it gets its tab back.
+- Adopting a signed-in person's stored arrangement keeps the address shown. Where a workspace other
+  than the adopted active one claims it, the service first moves the person there, as a link would;
+  then the address gets its tab, and the adopted arrangement of the workspace left is not rewritten.
 - A plugin opening content the claiming workspace holds beside another pane keeps the opened address,
   which is not the one shown, so nothing is added for the address the user left.
 - A preview opened into the claiming workspace is added by the opener before the navigation ends; the
@@ -104,7 +110,9 @@ All of them fight the library's design, where activating a language is what load
 the released behaviour: keys for a moment are acceptable, words in the end are what matters.
 
 **Place a re-worded menu again after the chrome is redrawn, moved with the control.** `present` keeps
-the anchor, the control and where the control was when the menu opened. After every re-wording it
+the anchor, the control and where the control was when the menu opened. A menu is re-worded when the
+language changes and when a bundle of the active language arrives; a bundle of another language
+changes none of its words and leaves it alone. After every re-wording it
 waits for the next render (`afterNextRender`), so the bar around the control has taken its new words,
 then places the menu again by the rule it opened with: a point anchor shifted by as much as the control
 moved, a rect anchor with its edges moved as the control's edges moved; a point anchor follows the edge of the
@@ -114,7 +122,7 @@ the window. `LwMenuElement` resets its position before it measures, so the width
 own and not what the old position left it. The `langChanges$` replay at subscription is skipped,
 because the menu is worded before it is placed. A label is looked up as a key; a lookup that yields
 something other than a string, as a name like `constructor` does, and a label that is not a string at
-all are shown as they are. Placement and wording move out of the menu service into files of their
+all are shown as they are. A heading whose detail translates to nothing draws no second line. Placement and wording move out of the menu service into files of their
 own, which keeps it under the 400-line limit.
 
 ## Risks / Trade-offs

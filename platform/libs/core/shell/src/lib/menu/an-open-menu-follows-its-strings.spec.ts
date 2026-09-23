@@ -446,4 +446,30 @@ describe('an open menu follows its strings', () => {
 
     expect(menu?.style.left).toBe('172px');
   });
+
+  it('does not move an open menu when a bundle of another language arrives', async () => {
+    await loaded('en');
+    const control = document.createElement('button');
+    document.body.append(control);
+    const measured = vi
+      .spyOn(control, 'getBoundingClientRect')
+      .mockReturnValue(
+        { left: 100, top: 0, right: 132, bottom: 32, width: 32, height: 32 } as DOMRect,
+      );
+    service.openList(
+      [{ key: 'a', label: 'cmd.profile' }],
+      { x: 100, y: 36 },
+      () => undefined,
+      control,
+    );
+    const menu = document.body.querySelector<HTMLElement>(LW_MENU_TAG);
+
+    measured.mockReturnValue(
+      { left: 160, top: 0, right: 192, bottom: 32, width: 32, height: 32 } as DOMRect,
+    );
+    await loaded('de');
+    TestBed.tick();
+
+    expect(menu?.style.left).toBe('100px');
+  });
 });

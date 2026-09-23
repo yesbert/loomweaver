@@ -102,7 +102,17 @@ async function settled(): Promise<void> {
   await TestBed.inject(ApplicationRef).whenStable();
 }
 
-async function open(at = '/dashboard'): Promise<{
+const KNOWLEDGE_BASE_WORKSPACE = {
+  id: 'knowledge-base',
+  title: 'Knowledge base',
+  claims: ['knowledge-base'],
+  content: { tabs: [{ path: 'knowledge-base', closable: false }] },
+};
+
+async function open(
+  at = '/dashboard',
+  also: readonly (typeof KNOWLEDGE_BASE_WORKSPACE)[] = [],
+): Promise<{
   workspaces: WorkspaceService;
   panes: PaneTreeService;
 }> {
@@ -123,7 +133,7 @@ async function open(at = '/dashboard'): Promise<{
         initial: true,
         claims: ['dashboard'],
         content: { tabs: [{ path: 'dashboard', closable: false }] },
-      }),
+      }, ...also),
     ],
   });
   const registry = TestBed.inject(ContributionRegistry);
@@ -189,6 +199,29 @@ describe('a session that arrives after the workbench has already read', () => {
     const tabs = collectTabs(panes.tree(CONTENT_DOCK)).map((tab) => tab.path);
     expect(tabs).toContain('dashboard');
     expect(tabs).toContain('knowledge-base');
+  });
+
+  it('moves the person who signs in to the workspace that claims the address shown', async () => {
+    localStorage.setItem('lw.id.ada:lw.shell.active-workspace', 'dashboard');
+    localStorage.setItem(
+      'lw.id.ada:lw.shell.pane-trees:dashboard',
+      DASHBOARD_ONLY,
+    );
+    const { panes, workspaces } = await open('/dashboard', [
+      KNOWLEDGE_BASE_WORKSPACE,
+    ]);
+    await TestBed.inject(Router).navigateByUrl('/knowledge-base');
+    await settled();
+
+    await signIn('ada');
+
+    expect(workspaces.activeId()).toBe('knowledge-base');
+    expect(collectTabs(panes.tree(CONTENT_DOCK)).map((tab) => tab.path)).toContain(
+      'knowledge-base',
+    );
+    expect(localStorage.getItem('lw.id.ada:lw.shell.pane-trees:dashboard')).toBe(
+      DASHBOARD_ONLY,
+    );
   });
 
   it('keeps what was built for a person the product has never seen', async () => {

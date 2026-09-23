@@ -327,7 +327,9 @@ export class WorkspaceService {
         this.keyed[key].hydrate(raw);
       }
     }
-    this.openTabs.keepAddress(this.openTabs.activePath());
+    const shown = this.openTabs.activePath();
+    await this.settle(shown);
+    this.openTabs.keepAddress(shown);
   }
 
   private async hydrateActive(): Promise<void> {
