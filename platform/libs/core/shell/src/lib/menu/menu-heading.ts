@@ -8,16 +8,11 @@ export function drawMenuHeading(
   translate: (key: string) => string,
   leadsTo?: Command,
 ): HTMLElement {
-  const title = translate(header.title);
-  const detail = header.detail ? translate(header.detail) : undefined;
-  menu.setAttribute('aria-label', detail ? `${title}, ${detail}` : title);
-
   const element = document.createElement('div');
   element.className = 'lw-menu-header';
   if (leadsTo) {
     element.setAttribute('role', 'menuitem');
     element.setAttribute('command', HEADING_KEY);
-    element.setAttribute('aria-label', translate(leadsTo.title));
     element.tabIndex = -1;
   } else {
     element.setAttribute('aria-hidden', 'true');
@@ -27,21 +22,43 @@ export function drawMenuHeading(
   if (mark) {
     element.append(mark);
   }
-  element.append(drawLines(title, detail));
+  element.append(drawLines(header));
+  wordMenuHeading(element, header, menu, translate, leadsTo);
   return element;
 }
 
-function drawLines(title: string, detail: string | undefined): HTMLElement {
+export function wordMenuHeading(
+  element: HTMLElement,
+  header: MenuHeader,
+  menu: HTMLElement,
+  translate: (key: string) => string,
+  leadsTo?: Command,
+): void {
+  const title = translate(header.title);
+  const detail = header.detail ? translate(header.detail) : undefined;
+  menu.setAttribute('aria-label', detail ? `${title}, ${detail}` : title);
+  if (leadsTo) {
+    element.setAttribute('aria-label', translate(leadsTo.title));
+  }
+  const name = element.querySelector('.lw-menu-header-title');
+  if (name) {
+    name.textContent = title;
+  }
+  const second = element.querySelector('.lw-menu-header-detail');
+  if (second) {
+    second.textContent = detail ?? '';
+  }
+}
+
+function drawLines(header: MenuHeader): HTMLElement {
   const lines = document.createElement('span');
   lines.className = 'lw-menu-header-lines';
   const name = document.createElement('span');
   name.className = 'lw-menu-header-title';
-  name.textContent = title;
   lines.append(name);
-  if (detail) {
+  if (header.detail) {
     const second = document.createElement('span');
     second.className = 'lw-menu-header-detail';
-    second.textContent = detail;
     lines.append(second);
   }
   return lines;

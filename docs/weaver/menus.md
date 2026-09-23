@@ -180,8 +180,10 @@ spellcheck. Draw your own only where you mean to replace it.
 
 A right-click on your **own in-process view body** (a list row, a canvas node) is not a host slot;
 nothing else contributes to it. Call **`ctx.ui.openMenu(items, { x, y })`** (capability `ui`) with
-ad-hoc items, each a literal `label` you localise yourself, an optional host `icon` name and an
-in-process `run` handler. The host draws them as its own `<lw-menu>` at the cursor, with the same
+ad-hoc items, each with a `label`, an optional host `icon` name and an in-process `run` handler. The
+`label` is a key of your own bundle or a literal, like every other piece of chrome text: a key is
+translated, and the open menu is re-worded when the strings arrive or the language changes; a literal,
+such as a name the user typed, is shown as it is. The host draws them as its own `<lw-menu>` at the cursor, with the same
 positioning, Escape and outside-click dismissal and focus return as its menus. The menu is body-level,
 so a virtual-scroll or `transform`ed ancestor never clips it.
 
@@ -191,8 +193,8 @@ onRowContextMenu(event: MouseEvent, note: Note) {
   event.preventDefault();
   ctx.ui.openMenu(
     [
-      { label: 'Open', icon: 'document', run: () => this.open(note) },
-      { label: 'Delete', icon: 'trash', run: () => store.remove(note.id) },
+      { label: 'notes.menu.open', icon: 'document', run: () => this.open(note) },
+      { label: 'notes.menu.delete', icon: 'trash', run: () => store.remove(note.id) },
     ],
     { x: event.clientX, y: event.clientY },
   );

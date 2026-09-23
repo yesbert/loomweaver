@@ -46,21 +46,20 @@ export class ViewInstanceSwitcher {
   protected openSwitcher(event: MouseEvent): void {
     const viewId = this.view().id;
     const activeId = this.viewInstances.activeId(viewId)();
-    const t = (key: string) => this.transloco.translate(key);
     const entries: MenuListEntry[] = this.viewInstances
       .instances(viewId)()
       .map((instance) => ({
         key: `switch:${instance.id}`,
         label: this.viewInstances.isDefault(viewId, instance.id)
-          ? t('viewInstance.default')
-          : instance.name,
+          ? 'viewInstance.default'
+          : () => instance.name,
         active: instance.id === activeId,
       }));
-    entries.push({ key: 'new', label: t('viewInstance.new'), icon: 'add' });
+    entries.push({ key: 'new', label: 'viewInstance.new', icon: 'add' });
     if (!this.viewInstances.isDefault(viewId, activeId)) {
       entries.push(
-        { key: 'rename', label: t('viewInstance.rename') },
-        { key: 'delete', label: t('viewInstance.delete') },
+        { key: 'rename', label: 'viewInstance.rename' },
+        { key: 'delete', label: 'viewInstance.delete' },
       );
     }
     const control = event.currentTarget as HTMLElement;
