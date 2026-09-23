@@ -25,6 +25,7 @@ import {
   isRoutableSurface,
   surfaceToEntry,
 } from './surface-normalize';
+import { LeftOutChildren } from '../regions/pane/container/left-out-children';
 import { AuthContext } from '../auth/auth-context';
 import { normalizePath, segmentsOf } from '../regions/content/content-path';
 import { collidingParam } from '../regions/content/tabs/tab-address';
@@ -80,6 +81,7 @@ export class HostPluginContext implements PluginContext {
     private readonly reveal: SurfaceRevealService,
     pluginState: PluginStateService,
     private readonly invocation: CommandInvoker,
+    private readonly leftOut: LeftOutChildren,
   ) {
     this.ui = {
       confirm: (options) => {
@@ -200,6 +202,11 @@ export class HostPluginContext implements PluginContext {
   updateSurfaceBadge(id: string, badge: TabBadge | null): void {
     this.require('contributions');
     this.registry.updateSurfaceBadge(id, badge, this.pluginId);
+  }
+
+  setChildShown(childSurfaceId: string, shown: boolean): void {
+    this.require('contributions');
+    this.leftOut.setShownBy(this.pluginId, childSurfaceId, shown);
   }
 
   retitleSurface(id: string, title: string): void {

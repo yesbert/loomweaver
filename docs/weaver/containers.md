@@ -138,6 +138,30 @@ none of this: it is reachable from the picker, exists once and has no address.
 A surface that draws its own sub-tabs must switch them locally wherever its pane does not carry the
 address, a pop-out included; [Sub-routes and pop-out windows](sub-routes-and-follows.md#sub-routes-and-pop-out-windows) shows the branch.
 
+## Leaving a child out
+
+Some children make sense only some of the time: a tab for a feature the customer has not licensed, or
+a panel a setting switches off. The plugin that registered the child decides, at any time:
+
+```ts
+ctx.setChildShown('sim.audit', false);
+ctx.setChildShown('sim.audit', true);
+```
+
+A child left out is gone from every container that lists it. Its tab is not drawn, the keyboard does
+not stop on it, the inner picker does not offer it, and closing all tabs leaves it alone. Nothing
+stands in for it, not even the access placeholder a child the session may not see would draw. A pane
+that holds nothing else is not drawn either, and the panes beside it take its room.
+
+Leaving out is not closing. The child keeps its place in the arrangement, so brought back it stands
+where it stood, and what the person did with the other tabs meanwhile is kept. Where the child had
+the focus, a child shown beside it takes the focus and the address follows. An address naming a child
+that is left out opens the container on a child that is shown. `open` of a child that is left out
+does nothing, so bring it back first.
+
+The decision is per child, not per open container. It needs the `contributions` capability, and a
+plugin in a sandbox makes the same call.
+
 ## Where next
 
 - [The content area](content-area.md): the routable surface a container is, and the tabs it opens into.

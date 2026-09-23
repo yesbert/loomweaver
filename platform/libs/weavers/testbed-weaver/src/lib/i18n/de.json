@@ -183,6 +183,7 @@
     "reset": "Liste zurücksetzen",
     "resetConfirm": "**Alle Elemente** werden dauerhaft entfernt. Das lässt sich nicht rückgängig machen.",
     "resetGuardLabel": "Zum Bestätigen **Reset** eingeben.",
+    "toggleAudit": "Audit-Kind zeigen oder weglassen",
     "settings": "Einstellungen",
     "about": "Über",
     "secret": "Nur-Admin-Befehl",

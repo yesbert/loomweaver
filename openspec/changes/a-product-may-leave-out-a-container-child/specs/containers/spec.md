@@ -8,7 +8,7 @@ reload all reach a particular child rather than only the container.
 
 The address SHALL start on what the container declared as focused, and SHALL NOT rewrite itself on
 load. The one exception is an address naming a child the product has left out: it SHALL open the
-container on its first child that is shown, and the address SHALL then name that child.
+container on the child it focuses among those shown, and the address SHALL then name that child.
 
 #### Scenario: The address names the focused child
 
@@ -30,10 +30,11 @@ container on its first child that is shown, and the address SHALL then name that
 - **WHEN** the container is opened in a window of its own and a child is opened there
 - **THEN** that window's address does not change
 
-#### Scenario: An address naming a child left out reaches the first child shown
+#### Scenario: An address naming a child left out reaches a child shown
 
 - **WHEN** an address naming a child the product has left out is opened
-- **THEN** the container opens on its first child that is shown, and the address names that child
+- **THEN** the container opens on the child it focuses among those shown, and the address names that
+  child
 
 ## ADDED Requirements
 

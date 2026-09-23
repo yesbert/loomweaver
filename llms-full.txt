@@ -62,6 +62,13 @@ interface PluginContext {
                                                          // while it is MOUNTED: every tab showing it follows, the surface is NOT rebuilt, the
                                                          // content routes are not recomputed; a key still translates; an id you did not
                                                          // register (or another plugin did) = no-op; crosses the sandbox [contributions]
+  setChildShown(childSurfaceId: string, shown: boolean): void; // leave a container child you registered OUT (false) or bring it back (true), at
+                                                         // any time, for a reason of your own (a licence, a setting). In every container listing
+                                                         // it: no tab, no keyboard stop, not in the inner picker, spared by closing in bulk, and
+                                                         // NO access placeholder; a pane holding only such children is not drawn. Its place is
+                                                         // kept, so it returns where it stood; the focus and the address move to a shown child;
+                                                         // open() of it does nothing. Per child, not per open container. Not a container child
+                                                         // you registered = no-op with a dev warning; crosses the sandbox [contributions]
   updateSurfaceAction(id: string, action: ViewAction): void;  // replace ONE action of a surface you registered, by the action's id, while it is
                                                          // MOUNTED: the panel header follows, the surface is NOT rebuilt; an action id the surface
                                                          // did not carry is ADDED in its `order` place. This is how a toggle moves: replace it with the
@@ -424,6 +431,8 @@ interface ContainerTab { surface: string; closable?: boolean; active?: boolean; 
 // container degrades, it never refuses to register. A child the user may not see KEEPS its place and draws the
 // access placeholder: the declaration is seeded whole and access decides when drawing, so a late session cannot
 // flatten the layout. The baseline applies on every fresh open; while the tab stays open the user's arrangement wins.
+// A child the plugin LEAVES OUT (ctx.setChildShown(id, false)) is the other case: no tab and no placeholder, and a pane
+// holding nothing else gives up its room. The arrangement is not changed, so brought back it stands where it stood.
 type ContentSurface = { component: Type<unknown> } | { loadComponent: () => Promise<Type<unknown>> } | { iframe: string } | { container: ContainerSpec };
 // subRoutes = nested level-2 tabs as real URL segments under the tab root: doc/:id/code · doc/:id/preview.
 // The route's `path` stays the tab root (one host tab); switching a sub preserves parent state. Angular syntax, so a

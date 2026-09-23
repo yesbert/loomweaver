@@ -13,14 +13,15 @@ import {
   ContainerTabLabel,
 } from '@loomweaver/plugin-sdk';
 import { CONTAINER_CONTEXT, ContainerContext } from './container-context';
-import { containerDockFor } from './container-children';
+import { containerChildPath, containerDockFor } from './container-children';
+import { LeftOutChildren, shownTree } from './left-out-children';
 import { CONTAINER_PANE_OPTIONS } from '../pane-view-options';
 import { PaneDragService } from '../drag/pane-drag.service';
 import { PaneTreeView } from '../pane-tree-view';
 import { PaneTreeService } from '../tree/pane-tree.service';
 import { PaneContainersService } from './pane-containers.service';
 import { activeTab } from '../tree/pane-node';
-import { findLeaf } from '../tree/pane-queries';
+import { collectLeafIds, findLeaf } from '../tree/pane-queries';
 import { normalizePath, restBelow } from '../../content/content-path';
 
 @Component({
@@ -62,10 +63,20 @@ export class ContainerPaneHost {
   private readonly router = inject(Router);
   private readonly paneTree = inject(PaneTreeService);
   private readonly containers = inject(PaneContainersService);
+  private readonly leftOut = inject(LeftOutChildren);
 
   protected readonly paneOptions = CONTAINER_PANE_OPTIONS;
   protected readonly dock: string;
-  protected readonly tree = computed(() => this.paneTree.tree(this.dock));
+  protected readonly tree = computed(
+    () =>
+      shownTree(this.paneTree.tree(this.dock), (path) =>
+        this.leftOut.hides(path),
+      ) ?? {
+        kind: 'leaf' as const,
+        id: this.paneTree.primaryId(this.dock),
+        tabs: [],
+      },
+  );
 
   private readonly containerPath: string;
   private readonly spec: ContainerSpec | undefined;
@@ -86,7 +97,10 @@ export class ContainerPaneHost {
   });
 
   private readonly focusedSegment = computed(() => {
-    const leaf = findLeaf(this.tree(), this.paneTree.primaryId(this.dock));
+    const tree = this.tree();
+    const leaf =
+      findLeaf(tree, this.paneTree.primaryId(this.dock)) ??
+      findLeaf(tree, collectLeafIds(tree)[0] ?? '');
     const path = leaf ? activeTab(leaf)?.path : undefined;
     return path === undefined
       ? ''
@@ -108,7 +122,11 @@ export class ContainerPaneHost {
   private followUrl(): void {
     effect(() => {
       const segment = this.urlSegment();
-      if (!segment || segment === untracked(() => this.focusedSegment())) {
+      if (
+        !segment ||
+        segment === untracked(() => this.focusedSegment()) ||
+        this.leftOut.hides(containerChildPath(this.containerPath, segment))
+      ) {
         return;
       }
       untracked(() =>

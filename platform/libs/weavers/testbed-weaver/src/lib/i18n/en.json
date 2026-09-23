@@ -183,6 +183,7 @@
     "reset": "Reset list",
     "resetConfirm": "**All items** will be permanently removed. This cannot be undone.",
     "resetGuardLabel": "Type **Reset** to confirm.",
+    "toggleAudit": "Show or leave out the audit child",
     "settings": "Settings",
     "about": "About",
     "secret": "Admin-only command",

@@ -92,6 +92,16 @@ export function registerCommands(ctx: PluginContext): void {
     icon: 'testbedList',
     run: () => testbedContent.openBrowse('alpha'),
   });
+  let auditShown = true;
+  ctx.registerCommand({
+    id: 'testbed.toggleAudit',
+    title: 'testbed.cmd.toggleAudit',
+    icon: 'splitPanesDown',
+    run: () => {
+      auditShown = !auditShown;
+      ctx.setChildShown('testbed.wsAudit', auditShown);
+    },
+  });
 
   ctx.registerCommand({
     id: 'testbed.reset',

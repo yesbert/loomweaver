@@ -13,6 +13,7 @@ import {
 } from './retention/retention-policy';
 import { RetainedViewStash } from './retention/retained-view-stash';
 import { isContainerDock } from './container/container-children';
+import { LeftOutChildren } from './container/left-out-children';
 import { CONTENT_DOCK } from './tree/pane-address';
 import { TabKeep, keepsOnPaneClose } from './tree/pane-handover';
 import { PaneLeaf, PaneNode, leafPath } from './tree/pane-node';
@@ -30,6 +31,7 @@ export class PaneActions {
   private readonly drag = inject(PaneDragService);
   private readonly features = inject(FeatureSwitches).content;
   private readonly registry = inject(ContributionRegistry);
+  private readonly leftOut = inject(LeftOutChildren);
 
   split(dock: string, paneId: string, orientation: 'row' | 'column'): void {
     const leaf = this.leaf(dock, paneId);
@@ -146,10 +148,11 @@ export class PaneActions {
   }
 
   private keepsOnClose(dock: string): TabKeep {
-    return keepsOnPaneClose(
+    const keeps = keepsOnPaneClose(
       dock === CONTENT_DOCK || isContainerDock(dock),
       this.features.close(),
     );
+    return (tab) => keeps(tab) || this.leftOut.hides(tab.path);
   }
 
   private candidatesOf(

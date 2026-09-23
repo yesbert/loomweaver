@@ -16,6 +16,7 @@ import { PaneDragService, TabDragSource } from './pane-drag.service';
 import { ContentTabsService } from '../../content/tabs/content-tabs.service';
 import { matchRoute, tabRootOf } from '../../content/content-path';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
+import { LeftOutChildren } from '../container/left-out-children';
 
 export type PaneDropEdge = 'top' | 'bottom' | 'left' | 'right';
 
@@ -43,6 +44,7 @@ export class PaneMoveService {
   private readonly drag = inject(PaneDragService);
   private readonly tabs = inject(ContentTabsService);
   private readonly registry = inject(ContributionRegistry);
+  private readonly leftOut = inject(LeftOutChildren);
 
   moveToStrip(
     source: TabDragSource,
@@ -57,7 +59,9 @@ export class PaneMoveService {
     ) {
       return;
     }
-    const at = this.isUrlGroup(target) ? undefined : index;
+    const at = this.isUrlGroup(target)
+      ? undefined
+      : this.storedIndex(target, index);
     const follow = this.urlFollowup(source, tab);
     const moved = departedTab(target.dock, tab);
     this.relocateTab(source, tab, target.dock, (tree) =>
@@ -157,6 +161,20 @@ export class PaneMoveService {
 
   private isUrlGroup(source: TabDragSource): boolean {
     return this.paneTree.holdsAddress(source);
+  }
+
+  private storedIndex(
+    target: TabDragSource,
+    drawn: number | undefined,
+  ): number | undefined {
+    const tabs =
+      findLeaf(this.paneTree.tree(target.dock), target.paneId)?.tabs ?? [];
+    const shown = tabs.filter((tab) => !this.leftOut.hides(tab.path));
+    if (drawn === undefined || shown.length === tabs.length) {
+      return drawn;
+    }
+    const before = shown[drawn];
+    return before ? tabs.indexOf(before) : tabs.length;
   }
 
   private tabCount(source: TabDragSource): number {

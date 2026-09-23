@@ -194,6 +194,16 @@ export interface PluginContext {
    * opened with a badge of its own keeps its own.
    */
   updateSurfaceBadge(id: string, badge: TabBadge | null): void;
+  /**
+   * Leaves a child of a container out, or brings it back, under the id of the child surface you
+   * registered (`contributions`). A child left out is absent from every container that lists it: no
+   * tab, no placeholder, not walked by the keyboard, not offered by a pane's picker, not closed by
+   * closing in bulk; an address naming it opens the container on a child that is shown. It
+   * keeps its place, so brought back it stands where it stood, and what the person arranged around it
+   * stays. The decision is yours, for any reason (a setting, a licence, your own state), not a role.
+   * A child is shown unless left out; an id that is not a container child you registered is a no-op.
+   */
+  setChildShown(childSurfaceId: string, shown: boolean): void;
   registerBarItem(item: BarItem): Disposable;
   registerRailItem(item: RailItem): Disposable;
   /** Contributes a section to the host settings surface. */

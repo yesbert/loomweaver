@@ -54,16 +54,18 @@ ids) is read wherever the container's panes are drawn or reached:
   whose tabs are all left out, unless the leaf was declared empty, and collapses a split left with one
   side. Pane ids are unchanged, so everything that addresses a pane by id still works; the stored tree
   is untouched.
-- *The strip and keyboard.* `stripTabs` drops tabs of left-out children; keyboard walking follows the
-  drawn tabs.
-- *The pane body.* Where the leaf's active tab is left out, the body shows the first shown tab of that
-  leaf; the stored active tab stays, so bringing the child back restores it.
-- *Pickers and closing in bulk.* `containerChildTargets` and the bulk close skip left-out children;
-  a left-out tab is spared as an unclosable one is.
+- *The strip, the keyboard and the pane body.* The same function drops the tabs of left-out children
+  from every drawn leaf, so the strip, keyboard walking and the pane body read the drawn leaf and need
+  no filter of their own. Where the leaf's active tab is left out, the drawn leaf names its first
+  shown tab as active; the stored active tab stays, so bringing the child back restores it.
+- *Pickers, closing and dropping.* `containerChildTargets` skips left-out children, and every close
+  that walks a pane's tabs sees only the shown ones. Closing a pane hands a left-out child to the pane
+  beside it, as it does an unclosable tab. A tab dropped into a strip lands before the shown
+  tab it was dropped on, so a left-out tab in the stored list does not shift it.
 - *Focus and address.* Where the container's focused child is left out, the container focuses the
-  first shown child of the nearest drawn pane, and `leadUrl` names it. `followUrl` for an address
-  naming a left-out child focuses the first shown child instead and names it, the one rewrite of the
-  address on load that the containers capability allows.
+  first shown tab of its leaf, or the first drawn pane where that leaf is not drawn, and `leadUrl`
+  names it. `followUrl` ignores an address naming a left-out child, so `leadUrl` rewrites it to the
+  focused child: the one rewrite of the address on load that the containers capability allows.
 - *Opening.* `ContainerHandle.open` of a left-out child does nothing and is reported in development;
   a product that wants it shown brings it back first.
 

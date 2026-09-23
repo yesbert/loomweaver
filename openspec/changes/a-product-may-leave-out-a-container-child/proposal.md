@@ -23,7 +23,7 @@ marking a tab.
   Brought back, it stands where it stood, and what the person did with the other children is kept.
 - **The focus and the address move to a child that is shown.** A focused child that is left out hands
   the focus to a shown neighbour, and the address follows. An address naming a child that is left out
-  opens the container on its first shown child instead.
+  opens the container on the child it focuses among those shown instead.
 - **A pane holding only children that are left out is not drawn**; the panes beside it take the room,
   and it returns with its child.
 - Leaving out wins over the access placeholder: a child left out is not drawn whether or not the
