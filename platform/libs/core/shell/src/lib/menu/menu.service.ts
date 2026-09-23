@@ -341,8 +341,10 @@ export class MenuService {
     return { menu, word };
   }
 
-  private readonly translate = (key: string): string =>
-    this.transloco.translate(key);
+  private readonly translate = (key: string): string => {
+    const words: unknown = this.transloco.translate(key);
+    return typeof words === 'string' ? words : key;
+  };
 
   private run(item: MenuItem, context: MenuContext): void {
     if (item.command) {

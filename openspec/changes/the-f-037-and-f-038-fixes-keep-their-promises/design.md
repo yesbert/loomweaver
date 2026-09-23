@@ -26,9 +26,8 @@ width it measures.
 
 **Goals:**
 - F-038 stays fixed; a switch, a reset, a link into claimed content, a navigation the shell starts
-  itself and a preview into claimed content behave as in 0.13.0; any replacement of the arrangement
-  that leaves the address where it is gives the address its tab. None of it depends on when a render
-  happens.
+  itself and a preview into claimed content behave as in 0.13.0; a replacement of the arrangement
+  that keeps the address shown gives it its tab. None of it depends on when a render happens.
 - Every menu the workbench draws shows words once the strings are there, and stays within the window
   and beside its control after re-wording.
 
@@ -43,22 +42,27 @@ width it measures.
 
 ## Decisions
 
-**Re-sync on a replacement, but only once no navigation is running.** The effect tracks
-`PaneTreeService.replaced` and the router's `currentNavigation()` signal. While a navigation runs it
-does nothing, and it skips a run in which neither the address, its route and tab root, nor the
-arrangement changed. Otherwise it focuses a pane that holds the addressed content, measured against
-what the new arrangement's address pane shows when the arrangement was replaced and against the
-previous address when it was not, and then gives the address its tab. A navigation the shell started
-itself had focused against the old arrangement, so after a replacement it is focused again.
+**The workspace service says which address a replacement keeps; the tab sync acts on it once the
+router is idle.** Only the workspace service knows why it replaced the arrangement. When it settles an
+address by moving the user into the workspace that claims it, and when it adopts a signed-in person's
+stored arrangement, it calls `OpenTabsService.keepAddress(path)`. The tab-sync effect tracks that, the
+first restore (`hydrated()`) and the router's `currentNavigation()` signal. While a navigation runs it
+does nothing, and it skips a run in which neither the address, its route and tab root, the first
+restore, nor a kept address matching the address shown changed. Otherwise it focuses a pane that holds
+the addressed content, measured against what the new arrangement's address pane shows when a kept
+address matches and against the previous address when it does not, and then gives the address its
+tab. A navigation the shell started itself had focused against the old arrangement, so with a kept
+address it is focused again.
 
-- A switch or a reset starts its navigation in the same task as the replacement, so the effect runs
-  after it ends, against the address it landed on.
-- The same-address reload after sign-in ends with no navigation pending and an unchanged address; the
-  replacement it made (entering the claiming workspace) gets the address's tab. That is F-038.
-- Adopting a signed-in person's stored arrangement replaces it without a navigation; the address gets
-  its tab back.
+- The same-address reload after sign-in settles the address, enters the claiming workspace and ends
+  with no navigation pending and the kept address shown; the address gets its tab. That is F-038.
+- A link into claimed content keeps the link's address; the effect acts when the navigation ends there.
+- Adopting a signed-in person's stored arrangement keeps the address shown; it gets its tab back.
+- A plugin opening content the claiming workspace holds beside another pane keeps the opened address,
+  which is not the one shown, so nothing is added for the address the user left.
 - A preview opened into the claiming workspace is added by the opener before the navigation ends; the
   effect finds it and only refreshes it, so it stays a preview.
+- A switch or a reset the user asks for keeps no address and navigates, as in 0.13.0.
 
 *Alternatives considered:*
 - **Re-syncing on every replacement, unconditionally** (#458): leaks the old address during a pending
@@ -67,6 +71,10 @@ itself had focused against the old arrangement, so after a replacement it is foc
   arrangement before the navigation is committed, adds a permanent tab where a preview was asked for,
   adds a second copy where a secondary pane already holds the content, and does nothing for a
   replacement outside the guard. Rejected.
+- **Re-syncing after any replacement once the router is idle** (the second correction): infers intent
+  from idleness, so a replacement no navigation follows, such as a plugin opening content the claiming
+  workspace already holds beside another pane, carried the address the user left. Rejected after the
+  seventh review.
 
 The query for what an address pane shows moves into the pane layer (`active-content-path.ts` beside
 `pane-queries.ts`), shared by the tab sync and the workspace service, so the content slice does not
@@ -99,12 +107,15 @@ the released behaviour: keys for a moment are acceptable, words in the end are w
 the anchor, the control and where the control was when the menu opened. After every re-wording it
 waits for the next render (`afterNextRender`), so the bar around the control has taken its new words,
 then places the menu again by the rule it opened with: a point anchor shifted by as much as the control
-moved, a rect anchor with its edges moved as the control's edges moved. A control no longer on the
+moved, a rect anchor with its edges moved as the control's edges moved; a point anchor follows the edge of the
+control it was nearest to. A control no longer on the
 page, or hidden, leaves the menu where it last stood, placed again there so grown words keep it within
 the window. `LwMenuElement` resets its position before it measures, so the width it measures is its
 own and not what the old position left it. The `langChanges$` replay at subscription is skipped,
-because the menu is worded before it is placed. Placement and wording move out of the menu service
-into files of their own, which keeps it under the 400-line limit.
+because the menu is worded before it is placed. A label is looked up as a key; a lookup that yields
+something other than a string, as a name like `constructor` does, and a label that is not a string at
+all are shown as they are. Placement and wording move out of the menu service into files of their
+own, which keeps it under the 400-line limit.
 
 ## Risks / Trade-offs
 

@@ -6,7 +6,7 @@ export function wordEntries(
 ): void {
   for (const [item, label] of labelled) {
     const words =
-      typeof label === 'string' ? translate(label) : label(translate);
+      typeof label === 'function' ? label(translate) : translate(String(label));
     if (item.getAttribute('label') !== words) {
       item.setAttribute('label', words);
     }

@@ -168,13 +168,21 @@ describe('leaving content behind', () => {
     expect(entry?.preview).toBe(true);
   });
 
-  it('gives the address its tab again when its arrangement is replaced without a navigation', async () => {
-    const opened = await openAtReports();
+  it('does not bring the content the user left into a workspace whose pane already holds what a plugin opens', async () => {
+    const opened = await openAtReports(HELD_BESIDE);
 
-    TestBed.inject(PaneTreeService).hydrate(undefined);
+    opened.contentTabs.open({
+      path: 'knowledge-base',
+      title: 'Knowledge base',
+      titleIsLiteral: true,
+    });
     await settled();
 
-    expect(opened.tabs()).toContain('reports');
+    expect(opened.workspaces.activeId()).toBe('knowledge-base');
+    const everywhere = collectTabs(
+      TestBed.inject(PaneTreeService).tree(CONTENT_DOCK),
+    ).map((tab) => tab.path);
+    expect(everywhere).not.toContain('reports');
   });
 
   it('does not bring the content the user left into any pane of a workspace that holds the linked content beside another', async () => {

@@ -17,7 +17,7 @@ import { CONTENT_DOCK } from '../regions/pane/tree/pane-address';
 import { ContentSecondaryPane } from '../regions/content/content-secondary-pane';
 import { CONTAINER_PANE_HOST } from '../regions/pane/container/container-context';
 import { ContainerPaneHost } from '../regions/pane/container/container-pane-host';
-import { collectLeafIds } from '../regions/pane/tree/pane-queries';
+import { collectLeafIds, collectTabs } from '../regions/pane/tree/pane-queries';
 import { PaneTreeService } from '../regions/pane/tree/pane-tree.service';
 import { WORKING_STATE_STORE } from './working-state-store';
 import { WORKSPACE_CLAIMS } from '../foundation/workspace-claims';
@@ -55,6 +55,18 @@ const CONTAINER_DOCK = 'container@arranged/alpha';
 const LAYOUT = {
   regions: [{ id: 'main', type: 'content', dock: 'center' }],
 } as const;
+
+const DASHBOARD_ONLY = JSON.stringify({
+  content: {
+    tree: {
+      kind: 'leaf',
+      id: 'main',
+      tabs: [{ path: 'dashboard' }],
+      active: 'dashboard',
+    },
+    primary: 'main',
+  },
+});
 
 const SPLIT_ARRANGEMENT = JSON.stringify({
   content: {
@@ -160,6 +172,23 @@ describe('a session that arrives after the workbench has already read', () => {
 
     expect(panes.isSplit(CONTENT_DOCK)).toBe(true);
     expect(storedArrangement()).toBe(SPLIT_ARRANGEMENT);
+  });
+
+  it('gives the address its tab in the arrangement adopted for the person who signs in', async () => {
+    localStorage.setItem('lw.id.ada:lw.shell.active-workspace', 'dashboard');
+    localStorage.setItem(
+      'lw.id.ada:lw.shell.pane-trees:dashboard',
+      DASHBOARD_ONLY,
+    );
+    const { panes } = await open();
+    await TestBed.inject(Router).navigateByUrl('/knowledge-base');
+    await settled();
+
+    await signIn('ada');
+
+    const tabs = collectTabs(panes.tree(CONTENT_DOCK)).map((tab) => tab.path);
+    expect(tabs).toContain('dashboard');
+    expect(tabs).toContain('knowledge-base');
   });
 
   it('keeps what was built for a person the product has never seen', async () => {

@@ -52,8 +52,7 @@ export class PaneTreeService {
     this.storage.peek(),
   );
   private readonly hydratedTree = signal(false);
-  private readonly replacements = signal(0);
-  readonly replaced = this.replacements.asReadonly();
+  readonly hydrated = this.hydratedTree.asReadonly();
 
   private settleTree: (() => void) | undefined;
   readonly settled = new Promise<void>((resolve) => {
@@ -65,7 +64,6 @@ export class PaneTreeService {
       (raw) => this.applyHydratedTrees(raw),
       () => {
         this.hydratedTree.set(true);
-        this.replacements.update((count) => count + 1);
         this.settleTree?.();
       },
     );
@@ -331,7 +329,6 @@ export class PaneTreeService {
       this.evacuateRemovedPanes(dock, next[dock]?.node ?? PRIMARY_LEAF);
     }
     this.docks.set(next);
-    this.replacements.update((count) => count + 1);
     this.persist();
   }
 

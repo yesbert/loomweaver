@@ -178,7 +178,11 @@ export class OpenTabsService {
 
   private ownNavigation: string | null = null;
 
-  private lastReplacement = untracked(() => this.paneTree.replaced());
+  private readonly keptAddress = signal<{ readonly path: string } | null>(null);
+
+  private lastKept: { readonly path: string } | null = null;
+
+  private lastRestored = false;
 
   private lastRoute: ContentRoute | undefined;
 
@@ -190,17 +194,20 @@ export class OpenTabsService {
       const path = this.activePath();
       const root = this.activeTabRoot();
       const route = this.activeRoute();
-      const replacement = this.paneTree.replaced();
+      const restored = this.paneTree.hydrated();
+      const kept = this.keptAddress();
       const navigating = this.router.currentNavigation() !== null;
       untracked(() => {
         if (navigating) {
           return;
         }
-        const replaced = replacement !== this.lastReplacement;
         const moved = url !== this.lastUrl;
+        const keptHere = kept !== this.lastKept && kept?.path === path;
+        this.lastKept = kept;
         if (
           !moved &&
-          !replaced &&
+          !keptHere &&
+          restored === this.lastRestored &&
           route === this.lastRoute &&
           root === this.lastRoot
         ) {
@@ -210,20 +217,24 @@ export class OpenTabsService {
         if (moved && !own) {
           this.viewTabSelection.set(null);
         }
-        if (replaced || (moved && !own)) {
-          const shown = replaced ? activeContentPath(this.paneTree) : this.lastUrl;
+        if (keptHere || (moved && !own)) {
+          const shown = keptHere ? activeContentPath(this.paneTree) : this.lastUrl;
           this.focusHolderOf(path, this.rootFor(shown).root);
         }
         if (moved) {
           this.lastUrl = url;
           this.ownNavigation = null;
         }
-        this.lastReplacement = replacement;
+        this.lastRestored = restored;
         this.lastRoute = route;
         this.lastRoot = root;
         this.syncTabOf(route, root, path);
       });
     });
+  }
+
+  keepAddress(address: string): void {
+    this.keptAddress.set({ path: normalizePath(address) });
   }
 
   activateViewTab(path: string): void {

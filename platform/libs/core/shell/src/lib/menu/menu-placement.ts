@@ -20,11 +20,18 @@ export function followed(
   if (!trigger.isConnected || (now.width === 0 && now.height === 0)) {
     return null;
   }
+  if (!('rect' in at)) {
+    const nearRight =
+      Math.abs(at.x - openedAt.right) < Math.abs(at.x - openedAt.left);
+    const nearBottom =
+      Math.abs(at.y - openedAt.bottom) < Math.abs(at.y - openedAt.top);
+    return {
+      x: at.x + (nearRight ? now.right - openedAt.right : now.left - openedAt.left),
+      y: at.y + (nearBottom ? now.bottom - openedAt.bottom : now.top - openedAt.top),
+    };
+  }
   const dx = now.left - openedAt.left;
   const dy = now.top - openedAt.top;
-  if (!('rect' in at)) {
-    return { x: at.x + dx, y: at.y + dy };
-  }
   return {
     rect: {
       left: at.rect.left + dx,

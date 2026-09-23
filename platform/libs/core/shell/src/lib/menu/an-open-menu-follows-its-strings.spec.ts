@@ -394,4 +394,56 @@ describe('an open menu follows its strings', () => {
 
     expect(menu?.style.left).toBe('84px');
   });
+
+  it('shows an entry named like a member of every object as it is', async () => {
+    await loaded('en');
+    service.openList(
+      [
+        { key: 'a', label: 'constructor' },
+        { key: 'b', label: 'toString' },
+      ],
+      { x: 0, y: 0 },
+      () => undefined,
+    );
+
+    expect(labels()).toEqual(['constructor', 'toString']);
+  });
+
+  it('shows an entry whose label is not a string instead of failing to open', async () => {
+    await loaded('en');
+    service.openList(
+      [{ key: 'a', label: 42 as unknown as string }],
+      { x: 0, y: 0 },
+      () => undefined,
+    );
+
+    expect(labels()).toEqual(['42']);
+  });
+
+  it('keeps a menu opened at the right edge of a control at that edge when the control grows', async () => {
+    await loaded('en');
+    await loaded('de');
+    const control = document.createElement('button');
+    document.body.append(control);
+    const measured = vi
+      .spyOn(control, 'getBoundingClientRect')
+      .mockReturnValue(
+        { left: 100, top: 0, right: 132, bottom: 32, width: 32, height: 32 } as DOMRect,
+      );
+    service.openList(
+      [{ key: 'a', label: 'cmd.profile' }],
+      { x: 132, y: 36 },
+      () => undefined,
+      control,
+    );
+    const menu = document.body.querySelector<HTMLElement>(LW_MENU_TAG);
+
+    measured.mockReturnValue(
+      { left: 100, top: 0, right: 172, bottom: 32, width: 72, height: 32 } as DOMRect,
+    );
+    transloco.setActiveLang('de');
+    TestBed.tick();
+
+    expect(menu?.style.left).toBe('172px');
+  });
 });
