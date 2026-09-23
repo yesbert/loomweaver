@@ -118,7 +118,7 @@ function isSeededLeaf(node: unknown, seededPaths: readonly string[]): boolean {
 
 function comparableTab(tab: PaneTab): PaneTab {
   let comparable = tab;
-  for (const key of ['title', 'literalTitle', 'icon'] as const) {
+  for (const key of ['title', 'literalTitle', 'icon', 'badge'] as const) {
     if (comparable[key] !== undefined) {
       comparable = tabWithout(comparable, key);
     }

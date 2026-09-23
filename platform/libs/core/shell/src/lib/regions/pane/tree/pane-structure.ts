@@ -62,7 +62,11 @@ function duplicatedTab(
 }
 
 function labelledLike(leaf: PaneLeaf, source: PaneTab): PaneLeaf {
-  if (source.title === undefined && source.icon === undefined) {
+  if (
+    source.title === undefined &&
+    source.icon === undefined &&
+    source.badge === undefined
+  ) {
     return leaf;
   }
   return {
@@ -72,6 +76,7 @@ function labelledLike(leaf: PaneLeaf, source: PaneTab): PaneLeaf {
       title: source.title,
       literalTitle: source.literalTitle,
       icon: source.icon,
+      ...(source.badge !== undefined && { badge: source.badge }),
     })),
   };
 }

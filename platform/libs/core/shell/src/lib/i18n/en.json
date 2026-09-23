@@ -27,6 +27,7 @@
     "pluginSurface": "Plugin content",
     "previewHint": "Preview — double-click to keep open",
     "unpinTab": "Unpin tab",
+    "badgedTab": "{{title}}, {{badge}}",
     "unsavedTab": "{{title}}, unsaved changes",
     "split": {
       "open": "Split editor",

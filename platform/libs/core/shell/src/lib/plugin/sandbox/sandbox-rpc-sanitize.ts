@@ -11,6 +11,8 @@ import {
   SurfacePresentation,
 } from '@loomweaver/plugin-sdk';
 
+import { tabBadgeOf } from '../../regions/pane/chrome/tab-badge';
+
 const MAX_RPC_AREA_DEPTH = 8;
 
 export function sanitizeRpcSurface(
@@ -33,6 +35,7 @@ export function sanitizeRpcSurface(
     id,
     title,
     icon: typeof raw['icon'] === 'string' ? raw['icon'] : undefined,
+    badge: tabBadgeOf(raw['badge']),
     order: typeof raw['order'] === 'number' ? raw['order'] : undefined,
     instanceable: raw['instanceable'] === true ? true : undefined,
     retain:
@@ -253,6 +256,7 @@ export function sanitizeRpcTabInput(input: OpenTabInput): OpenTabInput {
     titleIsLiteral: raw['titleIsLiteral'] === true ? true : undefined,
     icon: typeof raw['icon'] === 'string' ? raw['icon'] : undefined,
     preview: raw['preview'] === true ? true : undefined,
+    badge: raw['badge'] === null ? null : tabBadgeOf(raw['badge']),
   };
 }
 

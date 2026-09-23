@@ -1,9 +1,10 @@
-import { ViewAction } from '@loomweaver/plugin-sdk';
+import { TabBadge, ViewAction } from '@loomweaver/plugin-sdk';
 export interface StripTab {
   readonly path: string;
   readonly title: string;
   readonly literalTitle: boolean;
   readonly icon?: string;
+  readonly badge?: TabBadge;
   readonly navPath?: string;
   readonly closable: boolean;
   readonly movable: boolean;

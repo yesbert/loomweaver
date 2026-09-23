@@ -42,6 +42,7 @@ import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../../pane/tree/pane-address';
 import { findLeaf, findLeafWhere } from '../../pane/tree/pane-queries';
 import { activeContentPath } from '../../pane/tree/active-content-path';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
+import { surfaceBadge } from '../../pane/drag/pane-label';
 import { isPopoutUrl } from '../../../popout/popout-path';
 import { popoutNavigationRefusal } from '../../../popout/popout-refusal';
 
@@ -160,9 +161,12 @@ export class OpenTabsService {
     const facets = facetTabViews(routes, (route) => this.addressOf(route));
     const open = this.openTabs().filter((tab) => this.strippable(routes, tab));
     const dynamics = dynamicTabViews(routes, open);
-    return [...facets, ...dynamics, ...this.viewTabs()].toSorted(
-      (a, b) => a.order - b.order,
-    );
+    return [...facets, ...dynamics, ...this.viewTabs()]
+      .map((tab) => ({
+        ...tab,
+        badge: tab.badge ?? surfaceBadge(this.registry, tab.path),
+      }))
+      .toSorted((a, b) => a.order - b.order);
   });
 
   private readonly viewTabs = computed<readonly ContentTabView[]>(() =>

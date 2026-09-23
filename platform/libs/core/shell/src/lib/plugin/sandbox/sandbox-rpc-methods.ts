@@ -1,4 +1,5 @@
 import { StateHandle } from '@loomweaver/plugin-sdk';
+import { tabBadgeOf } from '../../regions/pane/chrome/tab-badge';
 import { KeyValueStore } from '../../persistence/key-value-store';
 import { StateSyncService } from '../../persistence/state-sync.service';
 import { PluginInstallService } from '../../plugin-store/lifecycle/plugin-install.service';
@@ -64,6 +65,8 @@ export function frameRpcMethods(deps: FrameRpcDeps): FrameRpc {
         ctx.registerSettingsSection(built.section);
       },
       retitleSurface: (id, title) => ctx.retitleSurface(id, title),
+      updateSurfaceBadge: (id, badge) =>
+        ctx.updateSurfaceBadge(id, tabBadgeOf(badge) ?? null),
       navigateContent: (path) => ctx.navigateContent(path),
       openContentTab: (input) => {
         const sanitized = sanitizeRpcTabInput(input);

@@ -2,6 +2,7 @@ import { PRIMARY_PANE } from './pane-address';
 import { PaneNode, PaneTab, leafOf, leafWith } from './pane-node';
 import { collectLeafIds, findLeaf } from './pane-queries';
 import { DEFAULT_RATIO, sanitizeRatio } from './pane-ratio';
+import { tabBadgeOf } from '../chrome/tab-badge';
 
 function normalizeTab(value: unknown): PaneTab | null {
   if (!value || typeof value !== 'object') {
@@ -11,6 +12,7 @@ function normalizeTab(value: unknown): PaneTab | null {
   if (typeof tab['path'] !== 'string') {
     return null;
   }
+  const badge = tabBadgeOf(tab['badge']);
   return {
     path: tab['path'],
     ...(tab['pinned'] === true && { pinned: true }),
@@ -19,6 +21,7 @@ function normalizeTab(value: unknown): PaneTab | null {
     ...(typeof tab['title'] === 'string' && { title: tab['title'] }),
     ...(tab['literalTitle'] === true && { literalTitle: true }),
     ...(typeof tab['icon'] === 'string' && { icon: tab['icon'] }),
+    ...(badge !== undefined && { badge }),
     ...(typeof tab['instance'] === 'string' && { instance: tab['instance'] }),
   };
 }

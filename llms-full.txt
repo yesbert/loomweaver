@@ -58,6 +58,10 @@ interface PluginContext {
   retitleSurface(id: string, title: string): void;   // rename a surface you registered while it is MOUNTED: its tab, the panel header,
                                                          // a picker that lists it all follow; the surface is NOT rebuilt (typed/scrolled/folded
                                                          // state survives); a key still translates; an id you did not register = no-op [contributions]
+  updateSurfaceBadge(id: string, badge: TabBadge | null): void; // give a surface you registered a badge, replace it, or take it away (null)
+                                                         // while it is MOUNTED: every tab showing it follows, the surface is NOT rebuilt, the
+                                                         // content routes are not recomputed; a key still translates; an id you did not
+                                                         // register (or another plugin did) = no-op; crosses the sandbox [contributions]
   updateSurfaceAction(id: string, action: ViewAction): void;  // replace ONE action of a surface you registered, by the action's id, while it is
                                                          // MOUNTED: the panel header follows, the surface is NOT rebuilt; an action id the surface
                                                          // did not carry is ADDED in its `order` place. This is how a toggle moves: replace it with the
@@ -301,6 +305,10 @@ type SurfacePresentation = { component: Type<unknown> } | { loadComponent: () =>
 interface SurfaceRoutable { path: string; chromeless?: boolean; title?: string; icon?: string; titleIsLiteral?: boolean; subRoutes?: readonly string[]; rest?: boolean; follows?: boolean; }
 type Surface = {
   id: string; title: string; icon?: string; order?: number;
+  badge?: TabBadge;                     // a mark drawn beside the title on EVERY tab that shows this surface (content area,
+                                        // a container's inner panes, a view tab in a pane); change it live with
+                                        // ctx.updateSurfaceBadge. In an icons-only strip (sidebar switcher, panel panes) its
+                                        // text is in the tooltip and the accessible name only
   actions?: readonly ViewAction[]; access?: AccessRequirement;
   instanceable?: boolean;               // named saved instances (2b)
   routable?: SurfaceRoutable;           // URL-addressable: can hold the address pane
@@ -456,7 +464,14 @@ type ContentRoute = { id?: string; path: string; chromeless?: boolean; subRoutes
 // host's escalation cycle, on by default — provideShellFeatures({ content: { escalate: false } }) removes it); a re-open of an
 // existing tab preserves its preview state (title/sub-route refinement never promotes).
 // Distribution can disable: provideShellFeatures({ content: { preview: false } }) → preview ignored, all opens permanent.
-interface OpenTabInput { path: string; title: string; icon?: string; titleIsLiteral?: boolean; onClose?: () => void; preview?: boolean; }
+interface OpenTabInput { path: string; title: string; icon?: string; titleIsLiteral?: boolean; onClose?: () => void; preview?: boolean; badge?: TabBadge | null; }
+// badge: this tab's OWN badge ("Draft" on one document among others). It wins over the surface's badge, is refined by
+// opening the same path again (a re-open without one keeps it; badge: null takes it away), and survives a restart.
+type TabBadgeTone = 'neutral' | 'brand' | 'success' | 'danger';   // the .lw-badge tones; default 'neutral'
+interface TabBadge { text?: string; textIsLiteral?: boolean; icon?: string; tone?: TabBadgeTone; }
+// A badge is a word or an icon (no counts), drawn after the title, NOT a control: the tab stays one keyboard stop, and the
+// text joins the tab's accessible name after the title ("Erweitert, Developer"). text is a Transloco key unless
+// textIsLiteral; neither text nor icon = no badge. Not drawn in the overflow list, Quick-Open or the minimized strip.
 
 type BarSlot = 'start' | 'center' | 'end';
 type BarItem = BarComponentItem | BarButtonItem;   // both base: { id, bar, slot, order?, access? } — access: hide either kind, disable only the button

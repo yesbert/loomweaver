@@ -1,6 +1,6 @@
 import { Type } from '@angular/core';
 import { AccessRequirement } from './auth.js';
-import { ContainerSpec } from './content-route.js';
+import { ContainerSpec, TabBadge } from './content-route.js';
 import { ViewAction } from './view.js';
 
 /**
@@ -143,6 +143,11 @@ export interface SurfaceBase {
   readonly title: string;
   /** Icon name — resolved by the host icon registry (a plain string). */
   readonly icon?: string;
+  /**
+   * A mark drawn beside the title on every tab that shows this surface, such as "Beta" or
+   * "Developer". Change it while the surface is mounted with {@link PluginContext.updateSurfaceBadge}.
+   */
+  readonly badge?: TabBadge;
   /** Lower renders first among sibling surfaces in a dock (default 0). */
   readonly order?: number;
   /** The surface's own header actions, shown in the pane header while active (ex `View.actions`). */

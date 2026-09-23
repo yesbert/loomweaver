@@ -1,10 +1,11 @@
-import { computed, Service, signal, Signal, WritableSignal } from '@angular/core';
-import { Command, ContentRoute, Disposable, MenuItem } from '@loomweaver/plugin-sdk';
+import { computed, Service, signal, Signal, untracked, WritableSignal } from '@angular/core';
+import { Command, ContentRoute, Disposable, MenuItem, TabBadge } from '@loomweaver/plugin-sdk';
 import { BarItem } from '../foundation/bar-item';
 import { RailItem } from '../foundation/rail-item';
 import { View, ViewAction } from '../layout/view';
 import { Identified, upsertBy, upsertById } from '../foundation/identified';
 import { isRouteOmitted } from './route-omit';
+import { tabBadgeOf } from '../regions/pane/chrome/tab-badge';
 import {
   RegisteredContentRoute,
   RegisteredSurface,
@@ -54,6 +55,10 @@ export class ContributionRegistry {
   private readonly commandsSignal = signal<readonly RegisteredCommand[]>([]);
 
   private readonly surfacesSignal = signal<readonly RegisteredSurface[]>([]);
+
+  private readonly badgesSignal = signal<ReadonlyMap<string, TabBadge>>(
+    new Map(),
+  );
 
   private readonly barItemsSignal = signal<readonly BarItem[]>([]);
 
@@ -236,6 +241,7 @@ export class ContributionRegistry {
     this.surfacesSignal.update((entries) =>
       entries.filter((e) => e.routable !== undefined || e.id !== id),
     );
+    this.forgetBadgeOfGone(id);
   }
 
   removeBarItemById(id: string): void {
@@ -283,6 +289,21 @@ export class ContributionRegistry {
     );
   }
 
+  updateSurfaceBadge(id: string, badge: TabBadge | null, pluginId?: string): void {
+    const owned = untracked(() =>
+      this.surfacesSignal().some(
+        (entry) => entry.id === id && (pluginId === undefined || entry.pluginId === pluginId),
+      ),
+    );
+    if (owned) {
+      this.setBadge(id, tabBadgeOf(badge));
+    }
+  }
+
+  badgeOf(id: string | undefined): TabBadge | undefined {
+    return id === undefined ? undefined : this.badgesSignal().get(id);
+  }
+
   /**
    * Replaces one action of a registered surface in place, by the action's id, leaving the entry's
    * identity and everything else it declared alone. An action id the surface did not carry is added.
@@ -303,11 +324,29 @@ export class ContributionRegistry {
       upsertBy(entries, entry, sameSlotAs(entry)),
     );
     return {
-      dispose: () =>
+      dispose: () => {
         this.surfacesSignal.update((entries) =>
           entries.filter((e) => e !== entry),
-        ),
+        );
+        this.forgetBadgeOfGone(entry.id);
+      },
     };
+  }
+
+  private forgetBadgeOfGone(id: string | undefined): void {
+    if (id !== undefined && untracked(() => this.surfacesSignal().every((e) => e.id !== id))) {
+      this.setBadge(id, undefined);
+    }
+  }
+
+  private setBadge(id: string, badge: TabBadge | undefined): void {
+    this.badgesSignal.update((badges) => {
+      if (JSON.stringify(badges.get(id)) === JSON.stringify(badge)) {
+        return badges;
+      }
+      const next = new Map([...badges].filter(([key]) => key !== id));
+      return badge === undefined ? next : next.set(id, badge);
+    });
   }
 
   private visible<T extends { readonly id?: string }>(

@@ -1,3 +1,4 @@
+import { TabBadge } from '@loomweaver/plugin-sdk';
 import { PaneLeaf, PaneNode, PaneTab, leafWith } from './pane-node';
 import { collapseLeaf, transformLeaf } from './pane-structure';
 
@@ -42,6 +43,7 @@ export interface TabTitlePatch {
   readonly title?: string;
   readonly literalTitle: boolean;
   readonly icon?: string;
+  readonly badge?: TabBadge | null;
 }
 
 export function refineTabTitles(
@@ -79,12 +81,15 @@ function refineLeafTitles(
       return tab;
     }
     found = true;
-    return {
-      ...tab,
-      title: patch.title,
-      literalTitle: patch.literalTitle,
-      ...(patch.icon !== undefined && { icon: patch.icon }),
-    };
+    return withOwnBadge(
+      {
+        ...tab,
+        title: patch.title,
+        literalTitle: patch.literalTitle,
+        ...(patch.icon !== undefined && { icon: patch.icon }),
+      },
+      patch.badge,
+    );
   });
   return found
     ? { node: { ...leaf, tabs }, found }
@@ -215,4 +220,11 @@ export function removeTab(
 
 export function sparedByBulkClose(tab: PaneTab): boolean {
   return tab.pinned === true || tab.closable === false;
+}
+
+function withOwnBadge(tab: PaneTab, badge: TabBadge | null | undefined): PaneTab {
+  if (badge === undefined) {
+    return tab;
+  }
+  return badge === null ? tabWithout(tab, 'badge') : { ...tab, badge };
 }

@@ -273,5 +273,9 @@
     "saved": "Name gespeichert.",
     "draft": "Entwurf schreiben (fragt beim Schließen)",
     "draftIntro": "Kein Speichern-Button. Wer den Dialog schließt, egal wie, wird gefragt, solange der Text vom zuletzt gespeicherten abweicht."
+  },
+  "badge": {
+    "beta": "Beta",
+    "new": "Neu"
   }
 }
