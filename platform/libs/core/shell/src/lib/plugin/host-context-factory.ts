@@ -16,6 +16,7 @@ import { AuthContext } from '../auth/auth-context';
 import { MenuService } from '../menu/menu.service';
 import { PluginStateService } from './plugin-state.service';
 import { COMMAND_INVOKER } from '../foundation/command-invoker';
+import { LeftOutChildren } from '../regions/pane/container/left-out-children';
 
 @Service()
 export class HostContextFactory {
@@ -31,6 +32,7 @@ export class HostContextFactory {
   private readonly auth = inject(AuthContext);
   private readonly menu = inject(MenuService);
   private readonly themes = inject(ThemeRegistry);
+  private readonly leftOut = inject(LeftOutChildren);
   private readonly reveal = inject(SurfaceRevealService);
   private readonly state = inject(PluginStateService);
   private readonly invocation = inject(COMMAND_INVOKER);
@@ -57,6 +59,7 @@ export class HostContextFactory {
       this.reveal,
       this.state,
       this.invocation,
+      this.leftOut,
     );
   }
 }

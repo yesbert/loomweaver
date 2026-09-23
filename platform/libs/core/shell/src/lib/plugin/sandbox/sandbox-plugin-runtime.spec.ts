@@ -22,6 +22,10 @@ import {
 } from '../../permissions/capability-grants';
 import { CapabilityGrantService } from '../../permissions/capability-grant.service';
 import { ContributionRegistry } from '../contribution-registry';
+import { HostPluginContext } from '../host-plugin-context';
+import { KeyValueStore } from '../../persistence/key-value-store';
+import { StateSyncService } from '../../persistence/state-sync.service';
+import { frameRpcMethods } from './sandbox-rpc-methods';
 import { HostContextFactory } from '../host-context-factory';
 import { COMMAND_INVOKER } from '../../foundation/command-invoker';
 import { CommandInvocationService } from '../../commands/command-invocation.service';
@@ -1333,5 +1337,36 @@ describe('FramePluginRuntime command invocation', () => {
     expect(await methods['invokeCommand']('nothing.here')).toEqual(
       await methods['invokeCommand']('other.closed'),
     );
+  });
+});
+
+describe('frameRpcMethods — leaving a container child out across the seam', () => {
+  function methodsFor(setChildShown: (id: string, shown: boolean) => void) {
+    return frameRpcMethods({
+      pluginId: 'framed',
+      ctx: { setChildShown } as unknown as HostPluginContext,
+      origins: undefined,
+      install: {} as PluginInstallService,
+      store: {} as KeyValueStore,
+      sync: {} as StateSyncService,
+      syncCleanups: [],
+      watched: new Map(),
+      watchState: () => undefined,
+      notify: () => undefined,
+      reportRefusal: () => undefined,
+    });
+  }
+
+  it('passes the id as a string and brings a child back only on a real true', () => {
+    const setChildShown = vi.fn();
+    const methods = methodsFor(setChildShown);
+
+    methods.setChildShown(7 as unknown as string, 'yes' as unknown as boolean);
+    methods.setChildShown('pane.child', true);
+
+    expect(setChildShown.mock.calls).toEqual([
+      ['7', false],
+      ['pane.child', true],
+    ]);
   });
 });

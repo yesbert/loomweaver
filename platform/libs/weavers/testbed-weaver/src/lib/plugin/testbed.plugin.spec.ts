@@ -52,6 +52,7 @@ function activate(): Captured {
     retitleSurface: () => undefined,
     updateSurfaceAction: () => undefined,
     updateSurfaceBadge: () => undefined,
+    setChildShown: () => undefined,
     isShowingUnder: () => false,
     hasUnsavedWork: () => false,
     registerBarItem: capture(captured.barItems),

@@ -13,6 +13,7 @@ import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 import { PaneTab } from '../../pane/tree/pane-node';
 import { TabKeep, keepsNothing } from '../../pane/tree/pane-handover';
 import { sparedByBulkClose } from '../../pane/tree/pane-tabs';
+import { LeftOutChildren } from '../../pane/container/left-out-children';
 import { findLeaf } from '../../pane/tree/pane-queries';
 import { paneRetentionScope } from '../../pane/retention/retention-policy';
 import { UnsavedWork } from '../../pane/retention/unsaved-work';
@@ -31,6 +32,8 @@ export class TabClosingService {
   private readonly closeGuard = inject(SurfaceCloseGuard);
 
   private readonly closeHooks = inject(TabCloseHooks);
+
+  private readonly leftOut = inject(LeftOutChildren);
 
   closeOthers(path: string, pane?: PaneRef): void {
     if (this.inOtherPane(pane)) {
@@ -154,7 +157,9 @@ export class TabClosingService {
   }
 
   private paneTabs(pane: PaneRef): readonly PaneTab[] {
-    return findLeaf(this.paneTree.tree(pane.dock), pane.paneId)?.tabs ?? [];
+    const tabs =
+      findLeaf(this.paneTree.tree(pane.dock), pane.paneId)?.tabs ?? [];
+    return tabs.filter((tab) => !this.leftOut.hides(tab.path));
   }
 
   private closablePaneTabs(pane: PaneRef): readonly PaneTab[] {

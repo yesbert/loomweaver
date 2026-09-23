@@ -67,6 +67,8 @@ export function frameRpcMethods(deps: FrameRpcDeps): FrameRpc {
       retitleSurface: (id, title) => ctx.retitleSurface(id, title),
       updateSurfaceBadge: (id, badge) =>
         ctx.updateSurfaceBadge(id, tabBadgeOf(badge) ?? null),
+      setChildShown: (childSurfaceId, shown) =>
+        ctx.setChildShown(String(childSurfaceId), shown === true),
       navigateContent: (path) => ctx.navigateContent(path),
       openContentTab: (input) => {
         const sanitized = sanitizeRpcTabInput(input);

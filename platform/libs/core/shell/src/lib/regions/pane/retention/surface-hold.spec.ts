@@ -141,6 +141,7 @@ function mounted(mode: SurfaceRetentionMode = 'move', retain = false) {
 
 describe('a surface held where its product put it', () => {
   beforeEach(() => {
+    localStorage.clear();
     probes = [];
     ended = 0;
   });

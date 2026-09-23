@@ -27,6 +27,8 @@ import { IconRegistry } from '../elements/icon/icon-registry';
 import { ThemeRegistry } from '../theme/theme-registry';
 import { ContentTabsService } from '../regions/content/tabs/content-tabs.service';
 import { CommandInvocationService } from '../commands/command-invocation.service';
+import { LeftOutChildren } from '../regions/pane/container/left-out-children';
+import { CONTAINER_CHILD_REGION } from './surface-normalize';
 
 class DummyComponent {}
 
@@ -110,6 +112,7 @@ function makeContext(
     TestBed.inject(SurfaceRevealService),
     TestBed.inject(PluginStateService),
     TestBed.inject(CommandInvocationService),
+    TestBed.inject(LeftOutChildren),
   );
   return {
     ctx,
@@ -756,6 +759,79 @@ describe('HostPluginContext', () => {
     });
   });
 
+  describe('leaving a container child out', () => {
+    function child(ctx: HostPluginContext, id = 'pane.child') {
+      return ctx.registerSurface({
+        id,
+        docks: [],
+        title: 'child.title',
+        component: DummyComponent,
+      });
+    }
+
+    it('leaves out a child the plugin registered, and brings it back', () => {
+      const { ctx } = makeContext();
+      child(ctx);
+      const leftOut = TestBed.inject(LeftOutChildren);
+
+      ctx.setChildShown('pane.child', false);
+      expect(leftOut.isLeftOut('pane.child')).toBe(true);
+
+      ctx.setChildShown('pane.child', true);
+      expect(leftOut.isLeftOut('pane.child')).toBe(false);
+    });
+
+    it('changes nothing for a surface that is not a container child, and says so in development', () => {
+      const warn = vi
+        .spyOn(console, 'warn')
+        .mockImplementation(() => undefined);
+      const { ctx } = makeContext();
+      ctx.registerSurface({
+        id: 'docked',
+        docks: ['primary'],
+        title: 'docked.title',
+        component: DummyComponent,
+      });
+
+      ctx.setChildShown('docked', false);
+      ctx.setChildShown('unknown', false);
+
+      expect(TestBed.inject(LeftOutChildren).isLeftOut('docked')).toBe(false);
+      expect(TestBed.inject(LeftOutChildren).isLeftOut('unknown')).toBe(false);
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining('"docked"'));
+      warn.mockRestore();
+    });
+
+    it("leaves another plugin's child alone", () => {
+      const warn = vi
+        .spyOn(console, 'warn')
+        .mockImplementation(() => undefined);
+      const { ctx, registry } = makeContext();
+      registry.addView(
+        {
+          id: 'theirs',
+          region: CONTAINER_CHILD_REGION,
+          title: 't',
+          component: DummyComponent,
+        },
+        'another-plugin',
+      );
+
+      ctx.setChildShown('theirs', false);
+
+      expect(TestBed.inject(LeftOutChildren).isLeftOut('theirs')).toBe(false);
+      warn.mockRestore();
+    });
+
+    it('needs the "contributions" capability', () => {
+      const { ctx } = makeContext(['ui', 'host']);
+
+      expect(() => ctx.setChildShown('pane.child', false)).toThrow(
+        CapabilityError,
+      );
+    });
+  });
+
   describe("replacing one of a surface's actions", () => {
     const first = { id: 'a', icon: 'add', title: 'act.add' };
     const second = { id: 'b', icon: 'pin', title: 'act.pin', pressed: false };
@@ -1069,6 +1145,7 @@ describe('HostPluginContext command invocation', () => {
       TestBed.inject(SurfaceRevealService),
       TestBed.inject(PluginStateService),
       TestBed.inject(CommandInvocationService),
+      TestBed.inject(LeftOutChildren),
     );
     registry.addCommand(
       { id: 'other.go', title: 't', callable: true, run: vi.fn() },
