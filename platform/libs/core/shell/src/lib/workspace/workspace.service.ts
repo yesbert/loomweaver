@@ -136,7 +136,7 @@ export class WorkspaceService {
         console.warn(problem);
       }
     }
-    this.layOutWhenWorkspaceReady();
+    void this.active.ready.then(() => this.openWorkbench());
   }
 
   async saveCurrent(name: string): Promise<void> {
@@ -327,6 +327,12 @@ export class WorkspaceService {
         this.keyed[key].hydrate(raw);
       }
     }
+    const shown = this.openTabs.activePath();
+    const destination = this.settlementDestination(shown);
+    if (destination !== null) {
+      await this.switchTo(destination, { keepAddress: true });
+    }
+    this.openTabs.keepAddress(shown);
   }
 
   private async hydrateActive(): Promise<void> {
@@ -335,10 +341,6 @@ export class WorkspaceService {
     for (const key of WORKSPACE_KEYS) {
       this.keyed[key].hydrate(stored[key] ?? baseline[key]);
     }
-  }
-
-  private layOutWhenWorkspaceReady(): void {
-    void this.active.ready.then(() => this.openWorkbench());
   }
 
   private async openWorkbench(): Promise<void> {

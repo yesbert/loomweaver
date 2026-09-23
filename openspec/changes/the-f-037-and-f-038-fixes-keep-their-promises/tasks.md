@@ -4,14 +4,15 @@
 - [x] 1.2 Test: the same for a reset
 - [x] 1.3 Test: following a link from unclaimed content into claimed content, with a render right after the settling switch, leaves the previous address out of the claiming workspace
 - [x] 1.4 Move the Quick-Open list computation into `quick-open-target.ts`
-- [x] 1.5 `OpenTabsService.keepAddress(path)`; the workspace service calls it when it settles an address; the tab-sync effect acts on a kept address once the router is idle and only for the address shown (focus a holder, then sync); no tab is added from the workspace guard; `PaneTreeService` is as in 0.13.0
+- [x] 1.5 `OpenTabsService.keepAddress(path)`; the workspace service calls it when it settles an address and when it adopts a stored arrangement; the tab-sync effect acts on a kept address once the router is idle and only for the address shown (focus a holder, then sync); no tab is added from the workspace guard; `PaneTreeService` is as in 0.13.0
 - [x] 1.6 Tests: a preview opened into the claiming workspace stays a preview; a plugin opening content a claiming workspace holds beside another pane does not carry the address left
 - [x] 1.7 The F-038 cases in `a-gated-address-keeps-its-sub-address.spec.ts` wait for the application to settle instead of ten turns, without type casts, and stay green
 - [x] 1.8 Test and fix: a link into a claiming workspace that holds the content beside another pane does not carry the address left into any pane; the replacement counter starts from its current value
 - [x] 1.9 Test and fix: a navigation the shell starts itself into such a workspace opens the content once
 - [x] 1.10 `active-content-path.ts` moves into the pane layer and the content-path query is shared; the tab sync skips a run in which nothing it reads changed; its branches fold into one focus step; `contentPathOf`, unused, is removed
 - [x] 1.11 The kept address is consumed rather than compared; the content-path query lives in one place; the router's navigation is read through a computed flag; a kept address clears a view tab selected in the old arrangement
-- [x] 1.12 Adoption at sign-in is left as in 0.13.0, because `persistence-ports` keeps the arrangement stored for the person; the attempt to settle and keep the address there, and its tests, are withdrawn
+- [x] 1.12 Adoption at sign-in moves the person to the workspace that claims the address shown and keeps that address, written on top of the stored arrangement as `persistence-ports` allows; tests for both; the access-gating scenario says it holds with a stored arrangement
+- [x] 1.13 While a navigation runs the tab sync notes a changed address, so quick successive navigations focus against the address seen last; the two blocks with the same condition are one
 
 ## 2. The language switch as released
 
@@ -30,6 +31,7 @@
 - [x] 3.7 Test and fix: `LwMenuElement` measures its full width when placed again, so grown words are not cut off at the edge
 - [x] 3.8 Placement and wording move into `menu-placement.ts` and `menu-wording.ts`
 - [x] 3.11 Test and fix: an open menu keeps its words while a language chosen meanwhile is still loading, and takes the new ones when they arrive
+- [x] 3.13 A re-worded menu is placed again at once and again after the next render; the check for a loaded language is shared from the i18n slice; brief and guide say when a menu is re-worded
 - [x] 3.12 The i18n requirement states that a dialog or prompt keeps the words it was opened with
 - [x] 3.10 Tests and fix: a bundle of another language neither re-words nor moves an open menu; a heading detail that translates to nothing draws no line
 - [x] 3.9 Tests and fix: an entry named like a member of every object, and a label that is not a string, are shown as they are; a point anchor follows the edge of the control it was nearest to

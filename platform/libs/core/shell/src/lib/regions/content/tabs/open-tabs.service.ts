@@ -200,10 +200,13 @@ export class OpenTabsService {
       const kept = this.keptAddress();
       const navigating = this.navigating();
       untracked(() => {
+        const moved = url !== this.lastUrl;
         if (navigating) {
+          if (moved) {
+            this.lastUrl = url;
+          }
           return;
         }
-        const moved = url !== this.lastUrl;
         const keptHere = kept === path;
         if (kept !== null) {
           this.keptAddress.set(null);
@@ -220,8 +223,6 @@ export class OpenTabsService {
         const own = moved && this.ownNavigation === normalizePath(url);
         if (keptHere || (moved && !own)) {
           this.viewTabSelection.set(null);
-        }
-        if (keptHere || (moved && !own)) {
           const shown = keptHere ? activeContentPath(this.paneTree) : this.lastUrl;
           this.focusHolderOf(path, this.rootFor(shown).root);
         }

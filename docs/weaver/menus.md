@@ -182,7 +182,8 @@ A right-click on your **own in-process view body** (a list row, a canvas node) i
 nothing else contributes to it. Call **`ctx.ui.openMenu(items, { x, y })`** (capability `ui`) with
 ad-hoc items, each with a `label`, an optional host `icon` name and an in-process `run` handler. The
 `label` is a key of your own bundle or a literal, like every other piece of chrome text. Every label
-is looked up as a key, and the open menu is re-worded when the strings arrive or the language changes.
+is looked up as a key, and the open menu is re-worded when the strings of the language in effect
+arrive, including after a change of language.
 A label no bundle knows, such as a name the user typed, is shown as it is. Development reports one
 that looks like a key, with a dot and no spaces, as a missing key, and a literal that happens to equal
 a key a bundle knows shows that key's text. The host draws the items as its own `<lw-menu>` at the

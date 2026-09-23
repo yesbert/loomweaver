@@ -1,5 +1,3 @@
-import { TranslocoService } from '@jsverse/transloco';
-
 export type MenuLabel = string | ((translate: (key: string) => string) => string);
 
 export function wordEntries(
@@ -13,8 +11,4 @@ export function wordEntries(
       item.setAttribute('label', words);
     }
   }
-}
-
-export function holdsStrings(transloco: TranslocoService, lang: string): boolean {
-  return Object.keys(transloco.getTranslation(lang) ?? {}).length > 0;
 }

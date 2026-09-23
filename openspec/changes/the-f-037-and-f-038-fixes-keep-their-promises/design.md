@@ -35,16 +35,10 @@ width it measures.
 - A language switch without a moment of keys. It is what #459 attempted; see Decisions.
 - A workspace switch that is undone when the navigation that caused it fails. The switch happens in
   the router guard, before the navigation commits, as in 0.13.0; if that navigation then fails, the
-  address still shown gets its tab in the arrangement entered. Changing where the switch happens is a
-  change of its own.
+  kept address is not the one shown, so nothing is added, and the address pane shows what the
+  arrangement entered holds, as in 0.13.0. Changing where the switch happens is a change of its own.
 - A shared "strings changed" stream for the menus and the command palette. Two readers do not warrant
   a third abstraction.
-- Adopting a signed-in person's stored arrangement whose content differs from the address shown.
-  `persistence-ports` requires that what is stored for a person is what the workbench holds, so the
-  arrangement is not changed to make room for the address; the address then shows what the
-  arrangement's pane holds, as in 0.13.0. Making the address follow the adopted arrangement is a
-  change of its own. An attempt in this change that settled and kept the address at adoption was
-  withdrawn after the ninth review for exactly that reason.
 - A plugin opening content that the workspace it lands in holds in a pane other than the address
   pane. Opening refines that tab's title and does not navigate, so the address stays on what the user
   left, as in 0.13.0; a link to the same content navigates there. Found by the eighth review, it
@@ -54,14 +48,16 @@ width it measures.
 
 **The workspace service says which address a replacement keeps; the tab sync acts on it once the
 router is idle.** Only the workspace service knows why it replaced the arrangement. When it settles an
-address by moving the user into the workspace that claims it, it calls
-`OpenTabsService.keepAddress(path)`. The tab-sync effect tracks that, the
+address by moving the user into the workspace that claims it, and when it adopts a signed-in person's
+stored arrangement, it calls `OpenTabsService.keepAddress(path)`. The tab-sync effect tracks that, the
 first restore (`hydrated()`) and the router's `currentNavigation()` signal. While a navigation runs it
 does nothing, and it skips a run in which neither the address, its route and tab root, the first
 restore, nor a kept address matching the address shown changed. Otherwise it focuses a pane that holds
 the addressed content, measured against what the new arrangement's address pane shows when a kept
 address matches and against the previous address when it does not, and then gives the address its
-tab, clearing a view tab that was selected in the old arrangement. A navigation the shell started
+tab, clearing a view tab that was selected in the old arrangement. While a navigation runs the effect
+only notes an address that has already changed, so two navigations in quick succession focus against
+the address the user saw last, not the one before it. A navigation the shell started
 itself had focused against the old arrangement, so with a kept address it is focused again. The
 router's navigation is read through a computed flag, so the effect wakes only when the router turns
 busy or idle.
@@ -69,6 +65,14 @@ busy or idle.
 - The same-address reload after sign-in settles the address, enters the claiming workspace and ends
   with no navigation pending and the kept address shown; the address gets its tab. That is F-038.
 - A link into claimed content keeps the link's address; the effect acts when the navigation ends there.
+- Adopting a signed-in person's stored arrangement keeps the address shown. Where a workspace other
+  than the adopted active one claims it, the person is first moved there, as a link would move them;
+  the arrangement of the workspace left is not rewritten. `persistence-ports` requires that the
+  arrangement stored for the person is what the workbench holds and that an ordinary change afterwards
+  is written on top of it; giving the address shown its tab is that ordinary change, the same one a
+  navigation to it would make. Without it, a returning person following a link to a sub-address would
+  see the stored listing: F-038 for everyone with a stored arrangement. The combination of a gated
+  sub-address and a stored arrangement rests on the two mechanisms, each pinned by its own test.
 - A plugin opening content the claiming workspace holds beside another pane keeps the opened address,
   which is not the one shown, so nothing is added for the address the user left.
 - A preview opened into the claiming workspace is added by the opener before the navigation ends; the
@@ -116,20 +120,21 @@ the released behaviour: keys for a moment are acceptable, words in the end are w
 
 **Place a re-worded menu again after the chrome is redrawn, moved with the control.** `present` keeps
 the anchor, the control and where the control was when the menu opened. A menu is re-worded when a
-bundle of the active language arrives, and when the language changes to one whose strings are
-already there; a change to a language still loading keeps the words it has, as the translation pipe
-does, and a bundle of another language leaves it alone. After every re-wording it
-waits for the next render (`afterNextRender`), so the bar around the control has taken its new words,
-then places the menu again by the rule it opened with: a point anchor shifted by as much as the control
-moved, a rect anchor with its edges moved as the control's edges moved; a point anchor follows the edge of the
-control it was nearest to. A control no longer on the
-page, or hidden, leaves the menu where it last stood, placed again there so grown words keep it within
-the window. `LwMenuElement` resets its position before it measures, so the width it measures is its
-own and not what the old position left it. The `langChanges$` replay at subscription is skipped,
-because the menu is worded before it is placed. A label is looked up as a key; a lookup that yields
-something other than a string, as a name like `constructor` does, and a label that is not a string at
-all are shown as they are. A heading whose detail translates to nothing draws no second line. Placement and wording move out of the menu service into files of their
-own, which keeps it under the 400-line limit.
+bundle of the active language arrives, and when the language changes to one whose strings are already
+there; a change to a language still loading keeps the words it has, as the translation pipe does, and
+a bundle of another language leaves it alone. After a re-wording the menu is placed again at once, so
+it never spends a frame at its old width past the edge, and again after the next render
+(`afterNextRender`), once the bar around the control has taken its new words, by the rule it opened
+with: a rect anchor with its edges moved as the control's edges moved, a point anchor shifted with the
+edge of the control it was nearest to. A control no longer on the page, or hidden, leaves the menu
+where it last stood, still kept within the window. `LwMenuElement` resets its position before it
+measures, so the width it measures is its own and not what the old position left it. The
+`langChanges$` replay at subscription is skipped, because the menu is worded before it is placed.
+
+A label is looked up as a key; a lookup that yields something other than a string, as a name like
+`constructor` does, and a label that is not a string at all are shown as they are. A heading whose
+detail translates to nothing draws no second line. Placement and wording move out of the menu service
+into files of their own, which keeps it under the 400-line limit.
 
 ## Risks / Trade-offs
 
@@ -138,6 +143,6 @@ own, which keeps it under the 400-line limit.
   surface is re-worded when they arrive.
 - [The tab sync now also runs at the end of a navigation that changed the arrangement but not the
   address] → The sync is idempotent: it finds the tab and refreshes it.
-- [A workspace switch whose navigation then fails leaves the address shown with a tab in the
-  workspace entered] → Named under Non-Goals; the alternative, no tab at all for the address shown,
-  is what 0.13.0 does and is worse.
+- [A workspace switch whose navigation then fails leaves the address shown without a tab in the
+  workspace entered] → Named under Non-Goals; it is what 0.13.0 does, and adding the address the user
+  tried to leave would carry it into a workspace that does not claim it.

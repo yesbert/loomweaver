@@ -13,7 +13,8 @@ import { ContributionRegistry } from '../plugin/contribution-registry';
 import { CommandService } from '../commands/command.service';
 import { drawMenuHeading, HEADING_KEY, wordMenuHeading } from './menu-heading';
 import { followed, MenuAnchor, place } from './menu-placement';
-import { holdsStrings, MenuLabel, wordEntries } from './menu-wording';
+import { MenuLabel, wordEntries } from './menu-wording';
+import { holdsStrings } from '../i18n/missing-translation-handler';
 import {
   LW_MENU_DISMISS,
   LW_MENU_ITEM_TAG,
@@ -197,6 +198,7 @@ export class MenuService {
       ),
     ).subscribe(() => {
       word();
+      place(menu, placedAt);
       afterNextRender(
         () => {
           if (this.current?.menu !== menu) {

@@ -496,8 +496,9 @@ interface PluginUi {                // dialogs + toasts + context menus; message
   openMenu(items: UiMenuItem[], at: {x,y}): void;  // ad-hoc context menu at a point for the weaver's own body (right-click); host draws <lw-menu>
 }
 // UiMenuItem = { label: string (key or literal), icon?: string, run: () => void }. A key follows the strings: every
-// menu the host draws (declared slot, heading, this ad-hoc one) is re-worded in place, focus kept, and placed again, when a bundle
-// arrives or the language changes while it is open. In-process (trusted) only:
+// menu the host draws (declared slot, heading, this ad-hoc one) is re-worded in place, focus kept, and placed again, when the
+// strings of the language in effect arrive while it is open; a change to a language still loading keeps its words until then.
+// In-process (trusted) only:
 // `run` is a function, so it does NOT cross the sandbox boundary — a sandboxed plugin self-draws <lw-menu>.
 interface PluginHost {              // read-only; version/updateAvailable are signal-shaped () => T
   readonly version: () => string;
