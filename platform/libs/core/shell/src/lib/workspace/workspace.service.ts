@@ -53,7 +53,7 @@ import {
   type Workspace,
 } from './baseline/workspace-state';
 import { assignWorkspaceInitials } from './workspace-initials';
-import { activeContentPath } from './active-content-path';
+import { activeContentPath } from '../regions/pane/tree/active-content-path';
 import {
   atTheOpeningAddress,
   declaredStart,

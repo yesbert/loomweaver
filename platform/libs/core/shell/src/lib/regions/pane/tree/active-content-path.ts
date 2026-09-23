@@ -1,7 +1,7 @@
-import { CONTENT_DOCK } from '../regions/pane/tree/pane-address';
-import { contentPathIn } from '../regions/pane/tree/pane-queries';
-import { DockEntry } from '../regions/pane/tree/pane-restore';
-import { PaneTreeService } from '../regions/pane/tree/pane-tree.service';
+import { CONTENT_DOCK } from './pane-address';
+import { contentPathIn } from './pane-queries';
+import { DockEntry } from './pane-restore';
+import { PaneTreeService } from './pane-tree.service';
 
 export function activeContentPath(paneTree: PaneTreeService): string {
   return contentPathIn(

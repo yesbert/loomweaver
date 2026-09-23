@@ -259,7 +259,38 @@ describe('an open menu follows its strings', () => {
     expect(menu?.style.top).toBe('36px');
   });
 
-  it('leaves a menu where it is when the control it was opened from is gone', async () => {
+  it('leaves a menu where it last stood when the control it was opened from is gone', async () => {
+    await loaded('en');
+    await loaded('de');
+    const control = document.createElement('button');
+    document.body.append(control);
+    const rect = (left: number) =>
+      ({ left, top: 0, right: left + 32, bottom: 32, width: 32, height: 32 }) as DOMRect;
+    const measured = vi
+      .spyOn(control, 'getBoundingClientRect')
+      .mockReturnValue(rect(100));
+    service.openList(
+      [{ key: 'a', label: 'cmd.profile' }],
+      { x: 100, y: 36 },
+      () => undefined,
+      control,
+    );
+    const menu = document.body.querySelector<HTMLElement>(LW_MENU_TAG);
+    measured.mockReturnValue(rect(160));
+    transloco.setActiveLang('de');
+    TestBed.tick();
+    expect(menu?.style.left).toBe('160px');
+
+    control.remove();
+    measured.mockReturnValue(new DOMRect(0, 0, 0, 0));
+    transloco.setActiveLang('en');
+    TestBed.tick();
+
+    expect(menu?.style.left).toBe('160px');
+    expect(menu?.style.top).toBe('36px');
+  });
+
+  it('leaves a menu where it is when the control it was opened from is hidden', async () => {
     await loaded('en');
     await loaded('de');
     const control = document.createElement('button');
@@ -277,12 +308,63 @@ describe('an open menu follows its strings', () => {
     );
     const menu = document.body.querySelector<HTMLElement>(LW_MENU_TAG);
 
-    control.remove();
     measured.mockReturnValue(new DOMRect(0, 0, 0, 0));
     transloco.setActiveLang('de');
     TestBed.tick();
 
     expect(menu?.style.left).toBe('100px');
-    expect(menu?.style.top).toBe('36px');
+  });
+
+  it('moves a menu whose words did not change with the control it was opened from', async () => {
+    await loaded('en');
+    await loaded('de');
+    const control = document.createElement('button');
+    document.body.append(control);
+    const rect = (left: number) =>
+      ({ left, top: 0, right: left + 32, bottom: 32, width: 32, height: 32 }) as DOMRect;
+    const measured = vi
+      .spyOn(control, 'getBoundingClientRect')
+      .mockReturnValue(rect(100));
+    service.openList(
+      [{ key: 'a', label: () => 'Ada Lovelace' }],
+      { x: 100, y: 36 },
+      () => undefined,
+      control,
+    );
+    const menu = document.body.querySelector<HTMLElement>(LW_MENU_TAG);
+
+    measured.mockReturnValue(rect(160));
+    transloco.setActiveLang('de');
+    TestBed.tick();
+
+    expect(menu?.style.left).toBe('160px');
+  });
+
+  it('keeps a menu beside the side of a control that grew with its words', async () => {
+    await loaded('en');
+    await loaded('de');
+    const control = document.createElement('button');
+    document.body.append(control);
+    const measured = vi
+      .spyOn(control, 'getBoundingClientRect')
+      .mockReturnValue(
+        { left: 0, top: 100, right: 40, bottom: 136, width: 40, height: 36 } as DOMRect,
+      );
+    service.open(
+      'account',
+      context,
+      { rect: { left: 0, top: 100, right: 40, bottom: 136 }, side: 'right' },
+      { trigger: control },
+    );
+    const menu = document.body.querySelector<HTMLElement>(LW_MENU_TAG);
+    expect(menu?.style.left).toBe('44px');
+
+    measured.mockReturnValue(
+      { left: 0, top: 100, right: 80, bottom: 136, width: 80, height: 36 } as DOMRect,
+    );
+    transloco.setActiveLang('de');
+    TestBed.tick();
+
+    expect(menu?.style.left).toBe('84px');
   });
 });

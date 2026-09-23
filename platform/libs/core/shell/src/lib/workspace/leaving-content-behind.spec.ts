@@ -189,4 +189,18 @@ describe('leaving content behind', () => {
     ).map((tab) => tab.path);
     expect(everywhere).not.toContain('reports');
   });
+
+  it('opens content the workbench navigates to once, in the pane of the claiming workspace that holds it', async () => {
+    const opened = await openAtReports(HELD_BESIDE);
+
+    await opened.contentTabs.navigate('knowledge-base');
+    await settled();
+
+    expect(opened.workspaces.activeId()).toBe('knowledge-base');
+    const everywhere = collectTabs(
+      TestBed.inject(PaneTreeService).tree(CONTENT_DOCK),
+    ).map((tab) => tab.path);
+    expect(everywhere.filter((path) => path === 'knowledge-base')).toHaveLength(1);
+    expect(everywhere).not.toContain('reports');
+  });
 });

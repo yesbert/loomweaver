@@ -188,18 +188,16 @@ export class MenuService {
         filter((event) => event.type === 'translationLoadSuccess'),
       ),
     ).subscribe(() => {
-      const before = menu.textContent;
       word();
-      if (menu.textContent !== before) {
-        afterNextRender(
-          () => {
-            if (this.current?.menu === menu) {
-              place(menu, followed(at, trigger, openedAt));
-            }
-          },
-          { injector: this.injector },
-        );
-      }
+      afterNextRender(
+        () => {
+          const anchor = followed(at, trigger, openedAt);
+          if (this.current?.menu === menu && anchor !== null) {
+            place(menu, anchor);
+          }
+        },
+        { injector: this.injector },
+      );
     });
     this.current = { menu, onOutside, restore, listenTimer, wording };
   }

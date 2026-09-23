@@ -20,12 +20,14 @@ import {
 import { LocaleService } from './locale.service';
 import { SERVED_LANGUAGES } from './served-languages';
 import { SETTINGS_STORE } from '../persistence/settings-store';
+import { StateSyncService } from '../persistence/state-sync.service';
 
 function fakeTransloco(
   load: (lang: string) => Observable<unknown> = () => of({}),
   holdsStrings: (lang: string) => boolean = () => true,
+  initial = 'en',
 ) {
-  const active = new BehaviorSubject('en');
+  const active = new BehaviorSubject(initial);
   const setActiveLang = vi.fn((lang: string) => active.next(lang));
   return {
     setActiveLang,
@@ -142,13 +144,23 @@ describe('LocaleService switching to a language not loaded yet', () => {
       holdsStrings?: (lang: string) => boolean;
       served?: readonly string[];
       stored?: () => Promise<string | undefined>;
+      initial?: string;
     } = {},
   ) {
     localStorage.clear();
-    const transloco = fakeTransloco(load, options.holdsStrings);
+    const transloco = fakeTransloco(load, options.holdsStrings, options.initial);
+    let synced: (raw: string) => void = () => undefined;
     TestBed.configureTestingModule({
       providers: [
         { provide: TranslocoService, useValue: transloco.useValue },
+        {
+          provide: StateSyncService,
+          useValue: {
+            register: (_store: string, _key: string, apply: (raw: string) => void) => {
+              synced = apply;
+            },
+          },
+        },
         ...(options.served
           ? [{ provide: SERVED_LANGUAGES, useValue: options.served }]
           : []),
@@ -174,6 +186,8 @@ describe('LocaleService switching to a language not loaded yet', () => {
       doc: TestBed.inject(DOCUMENT),
       setActiveLang: transloco.setActiveLang,
       fallBackTo: transloco.fallBackTo,
+      activeInLibrary: transloco.useValue.getActiveLang,
+      fromAnotherWindow: (raw: string) => synced(raw),
     };
   }
 
@@ -252,14 +266,45 @@ describe('LocaleService switching to a language not loaded yet', () => {
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('"de"'));
   });
 
-  it('names the language the library falls back to, whenever it does', () => {
-    const { service, doc, fallBackTo } = loading(() => of({}));
+  it('names the language the library falls back to when the language in effect has no strings', () => {
+    const { service, doc, fallBackTo } = loading(() => of({}), {
+      served: ['de', 'fr'],
+      initial: 'de',
+      holdsStrings: (lang) => lang !== 'de',
+    });
+
+    fallBackTo('en');
+
+    expect(service.lang()).toBe('en');
+    expect(doc.documentElement.lang).toBe('en');
+    expect(localStorage.getItem('lw.shell.lang')).toBeNull();
+  });
+
+  it('puts the library back when it falls back for a load that no longer matters', async () => {
+    const { service, fallBackTo, activeInLibrary } = loading(() => of({}));
 
     fallBackTo('de');
+    await Promise.resolve();
+
+    expect(activeInLibrary()).toBe('en');
+    expect(service.lang()).toBe('en');
+  });
+
+  it('lets a stored language apply once a choice made before it was read has failed', async () => {
+    let answer: (value: string) => void = () => undefined;
+    const failing = new Subject<object>();
+    const { service } = loading((lang) => (lang === 'fr' ? failing : of({})), {
+      served: ['en', 'de', 'fr'],
+      stored: () => new Promise<string>((resolve) => (answer = resolve)),
+    });
+
+    service.setLang('fr');
+    answer('de');
+    await Promise.resolve();
+    await Promise.resolve();
+    failing.error(new Error('offline'));
 
     expect(service.lang()).toBe('de');
-    expect(doc.documentElement.lang).toBe('de');
-    expect(localStorage.getItem('lw.shell.lang')).toBeNull();
   });
 
   it('applies only the latest of two choices made while loading', () => {
@@ -277,6 +322,17 @@ describe('LocaleService switching to a language not loaded yet', () => {
 
     expect(setActiveLang).toHaveBeenCalledTimes(1);
     expect(setActiveLang).toHaveBeenCalledWith('en');
+    expect(service.lang()).toBe('en');
+  });
+
+  it('lets a language chosen in another window cancel a choice here that is still loading', () => {
+    const arrived = new Subject<object>();
+    const { service, fromAnotherWindow } = loading(() => arrived);
+
+    service.setLang('de');
+    fromAnotherWindow('en');
+    arrived.next({});
+
     expect(service.lang()).toBe('en');
   });
 
@@ -341,15 +397,16 @@ describe('LocaleService with the translation library itself', () => {
 
   afterEach(() => vi.restoreAllMocks());
 
-  it('names the fallback the library shows when a language cannot be loaded and the fallback is loaded', async () => {
+  it('stays in the language in effect when another cannot be loaded and the fallback is loaded', async () => {
     const { service, transloco } = await inFrench();
     await firstValueFrom(transloco.load('en'));
 
     service.setLang('de');
     await Promise.resolve();
+    await Promise.resolve();
 
-    expect(transloco.getActiveLang()).toBe('en');
-    expect(service.lang()).toBe('en');
+    expect(transloco.getActiveLang()).toBe('fr');
+    expect(service.lang()).toBe('fr');
     expect(localStorage.getItem('lw.shell.lang')).toBe('fr');
   });
 
@@ -360,8 +417,8 @@ describe('LocaleService with the translation library itself', () => {
     await Promise.resolve();
     await Promise.resolve();
 
-    expect(service.lang()).not.toBe('de');
-    expect(service.lang()).toBe(transloco.getActiveLang());
+    expect(transloco.getActiveLang()).toBe('fr');
+    expect(service.lang()).toBe('fr');
     expect(localStorage.getItem('lw.shell.lang')).toBe('fr');
   });
 });

@@ -39,11 +39,8 @@ import { syncActiveTab } from './active-tab-sync';
 import { QuickOpenTarget, quickOpenTargetsOf } from './quick-open-target';
 import { TAB_ADDRESS_RESOLVER, computedTabAddress } from './tab-address';
 import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../../pane/tree/pane-address';
-import {
-  contentPathIn,
-  findLeaf,
-  findLeafWhere,
-} from '../../pane/tree/pane-queries';
+import { findLeaf, findLeafWhere } from '../../pane/tree/pane-queries';
+import { activeContentPath } from '../../pane/tree/active-content-path';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 import { isPopoutUrl } from '../../../popout/popout-path';
 import { popoutNavigationRefusal } from '../../../popout/popout-refusal';
@@ -196,6 +193,8 @@ export class OpenTabsService {
           return;
         }
         const replaced = replacement !== this.lastReplacement;
+        const shown = (): string =>
+          this.rootFor(activeContentPath(this.paneTree)).root;
         if (url !== this.lastUrl) {
           const previous = this.lastUrl;
           this.lastUrl = url;
@@ -203,12 +202,14 @@ export class OpenTabsService {
             this.viewTabSelection.set(null);
             this.focusHolderOf(
               path,
-              this.rootFor(replaced ? this.shownByAddressPane() : previous).root,
+              replaced ? shown() : this.rootFor(previous).root,
             );
+          } else if (replaced) {
+            this.focusHolderOf(path, shown());
           }
           this.ownNavigation = null;
         } else if (replaced) {
-          this.focusHolderOf(path, this.rootFor(this.shownByAddressPane()).root);
+          this.focusHolderOf(path, shown());
         }
         this.lastReplacement = replacement;
         this.syncTabOf(route, root, path);
@@ -350,13 +351,6 @@ export class OpenTabsService {
     if (root) {
       this.stampActive(root);
     }
-  }
-
-  private shownByAddressPane(): string {
-    return contentPathIn(
-      this.paneTree.tree(CONTENT_DOCK),
-      this.paneTree.primaryId(CONTENT_DOCK),
-    );
   }
 
   private stampActive(root: string): void {

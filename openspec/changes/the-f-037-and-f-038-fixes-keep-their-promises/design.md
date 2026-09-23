@@ -67,15 +67,23 @@ the new arrangement that holds the content and then gives the address its tab.
 `open-tabs.service.ts` is at the 400-line limit. The Quick-Open list, a self-contained computation of
 its own theme, moves into `quick-open-target.ts` beside the type it produces.
 
-**The workbench's language follows the library; a choice asks it to switch.** `LocaleService`
-subscribes to Transloco's `langChanges$` and sets `lang()` and `<html lang>` from it, so they always
-name the language the interface is shown in, including a fallback Transloco activates on its own after
-a failed load. `setLang` loads the language and asks Transloco to switch only when the load's first
-value leaves Transloco holding strings for that language; then it stores the choice. An empty end, an
-error, a value that is really the fallback's bundle, or ten seconds without a value is a failure:
-nothing is switched or stored by the service, and development reports it. A stored value read after
-the user already chose is ignored. The shipped switcher sets its control back to `lang()` right after
-a choice and follows `lang()` when the switch completes.
+**The workbench's language follows the library; the library keeps the language last switched to.**
+`LocaleService` subscribes to Transloco's `langChanges$` and sets `lang()` and `<html lang>` from it,
+so they always name the language the interface is shown in. It remembers the language it last asked
+Transloco to activate. When Transloco activates another language on its own, which it does after a
+failed load, the service puts the remembered one back if its strings are there, and accepts the
+fallback only when they are not, as when the starting language fails. That one rule covers a failed
+choice, a load that fails after the ten-second bound or after a newer choice, and a distribution
+that does not serve English.
+
+`setLang` loads the language and asks Transloco to switch only when the load's first value leaves
+Transloco holding strings for that language; then it stores the choice. An empty end, an error, a
+value that is really the fallback's bundle, or ten seconds without a value is a failure: nothing is
+switched or stored, and development reports it. A stored value read while a choice is loading is held
+back and applied only if the choice fails; read after a choice succeeded, it is ignored. A language
+from another window replaces a choice still loading here, including one that names the language
+already in effect, so the windows end alike. The shipped switcher sets its control back to `lang()`
+right after a choice and follows `lang()` when the switch completes.
 
 *Alternatives considered:*
 - **Switching anyway on a failed load** (the rule written in the F-037 change): Transloco has by then
@@ -89,11 +97,11 @@ a choice and follows `lang()` when the switch completes.
   starting language fails to load, which then shows keys. Not taken.
 
 **Place again after the chrome is redrawn, moved with the control.** `present` keeps the anchor, the
-control and where the control was when the menu opened. After a re-wording that changed the menu's
-text, it waits for the next render (`afterNextRender`), so the bar around the control has taken its
-new words, then places the menu again by the rule it opened with, shifted by as much as the control
-moved. This holds for a point anchor as well as a rect. A control no longer on the page measures as
-nothing, so the menu is left where it was. The `langChanges$` replay at subscription is skipped,
+control and where the control was when the menu opened. After every re-wording it waits for the next
+render (`afterNextRender`), so the bar around the control has taken its new words, then places the
+menu again by the rule it opened with: a point anchor shifted by as much as the control moved, a rect
+anchor with its edges moved as the control's edges moved, so a control that grew keeps the menu at
+its side. A control no longer on the page, or hidden, leaves the menu where it last stood. The `langChanges$` replay at subscription is skipped,
 because the menu is worded before it is placed.
 
 **The content shown before a replacement belongs to the old arrangement.** When the address changes
@@ -101,8 +109,10 @@ and the arrangement was replaced since the last run (a link into claimed content
 workspace), the pane that holds the new address is focused against what the new arrangement's address
 pane shows, not against the address the user left. Otherwise the address the user left was carried
 into the new arrangement as the dethroned pane's content. The query for what an address pane shows
-moves to `pane-queries.ts`, shared with `workspace/active-content-path.ts`, so the content slice does
-not import from the workspace slice.
+moves into the pane layer (`active-content-path.ts` beside `pane-queries.ts`), shared by the tab sync
+and the workspace service, so the content slice does not import from the workspace slice. The same
+applies when the navigation is one the shell started itself: its own focusing ran against the old
+arrangement, so the new one is focused again when a replacement happened.
 
 ## Risks / Trade-offs
 

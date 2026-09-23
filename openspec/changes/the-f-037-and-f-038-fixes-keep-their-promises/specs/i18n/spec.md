@@ -10,11 +10,15 @@ windows, in that same step and not before.
 
 A language whose strings cannot be loaded SHALL NOT be switched to and SHALL NOT be remembered,
 whether the load reports an error, ends without delivering that language's strings, or has delivered
-nothing after ten seconds, so the same choice can simply be made again. What the workbench reports as
-its language, the document's language and the shipped language control SHALL always name the language
-the interface is shown in, including one the translation library falls back to on its own, so they
-never disagree with the page. A language that arrives from storage after the user has chosen one
-SHALL NOT override that choice.
+nothing after ten seconds, so the same choice can simply be made again. The interface SHALL stay in
+the language last switched to for as long as that language's strings are there; a fallback the
+translation library makes on its own is shown only when they are not. What the workbench reports as
+its language, the document's language and the shipped language control SHALL always name the
+language the interface is shown in, so they never disagree with the page.
+
+A language that arrives from storage after the user has chosen one SHALL NOT override that choice,
+unless the choice could not be loaded. A language chosen in another window SHALL replace a choice
+here that is still loading, so the windows end in the same language.
 
 #### Scenario: Switching the language updates the page and the record of it
 
@@ -42,3 +46,14 @@ SHALL NOT override that choice.
 - **WHEN** the user chooses a language before the stored one has been read, and the stored one
   arrives afterwards naming another
 - **THEN** the language the user chose is the one switched to and remembered
+
+#### Scenario: A late failure elsewhere does not move the interface
+
+- **WHEN** the interface is in a language whose strings are there, and a load of another language
+  that no longer matters fails later and the translation library falls back on its own
+- **THEN** the interface stays in the language it was in
+
+#### Scenario: The windows end in the same language
+
+- **WHEN** a language chosen in one window reaches another while a choice made there is still loading
+- **THEN** both windows end in the language chosen last

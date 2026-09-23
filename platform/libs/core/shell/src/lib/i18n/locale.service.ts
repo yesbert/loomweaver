@@ -63,23 +63,24 @@ export class LocaleService {
 
   private pendingLoad?: Subscription;
 
-  private chosen = false;
+  private activated = this.transloco.getActiveLang();
+
+  private choice: 'none' | 'pending' | 'made' = 'none';
+
+  private heldBack?: string;
 
   /** The active language code, reactive. */
   readonly lang = this.langState.asReadonly();
 
   constructor() {
-    this.document.documentElement.lang = this.lang();
     this.transloco.langChanges$
       .pipe(takeUntilDestroyed())
       .subscribe((active) => this.follow(active));
-    hydrateAsync(this.store, LANGUAGE_STORAGE_KEY, (raw) => {
-      if (!this.chosen) {
-        this.applyServed(raw);
-      }
-    });
+    hydrateAsync(this.store, LANGUAGE_STORAGE_KEY, (raw) =>
+      this.applyStored(raw),
+    );
     this.sync.register('settings', LANGUAGE_STORAGE_KEY, (raw) =>
-      this.applyServed(raw),
+      this.applySynced(raw),
     );
   }
 
@@ -88,9 +89,9 @@ export class LocaleService {
    * becomes active, and is remembered, once they have, so the interface never shows keys in between
    * and {@link lang} changes then rather than at the call. A language whose strings cannot be loaded,
    * or do not arrive within ten seconds, is not switched to and not remembered, so it can be chosen
-   * again; {@link lang} always names the language the interface is shown in, including one the
-   * translation library fell back to. A code the workbench does not serve changes nothing, and the
-   * developer is told in development, rather than silently doing nothing.
+   * again; {@link lang} always names the language the interface is shown in. A code the workbench
+   * does not serve changes nothing, and the developer is told in development, rather than silently
+   * doing nothing.
    */
   setLang(lang: string): void {
     const served = servedLanguage(lang, this.supported);
@@ -102,20 +103,48 @@ export class LocaleService {
       }
       return;
     }
-    this.chosen = true;
-    this.applyLang(served, () => {
-      void this.store.set(LANGUAGE_STORAGE_KEY, served);
+    this.choice = 'pending';
+    this.applyLang(served, {
+      switched: () => {
+        this.choice = 'made';
+        void this.store.set(LANGUAGE_STORAGE_KEY, served);
+      },
+      failed: () => {
+        this.choice = 'none';
+        const held = this.heldBack;
+        this.heldBack = undefined;
+        this.applyStored(held);
+      },
     });
   }
 
-  private applyServed(raw: string | null | undefined): void {
-    const lang = servedLanguage(raw, this.supported);
-    if (lang !== undefined && lang !== this.langState()) {
-      this.applyLang(lang);
+  private applyStored(raw: string | null | undefined): void {
+    if (this.choice === 'pending') {
+      this.heldBack = raw ?? undefined;
+    } else if (this.choice === 'none') {
+      this.applySynced(raw);
     }
   }
 
-  private applyLang(lang: string, remember?: () => void): void {
+  private applySynced(raw: string | null | undefined): void {
+    const lang = servedLanguage(raw, this.supported);
+    if (lang === undefined) {
+      return;
+    }
+    if (this.choice === 'pending') {
+      this.choice = 'none';
+    }
+    if (lang === this.langState()) {
+      this.pendingLoad?.unsubscribe();
+      return;
+    }
+    this.applyLang(lang);
+  }
+
+  private applyLang(
+    lang: string,
+    outcome?: { readonly switched: () => void; readonly failed: () => void },
+  ): void {
     this.pendingLoad?.unsubscribe();
     this.pendingLoad = this.transloco
       .load(lang)
@@ -128,13 +157,17 @@ export class LocaleService {
       )
       .subscribe((loaded) => {
         if (loaded) {
+          this.activated = lang;
           this.transloco.setActiveLang(lang);
-          remember?.();
-        } else if (isDevMode()) {
+          outcome?.switched();
+          return;
+        }
+        if (isDevMode()) {
           console.warn(
             `LocaleService: the strings for "${lang}" could not be loaded, so the workbench stays in "${this.langState()}".`,
           );
         }
+        outcome?.failed();
       });
   }
 
@@ -143,11 +176,16 @@ export class LocaleService {
   }
 
   private follow(active: string): void {
-    const lang = servedLanguage(active, this.supported);
-    if (lang === undefined) {
+    if (active !== this.activated && this.holdsStringsFor(this.activated)) {
+      queueMicrotask(() => {
+        if (this.transloco.getActiveLang() !== this.activated) {
+          this.transloco.setActiveLang(this.activated);
+        }
+      });
       return;
     }
-    this.langState.set(lang);
-    this.document.documentElement.lang = lang;
+    this.activated = active;
+    this.langState.set(active);
+    this.document.documentElement.lang = active;
   }
 }

@@ -12,19 +12,26 @@ export function followed(
   at: MenuAnchor,
   trigger: HTMLElement | undefined,
   openedAt: DOMRect | undefined,
-): MenuAnchor {
-  if (!trigger?.isConnected || openedAt === undefined) {
+): MenuAnchor | null {
+  if (trigger === undefined || openedAt === undefined) {
     return at;
   }
   const now = trigger.getBoundingClientRect();
+  if (!trigger.isConnected || (now.width === 0 && now.height === 0)) {
+    return null;
+  }
   const dx = now.left - openedAt.left;
   const dy = now.top - openedAt.top;
   if (!('rect' in at)) {
     return { x: at.x + dx, y: at.y + dy };
   }
-  const { left, top, right, bottom } = at.rect;
   return {
-    rect: { left: left + dx, top: top + dy, right: right + dx, bottom: bottom + dy },
+    rect: {
+      left: at.rect.left + dx,
+      top: at.rect.top + dy,
+      right: at.rect.right + now.right - openedAt.right,
+      bottom: at.rect.bottom + now.bottom - openedAt.bottom,
+    },
     side: at.side,
   };
 }
