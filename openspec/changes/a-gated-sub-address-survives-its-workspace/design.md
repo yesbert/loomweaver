@@ -48,7 +48,9 @@ routes registered after the first navigation passes on 0.13.0.
 ## Decisions
 
 **Make a whole-tree replacement observable, and let the tab sync read it.** `PaneTreeService` gets a
-counter signal that `hydrate()` increments. The `OpenTabsService` effect reads it beside `hydrated()`.
+counter signal, `replaced`, that `hydrate()` increments and that the first restore from storage
+increments too. The `OpenTabsService` effect reads it in place of `hydrated()`, which it read only to
+run once after that first restore.
 When the tree is replaced, the effect runs again, finds the address unchanged, skips the
 address-change branch and runs `syncActiveTab`, which puts the addressed tab into the arrangement now
 on screen.
@@ -65,7 +67,8 @@ on screen.
   but leaves the arrangement without a tab for it, so the tab strip lies about what is shown.
   Rejected.
 - **Reuse `hydrated()` as a counter.** It means "restored once" to its other readers. Changing its
-  meaning would change theirs. Rejected in favour of a separate signal.
+  meaning would change theirs. Rejected in favour of a separate signal, which the tab sync reads
+  instead, since the first restore is one more replacement.
 
 ## Risks / Trade-offs
 

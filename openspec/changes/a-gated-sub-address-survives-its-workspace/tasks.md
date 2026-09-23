@@ -7,7 +7,7 @@
 ## 2. Fix
 
 - [x] 2.1 `PaneTreeService`: a signal that counts whole-tree replacements, incremented in `hydrate()`
-- [x] 2.2 `OpenTabsService`: read that signal in the tab-sync effect beside `hydrated()`
+- [x] 2.2 `OpenTabsService`: read that signal in the tab-sync effect in place of `hydrated()`, the first restore counting as a replacement
 - [x] 2.3 Run the new cases green, then the full shell suite
 
 ## 3. Close
