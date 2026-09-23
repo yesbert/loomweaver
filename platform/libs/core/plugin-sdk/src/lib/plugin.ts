@@ -11,7 +11,10 @@ import { MenuItem } from './menu.js';
 import { Disposable } from './contribution.js';
 import { Surface } from './surface.js';
 import { ViewAction } from './view.js';
-import { OpenTabInput } from './content-route.js';
+import {
+  OpenTabInput,
+  TabBadge,
+} from './content-route.js';
 import { BarItem } from './bar-item.js';
 import { RailItem } from './rail-item.js';
 import { SettingsSection } from './settings-model.js';
@@ -183,6 +186,14 @@ export interface PluginContext {
    * actions, so there is nothing on it to replace.
    */
   updateSurfaceAction(id: string, action: ViewAction): void;
+  /**
+   * Gives a surface you registered a badge, replaces it, or takes it away with `null`, under the id you
+   * registered it with (`contributions`). Every tab that shows the surface follows, and the surface
+   * itself is **not** rebuilt. A text given as a translation key still translates, and follows a
+   * language change. Only the badge changes; an id you did not register is a no-op. A content tab
+   * opened with a badge of its own keeps its own.
+   */
+  updateSurfaceBadge(id: string, badge: TabBadge | null): void;
   registerBarItem(item: BarItem): Disposable;
   registerRailItem(item: RailItem): Disposable;
   /** Contributes a section to the host settings surface. */

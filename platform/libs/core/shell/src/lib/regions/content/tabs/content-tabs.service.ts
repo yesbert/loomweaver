@@ -321,6 +321,7 @@ export class ContentTabsService {
           title: input.title,
           literalTitle: input.titleIsLiteral ?? false,
           icon: input.icon,
+          badge: input.badge,
         },
       );
       if (found) {
@@ -346,6 +347,7 @@ export class ContentTabsService {
       title: input.title,
       literalTitle: input.titleIsLiteral ?? false,
       icon: input.icon,
+      badge: input.badge ?? existing?.badge,
       onClose: input.onClose,
       preview: existing ? existing.preview : previewSlot,
       pinned: existing ? existing.pinned : false,

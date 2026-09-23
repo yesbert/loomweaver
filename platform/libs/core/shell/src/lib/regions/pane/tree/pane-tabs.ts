@@ -1,3 +1,4 @@
+import { TabBadge } from '@loomweaver/plugin-sdk';
 import { PaneLeaf, PaneNode, PaneTab, leafWith } from './pane-node';
 import { collapseLeaf, transformLeaf } from './pane-structure';
 
@@ -42,6 +43,7 @@ export interface TabTitlePatch {
   readonly title?: string;
   readonly literalTitle: boolean;
   readonly icon?: string;
+  readonly badge?: TabBadge;
 }
 
 export function refineTabTitles(
@@ -84,6 +86,7 @@ function refineLeafTitles(
       title: patch.title,
       literalTitle: patch.literalTitle,
       ...(patch.icon !== undefined && { icon: patch.icon }),
+      ...(patch.badge !== undefined && { badge: patch.badge }),
     };
   });
   return found

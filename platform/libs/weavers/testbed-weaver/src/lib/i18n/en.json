@@ -273,5 +273,9 @@
     "saved": "Saved the name.",
     "draft": "Write a draft (asks on closing)",
     "draftIntro": "No save button. Closing this dialog in any way asks while the text differs from what was last saved."
+  },
+  "badge": {
+    "beta": "Beta",
+    "new": "New"
   }
 }

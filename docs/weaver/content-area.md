@@ -152,6 +152,34 @@ A distribution can turn the whole behaviour off (`provideShellFeatures({ content
 in which case `preview` is ignored and every open is permanent. Treat preview as a hint, not a
 guarantee.
 
+## Marking a tab: `badge`
+
+A tab can carry a badge beside its title: a short word such as "Beta" or "Developer", an icon, or
+both, in one of the badge tones (`neutral`, `brand`, `success`, `danger`). Declare it on the surface
+with `badge`, and every tab that shows the surface carries it, in the content area, in a container's
+inner panes and as a view tab in a pane:
+
+```ts
+ctx.registerSurface({
+  id: 'assistants.advanced',
+  title: 'assistants.advanced.title',
+  badge: { text: 'assistants.badge.developer', tone: 'brand' },
+  docks: [],
+  component: AdvancedPart,
+});
+```
+
+Change it while the surface is mounted with `ctx.updateSurfaceBadge(id, badge)`, and take it away
+with `null`. The surface is not rebuilt, as with `ctx.retitleSurface`. A content tab can also carry a
+badge of its own, passed to `ctx.openContentTab({ ..., badge })`: it wins over the surface's, is
+refined by opening the same path again, and survives a restart with the tab.
+
+The badge is not a control of its own, so the tab stays one keyboard stop, and its text joins the
+tab's accessible name after the title. In a strip that shows icons only, such as a sidebar switcher,
+the text is in the tooltip and the accessible name. The text is a translation key unless
+`textIsLiteral` is set. The list of tabs that do not fit, Quick-Open and the minimized strip name a
+tab without its badge.
+
 ## Pinned tabs
 
 The permanence ladder has a top rung: `ctx.pinContentTab(path)` / `ctx.unpinContentTab(path)`

@@ -1,5 +1,5 @@
 import { computed, Service, signal, Signal, WritableSignal } from '@angular/core';
-import { Command, ContentRoute, Disposable, MenuItem } from '@loomweaver/plugin-sdk';
+import { Command, ContentRoute, Disposable, MenuItem, TabBadge } from '@loomweaver/plugin-sdk';
 import { BarItem } from '../foundation/bar-item';
 import { RailItem } from '../foundation/rail-item';
 import { View, ViewAction } from '../layout/view';
@@ -54,6 +54,10 @@ export class ContributionRegistry {
   private readonly commandsSignal = signal<readonly RegisteredCommand[]>([]);
 
   private readonly surfacesSignal = signal<readonly RegisteredSurface[]>([]);
+
+  private readonly badgesSignal = signal<ReadonlyMap<string, TabBadge>>(
+    new Map(),
+  );
 
   private readonly barItemsSignal = signal<readonly BarItem[]>([]);
 
@@ -283,6 +287,16 @@ export class ContributionRegistry {
     );
   }
 
+  updateSurfaceBadge(id: string, badge: TabBadge | null): void {
+    if (this.surfacesSignal().some((entry) => entry.id === id)) {
+      this.setBadge(id, badge ?? undefined);
+    }
+  }
+
+  badgeOf(id: string | undefined): TabBadge | undefined {
+    return id === undefined ? undefined : this.badgesSignal().get(id);
+  }
+
   /**
    * Replaces one action of a registered surface in place, by the action's id, leaving the entry's
    * identity and everything else it declared alone. An action id the surface did not carry is added.
@@ -303,11 +317,24 @@ export class ContributionRegistry {
       upsertBy(entries, entry, sameSlotAs(entry)),
     );
     return {
-      dispose: () =>
+      dispose: () => {
         this.surfacesSignal.update((entries) =>
           entries.filter((e) => e !== entry),
-        ),
+        );
+        const id = entry.id;
+        if (id !== undefined && this.surfacesSignal().every((e) => e.id !== id)) {
+          this.setBadge(id, undefined);
+        }
+      },
     };
+  }
+
+  private setBadge(id: string, badge: TabBadge | undefined): void {
+    const next = new Map([...this.badgesSignal()].filter(([key]) => key !== id));
+    if (badge !== undefined) {
+      next.set(id, badge);
+    }
+    this.badgesSignal.set(next);
   }
 
   private visible<T extends { readonly id?: string }>(

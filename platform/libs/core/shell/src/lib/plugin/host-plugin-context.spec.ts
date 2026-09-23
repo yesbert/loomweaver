@@ -653,6 +653,69 @@ describe('HostPluginContext', () => {
     });
   });
 
+  describe('a surface badge', () => {
+    const BETA = { text: 'badges.beta', tone: 'brand' } as const;
+
+    function nav(ctx: HostPluginContext, badge?: typeof BETA) {
+      return ctx.registerSurface({
+        id: 'nav',
+        docks: ['primary'],
+        title: 'nav.first',
+        component: DummyComponent,
+        ...(badge && { badge }),
+      });
+    }
+
+    it('takes the badge a surface declares', () => {
+      const { ctx, registry } = makeContext();
+      nav(ctx, BETA);
+
+      expect(registry.badgeOf('nav')).toEqual(BETA);
+    });
+
+    it('replaces it, takes it away, and leaves an unknown id alone', () => {
+      const { ctx, registry } = makeContext();
+      nav(ctx);
+
+      ctx.updateSurfaceBadge('nav', BETA);
+      expect(registry.badgeOf('nav')).toEqual(BETA);
+
+      ctx.updateSurfaceBadge('other', BETA);
+      expect(registry.badgeOf('other')).toBeUndefined();
+
+      ctx.updateSurfaceBadge('nav', null);
+      expect(registry.badgeOf('nav')).toBeUndefined();
+    });
+
+    it('does not rebuild the surface', () => {
+      const { ctx, registry } = makeContext();
+      nav(ctx);
+      const before = registry.views()[0];
+
+      ctx.updateSurfaceBadge('nav', BETA);
+
+      expect(registry.views()[0]).toBe(before);
+    });
+
+    it('goes with the surface when it is disposed, and when it is registered again without one', () => {
+      const { ctx, registry } = makeContext();
+      const first = nav(ctx, BETA);
+      nav(ctx);
+      expect(registry.badgeOf('nav')).toBeUndefined();
+
+      ctx.updateSurfaceBadge('nav', BETA);
+      first.dispose();
+      nav(ctx, BETA).dispose();
+      expect(registry.badgeOf('nav')).toBeUndefined();
+    });
+
+    it('needs the "contributions" capability', () => {
+      const { ctx } = makeContext(['ui', 'host']);
+
+      expect(() => ctx.updateSurfaceBadge('nav', BETA)).toThrow(CapabilityError);
+    });
+  });
+
   describe("replacing one of a surface's actions", () => {
     const first = { id: 'a', icon: 'add', title: 'act.add' };
     const second = { id: 'b', icon: 'pin', title: 'act.pin', pressed: false };

@@ -8,6 +8,7 @@ import {
   NotificationInput,
   OpenTabInput,
   Surface,
+  TabBadge,
 } from '@loomweaver/plugin-sdk';
 import { FrameSettingValues } from './sandbox-settings';
 import { asCommandArguments } from '../../foundation/command-arguments';
@@ -23,6 +24,7 @@ const UNCARRIABLE_ARGUMENTS: CommandOutcome = {
 export type FrameRpc = Methods & {
   registerSurface(surface: Surface): void;
   retitleSurface(id: string, title: string): void;
+  updateSurfaceBadge(id: string, badge: TabBadge | null): void;
   registerMenuItem(item: MenuItem): void;
   registerSettingsSection(section: FrameSettingsSection): void;
   navigateContent(path: string): void;

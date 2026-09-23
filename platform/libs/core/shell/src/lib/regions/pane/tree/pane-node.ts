@@ -1,3 +1,4 @@
+import { TabBadge } from '@loomweaver/plugin-sdk';
 import { PRIMARY_PANE, VIEW_PANE_PREFIX } from './pane-address';
 
 export interface PaneTab {
@@ -8,6 +9,7 @@ export interface PaneTab {
   readonly title?: string;
   readonly literalTitle?: boolean;
   readonly icon?: string;
+  readonly badge?: TabBadge;
   readonly instance?: string;
 }
 

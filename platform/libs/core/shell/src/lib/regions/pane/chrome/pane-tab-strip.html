@@ -20,6 +20,8 @@
   >
     @for (tab of tabs(); track tab.path) {
       @let title = tab.literalTitle ? tab.title : (tab.title | transloco);
+      @let badgeText = tab.badge?.text ? (tab.badge?.textIsLiteral ? tab.badge?.text : (tab.badge?.text ?? '' | transloco)) : '';
+      @let named = badgeText ? title + ', ' + badgeText : title;
       @if (icons()) {
         <button
           type="button"
@@ -32,7 +34,7 @@
           [lwMenu]="menuSlotFor(tab)"
           [lwMenuContext]="tabContext(tab)"
           [attr.aria-selected]="isActive(tab)"
-          [attr.aria-label]="unsaved(tab) ? ('content.unsavedTab' | transloco: { title }) : title"
+          [attr.aria-label]="unsaved(tab) ? ('content.unsavedTab' | transloco: { title: named }) : named"
           [attr.data-reorder-id]="canReorder(tab) ? tab.path : null"
           [attr.data-reorder-band]="bandOf(tab)"
           [attr.data-tab-path]="tab.path"
@@ -50,7 +52,7 @@
               class="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-unsaved"
             ></span>
           }
-          <lw-tooltip [text]="title" position="bottom" />
+          <lw-tooltip [text]="named" position="bottom" />
         </button>
       } @else {
         <div
@@ -71,7 +73,7 @@
             role="tab"
             cdkDragHandle
             [attr.aria-selected]="isActive(tab)"
-            [attr.aria-label]="unsaved(tab) ? ('content.unsavedTab' | transloco: { title }) : title"
+            [attr.aria-label]="unsaved(tab) ? ('content.unsavedTab' | transloco: { title: named }) : named"
             [attr.data-reorder-id]="canReorder(tab) ? tab.path : null"
             [attr.data-reorder-band]="bandOf(tab)"
             [attr.data-tab-path]="tab.path"
@@ -90,6 +92,21 @@
               <lw-icon [name]="tab.icon" size="1rem" />
             }
             <span class="min-w-0 truncate">{{ title }}</span>
+            @if (tab.badge && (badgeText || tab.badge.icon)) {
+              <span
+                aria-hidden="true"
+                data-testid="tab-badge"
+                class="lw-badge shrink-0 gap-1 px-1.5 py-0 not-italic"
+                [class.lw-badge--brand]="tab.badge.tone === 'brand'"
+                [class.lw-badge--success]="tab.badge.tone === 'success'"
+                [class.lw-badge--danger]="tab.badge.tone === 'danger'"
+              >
+                @if (tab.badge.icon) {
+                  <lw-icon [name]="tab.badge.icon" size="0.75rem" />
+                }
+                {{ badgeText }}
+              </span>
+            }
 
             <lw-tooltip
               [text]="

@@ -271,4 +271,30 @@ export interface OpenTabInput {
    * (a permanent tab). Ignored when the distribution disabled preview (`provideShellFeatures({ content: { preview: false } })`).
    */
   readonly preview?: boolean;
+  /**
+   * A badge of this tab's own, drawn beside its title, such as "Draft" on one document among others.
+   * It wins over the badge of the surface the tab shows, is refined by opening the same path again,
+   * as the title is, and survives a restart with the tab.
+   */
+  readonly badge?: TabBadge;
+}
+
+/** The tones a {@link TabBadge} may take: the ones the workbench's `.lw-badge` look has. */
+export type TabBadgeTone = 'neutral' | 'brand' | 'success' | 'danger';
+
+/**
+ * A short mark the workbench draws beside a tab's title, such as "Beta" or "Developer": a text, an
+ * icon or both, in one of the workbench's badge tones. Its text is part of the tab's accessible name
+ * ("Erweitert, Developer"); the badge is not a control of its own. In a strip that shows icons only,
+ * its text moves into the tab's tooltip. A badge with neither text nor icon is no badge.
+ */
+export interface TabBadge {
+  /** Transloco key for the badge's text, or a literal when {@link textIsLiteral} is set. */
+  readonly text?: string;
+  /** Whether {@link text} is a literal rather than a Transloco key. Default `false`. */
+  readonly textIsLiteral?: boolean;
+  /** Icon name, resolved by the host icon registry (a plain string). */
+  readonly icon?: string;
+  /** The badge's tone. Default `'neutral'`. */
+  readonly tone?: TabBadgeTone;
 }

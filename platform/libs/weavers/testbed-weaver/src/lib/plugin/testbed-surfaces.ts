@@ -56,6 +56,7 @@ function registerContentSurfaces(ctx: PluginContext): void {
     id: 'testbed.dash.export',
     title: 'testbed.dash.export',
     icon: 'download',
+    badge: { text: 'testbed.badge.new', tone: 'success' },
     routable: { path: 'dashboard/export' },
     component: TestbedDashboardView,
   });
@@ -203,6 +204,7 @@ function registerWorkspaceContainer(ctx: PluginContext): void {
   ctx.registerSurface({
     id: 'testbed.wsFrame',
     title: 'testbed.workspace.frame',
+    badge: { text: 'testbed.badge.beta', tone: 'brand' },
     docks: [],
     iframe: '/docked-frame/view.html?child=1',
   });
@@ -231,6 +233,7 @@ function registerPanelSurfaces(ctx: PluginContext): void {
   ctx.registerSurface({
     id: 'testbed.list',
     title: 'testbed.list.title',
+    badge: { text: 'testbed.badge.beta' },
     padded: true,
     icon: 'testbedList',
     order: 2,

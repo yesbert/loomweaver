@@ -1,4 +1,9 @@
-import { AccessRequirement, ContentRoute, ViewAction } from '@loomweaver/plugin-sdk';
+import {
+  AccessRequirement,
+  ContentRoute,
+  TabBadge,
+  ViewAction,
+} from '@loomweaver/plugin-sdk';
 import { View } from '../../../layout/view';
 import { PaneTab } from '../../pane/tree/pane-node';
 import { overlayTabTitle } from '../../pane/drag/pane-label';
@@ -15,6 +20,7 @@ export interface OpenTab {
   readonly path: string;
   readonly title: string;
   readonly icon?: string;
+  readonly badge?: TabBadge;
   readonly literalTitle: boolean;
   readonly ownLabel: boolean;
   readonly onClose?: () => void;
@@ -33,6 +39,7 @@ export interface ContentTabView {
   /** When true the host shows `title` verbatim; otherwise it is a Transloco key (finding #8). */
   readonly literalTitle: boolean;
   readonly icon?: string;
+  readonly badge?: TabBadge;
   readonly order: number;
   /** Dynamic tabs show a close affordance; static (registered) tabs do not. */
   readonly closable: boolean;
@@ -123,6 +130,7 @@ export function toOpenTab(
     title: effective.title,
     literalTitle: effective.literalTitle,
     icon: effective.icon,
+    badge: tab.badge,
     ownLabel: tab.title !== undefined,
     onClose,
     preview: tab.preview ?? false,
@@ -137,6 +145,7 @@ export function toPaneTab(tab: OpenTab): PaneTab {
     ...(tab.ownLabel && { title: tab.title }),
     ...(tab.ownLabel && tab.literalTitle && { literalTitle: true }),
     ...(tab.ownLabel && tab.icon !== undefined && { icon: tab.icon }),
+    ...(tab.ownLabel && tab.badge !== undefined && { badge: tab.badge }),
     ...(tab.pinned && { pinned: true }),
     ...(tab.preview && { preview: true }),
     ...(!tab.closable && { closable: false }),
@@ -184,6 +193,7 @@ export function dynamicTabViews(
     title: tab.title,
     literalTitle: tab.literalTitle,
     icon: tab.icon,
+    badge: tab.badge,
     order: DYNAMIC_TAB_ORDER_BASE + index,
     closable: tab.closable,
     movable: true,

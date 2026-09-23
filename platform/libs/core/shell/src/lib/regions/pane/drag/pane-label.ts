@@ -4,6 +4,7 @@ import { surfaceForPanePath } from '../pane-surface';
 import type { StripTab } from '../chrome/strip-tab';
 import { isHomePath } from '../../content/content-path';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
+import { TabBadge } from '@loomweaver/plugin-sdk';
 
 export interface PaneLabel {
   readonly title: string;
@@ -58,6 +59,15 @@ export function paneLabelOf(
     : { title: path, literalTitle: true, icon: surface.icon };
 }
 
+export function surfaceBadge(
+  registry: ContributionRegistry,
+  path: string,
+): TabBadge | undefined {
+  return registry.badgeOf(
+    surfaceForPanePath(registry.contentRoutes(), registry.views(), path)?.id,
+  );
+}
+
 export function surfaceClosable(
   registry: ContributionRegistry,
   path: string,
@@ -78,6 +88,7 @@ export function toStripTab(
     title: effective.title,
     literalTitle: effective.literalTitle,
     icon: effective.icon,
+    badge: tab.badge ?? surfaceBadge(registry, tab.path),
     closable: tab.closable !== false && surfaceClosable(registry, tab.path),
     movable: true,
     preview: tab.preview ?? false,

@@ -16,6 +16,7 @@ import {
   PluginState,
   StateHandle,
   Surface,
+  TabBadge,
   ViewAction,
 } from '@loomweaver/plugin-sdk';
 import {
@@ -196,6 +197,11 @@ export class HostPluginContext implements PluginContext {
     return this.track(this.registry.addCommand(command, this.pluginId));
   }
 
+  updateSurfaceBadge(id: string, badge: TabBadge | null): void {
+    this.require('contributions');
+    this.registry.updateSurfaceBadge(id, badge);
+  }
+
   retitleSurface(id: string, title: string): void {
     this.require('contributions');
     this.registry.retitleSurface(id, title);
@@ -219,7 +225,8 @@ export class HostPluginContext implements PluginContext {
         console.error(collision);
         return { dispose: () => undefined };
       }
-      return this.track(
+      return this.withBadge(
+        surface,
         this.registry.addContentRoute(
           entryToContentRoute(entry),
           this.pluginId,
@@ -228,7 +235,7 @@ export class HostPluginContext implements PluginContext {
     }
     const view = entryToView(entry);
     warnUnlessPanelRegion(this.pluginId, this.regions, view);
-    return this.track(this.registry.addView(view, this.pluginId));
+    return this.withBadge(surface, this.registry.addView(view, this.pluginId));
   }
 
   registerBarItem(item: BarItem): Disposable {
@@ -305,6 +312,11 @@ export class HostPluginContext implements PluginContext {
     while (this.disposables.length > 0) {
       this.disposables.pop()?.dispose();
     }
+  }
+
+  private withBadge(surface: Surface, registered: Disposable): Disposable {
+    this.registry.updateSurfaceBadge(surface.id, surface.badge ?? null);
+    return this.track(registered);
   }
 
   private followCollision(surface: Surface): string | null {
