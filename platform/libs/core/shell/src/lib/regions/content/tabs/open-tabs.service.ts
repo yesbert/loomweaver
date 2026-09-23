@@ -236,6 +236,7 @@ export class OpenTabsService {
       const root = this.activeTabRoot();
       const route = this.activeRoute();
       this.paneTree.hydrated();
+      this.paneTree.replaced();
       untracked(() => {
         if (url !== this.lastUrl) {
           const previous = this.lastUrl;
