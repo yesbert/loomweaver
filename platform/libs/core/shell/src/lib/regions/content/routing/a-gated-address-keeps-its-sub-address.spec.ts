@@ -20,6 +20,15 @@ import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { AUTH_SOURCE } from '../../../auth/auth-context';
 import { ContentRouter } from './content-router';
 import { ContentReuseStrategy } from './content-reuse-strategy';
+import { provideLayout } from '../../../layout/layout';
+import { provideWorkspaces } from '../../../workspace/provide-workspaces';
+import { PaneTreeService } from '../../pane/tree/pane-tree.service';
+import { findLeaf } from '../../pane/tree/pane-queries';
+import { CONTENT_DOCK } from '../../pane/tree/pane-address';
+import { ContentTabsService } from '../tabs/content-tabs.service';
+import { AddressBody } from '../address-body';
+import { WorkspaceService } from '../../../workspace/workspace.service';
+import { WORKSPACE_CLAIMS } from '../../../foundation/workspace-claims';
 
 @Component({ selector: 'lw-test-content', template: '' })
 class TestContent {}
@@ -44,10 +53,33 @@ const ASSISTANT_CONTAINER = {
   access: { authenticated: true },
 } as ContentRoute;
 
+const KNOWLEDGE_BASE: readonly ContentRoute[] = [
+  'knowledge-base',
+  'knowledge-base/:entryId',
+  'knowledge-base/tags',
+  'knowledge-base/categories',
+].map((path) => ({
+  path,
+  component: TestContent,
+  access: { authenticated: true },
+}));
+
+const CLAIMING_WORKSPACE = provideWorkspaces({
+  id: 'knowledge-base',
+  title: 'Knowledge base',
+  claims: ['knowledge-base'],
+  content: { tabs: [{ path: 'knowledge-base', closable: false }] },
+});
+
+const LAYOUT = {
+  regions: [{ id: 'main', type: 'content', dock: 'center' }],
+} as const;
+
 async function openAt(
   address: string,
-  route: ContentRoute,
+  route: ContentRoute | readonly ContentRoute[],
   auth: WritableSignal<AuthSnapshot>,
+  providers: unknown[] = [],
 ): Promise<Router> {
   TestBed.configureTestingModule({
     providers: [
@@ -58,10 +90,13 @@ async function openAt(
       provideAppInitializer(() => {
         inject(Location).go(address);
       }),
+      ...(providers as never[]),
     ],
   });
   const router = TestBed.inject(Router);
-  TestBed.inject(ContributionRegistry).addContentRoute(route);
+  for (const each of Array.isArray(route) ? route : [route]) {
+    TestBed.inject(ContributionRegistry).addContentRoute(each);
+  }
   TestBed.inject(ContentRouter).start();
   TestBed.tick();
   await router.navigateByUrl(TestBed.inject(Location).path());
@@ -125,5 +160,55 @@ describe('a gated address keeps its sub-address', () => {
 
     expect(router.url).toBe('/doc/7/general');
     expect(contentOf(router)?.data['authPlaceholder']).toBeUndefined();
+  });
+
+  describe('inside the workspace that claims it', () => {
+    beforeEach(() => localStorage.clear());
+
+    async function drawnAfterSignIn(address: string): Promise<{
+      readonly tabs: readonly string[];
+      readonly drawn: string;
+      readonly url: string;
+    }> {
+      const auth = signal<AuthSnapshot>(ANONYMOUS);
+      const router = await openAt(address, KNOWLEDGE_BASE, auth, [
+        provideLayout(LAYOUT as never),
+        CLAIMING_WORKSPACE,
+        { provide: WORKSPACE_CLAIMS, useExisting: WorkspaceService },
+      ]);
+      TestBed.inject(ContentTabsService);
+      const body = TestBed.inject(AddressBody);
+      const paneTree = TestBed.inject(PaneTreeService);
+      await signIn(auth);
+      for (let turn = 0; turn < 10; turn += 1) {
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        TestBed.tick();
+      }
+      const leaf = findLeaf(
+        paneTree.tree(CONTENT_DOCK),
+        paneTree.primaryId(CONTENT_DOCK),
+      );
+      return {
+        tabs: leaf?.tabs.map((tab) => tab.path) ?? [],
+        drawn: leaf ? body.pathFor(leaf) : '',
+        url: router.url,
+      };
+    }
+
+    it('opens a named sub-address, not the listing the workspace declares', async () => {
+      const opened = await drawnAfterSignIn('/knowledge-base/tags');
+
+      expect(opened.url).toBe('/knowledge-base/tags');
+      expect(opened.tabs).toContain('knowledge-base/tags');
+      expect(opened.drawn).toBe('knowledge-base/tags');
+    });
+
+    it('opens an entry at its own address, not the listing', async () => {
+      const opened = await drawnAfterSignIn('/knowledge-base/e-17');
+
+      expect(opened.url).toBe('/knowledge-base/e-17');
+      expect(opened.tabs).toContain('knowledge-base/e-17');
+      expect(opened.drawn).toBe('knowledge-base/e-17');
+    });
   });
 });
