@@ -181,11 +181,11 @@ spellcheck. Draw your own only where you mean to replace it.
 A right-click on your **own in-process view body** (a list row, a canvas node) is not a host slot;
 nothing else contributes to it. Call **`ctx.ui.openMenu(items, { x, y })`** (capability `ui`) with
 ad-hoc items, each with a `label`, an optional host `icon` name and an in-process `run` handler. The
-`label` is a key of your own bundle or a literal, like every other piece of chrome text. A key is
-translated, and the open menu is re-worded when the strings arrive or the language changes. A literal
-is shown as it is. The two are told apart by shape, so a literal that looks like a key, such as a
-file name with a dot, is looked up first. It is still shown as it is when no bundle knows it, and
-development reports it as a missing key. The host draws the items as its own `<lw-menu>` at the
+`label` is a key of your own bundle or a literal, like every other piece of chrome text. Every label
+is looked up as a key, and the open menu is re-worded when the strings arrive or the language changes.
+A label no bundle knows, such as a name the user typed, is shown as it is. Development reports one
+that looks like a key, with a dot and no spaces, as a missing key, and a literal that happens to equal
+a key a bundle knows shows that key's text. The host draws the items as its own `<lw-menu>` at the
 cursor, with the same positioning, Escape and outside-click dismissal and focus return as its menus.
 The menu is body-level, so a virtual-scroll or `transform`ed ancestor never clips it.
 

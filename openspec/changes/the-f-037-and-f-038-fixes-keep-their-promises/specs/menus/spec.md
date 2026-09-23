@@ -13,10 +13,10 @@ made it. A control that is no longer on the page, or is hidden, leaves the menu 
 still kept within the window.
 
 The entries of a menu a plugin opens against its own content SHALL take a translation key or a
-literal, like every other piece of chrome text that takes either, and SHALL be told apart the same
-way. A key follows the strings; a literal is shown as it is. The limit is that rule's own: a literal
-with the shape of a key, such as a file name with a dot, is looked up like a key, and is shown as it
-is when no bundle knows it.
+literal, like every other piece of chrome text that takes either. Every entry SHALL be looked up as
+a key and follow the strings; an entry no bundle knows SHALL be shown as it is. The limit: a literal
+that happens to equal a key a bundle knows shows that key's text, and development reports a literal
+with the shape of a key, such as a file name with a dot, as missing.
 
 The limit: a menu a plugin draws inside its own surface is the plugin's to word, and is not covered.
 

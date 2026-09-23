@@ -5,9 +5,6 @@ import { LanguageSwitcher } from './language-switcher';
 import { LocaleService } from './locale.service';
 import { languageName, SHIPPED_LANGUAGES } from './served-languages';
 import { ViewportService } from '../layout/viewport.service';
-import { defineLwSelect } from '../elements/select/lw-select.element';
-
-defineLwSelect();
 
 function render(served: readonly string[], compact = false): HTMLElement {
   TestBed.configureTestingModule({
@@ -88,16 +85,5 @@ describe('LanguageSwitcher', () => {
       icon: 'FR',
       label: 'Français',
     });
-  });
-
-  it('keeps showing the active language while a chosen one is not yet in effect', () => {
-    const select = render(SHIPPED_LANGUAGES).querySelector('lw-select');
-    select?.setAttribute('value', 'de');
-
-    select?.dispatchEvent(
-      new CustomEvent('lw-select-change', { detail: { value: 'de' } }),
-    );
-
-    expect(select?.getAttribute('value')).toBe('en');
   });
 });

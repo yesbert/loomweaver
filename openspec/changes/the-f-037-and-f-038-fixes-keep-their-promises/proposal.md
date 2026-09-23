@@ -2,9 +2,8 @@
 
 ## Why
 
-A review of the fixes for NextPA findings F-037 and F-038, merged to main in #458 and #459 and not
-yet released, found that they break promises the contract already makes. Two would have shipped as
-defects:
+Reviews of the fixes for NextPA findings F-037 and F-038, merged to main in #458 and #459 and not
+yet released, found that they break promises the contract already makes:
 
 - **A workspace switch can carry the address the user left into the workspace it enters.** The F-038
   fix re-runs the address-tab synchronisation after every replacement of the whole arrangement. A
@@ -12,56 +11,42 @@ defects:
   the previous address as a tab in the new arrangement, where it is stored. Reproduced with a lazily
   loaded landing surface: after leaving `/reports` for `knowledge-base`, that workspace holds a
   `reports` tab. 0.13.0 does not do this.
-- **A language switch can hang, or show keys.** The switch waits for the load to deliver strings or
-  fail. When the strings cannot be loaded and the fallback language is already loaded, the
-  translation library ends the load with neither, so the switch never happens, while the choice has
-  already been stored and sent to the other windows. Forcing the switch on failure instead would show
-  keys, because the library has already fallen back to its fallback language.
+- **The language switch that loads before it switches fights the translation library.** The library
+  activates its fallback language on its own whenever any load fails, including one that no longer
+  matters. Six review rounds found a new way for the workbench and the library to disagree each time
+  the switch was hardened.
+- **A re-worded menu is not placed again**, so it can run past the edge of the window, away from its
+  control, or be cut off where its old position capped its width.
+- A guide and a proposal promise more than the key-or-literal rule gives for a plugin's menu labels;
+  the first-party testbed weaver still translates its own menu labels; a task was ticked without its
+  test.
 
-The review also found an open menu that is re-worded in place but not re-placed, so it can run past
-the edge of the window or away from its control; a guide and a proposal that promise more than the
-key-or-literal rule gives for a plugin's menu labels; the first-party testbed weaver still translating
-its own menu labels; a task ticked without its test; and a few pieces of redundancy.
-
-A second review of the first correction found that giving the settled address its tab from inside
-the workspace guard turns a preview into a permanent tab, duplicates content a secondary pane
-already holds, changes the arrangement before the navigation is committed, and misses the
-replacement that adopting a signed-in person's stored arrangement makes. That approach is not taken.
-
-A third review found that the language service still disagreed with the translation library in
-several failure paths, because it undid the library's own fallback after the fact instead of
-following it; that a content already held beside another pane of the claiming workspace could still
-carry the address the user left into that workspace; and that a re-worded menu was measured before
-the chrome was redrawn. The owner approved the resulting rule for a failed load on 2026-09-23: the
-workbench's language is always the one the library shows, and only a choice that loaded is
-remembered. A later review found that putting the library back after its own fallback went beyond
-that rule and broke a product's direct switch; the service now only follows the library.
+The owner decided on 2026-09-23 to keep F-037 narrow: menus follow their strings, and the language
+switch stays as released in 0.13.0. Keys may show for a moment after a language change; what matters
+is that the right words show once the strings are there.
 
 ## What Changes
 
 - **F-038, cut again.** After any replacement of the whole arrangement, the address-driven pane gives
   the address its tab once no navigation is running, focusing a pane of the new arrangement that
-  already holds the content before adding one; the content shown before the replacement belongs to
-  the old arrangement and is never carried into the new one. A switch or a reset navigates, so the tab it ends up
-  with is the one for the address it lands on; the same-address reload after sign-in and the adoption
-  of a stored arrangement both end with no navigation pending and get the address's tab.
-- **The language switch completes, or is not made.** It happens when the chosen language's strings
-  have arrived, and the choice is stored in that same step. Strings that cannot be loaded, however
-  the load ends, or that take more than ten seconds, switch nothing and are not stored. The
-  workbench's language, `<html lang>` and the shipped switcher always name the language the
-  interface is shown in, including a fallback the translation library chose itself. A stored value
-  that arrives after the user chose a language does not override the choice.
-- **A re-worded menu stays on screen and beside its control.** When its words change, it is placed
-  again once the chrome has been redrawn, by the rule it opened with, moved by as much as its control
-  moved; a control no longer on the page leaves it where it was.
-- **The key-or-literal rule is stated with its limit** in the menus capability and the menus guide.
+  already holds the content before adding one. The content shown before the replacement belongs to
+  the old arrangement and is never carried into the new one. A switch or a reset navigates, so the tab
+  it ends up with is the one for the address it lands on; the same-address reload after sign-in and
+  the adoption of a stored arrangement end with no navigation pending and get the address's tab.
+- **The language switch is the one released in 0.13.0.** The load-first switch from #459 is removed.
+  The i18n requirement that promised no partially switched state is replaced by one that states what
+  the workbench guarantees: one step, and words everywhere, open menus included, as soon as the
+  strings arrive.
+- **A re-worded menu stays on screen and beside its control.** It is placed again after the chrome is
+  redrawn, moved with its control, measured at its full width, and kept within the window when its
+  control is gone.
+- **The key-or-literal rule for a plugin's menu labels is stated as it works**, in the menus
+  capability, the guide and the SDK.
 - **The testbed weaver** passes keys to its row menu.
-- **Tests** for each of the above, including the ones the second review's scenarios describe, and
-  the F-038 tests wait for the application to settle rather than a fixed number of turns.
-- Cleanups: a menu is worded once at opening; one translate function in the menu service.
+- **Tests** for each of the above; the F-038 tests wait for the application to settle rather than a
+  fixed number of turns.
 
-No new call, option or type. `LocaleService.setLang` keeps its signature; its documentation says when
-the switch takes effect and what a failed load does.
+No new call, option or type.
 
 ## Capabilities
 
@@ -72,28 +57,29 @@ None.
 ### Modified Capabilities
 
 - `workspaces`: *Exactly one workspace is active, and it remembers itself* states that neither a
-  switch nor a reset carries the content the user left into the arrangement it restores, with two
-  scenarios.
-- `i18n`: *A language change is applied everywhere at once* states that the choice is remembered when
-  the switch happens, that a language whose strings cannot be loaded is neither switched to nor
-  remembered, that the workbench's language always names the language shown, and that a stored value
-  arriving late does not override a choice. This replaces the rule written two changes ago that a
-  failed load switches anyway.
-- `menus`: *An open menu follows its strings* states that a re-worded menu is placed again after the
-  chrome is redrawn, within the window and beside its control wherever that is, and the limit of
-  telling a key from a literal.
+  switch nor a reset carries the content the user left into the arrangement it restores.
+- `i18n`: *A language change is applied everywhere at once* is replaced by *A language change reaches
+  everything the workbench draws*, which allows keys for the moment the strings load and requires
+  words everywhere once they have.
+- `menus`: *An open menu follows its strings* states that a re-worded menu is placed again, within
+  the window and beside its control, and how a plugin's menu label is looked up.
 
 ## Impact
 
 - `platform/libs/core/shell/src/lib/regions/content/tabs/open-tabs.service.ts`: the tab sync waits for
   the router to be idle and handles a replacement of the arrangement; the Quick-Open list moves to
   `quick-open-target.ts`.
-- `platform/libs/core/shell/src/lib/i18n/locale.service.ts`, `i18n/language-switcher.ts`.
-- `platform/libs/core/shell/src/lib/regions/pane/tree/pane-queries.ts` takes the query for the content
-  an address pane shows, which `workspace/active-content-path.ts` and the tab sync now share.
-- `platform/libs/core/shell/src/lib/menu/menu.service.ts`.
+- `platform/libs/core/shell/src/lib/regions/pane/tree/`: `active-content-path.ts` moves here from
+  `workspace/`, and `pane-queries.ts` takes the content-path query both slices share.
+- `platform/libs/core/shell/src/lib/i18n/`: back to the 0.13.0 state.
+- `platform/libs/core/shell/src/lib/menu/`: placement and wording move into `menu-placement.ts` and
+  `menu-wording.ts`; `elements/menu/lw-menu.element.ts` measures a menu at its full width.
 - `platform/libs/weavers/testbed-weaver/src/lib/views/testbed-list-view.ts`.
-- `llms-full.txt`, `docs/distribution/recomposing-chrome.md`, `docs/weaver/menus.md`.
+- `llms-full.txt`, `docs/weaver/menus.md`, the JSDoc of `UiMenuItem`.
 - Corrects the changes archived as `2026-09-23-a-gated-sub-address-survives-its-workspace` and
   `2026-09-23-a-menu-follows-its-strings`; their design notes describe the first cut, this one says
   why it was replaced. Nothing is released between them.
+- NextPA finding **F-037**: NextPA's `provideStringsBeforeFirstRender()` loads the other served
+  languages through the translation library in the background. A failure of such a load makes the
+  library switch the page to its fallback language; that is worth knowing before the workaround is
+  removed or kept.

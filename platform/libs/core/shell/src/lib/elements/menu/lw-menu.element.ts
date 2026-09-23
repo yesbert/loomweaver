@@ -157,7 +157,7 @@ export class LwMenuElement extends HTMLElement {
   }
 
   openAt(x: number, y: number): void {
-    const { width, height } = this.getBoundingClientRect();
+    const { width, height } = this.measured();
     this.place(
       clamp(x, width, window.innerWidth),
       clamp(y, height, window.innerHeight),
@@ -165,7 +165,7 @@ export class LwMenuElement extends HTMLElement {
   }
 
   openBeside(rect: MenuAnchorRect, side: MenuSide): void {
-    const { width, height } = this.getBoundingClientRect();
+    const { width, height } = this.measured();
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
     const after = { x: rect.right + MENU_ANCHOR_GAP, y: rect.bottom + MENU_ANCHOR_GAP };
@@ -201,6 +201,11 @@ export class LwMenuElement extends HTMLElement {
       this.select(item);
     }
   };
+
+  private measured(): DOMRect {
+    this.place(0, 0);
+    return this.getBoundingClientRect();
+  }
 
   private place(left: number, top: number): void {
     this.style.left = `${left}px`;
