@@ -496,7 +496,7 @@ interface PluginUi {                // dialogs + toasts + context menus; message
   openMenu(items: UiMenuItem[], at: {x,y}): void;  // ad-hoc context menu at a point for the weaver's own body (right-click); host draws <lw-menu>
 }
 // UiMenuItem = { label: string (key or literal), icon?: string, run: () => void }. A key follows the strings: every
-// menu the host draws (declared slot, heading, this ad-hoc one) is re-worded in place, focus kept, when a bundle
+// menu the host draws (declared slot, heading, this ad-hoc one) is re-worded in place, focus kept, and placed again, when a bundle
 // arrives or the language changes while it is open. In-process (trusted) only:
 // `run` is a function, so it does NOT cross the sandbox boundary — a sandboxed plugin self-draws <lw-menu>.
 interface PluginHost {              // read-only; version/updateAvailable are signal-shaped () => T
@@ -902,7 +902,7 @@ class LocaleService {                // the workbench's language, for a product'
   readonly lang: Signal<string>;                 // the active code
   readonly supported: readonly string[];         // the served codes, in declared order
   readonly languages: readonly ServedLanguage[]; // { code, name }, the name IN that language ("Deutsch", "Français"), as the switcher shows it
-  setLang(code: string): void;                   // same act as the switcher: re-render, <html lang>, persisted, synced; an unserved code changes nothing and warns in dev
+  setLang(code: string): void;                   // same act as the switcher: once the code's strings are loaded (or failed to load), re-render, <html lang>, persisted, synced, together — so lang() changes then, not at the call; an unserved code changes nothing and warns in dev
 }
 // Built-in bar controls are replaced or moved by re-registering their id, each driving a published service:
 // shell.language → LocaleService · shell.theme → ThemeService · shell.update → UpdateService · shell.version → VersionService.

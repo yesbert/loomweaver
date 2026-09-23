@@ -17,6 +17,11 @@ import { VersionService } from '../version/version.service';
 import { UpdateService } from '../update/update.service';
 import { AUTH_SOURCE, AuthContext } from '../auth/auth-context';
 import { MenuService } from '../menu/menu.service';
+import { TranslocoService, TranslocoTestingModule } from '@jsverse/transloco';
+import {
+  defineLwMenu,
+  LW_MENU_ITEM_TAG,
+} from '../elements/menu/lw-menu.element';
 import { LayoutRegion } from '../layout/layout';
 import { IconRegistry } from '../elements/icon/icon-registry';
 import { ThemeRegistry } from '../theme/theme-registry';
@@ -40,16 +45,32 @@ const REGIONS: readonly LayoutRegion[] = [
   { id: 'main', type: 'content', dock: 'center' },
 ];
 
+const PLUGIN_STRINGS = {
+  en: { 'test-plugin': { menu: { open: 'Open' } } },
+  de: { 'test-plugin': { menu: { open: 'Öffnen' } } },
+};
+
 function makeContext(
   granted: Capability[] = ALL,
   regions: readonly LayoutRegion[] = REGIONS,
   auth: WritableSignal<AuthSnapshot> = signal(ANONYMOUS),
+  menus: 'stubbed' | 'drawn' = 'stubbed',
 ) {
   const menuStub = { openList: vi.fn() } as unknown as MenuService;
   TestBed.configureTestingModule({
+    imports:
+      menus === 'drawn'
+        ? [
+            TranslocoTestingModule.forRoot({
+              langs: PLUGIN_STRINGS,
+              translocoConfig: { availableLangs: ['en', 'de'], defaultLang: 'en' },
+              preloadLangs: true,
+            }),
+          ]
+        : [],
     providers: [
       { provide: AUTH_SOURCE, useValue: auth },
-      { provide: MenuService, useValue: menuStub },
+      ...(menus === 'stubbed' ? [{ provide: MenuService, useValue: menuStub }] : []),
     ],
   });
   const registry = TestBed.inject(ContributionRegistry);
@@ -196,6 +217,28 @@ describe('HostPluginContext', () => {
     onPick('1');
     expect(remove).toHaveBeenCalledTimes(1);
     expect(open).not.toHaveBeenCalled();
+  });
+
+  it('ctx.ui.openMenu translates an entry given a key and re-words it on a language change, and shows a literal as it is', () => {
+    defineLwMenu();
+    const { ctx, menu } = makeContext(ALL, REGIONS, signal(ANONYMOUS), 'drawn');
+    const labels = () =>
+      [...document.body.querySelectorAll(LW_MENU_ITEM_TAG)].map((item) =>
+        item.getAttribute('label'),
+      );
+
+    ctx.ui.openMenu(
+      [
+        { label: 'test-plugin.menu.open', run: () => undefined },
+        { label: 'Ada Lovelace', run: () => undefined },
+      ],
+      { x: 0, y: 0 },
+    );
+    expect(labels()).toEqual(['Open', 'Ada Lovelace']);
+
+    TestBed.inject(TranslocoService).setActiveLang('de');
+    expect(labels()).toEqual(['Öffnen', 'Ada Lovelace']);
+    menu.close();
   });
 
   it('ctx.ui.openMenu requires the "ui" capability (default-deny)', () => {

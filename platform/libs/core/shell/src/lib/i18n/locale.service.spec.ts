@@ -1,7 +1,13 @@
+import { Injectable } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { DOCUMENT } from '@angular/common';
-import { TranslocoService } from '@jsverse/transloco';
-import { of, Subject, throwError } from 'rxjs';
+import {
+  provideTransloco,
+  Translation,
+  TranslocoLoader,
+  TranslocoService,
+} from '@jsverse/transloco';
+import { EMPTY, Observable, of, Subject, throwError } from 'rxjs';
 import { LocaleService } from './locale.service';
 import { SERVED_LANGUAGES } from './served-languages';
 import { SETTINGS_STORE } from '../persistence/settings-store';
@@ -127,7 +133,7 @@ describe('LocaleService switching to a language not loaded yet', () => {
     };
   }
 
-  it('keeps the previous language until the strings are there, then switches as one act', () => {
+  it('keeps the previous language until the strings are there, then switches and remembers as one act', () => {
     const arrived = new Subject<object>();
     const { service, doc, setActiveLang } = loading(() => arrived);
     const before = service.lang();
@@ -136,13 +142,15 @@ describe('LocaleService switching to a language not loaded yet', () => {
 
     expect(service.lang()).toBe(before);
     expect(setActiveLang).not.toHaveBeenCalled();
-    expect(localStorage.getItem('lw.shell.lang')).toBe('de');
+    expect(localStorage.getItem('lw.shell.lang')).toBeNull();
 
     arrived.next({});
+    arrived.complete();
 
     expect(service.lang()).toBe('de');
     expect(setActiveLang).toHaveBeenCalledWith('de');
     expect(doc.documentElement.lang).toBe('de');
+    expect(localStorage.getItem('lw.shell.lang')).toBe('de');
   });
 
   it('switches anyway when the strings cannot be loaded', () => {
@@ -154,6 +162,17 @@ describe('LocaleService switching to a language not loaded yet', () => {
 
     expect(service.lang()).toBe('de');
     expect(setActiveLang).toHaveBeenCalledWith('de');
+    expect(localStorage.getItem('lw.shell.lang')).toBe('de');
+  });
+
+  it('switches anyway when the load ends without delivering anything, as it does once the fallback is loaded', () => {
+    const { service, setActiveLang } = loading(() => EMPTY);
+
+    service.setLang('de');
+
+    expect(service.lang()).toBe('de');
+    expect(setActiveLang).toHaveBeenCalledWith('de');
+    expect(localStorage.getItem('lw.shell.lang')).toBe('de');
   });
 
   it('applies only the latest of two choices made while loading', () => {
@@ -166,11 +185,52 @@ describe('LocaleService switching to a language not loaded yet', () => {
 
     service.setLang('de');
     service.setLang('en');
-    loads.get('de')?.next({});
-    loads.get('en')?.next({});
+    loads.get('de')?.complete();
+    loads.get('en')?.complete();
 
     expect(setActiveLang).toHaveBeenCalledTimes(1);
     expect(setActiveLang).toHaveBeenCalledWith('en');
     expect(service.lang()).toBe('en');
+  });
+});
+
+@Injectable()
+class GermanUnreachable implements TranslocoLoader {
+  getTranslation(lang: string): Observable<Translation> {
+    return lang === 'de'
+      ? throwError(() => new Error('offline'))
+      : of({ greeting: 'Hello' });
+  }
+}
+
+describe('LocaleService with the translation library itself', () => {
+  it('switches to a language whose strings cannot be loaded once the fallback is loaded', async () => {
+    localStorage.clear();
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    TestBed.configureTestingModule({
+      providers: [
+        provideTransloco({
+          config: {
+            availableLangs: ['en', 'de'],
+            defaultLang: 'en',
+            fallbackLang: 'en',
+            failedRetries: 0,
+            missingHandler: { logMissingKey: false },
+          },
+          loader: GermanUnreachable,
+        }),
+      ],
+    });
+    const transloco = TestBed.inject(TranslocoService);
+    await transloco.load('en').toPromise();
+    const service = TestBed.inject(LocaleService);
+
+    service.setLang('de');
+    await Promise.resolve();
+
+    expect(service.lang()).toBe('de');
+    expect(transloco.getActiveLang()).toBe('de');
+    expect(localStorage.getItem('lw.shell.lang')).toBe('de');
+    error.mockRestore();
   });
 });

@@ -14,6 +14,7 @@ import {
   defineLwMenu,
   LW_MENU_ITEM_TAG,
   LW_MENU_TAG,
+  LwMenuElement,
 } from '../elements/menu/lw-menu.element';
 
 defineLwMenu();
@@ -24,7 +25,7 @@ const BUNDLES: Record<string, Translation> = {
     account: { title: 'Your account' },
   },
   de: {
-    cmd: { profile: 'Profil', signOut: 'Abmelden' },
+    cmd: { profile: 'Profil', signOut: 'Vom Konto abmelden' },
     account: { title: 'Ihr Konto' },
   },
 };
@@ -47,6 +48,18 @@ class HeldLoader implements TranslocoLoader {
 }
 
 const context: MenuContext = { targetKind: 'account' };
+
+const PIXELS_PER_CHARACTER = 10;
+
+function sizedByItsLongestLabel(this: HTMLElement): DOMRect {
+  const longest = Math.max(
+    ...[...this.querySelectorAll(LW_MENU_ITEM_TAG)].map(
+      (item) => (item.getAttribute('label') ?? '').length,
+    ),
+  );
+  const width = longest * PIXELS_PER_CHARACTER;
+  return { width, height: 40, left: 0, top: 0, right: width, bottom: 40 } as DOMRect;
+}
 
 describe('an open menu follows its strings', () => {
   let service: MenuService;
@@ -136,7 +149,7 @@ describe('an open menu follows its strings', () => {
 
     transloco.setActiveLang('de');
 
-    expect(labels()).toEqual(['Profil', 'Abmelden']);
+    expect(labels()).toEqual(['Profil', 'Vom Konto abmelden']);
     expect(document.activeElement).toBe(second);
   });
 
@@ -170,5 +183,25 @@ describe('an open menu follows its strings', () => {
     transloco.setActiveLang('de');
 
     expect(item?.getAttribute('label')).toBe('Profile');
+  });
+
+  it('places a menu again when its words make it wider, so it stays in the window', async () => {
+    await loaded('en');
+    await loaded('de');
+    vi.spyOn(LwMenuElement.prototype, 'getBoundingClientRect').mockImplementation(
+      sizedByItsLongestLabel,
+    );
+    const nearTheRightEdge = window.innerWidth - 100;
+    service.open('account', context, { x: nearTheRightEdge, y: 0 });
+    const menu = document.body.querySelector<HTMLElement>(LW_MENU_TAG);
+    expect(menu?.style.left).toBe(`${nearTheRightEdge}px`);
+
+    transloco.setActiveLang('de');
+
+    const width = 'Vom Konto abmelden'.length * PIXELS_PER_CHARACTER;
+    expect(Number.parseFloat(menu?.style.left ?? '')).toBeLessThanOrEqual(
+      window.innerWidth - width,
+    );
+    vi.restoreAllMocks();
   });
 });

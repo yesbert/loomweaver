@@ -1,6 +1,6 @@
 import { DestroyRef, inject, Service, signal } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
-import { filter, merge, Subscription } from 'rxjs';
+import { filter, merge, skip, Subscription } from 'rxjs';
 import { Command, MenuContext, MenuHeader, MenuItem } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../plugin/contribution-registry';
 import { CommandService } from '../commands/command.service';
@@ -171,11 +171,7 @@ export class MenuService {
     };
     document.body.append(menu);
     document.body.classList.add('lw-menu-open');
-    if ('rect' in at) {
-      menu.openBeside(at.rect, at.side);
-    } else {
-      menu.openAt(at.x, at.y);
-    }
+    place(menu, at);
     this.trigger.set(trigger ?? null);
     const listenTimer = setTimeout(
       () =>
@@ -183,11 +179,14 @@ export class MenuService {
       0,
     );
     const wording = merge(
-      this.transloco.langChanges$,
+      this.transloco.langChanges$.pipe(skip(1)),
       this.transloco.events$.pipe(
         filter((event) => event.type === 'translationLoadSuccess'),
       ),
-    ).subscribe(() => word());
+    ).subscribe(() => {
+      word();
+      place(menu, at);
+    });
     this.current = { menu, onOutside, restore, listenTimer, wording };
   }
 
@@ -253,11 +252,12 @@ export class MenuService {
       menu.classList.add('lw-menu--leading');
     }
     const translate = (key: string): string => this.transloco.translate(key);
-    const heading = header
-      ? drawMenuHeading(header, menu, translate, leadsTo)
-      : undefined;
-    if (heading) {
+    let wordHeading = (): void => undefined;
+    if (header) {
+      const heading = drawMenuHeading(header, menu, translate, leadsTo);
       menu.append(heading);
+      wordHeading = () =>
+        wordMenuHeading(heading, header, menu, translate, leadsTo);
     }
     const labelled: [HTMLElement, MenuLabel][] = [];
     let lastGroup: string | undefined;
@@ -286,14 +286,14 @@ export class MenuService {
       }
       menu.append(item);
     }
-    const word = (): void => {
-      this.wordEntries(labelled);
-      if (header && heading) {
-        wordMenuHeading(heading, header, menu, translate, leadsTo);
-      }
+    wordEntries(labelled, translate);
+    return {
+      menu,
+      word: () => {
+        wordEntries(labelled, translate);
+        wordHeading();
+      },
     };
-    this.wordEntries(labelled);
-    return { menu, word };
   }
 
   private createListMenu(entries: readonly MenuListEntry[]): WordedMenu {
@@ -323,20 +323,10 @@ export class MenuService {
       }
       menu.append(item);
     }
-    const word = (): void => this.wordEntries(labelled);
+    const translate = (key: string): string => this.transloco.translate(key);
+    const word = (): void => wordEntries(labelled, translate);
     word();
     return { menu, word };
-  }
-
-  private wordEntries(labelled: readonly [HTMLElement, MenuLabel][]): void {
-    const translate = (key: string): string => this.transloco.translate(key);
-    for (const [item, label] of labelled) {
-      const words =
-        typeof label === 'string' ? translate(label) : label(translate);
-      if (item.getAttribute('label') !== words) {
-        item.setAttribute('label', words);
-      }
-    }
   }
 
   private run(item: MenuItem, context: MenuContext): void {
@@ -348,6 +338,27 @@ export class MenuService {
       item.run?.(context);
     } catch (error) {
       console.error('Menu item handler failed', error);
+    }
+  }
+}
+
+function place(menu: LwMenuElement, at: MenuAnchor): void {
+  if ('rect' in at) {
+    menu.openBeside(at.rect, at.side);
+  } else {
+    menu.openAt(at.x, at.y);
+  }
+}
+
+function wordEntries(
+  labelled: readonly [HTMLElement, MenuLabel][],
+  translate: (key: string) => string,
+): void {
+  for (const [item, label] of labelled) {
+    const words =
+      typeof label === 'string' ? translate(label) : label(translate);
+    if (item.getAttribute('label') !== words) {
+      item.setAttribute('label', words);
     }
   }
 }

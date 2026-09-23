@@ -22,9 +22,10 @@ export interface ServedLanguage {
 /**
  * The workbench's language, for a product's own language control. It is the same mechanism the
  * shipped switcher uses, so a control a distribution registers in place of `shell.language`, in any
- * bar or as a settings row, changes the language exactly as the switcher does: re-rendered at once,
- * declared on `<html lang>`, remembered through the settings port and followed by the application's
- * other windows and isolated surfaces.
+ * bar or as a settings row, changes the language exactly as the switcher does: once the language's
+ * strings have loaded, or failed to load, it is re-rendered, declared on `<html lang>`, remembered
+ * through the settings port and followed by the application's other windows and isolated surfaces,
+ * all in the same step.
  *
  * The served set is what the distribution declared with `provideShell({ languages })`, or English and
  * German when it declared nothing.
@@ -67,9 +68,10 @@ export class LocaleService {
 
   /**
    * Makes `lang` the active language and remembers it. A language whose strings have not arrived yet
-   * becomes active once they have, so the interface never shows keys in between; a load that fails
-   * switches anyway. A code the workbench does not serve changes nothing, and the developer is told in
-   * development, rather than silently doing nothing.
+   * becomes active, and is remembered, once they have, so the interface never shows keys in between
+   * and {@link lang} changes then rather than at the call; a load that fails switches anyway. A code
+   * the workbench does not serve changes nothing, and the developer is told in development, rather
+   * than silently doing nothing.
    */
   setLang(lang: string): void {
     const served = servedLanguage(lang, this.supported);
@@ -81,8 +83,9 @@ export class LocaleService {
       }
       return;
     }
-    this.applyLang(served);
-    void this.store.set(LANGUAGE_STORAGE_KEY, served);
+    this.applyLang(served, () => {
+      void this.store.set(LANGUAGE_STORAGE_KEY, served);
+    });
   }
 
   private applyServed(raw: string | null | undefined): void {
@@ -92,17 +95,16 @@ export class LocaleService {
     }
   }
 
-  private applyLang(lang: string): void {
+  private applyLang(lang: string, remember?: () => void): void {
+    const switchTo = (): void => {
+      this.langState.set(lang);
+      this.transloco.setActiveLang(lang);
+      this.document.documentElement.lang = lang;
+      remember?.();
+    };
     this.pendingLoad?.unsubscribe();
-    this.pendingLoad = this.transloco.load(lang).subscribe({
-      next: () => this.switchTo(lang),
-      error: () => this.switchTo(lang),
-    });
-  }
-
-  private switchTo(lang: string): void {
-    this.langState.set(lang);
-    this.transloco.setActiveLang(lang);
-    this.document.documentElement.lang = lang;
+    this.pendingLoad = this.transloco
+      .load(lang)
+      .subscribe({ complete: switchTo, error: switchTo });
   }
 }
