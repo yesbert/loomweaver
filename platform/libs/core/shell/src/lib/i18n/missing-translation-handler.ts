@@ -11,6 +11,10 @@ export function hasKeyShape(text: string): boolean {
   return KEY_SHAPE.test(text);
 }
 
+export function holdsStrings(transloco: TranslocoService, lang: string): boolean {
+  return Object.keys(transloco.getTranslation(lang) ?? {}).length > 0;
+}
+
 @Injectable()
 export class ShellMissingTranslationHandler implements TranslocoMissingHandler {
   private readonly injector = inject(Injector);
@@ -32,7 +36,6 @@ export class ShellMissingTranslationHandler implements TranslocoMissingHandler {
 
   private loaded(): boolean {
     const transloco = this.injector.get(TranslocoService);
-    const active = transloco.getActiveLang();
-    return Object.keys(transloco.getTranslation(active) ?? {}).length > 0;
+    return holdsStrings(transloco, transloco.getActiveLang());
   }
 }

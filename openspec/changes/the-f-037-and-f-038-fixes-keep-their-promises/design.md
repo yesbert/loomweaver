@@ -67,14 +67,11 @@ the new arrangement that holds the content and then gives the address its tab.
 `open-tabs.service.ts` is at the 400-line limit. The Quick-Open list, a self-contained computation of
 its own theme, moves into `quick-open-target.ts` beside the type it produces.
 
-**The workbench's language follows the library; the library keeps the language last switched to.**
-`LocaleService` subscribes to Transloco's `langChanges$` and sets `lang()` and `<html lang>` from it,
-so they always name the language the interface is shown in. It remembers the language it last asked
-Transloco to activate. When Transloco activates another language on its own, which it does after a
-failed load, the service puts the remembered one back if its strings are there, and accepts the
-fallback only when they are not, as when the starting language fails. That one rule covers a failed
-choice, a load that fails after the ten-second bound or after a newer choice, and a distribution
-that does not serve English.
+**The workbench's language follows the library.** `LocaleService` subscribes to Transloco's
+`langChanges$` and sets `lang()` and `<html lang>` from it, so they always name the language the
+interface is shown in: a fallback Transloco activates on its own after a failed load, a language a
+product activates through Transloco directly (the documented path for a language the shell does not
+ship), and a language outside the served set alike. The service never overrides what Transloco does.
 
 `setLang` loads the language and asks Transloco to switch only when the load's first value leaves
 Transloco holding strings for that language; then it stores the choice. An empty end, an error, a
@@ -82,8 +79,11 @@ value that is really the fallback's bundle, or ten seconds without a value is a 
 switched or stored, and development reports it. A stored value read while a choice is loading is held
 back and applied only if the choice fails; read after a choice succeeded, it is ignored. A language
 from another window replaces a choice still loading here, including one that names the language
-already in effect, so the windows end alike. The shipped switcher sets its control back to `lang()`
-right after a choice and follows `lang()` when the switch completes.
+already in effect, so the windows end alike. A choice that fails leaves the choice state as it was
+before it, so a stored value read later cannot undo an earlier choice that loaded. The load's
+subscription is registered before it can complete, so a synchronous failure that starts the load of
+a held-back language leaves that load cancellable. The shipped switcher sets its control back to
+`lang()` right after a choice and follows `lang()` when the switch completes.
 
 *Alternatives considered:*
 - **Switching anyway on a failed load** (the rule written in the F-037 change): Transloco has by then
@@ -93,6 +93,11 @@ right after a choice and follows `lang()` when the switch completes.
   patches one subscription, so every path Transloco takes outside it, such as a load that fails after
   the ten seconds or after a newer choice, escapes it and the two disagree again. Rejected after the
   third review.
+- **Putting the language back when Transloco falls back on its own** (the third correction): reset a
+  product's own `setActiveLang` for a language the shell does not ship, and with a failing scoped
+  bundle made Transloco request it again and again. Rejected after the fifth review. What remains is
+  Transloco's own behaviour since before these fixes: a load that fails late activates the fallback,
+  and the workbench then names it.
 - **A fallback strategy that never falls back**: would also change what Transloco does when the
   starting language fails to load, which then shows keys. Not taken.
 
@@ -101,7 +106,8 @@ control and where the control was when the menu opened. After every re-wording i
 render (`afterNextRender`), so the bar around the control has taken its new words, then places the
 menu again by the rule it opened with: a point anchor shifted by as much as the control moved, a rect
 anchor with its edges moved as the control's edges moved, so a control that grew keeps the menu at
-its side. A control no longer on the page, or hidden, leaves the menu where it last stood. The `langChanges$` replay at subscription is skipped,
+its side. A control no longer on the page, or hidden, leaves the menu where it last stood, placed
+again there so that grown words still keep it within the window. The `langChanges$` replay at subscription is skipped,
 because the menu is worded before it is placed.
 
 **The content shown before a replacement belongs to the old arrangement.** When the address changes

@@ -180,6 +180,10 @@ export class OpenTabsService {
 
   private lastReplacement = untracked(() => this.paneTree.replaced());
 
+  private lastRoute: ContentRoute | undefined;
+
+  private lastRoot: string | null = null;
+
   constructor() {
     effect(() => {
       const url = this.currentUrl();
@@ -193,25 +197,30 @@ export class OpenTabsService {
           return;
         }
         const replaced = replacement !== this.lastReplacement;
-        const shown = (): string =>
-          this.rootFor(activeContentPath(this.paneTree)).root;
-        if (url !== this.lastUrl) {
-          const previous = this.lastUrl;
+        const moved = url !== this.lastUrl;
+        if (
+          !moved &&
+          !replaced &&
+          route === this.lastRoute &&
+          root === this.lastRoot
+        ) {
+          return;
+        }
+        const own = moved && this.ownNavigation === normalizePath(url);
+        if (moved && !own) {
+          this.viewTabSelection.set(null);
+        }
+        if (replaced || (moved && !own)) {
+          const shown = replaced ? activeContentPath(this.paneTree) : this.lastUrl;
+          this.focusHolderOf(path, this.rootFor(shown).root);
+        }
+        if (moved) {
           this.lastUrl = url;
-          if (this.ownNavigation !== normalizePath(url)) {
-            this.viewTabSelection.set(null);
-            this.focusHolderOf(
-              path,
-              replaced ? shown() : this.rootFor(previous).root,
-            );
-          } else if (replaced) {
-            this.focusHolderOf(path, shown());
-          }
           this.ownNavigation = null;
-        } else if (replaced) {
-          this.focusHolderOf(path, shown());
         }
         this.lastReplacement = replacement;
+        this.lastRoute = route;
+        this.lastRoot = root;
         this.syncTabOf(route, root, path);
       });
     });

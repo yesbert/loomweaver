@@ -9,7 +9,8 @@ a declared menu, a menu opened from a control, the heading of either, and a menu
 against its own content. The entry that has the focus SHALL keep it, and a menu whose words changed
 SHALL be placed again once the chrome around it has been redrawn, so it stays within the window and
 beside the control it was opened from, wherever that control now is and however wide its own words
-made it. A control that is no longer on the page, or is hidden, leaves the menu where it last stood.
+made it. A control that is no longer on the page, or is hidden, leaves the menu where it last stood,
+still kept within the window.
 
 The entries of a menu a plugin opens against its own content SHALL take a translation key or a
 literal, like every other piece of chrome text that takes either, and SHALL be told apart the same

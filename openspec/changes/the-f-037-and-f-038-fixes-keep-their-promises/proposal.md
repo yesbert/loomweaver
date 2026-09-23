@@ -34,7 +34,8 @@ following it; that a content already held beside another pane of the claiming wo
 carry the address the user left into that workspace; and that a re-worded menu was measured before
 the chrome was redrawn. The owner approved the resulting rule for a failed load on 2026-09-23: the
 workbench's language is always the one the library shows, and only a choice that loaded is
-remembered.
+remembered. A later review found that putting the library back after its own fallback went beyond
+that rule and broke a product's direct switch; the service now only follows the library.
 
 ## What Changes
 

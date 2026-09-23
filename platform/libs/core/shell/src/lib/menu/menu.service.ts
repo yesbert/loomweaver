@@ -176,6 +176,7 @@ export class MenuService {
     document.body.classList.add('lw-menu-open');
     place(menu, at);
     const openedAt = trigger?.getBoundingClientRect();
+    let placedAt = at;
     this.trigger.set(trigger ?? null);
     const listenTimer = setTimeout(
       () =>
@@ -191,10 +192,11 @@ export class MenuService {
       word();
       afterNextRender(
         () => {
-          const anchor = followed(at, trigger, openedAt);
-          if (this.current?.menu === menu && anchor !== null) {
-            place(menu, anchor);
+          if (this.current?.menu !== menu) {
+            return;
           }
+          placedAt = followed(at, trigger, openedAt) ?? placedAt;
+          place(menu, placedAt);
         },
         { injector: this.injector },
       );

@@ -290,6 +290,33 @@ describe('an open menu follows its strings', () => {
     expect(menu?.style.top).toBe('36px');
   });
 
+  it('keeps a menu whose control is gone within the window when its words grow', async () => {
+    await loaded('en');
+    await loaded('de');
+    vi.spyOn(LwMenuElement.prototype, 'getBoundingClientRect').mockImplementation(
+      sizedByItsLongestLabel,
+    );
+    const control = document.createElement('button');
+    document.body.append(control);
+    const nearTheRightEdge = window.innerWidth - 100;
+    service.open(
+      'account',
+      context,
+      { x: nearTheRightEdge, y: 0 },
+      { trigger: control },
+    );
+    const menu = document.body.querySelector<HTMLElement>(LW_MENU_TAG);
+
+    control.remove();
+    transloco.setActiveLang('de');
+    TestBed.tick();
+
+    const width = 'Vom Konto abmelden'.length * PIXELS_PER_CHARACTER;
+    expect(Number.parseFloat(menu?.style.left ?? '')).toBeLessThanOrEqual(
+      window.innerWidth - width,
+    );
+  });
+
   it('leaves a menu where it is when the control it was opened from is hidden', async () => {
     await loaded('en');
     await loaded('de');
