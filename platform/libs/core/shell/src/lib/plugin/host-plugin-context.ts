@@ -199,7 +199,7 @@ export class HostPluginContext implements PluginContext {
 
   updateSurfaceBadge(id: string, badge: TabBadge | null): void {
     this.require('contributions');
-    this.registry.updateSurfaceBadge(id, badge);
+    this.registry.updateSurfaceBadge(id, badge, this.pluginId);
   }
 
   retitleSurface(id: string, title: string): void {
@@ -315,7 +315,11 @@ export class HostPluginContext implements PluginContext {
   }
 
   private withBadge(surface: Surface, registered: Disposable): Disposable {
-    this.registry.updateSurfaceBadge(surface.id, surface.badge ?? null);
+    this.registry.updateSurfaceBadge(
+      surface.id,
+      surface.badge ?? null,
+      this.pluginId,
+    );
     return this.track(registered);
   }
 

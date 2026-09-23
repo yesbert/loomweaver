@@ -16,9 +16,16 @@ const BUNDLES: Record<string, Translation> = {
   en: {
     parts: { advanced: 'Advanced' },
     badges: { developer: 'Developer' },
-    content: { unsavedTab: '{{title}}, unsaved changes' },
+    content: {
+      unsavedTab: '{{title}}, unsaved changes',
+      badgedTab: '{{title}}, {{badge}}',
+    },
   },
-  de: { parts: { advanced: 'Erweitert' }, badges: { developer: 'Entwicklung' } },
+  de: {
+    parts: { advanced: 'Erweitert' },
+    badges: { developer: 'Entwicklung' },
+    content: { badgedTab: '{{title}}, {{badge}}' },
+  },
 };
 
 class Bundles implements TranslocoLoader {

@@ -1,10 +1,11 @@
-import { computed, Service, signal, Signal, WritableSignal } from '@angular/core';
+import { computed, Service, signal, Signal, untracked, WritableSignal } from '@angular/core';
 import { Command, ContentRoute, Disposable, MenuItem, TabBadge } from '@loomweaver/plugin-sdk';
 import { BarItem } from '../foundation/bar-item';
 import { RailItem } from '../foundation/rail-item';
 import { View, ViewAction } from '../layout/view';
 import { Identified, upsertBy, upsertById } from '../foundation/identified';
 import { isRouteOmitted } from './route-omit';
+import { tabBadgeOf } from '../regions/pane/chrome/tab-badge';
 import {
   RegisteredContentRoute,
   RegisteredSurface,
@@ -240,6 +241,7 @@ export class ContributionRegistry {
     this.surfacesSignal.update((entries) =>
       entries.filter((e) => e.routable !== undefined || e.id !== id),
     );
+    this.forgetBadgeOfGone(id);
   }
 
   removeBarItemById(id: string): void {
@@ -287,9 +289,14 @@ export class ContributionRegistry {
     );
   }
 
-  updateSurfaceBadge(id: string, badge: TabBadge | null): void {
-    if (this.surfacesSignal().some((entry) => entry.id === id)) {
-      this.setBadge(id, badge ?? undefined);
+  updateSurfaceBadge(id: string, badge: TabBadge | null, pluginId?: string): void {
+    const owned = untracked(() =>
+      this.surfacesSignal().some(
+        (entry) => entry.id === id && (pluginId === undefined || entry.pluginId === pluginId),
+      ),
+    );
+    if (owned) {
+      this.setBadge(id, tabBadgeOf(badge));
     }
   }
 
@@ -321,20 +328,25 @@ export class ContributionRegistry {
         this.surfacesSignal.update((entries) =>
           entries.filter((e) => e !== entry),
         );
-        const id = entry.id;
-        if (id !== undefined && this.surfacesSignal().every((e) => e.id !== id)) {
-          this.setBadge(id, undefined);
-        }
+        this.forgetBadgeOfGone(entry.id);
       },
     };
   }
 
-  private setBadge(id: string, badge: TabBadge | undefined): void {
-    const next = new Map([...this.badgesSignal()].filter(([key]) => key !== id));
-    if (badge !== undefined) {
-      next.set(id, badge);
+  private forgetBadgeOfGone(id: string | undefined): void {
+    if (id !== undefined && untracked(() => this.surfacesSignal().every((e) => e.id !== id))) {
+      this.setBadge(id, undefined);
     }
-    this.badgesSignal.set(next);
+  }
+
+  private setBadge(id: string, badge: TabBadge | undefined): void {
+    this.badgesSignal.update((badges) => {
+      if (JSON.stringify(badges.get(id)) === JSON.stringify(badge)) {
+        return badges;
+      }
+      const next = new Map([...badges].filter(([key]) => key !== id));
+      return badge === undefined ? next : next.set(id, badge);
+    });
   }
 
   private visible<T extends { readonly id?: string }>(

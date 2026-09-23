@@ -1,4 +1,5 @@
 import { inject, Service, Signal } from '@angular/core';
+import { tabBadgeOf } from '../../pane/chrome/tab-badge';
 import { ActiveContent, OpenTabInput } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { FeatureSwitches } from '../../../features/feature-switches.service';
@@ -321,7 +322,7 @@ export class ContentTabsService {
           title: input.title,
           literalTitle: input.titleIsLiteral ?? false,
           icon: input.icon,
-          badge: input.badge,
+          badge: input.badge === undefined ? undefined : (tabBadgeOf(input.badge) ?? null),
         },
       );
       if (found) {
@@ -347,7 +348,7 @@ export class ContentTabsService {
       title: input.title,
       literalTitle: input.titleIsLiteral ?? false,
       icon: input.icon,
-      badge: input.badge ?? existing?.badge,
+      badge: input.badge === undefined ? existing?.badge : tabBadgeOf(input.badge),
       onClose: input.onClose,
       preview: existing ? existing.preview : previewSlot,
       pinned: existing ? existing.pinned : false,

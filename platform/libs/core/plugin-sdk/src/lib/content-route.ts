@@ -274,9 +274,10 @@ export interface OpenTabInput {
   /**
    * A badge of this tab's own, drawn beside its title, such as "Draft" on one document among others.
    * It wins over the badge of the surface the tab shows, is refined by opening the same path again,
-   * as the title is, and survives a restart with the tab.
+   * as the title is, and survives a restart with the tab. Opening again without one keeps it; `null`
+   * takes it away, so the surface's badge shows again.
    */
-  readonly badge?: TabBadge;
+  readonly badge?: TabBadge | null;
 }
 
 /** The tones a {@link TabBadge} may take: the ones the workbench's `.lw-badge` look has. */

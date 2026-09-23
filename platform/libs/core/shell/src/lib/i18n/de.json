@@ -27,6 +27,7 @@
     "pluginSurface": "Plugin-Inhalt",
     "previewHint": "Vorschau — Doppelklick zum Anheften",
     "unpinTab": "Tab lösen",
+    "badgedTab": "{{title}}, {{badge}}",
     "unsavedTab": "{{title}}, ungespeicherte Änderungen",
     "split": {
       "open": "Editor teilen",

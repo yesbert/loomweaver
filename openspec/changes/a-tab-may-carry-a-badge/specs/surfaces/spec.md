@@ -7,9 +7,9 @@ a strip, a picker. A surface with an address MAY supply a different title for th
 title MAY be given either as a translation key or as a literal.
 
 A surface MAY also supply a badge: a short mark such as "Beta" or "Developer", given as a text, an
-icon or both, in one of the tones the workbench's badges have. The workbench SHALL draw it on every
-tab that shows the surface, beside the title. Its text MAY be a translation key or a literal, as a
-title may.
+icon or both, in one of the tones the workbench's badges have. The workbench SHALL show it on every
+tab that shows the surface, as a tab's badge is shown. Its text MAY be a translation key or a
+literal, as a title may.
 
 #### Scenario: An address-specific title wins where it is given
 
@@ -36,8 +36,8 @@ SHALL NOT be rebuilt, so what the user has typed, scrolled or folded inside it s
 This SHALL hold for a plugin that runs isolated from the workbench as it does for one that runs in
 the page.
 
-The limit of that: a change of badge reaches the badge only, and a change for an id nothing was
-registered under changes nothing.
+The limit of that: a change of badge reaches the badge only, and a change for an id the plugin did
+not register, whether nothing or another plugin registered it, changes nothing.
 
 #### Scenario: Every tab showing the surface follows
 
@@ -56,5 +56,6 @@ registered under changes nothing.
 
 #### Scenario: Changing the badge of something never registered does nothing
 
-- **WHEN** a plugin changes the badge of an id it did not register
+- **WHEN** a plugin changes the badge of an id it did not register, or of a surface another plugin
+  registered
 - **THEN** nothing changes and nothing is drawn differently

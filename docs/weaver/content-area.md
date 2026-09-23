@@ -170,9 +170,10 @@ ctx.registerSurface({
 ```
 
 Change it while the surface is mounted with `ctx.updateSurfaceBadge(id, badge)`, and take it away
-with `null`. The surface is not rebuilt, as with `ctx.retitleSurface`. A content tab can also carry a
-badge of its own, passed to `ctx.openContentTab({ ..., badge })`: it wins over the surface's, is
-refined by opening the same path again, and survives a restart with the tab.
+with `null`. The surface is not rebuilt, as with `ctx.retitleSurface`, and only surfaces your plugin
+registered can be changed. A content tab can also carry a badge of its own, passed to
+`ctx.openContentTab({ ..., badge })`: it wins over the surface's, is refined by opening the same path
+again, survives a restart with the tab, and is taken away with `badge: null`.
 
 The badge is not a control of its own, so the tab stays one keyboard stop, and its text joins the
 tab's accessible name after the title. In a strip that shows icons only, such as a sidebar switcher,

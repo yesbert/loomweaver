@@ -116,6 +116,37 @@ describe('a tab carries a badge', () => {
     expect(storedTab('doc/a')?.badge).toBeUndefined();
   });
 
+  it("takes a tab's own badge away with null, so the surface's shows again", () => {
+    registry.updateSurfaceBadge('testbed.doc', BETA);
+    service.open({ path: 'doc/a', title: 'A', titleIsLiteral: true, badge: DRAFT });
+
+    service.open({ path: 'doc/a', title: 'A', titleIsLiteral: true, badge: null });
+
+    expect(badgeOf('doc/a')).toEqual(BETA);
+    expect(storedTab('doc/a')?.badge).toBeUndefined();
+  });
+
+  it("does not let an empty badge of a tab's own hide the surface's", () => {
+    registry.updateSurfaceBadge('testbed.doc', BETA);
+
+    service.open({ path: 'doc/a', title: 'A', titleIsLiteral: true, badge: {} });
+
+    expect(badgeOf('doc/a')).toEqual(BETA);
+  });
+
+  it("carries a tab's own badge into the pane a split opens", () => {
+    service.open({ path: 'doc/a', title: 'A', titleIsLiteral: true, badge: DRAFT });
+    const paneTree = TestBed.inject(PaneTreeService);
+
+    paneTree.splitPane(CONTENT_DOCK, paneTree.primaryId(CONTENT_DOCK), 'row', 'doc/a');
+
+    const copies = collectTabs(paneTree.tree(CONTENT_DOCK)).filter(
+      (tab) => tab.path === 'doc/a',
+    );
+    expect(copies).toHaveLength(2);
+    expect(copies.map((tab) => tab.badge)).toEqual([DRAFT, DRAFT]);
+  });
+
   it("refines a tab's own badge when the tab is opened again", () => {
     service.open({
       path: 'doc/a',

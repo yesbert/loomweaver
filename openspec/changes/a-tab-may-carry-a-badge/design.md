@@ -24,6 +24,8 @@ look already; the minimized strip uses it beside a pane's label.
 - One type for a badge, the same everywhere it is given.
 
 **Non-Goals:**
+- One lookup of the surface per tab for its label, its closability and its badge together. The strip
+  looks the surface up once for each today; folding them is a refactor of its own.
 - A badge in the list of tabs that do not fit, Quick-Open or the minimized strip. They name tabs in
   lists where a badge would compete with the title for little room; they can follow if asked.
 - A badge on a label given through `ContainerHandle.open`. A container's child is a surface, so its
@@ -66,6 +68,24 @@ the badge is a `<span class="lw-badge ...">` after the title span inside the tab
 because the tab's `aria-label` already carries its text: `{{title}}, {{badge}}`, and the unsaved
 string wraps the result. A badge with only an icon adds nothing to the name. In the icons look the
 badge text is appended to the tooltip and to the name the same way.
+
+**Only a plugin's own surfaces, and never a loop.** A plugin changes the badge of a surface it
+registered; the registry checks the owner, so an isolated plugin cannot mark the workbench's or
+another plugin's tabs. The registry reads its entries untracked and writes a badge only when it
+differs, so changing a badge from an effect, or registering a surface there, does not make the
+effect depend on what it writes. The badge goes with the surface when the last registration under
+its id is disposed or removed.
+
+**A tab's own badge is given, refined, kept and taken away like a label.** Opening the same path again
+without a badge keeps it; `null` takes it away. A split copies it to the new pane as it copies the
+title. Loading stored panes keeps it even where a borrowed title is dropped, because a badge is only
+ever stored when it is the tab's own. A workspace does not count a changed badge as a change against
+its baseline, as it does not count a changed title. Every badge is read through one normaliser: an
+empty one is no badge, an unknown tone is dropped, and only a literal text is bounded in length, by
+characters, so a translation key is never cut.
+
+**The name is a translation, not a comma.** `content.badgedTab` joins title and badge text, so a
+language with another separator or order can say it its own way.
 
 **It crosses the sandbox as renaming does.** `updateSurfaceBadge` joins the RPC contract beside
 `retitleSurface`, and a sandboxed plugin's badge input is sanitised like its title: the text a string

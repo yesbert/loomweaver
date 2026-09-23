@@ -117,7 +117,8 @@ Penpal.connect({ messenger })
 ```
 
 The RPC `ctx` is **flat**: unlike the in-process `ctx` the other how-to pages use, there is no `ctx.ui`
-facade. The endpoints are `registerSurface` · `registerMenuItem` · `registerSettingsSection` ·
+facade. The endpoints are `registerSurface` · `retitleSurface` · `updateSurfaceBadge` ·
+`registerMenuItem` · `registerSettingsSection` ·
 `navigateContent` · `openContentTab` / `keepContentTab` / `pinContentTab` / `unpinContentTab` /
 `closeContentTab` · `revealSurface` · `toast`. Every call runs through the same default-deny
 capability broker as a trusted plugin. An ungranted capability rejects, so `.catch` and degrade.

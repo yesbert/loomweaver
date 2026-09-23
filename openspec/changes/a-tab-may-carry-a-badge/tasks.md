@@ -21,4 +21,5 @@
 
 - [x] 5.1 `llms-full.txt`, the weaver guides that document a surface's title and icon and `openContentTab`
 - [x] 5.2 Full suites, lint, packaging, the repository guards (bundle size included), `openspec validate --all --strict`
-- [ ] 5.3 Code review over the change, then archive on the same branch
+- [x] 5.3 Code review over the change; findings taken: owner check, effect-safe writes, badge dropped with a removed view, keys not cut, `null` takes a tab's own badge away, a split and stored panes keep it, a workspace ignores it like a title, empty badges normalised, a translatable name, the icons-strip limit stated, the sandbox guide lists the call; tests for each
+- [ ] 5.4 Archive on the same branch

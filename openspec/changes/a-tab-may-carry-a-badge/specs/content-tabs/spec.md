@@ -66,8 +66,10 @@ keyboard. The badge's text SHALL be part of the tab's accessible name, after the
 any word about unsaved work, so a screen reader announces "Erweitert, Developer" rather than the
 title alone.
 
-In a strip that shows icons only, there is no room for text beside an icon; the badge's text SHALL
-then be part of the tab's tooltip and accessible name.
+A tab's own badge MAY be taken away again; the surface's badge then shows, where it has one. In a
+strip that shows icons only, there is no room for text beside an icon; the badge's text SHALL then
+be part of the tab's tooltip and accessible name, and a badge that is an icon alone is not shown
+there.
 
 The limit: a tab's badge is drawn on the tab. The list of tabs that do not fit the strip, Quick-Open
 and the minimized strip name the tab without it.
@@ -92,6 +94,11 @@ and the minimized strip name the tab without it.
 
 - **WHEN** a content tab was opened with a badge of its own and its surface declares another
 - **THEN** the tab shows its own
+
+#### Scenario: A tab's own badge can be taken away
+
+- **WHEN** a content tab carrying a badge of its own is opened again with its badge taken away
+- **THEN** the tab shows the surface's badge, or none where the surface has none
 
 #### Scenario: A strip of icons carries the badge in the tooltip
 

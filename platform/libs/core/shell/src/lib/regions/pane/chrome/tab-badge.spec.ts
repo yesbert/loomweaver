@@ -4,6 +4,10 @@ import {
   sanitizeRpcTabInput,
 } from '../../../plugin/sandbox/sandbox-rpc-sanitize';
 import { tabBadgeOf } from './tab-badge';
+import {
+  FrameRpcDeps,
+  frameRpcMethods,
+} from '../../../plugin/sandbox/sandbox-rpc-methods';
 
 describe('a badge as it is read from outside', () => {
   it('keeps a text, an icon, a tone and whether the text is literal', () => {
@@ -24,8 +28,12 @@ describe('a badge as it is read from outside', () => {
     expect(tabBadgeOf({ text: 'x', tone: 'neutral' })).toEqual({ text: 'x' });
   });
 
-  it('bounds the text', () => {
-    expect(tabBadgeOf({ text: 'x'.repeat(200) })?.text?.length).toBe(40);
+  it('bounds a literal text by characters, and leaves a key whole', () => {
+    expect(
+      tabBadgeOf({ text: '😀'.repeat(60), textIsLiteral: true })?.text,
+    ).toBe('😀'.repeat(40));
+    const key = 'nextpa.assistants.advanced.badge.developer';
+    expect(tabBadgeOf({ text: key })?.text).toBe(key);
   });
 
   it('crosses from an isolated plugin on a surface it registers', () => {
@@ -52,5 +60,24 @@ describe('a badge as it is read from outside', () => {
     } as OpenTabInput);
 
     expect(input.badge).toEqual({ icon: 'flask', tone: 'success' });
+  });
+
+  it('reaches the surface badge from an isolated plugin, read as it would be from anywhere else', () => {
+    const updateSurfaceBadge = vi.fn();
+    const methods = frameRpcMethods({
+      pluginId: 'sandboxed',
+      ctx: { updateSurfaceBadge },
+      watched: new Map(),
+      reportRefusal: () => undefined,
+    } as unknown as FrameRpcDeps);
+
+    methods.updateSurfaceBadge('notes', {
+      text: 'Beta',
+      tone: 'loud',
+    } as unknown as { text: string });
+    methods.updateSurfaceBadge('notes', null);
+
+    expect(updateSurfaceBadge).toHaveBeenNthCalledWith(1, 'notes', { text: 'Beta' });
+    expect(updateSurfaceBadge).toHaveBeenNthCalledWith(2, 'notes', null);
   });
 });

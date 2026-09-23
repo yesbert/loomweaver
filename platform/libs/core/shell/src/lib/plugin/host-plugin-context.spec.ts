@@ -1,6 +1,6 @@
 import { SurfaceRevealService } from '../views/surface-reveal.service';
 import { PluginStateService } from './plugin-state.service';
-import { WritableSignal, signal } from '@angular/core';
+import { WritableSignal, effect, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
   ANONYMOUS,
@@ -713,6 +713,46 @@ describe('HostPluginContext', () => {
       const { ctx } = makeContext(['ui', 'host']);
 
       expect(() => ctx.updateSurfaceBadge('nav', BETA)).toThrow(CapabilityError);
+    });
+
+    it("leaves another plugin's surface alone", () => {
+      const { ctx, registry } = makeContext();
+      registry.addView(
+        { id: 'theirs', region: 'primary', title: 't', component: DummyComponent },
+        'another-plugin',
+      );
+
+      ctx.updateSurfaceBadge('theirs', BETA);
+
+      expect(registry.badgeOf('theirs')).toBeUndefined();
+    });
+
+    it('can be changed from an effect without the effect running again on its own', () => {
+      const { ctx, registry } = makeContext();
+      nav(ctx);
+      const flagged = signal(false);
+      let runs = 0;
+      TestBed.runInInjectionContext(() =>
+        effect(() => {
+          runs += 1;
+          ctx.updateSurfaceBadge('nav', flagged() ? BETA : null);
+        }),
+      );
+      TestBed.tick();
+      flagged.set(true);
+      TestBed.tick();
+
+      expect(registry.badgeOf('nav')).toEqual(BETA);
+      expect(runs).toBe(2);
+    });
+
+    it('goes with a view removed by its id', () => {
+      const { ctx, registry } = makeContext();
+      nav(ctx, BETA);
+
+      registry.removeViewById('nav');
+
+      expect(registry.badgeOf('nav')).toBeUndefined();
     });
   });
 

@@ -144,7 +144,7 @@ export function withoutBorrowedLabels(
       if (!borrowed(tab)) {
         return tab;
       }
-      const { title, literalTitle, icon, badge, ...rest } = tab;
+      const { title, literalTitle, icon, ...rest } = tab;
       return rest;
     });
     return { node: { ...node, tabs }, stripped };
