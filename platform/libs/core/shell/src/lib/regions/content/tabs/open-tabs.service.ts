@@ -39,9 +39,12 @@ import { syncActiveTab } from './active-tab-sync';
 import { QuickOpenTarget, quickOpenTargetsOf } from './quick-open-target';
 import { TAB_ADDRESS_RESOLVER, computedTabAddress } from './tab-address';
 import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../../pane/tree/pane-address';
-import { findLeaf, findLeafWhere } from '../../pane/tree/pane-queries';
+import {
+  contentPathIn,
+  findLeaf,
+  findLeafWhere,
+} from '../../pane/tree/pane-queries';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
-import { activeTab } from '../../pane/tree/pane-node';
 import { isPopoutUrl } from '../../../popout/popout-path';
 import { popoutNavigationRefusal } from '../../../popout/popout-refusal';
 
@@ -178,7 +181,7 @@ export class OpenTabsService {
 
   private ownNavigation: string | null = null;
 
-  private lastReplacement = 0;
+  private lastReplacement = untracked(() => this.paneTree.replaced());
 
   constructor() {
     effect(() => {
@@ -192,15 +195,19 @@ export class OpenTabsService {
         if (navigating) {
           return;
         }
+        const replaced = replacement !== this.lastReplacement;
         if (url !== this.lastUrl) {
           const previous = this.lastUrl;
           this.lastUrl = url;
           if (this.ownNavigation !== normalizePath(url)) {
             this.viewTabSelection.set(null);
-            this.focusHolderOf(path, this.rootFor(previous).root);
+            this.focusHolderOf(
+              path,
+              this.rootFor(replaced ? this.shownByAddressPane() : previous).root,
+            );
           }
           this.ownNavigation = null;
-        } else if (replacement !== this.lastReplacement) {
+        } else if (replaced) {
           this.focusHolderOf(path, this.rootFor(this.shownByAddressPane()).root);
         }
         this.lastReplacement = replacement;
@@ -346,11 +353,10 @@ export class OpenTabsService {
   }
 
   private shownByAddressPane(): string {
-    const leaf = findLeaf(
+    return contentPathIn(
       this.paneTree.tree(CONTENT_DOCK),
       this.paneTree.primaryId(CONTENT_DOCK),
     );
-    return (leaf && activeTab(leaf)?.path) ?? '';
   }
 
   private stampActive(root: string): void {

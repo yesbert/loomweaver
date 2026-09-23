@@ -28,20 +28,31 @@ the workspace guard turns a preview into a permanent tab, duplicates content a s
 already holds, changes the arrangement before the navigation is committed, and misses the
 replacement that adopting a signed-in person's stored arrangement makes. That approach is not taken.
 
+A third review found that the language service still disagreed with the translation library in
+several failure paths, because it undid the library's own fallback after the fact instead of
+following it; that a content already held beside another pane of the claiming workspace could still
+carry the address the user left into that workspace; and that a re-worded menu was measured before
+the chrome was redrawn. The owner approved the resulting rule for a failed load on 2026-09-23: the
+workbench's language is always the one the library shows, and only a choice that loaded is
+remembered.
+
 ## What Changes
 
 - **F-038, cut again.** After any replacement of the whole arrangement, the address-driven pane gives
   the address its tab once no navigation is running, focusing a pane of the new arrangement that
-  already holds the content before adding one. A switch or a reset navigates, so the tab it ends up
+  already holds the content before adding one; the content shown before the replacement belongs to
+  the old arrangement and is never carried into the new one. A switch or a reset navigates, so the tab it ends up
   with is the one for the address it lands on; the same-address reload after sign-in and the adoption
   of a stored arrangement both end with no navigation pending and get the address's tab.
-- **The language switch completes, or changes nothing.** It happens when the strings have arrived,
-  and the choice is stored in that same step. Strings that cannot be loaded, however the load ends,
-  or that take more than ten seconds, change nothing; the switcher shows the language still in
-  effect, so the choice can be made again. A stored or synced value naming the language already in
-  effect no longer cancels a choice still loading.
-- **A re-worded menu stays on screen and beside its control.** When its words change its size, it is
-  placed again by the rule it opened with, measuring its control again.
+- **The language switch completes, or is not made.** It happens when the chosen language's strings
+  have arrived, and the choice is stored in that same step. Strings that cannot be loaded, however
+  the load ends, or that take more than ten seconds, switch nothing and are not stored. The
+  workbench's language, `<html lang>` and the shipped switcher always name the language the
+  interface is shown in, including a fallback the translation library chose itself. A stored value
+  that arrives after the user chose a language does not override the choice.
+- **A re-worded menu stays on screen and beside its control.** When its words change, it is placed
+  again once the chrome has been redrawn, by the rule it opened with, moved by as much as its control
+  moved; a control no longer on the page leaves it where it was.
 - **The key-or-literal rule is stated with its limit** in the menus capability and the menus guide.
 - **The testbed weaver** passes keys to its row menu.
 - **Tests** for each of the above, including the ones the second review's scenarios describe, and
@@ -63,11 +74,13 @@ None.
   switch nor a reset carries the content the user left into the arrangement it restores, with two
   scenarios.
 - `i18n`: *A language change is applied everywhere at once* states that the choice is remembered when
-  the switch happens, that a language whose strings cannot be loaded is not switched to, and that a
-  value naming the language in effect does not cancel a choice still loading. This replaces the rule
-  written two changes ago that a failed load switches anyway.
-- `menus`: *An open menu follows its strings* states that a re-worded menu stays within the window
-  and beside its control, and the limit of telling a key from a literal.
+  the switch happens, that a language whose strings cannot be loaded is neither switched to nor
+  remembered, that the workbench's language always names the language shown, and that a stored value
+  arriving late does not override a choice. This replaces the rule written two changes ago that a
+  failed load switches anyway.
+- `menus`: *An open menu follows its strings* states that a re-worded menu is placed again after the
+  chrome is redrawn, within the window and beside its control wherever that is, and the limit of
+  telling a key from a literal.
 
 ## Impact
 
@@ -75,6 +88,8 @@ None.
   the router to be idle and handles a replacement of the arrangement; the Quick-Open list moves to
   `quick-open-target.ts`.
 - `platform/libs/core/shell/src/lib/i18n/locale.service.ts`, `i18n/language-switcher.ts`.
+- `platform/libs/core/shell/src/lib/regions/pane/tree/pane-queries.ts` takes the query for the content
+  an address pane shows, which `workspace/active-content-path.ts` and the tab sync now share.
 - `platform/libs/core/shell/src/lib/menu/menu.service.ts`.
 - `platform/libs/weavers/testbed-weaver/src/lib/views/testbed-list-view.ts`.
 - `llms-full.txt`, `docs/distribution/recomposing-chrome.md`, `docs/weaver/menus.md`.

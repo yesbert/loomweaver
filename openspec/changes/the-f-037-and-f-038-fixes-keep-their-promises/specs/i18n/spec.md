@@ -8,12 +8,13 @@ A language whose strings have not arrived yet SHALL be switched to once they hav
 never shows keys in between, and the choice SHALL be remembered, and sent to the application's other
 windows, in that same step and not before.
 
-A language whose strings cannot be loaded SHALL NOT be switched to, whether the load reports an
-error, ends without delivering anything, or has delivered nothing after ten seconds: what the user
-sees, the document's language and what is remembered stay as they were, and a language control shows
-the language still in effect, so the same choice can simply be made again. A language that arrives
-from storage or from another window and is already the one in effect SHALL NOT cancel a choice that
-is still loading.
+A language whose strings cannot be loaded SHALL NOT be switched to and SHALL NOT be remembered,
+whether the load reports an error, ends without delivering that language's strings, or has delivered
+nothing after ten seconds, so the same choice can simply be made again. What the workbench reports as
+its language, the document's language and the shipped language control SHALL always name the language
+the interface is shown in, including one the translation library falls back to on its own, so they
+never disagree with the page. A language that arrives from storage after the user has chosen one
+SHALL NOT override that choice.
 
 #### Scenario: Switching the language updates the page and the record of it
 
@@ -32,5 +33,12 @@ is still loading.
 
 - **WHEN** the user chooses a language whose strings cannot be loaded, whether the load reports an
   error, ends without delivering anything, or delivers nothing within ten seconds
-- **THEN** the interface, the document's language and the stored choice stay as they were
-- **AND** the language control shows the language still in effect
+- **THEN** the interface stays in a language whose strings it has, and the stored choice is unchanged
+- **AND** the document's language and the language control name the language the interface is shown
+  in
+
+#### Scenario: A stored language arriving late does not undo a choice
+
+- **WHEN** the user chooses a language before the stored one has been read, and the stored one
+  arrives afterwards naming another
+- **THEN** the language the user chose is the one switched to and remembered

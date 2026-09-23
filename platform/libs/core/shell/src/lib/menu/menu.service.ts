@@ -1,32 +1,33 @@
-import { DestroyRef, inject, Service, signal } from '@angular/core';
+import {
+  afterNextRender,
+  DestroyRef,
+  inject,
+  Injector,
+  Service,
+  signal,
+} from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 import { filter, merge, skip, Subscription } from 'rxjs';
 import { Command, MenuContext, MenuHeader, MenuItem } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../plugin/contribution-registry';
 import { CommandService } from '../commands/command.service';
 import { drawMenuHeading, HEADING_KEY, wordMenuHeading } from './menu-heading';
+import { followed, MenuAnchor, place } from './menu-placement';
+import { MenuLabel, wordEntries } from './menu-wording';
 import {
   LW_MENU_DISMISS,
   LW_MENU_ITEM_TAG,
   LW_MENU_SELECT,
   LW_MENU_TAG,
   LwMenuElement,
-  MenuAnchorRect,
-  MenuSide,
 } from '../elements/menu/lw-menu.element';
 
 export { MENU_ANCHOR_GAP } from '../elements/menu/lw-menu.element';
-
-export type MenuAnchor =
-  | { readonly x: number; readonly y: number }
-  | { readonly rect: MenuAnchorRect; readonly side: MenuSide };
 
 export interface MenuOpenOptions {
   readonly trigger?: HTMLElement;
   readonly header?: MenuHeader;
 }
-
-export type MenuLabel = string | ((translate: (key: string) => string) => string);
 
 interface ResolvedItem {
   readonly key: string;
@@ -68,6 +69,8 @@ export class MenuService {
   private readonly commands = inject(CommandService);
 
   private readonly transloco = inject(TranslocoService);
+
+  private readonly injector = inject(Injector);
 
   private readonly trigger = signal<HTMLElement | null>(null);
 
@@ -172,6 +175,7 @@ export class MenuService {
     document.body.append(menu);
     document.body.classList.add('lw-menu-open');
     place(menu, at);
+    const openedAt = trigger?.getBoundingClientRect();
     this.trigger.set(trigger ?? null);
     const listenTimer = setTimeout(
       () =>
@@ -187,7 +191,14 @@ export class MenuService {
       const before = menu.textContent;
       word();
       if (menu.textContent !== before) {
-        place(menu, measuredAgain(at, trigger));
+        afterNextRender(
+          () => {
+            if (this.current?.menu === menu) {
+              place(menu, followed(at, trigger, openedAt));
+            }
+          },
+          { injector: this.injector },
+        );
       }
     });
     this.current = { menu, onOutside, restore, listenTimer, wording };
@@ -342,33 +353,6 @@ export class MenuService {
       item.run?.(context);
     } catch (error) {
       console.error('Menu item handler failed', error);
-    }
-  }
-}
-
-function measuredAgain(at: MenuAnchor, trigger?: HTMLElement): MenuAnchor {
-  return trigger && 'rect' in at
-    ? { rect: trigger.getBoundingClientRect(), side: at.side }
-    : at;
-}
-
-function place(menu: LwMenuElement, at: MenuAnchor): void {
-  if ('rect' in at) {
-    menu.openBeside(at.rect, at.side);
-  } else {
-    menu.openAt(at.x, at.y);
-  }
-}
-
-function wordEntries(
-  labelled: readonly [HTMLElement, MenuLabel][],
-  translate: (key: string) => string,
-): void {
-  for (const [item, label] of labelled) {
-    const words =
-      typeof label === 'string' ? translate(label) : label(translate);
-    if (item.getAttribute('label') !== words) {
-      item.setAttribute('label', words);
     }
   }
 }

@@ -200,6 +200,7 @@ describe('an open menu follows its strings', () => {
     expect(menu?.style.left).toBe(`${nearTheRightEdge}px`);
 
     transloco.setActiveLang('de');
+    TestBed.tick();
 
     const width = 'Vom Konto abmelden'.length * PIXELS_PER_CHARACTER;
     expect(Number.parseFloat(menu?.style.left ?? '')).toBeLessThanOrEqual(
@@ -229,7 +230,59 @@ describe('an open menu follows its strings', () => {
 
     vi.spyOn(control, 'getBoundingClientRect').mockReturnValue(at(160));
     transloco.setActiveLang('de');
+    TestBed.tick();
 
     expect(menu?.style.left).toBe('160px');
+  });
+
+  it('moves a menu opened at a point below a control with that control', async () => {
+    await loaded('en');
+    await loaded('de');
+    const control = document.createElement('button');
+    document.body.append(control);
+    const rect = (left: number) =>
+      ({ left, top: 0, right: left + 32, bottom: 32, width: 32, height: 32 }) as DOMRect;
+    vi.spyOn(control, 'getBoundingClientRect').mockReturnValue(rect(100));
+    service.openList(
+      [{ key: 'a', label: 'cmd.profile' }],
+      { x: 100, y: 36 },
+      () => undefined,
+      control,
+    );
+    const menu = document.body.querySelector<HTMLElement>(LW_MENU_TAG);
+
+    vi.spyOn(control, 'getBoundingClientRect').mockReturnValue(rect(160));
+    transloco.setActiveLang('de');
+    TestBed.tick();
+
+    expect(menu?.style.left).toBe('160px');
+    expect(menu?.style.top).toBe('36px');
+  });
+
+  it('leaves a menu where it is when the control it was opened from is gone', async () => {
+    await loaded('en');
+    await loaded('de');
+    const control = document.createElement('button');
+    document.body.append(control);
+    const measured = vi
+      .spyOn(control, 'getBoundingClientRect')
+      .mockReturnValue(
+        { left: 100, top: 0, right: 132, bottom: 32, width: 32, height: 32 } as DOMRect,
+      );
+    service.openList(
+      [{ key: 'a', label: 'cmd.profile' }],
+      { x: 100, y: 36 },
+      () => undefined,
+      control,
+    );
+    const menu = document.body.querySelector<HTMLElement>(LW_MENU_TAG);
+
+    control.remove();
+    measured.mockReturnValue(new DOMRect(0, 0, 0, 0));
+    transloco.setActiveLang('de');
+    TestBed.tick();
+
+    expect(menu?.style.left).toBe('100px');
+    expect(menu?.style.top).toBe('36px');
   });
 });

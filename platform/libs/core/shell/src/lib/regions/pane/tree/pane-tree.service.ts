@@ -52,7 +52,6 @@ export class PaneTreeService {
     this.storage.peek(),
   );
   private readonly hydratedTree = signal(false);
-  readonly hydrated = this.hydratedTree.asReadonly();
   private readonly replacements = signal(0);
   readonly replaced = this.replacements.asReadonly();
 

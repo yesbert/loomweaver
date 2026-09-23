@@ -9,6 +9,8 @@ import { provideLayout, ShellLayout } from '../layout/layout';
 import { buildContentRoutes } from '../regions/content/routing/content-router';
 import { ContentTabsService } from '../regions/content/tabs/content-tabs.service';
 import { PaneTreeService } from '../regions/pane/tree/pane-tree.service';
+import { CONTENT_DOCK } from '../regions/pane/tree/pane-address';
+import { collectTabs } from '../regions/pane/tree/pane-queries';
 import { WORKSPACE_CLAIMS } from '../foundation/workspace-claims';
 import { WorkspaceService } from './workspace.service';
 import { provideWorkspaces } from './provide-workspaces';
@@ -67,7 +69,24 @@ function renderRightAfterEverySwitch(workspaces: WorkspaceService): void {
   });
 }
 
-async function openAtReports(): Promise<{
+const HELD_BESIDE: readonly WorkspaceDefinition[] = [
+  DECLARED[0],
+  {
+    id: 'knowledge-base',
+    title: 'Knowledge base',
+    claims: ['knowledge-base'],
+    content: {
+      columns: [
+        { tabs: [{ path: 'dashboard' }] },
+        { tabs: [{ path: 'knowledge-base', closable: false }] },
+      ],
+    },
+  },
+];
+
+async function openAtReports(
+  declared: readonly WorkspaceDefinition[] = DECLARED,
+): Promise<{
   readonly workspaces: WorkspaceService;
   readonly contentTabs: ContentTabsService;
   readonly tabs: () => readonly string[];
@@ -78,7 +97,7 @@ async function openAtReports(): Promise<{
       provideLayout(LAYOUT),
       { provide: BootAddress, useValue: { path: '/reports' } },
       { provide: WORKSPACE_CLAIMS, useExisting: WorkspaceService },
-      provideWorkspaces(...DECLARED),
+      provideWorkspaces(...declared),
     ],
   });
   const registry = TestBed.inject(ContributionRegistry);
@@ -156,5 +175,18 @@ describe('leaving content behind', () => {
     await settled();
 
     expect(opened.tabs()).toContain('reports');
+  });
+
+  it('does not bring the content the user left into any pane of a workspace that holds the linked content beside another', async () => {
+    const opened = await openAtReports(HELD_BESIDE);
+
+    await TestBed.inject(Router).navigateByUrl('/knowledge-base');
+    await settled();
+
+    expect(opened.workspaces.activeId()).toBe('knowledge-base');
+    const everywhere = collectTabs(
+      TestBed.inject(PaneTreeService).tree(CONTENT_DOCK),
+    ).map((tab) => tab.path);
+    expect(everywhere).not.toContain('reports');
   });
 });

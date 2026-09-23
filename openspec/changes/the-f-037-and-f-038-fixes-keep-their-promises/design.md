@@ -67,22 +67,42 @@ the new arrangement that holds the content and then gives the address its tab.
 `open-tabs.service.ts` is at the 400-line limit. The Quick-Open list, a self-contained computation of
 its own theme, moves into `quick-open-target.ts` beside the type it produces.
 
-**Load, then switch or stay.** `applyLang` takes the first value of `load(lang)`, treats an empty end,
-an error or ten seconds without a value as a failure, and on success switches the signal, the active
-language and `<html lang>` and stores the choice in one step. On failure it puts Transloco back to the
-language in effect if Transloco fell back on its own, and reports the failure in development. A value
-from storage or another window that names the language already in effect is ignored, so it does not
-cancel a choice still loading. The shipped switcher sets its control back to the language in effect
-right after a choice, and the control follows `lang()` when the switch completes.
+**The workbench's language follows the library; a choice asks it to switch.** `LocaleService`
+subscribes to Transloco's `langChanges$` and sets `lang()` and `<html lang>` from it, so they always
+name the language the interface is shown in, including a fallback Transloco activates on its own after
+a failed load. `setLang` loads the language and asks Transloco to switch only when the load's first
+value leaves Transloco holding strings for that language; then it stores the choice. An empty end, an
+error, a value that is really the fallback's bundle, or ten seconds without a value is a failure:
+nothing is switched or stored by the service, and development reports it. A stored value read after
+the user already chose is ignored. The shipped switcher sets its control back to `lang()` right after
+a choice and follows `lang()` when the switch completes.
 
-*Alternative considered:* switching anyway on a failed load (the rule written in the F-037 change).
-Transloco has by then activated its fallback, so forcing the failed language shows keys; not forcing
-it leaves `lang()`, `<html lang>` and the stored choice claiming a language the page does not show.
+*Alternatives considered:*
+- **Switching anyway on a failed load** (the rule written in the F-037 change): Transloco has by then
+  activated its fallback, so forcing the failed language shows keys; not forcing it leaves `lang()`,
+  `<html lang>` and the stored choice claiming a language the page does not show.
+- **Staying in the previous language and undoing Transloco's fallback** (the first correction):
+  patches one subscription, so every path Transloco takes outside it, such as a load that fails after
+  the ten seconds or after a newer choice, escapes it and the two disagree again. Rejected after the
+  third review.
+- **A fallback strategy that never falls back**: would also change what Transloco does when the
+  starting language fails to load, which then shows keys. Not taken.
 
-**Place again after wording, measuring the control again.** `present` keeps the anchor and the
-control. After a re-wording that changed the menu's text it places the menu again; for a menu opened
-beside a control it measures the control again. The `langChanges$` replay at subscription is skipped,
+**Place again after the chrome is redrawn, moved with the control.** `present` keeps the anchor, the
+control and where the control was when the menu opened. After a re-wording that changed the menu's
+text, it waits for the next render (`afterNextRender`), so the bar around the control has taken its
+new words, then places the menu again by the rule it opened with, shifted by as much as the control
+moved. This holds for a point anchor as well as a rect. A control no longer on the page measures as
+nothing, so the menu is left where it was. The `langChanges$` replay at subscription is skipped,
 because the menu is worded before it is placed.
+
+**The content shown before a replacement belongs to the old arrangement.** When the address changes
+and the arrangement was replaced since the last run (a link into claimed content switched the
+workspace), the pane that holds the new address is focused against what the new arrangement's address
+pane shows, not against the address the user left. Otherwise the address the user left was carried
+into the new arrangement as the dethroned pane's content. The query for what an address pane shows
+moves to `pane-queries.ts`, shared with `workspace/active-content-path.ts`, so the content slice does
+not import from the workspace slice.
 
 ## Risks / Trade-offs
 

@@ -6,9 +6,10 @@ The workbench paints before the translations have arrived, so a menu can be open
 are not there yet. Every menu the workbench draws SHALL therefore be worded again, in place and
 without closing, when a translation bundle arrives and when the language changes while it is open:
 a declared menu, a menu opened from a control, the heading of either, and a menu a plugin opens
-against its own content. The entry that has the focus SHALL keep it, and a menu whose size changed
-with its words SHALL be placed again, so it stays within the window and beside the control it was
-opened from.
+against its own content. The entry that has the focus SHALL keep it, and a menu whose words changed
+SHALL be placed again once the chrome around it has been redrawn, so it stays within the window and
+beside the control it was opened from, wherever that control now is. A control that is no longer on
+the page leaves the menu where it was.
 
 The entries of a menu a plugin opens against its own content SHALL take a translation key or a
 literal, like every other piece of chrome text that takes either, and SHALL be told apart the same
@@ -42,3 +43,8 @@ The limit: a menu a plugin draws inside its own surface is the plugin's to word,
 
 - **WHEN** a menu opened close to the right edge of the window is re-worded with longer words
 - **THEN** it is placed again so that it remains fully visible
+
+#### Scenario: A menu opened from a control follows that control
+
+- **WHEN** a menu opened from a control is re-worded and the language change moved the control
+- **THEN** the menu is placed beside the control where it now is

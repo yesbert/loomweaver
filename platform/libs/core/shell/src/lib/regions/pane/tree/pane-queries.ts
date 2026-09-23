@@ -1,4 +1,5 @@
-import { PaneLeaf, PaneNode, PaneTab, leafPath } from './pane-node';
+import { PaneLeaf, PaneNode, PaneTab, activeTab, leafPath } from './pane-node';
+import { VIEW_PANE_PREFIX } from './pane-address';
 
 export function findLeaf(node: PaneNode, paneId: string): PaneLeaf | null {
   if (node.kind === 'leaf') {
@@ -75,4 +76,10 @@ export function paneSegments(node: PaneNode): PaneSegment[] {
   };
   collect(node, 1);
   return out;
+}
+
+export function contentPathIn(node: PaneNode, primaryId: string): string {
+  const primary = findLeaf(node, primaryId);
+  const path = primary ? activeTab(primary)?.path : undefined;
+  return !path || path.startsWith(VIEW_PANE_PREFIX) ? '' : path;
 }
