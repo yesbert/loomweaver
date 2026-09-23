@@ -255,4 +255,11 @@ describe('opening the application where the distribution says', () => {
     expect(again.workspaces.activeId()).toBe('dashboard');
     expect(again.location.path()).toBe('/dashboard');
   });
+
+  it('keeps the tab of an address that names content when a working state that reads back asynchronously lays out the first visit', async () => {
+    const opened = await open('/reports', { stores: new Map<string, string>() });
+
+    expect(opened.location.path()).toBe('/reports');
+    expect(opened.tabs.tabs().map((tab) => tab.path)).toContain('reports');
+  });
 });

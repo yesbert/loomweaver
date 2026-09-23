@@ -321,18 +321,18 @@ export class WorkspaceService {
   private async rereadForAdoptedNamespace(): Promise<void> {
     await this.active.reread();
     const stored = await this.currentState();
-    for (const key of WORKSPACE_KEYS) {
-      const raw = stored[key];
-      if (raw !== undefined) {
-        this.keyed[key].hydrate(raw);
-      }
+    const found = WORKSPACE_KEYS.filter((key) => stored[key] !== undefined);
+    for (const key of found) {
+      this.keyed[key].hydrate(stored[key]);
     }
     const shown = this.openTabs.activePath();
     const destination = this.settlementDestination(shown);
     if (destination !== null) {
       await this.switchTo(destination, { keepAddress: true });
     }
-    this.openTabs.keepAddress(shown);
+    if (found.length > 0 || destination !== null) {
+      this.openTabs.keepAddress(shown);
+    }
   }
 
   private async hydrateActive(): Promise<void> {
@@ -348,6 +348,7 @@ export class WorkspaceService {
     if (adopted !== null) {
       this.applyState(this.baselineOf(adopted));
       this.warnDeclarationGaps(adopted);
+      this.openTabs.keepAddress(this.openTabs.activePath());
     }
     await startWhereTheDistributionSays({
       declared: declaredStart(this.definitions),

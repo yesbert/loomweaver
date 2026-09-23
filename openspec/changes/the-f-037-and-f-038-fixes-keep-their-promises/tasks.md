@@ -12,7 +12,8 @@
 - [x] 1.10 `active-content-path.ts` moves into the pane layer and the content-path query is shared; the tab sync skips a run in which nothing it reads changed; its branches fold into one focus step; `contentPathOf`, unused, is removed
 - [x] 1.11 The kept address is consumed rather than compared; the content-path query lives in one place; the router's navigation is read through a computed flag; a kept address clears a view tab selected in the old arrangement
 - [x] 1.12 Adoption at sign-in moves the person to the workspace that claims the address shown and keeps that address, written on top of the stored arrangement as `persistence-ports` allows; tests for both; the access-gating scenario says it holds with a stored arrangement
-- [x] 1.13 While a navigation runs the tab sync notes a changed address, so quick successive navigations focus against the address seen last; the two blocks with the same condition are one
+- [x] 1.13 The two blocks with the same condition are one; while a navigation runs the tab sync does nothing (an attempt to note the address in between was withdrawn after the eleventh review)
+- [x] 1.14 Adoption keeps the address only when it replaced something or moved the person; the first visit's layout from a declared workspace keeps the address shown, with a test
 
 ## 2. The language switch as released
 
@@ -32,6 +33,7 @@
 - [x] 3.8 Placement and wording move into `menu-placement.ts` and `menu-wording.ts`
 - [x] 3.11 Test and fix: an open menu keeps its words while a language chosen meanwhile is still loading, and takes the new ones when they arrive
 - [x] 3.13 A re-worded menu is placed again at once and again after the next render; the check for a loaded language is shared from the i18n slice; brief and guide say when a menu is re-worded
+- [x] 3.14 A control hidden by style counts as hidden where the browser can say so
 - [x] 3.12 The i18n requirement states that a dialog or prompt keeps the words it was opened with
 - [x] 3.10 Tests and fix: a bundle of another language neither re-words nor moves an open menu; a heading detail that translates to nothing draws no line
 - [x] 3.9 Tests and fix: an entry named like a member of every object, and a label that is not a string, are shown as they are; a point anchor follows the edge of the control it was nearest to

@@ -17,7 +17,10 @@ export function followed(
     return at;
   }
   const now = trigger.getBoundingClientRect();
-  if (!trigger.isConnected || (now.width === 0 && now.height === 0)) {
+  const hidden =
+    (now.width === 0 && now.height === 0) ||
+    trigger.checkVisibility?.({ visibilityProperty: true }) === false;
+  if (!trigger.isConnected || hidden) {
     return null;
   }
   if (!('rect' in at)) {

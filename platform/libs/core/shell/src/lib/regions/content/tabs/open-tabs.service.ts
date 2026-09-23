@@ -200,13 +200,10 @@ export class OpenTabsService {
       const kept = this.keptAddress();
       const navigating = this.navigating();
       untracked(() => {
-        const moved = url !== this.lastUrl;
         if (navigating) {
-          if (moved) {
-            this.lastUrl = url;
-          }
           return;
         }
+        const moved = url !== this.lastUrl;
         const keptHere = kept === path;
         if (kept !== null) {
           this.keptAddress.set(null);

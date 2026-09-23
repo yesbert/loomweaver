@@ -56,8 +56,8 @@ restore, nor a kept address matching the address shown changed. Otherwise it foc
 the addressed content, measured against what the new arrangement's address pane shows when a kept
 address matches and against the previous address when it does not, and then gives the address its
 tab, clearing a view tab that was selected in the old arrangement. While a navigation runs the effect
-only notes an address that has already changed, so two navigations in quick succession focus against
-the address the user saw last, not the one before it. A navigation the shell started
+does nothing at all; an address passed by in between two navigations gets no tab of its own, which
+is the price of never acting on an address the arrangement no longer belongs to. A navigation the shell started
 itself had focused against the old arrangement, so with a kept address it is focused again. The
 router's navigation is read through a computed flag, so the effect wakes only when the router turns
 busy or idle.
@@ -72,7 +72,16 @@ busy or idle.
   is written on top of it; giving the address shown its tab is that ordinary change, the same one a
   navigation to it would make. Without it, a returning person following a link to a sub-address would
   see the stored listing: F-038 for everyone with a stored arrangement. The combination of a gated
-  sub-address and a stored arrangement rests on the two mechanisms, each pinned by its own test.
+  sub-address and a stored arrangement rests on the two mechanisms, each pinned by its own test. The
+  address is kept only when the adoption replaced something or moved the person, so a sign-in that
+  changes nothing leaves a selected view tab alone. What the adoption changes happens while the
+  store is still adopting, and the store does not write over what the person's namespace already
+  holds; the move and the tab therefore last for the session and are made again on the next visit
+  at that address, which is what `persistence-ports` asks for.
+- The first visit's layout from a declared workspace replaces the arrangement too; it keeps the
+  address shown as well, so a deep link opened with a working state that reads back asynchronously
+  keeps its tab. The order in which that read and the first navigation finish cannot be forced under
+  `TestBed`, so its test pins the outcome, not the race.
 - A plugin opening content the claiming workspace holds beside another pane keeps the opened address,
   which is not the one shown, so nothing is added for the address the user left.
 - A preview opened into the claiming workspace is added by the opener before the navigation ends; the
@@ -126,8 +135,9 @@ a bundle of another language leaves it alone. After a re-wording the menu is pla
 it never spends a frame at its old width past the edge, and again after the next render
 (`afterNextRender`), once the bar around the control has taken its new words, by the rule it opened
 with: a rect anchor with its edges moved as the control's edges moved, a point anchor shifted with the
-edge of the control it was nearest to. A control no longer on the page, or hidden, leaves the menu
-where it last stood, still kept within the window. `LwMenuElement` resets its position before it
+edge of the control it was nearest to. A control no longer on the page, or hidden (no size, or not
+visible by style where the browser can say so), leaves the menu where it last stood, still kept
+within the window. `LwMenuElement` resets its position before it
 measures, so the width it measures is its own and not what the old position left it. The
 `langChanges$` replay at subscription is skipped, because the menu is worded before it is placed.
 
