@@ -125,6 +125,16 @@ because telling a signed-in user to sign in does not help them.
 - **THEN** the address stays in the address bar and the reason is explained, as for the content's
   own address
 
+
+#### Scenario: An address below gated content survives entering the workspace that claims it
+
+- **WHEN** an address below gated content that a declared workspace claims is opened directly as the
+  application starts, before the session is known, and that workspace declares an arrangement that
+  holds other content of the same family, such as the content's own root
+- **AND** the session then qualifies, so the claiming workspace becomes active
+- **THEN** the content opens at that sub-address within the claiming workspace, not the other content
+  its arrangement holds
+
 ### Requirement: A plugin may read the session, once it has been granted that
 
 A plugin SHALL be able to read whether a user is signed in and which roles they hold, so it can gate
