@@ -4,7 +4,8 @@
 
 The workbench paints before the translations have arrived, so a menu can be opened while its words
 are not there yet. Every menu the workbench draws SHALL therefore be worded again, in place and
-without closing, when a translation bundle arrives and when the language changes while it is open:
+without closing, when a translation bundle for the language in effect arrives and when the language
+changes to one whose strings are there, keeping the words it has until then:
 a declared menu, a menu opened from a control, the heading of either, and a menu a plugin opens
 against its own content. The entry that has the focus SHALL keep it, and a menu whose words changed
 SHALL be placed again once the chrome around it has been redrawn, so it stays within the window and

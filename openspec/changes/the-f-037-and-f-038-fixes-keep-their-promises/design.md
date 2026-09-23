@@ -39,6 +39,12 @@ width it measures.
   change of its own.
 - A shared "strings changed" stream for the menus and the command palette. Two readers do not warrant
   a third abstraction.
+- Adopting a signed-in person's stored arrangement whose content differs from the address shown.
+  `persistence-ports` requires that what is stored for a person is what the workbench holds, so the
+  arrangement is not changed to make room for the address; the address then shows what the
+  arrangement's pane holds, as in 0.13.0. Making the address follow the adopted arrangement is a
+  change of its own. An attempt in this change that settled and kept the address at adoption was
+  withdrawn after the ninth review for exactly that reason.
 - A plugin opening content that the workspace it lands in holds in a pane other than the address
   pane. Opening refines that tab's title and does not navigate, so the address stays on what the user
   left, as in 0.13.0; a link to the same content navigates there. Found by the eighth review, it
@@ -48,22 +54,21 @@ width it measures.
 
 **The workspace service says which address a replacement keeps; the tab sync acts on it once the
 router is idle.** Only the workspace service knows why it replaced the arrangement. When it settles an
-address by moving the user into the workspace that claims it, and when it adopts a signed-in person's
-stored arrangement, it calls `OpenTabsService.keepAddress(path)`. The tab-sync effect tracks that, the
+address by moving the user into the workspace that claims it, it calls
+`OpenTabsService.keepAddress(path)`. The tab-sync effect tracks that, the
 first restore (`hydrated()`) and the router's `currentNavigation()` signal. While a navigation runs it
 does nothing, and it skips a run in which neither the address, its route and tab root, the first
 restore, nor a kept address matching the address shown changed. Otherwise it focuses a pane that holds
 the addressed content, measured against what the new arrangement's address pane shows when a kept
 address matches and against the previous address when it does not, and then gives the address its
-tab. A navigation the shell started itself had focused against the old arrangement, so with a kept
-address it is focused again.
+tab, clearing a view tab that was selected in the old arrangement. A navigation the shell started
+itself had focused against the old arrangement, so with a kept address it is focused again. The
+router's navigation is read through a computed flag, so the effect wakes only when the router turns
+busy or idle.
 
 - The same-address reload after sign-in settles the address, enters the claiming workspace and ends
   with no navigation pending and the kept address shown; the address gets its tab. That is F-038.
 - A link into claimed content keeps the link's address; the effect acts when the navigation ends there.
-- Adopting a signed-in person's stored arrangement keeps the address shown. Where a workspace other
-  than the adopted active one claims it, the service first moves the person there, as a link would;
-  then the address gets its tab, and the adopted arrangement of the workspace left is not rewritten.
 - A plugin opening content the claiming workspace holds beside another pane keeps the opened address,
   which is not the one shown, so nothing is added for the address the user left.
 - A preview opened into the claiming workspace is added by the opener before the navigation ends; the
@@ -110,9 +115,10 @@ All of them fight the library's design, where activating a language is what load
 the released behaviour: keys for a moment are acceptable, words in the end are what matters.
 
 **Place a re-worded menu again after the chrome is redrawn, moved with the control.** `present` keeps
-the anchor, the control and where the control was when the menu opened. A menu is re-worded when the
-language changes and when a bundle of the active language arrives; a bundle of another language
-changes none of its words and leaves it alone. After every re-wording it
+the anchor, the control and where the control was when the menu opened. A menu is re-worded when a
+bundle of the active language arrives, and when the language changes to one whose strings are
+already there; a change to a language still loading keeps the words it has, as the translation pipe
+does, and a bundle of another language leaves it alone. After every re-wording it
 waits for the next render (`afterNextRender`), so the bar around the control has taken its new words,
 then places the menu again by the rule it opened with: a point anchor shifted by as much as the control
 moved, a rect anchor with its edges moved as the control's edges moved; a point anchor follows the edge of the

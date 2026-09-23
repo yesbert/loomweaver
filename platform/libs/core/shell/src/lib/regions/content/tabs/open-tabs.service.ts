@@ -180,6 +180,10 @@ export class OpenTabsService {
 
   private readonly keptAddress = signal<string | null>(null);
 
+  private readonly navigating = computed(
+    () => this.router.currentNavigation() !== null,
+  );
+
   private lastRestored = false;
 
   private lastRoute: ContentRoute | undefined;
@@ -194,7 +198,7 @@ export class OpenTabsService {
       const route = this.activeRoute();
       const restored = this.paneTree.hydrated();
       const kept = this.keptAddress();
-      const navigating = this.router.currentNavigation() !== null;
+      const navigating = this.navigating();
       untracked(() => {
         if (navigating) {
           return;
@@ -214,7 +218,7 @@ export class OpenTabsService {
           return;
         }
         const own = moved && this.ownNavigation === normalizePath(url);
-        if (moved && !own) {
+        if (keptHere || (moved && !own)) {
           this.viewTabSelection.set(null);
         }
         if (keptHere || (moved && !own)) {

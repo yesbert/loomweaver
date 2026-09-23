@@ -27,17 +27,18 @@ is that the right words show once the strings are there.
 
 ## What Changes
 
-- **F-038, cut again.** The workspace service tells the tab sync which address a replacement of the
-  arrangement keeps: the address it settles when it moves the user into the workspace that claims
-  it, and the address shown when it adopts a signed-in person's stored arrangement. Once no
-  navigation is running, and only if that is the address shown, the address-driven pane gives it its
-  tab, focusing a pane of the new arrangement that already holds the content before adding one. The
-  content shown before the replacement belongs to the old arrangement and is never carried into the
-  new one. A switch or a reset the user asks for keeps no address; it navigates, as in 0.13.0.
+- **F-038, cut again.** When the workspace service settles an address by moving the user into the
+  workspace that claims it, it tells the tab sync that this address is kept. Once no navigation is
+  running, and only if that is the address shown, the address-driven pane gives it its tab, focusing a
+  pane of the new arrangement that already holds the content before adding one. The content shown
+  before the replacement belongs to the old arrangement and is never carried into the new one. A
+  switch or a reset the user asks for keeps no address; it navigates, as in 0.13.0.
 - **The language switch is the one released in 0.13.0.** The load-first switch from #459 is removed.
   The i18n requirement that promised no partially switched state is replaced by one that states what
   the workbench guarantees: one step, and words everywhere, open menus included, as soon as the
   strings arrive.
+- **An open menu keeps its words while a newly chosen language loads**, and takes the new words once
+  they are there, as text drawn through the translation pipe does.
 - **A re-worded menu stays on screen and beside its control.** It is placed again after the chrome is
   redrawn, moved with its control, measured at its full width, and kept within the window when its
   control is gone.
@@ -70,8 +71,8 @@ None.
 - `platform/libs/core/shell/src/lib/regions/content/tabs/open-tabs.service.ts`: the tab sync takes the
   address a replacement keeps, waits for the router to be idle and handles it; the Quick-Open list
   moves to `quick-open-target.ts`.
-- `platform/libs/core/shell/src/lib/workspace/workspace.service.ts`: settling an address and adopting
-  a stored arrangement say which address they keep.
+- `platform/libs/core/shell/src/lib/workspace/workspace.service.ts`: settling an address says which
+  address it keeps.
 - `platform/libs/core/shell/src/lib/regions/pane/tree/`: `active-content-path.ts` moves here from
   `workspace/`, and `pane-queries.ts` takes the content-path query both slices share.
 - `platform/libs/core/shell/src/lib/i18n/`: back to the 0.13.0 state.

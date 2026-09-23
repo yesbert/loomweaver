@@ -472,4 +472,18 @@ describe('an open menu follows its strings', () => {
 
     expect(menu?.style.left).toBe('100px');
   });
+
+  it('keeps its words, not keys, while a language chosen meanwhile is still loading', async () => {
+    await loaded('en');
+    service.open('account', context, { x: 0, y: 0 });
+
+    transloco.setActiveLang('de');
+    expect(labels()).toEqual(['Profile', 'Sign out']);
+
+    const loading = transloco.load('de').subscribe();
+    HeldLoader.arrive('de');
+    loading.unsubscribe();
+
+    expect(labels()).toEqual(['Profil', 'Vom Konto abmelden']);
+  });
 });

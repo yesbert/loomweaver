@@ -17,7 +17,7 @@ import { CONTENT_DOCK } from '../regions/pane/tree/pane-address';
 import { ContentSecondaryPane } from '../regions/content/content-secondary-pane';
 import { CONTAINER_PANE_HOST } from '../regions/pane/container/container-context';
 import { ContainerPaneHost } from '../regions/pane/container/container-pane-host';
-import { collectLeafIds, collectTabs } from '../regions/pane/tree/pane-queries';
+import { collectLeafIds } from '../regions/pane/tree/pane-queries';
 import { PaneTreeService } from '../regions/pane/tree/pane-tree.service';
 import { WORKING_STATE_STORE } from './working-state-store';
 import { WORKSPACE_CLAIMS } from '../foundation/workspace-claims';
@@ -56,18 +56,6 @@ const LAYOUT = {
   regions: [{ id: 'main', type: 'content', dock: 'center' }],
 } as const;
 
-const DASHBOARD_ONLY = JSON.stringify({
-  content: {
-    tree: {
-      kind: 'leaf',
-      id: 'main',
-      tabs: [{ path: 'dashboard' }],
-      active: 'dashboard',
-    },
-    primary: 'main',
-  },
-});
-
 const SPLIT_ARRANGEMENT = JSON.stringify({
   content: {
     tree: {
@@ -102,17 +90,7 @@ async function settled(): Promise<void> {
   await TestBed.inject(ApplicationRef).whenStable();
 }
 
-const KNOWLEDGE_BASE_WORKSPACE = {
-  id: 'knowledge-base',
-  title: 'Knowledge base',
-  claims: ['knowledge-base'],
-  content: { tabs: [{ path: 'knowledge-base', closable: false }] },
-};
-
-async function open(
-  at = '/dashboard',
-  also: readonly (typeof KNOWLEDGE_BASE_WORKSPACE)[] = [],
-): Promise<{
+async function open(at = '/dashboard'): Promise<{
   workspaces: WorkspaceService;
   panes: PaneTreeService;
 }> {
@@ -133,7 +111,7 @@ async function open(
         initial: true,
         claims: ['dashboard'],
         content: { tabs: [{ path: 'dashboard', closable: false }] },
-      }, ...also),
+      }),
     ],
   });
   const registry = TestBed.inject(ContributionRegistry);
@@ -182,46 +160,6 @@ describe('a session that arrives after the workbench has already read', () => {
 
     expect(panes.isSplit(CONTENT_DOCK)).toBe(true);
     expect(storedArrangement()).toBe(SPLIT_ARRANGEMENT);
-  });
-
-  it('gives the address its tab in the arrangement adopted for the person who signs in', async () => {
-    localStorage.setItem('lw.id.ada:lw.shell.active-workspace', 'dashboard');
-    localStorage.setItem(
-      'lw.id.ada:lw.shell.pane-trees:dashboard',
-      DASHBOARD_ONLY,
-    );
-    const { panes } = await open();
-    await TestBed.inject(Router).navigateByUrl('/knowledge-base');
-    await settled();
-
-    await signIn('ada');
-
-    const tabs = collectTabs(panes.tree(CONTENT_DOCK)).map((tab) => tab.path);
-    expect(tabs).toContain('dashboard');
-    expect(tabs).toContain('knowledge-base');
-  });
-
-  it('moves the person who signs in to the workspace that claims the address shown', async () => {
-    localStorage.setItem('lw.id.ada:lw.shell.active-workspace', 'dashboard');
-    localStorage.setItem(
-      'lw.id.ada:lw.shell.pane-trees:dashboard',
-      DASHBOARD_ONLY,
-    );
-    const { panes, workspaces } = await open('/dashboard', [
-      KNOWLEDGE_BASE_WORKSPACE,
-    ]);
-    await TestBed.inject(Router).navigateByUrl('/knowledge-base');
-    await settled();
-
-    await signIn('ada');
-
-    expect(workspaces.activeId()).toBe('knowledge-base');
-    expect(collectTabs(panes.tree(CONTENT_DOCK)).map((tab) => tab.path)).toContain(
-      'knowledge-base',
-    );
-    expect(localStorage.getItem('lw.id.ada:lw.shell.pane-trees:dashboard')).toBe(
-      DASHBOARD_ONLY,
-    );
   });
 
   it('keeps what was built for a person the product has never seen', async () => {

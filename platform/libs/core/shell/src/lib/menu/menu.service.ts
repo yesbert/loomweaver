@@ -13,7 +13,7 @@ import { ContributionRegistry } from '../plugin/contribution-registry';
 import { CommandService } from '../commands/command.service';
 import { drawMenuHeading, HEADING_KEY, wordMenuHeading } from './menu-heading';
 import { followed, MenuAnchor, place } from './menu-placement';
-import { MenuLabel, wordEntries } from './menu-wording';
+import { holdsStrings, MenuLabel, wordEntries } from './menu-wording';
 import {
   LW_MENU_DISMISS,
   LW_MENU_ITEM_TAG,
@@ -184,7 +184,10 @@ export class MenuService {
       0,
     );
     const wording = merge(
-      this.transloco.langChanges$.pipe(skip(1)),
+      this.transloco.langChanges$.pipe(
+        skip(1),
+        filter((lang) => holdsStrings(this.transloco, lang)),
+      ),
       this.transloco.events$.pipe(
         filter(
           (event) =>

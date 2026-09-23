@@ -20,9 +20,9 @@ arrived yet MAY show its keys for that moment, because the workbench does not ho
 back while they load. Everything the workbench draws, open menus included, SHALL show the words as
 soon as the strings arrive, without a reload and without the user doing anything.
 
-The limit: where the strings of the chosen language cannot be loaded, the interface shows what the
-translation library falls back to, and the choice is still remembered, so the next visit tries it
-again.
+The limits: a dialog or prompt keeps the words it was opened with until it is closed. Where the
+strings of the chosen language cannot be loaded, the interface shows what the translation library
+falls back to, and the choice is still remembered, so the next visit tries it again.
 
 #### Scenario: Switching the language updates the page and the record of it
 
