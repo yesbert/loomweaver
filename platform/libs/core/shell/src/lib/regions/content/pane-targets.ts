@@ -80,11 +80,10 @@ export function routerPaneTargets(
 
 export function paneTargetEntries(
   targets: readonly PaneTarget[],
-  translate: (key: string) => string,
 ): MenuListEntry[] {
   return targets.map((target) => ({
     key: target.path,
-    label: paneTargetLabel(target, translate),
+    label: (translate) => paneTargetLabel(target, translate),
     icon: target.icon,
   }));
 }

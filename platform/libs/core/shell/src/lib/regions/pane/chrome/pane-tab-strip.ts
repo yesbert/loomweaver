@@ -15,7 +15,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
-import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { TranslocoPipe } from '@jsverse/transloco';
 import {
   CdkDrag,
   CdkDragDrop,
@@ -104,8 +104,6 @@ export class PaneTabStrip {
   readonly revealRequest = output<string>();
 
   private readonly menu = inject(MenuService);
-
-  private readonly transloco = inject(TranslocoService);
 
   private readonly destroyRef = inject(DestroyRef);
 
@@ -206,7 +204,8 @@ export class PaneTabStrip {
     const anchor = control.getBoundingClientRect();
     const entries = this.tabs().map((tab) => ({
       key: tab.path,
-      label: this.label(tab),
+      label: (translate: (key: string) => string) =>
+        resolveTitle(tab, translate),
       icon: tab.icon,
       active: this.isActive(tab),
     }));
@@ -373,9 +372,5 @@ export class PaneTabStrip {
     if (!fullyVisible) {
       this.revealRequest.emit(active);
     }
-  }
-
-  private label(tab: StripTab): string {
-    return resolveTitle(tab, (key) => this.transloco.translate(key));
   }
 }

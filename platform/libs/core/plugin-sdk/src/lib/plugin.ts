@@ -42,10 +42,12 @@ export interface PluginManifest {
 }
 
 /**
- * One row of an ad-hoc context menu opened via {@link PluginUi.openMenu}: a display `label` (a literal —
- * the weaver localises its own body text), an optional leading `icon` (a host icon-registry name), and an
- * in-process `run` handler invoked when the row is chosen. Trusted-rung only: `run` is a function, so it
- * does not cross the sandbox RPC boundary — a sandboxed plugin draws its own `<lw-menu>` instead.
+ * One row of an ad-hoc context menu opened via {@link PluginUi.openMenu}: a display `label` (a translation
+ * key of the weaver's own bundle or a literal, told apart like every other "key or literal" field; a key is
+ * re-worded in the open menu when the strings arrive or the language changes), an optional leading `icon`
+ * (a host icon-registry name), and an in-process `run` handler invoked when the row is chosen.
+ * Trusted-rung only: `run` is a function, so it does not cross the sandbox RPC boundary — a sandboxed
+ * plugin draws its own `<lw-menu>` instead.
  */
 export interface UiMenuItem {
   readonly label: string;

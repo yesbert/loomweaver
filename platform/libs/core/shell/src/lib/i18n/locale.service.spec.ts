@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { DOCUMENT } from '@angular/common';
 import { TranslocoService } from '@jsverse/transloco';
+import { of, Subject, throwError } from 'rxjs';
 import { LocaleService } from './locale.service';
 import { SERVED_LANGUAGES } from './served-languages';
 import { SETTINGS_STORE } from '../persistence/settings-store';
@@ -9,7 +10,12 @@ describe('LocaleService', () => {
   function setup() {
     const setActiveLang = vi.fn();
     TestBed.configureTestingModule({
-      providers: [{ provide: TranslocoService, useValue: { setActiveLang } }],
+      providers: [
+        {
+          provide: TranslocoService,
+          useValue: { setActiveLang, load: () => of({}) },
+        },
+      ],
     });
     return {
       service: TestBed.inject(LocaleService),
@@ -35,7 +41,10 @@ describe('LocaleService', () => {
     const set = vi.fn(() => Promise.resolve());
     TestBed.configureTestingModule({
       providers: [
-        { provide: TranslocoService, useValue: { setActiveLang: vi.fn() } },
+        {
+          provide: TranslocoService,
+          useValue: { setActiveLang: vi.fn(), load: () => of({}) },
+        },
         {
           provide: SETTINGS_STORE,
           useValue: {
@@ -61,7 +70,10 @@ describe('LocaleService as a product reads and drives it', () => {
     const setActiveLang = vi.fn();
     TestBed.configureTestingModule({
       providers: [
-        { provide: TranslocoService, useValue: { setActiveLang } },
+        {
+          provide: TranslocoService,
+          useValue: { setActiveLang, load: () => of({}) },
+        },
         { provide: SERVED_LANGUAGES, useValue: languages },
       ],
     });
@@ -96,5 +108,69 @@ describe('LocaleService as a product reads and drives it', () => {
     expect(localStorage.getItem('lw.shell.lang')).toBeNull();
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('"it"'));
     warn.mockRestore();
+  });
+});
+
+describe('LocaleService switching to a language not loaded yet', () => {
+  function loading(load: (lang: string) => unknown) {
+    localStorage.clear();
+    const setActiveLang = vi.fn();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: TranslocoService, useValue: { setActiveLang, load } },
+      ],
+    });
+    return {
+      service: TestBed.inject(LocaleService),
+      doc: TestBed.inject(DOCUMENT),
+      setActiveLang,
+    };
+  }
+
+  it('keeps the previous language until the strings are there, then switches as one act', () => {
+    const arrived = new Subject<object>();
+    const { service, doc, setActiveLang } = loading(() => arrived);
+    const before = service.lang();
+
+    service.setLang('de');
+
+    expect(service.lang()).toBe(before);
+    expect(setActiveLang).not.toHaveBeenCalled();
+    expect(localStorage.getItem('lw.shell.lang')).toBe('de');
+
+    arrived.next({});
+
+    expect(service.lang()).toBe('de');
+    expect(setActiveLang).toHaveBeenCalledWith('de');
+    expect(doc.documentElement.lang).toBe('de');
+  });
+
+  it('switches anyway when the strings cannot be loaded', () => {
+    const { service, setActiveLang } = loading(() =>
+      throwError(() => new Error('offline')),
+    );
+
+    service.setLang('de');
+
+    expect(service.lang()).toBe('de');
+    expect(setActiveLang).toHaveBeenCalledWith('de');
+  });
+
+  it('applies only the latest of two choices made while loading', () => {
+    const loads = new Map<string, Subject<object>>();
+    const { service, setActiveLang } = loading((lang) => {
+      const subject = new Subject<object>();
+      loads.set(lang, subject);
+      return subject;
+    });
+
+    service.setLang('de');
+    service.setLang('en');
+    loads.get('de')?.next({});
+    loads.get('en')?.next({});
+
+    expect(setActiveLang).toHaveBeenCalledTimes(1);
+    expect(setActiveLang).toHaveBeenCalledWith('en');
+    expect(service.lang()).toBe('en');
   });
 });

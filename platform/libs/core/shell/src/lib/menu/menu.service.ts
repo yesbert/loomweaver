@@ -1,9 +1,10 @@
 import { DestroyRef, inject, Service, signal } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
+import { filter, merge, Subscription } from 'rxjs';
 import { Command, MenuContext, MenuHeader, MenuItem } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../plugin/contribution-registry';
 import { CommandService } from '../commands/command.service';
-import { drawMenuHeading, HEADING_KEY } from './menu-heading';
+import { drawMenuHeading, HEADING_KEY, wordMenuHeading } from './menu-heading';
 import {
   LW_MENU_DISMISS,
   LW_MENU_ITEM_TAG,
@@ -25,9 +26,11 @@ export interface MenuOpenOptions {
   readonly header?: MenuHeader;
 }
 
+export type MenuLabel = string | ((translate: (key: string) => string) => string);
+
 interface ResolvedItem {
   readonly key: string;
-  readonly label: string;
+  readonly title: string;
   readonly group: string;
   readonly order: number;
   readonly icon?: string;
@@ -42,11 +45,17 @@ interface OpenMenu {
   readonly onOutside: (event: PointerEvent) => void;
   readonly restore: HTMLElement | null;
   readonly listenTimer: ReturnType<typeof setTimeout>;
+  readonly wording: Subscription;
+}
+
+interface WordedMenu {
+  readonly menu: LwMenuElement;
+  readonly word: () => void;
 }
 
 export interface MenuListEntry {
   readonly key: string;
-  readonly label: string;
+  readonly label: MenuLabel;
   readonly icon?: string;
   readonly active?: boolean;
   readonly checked?: boolean;
@@ -85,10 +94,10 @@ export class MenuService {
     if (resolved.length === 0 && !leadsTo) {
       return;
     }
-    const menu = this.createMenu(resolved, options.header, leadsTo);
+    const worded = this.createMenu(resolved, options.header, leadsTo);
     const byKey = new Map(resolved.map((entry) => [entry.key, entry.item]));
     this.present(
-      menu,
+      worded,
       at,
       (key) => {
         if (key === HEADING_KEY && leadsTo) {
@@ -114,9 +123,8 @@ export class MenuService {
     if (entries.length === 0) {
       return;
     }
-    const menu = this.createListMenu(entries);
     this.present(
-      menu,
+      this.createListMenu(entries),
       at,
       (key) => {
         if (key !== null) {
@@ -135,6 +143,7 @@ export class MenuService {
     this.current = undefined;
     this.trigger.set(null);
     clearTimeout(open.listenTimer);
+    open.wording.unsubscribe();
     document.removeEventListener('pointerdown', open.onOutside, true);
     document.body.classList.remove('lw-menu-open');
     open.menu.remove();
@@ -142,7 +151,7 @@ export class MenuService {
   }
 
   private present(
-    menu: LwMenuElement,
+    { menu, word }: WordedMenu,
     at: MenuAnchor,
     onSelect: (key: string | null) => void,
     trigger?: HTMLElement,
@@ -173,7 +182,13 @@ export class MenuService {
         document.addEventListener('pointerdown', onOutside, { capture: true }),
       0,
     );
-    this.current = { menu, onOutside, restore, listenTimer };
+    const wording = merge(
+      this.transloco.langChanges$,
+      this.transloco.events$.pipe(
+        filter((event) => event.type === 'translationLoadSuccess'),
+      ),
+    ).subscribe(() => word());
+    this.current = { menu, onOutside, restore, listenTimer, wording };
   }
 
   private resolve(
@@ -201,7 +216,7 @@ export class MenuService {
         const checkbox = item.checkedWhen !== undefined;
         return {
           key: item.command ?? `__inline-${index}`,
-          label: this.transloco.translate(titleKey),
+          title: titleKey,
           group: item.group ?? '',
           order: item.order ?? 0,
           icon: command?.icon,
@@ -229,7 +244,7 @@ export class MenuService {
     resolved: readonly ResolvedItem[],
     header?: MenuHeader,
     leadsTo?: Command,
-  ): LwMenuElement {
+  ): WordedMenu {
     const menu = document.createElement(LW_MENU_TAG) as LwMenuElement;
     if (resolved.some((entry) => entry.checkbox)) {
       menu.classList.add('lw-menu--checks');
@@ -237,11 +252,14 @@ export class MenuService {
     if (resolved.some((entry) => entry.icon)) {
       menu.classList.add('lw-menu--leading');
     }
-    if (header) {
-      menu.append(
-        drawMenuHeading(header, menu, (key) => this.transloco.translate(key), leadsTo),
-      );
+    const translate = (key: string): string => this.transloco.translate(key);
+    const heading = header
+      ? drawMenuHeading(header, menu, translate, leadsTo)
+      : undefined;
+    if (heading) {
+      menu.append(heading);
     }
+    const labelled: [HTMLElement, MenuLabel][] = [];
     let lastGroup: string | undefined;
     for (const entry of resolved) {
       if (lastGroup !== undefined && entry.group !== lastGroup) {
@@ -253,7 +271,7 @@ export class MenuService {
       lastGroup = entry.group;
       const item = document.createElement(LW_MENU_ITEM_TAG);
       item.setAttribute('command', entry.key);
-      item.setAttribute('label', entry.label);
+      labelled.push([item, entry.title]);
       if (entry.icon) {
         item.setAttribute('icon', entry.icon);
       }
@@ -268,10 +286,17 @@ export class MenuService {
       }
       menu.append(item);
     }
-    return menu;
+    const word = (): void => {
+      this.wordEntries(labelled);
+      if (header && heading) {
+        wordMenuHeading(heading, header, menu, translate, leadsTo);
+      }
+    };
+    this.wordEntries(labelled);
+    return { menu, word };
   }
 
-  private createListMenu(entries: readonly MenuListEntry[]): LwMenuElement {
+  private createListMenu(entries: readonly MenuListEntry[]): WordedMenu {
     const menu = document.createElement(LW_MENU_TAG) as LwMenuElement;
     if (
       entries.some(
@@ -280,10 +305,11 @@ export class MenuService {
     ) {
       menu.classList.add('lw-menu--leading');
     }
+    const labelled: [HTMLElement, MenuLabel][] = [];
     for (const entry of entries) {
       const item = document.createElement(LW_MENU_ITEM_TAG);
       item.setAttribute('command', entry.key);
-      item.setAttribute('label', entry.label);
+      labelled.push([item, entry.label]);
       if (entry.checked !== undefined) {
         item.setAttribute('checkbox', '');
         if (entry.checked) {
@@ -297,7 +323,20 @@ export class MenuService {
       }
       menu.append(item);
     }
-    return menu;
+    const word = (): void => this.wordEntries(labelled);
+    word();
+    return { menu, word };
+  }
+
+  private wordEntries(labelled: readonly [HTMLElement, MenuLabel][]): void {
+    const translate = (key: string): string => this.transloco.translate(key);
+    for (const [item, label] of labelled) {
+      const words =
+        typeof label === 'string' ? translate(label) : label(translate);
+      if (item.getAttribute('label') !== words) {
+        item.setAttribute('label', words);
+      }
+    }
   }
 
   private run(item: MenuItem, context: MenuContext): void {
