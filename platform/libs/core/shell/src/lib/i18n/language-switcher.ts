@@ -2,6 +2,7 @@ import { CUSTOM_ELEMENTS_SCHEMA, Component, inject } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LocaleService } from './locale.service';
 import { ViewportService } from '../layout/viewport.service';
+import { LwSelectElement } from '../elements/select/lw-select.element';
 
 const FLAGS: Readonly<Partial<Record<string, string>>> = {
   en: '🇬🇧',
@@ -28,5 +29,6 @@ export class LanguageSwitcher {
   protected onSelect(event: Event): void {
     const value = (event as CustomEvent<{ value: string }>).detail.value;
     this.locale.setLang(value);
+    (event.target as LwSelectElement).value = this.lang();
   }
 }

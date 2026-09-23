@@ -227,6 +227,7 @@ describe('HostPluginContext', () => {
         item.getAttribute('label'),
       );
 
+    onTestFinished(() => menu.close());
     ctx.ui.openMenu(
       [
         { label: 'test-plugin.menu.open', run: () => undefined },
@@ -238,7 +239,6 @@ describe('HostPluginContext', () => {
 
     TestBed.inject(TranslocoService).setActiveLang('de');
     expect(labels()).toEqual(['Öffnen', 'Ada Lovelace']);
-    menu.close();
   });
 
   it('ctx.ui.openMenu requires the "ui" capability (default-deny)', () => {

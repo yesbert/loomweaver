@@ -7,7 +7,15 @@ import {
   TranslocoLoader,
   TranslocoService,
 } from '@jsverse/transloco';
-import { EMPTY, Observable, of, Subject, throwError } from 'rxjs';
+import {
+  EMPTY,
+  firstValueFrom,
+  NEVER,
+  Observable,
+  of,
+  Subject,
+  throwError,
+} from 'rxjs';
 import { LocaleService } from './locale.service';
 import { SERVED_LANGUAGES } from './served-languages';
 import { SETTINGS_STORE } from '../persistence/settings-store';
@@ -118,12 +126,33 @@ describe('LocaleService as a product reads and drives it', () => {
 });
 
 describe('LocaleService switching to a language not loaded yet', () => {
-  function loading(load: (lang: string) => unknown) {
+  function loading(
+    load: (lang: string) => Observable<unknown>,
+    store?: { get: () => Promise<string | undefined> },
+  ) {
     localStorage.clear();
-    const setActiveLang = vi.fn();
+    let active = 'en';
+    const setActiveLang = vi.fn((lang: string) => {
+      active = lang;
+    });
     TestBed.configureTestingModule({
       providers: [
-        { provide: TranslocoService, useValue: { setActiveLang, load } },
+        {
+          provide: TranslocoService,
+          useValue: { setActiveLang, load, getActiveLang: () => active },
+        },
+        ...(store
+          ? [
+              {
+                provide: SETTINGS_STORE,
+                useValue: {
+                  ...store,
+                  set: () => Promise.resolve(),
+                  delete: () => Promise.resolve(),
+                },
+              },
+            ]
+          : []),
       ],
     });
     return {
@@ -132,6 +161,15 @@ describe('LocaleService switching to a language not loaded yet', () => {
       setActiveLang,
     };
   }
+
+  let warn: ReturnType<typeof vi.spyOn>;
+  beforeEach(() => {
+    warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+  });
+  afterEach(() => {
+    warn.mockRestore();
+    vi.useRealTimers();
+  });
 
   it('keeps the previous language until the strings are there, then switches and remembers as one act', () => {
     const arrived = new Subject<object>();
@@ -145,7 +183,6 @@ describe('LocaleService switching to a language not loaded yet', () => {
     expect(localStorage.getItem('lw.shell.lang')).toBeNull();
 
     arrived.next({});
-    arrived.complete();
 
     expect(service.lang()).toBe('de');
     expect(setActiveLang).toHaveBeenCalledWith('de');
@@ -153,26 +190,39 @@ describe('LocaleService switching to a language not loaded yet', () => {
     expect(localStorage.getItem('lw.shell.lang')).toBe('de');
   });
 
-  it('switches anyway when the strings cannot be loaded', () => {
+  it('stays in the active language and stores nothing when the strings cannot be loaded', () => {
     const { service, setActiveLang } = loading(() =>
       throwError(() => new Error('offline')),
     );
 
     service.setLang('de');
 
-    expect(service.lang()).toBe('de');
-    expect(setActiveLang).toHaveBeenCalledWith('de');
-    expect(localStorage.getItem('lw.shell.lang')).toBe('de');
+    expect(service.lang()).toBe('en');
+    expect(setActiveLang).not.toHaveBeenCalledWith('de');
+    expect(localStorage.getItem('lw.shell.lang')).toBeNull();
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('"de"'));
   });
 
-  it('switches anyway when the load ends without delivering anything, as it does once the fallback is loaded', () => {
+  it('stays in the active language when the load ends without delivering anything', () => {
     const { service, setActiveLang } = loading(() => EMPTY);
 
     service.setLang('de');
 
-    expect(service.lang()).toBe('de');
-    expect(setActiveLang).toHaveBeenCalledWith('de');
-    expect(localStorage.getItem('lw.shell.lang')).toBe('de');
+    expect(service.lang()).toBe('en');
+    expect(setActiveLang).not.toHaveBeenCalledWith('de');
+    expect(localStorage.getItem('lw.shell.lang')).toBeNull();
+  });
+
+  it('stays in the active language when the strings do not arrive within the bound', () => {
+    vi.useFakeTimers();
+    const { service } = loading(() => NEVER);
+
+    service.setLang('de');
+    vi.advanceTimersByTime(10_000);
+
+    expect(service.lang()).toBe('en');
+    expect(localStorage.getItem('lw.shell.lang')).toBeNull();
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('"de"'));
   });
 
   it('applies only the latest of two choices made while loading', () => {
@@ -185,12 +235,28 @@ describe('LocaleService switching to a language not loaded yet', () => {
 
     service.setLang('de');
     service.setLang('en');
-    loads.get('de')?.complete();
-    loads.get('en')?.complete();
+    loads.get('de')?.next({});
+    loads.get('en')?.next({});
 
     expect(setActiveLang).toHaveBeenCalledTimes(1);
     expect(setActiveLang).toHaveBeenCalledWith('en');
     expect(service.lang()).toBe('en');
+  });
+
+  it('does not let a stored value that changes nothing cancel a choice still loading', async () => {
+    let answer: (value: string) => void = () => undefined;
+    const arrived = new Subject<object>();
+    const { service } = loading(() => arrived, {
+      get: () => new Promise<string>((resolve) => (answer = resolve)),
+    });
+
+    service.setLang('de');
+    answer('en');
+    await Promise.resolve();
+    await Promise.resolve();
+    arrived.next({});
+
+    expect(service.lang()).toBe('de');
   });
 });
 
@@ -199,19 +265,21 @@ class GermanUnreachable implements TranslocoLoader {
   getTranslation(lang: string): Observable<Translation> {
     return lang === 'de'
       ? throwError(() => new Error('offline'))
-      : of({ greeting: 'Hello' });
+      : of({ greeting: lang === 'fr' ? 'Bonjour' : 'Hello' });
   }
 }
 
 describe('LocaleService with the translation library itself', () => {
-  it('switches to a language whose strings cannot be loaded once the fallback is loaded', async () => {
+  it('stays in the active language when its strings cannot be loaded, although the library falls back', async () => {
     localStorage.clear();
     const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     TestBed.configureTestingModule({
       providers: [
+        { provide: SERVED_LANGUAGES, useValue: ['en', 'de', 'fr'] },
         provideTransloco({
           config: {
-            availableLangs: ['en', 'de'],
+            availableLangs: ['en', 'de', 'fr'],
             defaultLang: 'en',
             fallbackLang: 'en',
             failedRetries: 0,
@@ -222,15 +290,19 @@ describe('LocaleService with the translation library itself', () => {
       ],
     });
     const transloco = TestBed.inject(TranslocoService);
-    await transloco.load('en').toPromise();
+    await firstValueFrom(transloco.load('en'));
     const service = TestBed.inject(LocaleService);
+    service.setLang('fr');
+    await Promise.resolve();
+    expect(service.lang()).toBe('fr');
 
     service.setLang('de');
     await Promise.resolve();
 
-    expect(service.lang()).toBe('de');
-    expect(transloco.getActiveLang()).toBe('de');
-    expect(localStorage.getItem('lw.shell.lang')).toBe('de');
+    expect(service.lang()).toBe('fr');
+    expect(transloco.getActiveLang()).toBe('fr');
+    expect(localStorage.getItem('lw.shell.lang')).toBe('fr');
     error.mockRestore();
+    warn.mockRestore();
   });
 });

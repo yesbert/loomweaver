@@ -54,9 +54,10 @@ Persistence, sync between tabs and what isolated surfaces receive stay the workb
 
 `LocaleService.languages` names each served language in that language ("Deutsch", "Français"), the
 same names the built-in switcher shows. `setLang()` switches once the language's strings have
-loaded, or have failed to load, so `lang()` changes then and not at the call. The page, the document
-language and the stored choice change together. With a code that is not served it changes nothing
-and warns in development.
+loaded, so `lang()` changes then and not at the call. The page, the document language and the stored
+choice change together. Strings that cannot be loaded, or take longer than ten seconds, change
+nothing, so a control that shows `lang()` shows the language still in effect and the same choice can
+be made again. With a code that is not served it changes nothing and warns in development.
 
 ## The product's identity, elsewhere
 

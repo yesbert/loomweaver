@@ -8,6 +8,7 @@ import { BootAddress } from '../regions/content/routing/boot-address';
 import { provideLayout, ShellLayout } from '../layout/layout';
 import { buildContentRoutes } from '../regions/content/routing/content-router';
 import { ContentTabsService } from '../regions/content/tabs/content-tabs.service';
+import { PaneTreeService } from '../regions/pane/tree/pane-tree.service';
 import { WORKSPACE_CLAIMS } from '../foundation/workspace-claims';
 import { WorkspaceService } from './workspace.service';
 import { provideWorkspaces } from './provide-workspaces';
@@ -29,6 +30,7 @@ const ROUTES: readonly ContentRoute[] = [
   { path: 'dashboard', loadComponent: slowly },
   { path: 'reports', component: TestContent },
   { path: 'knowledge-base', loadComponent: slowly },
+  { path: 'knowledge-base/:entryId', component: TestContent },
 ];
 
 const LAYOUT: ShellLayout = {
@@ -46,7 +48,7 @@ const DECLARED: readonly WorkspaceDefinition[] = [
   {
     id: 'knowledge-base',
     title: 'Knowledge base',
-    claims: ['knowledge-base'],
+    claims: ['knowledge-base', 'knowledge-base/:entryId'],
     content: { tabs: [{ path: 'knowledge-base', closable: false }] },
   },
 ];
@@ -67,6 +69,7 @@ function renderRightAfterEverySwitch(workspaces: WorkspaceService): void {
 
 async function openAtReports(): Promise<{
   readonly workspaces: WorkspaceService;
+  readonly contentTabs: ContentTabsService;
   readonly tabs: () => readonly string[];
 }> {
   TestBed.configureTestingModule({
@@ -85,6 +88,7 @@ async function openAtReports(): Promise<{
   await settled();
   return {
     workspaces: TestBed.inject(WorkspaceService),
+    contentTabs,
     tabs: () => contentTabs.tabs().map((tab) => tab.path),
   };
 }
@@ -125,5 +129,32 @@ describe('leaving content behind', () => {
 
     expect(opened.workspaces.activeId()).toBe('knowledge-base');
     expect(opened.tabs()).toEqual(['knowledge-base']);
+  });
+
+  it('keeps a preview a preview when it is opened into the workspace that claims it', async () => {
+    const opened = await openAtReports();
+
+    opened.contentTabs.open({
+      path: 'knowledge-base/e-1',
+      title: 'Entry 1',
+      titleIsLiteral: true,
+      preview: true,
+    });
+    await settled();
+
+    expect(opened.workspaces.activeId()).toBe('knowledge-base');
+    const entry = opened.contentTabs
+      .tabs()
+      .find((tab) => tab.path === 'knowledge-base/e-1');
+    expect(entry?.preview).toBe(true);
+  });
+
+  it('gives the address its tab again when its arrangement is replaced without a navigation', async () => {
+    const opened = await openAtReports();
+
+    TestBed.inject(PaneTreeService).hydrate(undefined);
+    await settled();
+
+    expect(opened.tabs()).toContain('reports');
   });
 });

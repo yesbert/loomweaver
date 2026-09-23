@@ -6,7 +6,7 @@ import {
   TranslocoLoader,
   TranslocoService,
 } from '@jsverse/transloco';
-import { Observable, Subject } from 'rxjs';
+import { firstValueFrom, Observable, Subject } from 'rxjs';
 import { MenuContext } from '@loomweaver/plugin-sdk';
 import { MenuService } from './menu.service';
 import { ContributionRegistry } from '../plugin/contribution-registry';
@@ -97,7 +97,10 @@ describe('an open menu follows its strings', () => {
     document.body.replaceChildren();
   });
 
-  afterEach(() => service.close());
+  afterEach(() => {
+    service.close();
+    vi.restoreAllMocks();
+  });
 
   function labels(): (string | null)[] {
     return [
@@ -112,7 +115,7 @@ describe('an open menu follows its strings', () => {
   }
 
   async function loaded(lang: string): Promise<void> {
-    const load = transloco.load(lang).toPromise();
+    const load = firstValueFrom(transloco.load(lang));
     HeldLoader.arrive(lang);
     await load;
   }
@@ -202,6 +205,31 @@ describe('an open menu follows its strings', () => {
     expect(Number.parseFloat(menu?.style.left ?? '')).toBeLessThanOrEqual(
       window.innerWidth - width,
     );
-    vi.restoreAllMocks();
+  });
+
+  it('places a menu opened from a control beside that control again, where the control now is', async () => {
+    await loaded('en');
+    await loaded('de');
+    vi.spyOn(LwMenuElement.prototype, 'getBoundingClientRect').mockImplementation(
+      sizedByItsLongestLabel,
+    );
+    const control = document.createElement('button');
+    document.body.append(control);
+    const at = (left: number) =>
+      ({ left, top: 0, right: left + 32, bottom: 32, width: 32, height: 32 }) as DOMRect;
+    vi.spyOn(control, 'getBoundingClientRect').mockReturnValue(at(100));
+    service.open(
+      'account',
+      context,
+      { rect: at(100), side: 'bottom' },
+      { trigger: control },
+    );
+    const menu = document.body.querySelector<HTMLElement>(LW_MENU_TAG);
+    expect(menu?.style.left).toBe('100px');
+
+    vi.spyOn(control, 'getBoundingClientRect').mockReturnValue(at(160));
+    transloco.setActiveLang('de');
+
+    expect(menu?.style.left).toBe('160px');
   });
 });

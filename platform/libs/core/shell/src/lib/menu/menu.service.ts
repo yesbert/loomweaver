@@ -184,8 +184,11 @@ export class MenuService {
         filter((event) => event.type === 'translationLoadSuccess'),
       ),
     ).subscribe(() => {
+      const before = menu.textContent;
       word();
-      place(menu, at);
+      if (menu.textContent !== before) {
+        place(menu, measuredAgain(at, trigger));
+      }
     });
     this.current = { menu, onOutside, restore, listenTimer, wording };
   }
@@ -251,13 +254,12 @@ export class MenuService {
     if (resolved.some((entry) => entry.icon)) {
       menu.classList.add('lw-menu--leading');
     }
-    const translate = (key: string): string => this.transloco.translate(key);
     let wordHeading = (): void => undefined;
     if (header) {
-      const heading = drawMenuHeading(header, menu, translate, leadsTo);
+      const heading = drawMenuHeading(header, menu, this.translate, leadsTo);
       menu.append(heading);
       wordHeading = () =>
-        wordMenuHeading(heading, header, menu, translate, leadsTo);
+        wordMenuHeading(heading, header, menu, this.translate, leadsTo);
     }
     const labelled: [HTMLElement, MenuLabel][] = [];
     let lastGroup: string | undefined;
@@ -286,11 +288,11 @@ export class MenuService {
       }
       menu.append(item);
     }
-    wordEntries(labelled, translate);
+    wordEntries(labelled, this.translate);
     return {
       menu,
       word: () => {
-        wordEntries(labelled, translate);
+        wordEntries(labelled, this.translate);
         wordHeading();
       },
     };
@@ -323,11 +325,13 @@ export class MenuService {
       }
       menu.append(item);
     }
-    const translate = (key: string): string => this.transloco.translate(key);
-    const word = (): void => wordEntries(labelled, translate);
+    const word = (): void => wordEntries(labelled, this.translate);
     word();
     return { menu, word };
   }
+
+  private readonly translate = (key: string): string =>
+    this.transloco.translate(key);
 
   private run(item: MenuItem, context: MenuContext): void {
     if (item.command) {
@@ -340,6 +344,12 @@ export class MenuService {
       console.error('Menu item handler failed', error);
     }
   }
+}
+
+function measuredAgain(at: MenuAnchor, trigger?: HTMLElement): MenuAnchor {
+  return trigger && 'rect' in at
+    ? { rect: trigger.getBoundingClientRect(), side: at.side }
+    : at;
 }
 
 function place(menu: LwMenuElement, at: MenuAnchor): void {

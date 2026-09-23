@@ -5,10 +5,15 @@
 Choosing a language SHALL update what the user sees, what the document reports as its language, and
 what is remembered for the next visit — as one act, with no partially switched state in between.
 A language whose strings have not arrived yet SHALL be switched to once they have, so the interface
-never shows keys in between. The choice SHALL be remembered, and sent to the application's other
-windows, when the switch happens and not before, so neither runs ahead of what the user sees. The
-limit: where the strings cannot be loaded, the switch SHALL happen anyway, however the load ends, so
-a choice is never lost to a failed load.
+never shows keys in between, and the choice SHALL be remembered, and sent to the application's other
+windows, in that same step and not before.
+
+A language whose strings cannot be loaded SHALL NOT be switched to, whether the load reports an
+error, ends without delivering anything, or has delivered nothing after ten seconds: what the user
+sees, the document's language and what is remembered stay as they were, and a language control shows
+the language still in effect, so the same choice can simply be made again. A language that arrives
+from storage or from another window and is already the one in effect SHALL NOT cancel a choice that
+is still loading.
 
 #### Scenario: Switching the language updates the page and the record of it
 
@@ -23,8 +28,9 @@ a choice is never lost to a failed load.
 - **THEN** the interface keeps the previous language until they have arrived
 - **AND** then switches to the new one, showing words rather than keys
 
-#### Scenario: A language whose strings cannot be loaded is still switched to
+#### Scenario: A language whose strings cannot be loaded is not switched to
 
 - **WHEN** the user chooses a language whose strings cannot be loaded, whether the load reports an
-  error or ends without delivering anything
-- **THEN** the workbench switches to it all the same, and the choice is stored
+  error, ends without delivering anything, or delivers nothing within ten seconds
+- **THEN** the interface, the document's language and the stored choice stay as they were
+- **AND** the language control shows the language still in effect

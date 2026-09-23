@@ -176,7 +176,6 @@ export class WorkspaceService {
     const destination = this.settlementDestination(path);
     if (destination !== null) {
       await this.switchTo(destination, { keepAddress: true });
-      this.openTabs.showAddress(path);
     }
   }
 

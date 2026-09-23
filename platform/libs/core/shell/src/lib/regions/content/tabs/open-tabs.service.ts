@@ -41,6 +41,7 @@ import { TAB_ADDRESS_RESOLVER, computedTabAddress } from './tab-address';
 import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../../pane/tree/pane-address';
 import { findLeaf, findLeafWhere } from '../../pane/tree/pane-queries';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
+import { activeTab } from '../../pane/tree/pane-node';
 import { isPopoutUrl } from '../../../popout/popout-path';
 import { popoutNavigationRefusal } from '../../../popout/popout-refusal';
 
@@ -177,14 +178,20 @@ export class OpenTabsService {
 
   private ownNavigation: string | null = null;
 
+  private lastReplacement = 0;
+
   constructor() {
     effect(() => {
       const url = this.currentUrl();
       const path = this.activePath();
       const root = this.activeTabRoot();
       const route = this.activeRoute();
-      this.paneTree.hydrated();
+      const replacement = this.paneTree.replaced();
+      const navigating = this.router.currentNavigation() !== null;
       untracked(() => {
+        if (navigating) {
+          return;
+        }
         if (url !== this.lastUrl) {
           const previous = this.lastUrl;
           this.lastUrl = url;
@@ -193,16 +200,13 @@ export class OpenTabsService {
             this.focusHolderOf(path, this.rootFor(previous).root);
           }
           this.ownNavigation = null;
+        } else if (replacement !== this.lastReplacement) {
+          this.focusHolderOf(path, this.rootFor(this.shownByAddressPane()).root);
         }
+        this.lastReplacement = replacement;
         this.syncTabOf(route, root, path);
       });
     });
-  }
-
-  showAddress(address: string): void {
-    const path = normalizePath(address);
-    const routes = this.registry.contentRoutes();
-    this.syncTabOf(matchRoute(routes, path), tabRootOf(routes, path), path);
   }
 
   activateViewTab(path: string): void {
@@ -339,6 +343,14 @@ export class OpenTabsService {
     if (root) {
       this.stampActive(root);
     }
+  }
+
+  private shownByAddressPane(): string {
+    const leaf = findLeaf(
+      this.paneTree.tree(CONTENT_DOCK),
+      this.paneTree.primaryId(CONTENT_DOCK),
+    );
+    return (leaf && activeTab(leaf)?.path) ?? '';
   }
 
   private stampActive(root: string): void {
