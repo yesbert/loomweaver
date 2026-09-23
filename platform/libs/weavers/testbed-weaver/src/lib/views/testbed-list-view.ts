@@ -1,5 +1,5 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject, signal } from '@angular/core';
-import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { VIEW_STATE, type ViewState } from '@loomweaver/plugin-sdk';
 import { ENTRIES, Entry, EntryPriority, EntryStatus } from './testbed-entries';
 import { testbedContent } from '../plugin/testbed-content';
@@ -60,7 +60,6 @@ export function formatWaiting(minutes: number): string {
   templateUrl: './testbed-list-view.html',
 })
 export class TestbedListView {
-  private readonly transloco = inject(TranslocoService);
   private readonly state = inject(VIEW_STATE, {
     optional: true,
   }) as ViewState<ListState> | null;
@@ -137,12 +136,12 @@ export class TestbedListView {
     testbedContent.openMenu(
       [
         {
-          label: this.transloco.translate('testbed.list.ctxOpen'),
+          label: 'testbed.list.ctxOpen',
           icon: 'testbedEntry',
           run: () => testbedContent.openEntry(entry, 'permanent'),
         },
         {
-          label: this.transloco.translate('testbed.list.ctxPreview'),
+          label: 'testbed.list.ctxPreview',
           icon: 'preview',
           run: () => testbedContent.openEntry(entry, 'preview'),
         },

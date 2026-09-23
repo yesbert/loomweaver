@@ -179,27 +179,6 @@ its stored preference is applied once it arrives.
 - **THEN** the workbench switches to it
 - **AND** it does not write that value back, because nothing about it changed
 
-### Requirement: A language change is applied everywhere at once
-
-Choosing a language SHALL update what the user sees, what the document reports as its language, and
-what is remembered for the next visit — as one act, with no partially switched state in between.
-A language whose strings have not arrived yet SHALL be switched to once they have, so the interface
-never shows keys in between. The limit: where the strings cannot be loaded, the switch SHALL happen
-anyway, so a choice is never lost to a failed load.
-
-#### Scenario: Switching the language updates the page and the record of it
-
-- **WHEN** the user chooses a language
-- **THEN** the workbench re-renders in that language
-- **AND** the document's declared language matches it
-- **AND** the choice is stored for the next visit
-
-#### Scenario: A language not yet loaded is switched to once its strings are there
-
-- **WHEN** the user chooses a language whose strings have not been loaded yet
-- **THEN** the interface keeps the previous language until they have arrived
-- **AND** then switches to the new one, showing words rather than keys
-
 ### Requirement: A language change reaches the app's other windows
 
 Where the same application is open more than once, a language change in one window SHALL be applied
@@ -404,3 +383,28 @@ and the developer SHALL be told.
 - **WHEN** a product changes the language to one that is not served
 - **THEN** the active language stays as it was
 - **AND** the developer is told
+
+### Requirement: A language change reaches everything the workbench draws
+
+Choosing a language SHALL update what the user sees, what the document reports as its language, and
+what is remembered for the next visit, in one step. Text whose strings in the new language have not
+arrived yet MAY show its keys for that moment, because the workbench does not hold the interface
+back while they load. Everything the workbench draws, open menus included, SHALL show the words as
+soon as the strings arrive, without a reload and without the user doing anything.
+
+The limits: a dialog or prompt keeps the words it was opened with until it is closed. Where the
+strings of the chosen language cannot be loaded, the interface shows what the translation library
+falls back to, and the choice is still remembered, so the next visit tries it again.
+
+#### Scenario: Switching the language updates the page and the record of it
+
+- **WHEN** the user chooses a language
+- **THEN** the workbench re-renders in that language
+- **AND** the document's declared language matches it
+- **AND** the choice is stored for the next visit
+
+#### Scenario: Words replace keys as soon as the strings arrive
+
+- **WHEN** the user chooses a language whose strings have not been loaded yet, while a menu is open
+- **THEN** keys may show until the strings arrive
+- **AND** once they have arrived, the page and the open menu show the words in that language

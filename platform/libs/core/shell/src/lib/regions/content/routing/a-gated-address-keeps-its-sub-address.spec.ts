@@ -1,5 +1,8 @@
 import {
+  ApplicationRef,
   Component,
+  EnvironmentProviders,
+  Provider,
   WritableSignal,
   inject,
   provideAppInitializer,
@@ -20,7 +23,7 @@ import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { AUTH_SOURCE } from '../../../auth/auth-context';
 import { ContentRouter } from './content-router';
 import { ContentReuseStrategy } from './content-reuse-strategy';
-import { provideLayout } from '../../../layout/layout';
+import { provideLayout, ShellLayout } from '../../../layout/layout';
 import { provideWorkspaces } from '../../../workspace/provide-workspaces';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 import { findLeaf } from '../../pane/tree/pane-queries';
@@ -71,15 +74,15 @@ const CLAIMING_WORKSPACE = provideWorkspaces({
   content: { tabs: [{ path: 'knowledge-base', closable: false }] },
 });
 
-const LAYOUT = {
+const LAYOUT: ShellLayout = {
   regions: [{ id: 'main', type: 'content', dock: 'center' }],
-} as const;
+};
 
 async function openAt(
   address: string,
   route: ContentRoute | readonly ContentRoute[],
   auth: WritableSignal<AuthSnapshot>,
-  providers: unknown[] = [],
+  providers: readonly (Provider | EnvironmentProviders)[] = [],
 ): Promise<Router> {
   TestBed.configureTestingModule({
     providers: [
@@ -90,7 +93,7 @@ async function openAt(
       provideAppInitializer(() => {
         inject(Location).go(address);
       }),
-      ...(providers as never[]),
+      ...providers,
     ],
   });
   const router = TestBed.inject(Router);
@@ -172,7 +175,7 @@ describe('a gated address keeps its sub-address', () => {
     }> {
       const auth = signal<AuthSnapshot>(ANONYMOUS);
       const router = await openAt(address, KNOWLEDGE_BASE, auth, [
-        provideLayout(LAYOUT as never),
+        provideLayout(LAYOUT),
         CLAIMING_WORKSPACE,
         { provide: WORKSPACE_CLAIMS, useExisting: WorkspaceService },
       ]);
@@ -180,10 +183,7 @@ describe('a gated address keeps its sub-address', () => {
       const body = TestBed.inject(AddressBody);
       const paneTree = TestBed.inject(PaneTreeService);
       await signIn(auth);
-      for (let turn = 0; turn < 10; turn += 1) {
-        await new Promise((resolve) => setTimeout(resolve, 0));
-        TestBed.tick();
-      }
+      await TestBed.inject(ApplicationRef).whenStable();
       const leaf = findLeaf(
         paneTree.tree(CONTENT_DOCK),
         paneTree.primaryId(CONTENT_DOCK),

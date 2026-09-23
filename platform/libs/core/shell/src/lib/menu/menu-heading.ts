@@ -44,9 +44,10 @@ export function wordMenuHeading(
   if (name) {
     name.textContent = title;
   }
-  const second = element.querySelector('.lw-menu-header-detail');
+  const second = element.querySelector<HTMLElement>('.lw-menu-header-detail');
   if (second) {
     second.textContent = detail ?? '';
+    second.hidden = !detail;
   }
 }
 

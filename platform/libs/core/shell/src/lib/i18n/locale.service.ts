@@ -1,7 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { inject, isDevMode, Service, signal } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
-import { Subscription } from 'rxjs';
 import { SETTINGS_STORE } from '../persistence/settings-store';
 import { hydrateAsync } from '../persistence/hydrate';
 import { StateSyncService } from '../persistence/state-sync.service';
@@ -50,8 +49,6 @@ export class LocaleService {
 
   private readonly langState = signal<string>(detectInitialLang(this.supported));
 
-  private pendingLoad?: Subscription;
-
   /** The active language code, reactive. */
   readonly lang = this.langState.asReadonly();
 
@@ -66,10 +63,8 @@ export class LocaleService {
   }
 
   /**
-   * Makes `lang` the active language and remembers it. A language whose strings have not arrived yet
-   * becomes active once they have, so the interface never shows keys in between; a load that fails
-   * switches anyway. A code the workbench does not serve changes nothing, and the developer is told in
-   * development, rather than silently doing nothing.
+   * Makes `lang` the active language and remembers it. A code the workbench does not serve changes
+   * nothing, and the developer is told in development, rather than silently doing nothing.
    */
   setLang(lang: string): void {
     const served = servedLanguage(lang, this.supported);
@@ -93,14 +88,6 @@ export class LocaleService {
   }
 
   private applyLang(lang: string): void {
-    this.pendingLoad?.unsubscribe();
-    this.pendingLoad = this.transloco.load(lang).subscribe({
-      next: () => this.switchTo(lang),
-      error: () => this.switchTo(lang),
-    });
-  }
-
-  private switchTo(lang: string): void {
     this.langState.set(lang);
     this.transloco.setActiveLang(lang);
     this.document.documentElement.lang = lang;

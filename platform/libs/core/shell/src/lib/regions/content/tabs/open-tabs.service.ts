@@ -36,14 +36,11 @@ import {
 } from './content-tab-projection';
 import { TabCloseHooks } from './tab-close-hooks';
 import { syncActiveTab } from './active-tab-sync';
-import { QuickOpenTarget } from './quick-open-target';
+import { QuickOpenTarget, quickOpenTargetsOf } from './quick-open-target';
 import { TAB_ADDRESS_RESOLVER, computedTabAddress } from './tab-address';
 import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../../pane/tree/pane-address';
-import {
-  collectTabs,
-  findLeaf,
-  findLeafWhere,
-} from '../../pane/tree/pane-queries';
+import { findLeaf, findLeafWhere } from '../../pane/tree/pane-queries';
+import { activeContentPath } from '../../pane/tree/active-content-path';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 import { isPopoutUrl } from '../../../popout/popout-path';
 import { popoutNavigationRefusal } from '../../../popout/popout-refusal';
@@ -88,61 +85,13 @@ export class OpenTabsService {
   });
 
   readonly quickOpenTargets: Signal<readonly QuickOpenTarget[]> = computed(
-    () => {
-      const routes = this.registry.contentRoutes();
-      const times = this.lastActive();
-      const openRoots = new Set<string>();
-      const open: QuickOpenTarget[] = [];
-      for (const paneTab of collectTabs(this.paneTree.tree(CONTENT_DOCK))) {
-        if (paneTab.path.startsWith(VIEW_PANE_PREFIX)) {
-          continue;
-        }
-        const projected = toOpenTab(routes, paneTab, undefined);
-        const root = tabRootOf(routes, projected.path);
-        if (openRoots.has(root)) {
-          continue;
-        }
-        openRoots.add(root);
-        open.push({
-          path: root,
-          navPath: projected.path,
-          title: projected.title,
-          literalTitle: projected.literalTitle,
-          icon: projected.icon,
-          pinned: projected.pinned,
-          closable: projected.closable,
-          lastActive: times.get(root),
-        });
-      }
-      const statics = routes.flatMap<QuickOpenTarget>((route) => {
-        const path = normalizePath(route.path);
-        if (
-          path === '' ||
-          path.includes(':') ||
-          route.chromeless === true ||
-          !this.auth.meets(route.access) ||
-          openRoots.has(path)
-        ) {
-          return [];
-        }
-        return [
-          {
-            path,
-            navPath: route.path,
-            title: route.title ?? path,
-            literalTitle:
-              route.title === undefined
-                ? true
-                : (route.titleIsLiteral ?? false),
-            icon: route.icon,
-            pinned: false,
-            closable: false,
-            lastActive: times.get(path),
-          },
-        ];
-      });
-      return [...open, ...statics];
-    },
+    () =>
+      quickOpenTargetsOf(
+        this.paneTree.tree(CONTENT_DOCK),
+        this.registry.contentRoutes(),
+        this.lastActive(),
+        (access) => this.auth.meets(access),
+      ),
   );
 
   private readonly viewTabSelection = signal<string | null>(null);
@@ -229,38 +178,65 @@ export class OpenTabsService {
 
   private ownNavigation: string | null = null;
 
+  private readonly keptAddress = signal<string | null>(null);
+
+  private readonly navigating = computed(
+    () => this.router.currentNavigation() !== null,
+  );
+
+  private lastRestored = false;
+
+  private lastRoute: ContentRoute | undefined;
+
+  private lastRoot: string | null = null;
+
   constructor() {
     effect(() => {
       const url = this.currentUrl();
       const path = this.activePath();
       const root = this.activeTabRoot();
       const route = this.activeRoute();
-      this.paneTree.replaced();
+      const restored = this.paneTree.hydrated();
+      const kept = this.keptAddress();
+      const navigating = this.navigating();
       untracked(() => {
-        if (url !== this.lastUrl) {
-          const previous = this.lastUrl;
+        if (navigating) {
+          return;
+        }
+        const moved = url !== this.lastUrl;
+        const keptHere = kept === path;
+        if (kept !== null) {
+          this.keptAddress.set(null);
+        }
+        if (
+          !moved &&
+          !keptHere &&
+          restored === this.lastRestored &&
+          route === this.lastRoute &&
+          root === this.lastRoot
+        ) {
+          return;
+        }
+        const own = moved && this.ownNavigation === normalizePath(url);
+        if (keptHere || (moved && !own)) {
+          this.viewTabSelection.set(null);
+          const shown = keptHere ? activeContentPath(this.paneTree) : this.lastUrl;
+          this.focusHolderOf(path, this.rootFor(shown).root);
+        }
+        if (moved) {
           this.lastUrl = url;
-          if (this.ownNavigation !== normalizePath(url)) {
-            this.viewTabSelection.set(null);
-            this.focusHolderOf(path, this.rootFor(previous).root);
-          }
           this.ownNavigation = null;
         }
-        syncActiveTab(
-          {
-            routes: this.registry.contentRoutes(),
-            paneTree: this.paneTree,
-            updateOpen: (change) => this.updateOpen(change),
-          },
-          route,
-          root,
-          path,
-        );
-        if (root) {
-          this.stampActive(root);
-        }
+        this.lastRestored = restored;
+        this.lastRoute = route;
+        this.lastRoot = root;
+        this.syncTabOf(route, root, path);
       });
     });
+  }
+
+  keepAddress(address: string): void {
+    this.keptAddress.set(normalizePath(address));
   }
 
   activateViewTab(path: string): void {
@@ -377,6 +353,26 @@ export class OpenTabsService {
     }
     this.paneTree.setActiveTab(CONTENT_DOCK, holder.id, held.path);
     this.paneTree.focusPane(CONTENT_DOCK, holder.id, previousContent);
+  }
+
+  private syncTabOf(
+    route: ContentRoute | undefined,
+    root: string,
+    path: string,
+  ): void {
+    syncActiveTab(
+      {
+        routes: this.registry.contentRoutes(),
+        paneTree: this.paneTree,
+        updateOpen: (change) => this.updateOpen(change),
+      },
+      route,
+      root,
+      path,
+    );
+    if (root) {
+      this.stampActive(root);
+    }
   }
 
   private stampActive(root: string): void {

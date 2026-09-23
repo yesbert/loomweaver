@@ -265,6 +265,25 @@ describe('<lw-menu> custom element', () => {
     expect(menu.style.top).toBe(`${window.innerHeight - 4}px`);
   });
 
+  it('measures its full width again when placed a second time, so grown words are not cut off at the edge', () => {
+    const menu = mount([['a', 'Sign out']]) as LwMenuElement;
+    let natural = 180;
+    menu.getBoundingClientRect = () => {
+      const left = Number.parseFloat(menu.style.left || '0');
+      const width = Math.min(natural, window.innerWidth - left);
+      return { width, height: 40, top: 0, left, right: left + width, bottom: 40 } as DOMRect;
+    };
+    const nearTheRightEdge = window.innerWidth - 100;
+    menu.openAt(nearTheRightEdge, 0);
+
+    natural = 260;
+    menu.openAt(nearTheRightEdge, 0);
+
+    expect(Number.parseFloat(menu.style.left)).toBeLessThanOrEqual(
+      window.innerWidth - 260,
+    );
+  });
+
   describe('openBeside', () => {
     const sized = (width: number, height: number) => {
       const menu = mount([['a', 'Sign out']]) as LwMenuElement;

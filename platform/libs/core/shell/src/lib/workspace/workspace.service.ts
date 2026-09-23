@@ -53,7 +53,7 @@ import {
   type Workspace,
 } from './baseline/workspace-state';
 import { assignWorkspaceInitials } from './workspace-initials';
-import { activeContentPath } from './active-content-path';
+import { activeContentPath } from '../regions/pane/tree/active-content-path';
 import {
   atTheOpeningAddress,
   declaredStart,
@@ -136,7 +136,7 @@ export class WorkspaceService {
         console.warn(problem);
       }
     }
-    this.layOutWhenWorkspaceReady();
+    void this.active.ready.then(() => this.openWorkbench());
   }
 
   async saveCurrent(name: string): Promise<void> {
@@ -176,6 +176,7 @@ export class WorkspaceService {
     const destination = this.settlementDestination(path);
     if (destination !== null) {
       await this.switchTo(destination, { keepAddress: true });
+      this.openTabs.keepAddress(path);
     }
   }
 
@@ -320,11 +321,17 @@ export class WorkspaceService {
   private async rereadForAdoptedNamespace(): Promise<void> {
     await this.active.reread();
     const stored = await this.currentState();
-    for (const key of WORKSPACE_KEYS) {
-      const raw = stored[key];
-      if (raw !== undefined) {
-        this.keyed[key].hydrate(raw);
-      }
+    const found = WORKSPACE_KEYS.filter((key) => stored[key] !== undefined);
+    for (const key of found) {
+      this.keyed[key].hydrate(stored[key]);
+    }
+    const shown = this.openTabs.activePath();
+    const destination = this.settlementDestination(shown);
+    if (destination !== null) {
+      await this.switchTo(destination, { keepAddress: true });
+    }
+    if (found.length > 0 || destination !== null) {
+      this.openTabs.keepAddress(shown);
     }
   }
 
@@ -336,15 +343,12 @@ export class WorkspaceService {
     }
   }
 
-  private layOutWhenWorkspaceReady(): void {
-    void this.active.ready.then(() => this.openWorkbench());
-  }
-
   private async openWorkbench(): Promise<void> {
     const adopted = this.active.takeAdoption();
     if (adopted !== null) {
       this.applyState(this.baselineOf(adopted));
       this.warnDeclarationGaps(adopted);
+      this.openTabs.keepAddress(this.openTabs.activePath());
     }
     await startWhereTheDistributionSays({
       declared: declaredStart(this.definitions),
