@@ -9,7 +9,7 @@ they start with a top-level folder.
   (`menu/menu.service.ts`); tested through the tab-strip overflow list and the view-instance switcher.
 - [x] 1.2 A capability refusal thrown by a menu entry's own implementation reaches the error handler,
   and so the user, instead of the console (`menu/menu.service.ts`).
-- [ ] 1.3 `retitleSurface` and `updateSurfaceAction` act only on a surface the calling plugin
+- [x] 1.3 `retitleSurface` and `updateSurfaceAction` act only on a surface the calling plugin
   registered, for an in-process and a frame plugin, with a red test per method modelled on the badge
   test "leaves another plugin's surface alone" (`plugin/host-plugin-context.ts`).
 - [ ] 1.4 A deployed frame plugin's settings section is filed where the installed list looks for it,
