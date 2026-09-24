@@ -306,6 +306,20 @@ describe('PaneService actions', () => {
     expect(tabPaths(paneTree)).toEqual(['search', 'dashboard/overview']);
   });
 
+  it('closing the pane that fills the area ends the blow-up', () => {
+    const { panes } = setUp();
+    panes.splitRight();
+    const other = sibling(panes);
+    panes.maximize(other);
+
+    panes.closePane(other);
+
+    expect(panes.maximized()).toBeNull();
+    expect(
+      TestBed.inject(PaneChromeService).maximizedPaneIn(CONTENT_DOCK),
+    ).toBeNull();
+  });
+
   it('maximize, minimize and restore are explicit', () => {
     const { panes } = setUp();
     panes.splitRight();

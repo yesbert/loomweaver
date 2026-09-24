@@ -45,7 +45,7 @@ they start with a top-level folder.
   already does (`regions/panel/shell-sidebar-header.ts`).
 - [x] 3.2 A splitter removed during a drag ends the drag and keeps the width reached
   (`regions/panel/panel-splitter.ts`).
-- [ ] 3.3 Closing the pane that fills the area, from its control, from code or by closing its last tab,
+- [x] 3.3 Closing the pane that fills the area, from its control, from code or by closing its last tab,
   ends the blow-up, and `PaneService.maximized()` reads nothing (`regions/pane/chrome/pane-chrome.service.ts`
   or the close path in `regions/pane/pane-actions.service.ts`).
 - [ ] 3.4 Strip drop ids survive a container address with a colon, for strip, edge and fill drops
