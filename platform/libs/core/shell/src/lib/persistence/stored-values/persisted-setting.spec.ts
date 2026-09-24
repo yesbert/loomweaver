@@ -84,4 +84,15 @@ describe('persistedSetting', () => {
     expect(setting.value()).toBe('chosen');
     expect(store.values.get(KEY)).toBe('chosen');
   });
+
+  it('forgets a stored value and falls back to the default', () => {
+    const store = new PeekableStore();
+    store.values.set(KEY, 'stored');
+    const setting = settingOn(store);
+
+    setting.clear();
+
+    expect(setting.value()).toBe('default');
+    expect(store.values.has(KEY)).toBe(false);
+  });
 });

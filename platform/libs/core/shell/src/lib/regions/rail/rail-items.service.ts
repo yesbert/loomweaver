@@ -1,7 +1,6 @@
-import { inject, Service, signal } from '@angular/core';
-import { SETTINGS_STORE } from '../../persistence/settings-store';
-import { hydrateAsync } from '../../persistence/stored-values/hydrate';
-import { StateSyncService } from '../../persistence/state-sync.service';
+import { Service } from '@angular/core';
+import { persistedSetting } from '../../persistence/stored-values/persisted-setting';
+import { recordOf } from '../../persistence/stored-values/persisted-record';
 
 const STORAGE_KEY = 'lw.shell.rail-items';
 
@@ -22,6 +21,10 @@ export function isWorkspaceRailItem(itemId: string): boolean {
   return itemId.startsWith(WORKSPACE_RAIL_PREFIX);
 }
 
+function isString(value: unknown): value is string {
+  return typeof value === 'string';
+}
+
 function parse(raw: string | undefined): RailItemsState {
   if (!raw) {
     return EMPTY;
@@ -32,23 +35,12 @@ function parse(raw: string | undefined): RailItemsState {
       return EMPTY;
     }
     const state = parsed as Record<string, unknown>;
-    const hidden = Array.isArray(state['hidden'])
-      ? state['hidden'].filter((id): id is string => typeof id === 'string')
-      : [];
-    const placed: Record<string, string> = {};
-    const rawPlaced = state['placed'];
-    if (
-      rawPlaced &&
-      typeof rawPlaced === 'object' &&
-      !Array.isArray(rawPlaced)
-    ) {
-      for (const [id, region] of Object.entries(rawPlaced)) {
-        if (typeof region === 'string') {
-          placed[id] = region;
-        }
-      }
-    }
-    return { hidden, placed };
+    return {
+      hidden: Array.isArray(state['hidden'])
+        ? state['hidden'].filter(isString)
+        : [],
+      placed: recordOf(state['placed'], isString),
+    };
   } catch {
     return EMPTY;
   }
@@ -56,18 +48,12 @@ function parse(raw: string | undefined): RailItemsState {
 
 @Service()
 export class RailItemsService {
-  private readonly store = inject(SETTINGS_STORE);
-  private readonly sync = inject(StateSyncService);
-  private readonly state = signal<RailItemsState>(
-    parse(this.store.peek?.(STORAGE_KEY)),
-  );
+  private readonly stored = persistedSetting(STORAGE_KEY, {
+    parse,
+    serialize: (state) => JSON.stringify(state),
+  });
 
-  constructor() {
-    hydrateAsync(this.store, STORAGE_KEY, (raw) => this.state.set(parse(raw)));
-    this.sync.register('settings', STORAGE_KEY, (raw) =>
-      this.state.set(parse(raw)),
-    );
-  }
+  private readonly state = this.stored.value;
 
   regionOf(itemId: string, declaredRail: string): string {
     return this.state().placed[itemId] ?? declaredRail;
@@ -112,12 +98,10 @@ export class RailItemsService {
   }
 
   reset(): void {
-    this.state.set(parse(undefined));
-    void this.store.delete(STORAGE_KEY);
+    this.stored.clear();
   }
 
   private commit(next: RailItemsState): void {
-    this.state.set(next);
-    void this.store.set(STORAGE_KEY, JSON.stringify(next));
+    this.stored.set(next);
   }
 }
