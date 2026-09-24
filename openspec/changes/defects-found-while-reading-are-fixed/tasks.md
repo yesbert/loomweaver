@@ -98,8 +98,8 @@ they start with a top-level folder.
   fixed at activation (`demo/src/quotes/src/lib/plugin/quotes-commands.ts`).
 - [x] 7.3 The dashboard's colour observer disconnects when the view is destroyed
   (`demo/src/insights/chart-tokens.ts`).
-- [ ] 7.4 The welcome is shown once the store has answered, also when it answers later
-  (`demo/src/about/about.plugin.ts`).
+- [ ] 7.4 After the owner's decision 6: the welcome is shown once the store has answered, also when
+  it answers later (`demo/src/about/about.plugin.ts`).
 - [ ] 7.5 After a check in a browser that blocks storage: the quotes settings read and write storage
   guarded like the looks and the session do (`demo/src/quotes/src/lib/plugin/quotes-settings.ts`).
 
