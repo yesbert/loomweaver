@@ -21,7 +21,7 @@ import { RetainedComponent } from './retained-component';
 import { RetainedTemplate } from './retained-template';
 import { RetainedViewStash } from './retained-view-stash';
 import { RetentionGc } from './retention-gc';
-import { RetentionUnloadGuard } from './retention-unload-guard';
+import { RetentionUnloadGuard } from '../unsaved-work/retention-unload-guard';
 import {
   containerChildInstances,
   effectiveRetain,

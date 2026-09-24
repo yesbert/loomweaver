@@ -35,7 +35,7 @@ import { ContributionRegistry } from './plugin/contribution-registry';
 import { ShellErrorHandler } from './permissions/capability-refusal';
 import { COMMAND_INVOKER } from './foundation/command-invoker';
 import { DIALOG_CLOSE_GUARD } from './dialog/dialog-close-guard';
-import { SurfaceCloseGuard } from './regions/pane/close/surface-close-guard';
+import { SurfaceCloseGuard } from './regions/pane/unsaved-work/surface-close-guard';
 import { WORKSPACE_CLAIMS } from './foundation/workspace-claims';
 import { UNUSABLE_WORKSPACES } from './foundation/unusable-workspaces';
 import { UnusableWorkspacesService } from './workspace/usability/unusable-workspaces.service';

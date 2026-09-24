@@ -5,7 +5,7 @@ import {
   containerPathOfDock,
   isAddressable,
 } from './container-children';
-import { BakedTab, PaneAreaTree, paneAreaTree } from '../tree/pane-area-tree';
+import { BakedTab, PaneAreaTree, paneAreaTree } from '../tree/declared-pane-layout';
 import { VIEW_PANE_PREFIX } from '../tree/pane-address';
 import { PaneTab } from '../tree/pane-node';
 

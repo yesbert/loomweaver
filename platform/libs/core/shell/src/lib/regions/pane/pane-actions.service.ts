@@ -4,7 +4,7 @@ import { ContentTabsService } from '../content/tabs/content-tabs.service';
 import { tabRootOf } from '../content/content-path';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { PaneChromeService } from './chrome/pane-chrome.service';
-import { SurfaceCloseGuard } from './close/surface-close-guard';
+import { SurfaceCloseGuard } from './unsaved-work/surface-close-guard';
 import { PaneDragService } from './drag/pane-drag.service';
 import { PaneMoveService } from './drag/pane-move.service';
 import {

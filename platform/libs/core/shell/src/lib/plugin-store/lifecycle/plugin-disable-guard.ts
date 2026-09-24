@@ -1,6 +1,6 @@
 import { inject, Service } from '@angular/core';
 import { RetentionCandidates } from '../../regions/pane/retention/retention-candidates';
-import { SurfaceCloseGuard } from '../../regions/pane/close/surface-close-guard';
+import { SurfaceCloseGuard } from '../../regions/pane/unsaved-work/surface-close-guard';
 import { PluginEnablementService } from './plugin-enablement.service';
 
 @Service()

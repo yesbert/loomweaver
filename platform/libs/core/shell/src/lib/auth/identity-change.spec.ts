@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { ANONYMOUS, AuthSnapshot } from '@loomweaver/plugin-sdk';
-import { RetentionUnloadGuard } from '../regions/pane/retention/retention-unload-guard';
+import { RetentionUnloadGuard } from '../regions/pane/unsaved-work/retention-unload-guard';
 import { IdentityChangeReload } from './identity-change';
 
 describe('IdentityChangeReload', () => {

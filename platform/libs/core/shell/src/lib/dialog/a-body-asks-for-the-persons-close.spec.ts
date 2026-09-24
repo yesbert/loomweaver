@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { DialogDismiss, DirtySurface } from '@loomweaver/plugin-sdk';
-import { SurfaceCloseGuard } from '../regions/pane/close/surface-close-guard';
+import { SurfaceCloseGuard } from '../regions/pane/unsaved-work/surface-close-guard';
 import { DIALOG_CLOSE_GUARD } from './dialog-close-guard';
 import { DialogOutlet } from './dialog-outlet';
 import { DialogRef } from './dialog-ref';

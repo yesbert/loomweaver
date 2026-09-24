@@ -2,7 +2,7 @@ import { computed, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ContentRoute } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
-import { RetainedViewStash } from './retained-view-stash';
+import { RetainedViewStash } from '../retention/retained-view-stash';
 import { UnsavedWork } from './unsaved-work';
 
 const CONTENT_SCOPE = 'content:main';

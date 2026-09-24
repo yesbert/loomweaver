@@ -7,7 +7,7 @@ import {
   AppResetService,
 } from '../regions/reset/app-reset.service';
 import { provideLayout } from '../layout/layout';
-import { SurfaceCloseGuard } from '../regions/pane/close/surface-close-guard';
+import { SurfaceCloseGuard } from '../regions/pane/unsaved-work/surface-close-guard';
 import { RetainedViewStash } from '../regions/pane/retention/retained-view-stash';
 import { RetentionCandidates } from '../regions/pane/retention/retention-candidates';
 import { PanelState } from '../regions/panel/panel-state';
