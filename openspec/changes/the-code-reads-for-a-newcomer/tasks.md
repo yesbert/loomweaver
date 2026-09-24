@@ -146,7 +146,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 - [x] 5.3 Pane identity: `PaneRef` everywhere (the identical `TabDragSource` goes), `isSamePane`, one
   name for "carries the address", a named "content side" dock test, `isViewPanePath` and
   `viewPanePath` instead of fourteen prefix checks, tab escalation by an explicit switch.
-- [ ] 5.4 `PaneTreeService`: tab ranking into `pane-tabs.ts`, the hydration hand-off into
+- [x] 5.4 `PaneTreeService`: tab ranking into `pane-tabs.ts`, the hydration hand-off into
   `PaneTreeStorage`, evacuation through the stash (2.4), the `commitTree` alias removed, the six
   meanings of "settle" given their own names, the landing leaf found in one place; `removeTab` asks
   `isDisposableLeaf` like the other four places (left from 5.2, which would have pushed the file past

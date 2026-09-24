@@ -146,7 +146,7 @@ export class PaneMoveService {
       source.dock,
       this.removeSourceTab(this.paneTree.tree(source.dock), source, tab),
     );
-    this.paneTree.commitTree(
+    this.paneTree.commit(
       targetDock,
       applyToTarget(this.paneTree.tree(targetDock)),
     );
@@ -211,7 +211,7 @@ export class PaneMoveService {
   }
 
   private commitSource(dock: string, node: PaneNode): void {
-    this.paneTree.commitTree(
+    this.paneTree.commit(
       dock,
       isContainerDock(dock)
         ? withoutEmptyPrimary(node, this.paneTree.primaryId(dock))

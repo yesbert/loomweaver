@@ -1,6 +1,6 @@
 import { inject, isDevMode, Service } from '@angular/core';
 import { ContainerSpec, ContainerTabLabel } from '@loomweaver/plugin-sdk';
-import { findLeafWhere, tabHolderOf } from '../tree/pane-queries';
+import { landingLeaf, tabHolderOf } from '../tree/pane-queries';
 import { insertTab, setActiveTab } from '../tree/pane-tabs';
 import { containerChildPath, containerPathOfDock } from './container-children';
 import { containerChildTab, containerLayout } from './container-layout';
@@ -19,7 +19,7 @@ export class PaneContainersService {
     }
     const { node } = containerLayout(dock, spec, [], '');
     if (node !== null) {
-      const landing = findLeafWhere(node, (leaf) => leaf.declared === true);
+      const landing = landingLeaf(node);
       this.paneTree.commit(dock, node, landing?.id);
     }
   }

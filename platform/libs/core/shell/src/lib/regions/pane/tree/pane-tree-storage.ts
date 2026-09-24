@@ -1,4 +1,4 @@
-import { inject, isDevMode, Service } from '@angular/core';
+import { inject, isDevMode, Service, signal } from '@angular/core';
 import { WORKING_STATE_STORE } from '../../../persistence/working-state-store';
 import { SETTINGS_STORE } from '../../../persistence/settings-store';
 import { hydrateAsync } from '../../../persistence/stored-values/hydrate';
@@ -90,22 +90,40 @@ export class PaneTreeStorage {
 
   private relabelled = false;
 
+  private readonly hydratedFlag = signal(false);
+  readonly hydrated = this.hydratedFlag.asReadonly();
+
+  private resolveSettled: (() => void) | undefined;
+  readonly arrangementSettled = new Promise<void>((resolve) => {
+    this.resolveSettled = resolve;
+  });
+
   peek(): Record<string, DockEntry> {
-    return this.settled(parseDocks(this.store.peek?.(this.key())));
+    return this.reconciledWithWorkspace(
+      parseDocks(this.store.peek?.(this.key())),
+    );
   }
 
-  hydrate(apply: (raw: string | undefined) => void, settled: () => void): void {
+  hydrate(
+    apply: (raw: string | undefined) => void,
+    onHydrated: (relabelled: boolean) => void,
+  ): void {
+    const hydrated = () => {
+      this.hydratedFlag.set(true);
+      onHydrated(this.takeRelabelled());
+      this.resolveSettled?.();
+    };
     if (this.store.peek) {
-      settled();
+      hydrated();
       return;
     }
     void this.workspace.ready.then(() =>
       hydrateAsync(this.store, this.key(), apply, (loaded) => {
         if (loaded) {
-          settled();
+          hydrated();
           return;
         }
-        this.retryOnce(apply, settled);
+        this.retryOnce(apply, hydrated);
       }),
     );
   }
@@ -122,16 +140,18 @@ export class PaneTreeStorage {
   }
 
   parsed(raw: string | undefined): Record<string, DockEntry> {
-    return this.settled(parseDocks(raw));
+    return this.reconciledWithWorkspace(parseDocks(raw));
   }
 
-  takeRelabelled(): boolean {
+  private takeRelabelled(): boolean {
     const relabelled = this.relabelled;
     this.relabelled = false;
     return relabelled;
   }
 
-  private settled(docks: Record<string, DockEntry>): Record<string, DockEntry> {
+  private reconciledWithWorkspace(
+    docks: Record<string, DockEntry>,
+  ): Record<string, DockEntry> {
     const declared = this.definitions ?? [];
     const here = this.declaredHome();
     if (declared.every((definition) => definition.id !== here)) {
@@ -207,16 +227,16 @@ export class PaneTreeStorage {
 
   private retryOnce(
     apply: (raw: string | undefined) => void,
-    settled: () => void,
+    hydrated: () => void,
   ): void {
     setTimeout(() => {
       void this.store
         .get(this.key())
         .then((raw) => {
           apply(raw);
-          settled();
+          hydrated();
         })
-        .catch(() => settled());
+        .catch(() => hydrated());
     }, HYDRATION_RETRY_MS);
   }
 }

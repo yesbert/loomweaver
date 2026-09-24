@@ -59,7 +59,7 @@ export class RetentionGc {
         const open = openPathsByScope(trees);
         const active = this.workspace.id();
         const parked = this.parkedStash(open, routes, views, active);
-        untracked(() => this.settle(parked, routes, views));
+        untracked(() => this.sweep(parked, routes, views));
       },
       { injector: this.injector },
     );
@@ -86,7 +86,7 @@ export class RetentionGc {
     }));
   }
 
-  private settle(
+  private sweep(
     parked: readonly ParkedInstance[],
     routes: readonly ContentRoute[],
     views: readonly View[],

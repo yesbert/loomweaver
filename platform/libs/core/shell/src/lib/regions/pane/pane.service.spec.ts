@@ -273,7 +273,7 @@ describe('PaneService actions', () => {
     vi.spyOn(stash, 'instancesFor').mockImplementation((_scope, path) => [
       `instance of ${path}`,
     ]);
-    paneTree.commitTree(CONTENT_DOCK, splitWithSibling());
+    paneTree.commit(CONTENT_DOCK, splitWithSibling());
 
     panes.closePane('other' as PaneHandle);
 
@@ -284,7 +284,7 @@ describe('PaneService actions', () => {
   it('with closing switched off, closing a sibling joins all of its tabs to the neighbour', () => {
     const { panes, paneTree, guard } = setUp();
     TestBed.inject(FeatureSwitches).update({ content: { close: false } });
-    paneTree.commitTree(CONTENT_DOCK, splitWithSibling());
+    paneTree.commit(CONTENT_DOCK, splitWithSibling());
 
     panes.closePane('other' as PaneHandle);
 
@@ -298,7 +298,7 @@ describe('PaneService actions', () => {
 
   it('undoing a split keeps what cannot close in the remaining pane', () => {
     const { panes, paneTree } = setUp();
-    paneTree.commitTree(CONTENT_DOCK, splitWithSibling());
+    paneTree.commit(CONTENT_DOCK, splitWithSibling());
 
     panes.unsplit();
 

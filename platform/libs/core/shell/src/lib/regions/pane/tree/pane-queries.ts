@@ -26,6 +26,10 @@ export function findLeafWithTab(
   );
 }
 
+export function landingLeaf(node: PaneNode): PaneLeaf | null {
+  return findLeafWhere(node, (leaf) => leaf.declared === true);
+}
+
 export function collectLeafIds(node: PaneNode): string[] {
   return leavesOf(node).map((leaf) => leaf.id);
 }

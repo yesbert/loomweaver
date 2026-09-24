@@ -62,7 +62,7 @@ export class PreviewSlotService {
     const routes = this.registry.contentRoutes();
     const previous = pane.tabs.find((tab) => tab.preview);
     const shown = this.shownContent();
-    this.paneTree.commitTree(
+    this.paneTree.commit(
       CONTENT_DOCK,
       replacePreviewTab(
         this.paneTree.tree(CONTENT_DOCK),

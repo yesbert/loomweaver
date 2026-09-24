@@ -234,7 +234,7 @@ export class RetainedViewStash implements OnDestroy {
       unlisten: () => undefined,
     };
     if (hold) {
-      entry.unlisten = hold.onRelease(() => this.settle(entry));
+      entry.unlisten = hold.onRelease(() => this.applyDeferredPlacement(entry));
     }
     if (entry.tracked) {
       this.entries.set(key, entry);
@@ -279,7 +279,7 @@ export class RetainedViewStash implements OnDestroy {
     entry.inPlace = true;
   }
 
-  private settle(entry: StashEntry): void {
+  private applyDeferredPlacement(entry: StashEntry): void {
     const deferred = entry.deferred;
     entry.deferred = null;
     if (!entry.inUse && deferred !== null) {

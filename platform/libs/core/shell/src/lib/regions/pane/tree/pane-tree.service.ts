@@ -7,12 +7,19 @@ import {
   PRIMARY_PANE,
   viewPanePath,
 } from './pane-address';
-import { PRIMARY_LEAF, PaneNode, PaneTab, activeTab } from './pane-node';
+import {
+  PRIMARY_LEAF,
+  PaneNode,
+  PaneTab,
+  activeTab,
+  isDisposableLeaf,
+  leafPath,
+} from './pane-node';
 import {
   collectLeafIds,
   findLeaf,
-  findLeafWhere,
-  paneSegments,
+  landingLeaf,
+  leavesOf,
   tabHolderOf,
 } from './pane-queries';
 import {
@@ -37,6 +44,8 @@ import {
   keepTab,
   pinTab,
   removeTab,
+  reorderedTabs,
+  seededTabs,
   setActiveTab,
   setTabs,
   unpinTab,
@@ -52,23 +61,16 @@ export class PaneTreeService {
   private readonly docks = signal<Record<string, DockEntry>>(
     this.storage.peek(),
   );
-  private readonly hydratedTree = signal(false);
-  readonly hydrated = this.hydratedTree.asReadonly();
-
-  private settleTree: (() => void) | undefined;
-  readonly settled = new Promise<void>((resolve) => {
-    this.settleTree = resolve;
-  });
+  readonly hydrated = this.storage.hydrated;
+  readonly arrangementSettled = this.storage.arrangementSettled;
 
   constructor() {
     this.storage.hydrate(
       (raw) => this.applyHydratedTrees(raw),
-      () => {
-        this.hydratedTree.set(true);
-        if (this.storage.takeRelabelled()) {
+      (relabelled) => {
+        if (relabelled) {
           this.persist();
         }
-        this.settleTree?.();
       },
     );
   }
@@ -121,8 +123,7 @@ export class PaneTreeService {
   }
 
   stackView(dock: string, viewId: string): void {
-    const segments = paneSegments(this.tree(dock));
-    const last = segments.at(-1);
+    const last = leavesOf(this.tree(dock)).at(-1);
     if (last) {
       this.splitPane(dock, last.id, 'column', viewPanePath(viewId));
     }
@@ -167,18 +168,12 @@ export class PaneTreeService {
     if (!leaf) {
       return;
     }
-    const rank = new Map(order.map((path, index) => [path, index]));
-    const tabs = [...leaf.tabs].toSorted(
-      (a, b) =>
-        (rank.get(a.path) ?? leaf.tabs.indexOf(a)) -
-        (rank.get(b.path) ?? leaf.tabs.indexOf(b)),
+    this.commit(
+      dock,
+      setTabs(this.tree(dock), paneId, reorderedTabs(leaf.tabs, order)),
     );
-    this.commit(dock, setTabs(this.tree(dock), paneId, tabs));
   }
 
-  commitTree(dock: string, node: PaneNode): void {
-    this.commit(dock, node);
-  }
   commit(dock: string, next: PaneNode, primary?: string): void {
     this.update(dock, next, primary);
     this.persist();
@@ -220,16 +215,10 @@ export class PaneTreeService {
     const tree = this.tree(dock);
     const primary = this.primaryId(dock);
     const existing = findLeaf(tree, primary)?.tabs ?? [];
-    const rank = new Map(order.map((path, index) => [path, index]));
-    const tabs = [...existing];
-    for (const path of paths) {
-      const target = rank.get(path) ?? Number.MAX_SAFE_INTEGER;
-      const before = tabs.findIndex(
-        (tab) => (rank.get(tab.path) ?? -1) > target,
-      );
-      tabs.splice(before === -1 ? tabs.length : before, 0, { path });
-    }
-    this.commit(dock, setTabs(tree, primary, tabs));
+    this.commit(
+      dock,
+      setTabs(tree, primary, seededTabs(existing, paths, order)),
+    );
   }
 
   removeTab(dock: string, paneId: string, tabPath: string): void {
@@ -239,7 +228,11 @@ export class PaneTreeService {
     if (leaf?.tabs.every((tab) => tab.path !== tabPath)) {
       return;
     }
-    if (leaf && !leaf.declared && leaf.tabs.length <= 1) {
+    const emptied = leaf && {
+      ...leaf,
+      tabs: leaf.tabs.filter((tab) => tab.path !== tabPath),
+    };
+    if (emptied && isDisposableLeaf(emptied, [])) {
       if (tree.kind === 'split') {
         this.commit(dock, removeLeaf(tree, primary) ?? PRIMARY_LEAF);
       }
@@ -282,10 +275,8 @@ export class PaneTreeService {
     paneId: string,
     previousContent: string | null,
   ): string | null {
-    const leaf = paneSegments(this.tree(dock)).find(
-      (segment) => segment.id === paneId,
-    );
-    const path = leaf?.path;
+    const leaf = findLeaf(this.tree(dock), paneId);
+    const path = leaf ? leafPath(leaf) : undefined;
     const primary = this.primaryId(dock);
     if (
       paneId === primary ||
@@ -341,10 +332,7 @@ export class PaneTreeService {
   }
 
   landingPane(dock: string): string {
-    return (
-      findLeafWhere(this.tree(dock), (leaf) => leaf.declared === true)?.id ??
-      this.primaryId(dock)
-    );
+    return landingLeaf(this.tree(dock))?.id ?? this.primaryId(dock);
   }
 
   private applyHydratedTrees(raw: string | undefined): void {
@@ -391,7 +379,7 @@ export class PaneTreeService {
   }
 
   private persist(): void {
-    if (!this.hydratedTree()) {
+    if (!this.hydrated()) {
       return;
     }
     this.storage.save(this.docks());
