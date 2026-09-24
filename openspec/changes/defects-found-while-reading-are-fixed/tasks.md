@@ -75,7 +75,7 @@ they start with a top-level folder.
 - [x] 5.5 The CLI: the workspace above a nested package is found, an object-form entry stylesheet and
   an `@source` line are recognised, and a project-resolution error is printed once
   (`platform/libs/tooling/cli/src/lib/workspace.ts`, `cli/src/lib/amend.ts`).
-- [ ] 5.6 The Tailwind source path is escaped before it becomes a pattern
+- [x] 5.6 The Tailwind source path is escaped before it becomes a pattern
   (`devkit/src/generators/shared.ts`); tested with an unbalanced parenthesis in the directory.
 
 ## 6. The testbed

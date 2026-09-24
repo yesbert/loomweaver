@@ -7,7 +7,10 @@ import {
   Tree,
   updateProjectConfiguration,
 } from '@nx/devkit';
-import { ensurePostcssPlugin } from '../lib/amend/merge';
+import {
+  ensurePostcssPlugin,
+  ensureStylesheetSource,
+} from '../lib/amend/merge';
 import { composeLines, composePlugin } from '../lib/amend/compose';
 import { ComposePluginAmendment, PostcssAmendment } from '../lib/amend/types';
 import { FileMap } from '../lib/generate/types';
@@ -173,12 +176,11 @@ export function addTailwindSource(
   if (!css || !usesTailwind(css)) {
     return;
   }
-  const from = posix.dirname(stylesheet);
-  const target = posix.relative(from, librarySourceRoot);
-  if (new RegExp(String.raw`@source\s+['"]${target}/?['"]`).test(css)) {
-    return;
+  const source = posix.relative(posix.dirname(stylesheet), librarySourceRoot);
+  const next = ensureStylesheetSource(css, source);
+  if (next !== css) {
+    tree.write(stylesheet, next);
   }
-  tree.write(stylesheet, `${css.trimEnd()}\n\n@source '${target}';\n`);
 }
 
 function entryStylesheet(styles: unknown): string | undefined {
