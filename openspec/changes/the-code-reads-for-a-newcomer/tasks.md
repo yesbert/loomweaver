@@ -131,7 +131,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   lookups had nothing left to share: the dead-code pass removed the copies in `PanelViewsService`,
   and view visibility no longer asks which panel holds a view, so the one lookup stays in view
   curation.
-- [ ] 4.9 Smaller content items: identity-only computeds and duplicate computeds removed, the string
+- [x] 4.9 Smaller content items: identity-only computeds and duplicate computeds removed, the string
   dispatch in the address pane header made explicit, `activeTab` in the iframe surface renamed to what
   it holds, `ShellBar.measure` split and injecting `DOCUMENT`, pane housekeeping started by a named
   function in `regions/pane/`.

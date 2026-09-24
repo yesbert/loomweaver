@@ -142,7 +142,7 @@ export class IframeSurface implements DirtySurface {
     { initialValue: this.router.url },
   );
 
-  private readonly activeTab = computed(() => {
+  private readonly subPath = computed(() => {
     if (this.hostMounted()) {
       return normalizePath(this.hostSub());
     }
@@ -296,7 +296,7 @@ export class IframeSurface implements DirtySurface {
     const rest = this.restPath();
     return {
       locale: this.locale.lang(),
-      tab: this.activeTab(),
+      tab: this.subPath(),
       theme: this.theme.resolvedTheme(),
       preview: this.isPreview(),
       shown: this.shown(),

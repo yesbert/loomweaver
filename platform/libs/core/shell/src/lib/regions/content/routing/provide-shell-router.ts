@@ -13,9 +13,7 @@ import {
 import { ContentRouter } from './content-router';
 import { DISTRIBUTION_ROUTES } from './distribution-routes';
 import { ContentReuseStrategy } from './content-reuse-strategy';
-import { ContainerDockGc } from '../../pane/container/container-dock-gc';
-import { RetentionGc } from '../../pane/retention/retention-gc';
-import { RetentionUnloadGuard } from '../../pane/unsaved-work/retention-unload-guard';
+import { providePaneHousekeeping } from '../../pane/pane-housekeeping';
 import { ContainerPaneHost } from '../../pane/container/container-pane-host';
 import { CONTAINER_PANE_HOST } from '../../pane/container/container-context';
 
@@ -48,11 +46,7 @@ export function provideShellRouter(
 
     { provide: RouteReuseStrategy, useExisting: ContentReuseStrategy },
     { provide: CONTAINER_PANE_HOST, useValue: ContainerPaneHost },
-    provideAppInitializer(() => {
-      inject(ContentRouter).start();
-      inject(ContainerDockGc).start();
-      inject(RetentionGc).start();
-      inject(RetentionUnloadGuard).start();
-    }),
+    provideAppInitializer(() => inject(ContentRouter).start()),
+    providePaneHousekeeping(),
   ];
 }

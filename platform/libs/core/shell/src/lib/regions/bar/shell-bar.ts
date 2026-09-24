@@ -1,3 +1,4 @@
+import { DOCUMENT } from '@angular/common';
 import {
   afterNextRender,
   afterRenderEffect,
@@ -5,10 +6,12 @@ import {
   computed,
   CUSTOM_ELEMENTS_SCHEMA,
   DestroyRef,
+  effect,
   ElementRef,
   inject,
   input,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -25,6 +28,15 @@ const GAP_PX = 8;
 
 const FOLD_CONTROL_PX = 28;
 
+function availableWidth(bar: HTMLElement): number {
+  const style = getComputedStyle(bar);
+  return (
+    bar.clientWidth -
+    Number.parseFloat(style.paddingLeft || '0') -
+    Number.parseFloat(style.paddingRight || '0')
+  );
+}
+
 @Component({
   selector: 'lw-shell-bar',
   imports: [ShellBarItem, TranslocoPipe],
@@ -38,6 +50,7 @@ export class ShellBar {
   private readonly auth = inject(AuthContext);
   private readonly commands = inject(CommandService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly document = inject(DOCUMENT);
 
   private readonly bar = viewChild<ElementRef<HTMLElement>>('bar');
   private readonly tray = viewChild<ElementRef<HTMLElement>>('tray');
@@ -91,6 +104,11 @@ export class ShellBar {
       this.measure();
     });
     afterNextRender(() => this.observeResize());
+    effect(() => {
+      if (this.folded().length === 0) {
+        untracked(() => this.closeTray());
+      }
+    });
     afterRenderEffect(() => {
       if (this.trayOpen()) {
         this.tray()
@@ -122,10 +140,10 @@ export class ShellBar {
 
   private openTray(): void {
     this.trayOpen.set(true);
-    document.addEventListener('pointerdown', this.onOutsidePointer, {
+    this.document.addEventListener('pointerdown', this.onOutsidePointer, {
       capture: true,
     });
-    document.addEventListener('keydown', this.onEscape);
+    this.document.addEventListener('keydown', this.onEscape);
   }
 
   private readonly onEscape = (event: KeyboardEvent): void => {
@@ -145,10 +163,10 @@ export class ShellBar {
   };
 
   private stopListeningOutside(): void {
-    document.removeEventListener('pointerdown', this.onOutsidePointer, {
+    this.document.removeEventListener('pointerdown', this.onOutsidePointer, {
       capture: true,
     });
-    document.removeEventListener('keydown', this.onEscape);
+    this.document.removeEventListener('keydown', this.onEscape);
   }
 
   private inBar(slot: BarSlot): BarItem[] {
@@ -178,22 +196,9 @@ export class ShellBar {
     if (!bar) {
       return;
     }
-    for (const host of bar.querySelectorAll<HTMLElement>('[data-bar-entry]')) {
-      this.observer?.observe(host);
-      this.widths.set(
-        host.dataset['barEntry'] ?? '',
-        Math.max(host.getBoundingClientRect().width, host.scrollWidth),
-      );
-    }
-    const control = this.foldControl()?.nativeElement;
-    if (control) {
-      this.controlWidth = control.getBoundingClientRect().width;
-    }
-    const style = getComputedStyle(bar);
-    const available =
-      bar.clientWidth -
-      Number.parseFloat(style.paddingLeft || '0') -
-      Number.parseFloat(style.paddingRight || '0');
+    this.observeEntries(bar);
+    this.measureFoldControl();
+    const available = availableWidth(bar);
     this.folded.set(
       available > 0
         ? foldedIds(foldRank(this.contributed()), {
@@ -204,8 +209,22 @@ export class ShellBar {
           })
         : [],
     );
-    if (this.folded().length === 0) {
-      this.closeTray();
+  }
+
+  private observeEntries(bar: HTMLElement): void {
+    for (const host of bar.querySelectorAll<HTMLElement>('[data-bar-entry]')) {
+      this.observer?.observe(host);
+      this.widths.set(
+        host.dataset['barEntry'] ?? '',
+        Math.max(host.getBoundingClientRect().width, host.scrollWidth),
+      );
+    }
+  }
+
+  private measureFoldControl(): void {
+    const control = this.foldControl()?.nativeElement;
+    if (control) {
+      this.controlWidth = control.getBoundingClientRect().width;
     }
   }
 }

@@ -230,8 +230,19 @@ export class PaneView {
       return;
     }
     const step = escalationStep(tab, escalationSwitches(this.features));
-    if (step !== null) {
-      this.paneTree[`${step}Tab`](this.dock(), this.leaf().id, tab.path);
+    switch (step) {
+      case 'keep': {
+        this.paneTree.keepTab(this.dock(), this.leaf().id, tab.path);
+        break;
+      }
+      case 'pin': {
+        this.paneTree.pinTab(this.dock(), this.leaf().id, tab.path);
+        break;
+      }
+      case 'unpin': {
+        this.paneTree.unpinTab(this.dock(), this.leaf().id, tab.path);
+        break;
+      }
     }
   }
 
