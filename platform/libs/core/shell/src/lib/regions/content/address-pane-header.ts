@@ -11,7 +11,11 @@ import { PaneTargetPicker } from './pane-target-picker';
 import { TAB_CONTEXT_MENU } from './tabs/tab-context-menu';
 import { VIEW_CONTEXT_MENU } from '../pane/chrome/view-menu-slot';
 import { FeatureSwitches } from '../../features/feature-switches.service';
-import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../pane/tree/pane-address';
+import {
+  CONTENT_DOCK,
+  VIEW_PANE_PREFIX,
+  PaneRef,
+} from '../pane/tree/pane-address';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
 import { PaneChromeService } from '../pane/chrome/pane-chrome.service';
 import { PaneActions } from '../pane/pane-actions.service';
@@ -24,7 +28,6 @@ import {
   tabsDraggable,
   tabsReorderable,
 } from '../pane/chrome/pane-affordances';
-import { TabDragSource } from '../pane/drag/pane-drag.service';
 import { PaneTabStrip } from '../pane/chrome/pane-tab-strip';
 import { StripTab } from '../pane/chrome/strip-tab';
 import { PaneToolbar } from '../pane/chrome/pane-toolbar';
@@ -52,7 +55,7 @@ export class AddressPaneHeader {
     this.paneTree.primaryId(CONTENT_DOCK),
   );
 
-  protected readonly urlGroup = computed<TabDragSource>(() => ({
+  protected readonly addressPane = computed<PaneRef>(() => ({
     dock: CONTENT_DOCK,
     paneId: this.urlPaneId(),
   }));

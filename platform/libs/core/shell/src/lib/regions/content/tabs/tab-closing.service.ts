@@ -156,7 +156,7 @@ export class TabClosingService {
   }
 
   private inOtherPane(pane: PaneRef | undefined): pane is PaneRef {
-    return pane !== undefined && !this.paneTree.holdsAddress(pane);
+    return pane !== undefined && !this.paneTree.carriesAddress(pane);
   }
 
   private paneTabs(pane: PaneRef): readonly PaneTab[] {

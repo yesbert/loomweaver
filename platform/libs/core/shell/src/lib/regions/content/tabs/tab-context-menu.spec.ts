@@ -34,7 +34,7 @@ describe('registerTabContextMenu', () => {
       pinTab: vi.fn(),
       unpinTab: vi.fn(),
       sourceOf: vi.fn(() => null),
-      holdsAddress: vi.fn(() => true),
+      carriesAddress: vi.fn(() => true),
     };
     popoutOpen = vi.fn();
     popout = { open: popoutOpen } as unknown as PopoutService;
@@ -128,7 +128,7 @@ describe('registerTabContextMenu', () => {
   it('acts in the pane that holds the tab when the context names none, as from the search', () => {
     const pane = { dock: 'content', paneId: 'p2' };
     paneTree['sourceOf'].mockReturnValue(pane);
-    paneTree['holdsAddress'].mockReturnValue(false);
+    paneTree['carriesAddress'].mockReturnValue(false);
     const context = { tabId: 't1', closable: true, pinned: false };
 
     commands.execute('shell.tab.close', context);

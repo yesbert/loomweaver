@@ -14,6 +14,10 @@ export interface PaneRef {
   readonly paneId: string;
 }
 
+export function isSamePane(a: PaneRef, b: PaneRef): boolean {
+  return a.dock === b.dock && a.paneId === b.paneId;
+}
+
 export function viewIdOfPanePath(path: string): string | null {
   return path.startsWith(VIEW_PANE_PREFIX)
     ? path.slice(VIEW_PANE_PREFIX.length)

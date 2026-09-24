@@ -14,8 +14,7 @@ import { PanelGroupService } from './panel-group.service';
 import { ViewMoveService } from './view-move.service';
 import { PANEL_STRIP_CONTEXT_MENU } from './view-context-menu';
 import { VIEW_CONTEXT_MENU } from '../pane/chrome/view-menu-slot';
-import { VIEW_PANE_PREFIX } from '../pane/tree/pane-address';
-import { TabDragSource } from '../pane/drag/pane-drag.service';
+import { VIEW_PANE_PREFIX, PaneRef } from '../pane/tree/pane-address';
 import { stripIdOf } from '../pane/drag/pane-move.service';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
 import { PaneTabStrip } from '../pane/chrome/pane-tab-strip';
@@ -66,7 +65,7 @@ export class ShellSidebarHeader {
     () => this.viewport.compact() || this.features.collapse(),
   );
 
-  protected readonly source = computed<TabDragSource>(() => ({
+  protected readonly source = computed<PaneRef>(() => ({
     dock: this.region().id,
     paneId: this.paneTree.primaryId(this.region().id),
   }));

@@ -2,8 +2,8 @@ import { Component, computed, effect, inject, input } from '@angular/core';
 import { CdkDrag, CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
 import { FeatureSwitches } from '../../../features/feature-switches.service';
 import { PaneDragService } from './pane-drag.service';
-import { isContainerDock } from '../container/container-children';
-import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../tree/pane-address';
+import { isContentSideDock } from '../container/container-children';
+import { VIEW_PANE_PREFIX } from '../tree/pane-address';
 import { PaneTreeService } from '../tree/pane-tree.service';
 import { findLeaf } from '../tree/pane-queries';
 import {
@@ -33,9 +33,7 @@ export class PaneDropZones {
   private readonly features = inject(FeatureSwitches).content;
   private readonly sidebar = inject(FeatureSwitches).sidebar;
 
-  private readonly contentSide = computed(
-    () => this.dock() === CONTENT_DOCK || isContainerDock(this.dock()),
-  );
+  private readonly contentSide = computed(() => isContentSideDock(this.dock()));
   private readonly paneMove = inject(PaneMoveService);
   private readonly paneTree = inject(PaneTreeService);
 
