@@ -51,4 +51,41 @@ describe('the margin setting of the quotes plugin', () => {
     expect(second.shown).toEqual([['quotes.margin', false]]);
     expect(second.toggle().value()).toBe(false);
   });
+
+  describe('in a browser that blocks storage', () => {
+    const original = Object.getOwnPropertyDescriptor(globalThis, 'localStorage');
+
+    beforeEach(() =>
+      Object.defineProperty(globalThis, 'localStorage', {
+        configurable: true,
+        get: () => {
+          throw new DOMException('Access is denied for this document.', 'SecurityError');
+        },
+      }),
+    );
+
+    afterEach(() => {
+      if (original) {
+        Object.defineProperty(globalThis, 'localStorage', original);
+      }
+    });
+
+    it('starts with the margin shown', () => {
+      const { ctx, shown } = recorder();
+
+      registerQuoteSettings(ctx);
+
+      expect(shown).toEqual([['quotes.margin', true]]);
+    });
+
+    it('still switches the margin, for this visit', () => {
+      const { ctx, shown, toggle } = recorder();
+      registerQuoteSettings(ctx);
+
+      toggle().set(false);
+
+      expect(shown.slice(1)).toEqual([['quotes.margin', false]]);
+      expect(toggle().value()).toBe(false);
+    });
+  });
 });
