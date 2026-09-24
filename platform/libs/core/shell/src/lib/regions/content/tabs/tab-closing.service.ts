@@ -6,8 +6,8 @@ import { ContentTabState } from './content-tab-state';
 import { TabNavigationService } from './tab-navigation.service';
 import {
   CONTENT_DOCK,
+  isViewPanePath,
   PaneRef,
-  VIEW_PANE_PREFIX,
   promotedContentPath,
 } from '../../pane/tree/pane-address';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
@@ -128,7 +128,7 @@ export class TabClosingService {
       return;
     }
     const normalized = normalizePath(path);
-    if (normalized.startsWith(VIEW_PANE_PREFIX)) {
+    if (isViewPanePath(normalized)) {
       this.closeGuard.guarded(this.urlPaneCandidates(normalized), () =>
         this.closeViewTab(normalized),
       );
@@ -180,7 +180,7 @@ export class TabClosingService {
     this.closeGuard.guarded(candidates, () => {
       for (const tab of tabs) {
         this.paneTree.removeTab(pane.dock, pane.paneId, tab.path);
-        if (!tab.path.startsWith(VIEW_PANE_PREFIX)) {
+        if (!isViewPanePath(tab.path)) {
           this.runCloseHook(tab.path);
         }
       }
@@ -255,7 +255,7 @@ export class TabClosingService {
     return this.navigation
       .navigate(promotedContentPath(target))
       .then(() => {
-        if (target.startsWith(VIEW_PANE_PREFIX)) {
+        if (isViewPanePath(target)) {
           this.state.activateViewTab(target);
         }
       })

@@ -1,5 +1,5 @@
 import { inject, Service } from '@angular/core';
-import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../pane/tree/pane-address';
+import { CONTENT_DOCK, viewPanePath } from '../pane/tree/pane-address';
 import { findLeafWithTab } from '../pane/tree/pane-queries';
 import { CONTAINER_DOCK_PREFIX } from '../pane/container/container-children';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
@@ -13,7 +13,7 @@ export class SurfaceRevealService {
   private readonly panels = inject(PanelState);
 
   reveal(surfaceId: string): void {
-    const path = VIEW_PANE_PREFIX + surfaceId;
+    const path = viewPanePath(surfaceId);
     for (const [dock, tree] of Object.entries(this.paneTree.dockTrees())) {
       if (dock.startsWith(CONTAINER_DOCK_PREFIX)) {
         continue;

@@ -2,9 +2,10 @@ import { inject, Service, signal } from '@angular/core';
 import { RetainedViewStash } from '../retention/retained-view-stash';
 import {
   CONTENT_DOCK,
-  PRIMARY_PANE,
-  VIEW_PANE_PREFIX,
+  isViewPanePath,
   PaneRef,
+  PRIMARY_PANE,
+  viewPanePath,
 } from './pane-address';
 import { PRIMARY_LEAF, PaneNode, PaneTab, activeTab } from './pane-node';
 import {
@@ -123,7 +124,7 @@ export class PaneTreeService {
     const segments = paneSegments(this.tree(dock));
     const last = segments.at(-1);
     if (last) {
-      this.splitPane(dock, last.id, 'column', VIEW_PANE_PREFIX + viewId);
+      this.splitPane(dock, last.id, 'column', viewPanePath(viewId));
     }
   }
 
@@ -290,7 +291,7 @@ export class PaneTreeService {
       paneId === primary ||
       path === undefined ||
       path === '' ||
-      path.startsWith(VIEW_PANE_PREFIX)
+      isViewPanePath(path)
     ) {
       return null;
     }

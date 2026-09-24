@@ -1,5 +1,5 @@
 import { computed, inject, Service, signal, Signal } from '@angular/core';
-import { VIEW_PANE_PREFIX } from '../tree/pane-address';
+import { isViewPanePath } from '../tree/pane-address';
 import { surfaceForPanePath } from '../pane-surface';
 import { canHostInPane } from '../../content/pane-targets';
 import { matchRoute } from '../../content/content-path';
@@ -41,14 +41,14 @@ export class PaneDragService {
   }
 
   canOfferAsPaneTarget(path: string): boolean {
-    if (path.startsWith(VIEW_PANE_PREFIX)) {
+    if (isViewPanePath(path)) {
       return this.viewAllowed(path);
     }
     return canHostInPane(this.registry, this.auth, path);
   }
 
   canDuplicate(path: string): boolean {
-    if (path.startsWith(VIEW_PANE_PREFIX)) {
+    if (isViewPanePath(path)) {
       return this.viewAllowed(path);
     }
     const route = matchRoute(this.registry.contentRoutes(), path);
@@ -56,9 +56,7 @@ export class PaneDragService {
   }
 
   routerBound(path: string): boolean {
-    return (
-      !path.startsWith(VIEW_PANE_PREFIX) && !this.canOfferAsPaneTarget(path)
-    );
+    return !isViewPanePath(path) && !this.canOfferAsPaneTarget(path);
   }
 
   private viewAllowed(path: string): boolean {

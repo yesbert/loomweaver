@@ -22,7 +22,7 @@ import {
 import { TabCloseHooks } from './tab-close-hooks';
 import { QuickOpenTarget, quickOpenTargetsOf } from './quick-open-target';
 import { TAB_ADDRESS_RESOLVER, followingTabAddress } from './tab-address';
-import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../../pane/tree/pane-address';
+import { CONTENT_DOCK, isViewPanePath } from '../../pane/tree/pane-address';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 import { reseatPinned } from '../../pane/tree/pane-tabs';
 import { surfaceBadge } from '../../pane/chrome/tab-label';
@@ -56,7 +56,7 @@ export class ContentTabState {
     const routes = this.registry.contentRoutes();
     return this.paneTree
       .primaryTabs(CONTENT_DOCK)
-      .filter((tab) => !tab.path.startsWith(VIEW_PANE_PREFIX))
+      .filter((tab) => !isViewPanePath(tab.path))
       .map((tab) =>
         toOpenTab(
           routes,
@@ -139,7 +139,6 @@ export class ContentTabState {
       this.paneTree.primaryTabs(CONTENT_DOCK),
       (id) => this.registry.views().find((view) => view.id === id),
       (access) => this.auth.meets(access),
-      VIEW_PANE_PREFIX,
     ),
   );
 
@@ -167,7 +166,7 @@ export class ContentTabState {
     }
     const viewTabs = this.paneTree
       .primaryTabs(CONTENT_DOCK)
-      .filter((tab) => tab.path.startsWith(VIEW_PANE_PREFIX));
+      .filter((tab) => isViewPanePath(tab.path));
     this.paneTree.setPrimaryTabs(CONTENT_DOCK, [
       ...next.map((tab) => toPaneTab(tab)),
       ...viewTabs,

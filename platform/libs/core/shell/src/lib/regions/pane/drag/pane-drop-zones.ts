@@ -3,7 +3,7 @@ import { CdkDrag, CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
 import { FeatureSwitches } from '../../../features/feature-switches.service';
 import { PaneDragService } from './pane-drag.service';
 import { isContentSideDock } from '../container/container-children';
-import { VIEW_PANE_PREFIX } from '../tree/pane-address';
+import { isViewPanePath } from '../tree/pane-address';
 import { PaneTreeService } from '../tree/pane-tree.service';
 import { findLeaf } from '../tree/pane-queries';
 import {
@@ -82,7 +82,7 @@ export class PaneDropZones {
     if (this.contentSide()) {
       return true;
     }
-    if (!String(drag.data ?? '').startsWith(VIEW_PANE_PREFIX)) {
+    if (!isViewPanePath(String(drag.data ?? ''))) {
       return this.sidebar.acceptTabs();
     }
     return this.fills() ? this.sidebar.moveViews() : this.sidebar.stackViews();

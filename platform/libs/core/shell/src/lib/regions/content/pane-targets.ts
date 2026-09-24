@@ -6,7 +6,7 @@ import {
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { AuthContext } from '../../auth/auth-context';
 import { MenuListEntry } from '../../menu/menu.service';
-import { VIEW_PANE_PREFIX } from '../pane/tree/pane-address';
+import { viewPanePath } from '../pane/tree/pane-address';
 import { resolveTitle } from '../pane/chrome/tab-label';
 import { matchRoute } from './content-path';
 
@@ -19,7 +19,7 @@ export interface PaneTarget {
 
 function viewTarget(view: View): PaneTarget {
   return {
-    path: VIEW_PANE_PREFIX + view.id,
+    path: viewPanePath(view.id),
     title: view.title,
     icon: view.icon,
   };

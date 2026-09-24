@@ -3,7 +3,7 @@ import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { disposeTogether } from '../../plugin/dispose-together';
 import { ViewMoveService } from './view-move.service';
 import { ViewVisibilityService } from './view-visibility.service';
-import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../pane/tree/pane-address';
+import { CONTENT_DOCK, viewPanePath } from '../pane/tree/pane-address';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
 import { menuContextString } from '../../menu/menu-context';
 import { ViewStateService } from '../../views/view-state.service';
@@ -78,7 +78,7 @@ export function registerViewStackMenu(
           paneTree.setActiveTab(
             region,
             paneTree.primaryId(region),
-            VIEW_PANE_PREFIX + viewId,
+            viewPanePath(viewId),
           );
           paneTree.stackView(region, viewId);
         }
@@ -142,7 +142,7 @@ export function registerViewOpenInContentMenu(
             CONTENT_DOCK,
             paneTree.primaryId(CONTENT_DOCK),
             'row',
-            VIEW_PANE_PREFIX + viewId,
+            viewPanePath(viewId),
           );
         }
       },
@@ -197,7 +197,7 @@ export function registerViewPopoutMenu(
       run: (context) => {
         const viewId = menuContextString(context, 'viewId');
         if (viewId) {
-          popout.open(VIEW_PANE_PREFIX + viewId);
+          popout.open(viewPanePath(viewId));
         }
       },
     }),

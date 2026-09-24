@@ -7,7 +7,7 @@ import {
   untracked,
 } from '@angular/core';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
-import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../pane/tree/pane-address';
+import { CONTENT_DOCK, isViewPanePath } from '../pane/tree/pane-address';
 import { PaneLeaf, activeTab, leafPath } from '../pane/tree/pane-node';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
 import { ContentTabsService } from './tabs/content-tabs.service';
@@ -56,8 +56,7 @@ export class AddressPaneBody {
     const root = tabRootOf(routes, url);
     const held = leaf.tabs.some(
       (tab) =>
-        !tab.path.startsWith(VIEW_PANE_PREFIX) &&
-        tabRootOf(routes, tab.path) === root,
+        !isViewPanePath(tab.path) && tabRootOf(routes, tab.path) === root,
     );
     const untabbed = !opensATab(matchRoute(routes, url), root);
     if (held || (!this.settling() && untabbed)) {

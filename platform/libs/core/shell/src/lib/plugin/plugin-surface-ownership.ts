@@ -1,7 +1,7 @@
 import { untracked } from '@angular/core';
 import { ContributionRegistry } from './contribution-registry';
 import { matchRoute } from '../regions/content/content-path';
-import { VIEW_PANE_PREFIX } from '../regions/pane/tree/pane-address';
+import { viewIdOfPanePath } from '../regions/pane/tree/pane-address';
 
 export function pathOwnedBy(
   registry: ContributionRegistry,
@@ -20,8 +20,9 @@ export function pathOwnedBy(
     if (path === '') {
       return false;
     }
-    if (path.startsWith(VIEW_PANE_PREFIX)) {
-      return viewIds.has(path.slice(VIEW_PANE_PREFIX.length));
+    const viewId = viewIdOfPanePath(path);
+    if (viewId !== null) {
+      return viewIds.has(viewId);
     }
     return matchRoute(routes, path) !== undefined;
   };

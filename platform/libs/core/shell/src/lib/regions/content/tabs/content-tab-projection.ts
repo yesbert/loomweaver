@@ -6,6 +6,7 @@ import {
 } from '@loomweaver/plugin-sdk';
 import { View } from '../../../views/view';
 import { PaneTab } from '../../pane/tree/pane-node';
+import { viewIdOfPanePath } from '../../pane/tree/pane-address';
 import { overlayTabTitle } from '../../pane/chrome/tab-label';
 import {
   isHomePath,
@@ -238,12 +239,14 @@ export function viewTabViews(
   paneTabs: readonly { readonly path: string }[],
   viewOf: (id: string) => View | undefined,
   meets: (access: AccessRequirement | undefined) => boolean,
-  viewPanePrefix: string,
 ): ContentTabView[] {
   return paneTabs
-    .filter((tab) => tab.path.startsWith(viewPanePrefix))
-    .flatMap((tab, index) => {
-      const view = viewOf(tab.path.slice(viewPanePrefix.length));
+    .flatMap((tab) => {
+      const viewId = viewIdOfPanePath(tab.path);
+      return viewId === null ? [] : [{ tab, viewId }];
+    })
+    .flatMap(({ tab, viewId }, index) => {
+      const view = viewOf(viewId);
       if (!view || !meets(view.access)) {
         return [];
       }

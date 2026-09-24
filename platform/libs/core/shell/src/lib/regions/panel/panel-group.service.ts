@@ -1,5 +1,11 @@
 import { inject, Service } from '@angular/core';
-import { VIEW_PANE_PREFIX, viewForPanePath } from '../pane/tree/pane-address';
+import {
+  isViewPanePath,
+  VIEW_PANE_PREFIX,
+  viewForPanePath,
+  viewIdOfPanePath,
+  viewPanePath,
+} from '../pane/tree/pane-address';
 import { PaneTab } from '../pane/tree/pane-node';
 import { findLeaf } from '../pane/tree/pane-queries';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
@@ -71,7 +77,7 @@ export class PanelGroupService {
   declaredPaths(regionId: string): string[] {
     return this.panelViews
       .viewsInRegion(regionId)
-      .map((view) => VIEW_PANE_PREFIX + view.id);
+      .map((view) => viewPanePath(view.id));
   }
 
   private pruneHidden(regionId: string): void {
@@ -83,14 +89,12 @@ export class PanelGroupService {
   }
 
   private hiddenViewTab(tab: PaneTab): boolean {
-    return (
-      tab.path.startsWith(VIEW_PANE_PREFIX) &&
-      this.hiddenViews.isHidden(tab.path.slice(VIEW_PANE_PREFIX.length))
-    );
+    const viewId = viewIdOfPanePath(tab.path);
+    return viewId !== null && this.hiddenViews.isHidden(viewId);
   }
 
   private displayable(tab: PaneTab): boolean {
-    if (!tab.path.startsWith(VIEW_PANE_PREFIX)) {
+    if (!isViewPanePath(tab.path)) {
       return true;
     }
     const view = viewForPanePath(this.registry.views(), tab.path);
