@@ -3,7 +3,6 @@ import {
   EnvironmentInjector,
   EnvironmentProviders,
   inject,
-  InjectionToken,
   provideEnvironmentInitializer,
   Provider,
   Service,
@@ -11,7 +10,7 @@ import {
 } from '@angular/core';
 import { HostPluginContext } from './host-plugin-context';
 import { HostContextFactory } from './host-context-factory';
-import { Plugin } from './plugin';
+import { Plugin, PLUGIN } from './plugin';
 import { CapabilityGrantService } from '../permissions/capability-grant.service';
 import { PluginEnablementService } from '../plugin-store/lifecycle/plugin-enablement.service';
 
@@ -19,9 +18,6 @@ interface TeardownFailure {
   readonly id: string;
   readonly error: unknown;
 }
-
-/** Multi-provider token: each contribution adds one plugin to load. */
-export const PLUGIN = new InjectionToken<readonly Plugin[]>('PLUGIN');
 
 /**
  * Activates the registered plugins. Trusted in-process runtime (the lowest isolation

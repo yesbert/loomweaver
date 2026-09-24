@@ -1,7 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom, Subject } from 'rxjs';
 import { provideRouter } from '@angular/router';
-import { PLUGIN, PluginRuntime } from './plugin-runtime';
+import { PluginRuntime } from './plugin-runtime';
+import { PLUGIN } from './plugin';
 import { Plugin } from './plugin';
 import { ContributionRegistry } from './contribution-registry';
 import { provideCapabilityGrants } from '../permissions/capability-grants';
