@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { PluginDeploymentService } from './plugin-deployment.service';
-import { PluginCatalogEntry } from '../installed-plugin';
+import { PluginCatalogEntry } from '../catalog/catalog-entry';
 
 const STORAGE_KEY = 'lw.shell.deployed-plugins';
 

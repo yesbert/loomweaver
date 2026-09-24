@@ -1,5 +1,5 @@
 import { TranslocoService } from '@jsverse/transloco';
-import { PluginCatalogEntry } from '../installed-plugin';
+import { PluginCatalogEntry } from '../catalog/catalog-entry';
 import { StoreConsentDeps, consentLine } from './consent-deps';
 
 export async function confirmInstall(

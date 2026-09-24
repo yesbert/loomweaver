@@ -1,5 +1,5 @@
 import { PluginCatalog } from './plugin-catalog';
-import { PluginCatalogEntry } from '../installed-plugin';
+import { PluginCatalogEntry } from './catalog-entry';
 
 export async function loadCatalogEntries(
   catalog: PluginCatalog | null,

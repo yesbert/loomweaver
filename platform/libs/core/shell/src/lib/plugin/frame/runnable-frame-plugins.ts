@@ -4,7 +4,7 @@ import {
   PluginIsolationLevel,
   exceedsLevel,
 } from '../../foundation/plugin-isolation-level';
-import { InstalledPlugin } from '../../plugin-store/installed-plugin';
+import { InstalledPlugin } from '../../plugin-store/lifecycle/installed-plugin';
 import { FramePlugin } from './frame-plugin';
 
 export interface RunnableFramePlugin extends FramePlugin {

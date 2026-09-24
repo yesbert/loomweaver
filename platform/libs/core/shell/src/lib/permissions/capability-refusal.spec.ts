@@ -10,10 +10,8 @@ import {
   frameRpcMethods,
 } from '../plugin/frame/frame-rpc-methods';
 import { provideShell } from '../provide-shell';
-import {
-  CapabilityRefusalReporter,
-  ShellErrorHandler,
-} from './capability-refusal';
+import { CapabilityRefusalReporter } from './capability-refusal';
+import { CapabilityRefusalErrorHandler } from './refusal-error-handler';
 import { CapabilityGrantService } from './capability-grant.service';
 
 describe('capability refusal', () => {
@@ -26,7 +24,9 @@ describe('capability refusal', () => {
           preloadLangs: true,
         }),
       ],
-      providers: [{ provide: ErrorHandler, useClass: ShellErrorHandler }],
+      providers: [
+        { provide: ErrorHandler, useClass: CapabilityRefusalErrorHandler },
+      ],
     });
     localStorage.clear();
     return {
@@ -85,7 +85,7 @@ describe('capability refusal', () => {
     ).filter((entry) => entry.provide === ErrorHandler);
 
     expect(provided.map((entry) => entry.useClass)).toEqual([
-      ShellErrorHandler,
+      CapabilityRefusalErrorHandler,
     ]);
   });
 

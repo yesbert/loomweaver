@@ -3,7 +3,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { DialogRef } from '../dialog/dialog-ref';
 import { WideDialogFrame } from '../dialog/wide-dialog-frame';
 import { PLUGIN_CATALOG } from './catalog/plugin-catalog';
-import { PluginCatalogEntry } from './installed-plugin';
+import { PluginCatalogEntry } from './catalog/catalog-entry';
 import { PluginInstallService } from './lifecycle/plugin-install.service';
 import { PluginStoreTitle } from './plugin-store-title';
 import { InstalledPluginList } from './installed-plugin-list';

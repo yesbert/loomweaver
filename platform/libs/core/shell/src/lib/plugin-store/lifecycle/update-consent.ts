@@ -1,6 +1,6 @@
 import { TranslocoService } from '@jsverse/transloco';
 import { Capability } from '@loomweaver/plugin-sdk';
-import { PluginCatalogEntry } from '../installed-plugin';
+import { PluginCatalogEntry } from '../catalog/catalog-entry';
 import { addedCapabilities } from './plugin-update';
 import { StoreConsentDeps, consentLine } from './consent-deps';
 

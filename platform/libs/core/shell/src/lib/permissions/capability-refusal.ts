@@ -1,11 +1,4 @@
-import {
-  ErrorHandler,
-  inject,
-  Injectable,
-  Injector,
-  isDevMode,
-  Service,
-} from '@angular/core';
+import { inject, Injector, isDevMode, Service } from '@angular/core';
 import { CapabilityError } from '@loomweaver/plugin-sdk';
 import { CommandService } from '../commands/command.service';
 import { NotificationService } from '../notifications/notification.service';
@@ -54,17 +47,5 @@ export class CapabilityRefusalReporter {
       message: 'permission.unavailable',
       timeoutMs: 8000,
     });
-  }
-}
-
-@Injectable()
-export class ShellErrorHandler extends ErrorHandler {
-  private readonly refusals = inject(CapabilityRefusalReporter);
-
-  override handleError(error: unknown): void {
-    if (this.refusals.report(error)) {
-      return;
-    }
-    super.handleError(error);
   }
 }

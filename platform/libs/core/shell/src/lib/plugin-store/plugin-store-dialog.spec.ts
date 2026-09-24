@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { PluginStoreDialog } from './plugin-store-dialog';
 import { PLUGIN_CATALOG, PluginCatalog } from './catalog/plugin-catalog';
-import { PluginCatalogEntry } from './installed-plugin';
+import { PluginCatalogEntry } from './catalog/catalog-entry';
 import { PluginEnablementService } from '../plugin/enablement/plugin-enablement.service';
 import { PluginInstallService } from './lifecycle/plugin-install.service';
 import { PluginDeploymentService } from './lifecycle/plugin-deployment.service';

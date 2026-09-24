@@ -5,7 +5,7 @@ import { ANONYMOUS, AuthSnapshot, Command } from '@loomweaver/plugin-sdk';
 import { CommandInvocationService } from './command-invocation.service';
 import { ContributionRegistry } from '../plugin/contribution-registry';
 import { AUTH_SOURCE } from '../auth/auth-context';
-import { ShellErrorHandler } from '../permissions/capability-refusal';
+import { CapabilityRefusalErrorHandler } from '../permissions/refusal-error-handler';
 import { NotificationService } from '../notifications/notification.service';
 import { PaletteMruService } from './palette-mru.service';
 
@@ -26,7 +26,7 @@ describe('CommandInvocationService', () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: AUTH_SOURCE, useValue: auth },
-        { provide: ErrorHandler, useClass: ShellErrorHandler },
+        { provide: ErrorHandler, useClass: CapabilityRefusalErrorHandler },
       ],
     });
     registry = TestBed.inject(ContributionRegistry);
