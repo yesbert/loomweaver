@@ -89,14 +89,6 @@ export class RailItemsService {
     });
   }
 
-  toggle(itemId: string, regionId: string): void {
-    if (this.isVisible(itemId)) {
-      this.hide(itemId);
-    } else {
-      this.show(itemId, regionId);
-    }
-  }
-
   reset(): void {
     this.stored.clear();
   }

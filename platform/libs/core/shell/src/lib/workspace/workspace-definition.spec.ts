@@ -1,5 +1,5 @@
 import { PRIMARY_PANE } from '../regions/pane/tree/pane-address';
-import { PaneLeaf, PaneNode } from '../regions/pane/tree/pane-node';
+import { leafPath, PaneLeaf, PaneNode } from '../regions/pane/tree/pane-node';
 import { findLeaf, paneSegments } from '../regions/pane/tree/pane-queries';
 import { CONTENT_DOCK } from '../regions/pane/tree/pane-address';
 import {
@@ -15,6 +15,19 @@ const DEPS: WorkspaceBaselineDeps = {
   declaredPaths: (region) =>
     region === 'primary' ? ['view:nav', 'view:outline', 'view:list'] : [],
 };
+
+function fractionsByPath(
+  node: PaneNode,
+  share = 1,
+): Map<string | undefined, number> {
+  if (node.kind === 'leaf') {
+    return new Map([[leafPath(node), share]]);
+  }
+  return new Map([
+    ...fractionsByPath(node.first, share * node.ratio),
+    ...fractionsByPath(node.second, share * (1 - node.ratio)),
+  ]);
+}
 
 function treeOf(definition: WorkspaceDefinition): PaneNode {
   const raw = workspaceBaseline(definition, DEPS).trees;
@@ -40,9 +53,7 @@ describe('workspaceBaseline', () => {
       },
     });
 
-    const fractions = new Map(
-      paneSegments(tree).map((segment) => [segment.path, segment.fraction]),
-    );
+    const fractions = fractionsByPath(tree);
     expect(fractions.get('list')).toBeCloseTo(0.25, 5);
     expect(fractions.get('a')).toBeCloseTo(0.15, 5);
     expect(fractions.get('b')).toBeCloseTo(0.15, 5);
@@ -83,9 +94,7 @@ describe('workspaceBaseline', () => {
         columns: [{ size: 50, tabs: ['a'] }, { tabs: ['b'] }, { tabs: ['c'] }],
       },
     });
-    const evenFractions = new Map(
-      paneSegments(even).map((segment) => [segment.path, segment.fraction]),
-    );
+    const evenFractions = fractionsByPath(even);
     expect(evenFractions.get('a')).toBeCloseTo(0.5, 5);
     expect(evenFractions.get('b')).toBeCloseTo(0.25, 5);
     expect(evenFractions.get('c')).toBeCloseTo(0.25, 5);
@@ -100,12 +109,7 @@ describe('workspaceBaseline', () => {
         ],
       },
     });
-    const oversizedFractions = new Map(
-      paneSegments(oversized).map((segment) => [
-        segment.path,
-        segment.fraction,
-      ]),
-    );
+    const oversizedFractions = fractionsByPath(oversized);
     expect(oversizedFractions.get('a')).toBeCloseTo(0.75, 5);
     expect(oversizedFractions.get('b')).toBeCloseTo(0.25, 5);
   });

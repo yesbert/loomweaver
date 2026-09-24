@@ -163,30 +163,4 @@ describe('ViewVisibilityService (hide and reveal sidebar views)', () => {
       'view:outline',
     ]);
   });
-
-  it('toggle in a region hides what sits there and pulls in what does not', () => {
-    visibility.toggle('outline', 'secondary');
-
-    expect(hidden.isHidden('outline')).toBe(false);
-    expect(paneTree.primaryTabs('secondary').map((tab) => tab.path)).toEqual([
-      'view:outline',
-    ]);
-
-    visibility.toggle('outline', 'secondary');
-
-    expect(hidden.isHidden('outline')).toBe(true);
-    expect(paneTree.hasTab('view:outline')).toBe(false);
-  });
-
-  it('toggle hides a visible view and reveals a hidden one', () => {
-    visibility.toggle('outline');
-    expect(hidden.isHidden('outline')).toBe(true);
-
-    visibility.toggle('outline');
-    expect(hidden.isHidden('outline')).toBe(false);
-    expect(paneTree.primaryTabs('primary').map((tab) => tab.path)).toEqual([
-      'view:nav',
-      'view:outline',
-    ]);
-  });
 });

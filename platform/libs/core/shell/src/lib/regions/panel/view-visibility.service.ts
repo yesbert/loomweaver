@@ -24,10 +24,6 @@ export class ViewVisibilityService {
   private readonly registry = inject(ContributionRegistry);
   private readonly moves = inject(ViewMoveService);
 
-  isHidden(viewId: string): boolean {
-    return this.hiddenViews.isHidden(viewId);
-  }
-
   hide(viewId: string): void {
     this.closeGuard.guarded(this.openInstancesOf(viewId), () => {
       this.hiddenViews.hide(viewId);
@@ -47,26 +43,6 @@ export class ViewVisibilityService {
       return;
     }
     this.moves.move(viewId, target);
-  }
-
-  toggle(viewId: string, region?: string): void {
-    if (region !== undefined) {
-      this.toggleIn(viewId, region);
-      return;
-    }
-    if (this.hiddenViews.isHidden(viewId)) {
-      this.reveal(viewId);
-      return;
-    }
-    this.hide(viewId);
-  }
-
-  private toggleIn(viewId: string, region: string): void {
-    if (this.paneTree.sourceOf(VIEW_PANE_PREFIX + viewId)?.dock === region) {
-      this.hide(viewId);
-      return;
-    }
-    this.reveal(viewId, region);
   }
 
   private regionOf(viewId: string): string | undefined {

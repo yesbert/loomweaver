@@ -237,11 +237,7 @@ describe('PaneTreeService (one tree per dock)', () => {
       localStorage.clear();
 
       paneTree.resizeStream('primary', splitId, 0.7);
-      const fractions = paneSegments(paneTree.tree('primary')).map(
-        (s) => s.fraction,
-      );
-      expect(fractions[0]).toBeCloseTo(0.7);
-      expect(fractions[1]).toBeCloseTo(0.3);
+      expect((paneTree.tree('primary') as PaneSplit).ratio).toBeCloseTo(0.7);
       expect(localStorage.getItem(KEY)).toBeNull();
 
       paneTree.resizeCommit();

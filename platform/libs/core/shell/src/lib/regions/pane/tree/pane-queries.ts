@@ -60,19 +60,11 @@ export function tabHolderOf(node: PaneNode, tabPath: string): string | null {
 export interface PaneSegment {
   readonly id: string;
   readonly path?: string;
-  readonly fraction: number;
 }
 
 export function paneSegments(node: PaneNode): PaneSegment[] {
-  const out: PaneSegment[] = [];
-  const collect = (leaf: PaneNode, factor: number): void => {
-    if (leaf.kind === 'leaf') {
-      out.push({ id: leaf.id, path: leafPath(leaf), fraction: factor });
-      return;
-    }
-    collect(leaf.first, factor * leaf.ratio);
-    collect(leaf.second, factor * (1 - leaf.ratio));
-  };
-  collect(node, 1);
-  return out;
+  if (node.kind === 'leaf') {
+    return [{ id: node.id, path: leafPath(node) }];
+  }
+  return [...paneSegments(node.first), ...paneSegments(node.second)];
 }

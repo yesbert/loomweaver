@@ -43,10 +43,6 @@ export class LeftOutChildren {
     this.setShown(surfaceId, shown);
   }
 
-  isLeftOut(surfaceId: string): boolean {
-    return this.ids().has(surfaceId);
-  }
-
   hides(path: string): boolean {
     const ids = this.ids();
     if (ids.size === 0) {

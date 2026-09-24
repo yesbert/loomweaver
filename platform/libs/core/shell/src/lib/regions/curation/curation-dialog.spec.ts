@@ -9,6 +9,7 @@ import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { PanelGroupService } from '../panel/panel-group.service';
 import { ViewMoveService } from '../panel/view-move.service';
 import { ViewVisibilityService } from '../panel/view-visibility.service';
+import { HiddenViewsService } from '../panel/hidden-views.service';
 import { View } from '../../layout/view';
 import { WorkspaceService } from '../../workspace/workspace.service';
 import { provideShellFeatures } from '../../foundation/shell-features';
@@ -148,7 +149,7 @@ describe('CurationDialog', () => {
     hide.click();
     fixture.detectChanges();
 
-    expect(TestBed.inject(ViewVisibilityService).isHidden('nav')).toBe(true);
+    expect(TestBed.inject(HiddenViewsService).isHidden('nav')).toBe(true);
   });
 
   it('names the list it edits and says that Escape closes it', () => {
