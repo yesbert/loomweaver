@@ -22,28 +22,24 @@ import { BootAddress } from './boot-address';
 import { DISTRIBUTION_ROUTES, isCatchAll } from './distribution-routes';
 import { keepPopout } from './keep-popout.guard';
 import { settleWorkspace } from './settle-workspace.guard';
-import {
-  RetentionDefault,
-  routeRetains,
-  SURFACE_RETENTION,
-} from '../../pane/retention/retention-policy';
 import { containerChildren } from '../../pane/container/container-children';
 import { matchRoute, normalizePath, segmentsOf } from '../content-path';
 import { POPOUT_PREFIX } from '../../../popout/popout-path';
 import { PopoutView } from '../../../popout/popout-view';
 
+const CONTENT_DATA = { content: true };
+
 export function buildContentRoutes(
   contentRoutes: readonly RegisteredContentRoute[],
   omitted: readonly ContentRoute[] = [],
-  retention: RetentionDefault = 'destroy',
 ): Routes {
   const placeholders: Routes = omitted.map((route) => ({
     path: route.path,
     component: SurfaceRouteStub,
     canActivate: [keepPopout, settleWorkspace],
-    data: { content: true, routePlaceholder: true },
+    data: CONTENT_DATA,
   }));
-  return [...buildRegisteredRoutes(contentRoutes, retention), ...placeholders];
+  return [...buildRegisteredRoutes(contentRoutes), ...placeholders];
 }
 
 function surfaceRoute(): Partial<Route> {
@@ -55,7 +51,7 @@ function subStub(path: string, pathMatch?: 'full'): Route {
     path,
     ...(pathMatch && { pathMatch }),
     component: ContentSubStub,
-    data: { content: true, sub: true },
+    data: CONTENT_DATA,
   };
 }
 
@@ -79,22 +75,13 @@ function childRoutes(route: RegisteredContentRoute): Routes {
 
 function buildRegisteredRoutes(
   contentRoutes: readonly RegisteredContentRoute[],
-  retention: RetentionDefault,
 ): Routes {
   return contentRoutes.flatMap((route) => {
-    const retained = routeRetains(route, retention);
     const angular: Route = {
       path: route.path,
       ...surfaceRoute(),
       canActivate: [keepPopout, settleWorkspace],
-      data: {
-        content: true,
-        chromeless: route.chromeless,
-        iframe: route.iframe,
-        container: route.container,
-        pluginId: route.pluginId,
-        retain: retained,
-      },
+      data: CONTENT_DATA,
     };
     const children = childRoutes(route);
     if (children.length) {
@@ -107,11 +94,7 @@ function buildRegisteredRoutes(
         path: route.path,
         component: SurfaceRouteStub,
         canActivate: [keepPopout],
-        data: {
-          content: true,
-          authPlaceholder: true,
-          chromeless: route.chromeless,
-        },
+        data: CONTENT_DATA,
         ...(children.length && { children }),
       };
       return [angular, placeholder];
@@ -128,7 +111,6 @@ export class ContentRouter {
   private readonly bootAddress = inject(BootAddress);
   private readonly injector = inject(Injector);
   private readonly auth = inject(AuthContext);
-  private readonly retention = inject(SURFACE_RETENTION);
   private readonly owned =
     inject(DISTRIBUTION_ROUTES, { optional: true }) ?? [];
   private readonly ownedFirst = this.owned.filter(
@@ -239,7 +221,7 @@ export class ContentRouter {
     this.router.resetConfig([
       { path: `${POPOUT_PREFIX}/**`, component: PopoutView },
       ...this.ownedFirst,
-      ...buildContentRoutes(routes, omitted, this.retention),
+      ...buildContentRoutes(routes, omitted),
       ...pending,
       ...this.ownedLast,
     ]);
@@ -285,7 +267,7 @@ export class ContentRouter {
         path,
         component: SurfaceRouteStub,
         canActivate: [keepPopout, settleWorkspace],
-        data: { content: true, routePlaceholder: true },
+        data: CONTENT_DATA,
       },
     ];
   }

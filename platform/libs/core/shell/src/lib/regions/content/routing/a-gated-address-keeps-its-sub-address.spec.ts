@@ -118,6 +118,10 @@ function contentOf(router: Router): ActivatedRouteSnapshot | undefined {
   return leaf(router).parent ?? undefined;
 }
 
+function heldBack(router: Router): boolean {
+  return contentOf(router)?.routeConfig?.canMatch === undefined;
+}
+
 async function signIn(auth: WritableSignal<AuthSnapshot>): Promise<void> {
   auth.set(SIGNED_IN);
   TestBed.tick();
@@ -130,12 +134,12 @@ describe('a gated address keeps its sub-address', () => {
     const router = await openAt('/doc/7/design', DOCUMENT_WITH_TABS, auth);
 
     expect(router.url).toBe('/doc/7/design');
-    expect(contentOf(router)?.data['authPlaceholder']).toBe(true);
+    expect(heldBack(router)).toBe(true);
 
     await signIn(auth);
 
     expect(router.url).toBe('/doc/7/design');
-    expect(contentOf(router)?.data['authPlaceholder']).toBeUndefined();
+    expect(heldBack(router)).toBe(false);
     expect(leaf(router).routeConfig?.path).toBe('design');
   });
 
@@ -148,12 +152,12 @@ describe('a gated address keeps its sub-address', () => {
     );
 
     expect(router.url).toBe('/assistants/5/design');
-    expect(contentOf(router)?.data['authPlaceholder']).toBe(true);
+    expect(heldBack(router)).toBe(true);
 
     await signIn(auth);
 
     expect(router.url).toBe('/assistants/5/design');
-    expect(contentOf(router)?.data['container']).toBeDefined();
+    expect(heldBack(router)).toBe(false);
     expect(leaf(router).routeConfig?.path).toBe('design');
   });
 
@@ -162,7 +166,7 @@ describe('a gated address keeps its sub-address', () => {
     const router = await openAt('/doc/7/general', DOCUMENT_WITH_TABS, auth);
 
     expect(router.url).toBe('/doc/7/general');
-    expect(contentOf(router)?.data['authPlaceholder']).toBeUndefined();
+    expect(heldBack(router)).toBe(false);
   });
 
   describe('inside the workspace that claims it', () => {
