@@ -106,8 +106,9 @@ Wired 3 workspace file(s):
     + assets: src/lib/notes/src/lib/i18n
 ```
 
-It finds the workspace by walking up from `--out`, so it wires the build as well as writing the
-files. `--dry-run` previews both and writes nothing.
+It finds the workspace by walking up from `--out` to the nearest `angular.json` or `nx.json`, past
+a library's own `package.json` on the way, so it wires the build as well as writing the files.
+`--dry-run` previews both and writes nothing.
 
 `loomweaver list` prints every scaffold with its options. `loomweaver --help` prints everything else,
 [`init`](#one-command-init) included. The

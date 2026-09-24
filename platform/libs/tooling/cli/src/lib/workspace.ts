@@ -15,14 +15,26 @@ export interface BuildProject {
 export class WorkspaceError extends Error {}
 
 export function findWorkspace(from: string): Workspace | undefined {
-  let dir = resolve(from);
-  for (;;) {
-    if (existsSync(resolve(dir, 'package.json'))) {
-      return { root: dir, ...buildConfigIn(dir) };
+  let nearestPackage: string | undefined;
+  for (const dir of upwardFrom(resolve(from))) {
+    const config = buildConfigIn(dir);
+    if (config.kind) {
+      return { root: dir, ...config };
     }
+    if (nearestPackage === undefined && existsSync(resolve(dir, 'package.json'))) {
+      nearestPackage = dir;
+    }
+  }
+  return nearestPackage === undefined ? undefined : { root: nearestPackage };
+}
+
+function* upwardFrom(start: string): Generator<string> {
+  let dir = start;
+  for (;;) {
+    yield dir;
     const parent = dirname(dir);
     if (parent === dir) {
-      return undefined;
+      return;
     }
     dir = parent;
   }

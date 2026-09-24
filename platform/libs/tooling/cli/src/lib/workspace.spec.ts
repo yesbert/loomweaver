@@ -39,6 +39,23 @@ describe('findWorkspace', () => {
     expect(workspace?.kind).toBe('nx');
   });
 
+  it('walks past a package of its own to the workspace above it', () => {
+    writeFileSync(join(dir, 'package.json'), '{}');
+    writeFileSync(join(dir, 'angular.json'), angularJson({}));
+    mkdirSync(join(dir, 'projects', 'lib', 'src', 'notes'), { recursive: true });
+    writeFileSync(join(dir, 'projects', 'lib', 'package.json'), '{}');
+    const workspace = findWorkspace(join(dir, 'projects', 'lib', 'src', 'notes'));
+    expect(workspace?.root).toBe(dir);
+    expect(workspace?.kind).toBe('angular');
+  });
+
+  it('takes a plain package as the workspace where no configuration sits above it', () => {
+    writeFileSync(join(dir, 'package.json'), '{}');
+    const workspace = findWorkspace(dir);
+    expect(workspace?.root).toBe(dir);
+    expect(workspace?.kind).toBeUndefined();
+  });
+
   it('reports nothing rather than crashing where no workspace is found', () => {
     expect(findWorkspace(join(dir, 'nowhere', 'at', 'all'))).toBeUndefined();
   });

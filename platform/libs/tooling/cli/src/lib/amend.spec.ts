@@ -227,6 +227,17 @@ describe('planAmend for a package the generated output needs', () => {
     expect(manifest().dependencies['@ag-ui/core']).toBe('0.0.42');
   });
 
+  it('records the package in the workspace, not in a package nested inside it', () => {
+    const nested = join(dir, 'projects', 'lib');
+    mkdirSync(join(nested, 'src', 'notes'), { recursive: true });
+    writeFileSync(join(nested, 'package.json'), '{"name":"lib"}');
+    applyAmend(planAmend([AG_UI], join(nested, 'src', 'notes')));
+    expect(manifest().dependencies).toEqual({ '@loomweaver/ag-ui': '^0.7.6' });
+    expect(readFileSync(join(nested, 'package.json'), 'utf8')).toBe(
+      '{"name":"lib"}',
+    );
+  });
+
   it('writes nothing when only planned', () => {
     planAmend([AG_UI], dir);
     expect(manifest().dependencies).toBeUndefined();
