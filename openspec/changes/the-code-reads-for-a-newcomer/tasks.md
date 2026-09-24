@@ -97,7 +97,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   of partials behind the same published entry path (tokens, controls, one file per element look,
   workbench, base), the asset glob ships the partials, and its comments lose tranche numbers, tracker
   codes, other products' names and German words.
-- [ ] 3.11 Smaller frame items: `ViewInstanceService.activeInstance`, private re-read methods, the
+- [x] 3.11 Smaller frame items: `ViewInstanceService.activeInstance`, private re-read methods, the
   panel width constants imported from `layout/`, one `shownInstance` in the panel, the theme registry
   split into tokens and plugin layer with `revision` instead of `version`, the composition report's
   checks as pure functions, `addressing/` renamed to what it holds or merged into the path module, and
