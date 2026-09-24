@@ -1,19 +1,30 @@
 import { DOCUMENT } from '@angular/common';
-import { Component, DestroyRef, ElementRef, afterNextRender, isDevMode, computed, effect, inject, Injector, linkedSignal, signal, viewChild } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  ElementRef,
+  afterNextRender,
+  isDevMode,
+  computed,
+  effect,
+  inject,
+  Injector,
+  linkedSignal,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { filter, map } from 'rxjs';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { DirtySurface, StateHandle } from '@loomweaver/plugin-sdk';
-import { Connection, Methods, WindowMessenger, connect } from 'penpal';
+import { DirtySurface } from '@loomweaver/plugin-sdk';
+import { Connection, WindowMessenger, connect } from 'penpal';
 import { LocaleService } from '../../../i18n/locale.service';
 import { PluginStateService } from '../../../plugin/plugin-state.service';
 import { ThemeService } from '../../../theme/theme.service';
 import { ThemeRegistry } from '../../../theme/theme-registry';
 import { FontScaleService } from '../../../text-size/font-scale.service';
-import { LW_TOKENS } from '../../../theme/theme-tokens';
-import { distributionIcons } from '../../../elements/icon/icon-registry-global';
 import { AuthContext } from '../../../auth/auth-context';
 import { CapabilityGrantService } from '../../../permissions/capability-grant.service';
 import { PluginIsolationLevelService } from '../../../foundation/plugin-isolation-level';
@@ -25,39 +36,13 @@ import {
   askSurfaceToDraw,
 } from '../../../capture/surface-capture';
 import { SurfaceCaptureRegistry } from '../../../capture/surface-capture-registry';
-
-interface SurfaceState {
-  readonly locale: string;
-  readonly tab: string;
-  readonly theme: 'light' | 'dark';
-  readonly preview: boolean;
-  readonly shown: boolean;
-  readonly tokens: Record<string, string>;
-  readonly rootFontSize: string;
-  readonly icons?: Record<string, string>;
-  readonly instanceId?: string;
-  readonly params?: Record<string, string>;
-  readonly rest?: string;
-  readonly session?: {
-    readonly authenticated: boolean;
-    readonly roles: readonly string[];
-  };
-}
-
-type SurfaceRemote = Methods & {
-  render(state: SurfaceState): Promise<void>;
-  beforeClose(): Promise<boolean> | boolean;
-  stateChanged(key: string, value: unknown, loaded: boolean): void;
-  capture(request: {
-    readonly scale: number;
-    readonly withheldLabel: string;
-  }): Promise<unknown>;
-};
-
-interface WatchedKey {
-  readonly handle: StateHandle;
-  readonly stop: () => void;
-}
+import {
+  confinedTarget,
+  resolvedLook,
+  SurfaceRemote,
+  SurfaceState,
+} from './iframe-surface-protocol';
+import { PluginStateBridge } from './plugin-state-bridge';
 
 @Component({
   selector: 'lw-iframe-surface',
@@ -95,8 +80,6 @@ export class IframeSurface implements DirtySurface {
 
   private readonly injector = inject(Injector);
 
-  private readonly watched = new Map<string, WatchedKey>();
-
   private readonly frame =
     viewChild.required<ElementRef<HTMLIFrameElement>>('frame');
 
@@ -110,6 +93,14 @@ export class IframeSurface implements DirtySurface {
 
   private readonly pluginId = this.route.snapshot.data['pluginId'] as
     string | undefined;
+
+  private readonly stateBridge = new PluginStateBridge(
+    this.pluginId === undefined
+      ? undefined
+      : this.pluginState.facade(this.pluginId),
+    this.injector,
+    (key, value, loaded) => this.pushState(key, value, loaded),
+  );
 
   protected readonly isolated =
     this.isolation.levelOf(this.pluginId) === 'isolated';
@@ -201,14 +192,13 @@ export class IframeSurface implements DirtySurface {
       const snapshot = this.reactiveState();
       this.themes.revision();
       this.fontScale.scale();
-      queueMicrotask(() => this.push({ ...snapshot, ...this.readResolved() }));
+      queueMicrotask(() =>
+        this.push({ ...snapshot, ...resolvedLook(this.document) }),
+      );
     });
     inject(DestroyRef).onDestroy(() => {
       unregister();
-      for (const entry of this.watched.values()) {
-        entry.stop();
-      }
-      this.watched.clear();
+      this.stateBridge.stopAll();
       this.visibility?.disconnect();
       this.connection?.destroy();
     });
@@ -259,50 +249,20 @@ export class IframeSurface implements DirtySurface {
           }
         },
         setDirty: (dirty: boolean) => this.dirty.set(dirty),
-        stateWatch: (key: string) => this.watchState(key),
+        stateWatch: (key: string) => this.stateBridge.watch(key),
         stateSet: (key: string, value: unknown) =>
-          this.watched.get(key)?.handle.set(value),
-        stateClear: (key: string) =>
-          this.watched.get(key)?.handle.clear(),
-        stateUnwatch: (key: string) => {
-          const name = key;
-          this.watched.get(name)?.stop();
-          this.watched.delete(name);
-        },
+          this.stateBridge.set(key, value),
+        stateClear: (key: string) => this.stateBridge.clear(key),
+        stateUnwatch: (key: string) => this.stateBridge.unwatch(key),
       },
     });
     this.connection.promise
       .then((remote) => {
         this.remote = remote;
-        this.push({ ...this.reactiveState(), ...this.readResolved() });
-        for (const [key, entry] of this.watched) {
-          this.pushState(key, entry.handle.value(), entry.handle.loaded());
-        }
+        this.push({ ...this.reactiveState(), ...resolvedLook(this.document) });
+        this.stateBridge.replay();
       })
       .catch(() => undefined);
-  }
-
-  private watchState(key: string): void {
-    const owner = this.pluginId;
-    if (owner === undefined || this.watched.has(key)) {
-      return;
-    }
-    const handle = this.pluginState.facade(owner).watch(key);
-    const ref = effect(
-      () => {
-        const value = handle.value();
-        const loaded = handle.loaded();
-        queueMicrotask(() => this.pushState(key, value, loaded));
-      },
-      { injector: this.injector },
-    );
-    this.watched.set(key, {
-      handle,
-      stop: () => {
-        ref.destroy();
-        handle.dispose();
-      },
-    });
   }
 
   private pushState(key: string, value: unknown, loaded: boolean): void {
@@ -343,31 +303,16 @@ export class IframeSurface implements DirtySurface {
       preview: this.isPreview(),
       shown: this.shown(),
       ...(this.instanceId && { instanceId: this.instanceId }),
-      ...(Object.keys(this.routeParams).length > 0 && { params: this.routeParams }),
+      ...(Object.keys(this.routeParams).length > 0 && {
+        params: this.routeParams,
+      }),
       ...(rest !== undefined && { rest }),
       ...(this.sessionGranted() && {
-            session: {
-              authenticated: this.auth.authenticated(),
-              roles: this.auth.roles(),
-            },
-          }),
-    };
-  }
-
-  private readResolved(): Pick<
-    SurfaceState,
-    'tokens' | 'rootFontSize' | 'icons'
-  > {
-    const styles = getComputedStyle(this.document.documentElement);
-    const tokens: Record<string, string> = {};
-    for (const name of LW_TOKENS) {
-      tokens[name] = styles.getPropertyValue(name).trim();
-    }
-    const icons = distributionIcons();
-    return {
-      tokens,
-      rootFontSize: styles.fontSize,
-      ...(Object.keys(icons).length > 0 && { icons }),
+        session: {
+          authenticated: this.auth.authenticated(),
+          roles: this.auth.roles(),
+        },
+      }),
     };
   }
 
@@ -382,19 +327,11 @@ export class IframeSurface implements DirtySurface {
       }
       return;
     }
-    const raw = path;
-    const suffix = suffixOf(raw);
-    const target = normalizePath(raw);
-    if (target !== this.tabRoot && !target.startsWith(this.tabRoot + '/')) {
-      throw new Error(
-        `Surface navigation is confined to its own tab root "${this.tabRoot}" — got "${target}". ` +
-          `Use the plugin (logic) channel's ctx.navigateContent for anything else ('navigation' grant).`,
-      );
-    }
+    const target = confinedTarget(this.tabRoot, path);
     if (this.hostMounted()) {
-      this.hostSub.set(restBelow(this.tabRoot, raw));
+      this.hostSub.set(restBelow(this.tabRoot, path));
       return;
     }
-    this.tabs.navigateTo(target + suffix);
+    this.tabs.navigateTo(target + suffixOf(path));
   }
 }
