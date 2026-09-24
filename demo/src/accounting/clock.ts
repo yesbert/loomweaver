@@ -11,5 +11,11 @@ export function today(): Date {
 export function isoDaysFromToday(offset: number): string {
   const date = today();
   date.setDate(date.getDate() + offset);
-  return date.toISOString().slice(0, 10);
+  return localIsoDate(date);
+}
+
+export function localIsoDate(date: Date): string {
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
 }

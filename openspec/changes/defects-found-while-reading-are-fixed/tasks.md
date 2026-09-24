@@ -91,7 +91,7 @@ they start with a top-level folder.
 
 ## 7. The demo
 
-- [ ] 7.1 The closing periods are computed in the local calendar, and the day helper returns today's
+- [x] 7.1 The closing periods are computed in the local calendar, and the day helper returns today's
   date after local midnight (`demo/src/accounting/finance.ts`, `demo/src/accounting/clock.ts`); the test
   runs under `TZ=Europe/Berlin` and checks the month.
 - [ ] 7.2 Quote commands accept quotes created after startup: their choices are read when invoked, not
