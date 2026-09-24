@@ -7,7 +7,7 @@ they start with a top-level folder.
 - [x] 1.1 A list menu marks its entry in effect and keeps every icon: the list builder reserves the
   check column like the command menu does and no longer drops the icon of an active or checked entry
   (`menu/menu.service.ts`); tested through the tab-strip overflow list and the view-instance switcher.
-- [ ] 1.2 A capability refusal thrown by a menu entry's own implementation reaches the error handler,
+- [x] 1.2 A capability refusal thrown by a menu entry's own implementation reaches the error handler,
   and so the user, instead of the console (`menu/menu.service.ts`).
 - [ ] 1.3 `retitleSurface` and `updateSurfaceAction` act only on a surface the calling plugin
   registered, for an in-process and a frame plugin, with a red test per method modelled on the badge
