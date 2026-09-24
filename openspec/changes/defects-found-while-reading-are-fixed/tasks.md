@@ -86,7 +86,7 @@ they start with a top-level folder.
 - [x] 6.2 The minimal store plugin registers its own page and path
   (`platform/apps/loom-testbed/public/store-minimal/plugin.js`); an end-to-end test installs it and
   sees its heading.
-- [ ] 6.3 The static sandbox page loads the frame kit's stylesheet so its buttons are styled
+- [x] 6.3 The static sandbox page loads the frame kit's stylesheet so its buttons are styled
   (`platform/apps/loom-testbed/public/sandbox-static/view.html`).
 
 ## 7. The demo

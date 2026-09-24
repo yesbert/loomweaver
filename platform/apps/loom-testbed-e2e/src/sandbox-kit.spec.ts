@@ -112,6 +112,19 @@ test.describe('Sandbox UI kit — /frame-kit/ assets inside the iframe', () => {
     await expect(surface.getByText(/handled in-process/)).toBeVisible();
   });
 
+  test('a page that uses the .lw-btn classes gets them from the kit stylesheet', async ({
+    page,
+  }) => {
+    await page.goto('/sandbox-static');
+    const surface = page.frameLocator(
+      'iframe[src*="/sandbox-static/view.html"]',
+    );
+
+    const button = surface.getByRole('button', { name: 'Go deeper' });
+    await expect(button).toHaveCSS('cursor', 'pointer');
+    await expect(button).toHaveCSS('height', '36px');
+  });
+
   test('the badge class contract and the progress ring render from the kit CSS/bundle', async ({
     page,
   }) => {
