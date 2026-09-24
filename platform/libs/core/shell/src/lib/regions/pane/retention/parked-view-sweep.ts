@@ -3,14 +3,14 @@ import { ContentRoute, View } from '@loomweaver/plugin-sdk';
 import { PopoutWindow } from '../../../popout/popout-window';
 import { ActiveWorkspaceService } from '../../../workspace/active-workspace.service';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
-import { NotificationService } from '../../../notifications/notification.service';
 import { tabRootOf } from '../../content/content-path';
 import { PaneNode } from '../tree/pane-node';
 import { leavesOf } from '../tree/pane-queries';
 import { PaneTreeService } from '../tree/pane-tree.service';
 import { RetainedViewStash } from './retained-view-stash';
-import { resolvableSurfacePath, saveOnHidePath } from './retention-policy';
-import { dirtySurfaceOf, instanceDirty } from '../unsaved-work/dirty-surface';
+import { resolvableSurfacePath } from './retention-policy';
+import { instanceDirty } from '../unsaved-work/dirty-surface';
+import { SaveOnHide } from '../unsaved-work/save-on-hide';
 import {
   isPrimaryRetentionKey,
   paneRetentionScope,
@@ -19,26 +19,25 @@ import {
 } from './retention-keys';
 
 interface ParkedInstance {
+  readonly key: string;
   readonly instance?: unknown;
   readonly retains: boolean;
   readonly held: boolean;
   readonly path: string;
   readonly dirty: boolean;
-  readonly evict: () => void;
   readonly tabLive: boolean;
   readonly parkedElsewhere: boolean;
 }
 
 @Service()
-export class RetentionGc {
+export class ParkedViewSweep {
   private readonly paneTree = inject(PaneTreeService);
   private readonly registry = inject(ContributionRegistry);
   private readonly stash = inject(RetainedViewStash);
-  private readonly notifications = inject(NotificationService);
+  private readonly saveOnHide = inject(SaveOnHide);
   private readonly injector = inject(Injector);
   private readonly workspace = inject(ActiveWorkspaceService);
   private readonly popout = inject(PopoutWindow).active;
-  private autoSaved = new Set<unknown>();
   private started = false;
 
   start(): void {
@@ -68,12 +67,12 @@ export class RetentionGc {
     active: string,
   ): ParkedInstance[] {
     return this.stash.parked().map((entry) => ({
+      key: entry.key,
       instance: entry.instance,
       retains: entry.retains,
       held: entry.held,
       path: pathOfRetentionKey(entry.key),
       dirty: instanceDirty(entry.instance),
-      evict: () => this.stash.evictParked(entry.key),
       tabLive:
         stashKeyLive(entry.key, open, routes, views) ||
         (entry.held &&
@@ -87,48 +86,22 @@ export class RetentionGc {
     routes: readonly ContentRoute[],
     views: readonly View[],
   ): void {
-    const stillParked = new Set(parked.map((entry) => entry.instance));
-    this.autoSaved = new Set(
-      [...this.autoSaved].filter((instance) => stillParked.has(instance)),
+    this.saveOnHide.forgetAllBut(
+      new Set(parked.map((entry) => entry.instance)),
     );
     for (const entry of parked) {
       if (!entry.tabLive && !entry.parkedElsewhere) {
-        entry.evict();
+        this.stash.evictParked(entry.key);
         continue;
       }
       if (entry.dirty) {
-        this.autoSaveOnce(entry, routes, views);
+        this.saveOnHide.saveOnce(entry.instance, entry.path, routes, views);
         continue;
       }
       if (!entry.retains && !entry.held) {
-        entry.evict();
+        this.stash.evictParked(entry.key);
       }
     }
-  }
-
-  private autoSaveOnce(
-    entry: ParkedInstance,
-    routes: readonly ContentRoute[],
-    views: readonly View[],
-  ): void {
-    if (
-      this.autoSaved.has(entry.instance) ||
-      !saveOnHidePath(routes, views, entry.path)
-    ) {
-      return;
-    }
-    const save = dirtySurfaceOf(entry.instance)?.surfaceSave;
-    if (!save) {
-      return;
-    }
-    this.autoSaved.add(entry.instance);
-    save.call(entry.instance).catch((error: unknown) => {
-      console.error('saveOn:hide failed — the surface stays dirty', error);
-      this.notifications.show({
-        message: 'retention.saveFailed',
-        kind: 'warning',
-      });
-    });
   }
 }
 

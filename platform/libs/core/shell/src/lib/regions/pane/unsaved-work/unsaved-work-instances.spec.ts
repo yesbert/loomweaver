@@ -1,15 +1,15 @@
 import { TestBed } from '@angular/core/testing';
 import { ContentRoute, View } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
-import { RetainedViewStash } from './retained-view-stash';
-import { RetentionCandidates } from './retention-candidates';
+import { RetainedViewStash } from '../retention/retained-view-stash';
+import { UnsavedWork } from './unsaved-work';
 
 const ownedView = { instance: 'owned view' };
 const foreignView = { instance: 'foreign view' };
 const ownedDocument = { instance: 'owned doc' };
 const foreignDocument = { instance: 'foreign doc' };
 
-function setup(): RetentionCandidates {
+function setup(): UnsavedWork {
   const kept = [
     { key: 'left:main|view:testbed.outline|', instance: ownedView },
     { key: 'left:main|view:other.panel|', instance: foreignView },
@@ -62,14 +62,14 @@ function setup(): RetentionCandidates {
     } as unknown as View,
     'other',
   );
-  return TestBed.inject(RetentionCandidates);
+  return TestBed.inject(UnsavedWork);
 }
 
-describe('RetentionCandidates', () => {
-  it('all() is every instance the panes keep, the pane carrying the address included', () => {
+describe('UnsavedWork, the instances that may hold it', () => {
+  it('instancesEverywhere() is every instance the panes keep, the pane carrying the address included', () => {
     const candidates = setup();
 
-    expect(candidates.all()).toEqual([
+    expect(candidates.instancesEverywhere()).toEqual([
       ownedView,
       foreignView,
       ownedDocument,
@@ -77,11 +77,14 @@ describe('RetentionCandidates', () => {
     ]);
   });
 
-  it('ofPlugin() keeps only instances whose surface the plugin registered', () => {
+  it('instancesOfPlugin() keeps only instances whose surface the plugin registered', () => {
     const candidates = setup();
 
-    expect(candidates.ofPlugin('testbed')).toEqual([ownedView, ownedDocument]);
-    expect(candidates.ofPlugin('other')).toEqual([
+    expect(candidates.instancesOfPlugin('testbed')).toEqual([
+      ownedView,
+      ownedDocument,
+    ]);
+    expect(candidates.instancesOfPlugin('other')).toEqual([
       foreignView,
       foreignDocument,
     ]);

@@ -1,5 +1,6 @@
 import { inject, Service } from '@angular/core';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
+import { pathOwnedBy } from '../../../plugin/plugin-surface-ownership';
 import { normalizePath, tabRootOf } from '../../content/content-path';
 import { isViewPanePath } from '../tree/pane-address';
 import { RetainedViewStash } from '../retention/retained-view-stash';
@@ -28,6 +29,18 @@ export class UnsavedWork {
         ),
       ]),
     ];
+  }
+
+  instancesEverywhere(): unknown[] {
+    return this.stash.instances();
+  }
+
+  instancesOfPlugin(pluginId: string): unknown[] {
+    const owns = pathOwnedBy(this.registry, pluginId);
+    return this.stash
+      .keyedInstances()
+      .filter((entry) => owns(pathOfRetentionKey(entry.key)))
+      .map((entry) => entry.instance);
   }
 
   at(scope: string, path: string): boolean {

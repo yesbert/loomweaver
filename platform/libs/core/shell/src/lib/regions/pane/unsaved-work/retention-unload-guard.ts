@@ -1,12 +1,12 @@
 import { DOCUMENT } from '@angular/common';
 import { inject, OnDestroy, Service } from '@angular/core';
 import { PopoutWindow } from '../../../popout/popout-window';
-import { RetentionCandidates } from '../retention/retention-candidates';
 import { instanceDirty } from './dirty-surface';
+import { UnsavedWork } from './unsaved-work';
 
 @Service()
 export class RetentionUnloadGuard implements OnDestroy {
-  private readonly candidates = inject(RetentionCandidates);
+  private readonly unsavedWork = inject(UnsavedWork);
   private readonly document = inject(DOCUMENT);
   private readonly popout = inject(PopoutWindow).active;
   private started = false;
@@ -38,8 +38,8 @@ export class RetentionUnloadGuard implements OnDestroy {
     if (this.suppressed) {
       return;
     }
-    const dirty = this.candidates
-      .all()
+    const dirty = this.unsavedWork
+      .instancesEverywhere()
       .some((instance) => instanceDirty(instance));
     if (!dirty) {
       return;

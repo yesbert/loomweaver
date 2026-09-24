@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { DirtySurface } from '@loomweaver/plugin-sdk';
 import { DialogService } from '../../dialog/dialog.service';
-import { RetentionCandidates } from '../../regions/pane/retention/retention-candidates';
+import { UnsavedWork } from '../../regions/pane/unsaved-work/unsaved-work';
 import { PluginDisableGuard } from './plugin-disable-guard';
 import { PluginEnablementService } from './plugin-enablement.service';
 
@@ -33,8 +33,8 @@ describe('PluginDisableGuard (programmatic destruction)', () => {
     TestBed.configureTestingModule({
       providers: [
         {
-          provide: RetentionCandidates,
-          useValue: { ofPlugin: () => candidates },
+          provide: UnsavedWork,
+          useValue: { instancesOfPlugin: () => candidates },
         },
         { provide: PluginEnablementService, useValue: { setEnabled } },
       ],
