@@ -51,7 +51,11 @@ export const ticketStore = {
   },
 
   get(number: string): Ticket {
-    return find(number);
+    return existing(number);
+  },
+
+  find(number: string): Ticket | undefined {
+    return withNumber(number);
   },
 
   assign(number: string, to: Assignee): TicketSummary {
@@ -97,9 +101,13 @@ function ticket(number: string, customer: string, subject: string, body: string)
   return { number, customer, subject, body, status: 'open', assignee: null, replies: [] };
 }
 
-function find(number: string): Ticket {
+function withNumber(number: string): Ticket | undefined {
   const wanted = number.trim().toUpperCase();
-  const found = tickets().find((one) => one.number === wanted);
+  return tickets().find((one) => one.number === wanted);
+}
+
+function existing(number: string): Ticket {
+  const found = withNumber(number);
   if (!found) {
     throw new Error(`There is no ticket ${number}.`);
   }
@@ -107,7 +115,7 @@ function find(number: string): Ticket {
 }
 
 function update(number: string, change: (one: Ticket) => Ticket): Ticket {
-  const changed = change(find(number));
+  const changed = change(existing(number));
   tickets.update((all) => all.map((one) => (one.number === changed.number ? changed : one)));
   return changed;
 }
