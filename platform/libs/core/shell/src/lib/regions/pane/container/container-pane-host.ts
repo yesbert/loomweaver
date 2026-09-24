@@ -23,6 +23,7 @@ import { PaneContainersService } from './pane-containers.service';
 import { activeTab } from '../tree/pane-node';
 import { collectLeafIds, findLeaf } from '../tree/pane-queries';
 import { normalizePath, restBelow } from '../../content/content-path';
+import { surfaceRouteData } from '../../content/surface/surface-route-data';
 
 @Component({
   selector: 'lw-container-pane-host',
@@ -35,8 +36,7 @@ import { normalizePath, restBelow } from '../../content/content-path';
         route: ActivatedRoute,
         containers: PaneContainersService,
       ) => {
-        const spec = route.snapshot.data['container'] as
-          ContainerSpec | undefined;
+        const spec = surfaceRouteData(route.snapshot.data).container;
         const dock = containerDockFor(
           route.snapshot.url.map((segment) => segment.path).join('/'),
         );
@@ -112,8 +112,7 @@ export class ContainerPaneHost {
       .map((segment) => segment.path)
       .join('/');
     this.dock = containerDockFor(this.containerPath);
-    this.spec = this.route.snapshot.data['container'] as
-      ContainerSpec | undefined;
+    this.spec = surfaceRouteData(this.route.snapshot.data).container;
     this.containers.ensureContainer(this.dock, this.spec);
     this.followUrl();
     this.leadUrl();

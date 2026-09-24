@@ -43,6 +43,7 @@ import {
   SurfaceState,
 } from './iframe-surface-protocol';
 import { PluginStateBridge } from './plugin-state-bridge';
+import { surfaceRouteData } from './surface-route-data';
 
 @Component({
   selector: 'lw-iframe-surface',
@@ -85,14 +86,13 @@ export class IframeSurface implements DirtySurface {
 
   private readonly host: Element = inject(ElementRef).nativeElement;
 
+  private readonly data = surfaceRouteData(this.route.snapshot.data);
+
   protected readonly src: SafeResourceUrl = inject(
     DomSanitizer,
-  ).bypassSecurityTrustResourceUrl(
-    this.route.snapshot.data['iframe'] as string,
-  );
+  ).bypassSecurityTrustResourceUrl(this.data.iframe as string);
 
-  private readonly pluginId = this.route.snapshot.data['pluginId'] as
-    string | undefined;
+  private readonly pluginId = this.data.pluginId;
 
   private readonly stateBridge = new PluginStateBridge(
     this.pluginId === undefined
@@ -110,27 +110,25 @@ export class IframeSurface implements DirtySurface {
     return owner !== undefined && this.grants.isGranted(owner, 'session');
   });
 
-  private readonly routeData = toSignal(this.route.data, {
-    initialValue: this.route.snapshot.data,
-  });
+  private readonly routeData = toSignal(
+    this.route.data.pipe(map(surfaceRouteData)),
+    { initialValue: this.data },
+  );
 
-  private readonly hostMounted = computed(() => !this.routeData()['urlDriven']);
+  private readonly hostMounted = computed(() => !this.routeData().urlDriven);
 
-  private readonly docked = this.route.snapshot.data['docked'] === true;
+  private readonly docked = this.data.docked === true;
 
-  private readonly instanceId = this.route.snapshot.data['instanceId'] as
-    string | undefined;
+  private readonly instanceId = this.data.instanceId;
 
   private readonly routeParams = this.route.snapshot.params as Record<
     string,
     string
   >;
 
-  private readonly ownsRest = this.route.snapshot.data['rest'] === true;
+  private readonly ownsRest = this.data.rest === true;
 
-  private readonly hostSub = linkedSignal(() =>
-    String(this.routeData()['sub'] ?? ''),
-  );
+  private readonly hostSub = linkedSignal(() => this.routeData().sub ?? '');
 
   private readonly tabRoot = this.route.snapshot.pathFromRoot
     .flatMap((route) => route.url.map((segment) => segment.path))
