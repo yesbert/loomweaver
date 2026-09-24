@@ -67,9 +67,9 @@ export interface WorkspaceDefinition {
    * navigation or a tab a plugin opened. Without a claim an address is shown wherever the user
    * already is, which is the behaviour of every workspace that declares none.
    *
-   * Where two workspaces claim addresses of the same shape, neither is narrower and the claim is
-   * dropped from both with a message naming them; a narrower claim (more segments, or fewer
-   * parameters at the same length) simply wins. A workspace the **user** saved is never a
+   * Where claims of two workspaces meet on an address and neither is narrower, that address is
+   * claimed by neither, and in development a message names both; a narrower claim (more segments,
+   * or fewer parameters at the same length) simply wins. A workspace the **user** saved is never a
    * destination, however it came by its claim — it exists on one machine only, and an address that
    * led somewhere different for every user would not be an address.
    */

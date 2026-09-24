@@ -49,6 +49,23 @@ describe('workspace claims', () => {
     expect(withoutConflicts(list)).toEqual([]);
   });
 
+  it('names both workspaces where claims of different shape tie on an address, and honours neither there', () => {
+    const list = claims(['quotes', 'quotes/:id'], ['drafts', ':kind/new']);
+
+    expect(claimFor(list, 'quotes/new')).toBeNull();
+    expect(conflictingClaims(list)).toHaveLength(1);
+    expect(conflictingClaims(list)[0]).toContain('"quotes"');
+    expect(conflictingClaims(list)[0]).toContain('"drafts"');
+  });
+
+  it('reports nothing where claims of different shape can never meet on one address', () => {
+    expect(
+      conflictingClaims(
+        claims(['quotes', 'quotes/:id'], ['orders', 'orders/new']),
+      ),
+    ).toEqual([]);
+  });
+
   it('leaves an uncontested claim alone while dropping the contested one', () => {
     const list = claims(
       ['quotes', 'quotes/:id'],
@@ -62,6 +79,10 @@ describe('workspace claims', () => {
   });
 
   it('reports nothing where one workspace claims the same shape twice', () => {
-    expect(conflictingClaims(claims(['quotes', 'quotes/:id'], ['quotes', 'quotes/:other']))).toEqual([]);
+    expect(
+      conflictingClaims(
+        claims(['quotes', 'quotes/:id'], ['quotes', 'quotes/:other']),
+      ),
+    ).toEqual([]);
   });
 });

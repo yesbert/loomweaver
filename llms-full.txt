@@ -775,8 +775,8 @@ interface WorkspaceDefinition { id: string; title: string; icon?: string; initia
 //   workspaces from an arrangement feature into the NAVIGATION model — a rail entry carrying `workspace:` is
 //   the only kind the host marks as current, and a claimed address activates its workspace however it was
 //   reached, so the arrangement IS the navigation. Claiming is the composing product's alone: no plugin and no
-//   user can create one. Two claims of the same shape with neither narrower are dropped from both and named in
-//   a dev message; a narrower claim (more segments, or fewer parameters at the same length) simply wins. A
+//   user can create one. Two claims that meet on an address with neither narrower leave that address to neither
+//   and are named in a dev message; a narrower claim (more segments, or fewer parameters at the same length) wins. A
 //   workspace the USER saved is never a destination, however it came by its claim — it exists on one machine.
 //   initial: the workspace the application OPENS in. Holds for every opening at an address naming no content, not
 //   only the first, and shows that workspace as the user last left it rather than as declared; their other
