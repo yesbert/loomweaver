@@ -50,7 +50,7 @@ import {
   warnUndescribedCallable,
   warnUnlessPanelRegion,
   warnUnlessRegionType,
-  warnUnsupportedRetain,
+  warnIgnoredRetention,
   warnUnusableContainerLayout,
 } from './host-context-warnings';
 import { addressIsUnder } from '../../addressing/address-is-under';
@@ -227,12 +227,12 @@ export class HostPluginContext implements PluginContext {
   registerSurface(surface: Surface): Disposable {
     this.require('contributions');
     this.requireNavigationForBroadPrefix(surface);
-    warnUnsupportedRetain(this.pluginId, surface);
+    warnIgnoredRetention(this.pluginId, surface);
     warnUnusableContainerLayout(this.pluginId, surface);
 
     const entry = surfaceToEntry(surface);
     if (isRoutableSurface(surface)) {
-      const collision = this.followCollision(surface);
+      const collision = this.followConflictMessage(surface);
       if (collision) {
         console.error(collision);
         return { dispose: () => undefined };
@@ -346,7 +346,7 @@ export class HostPluginContext implements PluginContext {
     return this.track(registered);
   }
 
-  private followCollision(surface: Surface): string | null {
+  private followConflictMessage(surface: Surface): string | null {
     const routable = surface.routable;
     if (routable?.follows !== true) {
       return null;

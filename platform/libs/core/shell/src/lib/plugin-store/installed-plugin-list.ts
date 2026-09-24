@@ -31,7 +31,7 @@ interface InstalledRow {
   readonly category?: string;
   readonly iconUrl?: string;
   readonly enabled: boolean;
-  readonly provided: boolean;
+  readonly deployed: boolean;
   readonly settingsSectionId?: string;
   readonly update?: PluginCatalogEntry;
 }
@@ -67,14 +67,16 @@ export class InstalledPluginList implements OnInit {
     const catalog = new Map(this.entries().map((entry) => [entry.id, entry]));
     const sections = this.settings.all();
     const deployed = this.deployment.deployed();
-    const provided = new Set(deployed.map((plugin) => plugin.id));
+    const deployedIds = new Set(deployed.map((plugin) => plugin.id));
     return [
       ...deployed,
-      ...this.installs.installed().filter((plugin) => !provided.has(plugin.id)),
+      ...this.installs
+        .installed()
+        .filter((plugin) => !deployedIds.has(plugin.id)),
     ]
       .map((plugin) => {
         const entry = catalog.get(plugin.id);
-        const isProvided = provided.has(plugin.id);
+        const isDeployed = deployedIds.has(plugin.id);
         return {
           id: plugin.id,
           name: plugin.name,
@@ -82,14 +84,14 @@ export class InstalledPluginList implements OnInit {
           author: entry?.author,
           category: entry?.category,
           iconUrl: plugin.iconUrl ?? entry?.iconUrl,
-          enabled: isProvided || this.enablement.isEnabled(plugin.id),
-          provided: isProvided,
+          enabled: isDeployed || this.enablement.isEnabled(plugin.id),
+          deployed: isDeployed,
           settingsSectionId: sections.find(
             (section) =>
               section.group === frameSettingsGroup(this.installs, plugin.id) &&
               section.id.startsWith(`${plugin.id}.`),
           )?.id,
-          update: isProvided ? undefined : availableUpdate(plugin, entry),
+          update: isDeployed ? undefined : availableUpdate(plugin, entry),
         };
       })
       .filter((row) =>

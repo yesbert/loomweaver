@@ -13,7 +13,7 @@
           <h3 class="text-sm font-semibold text-content">
             {{ plugin.name }}
           </h3>
-          @if (!plugin.provided && !plugin.required) {
+          @if (!plugin.deployed && !plugin.required) {
             <input
               type="checkbox"
               role="switch"
@@ -34,7 +34,7 @@
             {{ rungNote | transloco }}
           </p>
         }
-        @if (plugin.provided) {
+        @if (plugin.deployed) {
           <p
             class="text-xs text-content-muted"
             [attr.data-testid]="'perm-provided-' + plugin.id"
@@ -61,7 +61,7 @@
                     'settings.capabilityDesc.' + cap.capability | transloco
                   }}</span>
                 </div>
-                @if (!plugin.provided) {
+                @if (!plugin.deployed) {
                   <input
                     type="checkbox"
                     role="switch"

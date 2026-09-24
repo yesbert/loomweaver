@@ -19,17 +19,13 @@ const RUNG_NOTES: Readonly<Record<PluginRung, string>> = {
   embedded: 'settings.pluginLevel.embedded',
 };
 
-function rungNoteKey(rung: PluginRung): string | null {
-  return RUNG_NOTES[rung] ?? null;
-}
-
 interface PluginRow {
   readonly id: string;
   readonly name: string;
   readonly enabled: boolean;
-  readonly provided: boolean;
+  readonly deployed: boolean;
   readonly required: boolean;
-  readonly rungNote: string | null;
+  readonly rungNote: string;
   readonly capabilities: readonly PluginCapabilityState[];
 }
 
@@ -52,14 +48,14 @@ export class PermissionsSettings {
   private readonly rows = computed<readonly PluginRow[]>(() => {
     const caps = this.grants.permissions();
     return this.enablement.plugins().map((plugin) => {
-      const provided = this.deployment.isDeployed(plugin.id);
+      const deployed = this.deployment.isDeployed(plugin.id);
       const required = this.enablement.isRequired(plugin.id);
       return {
         ...plugin,
-        enabled: provided || plugin.enabled,
-        provided,
+        enabled: deployed || plugin.enabled,
+        deployed,
         required,
-        rungNote: rungNoteKey(this.isolation.rungOf(plugin.id)),
+        rungNote: RUNG_NOTES[this.isolation.rungOf(plugin.id)],
         capabilities:
           caps.find((entry) => entry.pluginId === plugin.id)?.capabilities ??
           [],
@@ -84,6 +80,6 @@ export class PermissionsSettings {
   }
 
   private canBePermitted(row: PluginRow): boolean {
-    return row.capabilities.length > 0 || !(row.provided || row.required);
+    return row.capabilities.length > 0 || !(row.deployed || row.required);
   }
 }

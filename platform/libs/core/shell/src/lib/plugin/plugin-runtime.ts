@@ -63,26 +63,25 @@ export class PluginRuntime {
   }
 
   /**
-   * Unloads a plugin: undoes every contribution it made (via its context's tracked
-   * disposables) and runs its optional `deactivate` hook. Idempotent — unknown/inactive
-   * ids are a no-op. This is the counterpart to {@link activateAll} that keeps the `active`
-   * map from being write-only (a real unload path, needed before an untrusted loader lands).
+   * Deactivates a plugin: undoes every contribution it made (via its context's tracked
+   * disposables) and runs its optional `deactivate` hook. Idempotent: an unknown or inactive
+   * id is a no-op. The counterpart to {@link activateAll}.
    */
   deactivate(id: string): void {
-    const failure = this.unload(id);
+    const failure = this.tearDown(id);
     if (failure) {
       this.reportTeardownFailure(failure);
     }
   }
 
   /**
-   * Unloads every active plugin (e.g. on teardown). A teardown that throws does not stop the
-   * others from unloading; failures are reported once the last plugin is gone.
+   * Deactivates every active plugin (e.g. on teardown). A teardown that throws does not stop the
+   * others from deactivating; failures are reported once the last plugin is gone.
    */
   deactivateAll(): void {
     const failures: TeardownFailure[] = [];
     for (const id of this.active.keys()) {
-      const failure = this.unload(id);
+      const failure = this.tearDown(id);
       if (failure) {
         failures.push(failure);
       }
@@ -92,7 +91,7 @@ export class PluginRuntime {
     }
   }
 
-  private unload(id: string): TeardownFailure | null {
+  private tearDown(id: string): TeardownFailure | null {
     const ctx = this.active.get(id);
     if (!ctx) {
       return null;
@@ -111,7 +110,7 @@ export class PluginRuntime {
 
   private reportTeardownFailure({ id, error }: TeardownFailure): void {
     console.error(
-      `Plugin "${id}" teardown failed; it was unloaded anyway`,
+      `Plugin "${id}" teardown failed; it was deactivated anyway`,
       error,
     );
   }

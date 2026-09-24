@@ -200,12 +200,14 @@ export interface FrameSectionHandle {
   readonly disposeSync: () => void;
 }
 
+export const INSTALLED_PLUGINS_SETTINGS_GROUP = 'settings.group.community';
+
 export function frameSettingsGroup(
   installs: PluginInstallService,
   pluginId: string,
 ): string {
   return installs.isInstalled(pluginId)
-    ? 'settings.group.community'
+    ? INSTALLED_PLUGINS_SETTINGS_GROUP
     : 'settings.group.plugins';
 }
 

@@ -21,9 +21,9 @@ export const CATALOG_MAX_ISOLATION_LEVEL = new InjectionToken<PluginIsolationLev
 
 export function exceedsLevel(
   asked: PluginIsolationLevel,
-  cap: PluginIsolationLevel,
+  maxLevel: PluginIsolationLevel,
 ): boolean {
-  return asked === 'embedded' && cap === 'isolated';
+  return asked === 'embedded' && maxLevel === 'isolated';
 }
 
 @Service()
