@@ -1,13 +1,19 @@
 import { inject, Service } from '@angular/core';
-import { LiveAnnouncer } from '@angular/cdk/a11y';
-import { TranslocoService } from '@jsverse/transloco';
 import { SHELL_LAYOUT } from '../../layout/layout';
-import { VIEW_PANE_PREFIX } from '../pane/tree/pane-address';
+import { VIEW_PANE_PREFIX, PaneRef } from '../pane/tree/pane-address';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
 import { PaneMoveService } from '../pane/drag/pane-move.service';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { PanelState } from './panel-state';
-import { regionById, regionOnOtherSide } from '../../layout/layout-queries';
+import { regionOnOtherSide } from '../../layout/layout-queries';
+import { MoveAnnouncer, MoveWording } from '../reorder/move-announcer';
+
+const VIEW_MOVE_WORDING: MoveWording = {
+  announce: 'panel.viewMove.announce',
+  subject: 'view',
+  targetLeft: 'panel.viewMove.targetLeft',
+  targetRight: 'panel.viewMove.targetRight',
+};
 
 @Service()
 export class ViewMoveService {
@@ -16,8 +22,7 @@ export class ViewMoveService {
   private readonly paneTree = inject(PaneTreeService);
   private readonly paneMove = inject(PaneMoveService);
   private readonly registry = inject(ContributionRegistry);
-  private readonly announcer = inject(LiveAnnouncer);
-  private readonly transloco = inject(TranslocoService);
+  private readonly announcer = inject(MoveAnnouncer);
 
   move(viewId: string, targetRegion: string, index?: number): void {
     const path = VIEW_PANE_PREFIX + viewId;
@@ -39,29 +44,23 @@ export class ViewMoveService {
       );
     }
     this.panels.expand(targetRegion);
-    const title = this.registry
-      .views()
-      .find((view) => view.id === viewId)?.title;
-    void this.announcer.announce(
-      this.transloco.translate('panel.viewMove.announce', {
-        view: title ? this.transloco.translate(title) : viewId,
-        target: this.targetLabel(targetRegion),
-      }),
+    const view = this.registry.views().find((one) => one.id === viewId);
+    this.announcer.announce(
+      VIEW_MOVE_WORDING,
+      { id: viewId, title: view?.title },
+      targetRegion,
     );
+  }
+
+  moveTab(source: PaneRef, path: string, targetRegion: string): void {
+    this.paneMove.moveToStrip(source, path, {
+      dock: targetRegion,
+      paneId: this.paneTree.primaryId(targetRegion),
+    });
+    this.panels.expand(targetRegion);
   }
 
   otherPanel(fromRegion: string): string | undefined {
     return regionOnOtherSide(this.layout, 'panel', fromRegion)?.id;
-  }
-
-  private targetLabel(regionId: string): string {
-    const dock = regionById(this.layout, regionId)?.dock;
-    if (dock === 'left') {
-      return this.transloco.translate('panel.viewMove.targetLeft');
-    }
-    if (dock === 'right') {
-      return this.transloco.translate('panel.viewMove.targetRight');
-    }
-    return regionId;
   }
 }

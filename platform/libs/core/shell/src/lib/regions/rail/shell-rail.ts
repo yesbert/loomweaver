@@ -42,6 +42,7 @@ import { WorkspaceService } from '../../workspace/workspace.service';
 import { RailLabelsService } from './rail-labels.service';
 import { sameIds, shortenedLabelIds } from './rail-label-fit';
 import { railNameKey } from './rail-name';
+import { sideForMoveChord } from '../reorder/move-chord';
 
 @Component({
   selector: 'lw-shell-rail',
@@ -194,14 +195,14 @@ export class ShellRail {
   }
 
   protected onKeydown(event: KeyboardEvent): void {
-    const dock = this.dockForChord(event);
-    if (dock === null) {
+    const side = this.features.moveItems() ? sideForMoveChord(event) : null;
+    if (side === null) {
       return;
     }
     const itemId = (event.target as HTMLElement | null)?.closest<HTMLElement>(
       '[data-rail-item]',
     )?.dataset['railItem'];
-    const target = this.railMove.railOn(dock, this.region().id);
+    const target = this.railMove.railOn(side, this.region().id);
     if (!itemId || !target) {
       return;
     }
@@ -274,16 +275,6 @@ export class ShellRail {
     const observer = new ResizeObserver(() => this.measureShortened());
     observer.observe(this.host.nativeElement);
     this.destroyRef.onDestroy(() => observer.disconnect());
-  }
-
-  private dockForChord(event: KeyboardEvent): 'left' | 'right' | null {
-    if (!this.features.moveItems() || !event.altKey || !event.shiftKey) {
-      return null;
-    }
-    if (event.key === 'ArrowRight') {
-      return 'right';
-    }
-    return event.key === 'ArrowLeft' ? 'left' : null;
   }
 
   private marksVariant(workspace: string, active: string): boolean {
