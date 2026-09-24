@@ -11,6 +11,7 @@ import { SHELL_LAYOUT } from '../../layout/layout';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { RailItem } from '../../foundation/rail-item';
 import { WorkspaceService } from '../../workspace/workspace.service';
+import { ActiveWorkspaceService } from '../../workspace/active-workspace.service';
 import { RailItemsService, workspaceRailItemId } from './rail-items.service';
 import { FeatureSwitches } from '../../features/feature-switches.service';
 import { regionIdsOfType } from '../../layout/layout-queries';
@@ -26,6 +27,7 @@ interface Registration {
 export class RailWorkspaceEntries {
   private readonly registry = inject(ContributionRegistry);
   private readonly workspaces = inject(WorkspaceService);
+  private readonly activeWorkspace = inject(ActiveWorkspaceService);
   private readonly railItems = inject(RailItemsService);
   private readonly injector = inject(Injector);
   private readonly rails = regionIdsOfType(inject(SHELL_LAYOUT), 'rail');
@@ -43,6 +45,28 @@ export class RailWorkspaceEntries {
         injector: this.injector,
       });
     }
+  }
+
+  isCurrent(item: RailItem): boolean {
+    if (item.workspace === undefined) {
+      return false;
+    }
+    const active = this.activeWorkspace.id();
+    return item.workspace === active || this.isStandIn(item.workspace, active);
+  }
+
+  private isStandIn(workspace: string, active: string): boolean {
+    return (
+      this.workspaces.originOf(active) === workspace &&
+      !this.hasOwnEntry(active)
+    );
+  }
+
+  private hasOwnEntry(workspaceId: string): boolean {
+    return (
+      this.features.savedInRail() &&
+      this.railItems.isVisible(workspaceRailItemId(workspaceId))
+    );
   }
 
   private reportUnoffered(): void {

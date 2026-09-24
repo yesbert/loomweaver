@@ -1,9 +1,6 @@
 import {
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
-  DestroyRef,
-  ElementRef,
-  afterEveryRender,
   computed,
   inject,
   input,
@@ -32,15 +29,16 @@ import {
 } from '../../menu/chrome-item-menu';
 import { MenuSide } from '../../elements/menu/lw-menu.element';
 import { RAIL_CONTEXT_MENU, RAIL_ITEM_CONTEXT_MENU } from './rail-context-menu';
-import { RailItemsService, workspaceRailItemId } from './rail-items.service';
+import { RailItemsService } from './rail-items.service';
 import { RailMoveService } from './rail-move.service';
 import { Reorderable } from '../reorder/reorderable.directive';
 import { UserOrderService } from '../reorder/user-order.service';
 import { FeatureSwitches } from '../../features/feature-switches.service';
-import { ActiveWorkspaceService } from '../../workspace/active-workspace.service';
 import { WorkspaceService } from '../../workspace/workspace.service';
 import { RailLabelsService } from './rail-labels.service';
-import { sameIds, shortenedLabelIds } from './rail-label-fit';
+import { RailLabelFit } from './rail-label-fit';
+import { RailWorkspaceEntries } from './rail-workspace-entries';
+import { bandOf, railEntries } from './rail-entries';
 import { railNameKey } from './rail-name';
 import { sideForMoveChord } from '../reorder/move-chord';
 
@@ -57,6 +55,7 @@ import { sideForMoveChord } from '../reorder/move-chord';
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './shell-rail.html',
+  hostDirectives: [RailLabelFit],
 })
 export class ShellRail {
   readonly region = input.required<LayoutRegion>();
@@ -66,17 +65,13 @@ export class ShellRail {
   private readonly auth = inject(AuthContext);
   private readonly userOrder = inject(UserOrderService);
   private readonly features = inject(FeatureSwitches).rail;
-  private readonly savedInRail = inject(FeatureSwitches).workspaces.savedInRail;
-  private readonly activeWorkspace = inject(ActiveWorkspaceService);
   private readonly railItems = inject(RailItemsService);
   private readonly railMove = inject(RailMoveService);
   private readonly layout = inject(SHELL_LAYOUT);
   private readonly workspaces = inject(WorkspaceService);
+  private readonly workspaceEntries = inject(RailWorkspaceEntries);
   private readonly railLabels = inject(RailLabelsService);
-  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
-  private readonly destroyRef = inject(DestroyRef);
-
-  private readonly shortenedIds = signal<ReadonlySet<string>>(new Set());
+  protected readonly labelFit = inject(RailLabelFit);
 
   protected readonly railMenu = computed(() =>
     this.features.curate() ? [RAIL_CONTEXT_MENU] : [],
@@ -100,7 +95,7 @@ export class ShellRail {
     this.region().dock === 'right' ? 'left' : 'right',
   );
   protected readonly reorderable = computed(() => this.features.reorder());
-  protected readonly labelled = computed(() =>
+  protected readonly isLabelled = computed(() =>
     this.railLabels.isLabelled(this.region().id),
   );
 
@@ -108,54 +103,20 @@ export class ShellRail {
     () => this.features.reorder() || this.features.moveItems(),
   );
 
-  private readonly registered = computed(() =>
-    this.registry
-      .railItems()
-      .filter(
-        (item) =>
-          this.railItems.regionOf(item.id, item.rail) === this.region().id,
-      )
-      .filter((item) => this.auth.visible(item.access))
-      .filter((item) =>
-        isOffered(item, (offered) => this.commands.triggerable(offered)),
-      )
-      .toSorted((a, b) => (a.order ?? 0) - (b.order ?? 0)),
+  protected readonly entries = computed(() =>
+    railEntries(
+      this.registry.railItems().filter((item) => this.isShownHere(item)),
+      (band) =>
+        this.userOrder.applyOrder(this.containerId(), band, (item) => item.id),
+    ),
   );
 
-  protected readonly items = computed(() => {
-    const inRail = this.registered().filter((item) =>
-      this.railItems.isVisible(item.id),
-    );
-    const isBottom = (item: RailItem) => item.anchor === 'bottom';
-    const id = this.containerId();
-    const key = (item: RailItem) => item.id;
-    const top = this.userOrder.applyOrder(
-      id,
-      inRail.filter((item) => !isBottom(item)),
-      key,
-    );
-    const bottom = this.userOrder.applyOrder(
-      id,
-      inRail.filter((item) => isBottom(item)),
-      key,
-    );
+  private readonly items = computed(() => {
+    const { top, bottom } = this.entries();
     return [...top, ...bottom];
   });
 
-  protected readonly topItems = computed(() =>
-    this.items().filter((item) => item.anchor !== 'bottom'),
-  );
-
-  protected readonly bottomItems = computed(() =>
-    this.items().filter((item) => item.anchor === 'bottom'),
-  );
-
   private readonly brokenPictures = signal<ReadonlySet<string>>(new Set());
-
-  constructor() {
-    afterEveryRender(() => this.measureShortened());
-    this.observeResize();
-  }
 
   protected readonly enterPredicate = (
     _drag: CdkDrag<string>,
@@ -165,10 +126,6 @@ export class ShellRail {
       ? this.reorderable()
       : this.features.moveItems();
 
-  protected shortened(itemId: string): boolean {
-    return this.shortenedIds().has(itemId);
-  }
-
   protected pictureOf(item: RailItem): string | undefined {
     return this.brokenPictures().has(item.id) ? undefined : item.image;
   }
@@ -177,7 +134,7 @@ export class ShellRail {
     this.brokenPictures.update((broken) => new Set(broken).add(item.id));
   }
 
-  protected disabled(item: RailItem): boolean {
+  protected isDisabled(item: RailItem): boolean {
     return this.auth.disabled(item.access);
   }
 
@@ -210,17 +167,12 @@ export class ShellRail {
     this.railMove.move(itemId, target);
   }
 
-  protected current(item: RailItem): boolean {
-    const workspace = item.workspace;
-    if (workspace === undefined) {
-      return false;
-    }
-    const active = this.activeWorkspace.id();
-    return workspace === active || this.marksVariant(workspace, active);
+  protected isCurrent(item: RailItem): boolean {
+    return this.workspaceEntries.isCurrent(item);
   }
 
   protected run(item: RailItem): void {
-    if (this.disabled(item)) return;
+    if (this.isDisabled(item)) return;
     warnMenuTriggerConflict(item);
     if (menuOnActivate(item)) {
       return;
@@ -254,40 +206,15 @@ export class ShellRail {
     const items = this.items();
     const dragged = items.find((item) => item.id === drag.data);
     const target = items[index];
-    return (
-      !!dragged &&
-      !!target &&
-      (dragged.anchor ?? 'top') === (target.anchor ?? 'top')
-    );
+    return !!dragged && !!target && bandOf(dragged) === bandOf(target);
   };
 
-  private measureShortened(): void {
-    const shortened = shortenedLabelIds(this.host.nativeElement);
-    if (!sameIds(shortened, this.shortenedIds())) {
-      this.shortenedIds.set(shortened);
-    }
-  }
-
-  private observeResize(): void {
-    if (typeof ResizeObserver === 'undefined') {
-      return;
-    }
-    const observer = new ResizeObserver(() => this.measureShortened());
-    observer.observe(this.host.nativeElement);
-    this.destroyRef.onDestroy(() => observer.disconnect());
-  }
-
-  private marksVariant(workspace: string, active: string): boolean {
+  private isShownHere(item: RailItem): boolean {
     return (
-      this.workspaces.originOf(active) === workspace &&
-      !this.drawnAsOwnEntry(active)
-    );
-  }
-
-  private drawnAsOwnEntry(workspaceId: string): boolean {
-    return (
-      this.savedInRail() &&
-      this.railItems.isVisible(workspaceRailItemId(workspaceId))
+      this.railItems.regionOf(item.id, item.rail) === this.region().id &&
+      this.auth.visible(item.access) &&
+      isOffered(item, (offered) => this.commands.triggerable(offered)) &&
+      this.railItems.isVisible(item.id)
     );
   }
 }
