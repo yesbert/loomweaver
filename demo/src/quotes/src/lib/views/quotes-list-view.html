@@ -49,6 +49,7 @@
             <button
               type="button"
               (click)="preview(row.quote)"
+              (contextmenu)="rowMenu($event, row)"
               class="relative w-full cursor-pointer px-4 py-3 text-left transition-colors hover:bg-surface-overlay @2xl:py-2.5"
               [class.bg-surface-overlay]="row.quote.id === activeId()"
               [attr.aria-current]="row.quote.id === activeId() ? 'true' : null"

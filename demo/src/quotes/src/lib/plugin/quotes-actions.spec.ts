@@ -87,6 +87,16 @@ describe('quotesActions', () => {
     expect(recorded.kept).toEqual(['sales/quotes/q-0007']);
   });
 
+  it('hands a menu to the workbench, at the pointer it was asked for', () => {
+    const openMenu = vi.fn();
+    quotesActions.bind({ ui: { openMenu } } as unknown as PluginContext);
+    const items = [{ label: 'quotes.menu.open', run: () => undefined }];
+
+    quotesActions.openMenu(items, { x: 12, y: 34 });
+
+    expect(openMenu).toHaveBeenCalledWith(items, { x: 12, y: 34 });
+  });
+
   it('turns opening a tab into a no-op once a disabled plugin lost its context, rather than throwing inside a click handler', () => {
     const { recorded, ctx } = recorder();
     quotesActions.bind(ctx);

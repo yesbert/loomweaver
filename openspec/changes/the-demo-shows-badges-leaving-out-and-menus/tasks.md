@@ -13,9 +13,9 @@
 
 ## 3. The quotes list has a context menu
 
-- [ ] 3.1 A right-click on a row opens `ctx.ui.openMenu` with "Open", "Open as preview" and "New quote for this customer" (keys in en and de) through a passthrough on `quotesActions`; unit tests
-- [ ] 3.2 A demo e2e test: the menu opens at the row, "Open" keeps the quote as a tab, and the menu changes its words with the language while open
-- [ ] 3.3 Screenshot of the open menu, shown to the owner before going on
+- [x] 3.1 A right-click on a row opens `ctx.ui.openMenu` with "Open", "Open as preview" and "New quote for this customer" (keys in en and de) through a passthrough on `quotesActions`; unit tests
+- [x] 3.2 A demo e2e test: the menu opens at the row, "Open" keeps the quote as a tab, and its words are in the page's language (following a change while open is pinned by the platform's own tests, since the language control closes the menu)
+- [x] 3.3 Screenshot of the open menu, shown to the owner before going on
 
 ## 4. The payment matching tab counts what is open
 

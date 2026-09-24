@@ -96,5 +96,10 @@
     "title": "Quotes",
     "showMargin": "Show margin analysis",
     "showMarginDescription": "Switched off, every quote is shown without its margin pane, whoever is signed in."
+  },
+  "menu": {
+    "open": "Open",
+    "preview": "Open as preview",
+    "newForCustomer": "New quote for this customer"
   }
 }

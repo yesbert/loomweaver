@@ -96,5 +96,10 @@
     "title": "Angebote",
     "showMargin": "Margenanalyse anzeigen",
     "showMarginDescription": "Ausgeschaltet zeigt jedes Angebot keinen Margenbereich, egal wer angemeldet ist."
+  },
+  "menu": {
+    "open": "Öffnen",
+    "preview": "In Vorschau öffnen",
+    "newForCustomer": "Neues Angebot für diesen Kunden"
   }
 }

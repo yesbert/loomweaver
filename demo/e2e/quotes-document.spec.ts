@@ -161,6 +161,38 @@ test('the document opens as an arrangement: positions beside customer and margin
   expect(customer!.height).toBeLessThan(positions!.height);
 });
 
+/* A right-click on a row opens the plugin's own menu at the pointer. Its labels are keys of the
+   plugin's bundle, so the workbench words them in the language the page is in. */
+test('a right-click on a row opens a menu whose "Open" keeps the quote', async ({ page }) => {
+  await page.goto(LIST);
+
+  await row(page, 'Q-0005').click({ button: 'right' });
+  const menu = page.getByRole('menu');
+  await expect(menu.getByRole('menuitem')).toHaveText([
+    'Open',
+    'Open as preview',
+    'New quote for this customer',
+  ]);
+
+  await menu.getByRole('menuitem', { name: 'Open', exact: true }).click();
+
+  await expect(page).toHaveURL(/\/sales\/quotes\/q-0005$/);
+  await expect(tab(page, 'sales/quotes/q-0005')).toHaveCSS('font-style', 'normal');
+});
+
+test('the menu speaks the language of the page', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('lw.shell.lang', 'de'));
+  await page.goto(LIST);
+
+  await row(page, 'Q-0005').click({ button: 'right' });
+
+  await expect(page.getByRole('menu').getByRole('menuitem')).toHaveText([
+    'Öffnen',
+    'In Vorschau öffnen',
+    'Neues Angebot für diesen Kunden',
+  ]);
+});
+
 /* The quotes plugin decides for itself whether the margin belongs in a quote at all, a setting
    rather than a role: switched off, nothing stands where the margin was, not even the padlock the
    sales account sees there otherwise. */

@@ -98,6 +98,30 @@ export class QuotesListView {
     quotesActions.open(quote, { preview: true });
   }
 
+  protected rowMenu(event: MouseEvent, row: QuoteRow): void {
+    event.preventDefault();
+    quotesActions.openMenu(
+      [
+        {
+          label: 'quotes.menu.open',
+          icon: 'quotes',
+          run: () => quotesActions.keep(row.quote),
+        },
+        {
+          label: 'quotes.menu.preview',
+          icon: 'preview',
+          run: () => quotesActions.open(row.quote, { preview: true }),
+        },
+        {
+          label: 'quotes.menu.newForCustomer',
+          icon: 'add',
+          run: () => void quotesActions.create(row.customer),
+        },
+      ],
+      { x: event.clientX, y: event.clientY },
+    );
+  }
+
   protected create(): void {
     void quotesActions.create();
   }
