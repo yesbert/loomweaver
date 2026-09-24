@@ -2,7 +2,7 @@ import { inject } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 import { Capability } from '@loomweaver/plugin-sdk';
 import { DialogService } from '../../dialog/dialog.service';
-import { PluginDisableGuard } from './plugin-disable-guard';
+import { PluginDisableGuard } from '../../plugin/enablement/plugin-disable-guard';
 import { PluginInstallService } from './plugin-install.service';
 
 export interface StoreConsentDeps {

@@ -69,7 +69,7 @@ export * from './lib/notifications/notification.service';
 export * from './lib/notifications/toast-outlet';
 
 export * from './lib/permissions/capability-grant.service';
-export * from './lib/permissions/capability-grants';
+export * from './lib/permissions/provide-capability-grants';
 
 export * from './lib/persistence/identity-scoped-stores';
 export * from './lib/persistence/key-value-store';
@@ -78,10 +78,12 @@ export * from './lib/persistence/state-sync.service';
 export * from './lib/persistence/working-state-store';
 
 export * from './lib/plugin/contribution-registry';
+export * from './lib/plugin/enablement/plugin-enablement.service';
+export { type PluginInfo } from './lib/plugin/enablement/plugin-info';
+export * from './lib/plugin/frame/frame-plugin';
+export * from './lib/plugin/frame/frame-plugin-runtime';
 export * from './lib/plugin/plugin';
 export * from './lib/plugin/plugin-runtime';
-export * from './lib/plugin/sandbox/frame-plugin';
-export * from './lib/plugin/sandbox/sandbox-plugin-runtime';
 
 export * from './lib/plugin-store/catalog/plugin-catalog';
 export * from './lib/plugin-store/catalog/provide-plugin-catalog';
@@ -89,8 +91,6 @@ export {
   type InstalledPlugin,
   type PluginCatalogEntry,
 } from './lib/plugin-store/installed-plugin';
-export * from './lib/plugin-store/lifecycle/plugin-enablement.service';
-export { type PluginInfo } from './lib/plugin-store/lifecycle/plugin-info';
 export * from './lib/plugin-store/lifecycle/plugin-install.service';
 export * from './lib/plugin-store/plugin-store.service';
 

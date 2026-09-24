@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { SETTINGS_STORE } from '../persistence/settings-store';
 import { KeyValueStore } from '../persistence/key-value-store';
-import { CAPABILITY_GRANTS, provideCapabilityGrants } from './capability-grants';
+import { CAPABILITY_GRANTS, provideCapabilityGrants } from './provide-capability-grants';
 import { CapabilityGrantService } from './capability-grant.service';
 
 const KEY = 'lw.shell.capability-revocations';

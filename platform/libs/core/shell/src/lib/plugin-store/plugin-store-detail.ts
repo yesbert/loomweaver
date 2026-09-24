@@ -2,7 +2,7 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, effect, inject, input, out
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { PluginCatalogEntry } from './installed-plugin';
 import { PluginInstallService } from './lifecycle/plugin-install.service';
-import { formatCount, formatUpdated } from './format';
+import { formatCount, formatUpdated } from './catalog-figures';
 import { availableUpdate } from './lifecycle/plugin-update';
 
 @Component({

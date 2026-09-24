@@ -7,7 +7,7 @@ import { railNameKey } from './regions/rail/rail-name';
 import { ThemeToggle } from './theme/theme-toggle';
 import { TextSizeToggle } from './text-size/text-size-toggle';
 import { LanguageSwitcher } from './i18n/language-switcher';
-import { PermissionsSettings } from './permissions/permissions-settings';
+import { PermissionsSettings } from './plugin/enablement/permissions-settings';
 import { regionsOfType } from './layout/layout-queries';
 import { APP_RESET_COMMAND_ID } from './commands/host-command-ids';
 

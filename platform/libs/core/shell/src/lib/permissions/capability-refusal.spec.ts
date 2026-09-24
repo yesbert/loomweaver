@@ -8,7 +8,7 @@ import { NotificationService } from '../notifications/notification.service';
 import {
   FrameRpcDeps,
   frameRpcMethods,
-} from '../plugin/sandbox/sandbox-rpc-methods';
+} from '../plugin/frame/frame-rpc-methods';
 import { provideShell } from '../provide-shell';
 import {
   CapabilityRefusalReporter,

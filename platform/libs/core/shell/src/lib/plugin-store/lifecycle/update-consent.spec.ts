@@ -2,7 +2,7 @@ import { TranslocoService } from '@jsverse/transloco';
 import { DialogService } from '../../dialog/dialog.service';
 import { StoreConsentDeps } from './consent-deps';
 import { InstalledPlugin, PluginCatalogEntry } from '../installed-plugin';
-import { PluginDisableGuard } from './plugin-disable-guard';
+import { PluginDisableGuard } from '../../plugin/enablement/plugin-disable-guard';
 import { PluginInstallService } from './plugin-install.service';
 import { confirmUpdate } from './update-consent';
 

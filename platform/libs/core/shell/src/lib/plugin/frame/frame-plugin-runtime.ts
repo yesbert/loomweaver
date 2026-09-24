@@ -11,10 +11,10 @@ import {
 import { Connection, WindowMessenger, connect } from 'penpal';
 import { SETTINGS_STORE } from '../../persistence/settings-store';
 import { StateSyncService } from '../../persistence/state-sync.service';
-import { HostPluginContext } from '../host-plugin-context';
-import { HostContextFactory } from '../host-context-factory';
+import { HostPluginContext } from '../context/host-plugin-context';
+import { HostContextFactory } from '../context/host-context-factory';
 import { CapabilityGrantService } from '../../permissions/capability-grant.service';
-import { PluginEnablementService } from '../../plugin-store/lifecycle/plugin-enablement.service';
+import { PluginEnablementService } from '../enablement/plugin-enablement.service';
 import { InstalledPlugin } from '../../plugin-store/installed-plugin';
 import { PluginInstallService } from '../../plugin-store/lifecycle/plugin-install.service';
 import { CapabilityRefusalReporter } from '../../permissions/capability-refusal';
@@ -30,9 +30,9 @@ import {
   levelOf,
   runnablePlugins,
   signatureOf,
-} from './sandbox-runnable-plugins';
-import { WatchedKey, frameRpcMethods } from './sandbox-rpc-methods';
-import { FrameRemote } from './sandbox-rpc-contract';
+} from './runnable-frame-plugins';
+import { WatchedKey, frameRpcMethods } from './frame-rpc-methods';
+import { FrameRemote } from './frame-rpc-contract';
 
 interface FrameInstance {
   readonly ctx: HostPluginContext;

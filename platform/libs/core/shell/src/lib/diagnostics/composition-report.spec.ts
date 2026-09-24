@@ -13,7 +13,7 @@ import { provideShellFeatures } from '../foundation/shell-features';
 import { VersionService } from '../version/version.service';
 import type { MockInstance } from 'vitest';
 import { provideRequiredPlugins } from '../foundation/required-plugins';
-import { FRAME_PLUGIN, FramePlugin } from '../plugin/sandbox/frame-plugin';
+import { FRAME_PLUGIN, FramePlugin } from '../plugin/frame/frame-plugin';
 
 const LAYOUT: ShellLayout = {
   regions: [

@@ -2,12 +2,12 @@ import { OpenTabInput, Surface } from '@loomweaver/plugin-sdk';
 import {
   sanitizeRpcSurface,
   sanitizeRpcTabInput,
-} from '../../../plugin/sandbox/sandbox-rpc-sanitize';
+} from '../../../plugin/frame/frame-rpc-sanitize';
 import { tabBadgeOf } from './tab-badge';
 import {
   FrameRpcDeps,
   frameRpcMethods,
-} from '../../../plugin/sandbox/sandbox-rpc-methods';
+} from '../../../plugin/frame/frame-rpc-methods';
 
 describe('a badge as it is read from outside', () => {
   it('keeps a text, an icon, a tone and whether the text is literal', () => {

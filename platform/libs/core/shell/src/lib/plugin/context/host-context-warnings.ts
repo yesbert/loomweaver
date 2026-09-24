@@ -1,9 +1,9 @@
 import { isDevMode } from '@angular/core';
 import { Command, Surface } from '@loomweaver/plugin-sdk';
-import { LayoutRegion, RegionType } from '../layout/layout';
-import { View } from '../views/view';
-import { containerLayout } from '../regions/pane/container/container-layout';
-import { CONTAINER_CHILD_REGION } from './surface-normalize';
+import { LayoutRegion, RegionType } from '../../layout/layout';
+import { View } from '../../views/view';
+import { containerLayout } from '../../regions/pane/container/container-layout';
+import { CONTAINER_CHILD_REGION } from '../surface-normalize';
 
 export function warnUndescribedCallable(
   pluginId: string,

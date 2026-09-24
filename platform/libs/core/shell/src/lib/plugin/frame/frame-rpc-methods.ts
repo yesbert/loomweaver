@@ -3,24 +3,24 @@ import { tabBadgeOf } from '../../regions/pane/chrome/tab-badge';
 import { KeyValueStore } from '../../persistence/key-value-store';
 import { StateSyncService } from '../../persistence/state-sync.service';
 import { PluginInstallService } from '../../plugin-store/lifecycle/plugin-install.service';
-import { HostPluginContext } from '../host-plugin-context';
+import { HostPluginContext } from '../context/host-plugin-context';
 import {
   FrameRemote,
   FrameRpc,
   invokeRpcCommand,
-} from './sandbox-rpc-contract';
+} from './frame-rpc-contract';
 import {
   sanitizeRpcMenuItem,
   sanitizeRpcSurface,
   sanitizeRpcTabInput,
   sanitizeRpcTabLabel,
   sanitizeRpcToastInput,
-} from './sandbox-rpc-sanitize';
+} from './frame-rpc-sanitize';
 import {
   buildFrameSection,
   frameSettingsGroup,
   sanitizeRpcSettingsSection,
-} from './sandbox-settings';
+} from './frame-settings';
 
 export interface WatchedKey {
   readonly handle: StateHandle;

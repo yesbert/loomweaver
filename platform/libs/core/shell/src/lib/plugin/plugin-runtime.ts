@@ -8,11 +8,11 @@ import {
   Service,
   untracked,
 } from '@angular/core';
-import { HostPluginContext } from './host-plugin-context';
-import { HostContextFactory } from './host-context-factory';
+import { HostPluginContext } from './context/host-plugin-context';
+import { HostContextFactory } from './context/host-context-factory';
 import { Plugin, PLUGIN } from './plugin';
 import { CapabilityGrantService } from '../permissions/capability-grant.service';
-import { PluginEnablementService } from '../plugin-store/lifecycle/plugin-enablement.service';
+import { PluginEnablementService } from './enablement/plugin-enablement.service';
 
 interface TeardownFailure {
   readonly id: string;

@@ -8,7 +8,7 @@ import { SettingsService } from '../../settings/settings.service';
 import { PluginStoreSettings } from '../plugin-store-settings';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { PluginStoreService } from '../plugin-store.service';
-import { FramePluginRuntime } from '../../plugin/sandbox/sandbox-plugin-runtime';
+import { FramePluginRuntime } from '../../plugin/frame/frame-plugin-runtime';
 import {
   PLUGIN_CATALOG,
   PluginCatalog,

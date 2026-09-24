@@ -1,8 +1,8 @@
-import { ContributionRegistry, Disposable } from './contribution-registry';
-import { BarItem } from '../foundation/bar-item';
-import { RailItem } from '../foundation/rail-item';
-import { LayoutRegion } from '../layout/layout';
-import { PluginContext, PluginHost, PluginSession, PluginUi } from './plugin';
+import { ContributionRegistry, Disposable } from '../contribution-registry';
+import { BarItem } from '../../foundation/bar-item';
+import { RailItem } from '../../foundation/rail-item';
+import { LayoutRegion } from '../../layout/layout';
+import { PluginContext, PluginHost, PluginSession, PluginUi } from '../plugin';
 import {
   ActiveContent,
   Capability,
@@ -25,24 +25,24 @@ import {
   entryToView,
   isRoutableSurface,
   surfaceToEntry,
-} from './surface-normalize';
-import { LeftOutChildren } from '../regions/pane/container/left-out-children';
-import { AuthContext } from '../auth/auth-context';
-import { normalizePath, segmentsOf } from '../regions/content/content-path';
-import { collidingParam } from '../regions/content/tabs/tab-address';
-import { ContentTabsService } from '../regions/content/tabs/content-tabs.service';
-import { DialogService } from '../dialog/dialog.service';
-import { NotificationService } from '../notifications/notification.service';
-import { MenuService } from '../menu/menu.service';
-import { SettingsService } from '../settings/settings.service';
-import { SettingsSection } from '../settings/settings-model';
-import { VersionService } from '../version/version.service';
-import { UpdateService } from '../update/update.service';
-import { IconRegistry } from '../elements/icon/icon-registry';
-import { ThemeRegistry } from '../theme/theme-registry';
-import { SurfaceRevealService } from '../regions/reveal/surface-reveal.service';
-import { PluginStateService } from './plugin-state.service';
-import { CommandInvoker } from '../foundation/command-invoker';
+} from '../surface-normalize';
+import { LeftOutChildren } from '../../regions/pane/container/left-out-children';
+import { AuthContext } from '../../auth/auth-context';
+import { normalizePath, segmentsOf } from '../../regions/content/content-path';
+import { collidingParam } from '../../regions/content/tabs/tab-address';
+import { ContentTabsService } from '../../regions/content/tabs/content-tabs.service';
+import { DialogService } from '../../dialog/dialog.service';
+import { NotificationService } from '../../notifications/notification.service';
+import { MenuService } from '../../menu/menu.service';
+import { SettingsService } from '../../settings/settings.service';
+import { SettingsSection } from '../../settings/settings-model';
+import { VersionService } from '../../version/version.service';
+import { UpdateService } from '../../update/update.service';
+import { IconRegistry } from '../../elements/icon/icon-registry';
+import { ThemeRegistry } from '../../theme/theme-registry';
+import { SurfaceRevealService } from '../../regions/reveal/surface-reveal.service';
+import { PluginStateService } from '../plugin-state.service';
+import { CommandInvoker } from '../../foundation/command-invoker';
 import {
   warnUndescribedCallable,
   warnUnlessPanelRegion,
@@ -50,7 +50,7 @@ import {
   warnUnsupportedRetain,
   warnUnusableContainerLayout,
 } from './host-context-warnings';
-import { addressIsUnder } from '../addressing/address-is-under';
+import { addressIsUnder } from '../../addressing/address-is-under';
 import { pathOwnedBy, surfaceOwnedBy } from './plugin-surface-ownership';
 
 export class HostPluginContext implements PluginContext {

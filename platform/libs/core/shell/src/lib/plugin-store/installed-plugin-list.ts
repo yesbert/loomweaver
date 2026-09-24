@@ -12,8 +12,8 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { SettingsService } from '../settings/settings.service';
 import { PLUGIN_CATALOG } from './catalog/plugin-catalog';
 import { PluginCatalogEntry } from './installed-plugin';
-import { PluginDisableGuard } from './lifecycle/plugin-disable-guard';
-import { PluginEnablementService } from './lifecycle/plugin-enablement.service';
+import { PluginDisableGuard } from '../plugin/enablement/plugin-disable-guard';
+import { PluginEnablementService } from '../plugin/enablement/plugin-enablement.service';
 import { PluginInstallService } from './lifecycle/plugin-install.service';
 import { PluginDeploymentService } from './lifecycle/plugin-deployment.service';
 import { loadCatalogEntries, matchesQuery } from './catalog/catalog-entries';
@@ -21,7 +21,7 @@ import { confirmUninstall } from './lifecycle/uninstall-confirm';
 import { injectStoreConsentDeps } from './lifecycle/consent-deps';
 import { confirmUpdate } from './lifecycle/update-consent';
 import { availableUpdate } from './lifecycle/plugin-update';
-import { frameSettingsGroup } from '../plugin/sandbox/sandbox-settings';
+import { frameSettingsGroup } from '../plugin/frame/frame-settings';
 
 interface InstalledRow {
   readonly id: string;

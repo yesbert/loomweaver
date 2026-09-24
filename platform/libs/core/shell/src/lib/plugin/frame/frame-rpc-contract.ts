@@ -11,7 +11,7 @@ import {
   Surface,
   TabBadge,
 } from '@loomweaver/plugin-sdk';
-import { FrameSettingValues } from './sandbox-settings';
+import { FrameSettingValues } from './frame-settings';
 import { asCommandArguments } from '../../foundation/command-arguments';
 
 const UNCARRIABLE_ARGUMENTS: CommandOutcome = {

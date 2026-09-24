@@ -1,7 +1,7 @@
 import { untracked } from '@angular/core';
-import { ContributionRegistry } from './contribution-registry';
-import { matchRoute } from '../regions/content/content-path';
-import { viewIdOfPanePath } from '../regions/pane/tree/pane-address';
+import { ContributionRegistry } from '../contribution-registry';
+import { matchRoute } from '../../regions/content/content-path';
+import { viewIdOfPanePath } from '../../regions/pane/tree/pane-address';
 
 export function pathOwnedBy(
   registry: ContributionRegistry,

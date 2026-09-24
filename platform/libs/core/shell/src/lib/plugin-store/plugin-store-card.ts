@@ -1,7 +1,7 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, input, output } from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { PluginCatalogEntry } from './installed-plugin';
-import { formatCount, formatUpdated } from './format';
+import { formatCount, formatUpdated } from './catalog-figures';
 
 @Component({
   selector: 'lw-plugin-store-card',

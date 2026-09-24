@@ -9,28 +9,28 @@ import {
 import {
   provideFramePlugins,
   FramePluginRuntime,
-} from './sandbox-plugin-runtime';
+} from './frame-plugin-runtime';
 import {
   sanitizeRpcMenuItem,
   sanitizeRpcSurface,
   sanitizeRpcTabInput,
   sanitizeRpcTabLabel,
   sanitizeRpcToastInput,
-} from './sandbox-rpc-sanitize';
+} from './frame-rpc-sanitize';
 import {
   effectiveCapabilities,
   CAPABILITY_GRANTS,
-} from '../../permissions/capability-grants';
+} from '../../permissions/provide-capability-grants';
 import { CapabilityGrantService } from '../../permissions/capability-grant.service';
 import { ContributionRegistry } from '../contribution-registry';
-import { HostPluginContext } from '../host-plugin-context';
+import { HostPluginContext } from '../context/host-plugin-context';
 import { KeyValueStore } from '../../persistence/key-value-store';
 import { StateSyncService } from '../../persistence/state-sync.service';
-import { frameRpcMethods } from './sandbox-rpc-methods';
-import { HostContextFactory } from '../host-context-factory';
+import { frameRpcMethods } from './frame-rpc-methods';
+import { HostContextFactory } from '../context/host-context-factory';
 import { COMMAND_INVOKER } from '../../foundation/command-invoker';
 import { CommandInvocationService } from '../../commands/command-invocation.service';
-import { PluginEnablementService } from '../../plugin-store/lifecycle/plugin-enablement.service';
+import { PluginEnablementService } from '../enablement/plugin-enablement.service';
 import { PluginInstallService } from '../../plugin-store/lifecycle/plugin-install.service';
 import { PluginDeploymentService } from '../../plugin-store/lifecycle/plugin-deployment.service';
 import { CATALOG_MAX_ISOLATION_LEVEL } from '../../foundation/plugin-isolation-level';
