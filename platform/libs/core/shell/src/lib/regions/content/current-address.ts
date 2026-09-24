@@ -3,6 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Params, Router } from '@angular/router';
 import { filter, map } from 'rxjs';
 import { normalizePath } from './content-path';
+import { isContentRoute } from './routing/content-route-table';
 
 export interface AddressParts {
   readonly path: string;
@@ -25,7 +26,7 @@ export class CurrentAddress {
   readonly showsContent: Signal<boolean> = computed(() => {
     this.url();
     const shown = this.router.routerState.snapshot.root.firstChild;
-    return shown === null || shown.routeConfig?.data?.['content'] === true;
+    return shown === null || isContentRoute(shown);
   });
 
   readonly snapshot: Signal<AddressParts> = computed(() => {

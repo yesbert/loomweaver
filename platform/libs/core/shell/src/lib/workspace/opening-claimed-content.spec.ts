@@ -8,7 +8,7 @@ import { provideLayout } from '../layout/layout';
 import { CONTENT_DOCK } from '../regions/pane/tree/pane-address';
 import { PaneTreeService } from '../regions/pane/tree/pane-tree.service';
 import { collectTabs } from '../regions/pane/tree/pane-queries';
-import { buildContentRoutes } from '../regions/content/routing/content-router';
+import { buildContentRoutes } from '../regions/content/routing/content-route-table';
 import { ContentTabsService } from '../regions/content/tabs/content-tabs.service';
 import { WORKSPACE_CLAIMS } from '../foundation/workspace-claims';
 import { WorkspaceService } from './workspace.service';

@@ -5,7 +5,7 @@ import type {
   RouterStateSnapshot,
 } from '@angular/router';
 import { BootAddress } from './boot-address';
-import { buildContentRoutes } from './content-router';
+import { buildContentRoutes } from './content-route-table';
 import { keepPopout } from './keep-popout.guard';
 
 function decide(bootPath: string, url: string): boolean {

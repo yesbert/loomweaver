@@ -11,7 +11,7 @@ import { provideLayout } from '../layout/layout';
 import { View } from '../views/view';
 import { ContributionRegistry } from '../plugin/contribution-registry';
 import { PopoutService } from '../popout/popout.service';
-import { buildContentRoutes } from '../regions/content/routing/content-router';
+import { buildContentRoutes } from '../regions/content/routing/content-route-table';
 import { ContentTabsService } from '../regions/content/tabs/content-tabs.service';
 import { SurfaceCloseGuard } from '../regions/pane/unsaved-work/surface-close-guard';
 import {

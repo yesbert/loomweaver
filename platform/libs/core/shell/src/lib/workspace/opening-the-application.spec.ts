@@ -11,7 +11,7 @@ import { provideLayout } from '../layout/layout';
 import { KeyValueStore } from '../persistence/key-value-store';
 import { provideSettingsStore } from '../persistence/settings-store';
 import { provideWorkingStateStore } from '../persistence/working-state-store';
-import { buildContentRoutes } from '../regions/content/routing/content-router';
+import { buildContentRoutes } from '../regions/content/routing/content-route-table';
 import { ContentTabsService } from '../regions/content/tabs/content-tabs.service';
 import { WORKSPACE_CLAIMS } from '../foundation/workspace-claims';
 import { WorkspaceService } from './workspace.service';

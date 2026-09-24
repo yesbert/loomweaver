@@ -6,7 +6,7 @@ import { ContentRoute } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { PRIMARY_PANE } from '../../pane/tree/pane-address';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
-import { buildContentRoutes } from '../routing/content-router';
+import { buildContentRoutes } from '../routing/content-route-table';
 import { ContentTabsService } from './content-tabs.service';
 
 @Component({ selector: 'lw-test-content', template: '' })

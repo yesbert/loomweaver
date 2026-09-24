@@ -5,7 +5,7 @@ import { RouterTestingHarness } from '@angular/router/testing';
 import { ContentRoute } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../plugin/contribution-registry';
 import { provideLayout } from '../layout/layout';
-import { buildContentRoutes } from '../regions/content/routing/content-router';
+import { buildContentRoutes } from '../regions/content/routing/content-route-table';
 import { ContentTabsService } from '../regions/content/tabs/content-tabs.service';
 import { WORKSPACE_CLAIMS } from '../foundation/workspace-claims';
 import { WorkspaceService } from './workspace.service';

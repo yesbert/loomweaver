@@ -8,7 +8,7 @@ import { CONTENT_DOCK, PRIMARY_PANE } from '../../pane/tree/pane-address';
 import { PaneTab } from '../../pane/tree/pane-node';
 import { collectTabs, findLeaf } from '../../pane/tree/pane-queries';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
-import { buildContentRoutes } from '../routing/content-router';
+import { buildContentRoutes } from '../routing/content-route-table';
 import { ContentTabsService } from './content-tabs.service';
 
 @Component({ selector: 'lw-test-content', template: '' })

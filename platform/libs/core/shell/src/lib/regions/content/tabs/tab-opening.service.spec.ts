@@ -9,7 +9,7 @@ import { CONTENT_DOCK, PRIMARY_PANE } from '../../pane/tree/pane-address';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 import { findLeaf } from '../../pane/tree/pane-queries';
 import { PaneLeaf, PaneTab } from '../../pane/tree/pane-node';
-import { buildContentRoutes } from '../routing/content-router';
+import { buildContentRoutes } from '../routing/content-route-table';
 import { ContentTabsService } from './content-tabs.service';
 import { TabCloseHooks } from './tab-close-hooks';
 

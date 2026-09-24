@@ -2,7 +2,7 @@ import { runInInjectionContext, Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import type { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { WORKSPACE_CLAIMS } from '../../../foundation/workspace-claims';
-import { buildContentRoutes } from './content-router';
+import { buildContentRoutes } from './content-route-table';
 import { keepPopout } from './keep-popout.guard';
 import { settleWorkspace } from './settle-workspace.guard';
 

@@ -6,7 +6,7 @@ import { ContentRoute } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { CONTENT_DOCK, PRIMARY_PANE } from '../../pane/tree/pane-address';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
-import { buildContentRoutes } from '../routing/content-router';
+import { buildContentRoutes } from '../routing/content-route-table';
 import { ContentTabsService } from './content-tabs.service';
 import { provideTabAddressResolver } from './tab-address';
 
