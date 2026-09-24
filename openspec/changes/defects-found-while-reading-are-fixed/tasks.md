@@ -28,7 +28,7 @@ they start with a top-level folder.
 
 ## 2. Workspaces, persistence and language
 
-- [ ] 2.1 The pane arrangement reads the saved-workspace list through the settings port, also with a
+- [x] 2.1 The pane arrangement reads the saved-workspace list through the settings port, also with a
   working-state store that answers later (`regions/pane/tree/pane-tree-storage.ts`); tested with two
   different ports.
 - [ ] 2.2 The language is seeded from the settings port's immediate answer, applied when it arrives
