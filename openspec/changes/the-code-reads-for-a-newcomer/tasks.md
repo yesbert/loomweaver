@@ -91,7 +91,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 - [x] 3.8 `ShellRail`: the entry list as a pure function, workspace marking in
   `RailWorkspaceEntries`, label fitting as a directive, booleans named `is…`; `shell-rail.spec.ts`
   (728 lines) with one render helper and the workspace block in its own spec.
-- [ ] 3.9 `UpdateService`: worker repair and the notices in their own files, the check deadline as a
+- [x] 3.9 `UpdateService`: worker repair and the notices in their own files, the check deadline as a
   named method, one name for the "unreachable" outcome; the spec split the same way.
 - [ ] 3.10 After the owner's decision on CSS comments: `styles/theme.css` (879 lines) becomes an index
   of partials behind the same published entry path (tokens, controls, one file per element look,
