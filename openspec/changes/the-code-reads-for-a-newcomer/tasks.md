@@ -55,7 +55,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   convention is written once; the composition report uses the same constants.
 - [x] 2.10 The fallback language is one constant; the feedback-tone colour mapping shared by dialog and
   toast lives in one place both slices may read.
-- [ ] 2.11 A shared wide-dialog frame in `dialog/` (title, maximise and restore, close, height) replaces
+- [x] 2.11 A shared wide-dialog frame in `dialog/` (title, maximise and restore, close, height) replaces
   the copied headers of the settings dialog and the plugin store dialog.
 - [ ] 2.12 Names left by the abbreviation autofix become the word meant, across the shell: `index` for
   an item, `function_`, `index_`, `num`, single letters for workspaces and languages.

@@ -1,11 +1,11 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject, OnInit, signal } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { DialogRef } from '../dialog/dialog-ref';
+import { WideDialogFrame } from '../dialog/wide-dialog-frame';
 import { PLUGIN_CATALOG } from './catalog/plugin-catalog';
 import { PluginCatalogEntry } from './installed-plugin';
 import { PluginInstallService } from './lifecycle/plugin-install.service';
 import { PluginStoreTitle } from './plugin-store-title';
-import { LwButton } from '../elements/button/lw-button';
 import { InstalledPluginList } from './installed-plugin-list';
 import { PluginStoreCard } from './plugin-store-card';
 import { PluginStoreDetail } from './plugin-store-detail';
@@ -20,8 +20,8 @@ import { availableUpdate } from './lifecycle/plugin-update';
   selector: 'lw-plugin-store-dialog',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [
+    WideDialogFrame,
     TranslocoPipe,
-    LwButton,
     InstalledPluginList,
     PluginStoreCard,
     PluginStoreDetail,
@@ -29,7 +29,7 @@ import { availableUpdate } from './lifecycle/plugin-update';
   templateUrl: './plugin-store-dialog.html',
 })
 export class PluginStoreDialog implements OnInit {
-  protected readonly ref = inject(DialogRef);
+  private readonly ref = inject(DialogRef);
   protected readonly title = inject(PluginStoreTitle).current;
   protected readonly installs = inject(PluginInstallService);
 

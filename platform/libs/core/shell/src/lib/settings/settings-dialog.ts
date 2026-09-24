@@ -5,6 +5,7 @@ import { SettingsRegistry } from './settings-registry';
 import { SettingButton, SettingRow, SettingsSection } from './settings-model';
 import { CommandService } from '../commands/command.service';
 import { DialogRef } from '../dialog/dialog-ref';
+import { WideDialogFrame } from '../dialog/wide-dialog-frame';
 import { LwButton } from '../elements/button/lw-button';
 import { LwSettingRow } from './lw-setting-row';
 
@@ -17,7 +18,13 @@ interface SettingsGroup {
 @Component({
   selector: 'lw-settings-dialog',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  imports: [NgComponentOutlet, TranslocoPipe, LwButton, LwSettingRow],
+  imports: [
+    NgComponentOutlet,
+    TranslocoPipe,
+    LwButton,
+    LwSettingRow,
+    WideDialogFrame,
+  ],
   templateUrl: './settings-dialog.html',
 })
 export class SettingsDialog {
@@ -25,7 +32,7 @@ export class SettingsDialog {
 
   private readonly commands = inject(CommandService);
 
-  protected readonly ref = inject(DialogRef);
+  private readonly ref = inject(DialogRef);
 
   protected readonly sections = computed<readonly SettingsSection[]>(() =>
     this.settings

@@ -1,46 +1,4 @@
-<div
-  class="flex w-full flex-col overflow-hidden"
-  [class]="ref.maximized() ? 'h-full' : 'h-[80vh] max-h-[85vh]'"
->
-  <header
-    class="flex items-center justify-between gap-4 border-b border-border px-5 py-3"
-  >
-    <h2 class="text-lg font-semibold text-content">
-      {{ title() | transloco }}
-    </h2>
-    <span class="flex items-center gap-1">
-      <button
-        lwButton
-        variant="ghost"
-        size="sm"
-        iconOnly
-        type="button"
-        data-testid="dialog-maximize"
-        [attr.aria-label]="
-          (ref.maximized() ? 'dialog.restore' : 'dialog.maximize')
-            | transloco
-        "
-        (click)="ref.toggleMaximized()"
-      >
-        <lw-icon
-          [name]="ref.maximized() ? 'restore' : 'maximize'"
-          size="1rem"
-        />
-      </button>
-      <button
-        lwButton
-        variant="ghost"
-        size="sm"
-        iconOnly
-        type="button"
-        [attr.aria-label]="'dialog.close' | transloco"
-        (click)="close()"
-      >
-        <lw-icon name="close" size="1rem" />
-      </button>
-    </span>
-  </header>
-
+<lw-wide-dialog-frame [title]="title()">
   <div class="flex items-center gap-3 border-b border-border px-5 py-3">
     <div class="lw-segmented shrink-0">
       <button
@@ -139,4 +97,4 @@
       />
     </div>
   }
-</div>
+</lw-wide-dialog-frame>
