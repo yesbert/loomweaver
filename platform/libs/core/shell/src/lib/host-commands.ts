@@ -3,37 +3,26 @@ import { TranslocoService } from '@jsverse/transloco';
 import { ContributionRegistry } from './plugin/contribution-registry';
 import { DialogService } from './dialog/dialog.service';
 import { SettingsService } from './settings/settings.service';
+import { registerOpenSettingsCommand } from './settings/settings-command';
 import { WorkspaceService } from './workspace/workspace.service';
+import { registerWorkspaceCommands } from './workspace/workspace-commands';
 import {
-  CommandPalette,
-  PALETTE_COMMAND_ID,
-  QUICK_OPEN_COMMAND_ID,
-} from './commands/command-palette';
-import { WorkspaceDialog } from './workspace/workspace-dialog';
+  registerPaletteCommand,
+  registerQuickOpenCommand,
+} from './commands/palette-commands';
 import { PaneService } from './regions/pane/pane.service';
+import { registerSplitCommand } from './regions/pane/split-command';
 import { PopoutService } from './popout/popout.service';
 import { FeatureSwitches } from './features/feature-switches.service';
 import { whileOn } from './features/while-on';
-import { disposeTogether } from './plugin/dispose-together';
 import {
-  CURATION_CHROME,
-  CurationDialog,
-} from './regions/curation/curation-dialog';
+  registerRailCurationCommand,
+  registerViewsCurationCommand,
+} from './regions/curation/curation-commands';
 import { AppResetService } from './regions/reset/app-reset.service';
-import { AppResetChoice, AppResetDialog } from './layout/app-reset-dialog';
-import { menuContextString } from './menu/menu-context';
+import { registerAppResetCommand } from './regions/reset/app-reset-command';
 import { ShellLayout } from './layout/layout';
 import { hasRegionOfType } from './layout/layout-queries';
-import {
-  APP_RESET_COMMAND_ID,
-  OPEN_SETTINGS_COMMAND_ID,
-  RAIL_CUSTOMIZE_COMMAND_ID,
-  VIEWS_CUSTOMIZE_COMMAND_ID,
-  WORKSPACE_MANAGE_COMMAND_ID,
-  WORKSPACE_RESET_COMMAND_ID,
-} from './commands/host-command-ids';
-
-const CONTENT_SPLIT_RIGHT_COMMAND_ID = 'shell.content.splitRight';
 
 export interface HostCommandDeps {
   readonly dialogs: DialogService;
@@ -47,194 +36,33 @@ export interface HostCommandDeps {
   readonly injector: Injector;
 }
 
-export interface SeedInput {
-  readonly views: readonly Parameters<ContributionRegistry['addView']>[0][];
-  readonly barItems: readonly Parameters<
-    ContributionRegistry['addBarItem']
-  >[0][];
-  readonly railItems: readonly Parameters<
-    ContributionRegistry['addRailItem']
-  >[0][];
-  readonly omit: readonly string[];
-}
-
-export function seedHostCommands(
+export function registerHostCommands(
   registry: ContributionRegistry,
   layout: ShellLayout,
   deps: HostCommandDeps,
 ): void {
-  const {
-    dialogs,
-    panes,
-    workspace,
-    transloco,
-    settings,
-    popout,
-    appReset,
-    features,
-    injector,
-  } = deps;
-  registry.addCommand({
-    id: PALETTE_COMMAND_ID,
-    title: 'palette.title',
-    icon: 'search',
-    shortcut: 'mod+k',
-    popout: true,
-    run: () => {
-      dialogs.open(CommandPalette, {
-        bare: true,
-        size: 'lg',
-        align: 'top',
-        title: 'palette.title',
-      });
-    },
-  });
-  registry.addCommand({
-    id: OPEN_SETTINGS_COMMAND_ID,
-    title: 'settings.title',
-    icon: 'settings',
-    popout: true,
-    run: () => {
-      settings.open();
-    },
-  });
-  if (popout.active) {
+  const { dialogs, features, injector } = deps;
+  registerPaletteCommand(registry, dialogs);
+  registerOpenSettingsCommand(registry, deps.settings);
+  if (deps.popout.active) {
     return;
   }
-  registry.addCommand({
-    id: QUICK_OPEN_COMMAND_ID,
-    title: 'palette.quickOpenTitle',
-    icon: 'openWork',
-    shortcut: 'mod+p',
-    run: () => {
-      dialogs.open(CommandPalette, {
-        bare: true,
-        size: 'lg',
-        align: 'top',
-        title: 'palette.quickOpenTitle',
-        data: { mode: 'tabs' },
-      });
-    },
-  });
+  registerQuickOpenCommand(registry, dialogs);
   if (hasRegionOfType(layout, 'rail')) {
     whileOn(injector, features.rail.curate, () =>
-      registry.addCommand({
-        id: RAIL_CUSTOMIZE_COMMAND_ID,
-        title: CURATION_CHROME.rail.title,
-        icon: CURATION_CHROME.rail.icon,
-        run: () => {
-          dialogs.open(CurationDialog, {
-            bare: true,
-            size: 'lg',
-            align: 'top',
-            title: CURATION_CHROME.rail.title,
-            data: { kind: 'rail' },
-          });
-        },
-      }),
+      registerRailCurationCommand(registry, dialogs),
     );
   }
   if (hasRegionOfType(layout, 'panel')) {
     whileOn(injector, features.sidebar.curate, () =>
-      registry.addCommand({
-        id: VIEWS_CUSTOMIZE_COMMAND_ID,
-        title: CURATION_CHROME.views.title,
-        icon: CURATION_CHROME.views.icon,
-        run: () => {
-          dialogs.open(CurationDialog, {
-            bare: true,
-            size: 'lg',
-            align: 'top',
-            title: CURATION_CHROME.views.title,
-            data: { kind: 'views' },
-          });
-        },
-      }),
+      registerViewsCurationCommand(registry, dialogs),
     );
   }
-  registry.addCommand({
-    id: APP_RESET_COMMAND_ID,
-    title: 'appReset.title',
-    icon: 'undo',
-    run: () => {
-      const ref = dialogs.open<AppResetChoice>(AppResetDialog, {
-        size: 'md',
-        title: transloco.translate('appReset.title'),
-        icon: 'undo',
-        data: { workspaces: features.workspaces.enabled() },
-      });
-      void ref.closed.then(async (choice) => {
-        if (choice === undefined) {
-          return;
-        }
-        await appReset.reset({ workspaces: choice.workspaces });
-      });
-    },
-  });
+  registerAppResetCommand(registry, deps);
   whileOn(injector, features.content.splitRight, () =>
-    registry.addCommand({
-      id: CONTENT_SPLIT_RIGHT_COMMAND_ID,
-      title: 'content.split.open',
-      icon: 'splitPanes',
-      shortcut: 'mod+\\',
-      run: () => {
-        if (panes.isSplit()) {
-          panes.unsplit();
-          return;
-        }
-        panes.splitRight();
-      },
-    }),
+    registerSplitCommand(registry, deps.panes),
   );
   whileOn(injector, features.workspaces.enabled, () =>
-    disposeTogether([
-      registry.addCommand({
-        id: WORKSPACE_MANAGE_COMMAND_ID,
-        title: 'workspace.title',
-        icon: 'workspaces',
-        run: () => {
-          dialogs.open(WorkspaceDialog, {
-            size: 'md',
-            align: 'top',
-            title: 'workspace.title',
-            icon: 'workspaces',
-          });
-        },
-      }),
-      registry.addCommand({
-        id: WORKSPACE_RESET_COMMAND_ID,
-        title: 'workspace.reset',
-        icon: 'undo',
-        run: (context) => {
-          const named = menuContextString(context, 'workspace');
-          void dialogs
-            .confirm({
-              title: transloco.translate('workspace.reset'),
-              message: transloco.translate('workspace.resetConfirm'),
-            })
-            .then((ok) => {
-              if (ok) {
-                void workspace.reset(named === '' ? undefined : named);
-              }
-            });
-        },
-      }),
-    ]),
+    registerWorkspaceCommands(registry, deps),
   );
-}
-
-export function seedContributions(
-  registry: ContributionRegistry,
-  input: SeedInput,
-): void {
-  for (const view of input.views) {
-    registry.addView(view);
-  }
-  for (const item of input.barItems) {
-    registry.addBarItem(item);
-  }
-  for (const item of input.railItems) {
-    registry.addRailItem(item);
-  }
-  registry.omit(input.omit);
 }

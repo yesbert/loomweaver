@@ -80,8 +80,8 @@ import {
   installCompositionReport,
 } from './diagnostics/composition-report';
 import { registerDefaultSettings } from './default-settings';
-import { seedContributions, seedHostCommands } from './host-commands';
-import { seedBuiltInMenus } from './built-in-menus';
+import { registerHostCommands } from './host-commands';
+import { registerBuiltInMenus } from './built-in-menus';
 import { ThemeService } from './theme/theme.service';
 import { FontScaleService } from './text-size/font-scale.service';
 
@@ -180,6 +180,33 @@ export interface ShellOptions {
   readonly languages?: readonly string[];
 }
 
+interface ProvidedContributions {
+  readonly views: readonly Parameters<ContributionRegistry['addView']>[0][];
+  readonly barItems: readonly Parameters<
+    ContributionRegistry['addBarItem']
+  >[0][];
+  readonly railItems: readonly Parameters<
+    ContributionRegistry['addRailItem']
+  >[0][];
+  readonly omit: readonly string[];
+}
+
+function registerProvidedContributions(
+  registry: ContributionRegistry,
+  provided: ProvidedContributions,
+): void {
+  for (const view of provided.views) {
+    registry.addView(view);
+  }
+  for (const item of provided.barItems) {
+    registry.addBarItem(item);
+  }
+  for (const item of provided.railItems) {
+    registry.addRailItem(item);
+  }
+  registry.omit(provided.omit);
+}
+
 function applyThemeAndTextSize(): void {
   inject(ThemeService);
   inject(FontScaleService);
@@ -240,7 +267,7 @@ export function provideShell(
 
     provideEnvironmentInitializer(() => {
       const registry = inject(ContributionRegistry);
-      seedHostCommands(registry, inject(SHELL_LAYOUT), {
+      registerHostCommands(registry, inject(SHELL_LAYOUT), {
         dialogs: inject(DialogService),
         panes: inject(PaneService),
         workspace: inject(WorkspaceService),
@@ -251,7 +278,7 @@ export function provideShell(
         features: inject(FeatureSwitches),
         injector: inject(Injector),
       });
-      seedBuiltInMenus(registry, inject(SHELL_LAYOUT), {
+      registerBuiltInMenus(registry, inject(SHELL_LAYOUT), {
         tabs: inject(ContentTabsService),
         paneMove: inject(PaneMoveService),
         viewMove: inject(ViewMoveService),
@@ -265,7 +292,7 @@ export function provideShell(
         features: inject(FeatureSwitches),
         injector: inject(Injector),
       });
-      seedContributions(registry, {
+      registerProvidedContributions(registry, {
         views: inject(VIEW, { optional: true }) ?? [],
         barItems: inject(BAR_ITEM, { optional: true }) ?? [],
         railItems: inject(RAIL_ITEM, { optional: true }) ?? [],

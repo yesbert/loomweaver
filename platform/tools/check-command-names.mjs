@@ -104,9 +104,20 @@ function valueOf(raw, known) {
   return raw.startsWith("'") ? raw.slice(1, -1) : (known.get(raw) ?? null);
 }
 
-/** Every command the shell registers, as id → the translation key it is titled by. */
-function commandsFromSeeds(known) {
-  const source = readFileSync(join(shell, 'host-commands.ts'), 'utf8');
+/**
+ * The files the workbench's own palette commands are registered from: the orchestrator and every
+ * `…-command.ts` or `…-commands.ts` beside what a command opens. Context-menu commands live with
+ * their menus and are not offered in the palette, so they are out of scope.
+ */
+function hostCommandSources() {
+  return sources(shell).filter((file) => /(^|\/)(host-commands|[\w-]+-commands?)\.ts$/.test(file));
+}
+
+/** Every host command the shell registers, as id → the translation key it is titled by. */
+function hostCommands(known) {
+  const source = hostCommandSources()
+    .map((file) => readFileSync(file, 'utf8'))
+    .join('\n');
   const commands = new Map();
   const unresolved = [];
   for (const match of source.matchAll(/addCommand\(\s*\{/g)) {
@@ -153,7 +164,7 @@ function translate(strings, key) {
 }
 
 const known = constants();
-const { commands, unresolved } = commandsFromSeeds(known);
+const { commands, unresolved } = hostCommands(known);
 
 if (commands.size === 0) {
   console.error(

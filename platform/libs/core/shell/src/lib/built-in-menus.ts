@@ -49,7 +49,7 @@ export interface BuiltInMenuDeps {
   readonly injector: Injector;
 }
 
-export function seedBuiltInMenus(
+export function registerBuiltInMenus(
   registry: ContributionRegistry,
   layout: ShellLayout,
   deps: BuiltInMenuDeps,
@@ -66,11 +66,11 @@ export function seedBuiltInMenus(
     deps.features,
     deps.injector,
   );
-  seedRailMenus(registry, layout, deps);
-  seedViewMenus(registry, layout, deps);
+  registerRailMenus(registry, layout, deps);
+  registerViewMenus(registry, layout, deps);
 }
 
-function seedRailMenus(
+function registerRailMenus(
   registry: ContributionRegistry,
   layout: ShellLayout,
   deps: BuiltInMenuDeps,
@@ -94,7 +94,7 @@ function seedRailMenus(
   }
 }
 
-function seedViewMenus(
+function registerViewMenus(
   registry: ContributionRegistry,
   layout: ShellLayout,
   deps: BuiltInMenuDeps,

@@ -3,8 +3,8 @@ import { FeatureSwitches } from './features/feature-switches.service';
 import { TestBed } from '@angular/core/testing';
 import { ContributionRegistry } from './plugin/contribution-registry';
 import { ShellLayout } from './layout/layout';
-import { HostCommandDeps, seedHostCommands } from './host-commands';
-import { BuiltInMenuDeps, seedBuiltInMenus } from './built-in-menus';
+import { HostCommandDeps, registerHostCommands } from './host-commands';
+import { BuiltInMenuDeps, registerBuiltInMenus } from './built-in-menus';
 import {
   provideShellFeatures,
   ShellFeaturesInput,
@@ -30,10 +30,10 @@ function flush(): void {
   TestBed.inject(ApplicationRef).tick();
 }
 
-function seed(input: ShellFeaturesInput): ContributionRegistry {
+function menusFor(input: ShellFeaturesInput): ContributionRegistry {
   const features = switchesFor(input);
   const registry = TestBed.inject(ContributionRegistry);
-  seedBuiltInMenus(registry, layout, {
+  registerBuiltInMenus(registry, layout, {
     popout: { active: false },
     features,
     injector: TestBed.inject(Injector),
@@ -46,10 +46,10 @@ function commandIds(registry: ContributionRegistry): readonly string[] {
   return registry.commands().map((command) => command.id);
 }
 
-function seedCommands(input: ShellFeaturesInput): ContributionRegistry {
+function commandsFor(input: ShellFeaturesInput): ContributionRegistry {
   const features = switchesFor(input);
   const registry = TestBed.inject(ContributionRegistry);
-  seedHostCommands(registry, layout, {
+  registerHostCommands(registry, layout, {
     popout: { active: false },
     features,
     injector: TestBed.inject(Injector),
@@ -58,9 +58,9 @@ function seedCommands(input: ShellFeaturesInput): ContributionRegistry {
   return registry;
 }
 
-describe('seedHostCommands (K1d: workspaces)', () => {
+describe('registerHostCommands (workspaces)', () => {
   it('registers the workspace commands with the full workbench', () => {
-    const ids = commandIds(seedCommands({}));
+    const ids = commandIds(commandsFor({}));
 
     expect(ids).toEqual(
       expect.arrayContaining([
@@ -71,7 +71,7 @@ describe('seedHostCommands (K1d: workspaces)', () => {
   });
 
   it('registers neither where workspaces are off, and keeps the rest', () => {
-    const ids = commandIds(seedCommands({ workspaces: { enabled: false } }));
+    const ids = commandIds(commandsFor({ workspaces: { enabled: false } }));
 
     expect(ids).not.toContain('shell.workspace.manage');
     expect(ids).not.toContain('shell.workspace.reset');
@@ -80,9 +80,9 @@ describe('seedHostCommands (K1d: workspaces)', () => {
   });
 });
 
-describe('seedHostCommands (K5: curation commands)', () => {
+describe('registerHostCommands (K5: curation commands)', () => {
   it('registers both customise commands with the full workbench', () => {
-    const ids = commandIds(seedCommands({}));
+    const ids = commandIds(commandsFor({}));
 
     expect(ids).toEqual(
       expect.arrayContaining(['shell.rail.customize', 'shell.views.customize']),
@@ -91,7 +91,7 @@ describe('seedHostCommands (K5: curation commands)', () => {
 
   it('drops the command whose capability is off', () => {
     const ids = commandIds(
-      seedCommands({ rail: { curate: false }, sidebar: { curate: false } }),
+      commandsFor({ rail: { curate: false }, sidebar: { curate: false } }),
     );
 
     expect(ids).not.toContain('shell.rail.customize');
@@ -105,7 +105,7 @@ describe('seedHostCommands (K5: curation commands)', () => {
     const contentOnly: ShellLayout = {
       regions: [{ id: 'main', type: 'content', dock: 'center' }],
     };
-    seedHostCommands(registry, contentOnly, {
+    registerHostCommands(registry, contentOnly, {
       popout: { active: false },
       features: TestBed.inject(FeatureSwitches),
       injector: TestBed.inject(Injector),
@@ -119,13 +119,13 @@ describe('seedHostCommands (K5: curation commands)', () => {
   });
 });
 
-describe('seedHostCommands (dialogs that hold the top edge)', () => {
+describe('registerHostCommands (dialogs that hold the top edge)', () => {
   function optionsOf(id: string): Record<string, unknown> {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({});
     const registry = TestBed.inject(ContributionRegistry);
     const opened: Record<string, unknown>[] = [];
-    seedHostCommands(registry, layout, {
+    registerHostCommands(registry, layout, {
       popout: { active: false },
       features: TestBed.inject(FeatureSwitches),
       injector: TestBed.inject(Injector),
@@ -160,18 +160,18 @@ describe('seedHostCommands (dialogs that hold the top edge)', () => {
   });
 });
 
-describe('seedHostCommands (K6: app reset)', () => {
+describe('registerHostCommands (K6: app reset)', () => {
   it('registers the app reset even where workspaces are off', () => {
-    const ids = commandIds(seedCommands({ workspaces: { enabled: false } }));
+    const ids = commandIds(commandsFor({ workspaces: { enabled: false } }));
 
     expect(ids).toContain('shell.app.reset');
     expect(ids).not.toContain('shell.workspace.reset');
   });
 });
 
-describe('seedBuiltInMenus (K1c: sidebar and rail capabilities)', () => {
+describe('registerBuiltInMenus (K1c: sidebar and rail capabilities)', () => {
   it('registers every sidebar and rail entry with the full workbench', () => {
-    const ids = commandIds(seed({}));
+    const ids = commandIds(menusFor({}));
 
     expect(ids).toEqual(
       expect.arrayContaining([
@@ -187,7 +187,7 @@ describe('seedBuiltInMenus (K1c: sidebar and rail capabilities)', () => {
   });
 
   it('drops each entry with its capability', () => {
-    const registry = seed({
+    const registry = menusFor({
       sidebar: {
         moveViews: false,
         stackViews: false,
@@ -213,7 +213,7 @@ describe('seedBuiltInMenus (K1c: sidebar and rail capabilities)', () => {
   });
 
   it('drops both pop-out entries where windows are off (K1d)', () => {
-    const ids = commandIds(seed({ windows: { popout: false } }));
+    const ids = commandIds(menusFor({ windows: { popout: false } }));
 
     expect(ids).not.toContain('shell.view.openInWindow');
     expect(ids).not.toContain('shell.tab.openInWindow');
@@ -223,7 +223,7 @@ describe('seedBuiltInMenus (K1c: sidebar and rail capabilities)', () => {
 
 describe('the seeds follow the switches live', () => {
   it('registers the split command when its switch turns on, and drops it when it turns off', () => {
-    const registry = seedCommands({ content: { splitRight: false } });
+    const registry = commandsFor({ content: { splitRight: false } });
     expect(commandIds(registry)).not.toContain('shell.content.splitRight');
 
     TestBed.inject(FeatureSwitches).update({ content: { splitRight: true } });
@@ -242,7 +242,7 @@ describe('the seeds follow the switches live', () => {
   });
 
   it('the workspace commands come and go together with their switch', () => {
-    const registry = seedCommands({ workspaces: { enabled: false } });
+    const registry = commandsFor({ workspaces: { enabled: false } });
     expect(commandIds(registry)).not.toContain('shell.workspace.manage');
 
     TestBed.inject(FeatureSwitches).update({ workspaces: { enabled: true } });
@@ -261,7 +261,7 @@ describe('the seeds follow the switches live', () => {
   });
 
   it('a menu entry follows its switch', () => {
-    const registry = seed({ sidebar: { hideViews: false } });
+    const registry = menusFor({ sidebar: { hideViews: false } });
     const menuCommands = () => registry.menuItems().map((item) => item.command);
     expect(menuCommands()).not.toContain('shell.view.hide');
 
@@ -286,7 +286,7 @@ describe('shell.content.splitRight is a toggle over the pane service', () => {
     };
     switchesFor({});
     const registry = TestBed.inject(ContributionRegistry);
-    seedHostCommands(registry, layout, {
+    registerHostCommands(registry, layout, {
       popout: { active: false },
       features: TestBed.inject(FeatureSwitches),
       injector: TestBed.inject(Injector),
@@ -322,7 +322,7 @@ describe('the reset commands keep their dialogs and call the guarded services', 
     const appReset = { reset: vi.fn(async () => true) };
     switchesFor({});
     const registry = TestBed.inject(ContributionRegistry);
-    seedHostCommands(registry, layout, {
+    registerHostCommands(registry, layout, {
       popout: { active: false },
       features: TestBed.inject(FeatureSwitches),
       injector: TestBed.inject(Injector),

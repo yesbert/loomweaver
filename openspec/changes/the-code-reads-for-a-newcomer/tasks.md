@@ -72,7 +72,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   (the router table keeps `content`); move the gated-view curation test to the curation dialog.
 - [x] 3.2 Theme and text size are applied by explicit initializers in `provideShell`, not by two
   unread fields of `Shell`.
-- [ ] 3.3 Each host command moves next to what it opens (palette and quick open, curation, app reset,
+- [x] 3.3 Each host command moves next to what it opens (palette and quick open, curation, app reset,
   workspaces, split); `shell-seeds.ts` becomes `host-commands.ts` (order and gating only),
   `shell-menu-seeds.ts` becomes `built-in-menus.ts`, contribution seeding moves into
   `provide-shell.ts`, "seed" is left to the pane tree; `check-command-names.mjs` follows.
