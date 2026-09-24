@@ -1,5 +1,6 @@
 import { type PluginContext } from '@loomweaver/plugin-sdk';
 import { type Quote, addQuote, customers } from '../../../../accounting';
+import { statusBadge } from '../views/quote-status';
 
 let ctx: PluginContext | undefined;
 
@@ -20,8 +21,14 @@ export const quotesActions = {
       title: quote.number,
       titleIsLiteral: true,
       icon: 'quotes',
+      badge: statusBadge(quote.status),
       preview: options.preview ?? false,
     });
+  },
+  refreshIfActive(quote: Quote): void {
+    if (this.activeQuoteId() === quote.id) {
+      this.open(quote);
+    }
   },
   hasUnsavedWork(quote: Quote): boolean {
     return ctx?.hasUnsavedWork(pathOf(quote)) ?? false;

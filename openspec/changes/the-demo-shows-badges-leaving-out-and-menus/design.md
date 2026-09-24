@@ -17,8 +17,11 @@ open item is open again. A trusted plugin's settings section owns its storage: t
 - The margin toggle and the padlock can be compared on the same child.
 
 **Non-Goals:**
-- Changing a quote's status. The demo's quotes are read-only, so the tab badge is set when the tab
-  opens and never needs to follow a change.
+- Updating the badge of a quote tab that sits behind another. The agent's send command changes a
+  draft to sent; the badge follows at once when that quote is in front, and when its tab sits behind
+  another it follows the next time it is opened. Re-opening a tab is the only way to change its own
+  badge and it brings the tab forward, so updating it in place needs a platform call that does not
+  exist yet. That gap is held apart, as its own question for the platform.
 - Keeping payment decisions across a reload. The count follows the view's decisions as they are.
 
 ## Decisions
@@ -27,7 +30,8 @@ open item is open again. A trusted plugin's settings section owns its storage: t
 surface `quotes.document`, and each tab needs its own status, which is what a tab's own badge is
 for. The text is the key the list's status filter already uses (`quotes.list.status.<status>`), the
 tone mirrors the list's `STATUS_BADGE` (draft and expired neutral, sent brand, accepted success,
-declined danger). A tab reopened from the list refines to the same badge.
+declined danger). A tab reopened from the list refines to the same badge. After the send command,
+`quotesActions.refreshIfActive` re-opens the quote when it is the one in front.
 *Alternative:* `updateSurfaceBadge` on `quotes.document` would give every quote tab the same badge.
 
 **The margin toggle keeps its value in the plugin, persisted in local storage.** A trusted section

@@ -8,12 +8,12 @@ const rows = '[data-testid="quotes-list"] li';
 
 /* Scoped to the URL pane's own strip: the rail draws icon tabs with the same role, and the
    document is a container whose children draw strips of their own inside the content area. Read as
-   rendered text, because each tab carries its tooltip in the same element and a textContent
-   assertion sees every label twice. */
+   each tab's accessible name, which carries the title and the badge beside it once, where the
+   rendered text would also hold the tooltip. */
 function tabs(page: Page) {
   return page
     .locator('[id="pane-strip:content:main"] [role="tab"]')
-    .allInnerTexts();
+    .evaluateAll((all) => all.map((tab) => tab.getAttribute('aria-label') ?? ''));
 }
 
 function tab(page: Page, path: string) {
@@ -51,12 +51,28 @@ test('one click previews a quote into a single reused slot', async ({ page }) =>
   await page.goto(LIST);
 
   await row(page, 'Q-0007').click();
-  await expect.poll(() => tabs(page)).toEqual([LANDING_TAB, LIST_TAB, 'Q-0007']);
+  await expect.poll(() => tabs(page)).toEqual([LANDING_TAB, LIST_TAB, 'Q-0007, Sent']);
   await expect(page).toHaveURL(/\/sales\/quotes\/q-0007$/);
 
   await backToList(page);
   await row(page, 'Q-0006').click();
-  await expect.poll(() => tabs(page)).toEqual([LANDING_TAB, LIST_TAB, 'Q-0006']);
+  await expect.poll(() => tabs(page)).toEqual([LANDING_TAB, LIST_TAB, 'Q-0006, Sent']);
+});
+
+/* The tab carries the quote's status beside its number, in the tone the list's badge has, and a
+   screen reader hears both. */
+test("a quote's tab carries its status as a badge", async ({ page }) => {
+  await page.goto(LIST);
+
+  await row(page, 'Q-0005').click();
+
+  const badge = tab(page, 'sales/quotes/q-0005').getByTestId('tab-badge');
+  await expect(badge).toHaveText('Accepted');
+  await expect(badge).toHaveClass(/lw-badge--success/);
+  await expect(tab(page, 'sales/quotes/q-0005')).toHaveAttribute(
+    'aria-label',
+    'Q-0005, Accepted',
+  );
 });
 
 /* Keeping a preview is the shell's gesture on the tab, not the list's on the row: the first click
@@ -75,7 +91,7 @@ test('a preview kept from the strip survives the next one', async ({ page }) => 
   await row(page, 'Q-0006').click();
   await expect
     .poll(() => tabs(page))
-    .toEqual([LANDING_TAB, LIST_TAB, 'Q-0007', 'Q-0006']);
+    .toEqual([LANDING_TAB, LIST_TAB, 'Q-0007, Sent', 'Q-0006, Sent']);
 });
 
 /* The document and the list row compute their money from the same library, so the two figures
@@ -112,7 +128,7 @@ test('a document with two tax rates shows one line per rate', async ({ page }) =
 test('a deep link labels its tab with the document number', async ({ page }) => {
   await page.goto('/sales/quotes/q-0004');
 
-  await expect.poll(() => tabs(page)).toEqual([LANDING_TAB, 'Q-0004']);
+  await expect.poll(() => tabs(page)).toEqual([LANDING_TAB, 'Q-0004, Draft']);
 });
 
 test('a link to a quote that does not exist says so', async ({ page }) => {

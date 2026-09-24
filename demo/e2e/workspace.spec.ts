@@ -1,7 +1,9 @@
 import { expect, type Page, test } from '@playwright/test';
 
 function contentTabs(page: Page) {
-  return page.locator('[id="pane-strip:content:main"] [role="tab"]').allInnerTexts();
+  return page
+    .locator('[id="pane-strip:content:main"] [role="tab"]')
+    .evaluateAll((all) => all.map((tab) => tab.getAttribute('aria-label') ?? ''));
 }
 
 function navEntry(page: Page, path: string) {
@@ -58,7 +60,7 @@ test('a module returned to still holds what was open in it', async ({ page }) =>
   await expect(page).toHaveURL(/\/sales\/quotes\/q-0007$/);
   await expect
     .poll(() => contentTabs(page))
-    .toEqual(['Customer list', 'Quotes', 'Q-0007']);
+    .toEqual(['Customer list', 'Quotes', 'Q-0007, Sent']);
 
   const rail = page.getByRole('navigation', { name: 'Left activity bar' });
   await rail.getByRole('button', { name: 'Finance' }).click();
@@ -70,7 +72,7 @@ test('a module returned to still holds what was open in it', async ({ page }) =>
   await expect(page).toHaveURL(/\/sales\/quotes\/q-0007$/);
   await expect
     .poll(() => contentTabs(page))
-    .toEqual(['Customer list', 'Quotes', 'Q-0007']);
+    .toEqual(['Customer list', 'Quotes', 'Q-0007, Sent']);
 });
 
 test('the declaration is one the workbench can use, so it reports nothing', async ({

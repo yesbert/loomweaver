@@ -1,7 +1,7 @@
 ## 1. A quote tab carries its status
 
-- [ ] 1.1 `quotesActions.open` passes a badge from the quote's status: the `quotes.list.status.<status>` key and the list's tone; a unit test in `quotes-actions.spec.ts`
-- [ ] 1.2 A demo e2e test: opening a sent quote shows a tab named with its number and "Sent"
+- [x] 1.1 `quotesActions.open` passes a badge from the quote's status: the `quotes.list.status.<status>` key and the list's tone; a unit test in `quotes-actions.spec.ts`
+- [x] 1.2 A demo e2e test: opening a sent quote shows a tab named with its number and "Sent"
 - [ ] 1.3 Screenshot of an opened quote, shown to the owner before going on
 
 ## 2. The margin can be left out
