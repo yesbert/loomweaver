@@ -163,3 +163,30 @@ export function removeTab(
 export function sparedByBulkClose(tab: PaneTab): boolean {
   return tab.pinned === true || tab.closable === false;
 }
+
+export function reorderedTabs(
+  tabs: readonly PaneTab[],
+  order: readonly string[],
+): PaneTab[] {
+  const rank = new Map(order.map((path, index) => [path, index]));
+  return tabs.toSorted(
+    (a, b) =>
+      (rank.get(a.path) ?? tabs.indexOf(a)) -
+      (rank.get(b.path) ?? tabs.indexOf(b)),
+  );
+}
+
+export function seededTabs(
+  existing: readonly PaneTab[],
+  paths: readonly string[],
+  order: readonly string[],
+): PaneTab[] {
+  const rank = new Map(order.map((path, index) => [path, index]));
+  const tabs = [...existing];
+  for (const path of paths) {
+    const target = rank.get(path) ?? Number.MAX_SAFE_INTEGER;
+    const before = tabs.findIndex((tab) => (rank.get(tab.path) ?? -1) > target);
+    tabs.splice(before === -1 ? tabs.length : before, 0, { path });
+  }
+  return tabs;
+}

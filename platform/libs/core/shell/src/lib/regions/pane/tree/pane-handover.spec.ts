@@ -31,7 +31,7 @@ function paths(node: PaneNode, paneId: string): string[] {
 function setUp(tree: PaneNode): PaneTreeService {
   localStorage.clear();
   const paneTree = TestBed.inject(PaneTreeService);
-  paneTree.commitTree(CONTENT_DOCK, tree);
+  paneTree.commit(CONTENT_DOCK, tree);
   return paneTree;
 }
 

@@ -359,7 +359,7 @@ export class WorkspaceService {
         atTheOpeningAddress(this.bootAddress.path, this.contentRouter.here()) &&
         !this.contentRouter.ownsTheOpeningAddress(),
       alreadyEntered: () => this.active.wasChosen(),
-      arrangementSettled: () => this.paneTree.settled,
+      arrangementSettled: () => this.paneTree.arrangementSettled,
       enter: (id) => this.enter(id),
       contentPath: () => activeContentPath(this.paneTree),
       goTo: (path) => this.chooseAddress(path, { replace: true }),

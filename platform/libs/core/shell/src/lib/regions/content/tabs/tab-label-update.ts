@@ -39,6 +39,6 @@ export function updateTabLabel(
     change.label,
   );
   if (next !== null) {
-    paneTree.commitTree(CONTENT_DOCK, next);
+    paneTree.commit(CONTENT_DOCK, next);
   }
 }
