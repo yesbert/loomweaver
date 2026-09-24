@@ -1,30 +1,20 @@
 import { PaneLeaf, PaneNode, PaneTab, leafPath } from './pane-node';
 
-export function findLeaf(node: PaneNode, paneId: string): PaneLeaf | null {
-  if (node.kind === 'leaf') {
-    return node.id === paneId ? node : null;
-  }
-  return findLeaf(node.first, paneId) ?? findLeaf(node.second, paneId);
-}
-
-export function collectLeafIds(node: PaneNode): string[] {
-  if (node.kind === 'leaf') {
-    return [node.id];
-  }
-  return [...collectLeafIds(node.first), ...collectLeafIds(node.second)];
+export function leavesOf(node: PaneNode): PaneLeaf[] {
+  return node.kind === 'leaf'
+    ? [node]
+    : [...leavesOf(node.first), ...leavesOf(node.second)];
 }
 
 export function findLeafWhere(
   node: PaneNode,
   predicate: (leaf: PaneLeaf) => boolean,
 ): PaneLeaf | null {
-  if (node.kind === 'leaf') {
-    return predicate(node) ? node : null;
-  }
-  return (
-    findLeafWhere(node.first, predicate) ??
-    findLeafWhere(node.second, predicate)
-  );
+  return leavesOf(node).find((leaf) => predicate(leaf)) ?? null;
+}
+
+export function findLeaf(node: PaneNode, paneId: string): PaneLeaf | null {
+  return findLeafWhere(node, (leaf) => leaf.id === paneId);
 }
 
 export function findLeafWithTab(
@@ -36,25 +26,27 @@ export function findLeafWithTab(
   );
 }
 
-export function collectTabPaths(node: PaneNode): string[] {
-  if (node.kind === 'leaf') {
-    return node.tabs.map((tab) => tab.path);
-  }
-  return [...collectTabPaths(node.first), ...collectTabPaths(node.second)];
+export function collectLeafIds(node: PaneNode): string[] {
+  return leavesOf(node).map((leaf) => leaf.id);
 }
 
 export function collectTabs(node: PaneNode): PaneTab[] {
-  if (node.kind === 'leaf') {
-    return [...node.tabs];
-  }
-  return [...collectTabs(node.first), ...collectTabs(node.second)];
+  return leavesOf(node).flatMap((leaf) => leaf.tabs);
+}
+
+export function collectTabPaths(node: PaneNode): string[] {
+  return collectTabs(node).map((tab) => tab.path);
+}
+
+export function tabPathsWhere(
+  node: PaneNode,
+  match: (path: string) => boolean,
+): string[] {
+  return collectTabPaths(node).filter((path) => match(path));
 }
 
 export function tabHolderOf(node: PaneNode, tabPath: string): string | null {
-  if (node.kind === 'leaf') {
-    return node.tabs.some((tab) => tab.path === tabPath) ? node.id : null;
-  }
-  return tabHolderOf(node.first, tabPath) ?? tabHolderOf(node.second, tabPath);
+  return findLeafWithTab(node, tabPath)?.id ?? null;
 }
 
 export interface PaneSegment {
@@ -63,8 +55,5 @@ export interface PaneSegment {
 }
 
 export function paneSegments(node: PaneNode): PaneSegment[] {
-  if (node.kind === 'leaf') {
-    return [{ id: node.id, path: leafPath(node) }];
-  }
-  return [...paneSegments(node.first), ...paneSegments(node.second)];
+  return leavesOf(node).map((leaf) => ({ id: leaf.id, path: leafPath(leaf) }));
 }

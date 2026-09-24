@@ -1,10 +1,10 @@
 import { computed, inject, Service, Signal } from '@angular/core';
 import { PaneChromeService } from './chrome/pane-chrome.service';
-import { PaneActions, leavesOf } from './pane-actions.service';
+import { PaneActions } from './pane-actions.service';
 import { PaneHandle, paneHandle } from './pane-handle';
 import { CONTENT_DOCK } from './tree/pane-address';
 import { leafPath } from './tree/pane-node';
-import { findLeaf } from './tree/pane-queries';
+import { findLeaf, leavesOf } from './tree/pane-queries';
 import { PaneTreeService } from './tree/pane-tree.service';
 
 /** What the workbench knows about one pane of the content area, as facts rather than as the tree. */

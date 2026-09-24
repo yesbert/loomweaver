@@ -8,11 +8,11 @@ import {
   newPaneId,
 } from '../tree/pane-node';
 import { findLeaf } from '../tree/pane-queries';
-import { splitLeafWith } from '../tree/pane-structure';
+import { splitLeafWith, withoutEmptyPrimary } from '../tree/pane-structure';
+import { isContainerDock } from '../container/container-children';
 import { insertTab, removeTab } from '../tree/pane-tabs';
 import { tabWithout } from '../tree/pane-node';
 import { PaneTreeService } from '../tree/pane-tree.service';
-import { settleMovedTree } from './settle-moved-tree';
 import { PaneDragService, TabDragSource } from './pane-drag.service';
 import { ContentTabsService } from '../../content/tabs/content-tabs.service';
 import { matchRoute, tabRootOf } from '../../content/content-path';
@@ -217,7 +217,9 @@ export class PaneMoveService {
   private commitSource(dock: string, node: PaneNode): void {
     this.paneTree.commitTree(
       dock,
-      settleMovedTree(dock, node, this.paneTree.primaryId(dock)),
+      isContainerDock(dock)
+        ? withoutEmptyPrimary(node, this.paneTree.primaryId(dock))
+        : node,
     );
   }
 

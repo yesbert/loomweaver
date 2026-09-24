@@ -2,7 +2,8 @@ import { inject, isDevMode, Service, signal, untracked } from '@angular/core';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { CONTAINER_CHILD_REGION } from '../../../plugin/surface-normalize';
 import { surfaceForPanePath } from '../pane-surface';
-import { PaneNode } from '../tree/pane-node';
+import { PaneNode, isDisposableLeaf, leafWith } from '../tree/pane-node';
+import { collapseLeaves } from '../tree/pane-structure';
 
 @Service()
 export class LeftOutChildren {
@@ -61,25 +62,12 @@ export function shownTree(
   node: PaneNode,
   hides: (path: string) => boolean,
 ): PaneNode | null {
-  if (node.kind === 'leaf') {
-    const tabs = node.tabs.filter((tab) => !hides(tab.path));
-    if (tabs.length === node.tabs.length) {
-      return node;
+  return collapseLeaves(node, (leaf) => {
+    const tabs = leaf.tabs.filter((tab) => !hides(tab.path));
+    if (tabs.length === leaf.tabs.length) {
+      return leaf;
     }
-    if (tabs.length === 0 && node.declared !== true) {
-      return null;
-    }
-    const active = tabs.some((tab) => tab.path === node.active)
-      ? node.active
-      : tabs[0]?.path;
-    return { ...node, tabs, active };
-  }
-  const first = shownTree(node.first, hides);
-  const second = shownTree(node.second, hides);
-  if (first === null || second === null) {
-    return first ?? second;
-  }
-  return first === node.first && second === node.second
-    ? node
-    : { ...node, first, second };
+    const shown = leafWith(leaf.id, tabs, leaf.active, leaf.declared);
+    return isDisposableLeaf(shown, []) ? null : shown;
+  });
 }

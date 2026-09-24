@@ -1,4 +1,10 @@
-import { PaneNode, PaneTab, leafWith, tabWithout } from './pane-node';
+import {
+  isDisposableLeaf,
+  leafWith,
+  PaneNode,
+  PaneTab,
+  tabWithout,
+} from './pane-node';
 import { collapseLeaf, transformLeaf } from './pane-structure';
 
 export function insertTab(
@@ -142,7 +148,7 @@ export function removeTab(
 ): PaneNode | null {
   return collapseLeaf(node, paneId, (leaf) => {
     const tabs = leaf.tabs.filter((tab) => tab.path !== tabPath);
-    if (tabs.length === 0 && leaf.id !== primaryId && !leaf.declared) {
+    if (isDisposableLeaf({ ...leaf, tabs }, [primaryId])) {
       return null;
     }
     return leafWith(

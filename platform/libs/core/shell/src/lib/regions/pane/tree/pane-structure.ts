@@ -1,14 +1,18 @@
 import {
+  PRIMARY_LEAF,
   PaneLeaf,
   PaneNode,
   PaneTab,
+  isDisposableLeaf,
+  labelOf,
   leafOf,
   leafWith,
   newPaneId,
+  withLabel,
 } from './pane-node';
-import { findLeaf } from './pane-queries';
+import { findLeaf, leavesOf } from './pane-queries';
 import { DEFAULT_RATIO } from './pane-ratio';
-import { labelOf, withLabel } from './pane-node';
+import { isAtOrBelow } from '../../content/content-path';
 
 export function transformLeaf(
   node: PaneNode,
@@ -25,16 +29,15 @@ export function transformLeaf(
     : { ...node, first, second };
 }
 
-export function collapseLeaf(
+export function collapseLeaves(
   node: PaneNode,
-  paneId: string,
   replace: (leaf: PaneLeaf) => PaneNode | null,
 ): PaneNode | null {
   if (node.kind === 'leaf') {
-    return node.id === paneId ? replace(node) : node;
+    return replace(node);
   }
-  const first = collapseLeaf(node.first, paneId, replace);
-  const second = collapseLeaf(node.second, paneId, replace);
+  const first = collapseLeaves(node.first, replace);
+  const second = collapseLeaves(node.second, replace);
   if (first === null) {
     return second;
   }
@@ -46,8 +49,14 @@ export function collapseLeaf(
     : { ...node, first, second };
 }
 
-function rootedAt(tabPath: string, root: string): boolean {
-  return tabPath === root || tabPath.startsWith(`${root}/`);
+export function collapseLeaf(
+  node: PaneNode,
+  paneId: string,
+  replace: (leaf: PaneLeaf) => PaneNode | null,
+): PaneNode | null {
+  return collapseLeaves(node, (leaf) =>
+    leaf.id === paneId ? replace(leaf) : leaf,
+  );
 }
 
 function duplicatedTab(
@@ -58,7 +67,7 @@ function duplicatedTab(
   const tabs = findLeaf(node, paneId)?.tabs ?? [];
   return (
     tabs.find((tab) => tab.path === path) ??
-    tabs.find((tab) => rootedAt(tab.path, path))
+    tabs.find((tab) => isAtOrBelow(path, tab.path))
   );
 }
 
@@ -136,17 +145,10 @@ export function dethroneLeaf(
 }
 
 function heldOutside(node: PaneNode, primaryId: string, path: string): boolean {
-  if (node.kind === 'leaf') {
-    return (
-      node.id !== primaryId &&
-      node.tabs.some(
-        (tab) => tab.path === path || tab.path.startsWith(path + '/'),
-      )
-    );
-  }
-  return (
-    heldOutside(node.first, primaryId, path) ||
-    heldOutside(node.second, primaryId, path)
+  return leavesOf(node).some(
+    (leaf) =>
+      leaf.id !== primaryId &&
+      leaf.tabs.some((tab) => isAtOrBelow(path, tab.path)),
   );
 }
 
@@ -157,9 +159,7 @@ function settledDethroned(
   const match =
     shown === null
       ? undefined
-      : leaf.tabs.find(
-          (tab) => tab.path === shown || tab.path.startsWith(shown + '/'),
-        );
+      : leaf.tabs.find((tab) => isAtOrBelow(shown, tab.path));
   if (match) {
     return { ...leaf, active: match.path };
   }
@@ -178,23 +178,21 @@ export function pruneEmptyLeaves(
   primaryId: string,
   spare?: string,
 ): PaneNode | null {
-  if (node.kind === 'leaf') {
-    return node.tabs.length === 0 &&
-      node.id !== primaryId &&
-      node.id !== spare &&
-      !node.declared
-      ? null
-      : node;
+  return collapseLeaves(node, (leaf) =>
+    isDisposableLeaf(leaf, [primaryId, spare]) ? null : leaf,
+  );
+}
+
+export function withoutEmptyPrimary(
+  node: PaneNode,
+  primaryId: string,
+): PaneNode {
+  if (node.kind !== 'split') {
+    return node;
   }
-  const first = pruneEmptyLeaves(node.first, primaryId, spare);
-  const second = pruneEmptyLeaves(node.second, primaryId, spare);
-  if (first === null) {
-    return second;
+  const primary = findLeaf(node, primaryId);
+  if (!primary || !isDisposableLeaf(primary, [])) {
+    return node;
   }
-  if (second === null) {
-    return first;
-  }
-  return first === node.first && second === node.second
-    ? node
-    : { ...node, first, second };
+  return removeLeaf(node, primaryId) ?? PRIMARY_LEAF;
 }

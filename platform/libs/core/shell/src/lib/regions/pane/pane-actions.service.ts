@@ -16,8 +16,8 @@ import { isContainerDock } from './container/container-children';
 import { LeftOutChildren } from './container/left-out-children';
 import { CONTENT_DOCK } from './tree/pane-address';
 import { TabKeep, keepsOnPaneClose } from './tree/pane-handover';
-import { PaneLeaf, PaneNode, leafPath } from './tree/pane-node';
-import { findLeaf } from './tree/pane-queries';
+import { PaneLeaf, leafPath } from './tree/pane-node';
+import { findLeaf, leavesOf } from './tree/pane-queries';
 import { PaneTreeService } from './tree/pane-tree.service';
 
 @Service()
@@ -173,10 +173,4 @@ export class PaneActions {
           ],
     );
   }
-}
-
-export function leavesOf(node: PaneNode): PaneLeaf[] {
-  return node.kind === 'leaf'
-    ? [node]
-    : [...leavesOf(node.first), ...leavesOf(node.second)];
 }
