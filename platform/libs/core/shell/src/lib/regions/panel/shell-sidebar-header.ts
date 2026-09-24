@@ -16,7 +16,7 @@ import { PANEL_STRIP_CONTEXT_MENU } from './view-context-menu';
 import { VIEW_CONTEXT_MENU } from '../pane/chrome/view-menu-slot';
 import { VIEW_PANE_PREFIX } from '../pane/tree/pane-address';
 import { TabDragSource } from '../pane/drag/pane-drag.service';
-import { PaneMoveService, stripIdOf } from '../pane/drag/pane-move.service';
+import { stripIdOf } from '../pane/drag/pane-move.service';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
 import { PaneTabStrip } from '../pane/chrome/pane-tab-strip';
 import { StripTab } from '../pane/chrome/strip-tab';
@@ -25,6 +25,7 @@ import { toStripTab } from '../pane/chrome/tab-label';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { FeatureSwitches } from '../../features/feature-switches.service';
 import { regionOnSide } from '../../layout/layout-queries';
+import { sideForMoveChord } from '../reorder/move-chord';
 
 export type SidebarHeaderContext = 'edge' | 'drawer' | 'floating';
 
@@ -42,7 +43,6 @@ export class ShellSidebarHeader {
   protected readonly viewport = inject(ViewportService);
   private readonly panelGroup = inject(PanelGroupService);
   private readonly paneTree = inject(PaneTreeService);
-  private readonly paneMove = inject(PaneMoveService);
   private readonly viewMove = inject(ViewMoveService);
   private readonly registry = inject(ContributionRegistry);
   private readonly layout = inject(SHELL_LAYOUT);
@@ -136,14 +136,14 @@ export class ShellSidebarHeader {
   }
 
   protected onStripKeydown(event: KeyboardEvent): void {
-    const dock = this.dockForChord(event);
-    if (dock === null) {
+    const side = this.features.moveViews() ? sideForMoveChord(event) : null;
+    if (side === null) {
       return;
     }
     const path = (event.target as HTMLElement | null)?.closest<HTMLElement>(
       '[data-tab-path]',
     )?.dataset['tabPath'];
-    const target = this.targetPanelOn(dock);
+    const target = this.panelOn(side);
     if (!path || !target) {
       return;
     }
@@ -152,24 +152,10 @@ export class ShellSidebarHeader {
       this.viewMove.move(path.slice(VIEW_PANE_PREFIX.length), target.id);
       return;
     }
-    this.paneMove.moveToStrip(this.source(), path, {
-      dock: target.id,
-      paneId: this.paneTree.primaryId(target.id),
-    });
-    this.panels.expand(target.id);
+    this.viewMove.moveTab(this.source(), path, target.id);
   }
 
-  private dockForChord(event: KeyboardEvent): 'left' | 'right' | null {
-    if (!this.features.moveViews() || !event.altKey || !event.shiftKey) {
-      return null;
-    }
-    if (event.key === 'ArrowRight') {
-      return 'right';
-    }
-    return event.key === 'ArrowLeft' ? 'left' : null;
-  }
-
-  private targetPanelOn(dock: 'left' | 'right'): LayoutRegion | undefined {
-    return regionOnSide(this.layout, 'panel', dock, this.region().id);
+  private panelOn(side: 'left' | 'right'): LayoutRegion | undefined {
+    return regionOnSide(this.layout, 'panel', side, this.region().id);
   }
 }

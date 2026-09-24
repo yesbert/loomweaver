@@ -1,33 +1,31 @@
 import { inject, Service } from '@angular/core';
-import { LiveAnnouncer } from '@angular/cdk/a11y';
-import { TranslocoService } from '@jsverse/transloco';
 import { SHELL_LAYOUT } from '../../layout/layout';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { RailItemsService } from './rail-items.service';
-import {
-  regionById,
-  regionOnOtherSide,
-  regionOnSide,
-} from '../../layout/layout-queries';
+import { regionOnOtherSide, regionOnSide } from '../../layout/layout-queries';
+import { MoveAnnouncer, MoveWording } from '../reorder/move-announcer';
+
+const RAIL_MOVE_WORDING: MoveWording = {
+  announce: 'rail.move.announce',
+  subject: 'item',
+  targetLeft: 'rail.move.targetLeft',
+  targetRight: 'rail.move.targetRight',
+};
 
 @Service()
 export class RailMoveService {
   private readonly layout = inject(SHELL_LAYOUT);
   private readonly items = inject(RailItemsService);
   private readonly registry = inject(ContributionRegistry);
-  private readonly announcer = inject(LiveAnnouncer);
-  private readonly transloco = inject(TranslocoService);
+  private readonly announcer = inject(MoveAnnouncer);
 
   move(itemId: string, targetRegion: string): void {
     this.items.show(itemId, targetRegion);
-    const title = this.registry
-      .railItems()
-      .find((item) => item.id === itemId)?.title;
-    void this.announcer.announce(
-      this.transloco.translate('rail.move.announce', {
-        item: title ? this.transloco.translate(title) : itemId,
-        target: this.targetLabel(targetRegion),
-      }),
+    const item = this.registry.railItems().find((one) => one.id === itemId);
+    this.announcer.announce(
+      RAIL_MOVE_WORDING,
+      { id: itemId, title: item?.title },
+      targetRegion,
     );
   }
 
@@ -35,18 +33,7 @@ export class RailMoveService {
     return regionOnOtherSide(this.layout, 'rail', fromRegion)?.id;
   }
 
-  railOn(dock: 'left' | 'right', fromRegion: string): string | undefined {
-    return regionOnSide(this.layout, 'rail', dock, fromRegion)?.id;
-  }
-
-  private targetLabel(regionId: string): string {
-    const dock = regionById(this.layout, regionId)?.dock;
-    if (dock === 'left') {
-      return this.transloco.translate('rail.move.targetLeft');
-    }
-    if (dock === 'right') {
-      return this.transloco.translate('rail.move.targetRight');
-    }
-    return regionId;
+  railOn(side: 'left' | 'right', fromRegion: string): string | undefined {
+    return regionOnSide(this.layout, 'rail', side, fromRegion)?.id;
   }
 }

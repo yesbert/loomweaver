@@ -37,9 +37,7 @@ export class ShellEdge {
 
   protected readonly hasBody = computed(
     () =>
-      this.viewport.compact() ||
-      this.rails().length > 0 ||
-      this.anyPanelOpen(),
+      this.viewport.compact() || this.rails().length > 0 || this.anyPanelOpen(),
   );
 
   protected readonly railDivider = computed(
