@@ -10,7 +10,7 @@ import {
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { RetainedSlot } from './retained-view-model';
 import { RetainedViewStash } from './retained-view-stash';
-import { moveNode } from './atomic-move';
+import { placeBefore } from './atomic-move';
 import { surfaceRetentionMode } from './retention-policy';
 
 interface MountedTemplate {
@@ -44,7 +44,7 @@ export class RetainedTemplate implements OnChanges, OnDestroy {
     const slot = this.stash.acquire(key, template, () => ({
       view: template.createEmbeddedView(undefined),
     }));
-    this.place(slot.rootNodes);
+    placeBefore(this.anchor, slot.rootNodes);
     this.mounted = { key, template, slot, path: this.retentionPath() };
   }
 
@@ -67,15 +67,5 @@ export class RetainedTemplate implements OnChanges, OnDestroy {
       return;
     }
     mounted.slot.discard();
-  }
-
-  private place(nodes: readonly Node[]): void {
-    const parent = this.anchor.parentNode;
-    if (!parent) {
-      return;
-    }
-    for (const node of nodes) {
-      moveNode(parent, node, this.anchor);
-    }
   }
 }

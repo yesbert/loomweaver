@@ -5,11 +5,7 @@ import { DialogService } from '../../../dialog/dialog.service';
 import { NotificationService } from '../../../notifications/notification.service';
 import { CloseVetoDialog } from './close-veto-dialog';
 import { UnsavedChangesDialog } from './unsaved-changes-dialog';
-import {
-  beforeCloseOf,
-  dirtySurfaceOf,
-  instanceDirty,
-} from '../retention/retention-policy';
+import { beforeCloseOf, dirtySurfaceOf, instanceDirty } from './dirty-surface';
 
 type CloseChoice = 'save' | 'discard' | 'cancel';
 

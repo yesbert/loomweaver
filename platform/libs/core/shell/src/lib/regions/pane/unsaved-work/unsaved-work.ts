@@ -3,7 +3,7 @@ import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { normalizePath, tabRootOf } from '../../content/content-path';
 import { isViewPanePath } from '../tree/pane-address';
 import { RetainedViewStash } from '../retention/retained-view-stash';
-import { instanceDirty } from '../retention/retention-policy';
+import { instanceDirty } from './dirty-surface';
 import {
   containerChildInstances,
   pathOfRetentionKey,

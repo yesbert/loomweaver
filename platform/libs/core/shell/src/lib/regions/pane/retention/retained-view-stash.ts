@@ -9,7 +9,8 @@ import {
 } from '@angular/core';
 import { ActiveWorkspaceService } from '../../../workspace/active-workspace.service';
 import { supportsAtomicMove } from './atomic-move';
-import { SurfaceRetentionMode, instanceDirty } from './retention-policy';
+import { SurfaceRetentionMode } from './retention-policy';
+import { instanceDirty } from '../unsaved-work/dirty-surface';
 import {
   ParkedEntry,
   RetainedSlot,

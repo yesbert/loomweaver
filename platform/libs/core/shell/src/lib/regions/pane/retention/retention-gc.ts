@@ -9,12 +9,8 @@ import { PaneNode } from '../tree/pane-node';
 import { leavesOf } from '../tree/pane-queries';
 import { PaneTreeService } from '../tree/pane-tree.service';
 import { RetainedViewStash } from './retained-view-stash';
-import {
-  dirtySurfaceOf,
-  instanceDirty,
-  resolvableSurfacePath,
-  saveOnHidePath,
-} from './retention-policy';
+import { resolvableSurfacePath, saveOnHidePath } from './retention-policy';
+import { dirtySurfaceOf, instanceDirty } from '../unsaved-work/dirty-surface';
 import {
   isPrimaryRetentionKey,
   paneRetentionScope,

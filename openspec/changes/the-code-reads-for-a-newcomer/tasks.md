@@ -151,7 +151,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   meanings of "settle" given their own names, the landing leaf found in one place; `removeTab` asks
   `isDisposableLeaf` like the other four places (left from 5.2, which would have pushed the file past
   400 lines).
-- [ ] 5.5 `RetainedViewStash`: the holding area's DOM work in `holding-area.ts`, every query over
+- [x] 5.5 `RetainedViewStash`: the holding area's DOM work in `holding-area.ts`, every query over
   entries in one file, `slotFor` out of `acquire`, one retain flag, verbs that say what the stash does;
   the two directives share node placement; `retention-policy.ts` keeps only the policy (dirty-surface
   helpers go to unsaved work, route reuse to the reuse strategy).
