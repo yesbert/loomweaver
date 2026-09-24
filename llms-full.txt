@@ -479,8 +479,9 @@ interface OpenTabInput { path: string; title: string; icon?: string; titleIsLite
 type TabBadgeTone = 'neutral' | 'brand' | 'success' | 'danger';   // the .lw-badge tones; default 'neutral'
 interface TabBadge { text?: string; textIsLiteral?: boolean; icon?: string; tone?: TabBadgeTone; }
 // A badge is a word or an icon (no counts), drawn after the title, NOT a control: the tab stays one keyboard stop, and the
-// text joins the tab's accessible name after the title ("Erweitert, Developer"). text is a Transloco key unless
-// textIsLiteral; neither text nor icon = no badge. Not drawn in the overflow list, Quick-Open or the minimized strip.
+// text joins the tab's accessible name and tooltip after the title ("Erweitert, Developer"). In a tab short of room the
+// TITLE COMES FIRST: the badge narrows to a mark in its tone before the title is shortened. text is a Transloco key
+// unless textIsLiteral; neither text nor icon = no badge. Not drawn in the overflow list, Quick-Open or the minimized strip.
 
 type BarSlot = 'start' | 'center' | 'end';
 type BarItem = BarComponentItem | BarButtonItem;   // both base: { id, bar, slot, order?, access? } — access: hide either kind, disable only the button

@@ -19,6 +19,7 @@ const BUNDLES: Record<string, Translation> = {
     content: {
       unsavedTab: '{{title}}, unsaved changes',
       badgedTab: '{{title}}, {{badge}}',
+      previewHint: 'double-click to keep',
     },
   },
   de: {
@@ -172,6 +173,25 @@ describe('a badge on a tab', () => {
     expect(tabElement()?.getAttribute('aria-label')).toBe(
       'Erweitert, Entwicklung',
     );
+  });
+
+  function tooltipText(): string | undefined {
+    const tooltip = tabElement()?.querySelector('lw-tooltip') as
+      | (HTMLElement & { text?: string })
+      | null;
+    return tooltip?.getAttribute('text') ?? tooltip?.text;
+  }
+
+  it('is in the tooltip of a strip of titles, after the title', async () => {
+    await create([tab({ badge: DEVELOPER })]);
+
+    expect(tooltipText()).toBe('Advanced, Developer');
+  });
+
+  it('stands before the preview hint in the tooltip of a preview', async () => {
+    await create([tab({ badge: DEVELOPER, preview: true })]);
+
+    expect(tooltipText()).toBe('Advanced, Developer — double-click to keep');
   });
 
   it('moves into the tooltip and the name in a strip of icons', async () => {

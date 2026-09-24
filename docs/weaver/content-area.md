@@ -177,7 +177,9 @@ registered can be changed. Both need the `contributions` capability. A content t
 again, survives a restart with the tab, and is taken away with `badge: null`.
 
 The badge is not a control of its own, so the tab stays one keyboard stop, and its text joins the
-tab's accessible name after the title. In a strip that shows icons only, such as a sidebar switcher,
+tab's accessible name and its tooltip after the title. Where a tab runs out of room, the title comes
+first: the badge narrows to a small mark in its tone before the title is shortened, and the tooltip
+still reads it out in full. In a strip that shows icons only, such as a sidebar switcher,
 the text is in the tooltip and the accessible name, so a badge made of an icon alone does not show
 there. The text is a translation key unless
 `textIsLiteral` is set. The list of tabs that do not fit, Quick-Open and the minimized strip name a
