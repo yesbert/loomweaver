@@ -88,6 +88,12 @@ are corrected in the same pull request and the reason is stated in its descripti
   deliberately follows no other window, while `persistedSetting` is the settings port with cross-tab
   sync. They share the record parsers instead.
 
+- **No `lwLabel` pipe (task 2.8).** The strips resolve "a key unless marked literal" with the
+  translation pipe in two templates. A pipe of our own would have to reproduce what that pipe does
+  while a bundle is in flight: nothing until the bundle has loaded, the key once an empty one has.
+  Built from the translation pipe's constructor, it would tie the shell to that library's internals.
+  The minimised strip's second derivation of title and icon went; the two ternaries stay.
+
 ## Risks / Trade-offs
 
 - [A move silently breaks a checker or a doc link that reads the file by path] → Every move slice

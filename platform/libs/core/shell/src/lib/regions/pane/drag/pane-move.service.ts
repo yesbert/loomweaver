@@ -9,7 +9,8 @@ import {
 } from '../tree/pane-node';
 import { findLeaf } from '../tree/pane-queries';
 import { splitLeafWith } from '../tree/pane-structure';
-import { insertTab, removeTab, tabWithout } from '../tree/pane-tabs';
+import { insertTab, removeTab } from '../tree/pane-tabs';
+import { tabWithout } from '../tree/pane-node';
 import { PaneTreeService } from '../tree/pane-tree.service';
 import { settleMovedTree } from './settle-moved-tree';
 import { PaneDragService, TabDragSource } from './pane-drag.service';

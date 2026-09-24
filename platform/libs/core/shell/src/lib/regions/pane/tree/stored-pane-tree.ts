@@ -3,6 +3,7 @@ import { PaneNode, PaneTab, leafOf, leafWith } from './pane-node';
 import { collectLeafIds, findLeaf } from './pane-queries';
 import { DEFAULT_RATIO, sanitizeRatio } from './pane-ratio';
 import { tabBadgeOf } from '../chrome/tab-badge';
+import { labelledTabs, withoutLabel } from './pane-node';
 
 function normalizeTab(value: unknown): PaneTab | null {
   if (!value || typeof value !== 'object') {
@@ -36,7 +37,9 @@ function normalizeLeafNode(
   }
   const rawTabs = node['tabs'];
   const tabs = Array.isArray(rawTabs)
-    ? rawTabs.map((value) => normalizeTab(value)).filter((tab): tab is PaneTab => tab !== null)
+    ? rawTabs
+        .map((value) => normalizeTab(value))
+        .filter((tab): tab is PaneTab => tab !== null)
     : [];
   const rawActive = node['active'];
   return leafWith(
@@ -135,27 +138,10 @@ export function withoutBorrowedLabels(
   node: PaneNode,
   borrowed: (tab: PaneTab) => boolean,
 ): { node: PaneNode; stripped: readonly string[] } {
-  if (node.kind === 'leaf') {
-    const stripped = node.tabs.filter((tab) => borrowed(tab)).map((tab) => tab.path);
-    if (stripped.length === 0) {
-      return { node, stripped: [] };
-    }
-    const tabs = node.tabs.map((tab) => {
-      if (!borrowed(tab)) {
-        return tab;
-      }
-      const { title, literalTitle, icon, ...rest } = tab;
-      return rest;
-    });
-    return { node: { ...node, tabs }, stripped };
-  }
-  const first = withoutBorrowedLabels(node.first, borrowed);
-  const second = withoutBorrowedLabels(node.second, borrowed);
-  if (first.stripped.length === 0 && second.stripped.length === 0) {
-    return { node, stripped: [] };
-  }
-  return {
-    node: { ...node, first: first.node, second: second.node },
-    stripped: [...first.stripped, ...second.stripped],
-  };
+  const stripped: string[] = [];
+  const next = labelledTabs(node, borrowed, (tab) => {
+    stripped.push(tab.path);
+    return withoutLabel(tab);
+  });
+  return { node: next ?? node, stripped };
 }

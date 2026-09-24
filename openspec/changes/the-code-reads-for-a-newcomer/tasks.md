@@ -48,7 +48,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   sides, the one on a side, the one on the other side) replace about twenty inline filter chains;
   `ShellRegions` goes and the seeds take `ShellLayout`; "the layout has content" is defined once.
 - [x] 2.7 **Move:** `regions/pane/drag/pane-label.ts` to `regions/pane/chrome/tab-label.ts`.
-- [ ] 2.8 Tab labels: one label-patch module (the badge "null removes, absent keeps" rule once, one
+- [x] 2.8 Tab labels: one label-patch module (the badge "null removes, absent keeps" rule once, one
   relabel walk) used by pane tabs, pane structure, stored-tree healing, containers and content; one
   `lwLabel` pipe for "a key unless marked literal" in the tab strip and the minimised strip.
 - [ ] 2.9 Host command ids are exported constants beside their registration, and the `menu:` entry id

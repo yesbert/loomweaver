@@ -1,4 +1,4 @@
-import { PaneNode, PaneTab, leafWith } from './pane-node';
+import { PaneNode, PaneTab, leafWith, tabWithout } from './pane-node';
 import { collapseLeaf, transformLeaf } from './pane-structure';
 
 export function insertTab(
@@ -132,12 +132,6 @@ export function unpinTab(
     const unpinned = tabWithout(leaf.tabs[index], 'pinned');
     return { ...leaf, tabs: reseatPinned(leaf.tabs, index, unpinned) };
   });
-}
-
-export function tabWithout(tab: PaneTab, key: keyof PaneTab): PaneTab {
-  const copy: { -readonly [K in keyof PaneTab]?: PaneTab[K] } = { ...tab };
-  delete copy[key];
-  return copy as PaneTab;
 }
 
 export function removeTab(

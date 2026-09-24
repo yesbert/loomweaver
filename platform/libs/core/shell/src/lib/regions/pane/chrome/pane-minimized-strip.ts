@@ -8,7 +8,7 @@ import {
 import { TranslocoPipe } from '@jsverse/transloco';
 import { PaneLeaf, activeTab } from '../tree/pane-node';
 import { PaneChromeService } from './pane-chrome.service';
-import { PaneLabel, paneLabelOf } from './tab-label';
+import { overlayTabTitle, PaneLabel, paneLabelOf } from './tab-label';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
 
 @Component({
@@ -28,20 +28,10 @@ export class PaneMinimizedStrip {
 
   protected readonly vertical = computed(() => this.orientation() === 'row');
 
-  protected readonly label = computed<
-    Pick<PaneLabel, 'title' | 'literalTitle'>
-  >(() => {
+  protected readonly label = computed<PaneLabel>(() => {
     const tab = activeTab(this.leaf());
-    if (tab?.title !== undefined) {
-      return { title: tab.title, literalTitle: tab.literalTitle ?? false };
-    }
     const base = paneLabelOf(this.registry, tab?.path ?? '');
-    return { title: base.title, literalTitle: base.literalTitle };
-  });
-
-  protected readonly icon = computed(() => {
-    const tab = activeTab(this.leaf());
-    return tab?.icon ?? paneLabelOf(this.registry, tab?.path ?? '').icon;
+    return tab ? overlayTabTitle(tab, base) : base;
   });
 
   protected readonly tabCount = computed(() => this.leaf().tabs.length);
