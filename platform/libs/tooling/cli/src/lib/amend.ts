@@ -76,6 +76,7 @@ class Amender {
   private readonly manifestAdded: string[] = [];
   private config?: Record<string, unknown>;
   private manifest?: Record<string, unknown>;
+  private projectResolved = false;
   private project?: BuildProject;
 
   constructor(
@@ -213,7 +214,7 @@ class Amender {
       return;
     }
     const css = readFileSync(entry, 'utf8');
-    if (!/@import\s+['"]tailwindcss['"]/.test(css)) {
+    if (!usesTailwind(css)) {
       return;
     }
     const source =
@@ -297,16 +298,15 @@ class Amender {
   }
 
   private resolveProject(): BuildProject | undefined {
-    if (this.project) {
-      return this.project;
+    if (!this.projectResolved) {
+      this.projectResolved = true;
+      try {
+        this.project = resolveBuildProject(this.workspace, this.target);
+      } catch (error) {
+        this.remaining.push((error as WorkspaceError).message);
+      }
     }
-    try {
-      this.project = resolveBuildProject(this.workspace, this.target);
-      return this.project;
-    } catch (error) {
-      this.remaining.push((error as WorkspaceError).message);
-      return undefined;
-    }
+    return this.project;
   }
 
   private readConfig(): Record<string, unknown> {
@@ -343,10 +343,14 @@ class Amender {
     if (!Array.isArray(styles)) {
       return undefined;
     }
-    const entry = styles.find(
-      (style): style is string =>
-        typeof style === 'string' && style.endsWith('.css'),
-    );
+    const entry = styles
+      .map((style) =>
+        typeof style === 'string' ? style : asObject(style)?.['input'],
+      )
+      .find(
+        (input): input is string =>
+          typeof input === 'string' && input.endsWith('.css'),
+      );
     return entry === undefined
       ? undefined
       : resolve(this.workspace.root, entry);
@@ -364,6 +368,16 @@ class Amender {
     const inside = relative(this.workspace.root, file).split(sep).join('/');
     return inside.startsWith('..') ? file : inside;
   }
+}
+
+function usesTailwind(css: string): boolean {
+  return css.split('\n').some((line) => {
+    const directive = line.trimStart();
+    return (
+      /^@import\s+['"]tailwindcss['"]/.test(directive) ||
+      /^@source\s/.test(directive)
+    );
+  });
 }
 
 interface TargetRef {
