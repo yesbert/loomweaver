@@ -88,6 +88,12 @@ are corrected in the same pull request and the reason is stated in its descripti
   deliberately follows no other window, while `persistedSetting` is the settings port with cross-tab
   sync. They share the record parsers instead.
 
+- **No shared docked-view body component (task 4.5).** A surface kept in place (an iframe) is hidden
+  inside the element that holds its anchor and waits there. A shared component would become that
+  element, and it is destroyed whenever the pane switches away from the view, which would take the
+  hidden frame out of the page and reload it on return. Keeping the injector factories in the two
+  hosts avoids that, but then only an eight-line template branch is left to share, which does not
+  pay for a new element in the chrome.
 - **The route data key `urlDriven` keeps its name (task 4.3).** The surface route data is typed now,
   but the key is published: the plugin contract's JSDoc on sub-routes, two guides and the assistant
   file tell a weaver to read `data.urlDriven`, and weavers do. Renaming it to `carriesAddress` breaks

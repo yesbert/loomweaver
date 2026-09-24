@@ -120,8 +120,9 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   instead of outlet contexts and stays its own.
 - [x] 4.4 The router: the pure route table in `content-route-table.ts` with the placeholder built once
   and `isContentRoute` beside it; `ContentRouter.start()` split into named steps; its spec split.
-- [ ] 4.5 One docked-view body component used by the surface body and the side panel.
-- [ ] 4.6 Pane targets: one hostable-targets list; `barePathHostableRoute` and `offRouterMountable`
+- [x] 4.5 One docked-view body component used by the surface body and the side panel. Set aside,
+  see design.
+- [x] 4.6 Pane targets: one hostable-targets list; `barePathHostableRoute` and `offRouterMountable`
   renamed to what they answer.
 - [ ] 4.7 The tab context menu takes its dependencies as one object and builds its entries through one
   helper; pin and unpin by an explicit branch.

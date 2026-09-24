@@ -7,9 +7,9 @@ import { LeftOutChildren } from '../pane/container/left-out-children';
 import {
   PaneTarget,
   containerChildTargets,
-  offRouterPaneTargets,
+  hostablePaneTargets,
+  navigablePaneTargets,
   paneTargetEntries,
-  routerPaneTargets,
 } from './pane-targets';
 
 @Service()
@@ -20,15 +20,15 @@ export class PaneTargetPicker {
   private readonly leftOut = inject(LeftOutChildren);
 
   openForNavigation(anchor: HTMLElement, onPick: (path: string) => void): void {
-    this.present(routerPaneTargets(this.registry, this.auth), anchor, onPick);
-  }
-
-  openForHosting(anchor: HTMLElement, onPick: (path: string) => void): void {
     this.present(
-      offRouterPaneTargets(this.registry, this.auth),
+      navigablePaneTargets(this.registry, this.auth),
       anchor,
       onPick,
     );
+  }
+
+  openForHosting(anchor: HTMLElement, onPick: (path: string) => void): void {
+    this.present(hostablePaneTargets(this.registry, this.auth), anchor, onPick);
   }
 
   openForChildren(
