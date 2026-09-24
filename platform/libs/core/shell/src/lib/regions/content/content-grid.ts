@@ -50,7 +50,7 @@ export class ContentGrid {
     const document_ = inject(DOCUMENT);
     const onKeydown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        this.chrome.restore();
+        this.chrome.endMaximize();
       }
     };
     effect((onCleanup) => {

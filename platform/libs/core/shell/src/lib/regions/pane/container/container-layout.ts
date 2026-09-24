@@ -2,6 +2,7 @@ import { ContainerSpec, ContainerTabEntry } from '@loomweaver/plugin-sdk';
 import {
   containerChildOf,
   containerChildPath,
+  containerInstanceId,
   containerPathOfDock,
   isAddressable,
 } from './container-children';
@@ -50,11 +51,11 @@ export function containerChildTab(
   if (address === undefined) {
     return {
       path: viewPanePath(childId),
-      instance: `${dock}::${childId}`,
+      instance: containerInstanceId(dock, childId),
     };
   }
   const path = containerChildPath(containerPathOfDock(dock), address);
-  return { path, instance: `${dock}::${path}` };
+  return { path, instance: containerInstanceId(dock, path) };
 }
 
 function bakeChild(

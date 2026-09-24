@@ -1,18 +1,12 @@
 import { PaneLeaf, PaneNode, PaneTab } from './pane-node';
 import { collectLeafIds, findLeaf, leavesOf } from './pane-queries';
 import { removeLeaf, transformLeaf } from './pane-structure';
-import { sparedByBulkClose } from './pane-tabs';
 
 export type TabKeep = (tab: PaneTab) => boolean;
 
 export const keepsNothing: TabKeep = () => false;
 
-export function keepsOnPaneClose(
-  contentSide: boolean,
-  closingOffered: boolean,
-): TabKeep {
-  return contentSide && !closingOffered ? () => true : sparedByBulkClose;
-}
+export const keepsEverything: TabKeep = () => true;
 
 export function closedWithHandover(
   node: PaneNode,

@@ -19,6 +19,10 @@ import { PaneSplitHandle } from './chrome/pane-split-handle';
 import { RetainedTemplate } from './retention/retained-template';
 import { primaryRetentionKey } from './retention/retention-keys';
 
+const MINIMIZED_ROW_BASIS = '0 0 2.25rem';
+
+const MINIMIZED_COLUMN_BASIS = '0 0 2rem';
+
 @Component({
   selector: 'lw-pane-tree-view',
   imports: [
@@ -89,15 +93,18 @@ export class PaneTreeView {
     return s !== null && this.isMinimizedLeaf(s.second);
   });
 
-  protected flexFor(
-    minimized: boolean,
-    siblingMinimized: boolean,
-    ratio: number,
-    orientation: 'row' | 'column',
-  ): string {
+  protected flexFor(split: PaneSplit, side: 'first' | 'second'): string {
+    const first = side === 'first';
+    const minimized = first ? this.firstMinimized() : this.secondMinimized();
     if (minimized) {
-      return orientation === 'row' ? '0 0 2.25rem' : '0 0 2rem';
+      return split.orientation === 'row'
+        ? MINIMIZED_ROW_BASIS
+        : MINIMIZED_COLUMN_BASIS;
     }
+    const siblingMinimized = first
+      ? this.secondMinimized()
+      : this.firstMinimized();
+    const ratio = first ? split.ratio : 1 - split.ratio;
     return siblingMinimized ? '1 1 0' : `${ratio} 1 0`;
   }
 

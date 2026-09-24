@@ -6,15 +6,15 @@ import { PaneRef } from '../tree/pane-address';
 @Service()
 export class PaneChromeService {
   private readonly paneTree = inject(PaneTreeService);
-  private readonly max = signal<PaneRef | null>(null);
-  private readonly min = signal<ReadonlySet<string>>(new Set());
+  private readonly maximized = signal<PaneRef | null>(null);
+  private readonly minimizedPanes = signal<ReadonlySet<string>>(new Set());
 
   isMaximized(dock: string, paneId: string): boolean {
     return this.maximizedPaneIn(dock) === paneId;
   }
 
   maximizedPaneIn(dock: string): string | null {
-    const current = this.max();
+    const current = this.maximized();
     return current?.dock === dock &&
       findLeaf(this.paneTree.tree(dock), current.paneId) !== null
       ? current.paneId
@@ -22,23 +22,23 @@ export class PaneChromeService {
   }
 
   toggleMaximize(dock: string, paneId: string): void {
-    this.max.update((current) =>
+    this.maximized.update((current) =>
       this.isMaximized(dock, paneId) && current ? null : { dock, paneId },
     );
   }
 
-  restore(): void {
-    this.max.set(null);
+  endMaximize(): void {
+    this.maximized.set(null);
   }
 
   isMinimized(dock: string, paneId: string): boolean {
-    return this.min().has(key(dock, paneId));
+    return this.minimizedPanes().has(paneKey(dock, paneId));
   }
 
   toggleMinimize(dock: string, paneId: string): void {
-    this.min.update((current) => {
+    this.minimizedPanes.update((current) => {
       const next = new Set(current);
-      const id = key(dock, paneId);
+      const id = paneKey(dock, paneId);
       if (!next.delete(id)) {
         next.add(id);
       }
@@ -48,14 +48,16 @@ export class PaneChromeService {
 
   clearMinimized(dock: string): void {
     const prefix = `${dock}:`;
-    const current = this.min();
+    const current = this.minimizedPanes();
     if ([...current].every((id) => !id.startsWith(prefix))) {
       return;
     }
-    this.min.set(new Set([...current].filter((id) => !id.startsWith(prefix))));
+    this.minimizedPanes.set(
+      new Set([...current].filter((id) => !id.startsWith(prefix))),
+    );
   }
 }
 
-function key(dock: string, paneId: string): string {
+function paneKey(dock: string, paneId: string): string {
   return `${dock}:${paneId}`;
 }

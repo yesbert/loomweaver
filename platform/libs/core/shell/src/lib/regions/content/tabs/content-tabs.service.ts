@@ -14,7 +14,8 @@ import { TabClosingService } from './tab-closing.service';
 import { QuickOpenTarget } from './quick-open-target';
 import { updateTabLabel } from './tab-label-update';
 import { PaneRef } from '../../pane/tree/pane-address';
-import { keepsOnPaneClose } from '../../pane/tree/pane-handover';
+import { keepsEverything } from '../../pane/tree/pane-handover';
+import { sparedByBulkClose } from '../../pane/tree/pane-tabs';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 import { UnsavedWork } from '../../pane/unsaved-work/unsaved-work';
 
@@ -200,7 +201,7 @@ export class ContentTabsService {
    */
   closePrimaryPane(): void {
     this.closing.closePrimaryPane(
-      keepsOnPaneClose(true, this.features.close()),
+      this.features.close() ? sparedByBulkClose : keepsEverything,
     );
   }
 

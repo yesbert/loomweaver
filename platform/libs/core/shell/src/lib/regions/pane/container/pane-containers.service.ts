@@ -1,8 +1,12 @@
 import { inject, isDevMode, Service } from '@angular/core';
 import { ContainerSpec, ContainerTabLabel } from '@loomweaver/plugin-sdk';
 import { landingLeaf, tabHolderOf } from '../tree/pane-queries';
-import { insertTab, setActiveTab } from '../tree/pane-tabs';
-import { containerChildPath, containerPathOfDock } from './container-children';
+import { insertTab } from '../tree/pane-tabs';
+import {
+  containerChildPath,
+  containerInstanceId,
+  containerPathOfDock,
+} from './container-children';
 import { containerChildTab, containerLayout } from './container-layout';
 import { PaneTreeService } from '../tree/pane-tree.service';
 import { LeftOutChildren } from './left-out-children';
@@ -67,10 +71,10 @@ export class PaneContainersService {
     }
     const target = this.paneTree.landingPane(dock);
     this.paneTree.pointAt(dock, target);
-    const tab = withLabel({ path, instance: `${dock}::${path}` }, label ?? {});
-    this.paneTree.commit(
-      dock,
-      setActiveTab(insertTab(tree, target, tab), target, path),
+    const tab = withLabel(
+      { path, instance: containerInstanceId(dock, path) },
+      label ?? {},
     );
+    this.paneTree.commit(dock, insertTab(tree, target, tab));
   }
 }
