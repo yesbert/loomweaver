@@ -28,202 +28,166 @@ const TAB_TOGGLE_PIN_COMMAND_ID = 'shell.tab.togglePin';
 
 export const TAB_CONTEXT_MENU = 'content/tab/context';
 
+export interface TabMenuDeps {
+  readonly tabs: ContentTabsService;
+  readonly paneMove: PaneMoveService;
+  readonly paneTree: PaneTreeService;
+  readonly popout: PopoutService;
+  readonly features: FeatureSwitches;
+  readonly injector: Injector;
+}
+
+interface TabMenuEntry {
+  readonly command: Command;
+  readonly item: MenuItem;
+}
+
 interface TabMenuGroup {
   readonly on: Signal<boolean>;
-  readonly commands: readonly Command[];
-  readonly items: readonly MenuItem[];
+  readonly entries: readonly TabMenuEntry[];
 }
+
+type Placement = Pick<MenuItem, 'group' | 'order' | 'when' | 'checkedWhen'>;
 
 export function registerTabContextMenu(
   registry: ContributionRegistry,
-  tabs: ContentTabsService,
-  paneMove: PaneMoveService,
-  paneTree: PaneTreeService,
-  popout: PopoutService,
-  switches: FeatureSwitches,
-  injector: Injector,
+  deps: TabMenuDeps,
 ): void {
-  const content = switches.content;
+  const { tabs, paneMove, paneTree, popout, features } = deps;
+  const content = features.content;
   const groups: readonly TabMenuGroup[] = [
     {
       on: content.close,
-      commands: [
-        {
-          id: TAB_CLOSE_COMMAND_ID,
-          title: 'content.tabMenu.close',
-          run: (c) =>
-            tabs.close(menuContextString(c, 'tabId'), paneOf(c, paneTree)),
-        },
-        {
-          id: TAB_CLOSE_OTHERS_COMMAND_ID,
-          title: 'content.tabMenu.closeOthers',
-          run: (c) =>
-            tabs.closeOthers(
-              menuContextString(c, 'tabId'),
-              paneOf(c, paneTree),
-            ),
-        },
-        {
-          id: TAB_CLOSE_RIGHT_COMMAND_ID,
-          title: 'content.tabMenu.closeRight',
-          run: (c) =>
-            tabs.closeToRight(
-              menuContextString(c, 'tabId'),
-              paneOf(c, paneTree),
-            ),
-        },
-        {
-          id: TAB_CLOSE_ALL_COMMAND_ID,
-          title: 'content.tabMenu.closeAll',
-          run: (c) => tabs.closeAll(paneOf(c, paneTree)),
-        },
-      ],
-      items: [
-        {
-          id: menuEntryId(TAB_CLOSE_COMMAND_ID),
-          menu: TAB_CONTEXT_MENU,
-          command: TAB_CLOSE_COMMAND_ID,
-          group: '1_close',
-          order: 0,
-          when: { closable: true },
-        },
-        {
-          id: menuEntryId(TAB_CLOSE_OTHERS_COMMAND_ID),
-          menu: TAB_CONTEXT_MENU,
-          command: TAB_CLOSE_OTHERS_COMMAND_ID,
-          group: '1_close',
-          order: 1,
-        },
-        {
-          id: menuEntryId(TAB_CLOSE_RIGHT_COMMAND_ID),
-          menu: TAB_CONTEXT_MENU,
-          command: TAB_CLOSE_RIGHT_COMMAND_ID,
-          group: '1_close',
-          order: 2,
-        },
-        {
-          id: menuEntryId(TAB_CLOSE_ALL_COMMAND_ID),
-          menu: TAB_CONTEXT_MENU,
-          command: TAB_CLOSE_ALL_COMMAND_ID,
-          group: '1_close',
-          order: 3,
-        },
+      entries: [
+        tabEntry(
+          {
+            id: TAB_CLOSE_COMMAND_ID,
+            title: 'content.tabMenu.close',
+            run: (c) =>
+              tabs.close(menuContextString(c, 'tabId'), paneOf(c, paneTree)),
+          },
+          { group: '1_close', order: 0, when: { closable: true } },
+        ),
+        tabEntry(
+          {
+            id: TAB_CLOSE_OTHERS_COMMAND_ID,
+            title: 'content.tabMenu.closeOthers',
+            run: (c) =>
+              tabs.closeOthers(
+                menuContextString(c, 'tabId'),
+                paneOf(c, paneTree),
+              ),
+          },
+          { group: '1_close', order: 1 },
+        ),
+        tabEntry(
+          {
+            id: TAB_CLOSE_RIGHT_COMMAND_ID,
+            title: 'content.tabMenu.closeRight',
+            run: (c) =>
+              tabs.closeToRight(
+                menuContextString(c, 'tabId'),
+                paneOf(c, paneTree),
+              ),
+          },
+          { group: '1_close', order: 2 },
+        ),
+        tabEntry(
+          {
+            id: TAB_CLOSE_ALL_COMMAND_ID,
+            title: 'content.tabMenu.closeAll',
+            run: (c) => tabs.closeAll(paneOf(c, paneTree)),
+          },
+          { group: '1_close', order: 3 },
+        ),
       ],
     },
     {
       on: content.pin,
-      commands: [
-        {
-          id: TAB_TOGGLE_PIN_COMMAND_ID,
-          title: 'content.tabMenu.pinned',
-          run: (c) => {
-            const tabId = menuContextString(c, 'tabId');
-            const pane = paneOf(c, paneTree);
-            if (pane) {
-              paneTree[c?.['pinned'] ? 'unpinTab' : 'pinTab'](
-                pane.dock,
-                pane.paneId,
-                tabId,
-              );
-              return;
-            }
-            if (c?.['pinned']) {
-              tabs.unpin(tabId);
-            } else {
-              tabs.pin(tabId);
-            }
+      entries: [
+        tabEntry(
+          {
+            id: TAB_TOGGLE_PIN_COMMAND_ID,
+            title: 'content.tabMenu.pinned',
+            run: (c) => togglePin(c, deps),
           },
-        },
-      ],
-      items: [
-        {
-          id: menuEntryId(TAB_TOGGLE_PIN_COMMAND_ID),
-          menu: TAB_CONTEXT_MENU,
-          command: TAB_TOGGLE_PIN_COMMAND_ID,
-          group: '2_pin',
-          order: 0,
-          when: { closable: true },
-          checkedWhen: { pinned: true },
-        },
+          {
+            group: '2_pin',
+            order: 0,
+            when: { closable: true },
+            checkedWhen: { pinned: true },
+          },
+        ),
       ],
     },
     {
-      on: switches.windows.popout,
-      commands: [
-        {
-          id: TAB_OPEN_IN_WINDOW_COMMAND_ID,
-          title: 'content.tabMenu.openInNewWindow',
-          icon: 'popout',
-          run: (c: MenuContext | undefined) =>
-            popout.open(menuContextString(c, 'tabId')),
-        },
-      ],
-      items: [
-        {
-          id: menuEntryId(TAB_OPEN_IN_WINDOW_COMMAND_ID),
-          menu: TAB_CONTEXT_MENU,
-          command: TAB_OPEN_IN_WINDOW_COMMAND_ID,
-          group: '3_window',
-          order: 0,
-        },
+      on: features.windows.popout,
+      entries: [
+        tabEntry(
+          {
+            id: TAB_OPEN_IN_WINDOW_COMMAND_ID,
+            title: 'content.tabMenu.openInNewWindow',
+            icon: 'popout',
+            run: (c) => popout.open(menuContextString(c, 'tabId')),
+          },
+          { group: '3_window', order: 0 },
+        ),
       ],
     },
     {
       on: content.splitRight,
-      commands: [
-        {
-          id: TAB_SPLIT_RIGHT_COMMAND_ID,
-          title: 'content.split.splitRight',
-          icon: 'splitPanes',
-          run: (c) =>
-            paneMove.splitTabOut(
-              menuContextString(c, 'tabId'),
-              'row',
-              paneOf(c, paneTree),
-            ),
-        },
-      ],
-      items: [
-        {
-          id: menuEntryId(TAB_SPLIT_RIGHT_COMMAND_ID),
-          menu: TAB_CONTEXT_MENU,
-          command: TAB_SPLIT_RIGHT_COMMAND_ID,
-          group: '0_split',
-          order: 0,
-          when: { closable: true, sole: false },
-        },
+      entries: [
+        tabEntry(
+          {
+            id: TAB_SPLIT_RIGHT_COMMAND_ID,
+            title: 'content.split.splitRight',
+            icon: 'splitPanes',
+            run: (c) =>
+              paneMove.splitTabOut(
+                menuContextString(c, 'tabId'),
+                'row',
+                paneOf(c, paneTree),
+              ),
+          },
+          { group: '0_split', order: 0, when: { closable: true, sole: false } },
+        ),
       ],
     },
     {
       on: content.splitDown,
-      commands: [
-        {
-          id: TAB_SPLIT_DOWN_COMMAND_ID,
-          title: 'content.split.splitDown',
-          icon: 'splitPanesDown',
-          run: (c) =>
-            paneMove.splitTabOut(
-              menuContextString(c, 'tabId'),
-              'column',
-              paneOf(c, paneTree),
-            ),
-        },
-      ],
-      items: [
-        {
-          id: menuEntryId(TAB_SPLIT_DOWN_COMMAND_ID),
-          menu: TAB_CONTEXT_MENU,
-          command: TAB_SPLIT_DOWN_COMMAND_ID,
-          group: '0_split',
-          order: 1,
-          when: { closable: true, sole: false },
-        },
+      entries: [
+        tabEntry(
+          {
+            id: TAB_SPLIT_DOWN_COMMAND_ID,
+            title: 'content.split.splitDown',
+            icon: 'splitPanesDown',
+            run: (c) =>
+              paneMove.splitTabOut(
+                menuContextString(c, 'tabId'),
+                'column',
+                paneOf(c, paneTree),
+              ),
+          },
+          { group: '0_split', order: 1, when: { closable: true, sole: false } },
+        ),
       ],
     },
   ];
   for (const group of groups) {
-    whileOn(injector, group.on, () => register(registry, group));
+    whileOn(deps.injector, group.on, () => register(registry, group));
   }
+}
+
+function tabEntry(command: Command, placement: Placement): TabMenuEntry {
+  return {
+    command,
+    item: {
+      id: menuEntryId(command.id),
+      menu: TAB_CONTEXT_MENU,
+      command: command.id,
+      ...placement,
+    },
+  };
 }
 
 function register(
@@ -231,11 +195,30 @@ function register(
   group: TabMenuGroup,
 ): Disposable {
   return disposeTogether([
-    ...group.commands.map((command) =>
+    ...group.entries.map(({ command }) =>
       registry.addCommand({ ...command, paletteHidden: true }),
     ),
-    ...group.items.map((item) => registry.addMenuItem(item)),
+    ...group.entries.map(({ item }) => registry.addMenuItem(item)),
   ]);
+}
+
+function togglePin(context: MenuContext | undefined, deps: TabMenuDeps): void {
+  const tabId = menuContextString(context, 'tabId');
+  const pinned = Boolean(context?.['pinned']);
+  const pane = paneOf(context, deps.paneTree);
+  if (pane === undefined) {
+    if (pinned) {
+      deps.tabs.unpin(tabId);
+    } else {
+      deps.tabs.pin(tabId);
+    }
+    return;
+  }
+  if (pinned) {
+    deps.paneTree.unpinTab(pane.dock, pane.paneId, tabId);
+  } else {
+    deps.paneTree.pinTab(pane.dock, pane.paneId, tabId);
+  }
 }
 
 function paneOf(

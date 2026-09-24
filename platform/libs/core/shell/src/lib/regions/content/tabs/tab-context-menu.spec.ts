@@ -47,15 +47,14 @@ describe('registerTabContextMenu', () => {
     });
     registry = TestBed.inject(ContributionRegistry);
     commands = TestBed.inject(CommandService);
-    registerTabContextMenu(
-      registry,
-      TestBed.inject(ContentTabsService),
-      TestBed.inject(PaneMoveService),
-      TestBed.inject(PaneTreeService),
+    registerTabContextMenu(registry, {
+      tabs: TestBed.inject(ContentTabsService),
+      paneMove: TestBed.inject(PaneMoveService),
+      paneTree: TestBed.inject(PaneTreeService),
       popout,
-      TestBed.inject(FeatureSwitches),
-      TestBed.inject(Injector),
-    );
+      features: TestBed.inject(FeatureSwitches),
+      injector: TestBed.inject(Injector),
+    });
     TestBed.inject(ApplicationRef).tick();
   });
 
@@ -205,15 +204,14 @@ describe('registerTabContextMenu', () => {
       ],
     });
     const bed = TestBed.inject(ContributionRegistry);
-    registerTabContextMenu(
-      bed,
-      TestBed.inject(ContentTabsService),
-      TestBed.inject(PaneMoveService),
-      TestBed.inject(PaneTreeService),
+    registerTabContextMenu(bed, {
+      tabs: TestBed.inject(ContentTabsService),
+      paneMove: TestBed.inject(PaneMoveService),
+      paneTree: TestBed.inject(PaneTreeService),
       popout,
-      TestBed.inject(FeatureSwitches),
-      TestBed.inject(Injector),
-    );
+      features: TestBed.inject(FeatureSwitches),
+      injector: TestBed.inject(Injector),
+    });
     TestBed.inject(ApplicationRef).tick();
     const ids = bed.commands().map((command) => command.id);
     expect(ids).not.toContain('shell.tab.close');
