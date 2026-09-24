@@ -31,7 +31,7 @@ describe('buildContentRoutes', () => {
     expect(route.component).toBe(SurfaceRouteStub);
   });
 
-  it('maps a component route to the stub, carrying chromeless in data', () => {
+  it('maps a component route to the stub, marked as content', () => {
     const [route] = buildContentRoutes([
       {
         path: 'reports',
@@ -42,65 +42,16 @@ describe('buildContentRoutes', () => {
 
     expect(route.path).toBe('reports');
     expect(route.component).toBe(SurfaceRouteStub);
-    expect(route.data).toMatchObject({
-      content: true,
-      chromeless: true,
-    });
-    expect(route.data?.['iframe']).toBeUndefined();
+    expect(route.data).toEqual({ content: true });
   });
 
-  it('stamps the effective retention into route data', () => {
-    const [plain] = buildContentRoutes([
-      { path: 'plain', component: TestRoute },
-    ]);
-    const [declared] = buildContentRoutes([
-      { path: 'editor', component: TestRoute, retain: 'always' },
-    ]);
-    const [frame] = buildContentRoutes(
-      [{ path: 'frame', iframe: '/f.html', retain: 'always' }],
-      [],
-      'destroy',
-    );
-    const [container] = buildContentRoutes(
-      [
-        {
-          path: 'ws/:id',
-          container: { children: ['a'] },
-          retain: 'always',
-        } as never,
-      ],
-      [],
-      'retain',
-    );
-    const [flipped] = buildContentRoutes(
-      [{ path: 'plain', component: TestRoute }],
-      [],
-      'retain',
-    );
-    const [optedOut] = buildContentRoutes(
-      [{ path: 'scratch', component: TestRoute, retain: 'never' }],
-      [],
-      'retain',
-    );
-
-    expect(plain.data?.['retain']).toBe(false);
-    expect(declared.data?.['retain']).toBe(true);
-    expect(frame.data?.['retain']).toBe(true);
-    expect(container.data?.['retain']).toBe(false);
-    expect(flipped.data?.['retain']).toBe(true);
-    expect(optedOut.data?.['retain']).toBe(false);
-  });
-
-  it('maps an iframe route to the stub that owns its URL, carrying the URL in data', () => {
+  it('maps an iframe route to the stub, marked as content', () => {
     const [route] = buildContentRoutes([
       { path: 'sandbox-rpc', iframe: '/plugin/view.html' },
     ]);
 
     expect(route.component).toBe(SurfaceRouteStub);
-    expect(route.data).toMatchObject({
-      content: true,
-      iframe: '/plugin/view.html',
-    });
+    expect(route.data).toEqual({ content: true });
   });
 
   it('maps a retained component route to the stub — the stash owns the instance, keyed by pane (TreeWeaver #42)', () => {
@@ -111,20 +62,7 @@ describe('buildContentRoutes', () => {
 
     expect(retained.component).toBe(SurfaceRouteStub);
     expect(retained.loadComponent).toBeUndefined();
-    expect(retained.data).toMatchObject({ retain: true });
     expect(plain.component).toBe(SurfaceRouteStub);
-    expect(plain.data).toMatchObject({ retain: false });
-  });
-
-  it('the retention default flips every undeclared route onto the stub as well', () => {
-    const [route] = buildContentRoutes(
-      [{ path: 'search', component: TestRoute }],
-      [],
-      'retain',
-    );
-
-    expect(route.component).toBe(SurfaceRouteStub);
-    expect(route.data).toMatchObject({ retain: true });
   });
 
   it('generates child routes for subRoutes: an empty-rest stub + one per sub', () => {
@@ -142,17 +80,17 @@ describe('buildContentRoutes', () => {
         path: '',
         pathMatch: 'full',
         component: expect.any(Function),
-        data: { content: true, sub: true },
+        data: { content: true },
       },
       {
         path: 'code',
         component: expect.any(Function),
-        data: { content: true, sub: true },
+        data: { content: true },
       },
       {
         path: 'preview',
         component: expect.any(Function),
-        data: { content: true, sub: true },
+        data: { content: true },
       },
     ]);
     expect(route.children?.[1].component).toBe(ContentSubStub);
@@ -184,7 +122,7 @@ describe('buildContentRoutes', () => {
       {
         path: '**',
         component: ContentSubStub,
-        data: { content: true, sub: true },
+        data: { content: true },
       },
     ]);
   });
@@ -225,10 +163,7 @@ describe('buildContentRoutes', () => {
     expect(real.canMatch).toHaveLength(1);
     expect(placeholder.path).toBe('secret');
     expect(placeholder.component).toBe(SurfaceRouteStub);
-    expect(placeholder.data).toMatchObject({
-      content: true,
-      authPlaceholder: true,
-    });
+    expect(placeholder.data).toEqual({ content: true });
     expect(placeholder.canMatch).toBeUndefined();
   });
 
@@ -285,10 +220,7 @@ describe('buildContentRoutes', () => {
     expect(routes).toHaveLength(1);
     expect(routes[0].path).toBe('notes');
     expect(routes[0].component).toBe(SurfaceRouteStub);
-    expect(routes[0].data).toMatchObject({
-      content: true,
-      routePlaceholder: true,
-    });
+    expect(routes[0].data).toEqual({ content: true });
   });
 
   it('keeps omitted placeholders behind the registered routes', () => {
@@ -298,7 +230,6 @@ describe('buildContentRoutes', () => {
     );
 
     expect(routes.map((route) => route.path)).toEqual(['search', 'notes']);
-    expect(routes[1].data).toMatchObject({ routePlaceholder: true });
   });
 });
 
@@ -350,22 +281,6 @@ describe('ContentRouter', () => {
   function tick() {
     TestBed.inject(ApplicationRef).tick();
   }
-
-  it('carries the owning plugin into the route data so the surface can check its grants', () => {
-    const content = setup('/');
-    registry.addContentRoute(
-      { path: 'sandbox', iframe: '/p/view.html' } as never,
-      'sandbox-rpc',
-    );
-
-    content.start();
-
-    expect(
-      contentRoutesOf(router.resetConfig.mock.calls[0][0])[0].data,
-    ).toMatchObject({
-      pluginId: 'sandbox-rpc',
-    });
-  });
 
   it('sets the config from the registered routes and starts the initial navigation', () => {
     const content = setup('/');

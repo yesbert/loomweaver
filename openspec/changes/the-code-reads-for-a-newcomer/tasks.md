@@ -66,7 +66,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 
 ## 3. The shell's composition and frame
 
-- [ ] 3.1 Remove code only specs call: `PanelViewsService.candidatesFor` with its type and injections,
+- [x] 3.1 Remove code only specs call: `PanelViewsService.candidatesFor` with its type and injections,
   `ViewVisibilityService.isHidden`/`toggle`, `RailItemsService.toggle`, `LwToken`,
   `PaneSegment.fraction`, `isLeftOut`, the unused `reusableRoute`, and the router data only tests read
   (the router table keeps `content`); move the gated-view curation test to the curation dialog.
