@@ -1,5 +1,5 @@
 import { DOCUMENT } from '@angular/common';
-import { Signal, inject, signal } from '@angular/core';
+import { DestroyRef, Signal, inject, signal } from '@angular/core';
 
 export interface ChartColours {
   readonly brand: string;
@@ -32,6 +32,7 @@ export function chartColours(): Signal<ChartColours> {
     attributes: true,
     attributeFilter: ['class', 'style', 'data-look'],
   });
+  inject(DestroyRef).onDestroy(() => observer.disconnect());
   return colours.asReadonly();
 }
 

@@ -96,7 +96,7 @@ they start with a top-level folder.
   runs under `TZ=Europe/Berlin` and checks the month.
 - [x] 7.2 Quote commands accept quotes created after startup: their choices are read when invoked, not
   fixed at activation (`demo/src/quotes/src/lib/plugin/quotes-commands.ts`).
-- [ ] 7.3 The dashboard's colour observer disconnects when the view is destroyed
+- [x] 7.3 The dashboard's colour observer disconnects when the view is destroyed
   (`demo/src/insights/chart-tokens.ts`).
 - [ ] 7.4 The welcome is shown once the store has answered, also when it answers later
   (`demo/src/about/about.plugin.ts`).
