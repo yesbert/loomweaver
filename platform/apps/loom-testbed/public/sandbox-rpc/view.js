@@ -128,15 +128,31 @@
     if (ticker === null) {
       ticker = setInterval(function () {
         onScreenSeconds += 1;
-        render();
+        showOnScreenSeconds();
       }, 1000);
     }
   }
 
   const shared = globalThis.LwFrame.state.watch('scratch');
-  shared.onChange(function () {
-    render();
-  });
+  shared.onChange(showSharedNote);
+
+  function sharedNote() {
+    return shared.loaded() ? (shared.value()?.note ?? '') : '';
+  }
+
+  function showOnScreenSeconds() {
+    const counter = document.querySelector('[data-testid="sandbox-onscreen"]');
+    if (counter) {
+      counter.textContent = String(onScreenSeconds);
+    }
+  }
+
+  function showSharedNote() {
+    const field = document.querySelector('[data-testid="sandbox-scratch"]');
+    if (field && field !== document.activeElement && field.value !== sharedNote()) {
+      field.value = sharedNote();
+    }
+  }
 
   function activeTab() {
     return SUB_TABS.includes(state.tab) ? state.tab : SUB_TABS[0];
@@ -246,7 +262,7 @@
       t.shared +
       '<input type="text" class="lw-field" data-testid="sandbox-scratch" ' +
       'style="margin-top:0.35rem;width:100%" value="' +
-      escapeHtml(shared.loaded() ? (shared.value()?.note ?? '') : '') +
+      escapeHtml(sharedNote()) +
       '"></label>' +
       '<p class="ctx-hint" style="margin-top:1.25rem;font-size:0.85rem;color:var(--lw-content-muted,#64748b)">' +
       t.ctxHint +
