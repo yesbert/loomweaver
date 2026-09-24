@@ -372,7 +372,9 @@ type Surface = {
 // VIEW_STATE handle by design — for a routed editor, DirtySurface (or retain) is the way unsaved work survives hides.
 // A DIALOG body opened with ui.open implements the same interface: while dirty, every dismissal its dismiss option
 // allows (backdrop, Escape, close control) and a declared button without a value run surfaceBeforeClose, then ask
-// Save · Discard · Cancel. A button with a value and DialogRef.close never ask.
+// Save · Discard · Cancel. A button with a value and DialogRef.close never ask. A body's OWN cancel control calls
+// DialogRef.requestClose(): Promise<boolean> instead, which makes the close-control close (veto, then the question
+// while dirty, Save only with surfaceSave) whatever dismiss says; true once closed, false when cancelled or vetoed.
 interface DirtySurface {
   surfaceDirty(): boolean;              // unsaved changes? read reactively by the host
   surfaceSave?(): Promise<void>;        // optional: enables "Save" in the close dialog + the saveOn:'hide' target

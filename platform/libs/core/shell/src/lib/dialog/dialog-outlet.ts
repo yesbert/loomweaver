@@ -1,5 +1,5 @@
 import { DOCUMENT, NgComponentOutlet } from '@angular/common';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, afterRenderEffect, effect, inject, viewChildren } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, DestroyRef, ElementRef, afterRenderEffect, effect, inject, viewChildren } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LwButton } from '../elements/button/lw-button';
 import { LwSpinner } from '../elements/spinner/lw-spinner';
@@ -61,9 +61,12 @@ export class DialogOutlet {
 
   private readonly bodies = viewChildren(NgComponentOutlet);
 
-  private readonly asking = new Set<string>();
+  private readonly asking = new Map<string, Promise<boolean>>();
 
   constructor() {
+    inject(DestroyRef).onDestroy(
+      this.service.connectDismissal((dialog) => this.requestDismiss(dialog)),
+    );
     effect(() => {
       this.document.body.style.overflow = this.dialogs().length ? 'hidden' : '';
     });
@@ -86,7 +89,7 @@ export class DialogOutlet {
     }
     const top = this.top();
     if (top && this.closesDeliberately(top)) {
-      this.requestDismiss(top);
+      void this.requestDismiss(top);
     }
   }
 
@@ -121,13 +124,13 @@ export class DialogOutlet {
 
   protected onScrim(dialog: DialogInstance): void {
     if (dialog.dismiss === 'any') {
-      this.requestDismiss(dialog);
+      void this.requestDismiss(dialog);
     }
   }
 
   protected onCloseControl(dialog: DialogInstance): void {
     if (this.closesDeliberately(dialog)) {
-      this.requestDismiss(dialog);
+      void this.requestDismiss(dialog);
     }
   }
 
@@ -137,7 +140,7 @@ export class DialogOutlet {
 
   protected onButton(dialog: DialogInstance, button: DialogButtonView): void {
     if (button.role === 'custom' && button.value === undefined) {
-      this.requestDismiss(dialog);
+      void this.requestDismiss(dialog);
     } else if (button.role === 'custom') {
       dialog.ref.close(button.value);
     } else if (button.role === 'cancel') {
@@ -205,25 +208,28 @@ export class DialogOutlet {
     return PANEL_WIDTH[dialog.size ?? 'md'];
   }
 
-  private requestDismiss(dialog: DialogInstance): void {
-    if (this.asking.has(dialog.id)) {
-      return;
+  private requestDismiss(dialog: DialogInstance): Promise<boolean> {
+    const pending = this.asking.get(dialog.id);
+    if (pending) {
+      return pending;
     }
     const body = this.bodyOf(dialog);
     const candidates = body ? [body] : [];
     if (!this.closeGuard.mustAsk(candidates)) {
       dialog.ref.close();
-      return;
+      return Promise.resolve(true);
     }
-    this.asking.add(dialog.id);
-    void this.closeGuard
+    const asked = this.closeGuard
       .confirmClose(candidates)
       .then((approved) => {
         if (approved) {
           dialog.ref.close();
         }
+        return approved;
       })
       .finally(() => this.asking.delete(dialog.id));
+    this.asking.set(dialog.id, asked);
+    return asked;
   }
 
   private bodyOf(dialog: DialogInstance): unknown {

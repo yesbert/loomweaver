@@ -39,6 +39,8 @@ ctx.ui.openSettings();                                              // open the 
 ctx.ui.open(NotesAboutDialog, { data: ctx.host, size: 'md' });
 // dismiss: 'any' (default), 'explicit' (a click beside it does nothing) or 'none'.
 ctx.ui.open(RenameNoteForm, { title: 'Rename', dismiss: 'explicit' });
+// Inside the body: inject(DialogRef).close(result) closes without asking; requestClose() makes the
+// close-control close (asks about unsaved work) and resolves whether the dialog closed.
 
 // Right-click a row in your OWN view body: a host-drawn context menu at the cursor (trusted rung only).
 // The handler gets the MouseEvent and the row; what the items may carry is on Menus.

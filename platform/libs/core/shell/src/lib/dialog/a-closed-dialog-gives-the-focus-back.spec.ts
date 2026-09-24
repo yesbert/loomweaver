@@ -48,6 +48,16 @@ function setup() {
 describe('a closed dialog gives the focus back', () => {
   afterEach(() => document.body.replaceChildren());
 
+  it('returns the focus to the opener when the body asks for the close', async () => {
+    const t = setup();
+    const ref = t.open();
+
+    await ref.requestClose();
+    await t.settled(ref);
+
+    expect(document.activeElement).toBe(t.opener);
+  });
+
   it('returns the focus to the opener when Escape closes the dialog', async () => {
     const t = setup();
     const ref = t.open();

@@ -116,6 +116,21 @@ stray click beside it does nothing while Escape and the close control read as ca
 const name = await ctx.ui.open<string>(RenameNoteForm, { title: 'Rename', dismiss: 'explicit' }).closed;
 ```
 
+A body with its own cancel beside its other buttons, a wizard's "Abbrechen" beside "Weiter", wants
+the question the close control asks, not the silent close. Call `requestClose()` on the `DialogRef`
+it injects: the veto runs, the question is asked while there is unsaved work, and the promise tells
+you whether the dialog closed. It works whatever `dismiss` says, because the control is yours:
+
+```ts
+private readonly ref = inject(DialogRef);
+
+protected async cancel(): Promise<void> {
+  if (!(await this.ref.requestClose())) {
+    this.focusFirstField();
+  }
+}
+```
+
 A dialog whose changes apply as they are made, such as a settings panel, holds nothing unsaved and
 needs neither. [Dialogs and toasts](../distribution-api/dialogs-and-toasts.md) sets the three side by
 side.

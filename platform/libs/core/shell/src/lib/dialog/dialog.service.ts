@@ -108,6 +108,8 @@ export class DialogService {
   private readonly injector = inject(Injector);
   private readonly document = inject(DOCUMENT);
   private readonly items = signal<readonly DialogInstance[]>([]);
+
+  private dismissal: ((dialog: DialogInstance) => Promise<boolean>) | undefined;
   private counter = 0;
 
   /** The currently open dialogs, oldest first (the last one is topmost). */
@@ -209,7 +211,9 @@ export class DialogService {
     component: Type<unknown>,
     options: OpenOptions = {},
   ): DialogRef<R> {
-    const ref = new DialogRef(options.data);
+    const ref: DialogRef = new DialogRef(options.data, () =>
+      this.requestClose(ref),
+    );
     const injector = Injector.create({
       providers: [{ provide: DialogRef, useValue: ref }],
       parent: this.injector,
@@ -274,6 +278,30 @@ export class DialogService {
     } finally {
       handle.close();
     }
+  }
+
+  /**
+   * Connects the outlet that draws the dialogs, so a body's request for the person's close runs the
+   * outlet's own dismissal. Returns the disconnect.
+   */
+  connectDismissal(
+    dismiss: (dialog: DialogInstance) => Promise<boolean>,
+  ): () => void {
+    this.dismissal = dismiss;
+    return () => {
+      if (this.dismissal === dismiss) {
+        this.dismissal = undefined;
+      }
+    };
+  }
+
+  private requestClose(ref: DialogRef): Promise<boolean> {
+    const dialog = this.items().find((open) => open.ref === ref);
+    if (dialog && this.dismissal) {
+      return this.dismissal(dialog);
+    }
+    ref.close();
+    return Promise.resolve(true);
   }
 
   private push(spec: Omit<DialogInstance, 'id' | 'ref'>): DialogRef {
