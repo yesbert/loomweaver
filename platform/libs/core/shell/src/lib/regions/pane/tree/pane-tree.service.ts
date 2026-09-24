@@ -88,7 +88,7 @@ export class PaneTreeService {
     return out;
   }
 
-  holdsAddress(pane: PaneRef): boolean {
+  carriesAddress(pane: PaneRef): boolean {
     return (
       pane.dock === CONTENT_DOCK && pane.paneId === this.primaryId(CONTENT_DOCK)
     );
@@ -198,7 +198,7 @@ export class PaneTreeService {
     return this.sourceOf(path) !== null;
   }
 
-  sourceOf(path: string): { dock: string; paneId: string } | null {
+  sourceOf(path: string): PaneRef | null {
     for (const [dock, entry] of Object.entries(this.docks())) {
       const paneId = tabHolderOf(entry.node, path);
       if (paneId !== null) {

@@ -12,9 +12,9 @@ import {
   paneRetentionScope,
 } from './retention/retention-keys';
 import { RetainedViewStash } from './retention/retained-view-stash';
-import { isContainerDock } from './container/container-children';
+import { isContentSideDock } from './container/container-children';
 import { LeftOutChildren } from './container/left-out-children';
-import { CONTENT_DOCK } from './tree/pane-address';
+import { CONTENT_DOCK, isSamePane } from './tree/pane-address';
 import { TabKeep, keepsOnPaneClose } from './tree/pane-handover';
 import { PaneLeaf, leafPath } from './tree/pane-node';
 import { findLeaf, leavesOf } from './tree/pane-queries';
@@ -126,7 +126,7 @@ export class PaneActions {
     if (
       source === null ||
       this.leaf(dock, paneId) === null ||
-      (source.dock === dock && source.paneId === paneId)
+      isSamePane(source, { dock, paneId })
     ) {
       return;
     }
@@ -138,9 +138,9 @@ export class PaneActions {
   }
 
   private addressCarriedBy(dock: string, paneId: string): string | undefined {
-    const address =
-      dock === CONTENT_DOCK && paneId === this.paneTree.primaryId(dock);
-    return address ? this.tabs.activeTabRoot() : undefined;
+    return this.paneTree.carriesAddress({ dock, paneId })
+      ? this.tabs.activeTabRoot()
+      : undefined;
   }
 
   private leaf(dock: string, paneId: string): PaneLeaf | null {
@@ -149,7 +149,7 @@ export class PaneActions {
 
   private keepsOnClose(dock: string): TabKeep {
     const keeps = keepsOnPaneClose(
-      dock === CONTENT_DOCK || isContainerDock(dock),
+      isContentSideDock(dock),
       this.features.close(),
     );
     return (tab) => keeps(tab) || this.leftOut.hides(tab.path);

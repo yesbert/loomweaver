@@ -70,6 +70,10 @@ const tree = {
   isSplit: vi.fn(() => true),
   tree: vi.fn(() => leafOf('p1', 'doc/a')),
   primaryId: vi.fn(() => 'main'),
+  carriesAddress: vi.fn(
+    (pane: { dock: string; paneId: string }) =>
+      pane.dock === 'content' && pane.paneId === tree.primaryId(),
+  ),
 };
 const containers = {
   insertContainerChild: vi.fn(),

@@ -1,5 +1,10 @@
 import { inject, Service } from '@angular/core';
-import { CONTENT_DOCK, VIEW_PANE_PREFIX, PaneRef } from '../tree/pane-address';
+import {
+  CONTENT_DOCK,
+  VIEW_PANE_PREFIX,
+  PaneRef,
+  isSamePane,
+} from '../tree/pane-address';
 import {
   PRIMARY_LEAF,
   PaneLeaf,
@@ -13,7 +18,7 @@ import { isContainerDock } from '../container/container-children';
 import { insertTab, removeTab } from '../tree/pane-tabs';
 import { tabWithout } from '../tree/pane-node';
 import { PaneTreeService } from '../tree/pane-tree.service';
-import { PaneDragService, TabDragSource } from './pane-drag.service';
+import { PaneDragService } from './pane-drag.service';
 import { ContentTabsService } from '../../content/tabs/content-tabs.service';
 import { matchRoute, tabRootOf } from '../../content/content-path';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
@@ -21,7 +26,7 @@ import { LeftOutChildren } from '../container/left-out-children';
 
 export type PaneDropEdge = 'top' | 'bottom' | 'left' | 'right';
 
-export function stripSourceOf(listId: string): TabDragSource | null {
+export function stripSourceOf(listId: string): PaneRef | null {
   const parts = listId.split(':');
   if (parts[0] !== 'pane-strip' || parts.length !== 3) {
     return null;
@@ -29,7 +34,7 @@ export function stripSourceOf(listId: string): TabDragSource | null {
   return { dock: unescapeColons(parts[1]), paneId: unescapeColons(parts[2]) };
 }
 
-export function stripIdOf(source: TabDragSource): string {
+export function stripIdOf(source: PaneRef): string {
   return `pane-strip:${escapeColons(source.dock)}:${escapeColons(source.paneId)}`;
 }
 
@@ -56,19 +61,16 @@ export class PaneMoveService {
   private readonly leftOut = inject(LeftOutChildren);
 
   moveToStrip(
-    source: TabDragSource,
+    source: PaneRef,
     rawPath: string,
-    target: TabDragSource,
+    target: PaneRef,
     index?: number,
   ): void {
     const tab = this.resolveTab(source, rawPath);
-    if (
-      !tab ||
-      (source.dock === target.dock && source.paneId === target.paneId)
-    ) {
+    if (!tab || isSamePane(source, target)) {
       return;
     }
-    const at = this.isUrlGroup(target)
+    const at = this.paneTree.carriesAddress(target)
       ? undefined
       : this.storedIndex(target, index);
     const follow = this.urlFollowup(source, tab);
@@ -80,18 +82,16 @@ export class PaneMoveService {
   }
 
   moveToEdge(
-    source: TabDragSource,
+    source: PaneRef,
     rawPath: string,
-    target: TabDragSource,
+    target: PaneRef,
     edge: PaneDropEdge,
   ): void {
     const tab = this.resolveTab(source, rawPath);
     if (!tab) {
       return;
     }
-    const samePane =
-      source.dock === target.dock && source.paneId === target.paneId;
-    if (samePane && !this.sourceRetainsContent(source, tab)) {
+    if (isSamePane(source, target) && !this.sourceRetainsContent(source, tab)) {
       return;
     }
     const follow = this.urlFollowup(source, tab);
@@ -115,7 +115,7 @@ export class PaneMoveService {
     orientation: 'row' | 'column',
     pane?: PaneRef,
   ): void {
-    const source: TabDragSource = pane ?? {
+    const source: PaneRef = pane ?? {
       dock: CONTENT_DOCK,
       paneId: this.paneTree.primaryId(CONTENT_DOCK),
     };
@@ -128,7 +128,7 @@ export class PaneMoveService {
   }
 
   private relocateTab(
-    source: TabDragSource,
+    source: PaneRef,
     tab: PaneTab,
     targetDock: string,
     applyToTarget: (tree: PaneNode) => PaneNode,
@@ -152,28 +152,21 @@ export class PaneMoveService {
     );
   }
 
-  private resolveTab(
-    source: TabDragSource,
-    rawPath: string,
-  ): PaneTab | undefined {
+  private resolveTab(source: PaneRef, rawPath: string): PaneTab | undefined {
     const leaf = findLeaf(this.paneTree.tree(source.dock), source.paneId);
     if (!leaf) {
       return undefined;
     }
     const exact = leaf.tabs.find((tab) => tab.path === rawPath);
-    if (exact || !this.isUrlGroup(source)) {
+    if (exact || !this.paneTree.carriesAddress(source)) {
       return exact;
     }
     const routes = this.registry.contentRoutes();
     return leaf.tabs.find((tab) => tabRootOf(routes, tab.path) === rawPath);
   }
 
-  private isUrlGroup(source: TabDragSource): boolean {
-    return this.paneTree.holdsAddress(source);
-  }
-
   private storedIndex(
-    target: TabDragSource,
+    target: PaneRef,
     drawn: number | undefined,
   ): number | undefined {
     const tabs =
@@ -186,22 +179,25 @@ export class PaneMoveService {
     return before ? tabs.indexOf(before) : tabs.length;
   }
 
-  private tabCount(source: TabDragSource): number {
+  private tabCount(source: PaneRef): number {
     return (
       findLeaf(this.paneTree.tree(source.dock), source.paneId)?.tabs.length ?? 0
     );
   }
 
-  private sourceRetainsContent(source: TabDragSource, tab: PaneTab): boolean {
+  private sourceRetainsContent(source: PaneRef, tab: PaneTab): boolean {
     if (this.tabCount(source) > 1) {
       return true;
     }
-    return this.isUrlGroup(source) && this.tabs.neighbourOf(tab.path) !== '';
+    return (
+      this.paneTree.carriesAddress(source) &&
+      this.tabs.neighbourOf(tab.path) !== ''
+    );
   }
 
   private removeSourceTab(
     tree: PaneNode,
-    source: TabDragSource,
+    source: PaneRef,
     tab: PaneTab,
   ): PaneNode {
     return (
@@ -223,8 +219,8 @@ export class PaneMoveService {
     );
   }
 
-  private urlFollowup(source: TabDragSource, tab: PaneTab): string | null {
-    if (!this.isUrlGroup(source)) {
+  private urlFollowup(source: PaneRef, tab: PaneTab): string | null {
+    if (!this.paneTree.carriesAddress(source)) {
       return null;
     }
     const routes = this.registry.contentRoutes();
@@ -234,11 +230,11 @@ export class PaneMoveService {
   }
 
   private afterArrival(
-    target: TabDragSource,
+    target: PaneRef,
     tab: PaneTab,
     urlFollowup: string | null,
   ): void {
-    if (this.isUrlGroup(target)) {
+    if (this.paneTree.carriesAddress(target)) {
       if (tab.path.startsWith(VIEW_PANE_PREFIX)) {
         this.tabs.activateViewTab(tab.path);
       } else {

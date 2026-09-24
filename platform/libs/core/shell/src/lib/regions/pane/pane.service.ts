@@ -48,17 +48,19 @@ export class PaneService {
   private readonly actions = inject(PaneActions);
 
   /** Every pane of the content area, in layout order. */
-  readonly panes: Signal<readonly PaneFacts[]> = computed(() => {
-    const primary = this.paneTree.primaryId(CONTENT_DOCK);
-    return leavesOf(this.paneTree.tree(CONTENT_DOCK)).map((leaf) => ({
+  readonly panes: Signal<readonly PaneFacts[]> = computed(() =>
+    leavesOf(this.paneTree.tree(CONTENT_DOCK)).map((leaf) => ({
       handle: paneHandle(leaf.id),
       showing: leafPath(leaf) ?? null,
       itemCount: leaf.tabs.length,
-      carriesAddress: leaf.id === primary,
+      carriesAddress: this.paneTree.carriesAddress({
+        dock: CONTENT_DOCK,
+        paneId: leaf.id,
+      }),
       maximized: this.chrome.isMaximized(CONTENT_DOCK, leaf.id),
       minimized: this.chrome.isMinimized(CONTENT_DOCK, leaf.id),
-    }));
-  });
+    })),
+  );
 
   /** The pane that carries the address; the default target of every action. */
   readonly activePane: Signal<PaneHandle> = computed(() =>

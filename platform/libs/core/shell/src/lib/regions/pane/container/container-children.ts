@@ -1,5 +1,6 @@
 import { ContainerChild, ContainerSpec, View } from '@loomweaver/plugin-sdk';
 import { matchRoute, segmentsOf } from '../../content/content-path';
+import { CONTENT_DOCK } from '../tree/pane-address';
 
 export interface ContainerChildDeclaration {
   readonly surface: string;
@@ -63,6 +64,10 @@ export function containerDockFor(path: string): string {
 
 export function isContainerDock(dock: string): boolean {
   return dock.startsWith(CONTAINER_DOCK_PREFIX);
+}
+
+export function isContentSideDock(dock: string): boolean {
+  return dock === CONTENT_DOCK || isContainerDock(dock);
 }
 
 export function containerPathOfDock(dock: string): string {

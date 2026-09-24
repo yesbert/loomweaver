@@ -1,11 +1,12 @@
 import { inject, Service, signal } from '@angular/core';
 import { PaneTreeService } from '../tree/pane-tree.service';
 import { findLeaf } from '../tree/pane-queries';
+import { PaneRef } from '../tree/pane-address';
 
 @Service()
 export class PaneChromeService {
   private readonly paneTree = inject(PaneTreeService);
-  private readonly max = signal<{ dock: string; paneId: string } | null>(null);
+  private readonly max = signal<PaneRef | null>(null);
   private readonly min = signal<ReadonlySet<string>>(new Set());
 
   isMaximized(dock: string, paneId: string): boolean {

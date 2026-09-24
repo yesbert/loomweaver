@@ -6,11 +6,6 @@ import { matchRoute } from '../../content/content-path';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { AuthContext } from '../../../auth/auth-context';
 
-export interface TabDragSource {
-  readonly dock: string;
-  readonly paneId: string;
-}
-
 @Service()
 export class PaneDragService {
   private readonly registry = inject(ContributionRegistry);

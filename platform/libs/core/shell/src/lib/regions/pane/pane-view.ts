@@ -8,12 +8,11 @@ import {
 import { CONTENT_DOCK, PaneRef, VIEW_PANE_PREFIX } from './tree/pane-address';
 import { PaneLeaf, activeTab, leafPath } from './tree/pane-node';
 import { CONTAINER_CONTEXT } from './container/container-context';
-import { isContainerDock } from './container/container-children';
+import { isContentSideDock } from './container/container-children';
 import { PaneTreeService } from './tree/pane-tree.service';
 import { PaneContainersService } from './container/pane-containers.service';
 import { PaneChromeService } from './chrome/pane-chrome.service';
 import { PaneActions } from './pane-actions.service';
-import { TabDragSource } from './drag/pane-drag.service';
 import { PaneTabStrip } from './chrome/pane-tab-strip';
 import { StripTab } from './chrome/strip-tab';
 import { PaneToolbar } from './chrome/pane-toolbar';
@@ -114,12 +113,7 @@ export class PaneView {
     this.containerCtx || this.dock() !== CONTENT_DOCK ? '' : TAB_CONTEXT_MENU,
   );
 
-  private readonly pane = computed<PaneRef>(() => ({
-    dock: this.dock(),
-    paneId: this.leaf().id,
-  }));
-
-  protected readonly source = computed<TabDragSource>(() => ({
+  protected readonly pane = computed<PaneRef>(() => ({
     dock: this.dock(),
     paneId: this.leaf().id,
   }));
@@ -146,8 +140,8 @@ export class PaneView {
     () => this.leaf().id === this.paneTree.primaryId(this.dock()),
   );
 
-  protected readonly carriesAddress = computed(
-    () => this.dock() === CONTENT_DOCK && this.isPrimary(),
+  protected readonly carriesAddress = computed(() =>
+    this.paneTree.carriesAddress(this.pane()),
   );
 
   protected readonly bodyPath = computed(() =>
@@ -176,9 +170,7 @@ export class PaneView {
       (!this.contentSide() || this.features.close()),
   );
 
-  private readonly contentSide = computed(
-    () => this.dock() === CONTENT_DOCK || isContainerDock(this.dock()),
-  );
+  private readonly contentSide = computed(() => isContentSideDock(this.dock()));
 
   protected readonly tabsReorderable = computed(() =>
     tabsReorderable(this.features, this.contentSide()),
@@ -205,9 +197,7 @@ export class PaneView {
   protected readonly focusable = computed(() => this.options().focus);
 
   protected readonly pointed = computed(
-    () =>
-      this.options().pointer &&
-      this.leaf().id === this.paneTree.primaryId(this.dock()),
+    () => this.options().pointer && this.isPrimary(),
   );
 
   protected onBodyPointerDown(): void {

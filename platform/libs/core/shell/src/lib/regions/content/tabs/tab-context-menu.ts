@@ -247,5 +247,7 @@ function holdingPane(
 ): PaneRef | undefined {
   const tabId = context?.['tabId'];
   const holder = typeof tabId === 'string' ? paneTree.sourceOf(tabId) : null;
-  return holder === null || paneTree.holdsAddress(holder) ? undefined : holder;
+  return holder === null || paneTree.carriesAddress(holder)
+    ? undefined
+    : holder;
 }

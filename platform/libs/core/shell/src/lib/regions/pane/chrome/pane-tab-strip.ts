@@ -27,12 +27,12 @@ import { MenuContext, ViewAction } from '@loomweaver/plugin-sdk';
 import { MENU_ANCHOR_GAP, MenuService } from '../../../menu/menu.service';
 import { MenuTriggerDirective } from '../../../menu/menu-trigger.directive';
 import { Reorderable } from '../../reorder/reorderable.directive';
-import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../tree/pane-address';
+import { CONTENT_DOCK, VIEW_PANE_PREFIX, PaneRef } from '../tree/pane-address';
 import { paneRetentionScope } from '../retention/retention-keys';
 import { UnsavedWork } from '../unsaved-work/unsaved-work';
 import { resolveTitle } from './tab-label';
 import { FeatureSwitches } from '../../../features/feature-switches.service';
-import { PaneDragService, TabDragSource } from '../drag/pane-drag.service';
+import { PaneDragService } from '../drag/pane-drag.service';
 import {
   PaneMoveService,
   stripIdOf,
@@ -69,7 +69,7 @@ export class PaneTabStrip {
 
   readonly acceptsTabs = input<TabAcceptance>(false);
 
-  readonly source = input.required<TabDragSource>();
+  readonly source = input.required<PaneRef>();
 
   readonly variant = input<'titles' | 'icons'>('titles');
 
