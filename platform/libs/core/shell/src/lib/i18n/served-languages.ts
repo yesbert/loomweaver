@@ -8,7 +8,7 @@ export const SERVED_LANGUAGES = new InjectionToken<readonly string[]>(
   { providedIn: 'root', factory: () => SHIPPED_LANGUAGES },
 );
 
-const LAST_RESORT = 'en';
+export const FALLBACK_LANGUAGE = 'en';
 
 function canonicalOrNull(code: string): string | null {
   try {
@@ -100,7 +100,7 @@ export function detectInitialLang(served: readonly string[]): string {
       return match;
     }
   }
-  return served.includes(LAST_RESORT)
-    ? LAST_RESORT
-    : (served[0] ?? LAST_RESORT);
+  return served.includes(FALLBACK_LANGUAGE)
+    ? FALLBACK_LANGUAGE
+    : (served[0] ?? FALLBACK_LANGUAGE);
 }

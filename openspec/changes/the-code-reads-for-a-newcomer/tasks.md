@@ -53,7 +53,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   `lwLabel` pipe for "a key unless marked literal" in the tab strip and the minimised strip.
 - [x] 2.9 Host command ids are exported constants beside their registration, and the `menu:` entry id
   convention is written once; the composition report uses the same constants.
-- [ ] 2.10 The fallback language is one constant; the feedback-tone colour mapping shared by dialog and
+- [x] 2.10 The fallback language is one constant; the feedback-tone colour mapping shared by dialog and
   toast lives in one place both slices may read.
 - [ ] 2.11 A shared wide-dialog frame in `dialog/` (title, maximise and restore, close, height) replaces
   the copied headers of the settings dialog and the plugin store dialog.

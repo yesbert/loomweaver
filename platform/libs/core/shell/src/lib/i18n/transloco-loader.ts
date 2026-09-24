@@ -1,8 +1,14 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, InjectionToken, isDevMode, Provider, Service } from '@angular/core';
+import {
+  inject,
+  InjectionToken,
+  isDevMode,
+  Provider,
+  Service,
+} from '@angular/core';
 import { Translation, TranslocoLoader } from '@jsverse/transloco';
 import { catchError, forkJoin, map, Observable, of } from 'rxjs';
-import { SHIPPED_LANGUAGES } from './served-languages';
+import { FALLBACK_LANGUAGE, SHIPPED_LANGUAGES } from './served-languages';
 
 const TRANSLATION_NAMESPACE_DECLARATIONS = new InjectionToken<
   readonly (readonly string[])[]
@@ -23,7 +29,9 @@ export const TRANSLATION_NAMESPACES = new InjectionToken<readonly string[]>(
     providedIn: 'root',
     factory: () =>
       distinct(
-        (inject(TRANSLATION_NAMESPACE_DECLARATIONS, { optional: true }) ?? []).flat(),
+        (
+          inject(TRANSLATION_NAMESPACE_DECLARATIONS, { optional: true }) ?? []
+        ).flat(),
       ),
   },
 );
@@ -99,8 +107,6 @@ export function provideTranslationOverrides(
 const MISSING_OVERLAY: Translation = {};
 
 const MISSING_HOST: Translation = {};
-
-const ENGLISH = 'en';
 
 function isGroup(value: unknown): value is Translation {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -201,16 +207,18 @@ export class TranslocoHttpLoader implements TranslocoLoader {
     }
     return forkJoin([
       supplied$.pipe(catchError(() => of<Translation>(MISSING_HOST))),
-      this.http.get<Translation>(`/i18n/${ENGLISH}.json`),
+      this.http.get<Translation>(`/i18n/${FALLBACK_LANGUAGE}.json`),
     ]).pipe(
-      map(([supplied, english]) => this.overEnglish(lang, supplied, english)),
+      map(([supplied, fallback]) =>
+        this.overFallback(lang, supplied, fallback),
+      ),
     );
   }
 
-  private overEnglish(
+  private overFallback(
     lang: string,
     supplied: Translation,
-    english: Translation,
+    fallback: Translation,
   ): Translation {
     if (supplied === MISSING_HOST) {
       this.reportOnce(
@@ -218,9 +226,11 @@ export class TranslocoHttpLoader implements TranslocoLoader {
         `No workbench strings for "${lang}" at /i18n/${lang}.json, so the workbench is shown in ` +
           `English while it is active.`,
       );
-      return english;
+      return fallback;
     }
-    const missing = leafKeys(english).filter((path) => !hasKey(supplied, path));
+    const missing = leafKeys(fallback).filter(
+      (path) => !hasKey(supplied, path),
+    );
     if (missing.length > 0) {
       this.reportOnce(
         lang,
@@ -228,7 +238,7 @@ export class TranslocoHttpLoader implements TranslocoLoader {
           `${missing.join(', ')}.`,
       );
     }
-    return mergeTranslation(english, supplied);
+    return mergeTranslation(fallback, supplied);
   }
 
   private reportOnce(lang: string, message: string): void {

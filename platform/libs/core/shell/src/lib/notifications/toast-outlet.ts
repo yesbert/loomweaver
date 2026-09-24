@@ -7,6 +7,7 @@ import {
   NotificationKind,
   NotificationService,
 } from './notification.service';
+import { FEEDBACK_COLORS } from './feedback-colors';
 
 /**
  * Renders the active notifications as toasts in a fixed corner. Mounted once
@@ -32,10 +33,10 @@ export class ToastOutlet {
   };
 
   private readonly iconColors: Record<NotificationKind, string> = {
-    info: 'text-info',
-    success: 'text-positive',
-    warning: 'text-caution',
-    error: 'text-negative',
+    info: FEEDBACK_COLORS.info.text,
+    success: FEEDBACK_COLORS.success.text,
+    warning: FEEDBACK_COLORS.warning.text,
+    error: FEEDBACK_COLORS.negative.text,
   };
 
   protected iconFor(kind: NotificationKind): LoomIconName {
