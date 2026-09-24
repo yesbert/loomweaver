@@ -20,7 +20,7 @@ they start with a top-level folder.
 - [x] 1.6 A declaration of a required plugin that names nothing composed is reported in development for
   frame-only and catalogue-only compositions too (`plugin/plugin-runtime.ts`,
   `foundation/required-plugins.ts`); the JSDoc of `provideRequiredPlugins` states it.
-- [ ] 1.7 A launcher entry that only opens a menu has a row in "Customize rail", so it can be hidden,
+- [x] 1.7 A launcher entry that only opens a menu has a row in "Customize rail", so it can be hidden,
   moved and brought back (`regions/curation/curation-dialog.ts`).
 - [ ] 1.8 Close, pin and close-to-the-right chosen for open work in the search act in the pane that
   holds it: the search's menu context names the holding pane, and closing deletes a close hook only
