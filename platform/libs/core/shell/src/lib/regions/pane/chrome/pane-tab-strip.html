@@ -97,7 +97,7 @@
               <span
                 aria-hidden="true"
                 data-testid="tab-badge"
-                class="lw-badge shrink-0 gap-1 px-1.5 py-0 not-italic"
+                class="lw-badge max-w-max min-w-0 grow basis-0 gap-1 overflow-hidden px-1.5 py-0 not-italic"
                 [class.lw-badge--brand]="badge.tone === 'brand'"
                 [class.lw-badge--success]="badge.tone === 'success'"
                 [class.lw-badge--danger]="badge.tone === 'danger'"
@@ -105,15 +105,17 @@
                 @if (badge.icon) {
                   <lw-icon [name]="badge.icon" size="0.75rem" />
                 }
-                {{ badgeText }}
+                @if (badgeText) {
+                  <span class="min-w-0 truncate">{{ badgeText }}</span>
+                }
               </span>
             }
 
             <lw-tooltip
               [text]="
                 tab.preview && escalatable()
-                  ? title + ' — ' + ('content.previewHint' | transloco)
-                  : title
+                  ? named + ' — ' + ('content.previewHint' | transloco)
+                  : named
               "
               position="bottom"
             />
