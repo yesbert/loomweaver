@@ -13,6 +13,7 @@ import { RailItem } from '../../foundation/rail-item';
 import { WorkspaceService } from '../../workspace/workspace.service';
 import { RailItemsService, workspaceRailItemId } from './rail-items.service';
 import { FeatureSwitches } from '../../features/feature-switches.service';
+import { regionIdsOfType } from '../../layout/layout-queries';
 
 const WORKSPACE_ENTRY_ORDER = 1000;
 
@@ -27,9 +28,7 @@ export class RailWorkspaceEntries {
   private readonly workspaces = inject(WorkspaceService);
   private readonly railItems = inject(RailItemsService);
   private readonly injector = inject(Injector);
-  private readonly rails = inject(SHELL_LAYOUT)
-    .regions.filter((region) => region.type === 'rail')
-    .map((region) => region.id);
+  private readonly rails = regionIdsOfType(inject(SHELL_LAYOUT), 'rail');
   private readonly features = inject(FeatureSwitches).workspaces;
 
   private readonly registered = new Map<string, Registration>();

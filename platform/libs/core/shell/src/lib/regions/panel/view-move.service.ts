@@ -7,6 +7,7 @@ import { PaneTreeService } from '../pane/tree/pane-tree.service';
 import { PaneMoveService } from '../pane/drag/pane-move.service';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { PanelState } from './panel-state';
+import { regionById, regionOnOtherSide } from '../../layout/layout-queries';
 
 @Service()
 export class ViewMoveService {
@@ -50,20 +51,11 @@ export class ViewMoveService {
   }
 
   otherPanel(fromRegion: string): string | undefined {
-    const from = this.layout.regions.find((region) => region.id === fromRegion);
-    if (!from) {
-      return undefined;
-    }
-    return this.layout.regions.find(
-      (region) =>
-        region.type === 'panel' &&
-        region.id !== fromRegion &&
-        region.dock !== from.dock,
-    )?.id;
+    return regionOnOtherSide(this.layout, 'panel', fromRegion)?.id;
   }
 
   private targetLabel(regionId: string): string {
-    const dock = this.layout.regions.find((r) => r.id === regionId)?.dock;
+    const dock = regionById(this.layout, regionId)?.dock;
     if (dock === 'left') {
       return this.transloco.translate('panel.viewMove.targetLeft');
     }

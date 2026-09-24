@@ -22,17 +22,8 @@ import {
 import { AppResetService } from './regions/reset/app-reset.service';
 import { AppResetChoice, AppResetDialog } from './layout/app-reset-dialog';
 import { menuContextString } from './menu/menu-context';
-
-export interface ShellRegions {
-  readonly regions: readonly {
-    readonly type: string;
-    readonly dock?: string;
-  }[];
-}
-
-function hasRegion(layout: ShellRegions, type: string): boolean {
-  return layout.regions.some((region) => region.type === type);
-}
+import { ShellLayout } from './layout/layout';
+import { hasRegionOfType } from './layout/layout-queries';
 
 export interface HostCommandDeps {
   readonly dialogs: DialogService;
@@ -59,7 +50,7 @@ export interface SeedInput {
 
 export function seedHostCommands(
   registry: ContributionRegistry,
-  layout: ShellRegions,
+  layout: ShellLayout,
   deps: HostCommandDeps,
 ): void {
   const {
@@ -115,7 +106,7 @@ export function seedHostCommands(
       });
     },
   });
-  if (hasRegion(layout, 'rail')) {
+  if (hasRegionOfType(layout, 'rail')) {
     whileOn(injector, features.rail.curate, () =>
       registry.addCommand({
         id: 'shell.rail.customize',
@@ -133,7 +124,7 @@ export function seedHostCommands(
       }),
     );
   }
-  if (hasRegion(layout, 'panel')) {
+  if (hasRegionOfType(layout, 'panel')) {
     whileOn(injector, features.sidebar.curate, () =>
       registry.addCommand({
         id: 'shell.views.customize',

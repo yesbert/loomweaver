@@ -4,6 +4,7 @@ import { HiddenViewsService } from './hidden-views.service';
 import { PanelSizeService } from './panel-size.service';
 import { PanelState } from './panel-state';
 import { ViewVisibilityService } from './view-visibility.service';
+import { regionIdsOfType } from '../../layout/layout-queries';
 
 /** What the workbench knows about one declared sidebar, as facts. */
 export interface SidebarFacts {
@@ -38,9 +39,10 @@ export class SidebarService {
   private readonly sizes = inject(PanelSizeService);
   private readonly visibility = inject(ViewVisibilityService);
   private readonly hidden = inject(HiddenViewsService);
-  private readonly panelRegions = inject(SHELL_LAYOUT)
-    .regions.filter((region) => region.type === 'panel')
-    .map((region) => region.id);
+  private readonly panelRegions = regionIdsOfType(
+    inject(SHELL_LAYOUT),
+    'panel',
+  );
 
   /** Every declared sidebar, in layout order. */
   readonly regions: Signal<readonly SidebarFacts[]> = computed(() =>

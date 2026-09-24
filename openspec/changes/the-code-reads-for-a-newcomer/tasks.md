@@ -44,7 +44,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   parsers in pane, retention, unsaved work, panel state and view visibility use it.
 - [x] 2.5 One "wording may have changed" signal in `i18n/`, built with the menu's precise rule, read by
   the menu, the command palette and the pop-out view instead of three constructions.
-- [ ] 2.6 Layout queries in `layout/layout.ts` (regions of a type, whether one exists, on how many
+- [x] 2.6 Layout queries in `layout/layout.ts` (regions of a type, whether one exists, on how many
   sides, the one on a side, the one on the other side) replace about twenty inline filter chains;
   `ShellRegions` goes and the seeds take `ShellLayout`; "the layout has content" is defined once.
 - [ ] 2.7 **Move:** `regions/pane/drag/pane-label.ts` to `regions/pane/chrome/tab-label.ts`.

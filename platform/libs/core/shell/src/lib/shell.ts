@@ -19,6 +19,7 @@ import { FontScaleService } from './text-size/font-scale.service';
 import { ViewportService } from './layout/viewport.service';
 import { PanelState } from './regions/panel/panel-state';
 import { PopoutService } from './popout/popout.service';
+import { hasContentRegion, regionsAt } from './layout/layout-queries';
 
 /** Layout host: renders the declared regions into the border topology. */
 @Component({
@@ -49,9 +50,7 @@ export class Shell {
   protected readonly leftPanels = this.regionsAt('left', 'panel');
   protected readonly rightPanels = this.regionsAt('right', 'panel');
   protected readonly rightRails = this.regionsAt('right', 'rail');
-  protected readonly hasContent = this.layout.regions.some(
-    (r) => r.dock === 'center',
-  );
+  protected readonly hasContent = hasContentRegion(this.layout);
 
   protected readonly leftFloating = computed(() =>
     this.floating(this.leftPanels),
@@ -114,8 +113,6 @@ export class Shell {
   }
 
   private regionsAt(dock: DockPosition, type: RegionType): LayoutRegion[] {
-    return this.layout.regions.filter(
-      (region) => region.dock === dock && region.type === type,
-    );
+    return regionsAt(this.layout, dock, type);
   }
 }

@@ -24,6 +24,7 @@ import { MenuTriggerDirective } from '../../menu/menu-trigger.directive';
 import { toStripTab } from '../pane/drag/pane-label';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { FeatureSwitches } from '../../features/feature-switches.service';
+import { regionOnSide } from '../../layout/layout-queries';
 
 export type SidebarHeaderContext = 'edge' | 'drawer' | 'floating';
 
@@ -169,8 +170,6 @@ export class ShellSidebarHeader {
   }
 
   private targetPanelOn(dock: 'left' | 'right'): LayoutRegion | undefined {
-    return this.layout.regions.find(
-      (r) => r.type === 'panel' && r.dock === dock && r.id !== this.region().id,
-    );
+    return regionOnSide(this.layout, 'panel', dock, this.region().id);
   }
 }

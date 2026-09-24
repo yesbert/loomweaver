@@ -22,6 +22,7 @@ import { VIEW_PANE_PREFIX } from '../pane/tree/pane-address';
 import { ViewVisibilityService } from '../panel/view-visibility.service';
 import { WorkspaceService } from '../../workspace/workspace.service';
 import { FeatureSwitches } from '../../features/feature-switches.service';
+import { regionsOfType } from '../../layout/layout-queries';
 
 export type CurationKind = 'rail' | 'views';
 
@@ -80,9 +81,7 @@ export class CurationDialog {
   protected readonly chrome = CURATION_CHROME[this.kind];
 
   private readonly regions = computed(() =>
-    this.layout.regions.filter((region) =>
-      this.kind === 'rail' ? region.type === 'rail' : region.type === 'panel',
-    ),
+    regionsOfType(this.layout, this.kind === 'rail' ? 'rail' : 'panel'),
   );
 
   protected readonly places = computed<CurationPlace[]>(() => {
