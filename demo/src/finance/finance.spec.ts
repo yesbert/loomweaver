@@ -21,7 +21,10 @@ describe('finance', () => {
     resetFinance();
   });
 
-  afterEach(() => setReferenceDate(null));
+  afterEach(() => {
+    setReferenceDate(null);
+    vi.unstubAllEnvs();
+  });
 
   it('counts a receivable as open until it is settled in full', () => {
     const settled = receivables().find((entry) => entry.number === 'RE-2046');
@@ -96,5 +99,16 @@ describe('finance', () => {
     expect(current.closed).toBe(false);
     expect(previous.closed).toBe(false);
     expect(older.closed).toBe(true);
+  });
+
+  it('lists the current month first east of UTC', () => {
+    vi.stubEnv('TZ', 'Europe/Berlin');
+    resetFinance();
+
+    expect(periods().map((period) => period.month)).toEqual([
+      '2026-06',
+      '2026-05',
+      '2026-04',
+    ]);
   });
 });

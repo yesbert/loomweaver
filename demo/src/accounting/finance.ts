@@ -1,6 +1,6 @@
 import { computed, signal } from '@angular/core';
 import { type Cents } from './money';
-import { isoDaysFromToday, today } from './clock';
+import { isoDaysFromToday, localIsoDate, today } from './clock';
 
 export type ReceivableState = 'open' | 'settled';
 
@@ -205,7 +205,7 @@ export const periods = computed<readonly Period[]>(() => {
   const now = today();
   return [0, 1, 2].map((back) => {
     const date = new Date(now.getFullYear(), now.getMonth() - back, 1);
-    const month = date.toISOString().slice(0, 7);
+    const month = localIsoDate(date).slice(0, 7);
     const openItems = openReceivables().filter((entry) =>
       entry.issuedOn.startsWith(month),
     ).length;
