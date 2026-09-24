@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { HiddenViewsService, parseHiddenViews } from './hidden-views.service';
+import { HiddenViewsService } from './hidden-views.service';
 
 const SCOPED_KEY = 'lw.shell.hidden-views:default';
 
@@ -45,12 +45,5 @@ describe('HiddenViewsService (the per-workspace hidden view set)', () => {
     expect(service.isHidden('outline')).toBe(false);
     expect(service.isHidden('nav')).toBe(true);
     expect(localStorage.getItem(SCOPED_KEY)).toBe('["nav"]');
-  });
-
-  it('parseHiddenViews drops garbage instead of throwing', () => {
-    expect(parseHiddenViews(undefined).size).toBe(0);
-    expect(parseHiddenViews('{not json').size).toBe(0);
-    expect(parseHiddenViews('{"a":1}').size).toBe(0);
-    expect([...parseHiddenViews('["a",1,null,"b"]')]).toEqual(['a', 'b']);
   });
 });

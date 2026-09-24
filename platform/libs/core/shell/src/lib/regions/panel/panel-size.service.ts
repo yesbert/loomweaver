@@ -1,7 +1,11 @@
 import { inject, Service, signal } from '@angular/core';
 import { WORKING_STATE_STORE } from '../../persistence/working-state-store';
-import { hydrateAsync, readStoredValue } from '../../persistence/stored-values/hydrate';
+import {
+  hydrateAsync,
+  readStoredValue,
+} from '../../persistence/stored-values/hydrate';
 import { StateSyncService } from '../../persistence/state-sync.service';
+import { parseRecord } from '../../persistence/stored-values/persisted-record';
 import { PanelRegion, SHELL_LAYOUT, ShellLayout } from '../../layout/layout';
 import {
   clampToPanelWidths,
@@ -18,25 +22,14 @@ export {
 
 const STORAGE_KEY = 'lw.shell.panel-sizes';
 
-function parseWidths(raw: string | undefined): Record<string, number> {
-  if (!raw) {
-    return {};
-  }
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-      return {};
-    }
-    const result: Record<string, number> = {};
-    for (const [key, value] of Object.entries(parsed)) {
-      if (typeof value === 'number' && Number.isFinite(value)) {
-        result[key] = value;
-      }
-    }
-    return result;
-  } catch {
-    return {};
-  }
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value);
+}
+
+function parseWidths(
+  raw: string | undefined,
+): Readonly<Record<string, number>> {
+  return parseRecord(raw, isFiniteNumber);
 }
 
 function panelWidthsByRegion(
@@ -55,7 +48,7 @@ export class PanelSizeService {
   private readonly sync = inject(StateSyncService);
   private readonly declared = panelWidthsByRegion(inject(SHELL_LAYOUT));
 
-  private readonly widths = signal<Record<string, number>>(
+  private readonly widths = signal<Readonly<Record<string, number>>>(
     parseWidths(this.store.peek?.(STORAGE_KEY)),
   );
   private readonly dragging = signal(false);

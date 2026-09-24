@@ -5,7 +5,7 @@ import {
   PRIMARY_PANE,
   VIEW_PANE_PREFIX,
 } from '../../regions/pane/tree/pane-address';
-import { parseHiddenViews } from '../../regions/panel/hidden-views.service';
+import { parseIdSet } from '../../persistence/stored-values/persisted-id-set';
 
 export type ReadState = (key: string) => string | undefined;
 
@@ -28,7 +28,7 @@ export function stateDiffers(
 }
 
 function canonicalState(read: ReadState, shape: ChangeShape): string {
-  const hidden = parseHiddenViews(read(shape.hiddenViewsKey));
+  const hidden = parseIdSet(read(shape.hiddenViewsKey));
   return JSON.stringify(
     shape.keys.map((key) => canonicalValue(key, read(key), hidden, shape)),
   );
