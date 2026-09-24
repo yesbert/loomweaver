@@ -1,10 +1,13 @@
 import { ContainerSpec, ContentRoute, View } from '@loomweaver/plugin-sdk';
-import { containerChildren, isAddressable } from '../pane/container/container-children';
+import {
+  containerChildren,
+  isAddressable,
+} from '../pane/container/container-children';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { AuthContext } from '../../auth/auth-context';
 import { MenuListEntry } from '../../menu/menu.service';
 import { VIEW_PANE_PREFIX } from '../pane/tree/pane-address';
-import { resolveTitle } from '../pane/drag/pane-label';
+import { resolveTitle } from '../pane/chrome/tab-label';
 import { matchRoute } from './content-path';
 
 export interface PaneTarget {

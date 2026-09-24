@@ -25,7 +25,7 @@ import { TAB_ADDRESS_RESOLVER, followingTabAddress } from './tab-address';
 import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../../pane/tree/pane-address';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 import { reseatPinned } from '../../pane/tree/pane-tabs';
-import { surfaceBadge } from '../../pane/drag/pane-label';
+import { surfaceBadge } from '../../pane/chrome/tab-label';
 
 export interface RootedPath {
   readonly routes: readonly ContentRoute[];

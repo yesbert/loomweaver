@@ -18,7 +18,7 @@ import { PaneTabStrip } from './chrome/pane-tab-strip';
 import { StripTab } from './chrome/strip-tab';
 import { PaneToolbar } from './chrome/pane-toolbar';
 import { escalationStep } from './chrome/tab-escalation';
-import { toStripTab } from './drag/pane-label';
+import { toStripTab } from './chrome/tab-label';
 import { paneRetentionScope } from './retention/retention-keys';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { RouterOutlet } from '@angular/router';
