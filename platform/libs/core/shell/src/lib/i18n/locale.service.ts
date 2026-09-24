@@ -42,18 +42,23 @@ export class LocaleService {
    * The served languages with the name of each in its own language ("Deutsch", "Français"), the same
    * names the shipped switcher shows. A code the platform cannot name is shown as the code.
    */
-  readonly languages: readonly ServedLanguage[] = this.supported.map((code) => ({
-    code,
-    name: languageName(code),
-  }));
+  readonly languages: readonly ServedLanguage[] = this.supported.map(
+    (code) => ({
+      code,
+      name: languageName(code),
+    }),
+  );
 
-  private readonly langState = signal<string>(detectInitialLang(this.supported));
+  private readonly langState = signal<string>(
+    detectInitialLang(this.supported),
+  );
 
   /** The active language code, reactive. */
   readonly lang = this.langState.asReadonly();
 
   constructor() {
     this.document.documentElement.lang = this.lang();
+    this.applyServed(this.store.peek?.(LANGUAGE_STORAGE_KEY));
     hydrateAsync(this.store, LANGUAGE_STORAGE_KEY, (raw) =>
       this.applyServed(raw),
     );
