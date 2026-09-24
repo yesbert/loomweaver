@@ -1,6 +1,5 @@
 <div [class]="bandClass()">
   <div
-    #tabStrip
     class="flex min-w-0 flex-1 items-center gap-0.5 overflow-hidden"
     [class.px-2]="!icons()"
     [class.px-1]="icons()"
@@ -17,6 +16,11 @@
     [lwReorderableEnabled]="reorderable()"
     (reorder)="reorderTabs.emit($event)"
     lwRovingTabs
+    [lwStripOverflow]="overflow()"
+    [lwStripOverflowActive]="activeId()"
+    [lwStripOverflowTabs]="tabs()"
+    (revealRequest)="revealRequest.emit($event)"
+    #stripOverflow="lwStripOverflow"
   >
     @for (tab of tabs(); track tab.path) {
       @let title = tab.literalTitle ? tab.title : (tab.title | transloco);
@@ -188,7 +192,7 @@
     </button>
   }
 
-  @if (overflow() && overflowing()) {
+  @if (overflow() && stripOverflow.overflowing()) {
     <button
       type="button"
       (click)="openOverflow($event)"

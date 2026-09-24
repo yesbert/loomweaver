@@ -9,7 +9,7 @@ import { menuContextString } from '../../menu/menu-context';
 import { ViewStateService } from '../../views/view-state.service';
 import { ViewInstanceService } from '../../views/view-instance.service';
 import { PopoutService } from '../../popout/popout.service';
-import { VIEW_CONTEXT_MENU } from '../pane/chrome/view-menu-slot';
+import { VIEW_CONTEXT_MENU } from '../pane/chrome/strip-tab';
 import { menuEntryId } from '../../menu/menu-entry-id';
 import { VIEWS_CUSTOMIZE_COMMAND_ID } from '../../commands/host-command-ids';
 

@@ -1,17 +1,12 @@
 import {
-  afterNextRender,
-  afterRenderEffect,
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
-  DestroyRef,
-  ElementRef,
   TemplateRef,
   computed,
   effect,
   inject,
   input,
   output,
-  signal,
   viewChild,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
@@ -27,12 +22,7 @@ import { MenuContext, ViewAction } from '@loomweaver/plugin-sdk';
 import { MENU_ANCHOR_GAP, MenuService } from '../../../menu/menu.service';
 import { MenuTriggerDirective } from '../../../menu/menu-trigger.directive';
 import { Reorderable } from '../../reorder/reorderable.directive';
-import {
-  CONTENT_DOCK,
-  isViewPanePath,
-  PaneRef,
-  viewIdOfPanePath,
-} from '../tree/pane-address';
+import { isViewPanePath, PaneRef } from '../tree/pane-address';
 import { paneRetentionScope } from '../retention/retention-keys';
 import { UnsavedWork } from '../unsaved-work/unsaved-work';
 import { resolveTitle } from './tab-label';
@@ -44,9 +34,8 @@ import {
   stripSourceOf,
 } from '../drag/pane-move.service';
 import { RovingTabs } from './roving-tabs.directive';
-import { StripTab, TabAcceptance } from './strip-tab';
-
-const EDGE_TOLERANCE_PX = 1;
+import { StripOverflow } from './strip-overflow.directive';
+import { StripTab, TabAcceptance, tabMenuContext } from './strip-tab';
 
 @Component({
   selector: 'lw-pane-tab-strip',
@@ -56,6 +45,7 @@ const EDGE_TOLERANCE_PX = 1;
     MenuTriggerDirective,
     Reorderable,
     RovingTabs,
+    StripOverflow,
     CdkDropList,
     CdkDrag,
     CdkDragHandle,
@@ -110,21 +100,15 @@ export class PaneTabStrip {
 
   private readonly menu = inject(MenuService);
 
-  private readonly destroyRef = inject(DestroyRef);
-
   private readonly paneDrag = inject(PaneDragService);
 
   private readonly paneMove = inject(PaneMoveService);
 
   private readonly unsavedWork = inject(UnsavedWork);
 
-  private readonly strip = viewChild<ElementRef<HTMLElement>>('tabStrip');
+  private readonly stripOverflow = viewChild.required(StripOverflow);
 
   protected readonly escalatable = inject(FeatureSwitches).content.escalate;
-
-  private pickedHere: string | null = null;
-
-  protected readonly overflowing = signal(false);
 
   protected readonly stripId = computed(() => stripIdOf(this.source()));
 
@@ -159,21 +143,6 @@ export class PaneTabStrip {
   );
 
   constructor() {
-    afterRenderEffect(() => {
-      this.tabs();
-      if (this.overflow()) {
-        this.measureOverflow();
-      }
-    });
-    afterNextRender(() => this.observeResize());
-    afterRenderEffect(() => {
-      const active = this.activeId();
-      const picked = this.pickedHere;
-      this.pickedHere = null;
-      if (picked !== active && this.overflow()) {
-        this.revealActiveTab();
-      }
-    });
     effect((onCleanup) => {
       const id = this.stripId();
       if (!id) {
@@ -228,9 +197,7 @@ export class PaneTabStrip {
   }
 
   protected onSelectTab(tab: StripTab): void {
-    if (tab.path !== this.activeId()) {
-      this.pickedHere = tab.path;
-    }
+    this.stripOverflow().notePicked(tab.path);
     this.selectTab.emit(tab);
   }
 
@@ -257,28 +224,12 @@ export class PaneTabStrip {
   }
 
   protected tabContext(tab: StripTab): MenuContext {
-    const sole = this.tabs().length === 1;
-    const viewId = viewIdOfPanePath(tab.path);
-    if (viewId !== null) {
-      return {
-        targetKind: 'view-tab',
-        viewId,
-        region: this.contextGroup(),
-        inContent: this.contextGroup() === CONTENT_DOCK,
-        sole,
-        ...(tab.instance && { instance: tab.instance }),
-      };
-    }
-    return {
-      targetKind: 'content-tab',
-      tabId: tab.path,
+    return tabMenuContext(tab, {
       group: this.contextGroup(),
       paneId: this.source().paneId,
       primary: this.urlDriven(),
-      pinned: tab.pinned,
-      closable: tab.closable,
-      sole,
-    };
+      sole: this.tabs().length === 1,
+    });
   }
 
   protected onTabKeydown(event: KeyboardEvent, tab: StripTab): void {
@@ -339,44 +290,5 @@ export class PaneTabStrip {
     this.reorderTabs.emit(
       tabs.filter((tab) => tab.movable).map((tab) => tab.path),
     );
-  }
-
-  private observeResize(): void {
-    const element = this.strip()?.nativeElement;
-    if (!element || typeof ResizeObserver === 'undefined') {
-      return;
-    }
-    const observer = new ResizeObserver(
-      () => this.overflow() && this.measureOverflow(),
-    );
-    observer.observe(element);
-    this.destroyRef.onDestroy(() => observer.disconnect());
-  }
-
-  private measureOverflow(): void {
-    const element = this.strip()?.nativeElement;
-    this.overflowing.set(
-      !!element &&
-        element.scrollWidth - element.clientWidth > EDGE_TOLERANCE_PX,
-    );
-  }
-
-  private revealActiveTab(): void {
-    const strip = this.strip()?.nativeElement;
-    const active = this.activeId();
-    const wrapper = strip?.querySelector<HTMLElement>(
-      `[data-tab-path="${CSS.escape(active)}"]`,
-    )?.parentElement;
-    if (!strip || !wrapper) {
-      return;
-    }
-    const band = strip.getBoundingClientRect();
-    const tab = wrapper.getBoundingClientRect();
-    const fullyVisible =
-      tab.left >= band.left - EDGE_TOLERANCE_PX &&
-      tab.right <= band.right + EDGE_TOLERANCE_PX;
-    if (!fullyVisible) {
-      this.revealRequest.emit(active);
-    }
   }
 }

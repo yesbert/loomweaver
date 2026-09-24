@@ -13,7 +13,7 @@ import { PanelState } from './panel-state';
 import { PanelGroupService } from './panel-group.service';
 import { ViewMoveService } from './view-move.service';
 import { PANEL_STRIP_CONTEXT_MENU } from './view-context-menu';
-import { VIEW_CONTEXT_MENU } from '../pane/chrome/view-menu-slot';
+import { VIEW_CONTEXT_MENU } from '../pane/chrome/strip-tab';
 import {
   isViewPanePath,
   PaneRef,
