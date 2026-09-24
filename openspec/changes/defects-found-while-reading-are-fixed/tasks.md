@@ -109,7 +109,7 @@ they start with a top-level folder.
   (`examples/assistant-workbench/src/tickets/src/lib/views/ticket-view.ts`).
 - [x] 8.2 The landing page's pictures are copied because the landing page uses them, not because a doc
   embeds them (`website/tools/sync-docs.mjs`); the build fails when a landing picture is missing.
-- [ ] 8.3 The sidebar coverage guard matches whole routes, not substrings (`website/tools/sync-docs.mjs`).
+- [x] 8.3 The sidebar coverage guard matches whole routes, not substrings (`website/tools/sync-docs.mjs`).
 
 ## 9. After the owner's decision
 
