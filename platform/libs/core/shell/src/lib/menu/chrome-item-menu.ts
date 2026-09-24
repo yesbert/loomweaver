@@ -19,6 +19,18 @@ export function menuOnActivate(item: ChromeItemMenu): string | undefined {
   return item.workspace === undefined ? item.menu : undefined;
 }
 
+export function isOffered(
+  item: ChromeItemMenu,
+  triggerable: (item: ChromeItemMenu) => boolean,
+): boolean {
+  return (
+    item.workspace !== undefined ||
+    'component' in item ||
+    menuOnActivate(item) !== undefined ||
+    triggerable(item)
+  );
+}
+
 export function menuOnContext(item: ChromeItemMenu): string | undefined {
   if (!item.menu) {
     return undefined;

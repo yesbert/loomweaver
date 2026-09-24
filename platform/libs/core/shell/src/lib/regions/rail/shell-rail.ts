@@ -25,6 +25,7 @@ import { AuthContext } from '../../auth/auth-context';
 import { RailItem } from '../../foundation/rail-item';
 import { MenuTriggerDirective } from '../../menu/menu-trigger.directive';
 import {
+  isOffered,
   menuOnActivate,
   menuOnContext,
   warnMenuTriggerConflict,
@@ -114,11 +115,8 @@ export class ShellRail {
           this.railItems.regionOf(item.id, item.rail) === this.region().id,
       )
       .filter((item) => this.auth.visible(item.access))
-      .filter(
-        (item) =>
-          item.workspace !== undefined ||
-          menuOnActivate(item) !== undefined ||
-          this.commands.triggerable(item),
+      .filter((item) =>
+        isOffered(item, (offered) => this.commands.triggerable(offered)),
       )
       .toSorted((a, b) => (a.order ?? 0) - (b.order ?? 0)),
   );

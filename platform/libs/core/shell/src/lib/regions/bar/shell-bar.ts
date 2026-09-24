@@ -17,7 +17,7 @@ import { BarItem, BarSlot } from '../../foundation/bar-item';
 import { LayoutRegion } from '../../layout/layout';
 import { AuthContext } from '../../auth/auth-context';
 import { CommandService } from '../../commands/command.service';
-import { menuOnActivate } from '../../menu/chrome-item-menu';
+import { isOffered } from '../../menu/chrome-item-menu';
 import { ShellBarItem } from './shell-bar-item';
 import { foldedIds, foldRank, sameIds } from './bar-fold';
 
@@ -68,11 +68,8 @@ export class ShellBar {
       .barItems()
       .filter((item) => item.bar === this.region().id)
       .filter((item) => this.auth.visible(item.access))
-      .filter(
-        (item) =>
-          'component' in item ||
-          menuOnActivate(item) !== undefined ||
-          this.commands.triggerable(item),
+      .filter((item) =>
+        isOffered(item, (offered) => this.commands.triggerable(offered)),
       ),
   );
 

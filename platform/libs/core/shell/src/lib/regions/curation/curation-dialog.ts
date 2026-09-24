@@ -11,7 +11,7 @@ import { SHELL_LAYOUT } from '../../layout/layout';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { AuthContext } from '../../auth/auth-context';
 import { CommandService } from '../../commands/command.service';
-import { menuOnActivate } from '../../menu/chrome-item-menu';
+import { isOffered } from '../../menu/chrome-item-menu';
 import {
   RailItemsService,
   workspaceRailItemId,
@@ -142,11 +142,8 @@ export class CurationDialog {
     const registered = this.registry
       .railItems()
       .filter((item) => this.auth.visible(item.access))
-      .filter(
-        (item) =>
-          item.workspace !== undefined ||
-          menuOnActivate(item) !== undefined ||
-          this.commands.triggerable(item),
+      .filter((item) =>
+        isOffered(item, (offered) => this.commands.triggerable(offered)),
       )
       .map((item) => ({
         id: item.id,
