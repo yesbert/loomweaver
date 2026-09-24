@@ -57,15 +57,7 @@ export function registerBuiltInMenus(
   if (deps.popout.active) {
     return;
   }
-  registerTabContextMenu(
-    registry,
-    deps.tabs,
-    deps.paneMove,
-    deps.paneTree,
-    deps.popout,
-    deps.features,
-    deps.injector,
-  );
+  registerTabContextMenu(registry, deps);
   registerRailMenus(registry, layout, deps);
   registerViewMenus(registry, layout, deps);
 }

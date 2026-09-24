@@ -124,7 +124,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   see design.
 - [x] 4.6 Pane targets: one hostable-targets list; `barePathHostableRoute` and `offRouterMountable`
   renamed to what they answer.
-- [ ] 4.7 The tab context menu takes its dependencies as one object and builds its entries through one
+- [x] 4.7 The tab context menu takes its dependencies as one object and builds its entries through one
   helper; pin and unpin by an explicit branch.
 - [ ] 4.8 Curation: the panel lookups become public on `PanelViewsService` and are used by curation and
   view visibility; rail and view curation become two row sources the dialog picks by kind.
