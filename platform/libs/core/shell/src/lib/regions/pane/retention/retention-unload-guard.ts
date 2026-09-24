@@ -1,6 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { inject, OnDestroy, Service } from '@angular/core';
-import { isPopoutUrl } from '../../../popout/popout-path';
+import { PopoutWindow } from '../../../popout/popout-window';
 import { RetentionCandidates } from './retention-candidates';
 import { instanceDirty } from './retention-policy';
 
@@ -8,9 +8,7 @@ import { instanceDirty } from './retention-policy';
 export class RetentionUnloadGuard implements OnDestroy {
   private readonly candidates = inject(RetentionCandidates);
   private readonly document = inject(DOCUMENT);
-  private readonly popout = isPopoutUrl(
-    inject(DOCUMENT).location?.pathname ?? '',
-  );
+  private readonly popout = inject(PopoutWindow).active;
   private started = false;
   private suppressed = false;
 

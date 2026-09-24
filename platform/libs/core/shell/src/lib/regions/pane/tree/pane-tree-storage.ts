@@ -1,9 +1,8 @@
-import { DOCUMENT } from '@angular/common';
 import { inject, isDevMode, Service } from '@angular/core';
 import { WORKING_STATE_STORE } from '../../../persistence/working-state-store';
 import { SETTINGS_STORE } from '../../../persistence/settings-store';
 import { hydrateAsync } from '../../../persistence/hydrate';
-import { isPopoutUrl } from '../../../popout/popout-path';
+import { PopoutWindow } from '../../../popout/popout-window';
 import { ActiveWorkspaceService } from '../../../workspace/active-workspace.service';
 import {
   DockEntry,
@@ -87,9 +86,7 @@ export class PaneTreeStorage {
     optional: true,
   })?.flat();
 
-  private readonly popout = isPopoutUrl(
-    inject(DOCUMENT).location?.pathname ?? '',
-  );
+  private readonly popout = inject(PopoutWindow).active;
 
   private relabelled = false;
 

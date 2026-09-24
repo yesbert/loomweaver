@@ -1,7 +1,6 @@
-import { DOCUMENT } from '@angular/common';
 import { effect, inject, Injector, Service, untracked } from '@angular/core';
 import { ContentRoute, View } from '@loomweaver/plugin-sdk';
-import { isPopoutUrl } from '../../../popout/popout-path';
+import { PopoutWindow } from '../../../popout/popout-window';
 import { ActiveWorkspaceService } from '../../../workspace/active-workspace.service';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { NotificationService } from '../../../notifications/notification.service';
@@ -37,9 +36,7 @@ export class RetentionGc {
   private readonly notifications = inject(NotificationService);
   private readonly injector = inject(Injector);
   private readonly workspace = inject(ActiveWorkspaceService);
-  private readonly popout = isPopoutUrl(
-    inject(DOCUMENT).location?.pathname ?? '',
-  );
+  private readonly popout = inject(PopoutWindow).active;
   private autoSaved = new Set<unknown>();
   private started = false;
 

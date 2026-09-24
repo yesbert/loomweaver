@@ -1,7 +1,12 @@
-import { ErrorHandler, inject, isDevMode, Service, Signal } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
+import {
+  ErrorHandler,
+  inject,
+  isDevMode,
+  Service,
+  Signal,
+} from '@angular/core';
 import { Command, CommandArguments, MenuContext } from '@loomweaver/plugin-sdk';
-import { isPopoutUrl } from '../popout/popout-path';
+import { PopoutWindow } from '../popout/popout-window';
 import { ContributionRegistry } from '../plugin/contribution-registry';
 import { AuthContext } from '../auth/auth-context';
 import { FeatureSwitches } from '../features/feature-switches.service';
@@ -24,7 +29,7 @@ export class CommandService {
   private readonly auth = inject(AuthContext);
   private readonly errors = inject(ErrorHandler);
   private readonly shortcuts = inject(FeatureSwitches).commands.shortcuts;
-  private readonly inPopout = isPopoutUrl(inject(DOCUMENT).location.pathname);
+  private readonly inPopout = inject(PopoutWindow).active;
 
   /** The registered commands — the source list for a command palette. */
   readonly commands: Signal<readonly Command[]> = this.registry.commands;

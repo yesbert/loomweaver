@@ -27,7 +27,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 
 ## 2. Knowledge written once, across the shell
 
-- [ ] 2.1 A `PopoutWindow` fact (`popout/popout-window.ts`, only `active`) replaces the eight
+- [x] 2.1 A `PopoutWindow` fact (`popout/popout-window.ts`, only `active`) replaces the eight
   `isPopoutUrl(document.location…)` derivations in commands, content, pane and retention code;
   `PopoutService` keeps `open()`.
 - [ ] 2.2 A settings-backed signal helper in `persistence/` (seed from `peek`, hydrate when there is no
