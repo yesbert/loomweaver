@@ -80,7 +80,7 @@ they start with a top-level folder.
 
 ## 6. The testbed
 
-- [ ] 6.1 Typing in the RPC sandbox keeps focus: values update in place instead of rebuilding the page
+- [x] 6.1 Typing in the RPC sandbox keeps focus: values update in place instead of rebuilding the page
   every second and on every state echo (`platform/apps/loom-testbed/public/sandbox-rpc/view.js`); an
   end-to-end test types slowly into both fields.
 - [ ] 6.2 The minimal store plugin registers its own page and path

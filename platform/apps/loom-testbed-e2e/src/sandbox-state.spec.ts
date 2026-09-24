@@ -47,3 +47,23 @@ test.describe('A sandboxed surface reaches its plugin store', () => {
     );
   });
 });
+
+test.describe('Typing into a sandboxed surface', () => {
+  test('keeps every key in the draft while the panel counts its seconds', async ({
+    page,
+  }) => {
+    const surface = await openSandbox(page);
+    const draft = surface.getByTestId('sandbox-draft');
+    await draft.pressSequentially('abcdef', { delay: 300 });
+    await expect(draft).toHaveValue('abcdef');
+  });
+
+  test('keeps every key in the shared note while its store answers each one', async ({
+    page,
+  }) => {
+    const surface = await openSandbox(page);
+    const note = surface.getByTestId('sandbox-scratch');
+    await note.pressSequentially('hello', { delay: 100 });
+    await expect(note).toHaveValue('hello');
+  });
+});
