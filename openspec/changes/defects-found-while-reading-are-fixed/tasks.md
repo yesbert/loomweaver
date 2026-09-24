@@ -50,7 +50,7 @@ they start with a top-level folder.
   or the close path in `regions/pane/pane-actions.service.ts`).
 - [x] 3.4 Strip drop ids survive a container address with a colon, for strip, edge and fill drops
   (`regions/pane/drag/pane-move.service.ts`).
-- [ ] 3.5 A pane body keeps surface injectors only for addresses retention still holds; a test bounds
+- [x] 3.5 A pane body keeps surface injectors only for addresses retention still holds; a test bounds
   the cache over many addresses (`regions/content/routing/surface-injector.ts`).
 
 ## 4. The frame kit

@@ -432,3 +432,43 @@ describe('ContentSecondaryPane — the inset holds wherever the surface is put',
     );
   });
 });
+
+const probedRoutes: ActivatedRoute[] = [];
+
+@Component({ selector: 'lw-test-route-probe', template: '' })
+class RouteProbe {
+  constructor() {
+    probedRoutes.push(inject(ActivatedRoute));
+  }
+}
+
+describe('ContentSecondaryPane releasing what it no longer shows', () => {
+  async function visit(paths: readonly string[], retain?: 'always') {
+    probedRoutes.length = 0;
+    TestBed.configureTestingModule({ providers: [provideRouter([])] });
+    TestBed.inject(ContributionRegistry).addContentRoute({
+      path: 'doc/:id',
+      component: RouteProbe,
+      ...(retain && { retain }),
+    });
+    const fixture = TestBed.createComponent(ContentSecondaryPane);
+    for (const path of paths) {
+      fixture.componentRef.setInput('path', path);
+      fixture.detectChanges();
+      await fixture.whenStable();
+    }
+  }
+
+  it('mounts a fresh route for an address whose surface was let go', async () => {
+    await visit(['doc/a', 'doc/b', 'doc/c', 'doc/a']);
+
+    expect(probedRoutes).toHaveLength(4);
+    expect(probedRoutes[3]).not.toBe(probedRoutes[0]);
+  });
+
+  it('keeps the route of a surface retention still holds', async () => {
+    await visit(['doc/a', 'doc/b', 'doc/c', 'doc/a'], 'always');
+
+    expect(probedRoutes).toHaveLength(3);
+  });
+});

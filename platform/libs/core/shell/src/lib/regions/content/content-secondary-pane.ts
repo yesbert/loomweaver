@@ -37,7 +37,7 @@ import {
 import { syntheticParamRoute } from './routing/synthetic-route';
 import {
   dockedSurfaceInjectorFactory,
-  surfaceInjectorFactory,
+  surfaceMounts,
 } from './routing/surface-injector';
 import {
   containerChildForPath,
@@ -45,6 +45,7 @@ import {
 } from '../pane/pane-surface';
 import { matchRoute, paramsOfPattern, tabRootOf } from './content-path';
 import { RetainedComponent } from '../pane/retention/retained-component';
+import { RetainedViewStash } from '../pane/retention/retained-view-stash';
 import {
   effectivePadding,
   SURFACE_PADDING,
@@ -91,9 +92,12 @@ export class ContentSecondaryPane {
   private readonly injector = inject(Injector);
   private readonly environmentInjector = inject(EnvironmentInjector);
   private readonly currentAddress = inject(CurrentAddress);
+  private readonly stash = inject(RetainedViewStash);
+  private shownLast: string | null = null;
+  private shownBefore: string | null = null;
 
   private readonly paramInjectors = new Map<string, Injector>();
-  private readonly injectorFor = surfaceInjectorFactory(
+  private readonly mounts = surfaceMounts(
     this.injector,
     this.environmentInjector,
   );
@@ -289,6 +293,11 @@ export class ContentSecondaryPane {
         this.mountFor(route).live.update(address);
       }
     });
+    effect(() => {
+      const shown = this.surfaceKey();
+      this.stash.version();
+      untracked(() => this.releaseMountsLetGo(shown));
+    });
   }
 
   protected componentFor(view: View): Type<unknown> | null {
@@ -314,7 +323,22 @@ export class ContentSecondaryPane {
   }
 
   private mountFor(route: RegisteredContentRoute) {
-    return this.injectorFor(route, this.surfaceKey(), untracked(this.address));
+    return this.mounts.mountFor(
+      route,
+      this.surfaceKey(),
+      untracked(this.address),
+    );
+  }
+
+  private releaseMountsLetGo(shown: string): void {
+    if (shown !== this.shownLast) {
+      this.shownBefore = this.shownLast;
+      this.shownLast = shown;
+    }
+    const held = new Set(this.stash.keyedInstances().map((entry) => entry.key));
+    this.mounts.releaseUnless(
+      (key) => key === shown || key === this.shownBefore || held.has(key),
+    );
   }
 
   private surfaceComponent(route: ContentRoute): Type<unknown> | null {
