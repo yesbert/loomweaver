@@ -235,6 +235,22 @@ export interface ContentRouteBase {
  */
 export type ContentRoute = ContentRouteBase & ContentSurface;
 
+/**
+ * A change to the label of an open content tab, made with `ctx.updateContentTab`. Every field is
+ * optional: a field left out keeps the tab's value, and `badge: null` takes the tab's own badge away.
+ * A title given here becomes the tab's own, as one it was opened with does.
+ */
+export interface ContentTabLabel {
+  /** Transloco key, or a literal when {@link titleIsLiteral} is set. */
+  readonly title?: string;
+  /** Whether {@link title} is shown as it is rather than translated. Ignored without a title. */
+  readonly titleIsLiteral?: boolean;
+  /** Icon name for the tab. */
+  readonly icon?: string;
+  /** The tab's own badge, or `null` to take it away. */
+  readonly badge?: TabBadge | null;
+}
+
 /** Input to `ctx.openContentTab` — opens a titled **dynamic** tab and navigates to it. */
 export interface OpenTabInput {
   /** Concrete path to navigate to, e.g. `'doc/abc'` (not a pattern). */

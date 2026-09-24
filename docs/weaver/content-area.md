@@ -176,6 +176,21 @@ registered can be changed. Both need the `contributions` capability. A content t
 `ctx.openContentTab({ ..., badge })`: it wins over the surface's, is refined by opening the same path
 again, survives a restart with the tab, and is taken away with `badge: null`.
 
+Opening again brings the tab forward, which is wrong when the content changes behind the tab the
+person is looking at. To change an open tab's title, icon or badge where it stands, call
+`ctx.updateContentTab(path, label)`: it works in whichever pane of the main area the tab is, and the
+focus and the address stay as they are:
+
+```ts
+ctx.updateContentTab(`quotes/${quote.id}`, {
+  badge: { text: 'quotes.status.sent', tone: 'brand' },
+});
+```
+
+What the `ContentTabLabel` leaves out stays, and `badge: null` takes the tab's own badge away. The call
+never opens a tab, so it is safe to make for content that may not be open, and it leaves a tab
+alone whose content another plugin registered. It needs `contributions`.
+
 The badge is not a control of its own, so the tab stays one keyboard stop, and its text joins the
 tab's accessible name and its tooltip after the title. Where a tab runs out of room, the title comes
 first: the badge narrows to a small mark in its tone before the title is shortened, and the tooltip

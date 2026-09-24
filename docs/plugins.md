@@ -122,6 +122,7 @@ Only data crosses an RPC boundary, so a sandboxed plugin reaches a **subset** of
 | `retitleSurface`, `updateSurfaceBadge`, `setChildShown`                                |                                                                    |
 | `registerMenuItem`, `registerSettingsSection`¹                                         | `contributeIcons`, `contributeTheme`                               |
 | `navigateContent`, `openContentTab`, `keep/pin/unpin/closeContentTab`, `revealSurface` | `ui` beyond `toast` — dialogs, prompts, `openMenu`, `openSettings` |
+| `updateContentTab`                                                                     |                                                                    |
 | `ui.toast`                                                                             | `ctx.host`, `ctx.activeContent`, `ctx.session`²                    |
 
 ¹ as **data**: the control kinds carry values, not callbacks, and the host owns the storage.

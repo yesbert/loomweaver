@@ -14,6 +14,7 @@ import {
   sanitizeRpcMenuItem,
   sanitizeRpcSurface,
   sanitizeRpcTabInput,
+  sanitizeRpcTabLabel,
   sanitizeRpcToastInput,
 } from './sandbox-rpc-sanitize';
 import {
@@ -1368,5 +1369,34 @@ describe('frameRpcMethods — leaving a container child out across the seam', ()
       ['7', false],
       ['pane.child', true],
     ]);
+  });
+});
+
+describe('sanitizeRpcTabLabel — a tab label across the seam', () => {
+  it('keeps the known fields and drops the rest', () => {
+    expect(
+      sanitizeRpcTabLabel({
+        title: 'Q-0004',
+        titleIsLiteral: true,
+        icon: 'quotes',
+        badge: { text: 'Sent', textIsLiteral: true, tone: 'brand' },
+        extra: 'dropped',
+      } as never),
+    ).toEqual({
+      title: 'Q-0004',
+      titleIsLiteral: true,
+      icon: 'quotes',
+      badge: { text: 'Sent', textIsLiteral: true, tone: 'brand' },
+    });
+  });
+
+  it('passes a null badge through, so it takes the badge away', () => {
+    expect(sanitizeRpcTabLabel({ badge: null })).toEqual({ badge: null });
+  });
+
+  it('leaves a malformed badge and a non-string title out, so they change nothing', () => {
+    expect(
+      sanitizeRpcTabLabel({ title: 7, badge: { tone: 'loud' } } as never),
+    ).toEqual({});
   });
 });

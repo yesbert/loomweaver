@@ -6,6 +6,7 @@ type TestbedContentCtx = Pick<
   PluginContext,
   | 'openContentTab'
   | 'keepContentTab'
+  | 'updateContentTab'
   | 'navigateContent'
   | 'revealSurface'
   | 'ui'
@@ -17,6 +18,7 @@ class TestbedContentActions {
   private ctx?: TestbedContentCtx;
 
   private readonly open = signal<ReadonlySet<string>>(new Set());
+  private flagged = false;
   readonly openEntryIds: Signal<ReadonlySet<string>> = this.open.asReadonly();
 
   bind(ctx: TestbedContentCtx): void {
@@ -39,6 +41,16 @@ class TestbedContentActions {
     };
     this.markOpen(entry.id);
     this.withCtx((ctx) => ctx.openContentTab(input));
+  }
+
+  toggleFlagOnOpenEntries(): void {
+    this.flagged = !this.flagged;
+    const badge = this.flagged
+      ? ({ text: 'testbed.badge.flagged', tone: 'danger' } as const)
+      : null;
+    for (const id of this.open()) {
+      this.withCtx((ctx) => ctx.updateContentTab(`entry/${id}`, { badge }));
+    }
   }
 
   keepEntry(entry: Entry): void {

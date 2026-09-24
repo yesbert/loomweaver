@@ -6,6 +6,7 @@ import {
   InvocableCommand,
   MenuItem,
   NotificationInput,
+  ContentTabLabel,
   OpenTabInput,
   Surface,
   TabBadge,
@@ -34,6 +35,7 @@ export type FrameRpc = Methods & {
   pinContentTab(path: string): void;
   unpinContentTab(path: string): void;
   closeContentTab(path: string): void;
+  updateContentTab(path: string, label: ContentTabLabel): void;
   revealSurface(id: string): void;
   invokeCommand(id: string, args?: unknown): Promise<CommandOutcome>;
   invocableCommands(): readonly InvocableCommand[];

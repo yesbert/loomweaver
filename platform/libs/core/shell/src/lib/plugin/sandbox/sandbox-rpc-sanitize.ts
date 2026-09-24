@@ -6,6 +6,7 @@ import {
   MenuItem,
   NotificationInput,
   NotificationKind,
+  ContentTabLabel,
   OpenTabInput,
   Surface,
   SurfacePresentation,
@@ -257,6 +258,19 @@ export function sanitizeRpcTabInput(input: OpenTabInput): OpenTabInput {
     icon: typeof raw['icon'] === 'string' ? raw['icon'] : undefined,
     preview: raw['preview'] === true ? true : undefined,
     badge: raw['badge'] === null ? null : tabBadgeOf(raw['badge']),
+  };
+}
+
+export function sanitizeRpcTabLabel(label: ContentTabLabel): ContentTabLabel {
+  const raw = (label ?? {}) as unknown as Record<string, unknown>;
+  const badge = raw['badge'] === null ? null : tabBadgeOf(raw['badge']);
+  return {
+    ...(typeof raw['title'] === 'string' && {
+      title: raw['title'],
+      titleIsLiteral: raw['titleIsLiteral'] === true,
+    }),
+    ...(typeof raw['icon'] === 'string' && { icon: raw['icon'] }),
+    ...(badge !== undefined && { badge }),
   };
 }
 

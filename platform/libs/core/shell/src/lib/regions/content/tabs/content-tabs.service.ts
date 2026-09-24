@@ -1,6 +1,10 @@
 import { inject, Service, Signal } from '@angular/core';
 import { tabBadgeOf } from '../../pane/chrome/tab-badge';
-import { ActiveContent, OpenTabInput } from '@loomweaver/plugin-sdk';
+import {
+  ActiveContent,
+  ContentTabLabel,
+  OpenTabInput,
+} from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { FeatureSwitches } from '../../../features/feature-switches.service';
 import { normalizePath, tabRootOf } from '../content-path';
@@ -16,6 +20,7 @@ import { keepsOnPaneClose } from '../../pane/tree/pane-handover';
 import { ClaimOrdering } from './claim-ordering';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 import { UnsavedWork } from '../../pane/retention/unsaved-work';
+import { updateTabLabel } from './tab-label-update';
 
 /**
  * The **URL pane's** tab state: the tabs to show (facet tabs of `follows`
@@ -197,6 +202,19 @@ export class ContentTabsService {
    */
   open(input: OpenTabInput): void {
     this.claimOrder.run(normalizePath(input.path), () => this.openHere(input));
+  }
+
+  /**
+   * Changes the title, icon or badge of the open tab rooted at `path` where it stands, without bringing
+   * it forward; what `label` leaves out stays, `badge: null` removes the tab's own badge. No-op when no
+   * tab is open for `path`; with a `pluginId`, only content that plugin registered changes.
+   */
+  update(path: string, label: ContentTabLabel, pluginId?: string): void {
+    updateTabLabel(this.paneTree, this.registry.contentRoutes(), {
+      path,
+      label,
+      pluginId,
+    });
   }
 
   /**

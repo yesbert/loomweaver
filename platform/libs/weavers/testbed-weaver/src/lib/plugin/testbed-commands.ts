@@ -92,6 +92,12 @@ export function registerCommands(ctx: PluginContext): void {
     icon: 'testbedList',
     run: () => testbedContent.openBrowse('alpha'),
   });
+  ctx.registerCommand({
+    id: 'testbed.flagEntries',
+    title: 'testbed.cmd.flagEntries',
+    icon: 'testbedEntry',
+    run: () => testbedContent.toggleFlagOnOpenEntries(),
+  });
   let auditShown = true;
   ctx.registerCommand({
     id: 'testbed.toggleAudit',
