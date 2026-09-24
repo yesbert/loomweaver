@@ -78,6 +78,13 @@ cancelling the second "New customer" prompt still creates the customer (it may m
 then the button should say Skip); sending an accepted quote turns it back into "sent"; the quotes
 plugin failing to activate when browser storage is blocked needs a check in a browser that blocks it.
 
+One question came up while fixing the quote commands, which now read their `choices` through a
+getter. That works because the workbench reads the list whenever it describes or checks a command.
+The published text, however, calls it "a fixed `choices` list", and a sandboxed plugin's declaration
+is copied once when it registers. Whether "read when used" becomes a guarantee in `commands`, for
+plugins in the page, is the owner's decision. Until then the demo relies on today's behaviour, and
+its test pins it.
+
 ## Risks / Trade-offs
 
 - [A fix changes behaviour a product relies on, such as the pane arrangement now reading the

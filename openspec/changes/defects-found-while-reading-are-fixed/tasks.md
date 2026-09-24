@@ -94,7 +94,7 @@ they start with a top-level folder.
 - [x] 7.1 The closing periods are computed in the local calendar, and the day helper returns today's
   date after local midnight (`demo/src/accounting/finance.ts`, `demo/src/accounting/clock.ts`); the test
   runs under `TZ=Europe/Berlin` and checks the month.
-- [ ] 7.2 Quote commands accept quotes created after startup: their choices are read when invoked, not
+- [x] 7.2 Quote commands accept quotes created after startup: their choices are read when invoked, not
   fixed at activation (`demo/src/quotes/src/lib/plugin/quotes-commands.ts`).
 - [ ] 7.3 The dashboard's colour observer disconnects when the view is destroyed
   (`demo/src/insights/chart-tokens.ts`).

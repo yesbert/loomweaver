@@ -1,4 +1,8 @@
-import { type Command, type PluginContext } from '@loomweaver/plugin-sdk';
+import {
+  type ChoiceCommandArgument,
+  type Command,
+  type PluginContext,
+} from '@loomweaver/plugin-sdk';
 import {
   formatMoney,
   marginOf,
@@ -8,8 +12,16 @@ import {
 } from '../../../../accounting';
 import { quotesActions } from './quotes-actions';
 
-function numbers(): string[] {
-  return quotes().map((quote) => quote.number);
+function quoteNumberArgument(description: string): ChoiceCommandArgument {
+  return {
+    name: 'number',
+    kind: 'choice',
+    get choices() {
+      return quotes().map((quote) => quote.number);
+    },
+    description,
+    required: true,
+  };
 }
 
 function byNumber(number: unknown) {
@@ -24,15 +36,7 @@ function openQuote(): Command {
     icon: 'quotes',
     callable: true,
     answers: 'quotes.command.open.answers',
-    arguments: [
-      {
-        name: 'number',
-        kind: 'choice',
-        choices: numbers(),
-        description: 'quotes.command.open.arg.number',
-        required: true,
-      },
-    ],
+    arguments: [quoteNumberArgument('quotes.command.open.arg.number')],
     run: (_context, args) => {
       const quote = byNumber(args?.['number']);
       if (!quote) {
@@ -53,15 +57,7 @@ function sendQuote(): Command {
     callable: true,
     agentConsent: 'ask',
     answers: 'quotes.command.send.answers',
-    arguments: [
-      {
-        name: 'number',
-        kind: 'choice',
-        choices: numbers(),
-        description: 'quotes.command.send.arg.number',
-        required: true,
-      },
-    ],
+    arguments: [quoteNumberArgument('quotes.command.send.arg.number')],
     run: (_context, args) => {
       const quote = byNumber(args?.['number']);
       if (!quote) {
@@ -83,15 +79,7 @@ function quoteMargin(): Command {
     callable: true,
     access: { anyRole: ['accounting'] },
     answers: 'quotes.command.margin.answers',
-    arguments: [
-      {
-        name: 'number',
-        kind: 'choice',
-        choices: numbers(),
-        description: 'quotes.command.margin.arg.number',
-        required: true,
-      },
-    ],
+    arguments: [quoteNumberArgument('quotes.command.margin.arg.number')],
     run: (_context, args) => {
       const quote = byNumber(args?.['number']);
       if (!quote) {
