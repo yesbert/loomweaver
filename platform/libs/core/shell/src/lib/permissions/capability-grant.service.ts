@@ -1,12 +1,12 @@
 import { computed, inject, Service, signal } from '@angular/core';
 import { CAPABILITIES, Capability } from '@loomweaver/plugin-sdk';
-import { persistedSetting } from '../persistence/persisted-setting';
+import { persistedSetting } from '../persistence/stored-values/persisted-setting';
 import { CAPABILITY_GRANTS, effectiveCapabilities } from './capability-grants';
 import {
   ID_SET_CODEC,
   parseIdSet,
   toggledIdSet,
-} from '../persistence/persisted-id-set';
+} from '../persistence/stored-values/persisted-id-set';
 
 const STORAGE_KEY = 'lw.shell.capability-revocations';
 

@@ -1,4 +1,4 @@
-import { KeyValueStore } from './key-value-store';
+import { KeyValueStore } from '../key-value-store';
 import { hydrateAsync } from './hydrate';
 
 function asyncStore(get: () => Promise<string | undefined>): KeyValueStore {

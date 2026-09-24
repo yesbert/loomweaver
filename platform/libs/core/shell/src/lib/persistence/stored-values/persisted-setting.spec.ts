@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
-import { KeyValueStore } from './key-value-store';
+import { KeyValueStore } from '../key-value-store';
 import { persistedSetting, SettingCodec } from './persisted-setting';
-import { SETTINGS_STORE } from './settings-store';
-import { StateSyncService } from './state-sync.service';
+import { SETTINGS_STORE } from '../settings-store';
+import { StateSyncService } from '../state-sync.service';
 
 const KEY = 'lw.test.setting';
 

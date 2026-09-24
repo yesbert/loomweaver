@@ -23,7 +23,7 @@ import {
   workspaceExists,
 } from './baseline/workspace-lookup';
 import { HiddenViewsService } from '../regions/panel/hidden-views.service';
-import { persistedSetting } from '../persistence/persisted-setting';
+import { persistedSetting } from '../persistence/stored-values/persisted-setting';
 import { StateSyncService } from '../persistence/state-sync.service';
 import {
   ActiveWorkspaceService,

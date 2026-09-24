@@ -1,5 +1,5 @@
 import { Service } from '@angular/core';
-import { persistedSetting } from '../../persistence/persisted-setting';
+import { persistedSetting } from '../../persistence/stored-values/persisted-setting';
 import {
   INSTALLED_LIST_CODEC,
   InstalledPlugin,

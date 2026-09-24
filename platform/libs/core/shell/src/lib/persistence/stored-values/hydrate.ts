@@ -1,4 +1,4 @@
-import { KeyValueStore } from './key-value-store';
+import { KeyValueStore } from '../key-value-store';
 
 export function hydrateAsync(
   store: KeyValueStore,

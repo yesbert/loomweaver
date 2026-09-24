@@ -1,6 +1,6 @@
 import { inject, Service, signal } from '@angular/core';
 import { WORKING_STATE_STORE } from '../../persistence/working-state-store';
-import { hydrateAsync } from '../../persistence/hydrate';
+import { hydrateAsync } from '../../persistence/stored-values/hydrate';
 import { ActiveWorkspaceService } from '../../workspace/active-workspace.service';
 
 const STORAGE_KEY = 'lw.shell.hidden-views';

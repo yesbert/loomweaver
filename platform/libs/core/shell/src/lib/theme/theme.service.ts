@@ -7,7 +7,7 @@ import {
   signal,
   Signal,
 } from '@angular/core';
-import { persistedSetting } from '../persistence/persisted-setting';
+import { persistedSetting } from '../persistence/stored-values/persisted-setting';
 
 /** What the user picked. `system` follows the OS `prefers-color-scheme`. */
 export type ThemeMode = 'light' | 'dark' | 'system';

@@ -1,6 +1,6 @@
 import { inject, Service, signal } from '@angular/core';
 import { WORKING_STATE_STORE } from '../../persistence/working-state-store';
-import { hydrateAsync, readStoredValue } from '../../persistence/hydrate';
+import { hydrateAsync, readStoredValue } from '../../persistence/stored-values/hydrate';
 import { StateSyncService } from '../../persistence/state-sync.service';
 import { RetainedViewStash } from '../pane/retention/retained-view-stash';
 

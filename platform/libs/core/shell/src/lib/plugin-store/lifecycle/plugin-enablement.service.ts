@@ -1,6 +1,6 @@
 import { computed, inject, Service, signal } from '@angular/core';
-import { persistedSetting } from '../../persistence/persisted-setting';
-import { ID_SET_CODEC, toggledIdSet } from '../../persistence/persisted-id-set';
+import { persistedSetting } from '../../persistence/stored-values/persisted-setting';
+import { ID_SET_CODEC, toggledIdSet } from '../../persistence/stored-values/persisted-id-set';
 import { REQUIRED_PLUGINS } from '../../foundation/required-plugins';
 import { PluginInfo } from './plugin-info';
 

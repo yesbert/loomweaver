@@ -2,7 +2,7 @@ import { DOCUMENT } from '@angular/common';
 import { inject, isDevMode, Service, signal } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 import { SETTINGS_STORE } from '../persistence/settings-store';
-import { hydrateAsync } from '../persistence/hydrate';
+import { hydrateAsync } from '../persistence/stored-values/hydrate';
 import { StateSyncService } from '../persistence/state-sync.service';
 import {
   detectInitialLang,
