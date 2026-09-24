@@ -51,7 +51,7 @@ import {
   warnUnusableContainerLayout,
 } from './host-context-warnings';
 import { addressIsUnder } from '../addressing/address-reach';
-import { pathOwnedBy } from './plugin-surface-ownership';
+import { pathOwnedBy, surfaceOwnedBy } from './plugin-surface-ownership';
 
 export class HostPluginContext implements PluginContext {
   private readonly disposables: Disposable[] = [];
@@ -182,10 +182,7 @@ export class HostPluginContext implements PluginContext {
       this.invocation.invocable(this.pluginId, this.isGranted('automation'));
   }
 
-  invokeCommand(
-    id: string,
-    args?: CommandArguments,
-  ): Promise<CommandOutcome> {
+  invokeCommand(id: string, args?: CommandArguments): Promise<CommandOutcome> {
     return this.invocation.invoke(
       this.pluginId,
       this.isGranted('automation'),
@@ -212,12 +209,16 @@ export class HostPluginContext implements PluginContext {
 
   retitleSurface(id: string, title: string): void {
     this.require('contributions');
-    this.registry.retitleSurface(id, title);
+    if (surfaceOwnedBy(this.registry, this.pluginId, id)) {
+      this.registry.retitleSurface(id, title);
+    }
   }
 
   updateSurfaceAction(id: string, action: ViewAction): void {
     this.require('contributions');
-    this.registry.updateSurfaceAction(id, action);
+    if (surfaceOwnedBy(this.registry, this.pluginId, id)) {
+      this.registry.updateSurfaceAction(id, action);
+    }
   }
 
   registerSurface(surface: Surface): Disposable {
@@ -254,7 +255,13 @@ export class HostPluginContext implements PluginContext {
 
   registerRailItem(item: RailItem): Disposable {
     this.require('contributions');
-    warnUnlessRegionType(this.pluginId, this.regions, item.id, item.rail, 'rail');
+    warnUnlessRegionType(
+      this.pluginId,
+      this.regions,
+      item.id,
+      item.rail,
+      'rail',
+    );
     return this.track(this.registry.addRailItem(item));
   }
 

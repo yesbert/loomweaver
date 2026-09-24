@@ -65,14 +65,19 @@ function makeContext(
         ? [
             TranslocoTestingModule.forRoot({
               langs: PLUGIN_STRINGS,
-              translocoConfig: { availableLangs: ['en', 'de'], defaultLang: 'en' },
+              translocoConfig: {
+                availableLangs: ['en', 'de'],
+                defaultLang: 'en',
+              },
               preloadLangs: true,
             }),
           ]
         : [],
     providers: [
       { provide: AUTH_SOURCE, useValue: auth },
-      ...(menus === 'stubbed' ? [{ provide: MenuService, useValue: menuStub }] : []),
+      ...(menus === 'stubbed'
+        ? [{ provide: MenuService, useValue: menuStub }]
+        : []),
     ],
   });
   const registry = TestBed.inject(ContributionRegistry);
@@ -650,6 +655,23 @@ describe('HostPluginContext', () => {
       expect(registry.views()[0].title).toBe('nav.first');
     });
 
+    it('leaves a surface another plugin registered alone', () => {
+      const { ctx, registry } = makeContext();
+      registry.addView(
+        {
+          id: 'theirs',
+          region: 'primary',
+          title: 't',
+          component: DummyComponent,
+        },
+        'another-plugin',
+      );
+
+      ctx.retitleSurface('theirs', 'hijacked');
+
+      expect(registry.views()[0].title).toBe('t');
+    });
+
     it('needs the "contributions" capability', () => {
       const { ctx } = makeContext(['ui', 'host']);
 
@@ -716,13 +738,20 @@ describe('HostPluginContext', () => {
     it('needs the "contributions" capability', () => {
       const { ctx } = makeContext(['ui', 'host']);
 
-      expect(() => ctx.updateSurfaceBadge('nav', BETA)).toThrow(CapabilityError);
+      expect(() => ctx.updateSurfaceBadge('nav', BETA)).toThrow(
+        CapabilityError,
+      );
     });
 
     it("leaves another plugin's surface alone", () => {
       const { ctx, registry } = makeContext();
       registry.addView(
-        { id: 'theirs', region: 'primary', title: 't', component: DummyComponent },
+        {
+          id: 'theirs',
+          region: 'primary',
+          title: 't',
+          component: DummyComponent,
+        },
         'another-plugin',
       );
 
@@ -906,6 +935,24 @@ describe('HostPluginContext', () => {
       ctx.updateSurfaceAction('other', { ...first, title: 'act.other' });
 
       expect(registry.views()[0].actions).toEqual([first, second]);
+    });
+
+    it('leaves a surface another plugin registered alone', () => {
+      const { ctx, registry } = makeContext();
+      registry.addView(
+        {
+          id: 'theirs',
+          region: 'primary',
+          title: 't',
+          actions: [first],
+          component: DummyComponent,
+        },
+        'another-plugin',
+      );
+
+      ctx.updateSurfaceAction('theirs', { ...first, run: () => undefined });
+
+      expect(registry.views()[0].actions).toEqual([first]);
     });
 
     it('needs the "contributions" capability', () => {
