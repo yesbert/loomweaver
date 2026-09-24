@@ -52,7 +52,6 @@ export class PermissionsSettings {
       const required = this.enablement.isRequired(plugin.id);
       return {
         ...plugin,
-        enabled: deployed || plugin.enabled,
         deployed,
         required,
         rungNote: RUNG_NOTES[this.isolation.rungOf(plugin.id)],

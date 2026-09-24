@@ -2,6 +2,7 @@ import { computed, inject, Service, signal } from '@angular/core';
 import { persistedSetting } from '../../persistence/stored-values/persisted-setting';
 import { ID_SET_CODEC, toggledIdSet } from '../../persistence/stored-values/persisted-id-set';
 import { REQUIRED_PLUGINS } from '../../foundation/required-plugins';
+import { PluginDeploymentService } from '../../plugin-store/lifecycle/plugin-deployment.service';
 import { PluginInfo } from './plugin-info';
 
 const STORAGE_KEY = 'lw.shell.disabled-plugins';
@@ -19,21 +20,23 @@ const STORAGE_KEY = 'lw.shell.disabled-plugins';
 export class PluginEnablementService {
   private readonly required = new Set(inject(REQUIRED_PLUGINS));
 
+  private readonly deployment = inject(PluginDeploymentService);
+
   private readonly storedDisabled = persistedSetting(STORAGE_KEY, ID_SET_CODEC);
 
   private readonly names = signal<ReadonlyMap<string, string>>(new Map());
 
   /**
    * The disabled plugin ids (reactive) — a runtime reconciles activation against this. A plugin the
-   * distribution declared its application cannot run without never appears here, whatever is stored,
-   * so the runtime and the permissions surface read one answer rather than two.
+   * distribution declared its application cannot run without never appears here, and neither does
+   * one the operator deploys, whatever is stored, so the runtimes, the store and the permissions
+   * surface read one answer rather than several.
    */
   readonly disabled = computed<ReadonlySet<string>>(() => {
     const stored = this.storedDisabled.value();
-    if (this.required.size === 0) {
-      return stored;
-    }
-    return new Set([...stored].filter((id) => !this.required.has(id)));
+    const alwaysOn = (id: string) =>
+      this.required.has(id) || this.deployment.isDeployed(id);
+    return new Set([...stored].filter((id) => !alwaysOn(id)));
   });
 
   /** Every known plugin with its enabled state, for the permissions settings surface. */

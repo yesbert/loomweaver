@@ -154,7 +154,7 @@ export class FramePluginRuntime {
     );
     for (const plugin of runnable) {
       this.enablement.register(plugin.id, plugin.name ?? plugin.id);
-      const enabled = plugin.deployed === true || !disabled.has(plugin.id);
+      const enabled = !disabled.has(plugin.id);
       const running = this.instances.get(plugin.id);
       if (enabled && !running) {
         this.activate(plugin);
