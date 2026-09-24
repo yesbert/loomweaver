@@ -10,11 +10,10 @@ import {
 import { KeyValueStore } from '../../persistence/key-value-store';
 import { hydrateAsync } from '../../persistence/hydrate';
 import { StateSyncService } from '../../persistence/state-sync.service';
+import { PluginInstallService } from '../../plugin-store/lifecycle/plugin-install.service';
 
 export type FrameSettingValue = boolean | string | number;
-export type FrameSettingValues = Readonly<
-  Record<string, FrameSettingValue>
->;
+export type FrameSettingValues = Readonly<Record<string, FrameSettingValue>>;
 
 const INPUT_TYPES = ['text', 'date', 'email', 'number', 'password'] as const;
 
@@ -80,10 +79,7 @@ function buildSliderControl(
   };
 }
 
-function sanitizeControl(
-  pluginId: string,
-  raw: unknown,
-): FrameSettingControl {
+function sanitizeControl(pluginId: string, raw: unknown): FrameSettingControl {
   const control = (raw ?? {}) as Record<string, unknown>;
   const kind = control['kind'];
   const value = control['value'];
@@ -177,7 +173,10 @@ function typedOverlay(
     for (const [key, value] of Object.entries(
       parsed as Record<string, unknown>,
     )) {
-      if (Object.hasOwn(defaults, key) && typeof value === typeof defaults[key]) {
+      if (
+        Object.hasOwn(defaults, key) &&
+        typeof value === typeof defaults[key]
+      ) {
         merged[key] = value as FrameSettingValue;
       }
     }
@@ -201,9 +200,16 @@ export interface FrameSectionHandle {
   readonly disposeSync: () => void;
 }
 
-export function buildFrameSection(
-  deps: FrameSectionDeps,
-): FrameSectionHandle {
+export function frameSettingsGroup(
+  installs: PluginInstallService,
+  pluginId: string,
+): string {
+  return installs.isInstalled(pluginId)
+    ? 'settings.group.community'
+    : 'settings.group.plugins';
+}
+
+export function buildFrameSection(deps: FrameSectionDeps): FrameSectionHandle {
   const { pluginId, wire, group, store, sync, notify } = deps;
   const key = `lw.plugin-settings:${pluginId}:${wire.id}`;
   const defaults = defaultsOf(wire);

@@ -12,7 +12,7 @@ they start with a top-level folder.
 - [x] 1.3 `retitleSurface` and `updateSurfaceAction` act only on a surface the calling plugin
   registered, for an in-process and a frame plugin, with a red test per method modelled on the badge
   test "leaves another plugin's surface alone" (`plugin/host-plugin-context.ts`).
-- [ ] 1.4 A deployed frame plugin's settings section is filed where the installed list looks for it,
+- [x] 1.4 A deployed frame plugin's settings section is filed where the installed list looks for it,
   or the list finds a section by its owner (`plugin/sandbox/sandbox-rpc-methods.ts`,
   `plugin-store/installed-plugin-list.ts`); tested with a deployed entry, not only an installed one.
 - [ ] 1.5 A plugin that fails to activate releases its grant, and the permissions surface stops listing
