@@ -6,7 +6,7 @@ import { CommandService } from './command.service';
 import { ContributionRegistry } from '../plugin/contribution-registry';
 import { AUTH_SOURCE } from '../auth/auth-context';
 import { NotificationService } from '../notifications/notification.service';
-import { ShellErrorHandler } from '../permissions/capability-refusal';
+import { CapabilityRefusalErrorHandler } from '../permissions/refusal-error-handler';
 import { CapabilityGrantService } from '../permissions/capability-grant.service';
 import { provideShellFeatures } from '../foundation/shell-features';
 import { PaletteMruService } from './palette-mru.service';
@@ -17,7 +17,7 @@ describe('CommandService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [{ provide: ErrorHandler, useClass: ShellErrorHandler }],
+      providers: [{ provide: ErrorHandler, useClass: CapabilityRefusalErrorHandler }],
     });
     registry = TestBed.inject(ContributionRegistry);
     commands = TestBed.inject(CommandService);

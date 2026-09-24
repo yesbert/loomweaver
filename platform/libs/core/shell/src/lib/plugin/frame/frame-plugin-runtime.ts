@@ -15,7 +15,7 @@ import { HostPluginContext } from '../context/host-plugin-context';
 import { HostContextFactory } from '../context/host-context-factory';
 import { CapabilityGrantService } from '../../permissions/capability-grant.service';
 import { PluginEnablementService } from '../enablement/plugin-enablement.service';
-import { InstalledPlugin } from '../../plugin-store/installed-plugin';
+import { InstalledPlugin } from '../../plugin-store/lifecycle/installed-plugin';
 import { PluginInstallService } from '../../plugin-store/lifecycle/plugin-install.service';
 import { CapabilityRefusalReporter } from '../../permissions/capability-refusal';
 import {

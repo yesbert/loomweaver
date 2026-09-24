@@ -168,11 +168,15 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 
 ## 6. Plugin loading, the plugin store and permissions
 
-- [ ] 6.1 **Move:** `disposeTogether` to `foundation/`; `plugin/sandbox/` to `plugin/frame/` with
+- [x] 6.1 **Move:** `disposeTogether` to `foundation/`; `plugin/sandbox/` to `plugin/frame/` with
   `frame-*` file names; enablement, its disable guard and `PluginInfo` to `plugin/enablement/`; the
   context files to `plugin/context/`; `capability-grants.ts` to `provide-capability-grants.ts`; the
   refusal error handler into its own file; `installed-plugin.ts` split into the catalog entry and the
   installed record; `format.ts` to `catalog-figures.ts`.
+  `foundation/` is at its twelve-concept limit, so `disposeTogether` moves with 6.2 into the
+  `contributions/` slice, whose registrations are all it disposes. The permissions settings section
+  moved into `plugin/enablement/` with the switches it shows; anywhere else it made two slices
+  import each other.
 - [ ] 6.2 **Move:** the contribution registry, surface normalisation and route omission into a
   top-level `contributions/` slice, with `tabBadgeOf` in `foundation/`; shrink the cycle baseline by
   the pairs that disappear.

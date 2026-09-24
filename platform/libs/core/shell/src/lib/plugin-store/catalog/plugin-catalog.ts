@@ -1,9 +1,6 @@
 import { InjectionToken } from '@angular/core';
-import {
-  PluginCatalogEntry,
-  isSameOriginUrl,
-  parseCatalogList,
-} from '../installed-plugin';
+import { isSameOriginUrl } from '../lifecycle/installed-plugin';
+import { PluginCatalogEntry, parseCatalogList } from './catalog-entry';
 
 
 /**

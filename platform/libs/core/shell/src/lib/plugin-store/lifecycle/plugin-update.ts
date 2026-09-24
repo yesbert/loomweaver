@@ -1,5 +1,6 @@
 import { Capability } from '@loomweaver/plugin-sdk';
-import { InstalledPlugin, PluginCatalogEntry } from '../installed-plugin';
+import { InstalledPlugin } from './installed-plugin';
+import { PluginCatalogEntry } from '../catalog/catalog-entry';
 
 function segments(version: string): readonly number[] {
   return version

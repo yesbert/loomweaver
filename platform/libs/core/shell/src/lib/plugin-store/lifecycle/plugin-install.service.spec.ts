@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { SETTINGS_STORE } from '../../persistence/settings-store';
 import { KeyValueStore } from '../../persistence/key-value-store';
-import { InstalledPlugin } from '../installed-plugin';
+import { InstalledPlugin } from './installed-plugin';
 import { PluginInstallService } from './plugin-install.service';
 
 const KEY = 'lw.shell.installed-plugins';

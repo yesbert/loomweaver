@@ -34,7 +34,7 @@ import { DEFAULT_BAR_ITEMS } from './regions/bar/default-bar-items';
 import { RAIL_ITEM } from './foundation/rail-item';
 import { VIEW } from './views/view';
 import { ContributionRegistry } from './plugin/contribution-registry';
-import { ShellErrorHandler } from './permissions/capability-refusal';
+import { CapabilityRefusalErrorHandler } from './permissions/refusal-error-handler';
 import { COMMAND_INVOKER } from './foundation/command-invoker';
 import { DIALOG_CLOSE_GUARD } from './dialog/dialog-close-guard';
 import { SurfaceCloseGuard } from './regions/pane/unsaved-work/surface-close-guard';
@@ -117,7 +117,7 @@ function angularRuntime(): (Provider | EnvironmentProviders)[] {
   return [
     provideZonelessChangeDetection(),
     provideBrowserGlobalErrorListeners(),
-    { provide: ErrorHandler, useClass: ShellErrorHandler },
+    { provide: ErrorHandler, useClass: CapabilityRefusalErrorHandler },
     provideHttpClient(),
   ];
 }

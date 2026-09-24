@@ -3,7 +3,8 @@ import {
   availableUpdate,
   isNewerVersion,
 } from './plugin-update';
-import { InstalledPlugin, PluginCatalogEntry } from '../installed-plugin';
+import { InstalledPlugin } from './installed-plugin';
+import { PluginCatalogEntry } from '../catalog/catalog-entry';
 
 const installed: InstalledPlugin = {
   id: 'testbed',

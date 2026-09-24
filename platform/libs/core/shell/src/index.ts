@@ -85,12 +85,10 @@ export * from './lib/plugin/frame/frame-plugin-runtime';
 export * from './lib/plugin/plugin';
 export * from './lib/plugin/plugin-runtime';
 
+export { type PluginCatalogEntry } from './lib/plugin-store/catalog/catalog-entry';
 export * from './lib/plugin-store/catalog/plugin-catalog';
 export * from './lib/plugin-store/catalog/provide-plugin-catalog';
-export {
-  type InstalledPlugin,
-  type PluginCatalogEntry,
-} from './lib/plugin-store/installed-plugin';
+export { type InstalledPlugin } from './lib/plugin-store/lifecycle/installed-plugin';
 export * from './lib/plugin-store/lifecycle/plugin-install.service';
 export * from './lib/plugin-store/plugin-store.service';
 

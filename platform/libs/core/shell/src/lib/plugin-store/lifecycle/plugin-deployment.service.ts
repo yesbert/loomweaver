@@ -1,10 +1,7 @@
 import { Service } from '@angular/core';
 import { persistedSetting } from '../../persistence/stored-values/persisted-setting';
-import {
-  INSTALLED_LIST_CODEC,
-  InstalledPlugin,
-  PluginCatalogEntry,
-} from '../installed-plugin';
+import { INSTALLED_LIST_CODEC, InstalledPlugin } from './installed-plugin';
+import { PluginCatalogEntry } from '../catalog/catalog-entry';
 
 const STORAGE_KEY = 'lw.shell.deployed-plugins';
 

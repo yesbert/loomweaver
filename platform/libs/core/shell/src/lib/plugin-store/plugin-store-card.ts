@@ -1,6 +1,6 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, input, output } from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { PluginCatalogEntry } from './installed-plugin';
+import { PluginCatalogEntry } from './catalog/catalog-entry';
 import { formatCount, formatUpdated } from './catalog-figures';
 
 @Component({

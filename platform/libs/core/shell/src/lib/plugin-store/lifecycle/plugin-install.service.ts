@@ -6,7 +6,7 @@ import {
   InstalledPlugin,
   isSameOriginUrl,
   parseInstalledPlugin,
-} from '../installed-plugin';
+} from './installed-plugin';
 
 const STORAGE_KEY = 'lw.shell.installed-plugins';
 
