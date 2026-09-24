@@ -58,7 +58,7 @@ export class RetainedComponent implements OnChanges, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.park();
+    this.letGo();
   }
 
   private sync(): void {
@@ -76,7 +76,7 @@ export class RetainedComponent implements OnChanges, OnDestroy {
       this.mounted = null;
       mounted.slot.discard();
     } else {
-      this.park();
+      this.letGo();
     }
     this.waiting = false;
     if (component === null || injector === null) {
@@ -101,8 +101,7 @@ export class RetainedComponent implements OnChanges, OnDestroy {
           hold,
         };
       },
-      this.anchor.parentNode,
-      hold,
+      { parent: this.anchor.parentNode, hold },
     );
     if (!slot.attached && !slot.held()) {
       this.place(slot.rootNodes);
@@ -118,18 +117,18 @@ export class RetainedComponent implements OnChanges, OnDestroy {
     slot.describe(this.mounted.mode, this.mounted.retain);
   }
 
-  private park(): void {
+  private letGo(): void {
     const mounted = this.mounted;
     this.mounted = null;
     if (!mounted) {
       return;
     }
     if (mounted.mode === 'move') {
-      mounted.slot.release(mounted.retain);
+      mounted.slot.detach(mounted.retain);
       return;
     }
     if (mounted.mode === 'in-place') {
-      mounted.slot.hide(mounted.retain);
+      mounted.slot.hideInPlace(mounted.retain);
       return;
     }
     mounted.slot.discard();
@@ -144,7 +143,7 @@ export class RetainedComponent implements OnChanges, OnDestroy {
       return;
     }
     if (mounted.slot.stale()) {
-      this.park();
+      this.letGo();
       this.sync();
       return;
     }

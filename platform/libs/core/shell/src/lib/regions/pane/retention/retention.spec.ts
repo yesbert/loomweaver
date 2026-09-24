@@ -468,7 +468,7 @@ describe('surface retention', () => {
       const first = acquireProbe(stash, 'content:main|notes');
       const second = acquireProbe(stash, 'content:main|notes');
 
-      first.release(false);
+      first.detach(false);
       await Promise.resolve();
 
       expect(destroyed).toBe(0);
@@ -576,7 +576,7 @@ describe('surface retention', () => {
           instance: componentRef.instance,
         };
       });
-      slot.release(true);
+      slot.detach(true);
     }
 
     it('keeps a retained instance while its tab is open and destroys it once the tab is gone', () => {
@@ -793,7 +793,7 @@ describe('surface retention', () => {
           instance: componentRef.instance,
         };
       });
-      slot.release(true);
+      slot.detach(true);
 
       TestBed.inject(RetentionGc).start();
       TestBed.tick();

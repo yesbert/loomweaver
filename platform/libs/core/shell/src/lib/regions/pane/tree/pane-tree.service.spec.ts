@@ -33,7 +33,7 @@ function park(stash: RetainedViewStash, key: string, instance: string): void {
       view: ref.hostView as EmbeddedViewRef<unknown>,
       instance,
     }))
-    .release(true);
+    .detach(true);
 }
 
 @Component({ selector: 'lw-pane-probe', template: '' })

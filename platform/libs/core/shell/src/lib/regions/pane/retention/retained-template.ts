@@ -63,7 +63,7 @@ export class RetainedTemplate implements OnChanges, OnDestroy {
       surfaceRetentionMode(this.registry.contentRoutes(), mounted.path) ===
         'move';
     if (survivable) {
-      mounted.slot.release(false);
+      mounted.slot.detach(false);
       return;
     }
     mounted.slot.discard();

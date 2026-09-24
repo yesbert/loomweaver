@@ -15,16 +15,21 @@ export interface RetainedSlot {
   readonly attached: boolean;
   stale(): boolean;
   held(): boolean;
-  describe(mode: SurfaceRetentionMode, retain: boolean): void;
-  release(retained: boolean): void;
-  hide(retained: boolean): void;
+  describe(mode: SurfaceRetentionMode, retains: boolean): void;
+  detach(retains: boolean): void;
+  hideInPlace(retains: boolean): void;
   discard(): void;
 }
 
 export interface ParkedEntry {
   readonly key: string;
-  readonly retained: boolean;
+  readonly retains: boolean;
   readonly held: boolean;
   readonly workspace: string;
   readonly instance?: unknown;
+}
+
+export interface SlotPlacement {
+  readonly parent?: Node | null;
+  readonly hold?: SurfaceHoldState | null;
 }
