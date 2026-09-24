@@ -1,31 +1,17 @@
 import { inject, Service, signal } from '@angular/core';
 import { WORKING_STATE_STORE } from '../../persistence/working-state-store';
 import { hydrateAsync } from '../../persistence/stored-values/hydrate';
+import { parseIdSet } from '../../persistence/stored-values/persisted-id-set';
 import { ActiveWorkspaceService } from '../../workspace/active-workspace.service';
 
 const STORAGE_KEY = 'lw.shell.hidden-views';
-
-export function parseHiddenViews(raw: string | undefined): ReadonlySet<string> {
-  if (!raw) {
-    return new Set();
-  }
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    if (!Array.isArray(parsed)) {
-      return new Set();
-    }
-    return new Set(parsed.filter((id): id is string => typeof id === 'string'));
-  } catch {
-    return new Set();
-  }
-}
 
 @Service()
 export class HiddenViewsService {
   private readonly store = inject(WORKING_STATE_STORE);
   private readonly workspace = inject(ActiveWorkspaceService);
   private readonly ids = signal<ReadonlySet<string>>(
-    parseHiddenViews(this.store.peek?.(this.workspace.scopedKey(STORAGE_KEY))),
+    parseIdSet(this.store.peek?.(this.workspace.scopedKey(STORAGE_KEY))),
   );
   readonly hidden = this.ids.asReadonly();
 
@@ -54,12 +40,14 @@ export class HiddenViewsService {
   }
 
   hydrate(raw: string | undefined): void {
-    this.ids.set(parseHiddenViews(raw));
+    this.ids.set(parseIdSet(raw));
     void this.store.set(this.storageKey(), this.serialize());
   }
 
   serialize(): string {
-    return JSON.stringify([...this.ids()].toSorted((a, b) => a.localeCompare(b)));
+    return JSON.stringify(
+      [...this.ids()].toSorted((a, b) => a.localeCompare(b)),
+    );
   }
 
   private commit(next: ReadonlySet<string>): void {
@@ -74,7 +62,7 @@ export class HiddenViewsService {
   private hydrateWhenWorkspaceReady(): void {
     void this.workspace.ready.then(() =>
       hydrateAsync(this.store, this.storageKey(), (raw) =>
-        this.ids.set(parseHiddenViews(raw)),
+        this.ids.set(parseIdSet(raw)),
       ),
     );
   }

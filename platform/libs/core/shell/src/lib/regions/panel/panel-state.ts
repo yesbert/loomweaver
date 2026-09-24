@@ -1,30 +1,22 @@
 import { inject, Service, signal } from '@angular/core';
 import { WORKING_STATE_STORE } from '../../persistence/working-state-store';
-import { hydrateAsync, readStoredValue } from '../../persistence/stored-values/hydrate';
+import {
+  hydrateAsync,
+  readStoredValue,
+} from '../../persistence/stored-values/hydrate';
 import { StateSyncService } from '../../persistence/state-sync.service';
+import {
+  FlagRecord,
+  isTrue,
+  parseRecord,
+  toggledFlag,
+} from '../../persistence/stored-values/persisted-record';
 import { RetainedViewStash } from '../pane/retention/retained-view-stash';
 
 const STORAGE_KEY = 'lw.shell.panels';
 
-function parseCollapsed(raw: string | undefined): Record<string, boolean> {
-  if (!raw) {
-    return {};
-  }
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-      return {};
-    }
-    const result: Record<string, boolean> = {};
-    for (const [key, value] of Object.entries(parsed)) {
-      if (value === true) {
-        result[key] = value;
-      }
-    }
-    return result;
-  } catch {
-    return {};
-  }
+function parseCollapsed(raw: string | undefined): FlagRecord {
+  return parseRecord(raw, isTrue);
 }
 
 @Service()
@@ -32,7 +24,7 @@ export class PanelState {
   private readonly store = inject(WORKING_STATE_STORE);
   private readonly stash = inject(RetainedViewStash);
   private readonly sync = inject(StateSyncService);
-  private readonly collapsed = signal<Record<string, boolean>>(
+  private readonly collapsed = signal<FlagRecord>(
     parseCollapsed(this.store.peek?.(STORAGE_KEY)),
   );
 
@@ -48,7 +40,7 @@ export class PanelState {
   }
 
   isCollapsed(regionId: string): boolean {
-    return this.collapsed()[regionId] ?? false;
+    return this.collapsed()[regionId] === true;
   }
 
   isOverlayOpen(regionId: string): boolean {
@@ -85,12 +77,7 @@ export class PanelState {
     if (value) {
       this.stash.evacuate(`${regionId}:`);
     }
-    const next = { ...this.collapsed() };
-    if (value) {
-      next[regionId] = true;
-    } else {
-      delete next[regionId];
-    }
+    const next = toggledFlag(this.collapsed(), regionId, value);
     this.collapsed.set(next);
     void this.store.set(STORAGE_KEY, JSON.stringify(next));
   }
