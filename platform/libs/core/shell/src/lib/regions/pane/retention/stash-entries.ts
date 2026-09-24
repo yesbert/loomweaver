@@ -3,15 +3,9 @@ import { SurfaceRetentionMode } from './retention-policy';
 import { ParkedEntry, RetainedViewSource } from './retained-view-model';
 import { SurfaceHoldState } from './surface-hold';
 import { isKeyForSurface } from './retention-keys';
+import { HiddenNode } from './holding-area';
 
-export interface HiddenNode {
-  readonly element: HTMLElement;
-  readonly display: string;
-}
-
-export type DeferredPlacement =
-  | { readonly kind: 'release' }
-  | { readonly kind: 'park'; readonly retained: boolean };
+export type DeferredPlacement = 'detach' | 'hideInPlace';
 
 export interface StashEntry {
   key: string;
@@ -23,10 +17,9 @@ export interface StashEntry {
   workspace: string;
   owner: object | null;
   inUse: boolean;
-  retained: boolean;
+  retains: boolean;
   inPlace: boolean;
   mode: SurfaceRetentionMode;
-  keep: boolean;
   hidden: readonly HiddenNode[];
   deferred: DeferredPlacement | null;
   unlisten: () => void;
@@ -102,11 +95,25 @@ export function parkedEntriesOf(entries: Iterable<StashEntry>): ParkedEntry[] {
     .filter((entry) => !entry.inUse)
     .map((entry) => ({
       key: entry.key,
-      retained: entry.retained,
+      retains: entry.retains,
       held: isHeld(entry),
       workspace: entry.workspace,
       instance: entry.instance,
     }));
+}
+
+export function instancesOf(entries: Iterable<StashEntry>): unknown[] {
+  return [...entries]
+    .map((entry) => entry.instance)
+    .filter((instance) => instance !== undefined);
+}
+
+export function keyedInstancesOf(
+  entries: Iterable<StashEntry>,
+): { key: string; instance: unknown }[] {
+  return [...entries]
+    .filter((entry) => entry.instance !== undefined)
+    .map((entry) => ({ key: entry.key, instance: entry.instance }));
 }
 
 export function parkedInstancesIn(

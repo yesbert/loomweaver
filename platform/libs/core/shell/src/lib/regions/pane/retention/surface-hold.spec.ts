@@ -258,7 +258,7 @@ describe('a surface held where its product put it', () => {
         };
       });
       pair.handle.hold();
-      slot.release(false);
+      slot.detach(false);
       return pair.handle;
     }
 
