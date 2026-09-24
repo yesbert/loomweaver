@@ -15,7 +15,7 @@ export class LwProgressRingElement extends HTMLElement {
     }
   }
 
-  private num(name: string, fallback: number): number {
+  private numberAttribute(name: string, fallback: number): number {
     const raw = this.getAttribute(name);
     if (raw === null || raw.trim() === '') {
       return fallback;
@@ -25,8 +25,8 @@ export class LwProgressRingElement extends HTMLElement {
   }
 
   private render(): void {
-    const max = Math.max(this.num('max', 100), 1);
-    const value = Math.min(Math.max(this.num('value', 0), 0), max);
+    const max = Math.max(this.numberAttribute('max', 100), 1);
+    const value = Math.min(Math.max(this.numberAttribute('value', 0), 0), max);
     const percent = Math.round((value / max) * 100);
     const size = this.getAttribute('size') ?? '2.5rem';
 

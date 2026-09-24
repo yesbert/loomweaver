@@ -264,16 +264,16 @@ export class ContributionRegistry {
   /** Adds a menu-slot item. With an `id` a re-registration replaces in place (last-in wins); without one the item is additive and dispose removes this exact contribution. */
   addMenuItem(item: MenuItem): Disposable {
     this.menuItemsSignal.update((items) =>
-      upsertBy(items, item, (index) => item.id !== undefined && index.id === item.id),
+      upsertBy(items, item, (existing) => item.id !== undefined && existing.id === item.id),
     );
     return {
       dispose: () =>
-        this.menuItemsSignal.update((items) => items.filter((index) => index !== item)),
+        this.menuItemsSignal.update((items) => items.filter((existing) => existing !== item)),
     };
   }
 
   removeMenuItemById(id: string): void {
-    this.menuItemsSignal.update((items) => items.filter((index) => index.id !== id));
+    this.menuItemsSignal.update((items) => items.filter((existing) => existing.id !== id));
   }
 
   /**
@@ -370,7 +370,7 @@ export class ContributionRegistry {
     target.update((items) => upsertById(items, item));
 
     return {
-      dispose: () => target.update((items) => items.filter((index) => index !== item)),
+      dispose: () => target.update((items) => items.filter((existing) => existing !== item)),
     };
   }
 
@@ -378,7 +378,7 @@ export class ContributionRegistry {
     target: WritableSignal<readonly T[]>,
     id: string,
   ): void {
-    target.update((items) => items.filter((index) => index.id !== id));
+    target.update((items) => items.filter((existing) => existing.id !== id));
   }
 }
 

@@ -13,13 +13,13 @@ import { labelOf, withLabel } from './pane-node';
 export function transformLeaf(
   node: PaneNode,
   paneId: string,
-  function_: (leaf: PaneLeaf) => PaneLeaf,
+  change: (leaf: PaneLeaf) => PaneLeaf,
 ): PaneNode {
   if (node.kind === 'leaf') {
-    return node.id === paneId ? function_(node) : node;
+    return node.id === paneId ? change(node) : node;
   }
-  const first = transformLeaf(node.first, paneId, function_);
-  const second = transformLeaf(node.second, paneId, function_);
+  const first = transformLeaf(node.first, paneId, change);
+  const second = transformLeaf(node.second, paneId, change);
   return first === node.first && second === node.second
     ? node
     : { ...node, first, second };
@@ -28,13 +28,13 @@ export function transformLeaf(
 export function collapseLeaf(
   node: PaneNode,
   paneId: string,
-  function_: (leaf: PaneLeaf) => PaneNode | null,
+  replace: (leaf: PaneLeaf) => PaneNode | null,
 ): PaneNode | null {
   if (node.kind === 'leaf') {
-    return node.id === paneId ? function_(node) : node;
+    return node.id === paneId ? replace(node) : node;
   }
-  const first = collapseLeaf(node.first, paneId, function_);
-  const second = collapseLeaf(node.second, paneId, function_);
+  const first = collapseLeaf(node.first, paneId, replace);
+  const second = collapseLeaf(node.second, paneId, replace);
   if (first === null) {
     return second;
   }

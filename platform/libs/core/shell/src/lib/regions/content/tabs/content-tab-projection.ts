@@ -123,7 +123,9 @@ export function withRefreshedPath(
 ): readonly OpenTab[] {
   return tabs[index].path === path
     ? tabs
-    : tabs.map((tab, index_) => (index_ === index ? { ...tab, path } : tab));
+    : tabs.map((tab, position) =>
+        position === index ? { ...tab, path } : tab,
+      );
 }
 
 export function autoOpenedTab(

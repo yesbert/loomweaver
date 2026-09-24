@@ -231,8 +231,8 @@ export class LwMenuElement extends HTMLElement {
       return;
     }
     this.active = (index + items.length) % items.length;
-    for (const [index_, item] of items.entries()) {
-      item.tabIndex = index_ === this.active ? 0 : -1;
+    for (const [position, item] of items.entries()) {
+      item.tabIndex = position === this.active ? 0 : -1;
     }
     const item = items[this.active];
     item.focus();

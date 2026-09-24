@@ -159,7 +159,11 @@ export class WorkspaceService {
       return;
     }
     const baseline = await this.currentState();
-    this.commit(this.list().map((w) => (w.id === id ? { ...w, baseline } : w)));
+    this.commit(
+      this.list().map((workspace) =>
+        workspace.id === id ? { ...workspace, baseline } : workspace,
+      ),
+    );
   }
 
   wouldSettle(path: string): boolean {
@@ -235,7 +239,11 @@ export class WorkspaceService {
     if (this.definitionOf(id) !== undefined) {
       return;
     }
-    this.commit(this.list().map((w) => (w.id === id ? { ...w, name } : w)));
+    this.commit(
+      this.list().map((workspace) =>
+        workspace.id === id ? { ...workspace, name } : workspace,
+      ),
+    );
   }
 
   async remove(id: string): Promise<boolean> {
@@ -245,7 +253,7 @@ export class WorkspaceService {
     if (!(await this.guard.confirmDiscardParked(id))) {
       return false;
     }
-    this.commit(this.list().filter((w) => w.id !== id));
+    this.commit(this.list().filter((workspace) => workspace.id !== id));
     this.stash.evictWorkspace(id);
     for (const key of WORKSPACE_KEYS) {
       void this.workingState.delete(workspaceScopedKey(key, id));
