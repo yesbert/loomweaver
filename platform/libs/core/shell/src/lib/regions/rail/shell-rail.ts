@@ -101,7 +101,7 @@ export class ShellRail {
   );
   protected readonly reorderable = computed(() => this.features.reorder());
   protected readonly labelled = computed(() =>
-    this.railLabels.labelled(this.region().id),
+    this.railLabels.isLabelled(this.region().id),
   );
 
   protected readonly draggable = computed(

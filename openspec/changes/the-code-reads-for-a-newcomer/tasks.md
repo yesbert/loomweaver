@@ -80,7 +80,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   one shape for startup registration, `registerDefaultSettings` injecting what it needs.
 - [x] 3.5 `shell.html` renders a side through one `ShellEdge` and the compact overlay through one
   drawer template instead of mirrored left and right blocks; the outlets render once.
-- [ ] 3.6 Rail and sidebar moves share one Alt+Shift+Arrow helper and one move announcement; the
+- [x] 3.6 Rail and sidebar moves share one Alt+Shift+Arrow helper and one move announcement; the
   sidebar's keyboard path goes through `ViewMoveService` (after its defect is fixed); local names say
   `side` or `regionId` instead of `dock`.
 - [ ] 3.7 **Move:** the app-reset dialog to `regions/reset/`, `layout/view.ts` to `views/`, the surface

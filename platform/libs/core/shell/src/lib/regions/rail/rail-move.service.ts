@@ -20,7 +20,7 @@ export class RailMoveService {
   private readonly announcer = inject(MoveAnnouncer);
 
   move(itemId: string, targetRegion: string): void {
-    this.items.show(itemId, targetRegion);
+    this.items.place(itemId, targetRegion);
     const item = this.registry.railItems().find((one) => one.id === itemId);
     this.announcer.announce(
       RAIL_MOVE_WORDING,

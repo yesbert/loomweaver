@@ -49,7 +49,7 @@ describe('RailWorkspaceEntries', () => {
 
     expect(railIds(registry)).toEqual([]);
 
-    railItems.show(workspaceRailItemId(saved.id), 'activity');
+    railItems.place(workspaceRailItemId(saved.id), 'activity');
     TestBed.tick();
 
     const entry = registry.railItems()[0];
@@ -62,7 +62,7 @@ describe('RailWorkspaceEntries', () => {
     const { registry, railItems, workspaces } = setup();
     await workspaces.saveCurrent('Quarter close');
     const [saved] = workspaces.workspaces();
-    railItems.show(workspaceRailItemId(saved.id), 'activity');
+    railItems.place(workspaceRailItemId(saved.id), 'activity');
     TestBed.tick();
     expect(railIds(registry)).toHaveLength(1);
 
@@ -76,7 +76,7 @@ describe('RailWorkspaceEntries', () => {
     const { registry, railItems, workspaces } = setup();
     await workspaces.saveCurrent('Quarter close');
     const [saved] = workspaces.workspaces();
-    railItems.show(workspaceRailItemId(saved.id), 'activity');
+    railItems.place(workspaceRailItemId(saved.id), 'activity');
     TestBed.tick();
 
     workspaces.rename(saved.id, 'Year end');
@@ -175,7 +175,7 @@ describe('RailWorkspaceEntries when a product keeps saved workspaces out of the 
     const first = setup();
     await first.workspaces.saveCurrent('Quarter close');
     const [saved] = first.workspaces.workspaces();
-    first.railItems.show(workspaceRailItemId(saved.id), 'activity');
+    first.railItems.place(workspaceRailItemId(saved.id), 'activity');
     TestBed.tick();
     expect(railIds(first.registry)).toHaveLength(1);
 

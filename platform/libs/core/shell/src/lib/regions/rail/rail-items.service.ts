@@ -66,7 +66,7 @@ export class RailItemsService {
     return !this.state().hidden.includes(itemId);
   }
 
-  show(itemId: string, regionId: string): void {
+  place(itemId: string, regionId: string): void {
     const state = this.state();
     this.commit({
       hidden: state.hidden.filter((id) => id !== itemId),

@@ -17,18 +17,16 @@ export const RAIL_CONTEXT_MENU = 'rail/context';
 export function registerRailCustomizeMenu(
   registry: ContributionRegistry,
 ): Disposable {
-  return disposeTogether([
-    registry.addMenuItem({
-      id: menuEntryId(RAIL_CUSTOMIZE_COMMAND_ID),
-      menu: RAIL_CONTEXT_MENU,
-      command: RAIL_CUSTOMIZE_COMMAND_ID,
-      group: '9_customize',
-      order: 0,
-    }),
-  ]);
+  return registry.addMenuItem({
+    id: menuEntryId(RAIL_CUSTOMIZE_COMMAND_ID),
+    menu: RAIL_CONTEXT_MENU,
+    command: RAIL_CUSTOMIZE_COMMAND_ID,
+    group: '9_customize',
+    order: 0,
+  });
 }
 
-export function registerRailContextMenu(
+export function registerRailHideMenu(
   registry: ContributionRegistry,
   railItems: RailItemsService,
 ): Disposable {

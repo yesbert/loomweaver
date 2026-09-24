@@ -16,11 +16,11 @@ export class RailLabelsService {
     serialize: (labels) => JSON.stringify(labels),
   });
 
-  labelled(railId: string): boolean {
+  isLabelled(railId: string): boolean {
     return this.stored.value()[railId] === true;
   }
 
-  show(railId: string, labelled: boolean): void {
+  setLabelled(railId: string, labelled: boolean): void {
     this.stored.set(toggledFlag(this.stored.value(), railId, labelled));
   }
 }
