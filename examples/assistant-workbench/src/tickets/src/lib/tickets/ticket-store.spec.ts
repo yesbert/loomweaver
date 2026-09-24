@@ -17,6 +17,11 @@ describe('ticketStore', () => {
     expect(() => ticketStore.get('T-9')).toThrow('There is no ticket T-9.');
   });
 
+  it('looks a number up without refusing one it does not know', () => {
+    expect(ticketStore.find(' t-1043 ')?.number).toBe('T-1043');
+    expect(ticketStore.find('T-9')).toBeUndefined();
+  });
+
   it('keeps a reply on the ticket', () => {
     expect(ticketStore.reply('T-1041', 'On it.').replies).toBe(1);
     expect(ticketStore.get('T-1041').replies[0].text).toBe('On it.');

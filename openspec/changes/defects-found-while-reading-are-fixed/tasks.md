@@ -105,7 +105,7 @@ they start with a top-level folder.
 
 ## 8. The example and the website
 
-- [ ] 8.1 A ticket link with a lower-case number opens its ticket: the view uses the store's lookup
+- [x] 8.1 A ticket link with a lower-case number opens its ticket: the view uses the store's lookup
   (`examples/assistant-workbench/src/tickets/src/lib/views/ticket-view.ts`).
 - [ ] 8.2 The landing page's pictures are copied because the landing page uses them, not because a doc
   embeds them (`website/tools/sync-docs.mjs`); the build fails when a landing picture is missing.

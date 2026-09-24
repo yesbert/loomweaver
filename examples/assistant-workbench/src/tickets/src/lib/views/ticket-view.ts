@@ -22,7 +22,7 @@ export class TicketView {
 
   protected readonly ticket = computed(() => {
     const number = this.params()?.get('number');
-    return ticketStore.tickets().find((one) => one.number === number);
+    return number ? ticketStore.find(number) : undefined;
   });
 
   protected stateKey(status: TicketStatus): string {
