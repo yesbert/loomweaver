@@ -8,7 +8,7 @@ test.describe('View in a content pane', () => {
 
     await page
       .locator(
-        'lw-content-area lw-pane-toolbar button[aria-label="Split right"]',
+        'lw-address-pane-header lw-pane-toolbar button[aria-label="Split right"]',
       )
       .click();
     await page
@@ -19,7 +19,7 @@ test.describe('View in a content pane', () => {
 
     await expect(
       page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane lw-testbed-outline-view',
+        'lw-pane-view:not([data-address-pane]) lw-surface-body lw-testbed-outline-view',
       ),
     ).toBeVisible();
     await expect(
@@ -31,7 +31,7 @@ test.describe('View in a content pane', () => {
     await page.reload();
     await expect(
       page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane lw-testbed-outline-view',
+        'lw-pane-view:not([data-address-pane]) lw-surface-body lw-testbed-outline-view',
       ),
     ).toBeVisible();
   });

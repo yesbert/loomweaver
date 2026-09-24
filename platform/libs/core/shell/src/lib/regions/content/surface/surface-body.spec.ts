@@ -10,7 +10,7 @@ import {
   PaddingDefault,
   SURFACE_PADDING,
 } from '../../../foundation/surface-padding';
-import { ContentSecondaryPane } from './content-secondary-pane';
+import { SurfaceBody } from './surface-body';
 import { offRouterPaneTargets, routerPaneTargets } from '../pane-targets';
 import { liveSurfaceRoute } from './live-surface-route';
 import { RegisteredContentRoute } from '../../../plugin/contribution-registry';
@@ -158,7 +158,7 @@ describe('pane targets — both pickers gate on the session', () => {
   });
 });
 
-describe('ContentSecondaryPane mounting honours access (mode is ignored for routes/views)', () => {
+describe('SurfaceBody mounting honours access (mode is ignored for routes/views)', () => {
   it('does not host-mount a route whose requirement is unmet, even with mode:disable', async () => {
     TestBed.configureTestingModule({
       imports: [
@@ -179,7 +179,7 @@ describe('ContentSecondaryPane mounting honours access (mode is ignored for rout
       access: { authenticated: true, mode: 'disable' },
     });
 
-    const fixture = TestBed.createComponent(ContentSecondaryPane);
+    const fixture = TestBed.createComponent(SurfaceBody);
     fixture.componentRef.setInput('path', 'lax');
     fixture.detectChanges();
     await fixture.whenStable();
@@ -213,7 +213,7 @@ describe('A host-mounted pane says why it is empty', () => {
     });
     seed(TestBed.inject(ContributionRegistry));
 
-    const fixture = TestBed.createComponent(ContentSecondaryPane);
+    const fixture = TestBed.createComponent(SurfaceBody);
     fixture.componentRef.setInput('path', path);
     fixture.detectChanges();
     return fixture.nativeElement;
@@ -293,12 +293,12 @@ describe('A host-mounted pane says why it is empty', () => {
   });
 });
 
-describe('ContentSecondaryPane (host-mounts ANY content route)', () => {
+describe('SurfaceBody (host-mounts ANY content route)', () => {
   it('renders a param route component off-router with its resolved params + nested outlet stub', async () => {
     TestBed.configureTestingModule({ providers: [provideRouter([])] });
     TestBed.inject(ContributionRegistry).addContentRoute(DOC_ROUTE);
 
-    const fixture = TestBed.createComponent(ContentSecondaryPane);
+    const fixture = TestBed.createComponent(SurfaceBody);
     fixture.componentRef.setInput('path', 'doc/main/code');
     fixture.detectChanges();
     await fixture.whenStable();
@@ -316,7 +316,7 @@ describe('ContentSecondaryPane (host-mounts ANY content route)', () => {
       component: SubView,
     });
 
-    const fixture = TestBed.createComponent(ContentSecondaryPane);
+    const fixture = TestBed.createComponent(SurfaceBody);
     fixture.componentRef.setInput('path', 'doc/main/code');
     fixture.detectChanges();
     await fixture.whenStable();
@@ -348,7 +348,7 @@ describe('ContentSecondaryPane (host-mounts ANY content route)', () => {
     const registry = TestBed.inject(ContributionRegistry);
     registry.addContentRoute({ path: '', component: ParamView });
 
-    const fixture = TestBed.createComponent(ContentSecondaryPane);
+    const fixture = TestBed.createComponent(SurfaceBody);
     fixture.componentRef.setInput('path', 'sandbox-rpc/overview');
     fixture.detectChanges();
     await fixture.whenStable();
@@ -367,7 +367,7 @@ describe('ContentSecondaryPane (host-mounts ANY content route)', () => {
   });
 });
 
-describe('ContentSecondaryPane — the inset holds wherever the surface is put', () => {
+describe('SurfaceBody — the inset holds wherever the surface is put', () => {
   const CONTENT_INSET = 'p-6';
   const PANEL_INSET = 'p-3';
 
@@ -390,7 +390,7 @@ describe('ContentSecondaryPane — the inset holds wherever the surface is put',
       ...(declared !== undefined && { padded: declared }),
     } as ContentRoute);
 
-    const fixture = TestBed.createComponent(ContentSecondaryPane);
+    const fixture = TestBed.createComponent(SurfaceBody);
     fixture.componentRef.setInput('path', 'doc');
     fixture.componentRef.setInput('variant', variant);
     fixture.detectChanges();
@@ -442,7 +442,7 @@ class RouteProbe {
   }
 }
 
-describe('ContentSecondaryPane releasing what it no longer shows', () => {
+describe('SurfaceBody releasing what it no longer shows', () => {
   async function visit(paths: readonly string[], retain?: 'always') {
     probedRoutes.length = 0;
     TestBed.configureTestingModule({ providers: [provideRouter([])] });
@@ -451,7 +451,7 @@ describe('ContentSecondaryPane releasing what it no longer shows', () => {
       component: RouteProbe,
       ...(retain && { retain }),
     });
-    const fixture = TestBed.createComponent(ContentSecondaryPane);
+    const fixture = TestBed.createComponent(SurfaceBody);
     for (const path of paths) {
       fixture.componentRef.setInput('path', path);
       fixture.detectChanges();

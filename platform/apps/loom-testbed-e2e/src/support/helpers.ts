@@ -76,7 +76,7 @@ export function expectFreshWindow(page: Page) {
 
 export async function splitContentRight(page: Page): Promise<Locator> {
   await page
-    .locator('lw-content-area lw-pane-toolbar button[aria-label="Split right"]')
+    .locator('lw-address-pane-header lw-pane-toolbar button[aria-label="Split right"]')
     .click();
   const divider = page.getByRole('separator', { name: 'Resize split' });
   await expect(divider).toBeVisible();

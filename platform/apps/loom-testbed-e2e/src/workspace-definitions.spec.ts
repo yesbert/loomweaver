@@ -15,22 +15,16 @@ test.describe('Developer-defined workspaces', () => {
     await openReview(page);
 
     await expect(
-      page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
-      ),
+      page.locator('lw-pane-view:not([data-address-pane]) lw-surface-body'),
     ).toHaveCount(2);
     await expect(
       page
-        .locator(
-          'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
-        )
+        .locator('lw-pane-view:not([data-address-pane]) lw-surface-body')
         .filter({ hasText: 'Search' }),
     ).toBeVisible();
     await expect(
       page
-        .locator(
-          'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
-        )
+        .locator('lw-pane-view:not([data-address-pane]) lw-surface-body')
         .filter({ hasText: 'Notes' }),
     ).toBeVisible();
 
@@ -42,9 +36,7 @@ test.describe('Developer-defined workspaces', () => {
     await page.reload();
     await expect(page).toHaveURL(/entry\/e-01/);
     await expect(
-      page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
-      ),
+      page.locator('lw-pane-view:not([data-address-pane]) lw-surface-body'),
     ).toHaveCount(2);
 
     await page.getByRole('button', { name: 'Workspaces' }).click();
@@ -88,9 +80,7 @@ test.describe('Developer-defined workspaces', () => {
       .getByRole('button', { name: 'Close pane' })
       .click();
     await expect(
-      page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
-      ),
+      page.locator('lw-pane-view:not([data-address-pane]) lw-surface-body'),
     ).toHaveCount(1);
 
     await page.getByRole('button', { name: 'Workspaces' }).click();
@@ -99,9 +89,7 @@ test.describe('Developer-defined workspaces', () => {
     await page.getByRole('dialog').getByRole('button', { name: 'OK' }).click();
 
     await expect(
-      page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
-      ),
+      page.locator('lw-pane-view:not([data-address-pane]) lw-surface-body'),
     ).toHaveCount(2);
     await page.getByRole('button', { name: 'Workspaces' }).click();
     await expect(page.getByTestId('workspace-changed')).toHaveCount(0);

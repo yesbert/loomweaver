@@ -7,7 +7,7 @@ import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { CONTENT_DOCK, PRIMARY_PANE } from '../../pane/tree/pane-address';
 import { paneRetentionScope } from '../../pane/retention/retention-keys';
 import { buildContentRoutes } from '../routing/content-router';
-import { ContentSecondaryPane } from '../surface/content-secondary-pane';
+import { SurfaceBody } from '../surface/surface-body';
 import { ContentTabsService } from './content-tabs.service';
 
 @Component({ selector: 'lw-test-content', template: '' })
@@ -46,7 +46,7 @@ describe('ContentTabsService', () => {
   it('answers whether an address holds unsaved work, and follows it being saved', async () => {
     draftDirty.set(true);
     await harness.navigateByUrl('/draft/a');
-    const pane = TestBed.createComponent(ContentSecondaryPane);
+    const pane = TestBed.createComponent(SurfaceBody);
     pane.componentRef.setInput('path', 'draft/a');
     pane.componentRef.setInput('carriesAddress', true);
     pane.componentRef.setInput(

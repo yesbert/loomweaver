@@ -29,7 +29,7 @@ import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 import { findLeaf } from '../../pane/tree/pane-queries';
 import { CONTENT_DOCK } from '../../pane/tree/pane-address';
 import { ContentTabsService } from '../tabs/content-tabs.service';
-import { AddressBody } from '../address-body';
+import { AddressPaneBody } from '../address-pane-body';
 import { WorkspaceService } from '../../../workspace/workspace.service';
 import { WORKSPACE_CLAIMS } from '../../../foundation/workspace-claims';
 
@@ -184,7 +184,7 @@ describe('a gated address keeps its sub-address', () => {
         { provide: WORKSPACE_CLAIMS, useExisting: WorkspaceService },
       ]);
       TestBed.inject(ContentTabsService);
-      const body = TestBed.inject(AddressBody);
+      const body = TestBed.inject(AddressPaneBody);
       const paneTree = TestBed.inject(PaneTreeService);
       await signIn(auth);
       await TestBed.inject(ApplicationRef).whenStable();

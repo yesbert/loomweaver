@@ -32,7 +32,7 @@ test.describe('A content tab in a split pane opens its menu and acts on that pan
     await expect(splitStrip.locator('[role="tab"]')).toHaveCount(1);
     await expect(target).toBeVisible();
     await expect(
-      page.locator('lw-content-area [role="tab"][aria-label="E-01"]'),
+      page.locator('lw-address-pane-header [role="tab"][aria-label="E-01"]'),
     ).toBeVisible();
     await expect(page).toHaveURL(/entry\/e-01/);
   });

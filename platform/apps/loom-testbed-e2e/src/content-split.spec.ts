@@ -8,7 +8,7 @@ test.describe('Content split', () => {
     await page.goto('/search');
 
     const toggle = page.locator(
-      'lw-content-area lw-pane-toolbar button[aria-label="Split right"]',
+      'lw-address-pane-header lw-pane-toolbar button[aria-label="Split right"]',
     );
     await expect(toggle).toBeVisible();
 
@@ -16,9 +16,7 @@ test.describe('Content split', () => {
     const divider = page.getByRole('separator', { name: 'Resize split' });
     await expect(divider).toBeVisible();
     await expect(
-      page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
-      ),
+      page.locator('lw-pane-view:not([data-address-pane]) lw-surface-body'),
     ).toBeVisible();
 
     await divider.focus();
@@ -29,9 +27,7 @@ test.describe('Content split', () => {
       page.getByRole('separator', { name: 'Resize split' }),
     ).toBeVisible();
     await expect(
-      page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
-      ),
+      page.locator('lw-pane-view:not([data-address-pane]) lw-surface-body'),
     ).toBeVisible();
 
     await page.getByRole('button', { name: 'Close pane' }).first().click();
@@ -39,9 +35,7 @@ test.describe('Content split', () => {
       page.getByRole('separator', { name: 'Resize split' }),
     ).toHaveCount(0);
     await expect(
-      page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
-      ),
+      page.locator('lw-pane-view:not([data-address-pane]) lw-surface-body'),
     ).toHaveCount(0);
   });
 
@@ -49,7 +43,7 @@ test.describe('Content split', () => {
     page,
   }) => {
     const toggle = page.locator(
-      'lw-content-area lw-pane-toolbar button[aria-label="Split right"]',
+      'lw-address-pane-header lw-pane-toolbar button[aria-label="Split right"]',
     );
     await page.goto('/secret');
     await expect(page.getByText('Sign-in required')).toBeVisible();
@@ -69,9 +63,7 @@ test.describe('Content split', () => {
       page.getByRole('separator', { name: 'Resize split' }),
     ).toBeVisible();
     await expect(
-      page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
-      ),
+      page.locator('lw-pane-view:not([data-address-pane]) lw-surface-body'),
     ).toBeVisible();
   });
 
@@ -105,7 +97,7 @@ test.describe('Content split', () => {
     await expect(page).toHaveURL(/entry\/e-01/);
 
     await page
-      .locator('lw-content-area')
+      .locator('lw-address-pane-header')
       .getByTestId('tab-close')
       .first()
       .click();
@@ -114,9 +106,7 @@ test.describe('Content split', () => {
       page.locator('lw-content-grid lw-pane-split-handle'),
     ).toHaveCount(0);
     await expect(
-      page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
-      ),
+      page.locator('lw-pane-view:not([data-address-pane]) lw-surface-body'),
     ).toHaveCount(0);
     await expect(page).toHaveURL(/entry\/e-02/);
   });
@@ -136,7 +126,7 @@ test.describe('Content split', () => {
     await expect(page).toHaveURL(/entry\/e-02/);
 
     const inlineSplit = page.locator(
-      'lw-content-area lw-pane-toolbar button[aria-label="Split right"]',
+      'lw-address-pane-header lw-pane-toolbar button[aria-label="Split right"]',
     );
     await expect(inlineSplit).toBeVisible();
     await inlineSplit.click();
@@ -145,7 +135,7 @@ test.describe('Content split', () => {
       page.locator('lw-content-grid lw-pane-split-handle'),
     ).toHaveCount(1);
     await expect(
-      page.locator('lw-content-area').getByRole('tab', { name: 'E-02' }),
+      page.locator('lw-address-pane-header').getByRole('tab', { name: 'E-02' }),
     ).toHaveCount(1);
     await expect(
       page.locator('lw-pane-view:not([data-address-pane])'),

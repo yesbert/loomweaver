@@ -10,11 +10,11 @@ test.describe('Open view in content', () => {
     await page.getByRole('menuitem', { name: 'Open in content' }).click();
 
     await expect(
-      page.locator('lw-content-secondary-pane lw-testbed-outline-view'),
+      page.locator('lw-surface-body lw-testbed-outline-view'),
     ).toBeVisible();
     await page.reload();
     await expect(
-      page.locator('lw-content-secondary-pane lw-testbed-outline-view'),
+      page.locator('lw-surface-body lw-testbed-outline-view'),
     ).toBeVisible();
   });
 });

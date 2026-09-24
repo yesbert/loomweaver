@@ -8,7 +8,7 @@ import {
 } from '../../foundation/shell-features';
 import { FeatureSwitches } from '../../features/feature-switches.service';
 import { ContentTabsService } from '../content/tabs/content-tabs.service';
-import { PaneTargetPicker } from '../content/pane-target-picker.service';
+import { PaneTargetPicker } from '../content/pane-target-picker';
 import { PaneChromeService } from './chrome/pane-chrome.service';
 import { PaneDragService } from './drag/pane-drag.service';
 import { PaneTreeService } from './tree/pane-tree.service';

@@ -12,7 +12,9 @@ function paneTree(page: Page): Promise<string> {
 
 function splitRight(page: Page): Promise<void> {
   return page
-    .locator('lw-content-area lw-pane-toolbar button[aria-label="Split right"]')
+    .locator(
+      'lw-address-pane-header lw-pane-toolbar button[aria-label="Split right"]',
+    )
     .click();
 }
 
@@ -32,7 +34,7 @@ test.describe('A pane never shows a tab the URL pane hides', () => {
     page,
   }) => {
     const urlPane = page.locator(
-      'lw-content-area lw-pane-tab-strip [role="tab"]',
+      'lw-address-pane-header lw-pane-tab-strip [role="tab"]',
     );
     await page.goto('/');
     await page.getByRole('tab', { name: 'Entry list' }).click();

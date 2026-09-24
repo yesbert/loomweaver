@@ -19,7 +19,7 @@ test.describe('Pane edge drag & drop', () => {
 
     await expect(
       page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane lw-testbed-outline-view',
+        'lw-pane-view:not([data-address-pane]) lw-surface-body lw-testbed-outline-view',
       ),
     ).toBeVisible();
     await expect(
@@ -35,7 +35,7 @@ test.describe('Pane edge drag & drop', () => {
     await page.reload();
     await expect(
       page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane lw-testbed-outline-view',
+        'lw-pane-view:not([data-address-pane]) lw-surface-body lw-testbed-outline-view',
       ),
     ).toBeVisible();
     await expect(
@@ -62,7 +62,7 @@ test.describe('Pane edge drag & drop', () => {
 
     await expect(
       page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane lw-testbed-outline-view',
+        'lw-pane-view:not([data-address-pane]) lw-surface-body lw-testbed-outline-view',
       ),
     ).toBeVisible();
 
@@ -144,7 +144,7 @@ test.describe('Pane edge drag & drop', () => {
     ).toHaveCount(0);
     await expect(page.locator('lw-testbed-outline-view')).toBeVisible();
     await expect(
-      page.locator('lw-content-area [role="tab"][aria-label="Outline"]'),
+      page.locator('lw-address-pane-header [role="tab"][aria-label="Outline"]'),
     ).toHaveCount(1);
   });
 
@@ -176,7 +176,7 @@ test.describe('Pane edge drag & drop', () => {
       page.locator('lw-content-grid lw-pane-split-handle'),
     ).toHaveCount(0);
     await expect(
-      page.locator('lw-content-area [role="tab"][aria-label="Outline"]'),
+      page.locator('lw-address-pane-header [role="tab"][aria-label="Outline"]'),
     ).toHaveCount(1);
     await expect(page.locator('lw-testbed-outline-view')).toBeVisible();
   });

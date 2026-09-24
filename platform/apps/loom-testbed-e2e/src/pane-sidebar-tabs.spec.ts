@@ -10,7 +10,7 @@ test.describe('Sidebar ⇄ center tab moves', () => {
     await page.goto('/dashboard/overview');
     await expect(page.getByRole('tab', { name: 'Overview' })).toBeVisible();
     const strip = (await page
-      .locator('lw-content-area [role="tablist"]')
+      .locator('lw-address-pane-header [role="tablist"]')
       .boundingBox())!;
 
     await dragTo(
@@ -23,7 +23,7 @@ test.describe('Sidebar ⇄ center tab moves', () => {
     );
 
     await expect(
-      page.locator('lw-content-area [role="tab"][aria-label="Outline"]'),
+      page.locator('lw-address-pane-header [role="tab"][aria-label="Outline"]'),
     ).toBeVisible();
     await expect(
       page.locator('lw-content-grid lw-pane-split-handle'),
@@ -42,12 +42,12 @@ test.describe('Sidebar ⇄ center tab moves', () => {
 
     await page.reload();
     await expect(
-      page.locator('lw-content-area [role="tab"][aria-label="Outline"]'),
+      page.locator('lw-address-pane-header [role="tab"][aria-label="Outline"]'),
     ).toBeVisible();
     await expect(page.locator('#lw-main-content')).toBeVisible();
 
     await page
-      .locator('lw-content-area [role="tab"][aria-label="Outline"]')
+      .locator('lw-address-pane-header [role="tab"][aria-label="Outline"]')
       .click();
     await expect(
       page.locator('#lw-main-content lw-testbed-outline-view'),
@@ -67,17 +67,21 @@ test.describe('Sidebar ⇄ center tab moves', () => {
     const strip = (await page
       .locator('#panel-views-left-panel [role="tablist"]')
       .boundingBox())!;
-    await dragTo(page, 'lw-content-area [role="tab"][aria-label="E-01"]', {
-      x: strip.x + strip.width - 24,
-      y: strip.y + strip.height / 2,
-    });
+    await dragTo(
+      page,
+      'lw-address-pane-header [role="tab"][aria-label="E-01"]',
+      {
+        x: strip.x + strip.width - 24,
+        y: strip.y + strip.height / 2,
+      },
+    );
 
     await expect(
       page.locator('#panel-views-left-panel [role="tab"][aria-label="E-01"]'),
     ).toBeVisible();
 
     await expect(
-      page.locator('lw-content-area [role="tab"][aria-label="E-01"]'),
+      page.locator('lw-address-pane-header [role="tab"][aria-label="E-01"]'),
     ).toHaveCount(0);
     await expect(
       page.locator('lw-shell-panel lw-testbed-entry-view'),

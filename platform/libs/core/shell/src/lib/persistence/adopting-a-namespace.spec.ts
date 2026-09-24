@@ -14,7 +14,7 @@ import { provideLayout } from '../layout/layout';
 import { provideIdentityScopedStores } from './identity-scoped-stores';
 import { buildContentRoutes } from '../regions/content/routing/content-router';
 import { CONTENT_DOCK } from '../regions/pane/tree/pane-address';
-import { ContentSecondaryPane } from '../regions/content/surface/content-secondary-pane';
+import { SurfaceBody } from '../regions/content/surface/surface-body';
 import { CONTAINER_PANE_HOST } from '../regions/pane/container/container-context';
 import { ContainerPaneHost } from '../regions/pane/container/container-pane-host';
 import { collectLeafIds, collectTabs } from '../regions/pane/tree/pane-queries';
@@ -240,7 +240,7 @@ describe('a session that arrives after the workbench has already read', () => {
   it('keeps a container arrangement the adopted namespace holds nothing for', async () => {
     const { panes } = await open();
     await TestBed.inject(Router).navigateByUrl('/arranged/alpha');
-    const pane = TestBed.createComponent(ContentSecondaryPane);
+    const pane = TestBed.createComponent(SurfaceBody);
     pane.componentRef.setInput('path', 'arranged/alpha');
     pane.detectChanges();
     await settled();

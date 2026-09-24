@@ -115,7 +115,7 @@ test.describe('Tab move semantics', () => {
 
     await page
       .locator(
-        'lw-content-area lw-pane-toolbar button[aria-label="Split right"]',
+        'lw-address-pane-header lw-pane-toolbar button[aria-label="Split right"]',
       )
       .click();
     await expect(
@@ -126,7 +126,7 @@ test.describe('Tab move semantics', () => {
     await expect(page.getByRole('tab', { name: 'Overview' })).toBeVisible();
 
     const strip = (await page
-      .locator('lw-content-area [role="tablist"]')
+      .locator('lw-address-pane-header [role="tablist"]')
       .boundingBox())!;
     await dragTo(page, 'lw-pane-view:not([data-address-pane]) [role="tab"]', {
       x: strip.x + strip.width - 40,

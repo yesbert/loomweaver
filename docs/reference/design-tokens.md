@@ -154,7 +154,7 @@ Two kinds of target, with different promises:
   belong to one slot: `.lw-chrome-picture` is the picture a rail entry or a bar button draws for what
   it stands for, and `.lw-chrome-mark` is the round, bordered slot the initials take when there is no
   picture. Restyle the slot and both alternatives follow.
-- **The element tags** (`lw-shell-rail`, `lw-shell-panel`, `lw-content-area`, `lw-pane-tab-strip`, …)
+- **The element tags** (`lw-shell-rail`, `lw-shell-panel`, `lw-address-pane-header`, `lw-pane-tab-strip`, …)
   reach the structure, but they are **not** a versioned contract. They move when the chrome is
   restructured, and nothing warns you. Targeting them is supported in the sense that it works and
   nothing fights it; it is not supported in the sense that it is promised to keep working.

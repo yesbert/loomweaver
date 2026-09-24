@@ -1,7 +1,7 @@
 import { expect, Page, test } from '@playwright/test';
 import { dragTo, rail } from './support/helpers';
 
-const addressTabs = 'lw-content-area lw-pane-tab-strip [role="tab"]';
+const addressTabs = 'lw-address-pane-header lw-pane-tab-strip [role="tab"]';
 const otherTabs =
   'lw-pane-view:not([data-address-pane]) lw-pane-tab-strip [role="tab"]';
 
@@ -62,7 +62,7 @@ test.describe('Undoing a split of tabs that cannot be closed', () => {
     await splitTrendsOff(page);
 
     await page
-      .locator('lw-content-area')
+      .locator('lw-address-pane-header')
       .getByRole('button', { name: 'Close pane' })
       .click();
 

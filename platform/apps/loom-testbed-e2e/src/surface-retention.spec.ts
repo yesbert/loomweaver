@@ -14,9 +14,7 @@ test.describe('Surface retention', () => {
 
     await page.getByRole('button', { name: 'Split right' }).click();
     await expect(
-      page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
-      ),
+      page.locator('lw-pane-view:not([data-address-pane]) lw-surface-body'),
     ).toBeVisible();
     await expect(page.locator('#lw-main-content textarea')).toHaveValue(
       'UNSAVED-DRAFT',
@@ -24,9 +22,7 @@ test.describe('Surface retention', () => {
 
     await page.getByRole('button', { name: 'Close pane' }).last().click();
     await expect(
-      page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
-      ),
+      page.locator('lw-pane-view:not([data-address-pane]) lw-surface-body'),
     ).toHaveCount(0);
     await expect(page.locator('#lw-main-content textarea')).toHaveValue(
       'UNSAVED-DRAFT',

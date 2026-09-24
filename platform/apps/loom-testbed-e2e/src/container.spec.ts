@@ -157,7 +157,7 @@ test.describe('Container surface / workspace-in-a-tab', () => {
       .boundingBox())!;
     await dragTo(
       page,
-      'lw-content-area [role="tab"][aria-label="Container alpha"]',
+      'lw-address-pane-header [role="tab"][aria-label="Container alpha"]',
       {
         x: strip.x + strip.width - 24,
         y: strip.y + strip.height / 2,

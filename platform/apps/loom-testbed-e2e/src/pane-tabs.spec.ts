@@ -10,14 +10,14 @@ test.describe('Per-pane tab groups', () => {
 
     await page
       .locator(
-        'lw-content-area lw-pane-toolbar button[aria-label="Split right"]',
+        'lw-address-pane-header lw-pane-toolbar button[aria-label="Split right"]',
       )
       .click();
     await expect(page.locator(pane)).toHaveCount(1);
     await expect(page.locator(`${pane} [role="tab"]`)).toHaveCount(1);
     await expect(
       page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane lw-testbed-search-view',
+        'lw-pane-view:not([data-address-pane]) lw-surface-body lw-testbed-search-view',
       ),
     ).toBeVisible();
 
@@ -29,7 +29,7 @@ test.describe('Per-pane tab groups', () => {
     await expect(page.locator(`${pane} [role="tab"]`)).toHaveCount(2);
     await expect(
       page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane lw-testbed-outline-view',
+        'lw-pane-view:not([data-address-pane]) lw-surface-body lw-testbed-outline-view',
       ),
     ).toBeVisible();
 
@@ -37,14 +37,14 @@ test.describe('Per-pane tab groups', () => {
     await expect(page.locator(`${pane} [role="tab"]`)).toHaveCount(2);
     await expect(
       page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane lw-testbed-outline-view',
+        'lw-pane-view:not([data-address-pane]) lw-surface-body lw-testbed-outline-view',
       ),
     ).toBeVisible();
 
     await page.locator(`${pane} [role="tab"]`).first().click();
     await expect(
       page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane lw-testbed-search-view',
+        'lw-pane-view:not([data-address-pane]) lw-surface-body lw-testbed-search-view',
       ),
     ).toBeVisible();
 

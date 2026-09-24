@@ -14,7 +14,7 @@ async function entryBesideOverview(page: Page): Promise<void> {
   await page.keyboard.press(`${modifier}+\\`);
   await expect(page.locator('lw-testbed-entry-view')).toHaveCount(2);
   await page
-    .locator('lw-content-area')
+    .locator('lw-address-pane-header')
     .getByRole('tab', { name: 'Overview' })
     .click();
   await expect(page).toHaveURL(/\/overview$/);
@@ -84,7 +84,7 @@ test.describe('The address moves and nothing else does', () => {
       page.locator('#lw-main-content lw-testbed-entry-view[data-probe="kept"]'),
     ).toBeVisible();
 
-    await pressInto(page, `${otherPane} lw-content-secondary-pane`);
+    await pressInto(page, `${otherPane} lw-surface-body`);
     await expect(page).toHaveURL(/\/overview$/);
 
     await expect(

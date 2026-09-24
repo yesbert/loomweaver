@@ -7,7 +7,7 @@ import {
 import { ViewAction } from '@loomweaver/plugin-sdk';
 import { CommandService } from '../../commands/command.service';
 import { ContentTabsService } from './tabs/content-tabs.service';
-import { PaneTargetPicker } from './pane-target-picker.service';
+import { PaneTargetPicker } from './pane-target-picker';
 import { TAB_CONTEXT_MENU } from './tabs/tab-context-menu';
 import { VIEW_CONTEXT_MENU } from '../pane/chrome/view-menu-slot';
 import { FeatureSwitches } from '../../features/feature-switches.service';
@@ -30,13 +30,13 @@ import { StripTab } from '../pane/chrome/strip-tab';
 import { PaneToolbar } from '../pane/chrome/pane-toolbar';
 
 @Component({
-  selector: 'lw-content-area',
+  selector: 'lw-address-pane-header',
   imports: [PaneTabStrip, PaneToolbar],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  templateUrl: './content-area.html',
+  templateUrl: './address-pane-header.html',
   host: { class: 'contents' },
 })
-export class ContentArea {
+export class AddressPaneHeader {
   private readonly commands = inject(CommandService);
   private readonly picker = inject(PaneTargetPicker);
   protected readonly tabs = inject(ContentTabsService);
@@ -45,11 +45,11 @@ export class ContentArea {
   protected readonly contentDock = CONTENT_DOCK;
   private readonly chrome = inject(PaneChromeService);
   private readonly actions = inject(PaneActions);
-  private readonly layout = inject(PaneTreeService);
+  private readonly paneTree = inject(PaneTreeService);
   protected readonly features = inject(FeatureSwitches).content;
 
   private readonly urlPaneId = computed(() =>
-    this.layout.primaryId(CONTENT_DOCK),
+    this.paneTree.primaryId(CONTENT_DOCK),
   );
 
   protected readonly urlGroup = computed<TabDragSource>(() => ({
@@ -63,7 +63,9 @@ export class ContentArea {
     this.chrome.isMaximized(CONTENT_DOCK, this.urlPaneId()),
   );
 
-  private readonly isSplit = computed(() => this.layout.isSplit(CONTENT_DOCK));
+  private readonly isSplit = computed(() =>
+    this.paneTree.isSplit(CONTENT_DOCK),
+  );
   private readonly activeSplitPath = computed(
     () => this.tabs.activeViewPath() ?? this.tabs.activeTabRoot(),
   );

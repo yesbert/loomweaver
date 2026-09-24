@@ -107,7 +107,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 
 - [x] 4.1 **Move:** a `regions/content/surface/` sub-theme for what draws a surface inside a pane (the
   surface body, the iframe surface, the live and synthetic routes, the surface injector).
-- [ ] 4.2 **Move:** rename `ContentSecondaryPane` to `SurfaceBody`, `ContentArea` to
+- [x] 4.2 **Move:** rename `ContentSecondaryPane` to `SurfaceBody`, `ContentArea` to
   `AddressPaneHeader`, `AddressBody` to `AddressPaneBody`, `provide-content-router.ts` to
   `provide-shell-router.ts`; the unusable-workspace notice to `workspace/usability/`; one file-name
   rule for services in the slice.
@@ -408,3 +408,8 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 - [ ] 17.1 Reconcile this change with what was done: tasks set aside get their reason in `design.md`.
 - [ ] 17.2 Run `openspec validate --all --strict`, the full unit suites, the testbed and demo
   end-to-end suites and every guard; archive the change.
+- [ ] 17.3 The release that carries 4.2 names its two renamed element tags under "Changed"
+  (`lw-content-area` is `lw-address-pane-header`, `lw-content-secondary-pane` is `lw-surface-body`),
+  because a product's unlayered CSS may target them; when the demo adopts that release, its breeze
+  look in `demo/src/looks/looks.css` and `demo/e2e/dashboard-narrow-pane.spec.ts` follow. They stay
+  on the old tags until then, since the demo runs against the published packages.

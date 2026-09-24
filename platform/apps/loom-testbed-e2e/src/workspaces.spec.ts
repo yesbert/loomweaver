@@ -9,13 +9,11 @@ test.describe('Workspaces are self-remembering', () => {
 
     await page
       .locator(
-        'lw-content-area lw-pane-toolbar button[aria-label="Split right"]',
+        'lw-address-pane-header lw-pane-toolbar button[aria-label="Split right"]',
       )
       .click();
     await expect(
-      page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
-      ),
+      page.locator('lw-pane-view:not([data-address-pane]) lw-surface-body'),
     ).toHaveCount(1);
 
     await page.getByRole('button', { name: 'Workspaces' }).click();
@@ -29,34 +27,26 @@ test.describe('Workspaces are self-remembering', () => {
       .getByRole('button', { name: 'Close pane' })
       .click();
     await expect(
-      page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
-      ),
+      page.locator('lw-pane-view:not([data-address-pane]) lw-surface-body'),
     ).toHaveCount(0);
 
     await page.getByRole('button', { name: 'Workspaces' }).click();
     await page.getByTestId('workspace-default').click();
     await expect(
-      page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
-      ),
+      page.locator('lw-pane-view:not([data-address-pane]) lw-surface-body'),
     ).toHaveCount(1);
 
     await page.getByRole('button', { name: 'Workspaces' }).click();
     await page.getByRole('button', { name: 'morning' }).click();
     await expect(
-      page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
-      ),
+      page.locator('lw-pane-view:not([data-address-pane]) lw-surface-body'),
     ).toHaveCount(0);
 
     await page.getByRole('button', { name: 'Workspaces' }).click();
     await page.getByTestId('workspace-reset').click();
     await page.getByRole('dialog').getByRole('button', { name: 'OK' }).click();
     await expect(
-      page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
-      ),
+      page.locator('lw-pane-view:not([data-address-pane]) lw-surface-body'),
     ).toHaveCount(1);
   });
 
@@ -67,13 +57,11 @@ test.describe('Workspaces are self-remembering', () => {
 
     await page
       .locator(
-        'lw-content-area lw-pane-toolbar button[aria-label="Split right"]',
+        'lw-address-pane-header lw-pane-toolbar button[aria-label="Split right"]',
       )
       .click();
     await expect(
-      page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
-      ),
+      page.locator('lw-pane-view:not([data-address-pane]) lw-surface-body'),
     ).toHaveCount(1);
 
     await page.getByRole('button', { name: 'Workspaces' }).click();
@@ -83,34 +71,26 @@ test.describe('Workspaces are self-remembering', () => {
 
     await page.getByTestId('workspace-default').click();
     await expect(
-      page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
-      ),
+      page.locator('lw-pane-view:not([data-address-pane]) lw-surface-body'),
     ).toHaveCount(1);
 
     await page.getByRole('button', { name: 'Workspaces' }).click();
     await page.getByTestId('workspace-reset').click();
     await page.getByRole('dialog').getByRole('button', { name: 'OK' }).click();
     await expect(
-      page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
-      ),
+      page.locator('lw-pane-view:not([data-address-pane]) lw-surface-body'),
     ).toHaveCount(0);
 
     await page.reload();
     await expect(
-      page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
-      ),
+      page.locator('lw-pane-view:not([data-address-pane]) lw-surface-body'),
     ).toHaveCount(0);
 
     await page.getByRole('button', { name: 'Workspaces' }).click();
     await expect(page.getByRole('button', { name: 'keep-me' })).toBeVisible();
     await page.getByRole('button', { name: 'keep-me' }).click();
     await expect(
-      page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
-      ),
+      page.locator('lw-pane-view:not([data-address-pane]) lw-surface-body'),
     ).toHaveCount(1);
   });
 
@@ -121,13 +101,11 @@ test.describe('Workspaces are self-remembering', () => {
 
     await page
       .locator(
-        'lw-content-area lw-pane-toolbar button[aria-label="Split right"]',
+        'lw-address-pane-header lw-pane-toolbar button[aria-label="Split right"]',
       )
       .click();
     await expect(
-      page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
-      ),
+      page.locator('lw-pane-view:not([data-address-pane]) lw-surface-body'),
     ).toHaveCount(1);
 
     await page.getByRole('button', { name: 'Workspaces' }).click();
@@ -141,9 +119,7 @@ test.describe('Workspaces are self-remembering', () => {
       .getByRole('button', { name: 'Close pane' })
       .click();
     await expect(
-      page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
-      ),
+      page.locator('lw-pane-view:not([data-address-pane]) lw-surface-body'),
     ).toHaveCount(0);
 
     await page.getByRole('button', { name: 'Workspaces' }).click();
@@ -163,22 +139,18 @@ test.describe('Workspaces are self-remembering', () => {
 
     await page
       .locator(
-        'lw-content-area lw-pane-toolbar button[aria-label="Split right"]',
+        'lw-address-pane-header lw-pane-toolbar button[aria-label="Split right"]',
       )
       .click();
     await expect(
-      page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
-      ),
+      page.locator('lw-pane-view:not([data-address-pane]) lw-surface-body'),
     ).toHaveCount(1);
 
     await page.getByRole('button', { name: 'Workspaces' }).click();
     await page.getByTestId('workspace-reset').click();
     await page.getByRole('dialog').getByRole('button', { name: 'OK' }).click();
     await expect(
-      page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
-      ),
+      page.locator('lw-pane-view:not([data-address-pane]) lw-surface-body'),
     ).toHaveCount(0);
   });
 

@@ -28,7 +28,7 @@ import { PaneTreeService } from '../pane/tree/pane-tree.service';
   templateUrl: './content-grid.html',
 })
 export class ContentGrid {
-  private readonly layout = inject(PaneTreeService);
+  private readonly paneTree = inject(PaneTreeService);
   private readonly chrome = inject(PaneChromeService);
 
   protected readonly contentDock = CONTENT_DOCK;
@@ -41,7 +41,7 @@ export class ContentGrid {
   );
 
   protected readonly tree = computed(() => {
-    const full = this.layout.tree(CONTENT_DOCK);
+    const full = this.paneTree.tree(CONTENT_DOCK);
     const paneId = this.maximizedPaneId();
     return paneId === null ? full : (findLeaf(full, paneId) ?? full);
   });
@@ -61,7 +61,7 @@ export class ContentGrid {
       onCleanup(() => document_.removeEventListener('keydown', onKeydown));
     });
     effect(() => {
-      if (!this.layout.isSplit(CONTENT_DOCK)) {
+      if (!this.paneTree.isSplit(CONTENT_DOCK)) {
         untracked(() => this.chrome.clearMinimized(CONTENT_DOCK));
       }
     });
