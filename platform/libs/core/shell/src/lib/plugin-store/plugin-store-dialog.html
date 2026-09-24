@@ -29,7 +29,7 @@
       [attr.placeholder]="'settings.storeSearch' | transloco"
       [attr.aria-label]="'settings.storeSearch' | transloco"
       [value]="query()"
-      (input)="query.set($any($event.target).value)"
+      (input)="onQuery($event)"
     />
   </div>
 

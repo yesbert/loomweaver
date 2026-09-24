@@ -1,3 +1,6 @@
+import { inject, Pipe, PipeTransform } from '@angular/core';
+import { TranslocoService } from '@jsverse/transloco';
+
 const MS_PER_DAY = 86_400_000;
 const DAYS_PER_WEEK = 7;
 const DAYS_PER_MONTH = 30;
@@ -25,4 +28,22 @@ export function formatUpdated(locale: string, iso: string): string {
     return relative.format(Math.round(days / DAYS_PER_MONTH), 'month');
   }
   return relative.format(Math.round(days / DAYS_PER_YEAR), 'year');
+}
+
+@Pipe({ name: 'catalogCount', pure: false })
+export class CatalogCountPipe implements PipeTransform {
+  private readonly transloco = inject(TranslocoService);
+
+  transform(count: number): string {
+    return formatCount(this.transloco.getActiveLang(), count);
+  }
+}
+
+@Pipe({ name: 'relativeDate', pure: false })
+export class RelativeDatePipe implements PipeTransform {
+  private readonly transloco = inject(TranslocoService);
+
+  transform(iso: string): string {
+    return formatUpdated(this.transloco.getActiveLang(), iso);
+  }
 }

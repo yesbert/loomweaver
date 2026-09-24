@@ -1,12 +1,13 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, input, output } from '@angular/core';
-import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, input, output } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { PluginCatalogEntry } from './catalog/catalog-entry';
-import { formatCount, formatUpdated } from './catalog-figures';
+import { CatalogCountPipe, RelativeDatePipe } from './catalog-figures';
+import { PluginIcon } from './plugin-icon';
 
 @Component({
   selector: 'lw-plugin-store-card',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, CatalogCountPipe, RelativeDatePipe, PluginIcon],
   templateUrl: './plugin-store-card.html',
 })
 export class PluginStoreCard {
@@ -15,14 +16,4 @@ export class PluginStoreCard {
   readonly installed = input(false);
   readonly hasUpdate = input(false);
   readonly picked = output<void>();
-
-  private readonly transloco = inject(TranslocoService);
-
-  protected count(downloads: number): string {
-    return formatCount(this.transloco.getActiveLang(), downloads);
-  }
-
-  protected updated(iso: string): string {
-    return formatUpdated(this.transloco.getActiveLang(), iso);
-  }
 }

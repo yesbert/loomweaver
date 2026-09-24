@@ -1,0 +1,9 @@
+@if (src(); as url) {
+  <img class="size-8 rounded-md" [src]="url" alt="" />
+} @else {
+  <span
+    class="flex size-8 items-center justify-center rounded-md bg-surface-overlay text-content-muted"
+  >
+    <lw-icon name="plugin" size="1rem" />
+  </span>
+}

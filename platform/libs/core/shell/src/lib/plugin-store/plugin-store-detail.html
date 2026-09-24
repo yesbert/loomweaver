@@ -34,14 +34,14 @@
               <lw-icon name="download" size="0.9rem" />
               {{
                 'settings.storeDownloads'
-                  | transloco: { count: count(entry.downloads) }
+                  | transloco: { count: entry.downloads | catalogCount }
               }}
             }
             @if (entry.updated) {
               ·
               {{
                 'settings.storeUpdated'
-                  | transloco: { date: updated(entry.updated) }
+                  | transloco: { date: entry.updated | relativeDate }
               }}
             }
           </p>
@@ -62,7 +62,9 @@
         @if (installs.isInstalled(entry.id)) {
           @if (update(); as pending) {
             <button
-              class="lw-btn lw-btn--primary"
+              type="button"
+              lwButton
+              variant="primary"
               [attr.data-testid]="'store-update-' + entry.id"
               (click)="updateRequested.emit(pending)"
             >
@@ -73,7 +75,8 @@
             </button>
           }
           <button
-            class="lw-btn lw-btn--default"
+            type="button"
+            lwButton
             [attr.data-testid]="'store-uninstall-' + entry.id"
             (click)="uninstall.emit(entry)"
           >
@@ -81,7 +84,9 @@
           </button>
         } @else {
           <button
-            class="lw-btn lw-btn--primary"
+            type="button"
+            lwButton
+            variant="primary"
             [attr.data-testid]="'store-install-' + entry.id"
             (click)="install.emit(entry)"
           >

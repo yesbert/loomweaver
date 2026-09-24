@@ -9,10 +9,13 @@
     [attr.placeholder]="'settings.storeSearch' | transloco"
     [attr.aria-label]="'settings.storeSearch' | transloco"
     [value]="query()"
-    (input)="query.set($any($event.target).value)"
+    (input)="onQuery($event)"
   />
   <button
-    class="lw-btn lw-btn--primary shrink-0"
+    type="button"
+    lwButton
+    variant="primary"
+    class="shrink-0"
     data-testid="store-browse"
     (click)="browse()"
   >

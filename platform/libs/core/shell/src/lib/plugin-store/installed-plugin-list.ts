@@ -17,6 +17,8 @@ import { PluginDeploymentService } from './lifecycle/plugin-deployment.service';
 import { matchesQuery } from './catalog/catalog-search';
 import { PluginCatalogEntries } from './catalog/plugin-catalog-entries';
 import { PluginStoreConsent } from './lifecycle/plugin-store-consent';
+import { LwButton } from '../elements/button/lw-button';
+import { PluginIcon } from './plugin-icon';
 import { availableUpdate } from './lifecycle/plugin-update';
 import { frameSettingsGroup } from '../plugin/frame/frame-settings';
 
@@ -36,7 +38,7 @@ interface InstalledRow {
 @Component({
   selector: 'lw-installed-plugin-list',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, LwButton, PluginIcon],
   templateUrl: './installed-plugin-list.html',
 })
 export class InstalledPluginList implements OnInit {
