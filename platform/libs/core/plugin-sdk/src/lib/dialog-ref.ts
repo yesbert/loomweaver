@@ -20,7 +20,10 @@ export class DialogRef<R = unknown> {
     this.resolveClosed = resolve;
   });
 
-  constructor(readonly data?: unknown) {}
+  constructor(
+    readonly data?: unknown,
+    private readonly closeRequest?: () => Promise<boolean>,
+  ) {}
 
   /**
    * Toggles near-fullscreen. The host frame shows a maximize/restore control when the dialog was
@@ -28,6 +31,25 @@ export class DialogRef<R = unknown> {
    */
   toggleMaximized(): void {
     this.maximizedState.update((value) => !value);
+  }
+
+  /**
+   * Asks for the close the person would make with the dialog's close control, from a control of the
+   * body's own such as a cancel beside its other buttons. The body's veto runs first; while the body
+   * reports unsaved work the host asks Save · Discard · Cancel, with Save only where the body can
+   * save. Resolves `true` once the dialog has closed, and `false` where the person cancelled, a save
+   * failed or the veto held. It works whatever the opener allowed the person, and a request made while
+   * the question is open does not ask again. {@link close} closes without asking.
+   */
+  requestClose(): Promise<boolean> {
+    if (this.settled) {
+      return Promise.resolve(true);
+    }
+    if (this.closeRequest) {
+      return this.closeRequest();
+    }
+    this.close();
+    return Promise.resolve(true);
   }
 
   /** Closes the dialog with an optional result. Idempotent — later calls are ignored. */
