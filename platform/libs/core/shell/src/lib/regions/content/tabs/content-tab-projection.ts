@@ -145,7 +145,7 @@ export function toPaneTab(tab: OpenTab): PaneTab {
     ...(tab.ownLabel && { title: tab.title }),
     ...(tab.ownLabel && tab.literalTitle && { literalTitle: true }),
     ...(tab.ownLabel && tab.icon !== undefined && { icon: tab.icon }),
-    ...(tab.ownLabel && tab.badge !== undefined && { badge: tab.badge }),
+    ...(tab.badge !== undefined && { badge: tab.badge }),
     ...(tab.pinned && { pinned: true }),
     ...(tab.preview && { preview: true }),
     ...(!tab.closable && { closable: false }),

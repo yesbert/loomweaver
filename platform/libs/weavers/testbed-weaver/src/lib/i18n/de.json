@@ -184,6 +184,7 @@
     "resetConfirm": "**Alle Elemente** werden dauerhaft entfernt. Das lässt sich nicht rückgängig machen.",
     "resetGuardLabel": "Zum Bestätigen **Reset** eingeben.",
     "toggleAudit": "Audit-Kind zeigen oder weglassen",
+    "flagEntries": "Offene Einträge markieren oder freigeben",
     "settings": "Einstellungen",
     "about": "Über",
     "secret": "Nur-Admin-Befehl",
@@ -277,6 +278,7 @@
   },
   "badge": {
     "beta": "Beta",
-    "new": "Neu"
+    "new": "Neu",
+    "flagged": "Markiert"
   }
 }

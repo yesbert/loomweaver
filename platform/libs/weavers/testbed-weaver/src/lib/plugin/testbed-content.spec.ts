@@ -6,6 +6,7 @@ import type { Mock } from 'vitest';
 type Ctx = {
   openContentTab: Mock;
   keepContentTab: Mock;
+  updateContentTab: Mock;
   navigateContent: Mock;
   revealSurface: Mock;
   ui: PluginContext['ui'];
@@ -15,6 +16,7 @@ function ctx(): Ctx {
   return {
     openContentTab: vi.fn(),
     keepContentTab: vi.fn(),
+    updateContentTab: vi.fn(),
     navigateContent: vi.fn(),
     revealSurface: vi.fn(),
     ui: {} as PluginContext['ui'],
@@ -61,6 +63,29 @@ describe('testbedContent (TestbedWeaver content-navigation bridge)', () => {
     input.onClose?.();
 
     expect(testbedContent.openEntryIds().has(ENTRIES[0].id)).toBe(false);
+  });
+
+  it('flags every open entry in place, and takes the flag away again', () => {
+    const c = ctx();
+    testbedContent.bind(c);
+    testbedContent.openEntry(ENTRIES[0]);
+    testbedContent.openEntry(ENTRIES[1]);
+
+    testbedContent.toggleFlagOnOpenEntries();
+    testbedContent.toggleFlagOnOpenEntries();
+
+    expect(c.updateContentTab.mock.calls).toEqual([
+      [
+        `entry/${ENTRIES[0].id}`,
+        { badge: { text: 'testbed.badge.flagged', tone: 'danger' } },
+      ],
+      [
+        `entry/${ENTRIES[1].id}`,
+        { badge: { text: 'testbed.badge.flagged', tone: 'danger' } },
+      ],
+      [`entry/${ENTRIES[0].id}`, { badge: null }],
+      [`entry/${ENTRIES[1].id}`, { badge: null }],
+    ]);
   });
 
   it('promotes a preview tab via keepEntry', () => {

@@ -12,6 +12,7 @@ import {
   CommandOutcome,
   InvocableCommand,
   MenuItem,
+  ContentTabLabel,
   OpenTabInput,
   PluginState,
   StateHandle,
@@ -288,6 +289,11 @@ export class HostPluginContext implements PluginContext {
   openContentTab(input: OpenTabInput): void {
     this.require('navigation');
     this.tabs.open(input);
+  }
+
+  updateContentTab(path: string, label: ContentTabLabel): void {
+    this.require('contributions');
+    this.tabs.update(path, label, this.pluginId);
   }
 
   keepContentTab(path: string): void {

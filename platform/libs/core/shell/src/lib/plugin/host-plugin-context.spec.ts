@@ -89,6 +89,7 @@ function makeContext(
   const tabs = {
     navigate: vi.fn(),
     open: vi.fn(),
+    update: vi.fn(),
     close: vi.fn(),
     activeContent: () => shown(),
     hasUnsavedWork: () => true,
@@ -756,6 +757,29 @@ describe('HostPluginContext', () => {
       registry.removeViewById('nav');
 
       expect(registry.badgeOf('nav')).toBeUndefined();
+    });
+  });
+
+  describe('updating an open tab in place', () => {
+    it('hands the change to the tab service under the calling plugin', () => {
+      const { ctx, tabs } = makeContext();
+      const badge = { text: 'Sent', textIsLiteral: true } as const;
+
+      ctx.updateContentTab('doc/a', { badge });
+
+      expect(tabs.update).toHaveBeenCalledWith(
+        'doc/a',
+        { badge },
+        'test-plugin',
+      );
+    });
+
+    it('needs the "contributions" capability', () => {
+      const { ctx } = makeContext(['ui', 'host', 'navigation']);
+
+      expect(() => ctx.updateContentTab('doc/a', { badge: null })).toThrow(
+        CapabilityError,
+      );
     });
   });
 

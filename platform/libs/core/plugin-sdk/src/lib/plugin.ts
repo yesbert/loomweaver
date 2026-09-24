@@ -12,6 +12,7 @@ import { Disposable } from './contribution.js';
 import { Surface } from './surface.js';
 import { ViewAction } from './view.js';
 import {
+  ContentTabLabel,
   OpenTabInput,
   TabBadge,
 } from './content-route.js';
@@ -273,6 +274,16 @@ export interface PluginContext {
   unpinContentTab(path: string): void;
   /** Closes a dynamic content tab by path; the host activates a neighbour (`navigation`). */
   closeContentTab(path: string): void;
+  /**
+   * Changes the title, icon or badge of the **open** content tab rooted at `path`, where it stands,
+   * without bringing it forward: the tab in front, the focus and the address stay as they are, and a
+   * tab in another pane of the main area changes there (`contributions`). What `label` leaves out
+   * stays, and `badge: null` takes the tab's own badge away; the change is kept like a label the tab
+   * was opened with. It never opens a tab: for a path with no open tab it does nothing, and a tab
+   * whose content another plugin registered is left alone. Use it to keep a badge true while the
+   * content changes behind the tab the person is looking at.
+   */
+  updateContentTab(path: string, label: ContentTabLabel): void;
   /**
    * Reveals an already-**docked** surface by id (finding #29): activates its tab wherever the user
    * has placed it — a sidebar panel (expanding a collapsed one) or a content pane — so a command

@@ -13,6 +13,7 @@ import {
   sanitizeRpcMenuItem,
   sanitizeRpcSurface,
   sanitizeRpcTabInput,
+  sanitizeRpcTabLabel,
   sanitizeRpcToastInput,
 } from './sandbox-rpc-sanitize';
 import {
@@ -82,6 +83,8 @@ export function frameRpcMethods(deps: FrameRpcDeps): FrameRpc {
       pinContentTab: (path) => ctx.pinContentTab(path),
       unpinContentTab: (path) => ctx.unpinContentTab(path),
       closeContentTab: (path) => ctx.closeContentTab(path),
+      updateContentTab: (path, label) =>
+        ctx.updateContentTab(String(path), sanitizeRpcTabLabel(label)),
       revealSurface: (id) => ctx.revealSurface(id),
       invokeCommand: (id, args) => invokeRpcCommand(ctx, id, args),
       invocableCommands: () => ctx.invocableCommands(),
