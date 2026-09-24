@@ -15,19 +15,7 @@
         [class.opacity-60]="!row.enabled"
         [attr.data-testid]="'store-installed-' + row.id"
       >
-        @if (row.iconUrl) {
-          <img
-            class="size-8 shrink-0 rounded-md"
-            [src]="row.iconUrl"
-            alt=""
-          />
-        } @else {
-          <span
-            class="flex size-8 shrink-0 items-center justify-center rounded-md bg-surface-overlay text-content-muted"
-          >
-            <lw-icon name="plugin" size="1rem" />
-          </span>
-        }
+        <lw-plugin-icon [src]="row.iconUrl" />
         <span class="min-w-0 flex-1">
           <span class="flex items-center gap-2">
             <span class="truncate text-sm font-semibold text-content">{{
@@ -63,7 +51,10 @@
         <span class="flex shrink-0 items-center gap-1">
           @if (row.update; as pending) {
             <button
-              class="lw-btn lw-btn--primary lw-btn--sm"
+              type="button"
+              lwButton
+              variant="primary"
+              size="sm"
               [attr.data-testid]="'store-update-' + row.id"
               (click)="update(pending)"
             >

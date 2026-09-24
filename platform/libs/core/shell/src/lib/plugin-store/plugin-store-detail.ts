@@ -1,14 +1,15 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, effect, inject, input, output, signal } from '@angular/core';
-import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { PluginCatalogEntry } from './catalog/catalog-entry';
 import { PluginInstallService } from './lifecycle/plugin-install.service';
-import { formatCount, formatUpdated } from './catalog-figures';
+import { CatalogCountPipe, RelativeDatePipe } from './catalog-figures';
+import { LwButton } from '../elements/button/lw-button';
 import { availableUpdate } from './lifecycle/plugin-update';
 
 @Component({
   selector: 'lw-plugin-store-detail',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, CatalogCountPipe, RelativeDatePipe, LwButton],
   templateUrl: './plugin-store-detail.html',
 })
 export class PluginStoreDetail {
@@ -18,7 +19,6 @@ export class PluginStoreDetail {
   readonly updateRequested = output<PluginCatalogEntry>();
 
   protected readonly installs = inject(PluginInstallService);
-  private readonly transloco = inject(TranslocoService);
 
   protected readonly readme = signal<string | undefined>(undefined);
 
@@ -34,14 +34,6 @@ export class PluginStoreDetail {
         void this.loadReadme(entry.id, entry.readmeUrl);
       }
     });
-  }
-
-  protected count(downloads: number): string {
-    return formatCount(this.transloco.getActiveLang(), downloads);
-  }
-
-  protected updated(iso: string): string {
-    return formatUpdated(this.transloco.getActiveLang(), iso);
   }
 
   private async loadReadme(entryId: string, url: string): Promise<void> {

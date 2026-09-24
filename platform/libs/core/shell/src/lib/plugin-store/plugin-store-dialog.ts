@@ -84,6 +84,10 @@ export class PluginStoreDialog implements OnInit {
     void this.consent.confirmUninstall(entry.id, entry.name);
   }
 
+  protected onQuery(event: Event): void {
+    this.query.set((event.target as HTMLInputElement).value);
+  }
+
   protected close(): void {
     this.ref.close();
   }
