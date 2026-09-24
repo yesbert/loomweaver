@@ -1,4 +1,10 @@
-import { addProjectConfiguration, Tree, readJson } from '@nx/devkit';
+import {
+  addProjectConfiguration,
+  logger,
+  Tree,
+  readJson,
+  updateJson,
+} from '@nx/devkit';
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 import { distributionGenerator } from './generator';
 
@@ -167,6 +173,111 @@ describe('distribution generator', () => {
       });
       expect(project.implicitDependencies).toEqual(['shared-config']);
       expect(project.tags).toEqual(['scope:acme']);
+    });
+
+    describe('whose build target carries settings of its own', () => {
+      const brandAsset = {
+        glob: '**/*',
+        input: 'apps/acme-studio/brand',
+        output: 'brand',
+      };
+      const fileReplacements = [
+        {
+          replace: 'apps/acme-studio/src/environment.ts',
+          with: 'apps/acme-studio/src/environment.prod.ts',
+        },
+      ];
+
+      beforeEach(() => {
+        updateJson(tree, 'apps/acme-studio/project.json', (project) => ({
+          ...project,
+          prefix: 'acme',
+          sourceRoot: 'apps/acme-studio/src',
+          targets: {
+            ...project.targets,
+            build: {
+              executor: '@angular/build:application',
+              options: {
+                outputPath: 'dist/custom/acme-studio',
+                browser: 'apps/acme-studio/src/main.ts',
+                tsConfig: 'apps/acme-studio/tsconfig.app.json',
+                assets: [brandAsset],
+                styles: ['apps/acme-studio/src/styles.css'],
+              },
+              configurations: {
+                production: {
+                  fileReplacements,
+                  budgets: [
+                    {
+                      type: 'initial',
+                      maximumWarning: '500kb',
+                      maximumError: '1mb',
+                    },
+                  ],
+                },
+                staging: { outputHashing: 'none' },
+              },
+            },
+          },
+        }));
+      });
+
+      it('keeps every value the occupant chose', async () => {
+        await distributionGenerator(tree, { name: 'acme-studio', force: true });
+
+        const project = readJson(tree, 'apps/acme-studio/project.json');
+        expect(project.prefix).toBe('acme');
+        expect(project.sourceRoot).toBe('apps/acme-studio/src');
+        const build = project.targets.build;
+        expect(build.options.outputPath).toBe('dist/custom/acme-studio');
+        expect(build.options.assets).toContainEqual(brandAsset);
+        expect(build.configurations.production.fileReplacements).toEqual(
+          fileReplacements,
+        );
+        expect(build.configurations.staging).toEqual({ outputHashing: 'none' });
+      });
+
+      it('adds what the workbench needs beside them', async () => {
+        await distributionGenerator(tree, { name: 'acme-studio', force: true });
+
+        const build = readJson(tree, 'apps/acme-studio/project.json').targets
+          .build;
+        expect(build.options.assets).toContainEqual({
+          glob: '**/*',
+          input: 'node_modules/@loomweaver/shell/i18n',
+          output: 'i18n',
+        });
+        expect(build.options.serviceWorker).toBe(
+          'apps/acme-studio/ngsw-config.json',
+        );
+        expect(build.configurations.production.budgets).toEqual([
+          { type: 'initial', maximumWarning: '1.5MB', maximumError: '2MB' },
+        ]);
+        expect(
+          build.configurations.production.optimization.styles.inlineCritical,
+        ).toBe(false);
+      });
+    });
+
+    it('names a setting it could not add beside the occupant', async () => {
+      updateJson(tree, 'apps/acme-studio/project.json', (project) => ({
+        ...project,
+        targets: {
+          ...project.targets,
+          build: {
+            ...project.targets.build,
+            configurations: { production: { optimization: true } },
+          },
+        },
+      }));
+      const warn = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
+
+      await distributionGenerator(tree, { name: 'acme-studio', force: true });
+
+      expect(warn).toHaveBeenCalledWith(
+        expect.stringContaining('inlineCritical cannot be set'),
+      );
+      warn.mockRestore();
     });
 
     it('refuses to rename the project out from under the workspace', async () => {

@@ -66,7 +66,7 @@ they start with a top-level folder.
   spec compares the notes with the region table.
 - [x] 5.2 `--unitTestRunner none` no longer skips the app wiring; without an app the generator names
   what it skipped, as the default path does (`devkit/src/generators/weaver/generator.ts`).
-- [ ] 5.3 The Nx distribution with `--force` merges the occupant's build target value by value and
+- [x] 5.3 The Nx distribution with `--force` merges the occupant's build target value by value and
   keeps its other fields (`devkit/src/generators/distribution/generator.ts`); tested with real options
   and configurations.
 - [ ] 5.4 The Nx route names a code-written style configuration it leaves untouched, and an auth-source

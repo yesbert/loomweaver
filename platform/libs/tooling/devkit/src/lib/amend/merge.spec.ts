@@ -153,6 +153,15 @@ describe('ensureBuildTarget', () => {
     });
   });
 
+  it('takes a service worker declared in the options as declared', () => {
+    const existing = { options: { serviceWorker: 'my-ngsw.json' } };
+    const result = ensureBuildTarget(existing, TARGET, '');
+    const production = (
+      result.value['configurations'] as Record<string, Record<string, unknown>>
+    )['production'];
+    expect(production['serviceWorker']).toBeUndefined();
+  });
+
   it('changes nothing on a second application', () => {
     const once = ensureBuildTarget({}, TARGET, '');
     const twice = ensureBuildTarget(once.value, TARGET, '');
