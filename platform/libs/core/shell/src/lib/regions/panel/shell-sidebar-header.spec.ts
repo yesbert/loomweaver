@@ -8,6 +8,8 @@ import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { PanelState } from './panel-state';
 import { PanelGroupService } from './panel-group.service';
 import { View } from '../../layout/view';
+import { LiveAnnouncer } from '@angular/cdk/a11y';
+import { PaneTreeService } from '../pane/tree/pane-tree.service';
 
 @Component({ selector: 'lw-stub', template: '' })
 class Stub {}
@@ -121,5 +123,31 @@ describe('ShellSidebarHeader (the primary tab group as icon strip)', () => {
     expect(fixture.nativeElement.querySelectorAll('[role="tab"]').length).toBe(
       0,
     );
+  });
+});
+
+describe('ShellSidebarHeader moving a view with the keyboard', () => {
+  it('announces the view it moved to the other sidebar, as the context menu does', () => {
+    const { fixture } = render();
+    const announce = vi
+      .spyOn(TestBed.inject(LiveAnnouncer), 'announce')
+      .mockResolvedValue();
+    const tab = fixture.nativeElement.querySelector(
+      '[data-tab-path="view:nav"]',
+    ) as HTMLElement;
+
+    tab.dispatchEvent(
+      new KeyboardEvent('keydown', {
+        key: 'ArrowRight',
+        altKey: true,
+        shiftKey: true,
+        bubbles: true,
+      }),
+    );
+
+    expect(TestBed.inject(PaneTreeService).sourceOf('view:nav')?.dock).toBe(
+      'secondary',
+    );
+    expect(announce).toHaveBeenCalledTimes(1);
   });
 });

@@ -11,6 +11,7 @@ import { LoomIconName } from '../../elements/icon/loom-icons';
 import { ViewportService } from '../../layout/viewport.service';
 import { PanelState } from './panel-state';
 import { PanelGroupService } from './panel-group.service';
+import { ViewMoveService } from './view-move.service';
 import { PANEL_STRIP_CONTEXT_MENU } from './view-context-menu';
 import { VIEW_CONTEXT_MENU } from '../pane/chrome/view-menu-slot';
 import { VIEW_PANE_PREFIX } from '../pane/tree/pane-address';
@@ -41,6 +42,7 @@ export class ShellSidebarHeader {
   private readonly panelGroup = inject(PanelGroupService);
   private readonly paneTree = inject(PaneTreeService);
   private readonly paneMove = inject(PaneMoveService);
+  private readonly viewMove = inject(ViewMoveService);
   private readonly registry = inject(ContributionRegistry);
   private readonly layout = inject(SHELL_LAYOUT);
   private readonly features = inject(FeatureSwitches).sidebar;
@@ -145,6 +147,10 @@ export class ShellSidebarHeader {
       return;
     }
     event.preventDefault();
+    if (path.startsWith(VIEW_PANE_PREFIX)) {
+      this.viewMove.move(path.slice(VIEW_PANE_PREFIX.length), target.id);
+      return;
+    }
     this.paneMove.moveToStrip(this.source(), path, {
       dock: target.id,
       paneId: this.paneTree.primaryId(target.id),

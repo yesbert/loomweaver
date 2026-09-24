@@ -41,7 +41,7 @@ they start with a top-level folder.
 
 ## 3. Panels, panes and content
 
-- [ ] 3.1 Moving a view to the other sidebar with Alt+Shift+Arrow is announced, as the context menu
+- [x] 3.1 Moving a view to the other sidebar with Alt+Shift+Arrow is announced, as the context menu
   already does (`regions/panel/shell-sidebar-header.ts`).
 - [ ] 3.2 A splitter removed during a drag ends the drag and keeps the width reached
   (`regions/panel/panel-splitter.ts`).
