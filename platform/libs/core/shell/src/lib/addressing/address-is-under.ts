@@ -5,5 +5,8 @@ export function addressIsUnder(
   if (shown === undefined) {
     return false;
   }
-  return shown === named || shown.startsWith(named === '' ? '' : `${named}/`);
+  if (named === '') {
+    return true;
+  }
+  return shown === named || shown.startsWith(`${named}/`);
 }
