@@ -1,6 +1,11 @@
 import { generate } from '../../lib/generate/generate';
 import { validateI18nParity } from '../../lib/validate/i18n';
-import { angularWeaver, resolveWeaverInput } from './recipe';
+import {
+  angularWeaver,
+  resolveWeaverInput,
+  type WeaverFeatures,
+} from './recipe';
+import { AG_UI_ADAPTER_VERSION, AG_UI_PROTOCOL_VERSION } from './agent-files';
 
 describe('angularWeaver recipe', () => {
   it('rejects a non-kebab id', () => {
@@ -98,9 +103,14 @@ describe('angularWeaver recipe', () => {
   });
 
   it('generates the complete command: a described argument and a declared answer', () => {
-    const files = generate(angularWeaver, { id: 'notes', features: { command: true } });
+    const files = generate(angularWeaver, {
+      id: 'notes',
+      features: { command: true },
+    });
     const plugin = files['src/lib/plugin/notes.plugin.ts'];
-    expect(plugin).toContain("name: 'tone', kind: 'choice', choices: ['info', 'success', 'warning']");
+    expect(plugin).toContain(
+      "name: 'tone', kind: 'choice', choices: ['info', 'success', 'warning']",
+    );
     expect(plugin).toContain("description: 'notes.actionTone'");
     expect(plugin).toContain("answers: 'notes.actionAnswers'");
     expect(plugin).toContain("args?.['tone']");
@@ -558,5 +568,29 @@ describe('angularWeaver agent connection beside the other features', () => {
     })['src/lib/plugin/notes.plugin.ts'];
     const panel = plugin.slice(plugin.indexOf("id: 'notes.agent'"));
     expect(panel).not.toContain('access:');
+  });
+});
+
+describe('angularWeaver notes', () => {
+  const notesFor = (features: WeaverFeatures) =>
+    generate(angularWeaver, { id: 'notes', features })['README.md'];
+
+  it('names the rail and the bar the generated items target', () => {
+    expect(notesFor({ container: true })).toContain(
+      '(`primary` rail, `status-bar` bar)',
+    );
+    expect(notesFor({ container: true })).not.toContain('`status`');
+  });
+
+  it('names the sidebar an instanceable surface docks into', () => {
+    expect(notesFor({ instanceable: true })).toContain(
+      'into the `left-panel` region',
+    );
+  });
+
+  it('asks for the package versions the generator records', () => {
+    expect(notesFor({ agent: true })).toContain(
+      `npm i @loomweaver/ag-ui@^${AG_UI_ADAPTER_VERSION} @ag-ui/core@${AG_UI_PROTOCOL_VERSION}`,
+    );
   });
 });

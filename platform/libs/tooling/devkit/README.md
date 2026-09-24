@@ -125,5 +125,5 @@ nx g @loomweaver/devkit:layout --app=acme-studio                  # a ShellLayou
 emitting literal colours, so the shell follows your Bootstrap theme live — including its dark mode,
 provided you mirror `ThemeService.resolvedTheme()` onto `data-bs-theme`. The generated file says how.
 
-The layout's region ids (`primary` rail, `status` bar) match the weaver defaults, so a scaffolded
+The layout's region ids (`primary` rail, `status-bar` bar) match the weaver defaults, so a scaffolded
 weaver's rail + bar items land in it out of the box.
