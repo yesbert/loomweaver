@@ -237,7 +237,10 @@ describe('MenuService', () => {
         registry.addMenuItem({
           menu: 'm',
           command: `c.${index}`,
-          checkedWhen: entry.checked === undefined ? undefined : { closable: entry.checked },
+          checkedWhen:
+            entry.checked === undefined
+              ? undefined
+              : { closable: entry.checked },
         });
       }
       service.open('m', context, { x: 0, y: 0 });
@@ -260,7 +263,10 @@ describe('MenuService', () => {
     });
 
     it('reserves both for a menu whose entries carry a check and an icon', () => {
-      openWith([{ icon: 'themeLight', checked: false }, { icon: 'themeDark', checked: true }]);
+      openWith([
+        { icon: 'themeLight', checked: false },
+        { icon: 'themeDark', checked: true },
+      ]);
       expect(places()).toEqual(['lw-menu--checks', 'lw-menu--leading']);
       expect(items()[1].getAttribute('icon')).toBe('themeDark');
       expect(items()[1].hasAttribute('checked')).toBe(true);
@@ -590,9 +596,15 @@ describe('MenuService', () => {
 
       it('is announced by what its command does while the menu keeps the name', () => {
         profile();
-        open({ title: 'menu.close', detail: 'ada@example.com', command: 'c.profile' });
+        open({
+          title: 'menu.close',
+          detail: 'ada@example.com',
+          command: 'c.profile',
+        });
 
-        expect(menu()?.getAttribute('aria-label')).toBe('Close, ada@example.com');
+        expect(menu()?.getAttribute('aria-label')).toBe(
+          'Close, ada@example.com',
+        );
         expect(heading()?.getAttribute('role')).toBe('menuitem');
         expect(heading()?.getAttribute('aria-label')).toBe('Profile');
         expect(heading()?.hasAttribute('aria-hidden')).toBe(false);
@@ -716,7 +728,7 @@ describe('MenuService', () => {
       expect(menu()).toBeNull();
     });
 
-    it('renders one row per entry with its label + icon, marking the active row as a checked checkbox', () => {
+    it('renders one row per entry with its label and icon, marking the entry in effect with a check', () => {
       service.openList(
         [
           { key: 'doc/a', label: 'a.ts', icon: 'testbedDocument' },
@@ -744,7 +756,8 @@ describe('MenuService', () => {
       expect(rows[0].hasAttribute('checkbox')).toBe(false);
       expect(rows[1].hasAttribute('checkbox')).toBe(true);
       expect(rows[1].hasAttribute('checked')).toBe(true);
-      expect(rows[1].hasAttribute('icon')).toBe(false);
+      expect(rows[1].getAttribute('icon')).toBe('testbedDocument');
+      expect(menu()?.classList.contains('lw-menu--checks')).toBe(true);
       expect(menu()?.classList.contains('lw-menu--leading')).toBe(true);
     });
 
@@ -763,7 +776,8 @@ describe('MenuService', () => {
       expect(rows[0].hasAttribute('checked')).toBe(true);
       expect(rows[1].hasAttribute('checkbox')).toBe(true);
       expect(rows[1].hasAttribute('checked')).toBe(false);
-      expect(menu()?.classList.contains('lw-menu--leading')).toBe(true);
+      expect(menu()?.classList.contains('lw-menu--checks')).toBe(true);
+      expect(menu()?.classList.contains('lw-menu--leading')).toBe(false);
     });
 
     it('calls onPick with the chosen entry key and closes', () => {
