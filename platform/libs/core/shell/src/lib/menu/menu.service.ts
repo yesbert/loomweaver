@@ -1,6 +1,7 @@
 import {
   afterNextRender,
   DestroyRef,
+  ErrorHandler,
   inject,
   Injector,
   Service,
@@ -75,6 +76,8 @@ export class MenuService {
   private readonly commands = inject(CommandService);
 
   private readonly transloco = inject(TranslocoService);
+
+  private readonly errors = inject(ErrorHandler);
 
   private readonly injector = inject(Injector);
 
@@ -365,7 +368,7 @@ export class MenuService {
     try {
       item.run?.(context);
     } catch (error) {
-      console.error('Menu item handler failed', error);
+      this.errors.handleError(error);
     }
   }
 }

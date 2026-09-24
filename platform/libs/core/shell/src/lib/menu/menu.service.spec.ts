@@ -1,3 +1,4 @@
+import { ErrorHandler } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { MenuContext } from '@loomweaver/plugin-sdk';
@@ -311,9 +312,10 @@ describe('MenuService', () => {
     expect(run).toHaveBeenCalledWith(context);
   });
 
-  it('swallows and logs an inline handler error', () => {
-    const error = vi
-      .spyOn(console, 'error')
+  it('hands a failing inline handler to the error handler, as a failing command is', () => {
+    const errors = TestBed.inject(ErrorHandler);
+    const handled = vi
+      .spyOn(errors, 'handleError')
       .mockImplementation(() => undefined);
     registry.addMenuItem({
       menu: 'm',
@@ -329,8 +331,7 @@ describe('MenuService', () => {
         new CustomEvent(LW_MENU_SELECT, { detail: { command: '__inline-0' } }),
       ),
     ).not.toThrow();
-    expect(error).toHaveBeenCalled();
-    error.mockRestore();
+    expect(handled).toHaveBeenCalledWith(new Error('boom'));
   });
 
   it('ignores a select with a null command key', () => {
