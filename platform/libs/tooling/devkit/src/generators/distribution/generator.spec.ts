@@ -303,6 +303,23 @@ describe('distribution generator', () => {
     expect(tree.exists('.postcssrc.json')).toBe(false);
   });
 
+  it('leaves a style configuration written as code alone and names what to add', async () => {
+    const written = 'module.exports = { plugins: {} };\n';
+    tree.write('postcss.config.js', written);
+    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
+
+    await distributionGenerator(tree, { name: 'acme-studio' });
+
+    expect(tree.read('postcss.config.js', 'utf8')).toBe(written);
+    expect(tree.exists('.postcssrc.json')).toBe(false);
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringMatching(
+        /postcss\.config\.js.*@tailwindcss\/postcss.*unstyled/,
+      ),
+    );
+    warn.mockRestore();
+  });
+
   it('keeps the plugins a workspace already configured', async () => {
     tree.write('.postcssrc.json', JSON.stringify({ plugins: { autoprefixer: {} } }));
     await distributionGenerator(tree, { name: 'acme-studio' });

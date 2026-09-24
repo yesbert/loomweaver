@@ -185,6 +185,17 @@ describe('weaver generator', () => {
     );
   });
 
+  it('names what to add where the application has no composition root', async () => {
+    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
+
+    await weaverGenerator(tree, { id: 'notes' });
+
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('...providePlugins(notesPlugin)'),
+    );
+    warn.mockRestore();
+  });
+
   it('wires the weaver into the app just the same without a test runner', async () => {
     await distributionGenerator(tree, {
       name: 'studio',

@@ -69,7 +69,7 @@ they start with a top-level folder.
 - [x] 5.3 The Nx distribution with `--force` merges the occupant's build target value by value and
   keeps its other fields (`devkit/src/generators/distribution/generator.ts`); tested with real options
   and configurations.
-- [ ] 5.4 The Nx route names a code-written style configuration it leaves untouched, and an auth-source
+- [x] 5.4 The Nx route names a code-written style configuration it leaves untouched, and an auth-source
   composition root it cannot recognise (`devkit/src/generators/shared.ts`,
   `devkit/src/generators/auth-source/generator.ts`).
 - [ ] 5.5 The CLI: the workspace above a nested package is found, an object-form entry stylesheet and

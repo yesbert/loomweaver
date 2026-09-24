@@ -1,4 +1,4 @@
-import { Tree } from '@nx/devkit';
+import { logger, Tree } from '@nx/devkit';
 import { addApp, createConsumerWorkspace } from '../test-workspace';
 import { authSourceGenerator } from './generator';
 
@@ -52,6 +52,33 @@ export const appConfig: ApplicationConfig = {
     expect(tree.exists('apps/studio/src/auth/dev-auth-source.ts')).toBe(true);
     expect(tree.exists('apps/studio/src/auth/dev-session.plugin.ts')).toBe(false);
     expect(tree.read('apps/studio/src/app/app.config.ts', 'utf8')).toBe('export const appConfig = { providers: [] };\n');
+  });
+
+  it('leaves a reshaped composition root alone and names what to add', async () => {
+    const reshaped = 'export const appConfig = { providers: [] };\n';
+    tree.write('apps/studio/src/app/app.config.ts', reshaped);
+    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
+
+    await authSourceGenerator(tree, { name: 'dev' });
+
+    expect(tree.read('apps/studio/src/app/app.config.ts', 'utf8')).toBe(
+      reshaped,
+    );
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('...providePlugins(devSessionPlugin)'),
+    );
+    warn.mockRestore();
+  });
+
+  it('names what to add where the application has no composition root', async () => {
+    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
+
+    await authSourceGenerator(tree, { name: 'dev' });
+
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('was NOT registered'),
+    );
+    warn.mockRestore();
   });
 
   it('refuses to overwrite', async () => {

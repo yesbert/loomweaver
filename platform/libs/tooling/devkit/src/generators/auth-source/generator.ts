@@ -1,9 +1,13 @@
 import { formatFiles, Tree } from '@nx/devkit';
-import { composePlugin } from '../../lib/amend/compose';
 import { generate } from '../../lib/generate/generate';
 import { authSourceAmendments } from '../../recipes/auth-source/recipe-amendments';
 import { authSource } from '../../recipes/auth-source/recipe';
-import { addI18nAssetsGlob, resolveApp, writeFilesGuarded } from '../shared';
+import {
+  addI18nAssetsGlob,
+  composeIntoAppConfig,
+  resolveApp,
+  writeFilesGuarded,
+} from '../shared';
 import { AuthSourceGeneratorSchema } from './schema';
 
 export async function authSourceGenerator(
@@ -23,28 +27,15 @@ export async function authSourceGenerator(
         });
       }
     } else if (amendment.kind === 'compose-plugin') {
-      composeIntoApp(tree, app.root, root, amendment);
+      composeIntoAppConfig(
+        tree,
+        app.root,
+        amendment,
+        relativeImport(`${app.root}/src/app`, root),
+      );
     }
   }
   await formatFiles(tree);
-}
-
-function composeIntoApp(
-  tree: Tree,
-  appRoot: string,
-  sourceRoot: string,
-  amendment: Parameters<typeof composePlugin>[1],
-): void {
-  const config = `${appRoot}/src/app/app.config.ts`;
-  const source = tree.read(config, 'utf8');
-  if (source === null) {
-    return;
-  }
-  const importPath = relativeImport(`${appRoot}/src/app`, sourceRoot);
-  const result = composePlugin(source, amendment, importPath);
-  if (result.composed && result.source !== source) {
-    tree.write(config, result.source);
-  }
 }
 
 function relativeImport(fromDir: string, toDir: string): string {

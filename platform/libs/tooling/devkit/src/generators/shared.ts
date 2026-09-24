@@ -1,13 +1,15 @@
 import { posix } from 'node:path';
 import {
   getProjects,
+  logger,
   ProjectConfiguration,
   readProjectConfiguration,
   Tree,
   updateProjectConfiguration,
 } from '@nx/devkit';
 import { ensurePostcssPlugin } from '../lib/amend/merge';
-import { PostcssAmendment } from '../lib/amend/types';
+import { composeLines, composePlugin } from '../lib/amend/compose';
+import { ComposePluginAmendment, PostcssAmendment } from '../lib/amend/types';
 import { FileMap } from '../lib/generate/types';
 
 export interface ResolvedApp {
@@ -207,15 +209,49 @@ export function addPostcssPlugin(
     'postcss.config.cjs',
     '.postcssrc.js',
   ];
-  if (codeConfigs.some((name) => tree.exists(name))) {
+  const inTheWay = codeConfigs.find((name) => tree.exists(name));
+  if (inTheWay) {
+    logger.warn(
+      `${inTheWay} is written as code and cannot be merged into, so add ${amendment.plugin} to it yourself; until then the stylesheet emits no utility class and the workbench renders unstyled.`,
+    );
     return;
   }
   const existing = tree.exists(amendment.file)
     ? (JSON.parse(tree.read(amendment.file, 'utf8') ?? '{}') as unknown)
     : undefined;
   const result = ensurePostcssPlugin(existing, amendment);
+  for (const reason of result.declined) {
+    logger.warn(
+      `${reason}, so ${amendment.plugin} was not added; until it is, the workbench renders unstyled.`,
+    );
+  }
   if (result.added.length === 0) {
     return;
   }
   tree.write(amendment.file, `${JSON.stringify(result.value, null, 2)}\n`);
+}
+
+export function composeIntoAppConfig(
+  tree: Tree,
+  appRoot: string,
+  amendment: ComposePluginAmendment,
+  importPath: string,
+): void {
+  const file = `${appRoot}/src/app/app.config.ts`;
+  const source = tree.read(file, 'utf8');
+  const result =
+    source === null ? undefined : composePlugin(source, amendment, importPath);
+  if (!result?.composed) {
+    const state =
+      source === null
+        ? 'does not exist'
+        : 'no longer presents the shape the distribution scaffold generated';
+    logger.warn(
+      `${file} ${state}, so ${amendment.id} was NOT registered and none of its contributions will appear. Add these to it yourself: ${composeLines(amendment, importPath).join(' ')}`,
+    );
+    return;
+  }
+  if (result.source !== source) {
+    tree.write(file, result.source);
+  }
 }
