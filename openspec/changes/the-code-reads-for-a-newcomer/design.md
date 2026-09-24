@@ -88,6 +88,14 @@ are corrected in the same pull request and the reason is stated in its descripti
   deliberately follows no other window, while `persistedSetting` is the settings port with cross-tab
   sync. They share the record parsers instead.
 
+- **The unsaved dot stays written where it sits (task 5.7).** The tab strip draws it four times, but
+  in four frames: in the corner of an icon tab, in the pinned slot, swapped with the close mark on
+  hover, and in a plain slot. One template would need the frame passed in and a wrapper added to two
+  of them, which changes the markup a product may style and reads no better.
+- **The view menu slot constant sits with the strip tab, not with its menu (task 5.8).** Its menu is
+  registered in the panel region, and the pane region reads the constant; putting it there would make
+  the two regions import each other. It left its one-constant file for `strip-tab.ts`, beside the
+  tab menu context it names.
 - **No shared docked-view body component (task 4.5).** A surface kept in place (an iframe) is hidden
   inside the element that holds its anchor and waits there. A shared component would become that
   element, and it is destroyed whenever the pane switches away from the view, which would take the

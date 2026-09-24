@@ -9,7 +9,7 @@ import { CommandService } from '../../commands/command.service';
 import { ContentTabsService } from './tabs/content-tabs.service';
 import { PaneTargetPicker } from './pane-target-picker';
 import { TAB_CONTEXT_MENU } from './tabs/tab-context-menu';
-import { VIEW_CONTEXT_MENU } from '../pane/chrome/view-menu-slot';
+import { VIEW_CONTEXT_MENU } from '../pane/chrome/strip-tab';
 import { FeatureSwitches } from '../../features/feature-switches.service';
 import {
   CONTENT_DOCK,
