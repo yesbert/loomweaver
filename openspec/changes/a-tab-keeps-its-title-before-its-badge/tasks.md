@@ -5,7 +5,7 @@
 
 ## 2. The strip
 
-- [x] 2.1 The badge shrinks first: shrinkable with a large weight and no minimum content width, its text in an element that cuts with an ellipsis
+- [x] 2.1 The badge takes only the room the title leaves: no starting width, growing up to its natural width, its text in an element that cuts with an ellipsis
 - [x] 2.2 The tooltip of a tab in a strip of titles uses the named string
 
 ## 3. Close

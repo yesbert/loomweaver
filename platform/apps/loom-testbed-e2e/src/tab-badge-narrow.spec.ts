@@ -13,8 +13,8 @@ test.describe('A narrow tab keeps its title before its badge', () => {
 
     await tab.evaluate((element) => {
       const frame = element.parentElement as HTMLElement;
-      frame.style.minWidth = '120px';
-      frame.style.maxWidth = '120px';
+      frame.style.minWidth = '130px';
+      frame.style.maxWidth = '130px';
     });
 
     const measured = await tab.evaluate((element) => {

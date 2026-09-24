@@ -19,15 +19,16 @@ already carries the badge.
 
 ## Decisions
 
-**The badge shrinks first, down to its padding.** The badge becomes shrinkable with a far larger
-shrink weight than the title and no minimum content width, and its text sits in its own element that
-cuts with an ellipsis. Flex shrinking is weighted, so the badge absorbs the shortfall until only its
-padding is left, a small pill in its tone, and only then does the title shorten. The pill that is
-left is the "mark in its tone" the requirement names: it tells the person there is a badge, and in
-which tone, without a word.
-*Alternatives considered:* hiding the badge below a width, which needs the tab's width and a size
-container, and a tab sized by its content cannot be one; letting the tab grow, which moves the
-problem to the next tab.
+**The badge takes only the room the title leaves.** The badge starts from no width at all and grows
+into the space the title leaves, up to its natural width, while the title keeps its natural width as
+its starting point. Where the tab has room for both, the badge reaches its full width; where it does
+not, the badge stops short and cuts its text with an ellipsis; only once it is down to its padding,
+a small pill in its tone, does the title shrink. The pill that is left is the "mark in its tone" the
+requirement names.
+*Alternatives considered:* a large shrink weight on the badge, tried first, which still hands the
+title a fraction of a pixel of every shortfall, enough for the browser to cut it with an ellipsis;
+hiding the badge below a width, which needs a size container, and a tab sized by its content cannot
+be one; letting the tab grow, which moves the problem to the next tab.
 
 **The tooltip carries the named string.** The strip already computes the name "title, badge" for the
 accessible name; the tooltip in the titles strip uses the same string, with the preview hint after
@@ -35,7 +36,7 @@ it where the tab is a preview. One string for both means they cannot disagree.
 
 ## Risks / Trade-offs
 
-- [The utility for a large shrink weight is an arbitrary value] → If the class guardrail rejects it,
-  the weight goes into the shell's own stylesheet under a badge-in-tab rule instead.
+- [A tab's natural width must still count the badge] → Measured in the testbed: a tab with room
+  sizes itself to title and full badge, so nothing is cut where nothing needs to be.
 - [Layout is not observable in the unit tests' DOM] → The narrowing is pinned by a testbed
   end-to-end test that measures a narrow tab in a real browser; the unit test pins the tooltip.
