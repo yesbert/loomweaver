@@ -126,8 +126,11 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   renamed to what they answer.
 - [x] 4.7 The tab context menu takes its dependencies as one object and builds its entries through one
   helper; pin and unpin by an explicit branch.
-- [ ] 4.8 Curation: the panel lookups become public on `PanelViewsService` and are used by curation and
-  view visibility; rail and view curation become two row sources the dialog picks by kind.
+- [x] 4.8 Curation: the panel lookups become public on `PanelViewsService` and are used by curation and
+  view visibility; rail and view curation become two row sources the dialog picks by kind. The
+  lookups had nothing left to share: the dead-code pass removed the copies in `PanelViewsService`,
+  and view visibility no longer asks which panel holds a view, so the one lookup stays in view
+  curation.
 - [ ] 4.9 Smaller content items: identity-only computeds and duplicate computeds removed, the string
   dispatch in the address pane header made explicit, `activeTab` in the iframe surface renamed to what
   it holds, `ShellBar.measure` split and injecting `DOCUMENT`, pane housekeeping started by a named
