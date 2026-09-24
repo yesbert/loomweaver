@@ -59,7 +59,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   the copied headers of the settings dialog and the plugin store dialog.
 - [x] 2.12 Names left by the abbreviation autofix become the word meant, across the shell: `index` for
   an item, `function_`, `index_`, `num`, single letters for workspaces and languages.
-- [ ] 2.13 "Which rail or bar item is offered" is one predicate beside `menuOnActivate`, used by the
+- [x] 2.13 "Which rail or bar item is offered" is one predicate beside `menuOnActivate`, used by the
   rail, the bar and the curation dialog (after the curation defect is fixed).
 - [ ] 2.14 Which pane buttons and drag gestures a set of switches offers is one function read by the
   pane view and the address pane header (after the maximised-pane defect is fixed).
