@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { dragTo } from './support/helpers';
 
-const addressPane = 'lw-content-area';
+const addressPane = 'lw-address-pane-header';
 const otherPane = 'lw-pane-view:not([data-address-pane])';
 
 test.describe('The one preview in the main area', () => {

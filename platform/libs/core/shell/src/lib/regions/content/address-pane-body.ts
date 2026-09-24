@@ -16,7 +16,7 @@ import { matchRoute, tabRootOf } from './content-path';
 import { opensATab } from './tabs/content-tab-projection';
 
 @Service()
-export class AddressBody {
+export class AddressPaneBody {
   private readonly paneTree = inject(PaneTreeService);
   private readonly registry = inject(ContributionRegistry);
   private readonly tabs = inject(ContentTabsService);

@@ -32,9 +32,7 @@ test.describe('View state travels with a moved view tab', () => {
       },
     );
 
-    const pane = page.locator(
-      'lw-content-secondary-pane lw-testbed-outline-view',
-    );
+    const pane = page.locator('lw-surface-body lw-testbed-outline-view');
     await expect(pane).toBeVisible();
     await expect(pane.getByTestId('outline-sort')).toHaveText(/A–Z/);
     await expect(pane.locator('ol li').first()).toContainText('Row A');
@@ -42,7 +40,7 @@ test.describe('View state travels with a moved view tab', () => {
     await page.reload();
     await expect(
       page
-        .locator('lw-content-secondary-pane lw-testbed-outline-view')
+        .locator('lw-surface-body lw-testbed-outline-view')
         .getByTestId('outline-sort'),
     ).toHaveText(/A–Z/);
   });

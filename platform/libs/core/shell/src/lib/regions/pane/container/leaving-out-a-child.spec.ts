@@ -7,7 +7,7 @@ import { ContainerSpec } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { CONTAINER_CHILD_REGION } from '../../../plugin/surface-normalize';
 import { MenuService } from '../../../menu/menu.service';
-import { PaneTargetPicker } from '../../content/pane-target-picker.service';
+import { PaneTargetPicker } from '../../content/pane-target-picker';
 import { ContentTabsService } from '../../content/tabs/content-tabs.service';
 import { PaneMoveService } from '../drag/pane-move.service';
 import { PaneActions } from '../pane-actions.service';

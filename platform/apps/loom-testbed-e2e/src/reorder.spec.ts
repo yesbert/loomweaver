@@ -8,13 +8,13 @@ async function openTwoEntries(page: Page): Promise<void> {
   await page.getByRole('button', { name: 'Bravo' }).dblclick();
   await expect(page).toHaveURL(/entry\/e-02/);
   await expect(
-    page.locator('lw-content-area [role="tab"][data-reorder-id]'),
+    page.locator('lw-address-pane-header [role="tab"][data-reorder-id]'),
   ).toHaveCount(2);
 }
 
 async function tabOrder(page: Page): Promise<string[]> {
   return page
-    .locator('lw-content-area [role="tab"][data-reorder-id]')
+    .locator('lw-address-pane-header [role="tab"][data-reorder-id]')
     .evaluateAll((els) =>
       els.map((element) => (element as HTMLElement).dataset['reorderId'] ?? ''),
     );

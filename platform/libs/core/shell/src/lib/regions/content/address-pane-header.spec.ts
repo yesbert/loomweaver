@@ -12,12 +12,12 @@ import { TAB_CONTEXT_MENU } from './tabs/tab-context-menu';
 import { ContentTabsService } from './tabs/content-tabs.service';
 import { provideShellFeatures } from '../../foundation/shell-features';
 import { ShellFeaturesInput } from '../../foundation/shell-features';
-import { ContentArea } from './content-area';
+import { AddressPaneHeader } from './address-pane-header';
 
 @Component({ selector: 'lw-test-home', template: '<span>home</span>' })
 class HomeView {}
 
-describe('ContentArea — the menu a tab in the unsplit main area offers', () => {
+describe('AddressPaneHeader — the menu a tab in the unsplit main area offers', () => {
   async function tabMenus(): Promise<
     { menu: unknown; context: Record<string, unknown> }[]
   > {
@@ -50,7 +50,7 @@ describe('ContentArea — the menu a tab in the unsplit main area offers', () =>
       titleIsLiteral: true,
     });
 
-    const fixture = TestBed.createComponent(ContentArea);
+    const fixture = TestBed.createComponent(AddressPaneHeader);
     fixture.detectChanges();
     await fixture.whenStable();
     return fixture.debugElement
@@ -80,7 +80,7 @@ describe('ContentArea — the menu a tab in the unsplit main area offers', () =>
   });
 });
 
-describe('ContentArea — the split controls of the address pane', () => {
+describe('AddressPaneHeader — the split controls of the address pane', () => {
   async function toolbarWith(
     features: ShellFeaturesInput,
   ): Promise<HTMLElement> {
@@ -99,7 +99,7 @@ describe('ContentArea — the split controls of the address pane', () => {
       path: '',
       component: HomeView,
     });
-    const fixture = TestBed.createComponent(ContentArea);
+    const fixture = TestBed.createComponent(AddressPaneHeader);
     fixture.detectChanges();
     await fixture.whenStable();
     return fixture.nativeElement as HTMLElement;

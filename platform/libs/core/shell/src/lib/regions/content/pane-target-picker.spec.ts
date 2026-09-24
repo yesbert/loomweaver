@@ -5,7 +5,7 @@ import { ANONYMOUS, ContentRoute } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { AUTH_SOURCE } from '../../auth/auth-context';
 import { MenuListEntry, MenuService } from '../../menu/menu.service';
-import { PaneTargetPicker } from './pane-target-picker.service';
+import { PaneTargetPicker } from './pane-target-picker';
 
 @Component({ selector: 'lw-test-target', template: '' })
 class TestTarget {}

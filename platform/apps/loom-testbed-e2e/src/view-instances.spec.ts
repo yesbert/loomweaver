@@ -78,7 +78,7 @@ test.describe('Saved view instances', () => {
       .click({ button: 'right' });
     await page.getByRole('menuitem', { name: 'Open in content' }).click();
 
-    const pane = page.locator('lw-content-secondary-pane');
+    const pane = page.locator('lw-surface-body');
     await expect(pane.locator('lw-testbed-outline-view')).toBeVisible();
     await expect(pane.getByTestId(switcher())).toContainText('Beta');
 

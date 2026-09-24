@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 const exportTab =
-  'lw-content-area lw-pane-tab-strip [role="tab"][data-tab-path="dashboard/export"]';
+  'lw-address-pane-header lw-pane-tab-strip [role="tab"][data-tab-path="dashboard/export"]';
 
 test.describe('A narrow tab keeps its title before its badge', () => {
   test('the badge narrows to a mark before the title is shortened', async ({

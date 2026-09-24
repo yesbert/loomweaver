@@ -8,7 +8,7 @@ test.describe('Primary content split-down', () => {
 
     await page
       .locator(
-        'lw-content-area lw-pane-toolbar button[aria-label="Split down"]',
+        'lw-address-pane-header lw-pane-toolbar button[aria-label="Split down"]',
       )
       .click();
 
@@ -16,9 +16,7 @@ test.describe('Primary content split-down', () => {
       page.locator('lw-pane-split-handle[aria-orientation="horizontal"]'),
     ).toHaveCount(1);
     await expect(
-      page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
-      ),
+      page.locator('lw-pane-view:not([data-address-pane]) lw-surface-body'),
     ).toHaveCount(1);
 
     await page.reload();

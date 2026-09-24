@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { provideLayout } from '../../../layout/layout';
 import { ContentTabsService } from '../tabs/content-tabs.service';
-import { provideShellRouter } from './provide-content-router';
+import { provideShellRouter } from './provide-shell-router';
 import { SurfaceRouteStub } from './surface-route-stub';
 
 @Component({ selector: 'lw-test-content', template: '' })

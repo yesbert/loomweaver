@@ -9,7 +9,7 @@ test.describe('Pane minimize', () => {
     await page.getByRole('button', { name: 'Alpha' }).first().dblclick();
     await page
       .locator(
-        'lw-content-area lw-pane-toolbar button[aria-label="Split right"]',
+        'lw-address-pane-header lw-pane-toolbar button[aria-label="Split right"]',
       )
       .click();
     await expect(
@@ -52,7 +52,7 @@ test.describe('Pane minimize', () => {
     await page.goto('/search');
     await page
       .locator(
-        'lw-content-area lw-pane-toolbar button[aria-label="Split right"]',
+        'lw-address-pane-header lw-pane-toolbar button[aria-label="Split right"]',
       )
       .click();
     const pane = page.locator('lw-pane-view:not([data-address-pane])');

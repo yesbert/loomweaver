@@ -102,7 +102,7 @@ export {
   provideUnauthorizedRedirect,
   type UnauthorizedHandler,
 } from './lib/regions/content/access/content-access';
-export * from './lib/regions/content/routing/provide-content-router';
+export * from './lib/regions/content/routing/provide-shell-router';
 export { type ContentTabView } from './lib/regions/content/tabs/content-tab-projection';
 export * from './lib/regions/content/tabs/content-tabs.service';
 export { type QuickOpenTarget } from './lib/regions/content/tabs/quick-open-target';

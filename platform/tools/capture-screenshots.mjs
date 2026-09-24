@@ -167,7 +167,7 @@ const MOTIFS = {
     await openModule(page, 'Sales');
     await openView(page, 'sales/contacts');
     await page
-      .locator('lw-content-area lw-pane-toolbar button[aria-label="Split right"]')
+      .locator('lw-address-pane-header lw-pane-toolbar button[aria-label="Split right"]')
       .first()
       .click();
     await settle(page);

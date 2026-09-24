@@ -22,7 +22,7 @@ test.describe('Switching a capability off takes the gesture too (K1b)', () => {
 
     await expect(
       page.locator(
-        'lw-content-area lw-pane-toolbar button[aria-label="Split right"]',
+        'lw-address-pane-header lw-pane-toolbar button[aria-label="Split right"]',
       ),
     ).toHaveCount(0);
 
@@ -108,7 +108,7 @@ test.describe('Switching a capability off takes the gesture too (K1b)', () => {
 
     await page
       .locator(
-        'lw-content-area lw-pane-toolbar button[aria-label="Split right"]',
+        'lw-address-pane-header lw-pane-toolbar button[aria-label="Split right"]',
       )
       .click();
     await expect(
@@ -116,7 +116,7 @@ test.describe('Switching a capability off takes the gesture too (K1b)', () => {
     ).toHaveCount(1);
 
     const strip = (await page
-      .locator('lw-content-area [role="tablist"]')
+      .locator('lw-address-pane-header [role="tablist"]')
       .boundingBox())!;
     await dragTo(page, 'lw-pane-view:not([data-address-pane]) [role="tab"]', {
       x: strip.x + strip.width - 40,
@@ -253,7 +253,7 @@ test.describe('Reordering and instances: the switch takes the gesture too (K1f)'
   const handles = (page: Page, scope: string) =>
     page.locator(`${scope} [data-reorder-id]`);
 
-  const CONTENT_TABS = 'lw-content-area [role="tab"]';
+  const CONTENT_TABS = 'lw-address-pane-header [role="tab"]';
   const VIEW_TABS = '#panel-views-left-panel [role="tab"]';
   const RAIL_ITEMS = 'lw-shell-rail button[aria-label]';
 
@@ -268,7 +268,7 @@ test.describe('Reordering and instances: the switch takes the gesture too (K1f)'
     await expect(page.getByRole('tab', { name: 'E-01' })).toBeVisible();
     await expect(page.getByRole('tab', { name: 'E-02' })).toBeVisible();
 
-    await expect(handles(page, 'lw-content-area')).toHaveCount(0);
+    await expect(handles(page, 'lw-address-pane-header')).toHaveCount(0);
     const before = await orderOf(page, CONTENT_TABS);
 
     const first = page.getByRole('tab', { name: 'E-01' });
@@ -280,10 +280,14 @@ test.describe('Reordering and instances: the switch takes the gesture too (K1f)'
     const second = (await page
       .getByRole('tab', { name: 'E-02' })
       .boundingBox())!;
-    await dragTo(page, 'lw-content-area [role="tab"][aria-label="E-01"]', {
-      x: second.x + second.width - 4,
-      y: second.y + second.height / 2,
-    });
+    await dragTo(
+      page,
+      'lw-address-pane-header [role="tab"][aria-label="E-01"]',
+      {
+        x: second.x + second.width - 4,
+        y: second.y + second.height / 2,
+      },
+    );
     await settle(page);
     expect(await orderOf(page, CONTENT_TABS)).toEqual(before);
   });

@@ -50,7 +50,7 @@ test.describe('Content area', () => {
   test('one strip holds every open tab: an entry tab sits beside the dashboard tabs', async ({
     page,
   }) => {
-    const strip = page.locator('lw-content-area');
+    const strip = page.locator('lw-address-pane-header');
     await page.goto('/dashboard/overview');
     await expect(strip.getByRole('tab', { name: 'Overview' })).toBeVisible();
     await page.getByRole('tab', { name: 'Entry list' }).click();

@@ -3,7 +3,7 @@ import { narrowPrimaryPane, splitContentRight } from './support/helpers';
 
 const KPIS = '[data-testid="dash-kpis"]';
 const IN_PRIMARY = `${KPIS}:not(lw-pane-view:not([data-address-pane]) *)`;
-const IN_SECONDARY = `lw-pane-view:not([data-address-pane]) lw-content-secondary-pane ${KPIS}`;
+const IN_SECONDARY = `lw-pane-view:not([data-address-pane]) lw-surface-body ${KPIS}`;
 
 function columnCount(target: Locator): Promise<number> {
   return target.evaluate(
@@ -71,8 +71,8 @@ test.describe('A surface is measured against its pane, not the window', () => {
     await splitContentRight(page);
 
     for (const selector of [
-      '#lw-main-content > lw-content-secondary-pane',
-      'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
+      '#lw-main-content > lw-surface-body',
+      'lw-pane-view:not([data-address-pane]) lw-surface-body',
     ]) {
       const host = page.locator(selector).first();
       await expect(host).toBeVisible();

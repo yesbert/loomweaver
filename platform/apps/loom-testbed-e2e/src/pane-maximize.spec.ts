@@ -34,7 +34,7 @@ test.describe('Pane maximize', () => {
     await page.getByRole('button', { name: 'Alpha' }).first().dblclick();
     await page
       .locator(
-        'lw-content-area lw-pane-toolbar button[aria-label="Split right"]',
+        'lw-address-pane-header lw-pane-toolbar button[aria-label="Split right"]',
       )
       .click();
     await expect(

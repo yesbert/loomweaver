@@ -8,13 +8,11 @@ test.describe('Content grid', () => {
 
     await page
       .locator(
-        'lw-content-area lw-pane-toolbar button[aria-label="Split right"]',
+        'lw-address-pane-header lw-pane-toolbar button[aria-label="Split right"]',
       )
       .click();
     await expect(
-      page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
-      ),
+      page.locator('lw-pane-view:not([data-address-pane]) lw-surface-body'),
     ).toHaveCount(1);
 
     await page
@@ -22,9 +20,7 @@ test.describe('Content grid', () => {
       .getByRole('button', { name: 'Split down' })
       .click();
     await expect(
-      page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
-      ),
+      page.locator('lw-pane-view:not([data-address-pane]) lw-surface-body'),
     ).toHaveCount(2);
 
     await expect(page.locator('lw-pane-split-handle')).toHaveCount(2);
@@ -34,9 +30,7 @@ test.describe('Content grid', () => {
 
     await page.reload();
     await expect(
-      page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
-      ),
+      page.locator('lw-pane-view:not([data-address-pane]) lw-surface-body'),
     ).toHaveCount(2);
 
     await page
@@ -45,9 +39,7 @@ test.describe('Content grid', () => {
       .getByRole('button', { name: 'Close pane' })
       .click();
     await expect(
-      page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
-      ),
+      page.locator('lw-pane-view:not([data-address-pane]) lw-surface-body'),
     ).toHaveCount(1);
 
     await page.getByTestId('pane-add-tab').first().click();

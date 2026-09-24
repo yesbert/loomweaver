@@ -21,14 +21,12 @@ test.describe('A surface can own its pane edges (padded: false)', () => {
   }) => {
     await page.goto('/');
     await expect(page.getByRole('tab', { name: 'Entry list' })).toBeVisible();
-    await expectPadding(
-      page,
-      '#lw-main-content > lw-content-secondary-pane',
-      '24px',
-    );
+    await expectPadding(page, '#lw-main-content > lw-surface-body', '24px');
 
     await page
-      .locator('lw-content-area lw-pane-toolbar button[aria-label="New tab"]')
+      .locator(
+        'lw-address-pane-header lw-pane-toolbar button[aria-label="New tab"]',
+      )
       .click();
     await page
       .locator('lw-menu [role^="menuitem"]')
@@ -36,15 +34,11 @@ test.describe('A surface can own its pane edges (padded: false)', () => {
       .first()
       .click();
     await expect(page).toHaveURL(/\/search/);
-    await expectPadding(
-      page,
-      '#lw-main-content > lw-content-secondary-pane',
-      '0px',
-    );
+    await expectPadding(page, '#lw-main-content > lw-surface-body', '0px');
 
     await page
       .locator(
-        'lw-content-area lw-pane-toolbar button[aria-label="Split right"]',
+        'lw-address-pane-header lw-pane-toolbar button[aria-label="Split right"]',
       )
       .click();
     await expect(
@@ -52,7 +46,7 @@ test.describe('A surface can own its pane edges (padded: false)', () => {
     ).toHaveCount(1);
     await expectPadding(
       page,
-      'lw-content-grid lw-pane-view:not([data-address-pane]) lw-content-secondary-pane',
+      'lw-content-grid lw-pane-view:not([data-address-pane]) lw-surface-body',
       '0px',
     );
   });

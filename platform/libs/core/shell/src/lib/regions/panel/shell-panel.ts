@@ -30,7 +30,7 @@ import {
   paneRetentionScope,
   viewRetentionKey,
 } from '../pane/retention/retention-keys';
-import { ContentSecondaryPane } from '../content/surface/content-secondary-pane';
+import { SurfaceBody } from '../content/surface/surface-body';
 import { IframeSurface } from '../content/surface/iframe-surface';
 import { dockedSurfaceInjectorFactory } from '../content/surface/surface-injector';
 import {
@@ -59,7 +59,7 @@ import { regionsAt } from '../../layout/layout-queries';
     ShellBar,
     PanelSplitter,
     PaneTreeView,
-    ContentSecondaryPane,
+    SurfaceBody,
     RetainedComponent,
     ViewInstanceSwitcher,
   ],

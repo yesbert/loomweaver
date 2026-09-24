@@ -61,7 +61,7 @@ import {
 } from '../../pane/retention/retention-keys';
 
 @Component({
-  selector: 'lw-content-secondary-pane',
+  selector: 'lw-surface-body',
   imports: [
     AuthRequiredView,
     NgTemplateOutlet,
@@ -70,10 +70,10 @@ import {
     TranslocoPipe,
     ViewInstanceSwitcher,
   ],
-  templateUrl: './content-secondary-pane.html',
+  templateUrl: './surface-body.html',
   host: { '[class]': 'hostClass()' },
 })
-export class ContentSecondaryPane {
+export class SurfaceBody {
   readonly path = input.required<string>();
 
   readonly variant = input<'content' | 'panel'>('content');

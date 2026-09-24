@@ -25,7 +25,7 @@
   have no tokens BY DECISION, because tokenising every number would freeze every rule of the chrome into a
   promise. A product that must change a size writes plain UNLAYERED CSS, which beats everything the shell
   paints (all of it is in cascade layers) — target the `.lw-*` class contracts (stable) or the element tags
-  `lw-shell-rail`/`lw-shell-panel`/`lw-content-area`/… (structural, NOT a versioned contract). It does not
+  `lw-shell-rail`/`lw-shell-panel`/`lw-address-pane-header`/… (structural, NOT a versioned contract). It does not
   reach a sandboxed surface's document. See docs/reference/design-tokens.md.
   Effective = grant ∩ declaration. Enforcement is **live**: a built-in Permissions settings section lets
   the user revoke any granted runtime capability (`ui`/`host`/`navigation`/`session`/`theme`/`automation`) at runtime, or turn a

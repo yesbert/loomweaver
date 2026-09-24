@@ -7,7 +7,7 @@ test.describe('A tab menu offers only the entries that can act where the tab sta
   }) => {
     await page.goto('/dashboard/overview');
     const tab = page.locator(
-      'lw-content-area [role="tab"][aria-label="Overview"]',
+      'lw-address-pane-header [role="tab"][aria-label="Overview"]',
     );
     await expect(tab).toBeVisible();
 
@@ -25,7 +25,7 @@ test.describe('A tab menu offers only the entries that can act where the tab sta
 
     await expect(
       page.locator(
-        'lw-content-area lw-pane-toolbar button[aria-label="Split right"]',
+        'lw-address-pane-header lw-pane-toolbar button[aria-label="Split right"]',
       ),
     ).toBeVisible();
 
@@ -44,7 +44,7 @@ test.describe('A tab menu offers only the entries that can act where the tab sta
     await page.goto('/dashboard/overview');
     await expect(page.getByRole('tab', { name: 'Overview' })).toBeVisible();
     const strip = (await page
-      .locator('lw-content-area [role="tablist"]')
+      .locator('lw-address-pane-header [role="tablist"]')
       .boundingBox())!;
     await dragTo(
       page,
@@ -52,7 +52,7 @@ test.describe('A tab menu offers only the entries that can act where the tab sta
       { x: strip.x + strip.width - 40, y: strip.y + strip.height / 2 },
     );
     const moved = page.locator(
-      'lw-content-area [role="tab"][aria-label="Outline"]',
+      'lw-address-pane-header [role="tab"][aria-label="Outline"]',
     );
     await expect(moved).toBeVisible();
 

@@ -226,7 +226,7 @@ async function beats(page) {
 
   await act.say('Split a pane, and the window stays exactly as wide as it was.', 1100);
   await act.click(
-    page.locator('lw-content-area lw-pane-toolbar button[aria-label="Split right"]'),
+    page.locator('lw-address-pane-header lw-pane-toolbar button[aria-label="Split right"]'),
   );
   await act.pause(700);
   await act.say('The surface lays itself out for the pane, not for the window.', 600);

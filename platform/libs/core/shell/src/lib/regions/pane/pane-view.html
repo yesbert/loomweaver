@@ -1,5 +1,5 @@
 @if (carriesAddress()) {
-  <lw-content-area />
+  <lw-address-pane-header />
 } @else {
   <lw-pane-tab-strip
     class="shrink-0"
@@ -60,7 +60,7 @@
       {{ 'content.split.awaiting' | transloco }}
     </output>
   } @else if (showsSurface()) {
-    <lw-content-secondary-pane
+    <lw-surface-body
       class="min-h-0 min-w-0 flex-1"
       [path]="bodyPath()"
       [instanceId]="bodyInstance()"
