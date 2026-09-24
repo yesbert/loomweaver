@@ -1,4 +1,4 @@
-import { VIEW_PANE_PREFIX } from '../regions/pane/tree/pane-address';
+import { viewIdOfPanePath, viewPanePath } from '../regions/pane/tree/pane-address';
 
 export const POPOUT_PREFIX = 'popout';
 
@@ -32,15 +32,15 @@ export function popoutTargetFromUrl(url: string): string | null {
   }
   const rest = bare(url).slice(POPOUT_PREFIX.length).replace(/^\/+/, '');
   if (rest.startsWith(VIEW_SEGMENT)) {
-    return VIEW_PANE_PREFIX + rest.slice(VIEW_SEGMENT.length);
+    return viewPanePath(rest.slice(VIEW_SEGMENT.length));
   }
   return rest;
 }
 
 export function popoutUrlFor(paneTarget: string): string {
-  if (paneTarget.startsWith(VIEW_PANE_PREFIX)) {
-    const id = paneTarget.slice(VIEW_PANE_PREFIX.length);
-    return `/${POPOUT_PREFIX}/${VIEW_SEGMENT}${id}`;
+  const viewId = viewIdOfPanePath(paneTarget);
+  if (viewId !== null) {
+    return `/${POPOUT_PREFIX}/${VIEW_SEGMENT}${viewId}`;
   }
   const path = paneTarget.replace(/^\/+/, '');
   return path === ''

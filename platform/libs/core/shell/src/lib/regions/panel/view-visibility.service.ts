@@ -1,6 +1,6 @@
 import { inject, Service } from '@angular/core';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
-import { VIEW_PANE_PREFIX } from '../pane/tree/pane-address';
+import { viewPanePath } from '../pane/tree/pane-address';
 import { tabHolderOf } from '../pane/tree/pane-queries';
 import { isContainerDock } from '../pane/container/container-children';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
@@ -27,7 +27,7 @@ export class ViewVisibilityService {
   hide(viewId: string): void {
     this.closeGuard.guarded(this.openInstancesOf(viewId), () => {
       this.hiddenViews.hide(viewId);
-      this.removeTabs(VIEW_PANE_PREFIX + viewId);
+      this.removeTabs(viewPanePath(viewId));
     });
   }
 
@@ -37,7 +37,7 @@ export class ViewVisibilityService {
     if (target === undefined) {
       return;
     }
-    const path = VIEW_PANE_PREFIX + viewId;
+    const path = viewPanePath(viewId);
     if (this.regionOf(viewId) === target && !this.paneTree.hasTab(path)) {
       this.panelGroup.seed(target);
       return;
@@ -51,7 +51,7 @@ export class ViewVisibilityService {
   }
 
   private openInstancesOf(viewId: string): unknown[] {
-    const path = VIEW_PANE_PREFIX + viewId;
+    const path = viewPanePath(viewId);
     return this.stash
       .keyedInstances()
       .filter(

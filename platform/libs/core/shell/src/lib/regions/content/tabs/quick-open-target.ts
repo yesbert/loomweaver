@@ -1,7 +1,7 @@
 import { AccessRequirement, ContentRoute } from '@loomweaver/plugin-sdk';
 import { PaneNode } from '../../pane/tree/pane-node';
 import { collectTabs } from '../../pane/tree/pane-queries';
-import { VIEW_PANE_PREFIX } from '../../pane/tree/pane-address';
+import { isViewPanePath } from '../../pane/tree/pane-address';
 import { normalizePath, tabRootOf } from '../content-path';
 import { routeTitle, toOpenTab } from './content-tab-projection';
 
@@ -35,7 +35,7 @@ export function quickOpenTargetsOf(
   const openRoots = new Set<string>();
   const open: QuickOpenTarget[] = [];
   for (const paneTab of collectTabs(tree)) {
-    if (paneTab.path.startsWith(VIEW_PANE_PREFIX)) {
+    if (isViewPanePath(paneTab.path)) {
       continue;
     }
     const projected = toOpenTab(routes, paneTab, undefined);

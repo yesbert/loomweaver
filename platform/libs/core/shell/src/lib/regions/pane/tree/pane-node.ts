@@ -1,6 +1,6 @@
 import { ContentTabLabel, TabBadge } from '@loomweaver/plugin-sdk';
 import { tabBadgeOf } from '../chrome/tab-badge';
-import { PRIMARY_PANE, VIEW_PANE_PREFIX } from './pane-address';
+import { isViewPanePath, PRIMARY_PANE } from './pane-address';
 
 export interface PaneTab {
   readonly path: string;
@@ -44,9 +44,7 @@ export function newPaneId(): string {
 }
 
 export function leafOf(id: string, path: string): PaneLeaf {
-  const tab: PaneTab = path.startsWith(VIEW_PANE_PREFIX)
-    ? { path, instance: id }
-    : { path };
+  const tab: PaneTab = isViewPanePath(path) ? { path, instance: id } : { path };
   return { kind: 'leaf', id, tabs: [tab], active: path };
 }
 

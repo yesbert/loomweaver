@@ -1,7 +1,7 @@
 import { InjectionToken } from '@angular/core';
 import { ContentRoute, DirtySurface, View } from '@loomweaver/plugin-sdk';
 import { matchRoute } from '../../content/content-path';
-import { VIEW_PANE_PREFIX } from '../tree/pane-address';
+import { isViewPanePath } from '../tree/pane-address';
 import { surfaceForPanePath } from '../pane-surface';
 
 export type RetentionDefault = 'destroy' | 'retain';
@@ -52,7 +52,7 @@ export function surfaceRetentionMode(
   routes: readonly ContentRoute[],
   path: string,
 ): SurfaceRetentionMode {
-  if (path.startsWith(VIEW_PANE_PREFIX)) {
+  if (isViewPanePath(path)) {
     return 'move';
   }
   const route = matchRoute(routes, path);

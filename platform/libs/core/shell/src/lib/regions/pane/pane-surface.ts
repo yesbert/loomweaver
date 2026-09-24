@@ -9,7 +9,7 @@ import {
   restBelow,
   tabRootOf,
 } from '../content/content-path';
-import { VIEW_PANE_PREFIX, viewForPanePath } from './tree/pane-address';
+import { isViewPanePath, viewForPanePath } from './tree/pane-address';
 
 export interface ContainerChildMatch<V> {
   readonly child: V;
@@ -41,7 +41,7 @@ export function surfaceForPanePath<V extends View, R extends ContentRoute>(
   views: readonly V[],
   path: string,
 ): V | R | undefined {
-  if (path.startsWith(VIEW_PANE_PREFIX)) {
+  if (isViewPanePath(path)) {
     return viewForPanePath(views, path);
   }
   const route = matchRoute(routes, path);

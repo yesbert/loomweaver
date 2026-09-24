@@ -14,7 +14,11 @@ import { PanelGroupService } from './panel-group.service';
 import { ViewMoveService } from './view-move.service';
 import { PANEL_STRIP_CONTEXT_MENU } from './view-context-menu';
 import { VIEW_CONTEXT_MENU } from '../pane/chrome/view-menu-slot';
-import { VIEW_PANE_PREFIX, PaneRef } from '../pane/tree/pane-address';
+import {
+  isViewPanePath,
+  PaneRef,
+  viewIdOfPanePath,
+} from '../pane/tree/pane-address';
 import { stripIdOf } from '../pane/drag/pane-move.service';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
 import { PaneTabStrip } from '../pane/chrome/pane-tab-strip';
@@ -102,7 +106,7 @@ export class ShellSidebarHeader {
   );
 
   protected readonly acceptsTab = (path: string): boolean =>
-    path.startsWith(VIEW_PANE_PREFIX)
+    isViewPanePath(path)
       ? this.features.moveViews()
       : this.features.acceptTabs();
 
@@ -147,8 +151,9 @@ export class ShellSidebarHeader {
       return;
     }
     event.preventDefault();
-    if (path.startsWith(VIEW_PANE_PREFIX)) {
-      this.viewMove.move(path.slice(VIEW_PANE_PREFIX.length), target.id);
+    const viewId = viewIdOfPanePath(path);
+    if (viewId !== null) {
+      this.viewMove.move(viewId, target.id);
       return;
     }
     this.viewMove.moveTab(this.source(), path, target.id);

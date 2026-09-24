@@ -19,7 +19,11 @@ import { ViewInstanceSwitcher } from '../../views/view-instance-switcher';
 import { PanelGroupService } from './panel-group.service';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
 import { PaneTreeView } from '../pane/pane-tree-view';
-import { VIEW_PANE_PREFIX, viewForPanePath } from '../pane/tree/pane-address';
+import {
+  isViewPanePath,
+  viewForPanePath,
+  viewPanePath,
+} from '../pane/tree/pane-address';
 import { PANEL_PANE_OPTIONS } from '../pane/pane-view-options';
 import { RetainedComponent } from '../pane/retention/retained-component';
 import {
@@ -133,10 +137,9 @@ export class ShellPanel {
 
   protected readonly activeView = computed(() => {
     const path = this.activePath();
-    if (!path?.startsWith(VIEW_PANE_PREFIX)) {
-      return;
-    }
-    return viewForPanePath(this.registry.views(), path);
+    return path === undefined
+      ? undefined
+      : viewForPanePath(this.registry.views(), path);
   });
 
   protected readonly padded = computed(() =>
@@ -145,9 +148,7 @@ export class ShellPanel {
 
   protected readonly activeContentPath = computed(() => {
     const path = this.activePath();
-    return path !== undefined && !path.startsWith(VIEW_PANE_PREFIX)
-      ? path
-      : undefined;
+    return path !== undefined && !isViewPanePath(path) ? path : undefined;
   });
 
   protected readonly actions = computed(() =>
@@ -202,7 +203,7 @@ export class ShellPanel {
   protected viewKeyFor(view: View): string {
     return viewRetentionKey(
       this.primaryScope(),
-      VIEW_PANE_PREFIX + view.id,
+      viewPanePath(view.id),
       this.shownInstance(),
     );
   }
@@ -211,7 +212,7 @@ export class ShellPanel {
     return retainSurfacePath(
       this.registry.contentRoutes(),
       this.registry.views(),
-      VIEW_PANE_PREFIX + view.id,
+      viewPanePath(view.id),
       this.retention,
     );
   }

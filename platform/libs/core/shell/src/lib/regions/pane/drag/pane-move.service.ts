@@ -1,9 +1,9 @@
 import { inject, Service } from '@angular/core';
 import {
   CONTENT_DOCK,
-  VIEW_PANE_PREFIX,
-  PaneRef,
   isSamePane,
+  isViewPanePath,
+  PaneRef,
 } from '../tree/pane-address';
 import {
   PRIMARY_LEAF,
@@ -235,7 +235,7 @@ export class PaneMoveService {
     urlFollowup: string | null,
   ): void {
     if (this.paneTree.carriesAddress(target)) {
-      if (tab.path.startsWith(VIEW_PANE_PREFIX)) {
+      if (isViewPanePath(tab.path)) {
         this.tabs.activateViewTab(tab.path);
       } else {
         this.tabs.navigateTo(tab.path);

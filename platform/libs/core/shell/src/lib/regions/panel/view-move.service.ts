@@ -1,6 +1,6 @@
 import { inject, Service } from '@angular/core';
 import { SHELL_LAYOUT } from '../../layout/layout';
-import { VIEW_PANE_PREFIX, PaneRef } from '../pane/tree/pane-address';
+import { PaneRef, viewPanePath } from '../pane/tree/pane-address';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
 import { PaneMoveService } from '../pane/drag/pane-move.service';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
@@ -25,7 +25,7 @@ export class ViewMoveService {
   private readonly announcer = inject(MoveAnnouncer);
 
   move(viewId: string, targetRegion: string, index?: number): void {
-    const path = VIEW_PANE_PREFIX + viewId;
+    const path = viewPanePath(viewId);
     const source = this.paneTree.sourceOf(path);
     const targetPrimary = this.paneTree.primaryId(targetRegion);
     if (source === null) {

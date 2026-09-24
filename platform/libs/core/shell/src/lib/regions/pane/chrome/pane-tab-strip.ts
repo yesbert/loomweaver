@@ -27,7 +27,12 @@ import { MenuContext, ViewAction } from '@loomweaver/plugin-sdk';
 import { MENU_ANCHOR_GAP, MenuService } from '../../../menu/menu.service';
 import { MenuTriggerDirective } from '../../../menu/menu-trigger.directive';
 import { Reorderable } from '../../reorder/reorderable.directive';
-import { CONTENT_DOCK, VIEW_PANE_PREFIX, PaneRef } from '../tree/pane-address';
+import {
+  CONTENT_DOCK,
+  isViewPanePath,
+  PaneRef,
+  viewIdOfPanePath,
+} from '../tree/pane-address';
 import { paneRetentionScope } from '../retention/retention-keys';
 import { UnsavedWork } from '../unsaved-work/unsaved-work';
 import { resolveTitle } from './tab-label';
@@ -246,17 +251,18 @@ export class PaneTabStrip {
   }
 
   protected menuSlotFor(tab: StripTab): string {
-    return tab.path.startsWith(VIEW_PANE_PREFIX)
+    return isViewPanePath(tab.path)
       ? this.viewContextMenuSlot()
       : this.contextMenuSlot();
   }
 
   protected tabContext(tab: StripTab): MenuContext {
     const sole = this.tabs().length === 1;
-    if (tab.path.startsWith(VIEW_PANE_PREFIX)) {
+    const viewId = viewIdOfPanePath(tab.path);
+    if (viewId !== null) {
       return {
         targetKind: 'view-tab',
-        viewId: tab.path.slice(VIEW_PANE_PREFIX.length),
+        viewId,
         region: this.contextGroup(),
         inContent: this.contextGroup() === CONTENT_DOCK,
         sole,

@@ -13,7 +13,7 @@ import {
   paneAreaTree,
 } from '../regions/pane/tree/declared-pane-layout';
 import { conflictingClaims, type WorkspaceClaim } from './workspace-claims';
-import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../regions/pane/tree/pane-address';
+import { CONTENT_DOCK, isViewPanePath, VIEW_PANE_PREFIX } from '../regions/pane/tree/pane-address';
 import { normalizeNode } from '../regions/pane/tree/stored-pane-tree';
 
 /**
@@ -293,7 +293,7 @@ function bakeTab(
   problems: string[],
 ): BakedTab | null {
   const tab = typeof entry === 'string' ? { path: entry } : entry;
-  if (tab.path.startsWith(VIEW_PANE_PREFIX)) {
+  if (isViewPanePath(tab.path)) {
     problems.push(
       `Workspace "${definitionId}": content tabs cannot hold sidebar views ("${tab.path}") — ` +
         `declare the view under sidebars instead; the tab is dropped.`,

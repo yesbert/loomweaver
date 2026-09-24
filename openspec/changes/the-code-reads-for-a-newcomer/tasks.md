@@ -143,7 +143,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 - [x] 5.2 Tree queries: `leavesOf` moves to `pane-queries.ts` and the read-only walks are built on it;
   "an empty, undeclared leaf goes away" is one rule with one collapse tail; the moved-tree settling
   moves into `pane-structure.ts`; "a path at or below a root" is one function in the path module.
-- [ ] 5.3 Pane identity: `PaneRef` everywhere (the identical `TabDragSource` goes), `isSamePane`, one
+- [x] 5.3 Pane identity: `PaneRef` everywhere (the identical `TabDragSource` goes), `isSamePane`, one
   name for "carries the address", a named "content side" dock test, `isViewPanePath` and
   `viewPanePath` instead of fourteen prefix checks, tab escalation by an explicit switch.
 - [ ] 5.4 `PaneTreeService`: tab ranking into `pane-tabs.ts`, the hydration hand-off into

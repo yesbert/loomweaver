@@ -5,7 +5,7 @@ import { regionsOfType } from '../../layout/layout-queries';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { AuthContext } from '../../auth/auth-context';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
-import { VIEW_PANE_PREFIX } from '../pane/tree/pane-address';
+import { viewPanePath } from '../pane/tree/pane-address';
 import { ViewVisibilityService } from '../panel/view-visibility.service';
 import { CurationRow, CurationSource, HIDDEN } from './curation-source';
 
@@ -49,6 +49,6 @@ export class ViewCuration implements CurationSource {
   }
 
   private holderOf(viewId: string): string | null {
-    return this.paneTree.sourceOf(VIEW_PANE_PREFIX + viewId)?.dock ?? null;
+    return this.paneTree.sourceOf(viewPanePath(viewId))?.dock ?? null;
   }
 }

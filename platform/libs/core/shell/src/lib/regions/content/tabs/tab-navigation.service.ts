@@ -18,7 +18,7 @@ import {
   withRefreshedPath,
 } from './content-tab-projection';
 import { ContentTabState } from './content-tab-state';
-import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../../pane/tree/pane-address';
+import { CONTENT_DOCK, isViewPanePath } from '../../pane/tree/pane-address';
 import { findLeaf, findLeafWhere } from '../../pane/tree/pane-queries';
 import { activeContentPath } from '../../pane/tree/active-content-path';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
@@ -147,7 +147,7 @@ export class TabNavigationService {
       return;
     }
     const rooted = (path: string) =>
-      !path.startsWith(VIEW_PANE_PREFIX) && tabRootOf(routes, path) === root;
+      !isViewPanePath(path) && tabRootOf(routes, path) === root;
     const tree = this.paneTree.tree(CONTENT_DOCK);
     const primary = this.paneTree.primaryId(CONTENT_DOCK);
     if (findLeaf(tree, primary)?.tabs.some((tab) => rooted(tab.path))) {

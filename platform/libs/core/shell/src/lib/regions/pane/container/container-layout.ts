@@ -6,7 +6,7 @@ import {
   isAddressable,
 } from './container-children';
 import { BakedTab, PaneAreaTree, paneAreaTree } from '../tree/declared-pane-layout';
-import { VIEW_PANE_PREFIX } from '../tree/pane-address';
+import { viewPanePath } from '../tree/pane-address';
 import { PaneTab } from '../tree/pane-node';
 
 export function containerLayout(
@@ -49,7 +49,7 @@ export function containerChildTab(
     (isAddressable(declared?.segment) ? declared?.segment : undefined);
   if (address === undefined) {
     return {
-      path: VIEW_PANE_PREFIX + childId,
+      path: viewPanePath(childId),
       instance: `${dock}::${childId}`,
     };
   }

@@ -13,7 +13,7 @@ import { VIEW_CONTEXT_MENU } from '../pane/chrome/view-menu-slot';
 import { FeatureSwitches } from '../../features/feature-switches.service';
 import {
   CONTENT_DOCK,
-  VIEW_PANE_PREFIX,
+  isViewPanePath,
   PaneRef,
 } from '../pane/tree/pane-address';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
@@ -127,7 +127,7 @@ export class AddressPaneHeader {
   );
 
   protected select(tab: StripTab): void {
-    if (tab.path.startsWith(VIEW_PANE_PREFIX)) {
+    if (isViewPanePath(tab.path)) {
       this.tabs.activateViewTab(tab.path);
       return;
     }

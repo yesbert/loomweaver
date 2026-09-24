@@ -1,7 +1,7 @@
 import { inject, Service } from '@angular/core';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { normalizePath, tabRootOf } from '../../content/content-path';
-import { VIEW_PANE_PREFIX } from '../tree/pane-address';
+import { isViewPanePath } from '../tree/pane-address';
 import { RetainedViewStash } from '../retention/retained-view-stash';
 import { instanceDirty } from '../retention/retention-policy';
 import {
@@ -60,7 +60,7 @@ export class UnsavedWork {
   }
 
   private addressesOf(path: string): string[] {
-    if (path.startsWith(VIEW_PANE_PREFIX)) {
+    if (isViewPanePath(path)) {
       return [path];
     }
     const normalized = normalizePath(path);

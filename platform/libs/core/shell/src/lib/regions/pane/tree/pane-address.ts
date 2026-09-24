@@ -14,14 +14,20 @@ export interface PaneRef {
   readonly paneId: string;
 }
 
+export function isViewPanePath(path: string): boolean {
+  return path.startsWith(VIEW_PANE_PREFIX);
+}
+
+export function viewPanePath(viewId: string): string {
+  return VIEW_PANE_PREFIX + viewId;
+}
+
 export function isSamePane(a: PaneRef, b: PaneRef): boolean {
   return a.dock === b.dock && a.paneId === b.paneId;
 }
 
 export function viewIdOfPanePath(path: string): string | null {
-  return path.startsWith(VIEW_PANE_PREFIX)
-    ? path.slice(VIEW_PANE_PREFIX.length)
-    : null;
+  return isViewPanePath(path) ? path.slice(VIEW_PANE_PREFIX.length) : null;
 }
 
 export function viewForPanePath<T extends { readonly id: string }>(
@@ -33,5 +39,5 @@ export function viewForPanePath<T extends { readonly id: string }>(
 }
 
 export function promotedContentPath(promoted: string): string {
-  return promoted.startsWith(VIEW_PANE_PREFIX) ? '' : promoted;
+  return isViewPanePath(promoted) ? '' : promoted;
 }
