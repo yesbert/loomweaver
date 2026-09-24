@@ -78,7 +78,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   `provide-shell.ts`, "seed" is left to the pane tree; `check-command-names.mjs` follows.
 - [x] 3.4 `provide-shell.ts` fits a screen: `ShellOptions` in `shell-options.ts`, named provider groups,
   one shape for startup registration, `registerDefaultSettings` injecting what it needs.
-- [ ] 3.5 `shell.html` renders a side through one `ShellEdge` and the compact overlay through one
+- [x] 3.5 `shell.html` renders a side through one `ShellEdge` and the compact overlay through one
   drawer template instead of mirrored left and right blocks; the outlets render once.
 - [ ] 3.6 Rail and sidebar moves share one Alt+Shift+Arrow helper and one move announcement; the
   sidebar's keyboard path goes through `ViewMoveService` (after its defect is fixed); local names say

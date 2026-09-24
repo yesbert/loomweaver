@@ -1,4 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import {
@@ -8,7 +9,7 @@ import {
   RegionType,
 } from './layout/layout';
 import { ShellBar } from './regions/bar/shell-bar';
-import { ShellRail } from './regions/rail/shell-rail';
+import { ShellEdge } from './shell-edge';
 import { ShellPanel } from './regions/panel/shell-panel';
 import { ShellSidebarHeader } from './regions/panel/shell-sidebar-header';
 import { ContentGrid } from './regions/content/content-grid';
@@ -24,9 +25,10 @@ import { hasContentRegion, regionsAt } from './layout/layout-queries';
   selector: 'lw-shell',
   imports: [
     ShellBar,
-    ShellRail,
+    ShellEdge,
     ShellPanel,
     ShellSidebarHeader,
+    NgTemplateOutlet,
     ContentGrid,
     ToastOutlet,
     DialogOutlet,
@@ -56,22 +58,11 @@ export class Shell {
   protected readonly rightFloating = computed(() =>
     this.floating(this.rightPanels),
   );
-  protected readonly leftEdgeBorder = computed(() =>
-    this.edgeHasBody(this.leftPanels, this.leftRails),
+  protected readonly needsHeaderSpacer = computed(
+    () =>
+      this.topBars.length === 0 &&
+      (this.leftFloating().length > 0 || this.rightFloating().length > 0),
   );
-  protected readonly rightEdgeBorder = computed(() =>
-    this.edgeHasBody(this.rightPanels, this.rightRails),
-  );
-  protected readonly leftRailDivider = computed(() =>
-    this.railDivider(this.leftPanels, this.leftRails),
-  );
-  protected readonly rightRailDivider = computed(() =>
-    this.railDivider(this.rightPanels, this.rightRails),
-  );
-
-  protected panelCollapsed(panel: LayoutRegion): boolean {
-    return !this.viewport.compact() && this.panels.isCollapsed(panel.id);
-  }
 
   protected isOverlayOpen(regionId: string): boolean {
     return this.panels.isOverlayOpen(regionId);
@@ -90,21 +81,6 @@ export class Shell {
       return [];
     }
     return panels.filter((panel) => this.panels.isCollapsed(panel.id));
-  }
-
-  private railDivider(panels: LayoutRegion[], rails: LayoutRegion[]): boolean {
-    return (
-      rails.length > 0 &&
-      panels.some((panel) => !this.panels.isCollapsed(panel.id))
-    );
-  }
-
-  private edgeHasBody(panels: LayoutRegion[], rails: LayoutRegion[]): boolean {
-    return (
-      this.viewport.compact() ||
-      rails.length > 0 ||
-      panels.some((panel) => !this.panels.isCollapsed(panel.id))
-    );
   }
 
   private regionsAt(dock: DockPosition, type: RegionType): LayoutRegion[] {
