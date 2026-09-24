@@ -23,6 +23,7 @@ tabs.pin('doc/readme'); tabs.unpin('doc/readme');
 tabs.close('doc/readme'); tabs.closeOthers('doc/readme');
 tabs.closeToRight('doc/readme'); tabs.closeAll();
 tabs.revealContentTab('doc/readme');           // focus the tab where it already lives
+tabs.update('doc/readme', { badge: null });    // change an open tab's label in place, never bringing it forward
 ```
 
 Use `navigateTo` when the address alone says what to show; use `open` when the tab needs a title the address does not carry, or should open as a preview.

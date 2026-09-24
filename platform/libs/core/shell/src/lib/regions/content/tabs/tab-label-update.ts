@@ -32,7 +32,7 @@ export function relabelled(
   label: ContentTabLabel,
 ): PaneNode | null {
   if (node.kind === 'leaf') {
-    if (!node.tabs.some((tab) => matches(tab.path))) {
+    if (node.tabs.every((tab) => !matches(tab.path))) {
       return null;
     }
     const tabs = node.tabs.map((tab) =>

@@ -86,6 +86,12 @@ interface PluginContext {
   pinContentTab(path: string): void;                     // pin: anchor to front + close-guard         [navigation]
   unpinContentTab(path: string): void;                   // unpin back to a normal tab                 [navigation]
   closeContentTab(path: string): void;                   // close a dynamic tab                        [navigation]
+  updateContentTab(path: string, label: ContentTabLabel): void; // change an OPEN tab's title/icon/badge where it stands, WITHOUT
+                                                         // bringing it forward: the tab in front, the focus and the address stay; a
+                                                         // tab in another pane of the main area changes there. What label leaves out
+                                                         // stays; badge: null removes the tab's own badge. Never opens a tab (no open
+                                                         // tab = no-op); a tab whose content another plugin registered is left alone;
+                                                         // crosses the sandbox [contributions]
   revealSurface(id: string): void;                       // activate a DOCKED surface's tab wherever the user placed it (sidebar pane — expanding a collapsed panel — or content pane); no-op for unknown/container-child ids. Routable surfaces: use navigateContent  [navigation]
   readonly activeContent: () => ActiveContent | null;    // signal-shaped read: which routable surface the address pane
                                                          // shows + its :params — instead of injecting the host router /
@@ -474,6 +480,7 @@ type ContentRoute = { id?: string; path: string; chromeless?: boolean; subRoutes
 // existing tab preserves its preview state (title/sub-route refinement never promotes).
 // Distribution can disable: provideShellFeatures({ content: { preview: false } }) → preview ignored, all opens permanent.
 interface OpenTabInput { path: string; title: string; icon?: string; titleIsLiteral?: boolean; onClose?: () => void; preview?: boolean; badge?: TabBadge | null; }
+interface ContentTabLabel { title?: string; titleIsLiteral?: boolean; icon?: string; badge?: TabBadge | null; }   // for updateContentTab
 // badge: this tab's OWN badge ("Draft" on one document among others). It wins over the surface's badge, is refined by
 // opening the same path again (a re-open without one keeps it; badge: null takes it away), and survives a restart.
 type TabBadgeTone = 'neutral' | 'brand' | 'success' | 'danger';   // the .lw-badge tones; default 'neutral'

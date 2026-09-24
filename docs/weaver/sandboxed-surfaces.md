@@ -120,7 +120,7 @@ The RPC `ctx` is **flat**: unlike the in-process `ctx` the other how-to pages us
 facade. Its surface endpoints are `registerSurface` · `retitleSurface` · `updateSurfaceBadge` ·
 `setChildShown` · `registerMenuItem` · `registerSettingsSection`. Its content endpoints are
 `navigateContent` · `openContentTab` / `keepContentTab` / `pinContentTab` / `unpinContentTab` /
-`closeContentTab` · `revealSurface`. The rest are `invokeCommand` / `invocableCommands` · `toast`,
+`closeContentTab` / `updateContentTab` · `revealSurface`. The rest are `invokeCommand` / `invocableCommands` · `toast`,
 and `stateWatch` / `stateSet` / `stateClear` / `stateUnwatch` for [plugin state](plugin-state.md).
 Every call runs through the same default-deny
 capability broker as a trusted plugin. An ungranted capability rejects, so `.catch` and degrade.

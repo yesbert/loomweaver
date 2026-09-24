@@ -208,6 +208,7 @@ export class ContentTabsService {
    * Changes the title, icon or badge of the open tab rooted at `path`, in whichever pane of the main
    * area it stands, without bringing it forward or changing the address. What `label` leaves out
    * stays, and `badge: null` takes the tab's own badge away. No-op when no tab is open for `path`.
+   * With a `pluginId`, only content that plugin registered is changed.
    */
   update(path: string, label: ContentTabLabel, pluginId?: string): void {
     updateTabLabel(this.paneTree, this.registry.contentRoutes(), {
