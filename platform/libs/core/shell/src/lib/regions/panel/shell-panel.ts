@@ -30,9 +30,9 @@ import {
   paneRetentionScope,
   viewRetentionKey,
 } from '../pane/retention/retention-keys';
-import { ContentSecondaryPane } from '../content/content-secondary-pane';
-import { IframeSurface } from '../content/iframe-surface';
-import { dockedSurfaceInjectorFactory } from '../content/routing/surface-injector';
+import { ContentSecondaryPane } from '../content/surface/content-secondary-pane';
+import { IframeSurface } from '../content/surface/iframe-surface';
+import { dockedSurfaceInjectorFactory } from '../content/surface/surface-injector';
 import {
   ContributionRegistry,
   RegisteredView,

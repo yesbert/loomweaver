@@ -5,7 +5,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { filter, map } from 'rxjs/operators';
 import { PRODUCT_IDENTITY } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../plugin/contribution-registry';
-import { ContentSecondaryPane } from '../regions/content/content-secondary-pane';
+import { ContentSecondaryPane } from '../regions/content/surface/content-secondary-pane';
 import { paneLabelOf, resolveTitle } from '../regions/pane/chrome/tab-label';
 import { Wording } from '../i18n/wording';
 import { popoutTargetFromUrl } from './popout-path';

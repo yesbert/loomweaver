@@ -7,7 +7,7 @@ import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { CONTENT_DOCK, PRIMARY_PANE } from '../../pane/tree/pane-address';
 import { paneRetentionScope } from '../../pane/retention/retention-keys';
 import { buildContentRoutes } from '../routing/content-router';
-import { ContentSecondaryPane } from '../content-secondary-pane';
+import { ContentSecondaryPane } from '../surface/content-secondary-pane';
 import { ContentTabsService } from './content-tabs.service';
 
 @Component({ selector: 'lw-test-content', template: '' })

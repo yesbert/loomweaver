@@ -33,7 +33,7 @@ import { RouterOutlet } from '@angular/router';
 import { ContentArea } from '../content/content-area';
 import { AddressBody } from '../content/address-body';
 import { UnusableWorkspaceNotice } from '../content/unusable-workspace-notice';
-import { ContentSecondaryPane } from '../content/content-secondary-pane';
+import { ContentSecondaryPane } from '../content/surface/content-secondary-pane';
 import { isHomePath } from '../content/content-path';
 import { PaneTargetPicker } from '../content/pane-target-picker.service';
 import { ContentTabsService } from '../content/tabs/content-tabs.service';

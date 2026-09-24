@@ -14,7 +14,7 @@ import { provideLayout } from '../layout/layout';
 import { provideIdentityScopedStores } from './identity-scoped-stores';
 import { buildContentRoutes } from '../regions/content/routing/content-router';
 import { CONTENT_DOCK } from '../regions/pane/tree/pane-address';
-import { ContentSecondaryPane } from '../regions/content/content-secondary-pane';
+import { ContentSecondaryPane } from '../regions/content/surface/content-secondary-pane';
 import { CONTAINER_PANE_HOST } from '../regions/pane/container/container-context';
 import { ContainerPaneHost } from '../regions/pane/container/container-pane-host';
 import { collectLeafIds, collectTabs } from '../regions/pane/tree/pane-queries';
