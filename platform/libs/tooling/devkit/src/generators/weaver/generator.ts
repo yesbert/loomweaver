@@ -6,13 +6,13 @@ import {
   Tree,
   updateJson,
 } from '@nx/devkit';
-import { composeLines, composePlugin } from '../../lib/amend/compose';
 import { Amendment, ComposePluginAmendment } from '../../lib/amend/types';
 import { generate } from '../../lib/generate/generate';
 import {
   addI18nAssetsGlob,
   addTailwindSource,
   buildableApps,
+  composeIntoAppConfig,
   resolveApp,
   ResolvedApp,
   tsconfigPathsFile,
@@ -121,21 +121,9 @@ function composeIntoApp(
     (candidate): candidate is ComposePluginAmendment =>
       candidate.kind === 'compose-plugin',
   );
-  const file = `${appRoot}/src/app/app.config.ts`;
-  const source = tree.read(file, 'utf8');
-  if (!amendment || source === null) {
-    return;
+  if (amendment) {
+    composeIntoAppConfig(tree, appRoot, amendment, importPath);
   }
-  const result = composePlugin(source, amendment, importPath);
-  if (result.composed) {
-    if (result.source !== source) {
-      tree.write(file, result.source);
-    }
-    return;
-  }
-  logger.warn(
-    `${file} no longer presents the shape the distribution scaffold generated, so ${amendment.id} was NOT registered and none of its contributions will appear. Add these to it yourself: ${composeLines(amendment, importPath).join(' ')}`,
-  );
 }
 
 function appToComposeInto(

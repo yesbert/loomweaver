@@ -249,11 +249,11 @@ in the browser.
 Every amendment is an _ensure this is present_, never a _set this to_. Running a scaffold twice
 changes nothing, and a value you chose yourself is never overruled.
 
-| Adapter                   | Writes files? | Amends the workspace?                                                                                                | Because                                                           |
-| ------------------------- | ------------- | -------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| `@loomweaver/devkit` (Nx) | yes           | yes — the project registration, the tsconfig alias, the build target, the style pipeline, a package the output needs | Nx hands it a virtual tree of your workspace                      |
-| `@loomweaver/cli`         | yes           | yes — the style pipeline, the build target, the entry stylesheet, the composition root, a package the output needs   | it finds the workspace above the target directory it was given    |
-| `@loomweaver/mcp`         | no            | no — it names each step instead, with what it costs to skip                                                          | it returns relative paths so your client stays in the review path |
+| Adapter                   | Writes files? | Amends the workspace?                                                                                                                      | Because                                                           |
+| ------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------- |
+| `@loomweaver/devkit` (Nx) | yes           | yes — the project registration, the tsconfig alias, the build target, the style pipeline, the composition root, a package the output needs | Nx hands it a virtual tree of your workspace                      |
+| `@loomweaver/cli`         | yes           | yes — the style pipeline, the build target, the entry stylesheet, the composition root, a package the output needs                         | it finds the workspace above the target directory it was given    |
+| `@loomweaver/mcp`         | no            | no — it names each step instead, with what it costs to skip                                                                                | it returns relative paths so your client stays in the review path |
 
 The files a route amends are ones it names for itself, never ones derived from what you passed on
 the command line: the refusal to write outside the target directory governs supplied targets and is
