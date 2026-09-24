@@ -9,22 +9,17 @@ export class PluginDisableGuard {
   private readonly closeGuard = inject(SurfaceCloseGuard);
   private readonly enablement = inject(PluginEnablementService);
 
-  toggle(id: string, input: HTMLInputElement): void {
-    if (input.checked) {
-      this.enablement.setEnabled(id, true);
-      return;
+  requestEnabled(id: string, enabled: boolean): Promise<boolean> {
+    const candidates = enabled ? [] : this.unsavedWork.instancesOfPlugin(id);
+    if (enabled || !this.closeGuard.anyDirty(candidates)) {
+      this.enablement.setEnabled(id, enabled);
+      return Promise.resolve(true);
     }
-    const candidates = this.unsavedWork.instancesOfPlugin(id);
-    if (!this.closeGuard.anyDirty(candidates)) {
-      this.enablement.setEnabled(id, false);
-      return;
-    }
-    void this.closeGuard.confirmDiscard(candidates).then((ok) => {
+    return this.closeGuard.confirmDiscard(candidates).then((ok) => {
       if (ok) {
         this.enablement.setEnabled(id, false);
-      } else {
-        input.checked = true;
       }
+      return ok;
     });
   }
 

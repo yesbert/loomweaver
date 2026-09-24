@@ -10,10 +10,7 @@ import { InstalledPluginList } from './installed-plugin-list';
 import { PluginStoreCard } from './plugin-store-card';
 import { PluginStoreDetail } from './plugin-store-detail';
 import { loadCatalogEntries, matchesQuery } from './catalog/catalog-entries';
-import { confirmInstall } from './lifecycle/install-consent';
-import { injectStoreConsentDeps } from './lifecycle/consent-deps';
-import { confirmUninstall } from './lifecycle/uninstall-confirm';
-import { confirmUpdate } from './lifecycle/update-consent';
+import { PluginStoreConsent } from './lifecycle/plugin-store-consent';
 import { availableUpdate } from './lifecycle/plugin-update';
 
 @Component({
@@ -35,7 +32,7 @@ export class PluginStoreDialog implements OnInit {
 
   private readonly catalog = inject(PLUGIN_CATALOG, { optional: true });
 
-  private readonly consentDeps = injectStoreConsentDeps();
+  private readonly consent = inject(PluginStoreConsent);
 
   protected readonly entries = signal<
     readonly PluginCatalogEntry[] | undefined
@@ -67,10 +64,7 @@ export class PluginStoreDialog implements OnInit {
   }
 
   protected requestInstall(entry: PluginCatalogEntry): void {
-    void confirmInstall(
-      this.consentDeps,
-      entry,
-    );
+    void this.consent.confirmInstall(entry);
   }
 
   protected hasUpdate(entry: PluginCatalogEntry): boolean {
@@ -78,18 +72,11 @@ export class PluginStoreDialog implements OnInit {
   }
 
   protected requestUpdate(entry: PluginCatalogEntry): void {
-    void confirmUpdate(
-      this.consentDeps,
-      entry,
-    );
+    void this.consent.confirmUpdate(entry);
   }
 
   protected requestUninstall(entry: PluginCatalogEntry): void {
-    void confirmUninstall(
-      this.consentDeps,
-      entry.id,
-      entry.name,
-    );
+    void this.consent.confirmUninstall(entry.id, entry.name);
   }
 
   protected close(): void {

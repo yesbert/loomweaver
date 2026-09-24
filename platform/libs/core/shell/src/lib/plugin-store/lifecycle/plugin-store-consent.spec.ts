@@ -1,11 +1,11 @@
+import { TestBed } from '@angular/core/testing';
 import { TranslocoService } from '@jsverse/transloco';
 import { DialogService } from '../../dialog/dialog.service';
-import { StoreConsentDeps } from './consent-deps';
 import { InstalledPlugin } from './installed-plugin';
 import { PluginCatalogEntry } from '../catalog/catalog-entry';
 import { PluginDisableGuard } from '../../plugin/enablement/plugin-disable-guard';
 import { PluginInstallService } from './plugin-install.service';
-import { confirmUpdate } from './update-consent';
+import { PluginStoreConsent } from './plugin-store-consent';
 
 const installed: InstalledPlugin = {
   id: 'testbed',
@@ -27,42 +27,46 @@ function fakeDeps(options: {
   const update = vi.fn();
   const confirmRemoval = vi.fn(() => Promise.resolve(options.removalAllowed));
   const confirm = vi.fn(() => Promise.resolve(options.consentAccepted ?? true));
-  const deps: StoreConsentDeps = {
-    dialogs: { confirm } as unknown as DialogService,
-    transloco: {
-      translate: (key: string) => key,
-    } as unknown as TranslocoService,
-    installs: {
-      byId: () => installed,
-      update,
-    } as unknown as PluginInstallService,
-    disableGuard: { confirmRemoval } as unknown as PluginDisableGuard,
-  };
-  return { deps, update, confirmRemoval, confirm };
+  TestBed.configureTestingModule({
+    providers: [
+      { provide: DialogService, useValue: { confirm } },
+      {
+        provide: TranslocoService,
+        useValue: { translate: (key: string) => key },
+      },
+      {
+        provide: PluginInstallService,
+        useValue: { byId: () => installed, update },
+      },
+      { provide: PluginDisableGuard, useValue: { confirmRemoval } },
+    ],
+  });
+  const consent = TestBed.inject(PluginStoreConsent);
+  return { consent, update, confirmRemoval, confirm };
 }
 
-describe('confirmUpdate (updates respawn the plugin)', () => {
+describe('PluginStoreConsent.confirmUpdate (updates respawn the plugin)', () => {
   it('runs the unsaved-changes guard and aborts the update when the user cancels', async () => {
-    const { deps, update, confirmRemoval } = fakeDeps({
+    const { consent, update, confirmRemoval } = fakeDeps({
       removalAllowed: false,
     });
 
-    await confirmUpdate(deps, entry);
+    await consent.confirmUpdate(entry);
 
     expect(confirmRemoval).toHaveBeenCalledWith('testbed');
     expect(update).not.toHaveBeenCalled();
   });
 
   it('updates once the guard passes', async () => {
-    const { deps, update } = fakeDeps({ removalAllowed: true });
+    const { consent, update } = fakeDeps({ removalAllowed: true });
 
-    await confirmUpdate(deps, entry);
+    await consent.confirmUpdate(entry);
 
     expect(update).toHaveBeenCalledWith(entry);
   });
 
   it('a declined capability consent never reaches the guard', async () => {
-    const { deps, update, confirmRemoval } = fakeDeps({
+    const { consent, update, confirmRemoval } = fakeDeps({
       removalAllowed: true,
       consentAccepted: false,
     });
@@ -71,7 +75,7 @@ describe('confirmUpdate (updates respawn the plugin)', () => {
       capabilities: ['ui', 'navigation'],
     } as PluginCatalogEntry;
 
-    await confirmUpdate(deps, grown);
+    await consent.confirmUpdate(grown);
 
     expect(confirmRemoval).not.toHaveBeenCalled();
     expect(update).not.toHaveBeenCalled();

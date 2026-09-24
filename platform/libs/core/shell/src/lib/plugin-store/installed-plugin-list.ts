@@ -17,9 +17,7 @@ import { PluginEnablementService } from '../plugin/enablement/plugin-enablement.
 import { PluginInstallService } from './lifecycle/plugin-install.service';
 import { PluginDeploymentService } from './lifecycle/plugin-deployment.service';
 import { loadCatalogEntries, matchesQuery } from './catalog/catalog-entries';
-import { confirmUninstall } from './lifecycle/uninstall-confirm';
-import { injectStoreConsentDeps } from './lifecycle/consent-deps';
-import { confirmUpdate } from './lifecycle/update-consent';
+import { PluginStoreConsent } from './lifecycle/plugin-store-consent';
 import { availableUpdate } from './lifecycle/plugin-update';
 import { frameSettingsGroup } from '../plugin/frame/frame-settings';
 
@@ -55,7 +53,7 @@ export class InstalledPluginList implements OnInit {
 
   protected readonly deployment = inject(PluginDeploymentService);
 
-  private readonly consentDeps = injectStoreConsentDeps();
+  private readonly consent = inject(PluginStoreConsent);
 
   readonly query = input('');
 
@@ -104,15 +102,22 @@ export class InstalledPluginList implements OnInit {
   }
 
   protected togglePlugin(id: string, event: Event): void {
-    this.disableGuard.toggle(id, event.target as HTMLInputElement);
+    const toggle = event.target as HTMLInputElement;
+    void this.disableGuard
+      .requestEnabled(id, toggle.checked)
+      .then((changed) => {
+        if (!changed) {
+          toggle.checked = true;
+        }
+      });
   }
 
   protected update(entry: PluginCatalogEntry): void {
-    void confirmUpdate(this.consentDeps, entry);
+    void this.consent.confirmUpdate(entry);
   }
 
   protected uninstall(row: InstalledRow): void {
-    void confirmUninstall(this.consentDeps, row.id, row.name);
+    void this.consent.confirmUninstall(row.id, row.name);
   }
 
   protected openPluginSettings(sectionId: string): void {

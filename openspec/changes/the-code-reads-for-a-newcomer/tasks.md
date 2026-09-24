@@ -190,7 +190,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   which cuts `host-plugin-context.ts`: that file sits at 399 lines and a longer name wraps a line.
 - [x] 6.4 "A deployed plugin is always on" is decided by the enablement service once, like "a required
   plugin is always on".
-- [ ] 6.5 The store's install, update and uninstall confirmations become one service; the disable guard
+- [x] 6.5 The store's install, update and uninstall confirmations become one service; the disable guard
   returns a decision instead of flipping a checkbox in the DOM.
 - [ ] 6.6 The catalog is fetched and held once; the store title reaches the dialog as dialog data; the
   figures become pipes; one plugin icon component; store buttons use `lwButton` and `type="button"`.
