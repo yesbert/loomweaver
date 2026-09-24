@@ -1,8 +1,13 @@
 import { DOCUMENT } from '@angular/common';
-import { computed, effect, inject, Service, signal, Signal } from '@angular/core';
-import { SETTINGS_STORE } from '../persistence/settings-store';
-import { hydrateAsync } from '../persistence/hydrate';
-import { StateSyncService } from '../persistence/state-sync.service';
+import {
+  computed,
+  effect,
+  inject,
+  Service,
+  signal,
+  Signal,
+} from '@angular/core';
+import { persistedSetting } from '../persistence/persisted-setting';
 
 /** What the user picked. `system` follows the OS `prefers-color-scheme`. */
 export type ThemeMode = 'light' | 'dark' | 'system';
@@ -35,16 +40,15 @@ function sanitizeMode(raw: string | undefined): ThemeMode {
 @Service()
 export class ThemeService {
   private readonly document = inject(DOCUMENT);
-  private readonly store = inject(SETTINGS_STORE);
-  private readonly sync = inject(StateSyncService);
   private readonly systemDark = this.watchSystemPreference();
 
-  private readonly modeState = signal<ThemeMode>(
-    sanitizeMode(this.store.peek?.(STORAGE_KEY)),
-  );
+  private readonly stored = persistedSetting<ThemeMode>(STORAGE_KEY, {
+    parse: sanitizeMode,
+    serialize: (mode) => mode,
+  });
 
   /** The user's choice, including `system`. Use {@link resolvedTheme} to know what is rendered. */
-  readonly mode = this.modeState.asReadonly();
+  readonly mode = this.stored.value;
 
   /** The mode in effect, with `system` already resolved against the OS preference. */
   readonly resolvedTheme: Signal<ResolvedTheme> = computed(() => {
@@ -55,12 +59,6 @@ export class ThemeService {
   });
 
   constructor() {
-    hydrateAsync(this.store, STORAGE_KEY, (raw) =>
-      this.modeState.set(sanitizeMode(raw)),
-    );
-    this.sync.register('settings', STORAGE_KEY, (raw) =>
-      this.modeState.set(sanitizeMode(raw)),
-    );
     effect(() => {
       this.document.documentElement.classList.toggle(
         'dark',
@@ -71,8 +69,7 @@ export class ThemeService {
 
   /** Switch the mode and persist it. Other tabs follow through the settings sync. */
   setMode(mode: ThemeMode): void {
-    this.modeState.set(mode);
-    void this.store.set(STORAGE_KEY, mode);
+    this.stored.set(mode);
   }
 
   private watchSystemPreference() {

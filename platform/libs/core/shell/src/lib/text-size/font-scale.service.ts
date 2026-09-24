@@ -1,8 +1,6 @@
 import { DOCUMENT } from '@angular/common';
-import { effect, inject, Service, signal } from '@angular/core';
-import { SETTINGS_STORE } from '../persistence/settings-store';
-import { hydrateAsync } from '../persistence/hydrate';
-import { StateSyncService } from '../persistence/state-sync.service';
+import { effect, inject, Service } from '@angular/core';
+import { persistedSetting } from '../persistence/persisted-setting';
 
 export type FontScale = 'sm' | 'md' | 'lg' | 'xl';
 
@@ -21,22 +19,15 @@ function sanitizeScale(raw: string | undefined): FontScale {
 @Service()
 export class FontScaleService {
   private readonly document = inject(DOCUMENT);
-  private readonly store = inject(SETTINGS_STORE);
-  private readonly sync = inject(StateSyncService);
 
-  private readonly scaleState = signal<FontScale>(
-    sanitizeScale(this.store.peek?.(STORAGE_KEY)),
-  );
+  private readonly stored = persistedSetting<FontScale>(STORAGE_KEY, {
+    parse: sanitizeScale,
+    serialize: (scale) => scale,
+  });
 
-  readonly scale = this.scaleState.asReadonly();
+  readonly scale = this.stored.value;
 
   constructor() {
-    hydrateAsync(this.store, STORAGE_KEY, (raw) =>
-      this.scaleState.set(sanitizeScale(raw)),
-    );
-    this.sync.register('settings', STORAGE_KEY, (raw) =>
-      this.scaleState.set(sanitizeScale(raw)),
-    );
     effect(() => {
       const scale = this.scale();
       const root = this.document.documentElement.style;
@@ -49,7 +40,6 @@ export class FontScaleService {
   }
 
   setScale(scale: FontScale): void {
-    this.scaleState.set(scale);
-    void this.store.set(STORAGE_KEY, scale);
+    this.stored.set(scale);
   }
 }
