@@ -1,10 +1,12 @@
 import { computed, inject, Service, signal } from '@angular/core';
 import { CAPABILITIES, Capability } from '@loomweaver/plugin-sdk';
-import { SETTINGS_STORE } from '../persistence/settings-store';
-import { hydrateAsync } from '../persistence/hydrate';
-import { StateSyncService } from '../persistence/state-sync.service';
+import { persistedSetting } from '../persistence/persisted-setting';
 import { CAPABILITY_GRANTS, effectiveCapabilities } from './capability-grants';
-import { parseIdSet, toggledIdSet } from '../persistence/persisted-id-set';
+import {
+  ID_SET_CODEC,
+  parseIdSet,
+  toggledIdSet,
+} from '../persistence/persisted-id-set';
 
 const STORAGE_KEY = 'lw.shell.capability-revocations';
 
@@ -48,15 +50,14 @@ function parseRevocations(raw: string | undefined): ReadonlySet<string> {
  */
 @Service()
 export class CapabilityGrantService {
-  private readonly store = inject(SETTINGS_STORE);
-
-  private readonly sync = inject(StateSyncService);
-
   private readonly grants = inject(CAPABILITY_GRANTS);
 
-  private readonly revoked = signal<ReadonlySet<string>>(
-    parseRevocations(this.store.peek?.(STORAGE_KEY)),
-  );
+  private readonly revocations = persistedSetting(STORAGE_KEY, {
+    ...ID_SET_CODEC,
+    parse: parseRevocations,
+  });
+
+  private readonly revoked = this.revocations.value;
 
   private readonly bases = signal<ReadonlyMap<string, ReadonlySet<Capability>>>(
     new Map(),
@@ -79,15 +80,6 @@ export class CapabilityGrantService {
       .filter((entry) => entry.capabilities.length > 0)
       .toSorted((a, b) => a.pluginId.localeCompare(b.pluginId));
   });
-
-  constructor() {
-    hydrateAsync(this.store, STORAGE_KEY, (raw) =>
-      this.revoked.set(parseRevocations(raw)),
-    );
-    this.sync.register('settings', STORAGE_KEY, (raw) =>
-      this.revoked.set(parseRevocations(raw)),
-    );
-  }
 
   /**
    * Records a plugin's base grant (grant ∩ declaration) so enforcement and the permissions surface know
@@ -139,12 +131,12 @@ export class CapabilityGrantService {
 
   /** Turns a base-granted capability on or off for a plugin (user revoke / restore). Persisted. */
   setGranted(pluginId: string, capability: Capability, granted: boolean): void {
-    const next = toggledIdSet(
-      this.revoked(),
-      revocationKey(pluginId, capability),
-      !granted,
+    this.revocations.set(
+      toggledIdSet(
+        this.revoked(),
+        revocationKey(pluginId, capability),
+        !granted,
+      ),
     );
-    this.revoked.set(next);
-    void this.store.set(STORAGE_KEY, JSON.stringify([...next]));
   }
 }

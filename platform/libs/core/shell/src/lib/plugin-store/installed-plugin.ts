@@ -1,5 +1,6 @@
 import { CAPABILITIES, Capability } from '@loomweaver/plugin-sdk';
 import { PluginIsolationLevel } from '../foundation/plugin-isolation-level';
+import { SettingCodec } from '../persistence/persisted-setting';
 
 /**
  * A community plugin the user installed from the distribution's catalog. Plain data — the
@@ -201,3 +202,8 @@ export function parseCatalogList(raw: unknown): readonly PluginCatalogEntry[] {
   }
   return dedupeById(raw.map((entry) => parseCatalogEntry(entry)));
 }
+
+export const INSTALLED_LIST_CODEC: SettingCodec<readonly InstalledPlugin[]> = {
+  parse: parseInstalledList,
+  serialize: (list) => JSON.stringify(list),
+};

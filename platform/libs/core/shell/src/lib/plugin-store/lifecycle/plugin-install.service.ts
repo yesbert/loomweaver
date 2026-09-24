@@ -1,12 +1,10 @@
-import { inject, Service, signal } from '@angular/core';
-import { SETTINGS_STORE } from '../../persistence/settings-store';
-import { hydrateAsync } from '../../persistence/hydrate';
-import { StateSyncService } from '../../persistence/state-sync.service';
+import { inject, Service } from '@angular/core';
+import { persistedSetting } from '../../persistence/persisted-setting';
 import { PluginStateService } from '../../plugin/plugin-state.service';
 import {
+  INSTALLED_LIST_CODEC,
   InstalledPlugin,
   isSameOriginUrl,
-  parseInstalledList,
   parseInstalledPlugin,
 } from '../installed-plugin';
 
@@ -23,27 +21,14 @@ const STORAGE_KEY = 'lw.shell.installed-plugins';
  */
 @Service()
 export class PluginInstallService {
-  private readonly store = inject(SETTINGS_STORE);
-  private readonly sync = inject(StateSyncService);
   private readonly pluginState = inject(PluginStateService);
 
-  private readonly entries = signal<readonly InstalledPlugin[]>(
-    parseInstalledList(this.store.peek?.(STORAGE_KEY)),
-  );
+  private readonly stored = persistedSetting(STORAGE_KEY, INSTALLED_LIST_CODEC);
 
   private composedIds: ReadonlySet<string> = new Set();
 
   /** The installed plugins (reactive) — the sandbox runtime reconciles against this. */
-  readonly installed = this.entries.asReadonly();
-
-  constructor() {
-    hydrateAsync(this.store, STORAGE_KEY, (raw) =>
-      this.entries.set(parseInstalledList(raw)),
-    );
-    this.sync.register('settings', STORAGE_KEY, (raw) =>
-      this.entries.set(parseInstalledList(raw)),
-    );
-  }
+  readonly installed = this.stored.value;
 
   /** Records the composition-time plugin ids so an install can never shadow a composed plugin. */
   markComposed(ids: readonly string[]): void {
@@ -51,12 +36,12 @@ export class PluginInstallService {
   }
 
   isInstalled(id: string): boolean {
-    return this.entries().some((entry) => entry.id === id);
+    return this.installed().some((entry) => entry.id === id);
   }
 
   /** The installed entry for an id, or `undefined` — the baseline an update is compared against. */
   byId(id: string): InstalledPlugin | undefined {
-    return this.entries().find((entry) => entry.id === id);
+    return this.installed().find((entry) => entry.id === id);
   }
 
   /**
@@ -74,7 +59,7 @@ export class PluginInstallService {
     if (this.isInstalled(plugin.id)) {
       throw new Error(`Plugin "${plugin.id}" is already installed.`);
     }
-    this.persist([...this.entries(), entry]);
+    this.stored.set([...this.installed(), entry]);
   }
 
   /**
@@ -88,8 +73,8 @@ export class PluginInstallService {
     if (!this.isInstalled(plugin.id)) {
       throw new Error(`Plugin "${plugin.id}" is not installed.`);
     }
-    this.persist(
-      this.entries().map((current) =>
+    this.stored.set(
+      this.installed().map((current) =>
         current.id === entry.id ? entry : current,
       ),
     );
@@ -105,7 +90,7 @@ export class PluginInstallService {
     if (!this.isInstalled(id)) {
       return;
     }
-    this.persist(this.entries().filter((entry) => entry.id !== id));
+    this.stored.set(this.installed().filter((entry) => entry.id !== id));
     this.pluginState.removePlugin(id);
   }
 
@@ -120,10 +105,5 @@ export class PluginInstallService {
       throw new Error(`Plugin "${plugin.id}" is not a valid catalog entry.`);
     }
     return entry;
-  }
-
-  private persist(next: readonly InstalledPlugin[]): void {
-    this.entries.set(next);
-    void this.store.set(STORAGE_KEY, JSON.stringify(next));
   }
 }

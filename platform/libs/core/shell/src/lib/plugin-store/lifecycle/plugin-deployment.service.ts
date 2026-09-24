@@ -1,11 +1,9 @@
-import { inject, Service, signal } from '@angular/core';
-import { SETTINGS_STORE } from '../../persistence/settings-store';
-import { hydrateAsync } from '../../persistence/hydrate';
-import { StateSyncService } from '../../persistence/state-sync.service';
+import { Service } from '@angular/core';
+import { persistedSetting } from '../../persistence/persisted-setting';
 import {
+  INSTALLED_LIST_CODEC,
   InstalledPlugin,
   PluginCatalogEntry,
-  parseInstalledList,
 } from '../installed-plugin';
 
 const STORAGE_KEY = 'lw.shell.deployed-plugins';
@@ -24,27 +22,12 @@ function withoutCatalogMetadata(entry: PluginCatalogEntry): InstalledPlugin {
 
 @Service()
 export class PluginDeploymentService {
-  private readonly store = inject(SETTINGS_STORE);
+  private readonly stored = persistedSetting(STORAGE_KEY, INSTALLED_LIST_CODEC);
 
-  private readonly sync = inject(StateSyncService);
-
-  private readonly entries = signal<readonly InstalledPlugin[]>(
-    parseInstalledList(this.store.peek?.(STORAGE_KEY)),
-  );
-
-  readonly deployed = this.entries.asReadonly();
-
-  constructor() {
-    hydrateAsync(this.store, STORAGE_KEY, (raw) =>
-      this.entries.set(parseInstalledList(raw)),
-    );
-    this.sync.register('settings', STORAGE_KEY, (raw) =>
-      this.entries.set(parseInstalledList(raw)),
-    );
-  }
+  readonly deployed = this.stored.value;
 
   adopt(entries: readonly PluginCatalogEntry[]): void {
-    this.persist(
+    this.stored.set(
       entries
         .filter((entry) => entry.deployed === true)
         .map((entry) => withoutCatalogMetadata(entry)),
@@ -52,11 +35,6 @@ export class PluginDeploymentService {
   }
 
   isDeployed(id: string): boolean {
-    return this.entries().some((entry) => entry.id === id);
-  }
-
-  private persist(next: readonly InstalledPlugin[]): void {
-    this.entries.set(next);
-    void this.store.set(STORAGE_KEY, JSON.stringify(next));
+    return this.deployed().some((entry) => entry.id === id);
   }
 }

@@ -1,8 +1,6 @@
 import { computed, inject, Service, signal } from '@angular/core';
-import { SETTINGS_STORE } from '../../persistence/settings-store';
-import { hydrateAsync } from '../../persistence/hydrate';
-import { StateSyncService } from '../../persistence/state-sync.service';
-import { parseIdSet, toggledIdSet } from '../../persistence/persisted-id-set';
+import { persistedSetting } from '../../persistence/persisted-setting';
+import { ID_SET_CODEC, toggledIdSet } from '../../persistence/persisted-id-set';
 import { REQUIRED_PLUGINS } from '../../foundation/required-plugins';
 import { PluginInfo } from './plugin-info';
 
@@ -19,13 +17,9 @@ const STORAGE_KEY = 'lw.shell.disabled-plugins';
  */
 @Service()
 export class PluginEnablementService {
-  private readonly store = inject(SETTINGS_STORE);
-  private readonly sync = inject(StateSyncService);
   private readonly required = new Set(inject(REQUIRED_PLUGINS));
 
-  private readonly disabledSet = signal<ReadonlySet<string>>(
-    parseIdSet(this.store.peek?.(STORAGE_KEY)),
-  );
+  private readonly storedDisabled = persistedSetting(STORAGE_KEY, ID_SET_CODEC);
 
   private readonly names = signal<ReadonlyMap<string, string>>(new Map());
 
@@ -35,7 +29,7 @@ export class PluginEnablementService {
    * so the runtime and the permissions surface read one answer rather than two.
    */
   readonly disabled = computed<ReadonlySet<string>>(() => {
-    const stored = this.disabledSet();
+    const stored = this.storedDisabled.value();
     if (this.required.size === 0) {
       return stored;
     }
@@ -49,16 +43,6 @@ export class PluginEnablementService {
       .map(([id, name]) => ({ id, name, enabled: !disabled.has(id) }))
       .toSorted((a, b) => a.name.localeCompare(b.name));
   });
-
-
-  constructor() {
-    hydrateAsync(this.store, STORAGE_KEY, (raw) =>
-      this.disabledSet.set(parseIdSet(raw)),
-    );
-    this.sync.register('settings', STORAGE_KEY, (raw) =>
-      this.disabledSet.set(parseIdSet(raw)),
-    );
-  }
 
   /** Whether the distribution declared it cannot run without this plugin. */
   isRequired(id: string): boolean {
@@ -98,8 +82,8 @@ export class PluginEnablementService {
     if (!enabled && this.required.has(id)) {
       return;
     }
-    const next = toggledIdSet(this.disabledSet(), id, !enabled);
-    this.disabledSet.set(next);
-    void this.store.set(STORAGE_KEY, JSON.stringify([...next]));
+    this.storedDisabled.set(
+      toggledIdSet(this.storedDisabled.value(), id, !enabled),
+    );
   }
 }
