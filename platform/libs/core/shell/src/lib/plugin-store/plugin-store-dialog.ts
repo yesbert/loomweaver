@@ -2,16 +2,21 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject, OnInit, signal } f
 import { TranslocoPipe } from '@jsverse/transloco';
 import { DialogRef } from '../dialog/dialog-ref';
 import { WideDialogFrame } from '../dialog/wide-dialog-frame';
-import { PLUGIN_CATALOG } from './catalog/plugin-catalog';
 import { PluginCatalogEntry } from './catalog/catalog-entry';
 import { PluginInstallService } from './lifecycle/plugin-install.service';
-import { PluginStoreTitle } from './plugin-store-title';
 import { InstalledPluginList } from './installed-plugin-list';
 import { PluginStoreCard } from './plugin-store-card';
 import { PluginStoreDetail } from './plugin-store-detail';
-import { loadCatalogEntries, matchesQuery } from './catalog/catalog-entries';
+import { matchesQuery } from './catalog/catalog-search';
+import { PluginCatalogEntries } from './catalog/plugin-catalog-entries';
 import { PluginStoreConsent } from './lifecycle/plugin-store-consent';
 import { availableUpdate } from './lifecycle/plugin-update';
+
+export const DEFAULT_STORE_TITLE = 'settings.pluginStore';
+
+export interface PluginStoreDialogData {
+  readonly title: string;
+}
 
 @Component({
   selector: 'lw-plugin-store-dialog',
@@ -27,17 +32,17 @@ import { availableUpdate } from './lifecycle/plugin-update';
 })
 export class PluginStoreDialog implements OnInit {
   private readonly ref = inject(DialogRef);
-  protected readonly title = inject(PluginStoreTitle).current;
+  protected readonly title =
+    (this.ref.data as PluginStoreDialogData | undefined)?.title ??
+    DEFAULT_STORE_TITLE;
   protected readonly installs = inject(PluginInstallService);
 
-  private readonly catalog = inject(PLUGIN_CATALOG, { optional: true });
+  private readonly catalog = inject(PluginCatalogEntries);
 
   private readonly consent = inject(PluginStoreConsent);
 
-  protected readonly entries = signal<
-    readonly PluginCatalogEntry[] | undefined
-  >(undefined);
-  protected readonly failed = signal(false);
+  protected readonly entries = this.catalog.entries;
+  protected readonly failed = this.catalog.failed;
   protected readonly view = signal<'browse' | 'installed'>('browse');
   protected readonly query = signal('');
   protected readonly selectedId = signal<string | undefined>(undefined);
@@ -60,7 +65,7 @@ export class PluginStoreDialog implements OnInit {
   );
 
   ngOnInit(): void {
-    void this.load();
+    this.catalog.load().catch(() => undefined);
   }
 
   protected requestInstall(entry: PluginCatalogEntry): void {
@@ -81,14 +86,5 @@ export class PluginStoreDialog implements OnInit {
 
   protected close(): void {
     this.ref.close();
-  }
-
-  private async load(): Promise<void> {
-    const entries = await loadCatalogEntries(this.catalog);
-    if (entries === undefined) {
-      this.failed.set(true);
-      return;
-    }
-    this.entries.set(entries);
   }
 }

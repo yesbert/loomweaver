@@ -1,23 +1,28 @@
-import { inject, Service } from '@angular/core';
+import { inject, Service, signal } from '@angular/core';
 import { DialogService } from '../dialog/dialog.service';
 import { DialogRef } from '../dialog/dialog-ref';
-import { PluginStoreDialog } from './plugin-store-dialog';
-import { PluginStoreTitle } from './plugin-store-title';
+import {
+  DEFAULT_STORE_TITLE,
+  PluginStoreDialog,
+  PluginStoreDialogData,
+} from './plugin-store-dialog';
 
 @Service()
 export class PluginStoreService {
   private readonly dialogs = inject(DialogService);
-  private readonly storeTitle = inject(PluginStoreTitle);
+  private readonly storeTitle = signal(DEFAULT_STORE_TITLE);
 
-  readonly title = this.storeTitle.current;
+  readonly title = this.storeTitle.asReadonly();
 
   configure(title: string): void {
     this.storeTitle.set(title);
   }
 
   open(): DialogRef {
+    const data: PluginStoreDialogData = { title: this.storeTitle() };
     return this.dialogs.open(PluginStoreDialog, {
-      title: this.storeTitle.current(),
+      title: data.title,
+      data,
       bare: true,
       size: 'xl',
     });
