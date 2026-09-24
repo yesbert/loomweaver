@@ -57,8 +57,6 @@ export class AddressPaneHeader {
     paneId: this.urlPaneId(),
   }));
 
-  protected readonly canAddTab = computed(() => this.features.newTab());
-  protected readonly canMaximize = computed(() => this.features.maximize());
   protected readonly maximized = computed(() =>
     this.chrome.isMaximized(CONTENT_DOCK, this.urlPaneId()),
   );
@@ -66,11 +64,11 @@ export class AddressPaneHeader {
   private readonly isSplit = computed(() =>
     this.paneTree.isSplit(CONTENT_DOCK),
   );
-  private readonly activeSplitPath = computed(
+  protected readonly activeId = computed(
     () => this.tabs.activeViewPath() ?? this.tabs.activeTabRoot(),
   );
   private readonly splittable = computed(() =>
-    this.actions.duplicable(this.activeSplitPath()),
+    this.actions.duplicable(this.activeId()),
   );
 
   protected readonly canSplitRight = computed(
@@ -106,7 +104,7 @@ export class AddressPaneHeader {
         this.canSplitRightFloating() ||
         this.canSplitDownFloating() ||
         this.canMinimize() ||
-        this.canMaximize() ||
+        this.features.maximize() ||
         this.canClose()),
   );
 
@@ -125,10 +123,6 @@ export class AddressPaneHeader {
     })),
   );
 
-  protected readonly activeId = computed(
-    () => this.tabs.activeViewPath() ?? this.tabs.activeTabRoot(),
-  );
-
   protected select(tab: StripTab): void {
     if (tab.path.startsWith(VIEW_PANE_PREFIX)) {
       this.tabs.activateViewTab(tab.path);
@@ -139,8 +133,19 @@ export class AddressPaneHeader {
 
   protected escalate(tab: StripTab): void {
     const step = escalationStep(tab, escalationSwitches(this.features));
-    if (step !== null) {
-      this.tabs[step](tab.path);
+    switch (step) {
+      case 'keep': {
+        this.tabs.keep(tab.path);
+        break;
+      }
+      case 'pin': {
+        this.tabs.pin(tab.path);
+        break;
+      }
+      case 'unpin': {
+        this.tabs.unpin(tab.path);
+        break;
+      }
     }
   }
 
