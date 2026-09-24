@@ -6,7 +6,7 @@ import {
 } from '@loomweaver/plugin-sdk';
 import { View } from '../../../layout/view';
 import { PaneTab } from '../../pane/tree/pane-node';
-import { overlayTabTitle } from '../../pane/drag/pane-label';
+import { overlayTabTitle } from '../../pane/chrome/tab-label';
 import {
   isHomePath,
   matchRoute,

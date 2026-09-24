@@ -30,7 +30,7 @@ import { Reorderable } from '../../reorder/reorderable.directive';
 import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../tree/pane-address';
 import { paneRetentionScope } from '../retention/retention-keys';
 import { UnsavedWork } from '../unsaved-work/unsaved-work';
-import { resolveTitle } from '../drag/pane-label';
+import { resolveTitle } from './tab-label';
 import { FeatureSwitches } from '../../../features/feature-switches.service';
 import { PaneDragService, TabDragSource } from '../drag/pane-drag.service';
 import {

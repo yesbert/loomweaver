@@ -9,7 +9,7 @@ import {
   resolveTitle,
   surfaceClosable,
   toStripTab,
-} from './pane-label';
+} from './tab-label';
 
 @Component({ selector: 'lw-test-pane', template: '' })
 class TestPane {}

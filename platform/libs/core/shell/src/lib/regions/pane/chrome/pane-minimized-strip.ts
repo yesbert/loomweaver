@@ -1,8 +1,14 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject, input } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  computed,
+  inject,
+  input,
+} from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { PaneLeaf, activeTab } from '../tree/pane-node';
 import { PaneChromeService } from './pane-chrome.service';
-import { PaneLabel, paneLabelOf } from '../drag/pane-label';
+import { PaneLabel, paneLabelOf } from './tab-label';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
 
 @Component({

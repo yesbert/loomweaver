@@ -1,7 +1,7 @@
 import { viewIdOfPanePath } from '../tree/pane-address';
 import { PaneTab } from '../tree/pane-node';
 import { surfaceForPanePath } from '../pane-surface';
-import type { StripTab } from '../chrome/strip-tab';
+import type { StripTab } from './strip-tab';
 import { isHomePath } from '../../content/content-path';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { TabBadge } from '@loomweaver/plugin-sdk';
