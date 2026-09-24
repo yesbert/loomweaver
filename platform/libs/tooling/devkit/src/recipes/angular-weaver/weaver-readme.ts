@@ -1,9 +1,10 @@
 import type { ResolvedWeaver } from './recipe';
 import { CONTAINER_EXAMPLE_ID, capabilityItems } from './weaver-terms';
+import { AG_UI_ADAPTER_VERSION, AG_UI_PROTOCOL_VERSION } from './agent-files';
 
 function surfaceNotes(w: ResolvedWeaver): readonly string[] {
   const railNote =
-    'Rail and bar items reference region ids (`primary`, `status`) that must exist in your layout.';
+    'Rail and bar items reference region ids (`primary` rail, `status-bar` bar) that must exist in your layout.';
   if (w.features.container) {
     return [
       `The surface is a **container**: it is routable at \`/${w.id}/:id\`, and its tab holds a`,
@@ -28,7 +29,7 @@ function surfaceNotes(w: ResolvedWeaver): readonly string[] {
   }
   if (w.features.instanceable) {
     return [
-      `The surface is **docked** into the \`primary\` region and marked \`instanceable\`, so the host shows a`,
+      `The surface is **docked** into the \`left-panel\` region and marked \`instanceable\`, so the host shows a`,
       'switcher for saving, naming, renaming and deleting several configurations of it, each with its own',
       '`VIEW_STATE` blob.',
       '',
@@ -80,7 +81,7 @@ function agentNotes(w: ResolvedWeaver): readonly string[] {
     `The generated weaver needs two packages your project may not carry yet:`,
     '',
     '```bash',
-    `npm i @loomweaver/ag-ui @ag-ui/core`,
+    `npm i @loomweaver/ag-ui@^${AG_UI_ADAPTER_VERSION} @ag-ui/core@${AG_UI_PROTOCOL_VERSION}`,
     '```',
     '',
     'The Nx generator and the CLI record them for you; the MCP route names them instead.',

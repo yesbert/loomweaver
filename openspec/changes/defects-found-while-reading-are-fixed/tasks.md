@@ -60,7 +60,7 @@ they start with a top-level folder.
 
 ## 5. Tooling
 
-- [ ] 5.1 The generated weaver notes name only regions the generated output uses, with their kind, and
+- [x] 5.1 The generated weaver notes name only regions the generated output uses, with their kind, and
   ask for the version ranges the generator records; the devkit README says `status-bar`
   (`platform/libs/tooling/devkit/src/recipes/angular-weaver/weaver-readme.ts`, `devkit/README.md`); a
   spec compares the notes with the region table.
