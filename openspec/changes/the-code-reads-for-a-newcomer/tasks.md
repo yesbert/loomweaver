@@ -200,7 +200,8 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   together with the gap warnings, the baseline computation, the provider.
 - [ ] 7.5 `WorkspaceService` (398 lines) is cut into a catalog, a settlement and an opening service
   behind the unchanged published facade; the catalog provides the definitions and their lookup to
-  every reader.
+  every reader. Its single-letter `w` lambdas become `workspace` here, because renaming them in 2.12
+  would have lifted the file over 400 lines.
 - [ ] 7.6 **Move:** `workspace/baseline/` becomes `unsaved-changes/`, the lookups go to the catalog.
 - [ ] 7.7 The workspace dialog's three row blocks share templates; its promise chains use `if`.
 - [ ] 7.8 i18n: the translation loader split into namespaces, overrides, the translation tree and the
