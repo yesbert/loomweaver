@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { AppResetService } from './app-reset.service';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { PanelSizeService } from '../panel/panel-size.service';
 import { PanelState } from '../panel/panel-state';
 import { RailItemsService } from '../rail/rail-items.service';

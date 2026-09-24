@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { Disposable } from '@loomweaver/plugin-sdk';
 import { SHELL_LAYOUT } from '../../layout/layout';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { RailItem } from '../../foundation/rail-item';
 import { WorkspaceService } from '../../workspace/workspace.service';
 import { ActiveWorkspaceService } from '../../workspace/active-workspace.service';

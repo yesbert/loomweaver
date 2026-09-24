@@ -2,7 +2,7 @@ import { inject, Service } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 import { LayoutRegion, SHELL_LAYOUT } from '../../layout/layout';
 import { regionsOfType } from '../../layout/layout-queries';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { AuthContext } from '../../auth/auth-context';
 import { CommandService } from '../../commands/command.service';
 import { isOffered } from '../../menu/chrome-item-menu';

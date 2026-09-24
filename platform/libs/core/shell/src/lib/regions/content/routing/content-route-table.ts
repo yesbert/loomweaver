@@ -1,6 +1,6 @@
 import { ActivatedRouteSnapshot, Route, Routes } from '@angular/router';
 import { ContentRoute } from '@loomweaver/plugin-sdk';
-import { RegisteredContentRoute } from '../../../plugin/contribution-registry';
+import { RegisteredContentRoute } from '../../../contributions/contribution-registry';
 import { containerChildren } from '../../pane/container/container-children';
 import { accessCanMatch } from '../access/content-access';
 import { ContentSubStub } from './content-sub-stub';

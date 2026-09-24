@@ -1,5 +1,5 @@
 import { inject, Service } from '@angular/core';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { AuthContext } from '../../auth/auth-context';
 import { isViewPanePath } from '../pane/tree/pane-address';
 import { surfaceForPanePath } from '../pane/pane-surface';

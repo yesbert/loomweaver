@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { SHELL_LAYOUT, ShellLayout } from '../layout/layout';
 import { provideBarItems } from '../foundation/bar-item';
 import { provideViews } from '../views/view';
-import { ContributionRegistry } from '../plugin/contribution-registry';
+import { ContributionRegistry } from '../contributions/contribution-registry';
 import { SettingsService } from '../settings/settings.service';
 import {
   CompositionReport,

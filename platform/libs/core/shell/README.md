@@ -22,11 +22,14 @@ directories like components, directives, and services").
   surface inside a pane), `tabs/` (tab state, projection, close hooks, context menu) and
   `access/` (auth gating + placeholder views); the address pane and shared path helper
   live at its root.
-- **`plugin/`** — plugin runtime core: `plugin`, `plugin-runtime`, `plugin-state.service`,
-  `contribution-registry` (id-keyed: same id overrides, `remove*ById` — except content
-  routes, which override by `path`; their `id` is the `route:` omit handle). Sub-sliced into
-  `context/` (the `ctx` a plugin receives), `frame/` (the frame rung: runtime, RPC, settings)
-  and `enablement/` (turning a plugin on and off, and the permissions settings section).
+- **`contributions/`** — the `contribution-registry` every slice reads and the shell's own
+  `provide*` API seeds (id-keyed: same id overrides, `remove*ById`; content routes override
+  by `path`, and their `id` is the `route:` omit handle), plus surface normalisation, route
+  omission, tab badges and `disposeTogether`.
+- **`plugin/`** — plugin runtime core: `plugin`, `plugin-runtime`, `plugin-state.service`.
+  Sub-sliced into `context/` (the `ctx` a plugin receives), `frame/` (the frame rung:
+  runtime, RPC, settings) and `enablement/` (turning a plugin on and off, and the
+  permissions settings section).
 - **`commands/`** — command registry + keybindings + command palette.
 - **`plugin-store/`** — community plugin store: catalog port, install/deployment/store
   services and the complete store UI.

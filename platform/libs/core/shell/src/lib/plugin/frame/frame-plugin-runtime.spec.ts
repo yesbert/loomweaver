@@ -22,7 +22,7 @@ import {
   CAPABILITY_GRANTS,
 } from '../../permissions/provide-capability-grants';
 import { CapabilityGrantService } from '../../permissions/capability-grant.service';
-import { ContributionRegistry } from '../contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { HostPluginContext } from '../context/host-plugin-context';
 import { KeyValueStore } from '../../persistence/key-value-store';
 import { StateSyncService } from '../../persistence/state-sync.service';

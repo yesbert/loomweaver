@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { CapabilityError } from '@loomweaver/plugin-sdk';
 import { CommandService } from '../commands/command.service';
-import { ContributionRegistry } from '../plugin/contribution-registry';
+import { ContributionRegistry } from '../contributions/contribution-registry';
 import { NotificationService } from '../notifications/notification.service';
 import {
   FrameRpcDeps,

@@ -1,6 +1,6 @@
 import { Disposable } from '@loomweaver/plugin-sdk';
 import { OPEN_SETTINGS_COMMAND_ID } from '../commands/host-command-ids';
-import { ContributionRegistry } from '../plugin/contribution-registry';
+import { ContributionRegistry } from '../contributions/contribution-registry';
 import { SettingsService } from './settings.service';
 
 export function registerOpenSettingsCommand(

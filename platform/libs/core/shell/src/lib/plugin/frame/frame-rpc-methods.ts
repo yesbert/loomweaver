@@ -1,5 +1,5 @@
 import { StateHandle } from '@loomweaver/plugin-sdk';
-import { tabBadgeOf } from '../../regions/pane/chrome/tab-badge';
+import { tabBadgeOf } from '../../contributions/tab-badge';
 import { KeyValueStore } from '../../persistence/key-value-store';
 import { StateSyncService } from '../../persistence/state-sync.service';
 import { PluginInstallService } from '../../plugin-store/lifecycle/plugin-install.service';

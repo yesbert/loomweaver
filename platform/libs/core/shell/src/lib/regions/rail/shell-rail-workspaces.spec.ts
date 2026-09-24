@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { ANONYMOUS } from '@loomweaver/plugin-sdk';
 import { ShellRail } from './shell-rail';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { AUTH_SOURCE } from '../../auth/auth-context';
 import { ActiveWorkspaceService } from '../../workspace/active-workspace.service';
 import { WorkspaceService } from '../../workspace/workspace.service';

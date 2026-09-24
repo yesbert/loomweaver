@@ -1,7 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import { computed, DestroyRef, effect, inject, Injector, Service, Signal } from '@angular/core';
 import { Command } from '@loomweaver/plugin-sdk';
-import { ContributionRegistry } from '../plugin/contribution-registry';
+import { ContributionRegistry } from '../contributions/contribution-registry';
 import { CommandService } from './command.service';
 import {
   chordSignature,

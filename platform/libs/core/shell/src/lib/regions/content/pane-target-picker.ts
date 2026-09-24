@@ -1,6 +1,6 @@
 import { inject, Service } from '@angular/core';
 import { ContainerSpec } from '@loomweaver/plugin-sdk';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { AuthContext } from '../../auth/auth-context';
 import { MENU_ANCHOR_GAP, MenuService } from '../../menu/menu.service';
 import { LeftOutChildren } from '../pane/container/left-out-children';

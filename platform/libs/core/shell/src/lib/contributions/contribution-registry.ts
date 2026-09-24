@@ -5,7 +5,7 @@ import { RailItem } from '../foundation/rail-item';
 import { View, ViewAction } from '../views/view';
 import { Identified, upsertBy, upsertById } from '../foundation/identified';
 import { isRouteOmitted } from './route-omit';
-import { tabBadgeOf } from '../regions/pane/chrome/tab-badge';
+import { tabBadgeOf } from './tab-badge';
 import {
   RegisteredContentRoute,
   RegisteredSurface,

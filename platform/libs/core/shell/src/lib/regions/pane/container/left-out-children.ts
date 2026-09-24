@@ -1,6 +1,6 @@
 import { inject, isDevMode, Service, signal, untracked } from '@angular/core';
-import { ContributionRegistry } from '../../../plugin/contribution-registry';
-import { CONTAINER_CHILD_REGION } from '../../../plugin/surface-normalize';
+import { ContributionRegistry } from '../../../contributions/contribution-registry';
+import { CONTAINER_CHILD_REGION } from '../../../contributions/surface-normalize';
 import { surfaceForPanePath } from '../pane-surface';
 import { PaneNode, isDisposableLeaf, leafWith } from '../tree/pane-node';
 import { collapseLeaves } from '../tree/pane-structure';

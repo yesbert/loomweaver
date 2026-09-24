@@ -1,5 +1,5 @@
 import { inject, InjectionToken, Service } from '@angular/core';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { SurfaceCloseGuard } from '../pane/unsaved-work/surface-close-guard';
 import { UnsavedWork } from '../pane/unsaved-work/unsaved-work';
 import { PanelSizeService } from '../panel/panel-size.service';

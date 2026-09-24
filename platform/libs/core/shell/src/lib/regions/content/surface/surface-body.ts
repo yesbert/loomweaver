@@ -21,7 +21,7 @@ import {
   ContributionRegistry,
   RegisteredContentRoute,
   RegisteredView,
-} from '../../../plugin/contribution-registry';
+} from '../../../contributions/contribution-registry';
 import { AuthContext } from '../../../auth/auth-context';
 import { ViewMountService } from '../../../views/view-mount.service';
 import { ViewInstanceSwitcher } from '../../../views/view-instance-switcher';

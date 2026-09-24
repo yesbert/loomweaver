@@ -1,7 +1,7 @@
 import { SurfaceRevealService } from '../../regions/reveal/surface-reveal.service';
 import { inject, Service } from '@angular/core';
 import { Capability } from '@loomweaver/plugin-sdk';
-import { ContributionRegistry } from '../contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { HostPluginContext } from './host-plugin-context';
 import { SHELL_LAYOUT } from '../../layout/layout';
 import { IconRegistry } from '../../elements/icon/icon-registry';

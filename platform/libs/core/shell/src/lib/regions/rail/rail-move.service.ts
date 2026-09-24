@@ -1,6 +1,6 @@
 import { inject, Service } from '@angular/core';
 import { SHELL_LAYOUT } from '../../layout/layout';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { RailItemsService } from './rail-items.service';
 import { regionOnOtherSide, regionOnSide } from '../../layout/layout-queries';
 import { MoveAnnouncer, MoveWording } from '../reorder/move-announcer';

@@ -1,4 +1,7 @@
-import { ContributionRegistry, Disposable } from '../contribution-registry';
+import {
+  ContributionRegistry,
+  Disposable,
+} from '../../contributions/contribution-registry';
 import { BarItem } from '../../foundation/bar-item';
 import { RailItem } from '../../foundation/rail-item';
 import { LayoutRegion } from '../../layout/layout';
@@ -25,7 +28,7 @@ import {
   entryToView,
   isRoutableSurface,
   surfaceToEntry,
-} from '../surface-normalize';
+} from '../../contributions/surface-normalize';
 import { LeftOutChildren } from '../../regions/pane/container/left-out-children';
 import { AuthContext } from '../../auth/auth-context';
 import { normalizePath, segmentsOf } from '../../regions/content/content-path';

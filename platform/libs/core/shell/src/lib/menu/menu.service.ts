@@ -15,7 +15,7 @@ import {
   MenuHeader,
   MenuItem,
 } from '@loomweaver/plugin-sdk';
-import { ContributionRegistry } from '../plugin/contribution-registry';
+import { ContributionRegistry } from '../contributions/contribution-registry';
 import { CommandService } from '../commands/command.service';
 import { drawMenuHeading, HEADING_KEY, wordMenuHeading } from './menu-heading';
 import { followed, MenuAnchor, place } from './menu-placement';

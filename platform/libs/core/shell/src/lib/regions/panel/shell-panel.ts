@@ -40,7 +40,7 @@ import { dockedSurfaceInjectorFactory } from '../content/surface/surface-injecto
 import {
   ContributionRegistry,
   RegisteredView,
-} from '../../plugin/contribution-registry';
+} from '../../contributions/contribution-registry';
 import { CommandService } from '../../commands/command.service';
 import { AuthContext } from '../../auth/auth-context';
 import { ViewportService } from '../../layout/viewport.service';

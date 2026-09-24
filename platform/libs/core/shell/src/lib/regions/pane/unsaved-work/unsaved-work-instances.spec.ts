@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { ContentRoute, View } from '@loomweaver/plugin-sdk';
-import { ContributionRegistry } from '../../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { RetainedViewStash } from '../retention/retained-view-stash';
 import { UnsavedWork } from './unsaved-work';
 

@@ -9,7 +9,7 @@ import { DialogService } from '../dialog/dialog.service';
 import { provideShellFeatures } from '../foundation/shell-features';
 import { provideLayout } from '../layout/layout';
 import { View } from '../views/view';
-import { ContributionRegistry } from '../plugin/contribution-registry';
+import { ContributionRegistry } from '../contributions/contribution-registry';
 import { PopoutService } from '../popout/popout.service';
 import { buildContentRoutes } from '../regions/content/routing/content-route-table';
 import { ContentTabsService } from '../regions/content/tabs/content-tabs.service';

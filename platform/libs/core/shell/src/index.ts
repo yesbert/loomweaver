@@ -23,6 +23,8 @@ export * from './lib/commands/keybinding.service';
 export * from './lib/commands/search-entry/provide-command-palette-entry';
 export * from './lib/commands/search-entry/provide-quick-open-entry';
 
+export * from './lib/contributions/contribution-registry';
+
 export * from './lib/dialog/dialog-outlet';
 export * from './lib/dialog/dialog-ref';
 export * from './lib/dialog/dialog.service';
@@ -77,7 +79,6 @@ export * from './lib/persistence/settings-store';
 export * from './lib/persistence/state-sync.service';
 export * from './lib/persistence/working-state-store';
 
-export * from './lib/plugin/contribution-registry';
 export * from './lib/plugin/enablement/plugin-enablement.service';
 export { type PluginInfo } from './lib/plugin/enablement/plugin-info';
 export * from './lib/plugin/frame/frame-plugin';

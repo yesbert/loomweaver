@@ -1,6 +1,6 @@
 import { Injector } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
-import { ContributionRegistry } from './plugin/contribution-registry';
+import { ContributionRegistry } from './contributions/contribution-registry';
 import { DialogService } from './dialog/dialog.service';
 import { SettingsService } from './settings/settings.service';
 import { registerOpenSettingsCommand } from './settings/settings-command';

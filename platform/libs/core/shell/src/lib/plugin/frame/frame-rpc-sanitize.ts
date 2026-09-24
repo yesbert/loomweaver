@@ -12,7 +12,7 @@ import {
   SurfacePresentation,
 } from '@loomweaver/plugin-sdk';
 
-import { tabBadgeOf } from '../../regions/pane/chrome/tab-badge';
+import { tabBadgeOf } from '../../contributions/tab-badge';
 
 const MAX_RPC_AREA_DEPTH = 8;
 

@@ -1,6 +1,6 @@
 import { Disposable } from '@loomweaver/plugin-sdk';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
-import { disposeTogether } from '../../plugin/dispose-together';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
+import { disposeTogether } from '../../contributions/dispose-together';
 import { ViewMoveService } from './view-move.service';
 import { ViewVisibilityService } from './view-visibility.service';
 import { CONTENT_DOCK, viewPanePath } from '../pane/tree/pane-address';

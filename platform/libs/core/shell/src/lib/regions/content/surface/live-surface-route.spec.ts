@@ -1,5 +1,5 @@
 import { firstValueFrom } from 'rxjs';
-import { RegisteredContentRoute } from '../../../plugin/contribution-registry';
+import { RegisteredContentRoute } from '../../../contributions/contribution-registry';
 import { liveSurfaceRoute, SurfaceAddress } from './live-surface-route';
 
 const entry = {

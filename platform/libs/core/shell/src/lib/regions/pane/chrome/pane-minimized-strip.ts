@@ -9,7 +9,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { PaneLeaf, activeTab } from '../tree/pane-node';
 import { PaneChromeService } from './pane-chrome.service';
 import { overlayTabTitle, PaneLabel, paneLabelOf } from './tab-label';
-import { ContributionRegistry } from '../../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../../contributions/contribution-registry';
 
 @Component({
   selector: 'lw-pane-minimized-strip',

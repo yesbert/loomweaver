@@ -4,7 +4,7 @@ import { provideRouter } from '@angular/router';
 import { PluginRuntime } from './plugin-runtime';
 import { PLUGIN } from './plugin';
 import { Plugin } from './plugin';
-import { ContributionRegistry } from './contribution-registry';
+import { ContributionRegistry } from '../contributions/contribution-registry';
 import { provideCapabilityGrants } from '../permissions/provide-capability-grants';
 import { PluginEnablementService } from './enablement/plugin-enablement.service';
 import { MenuService } from '../menu/menu.service';

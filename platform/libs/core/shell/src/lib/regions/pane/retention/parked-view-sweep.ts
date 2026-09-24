@@ -2,7 +2,7 @@ import { effect, inject, Injector, Service, untracked } from '@angular/core';
 import { ContentRoute, View } from '@loomweaver/plugin-sdk';
 import { PopoutWindow } from '../../../popout/popout-window';
 import { ActiveWorkspaceService } from '../../../workspace/active-workspace.service';
-import { ContributionRegistry } from '../../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { tabRootOf } from '../../content/content-path';
 import { PaneNode } from '../tree/pane-node';
 import { leavesOf } from '../tree/pane-queries';

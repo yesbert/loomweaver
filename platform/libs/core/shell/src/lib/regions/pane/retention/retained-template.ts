@@ -7,7 +7,7 @@ import {
   inject,
   input,
 } from '@angular/core';
-import { ContributionRegistry } from '../../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { RetainedSlot } from './retained-view-model';
 import { RetainedViewStash } from './retained-view-stash';
 import { placeBefore } from './atomic-move';

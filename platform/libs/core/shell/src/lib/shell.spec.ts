@@ -6,7 +6,7 @@ import {
 } from '@jsverse/transloco';
 import { Shell } from './shell';
 import { DEFAULT_BAR_ITEMS } from './regions/bar/default-bar-items';
-import { ContributionRegistry } from './plugin/contribution-registry';
+import { ContributionRegistry } from './contributions/contribution-registry';
 import { provideLayout } from './layout/layout';
 
 function translocoTesting(options: TranslocoTestingOptions = {}) {

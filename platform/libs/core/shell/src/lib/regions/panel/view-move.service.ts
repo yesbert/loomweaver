@@ -3,7 +3,7 @@ import { SHELL_LAYOUT } from '../../layout/layout';
 import { PaneRef, viewPanePath } from '../pane/tree/pane-address';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
 import { PaneMoveService } from '../pane/drag/pane-move.service';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { PanelState } from './panel-state';
 import { regionOnOtherSide } from '../../layout/layout-queries';
 import { MoveAnnouncer, MoveWording } from '../reorder/move-announcer';

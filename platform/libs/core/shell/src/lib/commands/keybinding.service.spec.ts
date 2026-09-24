@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { KeybindingService } from './keybinding.service';
 import { CommandService } from './command.service';
-import { ContributionRegistry } from '../plugin/contribution-registry';
+import { ContributionRegistry } from '../contributions/contribution-registry';
 import { provideShellFeatures } from '../foundation/shell-features';
 import { PaletteMruService } from './palette-mru.service';
 import type { MockInstance } from 'vitest';

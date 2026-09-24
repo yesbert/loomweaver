@@ -25,7 +25,7 @@ import { PaneTabStrip } from '../pane/chrome/pane-tab-strip';
 import { StripTab } from '../pane/chrome/strip-tab';
 import { MenuTriggerDirective } from '../../menu/menu-trigger.directive';
 import { toStripTab } from '../pane/chrome/tab-label';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { FeatureSwitches } from '../../features/feature-switches.service';
 import { regionOnSide } from '../../layout/layout-queries';
 import { sideForMoveChord } from '../reorder/move-chord';

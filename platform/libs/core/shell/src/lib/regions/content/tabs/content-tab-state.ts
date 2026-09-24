@@ -1,6 +1,6 @@
 import { computed, inject, Service, signal, Signal } from '@angular/core';
 import { ActiveContent, ContentRoute } from '@loomweaver/plugin-sdk';
-import { ContributionRegistry } from '../../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { AuthContext } from '../../../auth/auth-context';
 import {
   matchRoute,

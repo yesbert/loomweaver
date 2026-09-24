@@ -3,7 +3,7 @@ import { PaneTab } from '../tree/pane-node';
 import { surfaceForPanePath } from '../pane-surface';
 import type { StripTab } from './strip-tab';
 import { isHomePath } from '../../content/content-path';
-import { ContributionRegistry } from '../../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { TabBadge } from '@loomweaver/plugin-sdk';
 
 export interface PaneLabel {

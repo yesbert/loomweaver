@@ -9,7 +9,7 @@ import {
   DEFAULT_WORKSPACE_ID,
 } from './active-workspace.service';
 import { SETTINGS_STORE } from '../persistence/settings-store';
-import { ContributionRegistry } from '../plugin/contribution-registry';
+import { ContributionRegistry } from '../contributions/contribution-registry';
 import {
   PRIMARY_PANE,
   VIEW_PANE_PREFIX,

@@ -1,7 +1,7 @@
 import { Component, computed } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FeatureSwitches } from '../../features/feature-switches.service';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { ContentTabsService } from '../content/tabs/content-tabs.service';
 import { PaneChromeService } from './chrome/pane-chrome.service';
 import { SurfaceCloseGuard } from './unsaved-work/surface-close-guard';

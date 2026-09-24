@@ -6,8 +6,8 @@ import {
 } from '../commands/host-command-ids';
 import { DialogService } from '../dialog/dialog.service';
 import { menuContextString } from '../menu/menu-context';
-import { ContributionRegistry } from '../plugin/contribution-registry';
-import { disposeTogether } from '../plugin/dispose-together';
+import { ContributionRegistry } from '../contributions/contribution-registry';
+import { disposeTogether } from '../contributions/dispose-together';
 import { WorkspaceDialog } from './workspace-dialog';
 import { WorkspaceService } from './workspace.service';
 

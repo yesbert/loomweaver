@@ -9,7 +9,7 @@ import {
   CapabilityError,
 } from '@loomweaver/plugin-sdk';
 import { HostPluginContext } from './host-plugin-context';
-import { ContributionRegistry } from '../contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { DialogService } from '../../dialog/dialog.service';
 import { NotificationService } from '../../notifications/notification.service';
 import { SettingsService } from '../../settings/settings.service';
@@ -28,7 +28,7 @@ import { ThemeRegistry } from '../../theme/theme-registry';
 import { ContentTabsService } from '../../regions/content/tabs/content-tabs.service';
 import { CommandInvocationService } from '../../commands/command-invocation.service';
 import { LeftOutChildren } from '../../regions/pane/container/left-out-children';
-import { CONTAINER_CHILD_REGION } from '../surface-normalize';
+import { CONTAINER_CHILD_REGION } from '../../contributions/surface-normalize';
 import { VIEW_PANE_PREFIX } from '../../regions/pane/tree/pane-address';
 
 class DummyComponent {}

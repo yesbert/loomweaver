@@ -16,7 +16,7 @@ import {
 } from '@angular/cdk/drag-drop';
 import { CdkScrollable } from '@angular/cdk/scrolling';
 import { LayoutRegion, SHELL_LAYOUT } from '../../layout/layout';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { CommandService } from '../../commands/command.service';
 import { AuthContext } from '../../auth/auth-context';
 import { RailItem } from '../../foundation/rail-item';

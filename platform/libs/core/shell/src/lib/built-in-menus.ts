@@ -1,5 +1,5 @@
 import { Injector } from '@angular/core';
-import { ContributionRegistry } from './plugin/contribution-registry';
+import { ContributionRegistry } from './contributions/contribution-registry';
 import { ViewStateService } from './views/view-state.service';
 import { ViewInstanceService } from './views/view-instance.service';
 import { ContentTabsService } from './regions/content/tabs/content-tabs.service';

@@ -4,7 +4,7 @@ import { Location } from '@angular/common';
 import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { ContentRoute } from '@loomweaver/plugin-sdk';
-import { ContributionRegistry } from '../plugin/contribution-registry';
+import { ContributionRegistry } from '../contributions/contribution-registry';
 import { BootAddress } from '../regions/content/routing/boot-address';
 import { DISTRIBUTION_ROUTES } from '../regions/content/routing/distribution-routes';
 import { provideLayout } from '../layout/layout';

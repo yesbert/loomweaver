@@ -1,5 +1,5 @@
 import { inject, Service } from '@angular/core';
-import { ContributionRegistry } from '../../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { normalizePath, tabRootOf } from '../content-path';
 import { TabCloseHooks } from './tab-close-hooks';
 import { ContentTabState } from './content-tab-state';

@@ -1,5 +1,5 @@
 import { computed, Service, signal } from '@angular/core';
-import { Disposable } from '../plugin/contribution-registry';
+import { Disposable } from '../contributions/contribution-registry';
 import { upsertById } from '../foundation/identified';
 import { SettingRow, SettingsSection } from './settings-model';
 

@@ -4,7 +4,7 @@ import { provideRouter } from '@angular/router';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { ShellLayout, SHELL_LAYOUT } from '../../layout/layout';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { PRIMARY_PANE } from '../pane/tree/pane-address';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
 import { ViewMoveService } from './view-move.service';

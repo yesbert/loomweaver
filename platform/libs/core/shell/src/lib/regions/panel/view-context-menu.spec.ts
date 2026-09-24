@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { CommandService } from '../../commands/command.service';
 import { VIEW_CONTEXT_MENU } from '../pane/chrome/strip-tab';
 import {

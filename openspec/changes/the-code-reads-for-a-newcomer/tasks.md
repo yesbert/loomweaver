@@ -177,9 +177,11 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   `contributions/` slice, whose registrations are all it disposes. The permissions settings section
   moved into `plugin/enablement/` with the switches it shows; anywhere else it made two slices
   import each other.
-- [ ] 6.2 **Move:** the contribution registry, surface normalisation and route omission into a
+- [x] 6.2 **Move:** the contribution registry, surface normalisation and route omission into a
   top-level `contributions/` slice, with `tabBadgeOf` in `foundation/`; shrink the cycle baseline by
   the pairs that disappear.
+  `tabBadgeOf` and `disposeTogether` joined `contributions/` instead of the full `foundation/`;
+  `menu <-> plugin` and `plugin <-> settings` left the baseline.
 - [ ] 6.3 One lifecycle vocabulary: deployed (not provided), one constant for the installed-plugins
   settings group, activate and deactivate in both runtimes, `deactivateUnlisted`, isolation level (not
   rung or cap), and the names that promise less than their function does.

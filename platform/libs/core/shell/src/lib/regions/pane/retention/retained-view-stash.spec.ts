@@ -10,7 +10,7 @@ import {
   signal,
 } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { ContributionRegistry } from '../../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { moveNode, supportsAtomicMove } from './atomic-move';
 import { RetainedComponent } from './retained-component';
 import { RetainedTemplate } from './retained-template';

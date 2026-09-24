@@ -4,7 +4,7 @@ import { provideRouter } from '@angular/router';
 import { TranslocoService } from '@jsverse/transloco';
 import { FeatureSwitches } from '../../features/feature-switches.service';
 import { provideLayout } from '../../layout/layout';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { SurfaceCloseGuard } from '../pane/unsaved-work/surface-close-guard';
 import { PanelSizeService } from './panel-size.service';
 import { MAX_PANEL_WIDTH, MIN_PANEL_WIDTH } from '../../layout/panel-widths';
