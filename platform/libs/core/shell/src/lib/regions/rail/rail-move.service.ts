@@ -4,6 +4,11 @@ import { TranslocoService } from '@jsverse/transloco';
 import { SHELL_LAYOUT } from '../../layout/layout';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { RailItemsService } from './rail-items.service';
+import {
+  regionById,
+  regionOnOtherSide,
+  regionOnSide,
+} from '../../layout/layout-queries';
 
 @Service()
 export class RailMoveService {
@@ -27,29 +32,15 @@ export class RailMoveService {
   }
 
   otherRail(fromRegion: string): string | undefined {
-    const from = this.layout.regions.find((region) => region.id === fromRegion);
-    if (!from) {
-      return undefined;
-    }
-    return this.layout.regions.find(
-      (region) =>
-        region.type === 'rail' &&
-        region.id !== fromRegion &&
-        region.dock !== from.dock,
-    )?.id;
+    return regionOnOtherSide(this.layout, 'rail', fromRegion)?.id;
   }
 
   railOn(dock: 'left' | 'right', fromRegion: string): string | undefined {
-    return this.layout.regions.find(
-      (region) =>
-        region.type === 'rail' &&
-        region.dock === dock &&
-        region.id !== fromRegion,
-    )?.id;
+    return regionOnSide(this.layout, 'rail', dock, fromRegion)?.id;
   }
 
   private targetLabel(regionId: string): string {
-    const dock = this.layout.regions.find((r) => r.id === regionId)?.dock;
+    const dock = regionById(this.layout, regionId)?.dock;
     if (dock === 'left') {
       return this.transloco.translate('rail.move.targetLeft');
     }

@@ -18,6 +18,7 @@ import { VersionService } from '../version/version.service';
 import { REQUIRED_PLUGINS } from '../foundation/required-plugins';
 import { PLUGIN } from '../plugin/plugin';
 import { FRAME_PLUGIN } from '../plugin/sandbox/frame-plugin';
+import { regionById } from '../layout/layout-queries';
 
 @Service()
 export class CompositionReport {
@@ -115,7 +116,7 @@ export class CompositionReport {
     regionId: string,
     expected: RegionType,
   ): void {
-    const region = this.layout.regions.find((entry) => entry.id === regionId);
+    const region = regionById(this.layout, regionId);
     if (region?.type === expected) {
       return;
     }

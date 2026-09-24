@@ -2,6 +2,7 @@ import { ApplicationRef, Injector } from '@angular/core';
 import { FeatureSwitches } from './features/feature-switches.service';
 import { TestBed } from '@angular/core/testing';
 import { ContributionRegistry } from './plugin/contribution-registry';
+import { ShellLayout } from './layout/layout';
 import { HostCommandDeps, seedHostCommands } from './shell-seeds';
 import { BuiltInMenuDeps, seedBuiltInMenus } from './shell-menu-seeds';
 import {
@@ -9,13 +10,13 @@ import {
   ShellFeaturesInput,
 } from './foundation/shell-features';
 
-const layout = {
+const layout: ShellLayout = {
   regions: [
-    { type: 'rail', dock: 'left' },
-    { type: 'rail', dock: 'right' },
-    { type: 'panel', dock: 'left' },
-    { type: 'panel', dock: 'right' },
-    { type: 'content' },
+    { id: 'left-rail', type: 'rail', dock: 'left' },
+    { id: 'right-rail', type: 'rail', dock: 'right' },
+    { id: 'left-panel', type: 'panel', dock: 'left' },
+    { id: 'right-panel', type: 'panel', dock: 'right' },
+    { id: 'main', type: 'content', dock: 'center' },
   ],
 };
 
@@ -101,7 +102,10 @@ describe('seedHostCommands (K5: curation commands)', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({});
     const registry = TestBed.inject(ContributionRegistry);
-    seedHostCommands(registry, { regions: [{ type: 'content' }] }, {
+    const contentOnly: ShellLayout = {
+      regions: [{ id: 'main', type: 'content', dock: 'center' }],
+    };
+    seedHostCommands(registry, contentOnly, {
       popout: { active: false },
       features: TestBed.inject(FeatureSwitches),
       injector: TestBed.inject(Injector),

@@ -6,7 +6,8 @@ import {
 } from '../../persistence/stored-values/hydrate';
 import { StateSyncService } from '../../persistence/state-sync.service';
 import { parseRecord } from '../../persistence/stored-values/persisted-record';
-import { PanelRegion, SHELL_LAYOUT, ShellLayout } from '../../layout/layout';
+import { SHELL_LAYOUT, ShellLayout } from '../../layout/layout';
+import { panelRegions } from '../../layout/layout-queries';
 import {
   clampToPanelWidths,
   PanelWidths,
@@ -36,9 +37,10 @@ function panelWidthsByRegion(
   layout: ShellLayout,
 ): ReadonlyMap<string, PanelWidths> {
   return new Map(
-    layout.regions
-      .filter((region): region is PanelRegion => region.type === 'panel')
-      .map((region) => [region.id, resolvePanelWidths(region)]),
+    panelRegions(layout).map((region) => [
+      region.id,
+      resolvePanelWidths(region),
+    ]),
   );
 }
 

@@ -8,22 +8,21 @@ import { ThemeToggle } from './theme/theme-toggle';
 import { TextSizeToggle } from './text-size/text-size-toggle';
 import { LanguageSwitcher } from './i18n/language-switcher';
 import { PermissionsSettings } from './permissions/permissions-settings';
+import { regionsOfType } from './layout/layout-queries';
 
 function railLabelRows(): SettingRow[] {
   const layout = inject(SHELL_LAYOUT);
   const labels = inject(RailLabelsService);
-  return layout.regions
-    .filter((region) => region.type === 'rail')
-    .map((region) => ({
-      id: `shell.railLabels.${region.id}`,
-      label: railNameKey(region, layout),
-      description: 'railLabels.desc',
-      control: {
-        kind: 'toggle',
-        value: () => labels.labelled(region.id),
-        set: (labelled: boolean) => labels.show(region.id, labelled),
-      },
-    }));
+  return regionsOfType(layout, 'rail').map((region) => ({
+    id: `shell.railLabels.${region.id}`,
+    label: railNameKey(region, layout),
+    description: 'railLabels.desc',
+    control: {
+      kind: 'toggle',
+      value: () => labels.labelled(region.id),
+      set: (labelled: boolean) => labels.show(region.id, labelled),
+    },
+  }));
 }
 
 export function registerDefaultSettings(settings: SettingsService): void {

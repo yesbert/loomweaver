@@ -58,6 +58,7 @@ import {
   declaredStart,
   startWhereTheDistributionSays,
 } from './opening-the-workbench';
+import { regionIdsOfType } from '../layout/layout-queries';
 
 const WORKSPACE_KEYS = [HIDDEN_VIEWS_KEY, PANE_TREES_KEY] as const;
 
@@ -76,9 +77,10 @@ export class WorkspaceService {
   private readonly contentRouter = inject(ContentRouter);
   private readonly sync = inject(StateSyncService);
   private readonly registry = inject(ContributionRegistry);
-  private readonly panelRegions = inject(SHELL_LAYOUT)
-    .regions.filter((region) => region.type === 'panel')
-    .map((region) => region.id);
+  private readonly panelRegions = regionIdsOfType(
+    inject(SHELL_LAYOUT),
+    'panel',
+  );
   private readonly baselineContext: BaselineContext = {
     panelRegions: this.panelRegions,
     declaredPaths: (region) => this.panelGroups.declaredPaths(region),

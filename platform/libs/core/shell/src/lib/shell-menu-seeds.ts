@@ -27,15 +27,12 @@ import { ViewVisibilityService } from './regions/panel/view-visibility.service';
 import { PopoutService } from './popout/popout.service';
 import { FeatureSwitches } from './features/feature-switches.service';
 import { whileOn } from './features/while-on';
-import { ShellRegions } from './shell-seeds';
-
-function docks(layout: ShellRegions, type: string): number {
-  return new Set(
-    layout.regions
-      .filter((region) => region.type === type)
-      .map((region) => region.dock),
-  ).size;
-}
+import { ShellLayout } from './layout/layout';
+import {
+  hasContentRegion,
+  hasRegionOfType,
+  sideCount,
+} from './layout/layout-queries';
 
 export interface BuiltInMenuDeps {
   readonly tabs: ContentTabsService;
@@ -54,7 +51,7 @@ export interface BuiltInMenuDeps {
 
 export function seedBuiltInMenus(
   registry: ContributionRegistry,
-  layout: ShellRegions,
+  layout: ShellLayout,
   deps: BuiltInMenuDeps,
 ): void {
   if (deps.popout.active) {
@@ -75,24 +72,22 @@ export function seedBuiltInMenus(
 
 function seedRailMenus(
   registry: ContributionRegistry,
-  layout: ShellRegions,
+  layout: ShellLayout,
   deps: BuiltInMenuDeps,
 ): void {
-  const railCount = layout.regions.filter(
-    (region) => region.type === 'rail',
-  ).length;
   const rail = deps.features.rail;
-  if (railCount >= 1) {
+  const hasRail = hasRegionOfType(layout, 'rail');
+  if (hasRail) {
     whileOn(deps.injector, rail.hideItems, () =>
       registerRailContextMenu(registry, deps.railItems),
     );
   }
-  if (docks(layout, 'rail') >= 2) {
+  if (sideCount(layout, 'rail') >= 2) {
     whileOn(deps.injector, rail.moveItems, () =>
       registerRailMoveMenu(registry, deps.railMove),
     );
   }
-  if (railCount >= 1) {
+  if (hasRail) {
     whileOn(deps.injector, rail.curate, () =>
       registerRailCustomizeMenu(registry),
     );
@@ -101,7 +96,7 @@ function seedRailMenus(
 
 function seedViewMenus(
   registry: ContributionRegistry,
-  layout: ShellRegions,
+  layout: ShellLayout,
   deps: BuiltInMenuDeps,
 ): void {
   const sidebar = deps.features.sidebar;
@@ -111,15 +106,12 @@ function seedViewMenus(
   whileOn(deps.injector, deps.features.windows.popout, () =>
     registerViewPopoutMenu(registry, deps.popout),
   );
-  const panelCount = layout.regions.filter(
-    (region) => region.type === 'panel',
-  ).length;
-  if (docks(layout, 'panel') >= 2) {
+  if (sideCount(layout, 'panel') >= 2) {
     whileOn(deps.injector, sidebar.moveViews, () =>
       registerViewContextMenu(registry, deps.viewMove),
     );
   }
-  if (panelCount === 0) {
+  if (!hasRegionOfType(layout, 'panel')) {
     return;
   }
   whileOn(deps.injector, sidebar.curate, () =>
@@ -131,7 +123,7 @@ function seedViewMenus(
   whileOn(deps.injector, sidebar.stackViews, () =>
     registerViewStackMenu(registry, deps.paneTree),
   );
-  if (layout.regions.some((region) => region.type === 'content')) {
+  if (hasContentRegion(layout)) {
     whileOn(deps.injector, sidebar.openViewInContent, () =>
       registerViewOpenInContentMenu(registry, deps.paneTree),
     );

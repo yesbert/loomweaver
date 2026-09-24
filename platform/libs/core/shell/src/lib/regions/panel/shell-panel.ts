@@ -50,6 +50,7 @@ import { PanelSizeService } from './panel-size.service';
 import { overlayWidthStyle } from '../../layout/panel-widths';
 import { PanelSplitter } from './panel-splitter';
 import { FeatureSwitches } from '../../features/feature-switches.service';
+import { regionsAt } from '../../layout/layout-queries';
 
 @Component({
   selector: 'lw-shell-panel',
@@ -169,9 +170,7 @@ export class ShellPanel {
   );
 
   protected readonly footers = computed(() =>
-    this.layout.regions.filter(
-      (r) => r.type === 'bar' && r.dock === this.region().dock,
-    ),
+    regionsAt(this.layout, this.region().dock, 'bar'),
   );
 
   constructor() {
