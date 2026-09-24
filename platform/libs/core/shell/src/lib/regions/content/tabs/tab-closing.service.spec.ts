@@ -337,4 +337,22 @@ describe('TabClosingService close hooks', () => {
     service.runCloseHook('doc/a');
     expect(onClose).toHaveBeenCalledTimes(1);
   });
+
+  it('keeps the teardown of a tab another pane holds when the pane carrying the address is asked to close it', async () => {
+    await harness.navigateByUrl('/');
+    const onClose = vi.fn();
+    service.open({ path: 'doc/a', title: 'A.ts', onClose });
+    const paneTree = TestBed.inject(PaneTreeService);
+    paneTree.splitPane('content', PRIMARY_PANE, 'row', 'doc/a');
+    paneTree.setPrimaryTabs(CONTENT_DOCK, []);
+
+    service.close('doc/a');
+    const holder = paneTree.sourceOf('doc/a');
+    expect(holder).not.toBeNull();
+    expect(onClose).not.toHaveBeenCalled();
+
+    service.close('doc/a', holder ?? undefined);
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
 });

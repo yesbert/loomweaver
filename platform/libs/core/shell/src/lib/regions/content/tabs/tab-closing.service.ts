@@ -190,11 +190,14 @@ export class TabClosingService {
   private closeNow(normalized: string): void {
     const { routes, root } = this.state.rootFor(normalized);
     const closing = this.state.openTabRootedAt(routes, root);
+    if (closing === undefined) {
+      return;
+    }
     const wasActive = this.state.activeTabRoot() === root;
     this.state.updateOpen((tabs) =>
       tabs.filter((tab) => tabRootOf(routes, tab.path) !== root),
     );
-    this.closeHooks.runSafely(closing?.onClose);
+    this.closeHooks.runSafely(closing.onClose);
     this.closeHooks.delete(root);
     if (wasActive) {
       void this.navigateAfterClose(this.collapseOrNeighbour(root));

@@ -30,7 +30,12 @@ describe('registerTabContextMenu', () => {
       unpin: vi.fn(),
     };
     paneMove = { splitTabOut: vi.fn() };
-    paneTree = { pinTab: vi.fn(), unpinTab: vi.fn() };
+    paneTree = {
+      pinTab: vi.fn(),
+      unpinTab: vi.fn(),
+      sourceOf: vi.fn(() => null),
+      holdsAddress: vi.fn(() => true),
+    };
     popoutOpen = vi.fn();
     popout = { open: popoutOpen } as unknown as PopoutService;
     TestBed.configureTestingModule({
@@ -119,6 +124,22 @@ describe('registerTabContextMenu', () => {
     commands.execute('shell.tab.closeAll', context);
     expect(tabs['close']).toHaveBeenCalledWith('t1', undefined);
     expect(tabs['closeAll']).toHaveBeenCalledWith(undefined);
+  });
+
+  it('acts in the pane that holds the tab when the context names none, as from the search', () => {
+    const pane = { dock: 'content', paneId: 'p2' };
+    paneTree['sourceOf'].mockReturnValue(pane);
+    paneTree['holdsAddress'].mockReturnValue(false);
+    const context = { tabId: 't1', closable: true, pinned: false };
+
+    commands.execute('shell.tab.close', context);
+    commands.execute('shell.tab.closeRight', context);
+    commands.execute('shell.tab.togglePin', context);
+
+    expect(tabs['close']).toHaveBeenCalledWith('t1', pane);
+    expect(tabs['closeToRight']).toHaveBeenCalledWith('t1', pane);
+    expect(paneTree['pinTab']).toHaveBeenCalledWith('content', 'p2', 't1');
+    expect(tabs['pin']).not.toHaveBeenCalled();
   });
 
   it('close/others/right target the tab from the context', () => {

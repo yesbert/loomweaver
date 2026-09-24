@@ -22,7 +22,7 @@ they start with a top-level folder.
   `foundation/required-plugins.ts`); the JSDoc of `provideRequiredPlugins` states it.
 - [x] 1.7 A launcher entry that only opens a menu has a row in "Customize rail", so it can be hidden,
   moved and brought back (`regions/curation/curation-dialog.ts`).
-- [ ] 1.8 Close, pin and close-to-the-right chosen for open work in the search act in the pane that
+- [x] 1.8 Close, pin and close-to-the-right chosen for open work in the search act in the pane that
   holds it: the search's menu context names the holding pane, and closing deletes a close hook only
   when something closed (`commands/command-palette.ts`, `regions/content/tabs/tab-closing.service.ts`).
 

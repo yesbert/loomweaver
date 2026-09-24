@@ -41,24 +41,31 @@ export function registerTabContextMenu(
         {
           id: 'shell.tab.close',
           title: 'content.tabMenu.close',
-          run: (c) => tabs.close(menuContextString(c, 'tabId'), paneOf(c)),
+          run: (c) =>
+            tabs.close(menuContextString(c, 'tabId'), paneOf(c, paneTree)),
         },
         {
           id: 'shell.tab.closeOthers',
           title: 'content.tabMenu.closeOthers',
           run: (c) =>
-            tabs.closeOthers(menuContextString(c, 'tabId'), paneOf(c)),
+            tabs.closeOthers(
+              menuContextString(c, 'tabId'),
+              paneOf(c, paneTree),
+            ),
         },
         {
           id: 'shell.tab.closeRight',
           title: 'content.tabMenu.closeRight',
           run: (c) =>
-            tabs.closeToRight(menuContextString(c, 'tabId'), paneOf(c)),
+            tabs.closeToRight(
+              menuContextString(c, 'tabId'),
+              paneOf(c, paneTree),
+            ),
         },
         {
           id: 'shell.tab.closeAll',
           title: 'content.tabMenu.closeAll',
-          run: (c) => tabs.closeAll(paneOf(c)),
+          run: (c) => tabs.closeAll(paneOf(c, paneTree)),
         },
       ],
       items: [
@@ -101,7 +108,7 @@ export function registerTabContextMenu(
           title: 'content.tabMenu.pinned',
           run: (c) => {
             const tabId = menuContextString(c, 'tabId');
-            const pane = paneOf(c);
+            const pane = paneOf(c, paneTree);
             if (pane) {
               paneTree[c?.['pinned'] ? 'unpinTab' : 'pinTab'](
                 pane.dock,
@@ -162,7 +169,7 @@ export function registerTabContextMenu(
             paneMove.splitTabOut(
               menuContextString(c, 'tabId'),
               'row',
-              paneOf(c),
+              paneOf(c, paneTree),
             ),
         },
       ],
@@ -188,7 +195,7 @@ export function registerTabContextMenu(
             paneMove.splitTabOut(
               menuContextString(c, 'tabId'),
               'column',
-              paneOf(c),
+              paneOf(c, paneTree),
             ),
         },
       ],
@@ -221,13 +228,31 @@ function register(
   ]);
 }
 
-function paneOf(context: MenuContext | undefined): PaneRef | undefined {
-  if (context?.['primary'] !== false) {
+function paneOf(
+  context: MenuContext | undefined,
+  paneTree: PaneTreeService,
+): PaneRef | undefined {
+  if (context?.['primary'] === true) {
     return undefined;
   }
+  return context?.['primary'] === false
+    ? namedPane(context)
+    : holdingPane(context, paneTree);
+}
+
+function namedPane(context: MenuContext): PaneRef | undefined {
   const dock = context['group'];
   const paneId = context['paneId'];
   return typeof dock === 'string' && typeof paneId === 'string'
     ? { dock, paneId }
     : undefined;
+}
+
+function holdingPane(
+  context: MenuContext | undefined,
+  paneTree: PaneTreeService,
+): PaneRef | undefined {
+  const tabId = context?.['tabId'];
+  const holder = typeof tabId === 'string' ? paneTree.sourceOf(tabId) : null;
+  return holder === null || paneTree.holdsAddress(holder) ? undefined : holder;
 }
