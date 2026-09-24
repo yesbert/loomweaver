@@ -3,10 +3,11 @@ import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { normalizePath, tabRootOf } from '../../content/content-path';
 import { VIEW_PANE_PREFIX } from '../tree/pane-address';
 import { RetainedViewStash } from '../retention/retained-view-stash';
+import { instanceDirty } from '../retention/retention-policy';
 import {
   containerChildInstances,
-  instanceDirty,
-} from '../retention/retention-policy';
+  pathOfRetentionKey,
+} from '../retention/retention-keys';
 
 @Service()
 export class UnsavedWork {
@@ -49,7 +50,7 @@ export class UnsavedWork {
     return [
       ...new Set([
         ...keyed
-          .filter((entry) => named.has(pathOfKey(entry.key)))
+          .filter((entry) => named.has(pathOfRetentionKey(entry.key)))
           .map((entry) => entry.instance),
         ...addresses.flatMap((address) =>
           containerChildInstances(keyed, address),
@@ -66,8 +67,4 @@ export class UnsavedWork {
     const root = tabRootOf(this.registry.contentRoutes(), normalized);
     return root === normalized ? [normalized] : [normalized, root];
   }
-}
-
-function pathOfKey(key: string): string {
-  return key.split('|', 2)[1] ?? '';
 }

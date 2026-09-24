@@ -12,6 +12,7 @@ import {
   toggledFlag,
 } from '../../persistence/stored-values/persisted-record';
 import { RetainedViewStash } from '../pane/retention/retained-view-stash';
+import { isKeyOfDock } from '../pane/retention/retention-keys';
 
 const STORAGE_KEY = 'lw.shell.panels';
 
@@ -75,7 +76,7 @@ export class PanelState {
 
   private setCollapsed(regionId: string, value: boolean): void {
     if (value) {
-      this.stash.evacuate(`${regionId}:`);
+      this.stash.evacuate((key) => isKeyOfDock(key, regionId));
     }
     const next = toggledFlag(this.collapsed(), regionId, value);
     this.collapsed.set(next);

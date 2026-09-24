@@ -23,12 +23,12 @@ import { RetainedViewStash } from './retained-view-stash';
 import { RetentionGc } from './retention-gc';
 import { RetentionUnloadGuard } from '../unsaved-work/retention-unload-guard';
 import {
-  containerChildInstances,
   effectiveRetain,
   SurfaceRetentionMode,
   surfaceRetentionMode,
   retainSurfacePath,
 } from './retention-policy';
+import { containerChildInstances, isKeyOfPane } from './retention-keys';
 
 let instances: ProbeView[] = [];
 let destroyed = 0;
@@ -746,14 +746,16 @@ describe('surface retention', () => {
       const paneTree = TestBed.inject(PaneTreeService);
       paneTree.seedPrimaryTabs(CONTENT_DOCK, ['notes']);
       const stash = TestBed.inject(RetainedViewStash);
-      const evacuated: string[] = [];
-      vi.spyOn(stash, 'evacuate').mockImplementation((prefix: string) => {
-        evacuated.push(prefix);
+      const evacuated: ((key: string) => boolean)[] = [];
+      vi.spyOn(stash, 'evacuate').mockImplementation((matches) => {
+        evacuated.push(matches);
       });
 
       paneTree.hydrate(undefined);
 
-      expect(evacuated).toContain(`${CONTENT_DOCK}:`);
+      expect(
+        evacuated.some((matches) => matches(`${CONTENT_DOCK}:main|notes`)),
+      ).toBe(true);
     });
 
     it('parks an in-place surface when only its mount point dies, and reclaims it', () => {
@@ -868,7 +870,9 @@ describe('surface retention', () => {
       const first = instances[0];
       const element = probeElement(fixture);
 
-      TestBed.inject(RetainedViewStash).evacuate('content:main|');
+      TestBed.inject(RetainedViewStash).evacuate((key) =>
+        isKeyOfPane(key, 'content', 'main'),
+      );
       fixture.componentInstance.paneAlive.set(false);
       fixture.detectChanges();
       await afterSweep();
@@ -891,7 +895,9 @@ describe('surface retention', () => {
       const element = probeElement(fixture);
       expect(element).not.toBeNull();
 
-      TestBed.inject(RetainedViewStash).evacuate('content:main|');
+      TestBed.inject(RetainedViewStash).evacuate((key) =>
+        isKeyOfPane(key, 'content', 'main'),
+      );
       fixture.detectChanges();
       await afterSweep();
 

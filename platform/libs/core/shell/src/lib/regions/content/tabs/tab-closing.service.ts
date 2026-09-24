@@ -16,7 +16,7 @@ import { TabKeep, keepsNothing } from '../../pane/tree/pane-handover';
 import { sparedByBulkClose } from '../../pane/tree/pane-tabs';
 import { LeftOutChildren } from '../../pane/container/left-out-children';
 import { findLeaf } from '../../pane/tree/pane-queries';
-import { paneRetentionScope } from '../../pane/retention/retention-policy';
+import { paneRetentionScope } from '../../pane/retention/retention-keys';
 import { UnsavedWork } from '../../pane/unsaved-work/unsaved-work';
 import { SurfaceCloseGuard } from '../../pane/unsaved-work/surface-close-guard';
 

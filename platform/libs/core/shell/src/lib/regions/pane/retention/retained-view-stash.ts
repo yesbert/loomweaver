@@ -130,7 +130,7 @@ export class RetainedViewStash implements OnDestroy {
     return instancesAt(this.entries.values(), scope, path);
   }
 
-  evacuate(scopePrefix: string): void {
+  evacuate(matches: (key: string) => boolean): void {
     if (!this.atomicMove) {
       return;
     }
@@ -141,7 +141,7 @@ export class RetainedViewStash implements OnDestroy {
         !entry.keep ||
         entry.mode !== 'in-place' ||
         isHeld(entry) ||
-        !entry.key.startsWith(scopePrefix)
+        !matches(entry.key)
       ) {
         continue;
       }

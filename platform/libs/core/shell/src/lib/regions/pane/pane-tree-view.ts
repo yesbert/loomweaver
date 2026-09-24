@@ -1,4 +1,12 @@
-import { Component, TemplateRef, computed, forwardRef, inject, input, signal } from '@angular/core';
+import {
+  Component,
+  TemplateRef,
+  computed,
+  forwardRef,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { PaneNode, PaneSplit, leafPath } from './tree/pane-node';
 import { PaneTreeService } from './tree/pane-tree.service';
@@ -9,7 +17,7 @@ import { PaneDropZones } from './drag/pane-drop-zones';
 import { PaneMinimizedStrip } from './chrome/pane-minimized-strip';
 import { PaneSplitHandle } from './chrome/pane-split-handle';
 import { RetainedTemplate } from './retention/retained-template';
-import { PRIMARY_RETENTION_PREFIX } from './retention/retention-policy';
+import { primaryRetentionKey } from './retention/retention-keys';
 
 @Component({
   selector: 'lw-pane-tree-view',
@@ -51,8 +59,8 @@ export class PaneTreeView {
     return node.kind === 'leaf' ? node : null;
   });
 
-  protected readonly primaryRetentionKey = computed(
-    () => PRIMARY_RETENTION_PREFIX + this.dock(),
+  protected readonly primaryRetentionKey = computed(() =>
+    primaryRetentionKey(this.dock()),
   );
 
   protected readonly primaryLeafPath = computed(() => {

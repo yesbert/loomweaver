@@ -4,7 +4,6 @@ import { ContentRoute, DirtySurface, View } from '@loomweaver/plugin-sdk';
 import { matchRoute } from '../../content/content-path';
 import { VIEW_PANE_PREFIX } from '../tree/pane-address';
 import { surfaceForPanePath } from '../pane-surface';
-import { containerDockFor } from '../container/container-children';
 
 export type RetentionDefault = 'destroy' | 'retain';
 
@@ -15,8 +14,6 @@ export const SURFACE_RETENTION = new InjectionToken<RetentionDefault>(
     factory: () => 'destroy',
   },
 );
-
-export const PRIMARY_RETENTION_PREFIX = 'primary:';
 
 export function isContentRoute(route: ActivatedRouteSnapshot): boolean {
   return route.routeConfig?.data?.['content'] === true;
@@ -91,32 +88,6 @@ export function surfaceRetentionMode(
     return 'rebuild';
   }
   return route.iframe === undefined ? 'move' : 'in-place';
-}
-
-export function containerChildInstances(
-  entries: readonly { key: string; instance: unknown }[],
-  tabPath: string,
-): unknown[] {
-  const scoped = containerDockFor(tabPath) + ':';
-  return entries
-    .filter((entry) => entry.key.startsWith(scoped))
-    .map((entry) => entry.instance);
-}
-
-export function paneRetentionScope(dock: string, paneId: string): string {
-  return `${dock}:${paneId}`;
-}
-
-export function surfaceRetentionKey(scope: string, path: string): string {
-  return `${scope}|${path}`;
-}
-
-export function viewRetentionKey(
-  scope: string,
-  path: string,
-  instance: string | undefined,
-): string {
-  return `${scope}|${path}|${instance ?? ''}`;
 }
 
 export function resolvableSurfacePath(

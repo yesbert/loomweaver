@@ -2,6 +2,7 @@ import { EmbeddedViewRef } from '@angular/core';
 import { SurfaceRetentionMode } from './retention-policy';
 import { ParkedEntry, RetainedViewSource } from './retained-view-model';
 import { SurfaceHoldState } from './surface-hold';
+import { isKeyForSurface } from './retention-keys';
 
 export interface HiddenNode {
   readonly element: HTMLElement;
@@ -41,7 +42,10 @@ export function elementsOf(entry: StashEntry): HTMLElement[] {
   );
 }
 
-export function parkedInPlaceAt(entry: StashEntry, parent: Node | null): boolean {
+export function parkedInPlaceAt(
+  entry: StashEntry,
+  parent: Node | null,
+): boolean {
   const nodes = liveRootNodes(entry);
   return (
     nodes.length > 0 &&
@@ -120,10 +124,8 @@ export function instancesAt(
   scope: string,
   path: string,
 ): unknown[] {
-  const exact = `${scope}|${path}`;
-  const prefix = `${exact}|`;
   return [...entries]
-    .filter((entry) => entry.key === exact || entry.key.startsWith(prefix))
+    .filter((entry) => isKeyForSurface(entry.key, scope, path))
     .map((entry) => entry.instance)
     .filter((instance) => instance !== undefined);
 }

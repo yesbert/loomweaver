@@ -8,7 +8,7 @@ import { CONTENT_DOCK } from '../../pane/tree/pane-address';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 import { PRIMARY_PANE } from '../../pane/tree/pane-address';
 import { RetainedViewStash } from '../../pane/retention/retained-view-stash';
-import { paneRetentionScope } from '../../pane/retention/retention-policy';
+import { paneRetentionScope } from '../../pane/retention/retention-keys';
 import { findLeaf } from '../../pane/tree/pane-queries';
 import { SurfaceCloseGuard } from '../../pane/unsaved-work/surface-close-guard';
 import { buildContentRoutes } from '../routing/content-router';
