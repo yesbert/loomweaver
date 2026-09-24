@@ -4,7 +4,7 @@ import { TranslocoService } from '@jsverse/transloco';
 import { DIALOG_CLOSE_GUARD } from './dialog/dialog-close-guard';
 import { provideShell } from './provide-shell';
 import { SETTINGS_STORE } from './persistence/settings-store';
-import { SurfaceCloseGuard } from './regions/pane/close/surface-close-guard';
+import { SurfaceCloseGuard } from './regions/pane/unsaved-work/surface-close-guard';
 
 describe('provideShell service worker registration', () => {
   afterEach(() => TestBed.resetTestingModule());

@@ -7,7 +7,7 @@ import { CONTENT_DOCK } from '../pane/tree/pane-address';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
 import { PaneContainersService } from '../pane/container/pane-containers.service';
 import { RetainedViewStash } from '../pane/retention/retained-view-stash';
-import { SurfaceCloseGuard } from '../pane/close/surface-close-guard';
+import { SurfaceCloseGuard } from '../pane/unsaved-work/surface-close-guard';
 import { HiddenViewsService } from './hidden-views.service';
 import { PanelGroupService } from './panel-group.service';
 import { ViewVisibilityService } from './view-visibility.service';

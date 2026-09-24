@@ -2,11 +2,11 @@ import { inject, Service } from '@angular/core';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { normalizePath, tabRootOf } from '../../content/content-path';
 import { VIEW_PANE_PREFIX } from '../tree/pane-address';
-import { RetainedViewStash } from './retained-view-stash';
+import { RetainedViewStash } from '../retention/retained-view-stash';
 import {
   containerChildInstances,
   instanceDirty,
-} from './retention-policy';
+} from '../retention/retention-policy';
 
 @Service()
 export class UnsavedWork {

@@ -5,7 +5,7 @@ import { DialogDismiss, DirtySurface } from '@loomweaver/plugin-sdk';
 import {
   BEFORE_CLOSE_TIMEOUT_MS,
   SurfaceCloseGuard,
-} from '../regions/pane/close/surface-close-guard';
+} from '../regions/pane/unsaved-work/surface-close-guard';
 import { defineLwSelect } from '../elements/select/lw-select.element';
 import { DIALOG_CLOSE_GUARD } from './dialog-close-guard';
 import { DialogOutlet } from './dialog-outlet';

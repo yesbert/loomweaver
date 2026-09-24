@@ -11,10 +11,10 @@ import {
   BakedTab,
   PaneAreaTree,
   paneAreaTree,
-} from '../regions/pane/tree/pane-area-tree';
+} from '../regions/pane/tree/declared-pane-layout';
 import { conflictingClaims, type WorkspaceClaim } from './workspace-claims';
 import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../regions/pane/tree/pane-address';
-import { normalizeNode } from '../regions/pane/tree/pane-restore';
+import { normalizeNode } from '../regions/pane/tree/stored-pane-tree';
 
 /**
  * A developer-defined workspace a distribution ships with {@link provideWorkspaces}: the same thing a

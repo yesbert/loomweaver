@@ -23,7 +23,7 @@ import {
   unsplitWithHandover,
 } from './pane-handover';
 import { clampRatio, withRatio } from './pane-ratio';
-import { DockEntry, healedPrimary } from './pane-restore';
+import { DockEntry, healedPrimary } from './stored-pane-tree';
 import { PaneTreeStorage, isDefault } from './pane-tree-storage';
 import {
   dethroneLeaf,

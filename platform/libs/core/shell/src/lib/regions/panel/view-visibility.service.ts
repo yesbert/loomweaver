@@ -8,7 +8,7 @@ import {
 } from '../pane/container/container-children';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
 import { RetainedViewStash } from '../pane/retention/retained-view-stash';
-import { SurfaceCloseGuard } from '../pane/close/surface-close-guard';
+import { SurfaceCloseGuard } from '../pane/unsaved-work/surface-close-guard';
 import { HiddenViewsService } from './hidden-views.service';
 import { PanelGroupService } from './panel-group.service';
 import { ViewMoveService } from './view-move.service';

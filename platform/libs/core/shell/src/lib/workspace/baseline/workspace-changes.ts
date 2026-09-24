@@ -1,6 +1,6 @@
 import { PaneNode, PaneTab } from '../../regions/pane/tree/pane-node';
 import { tabWithout } from '../../regions/pane/tree/pane-tabs';
-import { normalizeDockEntry } from '../../regions/pane/tree/pane-restore';
+import { normalizeDockEntry } from '../../regions/pane/tree/stored-pane-tree';
 import {
   PRIMARY_PANE,
   VIEW_PANE_PREFIX,

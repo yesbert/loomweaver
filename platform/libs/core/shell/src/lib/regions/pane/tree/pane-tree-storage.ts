@@ -9,7 +9,7 @@ import {
   normalizeDockEntry,
   tabPathsWhere,
   withoutBorrowedLabels,
-} from './pane-restore';
+} from './stored-pane-tree';
 import { PaneNode } from './pane-node';
 import { WORKSPACE_DEFINITIONS } from '../../../workspace/provide-workspaces';
 import { WORKSPACES_KEY } from '../../../workspace/baseline/workspace-state';

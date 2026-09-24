@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { TranslocoService, TranslocoTestingModule } from '@jsverse/transloco';
 import { provideLayout } from '../../layout/layout';
-import { SurfaceCloseGuard } from '../pane/close/surface-close-guard';
+import { SurfaceCloseGuard } from '../pane/unsaved-work/surface-close-guard';
 import { PanelSplitter } from './panel-splitter';
 import {
   DEFAULT_PANEL_WIDTH,

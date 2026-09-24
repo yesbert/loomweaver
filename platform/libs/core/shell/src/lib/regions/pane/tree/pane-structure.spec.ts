@@ -1,6 +1,6 @@
 import { PRIMARY_PANE } from './pane-address';
 import { PaneLeaf, PaneNode, PaneSplit, leafOf, leafPath } from './pane-node';
-import { healedPrimary } from './pane-restore';
+import { healedPrimary } from './stored-pane-tree';
 import { dethroneLeaf, removeLeaf, splitLeaf } from './pane-structure';
 import { removeTab } from './pane-tabs';
 

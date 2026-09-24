@@ -16,7 +16,7 @@ import { updateTabLabel } from './tab-label-update';
 import { PaneRef } from '../../pane/tree/pane-address';
 import { keepsOnPaneClose } from '../../pane/tree/pane-handover';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
-import { UnsavedWork } from '../../pane/retention/unsaved-work';
+import { UnsavedWork } from '../../pane/unsaved-work/unsaved-work';
 
 /**
  * The tabs of the pane that carries the address: what its strip shows, which tab is active, and

@@ -4,7 +4,7 @@ import { FeatureSwitches } from '../../features/feature-switches.service';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { ContentTabsService } from '../content/tabs/content-tabs.service';
 import { PaneChromeService } from './chrome/pane-chrome.service';
-import { SurfaceCloseGuard } from './close/surface-close-guard';
+import { SurfaceCloseGuard } from './unsaved-work/surface-close-guard';
 import { PaneMoveService } from './drag/pane-move.service';
 import { PaneActions } from './pane-actions.service';
 import { PaneHandle } from './pane-handle';

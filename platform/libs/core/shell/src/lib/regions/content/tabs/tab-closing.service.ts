@@ -17,8 +17,8 @@ import { sparedByBulkClose } from '../../pane/tree/pane-tabs';
 import { LeftOutChildren } from '../../pane/container/left-out-children';
 import { findLeaf } from '../../pane/tree/pane-queries';
 import { paneRetentionScope } from '../../pane/retention/retention-policy';
-import { UnsavedWork } from '../../pane/retention/unsaved-work';
-import { SurfaceCloseGuard } from '../../pane/close/surface-close-guard';
+import { UnsavedWork } from '../../pane/unsaved-work/unsaved-work';
+import { SurfaceCloseGuard } from '../../pane/unsaved-work/surface-close-guard';
 
 @Service()
 export class TabClosingService {

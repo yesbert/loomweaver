@@ -1,7 +1,7 @@
 import { PRIMARY_PANE } from './pane-address';
 import { PaneLeaf, PaneNode, PaneSplit, leafOf } from './pane-node';
 import { findLeaf } from './pane-queries';
-import { normalizeDockEntry, normalizeNode } from './pane-restore';
+import { normalizeDockEntry, normalizeNode } from './stored-pane-tree';
 import { insertTab, removeTab } from './pane-tabs';
 
 function threeStack(): PaneNode {

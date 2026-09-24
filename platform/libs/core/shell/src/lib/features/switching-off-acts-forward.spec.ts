@@ -13,7 +13,7 @@ import { ContributionRegistry } from '../plugin/contribution-registry';
 import { PopoutService } from '../popout/popout.service';
 import { buildContentRoutes } from '../regions/content/routing/content-router';
 import { ContentTabsService } from '../regions/content/tabs/content-tabs.service';
-import { SurfaceCloseGuard } from '../regions/pane/close/surface-close-guard';
+import { SurfaceCloseGuard } from '../regions/pane/unsaved-work/surface-close-guard';
 import {
   CONTENT_DOCK,
   PRIMARY_PANE,

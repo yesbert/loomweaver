@@ -1,6 +1,6 @@
 import { effect, inject, Injector, Service, Signal, untracked } from '@angular/core';
 import { AuthSnapshot } from '@loomweaver/plugin-sdk';
-import { RetentionUnloadGuard } from '../regions/pane/retention/retention-unload-guard';
+import { RetentionUnloadGuard } from '../regions/pane/unsaved-work/retention-unload-guard';
 
 @Service()
 export class IdentityChangeReload {

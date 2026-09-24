@@ -5,7 +5,7 @@ import { TranslocoService } from '@jsverse/transloco';
 import { FeatureSwitches } from '../../features/feature-switches.service';
 import { provideLayout } from '../../layout/layout';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
-import { SurfaceCloseGuard } from '../pane/close/surface-close-guard';
+import { SurfaceCloseGuard } from '../pane/unsaved-work/surface-close-guard';
 import {
   MAX_PANEL_WIDTH,
   MIN_PANEL_WIDTH,

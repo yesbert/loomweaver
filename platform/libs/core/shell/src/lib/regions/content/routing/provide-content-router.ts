@@ -15,7 +15,7 @@ import { DISTRIBUTION_ROUTES } from './distribution-routes';
 import { ContentReuseStrategy } from './content-reuse-strategy';
 import { ContainerDockGc } from '../../pane/container/container-dock-gc';
 import { RetentionGc } from '../../pane/retention/retention-gc';
-import { RetentionUnloadGuard } from '../../pane/retention/retention-unload-guard';
+import { RetentionUnloadGuard } from '../../pane/unsaved-work/retention-unload-guard';
 import { ContainerPaneHost } from '../../pane/container/container-pane-host';
 import { CONTAINER_PANE_HOST } from '../../pane/container/container-context';
 

@@ -1,8 +1,8 @@
 import { DOCUMENT } from '@angular/common';
 import { inject, OnDestroy, Service } from '@angular/core';
 import { PopoutWindow } from '../../../popout/popout-window';
-import { RetentionCandidates } from './retention-candidates';
-import { instanceDirty } from './retention-policy';
+import { RetentionCandidates } from '../retention/retention-candidates';
+import { instanceDirty } from '../retention/retention-policy';
 
 @Service()
 export class RetentionUnloadGuard implements OnDestroy {
