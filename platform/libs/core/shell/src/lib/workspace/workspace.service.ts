@@ -1,8 +1,9 @@
 import { computed, inject, isDevMode, Service, signal } from '@angular/core';
 import { SETTINGS_STORE } from '../persistence/settings-store';
 import { WORKING_STATE_STORE } from '../persistence/working-state-store';
-import { OpenTabsService } from '../regions/content/tabs/open-tabs.service';
+import { ContentTabState } from '../regions/content/tabs/content-tab-state';
 import { NavigationOptions } from '../regions/content/tabs/content-tab-projection';
+import { TabNavigationService } from '../regions/content/tabs/tab-navigation.service';
 import { PaneTreeService } from '../regions/pane/tree/pane-tree.service';
 import { SHELL_LAYOUT } from '../layout/layout';
 import { ContributionRegistry } from '../plugin/contribution-registry';
@@ -70,7 +71,8 @@ export class WorkspaceService {
   private readonly stash = inject(RetainedViewStash);
   private readonly guard = inject(WorkspaceGuard);
   private readonly hiddenViews = inject(HiddenViewsService);
-  private readonly openTabs = inject(OpenTabsService);
+  private readonly tabState = inject(ContentTabState);
+  private readonly tabNavigation = inject(TabNavigationService);
   private readonly bootAddress = inject(BootAddress);
   private readonly contentRouter = inject(ContentRouter);
   private readonly sync = inject(StateSyncService);
@@ -176,7 +178,7 @@ export class WorkspaceService {
     const destination = this.settlementDestination(path);
     if (destination !== null) {
       await this.switchTo(destination, { keepAddress: true });
-      this.openTabs.keepAddress(path);
+      this.tabNavigation.keepAddress(path);
     }
   }
 
@@ -325,13 +327,13 @@ export class WorkspaceService {
     for (const key of found) {
       this.keyed[key].hydrate(stored[key]);
     }
-    const shown = this.openTabs.activePath();
+    const shown = this.tabState.activePath();
     const destination = this.settlementDestination(shown);
     if (destination !== null) {
       await this.switchTo(destination, { keepAddress: true });
     }
     if (found.length > 0 || destination !== null) {
-      this.openTabs.keepAddress(shown);
+      this.tabNavigation.keepAddress(shown);
     }
   }
 
@@ -348,7 +350,7 @@ export class WorkspaceService {
     if (adopted !== null) {
       this.applyState(this.baselineOf(adopted));
       this.warnDeclarationGaps(adopted);
-      this.openTabs.keepAddress(this.openTabs.activePath());
+      this.tabNavigation.keepAddress(this.tabState.activePath());
     }
     await startWhereTheDistributionSays({
       declared: declaredStart(this.definitions),
@@ -384,7 +386,7 @@ export class WorkspaceService {
   private chooseAddress(path: string, options: NavigationOptions = {}): void {
     this.chosenAddress = normalizePath(path);
     this.contentRouter.hold(path);
-    this.openTabs.navigateTo(path, options);
+    this.tabNavigation.navigateTo(path, options);
   }
 
   private settlementDestination(path: string): string | null {

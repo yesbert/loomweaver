@@ -3,7 +3,8 @@ import {
   InjectionToken,
   makeEnvironmentProviders,
 } from '@angular/core';
-import { segmentsOf } from '../content-path';
+import { ContentRoute } from '@loomweaver/plugin-sdk';
+import { matchRoute, segmentsOf } from '../content-path';
 
 /** What the host knows when it works out where a following tab should point. */
 export interface TabAddressInput {
@@ -61,6 +62,30 @@ export function computedTabAddress(
   return resolved.join('/');
 }
 
+export interface FollowingContext {
+  readonly routes: readonly ContentRoute[];
+  readonly params: Readonly<Record<string, string>>;
+  readonly activePath: string;
+  readonly resolver: TabAddressResolver | null;
+}
+
+export function followingTabAddress(
+  route: ContentRoute,
+  context: FollowingContext,
+): string | null {
+  const resolved = context.resolver?.({
+    surfaceId: route.id,
+    pattern: route.path,
+    params: context.params,
+    activePath: context.activePath,
+  });
+  if (resolved) {
+    return resolved;
+  }
+  const computed = computedTabAddress(route.path, context.params);
+  return leadsSomewhere(context.routes, computed) ? computed : null;
+}
+
 export function collidingParam(
   pattern: string,
   other: string,
@@ -84,4 +109,16 @@ function paramPrefixes(pattern: string): Map<string, string> {
     }
   }
   return prefixes;
+}
+
+function leadsSomewhere(
+  routes: readonly ContentRoute[],
+  address: string,
+): boolean {
+  const owner = matchRoute(routes, address);
+  return (
+    owner !== undefined &&
+    (owner.rest === true ||
+      segmentsOf(owner.path).length === segmentsOf(address).length)
+  );
 }

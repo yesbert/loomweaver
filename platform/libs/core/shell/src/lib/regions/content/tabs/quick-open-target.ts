@@ -3,7 +3,7 @@ import { PaneNode } from '../../pane/tree/pane-node';
 import { collectTabs } from '../../pane/tree/pane-queries';
 import { VIEW_PANE_PREFIX } from '../../pane/tree/pane-address';
 import { normalizePath, tabRootOf } from '../content-path';
-import { toOpenTab } from './content-tab-projection';
+import { routeTitle, toOpenTab } from './content-tab-projection';
 
 /**
  * A navigable content target the command palette's Quick-Open mode lists:
@@ -70,9 +70,7 @@ export function quickOpenTargetsOf(
       {
         path,
         navPath: route.path,
-        title: route.title ?? path,
-        literalTitle:
-          route.title === undefined ? true : (route.titleIsLiteral ?? false),
+        ...routeTitle(route, path),
         icon: route.icon,
         pinned: false,
         closable: false,

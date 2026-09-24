@@ -2,7 +2,8 @@ import { inject, Service } from '@angular/core';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { normalizePath, tabRootOf } from '../content-path';
 import { TabCloseHooks } from './tab-close-hooks';
-import { OpenTabsService } from './open-tabs.service';
+import { ContentTabState } from './content-tab-state';
+import { TabNavigationService } from './tab-navigation.service';
 import {
   CONTENT_DOCK,
   PaneRef,
@@ -21,7 +22,9 @@ import { SurfaceCloseGuard } from '../../pane/close/surface-close-guard';
 
 @Service()
 export class TabClosingService {
-  private readonly state = inject(OpenTabsService);
+  private readonly state = inject(ContentTabState);
+
+  private readonly navigation = inject(TabNavigationService);
 
   private readonly registry = inject(ContributionRegistry);
 
@@ -237,7 +240,7 @@ export class TabClosingService {
       this.closeHooks.delete(root);
     }
     if (activeWentAway) {
-      void this.state
+      void this.navigation
         .navigate(fallbackPath)
         .catch((error: unknown) =>
           console.error('Content navigation failed', error),
@@ -246,7 +249,7 @@ export class TabClosingService {
   }
 
   private navigateAfterClose(target: string): Promise<void> {
-    return this.state
+    return this.navigation
       .navigate(promotedContentPath(target))
       .then(() => {
         if (target.startsWith(VIEW_PANE_PREFIX)) {

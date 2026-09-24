@@ -6,7 +6,6 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { ContentRoute } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../pane/tree/pane-address';
 import { PaneLeaf, activeTab, leafPath } from '../pane/tree/pane-node';
@@ -14,20 +13,7 @@ import { PaneTreeService } from '../pane/tree/pane-tree.service';
 import { ContentTabsService } from './tabs/content-tabs.service';
 import { CurrentAddress } from './current-address';
 import { matchRoute, tabRootOf } from './content-path';
-
-function untabbed(
-  routes: readonly ContentRoute[],
-  path: string,
-  root: string,
-): boolean {
-  const route = matchRoute(routes, path);
-  return (
-    route === undefined ||
-    route.chromeless === true ||
-    route.follows === true ||
-    root === ''
-  );
-}
+import { opensATab } from './tabs/content-tab-projection';
 
 @Service()
 export class AddressBody {
@@ -73,7 +59,8 @@ export class AddressBody {
         !tab.path.startsWith(VIEW_PANE_PREFIX) &&
         tabRootOf(routes, tab.path) === root,
     );
-    if (held || (!this.settling() && untabbed(routes, url, root))) {
+    const untabbed = !opensATab(matchRoute(routes, url), root);
+    if (held || (!this.settling() && untabbed)) {
       return url;
     }
     return leafPath(leaf) ?? '';

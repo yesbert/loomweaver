@@ -7,22 +7,22 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 
 ## 1. Calibration slice: the content tab services
 
-- [ ] 1.1 Cut `regions/content/tabs/open-tabs.service.ts` into `ContentTabState`
+- [x] 1.1 Cut `regions/content/tabs/open-tabs.service.ts` into `ContentTabState`
   (`content-tab-state.ts`: open set, active address, view-tab selection, strip, quick-open stamps) and
   `TabNavigation` (`tab-navigation.service.ts`: navigate, keep the address, follow the URL with named
   conditions instead of six `last*` fields, reveal the holder, sync the active tab; absorbs
   `active-tab-sync.ts`). The router URL comes from `CurrentAddress` instead of a second `toSignal`.
   `addressOf`/`somewhereToGo` move into `tab-address.ts` as `followingTabAddress`, `strippable` into
   `content-tab-projection.ts`; "this address opens no tab" and the route title rule exist once there.
-- [ ] 1.2 Make `ContentTabsService` the published entry point without behaviour of its own: a new
+- [x] 1.2 Make `ContentTabsService` the published entry point without behaviour of its own: a new
   `TabOpening` takes open, keep and refine and absorbs the claim queue of `claim-ordering.ts`, which
   reports a failed step instead of swallowing it; reorder, bring-to-front and pin move to
   `ContentTabState`. One tree walk in `tab-label-update.ts` relabels matching tabs, and
   `refineTabTitles` leaves `regions/pane/tree/`.
-- [ ] 1.3 Split `content-tabs.service.spec.ts` (903 lines) along the new files; give the repeated
+- [x] 1.3 Split `content-tabs.service.spec.ts` (903 lines) along the new files; give the repeated
   five-line TestBed setup one file-local helper per spec; replace tracker codes in its test names and
   in `open-tabs.service.spec.ts` by the behaviour.
-- [ ] 1.4 Show the owner the result of 1.1 to 1.3, write the agreed measure into `design.md`
+- [x] 1.4 Show the owner the result of 1.1 to 1.3, write the agreed measure into `design.md`
   ("Agreed measure"), and adjust the remaining tasks if the measure changes them.
 
 ## 2. Knowledge written once, across the shell
