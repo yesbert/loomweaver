@@ -1,4 +1,5 @@
-import { TabBadge } from '@loomweaver/plugin-sdk';
+import { ContentTabLabel, TabBadge } from '@loomweaver/plugin-sdk';
+import { tabBadgeOf } from '../chrome/tab-badge';
 import { PRIMARY_PANE, VIEW_PANE_PREFIX } from './pane-address';
 
 export interface PaneTab {
@@ -73,4 +74,64 @@ export function leafWith(
     ...(active !== undefined && { active }),
     ...(declared && { declared: true }),
   };
+}
+
+export function tabWithout(tab: PaneTab, key: keyof PaneTab): PaneTab {
+  const copy: { -readonly [K in keyof PaneTab]?: PaneTab[K] } = { ...tab };
+  delete copy[key];
+  return copy as PaneTab;
+}
+
+export function labelOf(tab: PaneTab): ContentTabLabel {
+  return {
+    title: tab.title,
+    titleIsLiteral: tab.literalTitle,
+    icon: tab.icon,
+    badge: tab.badge,
+  };
+}
+
+export function withLabel(tab: PaneTab, label: ContentTabLabel): PaneTab {
+  let next = tab;
+  if (label.title !== undefined) {
+    next =
+      label.titleIsLiteral === true
+        ? { ...next, title: label.title, literalTitle: true }
+        : tabWithout({ ...next, title: label.title }, 'literalTitle');
+  }
+  if (label.icon !== undefined) {
+    next = { ...next, icon: label.icon };
+  }
+  if (label.badge !== undefined) {
+    const badge = label.badge === null ? undefined : tabBadgeOf(label.badge);
+    next = badge === undefined ? tabWithout(next, 'badge') : { ...next, badge };
+  }
+  return next;
+}
+
+export function withoutLabel(tab: PaneTab): PaneTab {
+  const { title, literalTitle, icon, ...rest } = tab;
+  return rest;
+}
+
+export function labelledTabs(
+  node: PaneNode,
+  matches: (tab: PaneTab) => boolean,
+  relabel: (tab: PaneTab) => PaneTab,
+): PaneNode | null {
+  if (node.kind === 'leaf') {
+    if (node.tabs.every((tab) => !matches(tab))) {
+      return null;
+    }
+    return {
+      ...node,
+      tabs: node.tabs.map((tab) => (matches(tab) ? relabel(tab) : tab)),
+    };
+  }
+  const first = labelledTabs(node.first, matches, relabel);
+  const second = labelledTabs(node.second, matches, relabel);
+  if (first === null && second === null) {
+    return null;
+  }
+  return { ...node, first: first ?? node.first, second: second ?? node.second };
 }

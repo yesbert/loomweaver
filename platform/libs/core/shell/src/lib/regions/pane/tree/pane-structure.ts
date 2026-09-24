@@ -8,6 +8,7 @@ import {
 } from './pane-node';
 import { findLeaf } from './pane-queries';
 import { DEFAULT_RATIO } from './pane-ratio';
+import { labelOf, withLabel } from './pane-node';
 
 export function transformLeaf(
   node: PaneNode,
@@ -62,23 +63,8 @@ function duplicatedTab(
 }
 
 function labelledLike(leaf: PaneLeaf, source: PaneTab): PaneLeaf {
-  if (
-    source.title === undefined &&
-    source.icon === undefined &&
-    source.badge === undefined
-  ) {
-    return leaf;
-  }
-  return {
-    ...leaf,
-    tabs: leaf.tabs.map((tab) => ({
-      ...tab,
-      title: source.title,
-      literalTitle: source.literalTitle,
-      icon: source.icon,
-      ...(source.badge !== undefined && { badge: source.badge }),
-    })),
-  };
+  const label = labelOf(source);
+  return { ...leaf, tabs: leaf.tabs.map((tab) => withLabel(tab, label)) };
 }
 
 export function splitLeaf(
