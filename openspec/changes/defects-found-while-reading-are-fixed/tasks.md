@@ -64,7 +64,7 @@ they start with a top-level folder.
   ask for the version ranges the generator records; the devkit README says `status-bar`
   (`platform/libs/tooling/devkit/src/recipes/angular-weaver/weaver-readme.ts`, `devkit/README.md`); a
   spec compares the notes with the region table.
-- [ ] 5.2 `--unitTestRunner none` no longer skips the app wiring; without an app the generator names
+- [x] 5.2 `--unitTestRunner none` no longer skips the app wiring; without an app the generator names
   what it skipped, as the default path does (`devkit/src/generators/weaver/generator.ts`).
 - [ ] 5.3 The Nx distribution with `--force` merges the occupant's build target value by value and
   keeps its other fields (`devkit/src/generators/distribution/generator.ts`); tested with real options
