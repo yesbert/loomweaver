@@ -21,7 +21,7 @@ import { PaneTreeService } from '../tree/pane-tree.service';
 import { PaneAdmission } from '../../content/pane-admission';
 import { ContentTabsService } from '../../content/tabs/content-tabs.service';
 import { matchRoute, tabRootOf } from '../../content/content-path';
-import { ContributionRegistry } from '../../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { LeftOutChildren } from '../container/left-out-children';
 
 export type PaneDropEdge = 'top' | 'bottom' | 'left' | 'right';

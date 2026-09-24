@@ -1,6 +1,6 @@
 import { inject, Service } from '@angular/core';
 import { View } from '../../views/view';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { UserOrderService } from '../reorder/user-order.service';
 
 function panelViewsContainerId(regionId: string): string {

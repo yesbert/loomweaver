@@ -1,5 +1,5 @@
 import { ContentTabLabel, TabBadge } from '@loomweaver/plugin-sdk';
-import { tabBadgeOf } from '../chrome/tab-badge';
+import { tabBadgeOf } from '../../../contributions/tab-badge';
 import { isViewPanePath, PRIMARY_PANE } from './pane-address';
 
 export interface PaneTab {

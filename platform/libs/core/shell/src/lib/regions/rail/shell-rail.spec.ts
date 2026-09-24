@@ -9,7 +9,7 @@ import { TranslocoTestingModule } from '@jsverse/transloco';
 import { ANONYMOUS, AuthSnapshot } from '@loomweaver/plugin-sdk';
 import { ShellRail } from './shell-rail';
 import { LayoutRegion, provideLayout } from '../../layout/layout';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { AUTH_SOURCE } from '../../auth/auth-context';
 import { RailItem } from '../../foundation/rail-item';
 import { RailLabelsService } from './rail-labels.service';

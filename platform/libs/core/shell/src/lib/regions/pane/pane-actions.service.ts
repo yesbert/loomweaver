@@ -2,7 +2,7 @@ import { inject, Service } from '@angular/core';
 import { FeatureSwitches } from '../../features/feature-switches.service';
 import { ContentTabsService } from '../content/tabs/content-tabs.service';
 import { tabRootOf } from '../content/content-path';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { PaneChromeService } from './chrome/pane-chrome.service';
 import { SurfaceCloseGuard } from './unsaved-work/surface-close-guard';
 import { PaneAdmission } from '../content/pane-admission';

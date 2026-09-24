@@ -13,7 +13,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { SURFACE_HOLD } from '@loomweaver/plugin-sdk';
 import { WorkspaceService } from '../../../workspace/workspace.service';
-import { ContributionRegistry } from '../../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { ViewMountService } from '../../../views/view-mount.service';
 import { CONTENT_DOCK } from '../tree/pane-address';
 import { PaneTreeService } from '../tree/pane-tree.service';

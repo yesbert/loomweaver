@@ -6,7 +6,7 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { CONTENT_DOCK, isViewPanePath } from '../pane/tree/pane-address';
 import { PaneLeaf, activeTab, leafPath } from '../pane/tree/pane-node';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';

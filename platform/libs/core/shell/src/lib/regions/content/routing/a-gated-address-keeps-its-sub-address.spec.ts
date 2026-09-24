@@ -19,7 +19,7 @@ import {
   withDisabledInitialNavigation,
 } from '@angular/router';
 import { ANONYMOUS, AuthSnapshot, ContentRoute } from '@loomweaver/plugin-sdk';
-import { ContributionRegistry } from '../../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { AUTH_SOURCE } from '../../../auth/auth-context';
 import { ContentRouter } from './content-router';
 import { ContentReuseStrategy } from './content-reuse-strategy';

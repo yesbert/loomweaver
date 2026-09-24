@@ -9,7 +9,7 @@ import {
 } from '@jsverse/transloco';
 import { Observable, of } from 'rxjs';
 import { ContentRoute } from '@loomweaver/plugin-sdk';
-import { ContributionRegistry } from '../plugin/contribution-registry';
+import { ContributionRegistry } from '../contributions/contribution-registry';
 import { provideLayout } from '../layout/layout';
 import { provideIdentityScopedStores } from './identity-scoped-stores';
 import { buildContentRoutes } from '../regions/content/routing/content-route-table';

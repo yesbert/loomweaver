@@ -1,6 +1,6 @@
 import { ActivatedRoute, UrlSegment, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
-import { RegisteredView } from '../../../plugin/contribution-registry';
+import { RegisteredView } from '../../../contributions/contribution-registry';
 import { routeSnapshot } from './route-snapshot';
 import { SurfaceRouteData } from './surface-route-data';
 

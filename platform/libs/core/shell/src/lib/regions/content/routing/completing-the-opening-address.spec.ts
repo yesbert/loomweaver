@@ -8,7 +8,7 @@ import {
   RouteReuseStrategy,
   withDisabledInitialNavigation,
 } from '@angular/router';
-import { ContributionRegistry } from '../../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { ContentRouter } from './content-router';
 import { ContentReuseStrategy } from './content-reuse-strategy';
 

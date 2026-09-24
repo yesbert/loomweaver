@@ -10,7 +10,7 @@ import {
 } from '@angular/router';
 import { BehaviorSubject, Observable, distinctUntilChanged, map } from 'rxjs';
 import { matchRoute, paramsOfPattern, segmentsOf } from '../content-path';
-import { RegisteredContentRoute } from '../../../plugin/contribution-registry';
+import { RegisteredContentRoute } from '../../../contributions/contribution-registry';
 import { routeSnapshot } from './route-snapshot';
 import { SurfaceRouteData } from './surface-route-data';
 

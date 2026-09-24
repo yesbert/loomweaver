@@ -2,7 +2,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { ANONYMOUS, ContentRoute } from '@loomweaver/plugin-sdk';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { AUTH_SOURCE } from '../../auth/auth-context';
 import { MenuListEntry, MenuService } from '../../menu/menu.service';
 import { PaneTargetPicker } from './pane-target-picker';

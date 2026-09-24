@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ContentRoute, DirtySurface } from '@loomweaver/plugin-sdk';
-import { ContributionRegistry } from '../../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { NotificationService } from '../../../notifications/notification.service';
 import { ActiveWorkspaceService } from '../../../workspace/active-workspace.service';
 import { CONTENT_DOCK } from '../tree/pane-address';

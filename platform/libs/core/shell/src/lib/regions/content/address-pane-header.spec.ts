@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { TranslocoTestingModule } from '@jsverse/transloco';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { MenuTriggerDirective } from '../../menu/menu-trigger.directive';
 import { CONTENT_DOCK } from '../pane/tree/pane-address';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';

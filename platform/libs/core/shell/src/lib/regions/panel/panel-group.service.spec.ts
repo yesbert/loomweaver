@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { AuthSnapshot } from '@loomweaver/plugin-sdk';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { AUTH_SOURCE } from '../../auth/auth-context';
 import { PRIMARY_PANE } from '../pane/tree/pane-address';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';

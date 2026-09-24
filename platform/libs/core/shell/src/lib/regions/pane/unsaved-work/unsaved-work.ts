@@ -1,5 +1,5 @@
 import { inject, Service } from '@angular/core';
-import { ContributionRegistry } from '../../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { pathOwnedBy } from '../../../plugin/context/plugin-surface-ownership';
 import { normalizePath, tabRootOf } from '../../content/content-path';
 import { isViewPanePath } from '../tree/pane-address';

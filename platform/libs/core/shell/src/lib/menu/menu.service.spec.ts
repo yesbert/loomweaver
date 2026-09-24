@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { MenuContext } from '@loomweaver/plugin-sdk';
 import { MenuService, whenMatches } from './menu.service';
-import { ContributionRegistry } from '../plugin/contribution-registry';
+import { ContributionRegistry } from '../contributions/contribution-registry';
 import { CommandService } from '../commands/command.service';
 import {
   defineLwMenu,

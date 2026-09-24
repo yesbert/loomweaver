@@ -4,7 +4,7 @@ import {
   ContentTabLabel,
   OpenTabInput,
 } from '@loomweaver/plugin-sdk';
-import { ContributionRegistry } from '../../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { FeatureSwitches } from '../../../features/feature-switches.service';
 import { ContentTabView } from './content-tab-projection';
 import { ContentTabState } from './content-tab-state';

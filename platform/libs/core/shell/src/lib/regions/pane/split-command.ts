@@ -1,5 +1,5 @@
 import { Disposable } from '@loomweaver/plugin-sdk';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { PaneService } from './pane.service';
 
 const CONTENT_SPLIT_RIGHT_COMMAND_ID = 'shell.content.splitRight';

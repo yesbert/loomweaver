@@ -4,7 +4,7 @@ import {
   VIEWS_CUSTOMIZE_COMMAND_ID,
 } from '../../commands/host-command-ids';
 import { DialogService } from '../../dialog/dialog.service';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import {
   CURATION_CHROME,
   CurationDialog,

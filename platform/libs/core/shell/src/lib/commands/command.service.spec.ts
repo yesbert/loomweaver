@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { DOCUMENT } from '@angular/common';
 import { ANONYMOUS, AuthSnapshot, CapabilityError } from '@loomweaver/plugin-sdk';
 import { CommandService } from './command.service';
-import { ContributionRegistry } from '../plugin/contribution-registry';
+import { ContributionRegistry } from '../contributions/contribution-registry';
 import { AUTH_SOURCE } from '../auth/auth-context';
 import { NotificationService } from '../notifications/notification.service';
 import { CapabilityRefusalErrorHandler } from '../permissions/refusal-error-handler';

@@ -11,7 +11,7 @@ import { BarItem } from '@loomweaver/plugin-sdk';
 import { QuickOpenEntry } from './quick-open-entry';
 import { QUICK_OPEN_COMMAND_ID, PALETTE_COMMAND_ID } from '../command-palette';
 import { formatChord } from '../format-chord';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { BAR_ITEM } from '../../foundation/bar-item';
 import { provideCommandPaletteEntry } from './provide-command-palette-entry';
 import { provideQuickOpenEntry } from './provide-quick-open-entry';

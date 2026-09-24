@@ -5,7 +5,7 @@ import { NavigationOptions } from '../regions/content/tabs/content-tab-projectio
 import { TabNavigationService } from '../regions/content/tabs/tab-navigation.service';
 import { PaneTreeService } from '../regions/pane/tree/pane-tree.service';
 import { SHELL_LAYOUT } from '../layout/layout';
-import { ContributionRegistry } from '../plugin/contribution-registry';
+import { ContributionRegistry } from '../contributions/contribution-registry';
 import { BootAddress } from '../regions/content/routing/boot-address';
 import { ContentRouter } from '../regions/content/routing/content-router';
 import { normalizePath } from '../regions/content/content-path';

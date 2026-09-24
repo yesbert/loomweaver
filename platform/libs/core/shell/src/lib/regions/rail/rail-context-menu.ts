@@ -1,6 +1,6 @@
 import { Disposable } from '@loomweaver/plugin-sdk';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
-import { disposeTogether } from '../../plugin/dispose-together';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
+import { disposeTogether } from '../../contributions/dispose-together';
 import { menuContextString } from '../../menu/menu-context';
 import { RailItemsService } from './rail-items.service';
 import { RailMoveService } from './rail-move.service';

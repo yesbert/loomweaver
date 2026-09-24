@@ -3,7 +3,7 @@ import { chordSignature } from '../commands/keybinding';
 import { RegionType, ShellLayout } from '../layout/layout';
 import { regionById } from '../layout/layout-queries';
 import { menuEntryId } from '../menu/menu-entry-id';
-import { ROUTE_OMIT_PREFIX } from '../plugin/route-omit';
+import { ROUTE_OMIT_PREFIX } from '../contributions/route-omit';
 import { SETTING_OMIT_PREFIX } from '../settings/setting-omit';
 
 export interface Placement {

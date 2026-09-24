@@ -5,7 +5,7 @@ import { TranslocoTestingModule } from '@jsverse/transloco';
 import { CurationDialog, CurationDialogData } from './curation-dialog';
 import { DialogRef } from '../../dialog/dialog-ref';
 import { LayoutRegion, provideLayout } from '../../layout/layout';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { PanelGroupService } from '../panel/panel-group.service';
 import { ViewMoveService } from '../panel/view-move.service';
 import { ViewVisibilityService } from '../panel/view-visibility.service';

@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { ANONYMOUS, AuthSnapshot } from '@loomweaver/plugin-sdk';
 import { PanelViewsService } from './panel-views.service';
 import { UserOrderService } from '../reorder/user-order.service';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { AUTH_SOURCE } from '../../auth/auth-context';
 import { provideLayout } from '../../layout/layout';
 import { View } from '../../views/view';

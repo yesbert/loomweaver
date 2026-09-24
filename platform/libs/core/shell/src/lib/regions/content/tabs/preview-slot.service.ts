@@ -1,5 +1,5 @@
 import { inject, Service } from '@angular/core';
-import { ContributionRegistry } from '../../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { matchRoute, tabRootOf } from '../content-path';
 import { OpenTab, toPaneTab } from './content-tab-projection';
 import { TabCloseHooks } from './tab-close-hooks';

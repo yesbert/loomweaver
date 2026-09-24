@@ -10,7 +10,7 @@ import {
 import {
   ContributionRegistry,
   RegisteredCommand,
-} from '../plugin/contribution-registry';
+} from '../contributions/contribution-registry';
 import { CommandService } from './command.service';
 import {
   checkArguments,

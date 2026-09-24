@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { ContentRoute } from '@loomweaver/plugin-sdk';
-import { ContributionRegistry } from '../plugin/contribution-registry';
+import { ContributionRegistry } from '../contributions/contribution-registry';
 import { BootAddress } from '../regions/content/routing/boot-address';
 import { provideLayout, ShellLayout } from '../layout/layout';
 import { buildContentRoutes } from '../regions/content/routing/content-route-table';

@@ -33,7 +33,7 @@ import { BAR_ITEM, provideBarItems } from './foundation/bar-item';
 import { DEFAULT_BAR_ITEMS } from './regions/bar/default-bar-items';
 import { RAIL_ITEM } from './foundation/rail-item';
 import { VIEW } from './views/view';
-import { ContributionRegistry } from './plugin/contribution-registry';
+import { ContributionRegistry } from './contributions/contribution-registry';
 import { CapabilityRefusalErrorHandler } from './permissions/refusal-error-handler';
 import { COMMAND_INVOKER } from './foundation/command-invoker';
 import { DIALOG_CLOSE_GUARD } from './dialog/dialog-close-guard';

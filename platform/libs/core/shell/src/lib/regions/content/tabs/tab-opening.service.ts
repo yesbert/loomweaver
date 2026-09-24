@@ -1,6 +1,6 @@
 import { inject, Injector, Service } from '@angular/core';
 import { OpenTabInput } from '@loomweaver/plugin-sdk';
-import { ContributionRegistry } from '../../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { FeatureSwitches } from '../../../features/feature-switches.service';
 import {
   WORKSPACE_CLAIMS,
@@ -13,7 +13,7 @@ import { TabNavigationService } from './tab-navigation.service';
 import { PreviewSlotService } from './preview-slot.service';
 import { TabCloseHooks } from './tab-close-hooks';
 import { relabelled } from './tab-label-update';
-import { tabBadgeOf } from '../../pane/chrome/tab-badge';
+import { tabBadgeOf } from '../../../contributions/tab-badge';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 
 @Service()

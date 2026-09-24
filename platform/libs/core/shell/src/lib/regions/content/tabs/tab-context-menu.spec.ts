@@ -2,7 +2,7 @@ import { ApplicationRef, Injector } from '@angular/core';
 import { provideShellFeatures } from '../../../foundation/shell-features';
 import { FeatureSwitches } from '../../../features/feature-switches.service';
 import { TestBed } from '@angular/core/testing';
-import { ContributionRegistry } from '../../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { CommandService } from '../../../commands/command.service';
 import { ContentTabsService } from './content-tabs.service';
 import { PaneMoveService } from '../../pane/drag/pane-move.service';

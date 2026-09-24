@@ -1,5 +1,5 @@
 import { inject, Service } from '@angular/core';
-import { Disposable } from '../plugin/contribution-registry';
+import { Disposable } from '../contributions/contribution-registry';
 import { SettingsDialog } from './settings-dialog';
 import { SettingsRegistry } from './settings-registry';
 import { DialogRef } from '../dialog/dialog-ref';

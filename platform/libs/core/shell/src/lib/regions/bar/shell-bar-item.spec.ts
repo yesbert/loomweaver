@@ -5,7 +5,7 @@ import { ANONYMOUS, AuthSnapshot } from '@loomweaver/plugin-sdk';
 import { ShellBarItem } from './shell-bar-item';
 import { BarItem } from '../../foundation/bar-item';
 import { AUTH_SOURCE } from '../../auth/auth-context';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { formatChord } from '../../commands/format-chord';
 import { defineLwTooltip } from '../../elements/tooltip/lw-tooltip.element';
 import { MenuService } from '../../menu/menu.service';

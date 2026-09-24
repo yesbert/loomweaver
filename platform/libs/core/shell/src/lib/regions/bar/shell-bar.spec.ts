@@ -4,7 +4,7 @@ import { TranslocoTestingModule } from '@jsverse/transloco';
 import { ShellBar } from './shell-bar';
 import { BarItem } from '../../foundation/bar-item';
 import { LayoutRegion } from '../../layout/layout';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { defineLwTooltip } from '../../elements/tooltip/lw-tooltip.element';
 
 const topBar: LayoutRegion = { id: 'top-bar', type: 'bar', dock: 'top' };

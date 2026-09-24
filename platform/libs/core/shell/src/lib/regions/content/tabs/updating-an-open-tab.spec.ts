@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { ContentRoute } from '@loomweaver/plugin-sdk';
-import { ContributionRegistry } from '../../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { CONTENT_DOCK, PRIMARY_PANE } from '../../pane/tree/pane-address';
 import { PaneTab } from '../../pane/tree/pane-node';
 import { collectTabs, findLeaf } from '../../pane/tree/pane-queries';

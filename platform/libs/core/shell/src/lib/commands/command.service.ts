@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { Command, CommandArguments, MenuContext } from '@loomweaver/plugin-sdk';
 import { PopoutWindow } from '../popout/popout-window';
-import { ContributionRegistry } from '../plugin/contribution-registry';
+import { ContributionRegistry } from '../contributions/contribution-registry';
 import { AuthContext } from '../auth/auth-context';
 import { FeatureSwitches } from '../features/feature-switches.service';
 import { formatChord } from './format-chord';

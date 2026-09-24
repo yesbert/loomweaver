@@ -2,7 +2,7 @@ import { Component, inject, provideAppInitializer } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
-import { ContributionRegistry } from '../../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { provideLayout } from '../../../layout/layout';
 import { ContentTabsService } from '../tabs/content-tabs.service';
 import { provideShellRouter } from './provide-shell-router';

@@ -13,7 +13,7 @@ import { ContentRoute } from '@loomweaver/plugin-sdk';
 import {
   ContributionRegistry,
   RegisteredContentRoute,
-} from '../../../plugin/contribution-registry';
+} from '../../../contributions/contribution-registry';
 import { AuthContext } from '../../../auth/auth-context';
 import { BootAddress } from './boot-address';
 import { DISTRIBUTION_ROUTES, isCatchAll } from './distribution-routes';

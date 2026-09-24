@@ -1,7 +1,7 @@
 import { Component, OnDestroy, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ContentRoute } from '@loomweaver/plugin-sdk';
-import { ContributionRegistry } from '../../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { RetainedTemplate } from './retained-template';
 
 let instances: ProbeView[] = [];

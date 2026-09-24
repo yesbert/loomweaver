@@ -4,7 +4,7 @@ import { APP_RESET_COMMAND_ID } from '../../commands/host-command-ids';
 import { DialogService } from '../../dialog/dialog.service';
 import { FeatureSwitches } from '../../features/feature-switches.service';
 import { AppResetChoice, AppResetDialog } from './app-reset-dialog';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { AppResetService } from './app-reset.service';
 
 export interface AppResetCommandDeps {

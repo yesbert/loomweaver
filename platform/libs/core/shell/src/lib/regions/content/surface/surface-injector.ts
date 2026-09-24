@@ -3,7 +3,7 @@ import { ActivatedRoute, ChildrenOutletContexts } from '@angular/router';
 import {
   RegisteredContentRoute,
   RegisteredView,
-} from '../../../plugin/contribution-registry';
+} from '../../../contributions/contribution-registry';
 import { syntheticDockedRoute } from './synthetic-route';
 import {
   LiveSurfaceRoute,

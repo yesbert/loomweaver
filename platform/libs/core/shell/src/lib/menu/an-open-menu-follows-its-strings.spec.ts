@@ -9,7 +9,7 @@ import {
 import { firstValueFrom, Observable, Subject } from 'rxjs';
 import { MenuContext } from '@loomweaver/plugin-sdk';
 import { MenuService } from './menu.service';
-import { ContributionRegistry } from '../plugin/contribution-registry';
+import { ContributionRegistry } from '../contributions/contribution-registry';
 import {
   defineLwMenu,
   LW_MENU_ITEM_TAG,

@@ -2,7 +2,7 @@ import { EnvironmentInjector, Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { VIEW_STATE } from '@loomweaver/plugin-sdk';
-import { RegisteredContentRoute } from '../../../plugin/contribution-registry';
+import { RegisteredContentRoute } from '../../../contributions/contribution-registry';
 import { SurfaceMounts, surfaceMounts } from './surface-injector';
 import { SurfaceAddress } from './live-surface-route';
 

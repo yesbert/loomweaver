@@ -11,7 +11,7 @@ import { TestBed } from '@angular/core/testing';
 import { ANONYMOUS, AuthSnapshot } from '@loomweaver/plugin-sdk';
 import { ContentRouter } from './content-router';
 import { SurfaceRouteStub } from './surface-route-stub';
-import { ContributionRegistry } from '../../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { AUTH_SOURCE } from '../../../auth/auth-context';
 import { keepPopout } from './keep-popout.guard';
 import { settleWorkspace } from './settle-workspace.guard';

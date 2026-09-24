@@ -2,7 +2,7 @@ import { PRIMARY_PANE } from './pane-address';
 import { PaneNode, PaneTab, leafOf, leafWith } from './pane-node';
 import { collectLeafIds, findLeaf } from './pane-queries';
 import { DEFAULT_RATIO, sanitizeRatio } from './pane-ratio';
-import { tabBadgeOf } from '../chrome/tab-badge';
+import { tabBadgeOf } from '../../../contributions/tab-badge';
 import { labelledTabs, withoutLabel } from './pane-node';
 
 function normalizeTab(value: unknown): PaneTab | null {

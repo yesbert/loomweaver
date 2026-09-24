@@ -1,7 +1,7 @@
 import { ApplicationRef, Injector } from '@angular/core';
 import { FeatureSwitches } from './features/feature-switches.service';
 import { TestBed } from '@angular/core/testing';
-import { ContributionRegistry } from './plugin/contribution-registry';
+import { ContributionRegistry } from './contributions/contribution-registry';
 import { ShellLayout } from './layout/layout';
 import { HostCommandDeps, registerHostCommands } from './host-commands';
 import { BuiltInMenuDeps, registerBuiltInMenus } from './built-in-menus';

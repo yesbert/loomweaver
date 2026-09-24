@@ -15,7 +15,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { BarItem, BarSlot } from '../../foundation/bar-item';
 import { LayoutRegion } from '../../layout/layout';
 import { AuthContext } from '../../auth/auth-context';

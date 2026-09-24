@@ -4,7 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter, map } from 'rxjs/operators';
 import { PRODUCT_IDENTITY } from '@loomweaver/plugin-sdk';
-import { ContributionRegistry } from '../plugin/contribution-registry';
+import { ContributionRegistry } from '../contributions/contribution-registry';
 import { SurfaceBody } from '../regions/content/surface/surface-body';
 import { paneLabelOf, resolveTitle } from '../regions/pane/chrome/tab-label';
 import { Wording } from '../i18n/wording';

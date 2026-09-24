@@ -4,7 +4,7 @@ import { provideRouter } from '@angular/router';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { ShellSidebarHeader } from './shell-sidebar-header';
 import { LayoutRegion, provideLayout } from '../../layout/layout';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { PanelState } from './panel-state';
 import { PanelGroupService } from './panel-group.service';
 import { View } from '../../views/view';

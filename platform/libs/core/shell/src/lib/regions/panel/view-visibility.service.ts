@@ -1,5 +1,5 @@
 import { inject, Service } from '@angular/core';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { viewPanePath } from '../pane/tree/pane-address';
 import { tabHolderOf } from '../pane/tree/pane-queries';
 import { isContainerDock } from '../pane/container/container-children';

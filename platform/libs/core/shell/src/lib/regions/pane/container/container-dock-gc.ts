@@ -1,7 +1,7 @@
 import { effect, inject, Injector, Service, untracked } from '@angular/core';
 import { Router } from '@angular/router';
 import { PopoutWindow } from '../../../popout/popout-window';
-import { ContributionRegistry } from '../../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { normalizePath, tabRootOf } from '../../content/content-path';
 import { collectTabPaths } from '../tree/pane-queries';
 import { PaneChromeService } from '../chrome/pane-chrome.service';

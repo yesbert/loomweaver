@@ -1,6 +1,6 @@
 import { isDevMode } from '@angular/core';
 import { ContentTabLabel } from '@loomweaver/plugin-sdk';
-import { RegisteredContentRoute } from '../../../plugin/surface-normalize';
+import { RegisteredContentRoute } from '../../../contributions/surface-normalize';
 import { CONTENT_DOCK } from '../../pane/tree/pane-address';
 import { labelledTabs, PaneNode, withLabel } from '../../pane/tree/pane-node';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';

@@ -2,7 +2,7 @@ import { Component, EnvironmentProviders } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideLayout } from '../../layout/layout';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { WorkspaceService } from '../../workspace/workspace.service';
 import { RailWorkspaceEntries } from './rail-workspace-entries';
 import { RailItemsService, workspaceRailItemId } from './rail-items.service';
