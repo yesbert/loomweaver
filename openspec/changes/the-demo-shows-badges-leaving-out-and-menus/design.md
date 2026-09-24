@@ -1,6 +1,7 @@
 ## Context
 
-See proposal.md for the motivation. The demo consumes the published 0.14.0 packages. The quotes
+See proposal.md for the motivation. The demo consumes the published packages, 0.14.1 from this
+change on. The quotes
 plugin (`demo/src/quotes`) is trusted and in-process: `quotesActions.open` opens a quote tab with
 `openContentTab`, the list view draws a button per row, and the quote document is a container whose
 `quotes.margin` child carries `access: { anyRole: ['accounting'] }`, so a sales account sees a
@@ -17,11 +18,6 @@ open item is open again. A trusted plugin's settings section owns its storage: t
 - The margin toggle and the padlock can be compared on the same child.
 
 **Non-Goals:**
-- Updating the badge of a quote tab that sits behind another. The agent's send command changes a
-  draft to sent; the badge follows at once when that quote is in front, and when its tab sits behind
-  another it follows the next time it is opened. Re-opening a tab is the only way to change its own
-  badge and it brings the tab forward, so updating it in place needs a platform call that does not
-  exist yet. That gap is held apart, as its own question for the platform.
 - Keeping payment decisions across a reload. The count follows the view's decisions as they are.
 
 ## Decisions
@@ -31,7 +27,9 @@ surface `quotes.document`, and each tab needs its own status, which is what a ta
 for. The text is the key the list's status filter already uses (`quotes.list.status.<status>`), the
 tone mirrors the list's `STATUS_BADGE` (draft and expired neutral, sent brand, accepted success,
 declined danger). A tab reopened from the list refines to the same badge. After the send command,
-`quotesActions.refreshIfActive` re-opens the quote when it is the one in front.
+`quotesActions.refreshStatus` changes the badge with `ctx.updateContentTab`, new in 0.14.1, so a sent
+quote whose tab sits behind another follows where it stands and nothing comes forward. That call was
+built for this: the demo found the gap, the platform closed it in 0.14.1.
 *Alternative:* `updateSurfaceBadge` on `quotes.document` would give every quote tab the same badge.
 
 **The margin toggle keeps its value in the plugin, persisted in local storage.** A trusted section

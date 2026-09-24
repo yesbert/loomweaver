@@ -105,6 +105,29 @@ test('the overview takes the whole content area, with no tab and no reload', asy
   ).toBe(true);
 });
 
+/* The agent sends a draft whose tab sits behind another. The tab follows at once, where it stands:
+   the quote in front stays in front and the address does not move. */
+test('a quote sent behind another tab carries its new status without coming forward', async ({
+  page,
+}) => {
+  const strip = '[id="pane-strip:content:main"] [role="tab"]';
+  const sent = page.locator(`${strip}[data-tab-path="sales/quotes/q-0004"]`);
+  await page.goto('/sales/quotes');
+  await page.locator('li[data-quote="Q-0004"] button').click();
+  await sent.dblclick();
+  await expect(sent).toHaveCSS('font-style', 'normal');
+  await page.locator(`${strip}[data-tab-path="sales/quotes"]`).click();
+  await page.locator('li[data-quote="Q-0007"] button').click();
+  await expect(page).toHaveURL(/\/sales\/quotes\/q-0007$/);
+  await expect(sent).toHaveAttribute('aria-label', 'Q-0004, Draft');
+
+  await prompt(page, 'sendQuote').click();
+  await page.getByRole('button', { name: 'Send it' }).click();
+
+  await expect(sent).toHaveAttribute('aria-label', 'Q-0004, Sent');
+  await expect(page).toHaveURL(/\/sales\/quotes\/q-0007$/);
+});
+
 test('declining the confirmation leaves the quote where it was', async ({
   page,
 }) => {

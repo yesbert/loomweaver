@@ -25,10 +25,8 @@ export const quotesActions = {
       preview: options.preview ?? false,
     });
   },
-  refreshIfActive(quote: Quote): void {
-    if (this.activeQuoteId() === quote.id) {
-      this.open(quote);
-    }
+  refreshStatus(quote: Quote): void {
+    ctx?.updateContentTab(pathOf(quote), { badge: statusBadge(quote.status) });
   },
   openMenu(items: readonly UiMenuItem[], at: { x: number; y: number }): void {
     ctx?.ui.openMenu(items, at);

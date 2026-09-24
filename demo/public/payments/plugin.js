@@ -172,12 +172,16 @@
           return ctx.stateClear(COUNT_KEY);
         })
         .then(function () {
-          return fetch(OPEN_ITEMS_URL).then(function (response) {
-            return response.json();
-          });
-        })
-        .then(function (items) {
-          showOpen(items.length);
+          return fetch(OPEN_ITEMS_URL)
+            .then(function (response) {
+              return response.json();
+            })
+            .then(function (items) {
+              showOpen(items.length);
+            })
+            .catch(function (error) {
+              console.error('[payments] the open items could not be fetched', error);
+            });
         })
         .finally(function () {
           counting = true;

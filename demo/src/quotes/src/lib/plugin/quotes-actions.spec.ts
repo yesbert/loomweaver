@@ -7,15 +7,11 @@ interface Recorded {
   readonly kept: string[];
 }
 
-function recorder(activeQuote?: string): { recorded: Recorded; ctx: PluginContext } {
+function recorder(): { recorded: Recorded; ctx: PluginContext } {
   const recorded: Recorded = { opened: [], kept: [] };
   const ctx = {
     openContentTab: (input: OpenTabInput) => recorded.opened.push(input),
     keepContentTab: (path: string) => recorded.kept.push(path),
-    activeContent: () =>
-      activeQuote === undefined
-        ? null
-        : { surfaceId: 'quotes.document', params: { id: activeQuote } },
   } as unknown as PluginContext;
   return { recorded, ctx };
 }
@@ -57,34 +53,15 @@ describe('quotesActions', () => {
     ]);
   });
 
-  it('refreshes the tab of the quote in front, so a changed status shows at once', () => {
-    const { recorded, ctx } = recorder('q-0004');
-    quotesActions.bind(ctx);
+  it('changes the status on the quote tab where it stands, without opening or bringing it forward', () => {
+    const updateContentTab = vi.fn();
+    quotesActions.bind({ updateContentTab } as unknown as PluginContext);
 
-    quotesActions.refreshIfActive({ ...quoteById('q-0004')!, status: 'sent' });
+    quotesActions.refreshStatus({ ...quoteById('q-0004')!, status: 'sent' });
 
-    expect(recorded.opened.map((input) => input.badge?.text)).toEqual([
-      'quotes.list.status.sent',
-    ]);
-  });
-
-  it('leaves a quote alone that is not in front, rather than bringing its tab forward', () => {
-    const { recorded, ctx } = recorder('q-0007');
-    quotesActions.bind(ctx);
-
-    quotesActions.refreshIfActive(quoteById('q-0004')!);
-
-    expect(recorded.opened).toEqual([]);
-  });
-
-  it('keeps a quote with a second call that promotes the tab, because re-opening never clears the preview state the host holds', () => {
-    const { recorded, ctx } = recorder();
-    quotesActions.bind(ctx);
-
-    quotesActions.keep(quoteById('q-0007')!);
-
-    expect(recorded.opened.map((input) => input.preview)).toEqual([false]);
-    expect(recorded.kept).toEqual(['sales/quotes/q-0007']);
+    expect(updateContentTab).toHaveBeenCalledWith('sales/quotes/q-0004', {
+      badge: { text: 'quotes.list.status.sent', tone: 'brand' },
+    });
   });
 
   it('hands a menu to the workbench, at the pointer it was asked for', () => {

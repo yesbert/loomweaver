@@ -24,8 +24,12 @@
 - [x] 4.3 A demo e2e test: the tab says "Open", stays so after one confirmation, says "Done" after both, and "Open" again after an undo
 - [x] 4.4 Screenshots of the payment matching tab open and done, shown to the owner
 
-## 5. Close
+## 5. Adopt 0.14.1
 
-- [ ] 5.1 `demo/README.md` describes the four
-- [ ] 5.2 Demo lint, unit tests, build, bundle size (raise the ceiling deliberately if it grows past it), the demo e2e suite, `openspec validate --all --strict`
-- [ ] 5.3 Code review over the change, then archive on the same branch
+- [x] 5.0 The demo and the example run on 0.14.1; the send command changes a quote tab's badge in place with `ctx.updateContentTab`, pinned by a demo e2e test with the tab behind another
+
+## 6. Close
+
+- [x] 6.1 `demo/README.md` describes the four
+- [x] 6.2 Demo and example lint, unit tests, build, bundle size (raise the ceiling deliberately if it grows past it), the demo e2e suite, `openspec validate --all --strict`
+- [x] 6.3 Code review over the change, then archive on the same branch

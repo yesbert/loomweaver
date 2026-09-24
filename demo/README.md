@@ -67,6 +67,17 @@ plus:
   The margin is gated to the accounting role, so signing in as the sales account leaves that pane
   saying _why_ it is empty instead of leaving it blank. It is the first nested pane tree here.
 
+  Three things on it are the product's own decisions rather than the session's:
+  - **A quote's tab carries its status** beside the number, "Q-0007, Sent", in the tone the list
+    gives it. When the assistant sends a draft whose tab sits behind another, that tab changes where
+    it stands and nothing comes forward.
+  - **The margin can be left out.** Settings › App plugins › Quotes › "Show margin analysis",
+    switched off, takes the margin out of every quote: no tab, not even the padlock the sales account
+    sees there otherwise, and the customer pane takes its room. Switched on, it comes back where it
+    stood.
+  - **A right-click on a row** opens the plugin's own menu: open, open as preview, or a new quote for
+    that customer, worded in the language the page is in.
+
   The quotes workspace **claims** the quote document address, so a quote opens where quotes live
   however you reach it: from the assistant, from the command palette, or by following a shared link
   straight into one. Without that a document lands in whatever workspace happened to be active, laid
@@ -120,6 +131,11 @@ plus:
   pushed tokens with no palette of its own to keep in sync. Its own strings are English and German
   inside the plugin, because it cannot reach the demo's bundles; the tab title, workspace name and
   rail tooltip stay translation keys here, because the workbench draws those.
+
+  Its tab says **whether anything is still open**: "Open" while an item waits, "Done" once every one
+  is settled. The view tells the plugin's state what is open, and the plugin's hidden document sets
+  the badge, the only one of the two that may, because the surface holds no plugin context. So a
+  badge is set live from a plugin that cannot touch the page.
 
 - [`src/agent`](src/agent) — the **assistant in the right-hand panel**, and the one thing here whose
   brain is fake. Say what it is not, first: there is no language model, no key and no network call.
