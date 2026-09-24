@@ -33,8 +33,6 @@ export const LW_TOKENS = [
   '--lw-font-mono',
 ] as const;
 
-export type LwToken = (typeof LW_TOKENS)[number];
-
 const known = new Set<string>(LW_TOKENS);
 
 export function isKnownToken(name: string): boolean {

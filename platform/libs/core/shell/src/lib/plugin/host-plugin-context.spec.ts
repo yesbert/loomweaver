@@ -29,6 +29,7 @@ import { ContentTabsService } from '../regions/content/tabs/content-tabs.service
 import { CommandInvocationService } from '../commands/command-invocation.service';
 import { LeftOutChildren } from '../regions/pane/container/left-out-children';
 import { CONTAINER_CHILD_REGION } from './surface-normalize';
+import { VIEW_PANE_PREFIX } from '../regions/pane/tree/pane-address';
 
 class DummyComponent {}
 
@@ -828,10 +829,10 @@ describe('HostPluginContext', () => {
       const leftOut = TestBed.inject(LeftOutChildren);
 
       ctx.setChildShown('pane.child', false);
-      expect(leftOut.isLeftOut('pane.child')).toBe(true);
+      expect(leftOut.hides(`${VIEW_PANE_PREFIX}pane.child`)).toBe(true);
 
       ctx.setChildShown('pane.child', true);
-      expect(leftOut.isLeftOut('pane.child')).toBe(false);
+      expect(leftOut.hides(`${VIEW_PANE_PREFIX}pane.child`)).toBe(false);
     });
 
     it('changes nothing for a surface that is not a container child, and says so in development', () => {
@@ -849,8 +850,12 @@ describe('HostPluginContext', () => {
       ctx.setChildShown('docked', false);
       ctx.setChildShown('unknown', false);
 
-      expect(TestBed.inject(LeftOutChildren).isLeftOut('docked')).toBe(false);
-      expect(TestBed.inject(LeftOutChildren).isLeftOut('unknown')).toBe(false);
+      expect(
+        TestBed.inject(LeftOutChildren).hides(`${VIEW_PANE_PREFIX}docked`),
+      ).toBe(false);
+      expect(
+        TestBed.inject(LeftOutChildren).hides(`${VIEW_PANE_PREFIX}unknown`),
+      ).toBe(false);
       expect(warn).toHaveBeenCalledWith(expect.stringContaining('"docked"'));
       warn.mockRestore();
     });
@@ -872,7 +877,9 @@ describe('HostPluginContext', () => {
 
       ctx.setChildShown('theirs', false);
 
-      expect(TestBed.inject(LeftOutChildren).isLeftOut('theirs')).toBe(false);
+      expect(
+        TestBed.inject(LeftOutChildren).hides(`${VIEW_PANE_PREFIX}theirs`),
+      ).toBe(false);
       warn.mockRestore();
     });
 

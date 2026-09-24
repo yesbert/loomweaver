@@ -18,8 +18,8 @@ describe('RailItemsService', () => {
     expect(rail.isVisible('settings')).toBe(true);
     expect(rail.isVisible(workspace)).toBe(false);
 
-    rail.toggle('settings', 'activity');
-    rail.toggle(workspace, 'activity');
+    rail.hide('settings');
+    rail.show(workspace, 'activity');
 
     expect(rail.isVisible('settings')).toBe(false);
     expect(rail.isVisible(workspace)).toBe(true);

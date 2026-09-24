@@ -20,16 +20,15 @@ function threeStack(): PaneNode {
 }
 
 describe('pane tree queries', () => {
-  it('flattens a tree into ordered segments whose fractions multiply down the ratio chain', () => {
+  it('flattens a tree into ordered segments', () => {
     const segments = paneSegments(threeStack());
     expect(segments.map((s) => s.id)).toEqual(['a', 'b', 'c']);
-    expect(segments.map((s) => s.fraction)).toEqual([0.5, 0.25, 0.25]);
     expect(segments[1].path).toBe('view:x');
   });
 
-  it('a single primary leaf is one full-size segment following the dock content (no path)', () => {
+  it('a single primary leaf is one segment following the dock content (no path)', () => {
     expect(paneSegments({ kind: 'leaf', id: 'main', tabs: [] })).toEqual([
-      { id: 'main', path: undefined, fraction: 1 },
+      { id: 'main', path: undefined },
     ]);
   });
 

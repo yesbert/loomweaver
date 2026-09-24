@@ -19,29 +19,6 @@ export function isContentRoute(route: ActivatedRouteSnapshot): boolean {
   return route.routeConfig?.data?.['content'] === true;
 }
 
-export function reusableRoute(route: ActivatedRouteSnapshot): boolean {
-  if (!isContentRoute(route)) {
-    return false;
-  }
-
-  if (route.routeConfig?.data?.['authPlaceholder'] === true) {
-    return false;
-  }
-
-  if (route.routeConfig?.data?.['sub'] === true) {
-    return false;
-  }
-
-  if (route.routeConfig?.data?.['iframe'] !== undefined) {
-    return false;
-  }
-
-  if (route.routeConfig?.data?.['retain'] === true) {
-    return false;
-  }
-  return route.routeConfig?.data?.['chromeless'] !== true;
-}
-
 export function effectiveRetain(
   declared: 'always' | 'never' | undefined,
   fallback: RetentionDefault,
