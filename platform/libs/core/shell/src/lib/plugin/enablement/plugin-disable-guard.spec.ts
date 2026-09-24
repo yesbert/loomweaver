@@ -42,43 +42,35 @@ describe('PluginDisableGuard (programmatic destruction)', () => {
     return TestBed.inject(PluginDisableGuard);
   }
 
-  function checkbox(checked: boolean): HTMLInputElement {
-    const input = document.createElement('input');
-    input.type = 'checkbox';
-    input.checked = checked;
-    return input;
-  }
-
   it('enables immediately and disables synchronously when nothing is dirty', () => {
     candidates = [{}];
     const guard = setup();
 
-    guard.toggle('testbed', checkbox(true));
+    void guard.requestEnabled('testbed', true);
     expect(setEnabled).toHaveBeenCalledWith('testbed', true);
 
-    guard.toggle('testbed', checkbox(false));
+    void guard.requestEnabled('testbed', false);
     expect(setEnabled).toHaveBeenCalledWith('testbed', false);
   });
 
-  it('cancelling the unsaved-changes ask keeps the plugin enabled and reverts the switch', async () => {
+  it('cancelling the unsaved-changes ask keeps the plugin enabled and reports it, so the switch reverts', async () => {
     candidates = [new DirtyProbe()];
     const guard = setup();
-    const input = checkbox(false);
 
-    guard.toggle('testbed', input);
+    const changed = guard.requestEnabled('testbed', false);
     expect(setEnabled).not.toHaveBeenCalled();
     topDialog().ref.close('cancel');
     await settle();
 
     expect(setEnabled).not.toHaveBeenCalled();
-    expect(input.checked).toBe(true);
+    await expect(changed).resolves.toBe(false);
   });
 
   it('discarding proceeds with the disable', async () => {
     candidates = [new DirtyProbe()];
     const guard = setup();
 
-    guard.toggle('testbed', checkbox(false));
+    void guard.requestEnabled('testbed', false);
     topDialog().ref.close('discard');
     await settle();
 

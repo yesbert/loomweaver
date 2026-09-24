@@ -63,7 +63,14 @@ export class PermissionsSettings {
   });
 
   protected togglePlugin(id: string, event: Event): void {
-    this.disableGuard.toggle(id, event.target as HTMLInputElement);
+    const toggle = event.target as HTMLInputElement;
+    void this.disableGuard
+      .requestEnabled(id, toggle.checked)
+      .then((changed) => {
+        if (!changed) {
+          toggle.checked = true;
+        }
+      });
   }
 
   protected toggleCapability(
