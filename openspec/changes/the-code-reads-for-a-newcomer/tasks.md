@@ -30,7 +30,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 - [x] 2.1 A `PopoutWindow` fact (`popout/popout-window.ts`, only `active`) replaces the eight
   `isPopoutUrl(document.location…)` derivations in commands, content, pane and retention code;
   `PopoutService` keeps `open()`.
-- [ ] 2.2 A settings-backed signal helper in `persistence/` (seed from `peek`, hydrate when there is no
+- [x] 2.2 A settings-backed signal helper in `persistence/` (seed from `peek`, hydrate when there is no
   `peek`, register cross-tab sync, write back) and a `parseRecord` for keyed records. Adopt it slice by
   slice, one pull request each: workspace list, theme and text size, plugin install, deployment and
   enablement with capability grants, rail labels and rail items, panel state and panel sizes. The

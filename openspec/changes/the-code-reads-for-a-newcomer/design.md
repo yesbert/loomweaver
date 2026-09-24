@@ -77,6 +77,17 @@ item the owner accepts becomes its own change, because it breaks consumers or ad
 contradicts `docs/`, the code moves to what the docs teach, unless the docs are wrong; then the docs
 are corrected in the same pull request and the reason is stated in its description.
 
+## Set aside, with reasons
+
+- **The language keeps its own stored binding (task 2.2).** It applies the stored language to the
+  translations and to `<html lang>` synchronously while it is constructed, and it ignores a stored code
+  it does not serve, keeping the language it has. `persistedSetting` would apply the value through an
+  effect, one tick later, and fall back to the browser language for an unserved code. Both are
+  behaviour a user could notice.
+- **The panels keep their own binding (task 2.2).** Their state lives on the working-state port and
+  deliberately follows no other window, while `persistedSetting` is the settings port with cross-tab
+  sync. They share the record parsers instead.
+
 ## Risks / Trade-offs
 
 - [A move silently breaks a checker or a doc link that reads the file by path] → Every move slice
