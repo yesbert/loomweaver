@@ -10,7 +10,6 @@ import { FramePlugin } from './frame-plugin';
 export interface RunnableFramePlugin extends FramePlugin {
   readonly granted?: readonly Capability[];
   readonly version?: string;
-  readonly deployed?: boolean;
 }
 
 export function levelOf(plugin: RunnableFramePlugin): PluginIsolationLevel {
@@ -30,7 +29,6 @@ export function runnablePlugins(
   catalogMaxLevel: PluginIsolationLevel,
 ): readonly RunnableFramePlugin[] {
   const claimed = new Set(composed.map((plugin) => plugin.id));
-  const deployedIds = new Set(deployed.map((plugin) => plugin.id));
   const fromCatalog: RunnableFramePlugin[] = [];
   for (const plugin of [...deployed, ...installed]) {
     if (claimed.has(plugin.id)) {
@@ -53,7 +51,6 @@ export function runnablePlugins(
       granted: plugin.capabilities ?? [],
       version: plugin.version,
       level: asked,
-      deployed: deployedIds.has(plugin.id) || undefined,
     });
   }
   return [...composed, ...fromCatalog];

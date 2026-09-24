@@ -84,7 +84,7 @@ export class InstalledPluginList implements OnInit {
           author: entry?.author,
           category: entry?.category,
           iconUrl: plugin.iconUrl ?? entry?.iconUrl,
-          enabled: isDeployed || this.enablement.isEnabled(plugin.id),
+          enabled: this.enablement.isEnabled(plugin.id),
           deployed: isDeployed,
           settingsSectionId: sections.find(
             (section) =>
