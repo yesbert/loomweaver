@@ -100,7 +100,26 @@ changes are never mixed.
 
 ## Agreed measure
 
-Filled in after the calibration slice (task group 1) has been reviewed by the owner.
+Agreed with the owner on the calibration slice (the content tab services), and binding for every
+later slice:
+
+- **Cut size.** A file does one job and lands between roughly 150 and 250 lines. A published entry
+  point may be longer where the length is its JSDoc, as long as its code only delegates.
+- **Names.** A file is named after the class it holds, in kebab case; `.service` appears in the file
+  name exactly when the class name ends in `Service`. A class is named for what it holds or does
+  (`ContentTabState`, `TabNavigationService`), not for its technical kind.
+- **Published text travels with the code.** When a slice touches a file that carries published JSDoc,
+  that JSDoc is corrected in the same slice: no tracker codes, no history, no roadmap promises, no
+  other products' names, one plain opening sentence. Task group 9 then covers only the files no
+  earlier slice touched.
+- **Small visible improvements are allowed when named.** A slice may turn a swallowed failure into a
+  logged one, and says so in its pull request. Anything a user or a consumer's code could notice
+  beyond that goes to the defects change.
+- **A cut does not push a neighbour over the threshold.** Where finishing a cut would lift another
+  file over 400 lines, that part waits for the task that cuts the other file, and the pull request
+  says so.
+- **Tests follow the source.** A spec is split along the files it drives, keeps one file-local setup
+  helper, and its names state the behaviour. No expectation changes in a refactoring slice.
 
 ## For the owner
 

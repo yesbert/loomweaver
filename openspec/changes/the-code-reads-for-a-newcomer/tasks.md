@@ -22,7 +22,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 - [x] 1.3 Split `content-tabs.service.spec.ts` (903 lines) along the new files; give the repeated
   five-line TestBed setup one file-local helper per spec; replace tracker codes in its test names and
   in `open-tabs.service.spec.ts` by the behaviour.
-- [ ] 1.4 Show the owner the result of 1.1 to 1.3, write the agreed measure into `design.md`
+- [x] 1.4 Show the owner the result of 1.1 to 1.3, write the agreed measure into `design.md`
   ("Agreed measure"), and adjust the remaining tasks if the measure changes them.
 
 ## 2. Knowledge written once, across the shell
