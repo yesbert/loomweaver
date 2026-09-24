@@ -8,6 +8,7 @@ import { SettingsService } from '../../settings/settings.service';
 import { PluginStoreSettings } from '../plugin-store-settings';
 import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { PluginStoreService } from '../plugin-store.service';
+import { DEFAULT_STORE_TITLE } from '../plugin-store-dialog';
 import { FramePluginRuntime } from '../../plugin/frame/frame-plugin-runtime';
 import {
   PLUGIN_CATALOG,
@@ -15,6 +16,7 @@ import {
   urlPluginCatalog,
 } from './plugin-catalog';
 import { PluginDeploymentService } from '../lifecycle/plugin-deployment.service';
+import { PluginCatalogEntries } from './plugin-catalog-entries';
 import {
   CATALOG_MAX_ISOLATION_LEVEL,
   PluginIsolationLevel,
@@ -38,10 +40,10 @@ export interface PluginCatalogOptions {
 
 /**
  * Wires the plugin store into a distribution: provides the catalog (a same-origin JSON URL
- * or a custom {@link PluginCatalog} implementation), makes sure the sandbox runtime is active even
- * when no plugin is composed statically, and registers the store's entry points — a settings section
- * (`setting:shell.pluginStore`, omit-able) whose Browse button opens the **store dialog** (the
- * Obsidian browse model: searchable list + in-app detail pane with README), plus the palette command
+ * or a custom {@link PluginCatalog} implementation), makes sure the frame runtime is active even
+ * when no plugin is composed statically, and registers the store's entry points: a settings section
+ * (`setting:shell.pluginStore`, omit-able) whose Browse button opens the **store dialog** (a
+ * searchable list and an in-app detail pane with the plugin's README), plus the palette command
  * `shell.openPluginStore`. The title is brandable via {@link PluginCatalogOptions.title}. Installing
  * and uninstalling happens in the store; an installed plugin that declares its own settings gets its
  * own entry under the **Community plugins** nav group. Place after `provideShell()`.
@@ -52,7 +54,7 @@ export function providePluginCatalog(
 ): (Provider | EnvironmentProviders)[] {
   const catalog =
     typeof source === 'string' ? urlPluginCatalog(source) : source;
-  const title = options.title ?? 'settings.pluginStore';
+  const title = options.title ?? DEFAULT_STORE_TITLE;
   return [
     { provide: PLUGIN_CATALOG, useValue: catalog },
     ...(options.maxLevel
@@ -63,7 +65,7 @@ export function providePluginCatalog(
     ),
     provideEnvironmentInitializer(() => {
       const deployment = inject(PluginDeploymentService);
-      void inject(PLUGIN_CATALOG)
+      void inject(PluginCatalogEntries)
         .load()
         .then((entries) => deployment.adopt(entries))
         .catch((error: unknown) => {

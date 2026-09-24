@@ -6,17 +6,16 @@ import {
   input,
   OnInit,
   output,
-  signal,
 } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SettingsService } from '../settings/settings.service';
-import { PLUGIN_CATALOG } from './catalog/plugin-catalog';
 import { PluginCatalogEntry } from './catalog/catalog-entry';
 import { PluginDisableGuard } from '../plugin/enablement/plugin-disable-guard';
 import { PluginEnablementService } from '../plugin/enablement/plugin-enablement.service';
 import { PluginInstallService } from './lifecycle/plugin-install.service';
 import { PluginDeploymentService } from './lifecycle/plugin-deployment.service';
-import { loadCatalogEntries, matchesQuery } from './catalog/catalog-entries';
+import { matchesQuery } from './catalog/catalog-search';
+import { PluginCatalogEntries } from './catalog/plugin-catalog-entries';
 import { PluginStoreConsent } from './lifecycle/plugin-store-consent';
 import { availableUpdate } from './lifecycle/plugin-update';
 import { frameSettingsGroup } from '../plugin/frame/frame-settings';
@@ -41,7 +40,7 @@ interface InstalledRow {
   templateUrl: './installed-plugin-list.html',
 })
 export class InstalledPluginList implements OnInit {
-  private readonly catalog = inject(PLUGIN_CATALOG, { optional: true });
+  private readonly catalog = inject(PluginCatalogEntries);
 
   private readonly settings = inject(SettingsService);
 
@@ -59,10 +58,10 @@ export class InstalledPluginList implements OnInit {
 
   readonly settingsOpened = output<void>();
 
-  private readonly entries = signal<readonly PluginCatalogEntry[]>([]);
-
   protected readonly rows = computed<readonly InstalledRow[]>(() => {
-    const catalog = new Map(this.entries().map((entry) => [entry.id, entry]));
+    const catalog = new Map(
+      (this.catalog.entries() ?? []).map((entry) => [entry.id, entry]),
+    );
     const sections = this.settings.all();
     const deployed = this.deployment.deployed();
     const deployedIds = new Set(deployed.map((plugin) => plugin.id));
@@ -98,7 +97,7 @@ export class InstalledPluginList implements OnInit {
   });
 
   ngOnInit(): void {
-    void this.load();
+    this.catalog.ensureLoaded();
   }
 
   protected togglePlugin(id: string, event: Event): void {
@@ -123,9 +122,5 @@ export class InstalledPluginList implements OnInit {
   protected openPluginSettings(sectionId: string): void {
     this.settingsOpened.emit();
     this.settings.open(sectionId);
-  }
-
-  private async load(): Promise<void> {
-    this.entries.set((await loadCatalogEntries(this.catalog)) ?? []);
   }
 }
