@@ -89,6 +89,8 @@ export class PaneTreeStorage {
     inject(DOCUMENT).location?.pathname ?? '',
   );
 
+  private relabelled = false;
+
   peek(): Record<string, DockEntry> {
     return this.settled(parseDocks(this.store.peek?.(this.key())));
   }
@@ -127,6 +129,12 @@ export class PaneTreeStorage {
     return this.settled(parseDocks(raw));
   }
 
+  takeRelabelled(): boolean {
+    const relabelled = this.relabelled;
+    this.relabelled = false;
+    return relabelled;
+  }
+
   private settled(
     docks: Record<string, DockEntry>,
   ): Record<string, DockEntry> {
@@ -163,6 +171,7 @@ export class PaneTreeStorage {
         out[dock] = kept;
       }
     }
+    this.relabelled ||= stripped.length > 0;
     if (isDevMode() && (contested.length > 0 || stripped.length > 0)) {
       this.reportFindings(contested, stripped);
     }

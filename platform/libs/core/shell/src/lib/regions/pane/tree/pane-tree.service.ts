@@ -64,6 +64,9 @@ export class PaneTreeService {
       (raw) => this.applyHydratedTrees(raw),
       () => {
         this.hydratedTree.set(true);
+        if (this.storage.takeRelabelled()) {
+          this.persist();
+        }
         this.settleTree?.();
       },
     );
