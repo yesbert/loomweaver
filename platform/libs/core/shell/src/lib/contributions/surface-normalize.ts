@@ -45,6 +45,37 @@ export type RegisteredSurface = SurfacePresentation & {
   readonly pluginId?: string;
 };
 
+type CommonSurfaceFields = Pick<
+  RegisteredSurface,
+  'access' | 'retain' | 'saveOn' | 'closable' | 'padded' | 'order'
+>;
+
+type DockedSurfaceFields = Pick<
+  RegisteredSurface,
+  'id' | 'title' | 'icon' | 'actions' | 'instanceable'
+>;
+
+function commonSurfaceFields(source: CommonSurfaceFields): CommonSurfaceFields {
+  return {
+    access: source.access,
+    retain: source.retain,
+    saveOn: source.saveOn,
+    closable: source.closable,
+    padded: source.padded,
+    order: source.order,
+  };
+}
+
+function dockedSurfaceFields(source: DockedSurfaceFields): DockedSurfaceFields {
+  return {
+    id: source.id,
+    title: source.title,
+    icon: source.icon,
+    actions: source.actions,
+    instanceable: source.instanceable,
+  };
+}
+
 export function isRoutableSurface(surface: Surface): boolean {
   return surface.routable !== undefined;
 }
@@ -57,17 +88,8 @@ export function surfaceToEntry(
     assertDockable(surface);
   }
   return {
-    id: surface.id,
-    title: surface.title,
-    icon: surface.icon,
-    order: surface.order,
-    actions: surface.actions,
-    access: surface.access,
-    instanceable: surface.instanceable,
-    retain: surface.retain,
-    saveOn: surface.saveOn,
-    closable: surface.closable,
-    padded: surface.padded,
+    ...dockedSurfaceFields(surface),
+    ...commonSurfaceFields(surface),
     routable: surface.routable,
     docks: surface.docks,
     pluginId,
@@ -77,17 +99,8 @@ export function surfaceToEntry(
 
 export function viewToEntry(view: View, pluginId?: string): RegisteredSurface {
   return {
-    id: view.id,
-    title: view.title,
-    icon: view.icon,
-    order: view.order,
-    actions: view.actions,
-    access: view.access,
-    instanceable: view.instanceable,
-    retain: view.retain,
-    saveOn: view.saveOn,
-    closable: view.closable,
-    padded: view.padded,
+    ...dockedSurfaceFields(view),
+    ...commonSurfaceFields(view),
     docks: [view.region],
     pluginId,
     ...presentationOf(view),
@@ -100,12 +113,7 @@ export function contentRouteToEntry(
 ): RegisteredSurface {
   return {
     id: route.id,
-    access: route.access,
-    retain: route.retain,
-    saveOn: route.saveOn,
-    closable: route.closable,
-    padded: route.padded,
-    order: route.order,
+    ...commonSurfaceFields(route),
     routable: {
       path: route.path,
       chromeless: route.chromeless,
@@ -138,15 +146,10 @@ export function entryToContentRoute(
       title: routable.title ?? entry.title,
       icon: routable.icon ?? entry.icon,
       titleIsLiteral: routable.titleIsLiteral,
-      order: entry.order,
       subRoutes: routable.subRoutes,
       rest: routable.rest,
       follows: routable.follows,
-      access: entry.access,
-      retain: entry.retain,
-      saveOn: entry.saveOn,
-      closable: entry.closable,
-      padded: entry.padded,
+      ...commonSurfaceFields(entry),
       pluginId: entry.pluginId,
       ...presentationOf(entry),
     } as RegisteredContentRoute;
@@ -155,18 +158,11 @@ export function entryToContentRoute(
 
 export function entryToView(entry: RegisteredSurface): RegisteredView {
   return cached(viewCache, entry, () => ({
+    ...dockedSurfaceFields(entry),
+    ...commonSurfaceFields(entry),
     id: entry.id ?? '',
     region: entry.docks?.[0] ?? CONTAINER_CHILD_REGION,
     title: entry.title ?? '',
-    order: entry.order,
-    icon: entry.icon,
-    actions: entry.actions,
-    access: entry.access,
-    instanceable: entry.instanceable,
-    retain: entry.retain,
-    saveOn: entry.saveOn,
-    closable: entry.closable,
-    padded: entry.padded,
     pluginId: entry.pluginId,
     component: entry.component,
     loadComponent: entry.loadComponent,

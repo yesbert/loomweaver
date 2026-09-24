@@ -6,6 +6,7 @@ import { View, ViewAction } from '../views/view';
 import { Identified, upsertBy, upsertById } from '../foundation/identified';
 import { isRouteOmitted } from './route-omit';
 import { tabBadgeOf } from './tab-badge';
+import { SurfaceBadges } from './surface-badges';
 import {
   RegisteredContentRoute,
   RegisteredSurface,
@@ -34,10 +35,30 @@ export interface RegisteredCommand {
 
 const NO_ROUTES: readonly RegisteredContentRoute[] = [];
 
+function withoutOmitted<T>(
+  items: readonly T[],
+  omitted: ReadonlySet<string>,
+  idOf: (item: T) => string | undefined,
+): readonly T[] {
+  if (omitted.size === 0) {
+    return items;
+  }
+  return items.filter((item) => {
+    const id = idOf(item);
+    return id === undefined || !omitted.has(id);
+  });
+}
+
+function idsOf(
+  list: readonly { readonly id?: string }[],
+): readonly string[] {
+  return list.flatMap((item) => (item.id === undefined ? [] : [item.id]));
+}
+
 /**
  * Holds the live UI contributions the regions render. Seeded at startup from the
- * static `provide*` API and (P1.2 loader) added to at runtime by plugins. Signal-
- * based so the regions react to runtime registration/removal.
+ * static `provide*` API and added to at runtime by plugins. Signal-based so the
+ * regions react to runtime registration/removal.
  *
  * Contributions are keyed by `id`: registering an existing id **overrides** the
  * previous entry in place (last contribution wins — a distribution/plugin can
@@ -56,9 +77,7 @@ export class ContributionRegistry {
 
   private readonly surfacesSignal = signal<readonly RegisteredSurface[]>([]);
 
-  private readonly badgesSignal = signal<ReadonlyMap<string, TabBadge>>(
-    new Map(),
-  );
+  private readonly badges = new SurfaceBadges();
 
   private readonly barItemsSignal = signal<readonly BarItem[]>([]);
 
@@ -78,13 +97,12 @@ export class ContributionRegistry {
 
   /** Registered commands with their owner — the source for anything that has to attribute one. */
   readonly registeredCommands: Signal<readonly RegisteredCommand[]> = computed(
-    () => {
-      const omitted = this.omittedSignal();
-      const entries = this.commandsSignal();
-      return omitted.size === 0
-        ? entries
-        : entries.filter((entry) => !omitted.has(entry.command.id));
-    },
+    () =>
+      withoutOmitted(
+        this.commandsSignal(),
+        this.omittedSignal(),
+        (entry) => entry.command.id,
+      ),
   );
 
   /** Registered commands — the invocable actions triggers (items/keybindings/palette) point at. */
@@ -92,17 +110,13 @@ export class ContributionRegistry {
     this.registeredCommands().map((entry) => entry.command),
   );
 
-  readonly views: Signal<readonly RegisteredView[]> = computed(() => {
-    const omitted = this.omittedSignal();
-    const docked = this.dockedSurfaces();
-    const visible =
-      omitted.size === 0
-        ? docked
-        : docked.filter(
-            (entry) => entry.id === undefined || !omitted.has(entry.id),
-          );
-    return visible.map((entry) => entryToView(entry));
-  });
+  readonly views: Signal<readonly RegisteredView[]> = computed(() =>
+    withoutOmitted(
+      this.dockedSurfaces(),
+      this.omittedSignal(),
+      (entry) => entry.id,
+    ).map((entry) => entryToView(entry)),
+  );
 
   readonly barItems: Signal<readonly BarItem[]> = this.visible(
     this.barItemsSignal,
@@ -158,32 +172,16 @@ export class ContributionRegistry {
    * omitted contribution is by construction absent from every other signal here, so this is the
    * only way to tell an `omit` that hid something from one that hit nothing at all.
    */
-  readonly registeredIds: Signal<ReadonlySet<string>> = computed(() => {
-    const ids = new Set<string>();
-    for (const entry of this.commandsSignal()) {
-      ids.add(entry.command.id);
-    }
-    for (const surface of this.surfacesSignal()) {
-      if (surface.id !== undefined) {
-        ids.add(surface.id);
-      }
-    }
-    const optionallyIdentified: readonly (readonly {
-      readonly id?: string;
-    }[])[] = [
-      this.barItemsSignal(),
-      this.railItemsSignal(),
-      this.menuItemsSignal(),
-    ];
-    for (const list of optionallyIdentified) {
-      for (const item of list) {
-        if (item.id !== undefined) {
-          ids.add(item.id);
-        }
-      }
-    }
-    return ids;
-  });
+  readonly registeredIds: Signal<ReadonlySet<string>> = computed(
+    () =>
+      new Set([
+        ...this.commandsSignal().map((entry) => entry.command.id),
+        ...idsOf(this.surfacesSignal()),
+        ...idsOf(this.barItemsSignal()),
+        ...idsOf(this.railItemsSignal()),
+        ...idsOf(this.menuItemsSignal()),
+      ]),
+  );
 
   /**
    * Hides contributions by id for good — a distribution drops a default it does not want
@@ -239,7 +237,7 @@ export class ContributionRegistry {
 
   removeViewById(id: string): void {
     this.surfacesSignal.update((entries) =>
-      entries.filter((e) => e.routable !== undefined || e.id !== id),
+      entries.filter((entry) => entry.routable !== undefined || entry.id !== id),
     );
     this.forgetBadgeOfGone(id);
   }
@@ -296,12 +294,12 @@ export class ContributionRegistry {
       ),
     );
     if (owned) {
-      this.setBadge(id, tabBadgeOf(badge));
+      this.badges.set(id, tabBadgeOf(badge));
     }
   }
 
   badgeOf(id: string | undefined): TabBadge | undefined {
-    return id === undefined ? undefined : this.badgesSignal().get(id);
+    return this.badges.badgeOf(id);
   }
 
   /**
@@ -326,7 +324,7 @@ export class ContributionRegistry {
     return {
       dispose: () => {
         this.surfacesSignal.update((entries) =>
-          entries.filter((e) => e !== entry),
+          entries.filter((existing) => existing !== entry),
         );
         this.forgetBadgeOfGone(entry.id);
       },
@@ -334,33 +332,20 @@ export class ContributionRegistry {
   }
 
   private forgetBadgeOfGone(id: string | undefined): void {
-    if (id !== undefined && untracked(() => this.surfacesSignal().every((e) => e.id !== id))) {
-      this.setBadge(id, undefined);
+    if (
+      id !== undefined &&
+      untracked(() => this.surfacesSignal().every((entry) => entry.id !== id))
+    ) {
+      this.badges.set(id, undefined);
     }
-  }
-
-  private setBadge(id: string, badge: TabBadge | undefined): void {
-    this.badgesSignal.update((badges) => {
-      if (JSON.stringify(badges.get(id)) === JSON.stringify(badge)) {
-        return badges;
-      }
-      const next = new Map([...badges].filter(([key]) => key !== id));
-      return badge === undefined ? next : next.set(id, badge);
-    });
   }
 
   private visible<T extends { readonly id?: string }>(
     source: Signal<readonly T[]>,
   ): Signal<readonly T[]> {
-    return computed(() => {
-      const omitted = this.omittedSignal();
-      if (omitted.size === 0) {
-        return source();
-      }
-      return source().filter(
-        (item) => item.id === undefined || !omitted.has(item.id),
-      );
-    });
+    return computed(() =>
+      withoutOmitted(source(), this.omittedSignal(), (item) => item.id),
+    );
   }
 
   private add<T extends Identified>(
