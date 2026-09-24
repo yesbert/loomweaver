@@ -13,6 +13,11 @@ import { withCrossTabSync } from './cross-tab-sync-store';
 import { AuthContext } from '../auth/auth-context';
 import { StateSyncService } from './state-sync.service';
 import { BootLatchedIdentity, IdentityScopedStore } from './boot-latched-scope';
+import {
+  FONT_SCALE_STORAGE_KEY,
+  LANGUAGE_STORAGE_KEY,
+  THEME_STORAGE_KEY,
+} from './device-level-keys';
 
 /**
  * The storage keys that stay **device-level** by default when the stores are identity-scoped
@@ -20,9 +25,9 @@ import { BootLatchedIdentity, IdentityScopedStore } from './boot-latched-scope';
  * default via `provideIdentityScopedStores({ deviceKeys: [...DEVICE_LEVEL_KEYS, 'my.key'] })`.
  */
 export const DEVICE_LEVEL_KEYS: readonly string[] = [
-  'lw.shell.theme',
-  'lw.shell.lang',
-  'lw.shell.font-scale',
+  THEME_STORAGE_KEY,
+  LANGUAGE_STORAGE_KEY,
+  FONT_SCALE_STORAGE_KEY,
 ];
 
 /** Configuration for {@link provideIdentityScopedStores}. */

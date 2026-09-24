@@ -9,7 +9,7 @@ import {
 import { CONTENT_DOCK } from '../../regions/pane/tree/pane-address';
 import { collectTabs } from '../../regions/pane/tree/pane-queries';
 import { ANNOUNCE_UNUSABLE_WORKSPACES } from '../provide-workspaces';
-import { PANE_TREES_KEY } from '../baseline/workspace-state';
+import { PANE_TREES_KEY } from '../../regions/pane/tree/pane-tree-storage';
 import {
   everyWorkspaceOrigin,
   unusableWorkspaceIds,
@@ -36,9 +36,7 @@ export class UnusableWorkspacesService implements UnusableWorkspaces {
       activeHasContent:
         collectTabs(this.paneTree.tree(CONTENT_DOCK)).length > 0,
       definitionOf: (id) =>
-        this.workspaces.definitions.find(
-          (definition) => definition.id === id,
-        ),
+        this.workspaces.definitions.find((definition) => definition.id === id),
       storedTrees: (id) =>
         this.workingState.peek?.(workspaceScopedKey(PANE_TREES_KEY, id)),
     }),

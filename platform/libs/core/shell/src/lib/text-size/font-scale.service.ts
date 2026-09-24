@@ -1,10 +1,10 @@
 import { DOCUMENT } from '@angular/common';
 import { effect, inject, Service } from '@angular/core';
 import { persistedSetting } from '../persistence/stored-values/persisted-setting';
+import { FONT_SCALE_STORAGE_KEY } from '../persistence/device-level-keys';
 
 export type FontScale = 'sm' | 'md' | 'lg' | 'xl';
 
-const STORAGE_KEY = 'lw.shell.font-scale';
 const SCALES: ReadonlySet<FontScale> = new Set(['sm', 'md', 'lg', 'xl']);
 const ROOT_SIZE: Record<Exclude<FontScale, 'md'>, string> = {
   sm: '90%',
@@ -20,10 +20,13 @@ function sanitizeScale(raw: string | undefined): FontScale {
 export class FontScaleService {
   private readonly document = inject(DOCUMENT);
 
-  private readonly stored = persistedSetting<FontScale>(STORAGE_KEY, {
-    parse: sanitizeScale,
-    serialize: (scale) => scale,
-  });
+  private readonly stored = persistedSetting<FontScale>(
+    FONT_SCALE_STORAGE_KEY,
+    {
+      parse: sanitizeScale,
+      serialize: (scale) => scale,
+    },
+  );
 
   readonly scale = this.stored.value;
 

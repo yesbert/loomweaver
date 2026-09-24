@@ -35,7 +35,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   slice, one pull request each: workspace list, theme and text size, plugin install, deployment and
   enablement with capability grants, rail labels and rail items, panel state and panel sizes. The
   language joins after its defect is fixed. `parseHiddenViews` is replaced by `parseIdSet`.
-- [ ] 2.3 Storage keys are exported by the slice that owns them (pane trees, hidden views, saved
+- [x] 2.3 Storage keys are exported by the slice that owns them (pane trees, hidden views, saved
   workspaces, theme, language, text size) and imported by the readers; `DEVICE_LEVEL_KEYS` is built
   from those constants with the same value.
 - [ ] 2.4 `regions/pane/retention/retention-keys.ts` owns the key grammar (`scope|path|instance`, the

@@ -8,12 +8,6 @@ import {
 
 export const WORKSPACES_KEY = 'lw.shell.workspaces';
 
-export const HIDDEN_VIEWS_KEY = 'lw.shell.hidden-views';
-
-export const PANE_TREES_KEY = 'lw.shell.pane-trees';
-
-export const WORKSPACE_KEYS = [HIDDEN_VIEWS_KEY, PANE_TREES_KEY] as const;
-
 export interface Workspace {
   readonly id: string;
   readonly name: string;
@@ -50,8 +44,14 @@ export interface StateChannel {
 }
 
 export function stateChannels(
-  hiddenViews: { hydrate: (raw: string | undefined) => void; serialize: () => string },
-  paneTree: { hydrate: (raw: string | undefined) => void; serialize: () => string },
+  hiddenViews: {
+    hydrate: (raw: string | undefined) => void;
+    serialize: () => string;
+  },
+  paneTree: {
+    hydrate: (raw: string | undefined) => void;
+    serialize: () => string;
+  },
   keys: { readonly hiddenViews: string; readonly paneTrees: string },
 ): Record<string, StateChannel> {
   return {
