@@ -126,9 +126,10 @@ itself, since that follows the active workspace and nothing else.
 
 Claim only what genuinely belongs to a workspace. A narrower claim wins over a wider one, the way a
 specific route already wins over a general one, so `quotes/new` and `quotes/:id` can live in
-different workspaces. Two workspaces claiming addresses of the _same shape_ is a configuration error:
-the claim is dropped from both and the console names them, because a product that declared two homes
-for one document has not decided where it belongs.
+different workspaces. Two claims that meet on an address with neither narrower, such as `quotes/:id`
+and `:kind/new` on `quotes/new`, are a configuration error. That address is claimed by neither and the
+console names both workspaces, because a product that declared two homes for one document has not
+decided where it belongs.
 
 A workspace the **user** saved is never where an address leads. It exists on one machine only, and an
 address that led somewhere different for every user would not be an address. It does keep content

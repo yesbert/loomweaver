@@ -35,7 +35,7 @@ they start with a top-level folder.
   later, and the language service starts with the shell so a distribution without a switcher gets it
   (`i18n/served-languages.ts`, `i18n/locale.service.ts`); tested with a store that has an immediate
   answer and with one that has none, and without a language switcher.
-- [ ] 2.3 Overlapping claims of different shape and equal narrowness are reported with both workspaces
+- [x] 2.3 Overlapping claims of different shape and equal narrowness are reported with both workspaces
   named (`workspace/workspace-claims.ts`); the published JSDoc of `claims` says "overlapping claims of
   equal narrowness" instead of "the same shape".
 

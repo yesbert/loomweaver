@@ -71,22 +71,18 @@ function contestedShapes(
     }
     byShape.set(shape, owners);
   }
-  return new Map(
-    [...byShape].filter(([, owners]) => owners.length > 1),
-  );
+  return new Map([...byShape].filter(([, owners]) => owners.length > 1));
 }
 
 export function conflictingClaims(
   claims: readonly WorkspaceClaim[],
 ): readonly string[] {
-  return [...contestedShapes(claims)].map(([shape, owners]) => {
-    const named = owners.map((id) => `"${id}"`).join(' and ');
-    return (
-      `Workspaces ${named} both claim "${shape}" — ` +
-      `neither is narrower than the other, so the claim is dropped and that address ` +
-      `behaves as though nothing claimed it. Give the address one home.`
-    );
-  });
+  return [
+    ...[...contestedShapes(claims)].map(([shape, owners]) =>
+      sameShapeConflict(shape, owners),
+    ),
+    ...tiedOverlaps(claims).map(([one, other]) => overlapConflict(one, other)),
+  ];
 }
 
 export function withoutConflicts(
@@ -107,4 +103,52 @@ export function settlementFor(
   }
   const destination = claimFor(claims, path)?.workspaceId ?? null;
   return destination === activeId ? null : destination;
+}
+
+function tiedOverlaps(
+  claims: readonly WorkspaceClaim[],
+): (readonly [WorkspaceClaim, WorkspaceClaim])[] {
+  const tied: (readonly [WorkspaceClaim, WorkspaceClaim])[] = [];
+  for (const [position, one] of claims.entries()) {
+    for (const other of claims.slice(position + 1)) {
+      if (
+        one.workspaceId !== other.workspaceId &&
+        claimShape(one.pattern) !== claimShape(other.pattern) &&
+        tieOnSomeAddress(one.pattern, other.pattern)
+      ) {
+        tied.push([one, other]);
+      }
+    }
+  }
+  return tied;
+}
+
+function tieOnSomeAddress(one: string, other: string): boolean {
+  const otherParts = segmentsOf(other);
+  return (
+    narrower(one, other) === 0 &&
+    segmentsOf(one).every(
+      (part, position) =>
+        part.startsWith(':') ||
+        otherParts[position].startsWith(':') ||
+        part === otherParts[position],
+    )
+  );
+}
+
+function sameShapeConflict(shape: string, owners: readonly string[]): string {
+  const named = owners.map((id) => `"${id}"`).join(' and ');
+  return (
+    `Workspaces ${named} both claim "${shape}" — ` +
+    `neither is narrower than the other, so the claim is dropped and that address ` +
+    `behaves as though nothing claimed it. Give the address one home.`
+  );
+}
+
+function overlapConflict(one: WorkspaceClaim, other: WorkspaceClaim): string {
+  return (
+    `Workspaces "${one.workspaceId}" and "${other.workspaceId}" claim "${one.pattern}" and ` +
+    `"${other.pattern}", which meet on some addresses without either being narrower, so an ` +
+    `address both match behaves as though nothing claimed it. Give such an address one home.`
+  );
 }
