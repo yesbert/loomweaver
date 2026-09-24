@@ -158,7 +158,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 - [x] 5.6 Unsaved work: `RetentionCandidates` folded into `UnsavedWork`; saving on hide out of the
   garbage collector, which is named for its sweep; the two dialog bodies with markup get their own
   templates or become one message component.
-- [ ] 5.7 Pane chrome: overflow measuring as a directive, the tab menu context as a pure function, the
+- [x] 5.7 Pane chrome: overflow measuring as a directive, the tab menu context as a pure function, the
   unsaved dot as one template; the drag service keeps only drag state and the admission checks move to
   the pane targets; the drop zones render from a loop.
 - [ ] 5.8 Smaller pane items: the container identity derived once, container instance ids built once,

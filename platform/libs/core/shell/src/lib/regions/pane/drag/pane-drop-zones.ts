@@ -12,6 +12,15 @@ import {
   stripSourceOf,
 } from './pane-move.service';
 
+const ZONE_ORDER: readonly PaneDropEdge[] = ['left', 'right', 'top', 'bottom'];
+
+const ZONE_PLACEMENT: Record<PaneDropEdge, string> = {
+  left: 'col-start-1 row-span-3 row-start-1',
+  right: 'col-start-3 row-span-3 row-start-1',
+  top: 'col-start-2 row-start-1',
+  bottom: 'col-start-2 row-start-3',
+};
+
 @Component({
   selector: 'lw-pane-drop-zones',
   imports: [CdkDropList],
@@ -57,6 +66,12 @@ export class PaneDropZones {
     ];
   });
 
+  protected readonly shownEdges = computed(() =>
+    ZONE_ORDER.filter((edge) => this.edges().includes(edge)),
+  );
+
+  protected readonly placement = ZONE_PLACEMENT;
+
   protected readonly accepts = computed(() =>
     this.contentSide()
       ? this.features.moveTabs()
@@ -74,10 +89,6 @@ export class PaneDropZones {
     });
   }
 
-  protected has(edge: PaneDropEdge): boolean {
-    return this.edges().includes(edge);
-  }
-
   protected readonly enterPredicate = (drag: CdkDrag<string>): boolean => {
     if (this.contentSide()) {
       return true;
@@ -88,12 +99,8 @@ export class PaneDropZones {
     return this.fills() ? this.sidebar.moveViews() : this.sidebar.stackViews();
   };
 
-  protected zoneId(edge: PaneDropEdge): string {
+  protected zoneId(edge: PaneDropEdge | 'fill'): string {
     return `pane-zone:${this.dock()}:${this.paneId()}:${edge}`;
-  }
-
-  protected fillZoneId(): string {
-    return `pane-zone:${this.dock()}:${this.paneId()}:fill`;
   }
 
   protected onFill(event: CdkDragDrop<unknown>): void {
@@ -122,6 +129,6 @@ export class PaneDropZones {
     if (!this.fills()) {
       return this.edges().map((edge) => this.zoneId(edge));
     }
-    return this.accepts() ? [this.fillZoneId()] : [];
+    return this.accepts() ? [this.zoneId('fill')] : [];
   }
 }

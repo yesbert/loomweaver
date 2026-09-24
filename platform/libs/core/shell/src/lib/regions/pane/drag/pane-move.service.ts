@@ -18,7 +18,7 @@ import { isContainerDock } from '../container/container-children';
 import { insertTab, removeTab } from '../tree/pane-tabs';
 import { tabWithout } from '../tree/pane-node';
 import { PaneTreeService } from '../tree/pane-tree.service';
-import { PaneDragService } from './pane-drag.service';
+import { PaneAdmission } from '../../content/pane-admission';
 import { ContentTabsService } from '../../content/tabs/content-tabs.service';
 import { matchRoute, tabRootOf } from '../../content/content-path';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
@@ -55,7 +55,7 @@ function departedTab(targetDock: string, tab: PaneTab): PaneTab {
 @Service()
 export class PaneMoveService {
   private readonly paneTree = inject(PaneTreeService);
-  private readonly drag = inject(PaneDragService);
+  private readonly admission = inject(PaneAdmission);
   private readonly tabs = inject(ContentTabsService);
   private readonly registry = inject(ContributionRegistry);
   private readonly leftOut = inject(LeftOutChildren);
@@ -242,7 +242,7 @@ export class PaneMoveService {
       }
       return;
     }
-    if (target.dock === CONTENT_DOCK && this.drag.routerBound(tab.path)) {
+    if (target.dock === CONTENT_DOCK && this.admission.routerBound(tab.path)) {
       const previous =
         urlFollowup === '' ? null : (urlFollowup ?? this.currentUrlContent());
       const path = this.paneTree.focusPane(
