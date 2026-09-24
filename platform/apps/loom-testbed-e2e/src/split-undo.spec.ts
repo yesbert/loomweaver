@@ -29,7 +29,7 @@ async function splitTrendsOff(page: Page): Promise<void> {
     page.locator('lw-content-grid lw-pane-split-handle'),
   ).toHaveCount(1);
   await expect.poll(labels(page, addressTabs)).toEqual(['Trends']);
-  await expect.poll(labels(page, otherTabs)).toEqual(['Overview', 'Export']);
+  await expect.poll(labels(page, otherTabs)).toEqual(['Overview', 'Export, New']);
 }
 
 test.describe('Undoing a split of tabs that cannot be closed', () => {
@@ -53,7 +53,7 @@ test.describe('Undoing a split of tabs that cannot be closed', () => {
           a.localeCompare(b),
         ),
       )
-      .toEqual(['Export', 'Overview', 'Trends']);
+      .toEqual(['Export, New', 'Overview', 'Trends']);
   });
 
   test('closing the pane that carries the address keeps its tab, which cannot be closed', async ({
@@ -75,7 +75,7 @@ test.describe('Undoing a split of tabs that cannot be closed', () => {
           a.localeCompare(b),
         ),
       )
-      .toEqual(['Export', 'Overview', 'Trends']);
+      .toEqual(['Export, New', 'Overview', 'Trends']);
   });
 
   test('closing the other pane hands its tabs, which cannot be closed, to the address pane', async ({
@@ -97,7 +97,7 @@ test.describe('Undoing a split of tabs that cannot be closed', () => {
           a.localeCompare(b),
         ),
       )
-      .toEqual(['Export', 'Overview', 'Trends']);
+      .toEqual(['Export, New', 'Overview', 'Trends']);
     await expect(page).toHaveURL(/dashboard\/trends/);
   });
 });

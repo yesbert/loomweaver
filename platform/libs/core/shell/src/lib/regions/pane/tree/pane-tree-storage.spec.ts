@@ -9,6 +9,8 @@ import {
   ActiveWorkspaceService,
 } from '../../../workspace/active-workspace.service';
 
+import { provideWorkspaces } from '../../../workspace/provide-workspaces';
+
 const ACTIVE_KEY = 'lw.shell.active-workspace';
 
 describe('PaneTreeService — network working-state store (no peek, LWF-02b)', () => {
@@ -139,5 +141,49 @@ describe('PaneTreeService — network working-state store (no peek, LWF-02b)', (
 
     const leaf = paneTree.tree(dock) as PaneLeaf;
     expect(leaf.tabs.map((tab) => tab.path)).toEqual(['view:runs.cockpit']);
+  });
+});
+
+describe('PaneTreeService — a profile carrying a borrowed label', () => {
+  const STORED_KEY = 'lw.shell.pane-trees:reports';
+
+  beforeEach(() => {
+    localStorage.clear();
+    localStorage.setItem(ACTIVE_KEY, 'reports');
+    localStorage.setItem(
+      STORED_KEY,
+      JSON.stringify({
+        [CONTENT_DOCK]: {
+          tree: {
+            kind: 'leaf',
+            id: PRIMARY_PANE,
+            tabs: [{ path: 'reports', title: 'home.title', icon: 'home' }],
+            active: 'reports',
+          },
+          primary: PRIMARY_PANE,
+        },
+      }),
+    );
+    TestBed.configureTestingModule({
+      providers: [
+        provideWorkspaces({
+          id: 'reports',
+          title: 'Reports',
+          content: { tabs: [{ path: 'reports' }] },
+        }),
+      ],
+    });
+  });
+
+  it('drops the label as the panes load', () => {
+    const paneTree = TestBed.inject(PaneTreeService);
+
+    expect(paneTree.primaryTabs(CONTENT_DOCK)).toEqual([{ path: 'reports' }]);
+  });
+
+  it('writes the recovered panes back, so the profile heals without a further change', () => {
+    TestBed.inject(PaneTreeService);
+
+    expect(localStorage.getItem(STORED_KEY)).not.toContain('home.title');
   });
 });
