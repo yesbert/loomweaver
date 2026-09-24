@@ -111,10 +111,13 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   `AddressPaneHeader`, `AddressBody` to `AddressPaneBody`, `provide-content-router.ts` to
   `provide-shell-router.ts`; the unusable-workspace notice to `workspace/usability/`; one file-name
   rule for services in the slice.
-- [ ] 4.3 Cut `IframeSurface`: the wire protocol and pure helpers in `iframe-surface-protocol.ts`, the
+- [x] 4.3 Cut `IframeSurface`: the wire protocol and pure helpers in `iframe-surface-protocol.ts`, the
   plugin-state bridge as a class of its own, route data read through one typed `SurfaceRouteData`
   (the key `urlDriven` becomes `carriesAddress`), one route snapshot builder and one route injector
   builder for the three hand-made routes.
+  The key keeps its name, since it is published (see design, "Set aside"). The route injector is
+  shared by the two that are alike; the surface body's third one provides the container handle
+  instead of outlet contexts and stays its own.
 - [ ] 4.4 The router: the pure route table in `content-route-table.ts` with the placeholder built once
   and `isContentRoute` beside it; `ContentRouter.start()` split into named steps; its spec split.
 - [ ] 4.5 One docked-view body component used by the surface body and the side panel.

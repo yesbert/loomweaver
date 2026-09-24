@@ -1,11 +1,13 @@
 import { ActivatedRoute, UrlSegment, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
 import { RegisteredView } from '../../../plugin/contribution-registry';
+import { routeSnapshot } from './route-snapshot';
+import { SurfaceRouteData } from './surface-route-data';
 
 interface SyntheticRouteInput {
   readonly url: UrlSegment[];
   readonly params: Record<string, string>;
-  readonly data: Record<string, unknown>;
+  readonly data: SurfaceRouteData;
 }
 
 function buildSyntheticRoute({
@@ -15,22 +17,14 @@ function buildSyntheticRoute({
 }: SyntheticRouteInput): ActivatedRoute {
   const paramMap = convertToParamMap(params);
   const emptyMap = convertToParamMap({});
-  const snapshot: Record<string, unknown> = {
+  const snapshot = routeSnapshot({
     url,
     params,
-    paramMap,
     queryParams: {},
-    queryParamMap: emptyMap,
     fragment: null,
     data,
-    outlet: 'primary',
-    component: null,
     routeConfig: null,
-    title: undefined,
-    parent: null,
-    firstChild: null,
-    children: [],
-  };
+  });
   snapshot['pathFromRoot'] = [snapshot];
   snapshot['root'] = snapshot;
   return {

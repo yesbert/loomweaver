@@ -88,6 +88,11 @@ are corrected in the same pull request and the reason is stated in its descripti
   deliberately follows no other window, while `persistedSetting` is the settings port with cross-tab
   sync. They share the record parsers instead.
 
+- **The route data key `urlDriven` keeps its name (task 4.3).** The surface route data is typed now,
+  but the key is published: the plugin contract's JSDoc on sub-routes, two guides and the assistant
+  file tell a weaver to read `data.urlDriven`, and weavers do. Renaming it to `carriesAddress` breaks
+  them, so it is listed for the owner instead.
+
 - **No `lwLabel` pipe (task 2.8).** The strips resolve "a key unless marked literal" with the
   translation pipe in two templates. A pipe of our own would have to reproduce what that pipe does
   while a bundle is in flight: nothing until the bundle has loaded, the key once an empty one has.
@@ -164,6 +169,8 @@ a task below unless the task says so.
   `SettingsService` members have no caller; `LocaleService.supported` names what the rest calls
   served; two workspace tokens are exported although their JSDoc says a distribution never injects
   them; the plugin store's and permissions' translation keys live under `settings.*`.
+- The route data key `urlDriven` names what the workbench everywhere else calls "carries the
+  address"; a rename to `carriesAddress` would need both keys for a release.
 - Additive, so a patch if accepted: `CommandService.trigger` taking the menu context (lets the menu
   stop running items its own way), a shared options base for the two search-entry providers,
   `Recipe.amend` on the weaver and auth-source recipes, a surface-shaped entry point on

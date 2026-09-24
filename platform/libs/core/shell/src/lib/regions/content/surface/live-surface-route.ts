@@ -11,6 +11,8 @@ import {
 import { BehaviorSubject, Observable, distinctUntilChanged, map } from 'rxjs';
 import { matchRoute, paramsOfPattern, segmentsOf } from '../content-path';
 import { RegisteredContentRoute } from '../../../plugin/contribution-registry';
+import { routeSnapshot } from './route-snapshot';
+import { SurfaceRouteData } from './surface-route-data';
 
 export interface SurfaceAddress {
   readonly path: string;
@@ -30,7 +32,7 @@ interface RouteState {
   readonly params: Params;
   readonly queryParams: Params;
   readonly fragment: string | null;
-  readonly data: Data;
+  readonly data: SurfaceRouteData;
   readonly subUrl: UrlSegment[];
   readonly subParams: Params;
 }
@@ -82,24 +84,16 @@ function snapshotOf(
   state: RouteState,
   child: Record<string, unknown> | null,
 ): ActivatedRouteSnapshot {
-  const paramMap = convertToParamMap(state.params);
-  const queryParamMap = convertToParamMap(state.queryParams);
-  const snapshot: Record<string, unknown> = {
+  const snapshot = routeSnapshot({
     url: state.url,
     params: state.params,
-    paramMap,
     queryParams: state.queryParams,
-    queryParamMap,
     fragment: state.fragment,
     data: state.data,
-    outlet: 'primary',
-    component: null,
     routeConfig: state.routeConfig,
-    title: undefined,
-    parent: null,
-    firstChild: child,
-    children: child ? [child] : [],
-  };
+  });
+  snapshot['firstChild'] = child;
+  snapshot['children'] = child ? [child] : [];
   snapshot['pathFromRoot'] = [snapshot];
   snapshot['root'] = snapshot;
   if (child) {
@@ -114,24 +108,17 @@ function childSnapshotOf(state: RouteState): Record<string, unknown> | null {
   if (state.subUrl.length === 0) {
     return null;
   }
-  return {
+  return routeSnapshot({
     url: state.subUrl,
     params: state.subParams,
-    paramMap: convertToParamMap(state.subParams),
     queryParams: state.queryParams,
-    queryParamMap: convertToParamMap(state.queryParams),
     fragment: state.fragment,
     data: { sub: true },
-    outlet: 'primary',
-    component: null,
     routeConfig: null,
-    title: undefined,
-    firstChild: null,
-    children: [],
-  };
+  });
 }
 
-function view<T>(state: Observable<RouteState>, pick: (s: RouteState) => T) {
+function select<T>(state: Observable<RouteState>, pick: (s: RouteState) => T) {
   return state.pipe(map(pick), distinctUntilChanged<T>(same));
 }
 
@@ -141,29 +128,29 @@ export function liveSurfaceRoute(
   instanceId?: string,
 ): LiveSurfaceRoute {
   const state$ = new BehaviorSubject(stateOf(route, instanceId, initial));
-  const child$ = view(state$, (s) => s.subUrl);
-  const queryParams$ = view(state$, (s) => s.queryParams);
-  const fragment$ = view(state$, (s) => s.fragment);
+  const child$ = select(state$, (s) => s.subUrl);
+  const queryParams$ = select(state$, (s) => s.queryParams);
+  const fragment$ = select(state$, (s) => s.fragment);
   const snapshot = (): ActivatedRouteSnapshot => {
     const state = state$.value;
     return snapshotOf(state, childSnapshotOf(state));
   };
-  const params$ = view(state$, (s) => s.params);
+  const params$ = select(state$, (s) => s.params);
   const live: Record<string, unknown> = {
-    url: view(state$, (s) => s.url),
+    url: select(state$, (s) => s.url),
     params: params$,
     paramMap: params$.pipe(map((p): ParamMap => convertToParamMap(p))),
     queryParams: queryParams$,
     queryParamMap: queryParams$.pipe(map((p) => convertToParamMap(p))),
     fragment: fragment$,
-    data: view(state$, (s) => s.data),
+    data: select(state$, (s) => s.data),
     title: new BehaviorSubject<string | undefined>(undefined),
     outlet: 'primary',
     component: null,
     parent: null,
     children: [],
   };
-  const subParams$ = view(state$, (s) => s.subParams);
+  const subParams$ = select(state$, (s) => s.subParams);
   const childRoute: Record<string, unknown> = {
     url: child$,
     params: subParams$,

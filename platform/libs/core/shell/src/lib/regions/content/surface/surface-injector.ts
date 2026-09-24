@@ -67,17 +67,25 @@ function newMount(
   const live = liveSurfaceRoute(route, address, key);
   return {
     live,
-    injector: Injector.create({
-      parent,
-      providers: [
-        { provide: ActivatedRoute, useValue: live.route },
-        {
-          provide: ChildrenOutletContexts,
-          useValue: new ChildrenOutletContexts(environmentInjector),
-        },
-      ],
-    }),
+    injector: routeInjector(parent, environmentInjector, live.route),
   };
+}
+
+function routeInjector(
+  parent: Injector,
+  environmentInjector: EnvironmentInjector,
+  route: ActivatedRoute,
+): Injector {
+  return Injector.create({
+    parent,
+    providers: [
+      { provide: ActivatedRoute, useValue: route },
+      {
+        provide: ChildrenOutletContexts,
+        useValue: new ChildrenOutletContexts(environmentInjector),
+      },
+    ],
+  });
 }
 
 export type DockedSurfaceInjectorFactory = (
@@ -97,19 +105,11 @@ export function dockedSurfaceInjectorFactory(
     if (cached) {
       return cached;
     }
-    const injector = Injector.create({
+    const injector = routeInjector(
       parent,
-      providers: [
-        {
-          provide: ActivatedRoute,
-          useValue: syntheticDockedRoute(view, instanceId, params),
-        },
-        {
-          provide: ChildrenOutletContexts,
-          useValue: new ChildrenOutletContexts(environmentInjector),
-        },
-      ],
-    });
+      environmentInjector,
+      syntheticDockedRoute(view, instanceId, params),
+    );
     cache.set(key, injector);
     return injector;
   };
