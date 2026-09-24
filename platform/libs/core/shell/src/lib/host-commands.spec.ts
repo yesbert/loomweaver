@@ -3,8 +3,8 @@ import { FeatureSwitches } from './features/feature-switches.service';
 import { TestBed } from '@angular/core/testing';
 import { ContributionRegistry } from './plugin/contribution-registry';
 import { ShellLayout } from './layout/layout';
-import { HostCommandDeps, seedHostCommands } from './shell-seeds';
-import { BuiltInMenuDeps, seedBuiltInMenus } from './shell-menu-seeds';
+import { HostCommandDeps, seedHostCommands } from './host-commands';
+import { BuiltInMenuDeps, seedBuiltInMenus } from './built-in-menus';
 import {
   provideShellFeatures,
   ShellFeaturesInput,

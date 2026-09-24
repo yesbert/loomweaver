@@ -106,7 +106,7 @@ function valueOf(raw, known) {
 
 /** Every command the shell registers, as id → the translation key it is titled by. */
 function commandsFromSeeds(known) {
-  const source = readFileSync(join(shell, 'shell-seeds.ts'), 'utf8');
+  const source = readFileSync(join(shell, 'host-commands.ts'), 'utf8');
   const commands = new Map();
   const unresolved = [];
   for (const match of source.matchAll(/addCommand\(\s*\{/g)) {

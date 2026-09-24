@@ -10,7 +10,7 @@ feature needs (service + UI + contracts + specs). There are no `services/` or
 `components/`-style type buckets (current Angular style guide: "avoid creating
 directories like components, directives, and services").
 
-- **`shell.*` / `provide-shell.ts` / `shell-seeds.ts` / `default-settings.ts`** — root
+- **`shell.*` / `provide-shell.ts` / `host-commands.ts` / `built-in-menus.ts` / `default-settings.ts`** — root
   component + DI composition entry (`provideShell({ omit })`).
 - **`layout/`** — the declarative region-agnostic model (`layout`, `view`) + viewport
   breakpoint service.

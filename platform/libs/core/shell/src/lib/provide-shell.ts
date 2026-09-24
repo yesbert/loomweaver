@@ -80,8 +80,8 @@ import {
   installCompositionReport,
 } from './diagnostics/composition-report';
 import { registerDefaultSettings } from './default-settings';
-import { seedContributions, seedHostCommands } from './shell-seeds';
-import { seedBuiltInMenus } from './shell-menu-seeds';
+import { seedContributions, seedHostCommands } from './host-commands';
+import { seedBuiltInMenus } from './built-in-menus';
 import { ThemeService } from './theme/theme.service';
 import { FontScaleService } from './text-size/font-scale.service';
 
