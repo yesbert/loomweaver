@@ -3,12 +3,11 @@ import { Component, computed, effect, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter, map } from 'rxjs/operators';
-import { TranslocoService } from '@jsverse/transloco';
 import { PRODUCT_IDENTITY } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../plugin/contribution-registry';
 import { ContentSecondaryPane } from '../regions/content/content-secondary-pane';
 import { paneLabelOf, resolveTitle } from '../regions/pane/drag/pane-label';
-import { LocaleService } from '../i18n/locale.service';
+import { Wording } from '../i18n/wording';
 import { popoutTargetFromUrl } from './popout-path';
 
 @Component({
@@ -20,8 +19,7 @@ import { popoutTargetFromUrl } from './popout-path';
 export class PopoutView {
   private readonly router = inject(Router);
   private readonly registry = inject(ContributionRegistry);
-  private readonly transloco = inject(TranslocoService);
-  private readonly locale = inject(LocaleService);
+  private readonly wording = inject(Wording);
   private readonly product = inject(PRODUCT_IDENTITY);
   private readonly document = inject(DOCUMENT);
 
@@ -37,16 +35,10 @@ export class PopoutView {
     () => popoutTargetFromUrl(this.url()) ?? '',
   );
 
-  private readonly translations = toSignal(this.transloco.events$, {
-    initialValue: null,
-  });
-
   constructor() {
     effect(() => {
-      this.locale.lang();
-      this.translations();
       const label = paneLabelOf(this.registry, this.target());
-      const title = resolveTitle(label, (key) => this.transloco.translate(key));
+      const title = resolveTitle(label, (key) => this.wording.translate(key));
       this.document.title = `${title} — ${this.product.name}`;
     });
   }
