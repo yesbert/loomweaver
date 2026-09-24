@@ -1,15 +1,10 @@
 import { inject, Service } from '@angular/core';
-import { MenuItem, SettingsSection } from '@loomweaver/plugin-sdk';
 import { BAR_ITEM } from '../foundation/bar-item';
 import { RAIL_ITEM } from '../foundation/rail-item';
 import { VIEW } from '../views/view';
-import { Command } from '@loomweaver/plugin-sdk';
-import { chordSignature, isMacPlatform } from '../commands/keybinding';
+import { isMacPlatform } from '../commands/keybinding';
 import { ContributionRegistry } from '../plugin/contribution-registry';
-import { RegionType, SHELL_LAYOUT } from '../layout/layout';
-import { ROUTE_OMIT_PREFIX } from '../plugin/route-omit';
-import { SETTING_OMIT_PREFIX } from '../settings/setting-omit';
-import { menuEntryId } from '../menu/menu-entry-id';
+import { SHELL_LAYOUT } from '../layout/layout';
 import { SettingsService } from '../settings/settings.service';
 import {
   DEFAULT_SHELL_FEATURES,
@@ -19,7 +14,19 @@ import { VersionService } from '../version/version.service';
 import { REQUIRED_PLUGINS } from '../foundation/required-plugins';
 import { PLUGIN } from '../plugin/plugin';
 import { FRAME_PLUGIN } from '../plugin/sandbox/frame-plugin';
-import { regionById } from '../layout/layout-queries';
+import {
+  CommandReference,
+  contestedShortcuts,
+  danglingCommands,
+  menuLabel,
+  misplacedContributions,
+  OmitTargets,
+  Placement,
+  settingIds,
+  uncomposedRequirements,
+  unmatchedOmits,
+  unmatchedRowReplacements,
+} from './composition-checks';
 
 @Service()
 export class CompositionReport {
@@ -51,7 +58,7 @@ export class CompositionReport {
       `Capabilities off: ${this.disabledFeatures().join(', ') || 'none'}`,
       `Omitted: ${[...this.registry.omitted()].join(', ') || 'none'}`,
     ];
-    const problems = [...this.staticProblems(), ...this.problems()];
+    const problems = [...this.staticProblems(), ...this.registryProblems()];
     console.info(
       ['LoomWeaver composition', ...lines.map((line) => `  ${line}`)].join(
         '\n',
@@ -84,213 +91,100 @@ export class CompositionReport {
   }
 
   private staticProblems(): string[] {
-    const problems: string[] = [];
-    for (const item of this.barItems) {
-      this.pushUnlessRegion(problems, item.id, item.bar, 'bar');
-    }
-    for (const item of this.railItems) {
-      this.pushUnlessRegion(problems, item.id, item.rail, 'rail');
-    }
-    for (const view of this.views) {
-      this.pushUnlessRegion(problems, view.id, view.region, 'panel');
-    }
-    return [...problems, ...this.uncomposedRequirements()];
-  }
-
-  private uncomposedRequirements(): string[] {
-    const composed = new Set([
-      ...this.plugins.map((plugin) => plugin.manifest.id),
-      ...this.framePlugins.map((plugin) => plugin.id),
-    ]);
-    const missing = this.required.filter((id) => !composed.has(id));
-    return missing.length === 0
-      ? []
-      : [
-          `Composition: provideRequiredPlugins names ${missing.join(', ')}, which this ` +
-            'distribution does not compose, so the declaration is ignored.',
-        ];
-  }
-
-  private pushUnlessRegion(
-    problems: string[],
-    itemId: string,
-    regionId: string,
-    expected: RegionType,
-  ): void {
-    const region = regionById(this.layout, regionId);
-    if (region?.type === expected) {
-      return;
-    }
-    const detail = region
-      ? `a '${region.type}' region`
-      : 'a region this layout does not declare';
-    const alternatives = this.layout.regions
-      .filter((entry) => entry.type === expected)
-      .map((entry) => entry.id);
-    const hint = alternatives.length
-      ? ` Declared '${expected}' regions: ${alternatives.join(', ')}.`
-      : ` This layout declares no '${expected}' region at all.`;
-    problems.push(
-      `Composition: "${itemId}" is contributed to '${regionId}' — ${detail}. ` +
-        `A '${expected}' contribution renders only in a '${expected}' region, so it will not ` +
-        `appear.${hint}`,
-    );
-  }
-
-  private problems(): string[] {
     return [
-      ...this.unmatchedOmits(),
-      ...this.unmatchedRowReplacements(),
-      ...this.danglingCommands(),
-      ...this.contestedShortcuts(),
+      ...misplacedContributions(this.layout, this.placements()),
+      ...uncomposedRequirements(this.required, this.composedPluginIds()),
     ];
   }
 
-  private contestedShortcuts(): string[] {
-    const claims = new Map<string, Command[]>();
-    const isMac = isMacPlatform();
-    for (const command of this.registry.commands()) {
-      if (!command.shortcut) {
-        continue;
-      }
-      const signature = chordSignature(command.shortcut, isMac);
-      if (signature === null) {
-        continue;
-      }
-      claims.set(signature, [...(claims.get(signature) ?? []), command]);
-    }
-    const problems: string[] = [];
-    for (const contesting of claims.values()) {
-      if (contesting.length < 2) {
-        continue;
-      }
-      problems.push(contestedShortcut(contesting));
-    }
-    return problems;
+  private registryProblems(): string[] {
+    return [
+      ...unmatchedOmits(this.registry.omitted(), this.omitTargets()),
+      ...unmatchedRowReplacements(
+        this.settings.registered(),
+        this.settings.replacedRowIds(),
+      ),
+      ...danglingCommands(
+        new Set(this.registry.commands().map((command) => command.id)),
+        this.commandReferences(),
+      ),
+      ...contestedShortcuts(this.registry.commands(), isMacPlatform()),
+    ];
   }
 
-  private unmatchedOmits(): string[] {
-    const problems: string[] = [];
-    for (const id of this.registry.omitted()) {
-      if (this.omitMatches(id)) {
-        continue;
-      }
-      problems.push(
-        `Composition: omit '${id}' matched nothing, so it hides nothing.${this.omitHint(id)}`,
-      );
-    }
-    return problems;
+  private placements(): Placement[] {
+    return [
+      ...this.barItems.map((item) => ({
+        id: item.id,
+        region: item.bar,
+        expected: 'bar' as const,
+      })),
+      ...this.railItems.map((item) => ({
+        id: item.id,
+        region: item.rail,
+        expected: 'rail' as const,
+      })),
+      ...this.views.map((view) => ({
+        id: view.id,
+        region: view.region,
+        expected: 'panel' as const,
+      })),
+    ];
   }
 
-  private unmatchedRowReplacements(): string[] {
-    const rowIds = new Set(
-      this.settings
+  private composedPluginIds(): ReadonlySet<string> {
+    return new Set([
+      ...this.plugins.map((plugin) => plugin.manifest.id),
+      ...this.framePlugins.map((plugin) => plugin.id),
+    ]);
+  }
+
+  private omitTargets(): OmitTargets {
+    return {
+      settingIds: settingIds(this.settings.registered()),
+      routeIds: this.routeIds(),
+      registeredIds: this.registry.registeredIds(),
+    };
+  }
+
+  private commandReferences(): CommandReference[] {
+    return [
+      ...this.registry.menuItems().map((item) => ({
+        command: item.command,
+        what: menuLabel(item),
+      })),
+      ...this.registry
+        .barItems()
+        .flatMap((item) =>
+          'command' in item
+            ? [{ command: item.command, what: `bar item "${item.id}"` }]
+            : [],
+        ),
+      ...this.registry.railItems().map((item) => ({
+        command: item.command,
+        what: `rail item "${item.id}"`,
+      })),
+      ...this.registry.views().flatMap((view) =>
+        (view.actions ?? []).map((action) => ({
+          command: action.command,
+          what: `view action "${action.id}"`,
+        })),
+      ),
+      ...this.settings
         .registered()
-        .flatMap((section) => section.rows.map((row) => row.id)),
-    );
-    return this.settings
-      .replacedRowIds()
-      .filter((id) => !rowIds.has(id))
-      .map(
-        (id) =>
-          `Composition: row replacement '${id}' matched no row, so it replaces nothing.`,
-      );
-  }
-
-  private omitMatches(id: string): boolean {
-    if (id.startsWith(SETTING_OMIT_PREFIX)) {
-      return this.settingIds().has(id.slice(SETTING_OMIT_PREFIX.length));
-    }
-    if (id.startsWith(ROUTE_OMIT_PREFIX)) {
-      return this.routeIds().has(id.slice(ROUTE_OMIT_PREFIX.length));
-    }
-    return this.registry.registeredIds().has(id);
-  }
-
-  private omitHint(id: string): string {
-    if (id.includes(':')) {
-      return '';
-    }
-    if (this.settingIds().has(id)) {
-      return ` A settings section or row carries that id — did you mean '${SETTING_OMIT_PREFIX}${id}'?`;
-    }
-    if (this.routeIds().has(id)) {
-      return ` A routable surface carries that id — did you mean '${ROUTE_OMIT_PREFIX}${id}'?`;
-    }
-    if (this.registry.registeredIds().has(menuEntryId(id))) {
-      return ` A menu entry carries that id — did you mean '${menuEntryId(id)}'?`;
-    }
-    return '';
-  }
-
-  private danglingCommands(): string[] {
-    const commands = new Set(
-      this.registry.commands().map((command) => command.id),
-    );
-    const problems: string[] = [];
-    for (const item of this.registry.menuItems()) {
-      this.pushUnlessCommand(problems, commands, item.command, menuLabel(item));
-    }
-    for (const item of this.registry.barItems()) {
-      if ('command' in item) {
-        this.pushUnlessCommand(
-          problems,
-          commands,
-          item.command,
-          `bar item "${item.id}"`,
-        );
-      }
-    }
-    for (const item of this.registry.railItems()) {
-      this.pushUnlessCommand(
-        problems,
-        commands,
-        item.command,
-        `rail item "${item.id}"`,
-      );
-    }
-    for (const view of this.registry.views()) {
-      for (const action of view.actions ?? []) {
-        this.pushUnlessCommand(
-          problems,
-          commands,
-          action.command,
-          `view action "${action.id}"`,
-        );
-      }
-    }
-    for (const section of this.settings.registered()) {
-      for (const row of section.rows) {
-        if (row.control.kind === 'button') {
-          this.pushUnlessCommand(
-            problems,
-            commands,
-            row.control.command,
-            `settings row "${row.id}"`,
-          );
-        }
-      }
-    }
-    return problems;
-  }
-
-  private pushUnlessCommand(
-    problems: string[],
-    commands: ReadonlySet<string>,
-    command: string | undefined,
-    what: string,
-  ): void {
-    if (command === undefined || commands.has(command)) {
-      return;
-    }
-    problems.push(
-      `Composition: ${what} points at command '${command}', which no one registers (or which an ` +
-        `omit removed). The shell drops it rather than drawing a dead control.`,
-    );
-  }
-
-  private settingIds(): ReadonlySet<string> {
-    return idsOf(this.settings.registered());
+        .flatMap((section) =>
+          section.rows.flatMap((row) =>
+            row.control.kind === 'button'
+              ? [
+                  {
+                    command: row.control.command,
+                    what: `settings row "${row.id}"`,
+                  },
+                ]
+              : [],
+          ),
+        ),
+    ];
   }
 
   private routeIds(): ReadonlySet<string> {
@@ -319,31 +213,4 @@ export function installCompositionReport(report: CompositionReport): void {
   console.info(
     'LoomWeaver: call loomweaver.report() for this product’s composition.',
   );
-}
-
-function idsOf(sections: readonly SettingsSection[]): ReadonlySet<string> {
-  const ids = new Set<string>();
-  for (const section of sections) {
-    ids.add(section.id);
-    for (const row of section.rows) {
-      ids.add(row.id);
-    }
-  }
-  return ids;
-}
-
-function contestedShortcut(contesting: readonly Command[]): string {
-  const holder = contesting.at(-1) as Command;
-  const named = contesting.map((command) => `'${command.id}'`).join(', ');
-  return (
-    `Composition: the shortcut '${holder.shortcut}' is claimed by ${named}. It runs ` +
-    `'${holder.id}', the last to register it, so a control still offering that shortcut for any ` +
-    `of the others promises something it no longer does.`
-  );
-}
-
-function menuLabel(item: MenuItem): string {
-  return item.id === undefined
-    ? `menu entry in '${item.menu}'`
-    : `menu entry "${item.id}"`;
 }
