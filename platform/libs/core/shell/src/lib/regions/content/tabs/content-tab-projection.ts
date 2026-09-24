@@ -7,7 +7,13 @@ import {
 import { View } from '../../../layout/view';
 import { PaneTab } from '../../pane/tree/pane-node';
 import { overlayTabTitle } from '../../pane/drag/pane-label';
-import { matchRoute, normalizePath, segmentsOf, tabRootOf } from '../content-path';
+import {
+  isHomePath,
+  matchRoute,
+  normalizePath,
+  segmentsOf,
+  tabRootOf,
+} from '../content-path';
 
 const DYNAMIC_TAB_ORDER_BASE = 1000;
 const VIEW_TAB_ORDER_BASE = 2000;
@@ -68,15 +74,46 @@ export function declaringRoute(
     : route;
 }
 
-export function defaultTabTitle(
+export interface RouteTitle {
+  readonly title: string;
+  readonly literalTitle: boolean;
+}
+
+export function routeTitle(
+  route: ContentRoute | undefined,
+  fallback: string,
+): RouteTitle {
+  return route?.title === undefined
+    ? { title: fallback, literalTitle: true }
+    : { title: route.title, literalTitle: route.titleIsLiteral ?? false };
+}
+
+export function opensATab(
   route: ContentRoute | undefined,
   root: string,
-): { readonly title: string; readonly literalTitle: boolean } {
-  return {
-    title: route?.title ?? root.split('/').pop() ?? root,
-    literalTitle:
-      route?.title === undefined ? true : (route.titleIsLiteral ?? false),
-  };
+): route is ContentRoute {
+  return (
+    route !== undefined &&
+    route.chromeless !== true &&
+    route.follows !== true &&
+    root !== ''
+  );
+}
+
+export function isStrippable(
+  routes: readonly ContentRoute[],
+  tab: OpenTab,
+): boolean {
+  if (isHomePath(tab.path)) {
+    return false;
+  }
+  const route = matchRoute(routes, tab.path);
+  return (
+    route !== undefined &&
+    route.chromeless !== true &&
+    route.follows !== true &&
+    (normalizePath(route.path) !== '' || normalizePath(tab.path) === '')
+  );
 }
 
 export function withRefreshedPath(
@@ -94,12 +131,7 @@ export function autoOpenedTab(
   root: string,
   path: string,
 ): OpenTab | null {
-  if (
-    !route ||
-    route.chromeless === true ||
-    route.follows === true ||
-    root === ''
-  ) {
+  if (!opensATab(route, root)) {
     return null;
   }
   return {
@@ -171,9 +203,7 @@ export function facetTabViews(
     .map(({ route, address }, index) => ({
       path: route.path,
       navPath: address,
-      title: route.title ?? route.path,
-      literalTitle:
-        route.title === undefined ? true : (route.titleIsLiteral ?? false),
+      ...routeTitle(route, route.path),
       icon: route.icon,
       order: index,
       closable: false,
@@ -230,4 +260,11 @@ export function viewTabViews(
         },
       ];
     });
+}
+
+function defaultTabTitle(
+  route: ContentRoute | undefined,
+  root: string,
+): RouteTitle {
+  return routeTitle(route, root.split('/').pop() ?? root);
 }

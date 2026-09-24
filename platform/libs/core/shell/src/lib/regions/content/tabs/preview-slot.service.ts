@@ -3,7 +3,7 @@ import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { matchRoute, tabRootOf } from '../content-path';
 import { OpenTab, toPaneTab } from './content-tab-projection';
 import { TabCloseHooks } from './tab-close-hooks';
-import { OpenTabsService } from './open-tabs.service';
+import { ContentTabState } from './content-tab-state';
 import { CONTENT_DOCK } from '../../pane/tree/pane-address';
 import { PaneLeaf } from '../../pane/tree/pane-node';
 import { findLeafWhere } from '../../pane/tree/pane-queries';
@@ -14,7 +14,7 @@ import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 export class PreviewSlotService {
   private readonly registry = inject(ContributionRegistry);
 
-  private readonly state = inject(OpenTabsService);
+  private readonly state = inject(ContentTabState);
 
   private readonly closeHooks = inject(TabCloseHooks);
 

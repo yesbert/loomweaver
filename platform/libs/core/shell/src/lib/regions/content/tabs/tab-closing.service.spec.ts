@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { ContentRoute } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
@@ -263,5 +263,78 @@ describe('TabClosingService on a pane that is not the address-carrying one', () 
     service.closeOthers('doc/x', pane);
     expect(guard.captured.at(-1)).toHaveLength(1);
     expect(paneTabs()).toEqual(['doc/x', 'doc/y', 'doc/z']);
+  });
+});
+
+describe('TabClosingService close hooks', () => {
+  let service: ContentTabsService;
+  let harness: RouterTestingHarness;
+
+  beforeEach(async () => {
+    localStorage.clear();
+    TestBed.configureTestingModule({
+      providers: [provideRouter(buildContentRoutes(ROUTES))],
+    });
+    const registry = TestBed.inject(ContributionRegistry);
+    for (const route of ROUTES) registry.addContentRoute(route);
+    service = TestBed.inject(ContentTabsService);
+    harness = await RouterTestingHarness.create();
+  });
+
+  it('runs the onClose of a tab once when it is closed', async () => {
+    await harness.navigateByUrl('/');
+    const onClose = vi.fn();
+    service.open({ path: 'doc/a', title: 'A.ts', onClose });
+
+    service.close('doc/a');
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('logs a failed navigation after a close and still closes the tab', async () => {
+    await harness.navigateByUrl('/');
+    service.open({ path: 'doc/a', title: 'A.ts' });
+    await harness.navigateByUrl('/doc/a');
+    vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockRejectedValue(
+      new Error('nav failed'),
+    );
+    const error = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined);
+
+    service.close('doc/a');
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(error).toHaveBeenCalledWith(
+      'Content navigation failed',
+      expect.any(Error),
+    );
+    expect(service.tabs().some((tab) => tab.path === 'doc/a')).toBe(false);
+    error.mockRestore();
+  });
+
+  it('does not run onClose while the tab merely stays open', async () => {
+    await harness.navigateByUrl('/');
+    const onClose = vi.fn();
+    service.open({ path: 'doc/a', title: 'A.ts', onClose });
+    service.open({ path: 'doc/b', title: 'B.ts' });
+
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it('runs a close hook only once the tab has left the pane that carries the address', async () => {
+    await harness.navigateByUrl('/');
+    const onClose = vi.fn();
+    service.open({ path: 'doc/a', title: 'A.ts', onClose });
+
+    service.runCloseHook('doc/a');
+    expect(onClose).not.toHaveBeenCalled();
+
+    service.close('doc/a');
+    expect(onClose).toHaveBeenCalledTimes(1);
+    service.runCloseHook('doc/a');
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 });

@@ -14,7 +14,7 @@ export interface AddressParts {
 export class CurrentAddress {
   private readonly router = inject(Router);
 
-  private readonly url = toSignal(
+  readonly url: Signal<string> = toSignal(
     this.router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd),
       map(() => this.router.url),

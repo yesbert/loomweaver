@@ -1,5 +1,4 @@
-import { TabBadge } from '@loomweaver/plugin-sdk';
-import { PaneLeaf, PaneNode, PaneTab, leafWith } from './pane-node';
+import { PaneNode, PaneTab, leafWith } from './pane-node';
 import { collapseLeaf, transformLeaf } from './pane-structure';
 
 export function insertTab(
@@ -37,63 +36,6 @@ export function replacePreviewTab(
     tabs: leaf.tabs.map((held) => (held.preview === true ? tab : held)),
     active: tab.path,
   }));
-}
-
-export interface TabTitlePatch {
-  readonly title?: string;
-  readonly literalTitle: boolean;
-  readonly icon?: string;
-  readonly badge?: TabBadge | null;
-}
-
-export function refineTabTitles(
-  node: PaneNode,
-  skipLeaf: (leaf: PaneLeaf) => boolean,
-  matches: (tabPath: string) => boolean,
-  patch: TabTitlePatch,
-): { node: PaneNode; found: boolean } {
-  if (node.kind === 'leaf') {
-    return refineLeafTitles(node, skipLeaf, matches, patch);
-  }
-  const first = refineTabTitles(node.first, skipLeaf, matches, patch);
-  const second = refineTabTitles(node.second, skipLeaf, matches, patch);
-  if (!first.found && !second.found) {
-    return { node, found: false };
-  }
-  return {
-    node: { ...node, first: first.node, second: second.node },
-    found: true,
-  };
-}
-
-function refineLeafTitles(
-  leaf: PaneLeaf,
-  skipLeaf: (leaf: PaneLeaf) => boolean,
-  matches: (tabPath: string) => boolean,
-  patch: TabTitlePatch,
-): { node: PaneNode; found: boolean } {
-  if (skipLeaf(leaf)) {
-    return { node: leaf, found: false };
-  }
-  let found = false;
-  const tabs = leaf.tabs.map((tab) => {
-    if (!matches(tab.path)) {
-      return tab;
-    }
-    found = true;
-    return withOwnBadge(
-      {
-        ...tab,
-        title: patch.title,
-        literalTitle: patch.literalTitle,
-        ...(patch.icon !== undefined && { icon: patch.icon }),
-      },
-      patch.badge,
-    );
-  });
-  return found
-    ? { node: { ...leaf, tabs }, found }
-    : { node: leaf, found: false };
 }
 
 export function setActiveTab(
@@ -220,11 +162,4 @@ export function removeTab(
 
 export function sparedByBulkClose(tab: PaneTab): boolean {
   return tab.pinned === true || tab.closable === false;
-}
-
-function withOwnBadge(tab: PaneTab, badge: TabBadge | null | undefined): PaneTab {
-  if (badge === undefined) {
-    return tab;
-  }
-  return badge === null ? tabWithout(tab, 'badge') : { ...tab, badge };
 }

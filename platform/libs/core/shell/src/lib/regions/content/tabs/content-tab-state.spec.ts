@@ -1,12 +1,11 @@
-import { ApplicationRef, Component } from '@angular/core';
+import { Component, EnvironmentProviders, Provider } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { ContentRoute } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
+import { CONTENT_DOCK, PRIMARY_PANE } from '../../pane/tree/pane-address';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
-import { PRIMARY_PANE } from '../../pane/tree/pane-address';
-import { WORKING_STATE_STORE } from '../../../persistence/working-state-store';
 import { buildContentRoutes } from '../routing/content-router';
 import { ContentTabsService } from './content-tabs.service';
 import { provideTabAddressResolver } from './tab-address';
@@ -19,49 +18,141 @@ const ROUTES: readonly ContentRoute[] = [
   { path: 'doc/:id', component: TestContent, id: 'testbed.doc' },
   { path: 'dashboard/overview', component: TestContent, title: 'k.dash' },
   { path: 'reports', component: TestContent, title: 'k.reports' },
-  { path: 'note/:id', component: TestContent, subRoutes: ['preview'] },
 ];
 
-describe('OpenTabsService re-reconciles after async hydration (LWF-02b)', () => {
-  it('keeps the auto-opened deep-link tab after the pane tree hydrates', async () => {
-    let resolve!: (raw: string | undefined) => void;
-    const set = vi.fn(() => Promise.resolve());
-    TestBed.configureTestingModule({
-      providers: [
-        provideRouter(buildContentRoutes(ROUTES)),
-        {
-          provide: WORKING_STATE_STORE,
-          useValue: {
-            get: (key: string) =>
-              key === 'lw.shell.active-workspace'
-                ? Promise.resolve(undefined)
-                : new Promise<string | undefined>((r) => (resolve = r)),
-            set,
-          },
-        },
-      ],
+async function setUp(
+  routes: readonly ContentRoute[] = ROUTES,
+  providers: (Provider | EnvironmentProviders)[] = [],
+) {
+  localStorage.clear();
+  TestBed.configureTestingModule({
+    providers: [provideRouter(buildContentRoutes(routes)), ...providers],
+  });
+  const registry = TestBed.inject(ContributionRegistry);
+  for (const route of routes) registry.addContentRoute(route);
+  const service = TestBed.inject(ContentTabsService);
+  const harness = await RouterTestingHarness.create();
+  return { service, harness };
+}
+
+describe('The tabs of the pane that carries the address', () => {
+  let service: ContentTabsService;
+  let harness: RouterTestingHarness;
+
+  beforeEach(async () => {
+    ({ service, harness } = await setUp());
+  });
+
+  it('lists the open tabs of every pane and the routes the user can reach', async () => {
+    await harness.navigateByUrl('/dashboard/overview');
+    service.open({ path: 'doc/a', title: 'A.ts', titleIsLiteral: true });
+    const paneTree = TestBed.inject(PaneTreeService);
+    paneTree.splitPane('content', PRIMARY_PANE, 'row', 'doc/b');
+
+    const targets = service.quickOpenTargets();
+    const byPath = new Map(targets.map((target) => [target.path, target]));
+    expect(byPath.has('doc/a')).toBe(true);
+    expect(byPath.has('doc/b')).toBe(true);
+    expect(byPath.get('reports')).toMatchObject({
+      title: 'k.reports',
+      closable: false,
     });
-    const registry = TestBed.inject(ContributionRegistry);
-    for (const route of ROUTES) registry.addContentRoute(route);
-    const service = TestBed.inject(ContentTabsService);
-    const harness = await RouterTestingHarness.create();
+    expect(byPath.get('doc/a')).toMatchObject({ closable: true });
+  });
 
+  it('exposes the active surface id, path and params', async () => {
     await harness.navigateByUrl('/doc/abc');
-    expect(service.tabs().some((tab) => tab.path === 'doc/abc')).toBe(true);
-    expect(set).not.toHaveBeenCalled();
+    expect(service.activeContent()).toEqual({
+      surfaceId: 'testbed.doc',
+      path: 'doc/abc',
+      params: { id: 'abc' },
+    });
 
-    resolve(
-      JSON.stringify({ content: { kind: 'leaf', id: PRIMARY_PANE, tabs: [] } }),
-    );
-    await Promise.resolve();
-    TestBed.inject(ApplicationRef).tick();
+    await harness.navigateByUrl('/dashboard/overview');
+    expect(service.activeContent()).toEqual({
+      surfaceId: null,
+      path: 'dashboard/overview',
+      params: {},
+    });
+  });
 
-    expect(service.tabs().some((tab) => tab.path === 'doc/abc')).toBe(true);
+  it('keeps the open tabs with their title and pin in the pane tree, so they reload', async () => {
+    await harness.navigateByUrl('/');
+    service.open({ path: 'doc/a', title: 'A.ts', titleIsLiteral: true });
+    service.pin('doc/a');
+
+    const raw = localStorage.getItem('lw.shell.pane-trees:default') ?? '';
+    expect(raw).toContain('doc/a');
+    expect(raw).toContain('A.ts');
+    expect(raw).toContain('"pinned":true');
+  });
+
+  const dynamicOrder = () =>
+    service
+      .tabs()
+      .filter((tab) => tab.closable)
+      .map((tab) => tab.path);
+
+  it('brings a clipped tab to the front of the unpinned tabs', async () => {
+    await harness.navigateByUrl('/');
+    service.open({ path: 'doc/a', title: 'A.ts' });
+    service.open({ path: 'doc/b', title: 'B.ts' });
+    service.open({ path: 'doc/c', title: 'C.ts' });
+    expect(dynamicOrder()).toEqual(['doc/a', 'doc/b', 'doc/c']);
+
+    service.bringToFront('doc/c');
+
+    expect(dynamicOrder()).toEqual(['doc/c', 'doc/a', 'doc/b']);
+  });
+
+  it('bringToFront keeps pinned tabs anchored ahead of the unpinned front', async () => {
+    await harness.navigateByUrl('/');
+    service.open({ path: 'doc/a', title: 'A.ts' });
+    service.open({ path: 'doc/b', title: 'B.ts' });
+    service.pin('doc/a');
+
+    service.bringToFront('doc/b');
+
+    expect(dynamicOrder()).toEqual(['doc/a', 'doc/b']);
+  });
+
+  it('writes the strip order to the pane that holds the tabs', async () => {
+    await harness.navigateByUrl('/');
+    service.open({ path: 'doc/a', title: 'A.ts' });
+    service.open({ path: 'doc/b', title: 'B.ts' });
+    service.open({ path: 'doc/c', title: 'C.ts' });
+    const paneTree = TestBed.inject(PaneTreeService);
+
+    service.bringToFront('doc/c');
+    expect(paneTree.primaryTabs(CONTENT_DOCK).map((tab) => tab.path)).toEqual([
+      'doc/c',
+      'doc/a',
+      'doc/b',
+    ]);
+
+    service.reorder(['doc/a', 'doc/b', 'doc/c']);
+    expect(paneTree.primaryTabs(CONTENT_DOCK).map((tab) => tab.path)).toEqual([
+      'doc/a',
+      'doc/b',
+      'doc/c',
+    ]);
+    expect(localStorage.getItem('lw.shell.item-order')).toBeNull();
+  });
+
+  it('bringToFront is a no-op for a pinned or unknown tab', async () => {
+    await harness.navigateByUrl('/');
+    service.open({ path: 'doc/a', title: 'A.ts' });
+    service.open({ path: 'doc/b', title: 'B.ts' });
+    service.pin('doc/b');
+
+    service.bringToFront('doc/b');
+    service.bringToFront('doc/zzz');
+
+    expect(dynamicOrder()).toEqual(['doc/b', 'doc/a']);
   });
 });
 
-
-describe('OpenTabsService strip without groups', () => {
+describe('The strip', () => {
   const MIXED: readonly ContentRoute[] = [
     { path: '', component: TestContent },
     { path: 'doc/:id', component: TestContent },
@@ -74,14 +165,7 @@ describe('OpenTabsService strip without groups', () => {
   let harness: RouterTestingHarness;
 
   beforeEach(async () => {
-    localStorage.clear();
-    TestBed.configureTestingModule({
-      providers: [provideRouter(buildContentRoutes(MIXED))],
-    });
-    const registry = TestBed.inject(ContributionRegistry);
-    for (const route of MIXED) registry.addContentRoute(route);
-    service = TestBed.inject(ContentTabsService);
-    harness = await RouterTestingHarness.create();
+    ({ service, harness } = await setUp(MIXED));
   });
 
   it('shows every open tab side by side, whichever one is active', async () => {
@@ -134,7 +218,67 @@ describe('OpenTabsService strip without groups', () => {
   });
 });
 
-describe('OpenTabsService following tabs (§7)', () => {
+describe('Pinned tabs', () => {
+  let service: ContentTabsService;
+  let harness: RouterTestingHarness;
+
+  const open = (id: string, preview = false) =>
+    service.open({
+      path: `doc/${id}`,
+      title: `${id}.ts`,
+      titleIsLiteral: true,
+      preview,
+    });
+  const tab = (id: string) =>
+    service.tabs().find((t) => t.path === `doc/${id}`);
+  const dynamicPaths = () =>
+    service
+      .tabs()
+      .filter((t) => t.closable)
+      .map((t) => t.path);
+
+  beforeEach(async () => {
+    ({ service, harness } = await setUp());
+    await harness.navigateByUrl('/');
+  });
+
+  it('pins a tab and shows the pinned marker', () => {
+    open('a');
+    service.pin('doc/a');
+    expect(tab('a')).toMatchObject({ pinned: true, closable: true });
+  });
+
+  it('sorts a pinned tab ahead of unpinned dynamic tabs, keeping open order within each band', () => {
+    open('a');
+    open('b');
+    open('c');
+    service.pin('doc/c');
+    expect(dynamicPaths()).toEqual(['doc/c', 'doc/a', 'doc/b']);
+  });
+
+  it('promotes a preview tab when it is pinned', () => {
+    open('a', true);
+    expect(tab('a')?.preview).toBe(true);
+    service.pin('doc/a');
+    expect(tab('a')).toMatchObject({ pinned: true, preview: false });
+  });
+
+  it('unpins a tab back to a normal, closable tab', () => {
+    open('a');
+    service.pin('doc/a');
+    service.unpin('doc/a');
+    expect(tab('a')).toMatchObject({ pinned: false, closable: true });
+  });
+
+  it('preserves the pinned state across an idempotent re-open', () => {
+    open('a');
+    service.pin('doc/a');
+    open('a');
+    expect(tab('a')?.pinned).toBe(true);
+  });
+});
+
+describe('Tabs that follow the address', () => {
   const FACETS: readonly ContentRoute[] = [
     { path: '', component: TestContent },
     {
@@ -154,20 +298,8 @@ describe('OpenTabsService following tabs (§7)', () => {
     { path: 'settings', component: TestContent, title: 'k.settings' },
   ];
 
-  async function setup(providers: unknown[] = []) {
-    localStorage.clear();
-    TestBed.configureTestingModule({
-      providers: [
-        provideRouter(buildContentRoutes(FACETS)),
-        ...(providers as never[]),
-      ],
-    });
-    const registry = TestBed.inject(ContributionRegistry);
-    for (const route of FACETS) registry.addContentRoute(route);
-    const service = TestBed.inject(ContentTabsService);
-    const harness = await RouterTestingHarness.create();
-    return { service, harness };
-  }
+  const setup = (providers: (Provider | EnvironmentProviders)[] = []) =>
+    setUp(FACETS, providers);
 
   const navPathOf = (service: ContentTabsService, title: string) =>
     service.tabs().find((tab) => tab.title === title)?.navPath;
@@ -249,7 +381,7 @@ describe('OpenTabsService following tabs (§7)', () => {
     );
   });
 
-  it('never rewrites a tab held by another pane — that copy freezes (§8)', async () => {
+  it('never rewrites a copy another pane holds', async () => {
     const { service, harness } = await setup();
     await harness.navigateByUrl('/cedents/US003950/programs/205470/pricing');
     const paneTree = TestBed.inject(PaneTreeService);
