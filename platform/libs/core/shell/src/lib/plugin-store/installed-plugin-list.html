@@ -41,7 +41,7 @@
             @if (row.category) {
               <span class="lw-badge">{{ row.category }}</span>
             }
-            @if (row.provided) {
+            @if (row.deployed) {
               <span
                 class="lw-badge"
                 [attr.data-testid]="'store-provided-' + row.id"
@@ -54,7 +54,7 @@
               'settings.storeBy' | transloco: { author: row.author }
             }}</span>
           }
-          @if (row.provided) {
+          @if (row.deployed) {
             <span class="block text-xs text-content-muted">{{
               'settings.storeProvidedHint' | transloco
             }}</span>
@@ -88,7 +88,7 @@
               />
             </button>
           }
-          @if (!row.provided) {
+          @if (!row.deployed) {
             <input
               type="checkbox"
               role="switch"

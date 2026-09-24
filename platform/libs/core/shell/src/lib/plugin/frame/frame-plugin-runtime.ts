@@ -52,9 +52,9 @@ interface FrameInstance {
  * serialise across the boundary; the reserved Angular-only surface (`component`) never crosses it.
  *
  * Activation reconciles against the union of three sets: the composed {@link FramePlugin} list,
- * what the operator deployed through the catalog, and what the user installed. Installing spawns a
- * plugin live, uninstalling unloads it, and a catalog that stops carrying a deployed entry unloads
- * that one — all without a reload. Authority decides an id collision: composed wins over deployed,
+ * what the operator deployed through the catalog, and what the user installed. Installing activates
+ * a plugin live, uninstalling deactivates it, and a catalog that stops carrying a deployed entry
+ * deactivates that one, all without a reload. Authority decides an id collision: composed wins over deployed,
  * and deployed wins over installed, because a deployed entry holds exactly what it names and a
  * user's consent cannot narrow what the operator issued.
  */
@@ -70,7 +70,7 @@ export class FramePluginRuntime {
 
   private readonly isolation = inject(PluginIsolationLevelService);
 
-  private readonly catalogCap = inject(CATALOG_MAX_ISOLATION_LEVEL);
+  private readonly catalogMaxLevel = inject(CATALOG_MAX_ISOLATION_LEVEL);
   private readonly refusals = inject(CapabilityRefusalReporter);
 
   private readonly store = inject(SETTINGS_STORE);
@@ -150,25 +150,25 @@ export class FramePluginRuntime {
       this.plugins,
       installed,
       deployed,
-      this.catalogCap,
+      this.catalogMaxLevel,
     );
     for (const plugin of runnable) {
       this.enablement.register(plugin.id, plugin.name ?? plugin.id);
-      const enabled = plugin.provided === true || !disabled.has(plugin.id);
+      const enabled = plugin.deployed === true || !disabled.has(plugin.id);
       const running = this.instances.get(plugin.id);
       if (enabled && !running) {
-        this.spawn(plugin);
+        this.activate(plugin);
       } else if (!enabled && running) {
         this.deactivate(plugin.id);
       } else if (enabled && running?.signature !== signatureOf(plugin)) {
         this.deactivate(plugin.id);
-        this.spawn(plugin);
+        this.activate(plugin);
       }
     }
-    this.dropUninstalled(runnable);
+    this.deactivateUnlisted(runnable);
   }
 
-  private dropUninstalled(runnable: readonly RunnableFramePlugin[]): void {
+  private deactivateUnlisted(runnable: readonly RunnableFramePlugin[]): void {
     const known = new Set(runnable.map((plugin) => plugin.id));
     for (const id of this.instances.keys()) {
       if (known.has(id)) {
@@ -179,7 +179,7 @@ export class FramePluginRuntime {
     }
   }
 
-  private spawn(plugin: RunnableFramePlugin): void {
+  private activate(plugin: RunnableFramePlugin): void {
     this.grants.register(plugin.id, plugin.capabilities, plugin.granted);
     this.isolation.register(plugin.id, levelOf(plugin));
     const ctx = this.factory.create(plugin.id, (capability) =>

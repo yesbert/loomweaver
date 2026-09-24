@@ -30,10 +30,7 @@ export function warnUndescribedCallable(
   }
 }
 
-export function warnUnsupportedRetain(
-  pluginId: string,
-  surface: Surface,
-): void {
+export function warnIgnoredRetention(pluginId: string, surface: Surface): void {
   if (!isDevMode()) {
     return;
   }

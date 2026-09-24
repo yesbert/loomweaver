@@ -182,9 +182,12 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   the pairs that disappear.
   `tabBadgeOf` and `disposeTogether` joined `contributions/` instead of the full `foundation/`;
   `menu <-> plugin` and `plugin <-> settings` left the baseline.
-- [ ] 6.3 One lifecycle vocabulary: deployed (not provided), one constant for the installed-plugins
+- [x] 6.3 One lifecycle vocabulary: deployed (not provided), one constant for the installed-plugins
   settings group, activate and deactivate in both runtimes, `deactivateUnlisted`, isolation level (not
   rung or cap), and the names that promise less than their function does.
+  "Rung" stays where it names the three levels of trust (trusted, isolated, embedded), since the
+  glossary and the guides use it for exactly that; "cap" is gone. `withBadge` is renamed with 6.8,
+  which cuts `host-plugin-context.ts`: that file sits at 399 lines and a longer name wraps a line.
 - [ ] 6.4 "A deployed plugin is always on" is decided by the enablement service once, like "a required
   plugin is always on".
 - [ ] 6.5 The store's install, update and uninstall confirmations become one service; the disable guard
@@ -194,7 +197,8 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 - [ ] 6.7 The registry: one surface-shaped entry point, the common surface fields picked once, one
   omit filter, surface badges in their own small service, `idsOf`.
 - [ ] 6.8 `HostPluginContext` gets its services through `inject()`; the `ui` facade and the surface
-  admission rules move out; `host-plugin-context.spec.ts` (1255 lines) split the same way.
+  admission rules move out; `host-plugin-context.spec.ts` (1255 lines) split the same way. `withBadge`
+  becomes a name that says it also tracks the registration (from 6.3).
 - [ ] 6.9 The frame RPC: wire-field helpers, the sanitizer and settings files split by input kind, one
   per-frame session object owning watched keys and cleanups, every RPC entry validating its primitive
   arguments the same way, refused catalog entries reported once; `sandbox-plugin-runtime.spec.ts`

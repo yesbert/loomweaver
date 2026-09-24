@@ -10,7 +10,7 @@ import { FramePlugin } from './frame-plugin';
 export interface RunnableFramePlugin extends FramePlugin {
   readonly granted?: readonly Capability[];
   readonly version?: string;
-  readonly provided?: boolean;
+  readonly deployed?: boolean;
 }
 
 export function levelOf(plugin: RunnableFramePlugin): PluginIsolationLevel {
@@ -27,20 +27,20 @@ export function runnablePlugins(
   composed: readonly FramePlugin[],
   installed: readonly InstalledPlugin[],
   deployed: readonly InstalledPlugin[],
-  catalogCap: PluginIsolationLevel,
+  catalogMaxLevel: PluginIsolationLevel,
 ): readonly RunnableFramePlugin[] {
   const claimed = new Set(composed.map((plugin) => plugin.id));
-  const provided = new Set(deployed.map((plugin) => plugin.id));
+  const deployedIds = new Set(deployed.map((plugin) => plugin.id));
   const fromCatalog: RunnableFramePlugin[] = [];
   for (const plugin of [...deployed, ...installed]) {
     if (claimed.has(plugin.id)) {
       continue;
     }
     const asked = plugin.level ?? DEFAULT_ISOLATION_LEVEL;
-    if (exceedsLevel(asked, catalogCap)) {
+    if (exceedsLevel(asked, catalogMaxLevel)) {
       console.error(
         `Plugin "${plugin.id}" asks to run ${asked}, which this catalog may not confer ` +
-          `(its cap is ${catalogCap}). It is not started.`,
+          `(it confers at most ${catalogMaxLevel}). It is not started.`,
       );
       continue;
     }
@@ -53,7 +53,7 @@ export function runnablePlugins(
       granted: plugin.capabilities ?? [],
       version: plugin.version,
       level: asked,
-      provided: provided.has(plugin.id) || undefined,
+      deployed: deployedIds.has(plugin.id) || undefined,
     });
   }
   return [...composed, ...fromCatalog];
