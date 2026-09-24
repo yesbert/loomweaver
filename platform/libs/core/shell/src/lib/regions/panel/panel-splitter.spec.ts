@@ -139,4 +139,18 @@ describe('PanelSplitter', () => {
     ) as HTMLElement;
     expect(handle.getAttribute('aria-valuenow')).toBe(String(MAX_PANEL_WIDTH));
   });
+
+  it('ends a drag whose edge goes away before release, and keeps the width reached', () => {
+    render('left');
+    pointer('pointerdown', { clientX: 100, pointerId: 1 });
+    pointer('pointermove', { clientX: 140, pointerId: 1 });
+    expect(size.isResizing()).toBe(true);
+
+    fixture.destroy();
+
+    expect(size.isResizing()).toBe(false);
+    expect(localStorage.getItem('lw.shell.panel-sizes')).toContain(
+      String(DEFAULT_PANEL_WIDTH + 40),
+    );
+  });
 });

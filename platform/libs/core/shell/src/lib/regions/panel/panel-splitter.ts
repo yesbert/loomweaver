@@ -1,4 +1,4 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, DestroyRef, inject, input } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { PanelSizeService } from './panel-size.service';
 
@@ -27,6 +27,10 @@ export class PanelSplitter {
   private startX = 0;
   private startWidth = 0;
 
+  constructor() {
+    inject(DestroyRef).onDestroy(() => this.endDrag());
+  }
+
   protected onPointerDown(event: PointerEvent): void {
     event.preventDefault();
     this.dragging = true;
@@ -52,9 +56,8 @@ export class PanelSplitter {
     if (!this.dragging) {
       return;
     }
-    this.dragging = false;
     (event.target as HTMLElement).releasePointerCapture(event.pointerId);
-    this.size.endResize();
+    this.endDrag();
   }
 
   protected onKeydown(event: KeyboardEvent): void {
@@ -84,6 +87,14 @@ export class PanelSplitter {
     event.preventDefault();
     this.size.setWidth(this.regionId(), next);
     this.size.commit();
+  }
+
+  private endDrag(): void {
+    if (!this.dragging) {
+      return;
+    }
+    this.dragging = false;
+    this.size.endResize();
   }
 
   private edgeSign(): number {
