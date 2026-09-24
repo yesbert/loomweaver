@@ -13,7 +13,7 @@ import {
   input,
   untracked,
 } from '@angular/core';
-import { moveNode } from './atomic-move';
+import { placeBefore } from './atomic-move';
 import { RetainedSlot } from './retained-view-model';
 import { RetainedViewStash } from './retained-view-stash';
 import { SurfaceRetentionMode } from './retention-policy';
@@ -104,7 +104,7 @@ export class RetainedComponent implements OnChanges, OnDestroy {
       { parent: this.anchor.parentNode, hold },
     );
     if (!slot.attached && !slot.held()) {
-      this.place(slot.rootNodes);
+      placeBefore(this.anchor, slot.rootNodes);
     }
     this.mounted = {
       key,
@@ -161,7 +161,7 @@ export class RetainedComponent implements OnChanges, OnDestroy {
       this.repairQueued = false;
       const mounted = this.mounted;
       if (mounted && !mounted.slot.stale() && this.misplaced(mounted.slot)) {
-        this.place(mounted.slot.rootNodes);
+        placeBefore(this.anchor, mounted.slot.rootNodes);
       }
     }, 0);
   }
@@ -175,15 +175,5 @@ export class RetainedComponent implements OnChanges, OnDestroy {
     return (
       parent !== null && nodes.some((node) => node.parentNode !== parent)
     );
-  }
-
-  private place(nodes: readonly Node[]): void {
-    const parent = this.anchor.parentNode;
-    if (!parent) {
-      return;
-    }
-    for (const node of nodes) {
-      moveNode(parent, node, this.anchor);
-    }
   }
 }

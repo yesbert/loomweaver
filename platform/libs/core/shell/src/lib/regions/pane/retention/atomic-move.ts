@@ -21,6 +21,16 @@ function insertNode(parent: Node, node: Node, before: Node | null): void {
   (before as ChildNode).before(node);
 }
 
+export function placeBefore(anchor: Node, nodes: readonly Node[]): void {
+  const parent = anchor.parentNode;
+  if (!parent) {
+    return;
+  }
+  for (const node of nodes) {
+    moveNode(parent, node, anchor);
+  }
+}
+
 export function moveNode(
   parent: Node,
   node: Node,
