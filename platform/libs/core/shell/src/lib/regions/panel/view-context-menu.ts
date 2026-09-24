@@ -10,6 +10,15 @@ import { ViewStateService } from '../../views/view-state.service';
 import { ViewInstanceService } from '../../views/view-instance.service';
 import { PopoutService } from '../../popout/popout.service';
 import { VIEW_CONTEXT_MENU } from '../pane/chrome/view-menu-slot';
+import { menuEntryId } from '../../menu/menu-entry-id';
+import { VIEWS_CUSTOMIZE_COMMAND_ID } from '../../commands/host-command-ids';
+
+const VIEW_HIDE_COMMAND_ID = 'shell.view.hide';
+const VIEW_MOVE_TO_OTHER_SIDEBAR_COMMAND_ID = 'shell.view.moveToOtherSidebar';
+const VIEW_OPEN_IN_CONTENT_COMMAND_ID = 'shell.view.openInContent';
+const VIEW_OPEN_IN_WINDOW_COMMAND_ID = 'shell.view.openInWindow';
+const VIEW_RESET_STATE_COMMAND_ID = 'shell.view.resetState';
+const VIEW_STACK_BELOW_COMMAND_ID = 'shell.view.stackBelow';
 
 export const PANEL_STRIP_CONTEXT_MENU = 'panel/strip/context';
 
@@ -18,9 +27,9 @@ export function registerViewCustomizeMenu(
 ): Disposable {
   return disposeTogether([
     registry.addMenuItem({
-      id: 'menu:shell.views.customize',
+      id: menuEntryId(VIEWS_CUSTOMIZE_COMMAND_ID),
       menu: PANEL_STRIP_CONTEXT_MENU,
-      command: 'shell.views.customize',
+      command: VIEWS_CUSTOMIZE_COMMAND_ID,
       group: '9_customize',
       order: 0,
     }),
@@ -33,7 +42,7 @@ export function registerViewContextMenu(
 ): Disposable {
   return disposeTogether([
     registry.addCommand({
-      id: 'shell.view.moveToOtherSidebar',
+      id: VIEW_MOVE_TO_OTHER_SIDEBAR_COMMAND_ID,
       paletteHidden: true,
       title: 'panel.viewMenu.moveToOtherSidebar',
       run: (context) => {
@@ -45,9 +54,9 @@ export function registerViewContextMenu(
       },
     }),
     registry.addMenuItem({
-      id: 'menu:shell.view.moveToOtherSidebar',
+      id: menuEntryId(VIEW_MOVE_TO_OTHER_SIDEBAR_COMMAND_ID),
       menu: VIEW_CONTEXT_MENU,
-      command: 'shell.view.moveToOtherSidebar',
+      command: VIEW_MOVE_TO_OTHER_SIDEBAR_COMMAND_ID,
       group: '1_move',
       order: 0,
       when: { inContent: false },
@@ -61,7 +70,7 @@ export function registerViewStackMenu(
 ): Disposable {
   return disposeTogether([
     registry.addCommand({
-      id: 'shell.view.stackBelow',
+      id: VIEW_STACK_BELOW_COMMAND_ID,
       paletteHidden: true,
       title: 'panel.viewMenu.stackBelow',
       run: (context) => {
@@ -78,9 +87,9 @@ export function registerViewStackMenu(
       },
     }),
     registry.addMenuItem({
-      id: 'menu:shell.view.stackBelow',
+      id: menuEntryId(VIEW_STACK_BELOW_COMMAND_ID),
       menu: VIEW_CONTEXT_MENU,
-      command: 'shell.view.stackBelow',
+      command: VIEW_STACK_BELOW_COMMAND_ID,
       group: '2_stack',
       order: 0,
     }),
@@ -94,7 +103,7 @@ export function registerViewResetMenu(
 ): Disposable {
   return disposeTogether([
     registry.addCommand({
-      id: 'shell.view.resetState',
+      id: VIEW_RESET_STATE_COMMAND_ID,
       paletteHidden: true,
       title: 'panel.viewMenu.resetState',
       icon: 'undo',
@@ -110,9 +119,9 @@ export function registerViewResetMenu(
       },
     }),
     registry.addMenuItem({
-      id: 'menu:shell.view.resetState',
+      id: menuEntryId(VIEW_RESET_STATE_COMMAND_ID),
       menu: VIEW_CONTEXT_MENU,
-      command: 'shell.view.resetState',
+      command: VIEW_RESET_STATE_COMMAND_ID,
       group: '3_state',
       order: 0,
     }),
@@ -125,7 +134,7 @@ export function registerViewOpenInContentMenu(
 ): Disposable {
   return disposeTogether([
     registry.addCommand({
-      id: 'shell.view.openInContent',
+      id: VIEW_OPEN_IN_CONTENT_COMMAND_ID,
       paletteHidden: true,
       title: 'panel.viewMenu.openInContent',
       run: (context) => {
@@ -141,9 +150,9 @@ export function registerViewOpenInContentMenu(
       },
     }),
     registry.addMenuItem({
-      id: 'menu:shell.view.openInContent',
+      id: menuEntryId(VIEW_OPEN_IN_CONTENT_COMMAND_ID),
       menu: VIEW_CONTEXT_MENU,
-      command: 'shell.view.openInContent',
+      command: VIEW_OPEN_IN_CONTENT_COMMAND_ID,
       group: '2_stack',
       order: 1,
       when: { inContent: false },
@@ -157,7 +166,7 @@ export function registerViewHideMenu(
 ): Disposable {
   return disposeTogether([
     registry.addCommand({
-      id: 'shell.view.hide',
+      id: VIEW_HIDE_COMMAND_ID,
       paletteHidden: true,
       title: 'panel.viewMenu.hide',
       run: (context) => {
@@ -168,9 +177,9 @@ export function registerViewHideMenu(
       },
     }),
     registry.addMenuItem({
-      id: 'menu:shell.view.hide',
+      id: menuEntryId(VIEW_HIDE_COMMAND_ID),
       menu: VIEW_CONTEXT_MENU,
-      command: 'shell.view.hide',
+      command: VIEW_HIDE_COMMAND_ID,
       group: '5_visibility',
       order: 0,
     }),
@@ -183,7 +192,7 @@ export function registerViewPopoutMenu(
 ): Disposable {
   return disposeTogether([
     registry.addCommand({
-      id: 'shell.view.openInWindow',
+      id: VIEW_OPEN_IN_WINDOW_COMMAND_ID,
       paletteHidden: true,
       title: 'panel.viewMenu.openInNewWindow',
       icon: 'popout',
@@ -195,9 +204,9 @@ export function registerViewPopoutMenu(
       },
     }),
     registry.addMenuItem({
-      id: 'menu:shell.view.openInWindow',
+      id: menuEntryId(VIEW_OPEN_IN_WINDOW_COMMAND_ID),
       menu: VIEW_CONTEXT_MENU,
-      command: 'shell.view.openInWindow',
+      command: VIEW_OPEN_IN_WINDOW_COMMAND_ID,
       group: '4_window',
       order: 0,
     }),

@@ -9,6 +9,7 @@ import { TextSizeToggle } from './text-size/text-size-toggle';
 import { LanguageSwitcher } from './i18n/language-switcher';
 import { PermissionsSettings } from './permissions/permissions-settings';
 import { regionsOfType } from './layout/layout-queries';
+import { APP_RESET_COMMAND_ID } from './commands/host-command-ids';
 
 function railLabelRows(): SettingRow[] {
   const layout = inject(SHELL_LAYOUT);
@@ -59,7 +60,7 @@ export function registerDefaultSettings(settings: SettingsService): void {
           kind: 'button',
           label: 'appReset.action',
           variant: 'danger',
-          command: 'shell.app.reset',
+          command: APP_RESET_COMMAND_ID,
         },
       },
     ],

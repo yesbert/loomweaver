@@ -10,6 +10,7 @@ import { CapabilityError } from '@loomweaver/plugin-sdk';
 import { CommandService } from '../commands/command.service';
 import { NotificationService } from '../notifications/notification.service';
 import { CapabilityGrantService } from './capability-grant.service';
+import { OPEN_SETTINGS_COMMAND_ID } from '../commands/host-command-ids';
 
 @Service()
 export class CapabilityRefusalReporter {
@@ -38,7 +39,7 @@ export class CapabilityRefusalReporter {
       action: {
         label: 'permission.openSettings',
         run: () =>
-          this.injector.get(CommandService).execute('shell.openSettings'),
+          this.injector.get(CommandService).execute(OPEN_SETTINGS_COMMAND_ID),
       },
     });
   }

@@ -4,6 +4,11 @@ import { disposeTogether } from '../../plugin/dispose-together';
 import { menuContextString } from '../../menu/menu-context';
 import { RailItemsService } from './rail-items.service';
 import { RailMoveService } from './rail-move.service';
+import { menuEntryId } from '../../menu/menu-entry-id';
+import { RAIL_CUSTOMIZE_COMMAND_ID } from '../../commands/host-command-ids';
+
+const RAIL_HIDE_ITEM_COMMAND_ID = 'shell.rail.hideItem';
+const RAIL_MOVE_TO_OTHER_RAIL_COMMAND_ID = 'shell.rail.moveToOtherRail';
 
 export const RAIL_ITEM_CONTEXT_MENU = 'rail/item/context';
 
@@ -14,9 +19,9 @@ export function registerRailCustomizeMenu(
 ): Disposable {
   return disposeTogether([
     registry.addMenuItem({
-      id: 'menu:shell.rail.customize',
+      id: menuEntryId(RAIL_CUSTOMIZE_COMMAND_ID),
       menu: RAIL_CONTEXT_MENU,
-      command: 'shell.rail.customize',
+      command: RAIL_CUSTOMIZE_COMMAND_ID,
       group: '9_customize',
       order: 0,
     }),
@@ -29,7 +34,7 @@ export function registerRailContextMenu(
 ): Disposable {
   return disposeTogether([
     registry.addCommand({
-      id: 'shell.rail.hideItem',
+      id: RAIL_HIDE_ITEM_COMMAND_ID,
       paletteHidden: true,
       title: 'rail.menu.hide',
       run: (context) => {
@@ -40,9 +45,9 @@ export function registerRailContextMenu(
       },
     }),
     registry.addMenuItem({
-      id: 'menu:shell.rail.hideItem',
+      id: menuEntryId(RAIL_HIDE_ITEM_COMMAND_ID),
       menu: RAIL_ITEM_CONTEXT_MENU,
-      command: 'shell.rail.hideItem',
+      command: RAIL_HIDE_ITEM_COMMAND_ID,
       group: '5_visibility',
       order: 0,
     }),
@@ -55,7 +60,7 @@ export function registerRailMoveMenu(
 ): Disposable {
   return disposeTogether([
     registry.addCommand({
-      id: 'shell.rail.moveToOtherRail',
+      id: RAIL_MOVE_TO_OTHER_RAIL_COMMAND_ID,
       paletteHidden: true,
       title: 'rail.menu.moveToOther',
       run: (context) => {
@@ -67,9 +72,9 @@ export function registerRailMoveMenu(
       },
     }),
     registry.addMenuItem({
-      id: 'menu:shell.rail.moveToOtherRail',
+      id: menuEntryId(RAIL_MOVE_TO_OTHER_RAIL_COMMAND_ID),
       menu: RAIL_ITEM_CONTEXT_MENU,
-      command: 'shell.rail.moveToOtherRail',
+      command: RAIL_MOVE_TO_OTHER_RAIL_COMMAND_ID,
       group: '1_move',
       order: 0,
     }),

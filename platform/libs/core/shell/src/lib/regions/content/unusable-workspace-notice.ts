@@ -2,6 +2,7 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, inject } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { CommandService } from '../../commands/command.service';
 import { UNUSABLE_WORKSPACES } from '../../foundation/unusable-workspaces';
+import { WORKSPACE_RESET_COMMAND_ID } from '../../commands/host-command-ids';
 
 @Component({
   selector: 'lw-unusable-workspace-notice',
@@ -18,6 +19,6 @@ export class UnusableWorkspaceNotice {
   }
 
   protected reset(): void {
-    this.commands.execute('shell.workspace.reset');
+    this.commands.execute(WORKSPACE_RESET_COMMAND_ID);
   }
 }

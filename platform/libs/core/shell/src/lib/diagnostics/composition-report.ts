@@ -9,6 +9,7 @@ import { ContributionRegistry } from '../plugin/contribution-registry';
 import { RegionType, SHELL_LAYOUT } from '../layout/layout';
 import { ROUTE_OMIT_PREFIX } from '../plugin/route-omit';
 import { SETTING_OMIT_PREFIX } from '../settings/setting-omit';
+import { menuEntryId } from '../menu/menu-entry-id';
 import { SettingsService } from '../settings/settings.service';
 import {
   DEFAULT_SHELL_FEATURES,
@@ -216,8 +217,8 @@ export class CompositionReport {
     if (this.routeIds().has(id)) {
       return ` A routable surface carries that id — did you mean '${ROUTE_OMIT_PREFIX}${id}'?`;
     }
-    if (this.registry.registeredIds().has(`menu:${id}`)) {
-      return ` A menu entry carries that id — did you mean 'menu:${id}'?`;
+    if (this.registry.registeredIds().has(menuEntryId(id))) {
+      return ` A menu entry carries that id — did you mean '${menuEntryId(id)}'?`;
     }
     return '';
   }

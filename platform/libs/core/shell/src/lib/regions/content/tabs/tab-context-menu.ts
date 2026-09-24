@@ -15,6 +15,16 @@ import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 import { PopoutService } from '../../../popout/popout.service';
 import { menuContextString } from '../../../menu/menu-context';
 import { PaneRef } from '../../pane/tree/pane-address';
+import { menuEntryId } from '../../../menu/menu-entry-id';
+
+const TAB_CLOSE_COMMAND_ID = 'shell.tab.close';
+const TAB_CLOSE_ALL_COMMAND_ID = 'shell.tab.closeAll';
+const TAB_CLOSE_OTHERS_COMMAND_ID = 'shell.tab.closeOthers';
+const TAB_CLOSE_RIGHT_COMMAND_ID = 'shell.tab.closeRight';
+const TAB_OPEN_IN_WINDOW_COMMAND_ID = 'shell.tab.openInWindow';
+const TAB_SPLIT_DOWN_COMMAND_ID = 'shell.tab.splitDown';
+const TAB_SPLIT_RIGHT_COMMAND_ID = 'shell.tab.splitRight';
+const TAB_TOGGLE_PIN_COMMAND_ID = 'shell.tab.togglePin';
 
 export const TAB_CONTEXT_MENU = 'content/tab/context';
 
@@ -39,13 +49,13 @@ export function registerTabContextMenu(
       on: content.close,
       commands: [
         {
-          id: 'shell.tab.close',
+          id: TAB_CLOSE_COMMAND_ID,
           title: 'content.tabMenu.close',
           run: (c) =>
             tabs.close(menuContextString(c, 'tabId'), paneOf(c, paneTree)),
         },
         {
-          id: 'shell.tab.closeOthers',
+          id: TAB_CLOSE_OTHERS_COMMAND_ID,
           title: 'content.tabMenu.closeOthers',
           run: (c) =>
             tabs.closeOthers(
@@ -54,7 +64,7 @@ export function registerTabContextMenu(
             ),
         },
         {
-          id: 'shell.tab.closeRight',
+          id: TAB_CLOSE_RIGHT_COMMAND_ID,
           title: 'content.tabMenu.closeRight',
           run: (c) =>
             tabs.closeToRight(
@@ -63,38 +73,38 @@ export function registerTabContextMenu(
             ),
         },
         {
-          id: 'shell.tab.closeAll',
+          id: TAB_CLOSE_ALL_COMMAND_ID,
           title: 'content.tabMenu.closeAll',
           run: (c) => tabs.closeAll(paneOf(c, paneTree)),
         },
       ],
       items: [
         {
-          id: 'menu:shell.tab.close',
+          id: menuEntryId(TAB_CLOSE_COMMAND_ID),
           menu: TAB_CONTEXT_MENU,
-          command: 'shell.tab.close',
+          command: TAB_CLOSE_COMMAND_ID,
           group: '1_close',
           order: 0,
           when: { closable: true },
         },
         {
-          id: 'menu:shell.tab.closeOthers',
+          id: menuEntryId(TAB_CLOSE_OTHERS_COMMAND_ID),
           menu: TAB_CONTEXT_MENU,
-          command: 'shell.tab.closeOthers',
+          command: TAB_CLOSE_OTHERS_COMMAND_ID,
           group: '1_close',
           order: 1,
         },
         {
-          id: 'menu:shell.tab.closeRight',
+          id: menuEntryId(TAB_CLOSE_RIGHT_COMMAND_ID),
           menu: TAB_CONTEXT_MENU,
-          command: 'shell.tab.closeRight',
+          command: TAB_CLOSE_RIGHT_COMMAND_ID,
           group: '1_close',
           order: 2,
         },
         {
-          id: 'menu:shell.tab.closeAll',
+          id: menuEntryId(TAB_CLOSE_ALL_COMMAND_ID),
           menu: TAB_CONTEXT_MENU,
-          command: 'shell.tab.closeAll',
+          command: TAB_CLOSE_ALL_COMMAND_ID,
           group: '1_close',
           order: 3,
         },
@@ -104,7 +114,7 @@ export function registerTabContextMenu(
       on: content.pin,
       commands: [
         {
-          id: 'shell.tab.togglePin',
+          id: TAB_TOGGLE_PIN_COMMAND_ID,
           title: 'content.tabMenu.pinned',
           run: (c) => {
             const tabId = menuContextString(c, 'tabId');
@@ -127,9 +137,9 @@ export function registerTabContextMenu(
       ],
       items: [
         {
-          id: 'menu:shell.tab.togglePin',
+          id: menuEntryId(TAB_TOGGLE_PIN_COMMAND_ID),
           menu: TAB_CONTEXT_MENU,
-          command: 'shell.tab.togglePin',
+          command: TAB_TOGGLE_PIN_COMMAND_ID,
           group: '2_pin',
           order: 0,
           when: { closable: true },
@@ -141,7 +151,7 @@ export function registerTabContextMenu(
       on: switches.windows.popout,
       commands: [
         {
-          id: 'shell.tab.openInWindow',
+          id: TAB_OPEN_IN_WINDOW_COMMAND_ID,
           title: 'content.tabMenu.openInNewWindow',
           icon: 'popout',
           run: (c: MenuContext | undefined) =>
@@ -150,9 +160,9 @@ export function registerTabContextMenu(
       ],
       items: [
         {
-          id: 'menu:shell.tab.openInWindow',
+          id: menuEntryId(TAB_OPEN_IN_WINDOW_COMMAND_ID),
           menu: TAB_CONTEXT_MENU,
-          command: 'shell.tab.openInWindow',
+          command: TAB_OPEN_IN_WINDOW_COMMAND_ID,
           group: '3_window',
           order: 0,
         },
@@ -162,7 +172,7 @@ export function registerTabContextMenu(
       on: content.splitRight,
       commands: [
         {
-          id: 'shell.tab.splitRight',
+          id: TAB_SPLIT_RIGHT_COMMAND_ID,
           title: 'content.split.splitRight',
           icon: 'splitPanes',
           run: (c) =>
@@ -175,9 +185,9 @@ export function registerTabContextMenu(
       ],
       items: [
         {
-          id: 'menu:shell.tab.splitRight',
+          id: menuEntryId(TAB_SPLIT_RIGHT_COMMAND_ID),
           menu: TAB_CONTEXT_MENU,
-          command: 'shell.tab.splitRight',
+          command: TAB_SPLIT_RIGHT_COMMAND_ID,
           group: '0_split',
           order: 0,
           when: { closable: true, sole: false },
@@ -188,7 +198,7 @@ export function registerTabContextMenu(
       on: content.splitDown,
       commands: [
         {
-          id: 'shell.tab.splitDown',
+          id: TAB_SPLIT_DOWN_COMMAND_ID,
           title: 'content.split.splitDown',
           icon: 'splitPanesDown',
           run: (c) =>
@@ -201,9 +211,9 @@ export function registerTabContextMenu(
       ],
       items: [
         {
-          id: 'menu:shell.tab.splitDown',
+          id: menuEntryId(TAB_SPLIT_DOWN_COMMAND_ID),
           menu: TAB_CONTEXT_MENU,
-          command: 'shell.tab.splitDown',
+          command: TAB_SPLIT_DOWN_COMMAND_ID,
           group: '0_split',
           order: 1,
           when: { closable: true, sole: false },

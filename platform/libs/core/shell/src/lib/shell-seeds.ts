@@ -24,6 +24,16 @@ import { AppResetChoice, AppResetDialog } from './layout/app-reset-dialog';
 import { menuContextString } from './menu/menu-context';
 import { ShellLayout } from './layout/layout';
 import { hasRegionOfType } from './layout/layout-queries';
+import {
+  APP_RESET_COMMAND_ID,
+  OPEN_SETTINGS_COMMAND_ID,
+  RAIL_CUSTOMIZE_COMMAND_ID,
+  VIEWS_CUSTOMIZE_COMMAND_ID,
+  WORKSPACE_MANAGE_COMMAND_ID,
+  WORKSPACE_RESET_COMMAND_ID,
+} from './commands/host-command-ids';
+
+const CONTENT_SPLIT_RIGHT_COMMAND_ID = 'shell.content.splitRight';
 
 export interface HostCommandDeps {
   readonly dialogs: DialogService;
@@ -80,7 +90,7 @@ export function seedHostCommands(
     },
   });
   registry.addCommand({
-    id: 'shell.openSettings',
+    id: OPEN_SETTINGS_COMMAND_ID,
     title: 'settings.title',
     icon: 'settings',
     popout: true,
@@ -109,7 +119,7 @@ export function seedHostCommands(
   if (hasRegionOfType(layout, 'rail')) {
     whileOn(injector, features.rail.curate, () =>
       registry.addCommand({
-        id: 'shell.rail.customize',
+        id: RAIL_CUSTOMIZE_COMMAND_ID,
         title: CURATION_CHROME.rail.title,
         icon: CURATION_CHROME.rail.icon,
         run: () => {
@@ -127,7 +137,7 @@ export function seedHostCommands(
   if (hasRegionOfType(layout, 'panel')) {
     whileOn(injector, features.sidebar.curate, () =>
       registry.addCommand({
-        id: 'shell.views.customize',
+        id: VIEWS_CUSTOMIZE_COMMAND_ID,
         title: CURATION_CHROME.views.title,
         icon: CURATION_CHROME.views.icon,
         run: () => {
@@ -143,7 +153,7 @@ export function seedHostCommands(
     );
   }
   registry.addCommand({
-    id: 'shell.app.reset',
+    id: APP_RESET_COMMAND_ID,
     title: 'appReset.title',
     icon: 'undo',
     run: () => {
@@ -163,7 +173,7 @@ export function seedHostCommands(
   });
   whileOn(injector, features.content.splitRight, () =>
     registry.addCommand({
-      id: 'shell.content.splitRight',
+      id: CONTENT_SPLIT_RIGHT_COMMAND_ID,
       title: 'content.split.open',
       icon: 'splitPanes',
       shortcut: 'mod+\\',
@@ -179,7 +189,7 @@ export function seedHostCommands(
   whileOn(injector, features.workspaces.enabled, () =>
     disposeTogether([
       registry.addCommand({
-        id: 'shell.workspace.manage',
+        id: WORKSPACE_MANAGE_COMMAND_ID,
         title: 'workspace.title',
         icon: 'workspaces',
         run: () => {
@@ -192,7 +202,7 @@ export function seedHostCommands(
         },
       }),
       registry.addCommand({
-        id: 'shell.workspace.reset',
+        id: WORKSPACE_RESET_COMMAND_ID,
         title: 'workspace.reset',
         icon: 'undo',
         run: (context) => {
