@@ -1,9 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { SurfaceRevealService } from './surface-reveal.service';
-import { CONTENT_DOCK } from '../regions/pane/tree/pane-address';
-import { PaneTreeService } from '../regions/pane/tree/pane-tree.service';
-import { ContentTabsService } from '../regions/content/tabs/content-tabs.service';
-import { PanelState } from '../regions/panel/panel-state';
+import { CONTENT_DOCK } from '../pane/tree/pane-address';
+import { PaneTreeService } from '../pane/tree/pane-tree.service';
+import { ContentTabsService } from '../content/tabs/content-tabs.service';
+import { PanelState } from '../panel/panel-state';
 
 describe('SurfaceRevealService (finding #29)', () => {
   afterEach(() => localStorage.clear());

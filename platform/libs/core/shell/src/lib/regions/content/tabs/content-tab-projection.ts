@@ -4,7 +4,7 @@ import {
   TabBadge,
   ViewAction,
 } from '@loomweaver/plugin-sdk';
-import { View } from '../../../layout/view';
+import { View } from '../../../views/view';
 import { PaneTab } from '../../pane/tree/pane-node';
 import { overlayTabTitle } from '../../pane/chrome/tab-label';
 import {

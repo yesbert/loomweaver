@@ -10,7 +10,7 @@ import { PanelGroupService } from '../panel/panel-group.service';
 import { ViewMoveService } from '../panel/view-move.service';
 import { ViewVisibilityService } from '../panel/view-visibility.service';
 import { HiddenViewsService } from '../panel/hidden-views.service';
-import { View } from '../../layout/view';
+import { View } from '../../views/view';
 import { WorkspaceService } from '../../workspace/workspace.service';
 import { provideShellFeatures } from '../../foundation/shell-features';
 import { RailItemsService } from '../rail/rail-items.service';

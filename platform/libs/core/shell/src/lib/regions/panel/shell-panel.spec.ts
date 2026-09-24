@@ -6,7 +6,7 @@ import { ShellPanel } from './shell-panel';
 import { LayoutRegion, provideLayout } from '../../layout/layout';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { AUTH_SOURCE } from '../../auth/auth-context';
-import { View } from '../../layout/view';
+import { View } from '../../views/view';
 import { SURFACE_PADDING } from '../../foundation/surface-padding';
 import { ViewportService } from '../../layout/viewport.service';
 

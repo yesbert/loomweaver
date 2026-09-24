@@ -12,9 +12,9 @@ import {
 import { TranslocoPipe } from '@jsverse/transloco';
 import { View } from '@loomweaver/plugin-sdk';
 import { LayoutRegion, SHELL_LAYOUT } from '../../layout/layout';
-import { ViewAction } from '../../layout/view';
+import { ViewAction } from '../../views/view';
 import { ViewMountService } from '../../views/view-mount.service';
-import { ComponentLoader } from '../../views/component-loader.service';
+import { ComponentLoader } from '../pane/component-loader.service';
 import { ViewInstanceSwitcher } from '../../views/view-instance-switcher';
 import { PanelGroupService } from './panel-group.service';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';

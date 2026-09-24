@@ -16,7 +16,7 @@ import { CurrentAddress } from './current-address';
 import { SurfaceAddress } from './routing/live-surface-route';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { CONTAINER_HANDLE, ContentRoute } from '@loomweaver/plugin-sdk';
-import { View } from '../../layout/view';
+import { View } from '../../views/view';
 import {
   ContributionRegistry,
   RegisteredContentRoute,
@@ -25,7 +25,7 @@ import {
 import { AuthContext } from '../../auth/auth-context';
 import { ViewMountService } from '../../views/view-mount.service';
 import { ViewInstanceSwitcher } from '../../views/view-instance-switcher';
-import { ComponentLoader } from '../../views/component-loader.service';
+import { ComponentLoader } from '../pane/component-loader.service';
 import { PopoutWindow } from '../../popout/popout-window';
 import { AuthRequiredView } from './access/auth-required-view';
 import { RouteUnavailableView } from './access/route-unavailable-view';

@@ -1,4 +1,4 @@
-import { SurfaceRevealService } from '../views/surface-reveal.service';
+import { SurfaceRevealService } from '../regions/reveal/surface-reveal.service';
 import { inject, Service } from '@angular/core';
 import { Capability } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from './contribution-registry';

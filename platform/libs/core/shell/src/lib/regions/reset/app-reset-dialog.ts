@@ -1,6 +1,6 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, signal } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { DialogRef } from '../dialog/dialog-ref';
+import { DialogRef } from '../../dialog/dialog-ref';
 
 export interface AppResetChoice {
   readonly workspaces: boolean;

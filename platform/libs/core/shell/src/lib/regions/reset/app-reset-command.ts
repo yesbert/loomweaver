@@ -3,7 +3,7 @@ import { Disposable } from '@loomweaver/plugin-sdk';
 import { APP_RESET_COMMAND_ID } from '../../commands/host-command-ids';
 import { DialogService } from '../../dialog/dialog.service';
 import { FeatureSwitches } from '../../features/feature-switches.service';
-import { AppResetChoice, AppResetDialog } from '../../layout/app-reset-dialog';
+import { AppResetChoice, AppResetDialog } from './app-reset-dialog';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { AppResetService } from './app-reset.service';
 

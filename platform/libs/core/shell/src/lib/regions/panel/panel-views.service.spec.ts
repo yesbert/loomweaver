@@ -6,7 +6,7 @@ import { UserOrderService } from '../reorder/user-order.service';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { AUTH_SOURCE } from '../../auth/auth-context';
 import { provideLayout } from '../../layout/layout';
-import { View } from '../../layout/view';
+import { View } from '../../views/view';
 
 const view = (id: string, region: string, order = 0): View => ({
   id,

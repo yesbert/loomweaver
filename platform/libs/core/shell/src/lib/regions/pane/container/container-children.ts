@@ -1,5 +1,4 @@
-import { ContainerChild, ContainerSpec } from '@loomweaver/plugin-sdk';
-import { View } from '../../../layout/view';
+import { ContainerChild, ContainerSpec, View } from '@loomweaver/plugin-sdk';
 import { matchRoute, segmentsOf } from '../../content/content-path';
 
 export interface ContainerChildDeclaration {

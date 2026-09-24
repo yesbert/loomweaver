@@ -1,6 +1,6 @@
 import { EnvironmentInjector, inject, Injector, Service } from '@angular/core';
 import { SURFACE_HOLD, VIEW_STATE } from '@loomweaver/plugin-sdk';
-import { View } from '../layout/view';
+import { View } from './view';
 import {
   createSurfaceHold,
   SURFACE_HOLD_STATE,

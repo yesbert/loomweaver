@@ -8,7 +8,7 @@ import { ContentRoute } from '@loomweaver/plugin-sdk';
 import { DialogService } from '../dialog/dialog.service';
 import { provideShellFeatures } from '../foundation/shell-features';
 import { provideLayout } from '../layout/layout';
-import { View } from '../layout/view';
+import { View } from '../views/view';
 import { ContributionRegistry } from '../plugin/contribution-registry';
 import { PopoutService } from '../popout/popout.service';
 import { buildContentRoutes } from '../regions/content/routing/content-router';

@@ -83,8 +83,11 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 - [x] 3.6 Rail and sidebar moves share one Alt+Shift+Arrow helper and one move announcement; the
   sidebar's keyboard path goes through `ViewMoveService` (after its defect is fixed); local names say
   `side` or `regionId` instead of `dock`.
-- [ ] 3.7 **Move:** the app-reset dialog to `regions/reset/`, `layout/view.ts` to `views/`, the surface
-  reveal service to `regions/pane/`, the component loader next to the pane surface.
+- [x] 3.7 **Move:** the app-reset dialog to `regions/reset/`, `layout/view.ts` to `views/`, the surface
+  reveal service to `regions/pane/`, the component loader next to the pane surface. The reveal
+  service went to `regions/reveal/` instead: it expands a sidebar, and in `regions/pane/` that would
+  have made the pane and panel slices import each other. In its own folder it resolves two slice
+  pairs, and the pane files take `View` from the SDK rather than from `views/`.
 - [ ] 3.8 `ShellRail`: the entry list as a pure function, workspace marking in
   `RailWorkspaceEntries`, label fitting as a directive, booleans named `is…`; `shell-rail.spec.ts`
   (728 lines) with one render helper and the workspace block in its own spec.

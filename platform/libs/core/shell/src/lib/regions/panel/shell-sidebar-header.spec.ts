@@ -7,7 +7,7 @@ import { LayoutRegion, provideLayout } from '../../layout/layout';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { PanelState } from './panel-state';
 import { PanelGroupService } from './panel-group.service';
-import { View } from '../../layout/view';
+import { View } from '../../views/view';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
 

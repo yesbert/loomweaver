@@ -1,6 +1,6 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject, input, output } from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { View } from '../layout/view';
+import { View } from './view';
 import { DialogService } from '../dialog/dialog.service';
 import {
   MENU_ANCHOR_GAP,

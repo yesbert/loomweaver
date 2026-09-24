@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { ContributionRegistry } from './contribution-registry';
 import { BarItem } from '../foundation/bar-item';
-import { View } from '../layout/view';
+import { View } from '../views/view';
 
 class DummyComponent {}
 
