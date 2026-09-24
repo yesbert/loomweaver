@@ -36,9 +36,10 @@ declined danger). A tab reopened from the list refines to the same badge. After 
 
 **The margin toggle keeps its value in the plugin, persisted in local storage.** A trusted section
 owns its storage, and the demo has no settings backend of its own. A signal holds the value, a
-`localStorage` key keeps it across a reload, and an effect calls `ctx.setChildShown('quotes.margin',
-value)` whenever it changes, including once at activation. Default on, so a first visit sees the
-arrangement as declared.
+`localStorage` key keeps it across a reload, and the toggle's setter calls
+`ctx.setChildShown('quotes.margin', value)` itself, as activation does once with the stored value; no
+effect is needed. Default on, so a first visit sees the arrangement as declared. The section sits
+under the app plugins, beside the other plugin sections.
 *Alternative:* plugin state (`ctx.state`) is for working state, not settings, per the plugin-state
 guide.
 

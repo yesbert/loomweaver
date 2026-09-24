@@ -2,14 +2,14 @@
 
 - [x] 1.1 `quotesActions.open` passes a badge from the quote's status: the `quotes.list.status.<status>` key and the list's tone; a unit test in `quotes-actions.spec.ts`
 - [x] 1.2 A demo e2e test: opening a sent quote shows a tab named with its number and "Sent"
-- [ ] 1.3 Screenshot of an opened quote, shown to the owner before going on
+- [x] 1.3 Screenshot of an opened quote, shown to the owner before going on
 
 ## 2. The margin can be left out
 
-- [ ] 2.1 A quotes settings section with the toggle "Show margin analysis" (en and de), its value in a signal persisted in local storage, default on
-- [ ] 2.2 An effect that calls `ctx.setChildShown('quotes.margin', shown)` at activation and on every change; unit tests
-- [ ] 2.3 A demo e2e test: switched off, an open quote draws no margin tab and no padlock and the customer pane takes the room; switched on, the margin returns where it stood
-- [ ] 2.4 Screenshots of a quote with the margin shown, left out, and with the padlock for the sales account, shown to the owner before going on
+- [x] 2.1 A quotes settings section with the toggle "Show margin analysis" (en and de), its value in a signal persisted in local storage, default on
+- [x] 2.2 `ctx.setChildShown('quotes.margin', shown)` at activation and from the toggle; unit tests
+- [x] 2.3 A demo e2e test: switched off, an open quote draws no margin tab and no padlock and the customer pane takes the room; switched on, the margin returns where it stood
+- [x] 2.4 Screenshots of a quote with the margin shown, left out, and with the padlock for the sales account, shown to the owner before going on
 
 ## 3. The quotes list has a context menu
 

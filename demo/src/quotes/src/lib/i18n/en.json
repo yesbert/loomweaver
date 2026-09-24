@@ -91,5 +91,10 @@
     "hint": "Sent and not yet decided.",
     "daysLeft": "{{days}} days left",
     "none": "Nothing open."
+  },
+  "settings": {
+    "title": "Quotes",
+    "showMargin": "Show margin analysis",
+    "showMarginDescription": "Switched off, every quote is shown without its margin pane, whoever is signed in."
   }
 }

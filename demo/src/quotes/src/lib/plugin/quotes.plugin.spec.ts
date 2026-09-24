@@ -75,6 +75,8 @@ function activateWithRecorder(): Recorded {
       }),
     registerRailItem: (item: { id: string; rail: string }) =>
       recorded.railItems.push({ id: item.id, rail: item.rail }),
+    registerSettingsSection: () => ({ dispose: () => undefined }),
+    setChildShown: () => undefined,
   } as unknown as PluginContext;
 
   quotesPlugin.activate(ctx);

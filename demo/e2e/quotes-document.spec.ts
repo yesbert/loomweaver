@@ -161,6 +161,45 @@ test('the document opens as an arrangement: positions beside customer and margin
   expect(customer!.height).toBeLessThan(positions!.height);
 });
 
+/* The quotes plugin decides for itself whether the margin belongs in a quote at all, a setting
+   rather than a role: switched off, nothing stands where the margin was, not even the padlock the
+   sales account sees there otherwise. */
+async function setMarginShown(page: Page, shown: boolean): Promise<void> {
+  await page
+    .getByRole('navigation', { name: 'Left activity bar' })
+    .getByRole('button', { name: 'Settings' })
+    .click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByRole('button', { name: 'Quotes', exact: true }).click();
+  const toggle = dialog.getByRole('switch', { name: 'Show margin analysis' });
+  if ((await toggle.isChecked()) !== shown) {
+    await toggle.click();
+  }
+  await page.keyboard.press('Escape');
+  await expect(dialog).toHaveCount(0);
+}
+
+test('the margin can be left out: no tab, no padlock, and the customer takes the room', async ({
+  page,
+}) => {
+  await page.goto('/sales/quotes/q-0007');
+  const panes = page.locator('lw-container-pane-host lw-pane-view');
+  await expect(panes).toHaveCount(3);
+
+  await setMarginShown(page, false);
+  await expect(panes).toHaveCount(2);
+  await expect(page.getByTestId('quote-margin')).toHaveCount(0);
+
+  await switchAccount(page);
+  await expect(page.getByTestId('access-placeholder')).toHaveCount(0);
+  await expect(panes).toHaveCount(2);
+  await switchAccount(page);
+
+  await setMarginShown(page, true);
+  await expect(panes).toHaveCount(3);
+  await expect(page.getByTestId('quote-margin')).toBeVisible();
+});
+
 test('the margin is visible to accounting and locked for everyone else', async ({ page }) => {
   await page.goto('/sales/quotes/q-0007');
 

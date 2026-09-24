@@ -91,5 +91,10 @@
     "hint": "Verschickt und noch nicht entschieden.",
     "daysLeft": "Noch {{days}} Tage gültig",
     "none": "Nichts offen."
+  },
+  "settings": {
+    "title": "Angebote",
+    "showMargin": "Margenanalyse anzeigen",
+    "showMarginDescription": "Ausgeschaltet zeigt jedes Angebot keinen Margenbereich, egal wer angemeldet ist."
   }
 }
