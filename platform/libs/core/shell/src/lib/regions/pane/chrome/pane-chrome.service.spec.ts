@@ -1,10 +1,22 @@
+import { TestBed } from '@angular/core/testing';
 import { PaneChromeService } from './pane-chrome.service';
+import { PaneTreeService } from '../tree/pane-tree.service';
+import { leafOf } from '../tree/pane-node';
 
 describe('PaneChromeService', () => {
   let chrome: PaneChromeService;
 
   beforeEach(() => {
-    chrome = new PaneChromeService();
+    localStorage.clear();
+    TestBed.inject(PaneTreeService).commit('content', {
+      kind: 'split',
+      id: 'root',
+      orientation: 'row',
+      ratio: 0.5,
+      first: leafOf('a', 'doc/a'),
+      second: leafOf('b', 'doc/b'),
+    });
+    chrome = TestBed.inject(PaneChromeService);
   });
 
   describe('maximize', () => {

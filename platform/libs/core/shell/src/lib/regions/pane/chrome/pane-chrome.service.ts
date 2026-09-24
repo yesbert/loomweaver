@@ -1,20 +1,23 @@
-import { Service, signal } from '@angular/core';
+import { inject, Service, signal } from '@angular/core';
+import { PaneTreeService } from '../tree/pane-tree.service';
+import { findLeaf } from '../tree/pane-queries';
 
 @Service()
 export class PaneChromeService {
+  private readonly paneTree = inject(PaneTreeService);
   private readonly max = signal<{ dock: string; paneId: string } | null>(null);
   private readonly min = signal<ReadonlySet<string>>(new Set());
 
   isMaximized(dock: string, paneId: string): boolean {
-    const current = this.max();
-    return (
-      current !== null && current.dock === dock && current.paneId === paneId
-    );
+    return this.maximizedPaneIn(dock) === paneId;
   }
 
   maximizedPaneIn(dock: string): string | null {
     const current = this.max();
-    return current?.dock === dock ? current.paneId : null;
+    return current?.dock === dock &&
+      findLeaf(this.paneTree.tree(dock), current.paneId) !== null
+      ? current.paneId
+      : null;
   }
 
   toggleMaximize(dock: string, paneId: string): void {
