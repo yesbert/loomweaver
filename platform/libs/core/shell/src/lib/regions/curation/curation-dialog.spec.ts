@@ -12,6 +12,7 @@ import { ViewVisibilityService } from '../panel/view-visibility.service';
 import { View } from '../../layout/view';
 import { WorkspaceService } from '../../workspace/workspace.service';
 import { provideShellFeatures } from '../../foundation/shell-features';
+import { RailItemsService } from '../rail/rail-items.service';
 
 @Component({ selector: 'lw-stub', template: '' })
 class Stub {}
@@ -105,7 +106,7 @@ function rows(fixture: {
   );
 }
 
-describe('CurationDialog (K5)', () => {
+describe('CurationDialog', () => {
   it('shows where each view sits, and hidden for one that sits nowhere', () => {
     TestBed.resetTestingModule();
     const { fixture } = render();
@@ -176,15 +177,55 @@ describe('CurationDialog (K5)', () => {
   });
 });
 
+describe('CurationDialog (a launcher entry that only opens a menu)', () => {
+  function withMenuEntry() {
+    const made = render({ kind: 'rail' });
+    TestBed.inject(ContributionRegistry).addRailItem({
+      id: 'p.menu',
+      rail: 'activity',
+      title: 'Menu entry',
+      icon: 'more',
+      menu: 'p/menu',
+      menuTrigger: 'primary',
+    });
+    made.fixture.detectChanges();
+    return made;
+  }
+
+  it('lists it like any other rail entry', () => {
+    const { fixture } = withMenuEntry();
+
+    expect(rows(fixture)).toContainEqual({ id: 'p.menu', place: 'activity' });
+  });
+
+  it('still offers it once hidden, and brings it back', () => {
+    const { fixture } = withMenuEntry();
+    TestBed.inject(RailItemsService).hide('p.menu');
+    fixture.detectChanges();
+    expect(rows(fixture)).toContainEqual({ id: 'p.menu', place: 'hidden' });
+
+    (
+      fixture.nativeElement.querySelector(
+        '[data-curation-row="p.menu"] [data-curation-place="activity"]',
+      ) as HTMLButtonElement
+    ).click();
+    fixture.detectChanges();
+
+    expect(rows(fixture)).toContainEqual({ id: 'p.menu', place: 'activity' });
+  });
+});
+
 describe('CurationDialog (offering saved workspaces for the rail)', () => {
   it('offers a saved workspace a place in the rail by default', async () => {
     const { fixture } = render({ kind: 'rail' });
     await TestBed.inject(WorkspaceService).saveCurrent('Quarter close');
     fixture.detectChanges();
 
-    expect(rows(fixture).map((row) => row.id).join(' ')).toContain(
-      'shell.workspace:',
-    );
+    expect(
+      rows(fixture)
+        .map((row) => row.id)
+        .join(' '),
+    ).toContain('shell.workspace:');
   });
 
   it('offers none where the product decided against it', async () => {
@@ -194,8 +235,10 @@ describe('CurationDialog (offering saved workspaces for the rail)', () => {
     await TestBed.inject(WorkspaceService).saveCurrent('Quarter close');
     fixture.detectChanges();
 
-    expect(rows(fixture).map((row) => row.id).join(' ')).not.toContain(
-      'shell.workspace:',
-    );
+    expect(
+      rows(fixture)
+        .map((row) => row.id)
+        .join(' '),
+    ).not.toContain('shell.workspace:');
   });
 });
