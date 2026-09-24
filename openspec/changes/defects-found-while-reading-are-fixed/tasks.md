@@ -31,7 +31,7 @@ they start with a top-level folder.
 - [x] 2.1 The pane arrangement reads the saved-workspace list through the settings port, also with a
   working-state store that answers later (`regions/pane/tree/pane-tree-storage.ts`); tested with two
   different ports.
-- [ ] 2.2 The language is seeded from the settings port's immediate answer, applied when it arrives
+- [x] 2.2 The language is seeded from the settings port's immediate answer, applied when it arrives
   later, and the language service starts with the shell so a distribution without a switcher gets it
   (`i18n/served-languages.ts`, `i18n/locale.service.ts`); tested with a store that has an immediate
   answer and with one that has none, and without a language switcher.

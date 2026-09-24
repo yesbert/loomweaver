@@ -3,6 +3,7 @@ import { SwUpdate } from '@angular/service-worker';
 import { TranslocoService } from '@jsverse/transloco';
 import { DIALOG_CLOSE_GUARD } from './dialog/dialog-close-guard';
 import { provideShell } from './provide-shell';
+import { SETTINGS_STORE } from './persistence/settings-store';
 import { SurfaceCloseGuard } from './regions/pane/close/surface-close-guard';
 
 describe('provideShell service worker registration', () => {
@@ -39,7 +40,9 @@ describe('provideShell languages', () => {
 
   it('serves exactly the languages the distribution declares', () => {
     TestBed.configureTestingModule({
-      providers: [provideShell({ serviceWorker: false, languages: ['fr', 'ja'] })],
+      providers: [
+        provideShell({ serviceWorker: false, languages: ['fr', 'ja'] }),
+      ],
     });
 
     expect(TestBed.inject(TranslocoService).config.availableLangs).toEqual([
@@ -48,8 +51,33 @@ describe('provideShell languages', () => {
     ]);
   });
 
+  it('applies the stored language although nothing asks for the language service', async () => {
+    localStorage.clear();
+    TestBed.configureTestingModule({
+      providers: [
+        provideShell({ serviceWorker: false }),
+        {
+          provide: SETTINGS_STORE,
+          useValue: {
+            get: (key: string) =>
+              Promise.resolve(key === 'lw.shell.lang' ? 'de' : undefined),
+            set: () => Promise.resolve(),
+            delete: () => Promise.resolve(),
+          },
+        },
+      ],
+    });
+    const transloco = TestBed.inject(TranslocoService);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(transloco.getActiveLang()).toBe('de');
+  });
+
   it('refuses an empty declaration while composing', () => {
-    expect(() => provideShell({ languages: [] })).toThrow(/at least one language/);
+    expect(() => provideShell({ languages: [] })).toThrow(
+      /at least one language/,
+    );
   });
 });
 
@@ -61,6 +89,8 @@ describe('provideShell dialog close guard', () => {
       providers: [provideShell({ serviceWorker: false })],
     });
 
-    expect(TestBed.inject(DIALOG_CLOSE_GUARD)).toBe(TestBed.inject(SurfaceCloseGuard));
+    expect(TestBed.inject(DIALOG_CLOSE_GUARD)).toBe(
+      TestBed.inject(SurfaceCloseGuard),
+    );
   });
 });

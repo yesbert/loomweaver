@@ -55,6 +55,34 @@ describe('LocaleService', () => {
   });
 });
 
+describe('LocaleService with a settings store that answers at once', () => {
+  it('switches to the stored language as it starts, without writing it back', () => {
+    localStorage.clear();
+    const setActiveLang = vi.fn();
+    const set = vi.fn(() => Promise.resolve());
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: TranslocoService, useValue: { setActiveLang } },
+        {
+          provide: SETTINGS_STORE,
+          useValue: {
+            peek: (key: string) => (key === 'lw.shell.lang' ? 'de' : undefined),
+            get: () => Promise.resolve('de'),
+            set,
+            delete: () => Promise.resolve(),
+          },
+        },
+      ],
+    });
+
+    const service = TestBed.inject(LocaleService);
+
+    expect(service.lang()).toBe('de');
+    expect(setActiveLang).toHaveBeenCalledWith('de');
+    expect(set).not.toHaveBeenCalled();
+  });
+});
+
 describe('LocaleService as a product reads and drives it', () => {
   function serving(languages: readonly string[]) {
     localStorage.clear();

@@ -25,6 +25,7 @@ import { SettingsService } from './settings/settings.service';
 import { settingOmitIds } from './settings/setting-omit';
 import { ShellMissingTranslationHandler } from './i18n/missing-translation-handler';
 import { TranslocoHttpLoader } from './i18n/transloco-loader';
+import { LocaleService } from './i18n/locale.service';
 import { defineLwIcon } from './elements/icon/lw-icon.element';
 import { BAR_ITEM, provideBarItems } from './foundation/bar-item';
 import { DEFAULT_BAR_ITEMS } from './regions/bar/default-bar-items';
@@ -273,6 +274,7 @@ export function provideShell(
     }),
 
     provideEnvironmentInitializer(() => inject(KeybindingService).start()),
+    provideEnvironmentInitializer(() => inject(LocaleService)),
     {
       provide: APP_RESET_WORKSPACES,
       useFactory: () => {
