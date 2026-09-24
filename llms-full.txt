@@ -592,7 +592,9 @@ type PaddingDefault = 'none' | 'inset';   // the app-wide inset for surfaces; ab
 function provideLayout(layout: ShellLayout): Provider;
 function providePlugins(...plugins: Plugin[]): (Provider | EnvironmentProviders)[];   // trusted, in-process weavers
 // Sandboxed (non-Angular) plugins: code runs in an isolated <iframe sandbox>, gets `ctx` over Penpal RPC
-// through the SAME default-deny broker. Experimental first rung; exposed ctx currently minimal (routes/nav/toasts).
+// through the SAME default-deny broker. The exposed ctx is a flat subset: surfaces (register, retitle, badge,
+// setChildShown), menu items, settings sections, content tabs and navigation, revealSurface, callable commands,
+// toasts and plugin state (docs/weaver/sandboxed-surfaces.md lists the endpoints).
 // Hardened seam: RPC surfaces are re-validated ({iframe} or {container} form — component/loadComponent cannot cross;
 // an iframe URL must be same-origin, no foreign origins/javascript:/data:), effective capabilities = grant ∩
 // declaration, surface-channel navigate() is confined to the route's own tab root (cross-plugin navigation needs the
@@ -837,7 +839,7 @@ function provideWorkingStateStore(store: KeyValueStore | Type<KeyValueStore>): P
 //                  lw.shell.capability-revocations · lw.shell.installed-plugins · lw.plugin-settings:<pluginId>:<sectionId> ·
 //                  lw.shell.rail-items (which entries are hidden and which rail each one sits in; app-wide)
 //   working state, identity, per-window: lw.shell.active-workspace ·
-//                  lw.shell.pane-trees:<workspaceId> (per-dock { tree, primary } — per-tab path + LITERAL title + icon + instance + tab order + the URL-pane pointer, clear text) ·
+//                  lw.shell.pane-trees:<workspaceId> (per-dock { tree, primary } — per-tab path + LITERAL title + icon + own badge + instance + tab order + the URL-pane pointer, clear text) ·
 //                  lw.shell.panels · lw.shell.panel-sizes (the sidebar FRAME is window state, never per workspace) ·
 //                  lw.shell.hidden-views:<workspaceId> (which views that workspace hides) · lw.shell.item-order
 //   working state, identity, synced:     lw.shell.view-instances:<viewId> · lw.shell.view-state:<instanceId> ·

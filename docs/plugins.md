@@ -119,6 +119,7 @@ Only data crosses an RPC boundary, so a sandboxed plugin reaches a **subset** of
 | Reaches the host                                                                       | Trusted only                                                       |
 | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
 | `registerSurface` (`{ iframe }` or `{ container }`, routable **or** docked)            | `registerCommand`, `registerBarItem`, `registerRailItem`           |
+| `retitleSurface`, `updateSurfaceBadge`, `setChildShown`                                |                                                                    |
 | `registerMenuItem`, `registerSettingsSection`¹                                         | `contributeIcons`, `contributeTheme`                               |
 | `navigateContent`, `openContentTab`, `keep/pin/unpin/closeContentTab`, `revealSurface` | `ui` beyond `toast` — dialogs, prompts, `openMenu`, `openSettings` |
 | `ui.toast`                                                                             | `ctx.host`, `ctx.activeContent`, `ctx.session`²                    |

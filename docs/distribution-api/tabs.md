@@ -17,6 +17,7 @@ const tabs = inject(ContentTabsService);
 
 tabs.navigateTo('doc/readme');                 // navigate, fire-and-forget
 tabs.open({ path: 'doc/readme', title: 'README.md', titleIsLiteral: true });  // a titled dynamic tab
+tabs.open({ path: 'doc/readme', badge: { text: 'Draft', textIsLiteral: true } });  // refine it with a badge; null removes it
 tabs.keep('doc/readme');                       // promote a preview tab
 tabs.pin('doc/readme'); tabs.unpin('doc/readme');
 tabs.close('doc/readme'); tabs.closeOthers('doc/readme');

@@ -67,14 +67,15 @@ Two rules worth knowing before you debug something odd. A tab naming a child you
 whatever still makes sense rather than refusing to appear, so check the console when the layout is not
 what you wrote. And a child the current user may **not** see still takes its place in the layout and
 shows the host's access placeholder; the arrangement does not rearrange itself per role, and it cannot
-collapse just because a session arrived late.
+collapse just because a session arrived late. To keep a child out of the strip for a reason of your own,
+[leave it out](#leaving-a-child-out) instead.
 
 Each child receives the **container's route params**: read the `:id` off Angular's `ActivatedRoute`
 (`route.snapshot.paramMap.get('id')`), the same idiom as a routable surface. So a child is contextualised
 by its parent tab alone; there is **no global "active X"**. The inner tree is workspace state, not URL:
 each open container tab keeps its own inner layout, it travels with the tab, and it survives reload
-(persisted per window). The inner "new tab" picker offers only your declared `children` (access-gated),
-and a popped-out container carries its whole inner tree.
+(persisted per window). The inner "new tab" picker offers only your declared `children` (access-gated,
+and without the ones you left out), and a popped-out container carries its whole inner tree.
 
 `loomweaver weaver --id sim --container` scaffolds this whole shape: the container, two children with
 `docks: []`, and child components that already read the `:id`. So you start from a running example
@@ -144,8 +145,8 @@ Some children make sense only some of the time: a tab for a feature the customer
 a panel a setting switches off. The plugin that registered the child decides, at any time:
 
 ```ts
-ctx.setChildShown('sim.audit', false);
-ctx.setChildShown('sim.audit', true);
+ctx.setChildShown('sim.monitor', false);
+ctx.setChildShown('sim.monitor', true);
 ```
 
 A child left out is gone from every container that lists it. Its tab is not drawn, the keyboard does
@@ -159,8 +160,9 @@ the focus, a child shown beside it takes the focus and the address follows. An a
 that is left out opens the container on a child that is shown. `open` of a child that is left out
 does nothing, so bring it back first.
 
-The decision is per child, not per open container. It needs the `contributions` capability, and a
-plugin in a sandbox makes the same call.
+The decision is per child, not per open container, and a container whose children are all left out
+shows nothing, as an area declared empty does. It needs the `contributions` capability, and a plugin in
+a sandbox makes the same call.
 
 ## Where next
 

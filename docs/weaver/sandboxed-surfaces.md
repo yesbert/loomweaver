@@ -30,8 +30,8 @@ across the `ctx`-RPC boundary, unlike an Angular class. For a **sandboxed** plug
 **same-origin** (served by the distribution, like the plugin itself). A foreign origin, `javascript:` or
 `data:` URL is rejected at the RPC seam, so an untrusted plugin cannot point the host chrome wherever it
 likes. A sandboxed surface may be **docked** (`docks`) as well as routable, and it may declare a
-`container`. A sandboxed surface carries **no `actions`**: the seam keeps id, title, icon, order and the
-docking fields and drops the rest, so the panel header draws no actions for it and
+`container`. A sandboxed surface carries **no `actions`**: the seam keeps id, title, icon, badge, order
+and the docking fields and drops the rest, so the panel header draws no actions for it and
 `ctx.updateSurfaceAction` has nothing there to replace. The seam rejects `access` instead of silently dropping it, because a sandboxed surface gates
 itself from the session state the host pushes. A **trusted** plugin may use the same `iframe` form to
 embed a foreign origin on purpose (a dashboard, a docs site, a video). There the distribution decides
@@ -117,10 +117,12 @@ Penpal.connect({ messenger })
 ```
 
 The RPC `ctx` is **flat**: unlike the in-process `ctx` the other how-to pages use, there is no `ctx.ui`
-facade. The endpoints are `registerSurface` · `retitleSurface` · `updateSurfaceBadge` ·
-`setChildShown` · `registerMenuItem` · `registerSettingsSection` ·
+facade. Its surface endpoints are `registerSurface` · `retitleSurface` · `updateSurfaceBadge` ·
+`setChildShown` · `registerMenuItem` · `registerSettingsSection`. Its content endpoints are
 `navigateContent` · `openContentTab` / `keepContentTab` / `pinContentTab` / `unpinContentTab` /
-`closeContentTab` · `revealSurface` · `toast`. Every call runs through the same default-deny
+`closeContentTab` · `revealSurface`. The rest are `invokeCommand` / `invocableCommands` · `toast`,
+and `stateWatch` / `stateSet` / `stateClear` / `stateUnwatch` for [plugin state](plugin-state.md).
+Every call runs through the same default-deny
 capability broker as a trusted plugin. An ungranted capability rejects, so `.catch` and degrade.
 (Generate this whole layout with `nx g @loomweaver/devkit:frame-plugin` or the MCP
 `scaffold_frame_plugin`, described in [scaffolding](../scaffolding.md).)
