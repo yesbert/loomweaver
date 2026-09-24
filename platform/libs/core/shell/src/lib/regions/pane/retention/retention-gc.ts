@@ -9,13 +9,17 @@ import { PaneNode } from '../tree/pane-node';
 import { PaneTreeService } from '../tree/pane-tree.service';
 import { RetainedViewStash } from './retained-view-stash';
 import {
-  PRIMARY_RETENTION_PREFIX,
   dirtySurfaceOf,
   instanceDirty,
-  paneRetentionScope,
   resolvableSurfacePath,
   saveOnHidePath,
 } from './retention-policy';
+import {
+  isPrimaryRetentionKey,
+  paneRetentionScope,
+  pathOfRetentionKey,
+  scopeOfRetentionKey,
+} from './retention-keys';
 
 interface ParkedInstance {
   readonly instance?: unknown;
@@ -70,12 +74,13 @@ export class RetentionGc {
       instance: entry.instance,
       retained: entry.retained,
       held: entry.held,
-      path: pathOfKey(entry.key),
+      path: pathOfRetentionKey(entry.key),
       dirty: instanceDirty(entry.instance),
       evict: () => this.stash.evictParked(entry.key),
       tabLive:
         stashKeyLive(entry.key, open, routes, views) ||
-        (entry.held && openAnywhere(pathOfKey(entry.key), open, routes)),
+        (entry.held &&
+          openAnywhere(pathOfRetentionKey(entry.key), open, routes)),
       parkedElsewhere: entry.workspace !== active,
     }));
   }
@@ -130,21 +135,17 @@ export class RetentionGc {
   }
 }
 
-function pathOfKey(key: string): string {
-  return key.split('|', 2)[1] ?? '';
-}
-
 function stashKeyLive(
   key: string,
   open: Map<string, Set<string>>,
   routes: readonly ContentRoute[],
   views: readonly View[],
 ): boolean {
-  if (key.startsWith(PRIMARY_RETENTION_PREFIX)) {
+  if (isPrimaryRetentionKey(key)) {
     return true;
   }
-  const [scope, path] = key.split('|', 2);
-  if (!tabOpen(open.get(scope), routes, path)) {
+  const path = pathOfRetentionKey(key);
+  if (!tabOpen(open.get(scopeOfRetentionKey(key)), routes, path)) {
     return false;
   }
   return resolvableSurfacePath(routes, views, path);

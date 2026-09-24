@@ -53,10 +53,12 @@ import {
 import {
   retainSurfacePath,
   SURFACE_RETENTION,
-  surfaceRetentionKey,
   surfaceRetentionMode,
-  viewRetentionKey,
 } from '../pane/retention/retention-policy';
+import {
+  surfaceRetentionKey,
+  viewRetentionKey,
+} from '../pane/retention/retention-keys';
 
 @Component({
   selector: 'lw-content-secondary-pane',

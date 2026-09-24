@@ -2,12 +2,13 @@ import { inject, Service } from '@angular/core';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { VIEW_PANE_PREFIX } from '../pane/tree/pane-address';
 import { tabHolderOf } from '../pane/tree/pane-queries';
-import {
-  CONTAINER_DOCK_PREFIX,
-  isContainerDock,
-} from '../pane/container/container-children';
+import { isContainerDock } from '../pane/container/container-children';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
 import { RetainedViewStash } from '../pane/retention/retained-view-stash';
+import {
+  pathOfRetentionKey,
+  scopeOfRetentionKey,
+} from '../pane/retention/retention-keys';
 import { SurfaceCloseGuard } from '../pane/unsaved-work/surface-close-guard';
 import { HiddenViewsService } from './hidden-views.service';
 import { PanelGroupService } from './panel-group.service';
@@ -28,7 +29,7 @@ export class ViewVisibilityService {
   }
 
   hide(viewId: string): void {
-    this.closeGuard.guarded(this.candidates(viewId), () => {
+    this.closeGuard.guarded(this.openInstancesOf(viewId), () => {
       this.hiddenViews.hide(viewId);
       this.removeTabs(VIEW_PANE_PREFIX + viewId);
     });
@@ -73,14 +74,14 @@ export class ViewVisibilityService {
     return view?.region;
   }
 
-  private candidates(viewId: string): unknown[] {
+  private openInstancesOf(viewId: string): unknown[] {
     const path = VIEW_PANE_PREFIX + viewId;
     return this.stash
       .keyedInstances()
       .filter(
         (entry) =>
-          !entry.key.startsWith(CONTAINER_DOCK_PREFIX) &&
-          entry.key.split('|', 2)[1] === path,
+          !isContainerDock(scopeOfRetentionKey(entry.key)) &&
+          pathOfRetentionKey(entry.key) === path,
       )
       .map((entry) => entry.instance);
   }

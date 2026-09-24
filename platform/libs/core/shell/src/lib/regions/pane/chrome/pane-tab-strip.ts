@@ -28,7 +28,7 @@ import { MENU_ANCHOR_GAP, MenuService } from '../../../menu/menu.service';
 import { MenuTriggerDirective } from '../../../menu/menu-trigger.directive';
 import { Reorderable } from '../../reorder/reorderable.directive';
 import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../tree/pane-address';
-import { paneRetentionScope } from '../retention/retention-policy';
+import { paneRetentionScope } from '../retention/retention-keys';
 import { UnsavedWork } from '../unsaved-work/unsaved-work';
 import { resolveTitle } from '../drag/pane-label';
 import { FeatureSwitches } from '../../../features/feature-switches.service';

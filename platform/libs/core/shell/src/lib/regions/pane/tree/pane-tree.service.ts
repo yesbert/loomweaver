@@ -1,6 +1,5 @@
 import { inject, Service, signal } from '@angular/core';
 import { RetainedViewStash } from '../retention/retained-view-stash';
-import { paneRetentionScope } from '../retention/retention-policy';
 import {
   CONTENT_DOCK,
   PRIMARY_PANE,
@@ -42,6 +41,7 @@ import {
   unpinTab,
 } from './pane-tabs';
 import { isContainerDock } from '../container/container-children';
+import { isKeyOfDock, isKeyOfPane } from '../retention/retention-keys';
 
 @Service()
 export class PaneTreeService {
@@ -328,7 +328,7 @@ export class PaneTreeService {
   hydrate(raw: string | undefined): void {
     const next = this.storage.parsed(raw);
     for (const dock of Object.keys(this.docks())) {
-      this.stash.evacuate(`${dock}:`);
+      this.stash.evacuate((key) => isKeyOfDock(key, dock));
       this.evacuateRemovedPanes(dock, next[dock]?.node ?? PRIMARY_LEAF);
     }
     this.docks.set(next);
@@ -384,7 +384,7 @@ export class PaneTreeService {
     const surviving = new Set(collectLeafIds(next));
     for (const id of collectLeafIds(current)) {
       if (!surviving.has(id)) {
-        this.stash.evacuate(`${paneRetentionScope(dock, id)}|`);
+        this.stash.evacuate((key) => isKeyOfPane(key, dock, id));
       }
     }
   }

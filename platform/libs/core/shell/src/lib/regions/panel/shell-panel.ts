@@ -23,11 +23,13 @@ import { VIEW_PANE_PREFIX, viewForPanePath } from '../pane/tree/pane-address';
 import { PANEL_PANE_OPTIONS } from '../pane/pane-view-options';
 import { RetainedComponent } from '../pane/retention/retained-component';
 import {
-  paneRetentionScope,
   retainSurfacePath,
   SURFACE_RETENTION,
-  viewRetentionKey,
 } from '../pane/retention/retention-policy';
+import {
+  paneRetentionScope,
+  viewRetentionKey,
+} from '../pane/retention/retention-keys';
 import { ContentSecondaryPane } from '../content/content-secondary-pane';
 import { IframeSurface } from '../content/iframe-surface';
 import { dockedSurfaceInjectorFactory } from '../content/routing/surface-injector';

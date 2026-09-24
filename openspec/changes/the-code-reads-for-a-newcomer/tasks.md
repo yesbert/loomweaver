@@ -38,7 +38,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 - [x] 2.3 Storage keys are exported by the slice that owns them (pane trees, hidden views, saved
   workspaces, theme, language, text size) and imported by the readers; `DEVICE_LEVEL_KEYS` is built
   from those constants with the same value.
-- [ ] 2.4 `regions/pane/retention/retention-keys.ts` owns the key grammar (`scope|path|instance`, the
+- [x] 2.4 `regions/pane/retention/retention-keys.ts` owns the key grammar (`scope|path|instance`, the
   dock and pane separators, the primary prefix): builders, `pathOfRetentionKey`, `isKeyOfDock`, and
   `evacuateDock`/`evacuatePane` on the stash instead of hand-built prefixes. The ten builders and
   parsers in pane, retention, unsaved work, panel state and view visibility use it.
@@ -128,7 +128,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 
 ## 5. The pane regions
 
-- [ ] 5.1 **Move:** `close/`, the unsaved-work service and the unload guard into `regions/pane/unsaved-work/`;
+- [x] 5.1 **Move:** `close/`, the unsaved-work service and the unload guard into `regions/pane/unsaved-work/`;
   `pane-restore.ts` to `stored-pane-tree.ts`; `pane-area-tree.ts` to `declared-pane-layout.ts`.
 - [ ] 5.2 Tree queries: `leavesOf` moves to `pane-queries.ts` and the read-only walks are built on it;
   "an empty, undeclared leaf goes away" is one rule with one collapse tail; the moved-tree settling

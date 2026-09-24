@@ -10,7 +10,7 @@ import { PaneMoveService } from './drag/pane-move.service';
 import {
   containerChildInstances,
   paneRetentionScope,
-} from './retention/retention-policy';
+} from './retention/retention-keys';
 import { RetainedViewStash } from './retention/retained-view-stash';
 import { isContainerDock } from './container/container-children';
 import { LeftOutChildren } from './container/left-out-children';
