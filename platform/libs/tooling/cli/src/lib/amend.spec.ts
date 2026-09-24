@@ -139,6 +139,76 @@ describe('planAmend', () => {
     expect(plan.remaining.join(' ')).toContain('one, two');
   });
 
+  it('names an unresolvable project once, however many amendments need it', () => {
+    writeFileSync(
+      join(dir, 'angular.json'),
+      JSON.stringify({
+        projects: {
+          one: { root: 'apps/one', architect: { build: {} } },
+          two: { root: 'apps/two', architect: { build: {} } },
+        },
+      }),
+    );
+    const plan = planAmend(
+      [BUILD, { kind: 'stylesheet-source', sourceRoot: 'src/notes/src' }],
+      dir,
+    );
+    expect(plan.remaining).toHaveLength(1);
+  });
+
+  it('finds an entry stylesheet the build names in object form', () => {
+    writeFileSync(
+      join(dir, 'angular.json'),
+      JSON.stringify({
+        projects: {
+          studio: {
+            root: '',
+            architect: {
+              build: {
+                options: {
+                  styles: [{ input: 'src/styles.css', bundleName: 'main' }],
+                },
+              },
+            },
+          },
+        },
+      }),
+    );
+    mkdirSync(join(dir, 'src'), { recursive: true });
+    writeFileSync(join(dir, 'src', 'styles.css'), "@import 'tailwindcss';\n");
+    applyAmend(
+      planAmend([{ kind: 'stylesheet-source', sourceRoot: 'src/notes/src' }], dir),
+    );
+    expect(readFileSync(join(dir, 'src', 'styles.css'), 'utf8')).toContain(
+      "@source 'notes/src';",
+    );
+  });
+
+  it('takes a source line as a sign the stylesheet runs Tailwind', () => {
+    writeFileSync(
+      join(dir, 'angular.json'),
+      JSON.stringify({
+        projects: {
+          studio: {
+            root: '',
+            architect: { build: { options: { styles: ['src/styles.css'] } } },
+          },
+        },
+      }),
+    );
+    mkdirSync(join(dir, 'src'), { recursive: true });
+    writeFileSync(
+      join(dir, 'src', 'styles.css'),
+      "@import 'tailwindcss/utilities.css';\n@source './';\n",
+    );
+    applyAmend(
+      planAmend([{ kind: 'stylesheet-source', sourceRoot: 'src/notes/src' }], dir),
+    );
+    expect(readFileSync(join(dir, 'src', 'styles.css'), 'utf8')).toContain(
+      "@source 'notes/src';",
+    );
+  });
+
   it('wires the project the target sits inside', () => {
     mkdirSync(join(dir, 'apps', 'two'), { recursive: true });
     writeFileSync(
