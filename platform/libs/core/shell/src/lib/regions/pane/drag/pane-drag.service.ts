@@ -1,16 +1,7 @@
-import { computed, inject, Service, signal, Signal } from '@angular/core';
-import { isViewPanePath } from '../tree/pane-address';
-import { surfaceForPanePath } from '../pane-surface';
-import { canHostInPane } from '../../content/pane-targets';
-import { matchRoute } from '../../content/content-path';
-import { ContributionRegistry } from '../../../plugin/contribution-registry';
-import { AuthContext } from '../../../auth/auth-context';
+import { computed, Service, signal, Signal } from '@angular/core';
 
 @Service()
 export class PaneDragService {
-  private readonly registry = inject(ContributionRegistry);
-  private readonly auth = inject(AuthContext);
-
   private readonly draggedPath = signal<string | null>(null);
   private readonly zones = signal<readonly string[]>([]);
   private readonly strips = signal<readonly string[]>([]);
@@ -38,34 +29,6 @@ export class PaneDragService {
   registerStrip(id: string): () => void {
     this.strips.update((ids) => [...ids, id]);
     return () => this.strips.update((ids) => withoutOne(ids, id));
-  }
-
-  canOfferAsPaneTarget(path: string): boolean {
-    if (isViewPanePath(path)) {
-      return this.viewAllowed(path);
-    }
-    return canHostInPane(this.registry, this.auth, path);
-  }
-
-  canDuplicate(path: string): boolean {
-    if (isViewPanePath(path)) {
-      return this.viewAllowed(path);
-    }
-    const route = matchRoute(this.registry.contentRoutes(), path);
-    return route !== undefined && this.auth.meets(route.access);
-  }
-
-  routerBound(path: string): boolean {
-    return !isViewPanePath(path) && !this.canOfferAsPaneTarget(path);
-  }
-
-  private viewAllowed(path: string): boolean {
-    const surface = surfaceForPanePath(
-      this.registry.contentRoutes(),
-      this.registry.views(),
-      path,
-    );
-    return surface !== undefined && this.auth.meets(surface.access);
   }
 }
 

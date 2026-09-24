@@ -10,7 +10,7 @@ import { FeatureSwitches } from '../../features/feature-switches.service';
 import { ContentTabsService } from '../content/tabs/content-tabs.service';
 import { PaneTargetPicker } from '../content/pane-target-picker';
 import { PaneChromeService } from './chrome/pane-chrome.service';
-import { PaneDragService } from './drag/pane-drag.service';
+import { PaneAdmission } from '../content/pane-admission';
 import { PaneTreeService } from './tree/pane-tree.service';
 import { PaneContainersService } from './container/pane-containers.service';
 import { CONTAINER_CONTEXT } from './container/container-context';
@@ -87,12 +87,12 @@ const tabs = {
   navigateTo: vi.fn(),
   closePrimaryPane: vi.fn(),
 };
-const drag = {
+const admission = {
   canOfferAsPaneTarget: vi.fn((path: string) => path.startsWith('view:')),
   canDuplicate: vi.fn((path: string) => path.startsWith('view:')),
   routerBound: vi.fn(
     (path: string) =>
-      !path.startsWith('view:') && !drag.canOfferAsPaneTarget(path),
+      !path.startsWith('view:') && !admission.canOfferAsPaneTarget(path),
   ),
 };
 const picker = {
@@ -140,7 +140,7 @@ function build(
     { provide: PaneTreeService, useValue: tree },
     { provide: PaneContainersService, useValue: containers },
     { provide: ContentTabsService, useValue: tabs },
-    { provide: PaneDragService, useValue: drag },
+    { provide: PaneAdmission, useValue: admission },
     { provide: PaneTargetPicker, useValue: picker },
     { provide: SHELL_FEATURES, useValue: features },
   ];
@@ -341,7 +341,7 @@ describe('PaneView (content pane)', () => {
       'a',
       'b',
     ]);
-    drag.canDuplicate.mockReturnValueOnce(true);
+    admission.canDuplicate.mockReturnValueOnce(true);
     c.splitPane('row');
     expect(tree.splitPane).toHaveBeenCalledWith(
       'content',

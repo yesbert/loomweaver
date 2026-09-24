@@ -5,7 +5,7 @@ import { tabRootOf } from '../content/content-path';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { PaneChromeService } from './chrome/pane-chrome.service';
 import { SurfaceCloseGuard } from './unsaved-work/surface-close-guard';
-import { PaneDragService } from './drag/pane-drag.service';
+import { PaneAdmission } from '../content/pane-admission';
 import { PaneMoveService } from './drag/pane-move.service';
 import {
   containerChildInstances,
@@ -28,7 +28,7 @@ export class PaneActions {
   private readonly tabs = inject(ContentTabsService);
   private readonly closeGuard = inject(SurfaceCloseGuard);
   private readonly stash = inject(RetainedViewStash);
-  private readonly drag = inject(PaneDragService);
+  private readonly admission = inject(PaneAdmission);
   private readonly features = inject(FeatureSwitches).content;
   private readonly registry = inject(ContributionRegistry);
   private readonly leftOut = inject(LeftOutChildren);
@@ -134,7 +134,7 @@ export class PaneActions {
   }
 
   duplicable(path: string): boolean {
-    return this.drag.canDuplicate(path);
+    return this.admission.canDuplicate(path);
   }
 
   private addressCarriedBy(dock: string, paneId: string): string | undefined {

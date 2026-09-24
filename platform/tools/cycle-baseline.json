@@ -2,7 +2,6 @@
   "_": "Mutually dependent slices in @loomweaver/shell. Not defects: different files in each slice point different ways, which is acyclic at file level. They are the distance to an Nx library split, because Nx refuses a project graph with a cycle in it. This list may shrink and may never grow.",
   "fileCycles": [],
   "slicePairs": [
-    "auth <-> regions/pane",
     "commands <-> menu",
     "commands <-> regions/bar",
     "commands <-> regions/content",
