@@ -1,6 +1,7 @@
 import { posix } from 'node:path';
 import {
   getProjects,
+  ProjectConfiguration,
   readProjectConfiguration,
   Tree,
   updateProjectConfiguration,
@@ -42,10 +43,7 @@ export function resolveApp(tree: Tree, app?: string): ResolvedApp {
     }
     return { name: app, root: project.root };
   }
-  const apps = [...projects].filter(
-    ([, project]) =>
-      project.projectType === 'application' && project.targets?.['build'],
-  );
+  const apps = buildableApps(tree);
   if (apps.length === 1) {
     return { name: apps[0][0], root: apps[0][1].root };
   }
@@ -58,6 +56,13 @@ export function resolveApp(tree: Tree, app?: string): ResolvedApp {
     `This workspace has several applications (${apps
       .map(([name]) => name)
       .join(', ')}). Pass --app to choose one.`,
+  );
+}
+
+export function buildableApps(tree: Tree): [string, ProjectConfiguration][] {
+  return [...getProjects(tree)].filter(
+    ([, project]) =>
+      project.projectType === 'application' && project.targets?.['build'],
   );
 }
 

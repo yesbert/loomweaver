@@ -1,5 +1,6 @@
 import {
   addProjectConfiguration,
+  logger,
   readProjectConfiguration,
   Tree,
   readJson,
@@ -9,6 +10,7 @@ import {
   createConsumerWorkspace,
   PRECOMPILED_STYLESHEET,
 } from '../test-workspace';
+import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 import { distributionGenerator } from '../distribution/generator';
 import { weaverGenerator } from './generator';
 
@@ -181,6 +183,36 @@ describe('weaver generator', () => {
     expect(tree.read('apps/studio/src/app/app.config.ts', 'utf8')).toBe(
       'export const appConfig = { providers: [] };\n',
     );
+  });
+
+  it('wires the weaver into the app just the same without a test runner', async () => {
+    await distributionGenerator(tree, {
+      name: 'studio',
+      directory: 'apps/studio',
+      force: true,
+    });
+
+    await weaverGenerator(tree, { id: 'notes', unitTestRunner: 'none' });
+
+    const config = tree.read('apps/studio/src/app/app.config.ts', 'utf8') ?? '';
+    expect(config).toContain('...providePlugins(notesPlugin)');
+    const app = readProjectConfiguration(tree, 'studio');
+    expect(app.targets?.['build']?.options?.assets).toContainEqual({
+      glob: '**/*.json',
+      input: 'libs/notes-weaver/src/lib/i18n',
+      output: 'i18n/notes',
+    });
+  });
+
+  it('says it composed nothing where a workspace without a test runner has no application', async () => {
+    const bare = createTreeWithEmptyWorkspace();
+    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
+
+    await weaverGenerator(bare, { id: 'notes', unitTestRunner: 'none' });
+
+    expect(bare.exists('libs/notes-weaver/project.json')).toBe(true);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('not composed'));
+    warn.mockRestore();
   });
 
   it('serves the i18n bundle through the composing app assets', async () => {

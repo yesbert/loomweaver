@@ -12,7 +12,9 @@ import { generate } from '../../lib/generate/generate';
 import {
   addI18nAssetsGlob,
   addTailwindSource,
+  buildableApps,
   resolveApp,
+  ResolvedApp,
   tsconfigPathsFile,
   workspaceScope,
   writeFiles,
@@ -27,7 +29,7 @@ export async function weaverGenerator(
   options: WeaverGeneratorSchema,
 ): Promise<GeneratorCallback | void> {
   const baseTsconfig = tsconfigPathsFile(tree);
-  const resolved = appFor(tree, options);
+  const resolved = appToComposeInto(tree, options);
   const app = resolved?.name;
   const project = nxWeaverProject({
     id: options.id,
@@ -37,7 +39,10 @@ export async function weaverGenerator(
     scope: workspaceScope(tree),
     tags: options.tags?.split(',').map((tag) => tag.trim()),
     prefix: options.prefix,
-    buildTarget: app ? `${app}:build:development` : undefined,
+    buildTarget:
+      app && options.unitTestRunner !== 'none'
+        ? `${app}:build:development`
+        : undefined,
     baseTsconfig,
   });
   if (tree.exists(`${project.projectRoot}/project.json`)) {
@@ -133,14 +138,21 @@ function composeIntoApp(
   );
 }
 
-function appFor(
+function appToComposeInto(
   tree: Tree,
   options: WeaverGeneratorSchema,
-): { name: string; root: string } | undefined {
-  if (options.unitTestRunner === 'none') {
-    return undefined;
+): ResolvedApp | undefined {
+  if (
+    options.unitTestRunner !== 'none' ||
+    options.app !== undefined ||
+    buildableApps(tree).length > 0
+  ) {
+    return resolveApp(tree, options.app);
   }
-  return resolveApp(tree, options.app);
+  logger.warn(
+    `This workspace has no application with a build target, so ${options.id} was generated but not composed into one. Run the generator again with --app once there is one.`,
+  );
+  return undefined;
 }
 
 export default weaverGenerator;
