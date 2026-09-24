@@ -13,6 +13,8 @@ import path from 'node:path';
 import { fetchReleases, newestDate, renderChangelog, renderUnavailable } from './changelog.mjs';
 import { expandCards } from './cards.mjs';
 import { expandPackageManagerFences } from './package-managers.mjs';
+import { sidebarLinks } from './sidebar-links.mjs';
+import { sidebar } from '../sidebar.mjs';
 import { fileURLToPath } from 'node:url';
 
 const websiteRoot = path.resolve(fileURLToPath(import.meta.url), '../..');
@@ -488,7 +490,7 @@ for (const asset of [
    in sidebar.mjs is therefore hand-kept, and this check is what keeps it honest when someone
    adds a page. It covers guides as well as reference pages: a guide nobody can reach is the same
    defect, and it was the likelier one, because guides used to go unchecked. */
-const sidebarSource = readFileSync(path.join(websiteRoot, 'sidebar.mjs'), 'utf8');
+const linkedFromSidebar = sidebarLinks(sidebar);
 const pagesUnder = (dir, prefix) =>
   readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
     entry.isDirectory()
@@ -498,7 +500,7 @@ const pagesUnder = (dir, prefix) =>
 for (const page of pagesUnder(contentDir, '')) {
   if (!/\.mdx?$/.test(page)) continue;
   const route = `/${page.replace(/\.mdx?$/, '')}/`.replace(/\/index\/$/, '/');
-  if (!sidebarSource.includes(route)) {
+  if (!linkedFromSidebar.has(route)) {
     problems.push(
       `docs/${page} is not linked from the sidebar in sidebar.mjs — add it, or it is reachable only through search`,
     );
