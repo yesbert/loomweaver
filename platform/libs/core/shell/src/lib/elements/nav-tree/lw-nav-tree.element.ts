@@ -1,4 +1,4 @@
-import { addressIsUnder } from '../../addressing/address-reach';
+import { addressIsUnder } from '../../addressing/address-is-under';
 import {
   reflectAttribute,
   upgradeElementProperty,

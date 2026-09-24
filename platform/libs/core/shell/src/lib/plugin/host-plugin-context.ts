@@ -50,7 +50,7 @@ import {
   warnUnsupportedRetain,
   warnUnusableContainerLayout,
 } from './host-context-warnings';
-import { addressIsUnder } from '../addressing/address-reach';
+import { addressIsUnder } from '../addressing/address-is-under';
 import { pathOwnedBy, surfaceOwnedBy } from './plugin-surface-ownership';
 
 export class HostPluginContext implements PluginContext {

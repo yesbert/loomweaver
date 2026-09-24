@@ -1,4 +1,4 @@
-import { addressIsUnder } from './address-reach';
+import { addressIsUnder } from './address-is-under';
 
 describe('whether an address lies under one that is named', () => {
   it('counts a deeper address', () => {
