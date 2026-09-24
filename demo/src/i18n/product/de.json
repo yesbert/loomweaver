@@ -19,7 +19,9 @@
     "guest": "Gast"
   },
   "payments": {
-    "title": "Zahlungsabgleich"
+    "title": "Zahlungsabgleich",
+    "badgeOpen": "Offen",
+    "badgeDone": "Erledigt"
   },
   "looks": {
     "command": {

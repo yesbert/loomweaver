@@ -50,21 +50,19 @@ for this customer" calls `quotesActions.create` with the customer's name. The me
 capability, which the quotes plugin already declares; `quotesActions` gains a small `openMenu`
 passthrough so the view needs no `ctx` of its own.
 
-**The payment count travels through plugin state, and the logic frame owns the badge.** Only the
-logic frame holds the `ctx` that can call `updateSurfaceBadge`; the view knows the count. The view
-watches and sets the key `openCount` whenever the items load or a decision changes; the logic frame
-watches the same key and sets `{ text: String(count), textIsLiteral: true, tone: 'brand' }`, or
-`null` at zero. At activation the logic frame clears the key and fetches the open items itself for
-the first count, because the persisted value can be stale after a reload (the view's decisions do
-not survive one) and the view may not be mounted yet. The badge is the bare number, as unread counts
-usually are.
-*Alternatives:* a fixed "Sandbox" badge shows much less; letting the view call the badge is not
-possible, because a surface holds no `ctx`.
+**What is open travels through plugin state, and the logic frame owns the badge.** Only the logic
+frame holds the `ctx` that can call `updateSurfaceBadge`; the view knows what is open. The view
+watches and sets the key `openCount` whenever it draws the matching; the logic frame watches the
+same key and sets "Open" in the brand tone while anything is open and "Done" in the success tone
+once nothing is. At activation the logic frame clears the key and fetches the open items itself for
+the first badge, because a stored value can be stale after a reload (the view's decisions do not
+survive one) and the view may not be mounted yet; until then it ignores what the store pushes. The
+words are keys of the product's bundle, so they follow the language of the page.
+*Alternatives:* a count, which the badge contract excludes (F-023); a fixed "Sandbox" badge, which
+shows much less; letting the view set the badge, which a surface without a `ctx` cannot.
 
 ## Risks / Trade-offs
 
-- [The bare number is announced as "Payment matching, 4"] → Short and common for counts; a worded
-  badge would need the logic frame to know the host language, which it does not.
 - [Bundle size] → The demo sits at 1351.7 kB of 1355. The quotes changes are small; a growth past
   the ceiling is raised deliberately and named.
 - [A context-menu test is sensitive to where it clicks] → The test right-clicks the row's button by

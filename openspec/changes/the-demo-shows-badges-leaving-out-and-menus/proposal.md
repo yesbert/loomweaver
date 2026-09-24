@@ -21,10 +21,11 @@ and the padlock the demo already shows is invisible. The owner chose four places
 - **The quotes list has a context menu.** A right-click on a row opens a menu with "Open", "Open as
   preview" and "New quote for this customer". Its labels are translation keys, so an open menu
   changes its words with the language.
-- **The payment matching tab counts what is open.** The sandboxed payments surface carries a badge
-  with the number of items still open. The view publishes the count through the plugin's state, the
-  plugin frame sets the badge, and it goes when nothing is left open. It shows a badge set live from
-  a plugin that runs isolated from the page.
+- **The payment matching tab says whether anything is open.** The sandboxed payments surface carries
+  a badge: "Open" while items are still open, "Done" once every one is settled. The view publishes
+  what is open through the plugin's state, and the plugin frame sets the badge. It shows a badge set
+  live from a plugin that runs isolated from the page. A word rather than a count, because a badge is
+  a word or an icon: a changing number is what the owner declined in F-023.
 - The demo's README describes the four, and each has an end-to-end test in the demo's suite.
 
 ## Capabilities

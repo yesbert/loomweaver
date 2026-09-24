@@ -17,12 +17,12 @@
 - [x] 3.2 A demo e2e test: the menu opens at the row, "Open" keeps the quote as a tab, and its words are in the page's language (following a change while open is pinned by the platform's own tests, since the language control closes the menu)
 - [x] 3.3 Screenshot of the open menu, shown to the owner before going on
 
-## 4. The payment matching tab counts what is open
+## 4. The payment matching tab says whether anything is open
 
-- [ ] 4.1 `view.js` watches `openCount` and sets it whenever the open items load or a decision changes
-- [ ] 4.2 `plugin.js` clears `openCount` at activation, fetches the open items for the first count, watches the key and sets or removes the surface badge
-- [ ] 4.3 A demo e2e test: the tab shows the count of open items and it drops when a payment is confirmed
-- [ ] 4.4 Screenshot of the payment matching tab with its count, shown to the owner
+- [x] 4.1 `view.js` watches `openCount` and sets it whenever it draws the matching
+- [x] 4.2 `plugin.js` watches and clears `openCount` at activation, fetches the open items for the first badge, then sets "Open" or "Done" from what the view publishes
+- [x] 4.3 A demo e2e test: the tab says "Open", stays so after one confirmation, says "Done" after both, and "Open" again after an undo
+- [x] 4.4 Screenshots of the payment matching tab open and done, shown to the owner
 
 ## 5. Close
 

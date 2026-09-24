@@ -113,6 +113,7 @@
 
   let state = { locale: 'en', session: { authenticated: false, roles: [] } };
   let openItems = null;
+  let surfaceHost;
   let failed = false;
 
   function strings() {
@@ -335,6 +336,17 @@
     });
   }
 
+  function openCount() {
+    const settled = settledNumbers();
+    return (openItems ?? []).filter((item) => !settled.includes(item.number)).length;
+  }
+
+  function publishOpenCount() {
+    if (surfaceHost && openItems) {
+      surfaceHost.stateSet('openCount', openCount());
+    }
+  }
+
   function decide(lineId, decision) {
     decisions.set(lineId, decision);
     render();
@@ -367,6 +379,7 @@
     }
     app.innerHTML = matchingView();
     bindActions();
+    publishOpenCount();
   }
 
   function loadOpenItems() {
@@ -411,7 +424,13 @@
       },
     },
   })
-    .promise.then((host) => host.stateWatch('settings'))
+    .promise.then((host) => {
+      surfaceHost = host;
+      return host
+        .stateWatch('settings')
+        .then(() => host.stateWatch('openCount'))
+        .then(() => publishOpenCount());
+    })
     .catch((error) => {
       console.error('[payments view] host connection failed', error);
     });
