@@ -82,6 +82,8 @@ import {
 import { registerDefaultSettings } from './default-settings';
 import { seedContributions, seedHostCommands } from './shell-seeds';
 import { seedBuiltInMenus } from './shell-menu-seeds';
+import { ThemeService } from './theme/theme.service';
+import { FontScaleService } from './text-size/font-scale.service';
 
 /** Options a distribution can pass to {@link provideShell}. */
 export interface ShellOptions {
@@ -178,6 +180,11 @@ export interface ShellOptions {
   readonly languages?: readonly string[];
 }
 
+function applyThemeAndTextSize(): void {
+  inject(ThemeService);
+  inject(FontScaleService);
+}
+
 /**
  * Wires the neutral shell host (theme, i18n, icons, error handling) for a
  * distribution. A distribution adds its own router and product identity; the
@@ -229,6 +236,7 @@ export function provideShell(
     provideEnvironmentInitializer(() => defineLwMarkdown()),
     provideEnvironmentInitializer(() => defineLwButton()),
     provideEnvironmentInitializer(() => defineLwProgressRing()),
+    provideEnvironmentInitializer(applyThemeAndTextSize),
 
     provideEnvironmentInitializer(() => {
       const registry = inject(ContributionRegistry);

@@ -14,8 +14,6 @@ import { ShellSidebarHeader } from './regions/panel/shell-sidebar-header';
 import { ContentGrid } from './regions/content/content-grid';
 import { ToastOutlet } from './notifications/toast-outlet';
 import { DialogOutlet } from './dialog/dialog-outlet';
-import { ThemeService } from './theme/theme.service';
-import { FontScaleService } from './text-size/font-scale.service';
 import { ViewportService } from './layout/viewport.service';
 import { PanelState } from './regions/panel/panel-state';
 import { PopoutService } from './popout/popout.service';
@@ -70,9 +68,6 @@ export class Shell {
   protected readonly rightRailDivider = computed(() =>
     this.railDivider(this.rightPanels, this.rightRails),
   );
-
-  private readonly theme = inject(ThemeService);
-  private readonly fontScale = inject(FontScaleService);
 
   protected panelCollapsed(panel: LayoutRegion): boolean {
     return !this.viewport.compact() && this.panels.isCollapsed(panel.id);

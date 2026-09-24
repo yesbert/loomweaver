@@ -70,7 +70,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   `ViewVisibilityService.isHidden`/`toggle`, `RailItemsService.toggle`, `LwToken`,
   `PaneSegment.fraction`, `isLeftOut`, the unused `reusableRoute`, and the router data only tests read
   (the router table keeps `content`); move the gated-view curation test to the curation dialog.
-- [ ] 3.2 Theme and text size are applied by explicit initializers in `provideShell`, not by two
+- [x] 3.2 Theme and text size are applied by explicit initializers in `provideShell`, not by two
   unread fields of `Shell`.
 - [ ] 3.3 Each host command moves next to what it opens (palette and quick open, curation, app reset,
   workspaces, split); `shell-seeds.ts` becomes `host-commands.ts` (order and gating only),
