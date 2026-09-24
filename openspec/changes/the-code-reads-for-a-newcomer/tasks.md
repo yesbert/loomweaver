@@ -161,7 +161,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 - [x] 5.7 Pane chrome: overflow measuring as a directive, the tab menu context as a pure function, the
   unsaved dot as one template; the drag service keeps only drag state and the admission checks move to
   the pane targets; the drop zones render from a loop.
-- [ ] 5.8 Smaller pane items: the container identity derived once, container instance ids built once,
+- [x] 5.8 Smaller pane items: the container identity derived once, container instance ids built once,
   `flexFor` with named arguments and constants, the chrome service's names, the pane-close keep rule
   as two named functions, the view menu slot constant beside its menu; `retention.spec.ts` (1024
   lines) split per file under test.
