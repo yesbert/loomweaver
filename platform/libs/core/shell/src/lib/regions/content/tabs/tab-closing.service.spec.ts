@@ -11,7 +11,7 @@ import { RetainedViewStash } from '../../pane/retention/retained-view-stash';
 import { paneRetentionScope } from '../../pane/retention/retention-keys';
 import { findLeaf } from '../../pane/tree/pane-queries';
 import { SurfaceCloseGuard } from '../../pane/unsaved-work/surface-close-guard';
-import { buildContentRoutes } from '../routing/content-router';
+import { buildContentRoutes } from '../routing/content-route-table';
 import { ContentTabsService } from './content-tabs.service';
 
 @Component({ selector: 'lw-test-content', template: '' })

@@ -7,7 +7,7 @@ import {
   Service,
   untracked,
 } from '@angular/core';
-import { NavigationEnd, Route, Router, Routes } from '@angular/router';
+import { NavigationEnd, Router, Routes } from '@angular/router';
 import { filter } from 'rxjs';
 import { ContentRoute } from '@loomweaver/plugin-sdk';
 import {
@@ -15,93 +15,12 @@ import {
   RegisteredContentRoute,
 } from '../../../plugin/contribution-registry';
 import { AuthContext } from '../../../auth/auth-context';
-import { ContentSubStub } from './content-sub-stub';
-import { SurfaceRouteStub } from './surface-route-stub';
-import { accessCanMatch } from '../access/content-access';
 import { BootAddress } from './boot-address';
 import { DISTRIBUTION_ROUTES, isCatchAll } from './distribution-routes';
-import { keepPopout } from './keep-popout.guard';
-import { settleWorkspace } from './settle-workspace.guard';
-import { containerChildren } from '../../pane/container/container-children';
+import { buildContentRoutes, routePlaceholder } from './content-route-table';
 import { matchRoute, normalizePath, segmentsOf } from '../content-path';
 import { POPOUT_PREFIX } from '../../../popout/popout-path';
 import { PopoutView } from '../../../popout/popout-view';
-
-const CONTENT_DATA = { content: true };
-
-export function buildContentRoutes(
-  contentRoutes: readonly RegisteredContentRoute[],
-  omitted: readonly ContentRoute[] = [],
-): Routes {
-  const placeholders: Routes = omitted.map((route) => ({
-    path: route.path,
-    component: SurfaceRouteStub,
-    canActivate: [keepPopout, settleWorkspace],
-    data: CONTENT_DATA,
-  }));
-  return [...buildRegisteredRoutes(contentRoutes), ...placeholders];
-}
-
-function surfaceRoute(): Partial<Route> {
-  return { component: SurfaceRouteStub };
-}
-
-function subStub(path: string, pathMatch?: 'full'): Route {
-  return {
-    path,
-    ...(pathMatch && { pathMatch }),
-    component: ContentSubStub,
-    data: CONTENT_DATA,
-  };
-}
-
-function containerSubs(route: RegisteredContentRoute): readonly string[] {
-  return containerChildren(route.container)
-    .map((child) => child.segment)
-    .filter((segment): segment is string => segment !== undefined);
-}
-
-function childRoutes(route: RegisteredContentRoute): Routes {
-  const subs = [...(route.subRoutes ?? []), ...containerSubs(route)];
-  const children: Routes = subs.map((sub) => subStub(sub));
-  if (subs.length) {
-    children.unshift(subStub('', 'full'));
-  }
-  if (route.rest === true) {
-    children.push(subStub('**'));
-  }
-  return children;
-}
-
-function buildRegisteredRoutes(
-  contentRoutes: readonly RegisteredContentRoute[],
-): Routes {
-  return contentRoutes.flatMap((route) => {
-    const angular: Route = {
-      path: route.path,
-      ...surfaceRoute(),
-      canActivate: [keepPopout, settleWorkspace],
-      data: CONTENT_DATA,
-    };
-    const children = childRoutes(route);
-    if (children.length) {
-      angular.children = children;
-    }
-
-    if (route.access) {
-      angular.canMatch = [accessCanMatch(route.access)];
-      const placeholder: Route = {
-        path: route.path,
-        component: SurfaceRouteStub,
-        canActivate: [keepPopout],
-        data: CONTENT_DATA,
-        ...(children.length && { children }),
-      };
-      return [angular, placeholder];
-    }
-    return [angular];
-  });
-}
 
 @Service()
 export class ContentRouter {
@@ -152,6 +71,18 @@ export class ContentRouter {
 
     const deepLink = this.bootAddress.path;
     this.pendingDeepLink = normalizePath(deepLink) === '' ? null : deepLink;
+    this.followNavigation();
+
+    this.lastRoutes = this.registry.contentRoutes();
+    this.lastOmitted = this.registry.omittedContentRoutes();
+    this.applyConfig(this.lastRoutes, this.lastOmitted);
+    this.router.initialNavigation();
+
+    this.followRegistry();
+    this.rematchOnSessionChange();
+  }
+
+  private followNavigation(): void {
     this.location.subscribe(() => {
       this.userNavigated = true;
     });
@@ -162,12 +93,9 @@ export class ContentRouter {
         ),
       )
       .subscribe((event) => this.landed(event.urlAfterRedirects));
+  }
 
-    this.lastRoutes = this.registry.contentRoutes();
-    this.lastOmitted = this.registry.omittedContentRoutes();
-    this.applyConfig(this.lastRoutes, this.lastOmitted);
-    this.router.initialNavigation();
-
+  private followRegistry(): void {
     effect(
       () => {
         const routes = this.registry.contentRoutes();
@@ -185,7 +113,9 @@ export class ContentRouter {
       },
       { injector: this.injector },
     );
+  }
 
+  private rematchOnSessionChange(): void {
     let firstAuthRun = true;
     effect(
       () => {
@@ -262,14 +192,7 @@ export class ContentRouter {
     if (path === '' || segmentsOf(matched?.path ?? '').length > 0) {
       return [];
     }
-    return [
-      {
-        path,
-        component: SurfaceRouteStub,
-        canActivate: [keepPopout, settleWorkspace],
-        data: CONTENT_DATA,
-      },
-    ];
+    return [routePlaceholder(path)];
   }
 
   private landed(url: string): void {

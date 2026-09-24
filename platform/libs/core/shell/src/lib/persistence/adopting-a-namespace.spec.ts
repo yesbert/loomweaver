@@ -12,7 +12,7 @@ import { ContentRoute } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../plugin/contribution-registry';
 import { provideLayout } from '../layout/layout';
 import { provideIdentityScopedStores } from './identity-scoped-stores';
-import { buildContentRoutes } from '../regions/content/routing/content-router';
+import { buildContentRoutes } from '../regions/content/routing/content-route-table';
 import { CONTENT_DOCK } from '../regions/pane/tree/pane-address';
 import { SurfaceBody } from '../regions/content/surface/surface-body';
 import { CONTAINER_PANE_HOST } from '../regions/pane/container/container-context';

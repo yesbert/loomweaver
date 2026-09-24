@@ -14,7 +14,7 @@ import { WORKING_STATE_STORE } from '../../../persistence/working-state-store';
 import { CONTENT_DOCK, PRIMARY_PANE } from '../../pane/tree/pane-address';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 import { collectTabs } from '../../pane/tree/pane-queries';
-import { buildContentRoutes } from '../routing/content-router';
+import { buildContentRoutes } from '../routing/content-route-table';
 import { BootAddress } from '../routing/boot-address';
 import { ContentTabsService } from './content-tabs.service';
 

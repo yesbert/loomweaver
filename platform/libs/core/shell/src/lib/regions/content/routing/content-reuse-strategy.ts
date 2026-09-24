@@ -4,7 +4,7 @@ import {
   DetachedRouteHandle,
   RouteReuseStrategy,
 } from '@angular/router';
-import { isContentRoute } from '../../pane/retention/retention-policy';
+import { isContentRoute } from './content-route-table';
 
 @Service()
 export class ContentReuseStrategy implements RouteReuseStrategy {

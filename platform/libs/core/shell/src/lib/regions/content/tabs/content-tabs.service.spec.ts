@@ -6,7 +6,7 @@ import { ContentRoute } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { CONTENT_DOCK, PRIMARY_PANE } from '../../pane/tree/pane-address';
 import { paneRetentionScope } from '../../pane/retention/retention-keys';
-import { buildContentRoutes } from '../routing/content-router';
+import { buildContentRoutes } from '../routing/content-route-table';
 import { SurfaceBody } from '../surface/surface-body';
 import { ContentTabsService } from './content-tabs.service';
 

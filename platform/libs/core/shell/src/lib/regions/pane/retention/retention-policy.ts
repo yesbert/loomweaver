@@ -1,5 +1,4 @@
 import { InjectionToken } from '@angular/core';
-import { ActivatedRouteSnapshot } from '@angular/router';
 import { ContentRoute, DirtySurface, View } from '@loomweaver/plugin-sdk';
 import { matchRoute } from '../../content/content-path';
 import { VIEW_PANE_PREFIX } from '../tree/pane-address';
@@ -14,10 +13,6 @@ export const SURFACE_RETENTION = new InjectionToken<RetentionDefault>(
     factory: () => 'destroy',
   },
 );
-
-export function isContentRoute(route: ActivatedRouteSnapshot): boolean {
-  return route.routeConfig?.data?.['content'] === true;
-}
 
 export function effectiveRetain(
   declared: 'always' | 'never' | undefined,
