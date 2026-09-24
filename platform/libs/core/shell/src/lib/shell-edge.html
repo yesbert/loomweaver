@@ -1,0 +1,37 @@
+@if (viewport.compact()) {
+  @for (panel of panels(); track panel.id) {
+    <lw-shell-sidebar-header [region]="panel" />
+  }
+}
+<div class="flex flex-1 overflow-hidden">
+  @if (side() === 'left') {
+    @for (region of rails(); track region.id) {
+      <lw-shell-rail [region]="region" />
+    }
+  }
+  @if (!viewport.compact()) {
+    <div
+      class="flex flex-col overflow-hidden border-border"
+      [class.border-l]="side() === 'left' && railDivider()"
+      [class.border-r]="side() === 'right' && railDivider()"
+    >
+      @for (panel of panels(); track panel.id) {
+        <lw-shell-sidebar-header
+          [region]="panel"
+          [class.w-0]="!panelCollapsed(panel)"
+          [class.min-w-full]="!panelCollapsed(panel)"
+        />
+      }
+      <div class="flex flex-1 overflow-hidden">
+        @for (region of panels(); track region.id) {
+          <lw-shell-panel [region]="region" />
+        }
+      </div>
+    </div>
+  }
+  @if (side() === 'right') {
+    @for (region of rails(); track region.id) {
+      <lw-shell-rail [region]="region" />
+    }
+  }
+</div>
