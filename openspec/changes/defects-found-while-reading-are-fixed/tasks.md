@@ -55,7 +55,7 @@ they start with a top-level folder.
 
 ## 4. The frame kit
 
-- [ ] 4.1 The frame declaration build removes an `export {};` line instead of leaving `{};` behind; a
+- [x] 4.1 The frame declaration build removes an `export {};` line instead of leaving `{};` behind; a
   test feeds such a line and type-checks the result (`platform/libs/core/frame-kit/build.mjs`).
 
 ## 5. Tooling
