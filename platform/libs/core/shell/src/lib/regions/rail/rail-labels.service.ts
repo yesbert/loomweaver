@@ -1,6 +1,6 @@
 import { inject, Service, signal } from '@angular/core';
 import { SETTINGS_STORE } from '../../persistence/settings-store';
-import { hydrateAsync } from '../../persistence/hydrate';
+import { hydrateAsync } from '../../persistence/stored-values/hydrate';
 import { StateSyncService } from '../../persistence/state-sync.service';
 
 const STORAGE_KEY = 'lw.shell.rail-labels';

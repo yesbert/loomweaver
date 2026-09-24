@@ -8,7 +8,7 @@ import {
   SettingsSection,
 } from '@loomweaver/plugin-sdk';
 import { KeyValueStore } from '../../persistence/key-value-store';
-import { hydrateAsync } from '../../persistence/hydrate';
+import { hydrateAsync } from '../../persistence/stored-values/hydrate';
 import { StateSyncService } from '../../persistence/state-sync.service';
 import { PluginInstallService } from '../../plugin-store/lifecycle/plugin-install.service';
 

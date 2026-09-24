@@ -1,6 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { effect, inject, Service } from '@angular/core';
-import { persistedSetting } from '../persistence/persisted-setting';
+import { persistedSetting } from '../persistence/stored-values/persisted-setting';
 
 export type FontScale = 'sm' | 'md' | 'lg' | 'xl';
 

@@ -2,7 +2,7 @@ import { inject, Service } from '@angular/core';
 import { SETTINGS_STORE } from './settings-store';
 import { WORKING_STATE_STORE } from './working-state-store';
 import { StateSyncChannel } from './state-sync-channel';
-import { readStoredValue } from './hydrate';
+import { readStoredValue } from './stored-values/hydrate';
 
 /**
  * Where a synced key's fresh value is read back from after another window announced a change

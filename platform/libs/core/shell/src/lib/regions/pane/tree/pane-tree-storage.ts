@@ -1,7 +1,7 @@
 import { inject, isDevMode, Service } from '@angular/core';
 import { WORKING_STATE_STORE } from '../../../persistence/working-state-store';
 import { SETTINGS_STORE } from '../../../persistence/settings-store';
-import { hydrateAsync } from '../../../persistence/hydrate';
+import { hydrateAsync } from '../../../persistence/stored-values/hydrate';
 import { PopoutWindow } from '../../../popout/popout-window';
 import { ActiveWorkspaceService } from '../../../workspace/active-workspace.service';
 import {

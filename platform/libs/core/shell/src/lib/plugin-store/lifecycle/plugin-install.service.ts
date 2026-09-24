@@ -1,5 +1,5 @@
 import { inject, Service } from '@angular/core';
-import { persistedSetting } from '../../persistence/persisted-setting';
+import { persistedSetting } from '../../persistence/stored-values/persisted-setting';
 import { PluginStateService } from '../../plugin/plugin-state.service';
 import {
   INSTALLED_LIST_CODEC,

@@ -1,7 +1,7 @@
 import { inject, Signal, signal } from '@angular/core';
 import { hydrateAsync } from './hydrate';
-import { SETTINGS_STORE } from './settings-store';
-import { StateSyncService } from './state-sync.service';
+import { SETTINGS_STORE } from '../settings-store';
+import { StateSyncService } from '../state-sync.service';
 
 export interface PersistedSetting<T> {
   readonly value: Signal<T>;

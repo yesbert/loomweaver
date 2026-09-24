@@ -1,7 +1,7 @@
 import { inject, isDevMode, Service, signal, WritableSignal } from '@angular/core';
 import { PluginState, StateHandle } from '@loomweaver/plugin-sdk';
 import { WORKING_STATE_STORE } from '../persistence/working-state-store';
-import { hydrateAsync, readStoredValue } from '../persistence/hydrate';
+import { hydrateAsync, readStoredValue } from '../persistence/stored-values/hydrate';
 import { StateSyncService } from '../persistence/state-sync.service';
 
 const STORAGE_PREFIX = 'lw.plugin-state:';

@@ -1,5 +1,5 @@
 import { KeyValueStore } from '../../persistence/key-value-store';
-import { readStoredValue } from '../../persistence/hydrate';
+import { readStoredValue } from '../../persistence/stored-values/hydrate';
 import { workspaceScopedKey } from '../active-workspace.service';
 import {
   WorkspaceDefinition,

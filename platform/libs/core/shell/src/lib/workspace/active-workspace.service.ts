@@ -1,5 +1,5 @@
 import { inject, Service, signal } from '@angular/core';
-import { readStoredValue } from '../persistence/hydrate';
+import { readStoredValue } from '../persistence/stored-values/hydrate';
 import { WORKING_STATE_STORE } from '../persistence/working-state-store';
 import { WORKSPACE_DEFINITIONS } from './provide-workspaces';
 import {

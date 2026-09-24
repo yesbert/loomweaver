@@ -1,6 +1,6 @@
 import { CAPABILITIES, Capability } from '@loomweaver/plugin-sdk';
 import { PluginIsolationLevel } from '../foundation/plugin-isolation-level';
-import { SettingCodec } from '../persistence/persisted-setting';
+import { SettingCodec } from '../persistence/stored-values/persisted-setting';
 
 /**
  * A community plugin the user installed from the distribution's catalog. Plain data — the
