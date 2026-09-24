@@ -76,7 +76,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   workspaces, split); `shell-seeds.ts` becomes `host-commands.ts` (order and gating only),
   `shell-menu-seeds.ts` becomes `built-in-menus.ts`, contribution seeding moves into
   `provide-shell.ts`, "seed" is left to the pane tree; `check-command-names.mjs` follows.
-- [ ] 3.4 `provide-shell.ts` fits a screen: `ShellOptions` in `shell-options.ts`, named provider groups,
+- [x] 3.4 `provide-shell.ts` fits a screen: `ShellOptions` in `shell-options.ts`, named provider groups,
   one shape for startup registration, `registerDefaultSettings` injecting what it needs.
 - [ ] 3.5 `shell.html` renders a side through one `ShellEdge` and the compact overlay through one
   drawer template instead of mirrored left and right blocks; the outlets render once.

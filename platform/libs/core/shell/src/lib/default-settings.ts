@@ -26,7 +26,8 @@ function railLabelRows(): SettingRow[] {
   }));
 }
 
-export function registerDefaultSettings(settings: SettingsService): void {
+export function registerDefaultSettings(): void {
+  const settings = inject(SettingsService);
   settings.register({
     id: 'shell.general',
     title: 'settings.general',

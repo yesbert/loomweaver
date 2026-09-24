@@ -13,7 +13,7 @@ function registrationsTheWorkbenchRunsOnStart(): string[] {
     );
   }
   const source = readFileSync(file, 'utf8');
-  return [...new Set(source.match(/defineLw\w+(?=\(\))/g))];
+  return [...new Set(source.match(/\bdefineLw\w+/g))];
 }
 
 describe('registering the workbench elements outside the workbench', () => {
