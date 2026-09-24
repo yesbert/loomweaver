@@ -12,53 +12,53 @@ import {
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { CurrentAddress } from './current-address';
-import { SurfaceAddress } from './routing/live-surface-route';
+import { CurrentAddress } from '../current-address';
+import { SurfaceAddress } from './live-surface-route';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { CONTAINER_HANDLE, ContentRoute } from '@loomweaver/plugin-sdk';
-import { View } from '../../views/view';
+import { View } from '../../../views/view';
 import {
   ContributionRegistry,
   RegisteredContentRoute,
   RegisteredView,
-} from '../../plugin/contribution-registry';
-import { AuthContext } from '../../auth/auth-context';
-import { ViewMountService } from '../../views/view-mount.service';
-import { ViewInstanceSwitcher } from '../../views/view-instance-switcher';
-import { ComponentLoader } from '../pane/component-loader.service';
-import { PopoutWindow } from '../../popout/popout-window';
-import { AuthRequiredView } from './access/auth-required-view';
-import { RouteUnavailableView } from './access/route-unavailable-view';
+} from '../../../plugin/contribution-registry';
+import { AuthContext } from '../../../auth/auth-context';
+import { ViewMountService } from '../../../views/view-mount.service';
+import { ViewInstanceSwitcher } from '../../../views/view-instance-switcher';
+import { ComponentLoader } from '../../pane/component-loader.service';
+import { PopoutWindow } from '../../../popout/popout-window';
+import { AuthRequiredView } from '../access/auth-required-view';
+import { RouteUnavailableView } from '../access/route-unavailable-view';
 import { IframeSurface } from './iframe-surface';
 import {
   CONTAINER_CONTEXT,
   CONTAINER_PANE_HOST,
-} from '../pane/container/container-context';
-import { syntheticParamRoute } from './routing/synthetic-route';
+} from '../../pane/container/container-context';
+import { syntheticParamRoute } from './synthetic-route';
 import {
   dockedSurfaceInjectorFactory,
   surfaceMounts,
-} from './routing/surface-injector';
+} from './surface-injector';
 import {
   containerChildForPath,
   surfaceForPanePath,
-} from '../pane/pane-surface';
-import { matchRoute, paramsOfPattern, tabRootOf } from './content-path';
-import { RetainedComponent } from '../pane/retention/retained-component';
-import { RetainedViewStash } from '../pane/retention/retained-view-stash';
+} from '../../pane/pane-surface';
+import { matchRoute, paramsOfPattern, tabRootOf } from '../content-path';
+import { RetainedComponent } from '../../pane/retention/retained-component';
+import { RetainedViewStash } from '../../pane/retention/retained-view-stash';
 import {
   effectivePadding,
   SURFACE_PADDING,
-} from '../../foundation/surface-padding';
+} from '../../../foundation/surface-padding';
 import {
   retainSurfacePath,
   SURFACE_RETENTION,
   surfaceRetentionMode,
-} from '../pane/retention/retention-policy';
+} from '../../pane/retention/retention-policy';
 import {
   surfaceRetentionKey,
   viewRetentionKey,
-} from '../pane/retention/retention-keys';
+} from '../../pane/retention/retention-keys';
 
 @Component({
   selector: 'lw-content-secondary-pane',

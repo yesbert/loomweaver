@@ -5,10 +5,10 @@ import { of } from 'rxjs';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { AuthSnapshot } from '@loomweaver/plugin-sdk';
 import { IframeSurface } from './iframe-surface';
-import { ContentTabsService } from './tabs/content-tabs.service';
-import { AUTH_SOURCE } from '../../auth/auth-context';
-import { CapabilityGrantService } from '../../permissions/capability-grant.service';
-import { PluginIsolationLevelService } from '../../foundation/plugin-isolation-level';
+import { ContentTabsService } from '../tabs/content-tabs.service';
+import { AUTH_SOURCE } from '../../../auth/auth-context';
+import { CapabilityGrantService } from '../../../permissions/capability-grant.service';
+import { PluginIsolationLevelService } from '../../../foundation/plugin-isolation-level';
 
 interface NavigatesWithinTabRoot {
   navigateWithinTabRoot(path: string): void;

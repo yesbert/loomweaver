@@ -7,24 +7,24 @@ import { filter, map } from 'rxjs';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { DirtySurface, StateHandle } from '@loomweaver/plugin-sdk';
 import { Connection, Methods, WindowMessenger, connect } from 'penpal';
-import { LocaleService } from '../../i18n/locale.service';
-import { PluginStateService } from '../../plugin/plugin-state.service';
-import { ThemeService } from '../../theme/theme.service';
-import { ThemeRegistry } from '../../theme/theme-registry';
-import { FontScaleService } from '../../text-size/font-scale.service';
-import { LW_TOKENS } from '../../theme/theme-tokens';
-import { distributionIcons } from '../../elements/icon/icon-registry-global';
-import { AuthContext } from '../../auth/auth-context';
-import { CapabilityGrantService } from '../../permissions/capability-grant.service';
-import { PluginIsolationLevelService } from '../../foundation/plugin-isolation-level';
-import { ContentTabsService } from './tabs/content-tabs.service';
-import { normalizePath, restBelow, suffixOf } from './content-path';
+import { LocaleService } from '../../../i18n/locale.service';
+import { PluginStateService } from '../../../plugin/plugin-state.service';
+import { ThemeService } from '../../../theme/theme.service';
+import { ThemeRegistry } from '../../../theme/theme-registry';
+import { FontScaleService } from '../../../text-size/font-scale.service';
+import { LW_TOKENS } from '../../../theme/theme-tokens';
+import { distributionIcons } from '../../../elements/icon/icon-registry-global';
+import { AuthContext } from '../../../auth/auth-context';
+import { CapabilityGrantService } from '../../../permissions/capability-grant.service';
+import { PluginIsolationLevelService } from '../../../foundation/plugin-isolation-level';
+import { ContentTabsService } from '../tabs/content-tabs.service';
+import { normalizePath, restBelow, suffixOf } from '../content-path';
 import {
   SurfaceCapture,
   SurfaceDrawing,
   askSurfaceToDraw,
-} from '../../capture/surface-capture';
-import { SurfaceCaptureRegistry } from '../../capture/surface-capture-registry';
+} from '../../../capture/surface-capture';
+import { SurfaceCaptureRegistry } from '../../../capture/surface-capture-registry';
 
 interface SurfaceState {
   readonly locale: string;

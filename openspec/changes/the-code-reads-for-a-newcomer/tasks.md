@@ -105,7 +105,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 
 ## 4. The content regions
 
-- [ ] 4.1 **Move:** a `regions/content/surface/` sub-theme for what draws a surface inside a pane (the
+- [x] 4.1 **Move:** a `regions/content/surface/` sub-theme for what draws a surface inside a pane (the
   surface body, the iframe surface, the live and synthetic routes, the surface injector).
 - [ ] 4.2 **Move:** rename `ContentSecondaryPane` to `SurfaceBody`, `ContentArea` to
   `AddressPaneHeader`, `AddressBody` to `AddressPaneBody`, `provide-content-router.ts` to

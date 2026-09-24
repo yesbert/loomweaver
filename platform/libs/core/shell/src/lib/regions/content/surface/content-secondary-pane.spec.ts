@@ -4,16 +4,16 @@ import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, RouterOutlet, provideRouter } from '@angular/router';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { ANONYMOUS, AuthSnapshot, ContentRoute } from '@loomweaver/plugin-sdk';
-import { ContributionRegistry } from '../../plugin/contribution-registry';
-import { AUTH_SOURCE, AuthContext } from '../../auth/auth-context';
+import { ContributionRegistry } from '../../../plugin/contribution-registry';
+import { AUTH_SOURCE, AuthContext } from '../../../auth/auth-context';
 import {
   PaddingDefault,
   SURFACE_PADDING,
-} from '../../foundation/surface-padding';
+} from '../../../foundation/surface-padding';
 import { ContentSecondaryPane } from './content-secondary-pane';
-import { offRouterPaneTargets, routerPaneTargets } from './pane-targets';
-import { liveSurfaceRoute } from './routing/live-surface-route';
-import { RegisteredContentRoute } from '../../plugin/contribution-registry';
+import { offRouterPaneTargets, routerPaneTargets } from '../pane-targets';
+import { liveSurfaceRoute } from './live-surface-route';
+import { RegisteredContentRoute } from '../../../plugin/contribution-registry';
 
 const paneAt = (route: ContentRoute, path: string) =>
   liveSurfaceRoute(route as RegisteredContentRoute, {
