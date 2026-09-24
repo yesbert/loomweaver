@@ -1,11 +1,19 @@
-import { effect, EnvironmentInjector, EnvironmentProviders, inject, InjectionToken, isDevMode, provideEnvironmentInitializer, Provider, Service, untracked } from '@angular/core';
+import {
+  effect,
+  EnvironmentInjector,
+  EnvironmentProviders,
+  inject,
+  InjectionToken,
+  provideEnvironmentInitializer,
+  Provider,
+  Service,
+  untracked,
+} from '@angular/core';
 import { HostPluginContext } from './host-plugin-context';
 import { HostContextFactory } from './host-context-factory';
 import { Plugin } from './plugin';
 import { CapabilityGrantService } from '../permissions/capability-grant.service';
 import { PluginEnablementService } from '../plugin-store/lifecycle/plugin-enablement.service';
-import { REQUIRED_PLUGINS } from '../foundation/required-plugins';
-import { FRAME_PLUGIN } from './sandbox/frame-plugin';
 
 interface TeardownFailure {
   readonly id: string;
@@ -25,10 +33,6 @@ export class PluginRuntime {
   private readonly grants = inject(CapabilityGrantService);
 
   private readonly enablement = inject(PluginEnablementService);
-
-  private readonly required = inject(REQUIRED_PLUGINS);
-
-  private readonly framePlugins = inject(FRAME_PLUGIN, { optional: true }) ?? [];
 
   private readonly factory = inject(HostContextFactory);
 
@@ -52,7 +56,6 @@ export class PluginRuntime {
         plugin.manifest.name ?? plugin.manifest.id,
       );
     }
-    this.reportUncomposedRequirements();
     this.reconcile(this.enablement.disabled());
     effect(
       () => {
@@ -111,7 +114,10 @@ export class PluginRuntime {
   }
 
   private reportTeardownFailure({ id, error }: TeardownFailure): void {
-    console.error(`Plugin "${id}" teardown failed; it was unloaded anyway`, error);
+    console.error(
+      `Plugin "${id}" teardown failed; it was unloaded anyway`,
+      error,
+    );
   }
 
   private reconcile(disabled: ReadonlySet<string>): void {
@@ -166,23 +172,8 @@ export class PluginRuntime {
     }
     ctx.disposeAll();
     this.active.delete(id);
+    this.grants.unregister(id);
     console.error(`Plugin "${id}" activation failed`, error);
-  }
-
-  private reportUncomposedRequirements(): void {
-    if (!isDevMode()) {
-      return;
-    }
-    const composed = new Set([
-      ...this.plugins.map((plugin) => plugin.manifest.id),
-      ...this.framePlugins.map((plugin) => plugin.id),
-    ]);
-    const missing = this.required.filter((id) => !composed.has(id));
-    if (missing.length > 0) {
-      console.warn(
-        `provideRequiredPlugins names ${missing.join(', ')}, which this distribution does not compose — ignored.`,
-      );
-    }
   }
 }
 

@@ -10,8 +10,14 @@ import { RegionType, SHELL_LAYOUT } from '../layout/layout';
 import { ROUTE_OMIT_PREFIX } from '../plugin/route-omit';
 import { SETTING_OMIT_PREFIX } from '../settings/setting-omit';
 import { SettingsService } from '../settings/settings.service';
-import { DEFAULT_SHELL_FEATURES, SHELL_FEATURES } from '../foundation/shell-features';
+import {
+  DEFAULT_SHELL_FEATURES,
+  SHELL_FEATURES,
+} from '../foundation/shell-features';
 import { VersionService } from '../version/version.service';
+import { REQUIRED_PLUGINS } from '../foundation/required-plugins';
+import { PLUGIN } from '../plugin/plugin-runtime';
+import { FRAME_PLUGIN } from '../plugin/sandbox/frame-plugin';
 
 @Service()
 export class CompositionReport {
@@ -23,6 +29,10 @@ export class CompositionReport {
   private readonly railItems = inject(RAIL_ITEM, { optional: true }) ?? [];
   private readonly views = inject(VIEW, { optional: true }) ?? [];
   private readonly versions = inject(VersionService);
+  private readonly required = inject(REQUIRED_PLUGINS);
+  private readonly plugins = inject(PLUGIN, { optional: true }) ?? [];
+  private readonly framePlugins =
+    inject(FRAME_PLUGIN, { optional: true }) ?? [];
 
   checkStaticContributions(): void {
     for (const problem of this.staticProblems()) {
@@ -82,7 +92,21 @@ export class CompositionReport {
     for (const view of this.views) {
       this.pushUnlessRegion(problems, view.id, view.region, 'panel');
     }
-    return problems;
+    return [...problems, ...this.uncomposedRequirements()];
+  }
+
+  private uncomposedRequirements(): string[] {
+    const composed = new Set([
+      ...this.plugins.map((plugin) => plugin.manifest.id),
+      ...this.framePlugins.map((plugin) => plugin.id),
+    ]);
+    const missing = this.required.filter((id) => !composed.has(id));
+    return missing.length === 0
+      ? []
+      : [
+          `Composition: provideRequiredPlugins names ${missing.join(', ')}, which this ` +
+            'distribution does not compose, so the declaration is ignored.',
+        ];
   }
 
   private pushUnlessRegion(

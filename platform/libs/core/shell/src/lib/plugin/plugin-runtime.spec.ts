@@ -94,6 +94,34 @@ describe('PluginRuntime', () => {
     error.mockRestore();
   });
 
+  it('releases the grant of a plugin that fails to activate', () => {
+    const failing: Plugin = {
+      manifest: { id: 'failing', capabilities: ['ui'] },
+      activate: () => {
+        throw new Error('boom');
+      },
+    };
+    const error = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined);
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter([]),
+        menuStub,
+        { provide: PLUGIN, useValue: failing, multi: true },
+        provideCapabilityGrants({ failing: ['ui'] }),
+      ],
+    });
+
+    TestBed.inject(PluginRuntime).activateAll();
+
+    const listed = TestBed.inject(CapabilityGrantService)
+      .permissions()
+      .map((entry) => entry.pluginId);
+    expect(listed).not.toContain('failing');
+    error.mockRestore();
+  });
+
   it('does not activate a plugin the user has disabled', () => {
     const { runtime, registry } = setup();
     TestBed.inject(PluginEnablementService).setEnabled('test', false);
@@ -161,11 +189,17 @@ describe('PluginRuntime', () => {
         if (attempts === 1) {
           return firstValueFrom(first);
         }
-        ctx.registerCommand({ id: 'racing.current', title: 'Current', run: () => undefined });
+        ctx.registerCommand({
+          id: 'racing.current',
+          title: 'Current',
+          run: () => undefined,
+        });
         return Promise.resolve();
       },
     };
-    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const error = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined);
     TestBed.configureTestingModule({
       providers: [
         provideRouter([]),
@@ -185,13 +219,17 @@ describe('PluginRuntime', () => {
     enablement.setEnabled('racing', true);
     TestBed.tick();
     expect(attempts).toBe(2);
-    expect(registry.commands().some((c) => c.id === 'racing.current')).toBe(true);
+    expect(registry.commands().some((c) => c.id === 'racing.current')).toBe(
+      true,
+    );
 
     first.error(new Error('late'));
     await Promise.resolve();
     await Promise.resolve();
 
-    expect(registry.commands().some((c) => c.id === 'racing.current')).toBe(true);
+    expect(registry.commands().some((c) => c.id === 'racing.current')).toBe(
+      true,
+    );
     expect(error).toHaveBeenCalledTimes(1);
     expect(String(error.mock.calls[0][0])).toContain('superseded');
     error.mockRestore();
@@ -203,13 +241,19 @@ describe('PluginRuntime', () => {
       manifest: { id: 'broken', capabilities: ['contributions'] },
       activate(ctx) {
         activations += 1;
-        ctx.registerCommand({ id: 'broken.cmd', title: 'Broken', run: () => undefined });
+        ctx.registerCommand({
+          id: 'broken.cmd',
+          title: 'Broken',
+          run: () => undefined,
+        });
       },
       deactivate() {
         throw new Error('cleanup failed');
       },
     };
-    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const error = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined);
     TestBed.configureTestingModule({
       providers: [
         provideRouter([]),
@@ -242,7 +286,11 @@ describe('PluginRuntime', () => {
     const broken: Plugin = {
       manifest: { id: 'broken', capabilities: ['contributions'] },
       activate(ctx) {
-        ctx.registerCommand({ id: 'broken.cmd', title: 'Broken', run: () => undefined });
+        ctx.registerCommand({
+          id: 'broken.cmd',
+          title: 'Broken',
+          run: () => undefined,
+        });
       },
       deactivate() {
         throw new Error('cleanup failed');
@@ -251,7 +299,11 @@ describe('PluginRuntime', () => {
     const healthy: Plugin = {
       manifest: { id: 'healthy', capabilities: ['contributions'] },
       activate(ctx) {
-        ctx.registerCommand({ id: 'healthy.cmd', title: 'Healthy', run: () => undefined });
+        ctx.registerCommand({
+          id: 'healthy.cmd',
+          title: 'Healthy',
+          run: () => undefined,
+        });
       },
     };
     const commandsAtReport: number[] = [];
@@ -261,16 +313,17 @@ describe('PluginRuntime', () => {
         menuStub,
         { provide: PLUGIN, useValue: broken, multi: true },
         { provide: PLUGIN, useValue: healthy, multi: true },
-        provideCapabilityGrants({ broken: ['contributions'], healthy: ['contributions'] }),
+        provideCapabilityGrants({
+          broken: ['contributions'],
+          healthy: ['contributions'],
+        }),
       ],
     });
     const runtime = TestBed.inject(PluginRuntime);
     const registry = TestBed.inject(ContributionRegistry);
-    const error = vi
-      .spyOn(console, 'error')
-      .mockImplementation(() => {
-        commandsAtReport.push(registry.commands().length);
-      });
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {
+      commandsAtReport.push(registry.commands().length);
+    });
     runtime.activateAll();
     expect(registry.commands()).toHaveLength(2);
 
