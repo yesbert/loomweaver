@@ -7,14 +7,14 @@
   connection.promise
     .then(function (ctx) {
       return ctx.registerSurface({
-        id: 'store-hello.view',
+        id: 'store-minimal.view',
         title: 'Store plugin (minimal)',
         icon: 'info',
-        iframe: '/store-hello/view.html',
-        routable: { path: 'store-hello' },
+        iframe: '/store-minimal/view.html',
+        routable: { path: 'store-minimal' },
       });
     })
     .catch(function (error) {
-      console.error('[store-hello] plugin failed', error);
+      console.error('[store-minimal] plugin failed', error);
     });
 })();

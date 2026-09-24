@@ -12,6 +12,6 @@
   });
 
   connection.promise.catch(function (error) {
-    console.error('[store-hello view] host connection failed', error);
+    console.error('[store-minimal view] host connection failed', error);
   });
 })();

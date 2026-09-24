@@ -83,7 +83,7 @@ they start with a top-level folder.
 - [x] 6.1 Typing in the RPC sandbox keeps focus: values update in place instead of rebuilding the page
   every second and on every state echo (`platform/apps/loom-testbed/public/sandbox-rpc/view.js`); an
   end-to-end test types slowly into both fields.
-- [ ] 6.2 The minimal store plugin registers its own page and path
+- [x] 6.2 The minimal store plugin registers its own page and path
   (`platform/apps/loom-testbed/public/store-minimal/plugin.js`); an end-to-end test installs it and
   sees its heading.
 - [ ] 6.3 The static sandbox page loads the frame kit's stylesheet so its buttons are styled
