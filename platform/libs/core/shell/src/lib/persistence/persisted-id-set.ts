@@ -1,3 +1,5 @@
+import { SettingCodec } from './persisted-setting';
+
 export function toggledIdSet(
   set: ReadonlySet<string>,
   id: string,
@@ -27,3 +29,8 @@ export function parseIdSet(raw: string | undefined): ReadonlySet<string> {
     return new Set();
   }
 }
+
+export const ID_SET_CODEC: SettingCodec<ReadonlySet<string>> = {
+  parse: parseIdSet,
+  serialize: (set) => JSON.stringify([...set]),
+};
