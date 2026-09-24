@@ -12,6 +12,7 @@ import {
 } from './pane-restore';
 import { PaneNode } from './pane-node';
 import { WORKSPACE_DEFINITIONS } from '../../../workspace/provide-workspaces';
+import { WORKSPACES_KEY } from '../../../workspace/baseline/workspace-state';
 import {
   claimsOf,
   declaredTabPaths,
@@ -21,9 +22,7 @@ import {
   withoutConflicts,
 } from '../../../workspace/workspace-claims';
 
-const STORAGE_KEY = 'lw.shell.pane-trees';
-
-const WORKSPACES_KEY = 'lw.shell.workspaces';
+export const PANE_TREES_KEY = 'lw.shell.pane-trees';
 
 const HYDRATION_RETRY_MS = 500;
 
@@ -202,7 +201,7 @@ export class PaneTreeStorage {
   }
 
   private key(): string {
-    return this.workspace.scopedKey(STORAGE_KEY);
+    return this.workspace.scopedKey(PANE_TREES_KEY);
   }
 
   private retryOnce(

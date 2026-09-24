@@ -4,14 +4,14 @@ import { hydrateAsync } from '../../persistence/stored-values/hydrate';
 import { parseIdSet } from '../../persistence/stored-values/persisted-id-set';
 import { ActiveWorkspaceService } from '../../workspace/active-workspace.service';
 
-const STORAGE_KEY = 'lw.shell.hidden-views';
+export const HIDDEN_VIEWS_KEY = 'lw.shell.hidden-views';
 
 @Service()
 export class HiddenViewsService {
   private readonly store = inject(WORKING_STATE_STORE);
   private readonly workspace = inject(ActiveWorkspaceService);
   private readonly ids = signal<ReadonlySet<string>>(
-    parseIdSet(this.store.peek?.(this.workspace.scopedKey(STORAGE_KEY))),
+    parseIdSet(this.store.peek?.(this.workspace.scopedKey(HIDDEN_VIEWS_KEY))),
   );
   readonly hidden = this.ids.asReadonly();
 
@@ -56,7 +56,7 @@ export class HiddenViewsService {
   }
 
   private storageKey(): string {
-    return this.workspace.scopedKey(STORAGE_KEY);
+    return this.workspace.scopedKey(HIDDEN_VIEWS_KEY);
   }
 
   private hydrateWhenWorkspaceReady(): void {

@@ -4,9 +4,9 @@ import { TranslocoService } from '@jsverse/transloco';
 import { SETTINGS_STORE } from '../persistence/settings-store';
 import { hydrateAsync } from '../persistence/stored-values/hydrate';
 import { StateSyncService } from '../persistence/state-sync.service';
+import { LANGUAGE_STORAGE_KEY } from '../persistence/device-level-keys';
 import {
   detectInitialLang,
-  LANGUAGE_STORAGE_KEY,
   languageName,
   SERVED_LANGUAGES,
   servedLanguage,

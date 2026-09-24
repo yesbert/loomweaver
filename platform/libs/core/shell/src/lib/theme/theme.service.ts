@@ -8,6 +8,7 @@ import {
   Signal,
 } from '@angular/core';
 import { persistedSetting } from '../persistence/stored-values/persisted-setting';
+import { THEME_STORAGE_KEY } from '../persistence/device-level-keys';
 
 /** What the user picked. `system` follows the OS `prefers-color-scheme`. */
 export type ThemeMode = 'light' | 'dark' | 'system';
@@ -15,7 +16,6 @@ export type ThemeMode = 'light' | 'dark' | 'system';
 /** What is actually being rendered, once `system` has been resolved against the OS. */
 export type ResolvedTheme = 'light' | 'dark';
 
-const STORAGE_KEY = 'lw.shell.theme';
 const MODES: ReadonlySet<ThemeMode> = new Set(['light', 'dark', 'system']);
 
 function sanitizeMode(raw: string | undefined): ThemeMode {
@@ -42,7 +42,7 @@ export class ThemeService {
   private readonly document = inject(DOCUMENT);
   private readonly systemDark = this.watchSystemPreference();
 
-  private readonly stored = persistedSetting<ThemeMode>(STORAGE_KEY, {
+  private readonly stored = persistedSetting<ThemeMode>(THEME_STORAGE_KEY, {
     parse: sanitizeMode,
     serialize: (mode) => mode,
   });

@@ -1,4 +1,5 @@
 import { InjectionToken } from '@angular/core';
+import { LANGUAGE_STORAGE_KEY } from '../persistence/device-level-keys';
 
 export const SHIPPED_LANGUAGES: readonly string[] = ['en', 'de'];
 
@@ -6,8 +7,6 @@ export const SERVED_LANGUAGES = new InjectionToken<readonly string[]>(
   'SERVED_LANGUAGES',
   { providedIn: 'root', factory: () => SHIPPED_LANGUAGES },
 );
-
-export const LANGUAGE_STORAGE_KEY = 'lw.shell.lang';
 
 const LAST_RESORT = 'en';
 
@@ -33,7 +32,9 @@ export function resolveServedLanguages(
   const canonical = declared.map((code) => {
     const resolved = canonicalOrNull(code);
     if (resolved === null) {
-      throw new Error(`provideShell({ languages }): "${code}" is not a language code.`);
+      throw new Error(
+        `provideShell({ languages }): "${code}" is not a language code.`,
+      );
     }
     return resolved;
   });
@@ -48,7 +49,9 @@ export function servedLanguage(
     return undefined;
   }
   const canonical = canonicalOrNull(value);
-  return canonical !== null && served.includes(canonical) ? canonical : undefined;
+  return canonical !== null && served.includes(canonical)
+    ? canonical
+    : undefined;
 }
 
 export function languageName(code: string): string {
@@ -97,5 +100,7 @@ export function detectInitialLang(served: readonly string[]): string {
       return match;
     }
   }
-  return served.includes(LAST_RESORT) ? LAST_RESORT : (served[0] ?? LAST_RESORT);
+  return served.includes(LAST_RESORT)
+    ? LAST_RESORT
+    : (served[0] ?? LAST_RESORT);
 }

@@ -9,12 +9,9 @@ import {
   withoutConflicts,
   type WorkspaceClaim,
 } from '../workspace-claims';
-import {
-  definitionBaseline,
-  HIDDEN_VIEWS_KEY,
-  PANE_TREES_KEY,
-  type Workspace,
-} from './workspace-state';
+import { definitionBaseline, type Workspace } from './workspace-state';
+import { HIDDEN_VIEWS_KEY } from '../../regions/panel/hidden-views.service';
+import { PANE_TREES_KEY } from '../../regions/pane/tree/pane-tree-storage';
 
 export interface BaselineContext {
   readonly panelRegions: readonly string[];

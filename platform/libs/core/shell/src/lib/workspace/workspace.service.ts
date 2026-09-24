@@ -46,12 +46,11 @@ import {
   stateChannels,
   readWorkspaceState,
   writeWorkspaceState,
-  HIDDEN_VIEWS_KEY,
-  PANE_TREES_KEY,
-  WORKSPACE_KEYS,
   WORKSPACES_KEY as STORAGE_KEY,
   type Workspace,
 } from './baseline/workspace-state';
+import { HIDDEN_VIEWS_KEY } from '../regions/panel/hidden-views.service';
+import { PANE_TREES_KEY } from '../regions/pane/tree/pane-tree-storage';
 import { assignWorkspaceInitials } from './workspace-initials';
 import { activeContentPath } from '../regions/pane/tree/active-content-path';
 import {
@@ -59,6 +58,8 @@ import {
   declaredStart,
   startWhereTheDistributionSays,
 } from './opening-the-workbench';
+
+const WORKSPACE_KEYS = [HIDDEN_VIEWS_KEY, PANE_TREES_KEY] as const;
 
 @Service()
 export class WorkspaceService {
