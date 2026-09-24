@@ -25,11 +25,11 @@ export const REQUIRED_PLUGINS = new InjectionToken<RequiredPlugins>(
  * stay revocable, because needing a plugin says nothing about needing everything it asked for — which
  * is what distinguishes this from a plugin the operator deployed, where both are withheld.
  *
- * Naming a plugin this distribution does not compose — neither one it provides in-process nor an
- * isolated one it declares — is a composition mistake, not a failure: it is reported in development
- * and otherwise ignored, the same way a capability granted to a plugin that never declared it is. The
- * report happens once the composed plugins are registered, which is the only moment that set is
- * settled: a plugin the store installs arrives later and is the user's to switch off in any case.
+ * Naming a plugin this distribution does not compose, neither one it provides in-process nor an
+ * isolated one it declares, is a composition mistake rather than a failure: it is reported in
+ * development, however the distribution composes its plugins, and otherwise ignored, the same way a
+ * capability granted to a plugin that never declared it is. A plugin the store installs arrives later
+ * and is the user's to switch off in any case, so it does not count.
  *
  * @example
  * provideRequiredPlugins('sign-in')

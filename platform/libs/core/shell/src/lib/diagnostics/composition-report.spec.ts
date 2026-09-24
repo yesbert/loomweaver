@@ -12,6 +12,8 @@ import {
 import { provideShellFeatures } from '../foundation/shell-features';
 import { VersionService } from '../version/version.service';
 import type { MockInstance } from 'vitest';
+import { provideRequiredPlugins } from '../foundation/required-plugins';
+import { FRAME_PLUGIN, FramePlugin } from '../plugin/sandbox/frame-plugin';
 
 const LAYOUT: ShellLayout = {
   regions: [
@@ -19,6 +21,11 @@ const LAYOUT: ShellLayout = {
     { id: 'status-bar', type: 'bar', dock: 'bottom' },
     { id: 'main', type: 'content', dock: 'center' },
   ],
+};
+
+const PAYMENTS: FramePlugin = {
+  id: 'payments',
+  entryUrl: '/payments/plugin.html',
 };
 
 @Component({ selector: 'lw-stub', template: '' })
@@ -36,7 +43,7 @@ function setUp(extra: (Provider | EnvironmentProviders)[] = []) {
   };
 }
 
-describe('CompositionReport (K7)', () => {
+describe('CompositionReport', () => {
   let warn: MockInstance;
   let info: MockInstance;
 
@@ -60,6 +67,29 @@ describe('CompositionReport (K7)', () => {
     expect(message).toContain("'status'");
     expect(message).toContain('does not declare');
     expect(message).toContain('top-bar, status-bar');
+  });
+
+  it('reports a required plugin the distribution does not compose, whatever runs its plugins', () => {
+    const app = setUp([
+      provideRequiredPlugins('sign-in'),
+      { provide: FRAME_PLUGIN, useValue: PAYMENTS, multi: true },
+    ]);
+
+    app.report.checkStaticContributions();
+
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(String(warn.mock.calls[0][0])).toContain('sign-in');
+  });
+
+  it('says nothing about a required plugin that runs in a frame', () => {
+    const app = setUp([
+      provideRequiredPlugins('payments'),
+      { provide: FRAME_PLUGIN, useValue: PAYMENTS, multi: true },
+    ]);
+
+    app.report.checkStaticContributions();
+
+    expect(warn).not.toHaveBeenCalled();
   });
 
   it('stays quiet when the region is there and of the right type', () => {
@@ -106,15 +136,27 @@ describe('CompositionReport (K7)', () => {
     app.settings.register({
       id: 'shell.general',
       title: 'settings.general',
-      rows: [{ id: 'shell.language', label: 'language.label', control: toggle }],
+      rows: [
+        { id: 'shell.language', label: 'language.label', control: toggle },
+      ],
     });
-    app.settings.replaceRow({ id: 'shell.language', label: 'product.language', control: toggle });
-    app.settings.replaceRow({ id: 'shell.langauge', label: 'product.language', control: toggle });
+    app.settings.replaceRow({
+      id: 'shell.language',
+      label: 'product.language',
+      control: toggle,
+    });
+    app.settings.replaceRow({
+      id: 'shell.langauge',
+      label: 'product.language',
+      control: toggle,
+    });
 
     app.report.print();
 
     const messages = warn.mock.calls.map((call) => String(call[0])).join('\n');
-    expect(messages).toContain("row replacement 'shell.langauge' matched no row");
+    expect(messages).toContain(
+      "row replacement 'shell.langauge' matched no row",
+    );
     expect(messages).not.toContain("'shell.language' matched no row");
   });
 
@@ -280,7 +322,9 @@ describe('CompositionReport (K7)', () => {
 
     app.report.print();
 
-    expect(String(info.mock.calls[0][0])).toContain('Version: 0.8.0-preview.3 (preview)');
+    expect(String(info.mock.calls[0][0])).toContain(
+      'Version: 0.8.0-preview.3 (preview)',
+    );
   });
 
   it('says so plainly when a distribution switches nothing off', () => {

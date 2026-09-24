@@ -15,9 +15,9 @@ they start with a top-level folder.
 - [x] 1.4 A deployed frame plugin's settings section is filed where the installed list looks for it,
   or the list finds a section by its owner (`plugin/sandbox/sandbox-rpc-methods.ts`,
   `plugin-store/installed-plugin-list.ts`); tested with a deployed entry, not only an installed one.
-- [ ] 1.5 A plugin that fails to activate releases its grant, and the permissions surface stops listing
+- [x] 1.5 A plugin that fails to activate releases its grant, and the permissions surface stops listing
   it (`plugin/plugin-runtime.ts`).
-- [ ] 1.6 A declaration of a required plugin that names nothing composed is reported in development for
+- [x] 1.6 A declaration of a required plugin that names nothing composed is reported in development for
   frame-only and catalogue-only compositions too (`plugin/plugin-runtime.ts`,
   `foundation/required-plugins.ts`); the JSDoc of `provideRequiredPlugins` states it.
 - [ ] 1.7 A launcher entry that only opens a menu has a row in "Customize rail", so it can be hidden,
