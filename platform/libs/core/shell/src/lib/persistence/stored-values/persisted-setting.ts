@@ -6,6 +6,7 @@ import { StateSyncService } from '../state-sync.service';
 export interface PersistedSetting<T> {
   readonly value: Signal<T>;
   set(next: T): void;
+  clear(): void;
 }
 
 export interface SettingCodec<T> {
@@ -27,6 +28,10 @@ export function persistedSetting<T>(
     set: (next) => {
       state.set(next);
       void store.set(key, codec.serialize(next));
+    },
+    clear: () => {
+      state.set(codec.parse(undefined));
+      void store.delete(key);
     },
   };
 }
