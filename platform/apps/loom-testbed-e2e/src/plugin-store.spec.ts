@@ -219,6 +219,33 @@ test.describe('Plugin store (Obsidian-style browse dialog)', () => {
       .toBe('1.0.0');
   });
 
+  test('the minimal plugin opens its own page once installed', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await openStoreDialog(page);
+    const dialog = storeDialog(page);
+
+    await dialog.getByTestId('store-card-store-minimal').click();
+    await dialog.getByTestId('store-install-store-minimal').click();
+    await page
+      .getByRole('dialog')
+      .filter({ hasText: 'Install Store plugin (minimal)?' })
+      .getByRole('button', { name: 'Install', exact: true })
+      .click();
+    await expect(
+      dialog.getByTestId('store-uninstall-store-minimal'),
+    ).toBeVisible();
+
+    await page.goto('/store-minimal');
+    const surface = page.frameLocator(
+      'iframe[src*="/store-minimal/view.html"]',
+    );
+    await expect(
+      surface.getByRole('heading', { name: /Hello from the store/ }),
+    ).toBeVisible();
+  });
+
   test('declining the consent dialog installs nothing', async ({ page }) => {
     await page.goto('/');
     await openStoreDialog(page);
