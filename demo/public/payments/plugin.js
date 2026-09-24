@@ -1,6 +1,8 @@
 (function () {
   const SECTION = 'payments.settings';
   const STATE_KEY = 'settings';
+  const COUNT_KEY = 'openCount';
+  const OPEN_ITEMS_URL = '/api/open-items.json';
 
   const DEFAULTS = {
     tolerance: 0,
@@ -104,6 +106,19 @@
 
   let host;
   let values = { ...DEFAULTS };
+  let counting = false;
+
+  function badgeFor(open) {
+    return open > 0
+      ? { text: 'product.payments.badgeOpen', tone: 'brand' }
+      : { text: 'product.payments.badgeDone', tone: 'success' };
+  }
+
+  function showOpen(open) {
+    if (host) {
+      host.updateSurfaceBadge('payments.matching', badgeFor(open));
+    }
+  }
 
   const messenger = new globalThis.Penpal.WindowMessenger({
     remoteWindow: globalThis.parent,
@@ -120,6 +135,11 @@
         values = { ...DEFAULTS, ...next };
         if (host) {
           host.stateSet(STATE_KEY, values);
+        }
+      },
+      stateChanged: function (key, value) {
+        if (key === COUNT_KEY && counting && typeof value === 'number') {
+          showOpen(value);
         }
       },
     },
@@ -144,6 +164,27 @@
         })
         .then(function () {
           return ctx.stateSet(STATE_KEY, values);
+        })
+        .then(function () {
+          return ctx.stateWatch(COUNT_KEY);
+        })
+        .then(function () {
+          return ctx.stateClear(COUNT_KEY);
+        })
+        .then(function () {
+          return fetch(OPEN_ITEMS_URL)
+            .then(function (response) {
+              return response.json();
+            })
+            .then(function (items) {
+              showOpen(items.length);
+            })
+            .catch(function (error) {
+              console.error('[payments] the open items could not be fetched', error);
+            });
+        })
+        .finally(function () {
+          counting = true;
         });
     })
     .catch(function (error) {

@@ -32,19 +32,46 @@ describe('quotesActions', () => {
         title: quote!.number,
         titleIsLiteral: true,
         icon: 'quotes',
+        badge: { text: 'quotes.list.status.sent', tone: 'brand' },
         preview: true,
       },
     ]);
   });
 
-  it('keeps a quote with a second call that promotes the tab, because re-opening never clears the preview state the host holds', () => {
+  it('marks the tab with the quote status, in the tone the list gives it', () => {
     const { recorded, ctx } = recorder();
     quotesActions.bind(ctx);
 
-    quotesActions.keep(quoteById('q-0007')!);
+    quotesActions.open(quoteById('q-0004')!);
+    quotesActions.open(quoteById('q-0005')!);
+    quotesActions.open(quoteById('q-0002')!);
 
-    expect(recorded.opened.map((input) => input.preview)).toEqual([false]);
-    expect(recorded.kept).toEqual(['sales/quotes/q-0007']);
+    expect(recorded.opened.map((input) => input.badge)).toEqual([
+      { text: 'quotes.list.status.draft', tone: 'neutral' },
+      { text: 'quotes.list.status.accepted', tone: 'success' },
+      { text: 'quotes.list.status.declined', tone: 'danger' },
+    ]);
+  });
+
+  it('changes the status on the quote tab where it stands, without opening or bringing it forward', () => {
+    const updateContentTab = vi.fn();
+    quotesActions.bind({ updateContentTab } as unknown as PluginContext);
+
+    quotesActions.refreshStatus({ ...quoteById('q-0004')!, status: 'sent' });
+
+    expect(updateContentTab).toHaveBeenCalledWith('sales/quotes/q-0004', {
+      badge: { text: 'quotes.list.status.sent', tone: 'brand' },
+    });
+  });
+
+  it('hands a menu to the workbench, at the pointer it was asked for', () => {
+    const openMenu = vi.fn();
+    quotesActions.bind({ ui: { openMenu } } as unknown as PluginContext);
+    const items = [{ label: 'quotes.menu.open', run: () => undefined }];
+
+    quotesActions.openMenu(items, { x: 12, y: 34 });
+
+    expect(openMenu).toHaveBeenCalledWith(items, { x: 12, y: 34 });
   });
 
   it('turns opening a tab into a no-op once a disabled plugin lost its context, rather than throwing inside a click handler', () => {

@@ -8,12 +8,12 @@ const rows = '[data-testid="quotes-list"] li';
 
 /* Scoped to the URL pane's own strip: the rail draws icon tabs with the same role, and the
    document is a container whose children draw strips of their own inside the content area. Read as
-   rendered text, because each tab carries its tooltip in the same element and a textContent
-   assertion sees every label twice. */
+   each tab's accessible name, which carries the title and the badge beside it once, where the
+   rendered text would also hold the tooltip. */
 function tabs(page: Page) {
   return page
     .locator('[id="pane-strip:content:main"] [role="tab"]')
-    .allInnerTexts();
+    .evaluateAll((all) => all.map((tab) => tab.getAttribute('aria-label') ?? ''));
 }
 
 function tab(page: Page, path: string) {
@@ -51,12 +51,28 @@ test('one click previews a quote into a single reused slot', async ({ page }) =>
   await page.goto(LIST);
 
   await row(page, 'Q-0007').click();
-  await expect.poll(() => tabs(page)).toEqual([LANDING_TAB, LIST_TAB, 'Q-0007']);
+  await expect.poll(() => tabs(page)).toEqual([LANDING_TAB, LIST_TAB, 'Q-0007, Sent']);
   await expect(page).toHaveURL(/\/sales\/quotes\/q-0007$/);
 
   await backToList(page);
   await row(page, 'Q-0006').click();
-  await expect.poll(() => tabs(page)).toEqual([LANDING_TAB, LIST_TAB, 'Q-0006']);
+  await expect.poll(() => tabs(page)).toEqual([LANDING_TAB, LIST_TAB, 'Q-0006, Sent']);
+});
+
+/* The tab carries the quote's status beside its number, in the tone the list's badge has, and a
+   screen reader hears both. */
+test("a quote's tab carries its status as a badge", async ({ page }) => {
+  await page.goto(LIST);
+
+  await row(page, 'Q-0005').click();
+
+  const badge = tab(page, 'sales/quotes/q-0005').getByTestId('tab-badge');
+  await expect(badge).toHaveText('Accepted');
+  await expect(badge).toHaveClass(/lw-badge--success/);
+  await expect(tab(page, 'sales/quotes/q-0005')).toHaveAttribute(
+    'aria-label',
+    'Q-0005, Accepted',
+  );
 });
 
 /* Keeping a preview is the shell's gesture on the tab, not the list's on the row: the first click
@@ -75,7 +91,7 @@ test('a preview kept from the strip survives the next one', async ({ page }) => 
   await row(page, 'Q-0006').click();
   await expect
     .poll(() => tabs(page))
-    .toEqual([LANDING_TAB, LIST_TAB, 'Q-0007', 'Q-0006']);
+    .toEqual([LANDING_TAB, LIST_TAB, 'Q-0007, Sent', 'Q-0006, Sent']);
 });
 
 /* The document and the list row compute their money from the same library, so the two figures
@@ -112,7 +128,7 @@ test('a document with two tax rates shows one line per rate', async ({ page }) =
 test('a deep link labels its tab with the document number', async ({ page }) => {
   await page.goto('/sales/quotes/q-0004');
 
-  await expect.poll(() => tabs(page)).toEqual([LANDING_TAB, 'Q-0004']);
+  await expect.poll(() => tabs(page)).toEqual([LANDING_TAB, 'Q-0004, Draft']);
 });
 
 test('a link to a quote that does not exist says so', async ({ page }) => {
@@ -143,6 +159,77 @@ test('the document opens as an arrangement: positions beside customer and margin
   const customer = await host.locator('lw-pane-view').nth(1).boundingBox();
   expect(positions!.width).toBeGreaterThan(customer!.width);
   expect(customer!.height).toBeLessThan(positions!.height);
+});
+
+/* A right-click on a row opens the plugin's own menu at the pointer. Its labels are keys of the
+   plugin's bundle, so the workbench words them in the language the page is in. */
+test('a right-click on a row opens a menu whose "Open" keeps the quote', async ({ page }) => {
+  await page.goto(LIST);
+
+  await row(page, 'Q-0005').click({ button: 'right' });
+  const menu = page.getByRole('menu');
+  await expect(menu.getByRole('menuitem')).toHaveText([
+    'Open',
+    'Open as preview',
+    'New quote for this customer',
+  ]);
+
+  await menu.getByRole('menuitem', { name: 'Open', exact: true }).click();
+
+  await expect(page).toHaveURL(/\/sales\/quotes\/q-0005$/);
+  await expect(tab(page, 'sales/quotes/q-0005')).toHaveCSS('font-style', 'normal');
+});
+
+test('the menu speaks the language of the page', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('lw.shell.lang', 'de'));
+  await page.goto(LIST);
+
+  await row(page, 'Q-0005').click({ button: 'right' });
+
+  await expect(page.getByRole('menu').getByRole('menuitem')).toHaveText([
+    'Öffnen',
+    'In Vorschau öffnen',
+    'Neues Angebot für diesen Kunden',
+  ]);
+});
+
+/* The quotes plugin decides for itself whether the margin belongs in a quote at all, a setting
+   rather than a role: switched off, nothing stands where the margin was, not even the padlock the
+   sales account sees there otherwise. */
+async function setMarginShown(page: Page, shown: boolean): Promise<void> {
+  await page
+    .getByRole('navigation', { name: 'Left activity bar' })
+    .getByRole('button', { name: 'Settings' })
+    .click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByRole('button', { name: 'Quotes', exact: true }).click();
+  const toggle = dialog.getByRole('switch', { name: 'Show margin analysis' });
+  if ((await toggle.isChecked()) !== shown) {
+    await toggle.click();
+  }
+  await page.keyboard.press('Escape');
+  await expect(dialog).toHaveCount(0);
+}
+
+test('the margin can be left out: no tab, no padlock, and the customer takes the room', async ({
+  page,
+}) => {
+  await page.goto('/sales/quotes/q-0007');
+  const panes = page.locator('lw-container-pane-host lw-pane-view');
+  await expect(panes).toHaveCount(3);
+
+  await setMarginShown(page, false);
+  await expect(panes).toHaveCount(2);
+  await expect(page.getByTestId('quote-margin')).toHaveCount(0);
+
+  await switchAccount(page);
+  await expect(page.getByTestId('access-placeholder')).toHaveCount(0);
+  await expect(panes).toHaveCount(2);
+  await switchAccount(page);
+
+  await setMarginShown(page, true);
+  await expect(panes).toHaveCount(3);
+  await expect(page.getByTestId('quote-margin')).toBeVisible();
 });
 
 test('the margin is visible to accounting and locked for everyone else', async ({ page }) => {

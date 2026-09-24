@@ -1,5 +1,6 @@
-import { type PluginContext } from '@loomweaver/plugin-sdk';
+import { type PluginContext, type UiMenuItem } from '@loomweaver/plugin-sdk';
 import { type Quote, addQuote, customers } from '../../../../accounting';
+import { statusBadge } from '../views/quote-status';
 
 let ctx: PluginContext | undefined;
 
@@ -20,8 +21,15 @@ export const quotesActions = {
       title: quote.number,
       titleIsLiteral: true,
       icon: 'quotes',
+      badge: statusBadge(quote.status),
       preview: options.preview ?? false,
     });
+  },
+  refreshStatus(quote: Quote): void {
+    ctx?.updateContentTab(pathOf(quote), { badge: statusBadge(quote.status) });
+  },
+  openMenu(items: readonly UiMenuItem[], at: { x: number; y: number }): void {
+    ctx?.ui.openMenu(items, at);
   },
   hasUnsavedWork(quote: Quote): boolean {
     return ctx?.hasUnsavedWork(pathOf(quote)) ?? false;

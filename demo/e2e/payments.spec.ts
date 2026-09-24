@@ -62,6 +62,29 @@ test('confirming a match takes it off what is still open', async ({ page }) => {
   await expect(stillOpen).toHaveText('€22,758.37');
 });
 
+/* The plugin runs isolated from the page, and still keeps its tab's badge true: the view tells the
+   plugin's state what is open, and the plugin sets the badge. */
+test('the tab says whether anything is still open, and follows the confirmations', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await openPayments(page);
+  const tab = page.locator(
+    '[id="pane-strip:content:main"] [role="tab"][data-tab-path="finance/matching"]',
+  );
+  const view = surface(page);
+  await expect(tab).toHaveAttribute('aria-label', 'Payment matching, Open');
+
+  await view.locator('[data-line="b-1"] lw-button[data-confirm]').click();
+  await expect(tab).toHaveAttribute('aria-label', 'Payment matching, Open');
+
+  await view.locator('[data-line="b-2"] lw-button[data-confirm]').click();
+  await expect(tab).toHaveAttribute('aria-label', 'Payment matching, Done');
+
+  await view.locator('[data-line="b-2"] lw-button[data-undo]').click();
+  await expect(tab).toHaveAttribute('aria-label', 'Payment matching, Open');
+});
+
 test('a fetch that fails is reported in the view, not shown as an empty one', async ({
   page,
 }) => {

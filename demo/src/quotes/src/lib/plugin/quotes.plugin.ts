@@ -6,6 +6,7 @@ import { QuotesOpenItemsView } from '../views/quotes-open-items-view';
 import { QuotesPositionsView } from '../views/quotes-positions-view';
 import { quotesActions } from './quotes-actions';
 import { registerQuoteCommands } from './quotes-commands';
+import { registerQuoteSettings } from './quotes-settings';
 
 const quotesIcon =
   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" ' +
@@ -90,6 +91,8 @@ export const quotesPlugin: Plugin = {
       access: { anyRole: ['accounting'] },
       component: QuotesMarginView,
     });
+
+    registerQuoteSettings(ctx);
   },
   deactivate() {
     quotesActions.unbind();

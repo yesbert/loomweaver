@@ -1,0 +1,35 @@
+## 1. A quote tab carries its status
+
+- [x] 1.1 `quotesActions.open` passes a badge from the quote's status: the `quotes.list.status.<status>` key and the list's tone; a unit test in `quotes-actions.spec.ts`
+- [x] 1.2 A demo e2e test: opening a sent quote shows a tab named with its number and "Sent"
+- [x] 1.3 Screenshot of an opened quote, shown to the owner before going on
+
+## 2. The margin can be left out
+
+- [x] 2.1 A quotes settings section with the toggle "Show margin analysis" (en and de), its value in a signal persisted in local storage, default on
+- [x] 2.2 `ctx.setChildShown('quotes.margin', shown)` at activation and from the toggle; unit tests
+- [x] 2.3 A demo e2e test: switched off, an open quote draws no margin tab and no padlock and the customer pane takes the room; switched on, the margin returns where it stood
+- [x] 2.4 Screenshots of a quote with the margin shown, left out, and with the padlock for the sales account, shown to the owner before going on
+
+## 3. The quotes list has a context menu
+
+- [x] 3.1 A right-click on a row opens `ctx.ui.openMenu` with "Open", "Open as preview" and "New quote for this customer" (keys in en and de) through a passthrough on `quotesActions`; unit tests
+- [x] 3.2 A demo e2e test: the menu opens at the row, "Open" keeps the quote as a tab, and its words are in the page's language (following a change while open is pinned by the platform's own tests, since the language control closes the menu)
+- [x] 3.3 Screenshot of the open menu, shown to the owner before going on
+
+## 4. The payment matching tab says whether anything is open
+
+- [x] 4.1 `view.js` watches `openCount` and sets it whenever it draws the matching
+- [x] 4.2 `plugin.js` watches and clears `openCount` at activation, fetches the open items for the first badge, then sets "Open" or "Done" from what the view publishes
+- [x] 4.3 A demo e2e test: the tab says "Open", stays so after one confirmation, says "Done" after both, and "Open" again after an undo
+- [x] 4.4 Screenshots of the payment matching tab open and done, shown to the owner
+
+## 5. Adopt 0.14.1
+
+- [x] 5.0 The demo and the example run on 0.14.1; the send command changes a quote tab's badge in place with `ctx.updateContentTab`, pinned by a demo e2e test with the tab behind another
+
+## 6. Close
+
+- [x] 6.1 `demo/README.md` describes the four
+- [x] 6.2 Demo and example lint, unit tests, build, bundle size (raise the ceiling deliberately if it grows past it), the demo e2e suite, `openspec validate --all --strict`
+- [x] 6.3 Code review over the change, then archive on the same branch

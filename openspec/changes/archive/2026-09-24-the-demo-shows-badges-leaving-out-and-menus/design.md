@@ -1,0 +1,67 @@
+## Context
+
+See proposal.md for the motivation. The demo consumes the published packages, 0.14.1 from this
+change on. The quotes
+plugin (`demo/src/quotes`) is trusted and in-process: `quotesActions.open` opens a quote tab with
+`openContentTab`, the list view draws a button per row, and the quote document is a container whose
+`quotes.margin` child carries `access: { anyRole: ['accounting'] }`, so a sales account sees a
+padlock there. The payments plugin (`demo/public/payments`) is sandboxed: `plugin.js` is the logic
+frame holding the RPC `ctx`, `view.js` is the surface, which holds no `ctx` but has its own
+`stateWatch` / `stateSet` channel. The view keeps its decisions in memory, so after a reload every
+open item is open again. A trusted plugin's settings section owns its storage: the host only reads
+`value()` and calls `set()`.
+
+## Goals / Non-Goals
+
+**Goals:**
+- Each capability is visible in the running demo and pinned by an end-to-end test.
+- The margin toggle and the padlock can be compared on the same child.
+
+**Non-Goals:**
+- Keeping payment decisions across a reload. The count follows the view's decisions as they are.
+
+## Decisions
+
+**The quote badge rides on `openContentTab`, not on the surface.** Every quote tab shows the one
+surface `quotes.document`, and each tab needs its own status, which is what a tab's own badge is
+for. The text is the key the list's status filter already uses (`quotes.list.status.<status>`), the
+tone mirrors the list's `STATUS_BADGE` (draft and expired neutral, sent brand, accepted success,
+declined danger). A tab reopened from the list refines to the same badge. After the send command,
+`quotesActions.refreshStatus` changes the badge with `ctx.updateContentTab`, new in 0.14.1, so a sent
+quote whose tab sits behind another follows where it stands and nothing comes forward. That call was
+built for this: the demo found the gap, the platform closed it in 0.14.1.
+*Alternative:* `updateSurfaceBadge` on `quotes.document` would give every quote tab the same badge.
+
+**The margin toggle keeps its value in the plugin, persisted in local storage.** A trusted section
+owns its storage, and the demo has no settings backend of its own. A signal holds the value, a
+`localStorage` key keeps it across a reload, and the toggle's setter calls
+`ctx.setChildShown('quotes.margin', value)` itself, as activation does once with the stored value; no
+effect is needed. Default on, so a first visit sees the arrangement as declared. The section sits
+under the app plugins, beside the other plugin sections.
+*Alternative:* plugin state (`ctx.state`) is for working state, not settings, per the plugin-state
+guide.
+
+**The context menu lives in the list view, with its handler beside `preview` and `keep`.** The
+row's button gets a `contextmenu` handler that prevents the browser's menu and calls
+`ctx.ui.openMenu` at the pointer. "Open" keeps the tab, "Open as preview" previews it, "New quote
+for this customer" calls `quotesActions.create` with the customer's name. The menu needs the `ui`
+capability, which the quotes plugin already declares; `quotesActions` gains a small `openMenu`
+passthrough so the view needs no `ctx` of its own.
+
+**What is open travels through plugin state, and the logic frame owns the badge.** Only the logic
+frame holds the `ctx` that can call `updateSurfaceBadge`; the view knows what is open. The view
+watches and sets the key `openCount` whenever it draws the matching; the logic frame watches the
+same key and sets "Open" in the brand tone while anything is open and "Done" in the success tone
+once nothing is. At activation the logic frame clears the key and fetches the open items itself for
+the first badge, because a stored value can be stale after a reload (the view's decisions do not
+survive one) and the view may not be mounted yet; until then it ignores what the store pushes. The
+words are keys of the product's bundle, so they follow the language of the page.
+*Alternatives:* a count, which the badge contract excludes (F-023); a fixed "Sandbox" badge, which
+shows much less; letting the view set the badge, which a surface without a `ctx` cannot.
+
+## Risks / Trade-offs
+
+- [Bundle size] → The demo sits at 1351.7 kB of 1355. The quotes changes are small; a growth past
+  the ceiling is raised deliberately and named.
+- [A context-menu test is sensitive to where it clicks] → The test right-clicks the row's button by
+  its accessible name, not by coordinates.

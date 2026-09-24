@@ -19,7 +19,9 @@
     "guest": "Guest"
   },
   "payments": {
-    "title": "Payment matching"
+    "title": "Payment matching",
+    "badgeOpen": "Open",
+    "badgeDone": "Done"
   },
   "looks": {
     "command": {

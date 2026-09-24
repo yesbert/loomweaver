@@ -37,6 +37,8 @@ function activate(plugin: Plugin): Recorded {
     navigateContent: () => undefined,
     invocableCommands: () => [],
     invokeCommand: async () => ({ outcome: 'answered', value: '' }),
+    registerSettingsSection: () => ({ dispose: () => undefined }),
+    setChildShown: () => undefined,
   } as unknown as PluginContext;
 
   plugin.activate(ctx);

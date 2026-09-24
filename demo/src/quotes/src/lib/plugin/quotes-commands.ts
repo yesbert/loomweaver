@@ -1,5 +1,11 @@
 import { type Command, type PluginContext } from '@loomweaver/plugin-sdk';
-import { formatMoney, marginOf, markQuoteSent, quotes } from '../../../../accounting';
+import {
+  formatMoney,
+  marginOf,
+  markQuoteSent,
+  quoteById,
+  quotes,
+} from '../../../../accounting';
 import { quotesActions } from './quotes-actions';
 
 function numbers(): string[] {
@@ -62,6 +68,7 @@ function sendQuote(): Command {
         return { found: false };
       }
       markQuoteSent(quote.id);
+      quotesActions.refreshStatus(quoteById(quote.id) ?? quote);
       return { quote: quote.number, status: 'sent' };
     },
   };
