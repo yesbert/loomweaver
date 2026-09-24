@@ -3,8 +3,7 @@ import { DialogButton, DirtySurface } from '@loomweaver/plugin-sdk';
 import { DialogCloseGuard } from '../../../dialog/dialog-close-guard';
 import { DialogService } from '../../../dialog/dialog.service';
 import { NotificationService } from '../../../notifications/notification.service';
-import { CloseVetoDialog } from './close-veto-dialog';
-import { UnsavedChangesDialog } from './unsaved-changes-dialog';
+import { ClosePromptMessage } from './close-prompt-message';
 import { beforeCloseOf, dirtySurfaceOf, instanceDirty } from './dirty-surface';
 
 type CloseChoice = 'save' | 'discard' | 'cancel';
@@ -112,7 +111,8 @@ export class SurfaceCloseGuard implements DialogCloseGuard {
   }
 
   private closeAnyway(settled: Promise<boolean>): Promise<boolean> {
-    const ref = this.dialogs.open<'force' | 'keep'>(CloseVetoDialog, {
+    const ref = this.dialogs.open<'force' | 'keep'>(ClosePromptMessage, {
+      data: 'retention.vetoPendingMessage',
       title: 'retention.vetoPendingTitle',
       tone: 'warning',
       buttons: [
@@ -147,7 +147,8 @@ export class SurfaceCloseGuard implements DialogCloseGuard {
         value: 'save',
       });
     }
-    const ref = this.dialogs.open<CloseChoice>(UnsavedChangesDialog, {
+    const ref = this.dialogs.open<CloseChoice>(ClosePromptMessage, {
+      data: 'retention.unsavedMessage',
       title: 'retention.unsavedTitle',
       tone: 'warning',
       buttons,

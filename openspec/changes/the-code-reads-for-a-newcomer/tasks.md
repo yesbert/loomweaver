@@ -155,7 +155,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   entries in one file, `slotFor` out of `acquire`, one retain flag, verbs that say what the stash does;
   the two directives share node placement; `retention-policy.ts` keeps only the policy (dirty-surface
   helpers go to unsaved work, route reuse to the reuse strategy).
-- [ ] 5.6 Unsaved work: `RetentionCandidates` folded into `UnsavedWork`; saving on hide out of the
+- [x] 5.6 Unsaved work: `RetentionCandidates` folded into `UnsavedWork`; saving on hide out of the
   garbage collector, which is named for its sweep; the two dialog bodies with markup get their own
   templates or become one message component.
 - [ ] 5.7 Pane chrome: overflow measuring as a directive, the tab menu context as a pure function, the

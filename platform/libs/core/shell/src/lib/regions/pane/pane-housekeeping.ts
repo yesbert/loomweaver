@@ -4,13 +4,13 @@ import {
   provideAppInitializer,
 } from '@angular/core';
 import { ContainerDockGc } from './container/container-dock-gc';
-import { RetentionGc } from './retention/retention-gc';
+import { ParkedViewSweep } from './retention/parked-view-sweep';
 import { RetentionUnloadGuard } from './unsaved-work/retention-unload-guard';
 
 export function providePaneHousekeeping(): EnvironmentProviders {
   return provideAppInitializer(() => {
     inject(ContainerDockGc).start();
-    inject(RetentionGc).start();
+    inject(ParkedViewSweep).start();
     inject(RetentionUnloadGuard).start();
   });
 }

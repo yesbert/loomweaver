@@ -20,7 +20,7 @@ import { moveNode, supportsAtomicMove } from './atomic-move';
 import { RetainedComponent } from './retained-component';
 import { RetainedTemplate } from './retained-template';
 import { RetainedViewStash } from './retained-view-stash';
-import { RetentionGc } from './retention-gc';
+import { ParkedViewSweep } from './parked-view-sweep';
 import { RetentionUnloadGuard } from '../unsaved-work/retention-unload-guard';
 import {
   effectiveRetain,
@@ -564,7 +564,7 @@ describe('surface retention', () => {
     });
   });
 
-  describe('RetentionGc (closed is not hidden)', () => {
+  describe('ParkedViewSweep (closed is not hidden)', () => {
     function retainedEntry(key: string): void {
       const stash = TestBed.inject(RetainedViewStash);
       const slot = stash.acquire(key, ProbeView, () => {
@@ -584,7 +584,7 @@ describe('surface retention', () => {
       paneTree.seedPrimaryTabs(CONTENT_DOCK, ['notes', 'other']);
       retainedEntry('content:main|notes');
 
-      TestBed.inject(RetentionGc).start();
+      TestBed.inject(ParkedViewSweep).start();
       TestBed.tick();
       expect(destroyed).toBe(0);
 
@@ -601,7 +601,7 @@ describe('surface retention', () => {
       retainedEntry('content:main|notes');
       const parked = instances.at(-1);
 
-      TestBed.inject(RetentionGc).start();
+      TestBed.inject(ParkedViewSweep).start();
       TestBed.tick();
 
       workspace.set('other');
@@ -630,7 +630,7 @@ describe('surface retention', () => {
       paneTree.seedPrimaryTabs(CONTENT_DOCK, ['notes', 'kept']);
       retainedEntry('content:main|notes');
 
-      TestBed.inject(RetentionGc).start();
+      TestBed.inject(ParkedViewSweep).start();
       TestBed.tick();
       expect(destroyed).toBe(0);
 
@@ -646,7 +646,7 @@ describe('surface retention', () => {
       paneTree.seedPrimaryTabs(CONTENT_DOCK, ['notes']);
       retainedEntry('content:main|notes');
 
-      TestBed.inject(RetentionGc).start();
+      TestBed.inject(ParkedViewSweep).start();
       TestBed.tick();
 
       workspace.set('other');
@@ -664,7 +664,7 @@ describe('surface retention', () => {
       paneTree.seedPrimaryTabs(CONTENT_DOCK, ['gone']);
       retainedEntry('content:main|gone');
 
-      TestBed.inject(RetentionGc).start();
+      TestBed.inject(ParkedViewSweep).start();
       TestBed.tick();
 
       expect(destroyed).toBe(1);
@@ -795,7 +795,7 @@ describe('surface retention', () => {
       });
       slot.detach(true);
 
-      TestBed.inject(RetentionGc).start();
+      TestBed.inject(ParkedViewSweep).start();
       TestBed.tick();
 
       expect(destroyed).toBe(0);
@@ -918,7 +918,7 @@ describe('surface retention', () => {
 
     it('parks a hidden dirty instance and destroys it the moment it reports clean', async () => {
       seedOpenTab();
-      TestBed.inject(RetentionGc).start();
+      TestBed.inject(ParkedViewSweep).start();
       const fixture = TestBed.createComponent(DirtyHost);
       fixture.detectChanges();
       dirtyInstances[0].draft.set('typed');
@@ -942,7 +942,7 @@ describe('surface retention', () => {
         saveOn: 'hide',
       } as ContentRoute);
       seedOpenTab();
-      TestBed.inject(RetentionGc).start();
+      TestBed.inject(ParkedViewSweep).start();
       const fixture = TestBed.createComponent(DirtyHost);
       fixture.detectChanges();
       dirtyInstances[0].draft.set('typed');
@@ -967,7 +967,7 @@ describe('surface retention', () => {
         saveOn: 'hide',
       } as ContentRoute);
       seedOpenTab();
-      TestBed.inject(RetentionGc).start();
+      TestBed.inject(ParkedViewSweep).start();
       const fixture = TestBed.createComponent(DirtyHost);
       fixture.detectChanges();
       dirtyInstances[0].draft.set('typed');

@@ -9,7 +9,7 @@ import {
 import { provideLayout } from '../layout/layout';
 import { SurfaceCloseGuard } from '../regions/pane/unsaved-work/surface-close-guard';
 import { RetainedViewStash } from '../regions/pane/retention/retained-view-stash';
-import { RetentionCandidates } from '../regions/pane/retention/retention-candidates';
+import { UnsavedWork } from '../regions/pane/unsaved-work/unsaved-work';
 import { PanelState } from '../regions/panel/panel-state';
 import { CONTENT_DOCK } from '../regions/pane/tree/pane-address';
 import { PaneTreeService } from '../regions/pane/tree/pane-tree.service';
@@ -39,7 +39,7 @@ function compose(answer = true) {
   localStorage.clear();
   const guard = { confirmDiscard: vi.fn(async () => answer) };
   const dirty = { surfaceDirty: () => true };
-  const retention = { all: vi.fn(() => [dirty]) };
+  const unsavedWork = { instancesEverywhere: vi.fn(() => [dirty]) };
   TestBed.configureTestingModule({
     providers: [
       provideRouter([{ path: '**', children: [] }]),
@@ -50,7 +50,7 @@ function compose(answer = true) {
         content: { tabs: [{ path: 'orders/o-0', closable: false }] },
       } as never),
       { provide: SurfaceCloseGuard, useValue: guard },
-      { provide: RetentionCandidates, useValue: retention },
+      { provide: UnsavedWork, useValue: unsavedWork },
       {
         provide: APP_RESET_WORKSPACES,
         useFactory: () => {
@@ -60,7 +60,7 @@ function compose(answer = true) {
       },
     ],
   });
-  return { ws: TestBed.inject(WorkspaceService), guard, retention, dirty };
+  return { ws: TestBed.inject(WorkspaceService), guard, unsavedWork, dirty };
 }
 
 async function settled(): Promise<void> {

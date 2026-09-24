@@ -1,7 +1,7 @@
 import { inject, InjectionToken, Service } from '@angular/core';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { SurfaceCloseGuard } from '../pane/unsaved-work/surface-close-guard';
-import { RetentionCandidates } from '../pane/retention/retention-candidates';
+import { UnsavedWork } from '../pane/unsaved-work/unsaved-work';
 import { PanelSizeService } from '../panel/panel-size.service';
 import { PanelState } from '../panel/panel-state';
 import { RailItemsService } from '../rail/rail-items.service';
@@ -26,7 +26,7 @@ export class AppResetService {
   private readonly order = inject(UserOrderService);
   private readonly instances = inject(ViewInstanceService);
   private readonly closeGuard = inject(SurfaceCloseGuard);
-  private readonly retention = inject(RetentionCandidates);
+  private readonly unsavedWork = inject(UnsavedWork);
   private readonly resetWorkspaces = inject(APP_RESET_WORKSPACES, {
     optional: true,
   });
@@ -35,7 +35,9 @@ export class AppResetService {
     const allowed =
       options.workspaces && this.resetWorkspaces
         ? await this.resetWorkspaces()
-        : await this.closeGuard.confirmDiscard(this.retention.all());
+        : await this.closeGuard.confirmDiscard(
+            this.unsavedWork.instancesEverywhere(),
+          );
     if (!allowed) {
       return false;
     }

@@ -1,11 +1,11 @@
 import { inject, Service } from '@angular/core';
-import { RetentionCandidates } from '../../regions/pane/retention/retention-candidates';
+import { UnsavedWork } from '../../regions/pane/unsaved-work/unsaved-work';
 import { SurfaceCloseGuard } from '../../regions/pane/unsaved-work/surface-close-guard';
 import { PluginEnablementService } from './plugin-enablement.service';
 
 @Service()
 export class PluginDisableGuard {
-  private readonly candidates = inject(RetentionCandidates);
+  private readonly unsavedWork = inject(UnsavedWork);
   private readonly closeGuard = inject(SurfaceCloseGuard);
   private readonly enablement = inject(PluginEnablementService);
 
@@ -14,7 +14,7 @@ export class PluginDisableGuard {
       this.enablement.setEnabled(id, true);
       return;
     }
-    const candidates = this.candidates.ofPlugin(id);
+    const candidates = this.unsavedWork.instancesOfPlugin(id);
     if (!this.closeGuard.anyDirty(candidates)) {
       this.enablement.setEnabled(id, false);
       return;
@@ -29,6 +29,8 @@ export class PluginDisableGuard {
   }
 
   confirmRemoval(id: string): Promise<boolean> {
-    return this.closeGuard.confirmDiscard(this.candidates.ofPlugin(id));
+    return this.closeGuard.confirmDiscard(
+      this.unsavedWork.instancesOfPlugin(id),
+    );
   }
 }

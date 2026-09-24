@@ -20,7 +20,7 @@ import { PaneTreeService } from '../tree/pane-tree.service';
 import { paneSegments } from '../tree/pane-queries';
 import { RetainedComponent } from './retained-component';
 import { RetainedViewStash } from './retained-view-stash';
-import { RetentionGc } from './retention-gc';
+import { ParkedViewSweep } from './parked-view-sweep';
 import { SurfaceRetentionMode } from './retention-policy';
 import { createSurfaceHold, SURFACE_HOLD_STATE } from './surface-hold';
 
@@ -266,7 +266,7 @@ describe('a surface held where its product put it', () => {
       TestBed.inject(PaneTreeService).seedPrimaryTabs(CONTENT_DOCK, ['notes']);
       heldParkedEntry('content:main|notes');
 
-      TestBed.inject(RetentionGc).start();
+      TestBed.inject(ParkedViewSweep).start();
       await settled();
 
       expect(ended).toBe(0);
@@ -275,7 +275,7 @@ describe('a surface held where its product put it', () => {
     it('lets go of it by the ordinary rules once it is released', async () => {
       TestBed.inject(PaneTreeService).seedPrimaryTabs(CONTENT_DOCK, ['notes']);
       const hold = heldParkedEntry('content:main|notes');
-      TestBed.inject(RetentionGc).start();
+      TestBed.inject(ParkedViewSweep).start();
       await settled();
 
       hold.release();
@@ -303,7 +303,7 @@ describe('a surface held where its product put it', () => {
 
       it('ends a held surface it no longer shows, as it ends one that never held', async () => {
         heldParkedEntry(SIDEBAR_KEY);
-        TestBed.inject(RetentionGc).start();
+        TestBed.inject(ParkedViewSweep).start();
         await settled();
         expect(ended).toBe(0);
 
@@ -318,7 +318,7 @@ describe('a surface held where its product put it', () => {
       const paneTree = TestBed.inject(PaneTreeService);
       paneTree.seedPrimaryTabs(CONTENT_DOCK, ['notes', 'other']);
       heldParkedEntry('content:main|notes');
-      TestBed.inject(RetentionGc).start();
+      TestBed.inject(ParkedViewSweep).start();
       await settled();
 
       paneTree.splitPane(CONTENT_DOCK, 'main', 'row', 'notes');
@@ -336,7 +336,7 @@ describe('a surface held where its product put it', () => {
       const paneTree = TestBed.inject(PaneTreeService);
       paneTree.seedPrimaryTabs(CONTENT_DOCK, ['notes', 'other']);
       heldParkedEntry('content:main|notes');
-      TestBed.inject(RetentionGc).start();
+      TestBed.inject(ParkedViewSweep).start();
       await settled();
 
       paneTree.removeTab(CONTENT_DOCK, 'main', 'notes');
