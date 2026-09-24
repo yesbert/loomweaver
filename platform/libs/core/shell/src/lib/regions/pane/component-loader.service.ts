@@ -7,7 +7,7 @@ export interface LazyComponentSource {
 
 @Service()
 export class ComponentLoader {
-  private readonly pending = new Map<
+  private readonly byLoader = new Map<
     () => Promise<Type<unknown>>,
     WritableSignal<Type<unknown> | null>
   >();
@@ -20,12 +20,12 @@ export class ComponentLoader {
     if (!loader) {
       return null;
     }
-    const known = this.pending.get(loader);
+    const known = this.byLoader.get(loader);
     if (known) {
       return known();
     }
     const resolved = signal<Type<unknown> | null>(null);
-    this.pending.set(loader, resolved);
+    this.byLoader.set(loader, resolved);
     void loader().then(
       (component) => resolved.set(component),
       (error: unknown) => console.error('[loom] surface failed to load', error),

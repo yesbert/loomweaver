@@ -5,10 +5,8 @@ import {
   WORKING_STATE_STORE,
   provideWorkingStateStore,
 } from './working-state-store';
-import {
-  DEFAULT_PANEL_WIDTH,
-  PanelSizeService,
-} from '../regions/panel/panel-size.service';
+import { PanelSizeService } from '../regions/panel/panel-size.service';
+import { DEFAULT_PANEL_WIDTH } from '../layout/panel-widths';
 import { ActiveWorkspaceService } from '../workspace/active-workspace.service';
 
 describe('LocalStorageStore', () => {

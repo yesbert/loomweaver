@@ -69,13 +69,6 @@ export class ViewInstanceService {
     this.sync.onNamespaceAdopted(() => this.rereadRecords());
   }
 
-  async rereadRecords(): Promise<void> {
-    for (const [viewId, record] of this.records) {
-      const raw = await readStoredValue(this.store, STORAGE_PREFIX + viewId);
-      record.set(parseRecord(viewId, raw));
-    }
-  }
-
   instances(viewId: string): Signal<readonly ViewInstance[]> {
     return this.derived(
       this.instancesSignals,
@@ -89,6 +82,13 @@ export class ViewInstanceService {
       this.activeIdSignals,
       viewId,
       (record) => record.activeId,
+    );
+  }
+
+  activeInstance(viewId: string): ViewInstance | undefined {
+    const activeId = this.activeId(viewId)();
+    return this.instances(viewId)().find(
+      (instance) => instance.id === activeId,
     );
   }
 
@@ -147,6 +147,13 @@ export class ViewInstanceService {
     }
     this.recordFor(viewId).set(defaultRecord(viewId));
     void this.store.delete(STORAGE_PREFIX + viewId);
+  }
+
+  private async rereadRecords(): Promise<void> {
+    for (const [viewId, record] of this.records) {
+      const raw = await readStoredValue(this.store, STORAGE_PREFIX + viewId);
+      record.set(parseRecord(viewId, raw));
+    }
   }
 
   private derived<T>(

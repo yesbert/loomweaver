@@ -6,11 +6,8 @@ import { FeatureSwitches } from '../../features/feature-switches.service';
 import { provideLayout } from '../../layout/layout';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { SurfaceCloseGuard } from '../pane/unsaved-work/surface-close-guard';
-import {
-  MAX_PANEL_WIDTH,
-  MIN_PANEL_WIDTH,
-  PanelSizeService,
-} from './panel-size.service';
+import { PanelSizeService } from './panel-size.service';
+import { MAX_PANEL_WIDTH, MIN_PANEL_WIDTH } from '../../layout/panel-widths';
 import { PanelState } from './panel-state';
 import { SidebarService } from './sidebar.service';
 

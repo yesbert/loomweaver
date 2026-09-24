@@ -4,12 +4,12 @@ import { TranslocoService, TranslocoTestingModule } from '@jsverse/transloco';
 import { provideLayout } from '../../layout/layout';
 import { SurfaceCloseGuard } from '../pane/unsaved-work/surface-close-guard';
 import { PanelSplitter } from './panel-splitter';
+import { PanelSizeService } from './panel-size.service';
 import {
   DEFAULT_PANEL_WIDTH,
   MAX_PANEL_WIDTH,
   MIN_PANEL_WIDTH,
-  PanelSizeService,
-} from './panel-size.service';
+} from '../../layout/panel-widths';
 import { SidebarService } from './sidebar.service';
 
 const STORAGE_KEY = 'lw.shell.panel-sizes';

@@ -2,12 +2,12 @@ import { ComponentRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { PanelSplitter } from './panel-splitter';
+import { PanelSizeService } from './panel-size.service';
 import {
   DEFAULT_PANEL_WIDTH,
   MAX_PANEL_WIDTH,
   MIN_PANEL_WIDTH,
-  PanelSizeService,
-} from './panel-size.service';
+} from '../../layout/panel-widths';
 
 function transloco() {
   return TranslocoTestingModule.forRoot({

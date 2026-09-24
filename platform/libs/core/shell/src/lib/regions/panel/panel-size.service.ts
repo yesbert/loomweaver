@@ -15,12 +15,6 @@ import {
   WORKBENCH_PANEL_WIDTHS,
 } from '../../layout/panel-widths';
 
-export {
-  DEFAULT_PANEL_WIDTH,
-  MAX_PANEL_WIDTH,
-  MIN_PANEL_WIDTH,
-} from '../../layout/panel-widths';
-
 const STORAGE_KEY = 'lw.shell.panel-sizes';
 
 function isFiniteNumber(value: unknown): value is number {
@@ -53,7 +47,7 @@ export class PanelSizeService {
   private readonly widths = signal<Readonly<Record<string, number>>>(
     parseWidths(this.store.peek?.(STORAGE_KEY)),
   );
-  private readonly dragging = signal(false);
+  private readonly resizing = signal(false);
 
   constructor() {
     const apply = (raw: string | undefined) =>
@@ -81,16 +75,16 @@ export class PanelSizeService {
   }
 
   isResizing(): boolean {
-    return this.dragging();
+    return this.resizing();
   }
 
   beginResize(): void {
-    this.dragging.set(true);
+    this.resizing.set(true);
   }
 
   endResize(): void {
-    this.dragging.set(false);
-    this.persist();
+    this.resizing.set(false);
+    this.commit();
   }
 
   setWidth(regionId: string, px: number): void {
@@ -99,7 +93,7 @@ export class PanelSizeService {
   }
 
   commit(): void {
-    this.persist();
+    void this.store.set(STORAGE_KEY, JSON.stringify(this.widths()));
   }
 
   reset(): void {
@@ -109,9 +103,5 @@ export class PanelSizeService {
 
   private widthsOf(regionId: string): PanelWidths {
     return this.declared.get(regionId) ?? WORKBENCH_PANEL_WIDTHS;
-  }
-
-  private persist(): void {
-    void this.store.set(STORAGE_KEY, JSON.stringify(this.widths()));
   }
 }

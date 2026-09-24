@@ -169,6 +169,10 @@ export class ShellPanel {
     this.paneTree.tree(this.region().id),
   );
 
+  private readonly shownInstance = computed(() =>
+    this.panelGroup.activeInstance(this.region().id),
+  );
+
   protected readonly footers = computed(() =>
     regionsAt(this.layout, this.region().dock, 'bar'),
   );
@@ -178,9 +182,9 @@ export class ShellPanel {
   }
 
   protected viewInjector(view: View): Injector {
-    const carried = this.panelGroup.activeInstance(this.region().id);
-    return carried
-      ? this.viewMount.injectorForInstance(carried)
+    const shown = this.shownInstance();
+    return shown
+      ? this.viewMount.injectorForInstance(shown)
       : this.viewMount.injectorFor(view);
   }
 
@@ -189,19 +193,17 @@ export class ShellPanel {
   }
 
   protected dockedInjector(view: RegisteredView): Injector {
-    const carried = this.panelGroup.activeInstance(this.region().id);
     return this.dockedInjectorFor(
       view,
-      carried ?? this.viewMount.instanceIdFor(view),
+      this.shownInstance() ?? this.viewMount.instanceIdFor(view),
     );
   }
 
   protected viewKeyFor(view: View): string {
-    const carried = this.panelGroup.activeInstance(this.region().id);
     return viewRetentionKey(
       this.primaryScope(),
       VIEW_PANE_PREFIX + view.id,
-      carried ?? undefined,
+      this.shownInstance(),
     );
   }
 

@@ -8,7 +8,7 @@ import {
   MenuService,
 } from '../menu/menu.service';
 import { MenuTriggerDirective } from '../menu/menu-trigger.directive';
-import { ViewInstance, ViewInstanceService } from './view-instance.service';
+import { ViewInstanceService } from './view-instance.service';
 
 @Component({
   selector: 'lw-view-instance-switcher',
@@ -32,15 +32,11 @@ export class ViewInstanceSwitcher {
 
   protected readonly activeName = computed(() => {
     const viewId = this.view().id;
-    const activeId = this.viewInstances.activeId(viewId)();
-    if (this.viewInstances.isDefault(viewId, activeId)) {
+    const active = this.viewInstances.activeInstance(viewId);
+    if (!active || this.viewInstances.isDefault(viewId, active.id)) {
       return '';
     }
-    return (
-      this.viewInstances
-        .instances(viewId)()
-        .find((instance) => instance.id === activeId)?.name ?? ''
-    );
+    return active.name;
   });
 
   protected openSwitcher(event: MouseEvent): void {
@@ -113,44 +109,41 @@ export class ViewInstanceSwitcher {
   }
 
   private renameActiveInstance(viewId: string): void {
-    const { activeId, active } = this.activeInstance(viewId);
+    const active = this.viewInstances.activeInstance(viewId);
+    if (!active) {
+      return;
+    }
     void this.dialogs
       .prompt({
         title: this.transloco.translate('viewInstance.renameTitle'),
         message: '',
-        initial: active?.name ?? '',
+        initial: active.name,
         placeholder: this.transloco.translate('viewInstance.namePlaceholder'),
       })
-      .then(
-        (name) =>
-          name?.trim() &&
-          this.viewInstances.rename(viewId, activeId, name.trim()),
-      );
+      .then((name) => {
+        if (name?.trim()) {
+          this.viewInstances.rename(viewId, active.id, name.trim());
+        }
+      });
   }
 
   private deleteActiveInstance(viewId: string): void {
-    const { activeId, active } = this.activeInstance(viewId);
+    const active = this.viewInstances.activeInstance(viewId);
+    if (!active) {
+      return;
+    }
     void this.dialogs
       .confirm({
         title: this.transloco.translate('viewInstance.delete'),
         message: this.transloco.translate('viewInstance.deleteConfirm', {
-          name: active?.name ?? '',
+          name: active.name,
         }),
         tone: 'danger',
       })
-      .then((ok) => ok && this.viewInstances.remove(viewId, activeId));
-  }
-
-  private activeInstance(viewId: string): {
-    activeId: string;
-    active: ViewInstance | undefined;
-  } {
-    const activeId = this.viewInstances.activeId(viewId)();
-    return {
-      activeId,
-      active: this.viewInstances
-        .instances(viewId)()
-        .find((instance) => instance.id === activeId),
-    };
+      .then((ok) => {
+        if (ok) {
+          this.viewInstances.remove(viewId, active.id);
+        }
+      });
   }
 }

@@ -1,10 +1,10 @@
 import { TestBed } from '@angular/core/testing';
+import { PanelSizeService } from './panel-size.service';
 import {
   DEFAULT_PANEL_WIDTH,
   MAX_PANEL_WIDTH,
   MIN_PANEL_WIDTH,
-  PanelSizeService,
-} from './panel-size.service';
+} from '../../layout/panel-widths';
 
 const STORAGE_KEY = 'lw.shell.panel-sizes';
 

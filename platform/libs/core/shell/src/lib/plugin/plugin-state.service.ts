@@ -58,15 +58,6 @@ export class PluginStateService {
     this.sync.onNamespaceAdopted(() => this.rereadEntries());
   }
 
-  async rereadEntries(): Promise<void> {
-    for (const [storageKey, entry] of this.entries) {
-      const raw = await readStoredValue(this.store, storageKey);
-      this.cancelPending(entry);
-      entry.value.set(parseBlob(raw));
-      entry.loaded.set(true);
-    }
-  }
-
   facade(pluginId: string): PluginState {
     return {
       watch: <T>(key: string) => this.watch<T>(pluginId, key),
@@ -91,6 +82,15 @@ export class PluginStateService {
       }
       void this.store.delete(INDEX_PREFIX + pluginId);
     });
+  }
+
+  private async rereadEntries(): Promise<void> {
+    for (const [storageKey, entry] of this.entries) {
+      const raw = await readStoredValue(this.store, storageKey);
+      this.cancelPending(entry);
+      entry.value.set(parseBlob(raw));
+      entry.loaded.set(true);
+    }
   }
 
   private watch<T>(pluginId: string, key: string): StateHandle<T> {
