@@ -115,7 +115,7 @@ export class ShellSidebarHeader {
     this.panels.openOverlay(this.region().id);
   }
 
-  protected trailingAction(): void {
+  protected closeOrCollapse(): void {
     if (this.viewport.compact()) {
       this.panels.closeOverlay();
     } else {

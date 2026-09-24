@@ -53,7 +53,7 @@
     @if (canCollapse()) {
     <button
       type="button"
-      (click)="trailingAction()"
+      (click)="closeOrCollapse()"
       class="lw-icon-btn h-10 w-10 self-center rounded-md md:h-7 md:w-7"
       [attr.aria-label]="(viewport.compact() ? 'panel.close' : 'panel.collapse') | transloco"
     >

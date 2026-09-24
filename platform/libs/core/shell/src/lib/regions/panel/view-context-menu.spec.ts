@@ -3,7 +3,7 @@ import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { CommandService } from '../../commands/command.service';
 import { VIEW_CONTEXT_MENU } from '../pane/chrome/view-menu-slot';
 import {
-  registerViewContextMenu,
+  registerViewMoveMenu,
   registerViewOpenInContentMenu,
   registerViewResetMenu,
   registerViewStackMenu,
@@ -16,7 +16,7 @@ import { PaneTreeService } from '../pane/tree/pane-tree.service';
 import { PRIMARY_PANE, VIEW_PANE_PREFIX } from '../pane/tree/pane-address';
 import type { Mock } from 'vitest';
 
-describe('registerViewContextMenu', () => {
+describe('registerViewMoveMenu', () => {
   let registry: ContributionRegistry;
   let commands: CommandService;
   let move: Mock;
@@ -30,7 +30,7 @@ describe('registerViewContextMenu', () => {
     });
     registry = TestBed.inject(ContributionRegistry);
     commands = TestBed.inject(CommandService);
-    registerViewContextMenu(registry, TestBed.inject(ViewMoveService));
+    registerViewMoveMenu(registry, TestBed.inject(ViewMoveService));
   });
 
   it('contributes a move item to the view-context slot', () => {

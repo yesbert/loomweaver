@@ -7,7 +7,7 @@ import { registerTabContextMenu } from './regions/content/tabs/tab-context-menu'
 import { PaneTreeService } from './regions/pane/tree/pane-tree.service';
 import { PaneMoveService } from './regions/pane/drag/pane-move.service';
 import {
-  registerViewContextMenu,
+  registerViewMoveMenu,
   registerViewHideMenu,
   registerViewStackMenu,
   registerViewOpenInContentMenu,
@@ -17,7 +17,7 @@ import {
 } from './regions/panel/view-context-menu';
 import { ViewMoveService } from './regions/panel/view-move.service';
 import {
-  registerRailContextMenu,
+  registerRailHideMenu,
   registerRailCustomizeMenu,
   registerRailMoveMenu,
 } from './regions/rail/rail-context-menu';
@@ -79,7 +79,7 @@ function registerRailMenus(
   const hasRail = hasRegionOfType(layout, 'rail');
   if (hasRail) {
     whileOn(deps.injector, rail.hideItems, () =>
-      registerRailContextMenu(registry, deps.railItems),
+      registerRailHideMenu(registry, deps.railItems),
     );
   }
   if (sideCount(layout, 'rail') >= 2) {
@@ -108,7 +108,7 @@ function registerViewMenus(
   );
   if (sideCount(layout, 'panel') >= 2) {
     whileOn(deps.injector, sidebar.moveViews, () =>
-      registerViewContextMenu(registry, deps.viewMove),
+      registerViewMoveMenu(registry, deps.viewMove),
     );
   }
   if (!hasRegionOfType(layout, 'panel')) {

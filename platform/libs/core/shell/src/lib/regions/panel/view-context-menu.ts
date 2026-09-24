@@ -25,18 +25,16 @@ export const PANEL_STRIP_CONTEXT_MENU = 'panel/strip/context';
 export function registerViewCustomizeMenu(
   registry: ContributionRegistry,
 ): Disposable {
-  return disposeTogether([
-    registry.addMenuItem({
-      id: menuEntryId(VIEWS_CUSTOMIZE_COMMAND_ID),
-      menu: PANEL_STRIP_CONTEXT_MENU,
-      command: VIEWS_CUSTOMIZE_COMMAND_ID,
-      group: '9_customize',
-      order: 0,
-    }),
-  ]);
+  return registry.addMenuItem({
+    id: menuEntryId(VIEWS_CUSTOMIZE_COMMAND_ID),
+    menu: PANEL_STRIP_CONTEXT_MENU,
+    command: VIEWS_CUSTOMIZE_COMMAND_ID,
+    group: '9_customize',
+    order: 0,
+  });
 }
 
-export function registerViewContextMenu(
+export function registerViewMoveMenu(
   registry: ContributionRegistry,
   moves: ViewMoveService,
 ): Disposable {

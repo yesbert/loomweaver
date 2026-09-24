@@ -173,7 +173,7 @@ describe('ShellRail', () => {
         imports: [ShellRail, transloco()],
         providers: [{ provide: AUTH_SOURCE, useValue: signal(ANONYMOUS) }],
       });
-      TestBed.inject(RailLabelsService).show('activity', true);
+      TestBed.inject(RailLabelsService).setLabelled('activity', true);
       const registry = TestBed.inject(ContributionRegistry);
       for (const item of items) {
         registry.addRailItem(item);
@@ -428,7 +428,7 @@ describe('ShellRail', () => {
 
     it('takes an item out of this rail once it is placed in another one', () => {
       const fixture = setupWorkspaces('alpha', entry('a', 'alpha'));
-      TestBed.inject(RailItemsService).show('a', 'activity-right');
+      TestBed.inject(RailItemsService).place('a', 'activity-right');
       fixture.detectChanges();
 
       expect(buttonsOf(fixture)).toHaveLength(0);
@@ -453,7 +453,7 @@ describe('ShellRail', () => {
       });
 
       function placeOwnEntry(rail: string): void {
-        TestBed.inject(RailItemsService).show(
+        TestBed.inject(RailItemsService).place(
           workspaceRailItemId('mine'),
           rail,
         );

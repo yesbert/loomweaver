@@ -19,7 +19,7 @@ describe('RailItemsService', () => {
     expect(rail.isVisible(workspace)).toBe(false);
 
     rail.hide('settings');
-    rail.show(workspace, 'activity');
+    rail.place(workspace, 'activity');
 
     expect(rail.isVisible('settings')).toBe(false);
     expect(rail.isVisible(workspace)).toBe(true);
@@ -30,7 +30,7 @@ describe('RailItemsService', () => {
 
     expect(rail.regionOf('settings', 'activity')).toBe('activity');
 
-    rail.show('settings', 'activity-right');
+    rail.place('settings', 'activity-right');
 
     expect(rail.regionOf('settings', 'activity')).toBe('activity-right');
   });
@@ -39,7 +39,7 @@ describe('RailItemsService', () => {
     const rail = TestBed.inject(RailItemsService);
 
     rail.hide('settings');
-    rail.show('settings', 'activity-right');
+    rail.place('settings', 'activity-right');
 
     expect(rail.isVisible('settings')).toBe(true);
     expect(rail.regionOf('settings', 'activity')).toBe('activity-right');
@@ -49,7 +49,7 @@ describe('RailItemsService', () => {
     const rail = TestBed.inject(RailItemsService);
     const workspace = workspaceRailItemId('w1');
 
-    rail.show(workspace, 'activity-right');
+    rail.place(workspace, 'activity-right');
     rail.hide(workspace);
 
     expect(rail.isVisible(workspace)).toBe(false);
@@ -57,7 +57,7 @@ describe('RailItemsService', () => {
   });
 
   it('persists across reloads', () => {
-    TestBed.inject(RailItemsService).show('auth', 'activity-right');
+    TestBed.inject(RailItemsService).place('auth', 'activity-right');
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({});

@@ -20,8 +20,8 @@ function railLabelRows(): SettingRow[] {
     description: 'railLabels.desc',
     control: {
       kind: 'toggle',
-      value: () => labels.labelled(region.id),
-      set: (labelled: boolean) => labels.show(region.id, labelled),
+      value: () => labels.isLabelled(region.id),
+      set: (labelled: boolean) => labels.setLabelled(region.id, labelled),
     },
   }));
 }

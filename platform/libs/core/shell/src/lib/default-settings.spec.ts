@@ -85,8 +85,8 @@ describe('default settings: names in the rail', () => {
 
     control(rows[0]).set(true);
 
-    expect(labels.labelled('primary')).toBe(true);
-    expect(labels.labelled('secondary')).toBe(false);
+    expect(labels.isLabelled('primary')).toBe(true);
+    expect(labels.isLabelled('secondary')).toBe(false);
     expect(control(rows[1]).value()).toBe(false);
   });
 });
