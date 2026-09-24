@@ -121,19 +121,6 @@ export function healedPrimary(
     : collectLeafIds(node)[0];
 }
 
-export function tabPathsWhere(
-  node: PaneNode,
-  match: (path: string) => boolean,
-): readonly string[] {
-  if (node.kind === 'leaf') {
-    return node.tabs.filter((tab) => match(tab.path)).map((tab) => tab.path);
-  }
-  return [
-    ...tabPathsWhere(node.first, match),
-    ...tabPathsWhere(node.second, match),
-  ];
-}
-
 export function withoutBorrowedLabels(
   node: PaneNode,
   borrowed: (tab: PaneTab) => boolean,

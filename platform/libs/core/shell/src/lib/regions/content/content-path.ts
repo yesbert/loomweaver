@@ -21,6 +21,10 @@ export function suffixOf(url: string): string {
   return index === -1 ? '' : url.slice(index);
 }
 
+export function isAtOrBelow(root: string, path: string): boolean {
+  return path === root || path.startsWith(`${root}/`);
+}
+
 export function restBelow(tabRoot: string, url: string): string {
   const path = normalizePath(url);
   const suffix = suffixOf(url);

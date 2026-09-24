@@ -21,8 +21,12 @@ import { PaneTreeView } from '../pane-tree-view';
 import { PaneTreeService } from '../tree/pane-tree.service';
 import { PaneContainersService } from './pane-containers.service';
 import { activeTab } from '../tree/pane-node';
-import { collectLeafIds, findLeaf } from '../tree/pane-queries';
-import { normalizePath, restBelow } from '../../content/content-path';
+import { findLeaf, leavesOf } from '../tree/pane-queries';
+import {
+  isAtOrBelow,
+  normalizePath,
+  restBelow,
+} from '../../content/content-path';
 import { surfaceRouteData } from '../../content/surface/surface-route-data';
 
 @Component({
@@ -91,16 +95,15 @@ export class ContainerPaneHost {
 
   private readonly urlSegment = computed(() => {
     const url = normalizePath(this.currentUrl());
-    const holdsUrl =
-      url === this.containerPath || url.startsWith(`${this.containerPath}/`);
-    return holdsUrl ? restBelow(this.containerPath, url) : null;
+    return isAtOrBelow(this.containerPath, url)
+      ? restBelow(this.containerPath, url)
+      : null;
   });
 
   private readonly focusedSegment = computed(() => {
     const tree = this.tree();
     const leaf =
-      findLeaf(tree, this.paneTree.primaryId(this.dock)) ??
-      findLeaf(tree, collectLeafIds(tree)[0] ?? '');
+      findLeaf(tree, this.paneTree.primaryId(this.dock)) ?? leavesOf(tree)[0];
     const path = leaf ? activeTab(leaf)?.path : undefined;
     return path === undefined
       ? ''

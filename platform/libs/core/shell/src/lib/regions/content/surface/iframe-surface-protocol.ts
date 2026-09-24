@@ -1,7 +1,7 @@
 import { Methods } from 'penpal';
 import { distributionIcons } from '../../../elements/icon/icon-registry-global';
 import { LW_TOKENS } from '../../../theme/theme-tokens';
-import { normalizePath } from '../content-path';
+import { isAtOrBelow, normalizePath } from '../content-path';
 
 export interface SurfaceState {
   readonly locale: string;
@@ -49,7 +49,7 @@ export function resolvedLook(
 
 export function confinedTarget(tabRoot: string, path: string): string {
   const target = normalizePath(path);
-  if (target !== tabRoot && !target.startsWith(tabRoot + '/')) {
+  if (!isAtOrBelow(tabRoot, target)) {
     throw new Error(
       `Surface navigation is confined to its own tab root "${tabRoot}" — got "${target}". ` +
         `Use the plugin (logic) channel's ctx.navigateContent for anything else ('navigation' grant).`,

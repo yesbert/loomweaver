@@ -58,6 +58,13 @@ export function leafPath(leaf: PaneLeaf): string | undefined {
   return activeTab(leaf)?.path;
 }
 
+export function isDisposableLeaf(
+  leaf: PaneLeaf,
+  kept: readonly (string | undefined)[],
+): boolean {
+  return leaf.tabs.length === 0 && !leaf.declared && !kept.includes(leaf.id);
+}
+
 export function leafWith(
   id: string,
   tabs: readonly PaneTab[],

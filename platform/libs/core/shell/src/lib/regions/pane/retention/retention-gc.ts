@@ -6,6 +6,7 @@ import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { NotificationService } from '../../../notifications/notification.service';
 import { tabRootOf } from '../../content/content-path';
 import { PaneNode } from '../tree/pane-node';
+import { leavesOf } from '../tree/pane-queries';
 import { PaneTreeService } from '../tree/pane-tree.service';
 import { RetainedViewStash } from './retained-view-stash';
 import {
@@ -178,28 +179,14 @@ function openPathsByScope(
 ): Map<string, Set<string>> {
   const open = new Map<string, Set<string>>();
   for (const [dock, tree] of Object.entries(trees)) {
-    collectLeafPaths(dock, tree, open);
+    for (const leaf of leavesOf(tree)) {
+      const scope = paneRetentionScope(dock, leaf.id);
+      const paths = open.get(scope) ?? new Set<string>();
+      for (const tab of leaf.tabs) {
+        paths.add(tab.path);
+      }
+      open.set(scope, paths);
+    }
   }
   return open;
-}
-
-function collectLeafPaths(
-  dock: string,
-  node: PaneNode,
-  open: Map<string, Set<string>>,
-): void {
-  if (node.kind === 'split') {
-    collectLeafPaths(dock, node.first, open);
-    collectLeafPaths(dock, node.second, open);
-    return;
-  }
-  const scope = paneRetentionScope(dock, node.id);
-  let paths = open.get(scope);
-  if (!paths) {
-    paths = new Set<string>();
-    open.set(scope, paths);
-  }
-  for (const tab of node.tabs) {
-    paths.add(tab.path);
-  }
 }

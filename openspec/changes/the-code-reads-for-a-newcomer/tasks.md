@@ -140,7 +140,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 
 - [x] 5.1 **Move:** `close/`, the unsaved-work service and the unload guard into `regions/pane/unsaved-work/`;
   `pane-restore.ts` to `stored-pane-tree.ts`; `pane-area-tree.ts` to `declared-pane-layout.ts`.
-- [ ] 5.2 Tree queries: `leavesOf` moves to `pane-queries.ts` and the read-only walks are built on it;
+- [x] 5.2 Tree queries: `leavesOf` moves to `pane-queries.ts` and the read-only walks are built on it;
   "an empty, undeclared leaf goes away" is one rule with one collapse tail; the moved-tree settling
   moves into `pane-structure.ts`; "a path at or below a root" is one function in the path module.
 - [ ] 5.3 Pane identity: `PaneRef` everywhere (the identical `TabDragSource` goes), `isSamePane`, one
@@ -148,7 +148,9 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   `viewPanePath` instead of fourteen prefix checks, tab escalation by an explicit switch.
 - [ ] 5.4 `PaneTreeService`: tab ranking into `pane-tabs.ts`, the hydration hand-off into
   `PaneTreeStorage`, evacuation through the stash (2.4), the `commitTree` alias removed, the six
-  meanings of "settle" given their own names, the landing leaf found in one place.
+  meanings of "settle" given their own names, the landing leaf found in one place; `removeTab` asks
+  `isDisposableLeaf` like the other four places (left from 5.2, which would have pushed the file past
+  400 lines).
 - [ ] 5.5 `RetainedViewStash`: the holding area's DOM work in `holding-area.ts`, every query over
   entries in one file, `slotFor` out of `acquire`, one retain flag, verbs that say what the stash does;
   the two directives share node placement; `retention-policy.ts` keeps only the policy (dirty-surface

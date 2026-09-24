@@ -7,10 +7,11 @@ import { ActiveWorkspaceService } from '../../../workspace/active-workspace.serv
 import {
   DockEntry,
   normalizeDockEntry,
-  tabPathsWhere,
   withoutBorrowedLabels,
 } from './stored-pane-tree';
 import { PaneNode } from './pane-node';
+import { tabPathsWhere } from './pane-queries';
+import { isAtOrBelow } from '../../content/content-path';
 import { WORKSPACE_DEFINITIONS } from '../../../workspace/provide-workspaces';
 import { WORKSPACES_KEY } from '../../../workspace/baseline/workspace-state';
 import {
@@ -140,7 +141,7 @@ export class PaneTreeStorage {
     const home = declared.find((definition) => definition.id === here);
     const ownTabs = home ? declaredTabPaths(home) : [];
     const isDeclared = (path: string) =>
-      ownTabs.some((own) => path === own || path.startsWith(`${own}/`));
+      ownTabs.some((own) => isAtOrBelow(own, path));
     const out: Record<string, DockEntry> = {};
     const contested: string[] = [];
     const stripped: string[] = [];

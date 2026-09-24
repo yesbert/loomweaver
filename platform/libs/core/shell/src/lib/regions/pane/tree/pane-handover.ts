@@ -1,5 +1,5 @@
 import { PaneLeaf, PaneNode, PaneTab } from './pane-node';
-import { collectLeafIds, findLeaf } from './pane-queries';
+import { collectLeafIds, findLeaf, leavesOf } from './pane-queries';
 import { removeLeaf, transformLeaf } from './pane-structure';
 import { sparedByBulkClose } from './pane-tabs';
 
@@ -49,11 +49,9 @@ export function unsplitWithHandover(
   if (primary === null) {
     return null;
   }
-  const kept = collectLeafIds(node)
-    .filter((id) => id !== primaryId)
-    .flatMap(
-      (id) => findLeaf(node, id)?.tabs.filter((tab) => keeps(tab)) ?? [],
-    );
+  const kept = leavesOf(node)
+    .filter((leaf) => leaf.id !== primaryId)
+    .flatMap((leaf) => leaf.tabs.filter((tab) => keeps(tab)));
   return withTabsAppended(primary, kept);
 }
 
