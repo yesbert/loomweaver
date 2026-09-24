@@ -4,9 +4,9 @@
   [attr.compact]="compact() ? '' : null"
   (lw-select-change)="onSelect($event)"
 >
-  @for (l of langs; track l.value) {
-  <lw-option [attr.value]="l.value" [attr.icon]="l.flag"
-    >{{ l.label }}</lw-option
+  @for (language of langs; track language.value) {
+  <lw-option [attr.value]="language.value" [attr.icon]="language.flag"
+    >{{ language.label }}</lw-option
   >
   }
 </lw-select>

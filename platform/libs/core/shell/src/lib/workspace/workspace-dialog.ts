@@ -21,31 +21,33 @@ import { WORKSPACE_RESET_COMMAND_ID } from '../commands/host-command-ids';
   templateUrl: './workspace-dialog.html',
 })
 export class WorkspaceDialog {
-  private readonly ws = inject(WorkspaceService);
+  private readonly workspaceService = inject(WorkspaceService);
   private readonly unusableWorkspaces = inject(UnusableWorkspacesService);
   private readonly ref = inject<DialogRef>(DialogRef);
   private readonly dialogs = inject(DialogService);
   private readonly transloco = inject(TranslocoService);
   private readonly commands = inject(CommandService);
 
-  protected readonly workspaces = this.ws.workspaces;
-  protected readonly initials = this.ws.initials;
-  protected readonly definitions = this.ws.definitions;
-  protected readonly activeId = this.ws.activeId;
-  protected readonly hasChanges = this.ws.hasChanges;
+  protected readonly workspaces = this.workspaceService.workspaces;
+  protected readonly initials = this.workspaceService.initials;
+  protected readonly definitions = this.workspaceService.definitions;
+  protected readonly activeId = this.workspaceService.activeId;
+  protected readonly hasChanges = this.workspaceService.hasChanges;
   protected readonly defaultId = DEFAULT_WORKSPACE_ID;
   protected readonly offersBuiltIn =
     defaultWorkspaceId(this.definitions) === DEFAULT_WORKSPACE_ID;
   protected readonly name = signal('');
 
   protected readonly tab = signal<'mine' | 'provided'>(
-    this.definitions.some((definition) => definition.id === this.ws.activeId())
+    this.definitions.some(
+      (definition) => definition.id === this.workspaceService.activeId(),
+    )
       ? 'provided'
       : 'mine',
   );
 
   protected originName(id: string): string | null {
-    const origin = this.ws.originOf(id);
+    const origin = this.workspaceService.originOf(id);
     const definition = this.definitions.find(
       (candidate) => candidate.id === origin,
     );
@@ -53,7 +55,7 @@ export class WorkspaceDialog {
   }
 
   protected changed(id: string): boolean {
-    return this.ws.changedIds().has(id);
+    return this.workspaceService.changedIds().has(id);
   }
 
   protected unusable(id: string): boolean {
@@ -73,7 +75,7 @@ export class WorkspaceDialog {
     if (!name) {
       return;
     }
-    void this.ws.saveCurrent(name).then(() => this.name.set(''));
+    void this.workspaceService.saveCurrent(name).then(() => this.name.set(''));
   }
 
   protected applyChanges(): void {
@@ -84,13 +86,13 @@ export class WorkspaceDialog {
       })
       .then((ok) => {
         if (ok) {
-          void this.ws.saveBaseline();
+          void this.workspaceService.saveBaseline();
         }
       });
   }
 
   protected switchTo(id: string): void {
-    void this.ws.switchTo(id);
+    void this.workspaceService.switchTo(id);
     this.ref.close();
   }
 
@@ -102,7 +104,9 @@ export class WorkspaceDialog {
         initial: current,
         placeholder: this.transloco.translate('workspace.namePlaceholder'),
       })
-      .then((name) => name?.trim() && this.ws.rename(id, name.trim()));
+      .then(
+        (name) => name?.trim() && this.workspaceService.rename(id, name.trim()),
+      );
   }
 
   protected resetLayout(id: string): void {
@@ -117,6 +121,6 @@ export class WorkspaceDialog {
         message: this.transloco.translate('workspace.deleteConfirm', { name }),
         tone: 'danger',
       })
-      .then((ok) => ok && this.ws.remove(id));
+      .then((ok) => ok && this.workspaceService.remove(id));
   }
 }
