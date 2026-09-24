@@ -5,6 +5,7 @@ import { PLUGIN_CATALOG, PluginCatalog } from './catalog/plugin-catalog';
 import { PluginCatalogEntry } from './installed-plugin';
 import { PluginEnablementService } from './lifecycle/plugin-enablement.service';
 import { PluginInstallService } from './lifecycle/plugin-install.service';
+import { PluginDeploymentService } from './lifecycle/plugin-deployment.service';
 import { DialogRef } from '../dialog/dialog-ref';
 import { DialogService } from '../dialog/dialog.service';
 import { SettingsService } from '../settings/settings.service';
@@ -193,6 +194,45 @@ describe('PluginStoreDialog', () => {
     ).toBeNull();
   });
 
+  it('reaches the settings of a deployed plugin from the installed list, without offering to remove it', async () => {
+    const { fixture, host } = await render();
+    TestBed.inject(PluginDeploymentService).adopt([
+      { ...DEMO, deployed: true },
+    ]);
+    TestBed.inject(SettingsService).register({
+      id: 'store-full.prefs',
+      title: 'Store demo',
+      group: 'settings.group.plugins',
+      rows: [],
+    });
+    const openSettings = vi
+      .spyOn(TestBed.inject(SettingsService), 'open')
+      .mockReturnValue(new DialogRef());
+
+    (
+      host.querySelector('[data-testid="store-tab-installed"]') as HTMLElement
+    ).click();
+    fixture.detectChanges();
+    await settle();
+    fixture.detectChanges();
+
+    const row = host.querySelector(
+      '[data-testid="store-installed-store-full"]',
+    ) as HTMLElement;
+    (
+      row.querySelector(
+        '[data-testid="store-settings-store-full"]',
+      ) as HTMLElement | null
+    )?.click();
+    expect(openSettings).toHaveBeenCalledWith('store-full.prefs');
+    expect(
+      row.querySelector('[data-testid="store-remove-store-full"]'),
+    ).toBeNull();
+    expect(
+      row.querySelector('[data-testid="store-toggle-store-full"]'),
+    ).toBeNull();
+  });
+
   it('a plugin without a community settings section gets no gear action', async () => {
     const { fixture, host } = await render();
     TestBed.inject(PluginInstallService).install(HELLO);
@@ -246,9 +286,7 @@ describe('PluginStoreDialog', () => {
     const repo = detail.querySelector(
       '[data-testid="store-repository"]',
     ) as HTMLAnchorElement;
-    expect(repo.getAttribute('href')).toBe(
-      'https://example.com/store-full',
-    );
+    expect(repo.getAttribute('href')).toBe('https://example.com/store-full');
     expect(repo.getAttribute('target')).toBe('_blank');
     expect(globalThis.fetch).toHaveBeenCalledWith('/store-full/README.md');
     const markdown = detail.querySelector('lw-markdown') as HTMLElement & {

@@ -18,6 +18,7 @@ import {
 } from './sandbox-rpc-sanitize';
 import {
   buildFrameSection,
+  frameSettingsGroup,
   sanitizeRpcSettingsSection,
 } from './sandbox-settings';
 
@@ -54,9 +55,7 @@ export function frameRpcMethods(deps: FrameRpcDeps): FrameRpc {
         const built = buildFrameSection({
           pluginId,
           wire: sanitizeRpcSettingsSection(pluginId, section),
-          group: deps.install.isInstalled(pluginId)
-            ? 'settings.group.community'
-            : 'settings.group.plugins',
+          group: frameSettingsGroup(deps.install, pluginId),
           store: deps.store,
           sync: deps.sync,
           notify: (sectionId, values) =>

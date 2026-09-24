@@ -1,4 +1,13 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject, input, OnInit, output, signal } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  computed,
+  inject,
+  input,
+  OnInit,
+  output,
+  signal,
+} from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SettingsService } from '../settings/settings.service';
 import { PLUGIN_CATALOG } from './catalog/plugin-catalog';
@@ -12,8 +21,7 @@ import { confirmUninstall } from './lifecycle/uninstall-confirm';
 import { injectStoreConsentDeps } from './lifecycle/consent-deps';
 import { confirmUpdate } from './lifecycle/update-consent';
 import { availableUpdate } from './lifecycle/plugin-update';
-
-const COMMUNITY_GROUP = 'settings.group.community';
+import { frameSettingsGroup } from '../plugin/sandbox/sandbox-settings';
 
 interface InstalledRow {
   readonly id: string;
@@ -78,7 +86,7 @@ export class InstalledPluginList implements OnInit {
           provided: isProvided,
           settingsSectionId: sections.find(
             (section) =>
-              section.group === COMMUNITY_GROUP &&
+              section.group === frameSettingsGroup(this.installs, plugin.id) &&
               section.id.startsWith(`${plugin.id}.`),
           )?.id,
           update: isProvided ? undefined : availableUpdate(plugin, entry),
