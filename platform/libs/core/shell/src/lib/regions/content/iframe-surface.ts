@@ -12,7 +12,7 @@ import { PluginStateService } from '../../plugin/plugin-state.service';
 import { ThemeService } from '../../theme/theme.service';
 import { ThemeRegistry } from '../../theme/theme-registry';
 import { FontScaleService } from '../../text-size/font-scale.service';
-import { LW_TOKENS } from '../../theme/theme-registry-global';
+import { LW_TOKENS } from '../../theme/theme-tokens';
 import { distributionIcons } from '../../elements/icon/icon-registry-global';
 import { AuthContext } from '../../auth/auth-context';
 import { CapabilityGrantService } from '../../permissions/capability-grant.service';
@@ -199,7 +199,7 @@ export class IframeSurface implements DirtySurface {
 
     effect(() => {
       const snapshot = this.reactiveState();
-      this.themes.version();
+      this.themes.revision();
       this.fontScale.scale();
       queueMicrotask(() => this.push({ ...snapshot, ...this.readResolved() }));
     });

@@ -4,7 +4,7 @@ import { generate } from '../../lib/generate/generate';
 import { resolveThemeInput, theme } from './recipe';
 
 const TOKEN_LIST_FROM_WORKSPACE_ROOT =
-  'libs/core/shell/src/lib/theme/theme-registry-global.ts';
+  'libs/core/shell/src/lib/theme/theme-tokens.ts';
 
 function shellTokens(): string[] {
   const file = join(process.cwd(), '..', '..', '..', TOKEN_LIST_FROM_WORKSPACE_ROOT);

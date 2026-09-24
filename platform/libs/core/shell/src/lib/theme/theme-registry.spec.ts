@@ -9,11 +9,11 @@ describe('ThemeRegistry', () => {
   });
 
   it('bumps version on register and on dispose', () => {
-    const before = registry.version();
+    const before = registry.revision();
     const handle = registry.register('testbed', { '--lw-brand': '#0e7490' });
-    expect(registry.version()).toBe(before + 1);
+    expect(registry.revision()).toBe(before + 1);
     handle.dispose();
-    expect(registry.version()).toBe(before + 2);
+    expect(registry.revision()).toBe(before + 2);
   });
 
   it('ignores unknown tokens (warns) without throwing', () => {

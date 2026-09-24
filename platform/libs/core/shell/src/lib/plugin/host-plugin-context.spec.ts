@@ -432,13 +432,13 @@ describe('HostPluginContext', () => {
 
     it('registers with the theme capability and bumps the registry version, reverting on disposeAll', () => {
       const { ctx, themes } = makeContext();
-      const before = themes.version();
+      const before = themes.revision();
 
       ctx.contributeTheme({ '--lw-brand': '#0e7490' });
-      expect(themes.version()).toBe(before + 1);
+      expect(themes.revision()).toBe(before + 1);
 
       ctx.disposeAll();
-      expect(themes.version()).toBe(before + 2);
+      expect(themes.revision()).toBe(before + 2);
     });
 
     it('passes dark-mode overrides through to the registry', () => {

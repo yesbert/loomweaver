@@ -1,9 +1,8 @@
 import {
   composeDarkTokens,
   composeTokens,
-  isKnownToken,
   ThemeRegistration,
-} from './theme-registry-global';
+} from './plugin-theme-layer';
 
 describe('composeTokens', () => {
   it('keeps only whitelisted --lw-* tokens', () => {
@@ -26,12 +25,6 @@ describe('composeTokens', () => {
     ]);
     expect(composed['--lw-brand']).toBe('#aaa');
     expect(composed['--lw-accent']).toBe('#ccc');
-  });
-
-  it('knows the canonical tokens and rejects unknown names', () => {
-    expect(isKnownToken('--lw-brand')).toBe(true);
-    expect(isKnownToken('--lw-font-sans')).toBe(true);
-    expect(isKnownToken('--lw-nope')).toBe(false);
   });
 });
 
