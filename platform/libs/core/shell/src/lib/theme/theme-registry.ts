@@ -3,13 +3,13 @@ import { Disposable } from '@loomweaver/plugin-sdk';
 import {
   ThemeRegistration,
   addThemeRegistration,
-  isKnownToken,
   removeThemeRegistration,
-} from './theme-registry-global';
+} from './plugin-theme-layer';
+import { isKnownToken } from './theme-tokens';
 
 @Service()
 export class ThemeRegistry {
-  readonly version = signal(0);
+  readonly revision = signal(0);
 
   register(
     pluginId: string,
@@ -50,7 +50,7 @@ export class ThemeRegistry {
   }
 
   private bump(): void {
-    this.version.update((value) => value + 1);
+    this.revision.update((value) => value + 1);
   }
 
   private warn(message: string): void {
