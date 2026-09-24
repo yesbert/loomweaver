@@ -1,6 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import { inject, isDevMode, Service } from '@angular/core';
 import { WORKING_STATE_STORE } from '../../../persistence/working-state-store';
+import { SETTINGS_STORE } from '../../../persistence/settings-store';
 import { hydrateAsync } from '../../../persistence/hydrate';
 import { isPopoutUrl } from '../../../popout/popout-path';
 import { ActiveWorkspaceService } from '../../../workspace/active-workspace.service';
@@ -79,6 +80,7 @@ function serializeDocks(docks: Record<string, DockEntry>): string {
 @Service()
 export class PaneTreeStorage {
   private readonly store = inject(WORKING_STATE_STORE);
+  private readonly settingsStore = inject(SETTINGS_STORE);
   private readonly workspace = inject(ActiveWorkspaceService);
 
   private readonly definitions = inject(WORKSPACE_DEFINITIONS, {
@@ -95,10 +97,7 @@ export class PaneTreeStorage {
     return this.settled(parseDocks(this.store.peek?.(this.key())));
   }
 
-  hydrate(
-    apply: (raw: string | undefined) => void,
-    settled: () => void,
-  ): void {
+  hydrate(apply: (raw: string | undefined) => void, settled: () => void): void {
     if (this.store.peek) {
       settled();
       return;
@@ -135,9 +134,7 @@ export class PaneTreeStorage {
     return relabelled;
   }
 
-  private settled(
-    docks: Record<string, DockEntry>,
-  ): Record<string, DockEntry> {
+  private settled(docks: Record<string, DockEntry>): Record<string, DockEntry> {
     const declared = this.definitions ?? [];
     const here = this.declaredHome();
     if (declared.every((definition) => definition.id !== here)) {
@@ -202,7 +199,9 @@ export class PaneTreeStorage {
 
   private declaredHome(): string {
     const active = this.workspace.id();
-    return originsIn(this.store.peek?.(WORKSPACES_KEY)).get(active) ?? active;
+    return (
+      originsIn(this.settingsStore.peek?.(WORKSPACES_KEY)).get(active) ?? active
+    );
   }
 
   private key(): string {

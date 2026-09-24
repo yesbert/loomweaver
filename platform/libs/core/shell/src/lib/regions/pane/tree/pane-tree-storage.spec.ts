@@ -5,11 +5,10 @@ import { PaneTreeService } from './pane-tree.service';
 import { PaneContainersService } from '../container/pane-containers.service';
 import { containerDockFor } from '../container/container-children';
 import { WORKING_STATE_STORE } from '../../../persistence/working-state-store';
-import {
-  ActiveWorkspaceService,
-} from '../../../workspace/active-workspace.service';
+import { ActiveWorkspaceService } from '../../../workspace/active-workspace.service';
 
 import { provideWorkspaces } from '../../../workspace/provide-workspaces';
+import { SETTINGS_STORE } from '../../../persistence/settings-store';
 
 const ACTIVE_KEY = 'lw.shell.active-workspace';
 
@@ -185,5 +184,56 @@ describe('PaneTreeService — a profile carrying a borrowed label', () => {
     TestBed.inject(PaneTreeService);
 
     expect(localStorage.getItem(STORED_KEY)).not.toContain('home.title');
+  });
+});
+
+describe('PaneTreeService — a saved variant of a declared workspace', () => {
+  it('finds its origin through the settings port, where the saved list is kept', () => {
+    localStorage.clear();
+    localStorage.setItem(ACTIVE_KEY, 'my-reports');
+    localStorage.setItem(
+      'lw.shell.pane-trees:my-reports',
+      JSON.stringify({
+        [CONTENT_DOCK]: {
+          tree: {
+            kind: 'leaf',
+            id: PRIMARY_PANE,
+            tabs: [{ path: 'reports', title: 'home.title', icon: 'home' }],
+            active: 'reports',
+          },
+          primary: PRIMARY_PANE,
+        },
+      }),
+    );
+    const settings = new Map([
+      [
+        'lw.shell.workspaces',
+        JSON.stringify([
+          { id: 'my-reports', name: 'My reports', origin: 'reports' },
+        ]),
+      ],
+    ]);
+    TestBed.configureTestingModule({
+      providers: [
+        provideWorkspaces({
+          id: 'reports',
+          title: 'Reports',
+          content: { tabs: [{ path: 'reports' }] },
+        }),
+        {
+          provide: SETTINGS_STORE,
+          useValue: {
+            peek: (key: string) => settings.get(key),
+            get: (key: string) => Promise.resolve(settings.get(key)),
+            set: () => Promise.resolve(),
+            delete: () => Promise.resolve(),
+          },
+        },
+      ],
+    });
+
+    const paneTree = TestBed.inject(PaneTreeService);
+
+    expect(paneTree.primaryTabs(CONTENT_DOCK)).toEqual([{ path: 'reports' }]);
   });
 });
