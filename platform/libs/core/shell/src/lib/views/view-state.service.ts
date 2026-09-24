@@ -42,17 +42,6 @@ export class ViewStateService {
     this.sync.onNamespaceAdopted(() => this.rereadEntries());
   }
 
-  async rereadEntries(): Promise<void> {
-    for (const [instanceId, entry] of this.entries) {
-      const raw = await readStoredValue(
-        this.store,
-        STORAGE_PREFIX + instanceId,
-      );
-      entry.cancelPendingSave();
-      entry.value.set(parseBlob(raw));
-    }
-  }
-
   clear(instanceId: string): void {
     this.entries.get(instanceId)?.cancelPendingSave();
     this.entries.delete(instanceId);
@@ -76,6 +65,17 @@ export class ViewStateService {
         entry.save();
       },
     };
+  }
+
+  private async rereadEntries(): Promise<void> {
+    for (const [instanceId, entry] of this.entries) {
+      const raw = await readStoredValue(
+        this.store,
+        STORAGE_PREFIX + instanceId,
+      );
+      entry.cancelPendingSave();
+      entry.value.set(parseBlob(raw));
+    }
   }
 
   private entryFor(instanceId: string): Entry {
