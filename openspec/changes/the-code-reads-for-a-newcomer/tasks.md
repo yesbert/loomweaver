@@ -194,8 +194,10 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   returns a decision instead of flipping a checkbox in the DOM.
 - [x] 6.6 The catalog is fetched and held once; the store title reaches the dialog as dialog data; the
   figures become pipes; one plugin icon component; store buttons use `lwButton` and `type="button"`.
-- [ ] 6.7 The registry: one surface-shaped entry point, the common surface fields picked once, one
+- [x] 6.7 The registry: one surface-shaped entry point, the common surface fields picked once, one
   omit filter, surface badges in their own small service, `idsOf`.
+  The surface-shaped entry point would be a new public method on the published registry, so it is
+  on the owner's list rather than done here.
 - [ ] 6.8 `HostPluginContext` gets its services through `inject()`; the `ui` facade and the surface
   admission rules move out; `host-plugin-context.spec.ts` (1255 lines) split the same way. `withBadge`
   becomes a name that says it also tracks the registration (from 6.3).
