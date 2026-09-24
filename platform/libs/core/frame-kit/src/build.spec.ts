@@ -2,6 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { declarationAsScript } from '../declaration-as-script.mjs';
 
 describe('frame-kit build', () => {
   const out = mkdtempSync(join(tmpdir(), 'lw-frame-kit-'));
@@ -80,5 +81,13 @@ describe('frame-kit build', () => {
 
     const js = readFileSync(join(out, 'lw-elements.global.js'), 'utf8');
     expect(js).toContain('surfaceMethods');
+  });
+
+  it('turns a declaration that only re-exports types into a script with no stray statement', () => {
+    const script = declarationAsScript(
+      'export interface LwFrameApi {\n  ready(): void;\n}\nexport {};\n',
+    );
+
+    expect(script).toBe('interface LwFrameApi {\n  ready(): void;\n}');
   });
 });

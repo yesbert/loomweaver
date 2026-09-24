@@ -5,6 +5,7 @@ import { build, transform } from 'esbuild';
 import ts from 'typescript';
 import postcss from 'postcss';
 import tailwindcss from '@tailwindcss/postcss';
+import { declarationAsScript } from './declaration-as-script.mjs';
 
 const here = (path) => fileURLToPath(new URL(path, import.meta.url));
 const outDir = process.env.LW_FRAME_KIT_OUT ?? here('./dist');
@@ -47,17 +48,7 @@ function emitGlobalScriptDeclaration(entry) {
   if (!declaration) {
     throw new Error('no declaration emitted for the frame entry');
   }
-  const asScript = declaration[1]
-    .replaceAll(/^export declare /gm, 'declare ')
-    .replaceAll(/^export /gm, '')
-    .replaceAll(/^export \{\};?\n?/gm, '')
-    .trim();
-  if (/^(import|export)\b/m.test(asScript)) {
-    throw new Error(
-      'the frame declaration reaches beyond its own shapes — it must stay self-contained',
-    );
-  }
-  return `${asScript}\n\ndeclare const LwFrame: LwFrameApi;\n`;
+  return `${declarationAsScript(declaration[1])}\n\ndeclare const LwFrame: LwFrameApi;\n`;
 }
 
 writeFileSync(
