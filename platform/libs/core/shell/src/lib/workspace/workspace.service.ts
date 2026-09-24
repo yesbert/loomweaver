@@ -1,5 +1,4 @@
-import { computed, inject, isDevMode, Service, signal } from '@angular/core';
-import { SETTINGS_STORE } from '../persistence/settings-store';
+import { computed, inject, isDevMode, Service } from '@angular/core';
 import { WORKING_STATE_STORE } from '../persistence/working-state-store';
 import { ContentTabState } from '../regions/content/tabs/content-tab-state';
 import { NavigationOptions } from '../regions/content/tabs/content-tab-projection';
@@ -24,7 +23,7 @@ import {
   workspaceExists,
 } from './baseline/workspace-lookup';
 import { HiddenViewsService } from '../regions/panel/hidden-views.service';
-import { hydrateAsync } from '../persistence/hydrate';
+import { persistedSetting } from '../persistence/persisted-setting';
 import { StateSyncService } from '../persistence/state-sync.service';
 import {
   ActiveWorkspaceService,
@@ -63,7 +62,6 @@ import {
 
 @Service()
 export class WorkspaceService {
-  private readonly store = inject(SETTINGS_STORE);
   private readonly workingState = inject(WORKING_STATE_STORE);
   private readonly active = inject(ActiveWorkspaceService);
   private readonly paneTree = inject(PaneTreeService);
@@ -93,13 +91,16 @@ export class WorkspaceService {
 
   private readonly defaultId = defaultWorkspaceId(this.definitions);
 
-  private readonly list = signal<Workspace[]>(
-    parseWorkspaces(this.store.peek?.(STORAGE_KEY)),
-  );
+  private readonly stored = persistedSetting<Workspace[]>(STORAGE_KEY, {
+    parse: parseWorkspaces,
+    serialize: (list) => JSON.stringify(list),
+  });
+
+  private readonly list = this.stored.value;
 
   private chosenAddress: string | null = null;
 
-  readonly workspaces = this.list.asReadonly();
+  readonly workspaces = this.list;
   readonly activeId = this.active.id;
 
   readonly initials = computed(() => assignWorkspaceInitials(this.list()));
@@ -127,10 +128,6 @@ export class WorkspaceService {
   readonly changedIds = this.unsaved.changedIds;
 
   constructor() {
-    const setList = (raw: string | undefined) =>
-      this.list.set(parseWorkspaces(raw));
-    hydrateAsync(this.store, STORAGE_KEY, setList);
-    this.sync.register('settings', STORAGE_KEY, setList);
     this.sync.onNamespaceAdopted(() => this.rereadForAdoptedNamespace());
     if (isDevMode()) {
       const all = this.definitionBatches.flat();
@@ -379,8 +376,7 @@ export class WorkspaceService {
   }
 
   private commit(next: Workspace[]): void {
-    this.list.set(next);
-    void this.store.set(STORAGE_KEY, JSON.stringify(next));
+    this.stored.set(next);
   }
 
   private chooseAddress(path: string, options: NavigationOptions = {}): void {
