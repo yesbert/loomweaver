@@ -42,7 +42,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   dock and pane separators, the primary prefix): builders, `pathOfRetentionKey`, `isKeyOfDock`, and
   `evacuateDock`/`evacuatePane` on the stash instead of hand-built prefixes. The ten builders and
   parsers in pane, retention, unsaved work, panel state and view visibility use it.
-- [ ] 2.5 One "wording may have changed" signal in `i18n/`, built with the menu's precise rule, read by
+- [x] 2.5 One "wording may have changed" signal in `i18n/`, built with the menu's precise rule, read by
   the menu, the command palette and the pop-out view instead of three constructions.
 - [ ] 2.6 Layout queries in `layout/layout.ts` (regions of a type, whether one exists, on how many
   sides, the one on a side, the one on the other side) replace about twenty inline filter chains;

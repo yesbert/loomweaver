@@ -1,6 +1,12 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { CommandService } from './command.service';
 import { fuzzyScore } from './palette-fuzzy';
 import { formatRelativeTime } from './relative-time';
@@ -10,6 +16,7 @@ import { DialogRef } from '../dialog/dialog-ref';
 import { ContentTabsService } from '../regions/content/tabs/content-tabs.service';
 import { MenuService, MENU_ANCHOR_GAP } from '../menu/menu.service';
 import { TAB_CONTEXT_MENU } from '../regions/content/tabs/tab-context-menu';
+import { Wording } from '../i18n/wording';
 
 export const PALETTE_COMMAND_ID = 'shell.commandPalette';
 export const QUICK_OPEN_COMMAND_ID = 'shell.quickOpen';
@@ -79,15 +86,9 @@ export class CommandPalette {
   private readonly mru = inject(PaletteMruService);
   private readonly contentTabs = inject(ContentTabsService);
   private readonly menu = inject(MenuService);
-  private readonly transloco = inject(TranslocoService);
   private readonly element = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly recentlyUsed = inject(FeatureSwitches).commands.recentlyUsed;
-  private readonly lang = toSignal(this.transloco.langChanges$, {
-    initialValue: this.transloco.getActiveLang(),
-  });
-  private readonly translations = toSignal(this.transloco.events$, {
-    initialValue: null,
-  });
+  private readonly wording = inject(Wording);
 
   protected readonly mode = signal<PaletteMode>(
     (this.ref.data as PaletteData | undefined)?.mode === 'tabs'
@@ -101,8 +102,6 @@ export class CommandPalette {
   private readonly rawIndex = signal(0);
 
   private readonly commandEntries = computed<readonly CommandEntry[]>(() => {
-    this.lang();
-    this.translations();
     return this.commands
       .commands()
       .filter(
@@ -114,21 +113,19 @@ export class CommandPalette {
       .map((command) => ({
         kind: 'command' as const,
         id: command.id,
-        label: this.transloco.translate(command.title),
+        label: this.wording.translate(command.title),
         icon: command.icon,
         shortcut: this.commands.shortcutOf(command),
       }));
   });
 
   private readonly tabEntries = computed<readonly TabEntry[]>(() => {
-    this.lang();
-    this.translations();
-    const locale = this.transloco.getActiveLang();
+    const locale = this.wording.activeLang();
     const now = Date.now();
     return this.contentTabs.quickOpenTargets().map((tab) => ({
       kind: 'tab' as const,
       id: tab.path,
-      label: tab.literalTitle ? tab.title : this.transloco.translate(tab.title),
+      label: tab.literalTitle ? tab.title : this.wording.translate(tab.title),
       icon: tab.icon,
       navPath: tab.navPath,
       pinned: tab.pinned,

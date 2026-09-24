@@ -8,7 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
-import { filter, merge, skip, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import {
   Command,
   MenuContext,
@@ -20,7 +20,7 @@ import { CommandService } from '../commands/command.service';
 import { drawMenuHeading, HEADING_KEY, wordMenuHeading } from './menu-heading';
 import { followed, MenuAnchor, place } from './menu-placement';
 import { MenuLabel, wordEntries } from './menu-wording';
-import { holdsStrings } from '../i18n/missing-translation-handler';
+import { wordingChanges } from '../i18n/wording';
 import {
   LW_MENU_DISMISS,
   LW_MENU_ITEM_TAG,
@@ -192,19 +192,7 @@ export class MenuService {
         document.addEventListener('pointerdown', onOutside, { capture: true }),
       0,
     );
-    const wording = merge(
-      this.transloco.langChanges$.pipe(
-        skip(1),
-        filter((lang) => holdsStrings(this.transloco, lang)),
-      ),
-      this.transloco.events$.pipe(
-        filter(
-          (event) =>
-            event.type === 'translationLoadSuccess' &&
-            event.payload.langName === this.transloco.getActiveLang(),
-        ),
-      ),
-    ).subscribe(() => {
+    const wording = wordingChanges(this.transloco).subscribe(() => {
       word();
       place(menu, placedAt);
       afterNextRender(
