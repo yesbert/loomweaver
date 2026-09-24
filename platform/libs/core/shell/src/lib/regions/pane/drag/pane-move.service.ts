@@ -22,14 +22,22 @@ export type PaneDropEdge = 'top' | 'bottom' | 'left' | 'right';
 
 export function stripSourceOf(listId: string): TabDragSource | null {
   const parts = listId.split(':');
-  if (parts[0] !== 'pane-strip' || parts.length < 3) {
+  if (parts[0] !== 'pane-strip' || parts.length !== 3) {
     return null;
   }
-  return { dock: parts[1], paneId: parts.slice(2).join(':') };
+  return { dock: unescapeColons(parts[1]), paneId: unescapeColons(parts[2]) };
 }
 
 export function stripIdOf(source: TabDragSource): string {
-  return `pane-strip:${source.dock}:${source.paneId}`;
+  return `pane-strip:${escapeColons(source.dock)}:${escapeColons(source.paneId)}`;
+}
+
+function escapeColons(part: string): string {
+  return part.replaceAll('%', '%25').replaceAll(':', '%3A');
+}
+
+function unescapeColons(part: string): string {
+  return part.replaceAll('%3A', ':').replaceAll('%25', '%');
 }
 
 function departedTab(targetDock: string, tab: PaneTab): PaneTab {

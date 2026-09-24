@@ -62,6 +62,12 @@ describe('PaneMoveService (move semantics)', () => {
     expect(stripSourceOf(stripIdOf(source))).toEqual(source);
   });
 
+  it('reads back a pane whose container address holds a colon', () => {
+    const source = { dock: 'container@files/a:b', paneId: 'container:0' };
+
+    expect(stripSourceOf(stripIdOf(source))).toEqual(source);
+  });
+
   it('splits a tab out of a pane that is not the address-carrying one, beside that pane', async () => {
     await harness.navigateByUrl('/dashboard/overview');
     paneTree.splitPane(CONTENT_DOCK, PRIMARY_PANE, 'row', 'doc/x');
@@ -280,10 +286,14 @@ describe('PaneMoveService (move semantics)', () => {
       ).id;
       await openPreview();
 
-      paneMove.moveToStrip({ dock: CONTENT_DOCK, paneId: PRIMARY_PANE }, 'doc/a', {
-        dock: CONTENT_DOCK,
-        paneId: other,
-      });
+      paneMove.moveToStrip(
+        { dock: CONTENT_DOCK, paneId: PRIMARY_PANE },
+        'doc/a',
+        {
+          dock: CONTENT_DOCK,
+          paneId: other,
+        },
+      );
       await harness.fixture.whenStable();
 
       expect(previewIn(other)).toBe(true);

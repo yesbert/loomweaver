@@ -48,7 +48,7 @@ they start with a top-level folder.
 - [x] 3.3 Closing the pane that fills the area, from its control, from code or by closing its last tab,
   ends the blow-up, and `PaneService.maximized()` reads nothing (`regions/pane/chrome/pane-chrome.service.ts`
   or the close path in `regions/pane/pane-actions.service.ts`).
-- [ ] 3.4 Strip drop ids survive a container address with a colon, for strip, edge and fill drops
+- [x] 3.4 Strip drop ids survive a container address with a colon, for strip, edge and fill drops
   (`regions/pane/drag/pane-move.service.ts`).
 - [ ] 3.5 A pane body keeps surface injectors only for addresses retention still holds; a test bounds
   the cache over many addresses (`regions/content/routing/surface-injector.ts`).
