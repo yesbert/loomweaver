@@ -2,7 +2,7 @@ import { computed, Service, signal, Signal, untracked, WritableSignal } from '@a
 import { Command, ContentRoute, Disposable, MenuItem, TabBadge } from '@loomweaver/plugin-sdk';
 import { BarItem } from '../foundation/bar-item';
 import { RailItem } from '../foundation/rail-item';
-import { View, ViewAction } from '../layout/view';
+import { View, ViewAction } from '../views/view';
 import { Identified, upsertBy, upsertById } from '../foundation/identified';
 import { isRouteOmitted } from './route-omit';
 import { tabBadgeOf } from '../regions/pane/chrome/tab-badge';

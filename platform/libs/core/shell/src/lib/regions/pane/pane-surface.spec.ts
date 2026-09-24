@@ -1,5 +1,4 @@
-import { ContentRoute } from '@loomweaver/plugin-sdk';
-import { View } from '../../layout/view';
+import { ContentRoute, View } from '@loomweaver/plugin-sdk';
 import { surfaceForPanePath } from './pane-surface';
 
 const home = { id: 'home', path: '', title: 'home.title' } as ContentRoute;

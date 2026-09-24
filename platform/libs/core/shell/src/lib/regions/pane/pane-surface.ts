@@ -1,5 +1,4 @@
-import { ContentRoute } from '@loomweaver/plugin-sdk';
-import { View } from '../../layout/view';
+import { ContentRoute, View } from '@loomweaver/plugin-sdk';
 import {
   ContainerChildDeclaration,
   childForSegmentPath,

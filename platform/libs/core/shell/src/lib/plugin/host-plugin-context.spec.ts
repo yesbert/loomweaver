@@ -1,4 +1,4 @@
-import { SurfaceRevealService } from '../views/surface-reveal.service';
+import { SurfaceRevealService } from '../regions/reveal/surface-reveal.service';
 import { PluginStateService } from './plugin-state.service';
 import { WritableSignal, effect, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';

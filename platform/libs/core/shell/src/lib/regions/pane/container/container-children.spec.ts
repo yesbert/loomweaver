@@ -1,5 +1,4 @@
-import { ContainerSpec } from '@loomweaver/plugin-sdk';
-import { View } from '../../../layout/view';
+import { ContainerSpec, View } from '@loomweaver/plugin-sdk';
 import {
   childForSegmentPath,
   containerChildIds,

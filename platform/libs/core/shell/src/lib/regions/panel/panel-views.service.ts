@@ -1,5 +1,5 @@
 import { inject, Service } from '@angular/core';
-import { View } from '../../layout/view';
+import { View } from '../../views/view';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { UserOrderService } from '../reorder/user-order.service';
 

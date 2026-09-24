@@ -32,7 +32,7 @@ import { defineLwIcon } from './elements/icon/lw-icon.element';
 import { BAR_ITEM, provideBarItems } from './foundation/bar-item';
 import { DEFAULT_BAR_ITEMS } from './regions/bar/default-bar-items';
 import { RAIL_ITEM } from './foundation/rail-item';
-import { VIEW } from './layout/view';
+import { VIEW } from './views/view';
 import { ContributionRegistry } from './plugin/contribution-registry';
 import { ShellErrorHandler } from './permissions/capability-refusal';
 import { COMMAND_INVOKER } from './foundation/command-invoker';

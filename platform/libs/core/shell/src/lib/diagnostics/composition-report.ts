@@ -2,7 +2,7 @@ import { inject, Service } from '@angular/core';
 import { MenuItem, SettingsSection } from '@loomweaver/plugin-sdk';
 import { BAR_ITEM } from '../foundation/bar-item';
 import { RAIL_ITEM } from '../foundation/rail-item';
-import { VIEW } from '../layout/view';
+import { VIEW } from '../views/view';
 import { Command } from '@loomweaver/plugin-sdk';
 import { chordSignature, isMacPlatform } from '../commands/keybinding';
 import { ContributionRegistry } from '../plugin/contribution-registry';

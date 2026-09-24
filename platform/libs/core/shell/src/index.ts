@@ -73,7 +73,7 @@ export * from './lib/theme/theme.service';
 export * from './lib/layout/layout';
 export * from './lib/foundation/bar-item';
 export * from './lib/foundation/rail-item';
-export * from './lib/layout/view';
+export * from './lib/views/view';
 export * from './lib/regions/content/routing/provide-content-router';
 export {
   provideUnauthorizedRedirect,

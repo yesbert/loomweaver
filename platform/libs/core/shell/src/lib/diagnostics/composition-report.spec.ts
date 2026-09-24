@@ -2,7 +2,7 @@ import { Component, EnvironmentProviders, Provider } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { SHELL_LAYOUT, ShellLayout } from '../layout/layout';
 import { provideBarItems } from '../foundation/bar-item';
-import { provideViews } from '../layout/view';
+import { provideViews } from '../views/view';
 import { ContributionRegistry } from '../plugin/contribution-registry';
 import { SettingsService } from '../settings/settings.service';
 import {

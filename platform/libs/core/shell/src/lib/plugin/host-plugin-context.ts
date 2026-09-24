@@ -40,7 +40,7 @@ import { VersionService } from '../version/version.service';
 import { UpdateService } from '../update/update.service';
 import { IconRegistry } from '../elements/icon/icon-registry';
 import { ThemeRegistry } from '../theme/theme-registry';
-import { SurfaceRevealService } from '../views/surface-reveal.service';
+import { SurfaceRevealService } from '../regions/reveal/surface-reveal.service';
 import { PluginStateService } from './plugin-state.service';
 import { CommandInvoker } from '../foundation/command-invoker';
 import {

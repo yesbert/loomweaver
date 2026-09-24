@@ -1,10 +1,10 @@
 import { inject, Service } from '@angular/core';
-import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../regions/pane/tree/pane-address';
-import { findLeafWithTab } from '../regions/pane/tree/pane-queries';
-import { CONTAINER_DOCK_PREFIX } from '../regions/pane/container/container-children';
-import { PaneTreeService } from '../regions/pane/tree/pane-tree.service';
-import { ContentTabsService } from '../regions/content/tabs/content-tabs.service';
-import { PanelState } from '../regions/panel/panel-state';
+import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../pane/tree/pane-address';
+import { findLeafWithTab } from '../pane/tree/pane-queries';
+import { CONTAINER_DOCK_PREFIX } from '../pane/container/container-children';
+import { PaneTreeService } from '../pane/tree/pane-tree.service';
+import { ContentTabsService } from '../content/tabs/content-tabs.service';
+import { PanelState } from '../panel/panel-state';
 
 @Service()
 export class SurfaceRevealService {
