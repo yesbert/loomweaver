@@ -16,7 +16,7 @@ function generalRows(...regions: ShellLayout['regions']): readonly SettingRow[] 
     providers: [provideLayout({ regions: [bar, ...regions] })],
   });
   const settings = TestBed.inject(SettingsService);
-  TestBed.runInInjectionContext(() => registerDefaultSettings(settings));
+  TestBed.runInInjectionContext(() => registerDefaultSettings());
   return (
     settings.all().find((section) => section.id === 'shell.general')?.rows ?? []
   );

@@ -2,6 +2,7 @@ export * from './lib/shell';
 export { ViewportService } from './lib/layout/viewport.service';
 export type { PaddingDefault } from './lib/foundation/surface-padding';
 export * from './lib/provide-shell';
+export * from './lib/shell-options';
 export * from './lib/foundation/shell-features';
 export * from './lib/features/feature-switches.service';
 export * from './lib/foundation/unusable-workspaces';
