@@ -1,5 +1,14 @@
 import { DOCUMENT, NgComponentOutlet } from '@angular/common';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, DestroyRef, ElementRef, afterRenderEffect, effect, inject, viewChildren } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  DestroyRef,
+  ElementRef,
+  afterRenderEffect,
+  effect,
+  inject,
+  viewChildren,
+} from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LwButton } from '../elements/button/lw-button';
 import { LwSpinner } from '../elements/spinner/lw-spinner';
@@ -11,6 +20,10 @@ import {
   DialogSize,
   DialogTone,
 } from './dialog.service';
+import {
+  FEEDBACK_COLORS,
+  FeedbackColors,
+} from '../notifications/feedback-colors';
 
 const PANEL_WIDTH: Record<DialogSize, string> = {
   md: 'max-w-md',
@@ -20,12 +33,16 @@ const PANEL_WIDTH: Record<DialogSize, string> = {
 
 const MAXIMIZED_PANEL = 'h-[94vh] w-[96vw] max-w-none';
 
+function circle(colors: FeedbackColors): string {
+  return `${colors.tint} ${colors.text}`;
+}
+
 const TONE_CIRCLE: Record<DialogTone, string> = {
   default: 'bg-brand/10 text-brand',
-  info: 'bg-info/10 text-info',
-  success: 'bg-positive/10 text-positive',
-  warning: 'bg-caution/10 text-caution',
-  danger: 'bg-negative/10 text-negative',
+  info: circle(FEEDBACK_COLORS.info),
+  success: circle(FEEDBACK_COLORS.success),
+  warning: circle(FEEDBACK_COLORS.warning),
+  danger: circle(FEEDBACK_COLORS.negative),
 };
 
 /**

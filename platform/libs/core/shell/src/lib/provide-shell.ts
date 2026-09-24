@@ -18,6 +18,7 @@ import {
 } from '@jsverse/transloco';
 import {
   detectInitialLang,
+  FALLBACK_LANGUAGE,
   resolveServedLanguages,
   SERVED_LANGUAGES,
 } from './i18n/served-languages';
@@ -294,7 +295,7 @@ export function provideShell(
       config: {
         availableLangs: [...served],
         defaultLang: detectInitialLang(served),
-        fallbackLang: 'en',
+        fallbackLang: FALLBACK_LANGUAGE,
         reRenderOnLangChange: true,
         prodMode: !isDevMode(),
       },
