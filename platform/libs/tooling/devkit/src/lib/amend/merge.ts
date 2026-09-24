@@ -136,6 +136,7 @@ export function ensureBuildTarget(
       next['configurations'],
       amendment,
       projectRoot,
+      options,
     );
     next['configurations'] = production.value;
     added.push(...production.added);
@@ -157,13 +158,18 @@ function ensureProductionConfiguration(
   value: unknown,
   amendment: BuildTargetAmendment,
   projectRoot: string,
+  options: JsonObject,
 ): MergeResult {
   const configurations = { ...asObject(value) };
   const production = { ...asObject(configurations['production']) };
   const added: string[] = [];
   const declined: string[] = [];
 
-  if (amendment.serviceWorker && production['serviceWorker'] === undefined) {
+  if (
+    amendment.serviceWorker &&
+    production['serviceWorker'] === undefined &&
+    options['serviceWorker'] === undefined
+  ) {
     production['serviceWorker'] = joinProjectPath(
       projectRoot,
       amendment.serviceWorker,
@@ -332,7 +338,7 @@ function inputOf(entry: unknown): string | undefined {
   return typeof asset?.['input'] === 'string' ? asset['input'] : undefined;
 }
 
-function asObject(value: unknown): JsonObject | undefined {
+export function asObject(value: unknown): JsonObject | undefined {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
     ? (value as JsonObject)
     : undefined;

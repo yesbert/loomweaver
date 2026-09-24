@@ -462,11 +462,14 @@ nx g @loomweaver/devkit:distribution --name acme-studio --directory apps/acme-st
 ```
 
 That replaces the bootstrap files this scaffold owns, and it merges the scaffold's build targets
-into the project. The wiring the shell needs lands this way: the i18n and frame-kit assets, the
-stylesheet, the service worker, and `inlineCritical: false`. What the application already declares
-is not discarded: its own targets, its `implicitDependencies` and its tags survive. The generator
-refuses to rename a project. If the occupant is called something else, pass that name instead,
-because renaming would break every reference to it.
+into the project value by value. The wiring the shell needs lands this way: the i18n and frame-kit
+assets, the stylesheet, the service worker, `inlineCritical: false` and an initial budget the
+workbench fits. Every value the application already set stays as it set it: its build options and
+configurations, its own targets, its `implicitDependencies` and its tags. An initial budget below
+what the workbench needs is raised. Where one of its values leaves no room for a setting the shell
+needs, such as `optimization: true` beside `inlineCritical`, the generator says so and leaves it.
+The generator refuses to rename a project. If the occupant is called something else, pass that
+name instead, because renaming would break every reference to it.
 
 It reads your workspace rather than assuming its shape:
 
