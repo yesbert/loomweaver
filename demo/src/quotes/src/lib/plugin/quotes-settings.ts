@@ -5,7 +5,19 @@ const STORAGE_KEY = 'demo.quotes.show-margin';
 const MARGIN = 'quotes.margin';
 
 function storedChoice(): boolean {
-  return globalThis.localStorage?.getItem(STORAGE_KEY) !== 'false';
+  try {
+    return localStorage.getItem(STORAGE_KEY) !== 'false';
+  } catch {
+    return true;
+  }
+}
+
+function rememberBestEffort(shown: boolean): void {
+  try {
+    localStorage.setItem(STORAGE_KEY, String(shown));
+  } catch {
+    return;
+  }
 }
 
 export function registerQuoteSettings(ctx: PluginContext): void {
@@ -25,7 +37,7 @@ export function registerQuoteSettings(ctx: PluginContext): void {
           value: () => marginShown(),
           set: (shown) => {
             marginShown.set(shown);
-            globalThis.localStorage?.setItem(STORAGE_KEY, String(shown));
+            rememberBestEffort(shown);
             ctx.setChildShown(MARGIN, shown);
           },
         },
