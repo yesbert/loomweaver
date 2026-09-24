@@ -1,16 +1,17 @@
-import { ApplicationRef, WritableSignal, signal } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
+import {
+  ApplicationRef,
+  Provider,
+  WritableSignal,
+  signal,
+} from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { ANONYMOUS, AuthSnapshot } from '@loomweaver/plugin-sdk';
 import { ShellRail } from './shell-rail';
 import { LayoutRegion, provideLayout } from '../../layout/layout';
 import { ContributionRegistry } from '../../plugin/contribution-registry';
 import { AUTH_SOURCE } from '../../auth/auth-context';
-import { ActiveWorkspaceService } from '../../workspace/active-workspace.service';
-import { WorkspaceService } from '../../workspace/workspace.service';
 import { RailItem } from '../../foundation/rail-item';
-import { RailItemsService, workspaceRailItemId } from './rail-items.service';
-import { provideShellFeatures } from '../../foundation/shell-features';
 import { RailLabelsService } from './rail-labels.service';
 import { RAIL_ITEM_CONTEXT_MENU } from './rail-context-menu';
 import { LW_TOOLTIP_TAG } from '../../elements/tooltip/lw-tooltip.element';
@@ -39,29 +40,39 @@ function transloco() {
   });
 }
 
-function setup(auth: WritableSignal<AuthSnapshot>, ...items: RailItem[]) {
+interface RailSetup {
+  readonly auth?: WritableSignal<AuthSnapshot>;
+  readonly region?: LayoutRegion;
+  readonly providers?: Provider[];
+  readonly arrange?: (registry: ContributionRegistry) => void;
+}
+
+function renderRail(
+  items: readonly RailItem[],
+  setup: RailSetup = {},
+): ComponentFixture<ShellRail> {
   TestBed.configureTestingModule({
     imports: [ShellRail, transloco()],
-    providers: [{ provide: AUTH_SOURCE, useValue: auth }],
+    providers: [
+      { provide: AUTH_SOURCE, useValue: setup.auth ?? signal(ANONYMOUS) },
+      ...(setup.providers ?? []),
+    ],
   });
   const registry = TestBed.inject(ContributionRegistry);
+  setup.arrange?.(registry);
   for (const item of items) {
     registry.addRailItem(item);
   }
   const fixture = TestBed.createComponent(ShellRail);
-  fixture.componentRef.setInput('region', railRegion);
+  fixture.componentRef.setInput('region', setup.region ?? railRegion);
   fixture.detectChanges();
   return fixture;
 }
 
-function buttonsOf(fixture: ReturnType<typeof setup>) {
+function buttonsOf(fixture: ComponentFixture<ShellRail>) {
   return fixture.nativeElement.querySelectorAll(
     'button',
   ) as NodeListOf<HTMLButtonElement>;
-}
-
-function render(...items: RailItem[]) {
-  return buttonsOf(setup(signal(ANONYMOUS), ...items));
 }
 
 describe('ShellRail', () => {
@@ -71,13 +82,17 @@ describe('ShellRail', () => {
 
   it('renders rail command items and runs them on click', () => {
     let ran = 0;
-    const buttons = render({
-      id: 'r',
-      rail: 'activity',
-      icon: 'reset',
-      title: 'cmd.reset',
-      run: () => (ran += 1),
-    });
+    const buttons = buttonsOf(
+      renderRail([
+        {
+          id: 'r',
+          rail: 'activity',
+          icon: 'reset',
+          title: 'cmd.reset',
+          run: () => (ran += 1),
+        },
+      ]),
+    );
 
     expect(buttons.length).toBe(1);
     buttons[0].click();
@@ -85,13 +100,17 @@ describe('ShellRail', () => {
   });
 
   it('shows only items targeting this rail', () => {
-    const buttons = render({
-      id: 'other',
-      rail: 'other-rail',
-      icon: 'reset',
-      title: 'cmd.reset',
-      run: () => undefined,
-    });
+    const buttons = buttonsOf(
+      renderRail([
+        {
+          id: 'other',
+          rail: 'other-rail',
+          icon: 'reset',
+          title: 'cmd.reset',
+          run: () => undefined,
+        },
+      ]),
+    );
 
     expect(buttons.length).toBe(0);
   });
@@ -107,7 +126,7 @@ describe('ShellRail', () => {
     });
 
     function bandsOf(...items: RailItem[]) {
-      const fixture = setup(signal(ANONYMOUS), ...items);
+      const fixture = renderRail(items);
       const root = fixture.nativeElement as HTMLElement;
       return {
         scroll: root.querySelector<HTMLElement>('[data-testid="rail-scroll"]'),
@@ -146,7 +165,7 @@ describe('ShellRail', () => {
     });
 
     it('brings a focused entry into view', () => {
-      const fixture = setup(signal(ANONYMOUS), banded('files'));
+      const fixture = renderRail([banded('files')]);
       const button = fixture.nativeElement.querySelector(
         'button',
       ) as HTMLButtonElement;
@@ -169,18 +188,10 @@ describe('ShellRail', () => {
     });
 
     function labelledSetup(...items: RailItem[]) {
-      TestBed.configureTestingModule({
-        imports: [ShellRail, transloco()],
-        providers: [{ provide: AUTH_SOURCE, useValue: signal(ANONYMOUS) }],
+      const fixture = renderRail(items, {
+        arrange: () =>
+          TestBed.inject(RailLabelsService).setLabelled('activity', true),
       });
-      TestBed.inject(RailLabelsService).setLabelled('activity', true);
-      const registry = TestBed.inject(ContributionRegistry);
-      for (const item of items) {
-        registry.addRailItem(item);
-      }
-      const fixture = TestBed.createComponent(ShellRail);
-      fixture.componentRef.setInput('region', railRegion);
-      fixture.detectChanges();
       TestBed.inject(ApplicationRef).tick();
       return fixture;
     }
@@ -198,7 +209,7 @@ describe('ShellRail', () => {
     });
 
     it('draws no name while the rail is switched off', () => {
-      const fixture = setup(signal(ANONYMOUS), entry('r', 'cmd.reset'));
+      const fixture = renderRail([entry('r', 'cmd.reset')]);
 
       expect(labelsOf(fixture)).toEqual([]);
     });
@@ -241,16 +252,12 @@ describe('ShellRail', () => {
       ...declared: LayoutRegion[]
     ): string | null {
       TestBed.resetTestingModule();
-      TestBed.configureTestingModule({
-        imports: [ShellRail, transloco()],
+      const fixture = renderRail([], {
+        region,
         providers: [
-          { provide: AUTH_SOURCE, useValue: signal(ANONYMOUS) },
           provideLayout({ regions: declared.length ? declared : [region] }),
         ],
       });
-      const fixture = TestBed.createComponent(ShellRail);
-      fixture.componentRef.setInput('region', region);
-      fixture.detectChanges();
       const nav = fixture.nativeElement.querySelector('nav') as HTMLElement;
       return nav.getAttribute('aria-label');
     }
@@ -287,7 +294,9 @@ describe('ShellRail', () => {
 
     it('hides an item whose requirement is unmet (default hide mode)', () => {
       const auth = signal<AuthSnapshot>(ANONYMOUS);
-      const fixture = setup(auth, gated('admin', { anyRole: ['admin'] }));
+      const fixture = renderRail([gated('admin', { anyRole: ['admin'] })], {
+        auth,
+      });
       expect(buttonsOf(fixture).length).toBe(0);
 
       auth.set(asAdmin);
@@ -302,7 +311,7 @@ describe('ShellRail', () => {
         ...gated('members', { authenticated: true, mode: 'disable' }),
         run: () => (ran += 1),
       };
-      const fixture = setup(auth, item);
+      const fixture = renderRail([item], { auth });
       const [button] = buttonsOf(fixture);
 
       expect(button.disabled).toBe(true);
@@ -317,212 +326,6 @@ describe('ShellRail', () => {
     });
   });
 
-  describe('workspace entries', () => {
-    const switched: string[] = [];
-    let activeId: WritableSignal<string>;
-
-    beforeEach(() => {
-      origins = {};
-      savedInRail = true;
-    });
-
-    let origins: Record<string, string>;
-    let savedInRail: boolean;
-
-    function setupWorkspaces(active: string, ...items: RailItem[]) {
-      localStorage.clear();
-      switched.length = 0;
-      activeId = signal(active);
-      TestBed.configureTestingModule({
-        imports: [ShellRail, transloco()],
-        providers: [
-          { provide: AUTH_SOURCE, useValue: signal(ANONYMOUS) },
-          provideShellFeatures({ workspaces: { savedInRail } }),
-          {
-            provide: ActiveWorkspaceService,
-            useValue: { id: activeId.asReadonly() },
-          },
-          {
-            provide: WorkspaceService,
-            useValue: {
-              switchTo: (id: string) => {
-                switched.push(id);
-                return Promise.resolve();
-              },
-              originOf: (id: string) => origins[id] ?? null,
-            },
-          },
-        ],
-      });
-      const registry = TestBed.inject(ContributionRegistry);
-      for (const item of items) {
-        registry.addRailItem(item);
-      }
-      const fixture = TestBed.createComponent(ShellRail);
-      fixture.componentRef.setInput('region', railRegion);
-      fixture.detectChanges();
-      return fixture;
-    }
-
-    const entry = (id: string, workspace: string): RailItem => ({
-      id,
-      rail: 'activity',
-      icon: 'reset',
-      title: 'cmd.reset',
-      workspace,
-    });
-
-    it('marks the entry of the active workspace and no other', () => {
-      const fixture = setupWorkspaces(
-        'beta',
-        entry('a', 'alpha'),
-        entry('b', 'beta'),
-      );
-      const [alpha, beta] = buttonsOf(fixture);
-
-      expect(alpha.getAttribute('aria-current')).toBeNull();
-      expect(beta.getAttribute('aria-current')).toBe('true');
-    });
-
-    it('moves the marking when the active workspace changes', () => {
-      const fixture = setupWorkspaces(
-        'alpha',
-        entry('a', 'alpha'),
-        entry('b', 'beta'),
-      );
-
-      activeId.set('beta');
-      fixture.detectChanges();
-      const [alpha, beta] = buttonsOf(fixture);
-
-      expect(alpha.getAttribute('aria-current')).toBeNull();
-      expect(beta.getAttribute('aria-current')).toBe('true');
-    });
-
-    it('leaves an ordinary item unmarked whichever workspace is active', () => {
-      const fixture = setupWorkspaces('alpha', {
-        id: 'plain',
-        rail: 'activity',
-        icon: 'reset',
-        title: 'cmd.reset',
-        run: () => undefined,
-      });
-
-      expect(buttonsOf(fixture)[0].getAttribute('aria-current')).toBeNull();
-    });
-
-    it('drops an entry the user hid from this rail and keeps it out after a rebuild', () => {
-      const fixture = setupWorkspaces(
-        'alpha',
-        entry('a', 'alpha'),
-        entry('b', 'beta'),
-      );
-      expect(buttonsOf(fixture)).toHaveLength(2);
-
-      TestBed.inject(RailItemsService).hide('b');
-      fixture.detectChanges();
-
-      expect(buttonsOf(fixture)).toHaveLength(1);
-      expect(buttonsOf(fixture)[0].getAttribute('aria-current')).toBe('true');
-    });
-
-    it('takes an item out of this rail once it is placed in another one', () => {
-      const fixture = setupWorkspaces('alpha', entry('a', 'alpha'));
-      TestBed.inject(RailItemsService).place('a', 'activity-right');
-      fixture.detectChanges();
-
-      expect(buttonsOf(fixture)).toHaveLength(0);
-    });
-
-    it('switches on click, ignoring a command the item also names', () => {
-      let ran = 0;
-      const fixture = setupWorkspaces('alpha', {
-        ...entry('b', 'beta'),
-        run: () => (ran += 1),
-      });
-
-      buttonsOf(fixture)[0].click();
-
-      expect(switched).toEqual(['beta']);
-      expect(ran).toBe(0);
-    });
-
-    describe('while a saved workspace is active', () => {
-      beforeEach(() => {
-        origins = { alpha: 'alpha', beta: 'beta', mine: 'alpha' };
-      });
-
-      function placeOwnEntry(rail: string): void {
-        TestBed.inject(RailItemsService).place(
-          workspaceRailItemId('mine'),
-          rail,
-        );
-      }
-
-      it('marks the origin of one the user never placed, and leaves the entry as it is', () => {
-        const fixture = setupWorkspaces(
-          'mine',
-          entry('a', 'alpha'),
-          entry('b', 'beta'),
-        );
-        const [alpha, beta] = buttonsOf(fixture);
-
-        expect(alpha.getAttribute('aria-current')).toBe('true');
-        expect(beta.getAttribute('aria-current')).toBeNull();
-        expect(alpha.getAttribute('aria-label')).toBe('Reset');
-        const icon = alpha.querySelector('lw-icon') as { name?: string } | null;
-        expect(icon?.name).toBe('reset');
-      });
-
-      it('leaves the origin unmarked once the user placed the workspace itself', () => {
-        const fixture = setupWorkspaces('mine', entry('a', 'alpha'));
-        placeOwnEntry('activity');
-        fixture.detectChanges();
-
-        expect(buttonsOf(fixture)[0].getAttribute('aria-current')).toBeNull();
-      });
-
-      it('leaves the origin unmarked when the workspace itself is placed in the other rail', () => {
-        const fixture = setupWorkspaces('mine', entry('a', 'alpha'));
-        placeOwnEntry('activity-right');
-        fixture.detectChanges();
-
-        expect(buttonsOf(fixture)[0].getAttribute('aria-current')).toBeNull();
-      });
-
-      it('marks the origin while the product keeps saved workspaces out of the rail, placed or not', () => {
-        savedInRail = false;
-        const fixture = setupWorkspaces('mine', entry('a', 'alpha'));
-        expect(buttonsOf(fixture)[0].getAttribute('aria-current')).toBe('true');
-
-        placeOwnEntry('activity');
-        fixture.detectChanges();
-
-        expect(buttonsOf(fixture)[0].getAttribute('aria-current')).toBe('true');
-      });
-
-      it('marks nothing for one without an origin', () => {
-        origins = { alpha: 'alpha', beta: 'beta' };
-        const fixture = setupWorkspaces(
-          'mine',
-          entry('a', 'alpha'),
-          entry('b', 'beta'),
-        );
-
-        for (const button of buttonsOf(fixture)) {
-          expect(button.getAttribute('aria-current')).toBeNull();
-        }
-      });
-
-      it('switches to the origin when the marked entry is chosen', () => {
-        const fixture = setupWorkspaces('mine', entry('a', 'alpha'));
-
-        buttonsOf(fixture)[0].click();
-
-        expect(switched).toEqual(['alpha']);
-      });
-    });
-  });
   describe('an entry drawn as a picture', () => {
     const withPicture = (overrides: Partial<RailItem> = {}): RailItem => ({
       id: 'account',
@@ -536,30 +339,29 @@ describe('ShellRail', () => {
     });
 
     function picture(
-      fixture: ReturnType<typeof setup>,
+      fixture: ComponentFixture<ShellRail>,
     ): HTMLImageElement | null {
       return fixture.nativeElement.querySelector(
         '[data-testid="rail-picture"]',
       );
     }
 
-    function initials(fixture: ReturnType<typeof setup>): HTMLElement | null {
+    function initials(
+      fixture: ComponentFixture<ShellRail>,
+    ): HTMLElement | null {
       return fixture.nativeElement.querySelector(
         '[data-testid="rail-initials"]',
       );
     }
 
     it('gives the mark the shape the picture takes', () => {
-      const fixture = setup(
-        signal(ANONYMOUS),
-        withPicture({ image: undefined }),
-      );
+      const fixture = renderRail([withPicture({ image: undefined })]);
 
       expect(initials(fixture)?.className).toContain('lw-chrome-mark');
     });
 
     it('draws the picture in place of the mark and the icon', () => {
-      const fixture = setup(signal(ANONYMOUS), withPicture());
+      const fixture = renderRail([withPicture()]);
 
       expect(picture(fixture)?.getAttribute('src')).toBe(
         'https://example.test/ada.png',
@@ -570,7 +372,7 @@ describe('ShellRail', () => {
     });
 
     it('gives way to the mark when the picture cannot be shown', () => {
-      const fixture = setup(signal(ANONYMOUS), withPicture());
+      const fixture = renderRail([withPicture()]);
 
       picture(fixture)?.dispatchEvent(new Event('error'));
       fixture.detectChanges();
@@ -580,10 +382,7 @@ describe('ShellRail', () => {
     });
 
     it('gives way to the icon where the entry has no mark', () => {
-      const fixture = setup(
-        signal(ANONYMOUS),
-        withPicture({ initials: undefined }),
-      );
+      const fixture = renderRail([withPicture({ initials: undefined })]);
 
       picture(fixture)?.dispatchEvent(new Event('error'));
       fixture.detectChanges();
@@ -596,7 +395,7 @@ describe('ShellRail', () => {
     });
 
     it('keeps the entry announced by its title alone', () => {
-      const fixture = setup(signal(ANONYMOUS), withPicture());
+      const fixture = renderRail([withPicture()]);
 
       expect(buttonsOf(fixture)[0].getAttribute('aria-label')).toBe('Reset');
       expect(picture(fixture)?.getAttribute('aria-hidden')).toBe('true');
@@ -618,28 +417,25 @@ describe('ShellRail', () => {
     afterEach(() => document.body.querySelector(LW_MENU_TAG)?.remove());
 
     function setupMenu(item: RailItem) {
-      TestBed.configureTestingModule({
-        imports: [ShellRail, transloco()],
-        providers: [{ provide: AUTH_SOURCE, useValue: signal(ANONYMOUS) }],
+      return renderRail([item], {
+        arrange: (registry) => {
+          registry.addCommand({
+            id: 'c.signOut',
+            title: 'cmd.reset',
+            run: () => undefined,
+          });
+          registry.addCommand({
+            id: 'c.hide',
+            title: 'cmd.reset',
+            run: () => undefined,
+          });
+          registry.addMenuItem({ menu: 'acme/account', command: 'c.signOut' });
+          registry.addMenuItem({
+            menu: RAIL_ITEM_CONTEXT_MENU,
+            command: 'c.hide',
+          });
+        },
       });
-      const registry = TestBed.inject(ContributionRegistry);
-      registry.addCommand({
-        id: 'c.signOut',
-        title: 'cmd.reset',
-        run: () => undefined,
-      });
-      registry.addCommand({
-        id: 'c.hide',
-        title: 'cmd.reset',
-        run: () => undefined,
-      });
-      registry.addMenuItem({ menu: 'acme/account', command: 'c.signOut' });
-      registry.addMenuItem({ menu: RAIL_ITEM_CONTEXT_MENU, command: 'c.hide' });
-      registry.addRailItem(item);
-      const fixture = TestBed.createComponent(ShellRail);
-      fixture.componentRef.setInput('region', railRegion);
-      fixture.detectChanges();
-      return fixture;
     }
 
     function offered(): string[] {

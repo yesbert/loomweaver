@@ -88,7 +88,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   service went to `regions/reveal/` instead: it expands a sidebar, and in `regions/pane/` that would
   have made the pane and panel slices import each other. In its own folder it resolves two slice
   pairs, and the pane files take `View` from the SDK rather than from `views/`.
-- [ ] 3.8 `ShellRail`: the entry list as a pure function, workspace marking in
+- [x] 3.8 `ShellRail`: the entry list as a pure function, workspace marking in
   `RailWorkspaceEntries`, label fitting as a directive, booleans named `is…`; `shell-rail.spec.ts`
   (728 lines) with one render helper and the workspace block in its own spec.
 - [ ] 3.9 `UpdateService`: worker repair and the notices in their own files, the check deadline as a

@@ -1,6 +1,6 @@
 <nav
   class="flex h-full shrink-0 flex-col items-center gap-1 bg-surface py-2"
-  [class]="labelled() ? 'w-18' : 'w-10'"
+  [class]="isLabelled() ? 'w-18' : 'w-10'"
   [attr.aria-label]="labelKey() | transloco"
   cdkDropList
   cdkDropListOrientation="vertical"
@@ -21,17 +21,17 @@
     data-testid="rail-scroll"
     class="flex min-h-0 w-full flex-1 flex-col items-center gap-1 overflow-x-hidden overflow-y-auto"
   >
-    @for (item of topItems(); track item.id) {
+    @for (item of entries().top; track item.id) {
       <ng-container [ngTemplateOutlet]="entry" [ngTemplateOutletContext]="{ $implicit: item }" />
     }
   </div>
 
-  @if (bottomItems().length > 0) {
+  @if (entries().bottom.length > 0) {
     <div
       data-testid="rail-anchored"
       class="flex w-full shrink-0 flex-col items-center gap-1"
     >
-      @for (item of bottomItems(); track item.id) {
+      @for (item of entries().bottom; track item.id) {
         <ng-container [ngTemplateOutlet]="entry" [ngTemplateOutletContext]="{ $implicit: item }" />
       }
     </div>
@@ -43,7 +43,7 @@
       cdkDrag
       [cdkDragData]="item.id"
       [cdkDragDisabled]="!draggable()"
-      [disabled]="disabled(item)"
+      [disabled]="isDisabled(item)"
       (click)="run(item)"
       (keydown)="onKeydown($event)"
       (focus)="onFocus($event)"
@@ -53,16 +53,16 @@
       [lwMenuSide]="menuSide()"
       [lwMenuContext]="{ targetKind: 'rail-item', id: item.id, region: region().id }"
       [attr.aria-label]="item.title | transloco"
-      [attr.aria-current]="current(item) ? 'true' : null"
+      [attr.aria-current]="isCurrent(item) ? 'true' : null"
       [attr.data-rail-item]="item.id"
       [attr.data-reorder-id]="reorderable() ? item.id : null"
       [attr.data-reorder-band]="item.anchor ?? 'top'"
-      [class.text-content]="current(item)"
-      [class.bg-surface-overlay]="current(item)"
-      [class]="labelled() ? 'w-16 flex-col gap-1 px-1 py-1.5' : 'h-9 w-9'"
+      [class.text-content]="isCurrent(item)"
+      [class.bg-surface-overlay]="isCurrent(item)"
+      [class]="isLabelled() ? 'w-16 flex-col gap-1 px-1 py-1.5' : 'h-9 w-9'"
       class="relative flex shrink-0 items-center justify-center rounded-lg text-content-faint transition-colors hover:bg-surface-overlay hover:text-content disabled:pointer-events-none disabled:opacity-40"
     >
-      @if (current(item)) {
+      @if (isCurrent(item)) {
         <span
           aria-hidden="true"
           class="absolute inset-y-1 w-0.5 rounded-full bg-brand"
@@ -87,19 +87,18 @@
           >{{ item.initials }}</span
         >
       } @else {
-        <lw-icon [name]="item.icon" [attr.size]="labelled() ? '1.25rem' : '1rem'" />
+        <lw-icon [name]="item.icon" [attr.size]="isLabelled() ? '1.25rem' : '1rem'" />
       }
-      @if (labelled()) {
+      @if (isLabelled()) {
         <span
-          #railLabel
           data-testid="rail-label"
           [attr.data-rail-label]="item.id"
           class="line-clamp-2 w-full text-center text-[0.625rem] leading-tight break-words"
           >{{ item.title | transloco }}</span
         >
       }
-      @if (!labelled() || shortened(item.id)) {
-        <lw-tooltip [text]="item.title | transloco" [position]="region().dock === 'right' ? 'left' : 'right'" />
+      @if (!isLabelled() || labelFit.isShortened(item.id)) {
+        <lw-tooltip [text]="item.title | transloco" [position]="menuSide()" />
       }
     </button>
   </ng-template>
