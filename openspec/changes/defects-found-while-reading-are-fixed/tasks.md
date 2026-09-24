@@ -4,7 +4,7 @@ they start with a top-level folder.
 
 ## 1. Menus, commands and plugins
 
-- [ ] 1.1 A list menu marks its entry in effect and keeps every icon: the list builder reserves the
+- [x] 1.1 A list menu marks its entry in effect and keeps every icon: the list builder reserves the
   check column like the command menu does and no longer drops the icon of an active or checked entry
   (`menu/menu.service.ts`); tested through the tab-strip overflow list and the view-instance switcher.
 - [ ] 1.2 A capability refusal thrown by a menu entry's own implementation reaches the error handler,

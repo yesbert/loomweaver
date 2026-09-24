@@ -8,7 +8,12 @@ import {
 } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 import { filter, merge, skip, Subscription } from 'rxjs';
-import { Command, MenuContext, MenuHeader, MenuItem } from '@loomweaver/plugin-sdk';
+import {
+  Command,
+  MenuContext,
+  MenuHeader,
+  MenuItem,
+} from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../plugin/contribution-registry';
 import { CommandService } from '../commands/command.service';
 import { drawMenuHeading, HEADING_KEY, wordMenuHeading } from './menu-heading';
@@ -320,11 +325,10 @@ export class MenuService {
 
   private createListMenu(entries: readonly MenuListEntry[]): WordedMenu {
     const menu = document.createElement(LW_MENU_TAG) as LwMenuElement;
-    if (
-      entries.some(
-        (entry) => entry.icon || entry.active || entry.checked !== undefined,
-      )
-    ) {
+    if (entries.some((entry) => showsState(entry))) {
+      menu.classList.add('lw-menu--checks');
+    }
+    if (entries.some((entry) => entry.icon)) {
       menu.classList.add('lw-menu--leading');
     }
     const labelled: [HTMLElement, MenuLabel][] = [];
@@ -332,16 +336,14 @@ export class MenuService {
       const item = document.createElement(LW_MENU_ITEM_TAG);
       item.setAttribute('command', entry.key);
       labelled.push([item, entry.label]);
-      if (entry.checked !== undefined) {
+      if (entry.icon) {
+        item.setAttribute('icon', entry.icon);
+      }
+      if (showsState(entry)) {
         item.setAttribute('checkbox', '');
-        if (entry.checked) {
+        if (entry.checked ?? entry.active) {
           item.setAttribute('checked', '');
         }
-      } else if (entry.active) {
-        item.setAttribute('checkbox', '');
-        item.setAttribute('checked', '');
-      } else if (entry.icon) {
-        item.setAttribute('icon', entry.icon);
       }
       menu.append(item);
     }
@@ -376,4 +378,8 @@ export function whenMatches(
     return true;
   }
   return Object.entries(when).every(([key, value]) => context[key] === value);
+}
+
+function showsState(entry: MenuListEntry): boolean {
+  return entry.checked !== undefined || entry.active === true;
 }
