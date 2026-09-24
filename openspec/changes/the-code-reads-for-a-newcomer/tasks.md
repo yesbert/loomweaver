@@ -61,7 +61,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   an item, `function_`, `index_`, `num`, single letters for workspaces and languages.
 - [x] 2.13 "Which rail or bar item is offered" is one predicate beside `menuOnActivate`, used by the
   rail, the bar and the curation dialog (after the curation defect is fixed).
-- [ ] 2.14 Which pane buttons and drag gestures a set of switches offers is one function read by the
+- [x] 2.14 Which pane buttons and drag gestures a set of switches offers is one function read by the
   pane view and the address pane header (after the maximised-pane defect is fixed).
 
 ## 3. The shell's composition and frame

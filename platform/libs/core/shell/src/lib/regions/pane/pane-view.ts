@@ -18,6 +18,14 @@ import { PaneTabStrip } from './chrome/pane-tab-strip';
 import { StripTab } from './chrome/strip-tab';
 import { PaneToolbar } from './chrome/pane-toolbar';
 import { escalationStep } from './chrome/tab-escalation';
+import {
+  escalationSwitches,
+  offersMinimize,
+  offersSplitDown,
+  offersSplitRight,
+  tabsDraggable,
+  tabsReorderable,
+} from './chrome/pane-affordances';
 import { toStripTab } from './chrome/tab-label';
 import { paneRetentionScope } from './retention/retention-keys';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -74,17 +82,11 @@ export class PaneView {
   );
 
   protected readonly canSplitRight = computed(
-    () =>
-      this.options().split &&
-      this.features.splitRight() &&
-      this.features.splitRightButton(),
+    () => this.options().split && offersSplitRight(this.features),
   );
 
   protected readonly canSplitDown = computed(
-    () =>
-      this.options().split &&
-      this.features.splitDown() &&
-      this.features.splitDownButton(),
+    () => this.options().split && offersSplitDown(this.features),
   );
 
   protected readonly canMaximize = computed(
@@ -98,9 +100,10 @@ export class PaneView {
   protected readonly canMinimize = computed(
     () =>
       this.options().split &&
-      this.features.minimize() &&
-      !this.maximized() &&
-      this.paneTree.isSplit(this.dock()),
+      offersMinimize(this.features, {
+        split: this.paneTree.isSplit(this.dock()),
+        maximized: this.maximized(),
+      }),
   );
 
   protected readonly viewContextMenu = computed(() =>
@@ -175,21 +178,16 @@ export class PaneView {
     () => this.dock() === CONTENT_DOCK || isContainerDock(this.dock()),
   );
 
-  protected readonly tabsReorderable = computed(
-    () => !this.contentSide() || this.features.reorderTabs(),
+  protected readonly tabsReorderable = computed(() =>
+    tabsReorderable(this.features, this.contentSide()),
   );
 
   protected readonly acceptsTabs = computed(
     () => !this.contentSide() || this.features.moveTabs(),
   );
 
-  protected readonly tabsDraggable = computed(
-    () =>
-      !this.contentSide() ||
-      this.features.reorderTabs() ||
-      this.features.moveTabs() ||
-      this.features.splitRight() ||
-      this.features.splitDown(),
+  protected readonly tabsDraggable = computed(() =>
+    tabsDraggable(this.features, this.contentSide()),
   );
 
   protected readonly stripTabs = computed<StripTab[]>(() => {
@@ -229,10 +227,7 @@ export class PaneView {
     if (!this.contentSide()) {
       return;
     }
-    const step = escalationStep(tab, {
-      escalate: this.features.escalate(),
-      pin: this.features.pin(),
-    });
+    const step = escalationStep(tab, escalationSwitches(this.features));
     if (step !== null) {
       this.paneTree[`${step}Tab`](this.dock(), this.leaf().id, tab.path);
     }
