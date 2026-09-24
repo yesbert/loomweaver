@@ -22,7 +22,7 @@ because those products are not under the platform's specs.
 
 - Refactoring. A fix changes what it must and nothing else; the cleanup around it is a task in
   `the-code-reads-for-a-newcomer`.
-- The five defects that need a decision (below) until the owner has made it.
+- The six defects that need a decision (below) until the owner has made it.
 
 ## Decisions
 
@@ -47,7 +47,7 @@ stay small and each is testable on its own.
 
 ## Decisions for the owner
 
-These five are behaviour choices. Each gets its spec delta through `/opsx:update` once decided.
+These six are behaviour choices. Each gets its spec delta through `/opsx:update` once decided.
 
 1. **The agent adapter's calls left open at the end of a run.** Today only the last one is answered and
    the others vanish, which makes most model providers reject the next request. `flush` and `receive`
@@ -72,6 +72,13 @@ These five are behaviour choices. Each gets its spec delta through `/opsx:update
    hidden below the small breakpoint, which the accessibility requirement (reflow without loss of
    function) does not allow. The presentation is the owner's: for example the detail replacing the
    list with a way back. It is a UI change and is shown as a reviewable slice first.
+6. **Waiting for the plugin store at activation.** The demo welcomes a first visit from `activate`,
+   where the store may not have answered yet. An in-process plugin has no way to learn when it does.
+   The handle's `value` and `loaded` are reactive, but only the first activation runs in an injection
+   context, so no effect can follow them after a plugin is switched off and on again. The frame kit's
+   handle has `onChange`, and the in-process one does not. Options: add `onChange` to the published
+   handle (additive, so a patch), or state that activation reads the store once and move such work
+   into a surface.
 
 Three demo items are marked uncertain by the review and are fixed only if the owner calls them defects:
 cancelling the second "New customer" prompt still creates the customer (it may mean "city optional",
