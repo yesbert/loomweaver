@@ -1,0 +1,34 @@
+<header
+  class="flex items-center justify-between gap-4 border-b border-border px-5 py-3"
+>
+  <h2 class="text-lg font-semibold text-content">{{ title() | transloco }}</h2>
+  <span class="flex items-center gap-1">
+    <button
+      lwButton
+      variant="ghost"
+      size="sm"
+      iconOnly
+      type="button"
+      data-testid="dialog-maximize"
+      [attr.aria-label]="
+        (ref.maximized() ? 'dialog.restore' : 'dialog.maximize')
+          | transloco
+      "
+      (click)="ref.toggleMaximized()"
+    >
+      <lw-icon [name]="ref.maximized() ? 'restore' : 'maximize'" size="1rem" />
+    </button>
+    <button
+      lwButton
+      variant="ghost"
+      size="sm"
+      iconOnly
+      type="button"
+      [attr.aria-label]="'dialog.close' | transloco"
+      (click)="ref.close()"
+    >
+      <lw-icon name="close" size="1rem" />
+    </button>
+  </span>
+</header>
+<ng-content />
