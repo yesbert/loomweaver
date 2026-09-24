@@ -361,6 +361,11 @@ strip that shows icons only, there is no room for text beside an icon; the badge
 be part of the tab's tooltip and accessible name, and a badge that is an icon alone is not shown
 there.
 
+Where a tab in a strip that shows titles is too narrow for its title and its badge, the title SHALL
+come first: the badge SHALL give way before the title is shortened, narrowing to a mark in its tone
+with its text cut. The tooltip of a tab in a strip that shows titles SHALL carry the badge's text
+after the title, as its accessible name does, so a badge that has given way can still be read.
+
 The limit: a tab's badge is drawn on the tab. The list of tabs that do not fit the strip, Quick-Open
 and the minimized strip name the tab without it.
 
@@ -394,3 +399,13 @@ and the minimized strip name the tab without it.
 
 - **WHEN** a tab with a badge is shown in a strip that shows icons only
 - **THEN** its tooltip and its accessible name carry the badge's text
+
+#### Scenario: A narrow tab keeps its title before its badge
+
+- **WHEN** a tab with a badge stands in a strip that shows titles and is too narrow for both
+- **THEN** the badge narrows to a mark in its tone before the title is shortened
+
+#### Scenario: The tooltip of a tab in a strip of titles carries the badge
+
+- **WHEN** the user points at a tab with a badge in a strip that shows titles
+- **THEN** its tooltip shows the title followed by the badge's text

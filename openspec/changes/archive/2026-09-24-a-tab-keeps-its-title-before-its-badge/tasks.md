@@ -12,5 +12,5 @@
 
 - [x] 3.1 `docs/weaver/content-area.md` and `llms-full.txt` say that the title comes first in a narrow tab and that the tooltip carries the badge
 - [x] 3.2 Shell lint and tests, the repository guards (bundle size included), `openspec validate --all --strict`
-- [ ] 3.3 Screenshot of the demo's quote tabs at their minimum width, shown to the owner
-- [ ] 3.4 Code review, then archive on the same branch
+- [x] 3.3 Screenshot of the demo's quote tabs at their minimum width, shown to the owner
+- [x] 3.4 Code review, then archive on the same branch
