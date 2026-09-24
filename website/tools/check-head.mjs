@@ -12,9 +12,10 @@
  * against the published vocabulary once, by hand; what can rot without anyone noticing is a
  * reference that stops resolving, and that is answerable from the document alone.
  */
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { mediaReferences } from './media-references.mjs';
 
 const websiteRoot = path.resolve(fileURLToPath(import.meta.url), '../..');
 const dist = path.join(websiteRoot, 'dist');
@@ -63,6 +64,10 @@ for (const file of pages(dist)) {
   const image = meta(html, 'og:image');
   if (image && !image.startsWith('https://')) {
     problems.push(`${where}: og:image "${image}" is not absolute — scrapers do not resolve it`);
+  }
+
+  for (const reference of mediaReferences(html)) {
+    if (!existsSync(path.join(dist, reference))) problems.push(`${where}: shows ${reference}, which the site does not serve`);
   }
 
   if (!/rel="apple-touch-icon"/.test(html)) problems.push(`${where}: no apple-touch-icon`);
@@ -137,6 +142,6 @@ if (problems.length > 0) {
 }
 
 console.log(
-  `check-head: ${checked} pages carry a description of their own, a social card, an icon set ` +
-    `and structured data whose references resolve; ${locations} sitemap entries are dated`,
+  `check-head: ${checked} pages carry a description of their own, a social card, an icon set, ` +
+    `the pictures they show and structured data whose references resolve; ${locations} sitemap entries are dated`,
 );

@@ -417,7 +417,9 @@ if (site) {
 
 /* The landing page is src/pages/index.astro, so nothing is copied into the docs collection for
    the root route. What it does need is its media, single-sourced in assets/media so the README and
-   the site show the same tour. A missing file fails the build rather than shipping a broken image. */
+   the site show the same tour. The list names what the landing page itself shows, whether or not a
+   docs page embeds it too. A missing file fails the sync, and check-head fails a built page that
+   shows a picture the site does not serve. */
 const mediaDir = path.join(publicDir, 'media');
 mkdirSync(mediaDir, { recursive: true });
 for (const asset of [
@@ -428,12 +430,10 @@ for (const asset of [
   'command-palette-light.png',
   'plugin-consent-dark.png',
   'plugin-consent-light.png',
-  'quick-open-dark.png',
-  'quick-open-light.png',
+  'settings-dark.png',
+  'settings-light.png',
   'split-panes-dark.png',
   'split-panes-light.png',
-  'tab-menu-dark.png',
-  'tab-menu-light.png',
   'workspace-dialog-dark.png',
   'workspace-dialog-light.png',
   'tour-dark.webm',
