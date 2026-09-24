@@ -198,9 +198,15 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   omit filter, surface badges in their own small service, `idsOf`.
   The surface-shaped entry point would be a new public method on the published registry, so it is
   on the owner's list rather than done here.
-- [ ] 6.8 `HostPluginContext` gets its services through `inject()`; the `ui` facade and the surface
+- [x] 6.8 `HostPluginContext` gets its services through `inject()`; the `ui` facade and the surface
   admission rules move out; `host-plugin-context.spec.ts` (1255 lines) split the same way. `withBadge`
   becomes a name that says it also tracks the registration (from 6.3).
+  The factory builds the context in its injection context, so its constructor takes the plugin id
+  and the grant check only. The `ui`, `host` and `session` facades are `plugin-facades.ts`; the
+  broad-prefix and following-name rules are `surface-admission.ts`; `withBadge` is `trackWithBadge`.
+  The spec split into the facades, the author warnings, surface admission and the rest, over one
+  shared harness. The check that no picture of the workbench is offered looked at the harness's
+  return value rather than the context; it now looks at the context and its prototype.
 - [ ] 6.9 The frame RPC: wire-field helpers, the sanitizer and settings files split by input kind, one
   per-frame session object owning watched keys and cleanups, every RPC entry validating its primitive
   arguments the same way, refused catalog entries reported once; `sandbox-plugin-runtime.spec.ts`

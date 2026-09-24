@@ -1,10 +1,11 @@
+import { inject } from '@angular/core';
 import {
   ContributionRegistry,
   Disposable,
 } from '../../contributions/contribution-registry';
 import { BarItem } from '../../foundation/bar-item';
 import { RailItem } from '../../foundation/rail-item';
-import { LayoutRegion } from '../../layout/layout';
+import { SHELL_LAYOUT } from '../../layout/layout';
 import { PluginContext, PluginHost, PluginSession, PluginUi } from '../plugin';
 import {
   ActiveContent,
@@ -30,22 +31,15 @@ import {
   surfaceToEntry,
 } from '../../contributions/surface-normalize';
 import { LeftOutChildren } from '../../regions/pane/container/left-out-children';
-import { AuthContext } from '../../auth/auth-context';
-import { normalizePath, segmentsOf } from '../../regions/content/content-path';
-import { collidingParam } from '../../regions/content/tabs/tab-address';
+import { normalizePath } from '../../regions/content/content-path';
 import { ContentTabsService } from '../../regions/content/tabs/content-tabs.service';
-import { DialogService } from '../../dialog/dialog.service';
-import { NotificationService } from '../../notifications/notification.service';
-import { MenuService } from '../../menu/menu.service';
 import { SettingsService } from '../../settings/settings.service';
 import { SettingsSection } from '../../settings/settings-model';
-import { VersionService } from '../../version/version.service';
-import { UpdateService } from '../../update/update.service';
 import { IconRegistry } from '../../elements/icon/icon-registry';
 import { ThemeRegistry } from '../../theme/theme-registry';
 import { SurfaceRevealService } from '../../regions/reveal/surface-reveal.service';
 import { PluginStateService } from '../plugin-state.service';
-import { CommandInvoker } from '../../foundation/command-invoker';
+import { COMMAND_INVOKER } from '../../foundation/command-invoker';
 import {
   warnUndescribedCallable,
   warnUnlessPanelRegion,
@@ -55,103 +49,46 @@ import {
 } from './host-context-warnings';
 import { addressIsUnder } from '../../addressing/address-is-under';
 import { pathOwnedBy, surfaceOwnedBy } from './plugin-surface-ownership';
+import { pluginHost, pluginSession, pluginUi } from './plugin-facades';
+import { broadPrefixReason, followConflictMessage } from './surface-admission';
 
 export class HostPluginContext implements PluginContext {
+  private readonly registry = inject(ContributionRegistry);
+
+  private readonly settings = inject(SettingsService);
+
+  private readonly tabs = inject(ContentTabsService);
+
+  private readonly regions = inject(SHELL_LAYOUT).regions;
+
+  private readonly icons = inject(IconRegistry);
+
+  private readonly themes = inject(ThemeRegistry);
+
+  private readonly reveal = inject(SurfaceRevealService);
+
+  private readonly invocation = inject(COMMAND_INVOKER);
+
+  private readonly leftOut = inject(LeftOutChildren);
+
+  private readonly hostFacts: PluginHost = pluginHost();
+
+  private readonly sessionFacts: PluginSession = pluginSession();
+
   private readonly disposables: Disposable[] = [];
 
   readonly ui: PluginUi;
 
   readonly state: PluginState;
 
-  private readonly hostFacts: PluginHost;
-  private readonly sessionFacts: PluginSession;
-
   constructor(
     private readonly pluginId: string,
     private readonly isGranted: (capability: Capability) => boolean,
-    private readonly registry: ContributionRegistry,
-    dialogs: DialogService,
-    notifications: NotificationService,
-    private readonly settings: SettingsService,
-    version: VersionService,
-    update: UpdateService,
-    private readonly tabs: ContentTabsService,
-
-    private readonly regions: readonly LayoutRegion[],
-    private readonly icons: IconRegistry,
-    auth: AuthContext,
-    menu: MenuService,
-    private readonly themes: ThemeRegistry,
-    private readonly reveal: SurfaceRevealService,
-    pluginState: PluginStateService,
-    private readonly invocation: CommandInvoker,
-    private readonly leftOut: LeftOutChildren,
   ) {
-    this.ui = {
-      confirm: (options) => {
-        this.require('ui');
-        return dialogs.confirm(options);
-      },
-      alert: (options) => {
-        this.require('ui');
-        return dialogs.alert(options);
-      },
-      prompt: (options) => {
-        this.require('ui');
-        return dialogs.prompt(options);
-      },
-      open: (component, options) => {
-        this.require('ui');
-        return dialogs.open(component, options);
-      },
-      progress: (options) => {
-        this.require('ui');
-        return dialogs.progress(options);
-      },
-      withProgress: (options, work) => {
-        this.require('ui');
-        return dialogs.withProgress(options, work);
-      },
-      toast: (input) => {
-        this.require('ui');
-
-        const id =
-          input.id === undefined ? undefined : `${this.pluginId}.${input.id}`;
-        return notifications.show({ ...input, id });
-      },
-      openSettings: () => {
-        this.require('ui');
-        return settings.open();
-      },
-      openMenu: (items, at) => {
-        this.require('ui');
-
-        const entries = items.map((item, index) => ({
-          key: String(index),
-          label: item.label,
-          icon: item.icon,
-        }));
-        menu.openList(entries, at, (key) => items[Number(key)]?.run());
-      },
-    };
-    this.hostFacts = {
-      version: version.version,
-      isPreview: version.isPreview,
-      updateAvailable: update.updateAvailable,
-      updatesEnabled: update.enabled,
-      checkForUpdate: () => update.checkForUpdate().then(() => undefined),
-      activateUpdate: () => update.activateUpdate(),
-    };
-
-    const store = pluginState.facade(this.pluginId);
+    this.ui = pluginUi(pluginId, () => this.require('ui'));
+    const store = inject(PluginStateService).facade(pluginId);
     this.state = {
       watch: <T>(key: string) => this.trackHandle(store.watch<T>(key)),
-    };
-
-    this.sessionFacts = {
-      authenticated: auth.authenticated,
-      roles: auth.roles,
-      hasRole: (role) => auth.hasRole(role),
     };
   }
 
@@ -226,18 +163,25 @@ export class HostPluginContext implements PluginContext {
 
   registerSurface(surface: Surface): Disposable {
     this.require('contributions');
-    this.requireNavigationForBroadPrefix(surface);
+    const broad = broadPrefixReason(surface);
+    if (broad !== undefined) {
+      this.require('navigation', broad);
+    }
     warnIgnoredRetention(this.pluginId, surface);
     warnUnusableContainerLayout(this.pluginId, surface);
 
     const entry = surfaceToEntry(surface);
     if (isRoutableSurface(surface)) {
-      const collision = this.followConflictMessage(surface);
+      const collision = followConflictMessage(
+        this.pluginId,
+        surface,
+        this.registry.contentRoutes(),
+      );
       if (collision) {
         console.error(collision);
         return { dispose: () => undefined };
       }
-      return this.withBadge(
+      return this.trackWithBadge(
         surface,
         this.registry.addContentRoute(
           entryToContentRoute(entry),
@@ -247,7 +191,10 @@ export class HostPluginContext implements PluginContext {
     }
     const view = entryToView(entry);
     warnUnlessPanelRegion(this.pluginId, this.regions, view);
-    return this.withBadge(surface, this.registry.addView(view, this.pluginId));
+    return this.trackWithBadge(
+      surface,
+      this.registry.addView(view, this.pluginId),
+    );
   }
 
   registerBarItem(item: BarItem): Disposable {
@@ -337,48 +284,13 @@ export class HostPluginContext implements PluginContext {
     }
   }
 
-  private withBadge(surface: Surface, registered: Disposable): Disposable {
+  private trackWithBadge(surface: Surface, registered: Disposable): Disposable {
     this.registry.updateSurfaceBadge(
       surface.id,
       surface.badge ?? null,
       this.pluginId,
     );
     return this.track(registered);
-  }
-
-  private followConflictMessage(surface: Surface): string | null {
-    const routable = surface.routable;
-    if (routable?.follows !== true) {
-      return null;
-    }
-    for (const other of this.registry.contentRoutes()) {
-      if (other.follows !== true || other.path === routable.path) {
-        continue;
-      }
-      const name = collidingParam(routable.path, other.path);
-      if (name !== undefined) {
-        return (
-          `Plugin "${this.pluginId}": surface "${surface.id}" was refused. Its pattern ` +
-          `"${routable.path}" and the following surface "${other.path}" both use ":${name}" but differ ` +
-          `before it, so the name means two different things and substituting it by name would fill ` +
-          `one surface's address with the other's value. Rename the parameter or align the patterns.`
-        );
-      }
-    }
-    return null;
-  }
-
-  private requireNavigationForBroadPrefix(surface: Surface): void {
-    const routable = surface.routable;
-    if (routable?.rest !== true || segmentsOf(routable.path).length >= 2) {
-      return;
-    }
-    this.require(
-      'navigation',
-      `The surface "${surface.id}" claims "${routable.path}" with rest: true, which owns most of ` +
-        `the address space — the surface channel's confinement to its own tab root no longer ` +
-        `constrains it, so the grant is required.`,
-    );
   }
 
   private require(capability: Capability, reason?: string): void {
