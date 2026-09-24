@@ -16,6 +16,14 @@ import { PaneTreeService } from '../pane/tree/pane-tree.service';
 import { PaneChromeService } from '../pane/chrome/pane-chrome.service';
 import { PaneActions } from '../pane/pane-actions.service';
 import { escalationStep } from '../pane/chrome/tab-escalation';
+import {
+  escalationSwitches,
+  offersMinimize,
+  offersSplitDown,
+  offersSplitRight,
+  tabsDraggable,
+  tabsReorderable,
+} from '../pane/chrome/pane-affordances';
 import { TabDragSource } from '../pane/drag/pane-drag.service';
 import { PaneTabStrip } from '../pane/chrome/pane-tab-strip';
 import { StripTab } from '../pane/chrome/strip-tab';
@@ -64,20 +72,17 @@ export class ContentArea {
   );
 
   protected readonly canSplitRight = computed(
-    () =>
-      this.features.splitRight() &&
-      this.features.splitRightButton() &&
-      this.splittable(),
+    () => offersSplitRight(this.features) && this.splittable(),
   );
   protected readonly canSplitDown = computed(
-    () =>
-      this.features.splitDown() &&
-      this.features.splitDownButton() &&
-      this.splittable(),
+    () => offersSplitDown(this.features) && this.splittable(),
   );
 
-  protected readonly canMinimize = computed(
-    () => this.features.minimize() && this.isSplit() && !this.maximized(),
+  protected readonly canMinimize = computed(() =>
+    offersMinimize(this.features, {
+      split: this.isSplit(),
+      maximized: this.maximized(),
+    }),
   );
   protected readonly canClose = computed(
     () => this.isSplit() && !this.maximized(),
@@ -104,15 +109,11 @@ export class ContentArea {
   );
 
   protected readonly tabsReorderable = computed(() =>
-    this.features.reorderTabs(),
+    tabsReorderable(this.features, true),
   );
 
-  protected readonly tabsDraggable = computed(
-    () =>
-      this.features.reorderTabs() ||
-      this.features.moveTabs() ||
-      this.features.splitRight() ||
-      this.features.splitDown(),
+  protected readonly tabsDraggable = computed(() =>
+    tabsDraggable(this.features, true),
   );
 
   protected readonly stripTabs = computed<StripTab[]>(() =>
@@ -135,10 +136,7 @@ export class ContentArea {
   }
 
   protected escalate(tab: StripTab): void {
-    const step = escalationStep(tab, {
-      escalate: this.features.escalate(),
-      pin: this.features.pin(),
-    });
+    const step = escalationStep(tab, escalationSwitches(this.features));
     if (step !== null) {
       this.tabs[step](tab.path);
     }
