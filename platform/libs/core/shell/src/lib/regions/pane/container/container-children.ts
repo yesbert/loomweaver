@@ -70,6 +70,10 @@ export function isContentSideDock(dock: string): boolean {
   return dock === CONTENT_DOCK || isContainerDock(dock);
 }
 
+export function containerInstanceId(dock: string, key: string): string {
+  return `${dock}::${key}`;
+}
+
 export function containerPathOfDock(dock: string): string {
   return dock.slice(CONTAINER_DOCK_PREFIX.length);
 }

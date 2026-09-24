@@ -5,7 +5,7 @@ import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { normalizePath, tabRootOf } from '../../content/content-path';
 import { collectTabPaths } from '../tree/pane-queries';
 import { PaneChromeService } from '../chrome/pane-chrome.service';
-import { CONTAINER_DOCK_PREFIX, isContainerDock } from './container-children';
+import { containerPathOfDock, isContainerDock } from './container-children';
 import { PaneTreeService } from '../tree/pane-tree.service';
 import { PaneContainersService } from './pane-containers.service';
 
@@ -43,7 +43,7 @@ export class ContainerDockGc {
             normalizePath(this.router.url),
           );
           for (const dock of containerDocks) {
-            const contentPath = dock.slice(CONTAINER_DOCK_PREFIX.length);
+            const contentPath = containerPathOfDock(dock);
             if (contentPath === active || open.has(contentPath)) {
               continue;
             }

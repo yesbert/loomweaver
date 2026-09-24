@@ -15,7 +15,8 @@ import { RetainedViewStash } from './retention/retained-view-stash';
 import { isContentSideDock } from './container/container-children';
 import { LeftOutChildren } from './container/left-out-children';
 import { CONTENT_DOCK, isSamePane } from './tree/pane-address';
-import { TabKeep, keepsOnPaneClose } from './tree/pane-handover';
+import { TabKeep, keepsEverything } from './tree/pane-handover';
+import { sparedByBulkClose } from './tree/pane-tabs';
 import { PaneLeaf, leafPath } from './tree/pane-node';
 import { findLeaf, leavesOf } from './tree/pane-queries';
 import { PaneTreeService } from './tree/pane-tree.service';
@@ -96,11 +97,11 @@ export class PaneActions {
 
   restore(dock: string, paneId?: string): void {
     if (paneId === undefined) {
-      this.chrome.restore();
+      this.chrome.endMaximize();
       return;
     }
     if (this.chrome.isMaximized(dock, paneId)) {
-      this.chrome.restore();
+      this.chrome.endMaximize();
     }
     if (this.chrome.isMinimized(dock, paneId)) {
       this.chrome.toggleMinimize(dock, paneId);
@@ -148,10 +149,10 @@ export class PaneActions {
   }
 
   private keepsOnClose(dock: string): TabKeep {
-    const keeps = keepsOnPaneClose(
-      isContentSideDock(dock),
-      this.features.close(),
-    );
+    const keeps =
+      isContentSideDock(dock) && !this.features.close()
+        ? keepsEverything
+        : sparedByBulkClose;
     return (tab) => keeps(tab) || this.leftOut.hides(tab.path);
   }
 

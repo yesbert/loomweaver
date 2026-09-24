@@ -20,7 +20,7 @@ import { PaneDragService } from '../drag/pane-drag.service';
 import { PaneTreeView } from '../pane-tree-view';
 import { PaneTreeService } from '../tree/pane-tree.service';
 import { PaneContainersService } from './pane-containers.service';
-import { activeTab } from '../tree/pane-node';
+import { activeTab, leafWith } from '../tree/pane-node';
 import { findLeaf, leavesOf } from '../tree/pane-queries';
 import {
   isAtOrBelow,
@@ -28,6 +28,23 @@ import {
   restBelow,
 } from '../../content/content-path';
 import { surfaceRouteData } from '../../content/surface/surface-route-data';
+
+interface ContainerIdentity {
+  readonly containerPath: string;
+  readonly dock: string;
+  readonly spec: ContainerSpec | undefined;
+}
+
+function containerIdentityOf(route: ActivatedRoute): ContainerIdentity {
+  const containerPath = route.snapshot.url
+    .map((segment) => segment.path)
+    .join('/');
+  return {
+    containerPath,
+    dock: containerDockFor(containerPath),
+    spec: surfaceRouteData(route.snapshot.data).container,
+  };
+}
 
 @Component({
   selector: 'lw-container-pane-host',
@@ -40,10 +57,7 @@ import { surfaceRouteData } from '../../content/surface/surface-route-data';
         route: ActivatedRoute,
         containers: PaneContainersService,
       ) => {
-        const spec = surfaceRouteData(route.snapshot.data).container;
-        const dock = containerDockFor(
-          route.snapshot.url.map((segment) => segment.path).join('/'),
-        );
+        const { dock, spec } = containerIdentityOf(route);
         return {
           params: route.snapshot.params as Record<string, string>,
           spec,
@@ -69,21 +83,19 @@ export class ContainerPaneHost {
   private readonly containers = inject(PaneContainersService);
   private readonly leftOut = inject(LeftOutChildren);
 
+  private readonly identity = containerIdentityOf(this.route);
+
   protected readonly paneOptions = CONTAINER_PANE_OPTIONS;
-  protected readonly dock: string;
+  protected readonly dock = this.identity.dock;
   protected readonly tree = computed(
     () =>
       shownTree(this.paneTree.tree(this.dock), (path) =>
         this.leftOut.hides(path),
-      ) ?? {
-        kind: 'leaf' as const,
-        id: this.paneTree.primaryId(this.dock),
-        tabs: [],
-      },
+      ) ?? leafWith(this.paneTree.primaryId(this.dock), [], undefined),
   );
 
-  private readonly containerPath: string;
-  private readonly spec: ContainerSpec | undefined;
+  private readonly containerPath = this.identity.containerPath;
+  private readonly spec = this.identity.spec;
 
   private readonly currentUrl = toSignal(
     this.router.events.pipe(
@@ -111,11 +123,6 @@ export class ContainerPaneHost {
   });
 
   constructor() {
-    this.containerPath = this.route.snapshot.url
-      .map((segment) => segment.path)
-      .join('/');
-    this.dock = containerDockFor(this.containerPath);
-    this.spec = surfaceRouteData(this.route.snapshot.data).container;
     this.containers.ensureContainer(this.dock, this.spec);
     this.followUrl();
     this.leadUrl();

@@ -51,7 +51,7 @@ describe('PaneChromeService', () => {
 
     it('restore clears any maximized pane', () => {
       chrome.toggleMaximize('content', 'a');
-      chrome.restore();
+      chrome.endMaximize();
       expect(chrome.maximizedPaneIn('content')).toBeNull();
     });
   });

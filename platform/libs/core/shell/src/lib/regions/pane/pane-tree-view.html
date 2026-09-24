@@ -1,6 +1,6 @@
 @if (split(); as s) {
   <div class="flex min-h-0 min-w-0 flex-1" [class.flex-col]="s.orientation === 'column'">
-    <lw-pane-tree-view [dock]="dock()" [node]="s.first" [primary]="primary()" [paneOptions]="paneOptions()" [parentOrientation]="s.orientation" [class.lw-pane-animate]="!resizing()" [style.flex]="flexFor(firstMinimized(), secondMinimized(), s.ratio, s.orientation)" />
+    <lw-pane-tree-view [dock]="dock()" [node]="s.first" [primary]="primary()" [paneOptions]="paneOptions()" [parentOrientation]="s.orientation" [class.lw-pane-animate]="!resizing()" [style.flex]="flexFor(s, 'first')" />
     @if (!firstMinimized() && !secondMinimized()) {
       <lw-pane-split-handle
         [orientation]="s.orientation"
@@ -10,7 +10,7 @@
         (ratioCommit)="onRatioCommit()"
       />
     }
-    <lw-pane-tree-view [dock]="dock()" [node]="s.second" [primary]="primary()" [paneOptions]="paneOptions()" [parentOrientation]="s.orientation" [class.lw-pane-animate]="!resizing()" [style.flex]="flexFor(secondMinimized(), firstMinimized(), 1 - s.ratio, s.orientation)" />
+    <lw-pane-tree-view [dock]="dock()" [node]="s.second" [primary]="primary()" [paneOptions]="paneOptions()" [parentOrientation]="s.orientation" [class.lw-pane-animate]="!resizing()" [style.flex]="flexFor(s, 'second')" />
   </div>
 } @else if (leaf(); as l) {
   @if (l.id === primaryPaneId() && primary(); as primaryTpl) {
