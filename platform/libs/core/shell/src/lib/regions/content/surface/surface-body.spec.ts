@@ -11,7 +11,7 @@ import {
   SURFACE_PADDING,
 } from '../../../foundation/surface-padding';
 import { SurfaceBody } from './surface-body';
-import { offRouterPaneTargets, routerPaneTargets } from '../pane-targets';
+import { hostablePaneTargets, navigablePaneTargets } from '../pane-targets';
 import { liveSurfaceRoute } from './live-surface-route';
 import { RegisteredContentRoute } from '../../../plugin/contribution-registry';
 
@@ -104,7 +104,7 @@ describe('pane targets — both pickers gate on the session', () => {
       claims: {},
     });
 
-    expect(routerPaneTargets(registry, auth).map((t) => t.path)).toEqual([
+    expect(navigablePaneTargets(registry, auth).map((t) => t.path)).toEqual([
       'search',
       'secret',
     ]);
@@ -113,7 +113,7 @@ describe('pane targets — both pickers gate on the session', () => {
   it('withholds a gated route from the router picker while the session does not qualify', () => {
     const { registry, auth } = setup(ANONYMOUS);
 
-    expect(routerPaneTargets(registry, auth).map((t) => t.path)).toEqual([
+    expect(navigablePaneTargets(registry, auth).map((t) => t.path)).toEqual([
       'search',
     ]);
   });
@@ -125,7 +125,7 @@ describe('pane targets — both pickers gate on the session', () => {
       claims: {},
     });
 
-    expect(offRouterPaneTargets(registry, auth).map((t) => t.path)).toEqual([
+    expect(hostablePaneTargets(registry, auth).map((t) => t.path)).toEqual([
       'search',
       'secret',
     ]);
@@ -134,7 +134,7 @@ describe('pane targets — both pickers gate on the session', () => {
   it('withholds a gated route from the off-router picker while the session does not qualify', () => {
     const { registry, auth } = setup(ANONYMOUS);
 
-    expect(offRouterPaneTargets(registry, auth).map((t) => t.path)).toEqual([
+    expect(hostablePaneTargets(registry, auth).map((t) => t.path)).toEqual([
       'search',
     ]);
   });
@@ -151,7 +151,7 @@ describe('pane targets — both pickers gate on the session', () => {
     });
 
     expect(
-      routerPaneTargets(registry, TestBed.inject(AuthContext)).map(
+      navigablePaneTargets(registry, TestBed.inject(AuthContext)).map(
         (t) => t.path,
       ),
     ).toEqual([]);

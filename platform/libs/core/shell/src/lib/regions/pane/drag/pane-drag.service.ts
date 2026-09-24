@@ -1,7 +1,7 @@
 import { computed, inject, Service, signal, Signal } from '@angular/core';
 import { VIEW_PANE_PREFIX } from '../tree/pane-address';
 import { surfaceForPanePath } from '../pane-surface';
-import { offRouterMountable } from '../../content/pane-targets';
+import { canHostInPane } from '../../content/pane-targets';
 import { matchRoute } from '../../content/content-path';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { AuthContext } from '../../../auth/auth-context';
@@ -49,7 +49,7 @@ export class PaneDragService {
     if (path.startsWith(VIEW_PANE_PREFIX)) {
       return this.viewAllowed(path);
     }
-    return offRouterMountable(this.registry, this.auth, path);
+    return canHostInPane(this.registry, this.auth, path);
   }
 
   canDuplicate(path: string): boolean {

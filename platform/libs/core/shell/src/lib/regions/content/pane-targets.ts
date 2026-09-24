@@ -25,29 +25,38 @@ function viewTarget(view: View): PaneTarget {
   };
 }
 
-export function offRouterMountable(
+export function canHostInPane(
   registry: ContributionRegistry,
   auth: AuthContext,
   path: string,
 ): boolean {
-  const route = barePathHostableRoute(registry, path);
+  const route = paneHostableRoute(registry, path);
   return route !== null && auth.meets(route.access);
 }
 
-export function offRouterPaneTargets(
+export function navigablePaneTargets(
   registry: ContributionRegistry,
   auth: AuthContext,
 ): PaneTarget[] {
-  const routes = registry
+  return registry
     .contentRoutes()
-    .filter((route) => offRouterMountable(registry, auth, route.path))
+    .filter(
+      (route) =>
+        paneHostableRoute(registry, route.path) !== null &&
+        auth.meets(route.access),
+    )
     .map((route) => routeTarget(route));
+}
 
+export function hostablePaneTargets(
+  registry: ContributionRegistry,
+  auth: AuthContext,
+): PaneTarget[] {
   const views = registry
     .views()
     .filter((view) => auth.meets(view.access))
     .map((view) => viewTarget(view));
-  return [...routes, ...views];
+  return [...navigablePaneTargets(registry, auth), ...views];
 }
 
 export function containerChildTargets(
@@ -67,20 +76,6 @@ export function containerChildTargets(
     .map((view) => viewTarget(view));
 }
 
-export function routerPaneTargets(
-  registry: ContributionRegistry,
-  auth: AuthContext,
-): PaneTarget[] {
-  return registry
-    .contentRoutes()
-    .filter(
-      (route) =>
-        barePathHostableRoute(registry, route.path) !== null &&
-        auth.meets(route.access),
-    )
-    .map((route) => routeTarget(route));
-}
-
 export function paneTargetEntries(
   targets: readonly PaneTarget[],
 ): MenuListEntry[] {
@@ -91,7 +86,7 @@ export function paneTargetEntries(
   }));
 }
 
-function barePathHostableRoute(
+function paneHostableRoute(
   registry: ContributionRegistry,
   path: string,
 ): ContentRoute | null {
