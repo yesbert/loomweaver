@@ -1,4 +1,9 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, signal } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  inject,
+  signal,
+} from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { DialogRef } from '../dialog/dialog-ref';
 import { DialogService } from '../dialog/dialog.service';
@@ -7,6 +12,7 @@ import { defaultWorkspaceId } from './workspace-definition';
 import { WorkspaceService } from './workspace.service';
 import { UnusableWorkspacesService } from './usability/unusable-workspaces.service';
 import { CommandService } from '../commands/command.service';
+import { WORKSPACE_RESET_COMMAND_ID } from '../commands/host-command-ids';
 
 @Component({
   selector: 'lw-workspace-dialog',
@@ -101,7 +107,7 @@ export class WorkspaceDialog {
 
   protected resetLayout(id: string): void {
     this.ref.close();
-    this.commands.execute('shell.workspace.reset', { workspace: id });
+    this.commands.execute(WORKSPACE_RESET_COMMAND_ID, { workspace: id });
   }
 
   protected remove(id: string, name: string): void {

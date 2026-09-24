@@ -51,7 +51,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 - [x] 2.8 Tab labels: one label-patch module (the badge "null removes, absent keeps" rule once, one
   relabel walk) used by pane tabs, pane structure, stored-tree healing, containers and content; one
   `lwLabel` pipe for "a key unless marked literal" in the tab strip and the minimised strip.
-- [ ] 2.9 Host command ids are exported constants beside their registration, and the `menu:` entry id
+- [x] 2.9 Host command ids are exported constants beside their registration, and the `menu:` entry id
   convention is written once; the composition report uses the same constants.
 - [ ] 2.10 The fallback language is one constant; the feedback-tone colour mapping shared by dialog and
   toast lives in one place both slices may read.

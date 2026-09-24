@@ -11,7 +11,7 @@
 // that registers its own commands owns whatever it collides with, which is why this is a check here
 // rather than a guard at runtime.
 
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -64,16 +64,30 @@ function topLevelRaw(literal, key) {
   return found;
 }
 
+/** Every non-spec source file of the shell, as a path. */
+function sources(dir) {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      return sources(path);
+    }
+    return entry.name.endsWith('.ts') && !entry.name.endsWith('.spec.ts') ? [path] : [];
+  });
+}
+
 /**
  * The string constants a command may name itself with instead of writing the literal inline. Without
- * these the check would read four of the nine registrations as unnamed and skip them, which is the
- * failure mode it exists to prevent: a guard that quietly covers less than it claims.
+ * these the check would read most registrations as unnamed and skip them, which is the failure mode
+ * it exists to prevent: a guard that quietly covers less than it claims. A command id is a constant
+ * named `…_COMMAND_ID`, declared beside the dialog or slice the command opens.
  */
 function constants() {
   const found = new Map();
-  const palette = readFileSync(join(shell, 'commands/command-palette.ts'), 'utf8');
-  for (const [, name, value] of palette.matchAll(/export const ([A-Z][A-Z0-9_]*) = '([^']*)'/g)) {
-    found.set(name, value);
+  for (const file of sources(shell)) {
+    const source = readFileSync(file, 'utf8');
+    for (const [, name, value] of source.matchAll(/^(?:export )?const ([A-Z][A-Z0-9_]*_COMMAND_ID) = '([^']*)'/gm)) {
+      found.set(name, value);
+    }
   }
   const curation = readFileSync(join(shell, 'regions/curation/curation-dialog.ts'), 'utf8');
   for (const [, kind, title] of curation.matchAll(/^\s{2}(\w+): \{ title: '([^']*)'/gm)) {
