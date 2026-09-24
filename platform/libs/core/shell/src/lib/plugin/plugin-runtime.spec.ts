@@ -5,8 +5,8 @@ import { PluginRuntime } from './plugin-runtime';
 import { PLUGIN } from './plugin';
 import { Plugin } from './plugin';
 import { ContributionRegistry } from './contribution-registry';
-import { provideCapabilityGrants } from '../permissions/capability-grants';
-import { PluginEnablementService } from '../plugin-store/lifecycle/plugin-enablement.service';
+import { provideCapabilityGrants } from '../permissions/provide-capability-grants';
+import { PluginEnablementService } from './enablement/plugin-enablement.service';
 import { MenuService } from '../menu/menu.service';
 import { CapabilityGrantService } from '../permissions/capability-grant.service';
 

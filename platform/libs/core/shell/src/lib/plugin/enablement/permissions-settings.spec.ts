@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { PermissionsSettings } from './permissions-settings';
-import { CapabilityGrantService } from './capability-grant.service';
-import { PluginEnablementService } from '../plugin-store/lifecycle/plugin-enablement.service';
-import { PluginDeploymentService } from '../plugin-store/lifecycle/plugin-deployment.service';
-import { PluginIsolationLevelService } from '../foundation/plugin-isolation-level';
+import { CapabilityGrantService } from '../../permissions/capability-grant.service';
+import { PluginEnablementService } from './plugin-enablement.service';
+import { PluginDeploymentService } from '../../plugin-store/lifecycle/plugin-deployment.service';
+import { PluginIsolationLevelService } from '../../foundation/plugin-isolation-level';
 import type { PluginManifest } from '@loomweaver/plugin-sdk';
-import { provideRequiredPlugins } from '../foundation/required-plugins';
+import { provideRequiredPlugins } from '../../foundation/required-plugins';
 
 function transloco() {
   return TranslocoTestingModule.forRoot({

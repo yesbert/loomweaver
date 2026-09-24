@@ -3,7 +3,7 @@ import { TranslocoTestingModule } from '@jsverse/transloco';
 import { PluginStoreDialog } from './plugin-store-dialog';
 import { PLUGIN_CATALOG, PluginCatalog } from './catalog/plugin-catalog';
 import { PluginCatalogEntry } from './installed-plugin';
-import { PluginEnablementService } from './lifecycle/plugin-enablement.service';
+import { PluginEnablementService } from '../plugin/enablement/plugin-enablement.service';
 import { PluginInstallService } from './lifecycle/plugin-install.service';
 import { PluginDeploymentService } from './lifecycle/plugin-deployment.service';
 import { DialogRef } from '../dialog/dialog-ref';

@@ -12,7 +12,7 @@ import {
 import {
   buildFrameSection,
   sanitizeRpcSettingsSection,
-} from './sandbox-settings';
+} from './frame-settings';
 
 function asSection(raw: unknown): FrameSettingsSection {
   return raw as FrameSettingsSection;

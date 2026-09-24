@@ -1,6 +1,6 @@
 import { inject, Service } from '@angular/core';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
-import { pathOwnedBy } from '../../../plugin/plugin-surface-ownership';
+import { pathOwnedBy } from '../../../plugin/context/plugin-surface-ownership';
 import { normalizePath, tabRootOf } from '../../content/content-path';
 import { isViewPanePath } from '../tree/pane-address';
 import { RetainedViewStash } from '../retention/retained-view-stash';

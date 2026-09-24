@@ -1,7 +1,7 @@
 import { computed, inject, Service, signal } from '@angular/core';
 import { CAPABILITIES, Capability } from '@loomweaver/plugin-sdk';
 import { persistedSetting } from '../persistence/stored-values/persisted-setting';
-import { CAPABILITY_GRANTS, effectiveCapabilities } from './capability-grants';
+import { CAPABILITY_GRANTS, effectiveCapabilities } from './provide-capability-grants';
 import {
   ID_SET_CODEC,
   parseIdSet,

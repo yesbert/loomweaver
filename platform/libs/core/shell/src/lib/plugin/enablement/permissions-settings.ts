@@ -4,14 +4,14 @@ import { Capability } from '@loomweaver/plugin-sdk';
 import {
   CapabilityGrantService,
   PluginCapabilityState,
-} from './capability-grant.service';
-import { PluginEnablementService } from '../plugin-store/lifecycle/plugin-enablement.service';
-import { PluginDisableGuard } from '../plugin-store/lifecycle/plugin-disable-guard';
-import { PluginDeploymentService } from '../plugin-store/lifecycle/plugin-deployment.service';
+} from '../../permissions/capability-grant.service';
+import { PluginEnablementService } from './plugin-enablement.service';
+import { PluginDisableGuard } from './plugin-disable-guard';
+import { PluginDeploymentService } from '../../plugin-store/lifecycle/plugin-deployment.service';
 import {
   PluginRung,
   PluginIsolationLevelService,
-} from '../foundation/plugin-isolation-level';
+} from '../../foundation/plugin-isolation-level';
 
 const RUNG_NOTES: Readonly<Record<PluginRung, string>> = {
   trusted: 'settings.pluginLevel.trusted',

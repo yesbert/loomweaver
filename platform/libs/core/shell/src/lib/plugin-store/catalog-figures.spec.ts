@@ -1,4 +1,4 @@
-import { formatCount, formatUpdated } from './format';
+import { formatCount, formatUpdated } from './catalog-figures';
 
 describe('formatCount', () => {
   it('groups digits for the locale', () => {

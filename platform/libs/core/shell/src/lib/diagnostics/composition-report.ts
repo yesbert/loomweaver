@@ -13,7 +13,7 @@ import {
 import { VersionService } from '../version/version.service';
 import { REQUIRED_PLUGINS } from '../foundation/required-plugins';
 import { PLUGIN } from '../plugin/plugin';
-import { FRAME_PLUGIN } from '../plugin/sandbox/frame-plugin';
+import { FRAME_PLUGIN } from '../plugin/frame/frame-plugin';
 import {
   CommandReference,
   contestedShortcuts,
