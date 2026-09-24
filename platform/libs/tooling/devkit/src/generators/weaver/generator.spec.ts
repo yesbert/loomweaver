@@ -253,6 +253,13 @@ describe('weaver generator', () => {
     );
   });
 
+  it('takes a directory with an unbalanced parenthesis literally', async () => {
+    await weaverGenerator(tree, { id: 'notes', directory: 'libs/(beta/notes' });
+    expect(tree.read('apps/studio/src/styles.css', 'utf8')).toContain(
+      "@source '../../../libs/(beta/notes/src';",
+    );
+  });
+
   it('adds no source twice when a weaver is regenerated', async () => {
     await weaverGenerator(tree, { id: 'notes' });
     tree.delete('libs/notes-weaver/project.json');
