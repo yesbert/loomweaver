@@ -22,12 +22,13 @@ export interface ContainerHandle {
    * It lands in the pane the container declared empty (`{ tabs: [] }`), which is what declaring one
    * says; without such a pane it lands in the pane that currently carries the container's pointer.
    *
-   * Give the tab a label, or several open items all read as the child surface's own title.
+   * Give the tab a label, or several open items all read as the child surface's own title. A child
+   * its plugin left out with `setChildShown` is not opened; bring it back first.
    */
   open(path: string, label?: ContainerTabLabel): void;
 }
 
-/** How an opened child's tab is labelled — the same fields a content tab carries. */
+/** How an opened child's tab is labelled: its title and icon. */
 export interface ContainerTabLabel {
   /** Transloco key, or a literal when {@link titleIsLiteral} is set. */
   readonly title?: string;

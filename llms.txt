@@ -22,8 +22,8 @@ This is a curated map for people, and their AI assistants, building on or integr
   - [View state that survives](docs/weaver/view-state.md): `VIEW_STATE`: filter, sub-tab, scroll position in one shape.
   - [Unsaved changes](docs/weaver/unsaved-changes.md): `DirtySurface` and the Save, Discard, Cancel question.
   - [Your plugin's own store](docs/weaver/plugin-state.md): `ctx.state`.
-  - [Containers](docs/weaver/containers.md): a workspace in a tab, the arrangement it opens with, a child that stands for one item through `segment` and `CONTAINER_HANDLE`.
-  - [The content area](docs/weaver/content-area.md): routable surfaces, tabs per pane, chromeless, closable (which refuses closing and nothing else), preview and pinned tabs, panes and tab groups.
+  - [Containers](docs/weaver/containers.md): a workspace in a tab, the arrangement it opens with, a child that stands for one item through `segment` and `CONTAINER_HANDLE`, leaving a child out with `ctx.setChildShown`.
+  - [The content area](docs/weaver/content-area.md): routable surfaces, tabs per pane, chromeless, closable (which refuses closing and nothing else), preview and pinned tabs, a tab `badge`, panes and tab groups.
   - [Sub-routes and follows](docs/weaver/sub-routes-and-follows.md): `subRoutes`, the rest of the address, tabs that follow the selection, `activeContent`.
   - [Menus](docs/weaver/menus.md): `registerMenuItem`, item menu slots, `ctx.ui.openMenu`.
   - [Sandboxed surfaces](docs/weaver/sandboxed-surfaces.md): `component` or `iframe`, the sandbox bootstrap, the frame UI kit.

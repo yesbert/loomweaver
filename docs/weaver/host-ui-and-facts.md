@@ -43,7 +43,7 @@ ctx.ui.open(RenameNoteForm, { title: 'Rename', dismiss: 'explicit' });
 // Right-click a row in your OWN view body: a host-drawn context menu at the cursor (trusted rung only).
 // The handler gets the MouseEvent and the row; what the items may carry is on Menus.
 const onContextMenu = (event: MouseEvent, note: Note) =>
-  ctx.ui.openMenu([{ label: 'Open', icon: 'document', run: () => openNote(note) }], { x: event.clientX, y: event.clientY });
+  ctx.ui.openMenu([{ label: 'notes.menu.open', icon: 'document', run: () => openNote(note) }], { x: event.clientX, y: event.clientY });
 ```
 
 ## Host facts — `ctx.host`

@@ -29,7 +29,8 @@ workspace's own live arrangement exactly, without asking and without discarding 
 workspace also has a **baseline**. For a user-saved workspace that is the explicitly saved snapshot:
 "Save as new" captures the current arrangement and switches to it, and "Save workspace" updates the
 active one's baseline. Putting a workspace back to its baseline is
-[Resetting the arrangement](resetting.md).
+[Resetting the arrangement](resetting.md). Neither a switch nor a reset carries the content the user
+was looking at into the arrangement it restores: the workspace shows what it held.
 
 ```ts
 // src/app/app.config.ts — in the providers array
@@ -73,7 +74,10 @@ it rather than as declared. What they built in another workspace is untouched an
 to the bare address.
 
 A **deep link still wins**: an address that names content opens what it names, and where a workspace
-claims that address, it is the one the visitor starts in. Where your declaration names no content of
+claims that address, it is the one the visitor starts in. That holds for an address below gated
+content too. Opened before the session is known, it keeps its address. Once the session qualifies and
+the claiming workspace becomes active, the content opens at that sub-address rather than at what the
+workspace declares. Where your declaration names no content of
 its own, there is nothing to land on: an opening then leaves both the address and the active
 workspace alone, so whatever you serve at the bare address is what shows. If two declarations set
 `initial`, the first wins, as with a duplicate id.

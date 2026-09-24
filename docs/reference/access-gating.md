@@ -84,6 +84,7 @@ today, reduce the claim to a role token when you build the snapshot.
 | View (panel surface)             | tab and body hidden                                            | _ignored_ — a view is present or it is not               |
 | Command                          | omitted from the palette, `execute()` and its keybinding no-op | _ignored_ — blocked either way                           |
 | Content route / routable surface | placeholder at the same URL, absent from the new-tab picker    | _ignored_ — blocked either way                           |
+| Container child                  | keeps its place and shows the placeholder                      | _ignored_ — blocked either way                           |
 
 Everything is **reactive**. A sign-in, a sign-out or a role change re-evaluates every one of these
 without a reload: gated chrome appears and disappears, a gated route the user is currently on falls
@@ -95,7 +96,8 @@ Two consequences worth knowing:
   no longer satisfies stays in the strip and shows the placeholder when selected, rather than
   vanishing mid-session. The same holds for a `view:` tab in a pane: the tab keeps its place and the
   pane shows the placeholder. (In a **sidebar**, a gated view is hidden outright, because there the
-  tab strip _is_ the list of views.)
+  tab strip _is_ the list of views.) A container child its plugin left out with `ctx.setChildShown`
+  draws neither tab nor placeholder, whatever the session.
 - A gated route is excluded from the pane pickers and from drag-hosting **based on the live session**,
   not on the mere presence of a requirement, so "split editor" and friends work normally in a fully
   gated app.
@@ -134,8 +136,10 @@ through with copyable components in
 [building a distribution → Auth integration](../distribution/auth.md): the login page reading
 `?from=` and navigating back, the dialog variant, and sign-out.
 
-The placeholder covers the **tab root**. A deep link into a sub-route of a gated surface falls back
-to home rather than to the placeholder.
+The placeholder covers every address the gated surface answers, not only its tab root. A deep link
+to a sub-route, to a child of a gated container or to a remainder the surface owns keeps its address
+and is explained the same way. Once the session qualifies, the surface opens at that sub-address,
+also when a declared workspace claims it and becomes active on sign-in.
 
 ## Reading the session
 

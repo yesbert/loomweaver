@@ -12,6 +12,9 @@ menu and gives a rail or bar item a menu of its own. It then opens that menu on 
 account entry with a picture, opens a menu on your own view body, and draws a menu inside your own
 sandboxed surface.
 
+Every menu the host draws stays current while it is open. Its words change in place when a late
+translation bundle arrives or the language changes, and it moves with the control that opened it.
+
 ## Items in a host menu
 
 Add an item to a host menu slot with `ctx.registerMenuItem` (capability `contributions`).

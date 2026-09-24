@@ -138,7 +138,7 @@ it, and that pane takes the address. Without a preview, the next one opens in th
 address. Promote it to a permanent tab **explicitly**:
 call `ctx.keepContentTab(path)` (e.g. on your list's double-click or when the content is edited).
 The host's own double-click cycle on the tab is the distribution's to switch off, so do not build
-your flow on it. Re-opening an already-open tab just refines it (title/sub-route) and **keeps** its
+your flow on it. Re-opening an already-open tab just refines it (title, sub-route, badge) and **keeps** its
 preview state, so a view can safely call `openContentTab` on mount to set the real title without
 accidentally promoting itself:
 
@@ -155,29 +155,31 @@ guarantee.
 ## Marking a tab: `badge`
 
 A tab can carry a badge beside its title: a short word such as "Beta" or "Developer", an icon, or
-both, in one of the badge tones (`neutral`, `brand`, `success`, `danger`). Declare it on the surface
-with `badge`, and every tab that shows the surface carries it, in the content area, in a container's
-inner panes and as a view tab in a pane:
+both, in one of the badge tones (`neutral`, `brand`, `success`, `danger`). The shape is the exported
+`TabBadge` type, `{ text?, textIsLiteral?, icon?, tone? }`. Declare it on the surface with `badge`,
+and every tab that shows the surface carries it, in the content area, in a container's inner panes
+and as a view tab in a pane:
 
 ```ts
 ctx.registerSurface({
-  id: 'assistants.advanced',
-  title: 'assistants.advanced.title',
-  badge: { text: 'assistants.badge.developer', tone: 'brand' },
-  docks: [],
-  component: AdvancedPart,
+  id: 'reports.forecast',
+  title: 'reports.forecast.title',
+  badge: { text: 'reports.badge.beta', tone: 'brand' },
+  routable: { path: 'reports/forecast' },
+  component: ForecastView,
 });
 ```
 
 Change it while the surface is mounted with `ctx.updateSurfaceBadge(id, badge)`, and take it away
 with `null`. The surface is not rebuilt, as with `ctx.retitleSurface`, and only surfaces your plugin
-registered can be changed. A content tab can also carry a badge of its own, passed to
+registered can be changed. Both need the `contributions` capability. A content tab can also carry a badge of its own, passed to
 `ctx.openContentTab({ ..., badge })`: it wins over the surface's, is refined by opening the same path
 again, survives a restart with the tab, and is taken away with `badge: null`.
 
 The badge is not a control of its own, so the tab stays one keyboard stop, and its text joins the
 tab's accessible name after the title. In a strip that shows icons only, such as a sidebar switcher,
-the text is in the tooltip and the accessible name. The text is a translation key unless
+the text is in the tooltip and the accessible name, so a badge made of an icon alone does not show
+there. The text is a translation key unless
 `textIsLiteral` is set. The list of tabs that do not fit, Quick-Open and the minimized strip name a
 tab without its badge.
 

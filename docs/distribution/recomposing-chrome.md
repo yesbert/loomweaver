@@ -199,8 +199,8 @@ provideShell({ omit: ['route:acme.notes.archive'] }); // a surface one of your w
 
 The route then appears in no tab strip, no pane target picker, and is never auto-opened on a deep-link.
 Its URL still answers with the host's neutral _"View not available"_ placeholder, so a link shared from
-another environment explains itself instead of silently bouncing to home. (Like the auth placeholder, it
-covers the route's tab root; a deep-link into a _sub-route_ of an omitted route falls back to home.)
+another environment explains itself instead of silently bouncing to home. (Unlike the auth placeholder,
+it covers only the route's tab root; a deep-link into a _sub-route_ of an omitted route falls back to home.)
 
 Two things worth knowing:
 

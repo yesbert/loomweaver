@@ -13,7 +13,8 @@ export interface ContainerSpec {
   /**
    * The child surfaces this container may hold — a bare surface id, or the object form when the child
    * should also carry an **address** inside the container (see {@link ContainerChildEntry.segment}).
-   * The list is what the inner "new tab" picker offers, access-gated.
+   * The list is what the inner "new tab" picker offers, access-gated and without the children a
+   * plugin left out with `ctx.setChildShown`.
    */
   readonly children: readonly ContainerChild[];
   /**
@@ -36,7 +37,8 @@ export interface ContainerSpec {
    * Every named child must also be listed in {@link children} — an entry that is not is dropped with
    * a developer warning, as is a structurally invalid area. A child the current user may not see is
    * still laid out and shows the host's access placeholder in its pane, so a session that has not
-   * arrived yet cannot flatten the declared layout.
+   * arrived yet cannot flatten the declared layout. A child the plugin left out with
+   * `ctx.setChildShown` shows neither, and keeps its place for when it comes back.
    */
   readonly initial?: readonly string[] | ContainerArea;
 }
