@@ -7,7 +7,6 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
 import { Router } from '@angular/router';
 import { ContentRoute } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
@@ -23,7 +22,7 @@ import { CONTENT_DOCK, VIEW_PANE_PREFIX } from '../../pane/tree/pane-address';
 import { findLeaf, findLeafWhere } from '../../pane/tree/pane-queries';
 import { activeContentPath } from '../../pane/tree/active-content-path';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
-import { isPopoutUrl } from '../../../popout/popout-path';
+import { PopoutWindow } from '../../../popout/popout-window';
 import { popoutNavigationRefusal } from '../../../popout/popout-refusal';
 
 interface AddressFacts {
@@ -46,7 +45,7 @@ export class TabNavigationService {
 
   private readonly address = inject(CurrentAddress);
 
-  private readonly inPopout = isPopoutUrl(inject(DOCUMENT).location.pathname);
+  private readonly inPopout = inject(PopoutWindow).active;
 
   private readonly keptAddress = signal<string | null>(null);
 

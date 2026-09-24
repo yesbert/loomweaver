@@ -10,7 +10,7 @@ import {
   input,
   output,
 } from '@angular/core';
-import { DOCUMENT, NgTemplateOutlet } from '@angular/common';
+import { NgTemplateOutlet } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { CurrentAddress } from './current-address';
 import { SurfaceAddress } from './routing/live-surface-route';
@@ -26,7 +26,7 @@ import { AuthContext } from '../../auth/auth-context';
 import { ViewMountService } from '../../views/view-mount.service';
 import { ViewInstanceSwitcher } from '../../views/view-instance-switcher';
 import { ComponentLoader } from '../../views/component-loader.service';
-import { isPopoutUrl } from '../../popout/popout-path';
+import { PopoutWindow } from '../../popout/popout-window';
 import { AuthRequiredView } from './access/auth-required-view';
 import { RouteUnavailableView } from './access/route-unavailable-view';
 import { IframeSurface } from './iframe-surface';
@@ -161,9 +161,7 @@ export class ContentSecondaryPane {
       : '@container/surface block h-full overflow-auto bg-surface-raised text-content';
   });
 
-  protected readonly unavailableKey = isPopoutUrl(
-    inject(DOCUMENT).location?.pathname ?? '',
-  )
+  protected readonly unavailableKey = inject(PopoutWindow).active
     ? 'popout.unavailable'
     : 'content.split.unavailable';
 

@@ -1,7 +1,6 @@
-import { DOCUMENT } from '@angular/common';
 import { effect, inject, Injector, Service, untracked } from '@angular/core';
 import { Router } from '@angular/router';
-import { isPopoutUrl } from '../../../popout/popout-path';
+import { PopoutWindow } from '../../../popout/popout-window';
 import { ContributionRegistry } from '../../../plugin/contribution-registry';
 import { normalizePath, tabRootOf } from '../../content/content-path';
 import { collectTabPaths } from '../tree/pane-queries';
@@ -18,9 +17,7 @@ export class ContainerDockGc {
   private readonly registry = inject(ContributionRegistry);
   private readonly router = inject(Router);
   private readonly injector = inject(Injector);
-  private readonly popout = isPopoutUrl(
-    inject(DOCUMENT).location?.pathname ?? '',
-  );
+  private readonly popout = inject(PopoutWindow).active;
   private started = false;
 
   start(): void {
