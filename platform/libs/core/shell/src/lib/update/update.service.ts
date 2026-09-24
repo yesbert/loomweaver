@@ -1,9 +1,10 @@
 import { DOCUMENT } from '@angular/common';
 import { DestroyRef, inject, Service, signal } from '@angular/core';
 import { SwUpdate, VersionEvent } from '@angular/service-worker';
-import { NotificationInput } from '@loomweaver/plugin-sdk';
 import { NotificationService } from '../notifications/notification.service';
 import { ANNOUNCE_UPDATES } from './announce-updates';
+import { UpdateNotice, updateNotice } from './update-notices';
+import { dropShellWorker } from './worker-repair';
 
 /**
  * What a check for a new version found. `waiting` means one is downloaded and ready to apply,
@@ -23,12 +24,6 @@ export interface UpdateCheck {
   readonly automatic: boolean;
 }
 
-const UPDATE_TOAST_ID = 'shell.update';
-const UP_TO_DATE_TOAST_ID = 'shell.update.none';
-const CHECK_UNAVAILABLE_TOAST_ID = 'shell.update.unavailable';
-const UPDATE_FAILED_TOAST_ID = 'shell.update.failed';
-const BROKEN_CACHE_TOAST_ID = 'shell.update.broken';
-
 const CONTROL_WAIT_MS = 2500;
 
 const CHECK_TIMEOUT_MS = 3500;
@@ -36,24 +31,6 @@ const CHECK_TIMEOUT_MS = 3500;
 const PERIODIC_CHECK_MS = 30 * 60 * 1000;
 
 const SILENT_CHECK_GAP_MS = 60 * 1000;
-
-const WORKER_SCRIPT = 'ngsw-worker.js';
-
-const WORKER_CACHE_PREFIX = 'ngsw:';
-
-async function bestEffort(work: () => Promise<unknown>): Promise<void> {
-  try {
-    await work();
-  } catch {
-    return;
-  }
-}
-
-function isShellWorker(registration: ServiceWorkerRegistration): boolean {
-  const worker =
-    registration.active ?? registration.waiting ?? registration.installing;
-  return worker?.scriptURL.includes(WORKER_SCRIPT) ?? false;
-}
 
 /**
  * Detects when a new app version has been fetched by the service worker and offers
@@ -71,7 +48,7 @@ export class UpdateService {
 
   private readonly notifications = inject(NotificationService);
 
-  private readonly announces = inject(ANNOUNCE_UPDATES);
+  private readonly isAnnouncing = inject(ANNOUNCE_UPDATES);
 
   private readonly document = inject(DOCUMENT);
 
@@ -83,7 +60,7 @@ export class UpdateService {
 
   private readonly broken = signal(false);
 
-  private lastSilentCheck = 0;
+  private lastCheckAt = 0;
 
   private readonly checked = signal<UpdateCheck | null>(null);
 
@@ -136,44 +113,30 @@ export class UpdateService {
       return this.record('unavailable', false);
     }
     if (this.available()) {
-      this.showUpdateAvailable();
+      this.announce('waiting');
       return this.record('waiting', false);
     }
 
     if (!(await this.ensureControlled())) {
-      this.showReloadNeeded();
+      this.announce('unreachable');
       return this.record('unreachable', false);
     }
 
-    this.lastSilentCheck = Date.now();
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    const timedOut = Symbol('timedOut');
-    const guard = new Promise<typeof timedOut>((resolve) => {
-      timer = setTimeout(() => resolve(timedOut), CHECK_TIMEOUT_MS);
-    });
-    const found = await Promise.race([
-      this.swUpdate.checkForUpdate().catch(() => timedOut),
-      guard,
-    ]);
-    clearTimeout(timer);
+    this.lastCheckAt = Date.now();
+    const found = await this.checkWithin(this.swUpdate, CHECK_TIMEOUT_MS);
 
-    if (found === timedOut) {
-      this.showReloadNeeded();
+    if (found === 'unreachable') {
+      this.announce('unreachable');
       return this.record('unreachable', false);
     }
     if (found) {
       return this.record('waiting', false);
     }
     if (this.failed()) {
-      this.showUpdateFailed();
+      this.announceFailure();
       return this.record('failed', false);
     }
-    this.announce({
-      id: UP_TO_DATE_TOAST_ID,
-      kind: 'success',
-      message: 'update.upToDate',
-      timeoutMs: 4000,
-    });
+    this.announce('current');
     return this.record('current', false);
   }
 
@@ -189,7 +152,7 @@ export class UpdateService {
    */
   async activateUpdate(): Promise<void> {
     if (this.broken()) {
-      await this.dropWorker();
+      await dropShellWorker(this.document.defaultView);
     } else {
       await this.tryActivate();
     }
@@ -216,13 +179,20 @@ export class UpdateService {
     });
   }
 
-  private showReloadNeeded(): void {
-    this.announce({
-      id: CHECK_UNAVAILABLE_TOAST_ID,
-      kind: 'info',
-      message: 'update.checkUnavailable',
-      timeoutMs: 6000,
+  private async checkWithin(
+    swUpdate: SwUpdate,
+    ms: number,
+  ): Promise<boolean | 'unreachable'> {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const deadline = new Promise<'unreachable'>((resolve) => {
+      timer = setTimeout(() => resolve('unreachable'), ms);
     });
+    const found = await Promise.race([
+      swUpdate.checkForUpdate().catch(() => 'unreachable' as const),
+      deadline,
+    ]);
+    clearTimeout(timer);
+    return found;
   }
 
   private async tryActivate(): Promise<void> {
@@ -233,28 +203,6 @@ export class UpdateService {
     } catch {
       return;
     }
-  }
-
-  private async dropWorker(): Promise<void> {
-    const view = this.document.defaultView;
-    const container = view?.navigator?.serviceWorker;
-    await bestEffort(async () => {
-      const registrations = (await container?.getRegistrations()) ?? [];
-      await Promise.all(
-        registrations
-          .filter((registration) => isShellWorker(registration))
-          .map((registration) => registration.unregister()),
-      );
-    });
-    await bestEffort(async () => {
-      const storage = view?.caches;
-      const keys = (await storage?.keys()) ?? [];
-      await Promise.all(
-        keys
-          .filter((key) => key.startsWith(WORKER_CACHE_PREFIX))
-          .map(async (key) => storage?.delete(key)),
-      );
-    });
   }
 
   private onVersionEvent(event: VersionEvent): void {
@@ -269,48 +217,22 @@ export class UpdateService {
     this.available.set(true);
     this.failed.set(false);
     this.broken.set(false);
-    this.showUpdateAvailable();
-  }
-
-  private showUpdateAvailable(): void {
-    this.announce({
-      id: UPDATE_TOAST_ID,
-      kind: 'info',
-      message: 'update.available',
-      action: { label: 'update.reload', run: () => void this.activateUpdate() },
-    });
+    this.announce('waiting');
   }
 
   private onUpdateFailed(): void {
     this.failed.set(true);
-    this.showUpdateFailed();
+    this.announceFailure();
   }
 
   private onWorkerBroken(): void {
     this.failed.set(true);
     this.broken.set(true);
-    this.showUpdateFailed();
+    this.announceFailure();
   }
 
-  private showUpdateFailed(): void {
-    if (this.broken()) {
-      this.announce({
-        id: BROKEN_CACHE_TOAST_ID,
-        kind: 'warning',
-        message: 'update.broken',
-        action: {
-          label: 'update.repair',
-          run: () => void this.activateUpdate(),
-        },
-      });
-      return;
-    }
-    this.announce({
-      id: UPDATE_FAILED_TOAST_ID,
-      kind: 'warning',
-      message: 'update.failed',
-      action: { label: 'update.reload', run: () => void this.activateUpdate() },
-    });
+  private announceFailure(): void {
+    this.announce(this.broken() ? 'broken' : 'failed');
   }
 
   private startBackgroundChecks(): void {
@@ -335,10 +257,10 @@ export class UpdateService {
       return;
     }
     const now = Date.now();
-    if (now - this.lastSilentCheck < SILENT_CHECK_GAP_MS) {
+    if (now - this.lastCheckAt < SILENT_CHECK_GAP_MS) {
       return;
     }
-    this.lastSilentCheck = now;
+    this.lastCheckAt = now;
     const found = await this.swUpdate
       .checkForUpdate()
       .catch(() => 'unreachable' as const);
@@ -354,10 +276,12 @@ export class UpdateService {
     return outcome;
   }
 
-  private announce(notice: NotificationInput): void {
-    if (!this.announces) {
+  private announce(notice: UpdateNotice): void {
+    if (!this.isAnnouncing) {
       return;
     }
-    this.notifications.show(notice);
+    this.notifications.show(
+      updateNotice(notice, () => void this.activateUpdate()),
+    );
   }
 }

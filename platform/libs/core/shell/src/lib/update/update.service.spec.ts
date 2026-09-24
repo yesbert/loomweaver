@@ -61,38 +61,14 @@ function unrecoverable(): UnrecoverableStateEvent {
   } as UnrecoverableStateEvent;
 }
 
-function workerWithNeighboursTheRepairMustLeaveStanding() {
+function shellWorker() {
   const unregister = vi.fn().mockResolvedValue(true);
-  const foreignUnregister = vi.fn().mockResolvedValue(true);
-  const keys = [
-    'ngsw:/:db:control',
-    'ngsw:/:abc:assets:app:cache',
-    'product:own-cache',
-  ];
-  const cacheDelete = vi.fn(async (key: string) => {
-    const at = keys.indexOf(key);
-    if (at !== -1) {
-      keys.splice(at, 1);
-    }
-    return true;
-  });
   const container = {
     getRegistrations: vi.fn().mockResolvedValue([
       { active: { scriptURL: 'https://app.test/ngsw-worker.js' }, unregister },
-      {
-        active: { scriptURL: 'https://app.test/other-worker.js' },
-        unregister: foreignUnregister,
-      },
     ]),
   };
-  return {
-    container,
-    unregister,
-    foreignUnregister,
-    cacheDelete,
-    remaining: () => [...keys],
-    caches: { keys: async () => [...keys], delete: cacheDelete },
-  };
+  return { container, unregister };
 }
 
 function setupBrokenWith(
@@ -412,9 +388,9 @@ describe('UpdateService', () => {
     expect(toast?.action?.label).toBe('update.repair');
   });
 
-  it('drops the shell worker and its caches before reloading out of a broken state', async () => {
+  it('drops the shell worker before reloading out of a broken state', async () => {
     const sw = new FakeSwUpdate();
-    const worker = workerWithNeighboursTheRepairMustLeaveStanding();
+    const worker = shellWorker();
     const reload = vi.fn();
     const service = setupBrokenWith(sw, worker, reload);
 
@@ -422,21 +398,8 @@ describe('UpdateService', () => {
     await service.activateUpdate();
 
     expect(worker.unregister).toHaveBeenCalledTimes(1);
-    expect(worker.cacheDelete).toHaveBeenCalledWith('ngsw:/:db:control');
-    expect(worker.remaining()).toEqual(['product:own-cache']);
     expect(sw.activateUpdate).not.toHaveBeenCalled();
     expect(reload).toHaveBeenCalledTimes(1);
-  });
-
-  it('leaves a foreign worker alone while repairing its own', async () => {
-    const sw = new FakeSwUpdate();
-    const worker = workerWithNeighboursTheRepairMustLeaveStanding();
-    const service = setupBrokenWith(sw, worker, vi.fn());
-
-    sw.unrecoverable.next(unrecoverable());
-    await service.activateUpdate();
-
-    expect(worker.foreignUnregister).not.toHaveBeenCalled();
   });
 
   it('still reloads when unregistering throws (the repair is never a dead end)', async () => {
@@ -456,7 +419,7 @@ describe('UpdateService', () => {
 
   it('activates normally when the worker is healthy — only a broken one is dropped', async () => {
     const sw = new FakeSwUpdate();
-    const worker = workerWithNeighboursTheRepairMustLeaveStanding();
+    const worker = shellWorker();
     const service = setupBrokenWith(sw, worker, vi.fn());
 
     sw.versionUpdates.next(installationFailed());
