@@ -243,6 +243,33 @@ describe('CommandInvocationService', () => {
       expect(seen.length).toBeLessThan(20);
     });
 
+    it('lets invocations wait side by side without counting them as a chain', async () => {
+      registry.addCommand(
+        open({
+          id: 'other.ask',
+          title: 'Ask',
+          run: () => new Promise<void>((resolve) => setTimeout(resolve, 0)),
+        }),
+        OTHER,
+      );
+      const unrelated = vi.fn();
+      registry.addCommand(
+        open({ id: 'other.go', title: 'Go', run: unrelated }),
+        OTHER,
+      );
+
+      const waiting = Array.from({ length: 20 }, () =>
+        invocation.invoke(CALLER, true, 'other.ask'),
+      );
+      const outcome = await invocation.invoke(CALLER, true, 'other.go');
+
+      expect(outcome).toEqual({ outcome: 'answered' });
+      expect(unrelated).toHaveBeenCalledTimes(1);
+      expect(
+        (await Promise.all(waiting)).map((entry) => entry.outcome),
+      ).toEqual(Array.from({ length: 20 }, () => 'answered'));
+    });
+
     it('tells the user when a plugin is refused for lack of the grant', async () => {
       const notifications = TestBed.inject(NotificationService);
       const shown = vi.spyOn(notifications, 'show');

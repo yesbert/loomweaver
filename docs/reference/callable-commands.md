@@ -137,11 +137,11 @@ time; the next call is refused and the list empties, without a reload.
 
 ## Refusal reasons
 
-| Reason              | What happened                                                                                                                                                          |
-| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `unavailable`       | No such command, or not `callable`, or the session does not qualify, or the window does not host it, or the grant is missing. Deliberately one answer for all of them. |
-| `invalid-arguments` | The call did not match what the command declares.                                                                                                                      |
-| `too-deep`          | Commands invoked each other past the workbench's nesting limit — a loop rather than a chain.                                                                           |
+| Reason              | What happened                                                                                                                                                                      |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `unavailable`       | No such command, or not `callable`, or the session does not qualify, or the window does not host it, or the grant is missing. Deliberately one answer for all of them.             |
+| `invalid-arguments` | The call did not match what the command declares.                                                                                                                                  |
+| `too-deep`          | A command invoked another from within its own run, before waiting for anything, past the nesting limit: a loop rather than a chain. Invocations waiting side by side do not count. |
 
 ## The types, and where each is used
 
