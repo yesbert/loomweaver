@@ -36,16 +36,9 @@ test('the content area, not the window, decides the dashboard layout', async ({
   await page.setViewportSize(WIDE);
   await page.goto('/');
 
-  const host = page.locator('#lw-main-content > lw-content-secondary-pane').first();
+  const host = page.locator('#lw-main-content > lw-surface-body').first();
   await expect(host).toBeVisible();
-  const reference = await host.evaluate(
-    (el) => getComputedStyle(el).containerName,
-  );
-  test.skip(
-    reference !== 'surface',
-    'the pinned @loomweaver/shell predates the named pane reference; this starts testing ' +
-      'something the day the demo adopts a release that carries it',
-  );
+  expect(await host.evaluate((el) => getComputedStyle(el).containerName)).toBe('surface');
 
   const cards = page.locator('[data-testid="insights-out"]').locator('..').locator('..');
   const wide = await columnCount(cards);
@@ -65,7 +58,7 @@ test('the dashboard fits a content area the sidebar has narrowed', async ({
   await expect(dashboard).toBeVisible();
   await expect(page.getByTestId('insights-out')).not.toBeEmpty();
 
-  const main = page.locator('#lw-main-content > lw-content-secondary-pane').first();
+  const main = page.locator('#lw-main-content > lw-surface-body').first();
   expect(await main.evaluate((el) => el.clientWidth)).toBeLessThan(NARROW.width);
 
   await expect.poll(() => overflowing(dashboard)).toEqual([]);

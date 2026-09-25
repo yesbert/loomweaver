@@ -11,14 +11,16 @@ function openAbout(ctx: PluginContext): void {
 
 function welcomeOnce(ctx: PluginContext): void {
   const welcomed = ctx.state.watch<boolean>(WELCOMED_KEY);
-  const due = welcomed.loaded() && welcomed.value() !== true;
-  if (due) {
-    welcomed.set(true);
-  }
-  welcomed.dispose();
-  if (due) {
-    openAbout(ctx);
-  }
+  welcomed.onChange((value, loaded) => {
+    if (!loaded) {
+      return;
+    }
+    if (value !== true) {
+      welcomed.set(true);
+      openAbout(ctx);
+    }
+    welcomed.dispose();
+  });
 }
 
 export const aboutPlugin: Plugin = {
