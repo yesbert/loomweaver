@@ -15,7 +15,7 @@ import { STATUS_BADGE } from './quote-status';
 
 type StatusFilter = QuoteStatus | 'all';
 
-export const STATUS_FILTERS: readonly StatusFilter[] = [
+const STATUS_FILTERS: readonly StatusFilter[] = [
   'all',
   'draft',
   'sent',
@@ -24,7 +24,7 @@ export const STATUS_FILTERS: readonly StatusFilter[] = [
   'expired',
 ];
 
-export interface QuoteRow {
+interface QuoteRow {
   readonly quote: Quote;
   readonly customer: string;
   readonly city: string;

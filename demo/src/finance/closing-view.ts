@@ -8,7 +8,7 @@ import { openReceivables, periods } from './books';
   templateUrl: './closing-view.html',
 })
 export class ClosingView {
-  protected readonly rows = computed(() => periods());
+  protected readonly rows = periods;
 
   protected readonly blocking = computed(() => openReceivables().length);
 }

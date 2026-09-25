@@ -1,4 +1,4 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import {
@@ -11,7 +11,7 @@ import {
 } from '../accounting';
 import { quotesActions } from './quotes-actions';
 
-export interface OpenItemRow {
+interface OpenItemRow {
   readonly quote: Quote;
   readonly customer: string;
   readonly total: string;
@@ -25,7 +25,6 @@ function daysBetween(iso: string): number {
 
 @Component({
   selector: 'lw-quotes-open-items-view',
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [TranslocoPipe],
   templateUrl: './quotes-open-items-view.html',
 })

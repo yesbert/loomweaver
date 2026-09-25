@@ -22,7 +22,7 @@ export class EmployeesView {
     }));
   });
 
-  protected readonly count = computed(() => headcount());
+  protected readonly count = headcount;
 
   protected readonly payroll = computed(() =>
     moneyIn(() => this.lang())(monthlyGross()),

@@ -18,7 +18,6 @@ export const peoplePlugin: Plugin = {
       icon: 'employees',
       routable: { path: 'people/employees' },
       docks: [],
-      padded: false,
       component: EmployeesView,
     });
     ctx.registerSurface({
@@ -27,7 +26,6 @@ export const peoplePlugin: Plugin = {
       icon: 'payrollRuns',
       routable: { path: 'people/payroll' },
       docks: [],
-      padded: false,
       component: PayrollView,
     });
 

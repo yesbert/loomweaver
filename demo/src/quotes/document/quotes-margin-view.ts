@@ -1,9 +1,9 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, computed } from '@angular/core';
+import { Component, computed } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { type MarginLine, formatMoney, marginOf } from '../../accounting';
 import { activeLang, quoteFromRoute } from './quote-from-route';
 
-export interface MarginRow {
+interface MarginRow {
   readonly lineId: string;
   readonly descriptionKey: string;
   readonly margin: string;
@@ -15,7 +15,6 @@ const THIN_MARGIN_PERCENT = 40;
 
 @Component({
   selector: 'lw-quotes-margin-view',
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [TranslocoPipe],
   templateUrl: './quotes-margin-view.html',
 })

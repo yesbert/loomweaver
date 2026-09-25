@@ -18,7 +18,7 @@ export {
   customers,
   resetCustomers,
 } from './catalog';
-export { type DocumentMargin, type MarginLine, marginOf } from './margin';
+export { type MarginLine, marginOf, percentOf } from './margin';
 export { isoDaysFromToday, localIsoDate, setReferenceDate, today } from './clock';
 export {
   type Quote,

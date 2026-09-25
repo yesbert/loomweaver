@@ -1,7 +1,7 @@
 import { computed, signal } from '@angular/core';
 import { type Cents, isoDaysFromToday, today } from '../accounting';
 
-export type PayrollState = 'open' | 'paid';
+type PayrollState = 'open' | 'paid';
 
 export interface Employee {
   readonly id: string;
@@ -81,10 +81,6 @@ export const payrollRuns = runStore.asReadonly();
 export function resetStaff(): void {
   employeeStore.set(seededEmployees());
   runStore.set(seededRuns());
-}
-
-export function employeeById(id: string): Employee | undefined {
-  return employees().find((employee) => employee.id === id);
 }
 
 export const headcount = computed(() => employees().length);

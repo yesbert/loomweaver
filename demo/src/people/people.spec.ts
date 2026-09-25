@@ -1,6 +1,5 @@
 import { setReferenceDate } from '../accounting/clock';
 import {
-  employeeById,
   employees,
   headcount,
   monthlyGross,
@@ -54,7 +53,7 @@ describe('staff', () => {
     const partTime = employees().filter((employee) => employee.weeklyHours < 40);
 
     expect(partTime.map((employee) => employee.number)).toEqual(['P-0104', 'P-0105']);
-    expect(employeeById('e-rohde')?.weeklyHours).toBe(20);
+    expect(employees().find((employee) => employee.id === 'e-rohde')?.weeklyHours).toBe(20);
   });
 
   it('names a department for everyone, as a key rather than as prose', () => {

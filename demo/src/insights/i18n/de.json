@@ -1,9 +1,5 @@
 {
-  "title": "Übersicht",
   "pipeline": {
-    "title": "Pipeline",
-    "out": "Beim Kunden",
-    "count": "{{count}} Angebote",
     "status": {
       "draft": "Entwurf",
       "sent": "Versendet",

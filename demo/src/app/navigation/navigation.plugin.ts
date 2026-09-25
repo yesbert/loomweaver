@@ -25,7 +25,6 @@ export const navigationPlugin: Plugin = {
         icon: module.icon,
         component: ModuleNavView,
         docks: ['left-panel'],
-        padded: false,
       });
     }
   },

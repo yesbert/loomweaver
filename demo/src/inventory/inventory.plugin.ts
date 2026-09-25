@@ -18,7 +18,6 @@ export const inventoryPlugin: Plugin = {
       icon: 'stockLevels',
       routable: { path: 'inventory/stock' },
       docks: [],
-      padded: false,
       component: StockLevelsView,
     });
     ctx.registerSurface({
@@ -27,7 +26,6 @@ export const inventoryPlugin: Plugin = {
       icon: 'movements',
       routable: { path: 'inventory/movements' },
       docks: [],
-      padded: false,
       component: MovementsView,
     });
 
