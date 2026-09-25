@@ -278,9 +278,13 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   switch button takes the provided rows' layout. Where the copies had drifted they now agree: a saved
   workspace's warning mark gets the tooltip the provided rows had, and the built-in row's dot moved
   by one pixel (compared by screenshot; the provided list is pixel-identical).
-- [ ] 7.8 i18n: the translation loader split into namespaces, overrides, the translation tree and the
+- [x] 7.8 i18n: the translation loader split into namespaces, overrides, the translation tree and the
   loader, its result built from named parts, the namespace warning dev-only like its siblings;
   "language" in internal names; helpers next to what they serve.
+  `translation-namespaces.ts`, `translation-overrides.ts`, `translation-tree.ts` and the loader; the
+  result is `forkJoin({ host, namespaced, overlay })`. `ServedLanguage` lives in
+  `served-languages.ts`; `detectInitialLanguage`, `applyLanguage`, `applyStored` and the `active`
+  signal inside `LocaleService`. The fallback language was already one constant.
 - [ ] 7.9 Persistence: the boot latch split into a command and a query, small duplicates removed.
   **Move:** `cross-tab/` and `identity-scope/` sub-themes, with file names matching the classes.
 - [ ] 7.10 Settings: **move** `settings/` to `settings-dialog/`; the JSDoc of `SettingsService` says what

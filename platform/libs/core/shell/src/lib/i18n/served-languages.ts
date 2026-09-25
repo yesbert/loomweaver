@@ -1,6 +1,12 @@
 import { InjectionToken } from '@angular/core';
 import { LANGUAGE_STORAGE_KEY } from '../persistence/device-level-keys';
 
+/** One language the workbench serves: its canonical code and its name, written in that language. */
+export interface ServedLanguage {
+  readonly code: string;
+  readonly name: string;
+}
+
 export const SHIPPED_LANGUAGES: readonly string[] = ['en', 'de'];
 
 export const SERVED_LANGUAGES = new InjectionToken<readonly string[]>(
@@ -89,7 +95,7 @@ function matchPreference(
     : undefined;
 }
 
-export function detectInitialLang(served: readonly string[]): string {
+export function detectInitialLanguage(served: readonly string[]): string {
   const stored = servedLanguage(storedLanguage(), served);
   if (stored !== undefined) {
     return stored;

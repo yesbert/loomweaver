@@ -56,13 +56,16 @@ export * from './lib/foundation/shell-features';
 export type { PaddingDefault } from './lib/foundation/surface-padding';
 export * from './lib/foundation/unusable-workspaces';
 
-export { LocaleService, type ServedLanguage } from './lib/i18n/locale.service';
+export { LocaleService } from './lib/i18n/locale.service';
+export { type ServedLanguage } from './lib/i18n/served-languages';
 export {
   provideTranslationNamespaces,
-  provideTranslationOverrides,
   TRANSLATION_NAMESPACES,
+} from './lib/i18n/translation-namespaces';
+export {
+  provideTranslationOverrides,
   TRANSLATION_OVERRIDES,
-} from './lib/i18n/transloco-loader';
+} from './lib/i18n/translation-overrides';
 
 export * from './lib/layout/layout';
 export { ViewportService } from './lib/layout/viewport.service';

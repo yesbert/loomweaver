@@ -6,17 +6,12 @@ import { hydrateAsync } from '../persistence/stored-values/hydrate';
 import { StateSyncService } from '../persistence/state-sync.service';
 import { LANGUAGE_STORAGE_KEY } from '../persistence/device-level-keys';
 import {
-  detectInitialLang,
+  detectInitialLanguage,
   languageName,
   SERVED_LANGUAGES,
+  ServedLanguage,
   servedLanguage,
 } from './served-languages';
-
-/** One language the workbench serves: its canonical code and its name, written in that language. */
-export interface ServedLanguage {
-  readonly code: string;
-  readonly name: string;
-}
 
 /**
  * The workbench's language, for a product's own language control. It is the same mechanism the
@@ -49,21 +44,21 @@ export class LocaleService {
     }),
   );
 
-  private readonly langState = signal<string>(
-    detectInitialLang(this.supported),
+  private readonly active = signal<string>(
+    detectInitialLanguage(this.supported),
   );
 
   /** The active language code, reactive. */
-  readonly lang = this.langState.asReadonly();
+  readonly lang = this.active.asReadonly();
 
   constructor() {
     this.document.documentElement.lang = this.lang();
-    this.applyServed(this.store.peek?.(LANGUAGE_STORAGE_KEY));
+    this.applyStored(this.store.peek?.(LANGUAGE_STORAGE_KEY));
     hydrateAsync(this.store, LANGUAGE_STORAGE_KEY, (raw) =>
-      this.applyServed(raw),
+      this.applyStored(raw),
     );
     this.sync.register('settings', LANGUAGE_STORAGE_KEY, (raw) =>
-      this.applyServed(raw),
+      this.applyStored(raw),
     );
   }
 
@@ -81,19 +76,19 @@ export class LocaleService {
       }
       return;
     }
-    this.applyLang(served);
+    this.applyLanguage(served);
     void this.store.set(LANGUAGE_STORAGE_KEY, served);
   }
 
-  private applyServed(raw: string | null | undefined): void {
+  private applyStored(raw: string | null | undefined): void {
     const lang = servedLanguage(raw, this.supported);
     if (lang !== undefined) {
-      this.applyLang(lang);
+      this.applyLanguage(lang);
     }
   }
 
-  private applyLang(lang: string): void {
-    this.langState.set(lang);
+  private applyLanguage(lang: string): void {
+    this.active.set(lang);
     this.transloco.setActiveLang(lang);
     this.document.documentElement.lang = lang;
   }
