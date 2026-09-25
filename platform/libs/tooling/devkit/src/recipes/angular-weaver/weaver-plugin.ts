@@ -1,6 +1,11 @@
 import type { ResolvedWeaver } from './recipe';
 import { agentSurfaceBlock } from './agent-files';
 import { quotedList } from '../../lib/amend/compose';
+import {
+  LEFT_PANEL_REGION,
+  RAIL_REGION,
+  STATUS_BAR_REGION,
+} from '../shell-regions';
 import { CONTAINER_EXAMPLE_ID } from './weaver-terms';
 import { commandBlock, toneHelper } from './weaver-command';
 
@@ -57,7 +62,7 @@ function surfaceBlock(w: ResolvedWeaver): string {
     `      component: ${w.className}View,`,
   ];
   if (w.features.instanceable) {
-    lines.push("      docks: ['left-panel'],", '      instanceable: true,');
+    lines.push(`      docks: ['${LEFT_PANEL_REGION}'],`, '      instanceable: true,');
   } else {
     lines.push(`      routable: { path: '${w.id}' },`);
   }
@@ -80,7 +85,7 @@ function railBlock(w: ResolvedWeaver): string {
   const lines = [
     '    ctx.registerRailItem({',
     `      id: '${w.id}.rail',`,
-    "      rail: 'primary',",
+    `      rail: '${RAIL_REGION}',`,
     `      icon: '${w.id}',`,
     `      title: '${w.id}.title',`,
     `      run: () => ${railTarget(w)},`,
@@ -94,7 +99,7 @@ function barItemBlock(w: ResolvedWeaver): string {
   return [
     '    ctx.registerBarItem({',
     `      id: '${w.id}.bar',`,
-    "      bar: 'status-bar',",
+    `      bar: '${STATUS_BAR_REGION}',`,
     "      slot: 'end',",
     `      icon: '${w.id}',`,
     `      tooltip: '${w.id}.action',`,
@@ -117,7 +122,7 @@ function aboutRailBlock(w: ResolvedWeaver): string {
   return [
     '    ctx.registerRailItem({',
     `      id: '${w.id}.rail.about',`,
-    "      rail: 'primary',",
+    `      rail: '${RAIL_REGION}',`,
     "      anchor: 'bottom',",
     `      icon: '${w.id}',`,
     `      title: '${w.id}.about',`,

@@ -3,7 +3,12 @@ import { Amendment } from '../../lib/amend/types';
 import { distributionAmendments } from './amendments';
 import { FileMap, Recipe } from '../../lib/generate/types';
 import { isKebabId, toTitleCase } from '../../lib/generate/casing';
-import { renderRegions } from '../shell-regions';
+import {
+  CONTENT_REGION,
+  RAIL_REGION,
+  renderRegions,
+  STATUS_BAR_REGION,
+} from '../shell-regions';
 import { PLACEHOLDER_LOGO_SVG } from './logo';
 import { readme } from './readme';
 
@@ -84,8 +89,8 @@ import {
 import { provideProductIdentity } from '@loomweaver/plugin-sdk';
 
 /* Which regions exist and where they dock. Contributions target these ids, so a region a
-   weaver names but this layout omits renders nothing — silently. 'primary' (rail) and
-   'status-bar' (bar) are what the scaffolded weaver targets. */
+   weaver names but this layout omits renders nothing — silently. '${RAIL_REGION}' (rail) and
+   '${STATUS_BAR_REGION}' (bar) are what the scaffolded weaver targets. */
 export const layout: ShellLayout = {
   regions: [
 ${renderRegions(' '.repeat(4))}
@@ -142,7 +147,7 @@ function appConfigSpec(): string {
 describe('layout', () => {
   it('declares the regions contributions target', () => {
     const ids = layout.regions.map((region) => region.id);
-    for (const id of ['primary', 'status-bar', 'main']) {
+    for (const id of ['${RAIL_REGION}', '${STATUS_BAR_REGION}', '${CONTENT_REGION}']) {
       expect(ids).toContain(id);
     }
   });

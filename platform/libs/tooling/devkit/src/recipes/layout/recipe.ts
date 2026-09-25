@@ -1,5 +1,9 @@
 import { FileMap, Recipe } from '../../lib/generate/types';
-import { renderRegions } from '../shell-regions';
+import {
+  RAIL_REGION,
+  renderRegions,
+  STATUS_BAR_REGION,
+} from '../shell-regions';
 import { isKebabId, toCamelCase } from '../../lib/generate/casing';
 
 export interface LayoutInput {
@@ -21,7 +25,7 @@ export function resolveLayoutInput(input: LayoutInput): ResolvedLayout {
 
 function moduleFile(l: ResolvedLayout): string {
   return `// A base layout for the distribution. Pass it to provideLayout(${l.propertyName}Layout)
-// in src/app/app.config.ts. Region ids are what contributions target — 'primary' (rail) and 'status-bar' (bar) match
+// in src/app/app.config.ts. Region ids are what contributions target — '${RAIL_REGION}' (rail) and '${STATUS_BAR_REGION}' (bar) match
 // the devkit weaver defaults, so a scaffolded weaver's rail + bar items land here.
 import { ShellLayout } from '@loomweaver/shell';
 

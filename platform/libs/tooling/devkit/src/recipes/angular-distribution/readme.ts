@@ -1,4 +1,5 @@
 import type { ResolvedDistribution } from './recipe';
+import { TOP_BAR_REGION } from '../shell-regions';
 
 function stylesNotes(d: ResolvedDistribution): readonly string[] {
   if (d.styles === 'precompiled') {
@@ -121,7 +122,7 @@ export function readme(d: ResolvedDistribution): string {
     '',
     '```ts',
     'provideCommandPaletteEntry();                          // top bar, end slot, order 5',
-    "provideQuickOpenEntry({ bar: 'top-bar', order: 4 });    // …or put it wherever you want",
+    `provideQuickOpenEntry({ bar: '${TOP_BAR_REGION}', order: 4 });    // …or put it wherever you want`,
     '```',
     '',
     'A badge never outlives what it opens. Drop the search and its badge goes with it; the same',
