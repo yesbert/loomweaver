@@ -507,6 +507,10 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   functions, with `requiredUrlFinding`, `optionalUrlFinding` and `pathOf`; the command validator's
   helpers are `readRegistration` and `findingsFor`, and its property map holds nodes, so the double
   cast goes. Generated files, generated trees and catalog findings are byte-identical.
+  Part 2: `weaver-input.ts` resolves the input (types, access, chord check, features,
+  capabilities), `weaver-views.ts` holds the view, child view, about dialog and spec templates, and
+  `recipe.ts` builds the file map; `weaver-terms.ts` is folded into `weaver-plugin.ts`, whose three
+  access lines come from `accessLine`; braceless multi-line `if`s get braces. Output identical.
 - [ ] 10.9 The package READMEs and the generated `LOOMWEAVER.md` describe the tree and the build wiring
   as they are, one section per route; one bundle helper for the two tooling bins; validator messages
   once; CLI test fixtures and app-resolution tests written once.

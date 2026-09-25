@@ -1,4 +1,4 @@
-import type { ResolvedWeaver } from './recipe';
+import type { ResolvedWeaver } from './weaver-input';
 
 export function standInFile(weaver: ResolvedWeaver): string {
   return `import { EventType, type BaseEvent, type Tool } from '@ag-ui/core';

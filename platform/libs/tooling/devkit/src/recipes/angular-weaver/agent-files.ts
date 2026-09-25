@@ -1,6 +1,6 @@
 import { FileMap } from '../../lib/generate/types';
 import { RIGHT_PANEL_REGION } from '../shell-regions';
-import type { ResolvedWeaver } from './recipe';
+import type { ResolvedWeaver } from './weaver-input';
 import { panelFile, panelTemplateFile } from './agent-panel';
 import { standInFile } from './agent-stand-in';
 

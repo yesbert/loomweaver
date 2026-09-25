@@ -1,4 +1,4 @@
-import type { ResolvedWeaver } from './recipe';
+import type { ResolvedWeaver } from './weaver-input';
 import { agentSurfaceBlock } from './agent-files';
 import { quotedList } from '../../lib/amend/compose';
 import {
@@ -6,8 +6,9 @@ import {
   RAIL_REGION,
   STATUS_BAR_REGION,
 } from '../shell-regions';
-import { CONTAINER_EXAMPLE_ID } from './weaver-terms';
 import { commandBlock, toneHelper } from './weaver-command';
+
+export const CONTAINER_EXAMPLE_ID = 'example';
 
 const SURFACE_ICON =
   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>';
@@ -30,9 +31,9 @@ function containerSurfaceBlock(weaver: ResolvedWeaver): string {
     `        children: [${children}],`,
     `        initial: [${children}],`,
     '      },',
+    ...accessLine(weaver),
+    '    });',
   ];
-  if (weaver.features.access) lines.push(`      access: ${weaver.features.access},`);
-  lines.push('    });');
 
   for (const [suffix, className] of [
     ['canvas', `${weaver.className}CanvasView`],
@@ -66,8 +67,7 @@ function surfaceBlock(weaver: ResolvedWeaver): string {
   } else {
     lines.push(`      routable: { path: '${weaver.id}' },`);
   }
-  if (weaver.features.access) lines.push(`      access: ${weaver.features.access},`);
-  lines.push('    });');
+  lines.push(...accessLine(weaver), '    });');
   return lines.join('\n');
 }
 
@@ -89,9 +89,9 @@ function railBlock(weaver: ResolvedWeaver): string {
     `      icon: '${weaver.id}',`,
     `      title: '${weaver.id}.title',`,
     `      run: () => ${railTarget(weaver)},`,
+    ...accessLine(weaver),
+    '    });',
   ];
-  if (weaver.features.access) lines.push(`      access: ${weaver.features.access},`);
-  lines.push('    });');
   return lines.join('\n');
 }
 
@@ -239,4 +239,10 @@ ${body.join('\n')}
   },${deactivate}
 };
 `;
+}
+
+function accessLine(weaver: ResolvedWeaver): string[] {
+  return weaver.features.access
+    ? [`      access: ${weaver.features.access},`]
+    : [];
 }

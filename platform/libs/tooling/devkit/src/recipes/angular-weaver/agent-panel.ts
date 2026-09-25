@@ -1,4 +1,4 @@
-import type { ResolvedWeaver } from './recipe';
+import type { ResolvedWeaver } from './weaver-input';
 
 export function panelFile(weaver: ResolvedWeaver): string {
   return `import { ChangeDetectionStrategy, Component, signal } from '@angular/core';

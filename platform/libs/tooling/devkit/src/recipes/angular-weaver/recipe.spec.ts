@@ -1,10 +1,7 @@
 import { generate } from '../../lib/generate/generate';
 import { validateI18nParity } from '../../lib/validate/i18n';
-import {
-  angularWeaver,
-  resolveWeaverInput,
-  type WeaverFeatures,
-} from './recipe';
+import { angularWeaver } from './recipe';
+import { resolveWeaverInput, type WeaverFeatures } from './weaver-input';
 import { PLATFORM_VERSION } from '../platform-version';
 import { AG_UI_PROTOCOL_VERSION } from './agent-files';
 
