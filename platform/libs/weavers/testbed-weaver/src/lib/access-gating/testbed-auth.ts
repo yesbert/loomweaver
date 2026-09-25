@@ -1,85 +1,75 @@
 import { computed, signal } from '@angular/core';
 import { ANONYMOUS, AuthSnapshot } from '@loomweaver/plugin-sdk';
-import { writeLocalStorageBestEffort } from '../plugin/testbed-storage';
+import { CrossTabHooks, CrossTabLink, persistedChoice } from '../persisted-choice';
 
-const ANON = 0;
-const USER = 1;
-const ADMIN = 2;
-const GRACE = 3;
+type PrincipalName = 'anonymous' | 'ada' | 'adaAdmin' | 'grace';
 
-const PRINCIPALS: readonly AuthSnapshot[] = [
-  ANONYMOUS,
-  {
+const PRINCIPALS: Readonly<Record<PrincipalName, AuthSnapshot>> = {
+  anonymous: ANONYMOUS,
+  ada: {
     authenticated: true,
     roles: ['user'],
     claims: {},
     subject: 'ada',
     displayName: 'Ada Lovelace',
   },
-  {
+  adaAdmin: {
     authenticated: true,
     roles: ['user', 'admin'],
     claims: {},
     subject: 'ada',
     displayName: 'Ada Lovelace (admin)',
   },
-  {
+  grace: {
     authenticated: true,
     roles: ['user'],
     claims: {},
     subject: 'grace',
     displayName: 'Grace Hopper',
   },
-];
+};
 
-const STORAGE_KEY = 'testbed.auth.principal';
+const CYCLE: readonly PrincipalName[] = ['anonymous', 'ada', 'adaAdmin'];
 
-function restoredIndex(): number {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    const parsed = raw === null ? ANON : Number(raw);
-    const known =
-      Number.isSafeInteger(parsed) && parsed >= 0 && parsed < PRINCIPALS.length;
-    return known ? parsed : ANON;
-  } catch {
-    return ANON;
-  }
+const choice = persistedChoice('testbed.auth.principal');
+
+function restored(): PrincipalName {
+  const stored = choice.read();
+  return stored !== null && Object.hasOwn(PRINCIPALS, stored)
+    ? (stored as PrincipalName)
+    : 'anonymous';
 }
 
-const index = signal(restoredIndex());
+const current = signal<PrincipalName>(restored());
 
-let announce: ((key: string) => void) | undefined;
+function switchTo(next: PrincipalName): void {
+  choice.write(next);
+  current.set(next);
+}
 
-function switchTo(next: number): AuthSnapshot {
-  writeLocalStorageBestEffort(STORAGE_KEY, String(next));
-  index.set(next);
-  announce?.(STORAGE_KEY);
-  return PRINCIPALS[next];
+function nextInCycle(name: PrincipalName): PrincipalName {
+  return CYCLE.at(CYCLE.indexOf(name) + 1) ?? 'anonymous';
 }
 
 export const testbedAuth = {
-  connectSync(hooks: { announce(key: string): void }): {
-    key: string;
-    refresh(): void;
-  } {
-    announce = hooks.announce;
-    return { key: STORAGE_KEY, refresh: () => index.set(restoredIndex()) };
-  },
-  snapshot: computed(() => PRINCIPALS[index()]),
-  cycle(): AuthSnapshot {
-    const next = index() >= ADMIN ? ANON : index() + 1;
-    return switchTo(next);
+  connectSync: (hooks: CrossTabHooks): CrossTabLink =>
+    choice.connectSync(hooks, () => current.set(restored())),
+  snapshot: computed(() => PRINCIPALS[current()]),
+  cycle(): void {
+    switchTo(nextInCycle(current()));
   },
   signInAsAdmin(): void {
-    switchTo(ADMIN);
+    switchTo('adaAdmin');
   },
   switchToGrace(): void {
-    switchTo(GRACE);
+    switchTo('grace');
   },
   signOut(): void {
-    switchTo(ANON);
+    switchTo('anonymous');
   },
   dropAdmin(): void {
-    if (index() === ADMIN) switchTo(USER);
+    if (current() === 'adaAdmin') {
+      switchTo('ada');
+    }
   },
 };
