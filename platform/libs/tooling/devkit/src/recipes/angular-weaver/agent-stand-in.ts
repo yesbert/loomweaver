@@ -10,7 +10,7 @@ export function standInFile(weaver: ResolvedWeaver): string {
 // WHAT REPLACES IT: this file, and only this file. Point askAgent at your own endpoint and yield the
 // events it streams back. The panel and the connection beside it stay exactly as they are.
 
-const PACE = 40;
+const PAUSE_MS = 40;
 
 export interface AgentRequest {
   readonly runId: string;
@@ -97,7 +97,7 @@ function event(type: EventType, fields: Record<string, unknown>): BaseEvent {
 }
 
 function pause(): Promise<void> {
-  return new Promise((done) => setTimeout(done, PACE));
+  return new Promise((done) => setTimeout(done, PAUSE_MS));
 }
 `;
 }

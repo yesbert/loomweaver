@@ -1,5 +1,6 @@
 import type { ResolvedDistribution } from './recipe';
 import { TOP_BAR_REGION } from '../shell-regions';
+import { UNTAGGED_NOTE } from '../readme-notes';
 
 function stylesNotes(distribution: ResolvedDistribution): readonly string[] {
   if (distribution.styles === 'precompiled') {
@@ -71,10 +72,7 @@ export function readme(distribution: ResolvedDistribution): string {
     '`src/app/app.spec.ts` was replaced by one that boots the shell with this composition root, so',
     '`ng test` is green as generated; test your own components beside it.',
     '',
-    'The project is generated **untagged**: Nx tags belong to your `depConstraints`, and inventing',
-    'one would fail a lint policy you never opted this project into. If your workspace enforces',
-    'module boundaries, give it tags your constraints allow — `--tags` at generation time, or',
-    '`tags` in `project.json` afterwards.',
+    ...UNTAGGED_NOTE,
     '',
     '## Compose weavers + branding (in `src/app/app.config.ts`)',
     '',

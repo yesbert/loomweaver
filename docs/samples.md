@@ -1018,19 +1018,21 @@ export function devAuthSource(): Signal<AuthSnapshot> {
   return state.asReadonly();
 }
 
-export function cycleDevUser(): void {
-  const current = state();
-  const next = !current.authenticated
-    ? USER
-    : current.roles.includes('admin')
-      ? ANONYMOUS
-      : ADMIN;
-  state.set(next);
+export function signInDevUser(): void {
+  state.set(USER);
+}
+
+export function switchDevAccount(): void {
+  state.set(state().roles.includes('admin') ? USER : ADMIN);
+}
+
+export function signOutDevUser(): void {
+  state.set(ANONYMOUS);
 }
 ```
 
-A ring of three states and one step around it. The plugin turns the one step into the three verbs a
-user knows, and puts them where a user looks:
+Three sessions and a verb for each move between them: sign in, switch the account, sign out. The
+plugin puts the verbs where a user looks:
 
 ```ts
 // src/auth/dev-session.plugin.ts
@@ -1038,31 +1040,17 @@ user knows, and puts them where a user looks:
 // out, from a rail item whose menu carries them. This is presentation for a product that has no
 // backend yet; nothing here protects anything. Delete it once your own session arrives.
 import type { Disposable, Plugin, PluginContext } from '@loomweaver/plugin-sdk';
-import { cycleDevUser, devAuthSource } from './dev-auth-source';
+import {
+  devAuthSource,
+  signInDevUser,
+  signOutDevUser,
+  switchDevAccount,
+} from './dev-auth-source';
 
 const MENU = 'session.account/menu';
 const snapshot = devAuthSource();
 
 let drawn: Disposable[] = [];
-
-function signIn(): void {
-  if (!snapshot().authenticated) {
-    cycleDevUser();
-  }
-}
-
-function switchAccount(): void {
-  cycleDevUser();
-  if (!snapshot().authenticated) {
-    cycleDevUser();
-  }
-}
-
-function signOut(): void {
-  while (snapshot().authenticated) {
-    cycleDevUser();
-  }
-}
 
 function initialsOf(name: string): string {
   return name
@@ -1130,7 +1118,7 @@ function draw(ctx: PluginContext): void {
 export const devSessionPlugin: Plugin = {
   manifest: { id: 'session', name: 'Account', capabilities: ['contributions'] },
   activate(ctx) {
-    const then = (step: () => void) => () => {
+    const andRedraw = (step: () => void) => () => {
       step();
       draw(ctx);
     };
@@ -1139,21 +1127,21 @@ export const devSessionPlugin: Plugin = {
       title: 'session.signIn',
       icon: 'account',
       access: { authenticated: false },
-      run: then(signIn),
+      run: andRedraw(signInDevUser),
     });
     ctx.registerCommand({
       id: 'session.switchAccount',
       title: 'session.switchAccount',
       icon: 'account',
       access: { authenticated: true },
-      run: then(switchAccount),
+      run: andRedraw(switchDevAccount),
     });
     ctx.registerCommand({
       id: 'session.signOut',
       title: 'session.signOut',
       icon: 'signOut',
       access: { authenticated: true },
-      run: then(signOut),
+      run: andRedraw(signOutDevUser),
     });
     draw(ctx);
   },
