@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { basename, join, resolve } from 'node:path';
 import { toTitleCase } from '@loomweaver/devkit';
 import { ArgError, boolFlag, ParsedArgs, stringFlag } from '../args';
-import { nxApplications } from './nx-applications';
+import { Application, nxApplications } from './nx-applications';
 import {
   detectPackageManager,
   PackageManager,
@@ -49,12 +49,7 @@ interface Manifest {
   readonly devDependencies?: Record<string, string>;
 }
 
-interface Application {
-  readonly name: string;
-  readonly root: string;
-}
-
-export interface Plan {
+export interface InitPlan {
   readonly workspace: ConfiguredWorkspace;
   readonly manager: PackageManager;
   readonly lockfile?: string;
@@ -68,7 +63,7 @@ export interface Plan {
   readonly dryRun: boolean;
 }
 
-export function planInit(args: ParsedArgs, deps: InitDeps): Plan {
+export function planInit(args: ParsedArgs, deps: InitDeps): InitPlan {
   const found = findWorkspace(deps.cwd);
   if (!found?.kind) {
     throw new WorkspaceError(

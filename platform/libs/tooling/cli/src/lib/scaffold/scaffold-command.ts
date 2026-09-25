@@ -1,12 +1,7 @@
 import { boolFlag, ParsedArgs, rejectUnknownFlags, stringFlag } from '../args';
 import { AmendPlan, applyAmend, planAmend } from './amend';
 import { Io } from '../io';
-import {
-  allowedFlagsFor,
-  amendmentsFor,
-  buildScaffold,
-  findScaffold,
-} from './scaffold';
+import { allowedFlagsFor, findScaffold, scaffoldValues } from './scaffold';
 import { applyWrite, planWrite } from './write';
 
 function reportAmendments(io: Io, amend: AmendPlan, done: boolean): void {
@@ -39,11 +34,12 @@ export function scaffold(args: ParsedArgs, io: Io): number {
     'dry-run',
     'force',
   ]);
-  const files = buildScaffold(descriptor, args);
+  const values = scaffoldValues(descriptor, args);
+  const files = descriptor.build(values);
   const out = stringFlag(args, 'out') ?? '.';
   const plan = planWrite(files, out);
   const paths = plan.files.map((file) => file.path);
-  const amend = planAmend(amendmentsFor(descriptor, args), out);
+  const amend = planAmend(descriptor.amend?.(values) ?? [], out);
 
   if (boolFlag(args, 'dry-run')) {
     io.out(`Would write ${paths.length} file(s) into ${plan.root}:`);

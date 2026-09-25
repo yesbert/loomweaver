@@ -1,6 +1,4 @@
 import {
-  Amendment,
-  FileMap,
   kebabCase,
   portableOptions,
   ScaffoldDescriptor,
@@ -9,7 +7,7 @@ import {
   findScaffold as findDescriptor,
 } from '@loomweaver/devkit';
 import { relative, resolve } from 'node:path';
-import { ArgError, ParsedArgs } from '../args';
+import { ArgError, boolFlag, ParsedArgs, stringFlag } from '../args';
 import { findWorkspace } from '../workspace';
 
 export { SCAFFOLDS, type ScaffoldDescriptor } from '@loomweaver/devkit';
@@ -36,17 +34,13 @@ function readFlag(
   option: ScaffoldOption,
 ): string | boolean | undefined {
   const kebab = kebabCase(option.name);
-  const value = args.flags[kebab] ?? args.flags[option.name];
-  if (value === undefined) {
-    return undefined;
-  }
-  if (option.type === 'string' && typeof value !== 'string') {
-    throw new ArgError(`Option --${kebab} needs a value.`);
-  }
-  if (option.type === 'boolean' && typeof value !== 'boolean') {
-    throw new ArgError(`Option --${kebab} does not take a value.`);
-  }
-  return value;
+  const spelled: ParsedArgs = {
+    ...args,
+    flags: { ...args.flags, [kebab]: args.flags[kebab] ?? args.flags[option.name] },
+  };
+  return option.type === 'string'
+    ? stringFlag(spelled, kebab)
+    : boolFlag(spelled, kebab);
 }
 
 function valuesFor(
@@ -82,7 +76,7 @@ function directoryFromOut(out: string | undefined): string {
   return below || '.';
 }
 
-function scaffoldValues(
+export function scaffoldValues(
   scaffold: ScaffoldDescriptor,
   args: ParsedArgs,
 ): ScaffoldValues {
@@ -100,16 +94,3 @@ function scaffoldValues(
   };
 }
 
-export function buildScaffold(
-  scaffold: ScaffoldDescriptor,
-  args: ParsedArgs,
-): FileMap {
-  return scaffold.build(scaffoldValues(scaffold, args));
-}
-
-export function amendmentsFor(
-  scaffold: ScaffoldDescriptor,
-  args: ParsedArgs,
-): readonly Amendment[] {
-  return scaffold.amend?.(scaffoldValues(scaffold, args)) ?? [];
-}

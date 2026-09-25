@@ -480,7 +480,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   in a typed table that `renderRegions` renders; the weaver, agent, auth-source, distribution and
   layout templates interpolate the names. Every scaffold's generated files are byte-identical. The
   checker resolves the names and now also reads the agent panel's dock.
-- [ ] 10.7 The CLI: `run.ts` split into commands with a command table, `init/`, `scaffold/` and
+- [x] 10.7 The CLI: `run.ts` split into commands with a command table, `init/`, `scaffold/` and
   `validate/` folders, init steps as a union, the angular.json reading in one file, the workspace type
   without casts, flag typing once, the target application chosen by one rule, devkit defaults reused.
   Part 1: `run.ts` keeps the command table and `run()`; `help.ts`, `exec.ts`, `io.ts`,
@@ -490,6 +490,14 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   `angular-config.ts` is the one reader of `angular.json` for the workspace lookup and the wiring;
   `amend.ts` keeps the dispatch, postcss and packages, and `project-wiring.ts` the build target,
   stylesheet and composition root, both writing to an `AmendLog`.
+  Part 3: init steps are `ExecStep | ScaffoldStep`; `Plan` is `InitPlan`; one `Application` type;
+  the scaffold flags are typed through `stringFlag`/`boolFlag`, and a scaffold's values are computed
+  once; the MCP's `valuesFor` is `portableValuesFrom`. Set aside: a failing install still leaves
+  `init` through the exception `run()` reports, because returning 1 from the step would add a line
+  to the output; the Nx application rule stays as it is, because aligning it with the generator's
+  changes which application is chosen; and the devkit defaults stay restated, because the weaver's
+  default project root is not published and resolving the shortcut through `resolveWeaverInput`
+  would fail an invalid `--weaver` id before the install runs.
 - [ ] 10.8 The weaver recipe split into input resolution and view templates; resolved inputs named
   instead of single letters; the validators' helper names; the emitted auth-source, agent panel and
   README text simplified, with `docs/samples.md` and `docs/scaffolding.md` in the same pull request.
