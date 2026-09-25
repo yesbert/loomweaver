@@ -307,6 +307,43 @@ describe('CommandInvocationService', () => {
       );
     });
 
+    it('reads the choices of a command in the page when it is described or checked', async () => {
+      const customers = ['C-1'];
+      const run = vi.fn();
+      registry.addCommand(
+        open({
+          id: 'other.pick',
+          title: 'Pick',
+          arguments: [
+            {
+              name: 'customer',
+              kind: 'choice',
+              description: 'The customer to open',
+              required: true,
+              get choices() {
+                return customers;
+              },
+            },
+          ],
+          run,
+        }),
+        OTHER,
+      );
+
+      customers.push('C-2');
+
+      const described = invocation
+        .invocable(CALLER, true)
+        .find((entry) => entry.id === 'other.pick');
+      expect(described?.arguments?.[0]).toMatchObject({
+        choices: ['C-1', 'C-2'],
+      });
+      expect(
+        await invocation.invoke(CALLER, true, 'other.pick', { customer: 'C-2' }),
+      ).toEqual({ outcome: 'answered' });
+      expect(run).toHaveBeenCalledTimes(1);
+    });
+
     it('describes what a command takes without running it', () => {
       const run = vi.fn();
       registry.addCommand(
