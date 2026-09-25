@@ -367,7 +367,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 
 ## 9. The published packages: layout and text
 
-- [ ] 9.1 The npm READMEs of `@loomweaver/plugin-sdk` and `@loomweaver/frame-kit` say what the package
+- [x] 9.1 The npm READMEs of `@loomweaver/plugin-sdk` and `@loomweaver/frame-kit` say what the package
   is and point to the docs; the frame-kit README stops listing members by hand.
 - [ ] 9.2 The plugin contract's JSDoc: unresolvable references and broken sentences, other products'
   names, retired behaviour (`openContentTab`'s content group, `View.icon`), history and roadmap notes,
