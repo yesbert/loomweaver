@@ -184,6 +184,14 @@ content reaches the edge, and SHALL offer a way back.
 - **THEN** its column disappears and the content area extends into it
 - **AND** a control to expand it again remains reachable
 
+#### Scenario: A drag whose edge disappears still ends
+
+- **WHEN** the user is dragging a panel's edge and the edge goes away before the pointer is
+  released, because the panel collapses or the window becomes too narrow for panels beside the
+  content
+- **THEN** the drag ends with the width reached so far, and that width is remembered as if released
+- **AND** panels collapse and expand afterwards exactly as they did before the drag
+
 ### Requirement: The frame belongs to the application, not to what is in it
 
 A region SHALL be drawn because the distribution declared it, not because something currently
@@ -231,6 +239,12 @@ that a hidden entry can be brought back.
 - **WHEN** an entry has keyboard focus
 - **THEN** it can be moved within its band and to the other side from the keyboard, and the result
   is announced
+
+#### Scenario: A launcher entry that only opens a menu is curated like any other
+
+- **WHEN** a launcher entry names a menu slot and an opening gesture but no action of its own
+- **THEN** the checklist lists it, and the user can hide it or move it to the other rail from there
+- **AND** once it is hidden, the checklist still offers it and choosing it brings it back
 
 ### Requirement: A declared view finds its way to a sidebar exactly once
 

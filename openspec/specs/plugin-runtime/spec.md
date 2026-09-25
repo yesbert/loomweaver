@@ -29,7 +29,8 @@ own features are plugins like any other.
 ### Requirement: Activation is isolated per plugin
 
 The workbench SHALL activate each composed plugin independently. A plugin that fails to activate
-SHALL NOT prevent the others from activating, and its own partial contributions SHALL be undone.
+SHALL NOT prevent the others from activating, its own partial contributions SHALL be undone, and
+what it was granted SHALL be released.
 
 A failure SHALL be attributed to the activation that produced it, not to the plugin's id. Where a
 plugin was deactivated and activated again while an earlier activation was still pending, a
@@ -54,6 +55,11 @@ longer current.
   the second activation registers a contribution, and then the first activation fails
 - **THEN** the contribution of the second activation is still registered
 - **AND** the failure is reported
+
+#### Scenario: A plugin that fails to activate holds no grant
+
+- **WHEN** a composed plugin throws while activating
+- **THEN** it holds no grant, and the permissions surface does not list it
 
 ### Requirement: Contributions live and die with their plugin
 

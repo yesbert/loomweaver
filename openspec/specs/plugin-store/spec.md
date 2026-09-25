@@ -261,6 +261,10 @@ deployed plugin SHALL run regardless of a disabling stored while the same identi
 own, so that withholding the switch can never strand them with something turned off and no way to
 turn it on.
 
+Browsing the catalogue SHALL show a deployed plugin as provided and SHALL NOT offer to install it,
+and an installation of a deployed identity SHALL be refused, so that no record of the user's own can
+wait behind the deployment and take over when it is withdrawn.
+
 #### Scenario: A deployed plugin says where it came from
 
 - **WHEN** the user views what is active
@@ -275,6 +279,16 @@ turn it on.
 
 - **WHEN** the user views a deployed plugin
 - **THEN** no route to remove it is offered
+
+#### Scenario: Browsing a deployed plugin offers no install
+
+- **WHEN** the user browses the catalogue and opens an entry the operator deployed
+- **THEN** it is marked as provided, and no install is offered
+
+#### Scenario: Installing a deployed identity is refused
+
+- **WHEN** an installation of a plugin the operator deployed is attempted by any route
+- **THEN** it is refused and nothing is recorded as the user's own
 
 ### Requirement: An installed plugin's settings are grouped apart from the product's
 
@@ -295,6 +309,10 @@ inside the application rather than by sending the user elsewhere, and it SHALL c
 product's own origin like everything else. A link to the plugin's home SHALL be an ordinary link,
 never embedded.
 
+On a screen too narrow to show the list and the detail side by side, the detail SHALL replace the
+list and offer a way back to it, so that everything the detail offers, installing included, stays
+reachable.
+
 #### Scenario: Searching matches what a user would type
 
 - **WHEN** the user types part of a name, an author or a description
@@ -309,6 +327,12 @@ never embedded.
 
 - **WHEN** an entry's description document is served from another origin
 - **THEN** it is not fetched, and the entry remains usable
+
+#### Scenario: A narrow screen loses nothing
+
+- **WHEN** the store is browsed on a screen too narrow for the list and the detail side by side, and
+  the user opens an entry
+- **THEN** its detail replaces the list, with its install action and a way back to the list
 
 ### Requirement: The store can be opened from the distribution's own control
 

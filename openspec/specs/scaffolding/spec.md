@@ -128,6 +128,22 @@ reports nothing.
   generated output itself weighs
 - **THEN** the build reports it
 
+#### Scenario: The generated notes agree with what was generated
+
+- **WHEN** a consumer reads the notes generated beside a weaver
+- **THEN** every region they name is one the generated contributions target and the generated
+  layout declares, with the kind the notes give it
+- **AND** where they tell the consumer to install a package, they ask for the version range the
+  generator records in the workspace or names as a remaining step
+
+#### Scenario: A style configuration the generator cannot amend is named
+
+- **WHEN** a distribution is generated into a workspace whose style pipeline configuration the
+  generator cannot amend safely, such as one written as code
+- **THEN** that configuration is left untouched
+- **AND** whichever route generated it names what to add, and that the workbench renders unstyled
+  until it is added
+
 ### Requirement: A generated distribution shows the way into its searches
 
 A generated distribution SHALL present, on its first run and without the consumer editing anything,
@@ -446,6 +462,13 @@ generator adds for one plugin SHALL NOT replace, shadow or disable what it added
 - **THEN** that file is left untouched
 - **AND** the generator names what to add to it
 - **AND** it does not report the plugin as composed in
+
+#### Scenario: A nested package is not taken for the workspace
+
+- **WHEN** output is generated into a directory inside a workspace, below a folder that carries a
+  package manifest of its own but no workspace configuration
+- **THEN** the workspace above it is found and wired, as it would be from the workspace root
+- **AND** a package the output needs is recorded in that workspace, not in the nested package
 
 ### Requirement: A consumer can have their own declarations checked
 

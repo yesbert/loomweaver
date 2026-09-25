@@ -147,5 +147,5 @@ they start with a top-level folder.
 ## 10. Hand-over
 
 - [x] 10.1 Name every platform fix under "Fixed" in the notes of the release that carries it.
-- [ ] 10.2 Run `openspec validate --all --strict`, the unit suites, the testbed and demo end-to-end
+- [x] 10.2 Run `openspec validate --all --strict`, the unit suites, the testbed and demo end-to-end
   suites and the guards; archive the change.
