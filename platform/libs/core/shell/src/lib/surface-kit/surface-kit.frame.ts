@@ -3,7 +3,7 @@ import {
   removeIcon,
   sanitizeIconSvg,
   setIcon,
-} from '../elements/icon/icon-registry-global';
+} from '../elements/icon/icon-registry';
 import { defineLwElements } from '../elements/lw-elements';
 import { applySurfaceState } from './surface-render-state';
 import { captureSelf } from './surface-self-capture';

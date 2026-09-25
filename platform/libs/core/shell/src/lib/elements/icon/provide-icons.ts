@@ -3,7 +3,7 @@ import {
   makeEnvironmentProviders,
   provideEnvironmentInitializer,
 } from '@angular/core';
-import { setDistributionIcon } from './icon-registry-global';
+import { setDistributionIcon } from './icon-registry';
 import { LoomIconName } from './loom-icons';
 
 /**

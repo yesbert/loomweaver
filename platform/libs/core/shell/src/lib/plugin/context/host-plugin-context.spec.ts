@@ -6,6 +6,7 @@ import { LeftOutChildren } from '../../regions/pane/container/left-out-children'
 import { CONTAINER_CHILD_REGION } from '../../contributions/surface-normalize';
 import { VIEW_PANE_PREFIX } from '../../regions/pane/tree/pane-address';
 import { ALL, DummyComponent, makeContext } from './host-context-harness';
+import { resolveIcon } from '../../elements/icon/icon-registry';
 
 function contribute(ctx: HostPluginContext): void {
   ctx.registerCommand({ id: 'c', title: 't', run: () => undefined });
@@ -53,13 +54,13 @@ describe('HostPluginContext', () => {
 
   describe('contributeIcons', () => {
     it('contributes icon names resolvable from the registry, and removes them on disposeAll', () => {
-      const { ctx, icons } = makeContext();
+      const { ctx } = makeContext();
 
       ctx.contributeIcons({ pluginGlyph: '<svg/>' });
-      expect(icons.resolve('pluginGlyph')).toBe('<svg></svg>');
+      expect(resolveIcon('pluginGlyph')).toBe('<svg></svg>');
 
       ctx.disposeAll();
-      expect(icons.resolve('pluginGlyph')).toBeUndefined();
+      expect(resolveIcon('pluginGlyph')).toBeUndefined();
     });
   });
 

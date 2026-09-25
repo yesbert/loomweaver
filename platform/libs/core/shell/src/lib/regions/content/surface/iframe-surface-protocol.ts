@@ -1,5 +1,5 @@
 import { Methods } from 'penpal';
-import { distributionIcons } from '../../../elements/icon/icon-registry-global';
+import { distributionIcons } from '../../../elements/icon/icon-registry';
 import { LW_TOKENS } from '../../../theme/theme-tokens';
 import { isAtOrBelow, normalizePath } from '../content-path';
 import type { LwSurfaceCaptureRequest } from '../../../surface-kit/surface-kit.frame';

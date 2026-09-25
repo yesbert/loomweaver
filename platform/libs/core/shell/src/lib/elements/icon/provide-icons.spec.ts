@@ -1,11 +1,7 @@
 import { EnvironmentInjector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { IconRegistry } from './icon-registry';
-import {
-  distributionIcons,
-  resolveIcon,
-  setIcon,
-} from './icon-registry-global';
+import { PluginIconContributions } from './plugin-icon-contributions';
+import { distributionIcons, resolveIcon, setIcon } from './icon-registry';
 import { LOOM_ICONS } from './loom-icons';
 import { provideIcons } from './provide-icons';
 
@@ -37,7 +33,7 @@ describe('provideIcons (distribution-level icons)', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     bootstrap({ trash: BRAND });
 
-    new IconRegistry().register('notes', { trash: PLUGIN });
+    new PluginIconContributions().register('notes', { trash: PLUGIN });
 
     expect(resolveIcon('trash')).toBe(BRAND);
     warn.mockRestore();
@@ -45,7 +41,7 @@ describe('provideIcons (distribution-level icons)', () => {
 
   it('offers only its own icons for the sandbox, never a plugin contribution', () => {
     bootstrap({ trash: BRAND });
-    const disposable = new IconRegistry().register('notes', {
+    const disposable = new PluginIconContributions().register('notes', {
       'test.plugin-own': PLUGIN,
     });
 

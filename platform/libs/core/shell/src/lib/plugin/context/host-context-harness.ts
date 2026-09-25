@@ -6,7 +6,7 @@ import { AUTH_SOURCE } from '../../auth/auth-context';
 import { CommandInvocationService } from '../../commands/command-invocation.service';
 import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { DialogService } from '../../dialog/dialog.service';
-import { IconRegistry } from '../../elements/icon/icon-registry';
+import { PluginIconContributions } from '../../elements/icon/plugin-icon-contributions';
 import { COMMAND_INVOKER } from '../../foundation/command-invoker';
 import { LayoutRegion, SHELL_LAYOUT } from '../../layout/layout';
 import { MenuService } from '../../menu/menu.service';
@@ -89,7 +89,7 @@ export function makeContext(
     settings: TestBed.inject(SettingsService),
     version: TestBed.inject(VersionService),
     update: TestBed.inject(UpdateService),
-    icons: TestBed.inject(IconRegistry),
+    icons: TestBed.inject(PluginIconContributions),
     menu: TestBed.inject(MenuService),
     themes: TestBed.inject(ThemeRegistry),
   };
