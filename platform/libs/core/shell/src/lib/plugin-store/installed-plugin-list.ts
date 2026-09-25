@@ -20,7 +20,7 @@ import { PluginStoreConsent } from './lifecycle/plugin-store-consent';
 import { LwButton } from '../elements/button/lw-button';
 import { PluginIcon } from './plugin-icon';
 import { availableUpdate } from './lifecycle/plugin-update';
-import { frameSettingsGroup } from '../plugin/frame/frame-settings';
+import { frameSettingsGroup } from '../plugin/frame/frame-settings-section';
 
 interface InstalledRow {
   readonly id: string;

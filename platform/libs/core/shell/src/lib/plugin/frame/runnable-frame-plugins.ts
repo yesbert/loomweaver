@@ -22,24 +22,32 @@ export function signatureOf(plugin: RunnableFramePlugin): string {
   return `${plugin.entryUrl}|${sorted(plugin.capabilities)}|${sorted(plugin.granted)}|${plugin.version ?? ''}|${levelOf(plugin)}`;
 }
 
+export interface RefusedFramePlugin {
+  readonly id: string;
+  readonly asked: PluginIsolationLevel;
+}
+
+export interface FramePluginSelection {
+  readonly runnable: readonly RunnableFramePlugin[];
+  readonly refused: readonly RefusedFramePlugin[];
+}
+
 export function runnablePlugins(
   composed: readonly FramePlugin[],
   installed: readonly InstalledPlugin[],
   deployed: readonly InstalledPlugin[],
   catalogMaxLevel: PluginIsolationLevel,
-): readonly RunnableFramePlugin[] {
+): FramePluginSelection {
   const claimed = new Set(composed.map((plugin) => plugin.id));
   const fromCatalog: RunnableFramePlugin[] = [];
+  const refused: RefusedFramePlugin[] = [];
   for (const plugin of [...deployed, ...installed]) {
     if (claimed.has(plugin.id)) {
       continue;
     }
     const asked = plugin.level ?? DEFAULT_ISOLATION_LEVEL;
     if (exceedsLevel(asked, catalogMaxLevel)) {
-      console.error(
-        `Plugin "${plugin.id}" asks to run ${asked}, which this catalog may not confer ` +
-          `(it confers at most ${catalogMaxLevel}). It is not started.`,
-      );
+      refused.push({ id: plugin.id, asked });
       continue;
     }
     claimed.add(plugin.id);
@@ -53,5 +61,5 @@ export function runnablePlugins(
       level: asked,
     });
   }
-  return [...composed, ...fromCatalog];
+  return { runnable: [...composed, ...fromCatalog], refused };
 }
