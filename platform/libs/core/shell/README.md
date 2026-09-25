@@ -33,7 +33,9 @@ directories like components, directives, and services").
   section).
 - **`plugin-isolation/`** — which level each running frame plugin holds, read by the frame
   runtime, the iframe surface and the permissions section; it imports only `foundation/`.
-- **`commands/`** — command registry + keybindings + command palette.
+- **`commands/`** — the command seam (`CommandService`, invocation), with `keyboard/` (chords and
+  the keybinding service) and `palette/` (the palette, its recents, and `entry/` for the bar entries
+  that open it).
 - **`plugin-store/`** — community plugin store: catalog port and the level cap a catalog may
   confer, install/deployment/store services and the complete store UI.
 - **`permissions/`** — capability grants, their broker and refusal reporting.

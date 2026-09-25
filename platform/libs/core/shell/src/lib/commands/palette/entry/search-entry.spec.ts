@@ -4,9 +4,9 @@ import { TranslocoTestingModule } from '@jsverse/transloco';
 import { ANONYMOUS, AuthSnapshot } from '@loomweaver/plugin-sdk';
 import { CommandPaletteEntry } from './command-palette-entry';
 import { PALETTE_COMMAND_ID } from '../command-palette';
-import { ContributionRegistry } from '../../contributions/contribution-registry';
-import { AUTH_SOURCE } from '../../auth/auth-context';
-import { provideShellFeatures } from '../../foundation/shell-features';
+import { ContributionRegistry } from '../../../contributions/contribution-registry';
+import { AUTH_SOURCE } from '../../../auth/auth-context';
+import { provideShellFeatures } from '../../../foundation/shell-features';
 
 function transloco() {
   return TranslocoTestingModule.forRoot({

@@ -308,8 +308,10 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 
 ## 8. Commands, menus, dialogs, capture and the element kit
 
-- [ ] 8.1 **Move:** `commands/` into `keyboard/` and `palette/` (with `palette/entry/`); `keybinding.ts`
+- [x] 8.1 **Move:** `commands/` into `keyboard/` and `palette/` (with `palette/entry/`); `keybinding.ts`
   to `chord.ts`; the recently used commands service to `recent-commands.service.ts`.
+  `RecentCommandsService` (the class follows its file; the storage key stays `lw.shell.command-mru`).
+  `host-command-ids.ts` stays at the top of `commands/`, beside the two services.
 - [ ] 8.2 **Move:** the frame-kit bundle entry out of `elements/` into `surface-kit/`; `build.mjs`
   follows.
 - [ ] 8.3 Menus (after the list-menu defect is fixed): `MenuService` split into resolution, drawing and

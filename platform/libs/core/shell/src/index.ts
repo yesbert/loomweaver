@@ -18,10 +18,10 @@ export type {
 
 export * from './lib/commands/command-invocation.service';
 export * from './lib/commands/command.service';
-export * from './lib/commands/format-chord';
-export * from './lib/commands/keybinding.service';
-export * from './lib/commands/search-entry/provide-command-palette-entry';
-export * from './lib/commands/search-entry/provide-quick-open-entry';
+export * from './lib/commands/keyboard/format-chord';
+export * from './lib/commands/keyboard/keybinding.service';
+export * from './lib/commands/palette/entry/provide-command-palette-entry';
+export * from './lib/commands/palette/entry/provide-quick-open-entry';
 
 export * from './lib/contributions/contribution-registry';
 

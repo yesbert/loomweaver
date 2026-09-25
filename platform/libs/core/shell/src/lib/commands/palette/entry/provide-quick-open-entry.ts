@@ -1,6 +1,6 @@
 import { EnvironmentProviders, makeEnvironmentProviders } from '@angular/core';
 import { BarSlot } from '@loomweaver/plugin-sdk';
-import { provideBarItems } from '../../foundation/bar-item';
+import { provideBarItems } from '../../../foundation/bar-item';
 import { QuickOpenEntry } from './quick-open-entry';
 
 /** Where the built quick-open entry goes. Defaults: status bar, start slot, order 5. */

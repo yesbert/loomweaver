@@ -3,7 +3,7 @@ import {
   eventSignature,
   formatShortcut,
   isEditableTarget,
-} from './keybinding';
+} from './chord';
 
 describe('chordSignature', () => {
   it('resolves "mod" to meta on macOS and ctrl elsewhere', () => {

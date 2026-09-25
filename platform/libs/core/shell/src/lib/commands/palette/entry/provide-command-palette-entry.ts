@@ -1,6 +1,6 @@
 import { EnvironmentProviders, makeEnvironmentProviders } from '@angular/core';
 import { BarSlot } from '@loomweaver/plugin-sdk';
-import { provideBarItems } from '../../foundation/bar-item';
+import { provideBarItems } from '../../../foundation/bar-item';
 import { CommandPaletteEntry } from './command-palette-entry';
 
 /** Where the built command-palette entry goes (LWF-05). Defaults: top bar, end slot, order 5. */

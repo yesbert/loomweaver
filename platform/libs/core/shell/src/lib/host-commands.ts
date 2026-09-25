@@ -9,7 +9,7 @@ import { registerWorkspaceCommands } from './workspace/workspace-commands';
 import {
   registerPaletteCommand,
   registerQuickOpenCommand,
-} from './commands/palette-commands';
+} from './commands/palette/palette-commands';
 import { PaneService } from './regions/pane/pane.service';
 import { registerSplitCommand } from './regions/pane/split-command';
 import { PopoutService } from './popout/popout.service';

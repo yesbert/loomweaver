@@ -7,7 +7,7 @@ import { ContributionRegistry } from '../contributions/contribution-registry';
 import { AUTH_SOURCE } from '../auth/auth-context';
 import { CapabilityRefusalErrorHandler } from '../permissions/refusal-error-handler';
 import { NotificationService } from '../notifications/notification.service';
-import { PaletteMruService } from './palette-mru.service';
+import { RecentCommandsService } from './palette/recent-commands.service';
 
 const CALLER = 'caller-plugin';
 const OTHER = 'other-plugin';
@@ -211,13 +211,13 @@ describe('CommandInvocationService', () => {
 
     it('leaves the recently-used record alone, because nothing chose it', async () => {
       localStorage.clear();
-      const mru = TestBed.inject(PaletteMruService);
+      const recent = TestBed.inject(RecentCommandsService);
       registry.addCommand(open({ id: 'other.go', title: 'Go', run: vi.fn() }), OTHER);
 
       expect((await invocation.invoke(CALLER, true, 'other.go')).outcome).toBe(
         'answered',
       );
-      expect(mru.ids()).toEqual([]);
+      expect(recent.ids()).toEqual([]);
       expect(localStorage.getItem('lw.shell.command-mru')).toBeNull();
     });
 

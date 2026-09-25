@@ -1,12 +1,12 @@
 import { inject, Service, signal } from '@angular/core';
-import { WORKING_STATE_STORE } from '../persistence/working-state-store';
-import { hydrateAsync } from '../persistence/stored-values/hydrate';
-import { StateSyncService } from '../persistence/cross-tab/state-sync.service';
+import { WORKING_STATE_STORE } from '../../persistence/working-state-store';
+import { hydrateAsync } from '../../persistence/stored-values/hydrate';
+import { StateSyncService } from '../../persistence/cross-tab/state-sync.service';
 
 const STORAGE_KEY = 'lw.shell.command-mru';
 const LIMIT = 8;
 
-function parseMru(raw: string | undefined): readonly string[] {
+function parseRecentIds(raw: string | undefined): readonly string[] {
   if (!raw) {
     return [];
   }
@@ -25,22 +25,22 @@ function parseMru(raw: string | undefined): readonly string[] {
 }
 
 @Service()
-export class PaletteMruService {
+export class RecentCommandsService {
   private readonly store = inject(WORKING_STATE_STORE);
   private readonly sync = inject(StateSyncService);
 
   private readonly state = signal<readonly string[]>(
-    parseMru(this.store.peek?.(STORAGE_KEY)),
+    parseRecentIds(this.store.peek?.(STORAGE_KEY)),
   );
 
   readonly ids = this.state.asReadonly();
 
   constructor() {
     hydrateAsync(this.store, STORAGE_KEY, (raw) =>
-      this.state.set(parseMru(raw)),
+      this.state.set(parseRecentIds(raw)),
     );
     this.sync.register('working-state', STORAGE_KEY, (raw) =>
-      this.state.set(parseMru(raw)),
+      this.state.set(parseRecentIds(raw)),
     );
   }
 

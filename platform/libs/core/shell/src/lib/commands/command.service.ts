@@ -10,7 +10,7 @@ import { PopoutWindow } from '../popout/popout-window';
 import { ContributionRegistry } from '../contributions/contribution-registry';
 import { AuthContext } from '../auth/auth-context';
 import { FeatureSwitches } from '../features/feature-switches.service';
-import { formatChord } from './format-chord';
+import { formatChord } from './keyboard/format-chord';
 
 export interface Triggerable {
   readonly command?: string;

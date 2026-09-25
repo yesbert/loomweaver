@@ -2,9 +2,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslocoTestingModule, translocoConfig } from '@jsverse/transloco';
 import { CommandPaletteEntry } from './command-palette-entry';
 import { PALETTE_COMMAND_ID } from '../command-palette';
-import { formatChord } from '../format-chord';
-import { ContributionRegistry } from '../../contributions/contribution-registry';
-import { BAR_CONTEXT, BarContext } from '../../regions/bar/bar-context';
+import { formatChord } from '../../keyboard/format-chord';
+import { ContributionRegistry } from '../../../contributions/contribution-registry';
+import { BAR_CONTEXT, BarContext } from '../../../regions/bar/bar-context';
 
 function transloco() {
   return TranslocoTestingModule.forRoot({

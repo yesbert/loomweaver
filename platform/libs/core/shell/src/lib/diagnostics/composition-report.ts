@@ -2,7 +2,7 @@ import { inject, Service } from '@angular/core';
 import { BAR_ITEM } from '../foundation/bar-item';
 import { RAIL_ITEM } from '../foundation/rail-item';
 import { VIEW } from '../views/view';
-import { isMacPlatform } from '../commands/keybinding';
+import { isMacPlatform } from '../commands/keyboard/chord';
 import { ContributionRegistry } from '../contributions/contribution-registry';
 import { SHELL_LAYOUT } from '../layout/layout';
 import { SettingsService } from '../settings-dialog/settings.service';

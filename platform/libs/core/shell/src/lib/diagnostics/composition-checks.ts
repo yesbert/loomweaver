@@ -1,5 +1,5 @@
 import { Command, MenuItem, SettingsSection } from '@loomweaver/plugin-sdk';
-import { chordSignature } from '../commands/keybinding';
+import { chordSignature } from '../commands/keyboard/chord';
 import { RegionType, ShellLayout } from '../layout/layout';
 import { regionById } from '../layout/layout-queries';
 import { menuEntryId } from '../menu/menu-entry-id';
