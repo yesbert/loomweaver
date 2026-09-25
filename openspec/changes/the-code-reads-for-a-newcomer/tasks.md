@@ -596,6 +596,9 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   `view-strings.js`, the close veto `close-veto.js` and the context menu `context-menu.js`; the page's
   state is one object at the top of `view.js`, the inline styles are classes and no colour has a
   `#hex` fallback. Screenshots before and after match, and the end-to-end suite passes.
+  The skeleton sits in a `<template>` that `view.js` stamps and wires in one step: as plain markup
+  its fields were typeable before the scripts had loaded, which lost keystrokes and dirty marks in
+  the end-to-end runs.
   The scripts in `public/` are linted as classic browser scripts: the testbed's lint config ignores
   only the pages, and turns off for these scripts the two rules that assume modules (the function
   wrapper and handing values across files on the global), with its reason; the findings are fixed,

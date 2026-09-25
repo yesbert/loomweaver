@@ -2,6 +2,10 @@
   const SUB_TABS = ['overview', 'architecture'];
   const STRINGS = globalThis.sandboxViewStrings;
 
+  document.body.prepend(
+    document.querySelector('#page').content.cloneNode(true),
+  );
+
   const page = {
     locale: 'en',
     tab: 'overview',
