@@ -1,6 +1,6 @@
+import { DialogRef } from '@loomweaver/plugin-sdk';
 import { inject, Service, signal } from '@angular/core';
 import { DialogService } from '../dialog/dialog.service';
-import { DialogRef } from '../dialog/dialog-ref';
 import {
   DEFAULT_STORE_TITLE,
   PluginStoreDialog,

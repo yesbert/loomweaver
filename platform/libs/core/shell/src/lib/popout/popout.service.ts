@@ -1,6 +1,5 @@
 import { DOCUMENT } from '@angular/common';
 import { inject, Service } from '@angular/core';
-import { TranslocoService } from '@jsverse/transloco';
 import { DialogService } from '../dialog/dialog.service';
 import { popoutUrlFor } from './popout-path';
 import { PopoutWindow } from './popout-window';
@@ -20,7 +19,6 @@ export class PopoutService {
 
   private readonly document = inject(DOCUMENT);
   private readonly dialogs = inject(DialogService);
-  private readonly transloco = inject(TranslocoService);
 
   /**
    * Opens `paneTarget` — a `view:<viewId>` descriptor or a content-route path — in a new browser
@@ -29,16 +27,20 @@ export class PopoutService {
    * practically always gets through.
    */
   open(paneTarget: string): void {
-    if (this.tryOpen(paneTarget)) {
-      return;
+    if (!this.tryOpen(paneTarget)) {
+      void this.offerToOpenAgain(paneTarget);
     }
-    void this.dialogs
-      .confirm({
-        title: this.transloco.translate('popout.blocked.title'),
-        message: this.transloco.translate('popout.blocked.message'),
-        confirmLabel: this.transloco.translate('popout.blocked.open'),
-      })
-      .then((retry) => retry && this.tryOpen(paneTarget));
+  }
+
+  private async offerToOpenAgain(paneTarget: string): Promise<void> {
+    const retry = await this.dialogs.confirm({
+      title: 'popout.blocked.title',
+      message: 'popout.blocked.message',
+      confirmLabel: 'popout.blocked.open',
+    });
+    if (retry) {
+      this.tryOpen(paneTarget);
+    }
   }
 
   private tryOpen(paneTarget: string): boolean {

@@ -1,3 +1,4 @@
+import { DialogRef } from '@loomweaver/plugin-sdk';
 import {
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
@@ -6,7 +7,6 @@ import {
   signal,
 } from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { DialogRef } from '../../dialog/dialog-ref';
 import { CurationRow, CurationSource, HIDDEN } from './curation-source';
 import { RailCuration } from './rail-curation';
 import { ViewCuration } from './view-curation';

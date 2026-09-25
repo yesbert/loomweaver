@@ -26,7 +26,7 @@ export * from './lib/commands/palette/entry/provide-quick-open-entry';
 export * from './lib/contributions/contribution-registry';
 
 export * from './lib/dialog/dialog-outlet';
-export * from './lib/dialog/dialog-ref';
+export { DialogRef } from '@loomweaver/plugin-sdk';
 export * from './lib/dialog/dialog.service';
 
 export * from './lib/elements/button/lw-button';

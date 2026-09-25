@@ -1,3 +1,4 @@
+import { DialogRef } from '@loomweaver/plugin-sdk';
 import {
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
@@ -6,7 +7,6 @@ import {
 } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LwButton } from '../elements/button/lw-button';
-import { DialogRef } from './dialog-ref';
 
 @Component({
   selector: 'lw-wide-dialog-frame',

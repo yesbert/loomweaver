@@ -10,11 +10,12 @@ import {
 } from '@angular/core';
 import { LwButtonVariant } from '../elements/button/lw-button';
 import { LoomIconName } from '../elements/icon/loom-icons';
-import { DialogRef } from './dialog-ref';
 import {
   AlertOptions,
   ConfirmOptions,
+  DialogButton,
   DialogDismiss,
+  DialogRef,
   DialogSize,
   DialogTone,
   OpenOptions,
@@ -122,7 +123,7 @@ export class DialogService {
     const ref = this.push({
       kind: 'confirm',
       tone,
-      icon: options.icon ?? TONE_ICON[tone],
+      icon: toneIcon(options, tone),
       title: options.title,
       message: options.message,
       promptValue: guard ? signal('') : undefined,
@@ -130,20 +131,7 @@ export class DialogService {
       requireValidate: guard?.validate,
       placeholder: guard?.placeholder,
       dismiss: 'any',
-      buttons: [
-        {
-          label: options.cancelLabel ?? 'dialog.cancel',
-          variant: 'default',
-          role: 'cancel',
-          autofocus: false,
-        },
-        {
-          label: options.confirmLabel ?? 'dialog.ok',
-          variant: TONE_BUTTON[tone],
-          role: 'confirm',
-          autofocus: !guard,
-        },
-      ],
+      buttons: cancelAndConfirm(tone, options, !guard),
     });
     return ref.closed.then((result) => result === true);
   }
@@ -154,7 +142,7 @@ export class DialogService {
     const ref = this.push({
       kind: 'alert',
       tone,
-      icon: options.icon ?? TONE_ICON[tone],
+      icon: toneIcon(options, tone),
       title: options.title,
       message: options.message,
       dismiss: 'any',
@@ -177,26 +165,13 @@ export class DialogService {
     const ref = this.push({
       kind: 'prompt',
       tone,
-      icon: options.icon ?? TONE_ICON[tone],
+      icon: toneIcon(options, tone),
       title: options.title,
       message: options.message,
       placeholder: options.placeholder,
       promptValue: value,
       dismiss: 'any',
-      buttons: [
-        {
-          label: options.cancelLabel ?? 'dialog.cancel',
-          variant: 'default',
-          role: 'cancel',
-          autofocus: false,
-        },
-        {
-          label: options.confirmLabel ?? 'dialog.ok',
-          variant: TONE_BUTTON[tone],
-          role: 'confirm',
-          autofocus: false,
-        },
-      ],
+      buttons: cancelAndConfirm(tone, options, false),
     });
     return ref.closed.then((result) =>
       result === undefined ? null : (result as string),
@@ -218,24 +193,16 @@ export class DialogService {
       providers: [{ provide: DialogRef, useValue: ref }],
       parent: this.injector,
     });
-    const specs = options.buttons ?? [];
-    const buttons: DialogButtonView[] = specs.map((button, index) => ({
-      label: button.label,
-      variant: button.variant ?? 'default',
-      role: 'custom',
-      value: button.value,
-      autofocus: index === specs.length - 1,
-    }));
     const tone = options.tone ?? 'default';
     this.mount(
       {
         kind: 'custom',
         tone,
-        icon: options.icon ?? TONE_ICON[tone],
+        icon: toneIcon(options, tone),
         title: options.title,
         component,
         injector,
-        buttons,
+        buttons: customButtons(options.buttons ?? []),
         dismiss: options.dismiss ?? 'any',
         size: options.size,
         bare: options.bare,
@@ -331,4 +298,42 @@ export class DialogService {
       trigger.focus();
     }
   }
+}
+
+function toneIcon(
+  options: { readonly icon?: string },
+  tone: DialogTone,
+): string | undefined {
+  return options.icon ?? TONE_ICON[tone];
+}
+
+function cancelAndConfirm(
+  tone: DialogTone,
+  labels: { readonly cancelLabel?: string; readonly confirmLabel?: string },
+  focusConfirm: boolean,
+): DialogButtonView[] {
+  return [
+    {
+      label: labels.cancelLabel ?? 'dialog.cancel',
+      variant: 'default',
+      role: 'cancel',
+      autofocus: false,
+    },
+    {
+      label: labels.confirmLabel ?? 'dialog.ok',
+      variant: TONE_BUTTON[tone],
+      role: 'confirm',
+      autofocus: focusConfirm,
+    },
+  ];
+}
+
+function customButtons(specs: readonly DialogButton[]): DialogButtonView[] {
+  return specs.map((button, index) => ({
+    label: button.label,
+    variant: button.variant ?? 'default',
+    role: 'custom',
+    value: button.value,
+    autofocus: index === specs.length - 1,
+  }));
 }

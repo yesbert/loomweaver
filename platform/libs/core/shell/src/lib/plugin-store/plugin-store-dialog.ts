@@ -1,6 +1,6 @@
+import { DialogRef } from '@loomweaver/plugin-sdk';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject, OnInit, signal } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { DialogRef } from '../dialog/dialog-ref';
 import { WideDialogFrame } from '../dialog/wide-dialog-frame';
 import { PluginCatalogEntry } from './catalog/catalog-entry';
 import { PluginInstallService } from './lifecycle/plugin-install.service';

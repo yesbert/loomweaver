@@ -1,9 +1,9 @@
+import { DialogRef } from '@loomweaver/plugin-sdk';
 import { Component, EnvironmentProviders } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { CurationDialog, CurationDialogData } from './curation-dialog';
-import { DialogRef } from '../../dialog/dialog-ref';
 import { LayoutRegion, provideLayout } from '../../layout/layout';
 import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { PanelGroupService } from '../panel/panel-group.service';

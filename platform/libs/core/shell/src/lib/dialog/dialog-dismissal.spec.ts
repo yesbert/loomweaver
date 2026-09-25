@@ -1,7 +1,7 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
-import { DialogDismiss, DirtySurface } from '@loomweaver/plugin-sdk';
+import { DialogDismiss, DialogRef, DirtySurface } from '@loomweaver/plugin-sdk';
 import {
   BEFORE_CLOSE_TIMEOUT_MS,
   SurfaceCloseGuard,
@@ -9,7 +9,6 @@ import {
 import { defineLwSelect } from '../elements/select/lw-select.element';
 import { DIALOG_CLOSE_GUARD } from './dialog-close-guard';
 import { DialogOutlet } from './dialog-outlet';
-import { DialogRef } from './dialog-ref';
 import { DialogService } from './dialog.service';
 
 @Component({ template: '' })

@@ -1,6 +1,6 @@
+import { DialogRef } from '@loomweaver/plugin-sdk';
 import { Component, inject } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { DialogRef } from '../../../dialog/dialog-ref';
 
 @Component({
   selector: 'lw-close-prompt-message',

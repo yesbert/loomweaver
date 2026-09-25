@@ -1,8 +1,8 @@
+import { DialogRef } from '@loomweaver/plugin-sdk';
 import { Component, inject } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { DialogOutlet } from './dialog-outlet';
-import { DialogRef } from './dialog-ref';
 import { DialogService } from './dialog.service';
 
 @Component({ template: '<button type="button">Inside</button>' })

@@ -1,7 +1,7 @@
+import { DialogRef } from '@loomweaver/plugin-sdk';
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
-import { DialogRef } from '../dialog/dialog-ref';
 import { DialogService } from '../dialog/dialog.service';
 import { CommandService } from '../commands/command.service';
 import {

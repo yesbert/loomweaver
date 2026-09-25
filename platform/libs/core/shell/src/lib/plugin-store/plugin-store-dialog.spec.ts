@@ -1,3 +1,4 @@
+import { DialogRef } from '@loomweaver/plugin-sdk';
 import { TestBed } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { PluginStoreDialog } from './plugin-store-dialog';
@@ -6,7 +7,6 @@ import { PluginCatalogEntry } from './catalog/catalog-entry';
 import { PluginEnablementService } from '../plugin/enablement/plugin-enablement.service';
 import { PluginInstallService } from './lifecycle/plugin-install.service';
 import { PluginDeploymentService } from './lifecycle/plugin-deployment.service';
-import { DialogRef } from '../dialog/dialog-ref';
 import { DialogService } from '../dialog/dialog.service';
 import { SettingsService } from '../settings-dialog/settings.service';
 
