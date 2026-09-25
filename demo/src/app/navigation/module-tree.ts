@@ -155,7 +155,7 @@ export const MODULES: readonly ProductModule[] = [
         titleKey: 'product.area.stock',
         views: [
           {
-            titleKey: 'product.view.stockLevels',
+            titleKey: 'inventory.view.stockLevels',
             path: 'inventory/stock',
             icon: 'stockLevels',
           },
@@ -166,7 +166,7 @@ export const MODULES: readonly ProductModule[] = [
         titleKey: 'product.area.movements',
         views: [
           {
-            titleKey: 'product.view.movements',
+            titleKey: 'inventory.view.movements',
             path: 'inventory/movements',
             icon: 'movements',
           },

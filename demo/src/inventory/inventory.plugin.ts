@@ -14,7 +14,7 @@ export const inventoryPlugin: Plugin = {
 
     ctx.registerSurface({
       id: 'inventory.stock',
-      title: 'product.view.stockLevels',
+      title: 'inventory.view.stockLevels',
       icon: 'stockLevels',
       routable: { path: 'inventory/stock' },
       docks: [],
@@ -22,7 +22,7 @@ export const inventoryPlugin: Plugin = {
     });
     ctx.registerSurface({
       id: 'inventory.movements',
-      title: 'product.view.movements',
+      title: 'inventory.view.movements',
       icon: 'movements',
       routable: { path: 'inventory/movements' },
       docks: [],
@@ -31,11 +31,11 @@ export const inventoryPlugin: Plugin = {
 
     ctx.registerCommand({
       id: 'inventory.countStock',
-      title: 'product.inventory.countStock',
-      description: 'product.inventory.count.description',
+      title: 'inventory.countStock',
+      description: 'inventory.count.description',
       icon: 'stockLevels',
       callable: true,
-      answers: 'product.inventory.count.answers',
+      answers: 'inventory.count.answers',
       run: async () => ({ counted: await inventoryActions.countStock() }),
     });
   },
