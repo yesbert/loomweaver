@@ -35,7 +35,7 @@ export async function weaverGenerator(
     importPath: options.importPath,
     scope: workspaceScope(tree),
     tags: options.tags?.split(',').map((tag) => tag.trim()),
-    prefix: options.prefix,
+    prefix: options.prefix ?? resolved?.prefix,
     buildTarget:
       app && options.unitTestRunner !== 'none'
         ? `${app}:build:development`

@@ -41,16 +41,26 @@ application and a later weaver would faithfully read it back. The lint configura
 generator writes already allows `app` beside the chosen prefix; with the default the two are the same,
 so the list is written without the duplicate.
 
+**The weaver's prefix becomes an option of every route; the distribution's stays with Nx.** Until
+now `prefix` was marked as a workspace placement option, which the CLI and the MCP server leave out
+of their surface, so neither could be told a prefix and both always produced `lw`. The weaver
+scaffold now declares its own `prefix`, offered by all three routes. The distribution keeps a
+workspace-only one: its recipe emits no selector but Angular's `app-root`, so on the CLI and over MCP
+the option would be accepted and do nothing. Because the CLI and the MCP server do not check an
+option's pattern the way Nx checks its schema, the weaver recipe refuses a prefix that is not
+kebab-case, the same way it refuses such an id.
+
 **The MCP server asks rather than guesses.** It cannot read the workspace, so its description of
 `prefix` tells the assistant to pass the prefix the application declares, and its default is the
 neutral one.
 
-**A patch.** Nothing in the published signatures changes, and projects already generated keep their
-names. Only new output is named differently, which the release notes state under "Changed".
+**A patch.** Nothing in the published types changes, the option the CLI and the MCP server gain is
+additive, and projects already generated keep their names. Only new output is named differently,
+which the release notes state under "Changed".
 
 ## Risks / Trade-offs
 
 - [A workspace whose application declares `lw` on purpose keeps getting `lw`] → That is the
   consumer's own declaration, which the requirement tells the generator to follow.
-- [A consumer relied on the old default in a script] → The supplied prefix still wins, so passing
-  `--prefix=lw` restores the old output exactly.
+- [A consumer relied on the old default in a script] → A supplied prefix wins, so passing
+  `--prefix=lw` restores the old output exactly, now on the CLI as well as with Nx.

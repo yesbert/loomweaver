@@ -190,7 +190,7 @@ describe('run', () => {
     }
   });
 
-  function workspace() {
+  function workspace(prefix?: string) {
     writeFileSync(join(dir, 'package.json'), '{}');
     writeFileSync(
       join(dir, 'angular.json'),
@@ -199,6 +199,7 @@ describe('run', () => {
         projects: {
           studio: {
             projectType: 'application',
+            ...(prefix && { prefix }),
             root: '',
             sourceRoot: 'src',
             architect: {
@@ -239,6 +240,28 @@ describe('run', () => {
     expect(readFileSync(join(dir, 'src/app/app.config.ts'), 'utf8')).toContain(
       'notesPlugin',
     );
+  });
+
+  const view = () => readFileSync(join(dir, 'src/lib/views/notes-view.ts'), 'utf8');
+
+  it('names a weaver after the prefix the Angular application declares', () => {
+    workspace('acme');
+    inDirectory(dir, () => run(['weaver', '--id', 'notes', '--out', '.'], capture().io));
+    expect(view()).toContain("selector: 'acme-notes-view'");
+  });
+
+  it('lets --prefix win over the prefix the application declares', () => {
+    workspace('acme');
+    inDirectory(dir, () =>
+      run(['weaver', '--id', 'notes', '--prefix', 'ac', '--out', '.'], capture().io),
+    );
+    expect(view()).toContain("selector: 'ac-notes-view'");
+  });
+
+  it("names a weaver app- where no application declares a prefix, never after the platform's", () => {
+    workspace();
+    inDirectory(dir, () => run(['weaver', '--id', 'notes', '--out', '.'], capture().io));
+    expect(view()).toContain("selector: 'app-notes-view'");
   });
 
   it('wires an auth source written into the workspace root', () => {

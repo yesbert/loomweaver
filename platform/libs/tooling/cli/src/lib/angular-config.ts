@@ -1,6 +1,7 @@
 export interface BuildProject {
   readonly name: string;
   readonly root: string;
+  readonly prefix?: string;
 }
 
 export interface TargetRef {
@@ -21,6 +22,7 @@ export function buildProjects(config: unknown): readonly BuildProject[] {
     .map(([name, project]) => ({
       name,
       root: normaliseRoot(asObject(project)?.['root']),
+      prefix: declaredPrefix(asObject(project)?.['prefix']),
     }));
 }
 
@@ -53,6 +55,10 @@ function buildTargetIn(project: unknown): TargetRef | undefined {
     }
   }
   return undefined;
+}
+
+function declaredPrefix(value: unknown): string | undefined {
+  return typeof value === 'string' && value.trim() ? value.trim() : undefined;
 }
 
 function normaliseRoot(value: unknown): string {

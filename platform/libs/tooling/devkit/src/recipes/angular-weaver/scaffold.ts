@@ -137,6 +137,13 @@ export const weaverScaffold: ScaffoldDescriptor = {
         'Import path for the workspace alias. Defaults to the workspace scope plus the project name.',
       workspaceOnly: true,
     },
+    {
+      name: 'prefix',
+      type: 'string',
+      description:
+        "Selector prefix for the generated components: the one the application declares, as the prefix of its project in angular.json or project.json. Read from the workspace where it can be, else 'app'.",
+      pattern: KEBAB_ID_PATTERN,
+    },
     APP_OPTION,
     ...PLACEMENT_OPTIONS,
   ],

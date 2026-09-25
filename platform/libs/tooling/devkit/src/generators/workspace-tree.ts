@@ -18,6 +18,7 @@ import { FileMap } from '../lib/generate/types';
 export interface ResolvedApp {
   readonly name: string;
   readonly root: string;
+  readonly prefix?: string;
 }
 
 /**
@@ -46,11 +47,11 @@ export function resolveApp(tree: Tree, app?: string): ResolvedApp {
         `"${app}" has no build target, so a scaffold cannot drop into it. Name the application you serve.`,
       );
     }
-    return { name: app, root: project.root };
+    return resolved(app, project);
   }
   const apps = buildableApps(tree);
   if (apps.length === 1) {
-    return { name: apps[0][0], root: apps[0][1].root };
+    return resolved(...apps[0]);
   }
   if (apps.length === 0) {
     throw new Error(
@@ -62,6 +63,15 @@ export function resolveApp(tree: Tree, app?: string): ResolvedApp {
       .map(([name]) => name)
       .join(', ')}). Pass --app to choose one.`,
   );
+}
+
+function resolved(name: string, project: ProjectConfiguration): ResolvedApp {
+  return { name, root: project.root, prefix: declaredPrefix(project) };
+}
+
+function declaredPrefix(project: ProjectConfiguration): string | undefined {
+  const { prefix } = project as ProjectConfiguration & { prefix?: unknown };
+  return typeof prefix === 'string' && prefix.trim() ? prefix.trim() : undefined;
 }
 
 export function buildableApps(tree: Tree): [string, ProjectConfiguration][] {

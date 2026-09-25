@@ -9,7 +9,9 @@ is not inside this repo (a chat assistant, a remote client) can scaffold and val
 - `list_generators` — the available generators.
 - `scaffold_weaver` · `scaffold_frame_plugin` · `scaffold_distribution` · `scaffold_auth_source` ·
   `scaffold_settings_store` · `scaffold_theme` · `scaffold_layout` — return a **file map**
-  (`path -> content`); the client writes the files into its project.
+  (`path -> content`); the client writes the files into its project. The server cannot read that
+  project, so pass `scaffold_weaver` the selector prefix your application declares as `prefix`;
+  without it the components are named `app-…`.
 - `validate_manifest` · `validate_i18n` · `validate_catalog` · `validate_commands` — return structured `Finding[]`.
 
 ## Consume from npm (product repos)

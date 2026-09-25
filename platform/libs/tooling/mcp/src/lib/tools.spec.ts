@@ -1,4 +1,4 @@
-import { findScaffold, SCAFFOLDS } from '@loomweaver/devkit';
+import { findScaffold, portableOptions, SCAFFOLDS } from '@loomweaver/devkit';
 import {
   listGenerators,
   scaffold,
@@ -78,6 +78,26 @@ describe('mcp tools', () => {
     expect(Object.keys(map).every((path) => !path.includes('libs/'))).toBe(
       true,
     );
+  });
+
+  it("names the components app- without a prefix, never after the platform's", () => {
+    expect(files('weaver', { id: 'notes' })['src/lib/views/notes-view.ts']).toContain(
+      "selector: 'app-notes-view'",
+    );
+  });
+
+  it('names the components after a supplied prefix', () => {
+    expect(
+      files('weaver', { id: 'notes', prefix: 'acme' })['src/lib/views/notes-view.ts'],
+    ).toContain("selector: 'acme-notes-view'");
+  });
+
+  it("asks for the prefix the application declares, since it cannot read it", () => {
+    const prefix = portableOptions(must('weaver')).find(
+      (option) => option.name === 'prefix',
+    );
+    expect(prefix?.description).toMatch(/application declares/);
+    expect(prefix?.description).toContain("'app'");
   });
 
   it('validate_manifest flags an unknown capability', () => {

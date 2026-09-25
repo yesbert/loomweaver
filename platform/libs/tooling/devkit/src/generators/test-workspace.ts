@@ -1,4 +1,9 @@
-import { addProjectConfiguration, Tree, updateJson } from '@nx/devkit';
+import {
+  addProjectConfiguration,
+  readProjectConfiguration,
+  Tree,
+  updateJson,
+} from '@nx/devkit';
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 
 export function createConsumerWorkspace(
@@ -50,4 +55,9 @@ export function addApp(
         ? { e2e: {} }
         : { build: { options: { assets: [`apps/${name}/public`] } } },
   });
+}
+
+export function declarePrefix(tree: Tree, app: string, prefix: string): void {
+  const { root } = readProjectConfiguration(tree, app);
+  updateJson(tree, `${root}/project.json`, (json) => ({ ...json, prefix }));
 }

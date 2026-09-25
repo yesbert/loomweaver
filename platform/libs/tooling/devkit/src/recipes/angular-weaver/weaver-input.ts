@@ -4,6 +4,7 @@ import {
   toPascalCase,
   toTitleCase,
 } from '../../lib/generate/casing';
+import { NEUTRAL_PREFIX } from '../../lib/scaffolds/scaffold-values';
 import { KNOWN_CAPABILITIES } from '../../lib/validate/manifest';
 
 export interface WeaverFeatures {
@@ -25,7 +26,7 @@ export interface WeaverInput {
   readonly name?: string;
   readonly capabilities?: readonly string[];
   readonly features?: WeaverFeatures;
-  /** Selector prefix for the generated components. Defaults to 'lw'. */
+  /** Selector prefix for the generated components, kebab-case. Defaults to 'app'. */
   readonly prefix?: string;
   /** The alias the consuming workspace imports the library under. Defaults to '@loomweaver/<id>-weaver'. */
   readonly importPath?: string;
@@ -162,6 +163,19 @@ function deriveCapabilities(features: ResolvedFeatures): string[] {
   return KNOWN_CAPABILITIES.filter((capability) => set.has(capability));
 }
 
+function resolvePrefix(prefix: string | undefined): string {
+  const trimmed = prefix?.trim();
+  if (!trimmed) {
+    return NEUTRAL_PREFIX;
+  }
+  if (!isKebabId(trimmed)) {
+    throw new Error(
+      `Selector prefix must be kebab-case (e.g. "acme"); got "${trimmed}".`,
+    );
+  }
+  return trimmed;
+}
+
 export function resolveWeaverInput(input: WeaverInput): ResolvedWeaver {
   if (!isKebabId(input.id)) {
     throw new Error(
@@ -179,7 +193,7 @@ export function resolveWeaverInput(input: WeaverInput): ResolvedWeaver {
     propertyName: toCamelCase(input.id),
     capabilities,
     features,
-    prefix: input.prefix?.trim() || 'lw',
+    prefix: resolvePrefix(input.prefix),
     importPath: input.importPath?.trim() || `@loomweaver/${input.id}-weaver`,
   };
 }

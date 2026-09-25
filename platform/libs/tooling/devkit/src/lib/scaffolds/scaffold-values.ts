@@ -1,6 +1,7 @@
 import { Amendment } from '../amend/types';
-import { KEBAB_ID_PATTERN } from '../generate/casing';
 import { FileMap } from '../generate/types';
+
+export const NEUTRAL_PREFIX = 'app';
 
 export type ScaffoldValues = Readonly<
   Record<string, string | boolean | undefined>
@@ -57,14 +58,6 @@ export const PLACEMENT_OPTIONS: readonly ScaffoldOption[] = [
     name: 'tags',
     type: 'string',
     description: 'Comma-separated Nx tags for the project.',
-    workspaceOnly: true,
-  },
-  {
-    name: 'prefix',
-    type: 'string',
-    description: 'Selector prefix for generated components and directives.',
-    default: 'lw',
-    pattern: KEBAB_ID_PATTERN,
     workspaceOnly: true,
   },
   {
