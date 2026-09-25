@@ -86,9 +86,6 @@
           "target": "bundle"
         }
       ],
-      "options": {
-        "proxyConfig": "apps/loom-testbed/proxy.conf.js"
-      },
       "configurations": {
         "production": {
           "buildTarget": "loom-testbed:build:production"

@@ -261,9 +261,6 @@ const baseConfig = [
             "unicorn/name-replacements": [
                 "off",
                 {
-                    // A filename follows the framework that reads it: proxy.conf.js is what
-                    // Angular looks for, and renaming it would only break the reference.
-                    checkFilenames: false,
                     replacements: {
                         arg: false,
                         args: false,
@@ -328,15 +325,6 @@ const baseConfig = [
         ],
         rules: {
             "unicorn/no-break-in-nested-loop": "off"
-        }
-    },
-    {
-        // Angular's dev server reads this file with require(), so CommonJS is what it has to be.
-        files: [
-            "**/proxy.conf.js"
-        ],
-        rules: {
-            "unicorn/prefer-module": "off"
         }
     },
     {

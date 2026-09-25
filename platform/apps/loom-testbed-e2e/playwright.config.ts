@@ -12,14 +12,8 @@ export default defineConfig({
   forbidOnly: !!process.env['CI'],
   retries: process.env['CI'] ? 2 : 0,
   workers: process.env['CI'] ? 1 : undefined,
-  // In CI also emit JUnit (for PublishTestResults) + a static HTML report (published as an artifact).
-  reporter: process.env['CI']
-    ? [
-        ['dot'],
-        ['junit', { outputFile: 'test-results/junit.xml' }],
-        ['html', { open: 'never' }],
-      ]
-    : 'list',
+  // In CI also emit a static HTML report, which the nightly run keeps as an artifact.
+  reporter: process.env['CI'] ? [['dot'], ['html', { open: 'never' }]] : 'list',
   use: {
     baseURL,
     trace: 'on-first-retry',

@@ -533,7 +533,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 
 ## 11. The testbed
 
-- [ ] 11.1 Delete `proxy.conf.js` with its option and lint blocks, and the JUnit reporter no workflow
+- [x] 11.1 Delete `proxy.conf.js` with its option and lint blocks, and the JUnit reporter no workflow
   reads.
 - [ ] 11.2 **Move:** the testbed weaver from `plugin/` and `views/` into folders named for the
   capability each exercises (access gating, containers, entry tabs, dashboard, navigation, routed
