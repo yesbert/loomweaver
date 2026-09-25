@@ -59,7 +59,7 @@ const docked = new Set(
   [SOURCES.weaver, SOURCES.agent]
     .flatMap((path) => matchAll(read(path), /\bdocks:\s*\[([^\]]*)\]/g))
     .flatMap((list) => matchAll(list, /'([^']+)'/g))
-    .map(regionId),
+    .map((token) => regionId(token)),
 );
 
 if (targeted.size === 0 || scaffolded.size === 0) {
