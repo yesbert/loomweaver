@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ParsedArgs, rejectUnknownFlags } from '../args';
-import { InitDeps, NX_COLLECTION, Plan, planInit } from './init-plan';
+import { InitDeps, NX_COLLECTION, InitPlan, planInit } from './init-plan';
 import {
   execCommand,
   installCommand,
@@ -18,14 +18,24 @@ const INIT_FLAGS = [
   'dry-run',
 ];
 
-interface Step {
+interface StepBase {
   readonly label: string;
   readonly describe: string;
   readonly done: boolean;
-  readonly command?: readonly string[];
-  readonly argv?: readonly string[];
+}
+
+interface ExecStep extends StepBase {
+  readonly kind: 'exec';
+  readonly command: readonly string[];
+}
+
+interface ScaffoldStep extends StepBase {
+  readonly kind: 'scaffold';
+  readonly argv: readonly string[];
   readonly after?: string;
 }
+
+type Step = ExecStep | ScaffoldStep;
 
 export function init(args: ParsedArgs, io: Io, deps: InitDeps): number {
   rejectUnknownFlags(args, INIT_FLAGS);
@@ -60,31 +70,50 @@ export function init(args: ParsedArgs, io: Io, deps: InitDeps): number {
   return 0;
 }
 
-function perform(step: Step, plan: Plan, io: Io, deps: InitDeps): number {
-  if (step.command) {
-    if (plan.dryRun) {
-      io.out(`Would run: ${step.command.join(' ')}`);
-      return 0;
+function perform(step: Step, plan: InitPlan, io: Io, deps: InitDeps): number {
+  switch (step.kind) {
+    case 'exec': {
+      return performExec(step, plan, io, deps);
     }
-    io.out(`${step.label}: ${step.describe}`);
-    deps.exec(step.command, plan.workspace.root);
+    case 'scaffold': {
+      return performScaffold(step, plan, io, deps);
+    }
+  }
+}
+
+function performExec(
+  step: ExecStep,
+  plan: InitPlan,
+  io: Io,
+  deps: InitDeps,
+): number {
+  if (plan.dryRun) {
+    io.out(`Would run: ${step.command.join(' ')}`);
     return 0;
   }
-  if (step.argv) {
-    io.out(
-      plan.dryRun
-        ? `Would ${step.label.toLowerCase()}: ${step.describe}`
-        : `${step.label}: ${step.describe}`,
-    );
-    if (plan.dryRun && step.after) {
-      io.out(`  (${step.after})`);
-    }
-    return deps.run(plan.dryRun ? [...step.argv, '--dry-run'] : step.argv);
-  }
+  io.out(`${step.label}: ${step.describe}`);
+  deps.exec(step.command, plan.workspace.root);
   return 0;
 }
 
-function report(io: Io, plan: Plan): void {
+function performScaffold(
+  step: ScaffoldStep,
+  plan: InitPlan,
+  io: Io,
+  deps: InitDeps,
+): number {
+  io.out(
+    plan.dryRun
+      ? `Would ${step.label.toLowerCase()}: ${step.describe}`
+      : `${step.label}: ${step.describe}`,
+  );
+  if (plan.dryRun && step.after) {
+    io.out(`  (${step.after})`);
+  }
+  return deps.run(plan.dryRun ? [...step.argv, '--dry-run'] : step.argv);
+}
+
+function report(io: Io, plan: InitPlan): void {
   const where =
     plan.workspace.kind === 'nx'
       ? `Nx workspace, application ${plan.app?.name}`
@@ -94,7 +123,7 @@ function report(io: Io, plan: Plan): void {
   );
 }
 
-function managerLabel(plan: Plan): string {
+function managerLabel(plan: InitPlan): string {
   if (plan.lockfile) {
     return `${plan.manager} (from ${plan.lockfile})`;
   }
@@ -104,11 +133,11 @@ function managerLabel(plan: Plan): string {
   return plan.manager;
 }
 
-function stepsFor(plan: Plan): Step[] {
+function stepsFor(plan: InitPlan): Step[] {
   return plan.workspace.kind === 'nx' ? nxSteps(plan) : angularSteps(plan);
 }
 
-function angularSteps(plan: Plan): Step[] {
+function angularSteps(plan: InitPlan): Step[] {
   const root = plan.workspace.root;
   const steps: Step[] = [
     ...installSteps(plan),
@@ -116,6 +145,7 @@ function angularSteps(plan: Plan): Step[] {
       label: 'Distribution',
       describe: `scaffold the composition root for "${plan.title}" (${plan.styles}) and wire the build`,
       done: composesShell(join(root, 'src/app/app.config.ts')),
+      kind: 'scaffold',
       argv: [
         'distribution',
         '--name',
@@ -137,6 +167,7 @@ function angularSteps(plan: Plan): Step[] {
       done: existsSync(join(root, 'src', plan.weaver, 'src/index.ts')),
       after:
         'planned against the composition root as it is now; once the distribution step has run, the weaver composes into it',
+      kind: 'scaffold',
       argv: [
         'weaver',
         '--id',
@@ -150,7 +181,7 @@ function angularSteps(plan: Plan): Step[] {
   return steps;
 }
 
-function nxSteps(plan: Plan): Step[] {
+function nxSteps(plan: InitPlan): Step[] {
   const root = plan.workspace.root;
   const app = plan.app;
   if (!app) {
@@ -164,6 +195,7 @@ function nxSteps(plan: Plan): Step[] {
       label: 'Distribution',
       describe: `nx g ${NX_COLLECTION}:distribution over ${app.name} for "${plan.title}" (${plan.styles})`,
       done: composesShell(join(root, app.root, 'src/app/app.config.ts')),
+      kind: 'exec',
       command: generator('distribution', [
         '--name',
         app.name,
@@ -182,6 +214,7 @@ function nxSteps(plan: Plan): Step[] {
       label: 'First weaver',
       describe: weaverDescription(plan.weaver),
       done: existsSync(join(root, 'libs', `${plan.weaver}-weaver`)),
+      kind: 'exec',
       command: generator('weaver', [
         '--id',
         plan.weaver,
@@ -194,18 +227,20 @@ function nxSteps(plan: Plan): Step[] {
   return steps;
 }
 
-function installSteps(plan: Plan): Step[] {
+function installSteps(plan: InitPlan): Step[] {
   return [
     {
       label: 'Install',
       describe: plan.runtime.join(' '),
       done: plan.runtime.length === 0,
+      kind: 'exec',
       command: installCommand(plan.manager, plan.runtime, false),
     },
     {
       label: 'Install for development',
       describe: plan.dev.join(' '),
       done: plan.dev.length === 0,
+      kind: 'exec',
       command: installCommand(plan.manager, plan.dev, true),
     },
   ];
@@ -215,7 +250,7 @@ function weaverDescription(id: string): string {
   return `"${id}" with a command on mod+shift+${id.charAt(0)}`;
 }
 
-function serveCommand(plan: Plan): string {
+function serveCommand(plan: InitPlan): string {
   if (plan.workspace.kind === 'nx') {
     return execCommand(plan.manager, [
       'nx',

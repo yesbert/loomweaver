@@ -40,7 +40,10 @@ export function listGenerators(): ToolResult {
   });
 }
 
-function valuesFor(scaffold: ScaffoldDescriptor, args: Args): ScaffoldValues {
+function portableValuesFrom(
+  scaffold: ScaffoldDescriptor,
+  args: Args,
+): ScaffoldValues {
   const values: Record<string, string | boolean | undefined> = {};
   for (const option of portableOptions(scaffold)) {
     const value = args[option.name];
@@ -57,7 +60,7 @@ function valuesFor(scaffold: ScaffoldDescriptor, args: Args): ScaffoldValues {
 const WHERE_THE_FILES_LAND = '<the directory you wrote these files into>';
 
 export function scaffold(scaffold: ScaffoldDescriptor, args: Args): ToolResult {
-  const values = valuesFor(scaffold, args);
+  const values = portableValuesFrom(scaffold, args);
   const remaining = (
     scaffold.amend?.({ ...values, directory: WHERE_THE_FILES_LAND }) ?? []
   ).map((amendment) => describeAmendment(amendment));

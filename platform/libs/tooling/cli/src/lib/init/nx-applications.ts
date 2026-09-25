@@ -2,7 +2,7 @@ import { existsSync, readdirSync } from 'node:fs';
 import { basename, join, relative, sep } from 'node:path';
 import { readJsonFile } from '../workspace';
 
-export interface NxApplication {
+export interface Application {
   readonly name: string;
   readonly root: string;
 }
@@ -11,8 +11,8 @@ const SKIPPED = new Set(['node_modules', 'dist', 'tmp', 'coverage']);
 
 export function nxApplications(
   workspaceRoot: string,
-): readonly NxApplication[] {
-  const found: NxApplication[] = [];
+): readonly Application[] {
+  const found: Application[] = [];
   const walk = (folder: string): void => {
     const project = join(folder, 'project.json');
     if (existsSync(project)) {
