@@ -4,8 +4,6 @@ export const HEADING_KEY = '__heading';
 
 export function drawMenuHeading(
   header: MenuHeader,
-  menu: HTMLElement,
-  translate: (key: string) => string,
   leadsTo?: Command,
 ): HTMLElement {
   const element = document.createElement('div');
@@ -23,20 +21,17 @@ export function drawMenuHeading(
     element.append(mark);
   }
   element.append(drawLines(header));
-  wordMenuHeading(element, header, menu, translate, leadsTo);
   return element;
 }
 
 export function wordMenuHeading(
   element: HTMLElement,
   header: MenuHeader,
-  menu: HTMLElement,
   translate: (key: string) => string,
   leadsTo?: Command,
-): void {
+): string {
   const title = translate(header.title);
   const detail = header.detail ? translate(header.detail) : undefined;
-  menu.setAttribute('aria-label', detail ? `${title}, ${detail}` : title);
   if (leadsTo) {
     element.setAttribute('aria-label', translate(leadsTo.title));
   }
@@ -49,6 +44,7 @@ export function wordMenuHeading(
     second.textContent = detail ?? '';
     second.hidden = !detail;
   }
+  return detail ? `${title}, ${detail}` : title;
 }
 
 function drawLines(header: MenuHeader): HTMLElement {

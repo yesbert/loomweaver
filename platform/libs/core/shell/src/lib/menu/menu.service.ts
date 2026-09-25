@@ -9,43 +9,27 @@ import {
 } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 import { Subscription } from 'rxjs';
-import {
-  Command,
-  MenuContext,
-  MenuHeader,
-  MenuItem,
-} from '@loomweaver/plugin-sdk';
+import { MenuContext, MenuHeader, MenuItem } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../contributions/contribution-registry';
 import { CommandService } from '../commands/command.service';
-import { drawMenuHeading, HEADING_KEY, wordMenuHeading } from './menu-heading';
+import { HEADING_KEY } from './menu-heading';
 import { followed, MenuAnchor, place } from './menu-placement';
-import { MenuLabel, wordEntries } from './menu-wording';
+import { MenuLabel } from './menu-wording';
+import { drawMenu, MenuRow, WordedMenu } from './menu-drawing';
+import {
+  headingCommand,
+  ResolvedItem,
+  resolveMenuItems,
+} from './menu-resolution';
 import { wordingChanges } from '../i18n/wording';
 import {
   LW_MENU_DISMISS,
-  LW_MENU_ITEM_TAG,
   LW_MENU_SELECT,
-  LW_MENU_TAG,
-  LwMenuElement,
 } from '../elements/menu/lw-menu.element';
-
-export { MENU_ANCHOR_GAP } from '../elements/menu/lw-menu.element';
 
 export interface MenuOpenOptions {
   readonly trigger?: HTMLElement;
   readonly header?: MenuHeader;
-}
-
-interface ResolvedItem {
-  readonly key: string;
-  readonly title: string;
-  readonly group: string;
-  readonly order: number;
-  readonly icon?: string;
-  readonly shortcut?: string;
-  readonly checkbox: boolean;
-  readonly checked: boolean;
-  readonly item: MenuItem;
 }
 
 interface OpenMenu {
@@ -54,11 +38,6 @@ interface OpenMenu {
   readonly restore: HTMLElement | null;
   readonly listenTimer: ReturnType<typeof setTimeout>;
   readonly wording: Subscription;
-}
-
-interface WordedMenu {
-  readonly menu: LwMenuElement;
-  readonly word: () => void;
 }
 
 export interface MenuListEntry {
@@ -98,15 +77,25 @@ export class MenuService {
     options: MenuOpenOptions = {},
   ): void {
     this.close();
-    const resolved = this.resolve(
+    const commands = this.registry.commands();
+    const resolved = resolveMenuItems(
       typeof menuId === 'string' ? [menuId] : menuId,
       context,
+      {
+        menuItems: this.registry.menuItems(),
+        commands,
+        shortcutOf: (command) => this.commands.shortcutOf(command),
+      },
     );
-    const leadsTo = this.headingCommand(options.header);
+    const leadsTo = headingCommand(options.header, commands);
     if (resolved.length === 0 && !leadsTo) {
       return;
     }
-    const worded = this.createMenu(resolved, options.header, leadsTo);
+    const worded = drawMenu(
+      resolved.map((entry) => resolvedRow(entry)),
+      this.translate,
+      options.header && { header: options.header, leadsTo },
+    );
     const byKey = new Map(resolved.map((entry) => [entry.key, entry.item]));
     this.present(
       worded,
@@ -136,7 +125,10 @@ export class MenuService {
       return;
     }
     this.present(
-      this.createListMenu(entries),
+      drawMenu(
+        entries.map((entry) => listRow(entry)),
+        this.translate,
+      ),
       at,
       (key) => {
         if (key !== null) {
@@ -209,140 +201,6 @@ export class MenuService {
     this.current = { menu, onOutside, restore, listenTimer, wording };
   }
 
-  private resolve(
-    menuIds: readonly string[],
-    context: MenuContext,
-  ): ResolvedItem[] {
-    const commands = this.registry.commands();
-    return this.registry
-      .menuItems()
-      .filter(
-        (item) =>
-          menuIds.includes(item.menu) && whenMatches(item.when, context),
-      )
-      .map((item, index): ResolvedItem | null => {
-        const command = item.command
-          ? commands.find((c) => c.id === item.command)
-          : undefined;
-        if (item.command && !command) {
-          return null;
-        }
-        const titleKey = item.title ?? command?.title;
-        if (titleKey === undefined) {
-          return null;
-        }
-        const checkbox = item.checkedWhen !== undefined;
-        return {
-          key: item.command ?? `__inline-${index}`,
-          title: titleKey,
-          group: item.group ?? '',
-          order: item.order ?? 0,
-          icon: command?.icon,
-          shortcut: this.commands.shortcutOf(command),
-          checkbox,
-          checked: checkbox && whenMatches(item.checkedWhen, context),
-          item,
-        };
-      })
-      .filter((entry): entry is ResolvedItem => entry !== null)
-      .toSorted((a, b) => a.group.localeCompare(b.group) || a.order - b.order);
-  }
-
-  private headingCommand(header?: MenuHeader): Command | undefined {
-    if (!header?.command) {
-      return undefined;
-    }
-    const command = this.registry
-      .commands()
-      .find((candidate) => candidate.id === header.command);
-    return command?.title ? command : undefined;
-  }
-
-  private createMenu(
-    resolved: readonly ResolvedItem[],
-    header?: MenuHeader,
-    leadsTo?: Command,
-  ): WordedMenu {
-    const menu = document.createElement(LW_MENU_TAG) as LwMenuElement;
-    if (resolved.some((entry) => entry.checkbox)) {
-      menu.classList.add('lw-menu--checks');
-    }
-    if (resolved.some((entry) => entry.icon)) {
-      menu.classList.add('lw-menu--leading');
-    }
-    let wordHeading = (): void => undefined;
-    if (header) {
-      const heading = drawMenuHeading(header, menu, this.translate, leadsTo);
-      menu.append(heading);
-      wordHeading = () =>
-        wordMenuHeading(heading, header, menu, this.translate, leadsTo);
-    }
-    const labelled: [HTMLElement, MenuLabel][] = [];
-    let lastGroup: string | undefined;
-    for (const entry of resolved) {
-      if (lastGroup !== undefined && entry.group !== lastGroup) {
-        const separator = document.createElement('div');
-        separator.setAttribute('role', 'separator');
-        separator.className = 'lw-menu-separator';
-        menu.append(separator);
-      }
-      lastGroup = entry.group;
-      const item = document.createElement(LW_MENU_ITEM_TAG);
-      item.setAttribute('command', entry.key);
-      labelled.push([item, entry.title]);
-      if (entry.icon) {
-        item.setAttribute('icon', entry.icon);
-      }
-      if (entry.shortcut) {
-        item.setAttribute('shortcut', entry.shortcut);
-      }
-      if (entry.checkbox) {
-        item.setAttribute('checkbox', '');
-        if (entry.checked) {
-          item.setAttribute('checked', '');
-        }
-      }
-      menu.append(item);
-    }
-    wordEntries(labelled, this.translate);
-    return {
-      menu,
-      word: () => {
-        wordEntries(labelled, this.translate);
-        wordHeading();
-      },
-    };
-  }
-
-  private createListMenu(entries: readonly MenuListEntry[]): WordedMenu {
-    const menu = document.createElement(LW_MENU_TAG) as LwMenuElement;
-    if (entries.some((entry) => showsState(entry))) {
-      menu.classList.add('lw-menu--checks');
-    }
-    if (entries.some((entry) => entry.icon)) {
-      menu.classList.add('lw-menu--leading');
-    }
-    const labelled: [HTMLElement, MenuLabel][] = [];
-    for (const entry of entries) {
-      const item = document.createElement(LW_MENU_ITEM_TAG);
-      item.setAttribute('command', entry.key);
-      labelled.push([item, entry.label]);
-      if (entry.icon) {
-        item.setAttribute('icon', entry.icon);
-      }
-      if (showsState(entry)) {
-        item.setAttribute('checkbox', '');
-        if (entry.checked ?? entry.active) {
-          item.setAttribute('checked', '');
-        }
-      }
-      menu.append(item);
-    }
-    const word = (): void => wordEntries(labelled, this.translate);
-    word();
-    return { menu, word };
-  }
-
   private readonly translate = (key: string): string => {
     const words: unknown = this.transloco.translate(key);
     return typeof words === 'string' ? words : key;
@@ -361,16 +219,26 @@ export class MenuService {
   }
 }
 
-export function whenMatches(
-  when: MenuContext | undefined,
-  context: MenuContext,
-): boolean {
-  if (!when) {
-    return true;
-  }
-  return Object.entries(when).every(([key, value]) => context[key] === value);
+function resolvedRow(entry: ResolvedItem): MenuRow {
+  return {
+    key: entry.key,
+    label: entry.title,
+    group: entry.group,
+    icon: entry.icon,
+    shortcut: entry.shortcut,
+    checkbox: entry.checkbox,
+    checked: entry.checked,
+  };
 }
 
-function showsState(entry: MenuListEntry): boolean {
-  return entry.checked !== undefined || entry.active === true;
+function listRow(entry: MenuListEntry): MenuRow {
+  const checkbox = entry.checked !== undefined || entry.active === true;
+  return {
+    key: entry.key,
+    label: entry.label,
+    group: '',
+    icon: entry.icon,
+    checkbox,
+    checked: checkbox && (entry.checked ?? entry.active) === true,
+  };
 }

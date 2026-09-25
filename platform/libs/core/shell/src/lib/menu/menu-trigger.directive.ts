@@ -10,14 +10,14 @@ import { MenuContext, MenuHeader } from '@loomweaver/plugin-sdk';
 import { MenuSide } from '../elements/menu/lw-menu.element';
 import { MenuService } from './menu.service';
 
-type MenuSlots = string | readonly string[] | undefined;
+type MenuIds = string | readonly string[] | undefined;
 
-function names(slots: MenuSlots): slots is string | readonly string[] {
-  return slots !== undefined && slots.length > 0;
+function hasMenuIds(ids: MenuIds): ids is string | readonly string[] {
+  return ids !== undefined && ids.length > 0;
 }
 
 @Directive({
-  selector: '[lwMenu], [lwMenuOnActivate], [lwMenuState]',
+  selector: '[lwMenu], [lwMenuOnActivate], [lwMenuAnnounced]',
   host: {
     '(contextmenu)': 'onContextMenu($event)',
     '(click)': 'onActivate($event)',
@@ -30,9 +30,9 @@ export class MenuTriggerDirective {
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
-  readonly menu = input<MenuSlots>(undefined, { alias: 'lwMenu' });
+  readonly menu = input<MenuIds>(undefined, { alias: 'lwMenu' });
 
-  readonly onActivateMenu = input<MenuSlots>(undefined, {
+  readonly onActivateMenu = input<MenuIds>(undefined, {
     alias: 'lwMenuOnActivate',
   });
 
@@ -44,42 +44,42 @@ export class MenuTriggerDirective {
     alias: 'lwMenuHeader',
   });
 
-  readonly state = input(false, {
-    alias: 'lwMenuState',
+  readonly announced = input(false, {
+    alias: 'lwMenuAnnounced',
     transform: booleanAttribute,
   });
 
-  private readonly announces = computed(
-    () => this.state() || names(this.onActivateMenu()),
+  private readonly announcesMenu = computed(
+    () => this.announced() || hasMenuIds(this.onActivateMenu()),
   );
 
   protected readonly hasPopup = computed(() =>
-    this.announces() ? 'menu' : null,
+    this.announcesMenu() ? 'menu' : null,
   );
 
   protected readonly expanded = computed(() =>
-    this.announces()
+    this.announcesMenu()
       ? String(this.menus.openTrigger() === this.host.nativeElement)
       : null,
   );
 
   protected onContextMenu(event: MouseEvent): void {
-    const slots = this.menu();
-    if (!names(slots)) {
+    const menuIds = this.menu();
+    if (!hasMenuIds(menuIds)) {
       return;
     }
 
     event.preventDefault();
     event.stopPropagation();
-    this.menus.open(slots, this.context(), {
+    this.menus.open(menuIds, this.context(), {
       x: event.clientX,
       y: event.clientY,
     });
   }
 
   protected onActivate(event: MouseEvent): void {
-    const slots = this.onActivateMenu();
-    if (!names(slots)) {
+    const menuIds = this.onActivateMenu();
+    if (!hasMenuIds(menuIds)) {
       return;
     }
 
@@ -87,7 +87,7 @@ export class MenuTriggerDirective {
     event.stopPropagation();
     const control = this.host.nativeElement;
     this.menus.open(
-      slots,
+      menuIds,
       this.context(),
       { rect: control.getBoundingClientRect(), side: this.side() },
       { trigger: control, header: this.header() },

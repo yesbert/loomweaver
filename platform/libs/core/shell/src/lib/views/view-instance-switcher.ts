@@ -2,11 +2,8 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject, input, output } fr
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { View } from './view';
 import { DialogService } from '../dialog/dialog.service';
-import {
-  MENU_ANCHOR_GAP,
-  MenuListEntry,
-  MenuService,
-} from '../menu/menu.service';
+import { MenuListEntry, MenuService } from '../menu/menu.service';
+import { MENU_ANCHOR_GAP } from '../elements/menu/lw-menu.element';
 import { MenuTriggerDirective } from '../menu/menu-trigger.directive';
 import { ViewInstanceService } from './view-instance.service';
 

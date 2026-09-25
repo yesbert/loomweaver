@@ -19,7 +19,8 @@ import {
   moveItemInArray,
 } from '@angular/cdk/drag-drop';
 import { MenuContext, ViewAction } from '@loomweaver/plugin-sdk';
-import { MENU_ANCHOR_GAP, MenuService } from '../../../menu/menu.service';
+import { MenuService } from '../../../menu/menu.service';
+import { MENU_ANCHOR_GAP } from '../../../elements/menu/lw-menu.element';
 import { MenuTriggerDirective } from '../../../menu/menu-trigger.directive';
 import { Reorderable } from '../../reorder/reorderable.directive';
 import { isViewPanePath, PaneRef } from '../tree/pane-address';
