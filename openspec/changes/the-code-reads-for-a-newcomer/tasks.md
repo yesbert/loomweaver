@@ -228,9 +228,12 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 
 ## 7. Workspaces, persistence, settings, foundation and i18n
 
-- [ ] 7.1 Workspace names: the built-in workspace and the starting workspace get distinct names, "no
+- [x] 7.1 Workspace names: the built-in workspace and the starting workspace get distinct names, "no
   initial workspace is declared" is one function, fields that hold a port are named after it, and
   `ActiveWorkspaceService.ready` is assigned in the constructor instead of depending on field order.
+  `BUILT_IN_WORKSPACE_ID` (declared once, after the imports) and `startingWorkspaceId`;
+  `offersBuiltInWorkspace` answers the question four places computed; `workingStateStore` in the
+  active-workspace, workspace, unusable-workspaces and pane-tree storage services.
 - [ ] 7.2 One baseline concept: one declarations type and one `definitionBaseline` function replace the
   four near-identical dependency bags and the keys passed through four layers.
 - [ ] 7.3 `foundation/` admits only what fits its rule: the isolation-level service moves into a small

@@ -3,13 +3,11 @@ import { readStoredValue } from '../persistence/stored-values/hydrate';
 import { WORKING_STATE_STORE } from '../persistence/working-state-store';
 import { WORKSPACE_DEFINITIONS } from './provide-workspaces';
 import {
-  DEFAULT_WORKSPACE_ID,
-  defaultWorkspaceId,
+  BUILT_IN_WORKSPACE_ID,
+  startingWorkspaceId,
 } from './workspace-definition';
 
 const ACTIVE_KEY = 'lw.shell.active-workspace';
-
-export { DEFAULT_WORKSPACE_ID } from './workspace-definition';
 
 export function workspaceScopedKey(base: string, workspaceId: string): string {
   return `${base}:${workspaceId}`;
@@ -21,26 +19,31 @@ function storedId(raw: string | undefined): string | null {
 
 @Service()
 export class ActiveWorkspaceService {
-  private readonly store = inject(WORKING_STATE_STORE);
-  private readonly defaultId = defaultWorkspaceId(
+  private readonly workingStateStore = inject(WORKING_STATE_STORE);
+  private readonly startingId = startingWorkspaceId(
     (inject(WORKSPACE_DEFINITIONS, { optional: true }) ?? []).flat(),
   );
   private readonly declaredInitial =
-    this.defaultId === DEFAULT_WORKSPACE_ID ? null : this.defaultId;
+    this.startingId === BUILT_IN_WORKSPACE_ID ? null : this.startingId;
   private readonly active = signal(
-    this.fromStore(this.store.peek?.(ACTIVE_KEY)) ?? this.defaultId,
+    this.fromStore(this.workingStateStore.peek?.(ACTIVE_KEY)) ??
+      this.startingId,
   );
   readonly id = this.active.asReadonly();
 
   private adopted = false;
   private chosen = false;
-  readonly ready: Promise<string> = this.resolveInitial();
+  readonly ready: Promise<string>;
+
+  constructor() {
+    this.ready = this.resolveInitial();
+  }
 
   set(id: string): void {
     this.adopted = false;
     this.chosen = true;
     this.active.set(id);
-    void this.store.set(ACTIVE_KEY, id);
+    void this.workingStateStore.set(ACTIVE_KEY, id);
   }
 
   wasChosen(): boolean {
@@ -48,7 +51,9 @@ export class ActiveWorkspaceService {
   }
 
   async reread(): Promise<void> {
-    const id = this.fromStore(await readStoredValue(this.store, ACTIVE_KEY));
+    const id = this.fromStore(
+      await readStoredValue(this.workingStateStore, ACTIVE_KEY),
+    );
     if (id !== null) {
       this.active.set(id);
     }
@@ -67,13 +72,13 @@ export class ActiveWorkspaceService {
   }
 
   private resolveInitial(): Promise<string> {
-    if (this.store.peek) {
-      const raw = this.store.peek(ACTIVE_KEY);
+    if (this.workingStateStore.peek) {
+      const raw = this.workingStateStore.peek(ACTIVE_KEY);
       this.adoptIfUnseen(storedId(raw));
       this.rewriteSuperseded(raw);
       return Promise.resolve(this.active());
     }
-    return this.store
+    return this.workingStateStore
       .get(ACTIVE_KEY)
       .then((raw) => {
         const id = this.fromStore(raw);
@@ -90,15 +95,15 @@ export class ActiveWorkspaceService {
 
   private fromStore(raw: string | undefined): string | null {
     const id = storedId(raw);
-    return id === DEFAULT_WORKSPACE_ID ? this.defaultId : id;
+    return id === BUILT_IN_WORKSPACE_ID ? this.startingId : id;
   }
 
   private rewriteSuperseded(raw: string | undefined): void {
     if (
-      storedId(raw) === DEFAULT_WORKSPACE_ID &&
+      storedId(raw) === BUILT_IN_WORKSPACE_ID &&
       this.declaredInitial !== null
     ) {
-      void this.store.set(ACTIVE_KEY, this.declaredInitial);
+      void this.workingStateStore.set(ACTIVE_KEY, this.declaredInitial);
     }
   }
 
@@ -108,6 +113,6 @@ export class ActiveWorkspaceService {
     }
     this.adopted = true;
     this.active.set(this.declaredInitial);
-    void this.store.set(ACTIVE_KEY, this.declaredInitial);
+    void this.workingStateStore.set(ACTIVE_KEY, this.declaredInitial);
   }
 }

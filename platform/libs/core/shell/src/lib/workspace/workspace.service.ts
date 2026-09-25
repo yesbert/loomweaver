@@ -27,14 +27,15 @@ import { persistedSetting } from '../persistence/stored-values/persisted-setting
 import { StateSyncService } from '../persistence/state-sync.service';
 import {
   ActiveWorkspaceService,
-  DEFAULT_WORKSPACE_ID,
   workspaceScopedKey,
 } from './active-workspace.service';
 import {
+  BUILT_IN_WORKSPACE_ID,
   WorkspaceDefinition,
   auditWorkspaceDefinitions,
   dedupedDefinitions,
-  defaultWorkspaceId,
+  offersBuiltInWorkspace,
+  startingWorkspaceId,
 } from './workspace-definition';
 import { claimFor, type WorkspaceClaim } from './workspace-claims';
 import { warnDeclarationGaps } from './workspace-warnings';
@@ -64,7 +65,7 @@ const WORKSPACE_KEYS = [HIDDEN_VIEWS_KEY, PANE_TREES_KEY] as const;
 
 @Service()
 export class WorkspaceService {
-  private readonly workingState = inject(WORKING_STATE_STORE);
+  private readonly workingStateStore = inject(WORKING_STATE_STORE);
   private readonly active = inject(ActiveWorkspaceService);
   private readonly paneTree = inject(PaneTreeService);
   private readonly panelGroups = inject(PanelGroupService);
@@ -92,7 +93,7 @@ export class WorkspaceService {
     this.definitionBatches.flat(),
   );
 
-  private readonly defaultId = defaultWorkspaceId(this.definitions);
+  private readonly startingId = startingWorkspaceId(this.definitions);
 
   private readonly stored = persistedSetting<Workspace[]>(STORAGE_KEY, {
     parse: parseWorkspaces,
@@ -124,7 +125,7 @@ export class WorkspaceService {
     workspaces: () => this.list(),
     definitions: this.definitions,
     context: this.baselineContext,
-    workingState: this.workingState,
+    workingState: this.workingStateStore,
   });
 
   readonly hasChanges = this.unsaved.hasChanges;
@@ -155,7 +156,7 @@ export class WorkspaceService {
 
   async saveBaseline(): Promise<void> {
     const id = this.active.id();
-    if (id === DEFAULT_WORKSPACE_ID || this.definitionOf(id) !== undefined) {
+    if (id === BUILT_IN_WORKSPACE_ID || this.definitionOf(id) !== undefined) {
       return;
     }
     const baseline = await this.currentState();
@@ -225,8 +226,8 @@ export class WorkspaceService {
     )) {
       this.resetNow(workspace.id);
     }
-    if (this.defaultId === DEFAULT_WORKSPACE_ID) {
-      this.resetNow(DEFAULT_WORKSPACE_ID);
+    if (offersBuiltInWorkspace(this.definitions)) {
+      this.resetNow(BUILT_IN_WORKSPACE_ID);
     }
     return true;
   }
@@ -239,7 +240,7 @@ export class WorkspaceService {
   }
 
   async remove(id: string): Promise<boolean> {
-    if (id === DEFAULT_WORKSPACE_ID || this.definitionOf(id) !== undefined) {
+    if (id === BUILT_IN_WORKSPACE_ID || this.definitionOf(id) !== undefined) {
       return false;
     }
     if (!(await this.guard.confirmDiscardParked(id))) {
@@ -248,10 +249,10 @@ export class WorkspaceService {
     this.commit(this.list().filter((w) => w.id !== id));
     this.stash.evictWorkspace(id);
     for (const key of WORKSPACE_KEYS) {
-      void this.workingState.delete(workspaceScopedKey(key, id));
+      void this.workingStateStore.delete(workspaceScopedKey(key, id));
     }
     if (id === this.active.id()) {
-      void this.switchTo(this.defaultId);
+      void this.switchTo(this.startingId);
     }
     return true;
   }
@@ -276,7 +277,7 @@ export class WorkspaceService {
     if (id !== this.active.id()) {
       this.stash.evictWorkspace(id);
       writeWorkspaceState(
-        this.workingState,
+        this.workingStateStore,
         id,
         this.baselineOf(id),
         WORKSPACE_KEYS,
@@ -314,7 +315,7 @@ export class WorkspaceService {
 
   private currentState(): Promise<Record<string, string>> {
     return readWorkspaceState(
-      this.workingState,
+      this.workingStateStore,
       (key) => this.active.scopedKey(key),
       WORKSPACE_KEYS,
     );

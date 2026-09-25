@@ -1,5 +1,3 @@
-export const DEFAULT_WORKSPACE_ID = 'default';
-
 import {
   PaneArea,
   PaneAreaBase,
@@ -15,6 +13,8 @@ import {
 import { conflictingClaims, type WorkspaceClaim } from './workspace-claims';
 import { CONTENT_DOCK, isViewPanePath, VIEW_PANE_PREFIX } from '../regions/pane/tree/pane-address';
 import { normalizeNode } from '../regions/pane/tree/stored-pane-tree';
+
+export const BUILT_IN_WORKSPACE_ID = 'default';
 
 /**
  * A developer-defined workspace a distribution ships with {@link provideWorkspaces}: the same thing a
@@ -135,7 +135,7 @@ export function auditWorkspaceDefinitions(
   const seen = new Set<string>();
   let initial: string | null = null;
   for (const definition of definitions) {
-    if (definition.id === DEFAULT_WORKSPACE_ID) {
+    if (definition.id === BUILT_IN_WORKSPACE_ID) {
       problems.push(
         `Workspace definition id "default" collides with the built-in default workspace — the definition is ignored.`,
       );
@@ -196,19 +196,25 @@ function auditDefinition(
   }
 }
 
-export function defaultWorkspaceId(
+export function startingWorkspaceId(
   definitions: readonly WorkspaceDefinition[],
 ): string {
   return (
     dedupedDefinitions(definitions).find((definition) => definition.initial)
-      ?.id ?? DEFAULT_WORKSPACE_ID
+      ?.id ?? BUILT_IN_WORKSPACE_ID
   );
+}
+
+export function offersBuiltInWorkspace(
+  definitions: readonly WorkspaceDefinition[],
+): boolean {
+  return startingWorkspaceId(definitions) === BUILT_IN_WORKSPACE_ID;
 }
 
 export function dedupedDefinitions(
   definitions: readonly WorkspaceDefinition[],
 ): WorkspaceDefinition[] {
-  const seen = new Set<string>([DEFAULT_WORKSPACE_ID]);
+  const seen = new Set<string>([BUILT_IN_WORKSPACE_ID]);
   return definitions.filter((definition) => {
     if (seen.has(definition.id)) {
       return false;

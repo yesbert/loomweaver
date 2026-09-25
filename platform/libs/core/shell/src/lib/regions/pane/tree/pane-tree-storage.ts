@@ -78,7 +78,7 @@ function serializeDocks(docks: Record<string, DockEntry>): string {
 
 @Service()
 export class PaneTreeStorage {
-  private readonly store = inject(WORKING_STATE_STORE);
+  private readonly workingStateStore = inject(WORKING_STATE_STORE);
   private readonly settingsStore = inject(SETTINGS_STORE);
   private readonly workspace = inject(ActiveWorkspaceService);
 
@@ -100,7 +100,7 @@ export class PaneTreeStorage {
 
   peek(): Record<string, DockEntry> {
     return this.reconciledWithWorkspace(
-      parseDocks(this.store.peek?.(this.key())),
+      parseDocks(this.workingStateStore.peek?.(this.key())),
     );
   }
 
@@ -113,12 +113,12 @@ export class PaneTreeStorage {
       onHydrated(this.takeRelabelled());
       this.resolveSettled?.();
     };
-    if (this.store.peek) {
+    if (this.workingStateStore.peek) {
       hydrated();
       return;
     }
     void this.workspace.ready.then(() =>
-      hydrateAsync(this.store, this.key(), apply, (loaded) => {
+      hydrateAsync(this.workingStateStore, this.key(), apply, (loaded) => {
         if (loaded) {
           hydrated();
           return;
@@ -132,7 +132,7 @@ export class PaneTreeStorage {
     if (this.popout) {
       return;
     }
-    void this.store.set(this.key(), serializeDocks(docks));
+    void this.workingStateStore.set(this.key(), serializeDocks(docks));
   }
 
   serialize(docks: Record<string, DockEntry>): string {
@@ -230,7 +230,7 @@ export class PaneTreeStorage {
     hydrated: () => void,
   ): void {
     setTimeout(() => {
-      void this.store
+      void this.workingStateStore
         .get(this.key())
         .then((raw) => {
           apply(raw);
