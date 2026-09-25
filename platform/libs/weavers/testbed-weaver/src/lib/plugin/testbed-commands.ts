@@ -155,8 +155,9 @@ export function registerCommands(ctx: PluginContext): void {
     title: 'testbed.auth.cycle',
     icon: 'testbedUserSwitch',
     run: () => {
+      testbedAuth.cycle();
       ctx.ui.toast({
-        message: principalToastKey(testbedAuth.cycle()),
+        message: principalToastKey(testbedAuth.snapshot()),
         timeoutMs: 4000,
       });
     },

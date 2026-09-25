@@ -1,5 +1,5 @@
 import { Disposable, PluginContext } from '@loomweaver/plugin-sdk';
-import { writeLocalStorageBestEffort } from '../plugin/testbed-storage';
+import { CrossTabHooks, CrossTabLink, persistedChoice } from '../persisted-choice';
 
 const SUNRISE_THEME: Readonly<Record<string, string>> = {
   '--lw-brand': '#ea580c',
@@ -29,21 +29,15 @@ const SUNRISE_THEME_DARK: Readonly<Record<string, string>> = {
   '--lw-content-faint': '#a07c4f',
 };
 
-const STORAGE_KEY = 'testbed.theme.plugin';
+const choice = persistedChoice('testbed.theme.plugin');
 
 const state: { ctx: PluginContext | null; handle: Disposable | null } = {
   ctx: null,
   handle: null,
 };
 
-let announce: ((key: string) => void) | undefined;
-
 function isOn(): boolean {
-  try {
-    return localStorage.getItem(STORAGE_KEY) === '1';
-  } catch {
-    return false;
-  }
+  return choice.read() === '1';
 }
 
 function apply(): void {
@@ -68,9 +62,8 @@ export function registerTheme(ctx: PluginContext): void {
     icon: 'testbedPalette',
     popout: true,
     run: () => {
-      writeLocalStorageBestEffort(STORAGE_KEY, isOn() ? '0' : '1');
+      choice.write(isOn() ? '0' : '1');
       apply();
-      announce?.(STORAGE_KEY);
     },
   });
   ctx.registerRailItem({
@@ -90,11 +83,6 @@ export function releaseTheme(): void {
 }
 
 export const testbedTheme = {
-  connectSync(hooks: { announce(key: string): void }): {
-    key: string;
-    refresh(): void;
-  } {
-    announce = hooks.announce;
-    return { key: STORAGE_KEY, refresh: () => apply() };
-  },
+  connectSync: (hooks: CrossTabHooks): CrossTabLink =>
+    choice.connectSync(hooks, () => apply()),
 };

@@ -544,6 +544,9 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   `llms.txt` needed no change, since `testbed.plugin.ts` stayed where it is.
 - [ ] 11.3 Each capability folder registers its own commands, surfaces and chrome; the content actions,
   entry helpers, the persisted cross-tab choice and the principals (by name, not index) follow.
+  Part 1: `persisted-choice.ts` reads, writes and announces a stored choice for the auth and the
+  theme, replacing `testbed-storage.ts` and two hand-rolled copies; the principals are keyed by name
+  with the cycle as an explicit list, the stored value is the name, and `cycle()` returns nothing.
 - [ ] 11.4 The container vocabulary in code, i18n, test ids and end-to-end paths (today
   "workspace", "ws" and "sim").
 - [ ] 11.5 View names say which surface they serve; the omitted route says so; schema, exports,
