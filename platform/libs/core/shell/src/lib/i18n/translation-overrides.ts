@@ -19,7 +19,7 @@ function withoutTrailingSlashes(path: string): string {
  * Load `<basePath>/<lang>.json` and merge it over everything else **key by key**, so a product
  * can reword the shell in its own house language ("Save as" rather than "Save as new") without
  * forking our bundle: name only the keys you change and inherit the rest, including every key a
- * later release adds. It is applied last, so it also reaches a bundled weaver's strings.
+ * later release adds. It is applied last, so it also reaches a bundled plugin's strings.
  *
  * Namespaces (`provideTranslationNamespaces`) remain the way to *add* your own strings, and they can
  * still never collide with a host key. This is the opposite job — replacing one — which is why it is

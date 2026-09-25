@@ -3,9 +3,9 @@ import { Capability } from '@loomweaver/plugin-sdk';
 import { PluginIsolationLevel } from '../../foundation/plugin-isolation-level';
 
 /**
- * A **sandboxed** plugin a distribution registers: its code is not an in-process
- * {@link Plugin} object but a URL to an isolated document, loaded into an `<iframe sandbox>` and given
- * `ctx` over RPC. Contrast {@link providePlugins} (trusted, in-process).
+ * A **sandboxed** plugin a distribution registers: its code is not a {@link Plugin} object running
+ * in the page but a URL to an isolated document, loaded into an `<iframe sandbox>` and given `ctx`
+ * over RPC. Contrast {@link providePlugins}, which registers trusted plugins.
  */
 export interface FramePlugin {
   /** Stable plugin id — the same id the distribution grants capabilities to (default-deny). */
@@ -22,7 +22,7 @@ export interface FramePlugin {
   /** Capabilities the plugin declares it needs; the distribution still has to grant them. */
   readonly capabilities?: readonly Capability[];
   /**
-   * Origins this plugin's own surfaces may be served from, beyond the application's own — the seam
+   * Origins this plugin's own surfaces may be served from, beyond the application's own — the workbench
    * refuses anything else, and refuses an address that would execute or carry its content inline at
    * any level. Omit it and the application's own origin is the only one, which is the right answer
    * for a plugin whose files the distribution serves itself.

@@ -11,8 +11,7 @@ const CAPABILITY_GRANT_DECLARATIONS = new InjectionToken<readonly CapabilityGran
 /**
  * The active capability grants, composed from every {@link provideCapabilityGrants} declaration
  * in the injector. Defaults to **empty** (default-deny — no plugin can do anything until granted).
- * A product can later feed per-tenant grants from its own backend behind the same seam by
- * providing this token itself.
+ * A product feeds per-tenant grants from its own backend by providing this token itself.
  */
 export const CAPABILITY_GRANTS = new InjectionToken<CapabilityGrants>(
   'CAPABILITY_GRANTS',
@@ -25,8 +24,8 @@ export const CAPABILITY_GRANTS = new InjectionToken<CapabilityGrants>(
 
 /**
  * A distribution declares which plugin gets which capabilities. The composition root is the
- * authoritative grant source — the honest default-deny model, dogfooded by the first-party plugin
- * like a third-party one would be. A product backend can replace it behind the same seam.
+ * authoritative grant source, and a plugin it does not name gets nothing, first-party or not. A
+ * product backend can replace it by providing `CAPABILITY_GRANTS`.
  *
  * Several calls add up: each declaration contributes what it lists, and a plugin named in more
  * than one holds the union. That is what lets a generator append one call per plugin it composes
@@ -54,8 +53,7 @@ function composeGrants(declarations: readonly CapabilityGrants[]): CapabilityGra
  * The effective capability set for one plugin: what the distribution granted, **intersected** with
  * what the plugin declares ("plugin declares, distribution grants"). A grant for an
  * undeclared capability is inert, so least privilege holds in both directions; dev mode flags the
- * mismatch so the composition stays honest. A plugin without a declaration keeps its grants as-is
- * (declaring is optional today; the manifest schema hardens this later).
+ * mismatch so the composition stays honest. A plugin without a declaration keeps its grants as-is.
  */
 export function effectiveCapabilities(
   pluginId: string,

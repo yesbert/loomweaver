@@ -14,9 +14,9 @@ export const LW_MARKDOWN_TAG = 'lw-markdown';
  * (like `<lw-tooltip>`/`<lw-select>`/`<lw-menu>`): a plain `HTMLElement`, **light DOM**, so the
  * `prose-lw` Tailwind-Typography classes + `--lw-*` tokens cascade in (auto dark-mode). It does
  * no formatting logic of its own — `marked` parses, **DOMPurify** sanitizes (scripts / `on*` / `javascript:`
- * stripped; the element renders raw `innerHTML`, so this is the security seam, like the icon registry).
- * Reusable anywhere rich text is needed (dialog bodies, About, weaver content), and — unlike the old
- * Angular component — usable in a weaver body by tag, no `@loomweaver/shell` import.
+ * stripped; the element renders raw `innerHTML`, so this is where sanitising happens, as in the icon
+ * registry). Reusable anywhere rich text is needed (dialog bodies, About, plugin content), and usable
+ * in a plugin's markup by tag, without importing `@loomweaver/shell`.
  *
  *   <lw-markdown [source]="'Delete **' + name + '**? This cannot be undone.'"></lw-markdown>
  */

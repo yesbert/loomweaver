@@ -248,8 +248,8 @@ export class DialogService {
   }
 
   /**
-   * Connects the outlet that draws the dialogs, so a body's request for the person's close runs the
-   * outlet's own dismissal. Returns the disconnect.
+   * Connects the outlet that draws the dialogs, so a body's `requestClose` runs the outlet's own
+   * dismissal. Returns the disconnect.
    */
   connectDismissal(
     dismiss: (dialog: DialogInstance) => Promise<boolean>,

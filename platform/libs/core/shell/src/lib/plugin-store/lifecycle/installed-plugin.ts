@@ -3,8 +3,8 @@ import { PluginIsolationLevel } from '../../foundation/plugin-isolation-level';
 import { SettingCodec } from '../../persistence/stored-values/persisted-setting';
 
 /**
- * A community plugin the user installed from the distribution's catalog. Plain data — the
- * same shape the frame runtime needs to spawn it, plus display metadata for the store and
+ * A community plugin the user installed from the distribution's catalog. Plain data — the same
+ * shape the {@link FramePluginRuntime} needs to spawn it, plus display metadata for the store and
  * permissions surfaces.
  */
 export interface InstalledPlugin {

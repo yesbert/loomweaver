@@ -20,9 +20,8 @@ interface TeardownFailure {
 }
 
 /**
- * Activates the registered plugins. Trusted in-process runtime (the lowest isolation
- * rung); this abstraction lets a sandboxed runtime slot in later
- * without touching plugins or the host.
+ * Activates the registered trusted plugins, which run in the page. Sandboxed plugins run in the
+ * {@link FramePluginRuntime}.
  */
 @Service()
 export class PluginRuntime {

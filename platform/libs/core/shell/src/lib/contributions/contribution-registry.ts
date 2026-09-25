@@ -67,9 +67,7 @@ function idsOf(
  *
  * Override is **destructive**, not stacked: the superseded entry is replaced, so disposing
  * the *winning* handle removes the id entirely (it does not restore the entry it replaced),
- * and disposing a *superseded* handle is a no-op. That is fine for today's usage (defaults are
- * overridden at composition time and never disposed); a per-id stack that reveals the previous
- * entry on dispose is the follow-up if a plugin ever overrides a default and is then unloaded.
+ * and disposing a *superseded* handle is a no-op.
  */
 @Service()
 export class ContributionRegistry {
@@ -127,7 +125,7 @@ export class ContributionRegistry {
   );
 
   /**
-   * URL-addressed content-area routes; the ContentRouter mirrors these into the Router.
+   * URL-addressed content-area routes; the host mirrors these into the router.
    * Omitted routes are filtered out, so every consumer — tab strip, auto-open, pane target
    * picker, `matchRoute` — drops them without knowing about omission.
    */
@@ -143,7 +141,7 @@ export class ContributionRegistry {
   );
 
   /**
-   * The routes {@link omit} dropped. The ContentRouter still maps these to a neutral
+   * The routes {@link omit} dropped. The host still maps these to a neutral
    * "not available here" placeholder at their path, so a shared deep-link explains itself instead of
    * silently falling back to home.
    */
@@ -158,7 +156,7 @@ export class ContributionRegistry {
         .filter((route) => isRouteOmitted(route, omitted));
     });
 
-  /** Menu-slot contributions; the MenuService filters these by slot + `when` when a menu opens. */
+  /** Menu-slot contributions; a menu filters these by slot and `when` as it opens. */
   readonly menuItems: Signal<readonly MenuItem[]> = this.visible(
     this.menuItemsSignal,
   );

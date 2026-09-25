@@ -7,7 +7,7 @@ const TRANSLATION_NAMESPACE_DECLARATIONS = new InjectionToken<
 /**
  * Extra translation namespaces a distribution composes on top of the host base, in the order they
  * were first declared. Each is served at `/i18n/<name>/<lang>.json` and nested under its key, so
- * its strings live at `name.*` and can never collide with a host key. Used for a weaver's own
+ * its strings live at `name.*` and can never collide with a host key. Used for a plugin's own
  * strings (`demo`) and for distribution branding (`product`).
  *
  * Read it; declare through {@link provideTranslationNamespaces}. Providing this token directly
@@ -27,8 +27,8 @@ export const TRANSLATION_NAMESPACES = new InjectionToken<readonly string[]>(
 );
 
 /**
- * A distribution declares which namespaced translation bundles to load — the weavers it bundles
- * (e.g. `'testbed'`) and its own branding (`'product'`). The bare platform registers none;
+ * A distribution declares which namespaced translation bundles to load — the plugins it bundles
+ * (e.g. `'reports'`) and its own branding (`'product'`). The bare platform registers none;
  * its host keys are the whole story.
  *
  * Calls accumulate: a second call further down the composition root adds its names to the first

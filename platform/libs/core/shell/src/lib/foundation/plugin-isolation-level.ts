@@ -1,5 +1,5 @@
 /**
- * How much the browser holds a frame plugin back. **Isolated** strips the frame of an origin, which
+ * How much the browser holds a sandboxed plugin back. **Isolated** strips the frame of an origin, which
  * is what denies it the hosting document, any storage and any session the browser would carry for
  * it. **Embedded** lets it keep an origin, and with it whatever the browser grants that origin — a
  * separation of deployments rather than of privileges.

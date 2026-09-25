@@ -22,13 +22,13 @@ export const LW_TOOLTIP_TAG = 'lw-tooltip';
 
 /**
  * `<lw-tooltip>` — the host tooltip primitive as a **framework-agnostic custom element**.
- * It is a plain `HTMLElement` (no framework runtime), so it crosses the Nx boundary as a *tag* (an
- * SDK-only weaver uses `<lw-tooltip text="…" position="bottom">` without importing `@loomweaver/shell`) and,
- * later, an iframe/sandbox boundary once the element script is served alongside `theme.css`.
+ * It is a plain `HTMLElement` (no framework runtime), so a plugin that imports only the SDK uses it
+ * by tag (`<lw-tooltip text="…" position="bottom">`), and a sandboxed surface gets it from the frame
+ * kit.
  *
  * The element renders the bubble and drives it entirely in JS — reveal, hide, and **positioning**. The
  * bubble is a **Popover** in the browser top layer, so it is never clipped by a `transform`/`overflow`
- * ancestor (a virtual-scroll row) nor lost under a region's z-order (#13). Its `left`/`top` are computed
+ * ancestor (a virtual-scroll row) nor lost under a region's z-order. Its `left`/`top` are computed
  * in JS (no CSS anchor positioning — shipping Safari does not support it): a **pointer** reveal anchors to
  * the **cursor** (native-`title`-like, so a wide trigger's tooltip appears where the mouse is, not at the
  * element's far edge); a **focus** reveal anchors to the trigger element per `position`. Reveal is off the

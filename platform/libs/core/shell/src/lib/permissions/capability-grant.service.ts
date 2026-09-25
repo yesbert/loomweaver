@@ -39,14 +39,13 @@ function parseRevocations(raw: string | undefined): ReadonlySet<string> {
 }
 
 /**
- * The live capability broker. The distribution's static grants (the platform ships no server, so
- * the composition root — later a per-tenant backend behind the same seam —
- * is the grant source) form each plugin's **base** set (grant ∩ declaration). On top of that the user can
- * **revoke** a granted capability at runtime; the decision is user-local and persisted through the
- * {@link SETTINGS_STORE}, exactly like the rest of the chrome state. Enforcement in
- * {@link HostPluginContext} consults {@link isGranted} on every `ctx` call, so a revocation takes effect
- * on the plugin's next call without a reload — the honest default-deny model made transparent and
- * user-controllable (a "Permissions" settings surface), never wider than the distribution allowed.
+ * The live capability broker. The distribution's grants (from the composition root, or from a
+ * product backend that provides `CAPABILITY_GRANTS`) form each plugin's **base** set
+ * (grant ∩ declaration). On top of that the user can **revoke** a granted capability at runtime; the
+ * decision is user-local and persisted through the {@link SETTINGS_STORE}, exactly like the rest of
+ * the chrome state. Every `ctx` call consults {@link isGranted}, so a revocation takes effect on the
+ * plugin's next call without a reload, and the user's choices in the Permissions settings can never
+ * reach wider than the distribution allowed.
  */
 @Service()
 export class CapabilityGrantService {

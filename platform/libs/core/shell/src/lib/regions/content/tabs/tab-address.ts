@@ -10,7 +10,7 @@ import { matchRoute, segmentsOf } from '../content-path';
 export interface TabAddressInput {
   /** The following surface's id, when it declared one. */
   readonly surfaceId?: string;
-  /** That surface's route pattern, e.g. `cedents/:cedentId/programs/:programId/treaties`. */
+  /** That surface's route pattern, e.g. `customers/:customerId/orders/:orderId/notes`. */
   readonly pattern: string;
   /** Parameter values of the address the user is on, by name. */
   readonly params: Readonly<Record<string, string>>;

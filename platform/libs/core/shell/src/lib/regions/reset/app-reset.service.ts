@@ -10,8 +10,7 @@ import { ViewInstanceService } from '../../views/view-instance.service';
 
 /**
  * Resets every workspace after asking about unsaved work once, and answers whether it was allowed.
- * Provided by the composition root so the application reset can include the workspaces without the
- * frame's slice reaching into theirs.
+ * Provided by the composition root, so the application reset includes the workspaces.
  */
 export const APP_RESET_WORKSPACES = new InjectionToken<() => Promise<boolean>>(
   'lw.app-reset-workspaces',

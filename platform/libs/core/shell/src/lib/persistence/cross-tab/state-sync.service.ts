@@ -26,7 +26,7 @@ interface Registration {
 }
 
 /**
- * Cross-tab live sync at the persistence seams. Every write through either port
+ * Cross-tab live sync at the persistence ports. Every write through either port
  * broadcasts its **key** to the other windows of the same origin over a `BroadcastChannel`; a
  * window that has registered a reaction for that key reads the fresh value back through the
  * registered source's store and applies it — so it works with any store behind the ports,

@@ -25,9 +25,9 @@ import { CONTAINER_PANE_HOST } from '../../pane/container/container-context';
  * is drawn when the address moves between panes:
  *
  * - `withDisabledInitialNavigation()` — the router does not navigate until the plugin routes exist.
- * - `ContentReuseStrategy` — never carries a content route across a change of its values.
- * - an app-initializer that runs {@link ContentRouter.start} after plugins activate: it mirrors the
- *   registered content routes into the router and then performs the deferred initial navigation.
+ * - a route reuse strategy that never carries a content route across a change of its values.
+ * - an app-initializer that, after plugins activate, mirrors the registered content routes into the
+ *   router and then performs the deferred initial navigation.
  *
  * Pass `extraRoutes` for any non-content routes the distribution owns — a redirect for the address
  * that names no content, a legal page, a sign-in page. They stay reachable for the life of the

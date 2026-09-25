@@ -44,7 +44,7 @@ export interface IdentityScopedStoreOptions {
    * departing user — a pending debounce, a commit during the login transition — can never land in
    * the next user's namespace. The shell peeks bootstrap-critical keys before first paint, so the
    * discriminator must be answerable synchronously at boot (persist the last-known subject
-   * yourself). Where it cannot be, nothing stored for that person is lost: from the moment an
+   * yourself). Where it cannot be, nothing stored for that user is lost: from the moment an
    * anonymous session adopts a namespace, writes are held, everything already read is read again
    * from the adopted namespace, and what was built while nobody was known is kept only where the
    * adopted namespace answers with nothing. What remains is the flash before the session lands.

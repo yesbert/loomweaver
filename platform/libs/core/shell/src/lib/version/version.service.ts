@@ -3,16 +3,15 @@ import { APP_VERSION } from './app-version';
 import { isPreviewVersion } from './preview-version';
 
 /**
- * The running build's version, sourced from `<Version>` in Directory.Build.props
- * at build time (see tools/stamp-version.mjs). Exposed as a signal so a
- * later source (e.g. a product backend) can update it live without touching consumers.
+ * The version the workbench shows: the released version of `@loomweaver/shell` until the
+ * distribution points it at its own build with `version.set(…)`, which every reader follows.
  *
- * Neutral core chrome: the version is host-offered data; distributions and plugins
- * render it via `<lw-version>` or `ctx`, never hardcoded.
+ * Distributions and plugins render it through `<lw-version>` or `ctx.host.version`, never
+ * hardcoded.
  */
 @Service()
 export class VersionService {
-  /** SemVer of the running build, e.g. `0.1.0`. */
+  /** The version shown, e.g. `0.1.0`; set it to point at your own build. */
   readonly version = signal<string>(APP_VERSION);
 
   /**
