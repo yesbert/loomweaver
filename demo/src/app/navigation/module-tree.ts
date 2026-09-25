@@ -16,7 +16,9 @@ export interface ProductModule {
   readonly titleKey: string;
   readonly icon: string;
   readonly prefix: string;
-  readonly landing: string | null;
+  readonly home?: true;
+  readonly leftPanel: string;
+  readonly landing?: string;
   readonly areas: readonly ModuleArea[];
 }
 
@@ -26,7 +28,8 @@ export const MODULES: readonly ProductModule[] = [
     titleKey: 'product.module.overview',
     icon: 'overview',
     prefix: '',
-    landing: null,
+    home: true,
+    leftPanel: 'quotes.openItems',
     areas: [],
   },
   {
@@ -34,6 +37,7 @@ export const MODULES: readonly ProductModule[] = [
     titleKey: 'product.module.sales',
     icon: 'sales',
     prefix: 'sales',
+    leftPanel: navSurfaceId('sales'),
     landing: 'sales/customers',
     areas: [
       {
@@ -56,6 +60,7 @@ export const MODULES: readonly ProductModule[] = [
     titleKey: 'product.module.finance',
     icon: 'finance',
     prefix: 'finance',
+    leftPanel: navSurfaceId('finance'),
     landing: 'finance/receivables',
     areas: [
       {
@@ -110,6 +115,7 @@ export const MODULES: readonly ProductModule[] = [
     titleKey: 'product.module.procurement',
     icon: 'procurement',
     prefix: 'procurement',
+    leftPanel: navSurfaceId('procurement'),
     landing: 'procurement/suppliers',
     areas: [
       {
@@ -141,6 +147,7 @@ export const MODULES: readonly ProductModule[] = [
     titleKey: 'product.module.inventory',
     icon: 'inventory',
     prefix: 'inventory',
+    leftPanel: navSurfaceId('inventory'),
     landing: 'inventory/stock',
     areas: [
       {
@@ -172,6 +179,7 @@ export const MODULES: readonly ProductModule[] = [
     titleKey: 'product.module.people',
     icon: 'people',
     prefix: 'people',
+    leftPanel: navSurfaceId('people'),
     landing: 'people/employees',
     areas: [
       {
@@ -215,5 +223,5 @@ export function navSurfaceId(moduleId: string): string {
 
 export function moduleOfPath(path: string): ProductModule | undefined {
   const head = path.split('/')[0];
-  return MODULES.find((module) => module.prefix !== '' && module.prefix === head);
+  return MODULES.find((module) => !module.home && module.prefix === head);
 }
