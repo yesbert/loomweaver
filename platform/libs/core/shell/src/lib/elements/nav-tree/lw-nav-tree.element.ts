@@ -116,7 +116,6 @@ export class LwNavTreeElement extends HTMLElement {
   }
 }
 
-/** Registers `<lw-nav-tree>`, `<lw-nav-group>` and `<lw-nav-item>` once (idempotent). */
 function pathOf(item: Element): string {
   return item.getAttribute('path') ?? '';
 }
@@ -137,6 +136,7 @@ function longestMatch(
   return best;
 }
 
+/** Registers `<lw-nav-tree>`, `<lw-nav-group>` and `<lw-nav-item>` once (idempotent). */
 export function defineLwNavTree(): void {
   defineElementOnce(LW_NAV_ITEM_TAG, LwNavItemElement);
   defineElementOnce(LW_NAV_GROUP_TAG, LwNavGroupElement);
