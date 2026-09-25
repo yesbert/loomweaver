@@ -2,8 +2,8 @@ import { Injector } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 import { ContributionRegistry } from './contributions/contribution-registry';
 import { DialogService } from './dialog/dialog.service';
-import { SettingsService } from './settings/settings.service';
-import { registerOpenSettingsCommand } from './settings/settings-command';
+import { SettingsService } from './settings-dialog/settings.service';
+import { registerOpenSettingsCommand } from './settings-dialog/settings-command';
 import { WorkspaceService } from './workspace/workspace.service';
 import { registerWorkspaceCommands } from './workspace/workspace-commands';
 import {

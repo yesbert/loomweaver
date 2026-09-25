@@ -28,14 +28,14 @@ interface SettingsGroup {
   templateUrl: './settings-dialog.html',
 })
 export class SettingsDialog {
-  private readonly settings = inject(SettingsRegistry);
+  private readonly registry = inject(SettingsRegistry);
 
   private readonly commands = inject(CommandService);
 
   private readonly ref = inject(DialogRef);
 
   protected readonly sections = computed<readonly SettingsSection[]>(() =>
-    this.settings
+    this.registry
       .all()
       .map((section) => ({
         ...section,
@@ -48,37 +48,31 @@ export class SettingsDialog {
 
   protected readonly active = computed<SettingsSection | undefined>(
     () =>
-      this.sections().find((s) => s.id === this.activeId()) ??
+      this.sections().find((section) => section.id === this.activeId()) ??
       this.sections()[0],
   );
 
   protected readonly groups = computed<readonly SettingsGroup[]>(() => {
-    const order: SettingsGroup[] = [];
-    const byKey = new Map<
-      string,
-      SettingsGroup & { sections: SettingsSection[] }
-    >();
+    const byKey = new Map<string, SettingsSection[]>();
     for (const section of this.sections()) {
       const key = section.group ?? '';
-      let group = byKey.get(key);
-      if (!group) {
-        group = { key, label: section.group, sections: [] };
-        byKey.set(key, group);
-        order.push(group);
-      }
-      group.sections.push(section);
+      byKey.set(key, [...(byKey.get(key) ?? []), section]);
     }
-    return order;
+    return [...byKey].map(([key, sections]) => ({
+      key,
+      label: sections[0].group,
+      sections,
+    }));
   });
 
   constructor() {
     effect(() => {
-      const requested = this.settings.requestedSection();
+      const requested = this.registry.requestedSection();
       if (!requested) {
         return;
       }
       this.activeId.set(requested);
-      this.settings.consumeRequestedSection();
+      this.registry.consumeRequestedSection();
     });
   }
 

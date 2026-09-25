@@ -123,9 +123,9 @@ export * from './lib/regions/panel/sidebar.service';
 
 export * from './lib/regions/reset/app-reset.service';
 
-export * from './lib/settings/lw-setting-row';
-export * from './lib/settings/settings-model';
-export * from './lib/settings/settings.service';
+export * from './lib/settings-dialog/lw-setting-row';
+export * from './lib/settings-dialog/settings-model';
+export * from './lib/settings-dialog/settings.service';
 
 export * from './lib/text-size/font-scale.service';
 

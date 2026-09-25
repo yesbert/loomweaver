@@ -7,12 +7,11 @@ import { DialogService } from '../dialog/dialog.service';
 import { SettingRow, SettingsSection } from './settings-model';
 
 /**
- * Host registry for settings sections (schema-driven). The shell and
- * plugins contribute sections; the host renders them all in one {@link SettingsDialog}.
- * Storage is deliberately NOT centralised — each section carries its own value accessors,
- * so the owner keeps responsibility for persistence (shell settings in the shell, plugin
- * settings in the plugin, optionally against its owner's backend). This keeps the host domain-pure and
- * fits the per-tenant tenancy model without the host needing to persist foreign data.
+ * Where settings sections are contributed and the settings dialog is opened. The shell and plugins
+ * register sections, and the dialog draws every section that is not omitted, with a replaced row in
+ * place of the one it replaces. Storage is not centralised: each row carries its own value accessors,
+ * so whoever contributes a section persists its values, the shell in the shell and a plugin in the
+ * plugin or against its product's backend. The host never stores data it does not own.
  */
 @Service()
 export class SettingsService {
@@ -21,7 +20,10 @@ export class SettingsService {
   private readonly dialogs = inject(DialogService);
   private readonly registry = inject(SettingsRegistry);
 
-  /** The section a caller asked to show; the settings dialog consumes it. */
+  /**
+   * The section a caller last asked {@link open} to show, until the settings dialog has switched to
+   * it. The dialog reads this itself; nothing outside the dialog needs it.
+   */
   readonly requestedSection = this.registry.requestedSection;
 
   /**
@@ -98,6 +100,7 @@ export class SettingsService {
     return ref;
   }
 
+  /** Clears {@link requestedSection} once it has been shown; the dialog does this itself. */
   consumeRequestedSection(): void {
     this.registry.consumeRequestedSection();
   }

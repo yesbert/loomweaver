@@ -17,7 +17,7 @@ import { PluginDeploymentService } from '../../plugin-store/lifecycle/plugin-dep
 import { CATALOG_MAX_ISOLATION_LEVEL } from '../../plugin-store/catalog/catalog-level-cap';
 import { ContentTabsService } from '../../regions/content/tabs/content-tabs.service';
 import { MenuService } from '../../menu/menu.service';
-import { SettingsService } from '../../settings/settings.service';
+import { SettingsService } from '../../settings-dialog/settings.service';
 import type { Mock } from 'vitest';
 
 vi.mock('penpal', () => ({

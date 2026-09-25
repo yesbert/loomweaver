@@ -5,7 +5,7 @@ import { VIEW } from '../views/view';
 import { isMacPlatform } from '../commands/keybinding';
 import { ContributionRegistry } from '../contributions/contribution-registry';
 import { SHELL_LAYOUT } from '../layout/layout';
-import { SettingsService } from '../settings/settings.service';
+import { SettingsService } from '../settings-dialog/settings.service';
 import {
   DEFAULT_SHELL_FEATURES,
   SHELL_FEATURES,

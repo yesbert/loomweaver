@@ -5,7 +5,7 @@ import {
   urlPluginCatalog,
 } from './plugin-catalog';
 import { providePluginCatalog } from './provide-plugin-catalog';
-import { SettingsService } from '../../settings/settings.service';
+import { SettingsService } from '../../settings-dialog/settings.service';
 import { ContentTabsService } from '../../regions/content/tabs/content-tabs.service';
 import { MenuService } from '../../menu/menu.service';
 

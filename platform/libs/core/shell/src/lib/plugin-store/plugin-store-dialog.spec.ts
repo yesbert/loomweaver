@@ -8,7 +8,7 @@ import { PluginInstallService } from './lifecycle/plugin-install.service';
 import { PluginDeploymentService } from './lifecycle/plugin-deployment.service';
 import { DialogRef } from '../dialog/dialog-ref';
 import { DialogService } from '../dialog/dialog.service';
-import { SettingsService } from '../settings/settings.service';
+import { SettingsService } from '../settings-dialog/settings.service';
 
 function transloco() {
   return TranslocoTestingModule.forRoot({

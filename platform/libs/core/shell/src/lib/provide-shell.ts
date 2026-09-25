@@ -23,8 +23,8 @@ import {
   resolveServedLanguages,
   SERVED_LANGUAGES,
 } from './i18n/served-languages';
-import { SettingsService } from './settings/settings.service';
-import { settingOmitIds } from './settings/setting-omit';
+import { SettingsService } from './settings-dialog/settings.service';
+import { settingOmitIds } from './settings-dialog/setting-omit';
 import { ShellMissingTranslationHandler } from './i18n/missing-translation-handler';
 import { TranslocoHttpLoader } from './i18n/transloco-loader';
 import { LocaleService } from './i18n/locale.service';
