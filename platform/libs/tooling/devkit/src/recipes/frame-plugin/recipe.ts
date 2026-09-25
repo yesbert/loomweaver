@@ -13,7 +13,7 @@ export interface ResolvedFramePlugin {
 
 export function resolveFramePluginInput(input: FramePluginInput): ResolvedFramePlugin {
   if (!isKebabId(input.id)) {
-    throw new Error(`Sandbox plugin id must be kebab-case (e.g. "notes"); got "${input.id}".`);
+    throw new Error(`Frame plugin id must be kebab-case (e.g. "notes"); got "${input.id}".`);
   }
   return { id: input.id, name: input.name?.trim() || toTitleCase(input.id) };
 }

@@ -1,19 +1,15 @@
 import {
-  addDependenciesToPackageJson,
   formatFiles,
   GeneratorCallback,
   logger,
   Tree,
   updateJson,
 } from '@nx/devkit';
-import { Amendment, ComposePluginAmendment } from '../../lib/amend/types';
 import { generate } from '../../lib/generate/generate';
 import { weaverInput } from '../../recipes/angular-weaver/scaffold';
+import { applyAmendments } from '../apply-amendments';
 import {
-  addI18nAssetsGlob,
-  addTailwindSource,
   buildableApps,
-  composeIntoAppConfig,
   resolveApp,
   ResolvedApp,
   tsconfigPathsFile,
@@ -67,50 +63,14 @@ export async function weaverGenerator(
     return json;
   });
 
-  const amendments = weaverAmendments(input, project.projectRoot);
-  if (resolved) {
-    addI18nAssetsGlob(tree, resolved.name, {
-      input: `${project.projectRoot}/src/lib/i18n`,
-      output: `i18n/${options.id}`,
-    });
-    addTailwindSource(tree, resolved.name, `${project.projectRoot}/src`);
-    composeIntoApp(tree, resolved.root, amendments, project.importPath);
-  }
-
-  const installed = addPackages(tree, amendments);
+  const installed = applyAmendments(
+    tree,
+    weaverAmendments(input, project.projectRoot),
+    resolved && { app: resolved, importPath: project.importPath },
+  );
 
   await formatFiles(tree);
   return installed;
-}
-
-function addPackages(
-  tree: Tree,
-  amendments: readonly Amendment[],
-): GeneratorCallback | undefined {
-  const wanted: Record<string, string> = {};
-  for (const amendment of amendments) {
-    if (amendment.kind === 'package') {
-      wanted[amendment.name] = amendment.version;
-    }
-  }
-  return Object.keys(wanted).length === 0
-    ? undefined
-    : addDependenciesToPackageJson(tree, wanted, {});
-}
-
-function composeIntoApp(
-  tree: Tree,
-  appRoot: string,
-  amendments: readonly Amendment[],
-  importPath: string,
-): void {
-  const amendment = amendments.find(
-    (candidate): candidate is ComposePluginAmendment =>
-      candidate.kind === 'compose-plugin',
-  );
-  if (amendment) {
-    composeIntoAppConfig(tree, appRoot, amendment, importPath);
-  }
 }
 
 function appToComposeInto(

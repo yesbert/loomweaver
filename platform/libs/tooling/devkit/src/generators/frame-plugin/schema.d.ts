@@ -1,4 +1,4 @@
-export interface SandboxPluginGeneratorSchema {
+export interface FramePluginGeneratorSchema {
   id: string;
   name?: string;
   app?: string;
