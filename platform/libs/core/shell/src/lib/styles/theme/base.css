@@ -1,0 +1,41 @@
+@layer base {
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']) {
+    cursor: pointer;
+  }
+
+  :root {
+    scrollbar-color: var(--lw-scroll-thumb) var(--lw-scroll-track);
+  }
+
+  * {
+    scrollbar-width: thin;
+  }
+}
+
+html,
+body {
+  margin: 0;
+}
+
+body {
+  font-family: var(--lw-font-sans);
+  background: var(--lw-surface);
+  color: var(--lw-content);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .lw-spinner-ring {
+    animation-duration: 0.8s !important;
+    animation-iteration-count: infinite !important;
+  }
+}

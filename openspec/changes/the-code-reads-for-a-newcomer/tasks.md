@@ -93,11 +93,17 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   (728 lines) with one render helper and the workspace block in its own spec.
 - [x] 3.9 `UpdateService`: worker repair and the notices in their own files, the check deadline as a
   named method, one name for the "unreachable" outcome; the spec split the same way.
-- [ ] 3.10 `styles/theme.css` (879 lines) becomes an index of partials behind the same published entry
+- [x] 3.10 `styles/theme.css` (879 lines) becomes an index of partials behind the same published entry
   path (tokens, controls, one file per element look, workbench, base), and the asset glob ships the
   partials. The comment rule covers CSS (decided 2026-09-25): its comments go, what they explain that a
   consumer needs moves to `docs/reference/design-tokens.md` or the theming guide, and the comment
   checker reads CSS.
+  `theme.css` declares the layer order and imports ten parts from `styles/theme/`, which the package
+  ships beside it. The compiled `shell.css` has the same 681 rules as before, only reordered inside
+  the components layer where no element carries classes from two parts; `lw-frame.css` differs in
+  the order of Tailwind's property fallbacks alone. The comment checker reads stylesheets in the
+  platform, the demo and the example (calibrated on the old file: 64 found), and the design-tokens
+  guide gained the layout of the parts and what the base rules do to a page.
 - [x] 3.11 Smaller frame items: `ViewInstanceService.activeInstance`, private re-read methods, the
   panel width constants imported from `layout/`, one `shownInstance` in the panel, the theme registry
   split into tokens and plugin layer with `revision` instead of `version`, the composition report's

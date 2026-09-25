@@ -249,7 +249,8 @@ broken is listed in [`docs/reference/operations.md`](docs/reference/operations.m
   Functional directives (`eslint-disable`, `@ts-…`) and scaffold output emitted from template
   literals are exempt as well. Rationale belongs in the design note of the change that made the
   decision, not in a function body; version control is the memory, not a commented-out block. This
-  applies to the demo plugin and example plugins too, because the teaching lives in `docs/`.
+  applies to the demo plugin and example plugins too, because the teaching lives in `docs/`, and to
+  stylesheets as much as to TypeScript. The website's code is the one place the rule is not applied.
 - **Semantic design tokens only**: `bg-surface`, `text-content`, `text-brand`, `border-border`, never
   raw palette colours. A distribution retints the whole workbench by overriding tokens, and a plugin
   paints from the same set through the sandbox boundary, so a hard-coded colour is the one thing

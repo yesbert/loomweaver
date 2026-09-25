@@ -1,0 +1,27 @@
+@layer components {
+  lw-tooltip {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .lw-tooltip-bubble {
+    @apply rounded-md bg-tooltip px-2 py-1 text-xs font-normal text-tooltip-content shadow-lg;
+    max-width: 16rem;
+    white-space: normal;
+  }
+  .lw-tooltip-bubble .lw-badge:not(.lw-badge--brand, .lw-badge--success, .lw-badge--danger) {
+    @apply bg-tooltip-content/15 text-tooltip-content;
+  }
+  .lw-tooltip-bubble[popover] {
+    position: fixed;
+    inset: auto;
+    margin: 0;
+    border: 0;
+    width: max-content;
+    pointer-events: none;
+  }
+
+  body.lw-menu-open .lw-tooltip-bubble[popover] {
+    display: none !important;
+  }
+}

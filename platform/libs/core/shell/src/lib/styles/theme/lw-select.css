@@ -1,0 +1,45 @@
+@layer components {
+  lw-select {
+    @apply relative inline-block max-w-full;
+  }
+  lw-select > lw-option {
+    display: none;
+  }
+  .lw-select-trigger {
+    @apply flex h-8.5 max-w-full min-w-0 items-center gap-1.5 rounded-md border border-border bg-surface-overlay px-2 text-sm
+      text-content transition-colors hover:bg-surface-raised
+      focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand
+      disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-surface-overlay;
+  }
+  .lw-select-value {
+    @apply flex min-w-0 items-center gap-1.5 overflow-hidden whitespace-nowrap;
+  }
+  .lw-select-chevron {
+    @apply shrink-0 text-xs text-content-muted;
+  }
+  .lw-select-listbox {
+    @apply z-50 min-w-40 overflow-auto rounded-md border border-border bg-surface-overlay py-1 text-sm shadow-lg;
+    position: fixed;
+    position-area: block-end span-inline-end;
+    position-try-fallbacks: flip-block, flip-inline;
+    max-height: 16rem;
+    margin-top: 0.25rem;
+  }
+  .lw-select-option {
+    @apply flex cursor-pointer items-center gap-2 px-3 py-1.5 text-content transition-colors;
+    outline: none;
+  }
+  .lw-select-option:hover,
+  .lw-select-option.is-active {
+    @apply bg-surface-raised;
+  }
+  .lw-select-option[aria-selected='true'] {
+    @apply text-brand-text;
+  }
+  .lw-select-option[aria-disabled='true'] {
+    @apply pointer-events-none opacity-50;
+  }
+  .lw-select-glyph {
+    @apply text-base leading-none;
+  }
+}
