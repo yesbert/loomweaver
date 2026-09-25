@@ -135,9 +135,6 @@
     "title": "Sandbox (rest route)",
     "docked": "Sandbox (docked)"
   },
-  "storeFull": {
-    "title": "Store plugin (full)"
-  },
   "dockedFrame": {
     "title": "Docked frame"
   },

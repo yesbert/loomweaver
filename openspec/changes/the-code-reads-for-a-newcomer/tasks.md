@@ -587,7 +587,10 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   So far: `sandbox-static` is `sandbox-rest` (folder, ids, route prefix, the `sandboxRest` i18n
   section, "Sandbox (rest route)"), and its page describes the rest route, the withheld line and the
   docked surface it actually registers, with neutral example paths and colours from the frame kit's
-  tokens and `lw-badge`. The end-to-end suite passes.
+  tokens and `lw-badge`. The end-to-end suite passes. The store plugins' pages, READMEs and catalog
+  entries say they open a page at `/store-full` or `/store-minimal` and list the grants they hold;
+  `store-full` titles its page with a literal instead of borrowing the testbed weaver's key, as the
+  guide says a store plugin must; both pages take their colours from the frame kit.
 - [ ] 11.8 One icon set for the platform apps; end-to-end helpers and the weaver's Transloco setup
   written once.
 
