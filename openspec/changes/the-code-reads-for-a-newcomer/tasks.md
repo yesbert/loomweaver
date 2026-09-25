@@ -486,6 +486,10 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   Part 1: `run.ts` keeps the command table and `run()`; `help.ts`, `exec.ts`, `io.ts`,
   `validate/validate-command.ts` and `scaffold/scaffold-command.ts` hold the commands, and `init/` and
   `scaffold/` the rest (the folder guard needs the move in the same pull request).
+  Part 2: `Workspace` is a union of a configured and an unconfigured workspace, so the casts go;
+  `angular-config.ts` is the one reader of `angular.json` for the workspace lookup and the wiring;
+  `amend.ts` keeps the dispatch, postcss and packages, and `project-wiring.ts` the build target,
+  stylesheet and composition root, both writing to an `AmendLog`.
 - [ ] 10.8 The weaver recipe split into input resolution and view templates; resolved inputs named
   instead of single letters; the validators' helper names; the emitted auth-source, agent panel and
   README text simplified, with `docs/samples.md` and `docs/scaffolding.md` in the same pull request.

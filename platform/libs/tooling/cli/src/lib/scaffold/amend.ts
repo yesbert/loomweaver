@@ -1,35 +1,16 @@
 import {
   Amendment,
-  BuildTargetAmendment,
-  composeLines,
-  ComposePluginAmendment,
-  composePlugin,
-  ensureBuildTarget,
+  describeAmendment,
   ensureDependency,
   ensurePostcssPlugin,
-  ensureStylesheetSource,
-  describeAmendment,
   PackageAmendment,
   PostcssAmendment,
-  StylesheetSourceAmendment,
 } from '@loomweaver/devkit';
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname, posix, relative, resolve, sep } from 'node:path';
-import {
-  BuildProject,
-  findWorkspace,
-  readJsonFile,
-  resolveBuildProject,
-  Workspace,
-  WorkspaceError,
-} from '../workspace';
-
-export interface PlannedAmendment {
-  readonly file: string;
-  readonly display: string;
-  readonly added: readonly string[];
-  readonly content: string;
-}
+import { existsSync, writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { findWorkspace, readJsonFile, Workspace } from '../workspace';
+import { AmendLog, PlannedAmendment } from './amend-log';
+import { ProjectAmendment, ProjectWiring } from './project-wiring';
 
 export interface AmendPlan {
   readonly amendments: readonly PlannedAmendment[];
@@ -70,53 +51,50 @@ export function applyAmend(plan: AmendPlan): void {
 }
 
 class Amender {
-  private readonly planned: PlannedAmendment[] = [];
-  private readonly remaining: string[] = [];
-  private readonly configAdded: string[] = [];
+  private readonly log: AmendLog;
   private readonly manifestAdded: string[] = [];
-  private config?: Record<string, unknown>;
   private manifest?: Record<string, unknown>;
-  private projectResolved = false;
-  private project?: BuildProject;
+  private wiring?: ProjectWiring;
 
   constructor(
     private readonly workspace: Workspace,
     private readonly target: string,
-  ) {}
+  ) {
+    this.log = new AmendLog(workspace.root);
+  }
 
   plan(amendments: readonly Amendment[]): AmendPlan {
     for (const amendment of amendments) {
       this.planOne(amendment);
     }
-    this.flushConfig();
+    this.wiring?.flush();
     this.flushManifest();
-    return { amendments: this.planned, remaining: this.remaining };
+    return { amendments: this.log.planned, remaining: this.log.remaining };
   }
 
   private planOne(amendment: Amendment): void {
-    if (amendment.kind === 'postcss') {
-      this.planPostcss(amendment);
-      return;
+    switch (amendment.kind) {
+      case 'postcss': {
+        this.planPostcss(amendment);
+        return;
+      }
+      case 'package': {
+        this.planPackage(amendment);
+        return;
+      }
+      default: {
+        this.wire(amendment);
+      }
     }
-    if (amendment.kind === 'package') {
-      this.planPackage(amendment);
-      return;
-    }
+  }
+
+  private wire(amendment: ProjectAmendment): void {
     if (this.workspace.kind !== 'angular') {
-      this.remaining.push(this.nonAngularNote(amendment));
+      this.log.note(this.nonAngularNote(amendment));
       return;
     }
-    const project = this.resolveProject();
-    if (!project) {
-      return;
-    }
-    if (amendment.kind === 'build-target') {
-      this.planBuildTarget(amendment, project);
-    } else if (amendment.kind === 'stylesheet-source') {
-      this.planStylesheetSource(amendment, project);
-    } else {
-      this.planComposePlugin(amendment, project);
-    }
+    this.wiring ??= new ProjectWiring(this.workspace, this.target, this.log);
+    this.wiring.plan(amendment);
   }
 
   private planPostcss(amendment: PostcssAmendment): void {
@@ -124,7 +102,7 @@ class Amender {
       existsSync(resolve(this.workspace.root, name)),
     );
     if (inTheWay) {
-      this.remaining.push(
+      this.log.note(
         `${inTheWay} is written as code and cannot be merged into, so add ${amendment.plugin} to it yourself; until then the stylesheet emits no utility class and the workbench renders unstyled.`,
       );
       return;
@@ -134,27 +112,22 @@ class Amender {
       existsSync(file) ? readJsonFile(file) : undefined,
       amendment,
     );
-    this.remaining.push(...result.declined);
+    this.log.note(...result.declined);
     if (result.added.length === 0) {
       return;
     }
-    this.planned.push({
-      file,
-      display: this.displayName(file),
-      added: result.added,
-      content: `${JSON.stringify(result.value, null, 2)}\n`,
-    });
+    this.log.plan(file, result.added, `${JSON.stringify(result.value, null, 2)}\n`);
   }
 
   private planPackage(amendment: PackageAmendment): void {
     const file = resolve(this.workspace.root, 'package.json');
     if (!existsSync(file)) {
-      this.remaining.push(describeAmendment(amendment));
+      this.log.note(describeAmendment(amendment));
       return;
     }
     const manifest = this.manifest ?? readJsonFile(file);
     const result = ensureDependency(manifest, amendment);
-    this.remaining.push(...result.declined);
+    this.log.note(...result.declined);
     if (result.added.length === 0) {
       return;
     }
@@ -167,193 +140,14 @@ class Amender {
       return;
     }
     const file = resolve(this.workspace.root, 'package.json');
-    this.planned.push({
-      file,
-      display: this.displayName(file),
-      added: this.manifestAdded,
-      content: `${JSON.stringify(this.manifest, null, 2)}\n`,
-    });
-    this.remaining.push(
-      `Install what was just recorded in ${this.displayName(file)} (${this.manifestAdded
+    this.log.plan(file, this.manifestAdded, `${JSON.stringify(this.manifest, null, 2)}\n`);
+    this.log.note(
+      `Install what was just recorded in ${this.log.displayName(file)} (${this.manifestAdded
         .map((entry) => entry.replace('dependencies: ', ''))
         .join(
           ', ',
         )}) — recording it is not installing it, and the build fails until you do.`,
     );
-  }
-
-  private planBuildTarget(
-    amendment: BuildTargetAmendment,
-    project: BuildProject,
-  ): void {
-    const target = this.buildTarget(project.name);
-    if (!target) {
-      this.remaining.push(
-        `${project.name} has no build target to wire, so add it by hand: ${describeAmendment(amendment)}.`,
-      );
-      return;
-    }
-    const result = ensureBuildTarget(target.value, amendment, project.root);
-    this.remaining.push(...result.declined);
-    if (result.added.length === 0) {
-      return;
-    }
-    target.set(result.value);
-    this.configAdded.push(...result.added);
-  }
-
-  private planStylesheetSource(
-    amendment: StylesheetSourceAmendment,
-    project: BuildProject,
-  ): void {
-    const entry = this.entryStylesheet(project);
-    if (!entry || !existsSync(entry)) {
-      this.remaining.push(
-        `No entry stylesheet is wired for ${project.name}, so add it yourself: ${describeAmendment(amendment)}.`,
-      );
-      return;
-    }
-    const css = readFileSync(entry, 'utf8');
-    if (!usesTailwind(css)) {
-      return;
-    }
-    const source =
-      posix.relative(this.displayName(dirname(entry)), amendment.sourceRoot) || '.';
-    const next = ensureStylesheetSource(css, source);
-    if (next === css) {
-      return;
-    }
-    this.planned.push({
-      file: entry,
-      display: this.displayName(entry),
-      added: [`@source '${source}'`],
-      content: next,
-    });
-  }
-
-  private planComposePlugin(
-    amendment: ComposePluginAmendment,
-    project: BuildProject,
-  ): void {
-    const root = resolve(
-      this.workspace.root,
-      project.root,
-      'src/app/app.config.ts',
-    );
-    const importPath = relativeImport(
-      this.displayName(dirname(root)),
-      amendment.sourceRoot,
-    );
-    if (!existsSync(root)) {
-      this.remaining.push(this.composeNote(amendment, importPath));
-      return;
-    }
-    const source = readFileSync(root, 'utf8');
-    const result = composePlugin(source, amendment, importPath);
-    if (!result.composed) {
-      this.remaining.push(this.composeNote(amendment, importPath));
-      return;
-    }
-    if (result.source === source) {
-      return;
-    }
-    this.planned.push({
-      file: root,
-      display: this.displayName(root),
-      added: [
-        `${amendment.symbol}, its translations and its capability grants`,
-        ...(amendment.providers ?? [])
-          .filter((provider) => !result.kept.includes(provider.line))
-          .map((provider) => provider.line.replace(/,$/, '')),
-        ...result.kept.map(
-          (line) => `kept the ${line.split('(', 1)[0]} already there instead of ${line.replace(/,$/, '')}`,
-        ),
-      ],
-      content: result.source,
-    });
-  }
-
-  private composeNote(
-    amendment: ComposePluginAmendment,
-    importPath: string,
-  ): string {
-    return (
-      `The composition root no longer presents the shape this scaffold generated, so ${amendment.id} ` +
-      'was NOT registered and none of its contributions will appear. Add these to it yourself: ' +
-      composeLines(amendment, importPath).join(' ')
-    );
-  }
-
-  private flushConfig(): void {
-    if (this.configAdded.length === 0 || !this.config) {
-      return;
-    }
-    const file = this.workspace.configFile as string;
-    this.planned.push({
-      file,
-      display: this.displayName(file),
-      added: this.configAdded,
-      content: `${JSON.stringify(this.config, null, 2)}\n`,
-    });
-  }
-
-  private resolveProject(): BuildProject | undefined {
-    if (!this.projectResolved) {
-      this.projectResolved = true;
-      try {
-        this.project = resolveBuildProject(this.workspace, this.target);
-      } catch (error) {
-        this.remaining.push((error as WorkspaceError).message);
-      }
-    }
-    return this.project;
-  }
-
-  private readConfig(): Record<string, unknown> {
-    this.config ??= readJsonFile(this.workspace.configFile as string) as Record<
-      string,
-      unknown
-    >;
-    return this.config;
-  }
-
-  private buildTarget(name: string): TargetRef | undefined {
-    const project = asObject(asObject(this.readConfig()['projects'])?.[name]);
-    if (!project) {
-      return undefined;
-    }
-    for (const key of ['architect', 'targets']) {
-      const targets = asObject(project[key]);
-      if (targets?.['build'] !== undefined) {
-        return {
-          value: targets['build'],
-          set: (next) => {
-            targets['build'] = next;
-          },
-        };
-      }
-    }
-    return undefined;
-  }
-
-  private entryStylesheet(project: BuildProject): string | undefined {
-    const styles = asObject(
-      asObject(this.buildTarget(project.name)?.value)?.['options'],
-    )?.['styles'];
-    if (!Array.isArray(styles)) {
-      return undefined;
-    }
-    const entry = styles
-      .map((style) =>
-        typeof style === 'string' ? style : asObject(style)?.['input'],
-      )
-      .find(
-        (input): input is string =>
-          typeof input === 'string' && input.endsWith('.css'),
-      );
-    return entry === undefined
-      ? undefined
-      : resolve(this.workspace.root, entry);
   }
 
   private nonAngularNote(amendment: Amendment): string {
@@ -363,35 +157,4 @@ class Amender {
         : 'your build configuration';
     return `This route wires an Angular CLI workspace only, so add ${describeAmendment(amendment)} to ${where} yourself. The Nx generator does it for you.`;
   }
-
-  private displayName(file: string): string {
-    const inside = relative(this.workspace.root, file).split(sep).join('/');
-    return inside.startsWith('..') ? file : inside;
-  }
-}
-
-function usesTailwind(css: string): boolean {
-  return css.split('\n').some((line) => {
-    const directive = line.trimStart();
-    return (
-      /^@import\s+['"]tailwindcss['"]/.test(directive) ||
-      /^@source\s/.test(directive)
-    );
-  });
-}
-
-interface TargetRef {
-  readonly value: unknown;
-  set(next: unknown): void;
-}
-
-function asObject(value: unknown): Record<string, unknown> | undefined {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
-    ? (value as Record<string, unknown>)
-    : undefined;
-}
-
-function relativeImport(fromDir: string, sourceRoot: string): string {
-  const path = posix.relative(fromDir, sourceRoot);
-  return path.startsWith('.') ? path : `./${path}`;
 }
