@@ -1,10 +1,10 @@
 import type { ResolvedWeaver } from './recipe';
 
-export function panelFile(w: ResolvedWeaver): string {
+export function panelFile(weaver: ResolvedWeaver): string {
   return `import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { EventType, type BaseEvent, type Tool } from '@ag-ui/core';
-import { ${w.propertyName}Agent } from './${w.id}-agent';
-import { askAgent } from './${w.id}-agent-source';
+import { ${weaver.propertyName}Agent } from './${weaver.id}-agent';
+import { askAgent } from './${weaver.id}-agent-source';
 
 interface Line {
   readonly kind: 'you' | 'agent' | 'call' | 'result' | 'note';
@@ -14,11 +14,11 @@ interface Line {
 }
 
 @Component({
-  selector: '${w.prefix}-${w.id}-agent-panel',
-  templateUrl: './${w.id}-agent-panel.html',
+  selector: '${weaver.prefix}-${weaver.id}-agent-panel',
+  templateUrl: './${weaver.id}-agent-panel.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ${w.className}AgentPanel {
+export class ${weaver.className}AgentPanel {
   protected readonly offered = signal<readonly Tool[]>([]);
 
   protected readonly lines = signal<readonly Line[]>([]);
@@ -34,11 +34,11 @@ export class ${w.className}AgentPanel {
   // The list is read again whenever the panel gains focus, because the weaver's own translations
   // and other plugins' commands may arrive after this component was built.
   protected refreshOffered(): void {
-    this.offered.set(${w.propertyName}Agent()?.list() ?? []);
+    this.offered.set(${weaver.propertyName}Agent()?.list() ?? []);
   }
 
   protected async ask(name: string): Promise<void> {
-    const tools = ${w.propertyName}Agent();
+    const tools = ${weaver.propertyName}Agent();
     if (!tools || this.busy()) {
       return;
     }
@@ -124,13 +124,13 @@ export class ${w.className}AgentPanel {
 `;
 }
 
-export function panelTemplateFile(w: ResolvedWeaver): string {
+export function panelTemplateFile(weaver: ResolvedWeaver): string {
   return `<div class="flex h-full flex-col gap-3" (focusin)="refreshOffered()">
   <p
     class="shrink-0 rounded-md border border-border bg-surface-raised px-3 py-2 text-xs text-content-muted"
   >
     This is a stand-in, not an assistant. It speaks the protocol so you can watch the whole path;
-    replace <code class="text-content">${w.id}-agent-source.ts</code> with your own transport.
+    replace <code class="text-content">${weaver.id}-agent-source.ts</code> with your own transport.
   </p>
 
   <div class="min-h-0 flex-1 overflow-auto">

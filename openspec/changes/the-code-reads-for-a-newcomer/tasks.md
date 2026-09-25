@@ -501,6 +501,12 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 - [ ] 10.8 The weaver recipe split into input resolution and view templates; resolved inputs named
   instead of single letters; the validators' helper names; the emitted auth-source, agent panel and
   README text simplified, with `docs/samples.md` and `docs/scaffolding.md` in the same pull request.
+  Part 1: the resolved inputs are `weaver`, `distribution`, `source`, `plugin`, `project`, `layout`,
+  `store`, `theme` and `args` instead of single letters, renamed through the language service; the
+  catalog validator checks the id, the same-origin URLs and the name and version in three named
+  functions, with `requiredUrlFinding`, `optionalUrlFinding` and `pathOf`; the command validator's
+  helpers are `readRegistration` and `findingsFor`, and its property map holds nodes, so the double
+  cast goes. Generated files, generated trees and catalog findings are byte-identical.
 - [ ] 10.9 The package READMEs and the generated `LOOMWEAVER.md` describe the tree and the build wiring
   as they are, one section per route; one bundle helper for the two tooling bins; validator messages
   once; CLI test fixtures and app-resolution tests written once.

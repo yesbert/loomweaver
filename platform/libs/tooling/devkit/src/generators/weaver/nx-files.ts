@@ -50,21 +50,21 @@ export function nxWeaverProject(options: NxWeaverOptions): NxWeaverProject {
   };
 }
 
-function projectJson(p: NxWeaverProject): string {
+function projectJson(project: NxWeaverProject): string {
   return JSON.stringify(
     {
-      name: p.projectName,
-      $schema: `${p.depth.toRoot}/node_modules/nx/schemas/project-schema.json`,
-      sourceRoot: `${p.projectRoot}/src`,
-      prefix: p.prefix,
+      name: project.projectName,
+      $schema: `${project.depth.toRoot}/node_modules/nx/schemas/project-schema.json`,
+      sourceRoot: `${project.projectRoot}/src`,
+      prefix: project.prefix,
       projectType: 'library',
-      tags: p.tags,
+      tags: project.tags,
       targets: {
-        ...(p.buildTarget && {
+        ...(project.buildTarget && {
               test: {
                 executor: '@nx/angular:unit-test',
                 outputs: ['{workspaceRoot}/coverage/{projectName}'],
-                options: { buildTarget: p.buildTarget, watch: false },
+                options: { buildTarget: project.buildTarget, watch: false },
               },
             }),
         lint: { executor: '@nx/eslint:lint' },
@@ -75,17 +75,17 @@ function projectJson(p: NxWeaverProject): string {
   );
 }
 
-function tsconfig(p: NxWeaverProject): string {
+function tsconfig(project: NxWeaverProject): string {
   return JSON.stringify(
     {
-      extends: `${p.depth.toRoot}/${p.baseTsconfig}`,
+      extends: `${project.depth.toRoot}/${project.baseTsconfig}`,
       compilerOptions: SHARED_COMPILER_OPTIONS,
       angularCompilerOptions: SHARED_ANGULAR_COMPILER_OPTIONS,
       files: [],
       include: [],
       references: [
         { path: './tsconfig.lib.json' },
-        ...(p.buildTarget ? [{ path: './tsconfig.spec.json' }] : []),
+        ...(project.buildTarget ? [{ path: './tsconfig.spec.json' }] : []),
       ],
     },
     null,
@@ -93,12 +93,12 @@ function tsconfig(p: NxWeaverProject): string {
   );
 }
 
-function tsconfigLibrary(p: NxWeaverProject): string {
+function tsconfigLibrary(project: NxWeaverProject): string {
   return JSON.stringify(
     {
       extends: './tsconfig.json',
       compilerOptions: {
-        outDir: `${p.depth.toRoot}/dist/out-tsc`,
+        outDir: `${project.depth.toRoot}/dist/out-tsc`,
         declaration: true,
         declarationMap: true,
         inlineSources: true,
@@ -112,12 +112,12 @@ function tsconfigLibrary(p: NxWeaverProject): string {
   );
 }
 
-export function nxWeaverFiles(p: NxWeaverProject): FileMap {
+export function nxWeaverFiles(project: NxWeaverProject): FileMap {
   return {
-    'project.json': projectJson(p) + '\n',
-    'tsconfig.json': tsconfig(p) + '\n',
-    'tsconfig.lib.json': tsconfigLibrary(p) + '\n',
-    ...(p.buildTarget && { 'tsconfig.spec.json': sharedTsconfigSpec(p.depth) + '\n' }),
-    'eslint.config.mjs': sharedEslintConfig(p.depth, p.prefix),
+    'project.json': projectJson(project) + '\n',
+    'tsconfig.json': tsconfig(project) + '\n',
+    'tsconfig.lib.json': tsconfigLibrary(project) + '\n',
+    ...(project.buildTarget && { 'tsconfig.spec.json': sharedTsconfigSpec(project.depth) + '\n' }),
+    'eslint.config.mjs': sharedEslintConfig(project.depth, project.prefix),
   };
 }

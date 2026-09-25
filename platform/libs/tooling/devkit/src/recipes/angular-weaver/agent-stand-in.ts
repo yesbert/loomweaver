@@ -1,6 +1,6 @@
 import type { ResolvedWeaver } from './recipe';
 
-export function standInFile(w: ResolvedWeaver): string {
+export function standInFile(weaver: ResolvedWeaver): string {
   return `import { EventType, type BaseEvent, type Tool } from '@ag-ui/core';
 
 // WHAT THIS IS: a stand-in for an agent, and not an agent. It speaks the AG-UI protocol and nothing
@@ -27,7 +27,7 @@ export async function* askAgent(
   );
 
   yield event(EventType.RUN_STARTED, {
-    threadId: '${w.id}-stand-in',
+    threadId: '${weaver.id}-stand-in',
     runId: request.runId,
   });
   yield* speak(
@@ -55,7 +55,7 @@ export async function* askAgent(
   }
 
   yield event(EventType.RUN_FINISHED, {
-    threadId: '${w.id}-stand-in',
+    threadId: '${weaver.id}-stand-in',
     runId: request.runId,
   });
 }

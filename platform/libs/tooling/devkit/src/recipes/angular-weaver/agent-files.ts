@@ -12,7 +12,7 @@ import { standInFile } from './agent-stand-in';
  */
 export const AG_UI_PROTOCOL_VERSION = '0.0.x';
 
-function connectionFile(w: ResolvedWeaver): string {
+function connectionFile(weaver: ResolvedWeaver): string {
   return `import { signal } from '@angular/core';
 import {
   commandTools,
@@ -24,13 +24,13 @@ import type { PluginContext } from '@loomweaver/plugin-sdk';
 
 // A factory, not a module-level connection: everything a run needs lives in the closure, so a second
 // one never shares state with the first.
-export function ${w.propertyName}Connection(ctx: PluginContext): CommandTools {
+export function ${weaver.propertyName}Connection(ctx: PluginContext): CommandTools {
   return commandTools(ctx, { before: (call) => decide(ctx, call) });
 }
 
 // The one connection this plugin activates, published for its panel. Set in activate(), cleared in
 // deactivate(), so the panel renders an honest empty state either side of that.
-export const ${w.propertyName}Agent = signal<CommandTools | null>(null);
+export const ${weaver.propertyName}Agent = signal<CommandTools | null>(null);
 
 // What an agent's word is enough for is the command's own statement, declared where the command is
 // registered and read off the call here. No list of ids lives beside the commands: a list drifts from
@@ -50,10 +50,10 @@ async function decide(
     return { decision: 'run' };
   }
   const yes = await ctx.ui.confirm({
-    title: '${w.id}.agent.confirm.title',
-    message: '${w.id}.agent.confirm.message',
-    confirmLabel: '${w.id}.agent.confirm.yes',
-    cancelLabel: '${w.id}.agent.confirm.no',
+    title: '${weaver.id}.agent.confirm.title',
+    message: '${weaver.id}.agent.confirm.message',
+    confirmLabel: '${weaver.id}.agent.confirm.yes',
+    cancelLabel: '${weaver.id}.agent.confirm.no',
     tone: 'warning',
   });
   // A decision can only narrow. Letting a call through does not make it reachable: the workbench
@@ -65,10 +65,10 @@ async function decide(
 `;
 }
 
-function specFile(w: ResolvedWeaver): string {
+function specFile(weaver: ResolvedWeaver): string {
   return `import { EventType, type BaseEvent } from '@ag-ui/core';
 import type { CommandArguments, PluginContext } from '@loomweaver/plugin-sdk';
-import { ${w.propertyName}Connection } from './${w.id}-agent';
+import { ${weaver.propertyName}Connection } from './${weaver.id}-agent';
 
 interface Asked {
   readonly id: string;
@@ -79,7 +79,7 @@ function contextThat(confirms: boolean, ran: Asked[]): PluginContext {
   return {
     invocableCommands: () => [
       // agentConsent travels with the command, which is what the connection reads off the call.
-      { id: '${w.id}.hello', title: '${w.name} action', description: 'Shows a short message.', agentConsent: 'ask' },
+      { id: '${weaver.id}.hello', title: '${weaver.name} action', description: 'Shows a short message.', agentConsent: 'ask' },
     ],
     invokeCommand: (id: string, args?: CommandArguments) => {
       ran.push({ id, args });
@@ -93,21 +93,21 @@ function event(type: EventType, fields: Record<string, unknown>): BaseEvent {
   return { type, ...fields } as unknown as BaseEvent;
 }
 
-describe('${w.propertyName}Connection', () => {
+describe('${weaver.propertyName}Connection', () => {
   it('offers what the workbench offers', () => {
-    const tools = ${w.propertyName}Connection(contextThat(true, []));
-    expect(tools.list().map((tool) => tool.name)).toEqual(['${w.id}.hello']);
+    const tools = ${weaver.propertyName}Connection(contextThat(true, []));
+    expect(tools.list().map((tool) => tool.name)).toEqual(['${weaver.id}.hello']);
   });
 
   it('assembles a call from its events and answers with the outcome', async () => {
     const ran: Asked[] = [];
-    const tools = ${w.propertyName}Connection(contextThat(true, ran));
+    const tools = ${weaver.propertyName}Connection(contextThat(true, ran));
 
     expect(
       await tools.receive(
         event(EventType.TOOL_CALL_START, {
           toolCallId: 'c1',
-          toolCallName: '${w.id}.hello',
+          toolCallName: '${weaver.id}.hello',
         }),
       ),
     ).toBeNull();
@@ -121,19 +121,19 @@ describe('${w.propertyName}Connection', () => {
       event(EventType.TOOL_CALL_END, { toolCallId: 'c1' }),
     );
 
-    expect(ran).toEqual([{ id: '${w.id}.hello', args: { tone: 'success' } }]);
+    expect(ran).toEqual([{ id: '${weaver.id}.hello', args: { tone: 'success' } }]);
     expect(JSON.parse(answer?.content ?? '{}').tone).toBe('success');
     expect(answer?.error).toBeUndefined();
   });
 
   it('never reaches the workbench when a consequential call is declined', async () => {
     const ran: Asked[] = [];
-    const tools = ${w.propertyName}Connection(contextThat(false, ran));
+    const tools = ${weaver.propertyName}Connection(contextThat(false, ran));
 
     await tools.receive(
       event(EventType.TOOL_CALL_START, {
         toolCallId: 'c2',
-        toolCallName: '${w.id}.hello',
+        toolCallName: '${weaver.id}.hello',
       }),
     );
     await tools.receive(
@@ -150,28 +150,28 @@ describe('${w.propertyName}Connection', () => {
 `;
 }
 
-export function agentSurfaceBlock(w: ResolvedWeaver): string {
+export function agentSurfaceBlock(weaver: ResolvedWeaver): string {
   return [
     '    ctx.registerSurface({',
-    `      id: '${w.id}.agent',`,
-    `      title: '${w.id}.agent.title',`,
-    `      icon: '${w.id}',`,
+    `      id: '${weaver.id}.agent',`,
+    `      title: '${weaver.id}.agent.title',`,
+    `      icon: '${weaver.id}',`,
     `      docks: ['${RIGHT_PANEL_REGION}'],`,
     '      padded: true,',
-    `      component: ${w.className}AgentPanel,`,
+    `      component: ${weaver.className}AgentPanel,`,
     '    });',
   ].join('\n');
 }
 
-export function agentFiles(w: ResolvedWeaver): FileMap {
+export function agentFiles(weaver: ResolvedWeaver): FileMap {
   const files: Record<string, string> = {
-    [`src/lib/agent/${w.id}-agent.ts`]: connectionFile(w),
-    [`src/lib/agent/${w.id}-agent-source.ts`]: standInFile(w),
-    [`src/lib/agent/${w.id}-agent-panel.ts`]: panelFile(w),
-    [`src/lib/agent/${w.id}-agent-panel.html`]: panelTemplateFile(w),
+    [`src/lib/agent/${weaver.id}-agent.ts`]: connectionFile(weaver),
+    [`src/lib/agent/${weaver.id}-agent-source.ts`]: standInFile(weaver),
+    [`src/lib/agent/${weaver.id}-agent-panel.ts`]: panelFile(weaver),
+    [`src/lib/agent/${weaver.id}-agent-panel.html`]: panelTemplateFile(weaver),
   };
-  if (w.features.spec) {
-    files[`src/lib/agent/${w.id}-agent.spec.ts`] = specFile(w);
+  if (weaver.features.spec) {
+    files[`src/lib/agent/${weaver.id}-agent.spec.ts`] = specFile(weaver);
   }
   return files;
 }

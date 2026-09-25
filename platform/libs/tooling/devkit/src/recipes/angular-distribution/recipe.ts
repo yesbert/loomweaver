@@ -76,7 +76,7 @@ bootstrapApplication(App, appConfig).catch((err) => console.error(err));
 `;
 }
 
-function appConfigTs(d: ResolvedDistribution): string {
+function appConfigTs(distribution: ResolvedDistribution): string {
   return `import { ApplicationConfig } from '@angular/core';
 import {
   provideCommandPaletteEntry,
@@ -112,7 +112,7 @@ export const appConfig: ApplicationConfig = {
     provideCommandPaletteEntry(),
     provideQuickOpenEntry(),
     provideProductIdentity({
-      name: '${d.title}',
+      name: '${distribution.title}',
       tagline: 'Built on LoomWeaver',
       logoUrl: 'logo.svg',
     }),
@@ -181,12 +181,12 @@ describe('App', () => {
 `;
 }
 
-function indexHtml(d: ResolvedDistribution): string {
+function indexHtml(distribution: ResolvedDistribution): string {
   return `<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>${d.title}</title>
+    <title>${distribution.title}</title>
     <base href="/" />
     <meta
       http-equiv="Content-Security-Policy"
@@ -226,7 +226,7 @@ function precompiledCss(): string {
 `;
 }
 
-function tailwindCss(d: ResolvedDistribution): string {
+function tailwindCss(distribution: ResolvedDistribution): string {
   return `@import 'tailwindcss';
 
 /* LoomWeaver design tokens + theme (light/dark, brand colors). Every @import has to precede the
@@ -239,13 +239,13 @@ function tailwindCss(d: ResolvedDistribution): string {
 /* Generate the utility classes the shell (and your own components) use. The @source path must
    reach your workspace's node_modules FROM THIS FILE — adjust the ../ hops if this project does
    not sit at that depth, or Tailwind silently emits none of the shell's classes. */
-@source '${d.nodeModulesFromSrc}/@loomweaver/shell';
+@source '${distribution.nodeModulesFromSrc}/@loomweaver/shell';
 @source './';
 `;
 }
 
-function stylesCss(d: ResolvedDistribution): string {
-  return d.styles === 'precompiled' ? precompiledCss() : tailwindCss(d);
+function stylesCss(distribution: ResolvedDistribution): string {
+  return distribution.styles === 'precompiled' ? precompiledCss() : tailwindCss(distribution);
 }
 
 function ngswConfig(): string {
@@ -286,12 +286,12 @@ function ngswConfig(): string {
   );
 }
 
-function manifest(d: ResolvedDistribution): string {
+function manifest(distribution: ResolvedDistribution): string {
   return JSON.stringify(
     {
-      name: d.title,
-      short_name: d.title,
-      description: `${d.title} — a LoomWeaver distribution.`,
+      name: distribution.title,
+      short_name: distribution.title,
+      description: `${distribution.title} — a LoomWeaver distribution.`,
       start_url: '/',
       display: 'standalone',
       background_color: '#ffffff',
@@ -309,22 +309,22 @@ export const angularDistribution: Recipe<DistributionInput> = {
     return distributionAmendments(resolveDistributionInput(input));
   },
   build(input: DistributionInput): FileMap {
-    const d = resolveDistributionInput(input);
+    const distribution = resolveDistributionInput(input);
     return {
       'src/main.ts': mainTs(),
-      'src/app/app.config.ts': appConfigTs(d),
-      ...(d.withTests && {
+      'src/app/app.config.ts': appConfigTs(distribution),
+      ...(distribution.withTests && {
         'src/app/app.config.spec.ts': appConfigSpec(),
         'src/app/app.spec.ts': appSpec(),
       }),
       'src/app/app.ts': appTs(),
       'src/app/app.html': appHtml(),
-      'src/index.html': indexHtml(d),
-      'src/styles.css': stylesCss(d),
+      'src/index.html': indexHtml(distribution),
+      'src/styles.css': stylesCss(distribution),
       'public/logo.svg': PLACEHOLDER_LOGO_SVG,
-      'public/manifest.webmanifest': manifest(d) + '\n',
+      'public/manifest.webmanifest': manifest(distribution) + '\n',
       'ngsw-config.json': ngswConfig() + '\n',
-      'LOOMWEAVER.md': readme(d),
+      'LOOMWEAVER.md': readme(distribution),
     };
   },
 };

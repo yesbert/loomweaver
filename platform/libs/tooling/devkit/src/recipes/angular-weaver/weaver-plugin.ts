@@ -12,36 +12,36 @@ import { commandBlock, toneHelper } from './weaver-command';
 const SURFACE_ICON =
   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>';
 
-function containerChildIds(w: ResolvedWeaver): readonly string[] {
-  return [`${w.id}.canvas`, `${w.id}.details`];
+function containerChildIds(weaver: ResolvedWeaver): readonly string[] {
+  return [`${weaver.id}.canvas`, `${weaver.id}.details`];
 }
 
-function containerSurfaceBlock(w: ResolvedWeaver): string {
-  const children = containerChildIds(w)
+function containerSurfaceBlock(weaver: ResolvedWeaver): string {
+  const children = containerChildIds(weaver)
     .map((id) => `'${id}'`)
     .join(', ');
   const lines = [
     '    ctx.registerSurface({',
-    `      id: '${w.id}',`,
-    `      title: '${w.id}.title',`,
-    `      icon: '${w.id}',`,
-    `      routable: { path: '${w.id}/:id' },`,
+    `      id: '${weaver.id}',`,
+    `      title: '${weaver.id}.title',`,
+    `      icon: '${weaver.id}',`,
+    `      routable: { path: '${weaver.id}/:id' },`,
     '      container: {',
     `        children: [${children}],`,
     `        initial: [${children}],`,
     '      },',
   ];
-  if (w.features.access) lines.push(`      access: ${w.features.access},`);
+  if (weaver.features.access) lines.push(`      access: ${weaver.features.access},`);
   lines.push('    });');
 
   for (const [suffix, className] of [
-    ['canvas', `${w.className}CanvasView`],
-    ['details', `${w.className}DetailsView`],
+    ['canvas', `${weaver.className}CanvasView`],
+    ['details', `${weaver.className}DetailsView`],
   ]) {
     lines.push(
       '    ctx.registerSurface({',
-      `      id: '${w.id}.${suffix}',`,
-      `      title: '${w.id}.${suffix}',`,
+      `      id: '${weaver.id}.${suffix}',`,
+      `      title: '${weaver.id}.${suffix}',`,
       '      docks: [],',
       `      component: ${className},`,
       '    });',
@@ -50,189 +50,189 @@ function containerSurfaceBlock(w: ResolvedWeaver): string {
   return lines.join('\n');
 }
 
-function surfaceBlock(w: ResolvedWeaver): string {
-  if (w.features.container) {
-    return containerSurfaceBlock(w);
+function surfaceBlock(weaver: ResolvedWeaver): string {
+  if (weaver.features.container) {
+    return containerSurfaceBlock(weaver);
   }
   const lines = [
     '    ctx.registerSurface({',
-    `      id: '${w.id}',`,
-    `      title: '${w.id}.title',`,
-    `      icon: '${w.id}',`,
-    `      component: ${w.className}View,`,
+    `      id: '${weaver.id}',`,
+    `      title: '${weaver.id}.title',`,
+    `      icon: '${weaver.id}',`,
+    `      component: ${weaver.className}View,`,
   ];
-  if (w.features.instanceable) {
+  if (weaver.features.instanceable) {
     lines.push(`      docks: ['${LEFT_PANEL_REGION}'],`, '      instanceable: true,');
   } else {
-    lines.push(`      routable: { path: '${w.id}' },`);
+    lines.push(`      routable: { path: '${weaver.id}' },`);
   }
-  if (w.features.access) lines.push(`      access: ${w.features.access},`);
+  if (weaver.features.access) lines.push(`      access: ${weaver.features.access},`);
   lines.push('    });');
   return lines.join('\n');
 }
 
-function railTarget(w: ResolvedWeaver): string {
-  if (w.features.container) {
-    return `ctx.navigateContent('${w.id}/${CONTAINER_EXAMPLE_ID}')`;
+function railTarget(weaver: ResolvedWeaver): string {
+  if (weaver.features.container) {
+    return `ctx.navigateContent('${weaver.id}/${CONTAINER_EXAMPLE_ID}')`;
   }
-  if (w.features.instanceable) {
-    return `ctx.revealSurface('${w.id}')`;
+  if (weaver.features.instanceable) {
+    return `ctx.revealSurface('${weaver.id}')`;
   }
-  return `ctx.navigateContent('${w.id}')`;
+  return `ctx.navigateContent('${weaver.id}')`;
 }
 
-function railBlock(w: ResolvedWeaver): string {
+function railBlock(weaver: ResolvedWeaver): string {
   const lines = [
     '    ctx.registerRailItem({',
-    `      id: '${w.id}.rail',`,
+    `      id: '${weaver.id}.rail',`,
     `      rail: '${RAIL_REGION}',`,
-    `      icon: '${w.id}',`,
-    `      title: '${w.id}.title',`,
-    `      run: () => ${railTarget(w)},`,
+    `      icon: '${weaver.id}',`,
+    `      title: '${weaver.id}.title',`,
+    `      run: () => ${railTarget(weaver)},`,
   ];
-  if (w.features.access) lines.push(`      access: ${w.features.access},`);
+  if (weaver.features.access) lines.push(`      access: ${weaver.features.access},`);
   lines.push('    });');
   return lines.join('\n');
 }
 
-function barItemBlock(w: ResolvedWeaver): string {
+function barItemBlock(weaver: ResolvedWeaver): string {
   return [
     '    ctx.registerBarItem({',
-    `      id: '${w.id}.bar',`,
+    `      id: '${weaver.id}.bar',`,
     `      bar: '${STATUS_BAR_REGION}',`,
     "      slot: 'end',",
-    `      icon: '${w.id}',`,
-    `      tooltip: '${w.id}.action',`,
-    `      command: '${w.id}.hello',`,
+    `      icon: '${weaver.id}',`,
+    `      tooltip: '${weaver.id}.action',`,
+    `      command: '${weaver.id}.hello',`,
     '    });',
   ].join('\n');
 }
 
-function aboutCommandBlock(w: ResolvedWeaver): string {
+function aboutCommandBlock(weaver: ResolvedWeaver): string {
   return [
     '    ctx.registerCommand({',
-    `      id: '${w.id}.about',`,
-    `      title: '${w.id}.about',`,
-    `      run: () => ctx.ui.open(${w.className}AboutDialog, { data: ctx.host, title: '${w.id}.title' }),`,
+    `      id: '${weaver.id}.about',`,
+    `      title: '${weaver.id}.about',`,
+    `      run: () => ctx.ui.open(${weaver.className}AboutDialog, { data: ctx.host, title: '${weaver.id}.title' }),`,
     '    });',
   ].join('\n');
 }
 
-function aboutRailBlock(w: ResolvedWeaver): string {
+function aboutRailBlock(weaver: ResolvedWeaver): string {
   return [
     '    ctx.registerRailItem({',
-    `      id: '${w.id}.rail.about',`,
+    `      id: '${weaver.id}.rail.about',`,
     `      rail: '${RAIL_REGION}',`,
     "      anchor: 'bottom',",
-    `      icon: '${w.id}',`,
-    `      title: '${w.id}.about',`,
-    `      command: '${w.id}.about',`,
+    `      icon: '${weaver.id}',`,
+    `      title: '${weaver.id}.about',`,
+    `      command: '${weaver.id}.about',`,
     '    });',
   ].join('\n');
 }
 
-function menuBlock(w: ResolvedWeaver): string {
+function menuBlock(weaver: ResolvedWeaver): string {
   return [
     '    ctx.registerMenuItem({',
-    `      menu: '${w.features.menuSlot}',`,
-    `      command: '${w.id}.hello',`,
+    `      menu: '${weaver.features.menuSlot}',`,
+    `      command: '${weaver.id}.hello',`,
     '    });',
   ].join('\n');
 }
 
-function settingsBlock(w: ResolvedWeaver): string {
+function settingsBlock(weaver: ResolvedWeaver): string {
   return [
     '    ctx.registerSettingsSection({',
-    `      id: '${w.id}',`,
-    `      title: '${w.id}.settings.title',`,
+    `      id: '${weaver.id}',`,
+    `      title: '${weaver.id}.settings.title',`,
     '      rows: [',
     '        {',
     "          id: 'enabled',",
-    `          label: '${w.id}.settings.enabled',`,
-    `          control: { kind: 'toggle', value: () => ${w.propertyName}Enabled(), set: (v) => ${w.propertyName}Enabled.set(v) },`,
+    `          label: '${weaver.id}.settings.enabled',`,
+    `          control: { kind: 'toggle', value: () => ${weaver.propertyName}Enabled(), set: (v) => ${weaver.propertyName}Enabled.set(v) },`,
     '        },',
     '        {',
     "          id: 'note',",
-    `          label: '${w.id}.settings.note',`,
-    `          control: { kind: 'text', value: () => ${w.propertyName}Note(), set: (v) => ${w.propertyName}Note.set(v) },`,
+    `          label: '${weaver.id}.settings.note',`,
+    `          control: { kind: 'text', value: () => ${weaver.propertyName}Note(), set: (v) => ${weaver.propertyName}Note.set(v) },`,
     '        },',
     '      ],',
     '    });',
   ].join('\n');
 }
 
-function pluginImports(w: ResolvedWeaver): readonly string[] {
+function pluginImports(weaver: ResolvedWeaver): readonly string[] {
   const imports = ["import { Plugin } from '@loomweaver/plugin-sdk';"];
-  if (w.features.container) {
+  if (weaver.features.container) {
     imports.push(
-      `import { ${w.className}CanvasView } from '../views/${w.id}-canvas-view';`,
-      `import { ${w.className}DetailsView } from '../views/${w.id}-details-view';`,
+      `import { ${weaver.className}CanvasView } from '../views/${weaver.id}-canvas-view';`,
+      `import { ${weaver.className}DetailsView } from '../views/${weaver.id}-details-view';`,
     );
   } else {
-    imports.push(`import { ${w.className}View } from '../views/${w.id}-view';`);
+    imports.push(`import { ${weaver.className}View } from '../views/${weaver.id}-view';`);
   }
-  if (w.features.about) {
+  if (weaver.features.about) {
     imports.push(
-      `import { ${w.className}AboutDialog } from '../dialogs/${w.id}-about-dialog';`,
+      `import { ${weaver.className}AboutDialog } from '../dialogs/${weaver.id}-about-dialog';`,
     );
   }
-  if (w.features.agent) {
+  if (weaver.features.agent) {
     imports.push(
-      `import { ${w.propertyName}Agent, ${w.propertyName}Connection } from '../agent/${w.id}-agent';`,
-      `import { ${w.className}AgentPanel } from '../agent/${w.id}-agent-panel';`,
+      `import { ${weaver.propertyName}Agent, ${weaver.propertyName}Connection } from '../agent/${weaver.id}-agent';`,
+      `import { ${weaver.className}AgentPanel } from '../agent/${weaver.id}-agent-panel';`,
     );
   }
-  if (w.features.settings) {
+  if (weaver.features.settings) {
     imports.unshift("import { signal } from '@angular/core';");
   }
   return imports;
 }
 
-function pluginConsts(w: ResolvedWeaver): readonly string[] {
+function pluginConsts(weaver: ResolvedWeaver): readonly string[] {
   const consts = [`const icon =\n  '${SURFACE_ICON}';`];
-  if (w.features.settings) {
+  if (weaver.features.settings) {
     consts.push(
-      `const ${w.propertyName}Enabled = signal(true);`,
-      `const ${w.propertyName}Note = signal('');`,
+      `const ${weaver.propertyName}Enabled = signal(true);`,
+      `const ${weaver.propertyName}Note = signal('');`,
     );
   }
-  if (w.features.command) consts.push(toneHelper());
+  if (weaver.features.command) consts.push(toneHelper());
   return consts;
 }
 
-function pluginBody(w: ResolvedWeaver): readonly string[] {
-  const body = [`    ctx.contributeIcons({ '${w.id}': icon });`];
-  if (w.features.agent) {
+function pluginBody(weaver: ResolvedWeaver): readonly string[] {
+  const body = [`    ctx.contributeIcons({ '${weaver.id}': icon });`];
+  if (weaver.features.agent) {
     body.push(
-      `    ${w.propertyName}Agent.set(${w.propertyName}Connection(ctx));`,
+      `    ${weaver.propertyName}Agent.set(${weaver.propertyName}Connection(ctx));`,
     );
   }
-  if (w.features.command) body.push(commandBlock(w));
-  if (w.features.about) body.push(aboutCommandBlock(w));
-  body.push(surfaceBlock(w), railBlock(w));
-  if (w.features.about) body.push(aboutRailBlock(w));
-  if (w.features.barItem) body.push(barItemBlock(w));
-  if (w.features.menuSlot) body.push(menuBlock(w));
-  if (w.features.settings) body.push(settingsBlock(w));
-  if (w.features.agent) body.push(agentSurfaceBlock(w));
+  if (weaver.features.command) body.push(commandBlock(weaver));
+  if (weaver.features.about) body.push(aboutCommandBlock(weaver));
+  body.push(surfaceBlock(weaver), railBlock(weaver));
+  if (weaver.features.about) body.push(aboutRailBlock(weaver));
+  if (weaver.features.barItem) body.push(barItemBlock(weaver));
+  if (weaver.features.menuSlot) body.push(menuBlock(weaver));
+  if (weaver.features.settings) body.push(settingsBlock(weaver));
+  if (weaver.features.agent) body.push(agentSurfaceBlock(weaver));
   return body;
 }
 
-export function pluginFile(w: ResolvedWeaver): string {
-  const body = pluginBody(w);
-  const deactivate = w.features.agent
-    ? `\n  deactivate() {\n    ${w.propertyName}Agent.set(null);\n  },`
+export function pluginFile(weaver: ResolvedWeaver): string {
+  const body = pluginBody(weaver);
+  const deactivate = weaver.features.agent
+    ? `\n  deactivate() {\n    ${weaver.propertyName}Agent.set(null);\n  },`
     : '';
 
-  return `${pluginImports(w).join('\n')}
+  return `${pluginImports(weaver).join('\n')}
 
-${pluginConsts(w).join('\n\n')}
+${pluginConsts(weaver).join('\n\n')}
 
-export const ${w.propertyName}Plugin: Plugin = {
+export const ${weaver.propertyName}Plugin: Plugin = {
   manifest: {
-    id: '${w.id}',
-    name: '${w.name}',
-    capabilities: [${quotedList(w.capabilities)}],
+    id: '${weaver.id}',
+    name: '${weaver.name}',
+    capabilities: [${quotedList(weaver.capabilities)}],
   },
   activate(ctx) {
 ${body.join('\n')}

@@ -14,7 +14,7 @@ export const DISTRIBUTION_INITIAL_BUDGET: BundleBudget = {
 };
 
 export function distributionAmendments(
-  d: ResolvedDistribution,
+  distribution: ResolvedDistribution,
 ): readonly Amendment[] {
   return [
     {
@@ -22,7 +22,7 @@ export function distributionAmendments(
       name: '@loomweaver/frame-kit',
       version: `^${PLATFORM_VERSION}`,
     },
-    ...(d.styles === 'tailwind'
+    ...(distribution.styles === 'tailwind'
       ? [
           {
             kind: 'postcss' as const,

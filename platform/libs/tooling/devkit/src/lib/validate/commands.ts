@@ -41,7 +41,7 @@ export function validateCommands(
   for (const source of sources) {
     const file = ts.createSourceFile(source.path, source.text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
     for (const call of registerCommandCalls(ts, file)) {
-      findings.push(...judge(read(ts, file, call)));
+      findings.push(...findingsFor(readRegistration(ts, file, call)));
     }
   }
   findings.push({ level: 'info', code: 'commands.runtime', message: RUNTIME_NOTE });
@@ -64,7 +64,11 @@ function registerCommandCalls(ts: TypeScriptModule, file: TS.SourceFile): TS.Cal
   return calls;
 }
 
-function read(ts: TypeScriptModule, file: TS.SourceFile, call: TS.CallExpression): Registration {
+function readRegistration(
+  ts: TypeScriptModule,
+  file: TS.SourceFile,
+  call: TS.CallExpression,
+): Registration {
   const line = file.getLineAndCharacterOfPosition(call.getStart(file)).line + 1;
   const at = `${file.fileName}:${line}`;
   const literal = call.arguments[0];
@@ -72,7 +76,7 @@ function read(ts: TypeScriptModule, file: TS.SourceFile, call: TS.CallExpression
   if (!literal || !ts.isObjectLiteralExpression(literal)) {
     return { ...empty, unreadable: 'its argument is not an object literal' };
   }
-  const properties = new Map<string, TS.Expression>();
+  const properties = new Map<string, TS.Node>();
   for (const property of literal.properties) {
     if (ts.isSpreadAssignment(property)) {
       return { ...empty, unreadable: 'it spreads another value into the registration' };
@@ -80,7 +84,7 @@ function read(ts: TypeScriptModule, file: TS.SourceFile, call: TS.CallExpression
     if (ts.isPropertyAssignment(property) && (ts.isIdentifier(property.name) || ts.isStringLiteral(property.name))) {
       properties.set(property.name.text, property.initializer);
     } else if (ts.isMethodDeclaration(property) && ts.isIdentifier(property.name)) {
-      properties.set(property.name.text, property as unknown as TS.Expression);
+      properties.set(property.name.text, property);
     }
   }
   const id = properties.get('id');
@@ -103,7 +107,7 @@ function read(ts: TypeScriptModule, file: TS.SourceFile, call: TS.CallExpression
 
 function consentOf(
   ts: TypeScriptModule,
-  declared: TS.Expression | undefined,
+  declared: TS.Node | undefined,
 ): { readonly agentConsent?: string } {
   const value = unwrapped(ts, declared);
   return value && ts.isStringLiteral(value)
@@ -113,8 +117,8 @@ function consentOf(
 
 function unwrapped(
   ts: TypeScriptModule,
-  value: TS.Expression | undefined,
-): TS.Expression | undefined {
+  value: TS.Node | undefined,
+): TS.Node | undefined {
   if (!value) {
     return undefined;
   }
@@ -155,7 +159,7 @@ function consentLine(consent: string | undefined): string {
 
 function readArguments(
   ts: TypeScriptModule,
-  value: TS.Expression | undefined,
+  value: TS.Node | undefined,
 ): readonly { readonly name: string; readonly described: boolean }[] {
   if (!value || !ts.isArrayLiteralExpression(value)) {
     return [];
@@ -203,7 +207,7 @@ function returnsValue(ts: TypeScriptModule, run: TS.Node | undefined): boolean {
   return found;
 }
 
-function judge(registration: Registration): Finding[] {
+function findingsFor(registration: Registration): Finding[] {
   const { at, id } = registration;
   if (registration.unreadable) {
     return [
