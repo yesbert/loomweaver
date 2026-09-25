@@ -305,8 +305,8 @@ function in `@loomweaver/shell`: `defineLwIcon()`, `defineLwButton()`, `defineLw
   </lw-select>
   ```
   Attributes: `label` (accessible name), `value` (current value), `placeholder`, `disabled`;
-  `<lw-option>`: `value`, optionally `icon` (v1 = a **literal glyph/emoji**; registry icon names
-  follow with the `<lw-icon>` element), label = text content. The **`lw-select-change`** event
+  `<lw-option>`: `value`, optionally `icon` (a name the icon registry knows is drawn as `<lw-icon>`
+  draws it; anything else, such as a flag emoji, is shown as written), label = text content. The **`lw-select-change`** event
   (`detail.value`) fires **only on user selection**, not when `value` is set programmatically (no
   feedback loop). ARIA listbox keyboard handling (↑/↓/Home/End/Enter/Esc + typeahead) and CSS anchor
   positioning sit inside the element; the **look** lives as `.lw-select-*` in `theme.css`. With

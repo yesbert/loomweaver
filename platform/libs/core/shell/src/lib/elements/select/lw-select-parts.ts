@@ -1,3 +1,5 @@
+import { hasIcon } from '../icon/icon-registry';
+import { LW_ICON_TAG } from '../icon/lw-icon.element';
 import { LW_OPTION_TAG } from './lw-option.element';
 
 export interface Choice {
@@ -119,6 +121,13 @@ function createGlyph(icon: string): HTMLSpanElement {
   const glyph = document.createElement('span');
   glyph.className = 'lw-select-glyph';
   glyph.setAttribute('aria-hidden', 'true');
-  glyph.textContent = icon;
+  if (hasIcon(icon)) {
+    const drawn = document.createElement(LW_ICON_TAG);
+    drawn.setAttribute('name', icon);
+    drawn.setAttribute('size', '1rem');
+    glyph.append(drawn);
+  } else {
+    glyph.textContent = icon;
+  }
   return glyph;
 }

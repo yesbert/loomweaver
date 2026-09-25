@@ -136,8 +136,11 @@ they start with a top-level folder.
   (`surface-kit/surface-state-mirror.ts`).
 - [x] 9.10 The choices of a command registered by a plugin in the page are read when it is described
   or checked; a test pins it, and the SDK's JSDoc no longer calls them fixed.
-- [ ] 9.11 A select option draws its icon like every other element instead of printing the icon's
-  name (`elements/select/`).
+- [x] 9.11 A select option draws an icon the registry knows, like every other element, and keeps
+  showing anything else as written (`elements/select/`).
+  The reference promised literal glyphs for `icon` and named the registry as the next step, and the
+  language switcher passes flag emoji, so printing the value was right for those. A registered name
+  is now drawn, and a flag still shows.
 
 ## 10. Hand-over
 
