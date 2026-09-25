@@ -7,5 +7,12 @@
     "search": "Search",
     "notes": "Notes",
     "sandbox": "Isolated"
+  },
+  "capture": {
+    "title": "Picture of the workbench",
+    "everySurfaceDrew": "every surface drew itself",
+    "surfacesAbsent": "{{count}} surface(s) say their content is absent",
+    "imageAlt": "The workbench as it was when the picture was taken",
+    "save": "Save as PNG"
   }
 }

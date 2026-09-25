@@ -1,7 +1,5 @@
 import { ShellFeaturesInput } from '@loomweaver/shell';
 
-export const TESTBED_FEATURES_KEY = 'lw.testbed.features';
-
 const FLAGS: Readonly<Record<string, ShellFeaturesInput>> = {
   split: { content: { splitRight: false, splitDown: false } },
   close: { content: { close: false } },
@@ -38,17 +36,20 @@ export function testbedFeatures(raw: string | null): ShellFeaturesInput {
   let merged: ShellFeaturesInput = {};
   for (const flag of (raw ?? '').split(',')) {
     const patch = FLAGS[flag.trim()];
-    if (!patch) {
-      continue;
+    if (patch) {
+      merged = mergeFeatures(merged, patch);
     }
-    merged = {
-      content: { ...merged.content, ...patch.content },
-      sidebar: { ...merged.sidebar, ...patch.sidebar },
-      rail: { ...merged.rail, ...patch.rail },
-      workspaces: { ...merged.workspaces, ...patch.workspaces },
-      windows: { ...merged.windows, ...patch.windows },
-      commands: { ...merged.commands, ...patch.commands },
-    };
   }
   return merged;
+}
+
+function mergeFeatures(
+  into: ShellFeaturesInput,
+  patch: ShellFeaturesInput,
+): ShellFeaturesInput {
+  const merged: Record<string, object | undefined> = { ...into };
+  for (const [group, values] of Object.entries(patch)) {
+    merged[group] = { ...merged[group], ...values };
+  }
+  return merged as ShellFeaturesInput;
 }

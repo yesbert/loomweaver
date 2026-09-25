@@ -2,15 +2,15 @@
   <p class="text-sm text-content-muted">
     {{ picture.width }} × {{ picture.height }} ·
     @if (picture.surfacesAbsent === 0) {
-      every surface drew itself
+      {{ 'product.capture.everySurfaceDrew' | transloco }}
     } @else {
-      {{ picture.surfacesAbsent }} surface(s) say their content is absent
+      {{ 'product.capture.surfacesAbsent' | transloco: { count: picture.surfacesAbsent } }}
     }
   </p>
 
   <img
     [src]="picture.image"
-    alt="The workbench as it was when the picture was taken"
+    [attr.alt]="'product.capture.imageAlt' | transloco"
     class="min-h-0 w-full flex-1 rounded border border-border bg-surface-raised object-contain"
     data-testid="capture-dialog-image"
   />
@@ -20,7 +20,7 @@
       class="lw-btn lw-btn--default"
       [href]="picture.image"
       download="workbench.png"
-      >Save as PNG</a
+      >{{ 'product.capture.save' | transloco }}</a
     >
   </div>
 </div>
