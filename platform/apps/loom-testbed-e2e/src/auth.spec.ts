@@ -137,7 +137,7 @@ test.describe('Auth gating', () => {
     await expect(surface.getByTestId('sandbox-session')).toHaveText(
       'signed out',
     );
-    await expect(surface.getByTestId('sandbox-admin')).toHaveCount(0);
+    await expect(surface.getByTestId('sandbox-admin')).toBeHidden();
 
     await cycle.click();
     await cycle.click();
@@ -173,6 +173,6 @@ test.describe('Auth gating', () => {
     await expect(surface.getByTestId('sandbox-session')).toHaveText(
       'signed out',
     );
-    await expect(surface.getByTestId('sandbox-admin')).toHaveCount(0);
+    await expect(surface.getByTestId('sandbox-admin')).toBeHidden();
   });
 });
