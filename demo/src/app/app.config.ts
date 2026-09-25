@@ -23,7 +23,7 @@ import { agentPlugin } from '../agent/agent.plugin';
 import { customersPlugin } from '../customers/customers.plugin';
 import { financePlugin } from '../finance/finance.plugin';
 import { navigationPlugin } from './navigation/navigation.plugin';
-import { MODULES, navSurfaceId } from './navigation/module-tree';
+import { MODULES, type ProductModule } from './navigation/module-tree';
 import { insightsPlugin } from '../insights/insights.plugin';
 import { looksPlugin } from './looks/looks.plugin';
 import { quotesPlugin } from '../quotes/quotes.plugin';
@@ -192,25 +192,7 @@ export const appConfig: ApplicationConfig = {
     ...providePluginCatalog('/api/plugins.json', {
       title: 'product.pluginStore',
     }),
-    provideWorkspaces(
-      ...MODULES.map((module) => ({
-        id: module.id,
-        title: module.titleKey,
-        icon: module.icon,
-        initial: module.id === 'overview',
-        claims: [module.prefix],
-        sidebars: {
-          'left-panel':
-            module.areas.length > 0
-              ? [navSurfaceId(module.id)]
-              : ['quotes.openItems'],
-          'right-panel': ['agent.chat'],
-        },
-        ...(module.landing === null
-          ? {}
-          : { content: { tabs: [{ path: module.landing, closable: false }] } }),
-      })),
-    ),
+    provideWorkspaces(...MODULES.map((module) => workspaceOf(module))),
     provideProductIdentity({
       name: 'LoomWeaver Demo',
       tagline: 'product.tagline',
@@ -218,3 +200,15 @@ export const appConfig: ApplicationConfig = {
     }),
   ],
 };
+
+function workspaceOf(module: ProductModule) {
+  return {
+    id: module.id,
+    title: module.titleKey,
+    icon: module.icon,
+    initial: module.home === true,
+    claims: [module.prefix],
+    sidebars: { 'left-panel': [module.leftPanel], 'right-panel': ['agent.chat'] },
+    ...(module.landing && { content: { tabs: [{ path: module.landing, closable: false }] } }),
+  };
+}

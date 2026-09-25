@@ -15,7 +15,7 @@ export const navigationPlugin: Plugin = {
     ctx.contributeIcons(moduleIcons);
 
     for (const module of MODULES) {
-      if (module.areas.length === 0) {
+      if (module.home) {
         continue;
       }
       navigationActions.remember(navSurfaceId(module.id), module.titleKey);

@@ -709,7 +709,11 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   weaver keeps its own guarded read, since a weaver does not import from the app). The account
   entry is `accountRail` in `account-rail.ts` with `show(ctx)` and `hide()`, and About's command,
   settings section and bar item are `about.show`, `about.settings` and `demo.aboutBadge`.
-- [ ] 12.11 The overview module declares its left panel and home role instead of four inferences.
+- [x] 12.11 The overview module declares its left panel and home role instead of four inferences.
+  A module declares `home: true` and its `leftPanel` surface; `landing` is optional. The workspaces
+  are built by a named `workspaceOf(module)`, the navigation plugin skips the home module, and
+  `moduleOfPath` excludes it, so `id === 'overview'`, "no areas", "empty prefix" and "no landing"
+  no longer stand in for one fact.
 - [ ] 12.12 One supplier list shared by procurement and finance; "open items" and "receivables" used
   for what they are.
 - [ ] 12.13 Each module weaver ships its strings in its own namespace, one weaver per pull request.
