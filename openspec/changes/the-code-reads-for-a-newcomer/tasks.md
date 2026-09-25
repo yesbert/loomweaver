@@ -517,7 +517,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   panel answers through `pushAnswer`, the stand-in pauses for `PAUSE_MS`; both READMEs take the
   untagged note from `readme-notes.ts`. `docs/samples.md` shows the new auth source (the recipe spec
   compares it); `docs/scaffolding.md` still says what holds.
-- [ ] 10.9 The package READMEs and the generated `LOOMWEAVER.md` describe the tree and the build wiring
+- [x] 10.9 The package READMEs and the generated `LOOMWEAVER.md` describe the tree and the build wiring
   as they are, one section per route; one bundle helper for the two tooling bins; validator messages
   once; CLI test fixtures and app-resolution tests written once.
   Part 1: `platform/tools/bundle-tooling-bin.mjs` bundles both bins (byte-identical output);
@@ -526,6 +526,10 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   generators; the auth-source spec names its sample instead of a number. Set aside: the two doubled
   validator messages, because sharing the missing-TypeScript text would add a published devkit
   export and dropping the MCP result's `note` would change what the published MCP server returns.
+  Part 2: the CLI README names `init`, `validate-commands`, the `loomweaver` bin and the wiring the
+  CLI does; the devkit README lists the recipes by folder, the amendments, `validateCommands`, the
+  `--container` and `--agent` flags and `formatChord`; the generated `LOOMWEAVER.md` says once, per
+  route, who wired the build, and counts two production settings.
 
 ## 11. The testbed
 
