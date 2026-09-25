@@ -676,8 +676,12 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 
 ## 13. The example
 
-- [ ] 13.1 One entry README that matches the code; the weaver READMEs say what each weaver does in
+- [x] 13.1 One entry README that matches the code; the weaver READMEs say what each weaver does in
   this example; `LOOMWEAVER.md` reduced to a pointer.
+  Done last, so that it describes the code as 13.2 to 13.5 left it: the entry README no longer
+  claims the buttons call the commands (they share one function now), reads in an order and links
+  the two weaver READMEs, which say in a few lines which file teaches what; `LOOMWEAVER.md` points at
+  the distribution guide.
 - [x] 13.2 Tickets (after its lookup defect is fixed): one function per action that both the command and
   the button call, the status list and lookup once, named answer shapes, the route and surface id once,
   the actions file named after its export.
