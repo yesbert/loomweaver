@@ -55,7 +55,7 @@ const DECLARED: readonly WorkspaceDefinition[] = [
   },
 ];
 
-async function settled(): Promise<void> {
+async function contentLoaded(): Promise<void> {
   await TestBed.inject(ApplicationRef).whenStable();
   await new Promise((resolve) => setTimeout(resolve, LOAD_TIME_MS * 2));
   await TestBed.inject(ApplicationRef).whenStable();
@@ -104,7 +104,7 @@ async function openAtReports(
   for (const route of ROUTES) registry.addContentRoute(route);
   await RouterTestingHarness.create('/reports');
   const contentTabs = TestBed.inject(ContentTabsService);
-  await settled();
+  await contentLoaded();
   return {
     workspaces: TestBed.inject(WorkspaceService),
     contentTabs,
@@ -121,7 +121,7 @@ describe('leaving content behind', () => {
 
     await opened.workspaces.switchTo('knowledge-base');
     TestBed.tick();
-    await settled();
+    await contentLoaded();
 
     expect(opened.workspaces.activeId()).toBe('knowledge-base');
     expect(opened.tabs()).toEqual(['knowledge-base']);
@@ -132,7 +132,7 @@ describe('leaving content behind', () => {
 
     await opened.workspaces.reset();
     TestBed.tick();
-    await settled();
+    await contentLoaded();
 
     expect(opened.workspaces.activeId()).toBe('dashboard');
     expect(opened.tabs()).toEqual(['dashboard']);
@@ -144,7 +144,7 @@ describe('leaving content behind', () => {
     renderRightAfterEverySwitch(opened.workspaces);
 
     await TestBed.inject(Router).navigateByUrl('/knowledge-base');
-    await settled();
+    await contentLoaded();
 
     expect(opened.workspaces.activeId()).toBe('knowledge-base');
     expect(opened.tabs()).toEqual(['knowledge-base']);
@@ -159,7 +159,7 @@ describe('leaving content behind', () => {
       titleIsLiteral: true,
       preview: true,
     });
-    await settled();
+    await contentLoaded();
 
     expect(opened.workspaces.activeId()).toBe('knowledge-base');
     const entry = opened.contentTabs
@@ -176,7 +176,7 @@ describe('leaving content behind', () => {
       title: 'Knowledge base',
       titleIsLiteral: true,
     });
-    await settled();
+    await contentLoaded();
 
     expect(opened.workspaces.activeId()).toBe('knowledge-base');
     const everywhere = collectTabs(
@@ -189,7 +189,7 @@ describe('leaving content behind', () => {
     const opened = await openAtReports(HELD_BESIDE);
 
     await TestBed.inject(Router).navigateByUrl('/knowledge-base');
-    await settled();
+    await contentLoaded();
 
     expect(opened.workspaces.activeId()).toBe('knowledge-base');
     const everywhere = collectTabs(
@@ -202,7 +202,7 @@ describe('leaving content behind', () => {
     const opened = await openAtReports(HELD_BESIDE);
 
     await opened.contentTabs.navigate('knowledge-base');
-    await settled();
+    await contentLoaded();
 
     expect(opened.workspaces.activeId()).toBe('knowledge-base');
     const everywhere = collectTabs(

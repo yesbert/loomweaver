@@ -71,7 +71,7 @@ interface Opened {
   readonly location: Location;
 }
 
-async function settled(): Promise<void> {
+async function appStableAfterPromiseChains(): Promise<void> {
   await TestBed.inject(ApplicationRef).whenStable();
   for (let turn = 0; turn < 5; turn += 1) {
     await Promise.resolve();
@@ -113,7 +113,7 @@ async function open(
     tabs: TestBed.inject(ContentTabsService),
     location: TestBed.inject(Location),
   };
-  await settled();
+  await appStableAfterPromiseChains();
   return opened;
 }
 
@@ -141,7 +141,7 @@ describe('opening the application where the distribution says', () => {
   it('lands there again after the user has been somewhere else', async () => {
     const first = await open();
     await first.workspaces.switchTo('knowledge-base');
-    await settled();
+    await appStableAfterPromiseChains();
     expect(first.workspaces.activeId()).toBe('knowledge-base');
 
     const kept = keepStorage();
@@ -162,7 +162,7 @@ describe('opening the application where the distribution says', () => {
       titleIsLiteral: true,
     });
     first.tabs.keep('reports');
-    await settled();
+    await appStableAfterPromiseChains();
     expect(first.tabs.tabs().map((tab) => tab.path)).toContain('reports');
 
     const kept = keepStorage();
@@ -177,14 +177,14 @@ describe('opening the application where the distribution says', () => {
   it('leaves the workspace the user left as they left it', async () => {
     const first = await open();
     await first.workspaces.switchTo('knowledge-base');
-    await settled();
+    await appStableAfterPromiseChains();
     first.tabs.open({
       path: 'reports',
       title: 'Reports',
       titleIsLiteral: true,
     });
     first.tabs.keep('reports');
-    await settled();
+    await appStableAfterPromiseChains();
 
     const kept = keepStorage();
     TestBed.resetTestingModule();
@@ -193,7 +193,7 @@ describe('opening the application where the distribution says', () => {
     const again = await open();
     expect(again.workspaces.activeId()).toBe('dashboard');
     await again.workspaces.switchTo('knowledge-base');
-    await settled();
+    await appStableAfterPromiseChains();
 
     expect(again.tabs.tabs().map((tab) => tab.path)).toContain('reports');
   });
@@ -203,7 +203,7 @@ describe('opening the application where the distribution says', () => {
     expect(opened.location.path()).toBe('/dashboard');
 
     opened.location.back();
-    await settled();
+    await appStableAfterPromiseChains();
 
     expect(opened.location.path()).toBe('/dashboard');
   });
@@ -229,7 +229,7 @@ describe('opening the application where the distribution says', () => {
   it('stands down where the distribution answers for the bare address', async () => {
     const first = await open();
     await first.workspaces.switchTo('knowledge-base');
-    await settled();
+    await appStableAfterPromiseChains();
 
     const kept = keepStorage();
     TestBed.resetTestingModule();
@@ -247,7 +247,7 @@ describe('opening the application where the distribution says', () => {
     const stores = new Map<string, string>();
     const first = await open('/', { stores });
     await first.workspaces.switchTo('knowledge-base');
-    await settled();
+    await appStableAfterPromiseChains();
 
     TestBed.resetTestingModule();
     const again = await open('/', { stores });

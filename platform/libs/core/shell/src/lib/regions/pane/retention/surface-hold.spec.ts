@@ -113,7 +113,7 @@ class MovingHost {
   });
 }
 
-async function settled(): Promise<void> {
+async function effectsThenTwoTasks(): Promise<void> {
   TestBed.tick();
   await new Promise<void>((resolve) => setTimeout(resolve, 0));
   await new Promise<void>((resolve) => setTimeout(resolve, 0));
@@ -171,7 +171,7 @@ describe('a surface held where its product put it', () => {
       app.elsewhere.append(app.element);
 
       app.hide();
-      await settled();
+      await effectsThenTwoTasks();
 
       expect(app.elsewhere.contains(app.element)).toBe(true);
       expect(ended).toBe(0);
@@ -183,7 +183,7 @@ describe('a surface held where its product put it', () => {
       app.elsewhere.append(app.element);
 
       app.hide();
-      await settled();
+      await effectsThenTwoTasks();
 
       expect(app.elsewhere.contains(app.element)).toBe(true);
       expect(app.element.style.display).not.toBe('none');
@@ -196,9 +196,9 @@ describe('a surface held where its product put it', () => {
       app.elsewhere.append(app.element);
 
       app.hide();
-      await settled();
+      await effectsThenTwoTasks();
       app.show();
-      await settled();
+      await effectsThenTwoTasks();
 
       expect(app.elsewhere.contains(app.element)).toBe(true);
       expect(probes).toHaveLength(1);
@@ -209,7 +209,7 @@ describe('a surface held where its product put it', () => {
       app.hold.hold();
       app.elsewhere.append(app.element);
       app.hide();
-      await settled();
+      await effectsThenTwoTasks();
 
       TestBed.inject(RetainedViewStash).evictParked(KEY);
 
@@ -222,11 +222,11 @@ describe('a surface held where its product put it', () => {
       app.hold.hold();
       app.elsewhere.append(app.element);
       app.hide();
-      await settled();
+      await effectsThenTwoTasks();
       TestBed.inject(RetainedViewStash).evictParked(KEY);
 
       app.show();
-      await settled();
+      await effectsThenTwoTasks();
 
       expect(app.hold.held()).toBe(false);
       expect(probes).toHaveLength(2);
@@ -267,7 +267,7 @@ describe('a surface held where its product put it', () => {
       heldParkedEntry('content:main|notes');
 
       TestBed.inject(ParkedViewSweep).start();
-      await settled();
+      await effectsThenTwoTasks();
 
       expect(ended).toBe(0);
     });
@@ -276,10 +276,10 @@ describe('a surface held where its product put it', () => {
       TestBed.inject(PaneTreeService).seedPrimaryTabs(CONTENT_DOCK, ['notes']);
       const hold = heldParkedEntry('content:main|notes');
       TestBed.inject(ParkedViewSweep).start();
-      await settled();
+      await effectsThenTwoTasks();
 
       hold.release();
-      await settled();
+      await effectsThenTwoTasks();
 
       expect(ended).toBe(1);
     });
@@ -304,11 +304,11 @@ describe('a surface held where its product put it', () => {
       it('ends a held surface it no longer shows, as it ends one that never held', async () => {
         heldParkedEntry(SIDEBAR_KEY);
         TestBed.inject(ParkedViewSweep).start();
-        await settled();
+        await effectsThenTwoTasks();
         expect(ended).toBe(0);
 
         await TestBed.inject(WorkspaceService).reset();
-        await settled();
+        await effectsThenTwoTasks();
 
         expect(ended).toBe(1);
       });
@@ -319,16 +319,16 @@ describe('a surface held where its product put it', () => {
       paneTree.seedPrimaryTabs(CONTENT_DOCK, ['notes', 'other']);
       heldParkedEntry('content:main|notes');
       TestBed.inject(ParkedViewSweep).start();
-      await settled();
+      await effectsThenTwoTasks();
 
       paneTree.splitPane(CONTENT_DOCK, 'main', 'row', 'notes');
       paneTree.removeTab(CONTENT_DOCK, 'main', 'notes');
-      await settled();
+      await effectsThenTwoTasks();
       expect(ended).toBe(0);
 
       const moved = paneSegments(paneTree.tree(CONTENT_DOCK)).at(-1)?.id ?? '';
       paneTree.closePane(CONTENT_DOCK, moved);
-      await settled();
+      await effectsThenTwoTasks();
       expect(ended).toBe(1);
     });
 
@@ -337,10 +337,10 @@ describe('a surface held where its product put it', () => {
       paneTree.seedPrimaryTabs(CONTENT_DOCK, ['notes', 'other']);
       heldParkedEntry('content:main|notes');
       TestBed.inject(ParkedViewSweep).start();
-      await settled();
+      await effectsThenTwoTasks();
 
       paneTree.removeTab(CONTENT_DOCK, 'main', 'notes');
-      await settled();
+      await effectsThenTwoTasks();
 
       expect(ended).toBe(1);
     });
@@ -351,7 +351,7 @@ describe('a surface held where its product put it', () => {
       const fixture = TestBed.createComponent(MovingHost);
       fixture.componentInstance.at.set(from);
       fixture.detectChanges();
-      await settled();
+      await effectsThenTwoTasks();
       const [probe] = probes;
       const element = fixture.nativeElement.querySelector('lw-hold-probe') as HTMLElement;
       const elsewhere = document.createElement('div');
@@ -361,9 +361,9 @@ describe('a surface held where its product put it', () => {
 
       fixture.componentInstance.at.set(to);
       fixture.detectChanges();
-      await settled();
+      await effectsThenTwoTasks();
       fixture.detectChanges();
-      await settled();
+      await effectsThenTwoTasks();
       return { fixture, element, elsewhere, probe };
     }
 
@@ -385,9 +385,9 @@ describe('a surface held where its product put it', () => {
       const moved = await movedWhileHeld(from, to);
 
       moved.probe.hold.release();
-      await settled();
+      await effectsThenTwoTasks();
       moved.fixture.detectChanges();
-      await settled();
+      await effectsThenTwoTasks();
 
       const place = moved.fixture.nativeElement.querySelector(
         to === 'a' ? '[data-testid="a"]' : '[data-testid="b"]',
@@ -402,10 +402,10 @@ describe('a surface held where its product put it', () => {
       const app = mounted();
       app.hold.hold();
       app.elsewhere.append(app.element);
-      await settled();
+      await effectsThenTwoTasks();
 
       app.hold.release();
-      await settled();
+      await effectsThenTwoTasks();
 
       expect(app.place()?.contains(app.element)).toBe(true);
     });
@@ -415,10 +415,10 @@ describe('a surface held where its product put it', () => {
       app.hold.hold();
       app.elsewhere.append(app.element);
       app.hide();
-      await settled();
+      await effectsThenTwoTasks();
 
       app.hold.release();
-      await settled();
+      await effectsThenTwoTasks();
 
       expect(app.elsewhere.contains(app.element)).toBe(false);
       expect(ended).toBe(1);
@@ -429,10 +429,10 @@ describe('a surface held where its product put it', () => {
       app.hold.hold();
       app.elsewhere.append(app.element);
       app.hide();
-      await settled();
+      await effectsThenTwoTasks();
 
       app.hold.release();
-      await settled();
+      await effectsThenTwoTasks();
 
       expect(app.element.style.display).toBe('none');
       expect(ended).toBe(0);

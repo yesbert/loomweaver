@@ -52,7 +52,7 @@ async function compose(): Promise<{
   };
 }
 
-async function settled(): Promise<void> {
+async function appStable(): Promise<void> {
   await TestBed.inject(ApplicationRef).whenStable();
 }
 
@@ -62,17 +62,17 @@ describe('a workspace remembers which tab was active', () => {
   it('returns to the tab that was active, not to the declared one', async () => {
     const { workspaces, tabs } = await compose();
     await workspaces.switchTo('quotes');
-    await settled();
+    await appStable();
 
     tabs.open({ path: 'quotes/q-0007', title: 'Q-0007', titleIsLiteral: true });
     tabs.keep('quotes/q-0007');
-    await settled();
+    await appStable();
     expect(tabs.activePath()).toBe('quotes/q-0007');
 
     await workspaces.switchTo('overview');
-    await settled();
+    await appStable();
     await workspaces.switchTo('quotes');
-    await settled();
+    await appStable();
 
     expect(tabs.activePath()).toBe('quotes/q-0007');
   });

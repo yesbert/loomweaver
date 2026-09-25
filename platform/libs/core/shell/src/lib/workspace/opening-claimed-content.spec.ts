@@ -60,7 +60,7 @@ async function compose(): Promise<Composed> {
   };
 }
 
-async function settled(): Promise<void> {
+async function appStable(): Promise<void> {
   await TestBed.inject(ApplicationRef).whenStable();
 }
 
@@ -116,12 +116,12 @@ describe('opening content at an address another workspace claims', () => {
     expect(workspaces.activeId()).toBe('overview');
 
     tabs.open({ path: 'quotes/q-0007', title: 'Q-0007', titleIsLiteral: true });
-    await settled();
+    await appStable();
 
     expect(workspaces.activeId()).toBe('quotes');
 
     await workspaces.switchTo('overview');
-    await settled();
+    await appStable();
     expect(contentPaths(panes)).not.toContain('quotes/q-0007');
   });
 
@@ -129,7 +129,7 @@ describe('opening content at an address another workspace claims', () => {
     const { tabs } = await compose();
 
     tabs.open({ path: 'quotes/q-0007', title: 'Q-0007', titleIsLiteral: true });
-    await settled();
+    await appStable();
 
     const stored = localStorage.getItem('lw.shell.pane-trees:overview') ?? '';
     expect(stored).not.toContain('quotes/q-0007');
@@ -139,7 +139,7 @@ describe('opening content at an address another workspace claims', () => {
     seedOverviewDock('quotes/q-0007');
 
     const { workspaces, panes } = await compose();
-    await settled();
+    await appStable();
 
     expect(workspaces.activeId()).toBe('overview');
     expect(contentPaths(panes)).toContain('quotes/q-0007');
@@ -149,10 +149,10 @@ describe('opening content at an address another workspace claims', () => {
     seedOverviewDock('quotes/q-0007');
 
     const { workspaces, panes } = await compose();
-    await settled();
+    await appStable();
 
     await workspaces.switchTo('quotes');
-    await settled();
+    await appStable();
 
     expect(contentPaths(panes)).not.toContain('quotes/q-0007');
   });
@@ -161,7 +161,7 @@ describe('opening content at an address another workspace claims', () => {
     seedOverviewDock('payments');
 
     const { panes } = await compose();
-    await settled();
+    await appStable();
 
     expect(contentPaths(panes)).toContain('payments');
   });
@@ -170,7 +170,7 @@ describe('opening content at an address another workspace claims', () => {
     seedSavedWorkspace('ws-month-end', 'quotes', 'quotes/q-0007');
 
     const { panes } = await compose();
-    await settled();
+    await appStable();
 
     expect(contentPaths(panes)).toContain('quotes/q-0007');
   });
@@ -179,7 +179,7 @@ describe('opening content at an address another workspace claims', () => {
     seedSavedWorkspace('ws-my-overview', 'overview', 'quotes/q-0007');
 
     const { panes } = await compose();
-    await settled();
+    await appStable();
 
     expect(contentPaths(panes)).toContain('quotes/q-0007');
   });
@@ -189,7 +189,7 @@ describe('opening content at an address another workspace claims', () => {
 
     tabs.open({ path: 'quotes/q-0001', title: 'Q-0001', titleIsLiteral: true });
     tabs.open({ path: 'quotes/q-0002', title: 'Q-0002', titleIsLiteral: true });
-    await settled();
+    await appStable();
 
     expect(workspaces.activeId()).toBe('quotes');
     const paths = contentPaths(panes).filter((path) =>
@@ -204,7 +204,7 @@ describe('opening content at an address another workspace claims', () => {
     expect(workspaces.activeId()).toBe('overview');
 
     await harness.navigateByUrl('/quotes/q-0007');
-    await settled();
+    await appStable();
 
     expect(workspaces.activeId()).toBe('quotes');
   });
@@ -213,7 +213,7 @@ describe('opening content at an address another workspace claims', () => {
     const { workspaces, tabs, panes } = await compose();
 
     tabs.open({ path: 'payments', title: 'Payments' });
-    await settled();
+    await appStable();
 
     expect(workspaces.activeId()).toBe('overview');
     expect(contentPaths(panes)).toContain('payments');
