@@ -2,9 +2,9 @@ import { AuthSnapshot, PluginContext } from '@loomweaver/plugin-sdk';
 import { TestbedAboutDialog } from '../dialogs/testbed-about-dialog';
 import { TestbedDraftDialog } from '../dialogs/testbed-draft-dialog';
 import { TestbedFormDialog } from '../dialogs/testbed-form-dialog';
-import { testbedNavState } from '../views/navigation/testbed-nav-state';
+import { testbedNavState } from '../navigation/testbed-nav-state';
 import { testbedContent } from './testbed-content';
-import { testbedAuth } from './testbed-auth';
+import { testbedAuth } from '../access-gating/testbed-auth';
 
 const RESET_TOKEN = 'Reset';
 

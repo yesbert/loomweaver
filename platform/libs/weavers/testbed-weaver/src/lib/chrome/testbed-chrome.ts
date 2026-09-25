@@ -1,6 +1,6 @@
 import { PluginContext } from '@loomweaver/plugin-sdk';
-import { TestbedStatusItem } from '../views/testbed-status-item';
-import { TestbedStatusCount } from '../views/testbed-status-count';
+import { TestbedStatusItem } from './testbed-status-item';
+import { TestbedStatusCount } from '../navigation/testbed-status-count';
 
 const TESTBED_ACCOUNT_PICTURE =
   'data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA2NCA2NCc+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSdnJyB4MT0nMCcgeTE9JzAnIHgyPScxJyB5Mj0nMSc+PHN0b3Agb2Zmc2V0PScwJyBzdG9wLWNvbG9yPScjMkU5NkM5Jy8+PHN0b3Agb2Zmc2V0PScxJyBzdG9wLWNvbG9yPScjQzU5QTJGJy8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3Qgd2lkdGg9JzY0JyBoZWlnaHQ9JzY0JyBmaWxsPSd1cmwoI2cpJy8+PGNpcmNsZSBjeD0nMzInIGN5PScyNScgcj0nMTEnIGZpbGw9JyNmZmZmZmYnIGZpbGwtb3BhY2l0eT0nMC45Jy8+PHBhdGggZD0nTTEwIDYwYzQtMTMgMTItMTkgMjItMTlzMTggNiAyMiAxOXonIGZpbGw9JyNmZmZmZmYnIGZpbGwtb3BhY2l0eT0nMC45Jy8+PC9zdmc+';

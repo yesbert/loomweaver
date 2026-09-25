@@ -535,9 +535,13 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 
 - [x] 11.1 Delete `proxy.conf.js` with its option and lint blocks, and the JUnit reporter no workflow
   reads.
-- [ ] 11.2 **Move:** the testbed weaver from `plugin/` and `views/` into folders named for the
+- [x] 11.2 **Move:** the testbed weaver from `plugin/` and `views/` into folders named for the
   capability each exercises (access gating, containers, entry tabs, dashboard, navigation, routed
   pages, state readouts, dialogs, chrome, theming); both baseline entries removed; `llms.txt` updated.
+  Every file that belongs to one capability moved as it is; `views/` is gone. `plugin/` keeps the
+  plugin and the four files that register across capabilities (commands, surfaces, content,
+  storage) until 11.3 hands their parts to the folders. The structure baseline is empty now;
+  `llms.txt` needed no change, since `testbed.plugin.ts` stayed where it is.
 - [ ] 11.3 Each capability folder registers its own commands, surfaces and chrome; the content actions,
   entry helpers, the persisted cross-tab choice and the principals (by name, not index) follow.
 - [ ] 11.4 The container vocabulary in code, i18n, test ids and end-to-end paths (today

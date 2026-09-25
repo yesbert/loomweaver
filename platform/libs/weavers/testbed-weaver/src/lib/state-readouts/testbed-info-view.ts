@@ -1,9 +1,9 @@
 import { Component, WritableSignal, signal } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { testbedScratch } from '../plugin/testbed-scratch';
-import { testbedSession } from '../plugin/testbed-session';
-import { testbedActiveContent } from '../plugin/testbed-active-content';
-import { ENTRIES } from './testbed-entries';
+import { testbedScratch } from './testbed-scratch';
+import { testbedSession } from './testbed-session';
+import { testbedActiveContent } from './testbed-active-content';
+import { ENTRIES } from '../entry-tabs/testbed-entries';
 
 @Component({
   imports: [TranslocoPipe],

@@ -1,15 +1,15 @@
 import { Plugin } from '@loomweaver/plugin-sdk';
 import { testbedContent } from './testbed-content';
-import { testbedScratch } from './testbed-scratch';
-import { testbedSession } from './testbed-session';
-import { testbedActiveContent } from './testbed-active-content';
+import { testbedScratch } from '../state-readouts/testbed-scratch';
+import { testbedSession } from '../state-readouts/testbed-session';
+import { testbedActiveContent } from '../state-readouts/testbed-active-content';
 import { registerSurfaces } from './testbed-surfaces';
-import { registerIcons } from './testbed-icons';
+import { registerIcons } from '../chrome/testbed-icons';
 import { registerCommands } from './testbed-commands';
-import { registerChrome } from './testbed-chrome';
-import { registerMenus } from './testbed-menus';
-import { registerSettings } from './testbed-settings';
-import { registerTheme, releaseTheme } from './testbed-theme';
+import { registerChrome } from '../chrome/testbed-chrome';
+import { registerMenus } from '../chrome/testbed-menus';
+import { registerSettings } from '../chrome/testbed-settings';
+import { registerTheme, releaseTheme } from '../theming/testbed-theme';
 
 export const testbedPlugin: Plugin = {
   manifest: {
