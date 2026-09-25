@@ -4,7 +4,7 @@ import {
   inject,
   provideEnvironmentInitializer,
 } from '@angular/core';
-import { SettingsService } from '../../settings/settings.service';
+import { SettingsService } from '../../settings-dialog/settings.service';
 import { PluginStoreSettings } from '../plugin-store-settings';
 import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { PluginStoreService } from '../plugin-store.service';

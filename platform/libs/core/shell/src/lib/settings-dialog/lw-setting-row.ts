@@ -2,9 +2,10 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, input } from '@angular/core';
 
 /**
  * One settings row: an optional leading `icon`, the label (+ optional description) on the left, the
- * control projected on the right. A pure layout primitive — the host slots the matching control
- * (`<lw-select>`, later toggle/button) via content projection. The icon is named from the icon
- * registry like every other `icon` field and is decoration only: the label is what names the row.
+ * control projected on the right. A pure layout primitive: the host slots the matching control
+ * (a toggle, a text field, a select, a slider, a button or a component of its own) via content
+ * projection. The icon is named from the icon registry like every other `icon` field and is
+ * decoration only: the label is what names the row.
  */
 @Component({
   selector: 'lw-setting-row',

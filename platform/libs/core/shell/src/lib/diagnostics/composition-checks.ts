@@ -4,7 +4,7 @@ import { RegionType, ShellLayout } from '../layout/layout';
 import { regionById } from '../layout/layout-queries';
 import { menuEntryId } from '../menu/menu-entry-id';
 import { ROUTE_OMIT_PREFIX } from '../contributions/route-omit';
-import { SETTING_OMIT_PREFIX } from '../settings/setting-omit';
+import { SETTING_OMIT_PREFIX } from '../settings-dialog/setting-omit';
 
 export interface Placement {
   readonly id: string;

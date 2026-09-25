@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
-import { SettingsService } from './settings/settings.service';
-import { SettingRow } from './settings/settings-model';
+import { SettingsService } from './settings-dialog/settings.service';
+import { SettingRow } from './settings-dialog/settings-model';
 import { SHELL_LAYOUT } from './layout/layout';
 import { RailLabelsService } from './regions/rail/rail-labels.service';
 import { railNameKey } from './regions/rail/rail-name';

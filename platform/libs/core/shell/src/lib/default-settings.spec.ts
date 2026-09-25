@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { registerDefaultSettings } from './default-settings';
-import { SettingsService } from './settings/settings.service';
-import { SettingRow } from './settings/settings-model';
+import { SettingsService } from './settings-dialog/settings.service';
+import { SettingRow } from './settings-dialog/settings-model';
 import { ShellLayout, provideLayout } from './layout/layout';
 import { RailLabelsService } from './regions/rail/rail-labels.service';
 

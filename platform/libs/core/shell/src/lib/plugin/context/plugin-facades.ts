@@ -3,7 +3,7 @@ import { AuthContext } from '../../auth/auth-context';
 import { DialogService } from '../../dialog/dialog.service';
 import { MenuService } from '../../menu/menu.service';
 import { NotificationService } from '../../notifications/notification.service';
-import { SettingsService } from '../../settings/settings.service';
+import { SettingsService } from '../../settings-dialog/settings.service';
 import { UpdateService } from '../../update/update.service';
 import { VersionService } from '../../version/version.service';
 import { PluginHost, PluginSession, PluginUi } from '../plugin';

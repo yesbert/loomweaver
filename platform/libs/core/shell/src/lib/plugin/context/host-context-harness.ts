@@ -12,7 +12,7 @@ import { LayoutRegion, SHELL_LAYOUT } from '../../layout/layout';
 import { MenuService } from '../../menu/menu.service';
 import { NotificationService } from '../../notifications/notification.service';
 import { ContentTabsService } from '../../regions/content/tabs/content-tabs.service';
-import { SettingsService } from '../../settings/settings.service';
+import { SettingsService } from '../../settings-dialog/settings.service';
 import { ThemeRegistry } from '../../theme/theme-registry';
 import { UpdateService } from '../../update/update.service';
 import { VersionService } from '../../version/version.service';

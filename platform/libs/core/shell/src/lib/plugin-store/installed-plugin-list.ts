@@ -8,7 +8,7 @@ import {
   output,
 } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { SettingsService } from '../settings/settings.service';
+import { SettingsService } from '../settings-dialog/settings.service';
 import { PluginCatalogEntry } from './catalog/catalog-entry';
 import { PluginDisableGuard } from '../plugin/enablement/plugin-disable-guard';
 import { PluginEnablementService } from '../plugin/enablement/plugin-enablement.service';

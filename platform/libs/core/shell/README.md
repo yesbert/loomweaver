@@ -37,7 +37,8 @@ directories like components, directives, and services").
 - **`plugin-store/`** — community plugin store: catalog port and the level cap a catalog may
   confer, install/deployment/store services and the complete store UI.
 - **`permissions/`** — capability grants, their broker and refusal reporting.
-- **`settings/`** — settings model + service + dialog + row primitives.
+- **`settings-dialog/`** — the settings dialog: its sections model, the service that opens it, the
+  registry and the row primitives. Settings are persisted by whoever contributes them, not here.
 - **`persistence/`** — shared kernel: the two `KeyValueStore` ports (`SETTINGS_STORE`
   settings-only + `WORKING_STATE_STORE`) at the top, `cross-tab/` (`StateSyncService` and the
   sync wrapper), `identity-scope/` (the boot latch, the scoped store and its provider) and
