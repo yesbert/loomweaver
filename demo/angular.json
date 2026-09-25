@@ -45,7 +45,7 @@
               },
               {
                 "glob": "**/*.json",
-                "input": "src/quotes/src/lib/i18n",
+                "input": "src/quotes/i18n",
                 "output": "i18n/quotes"
               },
               {

@@ -9,7 +9,7 @@ import {
   markQuoteSent,
   quoteById,
   quotes,
-} from '../../../../accounting';
+} from '../accounting';
 import { quotesActions } from './quotes-actions';
 
 function quoteNumberArgument(description: string): ChoiceCommandArgument {

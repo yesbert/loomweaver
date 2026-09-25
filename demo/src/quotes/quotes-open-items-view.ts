@@ -8,8 +8,8 @@ import {
   quoteTotals,
   quotes,
   today,
-} from '../../../../accounting';
-import { quotesActions } from '../plugin/quotes-actions';
+} from '../accounting';
+import { quotesActions } from './quotes-actions';
 
 export interface OpenItemRow {
   readonly quote: Quote;

@@ -3,7 +3,7 @@ import type {
   Command,
   PluginContext,
 } from '@loomweaver/plugin-sdk';
-import { addQuote, resetQuotes } from '../../../../accounting';
+import { addQuote, resetQuotes } from '../accounting';
 import { registerQuoteCommands } from './quotes-commands';
 
 function registeredCommands(): Command[] {

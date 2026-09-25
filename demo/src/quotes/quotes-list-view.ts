@@ -9,8 +9,8 @@ import {
   formatMoney,
   quoteTotals,
   quotes,
-} from '../../../../accounting';
-import { quotesActions } from '../plugin/quotes-actions';
+} from '../accounting';
+import { quotesActions } from './quotes-actions';
 import { STATUS_BADGE } from './quote-status';
 
 type StatusFilter = QuoteStatus | 'all';

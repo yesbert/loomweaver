@@ -1,5 +1,5 @@
 import type { OpenTabInput, PluginContext } from '@loomweaver/plugin-sdk';
-import { quoteById } from '../../../../accounting';
+import { quoteById } from '../accounting';
 import { quotesActions } from './quotes-actions';
 
 interface Recorded {

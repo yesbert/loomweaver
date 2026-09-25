@@ -8,8 +8,8 @@ import {
   formatQuantity,
   lineNet,
   quoteTotals,
-} from '../../../../accounting';
-import { activeLang, quoteFromRoute } from './quote-context';
+} from '../../accounting';
+import { activeLang, quoteFromRoute } from './quote-from-route';
 
 export interface DocumentLineRow {
   readonly position: number;

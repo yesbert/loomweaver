@@ -1,7 +1,7 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, computed } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { type MarginLine, formatMoney, marginOf } from '../../../../accounting';
-import { activeLang, quoteFromRoute } from './quote-context';
+import { type MarginLine, formatMoney, marginOf } from '../../accounting';
+import { activeLang, quoteFromRoute } from './quote-from-route';
 
 export interface MarginRow {
   readonly lineId: string;
