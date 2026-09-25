@@ -1,7 +1,7 @@
 import {
   chordSignature,
   eventSignature,
-  formatShortcut,
+  formatChordOn,
   isEditableTarget,
 } from './chord';
 
@@ -78,16 +78,16 @@ describe('eventSignature', () => {
   });
 });
 
-describe('formatShortcut', () => {
+describe('formatChordOn', () => {
   it('stacks glyphs on macOS and joins with "+" elsewhere', () => {
-    expect(formatShortcut('mod+shift+p', true)).toBe('⌘⇧P');
-    expect(formatShortcut('mod+shift+p', false)).toBe('Ctrl+Shift+P');
+    expect(formatChordOn('mod+shift+p', true)).toBe('⌘⇧P');
+    expect(formatChordOn('mod+shift+p', false)).toBe('Ctrl+Shift+P');
   });
 
   it('renders named keys and modifiers legibly', () => {
-    expect(formatShortcut('mod+enter', true)).toBe('⌘↵');
-    expect(formatShortcut('mod+enter', false)).toBe('Ctrl+Enter');
-    expect(formatShortcut('alt+escape', false)).toBe('Alt+Esc');
+    expect(formatChordOn('mod+enter', true)).toBe('⌘↵');
+    expect(formatChordOn('mod+enter', false)).toBe('Ctrl+Enter');
+    expect(formatChordOn('alt+escape', false)).toBe('Alt+Esc');
   });
 });
 
@@ -98,5 +98,41 @@ describe('isEditableTarget', () => {
     expect(isEditableTarget(document.createElement('select'))).toBe(true);
     expect(isEditableTarget(document.createElement('div'))).toBe(false);
     expect(isEditableTarget(null)).toBe(false);
+  });
+});
+
+describe('a chord alias', () => {
+  const MODIFIER_ALIASES = [
+    ['control', 'ctrl'],
+    ['cmd', 'meta'],
+    ['command', 'meta'],
+    ['win', 'meta'],
+    ['option', 'alt'],
+  ] as const;
+  const KEY_ALIASES = [
+    ['esc', 'escape'],
+    ['return', 'enter'],
+    ['spacebar', 'space'],
+  ] as const;
+
+  it('is read the same way when it binds and when it is shown', () => {
+    for (const isMac of [true, false]) {
+      for (const [alias, canonical] of MODIFIER_ALIASES) {
+        expect(chordSignature(`${alias}+k`, isMac)).toBe(
+          chordSignature(`${canonical}+k`, isMac),
+        );
+        expect(formatChordOn(`${alias}+k`, isMac)).toBe(
+          formatChordOn(`${canonical}+k`, isMac),
+        );
+      }
+      for (const [alias, canonical] of KEY_ALIASES) {
+        expect(chordSignature(`mod+${alias}`, isMac)).toBe(
+          chordSignature(`mod+${canonical}`, isMac),
+        );
+        expect(formatChordOn(`mod+${alias}`, isMac)).toBe(
+          formatChordOn(`mod+${canonical}`, isMac),
+        );
+      }
+    }
   });
 });
