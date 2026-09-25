@@ -1,18 +1,14 @@
 import { TestBed } from '@angular/core/testing';
-import { TranslocoTestingModule } from '@jsverse/transloco';
 import { TestbedNavView } from './testbed-nav-view';
 import { testbedNavState } from './testbed-nav-state';
+import { translocoForSpec } from '../test-transloco';
 
-function transloco() {
-  return TranslocoTestingModule.forRoot({
-    langs: { en: { testbed: { nav: { scratch: 'Scratch note' } } } },
-    translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
-    preloadLangs: true,
-  });
-}
+const EN = { testbed: { nav: { scratch: 'Scratch note' } } };
 
 function render() {
-  TestBed.configureTestingModule({ imports: [TestbedNavView, transloco()] });
+  TestBed.configureTestingModule({
+    imports: [TestbedNavView, translocoForSpec(EN)],
+  });
   const fixture = TestBed.createComponent(TestbedNavView);
   fixture.detectChanges();
   return fixture;
@@ -32,6 +28,8 @@ describe('TestbedNavView', () => {
     const fixture = render();
     testbedNavState.add();
     fixture.detectChanges();
-    expect((fixture.nativeElement as HTMLElement).querySelectorAll('li')).toHaveLength(4);
+    expect(
+      (fixture.nativeElement as HTMLElement).querySelectorAll('li'),
+    ).toHaveLength(4);
   });
 });

@@ -1,18 +1,14 @@
 import { TestBed } from '@angular/core/testing';
-import { TranslocoTestingModule } from '@jsverse/transloco';
 import { TestbedStatusCount } from './testbed-status-count';
 import { testbedNavState } from './testbed-nav-state';
+import { translocoForSpec } from '../test-transloco';
 
-function transloco() {
-  return TranslocoTestingModule.forRoot({
-    langs: { en: { testbed: { status: { items: 'items' } } } },
-    translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
-    preloadLangs: true,
-  });
-}
+const EN = { testbed: { status: { items: 'items' } } };
 
 function render() {
-  TestBed.configureTestingModule({ imports: [TestbedStatusCount, transloco()] });
+  TestBed.configureTestingModule({
+    imports: [TestbedStatusCount, translocoForSpec(EN)],
+  });
   const fixture = TestBed.createComponent(TestbedStatusCount);
   fixture.detectChanges();
   return fixture;
