@@ -1,13 +1,13 @@
-import { drawAbsent } from '../capture/picture-assembly';
-import { captureScale } from '../capture/picture-size';
 import {
   hasIcon,
   removeIcon,
   sanitizeIconSvg,
   setIcon,
 } from '../elements/icon/icon-registry-global';
-import { LW_ICON_TAG, LwIconElement } from '../elements/icon/lw-icon.element';
 import { defineLwElements } from '../elements/lw-elements';
+import { applySurfaceState } from './surface-render-state';
+import { captureSelf } from './surface-self-capture';
+import { createState } from './surface-state-mirror';
 
 export interface LwSurfaceRenderState {
   readonly theme?: 'light' | 'dark';
@@ -117,191 +117,13 @@ export interface LwFrameApi {
   ): T & LwPlatformSurfaceMethods;
 }
 
-function applySurfaceState(state: LwSurfaceRenderState): void {
-  const root = document.documentElement;
-  for (const [name, value] of Object.entries(state.tokens ?? {})) {
-    root.style.setProperty(name, value);
-  }
-  if (state.rootFontSize) {
-    root.style.fontSize = state.rootFontSize;
-  }
-  if (state.theme) {
-    const dark = state.theme === 'dark';
-    root.classList.toggle('dark', dark);
-    document.body?.classList.toggle('dark', dark);
-  }
-  applyIcons(state.icons);
-}
-
-function applyIcons(icons: Readonly<Record<string, string>> | undefined): void {
-  const entries = Object.entries(icons ?? {});
-  if (entries.length === 0) {
-    return;
-  }
-  for (const [name, svg] of entries) {
-    setIcon(name, sanitizeIconSvg(svg));
-  }
-  for (const element of document.querySelectorAll(LW_ICON_TAG)) {
-    (element as LwIconElement).refresh();
-  }
-}
-
-interface Watched {
-  value: unknown;
-  loaded: boolean;
-  readonly listeners: ((value: unknown, loaded: boolean) => void)[];
-}
-
-function createState(): LwStateApi & { connect(host: LwStateHost): void } {
-  const watched = new Map<string, Watched>();
-  let host: LwStateHost | undefined;
-
-  const entryFor = (key: string): Watched => {
-    const existing = watched.get(key);
-    if (existing) {
-      return existing;
-    }
-    const entry: Watched = { value: undefined, loaded: false, listeners: [] };
-    watched.set(key, entry);
-    host?.stateWatch(key);
-    return entry;
-  };
-
-  return {
-    connect(next: LwStateHost): void {
-      host = next;
-      for (const key of watched.keys()) {
-        next.stateWatch(key);
-      }
-    },
-    apply(key: string, value: unknown, loaded: boolean): void {
-      const entry = entryFor(key);
-      entry.value = value;
-      entry.loaded = loaded;
-      for (const listener of entry.listeners) {
-        listener(value, loaded);
-      }
-    },
-    watch<T>(key: string) {
-      const entry = entryFor(key);
-      return {
-        value: () => entry.value as T | undefined,
-        loaded: () => entry.loaded,
-        set: (next: T) => {
-          entry.value = next;
-          host?.stateSet(key, next);
-        },
-        clear: () => {
-          entry.value = undefined;
-          host?.stateClear(key);
-        },
-        dispose: () => {
-          watched.delete(key);
-          host?.stateUnwatch(key);
-        },
-        onChange: (listener: (value: T | undefined, loaded: boolean) => void) => {
-          entry.listeners.push(
-            listener as (value: unknown, loaded: boolean) => void,
-          );
-        },
-      };
-    },
-  };
-}
-
-interface SnapdomGlobal {
-  readonly snapdom: {
-    toCanvas(
-      target: Element,
-      options: { readonly scale: number },
-    ): Promise<HTMLCanvasElement>;
-  };
-}
-
-const rendererSource = new URL(
-  'snapdom.global.js',
-  (document.currentScript as HTMLScriptElement | null)?.src ?? location.href,
-).href;
-
-let rendererLoad: Promise<void> | undefined;
-
-function loadRenderer(): Promise<void> {
-  rendererLoad ??= new Promise<void>((resolve, reject) => {
-    const script = document.createElement('script');
-    script.src = rendererSource;
-    script.addEventListener('load', () => resolve());
-    script.addEventListener('error', () => {
-      rendererLoad = undefined;
-      reject(new Error(`the surface renderer could not be loaded from ${rendererSource}`));
-    });
-    document.head.append(script);
-  });
-  return rendererLoad;
-}
-
-const WITHHOLD_SELECTOR = `[${CSS.escape(LW_WITHHOLD_ATTRIBUTE)}]`;
-
-function withheldAreas(root: Element): Element[] {
-  return [...root.querySelectorAll(WITHHOLD_SELECTOR)].filter(
-    (element) =>
-      element !== document.body && element !== document.documentElement,
-  );
-}
-
-function hideWithheld(
-  canvas: HTMLCanvasElement,
-  root: Element,
-  scale: number,
-  label: string,
-): void {
-  const areas = withheldAreas(root);
-  if (areas.length === 0) {
-    return;
-  }
-  const context = canvas.getContext('2d');
-  if (!context) {
-    return;
-  }
-  const origin = root.getBoundingClientRect();
-  for (const area of areas) {
-    const rect = area.getBoundingClientRect();
-    drawAbsent(
-      context,
-      (rect.left - origin.left) * scale,
-      (rect.top - origin.top) * scale,
-      rect.width * scale,
-      rect.height * scale,
-      label,
-    );
-  }
-}
-
-async function capture(
-  request?: LwSurfaceCaptureRequest,
-): Promise<LwSurfaceCapture> {
-  await loadRenderer();
-  const renderer = (globalThis as Record<string, unknown>)['LwSnapdom'] as
-    | SnapdomGlobal
-    | undefined;
-  if (!renderer) {
-    throw new Error('the surface renderer did not install itself');
-  }
-  const target = document.body ?? document.documentElement;
-  const scale = captureScale(request?.scale ?? devicePixelRatio);
-  const canvas = await renderer.snapdom.toCanvas(target, { scale });
-  hideWithheld(canvas, target, scale, request?.withheldLabel ?? '');
-  return {
-    image: canvas.toDataURL(request?.mediaType ?? 'image/png', request?.quality),
-    width: canvas.width,
-    height: canvas.height,
-  };
-}
-
 /** @internal The bundle's own bootstrap. Running the script calls it; a consumer never does. */
 export function installLwFrame(): LwFrameApi {
   defineLwElements();
 
   const state = createState();
+  const capture = (request?: LwSurfaceCaptureRequest) =>
+    captureSelf(request, LW_WITHHOLD_ATTRIBUTE);
   const api: LwFrameApi = {
     setIcon: (name, svg) => setIcon(name, sanitizeIconSvg(svg)),
     removeIcon,
