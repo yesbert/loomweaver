@@ -1,24 +1,21 @@
 # @loomweaver/frame-kit
 
-Static UI assets for **LoomWeaver frame plugins** — at either isolation level. A distribution
-serves the `dist/` files same-origin under the well-known path `/frame-kit/`; every frame surface
-references them from there — so the paint always matches the host's shell version, with
-no per-plugin copies to drift.
+What a LoomWeaver frame plugin loads inside its iframe, at either isolation level: the `<lw-*>`
+elements, their look, the RPC transport and the `LwFrame` helper. A distribution serves the `dist/`
+files same-origin under `/frame-kit/`, and every frame surface references them there. A plugin's
+paint then always matches the shell it runs in, and no plugin carries a copy of its own.
 
-## Contents (`dist/`)
+## What is in `dist/`
 
-- **`lw-elements.global.js`** — one IIFE bundle defining the whole `<lw-*>` custom-element family
-  (`lw-tooltip` · `lw-select`/`lw-option` · `lw-menu`/`lw-menu-item` · `lw-button` ·
-  `lw-markdown` · `lw-icon` · `lw-progress-ring`) with the built-in icon set seeded. It exposes
-  `globalThis.LwFrame`:
-  - `setIcon(name, svg)` / `removeIcon(name)` / `hasIcon(name)` — plugin-own icons (sanitized).
-  - `applySurfaceState(state)` — applies a host `render(state)` push: token values onto `:root`,
-    root font size, and the `dark` class from the pushed theme.
-- **`lw-frame.css`** — the compiled `.lw-*` class contracts (the host's `theme.css` resolved to
-  plain CSS on `var(--lw-*)` tokens), including the light/dark token fallback ladder for the blink
-  before the first token push arrives.
-- **`penpal.global.js`** — Penpal as a classic global bundle (`globalThis.Penpal`) for the RPC
-  channel to the host.
+| File                    | What it is                                                                                                     |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `lw-elements.global.js` | the `<lw-*>` element family, with the built-in icons, and `globalThis.LwFrame`                                 |
+| `lw-frame.d.ts`         | the types of `LwFrame` and of what the host pushes and asks, for a surface written in TypeScript               |
+| `lw-frame.css`          | the `.lw-*` class contracts on the `--lw-*` tokens, with fallbacks for the moment before the host's first push |
+| `penpal.global.js`      | the RPC transport, as `globalThis.Penpal`                                                                      |
+| `snapdom.global.js`     | the renderer `LwFrame.capture` loads the first time a picture of the workbench is asked for                    |
+
+What `LwFrame` offers is in `lw-frame.d.ts`; the guide below walks through it.
 
 ## Serving it (distribution)
 
@@ -36,9 +33,9 @@ Add an assets glob to the application build:
 <script src="/frame-kit/lw-elements.global.js"></script>
 ```
 
-The host pushes resolved design-token values over the surface RPC channel; forward them with
-`LwFrame.applySurfaceState(state)` in your `render` handler and everything — elements, classes,
-theme flips, tenant branding — follows the host live.
+## Where to read on
 
-Docs: `docs/authoring-a-weaver.md` (frame surfaces) and `docs/building-a-distribution.md`
-(serving the kit) in the LoomWeaver repository.
+- [Frame surfaces](https://loomweaver.dev/weaver/sandboxed-surfaces/): writing a surface that runs in
+  a frame, with the state store, the pushed theme and the capture hook
+- [Frame plugins](https://loomweaver.dev/distribution/frame-plugins/): serving the kit and composing
+  frame plugins into a distribution
