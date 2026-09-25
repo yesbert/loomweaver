@@ -1,10 +1,10 @@
+import { DialogRef } from '@loomweaver/plugin-sdk';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { SettingsDialog } from './settings-dialog';
 import { SettingsService } from './settings.service';
 import { SettingsSection } from './settings-model';
-import { DialogRef } from '../dialog/dialog-ref';
 
 @Component({
   selector: 'lw-probe',

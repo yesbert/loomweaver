@@ -105,7 +105,7 @@ export class DialogOutlet {
       return;
     }
     const top = this.top();
-    if (top && this.closesDeliberately(top)) {
+    if (top && this.canBeDismissed(top)) {
       void this.requestDismiss(top);
     }
   }
@@ -146,29 +146,23 @@ export class DialogOutlet {
   }
 
   protected onCloseControl(dialog: DialogInstance): void {
-    if (this.closesDeliberately(dialog)) {
+    if (this.canBeDismissed(dialog)) {
       void this.requestDismiss(dialog);
     }
   }
 
-  protected closesDeliberately(dialog: DialogInstance): boolean {
+  protected canBeDismissed(dialog: DialogInstance): boolean {
     return dialog.dismiss !== 'none';
   }
 
   protected onButton(dialog: DialogInstance, button: DialogButtonView): void {
-    if (button.role === 'custom' && button.value === undefined) {
-      void this.requestDismiss(dialog);
-    } else if (button.role === 'custom') {
-      dialog.ref.close(button.value);
-    } else if (button.role === 'cancel') {
-      dialog.ref.close();
-    } else if (dialog.kind === 'confirm') {
-      dialog.ref.close(true);
-    } else if (dialog.kind === 'prompt') {
-      dialog.ref.close(dialog.promptValue?.());
-    } else {
-      dialog.ref.close();
+    if (button.role === 'custom') {
+      this.onCustomButton(dialog, button);
+      return;
     }
+    dialog.ref.close(
+      button.role === 'cancel' ? undefined : confirmedResult(dialog),
+    );
   }
 
   protected onPromptInput(dialog: DialogInstance, event: Event): void {
@@ -176,16 +170,13 @@ export class DialogOutlet {
   }
 
   protected onEnter(dialog: DialogInstance): void {
-    if (!dialog.promptValue) {
-      return;
-    }
     if (
-      dialog.requireValidate &&
-      dialog.requireValidate(dialog.promptValue()) !== null
+      !dialog.promptValue ||
+      validationError(dialog, dialog.promptValue()) !== null
     ) {
       return;
     }
-    dialog.ref.close(dialog.kind === 'prompt' ? dialog.promptValue() : true);
+    dialog.ref.close(confirmedResult(dialog));
   }
 
   protected confirmBlocked(
@@ -194,17 +185,13 @@ export class DialogOutlet {
   ): boolean {
     return (
       button.role === 'confirm' &&
-      !!dialog.requireValidate &&
-      dialog.requireValidate(dialog.promptValue?.() ?? '') !== null
+      validationError(dialog, dialog.promptValue?.() ?? '') !== null
     );
   }
 
   protected guardError(dialog: DialogInstance): string | null {
     const value = dialog.promptValue?.() ?? '';
-    if (!dialog.requireValidate || value.length === 0) {
-      return null;
-    }
-    return dialog.requireValidate(value);
+    return value.length === 0 ? null : validationError(dialog, value);
   }
 
   protected wrapperClasses(dialog: DialogInstance): string {
@@ -223,6 +210,17 @@ export class DialogOutlet {
       return MAXIMIZED_PANEL;
     }
     return PANEL_WIDTH[dialog.size ?? 'md'];
+  }
+
+  private onCustomButton(
+    dialog: DialogInstance,
+    button: DialogButtonView,
+  ): void {
+    if (button.value === undefined) {
+      void this.requestDismiss(dialog);
+    } else {
+      dialog.ref.close(button.value);
+    }
   }
 
   private requestDismiss(dialog: DialogInstance): Promise<boolean> {
@@ -271,4 +269,15 @@ export class DialogOutlet {
     const list = this.dialogs();
     return list.at(-1);
   }
+}
+
+function confirmedResult(dialog: DialogInstance): unknown {
+  if (dialog.kind === 'confirm') {
+    return true;
+  }
+  return dialog.kind === 'prompt' ? dialog.promptValue?.() : undefined;
+}
+
+function validationError(dialog: DialogInstance, value: string): string | null {
+  return dialog.requireValidate ? dialog.requireValidate(value) : null;
 }

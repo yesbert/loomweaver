@@ -1,3 +1,4 @@
+import { DialogRef } from '@loomweaver/plugin-sdk';
 import {
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
@@ -6,7 +7,6 @@ import {
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { DialogRef } from '../dialog/dialog-ref';
 import { DialogService } from '../dialog/dialog.service';
 import { BUILT_IN_WORKSPACE_ID } from './declaration/composed-definitions';
 import { WorkspaceCatalog } from './catalog/workspace-catalog';

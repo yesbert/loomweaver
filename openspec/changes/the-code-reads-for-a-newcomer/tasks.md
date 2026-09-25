@@ -354,9 +354,11 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   `ask-surface.ts` replace `surface-capture.ts` and `decode-drawing.ts`. `captureScale` and
   `drawAbsent`, which both sides draw with, sit in `surface-kit/picture-primitives.ts`, so the slice
   graph gains no pair. `lw-frame.d.ts` and `lw-frame.css` are byte-identical throughout.
-- [ ] 8.8 Dialogs and pop-out: the confirm and prompt footers built once, one result rule for button
+- [x] 8.8 Dialogs and pop-out: the confirm and prompt footers built once, one result rule for button
   and Enter, `canBeDismissed`; the pop-out passes translation keys; the one-line `DialogRef` re-export
   file goes.
+  `toneIcon`, `cancelAndConfirm` and `customButtons` in the service; `confirmedResult` and
+  `validationError` in the outlet. The package now re-exports `DialogRef` straight from the SDK.
 - [ ] 8.9 Icons: the registry file carries the registry, the class that polices plugin icons is named
   for that, the spec calls `resolveIcon`. Command invocation computes ownership once.
 

@@ -6,12 +6,11 @@ import {
 } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TranslocoService, TranslocoTestingModule } from '@jsverse/transloco';
-import { ANONYMOUS, AuthSnapshot } from '@loomweaver/plugin-sdk';
+import { ANONYMOUS, AuthSnapshot, DialogRef } from '@loomweaver/plugin-sdk';
 import { CommandPalette, PALETTE_COMMAND_ID } from './command-palette';
 import { CommandService } from '../command.service';
 import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { AUTH_SOURCE } from '../../auth/auth-context';
-import { DialogRef } from '../../dialog/dialog-ref';
 import { ContentTabsService } from '../../regions/content/tabs/content-tabs.service';
 import { QuickOpenTarget } from '../../regions/content/tabs/quick-open-target';
 import { MenuService } from '../../menu/menu.service';

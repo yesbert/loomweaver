@@ -7,13 +7,12 @@ import {
   signal,
 } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { Command } from '@loomweaver/plugin-sdk';
+import { Command, DialogRef } from '@loomweaver/plugin-sdk';
 import { CommandService } from '../command.service';
 import { CommandRow, commandRows, commandSections } from './command-rows';
 import { TabRow, tabResults, tabRows } from './tab-rows';
 import { RecentCommandsService } from './recent-commands.service';
 import { FeatureSwitches } from '../../features/feature-switches.service';
-import { DialogRef } from '../../dialog/dialog-ref';
 import { ContentTabsService } from '../../regions/content/tabs/content-tabs.service';
 import { MenuService } from '../../menu/menu.service';
 import { MENU_ANCHOR_GAP } from '../../elements/menu/lw-menu.element';

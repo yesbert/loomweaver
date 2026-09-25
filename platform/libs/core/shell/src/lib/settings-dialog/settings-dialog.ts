@@ -1,10 +1,10 @@
+import { DialogRef } from '@loomweaver/plugin-sdk';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, effect, inject, signal } from '@angular/core';
 import { NgComponentOutlet } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SettingsRegistry } from './settings-registry';
 import { SettingButton, SettingRow, SettingsSection } from './settings-model';
 import { CommandService } from '../commands/command.service';
-import { DialogRef } from '../dialog/dialog-ref';
 import { WideDialogFrame } from '../dialog/wide-dialog-frame';
 import { LwButton } from '../elements/button/lw-button';
 import { LwSettingRow } from './lw-setting-row';
