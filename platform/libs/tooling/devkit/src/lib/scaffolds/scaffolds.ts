@@ -14,95 +14,20 @@ import {
   THEME_PRESETS,
   type ThemePreset,
 } from '../../recipes/theme/recipe';
-import { Amendment } from '../amend/types';
 import { KEBAB_ID_PATTERN } from '../generate/casing';
 import { amendments, generate } from '../generate/generate';
-import { FileMap } from '../generate/types';
 import { distributionInput, weaverInput } from './inputs';
-
-export type ScaffoldValues = Readonly<
-  Record<string, string | boolean | undefined>
->;
-
-export interface ScaffoldOption {
-  readonly name: string;
-  readonly type: 'string' | 'boolean';
-  readonly description: string;
-  readonly required?: boolean;
-  readonly default?: string | boolean;
-  readonly choices?: readonly string[];
-  readonly pattern?: string;
-  /**
-   * True for options that describe a place in an Nx workspace. An adapter that only returns or
-   * writes a file map has nowhere to put them, so it leaves them out of its surface.
-   */
-  readonly workspaceOnly?: boolean;
-}
-
-export interface ScaffoldDescriptor {
-  readonly name: string;
-  readonly summary: string;
-  readonly options: readonly ScaffoldOption[];
-  build(values: ScaffoldValues): FileMap;
-  /** What the workspace around the generated files must carry. Absent where nothing is needed. */
-  amend?(values: ScaffoldValues): readonly Amendment[];
-}
-
-export function str(values: ScaffoldValues, name: string): string | undefined {
-  const value = values[name];
-  return typeof value === 'string' ? value : undefined;
-}
-
-export function bool(
-  values: ScaffoldValues,
-  name: string,
-): boolean | undefined {
-  const value = values[name];
-  return typeof value === 'boolean' ? value : undefined;
-}
-
-const PLACEMENT_OPTIONS: readonly ScaffoldOption[] = [
-  {
-    name: 'directory',
-    type: 'string',
-    description: 'Project root, relative to the workspace root.',
-    workspaceOnly: true,
-  },
-  {
-    name: 'tags',
-    type: 'string',
-    description: 'Comma-separated Nx tags for the project.',
-    workspaceOnly: true,
-  },
-  {
-    name: 'prefix',
-    type: 'string',
-    description: 'Selector prefix for generated components and directives.',
-    default: 'lw',
-    pattern: KEBAB_ID_PATTERN,
-    workspaceOnly: true,
-  },
-  {
-    name: 'unitTestRunner',
-    type: 'string',
-    description:
-      "Test wiring to emit. 'vitest' uses @nx/angular:unit-test; 'none' emits no test target.",
-    choices: ['vitest', 'none'],
-    default: 'vitest',
-    workspaceOnly: true,
-  },
-];
-
-const APP_OPTION: ScaffoldOption = {
-  name: 'app',
-  type: 'string',
-  description:
-    'Application to drop into. Inferred when the workspace has exactly one.',
-  workspaceOnly: true,
-};
+import {
+  APP_OPTION,
+  booleanValue,
+  PLACEMENT_OPTIONS,
+  ScaffoldDescriptor,
+  ScaffoldValues,
+  stringValue,
+} from './scaffold-values';
 
 function authSourceInput(values: ScaffoldValues): AuthSourceInput {
-  return { name: str(values, 'name') ?? '', bare: bool(values, 'bare') };
+  return { name: stringValue(values, 'name') ?? '', bare: booleanValue(values, 'bare') };
 }
 
 export const SCAFFOLDS: readonly ScaffoldDescriptor[] = [
@@ -214,7 +139,7 @@ export const SCAFFOLDS: readonly ScaffoldDescriptor[] = [
     ],
     build: (values) => generate(angularWeaver, weaverInput(values)),
     amend: (values) =>
-      weaverAmendments(weaverInput(values), str(values, 'directory')),
+      weaverAmendments(weaverInput(values), stringValue(values, 'directory')),
   },
   {
     name: 'frame-plugin',
@@ -236,8 +161,8 @@ export const SCAFFOLDS: readonly ScaffoldDescriptor[] = [
     ],
     build: (values) =>
       generate(framePlugin, {
-        id: str(values, 'id') ?? '',
-        name: str(values, 'name'),
+        id: stringValue(values, 'id') ?? '',
+        name: stringValue(values, 'name'),
       }),
   },
   {
@@ -306,7 +231,7 @@ export const SCAFFOLDS: readonly ScaffoldDescriptor[] = [
     ],
     build: (values) => generate(authSource, authSourceInput(values)),
     amend: (values) =>
-      authSourceAmendments(authSourceInput(values), str(values, 'directory')),
+      authSourceAmendments(authSourceInput(values), stringValue(values, 'directory')),
   },
   {
     name: 'settings-store',
@@ -322,7 +247,7 @@ export const SCAFFOLDS: readonly ScaffoldDescriptor[] = [
       APP_OPTION,
     ],
     build: (values) =>
-      generate(settingsStore, { name: str(values, 'name') ?? '' }),
+      generate(settingsStore, { name: stringValue(values, 'name') ?? '' }),
   },
   {
     name: 'theme',
@@ -347,8 +272,8 @@ export const SCAFFOLDS: readonly ScaffoldDescriptor[] = [
     ],
     build: (values) =>
       generate(theme, {
-        name: str(values, 'name') ?? '',
-        preset: (str(values, 'preset') as ThemePreset | undefined) ?? 'literal',
+        name: stringValue(values, 'name') ?? '',
+        preset: (stringValue(values, 'preset') as ThemePreset | undefined) ?? 'literal',
       }),
   },
   {
@@ -362,7 +287,7 @@ export const SCAFFOLDS: readonly ScaffoldDescriptor[] = [
       },
       APP_OPTION,
     ],
-    build: (values) => generate(layout, { name: str(values, 'name') }),
+    build: (values) => generate(layout, { name: stringValue(values, 'name') }),
   },
 ];
 

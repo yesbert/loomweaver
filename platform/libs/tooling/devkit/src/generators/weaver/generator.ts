@@ -8,6 +8,7 @@ import {
 } from '@nx/devkit';
 import { Amendment, ComposePluginAmendment } from '../../lib/amend/types';
 import { generate } from '../../lib/generate/generate';
+import { weaverInput } from '../../lib/scaffolds/inputs';
 import {
   addI18nAssetsGlob,
   addTailwindSource,
@@ -49,25 +50,11 @@ export async function weaverGenerator(
     throw new Error(`A project already exists at ${project.projectRoot}.`);
   }
 
-  const input = {
-    id: options.id,
-    name: options.name,
+  const input = weaverInput({
+    ...options,
     prefix: project.prefix,
     importPath: project.importPath,
-    features: {
-      command: options.command,
-      menu: options.menu,
-      settings: options.settings,
-      access: options.access,
-      shortcut: options.shortcut,
-      barItem: options.barItem,
-      about: options.about,
-      instanceable: options.instanceable,
-      container: options.container,
-      agent: options.agent,
-      spec: options.spec,
-    },
-  };
+  });
   const source = generate(angularWeaver, input);
   writeFiles(tree, project.projectRoot, source, nxWeaverFiles(project));
 

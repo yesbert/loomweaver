@@ -1,5 +1,5 @@
 import { kebabCase, toPascalCase } from '../generate/casing';
-import { ScaffoldDescriptor, ScaffoldOption } from './scaffolds';
+import { ScaffoldDescriptor, ScaffoldOption } from './scaffold-values';
 
 /** The option surface an adapter that only produces files can offer. */
 export function portableOptions(

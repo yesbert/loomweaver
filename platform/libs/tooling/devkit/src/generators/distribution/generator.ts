@@ -1,5 +1,6 @@
 import { formatFiles, logger, readJson, Tree, writeJson } from '@nx/devkit';
 import { amendments, generate } from '../../lib/generate/generate';
+import { distributionInput } from '../../lib/scaffolds/inputs';
 import { asObject, ensureBuildTarget, JsonObject } from '../../lib/amend/merge';
 import { Amendment, BuildTargetAmendment } from '../../lib/amend/types';
 import { addPostcssPlugin, tsconfigPathsFile, writeFiles } from '../workspace-tree';
@@ -38,17 +39,15 @@ export async function distributionGenerator(
     }
   }
 
-  const source = generate(angularDistribution, {
-    name: options.name,
-    title: options.title,
+  const input = distributionInput({
+    ...options,
     directory: distribution.projectRoot,
+  });
+  const source = generate(angularDistribution, {
+    ...input,
     withTests: distribution.withTests,
-    styles: options.styles,
   });
-  const recipeAmendments = amendments(angularDistribution, {
-    name: options.name,
-    styles: options.styles,
-  });
+  const recipeAmendments = amendments(angularDistribution, input);
   for (const amendment of recipeAmendments) {
     if (amendment.kind === 'postcss') {
       addPostcssPlugin(tree, amendment);

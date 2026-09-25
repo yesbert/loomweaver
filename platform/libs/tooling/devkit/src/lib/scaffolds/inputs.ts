@@ -1,35 +1,39 @@
-import { DistributionStyles } from '../../recipes/angular-distribution/recipe';
-import { bool, str as string_, ScaffoldValues } from './scaffolds';
+import {
+  DistributionInput,
+  DistributionStyles,
+} from '../../recipes/angular-distribution/recipe';
+import { WeaverInput } from '../../recipes/angular-weaver/recipe';
+import { booleanValue, ScaffoldValues, stringValue } from './scaffold-values';
 
-export function weaverInput(values: ScaffoldValues) {
+export function weaverInput(values: ScaffoldValues): WeaverInput {
   return {
-    id: string_(values, 'id') ?? '',
-    name: string_(values, 'name'),
-    prefix: string_(values, 'prefix'),
-    importPath: string_(values, 'importPath'),
+    id: stringValue(values, 'id') ?? '',
+    name: stringValue(values, 'name'),
+    prefix: stringValue(values, 'prefix'),
+    importPath: stringValue(values, 'importPath'),
     features: {
-      command: bool(values, 'command'),
-      shortcut: string_(values, 'shortcut'),
-      menu: string_(values, 'menu'),
-      barItem: bool(values, 'barItem'),
-      settings: bool(values, 'settings'),
-      about: bool(values, 'about'),
-      instanceable: bool(values, 'instanceable'),
-      container: bool(values, 'container'),
-      agent: bool(values, 'agent'),
-      access: string_(values, 'access'),
-      spec: bool(values, 'spec'),
+      command: booleanValue(values, 'command'),
+      shortcut: stringValue(values, 'shortcut'),
+      menu: stringValue(values, 'menu'),
+      barItem: booleanValue(values, 'barItem'),
+      settings: booleanValue(values, 'settings'),
+      about: booleanValue(values, 'about'),
+      instanceable: booleanValue(values, 'instanceable'),
+      container: booleanValue(values, 'container'),
+      agent: booleanValue(values, 'agent'),
+      access: stringValue(values, 'access'),
+      spec: booleanValue(values, 'spec'),
     },
   };
 }
 
-export function distributionInput(values: ScaffoldValues) {
+export function distributionInput(values: ScaffoldValues): DistributionInput {
   return {
-    name: string_(values, 'name') ?? '',
-    title: string_(values, 'title'),
-    directory: string_(values, 'directory'),
+    name: stringValue(values, 'name') ?? '',
+    title: stringValue(values, 'title'),
+    directory: stringValue(values, 'directory'),
     styles:
-      (string_(values, 'styles') as DistributionStyles | undefined) ??
+      (stringValue(values, 'styles') as DistributionStyles | undefined) ??
       'tailwind',
   };
 }
