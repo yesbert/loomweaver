@@ -1,32 +1,7 @@
-import nx from '@nx/eslint-plugin';
-import baseConfig from '../../../eslint.config.mjs';
+import { angularConfig } from '../../../eslint.config.mjs';
 
 export default [
-  ...nx.configs['flat/angular'],
-  ...nx.configs['flat/angular-template'],
-  ...baseConfig,
-  {
-    files: ['**/*.ts'],
-    rules: {
-      '@angular-eslint/component-max-inline-declarations': ['error'],
-      '@angular-eslint/directive-selector': [
-        'error',
-        {
-          type: 'attribute',
-          prefix: 'lw',
-          style: 'camelCase',
-        },
-      ],
-      '@angular-eslint/component-selector': [
-        'error',
-        {
-          type: 'element',
-          prefix: 'lw',
-          style: 'kebab-case',
-        },
-      ],
-    },
-  },
+  ...angularConfig,
   {
     // src/lib/foundation holds what every slice may read and no slice owns: composition-time
     // feature flags, pure helpers over id-bearing lists, and the host-side adapters around contract
@@ -72,17 +47,6 @@ export default [
     },
   },
   {
-    files: ['**/*.spec.ts'],
-    rules: {
-      '@angular-eslint/component-max-inline-declarations': 'off',
-    },
-  },
-  {
-    files: ['**/*.html'],
-    // Override or add rules here
-    rules: {},
-  },
-  {
     files: ['**/*.json'],
     rules: {
       '@nx/dependency-checks': [
@@ -93,7 +57,6 @@ export default [
           ignoredFiles: [
             '{projectRoot}/eslint.config.{js,cjs,mjs,ts,cts,mts}',
             '{projectRoot}/vite.config.{js,cjs,mjs,ts,cts,mts}',
-            '{projectRoot}/src/test-setup.ts',
             '{projectRoot}/**/*.spec.ts',
             // Compiles styles/shell.css at our build time. Its postcss/tailwind/esbuild imports are
             // ours, never the consumer's — they ship a finished stylesheet, not a toolchain.

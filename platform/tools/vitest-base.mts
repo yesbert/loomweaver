@@ -5,7 +5,7 @@ import { defineConfig } from 'vite';
 
 const workspaceRoot = fileURLToPath(new URL('..', import.meta.url));
 
-export function nodeLibTestConfig(name: string, root: string) {
+export function nodeLibraryTestConfig(name: string, root: string) {
   return defineConfig(({ mode }) => ({
     root,
     cacheDir: join(workspaceRoot, 'node_modules/.vite', name),
