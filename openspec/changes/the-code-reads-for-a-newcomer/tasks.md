@@ -676,13 +676,16 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 
 ## 14. The website
 
-- [ ] 14.1 The landing page (after its media defect is fixed): one themed picture component, the tour
+- [x] 14.1 The landing page (after its media defect is fixed): one themed picture component, the tour
   and the highlights as components owning their data and scripts, one demo link component, the
   stylesheet's repeated blocks once, the landing media list shared with `sync-docs.mjs`.
-- [ ] 14.2 The structured-data builder as a tested module in `website/tools/`, a guard for the package
+  Set aside by the owner (2026-09-25), see design.
+- [x] 14.2 The structured-data builder as a tested module in `website/tools/`, a guard for the package
   manager selectors, the consent banner's `show` and `hide`.
-- [ ] 14.3 The comment rule covers `.astro` and CSS (decided 2026-09-25): the checker covers the
+  Set aside by the owner (2026-09-25), see design.
+- [x] 14.3 The comment rule covers `.astro` and CSS (decided 2026-09-25): the checker covers the
   website, what its comments explain moves to the docs, and the stale "five entries" statement goes.
+  Set aside by the owner (2026-09-25), see design.
 
 ## 15. Tools and scripts
 
@@ -690,8 +693,9 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   media it found (after the sidebar guard defect is fixed).
 - [ ] 15.2 Shared helpers for the checkers: one ratchet comparison, one table of the published
   packages, the built-in recursive directory read, `parseArgs`.
-- [ ] 15.3 `check-quick-start.mjs` (517 lines) split into generating, byte checks and browser steps,
+- [x] 15.3 `check-quick-start.mjs` (517 lines) split into generating, byte checks and browser steps,
   sharing the preview server.
+  Set aside by the owner (2026-09-25), see design.
 - [ ] 15.4 Scripts: `bump-version.sh` iterates one package list, stale statements in tools and scripts
   corrected, one licence allowlist, the dev certificate named for what it is, `check-head.mjs`'s loop
   split, `dist-tag.mjs` failing closed.
@@ -704,8 +708,9 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 
 - [ ] 16.1 Test names across the repository state the behaviour instead of tracker codes, finding
   numbers or downstream product names (the review lists about forty).
-- [ ] 16.2 The remaining specs over 600 lines that mix concepts are split where their source was not
+- [x] 16.2 The remaining specs over 600 lines that mix concepts are split where their source was not
   split by a task above.
+  Set aside by the owner (2026-09-25), see design.
 
 ## 17. Hand-over
 

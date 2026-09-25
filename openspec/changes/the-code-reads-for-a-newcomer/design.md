@@ -113,6 +113,15 @@ are corrected in the same pull request and the reason is stated in its descripti
   Built from the translation pipe's constructor, it would tie the shell to that library's internals.
   The minimised strip's second derivation of title and icon went; the two ternaries stay.
 
+- **The website's code is left as it is (tasks 14.1 to 14.3, owner, 2026-09-25).** It is small, a
+  newcomer to the platform does not read it, and it is not what a product builds on. That includes
+  its comments: the comment rule covers the platform's CSS (task 3.10), not the website's `.astro`
+  and CSS files, which revises the decision of the same morning for the website.
+- **`check-quick-start.mjs` stays one file (task 15.3, owner).** It runs stable, and its length did
+  not get in the way when it was changed for the generators' new prefix.
+- **The long specs stay whole (task 16.2, owner).** A spec is read one test at a time, so splitting
+  one costs review and buys a newcomer little.
+
 ## Risks / Trade-offs
 
 - [A move silently breaks a checker or a doc link that reads the file by path] → Every move slice
@@ -214,7 +223,8 @@ a task below unless the task says so.
   renamed behind an alias or first marked deprecated, so that each release stays a patch.
   `<lw-option icon>` is a defect and is fixed in `defects-found-while-reading-are-fixed`. The additive
   items wait for a concrete need.
-- **Comments:** the rule covers CSS and `.astro` files as well; what a comment explains that a reader
+- **Comments:** the rule covers the platform's CSS as well (the website's `.astro` and CSS files were
+  taken out again the same day, see "Set aside"); what a comment explains that a reader
   needs moves to the documentation. A lint rule turned off keeps its reason beside it in the lint
   configuration, because a disabled rule without one is either turned back on or copied blindly.
 - **The demo:** `quotes` is flattened like the other five weavers; the composition folders move under
@@ -226,3 +236,6 @@ a task below unless the task says so.
   slice owns, which is the folder's admission rule, however few slices read it today.
 - **`platform/tools/`** gets `checks/`, `media/` and `local/`.
 - **The per-project lint `inputs`** are removed from all eleven `project.json` files.
+- **The rest of the change (decided later the same day):** it stays one change and runs in the order
+  platform, example, demo, then tools and tests. The owner handed the approvals to the implementer,
+  including the first record-list slice of task 12.14, which is therefore not held for a review.
