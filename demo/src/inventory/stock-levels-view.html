@@ -1,15 +1,15 @@
-<div class="flex h-full flex-col gap-4 p-3">
+<div class="@container flex h-full flex-col gap-4 p-4">
   <div class="flex flex-wrap items-center justify-between gap-3">
     <h2 class="text-base font-semibold text-content">
       {{ 'inventory.view.stockLevels' | transloco }}
     </h2>
-    <div class="flex items-center gap-4">
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
       <span class="text-sm text-content-muted" data-testid="stock-low">
         {{ 'inventory.belowReorderPoint' | transloco: { count: low() } }}
       </span>
       <button
         type="button"
-        class="lw-btn lw-btn--primary"
+        class="lw-btn lw-btn--primary whitespace-nowrap"
         (click)="count()"
         data-testid="stock-count"
       >
@@ -18,33 +18,51 @@
     </div>
   </div>
 
-  <div class="min-h-0 flex-1 overflow-auto rounded-lg border border-border bg-surface-raised">
-    <table class="w-full text-sm">
-      <thead class="text-xs text-content-muted">
-        <tr class="border-b border-border">
-          <th class="px-4 py-2.5 text-left font-medium">{{ 'inventory.column.number' | transloco }}</th>
-          <th class="px-4 py-2.5 text-left font-medium">{{ 'inventory.column.item' | transloco }}</th>
-          <th class="px-4 py-2.5 text-left font-medium">{{ 'inventory.column.location' | transloco }}</th>
-          <th class="px-4 py-2.5 text-right font-medium">{{ 'inventory.column.onHand' | transloco }}</th>
-          <th class="px-4 py-2.5 text-right font-medium">{{ 'inventory.column.reorderPoint' | transloco }}</th>
-        </tr>
-      </thead>
-      <tbody data-testid="stock-list">
+  <div class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border bg-surface-raised">
+    <div
+      class="hidden shrink-0 grid-cols-[7rem_minmax(0,1fr)_7rem_8rem_8rem] gap-3 border-b border-border px-4 py-2.5 text-xs font-medium text-content-muted @2xl:grid"
+    >
+      <span>{{ 'inventory.column.number' | transloco }}</span>
+      <span>{{ 'inventory.column.item' | transloco }}</span>
+      <span>{{ 'inventory.column.location' | transloco }}</span>
+      <span class="text-right">{{ 'inventory.column.onHand' | transloco }}</span>
+      <span class="text-right">{{ 'inventory.column.reorderPoint' | transloco }}</span>
+    </div>
+
+    <div class="min-h-0 flex-1 overflow-auto">
+      <ul data-testid="stock-list">
         @for (row of rows(); track row.item.id) {
-          <tr class="border-b border-border last:border-b-0" [attr.data-item]="row.item.number">
-            <td class="px-4 py-2.5 font-mono text-xs text-content-muted">{{ row.item.number }}</td>
-            <td class="px-4 py-2.5 text-content">{{ row.item.labelKey | transloco }}</td>
-            <td class="px-4 py-2.5 font-mono text-xs text-content-muted">{{ row.item.location }}</td>
-            <td class="px-4 py-2.5 text-right tabular-nums">
-              <span [class]="row.low ? 'font-medium text-caution' : 'text-content'">{{ row.onHand }}</span>
-              <span class="ml-1 text-xs text-content-faint">{{
-                'inventory.unit.' + row.item.unit | transloco
-              }}</span>
-            </td>
-            <td class="px-4 py-2.5 text-right text-content-muted tabular-nums">{{ row.reorderPoint }}</td>
-          </tr>
+          <li
+            class="border-b border-border px-4 py-3 last:border-b-0 @2xl:py-2.5"
+            [attr.data-item]="row.item.number"
+          >
+            <span class="hidden grid-cols-[7rem_minmax(0,1fr)_7rem_8rem_8rem] items-center gap-3 text-sm @2xl:grid">
+              <span class="font-mono text-xs text-content-muted">{{ row.item.number }}</span>
+              <span class="truncate text-content">{{ row.item.labelKey | transloco }}</span>
+              <span class="font-mono text-xs text-content-muted">{{ row.item.location }}</span>
+              <span class="text-right tabular-nums">
+                <span [class.font-medium]="row.low" [class.text-caution]="row.low" [class.text-content]="!row.low">{{
+                  row.onHand
+                }}</span>
+                <span class="ml-1 text-xs text-content-faint">{{ 'inventory.unit.' + row.item.unit | transloco }}</span>
+              </span>
+              <span class="text-right text-content-muted tabular-nums">{{ row.reorderPoint }}</span>
+            </span>
+            <span class="flex items-baseline justify-between gap-3 @2xl:hidden">
+              <span class="flex min-w-0 flex-col gap-0.5">
+                <span class="truncate text-content">{{ row.item.labelKey | transloco }}</span>
+                <span class="text-xs text-content-faint">{{ row.item.number }} · {{ row.item.location }}</span>
+              </span>
+              <span class="shrink-0 text-sm tabular-nums">
+                <span [class.font-medium]="row.low" [class.text-caution]="row.low" [class.text-content]="!row.low">{{
+                  row.onHand
+                }}</span>
+                <span class="ml-1 text-xs text-content-faint">{{ 'inventory.unit.' + row.item.unit | transloco }}</span>
+              </span>
+            </span>
+          </li>
         }
-      </tbody>
-    </table>
+      </ul>
+    </div>
   </div>
 </div>
