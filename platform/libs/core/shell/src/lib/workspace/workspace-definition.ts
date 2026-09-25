@@ -117,14 +117,9 @@ export interface WorkspaceTab {
   readonly active?: boolean;
 }
 
-export interface WorkspaceBaselineState {
-  readonly trees?: string;
-  readonly hiddenViews?: string;
-}
-
-export interface WorkspaceBaselineDeps {
+export interface PanelDeclarations {
   readonly panelRegions: readonly string[];
-  readonly declaredPaths: (regionId: string) => readonly string[];
+  readonly declaredPaths: (region: string) => readonly string[];
 }
 
 export function auditWorkspaceDefinitions(
@@ -224,49 +219,37 @@ export function dedupedDefinitions(
   });
 }
 
-export function workspaceBaseline(
+export function baselineTrees(
   definition: WorkspaceDefinition,
-  deps: WorkspaceBaselineDeps,
-): WorkspaceBaselineState {
-  return {
-    ...baselineTrees(definition),
-    ...baselineSidebars(definition, deps),
-  };
-}
-
-function baselineTrees(
-  definition: WorkspaceDefinition,
-): Pick<WorkspaceBaselineState, 'trees'> {
+): string | undefined {
   if (definition.content === undefined) {
-    return {};
+    return undefined;
   }
   const { node } = contentTree(definition, []);
   const tree = node === null ? null : normalizeNode(node);
-  return tree === null
-    ? {}
-    : { trees: JSON.stringify({ [CONTENT_DOCK]: tree }) };
+  return tree === null ? undefined : JSON.stringify({ [CONTENT_DOCK]: tree });
 }
 
-function baselineSidebars(
+export function baselineHiddenViews(
   definition: WorkspaceDefinition,
-  deps: WorkspaceBaselineDeps,
-): Pick<WorkspaceBaselineState, 'hiddenViews'> {
+  panels: PanelDeclarations,
+): string | undefined {
   const sidebars = definition.sidebars;
   if (sidebars === undefined) {
-    return {};
+    return undefined;
   }
-  const listed = deps.panelRegions.filter((region) =>
+  const listed = panels.panelRegions.filter((region) =>
     Object.hasOwn(sidebars, region),
   );
   const hidden = listed
     .flatMap((region) =>
-      deps
+      panels
         .declaredPaths(region)
         .map((path) => path.slice(VIEW_PANE_PREFIX.length))
         .filter((id) => !sidebars[region].includes(id)),
     )
     .toSorted((a, b) => a.localeCompare(b));
-  return hidden.length === 0 ? {} : { hiddenViews: JSON.stringify(hidden) };
+  return hidden.length === 0 ? undefined : JSON.stringify(hidden);
 }
 
 export function declaredTabPaths(definition: WorkspaceDefinition): string[] {

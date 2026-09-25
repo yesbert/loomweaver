@@ -234,8 +234,12 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   `BUILT_IN_WORKSPACE_ID` (declared once, after the imports) and `startingWorkspaceId`;
   `offersBuiltInWorkspace` answers the question four places computed; `workingStateStore` in the
   active-workspace, workspace, unusable-workspaces and pane-tree storage services.
-- [ ] 7.2 One baseline concept: one declarations type and one `definitionBaseline` function replace the
+- [x] 7.2 One baseline concept: one declarations type and one `definitionBaseline` function replace the
   four near-identical dependency bags and the keys passed through four layers.
+  `PanelDeclarations` and `baseline/definition-baseline.ts`; the definition file keeps the two
+  computations it owns (`baselineTrees`, `baselineHiddenViews`) until 7.4 moves them. The state keys
+  and the typed channels are `baseline/state-channels.ts`, a file of their own because the pane-tree
+  storage imports `workspace-state.ts` and would otherwise close a file cycle.
 - [ ] 7.3 `foundation/` admits only what fits its rule: the isolation-level service moves into a small
   slice of its own, the catalog's level cap to the catalog, the settlement port next to the content
   routing that reads it (renamed so it no longer shares a file name with `workspace/workspace-claims.ts`).

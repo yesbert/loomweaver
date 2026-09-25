@@ -3,14 +3,16 @@ import { leafPath, PaneLeaf, PaneNode } from '../regions/pane/tree/pane-node';
 import { findLeaf, paneSegments } from '../regions/pane/tree/pane-queries';
 import { CONTENT_DOCK } from '../regions/pane/tree/pane-address';
 import {
-  WorkspaceBaselineDeps,
+  PanelDeclarations,
   WorkspaceDefinition,
   auditWorkspaceDefinitions,
+  baselineHiddenViews,
+  baselineTrees,
   declaredTabPaths,
-  workspaceBaseline,
 } from './workspace-definition';
+import { definitionBaseline } from './baseline/definition-baseline';
 
-const DEPS: WorkspaceBaselineDeps = {
+const PANELS: PanelDeclarations = {
   panelRegions: ['primary', 'secondary'],
   declaredPaths: (region) =>
     region === 'primary' ? ['view:nav', 'view:outline', 'view:list'] : [],
@@ -30,13 +32,13 @@ function fractionsByPath(
 }
 
 function treeOf(definition: WorkspaceDefinition): PaneNode {
-  const raw = workspaceBaseline(definition, DEPS).trees;
+  const raw = baselineTrees(definition);
   expect(raw).toBeDefined();
   const parsed = JSON.parse(raw as string) as Record<string, PaneNode>;
   return parsed[CONTENT_DOCK];
 }
 
-describe('workspaceBaseline', () => {
+describe('a definition baseline', () => {
   it('builds the recursive column/row arrangement with proportional fractions', () => {
     const tree = treeOf({
       id: 'ws',
@@ -115,33 +117,25 @@ describe('workspaceBaseline', () => {
   });
 
   it('hides the unnamed views of a listed region and leaves unlisted regions alone', () => {
-    const state = workspaceBaseline(
-      {
-        id: 'ws',
-        title: 'k.ws',
-        sidebars: { primary: ['nav'] },
-      },
-      DEPS,
-    );
+    const definition = {
+      id: 'ws',
+      title: 'k.ws',
+      sidebars: { primary: ['nav'] },
+    };
 
-    expect(JSON.parse(state.hiddenViews as string)).toEqual([
-      'list',
-      'outline',
-    ]);
-    expect(state.trees).toBeUndefined();
+    expect(
+      JSON.parse(baselineHiddenViews(definition, PANELS) as string),
+    ).toEqual(['list', 'outline']);
+    expect(baselineTrees(definition)).toBeUndefined();
   });
 
   it('hides every view of a region listed with an empty array', () => {
-    const state = workspaceBaseline(
+    const hidden = baselineHiddenViews(
       { id: 'ws', title: 'k.ws', sidebars: { primary: [] } },
-      DEPS,
+      PANELS,
     );
 
-    expect(JSON.parse(state.hiddenViews as string)).toEqual([
-      'list',
-      'nav',
-      'outline',
-    ]);
+    expect(JSON.parse(hidden as string)).toEqual(['list', 'nav', 'outline']);
   });
 
   it('is deterministic across calls', () => {
@@ -156,17 +150,19 @@ describe('workspaceBaseline', () => {
         ],
       },
     };
-    expect(workspaceBaseline(definition, DEPS)).toEqual(
-      workspaceBaseline(definition, DEPS),
+    expect(definitionBaseline(definition, PANELS)).toEqual(
+      definitionBaseline(definition, PANELS),
     );
   });
 
   it('ignores an invalid content declaration and drops view tabs with a named problem', () => {
-    const state = workspaceBaseline(
-      { id: 'ws', title: 'k.ws', content: { tabs: ['view:nav'] } },
-      DEPS,
-    );
-    expect(state.trees).toBeUndefined();
+    expect(
+      baselineTrees({
+        id: 'ws',
+        title: 'k.ws',
+        content: { tabs: ['view:nav'] },
+      }),
+    ).toBeUndefined();
 
     const kept = treeOf({
       id: 'ws',

@@ -6,53 +6,44 @@ import {
   VIEW_PANE_PREFIX,
 } from '../../regions/pane/tree/pane-address';
 import { parseIdSet } from '../../persistence/stored-values/persisted-id-set';
+import { HIDDEN_VIEWS_KEY } from '../../regions/panel/hidden-views.service';
+import { PANE_TREES_KEY } from '../../regions/pane/tree/pane-tree-storage';
+import {
+  StateChannels,
+  WORKSPACE_STATE_KEYS,
+  WorkspaceStateKey,
+} from './state-channels';
 
-export type ReadState = (key: string) => string | undefined;
+type ReadState = (key: WorkspaceStateKey) => string | undefined;
 
-export interface ChangeShape {
-  readonly keys: readonly string[];
-  readonly hiddenViewsKey: string;
-  readonly paneTreesKey: string;
-  readonly declaredPaths: (dock: string) => readonly string[];
-}
+type DeclaredPaths = (dock: string) => readonly string[];
 
-export function stateDiffers(
+function stateDiffers(
   stored: ReadState,
   baseline: ReadState,
-  shape: ChangeShape,
+  declaredPaths: DeclaredPaths,
 ): boolean {
-  if (shape.keys.every((key) => stored(key) == null)) {
+  if (WORKSPACE_STATE_KEYS.every((key) => stored(key) == null)) {
     return false;
   }
-  return canonicalState(stored, shape) !== canonicalState(baseline, shape);
-}
-
-function canonicalState(read: ReadState, shape: ChangeShape): string {
-  const hidden = parseIdSet(read(shape.hiddenViewsKey));
-  return JSON.stringify(
-    shape.keys.map((key) => canonicalValue(key, read(key), hidden, shape)),
+  return (
+    canonicalState(stored, declaredPaths) !==
+    canonicalState(baseline, declaredPaths)
   );
 }
 
-function canonicalValue(
-  key: string,
-  raw: string | undefined,
-  hidden: ReadonlySet<string>,
-  shape: ChangeShape,
-): string {
-  if (key === shape.hiddenViewsKey) {
-    return JSON.stringify([...hidden].toSorted((a, b) => a.localeCompare(b)));
-  }
-  if (key === shape.paneTreesKey) {
-    return canonicalTrees(raw, hidden, shape);
-  }
-  return raw ?? '{}';
+function canonicalState(read: ReadState, declaredPaths: DeclaredPaths): string {
+  const hidden = parseIdSet(read(HIDDEN_VIEWS_KEY));
+  return JSON.stringify([
+    JSON.stringify([...hidden].toSorted((a, b) => a.localeCompare(b))),
+    canonicalTrees(read(PANE_TREES_KEY), hidden, declaredPaths),
+  ]);
 }
 
 function canonicalTrees(
   raw: string | undefined,
   hidden: ReadonlySet<string>,
-  shape: ChangeShape,
+  declaredPaths: DeclaredPaths,
 ): string {
   if (!raw) {
     return '{}';
@@ -69,7 +60,7 @@ function canonicalTrees(
         continue;
       }
       const comparable = comparableNode(entry.node);
-      if (!isSeededLeaf(comparable, seededShape(dock, hidden, shape))) {
+      if (!isSeededLeaf(comparable, seededShape(dock, hidden, declaredPaths))) {
         out[dock] = { tree: comparable, primary: entry.primary };
       }
     }
@@ -82,11 +73,11 @@ function canonicalTrees(
 function seededShape(
   dock: string,
   hidden: ReadonlySet<string>,
-  shape: ChangeShape,
+  declaredPaths: DeclaredPaths,
 ): string[] {
-  return shape
-    .declaredPaths(dock)
-    .filter((path) => !hidden.has(path.slice(VIEW_PANE_PREFIX.length)));
+  return declaredPaths(dock).filter(
+    (path) => !hidden.has(path.slice(VIEW_PANE_PREFIX.length)),
+  );
 }
 
 function isSeededLeaf(node: unknown, seededPaths: readonly string[]): boolean {
@@ -171,32 +162,23 @@ export function storedStateDiffers(
   peek: ((key: string) => string | undefined) | undefined,
   scopedKey: (key: string, id: string) => string,
   workspace: { id: string; baseline: Readonly<Record<string, string>> },
-  shape: ChangeShape,
+  declaredPaths: DeclaredPaths,
 ): boolean {
   return stateDiffers(
     (key) => peek?.(scopedKey(key, workspace.id)),
     (key) => workspace.baseline[key],
-    shape,
+    declaredPaths,
   );
 }
 
-export function workspaceChangeShape(
-  keys: readonly string[],
-  hiddenViewsKey: string,
-  paneTreesKey: string,
-  declaredPaths: (dock: string) => readonly string[],
-): ChangeShape {
-  return { keys, hiddenViewsKey, paneTreesKey, declaredPaths };
-}
-
 export function activeStateDiffers(
-  channels: Record<string, { serialize: () => string }>,
+  channels: StateChannels,
   baseline: Readonly<Record<string, string>>,
-  shape: ChangeShape,
+  declaredPaths: DeclaredPaths,
 ): boolean {
   return stateDiffers(
     (key) => channels[key].serialize(),
     (key) => baseline[key],
-    shape,
+    declaredPaths,
   );
 }

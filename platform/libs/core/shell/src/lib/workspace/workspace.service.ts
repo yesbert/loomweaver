@@ -13,7 +13,6 @@ import { PanelGroupService } from '../regions/panel/panel-group.service';
 import { RetainedViewStash } from '../regions/pane/retention/retained-view-stash';
 import { WorkspaceGuard } from './workspace-guard';
 import {
-  BaselineContext,
   activeClaims,
   baselineOf,
   claimsOfWorkspace,
@@ -31,6 +30,7 @@ import {
 } from './active-workspace.service';
 import {
   BUILT_IN_WORKSPACE_ID,
+  PanelDeclarations,
   WorkspaceDefinition,
   auditWorkspaceDefinitions,
   dedupedDefinitions,
@@ -44,14 +44,12 @@ import { WORKSPACE_DEFINITIONS } from './provide-workspaces';
 import { everyWorkspaceOrigin } from './usability/workspace-usability';
 import {
   parseWorkspaces,
-  stateChannels,
   readWorkspaceState,
   writeWorkspaceState,
   WORKSPACES_KEY as STORAGE_KEY,
   type Workspace,
 } from './baseline/workspace-state';
-import { HIDDEN_VIEWS_KEY } from '../regions/panel/hidden-views.service';
-import { PANE_TREES_KEY } from '../regions/pane/tree/pane-tree-storage';
+import { WORKSPACE_STATE_KEYS, stateChannels } from './baseline/state-channels';
 import { assignWorkspaceInitials } from './workspace-initials';
 import { activeContentPath } from '../regions/pane/tree/active-content-path';
 import {
@@ -60,8 +58,6 @@ import {
   startWhereTheDistributionSays,
 } from './opening-the-workbench';
 import { regionIdsOfType } from '../layout/layout-queries';
-
-const WORKSPACE_KEYS = [HIDDEN_VIEWS_KEY, PANE_TREES_KEY] as const;
 
 @Service()
 export class WorkspaceService {
@@ -82,7 +78,7 @@ export class WorkspaceService {
     inject(SHELL_LAYOUT),
     'panel',
   );
-  private readonly baselineContext: BaselineContext = {
+  private readonly panels: PanelDeclarations = {
     panelRegions: this.panelRegions,
     declaredPaths: (region) => this.panelGroups.declaredPaths(region),
   };
@@ -109,23 +105,16 @@ export class WorkspaceService {
 
   readonly initials = computed(() => assignWorkspaceInitials(this.list()));
 
-  private readonly keyed = stateChannels(this.hiddenViews, this.paneTree, {
-    hiddenViews: HIDDEN_VIEWS_KEY,
-    paneTrees: PANE_TREES_KEY,
-  });
+  private readonly keyed = stateChannels(this.hiddenViews, this.paneTree);
 
   private readonly unsaved = unsavedWorkspaces({
     channels: this.keyed,
-    keys: WORKSPACE_KEYS,
-    hiddenViewsKey: HIDDEN_VIEWS_KEY,
-    paneTreesKey: PANE_TREES_KEY,
-    declaredPaths: (region) => this.panelGroups.declaredPaths(region),
+    panels: this.panels,
     activeId: () => this.active.id(),
     baselineOf: (id) => this.baselineOf(id),
     workspaces: () => this.list(),
     definitions: this.definitions,
-    context: this.baselineContext,
-    workingState: this.workingStateStore,
+    workingStateStore: this.workingStateStore,
   });
 
   readonly hasChanges = this.unsaved.hasChanges;
@@ -248,7 +237,7 @@ export class WorkspaceService {
     }
     this.commit(this.list().filter((w) => w.id !== id));
     this.stash.evictWorkspace(id);
-    for (const key of WORKSPACE_KEYS) {
+    for (const key of WORKSPACE_STATE_KEYS) {
       void this.workingStateStore.delete(workspaceScopedKey(key, id));
     }
     if (id === this.active.id()) {
@@ -280,7 +269,7 @@ export class WorkspaceService {
         this.workingStateStore,
         id,
         this.baselineOf(id),
-        WORKSPACE_KEYS,
+        WORKSPACE_STATE_KEYS,
       );
       return;
     }
@@ -299,7 +288,7 @@ export class WorkspaceService {
   }
 
   private baselineOf(id: string): Readonly<Record<string, string>> {
-    return baselineOf(id, this.definitions, this.list(), this.baselineContext);
+    return baselineOf(id, this.definitions, this.list(), this.panels);
   }
 
   private warnDeclarationGaps(id: string): void {
@@ -309,7 +298,7 @@ export class WorkspaceService {
     }
     warnDeclarationGaps(definition, {
       routes: this.registry.contentRoutes(),
-      declaredPaths: (region) => this.panelGroups.declaredPaths(region),
+      declaredPaths: this.panels.declaredPaths,
     });
   }
 
@@ -317,14 +306,16 @@ export class WorkspaceService {
     return readWorkspaceState(
       this.workingStateStore,
       (key) => this.active.scopedKey(key),
-      WORKSPACE_KEYS,
+      WORKSPACE_STATE_KEYS,
     );
   }
 
   private async rereadForAdoptedNamespace(): Promise<void> {
     await this.active.reread();
     const stored = await this.currentState();
-    const found = WORKSPACE_KEYS.filter((key) => stored[key] !== undefined);
+    const found = WORKSPACE_STATE_KEYS.filter(
+      (key) => stored[key] !== undefined,
+    );
     for (const key of found) {
       this.keyed[key].hydrate(stored[key]);
     }
@@ -341,7 +332,7 @@ export class WorkspaceService {
   private async hydrateActive(): Promise<void> {
     const baseline = this.baselineOf(this.active.id());
     const stored = await this.currentState();
-    for (const key of WORKSPACE_KEYS) {
+    for (const key of WORKSPACE_STATE_KEYS) {
       this.keyed[key].hydrate(stored[key] ?? baseline[key]);
     }
   }
@@ -374,7 +365,7 @@ export class WorkspaceService {
   }
 
   private applyState(state: Readonly<Record<string, string>>): void {
-    for (const key of WORKSPACE_KEYS) {
+    for (const key of WORKSPACE_STATE_KEYS) {
       this.keyed[key].hydrate(state[key]);
     }
   }

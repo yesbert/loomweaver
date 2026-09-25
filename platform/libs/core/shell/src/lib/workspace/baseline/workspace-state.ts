@@ -1,10 +1,6 @@
 import { KeyValueStore } from '../../persistence/key-value-store';
 import { readStoredValue } from '../../persistence/stored-values/hydrate';
 import { workspaceScopedKey } from '../active-workspace.service';
-import {
-  WorkspaceDefinition,
-  workspaceBaseline,
-} from '../workspace-definition';
 
 export const WORKSPACES_KEY = 'lw.shell.workspaces';
 
@@ -36,57 +32,6 @@ export function parseWorkspaces(raw: string | undefined): Workspace[] {
   } catch {
     return [];
   }
-}
-
-export interface StateChannel {
-  readonly hydrate: (raw: string | undefined) => void;
-  readonly serialize: () => string;
-}
-
-export function stateChannels(
-  hiddenViews: {
-    hydrate: (raw: string | undefined) => void;
-    serialize: () => string;
-  },
-  paneTree: {
-    hydrate: (raw: string | undefined) => void;
-    serialize: () => string;
-  },
-  keys: { readonly hiddenViews: string; readonly paneTrees: string },
-): Record<string, StateChannel> {
-  return {
-    [keys.hiddenViews]: {
-      hydrate: (raw) => hiddenViews.hydrate(raw),
-      serialize: () => hiddenViews.serialize(),
-    },
-    [keys.paneTrees]: {
-      hydrate: (raw) => paneTree.hydrate(raw),
-      serialize: () => paneTree.serialize(),
-    },
-  };
-}
-
-export interface BaselineDeps {
-  readonly panelRegions: readonly string[];
-  readonly declaredPaths: (region: string) => readonly string[];
-  readonly hiddenViewsKey: string;
-  readonly paneTreesKey: string;
-}
-
-export function definitionBaseline(
-  definition: WorkspaceDefinition,
-  deps: BaselineDeps,
-): Record<string, string> {
-  const state = workspaceBaseline(definition, {
-    panelRegions: deps.panelRegions,
-    declaredPaths: deps.declaredPaths,
-  });
-  return {
-    ...(state.hiddenViews !== undefined && {
-      [deps.hiddenViewsKey]: state.hiddenViews,
-    }),
-    ...(state.trees !== undefined && { [deps.paneTreesKey]: state.trees }),
-  };
 }
 
 export async function readWorkspaceState(
