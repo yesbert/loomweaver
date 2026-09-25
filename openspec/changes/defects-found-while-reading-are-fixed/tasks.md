@@ -98,8 +98,8 @@ they start with a top-level folder.
   fixed at activation (`demo/src/quotes/src/lib/plugin/quotes-commands.ts`).
 - [x] 7.3 The dashboard's colour observer disconnects when the view is destroyed
   (`demo/src/insights/chart-tokens.ts`).
-- [ ] 7.4 After the owner's decision 6: the welcome is shown once the store has answered, also when
-  it answers later (`demo/src/about/about.plugin.ts`).
+- [ ] 7.4 After 9.8: the welcome is shown once the store has answered, also when it answers later
+  (`demo/src/about/about.plugin.ts`).
 - [x] 7.5 After a check in a browser that blocks storage: the quotes settings read and write storage
   guarded like the looks and the session do (`demo/src/quotes/src/lib/plugin/quotes-settings.ts`).
 
@@ -111,20 +111,32 @@ they start with a top-level folder.
   embeds them (`website/tools/sync-docs.mjs`); the build fails when a landing picture is missing.
 - [x] 8.3 The sidebar coverage guard matches whole routes, not substrings (`website/tools/sync-docs.mjs`).
 
-## 9. After the owner's decision
+## 9. After the owner's decisions (2026-09-25)
 
-- [ ] 9.1 The agent adapter answers every call left open at the end of a run, in the way decided
-  (`platform/libs/integrations/ag-ui/src/lib/command-tools.ts`, the generated agent panel, the example).
-- [ ] 9.2 Parallel command invocations no longer count as nesting, in the way decided
-  (`commands/command-invocation.service.ts`).
-- [ ] 9.3 A plugin state value with no JSON form is refused or clears the key, as decided
-  (`plugin/plugin-state.service.ts`).
-- [ ] 9.4 Browsing a deployed plugin offers no install, as decided (`plugin-store/`).
-- [ ] 9.5 The plugin store works on a narrow screen, in the presentation decided, shown to the owner
-  as a slice before it is finished (`plugin-store/plugin-store-dialog.html`).
-- [ ] 9.6 The demo's uncertain items, if the owner calls them defects: the second "New customer"
-  prompt, sending an accepted quote.
-- [ ] 9.7 Update this change with the deltas the decisions require (`/opsx:update`).
+- [ ] 9.1 The agent adapter answers the calls a run leaves open one per `flush` and refuses each
+  instead of running it; the documented usage, the generated agent panel and the example ask until
+  nothing is answered (`platform/libs/integrations/ag-ui/src/lib/command-tools.ts`, the devkit's
+  agent recipe, `examples/assistant-workbench`).
+- [ ] 9.2 Only a command invoked from within another command's run, before that run first waits,
+  counts towards the depth limit (`commands/command-invocation.service.ts`).
+- [ ] 9.3 A plugin state value with no data form is refused with a message naming the plugin and the
+  key (`plugin/plugin-state.service.ts`).
+- [ ] 9.4 Browsing a deployed plugin shows it as provided and offers no install; the install service
+  refuses a deployed id (`plugin-store/`).
+- [ ] 9.5 On a narrow screen the store's detail replaces the list and offers a way back, shown to the
+  owner as a slice before it is finished (`plugin-store/plugin-store-dialog.html`).
+- [ ] 9.6 The demo: cancelling the second "New customer" prompt cancels the creation
+  (`demo/src/customers/`); an accepted quote can no longer be sent (`demo/src/quotes/`).
+- [x] 9.7 Update this change with the deltas the decisions require (`/opsx:update`).
+- [ ] 9.8 The in-process state handle tells an observer when a value arrives and whenever it changes
+  (`onChange`, additive), also after the plugin was switched off and on again
+  (`plugin/plugin-state.service.ts`, the SDK's state handle).
+- [ ] 9.9 The frame kit keeps a state write made before its connection and sends it once connected
+  (`surface-kit/surface-state-mirror.ts`).
+- [ ] 9.10 The choices of a command registered by a plugin in the page are read when it is described
+  or checked; a test pins it, and the SDK's JSDoc no longer calls them fixed.
+- [ ] 9.11 A select option draws its icon like every other element instead of printing the icon's
+  name (`elements/select/`).
 
 ## 10. Hand-over
 
