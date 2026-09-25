@@ -53,7 +53,7 @@ describe('placeSurface', () => {
         top: 50,
         width: 400,
         height: 300,
-        drawing: DRAWING,
+        image: DRAWING,
       },
       2,
       LABELS,
@@ -68,7 +68,7 @@ describe('placeSurface', () => {
 
     placeSurface(
       context,
-      { left: 10, top: 20, width: 300, height: 200, drawing: undefined },
+      { left: 10, top: 20, width: 300, height: 200, image: undefined },
       1,
       LABELS,
     );

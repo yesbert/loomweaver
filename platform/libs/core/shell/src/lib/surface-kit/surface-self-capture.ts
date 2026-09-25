@@ -1,5 +1,4 @@
-import { drawAbsent } from '../capture/picture-assembly';
-import { captureScale } from '../capture/picture-size';
+import { captureScale, drawAbsent } from './picture-primitives';
 import type {
   LwSurfaceCapture,
   LwSurfaceCaptureRequest,

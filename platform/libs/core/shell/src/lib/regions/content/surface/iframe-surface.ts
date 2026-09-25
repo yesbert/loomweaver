@@ -30,11 +30,8 @@ import { CapabilityGrantService } from '../../../permissions/capability-grant.se
 import { PluginIsolationLevelService } from '../../../plugin-isolation/plugin-isolation-level.service';
 import { ContentTabsService } from '../tabs/content-tabs.service';
 import { normalizePath, restBelow, suffixOf } from '../content-path';
-import {
-  SurfaceCapture,
-  SurfaceDrawing,
-  askSurfaceToDraw,
-} from '../../../capture/surface-capture';
+import type { LwSurfaceCapture } from '../../../surface-kit/surface-kit.frame';
+import { askSurfaceToDraw, DrawRequest } from '../../../capture/ask-surface';
 import { SurfaceCaptureRegistry } from '../../../capture/surface-capture-registry';
 import {
   confinedTarget,
@@ -178,7 +175,7 @@ export class IframeSurface implements DirtySurface {
   constructor() {
     const unregister = this.captureRegistry.register({
       element: this.host,
-      captureSelf: (drawing) => this.surfaceCapture(drawing),
+      captureSelf: (request) => this.surfaceCapture(request),
     });
 
     afterNextRender(() => {
@@ -219,10 +216,10 @@ export class IframeSurface implements DirtySurface {
       );
   }
 
-  surfaceCapture(drawing: SurfaceDrawing): Promise<SurfaceCapture | undefined> {
+  surfaceCapture(request: DrawRequest): Promise<LwSurfaceCapture | undefined> {
     return askSurfaceToDraw(
       this.remote?.capture,
-      drawing,
+      request,
       this.transloco.translate('capture.areaWithheld'),
     );
   }

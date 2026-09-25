@@ -8,12 +8,11 @@ import { placeSurface } from './picture-assembly';
 import { scaleForSize, WorkbenchPictureSize } from './picture-size';
 import {
   carriedForm,
-  drawingForm,
+  pictureEncoding,
   WorkbenchCarriedForm,
   WorkbenchPictureForm,
 } from './picture-form';
-import { SurfaceDrawing } from './surface-capture';
-import { decodeDrawing } from './decode-drawing';
+import { decodeCapture, DrawRequest } from './ask-surface';
 
 /** What a caller may ask for about the picture before it is drawn. */
 export interface WorkbenchPictureRequest {
@@ -88,15 +87,15 @@ export class WorkbenchCaptureService {
       root.getBoundingClientRect().width,
     );
 
-    const drawing = { scale, ...drawingForm(request?.form) };
+    const drawRequest = { scale, ...pictureEncoding(request?.form) };
 
     const placements = this.placements();
-    const [drawings, canvas] = await Promise.all([
-      this.drawSurfaces(placements, drawing, view),
+    const [images, canvas] = await Promise.all([
+      this.drawSurfaces(placements, drawRequest, view),
       renderer.toCanvas(root, { scale }),
     ]);
 
-    return this.assemble(canvas, root, placements, drawings, drawing);
+    return this.assemble(canvas, root, placements, images, drawRequest);
   }
 
   private window(): Window {
@@ -115,21 +114,23 @@ export class WorkbenchCaptureService {
 
   private async drawSurfaces(
     placements: readonly Placement[],
-    drawing: SurfaceDrawing,
+    drawRequest: DrawRequest,
     view: Window,
   ): Promise<readonly (CanvasImageSource | undefined)[]> {
-    const answered = await Promise.all(
-      placements.map((placement) => placement.surface.captureSelf(drawing)),
+    const captures = await Promise.all(
+      placements.map((placement) => placement.surface.captureSelf(drawRequest)),
     );
-    return Promise.all(answered.map((drawing) => decodeDrawing(drawing, view)));
+    return Promise.all(
+      captures.map((capture) => decodeCapture(capture, view)),
+    );
   }
 
   private assemble(
     canvas: HTMLCanvasElement,
     root: Element,
     placements: readonly Placement[],
-    drawings: readonly (CanvasImageSource | undefined)[],
-    drawing: SurfaceDrawing,
+    images: readonly (CanvasImageSource | undefined)[],
+    drawRequest: DrawRequest,
   ): WorkbenchPicture {
     const context = canvas.getContext('2d');
     if (!context) {
@@ -146,20 +147,20 @@ export class WorkbenchCaptureService {
           top: placement.rect.top - origin.top,
           width: placement.rect.width,
           height: placement.rect.height,
-          drawing: drawings[index],
+          image: images[index],
         },
-        drawing.scale,
+        drawRequest.scale,
         labels,
       );
     }
 
-    const image = canvas.toDataURL(drawing.mediaType, drawing.quality);
+    const image = canvas.toDataURL(drawRequest.mediaType, drawRequest.quality);
     return {
       image,
       width: canvas.width,
       height: canvas.height,
       form: carriedForm(image),
-      surfacesAbsent: drawings.filter((answer) => !answer).length,
+      surfacesAbsent: images.filter((surfaceImage) => !surfaceImage).length,
     };
   }
 

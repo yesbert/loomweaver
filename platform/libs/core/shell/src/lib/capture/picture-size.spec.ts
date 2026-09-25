@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { captureScale, scaleForSize } from './picture-size';
+import { captureScale } from '../surface-kit/picture-primitives';
+import { scaleForSize } from './picture-size';
 
 describe('captureScale', () => {
   it.each([
