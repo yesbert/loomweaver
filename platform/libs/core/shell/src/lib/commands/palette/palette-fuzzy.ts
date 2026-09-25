@@ -23,3 +23,23 @@ export function fuzzyScore(query: string, label: string): number | null {
   }
   return score;
 }
+
+export function matching<T extends { label: string }>(
+  query: string,
+  rows: readonly T[],
+): readonly T[] {
+  return rows.filter((row) => fuzzyScore(query, row.label) !== null);
+}
+
+export function ranked<T extends { label: string }>(
+  query: string,
+  rows: readonly T[],
+): readonly T[] {
+  return rows
+    .map((row) => ({ row, score: fuzzyScore(query, row.label) }))
+    .filter(
+      (scored): scored is { row: T; score: number } => scored.score !== null,
+    )
+    .toSorted((a, b) => b.score - a.score)
+    .map((scored) => scored.row);
+}

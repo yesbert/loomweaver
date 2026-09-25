@@ -329,8 +329,12 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   `TOKEN_ALIASES` and `TOKEN_LABELS` in `chord.ts`, pinned by a test that every alias binds and
   shows like its canonical token; `chordClaims` feeds `bindChords` and the composition report;
   `formatChordOn` for the platform-given display; the private `invoke` is `callInline`.
-- [ ] 8.5 The palette: rows instead of entries, row builders for commands and tabs out of the
+- [x] 8.5 The palette: rows instead of entries, row builders for commands and tabs out of the
   component, `mode` a plain field, the search entry's test id derived.
+  `command-rows.ts` and `tab-rows.ts`, `matching` and `ranked` beside the fuzzy score; the palette is
+  203 lines. The search entry derives `command-palette-entry` and `quick-open-entry` from the command
+  id. A shared base for the two published options interfaces would put an unexported type into the
+  packed declarations, so they stay as they are; their JSDoc lost a roadmap code.
 - [ ] 8.6 Elements: one element list for host and frame with one define-once helper; shared helpers
   for Enter and Space activation, number attributes, viewport clamping and roving focus; the select's,
   tooltip's and nav tree's names and long methods.

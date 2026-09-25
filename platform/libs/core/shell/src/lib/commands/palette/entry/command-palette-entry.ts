@@ -5,8 +5,7 @@ import { SearchEntry } from './search-entry';
 @Component({
   selector: 'lw-command-palette-entry',
   imports: [SearchEntry],
-  template:
-    '<lw-search-entry [commandId]="commandId" testId="command-palette-entry" />',
+  template: '<lw-search-entry [commandId]="commandId" />',
 })
 export class CommandPaletteEntry {
   protected readonly commandId = PALETTE_COMMAND_ID;

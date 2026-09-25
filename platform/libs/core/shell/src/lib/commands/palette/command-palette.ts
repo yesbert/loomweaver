@@ -7,9 +7,10 @@ import {
   signal,
 } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { Command } from '@loomweaver/plugin-sdk';
 import { CommandService } from '../command.service';
-import { fuzzyScore } from './palette-fuzzy';
-import { formatRelativeTime } from './relative-time';
+import { CommandRow, commandRows, commandSections } from './command-rows';
+import { TabRow, tabResults, tabRows } from './tab-rows';
 import { RecentCommandsService } from './recent-commands.service';
 import { FeatureSwitches } from '../../features/feature-switches.service';
 import { DialogRef } from '../../dialog/dialog-ref';
@@ -28,52 +29,7 @@ interface PaletteData {
   readonly mode?: PaletteMode;
 }
 
-interface CommandEntry {
-  readonly kind: 'command';
-  readonly id: string;
-  readonly label: string;
-  readonly icon?: string;
-  readonly shortcut?: string;
-}
-
-interface TabEntry {
-  readonly kind: 'tab';
-  readonly id: string;
-  readonly label: string;
-  readonly icon?: string;
-  readonly navPath: string;
-  readonly pinned: boolean;
-  readonly closable: boolean;
-  readonly lastActive?: number;
-  readonly time?: string;
-}
-
-type PaletteEntry = CommandEntry | TabEntry;
-
-interface CommandSections {
-  readonly recent: readonly CommandEntry[];
-  readonly others: readonly CommandEntry[];
-}
-
-function matching<T extends { label: string }>(
-  query: string,
-  entries: readonly T[],
-): readonly T[] {
-  return entries.filter((entry) => fuzzyScore(query, entry.label) !== null);
-}
-
-function ranked<T extends { label: string }>(
-  query: string,
-  entries: readonly T[],
-): readonly T[] {
-  return entries
-    .map((entry) => ({ entry, score: fuzzyScore(query, entry.label) }))
-    .filter(
-      (scored): scored is { entry: T; score: number } => scored.score !== null,
-    )
-    .toSorted((a, b) => b.score - a.score)
-    .map((scored) => scored.entry);
-}
+type PaletteRow = CommandRow | TabRow;
 
 @Component({
   selector: 'lw-command-palette',
@@ -91,92 +47,47 @@ export class CommandPalette {
   private readonly recentlyUsed = inject(FeatureSwitches).commands.recentlyUsed;
   private readonly wording = inject(Wording);
 
-  protected readonly mode = signal<PaletteMode>(
+  protected readonly mode: PaletteMode =
     (this.ref.data as PaletteData | undefined)?.mode === 'tabs'
       ? 'tabs'
-      : 'commands',
-  );
-  protected readonly title = computed(() =>
-    this.mode() === 'tabs' ? 'palette.quickOpenTitle' : 'palette.title',
-  );
+      : 'commands';
+  protected readonly title =
+    this.mode === 'tabs' ? 'palette.quickOpenTitle' : 'palette.title';
   protected readonly query = signal('');
   private readonly rawIndex = signal(0);
 
-  private readonly commandEntries = computed<readonly CommandEntry[]>(() => {
-    return this.commands
-      .commands()
-      .filter(
-        (command) =>
-          command.id !== PALETTE_COMMAND_ID &&
-          !command.paletteHidden &&
-          this.commands.available(command),
-      )
-      .map((command) => ({
-        kind: 'command' as const,
-        id: command.id,
-        label: this.wording.translate(command.title),
-        icon: command.icon,
-        shortcut: this.commands.shortcutOf(command),
-      }));
-  });
-
-  private readonly tabEntries = computed<readonly TabEntry[]>(() => {
-    const locale = this.wording.activeLang();
-    const now = Date.now();
-    return this.contentTabs.quickOpenTargets().map((tab) => ({
-      kind: 'tab' as const,
-      id: tab.path,
-      label: tab.literalTitle ? tab.title : this.wording.translate(tab.title),
-      icon: tab.icon,
-      navPath: tab.navPath,
-      pinned: tab.pinned,
-      closable: tab.closable,
-      lastActive: tab.lastActive,
-      time:
-        tab.lastActive === undefined
-          ? undefined
-          : formatRelativeTime(locale, tab.lastActive, now),
-    }));
-  });
-
-  private readonly commandSections = computed<CommandSections>(() => {
-    const query = this.query().trim();
-    const entries = this.commandEntries();
-    const byId = new Map(entries.map((entry) => [entry.id, entry]));
-    const recent = this.recentlyUsed()
-      ? this.recentCommands
-          .ids()
-          .map((id) => byId.get(id))
-          .filter((entry): entry is CommandEntry => entry !== undefined)
-      : [];
-    const recentIds = new Set(recent.map((entry) => entry.id));
-    const others = entries.filter((entry) => !recentIds.has(entry.id));
-    if (!query) {
-      return { recent, others };
-    }
-    return {
-      recent: matching(query, recent),
-      others: ranked(query, others),
-    };
-  });
-
-  private readonly tabResults = computed<readonly TabEntry[]>(() => {
-    const query = this.query().trim();
-    const entries = this.tabEntries();
-    if (!query) {
-      return [...entries].toSorted(
-        (a, b) => (b.lastActive ?? 0) - (a.lastActive ?? 0),
-      );
-    }
-    return ranked(query, entries);
-  });
-
-  protected readonly recentCount = computed(() =>
-    this.mode() === 'tabs' ? 0 : this.commandSections().recent.length,
+  private readonly commandSections = computed(() =>
+    commandSections(
+      commandRows(
+        this.commands.commands().filter((command) => this.offered(command)),
+        {
+          translate: (key) => this.wording.translate(key),
+          shortcutOf: (command) => this.commands.shortcutOf(command),
+        },
+      ),
+      this.recentlyUsed() ? this.recentCommands.ids() : [],
+      this.query().trim(),
+    ),
   );
 
-  protected readonly results = computed<readonly PaletteEntry[]>(() => {
-    if (this.mode() === 'tabs') {
+  private readonly tabResults = computed(() =>
+    tabResults(
+      tabRows(
+        this.contentTabs.quickOpenTargets(),
+        (key) => this.wording.translate(key),
+        this.wording.activeLang(),
+        Date.now(),
+      ),
+      this.query().trim(),
+    ),
+  );
+
+  protected readonly recentCount = computed(() =>
+    this.mode === 'tabs' ? 0 : this.commandSections().recent.length,
+  );
+
+  protected readonly results = computed<readonly PaletteRow[]>(() => {
+    if (this.mode === 'tabs') {
       return this.tabResults();
     }
     const sections = this.commandSections();
@@ -196,12 +107,12 @@ export class CommandPalette {
     return `lw-palette-option-${index}`;
   }
 
-  protected shortcutOf(entry: PaletteEntry): string | undefined {
-    return entry.kind === 'command' ? entry.shortcut : undefined;
+  protected shortcutOf(row: PaletteRow): string | undefined {
+    return row.kind === 'command' ? row.shortcut : undefined;
   }
 
-  protected timeOf(entry: PaletteEntry): string | undefined {
-    return entry.kind === 'tab' ? entry.time : undefined;
+  protected timeOf(row: PaletteRow): string | undefined {
+    return row.kind === 'tab' ? row.time : undefined;
   }
 
   protected setActive(index: number): void {
@@ -229,31 +140,31 @@ export class CommandPalette {
 
   protected runActive(event: Event): void {
     event.preventDefault();
-    const entry = this.results()[this.activeIndex()];
-    if (entry) {
-      this.select(entry);
+    const row = this.results()[this.activeIndex()];
+    if (row) {
+      this.select(row);
     }
   }
 
-  protected select(entry: PaletteEntry): void {
-    if (entry.kind === 'command') {
+  protected select(row: PaletteRow): void {
+    if (row.kind === 'command') {
       if (this.recentlyUsed()) {
-        this.recentCommands.record(entry.id);
+        this.recentCommands.record(row.id);
       }
       this.ref.close();
-      this.commands.execute(entry.id);
+      this.commands.execute(row.id);
       return;
     }
     this.ref.close();
-    this.contentTabs.revealContentTab(entry.navPath);
+    this.contentTabs.revealContentTab(row.navPath);
   }
 
   protected openTabActions(event: Event): void {
-    if (this.mode() !== 'tabs') {
+    if (this.mode !== 'tabs') {
       return;
     }
-    const entry = this.results()[this.activeIndex()];
-    if (entry?.kind !== 'tab') {
+    const row = this.results()[this.activeIndex()];
+    if (row?.kind !== 'tab') {
       return;
     }
     event.preventDefault();
@@ -267,11 +178,19 @@ export class CommandPalette {
     this.menu.open(
       TAB_CONTEXT_MENU,
       {
-        tabId: entry.navPath,
-        closable: entry.closable,
-        pinned: entry.pinned,
+        tabId: row.navPath,
+        closable: row.closable,
+        pinned: row.pinned,
       },
       at,
+    );
+  }
+
+  private offered(command: Command): boolean {
+    return (
+      command.id !== PALETTE_COMMAND_ID &&
+      !command.paletteHidden &&
+      this.commands.available(command)
     );
   }
 

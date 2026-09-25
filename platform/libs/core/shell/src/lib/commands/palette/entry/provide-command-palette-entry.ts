@@ -3,7 +3,7 @@ import { BarSlot } from '@loomweaver/plugin-sdk';
 import { provideBarItems } from '../../../foundation/bar-item';
 import { CommandPaletteEntry } from './command-palette-entry';
 
-/** Where the built command-palette entry goes (LWF-05). Defaults: top bar, end slot, order 5. */
+/** Where the built command-palette entry goes. Defaults: top bar, end slot, order 5. */
 export interface CommandPaletteEntryOptions {
   /**
    * Target Bar region id. Default `'top-bar'`. The badge adapts to the bar it lands in: a top bar is
@@ -19,7 +19,7 @@ export interface CommandPaletteEntryOptions {
 }
 
 /**
- * Places a built command-palette entry in a Bar (LWF-05) — a badge-styled affordance (search icon +
+ * Places a built command-palette entry in a Bar — a badge-styled affordance (search icon +
  * the palette's OS-correct shortcut) that opens `shell.commandPalette`, correct-by-construction and
  * without a distribution component. Opt-in: omit it for a palette that opens only by shortcut. Uses the
  * `shell.commandPaletteEntry` bar-item id, so `provideShell({ omit: ['shell.commandPaletteEntry'] })`
