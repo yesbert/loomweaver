@@ -95,7 +95,7 @@ interface ListState {
 }
 
 @Component({
-  selector: 'lw-notes-list',
+  selector: 'app-notes-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <button type="button" class="lw-btn lw-btn--default" (click)="toggle()">
@@ -185,7 +185,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 
 @Component({
-  selector: 'lw-note-detail',
+  selector: 'app-note-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `<h1 class="text-lg font-medium text-content">Note {{ id() }}</h1>`,
 })
@@ -402,7 +402,7 @@ interface WorkspaceState {
 const FRESH: WorkspaceState = { query: '', tab: 'open', expanded: [], scrollTop: 0 };
 
 @Component({
-  selector: 'lw-notes-workspace',
+  selector: 'app-notes-workspace',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <input
@@ -554,7 +554,7 @@ import {
 import { DirtySurface } from '@loomweaver/plugin-sdk';
 
 @Component({
-  selector: 'lw-note-editor',
+  selector: 'app-note-editor',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex h-full flex-col gap-3 p-6">
@@ -889,7 +889,7 @@ import { navigation } from '../plugin/navigation';
 import { NOTES_NAVIGATION, groupShowing } from './notes-navigation';
 
 @Component({
-  selector: 'lw-notes-navigation',
+  selector: 'app-notes-navigation',
   changeDetection: ChangeDetectionStrategy.OnPush,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [TranslocoPipe],

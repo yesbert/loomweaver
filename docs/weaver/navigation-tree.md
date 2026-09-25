@@ -182,7 +182,7 @@ import { navigation } from '../plugin/navigation';
 import { NOTES_NAVIGATION } from './notes-navigation';
 
 @Component({
-  selector: 'lw-notes-navigation',
+  selector: 'app-notes-navigation',
   changeDetection: ChangeDetectionStrategy.OnPush,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [TranslocoPipe],
