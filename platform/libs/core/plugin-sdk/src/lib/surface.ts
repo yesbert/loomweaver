@@ -6,7 +6,7 @@ import { ViewAction } from './view.js';
 /**
  * How a surface is presented (the UI-boundary form). Exactly one is set:
  *
- * - `component` — an Angular class rendered in-process (trusted rung; the default today). Cannot
+ * - `component` — an Angular class rendered in-process, so only for a trusted plugin. Cannot
  *   cross an RPC boundary, so a **sandboxed** plugin never uses this form.
  * - `loadComponent` — the same thing, **deferred**: a loader the host calls the first time the surface is
  *   actually shown, mirroring Angular's `Route.loadComponent`. Use it when a surface drags a heavy
@@ -14,10 +14,10 @@ import { ViewAction } from './view.js';
  *   user who never opens the surface never downloads it. The pane showing the surface renders nothing
  *   until it resolves.
  * - `iframe` — a URL the host mounts as an **isolated** `<iframe sandbox>` surface. A plain string, so it
- *   serialises over the `ctx`-RPC boundary — which is why it is the form a **sandboxed** plugin uses
- *   (the first untrusted rung). A **trusted** plugin may use it too, to embed a foreign origin on purpose
- *   (a dashboard, a docs site, a video): a sandboxed plugin is confined to same-origin URLs at the RPC
- *   seam, whereas for a trusted one the distribution's CSP `frame-src` decides what may be framed.
+ *   serialises over the `ctx`-RPC boundary, which is why it is the form a **sandboxed** plugin uses.
+ *   A **trusted** plugin may use it too, to embed a foreign origin on purpose (a dashboard, a docs
+ *   site, a video): a sandboxed plugin is confined to the origins its distribution permitted, whereas
+ *   for a trusted one the distribution's CSP `frame-src` decides what may be framed.
  * - `container` — the surface hosts a **nested pane tree** of child surfaces
  *   ("workspace-in-a-tab"): the host draws the inner drag/split/tab mechanics, the surface only declares
  *   which children it offers. Must be combined with `routable` (the container tab holds its own `:id`).
@@ -54,9 +54,8 @@ export type SurfacePresentation =
 
 /**
  * The **routable** capability of a {@link Surface}: the surface is URL-addressable, so it
- * can hold the one URL pane (deep-link, browser back/forward, `RouteReuseStrategy`). Carries the former
- * {@link ContentRoute} route fields. Omit for a surface that only ever lives as host-rendered workspace
- * state (a classic sidebar view).
+ * can hold the one URL pane (deep links, browser back and forward). Omit for a surface that only ever
+ * lives as host-rendered workspace state (a classic sidebar view).
  */
 export interface SurfaceRoutable {
   /** Route path (Angular syntax), e.g. `'reports'`, `'doc/:id'`, `'dashboard'`. */
@@ -65,8 +64,7 @@ export interface SurfaceRoutable {
    * A **chromeless** surface owns the whole content area while active: no tab strip, never a tab,
    * excluded from splits, drags and the new-tab picker — the full-area screen that login and
    * onboarding need. Every other routable surface lives in the tab area: navigating to it opens (or
-   * re-uses) a tab, in whatever workspace the user is standing in. (This flag replaces the retired
-   * `group` concept, whose only remaining meaning had been "lives in the tab area".)
+   * re-uses) a tab, in whatever workspace the user is standing in.
    */
   readonly chromeless?: boolean;
   /**
@@ -150,7 +148,7 @@ export interface SurfaceBase {
   readonly badge?: TabBadge;
   /** Lower renders first among sibling surfaces in a dock (default 0). */
   readonly order?: number;
-  /** The surface's own header actions, shown in the pane header while active (ex `View.actions`). */
+  /** The surface's own header actions, shown in the pane header while active. */
   readonly actions?: readonly ViewAction[];
   /**
    * Declarative auth gating: the host hides/disables/placeholders the surface when the current
@@ -176,8 +174,8 @@ export interface SurfaceBase {
    * must survive belongs in `VIEW_STATE`. Declare `'always'` to keep the instance alive while hidden
    * (an expensive rebuild, a live connection); `'never'` to opt back into destruction when the
    * distribution flipped the default. The declaration wins over the distribution default. A retained
-   * **`iframe` surface is hidden in place** rather than destroyed (no reload, no new Penpal
-   * handshake) but is still rebuilt whenever it would have to *move* — a split, a drag into another
+   * **`iframe` surface is hidden in place** rather than destroyed (no reload, no new connection)
+   * but is still rebuilt whenever it would have to *move* — a split, a drag into another
    * pane, a minimise — because moving an `<iframe>` element in the DOM reloads it. `container`
    * surfaces are always rebuilt.
    */
@@ -231,8 +229,6 @@ export interface SurfaceBase {
 /**
  * The **one author contract**: a plugin contributes a `Surface` and declares *what it can do*
  * (routable · instanceable · which docks) rather than *where it lives* — the user decides placement.
- * This is the convergence of the two older contracts, {@link View} (a component docked in a Panel region)
- * and {@link ContentRoute} (a URL-addressed content view), which the host still uses internally as its
- * storage shapes. Register it with `ctx.registerSurface`.
+ * Register it with `ctx.registerSurface`.
  */
 export type Surface = SurfaceBase & SurfacePresentation;

@@ -30,7 +30,7 @@ import {
 } from './dialog.js';
 import { NotificationInput } from './notification.js';
 
-/** What a plugin declares about itself (grows: activation events, version, …). */
+/** What a plugin declares about itself: its id, its name and the capabilities it needs. */
 export interface PluginManifest {
   /** Stable plugin id. */
   readonly id: string;
@@ -161,12 +161,6 @@ export interface PluginContext {
    * Declare *what the surface can do* (`routable`, `instanceable`, `docks`) rather than *where it lives*;
    * the host places it (a routable surface into the content area, else into its home dock) and the user
    * re-arranges it from there.
-   *
-   * Replaced `registerView` + `registerRoute`, removed in 0.5.0:
-   * - a panel view → a non-routable surface: `registerSurface({ id, title, docks: ['<regionId>'], component })`
-   * - a content route → a routable surface: `registerSurface({ id, title, routable: { path }, component })`
-   *
-   * Both migrations need an `id` and a `title`, which the old contracts did not carry.
    */
   registerSurface(surface: Surface): Disposable;
   /**
@@ -217,7 +211,7 @@ export interface PluginContext {
   registerMenuItem(item: MenuItem): Disposable;
   /**
    * Contributes custom icon names the weaver can then reference in its contributions
-   * (`Command.icon` / `View.icon` / `RailItem.icon` / `BarButtonItem.icon`). Each value
+   * (`Command.icon` / `Surface.icon` / `RailItem.icon` / `BarButtonItem.icon`). Each value
    * is a raw SVG string (an `@ng-icons` export or hand-authored markup). Names are flat and
    * collision-safe: a name already registered by the shell or another plugin is ignored (first-wins,
    * dev-warned), so pick unique names. The returned {@link Disposable} removes exactly these names.
@@ -247,9 +241,8 @@ export interface PluginContext {
   /** Navigates the content area to a route path — switches perspective / full-area view (`navigation`). */
   navigateContent(path: string): void;
   /**
-   * Opens a titled **dynamic** tab (e.g. an open document) in the content group of the path's
-   * matched route (navigating there activates that group) and navigates to it; opening the same
-   * path again just re-activates it (`navigation`). Set `titleIsLiteral` for a
+   * Opens a titled **dynamic** tab (e.g. an open document) for `path` and navigates to it; opening
+   * the same path again just re-activates it (`navigation`). Set `titleIsLiteral` for a
    * non-translatable title, `onClose` to free per-tab state when the tab is closed, and `preview` to
    * open it as a single reused *preview* slot (see {@link OpenTabInput}).
    *
@@ -285,7 +278,7 @@ export interface PluginContext {
    */
   updateContentTab(path: string, label: ContentTabLabel): void;
   /**
-   * Reveals an already-**docked** surface by id (finding #29): activates its tab wherever the user
+   * Reveals an already-**docked** surface by id: activates its tab wherever the user
    * has placed it — a sidebar panel (expanding a collapsed one) or a content pane — so a command
    * like "Focus Library" can bring a docked view to the front. Routable surfaces are reached via
    * {@link navigateContent} instead; container-only children (`docks: []`) live inside their
@@ -359,8 +352,8 @@ export interface PluginContext {
   /** Read-only session facts (login state + roles) for self-gating (gated by `session`). */
   readonly session: PluginSession;
   /**
-   * Your plugin's own keyed store — working state shared by all your surfaces, in every window
-   *. Ungated: it is plugin-private by construction, so there is nothing foreign to reach.
+   * Your plugin's own keyed store: working state shared by all your surfaces, in every window.
+   * Ungated: it is plugin-private by construction, so there is nothing foreign to reach.
    */
   readonly state: PluginState;
 }

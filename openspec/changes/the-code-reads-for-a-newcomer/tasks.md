@@ -369,9 +369,10 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 
 - [x] 9.1 The npm READMEs of `@loomweaver/plugin-sdk` and `@loomweaver/frame-kit` say what the package
   is and point to the docs; the frame-kit README stops listing members by hand.
-- [ ] 9.2 The plugin contract's JSDoc: unresolvable references and broken sentences, other products'
+- [x] 9.2 The plugin contract's JSDoc: unresolvable references and broken sentences, other products'
   names, retired behaviour (`openContentTab`'s content group, `View.icon`), history and roadmap notes,
   internal jargon. Two pull requests, split by file.
+  "Rung" stays where it names the trust ladder the glossary defines; unifying the terms is 9.3.
 - [ ] 9.3 The plugin contract's JSDoc, second pass: one term per concept (trusted plugin, sandboxed
   plugin, callable, user, plugin), one fixed "Needs the `x` capability." sentence per `ctx` member
   instead of the drifted lists on `Capability`, hovers that open with one plain sentence, file-level
