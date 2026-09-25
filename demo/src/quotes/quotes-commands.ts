@@ -43,7 +43,7 @@ function openQuote(): Command {
         return { found: false };
       }
       quotesActions.keep(quote);
-      return quote.number;
+      return { quote: quote.number };
     },
   };
 }
@@ -65,7 +65,7 @@ function sendQuote(): Command {
       }
       markQuoteSent(quote.id);
       const after = quoteById(quote.id) ?? quote;
-      quotesActions.refreshStatus(after);
+      quotesActions.labelTab(after);
       return { quote: quote.number, status: after.status };
     },
   };
@@ -115,7 +115,7 @@ function createQuote(): Command {
     ],
     run: async (_context, args) => {
       const customer = args?.['customer'];
-      const id = await quotesActions.create(
+      const id = await quotesActions.createFromSearch(
         typeof customer === 'string' ? customer : undefined,
       );
       return { created: id ?? null };

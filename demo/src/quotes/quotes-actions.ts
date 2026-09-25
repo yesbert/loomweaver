@@ -25,8 +25,12 @@ export const quotesActions = {
       preview: options.preview ?? false,
     });
   },
-  refreshStatus(quote: Quote): void {
-    ctx?.updateContentTab(pathOf(quote), { badge: statusBadge(quote.status) });
+  labelTab(quote: Quote): void {
+    ctx?.updateContentTab(pathOf(quote), {
+      title: quote.number,
+      titleIsLiteral: true,
+      badge: statusBadge(quote.status),
+    });
   },
   openMenu(items: readonly UiMenuItem[], at: { x: number; y: number }): void {
     ctx?.ui.openMenu(items, at);
@@ -38,13 +42,23 @@ export const quotesActions = {
     this.open(quote);
     ctx?.keepContentTab(pathOf(quote));
   },
-  async create(customer?: string): Promise<string | null> {
+  createFor(customerId: string): string | null {
+    const host = ctx;
+    if (!host) {
+      return null;
+    }
+    const created = addQuote(customerId);
+    this.open(created);
+    host.ui.toast({ message: 'quotes.create.done', kind: 'success', timeoutMs: 4000 });
+    return created.id;
+  },
+  async createFromSearch(search?: string): Promise<string | null> {
     const host = ctx;
     if (!host) {
       return null;
     }
     const typed =
-      customer ??
+      search ??
       (await host.ui.prompt({
         title: 'quotes.create.title',
         message: 'quotes.create.message',
@@ -55,9 +69,7 @@ export const quotesActions = {
     if (!needle) {
       return null;
     }
-    const match = customers().find((customer) =>
-      customer.name.toLowerCase().includes(needle),
-    );
+    const match = customers().find((customer) => customer.name.toLowerCase().includes(needle));
     if (!match) {
       await host.ui.alert({
         title: 'quotes.create.title',
@@ -66,10 +78,7 @@ export const quotesActions = {
       });
       return null;
     }
-    const created = addQuote(match.id);
-    this.open(created);
-    host.ui.toast({ message: 'quotes.create.done', kind: 'success', timeoutMs: 4000 });
-    return created.id;
+    return this.createFor(match.id);
   },
   activeQuoteId(): string | undefined {
     const active = ctx?.activeContent();

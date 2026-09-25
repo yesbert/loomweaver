@@ -1,28 +1,23 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, signal } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import {
+  QUOTE_STATUSES,
   type Quote,
   type QuoteStatus,
   customerById,
   formatDate,
   formatMoney,
   quoteTotals,
+  quoteStatusKey,
   quotes,
 } from '../accounting';
 import { quotesActions } from './quotes-actions';
-import { STATUS_BADGE } from './quote-status';
+import { badgeClassOf } from './quote-status';
 import { activeLanguage } from '../i18n/active-language';
 
 type StatusFilter = QuoteStatus | 'all';
 
-const STATUS_FILTERS: readonly StatusFilter[] = [
-  'all',
-  'draft',
-  'sent',
-  'accepted',
-  'declined',
-  'expired',
-];
+const STATUS_FILTERS: readonly StatusFilter[] = ['all', ...QUOTE_STATUSES];
 
 interface QuoteRow {
   readonly quote: Quote;
@@ -45,6 +40,7 @@ export class QuotesListView {
   private readonly lang = activeLanguage();
 
   protected readonly statusFilters = STATUS_FILTERS;
+  protected readonly statusKey = quoteStatusKey;
   protected readonly search = signal('');
   protected readonly status = signal<StatusFilter>('all');
 
@@ -70,7 +66,7 @@ export class QuotesListView {
         validUntil: formatDate(quote.validUntil, lang),
         total: formatMoney(quoteTotals(quote).gross, lang),
         lineCount: quote.lines.length,
-        badge: STATUS_BADGE[quote.status],
+        badge: badgeClassOf(quote.status),
       };
     });
   });
@@ -112,7 +108,7 @@ export class QuotesListView {
         {
           label: 'quotes.menu.newForCustomer',
           icon: 'add',
-          run: () => void quotesActions.create(row.customer),
+          run: () => void quotesActions.createFor(row.quote.customerId),
         },
       ],
       { x: event.clientX, y: event.clientY },
@@ -120,7 +116,7 @@ export class QuotesListView {
   }
 
   protected create(): void {
-    void quotesActions.create();
+    void quotesActions.createFromSearch();
   }
 
   protected onSearch(event: Event): void {

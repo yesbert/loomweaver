@@ -41,7 +41,7 @@ export class QuotesMarginView {
   private row(line: MarginLine): MarginRow {
     return {
       lineId: line.lineId,
-      descriptionKey: `accounting.${line.descriptionKey}`,
+      descriptionKey: line.descriptionKey,
       margin: formatMoney(line.margin, this.lang()),
       percent: line.percent,
       thin: line.percent < THIN_MARGIN_PERCENT,

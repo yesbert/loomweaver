@@ -677,8 +677,16 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   `itemNumber` sit beside their data. The four `*-view-model.ts` files and `insights-context.ts` are
   gone. `clock.ts` owns `daysSince`, `daysUntil` and `recentMonths`, counted in whole local
   calendar days, which the six copies (floored, rounded, UTC-parsed or not) now use.
-- [ ] 12.7 Quotes: the customer pane's tab relabelling named, quote creation by id and by search,
+- [x] 12.7 Quotes: the customer pane's tab relabelling named, quote creation by id and by search,
   status labels, order and colours once, full translation keys in data, small names.
+  The customer pane labels a deep-linked tab through a named `labelDeepLinkedTab()` and
+  `quotesActions.labelTab`, which updates title and badge where the tab stands (it replaces
+  `refreshStatus` and no longer reopens the tab). `createFor(customerId)` is exact and is what the
+  row menu calls; `createFromSearch` asks and resolves. `QUOTE_STATUSES`, `QUOTE_STATUS_TONE` and
+  `quoteStatusKey` live in the shared model with the labels under `accounting.quoteStatus`, so the
+  list, the pane and the dashboard read one order, one tone (expired is neutral on the dashboard
+  too) and one label. Article keys in data are full keys, `STATUS_BADGE` is `badgeClassOf`, the
+  margin surface id is `MARGIN_SURFACE`, and `quotes.open` answers an object like its siblings.
 - [ ] 12.8 Insights reads `ctx.session` with the `session` capability, as the access-gating guide
   teaches; its two surface ids say why there are two.
 - [ ] 12.9 The agent: file names that tell script and events apart, the translator passed in, typed

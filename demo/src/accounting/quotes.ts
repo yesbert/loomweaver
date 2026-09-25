@@ -1,9 +1,24 @@
+import type { TabBadgeTone } from '@loomweaver/plugin-sdk';
 import { computed, signal } from '@angular/core';
 import { isoDaysFromToday } from './clock';
 import { DocumentLine, DocumentTotals, totalsOf } from './document';
 import { articleById } from './catalog';
 
-export type QuoteStatus = 'draft' | 'sent' | 'accepted' | 'declined' | 'expired';
+export const QUOTE_STATUSES = ['draft', 'sent', 'accepted', 'declined', 'expired'] as const;
+
+export type QuoteStatus = (typeof QUOTE_STATUSES)[number];
+
+export const QUOTE_STATUS_TONE: Readonly<Record<QuoteStatus, TabBadgeTone>> = {
+  draft: 'neutral',
+  sent: 'brand',
+  accepted: 'success',
+  declined: 'danger',
+  expired: 'neutral',
+};
+
+export function quoteStatusKey(status: QuoteStatus): string {
+  return `accounting.quoteStatus.${status}`;
+}
 
 export interface Quote {
   readonly id: string;

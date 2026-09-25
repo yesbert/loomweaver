@@ -4,14 +4,7 @@
     "search": "Search quotes",
     "searchPlaceholder": "Search …",
     "statusLabel": "Status",
-    "status": {
-      "all": "All",
-      "draft": "Draft",
-      "sent": "Sent",
-      "accepted": "Accepted",
-      "declined": "Declined",
-      "expired": "Expired"
-    },
+    "allStatuses": "All",
     "column": {
       "number": "Number",
       "customer": "Customer",
@@ -50,7 +43,7 @@
     "open": {
       "title": "Open quote",
       "description": "Opens a quote document in the content area and keeps it as a tab.",
-      "answers": "The number of the quote that was opened.",
+      "answers": "The quote that was opened, by its number.",
       "arg": {
         "number": "The quote number, for example Q-0007."
       }

@@ -4,7 +4,7 @@ import { roundCents } from './money';
 function line(partial: Partial<DocumentLine> & { unitPrice: number }): DocumentLine {
   return {
     id: partial.id ?? 'l',
-    descriptionKey: 'article.consulting',
+    descriptionKey: 'accounting.article.consulting',
     quantity: partial.quantity ?? 1,
     unit: 'hour',
     taxRate: partial.taxRate ?? 19,

@@ -23,5 +23,12 @@
     "vatId": "VAT ID",
     "terms": "Payment terms",
     "termsDays": "{{days}} days net"
+  },
+  "quoteStatus": {
+    "draft": "Draft",
+    "sent": "Sent",
+    "accepted": "Accepted",
+    "declined": "Declined",
+    "expired": "Expired"
   }
 }

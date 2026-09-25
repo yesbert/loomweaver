@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { type PluginContext } from '@loomweaver/plugin-sdk';
 
 const STORAGE_KEY = 'demo.quotes.show-margin';
-const MARGIN = 'quotes.margin';
+const MARGIN_SURFACE = 'quotes.margin';
 
 function storedChoice(): boolean {
   try {
@@ -22,7 +22,7 @@ function rememberBestEffort(shown: boolean): void {
 
 export function registerQuoteSettings(ctx: PluginContext): void {
   const marginShown = signal(storedChoice());
-  ctx.setChildShown(MARGIN, marginShown());
+  ctx.setChildShown(MARGIN_SURFACE, marginShown());
   ctx.registerSettingsSection({
     id: 'quotes.settings',
     title: 'quotes.settings.title',
@@ -38,7 +38,7 @@ export function registerQuoteSettings(ctx: PluginContext): void {
           set: (shown) => {
             marginShown.set(shown);
             rememberBestEffort(shown);
-            ctx.setChildShown(MARGIN, shown);
+            ctx.setChildShown(MARGIN_SURFACE, shown);
           },
         },
       },
