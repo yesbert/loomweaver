@@ -1,9 +1,9 @@
 import { Plugin } from '@loomweaver/plugin-sdk';
-import { QuotesCustomerView } from '../views/quotes-customer-view';
-import { QuotesListView } from '../views/quotes-list-view';
-import { QuotesMarginView } from '../views/quotes-margin-view';
-import { QuotesOpenItemsView } from '../views/quotes-open-items-view';
-import { QuotesPositionsView } from '../views/quotes-positions-view';
+import { QuotesCustomerView } from './document/quotes-customer-view';
+import { QuotesListView } from './quotes-list-view';
+import { QuotesMarginView } from './document/quotes-margin-view';
+import { QuotesOpenItemsView } from './quotes-open-items-view';
+import { QuotesPositionsView } from './document/quotes-positions-view';
 import { quotesActions } from './quotes-actions';
 import { registerQuoteCommands } from './quotes-commands';
 import { registerQuoteSettings } from './quotes-settings';

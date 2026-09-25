@@ -646,8 +646,12 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 - [ ] 12.2 No-ops and leftovers: `padded: false` where it is the default, `CUSTOM_ELEMENTS_SCHEMA`
   without a custom element, an explicit OnPush, dead code and dead strings, exports nobody imports,
   the unused payments descriptor, computed wrappers around a signal, the dashboard's names.
-- [ ] 12.3 **Move** (decided 2026-09-25): `quotes` flattened like the other five weavers, so all six
+- [x] 12.3 **Move** (decided 2026-09-25): `quotes` flattened like the other five weavers, so all six
   have one shape.
+  The weaver's files sit in `src/quotes/`, the three panes of a quote document in the sub-theme
+  `document/` beside `quote-from-route.ts` (was `quote-context.ts`); the barrel is gone, so the
+  composition root imports `quotes.plugin` like the other plugins, and every import lost its four
+  `../`. A pure move: the same 118 unit tests and 116 end-to-end tests pass.
 - [ ] 12.4 **Move:** the finance ledger from `accounting/` to `finance/`.
 - [ ] 12.5 **Move** (decided 2026-09-25): the composition folders (`session`, `looks`, `navigation`,
   `about`, `legal`, `preview`) under `app/`, with the link in `docs/distribution/auth.md`.

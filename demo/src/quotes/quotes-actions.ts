@@ -1,6 +1,6 @@
 import { type PluginContext, type UiMenuItem } from '@loomweaver/plugin-sdk';
-import { type Quote, addQuote, customers } from '../../../../accounting';
-import { statusBadge } from '../views/quote-status';
+import { type Quote, addQuote, customers } from '../accounting';
+import { statusBadge } from './quote-status';
 
 let ctx: PluginContext | undefined;
 

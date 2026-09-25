@@ -1,5 +1,5 @@
 import { type TabBadge, type TabBadgeTone } from '@loomweaver/plugin-sdk';
-import { type QuoteStatus } from '../../../../accounting';
+import { type QuoteStatus } from '../accounting';
 
 export const STATUS_TONE: Readonly<Record<QuoteStatus, TabBadgeTone>> = {
   draft: 'neutral',

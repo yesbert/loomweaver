@@ -2,7 +2,7 @@ import { Signal, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { TranslocoService } from '@jsverse/transloco';
-import { type Quote, quoteById } from '../../../../accounting';
+import { type Quote, quoteById } from '../../accounting';
 
 export function quoteFromRoute(): Signal<Quote | undefined> {
   const route = inject(ActivatedRoute);

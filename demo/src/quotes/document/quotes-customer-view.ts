@@ -13,10 +13,10 @@ import {
   formatDate,
   quoteNote,
   saveQuoteNote,
-} from '../../../../accounting';
-import { quotesActions } from '../plugin/quotes-actions';
-import { activeLang, quoteFromRoute } from './quote-context';
-import { STATUS_BADGE } from './quote-status';
+} from '../../accounting';
+import { quotesActions } from '../quotes-actions';
+import { activeLang, quoteFromRoute } from './quote-from-route';
+import { STATUS_BADGE } from '../quote-status';
 
 @Component({
   selector: 'lw-quotes-customer-view',

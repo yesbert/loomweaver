@@ -26,7 +26,7 @@ import { navigationPlugin } from '../navigation/navigation.plugin';
 import { MODULES, navSurfaceId } from '../navigation/module-tree';
 import { insightsPlugin } from '../insights/insights.plugin';
 import { looksPlugin } from '../looks/looks.plugin';
-import { quotesPlugin } from '../quotes/src';
+import { quotesPlugin } from '../quotes/quotes.plugin';
 import { demoSession } from '../session/session';
 import { paymentsIcon } from '../payments/payments.plugin';
 import { procurementPlugin } from '../procurement/procurement.plugin';
