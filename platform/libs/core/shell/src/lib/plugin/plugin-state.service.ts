@@ -21,6 +21,14 @@ function parseBlob(raw: string | undefined): unknown {
   }
 }
 
+function serialise(value: unknown): string | undefined {
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return undefined;
+  }
+}
+
 function parseKeys(raw: string | undefined): string[] {
   const parsed = parseBlob(raw);
   return Array.isArray(parsed)
@@ -150,7 +158,15 @@ export class PluginStateService {
   }
 
   private write(entry: Entry, key: string, next: unknown): void {
-    const serialised = JSON.stringify(next);
+    const serialised = serialise(next);
+    if (serialised === undefined) {
+      console.error(
+        `Plugin "${entry.pluginId}": state key "${key}" was given a value with no JSON form ` +
+          `(nothing, a function, or a structure JSON cannot hold). The write was refused and the ` +
+          `stored value kept. Clear the key to remove it.`,
+      );
+      return;
+    }
     if (!this.admits(entry.pluginId, key, serialised)) {
       return;
     }
