@@ -1,5 +1,3 @@
-import { WritableSignal, signal } from '@angular/core';
-
 export type EntryPriority = 'urgent' | 'high' | 'normal' | 'low';
 export type EntryStatus = 'open' | 'waiting' | 'resolved';
 
@@ -20,17 +18,6 @@ export interface Entry {
   readonly waitingMinutes: number;
   readonly assignee: string;
   readonly conversation: readonly EntryMessage[];
-}
-
-const drafts = new Map<string, WritableSignal<string>>();
-
-export function entryDraft(id: string): WritableSignal<string> {
-  let draft = drafts.get(id);
-  if (!draft) {
-    draft = signal('');
-    drafts.set(id, draft);
-  }
-  return draft;
 }
 
 export function entryById(id: string): Entry | undefined {
@@ -151,3 +138,13 @@ export const ENTRIES: readonly Entry[] = [
     ],
   },
 ];
+
+export function formatWaitingTime(minutes: number): string {
+  if (minutes < 60) {
+    return `${minutes}m`;
+  }
+  if (minutes < 60 * 24) {
+    return `${Math.floor(minutes / 60)}h`;
+  }
+  return `${Math.floor(minutes / (60 * 24))}d`;
+}

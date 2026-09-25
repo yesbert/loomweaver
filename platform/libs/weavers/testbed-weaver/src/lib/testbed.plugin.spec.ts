@@ -170,7 +170,9 @@ describe('testbedPlugin', () => {
   });
 
   it('contributes a Plugins settings section', () => {
-    const section = activate().sections.find((s) => s.id === 'testbed.settings');
+    const section = activate().sections.find(
+      (s) => s.id === 'testbed.settings',
+    );
     expect(section?.group).toBe('settings.group.plugins');
   });
 
@@ -231,7 +233,9 @@ describe('testbedPlugin', () => {
         ? statusButton.command
         : undefined,
     ).toBe('testbed.nav.add');
-    expect(captured.commands.some((c) => c.id === 'testbed.nav.add')).toBe(true);
+    expect(captured.commands.some((c) => c.id === 'testbed.nav.add')).toBe(
+      true,
+    );
   });
 
   it('guards the destructive reset: only the exact token confirms, else blocks silently', async () => {

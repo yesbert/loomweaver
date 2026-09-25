@@ -542,11 +542,18 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   plugin and the four files that register across capabilities (commands, surfaces, content,
   storage) until 11.3 hands their parts to the folders. The structure baseline is empty now;
   `llms.txt` needed no change, since `testbed.plugin.ts` stayed where it is.
-- [ ] 11.3 Each capability folder registers its own commands, surfaces and chrome; the content actions,
+- [x] 11.3 Each capability folder registers its own commands, surfaces and chrome; the content actions,
   entry helpers, the persisted cross-tab choice and the principals (by name, not index) follow.
   Part 1: `persisted-choice.ts` reads, writes and announces a stored choice for the auth and the
   theme, replacing `testbed-storage.ts` and two hand-rolled copies; the principals are keyed by name
   with the cycle as an explicit list, the stored value is the name, and `cycle()` returns nothing.
+  Part 2: every folder has a `register-…` holding its own surfaces, commands and chrome (all 89
+  registrations accounted for), and `testbed.plugin.ts` at the weaver root is the table of
+  contents; `plugin/` is gone. `bound-context.ts` gives views the plugin's context,
+  `entry-tabs/entry-tab-actions.ts` owns the open entry tabs, the navigation commands use path
+  constants their slice exports, the container, sandbox and dashboard openers sit with their
+  commands, `formatWaitingTime` sits with the entries and the drafts in `entry-drafts.ts`; each file
+  that toasts names its `TOAST_MS`. The end-to-end suite passes.
 - [ ] 11.4 The container vocabulary in code, i18n, test ids and end-to-end paths (today
   "workspace", "ws" and "sim").
 - [ ] 11.5 View names say which surface they serve; the omitted route says so; schema, exports,

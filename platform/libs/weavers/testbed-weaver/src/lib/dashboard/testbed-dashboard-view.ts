@@ -3,8 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { map } from 'rxjs';
-import { ENTRIES, Entry } from '../entry-tabs/testbed-entries';
-import { formatWaiting } from '../entry-tabs/testbed-list-view';
+import { ENTRIES, Entry, formatWaitingTime } from '../entry-tabs/testbed-entries';
 
 export interface Kpi {
   readonly id: string;
@@ -178,6 +177,6 @@ export class TestbedDashboardView {
   }
 
   protected waiting(entry: Entry): string {
-    return formatWaiting(entry.waitingMinutes);
+    return formatWaitingTime(entry.waitingMinutes);
   }
 }

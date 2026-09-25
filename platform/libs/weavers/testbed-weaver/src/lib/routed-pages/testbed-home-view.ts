@@ -1,6 +1,8 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { testbedContent } from '../plugin/testbed-content';
+import { testbedContext } from '../bound-context';
+import { DASHBOARD_OVERVIEW_PATH } from '../dashboard/register-dashboard';
+import { entryTabs } from '../entry-tabs/entry-tab-actions';
 
 @Component({
   imports: [TranslocoPipe],
@@ -10,10 +12,10 @@ import { testbedContent } from '../plugin/testbed-content';
 })
 export class TestbedHomeView {
   protected dashboard(): void {
-    testbedContent.goDashboard();
+    testbedContext.navigateTo(DASHBOARD_OVERVIEW_PATH);
   }
 
   protected list(): void {
-    testbedContent.revealList();
+    entryTabs.revealList();
   }
 }

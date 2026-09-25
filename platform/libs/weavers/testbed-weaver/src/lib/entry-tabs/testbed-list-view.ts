@@ -1,8 +1,21 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { VIEW_STATE, type ViewState } from '@loomweaver/plugin-sdk';
-import { ENTRIES, Entry, EntryPriority, EntryStatus } from './testbed-entries';
-import { testbedContent } from '../plugin/testbed-content';
+import {
+  ENTRIES,
+  Entry,
+  EntryPriority,
+  EntryStatus,
+  formatWaitingTime,
+} from './testbed-entries';
+import { entryTabs } from './entry-tab-actions';
+import { testbedContext } from '../bound-context';
 
 type SortKey = 'waiting' | 'priority';
 
@@ -43,16 +56,6 @@ const STATUS_ICON: Readonly<Record<EntryStatus, string>> = {
   resolved: 'testbedResolved',
 };
 
-export function formatWaiting(minutes: number): string {
-  if (minutes < 60) {
-    return `${minutes}m`;
-  }
-  if (minutes < 60 * 24) {
-    return `${Math.floor(minutes / 60)}h`;
-  }
-  return `${Math.floor(minutes / (60 * 24))}d`;
-}
-
 @Component({
   selector: 'lw-testbed-list-view',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -64,7 +67,7 @@ export class TestbedListView {
     optional: true,
   }) as ViewState<ListState> | null;
   private readonly localSort = signal<SortKey>('waiting');
-  private readonly openIds = testbedContent.openEntryIds;
+  private readonly openIds = entryTabs.openIds;
 
   protected readonly sortOrder = computed<SortKey>(
     () => this.state?.value()?.sort ?? this.localSort(),
@@ -101,7 +104,7 @@ export class TestbedListView {
   }
 
   protected waiting(entry: Entry): string {
-    return formatWaiting(entry.waitingMinutes);
+    return formatWaitingTime(entry.waitingMinutes);
   }
 
   protected excerpt(entry: Entry): number {
@@ -124,29 +127,31 @@ export class TestbedListView {
   }
 
   protected preview(entry: Entry): void {
-    testbedContent.openEntry(entry, 'preview');
+    entryTabs.openEntry(entry, 'preview');
   }
 
   protected open(entry: Entry): void {
-    testbedContent.keepEntry(entry);
+    entryTabs.keepEntry(entry);
   }
 
   protected rowMenu(event: MouseEvent, entry: Entry): void {
     event.preventDefault();
-    testbedContent.openMenu(
-      [
-        {
-          label: 'testbed.list.ctxOpen',
-          icon: 'testbedEntry',
-          run: () => testbedContent.openEntry(entry, 'permanent'),
-        },
-        {
-          label: 'testbed.list.ctxPreview',
-          icon: 'preview',
-          run: () => testbedContent.openEntry(entry, 'preview'),
-        },
-      ],
-      { x: event.clientX, y: event.clientY },
+    testbedContext.use((ctx) =>
+      ctx.ui.openMenu(
+        [
+          {
+            label: 'testbed.list.ctxOpen',
+            icon: 'testbedEntry',
+            run: () => entryTabs.openEntry(entry, 'permanent'),
+          },
+          {
+            label: 'testbed.list.ctxPreview',
+            icon: 'preview',
+            run: () => entryTabs.openEntry(entry, 'preview'),
+          },
+        ],
+        { x: event.clientX, y: event.clientY },
+      ),
     );
   }
 }

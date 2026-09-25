@@ -1,11 +1,14 @@
 import { PluginContext } from '@loomweaver/plugin-sdk';
 
+const TOAST_MS = 4000;
+
 export function registerMenus(ctx: PluginContext): void {
   ctx.registerCommand({
     id: 'testbed.tab.reveal',
     title: 'testbed.tab.reveal',
     icon: 'search',
-    run: () => ctx.ui.toast({ message: 'testbed.tab.revealed', timeoutMs: 4000 }),
+    run: () =>
+      ctx.ui.toast({ message: 'testbed.tab.revealed', timeoutMs: TOAST_MS }),
   });
   ctx.registerMenuItem({
     menu: 'content/tab/context',
@@ -31,17 +34,5 @@ export function registerMenus(ctx: PluginContext): void {
     command: 'testbed.auth.signOut',
     group: '2_session',
     order: 0,
-  });
-  ctx.registerMenuItem({
-    menu: 'testbed.rail/context',
-    command: 'testbed.openSettings',
-    group: '1_demo',
-    order: 0,
-  });
-  ctx.registerMenuItem({
-    menu: 'testbed.rail/context',
-    command: 'testbed.about',
-    group: '1_demo',
-    order: 1,
   });
 }

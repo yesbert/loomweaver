@@ -1,83 +1,35 @@
 import { PluginContext } from '@loomweaver/plugin-sdk';
 import { TestbedStatusItem } from './testbed-status-item';
-import { TestbedStatusCount } from '../navigation/testbed-status-count';
 
 const TESTBED_ACCOUNT_PICTURE =
   'data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA2NCA2NCc+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSdnJyB4MT0nMCcgeTE9JzAnIHgyPScxJyB5Mj0nMSc+PHN0b3Agb2Zmc2V0PScwJyBzdG9wLWNvbG9yPScjMkU5NkM5Jy8+PHN0b3Agb2Zmc2V0PScxJyBzdG9wLWNvbG9yPScjQzU5QTJGJy8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3Qgd2lkdGg9JzY0JyBoZWlnaHQ9JzY0JyBmaWxsPSd1cmwoI2cpJy8+PGNpcmNsZSBjeD0nMzInIGN5PScyNScgcj0nMTEnIGZpbGw9JyNmZmZmZmYnIGZpbGwtb3BhY2l0eT0nMC45Jy8+PHBhdGggZD0nTTEwIDYwYzQtMTMgMTItMTkgMjItMTlzMTggNiAyMiAxOXonIGZpbGw9JyNmZmZmZmYnIGZpbGwtb3BhY2l0eT0nMC45Jy8+PC9zdmc+';
 
+const TOAST_MS = 3000;
+
 export function registerChrome(ctx: PluginContext): void {
+  ctx.registerCommand({
+    id: 'testbed.openSettings',
+    title: 'testbed.cmd.settings',
+    icon: 'settings',
+    shortcut: 'mod+shift+s',
+    popout: true,
+    run: () => ctx.ui.openSettings(),
+  });
+  ctx.registerCommand({
+    id: 'testbed.account.profile',
+    title: 'testbed.account.profile',
+    icon: 'testbedUser',
+    run: () =>
+      ctx.ui.toast({
+        message: 'testbed.account.profileOpened',
+        timeoutMs: TOAST_MS,
+      }),
+  });
   registerRailItems(ctx);
   registerBarItems(ctx);
 }
 
 function registerRailItems(ctx: PluginContext): void {
-  ctx.registerRailItem({
-    id: 'testbed.rail.sandbox',
-    rail: 'primary',
-    icon: 'testbedSandbox',
-    title: 'testbed.sandbox.title',
-    order: 5,
-    command: 'testbed.go.sandbox',
-    menu: 'testbed.rail/context',
-  });
-  ctx.registerRailItem({
-    id: 'testbed.rail.workspace',
-    rail: 'primary',
-    icon: 'splitPanes',
-    title: 'testbed.workspace.title',
-    order: 6,
-    command: 'testbed.go.workspace',
-  });
-  ctx.registerRailItem({
-    id: 'testbed.rail.arranged',
-    rail: 'primary',
-    icon: 'splitPanesDown',
-    title: 'testbed.arranged.title',
-    order: 6.5,
-    command: 'testbed.go.arranged',
-  });
-  ctx.registerRailItem({
-    id: 'testbed.rail.browse',
-    rail: 'primary',
-    icon: 'testbedList',
-    title: 'testbed.browse.title',
-    order: 6.7,
-    command: 'testbed.go.browse',
-  });
-  ctx.registerRailItem({
-    id: 'testbed.admin',
-    rail: 'primary',
-    icon: 'testbedShield',
-    title: 'testbed.admin.title',
-    order: 7,
-    command: 'testbed.go.dashboard',
-    access: { anyRole: ['admin'] },
-  });
-  ctx.registerRailItem({
-    id: 'testbed.locked',
-    rail: 'secondary',
-    icon: 'testbedUsers',
-    title: 'testbed.locked.title',
-    order: 7,
-    command: 'testbed.go.search',
-    access: { authenticated: true, mode: 'disable' },
-  });
-  ctx.registerRailItem({
-    id: 'testbed.rail.secret',
-    rail: 'secondary',
-    icon: 'testbedKey',
-    title: 'testbed.admin.route',
-    order: 8,
-    command: 'testbed.go.secret',
-  });
-  ctx.registerRailItem({
-    id: 'testbed.rail.adminArea',
-    rail: 'secondary',
-    icon: 'testbedBuilding',
-    title: 'testbed.admin.area',
-    order: 9,
-    command: 'testbed.go.adminArea',
-  });
   ctx.registerRailItem({
     id: 'testbed.workspaces',
     rail: 'secondary',
@@ -86,45 +38,6 @@ function registerRailItems(ctx: PluginContext): void {
     anchor: 'bottom',
     order: -4,
     command: 'shell.workspace.manage',
-  });
-  ctx.registerRailItem({
-    id: 'testbed.auth',
-    rail: 'secondary',
-    icon: 'testbedUserSwitch',
-    title: 'testbed.auth.cycle',
-    anchor: 'bottom',
-    order: -3,
-    command: 'testbed.auth.cycle',
-  });
-  ctx.registerRailItem({
-    id: 'testbed.rail.grace',
-    rail: 'primary',
-    icon: 'testbedUser',
-    title: 'testbed.auth.grace',
-    anchor: 'bottom',
-    order: -2.5,
-    command: 'testbed.auth.grace',
-    access: { authenticated: true },
-  });
-  ctx.registerRailItem({
-    id: 'testbed.rail.dropAdmin',
-    rail: 'primary',
-    icon: 'testbedStepDown',
-    title: 'testbed.auth.dropAdmin',
-    anchor: 'bottom',
-    order: -2,
-    command: 'testbed.auth.dropAdmin',
-    access: { anyRole: ['admin'] },
-  });
-  ctx.registerRailItem({
-    id: 'testbed.rail.signOut',
-    rail: 'primary',
-    icon: 'testbedSignOut',
-    title: 'testbed.auth.signOut',
-    anchor: 'bottom',
-    order: -1,
-    command: 'testbed.auth.signOut',
-    access: { authenticated: true },
   });
   ctx.registerRailItem({
     id: 'testbed.rail.account',
@@ -215,32 +128,6 @@ function registerBarItems(ctx: PluginContext): void {
       detail: 'testbed.account.detail',
       image: TESTBED_ACCOUNT_PICTURE,
     },
-  });
-  ctx.registerBarItem({
-    id: 'testbed.count',
-    bar: 'status-bar',
-    slot: 'start',
-    component: TestbedStatusCount,
-  });
-  ctx.registerBarItem({
-    id: 'testbed.add',
-    bar: 'status-bar',
-    slot: 'start',
-    order: 1,
-    icon: 'add',
-    tooltip: 'testbed.status.add',
-    command: 'testbed.nav.add',
-    showShortcut: true,
-  });
-  ctx.registerBarItem({
-    id: 'testbed.adminBar',
-    bar: 'status-bar',
-    slot: 'end',
-    order: 2,
-    icon: 'testbedShield',
-    label: 'testbed.admin.bar',
-    command: 'testbed.go.dashboard',
-    access: { anyRole: ['admin'] },
   });
   ctx.registerBarItem({
     id: 'testbed.status',
