@@ -23,7 +23,7 @@ describe('authSource recipe', () => {
     const module = files['dev-auth-source.ts'];
     expect(module).toContain("import { ANONYMOUS, AuthSnapshot } from '@loomweaver/plugin-sdk'");
     expect(module).toContain('export function devAuthSource(): Signal<AuthSnapshot>');
-    expect(module).toContain('export function cycleDevUser()');
+    expect(module).toContain('export function signInDevUser()');
     expect(module).toContain("roles: ['user', 'admin']");
   });
 

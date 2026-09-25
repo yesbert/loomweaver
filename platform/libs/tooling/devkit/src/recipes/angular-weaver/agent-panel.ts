@@ -2,7 +2,7 @@ import type { ResolvedWeaver } from './weaver-input';
 
 export function panelFile(weaver: ResolvedWeaver): string {
   return `import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { EventType, type BaseEvent, type Tool } from '@ag-ui/core';
+import { EventType, type BaseEvent, type Tool, type ToolMessage } from '@ag-ui/core';
 import { ${weaver.propertyName}Agent } from './${weaver.id}-agent';
 import { askAgent } from './${weaver.id}-agent-source';
 
@@ -60,26 +60,22 @@ export class ${weaver.className}AgentPanel {
         this.draw(event);
         // Every event goes over, unfiltered. The adapter decides which ones matter; a filter here is
         // how a call ends up half-assembled.
-        const message = await tools.receive(event);
-        if (message) {
-          this.push({
-            kind: 'result',
-            text: message.error ?? message.content,
-            failed: Boolean(message.error),
-          });
-        }
+        this.pushAnswer(await tools.receive(event));
       }
       // A run that ends without its closing event leaves a call open; flush() answers it.
-      const last = await tools.flush();
-      if (last) {
-        this.push({
-          kind: 'result',
-          text: last.error ?? last.content,
-          failed: Boolean(last.error),
-        });
-      }
+      this.pushAnswer(await tools.flush());
     } finally {
       this.busy.set(false);
+    }
+  }
+
+  private pushAnswer(message: ToolMessage | null): void {
+    if (message) {
+      this.push({
+        kind: 'result',
+        text: message.error ?? message.content,
+        failed: Boolean(message.error),
+      });
     }
   }
 

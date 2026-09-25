@@ -3,6 +3,7 @@ import { quotedList } from '../../lib/amend/compose';
 import { CONTAINER_EXAMPLE_ID } from './weaver-plugin';
 import { PLATFORM_VERSION } from '../platform-version';
 import { AG_UI_PROTOCOL_VERSION } from './agent-files';
+import { asBullet, UNTAGGED_NOTE } from '../readme-notes';
 
 function surfaceNotes(weaver: ResolvedWeaver): readonly string[] {
   const railNote =
@@ -137,10 +138,7 @@ export function readmeFile(weaver: ResolvedWeaver): string {
     '',
     '- `src/lib/i18n/de.json` starts as a copy of the English strings — translate it.',
     `- A scaffolded command defaults its shortcut to \`mod+shift+<first letter of the id>\` — two weavers whose ids share a first letter collide; pass \`--shortcut\` or edit the command.`,
-    '- The project is generated **untagged**: Nx tags belong to your `depConstraints`, and inventing',
-    '  one would fail a lint policy you never opted this project into. If your workspace enforces',
-    '  module boundaries, give it tags your constraints allow — `--tags` at generation time, or',
-    '  `tags` in `project.json` afterwards.',
+    ...asBullet(UNTAGGED_NOTE),
     '',
   ].join('\n');
 }

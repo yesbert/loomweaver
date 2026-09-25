@@ -59,14 +59,16 @@ export function ${source.propertyName}AuthSource(): Signal<AuthSnapshot> {
   return state.asReadonly();
 }
 
-export function cycle${source.className}User(): void {
-  const current = state();
-  const next = !current.authenticated
-    ? USER
-    : current.roles.includes('admin')
-      ? ANONYMOUS
-      : ADMIN;
-  state.set(next);
+export function signIn${source.className}User(): void {
+  state.set(USER);
+}
+
+export function switch${source.className}Account(): void {
+  state.set(state().roles.includes('admin') ? USER : ADMIN);
+}
+
+export function signOut${source.className}User(): void {
+  state.set(ANONYMOUS);
 }
 `;
 }
@@ -76,31 +78,17 @@ function pluginFile(source: ResolvedAuthSource): string {
 // out, from a rail item whose menu carries them. This is presentation for a product that has no
 // backend yet; nothing here protects anything. Delete it once your own session arrives.
 import type { Disposable, Plugin, PluginContext } from '@loomweaver/plugin-sdk';
-import { cycle${source.className}User, ${source.propertyName}AuthSource } from './${source.name}-auth-source';
+import {
+  ${source.propertyName}AuthSource,
+  signIn${source.className}User,
+  signOut${source.className}User,
+  switch${source.className}Account,
+} from './${source.name}-auth-source';
 
-const MENU = 'session.account/menu';
+const MENU = '${SESSION_PLUGIN_ID}.account/menu';
 const snapshot = ${source.propertyName}AuthSource();
 
 let drawn: Disposable[] = [];
-
-function signIn(): void {
-  if (!snapshot().authenticated) {
-    cycle${source.className}User();
-  }
-}
-
-function switchAccount(): void {
-  cycle${source.className}User();
-  if (!snapshot().authenticated) {
-    cycle${source.className}User();
-  }
-}
-
-function signOut(): void {
-  while (snapshot().authenticated) {
-    cycle${source.className}User();
-  }
-}
 
 function initialsOf(name: string): string {
   return name
@@ -168,7 +156,7 @@ function draw(ctx: PluginContext): void {
 export const ${sessionPluginSymbol(source)}: Plugin = {
   manifest: { id: 'session', name: 'Account', capabilities: ['contributions'] },
   activate(ctx) {
-    const then = (step: () => void) => () => {
+    const andRedraw = (step: () => void) => () => {
       step();
       draw(ctx);
     };
@@ -177,21 +165,21 @@ export const ${sessionPluginSymbol(source)}: Plugin = {
       title: 'session.signIn',
       icon: 'account',
       access: { authenticated: false },
-      run: then(signIn),
+      run: andRedraw(signIn${source.className}User),
     });
     ctx.registerCommand({
       id: 'session.switchAccount',
       title: 'session.switchAccount',
       icon: 'account',
       access: { authenticated: true },
-      run: then(switchAccount),
+      run: andRedraw(switch${source.className}Account),
     });
     ctx.registerCommand({
       id: 'session.signOut',
       title: 'session.signOut',
       icon: 'signOut',
       access: { authenticated: true },
-      run: then(signOut),
+      run: andRedraw(signOut${source.className}User),
     });
     draw(ctx);
   },
@@ -206,7 +194,12 @@ export const ${sessionPluginSymbol(source)}: Plugin = {
 }
 
 function indexFile(source: ResolvedAuthSource): string {
-  return `export { cycle${source.className}User, ${source.propertyName}AuthSource } from './${source.name}-auth-source';
+  return `export {
+  ${source.propertyName}AuthSource,
+  signIn${source.className}User,
+  signOut${source.className}User,
+  switch${source.className}Account,
+} from './${source.name}-auth-source';
 export { ${sessionPluginSymbol(source)} } from './${source.name}-session.plugin';
 `;
 }

@@ -498,7 +498,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   changes which application is chosen; and the devkit defaults stay restated, because the weaver's
   default project root is not published and resolving the shortcut through `resolveWeaverInput`
   would fail an invalid `--weaver` id before the install runs.
-- [ ] 10.8 The weaver recipe split into input resolution and view templates; resolved inputs named
+- [x] 10.8 The weaver recipe split into input resolution and view templates; resolved inputs named
   instead of single letters; the validators' helper names; the emitted auth-source, agent panel and
   README text simplified, with `docs/samples.md` and `docs/scaffolding.md` in the same pull request.
   Part 1: the resolved inputs are `weaver`, `distribution`, `source`, `plugin`, `project`, `layout`,
@@ -511,6 +511,12 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   capabilities), `weaver-views.ts` holds the view, child view, about dialog and spec templates, and
   `recipe.ts` builds the file map; `weaver-terms.ts` is folded into `weaver-plugin.ts`, whose three
   access lines come from `accessLine`; braceless multi-line `if`s get braces. Output identical.
+  Part 3 changes the emitted code on purpose: the auth source exports `signIn…User`,
+  `switch…Account` and `signOut…User` instead of a three-state cycle the plugin had to call in loops,
+  the plugin's redraw wrapper is `andRedraw` and its ids come from `SESSION_PLUGIN_ID`; the agent
+  panel answers through `pushAnswer`, the stand-in pauses for `PAUSE_MS`; both READMEs take the
+  untagged note from `readme-notes.ts`. `docs/samples.md` shows the new auth source (the recipe spec
+  compares it); `docs/scaffolding.md` still says what holds.
 - [ ] 10.9 The package READMEs and the generated `LOOMWEAVER.md` describe the tree and the build wiring
   as they are, one section per route; one bundle helper for the two tooling bins; validator messages
   once; CLI test fixtures and app-resolution tests written once.
