@@ -1,4 +1,4 @@
-<div class="flex h-full flex-col gap-4 p-3">
+<div class="@container flex h-full flex-col gap-4 p-4">
   <div class="flex flex-wrap items-baseline justify-between gap-3">
     <h2 class="text-base font-semibold text-content">
       {{ 'people.view.employees' | transloco }}
@@ -12,34 +12,52 @@
     </span>
   </div>
 
-  <div class="min-h-0 flex-1 overflow-auto rounded-lg border border-border bg-surface-raised">
-    <table class="w-full text-sm">
-      <thead class="text-xs text-content-muted">
-        <tr class="border-b border-border">
-          <th class="px-4 py-2.5 text-left font-medium">{{ 'people.column.number' | transloco }}</th>
-          <th class="px-4 py-2.5 text-left font-medium">{{ 'people.column.name' | transloco }}</th>
-          <th class="px-4 py-2.5 text-left font-medium">{{ 'people.column.department' | transloco }}</th>
-          <th class="px-4 py-2.5 text-left font-medium">{{ 'people.column.joined' | transloco }}</th>
-          <th class="px-4 py-2.5 text-right font-medium">{{ 'people.column.hours' | transloco }}</th>
-          <th class="px-4 py-2.5 text-right font-medium">{{ 'people.column.gross' | transloco }}</th>
-        </tr>
-      </thead>
-      <tbody data-testid="employee-list">
+  <div class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border bg-surface-raised">
+    <div
+      class="hidden shrink-0 grid-cols-[7rem_minmax(0,1fr)_8rem_8rem_6rem_8rem] gap-3 border-b border-border px-4 py-2.5 text-xs font-medium text-content-muted @2xl:grid"
+    >
+      <span>{{ 'people.column.number' | transloco }}</span>
+      <span>{{ 'people.column.name' | transloco }}</span>
+      <span>{{ 'people.column.department' | transloco }}</span>
+      <span>{{ 'people.column.joined' | transloco }}</span>
+      <span class="text-right">{{ 'people.column.hours' | transloco }}</span>
+      <span class="text-right">{{ 'people.column.gross' | transloco }}</span>
+    </div>
+
+    <div class="min-h-0 flex-1 overflow-auto">
+      <ul data-testid="employee-list">
         @for (row of rows(); track row.employee.id) {
-          <tr class="border-b border-border last:border-b-0" [attr.data-employee]="row.employee.number">
-            <td class="px-4 py-2.5 font-mono text-xs text-content-muted">{{ row.employee.number }}</td>
-            <td class="px-4 py-2.5 text-content">{{ row.employee.name }}</td>
-            <td class="px-4 py-2.5 text-content-muted">{{ row.employee.departmentKey | transloco }}</td>
-            <td class="px-4 py-2.5 text-content-muted tabular-nums">{{ row.joined }}</td>
-            <td class="px-4 py-2.5 text-right tabular-nums">
-              <span [class]="row.partTime ? 'text-content-muted' : 'text-content'">
+          <li
+            class="border-b border-border px-4 py-3 last:border-b-0 @2xl:py-2.5"
+            [attr.data-employee]="row.employee.number"
+          >
+            <span class="hidden grid-cols-[7rem_minmax(0,1fr)_8rem_8rem_6rem_8rem] items-center gap-3 text-sm @2xl:grid">
+              <span class="font-mono text-xs text-content-muted">{{ row.employee.number }}</span>
+              <span class="truncate text-content">{{ row.employee.name }}</span>
+              <span class="truncate text-content-muted">{{ row.employee.departmentKey | transloco }}</span>
+              <span class="text-content-muted tabular-nums">{{ row.joined }}</span>
+              <span
+                class="text-right tabular-nums"
+                [class.text-content-muted]="row.partTime"
+                [class.text-content]="!row.partTime"
+              >
                 {{ 'people.weeklyHours' | transloco: { hours: row.employee.weeklyHours } }}
               </span>
-            </td>
-            <td class="px-4 py-2.5 text-right text-content tabular-nums">{{ row.gross }}</td>
-          </tr>
+              <span class="text-right text-content tabular-nums">{{ row.gross }}</span>
+            </span>
+            <span class="flex items-baseline justify-between gap-3 @2xl:hidden">
+              <span class="flex min-w-0 flex-col gap-0.5">
+                <span class="truncate text-content">{{ row.employee.name }}</span>
+                <span class="text-xs text-content-faint">
+                  {{ row.employee.number }} · {{ row.employee.departmentKey | transloco }} ·
+                  {{ 'people.weeklyHours' | transloco: { hours: row.employee.weeklyHours } }}
+                </span>
+              </span>
+              <span class="shrink-0 text-sm text-content tabular-nums">{{ row.gross }}</span>
+            </span>
+          </li>
         }
-      </tbody>
-    </table>
+      </ul>
+    </div>
   </div>
 </div>
