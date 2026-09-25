@@ -4,7 +4,7 @@ import { ContentRouter } from '../../regions/content/routing/content-router';
 import { NavigationOptions } from '../../regions/content/tabs/content-tab-projection';
 import { TabNavigationService } from '../../regions/content/tabs/tab-navigation.service';
 import { ActiveWorkspaceService } from '../active-workspace.service';
-import { settlementDestination } from '../baseline/workspace-lookup';
+import { settlementDestination } from '../catalog/workspace-lookup';
 import { WorkspaceCatalog } from '../catalog/workspace-catalog';
 import { claimFor } from '../workspace-claims';
 

@@ -8,12 +8,12 @@ import {
   definitionOf,
   originOf,
   workspaceExists,
-} from '../baseline/workspace-lookup';
+} from './workspace-lookup';
 import {
   WORKSPACES_KEY,
   parseWorkspaces,
   type Workspace,
-} from '../baseline/workspace-state';
+} from './saved-workspaces';
 import {
   BUILT_IN_WORKSPACE_ID,
   dedupedDefinitions,

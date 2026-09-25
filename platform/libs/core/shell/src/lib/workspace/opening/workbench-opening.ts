@@ -8,7 +8,7 @@ import { TabNavigationService } from '../../regions/content/tabs/tab-navigation.
 import { activeContentPath } from '../../regions/pane/tree/active-content-path';
 import { PaneTreeService } from '../../regions/pane/tree/pane-tree.service';
 import { ActiveWorkspaceService } from '../active-workspace.service';
-import { WORKSPACE_STATE_KEYS } from '../baseline/state-channels';
+import { WORKSPACE_STATE_KEYS } from '../working-state/state-channels';
 import { WorkspaceCatalog } from '../catalog/workspace-catalog';
 import { WorkspaceDefinition } from '../declaration/workspace-definition';
 import { AddressSettlement } from '../settlement/address-settlement';

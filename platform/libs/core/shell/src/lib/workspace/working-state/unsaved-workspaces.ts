@@ -16,7 +16,7 @@ import {
   storedStateDiffers,
 } from './workspace-changes';
 import { StateChannels } from './state-channels';
-import { Workspace } from './workspace-state';
+import { Workspace } from '../catalog/saved-workspaces';
 
 export interface UnsavedReading {
   readonly channels: StateChannels;
