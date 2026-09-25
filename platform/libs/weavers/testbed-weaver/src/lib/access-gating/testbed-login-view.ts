@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ActivatedRoute, Router } from '@angular/router';
-import { testbedAuth } from '../plugin/testbed-auth';
+import { testbedAuth } from './testbed-auth';
 
 @Component({
   imports: [TranslocoPipe],

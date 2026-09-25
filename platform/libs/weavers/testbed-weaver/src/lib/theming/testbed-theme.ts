@@ -1,5 +1,5 @@
 import { Disposable, PluginContext } from '@loomweaver/plugin-sdk';
-import { writeLocalStorageBestEffort } from './testbed-storage';
+import { writeLocalStorageBestEffort } from '../plugin/testbed-storage';
 
 const SUNRISE_THEME: Readonly<Record<string, string>> = {
   '--lw-brand': '#ea580c',

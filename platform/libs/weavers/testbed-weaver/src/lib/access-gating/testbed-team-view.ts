@@ -1,6 +1,6 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { ENTRIES } from './testbed-entries';
+import { ENTRIES } from '../entry-tabs/testbed-entries';
 
 interface AssigneeLoad {
   readonly id: string;

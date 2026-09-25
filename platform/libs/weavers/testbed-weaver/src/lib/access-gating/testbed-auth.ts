@@ -1,6 +1,6 @@
 import { computed, signal } from '@angular/core';
 import { ANONYMOUS, AuthSnapshot } from '@loomweaver/plugin-sdk';
-import { writeLocalStorageBestEffort } from './testbed-storage';
+import { writeLocalStorageBestEffort } from '../plugin/testbed-storage';
 
 const ANON = 0;
 const USER = 1;

@@ -1,6 +1,6 @@
 import { Signal, signal } from '@angular/core';
 import { OpenTabInput, PluginContext, UiMenuItem } from '@loomweaver/plugin-sdk';
-import { Entry } from '../views/testbed-entries';
+import { Entry } from '../entry-tabs/testbed-entries';
 
 type TestbedContentCtx = Pick<
   PluginContext,

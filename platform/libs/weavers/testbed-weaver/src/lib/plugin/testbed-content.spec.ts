@@ -1,5 +1,5 @@
 import { OpenTabInput, PluginContext } from '@loomweaver/plugin-sdk';
-import { ENTRIES } from '../views/testbed-entries';
+import { ENTRIES } from '../entry-tabs/testbed-entries';
 import { testbedContent } from './testbed-content';
 import type { Mock } from 'vitest';
 

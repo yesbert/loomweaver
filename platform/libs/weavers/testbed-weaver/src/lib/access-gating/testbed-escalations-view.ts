@@ -1,7 +1,7 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { ENTRIES, Entry } from './testbed-entries';
-import { formatWaiting } from './testbed-list-view';
+import { ENTRIES, Entry } from '../entry-tabs/testbed-entries';
+import { formatWaiting } from '../entry-tabs/testbed-list-view';
 
 @Component({
   selector: 'lw-testbed-escalations-view',

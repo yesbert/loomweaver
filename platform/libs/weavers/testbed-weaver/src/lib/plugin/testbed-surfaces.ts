@@ -1,21 +1,21 @@
 import { PluginContext } from '@loomweaver/plugin-sdk';
-import { TestbedNavView } from '../views/navigation/testbed-nav-view';
-import { TestbedNavTreeView } from '../views/navigation/testbed-nav-tree-view';
-import { TestbedOutlineView } from '../views/testbed-outline-view';
-import { TestbedHomeView } from '../views/testbed-home-view';
-import { TestbedEntryView } from '../views/testbed-entry-view';
-import { TestbedListView } from '../views/testbed-list-view';
-import { TestbedDashboardView } from '../views/testbed-dashboard-view';
-import { TestbedSearchView } from '../views/testbed-search-view';
-import { TestbedLoginView } from '../views/testbed-login-view';
-import { TestbedEscalationsView } from '../views/testbed-escalations-view';
-import { TestbedTeamView } from '../views/testbed-team-view';
-import { TestbedOwnerView } from '../views/testbed-owner-view';
-import { TestbedWsAuditView } from '../views/testbed-ws-audit-view';
-import { TestbedWsItemView } from '../views/testbed-ws-item-view';
-import { TestbedWsListView } from '../views/testbed-ws-list-view';
-import { TestbedWsCanvasView } from '../views/testbed-ws-canvas-view';
-import { TestbedWsDetailsView } from '../views/testbed-ws-details-view';
+import { TestbedNavView } from '../navigation/testbed-nav-view';
+import { TestbedNavTreeView } from '../navigation/testbed-nav-tree-view';
+import { TestbedOutlineView } from '../state-readouts/testbed-outline-view';
+import { TestbedHomeView } from '../routed-pages/testbed-home-view';
+import { TestbedEntryView } from '../entry-tabs/testbed-entry-view';
+import { TestbedListView } from '../entry-tabs/testbed-list-view';
+import { TestbedDashboardView } from '../dashboard/testbed-dashboard-view';
+import { TestbedSearchView } from '../routed-pages/testbed-search-view';
+import { TestbedLoginView } from '../access-gating/testbed-login-view';
+import { TestbedEscalationsView } from '../access-gating/testbed-escalations-view';
+import { TestbedTeamView } from '../access-gating/testbed-team-view';
+import { TestbedOwnerView } from '../routed-pages/testbed-owner-view';
+import { TestbedWsAuditView } from '../containers/testbed-ws-audit-view';
+import { TestbedWsItemView } from '../containers/testbed-ws-item-view';
+import { TestbedWsListView } from '../containers/testbed-ws-list-view';
+import { TestbedWsCanvasView } from '../containers/testbed-ws-canvas-view';
+import { TestbedWsDetailsView } from '../containers/testbed-ws-details-view';
 
 export function registerSurfaces(ctx: PluginContext): void {
   registerContentSurfaces(ctx);
@@ -82,14 +82,14 @@ function registerContentSurfaces(ctx: PluginContext): void {
     retain: 'always',
     saveOn: 'hide',
     loadComponent: () =>
-      import('../views/testbed-notes-view').then((m) => m.TestbedNotesView),
+      import('../routed-pages/testbed-notes-view').then((m) => m.TestbedNotesView),
   });
   ctx.registerSurface({
     id: 'testbed.retired',
     title: 'testbed.retired.title',
     routable: { path: 'retired' },
     loadComponent: () =>
-      import('../views/testbed-notes-view').then((m) => m.TestbedNotesView),
+      import('../routed-pages/testbed-notes-view').then((m) => m.TestbedNotesView),
   });
   ctx.registerSurface({
     id: 'testbed.secretArea',
@@ -308,7 +308,7 @@ function registerPanelSurfaces(ctx: PluginContext): void {
     icon: 'info',
     order: 0,
     loadComponent: () =>
-      import('../views/testbed-info-view').then((m) => m.TestbedInfoView),
+      import('../state-readouts/testbed-info-view').then((m) => m.TestbedInfoView),
   });
   ctx.registerSurface({
     id: 'testbed.dockedFrame',
