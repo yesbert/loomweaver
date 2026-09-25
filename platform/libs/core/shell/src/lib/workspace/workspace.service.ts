@@ -14,7 +14,7 @@ import { BUILT_IN_WORKSPACE_ID } from './declaration/composed-definitions';
 import { WorkbenchOpening } from './opening/workbench-opening';
 import { AddressSettlement } from './settlement/address-settlement';
 import { type WorkspaceClaim } from './workspace-claims';
-import { WorkspaceGuard } from './workspace-guard';
+import { WorkspaceDiscardConfirmation } from './workspace-discard-confirmation';
 import { assignWorkspaceInitials } from './workspace-initials';
 import { WorkspaceSwitcher } from './workspace-switcher';
 
@@ -25,7 +25,7 @@ export class WorkspaceService {
   private readonly settlement = inject(AddressSettlement);
   private readonly active = inject(ActiveWorkspaceService);
   private readonly stash = inject(RetainedViewStash);
-  private readonly guard = inject(WorkspaceGuard);
+  private readonly discard = inject(WorkspaceDiscardConfirmation);
   private readonly tabNavigation = inject(TabNavigationService);
   private readonly workingStateStore = inject(WORKING_STATE_STORE);
 
@@ -99,7 +99,7 @@ export class WorkspaceService {
     if (!this.catalog.exists(id)) {
       return false;
     }
-    if (id === this.active.id() && !(await this.guard.confirmDiscardAll())) {
+    if (id === this.active.id() && !(await this.discard.confirmDiscardAll())) {
       return false;
     }
     this.resetNow(id);
@@ -107,7 +107,7 @@ export class WorkspaceService {
   }
 
   async resetAll(): Promise<boolean> {
-    if (!(await this.guard.confirmDiscardAll())) {
+    if (!(await this.discard.confirmDiscardAll())) {
       return false;
     }
     for (const workspace of this.catalog.everyOrigin()) {
@@ -134,7 +134,7 @@ export class WorkspaceService {
     if (this.catalog.isBuiltInOrDeclared(id)) {
       return false;
     }
-    if (!(await this.guard.confirmDiscardParked(id))) {
+    if (!(await this.discard.confirmDiscardParked(id))) {
       return false;
     }
     this.catalog.commit(

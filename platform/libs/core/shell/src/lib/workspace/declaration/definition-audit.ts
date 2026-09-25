@@ -73,19 +73,18 @@ export function declarationGaps(
   definition: WorkspaceDefinition,
   around: DeclarationSurroundings,
 ): readonly string[] {
-  const id = definition.id;
   return [
-    ...claimGaps(definition, around.routes, id),
-    ...tabGaps(definition, around.routes, id),
-    ...sidebarGaps(definition, around.declaredPaths, id),
+    ...claimGaps(definition, around.routes),
+    ...tabGaps(definition, around.routes),
+    ...sidebarGaps(definition, around.declaredPaths),
   ];
 }
 
 function claimGaps(
   definition: WorkspaceDefinition,
   routes: readonly ContentRoute[],
-  id: string,
 ): readonly string[] {
+  const id = definition.id;
   return (definition.claims ?? [])
     .filter((pattern) => matchRoute(routes, pattern) === undefined)
     .map(
@@ -97,8 +96,8 @@ function claimGaps(
 function tabGaps(
   definition: WorkspaceDefinition,
   routes: readonly ContentRoute[],
-  id: string,
 ): readonly string[] {
+  const id = definition.id;
   return declaredTabPaths(definition).flatMap((path) => {
     const route = matchRoute(routes, path);
     if (
@@ -120,8 +119,8 @@ function tabGaps(
 function sidebarGaps(
   definition: WorkspaceDefinition,
   declaredPaths: (regionId: string) => readonly string[],
-  id: string,
 ): readonly string[] {
+  const id = definition.id;
   return Object.entries(definition.sidebars ?? {}).flatMap(
     ([region, visible]) => {
       const declared = new Set(

@@ -294,8 +294,8 @@ export interface PluginContext {
   revealSurface(id: string): void;
   /**
    * Signal-shaped read of the {@link ActiveContent} — which routable surface the URL pane
-   * currently shows, with its path parameters (`navigation`). The read side of the content area
-   *: a panel that reacts to "which tab is focused" (an inspector, a details view) reads
+   * currently shows, with its path parameters (`navigation`). The read side of the content area:
+   * a panel that reacts to "which tab is focused" (an inspector, a details view) reads
    * this instead of injecting the host's router and parsing URLs, so it stays stable across host
    * URL-shape changes. `null` when no content route matches. Trusted rung only (like `ui.openMenu`,
    * it does not cross the sandbox RPC boundary — a sandboxed surface already receives its own state

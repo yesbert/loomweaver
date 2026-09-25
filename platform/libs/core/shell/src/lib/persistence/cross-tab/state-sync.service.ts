@@ -5,8 +5,8 @@ import { StateSyncChannel } from './state-sync-channel';
 import { readStoredValue } from '../stored-values/hydrate';
 
 /**
- * Where a synced key's fresh value is read back from after another window announced a change
- *: the `SETTINGS_STORE`, the `WORKING_STATE_STORE`, or — for state persisted outside
+ * Where a synced key's fresh value is read back from after another window announced a change:
+ * the `SETTINGS_STORE`, the `WORKING_STATE_STORE`, or — for state persisted outside
  * both ports, such as a product session store — `'external'`, in which case no read-back happens
  * and the applier receives `undefined` (it re-reads its own storage).
  */

@@ -4,7 +4,7 @@ import { RetainedViewStash } from '../regions/pane/retention/retained-view-stash
 import { UnsavedWork } from '../regions/pane/unsaved-work/unsaved-work';
 
 @Service()
-export class WorkspaceGuard {
+export class WorkspaceDiscardConfirmation {
   private readonly closeGuard = inject(SurfaceCloseGuard);
   private readonly unsavedWork = inject(UnsavedWork);
   private readonly stash = inject(RetainedViewStash);

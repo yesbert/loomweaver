@@ -126,7 +126,7 @@ describe('a workspace whose stored arrangement leaves it without content', () =>
   });
 
   it('is announced unless the product asked otherwise', async () => {
-    expect(compose().unusable.announces).toBe(true);
+    expect(compose().unusable.announcesUnusable).toBe(true);
   });
 
   it('is still entered and still readable where the product asked for silence', async () => {
@@ -136,7 +136,7 @@ describe('a workspace whose stored arrangement leaves it without content', () =>
     await ws.switchTo('payments');
     await ws.settle('');
 
-    expect(unusable.announces).toBe(false);
+    expect(unusable.announcesUnusable).toBe(false);
     expect(ws.activeId()).toBe('payments');
     expect(unusable.ids().has('payments')).toBe(true);
   });

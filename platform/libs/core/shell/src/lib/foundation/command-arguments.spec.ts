@@ -1,7 +1,7 @@
 import { CommandArgument } from '@loomweaver/plugin-sdk';
 import {
   asCommandArguments,
-  checkArguments,
+  argumentProblem,
   isCommandAnswer,
 } from './command-arguments';
 
@@ -18,10 +18,10 @@ const DECLARED: readonly CommandArgument[] = [
   { name: 'tags', kind: 'text', description: 'Labels', list: true },
 ];
 
-describe('checkArguments', () => {
+describe('argumentProblem', () => {
   it('accepts a call that matches the declaration', () => {
     expect(
-      checkArguments(DECLARED, {
+      argumentProblem(DECLARED, {
         path: 'a/b',
         count: 2,
         pinned: true,
@@ -32,49 +32,49 @@ describe('checkArguments', () => {
   });
 
   it('accepts a command that declares nothing, invoked with nothing', () => {
-    expect(checkArguments(undefined, undefined)).toBeNull();
+    expect(argumentProblem(undefined, undefined)).toBeNull();
   });
 
   it('refuses a missing required argument', () => {
-    expect(checkArguments(DECLARED, { count: 1 })).toContain('"path"');
+    expect(argumentProblem(DECLARED, { count: 1 })).toContain('"path"');
   });
 
   it('leaves an optional argument out without complaint', () => {
-    expect(checkArguments(DECLARED, { path: 'a' })).toBeNull();
+    expect(argumentProblem(DECLARED, { path: 'a' })).toBeNull();
   });
 
   it('refuses a value of the wrong kind', () => {
-    expect(checkArguments(DECLARED, { path: 7 })).toContain('a text');
-    expect(checkArguments(DECLARED, { path: 'a', count: 'two' })).toContain(
+    expect(argumentProblem(DECLARED, { path: 7 })).toContain('a text');
+    expect(argumentProblem(DECLARED, { path: 'a', count: 'two' })).toContain(
       'a finite number',
     );
     expect(
-      checkArguments(DECLARED, { path: 'a', count: NaN }),
+      argumentProblem(DECLARED, { path: 'a', count: NaN }),
     ).toContain('a finite number');
   });
 
   it('refuses a choice outside the declared set', () => {
-    expect(checkArguments(DECLARED, { path: 'a', mode: 'sideways' })).toContain(
+    expect(argumentProblem(DECLARED, { path: 'a', mode: 'sideways' })).toContain(
       'preview, permanent',
     );
   });
 
   it('tells a list and a single value apart', () => {
-    expect(checkArguments(DECLARED, { path: 'a', tags: 'x' })).toContain(
+    expect(argumentProblem(DECLARED, { path: 'a', tags: 'x' })).toContain(
       'a list',
     );
-    expect(checkArguments(DECLARED, { path: ['a'] })).toContain('not a list');
+    expect(argumentProblem(DECLARED, { path: ['a'] })).toContain('not a list');
   });
 
   it('refuses an argument the command never declared', () => {
-    expect(checkArguments(DECLARED, { path: 'a', colour: 'red' })).toContain(
+    expect(argumentProblem(DECLARED, { path: 'a', colour: 'red' })).toContain(
       '"colour"',
     );
   });
 
   it('refuses arguments that are not an object at all', () => {
-    expect(checkArguments(DECLARED, 'path=a')).toContain('an object');
-    expect(checkArguments(DECLARED, null)).toContain('an object');
+    expect(argumentProblem(DECLARED, 'path=a')).toContain('an object');
+    expect(argumentProblem(DECLARED, null)).toContain('an object');
   });
 });
 

@@ -7,22 +7,22 @@ import {
 
 const MAX_ANSWER_DEPTH = 8;
 
-export function checkArguments(
+export function argumentProblem(
   declared: readonly CommandArgument[] | undefined,
   args: unknown,
 ): string | null {
   if (args !== undefined && !isPlainObject(args)) {
     return 'takes its arguments as an object keyed by argument name';
   }
-  const argument = declared ?? [];
+  const declaredArguments = declared ?? [];
   const supplied: Record<string, unknown> = args ?? {};
-  const known = new Set(argument.map((entry) => entry.name));
+  const known = new Set(declaredArguments.map((entry) => entry.name));
   for (const name of Object.keys(supplied)) {
     if (!known.has(name)) {
       return `does not declare an argument named "${name}"`;
     }
   }
-  for (const entry of argument) {
+  for (const entry of declaredArguments) {
     const value = supplied[entry.name];
     if (value === undefined) {
       if (entry.required === true) {
