@@ -117,7 +117,7 @@ they start with a top-level folder.
   instead of running it; the documented usage, the generated agent panel and the example ask until
   nothing is answered (`platform/libs/integrations/ag-ui/src/lib/command-tools.ts`, the devkit's
   agent recipe, `examples/assistant-workbench`).
-- [ ] 9.2 Only a command invoked from within another command's run, before that run first waits,
+- [x] 9.2 Only a command invoked from within another command's run, before that run first waits,
   counts towards the depth limit (`commands/command-invocation.service.ts`).
 - [ ] 9.3 A plugin state value with no data form is refused with a message naming the plugin and the
   key (`plugin/plugin-state.service.ts`).

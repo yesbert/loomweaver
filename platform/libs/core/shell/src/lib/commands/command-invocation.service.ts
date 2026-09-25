@@ -48,7 +48,7 @@ export class CommandInvocationService implements CommandInvoker {
   private readonly errors = inject(ErrorHandler);
   private readonly transloco = inject(TranslocoService, { optional: true });
 
-  private depth = 0;
+  private chainDepth = 0;
 
   invocable(callerId: string, granted: boolean): readonly InvocableCommand[] {
     const caller: Caller = { id: callerId, mayAutomate: granted };
@@ -85,7 +85,7 @@ export class CommandInvocationService implements CommandInvoker {
         message: `Command "${id}" ${problem}.`,
       };
     }
-    if (this.depth >= MAX_INVOCATION_DEPTH) {
+    if (this.chainDepth >= MAX_INVOCATION_DEPTH) {
       return {
         outcome: 'refused',
         reason: 'too-deep',
@@ -101,14 +101,23 @@ export class CommandInvocationService implements CommandInvoker {
     command: Command,
     args: CommandArguments | undefined,
   ): Promise<CommandOutcome> {
-    this.depth += 1;
+    const running = this.startInChain(command, args);
     try {
-      const returned = await this.commands.run(command, undefined, args);
-      return this.answerOf(command, returned);
+      return this.answerOf(command, await running);
     } catch (error) {
       return { outcome: 'failed', message: messageOf(error) };
+    }
+  }
+
+  private startInChain(
+    command: Command,
+    args: CommandArguments | undefined,
+  ): Promise<unknown> {
+    this.chainDepth += 1;
+    try {
+      return this.commands.run(command, undefined, args);
     } finally {
-      this.depth -= 1;
+      this.chainDepth -= 1;
     }
   }
 
