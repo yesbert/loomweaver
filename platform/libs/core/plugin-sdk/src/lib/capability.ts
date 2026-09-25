@@ -15,20 +15,16 @@ export const CAPABILITIES = [
 
 /**
  * Coarse capabilities a plugin can hold — capability injection, **default-deny**: a plugin gets
- * nothing it was not granted. Granularity is intentionally coarse first; a scope
- * can split into finer ones later without changing the model. Each names a slice of the `ctx`:
+ * nothing it was not granted. Each names an area of `ctx`, and every `ctx` member says in its own
+ * documentation which one it needs:
  *
- * - `contributions` — register contributions (`ctx.registerSurface/Command/BarItem/RailItem/
- *                     SettingsSection/MenuItem`, `ctx.contributeIcons`).
- * - `ui`           — use the host UI services (`ctx.ui.*`: dialogs, toasts, settings, context menus).
- * - `host`         — read host facts (`ctx.host`: version, update state).
- * - `navigation`   — drive and read the content area (`ctx.navigateContent/openContentTab/
- *                     closeContentTab/keepContentTab/pinContentTab/unpinContentTab/revealSurface`
- *                     and the read-side `ctx.activeContent`).
- * - `session`      — read session facts (`ctx.session`: login state + roles) for self-gating.
- * - `theme`        — contribute design tokens that re-color the whole app (`ctx.contributeTheme`).
- * - `automation`   — run actions other plugins contributed (`ctx.invokeCommand`,
- *                     `ctx.invocableCommands`). A plugin reaches its own commands without it.
+ * - `contributions` — register contributions, and change the ones you registered.
+ * - `ui`           — use the host UI services under `ctx.ui`.
+ * - `host`         — read host facts under `ctx.host`.
+ * - `navigation`   — drive the content area, and read what it shows.
+ * - `session`      — read session facts under `ctx.session`.
+ * - `theme`        — contribute design tokens that re-color the whole app.
+ * - `automation`   — run commands other plugins contributed. A plugin reaches its own without it.
  */
 export type Capability = (typeof CAPABILITIES)[number];
 

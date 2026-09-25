@@ -1,15 +1,6 @@
 import { Type } from '@angular/core';
 import { LwButtonVariant } from './button.js';
 
-/**
- * Settings vocabulary (schema-driven). The host renders a settings
- * surface from these declarations; each contributor (shell or plugin) supplies its own
- * value accessors, so the *owner* keeps responsibility for storage. The host only reads
- * `value()` and calls `set()`. The controls are
- * `select` (single choice) · `toggle` (on/off) · `text` (a string field) · `slider` (a number) ·
- * `button` (an action) · `component` (embed a component).
- */
-
 /** An option in a {@link SettingSelect}. `label` is a Transloco key. */
 export interface SelectOption {
   readonly value: string;
@@ -98,7 +89,12 @@ export interface SettingComponent {
   readonly fullWidth?: boolean;
 }
 
-/** A settings control — the host renders each kind with the matching primitive. */
+/**
+ * A settings control; the host renders each kind with the matching primitive: `select` (single
+ * choice), `toggle` (on or off), `text` (a string field), `slider` (a number), `button` (an action)
+ * or `component` (a component of your own). Each control carries its own `value()` and `set()`, so
+ * whoever contributes the section keeps the storage; the host only reads and sets.
+ */
 export type SettingControl =
   | SettingSelect
   | SettingToggle
