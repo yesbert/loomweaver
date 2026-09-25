@@ -1,17 +1,16 @@
-import { drawMenuHeading } from './menu-heading';
+import { drawMenuHeading, wordMenuHeading } from './menu-heading';
 
 describe('the heading of a menu', () => {
   it('draws no second line where the detail translates to nothing', () => {
-    const menu = document.createElement('div');
+    const header = { title: 'account.title', detail: 'account.detail' };
+    const heading = drawMenuHeading(header);
 
-    const heading = drawMenuHeading(
-      { title: 'account.title', detail: 'account.detail' },
-      menu,
-      (key) => (key === 'account.detail' ? '' : 'Your account'),
+    const label = wordMenuHeading(heading, header, (key) =>
+      key === 'account.detail' ? '' : 'Your account',
     );
 
     const detail = heading.querySelector<HTMLElement>('.lw-menu-header-detail');
     expect(detail?.hidden ?? true).toBe(true);
-    expect(menu.getAttribute('aria-label')).toBe('Your account');
+    expect(label).toBe('Your account');
   });
 });

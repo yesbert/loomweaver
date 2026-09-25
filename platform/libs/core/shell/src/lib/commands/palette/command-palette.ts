@@ -14,7 +14,8 @@ import { RecentCommandsService } from './recent-commands.service';
 import { FeatureSwitches } from '../../features/feature-switches.service';
 import { DialogRef } from '../../dialog/dialog-ref';
 import { ContentTabsService } from '../../regions/content/tabs/content-tabs.service';
-import { MenuService, MENU_ANCHOR_GAP } from '../../menu/menu.service';
+import { MenuService } from '../../menu/menu.service';
+import { MENU_ANCHOR_GAP } from '../../elements/menu/lw-menu.element';
 import { TAB_CONTEXT_MENU } from '../../regions/content/tabs/tab-context-menu';
 import { Wording } from '../../i18n/wording';
 

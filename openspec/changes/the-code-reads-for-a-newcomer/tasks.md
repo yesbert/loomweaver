@@ -316,9 +316,14 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   follows.
   `surface-kit/surface-kit.frame.ts`; `build.mjs` and the lint exception follow. All five frame-kit
   artifacts built before and after are byte-identical.
-- [ ] 8.3 Menus (after the list-menu defect is fixed): `MenuService` split into resolution, drawing and
+- [x] 8.3 Menus (after the list-menu defect is fixed): `MenuService` split into resolution, drawing and
   wording; one row builder and one rule for the leading columns; `MENU_ANCHOR_GAP` imported from its
   owner; the trigger directive's names; the heading writer returns its label; the spec split.
+  `menu-resolution.ts` (which items show) and `menu-drawing.ts` (one `MenuRow`, one
+  `reserveLeadingColumns`, one row element); the service maps both inputs to rows and keeps
+  opening, presenting and running. The wording already had its file and `wordingChanges`. The
+  directive says `MenuIds`, `hasMenuIds` and `lwMenuAnnounced`. Delegating the run to
+  `CommandService.trigger` would add a published parameter and stays on the owner's list.
 - [ ] 8.4 Keyboard: one alias table for parsing and display, one "contested chords" function shared
   with the composition report, the private `invoke` renamed.
 - [ ] 8.5 The palette: rows instead of entries, row builders for commands and tabs out of the

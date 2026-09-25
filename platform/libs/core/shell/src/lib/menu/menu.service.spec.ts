@@ -2,7 +2,7 @@ import { ErrorHandler } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { MenuContext } from '@loomweaver/plugin-sdk';
-import { MenuService, whenMatches } from './menu.service';
+import { MenuService } from './menu.service';
 import { ContributionRegistry } from '../contributions/contribution-registry';
 import { CommandService } from '../commands/command.service';
 import {
@@ -27,28 +27,6 @@ function transloco() {
     preloadLangs: true,
   });
 }
-
-describe('whenMatches', () => {
-  const context = { targetKind: 'content-tab', pinned: false, closable: true };
-
-  it('matches when there is no when clause', () => {
-    expect(whenMatches(undefined, context)).toBe(true);
-  });
-
-  it('matches when every when key equals the context', () => {
-    expect(whenMatches({ closable: true }, context)).toBe(true);
-    expect(whenMatches({ closable: true, pinned: false }, context)).toBe(true);
-  });
-
-  it('does not match when any when key differs', () => {
-    expect(whenMatches({ pinned: true }, context)).toBe(false);
-    expect(whenMatches({ closable: true, pinned: true }, context)).toBe(false);
-  });
-
-  it('does not match a key missing from the context', () => {
-    expect(whenMatches({ group: 'editor' }, context)).toBe(false);
-  });
-});
 
 describe('MenuService', () => {
   let service: MenuService;
@@ -125,158 +103,6 @@ describe('MenuService', () => {
     expect(items0[0].getAttribute('command')).toBe('c.close');
     expect(items0[0].getAttribute('label')).toBe('Close tab');
     expect(document.body.classList.contains('lw-menu-open')).toBe(true);
-  });
-
-  it('filters by when and sorts by group then order, inserting a separator between groups', () => {
-    registry.addCommand({
-      id: 'c.a',
-      title: 'menu.close',
-      run: () => undefined,
-    });
-    registry.addCommand({
-      id: 'c.b',
-      title: 'menu.others',
-      run: () => undefined,
-    });
-    registry.addCommand({
-      id: 'c.hidden',
-      title: 'menu.pinned',
-      run: () => undefined,
-    });
-    registry.addMenuItem({
-      menu: 'm',
-      command: 'c.b',
-      group: '2_second',
-      order: 0,
-    });
-    registry.addMenuItem({
-      menu: 'm',
-      command: 'c.a',
-      group: '1_first',
-      order: 0,
-    });
-    registry.addMenuItem({
-      menu: 'm',
-      command: 'c.hidden',
-      when: { pinned: true },
-    });
-
-    service.open('m', context, { x: 0, y: 0 });
-
-    expect(items().map((index) => index.getAttribute('command'))).toEqual([
-      'c.a',
-      'c.b',
-    ]);
-    expect(menu()?.querySelector('[role="separator"]')).not.toBeNull();
-  });
-
-  it('drops a menu item whose command does not resolve instead of rendering its raw id', () => {
-    registry.addCommand({
-      id: 'c.close',
-      title: 'cmd.close',
-      run: () => undefined,
-    });
-    registry.addMenuItem({ menu: 'm', command: 'c.close' });
-    registry.addMenuItem({ menu: 'm', command: 'c.omitted' });
-
-    service.open('m', context, { x: 0, y: 0 });
-
-    const rendered = items();
-    expect(rendered.map((index) => index.getAttribute('command'))).toEqual([
-      'c.close',
-    ]);
-    expect(
-      rendered.some((index) => index.getAttribute('label') === 'c.omitted'),
-    ).toBe(false);
-  });
-
-  it('reflects the command icon + shortcut hints and the leading column', () => {
-    registry.addCommand({
-      id: 'c.close',
-      title: 'cmd.close',
-      icon: 'x',
-      shortcut: 'mod+w',
-      run: () => undefined,
-    });
-    registry.addMenuItem({ menu: 'm', command: 'c.close' });
-
-    service.open('m', context, { x: 0, y: 0 });
-
-    expect(items()[0].getAttribute('icon')).toBe('x');
-    expect(items()[0].getAttribute('shortcut')).toBeTruthy();
-    expect(menu()?.classList.contains('lw-menu--leading')).toBe(true);
-  });
-
-  it('renders a checkbox item and reflects its checked state from the context', () => {
-    registry.addCommand({
-      id: 'c.pin',
-      title: 'menu.pinned',
-      run: () => undefined,
-    });
-    registry.addMenuItem({
-      menu: 'm',
-      command: 'c.pin',
-      checkedWhen: { closable: true },
-    });
-
-    service.open('m', context, { x: 0, y: 0 });
-
-    const item = items()[0];
-    expect(item.hasAttribute('checkbox')).toBe(true);
-    expect(item.hasAttribute('checked')).toBe(true);
-  });
-
-  describe('the leading places a menu reserves', () => {
-    function openWith(entries: { icon?: string; checked?: boolean }[]): void {
-      for (const [index, entry] of entries.entries()) {
-        registry.addCommand({
-          id: `c.${index}`,
-          title: `cmd.${index}`,
-          icon: entry.icon,
-          run: () => undefined,
-        });
-        registry.addMenuItem({
-          menu: 'm',
-          command: `c.${index}`,
-          checkedWhen:
-            entry.checked === undefined
-              ? undefined
-              : { closable: entry.checked },
-        });
-      }
-      service.open('m', context, { x: 0, y: 0 });
-    }
-
-    function places(): string[] {
-      return ['lw-menu--checks', 'lw-menu--leading'].filter((name) =>
-        menu()?.classList.contains(name),
-      );
-    }
-
-    it('reserves only the check place for a menu of checks without icons', () => {
-      openWith([{ checked: true }, { checked: false }]);
-      expect(places()).toEqual(['lw-menu--checks']);
-    });
-
-    it('reserves only the icon place for a menu of icons without checks', () => {
-      openWith([{ icon: 'x' }, {}]);
-      expect(places()).toEqual(['lw-menu--leading']);
-    });
-
-    it('reserves both for a menu whose entries carry a check and an icon', () => {
-      openWith([
-        { icon: 'themeLight', checked: false },
-        { icon: 'themeDark', checked: true },
-      ]);
-      expect(places()).toEqual(['lw-menu--checks', 'lw-menu--leading']);
-      expect(items()[1].getAttribute('icon')).toBe('themeDark');
-      expect(items()[1].hasAttribute('checked')).toBe(true);
-    });
-
-    it('reserves neither for a plain menu', () => {
-      openWith([{}, {}]);
-      expect(places()).toEqual([]);
-    });
   });
 
   it('runs the selected item command with the context and closes', () => {
@@ -407,21 +233,6 @@ describe('MenuService', () => {
 
     expect(menu()).not.toBeNull();
     vi.useRealTimers();
-  });
-
-  it('drops a run-only item without a title instead of rendering an empty label', () => {
-    registry.addMenuItem({ menu: 'm', run: () => undefined });
-    registry.addMenuItem({
-      menu: 'm',
-      title: 'menu.close',
-      run: () => undefined,
-    });
-
-    service.open('m', context, { x: 0, y: 0 });
-
-    expect(items().map((index) => index.getAttribute('label'))).toEqual([
-      'Close',
-    ]);
   });
 
   it('does not leak the outside listener of a menu replaced before its listener attached', () => {

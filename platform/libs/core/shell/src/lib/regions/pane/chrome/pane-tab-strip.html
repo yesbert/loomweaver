@@ -181,7 +181,7 @@
     <button
       type="button"
       (click)="addTab.emit($event)"
-      lwMenuState
+      lwMenuAnnounced
       class="lw-icon-btn w-8"
       [class.self-stretch]="icons()"
       [attr.aria-label]="'content.split.newTab' | transloco"
@@ -196,7 +196,7 @@
     <button
       type="button"
       (click)="openOverflow($event)"
-      lwMenuState
+      lwMenuAnnounced
       class="lw-icon-btn w-8"
       [class.self-stretch]="icons()"
       [attr.aria-label]="'content.moreTabs' | transloco"
