@@ -7,7 +7,7 @@ import { WorkspaceService } from '../../workspace/workspace.service';
 import { RailWorkspaceEntries } from './rail-workspace-entries';
 import { RailItemsService, workspaceRailItemId } from './rail-items.service';
 import { RailItem } from '../../foundation/rail-item';
-import { provideWorkspaces } from '../../workspace/provide-workspaces';
+import { provideWorkspaces } from '../../workspace/declaration/provide-workspaces';
 import { provideShellFeatures } from '../../foundation/shell-features';
 
 @Component({ selector: 'lw-rail-probe', template: '' })

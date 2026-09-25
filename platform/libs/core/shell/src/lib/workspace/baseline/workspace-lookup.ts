@@ -1,18 +1,13 @@
-import {
-  BUILT_IN_WORKSPACE_ID,
-  PanelDeclarations,
-  WorkspaceDefinition,
-  claimsOf,
-  offersBuiltInWorkspace,
-  startingWorkspaceId,
-} from '../workspace-definition';
+import { BUILT_IN_WORKSPACE_ID, claimsOf, offersBuiltInWorkspace, startingWorkspaceId } from '../declaration/composed-definitions';
+import { PanelDeclarations } from '../declaration/definition-baseline';
+import { WorkspaceDefinition } from '../declaration/workspace-definition';
 import {
   settlementFor,
   withoutConflicts,
   type WorkspaceClaim,
 } from '../workspace-claims';
 import { type Workspace } from './workspace-state';
-import { definitionBaseline } from './definition-baseline';
+import { definitionBaseline } from '../declaration/definition-baseline';
 
 export function definitionOf(
   definitions: readonly WorkspaceDefinition[],

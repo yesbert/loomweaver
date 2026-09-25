@@ -24,7 +24,7 @@ import { AUTH_SOURCE } from '../../../auth/auth-context';
 import { ContentRouter } from './content-router';
 import { ContentReuseStrategy } from './content-reuse-strategy';
 import { provideLayout, ShellLayout } from '../../../layout/layout';
-import { provideWorkspaces } from '../../../workspace/provide-workspaces';
+import { provideWorkspaces } from '../../../workspace/declaration/provide-workspaces';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 import { findLeaf } from '../../pane/tree/pane-queries';
 import { CONTENT_DOCK } from '../../pane/tree/pane-address';

@@ -12,12 +12,10 @@ import {
 import { PaneNode } from './pane-node';
 import { tabPathsWhere } from './pane-queries';
 import { isAtOrBelow } from '../../content/content-path';
-import { WORKSPACE_DEFINITIONS } from '../../../workspace/provide-workspaces';
+import { WORKSPACE_DEFINITIONS } from '../../../workspace/declaration/provide-workspaces';
 import { WORKSPACES_KEY } from '../../../workspace/baseline/workspace-state';
-import {
-  claimsOf,
-  declaredTabPaths,
-} from '../../../workspace/workspace-definition';
+import { claimsOf } from '../../../workspace/declaration/composed-definitions';
+import { declaredTabPaths } from '../../../workspace/declaration/declared-content';
 import {
   claimFor,
   withoutConflicts,

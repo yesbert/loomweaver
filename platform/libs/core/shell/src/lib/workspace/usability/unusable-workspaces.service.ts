@@ -8,7 +8,7 @@ import {
 } from '../active-workspace.service';
 import { CONTENT_DOCK } from '../../regions/pane/tree/pane-address';
 import { collectTabs } from '../../regions/pane/tree/pane-queries';
-import { ANNOUNCE_UNUSABLE_WORKSPACES } from '../provide-workspaces';
+import { ANNOUNCE_UNUSABLE_WORKSPACES } from '../declaration/provide-workspaces';
 import { PANE_TREES_KEY } from '../../regions/pane/tree/pane-tree-storage';
 import {
   everyWorkspaceOrigin,

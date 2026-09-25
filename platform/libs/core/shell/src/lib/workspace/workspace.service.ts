@@ -28,19 +28,14 @@ import {
   ActiveWorkspaceService,
   workspaceScopedKey,
 } from './active-workspace.service';
-import {
-  BUILT_IN_WORKSPACE_ID,
-  PanelDeclarations,
-  WorkspaceDefinition,
-  auditWorkspaceDefinitions,
-  dedupedDefinitions,
-  offersBuiltInWorkspace,
-  startingWorkspaceId,
-} from './workspace-definition';
+import { BUILT_IN_WORKSPACE_ID, dedupedDefinitions, offersBuiltInWorkspace, startingWorkspaceId } from './declaration/composed-definitions';
+import { PanelDeclarations } from './declaration/definition-baseline';
+import { WorkspaceDefinition } from './declaration/workspace-definition';
+import { auditWorkspaceDefinitions } from './declaration/definition-audit';
 import { claimFor, type WorkspaceClaim } from './workspace-claims';
-import { warnDeclarationGaps } from './workspace-warnings';
+import { warnDeclarationGaps } from './declaration/definition-audit';
 import { unsavedWorkspaces } from './baseline/unsaved-workspaces';
-import { WORKSPACE_DEFINITIONS } from './provide-workspaces';
+import { WORKSPACE_DEFINITIONS } from './declaration/provide-workspaces';
 import { everyWorkspaceOrigin } from './usability/workspace-usability';
 import {
   parseWorkspaces,

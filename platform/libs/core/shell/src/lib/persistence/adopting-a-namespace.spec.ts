@@ -22,7 +22,7 @@ import { PaneTreeService } from '../regions/pane/tree/pane-tree.service';
 import { WORKING_STATE_STORE } from './working-state-store';
 import { WORKSPACE_SETTLEMENT } from '../regions/content/routing/workspace-settlement';
 import { WorkspaceService } from '../workspace/workspace.service';
-import { provideWorkspaces } from '../workspace/provide-workspaces';
+import { provideWorkspaces } from '../workspace/declaration/provide-workspaces';
 
 @Component({ selector: 'lw-test-content', template: '' })
 class TestContent {}

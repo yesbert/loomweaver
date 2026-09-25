@@ -12,7 +12,7 @@ import { buildContentRoutes } from '../regions/content/routing/content-route-tab
 import { ContentTabsService } from '../regions/content/tabs/content-tabs.service';
 import { WORKSPACE_SETTLEMENT } from '../regions/content/routing/workspace-settlement';
 import { WorkspaceService } from './workspace.service';
-import { provideWorkspaces } from './provide-workspaces';
+import { provideWorkspaces } from './declaration/provide-workspaces';
 
 @Component({ selector: 'lw-test-content', template: '' })
 class TestContent {}

@@ -13,7 +13,7 @@ import { UnsavedWork } from '../regions/pane/unsaved-work/unsaved-work';
 import { PanelState } from '../regions/panel/panel-state';
 import { CONTENT_DOCK } from '../regions/pane/tree/pane-address';
 import { PaneTreeService } from '../regions/pane/tree/pane-tree.service';
-import { provideWorkspaces } from './provide-workspaces';
+import { provideWorkspaces } from './declaration/provide-workspaces';
 import { WorkspaceService } from './workspace.service';
 
 const LAYOUT = {

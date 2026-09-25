@@ -6,7 +6,7 @@ import { UnusableWorkspacesService } from './unusable-workspaces.service';
 import {
   provideWorkspaces,
   withoutUnusableWorkspaceNotice,
-} from '../provide-workspaces';
+} from '../declaration/provide-workspaces';
 
 const LAYOUT = {
   regions: [
