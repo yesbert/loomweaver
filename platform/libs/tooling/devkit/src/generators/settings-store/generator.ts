@@ -1,7 +1,7 @@
 import { formatFiles, Tree } from '@nx/devkit';
 import { generate } from '../../lib/generate/generate';
 import { settingsStore } from '../../recipes/settings-store/recipe';
-import { resolveApp, writeFilesGuarded } from '../shared';
+import { resolveApp, writeFilesGuarded } from '../workspace-tree';
 import { SettingsStoreGeneratorSchema } from './schema';
 
 export async function settingsStoreGenerator(

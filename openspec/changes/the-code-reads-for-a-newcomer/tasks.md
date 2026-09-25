@@ -433,7 +433,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 
 ## 10. Tooling
 
-- [ ] 10.1 **Move:** `generators/shared.ts` to `workspace-tree.ts`, `nx-scaffold-shared.ts` to
+- [x] 10.1 **Move:** `generators/shared.ts` to `workspace-tree.ts`, `nx-scaffold-shared.ts` to
   `project-config-files.ts`, the auth-source `recipe-amendments.ts` to `amendments.ts`,
   `scaffolds/surface.ts` to `adapter-options.ts`.
 - [ ] 10.2 One source each: the id pattern and casing helpers in `casing.ts`, the `--styles` and

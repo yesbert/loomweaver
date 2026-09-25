@@ -1,13 +1,13 @@
 import { formatFiles, Tree } from '@nx/devkit';
 import { generate } from '../../lib/generate/generate';
-import { authSourceAmendments } from '../../recipes/auth-source/recipe-amendments';
+import { authSourceAmendments } from '../../recipes/auth-source/amendments';
 import { authSource } from '../../recipes/auth-source/recipe';
 import {
   addI18nAssetsGlob,
   composeIntoAppConfig,
   resolveApp,
   writeFilesGuarded,
-} from '../shared';
+} from '../workspace-tree';
 import { AuthSourceGeneratorSchema } from './schema';
 
 export async function authSourceGenerator(

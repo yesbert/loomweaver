@@ -1,7 +1,7 @@
 import { formatFiles, Tree } from '@nx/devkit';
 import { generate } from '../../lib/generate/generate';
 import { layout } from '../../recipes/layout/recipe';
-import { resolveApp, writeFilesGuarded } from '../shared';
+import { resolveApp, writeFilesGuarded } from '../workspace-tree';
 import { LayoutGeneratorSchema } from './schema';
 
 export async function layoutGenerator(

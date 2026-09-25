@@ -82,7 +82,7 @@ export {
   type ScaffoldOption,
   type ScaffoldValues,
 } from './lib/scaffolds/scaffolds';
-export { nxSchemaFor, portableOptions, usageFor } from './lib/scaffolds/surface';
+export { nxSchemaFor, portableOptions, usageFor } from './lib/scaffolds/adapter-options';
 export type { Finding, FindingLevel } from './lib/validate/types';
 export {
   validateManifest,

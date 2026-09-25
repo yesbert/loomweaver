@@ -2,7 +2,7 @@ import { formatFiles, logger, readJson, Tree, writeJson } from '@nx/devkit';
 import { amendments, generate } from '../../lib/generate/generate';
 import { asObject, ensureBuildTarget, JsonObject } from '../../lib/amend/merge';
 import { Amendment, BuildTargetAmendment } from '../../lib/amend/types';
-import { addPostcssPlugin, tsconfigPathsFile, writeFiles } from '../shared';
+import { addPostcssPlugin, tsconfigPathsFile, writeFiles } from '../workspace-tree';
 import { angularDistribution } from '../../recipes/angular-distribution/recipe';
 import { nxDistribution, nxDistributionFiles } from './nx-files';
 import { DistributionGeneratorSchema } from './schema';

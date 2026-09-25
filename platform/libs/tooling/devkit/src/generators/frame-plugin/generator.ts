@@ -1,7 +1,7 @@
 import { formatFiles, Tree } from '@nx/devkit';
 import { generate } from '../../lib/generate/generate';
 import { framePlugin } from '../../recipes/frame-plugin/recipe';
-import { resolveApp, writeFiles } from '../shared';
+import { resolveApp, writeFiles } from '../workspace-tree';
 import { SandboxPluginGeneratorSchema } from './schema';
 
 export async function framePluginGenerator(

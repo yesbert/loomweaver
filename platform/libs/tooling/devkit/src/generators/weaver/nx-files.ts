@@ -6,7 +6,7 @@ import {
   SHARED_COMPILER_OPTIONS,
   sharedEslintConfig,
   sharedTsconfigSpec,
-} from '../nx-scaffold-shared';
+} from '../project-config-files';
 
 export interface NxWeaverOptions {
   readonly id: string;

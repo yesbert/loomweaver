@@ -1,7 +1,7 @@
 import { formatFiles, Tree } from '@nx/devkit';
 import { generate } from '../../lib/generate/generate';
 import { theme } from '../../recipes/theme/recipe';
-import { resolveApp, writeFilesGuarded } from '../shared';
+import { resolveApp, writeFilesGuarded } from '../workspace-tree';
 import { ThemeGeneratorSchema } from './schema';
 
 export async function themeGenerator(
