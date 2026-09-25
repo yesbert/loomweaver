@@ -9,7 +9,8 @@ import {
   stringValue,
 } from '../../lib/scaffolds/scaffold-values';
 import { weaverAmendments } from './amendments';
-import { angularWeaver, type WeaverInput } from './recipe';
+import { angularWeaver } from './recipe';
+import type { WeaverInput } from './weaver-input';
 
 export function weaverInput(values: ScaffoldValues): WeaverInput {
   return {

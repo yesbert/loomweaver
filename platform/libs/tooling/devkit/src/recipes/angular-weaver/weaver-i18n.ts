@@ -1,4 +1,4 @@
-import type { ResolvedWeaver } from './recipe';
+import type { ResolvedWeaver } from './weaver-input';
 
 export function i18nBundle(weaver: ResolvedWeaver): Record<string, unknown> {
   const bundle: Record<string, unknown> = { title: weaver.name };
@@ -25,8 +25,9 @@ export function i18nBundle(weaver: ResolvedWeaver): Record<string, unknown> {
       },
     };
   }
-  if (weaver.features.settings)
+  if (weaver.features.settings) {
     bundle['settings'] = { title: weaver.name, enabled: 'Enabled', note: 'Note' };
+  }
   return bundle;
 }
 

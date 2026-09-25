@@ -1,4 +1,4 @@
-import type { ResolvedWeaver } from './recipe';
+import type { ResolvedWeaver } from './weaver-input';
 
 export function commandBlock(weaver: ResolvedWeaver): string {
   return [

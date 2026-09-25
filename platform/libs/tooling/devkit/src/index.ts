@@ -33,12 +33,12 @@ export {
   toPascalCase,
   toTitleCase,
 } from './lib/generate/casing';
+export { angularWeaver } from './recipes/angular-weaver/recipe';
 export {
-  angularWeaver,
   resolveWeaverInput,
   type WeaverInput,
   type ResolvedWeaver,
-} from './recipes/angular-weaver/recipe';
+} from './recipes/angular-weaver/weaver-input';
 export {
   framePlugin,
   resolveFramePluginInput,

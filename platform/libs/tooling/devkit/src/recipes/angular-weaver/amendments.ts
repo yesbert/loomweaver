@@ -2,7 +2,7 @@ import { joinProjectPath, normalizeProjectRoot } from '../../lib/amend/merge';
 import { Amendment } from '../../lib/amend/types';
 import { PLATFORM_VERSION } from '../platform-version';
 import { AG_UI_PROTOCOL_VERSION } from './agent-files';
-import { resolveWeaverInput, type WeaverInput } from './recipe';
+import { resolveWeaverInput, type WeaverInput } from './weaver-input';
 
 export function weaverAmendments(
   input: WeaverInput,

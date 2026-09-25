@@ -1,6 +1,6 @@
-import type { ResolvedWeaver } from './recipe';
+import type { ResolvedWeaver } from './weaver-input';
 import { quotedList } from '../../lib/amend/compose';
-import { CONTAINER_EXAMPLE_ID } from './weaver-terms';
+import { CONTAINER_EXAMPLE_ID } from './weaver-plugin';
 import { PLATFORM_VERSION } from '../platform-version';
 import { AG_UI_PROTOCOL_VERSION } from './agent-files';
 
