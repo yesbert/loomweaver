@@ -29,6 +29,18 @@ const UNAVAILABLE: CommandOutcome = {
     'requirement, this window may not host it, or the caller may lack the automation capability.',
 };
 
+interface Caller {
+  readonly id: string;
+  readonly mayAutomate: boolean;
+}
+
+function isOwnCommand(
+  entry: RegisteredCommand | undefined,
+  caller: Caller,
+): boolean {
+  return entry?.ownerId !== undefined && entry.ownerId === caller.id;
+}
+
 @Service()
 export class CommandInvocationService implements CommandInvoker {
   private readonly commands = inject(CommandService);
@@ -39,12 +51,12 @@ export class CommandInvocationService implements CommandInvoker {
   private depth = 0;
 
   invocable(callerId: string, granted: boolean): readonly InvocableCommand[] {
+    const caller: Caller = { id: callerId, mayAutomate: granted };
     return this.registry
       .registeredCommands()
       .filter(
         (entry) =>
-          entry.command.callable === true &&
-          this.reachable(entry, callerId, granted),
+          entry.command.callable === true && this.reachable(entry, caller),
       )
       .map((entry) => this.describe(entry.command))
       .toSorted((a, b) => a.id.localeCompare(b.id));
@@ -56,11 +68,12 @@ export class CommandInvocationService implements CommandInvoker {
     id: string,
     args?: CommandArguments,
   ): Promise<CommandOutcome> {
+    const caller: Caller = { id: callerId, mayAutomate: granted };
     const entry = this.registry
       .registeredCommands()
       .find((candidate) => candidate.command.id === id);
-    if (entry === undefined || !this.reachable(entry, callerId, granted)) {
-      this.reportRefusal(callerId, entry, granted);
+    if (entry === undefined || !this.reachable(entry, caller)) {
+      this.reportRefusal(caller, entry);
       return UNAVAILABLE;
     }
     const command = entry.command;
@@ -114,31 +127,25 @@ export class CommandInvocationService implements CommandInvoker {
     return { outcome: 'answered', value: returned };
   }
 
-  private reachable(
-    entry: RegisteredCommand,
-    callerId: string,
-    granted: boolean,
-  ): boolean {
-    const own = entry.ownerId !== undefined && entry.ownerId === callerId;
-    if (!own && !(granted && entry.command.callable === true)) {
+  private reachable(entry: RegisteredCommand, caller: Caller): boolean {
+    const opened = caller.mayAutomate && entry.command.callable === true;
+    if (!isOwnCommand(entry, caller) && !opened) {
       return false;
     }
     return this.commands.available(entry.command);
   }
 
   private reportRefusal(
-    callerId: string,
+    caller: Caller,
     entry: RegisteredCommand | undefined,
-    granted: boolean,
   ): void {
-    const own = entry?.ownerId !== undefined && entry.ownerId === callerId;
-    if (granted || own) {
+    if (caller.mayAutomate || isOwnCommand(entry, caller)) {
       return;
     }
     this.errors.handleError(
       new CapabilityError(
         'automation',
-        callerId,
+        caller.id,
         'Running an action another plugin contributed needs the automation capability.',
       ),
     );

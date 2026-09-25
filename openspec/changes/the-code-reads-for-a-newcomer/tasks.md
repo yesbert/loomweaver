@@ -359,8 +359,11 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   file goes.
   `toneIcon`, `cancelAndConfirm` and `customButtons` in the service; `confirmedResult` and
   `validationError` in the outlet. The package now re-exports `DialogRef` straight from the SDK.
-- [ ] 8.9 Icons: the registry file carries the registry, the class that polices plugin icons is named
+- [x] 8.9 Icons: the registry file carries the registry, the class that polices plugin icons is named
   for that, the spec calls `resolveIcon`. Command invocation computes ownership once.
+  `icon-registry.ts` is the store (was `icon-registry-global.ts`); `PluginIconContributions` in
+  `plugin-icon-contributions.ts` polices plugin icons and lost its spec-only `resolve`. The invocation
+  service asks `isOwnCommand` once and passes a `Caller` instead of an id and a boolean.
 
 ## 9. The published packages: layout and text
 

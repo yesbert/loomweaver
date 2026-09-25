@@ -1,49 +1,36 @@
-import { isDevMode, Service } from '@angular/core';
-import { Disposable } from '@loomweaver/plugin-sdk';
-import {
-  hasIcon,
-  removeIcon,
-  resolveIcon,
-  sanitizeIconSvg,
-  setIcon,
-} from './icon-registry-global';
+import DOMPurify from 'dompurify';
+import { LOOM_ICONS } from './loom-icons';
 
-@Service()
-export class IconRegistry {
-  register(
-    pluginId: string,
-    icons: Readonly<Record<string, string>>,
-  ): Disposable {
-    const added: string[] = [];
-    for (const [name, svg] of Object.entries(icons)) {
-      if (hasIcon(name)) {
-        this.warn(
-          `Plugin "${pluginId}" tried to contribute icon "${name}", but that name is already ` +
-            `registered — ignored (first-wins). Pick a unique name.`,
-        );
-        continue;
-      }
-      const safe = sanitizeIconSvg(svg);
-      if (safe.length === 0) {
-        this.warn(
-          `Plugin "${pluginId}" contributed icon "${name}" whose SVG did not survive ` +
-            `sanitization — ignored.`,
-        );
-        continue;
-      }
-      setIcon(name, safe);
-      added.push(name);
-    }
-    return { dispose: () => { for (const name of added) removeIcon(name) } };
-  }
+const icons = new Map<string, string>(Object.entries(LOOM_ICONS));
+const distribution = new Map<string, string>();
 
-  resolve(name: string): string | undefined {
-    return resolveIcon(name);
-  }
+export function resolveIcon(name: string): string | undefined {
+  return icons.get(name);
+}
 
-  private warn(message: string): void {
-    if (isDevMode()) {
-      console.warn(message);
-    }
-  }
+export function hasIcon(name: string): boolean {
+  return icons.has(name);
+}
+
+export function sanitizeIconSvg(svg: string): string {
+  return DOMPurify.sanitize(svg, {
+    USE_PROFILES: { svg: true, svgFilters: true },
+  });
+}
+
+export function setIcon(name: string, svg: string): void {
+  icons.set(name, svg);
+}
+
+export function setDistributionIcon(name: string, svg: string): void {
+  distribution.set(name, svg);
+  icons.set(name, svg);
+}
+
+export function distributionIcons(): Readonly<Record<string, string>> {
+  return Object.fromEntries(distribution);
+}
+
+export function removeIcon(name: string): void {
+  icons.delete(name);
 }

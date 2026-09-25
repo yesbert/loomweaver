@@ -35,7 +35,7 @@ import { normalizePath } from '../../regions/content/content-path';
 import { ContentTabsService } from '../../regions/content/tabs/content-tabs.service';
 import { SettingsService } from '../../settings-dialog/settings.service';
 import { SettingsSection } from '../../settings-dialog/settings-model';
-import { IconRegistry } from '../../elements/icon/icon-registry';
+import { PluginIconContributions } from '../../elements/icon/plugin-icon-contributions';
 import { ThemeRegistry } from '../../theme/theme-registry';
 import { SurfaceRevealService } from '../../regions/reveal/surface-reveal.service';
 import { PluginStateService } from '../plugin-state.service';
@@ -61,7 +61,7 @@ export class HostPluginContext implements PluginContext {
 
   private readonly regions = inject(SHELL_LAYOUT).regions;
 
-  private readonly icons = inject(IconRegistry);
+  private readonly icons = inject(PluginIconContributions);
 
   private readonly themes = inject(ThemeRegistry);
 

@@ -1,7 +1,4 @@
-import {
-  sanitizeIconSvg,
-  setIcon,
-} from '../elements/icon/icon-registry-global';
+import { sanitizeIconSvg, setIcon } from '../elements/icon/icon-registry';
 import { LW_ICON_TAG, LwIconElement } from '../elements/icon/lw-icon.element';
 import type { LwSurfaceRenderState } from './surface-kit.frame';
 

@@ -3,7 +3,7 @@ import {
   reflectAttribute,
   upgradeElementProperty,
 } from '../custom-elements';
-import { resolveIcon } from './icon-registry-global';
+import { resolveIcon } from './icon-registry';
 
 /** The custom-element tag. */
 export const LW_ICON_TAG = 'lw-icon';
