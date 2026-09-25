@@ -423,6 +423,13 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   of packages without one, the renamed-on-import vitest export, one module setting for the two ESM
   packages, one shared Angular lint config for the four Angular projects. The removal from all eleven
   `project.json` files after the owner's decision.
+  Done except that last part. `nx.json` no longer names `.eslintrc.json`, `.eslintignore`,
+  `tools/eslint-rules` or `test-setup` files, none of which exist; the tsconfig, lint and Sonar
+  ignores of `test-setup.ts` are gone for the same reason; the vitest helper is exported as
+  `nodeLibraryTestConfig`; the SDK and the adapter inherit one module setting (their packed output is
+  byte-identical); the root `eslint.config.mjs` exports `angularConfig`, which the four Angular
+  projects use, and the resolved config of eleven sample files is identical. It lives in the root
+  file because that file is already a lint input of every project.
 
 ## 10. Tooling
 

@@ -11,7 +11,7 @@ const tailwindEntryPoint = fileURLToPath(
     new URL("apps/loom-testbed/src/styles.css", import.meta.url)
 );
 
-export default [
+const baseConfig = [
     ...nx.configs["flat/base"],
     ...nx.configs["flat/typescript"],
     ...nx.configs["flat/javascript"],
@@ -410,6 +410,34 @@ export default [
                 { ignore: ["^lw-"] }
             ],
             "better-tailwindcss/enforce-consistent-class-order": "warn"
+        }
+    }
+];
+
+export default baseConfig;
+
+export const angularConfig = [
+    ...nx.configs["flat/angular"],
+    ...nx.configs["flat/angular-template"],
+    ...baseConfig,
+    {
+        files: ["**/*.ts"],
+        rules: {
+            "@angular-eslint/component-max-inline-declarations": ["error"],
+            "@angular-eslint/directive-selector": [
+                "error",
+                { type: "attribute", prefix: "lw", style: "camelCase" }
+            ],
+            "@angular-eslint/component-selector": [
+                "error",
+                { type: "element", prefix: "lw", style: "kebab-case" }
+            ]
+        }
+    },
+    {
+        files: ["**/*.spec.ts"],
+        rules: {
+            "@angular-eslint/component-max-inline-declarations": "off"
         }
     }
 ];
