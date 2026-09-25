@@ -62,8 +62,7 @@ export interface ContainerChildEntry {
    * (`/runs/abc123/verdict`); in a split pane or a pop-out the child stays put and the address simply
    * does not express it.
    *
-   * Without a segment the child behaves exactly as it always has: reachable from the inner picker,
-   * one instance, no address.
+   * Without a segment the child is reachable from the inner picker, one instance, with no address.
    *
    * A child whose segment carries a value cannot be seeded in {@link ContainerSpec.initial} or offered
    * by the picker — neither knows what value to use. It is opened by a sibling, which is the point.
@@ -94,16 +93,14 @@ export interface ContainerTab {
 /**
  * What a content route renders from (the UI-boundary form). Exactly one is set:
  *
- * - `component` — an Angular class rendered in-process (trusted rung; the default today). Cannot
+ * - `component` — an Angular class rendered in-process, so only for a trusted plugin. Cannot
  *   cross an RPC boundary, so a **sandboxed** plugin never uses this form.
  * - `iframe` — a URL the host mounts as an **isolated** `<iframe sandbox>` surface. A plain string, so it
  *   serialises over the `ctx`-RPC boundary; this is how a sandboxed, non-Angular plugin contributes a
- *   content view (the first untrusted rung). A **trusted** plugin may use it too, to embed a foreign
- *   origin on purpose (a dashboard, a docs site, a video): a sandboxed plugin is confined to same-origin
- *   URLs at the RPC seam, whereas for a trusted one the distribution's CSP `frame-src` decides.
+ *   content view. A **trusted** plugin may use it too, to embed a foreign origin on purpose (a
+ *   dashboard, a docs site, a video): a sandboxed plugin is confined to the origins its distribution
+ *   permitted, whereas for a trusted one the distribution's CSP `frame-src` decides.
  * - `container` — the host draws a nested pane tree of child surfaces.
- *
- * (`element` — a Web-Component tag — is the reserved form for the later WC rung; not yet.)
  */
 export type ContentSurface =
   | {
@@ -170,8 +167,8 @@ export interface ContentRouteBase {
   readonly titleIsLiteral?: boolean;
   /**
    * Nested sub-route segments under this route — the view's own level-2 tabs (e.g. `['code','preview']`),
-   * reflected in the URL as real path segments (`doc/:id/code`) so they are shareable and restorable
-   *. Angular syntax, so a segment may **carry a value** (`'structure/:structureId'`). There is
+   * reflected in the URL as real path segments (`doc/:id/code`) so they are shareable and restorable.
+   * Angular syntax, so a segment may **carry a value** (`'structure/:structureId'`). There is
    * **no forced default**: the bare tab root is a valid address and the surface decides what it shows
    * there. The route's `path` stays the **tab root**: navigating between sub-routes stays in one tab and
    * preserves the parent component's state. A component reads the active sub from its injected route,
@@ -263,7 +260,7 @@ export interface OpenTabInput {
    * Whether {@link title} is a **literal** (shown verbatim) rather than a Transloco key. Default
    * `false` (the host translates it, preserving key-titled dynamic tabs). Set `true` for an inherently
    * dynamic title — a document name, an entity label — so the host skips the i18n lookup and does not
-   * log a benign "missing translation" dev warning (finding #8).
+   * log a benign "missing translation" dev warning.
    */
   readonly titleIsLiteral?: boolean;
   /**
@@ -276,7 +273,7 @@ export interface OpenTabInput {
    */
   readonly onClose?: () => void;
   /**
-   * Opens this as a **preview tab** (VS-Code "Preview Editors") — the one reused, *italic* tab of
+   * Opens this as a **preview tab** — the one reused, *italic* tab of
    * the main area for transient browsing: a subsequent `openContentTab({ preview: true })` for a
    * **different** path replaces the preview's content instead of adding a tab, so browsing many items
    * doesn't pile up tabs. It replaces it **wherever it stands**: a user who dragged the preview into
