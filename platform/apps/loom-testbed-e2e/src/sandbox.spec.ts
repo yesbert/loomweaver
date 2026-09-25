@@ -63,16 +63,14 @@ test.describe('Sandbox stage — iframe plugin over Penpal', () => {
   test('a second sandboxed plugin auto-opens as a tab on visit', async ({
     page,
   }) => {
-    await page.goto('/sandbox-static');
+    await page.goto('/sandbox-rest');
 
-    const infoTab = page.getByRole('tab', { name: 'Sandbox (static tab)' });
+    const infoTab = page.getByRole('tab', { name: 'Sandbox (rest route)' });
     await expect(infoTab).toBeVisible();
 
-    const surface = page.frameLocator(
-      'iframe[src*="/sandbox-static/view.html"]',
-    );
+    const surface = page.frameLocator('iframe[src*="/sandbox-rest/view.html"]');
     await expect(
-      surface.getByRole('heading', { name: /static, non-closable tab/ }),
+      surface.getByRole('heading', { name: /below its prefix is its own/ }),
     ).toBeVisible();
   });
 

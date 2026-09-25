@@ -17,14 +17,14 @@ const SANDBOX_RPC: FramePlugin = {
   capabilities: ['contributions', 'ui', 'session'],
 };
 
-const SANDBOX_STATIC: FramePlugin = {
-  id: 'sandbox-static',
-  entryUrl: '/sandbox-static/plugin.html',
+const SANDBOX_REST: FramePlugin = {
+  id: 'sandbox-rest',
+  entryUrl: '/sandbox-rest/plugin.html',
   capabilities: ['contributions', 'navigation'],
 };
 
 const TRUSTED_PLUGINS = [testbedPlugin, testbedCapturePlugin];
-const SANDBOXED_PLUGINS = [SANDBOX_RPC, SANDBOX_STATIC];
+const SANDBOXED_PLUGINS = [SANDBOX_RPC, SANDBOX_REST];
 
 export function provideTestbedPlugins(): (Provider | EnvironmentProviders)[] {
   return [
@@ -34,7 +34,10 @@ export function provideTestbedPlugins(): (Provider | EnvironmentProviders)[] {
           plugin.manifest.id,
           plugin.manifest.capabilities ?? [],
         ]),
-        ...SANDBOXED_PLUGINS.map((plugin) => [plugin.id, plugin.capabilities ?? []]),
+        ...SANDBOXED_PLUGINS.map((plugin) => [
+          plugin.id,
+          plugin.capabilities ?? [],
+        ]),
       ]),
     ),
     ...providePlugins(...TRUSTED_PLUGINS),

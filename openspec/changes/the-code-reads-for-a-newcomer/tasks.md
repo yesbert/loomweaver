@@ -584,6 +584,10 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   `sandbox-static` to a name for what it exercises; their texts match what they register; tokens
   without hard-coded colours; `sandbox-rpc/view.js` (433 lines) split into markup, strings, veto and
   menu; `public/**` scripts linted.
+  So far: `sandbox-static` is `sandbox-rest` (folder, ids, route prefix, the `sandboxRest` i18n
+  section, "Sandbox (rest route)"), and its page describes the rest route, the withheld line and the
+  docked surface it actually registers, with neutral example paths and colours from the frame kit's
+  tokens and `lw-badge`. The end-to-end suite passes.
 - [ ] 11.8 One icon set for the platform apps; end-to-end helpers and the weaver's Transloco setup
   written once.
 

@@ -3,9 +3,9 @@ import { Page, expect, test } from '@playwright/test';
 const mod = process.platform === 'darwin' ? 'Meta' : 'Control';
 
 async function openSandbox(page: Page): Promise<void> {
-  await page.goto('/sandbox-static');
+  await page.goto('/sandbox-rest');
   await expect(
-    page.locator('iframe[src*="/sandbox-static/view.html"]'),
+    page.locator('iframe[src*="/sandbox-rest/view.html"]'),
   ).toBeAttached({ timeout: 20_000 });
 }
 

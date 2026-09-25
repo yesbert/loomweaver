@@ -1,4 +1,6 @@
 (function () {
+  const PREFIX = 'sandbox-rest';
+
   const connection = globalThis.Penpal.connect({
     messenger: new globalThis.Penpal.WindowMessenger({
       remoteWindow: globalThis.parent,
@@ -17,21 +19,21 @@
 
   function go(rest) {
     connection.promise.then(function (host) {
-      return host.navigate('sandbox-static' + rest);
+      return host.navigate(PREFIX + rest);
     });
   }
 
   document.getElementById('go-deep').addEventListener('click', function () {
-    go('/programs/205470/pricing');
+    go('/guide/setup');
   });
   document.getElementById('go-query').addEventListener('click', function () {
-    go('/programs/205470/pricing?treaty=886320');
+    go('/guide/setup?step=2');
   });
   document.getElementById('go-root').addEventListener('click', function () {
     go('');
   });
 
   connection.promise.catch(function (error) {
-    console.error('[sandbox-info view] host connection failed', error);
+    console.error('[sandbox-rest view] host connection failed', error);
   });
 })();
