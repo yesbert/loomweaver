@@ -19,11 +19,15 @@ export {
 export {
   type Article,
   type Customer,
+  type Supplier,
+  SUPPLIERS,
   ARTICLES,
   addCustomer,
   articleById,
   customerById,
   customerName,
+  supplierById,
+  supplierName,
   customers,
   resetCustomers,
 } from './catalog';

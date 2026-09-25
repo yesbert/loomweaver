@@ -11,7 +11,7 @@ import {
 import { quotesActions } from './quotes-actions';
 import { activeLanguage } from '../i18n/active-language';
 
-interface OpenItemRow {
+interface AwaitingRow {
   readonly quote: Quote;
   readonly customer: string;
   readonly total: string;
@@ -19,14 +19,14 @@ interface OpenItemRow {
 }
 
 @Component({
-  selector: 'lw-quotes-open-items-view',
+  selector: 'lw-quotes-awaiting-answer-view',
   imports: [TranslocoPipe],
-  templateUrl: './quotes-open-items-view.html',
+  templateUrl: './quotes-awaiting-answer-view.html',
 })
-export class QuotesOpenItemsView {
+export class QuotesAwaitingAnswerView {
   private readonly lang = activeLanguage();
 
-  protected readonly rows = computed<readonly OpenItemRow[]>(() => {
+  protected readonly rows = computed<readonly AwaitingRow[]>(() => {
     const lang = this.lang();
     return quotes()
       .filter((quote) => quote.status === 'sent')
@@ -39,7 +39,7 @@ export class QuotesOpenItemsView {
       .sort((a, b) => a.daysLeft - b.daysLeft);
   });
 
-  protected open(row: OpenItemRow): void {
+  protected open(row: AwaitingRow): void {
     quotesActions.keep(row.quote);
   }
 }

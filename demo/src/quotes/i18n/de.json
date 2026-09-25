@@ -79,7 +79,7 @@
       "customer": "Teil des Kundennamens, für den das Angebot gilt."
     }
   },
-  "openItems": {
+  "awaitingAnswer": {
     "title": "Offene Angebote",
     "hint": "Verschickt und noch nicht entschieden.",
     "daysLeft": "Noch {{days}} Tage gültig",

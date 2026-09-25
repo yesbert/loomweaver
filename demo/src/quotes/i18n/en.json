@@ -79,7 +79,7 @@
       "customer": "Part of the name of the customer the quote is for."
     }
   },
-  "openItems": {
+  "awaitingAnswer": {
     "title": "Open quotes",
     "hint": "Sent and not yet decided.",
     "daysLeft": "{{days}} days left",

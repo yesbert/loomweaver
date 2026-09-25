@@ -29,7 +29,7 @@ export const MODULES: readonly ProductModule[] = [
     icon: 'overview',
     prefix: '',
     home: true,
-    leftPanel: 'quotes.openItems',
+    leftPanel: 'quotes.awaitingAnswer',
     areas: [],
   },
   {

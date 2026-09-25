@@ -22,9 +22,9 @@
         payer: 'Payer',
         reference: 'Reference',
         amount: 'Amount',
-        number: 'Quote',
+        number: 'Invoice',
         customer: 'Customer',
-        gross: 'Gross',
+        open: 'Open',
       },
       outcome: {
         confirmed: 'Amounts agree',
@@ -54,9 +54,9 @@
         payer: 'Zahler',
         reference: 'Verwendungszweck',
         amount: 'Betrag',
-        number: 'Angebot',
+        number: 'Rechnung',
         customer: 'Kunde',
-        gross: 'Brutto',
+        open: 'Offen',
       },
       outcome: {
         confirmed: 'Beträge stimmen',
@@ -87,14 +87,14 @@
       id: 'b-1',
       date: daysAgo(1),
       payer: 'Nordwind Logistik GmbH',
-      reference: 'RECHNUNG Q-0007',
+      reference: 'RECHNUNG RE-2043',
       amount: 1826412,
     },
     {
       id: 'b-2',
       date: daysAgo(2),
       payer: 'Kranich Medien GmbH',
-      reference: 'Q-0006 ABZUEGL. SKONTO',
+      reference: 'RE-2044 ABZUEGL. SKONTO',
       amount: 442200,
     },
     {
@@ -103,6 +103,20 @@
       payer: 'Talbach Werkzeugbau GmbH',
       reference: 'ERSTATTUNG REISEKOSTEN',
       amount: 24900,
+    },
+    {
+      id: 'b-4',
+      date: daysAgo(5),
+      payer: 'Steinweg Architekten PartG',
+      reference: 'RE-2045',
+      amount: 738990,
+    },
+    {
+      id: 'b-5',
+      date: daysAgo(6),
+      payer: 'Talbach Werkzeugbau GmbH',
+      reference: 'RECHNUNG RE-2047 VOM 21.',
+      amount: 1192500,
     },
   ];
 
@@ -143,9 +157,9 @@
     return (openItems ?? []).find((item) => line.reference.includes(item.number));
   }
 
-  function withinTolerance(gross, amount) {
-    const allowed = (gross * settings.tolerance) / 100;
-    return Math.abs(gross - amount) <= allowed;
+  function withinTolerance(open, amount) {
+    const allowed = (open * settings.tolerance) / 100;
+    return Math.abs(open - amount) <= allowed;
   }
 
   function outcomeOf(line) {
@@ -153,7 +167,7 @@
     if (!item) {
       return 'unassigned';
     }
-    return withinTolerance(item.gross, line.amount) ? 'confirmed' : 'flagged';
+    return withinTolerance(item.open, line.amount) ? 'confirmed' : 'flagged';
   }
 
   function shownStatement() {
@@ -166,7 +180,7 @@
 
   function isExact(line) {
     const item = matchFor(line);
-    return Boolean(item) && item.gross === line.amount;
+    return Boolean(item) && item.open === line.amount;
   }
 
   function settledNumbers() {
@@ -179,7 +193,7 @@
     const settled = settledNumbers();
     return (openItems ?? [])
       .filter((item) => !settled.includes(item.number))
-      .reduce((sum, item) => sum + item.gross, 0);
+      .reduce((sum, item) => sum + item.open, 0);
   }
 
   function badgeFor(line) {
@@ -273,7 +287,7 @@
       '"><div class="row-head"><span class="payer">' +
       escapeHtml(item.number) +
       '</span><span class="amount">' +
-      money(item.gross) +
+      money(item.open) +
       '</span></div><div class="row-meta"><span>' +
       escapeHtml(item.customer) +
       '</span>' +

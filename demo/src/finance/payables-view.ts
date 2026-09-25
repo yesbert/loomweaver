@@ -1,7 +1,7 @@
 import { Component, computed } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { payables, payablesOutstanding } from './books';
-import { formatDate, formatMoney } from '../accounting';
+import { formatDate, formatMoney, supplierName } from '../accounting';
 import { activeLanguage } from '../i18n/active-language';
 
 @Component({
@@ -16,6 +16,7 @@ export class PayablesView {
     const lang = this.lang();
     return payables().map((entry) => ({
       entry,
+      supplier: supplierName(entry.supplierId),
       due: formatDate(entry.dueOn, lang),
       gross: formatMoney(entry.gross, lang),
     }));

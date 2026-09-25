@@ -1,6 +1,7 @@
 import { Component, computed } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { SUPPLIERS, openOrdersBySupplier } from './purchasing';
+import { openOrdersBySupplier } from './purchasing';
+import { SUPPLIERS } from '../accounting';
 
 @Component({
   selector: 'lw-supplier-list-view',

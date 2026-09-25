@@ -3,14 +3,6 @@ import { type Cents, daysSince, isoDaysFromToday } from '../accounting';
 
 export type PurchaseOrderStatus = 'ordered' | 'confirmed' | 'received';
 
-export interface Supplier {
-  readonly id: string;
-  readonly number: string;
-  readonly name: string;
-  readonly city: string;
-  readonly leadTimeDays: number;
-}
-
 export interface PurchaseOrder {
   readonly id: string;
   readonly number: string;
@@ -30,15 +22,6 @@ interface PurchaseOrderSeed {
   readonly net: Cents;
   readonly status: PurchaseOrderStatus;
 }
-
-export const SUPPLIERS: readonly Supplier[] = [
-  { id: 's-elbe', number: 'L-2001', name: 'Papierwerk Elbe GmbH', city: 'Hamburg', leadTimeDays: 5 },
-  { id: 's-rechenzentrum', number: 'L-2002', name: 'Rechenzentrum Nord AG', city: 'Bremen', leadTimeDays: 14 },
-  { id: 's-kontorhaus', number: 'L-2003', name: 'Kontorhaus Verwaltung', city: 'Hamburg', leadTimeDays: 30 },
-  { id: 's-mohnfeld', number: 'L-2004', name: 'Mohnfeld Bürotechnik GmbH', city: 'Kassel', leadTimeDays: 7 },
-  { id: 's-taler', number: 'L-2005', name: 'Taler Metallbau KG', city: 'Solingen', leadTimeDays: 21 },
-  { id: 's-lindgruen', number: 'L-2006', name: 'Lindgrün Catering', city: 'Köln', leadTimeDays: 3 },
-];
 
 const ORDER_SEEDS: readonly PurchaseOrderSeed[] = [
   { id: 'o-1', number: 'BE-4310', supplierId: 's-elbe', orderedDaysAgo: 18, leadDays: 5, net: 214_800, status: 'received' },
@@ -68,14 +51,6 @@ export const purchaseOrders = orderStore.asReadonly();
 
 export function resetPurchasing(): void {
   orderStore.set(seededOrders());
-}
-
-export function supplierById(id: string): Supplier | undefined {
-  return SUPPLIERS.find((supplier) => supplier.id === id);
-}
-
-export function supplierName(id: string): string {
-  return supplierById(id)?.name ?? id;
 }
 
 export function daysLate(expectedOn: string): number {
