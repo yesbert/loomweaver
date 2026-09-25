@@ -10,8 +10,8 @@ export const LW_ICON_TAG = 'lw-icon';
 const DEFAULT_SIZE = '1.25rem';
 
 /**
- * `<lw-icon name="add" size="1rem">` — the host icon primitive as a framework-agnostic custom element
- *: a plain `HTMLElement` that resolves a **name** to its SVG via the module-global icon
+ * `<lw-icon name="add" size="1rem">` — the host icon primitive as a framework-agnostic custom element:
+ * a plain `HTMLElement` that resolves a **name** to its SVG via the module-global icon
  * registry — no Angular DI, no `@ng-icons` runtime — so it works in a weaver body by tag, not
  * only in shell chrome. Light DOM: the SVG uses `currentColor`, so `text-*` tokens tint it for free.
  *

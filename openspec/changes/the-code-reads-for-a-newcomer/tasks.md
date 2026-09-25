@@ -291,8 +291,13 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   optional `peek` for both store wrappers, `registerIn` holds the disposer both sync registrations
   wrote, and `LocalStorageStore` no longer returns twice. `cross-tab/` and `identity-scope/`, with
   `boot-latched-identity.ts`, `identity-scoped-store.ts` and `provide-identity-scoped-stores.ts`.
-- [ ] 7.10 Settings: **move** `settings/` to `settings-dialog/`; the JSDoc of `SettingsService` says what
+- [x] 7.10 Settings: **move** `settings/` to `settings-dialog/`; the JSDoc of `SettingsService` says what
   happens today; the remaining small names of the area.
+  In two PRs: the folder and the settings JSDoc, then the small names of the whole group
+  (`WorkspaceDiscardConfirmation`, `argumentProblem` with `declaredArguments`, `announcesUnusable`
+  with the id set private, the gap checks reading the id from the definition) and the published
+  JSDoc lines that began with a stray colon, one of them in the plugin contract. `holdsStrings` stays
+  in the missing-key handler: both its users are in `i18n/` now.
 - [ ] 7.11 Tests: `workspace.service.spec.ts` split by concept, the `settled()` helpers named after what
   they wait for, `settings-store.spec.ts` named for the four ports it tests.
 

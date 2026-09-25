@@ -20,9 +20,9 @@ export class UnusableWorkspacesService implements UnusableWorkspaces {
   private readonly workingStateStore = inject(WORKING_STATE_STORE);
   private readonly paneTree = inject(PaneTreeService);
 
-  readonly announces = inject(ANNOUNCE_UNUSABLE_WORKSPACES);
+  readonly announcesUnusable = inject(ANNOUNCE_UNUSABLE_WORKSPACES);
 
-  readonly unusable = computed(() =>
+  private readonly unusable = computed(() =>
     unusableWorkspaceIds({
       workspaces: this.catalog.everyOrigin(),
       activeId: this.active.id(),
@@ -39,6 +39,6 @@ export class UnusableWorkspacesService implements UnusableWorkspaces {
   }
 
   announced(): boolean {
-    return this.announces && this.unusable().has(this.active.id());
+    return this.announcesUnusable && this.unusable().has(this.active.id());
   }
 }

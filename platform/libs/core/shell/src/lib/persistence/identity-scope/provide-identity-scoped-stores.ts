@@ -21,8 +21,8 @@ import {
 } from '../device-level-keys';
 
 /**
- * The storage keys that stay **device-level** by default when the stores are identity-scoped
- *: preferences that reasonably belong to the browser, not the signed-in user. Extend the
+ * The storage keys that stay **device-level** by default when the stores are identity-scoped:
+ * preferences that reasonably belong to the browser, not the signed-in user. Extend the
  * default via `provideIdentityScopedStores({ deviceKeys: [...DEVICE_LEVEL_KEYS, 'my.key'] })`.
  */
 export const DEVICE_LEVEL_KEYS: readonly string[] = [
@@ -38,8 +38,8 @@ export interface IdentityScopedStoreOptions {
    * (typically `AuthSnapshot.subject`; encode the tenant into it if tenant switches should
    * separate state). `null`/`undefined`/`''` means anonymous — keys pass through **unscoped**, so
    * a signed-out app behaves exactly like the unwrapped stores. Both stores **latch the first
-   * non-empty value per boot** through one shared latch and never follow a live switch afterwards
-   *: a change to a *different* subject only takes effect across the reload boundary
+   * non-empty value per boot** through one shared latch and never follow a live switch afterwards:
+   * a change to a *different* subject only takes effect across the reload boundary
    * (`provideAuthSource(..., { onIdentityChange: 'reload' })`), so in-flight writes of the
    * departing user — a pending debounce, a commit during the login transition — can never land in
    * the next user's namespace. The shell peeks bootstrap-critical keys before first paint, so the

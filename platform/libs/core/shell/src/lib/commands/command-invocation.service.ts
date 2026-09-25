@@ -13,7 +13,7 @@ import {
 } from '../contributions/contribution-registry';
 import { CommandService } from './command.service';
 import {
-  checkArguments,
+  argumentProblem,
   isCommandAnswer,
 } from '../foundation/command-arguments';
 import { CommandInvoker } from '../foundation/command-invoker';
@@ -64,7 +64,7 @@ export class CommandInvocationService implements CommandInvoker {
       return UNAVAILABLE;
     }
     const command = entry.command;
-    const problem = checkArguments(command.arguments, args);
+    const problem = argumentProblem(command.arguments, args);
     if (problem !== null) {
       return {
         outcome: 'refused',
