@@ -343,7 +343,8 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   `dismiss`; the tooltip places by cursor or by trigger and then clamps; the nav group renders heading,
   chevron and label apart and names the fold it remembers. `pathOf` stays, beside the tree, because it
   must read an item that is not upgraded yet. For the release notes: `lw-frame.css` no longer carries
-  a `.block` rule that Tailwind had picked up from `scrollIntoView({ block })`.
+  a `.block` rule that Tailwind had picked up from `scrollIntoView({ block })`. 9.8 brings it back, so
+  against 0.14.1 the stylesheet only gains rules.
 - [x] 8.7 Surface kit and capture: the frame entry split by job; the capture message types taken from
   the frame declarations instead of three copies; "drawing" used for one thing; the capture helpers
   split by what they do.
@@ -409,8 +410,15 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 - [ ] 9.7 The agent adapter (after its flush defect is decided): the stream assembly as a small class,
   answering a call as a top-level function with an explicit guard, typed protocol events, the refusal
   wording once, two message builders instead of a flag, the scalar table typed by kind.
-- [ ] 9.8 The frame kit (after its declaration defect is fixed): one `@source` for the element folder,
+- [x] 9.8 The frame kit (after its declaration defect is fixed): one `@source` for the element folder,
   the spec's tag list complete, the build script's steps named.
+  The stylesheet scans the whole element folder, specs included, because leaving the specs out
+  would drop `.blur`, `.inline` and `.mt-2`, which a sandboxed surface may use by accident. It gains
+  the rules of the spinner and the shared helpers (`.animate-spin`, `.block`, `.border-2`,
+  `.border-current`, `.border-t-transparent`, `.contents`, `.inline-block`, `.rounded-full`,
+  `.shrink-0`, `.text-brand`) and loses none; the other four artifacts are byte-identical. The spec
+  names the three nav tree tags. The build runs `bundleElements`, `writeDeclaration`, two
+  `vendorGlobal` calls and `compileStyles`.
 - [ ] 9.9 Workspace configuration: the lint inputs that name missing files, the `test-setup.ts` ignores
   of packages without one, the renamed-on-import vitest export, one module setting for the two ESM
   packages, one shared Angular lint config for the four Angular projects. The removal from all eleven
