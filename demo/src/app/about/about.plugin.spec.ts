@@ -69,8 +69,8 @@ describe('aboutPlugin', () => {
   it('offers the About command and the About settings section', () => {
     const recorded = activateWith(true);
 
-    expect(recorded.commands).toEqual(['demo.about']);
-    expect(recorded.sections).toEqual([{ id: 'demo.about', kinds: ['component'] }]);
+    expect(recorded.commands).toEqual(['about.show']);
+    expect(recorded.sections).toEqual([{ id: 'about.settings', kinds: ['component'] }]);
   });
 
   it('welcomes a first visit once and remembers it', () => {

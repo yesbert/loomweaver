@@ -101,7 +101,7 @@ export const countedValue = computed(() =>
   stockItems().reduce((sum, item) => sum + item.onHand, 0),
 );
 
-export function countStock(itemId: string, counted: number): Movement | null {
+export function bookCount(itemId: string, counted: number): Movement | null {
   const item = itemById(itemId);
   if (!item || counted < 0 || counted === item.onHand) {
     return null;

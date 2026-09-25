@@ -11,28 +11,32 @@ export const procurementActions = {
     ctx = undefined;
   },
   async receiveGoods(): Promise<string | null> {
+    const host = ctx;
+    if (!host) {
+      return null;
+    }
     const due = nextDelivery();
     if (!due) {
-      ctx?.ui.toast({
+      host.ui.toast({
         message: 'product.procurement.nothingExpected',
         kind: 'info',
         timeoutMs: 3000,
       });
       return null;
     }
-    const go = await ctx?.ui.confirm({
+    const go = await host.ui.confirm({
       title: 'product.procurement.receiveGoods',
       message: 'product.procurement.confirmReceipt',
       confirmLabel: 'product.procurement.receiveGoods',
       tone: 'default',
     });
-    if (go === false) {
+    if (!go) {
       return null;
     }
     if (!receiveOrder(due.id)) {
       return null;
     }
-    ctx?.ui.toast({
+    host.ui.toast({
       message: 'product.procurement.receiptDone',
       kind: 'success',
       timeoutMs: 4000,

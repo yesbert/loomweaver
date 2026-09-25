@@ -1,5 +1,5 @@
 import { type PluginContext } from '@loomweaver/plugin-sdk';
-import { countStock, itemByNumber } from './stock';
+import { bookCount, itemByNumber } from './stock';
 
 let ctx: PluginContext | undefined;
 
@@ -43,7 +43,7 @@ export const inventoryActions = {
     if (counted === null || !Number.isInteger(quantity) || quantity < 0) {
       return null;
     }
-    if (countStock(item.id, quantity) === null) {
+    if (bookCount(item.id, quantity) === null) {
       host.ui.toast({
         message: 'product.inventory.count.unchanged',
         kind: 'info',

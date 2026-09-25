@@ -1,1 +1,1 @@
-export const ABOUT_COMMAND = 'demo.about';
+export const ABOUT_COMMAND = 'about.show';

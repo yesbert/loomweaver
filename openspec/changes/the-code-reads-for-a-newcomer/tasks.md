@@ -700,9 +700,15 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   (the protocol events they turn into); the events are typed `AGUIEvent` literals and are read
   through the narrowed union. The chat view hands its translator to `ask(beat, say)` instead of
   pushing it into module state, `confirmed` is `consentFor`, and it sits after the facade.
-- [ ] 12.10 The action facades use one guard style and names distinct from the store functions; one
+- [x] 12.10 The action facades use one guard style and names distinct from the store functions; one
   guarded storage helper; the account rail named for what it is; the About command, settings section
   and bar item get ids of their own.
+  Finance, people and procurement return early when unbound, like the other three, instead of
+  skipping the confirmation and booking anyway; the store mutations are `bookCount` and
+  `payOpenRun`. `best-effort-storage.ts` in `app/` serves the session and the looks (the quotes
+  weaver keeps its own guarded read, since a weaver does not import from the app). The account
+  entry is `accountRail` in `account-rail.ts` with `show(ctx)` and `hide()`, and About's command,
+  settings section and bar item are `about.show`, `about.settings` and `demo.aboutBadge`.
 - [ ] 12.11 The overview module declares its left panel and home role instead of four inferences.
 - [ ] 12.12 One supplier list shared by procurement and finance; "open items" and "receivables" used
   for what they are.
