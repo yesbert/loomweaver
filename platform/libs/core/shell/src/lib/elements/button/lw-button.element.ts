@@ -1,8 +1,10 @@
 import { LwButtonSize, LwButtonVariant } from '@loomweaver/plugin-sdk';
 import {
+  clickOnEnterOrSpace,
+  defineElementOnce,
   reflectAttribute,
   upgradeElementProperty,
-} from '../custom-element-property';
+} from '../custom-elements';
 import { lwButtonClasses } from './lw-button-classes';
 
 /** The custom-element tag. */
@@ -29,6 +31,8 @@ export class LwButtonElement extends HTMLElement {
     'icon-only',
     'disabled',
   ];
+
+  private readonly onKeydown = clickOnEnterOrSpace(this, () => this.disabled);
 
   get variant(): LwButtonVariant {
     return (
@@ -84,15 +88,6 @@ export class LwButtonElement extends HTMLElement {
     }
   }
 
-  private readonly onKeydown = (event: KeyboardEvent) => {
-    if (!(event.key === 'Enter' || event.key === ' ') || this.disabled) {
-      return;
-    }
-
-    event.preventDefault();
-    this.click();
-  };
-
   private render(): void {
     const stale = [...this.classList].filter((cls) => cls.startsWith('lw-btn'));
     this.classList.remove(...stale);
@@ -106,10 +101,5 @@ export class LwButtonElement extends HTMLElement {
 
 /** Registers `<lw-button>` once (idempotent) — called from {@link provideShell} at bootstrap. */
 export function defineLwButton(): void {
-  if (
-    typeof customElements !== 'undefined' &&
-    !customElements.get(LW_BUTTON_TAG)
-  ) {
-    customElements.define(LW_BUTTON_TAG, LwButtonElement);
-  }
+  defineElementOnce(LW_BUTTON_TAG, LwButtonElement);
 }

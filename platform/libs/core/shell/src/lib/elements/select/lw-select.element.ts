@@ -1,7 +1,9 @@
+import { focusAndReveal, rovingTabIndex } from '../roving-focus';
 import {
+  defineElementOnce,
   reflectAttribute,
   upgradeElementProperty,
-} from '../custom-element-property';
+} from '../custom-elements';
 import { LW_OPTION_TAG, LwOptionElement } from './lw-option.element';
 import {
   Choice,
@@ -250,12 +252,10 @@ export class LwSelectElement extends HTMLElement {
     this.write(() => {
       for (const [rowIndex, row] of rows.entries()) {
         row.classList.toggle('is-active', rowIndex === this.activeIndex);
-        row.tabIndex = rowIndex === this.activeIndex ? 0 : -1;
       }
+      rovingTabIndex(rows, this.activeIndex);
     });
-    const active = rows[this.activeIndex];
-    active.focus();
-    active.scrollIntoView?.({ block: 'nearest' });
+    focusAndReveal(rows[this.activeIndex]);
   }
 
   private onTriggerKeydown(event: KeyboardEvent): void {
@@ -349,13 +349,6 @@ export class LwSelectElement extends HTMLElement {
 
 /** Registers `<lw-select>` and `<lw-option>` once (idempotent), called from {@link provideShell} at bootstrap. */
 export function defineLwSelect(): void {
-  if (typeof customElements === 'undefined') {
-    return;
-  }
-  if (!customElements.get(LW_OPTION_TAG)) {
-    customElements.define(LW_OPTION_TAG, LwOptionElement);
-  }
-  if (!customElements.get(LW_SELECT_TAG)) {
-    customElements.define(LW_SELECT_TAG, LwSelectElement);
-  }
+  defineElementOnce(LW_OPTION_TAG, LwOptionElement);
+  defineElementOnce(LW_SELECT_TAG, LwSelectElement);
 }

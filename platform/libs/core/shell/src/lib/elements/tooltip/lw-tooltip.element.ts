@@ -1,7 +1,10 @@
+import { clampIntoViewport, VIEWPORT_MARGIN } from '../viewport-fit';
 import {
+  defineElementOnce,
+  numberAttribute,
   reflectAttribute,
   upgradeElementProperty,
-} from '../custom-element-property';
+} from '../custom-elements';
 
 const DEFAULT_DELAY_MS = 600;
 
@@ -9,7 +12,6 @@ const DEFAULT_DELAY_MS = 600;
 export type TooltipPosition = 'top' | 'bottom' | 'left' | 'right';
 
 const TOOLTIP_GAP = 6;
-const VIEWPORT_MARGIN = 4;
 
 const CURSOR_OFFSET_X = 0;
 const CURSOR_BELOW_Y = 16;
@@ -149,12 +151,8 @@ export class LwTooltipElement extends HTMLElement {
   }
 
   private delayMs(): number {
-    const raw = this.getAttribute('delay-ms');
-    if (raw === null || raw.trim() === '') {
-      return DEFAULT_DELAY_MS;
-    }
-    const parsed = Number(raw);
-    return Number.isFinite(parsed) && parsed >= 0 ? parsed : DEFAULT_DELAY_MS;
+    const delay = numberAttribute(this, 'delay-ms', DEFAULT_DELAY_MS);
+    return delay >= 0 ? delay : DEFAULT_DELAY_MS;
   }
 
   private show(): void {
@@ -205,10 +203,8 @@ export class LwTooltipElement extends HTMLElement {
     } else {
       return;
     }
-    const maxLeft = window.innerWidth - b.width - VIEWPORT_MARGIN;
-    const maxTop = window.innerHeight - b.height - VIEWPORT_MARGIN;
-    bubble.style.left = `${Math.round(Math.max(VIEWPORT_MARGIN, Math.min(left, maxLeft)))}px`;
-    bubble.style.top = `${Math.round(Math.max(VIEWPORT_MARGIN, Math.min(top, maxTop)))}px`;
+    bubble.style.left = `${Math.round(clampIntoViewport(left, b.width, window.innerWidth))}px`;
+    bubble.style.top = `${Math.round(clampIntoViewport(top, b.height, window.innerHeight))}px`;
   }
 
   private hide(): void {
@@ -236,10 +232,5 @@ export class LwTooltipElement extends HTMLElement {
 
 /** Registers `<lw-tooltip>` once (idempotent) — called from {@link provideShell} at bootstrap. */
 export function defineLwTooltip(): void {
-  if (
-    typeof customElements !== 'undefined' &&
-    !customElements.get(LW_TOOLTIP_TAG)
-  ) {
-    customElements.define(LW_TOOLTIP_TAG, LwTooltipElement);
-  }
+  defineElementOnce(LW_TOOLTIP_TAG, LwTooltipElement);
 }

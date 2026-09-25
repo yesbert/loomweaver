@@ -1,30 +1,11 @@
-import { existsSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import * as entry from '../../index';
-
-const PROVIDE_SHELL_FROM_WORKSPACE_ROOT =
-  'libs/core/shell/src/lib/provide-shell.ts';
-
-function registrationsTheWorkbenchRunsOnStart(): string[] {
-  const file = join(process.cwd(), PROVIDE_SHELL_FROM_WORKSPACE_ROOT);
-  if (!existsSync(file)) {
-    throw new Error(
-      `Expected ${PROVIDE_SHELL_FROM_WORKSPACE_ROOT} under the workspace root (${process.cwd()}).`,
-    );
-  }
-  const source = readFileSync(file, 'utf8');
-  return [...new Set(source.match(/\bdefineLw\w+/g))];
-}
+import { LW_ELEMENT_DEFINITIONS } from './lw-elements';
 
 describe('registering the workbench elements outside the workbench', () => {
-  it('finds the registrations the workbench runs on start', () => {
-    expect(registrationsTheWorkbenchRunsOnStart()).toContain('defineLwIcon');
-  });
-
-  it.each(registrationsTheWorkbenchRunsOnStart())(
+  it.each(LW_ELEMENT_DEFINITIONS.map((define) => [define.name, define]))(
     'publishes %s from the package entry',
-    (name) => {
-      expect(typeof (entry as Record<string, unknown>)[name]).toBe('function');
+    (name, define) => {
+      expect((entry as Record<string, unknown>)[name]).toBe(define);
     },
   );
 

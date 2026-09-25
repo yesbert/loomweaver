@@ -28,7 +28,6 @@ import { settingOmitIds } from './settings-dialog/setting-omit';
 import { ShellMissingTranslationHandler } from './i18n/missing-translation-handler';
 import { TranslocoHttpLoader } from './i18n/transloco-loader';
 import { LocaleService } from './i18n/locale.service';
-import { defineLwIcon } from './elements/icon/lw-icon.element';
 import { BAR_ITEM, provideBarItems } from './foundation/bar-item';
 import { DEFAULT_BAR_ITEMS } from './regions/bar/default-bar-items';
 import { RAIL_ITEM } from './foundation/rail-item';
@@ -44,13 +43,6 @@ import { UnusableWorkspacesService } from './workspace/usability/unusable-worksp
 import { CommandInvocationService } from './commands/command-invocation.service';
 import { KeybindingService } from './commands/keyboard/keybinding.service';
 import { DialogService } from './dialog/dialog.service';
-import { defineLwTooltip } from './elements/tooltip/lw-tooltip.element';
-import { defineLwNavTree } from './elements/nav-tree/lw-nav-tree.element';
-import { defineLwSelect } from './elements/select/lw-select.element';
-import { defineLwMenu } from './elements/menu/lw-menu.element';
-import { defineLwMarkdown } from './elements/markdown/lw-markdown.element';
-import { defineLwButton } from './elements/button/lw-button.element';
-import { defineLwProgressRing } from './elements/progress/lw-progress-ring.element';
 import { ContentTabsService } from './regions/content/tabs/content-tabs.service';
 import { PaneTreeService } from './regions/pane/tree/pane-tree.service';
 import { PaneMoveService } from './regions/pane/drag/pane-move.service';
@@ -83,6 +75,7 @@ import { registerBuiltInMenus } from './built-in-menus';
 import { ThemeService } from './theme/theme.service';
 import { FontScaleService } from './text-size/font-scale.service';
 import { ShellOptions } from './shell-options';
+import { defineLwElements } from './elements/lw-elements';
 
 interface ProvidedContributions {
   readonly views: readonly Parameters<ContributionRegistry['addView']>[0][];
@@ -94,17 +87,6 @@ interface ProvidedContributions {
   >[0][];
   readonly omit: readonly string[];
 }
-
-const WORKBENCH_ELEMENTS: readonly (() => void)[] = [
-  defineLwIcon,
-  defineLwTooltip,
-  defineLwSelect,
-  defineLwNavTree,
-  defineLwMenu,
-  defineLwMarkdown,
-  defineLwButton,
-  defineLwProgressRing,
-];
 
 function valueIfSet<T>(
   token: InjectionToken<T>,
@@ -159,11 +141,7 @@ function optionProviders(
 }
 
 function workbenchElements(): EnvironmentProviders {
-  return provideEnvironmentInitializer(() => {
-    for (const define of WORKBENCH_ELEMENTS) {
-      define();
-    }
-  });
+  return provideEnvironmentInitializer(() => defineLwElements());
 }
 
 function applyThemeAndTextSize(): void {

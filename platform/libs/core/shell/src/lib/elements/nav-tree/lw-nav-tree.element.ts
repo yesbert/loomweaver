@@ -1,8 +1,9 @@
 import { addressIsUnder } from '../../addressing/address-is-under';
 import {
+  defineElementOnce,
   reflectAttribute,
   upgradeElementProperty,
-} from '../custom-element-property';
+} from '../custom-elements';
 import { LW_NAV_GROUP_TAG, LwNavGroupElement } from './lw-nav-group.element';
 import { LW_NAV_ITEM_TAG, LwNavItemElement } from './lw-nav-item.element';
 import { longestMatch, pathOf } from './nav-tree-parts';
@@ -118,16 +119,7 @@ export class LwNavTreeElement extends HTMLElement {
 
 /** Registers `<lw-nav-tree>`, `<lw-nav-group>` and `<lw-nav-item>` once (idempotent). */
 export function defineLwNavTree(): void {
-  if (typeof customElements === 'undefined') {
-    return;
-  }
-  if (!customElements.get(LW_NAV_ITEM_TAG)) {
-    customElements.define(LW_NAV_ITEM_TAG, LwNavItemElement);
-  }
-  if (!customElements.get(LW_NAV_GROUP_TAG)) {
-    customElements.define(LW_NAV_GROUP_TAG, LwNavGroupElement);
-  }
-  if (!customElements.get(LW_NAV_TREE_TAG)) {
-    customElements.define(LW_NAV_TREE_TAG, LwNavTreeElement);
-  }
+  defineElementOnce(LW_NAV_ITEM_TAG, LwNavItemElement);
+  defineElementOnce(LW_NAV_GROUP_TAG, LwNavGroupElement);
+  defineElementOnce(LW_NAV_TREE_TAG, LwNavTreeElement);
 }

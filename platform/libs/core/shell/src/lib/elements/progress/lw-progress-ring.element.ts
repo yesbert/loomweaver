@@ -1,3 +1,4 @@
+import { defineElementOnce, numberAttribute } from '../custom-elements';
 export const LW_PROGRESS_RING_TAG = 'lw-progress-ring';
 
 const RADIUS = 15.9155;
@@ -15,18 +16,9 @@ export class LwProgressRingElement extends HTMLElement {
     }
   }
 
-  private numberAttribute(name: string, fallback: number): number {
-    const raw = this.getAttribute(name);
-    if (raw === null || raw.trim() === '') {
-      return fallback;
-    }
-    const parsed = Number(raw);
-    return Number.isFinite(parsed) ? parsed : fallback;
-  }
-
   private render(): void {
-    const max = Math.max(this.numberAttribute('max', 100), 1);
-    const value = Math.min(Math.max(this.numberAttribute('value', 0), 0), max);
+    const max = Math.max(numberAttribute(this, 'max', 100), 1);
+    const value = Math.min(Math.max(numberAttribute(this, 'value', 0), 0), max);
     const percent = Math.round((value / max) * 100);
     const size = this.getAttribute('size') ?? '2.5rem';
 
@@ -49,10 +41,5 @@ export class LwProgressRingElement extends HTMLElement {
 
 /** Registers `<lw-progress-ring>` once (idempotent), called from {@link provideShell} at bootstrap. */
 export function defineLwProgressRing(): void {
-  if (
-    typeof customElements !== 'undefined' &&
-    !customElements.get(LW_PROGRESS_RING_TAG)
-  ) {
-    customElements.define(LW_PROGRESS_RING_TAG, LwProgressRingElement);
-  }
+  defineElementOnce(LW_PROGRESS_RING_TAG, LwProgressRingElement);
 }

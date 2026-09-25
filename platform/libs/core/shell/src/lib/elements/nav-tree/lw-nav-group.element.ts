@@ -1,7 +1,4 @@
-import {
-  reflectAttribute,
-  upgradeElementProperty,
-} from '../custom-element-property';
+import { reflectAttribute, upgradeElementProperty } from '../custom-elements';
 import { LW_ICON_TAG } from '../icon/lw-icon.element';
 import { LW_NAV_ITEM_TAG } from './lw-nav-item.element';
 import { foldedShut, rememberFold } from './nav-fold-state';

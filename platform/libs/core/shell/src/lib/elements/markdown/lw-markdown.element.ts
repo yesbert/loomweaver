@@ -1,9 +1,10 @@
 import DOMPurify from 'dompurify';
 import { marked } from 'marked';
 import {
+  defineElementOnce,
   reflectAttribute,
   upgradeElementProperty,
-} from '../custom-element-property';
+} from '../custom-elements';
 
 /** The custom-element tag. */
 export const LW_MARKDOWN_TAG = 'lw-markdown';
@@ -60,10 +61,5 @@ export class LwMarkdownElement extends HTMLElement {
 
 /** Registers `<lw-markdown>` once (idempotent) — called from {@link provideShell} at bootstrap. */
 export function defineLwMarkdown(): void {
-  if (
-    typeof customElements !== 'undefined' &&
-    !customElements.get(LW_MARKDOWN_TAG)
-  ) {
-    customElements.define(LW_MARKDOWN_TAG, LwMarkdownElement);
-  }
+  defineElementOnce(LW_MARKDOWN_TAG, LwMarkdownElement);
 }

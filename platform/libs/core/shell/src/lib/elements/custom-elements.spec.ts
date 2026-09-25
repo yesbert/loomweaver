@@ -1,7 +1,7 @@
 import {
   reflectAttribute,
   upgradeElementProperty,
-} from './custom-element-property';
+} from './custom-elements';
 
 describe('upgradeElementProperty', () => {
   it('re-applies an own property through the element setter', () => {
