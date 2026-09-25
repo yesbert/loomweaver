@@ -285,8 +285,12 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   result is `forkJoin({ host, namespaced, overlay })`. `ServedLanguage` lives in
   `served-languages.ts`; `detectInitialLanguage`, `applyLanguage`, `applyStored` and the `active`
   signal inside `LocaleService`. The fallback language was already one constant.
-- [ ] 7.9 Persistence: the boot latch split into a command and a query, small duplicates removed.
+- [x] 7.9 Persistence: the boot latch split into a command and a query, small duplicates removed.
   **Move:** `cross-tab/` and `identity-scope/` sub-themes, with file names matching the classes.
+  `BootLatchedIdentity.latch()` latches and notifies, `current()` only reads. `peekThrough` forwards an
+  optional `peek` for both store wrappers, `registerIn` holds the disposer both sync registrations
+  wrote, and `LocalStorageStore` no longer returns twice. `cross-tab/` and `identity-scope/`, with
+  `boot-latched-identity.ts`, `identity-scoped-store.ts` and `provide-identity-scoped-stores.ts`.
 - [ ] 7.10 Settings: **move** `settings/` to `settings-dialog/`; the JSDoc of `SettingsService` says what
   happens today; the remaining small names of the area.
 - [ ] 7.11 Tests: `workspace.service.spec.ts` split by concept, the `settled()` helpers named after what

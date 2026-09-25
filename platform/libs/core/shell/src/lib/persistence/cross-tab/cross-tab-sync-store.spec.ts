@@ -1,5 +1,5 @@
 import { CrossTabSyncStore } from './cross-tab-sync-store';
-import { KeyValueStore } from './key-value-store';
+import { KeyValueStore } from '../key-value-store';
 import { StateSyncChannel } from './state-sync-channel';
 
 function fakeChannel(posted: string[]): StateSyncChannel {

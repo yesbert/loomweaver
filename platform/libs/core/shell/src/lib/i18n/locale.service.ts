@@ -3,7 +3,7 @@ import { inject, isDevMode, Service, signal } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 import { SETTINGS_STORE } from '../persistence/settings-store';
 import { hydrateAsync } from '../persistence/stored-values/hydrate';
-import { StateSyncService } from '../persistence/state-sync.service';
+import { StateSyncService } from '../persistence/cross-tab/state-sync.service';
 import { LANGUAGE_STORAGE_KEY } from '../persistence/device-level-keys';
 import {
   detectInitialLanguage,

@@ -1,5 +1,6 @@
 import { inject } from '@angular/core';
-import { KeyValueStore } from './key-value-store';
+import { KeyValueStore } from '../key-value-store';
+import { peekThrough } from '../peek-through';
 import { StateSyncChannel } from './state-sync-channel';
 
 export class CrossTabSyncStore implements KeyValueStore {
@@ -11,10 +12,7 @@ export class CrossTabSyncStore implements KeyValueStore {
   constructor(inner: KeyValueStore, channel: StateSyncChannel) {
     this.inner = inner;
     this.channel = channel;
-    const innerPeek = inner.peek?.bind(inner);
-    if (innerPeek) {
-      this.peek = innerPeek;
-    }
+    this.peek = peekThrough(inner);
   }
 
   get(key: string): Promise<string | undefined> {

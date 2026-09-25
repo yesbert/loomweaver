@@ -2,7 +2,7 @@ import { inject, isDevMode, Service, signal, WritableSignal } from '@angular/cor
 import { PluginState, StateHandle } from '@loomweaver/plugin-sdk';
 import { WORKING_STATE_STORE } from '../persistence/working-state-store';
 import { hydrateAsync, readStoredValue } from '../persistence/stored-values/hydrate';
-import { StateSyncService } from '../persistence/state-sync.service';
+import { StateSyncService } from '../persistence/cross-tab/state-sync.service';
 
 const STORAGE_PREFIX = 'lw.plugin-state:';
 const INDEX_PREFIX = 'lw.plugin-state-keys:';

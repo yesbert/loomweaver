@@ -2,7 +2,7 @@ import { CommandOutcome } from '@loomweaver/plugin-sdk';
 import { tabBadgeOf } from '../../../contributions/tab-badge';
 import { asCommandArguments } from '../../../foundation/command-arguments';
 import { KeyValueStore } from '../../../persistence/key-value-store';
-import { StateSyncService } from '../../../persistence/state-sync.service';
+import { StateSyncService } from '../../../persistence/cross-tab/state-sync.service';
 import { PluginInstallService } from '../../../plugin-store/lifecycle/plugin-install.service';
 import { HostPluginContext } from '../../context/host-plugin-context';
 import {

@@ -4,7 +4,7 @@ import {
   hydrateAsync,
   readStoredValue,
 } from '../../persistence/stored-values/hydrate';
-import { StateSyncService } from '../../persistence/state-sync.service';
+import { StateSyncService } from '../../persistence/cross-tab/state-sync.service';
 import {
   FlagRecord,
   isTrue,

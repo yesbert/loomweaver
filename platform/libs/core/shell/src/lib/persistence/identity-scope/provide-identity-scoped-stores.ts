@@ -6,18 +6,19 @@ import {
   provideEnvironmentInitializer,
   untracked,
 } from '@angular/core';
-import { KeyValueStore, LocalStorageStore } from './key-value-store';
-import { SETTINGS_STORE } from './settings-store';
-import { WORKING_STATE_STORE } from './working-state-store';
-import { withCrossTabSync } from './cross-tab-sync-store';
-import { AuthContext } from '../auth/auth-context';
-import { StateSyncService } from './state-sync.service';
-import { BootLatchedIdentity, IdentityScopedStore } from './boot-latched-scope';
+import { KeyValueStore, LocalStorageStore } from '../key-value-store';
+import { SETTINGS_STORE } from '../settings-store';
+import { WORKING_STATE_STORE } from '../working-state-store';
+import { withCrossTabSync } from '../cross-tab/cross-tab-sync-store';
+import { AuthContext } from '../../auth/auth-context';
+import { StateSyncService } from '../cross-tab/state-sync.service';
+import { BootLatchedIdentity } from './boot-latched-identity';
+import { IdentityScopedStore } from './identity-scoped-store';
 import {
   FONT_SCALE_STORAGE_KEY,
   LANGUAGE_STORAGE_KEY,
   THEME_STORAGE_KEY,
-} from './device-level-keys';
+} from '../device-level-keys';
 
 /**
  * The storage keys that stay **device-level** by default when the stores are identity-scoped
@@ -115,7 +116,7 @@ export function provideIdentityScopedStores(
       });
       effect(() => {
         auth.state();
-        untracked(() => latch.current());
+        untracked(() => latch.latch());
       });
     }),
   ];

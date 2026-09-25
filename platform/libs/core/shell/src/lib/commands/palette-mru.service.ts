@@ -1,7 +1,7 @@
 import { inject, Service, signal } from '@angular/core';
 import { WORKING_STATE_STORE } from '../persistence/working-state-store';
 import { hydrateAsync } from '../persistence/stored-values/hydrate';
-import { StateSyncService } from '../persistence/state-sync.service';
+import { StateSyncService } from '../persistence/cross-tab/state-sync.service';
 
 const STORAGE_KEY = 'lw.shell.command-mru';
 const LIMIT = 8;

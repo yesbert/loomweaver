@@ -8,7 +8,7 @@ import {
   ApplySyncedState,
   StateSyncService,
   SyncSource,
-} from '../../persistence/state-sync.service';
+} from '../../persistence/cross-tab/state-sync.service';
 import { buildFrameSection } from './frame-settings-section';
 import { sanitizeRpcSettingsSection } from './rpc/sanitize-settings';
 

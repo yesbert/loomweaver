@@ -1,8 +1,8 @@
 import { inject, Service } from '@angular/core';
-import { SETTINGS_STORE } from './settings-store';
-import { WORKING_STATE_STORE } from './working-state-store';
+import { SETTINGS_STORE } from '../settings-store';
+import { WORKING_STATE_STORE } from '../working-state-store';
 import { StateSyncChannel } from './state-sync-channel';
-import { readStoredValue } from './stored-values/hydrate';
+import { readStoredValue } from '../stored-values/hydrate';
 
 /**
  * Where a synced key's fresh value is read back from after another window announced a change
@@ -67,13 +67,7 @@ export class StateSyncService {
     key: string,
     apply: ApplySyncedState,
   ): () => void {
-    const registration: Registration = { source, apply };
-    this.exact.set(key, registration);
-    return () => {
-      if (this.exact.get(key) === registration) {
-        this.exact.delete(key);
-      }
-    };
+    return registerIn(this.exact, key, { source, apply });
   }
 
   /**
@@ -86,13 +80,7 @@ export class StateSyncService {
     prefix: string,
     apply: ApplySyncedState,
   ): () => void {
-    const registration: Registration = { source, apply };
-    this.prefixes.set(prefix, registration);
-    return () => {
-      if (this.prefixes.get(prefix) === registration) {
-        this.prefixes.delete(prefix);
-      }
-    };
+    return registerIn(this.prefixes, prefix, { source, apply });
   }
 
   /**
@@ -179,4 +167,17 @@ export class StateSyncService {
     }
     return undefined;
   }
+}
+
+function registerIn(
+  registrations: Map<string, Registration>,
+  key: string,
+  registration: Registration,
+): () => void {
+  registrations.set(key, registration);
+  return () => {
+    if (registrations.get(key) === registration) {
+      registrations.delete(key);
+    }
+  };
 }

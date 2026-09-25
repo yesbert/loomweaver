@@ -1,6 +1,6 @@
 import { InjectionToken, Provider, Type } from '@angular/core';
 import { KeyValueStore, LocalStorageStore } from './key-value-store';
-import { withCrossTabSync } from './cross-tab-sync-store';
+import { withCrossTabSync } from './cross-tab/cross-tab-sync-store';
 import { providePortStore } from './port-store-provider';
 
 /**
