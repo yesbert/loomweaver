@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { basename, join, resolve } from 'node:path';
 import { toTitleCase } from '@loomweaver/devkit';
-import { ArgError, boolFlag, ParsedArgs, stringFlag } from './args';
+import { ArgError, boolFlag, ParsedArgs, stringFlag } from '../args';
 import { nxApplications } from './nx-applications';
 import {
   detectPackageManager,
@@ -13,7 +13,7 @@ import {
   readJsonFile,
   Workspace,
   WorkspaceError,
-} from './workspace';
+} from '../workspace';
 
 export interface InitDeps {
   readonly cwd: string;
@@ -22,7 +22,7 @@ export interface InitDeps {
   readonly version: string;
 }
 
-export const RUNTIME_PACKAGES = [
+const RUNTIME_PACKAGES = [
   '@loomweaver/shell',
   '@loomweaver/plugin-sdk',
   '@loomweaver/frame-kit',
@@ -31,23 +31,25 @@ export const RUNTIME_PACKAGES = [
   '@ng-icons/heroicons',
 ] as const;
 
-export const STYLE_PACKAGES = [
+const STYLE_PACKAGES = [
   'tailwindcss',
   '@tailwindcss/postcss',
   '@tailwindcss/typography',
 ] as const;
 
-export const SERVICE_WORKER = '@angular/service-worker';
+const SERVICE_WORKER = '@angular/service-worker';
 
 export const NX_COLLECTION = '@loomweaver/devkit';
 
-export interface Manifest {
+export const UNBUNDLED_VERSION = '0.0.0';
+
+interface Manifest {
   readonly name?: string;
   readonly dependencies?: Record<string, string>;
   readonly devDependencies?: Record<string, string>;
 }
 
-export interface Application {
+interface Application {
   readonly name: string;
   readonly root: string;
 }
@@ -112,7 +114,7 @@ export function planInit(args: ParsedArgs, deps: InitDeps): Plan {
   };
 }
 
-export function chooseApplication(
+function chooseApplication(
   root: string,
   wanted: string | undefined,
 ): Application {
@@ -141,7 +143,7 @@ export function chooseApplication(
   );
 }
 
-export function weaverId(args: ParsedArgs): string | undefined {
+function weaverId(args: ParsedArgs): string | undefined {
   const value = args.flags['weaver'];
   if (value === false) {
     return undefined;
@@ -154,12 +156,12 @@ export function weaverId(args: ParsedArgs): string | undefined {
   return value ?? 'notes';
 }
 
-export function readManifest(root: string): Manifest {
+function readManifest(root: string): Manifest {
   const file = join(root, 'package.json');
   return existsSync(file) ? (readJsonFile(file) as Manifest) : {};
 }
 
-export function serviceWorkerSpec(root: string, manifest: Manifest): string {
+function serviceWorkerSpec(root: string, manifest: Manifest): string {
   const installed = join(root, 'node_modules/@angular/core/package.json');
   if (existsSync(installed)) {
     const { version } = JSON.parse(readFileSync(installed, 'utf8')) as {
@@ -171,13 +173,13 @@ export function serviceWorkerSpec(root: string, manifest: Manifest): string {
   return declared ? `${SERVICE_WORKER}@${declared}` : SERVICE_WORKER;
 }
 
-export function collectionSpec(version: string): string {
-  return version === '0.0.0'
+function collectionSpec(version: string): string {
+  return version === UNBUNDLED_VERSION
     ? `${NX_COLLECTION}@latest`
     : `${NX_COLLECTION}@${version}`;
 }
 
-export function packageNameToId(value: string): string {
+function packageNameToId(value: string): string {
   const unscoped = value.includes('/')
     ? value.slice(value.lastIndexOf('/') + 1)
     : value;

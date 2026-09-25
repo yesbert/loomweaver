@@ -1,13 +1,13 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { ParsedArgs, rejectUnknownFlags } from './args';
+import { ParsedArgs, rejectUnknownFlags } from '../args';
 import { InitDeps, NX_COLLECTION, Plan, planInit } from './init-plan';
 import {
   execCommand,
   installCommand,
   runScriptCommand,
 } from './package-manager';
-import type { Io } from './run';
+import type { Io } from '../io';
 
 const INIT_FLAGS = [
   'title',
@@ -232,4 +232,3 @@ function composesShell(file: string): boolean {
   );
 }
 
-export type { InitDeps } from './init-plan';

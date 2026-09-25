@@ -9,8 +9,8 @@ import {
   findScaffold as findDescriptor,
 } from '@loomweaver/devkit';
 import { relative, resolve } from 'node:path';
-import { ArgError, ParsedArgs } from './args';
-import { findWorkspace } from './workspace';
+import { ArgError, ParsedArgs } from '../args';
+import { findWorkspace } from '../workspace';
 
 export { SCAFFOLDS, type ScaffoldDescriptor } from '@loomweaver/devkit';
 
@@ -49,7 +49,7 @@ function readFlag(
   return value;
 }
 
-export function valuesFor(
+function valuesFor(
   scaffold: ScaffoldDescriptor,
   args: ParsedArgs,
 ): ScaffoldValues {

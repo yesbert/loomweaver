@@ -8,7 +8,7 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { run } from './run';
+import { run } from '../run';
 
 function capture() {
   const out: string[] = [];
