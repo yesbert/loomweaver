@@ -1,8 +1,9 @@
 # Assistant Workbench
 
 A support inbox built as a LoomWeaver workbench that an AI assistant can operate: it lists, opens,
-assigns and replies to tickets by calling the same commands the buttons call, and it never reaches
-further than the person at the keyboard could.
+assigns and replies to tickets by calling the product's commands, and it never reaches further than
+the person at the keyboard could. A command and the button beside it end in the same function, so
+what the assistant does is what a click does.
 
 It is the runnable example for the article on dev.to and installs the published LoomWeaver packages
 from the registry, as any product would. Nothing here reaches into `../../platform`.
@@ -32,12 +33,13 @@ that declares `agentConsent: 'ask'`; the connection reads that off the call.
 
 ## What is where
 
-- `src/tickets/` is the domain: an in-memory ticket store, five callable commands with described
-  arguments, a list docked in the left sidebar, and a ticket view that opens as a tab per ticket,
-  with the buttons a person would click.
-- `src/assistant/` is the assistant: the AG-UI connection the platform scaffolds, a panel, and the
-  agent that calls OpenRouter and speaks the protocol back.
-- `src/app/` is the composition root the CLI wrote.
+Read it in this order:
 
-For production the agent's run moves behind your own endpoint; the panel, the connection and the
-commands stay as they are.
+1. [`src/tickets/`](src/tickets/README.md) is the domain: the tickets, what can be done with them,
+   and the five commands that offer it to a caller.
+2. [`src/assistant/`](src/assistant/README.md) is the assistant: the connection the platform
+   scaffolds, the agent that calls OpenRouter, and the panel between them.
+3. `src/app/` is the composition root the CLI wrote: the layout, the grants and the two plugins.
+
+For production the agent's run moves behind your own endpoint: `assistant-agent.ts` changes and the
+key form goes, while the panel, the connection and the commands stay as they are.
