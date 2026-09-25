@@ -220,9 +220,11 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   `runnablePlugins` returns what it refused, and the runtime says so once per id and level. The
   `effectiveCapabilities` tests moved to the permissions slice, and the runtime's published JSDoc
   was rewritten while the file was open.
-- [ ] 6.10 `PluginStateService`: the limit check and the key index as two steps, "characters" instead
+- [x] 6.10 `PluginStateService`: the limit check and the key index as two steps, "characters" instead
   of "bytes", `forPlugin` instead of `facade`; the required-plugin typo diagnostic moves to the
   composition report (after its defect is fixed).
+  The typo diagnostic already moved to the composition report with defect 1.6. A value with no JSON
+  form still fails as before; what it should do is the owner's decision in defect 9.3.
 
 ## 7. Workspaces, persistence, settings, foundation and i18n
 
