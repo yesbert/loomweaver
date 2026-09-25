@@ -1,8 +1,4 @@
 import { InjectionToken } from '@angular/core';
-import {
-  DEFAULT_ISOLATION_LEVEL,
-  PluginIsolationLevel,
-} from '../../foundation/plugin-isolation-level';
 import { isSameOriginUrl } from '../lifecycle/installed-plugin';
 import { PluginCatalogEntry, parseCatalogList } from './catalog-entry';
 
@@ -48,8 +44,3 @@ export function urlPluginCatalog(url: string): PluginCatalog {
     },
   };
 }
-
-export const CATALOG_MAX_ISOLATION_LEVEL = new InjectionToken<PluginIsolationLevel>(
-  'lw.catalog-max-isolation-level',
-  { providedIn: 'root', factory: () => DEFAULT_ISOLATION_LEVEL },
-);

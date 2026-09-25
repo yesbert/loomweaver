@@ -18,7 +18,7 @@ import {
 import { PluginDeploymentService } from '../lifecycle/plugin-deployment.service';
 import { PluginCatalogEntries } from './plugin-catalog-entries';
 import { PluginIsolationLevel } from '../../foundation/plugin-isolation-level';
-import { CATALOG_MAX_ISOLATION_LEVEL } from './plugin-catalog';
+import { CATALOG_MAX_ISOLATION_LEVEL } from './catalog-level-cap';
 
 /** Options for {@link providePluginCatalog}. */
 export interface PluginCatalogOptions {

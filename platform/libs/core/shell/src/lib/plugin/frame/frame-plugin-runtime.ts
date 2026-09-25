@@ -19,7 +19,7 @@ import { InstalledPlugin } from '../../plugin-store/lifecycle/installed-plugin';
 import { PluginInstallService } from '../../plugin-store/lifecycle/plugin-install.service';
 import { CapabilityRefusalReporter } from '../../permissions/capability-refusal';
 import { PluginIsolationLevel } from '../../foundation/plugin-isolation-level';
-import { CATALOG_MAX_ISOLATION_LEVEL } from '../../plugin-store/catalog/plugin-catalog';
+import { CATALOG_MAX_ISOLATION_LEVEL } from '../../plugin-store/catalog/catalog-level-cap';
 import { PluginIsolationLevelService } from '../../plugin-isolation/plugin-isolation-level.service';
 import { PluginDeploymentService } from '../../plugin-store/lifecycle/plugin-deployment.service';
 import { FRAME_PLUGIN, FramePlugin } from './frame-plugin';
