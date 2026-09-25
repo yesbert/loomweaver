@@ -30,7 +30,7 @@ interface TaxBucketRow {
 }
 
 @Component({
-  selector: 'lw-quotes-positions-view',
+  selector: 'demo-quotes-positions-view',
   imports: [TranslocoPipe],
   templateUrl: './quotes-positions-view.html',
 })

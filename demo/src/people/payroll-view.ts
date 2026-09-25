@@ -6,7 +6,7 @@ import { formatMoney, formatMonth } from '../accounting';
 import { activeLanguage } from '../i18n/active-language';
 
 @Component({
-  selector: 'lw-payroll-view',
+  selector: 'demo-payroll-view',
   imports: [TranslocoPipe],
   templateUrl: './payroll-view.html',
 })

@@ -11,7 +11,7 @@ import { agentRunner } from './agent-runner';
 import { conversation } from './conversation';
 
 @Component({
-  selector: 'lw-agent-chat',
+  selector: 'demo-agent-chat',
   imports: [TranslocoPipe],
   templateUrl: './agent-chat.html',
 })

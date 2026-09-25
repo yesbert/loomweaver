@@ -19,7 +19,7 @@ import {
 import { navigationActions } from './navigation-actions';
 
 @Component({
-  selector: 'lw-module-nav-view',
+  selector: 'demo-module-nav-view',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [TranslocoPipe],
   templateUrl: './module-nav-view.html',

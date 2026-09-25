@@ -4,7 +4,7 @@ import { openOrdersBySupplier } from './purchasing';
 import { SUPPLIERS } from '../accounting';
 
 @Component({
-  selector: 'lw-supplier-list-view',
+  selector: 'demo-supplier-list-view',
   imports: [TranslocoPipe],
   templateUrl: './supplier-list-view.html',
 })

@@ -5,7 +5,7 @@ import { formatDate, formatMoney, supplierName } from '../accounting';
 import { activeLanguage } from '../i18n/active-language';
 
 @Component({
-  selector: 'lw-payables-view',
+  selector: 'demo-payables-view',
   imports: [TranslocoPipe],
   templateUrl: './payables-view.html',
 })

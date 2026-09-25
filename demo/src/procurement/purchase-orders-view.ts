@@ -6,7 +6,7 @@ import { formatDate, formatMoney, supplierName } from '../accounting';
 import { activeLanguage } from '../i18n/active-language';
 
 @Component({
-  selector: 'lw-purchase-orders-view',
+  selector: 'demo-purchase-orders-view',
   imports: [TranslocoPipe],
   templateUrl: './purchase-orders-view.html',
 })

@@ -729,9 +729,15 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   titles every view with its weaver's key, quotes included (`quotes.title`), and the product bundle
   keeps the navigation it owns and the entry for payment matching, which the store installs.
   People names its departments with keys of its own instead of the session's role labels.
-- [ ] 12.14 One idiom for record lists (decided 2026-09-25): the responsive grid of the customers and
+- [x] 12.14 One idiom for record lists (decided 2026-09-25): the responsive grid of the customers and
   quotes views, one module per pull request, the first shown to the owner before the rest. Product
   components take the `demo-` selector prefix.
+  Finance (#686), people (#687), procurement (#688) and inventory (#689) list their records in the
+  grid of the customer and quote lists, with a compact line in a narrow pane and `p-4`; the first
+  slice was not held, as the owner handed the approval over, and screenshots of every view wide
+  and narrow are kept in the private test folder. The grid draws each record twice, which moved the
+  demo's ceiling to 1365 kB. All 29 product components are `demo-`, `angular.json` declares that
+  prefix, and the unused `^demo-` class ignore is gone.
 - [ ] 12.15 The sandboxed payments plugin: `view.js` (440 lines) split, the renderer no longer books
   confirmations, shared keys and defaults in one script, activation with `async`/`await`.
 - [ ] 12.16 End-to-end tests: the design reasons written in two comments move into names, then all 46

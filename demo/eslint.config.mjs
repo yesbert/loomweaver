@@ -46,7 +46,7 @@ export default tseslint.config(
             }
         },
         rules: {
-            "better-tailwindcss/no-unknown-classes": ["error", { ignore: ["^lw-", "^demo-"] }],
+            "better-tailwindcss/no-unknown-classes": ["error", { ignore: ["^lw-"] }],
             "better-tailwindcss/enforce-consistent-class-order": "warn"
         }
     }

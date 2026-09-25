@@ -36,7 +36,7 @@ interface StatusShare {
 }
 
 @Component({
-  selector: 'lw-insights-dashboard-view',
+  selector: 'demo-insights-dashboard-view',
   imports: [TranslocoPipe, InsightsChart],
   templateUrl: './dashboard-view.html',
 })

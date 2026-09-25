@@ -31,7 +31,7 @@ Chart.register(
 );
 
 @Component({
-  selector: 'lw-insights-chart',
+  selector: 'demo-insights-chart',
   host: { class: 'block h-full w-full min-w-0' },
   template: '<canvas #canvas></canvas>',
 })

@@ -19,7 +19,7 @@ interface AwaitingRow {
 }
 
 @Component({
-  selector: 'lw-quotes-awaiting-answer-view',
+  selector: 'demo-quotes-awaiting-answer-view',
   imports: [TranslocoPipe],
   templateUrl: './quotes-awaiting-answer-view.html',
 })
