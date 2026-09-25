@@ -1,5 +1,6 @@
 {
   "title": "Tickets",
+  "number": "Die Ticketnummer, zum Beispiel T-1041.",
   "list": {
     "title": "Tickets auflisten",
     "description": "Listet die Support-Tickets mit Nummer, Kunde, Betreff, Status und Bearbeiter. Damit findet man ein Ticket, von dem nur das Thema bekannt ist.",
@@ -9,7 +10,6 @@
   "open": {
     "title": "Ticket öffnen",
     "description": "Öffnet ein Ticket im Workbench und liefert seine Details einschließlich der Nachricht des Kunden.",
-    "number": "Die Ticketnummer, zum Beispiel T-1041.",
     "answers": "Das Ticket: Nummer, Kunde, Betreff, Text, Status, Bearbeiter und seine Antworten."
   },
   "assign": {

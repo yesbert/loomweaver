@@ -23,7 +23,7 @@
         (lw-select-change)="setStatus(ticket.number, $event)"
       >
         @for (status of statuses; track status) {
-          <lw-option [attr.value]="status">{{ stateKey(status) | transloco }}</lw-option>
+          <lw-option [attr.value]="status">{{ statusKey(status) | transloco }}</lw-option>
         }
       </lw-select>
     </div>

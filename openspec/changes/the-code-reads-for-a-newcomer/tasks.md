@@ -678,9 +678,15 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 
 - [ ] 13.1 One entry README that matches the code; the weaver READMEs say what each weaver does in
   this example; `LOOMWEAVER.md` reduced to a pointer.
-- [ ] 13.2 Tickets (after its lookup defect is fixed): one function per action that both the command and
+- [x] 13.2 Tickets (after its lookup defect is fixed): one function per action that both the command and
   the button call, the status list and lookup once, named answer shapes, the route and surface id once,
   the actions file named after its export.
+  `ticketActions.assign`, `reply` and `setStatus` change the ticket and show it; the command's `run`
+  and the view's handler both call them, so a button now keeps its ticket's tab like the command
+  does. `STATUSES`, `statusKey`, `ticketDetail` and the one normalised `find` live in the store
+  beside `ASSIGNEES` and the summary; every number argument is `NUMBER_ARGUMENT` with its own key
+  `tickets.number`; `TICKET_SURFACE` and `ticketPath` name the surface and the address once, in
+  `ticket-actions.ts`, renamed after its export.
 - [ ] 13.3 The agent vocabulary starts in the generator: connection and agent named apart, typed
   protocol events, `docs/scaffolding.md` and `docs/samples.md` in the same pull request.
 - [ ] 13.4 The example's assistant, regenerated from 13.3: every event handed to the adapter, the key
