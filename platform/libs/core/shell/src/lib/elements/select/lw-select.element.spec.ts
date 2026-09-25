@@ -1,3 +1,4 @@
+import { removeIcon, setIcon } from '../icon/icon-registry';
 import { LW_OPTION_TAG } from './lw-option.element';
 import {
   defineLwSelect,
@@ -53,6 +54,42 @@ describe('<lw-select> custom element', () => {
 
     expect(trigger(element).textContent).toContain('Deutsch');
     expect(trigger(element).getAttribute('aria-label')).toBe('Language');
+  });
+
+  it('draws an option icon the registry knows, on the trigger and in the list', () => {
+    setIcon(
+      'sample-glyph',
+      '<svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/></svg>',
+    );
+    const select = document.createElement(LW_SELECT_TAG);
+    select.setAttribute('label', 'Layout');
+    select.setAttribute('value', 'grid');
+    const option = document.createElement(LW_OPTION_TAG);
+    option.setAttribute('value', 'grid');
+    option.setAttribute('icon', 'sample-glyph');
+    option.textContent = 'Grid';
+    select.append(option);
+    document.body.append(select);
+
+    trigger(select).click();
+
+    for (const place of [trigger(select), options(select)[0]]) {
+      expect(place.querySelector('lw-icon')?.getAttribute('name')).toBe(
+        'sample-glyph',
+      );
+      expect(place.textContent).not.toContain('sample-glyph');
+    }
+    removeIcon('sample-glyph');
+  });
+
+  it('shows an option icon the registry does not know as written, like a flag', () => {
+    const element = mount('de');
+
+    trigger(element).click();
+
+    expect(trigger(element).querySelector('lw-icon')).toBeNull();
+    expect(trigger(element).textContent).toContain('🇩🇪');
+    expect(options(element)[0].textContent).toContain('🇬🇧');
   });
 
   it('registers both tags', () => {

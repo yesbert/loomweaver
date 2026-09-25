@@ -81,7 +81,10 @@ blocked, was confirmed and fixed under 7.5.
 
 From the refactoring change's list for the owner, `<lw-option icon>` showing the icon's name as text
 where every other element draws the icon is treated as a defect here. No requirement names it, so it
-gets a test and no delta, like the other defects covered only by published documentation.
+gets a test and no delta, like the other defects covered only by published documentation. Fixing it
+showed the finding to be narrower: the reference promised a literal glyph for `icon` and named the
+icon registry as the next step, and the language switcher passes flag emoji. So a name the registry
+knows is drawn, and anything else is still shown as written.
 
 ## Risks / Trade-offs
 
