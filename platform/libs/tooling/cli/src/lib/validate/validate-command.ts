@@ -16,8 +16,8 @@ import {
   rejectUnknownFlags,
   requiredFlag,
   stringFlag,
-} from './args';
-import { Io } from './io';
+} from '../args';
+import { Io } from '../io';
 
 function reportFindings(
   io: Io,

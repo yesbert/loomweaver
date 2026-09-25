@@ -1,16 +1,16 @@
 import { parseArgs, ParsedArgs } from './args';
 import { execInherit } from './exec';
 import { help, list } from './help';
-import { init } from './init';
-import { InitDeps, UNBUNDLED_VERSION } from './init-plan';
+import { init } from './init/init';
+import { InitDeps, UNBUNDLED_VERSION } from './init/init-plan';
 import { Io } from './io';
-import { scaffold } from './scaffold-command';
+import { scaffold } from './scaffold/scaffold-command';
 import {
   validateCatalogCommand,
   validateCommandsCommand,
   validateI18nCommand,
   validateManifestCommand,
-} from './validate-command';
+} from './validate/validate-command';
 
 type CommandHandler = (args: ParsedArgs, io: Io, deps: InitDeps) => number;
 

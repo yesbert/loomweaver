@@ -22,7 +22,7 @@ import {
   resolveBuildProject,
   Workspace,
   WorkspaceError,
-} from './workspace';
+} from '../workspace';
 
 export interface PlannedAmendment {
   readonly file: string;

@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { ArgError } from './args';
+import { ArgError } from '../args';
 
 export type PackageManager = 'npm' | 'pnpm' | 'yarn' | 'bun';
 

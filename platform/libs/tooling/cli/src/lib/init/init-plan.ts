@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { basename, join, resolve } from 'node:path';
 import { toTitleCase } from '@loomweaver/devkit';
-import { ArgError, boolFlag, ParsedArgs, stringFlag } from './args';
+import { ArgError, boolFlag, ParsedArgs, stringFlag } from '../args';
 import { nxApplications } from './nx-applications';
 import {
   detectPackageManager,
@@ -13,7 +13,7 @@ import {
   readJsonFile,
   Workspace,
   WorkspaceError,
-} from './workspace';
+} from '../workspace';
 
 export interface InitDeps {
   readonly cwd: string;

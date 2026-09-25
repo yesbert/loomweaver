@@ -1,7 +1,7 @@
 import { kebabCase, portableOptions, usageFor } from '@loomweaver/devkit';
 import { ParsedArgs, rejectUnknownFlags } from './args';
 import { Io } from './io';
-import { SCAFFOLDS } from './scaffold';
+import { SCAFFOLDS } from './scaffold/scaffold';
 
 export function help(): string {
   const commands = SCAFFOLDS.map((s) => `  ${s.name.padEnd(16)}${s.summary}`);

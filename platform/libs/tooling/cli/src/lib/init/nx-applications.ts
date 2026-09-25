@@ -1,6 +1,6 @@
 import { existsSync, readdirSync } from 'node:fs';
 import { basename, join, relative, sep } from 'node:path';
-import { readJsonFile } from './workspace';
+import { readJsonFile } from '../workspace';
 
 export interface NxApplication {
   readonly name: string;

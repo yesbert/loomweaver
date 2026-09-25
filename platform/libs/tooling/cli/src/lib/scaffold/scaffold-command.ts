@@ -1,6 +1,6 @@
-import { boolFlag, ParsedArgs, rejectUnknownFlags, stringFlag } from './args';
+import { boolFlag, ParsedArgs, rejectUnknownFlags, stringFlag } from '../args';
 import { AmendPlan, applyAmend, planAmend } from './amend';
-import { Io } from './io';
+import { Io } from '../io';
 import {
   allowedFlagsFor,
   amendmentsFor,

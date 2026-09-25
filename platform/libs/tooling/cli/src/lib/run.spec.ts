@@ -12,7 +12,7 @@ import {
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { run } from './run';
-import { planWrite, WriteError } from './write';
+import { planWrite, WriteError } from './scaffold/write';
 
 function capture() {
   const out: string[] = [];

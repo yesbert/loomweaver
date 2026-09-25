@@ -483,6 +483,9 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 - [ ] 10.7 The CLI: `run.ts` split into commands with a command table, `init/`, `scaffold/` and
   `validate/` folders, init steps as a union, the angular.json reading in one file, the workspace type
   without casts, flag typing once, the target application chosen by one rule, devkit defaults reused.
+  Part 1: `run.ts` keeps the command table and `run()`; `help.ts`, `exec.ts`, `io.ts`,
+  `validate/validate-command.ts` and `scaffold/scaffold-command.ts` hold the commands, and `init/` and
+  `scaffold/` the rest (the folder guard needs the move in the same pull request).
 - [ ] 10.8 The weaver recipe split into input resolution and view templates; resolved inputs named
   instead of single letters; the validators' helper names; the emitted auth-source, agent panel and
   README text simplified, with `docs/samples.md` and `docs/scaffolding.md` in the same pull request.
