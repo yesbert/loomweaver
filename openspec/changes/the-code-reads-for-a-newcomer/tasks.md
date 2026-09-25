@@ -298,8 +298,13 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   with the id set private, the gap checks reading the id from the definition) and the published
   JSDoc lines that began with a stray colon, one of them in the plugin contract. `holdsStrings` stays
   in the missing-key handler: both its users are in `i18n/` now.
-- [ ] 7.11 Tests: `workspace.service.spec.ts` split by concept, the `settled()` helpers named after what
+- [x] 7.11 Tests: `workspace.service.spec.ts` split by concept, the `settled()` helpers named after what
   they wait for, `settings-store.spec.ts` named for the four ports it tests.
+  The service spec keeps the facade; change tracking went to `working-state/unsaved-workspaces.spec.ts`,
+  the declared workspaces to `catalog/declared-workspaces.spec.ts`, the adopted initial workspace to
+  `opening/workbench-opening.spec.ts` (2169 tests before and after). The helpers are `appStable`,
+  `appStableAfterPromiseChains`, `nextTask`, `contentLoaded` and `effectsThenTwoTasks`; the ports spec
+  is `persistence-ports.spec.ts`.
 
 ## 8. Commands, menus, dialogs, capture and the element kit
 

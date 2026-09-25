@@ -94,7 +94,7 @@ const SPLIT_ARRANGEMENT = JSON.stringify({
 
 let identity: string | null = null;
 
-async function settled(): Promise<void> {
+async function appStableAfterPromiseChains(): Promise<void> {
   await TestBed.inject(ApplicationRef).whenStable();
   for (let turn = 0; turn < 5; turn += 1) {
     await Promise.resolve();
@@ -141,14 +141,14 @@ async function open(
   await RouterTestingHarness.create(at);
   const workspaces = TestBed.inject(WorkspaceService);
   const panes = TestBed.inject(PaneTreeService);
-  await settled();
+  await appStableAfterPromiseChains();
   return { workspaces, panes };
 }
 
 async function signIn(id: string): Promise<void> {
   identity = id;
   await TestBed.inject(WORKING_STATE_STORE).get('lw.shell.active-workspace');
-  await settled();
+  await appStableAfterPromiseChains();
 }
 
 function containerPanes(panes: PaneTreeService): readonly string[] {
@@ -178,7 +178,7 @@ describe('a session that arrives after the workbench has already read', () => {
 
     identity = 'ada';
     panes.unsplit(CONTENT_DOCK);
-    await settled();
+    await appStableAfterPromiseChains();
 
     expect(panes.isSplit(CONTENT_DOCK)).toBe(true);
     expect(storedArrangement()).toBe(SPLIT_ARRANGEMENT);
@@ -192,7 +192,7 @@ describe('a session that arrives after the workbench has already read', () => {
     );
     const { panes } = await open();
     await TestBed.inject(Router).navigateByUrl('/knowledge-base');
-    await settled();
+    await appStableAfterPromiseChains();
 
     await signIn('ada');
 
@@ -211,7 +211,7 @@ describe('a session that arrives after the workbench has already read', () => {
       KNOWLEDGE_BASE_WORKSPACE,
     ]);
     await TestBed.inject(Router).navigateByUrl('/knowledge-base');
-    await settled();
+    await appStableAfterPromiseChains();
 
     await signIn('ada');
 
@@ -229,7 +229,7 @@ describe('a session that arrives after the workbench has already read', () => {
 
     identity = 'ada';
     panes.unsplit(CONTENT_DOCK);
-    await settled();
+    await appStableAfterPromiseChains();
 
     expect(panes.primaryTabs(CONTENT_DOCK).map((tab) => tab.path)).toEqual([
       'dashboard',
@@ -243,7 +243,7 @@ describe('a session that arrives after the workbench has already read', () => {
     const pane = TestBed.createComponent(SurfaceBody);
     pane.componentRef.setInput('path', 'arranged/alpha');
     pane.detectChanges();
-    await settled();
+    await appStableAfterPromiseChains();
     expect(containerPanes(panes)).toHaveLength(3);
 
     await signIn('ada');

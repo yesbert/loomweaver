@@ -63,7 +63,7 @@ function compose(answer = true) {
   return { ws: TestBed.inject(WorkspaceService), guard, unsavedWork, dirty };
 }
 
-async function settled(): Promise<void> {
+async function nextTask(): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, 0));
 }
 
@@ -89,7 +89,7 @@ describe('WorkspaceService asks about unsaved work where the command did', () =>
 
   it('a declined reset reports so and changes nothing', async () => {
     const { ws } = compose(false);
-    await settled();
+    await nextTask();
     TestBed.inject(PaneTreeService).insertTab(
       CONTENT_DOCK,
       'main',
@@ -207,7 +207,7 @@ describe('AppResetService asks about unsaved work where the command did', () => 
 
   it('declining once resets neither', async () => {
     const { guard } = compose(false);
-    await settled();
+    await nextTask();
     TestBed.inject(PaneTreeService).insertTab(
       CONTENT_DOCK,
       'main',
