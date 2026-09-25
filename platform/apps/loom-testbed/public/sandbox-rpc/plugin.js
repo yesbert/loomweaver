@@ -10,7 +10,11 @@
   connection.promise
     .then(function (ctx) {
       return Promise.all([
-        ctx.toast({ message: 'testbed.sandbox.toast', kind: 'success', timeoutMs: TOAST_MS }),
+        ctx.toast({
+          message: 'testbed.sandbox.toast',
+          kind: 'success',
+          timeoutMs: TOAST_MS,
+        }),
         ctx.registerSurface({
           id: 'sandbox-rpc.view',
           title: 'testbed.sandbox.title',

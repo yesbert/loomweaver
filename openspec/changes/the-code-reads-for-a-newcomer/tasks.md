@@ -591,6 +591,11 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   entries say they open a page at `/store-full` or `/store-minimal` and list the grants they hold;
   `store-full` titles its page with a literal instead of borrowing the testbed weaver's key, as the
   guide says a store plugin must; both pages take their colours from the frame kit.
+  `sandbox-rpc/view.html` carries the page as a fixed skeleton that `view.js` fills with
+  `textContent`, so no markup is built from strings and nothing is escaped; the strings table is
+  `view-strings.js`, the close veto `close-veto.js` and the context menu `context-menu.js`; the page's
+  state is one object at the top of `view.js`, the inline styles are classes and no colour has a
+  `#hex` fallback. Screenshots before and after match, and the end-to-end suite passes.
 - [ ] 11.8 One icon set for the platform apps; end-to-end helpers and the weaver's Transloco setup
   written once.
 
