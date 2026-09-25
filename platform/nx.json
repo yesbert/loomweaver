@@ -26,12 +26,26 @@
         "command": "node tools/stamp-version.mjs"
       }
     },
-    "@nx/eslint:lint": {
+    "lint": {
       "cache": true,
       "inputs": [
         "default",
         "^default",
-        "{workspaceRoot}/eslint.config.mjs"
+        "{workspaceRoot}/eslint.config.mjs",
+        {
+          "externalDependencies": [
+            "eslint",
+            "@eslint/js",
+            "@nx/eslint-plugin",
+            "typescript-eslint",
+            "angular-eslint",
+            "@angular-eslint/template-parser",
+            "eslint-config-prettier",
+            "eslint-plugin-better-tailwindcss",
+            "eslint-plugin-regexp",
+            "eslint-plugin-unicorn"
+          ]
+        }
       ]
     },
     "@nx/angular:unit-test": {

@@ -5,19 +5,6 @@
   "projectType": "library",
   "tags": ["scope:platform", "type:contract"],
   "targets": {
-    "lint": {
-      "inputs": [
-        "default",
-        "^default",
-        "{workspaceRoot}/.eslintrc.json",
-        "{workspaceRoot}/.eslintignore",
-        "{workspaceRoot}/eslint.config.mjs",
-        "{workspaceRoot}/tools/eslint-rules/**/*",
-        {
-          "externalDependencies": ["eslint"]
-        }
-      ]
-    },
     "package": {
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
