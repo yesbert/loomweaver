@@ -37,6 +37,8 @@
     <div class="flex min-h-0 flex-1">
       <ul
         class="flex w-80 shrink-0 flex-col gap-1 overflow-y-auto border-r border-border p-2 max-sm:w-full"
+        data-testid="store-list"
+        [class.max-sm:hidden]="selected() !== undefined"
       >
         @if (failed()) {
           <li
@@ -75,8 +77,23 @@
         }
       </ul>
 
-      <div class="min-h-0 flex-1 overflow-y-auto p-5 max-sm:hidden">
+      <div
+        class="min-h-0 flex-1 overflow-y-auto p-5"
+        data-testid="store-detail-pane"
+        [class.max-sm:hidden]="selected() === undefined"
+      >
         @if (selected(); as entry) {
+          <button
+            type="button"
+            lwButton
+            variant="ghost"
+            size="sm"
+            class="mb-3 sm:hidden"
+            data-testid="store-back"
+            (click)="selectedId.set(undefined)"
+          >
+            {{ 'settings.storeBackToList' | transloco }}
+          </button>
           <lw-plugin-store-detail
             [entry]="entry"
             (install)="requestInstall($event)"

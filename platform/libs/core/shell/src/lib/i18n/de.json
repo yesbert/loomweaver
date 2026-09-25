@@ -229,6 +229,7 @@
     "storeProvidedHint": "Von Ihrer Organisation bereitgestellt — hier weder abschaltbar noch entfernbar.",
     "storeRepository": "Repository",
     "storeSearch": "Plugins nach Name, Autor oder Beschreibung durchsuchen …",
+    "storeBackToList": "← Alle Plugins",
     "storeSelectHint": "Wähle links ein Plugin, um seine Details zu sehen.",
     "storeTabBrowse": "Durchsuchen",
     "storeTabInstalled": "Installiert",

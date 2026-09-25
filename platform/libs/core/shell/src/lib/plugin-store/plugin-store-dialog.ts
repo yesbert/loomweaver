@@ -2,6 +2,7 @@ import { DialogRef } from '@loomweaver/plugin-sdk';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject, OnInit, signal } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { WideDialogFrame } from '../dialog/wide-dialog-frame';
+import { LwButton } from '../elements/button/lw-button';
 import { PluginCatalogEntry } from './catalog/catalog-entry';
 import { PluginInstallService } from './lifecycle/plugin-install.service';
 import { PluginDeploymentService } from './lifecycle/plugin-deployment.service';
@@ -25,6 +26,7 @@ export interface PluginStoreDialogData {
   imports: [
     WideDialogFrame,
     TranslocoPipe,
+    LwButton,
     InstalledPluginList,
     PluginStoreCard,
     PluginStoreDetail,
