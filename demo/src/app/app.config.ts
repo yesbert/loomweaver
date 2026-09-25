@@ -169,7 +169,7 @@ export const appConfig: ApplicationConfig = {
       procurement: ['contributions', 'navigation', 'ui'],
       inventory: ['contributions', 'navigation', 'ui'],
       people: ['contributions', 'navigation', 'ui'],
-      insights: ['contributions', 'navigation'],
+      insights: ['contributions', 'navigation', 'session'],
       looks: ['contributions'],
       agent: ['contributions', 'navigation', 'ui', 'automation'],
       session: ['contributions'],

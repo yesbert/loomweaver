@@ -687,8 +687,13 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   list, the pane and the dashboard read one order, one tone (expired is neutral on the dashboard
   too) and one label. Article keys in data are full keys, `STATUS_BADGE` is `badgeClassOf`, the
   margin surface id is `MARGIN_SURFACE`, and `quotes.open` answers an object like its siblings.
-- [ ] 12.8 Insights reads `ctx.session` with the `session` capability, as the access-gating guide
+- [x] 12.8 Insights reads `ctx.session` with the `session` capability, as the access-gating guide
   teaches; its two surface ids say why there are two.
+  Insights declares and is granted `session`, binds `ctx.session` into `insightsSession` in
+  `activate` (cleared in `deactivate`), and the dashboard asks `hasRole('accounting')` instead of
+  reading the distribution's auth stand-in. The surfaces are `insights.home` (the chromeless landing
+  at the empty path) and `insights.dashboardTab` (the same view as a tab at `overview`), which a
+  saved arrangement naming the old ids no longer finds.
 - [ ] 12.9 The agent: file names that tell script and events apart, the translator passed in, typed
   protocol events.
 - [ ] 12.10 The action facades use one guard style and names distinct from the store functions; one

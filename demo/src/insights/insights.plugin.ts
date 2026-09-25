@@ -1,5 +1,6 @@
 import { Plugin } from '@loomweaver/plugin-sdk';
 import { InsightsDashboardView } from './dashboard-view';
+import { insightsSession } from './insights-session';
 
 const insightsIcon =
   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" ' +
@@ -13,13 +14,14 @@ export const insightsPlugin: Plugin = {
   manifest: {
     id: 'insights',
     name: 'Insights',
-    capabilities: ['contributions', 'navigation'],
+    capabilities: ['contributions', 'navigation', 'session'],
   },
   activate(ctx) {
     ctx.contributeIcons({ insights: insightsIcon });
+    insightsSession.bind(ctx.session);
 
     ctx.registerSurface({
-      id: 'insights.dashboard',
+      id: 'insights.home',
       title: 'insights.dashboard.title',
       icon: 'insights',
       docks: [],
@@ -28,7 +30,7 @@ export const insightsPlugin: Plugin = {
     });
 
     ctx.registerSurface({
-      id: 'insights.overviewPage',
+      id: 'insights.dashboardTab',
       title: 'insights.dashboard.title',
       icon: 'insights',
       docks: [],
@@ -48,5 +50,8 @@ export const insightsPlugin: Plugin = {
         return { showing: 'dashboard' };
       },
     });
+  },
+  deactivate() {
+    insightsSession.bind(undefined);
   },
 };

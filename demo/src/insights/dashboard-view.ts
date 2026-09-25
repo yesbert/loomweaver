@@ -16,10 +16,10 @@ import {
   quoteTotals,
   recentMonths,
 } from '../accounting';
-import { demoSession } from '../app/session/session';
 import { activeLanguage } from '../i18n/active-language';
 import { type ChartColours, chartColours } from './chart-tokens';
 import { InsightsChart } from './insights-chart';
+import { insightsSession } from './insights-session';
 
 const TONE_COLOUR: Readonly<Record<TabBadgeTone, keyof ChartColours>> = {
   neutral: 'muted',
@@ -80,8 +80,8 @@ export class InsightsDashboardView {
     );
   });
 
-  protected readonly maySeeMargin = computed(() =>
-    demoSession.snapshot().roles.includes('accounting'),
+  protected readonly maySeeMargin = computed(
+    () => insightsSession.session?.hasRole('accounting') ?? false,
   );
 
   protected readonly wonMargin = computed(() =>
