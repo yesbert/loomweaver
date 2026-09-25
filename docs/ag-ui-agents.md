@@ -115,11 +115,20 @@ by asking for things.
 The generated `<id>-agent.ts` is a stand-in and says so in its own header. It speaks the
 protocol and nothing else, so the path works before you have anything to connect to.
 
-Point it at your own endpoint and yield the events it streams back. That is the whole change, and it
-is confined to that one file: the panel and the connection beside it stay as they are.
+Point it at your own endpoint and yield the events it streams back. For an agent that answers in one
+round, that is the whole change, and it is confined to that one file: the panel and the connection
+beside it stay as they are.
 
 Nothing is generated for the transport, the credentials or the model, because none of those can be
 guessed. They are your product's, and they are usually the part that is already decided.
+
+An agent that runs several rounds, as most real ones do, needs the answer to each call before it
+asks its model again. Give it a way to be handed an answer, and let the panel hand the answer over
+as soon as `receive` has returned it. That is one line in the panel: it still passes every event to
+the connection, and only the answer travels back. The
+[assistant workbench example](https://github.com/yesbert/loomweaver/tree/main/examples/assistant-workbench)
+does this with `agent.answer(message)` beside a real model; the samples page calls the same step
+`back`.
 
 ## Where to go next
 

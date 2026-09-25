@@ -696,9 +696,17 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   the generator's shape instead of a third vocabulary (`offer`, `carry`), and shows the loop with
   `back` as the product's way to answer. A generated agent weaver type-checks under `strict`, its
   connection test passes, and the quick start serves its panel.
-- [ ] 13.4 The example's assistant, regenerated from 13.3: every event handed to the adapter, the key
+- [x] 13.4 The example's assistant, regenerated from 13.3: every event handed to the adapter, the key
   handling out of the panel, a consent text that fits any command, and a paragraph in
   `docs/ag-ui-agents.md` on agents that run several rounds.
+  The assistant takes the generator's names: `assistant-connection.ts` (`connectAssistant`,
+  `assistantTools`) and `assistant-agent.ts`, the OpenRouter agent. The panel's loop is the
+  generated one, handing every event to the connection, with one line more: an answer goes back
+  through `agent.answer`, which a multi-round agent needs and which the AG-UI guide now explains.
+  The agent no longer calls into the workbench itself, builds typed events, and dropped the
+  `TOOL_CALL_RESULT` nothing drew. The key lives in `openRouterKey` (guarded storage, one read),
+  its form in `OpenRouterKeyForm`, and the prompt and key fields are signals. The confirmation
+  names no particular command.
 - [ ] 13.5 Leftovers (routes, stylesheet, unused dependencies, redundant sources, exports) and form
   fields held in signals. The example's components take its own `app-` prefix, once the generator
   reads the prefix from the workspace (`generated-components-take-the-app-prefix`).

@@ -17,7 +17,7 @@ npm start          # http://127.0.0.1:4200
 Open the assistant panel on the right and paste an [OpenRouter](https://openrouter.ai) API key. The
 key stays in this browser's local storage and is sent to OpenRouter and nowhere else. The model is
 named once, in the `MODEL` constant at the top of
-`src/assistant/src/lib/agent/assistant-agent-source.ts`; the default is a free one, which OpenRouter
+`src/assistant/src/lib/agent/assistant-agent.ts`; the default is a free one, which OpenRouter
 limits to about fifty requests a day per key.
 
 Free models come and go, so the default may be gone by the time you read this. The panel then shows

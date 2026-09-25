@@ -48,11 +48,11 @@ flavour instead.
 
 `src/lib/agent/` holds three files and one of them is meant to be thrown away.
 
-- `assistant-agent.ts` is the connection: the workbench's own commands offered as tools, and a
+- `assistant-connection.ts` is the connection: the workbench's own commands offered as tools, and a
   seam where this weaver decides about a call before it runs. Nothing is registered twice — the
   list comes from the workbench, already narrowed by everything that would refuse the call.
 - `assistant-agent-panel.ts` shows what is offered, the call as it streams, and the outcome.
-- `assistant-agent-source.ts` is a **stand-in**, not an assistant: it produces the protocol's own
+- `assistant-agent.ts` is a **stand-in**, not an assistant: it produces the protocol's own
   events so the whole path runs before you have connected anything. Replace that one file with
   your transport and nothing else changes. No transport, credential or model is generated for
   you, because none of them can be guessed.

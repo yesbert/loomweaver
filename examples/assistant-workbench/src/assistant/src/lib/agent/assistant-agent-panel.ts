@@ -8,12 +8,11 @@ import {
   viewChild,
 } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { EventType, type BaseEvent, type Tool, type ToolMessage } from '@ag-ui/core';
-import { assistantAgent } from './assistant-agent';
-import { createAgent, MODEL } from './assistant-agent-source';
-import { cleanKey, looksLikeKey } from './openrouter-key';
-
-const KEY_STORAGE = 'assistant-workbench.openrouter-key';
+import { EventType, type AGUIEvent, type Tool, type ToolMessage } from '@ag-ui/core';
+import { createAgent, MODEL } from './assistant-agent';
+import { assistantTools } from './assistant-connection';
+import { openRouterKey } from './openrouter-key';
+import { OpenRouterKeyForm } from './openrouter-key-form';
 
 interface Line {
   readonly kind: 'you' | 'agent' | 'call' | 'result';
@@ -25,17 +24,17 @@ interface Line {
 @Component({
   selector: 'lw-assistant-agent-panel',
   templateUrl: './assistant-agent-panel.html',
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, OpenRouterKeyForm],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssistantAgentPanel {
   protected readonly model = MODEL;
 
-  protected readonly key = signal(localStorage.getItem(KEY_STORAGE) ?? '');
+  protected readonly key = openRouterKey.value;
 
   protected readonly keyEnding = computed(() => this.key().slice(-4));
 
-  protected readonly keyProblem = signal(false);
+  protected readonly draft = signal('');
 
   protected readonly offered = signal<readonly Tool[]>([]);
 
@@ -61,39 +60,30 @@ export class AssistantAgentPanel {
   }
 
   protected refreshOffered(): void {
-    this.offered.set(assistantAgent()?.list() ?? []);
-  }
-
-  protected useKey(field: HTMLInputElement): void {
-    const key = cleanKey(field.value);
-    if (!looksLikeKey(key)) {
-      this.keyProblem.set(key.length > 0);
-      return;
-    }
-    this.keyProblem.set(false);
-    localStorage.setItem(KEY_STORAGE, key);
-    this.key.set(key);
-    field.value = '';
+    this.offered.set(assistantTools()?.list() ?? []);
   }
 
   protected forgetKey(): void {
-    localStorage.removeItem(KEY_STORAGE);
-    this.key.set('');
+    openRouterKey.forget();
   }
 
-  protected submit(event: Event, field: HTMLTextAreaElement): void {
+  protected edit(event: Event): void {
+    this.draft.set((event.target as HTMLTextAreaElement).value);
+  }
+
+  protected submit(event: Event): void {
     event.preventDefault();
-    const prompt = field.value.trim();
+    const prompt = this.draft().trim();
     if (!prompt) {
       return;
     }
-    field.value = '';
+    this.draft.set('');
     void this.send(prompt);
   }
 
   private async send(prompt: string): Promise<void> {
-    const tools = assistantAgent();
-    const key = this.key() || localStorage.getItem(KEY_STORAGE) || '';
+    const tools = assistantTools();
+    const key = this.key();
     if (!tools || this.busy() || !key) {
       return;
     }
@@ -102,27 +92,24 @@ export class AssistantAgentPanel {
       const offered = tools.list();
       this.offered.set(offered);
       this.push({ kind: 'you', text: prompt });
-      const request = {
-        runId: `run-${++this.runs}`,
-        prompt,
-        tools: offered,
-        key,
-        receive: (event: BaseEvent) => this.receive(tools.receive(event)),
-      };
+      const request = { runId: `run-${++this.runs}`, prompt, tools: offered, key };
       for await (const event of this.agent.ask(request)) {
         this.draw(event);
+        const answer = await tools.receive(event);
+        this.showAnswer(answer);
+        if (answer) {
+          this.agent.answer(answer);
+        }
       }
-      let left = await this.receive(tools.flush());
-      while (left) {
-        left = await this.receive(tools.flush());
+      for (let left = await tools.flush(); left; left = await tools.flush()) {
+        this.showAnswer(left);
       }
     } finally {
       this.busy.set(false);
     }
   }
 
-  private async receive(answer: Promise<ToolMessage | null>): Promise<ToolMessage | null> {
-    const message = await answer;
+  private showAnswer(message: ToolMessage | null): void {
     if (message) {
       this.push({
         kind: 'result',
@@ -130,26 +117,24 @@ export class AssistantAgentPanel {
         failed: Boolean(message.error),
       });
     }
-    return message;
   }
 
-  private draw(event: BaseEvent): void {
-    const raw = event as unknown as Record<string, unknown>;
+  private draw(event: AGUIEvent): void {
     switch (event.type) {
       case EventType.TEXT_MESSAGE_START:
         this.push({ kind: 'agent', text: '' });
         break;
       case EventType.TEXT_MESSAGE_CONTENT:
-        this.grow('text', String(raw['delta'] ?? ''));
+        this.grow('text', event.delta);
         break;
       case EventType.TOOL_CALL_START:
-        this.push({ kind: 'call', text: String(raw['toolCallName'] ?? ''), args: '' });
+        this.push({ kind: 'call', text: event.toolCallName, args: '' });
         break;
       case EventType.TOOL_CALL_ARGS:
-        this.grow('args', String(raw['delta'] ?? ''));
+        this.grow('args', event.delta);
         break;
       case EventType.RUN_ERROR:
-        this.push({ kind: 'result', text: String(raw['message'] ?? ''), failed: true });
+        this.push({ kind: 'result', text: event.message, failed: true });
         break;
       default:
         break;

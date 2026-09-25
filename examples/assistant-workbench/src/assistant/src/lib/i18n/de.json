@@ -3,9 +3,9 @@
   "agent": {
     "title": "Assistent",
     "confirm": {
-      "title": "Diese Antwort senden?",
-      "message": "Der Assistent möchte dem Kunden eine Antwort senden. Sie geht nur raus, wenn du zustimmst.",
-      "yes": "Senden",
+      "title": "Soll der Assistent das tun?",
+      "message": "Der Assistent möchte eine Aktion ausführen, die etwas außerhalb dieses Gesprächs verändert. Sie läuft nur, wenn du zustimmst.",
+      "yes": "Ausführen",
       "no": "Jetzt nicht"
     }
   },

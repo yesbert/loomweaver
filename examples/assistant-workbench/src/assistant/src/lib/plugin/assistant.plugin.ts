@@ -1,5 +1,5 @@
 import { Plugin } from '@loomweaver/plugin-sdk';
-import { assistantAgent, assistantConnection } from '../agent/assistant-agent';
+import { assistantTools, connectAssistant } from '../agent/assistant-connection';
 import { AssistantAgentPanel } from '../agent/assistant-agent-panel';
 
 const icon =
@@ -13,7 +13,7 @@ export const assistantPlugin: Plugin = {
   },
   activate(ctx) {
     ctx.contributeIcons({ assistant: icon });
-    assistantAgent.set(assistantConnection(ctx));
+    assistantTools.set(connectAssistant(ctx));
     ctx.registerSurface({
       id: 'assistant.agent',
       title: 'assistant.agent.title',
@@ -24,6 +24,6 @@ export const assistantPlugin: Plugin = {
     });
   },
   deactivate() {
-    assistantAgent.set(null);
+    assistantTools.set(null);
   },
 };
