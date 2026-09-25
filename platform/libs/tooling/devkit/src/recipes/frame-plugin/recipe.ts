@@ -18,12 +18,12 @@ export function resolveFramePluginInput(input: FramePluginInput): ResolvedFrameP
   return { id: input.id, name: input.name?.trim() || toTitleCase(input.id) };
 }
 
-function pluginHtml(p: ResolvedFramePlugin): string {
+function pluginHtml(plugin: ResolvedFramePlugin): string {
   return `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>${p.name} — frame plugin (logic)</title>
+    <title>${plugin.name} — frame plugin (logic)</title>
   </head>
   <body>
     <script src="/frame-kit/penpal.global.js"></script>
@@ -33,7 +33,7 @@ function pluginHtml(p: ResolvedFramePlugin): string {
 `;
 }
 
-function pluginJs(p: ResolvedFramePlugin): string {
+function pluginJs(plugin: ResolvedFramePlugin): string {
   return `(function () {
   const Penpal = globalThis.Penpal;
   const messenger = new Penpal.WindowMessenger({
@@ -45,28 +45,28 @@ function pluginJs(p: ResolvedFramePlugin): string {
   connection.promise
     .then(function (ctx) {
       return Promise.all([
-        ctx.toast({ message: '${p.name} ready', kind: 'success', timeoutMs: 4000 }),
+        ctx.toast({ message: '${plugin.name} ready', kind: 'success', timeoutMs: 4000 }),
         ctx.registerSurface({
-          id: '${p.id}.view',
-          title: '${p.name}',
-          iframe: '/${p.id}/view.html',
-          routable: { path: '${p.id}', titleIsLiteral: true },
+          id: '${plugin.id}.view',
+          title: '${plugin.name}',
+          iframe: '/${plugin.id}/view.html',
+          routable: { path: '${plugin.id}', titleIsLiteral: true },
         }),
       ]);
     })
     .catch(function (error) {
-      console.error('[${p.id}] frame plugin failed', error);
+      console.error('[${plugin.id}] frame plugin failed', error);
     });
 })();
 `;
 }
 
-function viewHtml(p: ResolvedFramePlugin): string {
+function viewHtml(plugin: ResolvedFramePlugin): string {
   return `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>${p.name}</title>
+    <title>${plugin.name}</title>
     <link rel="stylesheet" href="/frame-kit/lw-frame.css" />
     <style>
       body {
@@ -82,7 +82,7 @@ function viewHtml(p: ResolvedFramePlugin): string {
   </head>
   <body>
     <div class="wrap">
-      <h1>${p.name}</h1>
+      <h1>${plugin.name}</h1>
       <p>
         Your sandboxed surface. It runs isolated in its own iframe, so its body can be built with
         any framework (React, Vue, Svelte, vanilla). The frame UI kit (served by the distribution
@@ -111,16 +111,16 @@ function viewHtml(p: ResolvedFramePlugin): string {
 `;
 }
 
-function readme(p: ResolvedFramePlugin): string {
+function readme(plugin: ResolvedFramePlugin): string {
   return [
-    `# ${p.name} — frame plugin`,
+    `# ${plugin.name} — frame plugin`,
     '',
     `A framework-agnostic LoomWeaver plugin: it runs in an isolated \`<iframe sandbox>\` and`,
     `receives \`ctx\` over Penpal RPC through the same default-deny broker a trusted plugin uses.`,
     '',
     '## Serve it + wire it into a distribution',
     '',
-    `1. Put these files under the distribution's static dir, e.g. \`public/${p.id}/\`. The plugin`,
+    `1. Put these files under the distribution's static dir, e.g. \`public/${plugin.id}/\`. The plugin`,
     `   references the **frame UI kit** (\`@loomweaver/frame-kit\`) at \`/frame-kit/\` —`,
     `   the distribution serves it via an assets glob (generated distributions already do):`,
     '',
@@ -131,11 +131,11 @@ function readme(p: ResolvedFramePlugin): string {
     `2. Register + grant it in the composition root:`,
     '',
     '   ```ts',
-    `   provideFramePlugins({ id: '${p.id}', entryUrl: '/${p.id}/plugin.html', capabilities: ['contributions', 'ui'] });`,
-    `   provideCapabilityGrants({ '${p.id}': ['contributions', 'ui'] });`,
+    `   provideFramePlugins({ id: '${plugin.id}', entryUrl: '/${plugin.id}/plugin.html', capabilities: ['contributions', 'ui'] });`,
+    `   provideCapabilityGrants({ '${plugin.id}': ['contributions', 'ui'] });`,
     '   ```',
     '',
-    `The surface is routable at \`/${p.id}\`. Replace \`view.html\` with your own UI in any framework.`,
+    `The surface is routable at \`/${plugin.id}\`. Replace \`view.html\` with your own UI in any framework.`,
     '',
   ].join('\n');
 }
@@ -143,12 +143,12 @@ function readme(p: ResolvedFramePlugin): string {
 export const framePlugin: Recipe<FramePluginInput> = {
   id: 'frame-plugin',
   build(input: FramePluginInput): FileMap {
-    const p = resolveFramePluginInput(input);
+    const plugin = resolveFramePluginInput(input);
     return {
-      'plugin.html': pluginHtml(p),
-      'plugin.js': pluginJs(p),
-      'view.html': viewHtml(p),
-      'README.md': readme(p),
+      'plugin.html': pluginHtml(plugin),
+      'plugin.js': pluginJs(plugin),
+      'view.html': viewHtml(plugin),
+      'README.md': readme(plugin),
     };
   },
 };

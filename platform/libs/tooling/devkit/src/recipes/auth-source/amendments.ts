@@ -11,8 +11,8 @@ export function authSourceAmendments(
   input: AuthSourceInput,
   where: string | undefined,
 ): readonly Amendment[] {
-  const a = resolveAuthSourceInput(input);
-  if (a.bare || where === undefined || where === '') {
+  const source = resolveAuthSourceInput(input);
+  if (source.bare || where === undefined || where === '') {
     return [];
   }
   const directory = normalizeProjectRoot(where);
@@ -32,14 +32,14 @@ export function authSourceAmendments(
     {
       kind: 'compose-plugin',
       id: SESSION_PLUGIN_ID,
-      symbol: sessionPluginSymbol(a),
+      symbol: sessionPluginSymbol(source),
       capabilities: ['contributions'],
       sourceRoot: directory,
       providers: [
         {
-          line: `provideAuthSource(() => ${a.propertyName}AuthSource()),`,
+          line: `provideAuthSource(() => ${source.propertyName}AuthSource()),`,
           shell: ['provideAuthSource'],
-          own: [`${a.propertyName}AuthSource`],
+          own: [`${source.propertyName}AuthSource`],
           unless: 'provideAuthSource(',
         },
         {

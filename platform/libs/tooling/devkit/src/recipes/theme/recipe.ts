@@ -27,11 +27,11 @@ export function resolveThemeInput(input: ThemeInput): ResolvedTheme {
   return { name: input.name, title: toTitleCase(input.name), preset };
 }
 
-function cssFile(t: ResolvedTheme): string {
-  return `/* ${t.title} theme — overrides LoomWeaver's --lw-* design tokens.
+function cssFile(theme: ResolvedTheme): string {
+  return `/* ${theme.title} theme — overrides LoomWeaver's --lw-* design tokens.
    Import it AFTER the shell theme in your distribution styles.css:
      @import '@loomweaver/shell/styles/theme.css';
-     @import './themes/${t.name}.css';
+     @import './themes/${theme.name}.css';
    Declared in @layer lw-tenant-theme so it beats any plugin's ctx.contributeTheme
    (Product default < Plugin < Tenant). The --lw-* ladder flips in :root.dark, so override both. */
 
@@ -67,15 +67,15 @@ function cssFile(t: ResolvedTheme): string {
 `;
 }
 
-function bootstrapFile(t: ResolvedTheme): string {
-  return `/* ${t.title} theme — maps LoomWeaver's --lw-* design tokens onto Bootstrap 5.3's --bs-*.
+function bootstrapFile(theme: ResolvedTheme): string {
+  return `/* ${theme.title} theme — maps LoomWeaver's --lw-* design tokens onto Bootstrap 5.3's --bs-*.
    Import it AFTER the shell theme in your distribution styles.css, and import Bootstrap itself
    INTO A LAYER — unlayered CSS outranks layered CSS whatever its specificity, so Bootstrap's
    Reboot (button { border-radius: 0 }) would otherwise beat our .lw-* component classes:
      @layer vendor;
      @import 'bootstrap/dist/css/bootstrap.css' layer(vendor);
      @import '@loomweaver/shell/styles/shell.css';   (or styles/theme.css if you run Tailwind)
-     @import './themes/${t.name}.css';
+     @import './themes/${theme.name}.css';
    Declared in @layer lw-tenant-theme so it beats any plugin's ctx.contributeTheme
    (Product default < Plugin < Tenant).
 
@@ -151,8 +151,8 @@ function bootstrapFile(t: ResolvedTheme): string {
 export const theme: Recipe<ThemeInput> = {
   id: 'theme',
   build(input: ThemeInput): FileMap {
-    const t = resolveThemeInput(input);
-    const content = t.preset === 'bootstrap' ? bootstrapFile(t) : cssFile(t);
-    return { [`${t.name}.css`]: content };
+    const theme = resolveThemeInput(input);
+    const content = theme.preset === 'bootstrap' ? bootstrapFile(theme) : cssFile(theme);
+    return { [`${theme.name}.css`]: content };
   },
 };

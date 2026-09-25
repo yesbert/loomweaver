@@ -183,58 +183,58 @@ export function resolveWeaverInput(input: WeaverInput): ResolvedWeaver {
   };
 }
 
-function aboutDialogFile(w: ResolvedWeaver): string {
+function aboutDialogFile(weaver: ResolvedWeaver): string {
   return `import { Component, inject } from '@angular/core';
 import { DialogRef, PluginHost } from '@loomweaver/plugin-sdk';
 
 @Component({
-  selector: '${w.prefix}-${w.id}-about-dialog',
-  templateUrl: './${w.id}-about-dialog.html',
+  selector: '${weaver.prefix}-${weaver.id}-about-dialog',
+  templateUrl: './${weaver.id}-about-dialog.html',
 })
-export class ${w.className}AboutDialog {
+export class ${weaver.className}AboutDialog {
   protected readonly host = inject(DialogRef).data as PluginHost;
 }
 `;
 }
 
-function aboutDialogTemplateFile(w: ResolvedWeaver): string {
+function aboutDialogTemplateFile(weaver: ResolvedWeaver): string {
   return `<div class="flex flex-col items-center gap-2 text-center">
-  <h2 class="text-lg font-semibold text-content">${w.name}</h2>
+  <h2 class="text-lg font-semibold text-content">${weaver.name}</h2>
   <span class="text-xs text-content-faint tabular-nums">v{{ host.version() }}</span>
 </div>
 `;
 }
 
-function indexFile(w: ResolvedWeaver): string {
-  return `export { ${w.propertyName}Plugin } from './lib/plugin/${w.id}.plugin';\n`;
+function indexFile(weaver: ResolvedWeaver): string {
+  return `export { ${weaver.propertyName}Plugin } from './lib/plugin/${weaver.id}.plugin';\n`;
 }
 
-function viewFile(w: ResolvedWeaver): string {
-  if (!w.features.instanceable) {
+function viewFile(weaver: ResolvedWeaver): string {
+  if (!weaver.features.instanceable) {
     return `import { Component } from '@angular/core';
 
 @Component({
-  selector: '${w.prefix}-${w.id}-view',
-  templateUrl: './${w.id}-view.html',
+  selector: '${weaver.prefix}-${weaver.id}-view',
+  templateUrl: './${weaver.id}-view.html',
 })
-export class ${w.className}View {}
+export class ${weaver.className}View {}
 `;
   }
   return `import { Component, computed, inject } from '@angular/core';
 import { VIEW_STATE, type ViewState } from '@loomweaver/plugin-sdk';
 
-interface ${w.className}State {
+interface ${weaver.className}State {
   readonly sort: 'natural' | 'alpha';
 }
 
-const FRESH: ${w.className}State = { sort: 'natural' };
+const FRESH: ${weaver.className}State = { sort: 'natural' };
 
 @Component({
-  selector: '${w.prefix}-${w.id}-view',
-  templateUrl: './${w.id}-view.html',
+  selector: '${weaver.prefix}-${weaver.id}-view',
+  templateUrl: './${weaver.id}-view.html',
 })
-export class ${w.className}View {
-  private readonly viewState = inject(VIEW_STATE) as ViewState<${w.className}State>;
+export class ${weaver.className}View {
+  private readonly viewState = inject(VIEW_STATE) as ViewState<${weaver.className}State>;
 
   // undefined = a fresh instance, so apply your own default.
   private readonly state = computed(() => this.viewState.value() ?? FRESH);
@@ -252,8 +252,8 @@ export class ${w.className}View {
 `;
 }
 
-function viewTemplateFile(w: ResolvedWeaver): string {
-  const stateNote = w.features.instanceable
+function viewTemplateFile(weaver: ResolvedWeaver): string {
+  const stateNote = weaver.features.instanceable
     ? `  <button type="button" class="lw-btn lw-btn--default self-start" (click)="toggleSort()">
     Sort: {{ sort() }}
   </button>
@@ -264,7 +264,7 @@ function viewTemplateFile(w: ResolvedWeaver): string {
 `
     : '';
   return `<div class="mx-auto flex max-w-2xl flex-col gap-4 p-6">
-  <h2 class="text-lg font-semibold text-content">${w.name}</h2>
+  <h2 class="text-lg font-semibold text-content">${weaver.name}</h2>
   <p class="text-sm text-content-faint">
     Your new weaver surface. Register more surfaces, commands, rail items and menus on
     <code class="text-content">ctx</code> inside the plugin's
@@ -275,7 +275,7 @@ ${stateNote}</div>
 }
 
 function childViewFile(
-  w: ResolvedWeaver,
+  weaver: ResolvedWeaver,
   suffix: string,
   className: string,
 ): string {
@@ -283,8 +283,8 @@ function childViewFile(
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
-  selector: '${w.prefix}-${w.id}-${suffix}-view',
-  templateUrl: './${w.id}-${suffix}-view.html',
+  selector: '${weaver.prefix}-${weaver.id}-${suffix}-view',
+  templateUrl: './${weaver.id}-${suffix}-view.html',
 })
 export class ${className} {
   private readonly route = inject(ActivatedRoute, { optional: true });
@@ -295,7 +295,7 @@ export class ${className} {
 `;
 }
 
-function childViewTemplateFile(w: ResolvedWeaver, heading: string): string {
+function childViewTemplateFile(weaver: ResolvedWeaver, heading: string): string {
   return `<div class="flex h-full flex-col gap-3 p-4">
   <h3 class="text-sm font-semibold text-content">${heading}</h3>
   <p class="text-sm text-content-faint">
@@ -307,13 +307,13 @@ function childViewTemplateFile(w: ResolvedWeaver, heading: string): string {
 `;
 }
 
-function specFile(w: ResolvedWeaver): string {
-  return `import { ${w.propertyName}Plugin } from './${w.id}.plugin';
+function specFile(weaver: ResolvedWeaver): string {
+  return `import { ${weaver.propertyName}Plugin } from './${weaver.id}.plugin';
 
-describe('${w.propertyName}Plugin', () => {
+describe('${weaver.propertyName}Plugin', () => {
   it('declares its manifest', () => {
-    expect(${w.propertyName}Plugin.manifest.id).toBe('${w.id}');
-    expect(${w.propertyName}Plugin.manifest.capabilities).toContain('contributions');
+    expect(${weaver.propertyName}Plugin.manifest.id).toBe('${weaver.id}');
+    expect(${weaver.propertyName}Plugin.manifest.capabilities).toContain('contributions');
   });
 });
 `;
@@ -322,47 +322,47 @@ describe('${w.propertyName}Plugin', () => {
 export const angularWeaver: Recipe<WeaverInput> = {
   id: 'angular-weaver',
   build(input: WeaverInput): FileMap {
-    const w = resolveWeaverInput(input);
+    const weaver = resolveWeaverInput(input);
     const files: Record<string, string> = {
-      'src/index.ts': indexFile(w),
-      [`src/lib/plugin/${w.id}.plugin.ts`]: pluginFile(w),
-      'src/lib/i18n/en.json': i18nFile(w),
-      'src/lib/i18n/de.json': i18nFile(w),
-      'README.md': readmeFile(w),
+      'src/index.ts': indexFile(weaver),
+      [`src/lib/plugin/${weaver.id}.plugin.ts`]: pluginFile(weaver),
+      'src/lib/i18n/en.json': i18nFile(weaver),
+      'src/lib/i18n/de.json': i18nFile(weaver),
+      'README.md': readmeFile(weaver),
     };
-    if (w.features.container) {
-      files[`src/lib/views/${w.id}-canvas-view.ts`] = childViewFile(
-        w,
+    if (weaver.features.container) {
+      files[`src/lib/views/${weaver.id}-canvas-view.ts`] = childViewFile(
+        weaver,
         'canvas',
-        `${w.className}CanvasView`,
+        `${weaver.className}CanvasView`,
       );
-      files[`src/lib/views/${w.id}-canvas-view.html`] = childViewTemplateFile(
-        w,
+      files[`src/lib/views/${weaver.id}-canvas-view.html`] = childViewTemplateFile(
+        weaver,
         'Canvas',
       );
-      files[`src/lib/views/${w.id}-details-view.ts`] = childViewFile(
-        w,
+      files[`src/lib/views/${weaver.id}-details-view.ts`] = childViewFile(
+        weaver,
         'details',
-        `${w.className}DetailsView`,
+        `${weaver.className}DetailsView`,
       );
-      files[`src/lib/views/${w.id}-details-view.html`] = childViewTemplateFile(
-        w,
+      files[`src/lib/views/${weaver.id}-details-view.html`] = childViewTemplateFile(
+        weaver,
         'Details',
       );
     } else {
-      files[`src/lib/views/${w.id}-view.ts`] = viewFile(w);
-      files[`src/lib/views/${w.id}-view.html`] = viewTemplateFile(w);
+      files[`src/lib/views/${weaver.id}-view.ts`] = viewFile(weaver);
+      files[`src/lib/views/${weaver.id}-view.html`] = viewTemplateFile(weaver);
     }
-    if (w.features.about) {
-      files[`src/lib/dialogs/${w.id}-about-dialog.ts`] = aboutDialogFile(w);
-      files[`src/lib/dialogs/${w.id}-about-dialog.html`] =
-        aboutDialogTemplateFile(w);
+    if (weaver.features.about) {
+      files[`src/lib/dialogs/${weaver.id}-about-dialog.ts`] = aboutDialogFile(weaver);
+      files[`src/lib/dialogs/${weaver.id}-about-dialog.html`] =
+        aboutDialogTemplateFile(weaver);
     }
-    if (w.features.agent) {
-      Object.assign(files, agentFiles(w));
+    if (weaver.features.agent) {
+      Object.assign(files, agentFiles(weaver));
     }
-    if (w.features.spec) {
-      files[`src/lib/plugin/${w.id}.plugin.spec.ts`] = specFile(w);
+    if (weaver.features.spec) {
+      files[`src/lib/plugin/${weaver.id}.plugin.spec.ts`] = specFile(weaver);
     }
     return files;
   },

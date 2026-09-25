@@ -70,30 +70,30 @@ export function scaffold(scaffold: ScaffoldDescriptor, args: Args): ToolResult {
   });
 }
 
-export function validateManifestTool(a: Args): ToolResult {
+export function validateManifestTool(args: Args): ToolResult {
   return ok({
     findings: validateManifest({
-      id: a['id'],
-      name: a['name'],
-      capabilities: a['capabilities'],
+      id: args['id'],
+      name: args['name'],
+      capabilities: args['capabilities'],
     }),
   });
 }
 
-export function validateCatalogTool(a: Args): ToolResult {
-  return ok({ findings: validateCatalog(a['catalog']) });
+export function validateCatalogTool(args: Args): ToolResult {
+  return ok({ findings: validateCatalog(args['catalog']) });
 }
 
-export function validateI18nTool(a: Args): ToolResult {
-  const bundles = (a['bundles'] ?? {}) as Record<
+export function validateI18nTool(args: Args): ToolResult {
+  const bundles = (args['bundles'] ?? {}) as Record<
     string,
     Record<string, unknown>
   >;
   return ok({ findings: validateI18nParity(bundles) });
 }
 
-export function validateCommandsTool(a: Args): ToolResult {
-  const files = (a['files'] ?? {}) as Record<string, string>;
+export function validateCommandsTool(args: Args): ToolResult {
+  const files = (args['files'] ?? {}) as Record<string, string>;
   const ts = loadTypeScript(process.cwd());
   if (!ts) {
     return ok({

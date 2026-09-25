@@ -1,8 +1,8 @@
 import type { ResolvedDistribution } from './recipe';
 import { TOP_BAR_REGION } from '../shell-regions';
 
-function stylesNotes(d: ResolvedDistribution): readonly string[] {
-  if (d.styles === 'precompiled') {
+function stylesNotes(distribution: ResolvedDistribution): readonly string[] {
+  if (distribution.styles === 'precompiled') {
     return [
       '`src/styles.css` imports the stylesheet **we** compiled — tokens, the `.lw-*` class contracts',
       "and every utility the shell's own templates use, 67 KB minified and 11 KB over the wire. There",
@@ -41,9 +41,9 @@ function stylesNotes(d: ResolvedDistribution): readonly string[] {
   ];
 }
 
-export function readme(d: ResolvedDistribution): string {
+export function readme(distribution: ResolvedDistribution): string {
   return [
-    `# ${d.title} — a LoomWeaver distribution`,
+    `# ${distribution.title} — a LoomWeaver distribution`,
     '',
     `The composition root that assembles the platform into a shippable product. It renders the bare`,
     `shell out of the box; add your weavers and branding below. Your own README is untouched — the`,
@@ -54,7 +54,7 @@ export function readme(d: ResolvedDistribution): string {
     'In an Nx workspace (the generator wired the project):',
     '',
     '```sh',
-    `nx serve ${d.name}`,
+    `nx serve ${distribution.name}`,
     '```',
     '',
     'Scaffolded over the CLI or MCP, these files are sources without build wiring — drop them into',
@@ -155,7 +155,7 @@ export function readme(d: ResolvedDistribution): string {
     '',
     '## Styles',
     '',
-    ...stylesNotes(d),
+    ...stylesNotes(distribution),
     '',
     '## Build wiring',
     '',

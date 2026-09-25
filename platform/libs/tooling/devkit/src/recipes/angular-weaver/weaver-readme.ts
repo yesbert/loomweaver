@@ -4,12 +4,12 @@ import { CONTAINER_EXAMPLE_ID } from './weaver-terms';
 import { PLATFORM_VERSION } from '../platform-version';
 import { AG_UI_PROTOCOL_VERSION } from './agent-files';
 
-function surfaceNotes(w: ResolvedWeaver): readonly string[] {
+function surfaceNotes(weaver: ResolvedWeaver): readonly string[] {
   const railNote =
     'Rail and bar items reference region ids (`primary` rail, `status-bar` bar) that must exist in your layout.';
-  if (w.features.container) {
+  if (weaver.features.container) {
     return [
-      `The surface is a **container**: it is routable at \`/${w.id}/:id\`, and its tab holds a`,
+      `The surface is a **container**: it is routable at \`/${weaver.id}/:id\`, and its tab holds a`,
       'nested pane tree of child surfaces. The host draws the inner tabs, splits and drag targets; this',
       'weaver only declares which children it offers.',
       '',
@@ -29,7 +29,7 @@ function surfaceNotes(w: ResolvedWeaver): readonly string[] {
       railNote,
     ];
   }
-  if (w.features.instanceable) {
+  if (weaver.features.instanceable) {
     return [
       `The surface is **docked** into the \`left-panel\` region and marked \`instanceable\`, so the host shows a`,
       'switcher for saving, naming, renaming and deleting several configurations of it, each with its own',
@@ -49,7 +49,7 @@ function surfaceNotes(w: ResolvedWeaver): readonly string[] {
     ];
   }
   return [
-    `The surface is routable at \`/${w.id}\`; ${railNote.charAt(0).toLowerCase()}${railNote.slice(1)}`,
+    `The surface is routable at \`/${weaver.id}\`; ${railNote.charAt(0).toLowerCase()}${railNote.slice(1)}`,
     '',
     'A routable surface has **no `VIEW_STATE` handle** — injecting the token there throws. It owns a URL,',
     'so anything shareable (a filter, the active sub-tab) belongs in route params or `subRoutes`, where it',
@@ -59,18 +59,18 @@ function surfaceNotes(w: ResolvedWeaver): readonly string[] {
   ];
 }
 
-function agentNotes(w: ResolvedWeaver): readonly string[] {
+function agentNotes(weaver: ResolvedWeaver): readonly string[] {
   return [
     '',
     '## The agent connection',
     '',
     `\`src/lib/agent/\` holds three files and one of them is meant to be thrown away.`,
     '',
-    `- \`${w.id}-agent.ts\` is the connection: the workbench's own commands offered as tools, and a`,
+    `- \`${weaver.id}-agent.ts\` is the connection: the workbench's own commands offered as tools, and a`,
     '  seam where this weaver decides about a call before it runs. Nothing is registered twice — the',
     '  list comes from the workbench, already narrowed by everything that would refuse the call.',
-    `- \`${w.id}-agent-panel.ts\` shows what is offered, the call as it streams, and the outcome.`,
-    `- \`${w.id}-agent-source.ts\` is a **stand-in**, not an assistant: it produces the protocol's own`,
+    `- \`${weaver.id}-agent-panel.ts\` shows what is offered, the call as it streams, and the outcome.`,
+    `- \`${weaver.id}-agent-source.ts\` is a **stand-in**, not an assistant: it produces the protocol's own`,
     '  events so the whole path runs before you have connected anything. Replace that one file with',
     '  your transport and nothing else changes. No transport, credential or model is generated for',
     '  you, because none of them can be guessed.',
@@ -90,9 +90,9 @@ function agentNotes(w: ResolvedWeaver): readonly string[] {
   ];
 }
 
-export function readmeFile(w: ResolvedWeaver): string {
+export function readmeFile(weaver: ResolvedWeaver): string {
   return [
-    `# ${w.name} weaver`,
+    `# ${weaver.name} weaver`,
     '',
     `A LoomWeaver weaver (a domain plugin bundle). It consumes only the public \`@loomweaver/plugin-sdk\` contract.`,
     '',
@@ -102,22 +102,22 @@ export function readmeFile(w: ResolvedWeaver): string {
     `   returns an array, so spread it:`,
     '',
     '   ```ts',
-    `   import { ${w.propertyName}Plugin } from '${w.importPath}';   // Nx: the workspace alias; without one, a relative path to this library's src/index.ts`,
-    `   ...providePlugins(${w.propertyName}Plugin),`,
+    `   import { ${weaver.propertyName}Plugin } from '${weaver.importPath}';   // Nx: the workspace alias; without one, a relative path to this library's src/index.ts`,
+    `   ...providePlugins(${weaver.propertyName}Plugin),`,
     '   ```',
     '',
     `2. Grant its capabilities (default-deny) via \`provideCapabilityGrants\`:`,
     '',
     '   ```ts',
-    `   provideCapabilityGrants({ '${w.id}': [${quotedList(w.capabilities)}] });`,
+    `   provideCapabilityGrants({ '${weaver.id}': [${quotedList(weaver.capabilities)}] });`,
     '   ```',
     '',
-    `3. Compose its translations with \`provideTranslationNamespaces('${w.id}')\` — and serve the`,
+    `3. Compose its translations with \`provideTranslationNamespaces('${weaver.id}')\` — and serve the`,
     `   bundle by adding an assets glob to your application's build target, so the loader can fetch`,
-    `   \`/i18n/${w.id}/<lang>.json\` (the Nx generator adds this glob for you):`,
+    `   \`/i18n/${weaver.id}/<lang>.json\` (the Nx generator adds this glob for you):`,
     '',
     '   ```json',
-    `   { "glob": "**/*.json", "input": "<path to this library>/src/lib/i18n", "output": "i18n/${w.id}" }`,
+    `   { "glob": "**/*.json", "input": "<path to this library>/src/lib/i18n", "output": "i18n/${weaver.id}" }`,
     '   ```',
     '',
     `4. If your application compiles the shell's theme with Tailwind, name this library as a source`,
@@ -130,8 +130,8 @@ export function readmeFile(w: ResolvedWeaver): string {
     `   @source '<path from that stylesheet to this library>/src';`,
     '   ```',
     '',
-    ...surfaceNotes(w),
-    ...(w.features.agent ? agentNotes(w) : []),
+    ...surfaceNotes(weaver),
+    ...(weaver.features.agent ? agentNotes(weaver) : []),
     '',
     '## After scaffolding',
     '',

@@ -8,8 +8,8 @@ export function weaverAmendments(
   input: WeaverInput,
   where: string | undefined,
 ): readonly Amendment[] {
-  const w = resolveWeaverInput(input);
-  const packages: readonly Amendment[] = w.features.agent
+  const weaver = resolveWeaverInput(input);
+  const packages: readonly Amendment[] = weaver.features.agent
     ? [
         {
           kind: 'package',
@@ -37,16 +37,16 @@ export function weaverAmendments(
           glob: '**/*.json',
           input: joinProjectPath(directory, 'src/lib/i18n'),
           from: 'workspace',
-          output: `i18n/${w.id}`,
+          output: `i18n/${weaver.id}`,
         },
       ],
     },
     { kind: 'stylesheet-source', sourceRoot: joinProjectPath(directory, 'src') },
     {
       kind: 'compose-plugin',
-      id: w.id,
-      symbol: `${w.propertyName}Plugin`,
-      capabilities: w.capabilities,
+      id: weaver.id,
+      symbol: `${weaver.propertyName}Plugin`,
+      capabilities: weaver.capabilities,
       sourceRoot: joinProjectPath(directory, 'src'),
     },
   ];

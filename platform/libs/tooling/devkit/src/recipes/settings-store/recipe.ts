@@ -21,14 +21,14 @@ export function resolveSettingsStoreInput(
   return { name: input.name, className: toPascalCase(input.name) };
 }
 
-function moduleFile(s: ResolvedSettingsStore): string {
+function moduleFile(store: ResolvedSettingsStore): string {
   return `// A backend-backed settings store for the SETTINGS_STORE port. The platform
 // ships local defaults; the product persists settings against its own backend. Only genuine
 // settings flow through this port — working state stays on WORKING_STATE_STORE. Wire it with:
-// provideSettingsStore(new ${s.className}SettingsStore()).
+// provideSettingsStore(new ${store.className}SettingsStore()).
 import { KeyValueStore } from '@loomweaver/shell';
 
-export class ${s.className}SettingsStore implements KeyValueStore {
+export class ${store.className}SettingsStore implements KeyValueStore {
   constructor(private readonly baseUrl = '/api/settings') {}
 
   async get(key: string): Promise<string | undefined> {
@@ -57,7 +57,7 @@ export class ${s.className}SettingsStore implements KeyValueStore {
 export const settingsStore: Recipe<SettingsStoreInput> = {
   id: 'settings-store',
   build(input: SettingsStoreInput): FileMap {
-    const s = resolveSettingsStoreInput(input);
-    return { [`${s.name}-settings-store.ts`]: moduleFile(s) };
+    const store = resolveSettingsStoreInput(input);
+    return { [`${store.name}-settings-store.ts`]: moduleFile(store) };
   },
 };

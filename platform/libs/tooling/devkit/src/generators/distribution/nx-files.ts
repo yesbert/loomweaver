@@ -45,23 +45,23 @@ export function nxDistribution(
   };
 }
 
-function projectJson(d: NxDistribution): string {
-  const root = d.projectRoot;
+function projectJson(distribution: NxDistribution): string {
+  const root = distribution.projectRoot;
   return JSON.stringify(
     {
-      name: d.name,
-      $schema: `${d.depth.toRoot}/node_modules/nx/schemas/project-schema.json`,
+      name: distribution.name,
+      $schema: `${distribution.depth.toRoot}/node_modules/nx/schemas/project-schema.json`,
       projectType: 'application',
-      prefix: d.prefix,
+      prefix: distribution.prefix,
       sourceRoot: `${root}/src`,
-      tags: d.tags,
+      tags: distribution.tags,
       targets: {
         build: {
           executor: '@angular/build:application',
           outputs: ['{options.outputPath}'],
           defaultConfiguration: 'production',
           options: {
-            outputPath: d.outputPath,
+            outputPath: distribution.outputPath,
             browser: `${root}/src/main.ts`,
             tsConfig: `${root}/tsconfig.app.json`,
             serviceWorker: `${root}/ngsw-config.json`,
@@ -113,12 +113,12 @@ function projectJson(d: NxDistribution): string {
           executor: '@angular/build:dev-server',
           defaultConfiguration: 'development',
           configurations: {
-            production: { buildTarget: `${d.name}:build:production` },
-            development: { buildTarget: `${d.name}:build:development` },
+            production: { buildTarget: `${distribution.name}:build:production` },
+            development: { buildTarget: `${distribution.name}:build:development` },
           },
         },
         lint: { executor: '@nx/eslint:lint' },
-        ...(d.withTests && {
+        ...(distribution.withTests && {
               test: {
                 executor: '@nx/angular:unit-test',
                 outputs: ['{workspaceRoot}/coverage/{projectName}'],
@@ -129,8 +129,8 @@ function projectJson(d: NxDistribution): string {
           continuous: true,
           executor: '@nx/web:file-server',
           options: {
-            buildTarget: `${d.name}:build`,
-            staticFilePath: `${d.outputPath}/browser`,
+            buildTarget: `${distribution.name}:build`,
+            staticFilePath: `${distribution.outputPath}/browser`,
             spa: true,
           },
         },
@@ -141,17 +141,17 @@ function projectJson(d: NxDistribution): string {
   );
 }
 
-function tsconfig(d: NxDistribution): string {
+function tsconfig(distribution: NxDistribution): string {
   return JSON.stringify(
     {
-      extends: `${d.depth.toRoot}/${d.baseTsconfig}`,
+      extends: `${distribution.depth.toRoot}/${distribution.baseTsconfig}`,
       compilerOptions: SHARED_COMPILER_OPTIONS,
       angularCompilerOptions: SHARED_ANGULAR_COMPILER_OPTIONS,
       files: [],
       include: [],
       references: [
         { path: './tsconfig.app.json' },
-        ...(d.withTests ? [{ path: './tsconfig.spec.json' }] : []),
+        ...(distribution.withTests ? [{ path: './tsconfig.spec.json' }] : []),
       ],
     },
     null,
@@ -159,11 +159,11 @@ function tsconfig(d: NxDistribution): string {
   );
 }
 
-function tsconfigApp(d: NxDistribution): string {
+function tsconfigApp(distribution: NxDistribution): string {
   return JSON.stringify(
     {
       extends: './tsconfig.json',
-      compilerOptions: { outDir: `${d.depth.toRoot}/dist/out-tsc`, types: [] },
+      compilerOptions: { outDir: `${distribution.depth.toRoot}/dist/out-tsc`, types: [] },
       include: ['src/**/*.ts'],
       exclude: ['src/**/*.spec.ts', 'src/**/*.test.ts'],
     },
@@ -172,12 +172,12 @@ function tsconfigApp(d: NxDistribution): string {
   );
 }
 
-export function nxDistributionFiles(d: NxDistribution): FileMap {
+export function nxDistributionFiles(distribution: NxDistribution): FileMap {
   return {
-    'project.json': projectJson(d) + '\n',
-    'tsconfig.json': tsconfig(d) + '\n',
-    'tsconfig.app.json': tsconfigApp(d) + '\n',
-    ...(d.withTests && { 'tsconfig.spec.json': sharedTsconfigSpec(d.depth) + '\n' }),
-    'eslint.config.mjs': sharedEslintConfig(d.depth, [d.prefix, 'app']),
+    'project.json': projectJson(distribution) + '\n',
+    'tsconfig.json': tsconfig(distribution) + '\n',
+    'tsconfig.app.json': tsconfigApp(distribution) + '\n',
+    ...(distribution.withTests && { 'tsconfig.spec.json': sharedTsconfigSpec(distribution.depth) + '\n' }),
+    'eslint.config.mjs': sharedEslintConfig(distribution.depth, [distribution.prefix, 'app']),
   };
 }

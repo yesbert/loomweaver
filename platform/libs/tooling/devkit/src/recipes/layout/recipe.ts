@@ -23,13 +23,13 @@ export function resolveLayoutInput(input: LayoutInput): ResolvedLayout {
   return { name, propertyName: toCamelCase(name) };
 }
 
-function moduleFile(l: ResolvedLayout): string {
-  return `// A base layout for the distribution. Pass it to provideLayout(${l.propertyName}Layout)
+function moduleFile(layout: ResolvedLayout): string {
+  return `// A base layout for the distribution. Pass it to provideLayout(${layout.propertyName}Layout)
 // in src/app/app.config.ts. Region ids are what contributions target — '${RAIL_REGION}' (rail) and '${STATUS_BAR_REGION}' (bar) match
 // the devkit weaver defaults, so a scaffolded weaver's rail + bar items land here.
 import { ShellLayout } from '@loomweaver/shell';
 
-export const ${l.propertyName}Layout: ShellLayout = {
+export const ${layout.propertyName}Layout: ShellLayout = {
   regions: [
 ${renderRegions(' '.repeat(4))}
   ],
@@ -40,7 +40,7 @@ ${renderRegions(' '.repeat(4))}
 export const layout: Recipe<LayoutInput> = {
   id: 'layout',
   build(input: LayoutInput): FileMap {
-    const l = resolveLayoutInput(input);
-    return { [`${l.name}-layout.ts`]: moduleFile(l) };
+    const layout = resolveLayoutInput(input);
+    return { [`${layout.name}-layout.ts`]: moduleFile(layout) };
   },
 };

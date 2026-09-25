@@ -28,13 +28,13 @@ export function resolveAuthSourceInput(input: AuthSourceInput): ResolvedAuthSour
   };
 }
 
-export function sessionPluginSymbol(a: ResolvedAuthSource): string {
-  return `${a.propertyName}SessionPlugin`;
+export function sessionPluginSymbol(source: ResolvedAuthSource): string {
+  return `${source.propertyName}SessionPlugin`;
 }
 
-function moduleFile(a: ResolvedAuthSource): string {
+function moduleFile(source: ResolvedAuthSource): string {
   return `// Provider-neutral AuthSource. LoomWeaver owns no authentication — it only reacts to
-// a session snapshot. Wire it with: provideAuthSource(() => ${a.propertyName}AuthSource()).
+// a session snapshot. Wire it with: provideAuthSource(() => ${source.propertyName}AuthSource()).
 // Replace the dev switcher below by mapping your product's real session onto an AuthSnapshot.
 import { signal, Signal } from '@angular/core';
 import { ANONYMOUS, AuthSnapshot } from '@loomweaver/plugin-sdk';
@@ -55,11 +55,11 @@ const ADMIN: AuthSnapshot = {
 
 const state = signal<AuthSnapshot>(ANONYMOUS);
 
-export function ${a.propertyName}AuthSource(): Signal<AuthSnapshot> {
+export function ${source.propertyName}AuthSource(): Signal<AuthSnapshot> {
   return state.asReadonly();
 }
 
-export function cycle${a.className}User(): void {
+export function cycle${source.className}User(): void {
   const current = state();
   const next = !current.authenticated
     ? USER
@@ -71,34 +71,34 @@ export function cycle${a.className}User(): void {
 `;
 }
 
-function pluginFile(a: ResolvedAuthSource): string {
+function pluginFile(source: ResolvedAuthSource): string {
   return `// The verbs a user needs to operate the stand-in session: sign in, switch the account, sign
 // out, from a rail item whose menu carries them. This is presentation for a product that has no
 // backend yet; nothing here protects anything. Delete it once your own session arrives.
 import type { Disposable, Plugin, PluginContext } from '@loomweaver/plugin-sdk';
-import { cycle${a.className}User, ${a.propertyName}AuthSource } from './${a.name}-auth-source';
+import { cycle${source.className}User, ${source.propertyName}AuthSource } from './${source.name}-auth-source';
 
 const MENU = 'session.account/menu';
-const snapshot = ${a.propertyName}AuthSource();
+const snapshot = ${source.propertyName}AuthSource();
 
 let drawn: Disposable[] = [];
 
 function signIn(): void {
   if (!snapshot().authenticated) {
-    cycle${a.className}User();
+    cycle${source.className}User();
   }
 }
 
 function switchAccount(): void {
-  cycle${a.className}User();
+  cycle${source.className}User();
   if (!snapshot().authenticated) {
-    cycle${a.className}User();
+    cycle${source.className}User();
   }
 }
 
 function signOut(): void {
   while (snapshot().authenticated) {
-    cycle${a.className}User();
+    cycle${source.className}User();
   }
 }
 
@@ -165,7 +165,7 @@ function draw(ctx: PluginContext): void {
   ];
 }
 
-export const ${sessionPluginSymbol(a)}: Plugin = {
+export const ${sessionPluginSymbol(source)}: Plugin = {
   manifest: { id: 'session', name: 'Account', capabilities: ['contributions'] },
   activate(ctx) {
     const then = (step: () => void) => () => {
@@ -205,9 +205,9 @@ export const ${sessionPluginSymbol(a)}: Plugin = {
 `;
 }
 
-function indexFile(a: ResolvedAuthSource): string {
-  return `export { cycle${a.className}User, ${a.propertyName}AuthSource } from './${a.name}-auth-source';
-export { ${sessionPluginSymbol(a)} } from './${a.name}-session.plugin';
+function indexFile(source: ResolvedAuthSource): string {
+  return `export { cycle${source.className}User, ${source.propertyName}AuthSource } from './${source.name}-auth-source';
+export { ${sessionPluginSymbol(source)} } from './${source.name}-session.plugin';
 `;
 }
 
@@ -231,15 +231,15 @@ const I18N: Readonly<Record<'en' | 'de', Record<string, unknown>>> = {
 export const authSource: Recipe<AuthSourceInput> = {
   id: 'auth-source',
   build(input: AuthSourceInput): FileMap {
-    const a = resolveAuthSourceInput(input);
-    const source = { [`${a.name}-auth-source.ts`]: moduleFile(a) };
-    if (a.bare) {
-      return source;
+    const source = resolveAuthSourceInput(input);
+    const moduleFiles = { [`${source.name}-auth-source.ts`]: moduleFile(source) };
+    if (source.bare) {
+      return moduleFiles;
     }
     return {
-      ...source,
-      [`${a.name}-session.plugin.ts`]: pluginFile(a),
-      'index.ts': indexFile(a),
+      ...moduleFiles,
+      [`${source.name}-session.plugin.ts`]: pluginFile(source),
+      'index.ts': indexFile(source),
       'i18n/en.json': `${JSON.stringify(I18N.en, null, 2)}\n`,
       'i18n/de.json': `${JSON.stringify(I18N.de, null, 2)}\n`,
     };
