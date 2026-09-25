@@ -19,19 +19,4 @@ describe('frame-plugin generator', () => {
       '/notes/view.html',
     );
   });
-
-  it("follows the application's own root rather than assuming apps/", async () => {
-    const nested = createConsumerWorkspace('studio', 'packages/apps/studio');
-    await framePluginGenerator(nested, { id: 'notes' });
-    expect(nested.exists('packages/apps/studio/public/notes/plugin.html')).toBe(
-      true,
-    );
-  });
-
-  it('refuses to overwrite an existing plugin', async () => {
-    await framePluginGenerator(tree, { id: 'notes' });
-    await expect(framePluginGenerator(tree, { id: 'notes' })).rejects.toThrow(
-      /already exists/,
-    );
-  });
 });

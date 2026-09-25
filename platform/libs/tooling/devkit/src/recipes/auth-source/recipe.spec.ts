@@ -27,7 +27,7 @@ describe('authSource recipe', () => {
     expect(module).toContain("roles: ['user', 'admin']");
   });
 
-  it('writes what recipe 12 on the samples page shows, so the table can say the generator writes it', () => {
+  it('writes what "A session without a backend" on the samples page shows, so the table can say the generator writes it', () => {
     const files = generate(authSource, { name: 'dev' });
     expect(files['dev-auth-source.ts'].trimEnd()).toBe(blockOnThePage('src/auth/dev-auth-source.ts'));
     expect(files['dev-session.plugin.ts'].trimEnd()).toBe(blockOnThePage('src/auth/dev-session.plugin.ts'));

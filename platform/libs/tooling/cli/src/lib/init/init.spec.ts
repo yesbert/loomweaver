@@ -1,6 +1,5 @@
 import {
   existsSync,
-  mkdirSync,
   mkdtempSync,
   readFileSync,
   rmSync,
@@ -9,29 +8,11 @@ import {
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { run } from '../run';
+import { capture, writeFiles } from '../test-fixtures';
 
-function capture() {
-  const out: string[] = [];
-  const err: string[] = [];
-  return {
-    io: {
-      out: (l: string) => void out.push(l),
-      err: (l: string) => void err.push(l),
-    },
-    text: () => out.join('\n'),
-    errText: () => err.join('\n'),
-  };
-}
-
-function write(root: string, files: Record<string, string>): void {
-  for (const [path, content] of Object.entries(files)) {
-    mkdirSync(join(root, path, '..'), { recursive: true });
-    writeFileSync(join(root, path), content, 'utf8');
-  }
-}
 
 function angularApp(root: string, name = 'my-studio'): void {
-  write(root, {
+  writeFiles(root, {
     'package.json': JSON.stringify(
       {
         name,
@@ -83,7 +64,7 @@ function angularApp(root: string, name = 'my-studio'): void {
 }
 
 function nxWorkspace(root: string, apps: readonly string[]): void {
-  write(root, {
+  writeFiles(root, {
     'package.json': JSON.stringify({
       name: '@acme/source',
       dependencies: { '@angular/core': '^22.1.0' },
@@ -94,7 +75,7 @@ function nxWorkspace(root: string, apps: readonly string[]): void {
     }),
   });
   for (const app of apps) {
-    write(root, {
+    writeFiles(root, {
       [`apps/${app}/project.json`]: JSON.stringify({
         name: app,
         projectType: 'application',
@@ -248,7 +229,7 @@ describe('init', () => {
 
   it('pins the service worker to the installed Angular version when node_modules has one', () => {
     angularApp(dir);
-    write(dir, {
+    writeFiles(dir, {
       'node_modules/@angular/core/package.json': JSON.stringify({
         version: '22.1.5',
       }),

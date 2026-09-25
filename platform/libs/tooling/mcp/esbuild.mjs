@@ -1,23 +1,3 @@
-import { build } from 'esbuild';
-import { chmodSync, readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import { bundleBin } from '../../../tools/bundle-tooling-bin.mjs';
 
-const devkit = fileURLToPath(new URL('../devkit/src/index.ts', import.meta.url));
-const outfile = fileURLToPath(new URL('dist/main.mjs', import.meta.url));
-const package_ = JSON.parse(
-  readFileSync(fileURLToPath(new URL('package.json', import.meta.url)), 'utf8'),
-);
-
-await build({
-  entryPoints: [fileURLToPath(new URL('src/main.ts', import.meta.url))],
-  outfile,
-  bundle: true,
-  platform: 'node',
-  format: 'esm',
-  target: 'node20',
-  banner: { js: '#!/usr/bin/env node' },
-  alias: { '@loomweaver/devkit': devkit },
-  define: { 'process.env.LOOM_MCP_VERSION': JSON.stringify(package_.version) },
-});
-
-chmodSync(outfile, 0o755);
+await bundleBin(import.meta.url, 'LOOM_MCP_VERSION');
