@@ -1,9 +1,9 @@
 import { AuthSnapshot, PluginContext } from '@loomweaver/plugin-sdk';
+import { AdminAreaView } from './admin-area-view';
+import { AdminRouteView } from './admin-route-view';
 import { testbedContext } from '../bound-context';
 import { testbedAuth } from './testbed-auth';
-import { TestbedEscalationsView } from './testbed-escalations-view';
 import { TestbedLoginView } from './testbed-login-view';
-import { TestbedTeamView } from './testbed-team-view';
 
 export const SECRET_PATH = 'secret';
 export const ADMIN_AREA_PATH = 'admin-area';
@@ -29,14 +29,14 @@ function registerGatedSurfaces(ctx: PluginContext): void {
     title: 'testbed.admin.route',
     routable: { path: SECRET_PATH },
     access: { anyRole: ['admin'] },
-    component: TestbedEscalationsView,
+    component: AdminRouteView,
   });
   ctx.registerSurface({
     id: 'testbed.adminArea',
     title: 'testbed.admin.area',
     routable: { path: ADMIN_AREA_PATH },
     access: { anyRole: ['admin'] },
-    component: TestbedTeamView,
+    component: AdminAreaView,
   });
   ctx.registerSurface({
     id: 'testbed.login',
@@ -51,7 +51,7 @@ function registerGatedSurfaces(ctx: PluginContext): void {
     title: 'testbed.admin.view',
     icon: 'testbedShield',
     order: 5,
-    component: TestbedTeamView,
+    component: AdminAreaView,
     access: { anyRole: ['admin'] },
   });
 }
@@ -122,7 +122,7 @@ function registerSessionCommands(ctx: PluginContext): void {
 
 function registerGatedChrome(ctx: PluginContext): void {
   ctx.registerRailItem({
-    id: 'testbed.admin',
+    id: 'testbed.rail.admin',
     rail: 'primary',
     icon: 'testbedShield',
     title: 'testbed.admin.title',
@@ -131,7 +131,7 @@ function registerGatedChrome(ctx: PluginContext): void {
     access: { anyRole: ['admin'] },
   });
   ctx.registerRailItem({
-    id: 'testbed.locked',
+    id: 'testbed.rail.locked',
     rail: 'secondary',
     icon: 'testbedUsers',
     title: 'testbed.locked.title',
@@ -156,7 +156,7 @@ function registerGatedChrome(ctx: PluginContext): void {
     command: 'testbed.go.adminArea',
   });
   ctx.registerRailItem({
-    id: 'testbed.auth',
+    id: 'testbed.rail.auth',
     rail: 'secondary',
     icon: 'testbedUserSwitch',
     title: 'testbed.auth.cycle',
@@ -195,7 +195,7 @@ function registerGatedChrome(ctx: PluginContext): void {
     access: { authenticated: true },
   });
   ctx.registerBarItem({
-    id: 'testbed.adminBar',
+    id: 'testbed.bar.admin',
     bar: 'status-bar',
     slot: 'end',
     order: 2,

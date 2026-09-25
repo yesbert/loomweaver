@@ -28,11 +28,13 @@
     "notes": "Notizen",
     "allNotes": "Alle Notizen",
     "archive": "Archiv",
-    "retired": "Stillgelegte Inhalte",
+    "omitted": "Ausgelassene Route",
     "search": "Suche"
   },
   "outline": {
-    "title": "Gliederung"
+    "title": "Gliederung",
+    "sortAlpha": "Sortierung: A–Z",
+    "sortOutline": "Sortierung: Gliederung"
   },
   "home": {
     "title": "Start",
@@ -118,8 +120,8 @@
     "heading": "Notizen",
     "intro": "Speichert sich selbst, sobald die Fläche versteckt wird (saveOn: 'hide') — nichts geht ohne Dialog verloren."
   },
-  "retired": {
-    "title": "Stillgelegt"
+  "omitted": {
+    "title": "Ausgelassen"
   },
   "theme": {
     "toggle": "Plugin-Theme umschalten"

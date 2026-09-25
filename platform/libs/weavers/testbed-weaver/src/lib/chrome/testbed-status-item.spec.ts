@@ -11,7 +11,7 @@ function transloco() {
 }
 
 describe('TestbedStatusItem', () => {
-  it('renders the ready status label from the demo namespace', () => {
+  it('renders the ready status label from the testbed namespace', () => {
     TestBed.configureTestingModule({ imports: [TestbedStatusItem, transloco()] });
     const fixture = TestBed.createComponent(TestbedStatusItem);
     fixture.detectChanges();

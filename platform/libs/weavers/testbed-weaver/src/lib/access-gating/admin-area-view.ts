@@ -1,4 +1,4 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ENTRIES } from '../entry-tabs/testbed-entries';
 
@@ -15,12 +15,11 @@ const ASSIGNEES: readonly { id: string; name: string }[] = [
 ];
 
 @Component({
-  selector: 'lw-testbed-team-view',
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  selector: 'lw-testbed-admin-area-view',
   imports: [TranslocoPipe],
-  templateUrl: './testbed-team-view.html',
+  templateUrl: './admin-area-view.html',
 })
-export class TestbedTeamView {
+export class AdminAreaView {
   private readonly openTotal = ENTRIES.filter(
     (entry) => entry.status !== 'resolved',
   ).length;

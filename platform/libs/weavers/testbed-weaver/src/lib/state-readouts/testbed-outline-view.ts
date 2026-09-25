@@ -1,4 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { VIEW_STATE, ViewState } from '@loomweaver/plugin-sdk';
 
 type OutlineSort = 'natural' | 'alpha';
@@ -8,6 +9,7 @@ interface OutlineState {
 
 @Component({
   selector: 'lw-testbed-outline-view',
+  imports: [TranslocoPipe],
   templateUrl: './testbed-outline-view.html',
 })
 export class TestbedOutlineView {

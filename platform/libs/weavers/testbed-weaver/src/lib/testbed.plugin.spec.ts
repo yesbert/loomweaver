@@ -225,7 +225,7 @@ describe('testbedPlugin', () => {
       .find((s) => s.id === 'testbed.nav')
       ?.actions?.find((a) => a.id === 'testbed.nav.add');
     const statusButton = captured.barItems.find(
-      (item) => item.id === 'testbed.add',
+      (item) => item.id === 'testbed.bar.add',
     );
     expect(action?.command).toBe('testbed.nav.add');
     expect(

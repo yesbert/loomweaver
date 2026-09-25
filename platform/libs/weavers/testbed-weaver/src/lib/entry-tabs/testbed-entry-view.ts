@@ -1,6 +1,6 @@
 import {
   Component,
-  CUSTOM_ELEMENTS_SCHEMA,
+  
   afterNextRender,
   computed,
   inject,
@@ -36,7 +36,6 @@ function toMessageId(rest: string): string {
 
 @Component({
   selector: 'lw-testbed-entry-view',
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [RouterOutlet, TranslocoPipe],
   templateUrl: './testbed-entry-view.html',
 })

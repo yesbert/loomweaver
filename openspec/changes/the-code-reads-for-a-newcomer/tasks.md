@@ -561,8 +561,16 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   `container` (`name`, `body`, `itemCount`, `stepCount`), the test ids `testbed-container-…` and
   `container-…`, and `containerIdFromRoute()` in `container-id.ts` for the five views. The shell's
   own workspaces in the testbed app keep their names. The end-to-end suite passes.
-- [ ] 11.5 View names say which surface they serve; the omitted route says so; schema, exports,
+- [x] 11.5 View names say which surface they serve; the omitted route says so; schema, exports,
   hard-coded English, demo leftovers, chrome ids and field classes.
+  `AdminRouteView` and `AdminAreaView` (were the escalations and team views); `testbed.omitted` at
+  `omitted` (was `retired`), with the claim, the omit and its end-to-end test; no
+  `CUSTOM_ELEMENTS_SCHEMA` on three views without custom elements; the chart geometry in
+  `dashboard-chart.ts`, `StatusShare` for the status rows and plain fields for constant chart
+  strings; the outline sort labels translated, the container tab titles named `literalTitle`;
+  `1_testbed`, the testbed namespace, the sign-in cycle, a neutral tagline and `ENTRY_SUBJECTS`;
+  rail ids `testbed.rail.…` and bar ids `testbed.bar.…`, `BROKEN_PICTURE_URL` once and the account
+  picture from readable SVG; `lw-field` on the notes and search inputs. End-to-end suite passes.
 - [ ] 11.6 `main.ts` becomes the table of contents of the distribution: layout, workspaces declared
   once in rail order, plugins with grants taken from their manifests, end-to-end switches, cross-tab
   sync and capture wiring in named files.

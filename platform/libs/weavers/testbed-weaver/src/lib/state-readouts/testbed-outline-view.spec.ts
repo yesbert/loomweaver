@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
+import { TranslocoTestingModule } from '@jsverse/transloco';
 import { VIEW_STATE, ViewState } from '@loomweaver/plugin-sdk';
 import { TestbedOutlineView } from './testbed-outline-view';
 
@@ -15,7 +16,10 @@ function stubViewState() {
 
 function mount(state: ViewState) {
   TestBed.configureTestingModule({
-    imports: [TestbedOutlineView],
+    imports: [
+      TestbedOutlineView,
+      TranslocoTestingModule.forRoot({ langs: { en: {} } }),
+    ],
     providers: [{ provide: VIEW_STATE, useValue: state }],
   });
   const fixture = TestBed.createComponent(TestbedOutlineView);
