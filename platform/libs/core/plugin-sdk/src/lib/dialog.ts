@@ -23,7 +23,7 @@ export interface RequireConfirmation {
   readonly placeholder?: string;
 }
 
-/** Options for a yes/no confirm. `message` is Markdown. */
+/** Options for a yes/no confirm. Every text is a translation key or a literal; `message` is Markdown. */
 export interface ConfirmOptions {
   readonly title?: string;
   readonly message: string;
@@ -37,7 +37,10 @@ export interface ConfirmOptions {
   readonly requireConfirmation?: RequireConfirmation;
 }
 
-/** Options for an alert (single acknowledge button). `message` is Markdown. */
+/**
+ * Options for an alert (single acknowledge button). Every text is a translation key or a literal;
+ * `message` is Markdown.
+ */
 export interface AlertOptions {
   readonly title?: string;
   readonly message: string;
@@ -46,7 +49,7 @@ export interface AlertOptions {
   readonly icon?: string;
 }
 
-/** Options for a text prompt. `message` is Markdown. */
+/** Options for a text prompt. Every text is a translation key or a literal; `message` is Markdown. */
 export interface PromptOptions {
   readonly title?: string;
   readonly message: string;
@@ -87,8 +90,11 @@ export type DialogDismiss = 'any' | 'explicit' | 'none';
 
 /** Options for opening a custom body component as a dialog. */
 export interface OpenOptions {
+  /** Heading of the host frame, a translation key or a literal. */
   readonly title?: string;
+  /** Handed to the body as `DialogRef.data`. */
   readonly data?: unknown;
+  /** Footer buttons; without any, the host draws no footer. */
   readonly buttons?: readonly DialogButton[];
   /**
    * Which of the user's ways close the dialog. `'any'` (the default): a backdrop click, Escape and

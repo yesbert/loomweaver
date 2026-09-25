@@ -373,7 +373,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   names, retired behaviour (`openContentTab`'s content group, `View.icon`), history and roadmap notes,
   internal jargon. Two pull requests, split by file.
   "Rung" stays where it names the trust ladder the glossary defines; unifying the terms is 9.3.
-- [ ] 9.3 The plugin contract's JSDoc, second pass: one term per concept (trusted plugin, sandboxed
+- [x] 9.3 The plugin contract's JSDoc, second pass: one term per concept (trusted plugin, sandboxed
   plugin, callable, user, plugin), one fixed "Needs the `x` capability." sentence per `ctx` member
   instead of the drifted lists on `Capability`, hovers that open with one plain sentence, file-level
   blocks moved onto their symbols, one line where a much-used member has none.

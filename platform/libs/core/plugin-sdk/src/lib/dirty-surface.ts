@@ -1,25 +1,13 @@
 /**
- * Implemented by a surface **component instance** to take part in the retention and close protocol.
- * It lives on the instance, not on the {@link Surface} declaration, because one
- * declaration can back many open tabs (`doc/:id`) and "this tab has unsaved changes" is a question
- * about one instance. The host discovers it structurally — implement the interface and you are in.
+ * Implemented by a surface **component instance** that can hold unsaved changes. It lives on the
+ * instance, not on the {@link Surface} declaration, because one declaration can back many open tabs
+ * (`doc/:id`); the host finds it structurally, so implementing the interface is enough.
  *
- * While {@link surfaceDirty} returns `true` the instance is **never destroyed on hide** (a tab
- * switch, a minimised pane, a collapsed sidebar — no gesture that merely hides is ever blocked or
- * prompted), and **closing asks**: the host shows its own localised "unsaved changes" dialog with
- * *Save* (only when {@link surfaceSave} is implemented) · *Discard* · *Cancel*. Once the instance
- * reports clean again it is released back to the normal retention rule. Two boundaries: a
- * **sandboxed** (`iframe`) surface — which reports dirty by pushing `setDirty(true|false)` over its
- * surface channel — survives gestures that hide it *in place* (tab switch, collapse) but is rebuilt
- * by any gesture that *moves* its element (a split, a drag into another pane, a minimise), because
- * moving an `<iframe>` in the DOM reloads it; and a **pop-out window** closes without the ask — the
- * unsaved-changes protocol guards the main window, a pop-out is a viewer onto the same state.
- *
- * A **dialog body** opened through `open` takes part the same way. While it reports dirty, every way
- * of dismissing the dialog that its `dismiss` option allows (a backdrop click, Escape, the close
- * control) and a declared footer button without a `value` first run {@link surfaceBeforeClose} and
- * then ask the same *Save · Discard · Cancel* question. A footer button with a `value` and
- * `DialogRef.close` never ask: whoever closes the dialog from code knows what it closes.
+ * While {@link surfaceDirty} returns `true` the instance is **never destroyed on hide**, and
+ * **closing asks**: the host shows its own *Save* (only when {@link surfaceSave} is implemented) ·
+ * *Discard* · *Cancel* dialog. A dialog body opened through `open` takes part the same way; a footer
+ * button with a `value` and `DialogRef.close` close without asking. A sandboxed surface reports over
+ * its channel with `setDirty`, and a pop-out window closes without asking.
  */
 export interface DirtySurface {
   /**

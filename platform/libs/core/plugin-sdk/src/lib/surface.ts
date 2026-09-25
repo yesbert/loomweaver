@@ -83,52 +83,33 @@ export interface SurfaceRoutable {
    */
   readonly subRoutes?: readonly string[];
   /**
-   * Keep this surface's **permanent tab pointing at the current selection**. Its siblings are facets of
-   * one choice rather than independent documents: pick a program on one tab and the others should show
-   * that program.
-   *
-   * The host knows the parameter values of the address it is on, because it knows which pattern matched.
-   * For a following tab it substitutes those values **by name** into this surface's pattern, and where a
-   * value is unknown it truncates the address before it:
+   * Keeps this surface's **permanent tab pointing at the current selection**: its siblings are facets
+   * of one choice, so picking a customer on one tab makes the others show that customer. The host fills
+   * this surface's pattern with the current address's parameter values **by name**, and truncates the
+   * address before a value it does not know:
    *
    * ```
-   * on cedents/US003950/programs/205470/pricing
-   * cedents/:cedentId/programs/:programId/treaties → cedents/US003950/programs/205470/treaties
-   * cedents/:cedentId/programs/:programId/:reportId → cedents/US003950/programs/205470
+   * on customers/42/orders/7/items
+   * customers/:customerId/orders/:orderId/notes → customers/42/orders/7/notes
+   * customers/:customerId/orders/:orderId/:reportId → customers/42/orders/7
    * ```
    *
-   * **Off by default**, because the opposite is right for a tab showing one specific document: nobody
-   * wants an open quote rewritten because a parameter changed elsewhere. A following surface is drawn
-   * as a **permanent facet tab** (labelled by {@link SurfaceBase.title}/`icon`, ordered by
-   * {@link SurfaceBase.order}) whenever its computed address leads somewhere — it does not open
-   * dynamic tabs. A dynamically opened tab keeps the address it was opened with,
-   * and a tab dragged out of the group that carries the browser address freezes where it is — which is
-   * what lets a user park one program beside another.
-   *
-   * Two following surfaces may use the same parameter name only when the pattern **before** it is
-   * identical; otherwise the name means two different things and the host would fill one surface's
-   * address with the other's value. A collision refuses that one registration with a message.
+   * Off by default, because a tab showing one specific document must keep its address. A following
+   * surface is drawn as a permanent facet tab wherever its address leads somewhere; a tab moved out of
+   * the pane that carries the address stays where it is. Two following surfaces may share a parameter
+   * name only where the patterns before it are identical; a collision refuses the later registration.
    */
   readonly follows?: boolean;
   /**
-   * Own **everything below** {@link path}: the longest registered prefix wins, and whatever no more
-   * specific surface claims is handed to this one as **the rest** — verbatim, **including the query
-   * string**. Without it a deeper address matches no route at all and the navigation fails; with it
-   * `programs/US003950/pricing?t=886320` reaches the surface registered on `programs` and hands over
-   * `US003950/pricing?t=886320`.
+   * Owns **everything below** {@link path}: the longest registered prefix wins, and whatever no more
+   * specific surface claims is handed to this one as **the rest**, verbatim and including the query
+   * string. `docs/guide/intro?line=12` reaches the surface registered on `docs` with
+   * `guide/intro?line=12`. The prefix stays the tab root, so the whole subtree is one tab whose state
+   * survives every move within it.
    *
-   * The prefix stays the **tab root**, so the whole subtree is one tab whose state survives every move
-   * within it. That is the trade the flag buys you: what you put *in the rest* changes without
-   * rebuilding the surface, what you put *in the pattern* is a parameter change and may rebuild it.
-   *
-   * How the rest reaches you depends on the rung. A **sandboxed** surface receives it over its channel
-   * (`state.rest`) and sets its own with the channel's `navigate` — both confined to this prefix. A
-   * **trusted** component reads it from its injected route (`data.sub`, or the child route) and
-   * navigates with the router.
-   *
-   * A prefix of **fewer than two segments** owns most of the address space, which is where the surface
-   * channel's "confined to your own territory" guarantee stops meaning anything — declaring it there
-   * additionally requires the `navigation` capability.
+   * A sandboxed surface receives the rest over its channel (`state.rest`) and sets it with the
+   * channel's `navigate`; a trusted component reads it from its injected route. A prefix of fewer than
+   * two segments claims most of the address space, so it also needs the `navigation` capability.
    */
   readonly rest?: boolean;
 }

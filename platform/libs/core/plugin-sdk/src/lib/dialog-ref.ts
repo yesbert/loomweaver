@@ -34,12 +34,12 @@ export class DialogRef<R = unknown> {
   }
 
   /**
-   * Asks for the close the person would make with the dialog's close control, from a control of the
-   * body's own such as a cancel beside its other buttons. The body's veto runs first; while the body
-   * reports unsaved work the host asks Save · Discard · Cancel, with Save only where the body can
-   * save. Resolves `true` once the dialog has closed, and `false` where the person cancelled, a save
-   * failed or the veto held. It works whatever the opener allowed the person, and a request made while
-   * the question is open does not ask again. {@link close} closes without asking.
+   * Closes the dialog the way its close button would: runs the body's veto and, while the body reports
+   * unsaved work, asks Save · Discard · Cancel (Save only where the body can save). Call it from a
+   * control of the body's own, such as a cancel beside its other buttons; it works whatever the opener
+   * allowed the user. Resolves `true` once the dialog has closed, and `false` where the user
+   * cancelled, a save failed or the veto held. A request made while the question is open does not ask
+   * again. {@link close} closes without asking.
    */
   requestClose(): Promise<boolean> {
     if (this.settled) {

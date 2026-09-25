@@ -108,6 +108,7 @@ export type SettingControl =
  * renders. Value binding (for value controls) lives on the control itself.
  */
 export interface SettingRow {
+  /** Stable id; a distribution hides the row with `omit: ['setting:<id>']`. */
   readonly id: string;
   /** Transloco key for the row label. */
   readonly label: string;
@@ -123,6 +124,7 @@ export interface SettingRow {
 
 /** A contributed group of rows. The host renders sections ordered by `order` (default 0). */
 export interface SettingsSection {
+  /** Stable id; a distribution hides the section with `omit: ['setting:<id>']`. */
   readonly id: string;
   /** Transloco key for the section heading (and its left-nav entry). */
   readonly title: string;
@@ -171,7 +173,7 @@ export interface FrameSettingRow {
 /**
  * A sandboxed plugin's settings section. Registered over RPC via
  * `ctx.registerSettingsSection`; the host decides the nav **group** (never the plugin): an
- * *installed* plugin's section appears under **Community plugins**, a composed frame plugin's
+ * *installed* plugin's section appears under **Community plugins**, a composed sandboxed plugin's
  * under **App plugins** — a plugin cannot masquerade as part of the app.
  */
 export interface FrameSettingsSection {

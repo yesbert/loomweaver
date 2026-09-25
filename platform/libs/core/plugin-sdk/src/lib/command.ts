@@ -96,19 +96,18 @@ export interface CommandFailed {
 export type CommandOutcome = CommandAnswered | CommandRefused | CommandFailed;
 
 /**
- * What a command says running it on an agent's word alone amounts to.
+ * How much an agent may do with a command without asking the user.
  *
  * - `allow` — the agent's word is enough; consent is given in advance.
- * - `ask` — the person is asked first.
- * - `ask-always` — the person is asked every time it is called, with no standing yes.
+ * - `ask` — the user is asked first.
+ * - `ask-always` — the user is asked every time it is called, with no standing yes.
  * - `never` — it is not to be run on an agent's word at all.
  */
 export type AgentConsent = 'allow' | 'ask' | 'ask-always' | 'never';
 
 /**
- * A command as offered to a caller that may invoke it — the workbench's own account of what it can
- * be asked to do. Every text is already resolved to the active language, because a caller outside the
- * application cannot reach the translation bundles and a raw key would be useless to it.
+ * A command as offered to a caller that may invoke it. Every text is already resolved to the active
+ * language, because a caller outside the application cannot reach the translation bundles.
  */
 export interface InvocableCommand {
   readonly id: string;
@@ -129,7 +128,7 @@ export interface InvocableCommand {
  * of carrying its own inline `run()`.
  */
 export interface Command {
-  /** Stable, namespaced id (e.g. "testbed.reset") — what triggers reference. */
+  /** Stable, namespaced id (e.g. "reports.refresh") — what triggers reference. */
   readonly id: string;
   /** Transloco key (or literal) for the command's label (command palette, menus). */
   readonly title: string;
@@ -158,21 +157,13 @@ export interface Command {
    */
   readonly paletteHidden?: boolean;
   /**
-   * Offer this command in a **pop-out window** as well. Commands are main-window-only by
-   * default: a pop-out shows exactly one surface, with no tab strip, rail or sidebar, and is a viewer
-   * onto that surface rather than half the application. Without this flag the palette omits the
-   * command there, its keybinding no-ops and a UI item bound to it does nothing — the same one seam
-   * `access` flows through.
+   * Offers this command in a **pop-out window** as well. Commands are main-window-only by default:
+   * without this flag the palette omits the command there, and its keybinding and any UI item bound
+   * to it do nothing.
    *
-   * The default is the quiet one on purpose: a command *missing* from a pop-out is a small
-   * annoyance, while one that does something surprising in a detached window is the larger failure,
-   * and the shell cannot tell the two apart for a command it did not write.
-   *
-   * Set it on what genuinely belongs beside a single surface — an about dialog, a theme toggle, an
-   * action on the surface's own data. Leave it off for anything that reaches for chrome a pop-out
-   * does not have: navigating the content area (which the shell refuses there anyway, since it would
-   * take the window out of its `/popout/…` address), opening or revealing a tab, focusing a docked
-   * view, changing the layout.
+   * Set it on what belongs beside a single surface: an about dialog, a theme toggle, an action on the
+   * surface's own data. Leave it off for anything that needs chrome a pop-out does not have, such as
+   * navigating the content area, opening or revealing a tab, or changing the layout.
    */
   readonly popout?: boolean;
   /**
@@ -182,8 +173,8 @@ export interface Command {
    * never seen. Omit it and the command has none; the title is never substituted, because a label is
    * not an explanation.
    *
-   * A command that sets {@link Command.callable} without one is unusable to the very caller it opened
-   * itself to, and the manifest validator says so.
+   * A command that sets {@link Command.callable} without one gives the caller it is callable for
+   * nothing to go on but an id, and the manifest validator says so.
    */
   readonly description?: string;
   /**
@@ -200,41 +191,25 @@ export interface Command {
    */
   readonly answers?: string;
   /**
-   * Let a caller **other than this plugin** invoke this command by its id. Omitted, it cannot be
-   * reached that way by any route and is absent from everything that lists what such a caller may
-   * run; the plugin that registered it always reaches its own regardless.
+   * Lets a caller **other than this plugin** invoke this command by its id. Omitted, no such caller
+   * reaches it by any route, and it is absent from every list of what such a caller may run; the
+   * plugin that registered it always reaches its own.
    *
-   * The default is the quiet one on purpose, exactly as {@link Command.popout} is: a command
-   * *missing* from what an automated caller can reach is a small annoyance, while one that does
-   * something surprising because something other than the user triggered it is the larger failure,
-   * and the shell cannot tell the two apart for a command it did not write.
-   *
-   * Opening a command widens nothing else. It still runs only where its {@link Command.access}, its
-   * {@link Command.popout} declaration and the caller's own granted capabilities already allow, so a
-   * caller can never reach through it to something the user could not have triggered themselves.
+   * It widens nothing else: the command still runs only where its {@link Command.access}, its
+   * {@link Command.popout} and the caller's granted capabilities allow, so a caller never reaches
+   * through it to something the user could not have triggered.
    */
   readonly callable?: boolean;
   /**
-   * What running this command on an agent's word alone amounts to: carried out, the person asked
-   * first, the person asked every time, or not on an agent's word at all. Omit it and the command
-   * says nothing, which is the default.
+   * How much an agent may do with this command without asking the user: carried out, the user asked
+   * first, the user asked every time, or not on an agent's word at all. Omit it and the command says
+   * nothing, which is the default.
    *
-   * **This is a statement, not a gate**, exactly as {@link Command.access} is a statement about
-   * presentation rather than protection. The platform asks nobody, remembers no answer and refuses
-   * no invocation on this account: a command declaring `ask-always` still runs when invoked, whoever
-   * invoked it. Asking, and remembering an answer, belong to whoever runs commands on an agent's
-   * behalf, because only a product knows how it talks to its users.
-   *
-   * It travels to where that decision is made. A caller reading {@link InvocableCommand} finds it
-   * there, and a description of this command written for an agent to choose from carries it beside
-   * what the command does.
-   *
-   * `never` is a statement too, and the platform cannot enforce it: it has no way to tell an agent
-   * from any other caller. What the platform does enforce is {@link Command.callable}: leaving it off
-   * closes the command to every caller but the plugin that registered it. So `callable` is the
-   * boundary for a foreign command, while a plugin's own unopened command stays reachable through its
-   * own context and is absent from {@link InvocableCommand} lists — a plugin wrote its own commands,
-   * so it is the one that acts on what they say.
+   * **A statement, not a gate**: the platform asks nobody and refuses nothing on this account; asking
+   * belongs to whoever runs commands for an agent. It travels with the command, in
+   * {@link InvocableCommand} and in any description written for an agent. To put a command beyond an
+   * agent's reach, leave {@link Command.callable} off, which the platform enforces for every caller
+   * but this plugin.
    */
   readonly agentConsent?: AgentConsent;
   /**
