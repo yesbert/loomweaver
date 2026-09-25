@@ -26,9 +26,11 @@
   }
 
   function text(path) {
-    return path.split('.').reduce(function (entry, key) {
-      return entry[key];
-    }, strings());
+    let entry = strings();
+    for (const key of path.split('.')) {
+      entry = entry[key];
+    }
+    return entry;
   }
 
   function element(testid) {
@@ -63,7 +65,7 @@
         String(button.dataset.tab === current),
       );
     }
-    document.getElementById('tab-body').innerHTML = strings().body[current];
+    document.querySelector('#tab-body').innerHTML = strings().body[current];
   }
 
   function showSession() {
@@ -77,7 +79,7 @@
 
   function showOnScreenSeconds() {
     element('sandbox-onscreen').textContent = String(page.onScreenSeconds);
-    document.getElementById('idle').hidden = page.shown;
+    document.querySelector('#idle').hidden = page.shown;
   }
 
   function showSharedNote() {
@@ -111,11 +113,13 @@
   }
 
   function callHost(invoke) {
-    connection.promise.then(invoke).catch(function () {});
+    connection.promise.then(invoke).catch(function (error) {
+      console.warn('[sandbox-rpc view] host call failed', error);
+    });
   }
 
   function showContextNote(command) {
-    document.getElementById('ctx-note').textContent =
+    document.querySelector('#ctx-note').textContent =
       command === 'reveal' ? strings().ctx.revealed : '';
   }
 
@@ -138,7 +142,7 @@
     page.vetoArmed = event.target.checked;
   });
   element('frame-kit-button').addEventListener('click', function () {
-    document.getElementById('ctx-note').textContent = strings().kitClicked;
+    document.querySelector('#ctx-note').textContent = strings().kitClicked;
   });
   document.querySelector('[data-keep]').addEventListener('click', function () {
     callHost(function (host) {

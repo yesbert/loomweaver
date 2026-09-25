@@ -580,7 +580,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   function for the plugin and the `lwCapture` global instead of a stored injector; the capture
   strings are translated, the feature flags merge over the patch's own groups. `main.ts` is 60
   lines. The end-to-end suite passes.
-- [ ] 11.7 The sandbox and store example plugins (after their defects are fixed): **move**
+- [x] 11.7 The sandbox and store example plugins (after their defects are fixed): **move**
   `sandbox-static` to a name for what it exercises; their texts match what they register; tokens
   without hard-coded colours; `sandbox-rpc/view.js` (433 lines) split into markup, strings, veto and
   menu; `public/**` scripts linted.
@@ -596,6 +596,11 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   `view-strings.js`, the close veto `close-veto.js` and the context menu `context-menu.js`; the page's
   state is one object at the top of `view.js`, the inline styles are classes and no colour has a
   `#hex` fallback. Screenshots before and after match, and the end-to-end suite passes.
+  The scripts in `public/` are linted as classic browser scripts: the testbed's lint config ignores
+  only the pages, and turns off for these scripts the two rules that assume modules (the function
+  wrapper and handing values across files on the global), with its reason; the findings are fixed,
+  failed host calls are reported instead of swallowed, and the docked frame's `set` helper is
+  `showText`.
 - [ ] 11.8 One icon set for the platform apps; end-to-end helpers and the weaver's Transloco setup
   written once.
 

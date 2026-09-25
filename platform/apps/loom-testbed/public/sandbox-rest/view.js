@@ -9,9 +9,9 @@
     methods: globalThis.LwFrame.surfaceMethods({
       render: function (state) {
         globalThis.LwFrame.applySurfaceState(state);
-        const rest = document.getElementById('rest');
+        const rest = document.querySelector('#rest');
         if (rest) {
-          rest.textContent = state.rest ? state.rest : '(none)';
+          rest.textContent = state.rest || '(none)';
         }
       },
     }),
@@ -23,13 +23,13 @@
     });
   }
 
-  document.getElementById('go-deep').addEventListener('click', function () {
+  document.querySelector('#go-deep').addEventListener('click', function () {
     go('/guide/setup');
   });
-  document.getElementById('go-query').addEventListener('click', function () {
+  document.querySelector('#go-query').addEventListener('click', function () {
     go('/guide/setup?step=2');
   });
-  document.getElementById('go-root').addEventListener('click', function () {
+  document.querySelector('#go-root').addEventListener('click', function () {
     go('');
   });
 

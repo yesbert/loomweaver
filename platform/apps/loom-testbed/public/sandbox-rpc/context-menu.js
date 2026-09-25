@@ -2,11 +2,14 @@
   let openMenu = null;
 
   function closeMenu() {
-    if (openMenu) {
-      document.removeEventListener('pointerdown', closeOnOutsidePointer, true);
-      openMenu.remove();
-      openMenu = null;
+    if (!openMenu) {
+      return;
     }
+    document.removeEventListener('pointerdown', closeOnOutsidePointer, {
+      capture: true,
+    });
+    openMenu.remove();
+    openMenu = null;
   }
 
   function closeOnOutsidePointer(event) {
@@ -33,7 +36,9 @@
     });
     menu.addEventListener('lw-menu-dismiss', closeMenu);
     setTimeout(function () {
-      document.addEventListener('pointerdown', closeOnOutsidePointer, true);
-    });
+      document.addEventListener('pointerdown', closeOnOutsidePointer, {
+        capture: true,
+      });
+    }, 0);
   };
 })();

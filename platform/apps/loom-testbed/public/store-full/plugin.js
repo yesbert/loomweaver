@@ -18,7 +18,9 @@
         const text = values.loud
           ? String(values.greeting).toUpperCase()
           : String(values.greeting);
-        host.toast({ message: '[store-full] ' + text }).catch(function () {});
+        host.toast({ message: '[store-full] ' + text }).catch(function (error) {
+          console.warn('[store-full] toast failed', error);
+        });
       },
     },
   });
