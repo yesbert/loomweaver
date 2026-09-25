@@ -22,7 +22,7 @@ interface Line {
 }
 
 @Component({
-  selector: 'lw-assistant-agent-panel',
+  selector: 'app-assistant-agent-panel',
   templateUrl: './assistant-agent-panel.html',
   imports: [TranslocoPipe, OpenRouterKeyForm],
   changeDetection: ChangeDetectionStrategy.OnPush,

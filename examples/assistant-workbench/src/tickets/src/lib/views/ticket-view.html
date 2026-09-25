@@ -40,13 +40,14 @@
 
     <div class="flex max-w-prose flex-col gap-2">
       <textarea
-        #reply
         class="lw-field"
         rows="3"
         [placeholder]="'tickets.view.writeReply' | transloco"
         [attr.aria-label]="'tickets.view.writeReply' | transloco"
+        [value]="draft()"
+        (input)="edit($event)"
       ></textarea>
-      <button type="button" class="lw-btn lw-btn--primary self-start" (click)="send(ticket.number, reply)">
+      <button type="button" class="lw-btn lw-btn--primary self-start" (click)="send(ticket.number)">
         {{ 'tickets.view.sendReply' | transloco }}
       </button>
     </div>
