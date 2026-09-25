@@ -738,8 +738,14 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   and narrow are kept in the private test folder. The grid draws each record twice, which moved the
   demo's ceiling to 1365 kB. All 29 product components are `demo-`, `angular.json` declares that
   prefix, and the unused `^demo-` class ignore is gone.
-- [ ] 12.15 The sandboxed payments plugin: `view.js` (440 lines) split, the renderer no longer books
+- [x] 12.15 The sandboxed payments plugin: `view.js` (440 lines) split, the renderer no longer books
   confirmations, shared keys and defaults in one script, activation with `async`/`await`.
+  `view.js` is 297 lines beside `strings.js` (the texts, without the column labels nothing read),
+  `matching.js` (the sample statement and the pure rules) and `shared.js` (the URL, the state keys
+  and the defaults, loaded by both documents). Automatic confirmation is `applyAutoConfirm`, run
+  before the view is drawn; booked inside the renderer, it was drawn as unbooked until the next
+  render, which a new end-to-end test now pins. `plugin.js` activates with `async`/`await`, and the
+  two `badgeFor`s are `tabBadge` and `outcomeBadge`.
 - [ ] 12.16 End-to-end tests: the design reasons written in two comments move into names, then all 46
   narration comments go and `e2e/**` is linted; shared locators; the overclaiming test name.
 

@@ -88,6 +88,28 @@ test('the tab says whether anything is still open, and follows the confirmations
   await expect(tab).toHaveAttribute('aria-label', 'Payment matching, Open');
 });
 
+test('exact matches are booked on their own once the setting is on, and shown as booked', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await installPaymentMatching(page);
+  await page
+    .getByRole('navigation', { name: 'Left activity bar' })
+    .getByRole('button', { name: 'Settings' })
+    .click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByRole('button', { name: 'Payment matching', exact: true }).click();
+  await dialog.getByRole('switch', { name: 'Confirm exact matches automatically' }).click();
+  await page.keyboard.press('Escape');
+
+  await openPayments(page);
+  const view = surface(page);
+
+  await expect(view.getByTestId('outcome-accepted')).toHaveCount(3);
+  await expect(view.getByTestId('outcome-flagged')).toHaveCount(1);
+  await expect(view.getByTestId('still-open')).toHaveText('€4,494.25');
+});
+
 test('a fetch that fails is reported in the view, not shown as an empty one', async ({
   page,
 }) => {

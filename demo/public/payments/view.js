@@ -1,124 +1,9 @@
 (function () {
-  const OPEN_ITEMS_URL = '/api/open-items.json';
-  const DEFAULT_SETTINGS = {
-    tolerance: 0,
-    autoConfirm: false,
-    sort: 'newest',
-    period: '30',
-  };
-  let settings = { ...DEFAULT_SETTINGS };
+  const { OPEN_ITEMS_URL, SETTINGS_KEY, OPEN_COUNT_KEY, DEFAULT_SETTINGS } = globalThis.PaymentsShared;
+  const STRINGS = globalThis.PaymentsStrings;
+  const matching = globalThis.PaymentsMatching;
   const ACCOUNTING_ROLE = 'accounting';
-
-  const STRINGS = {
-    en: {
-      badge: 'isolated plugin',
-      badgeTip:
-        'This area is not part of the application: it runs in its own sandboxed frame and fetched the open items from /api/open-items.json like any other client.',
-      title: 'Payment matching',
-      statement: 'Bank statement',
-      openItems: 'Open items',
-      column: {
-        date: 'Date',
-        payer: 'Payer',
-        reference: 'Reference',
-        amount: 'Amount',
-        number: 'Invoice',
-        customer: 'Customer',
-        open: 'Open',
-      },
-      outcome: {
-        confirmed: 'Amounts agree',
-        flagged: 'Amounts differ',
-        unassigned: 'No match',
-      },
-      decided: { accepted: 'Confirmed', dismissed: 'Dismissed' },
-      action: { confirm: 'Confirm', dismiss: 'Dismiss', undo: 'Undo' },
-      settled: 'settled',
-      stillOpen: 'Still open',
-      loading: 'Loading the open items…',
-      failed: 'The open items could not be fetched.',
-      signIn: 'Sign in to match payments.',
-      wrongRole:
-        'Payment matching belongs to accounting. This account holds: {{roles}}.',
-      noRole: 'Payment matching belongs to accounting. This account holds no role.',
-    },
-    de: {
-      badge: 'isoliertes Plugin',
-      badgeTip:
-        'Dieser Bereich gehört nicht zur Anwendung: Er läuft in einem eigenen Sandbox-Frame und hat die offenen Posten wie jeder andere Client von /api/open-items.json geholt.',
-      title: 'Zahlungsabgleich',
-      statement: 'Kontoauszug',
-      openItems: 'Offene Posten',
-      column: {
-        date: 'Datum',
-        payer: 'Zahler',
-        reference: 'Verwendungszweck',
-        amount: 'Betrag',
-        number: 'Rechnung',
-        customer: 'Kunde',
-        open: 'Offen',
-      },
-      outcome: {
-        confirmed: 'Beträge stimmen',
-        flagged: 'Beträge weichen ab',
-        unassigned: 'Keine Zuordnung',
-      },
-      decided: { accepted: 'Bestätigt', dismissed: 'Verworfen' },
-      action: { confirm: 'Bestätigen', dismiss: 'Verwerfen', undo: 'Zurück' },
-      settled: 'ausgeglichen',
-      stillOpen: 'Noch offen',
-      loading: 'Offene Posten werden geladen…',
-      failed: 'Die offenen Posten konnten nicht geladen werden.',
-      signIn: 'Zum Abgleich bitte anmelden.',
-      wrongRole:
-        'Der Zahlungsabgleich gehört zur Buchhaltung. Dieses Konto hat: {{roles}}.',
-      noRole: 'Der Zahlungsabgleich gehört zur Buchhaltung. Dieses Konto hat keine Rolle.',
-    },
-  };
-
-  function daysAgo(days) {
-    const date = new Date();
-    date.setDate(date.getDate() - days);
-    return date.toISOString().slice(0, 10);
-  }
-
-  const STATEMENT = [
-    {
-      id: 'b-1',
-      date: daysAgo(1),
-      payer: 'Nordwind Logistik GmbH',
-      reference: 'RECHNUNG RE-2043',
-      amount: 1826412,
-    },
-    {
-      id: 'b-2',
-      date: daysAgo(2),
-      payer: 'Kranich Medien GmbH',
-      reference: 'RE-2044 ABZUEGL. SKONTO',
-      amount: 442200,
-    },
-    {
-      id: 'b-3',
-      date: daysAgo(4),
-      payer: 'Talbach Werkzeugbau GmbH',
-      reference: 'ERSTATTUNG REISEKOSTEN',
-      amount: 24900,
-    },
-    {
-      id: 'b-4',
-      date: daysAgo(5),
-      payer: 'Steinweg Architekten PartG',
-      reference: 'RE-2045',
-      amount: 738990,
-    },
-    {
-      id: 'b-5',
-      date: daysAgo(6),
-      payer: 'Talbach Werkzeugbau GmbH',
-      reference: 'RECHNUNG RE-2047 VOM 21.',
-      amount: 1192500,
-    },
-  ];
+  let settings = { ...DEFAULT_SETTINGS };
 
   const LOCALES = { de: 'de-DE', en: 'en-GB' };
 
@@ -153,50 +38,14 @@
     return holder.innerHTML;
   }
 
-  function matchFor(line) {
-    return (openItems ?? []).find((item) => line.reference.includes(item.number));
-  }
 
-  function withinTolerance(open, amount) {
-    const allowed = (open * settings.tolerance) / 100;
-    return Math.abs(open - amount) <= allowed;
-  }
 
-  function outcomeOf(line) {
-    const item = matchFor(line);
-    if (!item) {
-      return 'unassigned';
-    }
-    return withinTolerance(item.open, line.amount) ? 'confirmed' : 'flagged';
-  }
 
-  function shownStatement() {
-    const cutoff = Date.now() - Number(settings.period) * 86400000;
-    const shown = STATEMENT.filter((line) => new Date(line.date).getTime() >= cutoff);
-    return settings.sort === 'largest'
-      ? [...shown].sort((a, b) => b.amount - a.amount)
-      : [...shown].sort((a, b) => b.date.localeCompare(a.date));
-  }
 
-  function isExact(line) {
-    const item = matchFor(line);
-    return Boolean(item) && item.open === line.amount;
-  }
 
-  function settledNumbers() {
-    return STATEMENT.filter((line) => decisions.get(line.id) === 'accepted')
-      .map((line) => matchFor(line)?.number)
-      .filter(Boolean);
-  }
 
-  function stillOpen() {
-    const settled = settledNumbers();
-    return (openItems ?? [])
-      .filter((item) => !settled.includes(item.number))
-      .reduce((sum, item) => sum + item.open, 0);
-  }
 
-  function badgeFor(line) {
+  function outcomeBadge(line) {
     const decision = decisions.get(line.id);
     if (decision) {
       const tone = decision === 'accepted' ? 'lw-badge--success' : '';
@@ -210,7 +59,7 @@
         '</span>'
       );
     }
-    const outcome = outcomeOf(line);
+    const outcome = matching.outcomeOf(line, openItems, settings);
     const tone =
       outcome === 'confirmed'
         ? 'lw-badge--success'
@@ -230,9 +79,6 @@
 
   function actionsFor(line) {
     const t = strings();
-    if (settings.autoConfirm && !decisions.has(line.id) && isExact(line)) {
-      decisions.set(line.id, 'accepted');
-    }
     if (decisions.has(line.id)) {
       return (
         '<lw-button variant="ghost" size="sm" data-undo="' +
@@ -242,7 +88,7 @@
         '</lw-button>'
       );
     }
-    if (outcomeOf(line) === 'unassigned') {
+    if (matching.outcomeOf(line, openItems, settings) === 'unassigned') {
       return '';
     }
     return (
@@ -272,7 +118,7 @@
       '</span><span class="reference">' +
       escapeHtml(line.reference) +
       '</span></div><div class="row-foot">' +
-      badgeFor(line) +
+      outcomeBadge(line) +
       '<span class="actions">' +
       actionsFor(line) +
       '</span></div></li>'
@@ -280,7 +126,7 @@
   }
 
   function openItemRow(item) {
-    const settled = settledNumbers().includes(item.number);
+    const settled = matching.settledNumbers(openItems, decisions).includes(item.number);
     return (
       '<li class="row" data-item="' +
       item.number +
@@ -322,7 +168,7 @@
       '<div class="columns"><section><h2>' +
       t.statement +
       '</h2><ul class="rows" data-testid="statement">' +
-      shownStatement().map(statementRow).join('') +
+      matching.shownStatement(settings).map(statementRow).join('') +
       '</ul></section><section><h2>' +
       t.openItems +
       '</h2><ul class="rows" data-testid="open-items">' +
@@ -330,7 +176,7 @@
       '</ul><p class="total">' +
       t.stillOpen +
       ': <strong data-testid="still-open">' +
-      money(stillOpen()) +
+      money(matching.stillOpen(openItems, decisions)) +
       '</strong></p></section></div>'
     );
   }
@@ -350,14 +196,10 @@
     });
   }
 
-  function openCount() {
-    const settled = settledNumbers();
-    return (openItems ?? []).filter((item) => !settled.includes(item.number)).length;
-  }
 
   function publishOpenCount() {
     if (surfaceHost && openItems) {
-      surfaceHost.stateSet('openCount', openCount());
+      surfaceHost.stateSet(OPEN_COUNT_KEY, matching.openCount(openItems, decisions));
     }
   }
 
@@ -391,6 +233,7 @@
       app.innerHTML = notice(t.loading, 'payments-loading');
       return;
     }
+    matching.applyAutoConfirm(openItems, settings, decisions);
     app.innerHTML = matchingView();
     bindActions();
     publishOpenCount();
@@ -422,7 +265,7 @@
     }),
     methods: {
       stateChanged(key, value) {
-        if (key !== 'settings' || !value) {
+        if (key !== SETTINGS_KEY || !value) {
           return;
         }
         settings = { ...DEFAULT_SETTINGS, ...value };
@@ -441,8 +284,8 @@
     .promise.then((host) => {
       surfaceHost = host;
       return host
-        .stateWatch('settings')
-        .then(() => host.stateWatch('openCount'))
+        .stateWatch(SETTINGS_KEY)
+        .then(() => host.stateWatch(OPEN_COUNT_KEY))
         .then(() => publishOpenCount());
     })
     .catch((error) => {

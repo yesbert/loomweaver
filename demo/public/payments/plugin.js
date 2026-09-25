@@ -1,15 +1,6 @@
 (function () {
+  const { OPEN_ITEMS_URL, SETTINGS_KEY, OPEN_COUNT_KEY, DEFAULT_SETTINGS } = globalThis.PaymentsShared;
   const SECTION = 'payments.settings';
-  const STATE_KEY = 'settings';
-  const COUNT_KEY = 'openCount';
-  const OPEN_ITEMS_URL = '/api/open-items.json';
-
-  const DEFAULTS = {
-    tolerance: 0,
-    autoConfirm: false,
-    sort: 'newest',
-    period: '30',
-  };
 
   const SECTIONS = {
     en: {
@@ -105,10 +96,10 @@
   }
 
   let host;
-  let values = { ...DEFAULTS };
+  let values = { ...DEFAULT_SETTINGS };
   let counting = false;
 
-  function badgeFor(open) {
+  function tabBadge(open) {
     return open > 0
       ? { text: 'product.payments.badgeOpen', tone: 'brand' }
       : { text: 'product.payments.badgeDone', tone: 'success' };
@@ -116,7 +107,40 @@
 
   function showOpen(open) {
     if (host) {
-      host.updateSurfaceBadge('payments.matching', badgeFor(open));
+      host.updateSurfaceBadge('payments.matching', tabBadge(open));
+    }
+  }
+
+  async function countOpenItems() {
+    try {
+      const response = await fetch(OPEN_ITEMS_URL);
+      const items = await response.json();
+      showOpen(items.length);
+    } catch (error) {
+      console.error('[payments] the open items could not be fetched', error);
+    }
+  }
+
+  async function activate(ctx) {
+    host = ctx;
+    try {
+      await ctx.stateWatch(SETTINGS_KEY);
+      await ctx.registerSurface({
+        id: 'payments.matching',
+        title: 'product.payments.title',
+        icon: 'payments',
+        iframe: '/payments/view.html',
+        retain: 'always',
+        closable: false,
+        routable: { path: 'finance/matching' },
+      });
+      await ctx.registerSettingsSection(sectionFor(globalThis.navigator.language, values));
+      await ctx.stateSet(SETTINGS_KEY, values);
+      await ctx.stateWatch(OPEN_COUNT_KEY);
+      await ctx.stateClear(OPEN_COUNT_KEY);
+      await countOpenItems();
+    } finally {
+      counting = true;
     }
   }
 
@@ -132,61 +156,19 @@
         if (sectionId !== SECTION) {
           return;
         }
-        values = { ...DEFAULTS, ...next };
+        values = { ...DEFAULT_SETTINGS, ...next };
         if (host) {
-          host.stateSet(STATE_KEY, values);
+          host.stateSet(SETTINGS_KEY, values);
         }
       },
       stateChanged: function (key, value) {
-        if (key === COUNT_KEY && counting && typeof value === 'number') {
+        if (key === OPEN_COUNT_KEY && counting && typeof value === 'number') {
           showOpen(value);
         }
       },
     },
   })
-    .promise.then(function (ctx) {
-      host = ctx;
-      return ctx
-        .stateWatch(STATE_KEY)
-        .then(function () {
-          return ctx.registerSurface({
-            id: 'payments.matching',
-            title: 'product.payments.title',
-            icon: 'payments',
-            iframe: '/payments/view.html',
-            retain: 'always',
-            closable: false,
-            routable: { path: 'finance/matching' },
-          });
-        })
-        .then(function () {
-          return ctx.registerSettingsSection(sectionFor(globalThis.navigator.language, values));
-        })
-        .then(function () {
-          return ctx.stateSet(STATE_KEY, values);
-        })
-        .then(function () {
-          return ctx.stateWatch(COUNT_KEY);
-        })
-        .then(function () {
-          return ctx.stateClear(COUNT_KEY);
-        })
-        .then(function () {
-          return fetch(OPEN_ITEMS_URL)
-            .then(function (response) {
-              return response.json();
-            })
-            .then(function (items) {
-              showOpen(items.length);
-            })
-            .catch(function (error) {
-              console.error('[payments] the open items could not be fetched', error);
-            });
-        })
-        .finally(function () {
-          counting = true;
-        });
-    })
+    .promise.then(activate)
     .catch(function (error) {
       console.error('[payments] activation failed', error);
     });
