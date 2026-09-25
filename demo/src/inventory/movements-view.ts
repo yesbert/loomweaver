@@ -1,13 +1,8 @@
 import { Component, computed } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { movements } from './stock';
-import {
-  dateIn,
-  itemLabelKey,
-  itemNumber,
-  language,
-  quantityIn,
-} from './inventory-view-model';
+import { itemLabelKey, itemNumber, movements } from './stock';
+import { formatDate, formatQuantity } from '../accounting';
+import { activeLanguage } from '../i18n/active-language';
 
 @Component({
   selector: 'lw-movements-view',
@@ -15,17 +10,16 @@ import {
   templateUrl: './movements-view.html',
 })
 export class MovementsView {
-  private readonly lang = language();
+  private readonly lang = activeLanguage();
 
   protected readonly rows = computed(() => {
-    const quantity = quantityIn(() => this.lang());
-    const date = dateIn(() => this.lang());
+    const lang = this.lang();
     return movements().map((movement) => ({
       movement,
       number: itemNumber(movement.itemId),
       labelKey: itemLabelKey(movement.itemId),
-      booked: date(movement.bookedOn),
-      quantity: quantity(Math.abs(movement.quantity)),
+      booked: formatDate(movement.bookedOn, lang),
+      quantity: formatQuantity(Math.abs(movement.quantity), lang),
       incoming: movement.quantity > 0,
     }));
   });

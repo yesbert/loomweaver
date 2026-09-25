@@ -2,7 +2,8 @@ import { Component, computed } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { daysOverdue, dunningLevel, openAmount, overdueReceivables } from './books';
 import { financeActions } from './finance-actions';
-import { customerName, language, moneyIn } from './finance-view-model';
+import { customerName, formatMoney } from '../accounting';
+import { activeLanguage } from '../i18n/active-language';
 
 @Component({
   selector: 'lw-dunning-view',
@@ -10,14 +11,14 @@ import { customerName, language, moneyIn } from './finance-view-model';
   templateUrl: './dunning-view.html',
 })
 export class DunningView {
-  private readonly lang = language();
+  private readonly lang = activeLanguage();
 
   protected readonly rows = computed(() => {
-    const money = moneyIn(() => this.lang());
+    const lang = this.lang();
     return overdueReceivables().map((entry) => ({
       entry,
       customer: customerName(entry.customerId),
-      open: money(openAmount(entry)),
+      open: formatMoney(openAmount(entry), lang),
       overdue: daysOverdue(entry.dueOn),
       level: dunningLevel(entry),
     }));

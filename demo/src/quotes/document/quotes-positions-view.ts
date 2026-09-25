@@ -9,7 +9,8 @@ import {
   lineNet,
   quoteTotals,
 } from '../../accounting';
-import { activeLang, quoteFromRoute } from './quote-from-route';
+import { activeLanguage } from '../../i18n/active-language';
+import { quoteFromRoute } from './quote-from-route';
 
 interface DocumentLineRow {
   readonly position: number;
@@ -34,7 +35,7 @@ interface TaxBucketRow {
   templateUrl: './quotes-positions-view.html',
 })
 export class QuotesPositionsView {
-  private readonly lang = activeLang();
+  private readonly lang = activeLanguage();
 
   protected readonly quote = quoteFromRoute();
 

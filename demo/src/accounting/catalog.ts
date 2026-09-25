@@ -71,3 +71,7 @@ export function customerById(id: string): Customer | undefined {
 export function articleById(id: string): Article | undefined {
   return ARTICLES.find((article) => article.id === id);
 }
+
+export function customerName(id: string): string {
+  return customerById(id)?.name ?? id;
+}

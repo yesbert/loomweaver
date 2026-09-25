@@ -1,7 +1,8 @@
 import { Component, computed } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { daysOverdue, openAmount, receivables, receivablesOutstanding, stateOf } from './books';
-import { customerName, dateIn, language, moneyIn } from './finance-view-model';
+import { customerName, formatDate, formatMoney } from '../accounting';
+import { activeLanguage } from '../i18n/active-language';
 
 @Component({
   selector: 'lw-receivables-view',
@@ -9,23 +10,22 @@ import { customerName, dateIn, language, moneyIn } from './finance-view-model';
   templateUrl: './receivables-view.html',
 })
 export class ReceivablesView {
-  private readonly lang = language();
+  private readonly lang = activeLanguage();
 
   protected readonly rows = computed(() => {
-    const money = moneyIn(() => this.lang());
-    const date = dateIn(() => this.lang());
+    const lang = this.lang();
     return receivables().map((entry) => ({
       entry,
       customer: customerName(entry.customerId),
-      due: date(entry.dueOn),
-      gross: money(entry.gross),
-      open: money(openAmount(entry)),
+      due: formatDate(entry.dueOn, lang),
+      gross: formatMoney(entry.gross, lang),
+      open: formatMoney(openAmount(entry), lang),
       overdue: daysOverdue(entry.dueOn),
       state: stateOf(entry),
     }));
   });
 
   protected readonly outstanding = computed(() =>
-    moneyIn(() => this.lang())(receivablesOutstanding()),
+    formatMoney(receivablesOutstanding(), this.lang()),
   );
 }

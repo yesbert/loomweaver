@@ -1,15 +1,15 @@
-import { Component, computed, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { Component, computed } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 import {
-  type Quote,
   customerById,
+  daysUntil,
   formatMoney,
-  quoteTotals,
+  type Quote,
   quotes,
-  today,
+  quoteTotals,
 } from '../accounting';
 import { quotesActions } from './quotes-actions';
+import { activeLanguage } from '../i18n/active-language';
 
 interface OpenItemRow {
   readonly quote: Quote;
@@ -18,21 +18,13 @@ interface OpenItemRow {
   readonly daysLeft: number;
 }
 
-function daysBetween(iso: string): number {
-  const due = new Date(iso).getTime();
-  return Math.round((due - today().getTime()) / 86_400_000);
-}
-
 @Component({
   selector: 'lw-quotes-open-items-view',
   imports: [TranslocoPipe],
   templateUrl: './quotes-open-items-view.html',
 })
 export class QuotesOpenItemsView {
-  private readonly transloco = inject(TranslocoService);
-  private readonly lang = toSignal(this.transloco.langChanges$, {
-    initialValue: this.transloco.getActiveLang(),
-  });
+  private readonly lang = activeLanguage();
 
   protected readonly rows = computed<readonly OpenItemRow[]>(() => {
     const lang = this.lang();
@@ -42,7 +34,7 @@ export class QuotesOpenItemsView {
         quote,
         customer: customerById(quote.customerId)?.name ?? quote.customerId,
         total: formatMoney(quoteTotals(quote).gross, lang),
-        daysLeft: daysBetween(quote.validUntil),
+        daysLeft: daysUntil(quote.validUntil),
       }))
       .sort((a, b) => a.daysLeft - b.daysLeft);
   });

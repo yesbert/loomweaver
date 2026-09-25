@@ -1,8 +1,9 @@
 import { Component, computed } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { payrollRuns } from './staff';
-import { language, moneyIn, monthIn } from './people-view-model';
 import { peopleActions } from './people-actions';
+import { formatMoney, formatMonth } from '../accounting';
+import { activeLanguage } from '../i18n/active-language';
 
 @Component({
   selector: 'lw-payroll-view',
@@ -10,15 +11,14 @@ import { peopleActions } from './people-actions';
   templateUrl: './payroll-view.html',
 })
 export class PayrollView {
-  private readonly lang = language();
+  private readonly lang = activeLanguage();
 
   protected readonly rows = computed(() => {
-    const money = moneyIn(() => this.lang());
-    const month = monthIn(() => this.lang());
+    const lang = this.lang();
     return payrollRuns().map((run) => ({
       run,
-      month: month(run.month),
-      gross: money(run.gross),
+      month: formatMonth(run.month, lang),
+      gross: formatMoney(run.gross, lang),
     }));
   });
 

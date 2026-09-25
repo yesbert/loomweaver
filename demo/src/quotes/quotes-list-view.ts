@@ -1,6 +1,5 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, signal } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 import {
   type Quote,
   type QuoteStatus,
@@ -12,6 +11,7 @@ import {
 } from '../accounting';
 import { quotesActions } from './quotes-actions';
 import { STATUS_BADGE } from './quote-status';
+import { activeLanguage } from '../i18n/active-language';
 
 type StatusFilter = QuoteStatus | 'all';
 
@@ -42,10 +42,7 @@ interface QuoteRow {
   templateUrl: './quotes-list-view.html',
 })
 export class QuotesListView {
-  private readonly transloco = inject(TranslocoService);
-  private readonly lang = toSignal(this.transloco.langChanges$, {
-    initialValue: this.transloco.getActiveLang(),
-  });
+  private readonly lang = activeLanguage();
 
   protected readonly statusFilters = STATUS_FILTERS;
   protected readonly search = signal('');

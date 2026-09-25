@@ -1,8 +1,8 @@
-import { Component, computed, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { Component, computed } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { customerById, formatDate } from '../accounting';
 import { type Contact, contacts } from './contacts';
+import { activeLanguage } from '../i18n/active-language';
 
 interface ContactRow {
   readonly contact: Contact;
@@ -16,10 +16,7 @@ interface ContactRow {
   templateUrl: './contact-history-view.html',
 })
 export class ContactHistoryView {
-  private readonly transloco = inject(TranslocoService);
-  private readonly lang = toSignal(this.transloco.langChanges$, {
-    initialValue: this.transloco.getActiveLang(),
-  });
+  private readonly lang = activeLanguage();
 
   protected readonly rows = computed<readonly ContactRow[]>(() => {
     const lang = this.lang();

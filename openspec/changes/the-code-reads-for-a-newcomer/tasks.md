@@ -669,8 +669,14 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   level reads as the product (`app/`), the shared model (`accounting/`), the product's strings and
   one folder per weaver. The stylesheet import, the looks' asset inputs, the auth guide's link and
   the README's links follow; a move, with the suites unchanged.
-- [ ] 12.6 One active-language signal, the formatters called directly, lookups next to their data; the
+- [x] 12.6 One active-language signal, the formatters called directly, lookups next to their data; the
   date helpers once in `accounting/clock.ts` (after the month defect is fixed).
+  `activeLanguage()` in `i18n/active-language.ts` replaces eight copies under three names; the views
+  call `formatMoney`, `formatDate`, `formatQuantity` and the new `formatMonth` (on `localeOf`, where
+  people hard-coded two locales) directly, and `customerName`, `supplierName`, `itemLabelKey` and
+  `itemNumber` sit beside their data. The four `*-view-model.ts` files and `insights-context.ts` are
+  gone. `clock.ts` owns `daysSince`, `daysUntil` and `recentMonths`, counted in whole local
+  calendar days, which the six copies (floored, rounded, UTC-parsed or not) now use.
 - [ ] 12.7 Quotes: the customer pane's tab relabelling named, quote creation by id and by search,
   status labels, order and colours once, full translation keys in data, small names.
 - [ ] 12.8 Insights reads `ctx.session` with the `session` capability, as the access-gating guide

@@ -1,5 +1,5 @@
 import { computed, signal } from '@angular/core';
-import { type Cents, isoDaysFromToday, today } from '../accounting';
+import { type Cents, daysSince, isoDaysFromToday } from '../accounting';
 
 export type PurchaseOrderStatus = 'ordered' | 'confirmed' | 'received';
 
@@ -74,9 +74,12 @@ export function supplierById(id: string): Supplier | undefined {
   return SUPPLIERS.find((supplier) => supplier.id === id);
 }
 
+export function supplierName(id: string): string {
+  return supplierById(id)?.name ?? id;
+}
+
 export function daysLate(expectedOn: string): number {
-  const expected = new Date(expectedOn).getTime();
-  return Math.floor((today().getTime() - expected) / 86_400_000);
+  return daysSince(expectedOn);
 }
 
 export const openOrders = computed(() =>

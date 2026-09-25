@@ -1,7 +1,8 @@
 import { Component, computed } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { type MarginLine, formatMoney, marginOf } from '../../accounting';
-import { activeLang, quoteFromRoute } from './quote-from-route';
+import { activeLanguage } from '../../i18n/active-language';
+import { quoteFromRoute } from './quote-from-route';
 
 interface MarginRow {
   readonly lineId: string;
@@ -19,7 +20,7 @@ const THIN_MARGIN_PERCENT = 40;
   templateUrl: './quotes-margin-view.html',
 })
 export class QuotesMarginView {
-  private readonly lang = activeLang();
+  private readonly lang = activeLanguage();
 
   protected readonly quote = quoteFromRoute();
 
