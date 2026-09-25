@@ -1,9 +1,9 @@
-<div class="flex h-full flex-col gap-4 p-3">
+<div class="@container flex h-full flex-col gap-4 p-4">
   <div class="flex flex-wrap items-center justify-between gap-3">
     <h2 class="text-base font-semibold text-content">
       {{ 'procurement.view.purchaseOrders' | transloco }}
     </h2>
-    <div class="flex items-center gap-4">
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
       <span class="text-sm text-content-muted">
         {{ 'procurement.onOrder' | transloco }}
         <span class="ml-1 font-medium text-content tabular-nums" data-testid="orders-open">{{
@@ -12,7 +12,7 @@
       </span>
       <button
         type="button"
-        class="lw-btn lw-btn--primary"
+        class="lw-btn lw-btn--primary whitespace-nowrap"
         (click)="receive()"
         data-testid="goods-receipt"
       >
@@ -21,49 +21,82 @@
     </div>
   </div>
 
-  <div class="min-h-0 flex-1 overflow-auto rounded-lg border border-border bg-surface-raised">
-    <table class="w-full text-sm">
-      <thead class="text-xs text-content-muted">
-        <tr class="border-b border-border">
-          <th class="px-4 py-2.5 text-left font-medium">{{ 'procurement.column.number' | transloco }}</th>
-          <th class="px-4 py-2.5 text-left font-medium">{{ 'procurement.column.supplier' | transloco }}</th>
-          <th class="px-4 py-2.5 text-left font-medium">{{ 'procurement.column.ordered' | transloco }}</th>
-          <th class="px-4 py-2.5 text-left font-medium">{{ 'procurement.column.expected' | transloco }}</th>
-          <th class="px-4 py-2.5 text-right font-medium">{{ 'procurement.column.net' | transloco }}</th>
-          <th class="px-4 py-2.5 text-right font-medium">{{ 'procurement.column.status' | transloco }}</th>
-        </tr>
-      </thead>
-      <tbody data-testid="purchase-order-list">
+  <div class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border bg-surface-raised">
+    <div
+      class="hidden shrink-0 grid-cols-[7rem_minmax(0,1fr)_7rem_12rem_8rem_7rem] gap-3 border-b border-border px-4 py-2.5 text-xs font-medium text-content-muted @2xl:grid"
+    >
+      <span>{{ 'procurement.column.number' | transloco }}</span>
+      <span>{{ 'procurement.column.supplier' | transloco }}</span>
+      <span>{{ 'procurement.column.ordered' | transloco }}</span>
+      <span>{{ 'procurement.column.expected' | transloco }}</span>
+      <span class="text-right">{{ 'procurement.column.net' | transloco }}</span>
+      <span class="text-right">{{ 'procurement.column.status' | transloco }}</span>
+    </div>
+
+    <div class="min-h-0 flex-1 overflow-auto">
+      <ul data-testid="purchase-order-list">
         @for (row of rows(); track row.order.id) {
-          <tr class="border-b border-border last:border-b-0" [attr.data-order]="row.order.number">
-            <td class="px-4 py-2.5 font-mono text-xs text-content-muted">{{ row.order.number }}</td>
-            <td class="px-4 py-2.5 text-content">{{ row.supplier }}</td>
-            <td class="px-4 py-2.5 text-content-muted tabular-nums">{{ row.ordered }}</td>
-            <td class="px-4 py-2.5 text-content-muted tabular-nums">
-              {{ row.expected }}
-              @if (row.late > 0) {
-                <span class="ml-2 text-xs text-caution" data-testid="order-late">{{
-                  'procurement.late' | transloco: { days: row.late }
-                }}</span>
-              }
-            </td>
-            <td class="px-4 py-2.5 text-right text-content tabular-nums">{{ row.net }}</td>
-            <td class="px-4 py-2.5 text-right" [attr.data-status]="row.order.status">
-              @switch (row.order.status) {
-                @case ('received') {
-                  <span class="text-content-faint">{{ 'procurement.status.received' | transloco }}</span>
+          <li
+            class="border-b border-border px-4 py-3 last:border-b-0 @2xl:py-2.5"
+            [attr.data-order]="row.order.number"
+          >
+            <span class="hidden grid-cols-[7rem_minmax(0,1fr)_7rem_12rem_8rem_7rem] items-center gap-3 text-sm @2xl:grid">
+              <span class="font-mono text-xs text-content-muted">{{ row.order.number }}</span>
+              <span class="truncate text-content">{{ row.supplier }}</span>
+              <span class="text-content-muted tabular-nums">{{ row.ordered }}</span>
+              <span class="text-content-muted tabular-nums">
+                {{ row.expected }}
+                @if (row.late > 0) {
+                  <span class="ml-2 text-xs text-caution" data-testid="order-late">{{
+                    'procurement.late' | transloco: { days: row.late }
+                  }}</span>
                 }
-                @case ('confirmed') {
-                  <span class="text-content">{{ 'procurement.status.confirmed' | transloco }}</span>
+              </span>
+              <span class="text-right text-content tabular-nums">{{ row.net }}</span>
+              <span class="text-right" [attr.data-status]="row.order.status">
+                @switch (row.order.status) {
+                  @case ('received') {
+                    <span class="text-content-faint">{{ 'procurement.status.received' | transloco }}</span>
+                  }
+                  @case ('confirmed') {
+                    <span class="text-content">{{ 'procurement.status.confirmed' | transloco }}</span>
+                  }
+                  @default {
+                    <span class="text-content-muted">{{ 'procurement.status.ordered' | transloco }}</span>
+                  }
                 }
-                @default {
-                  <span class="text-content-muted">{{ 'procurement.status.ordered' | transloco }}</span>
-                }
-              }
-            </td>
-          </tr>
+              </span>
+            </span>
+            <span class="flex items-baseline justify-between gap-3 @2xl:hidden">
+              <span class="flex min-w-0 flex-col gap-0.5">
+                <span class="truncate text-content">{{ row.supplier }}</span>
+                <span class="text-xs text-content-faint">
+                  {{ row.order.number }} · {{ row.expected }}
+                  @if (row.late > 0) {
+                    · <span class="text-caution">{{ 'procurement.late' | transloco: { days: row.late } }}</span>
+                  }
+                </span>
+              </span>
+              <span class="flex shrink-0 flex-col items-end gap-0.5 text-sm">
+                <span class="text-content tabular-nums">{{ row.net }}</span>
+                <span class="text-xs">
+                  @switch (row.order.status) {
+                    @case ('received') {
+                      <span class="text-content-faint">{{ 'procurement.status.received' | transloco }}</span>
+                    }
+                    @case ('confirmed') {
+                      <span class="text-content">{{ 'procurement.status.confirmed' | transloco }}</span>
+                    }
+                    @default {
+                      <span class="text-content-muted">{{ 'procurement.status.ordered' | transloco }}</span>
+                    }
+                  }
+                </span>
+              </span>
+            </span>
+          </li>
         }
-      </tbody>
-    </table>
+      </ul>
+    </div>
   </div>
 </div>
