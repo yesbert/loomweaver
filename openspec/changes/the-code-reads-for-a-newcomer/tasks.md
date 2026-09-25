@@ -312,8 +312,10 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   to `chord.ts`; the recently used commands service to `recent-commands.service.ts`.
   `RecentCommandsService` (the class follows its file; the storage key stays `lw.shell.command-mru`).
   `host-command-ids.ts` stays at the top of `commands/`, beside the two services.
-- [ ] 8.2 **Move:** the frame-kit bundle entry out of `elements/` into `surface-kit/`; `build.mjs`
+- [x] 8.2 **Move:** the frame-kit bundle entry out of `elements/` into `surface-kit/`; `build.mjs`
   follows.
+  `surface-kit/surface-kit.frame.ts`; `build.mjs` and the lint exception follow. All five frame-kit
+  artifacts built before and after are byte-identical.
 - [ ] 8.3 Menus (after the list-menu defect is fixed): `MenuService` split into resolution, drawing and
   wording; one row builder and one rule for the leading columns; `MENU_ANCHOR_GAP` imported from its
   owner; the trigger directive's names; the heading writer returns its label; the spec split.

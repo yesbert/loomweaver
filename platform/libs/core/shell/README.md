@@ -47,8 +47,10 @@ directories like components, directives, and services").
   `stored-values/` (`hydrate`/`readStoredValue` and the parsers). Deliberately cross-cutting
   (consumed by plugin/, regions/ and the feature slices).
 - **`elements/`** — the framework-agnostic `<lw-*>` custom-element family
-  incl. the icon registry; `lw-elements.frame.ts` is the `@loomweaver/frame-kit` bundle
-  entry. Deliberately cross-cutting (the host UI kit).
+  incl. the icon registry. Deliberately cross-cutting (the host UI kit).
+- **`surface-kit/`** — what a sandboxed surface loads: `surface-kit.frame.ts` is the
+  `@loomweaver/frame-kit` bundle entry (the elements, the pushed theme and icons, the state
+  mirror and self-capture).
 - **Small feature slices** — `theme/`, `text-size/`, `i18n/` (loader + locale service +
   switcher + translations), `auth/`, `dialog/`, `notifications/`, `menu/`, `version/`,
   `update/`, `workspace/`, `views/` (the `View` contribution, named view instances +

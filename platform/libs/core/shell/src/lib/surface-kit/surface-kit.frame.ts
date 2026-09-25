@@ -1,23 +1,23 @@
 import { drawAbsent } from '../capture/picture-assembly';
 import { captureScale } from '../capture/picture-size';
-import { defineLwButton } from './button/lw-button.element';
+import { defineLwButton } from '../elements/button/lw-button.element';
 import {
   hasIcon,
   removeIcon,
   sanitizeIconSvg,
   setIcon,
-} from './icon/icon-registry-global';
+} from '../elements/icon/icon-registry-global';
 import {
   defineLwIcon,
   LW_ICON_TAG,
   LwIconElement,
-} from './icon/lw-icon.element';
-import { defineLwMarkdown } from './markdown/lw-markdown.element';
-import { defineLwMenu } from './menu/lw-menu.element';
-import { defineLwNavTree } from './nav-tree/lw-nav-tree.element';
-import { defineLwProgressRing } from './progress/lw-progress-ring.element';
-import { defineLwSelect } from './select/lw-select.element';
-import { defineLwTooltip } from './tooltip/lw-tooltip.element';
+} from '../elements/icon/lw-icon.element';
+import { defineLwMarkdown } from '../elements/markdown/lw-markdown.element';
+import { defineLwMenu } from '../elements/menu/lw-menu.element';
+import { defineLwNavTree } from '../elements/nav-tree/lw-nav-tree.element';
+import { defineLwProgressRing } from '../elements/progress/lw-progress-ring.element';
+import { defineLwSelect } from '../elements/select/lw-select.element';
+import { defineLwTooltip } from '../elements/tooltip/lw-tooltip.element';
 
 export interface LwSurfaceRenderState {
   readonly theme?: 'light' | 'dark';

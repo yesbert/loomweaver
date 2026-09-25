@@ -17,7 +17,7 @@ const banner = (artifact) =>
 mkdirSync(outDir, { recursive: true });
 
 await build({
-  entryPoints: [here('../shell/src/lib/elements/lw-elements.frame.ts')],
+  entryPoints: [here('../shell/src/lib/surface-kit/surface-kit.frame.ts')],
   outfile: join(outDir, 'lw-elements.global.js'),
   bundle: true,
   format: 'iife',
@@ -43,7 +43,7 @@ function emitGlobalScriptDeclaration(entry) {
   program.emit(undefined, (name, text) => emitted.set(name, text), undefined, true);
 
   const declaration = [...emitted].find(([name]) =>
-    name.endsWith('lw-elements.frame.d.ts'),
+    name.endsWith('surface-kit.frame.d.ts'),
   );
   if (!declaration) {
     throw new Error('no declaration emitted for the frame entry');
@@ -53,7 +53,7 @@ function emitGlobalScriptDeclaration(entry) {
 
 writeFileSync(
   join(outDir, 'lw-frame.d.ts'),
-  `${banner('lw-frame.d.ts')}\n${emitGlobalScriptDeclaration(here('../shell/src/lib/elements/lw-elements.frame.ts'))}`,
+  `${banner('lw-frame.d.ts')}\n${emitGlobalScriptDeclaration(here('../shell/src/lib/surface-kit/surface-kit.frame.ts'))}`,
 );
 
 await build({

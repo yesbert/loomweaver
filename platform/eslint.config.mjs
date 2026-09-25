@@ -354,7 +354,7 @@ export default [
         // The frame kit publishes its API on the global on purpose: that assignment is how a
         // sandboxed plugin document reaches the host at all.
         files: [
-            "**/lw-elements.frame.ts"
+            "**/surface-kit.frame.ts"
         ],
         rules: {
             "unicorn/no-global-object-property-assignment": "off",
