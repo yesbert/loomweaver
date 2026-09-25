@@ -63,11 +63,11 @@ describe('angularWeaver recipe', () => {
     expect(plugin).toContain("id: 'notes.rail.about'");
   });
 
-  it('exposes an Angular view component with an lw- selector', () => {
+  it("exposes an Angular view component under the neutral app- prefix, never the platform's", () => {
     const files = generate(angularWeaver, { id: 'notes', name: 'Notes' });
     const view = files['src/lib/views/notes-view.ts'];
     expect(view).toContain('export class NotesView');
-    expect(view).toContain("selector: 'lw-notes-view'");
+    expect(view).toContain("selector: 'app-notes-view'");
     expect(view).not.toContain('ChangeDetectionStrategy');
     expect(view).toContain("templateUrl: './notes-view.html'");
     expect(files['src/lib/views/notes-view.html']).toContain('Notes');
@@ -170,6 +170,12 @@ describe('angularWeaver recipe', () => {
     expect(() =>
       resolveWeaverInput({ id: 'notes', features: { access: "role:ad'min" } }),
     ).toThrow(/quotes or backslashes/);
+  });
+
+  it('refuses a prefix that cannot start a selector', () => {
+    expect(() => resolveWeaverInput({ id: 'notes', prefix: 'My App' })).toThrow(
+      /prefix must be kebab-case/,
+    );
   });
 
   it('emits component selectors under a custom prefix so the generated lint passes', () => {

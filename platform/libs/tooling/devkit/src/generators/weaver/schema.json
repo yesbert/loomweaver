@@ -87,8 +87,7 @@
     },
     "prefix": {
       "type": "string",
-      "description": "Selector prefix for generated components and directives.",
-      "default": "lw",
+      "description": "Selector prefix for the generated components: the one the application declares, as the prefix of its project in angular.json or project.json. Read from the workspace where it can be, else 'app'.",
       "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
     },
     "unitTestRunner": {

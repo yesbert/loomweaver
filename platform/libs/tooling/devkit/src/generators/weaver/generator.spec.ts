@@ -8,6 +8,7 @@ import {
 } from '@nx/devkit';
 import {
   createConsumerWorkspace,
+  declarePrefix,
   PRECOMPILED_STYLESHEET,
 } from '../test-workspace';
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
@@ -114,6 +115,37 @@ describe('weaver generator', () => {
         'utf8',
       ),
     ).toContain("selector: 'ac-notes-about-dialog'");
+  });
+
+  const VIEW = 'libs/notes-weaver/src/lib/views/notes-view.ts';
+
+  it('names the components with the prefix the composing application declares', async () => {
+    declarePrefix(tree, 'studio', 'acme');
+    await weaverGenerator(tree, { id: 'notes' });
+    expect(readJson(tree, 'libs/notes-weaver/project.json').prefix).toBe('acme');
+    expect(tree.read(VIEW, 'utf8')).toContain("selector: 'acme-notes-view'");
+  });
+
+  it('names the components app- when the application declares no prefix, never lw-', async () => {
+    await weaverGenerator(tree, { id: 'notes' });
+    expect(readJson(tree, 'libs/notes-weaver/project.json').prefix).toBe('app');
+    expect(tree.read(VIEW, 'utf8')).toContain("selector: 'app-notes-view'");
+  });
+
+  it('lets a supplied prefix win over the one the application declares', async () => {
+    declarePrefix(tree, 'studio', 'acme');
+    await weaverGenerator(tree, { id: 'notes', prefix: 'ac' });
+    expect(tree.read(VIEW, 'utf8')).toContain("selector: 'ac-notes-view'");
+  });
+
+  it('takes app from a distribution generated without a prefix', async () => {
+    await distributionGenerator(tree, {
+      name: 'studio',
+      directory: 'apps/studio',
+      force: true,
+    });
+    await weaverGenerator(tree, { id: 'notes' });
+    expect(tree.read(VIEW, 'utf8')).toContain("selector: 'app-notes-view'");
   });
 
   it('honours --container', async () => {

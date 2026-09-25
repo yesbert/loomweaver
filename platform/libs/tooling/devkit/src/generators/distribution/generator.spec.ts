@@ -95,10 +95,18 @@ describe('distribution generator', () => {
     ).toBeUndefined();
   });
 
-  it("keeps Angular's app-root lintable beside the project prefix", async () => {
+  it('declares app as its prefix when none is supplied, and lints it once', async () => {
     await distributionGenerator(tree, { name: 'acme-studio' });
+    expect(readJson(tree, 'apps/acme-studio/project.json').prefix).toBe('app');
+    expect(tree.read('apps/acme-studio/eslint.config.mjs', 'utf8')).toContain(
+      "prefix: 'app'",
+    );
+  });
+
+  it("keeps Angular's app-root lintable beside the project prefix", async () => {
+    await distributionGenerator(tree, { name: 'acme-studio', prefix: 'ac' });
     const eslint = tree.read('apps/acme-studio/eslint.config.mjs', 'utf8');
-    expect(eslint).toContain("prefix: ['lw', 'app']");
+    expect(eslint).toContain("prefix: ['ac', 'app']");
     expect(tree.read('apps/acme-studio/src/app/app.ts', 'utf8')).toContain(
       "selector: 'app-root'",
     );

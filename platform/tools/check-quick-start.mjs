@@ -389,7 +389,7 @@ async function drivePanel(page, origin) {
     await page.goto(`${origin}/`, { waitUntil: 'domcontentloaded' });
   });
 
-  const panel = page.locator('lw-copilot-agent-panel');
+  const panel = page.locator('app-copilot-agent-panel');
   await step(
     'the generated agent panel is in the bundle but never appears on screen, so a reader serving this finds nothing to drive the workbench from',
     async () => {

@@ -1,4 +1,5 @@
 import { FileMap } from '../../lib/generate/types';
+import { NEUTRAL_PREFIX } from '../../lib/scaffolds/scaffold-values';
 import {
   depthFor,
   NxScaffoldDepth,
@@ -43,7 +44,7 @@ export function nxWeaverProject(options: NxWeaverOptions): NxWeaverProject {
       options.importPath ??
       (options.scope ? `${options.scope}/${projectName}` : projectName),
     tags: options.tags ?? [],
-    prefix: options.prefix ?? 'lw',
+    prefix: options.prefix ?? NEUTRAL_PREFIX,
     buildTarget: options.buildTarget,
     baseTsconfig: options.baseTsconfig ?? 'tsconfig.base.json',
     depth: depthFor(projectRoot),

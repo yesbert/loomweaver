@@ -17,6 +17,9 @@ the style pipeline, the build target, the entry stylesheet, the composition root
 the output needs, listing each line it added. Anywhere else it writes the files and names what is
 left to wire by hand.
 
+A weaver's components are named with the selector prefix the Angular application declares in
+`angular.json`, or `app` where it declares none; `--prefix` names another.
+
 It also validates what the platform parses defensively, which is where mistakes go unreported:
 
 ```bash

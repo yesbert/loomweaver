@@ -17,8 +17,8 @@ three read the same scaffold descriptors, so the generated source is identical.
 
 Placement is read from your workspace, not assumed: `--directory` (default `libs/<project name>`),
 `--import-path` (default: your root manifest's npm scope), `--app` (inferred when the workspace has
-exactly one application, an error naming the candidates when it has several), plus `--tags`,
-`--prefix` and `--unit-test-runner`.
+exactly one application, an error naming the candidates when it has several), `--prefix` (default:
+the prefix the composing application declares, else `app`), plus `--tags` and `--unit-test-runner`.
 
 ## Architecture
 

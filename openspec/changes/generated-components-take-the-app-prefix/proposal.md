@@ -1,4 +1,4 @@
-> **Status:** proposed — not approved for implementation yet.
+> **Status:** approved.
 
 ## Why
 
@@ -18,11 +18,15 @@ The owner decided on 2026-09-25 that the generators read the prefix from the wor
   the platform's `lw`. The MCP tool's description asks the assistant for the application's prefix.
 - A generated distribution declares `app` as its prefix unless one is supplied, so a weaver generated
   into it later takes `app` too.
-- A supplied prefix still wins everywhere, as it does today.
+- A supplied prefix wins on every route. The Nx generator already honoured one; the CLI and the MCP
+  server could not be given one at all, because the option was offered only to Nx, so the weaver
+  scaffold's `prefix` becomes an option of all three. It is checked for kebab-case wherever it
+  arrives, since only Nx checked the pattern before.
 - The guides that describe `--prefix` say where the default comes from.
 
 Projects generated before this change keep what they have; only new output is affected. No published
-signature changes. The release notes name the new default under "Changed".
+type changes; the CLI and the MCP server gain an option, which is additive. The release notes name
+the new default under "Changed".
 
 ## Capabilities
 
@@ -42,7 +46,10 @@ None.
   generators (`generators/weaver/nx-files.ts`, `generators/distribution/nx-files.ts`), the reading of
   the composing application's configuration (`generators/workspace-tree.ts`).
 - `platform/libs/tooling/cli`: the scaffold command reads the Angular application's prefix.
-- `platform/libs/tooling/mcp`: the weaver tool's description of `prefix`.
+- `platform/libs/tooling/mcp`: the weaver tool gains `prefix`, described by the shared scaffold
+  option it reads.
+- `platform/tools/check-quick-start.mjs`: the quick start's agent panel is now
+  `app-copilot-agent-panel`, because a fresh Angular application declares `app`.
 - `docs/scaffolding.md`, the devkit, CLI and MCP READMEs, `llms-full.txt` where they describe
   `--prefix`.
 - Follows up, outside this change: task 13.5 of `the-code-reads-for-a-newcomer` moves the example's

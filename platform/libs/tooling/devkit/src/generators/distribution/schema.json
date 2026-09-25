@@ -33,8 +33,7 @@
     },
     "prefix": {
       "type": "string",
-      "description": "Selector prefix for generated components and directives.",
-      "default": "lw",
+      "description": "Selector prefix the application declares for its components, which a weaver generated into it takes. Defaults to 'app'.",
       "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
     },
     "unitTestRunner": {

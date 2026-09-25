@@ -8,7 +8,7 @@ import {
 } from '@loomweaver/devkit';
 import { relative, resolve } from 'node:path';
 import { ArgError, boolFlag, ParsedArgs, stringFlag } from '../args';
-import { findWorkspace } from '../workspace';
+import { findWorkspace, resolveBuildProject, WorkspaceError } from '../workspace';
 
 export { SCAFFOLDS, type ScaffoldDescriptor } from '@loomweaver/devkit';
 
@@ -76,21 +76,39 @@ function directoryFromOut(out: string | undefined): string {
   return below || '.';
 }
 
+function declaredPrefix(out: string | undefined): string | undefined {
+  const target = resolve(out ?? '.');
+  const workspace = findWorkspace(target);
+  if (workspace?.kind !== 'angular') {
+    return undefined;
+  }
+  try {
+    return resolveBuildProject(workspace, target).prefix;
+  } catch (error) {
+    if (error instanceof WorkspaceError) {
+      return undefined;
+    }
+    throw error;
+  }
+}
+
 export function scaffoldValues(
   scaffold: ScaffoldDescriptor,
   args: ParsedArgs,
 ): ScaffoldValues {
+  const flag = args.flags['out'];
+  const out = typeof flag === 'string' ? flag : undefined;
   const values = valuesFor(scaffold, args);
+  const readsPrefix =
+    values['prefix'] === undefined &&
+    portableOptions(scaffold).some((option) => option.name === 'prefix');
   const takesDirectory = scaffold.options.some(
     (option) => option.name === 'directory',
   );
-  if (!takesDirectory) {
-    return values;
-  }
-  const out = args.flags['out'];
   return {
     ...values,
-    directory: directoryFromOut(typeof out === 'string' ? out : undefined),
+    ...(readsPrefix && { prefix: declaredPrefix(out) }),
+    ...(takesDirectory && { directory: directoryFromOut(out) }),
   };
 }
 

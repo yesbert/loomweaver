@@ -1,5 +1,6 @@
 import { DISTRIBUTION_INITIAL_BUDGET } from '../../recipes/angular-distribution/amendments';
 import { FileMap } from '../../lib/generate/types';
+import { NEUTRAL_PREFIX } from '../../lib/scaffolds/scaffold-values';
 import {
   depthFor,
   NxScaffoldDepth,
@@ -8,6 +9,8 @@ import {
   sharedEslintConfig,
   sharedTsconfigSpec,
 } from '../project-config-files';
+
+const APP_ROOT_PREFIX = 'app';
 
 export interface NxDistributionOptions {
   readonly name: string;
@@ -38,7 +41,7 @@ export function nxDistribution(
     projectRoot,
     outputPath: `dist/${projectRoot}`,
     tags: options.tags ?? [],
-    prefix: options.prefix ?? 'lw',
+    prefix: options.prefix ?? NEUTRAL_PREFIX,
     baseTsconfig: options.baseTsconfig ?? 'tsconfig.base.json',
     withTests: options.withTests ?? true,
     depth: depthFor(projectRoot),
@@ -178,6 +181,8 @@ export function nxDistributionFiles(distribution: NxDistribution): FileMap {
     'tsconfig.json': tsconfig(distribution) + '\n',
     'tsconfig.app.json': tsconfigApp(distribution) + '\n',
     ...(distribution.withTests && { 'tsconfig.spec.json': sharedTsconfigSpec(distribution.depth) + '\n' }),
-    'eslint.config.mjs': sharedEslintConfig(distribution.depth, [distribution.prefix, 'app']),
+    'eslint.config.mjs': sharedEslintConfig(distribution.depth, [
+      ...new Set([distribution.prefix, APP_ROOT_PREFIX]),
+    ]),
   };
 }

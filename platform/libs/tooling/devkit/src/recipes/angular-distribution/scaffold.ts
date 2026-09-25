@@ -55,6 +55,14 @@ export const distributionScaffold: ScaffoldDescriptor = {
         'Compose into the application already at that path, replacing the bootstrap files this scaffold owns and merging its build targets. Without it an existing project is an error.',
       workspaceOnly: true,
     },
+    {
+      name: 'prefix',
+      type: 'string',
+      description:
+        "Selector prefix the application declares for its components, which a weaver generated into it takes. Defaults to 'app'.",
+      pattern: KEBAB_ID_PATTERN,
+      workspaceOnly: true,
+    },
     ...PLACEMENT_OPTIONS,
   ],
   build: (values) => generate(angularDistribution, distributionInput(values)),
