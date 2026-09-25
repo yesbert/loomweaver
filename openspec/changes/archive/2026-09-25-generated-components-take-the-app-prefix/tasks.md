@@ -29,5 +29,5 @@ top-level folder.
 - [x] 2.2 Run `openspec validate --all --strict`, the devkit, CLI and MCP unit suites and
   `check-quick-start`, whose agent panel is now named with the application's `app`
   (`platform/tools/check-quick-start.mjs`).
-- [ ] 2.3 Name the new default under "Changed" in the notes of the release that carries it; archive
+- [x] 2.3 Name the new default under "Changed" in the notes of the release that carries it; archive
   the change.
