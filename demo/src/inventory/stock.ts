@@ -123,3 +123,11 @@ export function countStock(itemId: string, counted: number): Movement | null {
   movementStore.update((all) => [booked, ...all]);
   return booked;
 }
+
+export function itemLabelKey(id: string): string {
+  return itemById(id)?.labelKey ?? id;
+}
+
+export function itemNumber(id: string): string {
+  return itemById(id)?.number ?? id;
+}

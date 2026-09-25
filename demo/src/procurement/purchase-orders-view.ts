@@ -1,8 +1,9 @@
 import { Component, computed } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { daysLate, openOrderValue, purchaseOrders } from './purchasing';
-import { dateIn, language, moneyIn, supplierName } from './procurement-view-model';
+import { daysLate, openOrderValue, purchaseOrders, supplierName } from './purchasing';
 import { procurementActions } from './procurement-actions';
+import { formatDate, formatMoney } from '../accounting';
+import { activeLanguage } from '../i18n/active-language';
 
 @Component({
   selector: 'lw-purchase-orders-view',
@@ -10,22 +11,21 @@ import { procurementActions } from './procurement-actions';
   templateUrl: './purchase-orders-view.html',
 })
 export class PurchaseOrdersView {
-  private readonly lang = language();
+  private readonly lang = activeLanguage();
 
   protected readonly rows = computed(() => {
-    const money = moneyIn(() => this.lang());
-    const date = dateIn(() => this.lang());
+    const lang = this.lang();
     return purchaseOrders().map((order) => ({
       order,
       supplier: supplierName(order.supplierId),
-      ordered: date(order.orderedOn),
-      expected: date(order.expectedOn),
-      net: money(order.net),
+      ordered: formatDate(order.orderedOn, lang),
+      expected: formatDate(order.expectedOn, lang),
+      net: formatMoney(order.net, lang),
       late: order.status === 'received' ? 0 : daysLate(order.expectedOn),
     }));
   });
 
-  protected readonly outstanding = computed(() => moneyIn(() => this.lang())(openOrderValue()));
+  protected readonly outstanding = computed(() => formatMoney(openOrderValue(), this.lang()));
 
   protected receive(): void {
     void procurementActions.receiveGoods();

@@ -1,7 +1,8 @@
 import { Component, computed } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { payables, payablesOutstanding } from './books';
-import { dateIn, language, moneyIn } from './finance-view-model';
+import { formatDate, formatMoney } from '../accounting';
+import { activeLanguage } from '../i18n/active-language';
 
 @Component({
   selector: 'lw-payables-view',
@@ -9,19 +10,18 @@ import { dateIn, language, moneyIn } from './finance-view-model';
   templateUrl: './payables-view.html',
 })
 export class PayablesView {
-  private readonly lang = language();
+  private readonly lang = activeLanguage();
 
   protected readonly rows = computed(() => {
-    const money = moneyIn(() => this.lang());
-    const date = dateIn(() => this.lang());
+    const lang = this.lang();
     return payables().map((entry) => ({
       entry,
-      due: date(entry.dueOn),
-      gross: money(entry.gross),
+      due: formatDate(entry.dueOn, lang),
+      gross: formatMoney(entry.gross, lang),
     }));
   });
 
   protected readonly outstanding = computed(() =>
-    moneyIn(() => this.lang())(payablesOutstanding()),
+    formatMoney(payablesOutstanding(), this.lang()),
   );
 }

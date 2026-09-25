@@ -1,5 +1,5 @@
 import { computed, signal } from '@angular/core';
-import { type Cents, isoDaysFromToday, localIsoDate, today } from '../accounting';
+import { type Cents, daysSince, isoDaysFromToday, recentMonths } from '../accounting';
 
 export type ReceivableState = 'open' | 'settled';
 
@@ -114,8 +114,7 @@ export function openAmount(receivable: Receivable): Cents {
 }
 
 export function daysOverdue(dueOn: string): number {
-  const due = new Date(dueOn).getTime();
-  return Math.floor((today().getTime() - due) / 86_400_000);
+  return daysSince(dueOn);
 }
 
 export const openReceivables = computed(() =>
@@ -201,10 +200,7 @@ export const journal = computed<readonly JournalEntry[]>(() => {
 });
 
 export const periods = computed<readonly Period[]>(() => {
-  const now = today();
-  return [0, 1, 2].map((back) => {
-    const date = new Date(now.getFullYear(), now.getMonth() - back, 1);
-    const month = localIsoDate(date).slice(0, 7);
+  return recentMonths(3).map((month, back) => {
     const openItems = openReceivables().filter((entry) =>
       entry.issuedOn.startsWith(month),
     ).length;

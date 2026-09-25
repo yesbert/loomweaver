@@ -2,18 +2,18 @@ import { Component, computed, inject } from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ChartConfiguration } from 'chart.js';
 import {
-  type QuoteStatus,
   formatMoney,
   localeOf,
   marginOf,
   openQuoteValue,
   percentOf,
-  quoteTotals,
   quotes,
-  today,
+  type QuoteStatus,
+  quoteTotals,
+  recentMonths,
 } from '../accounting';
 import { demoSession } from '../app/session/session';
-import { activeLang } from './insights-context';
+import { activeLanguage } from '../i18n/active-language';
 import { chartColours } from './chart-tokens';
 import { InsightsChart } from './insights-chart';
 
@@ -38,7 +38,7 @@ interface StatusShare {
   templateUrl: './dashboard-view.html',
 })
 export class InsightsDashboardView {
-  private readonly lang = activeLang();
+  private readonly lang = activeLanguage();
   private readonly colours = chartColours();
   private readonly transloco = inject(TranslocoService);
 
@@ -141,7 +141,7 @@ export class InsightsDashboardView {
 
   protected readonly quotedPerMonth = computed<ChartConfiguration>(() => {
     const colours = this.colours();
-    const months = lastMonths(MONTHS_SHOWN);
+    const months = [...recentMonths(MONTHS_SHOWN)].reverse();
     const totals = months.map((month) =>
       quotes()
         .filter((quote) => quote.issuedOn.startsWith(month))
@@ -186,10 +186,3 @@ export class InsightsDashboardView {
   });
 }
 
-function lastMonths(count: number): readonly string[] {
-  const now = today();
-  return Array.from({ length: count }, (_, index) => {
-    const date = new Date(now.getFullYear(), now.getMonth() - (count - 1 - index), 1);
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-  });
-}

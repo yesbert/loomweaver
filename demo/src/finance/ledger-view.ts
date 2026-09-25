@@ -1,7 +1,8 @@
 import { Component, computed } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { journal } from './books';
-import { dateIn, language, moneyIn, sum } from './finance-view-model';
+import { formatDate, formatMoney } from '../accounting';
+import { activeLanguage } from '../i18n/active-language';
 
 @Component({
   selector: 'lw-ledger-view',
@@ -9,23 +10,23 @@ import { dateIn, language, moneyIn, sum } from './finance-view-model';
   templateUrl: './ledger-view.html',
 })
 export class LedgerView {
-  private readonly lang = language();
+  private readonly lang = activeLanguage();
 
   protected readonly rows = computed(() => {
-    const money = moneyIn(() => this.lang());
-    const date = dateIn(() => this.lang());
+    const lang = this.lang();
     return journal().map((entry) => ({
       entry,
-      bookedOn: date(entry.bookedOn),
-      debit: entry.debit === 0 ? '' : money(entry.debit),
-      credit: entry.credit === 0 ? '' : money(entry.credit),
+      bookedOn: formatDate(entry.bookedOn, lang),
+      debit: entry.debit === 0 ? '' : formatMoney(entry.debit, lang),
+      credit: entry.credit === 0 ? '' : formatMoney(entry.credit, lang),
     }));
   });
 
   protected readonly balanced = computed(() => {
     const lines = journal();
     return (
-      sum(lines.map((line) => line.debit)) === sum(lines.map((line) => line.credit))
+      lines.reduce((total, line) => total + line.debit, 0) ===
+      lines.reduce((total, line) => total + line.credit, 0)
     );
   });
 }

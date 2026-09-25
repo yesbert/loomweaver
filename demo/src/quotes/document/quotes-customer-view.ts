@@ -15,7 +15,8 @@ import {
   saveQuoteNote,
 } from '../../accounting';
 import { quotesActions } from '../quotes-actions';
-import { activeLang, quoteFromRoute } from './quote-from-route';
+import { activeLanguage } from '../../i18n/active-language';
+import { quoteFromRoute } from './quote-from-route';
 import { STATUS_BADGE } from '../quote-status';
 
 @Component({
@@ -24,7 +25,7 @@ import { STATUS_BADGE } from '../quote-status';
   templateUrl: './quotes-customer-view.html',
 })
 export class QuotesCustomerView implements DirtySurface {
-  private readonly lang = activeLang();
+  private readonly lang = activeLanguage();
 
   protected readonly quote = quoteFromRoute();
 

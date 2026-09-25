@@ -24,6 +24,12 @@ export function formatDate(iso: string, lang: string): string {
   return new Intl.DateTimeFormat(localeOf(lang), { dateStyle: 'medium' }).format(new Date(iso));
 }
 
+export function formatMonth(month: string, lang: string): string {
+  return new Intl.DateTimeFormat(localeOf(lang), { month: 'long', year: 'numeric' }).format(
+    new Date(`${month}-01T12:00:00Z`),
+  );
+}
+
 export function roundCents(value: number): Cents {
   return value < 0 ? -Math.round(-value) : Math.round(value);
 }

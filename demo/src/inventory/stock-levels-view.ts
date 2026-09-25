@@ -2,7 +2,8 @@ import { Component, computed } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { isBelowReorderPoint, itemsBelowReorderPoint, stockItems } from './stock';
 import { inventoryActions } from './inventory-actions';
-import { language, quantityIn } from './inventory-view-model';
+import { formatQuantity } from '../accounting';
+import { activeLanguage } from '../i18n/active-language';
 
 @Component({
   selector: 'lw-stock-levels-view',
@@ -10,14 +11,14 @@ import { language, quantityIn } from './inventory-view-model';
   templateUrl: './stock-levels-view.html',
 })
 export class StockLevelsView {
-  private readonly lang = language();
+  private readonly lang = activeLanguage();
 
   protected readonly rows = computed(() => {
-    const quantity = quantityIn(() => this.lang());
+    const lang = this.lang();
     return stockItems().map((item) => ({
       item,
-      onHand: quantity(item.onHand),
-      reorderPoint: quantity(item.reorderPoint),
+      onHand: formatQuantity(item.onHand, lang),
+      reorderPoint: formatQuantity(item.reorderPoint, lang),
       low: isBelowReorderPoint(item),
     }));
   });

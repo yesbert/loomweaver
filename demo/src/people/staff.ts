@@ -1,5 +1,5 @@
 import { computed, signal } from '@angular/core';
-import { type Cents, isoDaysFromToday, today } from '../accounting';
+import { type Cents, isoDaysFromToday, recentMonths } from '../accounting';
 
 type PayrollState = 'open' | 'paid';
 
@@ -52,18 +52,10 @@ function seededEmployees(): readonly Employee[] {
   }));
 }
 
-function monthsBack(count: number): readonly string[] {
-  const now = today();
-  return Array.from({ length: count }, (_, back) => {
-    const date = new Date(now.getFullYear(), now.getMonth() - back, 1);
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-  });
-}
-
 function seededRuns(): readonly PayrollRun[] {
   const staff = seededEmployees();
   const gross = staff.reduce((sum, employee) => sum + employee.monthlyGross, 0);
-  return monthsBack(3).map((month, back) => ({
+  return recentMonths(3).map((month, back) => ({
     id: month,
     month,
     state: back === 0 ? 'open' : 'paid',
