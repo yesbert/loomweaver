@@ -20,14 +20,14 @@ interface ContactSeed {
 }
 
 const SEEDS: readonly ContactSeed[] = [
-  { id: 'ct-1', customerId: 'c-nordwind', daysAgo: 2, channel: 'call', subjectKey: 'product.contact.subject.quoteFollowUp' },
-  { id: 'ct-2', customerId: 'c-auerbach', daysAgo: 4, channel: 'email', subjectKey: 'product.contact.subject.priceRequest' },
-  { id: 'ct-3', customerId: 'c-vitalis', daysAgo: 6, channel: 'visit', subjectKey: 'product.contact.subject.onSite' },
-  { id: 'ct-4', customerId: 'c-nordwind', daysAgo: 11, channel: 'email', subjectKey: 'product.contact.subject.deliveryDate' },
-  { id: 'ct-5', customerId: 'c-steinweg', daysAgo: 14, channel: 'call', subjectKey: 'product.contact.subject.complaint' },
-  { id: 'ct-6', customerId: 'c-kranich', daysAgo: 19, channel: 'email', subjectKey: 'product.contact.subject.renewal' },
-  { id: 'ct-7', customerId: 'c-talbach', daysAgo: 23, channel: 'call', subjectKey: 'product.contact.subject.priceRequest' },
-  { id: 'ct-8', customerId: 'c-auerbach', daysAgo: 27, channel: 'visit', subjectKey: 'product.contact.subject.onSite' },
+  { id: 'ct-1', customerId: 'c-nordwind', daysAgo: 2, channel: 'call', subjectKey: 'customers.contact.subject.quoteFollowUp' },
+  { id: 'ct-2', customerId: 'c-auerbach', daysAgo: 4, channel: 'email', subjectKey: 'customers.contact.subject.priceRequest' },
+  { id: 'ct-3', customerId: 'c-vitalis', daysAgo: 6, channel: 'visit', subjectKey: 'customers.contact.subject.onSite' },
+  { id: 'ct-4', customerId: 'c-nordwind', daysAgo: 11, channel: 'email', subjectKey: 'customers.contact.subject.deliveryDate' },
+  { id: 'ct-5', customerId: 'c-steinweg', daysAgo: 14, channel: 'call', subjectKey: 'customers.contact.subject.complaint' },
+  { id: 'ct-6', customerId: 'c-kranich', daysAgo: 19, channel: 'email', subjectKey: 'customers.contact.subject.renewal' },
+  { id: 'ct-7', customerId: 'c-talbach', daysAgo: 23, channel: 'call', subjectKey: 'customers.contact.subject.priceRequest' },
+  { id: 'ct-8', customerId: 'c-auerbach', daysAgo: 27, channel: 'visit', subjectKey: 'customers.contact.subject.onSite' },
 ];
 
 const store = signal<readonly Contact[]>(

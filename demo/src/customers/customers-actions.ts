@@ -16,26 +16,26 @@ export const customersActions = {
       return null;
     }
     const name = await host.ui.prompt({
-      title: 'product.customers.create.title',
-      message: 'product.customers.create.nameMessage',
-      placeholder: 'product.customers.create.namePlaceholder',
-      confirmLabel: 'product.customers.create.confirm',
+      title: 'customers.create.title',
+      message: 'customers.create.nameMessage',
+      placeholder: 'customers.create.namePlaceholder',
+      confirmLabel: 'customers.create.confirm',
     });
     if (!name?.trim()) {
       return null;
     }
     const city = await host.ui.prompt({
-      title: 'product.customers.create.title',
-      message: 'product.customers.create.cityMessage',
-      placeholder: 'product.customers.create.cityPlaceholder',
-      confirmLabel: 'product.customers.create.confirm',
+      title: 'customers.create.title',
+      message: 'customers.create.cityMessage',
+      placeholder: 'customers.create.cityPlaceholder',
+      confirmLabel: 'customers.create.confirm',
     });
     if (city === null) {
       return null;
     }
     const created = addCustomer({ name: name.trim(), city: city.trim() });
     host.ui.toast({
-      message: 'product.customers.create.done',
+      message: 'customers.create.done',
       kind: 'success',
       timeoutMs: 4000,
     });

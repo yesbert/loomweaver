@@ -1,11 +1,11 @@
 <div class="@container flex h-full flex-col gap-4 p-4">
   <div class="flex flex-wrap items-center gap-3">
-    <label class="sr-only" for="customer-search">{{ 'product.customers.search' | transloco }}</label>
+    <label class="sr-only" for="customer-search">{{ 'customers.search' | transloco }}</label>
     <input
       id="customer-search"
       type="search"
       class="lw-field w-full min-w-40 flex-1 @md:w-auto @2xl:max-w-sm"
-      [attr.placeholder]="'product.customers.searchPlaceholder' | transloco"
+      [attr.placeholder]="'customers.searchPlaceholder' | transloco"
       [value]="search()"
       (input)="onSearch($event)"
     />
@@ -15,7 +15,7 @@
       (click)="create()"
       data-testid="customer-create"
     >
-      {{ 'product.customers.create.action' | transloco }}
+      {{ 'customers.create.action' | transloco }}
     </button>
   </div>
 
@@ -23,11 +23,11 @@
     <div
       class="hidden shrink-0 grid-cols-[7rem_minmax(0,1fr)_9rem_7rem_6rem] gap-3 border-b border-border px-4 py-2.5 text-xs font-medium text-content-muted @2xl:grid"
     >
-      <span>{{ 'product.customers.column.number' | transloco }}</span>
-      <span>{{ 'product.customers.column.name' | transloco }}</span>
-      <span>{{ 'product.customers.column.city' | transloco }}</span>
-      <span>{{ 'product.customers.column.terms' | transloco }}</span>
-      <span class="text-right">{{ 'product.customers.column.contacts' | transloco }}</span>
+      <span>{{ 'customers.column.number' | transloco }}</span>
+      <span>{{ 'customers.column.name' | transloco }}</span>
+      <span>{{ 'customers.column.city' | transloco }}</span>
+      <span>{{ 'customers.column.terms' | transloco }}</span>
+      <span class="text-right">{{ 'customers.column.contacts' | transloco }}</span>
     </div>
 
     <div class="min-h-0 flex-1 overflow-auto">
@@ -42,7 +42,7 @@
               <span class="truncate text-content">{{ row.customer.name }}</span>
               <span class="truncate text-sm text-content-muted">{{ row.customer.city }}</span>
               <span class="text-sm text-content-muted tabular-nums">
-                {{ 'product.customers.termsDays' | transloco: { days: row.customer.paymentTermsDays } }}
+                {{ 'customers.termsDays' | transloco: { days: row.customer.paymentTermsDays } }}
               </span>
               <span class="text-right text-sm text-content-muted tabular-nums">{{ row.contacts }}</span>
             </span>

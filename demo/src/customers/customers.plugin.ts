@@ -14,7 +14,7 @@ export const customersPlugin: Plugin = {
 
     ctx.registerSurface({
       id: 'customers.list',
-      title: 'product.view.customerList',
+      title: 'customers.view.customerList',
       icon: 'sales',
       routable: { path: 'sales/customers' },
       docks: [],
@@ -23,7 +23,7 @@ export const customersPlugin: Plugin = {
 
     ctx.registerSurface({
       id: 'customers.contacts',
-      title: 'product.view.contactHistory',
+      title: 'customers.view.contactHistory',
       icon: 'sales',
       routable: { path: 'sales/contacts' },
       docks: [],
@@ -32,11 +32,11 @@ export const customersPlugin: Plugin = {
 
     ctx.registerCommand({
       id: 'customers.create',
-      title: 'product.customers.create.action',
-      description: 'product.customers.create.description',
+      title: 'customers.create.action',
+      description: 'customers.create.description',
       icon: 'sales',
       callable: true,
-      answers: 'product.customers.create.answers',
+      answers: 'customers.create.answers',
       run: async () => {
         const id = await customersActions.create();
         return { created: id ?? null };
