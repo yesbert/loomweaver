@@ -414,10 +414,16 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   example. The terms follow 9.3: trusted and sandboxed plugin, plugin rather than weaver, user
   rather than person, callable rather than opened, and no "seam", "rung" or "slice". The version's
   JSDoc now says what it shows: the shell's released version until a distribution sets its own.
-- [ ] 9.7 The agent adapter (after its flush defect is fixed, 9.1 of the defects change): the stream
+- [x] 9.7 The agent adapter (after its flush defect is fixed, 9.1 of the defects change): the stream
   assembly as a small class, answering a call as a top-level function with an explicit guard, typed
   protocol events, the refusal wording once, two message builders instead of a flag, the scalar table
   typed by kind.
+  `ToolCallAssembly` holds the open calls and the chunked one; `commandTools` is a switch over the
+  typed `AGUIEvent` that hands each event to it and answers what comes back through a top-level
+  `answerCall`, whose guard runs the call directly where no hook is supplied. The refusal wording is
+  written once, `answerFor` and `errorMessage` replace the flagged builder, the argument record uses
+  `CommandArgumentValue`, the scalar table is keyed by kind, and three test names say what they
+  assert. The published `CommandAccess` keeps its name (cosmetic renames stay, owner).
 - [x] 9.8 The frame kit (after its declaration defect is fixed): one `@source` for the element folder,
   the spec's tag list complete, the build script's steps named.
   The stylesheet scans the whole element folder, specs included, because leaving the specs out

@@ -19,26 +19,27 @@ export function resultFor(
   outcome: CommandOutcome,
 ): ToolMessage {
   if (outcome.outcome === 'answered') {
-    return message(toolCallId, contentOf(outcome.value));
+    return answerFor(toolCallId, contentOf(outcome.value));
   }
   if (outcome.outcome === 'refused') {
-    return message(
-      toolCallId,
-      '',
-      `The command did not run: ${outcome.message}`,
-    );
+    return refusalFor(toolCallId, outcome.message);
   }
-  return message(toolCallId, '', `The command ran and failed: ${outcome.message}`);
+  return errorMessage(
+    toolCallId,
+    `The command ran and failed: ${outcome.message}`,
+  );
 }
 
-/** The message that answers a call the adapter could not put to the workbench at all. */
 export function refusalFor(toolCallId: string, reason: string): ToolMessage {
-  return message(toolCallId, '', `The command did not run: ${reason}`);
+  return errorMessage(toolCallId, `The command did not run: ${reason}`);
 }
 
-/** The message that answers a call something in front of the workbench answered itself. */
 export function answerFor(toolCallId: string, content: string): ToolMessage {
-  return message(toolCallId, content);
+  return { id: `tool-${toolCallId}`, role: 'tool', toolCallId, content };
+}
+
+function errorMessage(toolCallId: string, error: string): ToolMessage {
+  return { ...answerFor(toolCallId, ''), error };
 }
 
 function contentOf(value: unknown): string {
@@ -46,18 +47,4 @@ function contentOf(value: unknown): string {
     return RAN;
   }
   return typeof value === 'string' ? value : JSON.stringify(value);
-}
-
-function message(
-  toolCallId: string,
-  content: string,
-  error?: string,
-): ToolMessage {
-  return {
-    id: `tool-${toolCallId}`,
-    role: 'tool',
-    toolCallId,
-    content,
-    ...(error !== undefined && { error }),
-  };
 }

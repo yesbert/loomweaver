@@ -1,5 +1,6 @@
 import {
   EventType,
+  type AGUIEvent,
   type BaseEvent,
   type Tool,
   type ToolMessage,
@@ -9,6 +10,7 @@ import type {
   CommandArguments,
   PluginContext,
 } from '@loomweaver/plugin-sdk';
+import { type AssembledCall, ToolCallAssembly } from './tool-call-assembly.js';
 import { readArguments } from './tool-arguments.js';
 import { toolsFor } from './tool-definitions.js';
 import { answerFor, refusalFor, resultFor } from './tool-results.js';
@@ -92,15 +94,8 @@ export interface CommandTools {
   flush(): Promise<ToolMessage | null>;
 }
 
-interface OpenCall {
-  readonly toolCallId: string;
-  readonly commandId: string;
-  json: string;
-}
-
-function textOf(value: unknown): string {
-  return typeof value === 'string' ? value : '';
-}
+const UNREADABLE = 'its arguments did not arrive as readable JSON.';
+const UNFINISHED = 'the run ended before its arguments were complete.';
 
 /**
  * Connects a plugin context to an agent's tool calls.
@@ -114,90 +109,47 @@ export function commandTools(
   ctx: CommandAccess,
   options: CommandToolOptions = {},
 ): CommandTools {
-  const open = new Map<string, OpenCall>();
-  let chunked: string | null = null;
+  const assembly = new ToolCallAssembly();
 
-  const forget = (call: OpenCall): void => {
-    open.delete(call.toolCallId);
-    if (chunked === call.toolCallId) {
-      chunked = null;
-    }
-  };
-
-  const finish = async (call: OpenCall): Promise<ToolMessage> => {
-    forget(call);
-    const args = readArguments(call.json);
-    if (args === null) {
-      return refusalFor(
-        call.toolCallId,
-        'its arguments did not arrive as readable JSON.',
-      );
-    }
-    const decision = await decide(options, () => ({
-      toolCallId: call.toolCallId,
-      commandId: call.commandId,
-      args,
-      ...consentOf(ctx, call.commandId),
-    }));
-    if (decision.decision === 'decline') {
-      return refusalFor(call.toolCallId, decision.reason);
-    }
-    if (decision.decision === 'answer') {
-      return answerFor(call.toolCallId, decision.content);
-    }
-    return resultFor(
-      call.toolCallId,
-      await ctx.invokeCommand(call.commandId, args),
-    );
-  };
+  const answer = async (
+    call: AssembledCall | undefined,
+  ): Promise<ToolMessage | null> =>
+    call ? answerCall(ctx, options, call) : null;
 
   const flush = async (): Promise<ToolMessage | null> => {
-    const [left] = open.values();
-    if (left === undefined) {
-      return null;
-    }
-    forget(left);
-    return refusalFor(
-      left.toolCallId,
-      'the run ended before its arguments were complete.',
-    );
-  };
-
-  const finishRun = async (): Promise<ToolMessage | null> => {
-    const carried = chunked === null ? undefined : open.get(chunked);
-    return carried ? finish(carried) : flush();
+    const left = assembly.takeFirst();
+    return left ? refusalFor(left.toolCallId, UNFINISHED) : null;
   };
 
   return {
     list: () => toolsFor(ctx.invocableCommands()),
     flush,
-    receive: async (event) => {
-      const raw = event as Record<string, unknown>;
+    receive: async (received) => {
+      const event = received as AGUIEvent;
       switch (event.type) {
         case EventType.TOOL_CALL_START: {
-          open.set(String(raw['toolCallId']), {
-            toolCallId: String(raw['toolCallId']),
-            commandId: String(raw['toolCallName']),
-            json: '',
-          });
+          assembly.start(event.toolCallId, event.toolCallName);
           return null;
         }
         case EventType.TOOL_CALL_ARGS: {
-          const call = open.get(String(raw['toolCallId']));
-          if (call) {
-            call.json += textOf(raw['delta']);
-          }
+          assembly.append(event.toolCallId, event.delta);
           return null;
         }
         case EventType.TOOL_CALL_END: {
-          const call = open.get(String(raw['toolCallId']));
-          return call ? finish(call) : null;
+          return answer(assembly.take(event.toolCallId));
         }
         case EventType.TOOL_CALL_CHUNK: {
-          return receiveChunk(raw);
+          return answer(
+            assembly.chunk(
+              event.toolCallId,
+              event.toolCallName ?? '',
+              event.delta ?? '',
+            ),
+          );
         }
         case EventType.RUN_FINISHED: {
-          return finishRun();
+          const carried = assembly.takeChunked();
+          return carried ? answerCall(ctx, options, carried) : flush();
         }
         case EventType.RUN_ERROR: {
           return flush();
@@ -208,34 +160,44 @@ export function commandTools(
       }
     },
   };
-
-  async function receiveChunk(
-    raw: Record<string, unknown>,
-  ): Promise<ToolMessage | null> {
-    const id = raw['toolCallId'];
-    if (typeof id === 'string' && id !== chunked) {
-      const previous = chunked === null ? null : open.get(chunked);
-      chunked = id;
-      open.set(id, {
-        toolCallId: id,
-        commandId: textOf(raw['toolCallName']),
-        json: textOf(raw['delta']),
-      });
-      return previous ? finish(previous) : null;
-    }
-    const call = chunked === null ? undefined : open.get(chunked);
-    if (call) {
-      call.json += textOf(raw['delta']);
-    }
-    return null;
-  }
 }
 
-async function decide(
+async function answerCall(
+  ctx: CommandAccess,
   options: CommandToolOptions,
-  call: () => PendingToolCall,
-): Promise<ToolDecision> {
-  return options.before ? options.before(call()) : { decision: 'run' };
+  call: AssembledCall,
+): Promise<ToolMessage> {
+  const args = readArguments(call.json);
+  if (args === null) {
+    return refusalFor(call.toolCallId, UNREADABLE);
+  }
+  if (!options.before) {
+    return run(ctx, call, args);
+  }
+  const decision = await options.before({
+    toolCallId: call.toolCallId,
+    commandId: call.commandId,
+    args,
+    ...consentOf(ctx, call.commandId),
+  });
+  if (decision.decision === 'decline') {
+    return refusalFor(call.toolCallId, decision.reason);
+  }
+  if (decision.decision === 'answer') {
+    return answerFor(call.toolCallId, decision.content);
+  }
+  return run(ctx, call, args);
+}
+
+async function run(
+  ctx: CommandAccess,
+  call: AssembledCall,
+  args: CommandArguments,
+): Promise<ToolMessage> {
+  return resultFor(
+    call.toolCallId,
+    await ctx.invokeCommand(call.commandId, args),
+  );
 }
 
 function consentOf(
