@@ -1,5 +1,5 @@
 import type { OpenTabInput, PluginContext } from '@loomweaver/plugin-sdk';
-import { quoteById } from '../accounting';
+import { quoteById, resetQuotes } from '../accounting';
 import { quotesActions } from './quotes-actions';
 
 interface Recorded {
@@ -32,7 +32,7 @@ describe('quotesActions', () => {
         title: quote!.number,
         titleIsLiteral: true,
         icon: 'quotes',
-        badge: { text: 'quotes.list.status.sent', tone: 'brand' },
+        badge: { text: 'accounting.quoteStatus.sent', tone: 'brand' },
         preview: true,
       },
     ]);
@@ -47,20 +47,22 @@ describe('quotesActions', () => {
     quotesActions.open(quoteById('q-0002')!);
 
     expect(recorded.opened.map((input) => input.badge)).toEqual([
-      { text: 'quotes.list.status.draft', tone: 'neutral' },
-      { text: 'quotes.list.status.accepted', tone: 'success' },
-      { text: 'quotes.list.status.declined', tone: 'danger' },
+      { text: 'accounting.quoteStatus.draft', tone: 'neutral' },
+      { text: 'accounting.quoteStatus.accepted', tone: 'success' },
+      { text: 'accounting.quoteStatus.declined', tone: 'danger' },
     ]);
   });
 
-  it('changes the status on the quote tab where it stands, without opening or bringing it forward', () => {
+  it('labels a quote tab with its number and status where it stands, without opening or bringing it forward', () => {
     const updateContentTab = vi.fn();
     quotesActions.bind({ updateContentTab } as unknown as PluginContext);
 
-    quotesActions.refreshStatus({ ...quoteById('q-0004')!, status: 'sent' });
+    quotesActions.labelTab({ ...quoteById('q-0004')!, status: 'sent' });
 
     expect(updateContentTab).toHaveBeenCalledWith('sales/quotes/q-0004', {
-      badge: { text: 'quotes.list.status.sent', tone: 'brand' },
+      title: 'Q-0004',
+      titleIsLiteral: true,
+      badge: { text: 'accounting.quoteStatus.sent', tone: 'brand' },
     });
   });
 
@@ -84,5 +86,16 @@ describe('quotesActions', () => {
 
     expect(recorded.opened).toEqual([]);
     expect(recorded.kept).toEqual([]);
+  });
+
+  it('creates a quote for exactly the customer it is given, without asking', () => {
+    const { recorded, ctx } = recorder();
+    quotesActions.bind({ ...ctx, ui: { toast: () => undefined } } as unknown as PluginContext);
+
+    const id = quotesActions.createFor('c-nordwind');
+
+    expect(id && quoteById(id)?.customerId).toBe('c-nordwind');
+    expect(recorded.opened).toHaveLength(1);
+    resetQuotes();
   });
 });

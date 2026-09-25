@@ -1,13 +1,4 @@
 {
-  "pipeline": {
-    "status": {
-      "draft": "Draft",
-      "sent": "Sent",
-      "accepted": "Accepted",
-      "declined": "Declined",
-      "expired": "Expired"
-    }
-  },
   "dashboard": {
     "title": "Overview",
     "subtitle": "Where the quotes stand today"

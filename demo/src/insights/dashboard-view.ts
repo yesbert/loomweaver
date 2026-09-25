@@ -1,5 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import type { TabBadgeTone } from '@loomweaver/plugin-sdk';
 import { ChartConfiguration } from 'chart.js';
 import {
   formatMoney,
@@ -7,23 +8,25 @@ import {
   marginOf,
   openQuoteValue,
   percentOf,
+  QUOTE_STATUS_TONE,
+  QUOTE_STATUSES,
   quotes,
   type QuoteStatus,
+  quoteStatusKey,
   quoteTotals,
   recentMonths,
 } from '../accounting';
 import { demoSession } from '../app/session/session';
 import { activeLanguage } from '../i18n/active-language';
-import { chartColours } from './chart-tokens';
+import { type ChartColours, chartColours } from './chart-tokens';
 import { InsightsChart } from './insights-chart';
 
-const STATUS_ORDER: readonly QuoteStatus[] = [
-  'draft',
-  'sent',
-  'accepted',
-  'declined',
-  'expired',
-];
+const TONE_COLOUR: Readonly<Record<TabBadgeTone, keyof ChartColours>> = {
+  neutral: 'muted',
+  brand: 'brand',
+  success: 'positive',
+  danger: 'negative',
+};
 
 const MONTHS_SHOWN = 6;
 interface StatusShare {
@@ -94,20 +97,15 @@ export class InsightsDashboardView {
     return percentOf(margin, revenue);
   });
 
+  protected readonly statusKey = quoteStatusKey;
+
   protected readonly shares = computed<readonly StatusShare[]>(() => {
     const colours = this.colours();
     const all = quotes();
-    const tone: Readonly<Record<QuoteStatus, string>> = {
-      draft: colours.muted,
-      sent: colours.brand,
-      accepted: colours.positive,
-      declined: colours.negative,
-      expired: colours.caution,
-    };
-    return STATUS_ORDER.map((status) => ({
+    return QUOTE_STATUSES.map((status) => ({
       status,
       count: all.filter((quote) => quote.status === status).length,
-      colour: tone[status],
+      colour: colours[TONE_COLOUR[QUOTE_STATUS_TONE[status]]],
     })).filter((share) => share.count > 0);
   });
 
@@ -118,7 +116,7 @@ export class InsightsDashboardView {
       type: 'doughnut',
       data: {
         labels: shares.map((share) =>
-          this.transloco.translate(`insights.pipeline.status.${share.status}`),
+          this.transloco.translate(quoteStatusKey(share.status)),
         ),
         datasets: [
           {

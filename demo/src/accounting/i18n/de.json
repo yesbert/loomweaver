@@ -23,5 +23,12 @@
     "vatId": "USt-IdNr.",
     "terms": "Zahlungsziel",
     "termsDays": "{{days}} Tage netto"
+  },
+  "quoteStatus": {
+    "draft": "Entwurf",
+    "sent": "Versendet",
+    "accepted": "Angenommen",
+    "declined": "Abgelehnt",
+    "expired": "Abgelaufen"
   }
 }

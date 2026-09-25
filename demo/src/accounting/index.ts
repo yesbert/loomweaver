@@ -38,6 +38,8 @@ export {
   today,
 } from './clock';
 export {
+  QUOTE_STATUSES,
+  QUOTE_STATUS_TONE,
   type Quote,
   type QuoteStatus,
   addQuote,
@@ -45,6 +47,7 @@ export {
   openQuoteValue,
   quoteById,
   quoteNote,
+  quoteStatusKey,
   quoteTotals,
   quotes,
   resetQuotes,

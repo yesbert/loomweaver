@@ -77,7 +77,7 @@
                 [style.background-color]="share.colour"
               ></span>
               <span class="min-w-0 flex-1 truncate text-content-muted">
-                {{ 'insights.pipeline.status.' + share.status | transloco }}
+                {{ statusKey(share.status) | transloco }}
               </span>
               <span class="text-content tabular-nums">{{ share.count }}</span>
             </li>

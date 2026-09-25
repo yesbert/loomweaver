@@ -1,13 +1,4 @@
 {
-  "pipeline": {
-    "status": {
-      "draft": "Entwurf",
-      "sent": "Versendet",
-      "accepted": "Angenommen",
-      "declined": "Abgelehnt",
-      "expired": "Abgelaufen"
-    }
-  },
   "dashboard": {
     "title": "Übersicht",
     "subtitle": "Wie die Angebote heute stehen"

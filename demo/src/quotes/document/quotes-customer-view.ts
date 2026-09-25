@@ -12,12 +12,13 @@ import {
   customerById,
   formatDate,
   quoteNote,
+  quoteStatusKey,
   saveQuoteNote,
 } from '../../accounting';
 import { quotesActions } from '../quotes-actions';
 import { activeLanguage } from '../../i18n/active-language';
 import { quoteFromRoute } from './quote-from-route';
-import { STATUS_BADGE } from '../quote-status';
+import { badgeClassOf } from '../quote-status';
 
 @Component({
   selector: 'lw-quotes-customer-view',
@@ -36,7 +37,7 @@ export class QuotesCustomerView implements DirtySurface {
 
   protected readonly badge = computed(() => {
     const quote = this.quote();
-    return quote ? STATUS_BADGE[quote.status] : '';
+    return quote ? badgeClassOf(quote.status) : '';
   });
 
   protected readonly issuedOn = computed(() =>
@@ -52,15 +53,12 @@ export class QuotesCustomerView implements DirtySurface {
     return quote ? quoteNote(quote.id) : '';
   });
 
+  protected readonly statusKey = quoteStatusKey;
+
   protected readonly note = linkedSignal(() => this.savedNote());
 
   constructor() {
-    afterNextRender(() => {
-      const quote = this.quote();
-      if (quote && quotesActions.activeQuoteId() === quote.id) {
-        quotesActions.open(quote);
-      }
-    });
+    afterNextRender(() => this.labelDeepLinkedTab());
   }
 
   surfaceDirty(): boolean {
@@ -80,5 +78,12 @@ export class QuotesCustomerView implements DirtySurface {
 
   private date(iso: string | undefined): string {
     return iso ? formatDate(iso, this.lang()) : '';
+  }
+
+  private labelDeepLinkedTab(): void {
+    const quote = this.quote();
+    if (quote && quotesActions.activeQuoteId() === quote.id) {
+      quotesActions.labelTab(quote);
+    }
   }
 }

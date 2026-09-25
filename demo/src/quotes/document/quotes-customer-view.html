@@ -2,7 +2,7 @@
   <div class="flex flex-col gap-3 p-6" data-testid="quote-customer">
     <div class="flex items-center gap-3">
       <h2 class="font-mono text-lg text-content">{{ quote.number }}</h2>
-      <span [class]="badge()">{{ 'quotes.list.status.' + quote.status | transloco }}</span>
+      <span [class]="badge()">{{ statusKey(quote.status) | transloco }}</span>
     </div>
 
     <div class="flex flex-col gap-1">

@@ -62,7 +62,7 @@ export class QuotesPositionsView {
     const lang = this.lang();
     return {
       position: index + 1,
-      descriptionKey: `accounting.${line.descriptionKey}`,
+      descriptionKey: line.descriptionKey,
       articleNumber:
         (line.articleId ? articleById(line.articleId)?.number : '') ?? '',
       quantity: formatQuantity(line.quantity, lang),

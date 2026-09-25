@@ -31,12 +31,12 @@ const CUSTOMER_SEEDS: readonly Customer[] = [
 ];
 
 export const ARTICLES: readonly Article[] = [
-  { id: 'a-consulting', number: 'L-100', descriptionKey: 'article.consulting', unit: 'hour', unitPrice: 14500, costPrice: 6200, taxRate: 19 },
-  { id: 'a-development', number: 'L-110', descriptionKey: 'article.development', unit: 'hour', unitPrice: 13500, costPrice: 7100, taxRate: 19 },
-  { id: 'a-workshop', number: 'L-120', descriptionKey: 'article.workshop', unit: 'day', unitPrice: 145000, costPrice: 62000, taxRate: 19 },
-  { id: 'a-hosting', number: 'L-200', descriptionKey: 'article.hosting', unit: 'month', unitPrice: 8900, costPrice: 4300, taxRate: 19 },
-  { id: 'a-support', number: 'L-210', descriptionKey: 'article.support', unit: 'month', unitPrice: 24900, costPrice: 9800, taxRate: 19 },
-  { id: 'a-handbook', number: 'W-300', descriptionKey: 'article.handbook', unit: 'piece', unitPrice: 3900, costPrice: 2600, taxRate: 7 },
+  { id: 'a-consulting', number: 'L-100', descriptionKey: 'accounting.article.consulting', unit: 'hour', unitPrice: 14500, costPrice: 6200, taxRate: 19 },
+  { id: 'a-development', number: 'L-110', descriptionKey: 'accounting.article.development', unit: 'hour', unitPrice: 13500, costPrice: 7100, taxRate: 19 },
+  { id: 'a-workshop', number: 'L-120', descriptionKey: 'accounting.article.workshop', unit: 'day', unitPrice: 145000, costPrice: 62000, taxRate: 19 },
+  { id: 'a-hosting', number: 'L-200', descriptionKey: 'accounting.article.hosting', unit: 'month', unitPrice: 8900, costPrice: 4300, taxRate: 19 },
+  { id: 'a-support', number: 'L-210', descriptionKey: 'accounting.article.support', unit: 'month', unitPrice: 24900, costPrice: 9800, taxRate: 19 },
+  { id: 'a-handbook', number: 'W-300', descriptionKey: 'accounting.article.handbook', unit: 'piece', unitPrice: 3900, costPrice: 2600, taxRate: 7 },
 ];
 
 const customerStore = signal<readonly Customer[]>(CUSTOMER_SEEDS);

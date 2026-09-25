@@ -4,14 +4,7 @@
     "search": "Angebote durchsuchen",
     "searchPlaceholder": "Suchen …",
     "statusLabel": "Status",
-    "status": {
-      "all": "Alle",
-      "draft": "Entwurf",
-      "sent": "Versendet",
-      "accepted": "Angenommen",
-      "declined": "Abgelehnt",
-      "expired": "Abgelaufen"
-    },
+    "allStatuses": "Alle",
     "column": {
       "number": "Nummer",
       "customer": "Kunde",
@@ -50,7 +43,7 @@
     "open": {
       "title": "Angebot öffnen",
       "description": "Öffnet ein Angebotsdokument in der Inhaltsfläche und behält es als Tab.",
-      "answers": "Die Nummer des geöffneten Angebots.",
+      "answers": "Das geöffnete Angebot mit seiner Nummer.",
       "arg": {
         "number": "Die Angebotsnummer, zum Beispiel Q-0007."
       }
