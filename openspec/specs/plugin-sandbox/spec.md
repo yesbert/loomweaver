@@ -313,6 +313,12 @@ not change.
 - **WHEN** a distribution takes a given version of what the workbench serves to a frame
 - **THEN** it receives the description of that same version, without asking for it separately
 
+#### Scenario: The description itself raises nothing
+
+- **WHEN** an author checks an isolated surface that uses the served entry point correctly against
+  the published description of it
+- **THEN** the checker reports no error, including none inside the description itself
+
 ### Requirement: A plugin's lifecycle survives the boundary
 
 Spawning an isolated plugin SHALL be idempotent, tearing it down SHALL remove its execution

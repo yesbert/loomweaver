@@ -179,6 +179,19 @@ its stored preference is applied once it arrives.
 - **THEN** the workbench switches to it
 - **AND** it does not write that value back, because nothing about it changed
 
+#### Scenario: A preference the product's store answers at once is applied
+
+- **WHEN** the product's settings port answers at once with a served language that differs from the
+  device-local answer the workbench started with
+- **THEN** the workbench switches to the port's language as it starts, without a gesture from the user
+- **AND** it does not write that value back
+
+#### Scenario: A stored preference is applied without a language switcher
+
+- **WHEN** a distribution offers no control to change the language and the product's settings port
+  holds a served language
+- **THEN** the workbench uses that language once the port has answered
+
 ### Requirement: A language change reaches the app's other windows
 
 Where the same application is open more than once, a language change in one window SHALL be applied

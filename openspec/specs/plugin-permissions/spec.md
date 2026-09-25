@@ -129,6 +129,10 @@ Where such a plugin holds nothing that can be withdrawn, the surface SHALL leave
 draw a section in which nothing can be operated. A page about what may be permitted SHALL NOT carry a
 part with nothing to permit, and SHALL NOT describe controls it does not contain.
 
+A declaration that names a plugin the distribution does not compose SHALL have no effect, and in
+development the developer SHALL be told which id names nothing, however the distribution composes
+its plugins.
+
 The declaration SHALL be the distribution's. A plugin SHALL NOT be able to make itself
 not-optional by anything it says about itself, because everything a plugin declares in this model is
 a request the distribution grants, and self-exemption from being switched off is the one grant that
@@ -163,6 +167,13 @@ This is narrower than the treatment of a plugin the operator deployed, which wit
 
 - **WHEN** a plugin declares itself not optional in what it says about itself
 - **THEN** that has no effect, and only the distribution's declaration counts
+
+#### Scenario: A declaration naming a plugin that is not composed is reported
+
+- **WHEN** a distribution declares a plugin not optional that it does not compose, whether its
+  plugins run in the page, in isolated frames or come from a catalogue
+- **THEN** nothing changes for the user
+- **AND** in development the developer is told which id names no composed plugin
 
 ### Requirement: Revoking the right to contribute is not offered
 
@@ -251,6 +262,12 @@ the workbench SHALL NOT claim the quieter behaviour for it.
 
 - **WHEN** every capability of every plugin is revoked
 - **THEN** the workbench's own way into its settings still works
+
+#### Scenario: A refusal inside a menu entry's own implementation is not swallowed
+
+- **WHEN** a plugin running in the page contributes a menu entry that carries its own
+  implementation, and choosing it is refused a capability the plugin does not handle
+- **THEN** the user is told, exactly as when the same refusal arises in a command
 
 ### Requirement: The set of capabilities is coarse and enumerable
 

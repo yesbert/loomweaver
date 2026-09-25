@@ -144,6 +144,13 @@ which no entry carries an icon SHALL reserve no space for that, so a plain menu 
 - **WHEN** an entry with a state and an icon is read by assistive technology
 - **THEN** it is announced as a checkable item with its state, and the icon is not announced
 
+#### Scenario: A list to choose from marks the entry in effect and keeps every icon
+
+- **WHEN** the workbench offers a list to choose from, such as the tabs a strip cannot show or the
+  instances of a view, and its entries carry icons
+- **THEN** the entry in effect shows the check, then its icon, then its name
+- **AND** every other entry shows its icon, with the check's place left empty
+
 ### Requirement: Any contributed control may carry a menu of its own
 
 An item a plugin contributes to the chrome — a launcher entry, a bar button, a view's tab — MAY name

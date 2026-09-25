@@ -34,6 +34,12 @@ in the main area, and the arrangement SHALL survive a restart.
 - **WHEN** the user drags an inner tab onto an inner pane's edge
 - **THEN** that pane splits and the tab lands in the new sibling
 
+#### Scenario: Dragging between inner panes does not depend on what the container is about
+
+- **WHEN** a container is open for an item whose address contains a colon, and the user drags an
+  inner tab onto another inner pane's strip or edge
+- **THEN** the tab joins or splits that pane, exactly as in a container whose address has none
+
 ### Requirement: The inner arrangement is sealed
 
 Work SHALL NOT move between the inside of a container and the outside. An inner tab SHALL NOT be
