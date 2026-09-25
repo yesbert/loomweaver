@@ -60,6 +60,11 @@
               },
               {
                 "glob": "**/*.json",
+                "input": "src/people/i18n",
+                "output": "i18n/people"
+              },
+              {
+                "glob": "**/*.json",
                 "input": "src/inventory/i18n",
                 "output": "i18n/inventory"
               },

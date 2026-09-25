@@ -1,0 +1,33 @@
+{
+  "headcount": "{{count}} Mitarbeiter",
+  "monthlyGross": "Monatsbrutto",
+  "weeklyHours": "{{hours}} Std./Woche",
+  "runPayroll": "Abrechnung starten",
+  "confirmPayroll": "Den offenen Monat abrechnen? Er gilt danach als ausgezahlt.",
+  "payrollDone": "Abrechnung ausgeführt.",
+  "nothingOpen": "Kein Monat ist offen.",
+  "payrollDescription": "Rechnet den offenen Monat ab und setzt ihn auf ausgezahlt.",
+  "payrollAnswers": "Welcher Monat abgerechnet wurde.",
+  "department": {
+    "accounting": "Buchhaltung",
+    "sales": "Vertrieb",
+    "workshop": "Werkstatt",
+    "warehouse": "Lager"
+  },
+  "state": {
+    "open": "offen",
+    "paid": "ausgezahlt"
+  },
+  "column": {
+    "number": "Personalnr.",
+    "name": "Name",
+    "department": "Bereich",
+    "joined": "Eintritt",
+    "hours": "Arbeitszeit",
+    "gross": "Monatsbrutto"
+  },
+  "view": {
+    "employees": "Mitarbeiter",
+    "payrollRuns": "Gehaltsläufe"
+  }
+}

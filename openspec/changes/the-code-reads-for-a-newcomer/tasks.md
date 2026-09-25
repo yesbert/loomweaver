@@ -723,7 +723,12 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   invoices (two exact payments added, so confirming every match still closes the tab). The quotes
   sidebar that lists sent quotes is `quotes.awaitingAnswer` / `QuotesAwaitingAnswerView`; a saved
   arrangement naming the old id no longer finds it.
-- [ ] 12.13 Each module weaver ships its strings in its own namespace, one weaver per pull request.
+- [x] 12.13 Each module weaver ships its strings in its own namespace, one weaver per pull request.
+  Customers (#681), finance (#682), procurement (#683), inventory (#684) and people each carry
+  `src/<weaver>/i18n/{en,de}.json`, registered and served under their own name; the module tree
+  titles every view with its weaver's key, quotes included (`quotes.title`), and the product bundle
+  keeps the navigation it owns and the entry for payment matching, which the store installs.
+  People names its departments with keys of its own instead of the session's role labels.
 - [ ] 12.14 One idiom for record lists (decided 2026-09-25): the responsive grid of the customers and
   quotes views, one module per pull request, the first shown to the owner before the rest. Product
   components take the `demo-` selector prefix.

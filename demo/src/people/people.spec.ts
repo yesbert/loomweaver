@@ -58,7 +58,7 @@ describe('staff', () => {
 
   it('names a department for everyone, as a key rather than as prose', () => {
     for (const employee of employees()) {
-      expect(employee.departmentKey.startsWith('product.')).toBe(true);
+      expect(employee.departmentKey.startsWith('people.department.')).toBe(true);
     }
   });
 });

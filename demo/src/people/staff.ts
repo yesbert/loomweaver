@@ -32,12 +32,12 @@ interface EmployeeSeed {
 }
 
 const EMPLOYEE_SEEDS: readonly EmployeeSeed[] = [
-  { id: 'e-behrens', number: 'P-0101', name: 'Gambit the Cat', departmentKey: 'product.role.accounting', joinedDaysAgo: 2390, weeklyHours: 40, monthlyGross: 528_000 },
-  { id: 'e-weiler', number: 'P-0102', name: 'Jonas Weiler', departmentKey: 'product.role.sales', joinedDaysAgo: 1135, weeklyHours: 40, monthlyGross: 471_000 },
-  { id: 'e-kestner', number: 'P-0103', name: 'Ilka Kestner', departmentKey: 'product.people.department.workshop', joinedDaysAgo: 3385, weeklyHours: 40, monthlyGross: 402_500 },
-  { id: 'e-adamek', number: 'P-0104', name: 'Piotr Adamek', departmentKey: 'product.people.department.warehouse', joinedDaysAgo: 700, weeklyHours: 35, monthlyGross: 318_000 },
-  { id: 'e-rohde', number: 'P-0105', name: 'Marit Rohde', departmentKey: 'product.role.sales', joinedDaysAgo: 385, weeklyHours: 20, monthlyGross: 196_500 },
-  { id: 'e-tavares', number: 'P-0106', name: 'Nuno Tavares', departmentKey: 'product.people.department.workshop', joinedDaysAgo: 1610, weeklyHours: 40, monthlyGross: 389_000 },
+  { id: 'e-behrens', number: 'P-0101', name: 'Gambit the Cat', departmentKey: 'people.department.accounting', joinedDaysAgo: 2390, weeklyHours: 40, monthlyGross: 528_000 },
+  { id: 'e-weiler', number: 'P-0102', name: 'Jonas Weiler', departmentKey: 'people.department.sales', joinedDaysAgo: 1135, weeklyHours: 40, monthlyGross: 471_000 },
+  { id: 'e-kestner', number: 'P-0103', name: 'Ilka Kestner', departmentKey: 'people.department.workshop', joinedDaysAgo: 3385, weeklyHours: 40, monthlyGross: 402_500 },
+  { id: 'e-adamek', number: 'P-0104', name: 'Piotr Adamek', departmentKey: 'people.department.warehouse', joinedDaysAgo: 700, weeklyHours: 35, monthlyGross: 318_000 },
+  { id: 'e-rohde', number: 'P-0105', name: 'Marit Rohde', departmentKey: 'people.department.sales', joinedDaysAgo: 385, weeklyHours: 20, monthlyGross: 196_500 },
+  { id: 'e-tavares', number: 'P-0106', name: 'Nuno Tavares', departmentKey: 'people.department.workshop', joinedDaysAgo: 1610, weeklyHours: 40, monthlyGross: 389_000 },
 ];
 
 function seededEmployees(): readonly Employee[] {
