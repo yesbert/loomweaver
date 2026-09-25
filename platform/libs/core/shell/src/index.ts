@@ -139,5 +139,14 @@ export * from './lib/views/view';
 export { type Workspace } from './lib/workspace/baseline/workspace-state';
 export * from './lib/workspace/declaration/provide-workspaces';
 export type { WorkspaceClaim } from './lib/workspace/workspace-claims';
-export type { WorkspaceArea, WorkspaceAreaBase, WorkspaceColumnArea, WorkspaceDefinition, WorkspaceRowArea, WorkspaceTab, WorkspaceTabArea, WorkspaceTabEntry } from './lib/workspace/declaration/workspace-definition';
+export type {
+  WorkspaceArea,
+  WorkspaceAreaBase,
+  WorkspaceColumnArea,
+  WorkspaceDefinition,
+  WorkspaceRowArea,
+  WorkspaceTab,
+  WorkspaceTabArea,
+  WorkspaceTabEntry,
+} from './lib/workspace/declaration/workspace-definition';
 export * from './lib/workspace/workspace.service';

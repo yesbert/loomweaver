@@ -1,9 +1,15 @@
 import { computed, Signal } from '@angular/core';
 import { KeyValueStore } from '../../persistence/key-value-store';
 import { workspaceScopedKey } from '../active-workspace.service';
-import { PanelDeclarations } from '../declaration/definition-baseline';
+import {
+  BUILT_IN_WORKSPACE_ID,
+  offersBuiltInWorkspace,
+} from '../declaration/composed-definitions';
+import {
+  PanelDeclarations,
+  definitionBaseline,
+} from '../declaration/definition-baseline';
 import { WorkspaceDefinition } from '../declaration/workspace-definition';
-import { changeCandidates } from './workspace-lookup';
 import {
   activeStateDiffers,
   changedWorkspaceIds,
@@ -54,4 +60,22 @@ export function unsavedWorkspaces(reading: UnsavedReading): {
     }),
   );
   return { hasChanges, changedIds };
+}
+
+function changeCandidates(
+  definitions: readonly WorkspaceDefinition[],
+  saved: readonly Workspace[],
+  panels: PanelDeclarations,
+): readonly { id: string; baseline: Readonly<Record<string, string>> }[] {
+  const builtIn = offersBuiltInWorkspace(definitions)
+    ? [{ id: BUILT_IN_WORKSPACE_ID, baseline: {} }]
+    : [];
+  return [
+    ...builtIn,
+    ...definitions.map((definition) => ({
+      id: definition.id,
+      baseline: definitionBaseline(definition, panels),
+    })),
+    ...saved,
+  ];
 }

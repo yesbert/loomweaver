@@ -2,7 +2,10 @@ import { inject, Service, signal } from '@angular/core';
 import { readStoredValue } from '../persistence/stored-values/hydrate';
 import { WORKING_STATE_STORE } from '../persistence/working-state-store';
 import { WORKSPACE_DEFINITIONS } from './declaration/provide-workspaces';
-import { BUILT_IN_WORKSPACE_ID, startingWorkspaceId } from './declaration/composed-definitions';
+import {
+  BUILT_IN_WORKSPACE_ID,
+  startingWorkspaceId,
+} from './declaration/composed-definitions';
 
 const ACTIVE_KEY = 'lw.shell.active-workspace';
 

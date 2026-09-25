@@ -12,14 +12,10 @@ import {
 import { PaneNode } from './pane-node';
 import { tabPathsWhere } from './pane-queries';
 import { isAtOrBelow } from '../../content/content-path';
-import { WORKSPACE_DEFINITIONS } from '../../../workspace/declaration/provide-workspaces';
 import { WORKSPACES_KEY } from '../../../workspace/baseline/workspace-state';
-import { claimsOf } from '../../../workspace/declaration/composed-definitions';
+import { WorkspaceCatalog } from '../../../workspace/catalog/workspace-catalog';
 import { declaredTabPaths } from '../../../workspace/declaration/declared-content';
-import {
-  claimFor,
-  withoutConflicts,
-} from '../../../workspace/workspace-claims';
+import { claimFor } from '../../../workspace/workspace-claims';
 
 export const PANE_TREES_KEY = 'lw.shell.pane-trees';
 
@@ -80,9 +76,7 @@ export class PaneTreeStorage {
   private readonly settingsStore = inject(SETTINGS_STORE);
   private readonly workspace = inject(ActiveWorkspaceService);
 
-  private readonly definitions = inject(WORKSPACE_DEFINITIONS, {
-    optional: true,
-  })?.flat();
+  private readonly catalog = inject(WorkspaceCatalog);
 
   private readonly popout = inject(PopoutWindow).active;
 
@@ -150,14 +144,13 @@ export class PaneTreeStorage {
   private reconciledWithWorkspace(
     docks: Record<string, DockEntry>,
   ): Record<string, DockEntry> {
-    const declared = this.definitions ?? [];
     const here = this.declaredHome();
-    if (declared.every((definition) => definition.id !== here)) {
+    const home = this.catalog.definitionOf(here);
+    if (home === undefined) {
       return docks;
     }
-    const claims = withoutConflicts(claimsOf(declared));
-    const home = declared.find((definition) => definition.id === here);
-    const ownTabs = home ? declaredTabPaths(home) : [];
+    const claims = this.catalog.activeClaims();
+    const ownTabs = declaredTabPaths(home);
     const isDeclared = (path: string) =>
       ownTabs.some((own) => isAtOrBelow(own, path));
     const out: Record<string, DockEntry> = {};

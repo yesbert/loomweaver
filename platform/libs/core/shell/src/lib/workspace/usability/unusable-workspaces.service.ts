@@ -10,15 +10,12 @@ import { CONTENT_DOCK } from '../../regions/pane/tree/pane-address';
 import { collectTabs } from '../../regions/pane/tree/pane-queries';
 import { ANNOUNCE_UNUSABLE_WORKSPACES } from '../declaration/provide-workspaces';
 import { PANE_TREES_KEY } from '../../regions/pane/tree/pane-tree-storage';
-import {
-  everyWorkspaceOrigin,
-  unusableWorkspaceIds,
-} from './workspace-usability';
-import { WorkspaceService } from '../workspace.service';
+import { unusableWorkspaceIds } from './workspace-usability';
+import { WorkspaceCatalog } from '../catalog/workspace-catalog';
 
 @Service()
 export class UnusableWorkspacesService implements UnusableWorkspaces {
-  private readonly workspaces = inject(WorkspaceService);
+  private readonly catalog = inject(WorkspaceCatalog);
   private readonly active = inject(ActiveWorkspaceService);
   private readonly workingStateStore = inject(WORKING_STATE_STORE);
   private readonly paneTree = inject(PaneTreeService);
@@ -27,16 +24,11 @@ export class UnusableWorkspacesService implements UnusableWorkspaces {
 
   readonly unusable = computed(() =>
     unusableWorkspaceIds({
-      workspaces: everyWorkspaceOrigin(
-        this.workspaces.definitions,
-        this.workspaces.workspaces(),
-        (id) => this.workspaces.originOf(id),
-      ),
+      workspaces: this.catalog.everyOrigin(),
       activeId: this.active.id(),
       activeHasContent:
         collectTabs(this.paneTree.tree(CONTENT_DOCK)).length > 0,
-      definitionOf: (id) =>
-        this.workspaces.definitions.find((definition) => definition.id === id),
+      definitionOf: (id) => this.catalog.definitionOf(id),
       storedTrees: (id) =>
         this.workingStateStore.peek?.(workspaceScopedKey(PANE_TREES_KEY, id)),
     }),
