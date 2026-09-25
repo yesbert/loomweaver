@@ -2,9 +2,6 @@ import { expect, test } from '@playwright/test';
 
 const rows = '[data-testid="quotes-list"] li';
 
-/* The list is a view of the Sales module: it has an address of its own, and going to it enters the
-   module the address belongs to. A quote's address shows the document instead, so these tests enter
-   at the list. */
 test.beforeEach(async ({ page }) => {
   await page.goto('/sales/quotes');
   await expect(page.locator(rows).first()).toBeVisible();
@@ -16,7 +13,6 @@ test('lists the sample quotes newest first', async ({ page }) => {
   await expect(page.locator(rows).first()).toContainText('Nordwind Logistik GmbH');
 });
 
-/* The foot has to agree with the rows above it, so it counts and sums what the filter left. */
 test('filters by status and sums what is shown', async ({ page }) => {
   const footer = page.getByTestId('quotes-footer');
   await expect(footer).toContainText('7 of 7');
@@ -43,8 +39,6 @@ test('searches by customer and reports when nothing matches', async ({ page }) =
   await expect(page.locator(rows).first()).toContainText('No quote matches');
 });
 
-/* Amounts and dates are formatted from the active language, not baked into the data. Switching
-   language has to move both, or the demo is only half translated. */
 test('formats money and dates in the active language', async ({ page }) => {
   const first = page.locator(rows).first();
   await expect(first).toContainText('€');
@@ -56,8 +50,6 @@ test('formats money and dates in the active language', async ({ page }) => {
   await expect(page.locator(rows).first()).toContainText(/\d{2}\.\d{2}\.\d{4}/);
 });
 
-/* Creating a quote asks for the customer in a dialog, which the plugin reaches through the `ui`
-   capability. Without that grant the workbench refuses the action instead of asking. */
 test('a new quote asks for the customer and opens once created', async ({ page }) => {
   await page.getByTestId('quote-create').click();
 

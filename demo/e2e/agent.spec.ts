@@ -1,9 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { switchAccount } from './account';
-
-/* Every assertion here is about what the workbench did — where it navigated, which look is active,
-   whether the command ran — rather than about what the panel drew. The panel is how a visitor asks;
-   it is not the claim. */
+import { navEntry } from './nav-tree';
+import { tab } from './tabs';
 
 function prompt(page: Page, id: string) {
   return page.locator(`[data-beat="${id}"]`);
@@ -40,9 +38,6 @@ test('opening a quote moves the content area to that document and keeps it', asy
   await expect(page.getByRole('tab', { name: 'Q-0007' })).toBeVisible();
 });
 
-/* A quote belongs to the sales module, so opening one from the overview takes the visitor there
-   rather than laying the document over a dashboard built to hold none. The agent is only one way
-   in; a plain link has to land in the same place, which is the point of the claim. */
 test('opening a quote from the overview lands in the module quotes belong to', async ({
   page,
 }) => {
@@ -56,7 +51,7 @@ test('opening a quote from the overview lands in the module quotes belong to', a
     'aria-current',
     'true',
   );
-  await expect(page.locator('[data-nav-view="sales/quotes"]')).toHaveAttribute(
+  await expect(navEntry(page, 'sales/quotes')).toHaveAttribute(
     'aria-current',
     'page',
   );
@@ -105,18 +100,15 @@ test('the overview takes the whole content area, with no tab and no reload', asy
   ).toBe(true);
 });
 
-/* The agent sends a draft whose tab sits behind another. The tab follows at once, where it stands:
-   the quote in front stays in front and the address does not move. */
 test('a quote sent behind another tab carries its new status without coming forward', async ({
   page,
 }) => {
-  const strip = '[id="pane-strip:content:main"] [role="tab"]';
-  const sent = page.locator(`${strip}[data-tab-path="sales/quotes/q-0004"]`);
+  const sent = tab(page, 'sales/quotes/q-0004');
   await page.goto('/sales/quotes');
   await page.locator('li[data-quote="Q-0004"] button').click();
   await sent.dblclick();
   await expect(sent).toHaveCSS('font-style', 'normal');
-  await page.locator(`${strip}[data-tab-path="sales/quotes"]`).click();
+  await tab(page, 'sales/quotes').click();
   await page.locator('li[data-quote="Q-0007"] button').click();
   await expect(page).toHaveURL(/\/sales\/quotes\/q-0007$/);
   await expect(sent).toHaveAttribute('aria-label', 'Q-0004, Draft');
@@ -141,7 +133,7 @@ test('declining the confirmation leaves the quote where it was', async ({
   await expect(conversation(page)).toContainText('it never ran');
 
   await page.getByRole('button', { name: 'Sales' }).first().click();
-  await page.locator('[data-nav-view="sales/quotes"]').click();
+  await navEntry(page, 'sales/quotes').click();
   await expect(
     page.locator('[data-quote="Q-0004"]'),
   ).toContainText('Draft');

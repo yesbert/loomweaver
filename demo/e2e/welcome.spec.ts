@@ -1,7 +1,5 @@
 import { expect, test } from '@playwright/test';
 
-/* The suite starts every test as a visitor the demo has welcomed already; this file starts as one
-   it has not, so the welcome is the first thing on screen. */
 test.use({ storageState: { cookies: [], origins: [] } });
 
 test('a first visit is welcomed once, and About stays reachable afterwards', async ({ page }) => {

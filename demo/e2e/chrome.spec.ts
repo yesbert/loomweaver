@@ -1,10 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { accountEntry } from './account';
 
-/* The rail's foot and the status bar are contributed by the distribution rather than by a weaver,
-   which is the one path no plugin test covers: a wrong region id renders nothing and reports
-   nothing. Every assertion here is about something a user can see or click. */
-
 test('the feet of both rails offer workspaces, settings and the account', async ({
   page,
 }) => {
@@ -34,8 +30,6 @@ test('settings opens the settings dialog', async ({ page }) => {
   await expect(page.getByRole('dialog')).toContainText('Permissions');
 });
 
-/* The button carries the palette's own shortcut rather than a copy of it, so a rebind cannot
-   leave the label lying. */
 test('the status bar offers search with its shortcut, and it opens the palette', async ({
   page,
 }) => {

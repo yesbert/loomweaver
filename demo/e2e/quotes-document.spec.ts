@@ -1,34 +1,13 @@
 import { expect, type Page, test } from '@playwright/test';
 import { switchAccount } from './account';
-
-/* The quote list is a view of the Sales module and each quote opens as a content tab beside it.
-   One click previews into a single reused slot; the shell's own gesture on the tab keeps it. */
+import { tab, tabLabels } from './tabs';
 
 const rows = '[data-testid="quotes-list"] li';
-
-/* Scoped to the URL pane's own strip: the rail draws icon tabs with the same role, and the
-   document is a container whose children draw strips of their own inside the content area. Read as
-   each tab's accessible name, which carries the title and the badge beside it once, where the
-   rendered text would also hold the tooltip. */
-function tabs(page: Page) {
-  return page
-    .locator('[id="pane-strip:content:main"] [role="tab"]')
-    .evaluateAll((all) => all.map((tab) => tab.getAttribute('aria-label') ?? ''));
-}
-
-function tab(page: Page, path: string) {
-  return page.locator(
-    `[id="pane-strip:content:main"] [role="tab"][data-tab-path="${path}"]`,
-  );
-}
 
 function row(page: Page, number: string) {
   return page.locator(`li[data-quote="${number}"] button`);
 }
 
-/* The Sales module opens its customer list as a tab it never closes, so every tab assertion below
-   counts from it. The list itself is the second one, and opening a quote from it hands the pane to
-   the document — coming back to a row means going back through the list's tab. */
 const LANDING_TAB = 'Customer list';
 const LIST_TAB = 'Quotes';
 const LIST = '/sales/quotes';
@@ -44,23 +23,21 @@ test('the list is a view of the module, opened beside the tab the module lands o
   await page.goto(LIST);
 
   await expect(page.locator(rows)).toHaveCount(7);
-  await expect.poll(() => tabs(page)).toEqual([LANDING_TAB, LIST_TAB]);
+  await expect.poll(() => tabLabels(page)).toEqual([LANDING_TAB, LIST_TAB]);
 });
 
 test('one click previews a quote into a single reused slot', async ({ page }) => {
   await page.goto(LIST);
 
   await row(page, 'Q-0007').click();
-  await expect.poll(() => tabs(page)).toEqual([LANDING_TAB, LIST_TAB, 'Q-0007, Sent']);
+  await expect.poll(() => tabLabels(page)).toEqual([LANDING_TAB, LIST_TAB, 'Q-0007, Sent']);
   await expect(page).toHaveURL(/\/sales\/quotes\/q-0007$/);
 
   await backToList(page);
   await row(page, 'Q-0006').click();
-  await expect.poll(() => tabs(page)).toEqual([LANDING_TAB, LIST_TAB, 'Q-0006, Sent']);
+  await expect.poll(() => tabLabels(page)).toEqual([LANDING_TAB, LIST_TAB, 'Q-0006, Sent']);
 });
 
-/* The tab carries the quote's status beside its number, in the tone the list's badge has, and a
-   screen reader hears both. */
 test("a quote's tab carries its status as a badge", async ({ page }) => {
   await page.goto(LIST);
 
@@ -75,8 +52,6 @@ test("a quote's tab carries its status as a badge", async ({ page }) => {
   );
 });
 
-/* Keeping a preview is the shell's gesture on the tab, not the list's on the row: the first click
-   on a row hands the pane to the document, so a second one never reaches the list again. */
 test('a preview kept from the strip survives the next one', async ({ page }) => {
   await page.goto(LIST);
 
@@ -90,12 +65,10 @@ test('a preview kept from the strip survives the next one', async ({ page }) => 
   await backToList(page);
   await row(page, 'Q-0006').click();
   await expect
-    .poll(() => tabs(page))
+    .poll(() => tabLabels(page))
     .toEqual([LANDING_TAB, LIST_TAB, 'Q-0007, Sent', 'Q-0006, Sent']);
 });
 
-/* The document and the list row compute their money from the same library, so the two figures
-   have to agree. If they ever disagree, one of them is doing its own arithmetic. */
 test('the document total matches the figure the list shows for the same quote', async ({
   page,
 }) => {
@@ -111,8 +84,6 @@ test('the document total matches the figure the list shows for the same quote', 
   await expect(page.getByTestId('quote-gross')).toHaveText(listTotal!);
 });
 
-/* Printed matter is taxed at 7% while services are at 19%, so this document carries two buckets —
-   the case a single-rate demo never exercises. */
 test('a document with two tax rates shows one line per rate', async ({ page }) => {
   await page.goto(LIST);
   await row(page, 'Q-0006').click();
@@ -122,13 +93,10 @@ test('a document with two tax rates shows one line per rate', async ({ page }) =
   await expect(totals).toContainText('VAT 7%');
 });
 
-/* A deep link opens the tab before anything has read the document, so the host labels it from the
-   surface title. The view refines it; without that the tab reads "Quote". The list is not part of
-   it: a link into a document opens the module, not the view the document happens to sit under. */
-test('a deep link labels its tab with the document number', async ({ page }) => {
+test("a deep link opens the quote beside the module's landing tab rather than the list, labelled with its number and status", async ({ page }) => {
   await page.goto('/sales/quotes/q-0004');
 
-  await expect.poll(() => tabs(page)).toEqual([LANDING_TAB, 'Q-0004, Draft']);
+  await expect.poll(() => tabLabels(page)).toEqual([LANDING_TAB, 'Q-0004, Draft']);
 });
 
 test('a link to a quote that does not exist says so', async ({ page }) => {
@@ -161,8 +129,6 @@ test('the document opens as an arrangement: positions beside customer and margin
   expect(customer!.height).toBeLessThan(positions!.height);
 });
 
-/* A right-click on a row opens the plugin's own menu at the pointer. Its labels are keys of the
-   plugin's bundle, so the workbench words them in the language the page is in. */
 test('a right-click on a row opens a menu whose "Open" keeps the quote', async ({ page }) => {
   await page.goto(LIST);
 
@@ -193,9 +159,6 @@ test('the menu speaks the language of the page', async ({ page }) => {
   ]);
 });
 
-/* The quotes plugin decides for itself whether the margin belongs in a quote at all, a setting
-   rather than a role: switched off, nothing stands where the margin was, not even the padlock the
-   sales account sees there otherwise. */
 async function setMarginShown(page: Page, shown: boolean): Promise<void> {
   await page
     .getByRole('navigation', { name: 'Left activity bar' })

@@ -1,13 +1,13 @@
-import { expect, test } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
 
-async function chooseLook(page: import('@playwright/test').Page, id: string) {
+async function chooseLook(page: Page, id: string) {
   await page.goto('/');
   await page.evaluate((value) => localStorage.setItem('demo.look', value), id);
   await page.goto('/');
   await expect(page.locator('lw-shell')).toBeVisible();
 }
 
-function searchIcon(page: import('@playwright/test').Page) {
+function searchIcon(page: Page) {
   return page
     .locator('lw-shell-bar button', { hasText: /search/i })
     .locator('lw-icon');
@@ -73,7 +73,7 @@ test('the aurora look draws different icon glyphs', async ({ page }) => {
   expect(await searchIcon(page).innerHTML()).not.toBe(shipped);
 });
 
-async function chromeHeight(page: import('@playwright/test').Page) {
+async function chromeHeight(page: Page) {
   return page.evaluate(() => {
     const bar = document.querySelector('lw-shell-bar header');
     const strip = document.querySelector('lw-pane-tab-strip');
@@ -132,9 +132,6 @@ test('switching the look is a reload, and it sticks', async ({ page }) => {
   await expect(page.locator('lw-shell-brand')).toContainText('LoomWeaver Demo');
 });
 
-/* A look may raise the header line, but it has to raise all of it: the top bar and the sidebar heads
-   beside it share one bottom edge, whether the heads are wide or the narrow window's hamburger
-   boxes. Breeze once raised the bar alone, and the line stepped at both of its edges. */
 for (const look of ['default', 'aurora', 'breeze']) {
   for (const width of [1280, 600]) {
     test(`the ${look} look keeps one header line at ${width}px`, async ({ page }) => {

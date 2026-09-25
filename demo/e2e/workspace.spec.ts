@@ -1,14 +1,6 @@
 import { expect, type Page, test } from '@playwright/test';
-
-function contentTabs(page: Page) {
-  return page
-    .locator('[id="pane-strip:content:main"] [role="tab"]')
-    .evaluateAll((all) => all.map((tab) => tab.getAttribute('aria-label') ?? ''));
-}
-
-function navEntry(page: Page, path: string) {
-  return page.locator(`[data-nav-view="${path}"]`);
-}
+import { navEntry } from './nav-tree';
+import { tabLabels, tabWithControls } from './tabs';
 
 async function openSales(page: Page): Promise<void> {
   await page.goto('/');
@@ -22,36 +14,30 @@ async function openSales(page: Page): Promise<void> {
 test('the sales workspace opens showing the view it names', async ({ page }) => {
   await openSales(page);
 
-  await expect.poll(() => contentTabs(page)).toEqual(['Customer list']);
+  await expect.poll(() => tabLabels(page)).toEqual(['Customer list']);
   await expect(page.getByTestId('customer-list')).toBeVisible();
   await expect(navEntry(page, 'sales/customers')).toHaveAttribute('aria-current', 'page');
 });
 
-/* The declared tab is the workspace's own, so the workbench gives it no close control, and a reset
-   takes the arrangement back to it however far the visitor has browsed. */
 test('the declared tab cannot be closed, and a reset restores the arrangement', async ({
   page,
 }) => {
   await openSales(page);
 
-  const landing = page.locator(
-    '[id="pane-strip:content:main"] [data-tab-path="sales/customers"]',
-  );
-  await expect(landing.locator('[data-testid="tab-close"]')).toHaveCount(0);
+  await expect(tabWithControls(page, 'sales/customers').getByTestId('tab-close')).toHaveCount(0);
 
   await navEntry(page, 'sales/contacts').click();
-  await expect.poll(() => contentTabs(page)).toEqual(['Customer list', 'Contact history']);
+  await expect.poll(() => tabLabels(page)).toEqual(['Customer list', 'Contact history']);
+  await expect(tabWithControls(page, 'sales/contacts').getByTestId('tab-close')).toHaveCount(1);
 
   await page.getByRole('button', { name: 'Workspaces' }).click();
   await page.getByTestId('workspace-reset').click();
   await page.getByRole('dialog').getByRole('button', { name: 'OK' }).click();
 
-  await expect.poll(() => contentTabs(page)).toEqual(['Customer list']);
+  await expect.poll(() => tabLabels(page)).toEqual(['Customer list']);
   await expect(page).toHaveURL(/\/sales\/customers$/);
 });
 
-/* The point of the modules: each keeps its own tabs, so leaving one and coming back finds the work
-   as it was left. A menu tree cannot do this, because it has nothing to come back to. */
 test('a module returned to still holds what was open in it', async ({ page }) => {
   await openSales(page);
 
@@ -59,19 +45,19 @@ test('a module returned to still holds what was open in it', async ({ page }) =>
   await page.locator('li[data-quote="Q-0007"] button').click();
   await expect(page).toHaveURL(/\/sales\/quotes\/q-0007$/);
   await expect
-    .poll(() => contentTabs(page))
+    .poll(() => tabLabels(page))
     .toEqual(['Customer list', 'Quotes', 'Q-0007, Sent']);
 
   const rail = page.getByRole('navigation', { name: 'Left activity bar' });
   await rail.getByRole('button', { name: 'Finance' }).click();
   await expect(page).toHaveURL(/\/finance\/receivables$/);
-  await expect.poll(() => contentTabs(page)).toEqual(['Receivables']);
+  await expect.poll(() => tabLabels(page)).toEqual(['Receivables']);
 
   await rail.getByRole('button', { name: 'Sales' }).click();
 
   await expect(page).toHaveURL(/\/sales\/quotes\/q-0007$/);
   await expect
-    .poll(() => contentTabs(page))
+    .poll(() => tabLabels(page))
     .toEqual(['Customer list', 'Quotes', 'Q-0007, Sent']);
 });
 
