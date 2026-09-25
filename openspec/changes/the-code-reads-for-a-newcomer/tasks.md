@@ -446,13 +446,15 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   adapter at `PLATFORM_VERSION`; the bump script and `check-agent-versions` lose the second literal.
   `contract-vocabulary.spec.ts` holds the capabilities and the consent values equal to the
   contract's; the consent sentences are a table instead of a switch.
-- [ ] 10.3 The Nx generators build their recipe input through the same mappers as the other routes;
+- [x] 10.3 The Nx generators build their recipe input through the same mappers as the other routes;
   the scaffold value readers in `scaffold-values.ts`. **Move:** each recipe's scaffold descriptor next
   to its recipe, `inputs.ts` removed.
   In two PRs. Content: the weaver and distribution generators call `weaverInput` and
   `distributionInput`, which now declare `WeaverInput` and `DistributionInput`;
   `scaffold-values.ts` holds the value types, `stringValue`, `booleanValue` and the shared options, so
-  `scaffolds.ts` and `inputs.ts` no longer import each other.
+  `scaffolds.ts` and `inputs.ts` no longer import each other. Move: every recipe folder has a `scaffold.ts` with its
+  descriptor and, where it has one, its input mapper; `scaffolds.ts` is the ordered list and
+  `findScaffold`.
 - [ ] 10.4 How registering a plugin looks is rendered once and used by composing, describing and the
   "not registered" message; `describeAmendment` switches over the kind.
 - [ ] 10.5 The Nx generators apply the recipes' amendments through one `applyAmendments`, the twin of

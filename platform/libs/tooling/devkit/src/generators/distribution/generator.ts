@@ -1,6 +1,6 @@
 import { formatFiles, logger, readJson, Tree, writeJson } from '@nx/devkit';
 import { amendments, generate } from '../../lib/generate/generate';
-import { distributionInput } from '../../lib/scaffolds/inputs';
+import { distributionInput } from '../../recipes/angular-distribution/scaffold';
 import { asObject, ensureBuildTarget, JsonObject } from '../../lib/amend/merge';
 import { Amendment, BuildTargetAmendment } from '../../lib/amend/types';
 import { addPostcssPlugin, tsconfigPathsFile, writeFiles } from '../workspace-tree';
