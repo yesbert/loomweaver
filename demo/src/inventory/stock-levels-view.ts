@@ -6,7 +6,7 @@ import { formatQuantity } from '../accounting';
 import { activeLanguage } from '../i18n/active-language';
 
 @Component({
-  selector: 'lw-stock-levels-view',
+  selector: 'demo-stock-levels-view',
   imports: [TranslocoPipe],
   templateUrl: './stock-levels-view.html',
 })

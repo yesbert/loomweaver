@@ -5,7 +5,7 @@ import { customerName, formatDate, formatMoney } from '../accounting';
 import { activeLanguage } from '../i18n/active-language';
 
 @Component({
-  selector: 'lw-receivables-view',
+  selector: 'demo-receivables-view',
   imports: [TranslocoPipe],
   templateUrl: './receivables-view.html',
 })

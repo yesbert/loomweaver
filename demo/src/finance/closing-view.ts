@@ -3,7 +3,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { openReceivables, periods } from './books';
 
 @Component({
-  selector: 'lw-closing-view',
+  selector: 'demo-closing-view',
   imports: [TranslocoPipe],
   templateUrl: './closing-view.html',
 })

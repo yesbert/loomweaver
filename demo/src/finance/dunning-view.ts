@@ -6,7 +6,7 @@ import { customerName, formatMoney } from '../accounting';
 import { activeLanguage } from '../i18n/active-language';
 
 @Component({
-  selector: 'lw-dunning-view',
+  selector: 'demo-dunning-view',
   imports: [TranslocoPipe],
   templateUrl: './dunning-view.html',
 })

@@ -5,7 +5,7 @@ import { formatDate, formatMoney } from '../accounting';
 import { activeLanguage } from '../i18n/active-language';
 
 @Component({
-  selector: 'lw-employees-view',
+  selector: 'demo-employees-view',
   imports: [TranslocoPipe],
   templateUrl: './employees-view.html',
 })

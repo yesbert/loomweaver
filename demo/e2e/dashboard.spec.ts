@@ -43,7 +43,7 @@ test('both charts are drawn, and a change of colour scheme redraws them', async 
 }) => {
   await page.goto('/');
 
-  const charts = page.locator('lw-insights-chart canvas');
+  const charts = page.locator('demo-insights-chart canvas');
   await expect(charts).toHaveCount(2);
 
   await chooseScheme(page, 'Dark');

@@ -31,7 +31,7 @@ interface QuoteRow {
 }
 
 @Component({
-  selector: 'lw-quotes-list-view',
+  selector: 'demo-quotes-list-view',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [TranslocoPipe],
   templateUrl: './quotes-list-view.html',

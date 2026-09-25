@@ -5,7 +5,7 @@ import { formatDate, formatMoney } from '../accounting';
 import { activeLanguage } from '../i18n/active-language';
 
 @Component({
-  selector: 'lw-ledger-view',
+  selector: 'demo-ledger-view',
   imports: [TranslocoPipe],
   templateUrl: './ledger-view.html',
 })

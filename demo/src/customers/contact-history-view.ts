@@ -11,7 +11,7 @@ interface ContactRow {
 }
 
 @Component({
-  selector: 'lw-contact-history-view',
+  selector: 'demo-contact-history-view',
   imports: [TranslocoPipe],
   templateUrl: './contact-history-view.html',
 })

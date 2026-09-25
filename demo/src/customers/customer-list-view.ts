@@ -10,7 +10,7 @@ interface CustomerRow {
 }
 
 @Component({
-  selector: 'lw-customer-list-view',
+  selector: 'demo-customer-list-view',
   imports: [TranslocoPipe],
   templateUrl: './customer-list-view.html',
 })

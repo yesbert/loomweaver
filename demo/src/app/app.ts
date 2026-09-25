@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { Shell } from '@loomweaver/shell';
 
 @Component({
-  selector: 'app-root',
+  selector: 'demo-root',
   imports: [Shell],
   templateUrl: './app.html',
 })

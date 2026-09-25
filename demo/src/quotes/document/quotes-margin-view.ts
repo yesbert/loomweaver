@@ -15,7 +15,7 @@ interface MarginRow {
 const THIN_MARGIN_PERCENT = 40;
 
 @Component({
-  selector: 'lw-quotes-margin-view',
+  selector: 'demo-quotes-margin-view',
   imports: [TranslocoPipe],
   templateUrl: './quotes-margin-view.html',
 })

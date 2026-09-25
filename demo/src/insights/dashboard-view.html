@@ -55,7 +55,7 @@
           {{ 'insights.cards.quoted' | transloco }}
         </h2>
         <div class="h-56 min-w-0 @max-sm:h-40">
-          <lw-insights-chart [config]="quotedPerMonth()" />
+          <demo-insights-chart [config]="quotedPerMonth()" />
         </div>
       </article>
 
@@ -67,7 +67,7 @@
           {{ 'insights.cards.pipeline' | transloco }}
         </h2>
         <div class="h-40 min-w-0 @max-sm:h-32">
-          <lw-insights-chart [config]="pipeline()" />
+          <demo-insights-chart [config]="pipeline()" />
         </div>
         <ul class="flex flex-col gap-1">
           @for (share of shares(); track share.status) {

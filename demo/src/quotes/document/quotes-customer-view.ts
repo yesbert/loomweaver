@@ -21,7 +21,7 @@ import { quoteFromRoute } from './quote-from-route';
 import { badgeClassOf } from '../quote-status';
 
 @Component({
-  selector: 'lw-quotes-customer-view',
+  selector: 'demo-quotes-customer-view',
   imports: [TranslocoPipe],
   templateUrl: './quotes-customer-view.html',
 })
