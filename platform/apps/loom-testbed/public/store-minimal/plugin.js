@@ -1,7 +1,10 @@
 (function () {
   const Penpal = globalThis.Penpal;
   const connection = Penpal.connect({
-    messenger: new Penpal.WindowMessenger({ remoteWindow: globalThis.parent, allowedOrigins: ['*'] }),
+    messenger: new Penpal.WindowMessenger({
+      remoteWindow: globalThis.parent,
+      allowedOrigins: ['*'],
+    }),
   });
 
   connection.promise
