@@ -178,7 +178,7 @@ function pluginImports(weaver: ResolvedWeaver): readonly string[] {
   }
   if (weaver.features.agent) {
     imports.push(
-      `import { ${weaver.propertyName}Agent, ${weaver.propertyName}Connection } from '../agent/${weaver.id}-agent';`,
+      `import { connect${weaver.className}, ${weaver.propertyName}Tools } from '../agent/${weaver.id}-connection';`,
       `import { ${weaver.className}AgentPanel } from '../agent/${weaver.id}-agent-panel';`,
     );
   }
@@ -204,7 +204,7 @@ function pluginBody(weaver: ResolvedWeaver): readonly string[] {
   const body = [`    ctx.contributeIcons({ '${weaver.id}': icon });`];
   if (weaver.features.agent) {
     body.push(
-      `    ${weaver.propertyName}Agent.set(${weaver.propertyName}Connection(ctx));`,
+      `    ${weaver.propertyName}Tools.set(connect${weaver.className}(ctx));`,
     );
   }
   if (weaver.features.command) body.push(commandBlock(weaver));
@@ -221,7 +221,7 @@ function pluginBody(weaver: ResolvedWeaver): readonly string[] {
 export function pluginFile(weaver: ResolvedWeaver): string {
   const body = pluginBody(weaver);
   const deactivate = weaver.features.agent
-    ? `\n  deactivate() {\n    ${weaver.propertyName}Agent.set(null);\n  },`
+    ? `\n  deactivate() {\n    ${weaver.propertyName}Tools.set(null);\n  },`
     : '';
 
   return `${pluginImports(weaver).join('\n')}

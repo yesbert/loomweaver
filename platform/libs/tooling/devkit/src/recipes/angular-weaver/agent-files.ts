@@ -22,15 +22,18 @@ import {
 } from '@loomweaver/ag-ui';
 import type { PluginContext } from '@loomweaver/plugin-sdk';
 
+// The connection is the workbench's half: the commands offered as tools, and each call put to the
+// workbench and answered. The agent is yours and lives beside it, in ${weaver.id}-agent.ts.
+//
 // A factory, not a module-level connection: everything a run needs lives in the closure, so a second
 // one never shares state with the first.
-export function ${weaver.propertyName}Connection(ctx: PluginContext): CommandTools {
+export function connect${weaver.className}(ctx: PluginContext): CommandTools {
   return commandTools(ctx, { before: (call) => decide(ctx, call) });
 }
 
 // The one connection this plugin activates, published for its panel. Set in activate(), cleared in
 // deactivate(), so the panel renders an honest empty state either side of that.
-export const ${weaver.propertyName}Agent = signal<CommandTools | null>(null);
+export const ${weaver.propertyName}Tools = signal<CommandTools | null>(null);
 
 // What an agent's word is enough for is the command's own statement, declared where the command is
 // registered and read off the call here. No list of ids lives beside the commands: a list drifts from
@@ -66,9 +69,10 @@ async function decide(
 }
 
 function specFile(weaver: ResolvedWeaver): string {
-  return `import { EventType, type BaseEvent } from '@ag-ui/core';
+  return `import { EventType, type AGUIEvent, type ToolMessage } from '@ag-ui/core';
+import type { CommandTools } from '@loomweaver/ag-ui';
 import type { CommandArguments, PluginContext } from '@loomweaver/plugin-sdk';
-import { ${weaver.propertyName}Connection } from './${weaver.id}-agent';
+import { connect${weaver.className} } from './${weaver.id}-connection';
 
 interface Asked {
   readonly id: string;
@@ -89,37 +93,36 @@ function contextThat(confirms: boolean, ran: Asked[]): PluginContext {
   } as unknown as PluginContext;
 }
 
-function event(type: EventType, fields: Record<string, unknown>): BaseEvent {
-  return { type, ...fields } as unknown as BaseEvent;
+function streamedCall(toolCallId: string, ...deltas: string[]): AGUIEvent[] {
+  return [
+    { type: EventType.TOOL_CALL_START, toolCallId, toolCallName: '${weaver.id}.hello' },
+    ...deltas.map((delta): AGUIEvent => ({ type: EventType.TOOL_CALL_ARGS, toolCallId, delta })),
+    { type: EventType.TOOL_CALL_END, toolCallId },
+  ];
 }
 
-describe('${weaver.propertyName}Connection', () => {
+async function answersTo(tools: CommandTools, events: AGUIEvent[]): Promise<ToolMessage[]> {
+  const answers: ToolMessage[] = [];
+  for (const event of events) {
+    const answer = await tools.receive(event);
+    if (answer) {
+      answers.push(answer);
+    }
+  }
+  return answers;
+}
+
+describe('connect${weaver.className}', () => {
   it('offers what the workbench offers', () => {
-    const tools = ${weaver.propertyName}Connection(contextThat(true, []));
+    const tools = connect${weaver.className}(contextThat(true, []));
     expect(tools.list().map((tool) => tool.name)).toEqual(['${weaver.id}.hello']);
   });
 
   it('assembles a call from its events and answers with the outcome', async () => {
     const ran: Asked[] = [];
-    const tools = ${weaver.propertyName}Connection(contextThat(true, ran));
+    const tools = connect${weaver.className}(contextThat(true, ran));
 
-    expect(
-      await tools.receive(
-        event(EventType.TOOL_CALL_START, {
-          toolCallId: 'c1',
-          toolCallName: '${weaver.id}.hello',
-        }),
-      ),
-    ).toBeNull();
-    await tools.receive(
-      event(EventType.TOOL_CALL_ARGS, { toolCallId: 'c1', delta: '{"tone"' }),
-    );
-    await tools.receive(
-      event(EventType.TOOL_CALL_ARGS, { toolCallId: 'c1', delta: ':"success"}' }),
-    );
-    const answer = await tools.receive(
-      event(EventType.TOOL_CALL_END, { toolCallId: 'c1' }),
-    );
+    const [answer] = await answersTo(tools, streamedCall('c1', '{"tone"', ':"success"}'));
 
     expect(ran).toEqual([{ id: '${weaver.id}.hello', args: { tone: 'success' } }]);
     expect(JSON.parse(answer?.content ?? '{}').tone).toBe('success');
@@ -128,20 +131,9 @@ describe('${weaver.propertyName}Connection', () => {
 
   it('never reaches the workbench when a consequential call is declined', async () => {
     const ran: Asked[] = [];
-    const tools = ${weaver.propertyName}Connection(contextThat(false, ran));
+    const tools = connect${weaver.className}(contextThat(false, ran));
 
-    await tools.receive(
-      event(EventType.TOOL_CALL_START, {
-        toolCallId: 'c2',
-        toolCallName: '${weaver.id}.hello',
-      }),
-    );
-    await tools.receive(
-      event(EventType.TOOL_CALL_ARGS, { toolCallId: 'c2', delta: '{}' }),
-    );
-    const answer = await tools.receive(
-      event(EventType.TOOL_CALL_END, { toolCallId: 'c2' }),
-    );
+    const [answer] = await answersTo(tools, streamedCall('c2', '{}'));
 
     expect(ran).toEqual([]);
     expect(answer?.error).toContain('did not run');
@@ -165,13 +157,13 @@ export function agentSurfaceBlock(weaver: ResolvedWeaver): string {
 
 export function agentFiles(weaver: ResolvedWeaver): FileMap {
   const files: Record<string, string> = {
-    [`src/lib/agent/${weaver.id}-agent.ts`]: connectionFile(weaver),
-    [`src/lib/agent/${weaver.id}-agent-source.ts`]: standInFile(weaver),
+    [`src/lib/agent/${weaver.id}-connection.ts`]: connectionFile(weaver),
+    [`src/lib/agent/${weaver.id}-agent.ts`]: standInFile(weaver),
     [`src/lib/agent/${weaver.id}-agent-panel.ts`]: panelFile(weaver),
     [`src/lib/agent/${weaver.id}-agent-panel.html`]: panelTemplateFile(weaver),
   };
   if (weaver.features.spec) {
-    files[`src/lib/agent/${weaver.id}-agent.spec.ts`] = specFile(weaver);
+    files[`src/lib/agent/${weaver.id}-connection.spec.ts`] = specFile(weaver);
   }
   return files;
 }

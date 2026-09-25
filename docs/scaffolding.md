@@ -361,17 +361,17 @@ from the offered list through a streamed call to its outcome, with no backend, n
 
 Three files land under `src/lib/agent/`:
 
-- `<id>-agent.ts`: the connection. The workbench's own commands become the tools, and a call comes
-  back through the same seam every other trigger runs through. It also carries the place where your
-  product says no before a call runs. The generated command declares `agentConsent: 'ask'` on itself
-  and the connection reads that off the call, so what an agent's word is enough for stays with the
-  command rather than in a list beside it.
+- `<id>-connection.ts`: the connection, which is the workbench's half. The workbench's own
+  commands become the tools, and a call comes back through the same seam every other trigger runs
+  through. It also carries the place where your product says no before a call runs. The generated
+  command declares `agentConsent: 'ask'` on itself and the connection reads that off the call, so
+  what an agent's word is enough for stays with the command rather than in a list beside it.
 - `<id>-agent-panel.ts`: a docked panel showing what is offered, the call as its arguments stream in,
   and what came back.
-- `<id>-agent-source.ts`: a **stand-in**, and it says so where you cannot miss it. It produces the
-  protocol's own events and nothing else. Replace that one file with your transport; the panel and the
-  connection stay as they are. Nothing is generated for the transport, the credentials or the model,
-  because none of those can be guessed.
+- `<id>-agent.ts`: a **stand-in** for the agent, which is your half, and it says so where you
+  cannot miss it. It produces the protocol's own events and nothing else. Replace that one file with
+  your transport; the panel and the connection stay as they are. Nothing is generated for the
+  transport, the credentials or the model, because none of those can be guessed.
 
 What the connection guarantees, which calls to ask about and how to replace the stand-in is
 [Driving your product with an AG-UI agent](ag-ui-agents.md#generate-it); that page also names the

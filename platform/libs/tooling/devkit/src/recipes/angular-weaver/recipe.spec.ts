@@ -383,9 +383,9 @@ describe('angularWeaver agent connection', () => {
     ).toEqual([
       'src/lib/agent/notes-agent-panel.html',
       'src/lib/agent/notes-agent-panel.ts',
-      'src/lib/agent/notes-agent-source.ts',
-      'src/lib/agent/notes-agent.spec.ts',
       'src/lib/agent/notes-agent.ts',
+      'src/lib/agent/notes-connection.spec.ts',
+      'src/lib/agent/notes-connection.ts',
     ]);
   });
 
@@ -411,7 +411,7 @@ describe('angularWeaver agent connection', () => {
     expect(plugin).toContain("id: 'notes.agent'");
     expect(plugin).toContain("docks: ['right-panel']");
     expect(plugin).toContain('padded: true,');
-    expect(plugin).toContain('notesAgent.set(notesConnection(ctx));');
+    expect(plugin).toContain('notesTools.set(connectNotes(ctx));');
     expect(plugin).toContain('deactivate()');
   });
 
@@ -424,7 +424,7 @@ describe('angularWeaver agent connection', () => {
   });
 
   it('says in the stand-in itself that it is one, and what replaces it', () => {
-    const standIn = agentWeaver()['src/lib/agent/notes-agent-source.ts'];
+    const standIn = agentWeaver()['src/lib/agent/notes-agent.ts'];
     expect(standIn).toContain('a stand-in for an agent, and not an agent');
     expect(standIn).toContain('this file, and only this file');
     expect(agentWeaver()['src/lib/agent/notes-agent-panel.html']).toContain(
@@ -434,33 +434,33 @@ describe('angularWeaver agent connection', () => {
 
   it('confines the stand-in to one file the panel does not name', () => {
     const panel = agentWeaver()['src/lib/agent/notes-agent-panel.ts'];
-    expect(panel).toContain("from './notes-agent-source'");
+    expect(panel).toContain("from './notes-agent'");
     expect(panel).not.toContain('stand-in');
   });
 
   it('asks the workbench for the offered list on every run rather than keeping one', () => {
     const panel = agentWeaver()['src/lib/agent/notes-agent-panel.ts'];
     expect(
-      panel.match(/tools\.list\(\)|Agent\(\)\?\.list\(\)/g)?.length,
+      panel.match(/tools\.list\(\)|Tools\(\)\?\.list\(\)/g)?.length,
     ).toBeGreaterThan(1);
     expect(panel).toContain('const offered = tools.list();');
   });
 
   it('fills the generated argument from the schema instead of sending none', () => {
-    const standIn = agentWeaver()['src/lib/agent/notes-agent-source.ts'];
+    const standIn = agentWeaver()['src/lib/agent/notes-agent.ts'];
     expect(standIn).toContain('sampleArguments(picked)');
     expect(standIn).toContain('enum');
     expect(standIn).not.toContain('JSON.stringify({})');
   });
 
   it('emits a test that reads the answer the command gave', () => {
-    const spec = agentWeaver()['src/lib/agent/notes-agent.spec.ts'];
+    const spec = agentWeaver()['src/lib/agent/notes-connection.spec.ts'];
     expect(spec).toContain("JSON.parse(answer?.content ?? '{}').tone");
   });
 
   it('asks about a consequential call and declines it, reading the command and not a list', () => {
     const files = agentWeaver();
-    const connection = files['src/lib/agent/notes-agent.ts'];
+    const connection = files['src/lib/agent/notes-connection.ts'];
 
     expect(connection).toContain("call.agentConsent !== 'ask'");
     expect(connection).toContain('ctx.ui.confirm(');
@@ -490,13 +490,13 @@ describe('angularWeaver agent connection', () => {
   });
 
   it('emits a stand-in account that carries the command own statement', () => {
-    expect(agentWeaver()['src/lib/agent/notes-agent.spec.ts']).toContain(
+    expect(agentWeaver()['src/lib/agent/notes-connection.spec.ts']).toContain(
       "agentConsent: 'ask'",
     );
   });
 
   it('emits a test that drives a real call and a declined one', () => {
-    const spec = agentWeaver()['src/lib/agent/notes-agent.spec.ts'];
+    const spec = agentWeaver()['src/lib/agent/notes-connection.spec.ts'];
     expect(spec).toContain('EventType.TOOL_CALL_START');
     expect(spec).toContain('EventType.TOOL_CALL_ARGS');
     expect(spec).toContain('EventType.TOOL_CALL_END');
@@ -510,8 +510,8 @@ describe('angularWeaver agent connection', () => {
       id: 'notes',
       features: { agent: true, spec: false },
     });
-    expect(files['src/lib/agent/notes-agent.spec.ts']).toBeUndefined();
-    expect(files['src/lib/agent/notes-agent.ts']).toBeDefined();
+    expect(files['src/lib/agent/notes-connection.spec.ts']).toBeUndefined();
+    expect(files['src/lib/agent/notes-connection.ts']).toBeDefined();
   });
 
   it('emits nothing of the kind without the feature', () => {
@@ -539,11 +539,11 @@ describe('angularWeaver agent connection beside the other features', () => {
       features: { agent: true },
     });
     const importing = Object.entries(files)
-      .filter(([, source]) => source.includes("from './notes-agent-source'"))
+      .filter(([, source]) => source.includes("from './notes-agent'"))
       .map(([path]) => path);
     expect(importing).toEqual(['src/lib/agent/notes-agent-panel.ts']);
     expect(files['src/lib/agent/notes-agent-panel.ts']).toContain(
-      "import { askAgent } from './notes-agent-source';",
+      "import { askAgent } from './notes-agent';",
     );
     expect(files['README.md']).toContain('Replace that one file with');
   });
@@ -559,7 +559,7 @@ describe('angularWeaver agent connection beside the other features', () => {
       features: { agent: true, ...extra },
     });
     const plugin = files['src/lib/plugin/notes.plugin.ts'];
-    expect(files['src/lib/agent/notes-agent.ts']).toBeDefined();
+    expect(files['src/lib/agent/notes-connection.ts']).toBeDefined();
     expect(plugin).toContain("id: 'notes.agent'");
     expect(plugin).toContain("docks: ['right-panel']");
     expect(plugin).toContain('deactivate()');

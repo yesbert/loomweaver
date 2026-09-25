@@ -687,8 +687,15 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   beside `ASSIGNEES` and the summary; every number argument is `NUMBER_ARGUMENT` with its own key
   `tickets.number`; `TICKET_SURFACE` and `ticketPath` name the surface and the address once, in
   `ticket-actions.ts`, renamed after its export.
-- [ ] 13.3 The agent vocabulary starts in the generator: connection and agent named apart, typed
+- [x] 13.3 The agent vocabulary starts in the generator: connection and agent named apart, typed
   protocol events, `docs/scaffolding.md` and `docs/samples.md` in the same pull request.
+  The generator writes `<id>-connection.ts` (`connect<Weaver>(ctx)` and the signal `<weaver>Tools`,
+  the workbench's half) and `<id>-agent.ts` (the stand-in, the product's half), and the connection's
+  test is `<id>-connection.spec.ts`. The stand-in yields typed `AGUIEvent` literals and the panel
+  reads the typed fields, so no event is cast through `unknown`. Recipe 10 on the samples page takes
+  the generator's shape instead of a third vocabulary (`offer`, `carry`), and shows the loop with
+  `back` as the product's way to answer. A generated agent weaver type-checks under `strict`, its
+  connection test passes, and the quick start serves its panel.
 - [ ] 13.4 The example's assistant, regenerated from 13.3: every event handed to the adapter, the key
   handling out of the panel, a consent text that fits any command, and a paragraph in
   `docs/ag-ui-agents.md` on agents that run several rounds.

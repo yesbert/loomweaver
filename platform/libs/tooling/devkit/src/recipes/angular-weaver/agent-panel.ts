@@ -2,9 +2,9 @@ import type { ResolvedWeaver } from './weaver-input';
 
 export function panelFile(weaver: ResolvedWeaver): string {
   return `import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { EventType, type BaseEvent, type Tool, type ToolMessage } from '@ag-ui/core';
-import { ${weaver.propertyName}Agent } from './${weaver.id}-agent';
-import { askAgent } from './${weaver.id}-agent-source';
+import { EventType, type AGUIEvent, type Tool, type ToolMessage } from '@ag-ui/core';
+import { askAgent } from './${weaver.id}-agent';
+import { ${weaver.propertyName}Tools } from './${weaver.id}-connection';
 
 interface Line {
   readonly kind: 'you' | 'agent' | 'call' | 'result' | 'note';
@@ -34,11 +34,11 @@ export class ${weaver.className}AgentPanel {
   // The list is read again whenever the panel gains focus, because the weaver's own translations
   // and other plugins' commands may arrive after this component was built.
   protected refreshOffered(): void {
-    this.offered.set(${weaver.propertyName}Agent()?.list() ?? []);
+    this.offered.set(${weaver.propertyName}Tools()?.list() ?? []);
   }
 
   protected async ask(name: string): Promise<void> {
-    const tools = ${weaver.propertyName}Agent();
+    const tools = ${weaver.propertyName}Tools();
     if (!tools || this.busy()) {
       return;
     }
@@ -81,24 +81,19 @@ export class ${weaver.className}AgentPanel {
     }
   }
 
-  private draw(event: BaseEvent): void {
-    const raw = event as unknown as Record<string, unknown>;
+  private draw(event: AGUIEvent): void {
     switch (event.type) {
       case EventType.TEXT_MESSAGE_START:
         this.push({ kind: 'agent', text: '' });
         break;
       case EventType.TEXT_MESSAGE_CONTENT:
-        this.grow('text', String(raw['delta'] ?? ''));
+        this.grow('text', event.delta);
         break;
       case EventType.TOOL_CALL_START:
-        this.push({
-          kind: 'call',
-          text: String(raw['toolCallName'] ?? ''),
-          args: '',
-        });
+        this.push({ kind: 'call', text: event.toolCallName, args: '' });
         break;
       case EventType.TOOL_CALL_ARGS:
-        this.grow('args', String(raw['delta'] ?? ''));
+        this.grow('args', event.delta);
         break;
       default:
         break;
@@ -128,7 +123,7 @@ export function panelTemplateFile(weaver: ResolvedWeaver): string {
     class="shrink-0 rounded-md border border-border bg-surface-raised px-3 py-2 text-xs text-content-muted"
   >
     This is a stand-in, not an assistant. It speaks the protocol so you can watch the whole path;
-    replace <code class="text-content">${weaver.id}-agent-source.ts</code> with your own transport.
+    replace <code class="text-content">${weaver.id}-agent.ts</code> with your own transport.
   </p>
 
   <div class="min-h-0 flex-1 overflow-auto">

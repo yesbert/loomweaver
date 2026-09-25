@@ -1,7 +1,7 @@
 import type { ResolvedWeaver } from './weaver-input';
 
 export function standInFile(weaver: ResolvedWeaver): string {
-  return `import { EventType, type BaseEvent, type Tool } from '@ag-ui/core';
+  return `import { EventType, type AGUIEvent, type Tool } from '@ag-ui/core';
 
 // WHAT THIS IS: a stand-in for an agent, and not an agent. It speaks the AG-UI protocol and nothing
 // else — no model, no network, no judgement — so that the whole path from the offered tools through
@@ -21,15 +21,16 @@ export interface AgentRequest {
 
 export async function* askAgent(
   request: AgentRequest,
-): AsyncGenerator<BaseEvent> {
+): AsyncGenerator<AGUIEvent> {
   const picked = request.tools.find((tool) =>
     request.prompt.includes(tool.name),
   );
 
-  yield event(EventType.RUN_STARTED, {
+  yield {
+    type: EventType.RUN_STARTED,
     threadId: '${weaver.id}-stand-in',
     runId: request.runId,
-  });
+  };
   yield* speak(
     \`\${request.runId}.says\`,
     picked
@@ -39,37 +40,35 @@ export async function* askAgent(
 
   if (picked) {
     const toolCallId = \`\${request.runId}.call\`;
-    yield event(EventType.TOOL_CALL_START, {
-      toolCallId,
-      toolCallName: picked.name,
-    });
+    yield { type: EventType.TOOL_CALL_START, toolCallId, toolCallName: picked.name };
     // Arguments arrive in pieces, exactly as they do from a real model. The adapter assembles them;
     // nothing downstream ever sees a half-written call. The values come from the JSON Schema the
     // workbench described in picked.parameters: the first declared choice of the first argument that
     // has choices, and nothing for the rest, so the command applies its own defaults there.
     for (const piece of chunks(JSON.stringify(sampleArguments(picked)), 4)) {
-      yield event(EventType.TOOL_CALL_ARGS, { toolCallId, delta: piece });
+      yield { type: EventType.TOOL_CALL_ARGS, toolCallId, delta: piece };
       await pause();
     }
-    yield event(EventType.TOOL_CALL_END, { toolCallId });
+    yield { type: EventType.TOOL_CALL_END, toolCallId };
   }
 
-  yield event(EventType.RUN_FINISHED, {
+  yield {
+    type: EventType.RUN_FINISHED,
     threadId: '${weaver.id}-stand-in',
     runId: request.runId,
-  });
+  };
 }
 
 async function* speak(
   messageId: string,
   text: string,
-): AsyncGenerator<BaseEvent> {
-  yield event(EventType.TEXT_MESSAGE_START, { messageId, role: 'assistant' });
+): AsyncGenerator<AGUIEvent> {
+  yield { type: EventType.TEXT_MESSAGE_START, messageId, role: 'assistant' };
   for (const piece of chunks(text, 10)) {
-    yield event(EventType.TEXT_MESSAGE_CONTENT, { messageId, delta: piece });
+    yield { type: EventType.TEXT_MESSAGE_CONTENT, messageId, delta: piece };
     await pause();
   }
-  yield event(EventType.TEXT_MESSAGE_END, { messageId });
+  yield { type: EventType.TEXT_MESSAGE_END, messageId };
 }
 
 function sampleArguments(tool: Tool): Record<string, unknown> {
@@ -90,10 +89,6 @@ function chunks(text: string, size: number): readonly string[] {
     pieces.push(text.slice(at, at + size));
   }
   return pieces;
-}
-
-function event(type: EventType, fields: Record<string, unknown>): BaseEvent {
-  return { type, ...fields } as unknown as BaseEvent;
 }
 
 function pause(): Promise<void> {
