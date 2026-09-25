@@ -17,9 +17,9 @@ import {
 import { TranslocoPipe } from '@jsverse/transloco';
 import { DirtySurface } from '@loomweaver/plugin-sdk';
 import { filter, map } from 'rxjs';
-import { EntryMessage, entryById, entryDraft } from './testbed-entries';
-import { formatWaiting } from './testbed-list-view';
-import { testbedContent } from '../plugin/testbed-content';
+import { entryDraft } from './entry-drafts';
+import { entryTabs } from './entry-tab-actions';
+import { EntryMessage, entryById, formatWaitingTime } from './testbed-entries';
 
 const SUB_TABS = ['detail', 'meta'] as const;
 type SubTab = (typeof SUB_TABS)[number];
@@ -89,7 +89,7 @@ export class TestbedEntryView implements DirtySurface {
   constructor() {
     afterNextRender(() => {
       if (this.entry && !this.hostMounted()) {
-        testbedContent.openEntry(this.entry);
+        entryTabs.openEntry(this.entry);
       }
     });
   }
@@ -104,7 +104,7 @@ export class TestbedEntryView implements DirtySurface {
   }
 
   protected waiting(minutes: number): string {
-    return formatWaiting(minutes);
+    return formatWaitingTime(minutes);
   }
 
   protected author(message: EntryMessage): string {

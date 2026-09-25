@@ -1,7 +1,6 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { ENTRIES, Entry } from '../entry-tabs/testbed-entries';
-import { formatWaiting } from '../entry-tabs/testbed-list-view';
+import { ENTRIES, Entry, formatWaitingTime } from '../entry-tabs/testbed-entries';
 
 @Component({
   selector: 'lw-testbed-escalations-view',
@@ -17,6 +16,6 @@ export class TestbedEscalationsView {
   );
 
   protected waiting(entry: Entry): string {
-    return formatWaiting(entry.waitingMinutes);
+    return formatWaitingTime(entry.waitingMinutes);
   }
 }

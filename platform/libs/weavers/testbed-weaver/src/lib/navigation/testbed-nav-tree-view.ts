@@ -1,7 +1,7 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { testbedActiveContent } from '../state-readouts/testbed-active-content';
-import { testbedContent } from '../plugin/testbed-content';
+import { testbedContext } from '../bound-context';
 
 @Component({
   imports: [TranslocoPipe],
@@ -15,6 +15,6 @@ export class TestbedNavTreeView {
   }
 
   protected go(event: Event): void {
-    testbedContent.goTo((event as CustomEvent<{ path: string }>).detail.path);
+    testbedContext.navigateTo((event as CustomEvent<{ path: string }>).detail.path);
   }
 }

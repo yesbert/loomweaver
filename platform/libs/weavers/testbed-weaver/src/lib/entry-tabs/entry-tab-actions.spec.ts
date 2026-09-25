@@ -1,7 +1,8 @@
 import { OpenTabInput, PluginContext } from '@loomweaver/plugin-sdk';
-import { ENTRIES } from '../entry-tabs/testbed-entries';
-import { testbedContent } from './testbed-content';
 import type { Mock } from 'vitest';
+import { testbedContext } from '../bound-context';
+import { entryTabs } from './entry-tab-actions';
+import { ENTRIES } from './testbed-entries';
 
 type Ctx = {
   openContentTab: Mock;
@@ -23,26 +24,29 @@ function ctx(): Ctx {
   };
 }
 
-describe('testbedContent (TestbedWeaver content-navigation bridge)', () => {
-  afterEach(() => testbedContent.unbind());
+describe('entry tab actions', () => {
+  afterEach(() => {
+    testbedContext.unbind();
+    entryTabs.reset();
+  });
 
   it('exposes a list of entries', () => {
     expect(ENTRIES.length).toBeGreaterThan(0);
     expect(ENTRIES.map((d) => d.id)).toContain('e-01');
   });
 
-  it('warns and no-ops when a view acts before the context is bound', () => {
+  it('warns and does nothing when a view acts before the context is bound', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-    testbedContent.goHome();
+    testbedContext.navigateTo('');
     expect(warn).toHaveBeenCalled();
     warn.mockRestore();
   });
 
-  it('opens a entry as a preview tab and marks it open', () => {
+  it('opens an entry as a preview tab and marks it open', () => {
     const c = ctx();
-    testbedContent.bind(c);
+    testbedContext.bind(c);
 
-    testbedContent.openEntry(ENTRIES[0], 'preview');
+    entryTabs.openEntry(ENTRIES[0], 'preview');
 
     const input = c.openContentTab.mock.calls[0][0] as OpenTabInput;
     expect(input).toMatchObject({
@@ -51,28 +55,28 @@ describe('testbedContent (TestbedWeaver content-navigation bridge)', () => {
       titleIsLiteral: true,
       preview: true,
     });
-    expect(testbedContent.openEntryIds().has(ENTRIES[0].id)).toBe(true);
+    expect(entryTabs.openIds().has(ENTRIES[0].id)).toBe(true);
   });
 
   it("clears the open mark when the tab's onClose fires", () => {
     const c = ctx();
-    testbedContent.bind(c);
-    testbedContent.openEntry(ENTRIES[0]);
+    testbedContext.bind(c);
+    entryTabs.openEntry(ENTRIES[0]);
     const input = c.openContentTab.mock.calls[0][0] as OpenTabInput;
 
     input.onClose?.();
 
-    expect(testbedContent.openEntryIds().has(ENTRIES[0].id)).toBe(false);
+    expect(entryTabs.openIds().has(ENTRIES[0].id)).toBe(false);
   });
 
   it('flags every open entry in place, and takes the flag away again', () => {
     const c = ctx();
-    testbedContent.bind(c);
-    testbedContent.openEntry(ENTRIES[0]);
-    testbedContent.openEntry(ENTRIES[1]);
+    testbedContext.bind(c);
+    entryTabs.openEntry(ENTRIES[0]);
+    entryTabs.openEntry(ENTRIES[1]);
 
-    testbedContent.toggleFlagOnOpenEntries();
-    testbedContent.toggleFlagOnOpenEntries();
+    entryTabs.toggleFlagOnOpenEntries();
+    entryTabs.toggleFlagOnOpenEntries();
 
     expect(c.updateContentTab.mock.calls).toEqual([
       [
@@ -90,42 +94,28 @@ describe('testbedContent (TestbedWeaver content-navigation bridge)', () => {
 
   it('promotes a preview tab via keepEntry', () => {
     const c = ctx();
-    testbedContent.bind(c);
-    testbedContent.keepEntry(ENTRIES[1]);
+    testbedContext.bind(c);
+    entryTabs.keepEntry(ENTRIES[1]);
     expect(c.keepContentTab).toHaveBeenCalledWith(`entry/${ENTRIES[1].id}`);
   });
 
-  it('navigates to the built-in perspectives', () => {
+  it('reveals the entry list', () => {
     const c = ctx();
-    testbedContent.bind(c);
-
-    testbedContent.goHome();
-    testbedContent.goDashboard();
-    testbedContent.goSearch();
-
-    expect(c.navigateContent).toHaveBeenNthCalledWith(1, '');
-    expect(c.navigateContent).toHaveBeenNthCalledWith(2, 'dashboard/overview');
-    expect(c.navigateContent).toHaveBeenNthCalledWith(3, 'search');
+    testbedContext.bind(c);
+    entryTabs.revealList();
+    expect(c.revealSurface).toHaveBeenCalledWith('testbed.list');
   });
 
-  it('opens the sandbox route as a preview tab', () => {
+  it('reset clears the open set, and an unbound context navigates nowhere', () => {
     const c = ctx();
-    testbedContent.bind(c);
-    testbedContent.goSandbox();
-    expect(c.openContentTab).toHaveBeenCalledWith(
-      expect.objectContaining({ path: 'sandbox-rpc', preview: true }),
-    );
-  });
+    testbedContext.bind(c);
+    entryTabs.openEntry(ENTRIES[0]);
+    testbedContext.unbind();
+    entryTabs.reset();
 
-  it('unbind drops the context and clears the open set', () => {
-    const c = ctx();
-    testbedContent.bind(c);
-    testbedContent.openEntry(ENTRIES[0]);
-    testbedContent.unbind();
-
-    expect(testbedContent.openEntryIds().size).toBe(0);
+    expect(entryTabs.openIds().size).toBe(0);
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-    testbedContent.goHome();
+    testbedContext.navigateTo('');
     expect(c.navigateContent).not.toHaveBeenCalled();
     warn.mockRestore();
   });
