@@ -57,7 +57,10 @@ async function play(
 function streamedCall(id: string, name: string, json: string): BaseEvent[] {
   return [
     event(EventType.TOOL_CALL_START, { toolCallId: id, toolCallName: name }),
-    event(EventType.TOOL_CALL_ARGS, { toolCallId: id, delta: json.slice(0, 3) }),
+    event(EventType.TOOL_CALL_ARGS, {
+      toolCallId: id,
+      delta: json.slice(0, 3),
+    }),
     event(EventType.TOOL_CALL_ARGS, { toolCallId: id, delta: json.slice(3) }),
     event(EventType.TOOL_CALL_END, { toolCallId: id }),
   ];
@@ -67,9 +70,11 @@ describe('commandTools list', () => {
   it('offers what the workbench offers', () => {
     const { ctx } = access();
 
-    expect(commandTools(ctx).list().map((tool) => tool.name)).toEqual([
-      'notes.open',
-    ]);
+    expect(
+      commandTools(ctx)
+        .list()
+        .map((tool) => tool.name),
+    ).toEqual(['notes.open']);
   });
 
   it('reads the list again for each run rather than keeping it', () => {
@@ -281,22 +286,75 @@ describe('commandTools with the convenience form', () => {
     expect(answers.map((answer) => answer.toolCallId)).toEqual(['c1']);
   });
 
-  it('closes what is still open when the run ends, and answers nothing where nothing is', async () => {
+  it('refuses a call carried by chunks when the run fails, without running it', async () => {
     const { ctx, invoked } = access();
-    const tools = commandTools(ctx);
-
-    expect(await tools.flush()).toBeNull();
-
-    await tools.receive(
-      event(EventType.TOOL_CALL_START, {
+    const answers = await play(commandTools(ctx), [
+      event(EventType.TOOL_CALL_CHUNK, {
         toolCallId: 'c1',
         toolCallName: 'notes.open',
+        delta: '{"path":"inbox"}',
+      }),
+      event(EventType.RUN_ERROR, {}),
+    ]);
+
+    expect(invoked).toEqual([]);
+    expect(answers.map((answer) => answer.toolCallId)).toEqual(['c1']);
+    expect(answers[0].error).toMatch(/did not run/);
+  });
+});
+
+describe('commandTools at the end of a run', () => {
+  function started(id: string): BaseEvent {
+    return event(EventType.TOOL_CALL_START, {
+      toolCallId: id,
+      toolCallName: 'notes.open',
+    });
+  }
+
+  it('answers nothing where nothing is open', async () => {
+    const { ctx } = access();
+
+    expect(await commandTools(ctx).flush()).toBeNull();
+  });
+
+  it('answers every call left open, one per request, until nothing is left', async () => {
+    const { ctx } = access();
+    const tools = commandTools(ctx);
+    await play(tools, [started('c1'), started('c2'), started('c3')]);
+
+    const answered = [await tools.receive(event(EventType.RUN_FINISHED, {}))];
+    for (
+      let next = await tools.flush();
+      next !== null;
+      next = await tools.flush()
+    ) {
+      answered.push(next);
+    }
+
+    expect(answered.map((answer) => answer?.toolCallId)).toEqual([
+      'c1',
+      'c2',
+      'c3',
+    ]);
+    expect(await tools.flush()).toBeNull();
+  });
+
+  it('refuses a call left open, saying why, and does not run it', async () => {
+    const { ctx, invoked } = access();
+    const tools = commandTools(ctx);
+    await tools.receive(started('c1'));
+    await tools.receive(
+      event(EventType.TOOL_CALL_ARGS, {
+        toolCallId: 'c1',
+        delta: '{"path":"a"}',
       }),
     );
+
     const answer = await tools.receive(event(EventType.RUN_ERROR, {}));
 
     expect(answer?.toolCallId).toBe('c1');
-    expect(invoked).toHaveLength(1);
+    expect(answer?.error).toMatch(/did not run: .*arguments/);
+    expect(invoked).toEqual([]);
   });
 });
 
@@ -308,7 +366,10 @@ describe('commandTools hook', () => {
 
   it('runs the call when nothing is supplied', async () => {
     const { ctx, invoked } = access();
-    await play(commandTools(ctx), streamedCall('c1', 'notes.open', '{"path":"a"}'));
+    await play(
+      commandTools(ctx),
+      streamedCall('c1', 'notes.open', '{"path":"a"}'),
+    );
 
     expect(invoked).toHaveLength(1);
   });

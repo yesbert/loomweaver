@@ -114,10 +114,12 @@ they start with a top-level folder.
 
 ## 9. After the owner's decisions (2026-09-25)
 
-- [ ] 9.1 The agent adapter answers the calls a run leaves open one per `flush` and refuses each
+- [x] 9.1 The agent adapter answers the calls a run leaves open one per `flush` and refuses each
   instead of running it; the documented usage, the generated agent panel and the example ask until
   nothing is answered (`platform/libs/integrations/ag-ui/src/lib/command-tools.ts`, the devkit's
   agent recipe, `examples/assistant-workbench`).
+  A call carried by chunks is closed by a run that finishes, as the protocol defines, and runs; the
+  delta states that exception.
 - [x] 9.2 Only a command invoked from within another command's run, before that run first waits,
   counts towards the depth limit (`commands/command-invocation.service.ts`).
 - [x] 9.3 A plugin state value with no data form is refused with a message naming the plugin and the

@@ -1,4 +1,9 @@
-import { EventType, type BaseEvent, type Tool, type ToolMessage } from '@ag-ui/core';
+import {
+  EventType,
+  type BaseEvent,
+  type Tool,
+  type ToolMessage,
+} from '@ag-ui/core';
 import type {
   AgentConsent,
   CommandArguments,
@@ -74,13 +79,15 @@ export interface CommandTools {
   list(): readonly Tool[];
   /**
    * Takes one event of the run. Answers the message to send back where the event completed a call,
-   * and nothing otherwise. Events that are not part of a tool call are ignored.
+   * and nothing otherwise. Events that are not part of a tool call are ignored. The event that ends
+   * the run answers the first call still open; ask {@link flush} for the rest.
    */
   receive(event: BaseEvent): Promise<ToolMessage | null>;
   /**
-   * Closes a call the agent left open, answering it if there was one. A run that ends without its
-   * closing event is the case this exists for; {@link receive} already does it when the run reports
-   * that it finished.
+   * Answers one call the agent left open, or nothing once none is left, so call it until it answers
+   * nothing when the run is over. A call left open never received all of its arguments, so it is
+   * refused, saying why, and its command does not run. Only the call carried by chunks is closed by
+   * a run that finished, as the protocol defines, and runs.
    */
   flush(): Promise<ToolMessage | null>;
 }
@@ -110,11 +117,15 @@ export function commandTools(
   const open = new Map<string, OpenCall>();
   let chunked: string | null = null;
 
-  const finish = async (call: OpenCall): Promise<ToolMessage> => {
+  const forget = (call: OpenCall): void => {
     open.delete(call.toolCallId);
     if (chunked === call.toolCallId) {
       chunked = null;
     }
+  };
+
+  const finish = async (call: OpenCall): Promise<ToolMessage> => {
+    forget(call);
     const args = readArguments(call.json);
     if (args === null) {
       return refusalFor(
@@ -141,11 +152,20 @@ export function commandTools(
   };
 
   const flush = async (): Promise<ToolMessage | null> => {
-    const pending = [...open.values()];
-    open.clear();
-    chunked = null;
-    const last = pending.pop();
-    return last === undefined ? null : finish(last);
+    const [left] = open.values();
+    if (left === undefined) {
+      return null;
+    }
+    forget(left);
+    return refusalFor(
+      left.toolCallId,
+      'the run ended before its arguments were complete.',
+    );
+  };
+
+  const finishRun = async (): Promise<ToolMessage | null> => {
+    const carried = chunked === null ? undefined : open.get(chunked);
+    return carried ? finish(carried) : flush();
   };
 
   return {
@@ -176,7 +196,9 @@ export function commandTools(
         case EventType.TOOL_CALL_CHUNK: {
           return receiveChunk(raw);
         }
-        case EventType.RUN_FINISHED:
+        case EventType.RUN_FINISHED: {
+          return finishRun();
+        }
         case EventType.RUN_ERROR: {
           return flush();
         }
