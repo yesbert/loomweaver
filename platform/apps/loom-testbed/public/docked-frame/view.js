@@ -1,5 +1,5 @@
 (function () {
-  const set = function (testid, value) {
+  const showText = function (testid, value) {
     const node = document.querySelector('[data-testid="' + testid + '"]');
     if (node) {
       node.textContent = value;
@@ -14,10 +14,10 @@
     methods: globalThis.LwFrame.surfaceMethods({
       render: function (state) {
         globalThis.LwFrame.applySurfaceState(state);
-        set('frame-instance', state.instanceId || '—');
-        set('frame-tab', state.tab === '' ? '(none)' : state.tab);
-        set('frame-theme', state.theme);
-        set(
+        showText('frame-instance', state.instanceId || '—');
+        showText('frame-tab', state.tab === '' ? '(none)' : state.tab);
+        showText('frame-theme', state.theme);
+        showText(
           'frame-params',
           state.params ? JSON.stringify(state.params) : '(none)',
         );
@@ -36,10 +36,10 @@
             })
             .then(
               function () {
-                set('frame-nav-result', 'resolved');
+                showText('frame-nav-result', 'resolved');
               },
               function () {
-                set('frame-nav-result', 'rejected');
+                showText('frame-nav-result', 'rejected');
               },
             );
         });
