@@ -433,18 +433,22 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   `.shrink-0`, `.text-brand`) and loses none; the other four artifacts are byte-identical. The spec
   names the three nav tree tags. The build runs `bundleElements`, `writeDeclaration`, two
   `vendorGlobal` calls and `compileStyles`.
-- [ ] 9.9 Workspace configuration: the lint inputs that name missing files, the `test-setup.ts` ignores
+- [x] 9.9 Workspace configuration: the lint inputs that name missing files, the `test-setup.ts` ignores
   of packages without one, the renamed-on-import vitest export, one module setting for the two ESM
   packages, one shared Angular lint config for the four Angular projects. The removal from all eleven
   `project.json` files (decided 2026-09-25), with ESLint and its plugins named once in `nx.json` as
   external inputs.
-  Done except that last part. `nx.json` no longer names `.eslintrc.json`, `.eslintignore`,
+  `nx.json` no longer names `.eslintrc.json`, `.eslintignore`,
   `tools/eslint-rules` or `test-setup` files, none of which exist; the tsconfig, lint and Sonar
   ignores of `test-setup.ts` are gone for the same reason; the vitest helper is exported as
   `nodeLibraryTestConfig`; the SDK and the adapter inherit one module setting (their packed output is
   byte-identical); the root `eslint.config.mjs` exports `angularConfig`, which the four Angular
   projects use, and the resolved config of eleven sample files is identical. It lives in the root
   file because that file is already a lint input of every project.
+  The last part: the eleven `project.json` files no longer override the lint inputs, and the
+  target default in `nx.json` is keyed by the target name `lint` (it was keyed by an executor no
+  project here uses, so it applied to nothing) and names ESLint and the nine packages the root
+  configuration loads, directly or through `nx.configs`, as external inputs.
 
 ## 10. Tooling
 
