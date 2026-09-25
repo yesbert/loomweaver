@@ -63,6 +63,7 @@ export const appConfig: ApplicationConfig = {
       'agent',
       'customers',
       'finance',
+      'procurement',
     ),
     provideIcons({ payments: paymentsIcon }),
     provideIcons(activeLook.icons),

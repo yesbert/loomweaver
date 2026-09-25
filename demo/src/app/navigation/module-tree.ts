@@ -123,7 +123,7 @@ export const MODULES: readonly ProductModule[] = [
         titleKey: 'product.area.suppliers',
         views: [
           {
-            titleKey: 'product.view.supplierList',
+            titleKey: 'procurement.view.supplierList',
             path: 'procurement/suppliers',
             icon: 'supplierList',
           },
@@ -134,7 +134,7 @@ export const MODULES: readonly ProductModule[] = [
         titleKey: 'product.area.purchasing',
         views: [
           {
-            titleKey: 'product.view.purchaseOrders',
+            titleKey: 'procurement.view.purchaseOrders',
             path: 'procurement/orders',
             icon: 'purchaseOrders',
           },

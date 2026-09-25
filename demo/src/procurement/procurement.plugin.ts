@@ -14,7 +14,7 @@ export const procurementPlugin: Plugin = {
 
     ctx.registerSurface({
       id: 'procurement.suppliers',
-      title: 'product.view.supplierList',
+      title: 'procurement.view.supplierList',
       icon: 'supplierList',
       routable: { path: 'procurement/suppliers' },
       docks: [],
@@ -22,7 +22,7 @@ export const procurementPlugin: Plugin = {
     });
     ctx.registerSurface({
       id: 'procurement.orders',
-      title: 'product.view.purchaseOrders',
+      title: 'procurement.view.purchaseOrders',
       icon: 'purchaseOrders',
       routable: { path: 'procurement/orders' },
       docks: [],
@@ -31,11 +31,11 @@ export const procurementPlugin: Plugin = {
 
     ctx.registerCommand({
       id: 'procurement.goodsReceipt',
-      title: 'product.procurement.receiveGoods',
-      description: 'product.procurement.receiptDescription',
+      title: 'procurement.receiveGoods',
+      description: 'procurement.receiptDescription',
       icon: 'purchaseOrders',
       callable: true,
-      answers: 'product.procurement.receiptAnswers',
+      answers: 'procurement.receiptAnswers',
       run: async () => ({ received: await procurementActions.receiveGoods() }),
     });
   },

@@ -1,11 +1,11 @@
 <div class="flex h-full flex-col gap-4 p-3">
   <div class="flex flex-wrap items-center justify-between gap-3">
     <h2 class="text-base font-semibold text-content">
-      {{ 'product.view.purchaseOrders' | transloco }}
+      {{ 'procurement.view.purchaseOrders' | transloco }}
     </h2>
     <div class="flex items-center gap-4">
       <span class="text-sm text-content-muted">
-        {{ 'product.procurement.onOrder' | transloco }}
+        {{ 'procurement.onOrder' | transloco }}
         <span class="ml-1 font-medium text-content tabular-nums" data-testid="orders-open">{{
           outstanding()
         }}</span>
@@ -16,7 +16,7 @@
         (click)="receive()"
         data-testid="goods-receipt"
       >
-        {{ 'product.procurement.receiveGoods' | transloco }}
+        {{ 'procurement.receiveGoods' | transloco }}
       </button>
     </div>
   </div>
@@ -25,12 +25,12 @@
     <table class="w-full text-sm">
       <thead class="text-xs text-content-muted">
         <tr class="border-b border-border">
-          <th class="px-4 py-2.5 text-left font-medium">{{ 'product.procurement.column.number' | transloco }}</th>
-          <th class="px-4 py-2.5 text-left font-medium">{{ 'product.procurement.column.supplier' | transloco }}</th>
-          <th class="px-4 py-2.5 text-left font-medium">{{ 'product.procurement.column.ordered' | transloco }}</th>
-          <th class="px-4 py-2.5 text-left font-medium">{{ 'product.procurement.column.expected' | transloco }}</th>
-          <th class="px-4 py-2.5 text-right font-medium">{{ 'product.procurement.column.net' | transloco }}</th>
-          <th class="px-4 py-2.5 text-right font-medium">{{ 'product.procurement.column.status' | transloco }}</th>
+          <th class="px-4 py-2.5 text-left font-medium">{{ 'procurement.column.number' | transloco }}</th>
+          <th class="px-4 py-2.5 text-left font-medium">{{ 'procurement.column.supplier' | transloco }}</th>
+          <th class="px-4 py-2.5 text-left font-medium">{{ 'procurement.column.ordered' | transloco }}</th>
+          <th class="px-4 py-2.5 text-left font-medium">{{ 'procurement.column.expected' | transloco }}</th>
+          <th class="px-4 py-2.5 text-right font-medium">{{ 'procurement.column.net' | transloco }}</th>
+          <th class="px-4 py-2.5 text-right font-medium">{{ 'procurement.column.status' | transloco }}</th>
         </tr>
       </thead>
       <tbody data-testid="purchase-order-list">
@@ -43,7 +43,7 @@
               {{ row.expected }}
               @if (row.late > 0) {
                 <span class="ml-2 text-xs text-caution" data-testid="order-late">{{
-                  'product.procurement.late' | transloco: { days: row.late }
+                  'procurement.late' | transloco: { days: row.late }
                 }}</span>
               }
             </td>
@@ -51,13 +51,13 @@
             <td class="px-4 py-2.5 text-right" [attr.data-status]="row.order.status">
               @switch (row.order.status) {
                 @case ('received') {
-                  <span class="text-content-faint">{{ 'product.procurement.status.received' | transloco }}</span>
+                  <span class="text-content-faint">{{ 'procurement.status.received' | transloco }}</span>
                 }
                 @case ('confirmed') {
-                  <span class="text-content">{{ 'product.procurement.status.confirmed' | transloco }}</span>
+                  <span class="text-content">{{ 'procurement.status.confirmed' | transloco }}</span>
                 }
                 @default {
-                  <span class="text-content-muted">{{ 'product.procurement.status.ordered' | transloco }}</span>
+                  <span class="text-content-muted">{{ 'procurement.status.ordered' | transloco }}</span>
                 }
               }
             </td>
