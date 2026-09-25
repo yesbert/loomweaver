@@ -33,9 +33,9 @@ export const CAPABILITIES = [
 export type Capability = (typeof CAPABILITIES)[number];
 
 /**
- * Thrown when a plugin uses a `ctx` surface it was not granted (default-deny). A curated-v1
- * misconfiguration (the distribution forgot to grant a capability the plugin needs) surfaces
- * loudly here rather than as a silent no-op — part of the `ctx`-boundary error taxonomy.
+ * Thrown when a plugin uses a `ctx` member it was not granted (default-deny). A distribution that
+ * forgot to grant a capability the plugin needs finds out here, loudly, instead of through a call
+ * that silently does nothing.
  */
 export class CapabilityError extends Error {
   constructor(

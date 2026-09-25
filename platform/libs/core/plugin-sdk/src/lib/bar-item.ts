@@ -64,8 +64,8 @@ export interface BarButtonItem extends BarItemBase {
    */
   readonly menu?: string;
   /**
-   * Which gesture opens {@link menu}. Defaults to `'context'`, so a button that says nothing keeps
-   * the right-click it always had. Ignored without {@link menu}.
+   * Which gesture opens {@link menu}. Defaults to `'context'`, so a button that says nothing opens
+   * its menu on a right-click. Ignored without {@link menu}.
    */
   readonly menuTrigger?: MenuTrigger;
   /**

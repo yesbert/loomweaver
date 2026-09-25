@@ -5,7 +5,7 @@ import { LwButtonVariant } from './button.js';
  * Settings vocabulary (schema-driven). The host renders a settings
  * surface from these declarations; each contributor (shell or plugin) supplies its own
  * value accessors, so the *owner* keeps responsibility for storage. The host only reads
- * `value()` and calls `set()`. The control vocabulary grows demand-driven (YAGNI):
+ * `value()` and calls `set()`. The controls are
  * `select` (single choice) · `toggle` (on/off) · `text` (a string field) · `slider` (a number) ·
  * `button` (an action) · `component` (embed a component).
  */
@@ -137,8 +137,8 @@ export interface SettingsSection {
 }
 
 /**
- * The **data-only** control form a *sandboxed* plugin declares over the RPC boundary (the VS Code
- * `contributes.configuration` model): the declaration carries the control kind and its
+ * The **data-only** control form a *sandboxed* plugin declares over the RPC boundary: the
+ * declaration carries the control kind and its
  * **default value** instead of `value()`/`set()` callbacks, which cannot cross the wire. The host
  * renders the control, **owns the storage** (user-local through the distribution's `SETTINGS_STORE` port)
  * and pushes the current values back to the plugin — once after registration and on every change —

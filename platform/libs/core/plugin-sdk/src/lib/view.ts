@@ -4,7 +4,7 @@ import { AccessRequirement } from './auth.js';
 /**
  * A view's own header action (`header.actions`) — an independent function
  * of that view (e.g. "new", "sort"), shown in the panel header while the view is
- * active. Not a view switcher (that is the Rail). Mirrors Obsidian's view actions.
+ * active. Not a view switcher (that is the Rail).
  */
 export interface ViewAction {
   readonly id: string;
@@ -53,7 +53,7 @@ export interface ViewAction {
  * `Surface` via `ctx.registerSurface` and the host normalises it into this.
  */
 export interface View {
-  /** Stable id (ordering, active-view selection, future removal). */
+  /** Stable id (ordering, active-view selection, removal). */
   readonly id: string;
   /** Target region id this view docks into. */
   readonly region: string;

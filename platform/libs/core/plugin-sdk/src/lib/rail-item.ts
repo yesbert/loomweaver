@@ -2,9 +2,8 @@ import { AccessRequirement } from './auth.js';
 import { MenuHeader, MenuTrigger } from './menu.js';
 
 /**
- * A Rail/Ribbon item: an **independent command** triggered from the far
- * rail — not a view switcher (switching views is the panel's tab bar). Mirrors
- * Obsidian's ribbon (`addRibbonIcon`).
+ * A rail item: an **independent command** triggered from the far rail. It is not a view switcher;
+ * switching views is the panel's tab bar.
  */
 export interface RailItem {
   readonly id: string;
@@ -39,7 +38,7 @@ export interface RailItem {
   readonly title: string;
   /** Lower renders first within its anchor group (default 0). */
   readonly order?: number;
-  /** Pinned to the top (default) or the bottom of the rail (e.g. settings, VS Code style). */
+  /** Pinned to the top (default) or the bottom of the rail, where settings usually sit. */
   readonly anchor?: 'top' | 'bottom';
   /**
    * Id of a menu slot to open as this item's **context menu** on right-click — region-agnostic:
@@ -48,8 +47,8 @@ export interface RailItem {
    */
   readonly menu?: string;
   /**
-   * Which gesture opens {@link menu}. Defaults to `'context'`, so an item that says nothing keeps
-   * the right-click it always had. Ignored without {@link menu}, and on an item that names a
+   * Which gesture opens {@link menu}. Defaults to `'context'`, so an item that says nothing opens
+   * its menu on a right-click. Ignored without {@link menu}, and on an item that names a
    * {@link workspace}, where activating it is the switch.
    */
   readonly menuTrigger?: MenuTrigger;

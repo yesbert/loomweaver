@@ -138,8 +138,8 @@ export interface Command {
   /**
    * Optional default keyboard shortcut — a chord like `"mod+enter"` or `"mod+shift+p"`. Tokens are
    * case-insensitive and `+`-joined: modifiers `mod` (⌘ on macOS, Ctrl elsewhere), `ctrl`, `meta`/
-   * `cmd`, `alt`/`option`, `shift`, then one key (`k`, `enter`, `escape`, …). The host binds it; user
-   * rebinding is deferred.
+   * `cmd`, `alt`/`option`, `shift`, then one key (`k`, `enter`, `escape`, …). The host binds it; a
+   * user cannot rebind it.
    */
   readonly shortcut?: string;
   /**
@@ -217,7 +217,7 @@ export interface Command {
   /**
    * What running this command on an agent's word alone amounts to: carried out, the person asked
    * first, the person asked every time, or not on an agent's word at all. Omit it and the command
-   * says nothing, which is the default and what the platform has always done.
+   * says nothing, which is the default.
    *
    * **This is a statement, not a gate**, exactly as {@link Command.access} is a statement about
    * presentation rather than protection. The platform asks nobody, remembers no answer and refuses
