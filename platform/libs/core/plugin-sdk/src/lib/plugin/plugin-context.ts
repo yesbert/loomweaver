@@ -1,44 +1,28 @@
+import { Disposable } from './disposable.js';
 import { PluginState } from './plugin-state.js';
-import { Capability } from './capability.js';
+import { BarItem } from '../chrome/bar-item.js';
+import { MenuItem } from '../chrome/menu.js';
+import { RailItem } from '../chrome/rail-item.js';
+import { SettingsSection } from '../chrome/settings-section.js';
+import { CommandArguments } from '../commands/command-arguments.js';
 import {
-  Command,
-  CommandArguments,
   CommandOutcome,
   InvocableCommand,
-} from './command.js';
-import { MenuItem } from './menu.js';
-import { Disposable } from './contribution.js';
-import { Surface } from './surface.js';
-import { ViewAction } from './view.js';
-import {
-  ContentTabLabel,
-  OpenTabInput,
-  TabBadge,
-} from './content-route.js';
-import { BarItem } from './bar-item.js';
-import { RailItem } from './rail-item.js';
-import { SettingsSection } from './settings-model.js';
+} from '../commands/command-invocation.js';
+import { Command } from '../commands/command.js';
 import {
   ActiveContent,
   PluginHost,
   PluginSession,
   PluginUi,
-} from './host-ui/host-services.js';
-
-/** What a plugin declares about itself: its id, its name and the capabilities it needs. */
-export interface PluginManifest {
-  /** Stable plugin id. */
-  readonly id: string;
-  /** Human-readable name. */
-  readonly name?: string;
-  /**
-   * Capabilities the plugin declares it needs. This is the *request*; the
-   * distribution/tenant *grants* (default-deny, see `provideCapabilityGrants`). The effective set
-   * is what was granted — a declaration alone grants nothing. The declaration is what the install
-   * consent dialog shows and what the Permissions settings manage.
-   */
-  readonly capabilities?: readonly Capability[];
-}
+} from '../host-ui/host-services.js';
+import {
+  ContentTabLabel,
+  OpenTabInput,
+  TabBadge,
+} from '../surfaces/content-tab.js';
+import { Surface } from '../surfaces/surface.js';
+import { ViewAction } from '../surfaces/view.js';
 
 /**
  * The `ctx` a plugin uses to contribute to the host — one uniform contract. A trusted plugin gets a
@@ -329,17 +313,4 @@ export interface PluginContext {
    * Needs no capability.
    */
   readonly state: PluginState;
-}
-
-/** A LoomWeaver plugin: declares itself and contributes on activation. */
-export interface Plugin {
-  /** What the plugin declares about itself, read before it is activated. */
-  readonly manifest: PluginManifest;
-  /** Called once when the plugin starts; contribute through `ctx` here. */
-  activate(ctx: PluginContext): void | Promise<void>;
-  /**
-   * Called when the plugin stops (disabled, uninstalled or the app is torn down), after the host has
-   * removed everything it registered through `ctx`.
-   */
-  deactivate?(): void;
 }

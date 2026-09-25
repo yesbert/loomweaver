@@ -1,5 +1,5 @@
-import { AccessRequirement } from './auth.js';
 import { MenuHeader, MenuTrigger } from './menu.js';
+import { AccessRequirement } from '../plugin/auth.js';
 
 /**
  * A rail item: an **independent command** triggered from the far rail. It is not a view switcher;

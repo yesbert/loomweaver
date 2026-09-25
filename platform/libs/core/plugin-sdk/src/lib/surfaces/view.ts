@@ -1,5 +1,5 @@
 import { Type } from '@angular/core';
-import { AccessRequirement } from './auth.js';
+import { AccessRequirement } from '../plugin/auth.js';
 
 /**
  * A view's own header action (`header.actions`) — an independent function

@@ -1,99 +1,6 @@
-import { AccessRequirement } from './auth.js';
-import { MenuContext } from './menu.js';
-
-/** A single value an argument or an answer can carry across any plugin boundary. */
-export type CommandScalar = string | number | boolean;
-
-/** What one declared argument may be given: a single value, or a list of them. */
-export type CommandArgumentValue = CommandScalar | readonly CommandScalar[];
-
-/** The arguments an invocation supplies, keyed by {@link CommandArgumentBase.name}. */
-export type CommandArguments = Readonly<Record<string, CommandArgumentValue>>;
-
-/**
- * What a command may answer with — plain data, because an answer crosses the same boundary its
- * arguments came from and anything else would arrive stripped of what it was.
- */
-export type CommandAnswer =
-  | CommandScalar
-  | null
-  | readonly CommandAnswer[]
-  | { readonly [key: string]: CommandAnswer };
-
-/** What every declared argument carries, whatever kind of value it takes. */
-export interface CommandArgumentBase {
-  /** The name the invocation keys this argument by. */
-  readonly name: string;
-  /**
-   * What this argument means, in prose — a Transloco key or a literal. Written for something
-   * *choosing* a value, not for a control labelling one, so say what it selects and what a sensible
-   * value looks like.
-   */
-  readonly description: string;
-  /** Whether an invocation must supply it. Omit for an optional argument. */
-  readonly required?: boolean;
-  /** Take a list of this kind rather than a single value. Omit for a single value. */
-  readonly list?: boolean;
-}
-
-/** An argument taking a free value of one of the three plain kinds. */
-export interface SimpleCommandArgument extends CommandArgumentBase {
-  readonly kind: 'text' | 'number' | 'boolean';
-}
-
-/** An argument taking one of a fixed set of strings. */
-export interface ChoiceCommandArgument extends CommandArgumentBase {
-  readonly kind: 'choice';
-  /** The values this argument accepts; anything else is refused before the command runs. */
-  readonly choices: readonly string[];
-}
-
-/**
- * One argument a command accepts. The set of kinds is closed on purpose: a caller has to be able to
- * describe a command to something that has never seen it, and a closed set makes a wrong declaration
- * a compile error instead of a silent no-op. Widening it later is additive; narrowing it would not be.
- */
-export type CommandArgument = SimpleCommandArgument | ChoiceCommandArgument;
-
-/**
- * Why an invocation was refused. A refusal is not a failure: the command did not run.
- *
- * `unavailable` is deliberately one answer for several situations — no such command, not open to a
- * foreign caller, the session does not meet its access requirement, the window does not host it, the
- * calling plugin was not granted the capability. Telling them apart would let a caller map what is
- * installed by invoking ids and reading the reason back.
- */
-export type CommandRefusalReason =
-  | 'unavailable'
-  | 'invalid-arguments'
-  | 'too-deep';
-
-/** The command ran; `value` is present where the command declares {@link Command.answers}. */
-export interface CommandAnswered {
-  readonly outcome: 'answered';
-  readonly value?: CommandAnswer;
-}
-
-/** The command did not run. */
-export interface CommandRefused {
-  readonly outcome: 'refused';
-  readonly reason: CommandRefusalReason;
-  /** A developer-facing explanation; never the place to show a user a message. */
-  readonly message: string;
-}
-
-/** The command ran and threw, or its asynchronous work rejected. */
-export interface CommandFailed {
-  readonly outcome: 'failed';
-  readonly message: string;
-}
-
-/**
- * What an invocation answers with. The three cases are distinct because a caller has to tell
- * "you may not" from "it broke" from "here is your answer", and none of the three may be presented
- * as either of the others.
- */
-export type CommandOutcome = CommandAnswered | CommandRefused | CommandFailed;
+import { CommandArgument, CommandArguments } from './command-arguments.js';
+import { MenuContext } from '../chrome/menu.js';
+import { AccessRequirement } from '../plugin/auth.js';
 
 /**
  * How much an agent may do with a command without asking the user.
@@ -104,20 +11,6 @@ export type CommandOutcome = CommandAnswered | CommandRefused | CommandFailed;
  * - `never` — it is not to be run on an agent's word at all.
  */
 export type AgentConsent = 'allow' | 'ask' | 'ask-always' | 'never';
-
-/**
- * A command as offered to a caller that may invoke it. Every text is already resolved to the active
- * language, because a caller outside the application cannot reach the translation bundles.
- */
-export interface InvocableCommand {
-  readonly id: string;
-  readonly title: string;
-  readonly description?: string;
-  readonly arguments?: readonly CommandArgument[];
-  readonly answers?: string;
-  /** What the command says an agent's word is enough for — see {@link Command.agentConsent}. */
-  readonly agentConsent?: AgentConsent;
-}
 
 /**
  * A named, invocable action.

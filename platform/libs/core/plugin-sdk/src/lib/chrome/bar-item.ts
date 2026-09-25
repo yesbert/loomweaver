@@ -1,6 +1,6 @@
 import { Type } from '@angular/core';
-import { AccessRequirement } from './auth.js';
 import { MenuHeader, MenuTrigger } from './menu.js';
+import { AccessRequirement } from '../plugin/auth.js';
 
 /** Bar slots. */
 export type BarSlot = 'start' | 'center' | 'end';

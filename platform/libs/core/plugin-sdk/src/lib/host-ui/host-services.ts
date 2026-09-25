@@ -1,5 +1,5 @@
 import { Type } from '@angular/core';
-import { DialogRef } from '../dialog-ref.js';
+import { DialogRef } from './dialog-ref.js';
 import {
   AlertOptions,
   ConfirmOptions,
@@ -7,8 +7,8 @@ import {
   ProgressHandle,
   ProgressOptions,
   PromptOptions,
-} from '../dialog.js';
-import { NotificationInput } from '../notification.js';
+} from './dialog.js';
+import { NotificationInput } from './notification.js';
 
 /**
  * One row of an ad-hoc context menu opened via {@link PluginUi.openMenu}: a display `label` (a translation

@@ -377,11 +377,14 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   plugin, callable, user, plugin), one fixed "Needs the `x` capability." sentence per `ctx` member
   instead of the drifted lists on `Capability`, hovers that open with one plain sentence, file-level
   blocks moved onto their symbols, one line where a much-used member has none.
-- [ ] 9.4 **Move:** `plugin-sdk/src/lib` into `plugin/`, `commands/`, `surfaces/`, `chrome/` and
+- [x] 9.4 **Move:** `plugin-sdk/src/lib` into `plugin/`, `commands/`, `surfaces/`, `chrome/` and
   `host-ui/`, with `content-route.ts`, `plugin.ts`, `view-state.ts`, `contribution.ts` and
   `settings-model.ts` split or renamed after what they hold; the barrel grouped by sub-theme; export
   names compared before and after on the packed declarations; the baseline entry removed; `llms.txt`
   links updated.
+  `command.ts` was split as well (arguments, invocation, the command), so `commands/` holds more than
+  one file. The 111 packed exports and the text of every declaration are identical before and after,
+  and so is the frame kit's `lw-frame.d.ts`.
 - [ ] 9.5 Declarations written once where the packed shape stays identical: `ContentSurface` from
   `SurfacePresentation`, the retention fields and the trigger, menu and picture fields from shared
   bases, `ContainerTabLabel` from `ContentTabLabel`.

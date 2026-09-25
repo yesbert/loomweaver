@@ -1,4 +1,4 @@
-import { LwButtonVariant } from './button.js';
+import { LwButtonVariant } from '../chrome/button.js';
 
 /**
  * Severity of a dialog. Drives the leading icon + its tint and the confirm

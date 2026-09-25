@@ -1,7 +1,8 @@
 import { Type } from '@angular/core';
-import { AccessRequirement } from './auth.js';
-import { ContainerSpec, TabBadge } from './content-route.js';
+import { ContainerSpec } from './container-spec.js';
+import { TabBadge } from './content-tab.js';
 import { ViewAction } from './view.js';
+import { AccessRequirement } from '../plugin/auth.js';
 
 /**
  * How a surface is presented (the UI-boundary form). Exactly one is set:
