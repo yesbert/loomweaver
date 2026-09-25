@@ -1,30 +1,51 @@
-<div class="flex h-full flex-col gap-4 p-3">
+<div class="@container flex h-full flex-col gap-4 p-4">
   <h2 class="text-base font-semibold text-content">
     {{ 'finance.view.closing' | transloco }}
   </h2>
 
-  <ul class="flex flex-col gap-2" data-testid="closing-list">
-    @for (row of rows(); track row.id) {
-      <li
-        class="flex items-center justify-between gap-3 rounded-lg border border-border bg-surface-raised px-4 py-3"
-        [attr.data-period]="row.month"
-      >
-        <span class="font-medium text-content tabular-nums">{{ row.month }}</span>
-        <span class="flex items-center gap-4 text-sm">
-          <span class="text-content-muted">
-            {{ 'finance.openItemsInPeriod' | transloco: { count: row.openItems } }}
+  <div class="flex flex-col overflow-hidden rounded-lg border border-border bg-surface-raised">
+    <div
+      class="hidden shrink-0 grid-cols-[minmax(0,1fr)_12rem_8rem] gap-3 border-b border-border px-4 py-2.5 text-xs font-medium text-content-muted @2xl:grid"
+    >
+      <span>{{ 'finance.column.period' | transloco }}</span>
+      <span>{{ 'finance.column.openItems' | transloco }}</span>
+      <span>{{ 'finance.column.periodState' | transloco }}</span>
+    </div>
+
+    <ul data-testid="closing-list">
+      @for (row of rows(); track row.id) {
+        <li
+          class="border-b border-border px-4 py-3 last:border-b-0 @2xl:py-2.5"
+          [attr.data-period]="row.month"
+        >
+          <span class="hidden grid-cols-[minmax(0,1fr)_12rem_8rem] items-center gap-3 text-sm @2xl:grid">
+            <span class="font-medium text-content tabular-nums">{{ row.month }}</span>
+            <span class="text-content-muted">
+              {{ 'finance.openItemsInPeriod' | transloco: { count: row.openItems } }}
+            </span>
+            @if (row.closed) {
+              <span class="text-content-faint" data-testid="period-closed">{{
+                'finance.periodClosed' | transloco
+              }}</span>
+            } @else {
+              <span class="text-brand-text">{{ 'finance.periodOpen' | transloco }}</span>
+            }
           </span>
-          @if (row.closed) {
-            <span class="text-content-faint" data-testid="period-closed">{{
-              'finance.periodClosed' | transloco
+          <span class="flex items-baseline justify-between gap-3 @2xl:hidden">
+            <span class="flex min-w-0 flex-col gap-0.5">
+              <span class="font-medium text-content tabular-nums">{{ row.month }}</span>
+              <span class="text-xs text-content-faint">{{
+                'finance.openItemsInPeriod' | transloco: { count: row.openItems }
+              }}</span>
+            </span>
+            <span class="shrink-0 text-sm" [class.text-content-faint]="row.closed" [class.text-brand-text]="!row.closed">{{
+              (row.closed ? 'finance.periodClosed' : 'finance.periodOpen') | transloco
             }}</span>
-          } @else {
-            <span class="text-brand-text">{{ 'finance.periodOpen' | transloco }}</span>
-          }
-        </span>
-      </li>
-    }
-  </ul>
+          </span>
+        </li>
+      }
+    </ul>
+  </div>
 
   <p class="text-sm text-content-muted" data-testid="closing-blocking">
     {{ 'finance.blocking' | transloco: { count: blocking() } }}

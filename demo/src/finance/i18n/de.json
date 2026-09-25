@@ -27,7 +27,14 @@
     "account": "Konto",
     "reference": "Beleg",
     "debit": "Soll",
-    "credit": "Haben"
+    "credit": "Haben",
+    "supplier": "Lieferant",
+    "approval": "Freigabe",
+    "overdue": "Überfällig",
+    "level": "Stufe",
+    "period": "Periode",
+    "openItems": "Offene Posten",
+    "periodState": "Stand"
   },
   "view": {
     "receivables": "Debitoren",
