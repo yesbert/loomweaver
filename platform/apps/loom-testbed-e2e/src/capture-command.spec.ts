@@ -1,19 +1,13 @@
-import { Page, expect, test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
+import { openRestSandbox } from './support/helpers';
 
 const mod = process.platform === 'darwin' ? 'Meta' : 'Control';
-
-async function openSandbox(page: Page): Promise<void> {
-  await page.goto('/sandbox-rest');
-  await expect(
-    page.locator('iframe[src*="/sandbox-rest/view.html"]'),
-  ).toBeAttached({ timeout: 20_000 });
-}
 
 test.describe('The testbed can take a picture by hand', () => {
   test('the palette offers the command and the dialog shows what it drew', async ({
     page,
   }) => {
-    await openSandbox(page);
+    await openRestSandbox(page);
 
     const palette = page.getByRole('combobox', { name: 'Command palette' });
     await page.keyboard.press(`${mod}+KeyK`);
@@ -30,7 +24,7 @@ test.describe('The testbed can take a picture by hand', () => {
   });
 
   test('the shortcut takes one too', async ({ page }) => {
-    await openSandbox(page);
+    await openRestSandbox(page);
 
     await page.keyboard.press(`${mod}+Alt+KeyP`);
 

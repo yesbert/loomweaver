@@ -1,4 +1,5 @@
 import { Page, expect, test } from '@playwright/test';
+import { REST_SANDBOX_FRAME, openRestSandbox } from './support/helpers';
 
 interface Picture {
   readonly image: string;
@@ -16,19 +17,15 @@ interface PictureRequest {
 }
 
 declare global {
-  // eslint-disable-next-line no-var
   var lwCapture: ((request?: PictureRequest) => Promise<Picture>) | undefined;
 }
 
-async function openSandbox(page: Page): Promise<void> {
-  await page.goto('/sandbox-rest');
-  await expect(
-    page.locator('iframe[src*="/sandbox-rest/view.html"]'),
-  ).toBeAttached({ timeout: 20_000 });
+async function openSandboxReadyToPicture(page: Page): Promise<void> {
+  await openRestSandbox(page);
   await page.waitForFunction(() => Boolean(globalThis.lwCapture), undefined, {
     timeout: 20_000,
   });
-  const surface = page.frameLocator('iframe[src*="/sandbox-rest/view.html"]');
+  const surface = page.frameLocator(REST_SANDBOX_FRAME);
   await expect(
     surface.getByRole('heading', { name: /below its prefix is its own/i }),
   ).toBeVisible({ timeout: 20_000 });
@@ -38,7 +35,7 @@ test.describe('A picture of the workbench', () => {
   test('holds the isolated surface rather than a hole where it sits', async ({
     page,
   }) => {
-    await openSandbox(page);
+    await openSandboxReadyToPicture(page);
 
     await expect
       .poll(
@@ -55,7 +52,7 @@ test.describe('A picture of the workbench', () => {
   });
 
   test('is drawn no wider than a width the caller names', async ({ page }) => {
-    await openSandbox(page);
+    await openSandboxReadyToPicture(page);
 
     const pictures = await page.evaluate(async () => {
       const screen = await globalThis.lwCapture!();
@@ -79,7 +76,7 @@ test.describe('A picture of the workbench', () => {
   test('holds fewer bytes compressed than it does losslessly', async ({
     page,
   }) => {
-    await openSandbox(page);
+    await openSandboxReadyToPicture(page);
 
     const carried = await page.evaluate(async () => {
       const lossless = await globalThis.lwCapture!();
@@ -98,7 +95,7 @@ test.describe('A picture of the workbench', () => {
   });
 
   test('asks the browser for no permission along the way', async ({ page }) => {
-    await openSandbox(page);
+    await openSandboxReadyToPicture(page);
 
     const asked = await page.evaluate(async () => {
       const media = navigator.mediaDevices as unknown as Record<
@@ -130,7 +127,7 @@ test.describe('A picture of the workbench', () => {
   });
 
   test('leaves the workbench as it found it', async ({ page }) => {
-    await openSandbox(page);
+    await openSandboxReadyToPicture(page);
 
     const before = await page.evaluate(() => ({
       url: location.href,
@@ -152,7 +149,7 @@ test.describe('A picture of the workbench', () => {
   });
 
   test('leaves nothing of its own behind in the document', async ({ page }) => {
-    await openSandbox(page);
+    await openSandboxReadyToPicture(page);
 
     const before = await page.evaluate(() => document.body.childElementCount);
     await page.evaluate(() => globalThis.lwCapture!());

@@ -604,7 +604,7 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   wrapper and handing values across files on the global), with its reason; the findings are fixed,
   failed host calls are reported instead of swallowed, and the docked frame's `set` helper is
   `showText`.
-- [ ] 11.8 One icon set for the platform apps; end-to-end helpers and the weaver's Transloco setup
+- [x] 11.8 One icon set for the platform apps; end-to-end helpers and the weaver's Transloco setup
   written once.
   So far: `loom-shell` and the testbed ship the same set, `favicon-32.png`, `icon-192.png` and
   `icon-512.png`, with the same three links in `index.html`; the shell keeps `loom-icon-64.png`, the
@@ -614,6 +614,11 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   The weaver's six component specs take their Transloco setup from `translocoForSpec(EN)` in
   `test-transloco.ts`, each with its translations in a named constant, instead of five local copies
   of the same configuration and one bare one.
+  `support/helpers.ts` holds one version of `openTwoEntries`, `splitNotes`, `clickTabInPane`,
+  `restSandboxFrame`, `openRestSandbox` and `openRpcSandbox`; the two pane readouts that differ are
+  named for what they read. Left for group 16: the end-to-end project does not type-check
+  (`retained-url-pane.spec.ts` casts a matcher to a string, `scrollbars.spec.ts` reads `offsetWidth`
+  off an SVG element), and no gate runs `tsc` over it.
 
 ## 12. The demo
 

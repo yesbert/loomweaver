@@ -1,20 +1,5 @@
-import { Frame, Page, expect, test } from '@playwright/test';
-
-async function sandboxFrame(page: Page): Promise<Frame> {
-  await page.goto('/sandbox-rest');
-  const element = page.locator('iframe[src*="/sandbox-rest/view.html"]');
-  await expect(element).toBeAttached({ timeout: 20_000 });
-  const frame = await element
-    .elementHandle()
-    .then((handle) => handle?.contentFrame());
-  if (!frame) {
-    throw new Error('the sandboxed surface never attached a document');
-  }
-  await frame.waitForFunction(() => 'LwFrame' in globalThis, undefined, {
-    timeout: 20_000,
-  });
-  return frame;
-}
+import { Frame, expect, test } from '@playwright/test';
+import { restSandboxFrame } from './support/helpers';
 
 interface Drawn {
   readonly coveredShare: number;
@@ -78,7 +63,7 @@ async function drawAndSample(frame: Frame, selector: string): Promise<Drawn> {
 
 test.describe('A surface can keep part of itself off the picture', () => {
   test('a marked area is covered rather than drawn', async ({ page }) => {
-    const frame = await sandboxFrame(page);
+    const frame = await restSandboxFrame(page);
 
     const marked = await drawAndSample(frame, '#withheld-demo');
     const ordinary = await drawAndSample(frame, '#whole-surface-demo');
@@ -88,7 +73,7 @@ test.describe('A surface can keep part of itself off the picture', () => {
   });
 
   test('marking the surface root withholds nothing', async ({ page }) => {
-    const frame = await sandboxFrame(page);
+    const frame = await restSandboxFrame(page);
 
     const covered = await frame.evaluate(async () => {
       document.body.setAttribute('data-lw-withhold', '');
@@ -133,7 +118,7 @@ test.describe('A surface can keep part of itself off the picture', () => {
   test('the surface is never told that a picture is being made', async ({
     page,
   }) => {
-    const frame = await sandboxFrame(page);
+    const frame = await restSandboxFrame(page);
 
     const events = await frame.evaluate(async () => {
       const seen: string[] = [];

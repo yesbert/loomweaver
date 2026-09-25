@@ -1,15 +1,5 @@
 import { Page, expect, test } from '@playwright/test';
-
-async function openTwoEntries(page: Page): Promise<void> {
-  await page.getByRole('button', { name: 'Open the entry list' }).click();
-  for (const subject of ['Alpha', 'Bravo']) {
-    await page
-      .getByRole('button', { name: new RegExp(`^${subject}`) })
-      .first()
-      .dblclick();
-  }
-  await expect(page.getByRole('tab', { name: 'E-02' })).toBeVisible();
-}
+import { clickTabInPane, openTwoEntries, splitNotes } from './support/helpers';
 
 async function splitOffNotes(page: Page): Promise<void> {
   const content = await page.locator('#lw-main-content').boundingBox();
@@ -142,7 +132,7 @@ interface PaneSnapshot {
   readonly text: string;
 }
 
-function panesLeftToRight(page: Page): Promise<PaneSnapshot[]> {
+function notesInPanesLeftToRight(page: Page): Promise<PaneSnapshot[]> {
   return page.evaluate(() => {
     const panes = [
       ...document.querySelectorAll('lw-content-grid lw-pane-view'),
@@ -170,13 +160,7 @@ function panesLeftToRight(page: Page): Promise<PaneSnapshot[]> {
 }
 
 async function splitAndStamp(page: Page): Promise<void> {
-  await page.goto('/overview');
-  await expect(page.getByRole('tab', { name: 'Overview' })).toBeVisible();
-  await page.goto('/notes');
-  await expect(page.locator('lw-testbed-notes-view textarea')).toBeVisible();
-  const module_ = process.platform === 'darwin' ? 'Meta' : 'Control';
-  await page.keyboard.press(`${module_}+\\`);
-  await expect(page.locator('lw-testbed-notes-view textarea')).toHaveCount(2);
+  await splitNotes(page);
   await page.evaluate(() => {
     const views = [
       ...document.querySelectorAll<HTMLElement>('lw-testbed-notes-view'),
@@ -188,28 +172,6 @@ async function splitAndStamp(page: Page): Promise<void> {
   });
 }
 
-function clickTabInPane(
-  page: Page,
-  side: 'left' | 'right',
-  label: string,
-): Promise<void> {
-  return page.evaluate(
-    ([which, name]) => {
-      const panes = [
-        ...document.querySelectorAll('lw-content-grid lw-pane-view'),
-      ].toSorted(
-        (a, b) => a.getBoundingClientRect().x - b.getBoundingClientRect().x,
-      );
-      const pane = which === 'left' ? panes[0] : panes.at(-1);
-      const tab = [...pane.querySelectorAll('[role="tab"]')].find((element) =>
-        (element.textContent ?? '').includes(name),
-      );
-      tab?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    },
-    [side, label] as const,
-  );
-}
-
 test('a surface instance stays in its pane when the URL role moves (TreeWeaver #42)', async ({
   page,
 }) => {
@@ -218,7 +180,7 @@ test('a surface instance stays in its pane when the URL role moves (TreeWeaver #
   await clickTabInPane(page, 'right', 'Notes');
 
   await expect
-    .poll(() => panesLeftToRight(page))
+    .poll(() => notesInPanesLeftToRight(page))
     .toEqual([
       expect.objectContaining({ active: 'Notes', marker: 'L' }),
       expect.objectContaining({ active: 'Notes', marker: 'R' }),
@@ -231,7 +193,7 @@ test('state typed into one pane never appears in the other (TreeWeaver #42)', as
   await splitAndStamp(page);
   await clickTabInPane(page, 'right', 'Notes');
   await expect
-    .poll(async () => (await panesLeftToRight(page))[1].marker)
+    .poll(async () => (await notesInPanesLeftToRight(page))[1].marker)
     .toBe('R');
 
   await page.evaluate(() => {
@@ -249,7 +211,7 @@ test('state typed into one pane never appears in the other (TreeWeaver #42)', as
 
   await clickTabInPane(page, 'left', 'Overview');
   await expect
-    .poll(() => panesLeftToRight(page))
+    .poll(() => notesInPanesLeftToRight(page))
     .toEqual([
       expect.objectContaining({
         active: expect.stringContaining('Overview') as string,
@@ -263,7 +225,7 @@ test('state typed into one pane never appears in the other (TreeWeaver #42)', as
 
   await clickTabInPane(page, 'left', 'Notes');
   await expect
-    .poll(() => panesLeftToRight(page))
+    .poll(() => notesInPanesLeftToRight(page))
     .toEqual([
       expect.objectContaining({ active: 'Notes', marker: 'L', text: '' }),
       expect.objectContaining({

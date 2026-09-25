@@ -1,4 +1,5 @@
-import { Frame, Page, expect, test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
+import { restSandboxFrame } from './support/helpers';
 
 interface DrawnSurface {
   readonly origin: string;
@@ -7,27 +8,11 @@ interface DrawnSurface {
   readonly height: number;
 }
 
-async function sandboxFrame(page: Page): Promise<Frame> {
-  await page.goto('/sandbox-rest');
-  const element = page.locator('iframe[src*="/sandbox-rest/view.html"]');
-  await expect(element).toBeAttached({ timeout: 20_000 });
-  const frame = await element
-    .elementHandle()
-    .then((handle) => handle?.contentFrame());
-  if (!frame) {
-    throw new Error('the sandboxed surface never attached a document');
-  }
-  await frame.waitForFunction(() => 'LwFrame' in globalThis, undefined, {
-    timeout: 20_000,
-  });
-  return frame;
-}
-
 test.describe('An isolated surface can draw itself', () => {
   test('it answers with its own content, from an origin it does not have', async ({
     page,
   }) => {
-    const frame = await sandboxFrame(page);
+    const frame = await restSandboxFrame(page);
 
     const drawn = await frame.evaluate<DrawnSurface>(async () => {
       const api = (globalThis as Record<string, unknown>)['LwFrame'] as {
@@ -58,7 +43,7 @@ test.describe('An isolated surface can draw itself', () => {
       }
     });
 
-    const frame = await sandboxFrame(page);
+    const frame = await restSandboxFrame(page);
     expect(requested).toHaveLength(0);
 
     await frame.evaluate(async () => {
@@ -76,7 +61,7 @@ test.describe('An isolated surface can draw itself', () => {
   test('it draws the same surface at the scale it was asked for', async ({
     page,
   }) => {
-    const frame = await sandboxFrame(page);
+    const frame = await restSandboxFrame(page);
 
     const [single, double] = await frame.evaluate(async () => {
       const api = (globalThis as Record<string, unknown>)['LwFrame'] as {
