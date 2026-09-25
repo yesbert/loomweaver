@@ -1,4 +1,4 @@
-<div class="flex h-full flex-col gap-4 p-3">
+<div class="@container flex h-full flex-col gap-4 p-4">
   <div class="flex items-baseline justify-between gap-3">
     <h2 class="text-base font-semibold text-content">
       {{ 'finance.view.ledger' | transloco }}
@@ -13,28 +13,38 @@
     </span>
   </div>
 
-  <div class="min-h-0 flex-1 overflow-auto rounded-lg border border-border bg-surface-raised">
-    <table class="w-full text-sm">
-      <thead class="text-xs text-content-muted">
-        <tr class="border-b border-border">
-          <th class="px-4 py-2.5 text-left font-medium">{{ 'finance.column.bookedOn' | transloco }}</th>
-          <th class="px-4 py-2.5 text-left font-medium">{{ 'finance.column.account' | transloco }}</th>
-          <th class="px-4 py-2.5 text-left font-medium">{{ 'finance.column.reference' | transloco }}</th>
-          <th class="px-4 py-2.5 text-right font-medium">{{ 'finance.column.debit' | transloco }}</th>
-          <th class="px-4 py-2.5 text-right font-medium">{{ 'finance.column.credit' | transloco }}</th>
-        </tr>
-      </thead>
-      <tbody data-testid="ledger-list">
+  <div class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border bg-surface-raised">
+    <div
+      class="hidden shrink-0 grid-cols-[8rem_minmax(0,1fr)_9rem_8rem_8rem] gap-3 border-b border-border px-4 py-2.5 text-xs font-medium text-content-muted @2xl:grid"
+    >
+      <span>{{ 'finance.column.bookedOn' | transloco }}</span>
+      <span>{{ 'finance.column.account' | transloco }}</span>
+      <span>{{ 'finance.column.reference' | transloco }}</span>
+      <span class="text-right">{{ 'finance.column.debit' | transloco }}</span>
+      <span class="text-right">{{ 'finance.column.credit' | transloco }}</span>
+    </div>
+
+    <div class="min-h-0 flex-1 overflow-auto">
+      <ul data-testid="ledger-list">
         @for (row of rows(); track row.entry.id) {
-          <tr class="border-b border-border last:border-b-0">
-            <td class="px-4 py-2.5 text-content-muted tabular-nums">{{ row.bookedOn }}</td>
-            <td class="px-4 py-2.5 text-content">{{ row.entry.account }}</td>
-            <td class="px-4 py-2.5 font-mono text-xs text-content-muted">{{ row.entry.reference }}</td>
-            <td class="px-4 py-2.5 text-right text-content tabular-nums">{{ row.debit }}</td>
-            <td class="px-4 py-2.5 text-right text-content tabular-nums">{{ row.credit }}</td>
-          </tr>
+          <li class="border-b border-border px-4 py-3 last:border-b-0 @2xl:py-2.5">
+            <span class="hidden grid-cols-[8rem_minmax(0,1fr)_9rem_8rem_8rem] items-center gap-3 text-sm @2xl:grid">
+              <span class="text-content-muted tabular-nums">{{ row.bookedOn }}</span>
+              <span class="truncate text-content">{{ row.entry.account }}</span>
+              <span class="truncate font-mono text-xs text-content-muted">{{ row.entry.reference }}</span>
+              <span class="text-right text-content tabular-nums">{{ row.debit }}</span>
+              <span class="text-right text-content tabular-nums">{{ row.credit }}</span>
+            </span>
+            <span class="flex items-baseline justify-between gap-3 @2xl:hidden">
+              <span class="flex min-w-0 flex-col gap-0.5">
+                <span class="truncate text-content">{{ row.entry.account }}</span>
+                <span class="text-xs text-content-faint">{{ row.bookedOn }} · {{ row.entry.reference }}</span>
+              </span>
+              <span class="shrink-0 text-sm text-content tabular-nums">{{ row.debit || row.credit }}</span>
+            </span>
+          </li>
         }
-      </tbody>
-    </table>
+      </ul>
+    </div>
   </div>
 </div>

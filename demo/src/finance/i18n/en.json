@@ -27,7 +27,14 @@
     "account": "Account",
     "reference": "Reference",
     "debit": "Debit",
-    "credit": "Credit"
+    "credit": "Credit",
+    "supplier": "Supplier",
+    "approval": "Approval",
+    "overdue": "Overdue",
+    "level": "Level",
+    "period": "Period",
+    "openItems": "Open items",
+    "periodState": "State"
   },
   "view": {
     "receivables": "Receivables",
