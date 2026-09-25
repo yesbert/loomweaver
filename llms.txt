@@ -72,7 +72,7 @@ Why the workbench behaves as it does; short, each linking to the how-to pages th
 - [Capabilities](platform/libs/core/plugin-sdk/src/lib/plugin/capability.ts): the coarse capabilities a plugin *declares* and a distribution *grants*, default-deny (`contributions`/`ui`/`host`/`navigation`/`session`/`theme`/`automation`).
 - [Access gating](platform/libs/core/plugin-sdk/src/lib/plugin/auth.ts): `AuthSnapshot`, `AccessRequirement`, and the pure predicates: how a contribution reacts to login state + roles. Distinct from capabilities: what a *user* may see vs. what a *plugin* may do.
 - [Worked example: the testbed weaver](platform/libs/weavers/testbed-weaver/src/lib/testbed.plugin.ts): a real in-repo plugin (dogfood). All domain content lives in a weaver like this, never in the core.
-- [`loom-testbed` composition root](platform/apps/loom-testbed/src/main.ts): a worked distribution: `provideShellRouter` / `provideLayout` / `providePlugins` / `provideCapabilityGrants` / branding.
+- [`loom-testbed` composition root](platform/apps/loom-testbed/src/main.ts): a worked distribution, read as a table of contents: shell, branding and session in `main.ts`, the layout, workspaces, plugins with their grants, cross-tab sync and capture wiring in named files under `app/`.
 
 ## Scaffolding & tooling (AI-assisted setup)
 

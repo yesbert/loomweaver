@@ -571,9 +571,15 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   `1_testbed`, the testbed namespace, the sign-in cycle, a neutral tagline and `ENTRY_SUBJECTS`;
   rail ids `testbed.rail.…` and bar ids `testbed.bar.…`, `BROKEN_PICTURE_URL` once and the account
   picture from readable SVG; `lw-field` on the notes and search inputs. End-to-end suite passes.
-- [ ] 11.6 `main.ts` becomes the table of contents of the distribution: layout, workspaces declared
+- [x] 11.6 `main.ts` becomes the table of contents of the distribution: layout, workspaces declared
   once in rail order, plugins with grants taken from their manifests, end-to-end switches, cross-tab
   sync and capture wiring in named files.
+  `app/testbed-layout.ts`, `testbed-workspaces.ts` (six workspaces in rail order, their rail items
+  derived), `testbed-plugins.ts` (grants from the manifests and descriptors), `e2e-switches.ts` (the
+  three storage keys), `cross-tab-sync.ts` and `capture/provide-capture.ts`, which binds one capture
+  function for the plugin and the `lwCapture` global instead of a stored injector; the capture
+  strings are translated, the feature flags merge over the patch's own groups. `main.ts` is 60
+  lines. The end-to-end suite passes.
 - [ ] 11.7 The sandbox and store example plugins (after their defects are fixed): **move**
   `sandbox-static` to a name for what it exercises; their texts match what they register; tokens
   without hard-coded colours; `sandbox-rpc/view.js` (433 lines) split into markup, strings, veto and

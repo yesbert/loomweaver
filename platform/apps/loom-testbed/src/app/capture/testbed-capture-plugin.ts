@@ -1,12 +1,15 @@
-import { EnvironmentInjector, runInInjectionContext } from '@angular/core';
 import { Plugin } from '@loomweaver/plugin-sdk';
-import { WorkbenchCaptureService } from '@loomweaver/shell';
+import { WorkbenchPicture, WorkbenchPictureRequest } from '@loomweaver/shell';
 import { CaptureDialog } from './capture-dialog';
 
-let injector: EnvironmentInjector | undefined;
+export type CaptureWorkbench = (
+  request?: WorkbenchPictureRequest,
+) => Promise<WorkbenchPicture>;
 
-export function bindCaptureInjector(next: EnvironmentInjector): void {
-  injector = next;
+let captureWorkbench: CaptureWorkbench | undefined;
+
+export function bindCapture(capture: CaptureWorkbench): void {
+  captureWorkbench = capture;
 }
 
 export const testbedCapturePlugin: Plugin = {
@@ -18,19 +21,17 @@ export const testbedCapturePlugin: Plugin = {
   activate(ctx) {
     ctx.registerCommand({
       id: 'testbed.capture',
-      title: 'Picture of the workbench',
+      title: 'product.capture.title',
       icon: 'testbedDocument',
       shortcut: 'mod+alt+p',
       run: async () => {
-        if (!injector) {
+        if (!captureWorkbench) {
           return;
         }
-        const picture = await runInInjectionContext(injector, () =>
-          injector!.get(WorkbenchCaptureService).capture(),
-        );
+        const picture = await captureWorkbench();
         ctx.ui.open(CaptureDialog, {
           data: picture,
-          title: 'Picture of the workbench',
+          title: 'product.capture.title',
           size: 'xl',
           maximizable: true,
         });
