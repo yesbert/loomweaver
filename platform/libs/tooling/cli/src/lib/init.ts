@@ -7,7 +7,7 @@ import {
   installCommand,
   runScriptCommand,
 } from './package-manager';
-import type { Io } from './run';
+import type { Io } from './io';
 
 const INIT_FLAGS = [
   'title',
@@ -232,4 +232,3 @@ function composesShell(file: string): boolean {
   );
 }
 
-export type { InitDeps } from './init-plan';

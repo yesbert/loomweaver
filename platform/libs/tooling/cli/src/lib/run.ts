@@ -1,324 +1,29 @@
+import { parseArgs, ParsedArgs } from './args';
+import { execInherit } from './exec';
+import { help, list } from './help';
+import { init } from './init';
+import { InitDeps, UNBUNDLED_VERSION } from './init-plan';
+import { Io } from './io';
+import { scaffold } from './scaffold-command';
 import {
-  type CommandSource,
-  I18nBundle,
-  kebabCase,
-  loadTypeScript,
-  portableOptions,
-  usageFor,
-  validateCatalog,
-  validateCommands,
-  validateI18nParity,
-  validateManifest,
-} from '@loomweaver/devkit';
-import { spawnSync } from 'node:child_process';
-import { readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
-import {
-  ArgError,
-  boolFlag,
-  parseArgs,
-  ParsedArgs,
-  rejectUnknownFlags,
-  requiredFlag,
-  stringFlag,
-} from './args';
-import { AmendPlan, applyAmend, planAmend } from './amend';
-import { init, InitDeps } from './init';
-import {
-  allowedFlagsFor,
-  amendmentsFor,
-  buildScaffold,
-  findScaffold,
-  SCAFFOLDS,
-} from './scaffold';
-import { applyWrite, planWrite } from './write';
+  validateCatalogCommand,
+  validateCommandsCommand,
+  validateI18nCommand,
+  validateManifestCommand,
+} from './validate-command';
 
-export interface Io {
-  out(line: string): void;
-  err(line: string): void;
-}
+type CommandHandler = (args: ParsedArgs, io: Io, deps: InitDeps) => number;
 
-const VERSION = process.env['LOOM_CLI_VERSION'] ?? '0.0.0';
+const VERSION = process.env['LOOM_CLI_VERSION'] ?? UNBUNDLED_VERSION;
 
-function help(): string {
-  const commands = SCAFFOLDS.map((s) => `  ${s.name.padEnd(16)}${s.summary}`);
-  return [
-    'loomweaver — LoomWeaver scaffolding',
-    '',
-    'Usage: loomweaver <command> [options]',
-    '',
-    'Scaffolds:',
-    ...commands,
-    '',
-    'Other commands:',
-    '  init            take the Angular application or Nx workspace you are in to a running product:',
-    '                  install the platform, scaffold the distribution and a first weaver, say what to serve',
-    '                  [--title <t>] [--styles tailwind|precompiled] [--weaver <id>|--no-weaver] [--app <nx app>]',
-    '                  [--package-manager npm|pnpm|yarn|bun] [--dry-run]',
-    '  list            print every scaffold with its options',
-    '  validate-manifest --id <id> [--name <name>] [--capabilities <a,b>]',
-    '  validate-i18n   --dir <dir>   check <lang>.json bundles for key parity',
-    '  validate-catalog --file <path> check a plugin store catalog the host parses defensively',
-    '  validate-commands --dir <dir> say, per command, whether an agent is offered it and what it would guess at',
-    '',
-    'Options:',
-    '  --out <dir>     where to write (default: the current directory)',
-    '  --dry-run       list the files without writing them',
-    '  --force         overwrite files that already exist',
-    '  --strict        make validation warnings fail the exit code (for CI)',
-    '  -h, --help      this text',
-    '  -v, --version   the version, which matches the platform packages',
-  ].join('\n');
-}
-
-function list(args: ParsedArgs, io: Io): number {
-  rejectUnknownFlags(args, []);
-  for (const scaffold of SCAFFOLDS) {
-    io.out(`${scaffold.name}`);
-    io.out(`  ${scaffold.summary}`);
-    io.out(`  loomweaver ${usageFor(scaffold)}`);
-    for (const option of portableOptions(scaffold)) {
-      const flag = `--${kebabCase(option.name)}`;
-      io.out(`    ${flag.padEnd(18)}${option.description}`);
-    }
-    io.out('');
-  }
-  return 0;
-}
-
-function reportFindings(
-  io: Io,
-  findings: readonly { level: string; message: string }[],
-  strict: boolean,
-): number {
-  if (findings.length === 0) {
-    io.out('No findings.');
-    return 0;
-  }
-  for (const f of findings) {
-    (f.level === 'info' ? io.out : io.err)(`${f.level}: ${f.message}`);
-  }
-  const gating = findings.filter((f) => f.level !== 'info');
-  if (gating.some((f) => f.level === 'error')) {
-    return 1;
-  }
-  return strict && gating.length > 0 ? 1 : 0;
-}
-
-function validateManifestCommand(args: ParsedArgs, io: Io): number {
-  rejectUnknownFlags(args, ['id', 'name', 'capabilities', 'strict']);
-  const capabilities = (stringFlag(args, 'capabilities') ?? '')
-    .split(',')
-    .map((entry) => entry.trim())
-    .filter(Boolean);
-  return reportFindings(
-    io,
-    validateManifest({
-      id: requiredFlag(args, 'id'),
-      name: stringFlag(args, 'name'),
-      capabilities,
-    }),
-    boolFlag(args, 'strict') === true,
-  );
-}
-
-function readBundles(dir: string): Record<string, I18nBundle> {
-  const bundles: Record<string, I18nBundle> = {};
-  for (const entry of readdirSync(dir)) {
-    if (!entry.endsWith('.json')) {
-      continue;
-    }
-    const language = entry.slice(0, -'.json'.length);
-    try {
-      bundles[language] = JSON.parse(readFileSync(join(dir, entry), 'utf8'));
-    } catch (error) {
-      throw new ArgError(
-        `${entry} is not valid JSON: ${(error as Error).message}`,
-      );
-    }
-  }
-  if (Object.keys(bundles).length === 0) {
-    throw new ArgError(`No <lang>.json bundles found in ${dir}.`);
-  }
-  return bundles;
-}
-
-function validateI18nCommand(args: ParsedArgs, io: Io): number {
-  rejectUnknownFlags(args, ['dir', 'strict']);
-  return reportFindings(
-    io,
-    validateI18nParity(readBundles(requiredFlag(args, 'dir'))),
-    boolFlag(args, 'strict') === true,
-  );
-}
-
-function readSources(dir: string): CommandSource[] {
-  const sources: CommandSource[] = [];
-  const walk = (folder: string): void => {
-    for (const entry of readdirSync(folder, { withFileTypes: true })) {
-      if (
-        entry.name === 'node_modules' ||
-        entry.name === 'dist' ||
-        entry.name.startsWith('.')
-      ) {
-        continue;
-      }
-      const path = join(folder, entry.name);
-      if (entry.isDirectory()) {
-        walk(path);
-      } else if (
-        entry.name.endsWith('.ts') &&
-        !entry.name.endsWith('.d.ts') &&
-        !entry.name.endsWith('.spec.ts')
-      ) {
-        sources.push({ path, text: readFileSync(path, 'utf8') });
-      }
-    }
-  };
-  try {
-    walk(dir);
-  } catch (error) {
-    throw new ArgError(`Cannot read ${dir}: ${(error as Error).message}`);
-  }
-  if (sources.length === 0) {
-    throw new ArgError(`No TypeScript sources found under ${dir}.`);
-  }
-  return sources;
-}
-
-function validateCommandsCommand(args: ParsedArgs, io: Io): number {
-  rejectUnknownFlags(args, ['dir', 'strict']);
-  const dir = requiredFlag(args, 'dir');
-  const ts = loadTypeScript(dir);
-  if (!ts) {
-    throw new ArgError(
-      `typescript is not installed where ${dir} can reach it; the check reads sources with the TypeScript compiler API, so run it inside the project.`,
-    );
-  }
-  return reportFindings(
-    io,
-    validateCommands(readSources(dir), ts),
-    boolFlag(args, 'strict') === true,
-  );
-}
-
-function readCatalog(file: string): unknown {
-  let raw: string;
-  try {
-    raw = readFileSync(file, 'utf8');
-  } catch (error) {
-    throw new ArgError(`Cannot read ${file}: ${(error as Error).message}`);
-  }
-  try {
-    return JSON.parse(raw);
-  } catch (error) {
-    throw new ArgError(
-      `${file} is not valid JSON: ${(error as Error).message}`,
-    );
-  }
-}
-
-function validateCatalogCommand(args: ParsedArgs, io: Io): number {
-  rejectUnknownFlags(args, ['file', 'strict']);
-  return reportFindings(
-    io,
-    validateCatalog(readCatalog(requiredFlag(args, 'file'))),
-    boolFlag(args, 'strict') === true,
-  );
-}
-
-function reportAmendments(io: Io, amend: AmendPlan, done: boolean): void {
-  if (amend.amendments.length > 0) {
-    io.out(
-      done
-        ? `Wired ${amend.amendments.length} workspace file(s):`
-        : `Would wire ${amend.amendments.length} workspace file(s):`,
-    );
-    for (const amendment of amend.amendments) {
-      io.out(`  ${amendment.display}`);
-      for (const entry of amendment.added) {
-        io.out(`    + ${entry}`);
-      }
-    }
-  }
-  if (amend.remaining.length > 0) {
-    io.out('Still to do by hand:');
-    for (const entry of amend.remaining) {
-      io.out(`  - ${entry}`);
-    }
-  }
-}
-
-function scaffold(args: ParsedArgs, io: Io): number {
-  const descriptor = findScaffold(args.command);
-  rejectUnknownFlags(args, [
-    ...allowedFlagsFor(descriptor),
-    'out',
-    'dry-run',
-    'force',
-  ]);
-  const files = buildScaffold(descriptor, args);
-  const out = stringFlag(args, 'out') ?? '.';
-  const plan = planWrite(files, out);
-  const paths = plan.files.map((file) => file.path);
-  const amend = planAmend(amendmentsFor(descriptor, args), out);
-
-  if (boolFlag(args, 'dry-run')) {
-    io.out(`Would write ${paths.length} file(s) into ${plan.root}:`);
-    for (const path of paths) {
-      io.out(`  ${path}`);
-    }
-    if (plan.conflicts.length > 0) {
-      io.out(
-        `${plan.conflicts.length} of them already exist and would need --force:`,
-      );
-      for (const path of plan.conflicts) {
-        io.out(`  ${path}`);
-      }
-    }
-    reportAmendments(io, amend, false);
-    return 0;
-  }
-
-  if (plan.conflicts.length > 0 && !boolFlag(args, 'force')) {
-    io.err(
-      `${plan.conflicts.length} file(s) already exist; pass --force to overwrite:`,
-    );
-    for (const path of plan.conflicts) {
-      io.err(`  ${path}`);
-    }
-    return 1;
-  }
-
-  applyWrite(files, plan);
-  applyAmend(amend);
-  io.out(`Wrote ${paths.length} file(s) into ${plan.root}:`);
-  for (const path of paths) {
-    io.out(`  ${path}`);
-  }
-  reportAmendments(io, amend, true);
-  return 0;
-}
-
-class ExecError extends Error {}
-
-function execInherit(command: readonly string[], cwd: string): void {
-  const result = spawnSync(command[0], command.slice(1), {
-    cwd,
-    stdio: 'inherit',
-    shell: process.platform === 'win32',
-  });
-  if (result.error) {
-    throw new ExecError(
-      `Could not run "${command.join(' ')}": ${result.error.message}`,
-    );
-  }
-  if (result.status !== 0) {
-    throw new ExecError(
-      `"${command.join(' ')}" exited with ${result.status ?? 'a signal'}.`,
-    );
-  }
-}
+const COMMANDS = new Map<string, CommandHandler>([
+  ['init', init],
+  ['list', list],
+  ['validate-manifest', validateManifestCommand],
+  ['validate-i18n', validateI18nCommand],
+  ['validate-catalog', validateCatalogCommand],
+  ['validate-commands', validateCommandsCommand],
+]);
 
 export function run(
   argv: readonly string[],
@@ -346,31 +51,14 @@ export function run(
     return 1;
   }
 
+  const command = COMMANDS.get(args.command) ?? scaffold;
   try {
-    if (args.command === 'init') {
-      return init(args, io, {
-        cwd: deps?.cwd ?? process.cwd(),
-        exec: deps?.exec ?? execInherit,
-        run: deps?.run ?? ((inner) => run(inner, io, deps)),
-        version: deps?.version ?? VERSION,
-      });
-    }
-    if (args.command === 'list') {
-      return list(args, io);
-    }
-    if (args.command === 'validate-manifest') {
-      return validateManifestCommand(args, io);
-    }
-    if (args.command === 'validate-i18n') {
-      return validateI18nCommand(args, io);
-    }
-    if (args.command === 'validate-catalog') {
-      return validateCatalogCommand(args, io);
-    }
-    if (args.command === 'validate-commands') {
-      return validateCommandsCommand(args, io);
-    }
-    return scaffold(args, io);
+    return command(args, io, {
+      cwd: deps?.cwd ?? process.cwd(),
+      exec: deps?.exec ?? execInherit,
+      run: deps?.run ?? ((inner) => run(inner, io, deps)),
+      version: deps?.version ?? VERSION,
+    });
   } catch (error) {
     io.err((error as Error).message);
     return 1;

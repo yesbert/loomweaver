@@ -49,7 +49,7 @@ function readFlag(
   return value;
 }
 
-export function valuesFor(
+function valuesFor(
   scaffold: ScaffoldDescriptor,
   args: ParsedArgs,
 ): ScaffoldValues {
