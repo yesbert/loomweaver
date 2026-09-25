@@ -4,8 +4,8 @@ import { TranslocoService } from '@jsverse/transloco';
 import { DialogRef } from '../dialog/dialog-ref';
 import { DialogService } from '../dialog/dialog.service';
 import { CommandService } from '../commands/command.service';
-import { BUILT_IN_WORKSPACE_ID } from './workspace-definition';
-import { WorkspaceDefinition } from './workspace-definition';
+import { BUILT_IN_WORKSPACE_ID } from './declaration/composed-definitions';
+import { WorkspaceDefinition } from './declaration/workspace-definition';
 import { WorkspaceService } from './workspace.service';
 import { WorkspaceDialog } from './workspace-dialog';
 

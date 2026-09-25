@@ -13,8 +13,8 @@ import { CONTENT_DOCK } from '../regions/pane/tree/pane-address';
 import { collectTabs } from '../regions/pane/tree/pane-queries';
 import { WORKSPACE_SETTLEMENT } from '../regions/content/routing/workspace-settlement';
 import { WorkspaceService } from './workspace.service';
-import { provideWorkspaces } from './provide-workspaces';
-import { WorkspaceDefinition } from './workspace-definition';
+import { provideWorkspaces } from './declaration/provide-workspaces';
+import { WorkspaceDefinition } from './declaration/workspace-definition';
 
 @Component({ selector: 'lw-test-content', template: '' })
 class TestContent {}

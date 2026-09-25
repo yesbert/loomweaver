@@ -1,10 +1,8 @@
 import { computed, Signal } from '@angular/core';
 import { KeyValueStore } from '../../persistence/key-value-store';
 import { workspaceScopedKey } from '../active-workspace.service';
-import {
-  PanelDeclarations,
-  WorkspaceDefinition,
-} from '../workspace-definition';
+import { PanelDeclarations } from '../declaration/definition-baseline';
+import { WorkspaceDefinition } from '../declaration/workspace-definition';
 import { changeCandidates } from './workspace-lookup';
 import {
   activeStateDiffers,

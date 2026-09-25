@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { ActiveWorkspaceService } from './active-workspace.service';
-import { BUILT_IN_WORKSPACE_ID } from './workspace-definition';
+import { BUILT_IN_WORKSPACE_ID } from './declaration/composed-definitions';
 import { WORKING_STATE_STORE } from '../persistence/working-state-store';
-import { provideWorkspaces } from './provide-workspaces';
+import { provideWorkspaces } from './declaration/provide-workspaces';
 
 const KEY = 'lw.shell.active-workspace';
 

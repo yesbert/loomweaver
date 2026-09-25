@@ -64,7 +64,8 @@ export function provideWorkspaces(
 ): EnvironmentProviders {
   const features = declarations.filter(isFeature);
   const definitions = declarations.filter(
-    (declaration): declaration is WorkspaceDefinition => !isFeature(declaration),
+    (declaration): declaration is WorkspaceDefinition =>
+      !isFeature(declaration),
   );
   return makeEnvironmentProviders([
     { provide: WORKSPACE_DEFINITIONS, useValue: definitions, multi: true },

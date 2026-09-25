@@ -7,7 +7,7 @@ import { containerDockFor } from '../container/container-children';
 import { WORKING_STATE_STORE } from '../../../persistence/working-state-store';
 import { ActiveWorkspaceService } from '../../../workspace/active-workspace.service';
 
-import { provideWorkspaces } from '../../../workspace/provide-workspaces';
+import { provideWorkspaces } from '../../../workspace/declaration/provide-workspaces';
 import { SETTINGS_STORE } from '../../../persistence/settings-store';
 
 const ACTIVE_KEY = 'lw.shell.active-workspace';

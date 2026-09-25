@@ -1,5 +1,5 @@
 import { isHomePath } from '../regions/content/content-path';
-import { WorkspaceDefinition } from './workspace-definition';
+import { WorkspaceDefinition } from './declaration/workspace-definition';
 
 export interface Opening {
   readonly declared: WorkspaceDefinition | undefined;

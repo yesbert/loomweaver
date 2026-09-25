@@ -5,7 +5,7 @@ import { Router, provideRouter } from '@angular/router';
 import { WorkspaceService } from './workspace.service';
 import { BootAddress } from '../regions/content/routing/boot-address';
 import { ActiveWorkspaceService } from './active-workspace.service';
-import { BUILT_IN_WORKSPACE_ID } from './workspace-definition';
+import { BUILT_IN_WORKSPACE_ID } from './declaration/composed-definitions';
 import { SETTINGS_STORE } from '../persistence/settings-store';
 import { ContributionRegistry } from '../contributions/contribution-registry';
 import {
@@ -17,7 +17,7 @@ import { CONTENT_DOCK } from '../regions/pane/tree/pane-address';
 import { PaneTreeService } from '../regions/pane/tree/pane-tree.service';
 import { findLeaf } from '../regions/pane/tree/pane-queries';
 import { provideLayout } from '../layout/layout';
-import { provideWorkspaces } from './provide-workspaces';
+import { provideWorkspaces } from './declaration/provide-workspaces';
 import { HiddenViewsService } from '../regions/panel/hidden-views.service';
 import { PanelGroupService } from '../regions/panel/panel-group.service';
 import { PanelState } from '../regions/panel/panel-state';

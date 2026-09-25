@@ -7,10 +7,7 @@ import {
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { DialogRef } from '../dialog/dialog-ref';
 import { DialogService } from '../dialog/dialog.service';
-import {
-  BUILT_IN_WORKSPACE_ID,
-  offersBuiltInWorkspace,
-} from './workspace-definition';
+import { BUILT_IN_WORKSPACE_ID, offersBuiltInWorkspace } from './declaration/composed-definitions';
 import { WorkspaceService } from './workspace.service';
 import { UnusableWorkspacesService } from './usability/unusable-workspaces.service';
 import { CommandService } from '../commands/command.service';

@@ -249,8 +249,13 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   whose file the package re-exports whole, so the token would have become published),
   and `WorkspaceSettlement` / `WORKSPACE_SETTLEMENT` in `regions/content/routing/workspace-settlement.ts`.
   `rungOf` and `PluginRung` keep their names, as 6.3 decided for the glossary's "rung".
-- [ ] 7.4 `workspace-definition.ts` becomes `workspace/declaration/`: the published types, the audit
+- [x] 7.4 `workspace-definition.ts` becomes `workspace/declaration/`: the published types, the audit
   together with the gap warnings, the baseline computation, the provider.
+  `workspace-definition.ts` (the published types only), `definition-audit.ts` (the audit and the gap
+  warnings), `definition-baseline.ts`, `provide-workspaces.ts`, plus `declared-content.ts` (the content
+  tree the other three read) and `composed-definitions.ts` (the built-in id, deduplication, the
+  starting workspace and the claims), which 7.5's catalog may take over. The spec split the same way;
+  a test of the audit that sat under `declaredTabPaths` moved to the audit's spec.
 - [ ] 7.5 `WorkspaceService` (398 lines) is cut into a catalog, a settlement and an opening service
   behind the unchanged published facade; the catalog provides the definitions and their lookup to
   every reader. Its single-letter `w` lambdas become `workspace` here, because renaming them in 2.12

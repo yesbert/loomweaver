@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideLayout } from '../layout/layout';
 import { WorkspaceService } from './workspace.service';
-import { provideWorkspaces } from './provide-workspaces';
+import { provideWorkspaces } from './declaration/provide-workspaces';
 
 const LAYOUT = {
   regions: [

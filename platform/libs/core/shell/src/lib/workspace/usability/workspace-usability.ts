@@ -1,7 +1,8 @@
 import { CONTENT_DOCK } from '../../regions/pane/tree/pane-address';
 import { parseDocks } from '../../regions/pane/tree/pane-tree-storage';
 import { collectTabs } from '../../regions/pane/tree/pane-queries';
-import { WorkspaceDefinition, declaredTabPaths } from '../workspace-definition';
+import { WorkspaceDefinition } from '../declaration/workspace-definition';
+import { declaredTabPaths } from '../declaration/declared-content';
 
 export interface WorkspaceOrigin {
   readonly id: string;
