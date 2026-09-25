@@ -1,58 +1,15 @@
 import { Type } from '@angular/core';
+import { SurfaceBase } from './surface.js';
+import { ViewAction } from './view-action.js';
 import { AccessRequirement } from '../plugin/auth.js';
-
-/**
- * A view's own header action (`header.actions`) — an independent function
- * of that view (e.g. "new", "sort"), shown in the panel header while the view is
- * active. Not a view switcher (that is the Rail).
- */
-export interface ViewAction {
-  readonly id: string;
-  /** Icon name — resolved by the host icon registry (a plain string). */
-  readonly icon: string;
-  /** Transloco key (or literal) for the tooltip/label. */
-  readonly title: string;
-  /** Lower renders first (default 0). */
-  readonly order?: number;
-  /**
-   * Id of a menu slot to open as this action's **context menu** on right-click — region-agnostic:
-   * the host wires the right-click uniformly and passes a serialisable context (`{ targetKind, id, region }`).
-   * Contribute items to the slot with `ctx.registerMenuItem({ menu, … })`. Omit for no context menu.
-   */
-  readonly menu?: string;
-  /**
-   * Id of a registered {@link Command} this action triggers. Provide this **or** {@link run}; when
-   * set, the host runs that command (so a keybinding/palette can share the same behaviour).
-   */
-  readonly command?: string;
-  /**
-   * Declarative auth gating: the host hides (default) or disables this action when the
-   * current session does not meet the requirement. Presentation only — real enforcement is
-   * server-side. Omit for an action everyone sees.
-   */
-  readonly access?: AccessRequirement;
-  /**
-   * The state of a toggling action: `true` stands on, `false` stands off. The host draws it as the
-   * control's pressed state, visibly and as `aria-pressed`, so a screen reader announces a toggle
-   * as a toggle. Omit for a plain button, which is drawn and announced without any state. To move
-   * a toggle, replace the action with `ctx.updateSurfaceAction` when the state changes.
-   */
-  readonly pressed?: boolean;
-  /**
-   * Inline behaviour, for an action that is not backed by a registered command. May be async; the
-   * host fires it fire-and-forget. Typed `() => void` so a one-expression arrow whose handler
-   * happens to return a value (e.g. `() => ctx.ui.openSettings()`) still assigns — the return is
-   * ignored either way.
-   */
-  run?(): void;
-}
 
 /**
  * A view docked into a **Panel** region (chrome-local, auto-tabbed by the host) — the host's internal
  * shape for a **non-routable** {@link Surface}. Authors do not build one directly: contribute a
  * `Surface` via `ctx.registerSurface` and the host normalises it into this.
  */
-export interface View {
+export interface View
+  extends Pick<SurfaceBase, 'retain' | 'saveOn' | 'closable' | 'padded'> {
   /** Stable id (ordering, active-view selection, removal). */
   readonly id: string;
   /** Target region id this view docks into. */
@@ -79,24 +36,6 @@ export interface View {
    * baseline state. Omit for a single implicit instance (the view's own `VIEW_STATE`).
    */
   readonly instanceable?: boolean;
-  /**
-   * Retention when the view is hidden — carried through from {@link Surface.retain}.
-   * `'always'` keeps the instance alive while hidden; `'never'` forces destruction; omitted falls back
-   * to the distribution's retention default (destroy).
-   */
-  readonly retain?: 'always' | 'never';
-  /**
-   * Auto-save on hiding — carried through from {@link Surface.saveOn}: a hidden dirty
-   * instance's `surfaceSave` is called fire-and-forget.
-   */
-  readonly saveOn?: 'hide';
-  /** Whether the user may close a tab of this view — carried through from {@link Surface.closable}. */
-  readonly closable?: boolean;
-  /**
-   * Whether the host insets this surface from its pane edges. Absent, the product's own default
-   * applies, which is no inset unless the distribution asked for one. See `SurfaceBase.padded`.
-   */
-  readonly padded?: boolean;
   /** Component the host renders as the view body. */
   readonly component?: Type<unknown>;
   /** Deferred alternative to {@link component} — the host calls it the first time the view is shown. */

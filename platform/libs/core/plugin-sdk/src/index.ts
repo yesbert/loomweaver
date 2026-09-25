@@ -12,6 +12,7 @@ export * from './lib/commands/command-invocation.js';
 
 export * from './lib/surfaces/surface.js';
 export * from './lib/surfaces/view.js';
+export * from './lib/surfaces/view-action.js';
 export * from './lib/surfaces/view-state.js';
 export * from './lib/surfaces/surface-hold.js';
 export * from './lib/surfaces/dirty-surface.js';
