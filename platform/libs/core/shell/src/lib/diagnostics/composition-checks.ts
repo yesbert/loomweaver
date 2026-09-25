@@ -1,5 +1,5 @@
 import { Command, MenuItem, SettingsSection } from '@loomweaver/plugin-sdk';
-import { chordSignature } from '../commands/keyboard/chord';
+import { chordClaims } from '../commands/keyboard/chord';
 import { RegionType, ShellLayout } from '../layout/layout';
 import { regionById } from '../layout/layout-queries';
 import { menuEntryId } from '../menu/menu-entry-id';
@@ -90,20 +90,9 @@ export function contestedShortcuts(
   commands: readonly Command[],
   isMac: boolean,
 ): string[] {
-  const claims = new Map<string, Command[]>();
-  for (const command of commands) {
-    if (!command.shortcut) {
-      continue;
-    }
-    const signature = chordSignature(command.shortcut, isMac);
-    if (signature === null) {
-      continue;
-    }
-    claims.set(signature, [...(claims.get(signature) ?? []), command]);
-  }
-  return [...claims.values()]
-    .filter((contesting) => contesting.length > 1)
-    .map((contesting) => contestedShortcut(contesting));
+  return [...chordClaims(commands, isMac).bySignature.values()]
+    .filter((claimants) => claimants.length > 1)
+    .map((claimants) => contestedShortcut(claimants));
 }
 
 export function settingIds(

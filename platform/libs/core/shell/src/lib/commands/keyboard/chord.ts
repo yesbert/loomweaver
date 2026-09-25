@@ -1,3 +1,5 @@
+import { Command } from '@loomweaver/plugin-sdk';
+
 interface ChordParts {
   ctrl: boolean;
   meta: boolean;
@@ -14,24 +16,44 @@ export function isMacPlatform(): boolean {
   return /mac|iphone|ipad|ipod/i.test(platform);
 }
 
-function normaliseKey(key: string): string {
-  const lower = key.toLowerCase();
-  switch (lower) {
-    case 'esc': {
-      return 'escape';
-    }
-    case 'return': {
-      return 'enter';
-    }
-    case 'space':
-    case 'spacebar':
-    case ' ': {
-      return 'space';
-    }
-    default: {
-      return lower;
-    }
-  }
+const TOKEN_ALIASES: ReadonlyMap<string, string> = new Map([
+  ['control', 'ctrl'],
+  ['cmd', 'meta'],
+  ['command', 'meta'],
+  ['win', 'meta'],
+  ['option', 'alt'],
+  ['esc', 'escape'],
+  ['return', 'enter'],
+  ['spacebar', 'space'],
+  [' ', 'space'],
+]);
+
+const TOKEN_LABELS: ReadonlyMap<
+  string,
+  { readonly mac: string; readonly other: string }
+> = new Map([
+  ['mod', { mac: '⌘', other: 'Ctrl' }],
+  ['ctrl', { mac: '⌃', other: 'Ctrl' }],
+  ['meta', { mac: '⌘', other: 'Meta' }],
+  ['alt', { mac: '⌥', other: 'Alt' }],
+  ['shift', { mac: '⇧', other: 'Shift' }],
+  ['enter', { mac: '↵', other: 'Enter' }],
+  ['escape', { mac: 'Esc', other: 'Esc' }],
+  ['space', { mac: 'Space', other: 'Space' }],
+]);
+
+type Modifier = 'ctrl' | 'meta' | 'alt' | 'shift';
+
+const MODIFIERS: ReadonlySet<string> = new Set<Modifier>([
+  'ctrl',
+  'meta',
+  'alt',
+  'shift',
+]);
+
+function canonicalToken(token: string): string {
+  const lower = token.toLowerCase();
+  return TOKEN_ALIASES.get(lower) ?? lower;
 }
 
 function toSignature(parts: ChordParts): string {
@@ -64,85 +86,60 @@ export function chordSignature(chord: string, isMac: boolean): string | null {
 }
 
 function applyToken(parts: ChordParts, token: string, isMac: boolean): void {
-  switch (token) {
-    case 'mod': {
-      if (isMac) parts.meta = true;
-      else parts.ctrl = true;
-      return;
-    }
-    case 'ctrl':
-    case 'control': {
-      parts.ctrl = true;
-      return;
-    }
-    case 'meta':
-    case 'cmd':
-    case 'command':
-    case 'win': {
-      parts.meta = true;
-      return;
-    }
-    case 'alt':
-    case 'option': {
-      parts.alt = true;
-      return;
-    }
-    case 'shift': {
-      parts.shift = true;
-      return;
-    }
-    default: {
-      parts.key = normaliseKey(token);
-    }
+  const canonical = canonicalToken(token);
+  if (canonical === 'mod') {
+    parts[isMac ? 'meta' : 'ctrl'] = true;
+    return;
   }
+  if (MODIFIERS.has(canonical)) {
+    parts[canonical as Modifier] = true;
+    return;
+  }
+  parts.key = canonical;
 }
 
-export function formatShortcut(chord: string, isMac: boolean): string {
-  const tokens = chord.split('+').map((raw) => {
-    const token = raw.trim().toLowerCase();
-    switch (token) {
-      case 'mod': {
-        return isMac ? '⌘' : 'Ctrl';
-      }
-      case 'ctrl':
-      case 'control': {
-        return isMac ? '⌃' : 'Ctrl';
-      }
-      case 'meta':
-      case 'cmd':
-      case 'command':
-      case 'win': {
-        return isMac ? '⌘' : 'Meta';
-      }
-      case 'alt':
-      case 'option': {
-        return isMac ? '⌥' : 'Alt';
-      }
-      case 'shift': {
-        return isMac ? '⇧' : 'Shift';
-      }
-      case 'enter':
-      case 'return': {
-        return isMac ? '↵' : 'Enter';
-      }
-      case 'escape':
-      case 'esc': {
-        return 'Esc';
-      }
-      case 'space':
-      case 'spacebar':
-      case ' ': {
-        return 'Space';
-      }
-      default: {
-        return token.length === 1
-          ? token.toUpperCase()
-          : token.charAt(0).toUpperCase() + token.slice(1);
-      }
-    }
-  });
+export function formatChordOn(chord: string, isMac: boolean): string {
+  return chord
+    .split('+')
+    .map((raw) => tokenLabel(raw.trim(), isMac))
+    .join(isMac ? '' : '+');
+}
 
-  return tokens.join(isMac ? '' : '+');
+function tokenLabel(token: string, isMac: boolean): string {
+  const canonical = canonicalToken(token);
+  const label = TOKEN_LABELS.get(canonical);
+  if (label !== undefined) {
+    return isMac ? label.mac : label.other;
+  }
+  return canonical.charAt(0).toUpperCase() + canonical.slice(1);
+}
+
+export interface ChordClaims {
+  readonly bySignature: ReadonlyMap<string, readonly Command[]>;
+  readonly unparsable: readonly Command[];
+}
+
+export function chordClaims(
+  commands: readonly Command[],
+  isMac: boolean,
+): ChordClaims {
+  const bySignature = new Map<string, Command[]>();
+  const unparsable: Command[] = [];
+  for (const command of commands) {
+    if (!command.shortcut) {
+      continue;
+    }
+    const signature = chordSignature(command.shortcut, isMac);
+    if (signature === null) {
+      unparsable.push(command);
+      continue;
+    }
+    bySignature.set(signature, [
+      ...(bySignature.get(signature) ?? []),
+      command,
+    ]);
+  }
+  return { bySignature, unparsable };
 }
 
 function baseKeyFromCode(code: string): string | null {
@@ -155,7 +152,7 @@ function baseKeyFromCode(code: string): string | null {
 }
 
 export function eventSignature(event: KeyboardEvent): string {
-  const key = baseKeyFromCode(event.code) ?? normaliseKey(event.key);
+  const key = baseKeyFromCode(event.code) ?? canonicalToken(event.key);
   return toSignature({
     ctrl: event.ctrlKey,
     meta: event.metaKey,

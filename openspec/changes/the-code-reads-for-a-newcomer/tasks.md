@@ -324,8 +324,11 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   opening, presenting and running. The wording already had its file and `wordingChanges`. The
   directive says `MenuIds`, `hasMenuIds` and `lwMenuAnnounced`. Delegating the run to
   `CommandService.trigger` would add a published parameter and stays on the owner's list.
-- [ ] 8.4 Keyboard: one alias table for parsing and display, one "contested chords" function shared
+- [x] 8.4 Keyboard: one alias table for parsing and display, one "contested chords" function shared
   with the composition report, the private `invoke` renamed.
+  `TOKEN_ALIASES` and `TOKEN_LABELS` in `chord.ts`, pinned by a test that every alias binds and
+  shows like its canonical token; `chordClaims` feeds `bindChords` and the composition report;
+  `formatChordOn` for the platform-given display; the private `invoke` is `callInline`.
 - [ ] 8.5 The palette: rows instead of entries, row builders for commands and tabs out of the
   component, `mode` a plain field, the search entry's test id derived.
 - [ ] 8.6 Elements: one element list for host and frame with one define-once helper; shared helpers

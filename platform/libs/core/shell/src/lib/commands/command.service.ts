@@ -122,11 +122,11 @@ export class CommandService {
     }
     const run = item.run;
     if (run) {
-      this.invoke(run);
+      this.callInline(run);
     }
   }
 
-  private invoke(run: () => unknown): void {
+  private callInline(run: () => unknown): void {
     try {
       const result: unknown = run();
       if (result instanceof Promise) {

@@ -1,4 +1,4 @@
-import { formatShortcut, isMacPlatform } from './chord';
+import { formatChordOn, isMacPlatform } from './chord';
 
 /**
  * Formats a keyboard chord for display, OS-correct: `formatChord('mod+k')` → `'⌘K'` on macOS,
@@ -7,5 +7,5 @@ import { formatShortcut, isMacPlatform } from './chord';
  * shortcut anywhere without duplicating the platform detection the shell already does internally.
  */
 export function formatChord(chord: string): string {
-  return formatShortcut(chord, isMacPlatform());
+  return formatChordOn(chord, isMacPlatform());
 }

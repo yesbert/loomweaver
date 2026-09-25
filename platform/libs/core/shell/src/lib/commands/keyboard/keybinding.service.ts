@@ -1,45 +1,48 @@
 import { DOCUMENT } from '@angular/common';
-import { computed, DestroyRef, effect, inject, Injector, Service, Signal } from '@angular/core';
+import {
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  Injector,
+  Service,
+  Signal,
+} from '@angular/core';
 import { Command } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { CommandService } from '../command.service';
 import {
-  chordSignature,
+  chordClaims,
   eventSignature,
   isEditableTarget,
   isMacPlatform,
 } from './chord';
 import { FeatureSwitches } from '../../features/feature-switches.service';
 
-interface BindingsBuild {
+interface ChordBindings {
   readonly map: ReadonlyMap<string, string>;
   readonly warnings: readonly string[];
 }
 
-function buildBindings(
+function bindChords(
   commands: readonly Command[],
   isMac: boolean,
-): BindingsBuild {
+): ChordBindings {
+  const { bySignature, unparsable } = chordClaims(commands, isMac);
   const map = new Map<string, string>();
-  const warnings: string[] = [];
-  for (const command of commands) {
-    if (!command.shortcut) {
-      continue;
+  const warnings = unparsable.map(
+    (command) =>
+      `Command "${command.id}" has an unparsable shortcut "${command.shortcut}".`,
+  );
+  for (const [signature, claimants] of bySignature) {
+    map.set(signature, (claimants.at(-1) as Command).id);
+    for (const [index, command] of claimants.entries()) {
+      if (index > 0) {
+        warnings.push(
+          `Shortcut "${command.shortcut}" is bound to both "${claimants[index - 1].id}" and "${command.id}".`,
+        );
+      }
     }
-    const signature = chordSignature(command.shortcut, isMac);
-    if (!signature) {
-      warnings.push(
-        `Command "${command.id}" has an unparsable shortcut "${command.shortcut}".`,
-      );
-      continue;
-    }
-    const clash = map.get(signature);
-    if (clash) {
-      warnings.push(
-        `Shortcut "${command.shortcut}" is bound to both "${clash}" and "${command.id}".`,
-      );
-    }
-    map.set(signature, command.id);
   }
   return { map, warnings };
 }
@@ -62,7 +65,7 @@ export class KeybindingService {
   private started = false;
 
   private readonly build = computed(() =>
-    buildBindings(this.registry.commands(), this.isMac),
+    bindChords(this.registry.commands(), this.isMac),
   );
 
   private readonly bindings: Signal<ReadonlyMap<string, string>> = computed(
