@@ -112,7 +112,10 @@ export class AssistantAgentPanel {
       for await (const event of this.agent.ask(request)) {
         this.draw(event);
       }
-      await this.receive(tools.flush());
+      let left = await this.receive(tools.flush());
+      while (left) {
+        left = await this.receive(tools.flush());
+      }
     } finally {
       this.busy.set(false);
     }

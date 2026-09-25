@@ -62,8 +62,10 @@ export class ${weaver.className}AgentPanel {
         // how a call ends up half-assembled.
         this.pushAnswer(await tools.receive(event));
       }
-      // A run that ends without its closing event leaves a call open; flush() answers it.
-      this.pushAnswer(await tools.flush());
+      // Every call the agent left open is answered, one per flush(), until none is left.
+      for (let left = await tools.flush(); left; left = await tools.flush()) {
+        this.pushAnswer(left);
+      }
     } finally {
       this.busy.set(false);
     }

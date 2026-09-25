@@ -51,8 +51,11 @@ The owner decided the open behaviour choices on 2026-09-25. Each carries its del
 1. **The agent adapter's calls left open at the end of a run** keep the published signature: each
    `flush` answers one call, and callers ask until nothing is answered. The generated agent panel,
    the example and the documented usage loop accordingly. A call left open never received all of its
-   arguments, so it is answered as refused and its command does not run. No breaking change, so it
-   ships in a patch. (`commands`, *The connection an agent drives answers every call it opened*)
+   arguments, so it is answered as refused and its command does not run. Implementing it showed one
+   exception the protocol itself defines: a call carried by chunks has no closing event, and a run
+   that finishes is what closes it, so that call runs; a run that fails refuses it too. No breaking
+   change, so it ships in a patch. (`commands`, *The connection an agent drives answers every call it
+   opened*)
 2. **Nested versus parallel command invocations:** only an invocation started from within another
    command's run, before that run first waits, counts towards the depth limit. No first-party command
    invokes another; the limit protects the programmatic route an agent and a plugin use. Carrying the

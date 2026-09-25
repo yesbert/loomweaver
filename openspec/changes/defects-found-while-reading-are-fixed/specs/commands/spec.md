@@ -122,7 +122,9 @@ connection SHALL answer the calls left open one at a time, each time it is asked
 so that a consumer which asks until nothing is answered has answered all of them.
 
 A call still open when the run ends never received all of its arguments. It SHALL be answered as
-refused, saying why, and the command it named SHALL NOT run.
+refused, saying why, and the command it named SHALL NOT run. The one exception is a call carried in
+the protocol's shorter form, which has no closing of its own: a run that finishes closes it, and it
+runs; a run that fails does not, and it is refused.
 
 #### Scenario: Every call left open is answered
 
@@ -134,6 +136,12 @@ refused, saying why, and the command it named SHALL NOT run.
 
 - **WHEN** a run ends with a call whose closing never arrived
 - **THEN** it is answered as refused, and the command it named does not run
+
+#### Scenario: A call without a closing of its own is closed by the run
+
+- **WHEN** a call arrives in the protocol's shorter form, which has no closing event, and the run
+  finishes
+- **THEN** it runs, and it is refused instead where the run fails
 
 #### Scenario: A call that closed runs as before
 
