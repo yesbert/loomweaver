@@ -4,11 +4,9 @@ import {
 } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import {
-  TranslocoHttpLoader,
-  provideTranslationNamespaces,
-  provideTranslationOverrides,
-} from './transloco-loader';
+import { TranslocoHttpLoader } from './transloco-loader';
+import { provideTranslationNamespaces } from './translation-namespaces';
+import { provideTranslationOverrides } from './translation-overrides';
 
 const NOT_FOUND = { status: 404, statusText: 'Not Found' };
 

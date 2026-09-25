@@ -4,12 +4,9 @@ import {
 } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import {
-  TRANSLATION_NAMESPACES,
-  TranslocoHttpLoader,
-  provideTranslationNamespaces,
-  provideTranslationOverrides,
-} from './transloco-loader';
+import { TRANSLATION_NAMESPACES, provideTranslationNamespaces } from './translation-namespaces';
+import { TranslocoHttpLoader } from './transloco-loader';
+import { provideTranslationOverrides } from './translation-overrides';
 
 function setup(
   namespaces?: string[],

@@ -18,7 +18,7 @@ import {
   TranslocoService,
 } from '@jsverse/transloco';
 import {
-  detectInitialLang,
+  detectInitialLanguage,
   FALLBACK_LANGUAGE,
   resolveServedLanguages,
   SERVED_LANGUAGES,
@@ -260,7 +260,7 @@ function translation(
     provideTransloco({
       config: {
         availableLangs: [...served],
-        defaultLang: detectInitialLang(served),
+        defaultLang: detectInitialLanguage(served),
         fallbackLang: FALLBACK_LANGUAGE,
         reRenderOnLangChange: true,
         prodMode: !isDevMode(),

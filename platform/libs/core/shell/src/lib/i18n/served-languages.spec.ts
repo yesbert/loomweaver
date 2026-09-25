@@ -1,5 +1,5 @@
 import {
-  detectInitialLang,
+  detectInitialLanguage,
   resolveServedLanguages,
   SHIPPED_LANGUAGES,
 } from './served-languages';
@@ -50,43 +50,43 @@ describe('the starting language', () => {
     localStorage.setItem('lw.shell.lang', 'fr');
     preferring('de');
 
-    expect(detectInitialLang(['en', 'de', 'fr'])).toBe('fr');
+    expect(detectInitialLanguage(['en', 'de', 'fr'])).toBe('fr');
   });
 
   it('ignores a stored choice the declaration no longer serves', () => {
     localStorage.setItem('lw.shell.lang', 'de');
     preferring('fr');
 
-    expect(detectInitialLang(['en', 'fr'])).toBe('fr');
+    expect(detectInitialLanguage(['en', 'fr'])).toBe('fr');
   });
 
   it('takes the first browser preference that names a served language exactly', () => {
     preferring('ja', 'pt-BR', 'fr');
 
-    expect(detectInitialLang(['fr', 'pt-BR'])).toBe('pt-BR');
+    expect(detectInitialLanguage(['fr', 'pt-BR'])).toBe('pt-BR');
   });
 
   it('matches a regional preference to its served language without a region', () => {
     preferring('de-AT');
 
-    expect(detectInitialLang(['en', 'de'])).toBe('de');
+    expect(detectInitialLanguage(['en', 'de'])).toBe('de');
   });
 
   it('does not match a region-less preference to a served regional form', () => {
     preferring('pt');
 
-    expect(detectInitialLang(['en', 'pt-BR'])).toBe('en');
+    expect(detectInitialLanguage(['en', 'pt-BR'])).toBe('en');
   });
 
   it('falls back to English where it is served', () => {
     preferring('ja');
 
-    expect(detectInitialLang(['de', 'en'])).toBe('en');
+    expect(detectInitialLanguage(['de', 'en'])).toBe('en');
   });
 
   it('falls back to the first declared language where English is not served', () => {
     preferring('ja');
 
-    expect(detectInitialLang(['fr', 'de'])).toBe('fr');
+    expect(detectInitialLanguage(['fr', 'de'])).toBe('fr');
   });
 });
