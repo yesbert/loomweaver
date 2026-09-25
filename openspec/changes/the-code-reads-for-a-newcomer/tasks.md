@@ -273,7 +273,11 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   Named `working-state/` instead, because besides the change tracking it holds the state channels
   and the reads and writes the switcher uses (`working-state-io.ts`, was `workspace-state.ts`). The
   lookups, `Workspace` and `WORKSPACES_KEY` went to `catalog/` (`saved-workspaces.ts`).
-- [ ] 7.7 The workspace dialog's three row blocks share templates; its promise chains use `if`.
+- [x] 7.7 The workspace dialog's three row blocks share templates; its promise chains use `if`.
+  The markers and the reset button are `ng-template`s used by all three rows; the built-in row's
+  switch button takes the provided rows' layout. Where the copies had drifted they now agree: a saved
+  workspace's warning mark gets the tooltip the provided rows had, and the built-in row's dot moved
+  by one pixel (compared by screenshot; the provided list is pixel-identical).
 - [ ] 7.8 i18n: the translation loader split into namespaces, overrides, the translation tree and the
   loader, its result built from named parts, the namespace warning dev-only like its siblings;
   "language" in internal names; helpers next to what they serve.

@@ -4,6 +4,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { DialogRef } from '../dialog/dialog-ref';
 import { DialogService } from '../dialog/dialog.service';
@@ -16,7 +17,7 @@ import { WORKSPACE_RESET_COMMAND_ID } from '../commands/host-command-ids';
 
 @Component({
   selector: 'lw-workspace-dialog',
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, NgTemplateOutlet],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './workspace-dialog.html',
 })
@@ -69,25 +70,23 @@ export class WorkspaceDialog {
     return this.changed(id) || this.unusable(id);
   }
 
-  protected save(): void {
+  protected async save(): Promise<void> {
     const name = this.name().trim();
     if (!name) {
       return;
     }
-    void this.workspaceService.saveCurrent(name).then(() => this.name.set(''));
+    await this.workspaceService.saveCurrent(name);
+    this.name.set('');
   }
 
-  protected applyChanges(): void {
-    void this.dialogs
-      .confirm({
-        title: this.transloco.translate('workspace.saveBaseline'),
-        message: this.transloco.translate('workspace.applyConfirm'),
-      })
-      .then((ok) => {
-        if (ok) {
-          void this.workspaceService.saveBaseline();
-        }
-      });
+  protected async applyChanges(): Promise<void> {
+    const confirmed = await this.dialogs.confirm({
+      title: this.transloco.translate('workspace.saveBaseline'),
+      message: this.transloco.translate('workspace.applyConfirm'),
+    });
+    if (confirmed) {
+      await this.workspaceService.saveBaseline();
+    }
   }
 
   protected switchTo(id: string): void {
@@ -95,17 +94,17 @@ export class WorkspaceDialog {
     this.ref.close();
   }
 
-  protected rename(id: string, current: string): void {
-    void this.dialogs
-      .prompt({
-        title: this.transloco.translate('workspace.rename'),
-        message: '',
-        initial: current,
-        placeholder: this.transloco.translate('workspace.namePlaceholder'),
-      })
-      .then(
-        (name) => name?.trim() && this.workspaceService.rename(id, name.trim()),
-      );
+  protected async rename(id: string, current: string): Promise<void> {
+    const name = await this.dialogs.prompt({
+      title: this.transloco.translate('workspace.rename'),
+      message: '',
+      initial: current,
+      placeholder: this.transloco.translate('workspace.namePlaceholder'),
+    });
+    const trimmed = name?.trim();
+    if (trimmed) {
+      this.workspaceService.rename(id, trimmed);
+    }
   }
 
   protected resetLayout(id: string): void {
@@ -113,13 +112,14 @@ export class WorkspaceDialog {
     this.commands.execute(WORKSPACE_RESET_COMMAND_ID, { workspace: id });
   }
 
-  protected remove(id: string, name: string): void {
-    void this.dialogs
-      .confirm({
-        title: this.transloco.translate('workspace.delete'),
-        message: this.transloco.translate('workspace.deleteConfirm', { name }),
-        tone: 'danger',
-      })
-      .then((ok) => ok && this.workspaceService.remove(id));
+  protected async remove(id: string, name: string): Promise<void> {
+    const confirmed = await this.dialogs.confirm({
+      title: this.transloco.translate('workspace.delete'),
+      message: this.transloco.translate('workspace.deleteConfirm', { name }),
+      tone: 'danger',
+    });
+    if (confirmed) {
+      await this.workspaceService.remove(id);
+    }
   }
 }

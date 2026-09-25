@@ -56,35 +56,22 @@
         >
           <button
             type="button"
-            class="flex-1 truncate rounded px-2 py-1 text-left text-sm text-content transition-colors hover:bg-surface-overlay"
+            class="flex min-w-0 flex-1 items-center gap-1.5 rounded px-2 py-1 text-left text-sm text-content transition-colors hover:bg-surface-overlay"
             [attr.aria-current]="activeId() === builtInId ? 'true' : null"
             (click)="switchTo(builtInId)"
             data-testid="workspace-default"
           >
-            {{ 'workspace.default' | transloco }}
-            @if (changed(builtInId)) {
-              <span
-                aria-hidden="true"
-                class="ml-0.5 inline-block h-1.5 w-1.5 rounded-full bg-brand align-middle"
-                data-testid="workspace-changed"
-              ></span>
-            }
+            <span class="truncate">{{ 'workspace.default' | transloco }}</span>
+            <ng-container
+              [ngTemplateOutlet]="markers"
+              [ngTemplateOutletContext]="{ $implicit: builtInId }"
+            />
           </button>
         </div>
-        <button
-          type="button"
-          class="lw-btn lw-btn--danger lw-btn--sm lw-btn--icon shrink-0"
-          [disabled]="!resettable(builtInId)"
-          (click)="resetLayout(builtInId)"
-          [attr.aria-label]="'workspace.reset' | transloco"
-          [attr.data-testid]="resetTestId(builtInId)"
-        >
-          <lw-icon name="undo" size="1rem" />
-          <lw-tooltip
-            [text]="'workspace.resetHint' | transloco"
-            position="bottom"
-          />
-        </button>
+        <ng-container
+          [ngTemplateOutlet]="resetButton"
+          [ngTemplateOutletContext]="{ $implicit: builtInId }"
+        />
       </li>
     }
     @if (tab() === 'provided') {
@@ -106,41 +93,16 @@
                 <lw-icon [name]="definition.icon" size="0.9rem" class="shrink-0" />
               }
               <span class="truncate">{{ definition.title | transloco }}</span>
-              @if (changed(definition.id)) {
-                <span
-                  aria-hidden="true"
-                  class="h-1.5 w-1.5 shrink-0 rounded-full bg-brand"
-                  data-testid="workspace-changed"
-                ></span>
-              }
-              @if (unusable(definition.id)) {
-                <lw-icon
-                  name="warning"
-                  size="0.9rem"
-                  class="shrink-0 text-negative"
-                  data-testid="workspace-unusable"
-                />
-                <lw-tooltip
-                  [text]="'workspace.unusableMark' | transloco"
-                  position="bottom"
-                />
-              }
+              <ng-container
+                [ngTemplateOutlet]="markers"
+                [ngTemplateOutletContext]="{ $implicit: definition.id }"
+              />
             </button>
           </div>
-          <button
-            type="button"
-            class="lw-btn lw-btn--danger lw-btn--sm lw-btn--icon shrink-0"
-            [disabled]="!resettable(definition.id)"
-            (click)="resetLayout(definition.id)"
-            [attr.aria-label]="'workspace.reset' | transloco"
-            [attr.data-testid]="resetTestId(definition.id)"
-          >
-            <lw-icon name="undo" size="1rem" />
-            <lw-tooltip
-              [text]="'workspace.resetHint' | transloco"
-              position="bottom"
-            />
-          </button>
+          <ng-container
+            [ngTemplateOutlet]="resetButton"
+            [ngTemplateOutletContext]="{ $implicit: definition.id }"
+          />
         </li>
       }
     }
@@ -176,21 +138,10 @@
                   >
                 }
               </span>
-              @if (changed(workspace.id)) {
-                <span
-                  aria-hidden="true"
-                  class="ml-0.5 inline-block h-1.5 w-1.5 rounded-full bg-brand align-middle"
-                  data-testid="workspace-changed"
-                ></span>
-              }
-              @if (unusable(workspace.id)) {
-                <lw-icon
-                  name="warning"
-                  size="0.9rem"
-                  class="ml-0.5 inline-block align-middle text-negative"
-                  data-testid="workspace-unusable"
-                />
-              }
+              <ng-container
+                [ngTemplateOutlet]="markers"
+                [ngTemplateOutletContext]="{ $implicit: workspace.id }"
+              />
             </button>
             @if (activeId() === workspace.id) {
               <button
@@ -233,22 +184,45 @@
               />
             </button>
           </div>
-          <button
-            type="button"
-            class="lw-btn lw-btn--danger lw-btn--sm lw-btn--icon shrink-0"
-            [disabled]="!resettable(workspace.id)"
-            (click)="resetLayout(workspace.id)"
-            [attr.aria-label]="'workspace.reset' | transloco"
-            [attr.data-testid]="resetTestId(workspace.id)"
-          >
-            <lw-icon name="undo" size="1rem" />
-            <lw-tooltip
-              [text]="'workspace.resetHint' | transloco"
-              position="bottom"
-            />
-          </button>
+          <ng-container
+            [ngTemplateOutlet]="resetButton"
+            [ngTemplateOutletContext]="{ $implicit: workspace.id }"
+          />
         </li>
       }
     }
   </ul>
 </div>
+
+<ng-template #markers let-id>
+  @if (changed(id)) {
+    <span
+      aria-hidden="true"
+      class="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-brand align-middle"
+      data-testid="workspace-changed"
+    ></span>
+  }
+  @if (unusable(id)) {
+    <lw-icon
+      name="warning"
+      size="0.9rem"
+      class="shrink-0 text-negative"
+      data-testid="workspace-unusable"
+    />
+    <lw-tooltip [text]="'workspace.unusableMark' | transloco" position="bottom" />
+  }
+</ng-template>
+
+<ng-template #resetButton let-id>
+  <button
+    type="button"
+    class="lw-btn lw-btn--danger lw-btn--sm lw-btn--icon shrink-0"
+    [disabled]="!resettable(id)"
+    (click)="resetLayout(id)"
+    [attr.aria-label]="'workspace.reset' | transloco"
+    [attr.data-testid]="resetTestId(id)"
+  >
+    <lw-icon name="undo" size="1rem" />
+    <lw-tooltip [text]="'workspace.resetHint' | transloco" position="bottom" />
+  </button>
+</ng-template>
