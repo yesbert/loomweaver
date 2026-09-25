@@ -641,8 +641,15 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 
 ## 12. The demo
 
-- [ ] 12.1 `demo/README.md` matches the code and gains a reading order and a legend of the folders;
+- [x] 12.1 `demo/README.md` matches the code and gains a reading order and a legend of the folders;
   `quotes/README.md` says what the quotes weaver does or goes.
+  Done last, so that it describes the demo as 12.2 to 12.16 left it. It no longer says the payment
+  plugin is registered in code (it comes from the store), that the data is read-only, that the
+  product's strings are one bundle, or that the tests are a smoke suite; it names the four packages
+  it consumes. It reads in an order, has a table of what is where, and keeps the longer accounts for
+  the parts there is something to see in. `quotes/README.md` was the generator's output, naming a
+  package alias, a route and a region the demo does not have; it went, because the demo README says
+  what quotes does and no other weaver keeps a second description to drift.
 - [x] 12.2 No-ops and leftovers: `padded: false` where it is the default, `CUSTOM_ELEMENTS_SCHEMA`
   without a custom element, an explicit OnPush, dead code and dead strings, exports nobody imports,
   the unused payments descriptor, computed wrappers around a signal, the dashboard's names.
