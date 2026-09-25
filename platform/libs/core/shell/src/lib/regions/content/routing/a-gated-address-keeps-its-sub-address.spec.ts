@@ -31,7 +31,7 @@ import { CONTENT_DOCK } from '../../pane/tree/pane-address';
 import { ContentTabsService } from '../tabs/content-tabs.service';
 import { AddressPaneBody } from '../address-pane-body';
 import { WorkspaceService } from '../../../workspace/workspace.service';
-import { WORKSPACE_CLAIMS } from '../../../foundation/workspace-claims';
+import { WORKSPACE_SETTLEMENT } from './workspace-settlement';
 
 @Component({ selector: 'lw-test-content', template: '' })
 class TestContent {}
@@ -181,7 +181,7 @@ describe('a gated address keeps its sub-address', () => {
       const router = await openAt(address, KNOWLEDGE_BASE, auth, [
         provideLayout(LAYOUT),
         CLAIMING_WORKSPACE,
-        { provide: WORKSPACE_CLAIMS, useExisting: WorkspaceService },
+        { provide: WORKSPACE_SETTLEMENT, useExisting: WorkspaceService },
       ]);
       TestBed.inject(ContentTabsService);
       const body = TestBed.inject(AddressPaneBody);

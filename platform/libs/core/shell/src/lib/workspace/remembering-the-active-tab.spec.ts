@@ -7,7 +7,7 @@ import { ContributionRegistry } from '../contributions/contribution-registry';
 import { provideLayout } from '../layout/layout';
 import { buildContentRoutes } from '../regions/content/routing/content-route-table';
 import { ContentTabsService } from '../regions/content/tabs/content-tabs.service';
-import { WORKSPACE_CLAIMS } from '../foundation/workspace-claims';
+import { WORKSPACE_SETTLEMENT } from '../regions/content/routing/workspace-settlement';
 import { WorkspaceService } from './workspace.service';
 import { provideWorkspaces } from './provide-workspaces';
 
@@ -31,7 +31,7 @@ async function compose(): Promise<{
     providers: [
       provideRouter(buildContentRoutes(ROUTES)),
       provideLayout(LAYOUT as never),
-      { provide: WORKSPACE_CLAIMS, useExisting: WorkspaceService },
+      { provide: WORKSPACE_SETTLEMENT, useExisting: WorkspaceService },
       provideWorkspaces(
         { id: 'overview', title: 'Overview', initial: true, claims: [''] },
         {

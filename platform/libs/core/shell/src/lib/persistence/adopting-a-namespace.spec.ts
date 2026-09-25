@@ -20,7 +20,7 @@ import { ContainerPaneHost } from '../regions/pane/container/container-pane-host
 import { collectLeafIds, collectTabs } from '../regions/pane/tree/pane-queries';
 import { PaneTreeService } from '../regions/pane/tree/pane-tree.service';
 import { WORKING_STATE_STORE } from './working-state-store';
-import { WORKSPACE_CLAIMS } from '../foundation/workspace-claims';
+import { WORKSPACE_SETTLEMENT } from '../regions/content/routing/workspace-settlement';
 import { WorkspaceService } from '../workspace/workspace.service';
 import { provideWorkspaces } from '../workspace/provide-workspaces';
 
@@ -126,7 +126,7 @@ async function open(
       provideLayout(LAYOUT as never),
       provideIdentityScopedStores({ identity: () => identity }),
       { provide: CONTAINER_PANE_HOST, useValue: ContainerPaneHost },
-      { provide: WORKSPACE_CLAIMS, useExisting: WorkspaceService },
+      { provide: WORKSPACE_SETTLEMENT, useExisting: WorkspaceService },
       provideWorkspaces({
         id: 'dashboard',
         title: 'Dashboard',

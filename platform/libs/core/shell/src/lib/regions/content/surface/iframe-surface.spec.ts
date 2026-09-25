@@ -8,7 +8,7 @@ import { IframeSurface } from './iframe-surface';
 import { ContentTabsService } from '../tabs/content-tabs.service';
 import { AUTH_SOURCE } from '../../../auth/auth-context';
 import { CapabilityGrantService } from '../../../permissions/capability-grant.service';
-import { PluginIsolationLevelService } from '../../../foundation/plugin-isolation-level';
+import { PluginIsolationLevelService } from '../../../plugin-isolation/plugin-isolation-level.service';
 
 interface NavigatesWithinTabRoot {
   navigateWithinTabRoot(path: string): void;

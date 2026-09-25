@@ -240,10 +240,15 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   computations it owns (`baselineTrees`, `baselineHiddenViews`) until 7.4 moves them. The state keys
   and the typed channels are `baseline/state-channels.ts`, a file of their own because the pane-tree
   storage imports `workspace-state.ts` and would otherwise close a file cycle.
-- [ ] 7.3 `foundation/` admits only what fits its rule: the isolation-level service moves into a small
+- [x] 7.3 `foundation/` admits only what fits its rule: the isolation-level service moves into a small
   slice of its own, the catalog's level cap to the catalog, the settlement port next to the content
   routing that reads it (renamed so it no longer shares a file name with `workspace/workspace-claims.ts`).
   The unusable-workspaces port and the feature-flag declaration stay until the owner decides.
+  `plugin-isolation/plugin-isolation-level.service.ts` (imports only `foundation/`, so no slice pair),
+  `CATALOG_MAX_ISOLATION_LEVEL` in `plugin-store/catalog/catalog-level-cap.ts` (not beside `PLUGIN_CATALOG`,
+  whose file the package re-exports whole, so the token would have become published),
+  and `WorkspaceSettlement` / `WORKSPACE_SETTLEMENT` in `regions/content/routing/workspace-settlement.ts`.
+  `rungOf` and `PluginRung` keep their names, as 6.3 decided for the glossary's "rung".
 - [ ] 7.4 `workspace-definition.ts` becomes `workspace/declaration/`: the published types, the audit
   together with the gap warnings, the baseline computation, the provider.
 - [ ] 7.5 `WorkspaceService` (398 lines) is cut into a catalog, a settlement and an opening service

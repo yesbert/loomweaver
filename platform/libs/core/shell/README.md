@@ -28,11 +28,14 @@ directories like components, directives, and services").
   omission, tab badges and `disposeTogether`.
 - **`plugin/`** — plugin runtime core: `plugin`, `plugin-runtime`, `plugin-state.service`.
   Sub-sliced into `context/` (the `ctx` a plugin receives), `frame/` (the frame rung:
-  runtime, per-frame session, settings, and `rpc/` for the method table and the wire sanitizers) and `enablement/` (turning a plugin on and off, and the
-  permissions settings section).
+  runtime, per-frame session, settings, and `rpc/` for the method table and the wire
+  sanitizers) and `enablement/` (turning a plugin on and off, and the permissions settings
+  section).
+- **`plugin-isolation/`** — which level each running frame plugin holds, read by the frame
+  runtime, the iframe surface and the permissions section; it imports only `foundation/`.
 - **`commands/`** — command registry + keybindings + command palette.
-- **`plugin-store/`** — community plugin store: catalog port, install/deployment/store
-  services and the complete store UI.
+- **`plugin-store/`** — community plugin store: catalog port and the level cap a catalog may
+  confer, install/deployment/store services and the complete store UI.
 - **`permissions/`** — capability grants, their broker and refusal reporting.
 - **`settings/`** — settings model + service + dialog + row primitives.
 - **`persistence/`** — shared kernel: the two `KeyValueStore` ports (`SETTINGS_STORE`

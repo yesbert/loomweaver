@@ -3,9 +3,9 @@ import { OpenTabInput } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { FeatureSwitches } from '../../../features/feature-switches.service';
 import {
-  WORKSPACE_CLAIMS,
-  WorkspaceClaims,
-} from '../../../foundation/workspace-claims';
+  WORKSPACE_SETTLEMENT,
+  WorkspaceSettlement,
+} from '../routing/workspace-settlement';
 import { normalizePath, tabRootOf } from '../content-path';
 import { OpenTab } from './content-tab-projection';
 import { ContentTabState } from './content-tab-state';
@@ -34,7 +34,7 @@ export class TabOpeningService {
 
   private readonly injector = inject(Injector);
 
-  private resolvedClaims: WorkspaceClaims | null = null;
+  private resolvedSettlement: WorkspaceSettlement | null = null;
 
   private queue: Promise<void> = Promise.resolve();
 
@@ -42,13 +42,13 @@ export class TabOpeningService {
 
   open(input: OpenTabInput): void {
     const path = normalizePath(input.path);
-    if (this.queued === 0 && !this.claims.wouldSettle(path)) {
+    if (this.queued === 0 && !this.settlement.wouldSettle(path)) {
       this.openHere(input);
       return;
     }
     this.inOrder(
       () => this.openHere(input),
-      () => this.claims.settle(path),
+      () => this.settlement.settle(path),
     );
   }
 
@@ -60,9 +60,9 @@ export class TabOpeningService {
     this.inOrder(() => this.keepHere(path));
   }
 
-  private get claims(): WorkspaceClaims {
-    this.resolvedClaims ??= this.injector.get(WORKSPACE_CLAIMS);
-    return this.resolvedClaims;
+  private get settlement(): WorkspaceSettlement {
+    this.resolvedSettlement ??= this.injector.get(WORKSPACE_SETTLEMENT);
+    return this.resolvedSettlement;
   }
 
   private inOrder(
