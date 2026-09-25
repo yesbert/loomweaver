@@ -1,7 +1,4 @@
-import {
-  reflectAttribute,
-  upgradeElementProperty,
-} from '../custom-element-property';
+import { reflectAttribute, upgradeElementProperty } from '../custom-elements';
 
 export const LW_OPTION_TAG = 'lw-option';
 

@@ -139,9 +139,10 @@ A sandboxed **surface** (the view document) does not import `@loomweaver/shell`.
 <script src="/frame-kit/lw-elements.global.js"></script>
 ```
 
-- **`lw-elements.global.js`** defines the whole `<lw-*>` element family (`lw-tooltip` ·
-  `lw-select`/`lw-option` · `lw-menu`/`lw-menu-item` · `lw-button` · `lw-markdown` · `lw-icon` ·
-  `lw-progress-ring`) with the built-in icon set seeded, the same behaviour source the host runs. It
+- **`lw-elements.global.js`** defines the whole `<lw-*>` element family (`lw-icon` · `lw-tooltip` ·
+  `lw-select`/`lw-option` · `lw-nav-tree`/`lw-nav-group`/`lw-nav-item` · `lw-menu`/`lw-menu-item` ·
+  `lw-markdown` · `lw-button` · `lw-progress-ring`) with the built-in icon set seeded, from the same
+  element list and behaviour source the host runs. It
   also exposes `globalThis.LwFrame`: `setIcon(name, svg)` / `removeIcon` / `hasIcon` for
   plugin-own icons (sanitised), and `applySurfaceState(state)`. Call that one from your `render`
   handler and the pushed tokens, root font size and light/dark theme are applied for you.

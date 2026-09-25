@@ -1,7 +1,8 @@
 import {
+  clickOnEnterOrSpace,
   reflectAttribute,
   upgradeElementProperty,
-} from '../custom-element-property';
+} from '../custom-elements';
 import {
   dropManagedPart,
   managedPart,
@@ -26,6 +27,8 @@ export const LW_NAV_ITEM_TAG = 'lw-nav-item';
  */
 export class LwNavItemElement extends HTMLElement {
   static readonly observedAttributes = ['path', 'label', 'icon'];
+
+  private readonly onKeydown = clickOnEnterOrSpace(this);
 
   get path(): string {
     return this.getAttribute('path') ?? '';
@@ -71,14 +74,6 @@ export class LwNavItemElement extends HTMLElement {
       this.render();
     }
   }
-
-  private readonly onKeydown = (event: KeyboardEvent) => {
-    if (event.key !== 'Enter' && event.key !== ' ') {
-      return;
-    }
-    event.preventDefault();
-    this.click();
-  };
 
   private render(): void {
     const icon = this.icon;

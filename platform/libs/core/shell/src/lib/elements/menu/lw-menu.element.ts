@@ -1,12 +1,13 @@
+import { focusAndReveal, rovingTabIndex } from '../roving-focus';
+import { clampIntoViewport, fitsInViewport } from '../viewport-fit';
 import {
+  defineElementOnce,
   reflectAttribute,
   upgradeElementProperty,
-} from '../custom-element-property';
+} from '../custom-elements';
 
 export const LW_MENU_TAG = 'lw-menu';
 export const LW_MENU_ITEM_TAG = 'lw-menu-item';
-
-const VIEWPORT_MARGIN = 4;
 
 export const MENU_ANCHOR_GAP = 4;
 
@@ -23,27 +24,16 @@ export interface MenuAnchorRect {
   readonly left: number;
 }
 
-function fits(start: number, size: number, limit: number): boolean {
-  return start >= VIEWPORT_MARGIN && start + size <= limit - VIEWPORT_MARGIN;
-}
-
-function clamp(start: number, size: number, limit: number): number {
-  return Math.max(
-    VIEWPORT_MARGIN,
-    Math.min(start, limit - size - VIEWPORT_MARGIN),
-  );
-}
-
 function beside(
   preferred: number,
   opposite: number,
   size: number,
   limit: number,
 ): number {
-  if (fits(preferred, size, limit)) {
+  if (fitsInViewport(preferred, size, limit)) {
     return preferred;
   }
-  return fits(opposite, size, limit) ? opposite : clamp(preferred, size, limit);
+  return fitsInViewport(opposite, size, limit) ? opposite : clampIntoViewport(preferred, size, limit);
 }
 
 function aligned(
@@ -52,7 +42,7 @@ function aligned(
   size: number,
   limit: number,
 ): number {
-  return fits(near, size, limit) ? near : clamp(far - size, size, limit);
+  return fitsInViewport(near, size, limit) ? near : clampIntoViewport(far - size, size, limit);
 }
 
 function leadingPlace(className: string, iconName: string | null): HTMLSpanElement {
@@ -159,8 +149,8 @@ export class LwMenuElement extends HTMLElement {
   openAt(x: number, y: number): void {
     const { width, height } = this.measured();
     this.place(
-      clamp(x, width, window.innerWidth),
-      clamp(y, height, window.innerHeight),
+      clampIntoViewport(x, width, window.innerWidth),
+      clampIntoViewport(y, height, window.innerHeight),
     );
   }
 
@@ -231,12 +221,8 @@ export class LwMenuElement extends HTMLElement {
       return;
     }
     this.active = (index + items.length) % items.length;
-    for (const [position, item] of items.entries()) {
-      item.tabIndex = position === this.active ? 0 : -1;
-    }
-    const item = items[this.active];
-    item.focus();
-    item.scrollIntoView?.({ block: 'nearest' });
+    rovingTabIndex(items, this.active);
+    focusAndReveal(items[this.active]);
   }
 
   private select(item: HTMLElement): void {
@@ -292,13 +278,6 @@ export class LwMenuElement extends HTMLElement {
 
 /** Registers `<lw-menu>` and its items once (idempotent), called from {@link provideShell} at bootstrap. */
 export function defineLwMenu(): void {
-  if (typeof customElements === 'undefined') {
-    return;
-  }
-  if (!customElements.get(LW_MENU_ITEM_TAG)) {
-    customElements.define(LW_MENU_ITEM_TAG, LwMenuItemElement);
-  }
-  if (!customElements.get(LW_MENU_TAG)) {
-    customElements.define(LW_MENU_TAG, LwMenuElement);
-  }
+  defineElementOnce(LW_MENU_ITEM_TAG, LwMenuItemElement);
+  defineElementOnce(LW_MENU_TAG, LwMenuElement);
 }

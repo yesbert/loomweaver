@@ -1,7 +1,8 @@
 import {
+  defineElementOnce,
   reflectAttribute,
   upgradeElementProperty,
-} from '../custom-element-property';
+} from '../custom-elements';
 import { resolveIcon } from './icon-registry-global';
 
 /** The custom-element tag. */
@@ -77,10 +78,5 @@ export class LwIconElement extends HTMLElement {
 
 /** Registers `<lw-icon>` once (idempotent) — called from {@link provideShell} at bootstrap. */
 export function defineLwIcon(): void {
-  if (
-    typeof customElements !== 'undefined' &&
-    !customElements.get(LW_ICON_TAG)
-  ) {
-    customElements.define(LW_ICON_TAG, LwIconElement);
-  }
+  defineElementOnce(LW_ICON_TAG, LwIconElement);
 }

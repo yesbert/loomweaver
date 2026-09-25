@@ -1,23 +1,13 @@
 import { drawAbsent } from '../capture/picture-assembly';
 import { captureScale } from '../capture/picture-size';
-import { defineLwButton } from '../elements/button/lw-button.element';
 import {
   hasIcon,
   removeIcon,
   sanitizeIconSvg,
   setIcon,
 } from '../elements/icon/icon-registry-global';
-import {
-  defineLwIcon,
-  LW_ICON_TAG,
-  LwIconElement,
-} from '../elements/icon/lw-icon.element';
-import { defineLwMarkdown } from '../elements/markdown/lw-markdown.element';
-import { defineLwMenu } from '../elements/menu/lw-menu.element';
-import { defineLwNavTree } from '../elements/nav-tree/lw-nav-tree.element';
-import { defineLwProgressRing } from '../elements/progress/lw-progress-ring.element';
-import { defineLwSelect } from '../elements/select/lw-select.element';
-import { defineLwTooltip } from '../elements/tooltip/lw-tooltip.element';
+import { LW_ICON_TAG, LwIconElement } from '../elements/icon/lw-icon.element';
+import { defineLwElements } from '../elements/lw-elements';
 
 export interface LwSurfaceRenderState {
   readonly theme?: 'light' | 'dark';
@@ -309,14 +299,7 @@ async function capture(
 
 /** @internal The bundle's own bootstrap. Running the script calls it; a consumer never does. */
 export function installLwFrame(): LwFrameApi {
-  defineLwTooltip();
-  defineLwSelect();
-  defineLwMenu();
-  defineLwButton();
-  defineLwMarkdown();
-  defineLwIcon();
-  defineLwProgressRing();
-  defineLwNavTree();
+  defineLwElements();
 
   const state = createState();
   const api: LwFrameApi = {
