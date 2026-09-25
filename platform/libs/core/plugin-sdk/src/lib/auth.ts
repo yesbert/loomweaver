@@ -1,15 +1,7 @@
 /**
- * Auth-aware, declarative access gating. LoomWeaver owns **none** of authentication —
- * login, session, tokens, IdP integration live in the product. The platform only *reacts* to a
- * session snapshot a distribution supplies, so chrome can hide/disable itself by login state and
- * roles. Roles/claims are **opaque strings**: the platform matches, never interprets.
- *
- * Client-side gating is **presentation, not security**: the real enforcement is server-side, where
- * the product's backend rejects a call the user may not make. Never treat a hidden control as a
- * boundary.
+ * A user/session snapshot the host reacts to. The platform owns no authentication: login, session,
+ * tokens and the identity provider live in the product, which reduces its session to this shape.
  */
-
-/** A user/session snapshot the host reacts to. Provider-neutral (OIDC/custom/anything reduces here). */
 export interface AuthSnapshot {
   /** Whether someone is signed in. */
   readonly authenticated: boolean;
@@ -39,8 +31,13 @@ export interface AuthSnapshot {
 export const ANONYMOUS: AuthSnapshot = { authenticated: false, roles: [], claims: {} };
 
 /**
- * How a contribution reacts to the auth state. Intentionally **coarse**: there is no expression
- * parser, as there is none for the `when` filter.
+ * How a contribution reacts to the auth state. Roles and claims are opaque strings: the platform
+ * matches them and never interprets them. Intentionally **coarse**: there is no expression parser,
+ * as there is none for the `when` filter.
+ *
+ * Gating in the client is **presentation, not security**: the real enforcement is server-side, where
+ * the product's backend rejects a call the user may not make. Never treat a hidden control as a
+ * boundary.
  */
 export interface AccessRequirement {
   /** Require a specific signed-in state (`true` = must be signed in, `false` = only anonymous). */

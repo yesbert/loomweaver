@@ -19,4 +19,5 @@ export * from './lib/settings-model.js';
 export * from './lib/dialog-ref.js';
 export * from './lib/dialog.js';
 export * from './lib/notification.js';
+export * from './lib/host-ui/host-services.js';
 export * from './lib/plugin.js';
