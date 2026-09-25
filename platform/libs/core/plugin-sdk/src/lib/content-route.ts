@@ -152,6 +152,7 @@ export interface ContentRouteBase {
    * to the last path segment.
    */
   readonly title?: string;
+  /** Default icon for that tab, a host icon-registry name. */
   readonly icon?: string;
   /**
    * Facet ordering — carried through from `SurfaceBase.order`: a following surface's permanent facet
@@ -265,25 +266,20 @@ export interface OpenTabInput {
   readonly titleIsLiteral?: boolean;
   /**
    * Runs once when **this** tab is closed (the host's close control, or `ctx.closeContentTab`), giving
-   * the weaver a hook to free per-tab state, cancel in-flight work or persist a draft. Not called when
+   * the plugin a hook to free per-tab state, cancel in-flight work or persist a draft. Not called when
    * the tab is merely deactivated (still open) or when the whole plugin deactivates. Re-opening the same
-   * path replaces the handler with the latest one. (The callback itself cannot cross the sandbox RPC
-   * boundary and is dropped there — instead the host calls the optional `contentTabClosed(path)` method
-   * a sandboxed plugin's entry document may expose on its RPC channel.)
+   * path replaces the handler with the latest one. A sandboxed plugin gets no callback; the host calls
+   * the `contentTabClosed(path)` method it exposes on its channel instead.
    */
   readonly onClose?: () => void;
   /**
-   * Opens this as a **preview tab** — the one reused, *italic* tab of
-   * the main area for transient browsing: a subsequent `openContentTab({ preview: true })` for a
-   * **different** path replaces the preview's content instead of adding a tab, so browsing many items
-   * doesn't pile up tabs. It replaces it **wherever it stands**: a user who dragged the preview into
-   * another pane keeps it a preview there, the next preview lands in that pane, and that pane takes the
-   * address. Without a preview in the main area it opens in the pane carrying the address. Moved into a
-   * sidebar, a preview becomes permanent. Promotion to a permanent tab is **explicit**: double-click the tab, or call
-   * `ctx.keepContentTab(path)`. Re-opening the **same** path deliberately does *not* promote it and
-   * preserves the tab's current state — a view commonly re-opens itself on mount to refine its title,
-   * which would otherwise make every preview tab permanent the moment it renders. Default `false`
-   * (a permanent tab). Ignored when the distribution disabled preview (`provideShellFeatures({ content: { preview: false } })`).
+   * Opens this as the **preview tab**: the one reused, *italic* tab for transient browsing. A later
+   * preview for a **different** path replaces its content, wherever the user has moved it, instead of
+   * adding a tab; without a preview in the main area it opens in the pane that carries the address.
+   * It becomes permanent when the user double-clicks it, when you call `ctx.keepContentTab(path)`, or
+   * when it is moved into a sidebar. Opening the **same** path again does not promote it, so a view
+   * that re-opens itself to refine its title stays a preview. Default `false`; ignored where the
+   * distribution turned preview off.
    */
   readonly preview?: boolean;
   /**
@@ -301,7 +297,7 @@ export type TabBadgeTone = 'neutral' | 'brand' | 'success' | 'danger';
 /**
  * A short mark the workbench draws beside a tab's title, such as "Beta" or "Developer": a text, an
  * icon or both, in one of the workbench's badge tones. Its text is part of the tab's accessible name
- * ("Erweitert, Developer"); the badge is not a control of its own. In a strip that shows icons only,
+ * ("Settings, Developer"); the badge is not a control of its own. In a strip that shows icons only,
  * its text moves into the tab's tooltip. A badge with neither text nor icon is no badge.
  */
 export interface TabBadge {

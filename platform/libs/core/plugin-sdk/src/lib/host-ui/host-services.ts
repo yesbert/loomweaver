@@ -12,12 +12,12 @@ import { NotificationInput } from '../notification.js';
 
 /**
  * One row of an ad-hoc context menu opened via {@link PluginUi.openMenu}: a display `label` (a translation
- * key of the weaver's own bundle or a literal; it is looked up as a key, a label no bundle knows is shown
+ * key of the plugin's own bundle or a literal; it is looked up as a key, a label no bundle knows is shown
  * as it is, and a key is re-worded in the open menu when the strings arrive or the language changes), an
  * optional leading `icon` (a host icon-registry name), and an in-process `run` handler invoked when the
  * row is chosen.
- * Trusted-rung only: `run` is a function, so it does not cross the sandbox RPC boundary. A sandboxed
- * plugin draws its own `<lw-menu>` instead.
+ * Only for a trusted plugin: `run` is a function, so it does not cross the sandbox RPC boundary. A
+ * sandboxed plugin draws its own `<lw-menu>` instead.
  */
 export interface UiMenuItem {
   readonly label: string;

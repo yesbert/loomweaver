@@ -2,9 +2,8 @@
 export type NotificationKind = 'info' | 'success' | 'warning' | 'error';
 
 /**
- * A single action button on a toast (e.g. "Reload" on an update notice).
- * Trusted in-process runtime only — a sandboxed plugin's `action` does not cross the RPC
- * boundary and is dropped (like `OpenTabInput.onClose`).
+ * A single action button on a toast (e.g. "Reload" on an update notice). Only for a trusted plugin:
+ * a sandboxed plugin's `action` does not cross the RPC boundary and is dropped.
  */
 export interface NotificationAction {
   /** Transloco key or literal for the button label. */
@@ -19,8 +18,8 @@ export interface NotificationInput {
   /** Severity; defaults to `info`. */
   readonly kind?: NotificationKind;
   /**
-   * Optional single action button. (Trusted in-process runtime only — over the sandbox RPC
-   * boundary the action is dropped and the toast shows without a button.)
+   * Optional single action button. Only for a trusted plugin: from a sandboxed plugin the toast shows
+   * without it.
    */
   readonly action?: NotificationAction;
   /** Auto-dismiss after this many ms. Omit or `0` = sticky until dismissed. */

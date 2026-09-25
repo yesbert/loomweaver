@@ -9,7 +9,7 @@ export type MenuContext = Readonly<Record<string, string | number | boolean>>;
 /**
  * A contribution to a named menu slot — the menu analogue of a rail/bar/view-action item: it
  * names a {@link menu} slot and points at a {@link command} by id (so it serialises across the sandbox
- * boundary), or carries an inline {@link run} (trusted, in-process only). The host draws the menu; a
+ * boundary), or carries an inline {@link run} (only for a trusted plugin). The host draws the menu; a
  * right-click on host chrome opens the slot with a {@link MenuContext}.
  */
 export interface MenuItem {
@@ -21,11 +21,11 @@ export interface MenuItem {
    * itself (palette/shortcut) alive. Without an `id` the item is purely additive.
    */
   readonly id?: string;
-  /** Slot id: a host slot (`'content/tab/context'`) or a plugin's own (`'<weaver>.<surface>/context'`). */
+  /** Slot id: a host slot (`'content/tab/context'`) or a plugin's own (`'<plugin>.<surface>/context'`). */
   readonly menu: string;
   /** The behaviour: a registered command id (preferred — crosses the RPC boundary), invoked with the context. */
   readonly command?: string;
-  /** Inline behaviour (trusted in-process only; a sandboxed plugin uses `command` instead). */
+  /** Inline behaviour, only for a trusted plugin; a sandboxed plugin uses `command` instead. */
   run?(context?: MenuContext): void;
   /** Label — Transloco key or literal. Defaults to the referenced command's title when omitted. */
   readonly title?: string;

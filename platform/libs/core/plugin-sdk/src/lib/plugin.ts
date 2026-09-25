@@ -41,8 +41,8 @@ export interface PluginManifest {
 }
 
 /**
- * The `ctx` a plugin uses to contribute to the host — one uniform contract. Trusted in-process
- * plugins get a host-backed implementation; sandboxed plugins get the same surface over RPC.
+ * The `ctx` a plugin uses to contribute to the host — one uniform contract. A trusted plugin gets a
+ * host-backed implementation; a sandboxed plugin gets the same surface over RPC.
  */
 export interface PluginContext {
   /**

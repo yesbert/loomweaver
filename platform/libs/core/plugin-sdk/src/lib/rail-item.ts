@@ -6,6 +6,7 @@ import { MenuHeader, MenuTrigger } from './menu.js';
  * switching views is the panel's tab bar.
  */
 export interface RailItem {
+  /** Stable id: registering it again replaces the item, and a distribution hides it with `omit`. */
   readonly id: string;
   /** Target Rail region id. */
   readonly rail: string;
