@@ -10,10 +10,10 @@ npm i -D @loomweaver/devkit
 ```
 
 It is the fullest of the three scaffolding adapters, because Nx hands it a virtual tree of your
-workspace: it is the only one that can also *change* files — register the project, add the tsconfig
-path alias. `@loomweaver/cli` writes files but knows no workspace; `@loomweaver/mcp` returns a file map and lets
-your assistant place it. All three read the same scaffold descriptors, so the generated source is
-identical.
+workspace: besides writing files and wiring the build, it registers the project and adds the
+tsconfig path alias. `@loomweaver/cli` writes files and wires an Angular CLI application it finds;
+`@loomweaver/mcp` returns a file map and the remaining steps, and lets your assistant place them. All
+three read the same scaffold descriptors, so the generated source is identical.
 
 Placement is read from your workspace, not assumed: `--directory` (default `libs/<project name>`),
 `--import-path` (default: your root manifest's npm scope), `--app` (inferred when the workspace has
@@ -22,19 +22,24 @@ exactly one application, an error naming the candidates when it has several), pl
 
 ## Architecture
 
-- **Generation core** (`src/lib/generate`) — a pure `generate(recipe, input) → FileMap` (path →
-  content). No filesystem, no Nx, no framework: deterministic and unit-testable. This is the seam a
-  CLI or an MCP server wraps later.
-- **Recipes** (`src/recipes`) — templates + a typed input per target: `angular-weaver` (a trusted
-  in-process weaver) and `frame-plugin` (a framework-agnostic iframe/Penpal plugin — drop
-  any framework into `view.html`).
-- **Validation core** (`src/lib/validate`) — pure `validateManifest` / `validateI18nParity` /
-  `validateCatalog` returning MCP-shaped `Finding[]`. They cover the three places the platform
-  swallows a mistake on purpose: an ungranted capability, a missing translation key, and a plugin
-  store catalog, which the shell parses defensively — unknown fields, malformed values and whole
-  entries disappear without a word.
-- **Nx generator adapter** (`src/generators`) — writes a recipe's `FileMap` (plus the Nx project
-  files) into the workspace `Tree`.
+- **Generation core** (`src/lib/generate`): a pure `generate(recipe, input) → FileMap` (path to
+  content). No filesystem, no Nx, no framework: deterministic and unit-testable. The CLI, the MCP
+  server and the Nx generators all wrap it.
+- **Recipes** (`src/recipes`): one folder per target, each with its templates, its typed input and
+  its scaffold descriptor (`scaffold.ts`, the options every adapter offers): `angular-weaver` (a
+  trusted plugin), `angular-distribution` (the composition root), `frame-plugin` (a sandboxed
+  plugin; put any framework into `view.html`), `auth-source`, `settings-store`, `theme` and
+  `layout`.
+- **Amendments** (`src/lib/amend`): what the workspace around the generated files must carry (a
+  build target, a stylesheet source, a package, the composition root), stated once by a recipe and
+  applied by each adapter as far as it can reach.
+- **Validation core** (`src/lib/validate`): pure `validateManifest`, `validateI18nParity`,
+  `validateCatalog` and `validateCommands`, returning MCP-shaped `Finding[]`. They cover the places
+  the platform swallows a mistake on purpose: an ungranted capability, a missing translation key, a
+  plugin store catalog the shell parses defensively (unknown fields, malformed values and whole
+  entries disappear without a word), and a command an agent could not use.
+- **Nx generator adapter** (`src/generators`): writes a recipe's `FileMap` (plus the Nx project
+  files) into the workspace `Tree` and applies its amendments.
 
 ## Scaffold a weaver
 
@@ -59,7 +64,9 @@ required capabilities and adds the matching i18n keys:
 | `--bar-item` | a status-bar button that triggers the command (implies `--command`) |
 | `--settings` | a settings section (toggle + text) with signal-backed value owners |
 | `--about` | an About dialog (reads `ctx.host` version) + a command + a bottom rail item (→ `ui`, `host`) |
-| `--instanceable` | named saved instances of the surface (switcher) |
+| `--instanceable` | named saved instances of the surface (switcher); not combinable with `--container` |
+| `--container` | a routable container tab at `<id>/:id` holding a nested pane tree of child views |
+| `--agent` | a docked panel through which an AG-UI agent runs the workbench's commands, with a local stand-in agent (implies `--command`) |
 | `--access=<req>` | auth-gate the surface + rail: `authenticated`, `anonymous`, or `role:<name>` |
 | `--no-spec` | skip the generated starter unit test |
 
@@ -68,7 +75,7 @@ nx g @loomweaver/devkit:weaver --id=notes --command --menu=content/tab/context -
 ```
 
 Keyboard chords use the platform-neutral `mod` token (⌘ on macOS, Ctrl elsewhere); the host both
-binds and **displays** them per platform (`formatShortcut` → `⌘⇧K` vs `Ctrl+Shift+K`). A literal
+binds and **displays** them per platform (`formatChord` gives `⌘⇧K` or `Ctrl+Shift+K`). A literal
 `cmd`/`ctrl` in `--shortcut` is rejected with an error pointing at `mod`.
 
 ## Scaffold a frame plugin (any framework)
@@ -77,7 +84,7 @@ binds and **displays** them per platform (`formatShortcut` → `⌘⇧K` vs `Ctr
 nx g @loomweaver/devkit:frame-plugin --id=notes --app=loom-testbed
 ```
 
-Writes an iframe/Penpal plugin (`plugin.html`, `plugin.js`, `view.html`) into
+Writes a sandboxed plugin (`plugin.html`, `plugin.js`, `view.html`) into
 `apps/loom-testbed/public/notes/`. Replace `view.html` with any framework; the generated `README.md`
 covers registering it via `provideFramePlugins` and supplying `penpal.global.js`.
 

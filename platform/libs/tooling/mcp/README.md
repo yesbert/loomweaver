@@ -55,4 +55,4 @@ client resolves `args` from the repo root):
 - `src/lib/server.ts` — the MCP wiring + zod input schemas.
 - `src/main.ts` — the stdio entry (bin `loomweaver-mcp`).
 
-A remote/HTTP transport is a thin later addition over the same `createMcpServer()`.
+The server speaks stdio. `createMcpServer()` knows no transport, so another one wraps the same server.
