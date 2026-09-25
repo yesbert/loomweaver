@@ -39,9 +39,10 @@ directories like components, directives, and services").
 - **`permissions/`** — capability grants, their broker and refusal reporting.
 - **`settings/`** — settings model + service + dialog + row primitives.
 - **`persistence/`** — shared kernel: the two `KeyValueStore` ports (`SETTINGS_STORE`
-  settings-only + `WORKING_STATE_STORE`), cross-tab sync (`StateSyncService`),
-  identity scoping, `hydrate`/`readStoredValue` and id-set parsing. Deliberately
-  cross-cutting (consumed by plugin/, regions/ and the feature slices).
+  settings-only + `WORKING_STATE_STORE`) at the top, `cross-tab/` (`StateSyncService` and the
+  sync wrapper), `identity-scope/` (the boot latch, the scoped store and its provider) and
+  `stored-values/` (`hydrate`/`readStoredValue` and the parsers). Deliberately cross-cutting
+  (consumed by plugin/, regions/ and the feature slices).
 - **`elements/`** — the framework-agnostic `<lw-*>` custom-element family
   incl. the icon registry; `lw-elements.frame.ts` is the `@loomweaver/frame-kit` bundle
   entry. Deliberately cross-cutting (the host UI kit).

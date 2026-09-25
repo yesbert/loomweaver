@@ -1,10 +1,10 @@
 import { TestBed } from '@angular/core/testing';
-import { KeyValueStore } from './key-value-store';
-import { SETTINGS_STORE } from './settings-store';
-import { WORKING_STATE_STORE } from './working-state-store';
+import { KeyValueStore } from '../key-value-store';
+import { SETTINGS_STORE } from '../settings-store';
+import { WORKING_STATE_STORE } from '../working-state-store';
 import { StateSyncChannel } from './state-sync-channel';
 import { StateSyncService } from './state-sync.service';
-import { ThemeService } from '../theme/theme.service';
+import { ThemeService } from '../../theme/theme.service';
 
 class FakeChannel {
   posted: string[] = [];

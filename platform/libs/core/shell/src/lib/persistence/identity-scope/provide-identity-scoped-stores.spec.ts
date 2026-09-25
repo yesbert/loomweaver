@@ -2,11 +2,12 @@ import { TestBed } from '@angular/core/testing';
 import {
   DEVICE_LEVEL_KEYS,
   provideIdentityScopedStores,
-} from './identity-scoped-stores';
-import { BootLatchedIdentity, IdentityScopedStore } from './boot-latched-scope';
-import { KeyValueStore, LocalStorageStore } from './key-value-store';
-import { SETTINGS_STORE } from './settings-store';
-import { WORKING_STATE_STORE } from './working-state-store';
+} from './provide-identity-scoped-stores';
+import { BootLatchedIdentity } from './boot-latched-identity';
+import { IdentityScopedStore } from './identity-scoped-store';
+import { KeyValueStore, LocalStorageStore } from '../key-value-store';
+import { SETTINGS_STORE } from '../settings-store';
+import { WORKING_STATE_STORE } from '../working-state-store';
 
 describe('IdentityScopedStore', () => {
   let identity: string | null;

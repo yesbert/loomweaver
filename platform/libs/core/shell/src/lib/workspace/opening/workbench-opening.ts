@@ -1,5 +1,5 @@
 import { inject, Service } from '@angular/core';
-import { StateSyncService } from '../../persistence/state-sync.service';
+import { StateSyncService } from '../../persistence/cross-tab/state-sync.service';
 import { isHomePath } from '../../regions/content/content-path';
 import { BootAddress } from '../../regions/content/routing/boot-address';
 import { ContentRouter } from '../../regions/content/routing/content-router';

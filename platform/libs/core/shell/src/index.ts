@@ -76,10 +76,10 @@ export * from './lib/notifications/toast-outlet';
 export * from './lib/permissions/capability-grant.service';
 export * from './lib/permissions/provide-capability-grants';
 
-export * from './lib/persistence/identity-scoped-stores';
+export * from './lib/persistence/identity-scope/provide-identity-scoped-stores';
 export * from './lib/persistence/key-value-store';
 export * from './lib/persistence/settings-store';
-export * from './lib/persistence/state-sync.service';
+export * from './lib/persistence/cross-tab/state-sync.service';
 export * from './lib/persistence/working-state-store';
 
 export * from './lib/plugin/enablement/plugin-enablement.service';

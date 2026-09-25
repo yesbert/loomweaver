@@ -49,20 +49,20 @@ export class LocalStorageStore implements KeyValueStore {
   }
 
   set(key: string, value: string): Promise<void> {
-    try {
-      localStorage.setItem(key, value);
-    } catch {
-      return Promise.resolve();
-    }
+    whereStorageAllows(() => localStorage.setItem(key, value));
     return Promise.resolve();
   }
 
   delete(key: string): Promise<void> {
-    try {
-      localStorage.removeItem(key);
-    } catch {
-      return Promise.resolve();
-    }
+    whereStorageAllows(() => localStorage.removeItem(key));
     return Promise.resolve();
+  }
+}
+
+function whereStorageAllows(write: () => void): void {
+  try {
+    write();
+  } catch {
+    return;
   }
 }

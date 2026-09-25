@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { Connection, WindowMessenger, connect } from 'penpal';
 import { SETTINGS_STORE } from '../../persistence/settings-store';
-import { StateSyncService } from '../../persistence/state-sync.service';
+import { StateSyncService } from '../../persistence/cross-tab/state-sync.service';
 import { HostPluginContext } from '../context/host-plugin-context';
 import { HostContextFactory } from '../context/host-context-factory';
 import { CapabilityGrantService } from '../../permissions/capability-grant.service';

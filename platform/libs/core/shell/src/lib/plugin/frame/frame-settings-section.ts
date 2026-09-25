@@ -7,7 +7,7 @@ import {
 } from '@loomweaver/plugin-sdk';
 import { KeyValueStore } from '../../persistence/key-value-store';
 import { hydrateAsync } from '../../persistence/stored-values/hydrate';
-import { StateSyncService } from '../../persistence/state-sync.service';
+import { StateSyncService } from '../../persistence/cross-tab/state-sync.service';
 import { PluginInstallService } from '../../plugin-store/lifecycle/plugin-install.service';
 
 export type FrameSettingValue = boolean | string | number;

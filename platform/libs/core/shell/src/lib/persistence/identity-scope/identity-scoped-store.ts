@@ -1,49 +1,6 @@
-import { KeyValueStore } from './key-value-store';
-
-export class BootLatchedIdentity {
-  private latched: string | null = null;
-  private servedAnonymously = false;
-  private adoption = false;
-  private readonly watchers = new Set<() => void>();
-
-  constructor(private readonly read: () => string | null | undefined) {}
-
-  current(): string | null {
-    if (this.latched !== null) {
-      return this.latched;
-    }
-    const id = this.read();
-    if (!id) {
-      this.servedAnonymously = true;
-      return null;
-    }
-    this.latched = id;
-    this.adopt();
-    return id;
-  }
-
-  adopting(): boolean {
-    return this.adoption;
-  }
-
-  settle(): void {
-    this.adoption = false;
-  }
-
-  watchAdoption(watcher: () => void): void {
-    this.watchers.add(watcher);
-  }
-
-  private adopt(): void {
-    if (!this.servedAnonymously || this.watchers.size === 0) {
-      return;
-    }
-    this.adoption = true;
-    for (const watcher of this.watchers) {
-      watcher();
-    }
-  }
-}
+import { KeyValueStore } from '../key-value-store';
+import { peekThrough } from '../peek-through';
+import { BootLatchedIdentity } from './boot-latched-identity';
 
 export class IdentityScopedStore implements KeyValueStore {
   peek?: (key: string) => string | undefined;
@@ -61,10 +18,7 @@ export class IdentityScopedStore implements KeyValueStore {
     this.inner = inner;
     this.latch = latch;
     this.deviceKeys = deviceKeys;
-    const innerPeek = inner.peek?.bind(inner);
-    if (innerPeek) {
-      this.peek = (key) => innerPeek(this.scoped(key));
-    }
+    this.peek = peekThrough(inner, (key) => this.scoped(key));
   }
 
   get(key: string): Promise<string | undefined> {
@@ -107,6 +61,7 @@ export class IdentityScopedStore implements KeyValueStore {
     if (this.deviceKeys.has(key)) {
       return key;
     }
+    this.latch.latch();
     const id = this.latch.current();
     if (id === null) {
       return key;

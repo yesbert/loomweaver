@@ -9,20 +9,20 @@ import {
 } from '@jsverse/transloco';
 import { Observable, of } from 'rxjs';
 import { ContentRoute } from '@loomweaver/plugin-sdk';
-import { ContributionRegistry } from '../contributions/contribution-registry';
-import { provideLayout } from '../layout/layout';
-import { provideIdentityScopedStores } from './identity-scoped-stores';
-import { buildContentRoutes } from '../regions/content/routing/content-route-table';
-import { CONTENT_DOCK } from '../regions/pane/tree/pane-address';
-import { SurfaceBody } from '../regions/content/surface/surface-body';
-import { CONTAINER_PANE_HOST } from '../regions/pane/container/container-context';
-import { ContainerPaneHost } from '../regions/pane/container/container-pane-host';
-import { collectLeafIds, collectTabs } from '../regions/pane/tree/pane-queries';
-import { PaneTreeService } from '../regions/pane/tree/pane-tree.service';
-import { WORKING_STATE_STORE } from './working-state-store';
-import { WORKSPACE_SETTLEMENT } from '../regions/content/routing/workspace-settlement';
-import { WorkspaceService } from '../workspace/workspace.service';
-import { provideWorkspaces } from '../workspace/declaration/provide-workspaces';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
+import { provideLayout } from '../../layout/layout';
+import { provideIdentityScopedStores } from './provide-identity-scoped-stores';
+import { buildContentRoutes } from '../../regions/content/routing/content-route-table';
+import { CONTENT_DOCK } from '../../regions/pane/tree/pane-address';
+import { SurfaceBody } from '../../regions/content/surface/surface-body';
+import { CONTAINER_PANE_HOST } from '../../regions/pane/container/container-context';
+import { ContainerPaneHost } from '../../regions/pane/container/container-pane-host';
+import { collectLeafIds, collectTabs } from '../../regions/pane/tree/pane-queries';
+import { PaneTreeService } from '../../regions/pane/tree/pane-tree.service';
+import { WORKING_STATE_STORE } from '../working-state-store';
+import { WORKSPACE_SETTLEMENT } from '../../regions/content/routing/workspace-settlement';
+import { WorkspaceService } from '../../workspace/workspace.service';
+import { provideWorkspaces } from '../../workspace/declaration/provide-workspaces';
 
 @Component({ selector: 'lw-test-content', template: '' })
 class TestContent {}
