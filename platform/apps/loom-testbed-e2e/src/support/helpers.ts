@@ -23,13 +23,13 @@ export async function useFeatures(page: Page, flags: string): Promise<void> {
   );
 }
 
-const TICKET_SUBJECTS: Readonly<Record<string, string>> = {
+const ENTRY_SUBJECTS: Readonly<Record<string, string>> = {
   'E-01': 'Alpha',
   'E-02': 'Bravo',
 };
 
 export async function openEntry(page: Page, reference: string): Promise<void> {
-  const subject = TICKET_SUBJECTS[reference];
+  const subject = ENTRY_SUBJECTS[reference];
   if (subject === undefined) {
     throw new Error(`openEntry: no subject known for "${reference}"`);
   }

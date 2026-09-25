@@ -7,23 +7,23 @@ import { ContainerListView } from './container-list-view';
 
 interface ContainerTab {
   readonly kind: 'container' | 'arranged' | 'browse';
-  readonly title: string;
+  readonly literalTitle: string;
   readonly icon: string;
 }
 
 const CONTAINER_TAB: ContainerTab = {
   kind: 'container',
-  title: 'Container',
+  literalTitle: 'Container',
   icon: 'testbedDashboard',
 };
 const ARRANGED_TAB: ContainerTab = {
   kind: 'arranged',
-  title: 'Arranged',
+  literalTitle: 'Arranged',
   icon: 'splitPanesDown',
 };
 const BROWSE_TAB: ContainerTab = {
   kind: 'browse',
-  title: 'Browse',
+  literalTitle: 'Browse',
   icon: 'testbedList',
 };
 
@@ -41,7 +41,7 @@ function openContainerTab(
 ): void {
   ctx.openContentTab({
     path: `${tab.kind}/${id}`,
-    title: `${tab.title} ${id}`,
+    title: `${tab.literalTitle} ${id}`,
     icon: tab.icon,
     titleIsLiteral: true,
   });

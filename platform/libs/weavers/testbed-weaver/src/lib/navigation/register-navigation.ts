@@ -93,13 +93,13 @@ export function registerNavigation(ctx: PluginContext): void {
   });
 
   ctx.registerBarItem({
-    id: 'testbed.count',
+    id: 'testbed.bar.count',
     bar: 'status-bar',
     slot: 'start',
     component: TestbedStatusCount,
   });
   ctx.registerBarItem({
-    id: 'testbed.add',
+    id: 'testbed.bar.add',
     bar: 'status-bar',
     slot: 'start',
     order: 1,

@@ -52,7 +52,7 @@ describe('testbedAuth', () => {
     expect(testbedAuth.snapshot().roles).toEqual(['user']);
   });
 
-  it('cycle returns to anonymous from Grace (she is outside the demo cycle)', () => {
+  it('cycle returns to anonymous from Grace (she is outside the sign-in cycle)', () => {
     testbedAuth.switchToGrace();
     expect(cycled().authenticated).toBe(false);
   });

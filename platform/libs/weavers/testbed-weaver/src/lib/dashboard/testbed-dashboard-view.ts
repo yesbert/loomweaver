@@ -1,11 +1,12 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { map } from 'rxjs';
 import { ENTRIES, Entry, formatWaitingTime } from '../entry-tabs/testbed-entries';
+import { areaPath, CHART, DayPoint, linePoints } from './dashboard-chart';
 
-export interface Kpi {
+interface Kpi {
   readonly id: string;
   readonly value: string;
   readonly deltaKey: string;
@@ -13,16 +14,11 @@ export interface Kpi {
   readonly good: boolean;
 }
 
-export interface StatusBar {
+interface StatusShare {
   readonly id: string;
   readonly count: number;
   readonly percent: number;
   readonly tone: string;
-}
-
-export interface DayPoint {
-  readonly day: string;
-  readonly count: number;
 }
 
 const VOLUME: readonly DayPoint[] = [
@@ -44,43 +40,6 @@ const REPLY_MINUTES: readonly DayPoint[] = [
   { day: 'Sat', count: 9 },
   { day: 'Sun', count: 14 },
 ];
-
-const CHART = { width: 320, height: 96, pad: 6 } as const;
-
-export function linePoints(
-  values: readonly number[],
-  width = CHART.width,
-  height = CHART.height,
-  pad = CHART.pad,
-): string {
-  if (values.length < 2) {
-    return '';
-  }
-  const max = Math.max(...values);
-  const min = Math.min(...values);
-  const span = max - min || 1;
-  const step = (width - pad * 2) / (values.length - 1);
-  return values
-    .map((value, index) => {
-      const x = pad + index * step;
-      const y = height - pad - ((value - min) / span) * (height - pad * 2);
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
-    })
-    .join(' ');
-}
-
-export function areaPath(
-  values: readonly number[],
-  width = CHART.width,
-  height = CHART.height,
-  pad = CHART.pad,
-): string {
-  const points = linePoints(values, width, height, pad);
-  if (points === '') {
-    return '';
-  }
-  return `M ${pad},${height} L ${points.replaceAll(' ', ' L ')} L ${width - pad},${height} Z`;
-}
 
 @Component({
   selector: 'lw-testbed-dashboard-view',
@@ -137,7 +96,7 @@ export class TestbedDashboardView {
     },
   ];
 
-  protected readonly statusBars: readonly StatusBar[] = (
+  protected readonly statusShares: readonly StatusShare[] = (
     [
       ['open', 'bg-brand'],
       ['waiting', 'bg-caution'],
@@ -161,12 +120,8 @@ export class TestbedDashboardView {
   protected readonly replyMinutes = REPLY_MINUTES;
   protected readonly chart = CHART;
 
-  protected readonly volumeLine = computed(() =>
-    linePoints(VOLUME.map((point) => point.count)),
-  );
-  protected readonly volumeArea = computed(() =>
-    areaPath(VOLUME.map((point) => point.count)),
-  );
+  protected readonly volumeLine = linePoints(VOLUME.map((point) => point.count));
+  protected readonly volumeArea = areaPath(VOLUME.map((point) => point.count));
 
   private readonly replyMax = Math.max(
     ...REPLY_MINUTES.map((point) => point.count),

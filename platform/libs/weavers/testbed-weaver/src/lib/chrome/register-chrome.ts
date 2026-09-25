@@ -1,8 +1,20 @@
 import { PluginContext } from '@loomweaver/plugin-sdk';
 import { TestbedStatusItem } from './testbed-status-item';
 
-const TESTBED_ACCOUNT_PICTURE =
-  'data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA2NCA2NCc+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSdnJyB4MT0nMCcgeTE9JzAnIHgyPScxJyB5Mj0nMSc+PHN0b3Agb2Zmc2V0PScwJyBzdG9wLWNvbG9yPScjMkU5NkM5Jy8+PHN0b3Agb2Zmc2V0PScxJyBzdG9wLWNvbG9yPScjQzU5QTJGJy8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3Qgd2lkdGg9JzY0JyBoZWlnaHQ9JzY0JyBmaWxsPSd1cmwoI2cpJy8+PGNpcmNsZSBjeD0nMzInIGN5PScyNScgcj0nMTEnIGZpbGw9JyNmZmZmZmYnIGZpbGwtb3BhY2l0eT0nMC45Jy8+PHBhdGggZD0nTTEwIDYwYzQtMTMgMTItMTkgMjItMTlzMTggNiAyMiAxOXonIGZpbGw9JyNmZmZmZmYnIGZpbGwtb3BhY2l0eT0nMC45Jy8+PC9zdmc+';
+const ACCOUNT_PICTURE_SVG = [
+  "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'>",
+  "<defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>",
+  "<stop offset='0' stop-color='#2E96C9'/><stop offset='1' stop-color='#C59A2F'/>",
+  '</linearGradient></defs>',
+  "<rect width='64' height='64' fill='url(#g)'/>",
+  "<circle cx='32' cy='25' r='11' fill='#ffffff' fill-opacity='0.9'/>",
+  "<path d='M10 60c4-13 12-19 22-19s18 6 22 19z' fill='#ffffff' fill-opacity='0.9'/>",
+  '</svg>',
+].join('');
+
+const TESTBED_ACCOUNT_PICTURE = `data:image/svg+xml,${encodeURIComponent(ACCOUNT_PICTURE_SVG)}`;
+
+const BROKEN_PICTURE_URL = 'https://testbed.invalid/no-such-picture.png';
 
 const TOAST_MS = 3000;
 
@@ -31,7 +43,7 @@ export function registerChrome(ctx: PluginContext): void {
 
 function registerRailItems(ctx: PluginContext): void {
   ctx.registerRailItem({
-    id: 'testbed.workspaces',
+    id: 'testbed.rail.workspaces',
     rail: 'secondary',
     icon: 'workspaces',
     title: 'workspace.title',
@@ -66,14 +78,14 @@ function registerRailItems(ctx: PluginContext): void {
     title: 'testbed.account.brokenTitle',
     anchor: 'bottom',
     order: -2.8,
-    image: 'https://testbed.invalid/no-such-picture.png',
+    image: BROKEN_PICTURE_URL,
     menu: 'testbed.account/menu',
     menuTrigger: 'primary',
     menuHeader: {
       title: 'testbed.account.brokenName',
       detail: 'testbed.account.brokenDetail',
       initials: 'GH',
-      image: 'https://testbed.invalid/no-such-picture.png',
+      image: BROKEN_PICTURE_URL,
     },
   });
   ctx.registerRailItem({
@@ -102,7 +114,7 @@ function registerBarItems(ctx: PluginContext): void {
     order: -1,
     icon: 'testbedUsers',
     initials: 'GH',
-    image: 'https://testbed.invalid/no-such-picture.png',
+    image: BROKEN_PICTURE_URL,
     tooltip: 'testbed.account.title',
     menu: 'testbed.account/menu',
     menuTrigger: 'primary',
@@ -113,7 +125,7 @@ function registerBarItems(ctx: PluginContext): void {
     },
   });
   ctx.registerBarItem({
-    id: 'testbed.status.account',
+    id: 'testbed.bar.statusAccount',
     bar: 'status-bar',
     slot: 'end',
     order: 1,
@@ -130,7 +142,7 @@ function registerBarItems(ctx: PluginContext): void {
     },
   });
   ctx.registerBarItem({
-    id: 'testbed.status',
+    id: 'testbed.bar.status',
     bar: 'status-bar',
     slot: 'end',
     component: TestbedStatusItem,

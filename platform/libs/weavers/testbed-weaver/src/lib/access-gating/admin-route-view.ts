@@ -1,14 +1,13 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ENTRIES, Entry, formatWaitingTime } from '../entry-tabs/testbed-entries';
 
 @Component({
-  selector: 'lw-testbed-escalations-view',
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  selector: 'lw-testbed-admin-route-view',
   imports: [TranslocoPipe],
-  templateUrl: './testbed-escalations-view.html',
+  templateUrl: './admin-route-view.html',
 })
-export class TestbedEscalationsView {
+export class AdminRouteView {
   protected readonly escalated: readonly Entry[] = ENTRIES.filter(
     (entry) =>
       entry.status !== 'resolved' &&

@@ -64,7 +64,7 @@ try {
   await bootstrapApplication(Shell, {
     providers: [
       provideShellRouter(),
-      provideShell({ padding: 'inset', omit: ['route:testbed.retired'] }),
+      provideShell({ padding: 'inset', omit: ['route:testbed.omitted'] }),
       provideShellFeatures(
         testbedFeatures(localStorage.getItem(TESTBED_FEATURES_KEY)),
       ),
@@ -158,7 +158,7 @@ try {
           id: 'testbed.sandbox',
           title: 'product.workspace.sandbox',
           icon: 'testbedSandbox',
-          claims: ['sandbox-rpc', 'retired'],
+          claims: ['sandbox-rpc', 'omitted'],
           content: { tabs: [{ path: 'sandbox-rpc', closable: false }] },
         },
       ),

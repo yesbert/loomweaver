@@ -28,11 +28,13 @@
     "notes": "Notes",
     "allNotes": "All notes",
     "archive": "Archive",
-    "retired": "Retired content",
+    "omitted": "Omitted route",
     "search": "Search"
   },
   "outline": {
-    "title": "Outline"
+    "title": "Outline",
+    "sortAlpha": "Sort: A–Z",
+    "sortOutline": "Sort: outline order"
   },
   "home": {
     "title": "Home",
@@ -118,8 +120,8 @@
     "heading": "Notes",
     "intro": "Saves itself the moment it is hidden (saveOn: 'hide'), so nothing is lost without a dialog."
   },
-  "retired": {
-    "title": "Retired"
+  "omitted": {
+    "title": "Omitted"
   },
   "theme": {
     "toggle": "Toggle the plugin theme"

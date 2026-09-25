@@ -4,18 +4,18 @@ test.describe('Omitted content route', () => {
   test('a deep-link to an omitted route explains itself instead of falling back to home', async ({
     page,
   }) => {
-    await page.goto('/retired');
+    await page.goto('/omitted');
 
     await expect(
       page.getByRole('heading', { name: 'View not available' }),
     ).toBeVisible();
-    await expect(page).toHaveURL(/\/retired$/);
+    await expect(page).toHaveURL(/\/omitted$/);
   });
 
   test('a deep-link to an omitted route a workspace claims lands in that workspace', async ({
     page,
   }) => {
-    await page.goto('/retired');
+    await page.goto('/omitted');
 
     await expect(
       page.getByRole('heading', { name: 'View not available' }),
@@ -33,7 +33,7 @@ test.describe('Omitted content route', () => {
     await page.getByTestId('content-new-tab').click();
 
     await expect(page.getByRole('menuitem', { name: 'Notes' })).toBeVisible();
-    await expect(page.getByRole('menuitem', { name: 'Retired' })).toHaveCount(
+    await expect(page.getByRole('menuitem', { name: 'Omitted' })).toHaveCount(
       0,
     );
   });

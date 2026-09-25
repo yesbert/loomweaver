@@ -32,9 +32,9 @@ export function registerPages(ctx: PluginContext): void {
       import('./testbed-notes-view').then((m) => m.TestbedNotesView),
   });
   ctx.registerSurface({
-    id: 'testbed.retired',
-    title: 'testbed.retired.title',
-    routable: { path: 'retired' },
+    id: 'testbed.omitted',
+    title: 'testbed.omitted.title',
+    routable: { path: 'omitted' },
     loadComponent: () =>
       import('./testbed-notes-view').then((m) => m.TestbedNotesView),
   });

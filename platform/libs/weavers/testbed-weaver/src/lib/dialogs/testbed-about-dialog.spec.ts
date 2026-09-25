@@ -5,7 +5,7 @@ import { TestbedAboutDialog } from './testbed-about-dialog';
 
 function transloco() {
   return TranslocoTestingModule.forRoot({
-    langs: { en: { product: { tagline: 'A tree editor' }, update: { check: 'Check', reload: 'Reload' } } },
+    langs: { en: { product: { tagline: 'A workbench for testing' }, update: { check: 'Check', reload: 'Reload' } } },
     translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
     preloadLangs: true,
   });
@@ -40,7 +40,7 @@ describe('TestbedAboutDialog', () => {
   it('shows the product identity and the running version from ctx.host', () => {
     const host = render(hostStub());
     expect(host.querySelector('h2')?.textContent?.trim()).toBe('TestbedWeaver');
-    expect(host.textContent).toContain('A tree editor');
+    expect(host.textContent).toContain('A workbench for testing');
     expect(host.textContent).toContain('v1.2.3');
   });
 

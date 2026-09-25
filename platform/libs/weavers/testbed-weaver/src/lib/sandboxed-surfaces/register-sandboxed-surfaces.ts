@@ -49,13 +49,13 @@ export function registerSandboxedSurfaces(ctx: PluginContext): void {
   ctx.registerMenuItem({
     menu: 'testbed.rail/context',
     command: 'testbed.openSettings',
-    group: '1_demo',
+    group: '1_testbed',
     order: 0,
   });
   ctx.registerMenuItem({
     menu: 'testbed.rail/context',
     command: 'testbed.about',
-    group: '1_demo',
+    group: '1_testbed',
     order: 1,
   });
 }
