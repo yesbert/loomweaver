@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { rail, railRight } from './support/helpers';
+import { openRpcSandbox, rail, railRight } from './support/helpers';
 
 test.describe('Auth gating', () => {
   test('hides an admin-only item and disables a members item until the session qualifies', async ({
@@ -127,10 +127,7 @@ test.describe('Auth gating', () => {
   test('a sandboxed iframe surface self-gates on the pushed session', async ({
     page,
   }) => {
-    await page.goto('/');
-    await page
-      .getByRole('button', { name: 'Sandbox (iframe)', exact: true })
-      .click();
+    await openRpcSandbox(page);
     const surface = page.frameLocator('iframe[src*="/sandbox-rpc/view.html"]');
     const cycle = railRight(page).getByRole('button', { name: 'Switch user' });
 
@@ -150,10 +147,7 @@ test.describe('Auth gating', () => {
   test('revoking `session` stops the push to the surface, live', async ({
     page,
   }) => {
-    await page.goto('/');
-    await page
-      .getByRole('button', { name: 'Sandbox (iframe)', exact: true })
-      .click();
+    await openRpcSandbox(page);
     const surface = page.frameLocator('iframe[src*="/sandbox-rpc/view.html"]');
     const cycle = railRight(page).getByRole('button', { name: 'Switch user' });
 

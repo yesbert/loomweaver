@@ -1,16 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { dragTo } from './support/helpers';
-
-async function openTwoEntries(page: Page): Promise<void> {
-  await page.getByRole('tab', { name: 'Entry list' }).click();
-  await page.getByRole('button', { name: 'Alpha' }).dblclick();
-  await expect(page).toHaveURL(/entry\/e-01/);
-  await page.getByRole('button', { name: 'Bravo' }).dblclick();
-  await expect(page).toHaveURL(/entry\/e-02/);
-  await expect(
-    page.locator('lw-address-pane-header [role="tab"][data-reorder-id]'),
-  ).toHaveCount(2);
-}
+import { dragTo, openTwoEntries } from './support/helpers';
 
 async function tabOrder(page: Page): Promise<string[]> {
   return page

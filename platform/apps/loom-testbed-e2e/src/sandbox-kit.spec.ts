@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { openRpcSandbox } from './support/helpers';
 
 test.describe('Sandbox UI kit — /frame-kit/ assets inside the iframe', () => {
   test('the distribution serves the kit assets under /frame-kit/', async ({
@@ -17,10 +18,7 @@ test.describe('Sandbox UI kit — /frame-kit/ assets inside the iframe', () => {
   test('<lw-icon> resolves built-in AND plugin-own icons inside the sandbox', async ({
     page,
   }) => {
-    await page.goto('/');
-    await page
-      .getByRole('button', { name: 'Sandbox (iframe)', exact: true })
-      .click();
+    await openRpcSandbox(page);
     const surface = page.frameLocator('iframe[src*="/sandbox-rpc/view.html"]');
 
     await expect(
@@ -34,10 +32,7 @@ test.describe('Sandbox UI kit — /frame-kit/ assets inside the iframe', () => {
   test('<lw-nav-tree> draws, marks and folds inside the sandbox as it does in the chrome', async ({
     page,
   }) => {
-    await page.goto('/');
-    await page
-      .getByRole('button', { name: 'Sandbox (iframe)', exact: true })
-      .click();
+    await openRpcSandbox(page);
     const surface = page.frameLocator('iframe[src*="/sandbox-rpc/view.html"]');
     const tree = surface.getByTestId('frame-kit-nav');
 
@@ -65,10 +60,7 @@ test.describe('Sandbox UI kit — /frame-kit/ assets inside the iframe', () => {
     page,
   }) => {
     const marker = 'M12 3.5 21 20H3l9-16.5Z';
-    await page.goto('/');
-    await page
-      .getByRole('button', { name: 'Sandbox (iframe)', exact: true })
-      .click();
+    await openRpcSandbox(page);
     const surface = page.frameLocator('iframe[src*="/sandbox-rpc/view.html"]');
 
     await expect
@@ -93,10 +85,7 @@ test.describe('Sandbox UI kit — /frame-kit/ assets inside the iframe', () => {
   test('<lw-button> paints via the compiled .lw-btn contract and handles its click in-process', async ({
     page,
   }) => {
-    await page.goto('/');
-    await page
-      .getByRole('button', { name: 'Sandbox (iframe)', exact: true })
-      .click();
+    await openRpcSandbox(page);
     const surface = page.frameLocator('iframe[src*="/sandbox-rpc/view.html"]');
 
     const button = surface.getByTestId('frame-kit-button');
@@ -126,10 +115,7 @@ test.describe('Sandbox UI kit — /frame-kit/ assets inside the iframe', () => {
   test('the badge class contract and the progress ring render from the kit CSS/bundle', async ({
     page,
   }) => {
-    await page.goto('/');
-    await page
-      .getByRole('button', { name: 'Sandbox (iframe)', exact: true })
-      .click();
+    await openRpcSandbox(page);
     const surface = page.frameLocator('iframe[src*="/sandbox-rpc/view.html"]');
 
     await expect(surface.getByTestId('frame-kit-badge')).toBeVisible();
@@ -142,10 +128,7 @@ test.describe('Sandbox UI kit — /frame-kit/ assets inside the iframe', () => {
   test('the token push is the FULL LW_TOKENS set and matches the host resolved values', async ({
     page,
   }) => {
-    await page.goto('/');
-    await page
-      .getByRole('button', { name: 'Sandbox (iframe)', exact: true })
-      .click();
+    await openRpcSandbox(page);
     const surface = page.frameLocator('iframe[src*="/sandbox-rpc/view.html"]');
     await expect(surface.getByTestId('frame-kit-strip')).toBeVisible();
 

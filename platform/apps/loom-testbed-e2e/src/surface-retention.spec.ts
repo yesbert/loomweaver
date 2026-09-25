@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { closeDirtyTab, runCommand } from './support/helpers';
+import { closeDirtyTab, openRpcSandbox, runCommand } from './support/helpers';
 
 test.describe('Surface retention', () => {
   test('an unsaved draft survives splitting and unsplitting the pane', async ({
@@ -317,10 +317,7 @@ test.describe('Surface retention (a sandboxed surface is hidden, not rebuilt)', 
   test('a retained sandbox surface survives a workspace switch, channel and draft intact', async ({
     page,
   }) => {
-    await page.goto('/');
-    await page
-      .getByRole('button', { name: 'Sandbox (iframe)', exact: true })
-      .click();
+    await openRpcSandbox(page);
     const surface = page.frameLocator(claimedFrame);
     await surface.getByTestId('sandbox-draft').fill('KEPT-ACROSS-WORKSPACES');
 

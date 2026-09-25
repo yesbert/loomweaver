@@ -1,21 +1,11 @@
 import { expect, test } from '@playwright/test';
-
-async function openTwoEntries(
-  page: import('@playwright/test').Page,
-): Promise<void> {
-  await page.goto('/');
-  await page.getByRole('tab', { name: 'Entry list' }).click();
-
-  await page.getByRole('button', { name: 'Alpha' }).dblclick();
-  await expect(page.getByRole('tab', { name: 'E-01' })).toBeVisible();
-  await page.getByRole('button', { name: 'Bravo' }).dblclick();
-  await expect(page.getByRole('tab', { name: 'E-02' })).toBeVisible();
-}
+import { openTwoEntries } from './support/helpers';
 
 test.describe('Content-tab context menu', () => {
   test('right-click opens the menu; Close Others keeps the target', async ({
     page,
   }) => {
+    await page.goto('/');
     await openTwoEntries(page);
 
     await page.getByRole('tab', { name: 'E-01' }).click({ button: 'right' });
@@ -35,6 +25,7 @@ test.describe('Content-tab context menu', () => {
   test('the Pinned checkbox reflects and toggles the tab pin state', async ({
     page,
   }) => {
+    await page.goto('/');
     await openTwoEntries(page);
 
     await page.getByRole('tab', { name: 'E-01' }).click({ button: 'right' });
@@ -49,6 +40,7 @@ test.describe('Content-tab context menu', () => {
   });
 
   test('Escape closes the menu', async ({ page }) => {
+    await page.goto('/');
     await openTwoEntries(page);
     await page.getByRole('tab', { name: 'E-01' }).click({ button: 'right' });
     await expect(page.getByRole('menu')).toBeVisible();

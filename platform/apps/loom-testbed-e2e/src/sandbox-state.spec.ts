@@ -1,12 +1,10 @@
 import { expect, test } from '@playwright/test';
+import { openRpcSandbox } from './support/helpers';
 
 const SURFACE = 'iframe[src*="/sandbox-rpc/view.html"]';
 
 async function openSandbox(page: import('@playwright/test').Page) {
-  await page.goto('/');
-  await page
-    .getByRole('button', { name: 'Sandbox (iframe)', exact: true })
-    .click();
+  await openRpcSandbox(page);
   return page.frameLocator(SURFACE);
 }
 

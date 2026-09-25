@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { runCommand } from './support/helpers';
+import { openRpcSandbox, runCommand } from './support/helpers';
 
 const claimedFrame = 'iframe[src$="/sandbox-rpc/view.html"]';
 const unclaimedFrame = 'iframe[src*="/sandbox-rpc/view.html?unclaimed=1"]';
@@ -33,10 +33,7 @@ test.describe('Sandbox stage — iframe plugin over Penpal', () => {
   test('the surface sub-tabs are navigable and reflected in the route', async ({
     page,
   }) => {
-    await page.goto('/');
-    await page
-      .getByRole('button', { name: 'Sandbox (iframe)', exact: true })
-      .click();
+    await openRpcSandbox(page);
     const surface = page.frameLocator(claimedFrame);
 
     await surface.getByRole('tab', { name: 'Architecture' }).click();
@@ -77,10 +74,7 @@ test.describe('Sandbox stage — iframe plugin over Penpal', () => {
   test('keeps the surface in sync across a perspective round-trip (iframe reload)', async ({
     page,
   }) => {
-    await page.goto('/');
-    await page
-      .getByRole('button', { name: 'Sandbox (iframe)', exact: true })
-      .click();
+    await openRpcSandbox(page);
     const surface = page.frameLocator(claimedFrame);
     await surface.getByRole('tab', { name: 'Architecture' }).click();
     await expect(page).toHaveURL(/sandbox-rpc\/architecture/);
@@ -100,10 +94,7 @@ test.describe('Sandbox stage — iframe plugin over Penpal', () => {
   test('the <lw-tooltip> host custom element works INSIDE the sandboxed iframe (#9)', async ({
     page,
   }) => {
-    await page.goto('/');
-    await page
-      .getByRole('button', { name: 'Sandbox (iframe)', exact: true })
-      .click();
+    await openRpcSandbox(page);
     const surface = page.frameLocator(claimedFrame);
 
     await expect(surface.locator('lw-tooltip [role="tooltip"]')).toBeAttached();
@@ -126,10 +117,7 @@ test.describe('Sandbox stage — iframe plugin over Penpal', () => {
   test('the plugin draws its OWN context menu inside the iframe', async ({
     page,
   }) => {
-    await page.goto('/');
-    await page
-      .getByRole('button', { name: 'Sandbox (iframe)', exact: true })
-      .click();
+    await openRpcSandbox(page);
     const surface = page.frameLocator(claimedFrame);
     await expect(
       surface.getByRole('heading', { name: /isolated iframe/ }),
@@ -150,10 +138,7 @@ test.describe('Sandbox stage — iframe plugin over Penpal', () => {
   test('switching the app language re-renders the sandboxed surface live (locale push)', async ({
     page,
   }) => {
-    await page.goto('/');
-    await page
-      .getByRole('button', { name: 'Sandbox (iframe)', exact: true })
-      .click();
+    await openRpcSandbox(page);
     const surface = page.frameLocator(claimedFrame);
     await expect(
       surface.getByRole('heading', { name: /isolated iframe/ }),
