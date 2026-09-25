@@ -6,7 +6,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { BEATS, type Beat } from './agent-script';
+import { BEATS, type Beat } from './beats';
 import { agentRunner } from './agent-runner';
 import { conversation } from './conversation';
 
@@ -25,9 +25,6 @@ export class AgentChatView {
   protected readonly busy = conversation.running;
 
   constructor() {
-    agentRunner.speaksWith((key, params) =>
-      this.transloco.translate(key, params),
-    );
     effect(() => {
       this.lines();
       const element = this.scroller().nativeElement;
@@ -36,6 +33,6 @@ export class AgentChatView {
   }
 
   protected ask(beat: Beat): void {
-    void agentRunner.ask(beat);
+    void agentRunner.ask(beat, (key, params) => this.transloco.translate(key, params));
   }
 }

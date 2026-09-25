@@ -5,7 +5,7 @@ import type {
   PluginContext,
 } from '@loomweaver/plugin-sdk';
 import { agentRunner } from './agent-runner';
-import { BEATS, type Beat, type BeatId } from './agent-script';
+import { BEATS, type Beat, type BeatId } from './beats';
 import { conversation } from './conversation';
 
 interface Workbench {
@@ -46,9 +46,6 @@ function workbench(offers: string[]): Workbench {
   } as unknown as PluginContext;
 
   agentRunner.bind(ctx);
-  agentRunner.speaksWith((key, params) =>
-    params ? `${key}:${JSON.stringify(params)}` : key,
-  );
   return bench;
 }
 
@@ -65,7 +62,9 @@ function spoke(lines: readonly string[], key: string): boolean {
 
 async function ask(one: Beat): Promise<readonly string[]> {
   const from = conversation.lines().length;
-  const run = agentRunner.ask(one);
+  const run = agentRunner.ask(one, (key, params) =>
+    params ? `${key}:${JSON.stringify(params)}` : key,
+  );
   await vi.advanceTimersByTimeAsync(30_000);
   await run;
   return conversation.lines().slice(from).map((line) => line.text);
