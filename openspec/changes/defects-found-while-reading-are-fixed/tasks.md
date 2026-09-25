@@ -131,7 +131,7 @@ they start with a top-level folder.
 - [ ] 9.8 The in-process state handle tells an observer when a value arrives and whenever it changes
   (`onChange`, additive), also after the plugin was switched off and on again
   (`plugin/plugin-state.service.ts`, the SDK's state handle).
-- [ ] 9.9 The frame kit keeps a state write made before its connection and sends it once connected
+- [x] 9.9 The frame kit keeps a state write made before its connection and sends it once connected
   (`surface-kit/surface-state-mirror.ts`).
 - [ ] 9.10 The choices of a command registered by a plugin in the page are read when it is described
   or checked; a test pins it, and the SDK's JSDoc no longer calls them fixed.
