@@ -24,8 +24,16 @@ export interface StateHandle<T = unknown> {
   set(next: T): void;
   /** Remove the key from the store. */
   clear(): void;
-  /** Stop watching. Any pending write is flushed first. */
+  /** Stop watching. Any pending write is flushed first, and every {@link onChange} listener ends. */
   dispose(): void;
+  /**
+   * Call `listener` with the value and {@link loaded} whenever the value arrives or changes, whoever
+   * changed it. Where the value has already arrived, the listener is called at once, so one listener
+   * covers a store that answers now and one that answers later. Unlike reading {@link value} in an
+   * effect, it needs no injection context, which makes it the way to wait for the store in
+   * `activate()`, every time the plugin is switched on.
+   */
+  onChange(listener: (value: T | undefined, loaded: boolean) => void): void;
 }
 
 /**
