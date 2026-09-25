@@ -694,8 +694,12 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   reading the distribution's auth stand-in. The surfaces are `insights.home` (the chromeless landing
   at the empty path) and `insights.dashboardTab` (the same view as a tab at `overview`), which a
   saved arrangement naming the old ids no longer finds.
-- [ ] 12.9 The agent: file names that tell script and events apart, the translator passed in, typed
+- [x] 12.9 The agent: file names that tell script and events apart, the translator passed in, typed
   protocol events.
+  `agent-script.ts` is `beats.ts` (the five beats) and `scripted-agent.ts` is `ag-ui-events.ts`
+  (the protocol events they turn into); the events are typed `AGUIEvent` literals and are read
+  through the narrowed union. The chat view hands its translator to `ask(beat, say)` instead of
+  pushing it into module state, `confirmed` is `consentFor`, and it sits after the facade.
 - [ ] 12.10 The action facades use one guard style and names distinct from the store functions; one
   guarded storage helper; the account rail named for what it is; the About command, settings section
   and bar item get ids of their own.
