@@ -603,6 +603,11 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   `showText`.
 - [ ] 11.8 One icon set for the platform apps; end-to-end helpers and the weaver's Transloco setup
   written once.
+  So far: `loom-shell` and the testbed ship the same set, `favicon-32.png`, `icon-192.png` and
+  `icon-512.png`, with the same three links in `index.html`; the shell keeps `loom-icon-64.png`, the
+  default identity's logo. The testbed's two byte-identical copies of `icon-192.png` are gone, its
+  identity points at `icon-192.png`, and `loomweaver-icon.png` again means only the brand's header
+  logo. The service worker no longer lists a `favicon.ico` neither app has.
 
 ## 12. The demo
 
