@@ -38,13 +38,13 @@ export const aboutPlugin: Plugin = {
       run: () => openAbout(ctx),
     });
     ctx.registerSettingsSection({
-      id: 'demo.about',
+      id: 'about.settings',
       title: 'product.about.title',
       group: 'settings.group.options',
       order: 100,
       rows: [
         {
-          id: 'demo.about.body',
+          id: 'about.settings.body',
           label: 'product.about.title',
           control: { kind: 'component', component: AboutBody, fullWidth: true },
         },

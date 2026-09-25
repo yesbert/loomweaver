@@ -85,7 +85,7 @@ export const openRun = computed<PayrollRun | null>(
   () => payrollRuns().find((run) => run.state === 'open') ?? null,
 );
 
-export function runPayroll(): PayrollRun | null {
+export function payOpenRun(): PayrollRun | null {
   const due = openRun();
   if (!due) {
     return null;

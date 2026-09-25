@@ -1,5 +1,5 @@
 import { Plugin } from '@loomweaver/plugin-sdk';
-import { sessionActions } from './session-actions';
+import { accountRail } from './account-rail';
 
 export const sessionPlugin: Plugin = {
   manifest: {
@@ -14,7 +14,7 @@ export const sessionPlugin: Plugin = {
       description: 'product.account.switchDescription',
       icon: 'account',
       access: { authenticated: true },
-      run: () => sessionActions.switchAccount(),
+      run: () => accountRail.switchAccount(),
     });
     ctx.registerCommand({
       id: 'session.signOut',
@@ -22,7 +22,7 @@ export const sessionPlugin: Plugin = {
       description: 'product.account.signOutDescription',
       icon: 'signOut',
       access: { authenticated: true },
-      run: () => sessionActions.signOut(),
+      run: () => accountRail.signOut(),
     });
     ctx.registerCommand({
       id: 'session.signIn',
@@ -30,12 +30,12 @@ export const sessionPlugin: Plugin = {
       description: 'product.account.signInDescription',
       icon: 'account',
       access: { authenticated: false },
-      run: () => sessionActions.signIn(),
+      run: () => accountRail.signIn(),
     });
 
-    sessionActions.bind(ctx);
+    accountRail.show(ctx);
   },
   deactivate() {
-    sessionActions.unbind();
+    accountRail.hide();
   },
 };

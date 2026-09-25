@@ -102,7 +102,7 @@ export const appConfig: ApplicationConfig = {
         component: PreviewBadge,
       },
       {
-        id: 'demo.about',
+        id: 'demo.aboutBadge',
         bar: 'status-bar',
         slot: 'end',
         order: 100,

@@ -11,22 +11,26 @@ export const financeActions = {
     ctx = undefined;
   },
   async dunningRun(): Promise<number> {
-    const due = overdueReceivables().length;
-    if (due === 0) {
-      ctx?.ui.toast({ message: 'product.finance.nothingOverdue', kind: 'info', timeoutMs: 3000 });
+    const host = ctx;
+    if (!host) {
       return 0;
     }
-    const go = await ctx?.ui.confirm({
+    const due = overdueReceivables().length;
+    if (due === 0) {
+      host.ui.toast({ message: 'product.finance.nothingOverdue', kind: 'info', timeoutMs: 3000 });
+      return 0;
+    }
+    const go = await host.ui.confirm({
       title: 'product.finance.startDunning',
       message: 'product.finance.confirmDunning',
       confirmLabel: 'product.finance.startDunning',
       tone: 'warning',
     });
-    if (go === false) {
+    if (!go) {
       return 0;
     }
     const reminded = startDunningRun();
-    ctx?.ui.toast({ message: 'product.finance.dunningDone', kind: 'success', timeoutMs: 4000 });
+    host.ui.toast({ message: 'product.finance.dunningDone', kind: 'success', timeoutMs: 4000 });
     return reminded;
   },
 };

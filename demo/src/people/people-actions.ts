@@ -1,5 +1,5 @@
 import { type PluginContext } from '@loomweaver/plugin-sdk';
-import { openRun, runPayroll } from './staff';
+import { openRun, payOpenRun } from './staff';
 
 let ctx: PluginContext | undefined;
 
@@ -11,29 +11,33 @@ export const peopleActions = {
     ctx = undefined;
   },
   async runPayroll(): Promise<string | null> {
+    const host = ctx;
+    if (!host) {
+      return null;
+    }
     const due = openRun();
     if (!due) {
-      ctx?.ui.toast({
+      host.ui.toast({
         message: 'product.people.nothingOpen',
         kind: 'info',
         timeoutMs: 3000,
       });
       return null;
     }
-    const go = await ctx?.ui.confirm({
+    const go = await host.ui.confirm({
       title: 'product.people.runPayroll',
       message: 'product.people.confirmPayroll',
       confirmLabel: 'product.people.runPayroll',
       tone: 'warning',
     });
-    if (go === false) {
+    if (!go) {
       return null;
     }
-    const paid = runPayroll();
+    const paid = payOpenRun();
     if (!paid) {
       return null;
     }
-    ctx?.ui.toast({
+    host.ui.toast({
       message: 'product.people.payrollDone',
       kind: 'success',
       timeoutMs: 4000,

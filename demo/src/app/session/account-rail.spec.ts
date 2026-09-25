@@ -1,6 +1,6 @@
 import type { MenuItem, PluginContext, RailItem } from '@loomweaver/plugin-sdk';
 import { demoSession } from './session';
-import { sessionActions } from './session-actions';
+import { accountRail } from './account-rail';
 
 interface Drawn {
   readonly railItems: RailItem[];
@@ -10,7 +10,7 @@ interface Drawn {
 
 function bind(): Drawn {
   const drawn: Drawn = { railItems: [], menuItems: [], disposed: [] };
-  sessionActions.bind({
+  accountRail.show({
     registerRailItem: (item: RailItem) => {
       drawn.railItems.push(item);
       return { dispose: () => drawn.disposed.push(item.id) };
@@ -36,7 +36,7 @@ function offered(drawn: Drawn): string[] {
 
 describe('the account entry', () => {
   afterEach(() => {
-    sessionActions.unbind();
+    accountRail.hide();
     demoSession.signIn();
     localStorage.clear();
   });
@@ -62,7 +62,7 @@ describe('the account entry', () => {
   it('falls back to initials for the account without a picture', () => {
     const drawn = bind();
 
-    sessionActions.switchAccount();
+    accountRail.switchAccount();
 
     const entry = current(drawn);
     expect(entry.title).toBe('Jonas Weiler');
@@ -74,7 +74,7 @@ describe('the account entry', () => {
     const drawn = bind();
     const before = current(drawn);
 
-    sessionActions.switchAccount();
+    accountRail.switchAccount();
 
     const after = current(drawn);
     expect(after.id).toBe(before.id);
@@ -96,7 +96,7 @@ describe('the account entry', () => {
   it('offers signing in once signed out, and stays in the rail', () => {
     const drawn = bind();
 
-    sessionActions.signOut();
+    accountRail.signOut();
 
     expect(offered(drawn)).toEqual(['session.signIn']);
     expect(current(drawn).title).toBe('product.signIn');

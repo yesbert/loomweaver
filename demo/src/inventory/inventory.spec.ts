@@ -1,6 +1,6 @@
 import { setReferenceDate } from '../accounting/clock';
 import {
-  countStock,
+  bookCount,
   isBelowReorderPoint,
   itemByNumber,
   itemsBelowReorderPoint,
@@ -42,7 +42,7 @@ describe('stock', () => {
   it('books a count as the difference, and moves the item to what was counted', () => {
     const before = itemByNumber('W-410')!;
 
-    const booked = countStock(before.id, 400);
+    const booked = bookCount(before.id, 400);
 
     expect(booked?.quantity).toBe(400 - before.onHand);
     expect(booked?.kind).toBe('count');
@@ -54,9 +54,9 @@ describe('stock', () => {
     const item = itemByNumber('W-410')!;
     const before = movements().length;
 
-    expect(countStock(item.id, item.onHand)).toBeNull();
-    expect(countStock(item.id, -5)).toBeNull();
-    expect(countStock('i-nothing', 10)).toBeNull();
+    expect(bookCount(item.id, item.onHand)).toBeNull();
+    expect(bookCount(item.id, -5)).toBeNull();
+    expect(bookCount('i-nothing', 10)).toBeNull();
     expect(movements().length).toBe(before);
   });
 
@@ -65,7 +65,7 @@ describe('stock', () => {
 
     expect(isBelowReorderPoint(item)).toBe(false);
 
-    countStock(item.id, 2);
+    bookCount(item.id, 2);
 
     expect(isBelowReorderPoint(itemByNumber('W-510')!)).toBe(true);
     expect(itemsBelowReorderPoint().map((entry) => entry.number)).toContain(

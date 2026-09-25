@@ -6,7 +6,7 @@ import {
   openRun,
   payrollRuns,
   resetStaff,
-  runPayroll,
+  payOpenRun,
 } from './staff';
 
 describe('staff', () => {
@@ -34,16 +34,16 @@ describe('staff', () => {
   });
 
   it('pays the open month once, and has nothing to do the second time', () => {
-    const paid = runPayroll();
+    const paid = payOpenRun();
 
     expect(paid?.month).toBe('2026-06');
     expect(openRun()).toBeNull();
-    expect(runPayroll()).toBeNull();
+    expect(payOpenRun()).toBeNull();
     expect(payrollRuns().every((run) => run.state === 'paid')).toBe(true);
   });
 
   it('books what the payroll actually costs at the moment it is run', () => {
-    const paid = runPayroll();
+    const paid = payOpenRun();
 
     expect(paid?.gross).toBe(monthlyGross());
     expect(paid?.headcount).toBe(headcount());
