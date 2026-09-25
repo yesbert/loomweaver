@@ -380,11 +380,11 @@ describe('weaver generator with an agent connection', () => {
     await weaverGenerator(tree, { id: 'notes', agent: true });
     const root = 'libs/notes-weaver/src/lib/agent';
     for (const file of [
-      'notes-agent.ts',
-      'notes-agent.spec.ts',
+      'notes-connection.ts',
+      'notes-connection.spec.ts',
       'notes-agent-panel.ts',
       'notes-agent-panel.html',
-      'notes-agent-source.ts',
+      'notes-agent.ts',
     ]) {
       expect(tree.exists(`${root}/${file}`)).toBe(true);
     }

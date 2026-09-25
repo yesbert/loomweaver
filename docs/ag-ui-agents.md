@@ -112,7 +112,7 @@ by asking for things.
 
 ## Replace the stand-in
 
-The generated `<id>-agent-source.ts` is a stand-in and says so in its own header. It speaks the
+The generated `<id>-agent.ts` is a stand-in and says so in its own header. It speaks the
 protocol and nothing else, so the path works before you have anything to connect to.
 
 Point it at your own endpoint and yield the events it streams back. That is the whole change, and it

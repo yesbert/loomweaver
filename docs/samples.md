@@ -725,13 +725,12 @@ npm install @loomweaver/ag-ui @ag-ui/core
 ```
 
 ```ts
-// src/notes/src/lib/plugin/notes-agent.ts
-import type { BaseEvent, Message, Tool } from '@ag-ui/core';
-import { commandTools } from '@loomweaver/ag-ui';
+// src/notes/src/lib/agent/notes-connection.ts
+import { commandTools, type CommandTools } from '@loomweaver/ag-ui';
 import type { PluginContext } from '@loomweaver/plugin-sdk';
 
-export function notesAgent(ctx: PluginContext) {
-  const tools = commandTools(ctx, {
+export function connectNotes(ctx: PluginContext): CommandTools {
+  return commandTools(ctx, {
     // What an agent's word is enough for is the command's own statement, declared beside the
     // command (`agentConsent: 'ask'`) and read off the call here. Keep no list of ids: it drifts
     // from the commands, and it cannot speak for a command another plugin registered.
@@ -752,19 +751,25 @@ export function notesAgent(ctx: PluginContext) {
         : { decision: 'decline', reason: 'the person at the keyboard said no.' };
     },
   });
+}
+```
 
-  return {
-    /** Ask at the start of every run. Never keep the answer: what you may reach changes. */
-    offer: (): readonly Tool[] => tools.list(),
+Wherever you drive a run, a panel usually, the loop is the same every time. `askAgent` is yours,
+the part that talks to a model, and `back` is how an answer reaches it:
 
-    /** Hand it every event of the run; send back whatever it answers. */
-    async carry(event: BaseEvent, back: (message: Message) => void): Promise<void> {
-      const answer = await tools.receive(event);
-      if (answer) {
-        back(answer);
-      }
-    },
-  };
+```ts
+const tools = connectNotes(ctx);
+// Ask at the start of every run. Never keep the answer: what you may reach changes.
+for await (const event of askAgent({ prompt, tools: tools.list() })) {
+  // Hand it every event of the run; send back whatever it answers.
+  const answer = await tools.receive(event);
+  if (answer) {
+    back(answer);
+  }
+}
+// A call the run left open is answered too, one at a time, until none is left.
+for (let left = await tools.flush(); left; left = await tools.flush()) {
+  back(left);
 }
 ```
 

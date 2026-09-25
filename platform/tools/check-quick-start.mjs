@@ -279,7 +279,7 @@ function checkAgentDependencies(app) {
     'what the scaffold recorded did not resolve to an installed package, so recording it bought the consumer nothing',
   );
   assert(
-    existsSync(join(app, 'src/copilot/src/lib/agent/copilot-agent-source.ts')),
+    existsSync(join(app, 'src/copilot/src/lib/agent/copilot-agent.ts')),
     'the stand-in was not generated, so there is nothing to replace with a real transport',
   );
 }
