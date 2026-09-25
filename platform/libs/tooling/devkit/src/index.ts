@@ -75,13 +75,12 @@ export {
   type LayoutInput,
   type ResolvedLayout,
 } from './recipes/layout/recipe';
-export {
-  SCAFFOLDS,
-  findScaffold,
-  type ScaffoldDescriptor,
-  type ScaffoldOption,
-  type ScaffoldValues,
-} from './lib/scaffolds/scaffolds';
+export { SCAFFOLDS, findScaffold } from './lib/scaffolds/scaffolds';
+export type {
+  ScaffoldDescriptor,
+  ScaffoldOption,
+  ScaffoldValues,
+} from './lib/scaffolds/scaffold-values';
 export { nxSchemaFor, portableOptions, usageFor } from './lib/scaffolds/adapter-options';
 export type { Finding, FindingLevel } from './lib/validate/types';
 export {
