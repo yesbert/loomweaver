@@ -161,9 +161,8 @@ export class PluginStateService {
     const serialised = serialise(next);
     if (serialised === undefined) {
       console.error(
-        `Plugin "${entry.pluginId}": state key "${key}" was given a value with no JSON form ` +
-          `(nothing, a function, or a structure JSON cannot hold). The write was refused and the ` +
-          `stored value kept. Clear the key to remove it.`,
+        `Plugin "${entry.pluginId}": state key "${key}" got a value with no JSON form and the ` +
+          `write was refused. Clear the key to remove it.`,
       );
       return;
     }
