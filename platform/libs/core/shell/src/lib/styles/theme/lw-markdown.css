@@ -1,0 +1,18 @@
+@utility prose-lw {
+  --tw-prose-body: var(--lw-content);
+  --tw-prose-headings: var(--lw-content);
+  --tw-prose-lead: var(--lw-content-muted);
+  --tw-prose-links: var(--lw-brand);
+  --tw-prose-bold: var(--lw-content);
+  --tw-prose-counters: var(--lw-content-muted);
+  --tw-prose-bullets: var(--lw-border);
+  --tw-prose-hr: var(--lw-border);
+  --tw-prose-quotes: var(--lw-content);
+  --tw-prose-quote-borders: var(--lw-border);
+  --tw-prose-captions: var(--lw-content-muted);
+  --tw-prose-code: var(--lw-content);
+  --tw-prose-pre-code: var(--lw-content);
+  --tw-prose-pre-bg: var(--lw-surface-overlay);
+  --tw-prose-th-borders: var(--lw-border);
+  --tw-prose-td-borders: var(--lw-border);
+}

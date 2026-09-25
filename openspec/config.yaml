@@ -39,7 +39,8 @@ context: |
   Hard prohibitions:
     - No comments in source. The only exceptions are JSDoc on the published contract, functional
       directives (eslint-disable, @ts-*, generated banners) and comments inside template literals
-      that are emitted into consumer code.
+      that are emitted into consumer code. Stylesheets count as source; the website's code is the
+      one place the rule is not applied.
     - No raw palette colours in templates — semantic design tokens only.
     - No inline Angular templates; every component has its own .html file.
     - No type-named directories (services/, components/, utils/) — vertical slices by feature.
@@ -111,7 +112,8 @@ operations:
       - >-
         No comments. Code explains itself; a place that needs an explanatory comment gets
         restructured instead. The only exceptions are JSDoc on the published contract, functional
-        directives and comments inside template literals emitted into consumer code.
+        directives and comments inside template literals emitted into consumer code. Stylesheets
+        count as source; the website's code is the one place the rule is not applied.
       - >-
         Never cite a decision record (ADR-00NN) anywhere: not in a comment, a JSDoc block, a test
         name, a package description or a guide. The corpus was dissolved and the records deleted,

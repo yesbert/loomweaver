@@ -1,0 +1,27 @@
+@layer components {
+  lw-progress-ring {
+    @apply inline-block align-middle;
+  }
+  .lw-progress-ring-svg {
+    @apply block h-full w-full;
+  }
+  .lw-progress-ring-track {
+    fill: none;
+    stroke: var(--lw-border);
+    stroke-width: 3.5;
+  }
+  .lw-progress-ring-value {
+    fill: none;
+    stroke: var(--lw-brand);
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 300ms ease;
+  }
+  .lw-progress-ring-text {
+    fill: var(--lw-content);
+    font-size: 10px;
+    font-weight: 600;
+    text-anchor: middle;
+    dominant-baseline: central;
+  }
+}

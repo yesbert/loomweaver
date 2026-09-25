@@ -40,6 +40,9 @@ Only needed if you write Tailwind utilities of your own. The other two paths nee
   @source './app';
   @import '@loomweaver/shell/styles/theme.css';
   ```
+- The `@source` path is relative to the stylesheet it stands in and has to reach the `node_modules`
+  that holds `@loomweaver/shell`. A project that sits deeper needs one `../` more per level. With a
+  wrong path Tailwind emits none of the shell's classes and reports nothing.
 - Tailwind reports **no error** for a mistyped or non-existent class: it is silently ignored. The
   ESLint guardrail (`no-unknown-classes`, [see below](#guardrail)) catches that.
 - **No** `tailwind.config.js`: everything is CSS-first. Built via `@tailwindcss/postcss` (`.postcssrc.json`).
@@ -202,39 +205,39 @@ itself uses, so the shell renders correctly without any of this.
 
 ### Surfaces & borders (elevation ladder)
 
-| Utility stem      | Meaning                                                   |
-| ----------------- | --------------------------------------------------------- |
-| `surface`         | the app's base background                                 |
-| `surface-raised`  | raised surface (card, active tab, panel body)             |
-| `surface-overlay` | overlay/popup/chrome controls (dropdown, toolbar buttons) |
-| `field`           | input-field background                                    |
-| `scrim`           | the backdrop behind a dialog and the mobile drawer        |
-| `border`          | default divider/border (`border-border`)                  |
-| `scroll-thumb`    | the scroll indicator, drawn over whatever scrolls         |
-| `scroll-track`    | the groove behind it, transparent by default              |
+| Utility stem      | Meaning                                                                                          |
+| ----------------- | ------------------------------------------------------------------------------------------------ |
+| `surface`         | the app's base background                                                                        |
+| `surface-raised`  | raised surface (card, active tab, panel body)                                                    |
+| `surface-overlay` | overlay/popup/chrome controls (dropdown, toolbar buttons)                                        |
+| `field`           | input-field background                                                                           |
+| `scrim`           | the backdrop behind a dialog and the mobile drawer, translucent so it follows a retinted surface |
+| `border`          | default divider/border (`border-border`)                                                         |
+| `scroll-thumb`    | the scroll indicator, drawn over whatever scrolls                                                |
+| `scroll-track`    | the groove behind it, transparent by default                                                     |
 
 ### Text
 
-| Utility stem    | Meaning                                                    |
-| --------------- | ---------------------------------------------------------- |
-| `content`       | primary text                                               |
-| `content-muted` | secondary text (labels, metadata)                          |
-| `content-faint` | tertiary/decorative (placeholders, disabled)               |
-| `unsaved`       | the mark that says a tab holds work which is not saved yet |
+| Utility stem    | Meaning                                                                             |
+| --------------- | ----------------------------------------------------------------------------------- |
+| `content`       | primary text                                                                        |
+| `content-muted` | secondary text (labels, metadata)                                                   |
+| `content-faint` | tertiary/decorative (placeholders, disabled), still WCAG AA on every surface        |
+| `unsaved`       | the mark that says a tab holds work which is not saved yet, 3:1 as a graphical mark |
 
 ### States
 
-| Utility stem    | Meaning                                                                         |
-| --------------- | ------------------------------------------------------------------------------- |
-| `positive`      | success / valid (green)                                                         |
-| `on-positive`   | text **on** `positive` surfaces (success button)                                |
-| `negative`      | error / destructive (red) — error text & icon                                   |
-| `negative-fill` | danger **button** fill — deeper than `negative`, so `on-negative` text stays AA |
-| `on-negative`   | text **on** `negative` surfaces (danger button)                                 |
-| `caution`       | warning (amber)                                                                 |
-| `on-caution`    | text **on** `caution` surfaces (warning button)                                 |
-| `info`          | info (blue)                                                                     |
-| `on-info`       | text **on** `info` surfaces (info button)                                       |
+| Utility stem    | Meaning                                                                             |
+| --------------- | ----------------------------------------------------------------------------------- |
+| `positive`      | success / valid (green)                                                             |
+| `on-positive`   | text **on** `positive` surfaces (success button)                                    |
+| `negative`      | error / destructive (red) — error text & icon                                       |
+| `negative-fill` | danger **button** fill — deeper than `negative`, so `on-negative` text stays AA     |
+| `on-negative`   | text **on** `negative` surfaces (danger button)                                     |
+| `caution`       | warning (amber)                                                                     |
+| `on-caution`    | text **on** `caution` surfaces (warning button), near-black so it reads on the gold |
+| `info`          | info (blue)                                                                         |
+| `on-info`       | text **on** `info` surfaces (info button)                                           |
 
 ### Tooltip (special case, normally not used directly)
 
@@ -446,6 +449,38 @@ body-appended `<lw-menu>` (`MenuService`) or `position: fixed` is enough.
 
 Hand-written CSS in components is named with an `lw-` prefix (`.lw-tooltip-bubble`, `.lw-scrim`).
 The ESLint guardrail ignores `^lw-`, because those are **not** Tailwind utilities.
+
+## How `theme.css` is laid out
+
+`theme.css` is the one entry. It declares the order of the three token layers and imports its parts
+from `styles/theme/`:
+
+| Part               | What it holds                                                                                                                               |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tokens.css`       | the `--lw-*` ladder for light and dark, and its mapping onto Tailwind's `--color-*` and `--font-*`                                          |
+| `controls.css`     | the class contracts on native controls, `.lw-btn` to `.lw-switch`                                                                           |
+| `lw-<element>.css` | one look per host element: tooltip, select, menu, navigation tree and progress ring, and `prose-lw` for `<lw-markdown>`                     |
+| `workbench.css`    | what only the chrome draws: rail marks, the dialog backdrop, drag feedback, pane drop zones, the bar tray and the screen-reader live region |
+| `base.css`         | what applies to the page itself (below)                                                                                                     |
+
+Import `theme.css`, never one of its parts: the parts are how the file is kept, and they may be
+regrouped without notice.
+
+What `base.css` does to your page:
+
+- **Margins and text:** `html` and `body` have no margin, and `body` takes its font, background and
+  colour from the tokens.
+- **Pointer:** a button and anything with `role="button"` shows the pointer cursor unless it is
+  disabled. The rule sits in the `base` layer, so any `cursor-*` utility of yours wins.
+- **Scrollbars:** every scrolling area draws a thin indicator in `scroll-thumb` over `scroll-track`,
+  with the standard properties only. Leave `::-webkit-scrollbar` alone in your own CSS too: styling
+  it makes Chrome and Safari trade the overlay indicator for a classic one that takes width from the
+  content, and a narrow rail cannot spare it.
+- **Motion:** under `prefers-reduced-motion`, transitions and animations collapse to near zero,
+  except the busy spinner, which is status rather than decoration ([Accessibility](accessibility.md)).
+
+The stylesheet also carries the rule that keeps the CDK's screen-reader announcements out of sight,
+so a distribution needs no stylesheet from `@angular/cdk` for them.
 
 ## Guardrail
 

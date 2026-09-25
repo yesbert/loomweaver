@@ -1,0 +1,64 @@
+@layer components {
+  lw-menu {
+    @apply z-50 min-w-44 overflow-auto rounded-md border border-border bg-surface-overlay py-1 text-sm shadow-lg;
+    position: fixed;
+    max-height: 24rem;
+    outline: none;
+  }
+  lw-menu-item {
+    @apply flex cursor-pointer items-center gap-2 px-3 py-1.5 text-content transition-colors;
+    outline: none;
+  }
+  lw-menu-item:hover,
+  lw-menu-item:focus {
+    @apply bg-surface-raised;
+  }
+  lw-menu-item[aria-disabled='true'] {
+    @apply pointer-events-none opacity-50;
+  }
+  .lw-menu-item-label {
+    @apply flex-1 truncate;
+  }
+  .lw-menu-item-shortcut {
+    @apply ml-4 shrink-0 text-xs text-content-muted;
+  }
+  .lw-menu-item-check,
+  .lw-menu-item-lead {
+    @apply hidden w-4 shrink-0 items-center justify-center text-content-muted;
+  }
+  .lw-menu--checks .lw-menu-item-check,
+  .lw-menu--leading .lw-menu-item-lead {
+    @apply flex;
+  }
+  .lw-menu-separator {
+    @apply my-1 border-t border-border;
+    height: 0;
+  }
+  .lw-menu-header {
+    @apply -mt-1 mb-1 flex items-center gap-2 border-b border-border px-3 py-2;
+  }
+  .lw-menu-header[role='menuitem'] {
+    @apply cursor-pointer transition-colors;
+    outline: none;
+  }
+  .lw-menu-header[role='menuitem']:hover,
+  .lw-menu-header[role='menuitem']:focus {
+    @apply bg-surface-raised;
+  }
+  .lw-menu-header-mark {
+    @apply flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface-raised text-content-muted;
+    @apply select-none font-sans text-[0.75rem] leading-none font-normal tracking-tight uppercase;
+  }
+  .lw-menu-header-picture {
+    @apply h-full w-full rounded-full object-cover;
+  }
+  .lw-menu-header-lines {
+    @apply flex min-w-0 flex-col;
+  }
+  .lw-menu-header-title {
+    @apply truncate font-semibold text-content;
+  }
+  .lw-menu-header-detail {
+    @apply truncate text-xs text-content-muted;
+  }
+}

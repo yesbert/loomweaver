@@ -23,6 +23,10 @@
 //      24 files, 59 comments, silently unread. Comments therefore come from the AST, which reports
 //      trivia and never string contents, and the special case is gone with the loop that needed it.
 //
+// Stylesheets fall under the same rule: what a comment in one explains that a consumer needs is in
+// docs/reference/design-tokens.md. The website's stylesheets are the exception, because the owner
+// decided that the website's code is left as it is.
+//
 // Run it after `nx package plugin-sdk && nx package shell`.
 
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
@@ -62,6 +66,8 @@ const SCAN_ROOTS = [
   'examples/assistant-workbench/src',
   'website/src',
 ];
+
+const STYLESHEET_ROOTS = SCAN_ROOTS.filter((root) => root !== 'website/src');
 
 const SKIP_DIRS = new Set([
   'node_modules',
@@ -314,6 +320,21 @@ for (const file of collect(SCAN_ROOTS, ['.html'])) {
       file: path.relative(repoRoot, file),
       line: lineOf(text, match.index),
       kind: 'template comment',
+      excerpt: content.slice(0, 72),
+    });
+  }
+}
+
+for (const file of collect(STYLESHEET_ROOTS, ['.css'])) {
+  const text = readFileSync(file, 'utf8');
+  if (GENERATED_FILE.test(text.slice(0, 400))) continue;
+  for (const match of text.matchAll(/\/\*([\s\S]*?)\*\//g)) {
+    const content = match[1].trim();
+    if (DIRECTIVE.test(content)) continue;
+    violations.push({
+      file: path.relative(repoRoot, file),
+      line: lineOf(text, match.index),
+      kind: 'stylesheet comment',
       excerpt: content.slice(0, 72),
     });
   }
