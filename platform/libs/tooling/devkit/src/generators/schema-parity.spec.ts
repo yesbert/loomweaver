@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import ts from 'typescript';
 import { SCAFFOLDS } from '../lib/scaffolds/scaffolds';
-import { nxSchemaFor } from '../lib/scaffolds/surface';
+import { nxSchemaFor } from '../lib/scaffolds/adapter-options';
 
 const GENERATORS = join(import.meta.dirname);
 

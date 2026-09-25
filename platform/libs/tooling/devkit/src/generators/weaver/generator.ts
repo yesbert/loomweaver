@@ -18,7 +18,7 @@ import {
   tsconfigPathsFile,
   workspaceScope,
   writeFiles,
-} from '../shared';
+} from '../workspace-tree';
 import { weaverAmendments } from '../../recipes/angular-weaver/amendments';
 import { angularWeaver } from '../../recipes/angular-weaver/recipe';
 import { nxWeaverFiles, nxWeaverProject } from './nx-files';

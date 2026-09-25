@@ -1,6 +1,6 @@
 import { angularDistribution } from '../../recipes/angular-distribution/recipe';
 import { weaverAmendments } from '../../recipes/angular-weaver/amendments';
-import { authSourceAmendments } from '../../recipes/auth-source/recipe-amendments';
+import { authSourceAmendments } from '../../recipes/auth-source/amendments';
 import { angularWeaver } from '../../recipes/angular-weaver/recipe';
 import { authSource, type AuthSourceInput } from '../../recipes/auth-source/recipe';
 import { layout } from '../../recipes/layout/recipe';
