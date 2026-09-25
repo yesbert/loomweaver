@@ -1,4 +1,5 @@
-import { kebabCase, ScaffoldDescriptor, ScaffoldOption } from './scaffolds';
+import { kebabCase, toPascalCase } from '../generate/casing';
+import { ScaffoldDescriptor, ScaffoldOption } from './scaffolds';
 
 /** The option surface an adapter that only produces files can offer. */
 export function portableOptions(
@@ -27,10 +28,7 @@ export function nxSchemaFor(
   }
   return {
     $schema: 'https://json-schema.org/schema',
-    $id: `LoomWeaver${scaffold.name
-      .split('-')
-      .map((part) => part[0].toUpperCase() + part.slice(1))
-      .join('')}`,
+    $id: `LoomWeaver${toPascalCase(scaffold.name)}`,
     title: `Scaffold ${scaffold.summary}`,
     type: 'object',
     properties,

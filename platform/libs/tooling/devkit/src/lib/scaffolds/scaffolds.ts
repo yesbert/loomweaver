@@ -1,4 +1,7 @@
-import { angularDistribution } from '../../recipes/angular-distribution/recipe';
+import {
+  angularDistribution,
+  DISTRIBUTION_STYLES,
+} from '../../recipes/angular-distribution/recipe';
 import { weaverAmendments } from '../../recipes/angular-weaver/amendments';
 import { authSourceAmendments } from '../../recipes/auth-source/amendments';
 import { angularWeaver } from '../../recipes/angular-weaver/recipe';
@@ -6,8 +9,13 @@ import { authSource, type AuthSourceInput } from '../../recipes/auth-source/reci
 import { layout } from '../../recipes/layout/recipe';
 import { framePlugin } from '../../recipes/frame-plugin/recipe';
 import { settingsStore } from '../../recipes/settings-store/recipe';
-import { theme, type ThemePreset } from '../../recipes/theme/recipe';
+import {
+  theme,
+  THEME_PRESETS,
+  type ThemePreset,
+} from '../../recipes/theme/recipe';
 import { Amendment } from '../amend/types';
+import { KEBAB_ID_PATTERN } from '../generate/casing';
 import { amendments, generate } from '../generate/generate';
 import { FileMap } from '../generate/types';
 import { distributionInput, weaverInput } from './inputs';
@@ -53,13 +61,6 @@ export function bool(
   return typeof value === 'boolean' ? value : undefined;
 }
 
-/** The kebab-case spelling of a camelCase option, for command lines that prefer it. */
-export function kebabCase(name: string): string {
-  return name.replaceAll(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
-}
-
-const ID_PATTERN = '^[a-z][a-z0-9]*(-[a-z0-9]+)*$';
-
 const PLACEMENT_OPTIONS: readonly ScaffoldOption[] = [
   {
     name: 'directory',
@@ -78,7 +79,7 @@ const PLACEMENT_OPTIONS: readonly ScaffoldOption[] = [
     type: 'string',
     description: 'Selector prefix for generated components and directives.',
     default: 'lw',
-    pattern: ID_PATTERN,
+    pattern: KEBAB_ID_PATTERN,
     workspaceOnly: true,
   },
   {
@@ -115,7 +116,7 @@ export const SCAFFOLDS: readonly ScaffoldDescriptor[] = [
         type: 'string',
         description: "Plugin id in kebab-case, e.g. 'notes'.",
         required: true,
-        pattern: ID_PATTERN,
+        pattern: KEBAB_ID_PATTERN,
       },
       {
         name: 'name',
@@ -224,7 +225,7 @@ export const SCAFFOLDS: readonly ScaffoldDescriptor[] = [
         type: 'string',
         description: "Plugin id in kebab-case, e.g. 'notes'.",
         required: true,
-        pattern: ID_PATTERN,
+        pattern: KEBAB_ID_PATTERN,
       },
       {
         name: 'name',
@@ -248,7 +249,7 @@ export const SCAFFOLDS: readonly ScaffoldDescriptor[] = [
         type: 'string',
         description: "Distribution name in kebab-case, e.g. 'acme-studio'.",
         required: true,
-        pattern: ID_PATTERN,
+        pattern: KEBAB_ID_PATTERN,
       },
       {
         name: 'title',
@@ -260,7 +261,7 @@ export const SCAFFOLDS: readonly ScaffoldDescriptor[] = [
         type: 'string',
         description:
           "Which stylesheet to emit. 'tailwind' compiles the shell's source theme and lets you write Tailwind utilities of your own; 'precompiled' imports the stylesheet we compiled, so the application needs no Tailwind and can be themed with Bootstrap or anything else.",
-        choices: ['tailwind', 'precompiled'],
+        choices: DISTRIBUTION_STYLES,
         default: 'tailwind',
       },
       {
@@ -286,7 +287,7 @@ export const SCAFFOLDS: readonly ScaffoldDescriptor[] = [
         type: 'string',
         description: "Source name in kebab-case, e.g. 'dev'.",
         required: true,
-        pattern: ID_PATTERN,
+        pattern: KEBAB_ID_PATTERN,
       },
       {
         name: 'bare',
@@ -316,7 +317,7 @@ export const SCAFFOLDS: readonly ScaffoldDescriptor[] = [
         type: 'string',
         description: "Store name in kebab-case, e.g. 'backend'.",
         required: true,
-        pattern: ID_PATTERN,
+        pattern: KEBAB_ID_PATTERN,
       },
       APP_OPTION,
     ],
@@ -332,14 +333,14 @@ export const SCAFFOLDS: readonly ScaffoldDescriptor[] = [
         type: 'string',
         description: "Theme name in kebab-case, e.g. 'midnight'.",
         required: true,
-        pattern: ID_PATTERN,
+        pattern: KEBAB_ID_PATTERN,
       },
       {
         name: 'preset',
         type: 'string',
         description:
           "Where the token values come from. 'literal' writes editable colours; 'bootstrap' maps them onto Bootstrap 5.3's --bs-* variables, which makes the shell follow your Bootstrap theme live.",
-        choices: ['literal', 'bootstrap'],
+        choices: THEME_PRESETS,
         default: 'literal',
       },
       APP_OPTION,

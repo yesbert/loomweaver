@@ -1,5 +1,9 @@
+export const KEBAB_ID_PATTERN = '^[a-z][a-z0-9]*(-[a-z0-9]+)*$';
+
+const KEBAB_ID = new RegExp(KEBAB_ID_PATTERN);
+
 export function isKebabId(value: string): boolean {
-  return /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/.test(value);
+  return KEBAB_ID.test(value);
 }
 
 function words(value: string): string[] {
@@ -15,6 +19,11 @@ export function toPascalCase(value: string): string {
 export function toCamelCase(value: string): string {
   const pascal = toPascalCase(value);
   return pascal.charAt(0).toLowerCase() + pascal.slice(1);
+}
+
+/** The kebab-case spelling of a camelCase option, for command lines that prefer it. */
+export function kebabCase(name: string): string {
+  return name.replaceAll(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
 }
 
 export function toTitleCase(value: string): string {

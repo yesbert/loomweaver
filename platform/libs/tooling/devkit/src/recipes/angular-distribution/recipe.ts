@@ -7,12 +7,14 @@ import { renderRegions } from '../shell-regions';
 import { PLACEHOLDER_LOGO_SVG } from './logo';
 import { readme } from './readme';
 
+export const DISTRIBUTION_STYLES = ['tailwind', 'precompiled'] as const;
+
 /**
  * Which stylesheet to emit. 'tailwind' compiles the shell's source theme, which is also what lets
  * you write Tailwind utilities of your own; 'precompiled' imports the stylesheet we compiled, so
  * the application needs no Tailwind at all and can be themed with something else entirely.
  */
-export type DistributionStyles = 'tailwind' | 'precompiled';
+export type DistributionStyles = (typeof DISTRIBUTION_STYLES)[number];
 
 export interface DistributionInput {
   readonly name: string;
@@ -32,8 +34,6 @@ export interface ResolvedDistribution {
   readonly styles: DistributionStyles;
 }
 
-const STYLES: readonly DistributionStyles[] = ['tailwind', 'precompiled'];
-
 export function resolveDistributionInput(
   input: DistributionInput,
 ): ResolvedDistribution {
@@ -43,9 +43,9 @@ export function resolveDistributionInput(
     );
   }
   const styles = input.styles ?? 'tailwind';
-  if (!STYLES.includes(styles)) {
+  if (!DISTRIBUTION_STYLES.includes(styles)) {
     throw new Error(
-      `Unknown styles option "${styles}"; expected one of ${STYLES.join(', ')}.`,
+      `Unknown styles option "${styles}"; expected one of ${DISTRIBUTION_STYLES.join(', ')}.`,
     );
   }
   const directory =

@@ -125,28 +125,32 @@ function unwrapped(
     : value;
 }
 
-const STATED: readonly string[] = ['allow', 'ask', 'ask-always', 'never'];
+const CONSENT_LINES = new Map<string, string>([
+  ['allow', "says an agent's word is enough to run it."],
+  [
+    'ask',
+    "says the person is asked first; whoever runs it on an agent's behalf does the asking.",
+  ],
+  [
+    'ask-always',
+    "says the person is asked every time; whoever runs it on an agent's behalf does the asking.",
+  ],
+  [
+    'never',
+    "says it is not to be run on an agent's word; closing it to other callers is what enforces that.",
+  ],
+]);
+
+export const STATED_CONSENTS: readonly string[] = [...CONSENT_LINES.keys()];
 
 function consentLine(consent: string | undefined): string {
-  switch (consent) {
-    case 'allow': {
-      return "says an agent's word is enough to run it.";
-    }
-    case 'ask': {
-      return "says the person is asked first; whoever runs it on an agent's behalf does the asking.";
-    }
-    case 'ask-always': {
-      return "says the person is asked every time; whoever runs it on an agent's behalf does the asking.";
-    }
-    case 'never': {
-      return "says it is not to be run on an agent's word; closing it to other callers is what enforces that.";
-    }
-    default: {
-      return consent === undefined
-        ? "says nothing about whether an agent's word is enough to run it."
-        : `declares "${consent}" about an agent's word, which is none of ${STATED.join(', ')}, so nothing reads it.`;
-    }
+  if (consent === undefined) {
+    return "says nothing about whether an agent's word is enough to run it.";
   }
+  return (
+    CONSENT_LINES.get(consent) ??
+    `declares "${consent}" about an agent's word, which is none of ${STATED_CONSENTS.join(', ')}, so nothing reads it.`
+  );
 }
 
 function readArguments(

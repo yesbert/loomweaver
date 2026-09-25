@@ -1,6 +1,7 @@
 import { joinProjectPath, normalizeProjectRoot } from '../../lib/amend/merge';
 import { Amendment } from '../../lib/amend/types';
-import { AG_UI_ADAPTER_VERSION, AG_UI_PROTOCOL_VERSION } from './agent-files';
+import { PLATFORM_VERSION } from '../platform-version';
+import { AG_UI_PROTOCOL_VERSION } from './agent-files';
 import { resolveWeaverInput, type WeaverInput } from './recipe';
 
 export function weaverAmendments(
@@ -13,7 +14,7 @@ export function weaverAmendments(
         {
           kind: 'package',
           name: '@loomweaver/ag-ui',
-          version: `^${AG_UI_ADAPTER_VERSION}`,
+          version: `^${PLATFORM_VERSION}`,
         },
         {
           kind: 'package',
