@@ -1,5 +1,5 @@
-import { activeLook } from '../looks/look-choice';
-import { LOOKS } from '../looks/looks';
+import { activeLook } from '../app/looks/look-choice';
+import { LOOKS } from '../app/looks/looks';
 
 export type BeatId =
   | 'openQuote'

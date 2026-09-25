@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 
 @import '@loomweaver/shell/styles/theme.css';
-@import './looks/looks.css';
+@import './app/looks/looks.css';
 
 @plugin '@tailwindcss/typography';
 

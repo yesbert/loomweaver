@@ -60,12 +60,12 @@
               },
               {
                 "glob": "**/*.json",
-                "input": "src/looks/aurora/i18n",
+                "input": "src/app/looks/aurora/i18n",
                 "output": "i18n/overrides/aurora"
               },
               {
                 "glob": "**/*.json",
-                "input": "src/looks/breeze/i18n",
+                "input": "src/app/looks/breeze/i18n",
                 "output": "i18n/overrides/breeze"
               }
             ],

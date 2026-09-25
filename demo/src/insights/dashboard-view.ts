@@ -12,7 +12,7 @@ import {
   quotes,
   today,
 } from '../accounting';
-import { demoSession } from '../session/session';
+import { demoSession } from '../app/session/session';
 import { activeLang } from './insights-context';
 import { chartColours } from './chart-tokens';
 import { InsightsChart } from './insights-chart';

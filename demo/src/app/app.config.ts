@@ -17,26 +17,26 @@ import {
   type ShellLayout,
 } from '@loomweaver/shell';
 import { provideProductIdentity } from '@loomweaver/plugin-sdk';
-import { AboutBadge } from '../about/about-badge';
-import { aboutPlugin } from '../about/about.plugin';
+import { AboutBadge } from './about/about-badge';
+import { aboutPlugin } from './about/about.plugin';
 import { agentPlugin } from '../agent/agent.plugin';
 import { customersPlugin } from '../customers/customers.plugin';
 import { financePlugin } from '../finance/finance.plugin';
-import { navigationPlugin } from '../navigation/navigation.plugin';
-import { MODULES, navSurfaceId } from '../navigation/module-tree';
+import { navigationPlugin } from './navigation/navigation.plugin';
+import { MODULES, navSurfaceId } from './navigation/module-tree';
 import { insightsPlugin } from '../insights/insights.plugin';
-import { looksPlugin } from '../looks/looks.plugin';
+import { looksPlugin } from './looks/looks.plugin';
 import { quotesPlugin } from '../quotes/quotes.plugin';
-import { demoSession } from '../session/session';
+import { demoSession } from './session/session';
 import { paymentsIcon } from '../payments/payments.plugin';
 import { procurementPlugin } from '../procurement/procurement.plugin';
 import { inventoryPlugin } from '../inventory/inventory.plugin';
 import { peoplePlugin } from '../people/people.plugin';
-import { sessionPlugin } from '../session/session.plugin';
-import { activeLook } from '../looks/look-choice';
-import { LegalLink } from '../legal/legal-link';
-import { LookSwitch } from '../looks/look-switch';
-import { PreviewBadge } from '../preview/preview-badge';
+import { sessionPlugin } from './session/session.plugin';
+import { activeLook } from './looks/look-choice';
+import { LegalLink } from './legal/legal-link';
+import { LookSwitch } from './looks/look-switch';
+import { PreviewBadge } from './preview/preview-badge';
 
 export const layout: ShellLayout = {
   regions: [

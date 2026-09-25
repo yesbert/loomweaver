@@ -137,7 +137,7 @@ export class LoginView {
 }
 ```
 
-(The demo runs the stand-in from the first section rather than a login view. `demo/src/session` in
+(The demo runs the stand-in from the first section rather than a login view. `demo/src/app/session` in
 the repository is the plugin recipe 12 is built from, if you want to see a session flip on screen.)
 
 **Shape B: a login dialog.** Opened from your own entry points through the host dialog service. On

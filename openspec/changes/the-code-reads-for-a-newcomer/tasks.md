@@ -656,8 +656,12 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   `accounting/finance.ts` is `finance/books.ts`: receivables, payables, the journal, the periods
   and the dunning run are read by finance alone. The shared barrel no longer exports them and
   exports `localIsoDate`, which the books use; the finance files take the ledger from `./books`.
-- [ ] 12.5 **Move** (decided 2026-09-25): the composition folders (`session`, `looks`, `navigation`,
+- [x] 12.5 **Move** (decided 2026-09-25): the composition folders (`session`, `looks`, `navigation`,
   `about`, `legal`, `preview`) under `app/`, with the link in `docs/distribution/auth.md`.
+  `session`, `looks`, `navigation`, `about`, `legal` and `preview` sit under `src/app/`, so the top
+  level reads as the product (`app/`), the shared model (`accounting/`), the product's strings and
+  one folder per weaver. The stylesheet import, the looks' asset inputs, the auth guide's link and
+  the README's links follow; a move, with the suites unchanged.
 - [ ] 12.6 One active-language signal, the formatters called directly, lookups next to their data; the
   date helpers once in `accounting/clock.ts` (after the month defect is fixed).
 - [ ] 12.7 Quotes: the customer pane's tab relabelling named, quote creation by id and by search,
