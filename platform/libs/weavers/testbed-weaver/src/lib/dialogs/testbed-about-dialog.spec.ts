@@ -1,15 +1,16 @@
 import { TestBed } from '@angular/core/testing';
-import { TranslocoTestingModule } from '@jsverse/transloco';
-import { DialogRef, PluginHost, provideProductIdentity } from '@loomweaver/plugin-sdk';
+import {
+  DialogRef,
+  PluginHost,
+  provideProductIdentity,
+} from '@loomweaver/plugin-sdk';
 import { TestbedAboutDialog } from './testbed-about-dialog';
+import { translocoForSpec } from '../test-transloco';
 
-function transloco() {
-  return TranslocoTestingModule.forRoot({
-    langs: { en: { product: { tagline: 'A workbench for testing' }, update: { check: 'Check', reload: 'Reload' } } },
-    translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
-    preloadLangs: true,
-  });
-}
+const EN = {
+  product: { tagline: 'A workbench for testing' },
+  update: { check: 'Check', reload: 'Reload' },
+};
 
 function hostStub(overrides: Partial<PluginHost> = {}): PluginHost {
   return {
@@ -25,9 +26,13 @@ function hostStub(overrides: Partial<PluginHost> = {}): PluginHost {
 
 function render(host: PluginHost) {
   TestBed.configureTestingModule({
-    imports: [TestbedAboutDialog, transloco()],
+    imports: [TestbedAboutDialog, translocoForSpec(EN)],
     providers: [
-      provideProductIdentity({ name: 'TestbedWeaver', tagline: 'product.tagline', logoUrl: 'testbed.png' }),
+      provideProductIdentity({
+        name: 'TestbedWeaver',
+        tagline: 'product.tagline',
+        logoUrl: 'testbed.png',
+      }),
       { provide: DialogRef, useValue: new DialogRef(host) },
     ],
   });
@@ -51,7 +56,9 @@ describe('TestbedAboutDialog', () => {
 
   it('checks for an update when none is downloaded yet', () => {
     const check = vi.fn(() => Promise.resolve());
-    const host = render(hostStub({ updateAvailable: () => false, checkForUpdate: check }));
+    const host = render(
+      hostStub({ updateAvailable: () => false, checkForUpdate: check }),
+    );
     const button = host.querySelector('lw-button') as HTMLElement;
     expect(button.textContent?.trim()).toBe('Check');
     button.click();
@@ -60,7 +67,9 @@ describe('TestbedAboutDialog', () => {
 
   it('activates the downloaded update when one is ready', () => {
     const activate = vi.fn(() => Promise.resolve());
-    const host = render(hostStub({ updateAvailable: () => true, activateUpdate: activate }));
+    const host = render(
+      hostStub({ updateAvailable: () => true, activateUpdate: activate }),
+    );
     const button = host.querySelector('lw-button') as HTMLElement;
     expect(button.textContent?.trim()).toBe('Reload');
     button.click();

@@ -1,24 +1,18 @@
 import { TestBed } from '@angular/core/testing';
-import { TranslocoTestingModule } from '@jsverse/transloco';
 import { TestbedInfoView } from './testbed-info-view';
+import { translocoForSpec } from '../test-transloco';
 
-function transloco() {
-  return TranslocoTestingModule.forRoot({
-    langs: {
-      en: {
-        testbed: {
-          info: { assigned: 'Assigned to U1', median: 'Median wait' },
-        },
-      },
-    },
-    translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
-    preloadLangs: true,
-  });
-}
+const EN = {
+  testbed: {
+    info: { assigned: 'Assigned to U1', median: 'Median wait' },
+  },
+};
 
 describe('TestbedInfoView', () => {
   it('renders its facts as a definition list', () => {
-    TestBed.configureTestingModule({ imports: [TestbedInfoView, transloco()] });
+    TestBed.configureTestingModule({
+      imports: [TestbedInfoView, translocoForSpec(EN)],
+    });
     const fixture = TestBed.createComponent(TestbedInfoView);
     fixture.detectChanges();
     const host = fixture.nativeElement as HTMLElement;

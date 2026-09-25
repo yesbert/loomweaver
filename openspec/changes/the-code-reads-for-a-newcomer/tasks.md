@@ -608,6 +608,9 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   default identity's logo. The testbed's two byte-identical copies of `icon-192.png` are gone, its
   identity points at `icon-192.png`, and `loomweaver-icon.png` again means only the brand's header
   logo. The service worker no longer lists a `favicon.ico` neither app has.
+  The weaver's six component specs take their Transloco setup from `translocoForSpec(EN)` in
+  `test-transloco.ts`, each with its translations in a named constant, instead of five local copies
+  of the same configuration and one bare one.
 
 ## 12. The demo
 
