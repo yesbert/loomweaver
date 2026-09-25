@@ -1,5 +1,6 @@
 import {
   BUILT_IN_WORKSPACE_ID,
+  PanelDeclarations,
   WorkspaceDefinition,
   claimsOf,
   offersBuiltInWorkspace,
@@ -10,14 +11,8 @@ import {
   withoutConflicts,
   type WorkspaceClaim,
 } from '../workspace-claims';
-import { definitionBaseline, type Workspace } from './workspace-state';
-import { HIDDEN_VIEWS_KEY } from '../../regions/panel/hidden-views.service';
-import { PANE_TREES_KEY } from '../../regions/pane/tree/pane-tree-storage';
-
-export interface BaselineContext {
-  readonly panelRegions: readonly string[];
-  readonly declaredPaths: (region: string) => string[];
-}
+import { type Workspace } from './workspace-state';
+import { definitionBaseline } from './definition-baseline';
 
 export function definitionOf(
   definitions: readonly WorkspaceDefinition[],
@@ -38,30 +33,18 @@ export function workspaceExists(
   );
 }
 
-export function definitionBaselineOf(
-  definition: WorkspaceDefinition,
-  context: BaselineContext,
-): Record<string, string> {
-  return definitionBaseline(definition, {
-    panelRegions: context.panelRegions,
-    declaredPaths: context.declaredPaths,
-    hiddenViewsKey: HIDDEN_VIEWS_KEY,
-    paneTreesKey: PANE_TREES_KEY,
-  });
-}
-
 export function baselineOf(
   id: string,
   definitions: readonly WorkspaceDefinition[],
   saved: readonly Workspace[],
-  context: BaselineContext,
+  panels: PanelDeclarations,
 ): Readonly<Record<string, string>> {
   const stored = saved.find((workspace) => workspace.id === id)?.baseline;
   if (stored) {
     return stored;
   }
   const definition = definitionOf(definitions, id);
-  return definition ? definitionBaselineOf(definition, context) : {};
+  return definition ? definitionBaseline(definition, panels) : {};
 }
 
 export function activeClaims(
@@ -112,7 +95,7 @@ export function settlementDestination(
 export function changeCandidates(
   definitions: readonly WorkspaceDefinition[],
   saved: readonly Workspace[],
-  context: BaselineContext,
+  panels: PanelDeclarations,
 ): readonly { id: string; baseline: Readonly<Record<string, string>> }[] {
   const builtIn = offersBuiltInWorkspace(definitions)
     ? [{ id: BUILT_IN_WORKSPACE_ID, baseline: {} }]
@@ -121,7 +104,7 @@ export function changeCandidates(
     ...builtIn,
     ...definitions.map((definition) => ({
       id: definition.id,
-      baseline: definitionBaselineOf(definition, context),
+      baseline: definitionBaseline(definition, panels),
     })),
     ...saved,
   ];
