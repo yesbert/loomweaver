@@ -520,6 +520,12 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 - [ ] 10.9 The package READMEs and the generated `LOOMWEAVER.md` describe the tree and the build wiring
   as they are, one section per route; one bundle helper for the two tooling bins; validator messages
   once; CLI test fixtures and app-resolution tests written once.
+  Part 1: `platform/tools/bundle-tooling-bin.mjs` bundles both bins (byte-identical output);
+  `cli/src/lib/test-fixtures.ts` holds `capture`, `writeFiles` and `inDirectory`;
+  `generators/app-resolution.spec.ts` states the app-resolution tests once for the five file
+  generators; the auth-source spec names its sample instead of a number. Set aside: the two doubled
+  validator messages, because sharing the missing-TypeScript text would add a published devkit
+  export and dropping the MCP result's `note` would change what the published MCP server returns.
 
 ## 11. The testbed
 

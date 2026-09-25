@@ -13,21 +13,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { run } from './run';
 import { planWrite, WriteError } from './scaffold/write';
-
-function capture() {
-  const out: string[] = [];
-  const error: string[] = [];
-  return {
-    io: {
-      out: (l: string) => void out.push(l),
-      err: (l: string) => void error.push(l),
-    },
-    out,
-    err: error,
-    text: () => out.join('\n'),
-    errText: () => error.join('\n'),
-  };
-}
+import { capture, inDirectory } from './test-fixtures';
 
 describe('run', () => {
   let dir: string;
@@ -247,13 +233,7 @@ describe('run', () => {
   it('wires a weaver written into the workspace root', () => {
     workspace();
     const c = capture();
-    const cwd = process.cwd();
-    try {
-      process.chdir(dir);
-      expect(run(['weaver', '--id', 'notes', '--out', '.'], c.io)).toBe(0);
-    } finally {
-      process.chdir(cwd);
-    }
+    expect(inDirectory(dir, () => run(['weaver', '--id', 'notes', '--out', '.'], c.io))).toBe(0);
     expect(JSON.stringify(build())).toContain('"input":"src/lib/i18n"');
     expect(readFileSync(join(dir, 'src/styles.css'), 'utf8')).toContain("@source '.'");
     expect(readFileSync(join(dir, 'src/app/app.config.ts'), 'utf8')).toContain(
@@ -264,13 +244,9 @@ describe('run', () => {
   it('wires an auth source written into the workspace root', () => {
     workspace();
     const c = capture();
-    const cwd = process.cwd();
-    try {
-      process.chdir(dir);
-      expect(run(['auth-source', '--name', 'dev', '--out', '.'], c.io)).toBe(0);
-    } finally {
-      process.chdir(cwd);
-    }
+    expect(
+      inDirectory(dir, () => run(['auth-source', '--name', 'dev', '--out', '.'], c.io)),
+    ).toBe(0);
     const config = readFileSync(join(dir, 'src/app/app.config.ts'), 'utf8');
     expect(config).toContain('provideAuthSource');
     expect(JSON.stringify(build())).toContain('i18n');
@@ -278,9 +254,7 @@ describe('run', () => {
 
   it('reaches node_modules from the directory --out actually points at', () => {
     const c = capture();
-    const cwd = process.cwd();
-    try {
-      process.chdir(dir);
+    inDirectory(dir, () => {
       expect(run(['distribution', '--name', 'acme-studio', '--out', '.'], c.io)).toBe(0);
       expect(readFileSync(join(dir, 'src/styles.css'), 'utf8')).toContain(
         "@source '../node_modules/@loomweaver/shell'",
@@ -292,9 +266,7 @@ describe('run', () => {
       expect(readFileSync(join(dir, 'apps/acme/src/styles.css'), 'utf8')).toContain(
         "@source '../../../node_modules/@loomweaver/shell'",
       );
-    } finally {
-      process.chdir(cwd);
-    }
+    });
   });
 
   it('validates a manifest and fails on an error finding', () => {
