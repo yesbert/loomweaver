@@ -13,7 +13,7 @@ import { provideSettingsStore } from '../persistence/settings-store';
 import { provideWorkingStateStore } from '../persistence/working-state-store';
 import { buildContentRoutes } from '../regions/content/routing/content-route-table';
 import { ContentTabsService } from '../regions/content/tabs/content-tabs.service';
-import { WORKSPACE_CLAIMS } from '../foundation/workspace-claims';
+import { WORKSPACE_SETTLEMENT } from '../regions/content/routing/workspace-settlement';
 import { WorkspaceService } from './workspace.service';
 import { provideWorkspaces } from './provide-workspaces';
 
@@ -95,7 +95,7 @@ async function open(
       ...(options.owns
         ? [{ provide: DISTRIBUTION_ROUTES, useValue: options.owns }]
         : []),
-      { provide: WORKSPACE_CLAIMS, useExisting: WorkspaceService },
+      { provide: WORKSPACE_SETTLEMENT, useExisting: WorkspaceService },
       provideWorkspaces(...((options.declared ?? DECLARED) as never[])),
       ...(options.stores
         ? [

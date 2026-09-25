@@ -11,7 +11,7 @@ import { ContentTabsService } from '../regions/content/tabs/content-tabs.service
 import { PaneTreeService } from '../regions/pane/tree/pane-tree.service';
 import { CONTENT_DOCK } from '../regions/pane/tree/pane-address';
 import { collectTabs } from '../regions/pane/tree/pane-queries';
-import { WORKSPACE_CLAIMS } from '../foundation/workspace-claims';
+import { WORKSPACE_SETTLEMENT } from '../regions/content/routing/workspace-settlement';
 import { WorkspaceService } from './workspace.service';
 import { provideWorkspaces } from './provide-workspaces';
 import { WorkspaceDefinition } from './workspace-definition';
@@ -96,7 +96,7 @@ async function openAtReports(
       provideRouter(buildContentRoutes(ROUTES)),
       provideLayout(LAYOUT),
       { provide: BootAddress, useValue: { path: '/reports' } },
-      { provide: WORKSPACE_CLAIMS, useExisting: WorkspaceService },
+      { provide: WORKSPACE_SETTLEMENT, useExisting: WorkspaceService },
       provideWorkspaces(...declared),
     ],
   });

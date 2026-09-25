@@ -18,11 +18,9 @@ import { PluginEnablementService } from '../enablement/plugin-enablement.service
 import { InstalledPlugin } from '../../plugin-store/lifecycle/installed-plugin';
 import { PluginInstallService } from '../../plugin-store/lifecycle/plugin-install.service';
 import { CapabilityRefusalReporter } from '../../permissions/capability-refusal';
-import {
-  CATALOG_MAX_ISOLATION_LEVEL,
-  PluginIsolationLevel,
-  PluginIsolationLevelService,
-} from '../../foundation/plugin-isolation-level';
+import { PluginIsolationLevel } from '../../foundation/plugin-isolation-level';
+import { CATALOG_MAX_ISOLATION_LEVEL } from '../../plugin-store/catalog/plugin-catalog';
+import { PluginIsolationLevelService } from '../../plugin-isolation/plugin-isolation-level.service';
 import { PluginDeploymentService } from '../../plugin-store/lifecycle/plugin-deployment.service';
 import { FRAME_PLUGIN, FramePlugin } from './frame-plugin';
 import {

@@ -38,7 +38,7 @@ import { CapabilityRefusalErrorHandler } from './permissions/refusal-error-handl
 import { COMMAND_INVOKER } from './foundation/command-invoker';
 import { DIALOG_CLOSE_GUARD } from './dialog/dialog-close-guard';
 import { SurfaceCloseGuard } from './regions/pane/unsaved-work/surface-close-guard';
-import { WORKSPACE_CLAIMS } from './foundation/workspace-claims';
+import { WORKSPACE_SETTLEMENT } from './regions/content/routing/workspace-settlement';
 import { UNUSABLE_WORKSPACES } from './foundation/unusable-workspaces';
 import { UnusableWorkspacesService } from './workspace/usability/unusable-workspaces.service';
 import { CommandInvocationService } from './commands/command-invocation.service';
@@ -126,7 +126,7 @@ function portBindings(): Provider[] {
   return [
     { provide: COMMAND_INVOKER, useExisting: CommandInvocationService },
     { provide: DIALOG_CLOSE_GUARD, useExisting: SurfaceCloseGuard },
-    { provide: WORKSPACE_CLAIMS, useExisting: WorkspaceService },
+    { provide: WORKSPACE_SETTLEMENT, useExisting: WorkspaceService },
     { provide: UNUSABLE_WORKSPACES, useExisting: UnusableWorkspacesService },
     {
       provide: APP_RESET_WORKSPACES,

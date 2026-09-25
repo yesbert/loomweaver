@@ -8,10 +8,8 @@ import {
 import { PluginEnablementService } from './plugin-enablement.service';
 import { PluginDisableGuard } from './plugin-disable-guard';
 import { PluginDeploymentService } from '../../plugin-store/lifecycle/plugin-deployment.service';
-import {
-  PluginRung,
-  PluginIsolationLevelService,
-} from '../../foundation/plugin-isolation-level';
+import { PluginRung } from '../../foundation/plugin-isolation-level';
+import { PluginIsolationLevelService } from '../../plugin-isolation/plugin-isolation-level.service';
 
 const RUNG_NOTES: Readonly<Record<PluginRung, string>> = {
   trusted: 'settings.pluginLevel.trusted',

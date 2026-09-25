@@ -27,7 +27,7 @@ import { ThemeRegistry } from '../../../theme/theme-registry';
 import { FontScaleService } from '../../../text-size/font-scale.service';
 import { AuthContext } from '../../../auth/auth-context';
 import { CapabilityGrantService } from '../../../permissions/capability-grant.service';
-import { PluginIsolationLevelService } from '../../../foundation/plugin-isolation-level';
+import { PluginIsolationLevelService } from '../../../plugin-isolation/plugin-isolation-level.service';
 import { ContentTabsService } from '../tabs/content-tabs.service';
 import { normalizePath, restBelow, suffixOf } from '../content-path';
 import {

@@ -4,7 +4,7 @@ import { PermissionsSettings } from './permissions-settings';
 import { CapabilityGrantService } from '../../permissions/capability-grant.service';
 import { PluginEnablementService } from './plugin-enablement.service';
 import { PluginDeploymentService } from '../../plugin-store/lifecycle/plugin-deployment.service';
-import { PluginIsolationLevelService } from '../../foundation/plugin-isolation-level';
+import { PluginIsolationLevelService } from '../../plugin-isolation/plugin-isolation-level.service';
 import type { PluginManifest } from '@loomweaver/plugin-sdk';
 import { provideRequiredPlugins } from '../../foundation/required-plugins';
 

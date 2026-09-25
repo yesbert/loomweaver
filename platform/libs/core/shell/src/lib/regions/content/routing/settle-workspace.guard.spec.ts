@@ -1,7 +1,7 @@
 import { runInInjectionContext, Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import type { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { WORKSPACE_CLAIMS } from '../../../foundation/workspace-claims';
+import { WORKSPACE_SETTLEMENT } from './workspace-settlement';
 import { buildContentRoutes } from './content-route-table';
 import { keepPopout } from './keep-popout.guard';
 import { settleWorkspace } from './settle-workspace.guard';
@@ -43,7 +43,7 @@ describe('settling the workspace before content is shown', () => {
     TestBed.configureTestingModule({
       providers: [
         {
-          provide: WORKSPACE_CLAIMS,
+          provide: WORKSPACE_SETTLEMENT,
           useValue: {
             settle: async (path: string) => {
               settled.push(path);

@@ -14,7 +14,7 @@ import { CommandInvocationService } from '../../commands/command-invocation.serv
 import { PluginEnablementService } from '../enablement/plugin-enablement.service';
 import { PluginInstallService } from '../../plugin-store/lifecycle/plugin-install.service';
 import { PluginDeploymentService } from '../../plugin-store/lifecycle/plugin-deployment.service';
-import { CATALOG_MAX_ISOLATION_LEVEL } from '../../foundation/plugin-isolation-level';
+import { CATALOG_MAX_ISOLATION_LEVEL } from '../../plugin-store/catalog/plugin-catalog';
 import { ContentTabsService } from '../../regions/content/tabs/content-tabs.service';
 import { MenuService } from '../../menu/menu.service';
 import { SettingsService } from '../../settings/settings.service';
