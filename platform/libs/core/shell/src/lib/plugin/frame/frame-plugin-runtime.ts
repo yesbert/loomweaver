@@ -26,30 +26,30 @@ import {
 import { PluginDeploymentService } from '../../plugin-store/lifecycle/plugin-deployment.service';
 import { FRAME_PLUGIN, FramePlugin } from './frame-plugin';
 import {
+  RefusedFramePlugin,
   RunnableFramePlugin,
   levelOf,
   runnablePlugins,
   signatureOf,
 } from './runnable-frame-plugins';
-import { WatchedKey, frameRpcMethods } from './frame-rpc-methods';
-import { FrameRemote } from './frame-rpc-contract';
+import { frameRpcMethods } from './rpc/frame-rpc-methods';
+import { FrameRemote } from './rpc/frame-rpc-contract';
+import { FrameSession } from './frame-session';
 
 interface FrameInstance {
   readonly ctx: HostPluginContext;
+  readonly session: FrameSession;
   readonly connection: Connection<FrameRemote>;
   readonly frame: HTMLIFrameElement;
   readonly signature: string;
-  readonly syncCleanups: (() => void)[];
-  readonly watched: Map<string, WatchedKey>;
 }
 
 /**
- * Second {@link PluginRuntime} implementation:
- * runs each plugin in an isolated `<iframe sandbox="allow-scripts">` and hands it `ctx` over **Penpal**
- * RPC. The RPC endpoints are backed by the **same** {@link HostPluginContext} the trusted runtime uses,
- * so the default-deny capability broker enforces grants identically — the isolation and
- * transport change, the broker does not. Data-oriented `ctx` calls (`registerRoute({iframe})`, `toast`)
- * serialise across the boundary; the reserved Angular-only surface (`component`) never crosses it.
+ * Runs each frame plugin in its own hidden iframe, isolated or embedded by its level, and serves its
+ * `ctx` over **Penpal** RPC. Every call is answered by the same default-deny capability broker the
+ * in-process runtime uses, so a grant means the same at either level: the isolation and the
+ * transport change, the broker does not. Data-shaped calls such as `registerSurface({ iframe })` or
+ * `toast` cross the boundary as validated copies; a component surface never crosses it.
  *
  * Activation reconciles against the union of three sets: the composed {@link FramePlugin} list,
  * what the operator deployed through the catalog, and what the user installed. Installing activates
@@ -84,6 +84,8 @@ export class FramePluginRuntime {
     inject<readonly FramePlugin[]>(FRAME_PLUGIN, { optional: true }) ?? [];
 
   private readonly instances = new Map<string, FrameInstance>();
+
+  private readonly reportedRefusals = new Set<string>();
 
   private started = false;
 
@@ -122,13 +124,8 @@ export class FramePluginRuntime {
     this.instances.delete(id);
     instance.connection.destroy();
     instance.frame.remove();
-    for (const entry of instance.watched.values()) {
-      entry.stop();
-    }
+    instance.session.end();
     instance.ctx.disposeAll();
-    for (const cleanup of instance.syncCleanups) {
-      cleanup();
-    }
     this.grants.unregister(id);
     this.isolation.unregister(id);
   }
@@ -146,12 +143,13 @@ export class FramePluginRuntime {
     installed: readonly InstalledPlugin[],
     deployed: readonly InstalledPlugin[],
   ): void {
-    const runnable = runnablePlugins(
+    const { runnable, refused } = runnablePlugins(
       this.plugins,
       installed,
       deployed,
       this.catalogMaxLevel,
     );
+    this.reportRefused(refused);
     for (const plugin of runnable) {
       this.enablement.register(plugin.id, plugin.name ?? plugin.id);
       const enabled = !disabled.has(plugin.id);
@@ -179,42 +177,36 @@ export class FramePluginRuntime {
     }
   }
 
+  private reportRefused(refused: readonly RefusedFramePlugin[]): void {
+    for (const { id, asked } of refused) {
+      const refusal = `${id}|${asked}`;
+      if (this.reportedRefusals.has(refusal)) {
+        continue;
+      }
+      this.reportedRefusals.add(refusal);
+      console.error(
+        `Plugin "${id}" asks to run ${asked}, which this catalog may not confer ` +
+          `(it confers at most ${this.catalogMaxLevel}). It is not started.`,
+      );
+    }
+  }
+
   private activate(plugin: RunnableFramePlugin): void {
     this.grants.register(plugin.id, plugin.capabilities, plugin.granted);
     this.isolation.register(plugin.id, levelOf(plugin));
     const ctx = this.factory.create(plugin.id, (capability) =>
       this.grants.isGranted(plugin.id, capability),
     );
+    const session = new FrameSession(ctx.state, this.injector);
     const frame = this.createFrame(plugin.entryUrl, levelOf(plugin));
-    const messenger = new WindowMessenger({
-      remoteWindow: frame.contentWindow as Window,
-      allowedOrigins: ['*'],
-    });
-    const syncCleanups: (() => void)[] = [];
-    const watched = new Map<string, WatchedKey>();
-    const connection = connect<FrameRemote>({
-      messenger,
-      methods: frameRpcMethods({
-        pluginId: plugin.id,
-        ctx,
-        origins: plugin.origins,
-        install: this.install,
-        store: this.store,
-        sync: this.sync,
-        syncCleanups,
-        watched,
-        watchState: (key) => this.watchState(plugin.id, ctx, watched, key),
-        notify: (send) => this.notify(plugin.id, send),
-        reportRefusal: (error) => this.refusals.report(error),
-      }),
-    });
+    const connection = this.connect(plugin, ctx, session, frame);
+    session.attach(connection.promise);
     this.instances.set(plugin.id, {
       ctx,
+      session,
       connection,
       frame,
       signature: signatureOf(plugin),
-      syncCleanups,
-      watched,
     });
 
     connection.promise.catch((error: unknown) => {
@@ -224,6 +216,30 @@ export class FramePluginRuntime {
 
       console.error(`Sandbox plugin "${plugin.id}" failed to connect`, error);
       this.deactivate(plugin.id);
+    });
+  }
+
+  private connect(
+    plugin: RunnableFramePlugin,
+    ctx: HostPluginContext,
+    session: FrameSession,
+    frame: HTMLIFrameElement,
+  ): Connection<FrameRemote> {
+    return connect<FrameRemote>({
+      messenger: new WindowMessenger({
+        remoteWindow: frame.contentWindow as Window,
+        allowedOrigins: ['*'],
+      }),
+      methods: frameRpcMethods({
+        pluginId: plugin.id,
+        ctx,
+        origins: plugin.origins,
+        session,
+        install: this.install,
+        store: this.store,
+        sync: this.sync,
+        reportRefusal: (error) => this.refusals.report(error),
+      }),
     });
   }
 
@@ -240,48 +256,6 @@ export class FramePluginRuntime {
     frame.src = entryUrl;
     document.body.append(frame);
     return frame;
-  }
-
-  private watchState(
-    pluginId: string,
-    ctx: HostPluginContext,
-    watched: Map<string, WatchedKey>,
-    key: string,
-  ): void {
-    if (watched.has(key)) {
-      return;
-    }
-    const handle = ctx.state.watch(key);
-    const ref = effect(
-      () => {
-        const value = handle.value();
-        const loaded = handle.loaded();
-        untracked(() =>
-          this.notify(pluginId, (remote) =>
-            remote.stateChanged(key, value, loaded),
-          ),
-        );
-      },
-      { injector: this.injector },
-    );
-    watched.set(key, {
-      handle,
-      stop: () => {
-        ref.destroy();
-        handle.dispose();
-      },
-    });
-  }
-
-  private notify(
-    pluginId: string,
-    send: (remote: FrameRemote) => void,
-  ): void {
-    const instance = this.instances.get(pluginId);
-    if (!instance) {
-      return;
-    }
-    void instance.connection.promise.then(send).catch(() => undefined);
   }
 }
 

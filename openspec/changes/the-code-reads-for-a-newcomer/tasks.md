@@ -207,10 +207,19 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   The spec split into the facades, the author warnings, surface admission and the rest, over one
   shared harness. The check that no picture of the workbench is offered looked at the harness's
   return value rather than the context; it now looks at the context and its prototype.
-- [ ] 6.9 The frame RPC: wire-field helpers, the sanitizer and settings files split by input kind, one
+- [x] 6.9 The frame RPC: wire-field helpers, the sanitizer and settings files split by input kind, one
   per-frame session object owning watched keys and cleanups, every RPC entry validating its primitive
   arguments the same way, refused catalog entries reported once; `sandbox-plugin-runtime.spec.ts`
   (1402 lines) split along those files.
+  The RPC files are `frame/rpc/`: the contract (types only), the method table (with the command
+  call it used to borrow from the contract), `wire-fields.ts`, and one sanitizer each for surfaces,
+  small inputs and settings; `frame-settings-section.ts` keeps building the host section.
+  `FrameSession` owns a frame's watched keys, cleanups and notifications. A text argument is now
+  refused when it is not a string, where some calls passed it through and three converted it with
+  `String()`; that is what "everything crossing the boundary is validated as data" already asks.
+  `runnablePlugins` returns what it refused, and the runtime says so once per id and level. The
+  `effectiveCapabilities` tests moved to the permissions slice, and the runtime's published JSDoc
+  was rewritten while the file was open.
 - [ ] 6.10 `PluginStateService`: the limit check and the key index as two steps, "characters" instead
   of "bytes", `forPlugin` instead of `facade`; the required-plugin typo diagnostic moves to the
   composition report (after its defect is fixed).

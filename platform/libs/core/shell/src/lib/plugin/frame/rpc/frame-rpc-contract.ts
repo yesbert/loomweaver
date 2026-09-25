@@ -1,6 +1,5 @@
 import { Methods } from 'penpal';
 import {
-  CommandArguments,
   CommandOutcome,
   FrameSettingsSection,
   InvocableCommand,
@@ -11,16 +10,7 @@ import {
   Surface,
   TabBadge,
 } from '@loomweaver/plugin-sdk';
-import { FrameSettingValues } from './frame-settings';
-import { asCommandArguments } from '../../foundation/command-arguments';
-
-const UNCARRIABLE_ARGUMENTS: CommandOutcome = {
-  outcome: 'refused',
-  reason: 'invalid-arguments',
-  message:
-    'Arguments must be an object of single values or lists of them; anything else cannot cross the ' +
-    'sandbox boundary as the value it was.',
-};
+import { FrameSettingValues } from '../frame-settings-section';
 
 export type FrameRpc = Methods & {
   registerSurface(surface: Surface): void;
@@ -51,16 +41,3 @@ export type FrameRemote = Methods & {
   contentTabClosed(path: string): void;
   stateChanged(key: string, value: unknown, loaded: boolean): void;
 };
-
-export function invokeRpcCommand(
-  ctx: {
-    invokeCommand(id: string, args?: CommandArguments): Promise<CommandOutcome>;
-  },
-  id: unknown,
-  args: unknown,
-): Promise<CommandOutcome> {
-  const carried = args === undefined ? undefined : asCommandArguments(args);
-  return carried === null
-    ? Promise.resolve(UNCARRIABLE_ARGUMENTS)
-    : ctx.invokeCommand(String(id), carried);
-}

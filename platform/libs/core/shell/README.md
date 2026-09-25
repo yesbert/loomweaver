@@ -28,7 +28,7 @@ directories like components, directives, and services").
   omission, tab badges and `disposeTogether`.
 - **`plugin/`** — plugin runtime core: `plugin`, `plugin-runtime`, `plugin-state.service`.
   Sub-sliced into `context/` (the `ctx` a plugin receives), `frame/` (the frame rung:
-  runtime, RPC, settings) and `enablement/` (turning a plugin on and off, and the
+  runtime, per-frame session, settings, and `rpc/` for the method table and the wire sanitizers) and `enablement/` (turning a plugin on and off, and the
   permissions settings section).
 - **`commands/`** — command registry + keybindings + command palette.
 - **`plugin-store/`** — community plugin store: catalog port, install/deployment/store

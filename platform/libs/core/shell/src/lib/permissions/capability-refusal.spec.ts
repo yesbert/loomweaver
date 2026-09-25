@@ -8,7 +8,7 @@ import { NotificationService } from '../notifications/notification.service';
 import {
   FrameRpcDeps,
   frameRpcMethods,
-} from '../plugin/frame/frame-rpc-methods';
+} from '../plugin/frame/rpc/frame-rpc-methods';
 import { provideShell } from '../provide-shell';
 import { CapabilityRefusalReporter } from './capability-refusal';
 import { CapabilityRefusalErrorHandler } from './refusal-error-handler';
@@ -134,7 +134,6 @@ describe('capability refusal', () => {
     const methods = frameRpcMethods({
       pluginId: 'payments',
       ctx,
-      watched: new Map(),
       reportRefusal: (error: unknown) => reporter.report(error),
     } as unknown as FrameRpcDeps);
 
@@ -156,7 +155,6 @@ describe('capability refusal', () => {
     const methods = frameRpcMethods({
       pluginId: 'payments',
       ctx,
-      watched: new Map(),
       reportRefusal: (error: unknown) => reporter.report(error),
     } as unknown as FrameRpcDeps);
 
