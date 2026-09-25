@@ -20,6 +20,7 @@ function transloco() {
           storeSearch: 'Search plugins',
           storeNoResults: 'No plugins match',
           storeSelectHint: 'Select a plugin',
+          storeBackToList: 'All plugins',
           storeInstalledBadge: 'Installed',
           storeProvidedBadge: 'Provided',
           storeProvidedHint: 'Provided by your organisation',
@@ -320,6 +321,31 @@ describe('PluginStoreDialog', () => {
       source?: string;
     };
     expect(markdown.source).toBe('# Store demo readme');
+  });
+
+  it('on a narrow screen, an opened entry replaces the list and offers a way back', async () => {
+    const { fixture, host } = await render();
+    const list = () => host.querySelector('[data-testid="store-list"]')!;
+    const pane = () => host.querySelector('[data-testid="store-detail-pane"]')!;
+    expect(list().classList).not.toContain('max-sm:hidden');
+    expect(pane().classList).toContain('max-sm:hidden');
+
+    (
+      host.querySelector('[data-testid="store-card-store-full"]') as HTMLElement
+    ).click();
+    fixture.detectChanges();
+
+    expect(list().classList).toContain('max-sm:hidden');
+    expect(pane().classList).not.toContain('max-sm:hidden');
+    expect(
+      host.querySelector('[data-testid="store-install-store-full"]'),
+    ).not.toBeNull();
+
+    (host.querySelector('[data-testid="store-back"]') as HTMLElement).click();
+    fixture.detectChanges();
+
+    expect(list().classList).not.toContain('max-sm:hidden');
+    expect(host.querySelector('[data-testid="store-detail"]')).toBeNull();
   });
 
   it('installs from the detail pane after consent and switches to uninstall', async () => {

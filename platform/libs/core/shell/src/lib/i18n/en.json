@@ -229,6 +229,7 @@
     "storeProvidedHint": "Provided by your organisation — it cannot be turned off or removed here.",
     "storeRepository": "Repository",
     "storeSearch": "Search plugins by name, author or description…",
+    "storeBackToList": "← All plugins",
     "storeSelectHint": "Select a plugin on the left to see its details.",
     "storeTabBrowse": "Browse",
     "storeTabInstalled": "Installed",
