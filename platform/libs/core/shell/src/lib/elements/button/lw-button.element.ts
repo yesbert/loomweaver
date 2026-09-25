@@ -17,11 +17,11 @@ export const LW_BUTTON_TAG = 'lw-button';
  * (`theme.css`) the {@link LwButton} directive does — one source of truth for the look, on semantic tokens.
  *
  * The Angular {@link LwButton} directive stays the idiomatic choice for host chrome (it sits on a **native**
- * `<button>`/`<a>`, keeping native semantics). This element is the framework-agnostic path for a weaver body
- * or a sandboxed iframe that cannot import the directive across the Nx boundary. It adds keyboard activation
+ * `<button>`/`<a>`, keeping native semantics). This element is the framework-agnostic path for a plugin's
+ * own markup or a sandboxed surface, neither of which can import the directive. It adds keyboard activation
  * (Enter/Space) and `disabled` so a `role="button"` behaves like a button.
  *
- *   <lw-button variant="primary" (click)="save()">Speichern</lw-button>
+ *   <lw-button variant="primary" (click)="save()">Save</lw-button>
  *   <lw-button variant="ghost" size="sm" icon-only aria-label="…"><!-- icon --></lw-button>
  */
 export class LwButtonElement extends HTMLElement {

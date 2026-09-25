@@ -2,7 +2,7 @@ import { Component, ViewEncapsulation, computed, inject, input } from '@angular/
 import { VersionService } from './version.service';
 
 /**
- * Displays the running build's version, e.g. `v0.1.0`. A neutral host-offered widget
+ * Displays the version the workbench shows, e.g. `v0.1.0`. A neutral host-offered widget
  * any distribution or plugin can embed (status bar, about dialog, …); the number comes
  * from {@link VersionService}, never hardcoded.
  *

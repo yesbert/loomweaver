@@ -43,9 +43,9 @@ interface FrameInstance {
 }
 
 /**
- * Runs each frame plugin in its own hidden iframe, isolated or embedded by its level, and serves its
- * `ctx` over **Penpal** RPC. Every call is answered by the same default-deny capability broker the
- * in-process runtime uses, so a grant means the same at either level: the isolation and the
+ * Runs each sandboxed plugin in its own hidden iframe, isolated or embedded by its level, and serves
+ * its `ctx` over **Penpal** RPC. Every call is answered by the same default-deny capability broker
+ * the trusted runtime uses, so a grant means the same at either level: the isolation and the
  * transport change, the broker does not. Data-shaped calls such as `registerSurface({ iframe })` or
  * `toast` cross the boundary as validated copies; a component surface never crosses it.
  *

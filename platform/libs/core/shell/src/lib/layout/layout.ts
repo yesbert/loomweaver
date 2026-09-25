@@ -8,7 +8,7 @@ export type DockPosition = 'top' | 'bottom' | 'left' | 'right' | 'center';
 export type RegionType = 'bar' | 'rail' | 'panel' | 'content';
 
 /**
- * A side panel the distribution places into the border frame. It is the one kind of region a person
+ * A side panel the distribution places into the border frame. It is the one kind of region the user
  * resizes, so it is the one kind that may declare its widths, in pixels. Each is optional and falls
  * back to the workbench's own (start 256, narrowest 180, widest 480). Those apply where the panel
  * stands beside the content; on a narrow viewport the panel is an overlay sized by `overlayWidth`.
@@ -18,7 +18,7 @@ export interface PanelRegion {
   readonly id: string;
   readonly type: 'panel';
   readonly dock: DockPosition;
-  /** The width the panel shows until a person resizes it, and what resetting the layout returns to. */
+  /** The width the panel shows until the user resizes it, and what resetting the layout returns to. */
   readonly width?: number;
   /** The narrowest the panel may be made, by dragging, from the keyboard or from code. */
   readonly minWidth?: number;
@@ -43,7 +43,7 @@ export interface NonPanelRegion {
 /** One region the distribution places into the border frame. */
 export type LayoutRegion = PanelRegion | NonPanelRegion;
 
-/** A distribution's declared base layout — the Core renders it (declarative, Stufe A). */
+/** A distribution's declared base layout — the workbench renders it. */
 export interface ShellLayout {
   readonly regions: readonly LayoutRegion[];
 }
@@ -53,8 +53,7 @@ export interface ShellLayout {
  *
  * The status bar is not decoration — the shell's own default contributions include one that docks
  * there, and a default aimed at a region the default layout omits renders nothing and reports
- * nothing. Every region a shell default targets belongs here; `tools/check-region-ids.mjs` fails
- * the build when one does not.
+ * nothing. Every region a shell default targets belongs here.
  */
 export const DEFAULT_LAYOUT: ShellLayout = {
   regions: [

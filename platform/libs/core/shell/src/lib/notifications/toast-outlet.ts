@@ -13,7 +13,7 @@ import { FEEDBACK_COLORS } from './feedback-colors';
  * Renders the active notifications as toasts in a fixed corner. Mounted once
  * by the shell root, so every distribution gets it for free. Each toast shows its kind
  * icon, message, an optional action button and a dismiss control. The kind selects the
- * icon; a feedback-colour token ladder can be added later if toasts grow richer.
+ * icon.
  */
 @Component({
   selector: 'lw-toasts',

@@ -11,11 +11,11 @@ export type { LwButtonVariant, LwButtonSize } from '@loomweaver/plugin-sdk';
  *
  * The button LOOK is a CSS-class contract (`.lw-btn` in theme.css): this directive is
  * only a thin wrapper that emits those class names from typed inputs. So the very same look is
- * reachable by SDK-only plugins that cannot import this directive across the Nx boundary — they
- * write `<button class="lw-btn lw-btn--primary">`. One source of truth, all on semantic tokens,
+ * reachable from a plugin that imports only the SDK: it writes
+ * `<button class="lw-btn lw-btn--primary">`. One source of truth, all on semantic tokens,
  * so a theme / tenant override reaches host and plugin buttons alike.
  *
- *   <button lwButton variant="primary" (click)="save()">Speichern</button>
+ *   <button lwButton variant="primary" (click)="save()">Save</button>
  *   <button lwButton variant="ghost" size="sm" iconOnly aria-label="…"><lw-icon … /></button>
  */
 @Directive({

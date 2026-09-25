@@ -10,7 +10,7 @@ import { LoomIconName } from './loom-icons';
  * Distribution-level icons: seed `name → SVG` into the module-global registry at bootstrap,
  * resolved by `<lw-icon>`. **The distribution wins:** naming one of the first-party icons replaces it
  * everywhere the chrome draws it, which is how a product re-skins the workbench; naming a new one adds it.
- * A *weaver* instead contributes at runtime via `ctx.contributeIcons` and can never shadow a name that is
+ * A *plugin* instead contributes at runtime via `ctx.contributeIcons` and can never shadow a name that is
  * already taken, so an installed plugin cannot repaint the chrome. Distribution icons are build-time and
  * trusted like the first-party set, so they are not re-sanitized.
  *

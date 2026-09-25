@@ -51,7 +51,7 @@ function bindChords(
  * Binds command shortcuts to the keyboard. Bindings are *derived* from the registered
  * commands' `shortcut` (no separate registration path) and rebuild reactively as commands come and
  * go. One global `keydown` listener resolves the pressed chord to a command id and fires it through
- * the {@link CommandService} — the same seam a click uses. User rebinding is deferred.
+ * the {@link CommandService}, the same path a click takes.
  */
 @Service()
 export class KeybindingService {

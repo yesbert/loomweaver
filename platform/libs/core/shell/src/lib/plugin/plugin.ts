@@ -11,5 +11,5 @@ export type {
   PluginSession,
 } from '@loomweaver/plugin-sdk';
 
-/** Multi-provider token: each entry is one in-process plugin to activate. */
+/** Multi-provider token: each entry is one trusted plugin to activate. */
 export const PLUGIN = new InjectionToken<readonly Plugin[]>('PLUGIN');

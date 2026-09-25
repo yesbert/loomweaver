@@ -13,11 +13,10 @@ const STORAGE_KEY = 'lw.shell.installed-plugins';
 /**
  * The user's installed community plugins. Holds only the state: which catalog entries the
  * user installed, persisted user-locally through the {@link SETTINGS_STORE} — a product that wants
- * tenant-wide or server-held installs implements that in its store backend, the seam does not change.
- * The {@link FramePluginRuntime} reconciles activation against {@link installed} reactively, so an
- * install spawns the plugin at once and an uninstall unloads it, both without a reload. It never
- * depends on the runtime, which keeps the dependency one-way (the {@link PluginEnablementService}
- * precedent).
+ * tenant-wide or server-held installs implements that in its settings store backend, and nothing here
+ * changes. The {@link FramePluginRuntime} reconciles activation against {@link installed} reactively,
+ * so an install spawns the plugin at once and an uninstall unloads it, both without a reload. It never
+ * depends on the runtime, which keeps the dependency one-way.
  */
 @Service()
 export class PluginInstallService {

@@ -24,7 +24,7 @@ function sanitizeMode(raw: string | undefined): ThemeMode {
 
 /**
  * Owns light/dark for the whole application: it persists the user's choice through the
- * the settings store, mirrors it across tabs, and toggles the `dark` class on `<html>` — which is what
+ * settings store, mirrors it across tabs, and toggles the `dark` class on `<html>` — which is what
  * flips the `--lw-*` token ladder every surface reads.
  *
  * Inject it when your own UI has to follow the same mode, most commonly to mirror it onto another

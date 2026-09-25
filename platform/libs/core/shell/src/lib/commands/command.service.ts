@@ -18,10 +18,9 @@ export interface Triggerable {
 }
 
 /**
- * Executes commands by id — the single seam every trigger flows through:
- * rail/bar/view-action items, and (next) keybindings and the command palette. Keeping execution
- * here (not on the registry, which only stores) means one place resolves an id, one place fires the
- * behaviour, and one place reports a failure.
+ * Executes commands by id. Every trigger runs through here: rail, bar and surface action items,
+ * menus, keybindings and the command palette. The registry only stores, so one place resolves an id,
+ * one place fires the behaviour, and one place reports a failure.
  */
 @Service()
 export class CommandService {

@@ -5,7 +5,7 @@ import { PluginCatalogEntry, parseCatalogList } from './catalog-entry';
 
 /**
  * The distribution's plugin catalog port: the operator-curated list of community plugins a
- * user may install. The platform only defines the seam — what is not in the catalog does not exist
+ * user may install. The platform only defines the port — what is not in the catalog does not exist
  * for the shell; per-tenant curation is the product backend answering the catalog request
  * tenant-dependently.
  */

@@ -8,9 +8,8 @@ import { providePortStore } from './port-store-provider';
  * language, text size, plugin settings, installed/disabled plugins, capability revocations and the
  * saved-workspaces list. Working state (view state, layout, usage traces) never flows through this
  * port; it lives behind `WORKING_STATE_STORE`. That guarantee is structural, which is what makes
- * this port the right seam for a product backend: writes are rare, small and roaming-worthy, so a
- * REST-backed implementation (the `ISettingsRepository` pattern) receives exactly
- * what it expects. Swap the backing store with {@link provideSettingsStore}; the built-in default
+ * this port the right one for a product backend: writes are rare, small and roaming-worthy, so a
+ * REST-backed implementation receives exactly what it expects. Swap the backing store with {@link provideSettingsStore}; the built-in default
  * is {@link LocalStorageStore}.
  */
 export const SETTINGS_STORE = new InjectionToken<KeyValueStore>(

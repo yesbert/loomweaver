@@ -43,7 +43,7 @@ export interface ContentTabView {
   /** The full path to navigate to when the tab is selected (root + remembered sub-route). */
   readonly navPath: string;
   readonly title: string;
-  /** When true the host shows `title` verbatim; otherwise it is a Transloco key (finding #8). */
+  /** When true the host shows `title` verbatim; otherwise it is a Transloco key. */
   readonly literalTitle: boolean;
   readonly icon?: string;
   readonly badge?: TabBadge;

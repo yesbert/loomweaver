@@ -396,9 +396,16 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   texts differ where the two differ (a rail item's workspace and current-marking notes, a bar
   button's optional icon), so picking one from the other would show the wrong text, and a neutral
   base would be a new published type.
-- [ ] 9.6 The shell's and the adapter's published JSDoc: the same cleanup as 9.2 for the content tab
+- [x] 9.6 The shell's and the adapter's published JSDoc: the same cleanup as 9.2 for the content tab
   service, the plugin runtimes, the registry, the store, permissions, persistence, settings, layout and
   the elements.
+  Read in full on the packed declarations of both packages. Removed: roadmap notes ("(next)",
+  "rebinding is deferred", "can be added later", "hardens this later", a follow-up about stacked
+  overrides), history ("unlike the old component", "what the shell wrote before"), tracker codes,
+  repository paths, links to unpublished classes, a German example label and a reinsurance
+  example. The terms follow 9.3: trusted and sandboxed plugin, plugin rather than weaver, user
+  rather than person, callable rather than opened, and no "seam", "rung" or "slice". The version's
+  JSDoc now says what it shows: the shell's released version until a distribution sets its own.
 - [ ] 9.7 The agent adapter (after its flush defect is decided): the stream assembly as a small class,
   answering a call as a top-level function with an explicit guard, typed protocol events, the refusal
   wording once, two message builders instead of a flag, the scalar table typed by kind.

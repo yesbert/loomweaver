@@ -9,7 +9,7 @@ import { toolsFor } from './tool-definitions.js';
 import { answerFor, refusalFor, resultFor } from './tool-results.js';
 
 /**
- * The slice of a plugin context this adapter touches: what may be run, and running it. Narrower than
+ * The part of a plugin context this adapter uses: what may be run, and running it. Narrower than
  * the whole context on purpose — it says exactly what an agent reaches through here, and a plugin
  * hands its `ctx` straight in.
  */
@@ -27,24 +27,24 @@ export interface PendingToolCall {
   /** What it wants to pass, already readable as data but not yet checked against the command. */
   readonly args: CommandArguments;
   /**
-   * What the named command says an agent's word is enough for, read off the workbench's own account
-   * at the moment of the call rather than from a list kept earlier.
+   * How much an agent may do with the named command without asking the user, read at the moment of
+   * the call rather than from a list kept earlier.
    *
    * Undefined in three cases, and they are worth telling apart. The command says nothing. Or no such
    * command is reachable, which is the workbench's refusal to make and it makes it as it always has.
-   * Or the command is one **this plugin registered and never opened**: the account holds what a
-   * caller may reach, and a plugin's own unopened command is not in it, while `invokeCommand` still
-   * runs it for its owner. A weaver wrote its own commands, so it is the one that knows them;
-   * whatever it decides about them belongs in this hook.
+   * Or the command is one **this plugin registered without making it callable**: the list holds what
+   * a caller may reach, and such a command is not in it, while `invokeCommand` still runs it for its
+   * owner. A plugin wrote its own commands, so it is the one that knows them; whatever it decides
+   * about them belongs in this hook.
    *
-   * Nothing here acts on it. Asking, and remembering an answer, are the weaver's, which is what this
+   * Nothing here acts on it. Asking, and remembering an answer, are the plugin's, which is what this
    * hook is for; the adapter only makes sure the statement is at hand where the decision is taken.
    */
   readonly agentConsent?: AgentConsent;
 }
 
 /**
- * What a weaver decides about a call before it runs. `run` lets it through to the workbench,
+ * What a plugin decides about a call before it runs. `run` lets it through to the workbench,
  * `decline` answers the agent that it did not run and why, and `answer` serves the call without the
  * workbench being involved.
  *
@@ -56,7 +56,7 @@ export type ToolDecision =
   | { readonly decision: 'decline'; readonly reason: string }
   | { readonly decision: 'answer'; readonly content: string };
 
-/** What a weaver may supply when it wants a say before a call runs. */
+/** What a plugin may supply when it wants a say before a call runs. */
 export interface CommandToolOptions {
   before?(call: PendingToolCall): ToolDecision | Promise<ToolDecision>;
 }
@@ -70,7 +70,7 @@ export interface CommandToolOptions {
  * longer there.
  */
 export interface CommandTools {
-  /** The tools reachable right now, from the workbench's own already-narrowed account. */
+  /** The tools this plugin may reach right now, as the workbench offers them. */
   list(): readonly Tool[];
   /**
    * Takes one event of the run. Answers the message to send back where the event completed a call,
@@ -98,10 +98,10 @@ function textOf(value: unknown): string {
 /**
  * Connects a plugin context to an agent's tool calls.
  *
- * The commands the workbench offers become the tools, and a call comes back through the same seam
- * every other trigger runs through — so an agent reaches what the user could have reached, and
- * nothing more. Nothing here opens a connection, renders anything or decides what to do; a weaver
- * brings the stream and this carries what it says.
+ * The commands the workbench offers become the tools, and a call comes back the same way every other
+ * trigger runs — so an agent reaches what the user could have reached, and nothing more. Nothing
+ * here opens a connection, renders anything or decides what to do; a plugin brings the stream and
+ * this carries what it says.
  */
 export function commandTools(
   ctx: CommandAccess,
