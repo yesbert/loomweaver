@@ -2,6 +2,7 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, effect, inject, input, out
 import { TranslocoPipe } from '@jsverse/transloco';
 import { PluginCatalogEntry } from './catalog/catalog-entry';
 import { PluginInstallService } from './lifecycle/plugin-install.service';
+import { PluginDeploymentService } from './lifecycle/plugin-deployment.service';
 import { CatalogCountPipe, RelativeDatePipe } from './catalog-figures';
 import { LwButton } from '../elements/button/lw-button';
 import { availableUpdate } from './lifecycle/plugin-update';
@@ -19,6 +20,7 @@ export class PluginStoreDetail {
   readonly updateRequested = output<PluginCatalogEntry>();
 
   protected readonly installs = inject(PluginInstallService);
+  protected readonly deployment = inject(PluginDeploymentService);
 
   protected readonly readme = signal<string | undefined>(undefined);
 

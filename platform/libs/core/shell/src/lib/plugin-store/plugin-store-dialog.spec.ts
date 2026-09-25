@@ -21,6 +21,8 @@ function transloco() {
           storeNoResults: 'No plugins match',
           storeSelectHint: 'Select a plugin',
           storeInstalledBadge: 'Installed',
+          storeProvidedBadge: 'Provided',
+          storeProvidedHint: 'Provided by your organisation',
           storeBy: 'by {{author}}',
           storeDownloads: '{{count}} downloads',
           storeUpdated: 'updated {{date}}',
@@ -191,6 +193,31 @@ describe('PluginStoreDialog', () => {
     expect(installs.isInstalled('store-full')).toBe(false);
     expect(
       host.querySelector('[data-testid="store-installed-store-full"]'),
+    ).toBeNull();
+  });
+
+  it('shows a deployed plugin as provided while browsing, and offers no install', async () => {
+    const { fixture, host } = await render();
+    TestBed.inject(PluginDeploymentService).adopt([
+      { ...DEMO, deployed: true },
+    ]);
+    fixture.detectChanges();
+
+    (
+      host.querySelector('[data-testid="store-card-store-full"]') as HTMLElement
+    ).click();
+    fixture.detectChanges();
+
+    expect(
+      host.querySelector('[data-testid="store-card-store-full"]')?.textContent,
+    ).toContain('Provided');
+    const detail = host.querySelector('[data-testid="store-detail"]');
+    expect(detail?.textContent).toContain('Provided by your organisation');
+    expect(
+      host.querySelector('[data-testid="store-install-store-full"]'),
+    ).toBeNull();
+    expect(
+      host.querySelector('[data-testid="store-uninstall-store-full"]'),
     ).toBeNull();
   });
 

@@ -61,6 +61,7 @@
                   [entry]="entry"
                   [selected]="entry.id === selectedId()"
                   [installed]="installs.isInstalled(entry.id)"
+                  [provided]="deployment.isDeployed(entry.id)"
                   [hasUpdate]="hasUpdate(entry)"
                   (picked)="selectedId.set(entry.id)"
                 />

@@ -1,6 +1,7 @@
 import { inject, Service } from '@angular/core';
 import { persistedSetting } from '../../persistence/stored-values/persisted-setting';
 import { PluginStateService } from '../../plugin/plugin-state.service';
+import { PluginDeploymentService } from './plugin-deployment.service';
 import {
   INSTALLED_LIST_CODEC,
   InstalledPlugin,
@@ -21,6 +22,7 @@ const STORAGE_KEY = 'lw.shell.installed-plugins';
 @Service()
 export class PluginInstallService {
   private readonly pluginState = inject(PluginStateService);
+  private readonly deployment = inject(PluginDeploymentService);
 
   private readonly stored = persistedSetting(STORAGE_KEY, INSTALLED_LIST_CODEC);
 
@@ -46,10 +48,17 @@ export class PluginInstallService {
   /**
    * Installs a catalog entry after the user consented to its declared capabilities. Fail-fast: the
    * `entryUrl` must be same-origin (the store is the distribution's own origin) and the id
-   * must be neither composed nor already installed. Persisted; the runtime spawns the plugin live.
+   * must be neither composed, deployed by the operator nor already installed. Persisted; the runtime
+   * spawns the plugin live.
    */
   install(plugin: InstalledPlugin): void {
     const entry = this.validEntry(plugin);
+    if (this.deployment.isDeployed(plugin.id)) {
+      throw new Error(
+        `Plugin "${plugin.id}" is provided by the operator, so it cannot be installed as the ` +
+          `user's own.`,
+      );
+    }
     if (this.composedIds.has(plugin.id)) {
       throw new Error(
         `Plugin "${plugin.id}" is already part of this distribution's composition.`,

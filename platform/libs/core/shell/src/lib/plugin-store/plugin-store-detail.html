@@ -59,7 +59,13 @@
         </div>
       </div>
       <span class="flex shrink-0 items-center gap-2">
-        @if (installs.isInstalled(entry.id)) {
+        @if (deployment.isDeployed(entry.id)) {
+          <span
+            class="lw-badge"
+            [attr.data-testid]="'store-provided-' + entry.id"
+            >{{ 'settings.storeProvidedBadge' | transloco }}</span
+          >
+        } @else if (installs.isInstalled(entry.id)) {
           @if (update(); as pending) {
             <button
               type="button"
@@ -95,6 +101,11 @@
         }
       </span>
     </div>
+    @if (deployment.isDeployed(entry.id)) {
+      <p class="text-sm text-content-muted">
+        {{ 'settings.storeProvidedHint' | transloco }}
+      </p>
+    }
     @if (entry.description) {
       <p class="text-sm text-content">{{ entry.description }}</p>
     }
