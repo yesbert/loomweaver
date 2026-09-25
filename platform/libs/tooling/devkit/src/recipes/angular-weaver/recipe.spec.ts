@@ -5,7 +5,8 @@ import {
   resolveWeaverInput,
   type WeaverFeatures,
 } from './recipe';
-import { AG_UI_ADAPTER_VERSION, AG_UI_PROTOCOL_VERSION } from './agent-files';
+import { PLATFORM_VERSION } from '../platform-version';
+import { AG_UI_PROTOCOL_VERSION } from './agent-files';
 
 describe('angularWeaver recipe', () => {
   it('rejects a non-kebab id', () => {
@@ -590,7 +591,7 @@ describe('angularWeaver notes', () => {
 
   it('asks for the package versions the generator records', () => {
     expect(notesFor({ agent: true })).toContain(
-      `npm i @loomweaver/ag-ui@^${AG_UI_ADAPTER_VERSION} @ag-ui/core@${AG_UI_PROTOCOL_VERSION}`,
+      `npm i @loomweaver/ag-ui@^${PLATFORM_VERSION} @ag-ui/core@${AG_UI_PROTOCOL_VERSION}`,
     );
   });
 });

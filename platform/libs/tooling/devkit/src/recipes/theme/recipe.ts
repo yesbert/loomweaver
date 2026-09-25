@@ -1,7 +1,9 @@
 import { FileMap, Recipe } from '../../lib/generate/types';
 import { isKebabId, toTitleCase } from '../../lib/generate/casing';
 
-export type ThemePreset = 'literal' | 'bootstrap';
+export const THEME_PRESETS = ['literal', 'bootstrap'] as const;
+
+export type ThemePreset = (typeof THEME_PRESETS)[number];
 
 export interface ThemeInput {
   readonly name: string;
@@ -14,15 +16,13 @@ export interface ResolvedTheme {
   readonly preset: ThemePreset;
 }
 
-const PRESETS: readonly ThemePreset[] = ['literal', 'bootstrap'];
-
 export function resolveThemeInput(input: ThemeInput): ResolvedTheme {
   if (!isKebabId(input.name)) {
     throw new Error(`Theme name must be kebab-case (e.g. "midnight"); got "${input.name}".`);
   }
   const preset = input.preset ?? 'literal';
-  if (!PRESETS.includes(preset)) {
-    throw new Error(`Unknown theme preset "${preset}"; expected one of ${PRESETS.join(', ')}.`);
+  if (!THEME_PRESETS.includes(preset)) {
+    throw new Error(`Unknown theme preset "${preset}"; expected one of ${THEME_PRESETS.join(', ')}.`);
   }
   return { name: input.name, title: toTitleCase(input.name), preset };
 }

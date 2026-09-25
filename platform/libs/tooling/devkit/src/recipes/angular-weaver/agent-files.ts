@@ -4,12 +4,11 @@ import { panelFile, panelTemplateFile } from './agent-panel';
 import { standInFile } from './agent-stand-in';
 
 /**
- * The adapter is published on the platform's own version line, so a generated weaver asks for the
- * version of the generator that wrote it. The protocol package is pinned to the range the adapter
- * declares as a peer: two different ranges resolve to two copies, and an event built by one is not
- * the event the other switches on. `check-agent-versions` fails the build when either drifts.
+ * The protocol package, pinned to the range the adapter declares as a peer: two different ranges
+ * resolve to two copies, and an event built by one is not the event the other switches on. The
+ * adapter itself is published on the platform's own version line, so a generated weaver asks for
+ * `PLATFORM_VERSION`. `check-agent-versions` fails the build when either drifts.
  */
-export const AG_UI_ADAPTER_VERSION = '0.14.1';
 export const AG_UI_PROTOCOL_VERSION = '0.0.x';
 
 function connectionFile(w: ResolvedWeaver): string {

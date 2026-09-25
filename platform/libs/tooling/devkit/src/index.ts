@@ -28,6 +28,7 @@ export {
 export { describeAmendment } from './lib/amend/describe';
 export {
   isKebabId,
+  kebabCase,
   toCamelCase,
   toPascalCase,
   toTitleCase,
@@ -77,7 +78,6 @@ export {
 export {
   SCAFFOLDS,
   findScaffold,
-  kebabCase,
   type ScaffoldDescriptor,
   type ScaffoldOption,
   type ScaffoldValues,

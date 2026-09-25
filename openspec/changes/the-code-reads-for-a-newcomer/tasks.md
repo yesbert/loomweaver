@@ -436,9 +436,16 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 - [x] 10.1 **Move:** `generators/shared.ts` to `workspace-tree.ts`, `nx-scaffold-shared.ts` to
   `project-config-files.ts`, the auth-source `recipe-amendments.ts` to `amendments.ts`,
   `scaffolds/surface.ts` to `adapter-options.ts`.
-- [ ] 10.2 One source each: the id pattern and casing helpers in `casing.ts`, the `--styles` and
+- [x] 10.2 One source each: the id pattern and casing helpers in `casing.ts`, the `--styles` and
   `--preset` choice lists, one platform version literal (bump script and checker follow), and a spec
   that holds the validator's capability and consent lists equal to the plugin contract's.
+  `casing.ts` holds `KEBAB_ID_PATTERN` and `kebabCase` (still published under that name); the
+  scaffolds and the schema `$id` use them, and the CLI takes `toTitleCase` from the devkit and calls
+  its own helper `packageNameToId`. The recipes own `DISTRIBUTION_STYLES` and `THEME_PRESETS`, the
+  types derive from them and the scaffolds offer them as choices. The weaver generator asks for the
+  adapter at `PLATFORM_VERSION`; the bump script and `check-agent-versions` lose the second literal.
+  `contract-vocabulary.spec.ts` holds the capabilities and the consent values equal to the
+  contract's; the consent sentences are a table instead of a switch.
 - [ ] 10.3 The Nx generators build their recipe input through the same mappers as the other routes;
   the scaffold value readers in `scaffold-values.ts`. **Move:** each recipe's scaffold descriptor next
   to its recipe, `inputs.ts` removed.

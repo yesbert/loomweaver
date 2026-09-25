@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { basename, join, resolve } from 'node:path';
+import { toTitleCase } from '@loomweaver/devkit';
 import { ArgError, boolFlag, ParsedArgs, stringFlag } from './args';
 import { nxApplications } from './nx-applications';
 import {
@@ -81,7 +82,7 @@ export function planInit(args: ParsedArgs, deps: InitDeps): Plan {
     workspace.kind === 'nx'
       ? chooseApplication(workspace.root, stringFlag(args, 'app'))
       : undefined;
-  const name = app?.name ?? kebab(manifest.name ?? basename(workspace.root));
+  const name = app?.name ?? packageNameToId(manifest.name ?? basename(workspace.root));
   const styles = stringFlag(args, 'styles') ?? 'tailwind';
   const declared = { ...manifest.dependencies, ...manifest.devDependencies };
   const missing = (names: readonly string[]) =>
@@ -91,7 +92,7 @@ export function planInit(args: ParsedArgs, deps: InitDeps): Plan {
     manager: override ?? detected.manager,
     lockfile: override ? undefined : detected.lockfile,
     name,
-    title: stringFlag(args, 'title') ?? titleCase(name),
+    title: stringFlag(args, 'title') ?? toTitleCase(name),
     styles,
     weaver: weaverId(args),
     runtime: [
@@ -176,7 +177,7 @@ export function collectionSpec(version: string): string {
     : `${NX_COLLECTION}@${version}`;
 }
 
-export function kebab(value: string): string {
+export function packageNameToId(value: string): string {
   const unscoped = value.includes('/')
     ? value.slice(value.lastIndexOf('/') + 1)
     : value;
@@ -186,12 +187,4 @@ export function kebab(value: string): string {
     .split(/[^a-z0-9]+/)
     .filter(Boolean)
     .join('-');
-}
-
-export function titleCase(name: string): string {
-  return name
-    .split('-')
-    .filter(Boolean)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
 }

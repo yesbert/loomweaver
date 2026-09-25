@@ -1,17 +1,17 @@
 #!/usr/bin/env node
 /**
- * The weaver generator records two packages for the agent connection it emits, and it has to state
- * their versions as literals: the recipe is a pure function that produces text, and it cannot read a
- * package manifest at the moment the text is written.
+ * The generators record the packages they ask a consumer to install as literals: a recipe is a pure
+ * function that produces text, and it cannot read a package manifest at the moment the text is
+ * written. The frame kit for a distribution and the agent adapter for a weaver are asked for at the
+ * platform version literal; the protocol package the adapter needs at a literal range of its own.
  *
- * A literal drifts silently. Bump the platform's version line and the generator keeps asking for the
- * adapter it was written against; widen the adapter's own peer range and generated output resolves a
- * second copy of the protocol package, whose events are not the events the first one switches on.
- * Neither shows up in a build here, because nothing here installs what a consumer installs.
+ * A literal drifts silently. Bump the platform's version line and the generators keep asking for the
+ * packages they were written against; widen the adapter's own peer range and generated output
+ * resolves a second copy of the protocol package, whose events are not the events the first one
+ * switches on. Neither shows up in a build here, because nothing here installs what a consumer
+ * installs.
  *
- * So this compares the two literals with what the adapter itself declares. The distribution generator
- * records the frame kit the same way, as the platform version literal, and that one is compared with
- * the shell's own manifest.
+ * So this compares the literals with what the shell and the adapter themselves declare.
  */
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -33,12 +33,11 @@ const literal = (name) =>
   source.match(new RegExp(String.raw`${name}\s*=\s*'([^']+)'`))?.[1];
 
 const recorded = {
-  adapter: literal('AG_UI_ADAPTER_VERSION'),
   protocol: literal('AG_UI_PROTOCOL_VERSION'),
   platform: platformSource.match(/PLATFORM_VERSION\s*=\s*'([^']+)'/)?.[1],
 };
 
-if (!recorded.adapter || !recorded.protocol) {
+if (!recorded.protocol) {
   console.error(`check-agent-versions: read no version from ${RECIPE} — it changed shape.`);
   process.exit(1);
 }
@@ -53,9 +52,9 @@ const resolved = {
 };
 
 const failures = [];
-if (recorded.adapter !== resolved.adapter) {
+if (recorded.platform !== resolved.adapter) {
   failures.push(
-    `the generator records @loomweaver/ag-ui@${recorded.adapter}, the platform publishes ${resolved.adapter} — ` +
+    `the weaver generator records @loomweaver/ag-ui@${recorded.platform}, the platform publishes ${resolved.adapter} — ` +
       'a weaver generated now would ask for a version that is not this one.',
   );
 }
@@ -75,10 +74,10 @@ if (recorded.protocol !== resolved.protocol) {
 if (failures.length > 0) {
   console.error('check-agent-versions: the generated agent connection asks for the wrong versions.\n');
   for (const failure of failures) console.error(`  - ${failure}`);
-  console.error(`\n  fix them in ${RECIPE}`);
+  console.error(`\n  fix them in ${PLATFORM_RECIPE} and ${RECIPE}`);
   process.exit(1);
 }
 
 console.log(
-  `check-agent-versions: the generators record @loomweaver/ag-ui@${recorded.adapter}, @ag-ui/core@${recorded.protocol} and @loomweaver/frame-kit@${recorded.platform}, all as the platform resolves them.`,
+  `check-agent-versions: the generators record @loomweaver/ag-ui@${recorded.platform}, @ag-ui/core@${recorded.protocol} and @loomweaver/frame-kit@${recorded.platform}, all as the platform resolves them.`,
 );

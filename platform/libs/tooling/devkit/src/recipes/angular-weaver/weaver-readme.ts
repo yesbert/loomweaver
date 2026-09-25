@@ -1,6 +1,7 @@
 import type { ResolvedWeaver } from './recipe';
 import { CONTAINER_EXAMPLE_ID, capabilityItems } from './weaver-terms';
-import { AG_UI_ADAPTER_VERSION, AG_UI_PROTOCOL_VERSION } from './agent-files';
+import { PLATFORM_VERSION } from '../platform-version';
+import { AG_UI_PROTOCOL_VERSION } from './agent-files';
 
 function surfaceNotes(w: ResolvedWeaver): readonly string[] {
   const railNote =
@@ -81,7 +82,7 @@ function agentNotes(w: ResolvedWeaver): readonly string[] {
     `The generated weaver needs two packages your project may not carry yet:`,
     '',
     '```bash',
-    `npm i @loomweaver/ag-ui@^${AG_UI_ADAPTER_VERSION} @ag-ui/core@${AG_UI_PROTOCOL_VERSION}`,
+    `npm i @loomweaver/ag-ui@^${PLATFORM_VERSION} @ag-ui/core@${AG_UI_PROTOCOL_VERSION}`,
     '```',
     '',
     'The Nx generator and the CLI record them for you; the MCP route names them instead.',
