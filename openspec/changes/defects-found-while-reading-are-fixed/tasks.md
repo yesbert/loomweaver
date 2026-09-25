@@ -119,7 +119,7 @@ they start with a top-level folder.
   agent recipe, `examples/assistant-workbench`).
 - [x] 9.2 Only a command invoked from within another command's run, before that run first waits,
   counts towards the depth limit (`commands/command-invocation.service.ts`).
-- [ ] 9.3 A plugin state value with no data form is refused with a message naming the plugin and the
+- [x] 9.3 A plugin state value with no data form is refused with a message naming the plugin and the
   key (`plugin/plugin-state.service.ts`).
 - [ ] 9.4 Browsing a deployed plugin shows it as provided and offers no install; the install service
   refuses a deployed id (`plugin-store/`).

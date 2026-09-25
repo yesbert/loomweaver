@@ -121,6 +121,27 @@ describe('PluginStateService', () => {
     error.mockRestore();
   });
 
+  it('refuses a value with no data form, naming the plugin and the key, and keeps what was stored', () => {
+    const service = setup();
+    const handle = service.forPlugin('acme').watch<unknown>('step-1');
+    handle.set('kept');
+    vi.advanceTimersByTime(400);
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    for (const value of [undefined, () => 'a function']) {
+      expect(() => handle.set(value)).not.toThrow();
+    }
+    vi.advanceTimersByTime(400);
+
+    expect(localStorage.getItem(KEY)).toBe('"kept"');
+    expect(handle.value()).toBe('kept');
+    expect(error).toHaveBeenCalledTimes(2);
+    expect(error).toHaveBeenCalledWith(
+      expect.stringMatching(/"acme".*"step-1".*refused/),
+    );
+    error.mockRestore();
+  });
+
   it('refuses a new key past the count cap', () => {
     const service = setup();
     const state = service.forPlugin('acme');
