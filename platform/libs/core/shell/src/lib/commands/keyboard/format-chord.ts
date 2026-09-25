@@ -1,4 +1,4 @@
-import { formatShortcut, isMacPlatform } from './keybinding';
+import { formatShortcut, isMacPlatform } from './chord';
 
 /**
  * Formats a keyboard chord for display, OS-correct: `formatChord('mod+k')` → `'⌘K'` on macOS,

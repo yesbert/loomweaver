@@ -1,15 +1,15 @@
 import { DOCUMENT } from '@angular/common';
 import { computed, DestroyRef, effect, inject, Injector, Service, Signal } from '@angular/core';
 import { Command } from '@loomweaver/plugin-sdk';
-import { ContributionRegistry } from '../contributions/contribution-registry';
-import { CommandService } from './command.service';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
+import { CommandService } from '../command.service';
 import {
   chordSignature,
   eventSignature,
   isEditableTarget,
   isMacPlatform,
-} from './keybinding';
-import { FeatureSwitches } from '../features/feature-switches.service';
+} from './chord';
+import { FeatureSwitches } from '../../features/feature-switches.service';
 
 interface BindingsBuild {
   readonly map: ReadonlyMap<string, string>;

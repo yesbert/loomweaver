@@ -1,22 +1,22 @@
 import { TestBed } from '@angular/core/testing';
-import { PaletteMruService } from './palette-mru.service';
+import { RecentCommandsService } from './recent-commands.service';
 
 const KEY = 'lw.shell.command-mru';
 
-describe('PaletteMruService', () => {
+describe('RecentCommandsService', () => {
   afterEach(() => localStorage.clear());
 
-  function service(): PaletteMruService {
-    return TestBed.inject(PaletteMruService);
+  function service(): RecentCommandsService {
+    return TestBed.inject(RecentCommandsService);
   }
 
   it('records the most recent command first and dedupes repeats', () => {
-    const mru = service();
-    mru.record('a');
-    mru.record('b');
-    mru.record('a');
+    const recent = service();
+    recent.record('a');
+    recent.record('b');
+    recent.record('a');
 
-    expect(mru.ids()).toEqual(['a', 'b']);
+    expect(recent.ids()).toEqual(['a', 'b']);
   });
 
   it('persists across construction and caps the list at eight', () => {

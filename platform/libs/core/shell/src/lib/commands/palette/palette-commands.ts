@@ -1,6 +1,6 @@
 import { Disposable } from '@loomweaver/plugin-sdk';
-import { DialogService } from '../dialog/dialog.service';
-import { ContributionRegistry } from '../contributions/contribution-registry';
+import { DialogService } from '../../dialog/dialog.service';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
 import {
   CommandPalette,
   PALETTE_COMMAND_ID,

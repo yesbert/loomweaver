@@ -1,8 +1,8 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject, input } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Command } from '@loomweaver/plugin-sdk';
-import { BAR_CONTEXT } from '../../regions/bar/bar-context';
-import { CommandService } from '../command.service';
+import { BAR_CONTEXT } from '../../../regions/bar/bar-context';
+import { CommandService } from '../../command.service';
 
 @Component({
   selector: 'lw-search-entry',

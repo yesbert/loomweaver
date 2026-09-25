@@ -7,16 +7,16 @@ import {
   signal,
 } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { CommandService } from './command.service';
+import { CommandService } from '../command.service';
 import { fuzzyScore } from './palette-fuzzy';
 import { formatRelativeTime } from './relative-time';
-import { PaletteMruService } from './palette-mru.service';
-import { FeatureSwitches } from '../features/feature-switches.service';
-import { DialogRef } from '../dialog/dialog-ref';
-import { ContentTabsService } from '../regions/content/tabs/content-tabs.service';
-import { MenuService, MENU_ANCHOR_GAP } from '../menu/menu.service';
-import { TAB_CONTEXT_MENU } from '../regions/content/tabs/tab-context-menu';
-import { Wording } from '../i18n/wording';
+import { RecentCommandsService } from './recent-commands.service';
+import { FeatureSwitches } from '../../features/feature-switches.service';
+import { DialogRef } from '../../dialog/dialog-ref';
+import { ContentTabsService } from '../../regions/content/tabs/content-tabs.service';
+import { MenuService, MENU_ANCHOR_GAP } from '../../menu/menu.service';
+import { TAB_CONTEXT_MENU } from '../../regions/content/tabs/tab-context-menu';
+import { Wording } from '../../i18n/wording';
 
 export const PALETTE_COMMAND_ID = 'shell.commandPalette';
 export const QUICK_OPEN_COMMAND_ID = 'shell.quickOpen';
@@ -83,7 +83,7 @@ function ranked<T extends { label: string }>(
 export class CommandPalette {
   private readonly ref = inject(DialogRef);
   private readonly commands = inject(CommandService);
-  private readonly mru = inject(PaletteMruService);
+  private readonly recentCommands = inject(RecentCommandsService);
   private readonly contentTabs = inject(ContentTabsService);
   private readonly menu = inject(MenuService);
   private readonly element = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -143,7 +143,7 @@ export class CommandPalette {
     const entries = this.commandEntries();
     const byId = new Map(entries.map((entry) => [entry.id, entry]));
     const recent = this.recentlyUsed()
-      ? this.mru
+      ? this.recentCommands
           .ids()
           .map((id) => byId.get(id))
           .filter((entry): entry is CommandEntry => entry !== undefined)
@@ -237,7 +237,7 @@ export class CommandPalette {
   protected select(entry: PaletteEntry): void {
     if (entry.kind === 'command') {
       if (this.recentlyUsed()) {
-        this.mru.record(entry.id);
+        this.recentCommands.record(entry.id);
       }
       this.ref.close();
       this.commands.execute(entry.id);

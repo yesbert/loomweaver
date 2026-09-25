@@ -42,7 +42,7 @@ import { WORKSPACE_SETTLEMENT } from './regions/content/routing/workspace-settle
 import { UNUSABLE_WORKSPACES } from './foundation/unusable-workspaces';
 import { UnusableWorkspacesService } from './workspace/usability/unusable-workspaces.service';
 import { CommandInvocationService } from './commands/command-invocation.service';
-import { KeybindingService } from './commands/keybinding.service';
+import { KeybindingService } from './commands/keyboard/keybinding.service';
 import { DialogService } from './dialog/dialog.service';
 import { defineLwTooltip } from './elements/tooltip/lw-tooltip.element';
 import { defineLwNavTree } from './elements/nav-tree/lw-nav-tree.element';

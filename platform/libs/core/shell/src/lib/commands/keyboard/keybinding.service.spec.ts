@@ -1,9 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { KeybindingService } from './keybinding.service';
-import { CommandService } from './command.service';
-import { ContributionRegistry } from '../contributions/contribution-registry';
-import { provideShellFeatures } from '../foundation/shell-features';
-import { PaletteMruService } from './palette-mru.service';
+import { CommandService } from '../command.service';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
+import { provideShellFeatures } from '../../foundation/shell-features';
+import { RecentCommandsService } from '../palette/recent-commands.service';
 import type { MockInstance } from 'vitest';
 
 describe('KeybindingService', () => {
@@ -182,7 +182,7 @@ describe('KeybindingService', () => {
   it('leaves the recently-used record alone when a shortcut fires a command', () => {
     execute.mockRestore();
     localStorage.clear();
-    const mru = TestBed.inject(PaletteMruService);
+    const recent = TestBed.inject(RecentCommandsService);
     const run = vi.fn();
     registry.addCommand({
       id: 'do.add',
@@ -195,7 +195,7 @@ describe('KeybindingService', () => {
     press(document, { key: 'Enter', ctrlKey: true });
 
     expect(run).toHaveBeenCalledTimes(1);
-    expect(mru.ids()).toEqual([]);
+    expect(recent.ids()).toEqual([]);
     expect(localStorage.getItem('lw.shell.command-mru')).toBeNull();
   });
 });

@@ -9,7 +9,7 @@ import { NotificationService } from '../notifications/notification.service';
 import { CapabilityRefusalErrorHandler } from '../permissions/refusal-error-handler';
 import { CapabilityGrantService } from '../permissions/capability-grant.service';
 import { provideShellFeatures } from '../foundation/shell-features';
-import { PaletteMruService } from './palette-mru.service';
+import { RecentCommandsService } from './palette/recent-commands.service';
 
 describe('CommandService', () => {
   let commands: CommandService;
@@ -46,7 +46,7 @@ describe('CommandService', () => {
 
   it('leaves the recently-used record alone for an item in the chrome', () => {
     localStorage.clear();
-    const mru = TestBed.inject(PaletteMruService);
+    const recent = TestBed.inject(RecentCommandsService);
     const run = vi.fn();
     registry.addCommand({ id: 'do.thing', title: 't', run });
 
@@ -54,7 +54,7 @@ describe('CommandService', () => {
     commands.execute('do.thing');
 
     expect(run).toHaveBeenCalledTimes(2);
-    expect(mru.ids()).toEqual([]);
+    expect(recent.ids()).toEqual([]);
     expect(localStorage.getItem('lw.shell.command-mru')).toBeNull();
   });
 
