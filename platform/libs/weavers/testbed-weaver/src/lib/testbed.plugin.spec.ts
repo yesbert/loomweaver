@@ -106,6 +106,7 @@ function activate(): Captured {
         set: () => undefined,
         clear: () => undefined,
         dispose: () => undefined,
+        onChange: () => undefined,
       }),
     },
   };
