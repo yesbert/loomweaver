@@ -2,9 +2,15 @@ import { ChangeDetectionStrategy, Component, CUSTOM_ELEMENTS_SCHEMA, computed, i
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { ASSIGNEES, type Assignee, type TicketStatus, ticketStore } from '../tickets/ticket-store';
-
-const STATUSES: readonly TicketStatus[] = ['open', 'in progress', 'done'];
+import { ticketActions } from '../plugin/ticket-actions';
+import {
+  ASSIGNEES,
+  type Assignee,
+  STATUSES,
+  statusKey,
+  type TicketStatus,
+  ticketStore,
+} from '../tickets/ticket-store';
 
 @Component({
   selector: 'lw-ticket-view',
@@ -25,16 +31,14 @@ export class TicketView {
     return number ? ticketStore.find(number) : undefined;
   });
 
-  protected stateKey(status: TicketStatus): string {
-    return `tickets.states.${status === 'in progress' ? 'inProgress' : status}`;
-  }
+  protected readonly statusKey = statusKey;
 
   protected assign(number: string, event: Event): void {
-    ticketStore.assign(number, chosen(event) as Assignee);
+    ticketActions.assign(number, chosen(event) as Assignee);
   }
 
   protected setStatus(number: string, event: Event): void {
-    ticketStore.setStatus(number, chosen(event) as TicketStatus);
+    ticketActions.setStatus(number, chosen(event) as TicketStatus);
   }
 
   protected send(number: string, field: HTMLTextAreaElement): void {
@@ -42,7 +46,7 @@ export class TicketView {
     if (!text) {
       return;
     }
-    ticketStore.reply(number, text);
+    ticketActions.reply(number, text);
     field.value = '';
   }
 }

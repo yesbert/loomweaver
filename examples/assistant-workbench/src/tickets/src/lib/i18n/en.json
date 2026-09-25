@@ -1,5 +1,6 @@
 {
   "title": "Tickets",
+  "number": "The ticket number, like T-1041.",
   "list": {
     "title": "List tickets",
     "description": "Lists the support tickets with number, customer, subject, status and assignee. Use it to find a ticket when only its topic is known.",
@@ -9,7 +10,6 @@
   "open": {
     "title": "Open ticket",
     "description": "Opens a ticket in the workbench and returns its details, including the customer's message.",
-    "number": "The ticket number, like T-1041.",
     "answers": "The ticket: number, customer, subject, body, status, assignee and its replies."
   },
   "assign": {

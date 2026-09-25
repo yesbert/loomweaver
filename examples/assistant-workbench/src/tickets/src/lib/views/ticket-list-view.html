@@ -17,7 +17,7 @@
             [class.lw-badge--brand]="ticket.status === 'in progress'"
             [class.lw-badge--success]="ticket.status === 'done'"
           >
-            {{ stateKey(ticket.status) | transloco }}
+            {{ statusKey(ticket.status) | transloco }}
           </span>
           {{ ticket.assignee ?? ('tickets.view.unassigned' | transloco) }}
         </span>

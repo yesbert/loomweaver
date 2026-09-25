@@ -1,4 +1,4 @@
-import { ticketStore } from './ticket-store';
+import { STATUSES, statusKey, ticketDetail, ticketStore } from './ticket-store';
 
 describe('ticketStore', () => {
   beforeEach(() => ticketStore.reset());
@@ -25,5 +25,18 @@ describe('ticketStore', () => {
   it('keeps a reply on the ticket', () => {
     expect(ticketStore.reply('T-1041', 'On it.').replies).toBe(1);
     expect(ticketStore.get('T-1041').replies[0].text).toBe('On it.');
+  });
+
+  it('details a ticket with its replies as the customer reads them', () => {
+    ticketStore.reply('T-1041', 'On it.');
+    expect(ticketDetail(ticketStore.get('T-1041')).replies).toEqual(['On it.']);
+  });
+
+  it('names each status by its translation key', () => {
+    expect(STATUSES.map((status) => statusKey(status))).toEqual([
+      'tickets.states.open',
+      'tickets.states.inProgress',
+      'tickets.states.done',
+    ]);
   });
 });

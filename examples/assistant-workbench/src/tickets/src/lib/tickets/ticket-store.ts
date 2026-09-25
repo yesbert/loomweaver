@@ -1,6 +1,8 @@
 import { signal } from '@angular/core';
 
-export type TicketStatus = 'open' | 'in progress' | 'done';
+export const STATUSES = ['open', 'in progress', 'done'] as const;
+
+export type TicketStatus = (typeof STATUSES)[number];
 
 export const ASSIGNEES = ['dana', 'lee', 'sam'] as const;
 
@@ -19,6 +21,10 @@ export interface Ticket {
   readonly status: TicketStatus;
   readonly assignee: Assignee | null;
   readonly replies: readonly Reply[];
+}
+
+export interface TicketDetail extends Omit<Ticket, 'replies'> {
+  readonly replies: readonly string[];
 }
 
 export interface TicketSummary {
@@ -50,13 +56,9 @@ export const ticketStore = {
       .map(summary);
   },
 
-  get(number: string): Ticket {
-    return existing(number);
-  },
+  find,
 
-  find(number: string): Ticket | undefined {
-    return withNumber(number);
-  },
+  get,
 
   assign(number: string, to: Assignee): TicketSummary {
     return summary(
@@ -86,7 +88,15 @@ export const ticketStore = {
   },
 };
 
-export function summary(one: Ticket): TicketSummary {
+export function statusKey(status: TicketStatus): string {
+  return `tickets.states.${status === 'in progress' ? 'inProgress' : status}`;
+}
+
+export function ticketDetail(one: Ticket): TicketDetail {
+  return { ...one, replies: one.replies.map((reply) => reply.text) };
+}
+
+function summary(one: Ticket): TicketSummary {
   return {
     number: one.number,
     customer: one.customer,
@@ -101,13 +111,13 @@ function ticket(number: string, customer: string, subject: string, body: string)
   return { number, customer, subject, body, status: 'open', assignee: null, replies: [] };
 }
 
-function withNumber(number: string): Ticket | undefined {
+function find(number: string): Ticket | undefined {
   const wanted = number.trim().toUpperCase();
   return tickets().find((one) => one.number === wanted);
 }
 
-function existing(number: string): Ticket {
-  const found = withNumber(number);
+function get(number: string): Ticket {
+  const found = find(number);
   if (!found) {
     throw new Error(`There is no ticket ${number}.`);
   }
@@ -115,7 +125,7 @@ function existing(number: string): Ticket {
 }
 
 function update(number: string, change: (one: Ticket) => Ticket): Ticket {
-  const changed = change(existing(number));
+  const changed = change(get(number));
   tickets.update((all) => all.map((one) => (one.number === changed.number ? changed : one)));
   return changed;
 }
