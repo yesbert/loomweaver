@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { TranslocoService } from '@jsverse/transloco';
 import { describe, expect, it, vi } from 'vitest';
-import { SurfaceCapture } from './surface-capture';
+import type { LwSurfaceCapture } from '../surface-kit/surface-kit.frame';
 import { SurfaceCaptureRegistry } from './surface-capture-registry';
 import { WorkbenchCaptureService } from './workbench-capture.service';
 
@@ -100,7 +100,7 @@ describe('WorkbenchCaptureService', () => {
   it('asks every mounted surface for its drawing, at one scale', async () => {
     const { registry, service } = setUp();
     const asked: number[] = [];
-    const answer: SurfaceCapture = { image: 'data:image/png;base64,AA==', width: 2, height: 1 };
+    const answer: LwSurfaceCapture = { image: 'data:image/png;base64,AA==', width: 2, height: 1 };
     for (const top of [0, 120]) {
       registry.register({
         element: surfaceElement({ top, bottom: top + 100 }),

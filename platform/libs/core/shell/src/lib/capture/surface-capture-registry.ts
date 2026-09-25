@@ -1,9 +1,10 @@
 import { DOCUMENT, inject, Service } from '@angular/core';
-import { SurfaceCapture, SurfaceDrawing } from './surface-capture';
+import type { LwSurfaceCapture } from '../surface-kit/surface-kit.frame';
+import { DrawRequest } from './ask-surface';
 
 export interface CapturableSurface {
   readonly element: Element;
-  captureSelf(drawing: SurfaceDrawing): Promise<SurfaceCapture | undefined>;
+  captureSelf(request: DrawRequest): Promise<LwSurfaceCapture | undefined>;
 }
 
 @Service()

@@ -1,3 +1,5 @@
+import { captureScale } from '../surface-kit/picture-primitives';
+
 /**
  * How large a picture of the workbench is drawn.
  *
@@ -11,17 +13,6 @@ export type WorkbenchPictureSize =
   | 'screen'
   | 'plain'
   | { readonly withinWidth: number };
-
-const SMALLEST_SCALE = 0.05;
-
-const LARGEST_SCALE = 4;
-
-export function captureScale(preferred: number): number {
-  if (!Number.isFinite(preferred) || preferred <= 0) {
-    return 1;
-  }
-  return Math.min(LARGEST_SCALE, Math.max(SMALLEST_SCALE, preferred));
-}
 
 export function scaleForSize(
   size: WorkbenchPictureSize | undefined,

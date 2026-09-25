@@ -16,7 +16,7 @@ export type WorkbenchPictureForm =
 /** What a picture turned out to be carried in, read back from the drawing rather than assumed. */
 export type WorkbenchCarriedForm = 'lossless' | WorkbenchCompression;
 
-export interface DrawingForm {
+export interface PictureEncoding {
   readonly mediaType: string;
   readonly quality: number | undefined;
 }
@@ -36,9 +36,9 @@ const CARRIED: Readonly<Record<string, WorkbenchCarriedForm>> = {
   'image/webp': 'webp',
 };
 
-export function drawingForm(
+export function pictureEncoding(
   form: WorkbenchPictureForm | undefined,
-): DrawingForm {
+): PictureEncoding {
   if (form === undefined || form === 'lossless') {
     return { mediaType: LOSSLESS_MEDIA_TYPE, quality: undefined };
   }

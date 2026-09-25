@@ -2,6 +2,7 @@ import { Methods } from 'penpal';
 import { distributionIcons } from '../../../elements/icon/icon-registry-global';
 import { LW_TOKENS } from '../../../theme/theme-tokens';
 import { isAtOrBelow, normalizePath } from '../content-path';
+import type { LwSurfaceCaptureRequest } from '../../../surface-kit/surface-kit.frame';
 
 export interface SurfaceState {
   readonly locale: string;
@@ -25,10 +26,7 @@ export type SurfaceRemote = Methods & {
   render(state: SurfaceState): Promise<void>;
   beforeClose(): Promise<boolean> | boolean;
   stateChanged(key: string, value: unknown, loaded: boolean): void;
-  capture(request: {
-    readonly scale: number;
-    readonly withheldLabel: string;
-  }): Promise<unknown>;
+  capture(request: LwSurfaceCaptureRequest): Promise<unknown>;
 };
 
 export function resolvedLook(

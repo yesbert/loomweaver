@@ -344,9 +344,16 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   chevron and label apart and names the fold it remembers. `pathOf` stays, beside the tree, because it
   must read an item that is not upgraded yet. For the release notes: `lw-frame.css` no longer carries
   a `.block` rule that Tailwind had picked up from `scrollIntoView({ block })`.
-- [ ] 8.7 Surface kit and capture: the frame entry split by job; the capture message types taken from
+- [x] 8.7 Surface kit and capture: the frame entry split by job; the capture message types taken from
   the frame declarations instead of three copies; "drawing" used for one thing; the capture helpers
   split by what they do.
+  In two PRs. The entry keeps the declarations (its `.d.ts` is emitted alone) and hands its jobs to
+  `surface-render-state.ts`, `surface-state-mirror.ts` and `surface-self-capture.ts`. The host reads
+  `LwSurfaceCapture` and `LwSurfaceCaptureRequest` with `import type`; a request is `DrawRequest`, its
+  form `PictureEncoding`, a decoded answer an `image`. `surface-answer.ts`, `deadline.ts` and
+  `ask-surface.ts` replace `surface-capture.ts` and `decode-drawing.ts`. `captureScale` and
+  `drawAbsent`, which both sides draw with, sit in `surface-kit/picture-primitives.ts`, so the slice
+  graph gains no pair. `lw-frame.d.ts` and `lw-frame.css` are byte-identical throughout.
 - [ ] 8.8 Dialogs and pop-out: the confirm and prompt footers built once, one result rule for button
   and Enter, `canBeDismissed`; the pop-out passes translation keys; the one-line `DialogRef` re-export
   file goes.
