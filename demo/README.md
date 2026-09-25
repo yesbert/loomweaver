@@ -83,7 +83,7 @@ plus:
   straight into one. Without that a document lands in whatever workspace happened to be active, laid
   over an arrangement built for something else.
 
-- [`src/navigation`](src/navigation) — the **module navigation**: one tree per module in the left
+- [`src/app/navigation`](src/app/navigation) — the **module navigation**: one tree per module in the left
   sidebar, drawn from a declaration, hiding the areas no plugin answers and renaming the panel to the
   area the visitor is in. It is the working consumer behind
   [A navigation tree in the sidebar](../docs/weaver/navigation-tree.md).
@@ -96,9 +96,9 @@ plus:
   the navigation tree doing their work.
 - [`src/insights`](src/insights) — the **dashboard** on the overview, the surface the assistant can
   bring to the whole screen.
-- [`src/about`](src/about) — the **About dialog** behind the status-bar badge: the product's
+- [`src/app/about`](src/app/about) — the **About dialog** behind the status-bar badge: the product's
   identity, the running version and the link to the documentation.
-- [`src/session`](src/session) — the **account switch**: signed out, an accounting account and a
+- [`src/app/session`](src/app/session) — the **account switch**: signed out, an accounting account and a
   sales account. It exists so gating is visible rather than described — the same screen shows the
   margin, hides it behind a reason, or asks you to sign in, depending on who is looking.
 - [`public/payments`](public/payments) — the **payment matching plugin, which is not part of this
@@ -155,7 +155,7 @@ plus:
   which is published and documented on its own; the recipe is in
   [`docs/samples.md`](../docs/samples.md).
 
-- [`src/looks`](src/looks) — the **same app in three appearances**, through the four levers a
+- [`src/app/looks`](src/app/looks) — the **same app in three appearances**, through the four levers a
   distribution has: colours and type as tokens, measurements as unlayered CSS against the `.lw-*`
   class contracts, `provideIcons`, and `provideTranslationOverrides`. The switch lives in the status
   bar and **reloads**, because icons and wording are bootstrap-bound — they are composition

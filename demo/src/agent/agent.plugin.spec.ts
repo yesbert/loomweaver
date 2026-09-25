@@ -1,6 +1,6 @@
 import type { Command, Plugin, PluginContext } from '@loomweaver/plugin-sdk';
 import { insightsPlugin } from '../insights/insights.plugin';
-import { looksPlugin } from '../looks/looks.plugin';
+import { looksPlugin } from '../app/looks/looks.plugin';
 import { quotesPlugin } from '../quotes/quotes.plugin';
 import { agentPlugin } from './agent.plugin';
 import { BEATS } from './agent-script';
