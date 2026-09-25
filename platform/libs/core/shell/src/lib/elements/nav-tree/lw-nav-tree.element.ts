@@ -6,7 +6,6 @@ import {
 } from '../custom-elements';
 import { LW_NAV_GROUP_TAG, LwNavGroupElement } from './lw-nav-group.element';
 import { LW_NAV_ITEM_TAG, LwNavItemElement } from './lw-nav-item.element';
-import { longestMatch, pathOf } from './nav-tree-parts';
 
 /** The custom-element tag. */
 export const LW_NAV_TREE_TAG = 'lw-nav-tree';
@@ -75,9 +74,9 @@ export class LwNavTreeElement extends HTMLElement {
   }
 
   private readonly onClick = (event: Event) => {
-    const item = (event.target as HTMLElement | null)?.closest<LwNavItemElement>(
-      LW_NAV_ITEM_TAG,
-    );
+    const item = (
+      event.target as HTMLElement | null
+    )?.closest<LwNavItemElement>(LW_NAV_ITEM_TAG);
     if (!item || !this.owns(item)) {
       return;
     }
@@ -118,6 +117,26 @@ export class LwNavTreeElement extends HTMLElement {
 }
 
 /** Registers `<lw-nav-tree>`, `<lw-nav-group>` and `<lw-nav-item>` once (idempotent). */
+function pathOf(item: Element): string {
+  return item.getAttribute('path') ?? '';
+}
+
+function longestMatch(
+  candidates: readonly string[],
+  matches: (candidate: string) => boolean,
+): string | null {
+  let best: string | null = null;
+  for (const candidate of candidates) {
+    if (
+      matches(candidate) &&
+      (best === null || candidate.length > best.length)
+    ) {
+      best = candidate;
+    }
+  }
+  return best;
+}
+
 export function defineLwNavTree(): void {
   defineElementOnce(LW_NAV_ITEM_TAG, LwNavItemElement);
   defineElementOnce(LW_NAV_GROUP_TAG, LwNavGroupElement);

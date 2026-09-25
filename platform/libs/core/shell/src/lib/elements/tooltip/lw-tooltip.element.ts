@@ -169,42 +169,30 @@ export class LwTooltipElement extends HTMLElement {
   }
 
   private placeBubble(bubble: HTMLElement): void {
-    const b = bubble.getBoundingClientRect();
-    let left: number;
-    let top: number;
-    if (this.pointer) {
-      left = this.pointer.x + CURSOR_OFFSET_X;
-      const below = this.pointer.y + CURSOR_BELOW_Y;
-      top =
-        below + b.height + VIEWPORT_MARGIN > window.innerHeight
-          ? this.pointer.y - b.height - CURSOR_ABOVE_GAP
-          : below;
-    } else if (this.trigger) {
-      const t = this.trigger.getBoundingClientRect();
-      const centerX = t.left + t.width / 2 - b.width / 2;
-      const centerY = t.top + t.height / 2 - b.height / 2;
-      switch (this.position) {
-        case 'bottom': {
-          [left, top] = [centerX, t.bottom + TOOLTIP_GAP];
-          break;
-        }
-        case 'left': {
-          [left, top] = [t.left - b.width - TOOLTIP_GAP, centerY];
-          break;
-        }
-        case 'right': {
-          [left, top] = [t.right + TOOLTIP_GAP, centerY];
-          break;
-        }
-        default: {
-          [left, top] = [centerX, t.top - b.height - TOOLTIP_GAP];
-        }
-      }
-    } else {
+    const bubbleRect = bubble.getBoundingClientRect();
+    const placement = this.pointer
+      ? cursorPlacement(bubbleRect, this.pointer)
+      : this.trigger &&
+        triggerPlacement(
+          bubbleRect,
+          this.trigger.getBoundingClientRect(),
+          this.position,
+        );
+    if (!placement) {
       return;
     }
-    bubble.style.left = `${Math.round(clampIntoViewport(left, b.width, window.innerWidth))}px`;
-    bubble.style.top = `${Math.round(clampIntoViewport(top, b.height, window.innerHeight))}px`;
+    const left = clampIntoViewport(
+      placement.left,
+      bubbleRect.width,
+      window.innerWidth,
+    );
+    const top = clampIntoViewport(
+      placement.top,
+      bubbleRect.height,
+      window.innerHeight,
+    );
+    bubble.style.left = `${Math.round(left)}px`;
+    bubble.style.top = `${Math.round(top)}px`;
   }
 
   private hide(): void {
@@ -227,6 +215,55 @@ export class LwTooltipElement extends HTMLElement {
 
     clearTimeout(this.showTimer);
     this.showTimer = undefined;
+  }
+}
+
+interface Placement {
+  readonly left: number;
+  readonly top: number;
+}
+
+function cursorPlacement(
+  bubbleRect: DOMRect,
+  pointer: { readonly x: number; readonly y: number },
+): Placement {
+  const below = pointer.y + CURSOR_BELOW_Y;
+  const fitsBelow =
+    below + bubbleRect.height + VIEWPORT_MARGIN <= window.innerHeight;
+  return {
+    left: pointer.x + CURSOR_OFFSET_X,
+    top: fitsBelow ? below : pointer.y - bubbleRect.height - CURSOR_ABOVE_GAP,
+  };
+}
+
+function triggerPlacement(
+  bubbleRect: DOMRect,
+  triggerRect: DOMRect,
+  position: TooltipPosition,
+): Placement {
+  const centeredLeft =
+    triggerRect.left + triggerRect.width / 2 - bubbleRect.width / 2;
+  const centeredTop =
+    triggerRect.top + triggerRect.height / 2 - bubbleRect.height / 2;
+  switch (position) {
+    case 'bottom': {
+      return { left: centeredLeft, top: triggerRect.bottom + TOOLTIP_GAP };
+    }
+    case 'left': {
+      return {
+        left: triggerRect.left - bubbleRect.width - TOOLTIP_GAP,
+        top: centeredTop,
+      };
+    }
+    case 'right': {
+      return { left: triggerRect.right + TOOLTIP_GAP, top: centeredTop };
+    }
+    default: {
+      return {
+        left: centeredLeft,
+        top: triggerRect.top - bubbleRect.height - TOOLTIP_GAP,
+      };
+    }
   }
 }
 
