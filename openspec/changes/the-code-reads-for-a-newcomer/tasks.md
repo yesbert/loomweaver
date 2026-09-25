@@ -707,9 +707,13 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   `TOOL_CALL_RESULT` nothing drew. The key lives in `openRouterKey` (guarded storage, one read),
   its form in `OpenRouterKeyForm`, and the prompt and key fields are signals. The confirmation
   names no particular command.
-- [ ] 13.5 Leftovers (routes, stylesheet, unused dependencies, redundant sources, exports) and form
+- [x] 13.5 Leftovers (routes, stylesheet, unused dependencies, redundant sources, exports) and form
   fields held in signals. The example's components take its own `app-` prefix, once the generator
   reads the prefix from the workspace (`generated-components-take-the-app-prefix`).
+  Gone: `app.routes.ts`, the empty `app.css`, `@angular/forms` (still installed as the CDK's peer),
+  `@loomweaver/frame-kit` with its asset glob, and the two `@source` lines the directory source
+  already covers. The layout has its own file, which the configuration and its test import, and
+  the reply field is a signal like the prompt and key fields. The three components are `app-`.
 
 ## 14. The website
 

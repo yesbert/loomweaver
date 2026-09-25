@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -13,7 +13,7 @@ import {
 } from '../tickets/ticket-store';
 
 @Component({
-  selector: 'lw-ticket-view',
+  selector: 'app-ticket-view',
   templateUrl: './ticket-view.html',
   imports: [TranslocoPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -33,6 +33,8 @@ export class TicketView {
 
   protected readonly statusKey = statusKey;
 
+  protected readonly draft = signal('');
+
   protected assign(number: string, event: Event): void {
     ticketActions.assign(number, chosen(event) as Assignee);
   }
@@ -41,13 +43,17 @@ export class TicketView {
     ticketActions.setStatus(number, chosen(event) as TicketStatus);
   }
 
-  protected send(number: string, field: HTMLTextAreaElement): void {
-    const text = field.value.trim();
+  protected edit(event: Event): void {
+    this.draft.set((event.target as HTMLTextAreaElement).value);
+  }
+
+  protected send(number: string): void {
+    const text = this.draft().trim();
     if (!text) {
       return;
     }
     ticketActions.reply(number, text);
-    field.value = '';
+    this.draft.set('');
   }
 }
 

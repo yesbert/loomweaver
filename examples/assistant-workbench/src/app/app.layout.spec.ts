@@ -1,4 +1,4 @@
-import { layout } from './app.config';
+import { layout } from './app.layout';
 
 describe('layout', () => {
   it('declares the regions contributions target', () => {

@@ -6,7 +6,3 @@
 
 @source '../node_modules/@loomweaver/shell';
 @source './';
-
-@source 'tickets/src';
-
-@source 'assistant/src';

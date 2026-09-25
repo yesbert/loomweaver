@@ -29,11 +29,6 @@
                 "output": "i18n"
               },
               {
-                "glob": "**/*",
-                "input": "node_modules/@loomweaver/frame-kit/dist",
-                "output": "frame-kit"
-              },
-              {
                 "glob": "**/*.json",
                 "input": "src/tickets/src/lib/i18n",
                 "output": "i18n/tickets"

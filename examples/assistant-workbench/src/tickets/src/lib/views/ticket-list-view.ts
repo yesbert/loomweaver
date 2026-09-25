@@ -4,7 +4,7 @@ import { ticketActions } from '../plugin/ticket-actions';
 import { statusKey, ticketStore } from '../tickets/ticket-store';
 
 @Component({
-  selector: 'lw-ticket-list-view',
+  selector: 'app-ticket-list-view',
   templateUrl: './ticket-list-view.html',
   imports: [TranslocoPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
