@@ -131,8 +131,8 @@
     "unclaimed": "Sandbox (ohne Anspruch)",
     "toast": "Sandbox-Plugin aktiviert — ctx über iframe + Penpal-RPC."
   },
-  "sandboxStatic": {
-    "title": "Sandbox (statischer Tab)",
+  "sandboxRest": {
+    "title": "Sandbox (Rest-Route)",
     "docked": "Sandbox (angedockt)"
   },
   "storeFull": {

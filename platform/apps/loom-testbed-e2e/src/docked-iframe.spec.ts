@@ -123,7 +123,7 @@ test.describe('A sandboxed plugin docks a sidebar view', () => {
     const frame = page.frameLocator(SANDBOX_FRAME);
     await expect(frame.getByTestId('frame-title')).toHaveText('Docked frame');
     await expect(frame.getByTestId('frame-instance')).toHaveText(
-      'sandbox-static.docked',
+      'sandbox-rest.docked',
     );
   });
 });

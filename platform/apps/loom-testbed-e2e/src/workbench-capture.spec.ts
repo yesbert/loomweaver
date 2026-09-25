@@ -21,16 +21,16 @@ declare global {
 }
 
 async function openSandbox(page: Page): Promise<void> {
-  await page.goto('/sandbox-static');
+  await page.goto('/sandbox-rest');
   await expect(
-    page.locator('iframe[src*="/sandbox-static/view.html"]'),
+    page.locator('iframe[src*="/sandbox-rest/view.html"]'),
   ).toBeAttached({ timeout: 20_000 });
   await page.waitForFunction(() => Boolean(globalThis.lwCapture), undefined, {
     timeout: 20_000,
   });
-  const surface = page.frameLocator('iframe[src*="/sandbox-static/view.html"]');
+  const surface = page.frameLocator('iframe[src*="/sandbox-rest/view.html"]');
   await expect(
-    surface.getByRole('heading', { name: /static, non-closable tab/i }),
+    surface.getByRole('heading', { name: /below its prefix is its own/i }),
   ).toBeVisible({ timeout: 20_000 });
 }
 

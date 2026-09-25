@@ -294,7 +294,7 @@ test.describe('Surface retention (beforeClose + programmatic destruction)', () =
 test.describe('Surface retention (a sandboxed surface is hidden, not rebuilt)', () => {
   const claimedFrame = 'iframe[src$="/sandbox-rpc/view.html"]';
   const unclaimedFrame = 'iframe[src*="/sandbox-rpc/view.html?unclaimed=1"]';
-  const infoFrame = 'iframe[src*="/sandbox-static/view.html"]';
+  const infoFrame = 'iframe[src*="/sandbox-rest/view.html"]';
 
   test('a retained sandbox surface keeps its own state across a tab switch', async ({
     page,
@@ -346,10 +346,10 @@ test.describe('Surface retention (a sandboxed surface is hidden, not rebuilt)', 
 
     const module_ = process.platform === 'darwin' ? 'Meta' : 'Control';
     await page.keyboard.press(`${module_}+KeyP`);
-    await page.getByRole('combobox').fill('static');
-    await page.getByRole('option', { name: /Sandbox \(static tab\)/ }).click();
+    await page.getByRole('combobox').fill('rest route');
+    await page.getByRole('option', { name: /Sandbox \(rest route\)/ }).click();
     await expect(
-      page.getByRole('tab', { name: 'Sandbox (static tab)' }),
+      page.getByRole('tab', { name: 'Sandbox (rest route)' }),
     ).toBeVisible();
     await expect(page.locator(infoFrame)).toHaveCount(1);
 

@@ -115,10 +115,8 @@ test.describe('Sandbox UI kit — /frame-kit/ assets inside the iframe', () => {
   test('a page that uses the .lw-btn classes gets them from the kit stylesheet', async ({
     page,
   }) => {
-    await page.goto('/sandbox-static');
-    const surface = page.frameLocator(
-      'iframe[src*="/sandbox-static/view.html"]',
-    );
+    await page.goto('/sandbox-rest');
+    const surface = page.frameLocator('iframe[src*="/sandbox-rest/view.html"]');
 
     const button = surface.getByRole('button', { name: 'Go deeper' });
     await expect(button).toHaveCSS('cursor', 'pointer');

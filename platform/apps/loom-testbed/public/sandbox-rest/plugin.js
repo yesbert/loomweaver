@@ -1,25 +1,28 @@
 (function () {
   const Penpal = globalThis.Penpal;
   const connection = Penpal.connect({
-    messenger: new Penpal.WindowMessenger({ remoteWindow: globalThis.parent, allowedOrigins: ['*'] }),
+    messenger: new Penpal.WindowMessenger({
+      remoteWindow: globalThis.parent,
+      allowedOrigins: ['*'],
+    }),
   });
 
   connection.promise
     .then(function (ctx) {
       return Promise.all([
         ctx.registerSurface({
-          id: 'sandbox-static.view',
-          title: 'testbed.sandboxStatic.title',
+          id: 'sandbox-rest.view',
+          title: 'testbed.sandboxRest.title',
           icon: 'info',
-          iframe: '/sandbox-static/view.html',
+          iframe: '/sandbox-rest/view.html',
           routable: {
-            path: 'sandbox-static',
+            path: 'sandbox-rest',
             rest: true,
           },
         }),
         ctx.registerSurface({
-          id: 'sandbox-static.docked',
-          title: 'testbed.sandboxStatic.docked',
+          id: 'sandbox-rest.docked',
+          title: 'testbed.sandboxRest.docked',
           icon: 'info',
           docks: ['right-panel'],
           order: 2,
@@ -28,6 +31,6 @@
       ]);
     })
     .catch(function (error) {
-      console.error('[sandbox-static] plugin failed', error);
+      console.error('[sandbox-rest] plugin failed', error);
     });
 })();

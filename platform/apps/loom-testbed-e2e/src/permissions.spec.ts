@@ -56,7 +56,7 @@ test.describe('Plugin permissions', () => {
       page.getByRole('heading', { name: 'Sandbox (RPC)' }),
     ).toBeVisible();
     await expect(
-      page.getByRole('heading', { name: 'sandbox-static' }),
+      page.getByRole('heading', { name: 'sandbox-rest' }),
     ).toBeVisible();
     await expect(page.getByTestId('perm-sandbox-rpc-session')).toBeVisible();
   });
@@ -138,23 +138,23 @@ test.describe('Plugin permissions', () => {
   test('disabling a sandboxed plugin removes its contributed tab, live', async ({
     page,
   }) => {
-    await page.goto('/sandbox-static');
+    await page.goto('/sandbox-rest');
     await expect(
-      page.getByRole('tab', { name: 'Sandbox (static tab)' }),
+      page.getByRole('tab', { name: 'Sandbox (rest route)' }),
     ).toBeVisible();
 
     await openPermissions(page);
-    await page.getByTestId('plugin-enabled-sandbox-static').click();
+    await page.getByTestId('plugin-enabled-sandbox-rest').click();
     await page.keyboard.press('Escape');
     await expect(
-      page.getByRole('tab', { name: 'Sandbox (static tab)' }),
+      page.getByRole('tab', { name: 'Sandbox (rest route)' }),
     ).toHaveCount(0);
 
     await openPermissions(page);
-    await page.getByTestId('plugin-enabled-sandbox-static').click();
+    await page.getByTestId('plugin-enabled-sandbox-rest').click();
     await page.keyboard.press('Escape');
     await expect(
-      page.getByRole('tab', { name: 'Sandbox (static tab)' }),
+      page.getByRole('tab', { name: 'Sandbox (rest route)' }),
     ).toBeVisible();
   });
 });

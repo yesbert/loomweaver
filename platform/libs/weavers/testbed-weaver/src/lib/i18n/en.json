@@ -131,8 +131,8 @@
     "unclaimed": "Sandbox (unclaimed)",
     "toast": "Sandbox plugin activated — ctx over iframe + Penpal RPC."
   },
-  "sandboxStatic": {
-    "title": "Sandbox (static tab)",
+  "sandboxRest": {
+    "title": "Sandbox (rest route)",
     "docked": "Sandbox (docked)"
   },
   "storeFull": {
