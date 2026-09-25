@@ -17,7 +17,7 @@ export const financePlugin: Plugin = {
 
     ctx.registerSurface({
       id: 'finance.receivables',
-      title: 'product.view.receivables',
+      title: 'finance.view.receivables',
       icon: 'receivables',
       routable: { path: 'finance/receivables' },
       docks: [],
@@ -25,7 +25,7 @@ export const financePlugin: Plugin = {
     });
     ctx.registerSurface({
       id: 'finance.payables',
-      title: 'product.view.payables',
+      title: 'finance.view.payables',
       icon: 'payables',
       routable: { path: 'finance/payables' },
       docks: [],
@@ -33,7 +33,7 @@ export const financePlugin: Plugin = {
     });
     ctx.registerSurface({
       id: 'finance.ledger',
-      title: 'product.view.ledger',
+      title: 'finance.view.ledger',
       icon: 'ledger',
       routable: { path: 'finance/ledger' },
       docks: [],
@@ -41,7 +41,7 @@ export const financePlugin: Plugin = {
     });
     ctx.registerSurface({
       id: 'finance.closing',
-      title: 'product.view.closing',
+      title: 'finance.view.closing',
       icon: 'closing',
       routable: { path: 'finance/closing' },
       docks: [],
@@ -49,7 +49,7 @@ export const financePlugin: Plugin = {
     });
     ctx.registerSurface({
       id: 'finance.dunning',
-      title: 'product.view.dunning',
+      title: 'finance.view.dunning',
       icon: 'dunning',
       routable: { path: 'finance/dunning' },
       docks: [],
@@ -58,11 +58,11 @@ export const financePlugin: Plugin = {
 
     ctx.registerCommand({
       id: 'finance.dunningRun',
-      title: 'product.finance.startDunning',
-      description: 'product.finance.dunningDescription',
+      title: 'finance.startDunning',
+      description: 'finance.dunningDescription',
       icon: 'dunning',
       callable: true,
-      answers: 'product.finance.dunningAnswers',
+      answers: 'finance.dunningAnswers',
       run: async () => ({ reminded: await financeActions.dunningRun() }),
     });
   },

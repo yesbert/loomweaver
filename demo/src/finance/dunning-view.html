@@ -1,10 +1,10 @@
 <div class="flex h-full flex-col gap-4 p-3">
   <div class="flex flex-wrap items-center justify-between gap-3">
     <h2 class="text-base font-semibold text-content">
-      {{ 'product.view.dunning' | transloco }}
+      {{ 'finance.view.dunning' | transloco }}
     </h2>
     <button type="button" class="lw-btn lw-btn--primary" (click)="run()" data-testid="dunning-run">
-      {{ 'product.finance.startDunning' | transloco }}
+      {{ 'finance.startDunning' | transloco }}
     </button>
   </div>
 
@@ -20,17 +20,17 @@
         </span>
         <span class="flex items-center gap-4 text-sm">
           <span class="text-caution tabular-nums">{{
-            'product.finance.overdue' | transloco: { days: row.overdue }
+            'finance.overdue' | transloco: { days: row.overdue }
           }}</span>
           <span class="text-content-muted" [attr.data-level]="row.entry.number">{{
-            'product.finance.level' | transloco: { level: row.level }
+            'finance.level' | transloco: { level: row.level }
           }}</span>
           <span class="w-28 text-right font-medium text-content tabular-nums">{{ row.open }}</span>
         </span>
       </li>
     } @empty {
       <li class="px-1 text-sm text-content-muted" data-testid="dunning-none">
-        {{ 'product.finance.nothingOverdue' | transloco }}
+        {{ 'finance.nothingOverdue' | transloco }}
       </li>
     }
   </ul>

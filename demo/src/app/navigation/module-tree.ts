@@ -68,7 +68,7 @@ export const MODULES: readonly ProductModule[] = [
         titleKey: 'product.area.receivables',
         views: [
           {
-            titleKey: 'product.view.receivables',
+            titleKey: 'finance.view.receivables',
             path: 'finance/receivables',
             icon: 'receivables',
           },
@@ -78,7 +78,7 @@ export const MODULES: readonly ProductModule[] = [
         id: 'payables',
         titleKey: 'product.area.payables',
         views: [
-          { titleKey: 'product.view.payables', path: 'finance/payables', icon: 'payables' },
+          { titleKey: 'finance.view.payables', path: 'finance/payables', icon: 'payables' },
         ],
       },
       {
@@ -96,17 +96,17 @@ export const MODULES: readonly ProductModule[] = [
       {
         id: 'ledger',
         titleKey: 'product.area.ledger',
-        views: [{ titleKey: 'product.view.ledger', path: 'finance/ledger', icon: 'ledger' }],
+        views: [{ titleKey: 'finance.view.ledger', path: 'finance/ledger', icon: 'ledger' }],
       },
       {
         id: 'closing',
         titleKey: 'product.area.closing',
-        views: [{ titleKey: 'product.view.closing', path: 'finance/closing', icon: 'closing' }],
+        views: [{ titleKey: 'finance.view.closing', path: 'finance/closing', icon: 'closing' }],
       },
       {
         id: 'dunning',
         titleKey: 'product.area.dunning',
-        views: [{ titleKey: 'product.view.dunning', path: 'finance/dunning', icon: 'dunning' }],
+        views: [{ titleKey: 'finance.view.dunning', path: 'finance/dunning', icon: 'dunning' }],
       },
     ],
   },
