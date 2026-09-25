@@ -463,9 +463,18 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   `never` default and describes a build target in `describeBuildTarget`. The output of every
   scaffold's amendments is identical before and after. Set aside: the "was NOT registered" sentence
   stays in the CLI and in the Nx route, because sharing it would add a published devkit export.
-- [ ] 10.5 The Nx generators apply the recipes' amendments through one `applyAmendments`, the twin of
+- [x] 10.5 The Nx generators apply the recipes' amendments through one `applyAmendments`, the twin of
   the CLI's `Amender` (after the generator defects are fixed); the four divergences between generator
   folders go.
+  `generators/apply-amendments.ts` applies every kind through one switch; the weaver and auth-source
+  generators hand it their amendments and their app, and the distribution generator its postcss
+  amendment, because its build target is its own project file and the documented Nx route installs
+  the runtime packages first. The generated trees of the weaver, auth-source, frame-plugin and
+  distribution generators are byte-identical before and after. The frame-plugin generator uses
+  `writeFilesGuarded` and `FramePluginGeneratorSchema`, its recipe says "Frame plugin id", and the
+  auth source's import path comes from `posix.relative`. Set aside: sharing the code-written postcss
+  file list with the CLI, which would add a published devkit export, and starting the Nx
+  distribution from a minimal build target, which would change the `project.json` it writes.
 - [ ] 10.6 Region ids are a typed table the templates interpolate; `check-region-ids.mjs` reads it.
 - [ ] 10.7 The CLI: `run.ts` split into commands with a command table, `init/`, `scaffold/` and
   `validate/` folders, init steps as a union, the angular.json reading in one file, the workspace type

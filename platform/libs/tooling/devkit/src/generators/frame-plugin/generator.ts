@@ -1,19 +1,15 @@
 import { formatFiles, Tree } from '@nx/devkit';
 import { generate } from '../../lib/generate/generate';
 import { framePlugin } from '../../recipes/frame-plugin/recipe';
-import { resolveApp, writeFiles } from '../workspace-tree';
-import { SandboxPluginGeneratorSchema } from './schema';
+import { resolveApp, writeFilesGuarded } from '../workspace-tree';
+import { FramePluginGeneratorSchema } from './schema';
 
 export async function framePluginGenerator(
   tree: Tree,
-  options: SandboxPluginGeneratorSchema,
+  options: FramePluginGeneratorSchema,
 ): Promise<void> {
   const root = `${resolveApp(tree, options.app).root}/public/${options.id}`;
-  if (tree.exists(`${root}/plugin.html`)) {
-    throw new Error(`A frame plugin already exists at ${root}.`);
-  }
-
-  writeFiles(
+  writeFilesGuarded(
     tree,
     root,
     generate(framePlugin, { id: options.id, name: options.name }),
