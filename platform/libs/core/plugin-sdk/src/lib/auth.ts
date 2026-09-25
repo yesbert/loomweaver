@@ -4,8 +4,9 @@
  * session snapshot a distribution supplies, so chrome can hide/disable itself by login state and
  * roles. Roles/claims are **opaque strings**: the platform matches, never interprets.
  *
- * Client-side gating is **presentation, not security** — the real enforcement is server-side (the
- * product BFF rejects unauthorized calls). Never treat a hidden control as a boundary.
+ * Client-side gating is **presentation, not security**: the real enforcement is server-side, where
+ * the product's backend rejects a call the user may not make. Never treat a hidden control as a
+ * boundary.
  */
 
 /** A user/session snapshot the host reacts to. Provider-neutral (OIDC/custom/anything reduces here). */
@@ -38,9 +39,8 @@ export interface AuthSnapshot {
 export const ANONYMOUS: AuthSnapshot = { authenticated: false, roles: [], claims: {} };
 
 /**
- * How a contribution reacts to the auth state. Intentionally **coarse** — no expression parser
- * (consistent with the `when` filter). Generic claim matching is the documented extension
- * once a real case appears (YAGNI).
+ * How a contribution reacts to the auth state. Intentionally **coarse**: there is no expression
+ * parser, as there is none for the `when` filter.
  */
 export interface AccessRequirement {
   /** Require a specific signed-in state (`true` = must be signed in, `false` = only anonymous). */

@@ -1,6 +1,6 @@
 /**
- * Implemented by a surface **component instance** to take part in the retention/close protocol
- *. It lives on the instance, not on the {@link Surface} declaration, because one
+ * Implemented by a surface **component instance** to take part in the retention and close protocol.
+ * It lives on the instance, not on the {@link Surface} declaration, because one
  * declaration can back many open tabs (`doc/:id`) and "this tab has unsaved changes" is a question
  * about one instance. The host discovers it structurally — implement the interface and you are in.
  *
@@ -31,8 +31,8 @@ export interface DirtySurface {
    * *Save · Discard · Cancel* ask, so approving the close never discards silently.
    *
    * The host enforces a timeout with a guaranteed "close anyway" escape, and a hook that throws or
-   * rejects counts as approval — a broken or hung veto can never make a tab unclosable
-   *. Programmatic destruction (disabling or uninstalling the plugin, resetting or
+   * rejects counts as approval, so a broken or hung veto can never make a tab unclosable.
+   * Programmatic destruction (disabling or uninstalling the plugin, resetting or
    * switching the workspace) does **not** consult this hook; only the unsaved-changes dialog guards
    * those, because a plugin must not be able to veto its own removal.
    */
