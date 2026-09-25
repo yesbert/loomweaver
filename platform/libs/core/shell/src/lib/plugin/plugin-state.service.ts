@@ -1,7 +1,16 @@
-import { inject, isDevMode, Service, signal, WritableSignal } from '@angular/core';
+import {
+  inject,
+  isDevMode,
+  Service,
+  signal,
+  WritableSignal,
+} from '@angular/core';
 import { PluginState, StateHandle } from '@loomweaver/plugin-sdk';
 import { WORKING_STATE_STORE } from '../persistence/working-state-store';
-import { hydrateAsync, readStoredValue } from '../persistence/stored-values/hydrate';
+import {
+  hydrateAsync,
+  readStoredValue,
+} from '../persistence/stored-values/hydrate';
 import { StateSyncService } from '../persistence/cross-tab/state-sync.service';
 
 const STORAGE_PREFIX = 'lw.plugin-state:';
@@ -36,11 +45,14 @@ function parseKeys(raw: string | undefined): string[] {
     : [];
 }
 
+type Listener = (value: unknown, loaded: boolean) => void;
+
 interface Entry {
   readonly storageKey: string;
   readonly pluginId: string;
   readonly value: WritableSignal<unknown>;
   readonly loaded: WritableSignal<boolean>;
+  readonly listeners: Set<Listener>;
   watchers: number;
   pending: string | undefined;
   timer: ReturnType<typeof setTimeout> | undefined;
@@ -62,6 +74,7 @@ export class PluginStateService {
       this.cancelPending(entry);
       entry.value.set(parseBlob(raw));
       entry.loaded.set(true);
+      this.announce(entry);
     });
     this.sync.onNamespaceAdopted(() => this.rereadEntries());
   }
@@ -98,6 +111,7 @@ export class PluginStateService {
       this.cancelPending(entry);
       entry.value.set(parseBlob(raw));
       entry.loaded.set(true);
+      this.announce(entry);
     }
   }
 
@@ -110,11 +124,15 @@ export class PluginStateService {
     const entry = this.entryFor(pluginId, key);
     entry.watchers += 1;
     let live = true;
+    const own = new Set<Listener>();
     const release = () => {
       if (!live) {
         return;
       }
       live = false;
+      for (const listener of own) {
+        entry.listeners.delete(listener);
+      }
       entry.watchers -= 1;
       if (entry.watchers === 0) {
         this.flush(entry);
@@ -127,6 +145,17 @@ export class PluginStateService {
       set: (next: T) => this.write(entry, key, next),
       clear: () => this.remove(entry, key),
       dispose: release,
+      onChange: (listener) => {
+        if (!live) {
+          return;
+        }
+        const told = listener as Listener;
+        own.add(told);
+        entry.listeners.add(told);
+        if (entry.loaded()) {
+          told(entry.value(), true);
+        }
+      },
     };
   }
 
@@ -138,22 +167,26 @@ export class PluginStateService {
     }
     const value = signal<unknown>(parseBlob(this.store.peek?.(storageKey)));
     const loaded = signal(this.store.peek !== undefined);
-    hydrateAsync(
-      this.store,
-      storageKey,
-      (raw) => value.set(parseBlob(raw)),
-      () => loaded.set(true),
-    );
     const entry: Entry = {
       storageKey,
       pluginId,
       value,
       loaded,
+      listeners: new Set(),
       watchers: 0,
       pending: undefined,
       timer: undefined,
     };
     this.entries.set(storageKey, entry);
+    hydrateAsync(
+      this.store,
+      storageKey,
+      (raw) => value.set(parseBlob(raw)),
+      () => {
+        loaded.set(true);
+        this.announce(entry);
+      },
+    );
     return entry;
   }
 
@@ -174,6 +207,7 @@ export class PluginStateService {
     entry.pending = serialised;
     this.cancelTimer(entry);
     entry.timer = setTimeout(() => this.flush(entry), SAVE_DEBOUNCE_MS);
+    this.announce(entry);
   }
 
   private remove(entry: Entry, key: string): void {
@@ -183,6 +217,15 @@ export class PluginStateService {
     const keys = this.keysByPlugin.get(entry.pluginId);
     keys?.delete(key);
     this.persistIndex(entry.pluginId);
+    this.announce(entry);
+  }
+
+  private announce(entry: Entry): void {
+    const value = entry.value();
+    const loaded = entry.loaded();
+    for (const listener of entry.listeners) {
+      listener(value, loaded);
+    }
   }
 
   private flush(entry: Entry): void {
@@ -255,9 +298,7 @@ export class PluginStateService {
     if (existing) {
       return existing;
     }
-    const keys = new Set(
-      parseKeys(this.store.peek?.(INDEX_PREFIX + pluginId)),
-    );
+    const keys = new Set(parseKeys(this.store.peek?.(INDEX_PREFIX + pluginId)));
     this.keysByPlugin.set(pluginId, keys);
     void readStoredValue(this.store, INDEX_PREFIX + pluginId).then((raw) => {
       for (const key of parseKeys(raw)) {

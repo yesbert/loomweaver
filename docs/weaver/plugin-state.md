@@ -36,7 +36,8 @@ capability to grant: there is nothing foreign to reach.
 
 - **Check `loaded()` before you apply a default.** With a local store it is true at once. With a
   network-backed one there is a real window in which the store has not answered, and a default applied
-  in that window is overwritten the moment the value lands, after the user has started typing.
+  in that window is overwritten the moment the value lands, after the user has started typing. Where
+  you cannot read reactively, as in `activate()`, register `onChange` instead (below).
 - **`set` replaces the whole value; nothing is merged.** Use **one key per unit of editing**: a wizard
   step, not the whole form. Where your surface can exist more than once, key by instance too
   (a sandboxed surface receives its `instanceId` with its pushed state). Two windows writing two keys
@@ -48,6 +49,31 @@ capability to grant: there is nothing foreign to reach.
 - **Values are JSON and writes are debounced.** Siblings in the same window see a change at once;
   other windows see it once the debounced write lands. There is a size cap per value and a count cap
   per plugin, with a development warning at half of each, so no plugin can flood the user's storage.
+
+## Waiting for the store in `activate()`
+
+`value()` and `loaded()` are reactive, but an effect needs an injection context, and `activate()` runs
+in one only the first time; after the user switches your plugin off and on again, an effect there
+fails. `onChange` needs none. It is called with the value and `loaded` whenever the value arrives or
+changes, and at once where the value is already there, so one listener covers a local store and a
+network-backed one alike:
+
+```ts
+// in activate(): welcome a first visit, once the store has answered
+const welcomed = ctx.state.watch<boolean>('welcomed');
+welcomed.onChange((value, loaded) => {
+  if (!loaded) {
+    return;
+  }
+  if (value !== true) {
+    welcomed.set(true);
+    openWelcome();
+  }
+  welcomed.dispose();
+});
+```
+
+`dispose()` ends every listener of the handle, and flushes the write first.
 
 ## The same store in a sandboxed plugin
 

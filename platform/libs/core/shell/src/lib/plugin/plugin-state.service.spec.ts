@@ -33,7 +33,9 @@ describe('PluginStateService', () => {
 
   function setup(store?: KeyValueStore) {
     TestBed.configureTestingModule({
-      providers: store ? [{ provide: WORKING_STATE_STORE, useValue: store }] : [],
+      providers: store
+        ? [{ provide: WORKING_STATE_STORE, useValue: store }]
+        : [],
     });
     return TestBed.inject(PluginStateService);
   }
@@ -84,6 +86,63 @@ describe('PluginStateService', () => {
     expect(handle.value()).toBe('stored');
   });
 
+  it('tells an observer when the value of a store that answers later arrives', async () => {
+    const service = setup(asyncStore({ [KEY]: '"stored"' }));
+    const handle = service.forPlugin('acme').watch<string>('step-1');
+    const seen: [string | undefined, boolean][] = [];
+
+    handle.onChange((value, loaded) => {
+      seen.push([value, loaded]);
+    });
+    await vi.waitFor(() => expect(seen).toEqual([['stored', true]]));
+  });
+
+  it('tells an observer at once when the value has already arrived', () => {
+    localStorage.setItem(KEY, '"stored"');
+    const service = setup();
+    const handle = service.forPlugin('acme').watch<string>('step-1');
+    const seen: [string | undefined, boolean][] = [];
+
+    handle.onChange((value, loaded) => {
+      seen.push([value, loaded]);
+    });
+
+    expect(seen).toEqual([['stored', true]]);
+  });
+
+  it('tells an observer of every change, and stops once it is disposed', () => {
+    const service = setup();
+    const state = service.forPlugin('acme');
+    const observed = state.watch<string>('step-1');
+    const writer = state.watch<string>('step-1');
+    const seen: (string | undefined)[] = [];
+    observed.onChange((value) => {
+      seen.push(value);
+    });
+
+    writer.set('one');
+    writer.clear();
+    observed.dispose();
+    writer.set('two');
+
+    expect(seen).toEqual([undefined, 'one', undefined]);
+  });
+
+  it('keeps a write made by a listener that then stops watching', () => {
+    const service = setup();
+    const handle = service.forPlugin('acme').watch<boolean>('step-1');
+
+    handle.onChange((value) => {
+      if (value === true) {
+        return;
+      }
+      handle.set(true);
+      handle.dispose();
+    });
+
+    expect(localStorage.getItem(KEY)).toBe('true');
+  });
+
   it('debounces writes and flushes a pending one on the last dispose', () => {
     const service = setup();
     const handle = service.forPlugin('acme').watch<string>('step-1');
@@ -111,7 +170,9 @@ describe('PluginStateService', () => {
   it('refuses a value over the size cap instead of writing it', () => {
     const service = setup();
     const handle = service.forPlugin('acme').watch<string>('step-1');
-    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const error = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined);
 
     handle.set('x'.repeat(70 * 1024));
     vi.advanceTimersByTime(400);
@@ -126,7 +187,9 @@ describe('PluginStateService', () => {
     const handle = service.forPlugin('acme').watch<unknown>('step-1');
     handle.set('kept');
     vi.advanceTimersByTime(400);
-    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const error = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined);
 
     for (const value of [undefined, () => 'a function']) {
       expect(() => handle.set(value)).not.toThrow();
@@ -145,7 +208,9 @@ describe('PluginStateService', () => {
   it('refuses a new key past the count cap', () => {
     const service = setup();
     const state = service.forPlugin('acme');
-    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const error = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined);
     vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 
     for (let index = 0; index < 64; index += 1) {
@@ -154,8 +219,12 @@ describe('PluginStateService', () => {
     state.watch<string>('one-too-many').set('nope');
     vi.advanceTimersByTime(400);
 
-    expect(localStorage.getItem('lw.plugin-state:acme:one-too-many')).toBeNull();
-    expect(error).toHaveBeenCalledWith(expect.stringContaining('64 state keys'));
+    expect(
+      localStorage.getItem('lw.plugin-state:acme:one-too-many'),
+    ).toBeNull();
+    expect(error).toHaveBeenCalledWith(
+      expect.stringContaining('64 state keys'),
+    );
     error.mockRestore();
   });
 

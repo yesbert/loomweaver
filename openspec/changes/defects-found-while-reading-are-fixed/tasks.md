@@ -98,7 +98,8 @@ they start with a top-level folder.
   fixed at activation (`demo/src/quotes/src/lib/plugin/quotes-commands.ts`).
 - [x] 7.3 The dashboard's colour observer disconnects when the view is destroyed
   (`demo/src/insights/chart-tokens.ts`).
-- [ ] 7.4 After 9.8: the welcome is shown once the store has answered, also when it answers later
+- [ ] 7.4 After the release that carries 9.8, because the demo builds against the published packages:
+  the welcome is shown once the store has answered, also when it answers later
   (`demo/src/about/about.plugin.ts`).
 - [x] 7.5 After a check in a browser that blocks storage: the quotes settings read and write storage
   guarded like the looks and the session do (`demo/src/quotes/src/lib/plugin/quotes-settings.ts`).
@@ -128,7 +129,7 @@ they start with a top-level folder.
 - [ ] 9.6 The demo: cancelling the second "New customer" prompt cancels the creation
   (`demo/src/customers/`); an accepted quote can no longer be sent (`demo/src/quotes/`).
 - [x] 9.7 Update this change with the deltas the decisions require (`/opsx:update`).
-- [ ] 9.8 The in-process state handle tells an observer when a value arrives and whenever it changes
+- [x] 9.8 The in-process state handle tells an observer when a value arrives and whenever it changes
   (`onChange`, additive), also after the plugin was switched off and on again
   (`plugin/plugin-state.service.ts`, the SDK's state handle).
 - [x] 9.9 The frame kit keeps a state write made before its connection and sends it once connected

@@ -281,7 +281,10 @@ const SURFACE_HOLD: InjectionToken<SurfaceHold>;   // from @loomweaver/plugin-sd
 // with LwFrame.state.apply(...) from your methods and call LwFrame.connectState(host) once connected.
 interface PluginState { watch<T = unknown>(key: string): StateHandle<T>; }
 interface StateHandle<T = unknown> { readonly value: () => T | undefined; readonly loaded: () => boolean;
-                                     set(next: T): void; clear(): void; dispose(): void; }
+                                     set(next: T): void; clear(): void; dispose(): void;
+                                     onChange(listener: (value: T | undefined, loaded: boolean) => void): void; }
+// onChange: called whenever the value arrives or changes, and at once where it is already there; needs NO injection
+// context, so it is how activate() waits for the store every time the plugin is switched on. dispose() ends it.
 
 // THE ONE SURFACE CONTRACT: a Surface declares WHAT IT CAN DO — routable (URL-addressable),
 // instanceable (named saved instances), docks (which regions may host it; first = home) — not where it lives; the
