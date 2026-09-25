@@ -1,6 +1,8 @@
 import { expect, type FrameLocator, type Page, test } from '@playwright/test';
 import { signOut, switchAccount } from './account';
-import { installPaymentMatching } from './store';
+import { areaHeading, navEntry } from './nav-tree';
+import { installPaymentMatching } from './plugin-store';
+import { tab } from './tabs';
 
 function surface(page: Page): FrameLocator {
   return page.frameLocator('iframe[src*="/payments/view.html"]');
@@ -12,8 +14,8 @@ async function openPayments(page: Page): Promise<void> {
     .getByRole('navigation', { name: 'Left activity bar' })
     .getByRole('button', { name: 'Finance' })
     .click();
-  await page.locator('[data-nav-area="matching"] .lw-nav-group-heading').click();
-  await page.locator('[data-nav-view="finance/matching"]').click();
+  await areaHeading(page, 'matching').click();
+  await navEntry(page, 'finance/matching').click();
   await expect(page).toHaveURL(/\/finance\/matching$/);
 }
 
@@ -31,7 +33,7 @@ test('the finance module opens a surface the application does not contain', asyn
   );
   const stillOpen = await view.getByTestId('still-open').innerText();
 
-  await page.locator('[data-nav-view="finance/receivables"]').click();
+  await navEntry(page, 'finance/receivables').click();
   await expect(page.getByTestId('receivables-open')).toHaveText(stillOpen);
 });
 
@@ -63,29 +65,25 @@ test('confirming a match takes it off what is still open', async ({ page }) => {
   await expect(stillOpen).toHaveText('€42,073.27');
 });
 
-/* The plugin runs isolated from the page, and still keeps its tab's badge true: the view tells the
-   plugin's state what is open, and the plugin sets the badge. */
 test('the tab says whether anything is still open, and follows the confirmations', async ({
   page,
 }) => {
   await page.goto('/');
   await openPayments(page);
-  const tab = page.locator(
-    '[id="pane-strip:content:main"] [role="tab"][data-tab-path="finance/matching"]',
-  );
+  const matchingTab = tab(page, 'finance/matching');
   const view = surface(page);
-  await expect(tab).toHaveAttribute('aria-label', 'Payment matching, Open');
+  await expect(matchingTab).toHaveAttribute('aria-label', 'Payment matching, Open');
 
   for (const line of ['b-1', 'b-4', 'b-5']) {
     await view.locator(`[data-line="${line}"] lw-button[data-confirm]`).click();
   }
-  await expect(tab).toHaveAttribute('aria-label', 'Payment matching, Open');
+  await expect(matchingTab).toHaveAttribute('aria-label', 'Payment matching, Open');
 
   await view.locator('[data-line="b-2"] lw-button[data-confirm]').click();
-  await expect(tab).toHaveAttribute('aria-label', 'Payment matching, Done');
+  await expect(matchingTab).toHaveAttribute('aria-label', 'Payment matching, Done');
 
   await view.locator('[data-line="b-2"] lw-button[data-undo]').click();
-  await expect(tab).toHaveAttribute('aria-label', 'Payment matching, Open');
+  await expect(matchingTab).toHaveAttribute('aria-label', 'Payment matching, Open');
 });
 
 test('exact matches are booked on their own once the setting is on, and shown as booked', async ({

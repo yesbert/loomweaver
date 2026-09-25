@@ -1,16 +1,6 @@
 import { expect, type Page, test } from '@playwright/test';
-import { installPaymentMatching } from './store';
-
-/* Finance is the module the tree was built for: six areas, one shut by the declaration, one holding
-   a single view, and a sidebar long enough to scroll. */
-
-function areaHeading(page: Page, area: string) {
-  return page.locator(`[data-nav-area="${area}"] .lw-nav-group-heading`);
-}
-
-function navEntry(page: Page, path: string) {
-  return page.locator(`[data-nav-view="${path}"]`);
-}
+import { installPaymentMatching } from './plugin-store';
+import { areaHeading, navArea, navEntry } from './nav-tree';
 
 async function openFinance(page: Page): Promise<void> {
   await page.goto('/finance/receivables');
@@ -23,11 +13,11 @@ test('without the plugin the tree draws no payment matching area at all', async 
   await expect(page.getByTestId('receivables-list')).toBeVisible();
 
   await expect(page.locator('[data-nav-area]')).toHaveCount(5);
-  await expect(page.locator('[data-nav-area="matching"]')).toHaveCount(0);
+  await expect(navArea(page, 'matching')).toHaveCount(0);
 
   await installPaymentMatching(page);
 
-  await expect(page.locator('[data-nav-area="matching"]')).toHaveCount(1);
+  await expect(navArea(page, 'matching')).toHaveCount(1);
 });
 
 test('the module draws all six areas, and the one declared shut starts shut', async ({
@@ -47,14 +37,11 @@ test('the module draws all six areas, and the one declared shut starts shut', as
 test('an area holding a single view is still an area', async ({ page }) => {
   await openFinance(page);
 
-  const matching = page.locator('[data-nav-area="matching"]');
+  const matching = navArea(page, 'matching');
   await expect(matching).toHaveCount(1);
   await expect(matching.locator('[data-nav-view]')).toHaveCount(1);
 });
 
-/* More areas than fit. The tree does not scroll itself here: the workbench's surface wrapper is the
-   scroller, which is the one this has to work with. What matters is that the last area is still
-   reachable and still works. */
 test('a sidebar too long for its panel is still reachable to its last area', async ({
   page,
 }) => {
@@ -105,16 +92,12 @@ test('every area leads to content, and the sidebar marks where the visitor is', 
   }
 });
 
-/* The books have to agree with themselves, and the view says so rather than leaving it to be read
-   off two columns. */
 test('the ledger reports that debit and credit agree', async ({ page }) => {
   await page.goto('/finance/ledger');
 
   await expect(page.getByTestId('ledger-balance')).toHaveText('debit equals credit');
 });
 
-/* Starting a dunning run is an action beside the content it acts on, not an entry in the tree, and
-   it asks before it does anything with a side effect. */
 test('the dunning run asks first, and raises every overdue receivable a level', async ({
   page,
 }) => {

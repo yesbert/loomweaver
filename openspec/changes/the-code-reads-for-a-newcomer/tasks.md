@@ -746,8 +746,15 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   before the view is drawn; booked inside the renderer, it was drawn as unbooked until the next
   render, which a new end-to-end test now pins. `plugin.js` activates with `async`/`await`, and the
   two `badgeFor`s are `tabBadge` and `outcomeBadge`.
-- [ ] 12.16 End-to-end tests: the design reasons written in two comments move into names, then all 46
+- [x] 12.16 End-to-end tests: the design reasons written in two comments move into names, then all 46
   narration comments go and `e2e/**` is linted; shared locators; the overclaiming test name.
+  The New tab test names why the dashboard opens as a tab of its own and the deep link test names
+  what the quote opens beside; every other comment went. The demo's lint no longer ignores `e2e/**`.
+  The nav tree and tab locators live in `nav-tree.ts` and `tabs.ts` instead of a copy in every spec,
+  and the store helper is named `plugin-store.ts` after what it drives. Moving them showed that the
+  workspace test looked for the close control inside the tab button, where it never is, so its
+  "cannot be closed" held for any tab; it now looks beside the tab and pins a closable one too. The
+  layout test checks every region a weaver targets, which is what its name already said.
 
 ## 13. The example
 

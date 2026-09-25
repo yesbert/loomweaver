@@ -1,10 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { chooseScheme } from './scheme';
 
-/* The demo is built slice by slice, so this suite deliberately asserts only what must hold for
-   every slice: the product boots, its chrome is branded, its strings are translated, and the
-   console stays quiet. Each slice adds its own spec next to this one. */
-
 test('boots the branded shell', async ({ page }) => {
   await page.goto('/');
 
@@ -14,8 +10,6 @@ test('boots the branded shell', async ({ page }) => {
   await expect(brand.getByText('A product built on LoomWeaver')).toBeVisible();
 });
 
-/* Every string this demo shows exists in both languages, from the first slice on. The product's
-   own tagline goes through the same namespaced bundle a weaver's strings will. */
 test('speaks German as completely as English', async ({ page }) => {
   await page.goto('/');
 
@@ -26,9 +20,6 @@ test('speaks German as completely as English', async ({ page }) => {
   await expect(page.getByText('Ein Produkt auf Basis von LoomWeaver')).toBeVisible();
 });
 
-/* The translation bundles are served as build assets, which means a wrong assets glob does not
-   fail the build — it degrades every label to its raw key at runtime. That happened once already
-   while the testbed was being renamed, so it is worth a test of its own. */
 test('renders translated labels, never raw keys', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('lw-shell')).toBeVisible();
@@ -63,10 +54,6 @@ test('loads without console errors', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
-/* The version lives in the status bar, on the demo's own About entry that replaces the shell's
-   version entry. It is worth an assertion of its own: a contribution aimed at a region id the
-   layout does not declare renders nothing and reports nothing, which is how the status bar stayed
-   empty until the id was corrected. */
 test('shows the platform version in the status bar', async ({ page }) => {
   await page.goto('/');
 

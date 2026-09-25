@@ -7,7 +7,7 @@ const tailwindEntryPoint = fileURLToPath(new URL("./src/styles.css", import.meta
 
 export default tseslint.config(
     {
-        ignores: ["dist/**", "test-results/**", ".angular/**", "e2e/**"]
+        ignores: ["dist/**", "test-results/**", ".angular/**"]
     },
     {
         files: ["**/*.ts"],

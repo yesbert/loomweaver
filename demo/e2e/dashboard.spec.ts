@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { chooseScheme } from './scheme';
 import { switchAccount } from './account';
+import { navEntry } from './nav-tree';
 
 test('a first visit lands on the dashboard, shown as a full screen', async ({
   page,
@@ -23,7 +24,7 @@ test('the overview holds no quote list, so a click cannot bury it', async ({
     .getByRole('navigation', { name: 'Left activity bar' })
     .getByRole('button', { name: 'Sales' })
     .click();
-  await page.locator('[data-nav-view="sales/quotes"]').click();
+  await navEntry(page, 'sales/quotes').click();
 
   await expect(page.locator('[data-testid="quotes-list"] li')).toHaveCount(7);
 });
