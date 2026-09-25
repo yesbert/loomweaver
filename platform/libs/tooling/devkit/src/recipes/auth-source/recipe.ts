@@ -1,5 +1,6 @@
 import { FileMap, Recipe } from '../../lib/generate/types';
 import { isKebabId, toCamelCase, toPascalCase } from '../../lib/generate/casing';
+import { RAIL_REGION } from '../shell-regions';
 
 export interface AuthSourceInput {
   readonly name: string;
@@ -119,7 +120,7 @@ function draw(ctx: PluginContext): void {
   drawn = [
     ctx.registerRailItem({
       id: 'session.account',
-      rail: 'primary',
+      rail: '${RAIL_REGION}',
       icon: 'account',
       title: current.authenticated ? name : 'session.signIn',
       anchor: 'bottom',

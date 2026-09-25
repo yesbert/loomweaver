@@ -475,7 +475,11 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   auth source's import path comes from `posix.relative`. Set aside: sharing the code-written postcss
   file list with the CLI, which would add a published devkit export, and starting the Nx
   distribution from a minimal build target, which would change the `project.json` it writes.
-- [ ] 10.6 Region ids are a typed table the templates interpolate; `check-region-ids.mjs` reads it.
+- [x] 10.6 Region ids are a typed table the templates interpolate; `check-region-ids.mjs` reads it.
+  `shell-regions.ts` names each region once (`RAIL_REGION`, `STATUS_BAR_REGION`, …) and holds them
+  in a typed table that `renderRegions` renders; the weaver, agent, auth-source, distribution and
+  layout templates interpolate the names. Every scaffold's generated files are byte-identical. The
+  checker resolves the names and now also reads the agent panel's dock.
 - [ ] 10.7 The CLI: `run.ts` split into commands with a command table, `init/`, `scaffold/` and
   `validate/` folders, init steps as a union, the angular.json reading in one file, the workspace type
   without casts, flag typing once, the target application chosen by one rule, devkit defaults reused.

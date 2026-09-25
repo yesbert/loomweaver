@@ -1,4 +1,5 @@
 import { FileMap } from '../../lib/generate/types';
+import { RIGHT_PANEL_REGION } from '../shell-regions';
 import type { ResolvedWeaver } from './recipe';
 import { panelFile, panelTemplateFile } from './agent-panel';
 import { standInFile } from './agent-stand-in';
@@ -155,7 +156,7 @@ export function agentSurfaceBlock(w: ResolvedWeaver): string {
     `      id: '${w.id}.agent',`,
     `      title: '${w.id}.agent.title',`,
     `      icon: '${w.id}',`,
-    "      docks: ['right-panel'],",
+    `      docks: ['${RIGHT_PANEL_REGION}'],`,
     '      padded: true,',
     `      component: ${w.className}AgentPanel,`,
     '    });',

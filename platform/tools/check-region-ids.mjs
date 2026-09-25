@@ -29,6 +29,7 @@ const SOURCES = {
   defaults: 'libs/core/shell/src/lib/regions/bar/default-bar-items.ts',
   scaffold: 'libs/tooling/devkit/src/recipes/shell-regions.ts',
   weaver: 'libs/tooling/devkit/src/recipes/angular-weaver/weaver-plugin.ts',
+  agent: 'libs/tooling/devkit/src/recipes/angular-weaver/agent-files.ts',
 };
 
 const read = (path) => readFileSync(join(root, path), 'utf8');
@@ -39,16 +40,26 @@ const targeted = new Set(
   matchAll(read(SOURCES.defaults), /\bbar:\s*'([^']+)'/g),
 );
 const scaffoldSource = read(SOURCES.scaffold);
-const scaffolded = new Set(matchAll(scaffoldSource, /\bid:\s*'([^']+)'/g));
-const regionTypes = new Map(
-  [...scaffoldSource.matchAll(/\bid:\s*'([^']+)',\s*type:\s*'([^']+)'/g)].map(
-    (m) => [m[1], m[2]],
-  ),
+const regionNames = new Map(
+  [...scaffoldSource.matchAll(/export const (\w+) = '([^']+)';/g)].map((m) => [
+    m[1],
+    m[2],
+  ]),
 );
+const regionId = (token) =>
+  regionNames.get(/^\$\{(\w+)\}$/.exec(token)?.[1]) ?? token;
+const regionTypes = new Map(
+  [...scaffoldSource.matchAll(/\{ id: (\w+), type: '([^']+)'/g)].map((m) => [
+    regionNames.get(m[1]),
+    m[2],
+  ]),
+);
+const scaffolded = new Set(regionTypes.keys());
 const docked = new Set(
-  matchAll(read(SOURCES.weaver), /\bdocks:\s*\[([^\]]*)\]/g).flatMap((list) =>
-    matchAll(list, /'([^']+)'/g),
-  ),
+  [SOURCES.weaver, SOURCES.agent]
+    .flatMap((path) => matchAll(read(path), /\bdocks:\s*\[([^\]]*)\]/g))
+    .flatMap((list) => matchAll(list, /'([^']+)'/g))
+    .map((token) => regionId(token)),
 );
 
 if (targeted.size === 0 || scaffolded.size === 0) {
@@ -91,7 +102,7 @@ const notAPanel = [...docked]
 
 if (docked.size === 0) {
   console.error(
-    `check-region-ids: read no dock target from ${SOURCES.weaver} — the emitted plugin changed shape.`,
+    `check-region-ids: read no dock target from ${SOURCES.weaver} or ${SOURCES.agent} — the emitted plugin changed shape.`,
   );
   process.exit(1);
 }
