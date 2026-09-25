@@ -1,21 +1,20 @@
 import { Component, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { CONTAINER_HANDLE } from '@loomweaver/plugin-sdk';
+import { containerIdFromRoute } from './container-id';
 
 const ITEMS = ['alpha', 'beta', 'gamma', 'delta'] as const;
 
 @Component({
-  selector: 'lw-testbed-ws-list-view',
+  selector: 'lw-testbed-container-list-view',
   imports: [TranslocoPipe],
-  templateUrl: './testbed-ws-list-view.html',
+  templateUrl: './container-list-view.html',
 })
-export class TestbedWsListView {
-  private readonly route = inject(ActivatedRoute, { optional: true });
+export class ContainerListView {
   private readonly container = inject(CONTAINER_HANDLE);
 
   protected readonly items = ITEMS;
-  protected readonly simId = this.route?.snapshot.paramMap.get('id') ?? '—';
+  protected readonly containerId = containerIdFromRoute();
 
   protected open(item: string): void {
     this.container?.open(`item/${item}`, {

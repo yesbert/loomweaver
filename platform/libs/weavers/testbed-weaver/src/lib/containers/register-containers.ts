@@ -1,18 +1,18 @@
 import { PluginContext } from '@loomweaver/plugin-sdk';
-import { TestbedWsAuditView } from './testbed-ws-audit-view';
-import { TestbedWsCanvasView } from './testbed-ws-canvas-view';
-import { TestbedWsDetailsView } from './testbed-ws-details-view';
-import { TestbedWsItemView } from './testbed-ws-item-view';
-import { TestbedWsListView } from './testbed-ws-list-view';
+import { ContainerAuditView } from './container-audit-view';
+import { ContainerCanvasView } from './container-canvas-view';
+import { ContainerDetailsView } from './container-details-view';
+import { ContainerItemView } from './container-item-view';
+import { ContainerListView } from './container-list-view';
 
 interface ContainerTab {
-  readonly kind: 'workspace' | 'arranged' | 'browse';
+  readonly kind: 'container' | 'arranged' | 'browse';
   readonly title: string;
   readonly icon: string;
 }
 
-const WORKSPACE_TAB: ContainerTab = {
-  kind: 'workspace',
+const CONTAINER_TAB: ContainerTab = {
+  kind: 'container',
   title: 'Container',
   icon: 'testbedDashboard',
 };
@@ -49,12 +49,12 @@ function openContainerTab(
 
 function registerContainerSurfaces(ctx: PluginContext): void {
   ctx.registerSurface({
-    id: 'testbed.workspace',
-    title: 'testbed.workspace.title',
-    routable: { path: 'workspace/:id' },
+    id: 'testbed.container',
+    title: 'testbed.container.title',
+    routable: { path: 'container/:id' },
     container: {
-      children: ['testbed.wsCanvas', 'testbed.wsDetails', 'testbed.wsFrame'],
-      initial: ['testbed.wsCanvas', 'testbed.wsDetails'],
+      children: ['testbed.containerCanvas', 'testbed.containerDetails', 'testbed.containerFrame'],
+      initial: ['testbed.containerCanvas', 'testbed.containerDetails'],
     },
   });
   ctx.registerSurface({
@@ -63,23 +63,23 @@ function registerContainerSurfaces(ctx: PluginContext): void {
     routable: { path: 'arranged/:id' },
     container: {
       children: [
-        'testbed.wsCanvas',
-        'testbed.wsDetails',
-        'testbed.wsFrame',
-        'testbed.wsAudit',
+        'testbed.containerCanvas',
+        'testbed.containerDetails',
+        'testbed.containerFrame',
+        'testbed.containerAudit',
       ],
       initial: {
         columns: [
-          { size: 60, tabs: ['testbed.wsCanvas'] },
+          { size: 60, tabs: ['testbed.containerCanvas'] },
           {
             size: 40,
             rows: [
               {
                 size: 45,
-                tabs: [{ surface: 'testbed.wsDetails', closable: false }],
+                tabs: [{ surface: 'testbed.containerDetails', closable: false }],
               },
-              { size: 30, tabs: ['testbed.wsFrame'] },
-              { size: 25, tabs: ['testbed.wsAudit'] },
+              { size: 30, tabs: ['testbed.containerFrame'] },
+              { size: 25, tabs: ['testbed.containerAudit'] },
             ],
           },
         ],
@@ -92,13 +92,13 @@ function registerContainerSurfaces(ctx: PluginContext): void {
     routable: { path: 'browse/:id' },
     container: {
       children: [
-        { surface: 'testbed.wsList', segment: 'list' },
-        { surface: 'testbed.wsItem', segment: 'item/:itemId' },
-        'testbed.wsDetails',
+        { surface: 'testbed.containerList', segment: 'list' },
+        { surface: 'testbed.containerItem', segment: 'item/:itemId' },
+        'testbed.containerDetails',
       ],
       initial: {
         columns: [
-          { size: 34, tabs: [{ surface: 'testbed.wsList', closable: false }] },
+          { size: 34, tabs: [{ surface: 'testbed.containerList', closable: false }] },
           { size: 66, tabs: [] },
         ],
       },
@@ -108,55 +108,55 @@ function registerContainerSurfaces(ctx: PluginContext): void {
 
 function registerChildSurfaces(ctx: PluginContext): void {
   ctx.registerSurface({
-    id: 'testbed.wsList',
-    title: 'testbed.workspace.list',
+    id: 'testbed.containerList',
+    title: 'testbed.container.list',
     icon: 'outline',
     docks: [],
-    component: TestbedWsListView,
+    component: ContainerListView,
   });
   ctx.registerSurface({
-    id: 'testbed.wsItem',
-    title: 'testbed.workspace.item',
+    id: 'testbed.containerItem',
+    title: 'testbed.container.item',
     icon: 'testbedEntry',
     docks: [],
-    component: TestbedWsItemView,
+    component: ContainerItemView,
   });
   ctx.registerSurface({
-    id: 'testbed.wsFrame',
-    title: 'testbed.workspace.frame',
+    id: 'testbed.containerFrame',
+    title: 'testbed.container.frame',
     badge: { text: 'testbed.badge.beta', tone: 'brand' },
     docks: [],
     iframe: '/docked-frame/view.html?child=1',
   });
   ctx.registerSurface({
-    id: 'testbed.wsCanvas',
-    title: 'testbed.workspace.canvas',
+    id: 'testbed.containerCanvas',
+    title: 'testbed.container.canvas',
     docks: [],
-    component: TestbedWsCanvasView,
+    component: ContainerCanvasView,
   });
   ctx.registerSurface({
-    id: 'testbed.wsDetails',
-    title: 'testbed.workspace.details',
+    id: 'testbed.containerDetails',
+    title: 'testbed.container.details',
     docks: [],
-    component: TestbedWsDetailsView,
+    component: ContainerDetailsView,
   });
   ctx.registerSurface({
-    id: 'testbed.wsAudit',
-    title: 'testbed.workspace.audit',
+    id: 'testbed.containerAudit',
+    title: 'testbed.container.audit',
     docks: [],
     access: { anyRole: ['admin'] },
-    component: TestbedWsAuditView,
+    component: ContainerAuditView,
   });
 }
 
 function registerContainerCommands(ctx: PluginContext): void {
   ctx.registerCommand({
-    id: 'testbed.go.workspace',
-    title: 'testbed.workspace.title',
+    id: 'testbed.go.container',
+    title: 'testbed.container.title',
     icon: 'splitPanes',
     run: () => {
-      openContainerTab(ctx, WORKSPACE_TAB, 'alpha');
-      openContainerTab(ctx, WORKSPACE_TAB, 'beta');
+      openContainerTab(ctx, CONTAINER_TAB, 'alpha');
+      openContainerTab(ctx, CONTAINER_TAB, 'beta');
     },
   });
   ctx.registerCommand({
@@ -178,19 +178,19 @@ function registerContainerCommands(ctx: PluginContext): void {
     icon: 'splitPanesDown',
     run: () => {
       auditShown = !auditShown;
-      ctx.setChildShown('testbed.wsAudit', auditShown);
+      ctx.setChildShown('testbed.containerAudit', auditShown);
     },
   });
 }
 
 function registerContainerRailItems(ctx: PluginContext): void {
   ctx.registerRailItem({
-    id: 'testbed.rail.workspace',
+    id: 'testbed.rail.container',
     rail: 'primary',
     icon: 'splitPanes',
-    title: 'testbed.workspace.title',
+    title: 'testbed.container.title',
     order: 6,
-    command: 'testbed.go.workspace',
+    command: 'testbed.go.container',
   });
   ctx.registerRailItem({
     id: 'testbed.rail.arranged',

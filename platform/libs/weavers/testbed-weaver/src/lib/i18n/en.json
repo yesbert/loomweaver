@@ -222,19 +222,19 @@
     "intro": "You were sent here because you are not signed in with the required role. The distribution wired a login redirect for this route. You were headed to",
     "action": "Sign in as admin"
   },
-  "workspace": {
+  "container": {
     "title": "Containers",
-    "simId": "Container {{id}}",
+    "name": "Container {{id}}",
     "frame": "Frame child",
     "canvas": "Canvas",
     "details": "Details",
     "audit": "Audit (admin)",
     "auditIntro": "A container child gated to the admin role. It is seeded into the arrangement whatever the session, so its pane shows the access placeholder until an admin signs in.",
-    "world": "Child body",
+    "body": "Child body",
     "status": "Status",
     "running": "Running",
-    "agents": "Items",
-    "ticks": "Steps",
+    "itemCount": "Items",
+    "stepCount": "Steps",
     "region": "Region",
     "list": "Items",
     "item": "Item"

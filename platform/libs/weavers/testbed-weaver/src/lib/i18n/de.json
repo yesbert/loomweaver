@@ -222,19 +222,19 @@
     "intro": "Sie wurden hierher geschickt, weil Sie nicht mit der nötigen Rolle angemeldet sind. Die Distribution hat für diese Route eine Login-Weiterleitung hinterlegt. Ihr Ziel war",
     "action": "Als Admin anmelden"
   },
-  "workspace": {
+  "container": {
     "title": "Container",
-    "simId": "Container {{id}}",
+    "name": "Container {{id}}",
     "frame": "Rahmen-Kind",
     "canvas": "Leinwand",
     "details": "Details",
     "audit": "Prüfprotokoll (Admin)",
     "auditIntro": "Ein Container-Kind, das die Admin-Rolle verlangt. Es wird unabhängig von der Sitzung in die Anordnung gesät, deshalb zeigt seine Fläche den Zugriffs-Platzhalter, bis sich eine Administration anmeldet.",
-    "world": "Kind-Inhalt",
+    "body": "Kind-Inhalt",
     "status": "Status",
     "running": "Läuft",
-    "agents": "Elemente",
-    "ticks": "Schritte",
+    "itemCount": "Elemente",
+    "stepCount": "Schritte",
     "region": "Region",
     "list": "Einträge",
     "item": "Eintrag"

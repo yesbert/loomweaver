@@ -1,6 +1,6 @@
-<div class="flex h-full flex-col gap-3" data-testid="testbed-ws-canvas">
-  <p class="text-sm font-semibold text-content" data-testid="testbed-ws-sim">
-    {{ 'testbed.workspace.simId' | transloco: { id: simId } }} · {{ 'testbed.workspace.world' | transloco }}
+<div class="flex h-full flex-col gap-3" data-testid="testbed-container-canvas">
+  <p class="text-sm font-semibold text-content" data-testid="testbed-container-id">
+    {{ 'testbed.container.name' | transloco: { id: containerId } }} · {{ 'testbed.container.body' | transloco }}
   </p>
   <div class="grid flex-1 grid-cols-3 grid-rows-2 gap-3">
     @for (node of nodes; track node) {
