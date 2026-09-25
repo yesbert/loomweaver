@@ -86,7 +86,7 @@ export class HostPluginContext implements PluginContext {
     private readonly isGranted: (capability: Capability) => boolean,
   ) {
     this.ui = pluginUi(pluginId, () => this.require('ui'));
-    const store = inject(PluginStateService).facade(pluginId);
+    const store = inject(PluginStateService).forPlugin(pluginId);
     this.state = {
       watch: <T>(key: string) => this.trackHandle(store.watch<T>(key)),
     };

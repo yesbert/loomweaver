@@ -40,7 +40,7 @@ describe('PluginStateService', () => {
 
   it('keeps a plugin inside its own namespace', () => {
     const service = setup();
-    const handle = service.facade('acme').watch<{ note: string }>('step-1');
+    const handle = service.forPlugin('acme').watch<{ note: string }>('step-1');
 
     handle.set({ note: 'hello' });
     vi.advanceTimersByTime(400);
@@ -50,8 +50,8 @@ describe('PluginStateService', () => {
 
   it('gives two surfaces of one plugin the same live value', () => {
     const service = setup();
-    const first = service.facade('acme').watch<string>('step-1');
-    const second = service.facade('acme').watch<string>('step-1');
+    const first = service.forPlugin('acme').watch<string>('step-1');
+    const second = service.forPlugin('acme').watch<string>('step-1');
 
     first.set('typed here');
 
@@ -60,8 +60,8 @@ describe('PluginStateService', () => {
 
   it('separates plugins that use the same key name', () => {
     const service = setup();
-    const acme = service.facade('acme').watch<string>('step-1');
-    const other = service.facade('other').watch<string>('step-1');
+    const acme = service.forPlugin('acme').watch<string>('step-1');
+    const other = service.forPlugin('other').watch<string>('step-1');
 
     acme.set('mine');
 
@@ -70,12 +70,12 @@ describe('PluginStateService', () => {
 
   it('reports loaded immediately for a peek-capable store', () => {
     const service = setup();
-    expect(service.facade('acme').watch('step-1').loaded()).toBe(true);
+    expect(service.forPlugin('acme').watch('step-1').loaded()).toBe(true);
   });
 
   it('reports loaded only once a network-backed store has answered', async () => {
     const service = setup(asyncStore({ [KEY]: '"stored"' }));
-    const handle = service.facade('acme').watch<string>('step-1');
+    const handle = service.forPlugin('acme').watch<string>('step-1');
 
     expect(handle.loaded()).toBe(false);
     expect(handle.value()).toBeUndefined();
@@ -86,7 +86,7 @@ describe('PluginStateService', () => {
 
   it('debounces writes and flushes a pending one on the last dispose', () => {
     const service = setup();
-    const handle = service.facade('acme').watch<string>('step-1');
+    const handle = service.forPlugin('acme').watch<string>('step-1');
 
     handle.set('a');
     handle.set('b');
@@ -98,7 +98,7 @@ describe('PluginStateService', () => {
 
   it('clear removes the key and empties the value', () => {
     const service = setup();
-    const handle = service.facade('acme').watch<string>('step-1');
+    const handle = service.forPlugin('acme').watch<string>('step-1');
     handle.set('a');
     vi.advanceTimersByTime(400);
 
@@ -110,7 +110,7 @@ describe('PluginStateService', () => {
 
   it('refuses a value over the size cap instead of writing it', () => {
     const service = setup();
-    const handle = service.facade('acme').watch<string>('step-1');
+    const handle = service.forPlugin('acme').watch<string>('step-1');
     const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
     handle.set('x'.repeat(70 * 1024));
@@ -123,7 +123,7 @@ describe('PluginStateService', () => {
 
   it('refuses a new key past the count cap', () => {
     const service = setup();
-    const state = service.facade('acme');
+    const state = service.forPlugin('acme');
     const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 
@@ -140,7 +140,7 @@ describe('PluginStateService', () => {
 
   it('deletes the whole namespace when the plugin is uninstalled', async () => {
     const service = setup();
-    const state = service.facade('acme');
+    const state = service.forPlugin('acme');
     state.watch<string>('step-1').set('a');
     state.watch<string>('step-2').set('b');
     vi.advanceTimersByTime(400);
@@ -157,6 +157,6 @@ describe('PluginStateService', () => {
 
   it('rejects an empty key rather than writing to the namespace root', () => {
     const service = setup();
-    expect(() => service.facade('acme').watch('')).toThrow(/non-empty key/);
+    expect(() => service.forPlugin('acme').watch('')).toThrow(/non-empty key/);
   });
 });

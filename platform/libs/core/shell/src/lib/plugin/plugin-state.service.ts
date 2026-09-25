@@ -7,7 +7,7 @@ import { StateSyncService } from '../persistence/state-sync.service';
 const STORAGE_PREFIX = 'lw.plugin-state:';
 const INDEX_PREFIX = 'lw.plugin-state-keys:';
 const SAVE_DEBOUNCE_MS = 400;
-const MAX_VALUE_BYTES = 64 * 1024;
+const MAX_VALUE_CHARACTERS = 64 * 1024;
 const MAX_KEYS = 64;
 
 function parseBlob(raw: string | undefined): unknown {
@@ -58,7 +58,7 @@ export class PluginStateService {
     this.sync.onNamespaceAdopted(() => this.rereadEntries());
   }
 
-  facade(pluginId: string): PluginState {
+  forPlugin(pluginId: string): PluginState {
     return {
       watch: <T>(key: string) => this.watch<T>(pluginId, key),
     };
@@ -151,9 +151,10 @@ export class PluginStateService {
 
   private write(entry: Entry, key: string, next: unknown): void {
     const serialised = JSON.stringify(next);
-    if (!this.withinLimits(entry.pluginId, key, serialised)) {
+    if (!this.admits(entry.pluginId, key, serialised)) {
       return;
     }
+    this.index(entry.pluginId, key);
     entry.value.set(next);
     entry.pending = serialised;
     this.cancelTimer(entry);
@@ -192,43 +193,46 @@ export class PluginStateService {
     entry.timer = undefined;
   }
 
-  private withinLimits(
-    pluginId: string,
-    key: string,
-    serialised: string,
-  ): boolean {
-    const bytes = serialised.length;
-    if (bytes > MAX_VALUE_BYTES) {
+  private admits(pluginId: string, key: string, serialised: string): boolean {
+    const characters = serialised.length;
+    if (characters > MAX_VALUE_CHARACTERS) {
       console.error(
-        `Plugin "${pluginId}": state key "${key}" is ${bytes} bytes, over the ${MAX_VALUE_BYTES}-byte ` +
-          `limit for one value. The write was refused — keep large payloads out of the store and put a ` +
-          `pointer to them in it instead.`,
+        `Plugin "${pluginId}": state key "${key}" is ${characters} characters long, over the ` +
+          `${MAX_VALUE_CHARACTERS}-character limit for one value. The write was refused. Keep large ` +
+          `payloads out of the store and put a pointer to them in it instead.`,
       );
       return false;
     }
     const keys = this.knownKeys(pluginId);
-    if (!keys.has(key) && keys.size >= MAX_KEYS) {
+    const isNew = !keys.has(key);
+    if (isNew && keys.size >= MAX_KEYS) {
       console.error(
         `Plugin "${pluginId}": ${MAX_KEYS} state keys is the limit and "${key}" would be one more. ` +
           `The write was refused — clear the keys you no longer need.`,
       );
       return false;
     }
-    if (isDevMode() && bytes > MAX_VALUE_BYTES / 2) {
+    if (isDevMode() && characters > MAX_VALUE_CHARACTERS / 2) {
       console.warn(
-        `Plugin "${pluginId}": state key "${key}" is ${bytes} bytes, past half the per-value limit.`,
+        `Plugin "${pluginId}": state key "${key}" is ${characters} characters long, past half the ` +
+          `per-value limit.`,
       );
     }
-    if (isDevMode() && !keys.has(key) && keys.size + 1 > MAX_KEYS / 2) {
+    if (isDevMode() && isNew && keys.size + 1 > MAX_KEYS / 2) {
       console.warn(
         `Plugin "${pluginId}": ${keys.size + 1} state keys, past half the limit of ${MAX_KEYS}.`,
       );
     }
-    if (!keys.has(key)) {
-      keys.add(key);
-      this.persistIndex(pluginId);
-    }
     return true;
+  }
+
+  private index(pluginId: string, key: string): void {
+    const keys = this.knownKeys(pluginId);
+    if (keys.has(key)) {
+      return;
+    }
+    keys.add(key);
+    this.persistIndex(pluginId);
   }
 
   private knownKeys(pluginId: string): Set<string> {

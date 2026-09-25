@@ -97,7 +97,7 @@ export class IframeSurface implements DirtySurface {
   private readonly stateBridge = new PluginStateBridge(
     this.pluginId === undefined
       ? undefined
-      : this.pluginState.facade(this.pluginId),
+      : this.pluginState.forPlugin(this.pluginId),
     this.injector,
     (key, value, loaded) => this.pushState(key, value, loaded),
   );
