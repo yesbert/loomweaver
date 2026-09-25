@@ -14,7 +14,7 @@ interface JsonSchemaObject {
   readonly required: readonly string[];
 }
 
-const SCALAR_TYPE: Readonly<Record<string, string>> = {
+const SCALAR_TYPE: Readonly<Record<CommandArgument['kind'], string>> = {
   text: 'string',
   number: 'number',
   boolean: 'boolean',
@@ -70,7 +70,7 @@ function parametersFor(
 
 function propertyFor(argument: CommandArgument): JsonSchemaProperty {
   const scalar = {
-    type: SCALAR_TYPE[argument.kind] ?? 'string',
+    type: SCALAR_TYPE[argument.kind],
     ...(argument.kind === 'choice' && { enum: argument.choices }),
   };
   return argument.list === true

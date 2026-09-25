@@ -188,44 +188,33 @@ describe('commandTools receive', () => {
 
   it('keeps two interleaved calls apart', async () => {
     const { ctx, invoked } = access();
-    const tools = commandTools(ctx);
 
-    await tools.receive(
+    const answers = await play(commandTools(ctx), [
       event(EventType.TOOL_CALL_START, {
         toolCallId: 'a',
         toolCallName: 'notes.open',
       }),
-    );
-    await tools.receive(
       event(EventType.TOOL_CALL_START, {
         toolCallId: 'b',
         toolCallName: 'notes.open',
       }),
-    );
-    await tools.receive(
       event(EventType.TOOL_CALL_ARGS, {
         toolCallId: 'a',
         delta: '{"path":"first"}',
       }),
-    );
-    await tools.receive(
       event(EventType.TOOL_CALL_ARGS, {
         toolCallId: 'b',
         delta: '{"path":"second"}',
       }),
-    );
-    const first = await tools.receive(
       event(EventType.TOOL_CALL_END, { toolCallId: 'a' }),
-    );
-    const second = await tools.receive(
       event(EventType.TOOL_CALL_END, { toolCallId: 'b' }),
-    );
+    ]);
 
     expect(invoked.map((call) => call.args)).toEqual([
       { path: 'first' },
       { path: 'second' },
     ]);
-    expect([first?.toolCallId, second?.toolCallId]).toEqual(['a', 'b']);
+    expect(answers.map((answer) => answer.toolCallId)).toEqual(['a', 'b']);
   });
 
   it('ignores an event that is not part of a tool call', async () => {
@@ -250,7 +239,7 @@ describe('commandTools receive', () => {
   });
 });
 
-describe('commandTools with the convenience form', () => {
+describe('commandTools with chunked tool calls', () => {
   it('assembles a call carried by chunks', async () => {
     const { ctx, invoked } = access();
     const answers = await play(commandTools(ctx), [
@@ -408,7 +397,7 @@ describe('commandTools hook', () => {
     expect(seen).toEqual(['ask-always', undefined, undefined]);
   });
 
-  it('asks the account nothing where no hook wants to know', async () => {
+  it('does not read the command list when no hook is supplied', async () => {
     let asked = 0;
     const tools = commandTools({
       invocableCommands: () => {
@@ -423,7 +412,7 @@ describe('commandTools hook', () => {
     expect(asked).toBe(0);
   });
 
-  it('acts on the statement itself in no way at all', async () => {
+  it("runs a command that says an agent's word is never enough when the hook lets it through", async () => {
     const { ctx, invoked } = access(ANSWERED, [
       { ...OPEN, agentConsent: 'never' },
     ]);

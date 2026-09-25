@@ -1,4 +1,8 @@
-import type { CommandArguments, CommandScalar } from '@loomweaver/plugin-sdk';
+import type {
+  CommandArgumentValue,
+  CommandArguments,
+  CommandScalar,
+} from '@loomweaver/plugin-sdk';
 
 /**
  * Reads the JSON an agent streamed for one call into arguments the workbench can be handed, or
@@ -25,7 +29,7 @@ export function readArguments(json: string): CommandArguments | null {
   if (!isRecord(parsed)) {
     return null;
   }
-  const args: Record<string, CommandScalar | readonly CommandScalar[]> = {};
+  const args: Record<string, CommandArgumentValue> = {};
   for (const [name, value] of Object.entries(parsed)) {
     if (isScalar(value)) {
       args[name] = value;
