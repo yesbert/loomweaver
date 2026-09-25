@@ -14,6 +14,7 @@ export class PluginStoreCard {
   readonly entry = input.required<PluginCatalogEntry>();
   readonly selected = input(false);
   readonly installed = input(false);
+  readonly provided = input(false);
   readonly hasUpdate = input(false);
   readonly picked = output<void>();
 }

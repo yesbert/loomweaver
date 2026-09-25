@@ -16,7 +16,13 @@
         @if (entry.category) {
           <span class="lw-badge">{{ entry.category }}</span>
         }
-        @if (hasUpdate()) {
+        @if (provided()) {
+          <span
+            class="lw-badge"
+            [attr.data-testid]="'store-provided-badge-' + entry.id"
+            >{{ 'settings.storeProvidedBadge' | transloco }}</span
+          >
+        } @else if (hasUpdate()) {
           <span
             class="lw-badge lw-badge--brand"
             [attr.data-testid]="'store-update-badge-' + entry.id"

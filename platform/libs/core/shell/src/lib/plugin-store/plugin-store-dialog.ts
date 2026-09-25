@@ -4,6 +4,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { WideDialogFrame } from '../dialog/wide-dialog-frame';
 import { PluginCatalogEntry } from './catalog/catalog-entry';
 import { PluginInstallService } from './lifecycle/plugin-install.service';
+import { PluginDeploymentService } from './lifecycle/plugin-deployment.service';
 import { InstalledPluginList } from './installed-plugin-list';
 import { PluginStoreCard } from './plugin-store-card';
 import { PluginStoreDetail } from './plugin-store-detail';
@@ -36,6 +37,7 @@ export class PluginStoreDialog implements OnInit {
     (this.ref.data as PluginStoreDialogData | undefined)?.title ??
     DEFAULT_STORE_TITLE;
   protected readonly installs = inject(PluginInstallService);
+  protected readonly deployment = inject(PluginDeploymentService);
 
   private readonly catalog = inject(PluginCatalogEntries);
 

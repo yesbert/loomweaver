@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { SETTINGS_STORE } from '../../persistence/settings-store';
 import { KeyValueStore } from '../../persistence/key-value-store';
 import { InstalledPlugin } from './installed-plugin';
+import { PluginDeploymentService } from './plugin-deployment.service';
 import { PluginInstallService } from './plugin-install.service';
 
 const KEY = 'lw.shell.installed-plugins';
@@ -141,6 +142,17 @@ describe('PluginInstallService', () => {
     expect(JSON.parse(localStorage.getItem(KEY) ?? '[]')[0].entryUrl).toBe(
       '/store/sample/v2/plugin.html',
     );
+  });
+
+  it('refuses to install a plugin the operator deployed, and records nothing', () => {
+    const service = make();
+    TestBed.inject(PluginDeploymentService).adopt([
+      { ...entry(), deployed: true },
+    ]);
+
+    expect(() => service.install(entry())).toThrow(/provided/);
+    expect(service.isInstalled('store.sample')).toBe(false);
+    expect(localStorage.getItem(KEY)).toBeNull();
   });
 
   it('refuses to update an entry that is not installed or points off-origin', () => {

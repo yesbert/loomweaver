@@ -122,7 +122,7 @@ they start with a top-level folder.
   counts towards the depth limit (`commands/command-invocation.service.ts`).
 - [x] 9.3 A plugin state value with no data form is refused with a message naming the plugin and the
   key (`plugin/plugin-state.service.ts`).
-- [ ] 9.4 Browsing a deployed plugin shows it as provided and offers no install; the install service
+- [x] 9.4 Browsing a deployed plugin shows it as provided and offers no install; the install service
   refuses a deployed id (`plugin-store/`).
 - [ ] 9.5 On a narrow screen the store's detail replaces the list and offers a way back, shown to the
   owner as a slice before it is finished (`plugin-store/plugin-store-dialog.html`).
