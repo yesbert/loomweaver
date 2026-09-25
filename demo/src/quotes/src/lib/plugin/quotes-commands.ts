@@ -64,8 +64,9 @@ function sendQuote(): Command {
         return { found: false };
       }
       markQuoteSent(quote.id);
-      quotesActions.refreshStatus(quoteById(quote.id) ?? quote);
-      return { quote: quote.number, status: 'sent' };
+      const after = quoteById(quote.id) ?? quote;
+      quotesActions.refreshStatus(after);
+      return { quote: quote.number, status: after.status };
     },
   };
 }

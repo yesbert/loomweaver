@@ -1,7 +1,7 @@
 import { setReferenceDate } from './clock';
 import { formatMoney, roundCents } from './money';
 import { customerById } from './catalog';
-import { quoteById, quoteTotals, quotes, resetQuotes } from './quotes';
+import { markQuoteSent, quoteById, quoteTotals, quotes, resetQuotes } from './quotes';
 
 describe('quote seed data', () => {
   it('gives every quote a unique number and a known customer', () => {
@@ -67,5 +67,21 @@ describe('the reference date seam', () => {
     resetQuotes();
 
     expect(quotes().map((quote) => quote.number)).toEqual(before);
+  });
+});
+
+describe('sending a quote', () => {
+  afterEach(() => resetQuotes());
+
+  it('sends a draft', () => {
+    markQuoteSent('q-0004');
+
+    expect(quoteById('q-0004')?.status).toBe('sent');
+  });
+
+  it('leaves a quote the customer already accepted as accepted', () => {
+    markQuoteSent('q-0005');
+
+    expect(quoteById('q-0005')?.status).toBe('accepted');
   });
 });

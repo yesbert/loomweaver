@@ -145,9 +145,13 @@ export function addQuote(customerId: string): Quote {
   return created;
 }
 
+const SENDABLE: ReadonlySet<QuoteStatus> = new Set(['draft', 'sent']);
+
 export function markQuoteSent(id: string): void {
   store.update((all) =>
-    all.map((quote) => (quote.id === id ? { ...quote, status: 'sent' } : quote)),
+    all.map((quote) =>
+      quote.id === id && SENDABLE.has(quote.status) ? { ...quote, status: 'sent' } : quote,
+    ),
   );
 }
 

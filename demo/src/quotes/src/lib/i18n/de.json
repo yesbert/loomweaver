@@ -57,8 +57,8 @@
     },
     "send": {
       "title": "Angebot an Kunden senden",
-      "description": "Sendet ein Angebot an seinen Kunden und markiert es als gesendet. Ein folgenreicher Schritt: der Kunde sieht es.",
-      "answers": "Die Nummer des Angebots und sein neuer Status.",
+      "description": "Sendet ein Angebot im Entwurf an seinen Kunden und markiert es als gesendet. Ein folgenreicher Schritt: der Kunde sieht es. Ein Angebot, das der Kunde schon angenommen, abgelehnt oder verfallen lassen hat, wird nicht erneut gesendet.",
+      "answers": "Die Nummer des Angebots und sein Status danach.",
       "arg": {
         "number": "Die Angebotsnummer, zum Beispiel Q-0007."
       }

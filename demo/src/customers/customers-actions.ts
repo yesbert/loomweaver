@@ -30,7 +30,10 @@ export const customersActions = {
       placeholder: 'product.customers.create.cityPlaceholder',
       confirmLabel: 'product.customers.create.confirm',
     });
-    const created = addCustomer({ name: name.trim(), city: city?.trim() ?? '' });
+    if (city === null) {
+      return null;
+    }
+    const created = addCustomer({ name: name.trim(), city: city.trim() });
     host.ui.toast({
       message: 'product.customers.create.done',
       kind: 'success',
