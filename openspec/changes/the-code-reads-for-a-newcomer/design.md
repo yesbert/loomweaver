@@ -205,3 +205,24 @@ a task below unless the task says so.
 - Whether `platform/tools/` gets sub-folders for gates, media and local servers, which touches CI paths.
 - Whether the per-project lint `inputs`, which repeat `nx.json` and name files that do not exist, are
   removed from all eleven `project.json` files at once.
+
+### Decided by the owner (2026-09-25)
+
+- **Published symbols:** the cosmetic renames stay as they are, because the break costs more than the
+  better name. The ones with a real cost to readers (`Disposable` shadowing the language's global, the
+  four host-internal shapes, exports nobody uses, `urlDriven`) go into a later change of their own,
+  renamed behind an alias or first marked deprecated, so that each release stays a patch.
+  `<lw-option icon>` is a defect and is fixed in `defects-found-while-reading-are-fixed`. The additive
+  items wait for a concrete need.
+- **Comments:** the rule covers CSS and `.astro` files as well; what a comment explains that a reader
+  needs moves to the documentation. A lint rule turned off keeps its reason beside it in the lint
+  configuration, because a disabled rule without one is either turned back on or copied blindly.
+- **The demo:** `quotes` is flattened like the other five weavers; the composition folders move under
+  `app/`; record lists use the responsive grid; product components take the `demo-` prefix.
+- **The example** takes its own `app-` prefix, and the generator reads the prefix from the workspace
+  instead of defaulting to the platform's `lw`, in a change of its own
+  (`generated-components-take-the-app-prefix`).
+- **The feature-flag declaration** stays in `foundation/`: it is a fact of the composition that no
+  slice owns, which is the folder's admission rule, however few slices read it today.
+- **`platform/tools/`** gets `checks/`, `media/` and `local/`.
+- **The per-project lint `inputs`** are removed from all eleven `project.json` files.

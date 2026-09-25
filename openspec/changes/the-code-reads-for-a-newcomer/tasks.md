@@ -93,10 +93,11 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   (728 lines) with one render helper and the workspace block in its own spec.
 - [x] 3.9 `UpdateService`: worker repair and the notices in their own files, the check deadline as a
   named method, one name for the "unreachable" outcome; the spec split the same way.
-- [ ] 3.10 After the owner's decision on CSS comments: `styles/theme.css` (879 lines) becomes an index
-  of partials behind the same published entry path (tokens, controls, one file per element look,
-  workbench, base), the asset glob ships the partials, and its comments lose tranche numbers, tracker
-  codes, other products' names and German words.
+- [ ] 3.10 `styles/theme.css` (879 lines) becomes an index of partials behind the same published entry
+  path (tokens, controls, one file per element look, workbench, base), and the asset glob ships the
+  partials. The comment rule covers CSS (decided 2026-09-25): its comments go, what they explain that a
+  consumer needs moves to `docs/reference/design-tokens.md` or the theming guide, and the comment
+  checker reads CSS.
 - [x] 3.11 Smaller frame items: `ViewInstanceService.activeInstance`, private re-read methods, the
   panel width constants imported from `layout/`, one `shownInstance` in the panel, the theme registry
   split into tokens and plugin layer with `revision` instead of `version`, the composition report's
@@ -407,9 +408,10 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   example. The terms follow 9.3: trusted and sandboxed plugin, plugin rather than weaver, user
   rather than person, callable rather than opened, and no "seam", "rung" or "slice". The version's
   JSDoc now says what it shows: the shell's released version until a distribution sets its own.
-- [ ] 9.7 The agent adapter (after its flush defect is decided): the stream assembly as a small class,
-  answering a call as a top-level function with an explicit guard, typed protocol events, the refusal
-  wording once, two message builders instead of a flag, the scalar table typed by kind.
+- [ ] 9.7 The agent adapter (after its flush defect is fixed, 9.1 of the defects change): the stream
+  assembly as a small class, answering a call as a top-level function with an explicit guard, typed
+  protocol events, the refusal wording once, two message builders instead of a flag, the scalar table
+  typed by kind.
 - [x] 9.8 The frame kit (after its declaration defect is fixed): one `@source` for the element folder,
   the spec's tag list complete, the build script's steps named.
   The stylesheet scans the whole element folder, specs included, because leaving the specs out
@@ -422,7 +424,8 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 - [ ] 9.9 Workspace configuration: the lint inputs that name missing files, the `test-setup.ts` ignores
   of packages without one, the renamed-on-import vitest export, one module setting for the two ESM
   packages, one shared Angular lint config for the four Angular projects. The removal from all eleven
-  `project.json` files after the owner's decision.
+  `project.json` files (decided 2026-09-25), with ESLint and its plugins named once in `nx.json` as
+  external inputs.
   Done except that last part. `nx.json` no longer names `.eslintrc.json`, `.eslintignore`,
   `tools/eslint-rules` or `test-setup` files, none of which exist; the tsconfig, lint and Sonar
   ignores of `test-setup.ts` are gone for the same reason; the vitest helper is exported as
@@ -627,10 +630,11 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 - [ ] 12.2 No-ops and leftovers: `padded: false` where it is the default, `CUSTOM_ELEMENTS_SCHEMA`
   without a custom element, an explicit OnPush, dead code and dead strings, exports nobody imports,
   the unused payments descriptor, computed wrappers around a signal, the dashboard's names.
-- [ ] 12.3 **Move** (after the owner's decision on the weaver shape): one shape for all six weavers.
+- [ ] 12.3 **Move** (decided 2026-09-25): `quotes` flattened like the other five weavers, so all six
+  have one shape.
 - [ ] 12.4 **Move:** the finance ledger from `accounting/` to `finance/`.
-- [ ] 12.5 **Move** (after the owner's decision): the composition folders under `app/`, with the link
-  in `docs/distribution/auth.md`.
+- [ ] 12.5 **Move** (decided 2026-09-25): the composition folders (`session`, `looks`, `navigation`,
+  `about`, `legal`, `preview`) under `app/`, with the link in `docs/distribution/auth.md`.
 - [ ] 12.6 One active-language signal, the formatters called directly, lookups next to their data; the
   date helpers once in `accounting/clock.ts` (after the month defect is fixed).
 - [ ] 12.7 Quotes: the customer pane's tab relabelling named, quote creation by id and by search,
@@ -646,8 +650,9 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 - [ ] 12.12 One supplier list shared by procurement and finance; "open items" and "receivables" used
   for what they are.
 - [ ] 12.13 Each module weaver ships its strings in its own namespace, one weaver per pull request.
-- [ ] 12.14 After the owner's decision: one idiom for record lists, one module per pull request; the
-  selector prefix.
+- [ ] 12.14 One idiom for record lists (decided 2026-09-25): the responsive grid of the customers and
+  quotes views, one module per pull request, the first shown to the owner before the rest. Product
+  components take the `demo-` selector prefix.
 - [ ] 12.15 The sandboxed payments plugin: `view.js` (440 lines) split, the renderer no longer books
   confirmations, shared keys and defaults in one script, activation with `async`/`await`.
 - [ ] 12.16 End-to-end tests: the design reasons written in two comments move into names, then all 46
@@ -666,7 +671,8 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   handling out of the panel, a consent text that fits any command, and a paragraph in
   `docs/ag-ui-agents.md` on agents that run several rounds.
 - [ ] 13.5 Leftovers (routes, stylesheet, unused dependencies, redundant sources, exports) and form
-  fields held in signals; the selector prefix after the owner's decision.
+  fields held in signals. The example's components take its own `app-` prefix, once the generator
+  reads the prefix from the workspace (`generated-components-take-the-app-prefix`).
 
 ## 14. The website
 
@@ -675,8 +681,8 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   stylesheet's repeated blocks once, the landing media list shared with `sync-docs.mjs`.
 - [ ] 14.2 The structured-data builder as a tested module in `website/tools/`, a guard for the package
   manager selectors, the consent banner's `show` and `hide`.
-- [ ] 14.3 After the owner's decision on comments in `.astro` and CSS: the checker covers the website
-  or drops it as a root, and the stale "five entries" statement goes either way.
+- [ ] 14.3 The comment rule covers `.astro` and CSS (decided 2026-09-25): the checker covers the
+  website, what its comments explain moves to the docs, and the stale "five entries" statement goes.
 
 ## 15. Tools and scripts
 
@@ -690,7 +696,9 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   corrected, one licence allowlist, the dev certificate named for what it is, `check-head.mjs`'s loop
   split, `dist-tag.mjs` failing closed.
 - [ ] 15.5 `docs/reference/operations.md` stops stating the baselines' entry counts.
-- [ ] 15.6 **Move** (after the owner's decision): sub-folders in `platform/tools/`.
+- [ ] 15.6 **Move** (decided 2026-09-25): `platform/tools/` gets `checks/` (the checkers and their
+  baselines), `media/` (screenshots and the tour) and `local/` (the dev certificate, the preview
+  server, the isolation probe), with the CI paths and the doc links.
 
 ## 16. Tests, lighter lens
 

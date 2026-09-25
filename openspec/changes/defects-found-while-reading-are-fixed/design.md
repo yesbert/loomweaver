@@ -22,7 +22,6 @@ because those products are not under the platform's specs.
 
 - Refactoring. A fix changes what it must and nothing else; the cleanup around it is a task in
   `the-code-reads-for-a-newcomer`.
-- The six defects that need a decision (below) until the owner has made it.
 
 ## Decisions
 
@@ -45,52 +44,44 @@ by value, names a code-written style configuration, and escapes paths; the Nx ro
 behaviour. The shared `applyAmendments` in the refactoring change comes after these fixes, so the fixes
 stay small and each is testable on its own.
 
-## Decisions for the owner
+## Decided by the owner
 
-These six are behaviour choices. Each gets its spec delta through `/opsx:update` once decided.
+The owner decided the open behaviour choices on 2026-09-25. Each carries its delta in this change.
 
-1. **The agent adapter's calls left open at the end of a run.** Today only the last one is answered and
-   the others vanish, which makes most model providers reject the next request. `flush` and `receive`
-   return one answer each in the published types. Options: return a list (a breaking signature change,
-   so a minor), or answer one call per `flush` and have callers loop until nothing is left (the
-   signature stays, the documented usage and the generated panel change). Separately: run the leftover
-   calls, or refuse them because their arguments never closed.
-2. **Nested versus parallel command invocations.** Today every running invocation counts towards the
-   depth limit, so sixteen calls that wait for the user block the seventeenth unrelated one. The
-   browser keeps no call-chain context across an `await`. Options: count only invocations started while
-   another command's run is on the stack (no surface change, but a loop that awaits once before calling
-   itself again is no longer stopped), or carry the chain explicitly through the invoker (additive).
-3. **A plugin state value with no JSON form.** Today writing no value or a function throws an internal
-   type error. Options: refuse it with a message naming the plugin and the key (matches the published
-   "values are JSON"), or treat writing no value as clearing the key (changes the published JSDoc and
-   adds a guarantee).
-4. **Browsing a plugin the operator deployed.** Today the detail pane offers Install for it, and
-   installing writes a hidden record that takes over if the deployment is withdrawn. Options: mark it
-   as provided and offer no install in the browse view, and optionally let the install service refuse
-   a deployed id as well (which extends a requirement).
-5. **The plugin store on a narrow screen.** Today the detail pane with the only Install button is
-   hidden below the small breakpoint, which the accessibility requirement (reflow without loss of
-   function) does not allow. The presentation is the owner's: for example the detail replacing the
-   list with a way back. It is a UI change and is shown as a reviewable slice first.
-6. **Waiting for the plugin store at activation.** The demo welcomes a first visit from `activate`,
-   where the store may not have answered yet. An in-process plugin has no way to learn when it does.
-   The handle's `value` and `loaded` are reactive, but only the first activation runs in an injection
-   context, so no effect can follow them after a plugin is switched off and on again. The frame kit's
-   handle has `onChange`, and the in-process one does not. Options: add `onChange` to the published
-   handle (additive, so a patch), or state that activation reads the store once and move such work
-   into a surface.
+1. **The agent adapter's calls left open at the end of a run** keep the published signature: each
+   `flush` answers one call, and callers ask until nothing is answered. The generated agent panel,
+   the example and the documented usage loop accordingly. A call left open never received all of its
+   arguments, so it is answered as refused and its command does not run. No breaking change, so it
+   ships in a patch. (`commands`, *The connection an agent drives answers every call it opened*)
+2. **Nested versus parallel command invocations:** only an invocation started from within another
+   command's run, before that run first waits, counts towards the depth limit. No first-party command
+   invokes another; the limit protects the programmatic route an agent and a plugin use. Carrying the
+   chain explicitly was declined: it adds surface for a case nobody has, and a loop whose steps each
+   wait is left to the plugin that builds it. (`commands`, *Invocations waiting side by side are not a
+   chain*)
+3. **A plugin state value with no data form** is refused with a message naming the plugin and the
+   key; clearing stays the way to remove a key. (`persistence-ports`)
+4. **A plugin the operator deployed** is shown as provided while browsing and offers no install, and
+   the install service refuses a deployed id. (`plugin-store`)
+5. **The plugin store on a narrow screen:** the detail replaces the list and offers a way back. It is
+   shown to the owner as a slice before it is finished. (`plugin-store`)
+6. **Waiting for the plugin store at activation:** the in-process state handle gains `onChange`, as
+   the frame kit's handle has, which is additive and ships in a patch. The demo's welcome then waits
+   for the store's answer. (`persistence-ports`)
+7. **Found while fixing the testbed, and added here by the owner:** the frame kit keeps a state write
+   made before its connection to the workbench and sends it once connected, instead of keeping it
+   only in the surface. (`persistence-ports`)
+8. **Choices read when used:** for a command registered by a plugin in the page, the choices are read
+   whenever the command is described or checked, which is now a guarantee; an isolated plugin's
+   choices are the ones it registered. The published JSDoc stops calling the list fixed. (`commands`)
 
-Three demo items are marked uncertain by the review and are fixed only if the owner calls them defects:
-cancelling the second "New customer" prompt still creates the customer (it may mean "city optional",
-then the button should say Skip); sending an accepted quote turns it back into "sent"; the quotes
-plugin failing to activate when browser storage is blocked needs a check in a browser that blocks it.
+The demo's uncertain items are defects: cancelling the second "New customer" prompt cancels the whole
+creation, and an accepted quote can no longer be sent. The third, the quotes plugin with storage
+blocked, was confirmed and fixed under 7.5.
 
-One question came up while fixing the quote commands, which now read their `choices` through a
-getter. That works because the workbench reads the list whenever it describes or checks a command.
-The published text, however, calls it "a fixed `choices` list", and a sandboxed plugin's declaration
-is copied once when it registers. Whether "read when used" becomes a guarantee in `commands`, for
-plugins in the page, is the owner's decision. Until then the demo relies on today's behaviour, and
-its test pins it.
+From the refactoring change's list for the owner, `<lw-option icon>` showing the icon's name as text
+where every other element draws the icon is treated as a defect here. No requirement names it, so it
+gets a test and no delta, like the other defects covered only by published documentation.
 
 ## Risks / Trade-offs
 
@@ -106,5 +97,5 @@ its test pins it.
 
 ## Migration Plan
 
-None. The fixes ship in the next patch release, named under "Fixed". The adapter decision, if it takes
-the breaking route, waits for a minor and is asked for separately.
+None. The fixes ship in the next patch release, named under "Fixed". No decision took a breaking route:
+the adapter keeps its signature, and the state handle's `onChange` is an addition.

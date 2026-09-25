@@ -46,12 +46,22 @@ releases its observer, the quotes plugin activates with storage blocked, the wel
 store that answers later, a lower-case ticket link opens its ticket, the landing page's pictures are
 served on purpose, and the sidebar guard matches whole routes.
 
-Five defects need a decision before they can be fixed, because each fix is a choice of behaviour:
-the agent adapter's answer to calls left open at the end of a run (its published return type holds
-one answer), how nested command invocations are told from parallel ones, whether a value with no JSON
-form is refused or clears a plugin's key, whether browsing offers to install what the operator
-deployed, and how the plugin store presents itself on a narrow screen. They are listed in
-`design.md`; each gets its delta once decided.
+Further behaviours were chosen by the owner, because each fix is a choice (see `design.md`):
+
+- The connection an agent drives answers every call a run leaves open, one per request, and refuses
+  those whose arguments never arrived instead of running them.
+- Only a command invoked from within another command's run counts towards the depth limit, so
+  invocations waiting side by side no longer block an unrelated one.
+- A plugin state value with no data form is refused with a message naming the plugin and the key.
+- A plugin the operator deployed offers no install while browsing, and installing it is refused.
+- On a narrow screen the plugin store's detail replaces the list and offers a way back.
+- A plugin in the page is told when its stored value arrives, as an isolated plugin is; an isolated
+  surface's write made before it is connected is sent once it is.
+- The choices of a command registered by a plugin in the page are read whenever it is described or
+  checked.
+
+In the demo, cancelling the second "New customer" prompt cancels the creation, and an accepted quote
+can no longer be sent. A select option shows its icon, not the icon's name.
 
 ## Capabilities
 
@@ -70,7 +80,15 @@ None.
   answers at once.
 - `shell-layout`: *A panel can be collapsed and resized, and remembers both* gains the interrupted
   drag; *The user curates what lives in each rail and sidebar* gains the menu-only launcher entry.
-- `commands`: *Open work is searchable in its own mode* states where the actions act.
+- `commands`: *Open work is searchable in its own mode* states where the actions act; *A command may
+  take described arguments and give an answer* states when choices are read; two requirements are
+  added: *Invocations waiting side by side are not a chain* and *The connection an agent drives
+  answers every call it opened*.
+- `persistence-ports`: *A plugin has a private place to keep working state* gains the in-page
+  observer told when a value arrives and the isolated write made before connecting; *A plugin's
+  private store has limits, and refuses rather than degrades* refuses a value with no data form.
+- `plugin-store`: *A deployed plugin is visibly not the user's* offers no install and refuses one;
+  *Browsing is a list and a detail* keeps the detail reachable on a narrow screen.
 - `panes`: *A pane can be blown up, and collapsed away* gains closing the blown-up pane.
 - `containers`: *The inner arrangement behaves like the outer one* gains an address with a colon.
 - `plugin-sandbox`: *The workbench's own controls are available inside an isolated surface* gains a
@@ -94,4 +112,8 @@ the route that leaves nothing to be named, placement being the consumer's) need 
   `examples/assistant-workbench/src/tickets/`, `website/tools/sync-docs.mjs`.
 - Published JSDoc that describes the corrected behaviour: the `claims` field of a workspace
   definition, `provideRequiredPlugins`, the language service.
-- No published signature changes, except where an owner decision chooses one (the agent adapter).
+- `platform/libs/core/shell/src/lib/surface-kit/` (the frame kit's state), `plugin/`, `commands/`,
+  `elements/select/`; `demo/src/customers/`, `demo/src/quotes/`.
+- No published signature changes. One addition: the in-process state handle gains a change listener,
+  as the frame kit's handle has. The published JSDoc of a command's choices stops calling them fixed,
+  and the adapter's documented usage asks until nothing is answered.
