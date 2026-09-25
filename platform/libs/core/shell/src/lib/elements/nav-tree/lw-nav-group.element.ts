@@ -84,7 +84,8 @@ export class LwNavGroupElement extends HTMLElement {
     if (this.itemCount() === 0) {
       return;
     }
-    rememberFold(this.key, this.open);
+    const shuttingNow = this.open;
+    rememberFold(this.key, shuttingNow);
     this.render();
   }
 
@@ -103,7 +104,13 @@ export class LwNavGroupElement extends HTMLElement {
   private render(): void {
     const items = this.itemCount();
     this.drawnItems = items;
+    const heading = this.renderHeading(items);
+    this.renderChevron(heading, items);
+    this.renderLabel(heading);
+    this.dataset['open'] = String(this.open);
+  }
 
+  private renderHeading(items: number): HTMLElement {
     const heading = managedPart(this, 'heading', 'button');
     heading.className = 'lw-nav-group-heading';
     heading.setAttribute('type', 'button');
@@ -117,26 +124,29 @@ export class LwNavGroupElement extends HTMLElement {
       heading.addEventListener('click', () => this.toggle());
       this.prepend(heading);
     }
+    return heading;
+  }
 
+  private renderChevron(heading: HTMLElement, items: number): void {
     if (items === 0) {
       dropManagedPart(heading, 'chevron');
-    } else {
-      const chevron = managedPart(heading, 'chevron', LW_ICON_TAG);
-      chevron.setAttribute('name', 'chevronDown');
-      chevron.setAttribute('size', '0.875rem');
-      chevron.className = 'lw-nav-chevron';
-      if (chevron.parentElement !== heading) {
-        heading.prepend(chevron);
-      }
+      return;
     }
+    const chevron = managedPart(heading, 'chevron', LW_ICON_TAG);
+    chevron.setAttribute('name', 'chevronDown');
+    chevron.setAttribute('size', '0.875rem');
+    chevron.className = 'lw-nav-chevron';
+    if (chevron.parentElement !== heading) {
+      heading.prepend(chevron);
+    }
+  }
 
+  private renderLabel(heading: HTMLElement): void {
     const label = managedPart(heading, 'label', 'span');
     label.className = 'lw-nav-group-label';
     label.textContent = this.label;
     if (label.parentElement !== heading) {
       heading.append(label);
     }
-
-    this.dataset['open'] = String(this.open);
   }
 }

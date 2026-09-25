@@ -1,6 +1,6 @@
 import { LW_ICON_TAG } from '../icon/lw-icon.element';
 
-export const MANAGED = 'data-lw-nav-part';
+const MANAGED = 'data-lw-nav-part';
 
 export function managedPart(
   host: HTMLElement,
@@ -38,21 +38,4 @@ export function setGlyph(host: HTMLElement, part: string, icon: string): void {
   if (glyph.parentElement !== host) {
     host.prepend(glyph);
   }
-}
-
-export function longestMatch(
-  candidates: readonly string[],
-  matches: (candidate: string) => boolean,
-): string | null {
-  let best: string | null = null;
-  for (const candidate of candidates) {
-    if (matches(candidate) && (best === null || candidate.length > best.length)) {
-      best = candidate;
-    }
-  }
-  return best;
-}
-
-export function pathOf(item: Element): string {
-  return item.getAttribute('path') ?? '';
 }

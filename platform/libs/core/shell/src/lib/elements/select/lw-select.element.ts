@@ -37,7 +37,7 @@ export class LwSelectElement extends HTMLElement {
 
   private readonly listboxId = `lw-select-listbox-${this.selectId}`;
 
-  private open = false;
+  private isOpen = false;
 
   private activeIndex = 0;
 
@@ -93,17 +93,15 @@ export class LwSelectElement extends HTMLElement {
       return;
     }
 
-    if (LwSelectElement.observedAttributes.includes(name)) {
-      this.syncTrigger();
-    }
+    this.syncTrigger();
     if (name === 'disabled' && this.hasAttribute('disabled')) {
-      this.close(false);
+      this.dismiss();
     }
   }
 
   private readonly onOutsidePointer = (event: PointerEvent) => {
     if (!this.contains(event.target as Node)) {
-      this.close(false);
+      this.dismiss();
     }
   };
 
@@ -116,7 +114,7 @@ export class LwSelectElement extends HTMLElement {
     });
   }
 
-  private write(change: () => void): void {
+  private withoutObserving(change: () => void): void {
     this.observer?.disconnect();
     try {
       change();
@@ -163,7 +161,7 @@ export class LwSelectElement extends HTMLElement {
     const selected = this.selectedChoice();
     const text = selected?.label ?? this.getAttribute('placeholder') ?? '';
     const iconOnly = this.compact && selected?.icon != null;
-    this.write(() => {
+    this.withoutObserving(() => {
       trigger.disabled = this.hasAttribute('disabled');
       if (label !== null) {
         trigger.setAttribute(
@@ -177,7 +175,7 @@ export class LwSelectElement extends HTMLElement {
   }
 
   private toggle(): void {
-    if (this.open) {
+    if (this.isOpen) {
       this.close();
     } else {
       this.openListbox();
@@ -187,12 +185,12 @@ export class LwSelectElement extends HTMLElement {
   private openListbox(): void {
     const listbox = this.listbox;
     const trigger = this.trigger;
-    if (this.open || this.hasAttribute('disabled') || !listbox || !trigger) {
+    if (this.isOpen || this.hasAttribute('disabled') || !listbox || !trigger) {
       return;
     }
     this.renderOptions();
-    this.open = true;
-    this.write(() => {
+    this.isOpen = true;
+    this.withoutObserving(() => {
       listbox.hidden = false;
       trigger.setAttribute('aria-expanded', 'true');
     });
@@ -205,22 +203,30 @@ export class LwSelectElement extends HTMLElement {
     });
   }
 
-  private close(refocusTrigger = true): void {
+  private close(): void {
+    if (this.collapse()) {
+      this.trigger?.focus();
+    }
+  }
+
+  private dismiss(): void {
+    this.collapse();
+  }
+
+  private collapse(): boolean {
     const listbox = this.listbox;
     const trigger = this.trigger;
-    if (!this.open || !listbox || !trigger) {
-      return;
+    if (!this.isOpen || !listbox || !trigger) {
+      return false;
     }
-    this.open = false;
-    this.write(() => {
+    this.isOpen = false;
+    this.withoutObserving(() => {
       listbox.hidden = true;
       listbox.replaceChildren();
       trigger.setAttribute('aria-expanded', 'false');
     });
     document.removeEventListener('pointerdown', this.onOutsidePointer, true);
-    if (refocusTrigger) {
-      trigger.focus();
-    }
+    return true;
   }
 
   private renderOptions(): void {
@@ -237,7 +243,7 @@ export class LwSelectElement extends HTMLElement {
         onHover: () => this.setActive(index),
       }),
     );
-    this.write(() => listbox.replaceChildren(...rows));
+    this.withoutObserving(() => listbox.replaceChildren(...rows));
   }
 
   private setActive(index: number): void {
@@ -249,7 +255,7 @@ export class LwSelectElement extends HTMLElement {
       return;
     }
     this.activeIndex = Math.max(0, Math.min(index, rows.length - 1));
-    this.write(() => {
+    this.withoutObserving(() => {
       for (const [rowIndex, row] of rows.entries()) {
         row.classList.toggle('is-active', rowIndex === this.activeIndex);
       }
@@ -296,7 +302,7 @@ export class LwSelectElement extends HTMLElement {
         break;
       }
       case 'Tab': {
-        this.close(false);
+        this.dismiss();
         return;
       }
       default: {

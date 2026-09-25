@@ -335,9 +335,15 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   203 lines. The search entry derives `command-palette-entry` and `quick-open-entry` from the command
   id. A shared base for the two published options interfaces would put an unexported type into the
   packed declarations, so they stay as they are; their JSDoc lost a roadmap code.
-- [ ] 8.6 Elements: one element list for host and frame with one define-once helper; shared helpers
+- [x] 8.6 Elements: one element list for host and frame with one define-once helper; shared helpers
   for Enter and Space activation, number attributes, viewport clamping and roving focus; the select's,
   tooltip's and nav tree's names and long methods.
+  In two PRs. `lw-elements.ts` holds the one list; `custom-elements.ts`, `viewport-fit.ts` and
+  `roving-focus.ts` the shared behaviours. The select says `isOpen`, `withoutObserving`, `close` and
+  `dismiss`; the tooltip places by cursor or by trigger and then clamps; the nav group renders heading,
+  chevron and label apart and names the fold it remembers. `pathOf` stays, beside the tree, because it
+  must read an item that is not upgraded yet. For the release notes: `lw-frame.css` no longer carries
+  a `.block` rule that Tailwind had picked up from `scrollIntoView({ block })`.
 - [ ] 8.7 Surface kit and capture: the frame entry split by job; the capture message types taken from
   the frame declarations instead of three copies; "drawing" used for one thing; the capture helpers
   split by what they do.
