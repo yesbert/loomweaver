@@ -24,7 +24,11 @@
     "department": "Area",
     "joined": "Joined",
     "hours": "Hours",
-    "gross": "Monthly gross"
+    "gross": "Monthly gross",
+    "month": "Month",
+    "headcount": "Staff",
+    "state": "State",
+    "payrollGross": "Gross"
   },
   "view": {
     "employees": "Employees",

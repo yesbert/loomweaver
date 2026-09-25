@@ -24,7 +24,11 @@
     "department": "Bereich",
     "joined": "Eintritt",
     "hours": "Arbeitszeit",
-    "gross": "Monatsbrutto"
+    "gross": "Monatsbrutto",
+    "month": "Monat",
+    "headcount": "Belegschaft",
+    "state": "Stand",
+    "payrollGross": "Brutto"
   },
   "view": {
     "employees": "Mitarbeiter",
