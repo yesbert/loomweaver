@@ -1,5 +1,6 @@
 import type { ResolvedWeaver } from './recipe';
-import { CONTAINER_EXAMPLE_ID, capabilityItems } from './weaver-terms';
+import { quotedList } from '../../lib/amend/compose';
+import { CONTAINER_EXAMPLE_ID } from './weaver-terms';
 import { PLATFORM_VERSION } from '../platform-version';
 import { AG_UI_PROTOCOL_VERSION } from './agent-files';
 
@@ -108,7 +109,7 @@ export function readmeFile(w: ResolvedWeaver): string {
     `2. Grant its capabilities (default-deny) via \`provideCapabilityGrants\`:`,
     '',
     '   ```ts',
-    `   provideCapabilityGrants({ '${w.id}': [${capabilityItems(w.capabilities)}] });`,
+    `   provideCapabilityGrants({ '${w.id}': [${quotedList(w.capabilities)}] });`,
     '   ```',
     '',
     `3. Compose its translations with \`provideTranslationNamespaces('${w.id}')\` — and serve the`,
