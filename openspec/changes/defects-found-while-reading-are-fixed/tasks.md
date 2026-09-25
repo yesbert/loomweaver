@@ -98,7 +98,7 @@ they start with a top-level folder.
   fixed at activation (`demo/src/quotes/src/lib/plugin/quotes-commands.ts`).
 - [x] 7.3 The dashboard's colour observer disconnects when the view is destroyed
   (`demo/src/insights/chart-tokens.ts`).
-- [ ] 7.4 After the release that carries 9.8, because the demo builds against the published packages:
+- [x] 7.4 After the release that carries 9.8, because the demo builds against the published packages:
   the welcome is shown once the store has answered, also when it answers later
   (`demo/src/about/about.plugin.ts`).
 - [x] 7.5 After a check in a browser that blocks storage: the quotes settings read and write storage
@@ -146,6 +146,6 @@ they start with a top-level folder.
 
 ## 10. Hand-over
 
-- [ ] 10.1 Name every platform fix under "Fixed" in the notes of the release that carries it.
+- [x] 10.1 Name every platform fix under "Fixed" in the notes of the release that carries it.
 - [ ] 10.2 Run `openspec validate --all --strict`, the unit suites, the testbed and demo end-to-end
   suites and the guards; archive the change.
