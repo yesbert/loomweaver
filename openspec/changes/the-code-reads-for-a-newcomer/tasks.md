@@ -554,8 +554,13 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   constants their slice exports, the container, sandbox and dashboard openers sit with their
   commands, `formatWaitingTime` sits with the entries and the drafts in `entry-drafts.ts`; each file
   that toasts names its `TOAST_MS`. The end-to-end suite passes.
-- [ ] 11.4 The container vocabulary in code, i18n, test ids and end-to-end paths (today
+- [x] 11.4 The container vocabulary in code, i18n, test ids and end-to-end paths (today
   "workspace", "ws" and "sim").
+  Surfaces `testbed.container` and `testbed.container…` children, path `container/:id`, command and
+  rail item `…container`, the views `Container…View` in `container-…-view.ts`, the i18n section
+  `container` (`name`, `body`, `itemCount`, `stepCount`), the test ids `testbed-container-…` and
+  `container-…`, and `containerIdFromRoute()` in `container-id.ts` for the five views. The shell's
+  own workspaces in the testbed app keep their names. The end-to-end suite passes.
 - [ ] 11.5 View names say which surface they serve; the omitted route says so; schema, exports,
   hard-coded English, demo leftovers, chrome ids and field classes.
 - [ ] 11.6 `main.ts` becomes the table of contents of the distribution: layout, workspaces declared

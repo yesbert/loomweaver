@@ -134,10 +134,10 @@ test.describe('A container child may be an iframe', () => {
   test('sits in the same inner tree as a component child and is told the container id', async ({
     page,
   }) => {
-    await page.goto('/workspace/alpha');
+    await page.goto('/container/alpha');
     const host = page.locator('lw-container-pane-host');
     await expect(host).toBeVisible();
-    await expect(page.getByTestId('testbed-ws-sim')).toBeVisible();
+    await expect(page.getByTestId('testbed-container-id')).toBeVisible();
 
     await host.getByTestId('pane-add-tab').first().click();
     await page
@@ -156,7 +156,7 @@ test.describe('A container child may be an iframe', () => {
   test('another container hands its iframe child a different id', async ({
     page,
   }) => {
-    await page.goto('/workspace/beta');
+    await page.goto('/container/beta');
     const host = page.locator('lw-container-pane-host');
     await host.getByTestId('pane-add-tab').first().click();
     await page

@@ -1,17 +1,17 @@
 import { expect, test } from '@playwright/test';
 import { dragTo, rail } from './support/helpers';
 
-test.describe('Container surface / workspace-in-a-tab', () => {
+test.describe('Container surface', () => {
   test('a container tab hosts a nested pane tree of child surfaces scoped to its :id', async ({
     page,
   }) => {
-    await page.goto('/workspace/alpha');
+    await page.goto('/container/alpha');
 
     await expect(page.locator('lw-container-pane-host')).toBeVisible();
-    await expect(page.getByTestId('testbed-ws-sim')).toHaveText(
+    await expect(page.getByTestId('testbed-container-id')).toHaveText(
       /Container alpha/,
     );
-    await expect(page).toHaveURL(/\/workspace\/alpha$/);
+    await expect(page).toHaveURL(/\/container\/alpha$/);
 
     const host = page.locator('lw-container-pane-host');
     await expect(host.getByRole('tab', { name: 'Canvas' })).toBeVisible();
@@ -21,7 +21,7 @@ test.describe('Container surface / workspace-in-a-tab', () => {
   test('inner panes split like the top level and the layout persists (I3)', async ({
     page,
   }) => {
-    await page.goto('/workspace/alpha');
+    await page.goto('/container/alpha');
     await expect(page.locator('lw-container-pane-host')).toBeVisible();
 
     await page
@@ -33,8 +33,8 @@ test.describe('Container surface / workspace-in-a-tab', () => {
     await expect(
       page.locator('lw-container-pane-host lw-pane-view'),
     ).toHaveCount(2);
-    await expect(page.getByTestId('testbed-ws-sim')).toHaveCount(2);
-    await expect(page.getByTestId('testbed-ws-sim').first()).toHaveText(
+    await expect(page.getByTestId('testbed-container-id')).toHaveCount(2);
+    await expect(page.getByTestId('testbed-container-id').first()).toHaveText(
       /Container alpha/,
     );
 
@@ -47,7 +47,7 @@ test.describe('Container surface / workspace-in-a-tab', () => {
   test('dragging an inner tab to a pane edge splits it (sealed inner drag)', async ({
     page,
   }) => {
-    await page.goto('/workspace/alpha');
+    await page.goto('/container/alpha');
     const host = page.locator('lw-container-pane-host');
     await expect(host.locator('lw-pane-view')).toHaveCount(1);
 
@@ -80,12 +80,12 @@ test.describe('Container surface / workspace-in-a-tab', () => {
       page.getByRole('tab', { name: 'Container beta' }),
     ).toBeVisible();
 
-    await expect(page.getByTestId('testbed-ws-sim')).toHaveText(
+    await expect(page.getByTestId('testbed-container-id')).toHaveText(
       /Container beta/,
     );
 
     await page.getByRole('tab', { name: 'Container alpha' }).click();
-    await expect(page.getByTestId('testbed-ws-sim')).toHaveText(
+    await expect(page.getByTestId('testbed-container-id')).toHaveText(
       /Container alpha/,
     );
   });
@@ -93,7 +93,7 @@ test.describe('Container surface / workspace-in-a-tab', () => {
   test('the inner picker closes a child and reopens it (scoped to declared children, S2)', async ({
     page,
   }) => {
-    await page.goto('/workspace/alpha');
+    await page.goto('/container/alpha');
     const host = page.locator('lw-container-pane-host');
     await expect(host.getByRole('tab')).toHaveCount(2);
 
@@ -117,7 +117,7 @@ test.describe('Container surface / workspace-in-a-tab', () => {
   test('closing the last tab of the inner primary in a split promotes the neighbour', async ({
     page,
   }) => {
-    await page.goto('/workspace/alpha');
+    await page.goto('/container/alpha');
     const host = page.locator('lw-container-pane-host');
     await host
       .locator('lw-pane-view')
@@ -137,13 +137,13 @@ test.describe('Container surface / workspace-in-a-tab', () => {
   test('right-click on an inner tab offers no view context menu (sealed, I2)', async ({
     page,
   }) => {
-    await page.goto('/workspace/alpha');
+    await page.goto('/container/alpha');
     const host = page.locator('lw-container-pane-host');
     await host.getByRole('tab', { name: 'Canvas' }).click({ button: 'right' });
     await expect(page.locator('lw-menu')).toHaveCount(0);
   });
 
-  test('a workspace tab dragged into a sidebar keeps its sub-tabs (I3 — the tree travels with the tab)', async ({
+  test('a container tab dragged into a sidebar keeps its sub-tabs, because the tree travels with the tab', async ({
     page,
   }) => {
     await page.goto('/');
@@ -172,7 +172,7 @@ test.describe('Container surface / workspace-in-a-tab', () => {
     const sideHost = page.locator('lw-shell-panel lw-container-pane-host');
     await expect(sideHost.getByRole('tab', { name: 'Canvas' })).toBeVisible();
     await expect(sideHost.getByRole('tab', { name: 'Details' })).toBeVisible();
-    await expect(sideHost.getByTestId('testbed-ws-sim')).toHaveText(
+    await expect(sideHost.getByTestId('testbed-container-id')).toHaveText(
       /Container alpha/,
     );
 
@@ -184,13 +184,13 @@ test.describe('Container surface / workspace-in-a-tab', () => {
     ).toBeVisible();
   });
 
-  test('a workspace tab pops out into its own window carrying the nested tree (S3)', async ({
+  test('a container tab pops out into its own window carrying the nested tree', async ({
     page,
   }) => {
-    await page.goto('/popout/workspace/gamma');
+    await page.goto('/popout/container/gamma');
 
     await expect(page.locator('lw-container-pane-host')).toBeVisible();
-    await expect(page.getByTestId('testbed-ws-sim')).toHaveText(
+    await expect(page.getByTestId('testbed-container-id')).toHaveText(
       /Container gamma/,
     );
     await expect(
@@ -201,7 +201,7 @@ test.describe('Container surface / workspace-in-a-tab', () => {
   test('a container-only child never appears as a sidebar view (docks: [])', async ({
     page,
   }) => {
-    await page.goto('/workspace/alpha');
+    await page.goto('/container/alpha');
     await expect(page.locator('lw-container-pane-host')).toBeVisible();
 
     await expect(
@@ -238,7 +238,7 @@ test.describe('A container declares its arrangement', () => {
 
     await page.goto('/arranged/beta');
     await expect(host.locator('lw-pane-view')).toHaveCount(4);
-    await expect(page.getByTestId('testbed-ws-sim').first()).toHaveText(
+    await expect(page.getByTestId('testbed-container-id').first()).toHaveText(
       /Container beta/,
     );
   });

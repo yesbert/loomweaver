@@ -50,8 +50,8 @@ test.describe('A tab strip is walked with the arrow keys', () => {
   test("a container's inner strip is walked on its own", async ({ page }) => {
     await page.goto('/');
     await rail(page).getByRole('button', { name: 'Browse container' }).click();
-    await page.getByTestId('ws-list-beta').click();
-    await page.getByTestId('ws-list-gamma').click();
+    await page.getByTestId('container-list-beta').click();
+    await page.getByTestId('container-list-gamma').click();
 
     const landing = page.locator('lw-container-pane-host lw-pane-view').nth(1);
     const beta = landing.getByRole('tab', { name: 'beta' });

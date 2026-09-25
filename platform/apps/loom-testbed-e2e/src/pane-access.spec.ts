@@ -16,15 +16,15 @@ test.describe('A pane says why it is empty', () => {
     const placeholder = host.getByTestId('access-placeholder');
     await expect(placeholder).toBeVisible();
     await expect(placeholder).toContainText('Sign-in required');
-    await expect(host.getByTestId('testbed-ws-audit')).toHaveCount(0);
+    await expect(host.getByTestId('testbed-container-audit')).toHaveCount(0);
 
     const cycle = railRight(page).getByRole('button', { name: 'Switch user' });
     await cycle.click();
     await expect(placeholder).toContainText('No access');
-    await expect(host.getByTestId('testbed-ws-audit')).toHaveCount(0);
+    await expect(host.getByTestId('testbed-container-audit')).toHaveCount(0);
 
     await cycle.click();
-    await expect(host.getByTestId('testbed-ws-audit')).toBeVisible();
+    await expect(host.getByTestId('testbed-container-audit')).toBeVisible();
     await expect(host.getByTestId('access-placeholder')).toHaveCount(0);
   });
 });
