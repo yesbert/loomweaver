@@ -1,12 +1,10 @@
-import { findScaffold } from './scaffolds';
+import { distributionScaffold } from './scaffold';
 
 describe('distribution scaffold values', () => {
   function stylesheetFor(directory: string): string {
-    const scaffold = findScaffold('distribution');
-    if (!scaffold) {
-      throw new Error('the distribution scaffold is missing');
-    }
-    return scaffold.build({ name: 'acme-studio', directory })['src/styles.css'];
+    return distributionScaffold.build({ name: 'acme-studio', directory })[
+      'src/styles.css'
+    ];
   }
 
   it('counts the hops to node_modules from a project at the workspace root', () => {

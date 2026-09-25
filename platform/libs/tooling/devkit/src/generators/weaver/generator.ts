@@ -8,7 +8,7 @@ import {
 } from '@nx/devkit';
 import { Amendment, ComposePluginAmendment } from '../../lib/amend/types';
 import { generate } from '../../lib/generate/generate';
-import { weaverInput } from '../../lib/scaffolds/inputs';
+import { weaverInput } from '../../recipes/angular-weaver/scaffold';
 import {
   addI18nAssetsGlob,
   addTailwindSource,
