@@ -166,6 +166,8 @@ interface Command {                 // one behaviour, many triggers (items refer
 type CommandArgument =
   | { name: string; description: string; required?: boolean; list?: boolean; kind: 'text' | 'number' | 'boolean' }
   | { name: string; description: string; required?: boolean; list?: boolean; kind: 'choice'; choices: readonly string[] };
+// choices: read whenever the command is described or checked for a plugin in the page (a getter offers values added
+// later); a sandboxed plugin's list is the one it registered, so it registers the command again to change it.
 type CommandArguments = Readonly<Record<string, string | number | boolean | readonly (string | number | boolean)[]>>;
 // What a command says an agent's word alone amounts to (see Command.agentConsent above): consent given in
 // advance · the person asked first · asked every time · not on an agent's word at all. A statement, not a gate.

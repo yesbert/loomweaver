@@ -134,7 +134,7 @@ they start with a top-level folder.
   (`plugin/plugin-state.service.ts`, the SDK's state handle).
 - [x] 9.9 The frame kit keeps a state write made before its connection and sends it once connected
   (`surface-kit/surface-state-mirror.ts`).
-- [ ] 9.10 The choices of a command registered by a plugin in the page are read when it is described
+- [x] 9.10 The choices of a command registered by a plugin in the page are read when it is described
   or checked; a test pins it, and the SDK's JSDoc no longer calls them fixed.
 - [ ] 9.11 A select option draws its icon like every other element instead of printing the icon's
   name (`elements/select/`).
