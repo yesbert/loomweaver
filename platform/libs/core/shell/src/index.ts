@@ -136,7 +136,7 @@ export * from './lib/version/version.service';
 
 export * from './lib/views/view';
 
-export { type Workspace } from './lib/workspace/baseline/workspace-state';
+export { type Workspace } from './lib/workspace/catalog/saved-workspaces';
 export * from './lib/workspace/declaration/provide-workspaces';
 export type { WorkspaceClaim } from './lib/workspace/workspace-claims';
 export type {

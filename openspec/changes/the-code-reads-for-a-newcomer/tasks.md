@@ -269,7 +269,10 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   unusable-workspaces service and the dialog read the catalog. `ActiveWorkspaceService` still reads
   the token: importing the catalog there would close a file cycle through `workspace-state.ts`.
   `WorkspaceService` is 181 lines.
-- [ ] 7.6 **Move:** `workspace/baseline/` becomes `unsaved-changes/`, the lookups go to the catalog.
+- [x] 7.6 **Move:** `workspace/baseline/` becomes `unsaved-changes/`, the lookups go to the catalog.
+  Named `working-state/` instead, because besides the change tracking it holds the state channels
+  and the reads and writes the switcher uses (`working-state-io.ts`, was `workspace-state.ts`). The
+  lookups, `Workspace` and `WORKSPACES_KEY` went to `catalog/` (`saved-workspaces.ts`).
 - [ ] 7.7 The workspace dialog's three row blocks share templates; its promise chains use `if`.
 - [ ] 7.8 i18n: the translation loader split into namespaces, overrides, the translation tree and the
   loader, its result built from named parts, the namespace warning dev-only like its siblings;

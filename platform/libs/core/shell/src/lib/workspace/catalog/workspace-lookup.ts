@@ -8,7 +8,7 @@ import {
   withoutConflicts,
   type WorkspaceClaim,
 } from '../workspace-claims';
-import { type Workspace } from './workspace-state';
+import { type Workspace } from './saved-workspaces';
 
 export function definitionOf(
   definitions: readonly WorkspaceDefinition[],

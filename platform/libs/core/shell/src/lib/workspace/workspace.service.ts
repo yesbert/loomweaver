@@ -6,9 +6,9 @@ import {
   ActiveWorkspaceService,
   workspaceScopedKey,
 } from './active-workspace.service';
-import { WORKSPACE_STATE_KEYS } from './baseline/state-channels';
-import { unsavedWorkspaces } from './baseline/unsaved-workspaces';
-import { writeWorkspaceState } from './baseline/workspace-state';
+import { WORKSPACE_STATE_KEYS } from './working-state/state-channels';
+import { unsavedWorkspaces } from './working-state/unsaved-workspaces';
+import { writeWorkspaceState } from './working-state/working-state-io';
 import { WorkspaceCatalog } from './catalog/workspace-catalog';
 import { BUILT_IN_WORKSPACE_ID } from './declaration/composed-definitions';
 import { WorkbenchOpening } from './opening/workbench-opening';

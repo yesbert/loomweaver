@@ -8,8 +8,11 @@ import { PaneTreeService } from '../regions/pane/tree/pane-tree.service';
 import { HiddenViewsService } from '../regions/panel/hidden-views.service';
 import { PanelGroupService } from '../regions/panel/panel-group.service';
 import { ActiveWorkspaceService } from './active-workspace.service';
-import { WORKSPACE_STATE_KEYS, stateChannels } from './baseline/state-channels';
-import { readWorkspaceState } from './baseline/workspace-state';
+import {
+  WORKSPACE_STATE_KEYS,
+  stateChannels,
+} from './working-state/state-channels';
+import { readWorkspaceState } from './working-state/working-state-io';
 import { WorkspaceCatalog } from './catalog/workspace-catalog';
 import { warnDeclarationGaps } from './declaration/definition-audit';
 import {
