@@ -1,8 +1,8 @@
 import { Component, computed } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { daysLate, openOrderValue, purchaseOrders, supplierName } from './purchasing';
+import { daysLate, openOrderValue, purchaseOrders } from './purchasing';
 import { procurementActions } from './procurement-actions';
-import { formatDate, formatMoney } from '../accounting';
+import { formatDate, formatMoney, supplierName } from '../accounting';
 import { activeLanguage } from '../i18n/active-language';
 
 @Component({

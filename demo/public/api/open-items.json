@@ -1,12 +1,22 @@
 [
   {
-    "number": "Q-0007",
+    "number": "RE-2043",
     "customer": "Nordwind Logistik GmbH",
-    "gross": 1826412
+    "open": 1826412
   },
   {
-    "number": "Q-0006",
+    "number": "RE-2044",
     "customer": "Kranich Medien GmbH",
-    "gross": 449425
+    "open": 449425
+  },
+  {
+    "number": "RE-2045",
+    "customer": "Steinweg Architekten PartG",
+    "open": 738990
+  },
+  {
+    "number": "RE-2047",
+    "customer": "Talbach Werkzeugbau GmbH",
+    "open": 1192500
   }
 ]

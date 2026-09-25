@@ -21,17 +21,18 @@ test('the finance module opens a surface the application does not contain', asyn
   page,
 }) => {
   await page.goto('/');
-  const overviewFigure = await page.getByTestId('insights-out').innerText();
-
   await openPayments(page);
   const view = surface(page);
 
   await expect(view.getByRole('heading', { name: 'Payment matching' })).toBeVisible();
-  await expect(view.getByTestId('still-open')).toHaveText(overviewFigure);
-  await expect(view.getByTestId('open-items').locator('li')).toHaveCount(2);
-  await expect(view.locator('[data-item="Q-0007"]')).toContainText(
+  await expect(view.getByTestId('open-items').locator('li')).toHaveCount(4);
+  await expect(view.locator('[data-item="RE-2043"]')).toContainText(
     'Nordwind Logistik GmbH',
   );
+  const stillOpen = await view.getByTestId('still-open').innerText();
+
+  await page.locator('[data-nav-view="finance/receivables"]').click();
+  await expect(page.getByTestId('receivables-open')).toHaveText(stillOpen);
 });
 
 test('every match outcome the rule can produce is on screen', async ({ page }) => {
@@ -39,9 +40,9 @@ test('every match outcome the rule can produce is on screen', async ({ page }) =
   await openPayments(page);
   const view = surface(page);
 
-  await expect(view.getByTestId('outcome-confirmed')).toBeVisible();
-  await expect(view.getByTestId('outcome-flagged')).toBeVisible();
-  await expect(view.getByTestId('outcome-unassigned')).toBeVisible();
+  await expect(view.getByTestId('outcome-confirmed')).toHaveCount(3);
+  await expect(view.getByTestId('outcome-flagged')).toHaveCount(1);
+  await expect(view.getByTestId('outcome-unassigned')).toHaveCount(1);
 });
 
 test('confirming a match takes it off what is still open', async ({ page }) => {
@@ -50,16 +51,16 @@ test('confirming a match takes it off what is still open', async ({ page }) => {
   const view = surface(page);
   const stillOpen = view.getByTestId('still-open');
 
-  await expect(stillOpen).toHaveText('€22,758.37');
+  await expect(stillOpen).toHaveText('€42,073.27');
 
   await view.locator('[data-line="b-1"] lw-button[data-confirm]').click();
 
-  await expect(stillOpen).toHaveText('€4,494.25');
-  await expect(view.locator('[data-item="Q-0007"]')).toContainText('settled');
+  await expect(stillOpen).toHaveText('€23,809.15');
+  await expect(view.locator('[data-item="RE-2043"]')).toContainText('settled');
 
   await view.locator('[data-line="b-1"] lw-button[data-undo]').click();
 
-  await expect(stillOpen).toHaveText('€22,758.37');
+  await expect(stillOpen).toHaveText('€42,073.27');
 });
 
 /* The plugin runs isolated from the page, and still keeps its tab's badge true: the view tells the
@@ -75,7 +76,9 @@ test('the tab says whether anything is still open, and follows the confirmations
   const view = surface(page);
   await expect(tab).toHaveAttribute('aria-label', 'Payment matching, Open');
 
-  await view.locator('[data-line="b-1"] lw-button[data-confirm]').click();
+  for (const line of ['b-1', 'b-4', 'b-5']) {
+    await view.locator(`[data-line="${line}"] lw-button[data-confirm]`).click();
+  }
   await expect(tab).toHaveAttribute('aria-label', 'Payment matching, Open');
 
   await view.locator('[data-line="b-2"] lw-button[data-confirm]').click();
@@ -105,7 +108,7 @@ test('confirmations survive leaving the module and coming back', async ({
   const view = surface(page);
 
   await view.locator('[data-line="b-1"] lw-button[data-confirm]').click();
-  await expect(view.getByTestId('still-open')).toHaveText('€4,494.25');
+  await expect(view.getByTestId('still-open')).toHaveText('€23,809.15');
 
   const rail = page.getByRole('navigation', { name: 'Left activity bar' });
   await rail.getByRole('button', { name: 'Sales' }).click();
@@ -114,7 +117,7 @@ test('confirmations survive leaving the module and coming back', async ({
   await rail.getByRole('button', { name: 'Finance' }).click();
   await expect(page).toHaveURL(/\/finance\/matching$/);
 
-  await expect(surface(page).getByTestId('still-open')).toHaveText('€4,494.25');
+  await expect(surface(page).getByTestId('still-open')).toHaveText('€23,809.15');
 });
 
 test('the plugin is listed under the name the demo gave it', async ({ page }) => {

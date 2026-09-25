@@ -1,6 +1,5 @@
 import { setReferenceDate } from '../accounting/clock';
 import {
-  SUPPLIERS,
   daysLate,
   nextDelivery,
   openOrderValue,
@@ -9,8 +8,8 @@ import {
   purchaseOrders,
   receiveOrder,
   resetPurchasing,
-  supplierById,
 } from './purchasing';
+import { SUPPLIERS, supplierById } from '../accounting';
 
 describe('purchasing', () => {
   beforeEach(() => {

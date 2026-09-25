@@ -17,7 +17,7 @@ export interface Receivable {
 export interface Payable {
   readonly id: string;
   readonly number: string;
-  readonly supplier: string;
+  readonly supplierId: string;
   readonly issuedOn: string;
   readonly dueOn: string;
   readonly gross: Cents;
@@ -63,9 +63,9 @@ const PAYABLE_SEEDS: readonly (Omit<Payable, 'issuedOn' | 'dueOn'> & {
   readonly issuedDaysAgo: number;
   readonly termDays: number;
 })[] = [
-  { id: 'p-1', number: 'ER-8871', supplier: 'Papierwerk Elbe GmbH', issuedDaysAgo: 26, termDays: 14, gross: 312_400, approved: true },
-  { id: 'p-2', number: 'ER-8872', supplier: 'Rechenzentrum Nord AG', issuedDaysAgo: 9, termDays: 30, gross: 1_071_000, approved: true },
-  { id: 'p-3', number: 'ER-8873', supplier: 'Kontorhaus Verwaltung', issuedDaysAgo: 3, termDays: 30, gross: 486_500, approved: false },
+  { id: 'p-1', number: 'ER-8871', supplierId: 's-elbe', issuedDaysAgo: 26, termDays: 14, gross: 312_400, approved: true },
+  { id: 'p-2', number: 'ER-8872', supplierId: 's-rechenzentrum', issuedDaysAgo: 9, termDays: 30, gross: 1_071_000, approved: true },
+  { id: 'p-3', number: 'ER-8873', supplierId: 's-kontorhaus', issuedDaysAgo: 3, termDays: 30, gross: 486_500, approved: false },
 ];
 
 function dated<T extends { issuedDaysAgo: number; termDays: number }>(seed: T) {

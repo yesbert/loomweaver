@@ -714,8 +714,15 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   are built by a named `workspaceOf(module)`, the navigation plugin skips the home module, and
   `moduleOfPath` excludes it, so `id === 'overview'`, "no areas", "empty prefix" and "no landing"
   no longer stand in for one fact.
-- [ ] 12.12 One supplier list shared by procurement and finance; "open items" and "receivables" used
+- [x] 12.12 One supplier list shared by procurement and finance; "open items" and "receivables" used
   for what they are.
+  The suppliers live in `accounting/catalog.ts` beside the customers, and a payable names its
+  supplier by `supplierId` from that list. `/api/open-items.json` serves the open receivables
+  (invoice numbers and what is still open on each), pinned by a spec in `finance/`; the payment
+  matching plugin reads `open`, calls the column an invoice, and its sample statement pays the
+  invoices (two exact payments added, so confirming every match still closes the tab). The quotes
+  sidebar that lists sent quotes is `quotes.awaitingAnswer` / `QuotesAwaitingAnswerView`; a saved
+  arrangement naming the old id no longer finds it.
 - [ ] 12.13 Each module weaver ships its strings in its own namespace, one weaver per pull request.
 - [ ] 12.14 One idiom for record lists (decided 2026-09-25): the responsive grid of the customers and
   quotes views, one module per pull request, the first shown to the owner before the rest. Product

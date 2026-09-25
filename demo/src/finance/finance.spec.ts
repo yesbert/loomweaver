@@ -1,4 +1,5 @@
 import { setReferenceDate } from '../accounting/clock';
+import { supplierById } from '../accounting';
 import {
   daysOverdue,
   dunningLevel,
@@ -6,6 +7,7 @@ import {
   openAmount,
   openReceivables,
   overdueReceivables,
+  payables,
   payablesOutstanding,
   periods,
   receivables,
@@ -91,6 +93,12 @@ describe('finance', () => {
 
   it('reports what a supplier is still owed', () => {
     expect(payablesOutstanding()).toBe(1_869_900);
+  });
+
+  it('names every payable\'s supplier from the list procurement orders from', () => {
+    for (const payable of payables()) {
+      expect(supplierById(payable.supplierId)).toBeDefined();
+    }
   });
 
   it('leaves the current period open and closes the older ones', () => {

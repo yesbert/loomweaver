@@ -1,9 +1,9 @@
 <div class="flex h-full flex-col gap-2 overflow-y-auto p-3">
   @if (rows().length === 0) {
-    <p class="px-1 text-sm text-content-faint">{{ 'quotes.openItems.none' | transloco }}</p>
+    <p class="px-1 text-sm text-content-faint">{{ 'quotes.awaitingAnswer.none' | transloco }}</p>
   } @else {
-    <p class="px-1 text-xs text-content-faint">{{ 'quotes.openItems.hint' | transloco }}</p>
-    <ul class="flex flex-col gap-1" data-testid="open-items">
+    <p class="px-1 text-xs text-content-faint">{{ 'quotes.awaitingAnswer.hint' | transloco }}</p>
+    <ul class="flex flex-col gap-1" data-testid="awaiting-answer">
       @for (row of rows(); track row.quote.id) {
         <li>
           <button
@@ -22,7 +22,7 @@
               [class.text-content-faint]="row.daysLeft > 7"
               [class.text-caution]="row.daysLeft <= 7"
             >
-              {{ 'quotes.openItems.daysLeft' | transloco: { days: row.daysLeft } }}
+              {{ 'quotes.awaitingAnswer.daysLeft' | transloco: { days: row.daysLeft } }}
             </span>
           </button>
         </li>

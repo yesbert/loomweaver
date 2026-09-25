@@ -2,7 +2,7 @@ import { Plugin } from '@loomweaver/plugin-sdk';
 import { QuotesCustomerView } from './document/quotes-customer-view';
 import { QuotesListView } from './quotes-list-view';
 import { QuotesMarginView } from './document/quotes-margin-view';
-import { QuotesOpenItemsView } from './quotes-open-items-view';
+import { QuotesAwaitingAnswerView } from './quotes-awaiting-answer-view';
 import { QuotesPositionsView } from './document/quotes-positions-view';
 import { quotesActions } from './quotes-actions';
 import { registerQuoteCommands } from './quotes-commands';
@@ -35,11 +35,11 @@ export const quotesPlugin: Plugin = {
     });
 
     ctx.registerSurface({
-      id: 'quotes.openItems',
-      title: 'quotes.openItems.title',
+      id: 'quotes.awaitingAnswer',
+      title: 'quotes.awaitingAnswer.title',
       icon: 'quotes',
       docks: ['left-panel'],
-      component: QuotesOpenItemsView,
+      component: QuotesAwaitingAnswerView,
     });
 
     ctx.registerSurface({

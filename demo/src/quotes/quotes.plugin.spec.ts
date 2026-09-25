@@ -100,7 +100,7 @@ describe('quotesPlugin', () => {
       recorded.surfaces.map(({ id, path, docks }) => ({ id, path, docks })),
     ).toEqual([
       { id: 'quotes', path: 'sales/quotes', docks: [] },
-      { id: 'quotes.openItems', path: undefined, docks: ['left-panel'] },
+      { id: 'quotes.awaitingAnswer', path: undefined, docks: ['left-panel'] },
       { id: 'quotes.document', path: 'sales/quotes/:id', docks: undefined },
       { id: 'quotes.positions', path: undefined, docks: [] },
       { id: 'quotes.customer', path: undefined, docks: [] },
