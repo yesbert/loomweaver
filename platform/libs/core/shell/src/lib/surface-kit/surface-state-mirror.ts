@@ -6,11 +6,44 @@ interface Watched {
   readonly listeners: ((value: unknown, loaded: boolean) => void)[];
 }
 
+interface EarlyWrite {
+  readonly cleared: boolean;
+  readonly value?: unknown;
+}
+
+function deliver(
+  host: LwStateHost,
+  key: string,
+  write: EarlyWrite,
+  watching: boolean,
+): void {
+  if (!watching) {
+    host.stateWatch(key);
+  }
+  if (write.cleared) {
+    host.stateClear(key);
+  } else {
+    host.stateSet(key, write.value);
+  }
+  if (!watching) {
+    host.stateUnwatch(key);
+  }
+}
+
 export function createState(): LwStateApi & {
   connect(host: LwStateHost): void;
 } {
   const watched = new Map<string, Watched>();
+  const early = new Map<string, EarlyWrite>();
   let host: LwStateHost | undefined;
+
+  const write = (key: string, next: EarlyWrite): void => {
+    if (host) {
+      deliver(host, key, next, true);
+    } else {
+      early.set(key, next);
+    }
+  };
 
   const entryFor = (key: string): Watched => {
     const existing = watched.get(key);
@@ -29,6 +62,10 @@ export function createState(): LwStateApi & {
       for (const key of watched.keys()) {
         next.stateWatch(key);
       }
+      for (const [key, pending] of early) {
+        deliver(next, key, pending, watched.has(key));
+      }
+      early.clear();
     },
     apply(key: string, value: unknown, loaded: boolean): void {
       const entry = entryFor(key);
@@ -45,11 +82,11 @@ export function createState(): LwStateApi & {
         loaded: () => entry.loaded,
         set: (next: T) => {
           entry.value = next;
-          host?.stateSet(key, next);
+          write(key, { cleared: false, value: next });
         },
         clear: () => {
           entry.value = undefined;
-          host?.stateClear(key);
+          write(key, { cleared: true });
         },
         dispose: () => {
           watched.delete(key);
