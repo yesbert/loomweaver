@@ -9,9 +9,9 @@ import {
   packageManagerFrom,
 } from './package-manager';
 import {
+  ConfiguredWorkspace,
   findWorkspace,
   readJsonFile,
-  Workspace,
   WorkspaceError,
 } from '../workspace';
 
@@ -55,7 +55,7 @@ interface Application {
 }
 
 export interface Plan {
-  readonly workspace: Workspace & { readonly kind: 'angular' | 'nx' };
+  readonly workspace: ConfiguredWorkspace;
   readonly manager: PackageManager;
   readonly lockfile?: string;
   readonly name: string;
@@ -76,7 +76,7 @@ export function planInit(args: ParsedArgs, deps: InitDeps): Plan {
         'Create one first ("ng new my-studio --style=css --ssr=false", or "npx create-nx-workspace") and run init inside it.',
     );
   }
-  const workspace = found as Plan['workspace'];
+  const workspace = found;
   const manifest = readManifest(workspace.root);
   const override = packageManagerFrom(stringFlag(args, 'package-manager'));
   const detected = detectPackageManager(workspace.root);

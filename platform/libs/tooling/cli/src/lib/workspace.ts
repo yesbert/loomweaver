@@ -1,16 +1,20 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, relative, resolve, sep } from 'node:path';
+import { BuildProject, buildProjects } from './angular-config';
 
-export interface Workspace {
+export interface ConfiguredWorkspace {
   readonly root: string;
-  readonly configFile?: string;
-  readonly kind?: 'angular' | 'nx';
+  readonly kind: 'angular' | 'nx';
+  readonly configFile: string;
 }
 
-export interface BuildProject {
-  readonly name: string;
+export interface UnconfiguredWorkspace {
   readonly root: string;
+  readonly kind?: undefined;
+  readonly configFile?: undefined;
 }
+
+export type Workspace = ConfiguredWorkspace | UnconfiguredWorkspace;
 
 export class WorkspaceError extends Error {}
 
@@ -18,7 +22,7 @@ export function findWorkspace(from: string): Workspace | undefined {
   let nearestPackage: string | undefined;
   for (const dir of upwardFrom(resolve(from))) {
     const config = buildConfigIn(dir);
-    if (config.kind) {
+    if (config) {
       return { root: dir, ...config };
     }
     if (nearestPackage === undefined && existsSync(resolve(dir, 'package.json'))) {
@@ -76,7 +80,7 @@ export function readJsonFile(file: string): unknown {
   }
 }
 
-function buildConfigIn(dir: string): Partial<Workspace> {
+function buildConfigIn(dir: string): Omit<ConfiguredWorkspace, 'root'> | undefined {
   const angular = resolve(dir, 'angular.json');
   if (existsSync(angular)) {
     return { configFile: angular, kind: 'angular' };
@@ -85,26 +89,13 @@ function buildConfigIn(dir: string): Partial<Workspace> {
   if (existsSync(nx)) {
     return { configFile: nx, kind: 'nx' };
   }
-  return {};
+  return undefined;
 }
 
 function readProjects(workspace: Workspace): readonly BuildProject[] {
-  if (workspace.kind !== 'angular' || !workspace.configFile) {
-    return [];
-  }
-  const config = readJsonFile(workspace.configFile);
-  const projects = asObject(asObject(config)?.['projects']) ?? {};
-  return Object.entries(projects)
-    .filter(([, project]) => hasBuildTarget(project))
-    .map(([name, project]) => ({
-      name,
-      root: normalise(asObject(project)?.['root']),
-    }));
-}
-
-function hasBuildTarget(project: unknown): boolean {
-  const architect = asObject(project)?.['architect'] ?? asObject(project)?.['targets'];
-  return asObject(architect)?.['build'] !== undefined;
+  return workspace.kind === 'angular'
+    ? buildProjects(readJsonFile(workspace.configFile))
+    : [];
 }
 
 function contains(projectRoot: string, target: string): boolean {
@@ -113,24 +104,4 @@ function contains(projectRoot: string, target: string): boolean {
 
 function relativeTo(root: string, target: string): string {
   return relative(root, resolve(target)).split(sep).join('/');
-}
-
-function withoutTrailingSlashes(path: string): string {
-  let end = path.length;
-  while (end > 0 && path[end - 1] === '/') {
-    end -= 1;
-  }
-  return path.slice(0, end);
-}
-
-function normalise(value: unknown): string {
-  return typeof value === 'string'
-    ? withoutTrailingSlashes(value.replace(/^\.?\/*/, ''))
-    : '';
-}
-
-function asObject(value: unknown): Record<string, unknown> | undefined {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
-    ? (value as Record<string, unknown>)
-    : undefined;
 }
