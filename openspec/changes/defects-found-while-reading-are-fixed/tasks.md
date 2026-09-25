@@ -128,7 +128,7 @@ they start with a top-level folder.
   refuses a deployed id (`plugin-store/`).
 - [x] 9.5 On a narrow screen the store's detail replaces the list and offers a way back, shown to the
   owner as a slice before it is finished (`plugin-store/plugin-store-dialog.html`).
-- [ ] 9.6 The demo: cancelling the second "New customer" prompt cancels the creation
+- [x] 9.6 The demo: cancelling the second "New customer" prompt cancels the creation
   (`demo/src/customers/`); an accepted quote can no longer be sent (`demo/src/quotes/`).
 - [x] 9.7 Update this change with the deltas the decisions require (`/opsx:update`).
 - [x] 9.8 The in-process state handle tells an observer when a value arrives and whenever it changes

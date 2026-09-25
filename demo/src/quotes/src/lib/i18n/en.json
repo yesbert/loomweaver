@@ -57,8 +57,8 @@
     },
     "send": {
       "title": "Send quote to customer",
-      "description": "Sends a quote to its customer and marks it as sent. This is a consequential step: the customer sees it.",
-      "answers": "The quote's number and its new status.",
+      "description": "Sends a draft quote to its customer and marks it as sent. This is a consequential step: the customer sees it. A quote the customer already accepted, declined or let expire is not sent again.",
+      "answers": "The quote's number and its status afterwards.",
       "arg": {
         "number": "The quote number, for example Q-0007."
       }
