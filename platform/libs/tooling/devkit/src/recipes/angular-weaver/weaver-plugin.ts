@@ -1,6 +1,7 @@
 import type { ResolvedWeaver } from './recipe';
 import { agentSurfaceBlock } from './agent-files';
-import { CONTAINER_EXAMPLE_ID, capabilityItems } from './weaver-terms';
+import { quotedList } from '../../lib/amend/compose';
+import { CONTAINER_EXAMPLE_ID } from './weaver-terms';
 import { commandBlock, toneHelper } from './weaver-command';
 
 const SURFACE_ICON =
@@ -226,7 +227,7 @@ export const ${w.propertyName}Plugin: Plugin = {
   manifest: {
     id: '${w.id}',
     name: '${w.name}',
-    capabilities: [${capabilityItems(w.capabilities)}],
+    capabilities: [${quotedList(w.capabilities)}],
   },
   activate(ctx) {
 ${body.join('\n')}

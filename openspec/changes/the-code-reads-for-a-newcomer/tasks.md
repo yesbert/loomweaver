@@ -455,8 +455,14 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   `scaffolds.ts` and `inputs.ts` no longer import each other. Move: every recipe folder has a `scaffold.ts` with its
   descriptor and, where it has one, its input mapper; `scaffolds.ts` is the ordered list and
   `findScaffold`.
-- [ ] 10.4 How registering a plugin looks is rendered once and used by composing, describing and the
+- [x] 10.4 How registering a plugin looks is rendered once and used by composing, describing and the
   "not registered" message; `describeAmendment` switches over the kind.
+  `registrationLines` in `compose.ts` feeds `composePlugin`, `composeLines` (which both "not
+  registered" messages print) and `describeAmendment`; the shell symbols and `quotedList` are written
+  once, and the weaver recipe uses `quotedList`. `describeAmendment` switches over the kind with a
+  `never` default and describes a build target in `describeBuildTarget`. The output of every
+  scaffold's amendments is identical before and after. Set aside: the "was NOT registered" sentence
+  stays in the CLI and in the Nx route, because sharing it would add a published devkit export.
 - [ ] 10.5 The Nx generators apply the recipes' amendments through one `applyAmendments`, the twin of
   the CLI's `Amender` (after the generator defects are fixed); the four divergences between generator
   folders go.

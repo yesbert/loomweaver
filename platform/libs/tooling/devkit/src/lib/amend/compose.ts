@@ -10,6 +10,11 @@ const APP_CONFIG = /export\s+const\s+appConfig\s*:[^=]*=\s*\{/;
 const NAMESPACES = /provideTranslationNamespaces\(([^)]*)\)/;
 const PROVIDERS_OPEN = /providers\s*:\s*\[/g;
 const SHELL_IMPORT = /import\s*\{([^}]*)\}\s*from\s*'@loomweaver\/shell';/;
+const REGISTRATION_SHELL_SYMBOLS = [
+  'providePlugins',
+  'provideCapabilityGrants',
+  'provideTranslationNamespaces',
+];
 
 interface ProvidersBlock {
   readonly insertAt: number;
@@ -80,14 +85,14 @@ export function composePlugin(
     return { source, composed: false, kept: [] };
   }
   const indent = `${block.indent}  `;
-  const lines = [
-    ...wanted.map((provider) => `${indent}${provider.line}`),
-    ...(joined.joined ? [] : [`${indent}provideTranslationNamespaces('${amendment.id}'),`]),
-    `${indent}provideCapabilityGrants({ ${amendment.id}: [${amendment.capabilities
-      .map((capability) => `'${capability}'`)
-      .join(', ')}] }),`,
-    `${indent}...providePlugins(${amendment.symbol}),`,
-  ].join('\n');
+  const registration = registrationLines(amendment, wanted);
+  const lines = (
+    joined.joined
+      ? registration.filter((line) => line !== namespaceLine(amendment.id))
+      : registration
+  )
+    .map((line) => `${indent}${line}`)
+    .join('\n');
   return {
     source: `${joined.source.slice(0, block.insertAt)}\n${lines}${joined.source.slice(block.insertAt)}`,
     composed: true,
@@ -145,9 +150,7 @@ export function composeLines(
   const providers = amendment.providers ?? [];
   const own = [amendment.symbol, ...providers.flatMap((provider) => provider.own ?? [])];
   const shell = [
-    'providePlugins',
-    'provideCapabilityGrants',
-    'provideTranslationNamespaces',
+    ...REGISTRATION_SHELL_SYMBOLS,
     ...providers.flatMap((provider) => provider.shell ?? []),
   ];
   return [
@@ -156,13 +159,28 @@ export function composeLines(
     ...providers
       .flatMap((provider) => provider.from ?? [])
       .map((entry) => `import { ${entry.symbols.join(', ')} } from '${entry.path}';`),
+    ...registrationLines(amendment, providers),
+  ];
+}
+
+export function registrationLines(
+  amendment: ComposePluginAmendment,
+  providers: readonly ProviderLine[],
+): readonly string[] {
+  return [
     ...providers.map((provider) => provider.line),
-    `provideTranslationNamespaces('${amendment.id}'),`,
-    `provideCapabilityGrants({ ${amendment.id}: [${amendment.capabilities
-      .map((capability) => `'${capability}'`)
-      .join(', ')}] }),`,
+    namespaceLine(amendment.id),
+    `provideCapabilityGrants({ ${amendment.id}: [${quotedList(amendment.capabilities)}] }),`,
     `...providePlugins(${amendment.symbol}),`,
   ];
+}
+
+export function quotedList(values: readonly string[]): string {
+  return values.map((value) => `'${value}'`).join(', ');
+}
+
+function namespaceLine(id: string): string {
+  return `provideTranslationNamespaces('${id}'),`;
 }
 
 function withShellSymbols(
@@ -170,9 +188,7 @@ function withShellSymbols(
   providers: readonly ProviderLine[],
 ): string {
   const wanted = [
-    'provideCapabilityGrants',
-    'providePlugins',
-    'provideTranslationNamespaces',
+    ...REGISTRATION_SHELL_SYMBOLS,
     ...providers.flatMap((provider) => provider.shell ?? []),
   ];
   const present = existing
