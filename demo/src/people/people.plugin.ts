@@ -14,7 +14,7 @@ export const peoplePlugin: Plugin = {
 
     ctx.registerSurface({
       id: 'people.employees',
-      title: 'product.view.employees',
+      title: 'people.view.employees',
       icon: 'employees',
       routable: { path: 'people/employees' },
       docks: [],
@@ -22,7 +22,7 @@ export const peoplePlugin: Plugin = {
     });
     ctx.registerSurface({
       id: 'people.payroll',
-      title: 'product.view.payrollRuns',
+      title: 'people.view.payrollRuns',
       icon: 'payrollRuns',
       routable: { path: 'people/payroll' },
       docks: [],
@@ -31,11 +31,11 @@ export const peoplePlugin: Plugin = {
 
     ctx.registerCommand({
       id: 'people.runPayroll',
-      title: 'product.people.runPayroll',
-      description: 'product.people.payrollDescription',
+      title: 'people.runPayroll',
+      description: 'people.payrollDescription',
       icon: 'payrollRuns',
       callable: true,
-      answers: 'product.people.payrollAnswers',
+      answers: 'people.payrollAnswers',
       run: async () => ({ paid: await peopleActions.runPayroll() }),
     });
   },

@@ -51,7 +51,7 @@ export const MODULES: readonly ProductModule[] = [
       {
         id: 'orderHandling',
         titleKey: 'product.area.orderHandling',
-        views: [{ titleKey: 'product.view.quotes', path: 'sales/quotes', icon: 'quotes' }],
+        views: [{ titleKey: 'quotes.title', path: 'sales/quotes', icon: 'quotes' }],
       },
     ],
   },
@@ -187,7 +187,7 @@ export const MODULES: readonly ProductModule[] = [
         titleKey: 'product.area.employees',
         views: [
           {
-            titleKey: 'product.view.employees',
+            titleKey: 'people.view.employees',
             path: 'people/employees',
             icon: 'employees',
           },
@@ -198,7 +198,7 @@ export const MODULES: readonly ProductModule[] = [
         titleKey: 'product.area.payroll',
         views: [
           {
-            titleKey: 'product.view.payrollRuns',
+            titleKey: 'people.view.payrollRuns',
             path: 'people/payroll',
             icon: 'payrollRuns',
           },

@@ -18,16 +18,16 @@ export const peopleActions = {
     const due = openRun();
     if (!due) {
       host.ui.toast({
-        message: 'product.people.nothingOpen',
+        message: 'people.nothingOpen',
         kind: 'info',
         timeoutMs: 3000,
       });
       return null;
     }
     const go = await host.ui.confirm({
-      title: 'product.people.runPayroll',
-      message: 'product.people.confirmPayroll',
-      confirmLabel: 'product.people.runPayroll',
+      title: 'people.runPayroll',
+      message: 'people.confirmPayroll',
+      confirmLabel: 'people.runPayroll',
       tone: 'warning',
     });
     if (!go) {
@@ -38,7 +38,7 @@ export const peopleActions = {
       return null;
     }
     host.ui.toast({
-      message: 'product.people.payrollDone',
+      message: 'people.payrollDone',
       kind: 'success',
       timeoutMs: 4000,
     });

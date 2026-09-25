@@ -1,0 +1,33 @@
+{
+  "headcount": "{{count}} employees",
+  "monthlyGross": "Monthly gross",
+  "weeklyHours": "{{hours}} h/week",
+  "runPayroll": "Run payroll",
+  "confirmPayroll": "Run payroll for the open month? It counts as paid afterwards.",
+  "payrollDone": "Payroll run.",
+  "nothingOpen": "No month is open.",
+  "payrollDescription": "Runs payroll for the open month and marks it paid.",
+  "payrollAnswers": "Which month payroll was run for.",
+  "department": {
+    "accounting": "Accounting",
+    "sales": "Sales",
+    "workshop": "Workshop",
+    "warehouse": "Warehouse"
+  },
+  "state": {
+    "open": "open",
+    "paid": "paid"
+  },
+  "column": {
+    "number": "Staff no.",
+    "name": "Name",
+    "department": "Area",
+    "joined": "Joined",
+    "hours": "Hours",
+    "gross": "Monthly gross"
+  },
+  "view": {
+    "employees": "Employees",
+    "payrollRuns": "Payroll runs"
+  }
+}

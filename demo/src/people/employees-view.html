@@ -1,11 +1,11 @@
 <div class="flex h-full flex-col gap-4 p-3">
   <div class="flex flex-wrap items-baseline justify-between gap-3">
     <h2 class="text-base font-semibold text-content">
-      {{ 'product.view.employees' | transloco }}
+      {{ 'people.view.employees' | transloco }}
     </h2>
     <span class="text-sm text-content-muted">
-      {{ 'product.people.headcount' | transloco: { count: count() } }}
-      <span class="ml-2">{{ 'product.people.monthlyGross' | transloco }}</span>
+      {{ 'people.headcount' | transloco: { count: count() } }}
+      <span class="ml-2">{{ 'people.monthlyGross' | transloco }}</span>
       <span class="ml-1 font-medium text-content tabular-nums" data-testid="people-gross">{{
         payroll()
       }}</span>
@@ -16,12 +16,12 @@
     <table class="w-full text-sm">
       <thead class="text-xs text-content-muted">
         <tr class="border-b border-border">
-          <th class="px-4 py-2.5 text-left font-medium">{{ 'product.people.column.number' | transloco }}</th>
-          <th class="px-4 py-2.5 text-left font-medium">{{ 'product.people.column.name' | transloco }}</th>
-          <th class="px-4 py-2.5 text-left font-medium">{{ 'product.people.column.department' | transloco }}</th>
-          <th class="px-4 py-2.5 text-left font-medium">{{ 'product.people.column.joined' | transloco }}</th>
-          <th class="px-4 py-2.5 text-right font-medium">{{ 'product.people.column.hours' | transloco }}</th>
-          <th class="px-4 py-2.5 text-right font-medium">{{ 'product.people.column.gross' | transloco }}</th>
+          <th class="px-4 py-2.5 text-left font-medium">{{ 'people.column.number' | transloco }}</th>
+          <th class="px-4 py-2.5 text-left font-medium">{{ 'people.column.name' | transloco }}</th>
+          <th class="px-4 py-2.5 text-left font-medium">{{ 'people.column.department' | transloco }}</th>
+          <th class="px-4 py-2.5 text-left font-medium">{{ 'people.column.joined' | transloco }}</th>
+          <th class="px-4 py-2.5 text-right font-medium">{{ 'people.column.hours' | transloco }}</th>
+          <th class="px-4 py-2.5 text-right font-medium">{{ 'people.column.gross' | transloco }}</th>
         </tr>
       </thead>
       <tbody data-testid="employee-list">
@@ -33,7 +33,7 @@
             <td class="px-4 py-2.5 text-content-muted tabular-nums">{{ row.joined }}</td>
             <td class="px-4 py-2.5 text-right tabular-nums">
               <span [class]="row.partTime ? 'text-content-muted' : 'text-content'">
-                {{ 'product.people.weeklyHours' | transloco: { hours: row.employee.weeklyHours } }}
+                {{ 'people.weeklyHours' | transloco: { hours: row.employee.weeklyHours } }}
               </span>
             </td>
             <td class="px-4 py-2.5 text-right text-content tabular-nums">{{ row.gross }}</td>
