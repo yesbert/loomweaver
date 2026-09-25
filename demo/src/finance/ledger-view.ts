@@ -1,6 +1,6 @@
 import { Component, computed } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { journal } from '../accounting';
+import { journal } from './books';
 import { dateIn, language, moneyIn, sum } from './finance-view-model';
 
 @Component({

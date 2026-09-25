@@ -13,7 +13,7 @@ import {
   resetFinance,
   startDunningRun,
   stateOf,
-} from '../accounting';
+} from './books';
 
 describe('finance', () => {
   beforeEach(() => {

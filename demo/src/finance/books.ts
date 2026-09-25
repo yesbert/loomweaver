@@ -1,6 +1,5 @@
 import { computed, signal } from '@angular/core';
-import { type Cents } from './money';
-import { isoDaysFromToday, localIsoDate, today } from './clock';
+import { type Cents, isoDaysFromToday, localIsoDate, today } from '../accounting';
 
 export type ReceivableState = 'open' | 'settled';
 

@@ -1,6 +1,6 @@
 import { Component, computed } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { daysOverdue, dunningLevel, openAmount, overdueReceivables } from '../accounting';
+import { daysOverdue, dunningLevel, openAmount, overdueReceivables } from './books';
 import { financeActions } from './finance-actions';
 import { customerName, language, moneyIn } from './finance-view-model';
 

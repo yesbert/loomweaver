@@ -652,7 +652,10 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   `document/` beside `quote-from-route.ts` (was `quote-context.ts`); the barrel is gone, so the
   composition root imports `quotes.plugin` like the other plugins, and every import lost its four
   `../`. A pure move: the same 118 unit tests and 116 end-to-end tests pass.
-- [ ] 12.4 **Move:** the finance ledger from `accounting/` to `finance/`.
+- [x] 12.4 **Move:** the finance ledger from `accounting/` to `finance/`.
+  `accounting/finance.ts` is `finance/books.ts`: receivables, payables, the journal, the periods
+  and the dunning run are read by finance alone. The shared barrel no longer exports them and
+  exports `localIsoDate`, which the books use; the finance files take the ledger from `./books`.
 - [ ] 12.5 **Move** (decided 2026-09-25): the composition folders (`session`, `looks`, `navigation`,
   `about`, `legal`, `preview`) under `app/`, with the link in `docs/distribution/auth.md`.
 - [ ] 12.6 One active-language signal, the formatters called directly, lookups next to their data; the

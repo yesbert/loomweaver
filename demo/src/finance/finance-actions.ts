@@ -1,5 +1,5 @@
 import { type PluginContext } from '@loomweaver/plugin-sdk';
-import { overdueReceivables, startDunningRun } from '../accounting';
+import { overdueReceivables, startDunningRun } from './books';
 
 let ctx: PluginContext | undefined;
 
