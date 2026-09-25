@@ -1,6 +1,6 @@
 import { Component, computed } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { openReceivables, periods } from '../accounting';
+import { openReceivables, periods } from './books';
 
 @Component({
   selector: 'lw-closing-view',

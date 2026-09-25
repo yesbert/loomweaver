@@ -19,7 +19,7 @@ export {
   resetCustomers,
 } from './catalog';
 export { type DocumentMargin, type MarginLine, marginOf } from './margin';
-export { isoDaysFromToday, setReferenceDate, today } from './clock';
+export { isoDaysFromToday, localIsoDate, setReferenceDate, today } from './clock';
 export {
   type Quote,
   type QuoteStatus,
@@ -33,24 +33,3 @@ export {
   resetQuotes,
   saveQuoteNote,
 } from './quotes';
-export {
-  type JournalEntry,
-  type Payable,
-  type Period,
-  type Receivable,
-  type ReceivableState,
-  daysOverdue,
-  dunningLevel,
-  journal,
-  openAmount,
-  openReceivables,
-  overdueReceivables,
-  payables,
-  payablesOutstanding,
-  periods,
-  receivables,
-  receivablesOutstanding,
-  resetFinance,
-  startDunningRun,
-  stateOf,
-} from './finance';
