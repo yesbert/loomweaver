@@ -4,7 +4,7 @@ import { TranslocoService } from '@jsverse/transloco';
 import { DialogRef } from '../dialog/dialog-ref';
 import { DialogService } from '../dialog/dialog.service';
 import { CommandService } from '../commands/command.service';
-import { DEFAULT_WORKSPACE_ID } from './active-workspace.service';
+import { BUILT_IN_WORKSPACE_ID } from './workspace-definition';
 import { WorkspaceDefinition } from './workspace-definition';
 import { WorkspaceService } from './workspace.service';
 import { WorkspaceDialog } from './workspace-dialog';
@@ -55,7 +55,7 @@ describe('WorkspaceDialog (two lists)', () => {
   });
 
   it('opens on the user list when the default workspace is active', () => {
-    expect(build(DEFAULT_WORKSPACE_ID).tab()).toBe('mine');
+    expect(build(BUILT_IN_WORKSPACE_ID).tab()).toBe('mine');
   });
 
   it('opens on the user list when a saved workspace is active', () => {
@@ -63,13 +63,13 @@ describe('WorkspaceDialog (two lists)', () => {
   });
 
   it('opens on the user list when the distribution ships none', () => {
-    expect(build(DEFAULT_WORKSPACE_ID, []).tab()).toBe('mine');
+    expect(build(BUILT_IN_WORKSPACE_ID, []).tab()).toBe('mine');
   });
 });
 
 describe('WorkspaceDialog (the built-in workspace)', () => {
   it('offers it where the distribution declares no initial workspace', () => {
-    expect(build(DEFAULT_WORKSPACE_ID).offersBuiltIn).toBe(true);
+    expect(build(BUILT_IN_WORKSPACE_ID).offersBuiltIn).toBe(true);
   });
 
   it('does not offer it beside a declared initial workspace', () => {
@@ -81,7 +81,7 @@ describe('WorkspaceDialog (the built-in workspace)', () => {
 
 describe('WorkspaceDialog (where a variant came from)', () => {
   it('names the workspace a variant was saved from', () => {
-    const dialog = build(DEFAULT_WORKSPACE_ID, DEFINITIONS, {
+    const dialog = build(BUILT_IN_WORKSPACE_ID, DEFINITIONS, {
       mine: 'app.review',
     });
 
@@ -89,7 +89,7 @@ describe('WorkspaceDialog (where a variant came from)', () => {
   });
 
   it('says nothing where a variant has no origin left to name', () => {
-    const dialog = build(DEFAULT_WORKSPACE_ID, DEFINITIONS, { mine: 'gone' });
+    const dialog = build(BUILT_IN_WORKSPACE_ID, DEFINITIONS, { mine: 'gone' });
 
     expect(dialog.originName('mine')).toBeNull();
   });

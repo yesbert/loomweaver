@@ -4,10 +4,8 @@ import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { WorkspaceService } from './workspace.service';
 import { BootAddress } from '../regions/content/routing/boot-address';
-import {
-  ActiveWorkspaceService,
-  DEFAULT_WORKSPACE_ID,
-} from './active-workspace.service';
+import { ActiveWorkspaceService } from './active-workspace.service';
+import { BUILT_IN_WORKSPACE_ID } from './workspace-definition';
 import { SETTINGS_STORE } from '../persistence/settings-store';
 import { ContributionRegistry } from '../contributions/contribution-registry';
 import {
@@ -65,7 +63,7 @@ describe('WorkspaceService', () => {
   it('starts in the default workspace with no saved workspaces', () => {
     const ws = TestBed.inject(WorkspaceService);
     expect(ws.workspaces()).toEqual([]);
-    expect(ws.activeId()).toBe(DEFAULT_WORKSPACE_ID);
+    expect(ws.activeId()).toBe(BUILT_IN_WORKSPACE_ID);
   });
 
   it('save-as makes the new workspace active and keeps the arrangement as its baseline', async () => {
@@ -96,7 +94,7 @@ describe('WorkspaceService', () => {
     paneTree.unsplit(CONTENT_DOCK);
     expect(paneTree.isSplit(CONTENT_DOCK)).toBe(false);
 
-    await ws.switchTo(DEFAULT_WORKSPACE_ID);
+    await ws.switchTo(BUILT_IN_WORKSPACE_ID);
     expect(paneTree.isSplit(CONTENT_DOCK)).toBe(true);
 
     await ws.switchTo(id);
@@ -112,7 +110,7 @@ describe('WorkspaceService', () => {
     const id = ws.workspaces()[0].id;
     localStorage.removeItem(scoped('lw.shell.pane-trees', id));
 
-    await ws.switchTo(DEFAULT_WORKSPACE_ID);
+    await ws.switchTo(BUILT_IN_WORKSPACE_ID);
     paneTree.unsplit(CONTENT_DOCK);
 
     await ws.switchTo(id);
@@ -145,7 +143,7 @@ describe('WorkspaceService', () => {
 
     paneTree.splitPane(CONTENT_DOCK, PRIMARY_PANE, 'row', 'search');
     await ws.saveCurrent('keep-me');
-    await ws.switchTo(DEFAULT_WORKSPACE_ID);
+    await ws.switchTo(BUILT_IN_WORKSPACE_ID);
     expect(paneTree.isSplit(CONTENT_DOCK)).toBe(true);
 
     await ws.reset();
@@ -168,7 +166,7 @@ describe('WorkspaceService', () => {
     await ws.remove(id);
 
     expect(ws.workspaces()).toEqual([]);
-    expect(ws.activeId()).toBe(DEFAULT_WORKSPACE_ID);
+    expect(ws.activeId()).toBe(BUILT_IN_WORKSPACE_ID);
     expect(localStorage.getItem(scoped('lw.shell.pane-trees', id))).toBeNull();
   });
 
@@ -206,9 +204,9 @@ describe('WorkspaceService', () => {
     paneTree.unsplit(CONTENT_DOCK);
     expect(ws.changedIds().has(id)).toBe(true);
 
-    await ws.switchTo(DEFAULT_WORKSPACE_ID);
+    await ws.switchTo(BUILT_IN_WORKSPACE_ID);
     expect(ws.changedIds().has(id)).toBe(true);
-    expect(ws.changedIds().has(DEFAULT_WORKSPACE_ID)).toBe(true);
+    expect(ws.changedIds().has(BUILT_IN_WORKSPACE_ID)).toBe(true);
   });
 
   it('seeded sidebar docks do not count as changes — the default workspace boots clean', () => {
@@ -329,7 +327,7 @@ describe('WorkspaceService', () => {
     expect(hidden.isHidden('outline')).toBe(true);
     expect(ws.hasChanges()).toBe(false);
 
-    await ws.switchTo(DEFAULT_WORKSPACE_ID);
+    await ws.switchTo(BUILT_IN_WORKSPACE_ID);
     hidden.show('outline');
     groups.seed('primary');
     expect(hidden.isHidden('outline')).toBe(false);
@@ -604,7 +602,7 @@ describe('WorkspaceService adopting the declared initial workspace', () => {
   });
 
   it('starts a stored choice of the built-in workspace in the declared initial, at a deep link too', async () => {
-    compose(DEFAULT_WORKSPACE_ID);
+    compose(BUILT_IN_WORKSPACE_ID);
     await TestBed.inject(Router).navigateByUrl('/search');
     const ws = TestBed.inject(WorkspaceService);
 
@@ -621,12 +619,14 @@ describe('WorkspaceService adopting the declared initial workspace', () => {
     await ws.saveCurrent('Mine');
     const [saved] = ws.workspaces();
 
-    await ws.switchTo(DEFAULT_WORKSPACE_ID);
+    await ws.switchTo(BUILT_IN_WORKSPACE_ID);
     await ws.resetAll();
 
     expect(ws.activeId()).toBe(saved.id);
     expect(
-      localStorage.getItem(scoped('lw.shell.pane-trees', DEFAULT_WORKSPACE_ID)),
+      localStorage.getItem(
+        scoped('lw.shell.pane-trees', BUILT_IN_WORKSPACE_ID),
+      ),
     ).toBeNull();
   });
 });

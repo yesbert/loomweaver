@@ -51,18 +51,18 @@
       <li class="flex items-center gap-1.5">
         <div
           class="flex min-w-0 flex-1 items-center gap-1 rounded-md border p-1.5"
-          [class.border-brand]="activeId() === defaultId"
-          [class.border-border]="activeId() !== defaultId"
+          [class.border-brand]="activeId() === builtInId"
+          [class.border-border]="activeId() !== builtInId"
         >
           <button
             type="button"
             class="flex-1 truncate rounded px-2 py-1 text-left text-sm text-content transition-colors hover:bg-surface-overlay"
-            [attr.aria-current]="activeId() === defaultId ? 'true' : null"
-            (click)="switchTo(defaultId)"
+            [attr.aria-current]="activeId() === builtInId ? 'true' : null"
+            (click)="switchTo(builtInId)"
             data-testid="workspace-default"
           >
             {{ 'workspace.default' | transloco }}
-            @if (changed(defaultId)) {
+            @if (changed(builtInId)) {
               <span
                 aria-hidden="true"
                 class="ml-0.5 inline-block h-1.5 w-1.5 rounded-full bg-brand align-middle"
@@ -74,10 +74,10 @@
         <button
           type="button"
           class="lw-btn lw-btn--danger lw-btn--sm lw-btn--icon shrink-0"
-          [disabled]="!resettable(defaultId)"
-          (click)="resetLayout(defaultId)"
+          [disabled]="!resettable(builtInId)"
+          (click)="resetLayout(builtInId)"
           [attr.aria-label]="'workspace.reset' | transloco"
-          [attr.data-testid]="resetTestId(defaultId)"
+          [attr.data-testid]="resetTestId(builtInId)"
         >
           <lw-icon name="undo" size="1rem" />
           <lw-tooltip

@@ -1,8 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import {
-  ActiveWorkspaceService,
-  DEFAULT_WORKSPACE_ID,
-} from './active-workspace.service';
+import { ActiveWorkspaceService } from './active-workspace.service';
+import { BUILT_IN_WORKSPACE_ID } from './workspace-definition';
 import { WORKING_STATE_STORE } from '../persistence/working-state-store';
 import { provideWorkspaces } from './provide-workspaces';
 
@@ -13,8 +11,8 @@ describe('ActiveWorkspaceService', () => {
 
   it('starts in the default workspace when nothing is stored', async () => {
     const active = TestBed.inject(ActiveWorkspaceService);
-    expect(active.id()).toBe(DEFAULT_WORKSPACE_ID);
-    await expect(active.ready).resolves.toBe(DEFAULT_WORKSPACE_ID);
+    expect(active.id()).toBe(BUILT_IN_WORKSPACE_ID);
+    await expect(active.ready).resolves.toBe(BUILT_IN_WORKSPACE_ID);
   });
 
   it('restores the stored id synchronously via peek', () => {
@@ -25,7 +23,7 @@ describe('ActiveWorkspaceService', () => {
   it('persists a switch and scopes keys to the active workspace', () => {
     const active = TestBed.inject(ActiveWorkspaceService);
     expect(active.scopedKey('lw.shell.pane-trees')).toBe(
-      `lw.shell.pane-trees:${DEFAULT_WORKSPACE_ID}`,
+      `lw.shell.pane-trees:${BUILT_IN_WORKSPACE_ID}`,
     );
 
     active.set('ws-2');
@@ -52,7 +50,7 @@ describe('ActiveWorkspaceService', () => {
       ],
     });
     const active = TestBed.inject(ActiveWorkspaceService);
-    expect(active.id()).toBe(DEFAULT_WORKSPACE_ID);
+    expect(active.id()).toBe(BUILT_IN_WORKSPACE_ID);
 
     await expect(active.ready).resolves.toBe('ws-remote');
     expect(active.id()).toBe('ws-remote');
@@ -72,7 +70,7 @@ describe('ActiveWorkspaceService', () => {
       ],
     });
     const active = TestBed.inject(ActiveWorkspaceService);
-    await expect(active.ready).resolves.toBe(DEFAULT_WORKSPACE_ID);
+    await expect(active.ready).resolves.toBe(BUILT_IN_WORKSPACE_ID);
   });
 
   it('opens a first boot in the declared initial workspace and remembers the choice', () => {
@@ -102,7 +100,7 @@ describe('ActiveWorkspaceService', () => {
   });
 
   it('reads a stored choice of the built-in workspace as the declared initial, and stores that', () => {
-    localStorage.setItem(KEY, DEFAULT_WORKSPACE_ID);
+    localStorage.setItem(KEY, BUILT_IN_WORKSPACE_ID);
     TestBed.configureTestingModule({
       providers: [
         provideWorkspaces({ id: 'research', title: 'R', initial: true }),
@@ -122,7 +120,7 @@ describe('ActiveWorkspaceService', () => {
         {
           provide: WORKING_STATE_STORE,
           useValue: {
-            get: () => Promise.resolve(DEFAULT_WORKSPACE_ID),
+            get: () => Promise.resolve(BUILT_IN_WORKSPACE_ID),
             set,
             delete: () => Promise.resolve(),
           },
@@ -138,13 +136,13 @@ describe('ActiveWorkspaceService', () => {
   });
 
   it('keeps a stored choice of the built-in workspace where nothing is declared initial', () => {
-    localStorage.setItem(KEY, DEFAULT_WORKSPACE_ID);
+    localStorage.setItem(KEY, BUILT_IN_WORKSPACE_ID);
     TestBed.configureTestingModule({
       providers: [provideWorkspaces({ id: 'research', title: 'R' })],
     });
 
     expect(TestBed.inject(ActiveWorkspaceService).id()).toBe(
-      DEFAULT_WORKSPACE_ID,
+      BUILT_IN_WORKSPACE_ID,
     );
   });
 

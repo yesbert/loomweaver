@@ -20,7 +20,7 @@ import { WorkspaceService } from '../workspace.service';
 export class UnusableWorkspacesService implements UnusableWorkspaces {
   private readonly workspaces = inject(WorkspaceService);
   private readonly active = inject(ActiveWorkspaceService);
-  private readonly workingState = inject(WORKING_STATE_STORE);
+  private readonly workingStateStore = inject(WORKING_STATE_STORE);
   private readonly paneTree = inject(PaneTreeService);
 
   readonly announces = inject(ANNOUNCE_UNUSABLE_WORKSPACES);
@@ -38,7 +38,7 @@ export class UnusableWorkspacesService implements UnusableWorkspaces {
       definitionOf: (id) =>
         this.workspaces.definitions.find((definition) => definition.id === id),
       storedTrees: (id) =>
-        this.workingState.peek?.(workspaceScopedKey(PANE_TREES_KEY, id)),
+        this.workingStateStore.peek?.(workspaceScopedKey(PANE_TREES_KEY, id)),
     }),
   );
 
