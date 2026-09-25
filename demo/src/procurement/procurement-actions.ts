@@ -18,16 +18,16 @@ export const procurementActions = {
     const due = nextDelivery();
     if (!due) {
       host.ui.toast({
-        message: 'product.procurement.nothingExpected',
+        message: 'procurement.nothingExpected',
         kind: 'info',
         timeoutMs: 3000,
       });
       return null;
     }
     const go = await host.ui.confirm({
-      title: 'product.procurement.receiveGoods',
-      message: 'product.procurement.confirmReceipt',
-      confirmLabel: 'product.procurement.receiveGoods',
+      title: 'procurement.receiveGoods',
+      message: 'procurement.confirmReceipt',
+      confirmLabel: 'procurement.receiveGoods',
       tone: 'default',
     });
     if (!go) {
@@ -37,7 +37,7 @@ export const procurementActions = {
       return null;
     }
     host.ui.toast({
-      message: 'product.procurement.receiptDone',
+      message: 'procurement.receiptDone',
       kind: 'success',
       timeoutMs: 4000,
     });

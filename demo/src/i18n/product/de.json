@@ -71,8 +71,6 @@
   "view": {
     "quotes": "Angebote",
     "paymentMatching": "Zahlungsabgleich",
-    "supplierList": "Lieferantenstamm",
-    "purchaseOrders": "Bestellungen",
     "stockLevels": "Bestandsführung",
     "movements": "Warenbewegung",
     "employees": "Mitarbeiter",
@@ -148,35 +146,6 @@
       "joined": "Eintritt",
       "hours": "Arbeitszeit",
       "gross": "Monatsbrutto"
-    }
-  },
-  "procurement": {
-    "supplierCount": "{{count}} Lieferanten",
-    "leadTime": "{{days}} Tage",
-    "noOpenOrders": "keine",
-    "onOrder": "Bestellt",
-    "late": "{{days}} Tage überfällig",
-    "receiveGoods": "Wareneingang buchen",
-    "confirmReceipt": "Wareneingang für die nächste erwartete Lieferung buchen? Die Bestellung gilt danach als geliefert.",
-    "receiptDone": "Wareneingang gebucht.",
-    "nothingExpected": "Es wird keine Lieferung erwartet.",
-    "receiptDescription": "Bucht den Wareneingang der nächsten erwarteten Lieferung und setzt die Bestellung auf geliefert.",
-    "receiptAnswers": "Für welche Bestellung der Wareneingang gebucht wurde.",
-    "status": {
-      "ordered": "bestellt",
-      "confirmed": "bestätigt",
-      "received": "geliefert"
-    },
-    "column": {
-      "number": "Nummer",
-      "supplier": "Lieferant",
-      "city": "Ort",
-      "leadTime": "Lieferzeit",
-      "openOrders": "Offene Bestellungen",
-      "ordered": "Bestellt",
-      "expected": "Erwartet",
-      "net": "Netto",
-      "status": "Status"
     }
   }
 }

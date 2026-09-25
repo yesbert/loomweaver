@@ -1,10 +1,10 @@
 <div class="flex h-full flex-col gap-4 p-3">
   <div class="flex items-baseline justify-between gap-3">
     <h2 class="text-base font-semibold text-content">
-      {{ 'product.view.supplierList' | transloco }}
+      {{ 'procurement.view.supplierList' | transloco }}
     </h2>
     <span class="text-sm text-content-muted" data-testid="supplier-count">
-      {{ 'product.procurement.supplierCount' | transloco: { count: count() } }}
+      {{ 'procurement.supplierCount' | transloco: { count: count() } }}
     </span>
   </div>
 
@@ -12,11 +12,11 @@
     <table class="w-full text-sm">
       <thead class="text-xs text-content-muted">
         <tr class="border-b border-border">
-          <th class="px-4 py-2.5 text-left font-medium">{{ 'product.procurement.column.number' | transloco }}</th>
-          <th class="px-4 py-2.5 text-left font-medium">{{ 'product.procurement.column.supplier' | transloco }}</th>
-          <th class="px-4 py-2.5 text-left font-medium">{{ 'product.procurement.column.city' | transloco }}</th>
-          <th class="px-4 py-2.5 text-right font-medium">{{ 'product.procurement.column.leadTime' | transloco }}</th>
-          <th class="px-4 py-2.5 text-right font-medium">{{ 'product.procurement.column.openOrders' | transloco }}</th>
+          <th class="px-4 py-2.5 text-left font-medium">{{ 'procurement.column.number' | transloco }}</th>
+          <th class="px-4 py-2.5 text-left font-medium">{{ 'procurement.column.supplier' | transloco }}</th>
+          <th class="px-4 py-2.5 text-left font-medium">{{ 'procurement.column.city' | transloco }}</th>
+          <th class="px-4 py-2.5 text-right font-medium">{{ 'procurement.column.leadTime' | transloco }}</th>
+          <th class="px-4 py-2.5 text-right font-medium">{{ 'procurement.column.openOrders' | transloco }}</th>
         </tr>
       </thead>
       <tbody data-testid="supplier-list">
@@ -26,11 +26,11 @@
             <td class="px-4 py-2.5 text-content">{{ row.supplier.name }}</td>
             <td class="px-4 py-2.5 text-content-muted">{{ row.supplier.city }}</td>
             <td class="px-4 py-2.5 text-right text-content-muted tabular-nums">
-              {{ 'product.procurement.leadTime' | transloco: { days: row.supplier.leadTimeDays } }}
+              {{ 'procurement.leadTime' | transloco: { days: row.supplier.leadTimeDays } }}
             </td>
             <td class="px-4 py-2.5 text-right tabular-nums">
               @if (row.openOrders === 0) {
-                <span class="text-content-faint">{{ 'product.procurement.noOpenOrders' | transloco }}</span>
+                <span class="text-content-faint">{{ 'procurement.noOpenOrders' | transloco }}</span>
               } @else {
                 <span class="font-medium text-content">{{ row.openOrders }}</span>
               }
