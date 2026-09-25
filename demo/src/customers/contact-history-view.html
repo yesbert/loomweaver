@@ -3,10 +3,10 @@
     <div
       class="hidden shrink-0 grid-cols-[8rem_minmax(0,1fr)_7rem_minmax(0,1fr)] gap-3 border-b border-border px-4 py-2.5 text-xs font-medium text-content-muted @2xl:grid"
     >
-      <span>{{ 'product.contacts.column.date' | transloco }}</span>
-      <span>{{ 'product.contacts.column.customer' | transloco }}</span>
-      <span>{{ 'product.contacts.column.channel' | transloco }}</span>
-      <span>{{ 'product.contacts.column.subject' | transloco }}</span>
+      <span>{{ 'customers.contacts.column.date' | transloco }}</span>
+      <span>{{ 'customers.contacts.column.customer' | transloco }}</span>
+      <span>{{ 'customers.contacts.column.channel' | transloco }}</span>
+      <span>{{ 'customers.contacts.column.subject' | transloco }}</span>
     </div>
 
     <div class="min-h-0 flex-1 overflow-auto">
@@ -17,7 +17,7 @@
               <span class="text-sm text-content-muted tabular-nums">{{ row.on }}</span>
               <span class="truncate text-content">{{ row.customer }}</span>
               <span class="text-sm text-content-muted">
-                {{ 'product.contacts.channel.' + row.contact.channel | transloco }}
+                {{ 'customers.contacts.channel.' + row.contact.channel | transloco }}
               </span>
               <span class="truncate text-sm text-content-muted">
                 {{ row.contact.subjectKey | transloco }}
@@ -26,7 +26,7 @@
             <span class="flex flex-col gap-0.5 @2xl:hidden">
               <span class="text-content">{{ row.customer }}</span>
               <span class="text-xs text-content-faint">
-                {{ row.on }} · {{ 'product.contacts.channel.' + row.contact.channel | transloco }}
+                {{ row.on }} · {{ 'customers.contacts.channel.' + row.contact.channel | transloco }}
               </span>
             </span>
           </li>

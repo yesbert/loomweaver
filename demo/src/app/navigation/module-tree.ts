@@ -44,8 +44,8 @@ export const MODULES: readonly ProductModule[] = [
         id: 'customers',
         titleKey: 'product.area.customers',
         views: [
-          { titleKey: 'product.view.customerList', path: 'sales/customers', icon: 'customerList' },
-          { titleKey: 'product.view.contactHistory', path: 'sales/contacts', icon: 'contactHistory' },
+          { titleKey: 'customers.view.customerList', path: 'sales/customers', icon: 'customerList' },
+          { titleKey: 'customers.view.contactHistory', path: 'sales/contacts', icon: 'contactHistory' },
         ],
       },
       {

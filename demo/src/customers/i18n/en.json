@@ -1,0 +1,51 @@
+{
+  "search": "Search customers",
+  "searchPlaceholder": "Name, number or city",
+  "termsDays": "{{days}} days",
+  "column": {
+    "number": "Number",
+    "name": "Customer",
+    "city": "City",
+    "terms": "Payment terms",
+    "contacts": "Contacts"
+  },
+  "create": {
+    "action": "New customer",
+    "title": "New customer",
+    "nameMessage": "What is the customer called?",
+    "namePlaceholder": "Company name",
+    "cityMessage": "Which city are they in?",
+    "cityPlaceholder": "City",
+    "confirm": "Create",
+    "done": "Customer created.",
+    "description": "Creates a customer, asking for a name and a city.",
+    "answers": "Whether a customer was created and which id it was given."
+  },
+  "contacts": {
+    "column": {
+      "date": "Date",
+      "customer": "Customer",
+      "channel": "Channel",
+      "subject": "Subject"
+    },
+    "channel": {
+      "call": "Call",
+      "email": "Email",
+      "visit": "Visit"
+    }
+  },
+  "contact": {
+    "subject": {
+      "quoteFollowUp": "Follow-up on the quote",
+      "priceRequest": "Price request",
+      "onSite": "On-site meeting",
+      "deliveryDate": "Delivery date agreed",
+      "complaint": "Complaint recorded",
+      "renewal": "Renewal discussed"
+    }
+  },
+  "view": {
+    "customerList": "Customer list",
+    "contactHistory": "Contact history"
+  }
+}

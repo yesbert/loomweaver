@@ -60,6 +60,11 @@
               },
               {
                 "glob": "**/*.json",
+                "input": "src/customers/i18n",
+                "output": "i18n/customers"
+              },
+              {
+                "glob": "**/*.json",
                 "input": "src/app/looks/aurora/i18n",
                 "output": "i18n/overrides/aurora"
               },
