@@ -1,11 +1,11 @@
 <div class="flex h-full flex-col gap-4 p-3">
   <div class="flex flex-wrap items-center justify-between gap-3">
     <h2 class="text-base font-semibold text-content">
-      {{ 'product.view.stockLevels' | transloco }}
+      {{ 'inventory.view.stockLevels' | transloco }}
     </h2>
     <div class="flex items-center gap-4">
       <span class="text-sm text-content-muted" data-testid="stock-low">
-        {{ 'product.inventory.belowReorderPoint' | transloco: { count: low() } }}
+        {{ 'inventory.belowReorderPoint' | transloco: { count: low() } }}
       </span>
       <button
         type="button"
@@ -13,7 +13,7 @@
         (click)="count()"
         data-testid="stock-count"
       >
-        {{ 'product.inventory.countStock' | transloco }}
+        {{ 'inventory.countStock' | transloco }}
       </button>
     </div>
   </div>
@@ -22,11 +22,11 @@
     <table class="w-full text-sm">
       <thead class="text-xs text-content-muted">
         <tr class="border-b border-border">
-          <th class="px-4 py-2.5 text-left font-medium">{{ 'product.inventory.column.number' | transloco }}</th>
-          <th class="px-4 py-2.5 text-left font-medium">{{ 'product.inventory.column.item' | transloco }}</th>
-          <th class="px-4 py-2.5 text-left font-medium">{{ 'product.inventory.column.location' | transloco }}</th>
-          <th class="px-4 py-2.5 text-right font-medium">{{ 'product.inventory.column.onHand' | transloco }}</th>
-          <th class="px-4 py-2.5 text-right font-medium">{{ 'product.inventory.column.reorderPoint' | transloco }}</th>
+          <th class="px-4 py-2.5 text-left font-medium">{{ 'inventory.column.number' | transloco }}</th>
+          <th class="px-4 py-2.5 text-left font-medium">{{ 'inventory.column.item' | transloco }}</th>
+          <th class="px-4 py-2.5 text-left font-medium">{{ 'inventory.column.location' | transloco }}</th>
+          <th class="px-4 py-2.5 text-right font-medium">{{ 'inventory.column.onHand' | transloco }}</th>
+          <th class="px-4 py-2.5 text-right font-medium">{{ 'inventory.column.reorderPoint' | transloco }}</th>
         </tr>
       </thead>
       <tbody data-testid="stock-list">
@@ -38,7 +38,7 @@
             <td class="px-4 py-2.5 text-right tabular-nums">
               <span [class]="row.low ? 'font-medium text-caution' : 'text-content'">{{ row.onHand }}</span>
               <span class="ml-1 text-xs text-content-faint">{{
-                'product.inventory.unit.' + row.item.unit | transloco
+                'inventory.unit.' + row.item.unit | transloco
               }}</span>
             </td>
             <td class="px-4 py-2.5 text-right text-content-muted tabular-nums">{{ row.reorderPoint }}</td>

@@ -16,10 +16,10 @@ export const inventoryActions = {
       return null;
     }
     const number = await host.ui.prompt({
-      title: 'product.inventory.countStock',
-      message: 'product.inventory.count.whichItem',
-      placeholder: 'product.inventory.count.itemPlaceholder',
-      confirmLabel: 'product.inventory.count.confirm',
+      title: 'inventory.countStock',
+      message: 'inventory.count.whichItem',
+      placeholder: 'inventory.count.itemPlaceholder',
+      confirmLabel: 'inventory.count.confirm',
     });
     if (!number?.trim()) {
       return null;
@@ -27,17 +27,17 @@ export const inventoryActions = {
     const item = itemByNumber(number);
     if (!item) {
       host.ui.toast({
-        message: 'product.inventory.count.unknownItem',
+        message: 'inventory.count.unknownItem',
         kind: 'warning',
         timeoutMs: 4000,
       });
       return null;
     }
     const counted = await host.ui.prompt({
-      title: 'product.inventory.countStock',
-      message: 'product.inventory.count.howMany',
+      title: 'inventory.countStock',
+      message: 'inventory.count.howMany',
       initial: String(item.onHand),
-      confirmLabel: 'product.inventory.count.confirm',
+      confirmLabel: 'inventory.count.confirm',
     });
     const quantity = Number(counted?.trim());
     if (counted === null || !Number.isInteger(quantity) || quantity < 0) {
@@ -45,14 +45,14 @@ export const inventoryActions = {
     }
     if (bookCount(item.id, quantity) === null) {
       host.ui.toast({
-        message: 'product.inventory.count.unchanged',
+        message: 'inventory.count.unchanged',
         kind: 'info',
         timeoutMs: 3000,
       });
       return null;
     }
     host.ui.toast({
-      message: 'product.inventory.count.done',
+      message: 'inventory.count.done',
       kind: 'success',
       timeoutMs: 4000,
     });

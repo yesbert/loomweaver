@@ -34,12 +34,12 @@ interface MovementSeed {
 }
 
 const ITEM_SEEDS: readonly StockItem[] = [
-  { id: 'i-carton', number: 'W-410', labelKey: 'product.inventory.item.carton', unit: 'piece', location: 'A-01', onHand: 420, reorderPoint: 150 },
-  { id: 'i-wrap', number: 'W-420', labelKey: 'product.inventory.item.wrap', unit: 'roll', location: 'A-02', onHand: 12, reorderPoint: 20 },
-  { id: 'i-handbook', number: 'W-300', labelKey: 'product.inventory.item.handbook', unit: 'piece', location: 'B-04', onHand: 86, reorderPoint: 40 },
-  { id: 'i-label', number: 'W-430', labelKey: 'product.inventory.item.label', unit: 'pack', location: 'A-03', onHand: 7, reorderPoint: 10 },
-  { id: 'i-headset', number: 'W-510', labelKey: 'product.inventory.item.headset', unit: 'piece', location: 'C-11', onHand: 24, reorderPoint: 8 },
-  { id: 'i-dock', number: 'W-520', labelKey: 'product.inventory.item.dock', unit: 'piece', location: 'C-12', onHand: 3, reorderPoint: 6 },
+  { id: 'i-carton', number: 'W-410', labelKey: 'inventory.item.carton', unit: 'piece', location: 'A-01', onHand: 420, reorderPoint: 150 },
+  { id: 'i-wrap', number: 'W-420', labelKey: 'inventory.item.wrap', unit: 'roll', location: 'A-02', onHand: 12, reorderPoint: 20 },
+  { id: 'i-handbook', number: 'W-300', labelKey: 'inventory.item.handbook', unit: 'piece', location: 'B-04', onHand: 86, reorderPoint: 40 },
+  { id: 'i-label', number: 'W-430', labelKey: 'inventory.item.label', unit: 'pack', location: 'A-03', onHand: 7, reorderPoint: 10 },
+  { id: 'i-headset', number: 'W-510', labelKey: 'inventory.item.headset', unit: 'piece', location: 'C-11', onHand: 24, reorderPoint: 8 },
+  { id: 'i-dock', number: 'W-520', labelKey: 'inventory.item.dock', unit: 'piece', location: 'C-12', onHand: 3, reorderPoint: 6 },
 ];
 
 const MOVEMENT_SEEDS: readonly MovementSeed[] = [
