@@ -17,20 +17,20 @@ export const financeActions = {
     }
     const due = overdueReceivables().length;
     if (due === 0) {
-      host.ui.toast({ message: 'product.finance.nothingOverdue', kind: 'info', timeoutMs: 3000 });
+      host.ui.toast({ message: 'finance.nothingOverdue', kind: 'info', timeoutMs: 3000 });
       return 0;
     }
     const go = await host.ui.confirm({
-      title: 'product.finance.startDunning',
-      message: 'product.finance.confirmDunning',
-      confirmLabel: 'product.finance.startDunning',
+      title: 'finance.startDunning',
+      message: 'finance.confirmDunning',
+      confirmLabel: 'finance.startDunning',
       tone: 'warning',
     });
     if (!go) {
       return 0;
     }
     const reminded = startDunningRun();
-    host.ui.toast({ message: 'product.finance.dunningDone', kind: 'success', timeoutMs: 4000 });
+    host.ui.toast({ message: 'finance.dunningDone', kind: 'success', timeoutMs: 4000 });
     return reminded;
   },
 };

@@ -60,6 +60,11 @@
               },
               {
                 "glob": "**/*.json",
+                "input": "src/finance/i18n",
+                "output": "i18n/finance"
+              },
+              {
+                "glob": "**/*.json",
                 "input": "src/customers/i18n",
                 "output": "i18n/customers"
               },

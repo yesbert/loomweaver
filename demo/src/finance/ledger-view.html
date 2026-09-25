@@ -1,7 +1,7 @@
 <div class="flex h-full flex-col gap-4 p-3">
   <div class="flex items-baseline justify-between gap-3">
     <h2 class="text-base font-semibold text-content">
-      {{ 'product.view.ledger' | transloco }}
+      {{ 'finance.view.ledger' | transloco }}
     </h2>
     <span
       class="text-sm"
@@ -9,7 +9,7 @@
       [class.text-caution]="!balanced()"
       data-testid="ledger-balance"
     >
-      {{ (balanced() ? 'product.finance.balanced' : 'product.finance.unbalanced') | transloco }}
+      {{ (balanced() ? 'finance.balanced' : 'finance.unbalanced') | transloco }}
     </span>
   </div>
 
@@ -17,11 +17,11 @@
     <table class="w-full text-sm">
       <thead class="text-xs text-content-muted">
         <tr class="border-b border-border">
-          <th class="px-4 py-2.5 text-left font-medium">{{ 'product.finance.column.bookedOn' | transloco }}</th>
-          <th class="px-4 py-2.5 text-left font-medium">{{ 'product.finance.column.account' | transloco }}</th>
-          <th class="px-4 py-2.5 text-left font-medium">{{ 'product.finance.column.reference' | transloco }}</th>
-          <th class="px-4 py-2.5 text-right font-medium">{{ 'product.finance.column.debit' | transloco }}</th>
-          <th class="px-4 py-2.5 text-right font-medium">{{ 'product.finance.column.credit' | transloco }}</th>
+          <th class="px-4 py-2.5 text-left font-medium">{{ 'finance.column.bookedOn' | transloco }}</th>
+          <th class="px-4 py-2.5 text-left font-medium">{{ 'finance.column.account' | transloco }}</th>
+          <th class="px-4 py-2.5 text-left font-medium">{{ 'finance.column.reference' | transloco }}</th>
+          <th class="px-4 py-2.5 text-right font-medium">{{ 'finance.column.debit' | transloco }}</th>
+          <th class="px-4 py-2.5 text-right font-medium">{{ 'finance.column.credit' | transloco }}</th>
         </tr>
       </thead>
       <tbody data-testid="ledger-list">

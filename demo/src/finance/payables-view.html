@@ -1,10 +1,10 @@
 <div class="flex h-full flex-col gap-4 p-3">
   <div class="flex items-baseline justify-between gap-3">
     <h2 class="text-base font-semibold text-content">
-      {{ 'product.view.payables' | transloco }}
+      {{ 'finance.view.payables' | transloco }}
     </h2>
     <span class="text-sm text-content-muted">
-      {{ 'product.finance.outstanding' | transloco }}
+      {{ 'finance.outstanding' | transloco }}
       <span class="ml-1 font-medium text-content tabular-nums" data-testid="payables-open">{{
         outstanding()
       }}</span>
@@ -24,10 +24,10 @@
         <span class="flex items-center gap-4">
           <span class="text-sm text-content-muted tabular-nums">{{ row.due }}</span>
           @if (row.entry.approved) {
-            <span class="text-xs text-content-muted">{{ 'product.finance.approved' | transloco }}</span>
+            <span class="text-xs text-content-muted">{{ 'finance.approved' | transloco }}</span>
           } @else {
             <span class="text-xs text-caution" data-testid="payable-unapproved">{{
-              'product.finance.awaitingApproval' | transloco
+              'finance.awaitingApproval' | transloco
             }}</span>
           }
           <span class="w-28 text-right font-medium text-content tabular-nums">{{ row.gross }}</span>
