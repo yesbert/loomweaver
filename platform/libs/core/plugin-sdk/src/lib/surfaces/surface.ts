@@ -1,7 +1,7 @@
 import { Type } from '@angular/core';
 import { ContainerSpec } from './container-spec.js';
 import { TabBadge } from './content-tab.js';
-import { ViewAction } from './view.js';
+import { ViewAction } from './view-action.js';
 import { AccessRequirement } from '../plugin/auth.js';
 
 /**
@@ -23,9 +23,8 @@ import { AccessRequirement } from '../plugin/auth.js';
  *   ("workspace-in-a-tab"): the host draws the inner drag/split/tab mechanics, the surface only declares
  *   which children it offers. Must be combined with `routable` (the container tab holds its own `:id`).
  *
- * Mirrors the {@link ContentSurface} union so a {@link Surface} and a {@link ContentRoute}
- * present identically, deliberately: `ContentRoute`
- * remains the host's internal storage shape, `Surface` the one authoring contract.
+ * A {@link ContentRoute}, the host's internal storage shape, renders from the same forms, so a
+ * {@link Surface} and the route it becomes present identically.
  */
 export type SurfacePresentation =
   | {

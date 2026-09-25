@@ -1,47 +1,12 @@
-import { Type } from '@angular/core';
-import { ContainerSpec } from './container-spec.js';
+import { SurfaceBase, SurfacePresentation } from './surface.js';
 import { AccessRequirement } from '../plugin/auth.js';
 
-/**
- * What a content route renders from (the UI-boundary form). Exactly one is set:
- *
- * - `component` — an Angular class rendered in-process, so only for a trusted plugin. Cannot
- *   cross an RPC boundary, so a **sandboxed** plugin never uses this form.
- * - `iframe` — a URL the host mounts as an **isolated** `<iframe sandbox>` surface. A plain string, so it
- *   serialises over the `ctx`-RPC boundary; this is how a sandboxed, non-Angular plugin contributes a
- *   content view. A **trusted** plugin may use it too, to embed a foreign origin on purpose (a
- *   dashboard, a docs site, a video): a sandboxed plugin is confined to the origins its distribution
- *   permitted, whereas for a trusted one the distribution's CSP `frame-src` decides.
- * - `container` — the host draws a nested pane tree of child surfaces.
- */
-export type ContentSurface =
-  | {
-      readonly component: Type<unknown>;
-      readonly loadComponent?: never;
-      readonly iframe?: never;
-      readonly container?: never;
-    }
-  | {
-      readonly loadComponent: () => Promise<Type<unknown>>;
-      readonly component?: never;
-      readonly iframe?: never;
-      readonly container?: never;
-    }
-  | {
-      readonly iframe: string;
-      readonly component?: never;
-      readonly loadComponent?: never;
-      readonly container?: never;
-    }
-  | {
-      readonly container: ContainerSpec;
-      readonly component?: never;
-      readonly loadComponent?: never;
-      readonly iframe?: never;
-    };
+/** What a content route renders from: the forms of {@link SurfacePresentation}. */
+export type ContentSurface = SurfacePresentation;
 
 /** The route metadata shared by every surface form. */
-export interface ContentRouteBase {
+export interface ContentRouteBase
+  extends Pick<SurfaceBase, 'retain' | 'saveOn' | 'closable' | 'padded'> {
   /**
    * The originating surface's id — the handle a distribution omits the route by
    * (`provideShell({ omit: ['route:<id>'] })`). Distinct from {@link path}, which stays the
@@ -113,24 +78,6 @@ export interface ContentRouteBase {
    * for a route everyone can reach.
    */
   readonly access?: AccessRequirement;
-  /**
-   * Retention when this route's surface is hidden — carried through from
-   * {@link Surface.retain}. `'always'` keeps the instance alive while hidden; `'never'` forces
-   * destruction; omitted falls back to the distribution's retention default (destroy).
-   */
-  readonly retain?: 'always' | 'never';
-  /**
-   * Auto-save on hiding — carried through from {@link Surface.saveOn}: a hidden dirty
-   * instance's `surfaceSave` is called fire-and-forget.
-   */
-  readonly saveOn?: 'hide';
-  /** Whether the user may close a tab of this route — carried through from {@link Surface.closable}. */
-  readonly closable?: boolean;
-  /**
-   * Whether the host insets this surface from its pane edges. Absent, the product's own default
-   * applies, which is no inset unless the distribution asked for one. See `SurfaceBase.padded`.
-   */
-  readonly padded?: boolean;
 }
 
 /**

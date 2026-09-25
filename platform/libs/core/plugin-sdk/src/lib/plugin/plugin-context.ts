@@ -22,7 +22,7 @@ import {
   TabBadge,
 } from '../surfaces/content-tab.js';
 import { Surface } from '../surfaces/surface.js';
-import { ViewAction } from '../surfaces/view.js';
+import { ViewAction } from '../surfaces/view-action.js';
 
 /**
  * The `ctx` a plugin uses to contribute to the host — one uniform contract. A trusted plugin gets a

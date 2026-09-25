@@ -1,4 +1,5 @@
 import { InjectionToken } from '@angular/core';
+import { ContentTabLabel } from './content-tab.js';
 
 /**
  * What a container child can ask of the container it sits in. Injected by a child
@@ -29,12 +30,7 @@ export interface ContainerHandle {
 }
 
 /** How an opened child's tab is labelled: its title and icon. */
-export interface ContainerTabLabel {
-  /** Transloco key, or a literal when {@link titleIsLiteral} is set. */
-  readonly title?: string;
-  readonly titleIsLiteral?: boolean;
-  readonly icon?: string;
-}
+export type ContainerTabLabel = Pick<ContentTabLabel, 'title' | 'titleIsLiteral' | 'icon'>;
 
 /** DI token for the {@link ContainerHandle}; `null` outside a container. */
 export const CONTAINER_HANDLE = new InjectionToken<ContainerHandle | null>(

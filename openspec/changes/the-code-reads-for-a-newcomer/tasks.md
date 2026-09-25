@@ -385,9 +385,17 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   `command.ts` was split as well (arguments, invocation, the command), so `commands/` holds more than
   one file. The 111 packed exports and the text of every declaration are identical before and after,
   and so is the frame kit's `lw-frame.d.ts`.
-- [ ] 9.5 Declarations written once where the packed shape stays identical: `ContentSurface` from
+- [x] 9.5 Declarations written once where the packed shape stays identical: `ContentSurface` from
   `SurfacePresentation`, the retention fields and the trigger, menu and picture fields from shared
   bases, `ContainerTabLabel` from `ContentTabLabel`.
+  `ContentSurface` is `SurfacePresentation`, `View` and `ContentRouteBase` pick `retain`, `saveOn`,
+  `closable` and `padded` from `SurfaceBase`, and `ContainerTabLabel` picks from `ContentTabLabel`;
+  `ViewAction` moved into its own file so `View` can read `SurfaceBase` without a file cycle. A strict
+  type-identity check of the packed declarations before and after finds every changed type
+  identical. Set aside: the trigger, menu and picture fields of `RailItem` and `BarButtonItem`. Their
+  texts differ where the two differ (a rail item's workspace and current-marking notes, a bar
+  button's optional icon), so picking one from the other would show the wrong text, and a neutral
+  base would be a new published type.
 - [ ] 9.6 The shell's and the adapter's published JSDoc: the same cleanup as 9.2 for the content tab
   service, the plugin runtimes, the registry, the store, permissions, persistence, settings, layout and
   the elements.
