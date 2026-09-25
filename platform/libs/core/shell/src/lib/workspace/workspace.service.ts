@@ -1,113 +1,48 @@
-import { computed, inject, isDevMode, Service } from '@angular/core';
+import { computed, inject, Service } from '@angular/core';
 import { WORKING_STATE_STORE } from '../persistence/working-state-store';
-import { ContentTabState } from '../regions/content/tabs/content-tab-state';
-import { NavigationOptions } from '../regions/content/tabs/content-tab-projection';
 import { TabNavigationService } from '../regions/content/tabs/tab-navigation.service';
-import { PaneTreeService } from '../regions/pane/tree/pane-tree.service';
-import { SHELL_LAYOUT } from '../layout/layout';
-import { ContributionRegistry } from '../contributions/contribution-registry';
-import { BootAddress } from '../regions/content/routing/boot-address';
-import { ContentRouter } from '../regions/content/routing/content-router';
-import { normalizePath } from '../regions/content/content-path';
-import { PanelGroupService } from '../regions/panel/panel-group.service';
 import { RetainedViewStash } from '../regions/pane/retention/retained-view-stash';
-import { WorkspaceGuard } from './workspace-guard';
-import {
-  activeClaims,
-  baselineOf,
-  claimsOfWorkspace,
-  definitionOf,
-  originOf,
-  settlementDestination,
-  workspaceExists,
-} from './baseline/workspace-lookup';
-import { HiddenViewsService } from '../regions/panel/hidden-views.service';
-import { persistedSetting } from '../persistence/stored-values/persisted-setting';
-import { StateSyncService } from '../persistence/state-sync.service';
 import {
   ActiveWorkspaceService,
   workspaceScopedKey,
 } from './active-workspace.service';
-import { BUILT_IN_WORKSPACE_ID, dedupedDefinitions, offersBuiltInWorkspace, startingWorkspaceId } from './declaration/composed-definitions';
-import { PanelDeclarations } from './declaration/definition-baseline';
-import { WorkspaceDefinition } from './declaration/workspace-definition';
-import { auditWorkspaceDefinitions } from './declaration/definition-audit';
-import { claimFor, type WorkspaceClaim } from './workspace-claims';
-import { warnDeclarationGaps } from './declaration/definition-audit';
+import { WORKSPACE_STATE_KEYS } from './baseline/state-channels';
 import { unsavedWorkspaces } from './baseline/unsaved-workspaces';
-import { WORKSPACE_DEFINITIONS } from './declaration/provide-workspaces';
-import { everyWorkspaceOrigin } from './usability/workspace-usability';
-import {
-  parseWorkspaces,
-  readWorkspaceState,
-  writeWorkspaceState,
-  WORKSPACES_KEY as STORAGE_KEY,
-  type Workspace,
-} from './baseline/workspace-state';
-import { WORKSPACE_STATE_KEYS, stateChannels } from './baseline/state-channels';
+import { writeWorkspaceState } from './baseline/workspace-state';
+import { WorkspaceCatalog } from './catalog/workspace-catalog';
+import { BUILT_IN_WORKSPACE_ID } from './declaration/composed-definitions';
+import { WorkbenchOpening } from './opening/workbench-opening';
+import { AddressSettlement } from './settlement/address-settlement';
+import { type WorkspaceClaim } from './workspace-claims';
+import { WorkspaceGuard } from './workspace-guard';
 import { assignWorkspaceInitials } from './workspace-initials';
-import { activeContentPath } from '../regions/pane/tree/active-content-path';
-import {
-  atTheOpeningAddress,
-  declaredStart,
-  startWhereTheDistributionSays,
-} from './opening-the-workbench';
-import { regionIdsOfType } from '../layout/layout-queries';
+import { WorkspaceSwitcher } from './workspace-switcher';
 
 @Service()
 export class WorkspaceService {
-  private readonly workingStateStore = inject(WORKING_STATE_STORE);
+  private readonly catalog = inject(WorkspaceCatalog);
+  private readonly switcher = inject(WorkspaceSwitcher);
+  private readonly settlement = inject(AddressSettlement);
   private readonly active = inject(ActiveWorkspaceService);
-  private readonly paneTree = inject(PaneTreeService);
-  private readonly panelGroups = inject(PanelGroupService);
   private readonly stash = inject(RetainedViewStash);
   private readonly guard = inject(WorkspaceGuard);
-  private readonly hiddenViews = inject(HiddenViewsService);
-  private readonly tabState = inject(ContentTabState);
   private readonly tabNavigation = inject(TabNavigationService);
-  private readonly bootAddress = inject(BootAddress);
-  private readonly contentRouter = inject(ContentRouter);
-  private readonly sync = inject(StateSyncService);
-  private readonly registry = inject(ContributionRegistry);
-  private readonly panelRegions = regionIdsOfType(
-    inject(SHELL_LAYOUT),
-    'panel',
-  );
-  private readonly panels: PanelDeclarations = {
-    panelRegions: this.panelRegions,
-    declaredPaths: (region) => this.panelGroups.declaredPaths(region),
-  };
-  private readonly definitionBatches =
-    inject(WORKSPACE_DEFINITIONS, { optional: true }) ?? [];
+  private readonly workingStateStore = inject(WORKING_STATE_STORE);
 
-  readonly definitions: readonly WorkspaceDefinition[] = dedupedDefinitions(
-    this.definitionBatches.flat(),
-  );
-
-  private readonly startingId = startingWorkspaceId(this.definitions);
-
-  private readonly stored = persistedSetting<Workspace[]>(STORAGE_KEY, {
-    parse: parseWorkspaces,
-    serialize: (list) => JSON.stringify(list),
-  });
-
-  private readonly list = this.stored.value;
-
-  private chosenAddress: string | null = null;
-
-  readonly workspaces = this.list;
+  readonly definitions = this.catalog.definitions;
+  readonly workspaces = this.catalog.saved;
   readonly activeId = this.active.id;
 
-  readonly initials = computed(() => assignWorkspaceInitials(this.list()));
-
-  private readonly keyed = stateChannels(this.hiddenViews, this.paneTree);
+  readonly initials = computed(() =>
+    assignWorkspaceInitials(this.workspaces()),
+  );
 
   private readonly unsaved = unsavedWorkspaces({
-    channels: this.keyed,
-    panels: this.panels,
+    channels: this.switcher.channels,
+    panels: this.switcher.panels,
     activeId: () => this.active.id(),
-    baselineOf: (id) => this.baselineOf(id),
-    workspaces: () => this.list(),
+    baselineOf: (id) => this.switcher.baselineOf(id),
+    workspaces: () => this.workspaces(),
     definitions: this.definitions,
     workingStateStore: this.workingStateStore,
   });
@@ -116,80 +51,52 @@ export class WorkspaceService {
   readonly changedIds = this.unsaved.changedIds;
 
   constructor() {
-    this.sync.onNamespaceAdopted(() => this.rereadForAdoptedNamespace());
-    if (isDevMode()) {
-      const all = this.definitionBatches.flat();
-      for (const problem of auditWorkspaceDefinitions(all, this.panelRegions)) {
-        console.warn(problem);
-      }
-    }
-    void this.active.ready.then(() => this.openWorkbench());
+    inject(WorkbenchOpening).start();
   }
 
   async saveCurrent(name: string): Promise<void> {
-    const baseline = await this.currentState();
+    const baseline = await this.switcher.currentState();
     const id = crypto.randomUUID();
     const origin = this.originOf(this.active.id());
-    this.commit([
-      ...this.list(),
+    this.catalog.commit([
+      ...this.workspaces(),
       { id, name, baseline, ...(origin !== null && { origin }) },
     ]);
     this.active.set(id);
-    this.applyState(baseline);
+    this.switcher.apply(baseline);
   }
 
   async saveBaseline(): Promise<void> {
     const id = this.active.id();
-    if (id === BUILT_IN_WORKSPACE_ID || this.definitionOf(id) !== undefined) {
+    if (this.catalog.isBuiltInOrDeclared(id)) {
       return;
     }
-    const baseline = await this.currentState();
-    this.commit(this.list().map((w) => (w.id === id ? { ...w, baseline } : w)));
-  }
-
-  wouldSettle(path: string): boolean {
-    return (
-      this.chosenAddress !== normalizePath(path) &&
-      this.settlementDestination(path) !== null
+    const baseline = await this.switcher.currentState();
+    this.catalog.commit(
+      this.workspaces().map((workspace) =>
+        workspace.id === id ? { ...workspace, baseline } : workspace,
+      ),
     );
   }
 
+  wouldSettle(path: string): boolean {
+    return this.settlement.wouldSettle(path);
+  }
+
   async settle(path: string): Promise<void> {
-    const chosen = this.chosenAddress;
-    this.chosenAddress = null;
-    if (chosen !== null && chosen === normalizePath(path)) {
-      return;
-    }
-    const destination = this.settlementDestination(path);
+    const destination = this.settlement.takeDestination(path);
     if (destination !== null) {
       await this.switchTo(destination, { keepAddress: true });
       this.tabNavigation.keepAddress(path);
     }
   }
 
-  async switchTo(
-    id: string,
-    options: { keepAddress?: boolean } = {},
-  ): Promise<void> {
-    if (id === this.active.id()) {
-      return;
-    }
-    if (!this.exists(id)) {
-      if (isDevMode()) {
-        console.warn(
-          `Workspace "${id}": no such workspace is declared or saved — the switch does nothing.`,
-        );
-      }
-      return;
-    }
-    await this.enter(id);
-    if (options.keepAddress !== true) {
-      this.chooseAddress(activeContentPath(this.paneTree));
-    }
+  switchTo(id: string, options: { keepAddress?: boolean } = {}): Promise<void> {
+    return this.switcher.switchTo(id, options);
   }
 
   async reset(id: string = this.active.id()): Promise<boolean> {
-    if (!this.exists(id)) {
+    if (!this.catalog.exists(id)) {
       return false;
     }
     if (id === this.active.id() && !(await this.guard.confirmDiscardAll())) {
@@ -203,58 +110,56 @@ export class WorkspaceService {
     if (!(await this.guard.confirmDiscardAll())) {
       return false;
     }
-    for (const workspace of everyWorkspaceOrigin(
-      this.definitions,
-      this.list(),
-      (id) => this.originOf(id),
-    )) {
+    for (const workspace of this.catalog.everyOrigin()) {
       this.resetNow(workspace.id);
     }
-    if (offersBuiltInWorkspace(this.definitions)) {
+    if (this.catalog.offersBuiltIn) {
       this.resetNow(BUILT_IN_WORKSPACE_ID);
     }
     return true;
   }
 
   rename(id: string, name: string): void {
-    if (this.definitionOf(id) !== undefined) {
+    if (this.catalog.definitionOf(id) !== undefined) {
       return;
     }
-    this.commit(this.list().map((w) => (w.id === id ? { ...w, name } : w)));
+    this.catalog.commit(
+      this.workspaces().map((workspace) =>
+        workspace.id === id ? { ...workspace, name } : workspace,
+      ),
+    );
   }
 
   async remove(id: string): Promise<boolean> {
-    if (id === BUILT_IN_WORKSPACE_ID || this.definitionOf(id) !== undefined) {
+    if (this.catalog.isBuiltInOrDeclared(id)) {
       return false;
     }
     if (!(await this.guard.confirmDiscardParked(id))) {
       return false;
     }
-    this.commit(this.list().filter((w) => w.id !== id));
+    this.catalog.commit(
+      this.workspaces().filter((workspace) => workspace.id !== id),
+    );
     this.stash.evictWorkspace(id);
     for (const key of WORKSPACE_STATE_KEYS) {
       void this.workingStateStore.delete(workspaceScopedKey(key, id));
     }
     if (id === this.active.id()) {
-      void this.switchTo(this.startingId);
+      void this.switchTo(this.catalog.startingId);
     }
     return true;
   }
 
   originOf(id: string): string | null {
-    return originOf(id, this.definitions, this.list());
+    return this.catalog.originOf(id);
   }
 
   claimsOfWorkspace(id: string): readonly WorkspaceClaim[] {
-    return claimsOfWorkspace(id, this.definitions, this.list());
+    return this.catalog.claimsOfWorkspace(id);
   }
 
   destinationFor(path: string): string | null {
-    return claimFor(this.claims(), path)?.workspaceId ?? null;
-  }
-
-  private claims(): readonly WorkspaceClaim[] {
-    return activeClaims(this.definitions);
+    return this.settlement.destinationFor(path);
   }
 
   private resetNow(id: string): void {
@@ -263,124 +168,14 @@ export class WorkspaceService {
       writeWorkspaceState(
         this.workingStateStore,
         id,
-        this.baselineOf(id),
+        this.switcher.baselineOf(id),
         WORKSPACE_STATE_KEYS,
       );
       return;
     }
     this.stash.endHolds(id);
-    this.applyState(this.baselineOf(id));
-    this.warnDeclarationGaps(id);
-    this.chooseAddress(activeContentPath(this.paneTree));
-  }
-
-  private exists(id: string): boolean {
-    return workspaceExists(id, this.definitions, this.list());
-  }
-
-  private definitionOf(id: string): WorkspaceDefinition | undefined {
-    return definitionOf(this.definitions, id);
-  }
-
-  private baselineOf(id: string): Readonly<Record<string, string>> {
-    return baselineOf(id, this.definitions, this.list(), this.panels);
-  }
-
-  private warnDeclarationGaps(id: string): void {
-    const definition = this.definitionOf(id);
-    if (!isDevMode() || definition === undefined) {
-      return;
-    }
-    warnDeclarationGaps(definition, {
-      routes: this.registry.contentRoutes(),
-      declaredPaths: this.panels.declaredPaths,
-    });
-  }
-
-  private currentState(): Promise<Record<string, string>> {
-    return readWorkspaceState(
-      this.workingStateStore,
-      (key) => this.active.scopedKey(key),
-      WORKSPACE_STATE_KEYS,
-    );
-  }
-
-  private async rereadForAdoptedNamespace(): Promise<void> {
-    await this.active.reread();
-    const stored = await this.currentState();
-    const found = WORKSPACE_STATE_KEYS.filter(
-      (key) => stored[key] !== undefined,
-    );
-    for (const key of found) {
-      this.keyed[key].hydrate(stored[key]);
-    }
-    const shown = this.tabState.activePath();
-    const destination = this.settlementDestination(shown);
-    if (destination !== null) {
-      await this.switchTo(destination, { keepAddress: true });
-    }
-    if (found.length > 0 || destination !== null) {
-      this.tabNavigation.keepAddress(shown);
-    }
-  }
-
-  private async hydrateActive(): Promise<void> {
-    const baseline = this.baselineOf(this.active.id());
-    const stored = await this.currentState();
-    for (const key of WORKSPACE_STATE_KEYS) {
-      this.keyed[key].hydrate(stored[key] ?? baseline[key]);
-    }
-  }
-
-  private async openWorkbench(): Promise<void> {
-    const adopted = this.active.takeAdoption();
-    if (adopted !== null) {
-      this.applyState(this.baselineOf(adopted));
-      this.warnDeclarationGaps(adopted);
-      this.tabNavigation.keepAddress(this.tabState.activePath());
-    }
-    await startWhereTheDistributionSays({
-      declared: declaredStart(this.definitions),
-      adopted: adopted !== null,
-      atTheOpeningAddress: () =>
-        atTheOpeningAddress(this.bootAddress.path, this.contentRouter.here()) &&
-        !this.contentRouter.ownsTheOpeningAddress(),
-      alreadyEntered: () => this.active.wasChosen(),
-      arrangementSettled: () => this.paneTree.arrangementSettled,
-      enter: (id) => this.enter(id),
-      contentPath: () => activeContentPath(this.paneTree),
-      goTo: (path) => this.chooseAddress(path, { replace: true }),
-    });
-  }
-
-  private async enter(id: string): Promise<void> {
-    this.active.set(id);
-    await this.hydrateActive();
-    this.warnDeclarationGaps(id);
-  }
-
-  private applyState(state: Readonly<Record<string, string>>): void {
-    for (const key of WORKSPACE_STATE_KEYS) {
-      this.keyed[key].hydrate(state[key]);
-    }
-  }
-
-  private commit(next: Workspace[]): void {
-    this.stored.set(next);
-  }
-
-  private chooseAddress(path: string, options: NavigationOptions = {}): void {
-    this.chosenAddress = normalizePath(path);
-    this.contentRouter.hold(path);
-    this.tabNavigation.navigateTo(path, options);
-  }
-
-  private settlementDestination(path: string): string | null {
-    return settlementDestination(
-      path,
-      this.active.id(),
-      this.definitions,
-      this.list(),
-    );
+    this.switcher.apply(this.switcher.baselineOf(id));
+    this.switcher.warnDeclarationGaps(id);
+    this.switcher.chooseCurrentAddress();
   }
 }

@@ -4,7 +4,11 @@ import { TranslocoService } from '@jsverse/transloco';
 import { DialogRef } from '../dialog/dialog-ref';
 import { DialogService } from '../dialog/dialog.service';
 import { CommandService } from '../commands/command.service';
-import { BUILT_IN_WORKSPACE_ID } from './declaration/composed-definitions';
+import {
+  BUILT_IN_WORKSPACE_ID,
+  offersBuiltInWorkspace,
+} from './declaration/composed-definitions';
+import { WorkspaceCatalog } from './catalog/workspace-catalog';
 import { WorkspaceDefinition } from './declaration/workspace-definition';
 import { WorkspaceService } from './workspace.service';
 import { WorkspaceDialog } from './workspace-dialog';
@@ -30,11 +34,17 @@ function build(
     activeId: signal(activeId),
     hasChanges: signal(false),
     changedIds: signal(new Set<string>()),
+  };
+  const catalog = {
+    offersBuiltIn: offersBuiltInWorkspace(definitions),
     originOf: (id: string) => origins[id] ?? null,
+    definitionOf: (id: string) =>
+      definitions.find((definition) => definition.id === id),
   };
   TestBed.configureTestingModule({
     providers: [
       { provide: WorkspaceService, useValue: ws },
+      { provide: WorkspaceCatalog, useValue: catalog },
       { provide: DialogRef, useValue: { close: () => undefined } },
       { provide: DialogService, useValue: {} },
       { provide: TranslocoService, useValue: { translate: (k: string) => k } },

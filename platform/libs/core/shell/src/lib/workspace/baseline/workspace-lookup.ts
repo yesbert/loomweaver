@@ -1,5 +1,7 @@
-import { BUILT_IN_WORKSPACE_ID, claimsOf, offersBuiltInWorkspace, startingWorkspaceId } from '../declaration/composed-definitions';
-import { PanelDeclarations } from '../declaration/definition-baseline';
+import {
+  claimsOf,
+  startingWorkspaceId,
+} from '../declaration/composed-definitions';
 import { WorkspaceDefinition } from '../declaration/workspace-definition';
 import {
   settlementFor,
@@ -7,7 +9,6 @@ import {
   type WorkspaceClaim,
 } from '../workspace-claims';
 import { type Workspace } from './workspace-state';
-import { definitionBaseline } from '../declaration/definition-baseline';
 
 export function definitionOf(
   definitions: readonly WorkspaceDefinition[],
@@ -26,20 +27,6 @@ export function workspaceExists(
     definitionOf(definitions, id) !== undefined ||
     saved.some((workspace) => workspace.id === id)
   );
-}
-
-export function baselineOf(
-  id: string,
-  definitions: readonly WorkspaceDefinition[],
-  saved: readonly Workspace[],
-  panels: PanelDeclarations,
-): Readonly<Record<string, string>> {
-  const stored = saved.find((workspace) => workspace.id === id)?.baseline;
-  if (stored) {
-    return stored;
-  }
-  const definition = definitionOf(definitions, id);
-  return definition ? definitionBaseline(definition, panels) : {};
 }
 
 export function activeClaims(
@@ -85,22 +72,4 @@ export function settlementDestination(
     here,
     path,
   );
-}
-
-export function changeCandidates(
-  definitions: readonly WorkspaceDefinition[],
-  saved: readonly Workspace[],
-  panels: PanelDeclarations,
-): readonly { id: string; baseline: Readonly<Record<string, string>> }[] {
-  const builtIn = offersBuiltInWorkspace(definitions)
-    ? [{ id: BUILT_IN_WORKSPACE_ID, baseline: {} }]
-    : [];
-  return [
-    ...builtIn,
-    ...definitions.map((definition) => ({
-      id: definition.id,
-      baseline: definitionBaseline(definition, panels),
-    })),
-    ...saved,
-  ];
 }

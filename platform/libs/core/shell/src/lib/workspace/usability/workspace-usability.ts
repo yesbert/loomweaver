@@ -3,28 +3,7 @@ import { parseDocks } from '../../regions/pane/tree/pane-tree-storage';
 import { collectTabs } from '../../regions/pane/tree/pane-queries';
 import { WorkspaceDefinition } from '../declaration/workspace-definition';
 import { declaredTabPaths } from '../declaration/declared-content';
-
-export interface WorkspaceOrigin {
-  readonly id: string;
-  readonly origin: string | null;
-}
-
-export function everyWorkspaceOrigin(
-  definitions: readonly WorkspaceDefinition[],
-  saved: readonly { id: string }[],
-  originOf: (id: string) => string | null,
-): readonly WorkspaceOrigin[] {
-  return [
-    ...definitions.map((definition) => ({
-      id: definition.id,
-      origin: definition.id,
-    })),
-    ...saved.map((workspace) => ({
-      id: workspace.id,
-      origin: originOf(workspace.id),
-    })),
-  ];
-}
+import { type WorkspaceOrigin } from '../catalog/workspace-catalog';
 
 export interface UsabilityReading {
   readonly workspaces: readonly WorkspaceOrigin[];

@@ -7,7 +7,8 @@ import {
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { DialogRef } from '../dialog/dialog-ref';
 import { DialogService } from '../dialog/dialog.service';
-import { BUILT_IN_WORKSPACE_ID, offersBuiltInWorkspace } from './declaration/composed-definitions';
+import { BUILT_IN_WORKSPACE_ID } from './declaration/composed-definitions';
+import { WorkspaceCatalog } from './catalog/workspace-catalog';
 import { WorkspaceService } from './workspace.service';
 import { UnusableWorkspacesService } from './usability/unusable-workspaces.service';
 import { CommandService } from '../commands/command.service';
@@ -21,6 +22,7 @@ import { WORKSPACE_RESET_COMMAND_ID } from '../commands/host-command-ids';
 })
 export class WorkspaceDialog {
   private readonly workspaceService = inject(WorkspaceService);
+  private readonly catalog = inject(WorkspaceCatalog);
   private readonly unusableWorkspaces = inject(UnusableWorkspacesService);
   private readonly ref = inject<DialogRef>(DialogRef);
   private readonly dialogs = inject(DialogService);
@@ -33,7 +35,7 @@ export class WorkspaceDialog {
   protected readonly activeId = this.workspaceService.activeId;
   protected readonly hasChanges = this.workspaceService.hasChanges;
   protected readonly builtInId = BUILT_IN_WORKSPACE_ID;
-  protected readonly offersBuiltIn = offersBuiltInWorkspace(this.definitions);
+  protected readonly offersBuiltIn = this.catalog.offersBuiltIn;
   protected readonly name = signal('');
 
   protected readonly tab = signal<'mine' | 'provided'>(
@@ -45,10 +47,9 @@ export class WorkspaceDialog {
   );
 
   protected originName(id: string): string | null {
-    const origin = this.workspaceService.originOf(id);
-    const definition = this.definitions.find(
-      (candidate) => candidate.id === origin,
-    );
+    const origin = this.catalog.originOf(id);
+    const definition =
+      origin === null ? undefined : this.catalog.definitionOf(origin);
     return definition ? this.transloco.translate(definition.title) : null;
   }
 

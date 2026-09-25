@@ -256,10 +256,19 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   tree the other three read) and `composed-definitions.ts` (the built-in id, deduplication, the
   starting workspace and the claims), which 7.5's catalog may take over. The spec split the same way;
   a test of the audit that sat under `declaredTabPaths` moved to the audit's spec.
-- [ ] 7.5 `WorkspaceService` (398 lines) is cut into a catalog, a settlement and an opening service
+- [x] 7.5 `WorkspaceService` (398 lines) is cut into a catalog, a settlement and an opening service
   behind the unchanged published facade; the catalog provides the definitions and their lookup to
   every reader. Its single-letter `w` lambdas become `workspace` here, because renaming them in 2.12
   would have lifted the file over 400 lines.
+  `catalog/workspace-catalog.ts` (definitions, the saved list, the lookups, the dev audit),
+  `settlement/address-settlement.ts` (the address the workbench chose, where an address settles),
+  `workspace-switcher.ts` (entering a workspace and applying its working state) and
+  `opening/workbench-opening.ts` (boot and namespace adoption; the eight-callback bag is gone). The
+  settlement decides and the facade switches, because a settlement that switched would need the
+  switcher, which needs the settlement to choose an address. The pane-tree storage, the
+  unusable-workspaces service and the dialog read the catalog. `ActiveWorkspaceService` still reads
+  the token: importing the catalog there would close a file cycle through `workspace-state.ts`.
+  `WorkspaceService` is 181 lines.
 - [ ] 7.6 **Move:** `workspace/baseline/` becomes `unsaved-changes/`, the lookups go to the catalog.
 - [ ] 7.7 The workspace dialog's three row blocks share templates; its promise chains use `if`.
 - [ ] 7.8 i18n: the translation loader split into namespaces, overrides, the translation tree and the
