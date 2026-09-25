@@ -5,8 +5,7 @@ import { SearchEntry } from './search-entry';
 @Component({
   selector: 'lw-quick-open-entry',
   imports: [SearchEntry],
-  template:
-    '<lw-search-entry [commandId]="commandId" testId="quick-open-entry" />',
+  template: '<lw-search-entry [commandId]="commandId" />',
 })
 export class QuickOpenEntry {
   protected readonly commandId = QUICK_OPEN_COMMAND_ID;

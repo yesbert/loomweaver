@@ -13,8 +13,6 @@ import { CommandService } from '../../command.service';
 export class SearchEntry {
   readonly commandId = input.required<string>();
 
-  readonly testId = input.required<string>();
-
   private readonly commands = inject(CommandService);
 
   protected readonly compact = inject(BAR_CONTEXT, { optional: true })?.dock === 'bottom';
@@ -25,6 +23,8 @@ export class SearchEntry {
     return command && this.commands.available(command) ? command : undefined;
   });
 
+  protected readonly testId = computed(() => entryTestId(this.commandId()));
+
   protected readonly shortcut = computed<string | undefined>(() =>
     this.commands.shortcutOf(this.command()),
   );
@@ -32,4 +32,11 @@ export class SearchEntry {
   protected open(): void {
     this.commands.execute(this.commandId());
   }
+}
+
+function entryTestId(commandId: string): string {
+  const name = commandId
+    .replace(/^shell\./, '')
+    .replaceAll(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
+  return `${name}-entry`;
 }

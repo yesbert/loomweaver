@@ -8,10 +8,10 @@
       aria-controls="lw-palette-list"
       [attr.aria-expanded]="true"
       [attr.aria-activedescendant]="activeId()"
-      [attr.aria-label]="title() | transloco"
+      [attr.aria-label]="title | transloco"
       [value]="query()"
       [placeholder]="
-        (mode() === 'tabs' ? 'palette.tabsPlaceholder' : 'palette.placeholder')
+        (mode === 'tabs' ? 'palette.tabsPlaceholder' : 'palette.placeholder')
           | transloco
       "
       class="flex-1 bg-transparent py-3 text-sm text-content outline-none placeholder:text-content-faint"
@@ -28,7 +28,7 @@
     role="listbox"
     class="min-h-0 flex-1 overflow-y-auto p-1"
   >
-    @for (entry of results(); track entry.id; let i = $index) {
+    @for (row of results(); track row.id; let i = $index) {
       @if (recentCount() > 0 && i === 0) {
         <li
           role="presentation"
@@ -58,17 +58,17 @@
             ? 'bg-brand/10 text-brand-text'
             : 'text-content hover:bg-surface-overlay'
         "
-        (click)="select(entry)"
+        (click)="select(row)"
         (mouseenter)="setActive(i)"
       >
-        @if (entry.icon; as icon) {
+        @if (row.icon; as icon) {
           <lw-icon [name]="icon" size="1rem" class="text-content-muted" />
         }
-        <span class="flex-1 truncate">{{ entry.label }}</span>
-        @if (timeOf(entry); as time) {
+        <span class="flex-1 truncate">{{ row.label }}</span>
+        @if (timeOf(row); as time) {
           <span class="shrink-0 text-xs text-content-faint">{{ time }}</span>
         }
-        @if (shortcutOf(entry); as shortcut) {
+        @if (shortcutOf(row); as shortcut) {
           <kbd
             class="rounded border border-border px-1.5 py-0.5 text-xs text-content-muted"
             >{{ shortcut }}</kbd
@@ -78,7 +78,7 @@
     } @empty {
       <li class="px-3 py-6 text-center text-sm text-content-muted">
         {{
-          (mode() === 'tabs' ? 'palette.tabsEmpty' : 'palette.empty') | transloco
+          (mode === 'tabs' ? 'palette.tabsEmpty' : 'palette.empty') | transloco
         }}
       </li>
     }
@@ -96,7 +96,7 @@
       <kbd class="rounded border border-border px-1 py-0.5">↵</kbd>
       {{ 'palette.hint.run' | transloco }}
     </span>
-    @if (mode() === 'tabs') {
+    @if (mode === 'tabs') {
       <span class="flex items-center gap-1.5" data-testid="palette-hint-actions">
         <kbd class="rounded border border-border px-1 py-0.5">→</kbd>
         {{ 'palette.hint.actions' | transloco }}
