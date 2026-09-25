@@ -21,7 +21,6 @@ export const financePlugin: Plugin = {
       icon: 'receivables',
       routable: { path: 'finance/receivables' },
       docks: [],
-      padded: false,
       component: ReceivablesView,
     });
     ctx.registerSurface({
@@ -30,7 +29,6 @@ export const financePlugin: Plugin = {
       icon: 'payables',
       routable: { path: 'finance/payables' },
       docks: [],
-      padded: false,
       component: PayablesView,
     });
     ctx.registerSurface({
@@ -39,7 +37,6 @@ export const financePlugin: Plugin = {
       icon: 'ledger',
       routable: { path: 'finance/ledger' },
       docks: [],
-      padded: false,
       component: LedgerView,
     });
     ctx.registerSurface({
@@ -48,7 +45,6 @@ export const financePlugin: Plugin = {
       icon: 'closing',
       routable: { path: 'finance/closing' },
       docks: [],
-      padded: false,
       component: ClosingView,
     });
     ctx.registerSurface({
@@ -57,7 +53,6 @@ export const financePlugin: Plugin = {
       icon: 'dunning',
       routable: { path: 'finance/dunning' },
       docks: [],
-      padded: false,
       component: DunningView,
     });
 

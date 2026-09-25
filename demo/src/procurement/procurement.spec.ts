@@ -2,7 +2,6 @@ import { setReferenceDate } from '../accounting/clock';
 import {
   SUPPLIERS,
   daysLate,
-  lateOrders,
   nextDelivery,
   openOrderValue,
   openOrders,
@@ -37,13 +36,11 @@ describe('purchasing', () => {
   });
 
   it('calls an open order late once its expected date has passed', () => {
-    const late = lateOrders().map((order) => order.number);
+    const expectedOn = (number: string) =>
+      purchaseOrders().find((order) => order.number === number)?.expectedOn ?? '';
 
-    expect(late).toContain('BE-4311');
-    expect(late).not.toContain('BE-4313');
-    for (const order of lateOrders()) {
-      expect(daysLate(order.expectedOn)).toBeGreaterThan(0);
-    }
+    expect(daysLate(expectedOn('BE-4311'))).toBeGreaterThan(0);
+    expect(daysLate(expectedOn('BE-4313'))).toBeLessThanOrEqual(0);
   });
 
   it('expects the delivery that is due first next', () => {

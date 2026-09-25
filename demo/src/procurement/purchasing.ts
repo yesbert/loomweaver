@@ -83,10 +83,6 @@ export const openOrders = computed(() =>
   purchaseOrders().filter((order) => order.status !== 'received'),
 );
 
-export const lateOrders = computed(() =>
-  openOrders().filter((order) => daysLate(order.expectedOn) > 0),
-);
-
 export const openOrderValue = computed(() =>
   openOrders().reduce((sum, order) => sum + order.net, 0),
 );

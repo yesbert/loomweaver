@@ -28,7 +28,7 @@ import { insightsPlugin } from '../insights/insights.plugin';
 import { looksPlugin } from './looks/looks.plugin';
 import { quotesPlugin } from '../quotes/quotes.plugin';
 import { demoSession } from './session/session';
-import { paymentsIcon } from '../payments/payments.plugin';
+import { paymentsIcon } from '../payments/payments-icon';
 import { procurementPlugin } from '../procurement/procurement.plugin';
 import { inventoryPlugin } from '../inventory/inventory.plugin';
 import { peoplePlugin } from '../people/people.plugin';

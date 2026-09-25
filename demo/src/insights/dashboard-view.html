@@ -13,10 +13,10 @@
       <article class="flex min-w-0 flex-col gap-1 rounded-lg border border-border bg-surface-raised p-4">
         <span class="text-sm text-content-muted">{{ 'insights.cards.out' | transloco }}</span>
         <span class="text-2xl break-words text-content tabular-nums @max-sm:text-xl" data-testid="insights-out">
-          {{ out() }}
+          {{ openQuoteTotal() }}
         </span>
         <span class="text-xs text-content-faint">
-          {{ 'insights.cards.outHint' | transloco: { count: outCount() } }}
+          {{ 'insights.cards.outHint' | transloco: { count: sentCount() } }}
         </span>
       </article>
 

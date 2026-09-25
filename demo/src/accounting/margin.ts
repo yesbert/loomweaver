@@ -19,7 +19,7 @@ export interface DocumentMargin {
   readonly lines: readonly MarginLine[];
 }
 
-function percentOf(margin: Cents, revenue: Cents): number {
+export function percentOf(margin: Cents, revenue: Cents): number {
   return revenue === 0 ? 0 : Math.round((margin / revenue) * 1000) / 10;
 }
 

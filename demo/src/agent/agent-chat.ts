@@ -1,5 +1,4 @@
 import {
-  ChangeDetectionStrategy,
   Component,
   ElementRef,
   effect,
@@ -15,7 +14,6 @@ import { conversation } from './conversation';
   selector: 'lw-agent-chat',
   imports: [TranslocoPipe],
   templateUrl: './agent-chat.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AgentChatView {
   private readonly transloco = inject(TranslocoService);

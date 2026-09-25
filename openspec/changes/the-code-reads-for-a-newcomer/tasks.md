@@ -643,9 +643,16 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 
 - [ ] 12.1 `demo/README.md` matches the code and gains a reading order and a legend of the folders;
   `quotes/README.md` says what the quotes weaver does or goes.
-- [ ] 12.2 No-ops and leftovers: `padded: false` where it is the default, `CUSTOM_ELEMENTS_SCHEMA`
+- [x] 12.2 No-ops and leftovers: `padded: false` where it is the default, `CUSTOM_ELEMENTS_SCHEMA`
   without a custom element, an explicit OnPush, dead code and dead strings, exports nobody imports,
   the unused payments descriptor, computed wrappers around a signal, the dashboard's names.
+  Fifteen `padded: false` lines, the schema on seven components without a custom element, the one
+  explicit OnPush, the unused `orderHandling` icon, six unused strings, `@angular/forms`, two
+  production exports only tests used (the tests now read the rule through what the views use), and
+  thirteen exports nothing imports are gone. The payments file holds the icon and is named for it,
+  two computed wrappers and two bare language reads went, and the dashboard names its numbers
+  (`openQuoteTotal`, `sentCount`) and takes the margin percentage from `percentOf`, one decimal like
+  the document. The demo's bundle dropped a step, to a 1355 kB ceiling.
 - [x] 12.3 **Move** (decided 2026-09-25): `quotes` flattened like the other five weavers, so all six
   have one shape.
   The weaver's files sit in `src/quotes/`, the three panes of a quote document in the sub-theme

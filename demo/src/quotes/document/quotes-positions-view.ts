@@ -1,4 +1,4 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, computed } from '@angular/core';
+import { Component, computed } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import {
   type DocumentLine,
@@ -11,7 +11,7 @@ import {
 } from '../../accounting';
 import { activeLang, quoteFromRoute } from './quote-from-route';
 
-export interface DocumentLineRow {
+interface DocumentLineRow {
   readonly position: number;
   readonly descriptionKey: string;
   readonly articleNumber: string;
@@ -22,7 +22,7 @@ export interface DocumentLineRow {
   readonly net: string;
 }
 
-export interface TaxBucketRow {
+interface TaxBucketRow {
   readonly rate: number;
   readonly net: string;
   readonly tax: string;
@@ -30,7 +30,6 @@ export interface TaxBucketRow {
 
 @Component({
   selector: 'lw-quotes-positions-view',
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [TranslocoPipe],
   templateUrl: './quotes-positions-view.html',
 })

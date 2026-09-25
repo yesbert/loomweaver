@@ -18,7 +18,6 @@ export const procurementPlugin: Plugin = {
       icon: 'supplierList',
       routable: { path: 'procurement/suppliers' },
       docks: [],
-      padded: false,
       component: SupplierListView,
     });
     ctx.registerSurface({
@@ -27,7 +26,6 @@ export const procurementPlugin: Plugin = {
       icon: 'purchaseOrders',
       routable: { path: 'procurement/orders' },
       docks: [],
-      padded: false,
       component: PurchaseOrdersView,
     });
 

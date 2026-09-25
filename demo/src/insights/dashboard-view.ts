@@ -1,13 +1,13 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, computed } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ChartConfiguration } from 'chart.js';
-import { inject } from '@angular/core';
 import {
   type QuoteStatus,
   formatMoney,
   localeOf,
   marginOf,
   openQuoteValue,
+  percentOf,
   quoteTotals,
   quotes,
   today,
@@ -26,7 +26,7 @@ const STATUS_ORDER: readonly QuoteStatus[] = [
 ];
 
 const MONTHS_SHOWN = 6;
-export interface StatusShare {
+interface StatusShare {
   readonly status: QuoteStatus;
   readonly count: number;
   readonly colour: string;
@@ -34,7 +34,6 @@ export interface StatusShare {
 
 @Component({
   selector: 'lw-insights-dashboard-view',
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [TranslocoPipe, InsightsChart],
   templateUrl: './dashboard-view.html',
 })
@@ -43,11 +42,11 @@ export class InsightsDashboardView {
   private readonly colours = chartColours();
   private readonly transloco = inject(TranslocoService);
 
-  protected readonly out = computed(() =>
+  protected readonly openQuoteTotal = computed(() =>
     formatMoney(openQuoteValue(), this.lang()),
   );
 
-  protected readonly outCount = computed(
+  protected readonly sentCount = computed(
     () => quotes().filter((quote) => quote.status === 'sent').length,
   );
 
@@ -92,7 +91,7 @@ export class InsightsDashboardView {
 
   protected readonly wonPercent = computed(() => {
     const { revenue, margin } = this.wonTotals();
-    return revenue === 0 ? 0 : Math.round((margin / revenue) * 100);
+    return percentOf(margin, revenue);
   });
 
   protected readonly shares = computed<readonly StatusShare[]>(() => {

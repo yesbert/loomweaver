@@ -1,10 +1,10 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { customerById, formatDate } from '../accounting';
 import { type Contact, contacts } from './contacts';
 
-export interface ContactRow {
+interface ContactRow {
   readonly contact: Contact;
   readonly customer: string;
   readonly on: string;
@@ -12,7 +12,6 @@ export interface ContactRow {
 
 @Component({
   selector: 'lw-contact-history-view',
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [TranslocoPipe],
   templateUrl: './contact-history-view.html',
 })

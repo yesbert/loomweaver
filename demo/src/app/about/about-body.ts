@@ -3,7 +3,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { PRODUCT_IDENTITY } from '@loomweaver/plugin-sdk';
 import { VersionService } from '@loomweaver/shell';
 
-export const DOCUMENTATION_URL = 'https://loomweaver.dev/';
+const DOCUMENTATION_URL = 'https://loomweaver.dev/';
 
 @Component({
   selector: 'demo-about-body',

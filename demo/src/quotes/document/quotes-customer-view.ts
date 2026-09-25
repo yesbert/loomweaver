@@ -1,7 +1,7 @@
 import {
   afterNextRender,
   Component,
-  CUSTOM_ELEMENTS_SCHEMA,
+  
   computed,
   linkedSignal,
 } from '@angular/core';
@@ -20,7 +20,6 @@ import { STATUS_BADGE } from '../quote-status';
 
 @Component({
   selector: 'lw-quotes-customer-view',
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [TranslocoPipe],
   templateUrl: './quotes-customer-view.html',
 })
