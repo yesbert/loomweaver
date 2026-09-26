@@ -18,6 +18,7 @@ import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, w
 import { tmpdir } from 'node:os';
 import { extname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { PUBLISHED_PACKAGES } from '../published-packages.mjs';
 
 const platformRoot = resolve(fileURLToPath(import.meta.url), '../../..');
 const ANGULAR = process.env.LOOM_QUICK_START_ANGULAR ?? '@angular/cli@22';
@@ -48,23 +49,18 @@ function run(command, args, cwd, { setup = false } = {}) {
   }
 }
 
-// The frame kit is packed from its own folder, because it is a script bundle rather than an Angular
-// package: `nx bundle frame-kit` writes its dist inside the package root, and the manifest points there.
+const LIBRARIES = PUBLISHED_PACKAGES.filter((pkg) => pkg.role === 'library');
+
 function packPlatform(into) {
   const packages = [];
-  for (const [relative, marker] of [
-    ['dist/libs/core/shell', 'package.json'],
-    ['dist/libs/core/plugin-sdk', 'package.json'],
-    ['dist/libs/integrations/ag-ui', 'package.json'],
-    ['libs/core/frame-kit', 'dist/lw-frame.css'],
-  ]) {
-    const distribution = join(platformRoot, relative);
-    if (!existsSync(join(distribution, marker))) {
+  for (const library of LIBRARIES) {
+    const built = join(platformRoot, library.types);
+    if (!existsSync(built)) {
       throw new SetupError(
-        `${join(distribution, marker)} does not exist — run "nx run-many -t package", "nx run shell:styles" and "nx bundle frame-kit" first.`,
+        `${built} does not exist — run "nx run-many -t package", "nx run shell:styles" and "nx bundle frame-kit" first.`,
       );
     }
-    const output = run('npm', ['pack', distribution], into, { setup: true });
+    const output = run('npm', ['pack', join(platformRoot, library.publishRoot)], into, { setup: true });
     packages.push(join(into, output.trim().split('\n').pop()));
   }
   return packages;

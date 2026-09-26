@@ -18,24 +18,14 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { PUBLISHED_PACKAGES } from '../published-packages.mjs';
 
 const platformRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   '../..',
 );
 
-// The six published packages and the directory each one publishes FROM, mirroring the publish
-// pipeline exactly: three are ng-packagr output under dist/, three publish from their source
-// directory with a bundled dist inside.
-const PACKAGE_ROOTS = [
-  'dist/libs/core/plugin-sdk',
-  'dist/libs/core/shell',
-  'dist/libs/tooling/devkit',
-  'dist/libs/integrations/ag-ui',
-  'libs/tooling/mcp',
-  'libs/tooling/cli',
-  'libs/core/frame-kit',
-];
+const PACKAGE_ROOTS = PUBLISHED_PACKAGES.map((pkg) => pkg.publishRoot);
 
 // Manifest fields that name a file. `exports` is walked separately because it nests.
 const FILE_FIELDS = [

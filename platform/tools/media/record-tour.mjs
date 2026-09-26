@@ -25,6 +25,7 @@ import { mkdirSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parseArgs } from 'node:util';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '../../..');
@@ -38,21 +39,14 @@ const SETTLE_MS = 260;
 
 const THEMES = ['light', 'dark'];
 
-function arg(name, fallback) {
-  const inline = process.argv.find((value) => value.startsWith(`--${name}=`));
-  if (inline) {
-    return inline.slice(name.length + 3);
-  }
-  const index = process.argv.indexOf(`--${name}`);
-  if (index === -1) {
-    return fallback;
-  }
-  const next = process.argv[index + 1];
-  return next === undefined || next.startsWith('--') ? fallback : next;
-}
-
-const baseUrl = arg('url', 'http://localhost:4200');
-const only = arg('only', '');
+const { values: options } = parseArgs({
+  options: {
+    url: { type: 'string', default: 'http://localhost:4200' },
+    only: { type: 'string', default: '' },
+  },
+});
+const baseUrl = options.url;
+const only = options.only;
 
 function ffmpeg(args) {
   const done = spawnSync('ffmpeg', ['-hide_banner', '-loglevel', 'error', ...args], {

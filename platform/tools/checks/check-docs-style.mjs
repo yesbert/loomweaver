@@ -25,9 +25,12 @@
 // direction. A page that got shorter therefore asks for `--write-baseline`, which is the point:
 // the number goes down on purpose, never by accident.
 
-import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parseArgs } from 'node:util';
+import { filesUnder } from './files-under.mjs';
+import { byCount, compareCounts, writeBaseline } from './ratchet.mjs';
 
 const WORDS_PER_SENTENCE = 40;
 const HEADER = '<!-- derived-from-specs -->';
@@ -55,19 +58,18 @@ const VARIANTS = [
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 const baselinePath = path.join(repoRoot, 'platform/tools/checks/docs-style-baseline.json');
+const { values: options } = parseArgs({
+  options: { 'write-baseline': { type: 'boolean' }, list: { type: 'boolean' } },
+});
 
 function pages() {
-  const found = [];
-  const walk = (dir) => {
-    for (const entry of readdirSync(dir, { withFileTypes: true })) {
-      const full = path.join(dir, entry.name);
-      if (entry.isDirectory()) walk(full);
-      else if (entry.name.endsWith('.md')) found.push(full);
-    }
-  };
-  walk(path.join(repoRoot, 'docs'));
-  found.push(path.join(repoRoot, 'README.md'), path.join(repoRoot, 'CONTRIBUTING.md'));
-  return found.map((file) => rel(file)).toSorted((a, b) => a.localeCompare(b));
+  return [
+    ...filesUnder(path.join(repoRoot, 'docs'), { keep: (name) => name.endsWith('.md') }),
+    path.join(repoRoot, 'README.md'),
+    path.join(repoRoot, 'CONTRIBUTING.md'),
+  ]
+    .map((file) => rel(file))
+    .toSorted((a, b) => a.localeCompare(b));
 }
 
 function rel(target) {
@@ -123,30 +125,18 @@ for (const page of pages()) {
   if (long.length > 0) measured.set(page, long);
 }
 
-const counts = Object.fromEntries(
-  [...measured].map(([page, long]) => [page, long.length]).toSorted((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])),
-);
-const dashCounts = Object.fromEntries(
-  [...dashed].map(([page, hits]) => [page, hits.length]).toSorted((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])),
-);
+const counts = byCount(Object.fromEntries([...measured].map(([page, long]) => [page, long.length])));
+const dashCounts = byCount(Object.fromEntries([...dashed].map(([page, hits]) => [page, hits.length])));
 
-if (process.argv[2] === '--write-baseline') {
-  writeFileSync(
+if (options['write-baseline']) {
+  writeBaseline(
     baselinePath,
-    `${JSON.stringify(
-      {
-        _:
-          `Sentences over ${WORDS_PER_SENTENCE} words per documentation page, measured by ` +
-          'check-docs-style.mjs. A ratchet: a page may only go down, and the check fails on an entry ' +
-          'that is no longer true. Rewrite with `npm run docs-style-check -- --write-baseline` after ' +
-          'shortening a page. proseDashes counts dashes used as a sentence joint, the same way and ' +
-          'for the same reason: fewer of them, not none.',
-        longSentences: counts,
-        proseDashes: dashCounts,
-      },
-      null,
-      2,
-    )}\n`,
+    `Sentences over ${WORDS_PER_SENTENCE} words per documentation page, measured by ` +
+      'check-docs-style.mjs. A ratchet: a page may only go down, and the check fails on an entry ' +
+      'that is no longer true. Rewrite with `npm run docs-style-check -- --write-baseline` after ' +
+      'shortening a page. proseDashes counts dashes used as a sentence joint, the same way and ' +
+      'for the same reason: fewer of them, not none.',
+    { longSentences: counts, proseDashes: dashCounts },
   );
   console.log(
     `check-docs-style: baseline written, ${Object.keys(counts).length} pages with long sentences, ` +
@@ -155,43 +145,33 @@ if (process.argv[2] === '--write-baseline') {
   process.exit(0);
 }
 
-const recorded_ = JSON.parse(readFileSync(baselinePath, 'utf8'));
-const baseline = recorded_.longSentences;
-const dashBaseline = recorded_.proseDashes ?? {};
-for (const [page, count] of Object.entries(counts)) {
-  const recorded = baseline[page];
-  if (recorded === undefined) {
-    faults.push(`${page}: ${count} sentence(s) over ${WORDS_PER_SENTENCE} words, none recorded`);
-  } else if (count > recorded) {
-    faults.push(`${page}: ${count} sentence(s) over ${WORDS_PER_SENTENCE} words, ${recorded} recorded`);
-  } else if (count < recorded) {
-    faults.push(`${page}: ${count} sentence(s) over ${WORDS_PER_SENTENCE} words, ${recorded} recorded — write the baseline so the improvement holds`);
-  }
-  if (recorded === undefined || count > recorded) {
-    for (const sentence of measured.get(page).slice(0, 3)) faults.push(`    ${sentence.slice(0, 160)}…`);
-  }
-}
-for (const page of Object.keys(baseline)) {
-  if (!Object.hasOwn(counts, page)) faults.push(`${page}: recorded with long sentences but has none — remove the entry`);
-}
-for (const [page, count] of Object.entries(dashCounts)) {
-  const was = dashBaseline[page];
-  if (was === undefined) {
-    faults.push(`${page}: ${count} dash(es) joining two clauses, none recorded. Use a full stop, a comma or a colon, or record it`);
-  } else if (count > was) {
-    faults.push(`${page}: ${count} dash(es) joining two clauses, ${was} recorded`);
-  } else if (count < was) {
-    faults.push(`${page}: ${count} dash(es) joining two clauses, ${was} recorded — write the baseline so the improvement holds`);
-  }
-  if (was === undefined || count > was) {
-    for (const hit of dashed.get(page).slice(0, 3)) faults.push(`    …${hit}…`);
-  }
-}
-for (const page of Object.keys(dashBaseline)) {
-  if (!Object.hasOwn(dashCounts, page)) faults.push(`${page}: recorded with a dash in prose but has none — remove the entry`);
-}
+const WRITE_IT = 'write the baseline so the improvement holds';
+const longSentencesSeen = (page) =>
+  measured.get(page).slice(0, 3).map((sentence) => `    ${sentence.slice(0, 160)}…`);
+const dashesSeen = (page) => dashed.get(page).slice(0, 3).map((hit) => `    …${hit}…`);
+const overLong = `sentence(s) over ${WORDS_PER_SENTENCE} words`;
+const joining = 'dash(es) joining two clauses';
 
-if (process.argv[2] === '--list') {
+const baseline = JSON.parse(readFileSync(baselinePath, 'utf8'));
+faults.push(
+  ...compareCounts(counts, baseline.longSentences, {
+    added: (page, count) => [`${page}: ${count} ${overLong}, none recorded`, ...longSentencesSeen(page)],
+    grown: (page, count, was) => [`${page}: ${count} ${overLong}, ${was} recorded`, ...longSentencesSeen(page)],
+    shrunk: (page, count, was) => `${page}: ${count} ${overLong}, ${was} recorded — ${WRITE_IT}`,
+    gone: (page) => `${page}: recorded with long sentences but has none — remove the entry`,
+  }),
+  ...compareCounts(dashCounts, baseline.proseDashes ?? {}, {
+    added: (page, count) => [
+      `${page}: ${count} ${joining}, none recorded. Use a full stop, a comma or a colon, or record it`,
+      ...dashesSeen(page),
+    ],
+    grown: (page, count, was) => [`${page}: ${count} ${joining}, ${was} recorded`, ...dashesSeen(page)],
+    shrunk: (page, count, was) => `${page}: ${count} ${joining}, ${was} recorded — ${WRITE_IT}`,
+    gone: (page) => `${page}: recorded with a dash in prose but has none — remove the entry`,
+  }),
+);
+
+if (options.list) {
   for (const [page, long] of measured) {
     console.log(`\n${page} (${long.length})`);
     for (const sentence of long) console.log(`  · ${sentence}`);

@@ -826,8 +826,18 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 - [x] 15.1 `sync-docs.mjs` (530 lines) split into named steps with one link rewriter that returns the
   media it found (after the sidebar guard defect is fixed).
   Set aside with the website's code (tasks 14.1 to 14.3), see design.
-- [ ] 15.2 Shared helpers for the checkers: one ratchet comparison, one table of the published
+- [x] 15.2 Shared helpers for the checkers: one ratchet comparison, one table of the published
   packages, the built-in recursive directory read, `parseArgs`.
+  `tools/checks/ratchet.mjs` compares counts and lists in both directions and writes a baseline
+  with its explanation first; the structure, docs-style (twice), comments and import-cycle checks
+  use it, and the bundle check uses its writer. The bundle check keeps its own comparison, because
+  it measures only the applications it is named, so a recorded one it did not measure is not stale.
+  `tools/published-packages.mjs` is the one table of the seven packages; the comment, api-docs,
+  package-exports and quick-start checks read it. `tools/checks/files-under.mjs` wraps the built-in
+  recursive read, and six hand-written walkers went; the comment checker scans the same 1103, 120
+  and 21 files as before. Every flag is read with `parseArgs`, so a mistyped one fails instead of
+  being ignored. On the way the comment checker's node-name helper exists once, and the api-docs
+  walker no longer skips a `docs/decisions` folder that does not exist.
 - [x] 15.3 `check-quick-start.mjs` (517 lines) split into generating, byte checks and browser steps,
   sharing the preview server.
   Set aside by the owner (2026-09-25), see design.
