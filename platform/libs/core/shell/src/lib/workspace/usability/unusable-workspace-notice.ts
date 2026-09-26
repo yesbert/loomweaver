@@ -1,7 +1,7 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, inject } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { CommandService } from '../../commands/command.service';
-import { UNUSABLE_WORKSPACES } from '../../foundation/unusable-workspaces';
+import { UNUSABLE_WORKSPACES } from './unusable-workspaces';
 import { WORKSPACE_RESET_COMMAND_ID } from '../../commands/host-command-ids';
 
 @Component({

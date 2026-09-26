@@ -124,6 +124,16 @@ are corrected in the same pull request and the reason is stated in its descripti
   not get in the way when it was changed for the generators' new prefix.
 - **The long specs stay whole (task 16.2, owner).** A spec is read one test at a time, so splitting
   one costs review and buys a newcomer little.
+- **Parts of done tasks that would have reached a consumer (tasks 6.7, 8.3, 9.5, 10.4, 10.5, 10.7,
+  10.9).** Each of these tasks did what it could without that, and names the rest in its own text.
+  Two kinds of reason recur. A shared form that would need a new published symbol or parameter
+  (a surface-shaped registry entry, `CommandService.trigger` with the menu context, a devkit export
+  for a sentence, a file list or a message) waits for a concrete need, as the owner decided for
+  additive items. A shared form that would change what a consumer sees (the lines `init` prints,
+  which application the Nx rule chooses, what the published MCP server returns, the `project.json`
+  a distribution starts from) is behaviour, which this change does not touch. The rail and bar item
+  fields of task 9.5 are the one case of a third kind: their texts differ where the two items
+  differ, so sharing them would say the wrong thing about one of them.
 
 ## Risks / Trade-offs
 

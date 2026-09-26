@@ -1,7 +1,7 @@
 import { computed, inject, Service } from '@angular/core';
 import { WORKING_STATE_STORE } from '../../persistence/working-state-store';
 import { PaneTreeService } from '../../regions/pane/tree/pane-tree.service';
-import { UnusableWorkspaces } from '../../foundation/unusable-workspaces';
+import { UnusableWorkspaces } from './unusable-workspaces';
 import {
   ActiveWorkspaceService,
   workspaceScopedKey,
