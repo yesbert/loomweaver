@@ -11,7 +11,7 @@
     "build": "ng build",
     "test": "ng test",
     "e2e": "playwright test",
-    "licence-check": "license-checker --production --onlyAllow \"MIT;ISC;Apache-2.0;BSD-2-Clause;BSD-3-Clause;0BSD;Python-2.0;CC0-1.0;Unlicense;BlueOak-1.0.0\" --excludePackages \"loomweaver-demo@0.0.0\"",
+    "licence-check": "license-checker --production --onlyAllow \"$(node -p \"require('../licence-allowlist.json').join(';')\")\" --excludePackages \"loomweaver-demo@0.0.0\"",
     "pwa-check": "node tools/check-pwa.mjs"
   },
   "dependencies": {

@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Description: Bump the shared platform version (major | minor | patch) across every place that
-#              carries it, commit the change, and tag v<X.Y.Z>.
+# Description: Bump the shared platform version across every place that carries it, commit the
+#              change, and tag v<X.Y.Z>.
 #
 # LoomWeaver ships a single SemVer line for its published npm packages, so one bump touches
-# Directory.Build.props (<Version> — the version single-source, verified against the release
-# tag by the publish pipeline) and the seven npm packages — @loomweaver/plugin-sdk, @loomweaver/shell,
-# @loomweaver/mcp, @loomweaver/cli, @loomweaver/frame-kit, @loomweaver/devkit and @loomweaver/ag-ui (their "version", plus
-# @loomweaver/shell's and @loomweaver/ag-ui's peerDependencies["@loomweaver/plugin-sdk"] tracking it),
-# plus the platform version the generators record for the packages they ask a consumer to install.
+# Directory.Build.props (<Version>, the version single-source, verified against the release tag by
+# the publish pipeline) and the seven npm packages platform/tools/published-packages.mjs lists (their
+# "version", and every peerDependencies["@loomweaver/plugin-sdk"] among them tracking it), plus the
+# platform version the generators record for the packages they ask a consumer to install.
 # The tag-driven release workflow (.github/workflows/release.yml) re-stamps the built artifacts from
 # the tag anyway, but keeping the source in lockstep is what stops package.json drifting from reality.
 # (The platform ships no server package — the settings/auth/secret seam is the product's own
 # backend — so there is no NuGet/client version line to bump here.)
 #
-# Usage: ./scripts/bump-version.sh <major|minor|patch>
+# Usage: ./scripts/bump-version.sh <major|minor|patch|preminor|prerelease|release>
 #   patch  0.1.0 → 0.1.1   minor  0.1.0 → 0.2.0   major  0.1.0 → 1.0.0
+#   preminor 0.1.0 → 0.2.0-preview.1   prerelease → 0.2.0-preview.2   release → 0.2.0
 #   Commits "chore: bump version to <X.Y.Z>" and creates tag v<X.Y.Z>.
 #   Push with: git push && git push --tags
 
@@ -26,20 +26,6 @@ ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 readonly ROOT_DIR
 PROPS_FILE="${ROOT_DIR}/Directory.Build.props"
 readonly PROPS_FILE
-SDK_PKG="${ROOT_DIR}/platform/libs/core/plugin-sdk/package.json"
-readonly SDK_PKG
-SHELL_PKG="${ROOT_DIR}/platform/libs/core/shell/package.json"
-readonly SHELL_PKG
-MCP_PKG="${ROOT_DIR}/platform/libs/tooling/mcp/package.json"
-readonly MCP_PKG
-CLI_PKG="${ROOT_DIR}/platform/libs/tooling/cli/package.json"
-readonly CLI_PKG
-KIT_PKG="${ROOT_DIR}/platform/libs/core/frame-kit/package.json"
-readonly KIT_PKG
-DEVKIT_PKG="${ROOT_DIR}/platform/libs/tooling/devkit/package.json"
-readonly DEVKIT_PKG
-AGUI_PKG="${ROOT_DIR}/platform/libs/integrations/ag-ui/package.json"
-readonly AGUI_PKG
 PLATFORM_RECIPE="${ROOT_DIR}/platform/libs/tooling/devkit/src/recipes/platform-version.ts"
 readonly PLATFORM_RECIPE
 
@@ -124,36 +110,33 @@ fi
 
 echo "Updated: ${PROPS_FILE}"
 
-# Stamp the published npm packages. Edited with node (not sed) so the JSON stays valid and
-# key order/formatting is preserved; @loomweaver/shell's peer range on @loomweaver/plugin-sdk moves in lockstep.
+# Stamp the published npm packages. Edited with node (not sed) so the JSON stays valid and key
+# order and formatting are preserved; a peer range on @loomweaver/plugin-sdk moves in lockstep.
 command -v node >/dev/null 2>&1 || {
     echo "Error: node is required to stamp the npm package versions" >&2
     exit 1
 }
-# `export` (not a `VAR=... node` command-prefix) because SDK_PKG/SHELL_PKG are readonly — a
-# prefix assignment would try to reassign them and fail with "readonly variable".
-export NEW_VERSION SDK_PKG SHELL_PKG MCP_PKG CLI_PKG KIT_PKG DEVKIT_PKG AGUI_PKG PLATFORM_RECIPE
-node <<'NODE'
+MANIFESTS=()
+while IFS= read -r manifest; do
+    MANIFESTS+=("${manifest}")
+done < <(node --input-type=module -e "
+import { PUBLISHED_PACKAGES } from '${ROOT_DIR}/platform/tools/published-packages.mjs';
+for (const { source } of PUBLISHED_PACKAGES) console.log('${ROOT_DIR}/platform/' + source + '/package.json');
+")
+readonly MANIFESTS
+
+export NEW_VERSION PLATFORM_RECIPE
+node - "${MANIFESTS[@]}" <<'NODE'
 const fs = require('fs');
 const version = process.env.NEW_VERSION;
-const rewrite = (path, mutate) => {
+for (const path of process.argv.slice(2)) {
   const pkg = JSON.parse(fs.readFileSync(path, 'utf8'));
-  mutate(pkg);
+  pkg.version = version;
+  if (pkg.peerDependencies?.['@loomweaver/plugin-sdk']) {
+    pkg.peerDependencies['@loomweaver/plugin-sdk'] = version;
+  }
   fs.writeFileSync(path, JSON.stringify(pkg, null, 2) + '\n');
-};
-rewrite(process.env.SDK_PKG, (pkg) => { pkg.version = version; });
-rewrite(process.env.SHELL_PKG, (pkg) => {
-  pkg.version = version;
-  pkg.peerDependencies['@loomweaver/plugin-sdk'] = version;
-});
-rewrite(process.env.MCP_PKG, (pkg) => { pkg.version = version; });
-rewrite(process.env.CLI_PKG, (pkg) => { pkg.version = version; });
-rewrite(process.env.KIT_PKG, (pkg) => { pkg.version = version; });
-rewrite(process.env.DEVKIT_PKG, (pkg) => { pkg.version = version; });
-rewrite(process.env.AGUI_PKG, (pkg) => {
-  pkg.version = version;
-  pkg.peerDependencies['@loomweaver/plugin-sdk'] = version;
-});
+}
 // The generators record the platform version as a literal, because a recipe produces text and
 // cannot read a manifest as it writes: the frame kit for a distribution, the agent adapter for a
 // weaver. check-agent-versions fails the build when this is forgotten.
@@ -166,13 +149,9 @@ fs.writeFileSync(
 );
 NODE
 
-echo "Updated: ${SDK_PKG}"
-echo "Updated: ${SHELL_PKG}"
-echo "Updated: ${MCP_PKG}"
-echo "Updated: ${CLI_PKG}"
-echo "Updated: ${KIT_PKG}"
-echo "Updated: ${DEVKIT_PKG}"
-echo "Updated: ${AGUI_PKG}"
+for manifest in "${MANIFESTS[@]}"; do
+    echo "Updated: ${manifest}"
+done
 echo "Updated: ${PLATFORM_RECIPE}"
 
 # Stamp the committed app-version module from the new <Version> so the shell (and its published
@@ -180,7 +159,7 @@ echo "Updated: ${PLATFORM_RECIPE}"
 node "${ROOT_DIR}/platform/tools/stamp-version.mjs"
 
 cd "${ROOT_DIR}"
-git add "${PROPS_FILE}" "${SDK_PKG}" "${SHELL_PKG}" "${MCP_PKG}" "${CLI_PKG}" "${KIT_PKG}" "${DEVKIT_PKG}" "${AGUI_PKG}" "${PLATFORM_RECIPE}" "${ROOT_DIR}/platform/libs/core/shell/src/lib/version/app-version.ts"
+git add "${PROPS_FILE}" "${MANIFESTS[@]}" "${PLATFORM_RECIPE}" "${ROOT_DIR}/platform/libs/core/shell/src/lib/version/app-version.ts"
 git commit -m "chore: bump version to ${NEW_VERSION}"
 git tag "v${NEW_VERSION}"
 

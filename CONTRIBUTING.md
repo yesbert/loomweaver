@@ -71,8 +71,11 @@ The dev server is HTTPS. A `prestart` hook generates a self-signed `localhost` c
 `platform/.certs/` when one is missing. Trust it once so the browser accepts the page. On macOS:
 
 ```bash
-sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain platform/.certs/aspnet-dev.pem
+sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain platform/.certs/localhost.pem
 ```
+
+A certificate from `mkcert` works as well: it writes the same two names, `localhost.pem` and
+`localhost-key.pem`, and the hook leaves an existing pair alone.
 
 It binds the IPv4 loopback, so an IPv6 `localhost` may not answer: use `127.0.0.1`. The dev server
 runs without a service worker on purpose; `npm run preview:testbed` serves a production build on

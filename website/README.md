@@ -99,11 +99,12 @@ both halves, including that the demo does *not* disallow crawling.
 
 ## Licences
 
-`npm run licence-check` gates the site's production dependencies against the same permissive
-allowlist the platform packages use. There is exactly one documented exception, explained in
-`tools/check-licences.mjs`: the prebuilt libvips binary that Astro's optional `sharp` dependency
-pulls in is LGPL, but it is build-time tooling that is never distributed — and the site uses the
-passthrough image service, so it never even runs.
+`npm run licence-check` gates the site's production dependencies against `licence-allowlist.json`
+at the repository root, the same list the platform and the demo use. Two exceptions are named in
+`tools/check-licences.mjs`, each for one package family: the prebuilt libvips binary that Astro's
+optional `sharp` dependency pulls in (LGPL, build-time tooling that is never distributed, and the site
+uses the passthrough image service, so it never even runs), and lightningcss (MPL-2.0), which runs
+during the build and emits plain CSS.
 
 ## Deployment
 

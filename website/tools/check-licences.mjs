@@ -1,22 +1,14 @@
 import { execFileSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 
 /**
- * Same permissive set the platform packages are gated against. The site ships
- * client-side JavaScript, so its runtime dependencies deserve the same scrutiny.
+ * The permissive set the platform and the demo are gated against, from the repository's one
+ * allowlist. The site ships client-side JavaScript, so its runtime dependencies deserve the same
+ * scrutiny.
  */
-const ALLOWED = new Set([
-  'MIT',
-  'ISC',
-  'Apache-2.0',
-  'BSD-2-Clause',
-  'BSD-3-Clause',
-  '0BSD',
-  'Python-2.0',
-  'CC0-1.0',
-  'CC-BY-4.0',
-  'Unlicense',
-  'BlueOak-1.0.0',
-]);
+const ALLOWED = new Set(
+  JSON.parse(readFileSync(new URL('../../licence-allowlist.json', import.meta.url), 'utf8')),
+);
 
 /**
  * Copyleft exceptions, each named to one package family rather than allowing the licence

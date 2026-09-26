@@ -53,7 +53,7 @@ usage() {
     echo "Updates all dependencies in LoomWeaver:"
     echo "  - npm packages in every install root (a package.json with a lockfile beside it)"
     echo "  - reports major versions held back by the semver ranges (see note below)"
-    echo "  - verifies with nx lint / test / build for both distributions"
+    echo "  - verifies platform/ with nx lint, build, package and test; the other roots are left to their own checks"
     echo ""
     echo "There is no .NET/Aspire section: the platform is frontend-only."
     echo ""
@@ -128,10 +128,10 @@ done < <(find "${ROOT_DIR}" -name package.json -not -path '*/node_modules/*' -no
 # `npm update` stays inside the declared semver ranges, so a waiting major is invisible in its output.
 # Report those explicitly rather than let them rot unseen — they need `nx migrate`, not this script.
 #
-# The comparison must be a real semver compare, NOT `wanted != latest`: we track Angular on its `next`
-# line (22.x), while the `latest` dist-tag still points at the 21.x stable line. A naive inequality
-# reports "latest 21.2.18" as an available update for a package sitting on 22.0.6 and would advise a
-# downgrade. Only report where `latest` is genuinely newer than what the range allows.
+# The comparison must be a real semver compare, NOT `wanted != latest`: while a framework is tracked on
+# its `next` line, the `latest` dist-tag points at the older major, and a naive inequality reports that
+# older version as an available update and would advise a downgrade. Only report where `latest` is
+# genuinely newer than what the range allows.
 report_held_back_majors() {
     local dir="$1"
 
@@ -203,9 +203,10 @@ else
     section "1. npm Packages (SKIPPED)"
 fi
 
-# Verification is nx, not dotnet. Lint and test alone are not enough: the Angular compiler is stricter
-# than Jest (a union type or a template error slips through `nx test` and only `nx build` catches it),
-# and both distributions are built because a bare-platform-only break is real.
+# Verification is nx, not dotnet, and covers platform/ only. Lint and test alone are not enough: the
+# Angular compiler is stricter than the unit tests (a union type or a template error slips through
+# `nx test` and only `nx build` catches it), and both distributions are built because a
+# bare-platform-only break is real.
 if [[ "${SKIP_BUILD}" == "false" && "${DRY_RUN}" == "false" ]]; then
     section "2. Build Verification"
     cd "${ROOT_DIR}/platform"
@@ -224,12 +225,20 @@ if [[ "${SKIP_BUILD}" == "false" && "${DRY_RUN}" == "false" ]]; then
         fail "Build FAILED — check errors above"
     fi
 
-    # Sequentially: `run-many -t package` in parallel flakes (known).
-    info "Packaging the published libraries..."
-    if npx nx package plugin-sdk 2>&1 | tail -2 && npx nx package shell 2>&1 | tail -2; then
+    # Sequentially and in the order CI uses: `run-many -t package` in parallel flakes (known).
+    info "Packaging the seven published packages..."
+    packaged=true
+    for target in "package plugin-sdk" "package shell" "run shell:styles" "package devkit" \
+        "package ag-ui" "bundle frame-kit" "bundle cli" "bundle mcp"; do
+        # shellcheck disable=SC2086 # the target is two words on purpose
+        if ! npx nx ${target} 2>&1 | tail -2; then
+            packaged=false
+            fail "Packaging FAILED at nx ${target}"
+            break
+        fi
+    done
+    if [[ "${packaged}" == "true" ]]; then
         success "Packaging succeeded"
-    else
-        fail "Packaging FAILED"
     fi
 else
     section "2. Build Verification (SKIPPED)"
@@ -268,9 +277,13 @@ if [[ ${#ERRORS[@]} -gt 0 ]]; then
     exit 1
 fi
 
-echo -e "${GREEN}All updates completed successfully!${NC}"
+echo -e "${GREEN}Every install root updated; platform/ verified.${NC}"
 echo ""
 echo "Next steps:"
 echo "  1. Review changes:   git diff '*package.json' '*package-lock.json'"
-echo "  2. E2E (not run here — needs a served app): cd platform && npx nx e2e loom-testbed-e2e"
-echo "  3. Commit changes:   git add -A && git commit -m 'chore: update dependencies'"
+echo "  2. Verify the other roots, which this script updated but did not build:"
+echo "       cd demo && npm run build && npm test"
+echo "       cd website && npm test && npm run build"
+echo "       cd examples/assistant-workbench && npm run build && npm test"
+echo "  3. E2E (not run here, it needs a served app): cd platform && npx nx e2e loom-testbed-e2e"
+echo "  4. Commit changes:   git add -A && git commit -m 'chore: update dependencies'"
