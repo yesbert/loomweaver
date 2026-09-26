@@ -897,8 +897,13 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   10.4 to 10.9), and 6.10 and 7.3 say how their open questions were answered. The goal on the
   baselines is met: the shell's mutually dependent slices went from 16 pairs to 11, and the three
   folders over the concept threshold to none.
-- [ ] 17.2 Run `openspec validate --all --strict`, the full unit suites, the testbed and demo
+- [x] 17.2 Run `openspec validate --all --strict`, the full unit suites, the testbed and demo
   end-to-end suites and every guard; archive the change.
+  On main after the last slice, all 38 steps passed: validate and shellcheck; the platform's lint,
+  unit tests of nine projects, both builds, the seven packages and every check including the
+  quick-start; the testbed's 367 end-to-end tests; the demo's lint, 122 unit tests, build, bundle,
+  PWA and licence checks and 117 end-to-end tests; the example's lint, 25 unit tests, build and
+  bundle; the website's lint, tests, build, head, contrast and licence checks.
 - [x] 17.3 The release that carries 4.2 names its two renamed element tags under "Changed"
   (`lw-content-area` is `lw-address-pane-header`, `lw-content-secondary-pane` is `lw-surface-body`),
   because a product's unlayered CSS may target them; when the demo adopts that release, its breeze
