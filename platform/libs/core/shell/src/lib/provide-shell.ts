@@ -38,7 +38,7 @@ import { COMMAND_INVOKER } from './foundation/command-invoker';
 import { DIALOG_CLOSE_GUARD } from './dialog/dialog-close-guard';
 import { SurfaceCloseGuard } from './regions/pane/unsaved-work/surface-close-guard';
 import { WORKSPACE_SETTLEMENT } from './regions/content/routing/workspace-settlement';
-import { UNUSABLE_WORKSPACES } from './foundation/unusable-workspaces';
+import { UNUSABLE_WORKSPACES } from './workspace/usability/unusable-workspaces';
 import { UnusableWorkspacesService } from './workspace/usability/unusable-workspaces.service';
 import { CommandInvocationService } from './commands/command-invocation.service';
 import { KeybindingService } from './commands/keyboard/keybinding.service';

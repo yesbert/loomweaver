@@ -231,7 +231,8 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   of "bytes", `forPlugin` instead of `facade`; the required-plugin typo diagnostic moves to the
   composition report (after its defect is fixed).
   The typo diagnostic already moved to the composition report with defect 1.6. A value with no JSON
-  form still fails as before; what it should do is the owner's decision in defect 9.3.
+  form was left failing as before here; the owner decided it in defect 9.3, which refuses it with a
+  message naming the plugin and the key.
 
 ## 7. Workspaces, persistence, settings, foundation and i18n
 
@@ -251,6 +252,10 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
   slice of its own, the catalog's level cap to the catalog, the settlement port next to the content
   routing that reads it (renamed so it no longer shares a file name with `workspace/workspace-claims.ts`).
   The unusable-workspaces port and the feature-flag declaration stay until the owner decides.
+  The owner kept the feature-flag declaration in `foundation/`. The unusable-workspaces port never
+  reached the owner's list, and the rule answers it: the workspace slice implements it and is its
+  only reader, so it owns it, and it moved to `workspace/usability/` at the hand-over, under the
+  same published name.
   `plugin-isolation/plugin-isolation-level.service.ts` (imports only `foundation/`, so no slice pair),
   `CATALOG_MAX_ISOLATION_LEVEL` in `plugin-store/catalog/catalog-level-cap.ts` (not beside `PLUGIN_CATALOG`,
   whose file the package re-exports whole, so the token would have become published),
@@ -887,7 +892,11 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 
 ## 17. Hand-over
 
-- [ ] 17.1 Reconcile this change with what was done: tasks set aside get their reason in `design.md`.
+- [x] 17.1 Reconcile this change with what was done: tasks set aside get their reason in `design.md`.
+  The design now also carries the parts set aside inside tasks that were done (6.7, 8.3, 9.5 and
+  10.4 to 10.9), and 6.10 and 7.3 say how their open questions were answered. The goal on the
+  baselines is met: the shell's mutually dependent slices went from 16 pairs to 11, and the three
+  folders over the concept threshold to none.
 - [ ] 17.2 Run `openspec validate --all --strict`, the full unit suites, the testbed and demo
   end-to-end suites and every guard; archive the change.
 - [x] 17.3 The release that carries 4.2 names its two renamed element tags under "Changed"

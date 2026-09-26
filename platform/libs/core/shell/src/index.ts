@@ -54,7 +54,7 @@ export * from './lib/foundation/rail-item';
 export * from './lib/foundation/required-plugins';
 export * from './lib/foundation/shell-features';
 export type { PaddingDefault } from './lib/foundation/surface-padding';
-export * from './lib/foundation/unusable-workspaces';
+export * from './lib/workspace/usability/unusable-workspaces';
 
 export { LocaleService } from './lib/i18n/locale.service';
 export { type ServedLanguage } from './lib/i18n/served-languages';
