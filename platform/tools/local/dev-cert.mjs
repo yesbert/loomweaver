@@ -15,7 +15,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const certDir = resolve(here, '../.certs');
+const certDir = resolve(here, '../../.certs');
 const certFile = resolve(certDir, 'aspnet-dev.pem');
 const keyFile = resolve(certDir, 'aspnet-dev.key');
 

@@ -23,7 +23,7 @@ import { dirname, extname, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const workspace = resolve(here, '..');
+const workspace = resolve(here, '../..');
 
 const root = resolve(
   workspace,

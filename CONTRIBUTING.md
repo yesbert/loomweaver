@@ -108,7 +108,7 @@ npm run api-docs-check
 ```
 
 A name that legitimately needs no prose of its own goes into the exemption list in
-`platform/tools/check-api-docs.mjs`, with a reason, so the decision is visible in review.
+`platform/tools/checks/check-api-docs.mjs`, with a reason, so the decision is visible in review.
 
 Three more checks read nothing but sources, so they are the cheapest to run while you work:
 
@@ -121,14 +121,14 @@ npm run comments-check        # needs the packages packed first
 `import-cycles-check` fails on a new import cycle between files, and on a new mutually dependent pair
 of feature slices. The first is a latent initialisation-order bug. The second is not a defect. It is
 the distance to splitting the shell into separate libraries, which Nx cannot do while a cycle exists
-in the graph. Both baselines live in `platform/tools/cycle-baseline.json` and are ratchets: they may
-shrink and may never grow, and the check also fails on an entry that is no longer true, so the list
-gets trimmed as the tangle does.
+in the graph. Both baselines live in `platform/tools/checks/cycle-baseline.json` and are ratchets:
+they may shrink and may never grow, and the check also fails on an entry that is no longer true, so
+the list gets trimmed as the tangle does.
 
 `structure-check` fails on a folder holding more than 12 concepts and on a source file longer than
 400 lines, where a concept is one non-spec `.ts` file. Its baseline in
-`platform/tools/structure-baseline.json` is the same kind of ratchet, and it records today's numbers
-honestly rather than pretending they are zero.
+`platform/tools/checks/structure-baseline.json` is the same kind of ratchet, and it records today's
+numbers honestly rather than pretending they are zero.
 
 ### Working with an assistant
 
@@ -288,7 +288,7 @@ Four rules for the sentences, three of them measured by `npm run docs-style-chec
 
 - **One thought per sentence, and under forty words.** An aside becomes its own sentence. The checker
   counts sentences over forty words per page and keeps the number from growing
-  (`platform/tools/docs-style-baseline.json` is the ratchet; rewrite it with `--write-baseline` after
+  (`platform/tools/checks/docs-style-baseline.json` is the ratchet; rewrite it with `--write-baseline` after
   you shorten a page).
 - **Condition first, then consequence.** "If the surface is clean, it is destroyed", not "It is
   destroyed, provided the surface is clean."

@@ -19,7 +19,7 @@ import ts from 'typescript';
 import * as prettier from 'prettier';
 import * as heroicons from '@ng-icons/heroicons/outline';
 
-const repoRoot = resolve(fileURLToPath(import.meta.url), '../../..');
+const repoRoot = resolve(fileURLToPath(import.meta.url), '../../../..');
 const SOURCE = 'platform/libs/core/shell/src/lib/elements/icon/loom-icons.ts';
 const PAGE = 'docs/reference/icons.md';
 const START = '<!-- icons:start -->';

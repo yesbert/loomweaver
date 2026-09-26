@@ -823,8 +823,9 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 
 ## 15. Tools and scripts
 
-- [ ] 15.1 `sync-docs.mjs` (530 lines) split into named steps with one link rewriter that returns the
+- [x] 15.1 `sync-docs.mjs` (530 lines) split into named steps with one link rewriter that returns the
   media it found (after the sidebar guard defect is fixed).
+  Set aside with the website's code (tasks 14.1 to 14.3), see design.
 - [ ] 15.2 Shared helpers for the checkers: one ratchet comparison, one table of the published
   packages, the built-in recursive directory read, `parseArgs`.
 - [x] 15.3 `check-quick-start.mjs` (517 lines) split into generating, byte checks and browser steps,
@@ -833,10 +834,18 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 - [ ] 15.4 Scripts: `bump-version.sh` iterates one package list, stale statements in tools and scripts
   corrected, one licence allowlist, the dev certificate named for what it is, `check-head.mjs`'s loop
   split, `dist-tag.mjs` failing closed.
-- [ ] 15.5 `docs/reference/operations.md` stops stating the baselines' entry counts.
-- [ ] 15.6 **Move** (decided 2026-09-25): `platform/tools/` gets `checks/` (the checkers and their
+- [x] 15.5 `docs/reference/operations.md` stops stating the baselines' entry counts.
+  Both counts it stated had gone stale: it said 21 mutually dependent slice pairs where the checker
+  measures 11, and five folders and ten files over the structure thresholds where the baseline is
+  empty. The table now says where each baseline is and what it fails on.
+- [x] 15.6 **Move** (decided 2026-09-25): `platform/tools/` gets `checks/` (the checkers and their
   baselines), `media/` (screenshots and the tour) and `local/` (the dev certificate, the preview
   server, the isolation probe), with the CI paths and the doc links.
+  `stamp-version.mjs`, `vitest-base.mts` and `bundle-tooling-bin.mjs` stay at the top, because
+  `nx.json`, the release script and six library configurations point at them. Every relative root in
+  the moved scripts went one level up; the scripts in `platform/package.json`, the two bundle checks
+  in CI, the messages that name a script, `operations.md`, `CONTRIBUTING.md` and `openspec/config.yaml`
+  follow. Every check ran from its new place, the quick-start check to the end.
 
 ## 16. Tests, lighter lens
 

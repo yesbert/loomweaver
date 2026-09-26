@@ -36,7 +36,7 @@ import ts from 'typescript';
 
 const repoRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
-  '../..',
+  '../../..',
 );
 
 // Directories, not entry points: the packed plugin-sdk index is a barrel of re-exports whose
@@ -369,7 +369,7 @@ if (scope) {
   process.exit(0);
 }
 
-const residuePath = path.join(repoRoot, 'platform/tools/comment-residue.json');
+const residuePath = path.join(repoRoot, 'platform/tools/checks/comment-residue.json');
 const residue = existsSync(residuePath)
   ? JSON.parse(readFileSync(residuePath, 'utf8')).files
   : {};

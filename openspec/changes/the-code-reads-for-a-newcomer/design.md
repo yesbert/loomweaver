@@ -117,6 +117,9 @@ are corrected in the same pull request and the reason is stated in its descripti
   newcomer to the platform does not read it, and it is not what a product builds on. That includes
   its comments: the comment rule covers the platform's CSS (task 3.10), not the website's `.astro`
   and CSS files, which revises the decision of the same morning for the website.
+- **`sync-docs.mjs` and `check-head.mjs` stay as they are (task 15.1 and part of 15.4).** Both sit in
+  `website/tools/` and build or check the site, so they fall under the owner's decision on the
+  website's code rather than under the tooling a newcomer to the platform reads.
 - **`check-quick-start.mjs` stays one file (task 15.3, owner).** It runs stable, and its length did
   not get in the way when it was changed for the generators' new prefix.
 - **The long specs stay whole (task 16.2, owner).** A spec is read one test at a time, so splitting

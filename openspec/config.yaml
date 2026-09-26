@@ -132,7 +132,7 @@ operations:
         400 lines must be justified, where a concept is one non-spec .ts file. A folder that
         exceeds the threshold is cut into sub-themes named for what they do, never into folders
         named for a technical kind. Enforced by `npm run structure-check` against
-        platform/tools/structure-baseline.json, a ratchet that may shrink and may never grow.
+        platform/tools/checks/structure-baseline.json, a ratchet that may shrink and may never grow.
       - >-
         Small functions doing one thing at one level of abstraction; command-query separation; guard
         clauses over nesting; fail fast with a clear message; validate at the RPC and port

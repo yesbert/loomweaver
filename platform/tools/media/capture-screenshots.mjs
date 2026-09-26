@@ -10,7 +10,7 @@
 // motion is reduced so nothing is caught mid-transition, and the clock is fixed so the store's
 // relative times do not move between runs.
 //
-// Usage: node platform/tools/capture-screenshots.mjs [--url http://localhost:4210] [--only <motif>] [--scale 1.5]
+// Usage: node platform/tools/media/capture-screenshots.mjs [--url http://localhost:4210] [--only <motif>] [--scale 1.5]
 // Needs the demo served at that URL (`npm run start -- --port 4210` in demo/). Nothing in CI runs it.
 
 import { chromium } from '@playwright/test';
@@ -20,7 +20,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(here, '../..');
+const repoRoot = resolve(here, '../../..');
 const mediaDir = join(repoRoot, 'assets/media');
 
 const SIZE = { width: 1280, height: 800 };

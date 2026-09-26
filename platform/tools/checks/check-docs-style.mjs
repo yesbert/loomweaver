@@ -53,8 +53,8 @@ const VARIANTS = [
   [/\bbehaviors?\b/gi, 'behaviour'],
 ];
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const baselinePath = path.join(repoRoot, 'platform/tools/docs-style-baseline.json');
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
+const baselinePath = path.join(repoRoot, 'platform/tools/checks/docs-style-baseline.json');
 
 function pages() {
   const found = [];

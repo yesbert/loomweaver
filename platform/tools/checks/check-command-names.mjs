@@ -15,7 +15,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const shell = resolve(fileURLToPath(import.meta.url), '../../libs/core/shell/src/lib');
+const shell = resolve(fileURLToPath(import.meta.url), '../../../libs/core/shell/src/lib');
 const LANGUAGES = ['en', 'de'];
 
 /** The object literal starting at `from`, as source, with its braces balanced. */

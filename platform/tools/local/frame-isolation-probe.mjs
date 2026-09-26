@@ -4,7 +4,7 @@
 // Firefox and WebKit, and those report a different result from the installed browsers.
 //
 //   1. sudo sh -c 'printf "127.0.0.1 app.loomweaver.test plain.loomweaver.test keyed.loomweaver.test other.test\n" >> /etc/hosts'
-//   2. node tools/frame-isolation-probe.mjs
+//   2. node tools/local/frame-isolation-probe.mjs
 //   3. accept the self-signed certificate once per origin (the script prints the four URLs)
 //   4. open the last URL — it runs all four arrangements by itself and prints a table
 //
@@ -34,7 +34,7 @@ const CASES = [
 ];
 
 const here = dirname(fileURLToPath(import.meta.url));
-const certDir = resolve(here, '../.certs');
+const certDir = resolve(here, '../../.certs');
 const certFile = join(certDir, 'frame-isolation.pem');
 const keyFile = join(certDir, 'frame-isolation.key');
 

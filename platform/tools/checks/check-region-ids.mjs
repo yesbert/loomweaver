@@ -23,7 +23,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
 
 const SOURCES = {
   defaults: 'libs/core/shell/src/lib/regions/bar/default-bar-items.ts',
