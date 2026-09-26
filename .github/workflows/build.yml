@@ -195,7 +195,7 @@ jobs:
       # job without platform's dependencies installed. The demo builds against the published
       # packages, so its recorded ceiling moves when a release lands.
       - name: Initial bundle stays under its ceiling
-        run: node ../platform/tools/check-bundle-size.mjs demo
+        run: node ../platform/tools/checks/check-bundle-size.mjs demo
 
       # A manifest without icons cannot be installed, and a service worker that skips the
       # translations serves an app whose every label is a raw key offline. Neither fails a build on
@@ -239,7 +239,7 @@ jobs:
         run: npm run build
 
       - name: Initial bundle stays under its ceiling
-        run: node ../../platform/tools/check-bundle-size.mjs assistant-workbench
+        run: node ../../platform/tools/checks/check-bundle-size.mjs assistant-workbench
 
       - name: Unit tests
         run: npm test

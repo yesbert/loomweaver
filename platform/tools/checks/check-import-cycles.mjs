@@ -20,13 +20,13 @@ import { fileURLToPath } from 'node:url';
 
 const repoRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
-  '../..',
+  '../../..',
 );
 const shellRoot = path.join(repoRoot, 'platform/libs/core/shell/src');
 const libraryRoot = path.join(shellRoot, 'lib');
 const baselinePath = path.join(
   repoRoot,
-  'platform/tools/cycle-baseline.json',
+  'platform/tools/checks/cycle-baseline.json',
 );
 
 function sources(dir, out = []) {
@@ -236,7 +236,7 @@ if (failures.length > 0) {
   for (const failure of failures) console.error(`  ${failure}`);
   console.error(
     '\nBoth baselines are ratchets: they may shrink and may never grow. Refresh with ' +
-      '`node tools/check-import-cycles.mjs --write-baseline` only when the change is a resolution.',
+      '`node tools/checks/check-import-cycles.mjs --write-baseline` only when the change is a resolution.',
   );
   process.exit(1);
 }

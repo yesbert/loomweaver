@@ -16,7 +16,7 @@
 // track, so anything added afterwards in an editor would have to be added again by hand every time.
 // Drawing them in the page is what makes the run reproducible.
 //
-// Usage: node platform/tools/record-tour.mjs [--url http://localhost:4200] [--only light|dark]
+// Usage: node platform/tools/media/record-tour.mjs [--url http://localhost:4200] [--only light|dark]
 // Needs the testbed served at that URL, and ffmpeg on PATH. Nothing in CI runs it.
 
 import { chromium } from '@playwright/test';
@@ -27,7 +27,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(here, '../..');
+const repoRoot = resolve(here, '../../..');
 const mediaDir = join(repoRoot, 'assets/media');
 
 const SIZE = { width: 1280, height: 800 };

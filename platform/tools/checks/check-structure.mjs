@@ -28,9 +28,9 @@ const CONCEPTS_PER_FOLDER = 12;
 const LINES_PER_FILE = 400;
 const SKIP = new Set(['node_modules', 'dist', 'tmp', '.angular', 'coverage', 'test-output']);
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 const roots = ['platform/libs', 'platform/apps'].map((dir) => path.join(repoRoot, dir));
-const baselinePath = path.join(repoRoot, 'platform/tools/structure-baseline.json');
+const baselinePath = path.join(repoRoot, 'platform/tools/checks/structure-baseline.json');
 
 const isConcept = (name) => name.endsWith('.ts') && !name.endsWith('.spec.ts');
 
@@ -80,7 +80,7 @@ if (process.argv[2] === '--write-baseline') {
           `Folders over ${CONCEPTS_PER_FOLDER} concepts and source files over ${LINES_PER_FILE} lines, ` +
           'where a concept is one non-spec .ts file. A ratchet: these numbers may shrink and may ' +
           'never grow, and an entry that no longer matches what is measured fails as stale. ' +
-          'Refresh with `node tools/check-structure.mjs --write-baseline` only when the change is a ' +
+          'Refresh with `node tools/checks/check-structure.mjs --write-baseline` only when the change is a ' +
           'resolution.',
         folders: sortedByCount(folders),
         files: sortedByCount(files),
@@ -143,7 +143,7 @@ if (failures.length > 0) {
   console.error(
     '\nA folder holds at most 12 concepts and a source file at most 400 lines; a concept is one ' +
       'non-spec .ts file. The baseline is a ratchet: it may shrink and may never grow. Refresh it ' +
-      'with `node tools/check-structure.mjs --write-baseline` only when the change is a resolution.',
+      'with `node tools/checks/check-structure.mjs --write-baseline` only when the change is a resolution.',
   );
   process.exit(1);
 }

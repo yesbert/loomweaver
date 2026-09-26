@@ -17,7 +17,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
 
 const RECIPE = 'libs/tooling/devkit/src/recipes/angular-weaver/agent-files.ts';
 const PLATFORM_RECIPE = 'libs/tooling/devkit/src/recipes/platform-version.ts';

@@ -39,8 +39,8 @@ import { fileURLToPath } from 'node:url';
 const STEP_KB = 5;
 const BYTES_PER_KB = 1000;
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const baselinePath = path.join(repoRoot, 'platform/tools/bundle-size-baseline.json');
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
+const baselinePath = path.join(repoRoot, 'platform/tools/checks/bundle-size-baseline.json');
 
 const APPS = {
   'loom-shell': 'platform/dist/apps/loom-shell/browser',
@@ -130,7 +130,7 @@ if (write) {
         _:
           'The initial bundle of each application, in kilobytes of a thousand bytes, rounded up to ' +
           `the next ${STEP_KB} kB. A ratchet: growing past a ceiling fails, and dropping a whole ` +
-          'step below one fails as stale. Refresh with `node tools/check-bundle-size.mjs <app…> ' +
+          'step below one fails as stale. Refresh with `node tools/checks/check-bundle-size.mjs <app…> ' +
           '--write-baseline` when the change is a deliberate one. The demo and the example build ' +
           'against the published packages, so their numbers move when a release lands.',
         apps: sorted,
@@ -183,7 +183,7 @@ if (problems.length > 0) {
     ...problems,
     '',
     'The ceiling is the measurement rounded up to the next 5 kB. Raise one only when the growth is',
-    'meant, with `node tools/check-bundle-size.mjs <app…> --write-baseline`.',
+    'meant, with `node tools/checks/check-bundle-size.mjs <app…> --write-baseline`.',
   );
 }
 

@@ -16,7 +16,7 @@ import ts from 'typescript';
 
 const repoRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
-  '../..',
+  '../../..',
 );
 
 const ENTRIES = {
@@ -258,7 +258,7 @@ if (settled.length > 0) {
   console.error(
     `check-api-docs: ${settled.length} entr(y|ies) in VISIBLE_BUT_NOT_EXPORTED no longer describe the packed declarations:\n` +
       settled.map((name) => `  - ${name}`).join('\n') +
-      '\n\nRemove them from VISIBLE_BUT_NOT_EXPORTED in tools/check-api-docs.mjs.',
+      '\n\nRemove them from VISIBLE_BUT_NOT_EXPORTED in tools/checks/check-api-docs.mjs.',
   );
   process.exit(1);
 }
@@ -279,7 +279,7 @@ if (stale.length > 0) {
   console.error(
     `check-api-docs: ${stale.length} exemption(s) name a symbol that is no longer published:\n` +
       stale.map((name) => `  - ${name}`).join('\n') +
-      '\n\nRemove them from EXEMPT in tools/check-api-docs.mjs.',
+      '\n\nRemove them from EXEMPT in tools/checks/check-api-docs.mjs.',
   );
   process.exit(1);
 }
@@ -288,7 +288,7 @@ if (missingFromLlms.length > 0) {
   console.error(
     `check-api-docs: ${missingFromLlms.length} published export(s) are not named in llms-full.txt, which calls itself the whole contract:\n` +
       missingFromLlms.map((m) => `  - ${m}`).join('\n') +
-      '\n\nName them in llms-full.txt, or add them to EXEMPT in tools/check-api-docs.mjs with a reason.',
+      '\n\nName them in llms-full.txt, or add them to EXEMPT in tools/checks/check-api-docs.mjs with a reason.',
   );
   process.exit(1);
 }
@@ -297,7 +297,7 @@ if (missing.length > 0) {
   console.error(
     `check-api-docs: ${missing.length} published export(s) appear nowhere in the documentation:\n` +
       missing.map((m) => `  - ${m}`).join('\n') +
-      '\n\nDocument them, or add them to EXEMPT in tools/check-api-docs.mjs with a reason.',
+      '\n\nDocument them, or add them to EXEMPT in tools/checks/check-api-docs.mjs with a reason.',
   );
   process.exit(1);
 }

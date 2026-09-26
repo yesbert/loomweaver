@@ -21,7 +21,7 @@ import { fileURLToPath } from 'node:url';
 
 const platformRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
-  '..',
+  '../..',
 );
 
 // The six published packages and the directory each one publishes FROM, mirroring the publish

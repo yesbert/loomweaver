@@ -19,7 +19,7 @@ import { tmpdir } from 'node:os';
 import { extname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const platformRoot = resolve(fileURLToPath(import.meta.url), '../..');
+const platformRoot = resolve(fileURLToPath(import.meta.url), '../../..');
 const ANGULAR = process.env.LOOM_QUICK_START_ANGULAR ?? '@angular/cli@22';
 
 class SetupError extends Error {}
