@@ -841,9 +841,21 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 - [x] 15.3 `check-quick-start.mjs` (517 lines) split into generating, byte checks and browser steps,
   sharing the preview server.
   Set aside by the owner (2026-09-25), see design.
-- [ ] 15.4 Scripts: `bump-version.sh` iterates one package list, stale statements in tools and scripts
+- [x] 15.4 Scripts: `bump-version.sh` iterates one package list, stale statements in tools and scripts
   corrected, one licence allowlist, the dev certificate named for what it is, `check-head.mjs`'s loop
   split, `dist-tag.mjs` failing closed.
+  `bump-version.sh` reads the seven manifests from the package table, stamps every plugin-sdk peer
+  it finds and stages what it stamped; a run in a throwaway worktree touched the same ten files as
+  the 0.14.3 bump. Its usage names all six operations. `dist-tag.mjs` refuses a malformed prerelease
+  marker instead of choosing `latest`, and knows it is the entry by its resolved path. The dev
+  certificate is `.certs/localhost.pem` with `localhost-key.pem`, the names mkcert writes, generated
+  by one function the isolation probe shares. `licence-allowlist.json` at the root is read by the
+  platform, the demo and the website; the website's extra `CC-BY-4.0` went, since no production
+  dependency uses it, and the platform gained the `licence-check` script the operations table
+  already claimed. The stale lines went: the api-docs check's page for the two outlets and its
+  `entr(y|ies)`, and in the dependency script the Angular `next` line, "Jest", a packaging step
+  that packed two of seven, and a success message for roots it never built. `check-head.mjs` is set
+  aside with the website's code, see design.
 - [x] 15.5 `docs/reference/operations.md` stops stating the baselines' entry counts.
   Both counts it stated had gone stale: it said 21 mutually dependent slice pairs where the checker
   measures 11, and five folders and ten files over the structure thresholds where the baseline is

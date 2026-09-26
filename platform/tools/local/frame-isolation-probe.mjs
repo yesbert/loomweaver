@@ -13,10 +13,8 @@
 // same-site siblings, which is the arrangement worth measuring.
 
 import { createServer } from 'node:https';
-import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
+import { CERTIFICATE_DIR, ensureSelfSignedCertificate } from './self-signed-certificate.mjs';
 
 const BUSY_MS = 1500;
 const PARENT = 'app.loomweaver.test';
@@ -32,25 +30,6 @@ const CASES = [
   { label: 'sibling subdomain + Origin-Agent-Cluster: ?1', host: SIBLING_KEYED, port: CHILD_PORT, oac: true },
   { label: 'cross-site', host: FOREIGN, port: CHILD_PORT, oac: false },
 ];
-
-const here = dirname(fileURLToPath(import.meta.url));
-const certDir = resolve(here, '../../.certs');
-const certFile = join(certDir, 'frame-isolation.pem');
-const keyFile = join(certDir, 'frame-isolation.key');
-
-function ensureCertificate() {
-  if (existsSync(certFile) && existsSync(keyFile)) {
-    return;
-  }
-  mkdirSync(certDir, { recursive: true });
-  execFileSync('openssl', [
-    'req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-days', '365',
-    '-keyout', keyFile, '-out', certFile,
-    '-subj', `/CN=${PARENT}`,
-    '-addext', `subjectAltName=DNS:${PARENT},DNS:${SIBLING_PLAIN},DNS:${SIBLING_KEYED},DNS:${FOREIGN}`,
-  ], { stdio: 'ignore' });
-  console.log(`Generated a self-signed certificate in ${certDir}.`);
-}
 
 const childDocument = `<!doctype html><meta charset="utf-8"><body><script>
 addEventListener('message', (e) => {
@@ -151,7 +130,12 @@ document.body.appendChild(frame);
 </script>`;
 };
 
-ensureCertificate();
+const { certFile, keyFile, created } = ensureSelfSignedCertificate({
+  name: 'frame-isolation',
+  hosts: [PARENT, SIBLING_PLAIN, SIBLING_KEYED, FOREIGN],
+  days: 365,
+});
+if (created) console.log(`Generated a self-signed certificate in ${CERTIFICATE_DIR}.`);
 const options = { cert: readFileSync(certFile), key: readFileSync(keyFile) };
 
 function handler(request, res) {

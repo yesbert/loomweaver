@@ -153,15 +153,11 @@ jobs:
       - name: Command names are their own
         run: npm run command-names-check
 
-      # Fail if a production dependency ships a licence outside the permissive allowlist.
+      # Fail if a production dependency ships a licence outside the permissive allowlist, which
+      # licence-allowlist.json holds for the platform, the demo and the website alike.
       # devDependencies are not shipped and are out of scope; the workspace package itself is private.
       - name: Licence check
-        run: |
-          set -euo pipefail
-          npx --yes license-checker --production \
-            --onlyAllow "MIT;ISC;Apache-2.0;BSD-2-Clause;BSD-3-Clause;0BSD;Python-2.0;CC0-1.0;Unlicense;BlueOak-1.0.0" \
-            --excludePackages "@loomweaver/source@0.0.0"
-          echo "licence-check: all production dependencies use allowed licences"
+        run: npm run licence-check
 
   demo:
     name: Demo product

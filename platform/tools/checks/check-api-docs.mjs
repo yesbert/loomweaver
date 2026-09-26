@@ -136,8 +136,8 @@ const EXEMPT = new Map([
   ['CapabilityError', 'documented by behaviour in plugins.md'],
   ['Disposable', 'the return of every register* call'],
   ['Shell', 'the root component, used in every getting-started example'],
-  ['DialogOutlet', 'rendered by Shell; documented in host-services.md'],
-  ['ToastOutlet', 'rendered by Shell; documented in host-services.md'],
+  ['DialogOutlet', 'rendered by Shell; named in docs/distribution-api/index.md'],
+  ['ToastOutlet', 'rendered by Shell; named in docs/distribution-api/index.md'],
   ['UpdateBadge', 'chrome component composed by id'],
 ]);
 
@@ -248,7 +248,7 @@ for (const [package_, relative] of Object.entries(ENTRIES)) {
 const settled = [...VISIBLE_BUT_NOT_EXPORTED.keys()].filter((name) => !seenLeaked.has(name));
 if (settled.length > 0) {
   console.error(
-    `check-api-docs: ${settled.length} entr(y|ies) in VISIBLE_BUT_NOT_EXPORTED no longer describe the packed declarations:\n` +
+    `check-api-docs: ${settled.length} ${settled.length === 1 ? 'entry' : 'entries'} in VISIBLE_BUT_NOT_EXPORTED no longer describe the packed declarations:\n` +
       settled.map((name) => `  - ${name}`).join('\n') +
       '\n\nRemove them from VISIBLE_BUT_NOT_EXPORTED in tools/checks/check-api-docs.mjs.',
   );

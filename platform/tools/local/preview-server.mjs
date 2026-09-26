@@ -37,8 +37,8 @@ if (!existsSync(join(root, 'index.html'))) {
   process.exit(1);
 }
 
-const certFile = resolve(workspace, '.certs/aspnet-dev.pem');
-const keyFile = resolve(workspace, '.certs/aspnet-dev.key');
+const certFile = resolve(workspace, '.certs/localhost.pem');
+const keyFile = resolve(workspace, '.certs/localhost-key.pem');
 if (!existsSync(certFile) || !existsSync(keyFile)) {
   console.error(
     'preview: missing dev certificate — run `npm run dev-cert` first.',
