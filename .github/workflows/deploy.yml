@@ -123,16 +123,34 @@ jobs:
           </IfModule>
           HTACCESS
 
+      # Both uploads travel over one SSH connection, and only opening it is retried. While bots flood
+      # the server's port 22, its sshd drops unauthenticated connections at random, so a deploy that
+      # opened two connections a few seconds apart often lost the second one. A dropped attempt now
+      # waits and tries again instead of failing the deploy halfway.
       - name: Deploy
         env:
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
         run: |
           set -euo pipefail
-          rsync -az --delete -e 'ssh -i ~/.ssh/loomweaver_deploy' \
-            website/dist/ "${DEPLOY_USER}@${DEPLOY_HOST}:httpdocs/"
-          rsync -az --delete -e 'ssh -i ~/.ssh/loomweaver_deploy' \
-            demo/dist/loomweaver-demo/browser/ "${DEPLOY_USER}@${DEPLOY_HOST}:demo.loomweaver.dev/"
+          target="${DEPLOY_USER}@${DEPLOY_HOST}"
+          ssh_options=(-i ~/.ssh/loomweaver_deploy -o ControlPath=~/.ssh/deploy-%C -o ConnectTimeout=20)
+          for attempt in 1 2 3 4 5; do
+            if ssh "${ssh_options[@]}" -o ControlMaster=yes -o ControlPersist=600 -fN "${target}"; then
+              break
+            fi
+            if [[ "${attempt}" == 5 ]]; then
+              echo "The server refused an SSH connection five times in a row." >&2
+              exit 1
+            fi
+            echo "SSH connection attempt ${attempt} was dropped; trying again in $((attempt * 15)) s."
+            sleep $((attempt * 15))
+          done
+          rsync -az --delete -e "ssh ${ssh_options[*]}" \
+            website/dist/ "${target}:httpdocs/"
+          rsync -az --delete -e "ssh ${ssh_options[*]}" \
+            demo/dist/loomweaver-demo/browser/ "${target}:demo.loomweaver.dev/"
+          ssh "${ssh_options[@]}" -O exit "${target}" 2>/dev/null || true
 
       # A deploy that reports success while the site is broken is worse than one that fails, so this
       # asks the live domains rather than trusting the upload.
