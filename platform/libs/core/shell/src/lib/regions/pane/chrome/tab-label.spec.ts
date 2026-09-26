@@ -158,7 +158,7 @@ describe('toStripTab closable', () => {
   });
 });
 
-describe('surfaceClosable (K1d: Surface.closable)', () => {
+describe('surfaceClosable reads Surface.closable', () => {
   it('refuses closing where the surface declares it, for a route and for a view', () => {
     const reg = TestBed.inject(ContributionRegistry);
     reg.addContentRoute({ ...ROUTE, path: 'dashboard', closable: false });

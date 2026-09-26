@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { dragTo } from './support/helpers';
 
 test.describe('Pane edge drag & drop', () => {
-  test('dragging a sidebar view tab onto the content right edge MOVES it into a new content group (R2)', async ({
+  test('dragging a sidebar view tab onto the content right edge MOVES it into a new content group', async ({
     page,
   }) => {
     await page.goto('/entry/e-01');
@@ -75,7 +75,7 @@ test.describe('Pane edge drag & drop', () => {
     expect(pane.x).toBeLessThan(area.x);
   });
 
-  test('dragging a view tab onto a sidebar bottom edge splits its own panel WITH the tab (R3b)', async ({
+  test('dragging a view tab onto a sidebar bottom edge splits its own panel WITH the tab', async ({
     page,
   }) => {
     await page.goto('/');

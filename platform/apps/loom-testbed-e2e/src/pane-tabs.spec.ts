@@ -52,7 +52,7 @@ test.describe('Per-pane tab groups', () => {
     await expect(page.locator(`${pane} [role="tab"]`)).toHaveCount(1);
   });
 
-  test('the URL group is a tab group too: its open tabs (incl. titles) survive a reload (R10)', async ({
+  test('the URL group is a tab group too: its open tabs (incl. titles) survive a reload', async ({
     page,
   }) => {
     await page.goto('/');

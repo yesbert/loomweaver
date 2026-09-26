@@ -35,7 +35,7 @@ function setUp() {
   };
 }
 
-describe('AppResetService (K6)', () => {
+describe('AppResetService', () => {
   it('puts the app-wide arrangement back and drops its keys', async () => {
     const app = setUp();
     app.railItems.hide('notes');

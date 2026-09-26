@@ -85,7 +85,7 @@ describe('PanelViewsService auth gating', () => {
     return { svc };
   }
 
-  it('lists a gated view among the declared views regardless of the session (TreeWeaver #40)', () => {
+  it('lists a gated view among the declared views regardless of the session', () => {
     const auth = signal<AuthSnapshot>(ANONYMOUS);
     const { svc } = setup(auth);
 

@@ -108,7 +108,7 @@ describe('surface retention', () => {
     });
   });
 
-  describe('claiming a slot the outgoing mount still holds (TreeWeaver #41)', () => {
+  describe('claiming a slot the outgoing mount still holds', () => {
     function acquireProbe(stash: RetainedViewStash, key: string) {
       return stash.acquire(key, ProbeView, () => {
         const ref = createComponent(ProbeView, {
@@ -145,7 +145,7 @@ describe('surface retention', () => {
     });
   });
 
-  describe('stale slots (TreeWeaver #42 — a surviving mount re-acquires after a takeover)', () => {
+  describe('stale slots: a surviving mount re-acquires after a takeover', () => {
     function acquireProbe(stash: RetainedViewStash, key: string) {
       return stash.acquire(key, ProbeView, () => {
         const ref = createComponent(ProbeView, {

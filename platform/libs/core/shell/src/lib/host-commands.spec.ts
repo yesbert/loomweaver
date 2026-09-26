@@ -80,7 +80,7 @@ describe('registerHostCommands (workspaces)', () => {
   });
 });
 
-describe('registerHostCommands (K5: curation commands)', () => {
+describe('registerHostCommands: the rail curation commands', () => {
   it('registers both customise commands with the full workbench', () => {
     const ids = commandIds(commandsFor({}));
 
@@ -160,7 +160,7 @@ describe('registerHostCommands (dialogs that hold the top edge)', () => {
   });
 });
 
-describe('registerHostCommands (K6: app reset)', () => {
+describe('registerHostCommands: the app reset', () => {
   it('registers the app reset even where workspaces are off', () => {
     const ids = commandIds(commandsFor({ workspaces: { enabled: false } }));
 
@@ -169,7 +169,7 @@ describe('registerHostCommands (K6: app reset)', () => {
   });
 });
 
-describe('registerBuiltInMenus (K1c: sidebar and rail capabilities)', () => {
+describe('registerBuiltInMenus: the sidebar and rail entries follow their capabilities', () => {
   it('registers every sidebar and rail entry with the full workbench', () => {
     const ids = commandIds(menusFor({}));
 
@@ -212,7 +212,7 @@ describe('registerBuiltInMenus (K1c: sidebar and rail capabilities)', () => {
     );
   });
 
-  it('drops both pop-out entries where windows are off (K1d)', () => {
+  it('drops both pop-out entries where windows are off', () => {
     const ids = commandIds(menusFor({ windows: { popout: false } }));
 
     expect(ids).not.toContain('shell.view.openInWindow');

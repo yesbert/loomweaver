@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { dragTo, openEntry } from './support/helpers';
 
 test.describe('Tab move semantics', () => {
-  test('tab menu "Split right" MOVES a router-bound doc tab into a new group that takes the URL (R2/R4/E3)', async ({
+  test('tab menu "Split right" MOVES a router-bound doc tab into a new group that takes the URL', async ({
     page,
   }) => {
     await page.goto('/');
@@ -61,7 +61,7 @@ test.describe('Tab move semantics', () => {
     await expect(page.getByRole('tab', { name: 'E-01' })).toHaveCount(1);
   });
 
-  test('tab menu "Split down" MOVES the tab into a new group stacked below (R4)', async ({
+  test('tab menu "Split down" MOVES the tab into a new group stacked below', async ({
     page,
   }) => {
     await page.goto('/');
@@ -86,7 +86,7 @@ test.describe('Tab move semantics', () => {
     ).toHaveCount(1);
   });
 
-  test('dragging a router-bound doc tab onto a content edge splits WITH the tab; the source loses it (R2/R3b/R6)', async ({
+  test('dragging a router-bound doc tab onto a content edge splits WITH the tab; the source loses it', async ({
     page,
   }) => {
     await page.goto('/');
@@ -108,7 +108,7 @@ test.describe('Tab move semantics', () => {
     await expect(page).toHaveURL(/entry\/e-01/);
   });
 
-  test('dropping a pane tab onto the URL strip moves it into the URL group; the emptied pane collapses (R3a/R5)', async ({
+  test('dropping a pane tab onto the URL strip moves it into the URL group; the emptied pane collapses', async ({
     page,
   }) => {
     await page.goto('/search');

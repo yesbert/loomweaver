@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { dragTo, openEntry, runCommand, useFeatures } from './support/helpers';
 
 test.describe('Every tab is draggable — focus handoff on arrival', () => {
-  test('a router-bound doc tab dragged to an edge splits WITH it; the target becomes the URL pane, renders the doc, URL follows, and focus is reversible (R6/R9)', async ({
+  test('a router-bound doc tab dragged to an edge splits WITH it; the target becomes the URL pane, renders the doc, URL follows, and focus is reversible', async ({
     page,
   }) => {
     await page.goto('/');
@@ -49,7 +49,7 @@ test.describe('Every tab is draggable — focus handoff on arrival', () => {
     ).toHaveCount(1);
   });
 
-  test('an iframe (sandbox) tab dragged to an edge splits WITH it; the surface renders in the new pane and the URL follows (R6)', async ({
+  test('an iframe (sandbox) tab dragged to an edge splits WITH it; the surface renders in the new pane and the URL follows', async ({
     page,
   }) => {
     await page.goto('/dashboard/overview');

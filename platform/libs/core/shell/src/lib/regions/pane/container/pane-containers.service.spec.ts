@@ -79,7 +79,7 @@ describe('PaneContainersService (container docks)', () => {
     expect(paneTree.isSplit(dock)).toBe(true);
   });
 
-  it('closes a child from the primary leaf but keeps at least one (S2)', () => {
+  it('closes a child from the primary leaf but keeps at least one', () => {
     const paneTree = TestBed.inject(PaneTreeService);
     const containers = TestBed.inject(PaneContainersService);
     const dock = containerDockFor('workspace/alpha');
@@ -177,7 +177,7 @@ describe('PaneContainersService (container docks)', () => {
     expect((tree.first as PaneLeaf).tabs).toEqual([]);
   });
 
-  it('inserts a child with a container-scoped instance (S2 reopen)', () => {
+  it('reopening a child inserts it with a container-scoped instance', () => {
     const paneTree = TestBed.inject(PaneTreeService);
     const containers = TestBed.inject(PaneContainersService);
     const dock = containerDockFor('workspace/alpha');

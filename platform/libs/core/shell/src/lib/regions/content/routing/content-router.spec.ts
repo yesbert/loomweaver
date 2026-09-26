@@ -172,7 +172,7 @@ describe('ContentRouter', () => {
     expect(router.navigateByUrl).not.toHaveBeenCalled();
   });
 
-  it('recovers a deep-link after the router drifts programmatically during boot (LWF-02a)', async () => {
+  it('recovers a deep-link after the router drifts programmatically during boot', async () => {
     const content = setup('/doc/7');
     content.start();
     router.url = '/reports';

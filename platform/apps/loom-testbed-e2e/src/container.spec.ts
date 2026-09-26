@@ -18,7 +18,7 @@ test.describe('Container surface', () => {
     await expect(host.getByRole('tab', { name: 'Details' })).toBeVisible();
   });
 
-  test('inner panes split like the top level and the layout persists (I3)', async ({
+  test('inner panes split like the top level and the layout persists', async ({
     page,
   }) => {
     await page.goto('/container/alpha');
@@ -90,7 +90,7 @@ test.describe('Container surface', () => {
     );
   });
 
-  test('the inner picker closes a child and reopens it (scoped to declared children, S2)', async ({
+  test('the inner picker closes a child and reopens it, offering only the declared children', async ({
     page,
   }) => {
     await page.goto('/container/alpha');
@@ -134,7 +134,7 @@ test.describe('Container surface', () => {
     await expect(host.getByRole('tab')).toHaveCount(1);
   });
 
-  test('right-click on an inner tab offers no view context menu (sealed, I2)', async ({
+  test('right-click on an inner tab offers no view context menu, because the container is sealed', async ({
     page,
   }) => {
     await page.goto('/container/alpha');

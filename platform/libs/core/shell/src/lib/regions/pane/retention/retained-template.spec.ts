@@ -103,7 +103,7 @@ describe('surface retention', () => {
   });
 
   describe('RetainedTemplate', () => {
-    it('moves the primary view across a branch swap instead of rebuilding it (the split fix)', async () => {
+    it('moves the primary view across the branch swap a split causes, instead of rebuilding it', async () => {
       const fixture = TestBed.createComponent(TemplateHost);
       fixture.detectChanges();
       expect(instances).toHaveLength(1);

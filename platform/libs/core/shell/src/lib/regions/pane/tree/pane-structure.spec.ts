@@ -111,7 +111,7 @@ describe('pane tree structure', () => {
     expect(other.tabs[0].title).toBeUndefined();
   });
 
-  it('collapses a non-primary pane when its last tab leaves (R5); the primary pane stays', () => {
+  it('collapses a non-primary pane when its last tab leaves; the primary pane stays', () => {
     const tree: PaneSplit = {
       kind: 'split',
       id: 's',
@@ -194,7 +194,7 @@ describe('pane tree structure', () => {
     expect(old.active).toBeUndefined();
   });
 
-  it('focus handoff leaves the dethroned pane on the tab it was showing (TreeWeaver #42)', () => {
+  it('focus handoff leaves the dethroned pane on the tab it was showing', () => {
     const tree: PaneSplit = {
       kind: 'split',
       id: 's',

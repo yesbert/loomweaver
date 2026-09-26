@@ -265,7 +265,7 @@ describe('CommandPalette', () => {
     ).toContain('All commands');
   });
 
-  it('keeps no history where the distribution switched "recently used" off (K1d)', () => {
+  it('keeps no history where the distribution switched "recently used" off', () => {
     const off = [provideShellFeatures({ commands: { recentlyUsed: false } })];
     const first = render([], 'commands', off);
     options(first.host)[1].click();

@@ -15,7 +15,7 @@ test.describe('<lw-tooltip>', () => {
     await expect(bubble).toBeVisible();
   });
 
-  test('a tooltip inside a transform/overflow ancestor still shows in the top layer (#13)', async ({
+  test('a tooltip inside a transform/overflow ancestor still shows in the top layer', async ({
     page,
   }) => {
     await page.goto('/');

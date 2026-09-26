@@ -871,8 +871,16 @@ guards that apply (`structure-check`, `import-cycles-check`, `comments-check`, `
 
 ## 16. Tests, lighter lens
 
-- [ ] 16.1 Test names across the repository state the behaviour instead of tracker codes, finding
+- [x] 16.1 Test names across the repository state the behaviour instead of tracker codes, finding
   numbers or downstream product names (the review lists about forty).
+  Seventy-two names in forty spec files, in the shell and the testbed's end-to-end suite: the
+  requirement codes of the pane work (R1 to R10, E3, E7, I2, I3, S2, O5), the composition codes
+  (K1c, K1d, K5, K6), the LWF items, issue and finding numbers, and a downstream product's issue
+  numbers. Where the name already said the behaviour the code went; where the code carried it, the
+  name says it now ("because the container is sealed", "a store that can only load
+  asynchronously", "the branch swap a split causes"). Three names used an acute accent as an
+  apostrophe and now use the apostrophe, so a search for them finds them. The review's lines in
+  the content-tab specs no longer exist, because earlier slices restructured those files.
 - [x] 16.2 The remaining specs over 600 lines that mix concepts are split where their source was not
   split by a task above.
   Set aside by the owner (2026-09-25), see design.

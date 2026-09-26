@@ -62,7 +62,7 @@ describe('ShellBarItem', () => {
     expect(ran).toBe(1);
   });
 
-  it('renders the bound command shortcut hint when showShortcut is set (LWF-04)', () => {
+  it('renders the bound command shortcut hint when showShortcut is set', () => {
     TestBed.configureTestingModule({ imports: [ShellBarItem, transloco()] });
     TestBed.inject(ContributionRegistry).addCommand({
       id: 'testbed.act',

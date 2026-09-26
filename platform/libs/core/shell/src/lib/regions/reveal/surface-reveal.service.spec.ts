@@ -5,7 +5,7 @@ import { PaneTreeService } from '../pane/tree/pane-tree.service';
 import { ContentTabsService } from '../content/tabs/content-tabs.service';
 import { PanelState } from '../panel/panel-state';
 
-describe('SurfaceRevealService (finding #29)', () => {
+describe('SurfaceRevealService', () => {
   afterEach(() => localStorage.clear());
 
   function setup(dockTrees: Record<string, unknown>) {

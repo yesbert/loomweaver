@@ -39,7 +39,7 @@ describe('buildContentRoutes', () => {
     expect(route.data).toEqual({ content: true });
   });
 
-  it('maps a retained component route to the stub — the stash owns the instance, keyed by pane (TreeWeaver #42)', () => {
+  it('maps a retained component route to the stub — the stash owns the instance, keyed by pane', () => {
     const [retained, plain] = buildContentRoutes([
       { path: 'notes', component: TestRoute, retain: 'always' },
       { path: 'search', component: TestRoute },

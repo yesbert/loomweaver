@@ -598,7 +598,7 @@ describe('HostPluginContext command invocation', () => {
     expect(registry.registeredCommands()[0].ownerId).toBe('test-plugin');
   });
 
-  it('refuses another plugin´s opened command without the automation grant', async () => {
+  it("refuses another plugin's opened command without the automation grant", async () => {
     const { ctx, registry } = makeContext(
       ALL.filter((capability) => capability !== 'automation'),
     );
@@ -613,7 +613,7 @@ describe('HostPluginContext command invocation', () => {
     expect(run).not.toHaveBeenCalled();
   });
 
-  it('reaches another plugin´s opened command with the automation grant', async () => {
+  it("reaches another plugin's opened command with the automation grant", async () => {
     const { ctx, registry } = makeContext();
     const run = vi.fn();
     registry.addCommand(

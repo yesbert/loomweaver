@@ -39,7 +39,7 @@ test.describe('Content split', () => {
     ).toHaveCount(0);
   });
 
-  test('the split toolbar works on an access-gated surface once the session qualifies (finding #32)', async ({
+  test('the split toolbar works on an access-gated surface once the session qualifies', async ({
     page,
   }) => {
     const toggle = page.locator(
@@ -81,7 +81,7 @@ test.describe('Content split', () => {
     await expect(page).toHaveURL(/\/notes$/);
   });
 
-  test('closing the URL pane’s last tab in a split dissolves it and the neighbour takes over (R2)', async ({
+  test('closing the URL pane’s last tab in a split dissolves it and the neighbour takes over', async ({
     page,
   }) => {
     await page.goto('/');

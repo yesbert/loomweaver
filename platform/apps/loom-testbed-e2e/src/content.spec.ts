@@ -144,7 +144,7 @@ test.describe('Content area', () => {
     await expect(tab).toHaveCount(0);
   });
 
-  test('marks the open entry in the list and clears it when the tab closes (#11)', async ({
+  test('marks the open entry in the list and clears it when the tab closes', async ({
     page,
   }) => {
     await page.goto('/');
@@ -164,7 +164,7 @@ test.describe('Content area', () => {
     await expect(page.locator('[data-open]')).toHaveCount(0);
   });
 
-  test('single-click opens a reused italic preview tab; double-click promotes it (#10)', async ({
+  test('single-click opens a reused italic preview tab; double-click promotes it', async ({
     page,
   }) => {
     await page.goto('/');
@@ -282,7 +282,7 @@ test.describe('Content area', () => {
     });
   });
 
-  test('a weaver body consumes the <lw-tooltip> host custom element by tag (#9)', async ({
+  test('a weaver body consumes the <lw-tooltip> host custom element by tag', async ({
     page,
   }) => {
     await page.goto('/');

@@ -172,7 +172,7 @@ async function splitAndStamp(page: Page): Promise<void> {
   });
 }
 
-test('a surface instance stays in its pane when the URL role moves (TreeWeaver #42)', async ({
+test('a surface instance stays in its pane when the URL role moves', async ({
   page,
 }) => {
   await splitAndStamp(page);
@@ -187,7 +187,7 @@ test('a surface instance stays in its pane when the URL role moves (TreeWeaver #
     ]);
 });
 
-test('state typed into one pane never appears in the other (TreeWeaver #42)', async ({
+test('state typed into one pane never appears in the other', async ({
   page,
 }) => {
   await splitAndStamp(page);

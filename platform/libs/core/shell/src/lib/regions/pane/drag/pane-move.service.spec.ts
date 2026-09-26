@@ -92,7 +92,7 @@ describe('PaneMoveService (move semantics)', () => {
     ).toEqual(['doc/y']);
   });
 
-  it('menu "Split right" MOVES a router-bound URL tab into a new group + hands it the focus (R2/R4/E3)', async () => {
+  it('menu "Split right" MOVES a router-bound URL tab into a new group + hands it the focus', async () => {
     await harness.navigateByUrl('/dashboard/overview');
     tabs.open({ path: 'doc/a', title: 'A.ts', titleIsLiteral: true });
     await harness.fixture.whenStable();
@@ -114,7 +114,7 @@ describe('PaneMoveService (move semantics)', () => {
     expect(other?.path).toBe('dashboard/overview');
   });
 
-  it('a strip drop into the URL group MOVES the tab there and navigates to it (R3a/R9), collapsing the source (R5)', async () => {
+  it('a strip drop into the URL group MOVES the tab there and navigates to it, collapsing the source', async () => {
     await harness.navigateByUrl('/dashboard/overview');
     paneTree.splitPane(CONTENT_DOCK, PRIMARY_PANE, 'row', 'plain');
     expect(paneTree.isSplit(CONTENT_DOCK)).toBe(true);
@@ -135,7 +135,7 @@ describe('PaneMoveService (move semantics)', () => {
     expect(router.url).toBe('/plain');
   });
 
-  it('an edge drop moves a host-renderable tab into a new sibling group; the URL follows the neighbour when its active tab left (R3b)', async () => {
+  it('an edge drop moves a host-renderable tab into a new sibling group; the URL follows the neighbour when its active tab left', async () => {
     await harness.navigateByUrl('/dashboard/overview');
     await harness.fixture.whenStable();
     await harness.navigateByUrl('/plain');
@@ -341,7 +341,7 @@ describe('PaneMoveService cross-family moves', () => {
     harness = await RouterTestingHarness.create();
   });
 
-  it('a view tab dropped on the URL strip joins the URL group and is selected — the URL stays (R3a/R9)', async () => {
+  it('a view tab dropped on the URL strip joins the URL group and is selected — the URL stays', async () => {
     await harness.navigateByUrl('/dashboard/overview');
     paneTree.seedPrimaryTabs('primary', ['view:outline']);
 
@@ -360,7 +360,7 @@ describe('PaneMoveService cross-family moves', () => {
     expect(router.url).toBe('/dashboard/overview');
   });
 
-  it('a router-bound content tab dropped on a sidebar strip MOVES there and renders host-side (R6/E7)', async () => {
+  it('a router-bound content tab dropped on a sidebar strip MOVES there and renders host-side', async () => {
     await harness.navigateByUrl('/dashboard/overview');
     tabs.open({ path: 'doc/a', title: 'A.ts', titleIsLiteral: true });
     await harness.fixture.whenStable();
