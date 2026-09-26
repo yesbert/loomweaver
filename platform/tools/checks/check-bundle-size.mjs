@@ -32,9 +32,11 @@
 // three different CI jobs and no single step sees all four. A named application with no build output
 // fails: a guard that quietly measures nothing when a path moves is worse than no guard.
 
-import { readFileSync, existsSync, statSync, writeFileSync } from 'node:fs';
+import { readFileSync, existsSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parseArgs } from 'node:util';
+import { writeBaseline } from './ratchet.mjs';
 
 const STEP_KB = 5;
 const BYTES_PER_KB = 1000;
@@ -93,9 +95,10 @@ function measure(name) {
   return { name, bytes, assets: assets.size };
 }
 
-const args = process.argv.slice(2);
-const write = args.includes('--write-baseline');
-const names = args.filter((arg) => !arg.startsWith('--'));
+const { values: options, positionals: names } = parseArgs({
+  options: { 'write-baseline': { type: 'boolean' } },
+  allowPositionals: true,
+});
 
 if (names.length === 0) {
   fail(
@@ -117,27 +120,20 @@ const baseline = existsSync(baselinePath)
   ? JSON.parse(readFileSync(baselinePath, 'utf8'))
   : { apps: {} };
 
-if (write) {
+if (options['write-baseline']) {
   const apps = { ...baseline.apps };
   for (const { name, bytes } of measured) apps[name] = ceiling(bytes);
   const sorted = Object.fromEntries(
     Object.entries(apps).toSorted(([a], [b]) => a.localeCompare(b)),
   );
-  writeFileSync(
+  writeBaseline(
     baselinePath,
-    `${JSON.stringify(
-      {
-        _:
-          'The initial bundle of each application, in kilobytes of a thousand bytes, rounded up to ' +
-          `the next ${STEP_KB} kB. A ratchet: growing past a ceiling fails, and dropping a whole ` +
-          'step below one fails as stale. Refresh with `node tools/checks/check-bundle-size.mjs <app…> ' +
-          '--write-baseline` when the change is a deliberate one. The demo and the example build ' +
-          'against the published packages, so their numbers move when a release lands.',
-        apps: sorted,
-      },
-      null,
-      2,
-    )}\n`,
+    'The initial bundle of each application, in kilobytes of a thousand bytes, rounded up to ' +
+      `the next ${STEP_KB} kB. A ratchet: growing past a ceiling fails, and dropping a whole ` +
+      'step below one fails as stale. Refresh with `node tools/checks/check-bundle-size.mjs <app…> ' +
+      '--write-baseline` when the change is a deliberate one. The demo and the example build ' +
+      'against the published packages, so their numbers move when a release lands.',
+    { apps: sorted },
   );
   console.log(
     `check-bundle-size: wrote baseline — ${measured

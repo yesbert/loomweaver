@@ -15,6 +15,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parseArgs } from 'node:util';
 import ts from 'typescript';
 import * as prettier from 'prettier';
 import * as heroicons from '@ng-icons/heroicons/outline';
@@ -132,7 +133,9 @@ const wanted = await prettier.format(replaceBlock(page, table(icons)), {
   filepath: pagePath,
 });
 
-if (process.argv.includes('--write')) {
+const { values: options } = parseArgs({ options: { write: { type: 'boolean' } } });
+
+if (options.write) {
   writeFileSync(pagePath, wanted);
   console.log(`check-icon-docs: wrote ${icons.length} icons into ${PAGE}`);
 } else if (page === wanted) {

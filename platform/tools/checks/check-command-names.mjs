@@ -11,9 +11,10 @@
 // that registers its own commands owns whatever it collides with, which is why this is a check here
 // rather than a guard at runtime.
 
-import { readdirSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { filesUnder } from './files-under.mjs';
 
 const shell = resolve(fileURLToPath(import.meta.url), '../../../libs/core/shell/src/lib');
 const LANGUAGES = ['en', 'de'];
@@ -66,13 +67,7 @@ function topLevelRaw(literal, key) {
 
 /** Every non-spec source file of the shell, as a path. */
 function sources(dir) {
-  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
-    const path = join(dir, entry.name);
-    if (entry.isDirectory()) {
-      return sources(path);
-    }
-    return entry.name.endsWith('.ts') && !entry.name.endsWith('.spec.ts') ? [path] : [];
-  });
+  return filesUnder(dir, { keep: (name) => name.endsWith('.ts') && !name.endsWith('.spec.ts') });
 }
 
 /**

@@ -20,79 +20,70 @@
 // measured fails too, so the file cannot drift out of truth in either direction. Recording an entry
 // is not accepting it forever; it is refusing to pretend the number is zero.
 
-import { readFileSync, readdirSync, existsSync, writeFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parseArgs } from 'node:util';
+import { filesUnder } from './files-under.mjs';
+import { byCount, compareCounts, writeBaseline } from './ratchet.mjs';
 
 const CONCEPTS_PER_FOLDER = 12;
 const LINES_PER_FILE = 400;
-const SKIP = new Set(['node_modules', 'dist', 'tmp', '.angular', 'coverage', 'test-output']);
+const SKIP = ['node_modules', 'dist', 'tmp', '.angular', 'coverage', 'test-output'];
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 const roots = ['platform/libs', 'platform/apps'].map((dir) => path.join(repoRoot, dir));
 const baselinePath = path.join(repoRoot, 'platform/tools/checks/structure-baseline.json');
+const { values: options } = parseArgs({ options: { 'write-baseline': { type: 'boolean' } } });
 
 const isConcept = (name) => name.endsWith('.ts') && !name.endsWith('.spec.ts');
 
 // wc -l semantics: a trailing newline terminates the last line rather than opening another.
 const countLines = (text) => text.split('\n').length - (text.endsWith('\n') ? 1 : 0);
 
-function walk(dir, folders = new Map(), files = new Map()) {
-  const entries = readdirSync(dir, { withFileTypes: true });
-  let concepts = 0;
-  for (const entry of entries) {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      if (!SKIP.has(entry.name)) walk(full, folders, files);
-    } else if (isConcept(entry.name)) {
-      concepts += 1;
-      const lines = countLines(readFileSync(full, 'utf8'));
-      if (lines > LINES_PER_FILE) files.set(rel(full), lines);
-    }
-  }
-  if (concepts > CONCEPTS_PER_FOLDER) folders.set(rel(dir), concepts);
-  return { folders, files };
-}
-
 function rel(target) {
   return path.relative(repoRoot, target).split(path.sep).join('/');
 }
 
-const folders = new Map();
-const files = new Map();
-for (const root of roots) {
-  if (!existsSync(root)) {
-    console.error(`check-structure: ${rel(root)} does not exist — nothing was measured`);
-    process.exit(1);
+function measure() {
+  const conceptsPerFolder = {};
+  const folders = {};
+  const files = {};
+  for (const root of roots) {
+    if (!existsSync(root)) {
+      console.error(`check-structure: ${rel(root)} does not exist — nothing was measured`);
+      process.exit(1);
+    }
+    for (const file of filesUnder(root, { keep: isConcept, skip: SKIP })) {
+      const folder = rel(path.dirname(file));
+      conceptsPerFolder[folder] = (conceptsPerFolder[folder] ?? 0) + 1;
+      const lines = countLines(readFileSync(file, 'utf8'));
+      if (lines > LINES_PER_FILE) files[rel(file)] = lines;
+    }
   }
-  walk(root, folders, files);
+  for (const [folder, concepts] of Object.entries(conceptsPerFolder)) {
+    if (concepts > CONCEPTS_PER_FOLDER) folders[folder] = concepts;
+  }
+  return { folders: byCount(folders), files: byCount(files) };
 }
 
-const sortedByCount = (map) =>
-  Object.fromEntries([...map].toSorted((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])));
+const REFRESH =
+  'Refresh with `node tools/checks/check-structure.mjs --write-baseline` only when the change is a ' +
+  'resolution.';
+const { folders, files } = measure();
+const summary =
+  `${Object.keys(folders).length} folder(s) over ${CONCEPTS_PER_FOLDER} concepts, ` +
+  `${Object.keys(files).length} file(s) over ${LINES_PER_FILE} lines`;
 
-if (process.argv[2] === '--write-baseline') {
-  writeFileSync(
+if (options['write-baseline']) {
+  writeBaseline(
     baselinePath,
-    `${JSON.stringify(
-      {
-        _:
-          `Folders over ${CONCEPTS_PER_FOLDER} concepts and source files over ${LINES_PER_FILE} lines, ` +
-          'where a concept is one non-spec .ts file. A ratchet: these numbers may shrink and may ' +
-          'never grow, and an entry that no longer matches what is measured fails as stale. ' +
-          'Refresh with `node tools/checks/check-structure.mjs --write-baseline` only when the change is a ' +
-          'resolution.',
-        folders: sortedByCount(folders),
-        files: sortedByCount(files),
-      },
-      null,
-      2,
-    )}\n`,
+    `Folders over ${CONCEPTS_PER_FOLDER} concepts and source files over ${LINES_PER_FILE} lines, ` +
+      'where a concept is one non-spec .ts file. A ratchet: these numbers may shrink and may ' +
+      `never grow, and an entry that no longer matches what is measured fails as stale. ${REFRESH}`,
+    { folders, files },
   );
-  console.log(
-    `wrote baseline: ${folders.size} folder(s) over ${CONCEPTS_PER_FOLDER} concepts, ` +
-      `${files.size} file(s) over ${LINES_PER_FILE} lines`,
-  );
+  console.log(`wrote baseline: ${summary}`);
   process.exit(0);
 }
 
@@ -101,54 +92,40 @@ if (!existsSync(baselinePath)) {
   process.exit(1);
 }
 
-const baseline = JSON.parse(readFileSync(baselinePath, 'utf8'));
-const failures = [];
-
-function compare(measured, recorded, unit, advice) {
-  for (const [entry, count] of measured) {
-    const was = recorded[entry];
-    if (was === undefined) failures.push(`${entry}: ${count} ${unit} — ${advice}`);
-    else if (count > was)
-      failures.push(`${entry}: ${count} ${unit}, was ${was} — ${advice}`);
-    else if (count < was)
-      failures.push(
-        `${entry}: down to ${count} ${unit} from ${was} — record the improvement in the baseline`,
-      );
-  }
-  for (const [entry, count] of Object.entries(recorded)) {
-    if (!measured.has(entry))
-      failures.push(
-        `${entry}: no longer over the threshold (baseline says ${count} ${unit}) — ` +
-          'remove it from the baseline',
-      );
-  }
+function over(unit, advice) {
+  return {
+    added: (entry, count) => `${entry}: ${count} ${unit} — ${advice}`,
+    grown: (entry, count, was) => `${entry}: ${count} ${unit}, was ${was} — ${advice}`,
+    shrunk: (entry, count, was) =>
+      `${entry}: down to ${count} ${unit} from ${was} — record the improvement in the baseline`,
+    gone: (entry, was) =>
+      `${entry}: no longer over the threshold (baseline says ${was} ${unit}) — remove it from the baseline`,
+  };
 }
 
-compare(
-  folders,
-  baseline.folders ?? {},
-  'concepts',
-  `cut it into sub-themes named for what they do, at most ${CONCEPTS_PER_FOLDER} each`,
-);
-compare(
-  files,
-  baseline.files ?? {},
-  'lines',
-  `split it along the themes its exports already form, at most ${LINES_PER_FILE}`,
-);
+const baseline = JSON.parse(readFileSync(baselinePath, 'utf8'));
+const failures = [
+  ...compareCounts(
+    folders,
+    baseline.folders ?? {},
+    over('concepts', `cut it into sub-themes named for what they do, at most ${CONCEPTS_PER_FOLDER} each`),
+  ),
+  ...compareCounts(
+    files,
+    baseline.files ?? {},
+    over('lines', `split it along the themes its exports already form, at most ${LINES_PER_FILE}`),
+  ),
+];
 
 if (failures.length > 0) {
   console.error('check-structure:');
   for (const failure of failures) console.error(`  ${failure}`);
   console.error(
-    '\nA folder holds at most 12 concepts and a source file at most 400 lines; a concept is one ' +
-      'non-spec .ts file. The baseline is a ratchet: it may shrink and may never grow. Refresh it ' +
-      'with `node tools/checks/check-structure.mjs --write-baseline` only when the change is a resolution.',
+    `\nA folder holds at most ${CONCEPTS_PER_FOLDER} concepts and a source file at most ` +
+      `${LINES_PER_FILE} lines; a concept is one non-spec .ts file. The baseline is a ratchet: it ` +
+      `may shrink and may never grow. ${REFRESH}`,
   );
   process.exit(1);
 }
 
-console.log(
-  `check-structure: ${folders.size} folder(s) over ${CONCEPTS_PER_FOLDER} concepts, ` +
-    `${files.size} file(s) over ${LINES_PER_FILE} lines — matches the baseline`,
-);
+console.log(`check-structure: ${summary} — matches the baseline`);

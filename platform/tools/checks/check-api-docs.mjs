@@ -9,24 +9,27 @@
 //
 // Run it after `nx package plugin-sdk && nx package shell`.
 
-import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
+import { PUBLISHED_PACKAGES } from '../published-packages.mjs';
+import { filesUnder } from './files-under.mjs';
 
 const repoRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   '../../..',
 );
 
-const ENTRIES = {
-  '@loomweaver/plugin-sdk': 'platform/dist/libs/core/plugin-sdk/src/index.d.ts',
-  '@loomweaver/shell': 'platform/dist/libs/core/shell/types/loomweaver-shell.d.ts',
-  '@loomweaver/ag-ui': 'platform/dist/libs/integrations/ag-ui/src/index.d.ts',
-  // Deliberately a global script rather than a module: @loomweaver/frame-kit is loaded by a script tag
-  // and installs itself, so what it publishes are ambient names, not exports.
-  '@loomweaver/frame-kit': 'platform/libs/core/frame-kit/dist/lw-frame.d.ts',
-};
+// The libraries a product builds with. The tooling packages are run rather than imported, so their
+// exports are not what the guides document. @loomweaver/frame-kit is a global script rather than a
+// module: it is loaded by a script tag and installs itself, so what it publishes are ambient names.
+const ENTRIES = Object.fromEntries(
+  PUBLISHED_PACKAGES.filter((pkg) => pkg.role === 'library').map((pkg) => [
+    pkg.name,
+    `platform/${pkg.types}`,
+  ]),
+);
 
 // Names a consumer can see in the packed declarations but cannot import: a type a public field is
 // declared with, or a class a public constructor takes, that the barrel never re-exports. The rollup
@@ -139,18 +142,7 @@ const EXEMPT = new Map([
 ]);
 
 function docsBlob() {
-  const files = [];
-  const walk = (dir) => {
-    for (const entry of readdirSync(dir)) {
-      const full = path.join(dir, entry);
-      if (statSync(full).isDirectory()) {
-        if (entry !== 'decisions') walk(full);
-      } else if (entry.endsWith('.md')) {
-        files.push(full);
-      }
-    }
-  };
-  walk(path.join(repoRoot, 'docs'));
+  const files = filesUnder(path.join(repoRoot, 'docs'), { keep: (name) => name.endsWith('.md') });
   for (const extra of ['llms.txt', 'llms-full.txt', 'README.md']) {
     const full = path.join(repoRoot, extra);
     if (existsSync(full)) files.push(full);

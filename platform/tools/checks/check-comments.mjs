@@ -29,10 +29,14 @@
 //
 // Run it after `nx package plugin-sdk && nx package shell`.
 
-import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parseArgs } from 'node:util';
 import ts from 'typescript';
+import { PUBLISHED_PACKAGES } from '../published-packages.mjs';
+import { filesUnder } from './files-under.mjs';
+import { compareCounts } from './ratchet.mjs';
 
 const repoRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -41,23 +45,12 @@ const repoRoot = path.resolve(
 
 // Directories, not entry points: the packed plugin-sdk index is a barrel of re-exports whose
 // declarations sit in sibling files, so reading the entry alone collects nothing. Walking the whole
-// packed tree also picks up the members of published types, which is what the rule needs.
-//
-// EVERY published package that ships declarations belongs here, not just the two the policy names
-// in prose. @loomweaver/devkit publishes its recipe option types, so the JSDoc describing what a consumer
-// may pass to a generator is consumer-facing IDE documentation exactly like the SDK's. Leaving it
-// out made the checker report twelve such blocks as violations. @loomweaver/cli, @loomweaver/mcp and
-// @loomweaver/frame-kit ship no declarations at all, so they have nothing to contribute here.
-const PACKED = [
-  'platform/dist/libs/core/plugin-sdk',
-  'platform/dist/libs/core/shell/types',
-  'platform/dist/libs/tooling/devkit',
-  'platform/dist/libs/integrations/ag-ui',
-  // @loomweaver/frame-kit publishes from its source directory rather than through ng-packagr, so its
-  // declaration sits beside the bundle it describes. It is a global script, not a module: what a
-  // frame surface can name is what it declares at the top level.
-  'platform/libs/core/frame-kit/dist',
-];
+// packed tree also picks up the members of published types, which is what the rule needs. Every
+// published package that ships declarations belongs here, the devkit included: the JSDoc describing
+// what a consumer may pass to a generator is IDE documentation exactly like the SDK's.
+const PACKED = PUBLISHED_PACKAGES.filter((pkg) => pkg.declarations).map(
+  (pkg) => `platform/${pkg.declarations}`,
+);
 
 const SCAN_ROOTS = [
   'platform/libs',
@@ -97,23 +90,18 @@ const DIRECTIVE =
 // A file whose every comment is a provenance or generation banner it did not write itself.
 const GENERATED_FILE = /\b(GENERATED|DO NOT EDIT|auto-generated)\b/i;
 
-function walk(dir, out, extensions) {
-  for (const entry of readdirSync(dir)) {
-    if (SKIP_DIRS.has(entry)) continue;
-    const full = path.join(dir, entry);
-    if (statSync(full).isDirectory()) walk(full, out, extensions);
-    else if (extensions.some((e) => entry.endsWith(e)) && !CONFIG_FILE.test(entry))
-      out.push(full);
-  }
+function collect(roots, extensions) {
+  const keep = (name) =>
+    extensions.some((extension) => name.endsWith(extension)) && !CONFIG_FILE.test(name);
+  return roots
+    .flatMap((root) => filesUnder(path.join(repoRoot, root), { keep, skip: SKIP_DIRS }))
+    .toSorted((a, b) => a.localeCompare(b));
 }
 
-function collect(roots, extensions) {
-  const out = [];
-  for (const r of roots) {
-    const full = path.join(repoRoot, r);
-    if (existsSync(full)) walk(full, out, extensions);
-  }
-  return out.toSorted((a, b) => a.localeCompare(b));
+function nameOf(node) {
+  return node.name && (ts.isIdentifier(node.name) || ts.isStringLiteral(node.name))
+    ? node.name.text
+    : undefined;
 }
 
 // What a consumer can actually see: every declaration the packed .d.ts carries, and the members of
@@ -139,15 +127,11 @@ function contract() {
           'tarball contract, not the source barrels.',
       );
     }
-    walk(dir, declarations, ['.d.ts']);
+    declarations.push(...collect([rel], ['.d.ts']));
   }
 
   const reachable = new Set();
   const members = new Map();
-  const named = (node) =>
-    node.name && (ts.isIdentifier(node.name) || ts.isStringLiteral(node.name))
-      ? node.name.text
-      : undefined;
 
   for (const entry of declarations) {
     const source = ts.createSourceFile(
@@ -157,7 +141,7 @@ function contract() {
       true,
     );
     const visit = (node) => {
-      const name = named(node);
+      const name = nameOf(node);
       const declares =
         ts.isClassDeclaration(node) ||
         ts.isInterfaceDeclaration(node) ||
@@ -173,7 +157,7 @@ function contract() {
           const isPrivate = member.modifiers?.some(
             (modifier) => modifier.kind === ts.SyntaxKind.PrivateKeyword,
           );
-          const memberName = named(member);
+          const memberName = nameOf(member);
           if (!isPrivate && memberName) visible.add(memberName);
         }
         members.set(name, visible);
@@ -193,13 +177,9 @@ function contract() {
 // published has a property of that name.
 function documentedSymbols(source, text) {
   const byOffset = new Map();
-  const named = (node) =>
-    node.name && (ts.isIdentifier(node.name) || ts.isStringLiteral(node.name))
-      ? node.name.text
-      : undefined;
 
   const visit = (node, owner) => {
-    let own = named(node);
+    let own = nameOf(node);
     if (!own && ts.isVariableStatement(node)) {
       const [declaration] = node.declarationList.declarations;
       if (declaration && ts.isIdentifier(declaration.name)) {
@@ -340,12 +320,17 @@ for (const file of collect(STYLESHEET_ROOTS, ['.css'])) {
   }
 }
 
-if (process.argv[2] === '--json') {
+const { values: options, positionals } = parseArgs({
+  options: { json: { type: 'boolean' } },
+  allowPositionals: true,
+});
+
+if (options.json) {
   console.log(JSON.stringify(violations));
   process.exit(0);
 }
 
-const scope = process.argv[2];
+const [scope] = positionals;
 const reported = scope
   ? violations.filter((v) => v.file.startsWith(scope))
   : violations;
@@ -377,25 +362,21 @@ const residue = existsSync(residuePath)
 const counts = {};
 for (const v of reported) counts[v.file] = (counts[v.file] ?? 0) + 1;
 
-const failures = [];
-for (const [file, count] of Object.entries(counts).toSorted((a, b) => a[0].localeCompare(b[0]))) {
-  const allowed = residue[file] ?? 0;
-  if (count > allowed) {
-    for (const v of reported.filter((v) => v.file === file).slice(allowed)) {
-      console.error(`${v.file}:${v.line}  ${v.kind}: ${v.excerpt}`);
-    }
-    failures.push(`${file}: ${count} comments, residue allows ${allowed}`);
-  }
-}
-for (const [file, allowed] of Object.entries(residue).toSorted((a, b) => a[0].localeCompare(b[0]))) {
-  const count = counts[file] ?? 0;
-  if (count < allowed) {
-    failures.push(
-      `${file}: down to ${count} from ${allowed} — trim the residue to ${count}` +
-        (count === 0 ? ' (remove the entry)' : ''),
-    );
-  }
-}
+const beyond = (file, allowed) =>
+  reported
+    .filter((v) => v.file === file)
+    .slice(allowed)
+    .map((v) => `    ${v.file}:${v.line}  ${v.kind}: ${v.excerpt}`);
+
+const failures = compareCounts(counts, residue, {
+  added: (file, count) => [`${file}: ${count} comments, residue allows 0`, ...beyond(file, 0)],
+  grown: (file, count, allowed) => [
+    `${file}: ${count} comments, residue allows ${allowed}`,
+    ...beyond(file, allowed),
+  ],
+  shrunk: (file, count, allowed) => `${file}: down to ${count} from ${allowed} — trim the residue to ${count}`,
+  gone: (file, allowed) => `${file}: down to 0 from ${allowed} — remove the entry from the residue`,
+});
 
 if (failures.length > 0) {
   console.error('\ncheck-comments:');

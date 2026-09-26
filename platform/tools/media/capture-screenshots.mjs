@@ -14,10 +14,10 @@
 // Needs the demo served at that URL (`npm run start -- --port 4210` in demo/). Nothing in CI runs it.
 
 import { chromium } from '@playwright/test';
-import { mkdirSync } from 'node:fs';
-import { statSync } from 'node:fs';
+import { mkdirSync, statSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parseArgs } from 'node:util';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '../../..');
@@ -29,22 +29,16 @@ const FIXED_TIME = new Date('2026-09-07T10:00:00Z');
 const WELCOMED_KEY = 'lw.plugin-state:about:welcomed';
 const SETTLE_MS = 300;
 
-function arg(name, fallback) {
-  const inline = process.argv.find((value) => value.startsWith(`--${name}=`));
-  if (inline) {
-    return inline.slice(name.length + 3);
-  }
-  const index = process.argv.indexOf(`--${name}`);
-  if (index === -1) {
-    return fallback;
-  }
-  const next = process.argv[index + 1];
-  return next === undefined || next.startsWith('--') ? fallback : next;
-}
-
-const baseUrl = arg('url', 'http://localhost:4210');
-const only = arg('only', '');
-const scale = Number(arg('scale', '1.5'));
+const { values: options } = parseArgs({
+  options: {
+    url: { type: 'string', default: 'http://localhost:4210' },
+    only: { type: 'string', default: '' },
+    scale: { type: 'string', default: '1.5' },
+  },
+});
+const baseUrl = options.url;
+const only = options.only;
+const scale = Number(options.scale);
 
 function rail(page) {
   return page.getByRole('navigation', { name: 'Left activity bar' });

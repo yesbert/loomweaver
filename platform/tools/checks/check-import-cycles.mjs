@@ -14,9 +14,12 @@
 // another appear with the total unchanged. It also fails on a listed pair that no longer exists, so
 // the list is trimmed as the work proceeds instead of rotting into things that used to be true.
 
-import { readFileSync, readdirSync, existsSync, writeFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parseArgs } from 'node:util';
+import { filesUnder } from './files-under.mjs';
+import { compareSets, writeBaseline } from './ratchet.mjs';
 
 const repoRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -29,17 +32,11 @@ const baselinePath = path.join(
   'platform/tools/checks/cycle-baseline.json',
 );
 
-function sources(dir, out = []) {
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      if (entry.name !== 'node_modules' && entry.name !== 'dist')
-        sources(full, out);
-    } else if (entry.name.endsWith('.ts') && !entry.name.endsWith('.spec.ts')) {
-      out.push(full);
-    }
-  }
-  return out;
+function sources(dir) {
+  return filesUnder(dir, {
+    keep: (name) => name.endsWith('.ts') && !name.endsWith('.spec.ts'),
+    skip: ['node_modules', 'dist'],
+  });
 }
 
 // A slice is a direct child of lib/, except that regions/* counts one level deeper — regions/pane is
@@ -167,69 +164,47 @@ function slicePairs(edges) {
 }
 
 const rel = (file) => path.relative(libraryRoot, file);
+const cycleKey = (group) => group.toSorted((a, b) => a.localeCompare(b)).join('|');
 
+const { values: options } = parseArgs({ options: { 'write-baseline': { type: 'boolean' } } });
 const files = sources(shellRoot);
 const { values, all } = graph(files);
-const cycles = components(values).toSorted((a, b) => b.length - a.length);
+const cycles = components(values)
+  .toSorted((a, b) => b.length - a.length)
+  .map((group) => group.map((target) => rel(target)));
 const pairs = slicePairs(all);
 
-if (process.argv[2] === '--write-baseline') {
-  writeFileSync(
+if (options['write-baseline']) {
+  writeBaseline(
     baselinePath,
-    `${JSON.stringify(
-      {
-        _: 'Mutually dependent slices in @loomweaver/shell. Not defects: different files in each slice point different ways, which is acyclic at file level. They are the distance to an Nx library split, because Nx refuses a project graph with a cycle in it. This list may shrink and may never grow.',
-        fileCycles: cycles.map((group) => group.map((target) => rel(target))),
-        slicePairs: pairs,
-      },
-      null,
-      2,
-    )}\n`,
+    'Mutually dependent slices in @loomweaver/shell. Not defects: different files in each slice point different ways, which is acyclic at file level. They are the distance to an Nx library split, because Nx refuses a project graph with a cycle in it. This list may shrink and may never grow.',
+    { fileCycles: cycles, slicePairs: pairs },
   );
-  console.log(
-    `wrote baseline: ${cycles.length} file cycle(s), ${pairs.length} slice pair(s)`,
-  );
+  console.log(`wrote baseline: ${cycles.length} file cycle(s), ${pairs.length} slice pair(s)`);
   process.exit(0);
 }
 
 if (!existsSync(baselinePath)) {
-  console.error(
-    `missing ${path.relative(repoRoot, baselinePath)} — run with --write-baseline once`,
-  );
+  console.error(`missing ${path.relative(repoRoot, baselinePath)} — run with --write-baseline once`);
   process.exit(1);
 }
 const baseline = JSON.parse(readFileSync(baselinePath, 'utf8'));
-const failures = [];
+const listed = (key) => key.replaceAll('|', '\n      ');
 
-const allowedCycles = (baseline.fileCycles ?? []).map((group) =>
-  [...group].toSorted((a, b) => a.localeCompare(b)).join('|'),
-);
-const actualCycles = new Set(cycles.map((group) => group.map((target) => rel(target)).toSorted((a, b) => a.localeCompare(b)).join('|')));
-
-for (const group of cycles) {
-  const key = group.map((target) => rel(target)).toSorted((a, b) => a.localeCompare(b)).join('|');
-  if (!allowedCycles.includes(key)) {
-    failures.push(
-      `new import cycle across ${group.length} files:\n      ${group.map((target) => rel(target)).join('\n      ')}`,
-    );
-  }
-}
-for (const allowed of allowedCycles) {
-  if (!actualCycles.has(allowed)) {
-    failures.push(
-      `a baselined file cycle is gone — remove it from the baseline:\n      ${allowed.replaceAll('|', '\n      ')}`,
-    );
-  }
-}
-
-const allowedPairs = baseline.slicePairs ?? [];
-for (const pair of pairs) {
-  if (!allowedPairs.includes(pair)) failures.push(`new mutual slice pair: ${pair}`);
-}
-for (const pair of allowedPairs) {
-  if (!pairs.includes(pair))
-    failures.push(`slice pair resolved — remove it from the baseline: ${pair}`);
-}
+const failures = [
+  ...compareSets(
+    cycles.map((group) => cycleKey(group)),
+    (baseline.fileCycles ?? []).map((group) => cycleKey(group)),
+    {
+      added: (key) => `new import cycle across ${key.split('|').length} files:\n      ${listed(key)}`,
+      gone: (key) => `a baselined file cycle is gone — remove it from the baseline:\n      ${listed(key)}`,
+    },
+  ),
+  ...compareSets(pairs, baseline.slicePairs ?? [], {
+    added: (pair) => `new mutual slice pair: ${pair}`,
+    gone: (pair) => `slice pair resolved — remove it from the baseline: ${pair}`,
+  }),
+];
 
 if (failures.length > 0) {
   console.error('check-import-cycles:');
