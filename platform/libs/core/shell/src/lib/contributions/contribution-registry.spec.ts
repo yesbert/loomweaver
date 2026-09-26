@@ -298,7 +298,7 @@ describe('one stored list, two derived views', () => {
   });
 });
 
-describe('omit covers commands by bare id (finding #28 — works as documented)', () => {
+describe('omit covers commands by their bare id, as documented', () => {
   it('a lasting omit hides a host-seeded command from commands() — palette and keybindings derive from it', () => {
     const registry = new ContributionRegistry();
     registry.omit(['shell.openSettings']);

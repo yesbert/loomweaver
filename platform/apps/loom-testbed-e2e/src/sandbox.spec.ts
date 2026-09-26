@@ -91,7 +91,7 @@ test.describe('Sandbox stage — iframe plugin over Penpal', () => {
     await expect(page).toHaveURL(/sandbox-rpc\/overview/);
   });
 
-  test('the <lw-tooltip> host custom element works INSIDE the sandboxed iframe (#9)', async ({
+  test('the <lw-tooltip> host custom element works INSIDE the sandboxed iframe', async ({
     page,
   }) => {
     await openRpcSandbox(page);
@@ -100,7 +100,7 @@ test.describe('Sandbox stage — iframe plugin over Penpal', () => {
     await expect(surface.locator('lw-tooltip [role="tooltip"]')).toBeAttached();
   });
 
-  test('opens as a preview tab; the surface promotes it over RPC (#10)', async ({
+  test('opens as a preview tab; the surface promotes it over RPC', async ({
     page,
   }) => {
     await page.goto('/');

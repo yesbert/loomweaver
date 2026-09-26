@@ -46,7 +46,7 @@ describe('PaneAdmission', () => {
     expect(admission.canOfferAsPaneTarget('doc/abc')).toBe(false);
   });
 
-  it('a gated route and view become hostable once the session qualifies (finding #32)', () => {
+  it('a gated route and view become hostable once the session qualifies', () => {
     TestBed.configureTestingModule({
       providers: [
         {

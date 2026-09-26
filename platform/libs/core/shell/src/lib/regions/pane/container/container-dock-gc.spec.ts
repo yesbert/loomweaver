@@ -55,7 +55,7 @@ describe('ContainerDockGc', () => {
     ).toBeDefined();
   });
 
-  it('keeps the container dock of the active content route while its tab is not yet reconciled (LWF-03)', () => {
+  it('keeps the container dock of the active content route while its tab is not yet reconciled', () => {
     routerStub.url = '/runs/1';
     const paneTree = TestBed.inject(PaneTreeService);
     const containers = TestBed.inject(PaneContainersService);

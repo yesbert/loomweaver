@@ -423,7 +423,7 @@ describe('CommandInvocationService', () => {
       expect(run).toHaveBeenCalledTimes(1);
     });
 
-    it('holds nothing beyond the caller´s own without the grant', () => {
+    it("holds nothing beyond the caller's own without the grant", () => {
       registry.addCommand(open({ id: 'mine.open', title: 'M', run: vi.fn() }), CALLER);
 
       expect(invocation.invocable(CALLER, false).map((entry) => entry.id)).toEqual(

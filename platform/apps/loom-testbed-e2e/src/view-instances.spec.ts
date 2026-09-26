@@ -57,7 +57,7 @@ test.describe('Saved view instances', () => {
     await expect(page.locator('ol li').first()).toContainText('Row C');
   });
 
-  test('the switcher travels into a content pane, where it still switches instances (#27)', async ({
+  test('the switcher travels into a content pane, where it still switches instances', async ({
     page,
   }) => {
     await page.goto('/');
@@ -88,7 +88,7 @@ test.describe('Saved view instances', () => {
     await expect(pane.locator('ol li').first()).toContainText('Row C');
   });
 
-  test('the switcher travels into a pop-out window (#27)', async ({ page }) => {
+  test('the switcher travels into a pop-out window', async ({ page }) => {
     await page.goto('/');
     await page.locator(left).getByRole('tab', { name: 'Outline' }).click();
     await page.getByTestId(switcher()).click();

@@ -86,7 +86,7 @@ describe('ViewMoveService (as a moveTab special case)', () => {
       });
     });
 
-    it('MOVES a placed view tab between primary groups (the source loses it, R2)', () => {
+    it('MOVES a placed view tab between primary groups (the source loses it)', () => {
       paneTree.seedPrimaryTabs('primary', ['view:v1']);
 
       service.move('v1', 'secondary');

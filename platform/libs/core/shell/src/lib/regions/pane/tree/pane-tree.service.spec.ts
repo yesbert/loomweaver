@@ -293,7 +293,7 @@ describe('PaneTreeService (one tree per dock)', () => {
       expect(leafPath(root.first as PaneLeaf)).toBe('dashboard');
     });
 
-    it("a handoff carries each group's tabs: the old URL group keeps its open set (R1)", () => {
+    it("a handoff carries each group's tabs: the old URL group keeps its open set", () => {
       const paneTree = TestBed.inject(PaneTreeService);
       paneTree.splitPane(CONTENT_DOCK, PRIMARY_PANE, 'row', 'search');
       paneTree.setPrimaryTabs(CONTENT_DOCK, [
@@ -404,7 +404,7 @@ describe('PaneTreeService (one tree per dock)', () => {
     ]);
   });
 
-  it('finds a tab across all docks (hasTab/sourceOf) and seeds primary tabs without stealing active (O5)', () => {
+  it('finds a tab across all docks (hasTab/sourceOf) and seeds primary tabs without stealing active', () => {
     const paneTree = TestBed.inject(PaneTreeService);
     expect(paneTree.hasTab('view:outline')).toBe(false);
 

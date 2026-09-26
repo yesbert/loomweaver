@@ -12,7 +12,7 @@ import { SETTINGS_STORE } from '../../../persistence/settings-store';
 
 const ACTIVE_KEY = 'lw.shell.active-workspace';
 
-describe('PaneTreeService — network working-state store (no peek, LWF-02b)', () => {
+describe('PaneTreeService with a working-state store that can only load asynchronously', () => {
   afterEach(() => vi.useRealTimers());
 
   async function setup(get: () => Promise<string | undefined>) {
@@ -124,7 +124,7 @@ describe('PaneTreeService — network working-state store (no peek, LWF-02b)', (
     expect(set).toHaveBeenCalled();
   });
 
-  it('preserves a freshly-seeded container dock when the async load resolves empty (LWF-03)', async () => {
+  it('preserves a freshly-seeded container dock when the async load resolves empty', async () => {
     let resolve!: (raw: string | undefined) => void;
     const { paneTree } = await setup(() => new Promise((r) => (resolve = r)));
     const containers = TestBed.inject(PaneContainersService);

@@ -59,7 +59,7 @@ describe('PanelGroupService (the sidebar primary group, tree-owned)', () => {
     ]);
   });
 
-  it('seeds a gated declared view before any session exists and hides it until the session qualifies (TreeWeaver #40)', () => {
+  it('seeds a gated declared view before any session exists and hides it until the session qualifies', () => {
     registry.addView({
       id: 'catalog',
       region: 'primary',

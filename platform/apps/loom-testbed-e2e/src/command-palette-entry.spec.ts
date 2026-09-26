@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 const isMac = process.platform === 'darwin';
 
 test.describe('Command palette entry & bar shortcut hints', () => {
-  test('the built top-bar palette entry shows the OS shortcut and opens the palette (LWF-05)', async ({
+  test('the built top-bar palette entry shows the OS shortcut and opens the palette', async ({
     page,
   }) => {
     await page.goto('/');
@@ -44,7 +44,7 @@ test.describe('Command palette entry & bar shortcut hints', () => {
     ).toBeVisible();
   });
 
-  test('a bar button renders its command shortcut hint, OS-correct (LWF-04)', async ({
+  test('a bar button renders its command shortcut hint, OS-correct', async ({
     page,
   }) => {
     await page.goto('/');
@@ -54,7 +54,7 @@ test.describe('Command palette entry & bar shortcut hints', () => {
     ).toBeVisible();
   });
 
-  test('the built palette entry matches the height of its top-bar neighbours (LWF-06)', async ({
+  test('the built palette entry matches the height of its top-bar neighbours', async ({
     page,
   }) => {
     await page.goto('/');
@@ -69,7 +69,7 @@ test.describe('Command palette entry & bar shortcut hints', () => {
     expect(entryBox?.height).toBe(toggleBox?.height);
   });
 
-  test('the language switcher matches the height of the segmented controls (LWF-08)', async ({
+  test('the language switcher matches the height of the segmented controls', async ({
     page,
   }) => {
     await page.goto('/');
@@ -84,7 +84,7 @@ test.describe('Command palette entry & bar shortcut hints', () => {
     expect(selectBox?.height).toBe(toggleBox?.height);
   });
 
-  test('Workspaces and Split editor carry distinct icons in the palette (finding #33)', async ({
+  test('Workspaces and Split editor carry distinct icons in the palette', async ({
     page,
   }) => {
     await page.goto('/');

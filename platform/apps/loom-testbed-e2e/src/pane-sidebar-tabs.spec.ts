@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { dragTo } from './support/helpers';
 
 test.describe('Sidebar ⇄ center tab moves', () => {
-  test('a view tab dropped on the URL strip joins it as a titled tab — no split, URL stays (R3a/R9)', async ({
+  test('a view tab dropped on the URL strip joins it as a titled tab — no split, URL stays', async ({
     page,
   }) => {
     await page.goto('/');
@@ -56,7 +56,7 @@ test.describe('Sidebar ⇄ center tab moves', () => {
     await expect(page.locator('#lw-main-content')).toBeVisible();
   });
 
-  test('a content tab dropped on a sidebar strip becomes an icon tab and renders host-side (R6/R7/E7)', async ({
+  test('a content tab dropped on a sidebar strip becomes an icon tab and renders host-side', async ({
     page,
   }) => {
     await page.goto('/');

@@ -100,7 +100,7 @@ describe('PaneTargetPicker', () => {
     expect(opened?.entries.map((e) => e.key)).toEqual(['search']);
   });
 
-  it('offers gated routes and views to the hosting picker once the session qualifies (finding #32)', () => {
+  it('offers gated routes and views to the hosting picker once the session qualifies', () => {
     const picker = setup(true);
     picker.openForHosting(document.createElement('button'), () => undefined);
     expect(opened?.entries.map((e) => e.key)).toEqual([

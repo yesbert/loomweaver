@@ -25,7 +25,7 @@ function seedPalette(run: () => void = () => undefined): void {
 }
 
 describe('CommandPaletteEntry', () => {
-  it('shows the palette shortcut and opens the palette command on click (LWF-05)', () => {
+  it('shows the palette shortcut and opens the palette command on click', () => {
     let opened = 0;
     TestBed.configureTestingModule({
       imports: [CommandPaletteEntry, transloco()],
@@ -47,7 +47,7 @@ describe('CommandPaletteEntry', () => {
   });
 });
 
-describe('CommandPaletteEntry — the badge fits the bar it lands in (finding #38)', () => {
+describe('CommandPaletteEntry — the badge fits the bar it lands in', () => {
   let fixture: ComponentFixture<CommandPaletteEntry>;
 
   function create(context: BarContext | null): void {

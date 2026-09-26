@@ -78,7 +78,7 @@ describe('<lw-tooltip> custom element', () => {
     expect(element.querySelector('[role="tooltip"]')).toBeNull();
   });
 
-  it('renders the bubble as a manual popover (top layer, #13)', () => {
+  it('renders the bubble as a manual popover, in the top layer', () => {
     const bubble = mount({ text: 'Reset' }).querySelector<HTMLElement>(
       '[role="tooltip"]',
     );

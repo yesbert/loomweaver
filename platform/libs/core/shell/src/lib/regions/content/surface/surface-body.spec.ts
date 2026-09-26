@@ -118,7 +118,7 @@ describe('pane targets — both pickers gate on the session', () => {
     ]);
   });
 
-  it('offers a gated route to the off-router picker once the session qualifies — the mount re-checks reactively (finding #32)', () => {
+  it('offers a gated route to the off-router picker once the session qualifies — the mount re-checks reactively', () => {
     const { registry, auth } = setup({
       authenticated: true,
       roles: ['admin'],
