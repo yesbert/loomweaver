@@ -1,6 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import { DestroyRef, inject, Service, signal } from '@angular/core';
 import { SwUpdate, VersionEvent } from '@angular/service-worker';
+import { ServedBase } from '../foundation/served-base';
 import { NotificationService } from '../notifications/notification.service';
 import { ANNOUNCE_UPDATES } from './announce-updates';
 import { UpdateNotice, updateNotice } from './update-notices';
@@ -51,6 +52,8 @@ export class UpdateService {
   private readonly isAnnouncing = inject(ANNOUNCE_UPDATES);
 
   private readonly document = inject(DOCUMENT);
+
+  private readonly base = inject(ServedBase);
 
   private readonly destroyRef = inject(DestroyRef);
 
@@ -148,11 +151,12 @@ export class UpdateService {
    * still control the next load and report the same failure, which is a loop the user cannot leave
    * from inside the app. There the shell unregisters its own worker and drops its caches first, so
    * the reload lands uncontrolled and registers afresh. Only the shell's own `ngsw-worker.js` and
-   * the `ngsw:` caches are touched; anything else the product registered is left alone.
+   * the `ngsw:` caches of the application's base are touched; anything else the product registered,
+   * and any other distribution served on the same origin, is left alone.
    */
   async activateUpdate(): Promise<void> {
     if (this.broken()) {
-      await dropShellWorker(this.document.defaultView);
+      await dropShellWorker(this.document.defaultView, this.base.path);
     } else {
       await this.tryActivate();
     }

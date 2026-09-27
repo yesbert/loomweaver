@@ -65,7 +65,11 @@ function shellWorker() {
   const unregister = vi.fn().mockResolvedValue(true);
   const container = {
     getRegistrations: vi.fn().mockResolvedValue([
-      { active: { scriptURL: 'https://app.test/ngsw-worker.js' }, unregister },
+      {
+        scope: 'https://app.test/',
+        active: { scriptURL: 'https://app.test/ngsw-worker.js' },
+        unregister,
+      },
     ]),
   };
   return { container, unregister };
