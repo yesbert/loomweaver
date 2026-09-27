@@ -1,14 +1,15 @@
 const WORKER_SCRIPT = 'ngsw-worker.js';
 
-const WORKER_CACHE_PREFIX = 'ngsw:';
-
-export async function dropShellWorker(view: Window | null): Promise<void> {
+export async function dropShellWorker(
+  view: Window | null,
+  scope: string,
+): Promise<void> {
   const container = view?.navigator?.serviceWorker;
   await bestEffort(async () => {
     const registrations = (await container?.getRegistrations()) ?? [];
     await Promise.all(
       registrations
-        .filter((registration) => isShellWorker(registration))
+        .filter((registration) => isShellWorker(registration, scope))
         .map((registration) => registration.unregister()),
     );
   });
@@ -17,7 +18,7 @@ export async function dropShellWorker(view: Window | null): Promise<void> {
     const keys = (await storage?.keys()) ?? [];
     await Promise.all(
       keys
-        .filter((key) => key.startsWith(WORKER_CACHE_PREFIX))
+        .filter((key) => key.startsWith(`ngsw:${scope}:`))
         .map(async (key) => storage?.delete(key)),
     );
   });
@@ -31,8 +32,14 @@ async function bestEffort(work: () => Promise<unknown>): Promise<void> {
   }
 }
 
-function isShellWorker(registration: ServiceWorkerRegistration): boolean {
+function isShellWorker(
+  registration: ServiceWorkerRegistration,
+  scope: string,
+): boolean {
   const worker =
     registration.active ?? registration.waiting ?? registration.installing;
-  return worker?.scriptURL.includes(WORKER_SCRIPT) ?? false;
+  return (
+    (worker?.scriptURL.includes(WORKER_SCRIPT) ?? false) &&
+    new URL(registration.scope).pathname === scope
+  );
 }

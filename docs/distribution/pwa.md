@@ -76,8 +76,9 @@ The distinction matters because a plain reload cannot leave the second state. Th
 would still control the next load and report the same failure, which is a loop the user cannot escape
 from inside the app; they would have to know to clear the site's browser storage. A deploy that
 removes the previous build's hashed files (anything using `rsync --delete`) is enough to put a client
-there. Only the shell's own `ngsw-worker.js` and its `ngsw:` caches are touched, so a worker or cache
-your product registered itself is left alone. Read `updateBroken` only if you want to word it
+there. Only the shell's own `ngsw-worker.js` and its `ngsw:` caches are touched, and only those of
+the application's base, so a worker or cache your product registered itself is left alone, and so is
+another distribution served on the same origin. Read `updateBroken` only if you want to word it
 differently in your own UI; the built-in toast and badge already do.
 
 **Validate the service worker against a build, never against the dev server.** The Angular dev

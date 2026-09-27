@@ -8,6 +8,7 @@ export class ServedBase {
     inject(PlatformLocation).getBaseHrefFromDOM() ||
     '/';
   private readonly prefix = Location.stripTrailingSlash(this.href);
+  readonly path = `${this.prefix}/`;
 
   under(path: string): string {
     return Location.joinWithSlash(this.href, path);
