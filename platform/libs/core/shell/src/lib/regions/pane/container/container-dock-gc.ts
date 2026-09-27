@@ -32,16 +32,15 @@ export class ContainerDockGc {
         if (containerDocks.length === 0) {
           return;
         }
-        const open = new Set(
-          Object.entries(trees)
-            .filter(([dock]) => !isContainerDock(dock))
-            .flatMap(([, tree]) => collectTabPaths(tree)),
-        );
         untracked(() => {
-          const active = tabRootOf(
-            this.registry.contentRoutes(),
-            normalizePath(this.router.url),
+          const routes = this.registry.contentRoutes();
+          const open = new Set(
+            Object.entries(trees)
+              .filter(([dock]) => !isContainerDock(dock))
+              .flatMap(([, tree]) => collectTabPaths(tree))
+              .map((path) => tabRootOf(routes, path)),
           );
+          const active = tabRootOf(routes, normalizePath(this.router.url));
           for (const dock of containerDocks) {
             const contentPath = containerPathOfDock(dock);
             if (contentPath === active || open.has(contentPath)) {
