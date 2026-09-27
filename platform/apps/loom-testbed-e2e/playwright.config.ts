@@ -1,10 +1,13 @@
 import { defineConfig, devices } from '@playwright/test';
 import { workspaceRoot } from '@nx/devkit';
 
-// Run the E2E suite against the LoomWeaver Testbed distribution's dev server. Playwright starts
-// the server itself (and reuses a running one locally) so `nx e2e loom-testbed-e2e` is
-// one command. The dev config keeps the service worker off, which suits deterministic tests.
+// Run the E2E suite against the LoomWeaver Testbed distribution's dev servers: one at the root, and
+// one under /x/ for a distribution served below a path. Playwright starts them itself (and reuses
+// running ones locally) so `nx e2e loom-testbed-e2e` is one command. The dev config keeps the
+// service worker off, which suits deterministic tests.
 const baseURL = process.env['BASE_URL'] ?? 'http://localhost:4200';
+const underAPath = 'http://localhost:4201/x/';
+const servedUnderAPath = /served-under-a-path\.spec\.ts/;
 
 export default defineConfig({
   testDir: './src',
@@ -18,19 +21,38 @@ export default defineConfig({
     baseURL,
     trace: 'on-first-retry',
   },
-  webServer: {
-    command: 'npx nx run loom-testbed:serve',
-    url: baseURL,
-    cwd: workspaceRoot,
-    reuseExistingServer: !process.env['CI'],
-    timeout: 180_000,
-  },
+  webServer: [
+    {
+      command: 'npx nx run loom-testbed:serve',
+      url: baseURL,
+      cwd: workspaceRoot,
+      reuseExistingServer: !process.env['CI'],
+      timeout: 180_000,
+    },
+    {
+      command: 'npx nx run loom-testbed:serve:under-a-path',
+      url: underAPath,
+      cwd: workspaceRoot,
+      reuseExistingServer: !process.env['CI'],
+      timeout: 180_000,
+    },
+  ],
   projects: [
     {
       name: 'chromium',
+      testIgnore: servedUnderAPath,
       use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 1600, height: 900 },
+      },
+    },
+    {
+      name: 'under-a-path',
+      testMatch: servedUnderAPath,
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1600, height: 900 },
+        baseURL: underAPath,
       },
     },
   ],
