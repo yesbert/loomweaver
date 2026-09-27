@@ -104,9 +104,49 @@ function registerContainerSurfaces(ctx: PluginContext): void {
       },
     },
   });
+  ctx.registerSurface({
+    id: 'testbed.gatedOverview',
+    title: 'testbed.gated.title',
+    routable: { path: 'gated' },
+    access: { authenticated: true },
+    closable: false,
+    component: ContainerDetailsView,
+  });
+  ctx.registerSurface({
+    id: 'testbed.gated',
+    title: 'testbed.gated.title',
+    routable: { path: 'gated/:id' },
+    access: { authenticated: true },
+    container: {
+      children: [
+        { surface: 'testbed.gatedGeneral', segment: 'general' },
+        { surface: 'testbed.gatedDesign', segment: 'design' },
+      ],
+      initial: {
+        tabs: [
+          { surface: 'testbed.gatedGeneral', closable: false, active: true },
+          { surface: 'testbed.gatedDesign', closable: false },
+        ],
+      },
+    },
+  });
 }
 
 function registerChildSurfaces(ctx: PluginContext): void {
+  ctx.registerSurface({
+    id: 'testbed.gatedGeneral',
+    title: 'testbed.gated.general',
+    docks: [],
+    access: { authenticated: true },
+    component: ContainerCanvasView,
+  });
+  ctx.registerSurface({
+    id: 'testbed.gatedDesign',
+    title: 'testbed.gated.design',
+    docks: [],
+    access: { authenticated: true },
+    component: ContainerDetailsView,
+  });
   ctx.registerSurface({
     id: 'testbed.containerList',
     title: 'testbed.container.list',

@@ -1,3 +1,4 @@
+import { provideAppInitializer } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 import {
   provideAuthSource,
@@ -29,6 +30,8 @@ import { provideTestbedWorkspaces } from './app/testbed-workspaces';
 const TESTBED_PLUGIN_ICON =
   '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3.5 21 20H3l9-16.5Z"/></svg>';
 
+const session = e2eSwitches.session(testbedAuth.snapshot);
+
 try {
   await bootstrapApplication(Shell, {
     providers: [
@@ -39,12 +42,13 @@ try {
       provideTranslationNamespaces('testbed', 'product'),
       provideTranslationOverrides(),
       provideProductIdentity(TESTBED_IDENTITY),
-      provideAuthSource(() => testbedAuth.snapshot, {
+      provideAuthSource(() => session.snapshot, {
         onIdentityChange: 'reload',
       }),
-      provideIdentityScopedStores({
-        identity: () => testbedAuth.snapshot().subject ?? null,
-      }),
+      provideIdentityScopedStores({ identity: session.identity }),
+      ...(session.awaited
+        ? [provideAppInitializer(() => session.arrival)]
+        : []),
       provideUnauthorizedRedirect((attemptedPath) =>
         attemptedPath === 'admin-area'
           ? `/login?from=${encodeURIComponent(attemptedPath)}`

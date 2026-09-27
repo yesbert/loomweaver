@@ -61,6 +61,19 @@ function testbedWorkspaces(): readonly WorkspaceDefinition[] {
       claims: ['sandbox-rpc', 'omitted'],
       content: { tabs: [{ path: 'sandbox-rpc', closable: false }] },
     },
+    ...(e2eSwitches.gatedWorkspace()
+      ? [
+          {
+            id: 'testbed.gated',
+            title: 'testbed.gated.title',
+            icon: 'workspaces',
+            claims: ['gated'],
+            content: {
+              tabs: [{ path: 'gated', closable: false, active: true }],
+            },
+          },
+        ]
+      : []),
   ];
 }
 
