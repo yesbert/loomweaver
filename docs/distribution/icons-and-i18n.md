@@ -45,10 +45,10 @@ could repaint your chrome.
 
 Three layers compose, and none can clobber another:
 
-- **Host keys** come from `@loomweaver/shell` at `/i18n/{lang}.json` (serve them, see
-  [getting started §5](../getting-started.md)).
+- **Host keys** come from `@loomweaver/shell` at `i18n/{lang}.json` under the application's base
+  (serve them, see [getting started §5](../getting-started.md)).
 - **Each namespace** you register with `provideTranslationNamespaces('notes', 'product')` loads from
-  `/i18n/<name>/{lang}.json` and nests under `<name>.*`. Your weaver owns `notes.*`; your branding
+  `i18n/<name>/{lang}.json` under the base and nests under `<name>.*`. Your weaver owns `notes.*`; your branding
   owns `product.*`. Declarations accumulate: a second `provideTranslationNamespaces('copilot')`
   further down loads `copilot` beside `notes`, and a name declared twice is loaded once.
 - **Overrides** you opt into with `provideTranslationOverrides()` are applied last, key by key, and
@@ -56,6 +56,12 @@ Three layers compose, and none can clobber another:
 
 Serve the namespace files as assets (`public/i18n/notes/en.json`, `public/i18n/product/en.json`) and
 copy the shell's host keys (getting-started §5). A namespace file does **not** repeat its namespace.
+
+For a distribution at the root of its origin, the base is `/` and all of this lives under `/i18n/`. A
+distribution may also be served below a path, beside other applications on the same origin: build it
+with that base (`ng build --base-href /customer-admin/`) and serve its output, assets included, under
+that path. The strings, the namespaces, the default overlay directory and the pop-out windows then
+all follow the base, with nothing else to configure.
 The loader nests it under the name:
 
 ```jsonc
@@ -117,8 +123,11 @@ or a demo that switches product:
 
 ```ts
 // src/app/app.config.ts
-provideTranslationOverrides(`/i18n/overrides/${brand}`),   // → /i18n/overrides/acme/en.json
+provideTranslationOverrides(`i18n/overrides/${brand}`),   // → i18n/overrides/acme/en.json under the base
 ```
+
+A relative directory resolves under the application's base, like the default. One that starts with
+`/` or names a scheme is used exactly as written, for overlays served from elsewhere on your origin.
 
 You probably do not need this. The default path is same-origin, so a product **with a backend** can
 already serve different bytes there per tenant, which keeps the choice on the server where the tenant

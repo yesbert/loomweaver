@@ -1,11 +1,17 @@
 import { InjectionToken, Provider } from '@angular/core';
+import { ServedBase } from '../foundation/served-base';
 
-/** Directory the distribution serves its overlay bundles from, without a trailing slash. */
+/**
+ * Directory the distribution serves its overlay bundles from, without a trailing slash: relative to
+ * the application's base, or from the origin's root when it starts with `/` or names a scheme.
+ */
 export const TRANSLATION_OVERRIDES = new InjectionToken<string>(
   'TRANSLATION_OVERRIDES',
 );
 
-export const DEFAULT_OVERRIDES_PATH = '/i18n/overrides';
+export const DEFAULT_OVERRIDES_PATH = 'i18n/overrides';
+
+const FROM_THE_ORIGIN = /^(\/|[a-z][a-z\d+.-]*:)/i;
 
 function withoutTrailingSlashes(path: string): string {
   let end = path.length;
@@ -27,8 +33,10 @@ function withoutTrailingSlashes(path: string): string {
  *
  * `basePath` lets one build carry several wordings and pick one while composing — a white-label
  * distribution that serves three brands from the same bundle, or a demo that switches product.
- * A product with a backend does not need it: the default path is same-origin, so its server can
- * already vary the bytes per tenant. Omit it and nothing changes.
+ * A product with a backend does not need it: the default directory, `i18n/overrides` under the
+ * application's base, is same-origin, so its server can already vary the bytes per tenant. Omit it
+ * and nothing changes. A relative `basePath` resolves under the application's base as the default
+ * does; one that starts with `/` or names a scheme is used as named.
  *
  * A language with no overlay file keeps the shipped strings (dev-warned). A key the overlay names but
  * nothing ships is dev-warned too, since a typo there would otherwise be a string that never appears.
@@ -44,4 +52,8 @@ export function provideTranslationOverrides(
     );
   }
   return { provide: TRANSLATION_OVERRIDES, useValue: normalized };
+}
+
+export function overlayDirectory(named: string, base: ServedBase): string {
+  return FROM_THE_ORIGIN.test(named) ? named : base.under(named);
 }

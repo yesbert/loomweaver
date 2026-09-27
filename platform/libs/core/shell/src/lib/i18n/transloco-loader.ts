@@ -2,9 +2,13 @@ import { HttpClient } from '@angular/common/http';
 import { inject, isDevMode, Service } from '@angular/core';
 import { Translation, TranslocoLoader } from '@jsverse/transloco';
 import { catchError, forkJoin, map, Observable, of } from 'rxjs';
+import { ServedBase } from '../foundation/served-base';
 import { FALLBACK_LANGUAGE, SHIPPED_LANGUAGES } from './served-languages';
 import { TRANSLATION_NAMESPACES } from './translation-namespaces';
-import { TRANSLATION_OVERRIDES } from './translation-overrides';
+import {
+  overlayDirectory,
+  TRANSLATION_OVERRIDES,
+} from './translation-overrides';
 import {
   hasKey,
   leafKeys,
@@ -20,8 +24,10 @@ const MISSING_HOST: Translation = {};
 export class TranslocoHttpLoader implements TranslocoLoader {
   private readonly http = inject(HttpClient);
   private readonly namespaces = inject(TRANSLATION_NAMESPACES);
-  private readonly overrides =
-    inject(TRANSLATION_OVERRIDES, { optional: true }) ?? null;
+  private readonly base = inject(ServedBase);
+  private readonly overrides = this.overlaysFrom(
+    inject(TRANSLATION_OVERRIDES, { optional: true }) ?? null,
+  );
   private readonly reported = new Set<string>();
 
   getTranslation(lang: string): ReturnType<TranslocoLoader['getTranslation']> {
@@ -52,7 +58,7 @@ export class TranslocoHttpLoader implements TranslocoLoader {
   }
 
   private namespace$(name: string, lang: string): Observable<Translation> {
-    return this.http.get<Translation>(`/i18n/${name}/${lang}.json`).pipe(
+    return this.http.get<Translation>(this.bundle(`${name}/${lang}`)).pipe(
       catchError((error: unknown) => {
         this.warn(
           `Translation namespace "${name}" failed to load for "${lang}".`,
@@ -64,13 +70,13 @@ export class TranslocoHttpLoader implements TranslocoLoader {
   }
 
   private hostStrings$(lang: string): Observable<Translation> {
-    const supplied$ = this.http.get<Translation>(`/i18n/${lang}.json`);
+    const supplied$ = this.http.get<Translation>(this.bundle(lang));
     if (SHIPPED_LANGUAGES.includes(lang)) {
       return supplied$;
     }
     return forkJoin([
       supplied$.pipe(catchError(() => of<Translation>(MISSING_HOST))),
-      this.http.get<Translation>(`/i18n/${FALLBACK_LANGUAGE}.json`),
+      this.http.get<Translation>(this.bundle(FALLBACK_LANGUAGE)),
     ]).pipe(
       map(([supplied, fallback]) =>
         this.overFallback(lang, supplied, fallback),
@@ -86,7 +92,7 @@ export class TranslocoHttpLoader implements TranslocoLoader {
     if (supplied === MISSING_HOST) {
       this.reportOnce(
         lang,
-        `No workbench strings for "${lang}" at /i18n/${lang}.json, so the workbench is shown in ` +
+        `No workbench strings for "${lang}" at ${this.bundle(lang)}, so the workbench is shown in ` +
           `English while it is active.`,
       );
       return fallback;
@@ -140,6 +146,14 @@ export class TranslocoHttpLoader implements TranslocoLoader {
       );
     }
     return mergeTranslation(merged, overlay);
+  }
+
+  private bundle(name: string): string {
+    return this.base.under(`i18n/${name}.json`);
+  }
+
+  private overlaysFrom(named: string | null): string | null {
+    return named === null ? null : overlayDirectory(named, this.base);
   }
 
   private warn(message: string, cause?: unknown): void {

@@ -180,8 +180,9 @@ survives a switch, the second keeps their stored state in separate namespaces. B
 
 ## 3 · Translations — static files or your API
 
-By default the shell fetches its host keys from `/i18n/{lang}.json`. Each namespace you registered
-with `provideTranslationNamespaces('notes', 'product')` is fetched from `/i18n/<name>/{lang}.json`.
+By default the shell fetches its host keys from `i18n/{lang}.json` under the application's base
+(`/i18n/{lang}.json` at the root). Each namespace you registered with
+`provideTranslationNamespaces('notes', 'product')` is fetched from `i18n/<name>/{lang}.json` beside it.
 The shell then nests each namespace under its own key, so it can never collide with a host key. That
 is a plain [Transloco](https://jsverse.github.io/transloco/) loader. Transloco owns that seam, not
 LoomWeaver, so you swap the source with Transloco's own provider:

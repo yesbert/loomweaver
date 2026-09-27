@@ -199,7 +199,7 @@ mirror.
 
 ## 5 · Serve the host translations
 
-The shell fetches its UI strings from `/i18n/{lang}.json` at runtime, so the build has to copy them
+The shell fetches its UI strings from `i18n/{lang}.json` under the application's base at runtime, so the build has to copy them
 out of the package. Add this to your build target's `assets`, which is `angular.json` →
 `projects.<name>.architect.build.options` with the Angular CLI and `apps/<name>/project.json` →
 `targets.build.options` in Nx:

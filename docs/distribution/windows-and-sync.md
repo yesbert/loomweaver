@@ -40,7 +40,7 @@ with the table that decides which store a piece of state belongs in.
 
 Any content tab or sidebar view can be opened in its **own browser window** from its context menu
 ("Open in new window"), which is how a surface reaches a second monitor. The pop-out boots the same
-app from a `/popout/…` URL and renders exactly **one** surface: no rail, no sidebars, no pane tree. Theme, text size, dialogs,
+app from a `popout/…` address under the application's base (`/popout/…` at the root) and renders exactly **one** surface: no rail, no sidebars, no pane tree. Theme, text size, dialogs,
 toasts, permissions and auth all work as usual, because it is the same app.
 
 It **duplicates** rather than moves: the original tab stays in the main window. The two windows share

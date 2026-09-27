@@ -1,16 +1,17 @@
 import { DOCUMENT } from '@angular/common';
 import { inject, Service } from '@angular/core';
 import { DialogService } from '../dialog/dialog.service';
+import { ServedBase } from '../foundation/served-base';
 import { popoutUrlFor } from './popout-path';
 import { PopoutWindow } from './popout-window';
 
 /**
  * Opening a surface in its own browser window, and knowing whether this window **is** one.
  *
- * A pop-out boots the same app from a `/popout/…` URL and renders exactly one surface — no rail, no
- * sidebars, no pane tree — so the main window stays the only writer of the layout keys. The mode is
- * read from the location once at startup: a pop-out never becomes a main window, and the shell needs
- * the answer before it renders anything.
+ * A pop-out boots the same app from a `popout/…` address under the application's base and renders
+ * exactly one surface — no rail, no sidebars, no pane tree — so the main window stays the only
+ * writer of the layout keys. The mode is read from the location once at startup: a pop-out never
+ * becomes a main window, and the shell needs the answer before it renders anything.
  */
 @Service()
 export class PopoutService {
@@ -19,6 +20,7 @@ export class PopoutService {
 
   private readonly document = inject(DOCUMENT);
   private readonly dialogs = inject(DialogService);
+  private readonly base = inject(ServedBase);
 
   /**
    * Opens `paneTarget` — a `view:<viewId>` descriptor or a content-route path — in a new browser
@@ -45,7 +47,7 @@ export class PopoutService {
 
   private tryOpen(paneTarget: string): boolean {
     const opened = this.document.defaultView?.open(
-      popoutUrlFor(paneTarget),
+      this.base.under(popoutUrlFor(paneTarget)),
       '_blank',
     );
     return opened != null;

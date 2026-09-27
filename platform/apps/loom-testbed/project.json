@@ -73,6 +73,9 @@
           "optimization": false,
           "extractLicenses": false,
           "sourceMap": true
+        },
+        "under-a-path": {
+          "baseHref": "/x/"
         }
       }
     },
@@ -92,6 +95,11 @@
         },
         "development": {
           "buildTarget": "loom-testbed:build:development"
+        },
+        "under-a-path": {
+          "buildTarget": "loom-testbed:build:development,under-a-path",
+          "servePath": "/x/",
+          "port": 4201
         }
       }
     },
