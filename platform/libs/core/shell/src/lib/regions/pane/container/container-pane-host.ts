@@ -122,6 +122,8 @@ export class ContainerPaneHost {
       : restBelow(this.containerPath, normalizePath(path));
   });
 
+  private readonly arranged = computed(() => this.paneTree.hasDock(this.dock));
+
   constructor() {
     this.containers.ensureContainer(this.dock, this.spec);
     this.followUrl();
@@ -130,6 +132,9 @@ export class ContainerPaneHost {
 
   private followUrl(): void {
     effect(() => {
+      if (!this.arranged()) {
+        untracked(() => this.containers.ensureContainer(this.dock, this.spec));
+      }
       const segment = this.urlSegment();
       if (
         !segment ||

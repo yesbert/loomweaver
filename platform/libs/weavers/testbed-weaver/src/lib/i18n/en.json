@@ -252,6 +252,11 @@
   "arranged": {
     "title": "Arranged container"
   },
+  "gated": {
+    "title": "Gated container",
+    "general": "General",
+    "design": "Design"
+  },
   "browse": {
     "title": "Browse container"
   },
