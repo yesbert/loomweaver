@@ -1,5 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
+import { ContainerSpec } from '@loomweaver/plugin-sdk';
+import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { ContainerDockGc } from './container-dock-gc';
 import { containerDockFor } from './container-children';
 import { CONTENT_DOCK } from '../tree/pane-address';
@@ -52,6 +54,35 @@ describe('ContainerDockGc', () => {
 
     expect(
       paneTree.dockTrees()[containerDockFor('workspace/alpha')],
+    ).toBeDefined();
+  });
+
+  it('keeps the container dock of a tab in the background whose address names a child', () => {
+    routerStub.url = '/elsewhere';
+    const spec: ContainerSpec = {
+      children: [{ surface: 'item', segment: 'item/:itemId' }],
+    };
+    TestBed.inject(ContributionRegistry).addContentRoute({
+      id: 'browse',
+      path: 'browse/:id',
+      container: spec,
+    });
+    const paneTree = TestBed.inject(PaneTreeService);
+    TestBed.inject(PaneContainersService).openContainerChild(
+      containerDockFor('browse/alpha'),
+      spec,
+      'item/beta',
+    );
+    paneTree.seedPrimaryTabs(CONTENT_DOCK, [
+      'browse/alpha/item/beta',
+      'elsewhere',
+    ]);
+
+    TestBed.inject(ContainerDockGc).start();
+    TestBed.tick();
+
+    expect(
+      paneTree.dockTrees()[containerDockFor('browse/alpha')],
     ).toBeDefined();
   });
 

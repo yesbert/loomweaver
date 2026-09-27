@@ -57,6 +57,25 @@ test.describe('A container child carries an address', () => {
     ).toHaveCount(1);
   });
 
+  test('what the list opened survives another tab in front of it', async ({
+    page,
+  }) => {
+    const landing = page.locator(`${host} lw-pane-view`).nth(1);
+    await page.getByTestId('container-list-beta').click();
+    await page.getByTestId('container-list-gamma').click();
+    await expect(landing.getByRole('tab')).toHaveCount(2);
+
+    await rail(page)
+      .getByRole('button', { name: 'Arranged container' })
+      .click();
+    await expect(page).toHaveURL(/\/arranged\/alpha$/);
+    await page.getByRole('tab', { name: 'Browse alpha' }).click();
+
+    await expect(page).toHaveURL(/\/browse\/alpha\/item\/gamma$/);
+    await expect(landing.getByRole('tab')).toHaveCount(2);
+    await expect(landing.getByRole('tab', { name: 'beta' })).toBeVisible();
+  });
+
   test('closing the last item keeps the pane that was declared for them', async ({
     page,
   }) => {
