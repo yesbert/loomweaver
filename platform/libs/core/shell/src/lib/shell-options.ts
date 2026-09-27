@@ -90,8 +90,8 @@ export interface ShellOptions {
    *
    * The set decides what is loaded, what the switcher offers, what a stored or browser preference may
    * select and what `<html lang>` declares. For a language the workbench does not ship, serve the
-   * workbench's strings at `/i18n/<code>.json`; a string missing there is shown in English and named
-   * in development.
+   * workbench's strings at `i18n/<code>.json` under the application's base; a string missing there is
+   * shown in English and named in development.
    */
   readonly languages?: readonly string[];
 }

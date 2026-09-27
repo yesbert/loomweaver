@@ -889,7 +889,8 @@ class ShellBrand { compact = input<boolean | undefined>(undefined); }   // <lw-s
 // at the root) and renders exactly ONE surface: no rail,
 // no sidebars, no pane tree. It DUPLICATES (the original tab stays) and shares one VIEW_STATE instance, so the two
 // windows mirror live via the sync below. A pop-out NEVER writes layout keys and does not register layout-mutating
-// commands. URLs: /popout/view/<viewId> for any registered view, /popout/<contentPath> for a routable surface.
+// commands. Addresses below the base: popout/view/<viewId> for any registered view, popout/<contentPath> for a
+// routable surface.
 // Nothing to declare — no plugin or distribution change is needed. Pop-up blocked ⇒ the host offers a retry dialog.
 // A gated route in a pop-out renders NO surface and does NOT redirect (a login flow in a chrome-less window leads
 // nowhere) — the placeholder text is context-sensitive (popout.unavailable, not the split text).
