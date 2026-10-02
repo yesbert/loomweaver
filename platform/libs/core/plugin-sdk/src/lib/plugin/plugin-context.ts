@@ -59,8 +59,8 @@ export interface PluginContext {
   retitleSurface(id: string, title: string): void;
   /**
    * Replaces one action of a surface you registered, under the surface's id and the action's `id`.
-   * Wherever the workbench draws that surface's actions follows, the header of the
-   * panel it is docked in first among them, and the surface itself is **not** rebuilt. An action id
+   * Wherever the workbench draws that surface's actions follows, a panel's header and a content
+   * pane's alike, and the surface itself is **not** rebuilt. An action id
    * the surface did not carry is added, in the place its `order` gives it. This is how a toggle
    * moves: replace it with the opposite {@link ViewAction.pressed} when its state changes. Only that
    * one action changes; a surface id you did not register is a no-op. A sandboxed surface carries no

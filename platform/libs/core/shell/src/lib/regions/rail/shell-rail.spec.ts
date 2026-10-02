@@ -460,6 +460,12 @@ describe('ShellRail', () => {
       expect(button.getAttribute('aria-expanded')).toBe('true');
     });
 
+    it('does not draw an item whose menu offers nothing', () => {
+      const fixture = renderRail([account]);
+
+      expect(buttonsOf(fixture)).toHaveLength(0);
+    });
+
     it('heads the menu with what the entry stands for', () => {
       const fixture = setupMenu({
         ...account,

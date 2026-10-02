@@ -70,7 +70,7 @@ interface PluginContext {
                                                          // open() of it does nothing. Per child, not per open container. Not a container child
                                                          // you registered = no-op with a dev warning; crosses the sandbox [contributions]
   updateSurfaceAction(id: string, action: ViewAction): void;  // replace ONE action of a surface you registered, by the action's id, while it is
-                                                         // MOUNTED: the panel header follows, the surface is NOT rebuilt; an action id the surface
+                                                         // MOUNTED: the header that draws it (panel or content pane) follows, the surface is NOT rebuilt; an action id the surface
                                                          // did not carry is ADDED in its `order` place. This is how a toggle moves: replace it with the
                                                          // opposite `pressed` when the state changes. Surface id you did not register = no-op; a
                                                          // sandboxed surface carries no actions, so nothing there to replace [contributions]
@@ -185,12 +185,17 @@ interface InvocableCommand { id: string; title: string; description?: string; ar
 // opener's context (serialisable primitives) for visibility. The host draws the menu at the cursor.
 // A RailItem/BarButtonItem/ViewAction may carry `menu?: string` — the host opens that slot as the item's
 // context menu on right-click, region-agnostic, with a `{ targetKind, id, region }` context.
-// A RailItem/BarButtonItem may add `menuTrigger?: 'context' | 'primary' | 'both'` (default 'context') to
+// ViewActions are drawn in the header of WHATEVER HOLDS the surface while it is the one shown: a panel's header, and a content
+// pane's header BEFORE the pane's own controls (address pane, split pane, strip-less floating controls alike); they follow the
+// surface when it is moved, so a content surface needs NO toolbar of its own. A sandboxed surface carries no actions.
+// A RailItem/BarButtonItem/ViewAction may add `menuTrigger?: 'context' | 'primary' | 'both'` (default 'context') to
 // say which gesture opens it: 'primary'/'both' open it on ACTIVATION (click, Enter, Space) ANCHORED to the
 // control — the account entry every workbench needs. Activation offers the item's OWN slot alone (the
 // workbench's entries for that item, hide/move, stay on the right-click); the menu is placed beside the
 // control and flips to its other side rather than covering it; the host sets aria-haspopup/aria-expanded and
-// returns focus on dismiss. Such an item needs NO command/run and is drawn without one — where it names one
+// returns focus on dismiss. Such an item is DRAWN ONLY WHILE ITS SLOT OFFERS AN ENTRY to the current session (it appears and
+// goes as entries come and go) — the owner-and-filler pattern: one plugin puts `menu` + `menuTrigger: 'primary'` on a surface
+// action, others `registerMenuItem` into the slot, nobody reads the slot. Such an item needs NO command/run and is drawn without one — where it names one
 // anyway the menu wins (dev warning), and on an item carrying `workspace:` the click is the switch, so the
 // menu keeps the right-click. Such an item may add `menuHeader?: MenuHeader` — { title, detail?, icon?,
 // initials? }, title/detail Transloco keys or literals — and the host draws it ABOVE the first entry: not an
@@ -232,7 +237,7 @@ interface View {
   readonly closable?: boolean;               // may the user close its tab (carried through from Surface.closable)
   readonly padded?: boolean;                 // inset from the pane edges, over the product's PaddingDefault
 }
-interface ViewAction { id: string; icon: string; title: string; order?: number; menu?: string; command?: string; access?: AccessRequirement; pressed?: boolean; run?(): void | Promise<void>; }
+interface ViewAction { id: string; icon: string; title: string; order?: number; menu?: string; menuTrigger?: 'context' | 'primary' | 'both'; menuHeader?: MenuHeader; command?: string; access?: AccessRequirement; pressed?: boolean; run?(): void | Promise<void>; }
 // `pressed` makes the action a TOGGLE: true = on, false = off, drawn as the control's pressed look AND `aria-pressed`
 // (one attribute drives both, so seen and announced cannot drift). Omit for a plain button (no aria-pressed at all).
 // Nothing on an action is live; to move a toggle, call `ctx.updateSurfaceAction(surfaceId, { ...action, pressed })`.

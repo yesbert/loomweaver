@@ -40,8 +40,11 @@ ctx.registerSurface({
 });
 ```
 
+The host draws the actions in the header of whatever holds the surface: the panel's header here, and
+the pane's header once the user moves the surface into the content area.
+
 An action is read when the surface is registered, and nothing on it is live. To change one later,
-replace it under its id with `ctx.updateSurfaceAction`: the panel header follows, the surface is not
+replace it under its id with `ctx.updateSurfaceAction`: the header follows, the surface is not
 rebuilt, and an id the surface did not carry is added. That is how a **toggle** works. Give the
 action a `pressed` state, and the host draws it pressed and announces it as `aria-pressed`, so a
 screen reader hears a toggle rather than a button that seems to do nothing the second time. Replace

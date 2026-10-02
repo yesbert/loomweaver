@@ -17,6 +17,7 @@ export const CONTAINER_CHILD_REGION = '__container-child';
  */
 export type RegisteredContentRoute = ContentRoute & {
   readonly pluginId?: string;
+  readonly actions?: readonly ViewAction[];
 };
 
 /**
@@ -108,11 +109,12 @@ export function viewToEntry(view: View, pluginId?: string): RegisteredSurface {
 }
 
 export function contentRouteToEntry(
-  route: ContentRoute,
+  route: RegisteredContentRoute,
   pluginId?: string,
 ): RegisteredSurface {
   return {
     id: route.id,
+    actions: route.actions,
     ...commonSurfaceFields(route),
     routable: {
       path: route.path,
@@ -149,6 +151,7 @@ export function entryToContentRoute(
       subRoutes: routable.subRoutes,
       rest: routable.rest,
       follows: routable.follows,
+      actions: entry.actions,
       ...commonSurfaceFields(entry),
       pluginId: entry.pluginId,
       ...presentationOf(entry),

@@ -20,7 +20,7 @@ export interface View
   readonly order?: number;
   /** Icon name for this view's tab in the panel's tab bar. */
   readonly icon?: string;
-  /** The view's own header actions, shown in the panel header while active. */
+  /** The view's own header actions, shown in the header of whatever holds the view while active. */
   readonly actions?: readonly ViewAction[];
   /**
    * Declarative auth gating: the host **hides** the whole view (its tab and body) when

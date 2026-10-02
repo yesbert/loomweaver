@@ -7,6 +7,7 @@ import { TestbedSearchView } from './testbed-search-view';
 export const HOME_PATH = '';
 export const SEARCH_PATH = 'search';
 export const NOTES_PATH = 'notes';
+const SEARCH_MORE_MENU = 'testbed/search/more';
 
 export function registerPages(ctx: PluginContext): void {
   ctx.registerSurface({
@@ -21,7 +22,33 @@ export function registerPages(ctx: PluginContext): void {
     routable: { path: SEARCH_PATH },
     padded: false,
     component: TestbedSearchView,
+    actions: [
+      {
+        id: 'testbed.search.home',
+        icon: 'testbedHome',
+        title: 'testbed.home.title',
+        order: 0,
+        command: 'testbed.go.home',
+      },
+      {
+        id: 'testbed.search.more',
+        icon: 'more',
+        title: 'testbed.search.more',
+        order: 1,
+        menu: SEARCH_MORE_MENU,
+        menuTrigger: 'primary',
+      },
+      {
+        id: 'testbed.search.unfilled',
+        icon: 'add',
+        title: 'testbed.search.unfilled',
+        order: 2,
+        menu: 'testbed/search/unfilled',
+        menuTrigger: 'primary',
+      },
+    ],
   });
+  ctx.registerMenuItem({ menu: SEARCH_MORE_MENU, command: 'testbed.go.notes' });
   ctx.registerSurface({
     id: 'testbed.notes',
     title: 'testbed.notes.title',

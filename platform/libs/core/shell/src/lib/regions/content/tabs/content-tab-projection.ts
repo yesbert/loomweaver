@@ -2,7 +2,6 @@ import {
   AccessRequirement,
   ContentRoute,
   TabBadge,
-  ViewAction,
 } from '@loomweaver/plugin-sdk';
 import { View } from '../../../views/view';
 import { PaneTab } from '../../pane/tree/pane-node';
@@ -59,7 +58,6 @@ export interface ContentTabView {
   readonly preview: boolean;
   /** A pinned tab is sorted to the group's front and shows an unpin control instead of close. */
   readonly pinned: boolean;
-  readonly actions?: readonly ViewAction[];
 }
 
 export function declaringRoute(

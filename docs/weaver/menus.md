@@ -95,7 +95,7 @@ are offered everywhere. An entry of your own that takes the view somewhere can u
 
 ## A menu on the plain click
 
-A `RailItem` or a `BarButtonItem` may add
+A `RailItem`, a `BarButtonItem` or a surface's action may add
 `menuTrigger?: MenuTrigger` to say which gesture opens its slot: `'context'` (the default, the
 right-click above), `'primary'` or `'both'`. With `'primary'` or `'both'` the menu opens when the
 item is activated, by click, Enter or Space alike, anchored beside the control the host drew and
@@ -145,6 +145,29 @@ names one anyway the menu wins and a development-mode message names what is neve
 carrying `workspace:` the click is the switch, so its menu keeps the right-click. The host owns the
 rest: it announces the control as opening a menu, tracks whether it is open, and returns focus to it
 when the menu is dismissed.
+
+### A slot that others fill
+
+A control whose activation opens a menu is drawn only while that menu offers at least one entry to
+the person looking at it. It appears when an entry is contributed and goes when the last one is
+withdrawn. That lets one plugin own a slot and others fill it, without either reading the other:
+
+```ts
+// the plugin that owns the listing offers the place
+ctx.registerSurface({ id: 'kb.entries', title: 'kb.entries.title', component: EntriesView,
+  routable: { path: 'entries' },
+  actions: [
+    { id: 'kb.entries.add', icon: 'add', title: 'kb.entries.add',
+      menu: 'kb.entries/sources', menuTrigger: 'primary' },
+  ] });
+
+// any other plugin fills it
+ctx.registerMenuItem({ menu: 'kb.entries/sources', command: 'scanner.importIntoKnowledgeBase' });
+```
+
+With no source installed there is no button, so nobody clicks into nothing. You need no call that
+reads the slot, and no convention on command ids. A menu that is only on the right-click changes
+nothing about its control: that control has a purpose of its own and stays.
 
 ## A picture where you have one
 

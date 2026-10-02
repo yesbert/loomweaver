@@ -1,0 +1,34 @@
+@if (actions().length) {
+  <div
+    class="flex shrink-0 items-center gap-0.5"
+    [class.border-l]="inStrip()"
+    [class.border-border]="inStrip()"
+    [class.px-2]="inStrip()"
+    data-testid="surface-actions"
+  >
+    @for (action of actions(); track action.id) {
+      <button
+        type="button"
+        (click)="run(action)"
+        [disabled]="disabled(action)"
+        [lwMenu]="contextMenuOf(action)"
+        [lwMenuOnActivate]="activateMenuOf(action)"
+        [lwMenuHeader]="action.menuHeader"
+        [lwMenuContext]="contextOf(action)"
+        class="lw-icon-btn rounded-md disabled:pointer-events-none disabled:opacity-40"
+        [class.h-8]="inStrip()"
+        [class.w-8]="inStrip()"
+        [class.h-10]="!inStrip()"
+        [class.w-10]="!inStrip()"
+        [class.md:h-7]="!inStrip()"
+        [class.md:w-7]="!inStrip()"
+        [attr.aria-label]="action.title | transloco"
+        [attr.aria-pressed]="action.pressed"
+        [attr.data-surface-action]="action.id"
+      >
+        <lw-icon [name]="action.icon" size="1rem" />
+        <lw-tooltip [text]="action.title | transloco" position="bottom" />
+      </button>
+    }
+  </div>
+}

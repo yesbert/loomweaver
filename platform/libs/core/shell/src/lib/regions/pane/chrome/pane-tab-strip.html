@@ -206,23 +206,10 @@
     </button>
   }
 
+  @if (surfaceActions()) {
+    <lw-surface-actions [path]="activeId()" [region]="source().dock" inStrip />
+  }
   @if (paneActions(); as actions) {
     <ng-container [ngTemplateOutlet]="actions" />
-  }
-  @if (activeActions().length) {
-    <div class="flex shrink-0 items-center gap-0.5 border-l border-border px-2">
-      @for (action of activeActions(); track action.id) {
-        <button
-          type="button"
-          (click)="runAction.emit(action)"
-          class="lw-icon-btn h-8 w-8 rounded-md"
-          [attr.aria-label]="action.title | transloco"
-          [attr.aria-pressed]="action.pressed"
-        >
-          <lw-icon [name]="action.icon" size="1rem" />
-          <lw-tooltip [text]="action.title | transloco" position="bottom" />
-        </button>
-      }
-    </div>
   }
 </div>
