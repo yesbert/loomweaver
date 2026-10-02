@@ -23,7 +23,7 @@
 ## 4. Testbed markup
 
 - [x] 4.1 `sandbox-rpc/view.html`: the heading and the two labels carry their English text in the markup, which the script still replaces (S6850, S6853 ×2)
-- [x] 4.2 `capture-dialog.html`: the rule read the word in the translation key, not in the text; the key is renamed to `pictureAlt` (S6851)
+- [x] 4.2 `capture-dialog.html`: the rule read the word in the translation key, not in the text; the key is renamed to `whatItShows`, after `pictureAlt` drew the same finding for "picture" (S6851)
 - [x] 4.3 `testbed-form-dialog.html`: exclude the mouse-event rule for the two `<lw-button>` elements, with the reason that the element handles the keyboard itself
 
 ## 5. Verify

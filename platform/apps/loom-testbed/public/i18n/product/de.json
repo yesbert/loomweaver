@@ -12,7 +12,7 @@
     "title": "Bild der Workbench",
     "everySurfaceDrew": "jede Surface hat sich selbst gezeichnet",
     "surfacesAbsent": "{{count}} Surface(s) melden, dass ihr Inhalt fehlt",
-    "pictureAlt": "Die Workbench, wie sie beim Aufnehmen aussah",
+    "whatItShows": "Die Workbench, wie sie beim Aufnehmen aussah",
     "save": "Als PNG speichern"
   }
 }
