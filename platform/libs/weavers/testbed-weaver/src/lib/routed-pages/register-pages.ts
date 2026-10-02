@@ -39,6 +39,16 @@ export function registerPages(ctx: PluginContext): void {
         menuTrigger: 'primary',
       },
       {
+        id: 'testbed.search.alone',
+        icon: 'edit',
+        title: 'testbed.search.alone',
+        order: 3,
+        command: 'testbed.go.notes',
+        menu: 'testbed/search/alone',
+        menuTrigger: 'primary',
+        menuHeader: { title: 'testbed.notes.title', command: 'testbed.go.notes' },
+      },
+      {
         id: 'testbed.search.unfilled',
         icon: 'add',
         title: 'testbed.search.unfilled',

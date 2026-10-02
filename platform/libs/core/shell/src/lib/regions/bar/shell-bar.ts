@@ -19,9 +19,7 @@ import { ContributionRegistry } from '../../contributions/contribution-registry'
 import { BarItem, BarSlot } from '../../foundation/bar-item';
 import { LayoutRegion } from '../../layout/layout';
 import { AuthContext } from '../../auth/auth-context';
-import { CommandService } from '../../commands/command.service';
-import { isOffered } from '../../menu/chrome-item-menu';
-import { MenuService } from '../../menu/menu.service';
+import { ChromeItemOffers } from '../../menu/chrome-item-offers';
 import { ShellBarItem } from './shell-bar-item';
 import { foldedIds, foldRank, sameIds } from './bar-fold';
 
@@ -49,8 +47,7 @@ export class ShellBar {
 
   private readonly registry = inject(ContributionRegistry);
   private readonly auth = inject(AuthContext);
-  private readonly commands = inject(CommandService);
-  private readonly menus = inject(MenuService);
+  private readonly offers = inject(ChromeItemOffers);
   private readonly destroyRef = inject(DestroyRef);
   private readonly document = inject(DOCUMENT);
 
@@ -84,14 +81,10 @@ export class ShellBar {
       .filter((item) => item.bar === this.region().id)
       .filter((item) => this.auth.visible(item.access))
       .filter((item) =>
-        isOffered(item, {
-          triggerable: (offered) => this.commands.triggerable(offered),
-          menuOffers: (menu, header) =>
-            this.menus.offers(
-              menu,
-              { targetKind: 'bar-item', id: item.id, bar: item.bar },
-              header,
-            ),
+        this.offers.offered(item, {
+          targetKind: 'bar-item',
+          id: item.id,
+          bar: item.bar,
         }),
       ),
   );

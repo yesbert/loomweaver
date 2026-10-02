@@ -51,7 +51,7 @@
       [lwMenuOnActivate]="activateMenuFor(item)"
       [lwMenuHeader]="item.menuHeader"
       [lwMenuSide]="menuSide()"
-      [lwMenuContext]="{ targetKind: 'rail-item', id: item.id, region: region().id }"
+      [lwMenuContext]="menuContextOf(item)"
       [attr.aria-label]="item.title | transloco"
       [attr.aria-current]="isCurrent(item) ? 'true' : null"
       [attr.data-rail-item]="item.id"

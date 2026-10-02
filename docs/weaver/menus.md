@@ -142,7 +142,8 @@ Activation offers **your** slot alone: the workbench's own entries for that item
 it or move it to the other rail, stay on the right-click, where a curation entry beside "Sign out"
 would be noise. Such an item needs no `command` or `run`. The host draws it without one for as long
 as its menu offers an entry; see [a slot that others fill](#a-slot-that-others-fill). Where it names
-one anyway the menu wins and a development-mode message names what is never run. On an item
+one anyway, the item is always drawn: it runs that action while its menu is empty and opens the menu
+once the menu has an entry. On an item
 carrying `workspace:` the click is the switch, so its menu keeps the right-click. The host owns the
 rest: it announces the control as opening a menu, tracks whether it is open, and returns focus to it
 when the menu is dismissed.
@@ -167,8 +168,24 @@ ctx.registerMenuItem({ menu: 'kb.entries/sources', command: 'scanner.importIntoK
 ```
 
 With no source installed there is no button, so nobody clicks into nothing. You need no call that
-reads the slot, and no convention on command ids. A menu that is only on the right-click changes
-nothing about its control: that control has a purpose of its own and stays.
+reads the slot, and no convention on command ids.
+
+Where the control has something to do without the others, give it a `command` of its own as well.
+It is then always drawn. While the slot is empty, activating it runs the command, as a plain button.
+Once the slot has an entry, activating it opens the menu instead. A heading does not count as an
+entry here, so name the same command in `menuHeader` and it leads the menu:
+
+```ts
+actions: [
+  { id: 'kb.entries.add', icon: 'add', title: 'kb.entries.add',
+    command: 'kb.entries.upload',                       // alone: one click uploads
+    menu: 'kb.entries/sources', menuTrigger: 'primary', // in company: the menu opens
+    menuHeader: { title: 'kb.entries.upload', command: 'kb.entries.upload' } },
+]
+```
+
+A menu that is only on the right-click changes nothing about its control: that control has a purpose
+of its own and stays.
 
 ## A picture where you have one
 

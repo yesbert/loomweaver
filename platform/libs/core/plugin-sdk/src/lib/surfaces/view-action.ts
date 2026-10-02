@@ -24,9 +24,11 @@ export interface ViewAction {
   /**
    * Which gesture opens {@link menu}. Defaults to `'context'`, so an action that says nothing opens
    * its menu on a right-click. With `'primary'` or `'both'` activating the action opens the menu
-   * beside it, and the action needs no {@link command} or {@link run}. Such an action is drawn only
-   * while its slot offers at least one entry, so you can offer a slot for other plugins to fill
-   * without asking what is in it. Ignored without {@link menu}.
+   * beside it, and the action needs no {@link command} or {@link run}. An action without either is
+   * drawn only while its slot offers at least one entry, so you can offer a slot for other plugins
+   * to fill without asking what is in it. An action that also names a {@link command} or
+   * {@link run} is always drawn: it runs that while the slot is empty and opens the menu once the
+   * slot has an entry. Ignored without {@link menu}.
    */
   readonly menuTrigger?: MenuTrigger;
   /**
