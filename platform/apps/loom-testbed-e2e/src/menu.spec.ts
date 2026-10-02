@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { openTwoEntries } from './support/helpers';
+import { openTwoEntries, railRight } from './support/helpers';
 
 test.describe('Content-tab context menu', () => {
   test('right-click opens the menu; Close Others keeps the target', async ({
@@ -20,6 +20,26 @@ test.describe('Content-tab context menu', () => {
     await page.getByRole('menuitem', { name: 'Close Others' }).click();
     await expect(page.getByRole('tab', { name: 'E-02' })).toHaveCount(0);
     await expect(page.getByRole('tab', { name: 'E-01' })).toBeVisible();
+  });
+
+  test('an entry follows the access of the command it names', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await openTwoEntries(page);
+    const gated = page.getByRole('menuitem', { name: 'Admin-only command' });
+
+    await page.getByRole('tab', { name: 'E-01' }).click({ button: 'right' });
+    await expect(page.getByRole('menu')).toBeVisible();
+    await expect(gated).toHaveCount(0);
+    await page.keyboard.press('Escape');
+
+    const cycle = railRight(page).getByRole('button', { name: 'Switch user' });
+    await cycle.click();
+    await cycle.click();
+
+    await page.getByRole('tab', { name: 'E-01' }).click({ button: 'right' });
+    await expect(gated).toBeVisible();
   });
 
   test('the Pinned checkbox reflects and toggles the tab pin state', async ({

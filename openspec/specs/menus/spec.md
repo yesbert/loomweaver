@@ -61,6 +61,12 @@ An entry naming a command that nothing registers — or that a distribution has 
 dropped rather than drawn as a dead control showing its raw identity. An entry with nothing to
 label it SHALL likewise be dropped.
 
+An entry naming a command the current session may not run SHALL be dropped too, whether the session
+does not meet what the command requires or the window is one the command does not belong in. It
+SHALL appear once the session qualifies. A menu left with no entry by this SHALL NOT open. An entry
+that carries behaviour of its own rather than a command is not affected, since nothing declares who
+it is for.
+
 #### Scenario: An entry whose command was removed disappears with it
 
 - **WHEN** a distribution removes a command that a menu entry names
@@ -70,6 +76,27 @@ label it SHALL likewise be dropped.
 
 - **WHEN** an entry carries neither a command to take a label from nor one of its own
 - **THEN** it is not drawn
+
+#### Scenario: An entry whose command the session may not run is not drawn
+
+- **WHEN** a menu is opened and one of its entries names a command the session does not qualify for
+- **THEN** that entry is not drawn, and the others are
+
+#### Scenario: The entry appears once the session qualifies
+
+- **WHEN** the session comes to meet what the command requires and the menu is opened again
+- **THEN** the entry is drawn
+
+#### Scenario: A menu whose every entry is refused does not open
+
+- **WHEN** every entry of a slot names a command the session may not run
+- **THEN** opening the slot shows nothing
+
+#### Scenario: A detached window offers only the commands that belong there
+
+- **WHEN** a menu is opened in a detached window
+- **THEN** an entry naming a command that does not declare itself suitable for that window is not
+  drawn
 
 ### Requirement: A menu is operable by keyboard and dismisses predictably
 
@@ -330,9 +357,10 @@ heading SHALL be the menu's first entry: the keyboard SHALL reach it first, a cl
 SHALL run the command with the menu's context and close the menu, and it SHALL show under the pointer
 and in focus the way an entry does. A menu whose only entry is such a heading SHALL still open.
 
-A heading that names no command, or names one that nothing registers or that the distribution
-removed, SHALL NOT be an entry: it SHALL NOT be focusable, SHALL be passed over by keyboard
-navigation the way a separator is, and SHALL NOT be activatable by any gesture.
+A heading that names no command SHALL NOT be an entry, and neither SHALL one that names a command
+nothing registers, a command the distribution removed, or a command the current session may not
+run: it SHALL NOT be focusable, SHALL be passed over by keyboard navigation the way a separator is,
+and SHALL NOT be activatable by any gesture.
 
 The menu SHALL be announced by what the heading names, and what the heading shows SHALL NOT be read a
 second time as content, so the name reaches the user exactly once. A heading that is an entry SHALL
@@ -364,18 +392,18 @@ pointer.
 
 #### Scenario: A heading that names a command leads to what it names
 
-- **WHEN** the heading names a registered command and the user clicks it
+- **WHEN** the heading names a command the session may run and the user clicks it
 - **THEN** the command runs with the menu's context and the menu closes
 
 #### Scenario: The keyboard reaches a leading heading first
 
-- **WHEN** the heading names a registered command and the user opens the menu and presses the down
-  arrow
+- **WHEN** the heading names a command the session may run and the user opens the menu and presses
+  the down arrow
 - **THEN** the heading is the entry in focus, and Enter or Space runs its command
 
 #### Scenario: A leading heading is announced by what it does
 
-- **WHEN** assistive technology reaches a heading that names a registered command
+- **WHEN** assistive technology reaches a heading that names a command the session may run
 - **THEN** it is announced as an entry by what the command does, while the menu is still announced
   by the name
 
@@ -386,8 +414,14 @@ pointer.
 
 #### Scenario: A menu that only leads somewhere still opens
 
-- **WHEN** the heading names a registered command and the menu has no other entry
+- **WHEN** the heading names a command the session may run and the menu has no other entry
 - **THEN** the menu opens with the heading as its only entry
+
+#### Scenario: A heading whose command the session may not run stays a heading
+
+- **WHEN** the heading names a registered command the session does not qualify for
+- **THEN** it is drawn as a plain heading, the keyboard passes over it, and nothing activates it
+- **AND** it becomes the first entry once the session qualifies and the menu is opened again
 
 ### Requirement: An open menu follows its strings
 

@@ -25,8 +25,8 @@ ctx.registerSurface({ id: 'notes.list', title: 'notes.list', docks: ['left-panel
   actions: [{ id: 'notes.sync', icon: 'upload', title: 'notes.sync', command: 'notes.sync',
     access: { authenticated: true, mode: 'disable' } }] });
 
-// A command is blocked at the one execute() seam — its keybinding no-ops and the command palette
-// omits it — until the requirement is met.
+// A command is blocked at the one execute() seam — its keybinding no-ops, and the command palette
+// and every menu omit it — until the requirement is met.
 ctx.registerCommand({ id: 'notes.purge', title: 'notes.purge', access: { anyRole: ['admin'] },
   run: () => purge() });
 

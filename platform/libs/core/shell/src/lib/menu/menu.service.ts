@@ -9,7 +9,12 @@ import {
 } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 import { Subscription } from 'rxjs';
-import { MenuContext, MenuHeader, MenuItem } from '@loomweaver/plugin-sdk';
+import {
+  Command,
+  MenuContext,
+  MenuHeader,
+  MenuItem,
+} from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../contributions/contribution-registry';
 import { CommandService } from '../commands/command.service';
 import { HEADING_KEY } from './menu-heading';
@@ -77,7 +82,7 @@ export class MenuService {
     options: MenuOpenOptions = {},
   ): void {
     this.close();
-    const commands = this.registry.commands();
+    const commands = this.usableCommands();
     const resolved = resolveMenuItems(
       typeof menuId === 'string' ? [menuId] : menuId,
       context,
@@ -119,10 +124,7 @@ export class MenuService {
     context: MenuContext,
     header?: MenuHeader,
   ): boolean {
-    const commands = this.registry.commands();
-    const usable = commands.filter((command) =>
-      this.commands.available(command),
-    );
+    const usable = this.usableCommands();
     const resolved = resolveMenuItems([menuId], context, {
       menuItems: this.registry.menuItems(),
       commands: usable,
@@ -233,6 +235,12 @@ export class MenuService {
     } catch (error) {
       this.errors.handleError(error);
     }
+  }
+
+  private usableCommands(): readonly Command[] {
+    return this.registry
+      .commands()
+      .filter((command) => this.commands.available(command));
   }
 }
 
