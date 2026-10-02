@@ -170,8 +170,15 @@ An item whose activation opens its menu SHALL be drawn even though it names no o
 opening the menu is its purpose, for as long as its slot offers at least one entry to the person
 looking at it. While the slot offers none, the item SHALL NOT be drawn, and it SHALL appear and
 disappear as entries come and go, so that whoever owns a slot others fill never has to ask what is
-in it. Where such an item also names an action, activation SHALL open the
-menu and the workbench SHALL report the ignored action to the author in development.
+in it.
+
+Where such an item also names an action of its own, it SHALL be drawn whether or not its slot offers
+an entry. While the slot offers none, activation SHALL run the item's own action, and the item SHALL
+be announced as a plain control rather than as one that opens a menu. While the slot offers an
+entry, activation SHALL open the menu and SHALL NOT run the action. A heading the item declares for
+its menu SHALL NOT count as an entry for this, so an item can lead its menu with its own action and
+still run it directly while nothing else is offered. The change from one to the other SHALL follow
+the slot without a reload.
 
 #### Scenario: A launcher entry carries its own menu
 
@@ -227,6 +234,28 @@ menu and the workbench SHALL report the ignored action to the author in developm
 
 - **WHEN** another plugin contributes an entry to that slot while the workbench is running
 - **THEN** the item appears, and disappears again when the entry is withdrawn
+
+#### Scenario: A control with an action of its own runs it while its menu is empty
+
+- **WHEN** an item names an action of its own and a menu to open on activation, nothing has
+  contributed to that menu, and the user activates the item
+- **THEN** the item's own action runs and no menu opens
+
+#### Scenario: The same control opens its menu once the menu has an entry
+
+- **WHEN** another plugin contributes an entry to that menu and the user activates the item
+- **THEN** the menu opens against the item and the item's own action does not run
+
+#### Scenario: A heading that leads to the item's action does not hold the menu open alone
+
+- **WHEN** the item declares a heading that names its own action and the slot holds no entry
+- **THEN** activation runs the action directly, and no menu showing only the heading opens
+
+#### Scenario: The announcement follows what activation will do
+
+- **WHEN** assistive technology reaches such an item while its menu is empty
+- **THEN** it is announced as a plain control, and as one that opens a menu once the menu has an
+  entry
 
 ### Requirement: A plugin drawing its own surface draws its own menu
 
