@@ -116,7 +116,10 @@ defaults to the device (`localStorage`), and why most distributions never touch 
 1. **Local** (default): do nothing.
 2. **Cross-device at boot**: provide a backend-backed store with `provideWorkingStateStore(...)`;
    a fresh tab hydrates the last persisted state through the ordinary boot path. Expect the write
-   volume: every filter keystroke lands here after a 400 ms debounce.
+   volume: a key that is being changed is written once it has been quiet for 400 ms, and at least
+   every two seconds while the changes continue. Whatever is still held is sent when the page is
+   left. The workbench cannot wait for that last answer, so completing a write that arrives while
+   the page unloads is your store's part (`fetch` with `keepalive`, or `sendBeacon`).
 3. **Cross-device live**: additionally pair the store with a push transport and call
    `StateSyncService.notifyRemoteChange(key)` when the backend reports a change from another
    device. The two rules that keep this convergent, and why it is not collaborative editing, are on
