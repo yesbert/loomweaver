@@ -30,8 +30,8 @@
 
 - [x] 5.1 Lint and tests for every project, `nx package`, the repository's guards
 - [x] 5.2 The full end-to-end suite
-- [ ] 5.3 Run the Sonar workflow on the branch's merge and read the summary: the gate passes, and what it still lists is worked here
+- [x] 5.3 The Sonar workflow run on the branch: the first run listed one finding, the alt key again; the second passes the gate with no violation
 
 ## 6. Close
 
-- [ ] 6.1 `openspec validate --all --strict`
+- [x] 6.1 `openspec validate --all --strict`
