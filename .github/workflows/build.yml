@@ -146,6 +146,11 @@ jobs:
       - name: Region ids agree
         run: npm run region-ids-check
 
+      # A Sonar exemption is keyed by a path, and a moved file leaves it matching nothing: the
+      # finding comes back as new and the reason stays behind beside a path nobody reads.
+      - name: Sonar exemptions name files that exist
+        run: npm run sonar-exclusions-check
+
       # Two commands sharing a name is invisible where it lives — the strings sit in different files
       # under different keys, each correct alone — and expensive where it is met, because the user
       # runs the wrong one. This resolves what each shipped command is called in each shipped

@@ -1,9 +1,15 @@
 import { PRIMARY_PANE } from './pane-address';
-import { PaneNode, PaneTab, leafOf, leafWith } from './pane-node';
+import {
+  PaneNode,
+  PaneTab,
+  labelledTabs,
+  leafOf,
+  leafWith,
+  withoutLabel,
+} from './pane-node';
 import { collectLeafIds, findLeaf } from './pane-queries';
 import { DEFAULT_RATIO, sanitizeRatio } from './pane-ratio';
 import { tabBadgeOf } from '../../../contributions/tab-badge';
-import { labelledTabs, withoutLabel } from './pane-node';
 
 function normalizeTab(value: unknown): PaneTab | null {
   if (!value || typeof value !== 'object') {

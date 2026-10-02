@@ -13,7 +13,7 @@ import { PanelState } from './panel-state';
 import { PanelGroupService } from './panel-group.service';
 import { ViewMoveService } from './view-move.service';
 import { PANEL_STRIP_CONTEXT_MENU } from './view-context-menu';
-import { VIEW_CONTEXT_MENU } from '../pane/chrome/strip-tab';
+import { StripTab, VIEW_CONTEXT_MENU } from '../pane/chrome/strip-tab';
 import {
   isViewPanePath,
   PaneRef,
@@ -22,7 +22,6 @@ import {
 import { stripIdOf } from '../pane/drag/pane-move.service';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
 import { PaneTabStrip } from '../pane/chrome/pane-tab-strip';
-import { StripTab } from '../pane/chrome/strip-tab';
 import { MenuTriggerDirective } from '../../menu/menu-trigger.directive';
 import { toStripTab } from '../pane/chrome/tab-label';
 import { ContributionRegistry } from '../../contributions/contribution-registry';

@@ -14,7 +14,7 @@ import { PaneContainersService } from './container/pane-containers.service';
 import { PaneChromeService } from './chrome/pane-chrome.service';
 import { PaneActions } from './pane-actions.service';
 import { PaneTabStrip } from './chrome/pane-tab-strip';
-import { StripTab } from './chrome/strip-tab';
+import { StripTab, VIEW_CONTEXT_MENU } from './chrome/strip-tab';
 import { PaneToolbar } from './chrome/pane-toolbar';
 import { escalationStep } from './chrome/tab-escalation';
 import {
@@ -39,7 +39,6 @@ import { ContentTabsService } from '../content/tabs/content-tabs.service';
 import { TAB_CONTEXT_MENU } from '../content/tabs/tab-context-menu';
 import { FeatureSwitches } from '../../features/feature-switches.service';
 import { ContributionRegistry } from '../../contributions/contribution-registry';
-import { VIEW_CONTEXT_MENU } from './chrome/strip-tab';
 import { CONTENT_PANE_OPTIONS, PaneViewOptions } from './pane-view-options';
 
 @Component({

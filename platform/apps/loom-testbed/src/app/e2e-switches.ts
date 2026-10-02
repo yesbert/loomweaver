@@ -19,7 +19,7 @@ interface TestbedSession {
 
 function session(chosen: Signal<AuthSnapshot>): TestbedSession {
   const delay = Number(localStorage.getItem(SESSION_DELAY_KEY));
-  if (!(delay > 0)) {
+  if (Number.isNaN(delay) || delay <= 0) {
     return {
       snapshot: chosen,
       identity: () => chosen().subject ?? null,

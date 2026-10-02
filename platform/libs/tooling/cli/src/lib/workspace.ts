@@ -10,8 +10,8 @@ export interface ConfiguredWorkspace {
 
 export interface UnconfiguredWorkspace {
   readonly root: string;
-  readonly kind?: undefined;
-  readonly configFile?: undefined;
+  readonly kind?: never;
+  readonly configFile?: never;
 }
 
 export type Workspace = ConfiguredWorkspace | UnconfiguredWorkspace;
