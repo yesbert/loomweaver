@@ -280,7 +280,7 @@ const SURFACE_HOLD: InjectionToken<SurfaceHold>;   // from @loomweaver/plugin-sd
 // own path BECAUSE THE USER CAN SEE IT in the settings dialog. Uninstall deletes the store (settings survive).
 // CHECK loaded() BEFORE APPLYING A DEFAULT — with a network-backed store the value lands after the user has typed
 // otherwise (the LWF-02 class of bug). set() replaces the WHOLE value ⇒ one key per unit of editing (a wizard step, not
-// the form) and key by instanceId where a surface can exist more than once. JSON values, debounced writes, size cap per
+// the form) and key by instanceId where a surface can exist more than once. JSON values, debounced writes (400 ms of quiet, never longer than 2 s, flushed when the page is left — VIEW_STATE alike), size cap per
 // value + count cap per plugin (dev warning at half). SANDBOXED RUNG, both channels: the logic document and each
 // SURFACE call stateWatch/stateSet/stateClear/stateUnwatch and receive stateChanged(key, value, loaded) pushes; the
 // surface channel is what lets two surfaces of one sandboxed plugin agree on anything (a surface holds no ctx). The

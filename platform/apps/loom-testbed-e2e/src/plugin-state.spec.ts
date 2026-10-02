@@ -28,6 +28,18 @@ test.describe('A plugin-private store', () => {
     );
   });
 
+  test('a value written just before a reload is there afterwards', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await page.getByTestId('scratch-input').fill('typed and reloaded at once');
+    await page.reload();
+
+    await expect(page.getByTestId('scratch-input')).toHaveValue(
+      'typed and reloaded at once',
+    );
+  });
+
   test('it reaches a second window, and stays inside the plugin namespace', async ({
     page,
     context,

@@ -6,6 +6,7 @@ import {
   WritableSignal,
 } from '@angular/core';
 import { PluginState, StateHandle } from '@loomweaver/plugin-sdk';
+import { HeldWrites } from '../persistence/held-writes/held-writes';
 import { WORKING_STATE_STORE } from '../persistence/working-state-store';
 import {
   hydrateAsync,
@@ -15,7 +16,6 @@ import { StateSyncService } from '../persistence/cross-tab/state-sync.service';
 
 const STORAGE_PREFIX = 'lw.plugin-state:';
 const INDEX_PREFIX = 'lw.plugin-state-keys:';
-const SAVE_DEBOUNCE_MS = 400;
 const MAX_VALUE_CHARACTERS = 64 * 1024;
 const MAX_KEYS = 64;
 
@@ -54,14 +54,13 @@ interface Entry {
   readonly loaded: WritableSignal<boolean>;
   readonly listeners: Set<Listener>;
   watchers: number;
-  pending: string | undefined;
-  timer: ReturnType<typeof setTimeout> | undefined;
 }
 
 @Service()
 export class PluginStateService {
   private readonly store = inject(WORKING_STATE_STORE);
   private readonly sync = inject(StateSyncService);
+  private readonly heldWrites = inject(HeldWrites);
   private readonly entries = new Map<string, Entry>();
   private readonly keysByPlugin = new Map<string, Set<string>>();
 
@@ -174,8 +173,6 @@ export class PluginStateService {
       loaded,
       listeners: new Set(),
       watchers: 0,
-      pending: undefined,
-      timer: undefined,
     };
     this.entries.set(storageKey, entry);
     hydrateAsync(
@@ -204,9 +201,9 @@ export class PluginStateService {
     }
     this.index(entry.pluginId, key);
     entry.value.set(next);
-    entry.pending = serialised;
-    this.cancelTimer(entry);
-    entry.timer = setTimeout(() => this.flush(entry), SAVE_DEBOUNCE_MS);
+    this.heldWrites.hold(entry.storageKey, serialised, (held) => {
+      void this.store.set(entry.storageKey, held);
+    });
     this.announce(entry);
   }
 
@@ -229,26 +226,11 @@ export class PluginStateService {
   }
 
   private flush(entry: Entry): void {
-    this.cancelTimer(entry);
-    const pending = entry.pending;
-    entry.pending = undefined;
-    if (pending !== undefined) {
-      void this.store.set(entry.storageKey, pending);
-    }
+    this.heldWrites.flush(entry.storageKey);
   }
 
   private cancelPending(entry: Entry): void {
-    this.cancelTimer(entry);
-    entry.pending = undefined;
-  }
-
-  private cancelTimer(entry: Entry): void {
-    if (entry.timer === undefined) {
-      return;
-    }
-
-    clearTimeout(entry.timer);
-    entry.timer = undefined;
+    this.heldWrites.cancel(entry.storageKey);
   }
 
   private admits(pluginId: string, key: string, serialised: string): boolean {

@@ -1,11 +1,11 @@
 import { inject, Service, signal, WritableSignal } from '@angular/core';
 import { ViewState } from '@loomweaver/plugin-sdk';
+import { HeldWrites } from '../persistence/held-writes/held-writes';
 import { WORKING_STATE_STORE } from '../persistence/working-state-store';
 import { hydrateAsync, readStoredValue } from '../persistence/stored-values/hydrate';
 import { StateSyncService } from '../persistence/cross-tab/state-sync.service';
 
 const STORAGE_PREFIX = 'lw.shell.view-state:';
-const SAVE_DEBOUNCE_MS = 400;
 
 function parseBlob(raw: string | undefined): unknown {
   if (!raw) {
@@ -28,6 +28,7 @@ interface Entry {
 export class ViewStateService {
   private readonly store = inject(WORKING_STATE_STORE);
   private readonly sync = inject(StateSyncService);
+  private readonly heldWrites = inject(HeldWrites);
   private readonly entries = new Map<string, Entry>();
 
   constructor() {
@@ -86,24 +87,16 @@ export class ViewStateService {
     const key = STORAGE_PREFIX + instanceId;
     const value = signal<unknown>(parseBlob(this.store.peek?.(key)));
     hydrateAsync(this.store, key, (raw) => value.set(parseBlob(raw)));
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    const cancelPendingSave = () => {
-      if (timer === undefined) {
+    const cancelPendingSave = () => this.heldWrites.cancel(key);
+    const save = () => {
+      const current = value();
+      if (current === undefined) {
+        cancelPendingSave();
         return;
       }
-
-      clearTimeout(timer);
-      timer = undefined;
-    };
-    const save = () => {
-      cancelPendingSave();
-      timer = setTimeout(() => {
-        timer = undefined;
-        const current = value();
-        if (current !== undefined) {
-          void this.store.set(key, JSON.stringify(current));
-        }
-      }, SAVE_DEBOUNCE_MS);
+      this.heldWrites.hold(key, JSON.stringify(current), (held) => {
+        void this.store.set(key, held);
+      });
     };
     const entry: Entry = { value, save, cancelPendingSave };
     this.entries.set(instanceId, entry);
