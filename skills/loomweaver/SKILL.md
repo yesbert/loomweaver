@@ -62,12 +62,17 @@ shortcut, nothing about the code around it, and reading first buys you nothing y
   fill, and the host hides it while the slot is empty.
   [The content area](https://loomweaver.dev/weaver/content-area/) ·
   [Menus](https://loomweaver.dev/weaver/menus/)
-- State a plugin keeps goes in `ctx.state` or `VIEW_STATE`, never in browser storage of your own.
-  The host keeps it per person where the product supplies an identity, so do not clear it on
-  sign-out and do not look for a user id to build keys from.
+- State has three homes, and none of them is browser storage of your own. What a routable surface
+  shows, its filter or its sub-tab, belongs in the address: route parameters or `subRoutes`. What a
+  docked view keeps for itself goes in `VIEW_STATE`. What several surfaces of one plugin share
+  goes in `ctx.state`. The host keeps the last two per person where the product supplies an
+  identity, so do not clear them on sign-out and do not look for a user id to build keys from.
+  [View state that survives](https://loomweaver.dev/weaver/view-state/) ·
   [Your plugin's own store](https://loomweaver.dev/weaver/plugin-state/)
-- Busy and progress indicators are `<lw-spinner>` and `<lw-progress-ring>`, used by tag like every
-  other `<lw-*>` element. [Design tokens](https://loomweaver.dev/reference/design-tokens/)
+- "This is running" is `<lw-spinner>`. A known amount of progress is a native
+  `<progress class="lw-progress">` for a bar or `<lw-progress-ring>` for a ring. The elements are
+  used by tag like every other `<lw-*>` element.
+  [Design tokens](https://loomweaver.dev/reference/design-tokens/)
 
 ## Where the rest is
 
