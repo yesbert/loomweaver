@@ -19,13 +19,13 @@ This is a curated map for people, and their AI assistants, building on or integr
 - [Authoring a weaver](docs/authoring-a-weaver.md): the shape of a weaver (manifest, `activate(ctx)`, where snippets go) and the map of the how-to pages, one task each:
   - [Surfaces in a sidebar](docs/weaver/sidebar-surfaces.md): a docked surface, and the custom-element escape hatch.
   - [A navigation tree in the sidebar](docs/weaver/navigation-tree.md): `<lw-nav-tree>` declared as data; `lw-nav-select` handed to `ctx.navigateContent`, `current` from `ctx.activeContent`, folds kept for the session under `key`, the panel retitled with `ctx.retitleSurface`.
-  - [View state that survives](docs/weaver/view-state.md): `VIEW_STATE`: filter, sub-tab, scroll position in one shape.
+  - [View state that survives](docs/weaver/view-state.md): `VIEW_STATE`: filter, sub-tab, scroll position in one shape; a write made just before a reload is kept.
   - [Unsaved changes](docs/weaver/unsaved-changes.md): `DirtySurface` and the Save, Discard, Cancel question.
-  - [Your plugin's own store](docs/weaver/plugin-state.md): `ctx.state`.
+  - [Your plugin's own store](docs/weaver/plugin-state.md): `ctx.state`, one store shared by every surface of your plugin, kept per person wherever the product supplies an identity (never clear it on sign-out), and written before a reload.
   - [Containers](docs/weaver/containers.md): a workspace in a tab, the arrangement it opens with, a child that stands for one item through `segment` and `CONTAINER_HANDLE`, leaving a child out with `ctx.setChildShown`.
-  - [The content area](docs/weaver/content-area.md): routable surfaces, tabs per pane, chromeless, closable (which refuses closing and nothing else), preview and pinned tabs, a tab `badge`, panes and tab groups.
+  - [The content area](docs/weaver/content-area.md): routable surfaces, tabs per pane, chromeless, closable (which refuses closing and nothing else), preview and pinned tabs, a tab `badge`, a surface's own `actions` in the pane header, panes and tab groups.
   - [Sub-routes and follows](docs/weaver/sub-routes-and-follows.md): `subRoutes`, the rest of the address, tabs that follow the selection, `activeContent`.
-  - [Menus](docs/weaver/menus.md): `registerMenuItem`, item menu slots, `ctx.ui.openMenu`.
+  - [Menus](docs/weaver/menus.md): `registerMenuItem`, a menu on a rail item, a bar item or a surface's action, opened by right-click or by activation (`menuTrigger`), a slot one plugin owns and others fill, `ctx.ui.openMenu`.
   - [Sandboxed surfaces](docs/weaver/sandboxed-surfaces.md): `component` or `iframe`, the sandbox bootstrap, the frame UI kit.
   - [Commands and their triggers](docs/weaver/commands.md): one behaviour behind shortcut, bar and rail items, palette and menu.
   - [Access gating](docs/weaver/access-gating.md): `access` on contributions and `ctx.session`.

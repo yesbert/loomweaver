@@ -82,15 +82,15 @@ The order follows a weaver from its first surface to what it needs once it is sh
 
 - [Surfaces in a sidebar](weaver/sidebar-surfaces.md): a docked surface, what its body may use, and the custom-element escape hatch.
 - [A navigation tree in the sidebar](weaver/navigation-tree.md): the tree the workbench draws from your declaration, marking where the user is, folding, and retitling the panel.
-- [The content area](weaver/content-area.md): routable surfaces, tabs per pane, chromeless, closable, preview and pinned tabs, panes and tab groups.
+- [The content area](weaver/content-area.md): routable surfaces, tabs per pane, chromeless, closable, preview and pinned tabs, a surface's own actions in the pane header, panes and tab groups.
 - [Containers](weaver/containers.md): a workspace in a tab, a child per item, relative addresses.
 - [Sub-routes and follows](weaver/sub-routes-and-follows.md): `subRoutes`, sub-tabs when the host mounts you off-router, the rest of the address, tabs that follow the selection, `activeContent`.
 - [Commands and their triggers](weaver/commands.md): one behaviour behind shortcut, bar and rail items, palette and menu.
-- [Menus](weaver/menus.md): `registerMenuItem`, a menu on a rail or bar item, `ctx.ui.openMenu` on your own view body, and the menu you draw in a sandbox.
+- [Menus](weaver/menus.md): `registerMenuItem`, a menu on a rail item, a bar item or a surface's action, a slot that other plugins fill, `ctx.ui.openMenu` on your own view body, and the menu you draw in a sandbox.
 - [Host UI and host facts](weaver/host-ui-and-facts.md): `ctx.ui` dialogs, toasts and progress, `ctx.host`.
 - [View state that survives](weaver/view-state.md): `VIEW_STATE`: filter, sub-tab, scroll position in one shape.
 - [Unsaved changes](weaver/unsaved-changes.md): `DirtySurface` and the Save, Discard, Cancel question.
-- [Your plugin's own store](weaver/plugin-state.md): `ctx.state`, one store shared by every surface of your plugin.
+- [Your plugin's own store](weaver/plugin-state.md): `ctx.state`, one store shared by every surface of your plugin and kept per person.
 - [Settings sections](weaver/settings.md): `registerSettingsSection`, controls the host draws and you store.
 - [Access gating](weaver/access-gating.md): `access` on contributions and `ctx.session`.
 - [Sandboxed surfaces](weaver/sandboxed-surfaces.md): `component` or `iframe`, the sandbox bootstrap, the frame UI kit, the plugin store.

@@ -56,7 +56,9 @@ export interface MenuItem {
  * Activation opens the item's **own** slot alone: the workbench's entries for that item, such as
  * the ones that hide or move it, stay on the right-click, where a curation entry beside "Sign out"
  * would be noise. An item whose activation opens its menu needs no `command` or `run` of its own,
- * and the host draws it all the same.
+ * and the host draws it all the same, for as long as its slot offers at least one entry to the
+ * current session. While the slot offers none the item is not drawn, and it appears when an entry is
+ * contributed, so the owner of a slot that other plugins fill never has to read it.
  */
 export type MenuTrigger = 'context' | 'primary' | 'both';
 
