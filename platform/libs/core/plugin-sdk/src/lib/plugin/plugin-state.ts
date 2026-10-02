@@ -47,6 +47,11 @@ export interface StateHandle<T = unknown> {
  * plugin-private by construction: the host prefixes every key with your plugin id and you cannot
  * leave that namespace, so there is nothing foreign to reach and no capability to grant.
  *
+ * The store belongs to the **person**, not to the browser: where the distribution supplies an
+ * identity, each person finds the value they left under the same key and never another's. Do not
+ * clear it on sign-out, and do not build keys from an identity of your own. A distribution without
+ * an identity has one store per browser, which is its decision and not yours to repair.
+ *
  * It holds **working state**, not settings. Settings have their own path precisely because the user
  * can *see* them in the settings dialog; a free-form settings store would be a back door around that
  * transparency. Uninstalling your plugin deletes this store (a settings section survives, an

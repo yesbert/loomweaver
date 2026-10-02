@@ -859,7 +859,9 @@ function provideWorkingStateStore(store: KeyValueStore | Type<KeyValueStore>): P
 //                  lw.shell.panels · lw.shell.panel-sizes (the sidebar FRAME is window state, never per workspace) ·
 //                  lw.shell.hidden-views:<workspaceId> (which views that workspace hides) · lw.shell.item-order
 //   working state, identity, synced:     lw.shell.view-instances:<viewId> · lw.shell.view-state:<instanceId> ·
-//                  lw.shell.command-mru (palette "Recently used")
+//                  lw.shell.command-mru (palette "Recently used") · lw.plugin-state:<pluginId>:<key> (ctx.state — so a plugin's
+//                  store is PER PERSON wherever the distribution scopes by identity: never clear it on sign-out, never key by a
+//                  subject of your own; ctx.session names none on purpose) · lw.plugin-state-keys:<pluginId>
 // Identity scoping: the standard per-user wrapper for multi-user browsers — it wraps BOTH ports through one
 // shared boot latch, so another user's view state and layout are scoped away like their settings.
 // identity() is read synchronously — null/undefined/'' = anonymous = plain keys (a distribution without auth is

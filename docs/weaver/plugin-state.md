@@ -54,6 +54,24 @@ capability to grant: there is nothing foreign to reach.
   page unloads is that store's part. There is a size cap per value and a count cap
   per plugin, with a development warning at half of each, so no plugin can flood the user's storage.
 
+## Whose store it is
+
+The store belongs to the person using the application, not to the browser. Where the product
+supplies an identity, the platform keeps each person's state apart, and yours with it. Two people who
+sign in on the same browser each find the value they left under the same key, and neither sees the
+other's. You do nothing for that, and two things follow.
+
+- **Do not clear the store on sign-out.** The next person cannot read it, and clearing it throws away
+  what the first person would have found on their return.
+- **Do not look for the person's identity to build keys from.** `ctx.session` tells you whether
+  someone is signed in and which roles they hold. It names no subject, on purpose: a plugin has no
+  use for one that this store does not already serve.
+
+A product that supplies no identity has one store per browser, shared by everyone who uses it. That
+is the product's decision, and a plugin cannot repair it. See
+[Persistence stores](../distribution/persistence.md#identity-scoped-stores-multi-user-browsers) for
+the distribution's side.
+
 ## Waiting for the store in `activate()`
 
 `value()` and `loaded()` are reactive, but an effect needs an injection context, and `activate()` runs
