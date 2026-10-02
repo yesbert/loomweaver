@@ -37,6 +37,40 @@ describe('ViewStateService', () => {
     expect(localStorage.getItem(KEY)).toBe(JSON.stringify({ n: 3 }));
   });
 
+  it('sends a held write when the page goes away', () => {
+    vi.useFakeTimers();
+    const handle = TestBed.inject(ViewStateService).handle('v1');
+
+    handle.set({ sort: 'alpha' });
+    globalThis.dispatchEvent(new Event('pagehide'));
+
+    expect(localStorage.getItem(KEY)).toBe(JSON.stringify({ sort: 'alpha' }));
+  });
+
+  it('stores state that is written faster than the quiet time, within two seconds', () => {
+    vi.useFakeTimers();
+    const handle = TestBed.inject(ViewStateService).handle('v1');
+
+    for (let written = 1; written <= 9; written += 1) {
+      handle.set({ n: written });
+      vi.advanceTimersByTime(240);
+    }
+
+    expect(localStorage.getItem(KEY)).toBe(JSON.stringify({ n: 9 }));
+  });
+
+  it('does not write reset state back when the page goes away', () => {
+    vi.useFakeTimers();
+    const service = TestBed.inject(ViewStateService);
+    const handle = service.handle('v1');
+
+    handle.set({ sort: 'alpha' });
+    service.reset('v1');
+    globalThis.dispatchEvent(new Event('pagehide'));
+
+    expect(localStorage.getItem(KEY)).toBeNull();
+  });
+
   it('restores a persisted blob synchronously via peek', () => {
     localStorage.setItem(KEY, JSON.stringify({ sort: 'alpha' }));
     expect(TestBed.inject(ViewStateService).handle('v1').value()).toEqual({

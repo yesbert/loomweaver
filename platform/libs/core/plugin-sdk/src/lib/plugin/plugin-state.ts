@@ -16,6 +16,8 @@ export interface StateHandle<T = unknown> {
   /**
    * Replace the value under this key. It replaces the **whole** value — nothing is merged — so spread
    * the current one when you change a field. Writes are debounced; call it per keystroke if you like.
+   * A write waits for 400 ms of quiet and never longer than two seconds, and leaving the page sends
+   * what was still waiting, so a value set just before a reload is there afterwards.
    * Values are JSON: the store is string-valued and crosses a process boundary, so promising
    * structured clone would be a lie. A value with no JSON form, such as `undefined` or a function, is
    * refused with a message naming your plugin and the key, and the stored value stays; call

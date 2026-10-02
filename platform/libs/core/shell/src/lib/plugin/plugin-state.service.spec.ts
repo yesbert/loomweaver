@@ -155,6 +155,39 @@ describe('PluginStateService', () => {
     expect(localStorage.getItem(KEY)).toBe('"b"');
   });
 
+  it('sends a held write when the page goes away', () => {
+    const service = setup();
+    const handle = service.forPlugin('acme').watch<string>('step-1');
+
+    handle.set('just before the reload');
+    globalThis.dispatchEvent(new Event('pagehide'));
+
+    expect(localStorage.getItem(KEY)).toBe('"just before the reload"');
+  });
+
+  it('stores a key that is written faster than the quiet time, within two seconds', () => {
+    const service = setup();
+    const handle = service.forPlugin('acme').watch<number>('step-1');
+
+    for (let written = 1; written <= 9; written += 1) {
+      handle.set(written);
+      vi.advanceTimersByTime(240);
+    }
+
+    expect(localStorage.getItem(KEY)).toBe('9');
+  });
+
+  it('does not write a cleared key back when the page goes away', () => {
+    const service = setup();
+    const handle = service.forPlugin('acme').watch<string>('step-1');
+
+    handle.set('a');
+    handle.clear();
+    globalThis.dispatchEvent(new Event('pagehide'));
+
+    expect(localStorage.getItem(KEY)).toBeNull();
+  });
+
   it('clear removes the key and empties the value', () => {
     const service = setup();
     const handle = service.forPlugin('acme').watch<string>('step-1');
