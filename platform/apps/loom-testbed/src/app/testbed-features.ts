@@ -51,5 +51,5 @@ function mergeFeatures(
   for (const [group, values] of Object.entries(patch)) {
     merged[group] = { ...merged[group], ...values };
   }
-  return merged as ShellFeaturesInput;
+  return merged;
 }

@@ -13,8 +13,12 @@ export function capture(): CapturedIo {
   const err: string[] = [];
   return {
     io: {
-      out: (line: string) => void out.push(line),
-      err: (line: string) => void err.push(line),
+      out: (line: string) => {
+        out.push(line);
+      },
+      err: (line: string) => {
+        err.push(line);
+      },
     },
     text: () => out.join('\n'),
     errText: () => err.join('\n'),

@@ -6,17 +6,17 @@ import {
   PaneRef,
 } from '../tree/pane-address';
 import {
-  PRIMARY_LEAF,
   PaneLeaf,
   PaneNode,
   PaneTab,
+  PRIMARY_LEAF,
   newPaneId,
+  tabWithout,
 } from '../tree/pane-node';
 import { findLeaf } from '../tree/pane-queries';
 import { splitLeafWith, withoutEmptyPrimary } from '../tree/pane-structure';
 import { isContainerDock } from '../container/container-children';
 import { insertTab, removeTab } from '../tree/pane-tabs';
-import { tabWithout } from '../tree/pane-node';
 import { PaneTreeService } from '../tree/pane-tree.service';
 import { PaneAdmission } from '../../content/pane-admission';
 import { ContentTabsService } from '../../content/tabs/content-tabs.service';

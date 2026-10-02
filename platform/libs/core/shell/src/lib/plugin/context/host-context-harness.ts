@@ -1,4 +1,4 @@
-import { WritableSignal, signal } from '@angular/core';
+import { Component, WritableSignal, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { ANONYMOUS, AuthSnapshot, Capability } from '@loomweaver/plugin-sdk';
@@ -18,6 +18,7 @@ import { UpdateService } from '../../update/update.service';
 import { VersionService } from '../../version/version.service';
 import { HostContextFactory } from './host-context-factory';
 
+@Component({ template: '' })
 export class DummyComponent {}
 
 export const ALL: Capability[] = [

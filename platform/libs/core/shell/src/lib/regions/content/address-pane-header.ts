@@ -8,7 +8,7 @@ import { SurfaceActions } from './actions/surface-actions';
 import { ContentTabsService } from './tabs/content-tabs.service';
 import { PaneTargetPicker } from './pane-target-picker';
 import { TAB_CONTEXT_MENU } from './tabs/tab-context-menu';
-import { VIEW_CONTEXT_MENU } from '../pane/chrome/strip-tab';
+import { StripTab, VIEW_CONTEXT_MENU } from '../pane/chrome/strip-tab';
 import { FeatureSwitches } from '../../features/feature-switches.service';
 import {
   CONTENT_DOCK,
@@ -28,7 +28,6 @@ import {
   tabsReorderable,
 } from '../pane/chrome/pane-affordances';
 import { PaneTabStrip } from '../pane/chrome/pane-tab-strip';
-import { StripTab } from '../pane/chrome/strip-tab';
 import { PaneToolbar } from '../pane/chrome/pane-toolbar';
 
 @Component({

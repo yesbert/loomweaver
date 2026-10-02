@@ -33,11 +33,7 @@ export class ActiveWorkspaceService {
 
   private adopted = false;
   private chosen = false;
-  readonly ready: Promise<string>;
-
-  constructor() {
-    this.ready = this.resolveInitial();
-  }
+  readonly ready: Promise<string> = this.resolveInitial();
 
   set(id: string): void {
     this.adopted = false;

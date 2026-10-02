@@ -12,11 +12,10 @@ export function tabBadgeOf(value: unknown): TabBadge | undefined {
   }
   const raw = value as Record<string, unknown>;
   const literal = raw['textIsLiteral'] === true;
+  const longest = literal ? MAX_LITERAL_LENGTH : MAX_KEY_LENGTH;
   const text =
     typeof raw['text'] === 'string' && raw['text'].length > 0
-      ? [...raw['text']]
-          .slice(0, literal ? MAX_LITERAL_LENGTH : MAX_KEY_LENGTH)
-          .join('')
+      ? [...raw['text']].slice(0, longest).join('')
       : undefined;
   const icon =
     typeof raw['icon'] === 'string' && raw['icon'].length > 0

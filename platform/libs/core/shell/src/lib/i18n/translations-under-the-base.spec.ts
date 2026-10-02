@@ -37,7 +37,7 @@ describe('translations of a distribution served under a path', () => {
     const { http, load } = servedUnder('/x/');
     load('de');
 
-    http.expectOne('/x/i18n/de.json');
+    expect(http.expectOne('/x/i18n/de.json').request.method).toBe('GET');
     http.verify();
   });
 
@@ -48,8 +48,8 @@ describe('translations of a distribution served under a path', () => {
     );
     load('en');
 
-    http.expectOne('/x/i18n/en.json');
-    http.expectOne('/x/i18n/notes/en.json');
+    expect(http.expectOne('/x/i18n/en.json').request.method).toBe('GET');
+    expect(http.expectOne('/x/i18n/notes/en.json').request.method).toBe('GET');
     http.verify();
   });
 
@@ -57,8 +57,8 @@ describe('translations of a distribution served under a path', () => {
     const { http, load } = servedUnder('/x/');
     load('fr');
 
-    http.expectOne('/x/i18n/fr.json');
-    http.expectOne('/x/i18n/en.json');
+    expect(http.expectOne('/x/i18n/fr.json').request.method).toBe('GET');
+    expect(http.expectOne('/x/i18n/en.json').request.method).toBe('GET');
     http.verify();
   });
 
@@ -66,8 +66,8 @@ describe('translations of a distribution served under a path', () => {
     const { http, load } = servedUnder('/x/', provideTranslationOverrides());
     load('en');
 
-    http.expectOne('/x/i18n/en.json');
-    http.expectOne('/x/i18n/overrides/en.json');
+    expect(http.expectOne('/x/i18n/en.json').request.method).toBe('GET');
+    expect(http.expectOne('/x/i18n/overrides/en.json').request.method).toBe('GET');
     http.verify();
   });
 
@@ -78,8 +78,8 @@ describe('translations of a distribution served under a path', () => {
     );
     load('en');
 
-    http.expectOne('/x/i18n/en.json');
-    http.expectOne('/x/brands/acme/en.json');
+    expect(http.expectOne('/x/i18n/en.json').request.method).toBe('GET');
+    expect(http.expectOne('/x/brands/acme/en.json').request.method).toBe('GET');
     http.verify();
   });
 
@@ -90,8 +90,8 @@ describe('translations of a distribution served under a path', () => {
     );
     load('en');
 
-    http.expectOne('/x/i18n/en.json');
-    http.expectOne('/shared/wording/en.json');
+    expect(http.expectOne('/x/i18n/en.json').request.method).toBe('GET');
+    expect(http.expectOne('/shared/wording/en.json').request.method).toBe('GET');
     http.verify();
   });
 
@@ -103,9 +103,9 @@ describe('translations of a distribution served under a path', () => {
     );
     load('en');
 
-    http.expectOne('/i18n/en.json');
-    http.expectOne('/i18n/notes/en.json');
-    http.expectOne('/i18n/overrides/en.json');
+    expect(http.expectOne('/i18n/en.json').request.method).toBe('GET');
+    expect(http.expectOne('/i18n/notes/en.json').request.method).toBe('GET');
+    expect(http.expectOne('/i18n/overrides/en.json').request.method).toBe('GET');
     http.verify();
   });
 });

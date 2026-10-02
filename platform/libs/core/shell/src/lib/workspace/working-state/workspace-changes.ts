@@ -1,5 +1,8 @@
-import { PaneNode, PaneTab } from '../../regions/pane/tree/pane-node';
-import { tabWithout } from '../../regions/pane/tree/pane-node';
+import {
+  PaneNode,
+  PaneTab,
+  tabWithout,
+} from '../../regions/pane/tree/pane-node';
 import { normalizeDockEntry } from '../../regions/pane/tree/stored-pane-tree';
 import {
   PRIMARY_PANE,

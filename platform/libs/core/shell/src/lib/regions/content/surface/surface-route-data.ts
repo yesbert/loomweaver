@@ -13,5 +13,5 @@ export interface SurfaceRouteData {
 }
 
 export function surfaceRouteData(data: Data): SurfaceRouteData {
-  return data as SurfaceRouteData;
+  return data;
 }
