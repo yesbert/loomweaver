@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { provideIdentityScopedStores } from '../persistence/identity-scope/provide-identity-scoped-stores';
 import { KeyValueStore } from '../persistence/key-value-store';
 import { WORKING_STATE_STORE } from '../persistence/working-state-store';
 import { PluginStateService } from './plugin-state.service';
@@ -243,6 +244,46 @@ describe('PluginStateService', () => {
 
     expect(localStorage.getItem(KEY)).toBeNull();
     expect(localStorage.getItem('lw.plugin-state-keys:acme')).toBeNull();
+  });
+
+  describe('where the product supplies an identity', () => {
+    function bootAs(identity: string | null) {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [provideIdentityScopedStores({ identity: () => identity })],
+      });
+      return TestBed.inject(PluginStateService)
+        .forPlugin('acme')
+        .watch<string>('step-1');
+    }
+
+    function leaveAs(identity: string | null, value: string) {
+      bootAs(identity).set(value);
+      vi.advanceTimersByTime(2000);
+    }
+
+    it('keeps each person their own value under the same plugin key', () => {
+      leaveAs('ada', 'adas draft');
+      leaveAs('grace', 'graces draft');
+
+      expect(bootAs('ada').value()).toBe('adas draft');
+      expect(bootAs('grace').value()).toBe('graces draft');
+    });
+
+    it('shows a signed-in person nothing of the anonymous store, and the reverse', () => {
+      leaveAs(null, 'left by nobody');
+      leaveAs('ada', 'adas draft');
+
+      expect(bootAs(null).value()).toBe('left by nobody');
+      expect(bootAs('grace').value()).toBeUndefined();
+    });
+
+    it('stores a person\'s value under their namespace, not under the bare key', () => {
+      leaveAs('ada', 'adas draft');
+
+      expect(localStorage.getItem(KEY)).toBeNull();
+      expect(localStorage.getItem(`lw.id.ada:${KEY}`)).toBe('"adas draft"');
+    });
   });
 
   it('rejects an empty key rather than writing to the namespace root', () => {

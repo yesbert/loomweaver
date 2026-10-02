@@ -95,7 +95,9 @@ export interface PluginHost {
  * declarative `access` on contributions. LoomWeaver owns no auth: this only reflects the snapshot the
  * distribution supplied (`provideAuthSource`). Signal-shaped (`() => T`) so a template re-reads reactively;
  * roles are opaque strings — match, do not interpret. The snapshot's claim bag does not arrive here:
- * a plugin is told the login state and the roles, and nothing else. Client-side gating is
+ * a plugin is told the login state and the roles, and nothing else. In particular it names no
+ * subject: state a plugin keeps per person belongs in `ctx.state`, which the host already keeps
+ * apart for each identity the distribution supplies. Client-side gating is
  * presentation, not security. Gated by the `session` capability (default-deny).
  */
 export interface PluginSession {
