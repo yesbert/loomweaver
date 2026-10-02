@@ -4,6 +4,7 @@
 @import './theme/controls.css';
 @import './theme/workbench.css';
 @import './theme/lw-progress-ring.css';
+@import './theme/lw-spinner.css';
 @import './theme/lw-tooltip.css';
 @import './theme/lw-select.css';
 @import './theme/lw-menu.css';

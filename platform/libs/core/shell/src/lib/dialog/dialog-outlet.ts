@@ -11,7 +11,6 @@ import {
 } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LwButton } from '../elements/button/lw-button';
-import { LwSpinner } from '../elements/spinner/lw-spinner';
 import { DIALOG_CLOSE_GUARD } from './dialog-close-guard';
 import {
   DialogButtonView,
@@ -55,7 +54,7 @@ const TONE_CIRCLE: Record<DialogTone, string> = {
  */
 @Component({
   selector: 'lw-dialog-outlet',
-  imports: [NgComponentOutlet, TranslocoPipe, LwButton, LwSpinner],
+  imports: [NgComponentOutlet, TranslocoPipe, LwButton],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './dialog-outlet.html',
   host: {
