@@ -51,7 +51,8 @@ menu and the workbench SHALL report the ignored action to the author in developm
 
 #### Scenario: An entry that exists to open a menu is drawn
 
-- **WHEN** an entry names a menu slot and an opening gesture but no action of its own
+- **WHEN** an entry names a menu slot and an opening gesture but no action of its own, and the slot
+  offers at least one entry
 - **THEN** it appears in the chrome and opens its menu
 
 #### Scenario: A surface's action carries its own menu
