@@ -9,7 +9,7 @@ test.describe("A content surface's own actions", () => {
       .locator('lw-address-pane-header')
       .getByTestId('surface-actions');
 
-    await expect(actions.locator('[data-surface-action]')).toHaveCount(2);
+    await expect(actions.locator('[data-surface-action]')).toHaveCount(3);
     await expect(
       actions.locator('[data-surface-action="testbed.search.home"]'),
     ).toBeVisible();
@@ -50,6 +50,20 @@ test.describe("A content surface's own actions", () => {
       .getByRole('button', { name: 'Close pane' })
       .boundingBox();
     expect(actionBox?.x).toBeLessThan(closeBox?.x ?? 0);
+  });
+
+  test('an action with a command of its own runs it while its menu is empty', async ({
+    page,
+  }) => {
+    await page.goto('/search');
+    const alone = page.locator('[data-surface-action="testbed.search.alone"]');
+
+    await expect(alone).toBeVisible();
+    await expect(alone).not.toHaveAttribute('aria-haspopup', 'menu');
+    await alone.click();
+
+    await expect(page).toHaveURL(/\/notes$/);
+    await expect(page.getByRole('menu')).toHaveCount(0);
   });
 
   test('an action opens its menu on activation, and one whose menu is empty is not drawn', async ({

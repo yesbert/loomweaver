@@ -279,6 +279,40 @@ describe('SurfaceActions', () => {
       expect(labels()).toEqual(['Pin']);
     });
 
+    it('runs its own command while its menu is empty, and opens the menu once it has an entry', () => {
+      registry.addCommand({
+        id: 'reports.add',
+        title: 'add',
+        run: () => {
+          ran.push('own');
+        },
+      });
+      routable([
+        {
+          ...more,
+          menuTrigger: 'primary',
+          command: 'reports.add',
+          menuHeader: { title: 'add', command: 'reports.add' },
+        },
+      ]);
+      render();
+      const open = vi
+        .spyOn(TestBed.inject(MenuService), 'open')
+        .mockImplementation(() => undefined);
+
+      expect(labels()).toEqual(['Pin']);
+      expect(button('more').getAttribute('aria-haspopup')).toBeNull();
+      button('more').click();
+      expect(ran).toEqual(['own']);
+      expect(open).not.toHaveBeenCalled();
+
+      fill();
+      expect(button('more').getAttribute('aria-haspopup')).toBe('menu');
+      button('more').click();
+      expect(ran).toEqual(['own']);
+      expect(open).toHaveBeenCalledTimes(1);
+    });
+
     it('stays drawn with an empty menu when the menu is only on its right-click', () => {
       routable([{ ...more, run: () => undefined }]);
       render();

@@ -59,6 +59,12 @@ export interface MenuItem {
  * and the host draws it all the same, for as long as its slot offers at least one entry to the
  * current session. While the slot offers none the item is not drawn, and it appears when an entry is
  * contributed, so the owner of a slot that other plugins fill never has to read it.
+ *
+ * An item that **also** names a `command` or `run` is always drawn. While its slot offers no entry,
+ * activating it runs that action, as a plain control; once the slot offers an entry, activating it
+ * opens the menu instead. Its own `menuHeader` does not count as an entry for this, so give the
+ * heading the same `command` and the item runs it directly while alone and leads the menu with it
+ * in company.
  */
 export type MenuTrigger = 'context' | 'primary' | 'both';
 

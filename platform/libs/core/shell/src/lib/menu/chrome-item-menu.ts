@@ -20,21 +20,6 @@ export function menuOnActivate(item: ChromeItemMenu): string | undefined {
   return item.workspace === undefined ? item.menu : undefined;
 }
 
-export interface ChromeItemOffer {
-  triggerable(item: ChromeItemMenu): boolean;
-  menuOffers(menu: string, header: MenuHeader | undefined): boolean;
-}
-
-export function isOffered(item: ChromeItemMenu, offer: ChromeItemOffer): boolean {
-  if (item.workspace !== undefined || 'component' in item) {
-    return true;
-  }
-  const menu = menuOnActivate(item);
-  return menu === undefined
-    ? offer.triggerable(item)
-    : offer.menuOffers(menu, item.menuHeader);
-}
-
 export function menuOnContext(item: ChromeItemMenu): string | undefined {
   if (!item.menu) {
     return undefined;
@@ -54,17 +39,6 @@ export function warnMenuTriggerConflict(item: ChromeItemMenu): void {
       `Item "${item.id}" switches to workspace "${item.workspace}" and asks for its menu on ` +
         `activation — activating it is the switch, so the menu "${item.menu}" stays on the ` +
         `right-click.`,
-    );
-    return;
-  }
-  if (menuOnActivate(item) && (item.command !== undefined || item.run !== undefined)) {
-    warned.add(item.id);
-    const behaviour =
-      item.command === undefined ? 'inline behaviour' : `command "${item.command}"`;
-    console.warn(
-      `Item "${item.id}" opens the menu "${item.menu}" on activation, so its ` +
-        `${behaviour} is never run from here. Reach it from a menu entry, a shortcut ` +
-        `or the palette instead.`,
     );
   }
 }

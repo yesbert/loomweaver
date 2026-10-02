@@ -235,6 +235,47 @@ describe('ShellBarItem', () => {
       ].map((entry) => entry.getAttribute('command') ?? '');
     }
 
+    it('runs the action the button also names while its menu offers nothing, as a plain button', () => {
+      let ran = 0;
+      TestBed.configureTestingModule({ imports: [ShellBarItem, transloco()] });
+      const registry = TestBed.inject(ContributionRegistry);
+      const fixture = TestBed.createComponent(ShellBarItem);
+      fixture.componentRef.setInput('item', {
+        id: 'overflow',
+        bar: 'top-bar',
+        slot: 'end',
+        icon: 'add',
+        tooltip: 'status.add',
+        menu: 'acme/empty',
+        menuTrigger: 'primary',
+        menuHeader: { title: 'status.add' },
+        run: () => {
+          ran += 1;
+        },
+      });
+      fixture.componentRef.setInput('dock', 'top');
+      fixture.detectChanges();
+      const button = (fixture.nativeElement as HTMLElement).querySelector(
+        'button',
+      ) as HTMLButtonElement;
+
+      expect(button.getAttribute('aria-haspopup')).toBeNull();
+      button.click();
+      expect(ran).toBe(1);
+      expect(document.body.querySelector(LW_MENU_TAG)).toBeNull();
+
+      registry.addMenuItem({
+        menu: 'acme/empty',
+        title: 'status.add',
+        run: () => undefined,
+      });
+      fixture.detectChanges();
+      expect(button.getAttribute('aria-haspopup')).toBe('menu');
+      button.click();
+      expect(ran).toBe(1);
+      expect(document.body.querySelector(LW_MENU_TAG)).not.toBeNull();
+    });
+
     it('opens the menu instead of running the action the button also names', () => {
       let ran = 0;
       const fixture = renderWithMenu({
@@ -268,7 +309,7 @@ describe('ShellBarItem', () => {
         providers: [
           {
             provide: MenuService,
-            useValue: { open, openTrigger: signal(null) },
+            useValue: { open, openTrigger: signal(null), offers: () => true },
           },
         ],
       });

@@ -12,13 +12,12 @@ import { AuthContext } from '../../../auth/auth-context';
 import { CommandService } from '../../../commands/command.service';
 import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import {
-  isOffered,
   menuOnActivate,
   menuOnContext,
   warnMenuTriggerConflict,
 } from '../../../menu/chrome-item-menu';
 import { MenuTriggerDirective } from '../../../menu/menu-trigger.directive';
-import { MenuService } from '../../../menu/menu.service';
+import { ChromeItemOffers } from '../../../menu/chrome-item-offers';
 import { surfaceForPanePath } from '../../pane/pane-surface';
 
 @Component({
@@ -35,7 +34,7 @@ export class SurfaceActions {
 
   private readonly auth = inject(AuthContext);
 
-  private readonly menus = inject(MenuService);
+  private readonly offers = inject(ChromeItemOffers);
 
   readonly path = input<string | undefined>();
 
@@ -58,12 +57,10 @@ export class SurfaceActions {
     this.registry
       .actionsOf(this.surfaceId())
       .filter((action) => this.auth.visible(action.access))
-      .filter((action) =>
-        isOffered(action, {
-          triggerable: () => true,
-          menuOffers: (menu, header) =>
-            this.menus.offers(menu, this.contextOf(action), header),
-        }),
+      .filter(
+        (action) =>
+          menuOnActivate(action) === undefined ||
+          this.offers.offered(action, this.contextOf(action)),
       )
       .toSorted((a, b) => (a.order ?? 0) - (b.order ?? 0)),
   );
@@ -73,7 +70,7 @@ export class SurfaceActions {
   }
 
   protected activateMenuOf(action: ViewAction): string | undefined {
-    return menuOnActivate(action);
+    return this.offers.menuOnActivation(action, this.contextOf(action));
   }
 
   protected contextOf(action: ViewAction): MenuContext {
@@ -94,7 +91,7 @@ export class SurfaceActions {
       return;
     }
     warnMenuTriggerConflict(action);
-    if (menuOnActivate(action)) {
+    if (this.activateMenuOf(action)) {
       return;
     }
     this.commands.trigger(action);

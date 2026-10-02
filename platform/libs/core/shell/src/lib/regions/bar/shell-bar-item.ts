@@ -13,9 +13,10 @@ import { DockPosition } from '../../layout/layout';
 import { TooltipPosition } from '../../elements/tooltip/lw-tooltip.element';
 import { CommandService } from '../../commands/command.service';
 import { AuthContext } from '../../auth/auth-context';
+import { MenuContext } from '@loomweaver/plugin-sdk';
+import { ChromeItemOffers } from '../../menu/chrome-item-offers';
 import { MenuTriggerDirective } from '../../menu/menu-trigger.directive';
 import {
-  menuOnActivate,
   menuOnContext,
   warnMenuTriggerConflict,
 } from '../../menu/chrome-item-menu';
@@ -48,6 +49,7 @@ export class ShellBarItem {
   readonly dock = input.required<DockPosition>();
 
   private readonly commands = inject(CommandService);
+  private readonly offers = inject(ChromeItemOffers);
   private readonly auth = inject(AuthContext);
   private readonly injector = inject(Injector);
 
@@ -71,9 +73,15 @@ export class ShellBarItem {
     const button = this.asButton();
     return button ? menuOnContext(button) : undefined;
   });
+  protected readonly menuContext = computed<MenuContext>(() => {
+    const item = this.item();
+    return { targetKind: 'bar-item', id: item.id, bar: item.bar };
+  });
   protected readonly activateMenu = computed<string | undefined>(() => {
     const button = this.asButton();
-    return button ? menuOnActivate(button) : undefined;
+    return button
+      ? this.offers.menuOnActivation(button, this.menuContext())
+      : undefined;
   });
 
   protected readonly componentInjector = computed<Injector>(() => {
@@ -113,7 +121,7 @@ export class ShellBarItem {
   protected run(button: BarButtonItem): void {
     if (this.disabled()) return;
     warnMenuTriggerConflict(button);
-    if (menuOnActivate(button)) {
+    if (this.activateMenu()) {
       return;
     }
     this.commands.trigger(button);

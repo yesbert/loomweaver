@@ -22,12 +22,11 @@ import { AuthContext } from '../../auth/auth-context';
 import { RailItem } from '../../foundation/rail-item';
 import { MenuTriggerDirective } from '../../menu/menu-trigger.directive';
 import {
-  isOffered,
-  menuOnActivate,
   menuOnContext,
   warnMenuTriggerConflict,
 } from '../../menu/chrome-item-menu';
-import { MenuService } from '../../menu/menu.service';
+import { MenuContext } from '@loomweaver/plugin-sdk';
+import { ChromeItemOffers } from '../../menu/chrome-item-offers';
 import { MenuSide } from '../../elements/menu/lw-menu.element';
 import { RAIL_CONTEXT_MENU, RAIL_ITEM_CONTEXT_MENU } from './rail-context-menu';
 import { RailItemsService } from './rail-items.service';
@@ -64,7 +63,7 @@ export class ShellRail {
   private readonly registry = inject(ContributionRegistry);
   private readonly commands = inject(CommandService);
   private readonly auth = inject(AuthContext);
-  private readonly menus = inject(MenuService);
+  private readonly offers = inject(ChromeItemOffers);
   private readonly userOrder = inject(UserOrderService);
   private readonly features = inject(FeatureSwitches).rail;
   private readonly railItems = inject(RailItemsService);
@@ -146,7 +145,11 @@ export class ShellRail {
   }
 
   protected activateMenuFor(item: RailItem): string | undefined {
-    return menuOnActivate(item);
+    return this.offers.menuOnActivation(item, this.menuContextOf(item));
+  }
+
+  protected menuContextOf(item: RailItem): MenuContext {
+    return { targetKind: 'rail-item', id: item.id, region: this.region().id };
   }
 
   protected onFocus(event: FocusEvent): void {
@@ -176,7 +179,7 @@ export class ShellRail {
   protected run(item: RailItem): void {
     if (this.isDisabled(item)) return;
     warnMenuTriggerConflict(item);
-    if (menuOnActivate(item)) {
+    if (this.activateMenuFor(item)) {
       return;
     }
     const workspace = item.workspace;
@@ -215,15 +218,7 @@ export class ShellRail {
     return (
       this.railItems.regionOf(item.id, item.rail) === this.region().id &&
       this.auth.visible(item.access) &&
-      isOffered(item, {
-        triggerable: (offered) => this.commands.triggerable(offered),
-        menuOffers: (menu, header) =>
-          this.menus.offers(
-            menu,
-            { targetKind: 'rail-item', id: item.id, region: this.region().id },
-            header,
-          ),
-      }) &&
+      this.offers.offered(item, this.menuContextOf(item)) &&
       this.railItems.isVisible(item.id)
     );
   }

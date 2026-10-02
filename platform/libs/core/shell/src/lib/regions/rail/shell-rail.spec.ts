@@ -511,6 +511,43 @@ describe('ShellRail', () => {
       ]);
     });
 
+    it('draws an item that also names an action while its menu offers nothing, and runs that action', () => {
+      let ran = 0;
+      const fixture = renderRail([
+        {
+          ...account,
+          run: () => {
+            ran += 1;
+          },
+        },
+      ]);
+      const button = buttonsOf(fixture)[0];
+
+      expect(button.getAttribute('aria-haspopup')).toBeNull();
+      button.click();
+
+      expect(ran).toBe(1);
+      expect(document.body.querySelector(LW_MENU_TAG)).toBeNull();
+    });
+
+    it('opens the menu rather than running the action once the menu has an entry', () => {
+      let ran = 0;
+      const fixture = setupMenu({
+        ...account,
+        run: () => {
+          ran += 1;
+        },
+      });
+      const button = buttonsOf(fixture)[0];
+
+      expect(button.getAttribute('aria-haspopup')).toBe('menu');
+      button.click();
+      fixture.detectChanges();
+
+      expect(ran).toBe(0);
+      expect(offered()).toEqual(['c.signOut']);
+    });
+
     it('leaves an item that declares no gesture on the right-click alone', () => {
       const fixture = setupMenu({
         ...account,
