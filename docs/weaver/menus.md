@@ -175,15 +175,17 @@ It is then always drawn. While the slot is empty, activating it runs the command
 Once the slot has an entry, activating it opens the menu instead. A heading does not count as an
 entry here, so name the same command in `menuHeader` and it leads the menu:
 
-````ts
+```ts
 actions: [
   { id: 'kb.entries.add', icon: 'add', title: 'kb.entries.add',
     command: 'kb.entries.upload',                       // alone: one click uploads
     menu: 'kb.entries/sources', menuTrigger: 'primary', // in company: the menu opens
     menuHeader: { title: 'kb.entries.upload', command: 'kb.entries.upload' } },
 ]
-``` A menu that is only on the right-click changes
-nothing about its control: that control has a purpose of its own and stays.
+```
+
+A menu that is only on the right-click changes nothing about its control: that control has a purpose
+of its own and stays.
 
 ## A picture where you have one
 
@@ -197,7 +199,7 @@ ctx.registerRailItem({
   title: 'notes.account.title', menu: 'notes.account/menu', menuTrigger: 'primary',
   menuHeader: { title: person.name, detail: person.email, initials: 'AR', image: person.avatarUrl },
 });
-````
+```
 
 The ladder is picture, then initials, then icon, and **the host falls back**: a picture that is
 missing or that fails to load leaves the control looking exactly as it would without one. So you do

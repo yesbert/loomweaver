@@ -197,8 +197,7 @@ interface InvocableCommand { id: string; title: string; description?: string; ar
 // goes as entries come and go) — the owner-and-filler pattern: one plugin puts `menu` + `menuTrigger: 'primary'` on a surface
 // action, others `registerMenuItem` into the slot, nobody reads the slot. An item that ALSO names a command/run is ALWAYS drawn: it RUNS that action while its slot is empty (a plain control, no aria-haspopup)
 // and OPENS THE MENU once the slot has an entry; its own menuHeader does not count as an entry, so name the same command in the header
-// and it runs directly while alone and leads the menu in company. Such an item needs NO command/run and is drawn without one — where it names one
-// anyway the menu wins (dev warning), and on an item carrying `workspace:` the click is the switch, so the
+// and it runs directly while alone and leads the menu in company. An item with NO command/run is the menu-only control above. On an item carrying `workspace:` the click is the switch, so the
 // menu keeps the right-click. Such an item may add `menuHeader?: MenuHeader` — { title, detail?, icon?,
 // initials? }, title/detail Transloco keys or literals — and the host draws it ABOVE the first entry: not an
 // entry itself (no menuitem role, the arrow keys pass over it like a separator, nothing activates it), and

@@ -4,7 +4,6 @@ import { LayoutRegion, SHELL_LAYOUT } from '../../layout/layout';
 import { regionsOfType } from '../../layout/layout-queries';
 import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { AuthContext } from '../../auth/auth-context';
-import { CommandService } from '../../commands/command.service';
 import { ChromeItemOffers } from '../../menu/chrome-item-offers';
 import { WorkspaceService } from '../../workspace/workspace.service';
 import { FeatureSwitches } from '../../features/feature-switches.service';
@@ -20,7 +19,6 @@ export class RailCuration implements CurationSource {
   private readonly layout = inject(SHELL_LAYOUT);
   private readonly registry = inject(ContributionRegistry);
   private readonly auth = inject(AuthContext);
-  private readonly commands = inject(CommandService);
   private readonly offers = inject(ChromeItemOffers);
   private readonly transloco = inject(TranslocoService);
   private readonly railItems = inject(RailItemsService);

@@ -19,7 +19,6 @@ import { ContributionRegistry } from '../../contributions/contribution-registry'
 import { BarItem, BarSlot } from '../../foundation/bar-item';
 import { LayoutRegion } from '../../layout/layout';
 import { AuthContext } from '../../auth/auth-context';
-import { CommandService } from '../../commands/command.service';
 import { ChromeItemOffers } from '../../menu/chrome-item-offers';
 import { ShellBarItem } from './shell-bar-item';
 import { foldedIds, foldRank, sameIds } from './bar-fold';
@@ -48,7 +47,6 @@ export class ShellBar {
 
   private readonly registry = inject(ContributionRegistry);
   private readonly auth = inject(AuthContext);
-  private readonly commands = inject(CommandService);
   private readonly offers = inject(ChromeItemOffers);
   private readonly destroyRef = inject(DestroyRef);
   private readonly document = inject(DOCUMENT);
