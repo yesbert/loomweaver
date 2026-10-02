@@ -23,6 +23,23 @@ test.describe('Feedback primitives', () => {
     await expect(spinner).toHaveCSS('width', '32px');
     await expect(spinner).toHaveCSS('animation-name', 'spin');
 
+    const colours = await page.evaluate(() => {
+      const brand = getComputedStyle(
+        document.querySelector('lw-spinner .lw-spinner-ring') as Element,
+      ).borderLeftColor;
+      const host = document.createElement('p');
+      host.style.color = 'rgb(1, 2, 3)';
+      const ring = document.createElement('span');
+      ring.className = 'lw-spinner-ring';
+      host.append(ring);
+      document.body.append(host);
+      const byHand = getComputedStyle(ring).borderLeftColor;
+      host.remove();
+      return { brand, byHand };
+    });
+    expect(colours.byHand).toBe('rgb(1, 2, 3)');
+    expect(colours.brand).not.toBe('rgb(1, 2, 3)');
+
     await expect(card.locator('.lw-badge.lw-badge--brand')).toHaveText('live');
     await expect(card.locator('.lw-badge.lw-badge--success')).toHaveText(
       '2 resolved',

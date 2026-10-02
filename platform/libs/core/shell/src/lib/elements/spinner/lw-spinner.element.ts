@@ -11,8 +11,10 @@ const DEFAULT_SIZE = '1.5rem';
 
 /**
  * `<lw-spinner size="1rem" label="…">` — the busy indicator as a framework-agnostic custom element:
- * a plain `HTMLElement`, **light DOM**, drawing one `.lw-spinner-ring` in the brand colour. Usable in
- * a plugin's markup by tag, without importing `@loomweaver/shell`, and in an isolated surface.
+ * a plain `HTMLElement`, **light DOM**, drawing one `.lw-spinner-ring`. The element is brand-coloured
+ * unless you give it a text colour; the ring class itself takes the colour around it, so a ring you
+ * draw by hand with that class keeps yours. Usable in a plugin's markup by tag, without importing
+ * `@loomweaver/shell`, and in an isolated surface.
  *
  * `size` is a CSS length (width = height, default `1.5rem`); a bare number is invalid and the
  * browser discards it. `label` is the accessible name announced with `role="status"` — pass a
