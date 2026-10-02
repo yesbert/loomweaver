@@ -41,7 +41,8 @@ Two things to know before you scale that up. `set` replaces the **whole** blob, 
 value when you change one field. Keep one state shape rather than five separate signals and there is
 nothing to merge. And call `set` as often as you like: the value is live immediately and the write is
 debounced, so even a per-keystroke `set` costs one save once typing stops. A write never waits longer
-than two seconds, and a reload sends what was still waiting.
+than two seconds, and a reload sends what was still waiting; completing it during the unload is the
+store's part where the product backs it with its server.
 [Recipe 7 in Samples](../samples.md#everything-a-view-must-persist) is the full treatment: form
 value, scroll position, expanded nodes, active sub-tab and filter in a single shape, next to the
 counter-example that loses all of it. (Persistence is backed by the distribution's
