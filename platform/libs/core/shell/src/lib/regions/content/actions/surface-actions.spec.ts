@@ -263,6 +263,22 @@ describe('SurfaceActions', () => {
       expect(labels()).toEqual([]);
     });
 
+    it('is not drawn while the only entry names a command the session may not use, and appears once it may', () => {
+      registry.addCommand({
+        id: 'reports.share',
+        title: 'add',
+        access: { authenticated: true },
+        run: () => undefined,
+      });
+      registry.addMenuItem({ menu: 'reports/more', command: 'reports.share' });
+      routable([{ ...more, menuTrigger: 'primary' }]);
+      render();
+      expect(labels()).toEqual([]);
+
+      session.set({ authenticated: true, roles: [], claims: {} });
+      expect(labels()).toEqual(['Pin']);
+    });
+
     it('stays drawn with an empty menu when the menu is only on its right-click', () => {
       routable([{ ...more, run: () => undefined }]);
       render();

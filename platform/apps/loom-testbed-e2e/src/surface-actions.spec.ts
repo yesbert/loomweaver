@@ -22,6 +22,30 @@ test.describe("A content surface's own actions", () => {
     ).toHaveCount(0);
   });
 
+  test('a split pane draws them too, before its own controls', async ({
+    page,
+  }) => {
+    await page.goto('/search');
+    await page
+      .locator(
+        'lw-address-pane-header lw-pane-toolbar button[aria-label="Split right"]',
+      )
+      .click();
+
+    const second = page.locator('lw-pane-view:not([data-address-pane])');
+    const action = second.locator('[data-surface-action="testbed.search.home"]');
+    await expect(action).toBeVisible();
+    await expect(
+      page.locator('[data-surface-action="testbed.search.home"]'),
+    ).toHaveCount(2);
+
+    const actionBox = await action.boundingBox();
+    const closeBox = await second
+      .getByRole('button', { name: 'Close pane' })
+      .boundingBox();
+    expect(actionBox?.x).toBeLessThan(closeBox?.x ?? 0);
+  });
+
   test('an action opens its menu on activation, and one whose menu is empty is not drawn', async ({
     page,
   }) => {

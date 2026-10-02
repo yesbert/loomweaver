@@ -32,7 +32,7 @@
 
 - [x] 6.1 The full shell and plugin-sdk suites, lint, formatting, `nx package`, the docs checks
 - [x] 6.2 The accessibility scan over a pane header with actions
-- [x] 6.3 In the testbed: the full end-to-end suite (376) passes, the header was looked at in the browser, and the menu opens beside its action. A pop-out and a split were not exercised by a test of their own; the design note records the pop-out as open
+- [x] 6.3 In the testbed: the full end-to-end suite (376) passes, the header was looked at in the browser, and the menu opens beside its action. A split pane has an end-to-end test of its own; a pop-out was not exercised, and the design note records it as open
 
 ## 7. Close
 
