@@ -226,8 +226,8 @@ the slot without a reload.
 
 #### Scenario: A control with an empty menu is not drawn
 
-- **WHEN** an item's activation opens its menu and nothing has contributed an entry the current
-  session may see
+- **WHEN** an item's activation opens its menu, the item names no action of its own, and nothing
+  has contributed an entry the current session may see
 - **THEN** the item is not drawn
 
 #### Scenario: The control appears once its menu has an entry
