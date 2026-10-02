@@ -351,8 +351,11 @@ access requirement says, shows its toggle state, and follows a replacement made 
 mounted. Only the actions of the surface currently shown SHALL be drawn; a surface in a tab that is
 not the active one contributes none.
 
-The limit of that: this is held for surfaces rendered by the workbench in the main window. A
-sandboxed surface carries no actions, so there is nothing of its to draw.
+In a detached window, which has no header of its own, the actions SHALL be drawn in a bar above the
+surface, and that bar SHALL be absent where the surface offers no action there. An action that names
+a command SHALL be drawn there only if that command declares itself suitable for a detached window.
+
+The limit of that: a sandboxed surface carries no actions, so there is nothing of its to draw.
 
 #### Scenario: A content surface's action is drawn in its pane's header
 
@@ -381,3 +384,14 @@ sandboxed surface carries no actions, so there is nothing of its to draw.
 
 - **WHEN** a plugin replaces an action of a surface shown in a content pane
 - **THEN** the pane's header shows the replacement, and the surface is not rebuilt
+
+#### Scenario: A detached surface keeps its actions
+
+- **WHEN** a surface with actions is opened in a window of its own
+- **THEN** its actions are drawn in a bar above it, and activating one runs what it names
+
+#### Scenario: A detached surface without usable actions stays bare
+
+- **WHEN** no action of the surface remains to draw once its access requirements and the rule for
+  commands in a detached window are applied
+- **THEN** the window shows the surface alone, with no bar

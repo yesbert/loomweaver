@@ -1,5 +1,13 @@
-<lw-surface-body
-  [path]="target()"
-  variant="content"
-  data-testid="popout-surface"
-/>
+<div
+  class="hidden shrink-0 items-center justify-end border-b border-border bg-surface px-2 py-1 has-[button]:flex"
+  data-testid="popout-actions"
+>
+  <lw-surface-actions [path]="target()" region="popout" />
+</div>
+<div class="min-h-0 flex-1">
+  <lw-surface-body
+    [path]="target()"
+    variant="content"
+    data-testid="popout-surface"
+  />
+</div>

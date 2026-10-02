@@ -123,4 +123,10 @@ test.describe('Accessibility (WCAG 2.1 AA)', () => {
     await expect(page.getByRole('menuitem', { name: 'Notes' })).toBeVisible();
     await scan(page);
   });
+
+  test("a pop-out carrying its surface's actions", async ({ page }) => {
+    await page.goto('/popout/search');
+    await expect(page.getByTestId('popout-actions')).toBeVisible();
+    await scan(page);
+  });
 });

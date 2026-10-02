@@ -11,6 +11,7 @@ import {
 import { defineLwIcon } from '../../../elements/icon/lw-icon.element';
 import { defineLwTooltip } from '../../../elements/tooltip/lw-tooltip.element';
 import { MenuService } from '../../../menu/menu.service';
+import { PopoutWindow } from '../../../popout/popout-window';
 import { viewPanePath } from '../../pane/tree/pane-address';
 import { SurfaceActions } from './surface-actions';
 
@@ -175,6 +176,39 @@ describe('SurfaceActions', () => {
     button('sort').click();
     expect(ran).toEqual([]);
     expect(button('sort').disabled).toBe(true);
+  });
+
+  describe('in a detached window', () => {
+    beforeEach(() => {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        imports: [Host, transloco()],
+        providers: [
+          { provide: AUTH_SOURCE, useValue: session },
+          { provide: PopoutWindow, useValue: { active: true } },
+        ],
+      });
+      registry = TestBed.inject(ContributionRegistry);
+      registry.addCommand({ id: 'c.main', title: 'add', run: () => undefined });
+      registry.addCommand({
+        id: 'c.popout',
+        title: 'sort',
+        popout: true,
+        run: () => undefined,
+      });
+    });
+
+    it('draws an action whose command belongs there and one with behaviour of its own, and no other', () => {
+      routable([
+        { id: 'main', icon: 'add', title: 'add', command: 'c.main' },
+        { id: 'popout', icon: 'sort', title: 'sort', command: 'c.popout' },
+        { id: 'inline', icon: 'pin', title: 'pin', run: () => undefined },
+        { id: 'gone', icon: 'add', title: 'add', command: 'c.unregistered' },
+      ]);
+      render();
+
+      expect(labels()).toEqual(['Sort', 'Pin']);
+    });
   });
 
   describe('an action that names a menu', () => {
