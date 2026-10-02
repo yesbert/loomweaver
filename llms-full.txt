@@ -187,7 +187,9 @@ interface InvocableCommand { id: string; title: string; description?: string; ar
 // context menu on right-click, region-agnostic, with a `{ targetKind, id, region }` context.
 // ViewActions are drawn in the header of WHATEVER HOLDS the surface while it is the one shown: a panel's header, and a content
 // pane's header BEFORE the pane's own controls (address pane, split pane, strip-less floating controls alike); they follow the
-// surface when it is moved, so a content surface needs NO toolbar of its own. A sandboxed surface carries no actions.
+// surface when it is moved, so a content surface needs NO toolbar of its own. IN A POP-OUT (no pane header) they stand in a bar ABOVE the surface; an action
+// naming a `command` is drawn there only if that command declares `popout: true`, an inline `run` action is drawn, and the bar is
+// absent where nothing remains to draw. A sandboxed surface carries no actions.
 // A RailItem/BarButtonItem/ViewAction may add `menuTrigger?: 'context' | 'primary' | 'both'` (default 'context') to
 // say which gesture opens it: 'primary'/'both' open it on ACTIVATION (click, Enter, Space) ANCHORED to the
 // control — the account entry every workbench needs. Activation offers the item's OWN slot alone (the
@@ -894,7 +896,7 @@ class ShellBrand { compact = input<boolean | undefined>(undefined); }   // <lw-s
 // meant to be able to show different layouts. An applier MUST NOT persist again (that would ping-pong forever).
 // POP-OUT WINDOWS — any content tab or sidebar view opens in its OWN browser window from its context
 // menu ("Open in new window"). The pop-out boots the SAME app at popout/… under the application's base (/popout/…
-// at the root) and renders exactly ONE surface: no rail,
+// at the root) and renders exactly ONE surface, with that surface's own actions in a bar above it where it has any: no rail,
 // no sidebars, no pane tree. It DUPLICATES (the original tab stays) and shares one VIEW_STATE instance, so the two
 // windows mirror live via the sync below. A pop-out NEVER writes layout keys and does not register layout-mutating
 // commands. Addresses below the base: popout/view/<viewId> for any registered view, popout/<contentPath> for a

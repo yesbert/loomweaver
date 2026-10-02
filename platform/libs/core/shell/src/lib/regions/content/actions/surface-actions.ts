@@ -18,6 +18,7 @@ import {
 } from '../../../menu/chrome-item-menu';
 import { MenuTriggerDirective } from '../../../menu/menu-trigger.directive';
 import { ChromeItemOffers } from '../../../menu/chrome-item-offers';
+import { PopoutWindow } from '../../../popout/popout-window';
 import { surfaceForPanePath } from '../../pane/pane-surface';
 
 @Component({
@@ -35,6 +36,8 @@ export class SurfaceActions {
   private readonly auth = inject(AuthContext);
 
   private readonly offers = inject(ChromeItemOffers);
+
+  private readonly popout = inject(PopoutWindow).active;
 
   readonly path = input<string | undefined>();
 
@@ -57,6 +60,7 @@ export class SurfaceActions {
     this.registry
       .actionsOf(this.surfaceId())
       .filter((action) => this.auth.visible(action.access))
+      .filter((action) => this.belongsInThisWindow(action))
       .filter(
         (action) =>
           menuOnActivate(action) === undefined ||
@@ -95,5 +99,15 @@ export class SurfaceActions {
       return;
     }
     this.commands.trigger(action);
+  }
+
+  private belongsInThisWindow(action: ViewAction): boolean {
+    if (!this.popout || action.command === undefined) {
+      return true;
+    }
+    const command = this.commands
+      .commands()
+      .find((candidate) => candidate.id === action.command);
+    return command !== undefined && this.commands.available(command);
   }
 }

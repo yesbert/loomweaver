@@ -55,6 +55,10 @@ so **quick-open does not exist** in it: `shell.quickOpen` is not registered and 
 The command palette stays, but commands are **main-window-only by default**: a command reaches a
 pop-out only when its author declares `popout: true` on it.
 
+The surface's own actions come with it, in a bar above the surface, under the same rule: an action
+that names a command is drawn only if that command declares `popout: true`. A surface with nothing
+to draw there fills the window alone.
+
 The quiet default is deliberate. A command **missing** from a pop-out is a small annoyance, while one
 that does something surprising in a detached window is the larger failure, and the shell cannot tell
 the two apart for a command it did not write. So it never guesses: it marks its own two (the palette

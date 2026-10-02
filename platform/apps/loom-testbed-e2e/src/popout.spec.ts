@@ -24,6 +24,33 @@ test.describe('Pop-out windows', () => {
     await expect(page).toHaveTitle(/^Search — /);
   });
 
+  test("a popped-out surface keeps the actions that belong in a pop-out, above it", async ({
+    page,
+  }) => {
+    await page.goto('/popout/search');
+    const bar = page.getByTestId('popout-actions');
+
+    await expect(bar.locator('[data-surface-action]')).toHaveCount(1);
+    const about = bar.locator('[data-surface-action="testbed.search.about"]');
+    await expect(about).toBeVisible();
+
+    const barBox = await bar.boundingBox();
+    const surfaceBox = await page.getByTestId('popout-surface').boundingBox();
+    expect((barBox?.y ?? 0) + (barBox?.height ?? 0)).toBeLessThanOrEqual(
+      (surfaceBox?.y ?? 0) + 1,
+    );
+
+    await about.click();
+    await expect(page.getByRole('dialog')).toBeVisible();
+  });
+
+  test('a popped-out surface without actions stays bare', async ({ page }) => {
+    await page.goto('/popout/view/testbed.outline');
+
+    await expect(page.getByTestId('popout-surface')).toBeVisible();
+    await expect(page.getByTestId('popout-actions')).toBeHidden();
+  });
+
   test('a gated route in a pop-out shows the access placeholder and does not redirect', async ({
     page,
   }) => {

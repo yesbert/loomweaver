@@ -5,6 +5,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { filter, map } from 'rxjs/operators';
 import { PRODUCT_IDENTITY } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../contributions/contribution-registry';
+import { SurfaceActions } from '../regions/content/actions/surface-actions';
 import { SurfaceBody } from '../regions/content/surface/surface-body';
 import { paneLabelOf, resolveTitle } from '../regions/pane/chrome/tab-label';
 import { Wording } from '../i18n/wording';
@@ -12,9 +13,9 @@ import { popoutTargetFromUrl } from './popout-path';
 
 @Component({
   selector: 'lw-popout-view',
-  imports: [SurfaceBody],
+  imports: [SurfaceBody, SurfaceActions],
   templateUrl: './popout-view.html',
-  host: { class: 'block h-full min-h-0' },
+  host: { class: 'flex h-full min-h-0 flex-col' },
 })
 export class PopoutView {
   private readonly router = inject(Router);
