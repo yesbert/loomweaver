@@ -112,6 +112,7 @@
   },
   "search": {
     "title": "Suche",
+    "goHome": "Zurück zur Startseite",
     "more": "Mehr zu dieser Suche",
     "unfilled": "Ein Menü, das niemand füllt",
     "heading": "Suche",

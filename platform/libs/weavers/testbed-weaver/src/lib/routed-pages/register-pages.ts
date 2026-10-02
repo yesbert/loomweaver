@@ -26,7 +26,7 @@ export function registerPages(ctx: PluginContext): void {
       {
         id: 'testbed.search.home',
         icon: 'testbedHome',
-        title: 'testbed.home.title',
+        title: 'testbed.search.goHome',
         order: 0,
         command: 'testbed.go.home',
       },
