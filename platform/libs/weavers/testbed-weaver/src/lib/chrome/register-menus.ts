@@ -18,6 +18,12 @@ export function registerMenus(ctx: PluginContext): void {
     when: { closable: true },
   });
   ctx.registerMenuItem({
+    menu: 'content/tab/context',
+    command: 'testbed.secret',
+    group: '3_plugin',
+    order: 1,
+  });
+  ctx.registerMenuItem({
     menu: 'testbed.account/menu',
     command: 'testbed.openSettings',
     group: '1_account',
