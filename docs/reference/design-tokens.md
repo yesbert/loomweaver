@@ -417,8 +417,9 @@ function in `@loomweaver/shell`: `defineLwIcon()`, `defineLwButton()`, `defineLw
 ## Busy indicator
 
 - **`<lw-spinner size="1.5rem" label="…"></lw-spinner>`** is a custom element like the others, usable
-  by tag from a plugin and from a sandboxed surface. It draws one `.lw-spinner-ring` in the brand
-  colour. It is what the progress dialog shows, and it fits anywhere else something is running.
+  by tag from a plugin and from a sandboxed surface. It draws one `.lw-spinner-ring`. The
+  element is brand-coloured unless you give it a text colour; the ring class takes the colour around
+  it, so a ring drawn by hand with that class keeps yours. It is what the progress dialog shows, and it fits anywhere else something is running.
 - `size` is a **CSS length**, `1.5rem` by default. A bare number is discarded by the browser.
 - `label` is the accessible name announced with `role="status"`. Pass a translated string, or leave
   it out where the text beside it already says what is running.
