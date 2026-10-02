@@ -47,7 +47,11 @@ capability to grant: there is nothing foreign to reach.
   around that. Uninstalling your plugin deletes this store: a settings section survives, an abandoned
   draft is litter.
 - **Values are JSON and writes are debounced.** Siblings in the same window see a change at once;
-  other windows see it once the debounced write lands. There is a size cap per value and a count cap
+  other windows see it once the debounced write lands. A write waits for 400 ms of quiet and never
+  longer than two seconds, and a reload or a closed window sends what was still waiting. With the
+  built-in local store a value you set just before a reload is therefore there afterwards. Where the
+  product backs the store with its server, the write is sent, and whether it completes while the
+  page unloads is that store's part. There is a size cap per value and a count cap
   per plugin, with a development warning at half of each, so no plugin can flood the user's storage.
 
 ## Waiting for the store in `activate()`
