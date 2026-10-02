@@ -185,7 +185,7 @@ interface InvocableCommand { id: string; title: string; description?: string; ar
 // opener's context (serialisable primitives) for visibility. The host draws the menu at the cursor.
 // An entry FOLLOWS ITS COMMAND'S ACCESS: one whose command the session may not run (unmet `access`, or in a pop-out a command
 // without `popout: true`) is NOT DRAWN and appears once the session qualifies; a slot left with no entry does not open; a heading
-// leading to such a command stays a plain heading. An entry with inline `run` declares no requirement and is always drawn.
+// leading to such a command stays a plain heading. An entry with inline `run` names no command, so no command's access filters it (`when` and the title rule still apply).
 // A RailItem/BarButtonItem/ViewAction may carry `menu?: string` — the host opens that slot as the item's
 // context menu on right-click, region-agnostic, with a `{ targetKind, id, region }` context.
 // ViewActions are drawn in the header of WHATEVER HOLDS the surface while it is the one shown: a panel's header, and a content

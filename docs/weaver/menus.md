@@ -34,7 +34,7 @@ An entry follows the access of the command it names. Where the session may not r
 entry is not drawn, and it appears once the session qualifies. That covers a command whose `access`
 is unmet, and in a pop-out a command that does not declare `popout`. A menu left without an entry
 does not open. Gate the command, and every menu that offers it follows; a menu
-entry has no `access` of its own. An entry with inline `run` names no command and is always drawn.
+entry has no `access` of its own. An entry with inline `run` names no command, so no command's access filters it.
 
 The host's own tab actions (Close, Close Others/All/to-the-Right, and a "Pinned" checkbox) live in the same
 slot, and your item joins them, in every pane of the main area. The host's entries act on the pane named

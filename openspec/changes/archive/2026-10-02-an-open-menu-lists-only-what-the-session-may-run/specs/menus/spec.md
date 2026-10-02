@@ -57,9 +57,10 @@ heading SHALL be the menu's first entry: the keyboard SHALL reach it first, a cl
 SHALL run the command with the menu's context and close the menu, and it SHALL show under the pointer
 and in focus the way an entry does. A menu whose only entry is such a heading SHALL still open.
 
-A heading that names no command, or names one that nothing registers, that the distribution
-removed, or that the current session may not run, SHALL NOT be an entry: it SHALL NOT be focusable, SHALL be passed over by keyboard
-navigation the way a separator is, and SHALL NOT be activatable by any gesture.
+A heading that names no command SHALL NOT be an entry, and neither SHALL one that names a command
+nothing registers, a command the distribution removed, or a command the current session may not
+run: it SHALL NOT be focusable, SHALL be passed over by keyboard navigation the way a separator is,
+and SHALL NOT be activatable by any gesture.
 
 The menu SHALL be announced by what the heading names, and what the heading shows SHALL NOT be read a
 second time as content, so the name reaches the user exactly once. A heading that is an entry SHALL
