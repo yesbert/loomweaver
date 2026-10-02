@@ -30,6 +30,12 @@ ctx.registerCommand({ id: 'my.tab.reveal', title: 'my.tab.reveal', run: (ctx) =>
 ctx.registerMenuItem({ menu: 'content/tab/context', command: 'my.tab.reveal', group: '3_plugin', when: { closable: true } });
 ```
 
+An entry follows the access of the command it names. Where the session may not run the command, the
+entry is not drawn, and it appears once the session qualifies. That covers a command whose `access`
+is unmet, and in a pop-out a command that does not declare `popout`. A menu left without an entry
+does not open. Gate the command, and every menu that offers it follows; a menu
+entry has no `access` of its own. An entry with inline `run` names no command and is always drawn.
+
 The host's own tab actions (Close, Close Others/All/to-the-Right, and a "Pinned" checkbox) live in the same
 slot, and your item joins them, in every pane of the main area. The host's entries act on the pane named
 in the context. An entry of your own that belongs only to the address-carrying pane declares
