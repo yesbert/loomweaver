@@ -49,6 +49,13 @@ export function registerPages(ctx: PluginContext): void {
         menuHeader: { title: 'testbed.notes.title', command: 'testbed.go.notes' },
       },
       {
+        id: 'testbed.search.about',
+        icon: 'help',
+        title: 'testbed.search.about',
+        order: 4,
+        command: 'testbed.about',
+      },
+      {
         id: 'testbed.search.unfilled',
         icon: 'add',
         title: 'testbed.search.unfilled',

@@ -4,8 +4,10 @@ import { AccessRequirement } from '../plugin/auth.js';
 /**
  * A surface's own header action — an independent function of that surface (e.g. "new", "sort").
  * The host draws it in the header of whatever holds the surface while it is the one shown there:
- * a panel's header, and a content pane's header before the pane's own controls. It follows the
- * surface when the user moves it. Not a view switcher (that is the Rail).
+ * a panel's header, a content pane's header before the pane's own controls, and in a pop-out window
+ * a bar above the surface. It follows the surface when the user moves it. In a pop-out an action
+ * that names a {@link command} is drawn only if that command declares `popout`. Not a view switcher
+ * (that is the Rail).
  */
 export interface ViewAction {
   readonly id: string;

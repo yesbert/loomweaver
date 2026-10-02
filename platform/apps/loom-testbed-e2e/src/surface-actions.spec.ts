@@ -9,7 +9,7 @@ test.describe("A content surface's own actions", () => {
       .locator('lw-address-pane-header')
       .getByTestId('surface-actions');
 
-    await expect(actions.locator('[data-surface-action]')).toHaveCount(3);
+    await expect(actions.locator('[data-surface-action]')).toHaveCount(4);
     await expect(
       actions.locator('[data-surface-action="testbed.search.home"]'),
     ).toBeVisible();

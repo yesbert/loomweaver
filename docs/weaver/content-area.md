@@ -79,6 +79,12 @@ mounted. [Sidebar surfaces](sidebar-surfaces.md) has those in full. An action ca
 which is how one plugin offers a place that others fill: see
 [Menus](menus.md#a-menu-on-the-plain-click). A sandboxed surface carries no actions.
 
+In a pop-out window, which has no pane header, the actions stand in a bar above the surface. An
+action that names a `command` is drawn there only if that command declares `popout: true`, the rule
+every trigger in a pop-out follows. An action with inline `run` is drawn. So back an action with a
+command where it should stay out of a pop-out. A pop-out of a surface with no action to draw there
+shows the surface alone.
+
 ## Reaching the pane edges
 
 The host insets nothing. A surface fills the pane it is mounted in, and what stands between its
