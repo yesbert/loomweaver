@@ -315,6 +315,15 @@ export class ContributionRegistry {
     );
   }
 
+  actionsOf(id: string | undefined): readonly ViewAction[] {
+    if (id === undefined) {
+      return [];
+    }
+    return (
+      this.surfacesSignal().find((entry) => entry.id === id)?.actions ?? []
+    );
+  }
+
   private addSurface(entry: RegisteredSurface): Disposable {
     this.surfacesSignal.update((entries) =>
       upsertBy(entries, entry, sameSlotAs(entry)),

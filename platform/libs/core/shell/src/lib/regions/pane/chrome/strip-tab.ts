@@ -1,4 +1,4 @@
-import { MenuContext, TabBadge, ViewAction } from '@loomweaver/plugin-sdk';
+import { MenuContext, TabBadge } from '@loomweaver/plugin-sdk';
 import { CONTENT_DOCK, viewIdOfPanePath } from '../tree/pane-address';
 
 export const VIEW_CONTEXT_MENU = 'panel/view/context';
@@ -15,7 +15,6 @@ export interface StripTab {
   readonly preview: boolean;
   readonly pinned: boolean;
   readonly instance?: string;
-  readonly actions?: readonly ViewAction[];
 }
 
 export type TabAcceptance = boolean | ((path: string) => boolean);

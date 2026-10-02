@@ -12,6 +12,8 @@ export interface PaneViewOptions {
   readonly closeLabel: string;
 
   readonly body: 'content' | 'panel';
+
+  readonly surfaceActions: boolean;
 }
 
 export const CONTENT_PANE_OPTIONS: PaneViewOptions = {
@@ -22,6 +24,7 @@ export const CONTENT_PANE_OPTIONS: PaneViewOptions = {
   maximize: true,
   closeLabel: 'content.split.closePane',
   body: 'content',
+  surfaceActions: true,
 };
 
 export const PANEL_PANE_OPTIONS: PaneViewOptions = {
@@ -32,6 +35,7 @@ export const PANEL_PANE_OPTIONS: PaneViewOptions = {
   maximize: false,
   closeLabel: 'panel.stack.unstack',
   body: 'panel',
+  surfaceActions: false,
 };
 
 export const CONTAINER_PANE_OPTIONS: PaneViewOptions = {
@@ -42,4 +46,5 @@ export const CONTAINER_PANE_OPTIONS: PaneViewOptions = {
   maximize: false,
   closeLabel: 'content.split.closePane',
   body: 'content',
+  surfaceActions: true,
 };

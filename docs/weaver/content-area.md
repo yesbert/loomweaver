@@ -58,6 +58,27 @@ A route component reads its params the normal Angular way (`inject(ActivatedRout
 resolves `id` itself. Don't draw your own top-level tab bar. Open into the host strip; a **nested**
 sub-tab bar _inside_ one document's body (Edit | Preview) is fine, it's a level down.
 
+## A surface's own actions
+
+A surface may carry `actions`, the buttons that belong to it alone: "new", "sort", "export". The host
+draws them in the header of the pane that shows the surface, before the pane's own controls, and
+only while that surface is the active tab. They follow the surface when the user splits the pane or
+drags the tab elsewhere, so you never draw a toolbar of your own for them.
+
+```ts
+ctx.registerSurface({ id: 'reports', title: 'reports.title', component: ReportsView,
+  routable: { path: 'reports' },
+  actions: [
+    { id: 'reports.export', icon: 'download', title: 'reports.export', command: 'reports.export' },
+  ] });
+```
+
+They are the same actions a sidebar surface carries, with the same rules: `access` hides or disables
+one, `pressed` makes it a toggle, and `ctx.updateSurfaceAction` replaces one while the surface is
+mounted. [Sidebar surfaces](sidebar-surfaces.md) has those in full. An action can also open a menu,
+which is how one plugin offers a place that others fill: see
+[Menus](menus.md#a-menu-on-the-plain-click). A sandboxed surface carries no actions.
+
 ## Reaching the pane edges
 
 The host insets nothing. A surface fills the pane it is mounted in, and what stands between its

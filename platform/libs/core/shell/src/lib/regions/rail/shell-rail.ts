@@ -27,6 +27,7 @@ import {
   menuOnContext,
   warnMenuTriggerConflict,
 } from '../../menu/chrome-item-menu';
+import { MenuService } from '../../menu/menu.service';
 import { MenuSide } from '../../elements/menu/lw-menu.element';
 import { RAIL_CONTEXT_MENU, RAIL_ITEM_CONTEXT_MENU } from './rail-context-menu';
 import { RailItemsService } from './rail-items.service';
@@ -63,6 +64,7 @@ export class ShellRail {
   private readonly registry = inject(ContributionRegistry);
   private readonly commands = inject(CommandService);
   private readonly auth = inject(AuthContext);
+  private readonly menus = inject(MenuService);
   private readonly userOrder = inject(UserOrderService);
   private readonly features = inject(FeatureSwitches).rail;
   private readonly railItems = inject(RailItemsService);
@@ -213,7 +215,15 @@ export class ShellRail {
     return (
       this.railItems.regionOf(item.id, item.rail) === this.region().id &&
       this.auth.visible(item.access) &&
-      isOffered(item, (offered) => this.commands.triggerable(offered)) &&
+      isOffered(item, {
+        triggerable: (offered) => this.commands.triggerable(offered),
+        menuOffers: (menu, header) =>
+          this.menus.offers(
+            menu,
+            { targetKind: 'rail-item', id: item.id, region: this.region().id },
+            header,
+          ),
+      }) &&
       this.railItems.isVisible(item.id)
     );
   }

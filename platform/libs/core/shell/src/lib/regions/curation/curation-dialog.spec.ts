@@ -179,8 +179,15 @@ describe('CurationDialog', () => {
 });
 
 describe('CurationDialog (a launcher entry that only opens a menu)', () => {
-  function withMenuEntry() {
+  function withMenuEntry(filled = true) {
     const made = render({ kind: 'rail' });
+    if (filled) {
+      TestBed.inject(ContributionRegistry).addMenuItem({
+        menu: 'p/menu',
+        title: 'An entry',
+        run: () => undefined,
+      });
+    }
     TestBed.inject(ContributionRegistry).addRailItem({
       id: 'p.menu',
       rail: 'activity',
@@ -197,6 +204,12 @@ describe('CurationDialog (a launcher entry that only opens a menu)', () => {
     const { fixture } = withMenuEntry();
 
     expect(rows(fixture)).toContainEqual({ id: 'p.menu', place: 'activity' });
+  });
+
+  it('does not list it while its menu offers nothing, as the rail does not draw it', () => {
+    const { fixture } = withMenuEntry(false);
+
+    expect(rows(fixture).map((row) => row.id)).not.toContain('p.menu');
   });
 
   it('still offers it once hidden, and brings it back', () => {

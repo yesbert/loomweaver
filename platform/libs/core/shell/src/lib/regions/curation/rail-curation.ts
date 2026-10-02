@@ -6,6 +6,7 @@ import { ContributionRegistry } from '../../contributions/contribution-registry'
 import { AuthContext } from '../../auth/auth-context';
 import { CommandService } from '../../commands/command.service';
 import { isOffered } from '../../menu/chrome-item-menu';
+import { MenuService } from '../../menu/menu.service';
 import { WorkspaceService } from '../../workspace/workspace.service';
 import { FeatureSwitches } from '../../features/feature-switches.service';
 import {
@@ -21,6 +22,7 @@ export class RailCuration implements CurationSource {
   private readonly registry = inject(ContributionRegistry);
   private readonly auth = inject(AuthContext);
   private readonly commands = inject(CommandService);
+  private readonly menus = inject(MenuService);
   private readonly transloco = inject(TranslocoService);
   private readonly railItems = inject(RailItemsService);
   private readonly railMove = inject(RailMoveService);
@@ -37,7 +39,19 @@ export class RailCuration implements CurationSource {
       .railItems()
       .filter((item) => this.auth.visible(item.access))
       .filter((item) =>
-        isOffered(item, (offered) => this.commands.triggerable(offered)),
+        isOffered(item, {
+          triggerable: (offered) => this.commands.triggerable(offered),
+          menuOffers: (menu, header) =>
+            this.menus.offers(
+              menu,
+              {
+                targetKind: 'rail-item',
+                id: item.id,
+                region: this.railItems.regionOf(item.id, item.rail ?? fallback),
+              },
+              header,
+            ),
+        }),
       )
       .map((item) => ({
         id: item.id,

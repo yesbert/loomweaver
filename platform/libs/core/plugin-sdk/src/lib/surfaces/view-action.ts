@@ -1,9 +1,11 @@
+import { MenuHeader, MenuTrigger } from '../chrome/menu.js';
 import { AccessRequirement } from '../plugin/auth.js';
 
 /**
- * A view's own header action (`header.actions`) — an independent function
- * of that view (e.g. "new", "sort"), shown in the panel header while the view is
- * active. Not a view switcher (that is the Rail).
+ * A surface's own header action — an independent function of that surface (e.g. "new", "sort").
+ * The host draws it in the header of whatever holds the surface while it is the one shown there:
+ * a panel's header, and a content pane's header before the pane's own controls. It follows the
+ * surface when the user moves it. Not a view switcher (that is the Rail).
  */
 export interface ViewAction {
   readonly id: string;
@@ -19,6 +21,19 @@ export interface ViewAction {
    * Contribute items to the slot with `ctx.registerMenuItem({ menu, … })`. Omit for no context menu.
    */
   readonly menu?: string;
+  /**
+   * Which gesture opens {@link menu}. Defaults to `'context'`, so an action that says nothing opens
+   * its menu on a right-click. With `'primary'` or `'both'` activating the action opens the menu
+   * beside it, and the action needs no {@link command} or {@link run}. Such an action is drawn only
+   * while its slot offers at least one entry, so you can offer a slot for other plugins to fill
+   * without asking what is in it. Ignored without {@link menu}.
+   */
+  readonly menuTrigger?: MenuTrigger;
+  /**
+   * A heading naming what the menu is about, drawn above its first entry. Only where activation
+   * opens the menu, since a right-click already points at this action; ignored otherwise.
+   */
+  readonly menuHeader?: MenuHeader;
   /**
    * Id of a registered {@link Command} this action triggers. Provide this **or** {@link run}; when
    * set, the host runs that command (so a keybinding/palette can share the same behaviour).

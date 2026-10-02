@@ -19,19 +19,7 @@
             {{ view.title | transloco }}
           </span>
         }
-        @for (action of actions(); track action.id) {
-          <button
-            type="button"
-            (click)="run(action)"
-            [disabled]="disabled(action)"
-            class="lw-icon-btn h-10 w-10 rounded-md disabled:pointer-events-none disabled:opacity-40 md:h-7 md:w-7"
-            [attr.aria-label]="action.title | transloco"
-            [attr.aria-pressed]="action.pressed"
-          >
-            <lw-icon [name]="action.icon" size="1rem" />
-            <lw-tooltip [text]="action.title | transloco" position="bottom" />
-          </button>
-        }
+        <lw-surface-actions [path]="activePath()" [region]="region().id" />
       </div>
     }
 

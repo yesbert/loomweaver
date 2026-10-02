@@ -12,13 +12,13 @@ import {
 import { TranslocoPipe } from '@jsverse/transloco';
 import { View } from '@loomweaver/plugin-sdk';
 import { LayoutRegion, SHELL_LAYOUT } from '../../layout/layout';
-import { ViewAction } from '../../views/view';
 import { ViewMountService } from '../../views/view-mount.service';
 import { ComponentLoader } from '../pane/component-loader.service';
 import { ViewInstanceSwitcher } from '../../views/view-instance-switcher';
 import { PanelGroupService } from './panel-group.service';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
 import { PaneTreeView } from '../pane/pane-tree-view';
+import { SurfaceActions } from '../content/actions/surface-actions';
 import {
   isViewPanePath,
   viewForPanePath,
@@ -41,8 +41,6 @@ import {
   ContributionRegistry,
   RegisteredView,
 } from '../../contributions/contribution-registry';
-import { CommandService } from '../../commands/command.service';
-import { AuthContext } from '../../auth/auth-context';
 import { ViewportService } from '../../layout/viewport.service';
 import {
   SURFACE_PADDING,
@@ -66,16 +64,13 @@ import { regionsAt } from '../../layout/layout-queries';
     SurfaceBody,
     RetainedComponent,
     ViewInstanceSwitcher,
+    SurfaceActions,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './shell-panel.html',
 })
 export class ShellPanel {
   readonly region = input.required<LayoutRegion>();
-
-  private readonly commands = inject(CommandService);
-
-  private readonly auth = inject(AuthContext);
 
   private readonly panels = inject(PanelState);
 
@@ -151,12 +146,6 @@ export class ShellPanel {
     return path !== undefined && !isViewPanePath(path) ? path : undefined;
   });
 
-  protected readonly actions = computed(() =>
-    [...(this.activeView()?.actions ?? [])]
-      .filter((action) => this.auth.visible(action.access))
-      .toSorted((a, b) => (a.order ?? 0) - (b.order ?? 0)),
-  );
-
   protected readonly panelPaneOptions = PANEL_PANE_OPTIONS;
 
   protected readonly primaryScope = computed(() =>
@@ -219,14 +208,5 @@ export class ShellPanel {
 
   protected releaseCarriedInstance(): void {
     this.panelGroup.clearActiveInstance(this.region().id);
-  }
-
-  protected disabled(action: ViewAction): boolean {
-    return this.auth.disabled(action.access);
-  }
-
-  protected run(action: ViewAction): void {
-    if (this.disabled(action)) return;
-    this.commands.trigger(action);
   }
 }

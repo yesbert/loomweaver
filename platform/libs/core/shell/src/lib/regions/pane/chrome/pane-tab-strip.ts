@@ -18,7 +18,7 @@ import {
   CdkDropList,
   moveItemInArray,
 } from '@angular/cdk/drag-drop';
-import { MenuContext, ViewAction } from '@loomweaver/plugin-sdk';
+import { MenuContext } from '@loomweaver/plugin-sdk';
 import { MenuService } from '../../../menu/menu.service';
 import { MENU_ANCHOR_GAP } from '../../../elements/menu/lw-menu.element';
 import { MenuTriggerDirective } from '../../../menu/menu-trigger.directive';
@@ -37,6 +37,7 @@ import {
 import { RovingTabs } from './roving-tabs.directive';
 import { StripOverflow } from './strip-overflow.directive';
 import { StripTab, TabAcceptance, tabMenuContext } from './strip-tab';
+import { SurfaceActions } from '../../content/actions/surface-actions';
 
 @Component({
   selector: 'lw-pane-tab-strip',
@@ -47,6 +48,7 @@ import { StripTab, TabAcceptance, tabMenuContext } from './strip-tab';
     Reorderable,
     RovingTabs,
     StripOverflow,
+    SurfaceActions,
     CdkDropList,
     CdkDrag,
     CdkDragHandle,
@@ -83,6 +85,8 @@ export class PaneTabStrip {
 
   readonly paneActions = input<TemplateRef<unknown> | null>(null);
 
+  readonly surfaceActions = input(false);
+
   readonly selectTab = output<StripTab>();
 
   readonly escalate = output<StripTab>();
@@ -92,8 +96,6 @@ export class PaneTabStrip {
   readonly unpinTab = output<StripTab>();
 
   readonly reorderTabs = output<string[]>();
-
-  readonly runAction = output<ViewAction>();
 
   readonly addTab = output<Event>();
 
@@ -115,11 +117,6 @@ export class PaneTabStrip {
 
   protected readonly dragZoneIds = computed(() =>
     this.paneDrag.dropTargetIds().filter((id) => id !== this.stripId()),
-  );
-
-  protected readonly activeActions = computed(
-    () =>
-      this.tabs().find((tab) => tab.path === this.activeId())?.actions ?? [],
   );
 
   protected readonly icons = computed(() => this.variant() === 'icons');

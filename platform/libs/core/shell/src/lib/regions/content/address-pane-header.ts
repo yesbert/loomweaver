@@ -4,8 +4,7 @@ import {
   computed,
   inject,
 } from '@angular/core';
-import { ViewAction } from '@loomweaver/plugin-sdk';
-import { CommandService } from '../../commands/command.service';
+import { SurfaceActions } from './actions/surface-actions';
 import { ContentTabsService } from './tabs/content-tabs.service';
 import { PaneTargetPicker } from './pane-target-picker';
 import { TAB_CONTEXT_MENU } from './tabs/tab-context-menu';
@@ -34,13 +33,12 @@ import { PaneToolbar } from '../pane/chrome/pane-toolbar';
 
 @Component({
   selector: 'lw-address-pane-header',
-  imports: [PaneTabStrip, PaneToolbar],
+  imports: [PaneTabStrip, PaneToolbar, SurfaceActions],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './address-pane-header.html',
   host: { class: 'contents' },
 })
 export class AddressPaneHeader {
-  private readonly commands = inject(CommandService);
   private readonly picker = inject(PaneTargetPicker);
   protected readonly tabs = inject(ContentTabsService);
   protected readonly tabContextMenu = TAB_CONTEXT_MENU;
@@ -150,10 +148,6 @@ export class AddressPaneHeader {
         break;
       }
     }
-  }
-
-  protected runAction(action: ViewAction): void {
-    this.commands.trigger(action);
   }
 
   protected onReorder(ids: string[]): void {

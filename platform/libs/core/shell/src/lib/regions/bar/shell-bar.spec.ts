@@ -190,17 +190,55 @@ describe('ShellBar', () => {
     ).toHaveLength(0);
   });
 
-  it('draws a button whose purpose is the menu it opens', () => {
-    expect(
-      render({
-        id: 'account',
-        bar: 'top-bar',
-        slot: 'end',
-        icon: 'add',
-        tooltip: 'status.add',
+  describe('a button whose purpose is the menu it opens', () => {
+    const account: BarItem = {
+      id: 'account',
+      bar: 'top-bar',
+      slot: 'end',
+      icon: 'add',
+      tooltip: 'status.add',
+      menu: 'acme/account',
+      menuTrigger: 'primary',
+    };
+
+    function renderLive() {
+      TestBed.configureTestingModule({ imports: [ShellBar, transloco()] });
+      const registry = TestBed.inject(ContributionRegistry);
+      registry.addBarItem(account);
+      const fixture = TestBed.createComponent(ShellBar);
+      fixture.componentRef.setInput('region', topBar);
+      fixture.detectChanges();
+      const buttons = () => {
+        fixture.detectChanges();
+        return (fixture.nativeElement as HTMLElement).querySelectorAll('button');
+      };
+      return { registry, buttons };
+    }
+
+    it('is not drawn while its menu offers nothing', () => {
+      expect(renderLive().buttons()).toHaveLength(0);
+    });
+
+    it('appears once an entry is contributed and goes again when it is withdrawn', () => {
+      const { registry, buttons } = renderLive();
+
+      const entry = registry.addMenuItem({
         menu: 'acme/account',
-        menuTrigger: 'primary',
-      }),
-    ).toHaveLength(1);
+        title: 'status.add',
+        run: () => undefined,
+      });
+      expect(buttons()).toHaveLength(1);
+
+      entry.dispose();
+      expect(buttons()).toHaveLength(0);
+    });
+
+    it('stays away while the only entry names a command nobody registered', () => {
+      const { registry, buttons } = renderLive();
+
+      registry.addMenuItem({ menu: 'acme/account', command: 'acme.missing' });
+
+      expect(buttons()).toHaveLength(0);
+    });
   });
 });

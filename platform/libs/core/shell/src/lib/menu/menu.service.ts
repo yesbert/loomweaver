@@ -114,6 +114,22 @@ export class MenuService {
     );
   }
 
+  offers(
+    menuId: string,
+    context: MenuContext,
+    header?: MenuHeader,
+  ): boolean {
+    const commands = this.registry.commands();
+    const resolved = resolveMenuItems([menuId], context, {
+      menuItems: this.registry.menuItems(),
+      commands,
+      shortcutOf: () => undefined,
+    });
+    return (
+      resolved.length > 0 || headingCommand(header, commands) !== undefined
+    );
+  }
+
   openList(
     entries: readonly MenuListEntry[],
     at: MenuAnchor,

@@ -13,12 +13,12 @@
     [overflow]="true"
     [canAddTab]="features.newTab()"
     [paneActions]="urlToolbar"
+    [surfaceActions]="true"
     (selectTab)="select($event)"
     (escalate)="escalate($event)"
     (closeTab)="tabs.close($event.path)"
     (unpinTab)="tabs.unpin($event.path)"
     (reorderTabs)="onReorder($event)"
-    (runAction)="runAction($event)"
     (revealRequest)="tabs.bringToFront($event)"
     (addTab)="newTab($event)"
   />
@@ -38,24 +38,30 @@
     (closePane)="closePrimary()"
   />
 </ng-template>
-@if (showFloating()) {
-  <lw-pane-toolbar
-    class="absolute top-1.5 right-2 z-30 rounded-md bg-surface-raised/85 px-0.5 ring-1 ring-border"
-    [canNewTab]="canNewTabFloating()"
-    [canSplitRight]="canSplitRightFloating()"
-    [canSplitDown]="canSplitDownFloating()"
-    [canMinimize]="canMinimize()"
-    [canMaximize]="features.maximize()"
-    [maximized]="maximized()"
-    [canClose]="canClose()"
-    newTabTestId="content-new-tab"
-    splitRightTestId="content-split-toggle"
-    splitDownTestId="content-split-down"
-    (newTab)="newTab($event)"
-    (splitRight)="split('row')"
-    (splitDown)="split('column')"
-    (minimize)="minimize()"
-    (toggleMaximize)="toggleMaximize()"
-    (closePane)="closePrimary()"
-  />
+@if (!tabs.showStrip()) {
+  <div
+    class="absolute top-1.5 right-2 z-30 hidden items-center gap-0.5 rounded-md bg-surface-raised/85 px-0.5 ring-1 ring-border has-[button]:flex"
+  >
+    <lw-surface-actions [path]="activeId()" [region]="contentDock" inStrip />
+    @if (showFloating()) {
+      <lw-pane-toolbar
+        [canNewTab]="canNewTabFloating()"
+        [canSplitRight]="canSplitRightFloating()"
+        [canSplitDown]="canSplitDownFloating()"
+        [canMinimize]="canMinimize()"
+        [canMaximize]="features.maximize()"
+        [maximized]="maximized()"
+        [canClose]="canClose()"
+        newTabTestId="content-new-tab"
+        splitRightTestId="content-split-toggle"
+        splitDownTestId="content-split-down"
+        (newTab)="newTab($event)"
+        (splitRight)="split('row')"
+        (splitDown)="split('column')"
+        (minimize)="minimize()"
+        (toggleMaximize)="toggleMaximize()"
+        (closePane)="closePrimary()"
+      />
+    }
+  </div>
 }

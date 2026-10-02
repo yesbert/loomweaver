@@ -129,7 +129,10 @@ export interface SurfaceBase {
   readonly badge?: TabBadge;
   /** Lower renders first among sibling surfaces in a dock (default 0). */
   readonly order?: number;
-  /** The surface's own header actions, shown in the pane header while active. */
+  /**
+   * The surface's own header actions, shown in the header of the panel or content pane that holds
+   * it while it is the one shown there, before the pane's own controls.
+   */
   readonly actions?: readonly ViewAction[];
   /**
    * Declarative auth gating: the host hides/disables/placeholders the surface when the current

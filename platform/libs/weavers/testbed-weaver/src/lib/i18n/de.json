@@ -112,6 +112,8 @@
   },
   "search": {
     "title": "Suche",
+    "more": "Mehr zu dieser Suche",
+    "unfilled": "Ein Menü, das niemand füllt",
     "heading": "Suche",
     "intro": "Eine gruppenlose Perspektive: sie besitzt den ganzen Inhaltsbereich und hat keinen Tab-Streifen. Der Wechsel dorthin und zurück ist genau das, was die Perspektiven-Tests prüfen."
   },

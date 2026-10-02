@@ -1,10 +1,11 @@
 import { isDevMode } from '@angular/core';
-import { MenuTrigger } from '@loomweaver/plugin-sdk';
+import { MenuHeader, MenuTrigger } from '@loomweaver/plugin-sdk';
 
 export interface ChromeItemMenu {
   readonly id: string;
   readonly menu?: string;
   readonly menuTrigger?: MenuTrigger;
+  readonly menuHeader?: MenuHeader;
   readonly command?: string;
   readonly workspace?: string;
   run?(): void;
@@ -19,16 +20,19 @@ export function menuOnActivate(item: ChromeItemMenu): string | undefined {
   return item.workspace === undefined ? item.menu : undefined;
 }
 
-export function isOffered(
-  item: ChromeItemMenu,
-  triggerable: (item: ChromeItemMenu) => boolean,
-): boolean {
-  return (
-    item.workspace !== undefined ||
-    'component' in item ||
-    menuOnActivate(item) !== undefined ||
-    triggerable(item)
-  );
+export interface ChromeItemOffer {
+  triggerable(item: ChromeItemMenu): boolean;
+  menuOffers(menu: string, header: MenuHeader | undefined): boolean;
+}
+
+export function isOffered(item: ChromeItemMenu, offer: ChromeItemOffer): boolean {
+  if (item.workspace !== undefined || 'component' in item) {
+    return true;
+  }
+  const menu = menuOnActivate(item);
+  return menu === undefined
+    ? offer.triggerable(item)
+    : offer.menuOffers(menu, item.menuHeader);
 }
 
 export function menuOnContext(item: ChromeItemMenu): string | undefined {

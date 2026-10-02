@@ -110,4 +110,17 @@ test.describe('Accessibility (WCAG 2.1 AA)', () => {
     await expect(page.getByTestId('tab-close')).toBeVisible();
     await scan(page);
   });
+
+  test("a pane header carrying a surface's own actions, with its menu open", async ({
+    page,
+  }) => {
+    await page.goto('/search');
+    const more = page.locator('[data-surface-action="testbed.search.more"]');
+    await expect(more).toBeVisible();
+    await scan(page);
+
+    await more.click();
+    await expect(page.getByRole('menuitem', { name: 'Notes' })).toBeVisible();
+    await scan(page);
+  });
 });

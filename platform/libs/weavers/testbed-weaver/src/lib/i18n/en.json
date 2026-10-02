@@ -112,6 +112,8 @@
   },
   "search": {
     "title": "Search",
+    "more": "More for this search",
+    "unfilled": "A menu nobody fills",
     "heading": "Search",
     "intro": "A group-less perspective: it owns the whole content area and has no tab strip. Switching to it and back is what the perspective tests exercise."
   },
