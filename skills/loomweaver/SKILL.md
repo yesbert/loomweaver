@@ -57,6 +57,22 @@ shortcut, nothing about the code around it, and reading first buys you nothing y
   [Icons](https://loomweaver.dev/reference/icons/)
 - The content area is the Angular router. You write no `Routes` and no `canActivate`.
   [Routing](https://loomweaver.dev/reference/routing/)
+- A surface's own buttons are its `actions`, drawn by the host in the header of the panel or pane
+  that shows it. Do not build a toolbar for them. An action can open a menu slot that other plugins
+  fill, and the host hides it while the slot is empty.
+  [The content area](https://loomweaver.dev/weaver/content-area/) ·
+  [Menus](https://loomweaver.dev/weaver/menus/)
+- State has three homes, and none of them is browser storage of your own. What a routable surface
+  shows, its filter or its sub-tab, belongs in the address: route parameters or `subRoutes`. What a
+  docked view keeps for itself goes in `VIEW_STATE`. What several surfaces of one plugin share
+  goes in `ctx.state`. The host keeps the last two per person where the product supplies an
+  identity, so do not clear them on sign-out and do not look for a user id to build keys from.
+  [View state that survives](https://loomweaver.dev/weaver/view-state/) ·
+  [Your plugin's own store](https://loomweaver.dev/weaver/plugin-state/)
+- "This is running" is `<lw-spinner>`. A known amount of progress is a native
+  `<progress class="lw-progress">` for a bar or `<lw-progress-ring>` for a ring. The elements are
+  used by tag like every other `<lw-*>` element.
+  [Design tokens](https://loomweaver.dev/reference/design-tokens/)
 
 ## Where the rest is
 

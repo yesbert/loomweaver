@@ -140,8 +140,9 @@ nothing registers leaves the heading a plain heading.
 
 Activation offers **your** slot alone: the workbench's own entries for that item, the ones that hide
 it or move it to the other rail, stay on the right-click, where a curation entry beside "Sign out"
-would be noise. Such an item needs no `command` or `run`, and the host draws it without one; where it
-names one anyway the menu wins and a development-mode message names what is never run. On an item
+would be noise. Such an item needs no `command` or `run`. The host draws it without one for as long
+as its menu offers an entry; see [a slot that others fill](#a-slot-that-others-fill). Where it names
+one anyway the menu wins and a development-mode message names what is never run. On an item
 carrying `workspace:` the click is the switch, so its menu keeps the right-click. The host owns the
 rest: it announces the control as opening a menu, tracks whether it is open, and returns focus to it
 when the menu is dismissed.
