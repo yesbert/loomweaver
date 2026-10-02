@@ -13,6 +13,12 @@ test.describe("A content surface's own actions", () => {
     await expect(
       actions.locator('[data-surface-action="testbed.search.home"]'),
     ).toBeVisible();
+    await expect(
+      actions.getByRole('button', { name: 'Back to the start page' }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'Home', exact: true }),
+    ).toHaveCount(1);
 
     await actions.locator('[data-surface-action="testbed.search.home"]').click();
 
