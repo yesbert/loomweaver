@@ -42,7 +42,7 @@ export * from './lib/elements/nav-tree/lw-nav-tree.element';
 export { forgetLwNavFolds } from './lib/elements/nav-tree/nav-fold-state';
 export { defineLwProgressRing } from './lib/elements/progress/lw-progress-ring.element';
 export { defineLwSelect } from './lib/elements/select/lw-select.element';
-export * from './lib/elements/spinner/lw-spinner';
+export * from './lib/elements/spinner/lw-spinner.element';
 export * from './lib/elements/tooltip/lw-tooltip.element';
 
 export * from './lib/features/feature-switches.service';

@@ -29,6 +29,7 @@ describe('frame-kit build', () => {
       'lw-markdown',
       'lw-icon',
       'lw-progress-ring',
+      'lw-spinner',
     ]) {
       expect(js).toContain(tag);
     }

@@ -5,6 +5,7 @@ import { defineLwMenu } from './menu/lw-menu.element';
 import { defineLwNavTree } from './nav-tree/lw-nav-tree.element';
 import { defineLwProgressRing } from './progress/lw-progress-ring.element';
 import { defineLwSelect } from './select/lw-select.element';
+import { defineLwSpinner } from './spinner/lw-spinner.element';
 import { defineLwTooltip } from './tooltip/lw-tooltip.element';
 
 export const LW_ELEMENT_DEFINITIONS: readonly (() => void)[] = [
@@ -16,6 +17,7 @@ export const LW_ELEMENT_DEFINITIONS: readonly (() => void)[] = [
   defineLwMarkdown,
   defineLwButton,
   defineLwProgressRing,
+  defineLwSpinner,
 ];
 
 export function defineLwElements(): void {

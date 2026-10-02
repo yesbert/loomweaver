@@ -62,7 +62,6 @@ const EXEMPT = new Map([
   ['LwNavGroupElement', 'class behind <lw-nav-group>'],
   ['LwNavItemElement', 'class behind <lw-nav-item>'],
   ['LwButton', 'Angular directive behind the .lw-btn class contract'],
-  ['LwSpinner', 'component behind the documented spinner'],
   ['LwVersion', 'component behind the documented version chrome'],
   ['LwSettingRow', 'component behind the documented settings rows'],
   ['TooltipPosition', 'attribute value type of <lw-tooltip>'],

@@ -262,7 +262,7 @@ test, has to register each element it uses itself. An unregistered tag stays in 
 unknown element that draws nothing and raises no error. Each has an idempotent registration
 function in `@loomweaver/shell`: `defineLwIcon()`, `defineLwButton()`, `defineLwTooltip()`,
 `defineLwSelect()` (with `<lw-option>`), `defineLwMenu()` (with `<lw-menu-item>`),
-`defineLwMarkdown()`, `defineLwNavTree()` and `defineLwProgressRing()`.
+`defineLwMarkdown()`, `defineLwNavTree()`, `defineLwProgressRing()` and `defineLwSpinner()`.
 
 - **Icons:** `<lw-icon name="add" size="1rem" />`. Names are semantic rather than pictorial;
   [Icons](icons.md) is the catalogue, every shipped name with its glyph. **Contributable names:** a **distribution** adds its
@@ -416,9 +416,13 @@ function in `@loomweaver/shell`: `defineLwIcon()`, `defineLwButton()`, `defineLw
 
 ## Busy indicator
 
-- **`<lw-spinner size="1.5rem" [label]="…" />`** is a pure CSS spinner on `currentColor` (brand
-  colour by default). Used by the progress dialog (`ctx.ui.progress`/`withProgress`), and anywhere
-  else for "this is running".
+- **`<lw-spinner size="1.5rem" label="…"></lw-spinner>`** is a custom element like the others, usable
+  by tag from a plugin and from a sandboxed surface. It draws one `.lw-spinner-ring` in the brand
+  colour. It is what the progress dialog shows, and it fits anywhere else something is running.
+- `size` is a **CSS length**, `1.5rem` by default. A bare number is discarded by the browser.
+- `label` is the accessible name announced with `role="status"`. Pass a translated string, or leave
+  it out where the text beside it already says what is running.
+- The ring keeps turning under reduced motion, because a spinner that stands still reads as a hang.
 
 ## Rich text / Markdown
 

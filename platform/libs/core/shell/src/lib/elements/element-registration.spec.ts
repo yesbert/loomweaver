@@ -9,6 +9,12 @@ describe('registering the workbench elements outside the workbench', () => {
     },
   );
 
+  it('offers the spinner among them', () => {
+    expect(LW_ELEMENT_DEFINITIONS.map((define) => define.name)).toContain(
+      'defineLwSpinner',
+    );
+  });
+
   it('draws a select registered from the package entry', () => {
     const register = (entry as Record<string, unknown>)['defineLwSelect'];
     expect(typeof register).toBe('function');
