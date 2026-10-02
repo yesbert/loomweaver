@@ -1,8 +1,9 @@
 ## 1. Pin it
 
 - [ ] 1.1 `popout-view` spec: a surface with an action shows it above the body; one without shows no bar; an action naming a command without `popout` is absent, one with inline behaviour is present
-- [ ] 1.2 End to end in the testbed: pop out the search surface, see its action, run it
-- [ ] 1.3 Run them and see them fail on the current code
+- [ ] 1.2 Testbed fixture: an action on the search surface whose command declares itself suitable for a pop-out, beside the present ones that do not
+- [ ] 1.3 End to end in the testbed: pop out the search surface, see that action and not the others, run it
+- [ ] 1.4 Run them and see them fail on the current code
 
 ## 2. Build
 

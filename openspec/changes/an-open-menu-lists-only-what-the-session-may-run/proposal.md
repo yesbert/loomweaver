@@ -31,7 +31,9 @@ None.
 
 ### Modified Capabilities
 
-- `menus`: *An entry that cannot work is not drawn* gains the command the session may not run.
+- `menus`: *An entry that cannot work is not drawn* gains the command the session may not run, and
+  *A menu opened from a control may name what it was opened against* makes a heading an entry only
+  where the session may run its command.
 
 ## Impact
 
@@ -39,6 +41,8 @@ None.
   commands the session may run.
 - `platform/libs/core/shell/src/lib/menu/menu.service.spec.ts`, the tab-strip and rail specs that
   open menus.
+- `platform/libs/weavers/testbed-weaver`: a command that requires a signed-in session and an entry
+  for it on the content tab's menu, which the end-to-end test needs and the testbed lacks.
 - `docs/weaver/menus.md`, `docs/weaver/access-gating.md`, `llms-full.txt`.
 - No change to the published types.
 - No legacy source is dissolved.

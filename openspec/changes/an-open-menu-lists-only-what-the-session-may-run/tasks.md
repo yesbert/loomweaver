@@ -12,8 +12,9 @@
 ## 3. Verify
 
 - [ ] 3.1 The full shell suite, lint, `nx package shell`, the docs checks
-- [ ] 3.2 End to end in the testbed: a gated entry on a tab's menu, signed out and signed in
-- [ ] 3.3 The full end-to-end suite
+- [ ] 3.2 Testbed fixture: a command that requires a signed-in session, contributed to the content tab's menu
+- [ ] 3.3 End to end in the testbed: that entry is absent signed out and present signed in
+- [ ] 3.4 The full end-to-end suite
 
 ## 4. Close
 

@@ -54,5 +54,6 @@ The limit of that: a sandboxed surface carries no actions, so there is nothing o
 
 #### Scenario: A detached surface without usable actions stays bare
 
-- **WHEN** a surface declares no action, or none whose command belongs in a detached window
+- **WHEN** no action of the surface remains to draw once its access requirements and the rule for
+  commands in a detached window are applied
 - **THEN** the window shows the surface alone, with no bar

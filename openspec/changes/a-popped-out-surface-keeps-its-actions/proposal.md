@@ -42,6 +42,8 @@ None.
 - `platform/libs/core/shell/src/lib/popout/popout-view.html` and `.ts`: the actions above the body.
 - `platform/libs/core/shell/src/lib/regions/content/actions/surface-actions.ts`: in a pop-out, an
   action is offered only if its command is available there.
+- `platform/libs/weavers/testbed-weaver`: a surface action that is suitable for a pop-out, since the
+  search surface's present actions name commands that are not and would all be filtered out.
 - `platform/apps/loom-testbed-e2e`: a pop-out test for a surface with actions.
 - `docs/weaver/content-area.md`, the pop-out section of the distribution guide, `llms-full.txt`.
 - No change to the published types.
