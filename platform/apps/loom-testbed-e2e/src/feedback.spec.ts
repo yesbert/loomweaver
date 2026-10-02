@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 test.describe('Feedback primitives', () => {
-  test('renders the progress bar, ring and badges on the home view', async ({
+  test('renders the progress bar, ring, spinner and badges on the home view', async ({
     page,
   }) => {
     await page.goto('/');
@@ -15,6 +15,13 @@ test.describe('Feedback primitives', () => {
     await expect(ring).toHaveAttribute('role', 'progressbar');
     await expect(ring).toHaveAttribute('aria-valuenow', '72');
     await expect(ring).toContainText('72%');
+
+    const spinner = card.locator('lw-spinner .lw-spinner-ring');
+    await expect(spinner).toBeVisible();
+    await expect(spinner).toHaveAttribute('role', 'status');
+    await expect(spinner).toHaveAttribute('aria-label', 'live');
+    await expect(spinner).toHaveCSS('width', '32px');
+    await expect(spinner).toHaveCSS('animation-name', 'spin');
 
     await expect(card.locator('.lw-badge.lw-badge--brand')).toHaveText('live');
     await expect(card.locator('.lw-badge.lw-badge--success')).toHaveText(

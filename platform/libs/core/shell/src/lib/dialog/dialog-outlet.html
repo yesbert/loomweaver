@@ -96,7 +96,7 @@
               />
             } @else if (d.kind === 'progress') {
               <div class="flex items-center gap-3 text-sm text-content">
-                <lw-spinner [label]="'progress.busy' | transloco" />
+                <lw-spinner [label]="'progress.busy' | transloco"></lw-spinner>
                 @if (d.progressMessage) {
                   <span>{{ d.progressMessage() | transloco }}</span>
                 }
