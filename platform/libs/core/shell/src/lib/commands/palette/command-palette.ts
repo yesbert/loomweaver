@@ -15,6 +15,7 @@ import { RecentCommandsService } from './recent-commands.service';
 import { FeatureSwitches } from '../../features/feature-switches.service';
 import { ContentTabsService } from '../../regions/content/tabs/content-tabs.service';
 import { MenuService } from '../../menu/menu.service';
+import { SlotResolution } from '../../menu/slot-resolution.service';
 import { MENU_ANCHOR_GAP } from '../../elements/menu/lw-menu.element';
 import { TAB_CONTEXT_MENU } from '../../regions/content/tabs/tab-context-menu';
 import { Wording } from '../../i18n/wording';
@@ -42,6 +43,7 @@ export class CommandPalette {
   private readonly recentCommands = inject(RecentCommandsService);
   private readonly contentTabs = inject(ContentTabsService);
   private readonly menu = inject(MenuService);
+  private readonly slots = inject(SlotResolution);
   private readonly element = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly recentlyUsed = inject(FeatureSwitches).commands.recentlyUsed;
   private readonly wording = inject(Wording);
@@ -58,11 +60,14 @@ export class CommandPalette {
   private readonly commandSections = computed(() =>
     commandSections(
       commandRows(
-        this.commands.commands().filter((command) => this.offered(command)),
-        {
-          translate: (key) => this.wording.translate(key),
-          shortcutOf: (command) => this.commands.shortcutOf(command),
-        },
+        this.slots.resolve(
+          this.commands
+            .commands()
+            .filter((command) => this.offered(command))
+            .map((command) => ({ command: command.id })),
+          () => ({}),
+        ),
+        (key) => this.wording.translate(key),
       ),
       this.recentlyUsed() ? this.recentCommands.ids() : [],
       this.query().trim(),
@@ -186,11 +191,7 @@ export class CommandPalette {
   }
 
   private offered(command: Command): boolean {
-    return (
-      command.id !== PALETTE_COMMAND_ID &&
-      !command.paletteHidden &&
-      this.commands.available(command)
-    );
+    return command.id !== PALETTE_COMMAND_ID && !command.paletteHidden;
   }
 
   private scrollListToTop(): void {

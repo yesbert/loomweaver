@@ -75,7 +75,8 @@ ctx.registerSurface({ id: 'reports', title: 'reports.title', component: ReportsV
 
 They are the same actions a sidebar surface carries, with the same rules: `access` hides or disables
 one, `pressed` makes it a toggle, and `ctx.updateSurfaceAction` replaces one while the surface is
-mounted. [Sidebar surfaces](sidebar-surfaces.md) has those in full. An action can also open a menu,
+mounted. An action naming a command the session may not run is not drawn until it may, whether or
+not the action carries an `access` of its own. [Sidebar surfaces](sidebar-surfaces.md) has those in full. An action can also open a menu,
 which is how one plugin offers a place that others fill: see
 [Menus](menus.md#a-menu-on-the-plain-click). A sandboxed surface carries no actions.
 

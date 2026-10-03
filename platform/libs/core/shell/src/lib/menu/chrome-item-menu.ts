@@ -1,14 +1,14 @@
 import { isDevMode } from '@angular/core';
-import { MenuHeader, MenuTrigger } from '@loomweaver/plugin-sdk';
+import { MenuContext, MenuHeader, MenuTrigger } from '@loomweaver/plugin-sdk';
 
 export interface ChromeItemMenu {
-  readonly id: string;
+  readonly id?: string;
   readonly menu?: string;
   readonly menuTrigger?: MenuTrigger;
   readonly menuHeader?: MenuHeader;
   readonly command?: string;
   readonly workspace?: string;
-  run?(): void;
+  run?(context?: MenuContext): unknown;
 }
 
 const warned = new Set<string>();
@@ -30,11 +30,12 @@ export function menuOnContext(item: ChromeItemMenu): string | undefined {
 }
 
 export function warnMenuTriggerConflict(item: ChromeItemMenu): void {
-  if (!isDevMode() || warned.has(item.id)) {
+  const id = item.id ?? '';
+  if (!isDevMode() || warned.has(id)) {
     return;
   }
   if (item.workspace !== undefined && item.menuTrigger !== undefined && item.menuTrigger !== 'context') {
-    warned.add(item.id);
+    warned.add(id);
     console.warn(
       `Item "${item.id}" switches to workspace "${item.workspace}" and asks for its menu on ` +
         `activation — activating it is the switch, so the menu "${item.menu}" stays on the ` +

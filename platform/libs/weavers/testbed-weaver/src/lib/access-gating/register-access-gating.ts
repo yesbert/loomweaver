@@ -156,6 +156,14 @@ function registerGatedChrome(ctx: PluginContext): void {
     command: 'testbed.go.adminArea',
   });
   ctx.registerRailItem({
+    id: 'testbed.rail.secretRun',
+    rail: 'secondary',
+    icon: 'testbedStar',
+    title: 'testbed.cmd.secret',
+    order: 10,
+    command: 'testbed.secret',
+  });
+  ctx.registerRailItem({
     id: 'testbed.rail.auth',
     rail: 'secondary',
     icon: 'testbedUserSwitch',

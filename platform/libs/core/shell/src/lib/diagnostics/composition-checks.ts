@@ -3,6 +3,7 @@ import { chordClaims } from '../commands/keyboard/chord';
 import { RegionType, ShellLayout } from '../layout/layout';
 import { regionById } from '../layout/layout-queries';
 import { menuEntryId } from '../menu/menu-entry-id';
+import { RegisteredMenuItem } from '../contributions/contribution-registry';
 import { ROUTE_OMIT_PREFIX } from '../contributions/route-omit';
 import { SETTING_OMIT_PREFIX } from '../settings-dialog/setting-omit';
 
@@ -86,6 +87,20 @@ export function danglingCommands(
     );
 }
 
+export function undeclaredSlots(
+  entries: readonly RegisteredMenuItem[],
+  declared: ReadonlySet<string>,
+): string[] {
+  return entries
+    .filter(({ item }) => !declared.has(item.menu))
+    .map(
+      ({ item, ownerId }) =>
+        `Composition: ${menuLabel(item)}${ownerOf(ownerId)} is contributed to slot ` +
+        `'${item.menu}', which nothing declares: no menu the workbench draws, no control naming ` +
+        `it as its menu, no registered toolbar. It is never shown.`,
+    );
+}
+
 export function contestedShortcuts(
   commands: readonly Command[],
   isMac: boolean,
@@ -112,6 +127,10 @@ export function menuLabel(item: MenuItem): string {
   return item.id === undefined
     ? `menu entry in '${item.menu}'`
     : `menu entry "${item.id}"`;
+}
+
+function ownerOf(ownerId: string | undefined): string {
+  return ownerId === undefined ? '' : ` from plugin "${ownerId}"`;
 }
 
 function misplacement(

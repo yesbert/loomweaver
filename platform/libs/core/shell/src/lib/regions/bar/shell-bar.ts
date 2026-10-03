@@ -19,8 +19,9 @@ import { ContributionRegistry } from '../../contributions/contribution-registry'
 import { BarItem, BarSlot } from '../../foundation/bar-item';
 import { LayoutRegion } from '../../layout/layout';
 import { AuthContext } from '../../auth/auth-context';
-import { ChromeItemOffers } from '../../menu/chrome-item-offers';
+import { SlotResolution } from '../../menu/slot-resolution.service';
 import { ShellBarItem } from './shell-bar-item';
+import { barMenuContext, isBarButton } from './bar-context';
 import { foldedIds, foldRank, sameIds } from './bar-fold';
 
 const GAP_PX = 8;
@@ -47,7 +48,7 @@ export class ShellBar {
 
   private readonly registry = inject(ContributionRegistry);
   private readonly auth = inject(AuthContext);
-  private readonly offers = inject(ChromeItemOffers);
+  private readonly slots = inject(SlotResolution);
   private readonly destroyRef = inject(DestroyRef);
   private readonly document = inject(DOCUMENT);
 
@@ -75,19 +76,18 @@ export class ShellBar {
 
   protected readonly trayId = computed(() => `lw-bar-tray-${this.region().id}`);
 
-  private readonly contributed = computed<readonly BarItem[]>(() =>
-    this.registry
+  private readonly contributed = computed<readonly BarItem[]>(() => {
+    const here = this.registry
       .barItems()
-      .filter((item) => item.bar === this.region().id)
-      .filter((item) => this.auth.visible(item.access))
-      .filter((item) =>
-        this.offers.offered(item, {
-          targetKind: 'bar-item',
-          id: item.id,
-          bar: item.bar,
-        }),
-      ),
-  );
+      .filter((item) => item.bar === this.region().id);
+    const cells = here.filter(
+      (item) => !isBarButton(item) && this.auth.visible(item.access),
+    );
+    const buttons = this.slots
+      .resolve(here.filter((item) => isBarButton(item)), barMenuContext)
+      .map((entry) => entry.item);
+    return [...cells, ...buttons];
+  });
 
   protected readonly startItems = computed(() => this.inBar('start'));
   protected readonly centerItems = computed(() => this.inBar('center'));

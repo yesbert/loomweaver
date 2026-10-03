@@ -16,6 +16,7 @@ import {
   entryToView,
   viewToEntry,
 } from './surface-normalize';
+import { idsOf, sameSlotAs, withoutOmitted } from './registry-filters';
 
 export type { Disposable } from '@loomweaver/plugin-sdk';
 export type {
@@ -33,27 +34,17 @@ export interface RegisteredCommand {
   readonly ownerId?: string;
 }
 
+/**
+ * A menu entry as the registry holds it: the entry a plugin handed in, plus the owner the host
+ * stamped on it, so that an entry aimed at a slot nothing declares can be reported with the plugin
+ * that contributed it.
+ */
+export interface RegisteredMenuItem {
+  readonly item: MenuItem;
+  readonly ownerId?: string;
+}
+
 const NO_ROUTES: readonly RegisteredContentRoute[] = [];
-
-function withoutOmitted<T>(
-  items: readonly T[],
-  omitted: ReadonlySet<string>,
-  idOf: (item: T) => string | undefined,
-): readonly T[] {
-  if (omitted.size === 0) {
-    return items;
-  }
-  return items.filter((item) => {
-    const id = idOf(item);
-    return id === undefined || !omitted.has(id);
-  });
-}
-
-function idsOf(
-  list: readonly { readonly id?: string }[],
-): readonly string[] {
-  return list.flatMap((item) => (item.id === undefined ? [] : [item.id]));
-}
 
 /**
  * Holds the live UI contributions the regions render. Seeded at startup from the
@@ -81,7 +72,9 @@ export class ContributionRegistry {
 
   private readonly railItemsSignal = signal<readonly RailItem[]>([]);
 
-  private readonly menuItemsSignal = signal<readonly MenuItem[]>([]);
+  private readonly menuEntriesSignal = signal<readonly RegisteredMenuItem[]>(
+    [],
+  );
 
   private readonly dockedSurfaces = computed(() =>
     this.surfacesSignal().filter((entry) => entry.routable === undefined),
@@ -156,9 +149,18 @@ export class ContributionRegistry {
         .filter((route) => isRouteOmitted(route, omitted));
     });
 
+  readonly registeredMenuItems: Signal<readonly RegisteredMenuItem[]> =
+    computed(() =>
+      withoutOmitted(
+        this.menuEntriesSignal(),
+        this.omittedSignal(),
+        (entry) => entry.item.id,
+      ),
+    );
+
   /** Menu-slot contributions; a menu filters these by slot and `when` as it opens. */
-  readonly menuItems: Signal<readonly MenuItem[]> = this.visible(
-    this.menuItemsSignal,
+  readonly menuItems: Signal<readonly MenuItem[]> = computed(() =>
+    this.registeredMenuItems().map((entry) => entry.item),
   );
 
   /** The ids {@link omit} hides, exactly as the distribution wrote them, prefixes and all. */
@@ -177,7 +179,7 @@ export class ContributionRegistry {
         ...idsOf(this.surfacesSignal()),
         ...idsOf(this.barItemsSignal()),
         ...idsOf(this.railItemsSignal()),
-        ...idsOf(this.menuItemsSignal()),
+        ...idsOf(this.menuEntriesSignal().map((entry) => entry.item)),
       ]),
   );
 
@@ -257,19 +259,32 @@ export class ContributionRegistry {
     return this.addSurface(contentRouteToEntry(route, pluginId));
   }
 
-  /** Adds a menu-slot item. With an `id` a re-registration replaces in place (last-in wins); without one the item is additive and dispose removes this exact contribution. */
-  addMenuItem(item: MenuItem): Disposable {
-    this.menuItemsSignal.update((items) =>
-      upsertBy(items, item, (existing) => item.id !== undefined && existing.id === item.id),
+  /**
+   * Adds a menu-slot item. With an `id` a re-registration replaces in place (last-in wins); without
+   * one the item is additive and dispose removes this exact contribution. `pluginId` is stamped by
+   * the host, never claimed by the plugin; the shell's own entries carry none.
+   */
+  addMenuItem(item: MenuItem, pluginId?: string): Disposable {
+    const entry: RegisteredMenuItem = { item, ownerId: pluginId };
+    this.menuEntriesSignal.update((entries) =>
+      upsertBy(
+        entries,
+        entry,
+        (existing) => item.id !== undefined && existing.item.id === item.id,
+      ),
     );
     return {
       dispose: () =>
-        this.menuItemsSignal.update((items) => items.filter((existing) => existing !== item)),
+        this.menuEntriesSignal.update((entries) =>
+          entries.filter((existing) => existing !== entry),
+        ),
     };
   }
 
   removeMenuItemById(id: string): void {
-    this.menuItemsSignal.update((items) => items.filter((existing) => existing.id !== id));
+    this.menuEntriesSignal.update((entries) =>
+      entries.filter((existing) => existing.item.id !== id),
+    );
   }
 
   /**
@@ -372,17 +387,4 @@ export class ContributionRegistry {
   ): void {
     target.update((items) => items.filter((existing) => existing.id !== id));
   }
-}
-
-function sameSlotAs(
-  entry: RegisteredSurface,
-): (existing: RegisteredSurface) => boolean {
-  const path = entry.routable?.path;
-  if (path !== undefined) {
-    return (existing) => existing.routable?.path === path;
-  }
-  return (existing) =>
-    existing.routable === undefined &&
-    existing.id !== undefined &&
-    existing.id === entry.id;
 }

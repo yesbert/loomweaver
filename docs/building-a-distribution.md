@@ -78,6 +78,12 @@ omitted, and then warns about the things that quietly land nowhere:
   `setting:shell.permissions`, and the bare form fails in silence
 - a settings button or menu entry pointing at a **command no one registers** (or one your own `omit`
   removed): the shell drops the control rather than drawing a dead one, and this says why it vanished
+- a menu entry aimed at a **slot nothing declares**: no menu the shell draws, no rail item, bar
+  button or surface action naming it as its `menu`, no registered toolbar. The entry is kept and
+  appears the moment the slot is declared, so this is also warned about once in the console after
+  the composed plugins have finished activating, naming the entry, the slot and the plugin that
+  contributed it. It is deliberately not warned about at registration time: the plugin that fills a
+  slot may activate before the one that owns it
 - a **keyboard shortcut two commands both claim**, naming both and saying which one the shortcut
   actually runs. The chord goes to whichever registered last, so the other command's menu entry goes
   on offering a shortcut that now does something else. That is the part worth seeing: nothing looks

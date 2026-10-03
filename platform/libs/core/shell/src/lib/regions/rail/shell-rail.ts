@@ -18,7 +18,6 @@ import { CdkScrollable } from '@angular/cdk/scrolling';
 import { LayoutRegion, SHELL_LAYOUT } from '../../layout/layout';
 import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { CommandService } from '../../commands/command.service';
-import { AuthContext } from '../../auth/auth-context';
 import { RailItem } from '../../foundation/rail-item';
 import { MenuTriggerDirective } from '../../menu/menu-trigger.directive';
 import {
@@ -26,7 +25,7 @@ import {
   warnMenuTriggerConflict,
 } from '../../menu/chrome-item-menu';
 import { MenuContext } from '@loomweaver/plugin-sdk';
-import { ChromeItemOffers } from '../../menu/chrome-item-offers';
+import { SlotResolution } from '../../menu/slot-resolution.service';
 import { MenuSide } from '../../elements/menu/lw-menu.element';
 import { RAIL_CONTEXT_MENU, RAIL_ITEM_CONTEXT_MENU } from './rail-context-menu';
 import { RailItemsService } from './rail-items.service';
@@ -62,8 +61,7 @@ export class ShellRail {
 
   private readonly registry = inject(ContributionRegistry);
   private readonly commands = inject(CommandService);
-  private readonly auth = inject(AuthContext);
-  private readonly offers = inject(ChromeItemOffers);
+  private readonly slots = inject(SlotResolution);
   private readonly userOrder = inject(UserOrderService);
   private readonly features = inject(FeatureSwitches).rail;
   private readonly railItems = inject(RailItemsService);
@@ -104,9 +102,21 @@ export class ShellRail {
     () => this.features.reorder() || this.features.moveItems(),
   );
 
+  private readonly resolved = computed(
+    () =>
+      new Map(
+        this.slots
+          .resolve(
+            this.registry.railItems().filter((item) => this.isPlacedHere(item)),
+            (item) => this.menuContextOf(item),
+          )
+          .map((entry) => [entry.item.id, entry]),
+      ),
+  );
+
   protected readonly entries = computed(() =>
     railEntries(
-      this.registry.railItems().filter((item) => this.isShownHere(item)),
+      [...this.resolved().values()].map((entry) => entry.item),
       (band) =>
         this.userOrder.applyOrder(this.containerId(), band, (item) => item.id),
     ),
@@ -136,7 +146,7 @@ export class ShellRail {
   }
 
   protected isDisabled(item: RailItem): boolean {
-    return this.auth.disabled(item.access);
+    return this.resolved().get(item.id)?.disabled ?? false;
   }
 
   protected menusFor(item: RailItem): readonly string[] {
@@ -145,7 +155,7 @@ export class ShellRail {
   }
 
   protected activateMenuFor(item: RailItem): string | undefined {
-    return this.offers.menuOnActivation(item, this.menuContextOf(item));
+    return this.resolved().get(item.id)?.opensMenu;
   }
 
   protected menuContextOf(item: RailItem): MenuContext {
@@ -214,11 +224,9 @@ export class ShellRail {
     return !!dragged && !!target && bandOf(dragged) === bandOf(target);
   };
 
-  private isShownHere(item: RailItem): boolean {
+  private isPlacedHere(item: RailItem): boolean {
     return (
       this.railItems.regionOf(item.id, item.rail) === this.region().id &&
-      this.auth.visible(item.access) &&
-      this.offers.offered(item, this.menuContextOf(item)) &&
       this.railItems.isVisible(item.id)
     );
   }

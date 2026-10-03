@@ -3,8 +3,7 @@ import { TranslocoService } from '@jsverse/transloco';
 import { LayoutRegion, SHELL_LAYOUT } from '../../layout/layout';
 import { regionsOfType } from '../../layout/layout-queries';
 import { ContributionRegistry } from '../../contributions/contribution-registry';
-import { AuthContext } from '../../auth/auth-context';
-import { ChromeItemOffers } from '../../menu/chrome-item-offers';
+import { SlotResolution } from '../../menu/slot-resolution.service';
 import { WorkspaceService } from '../../workspace/workspace.service';
 import { FeatureSwitches } from '../../features/feature-switches.service';
 import {
@@ -18,8 +17,7 @@ import { CurationRow, CurationSource, HIDDEN } from './curation-source';
 export class RailCuration implements CurationSource {
   private readonly layout = inject(SHELL_LAYOUT);
   private readonly registry = inject(ContributionRegistry);
-  private readonly auth = inject(AuthContext);
-  private readonly offers = inject(ChromeItemOffers);
+  private readonly slots = inject(SlotResolution);
   private readonly transloco = inject(TranslocoService);
   private readonly railItems = inject(RailItemsService);
   private readonly railMove = inject(RailMoveService);
@@ -32,16 +30,13 @@ export class RailCuration implements CurationSource {
 
   rows(): CurationRow[] {
     const fallback = this.regions()[0]?.id ?? '';
-    const registered = this.registry
-      .railItems()
-      .filter((item) => this.auth.visible(item.access))
-      .filter((item) =>
-        this.offers.offered(item, {
-          targetKind: 'rail-item',
-          id: item.id,
-          region: this.railItems.regionOf(item.id, item.rail ?? fallback),
-        }),
-      )
+    const registered = this.slots
+      .resolve(this.registry.railItems(), (item) => ({
+        targetKind: 'rail-item',
+        id: item.id,
+        region: this.railItems.regionOf(item.id, item.rail ?? fallback),
+      }))
+      .map((entry) => entry.item)
       .map((item) => ({
         id: item.id,
         label: this.transloco.translate(item.title),

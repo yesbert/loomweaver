@@ -178,6 +178,28 @@ describe('SurfaceActions', () => {
     expect(button('sort').disabled).toBe(true);
   });
 
+  it('does not draw an action naming a command the session may not run until it may, with no requirement of its own', () => {
+    registry.addCommand({
+      id: 'reports.purge',
+      title: 'add',
+      access: { anyRole: ['admin'] },
+      run: () => undefined,
+    });
+    routable([{ id: 'purge', icon: 'x', title: 'add', command: 'reports.purge' }]);
+    render();
+    expect(labels()).toEqual([]);
+
+    session.set({ authenticated: true, roles: ['admin'], claims: {} });
+    expect(labels()).toEqual(['Add']);
+  });
+
+  it('does not draw an action naming a command nothing registers', () => {
+    routable([{ id: 'dead', icon: 'x', title: 'add', command: 'reports.missing' }, sort]);
+    render();
+
+    expect(labels()).toEqual(['Sort']);
+  });
+
   describe('in a detached window', () => {
     beforeEach(() => {
       TestBed.resetTestingModule();

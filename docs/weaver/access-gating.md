@@ -25,8 +25,10 @@ ctx.registerSurface({ id: 'notes.list', title: 'notes.list', docks: ['left-panel
   actions: [{ id: 'notes.sync', icon: 'upload', title: 'notes.sync', command: 'notes.sync',
     access: { authenticated: true, mode: 'disable' } }] });
 
-// A command is blocked at the one execute() seam — its keybinding no-ops, and the command palette
-// and every menu omit it — until the requirement is met.
+// A command is blocked at the one execute() seam — its keybinding no-ops, and the command palette,
+// every menu and every control that names it (a rail item, a bar button, a view action, a settings
+// button) omit it — until the requirement is met. The control needs no `access` of its own for
+// that: the command's requirement decides whether the control is drawn.
 ctx.registerCommand({ id: 'notes.purge', title: 'notes.purge', access: { anyRole: ['admin'] },
   run: () => purge() });
 
@@ -39,7 +41,9 @@ ctx.registerSurface({ id: 'admin', title: 'admin.title', component: AdminView,
 
 `access` fields: `authenticated?` (must be signed in / only-anonymous), `anyRole?` (at least one),
 `allRoles?` (every), and `mode?: 'hide' | 'disable'` for chrome items (default `hide`). `mode` is
-ignored where an item is inherently present-or-not (a whole view, a command, a route). **Client-side
+ignored where an item is inherently present-or-not (a whole view, a command, a route). A chrome
+item's own `access` is applied first, in the mode it asks for; the `access` of the command it names
+is applied after and only ever hides, because a control the user cannot run is not a control. **Client-side
 gating is presentation, not security.** Enforce for real on your server; a hidden control is not a
 boundary. Gating is orthogonal to plugin **capabilities** (what your plugin may do): a granted plugin
 can still gate an individual contribution by user role.

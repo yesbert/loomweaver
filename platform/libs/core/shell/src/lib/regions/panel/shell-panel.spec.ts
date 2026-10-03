@@ -149,6 +149,8 @@ describe('ShellPanel', () => {
   });
 
   describe("a view's action that carries a toggle state", () => {
+    const act = () => undefined;
+
     function renderWith(actions: View['actions']) {
       localStorage.clear();
       TestBed.resetTestingModule();
@@ -174,9 +176,9 @@ describe('ShellPanel', () => {
 
     it('is announced pressed when it stands on, unpressed when off, and as a plain button without one', () => {
       const { host } = renderWith([
-        { id: 'on', icon: 'pin', title: 'float', pressed: true },
-        { id: 'off', icon: 'pin', title: 'dock', pressed: false },
-        { id: 'plain', icon: 'add', title: 'act' },
+        { id: 'on', icon: 'pin', title: 'float', pressed: true, run: act },
+        { id: 'off', icon: 'pin', title: 'dock', pressed: false, run: act },
+        { id: 'plain', icon: 'add', title: 'act', run: act },
       ]);
 
       expect(pressedOf(host, 'Float')).toBe('true');
@@ -187,7 +189,7 @@ describe('ShellPanel', () => {
     it('flips its announced state when replaced with the opposite one, without a rebuild', () => {
       built = 0;
       const { fixture, registry, host } = renderWith([
-        { id: 'float', icon: 'pin', title: 'float', pressed: false },
+        { id: 'float', icon: 'pin', title: 'float', pressed: false, run: act },
       ]);
       const builtOnce = built;
 
@@ -196,6 +198,7 @@ describe('ShellPanel', () => {
         icon: 'pin',
         title: 'dock',
         pressed: true,
+        run: act,
       });
       fixture.detectChanges();
 
@@ -206,7 +209,7 @@ describe('ShellPanel', () => {
 
     it('draws an action added later in the place its order gives it', () => {
       const { fixture, registry, host } = renderWith([
-        { id: 'a', icon: 'add', title: 'act', order: 10 },
+        { id: 'a', icon: 'add', title: 'act', order: 10, run: act },
       ]);
 
       registry.updateSurfaceAction('nav', {
@@ -214,6 +217,7 @@ describe('ShellPanel', () => {
         icon: 'pin',
         title: 'float',
         order: 0,
+        run: act,
       });
       fixture.detectChanges();
 

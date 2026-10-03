@@ -1,4 +1,5 @@
 import { inject, Service } from '@angular/core';
+import { ActivationSettled } from '../plugin/activation-settled';
 import { BAR_ITEM } from '../foundation/bar-item';
 import { RAIL_ITEM } from '../foundation/rail-item';
 import { VIEW } from '../views/view';
@@ -24,9 +25,14 @@ import {
   Placement,
   settingIds,
   uncomposedRequirements,
+  undeclaredSlots,
   unmatchedOmits,
   unmatchedRowReplacements,
 } from './composition-checks';
+import { declaredSlots } from './declared-slots';
+import { isBarButton } from '../regions/bar/bar-context';
+
+const SLOT_REPORT_QUIET_MS = 1000;
 
 @Service()
 export class CompositionReport {
@@ -42,9 +48,22 @@ export class CompositionReport {
   private readonly plugins = inject(PLUGIN, { optional: true }) ?? [];
   private readonly framePlugins =
     inject(FRAME_PLUGIN, { optional: true }) ?? [];
+  private readonly activation = inject(ActivationSettled);
 
   checkStaticContributions(): void {
     for (const problem of this.staticProblems()) {
+      console.warn(problem);
+    }
+  }
+
+  async reportUndeclaredSlotsOnceSettled(): Promise<void> {
+    do {
+      await this.activation.settled();
+      await new Promise((resolve) =>
+        setTimeout(resolve, SLOT_REPORT_QUIET_MS),
+      );
+    } while (this.activation.isPending());
+    for (const problem of this.undeclaredSlotProblems()) {
       console.warn(problem);
     }
   }
@@ -109,7 +128,22 @@ export class CompositionReport {
         this.commandReferences(),
       ),
       ...contestedShortcuts(this.registry.commands(), isMacPlatform()),
+      ...this.undeclaredSlotProblems(),
     ];
+  }
+
+  private undeclaredSlotProblems(): string[] {
+    return undeclaredSlots(
+      this.registry.registeredMenuItems(),
+      declaredSlots([
+        ...this.registry.railItems(),
+        ...this.registry.barItems().filter((item) => isBarButton(item)),
+        ...this.registry.views().flatMap((view) => view.actions ?? []),
+        ...this.registry
+          .contentRoutes()
+          .flatMap((route) => route.actions ?? []),
+      ]),
+    );
   }
 
   private placements(): Placement[] {
