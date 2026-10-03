@@ -15,8 +15,8 @@ import {
   parseContext,
   reflectExpanded,
   RowItem,
-  ToolbarEntryView,
 } from './toolbar-dom';
+import { LwToolbarEntry } from './toolbar-entry';
 import { ToolbarLayout } from './toolbar-layout';
 import {
   toolbarChanged,
@@ -32,12 +32,7 @@ export const LW_TOOLBAR_CONTEXT = 'lw-toolbar-context';
 
 export type LwToolbarSize = 'sm' | 'md';
 
-/**
- * One entry a `<lw-toolbar>` draws, already resolved and worded by whoever drives the element:
- * the workbench in the page, the frame kit inside an isolated surface. The element draws; it
- * decides nothing about commands, sessions or words.
- */
-export type LwToolbarEntry = ToolbarEntryView;
+export type { LwToolbarEntry } from './toolbar-entry';
 
 export interface LwToolbarSelectDetail {
   readonly key: string;

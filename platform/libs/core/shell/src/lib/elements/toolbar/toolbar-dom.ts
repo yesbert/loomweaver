@@ -1,4 +1,5 @@
 import { MenuContext } from '@loomweaver/plugin-sdk';
+import { LwToolbarEntry } from './toolbar-entry';
 
 export const ENTRY_ATTRIBUTE = 'data-lw-entry';
 
@@ -21,19 +22,6 @@ export const FOLD_SELECTOR = `[${FOLD_ATTRIBUTE}]`;
 export const ENTRY_BUTTON_SELECTOR = `button${ENTRY_SELECTOR}`;
 
 export const FOCUSABLE_SELECTOR = 'button, a[href], input, [tabindex]';
-
-export interface ToolbarEntryView {
-  readonly key: string;
-  readonly label: string;
-  readonly group?: string;
-  readonly order?: number;
-  readonly icon?: string;
-  readonly shortcut?: string;
-  readonly pressed?: boolean;
-  readonly disabled?: boolean;
-  readonly opensMenu?: boolean;
-  readonly hasContextMenu?: boolean;
-}
 
 export interface RowItem {
   readonly id: string;
@@ -102,7 +90,7 @@ export function reflectExpanded(
 }
 
 export function entryButton(
-  entry: ToolbarEntryView,
+  entry: LwToolbarEntry,
   existing: HTMLButtonElement | undefined,
   openKey: string | null,
 ): HTMLButtonElement {
@@ -129,7 +117,7 @@ export function entryButton(
   return button;
 }
 
-function entryContent(entry: ToolbarEntryView): HTMLElement[] {
+function entryContent(entry: LwToolbarEntry): HTMLElement[] {
   if (entry.icon) {
     const icon = document.createElement('lw-icon');
     icon.setAttribute('name', entry.icon);
