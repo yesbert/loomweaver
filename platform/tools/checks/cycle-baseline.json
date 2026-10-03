@@ -4,7 +4,6 @@
   "slicePairs": [
     "commands <-> menu",
     "commands <-> regions/bar",
-    "commands <-> regions/content",
     "plugin <-> plugin-store",
     "plugin <-> regions/content",
     "plugin <-> regions/pane",

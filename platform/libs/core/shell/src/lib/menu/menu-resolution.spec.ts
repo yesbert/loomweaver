@@ -153,6 +153,24 @@ describe('resolveSlot', () => {
     expect(entry.command?.id).toBe('pin');
   });
 
+  it("prefers the entry's own icon and carries its pressed state, or derives it from the check", () => {
+    const resolved = resolveSlot(
+      [
+        { id: 'own', command: 'pin', icon: 'star', pressed: true },
+        { id: 'checked', command: 'pin', checkedWhen: { closable: true } },
+        { id: 'plain', command: 'pin' },
+      ] as SlotEntry[],
+      inContext,
+      sources([command('pin', { icon: 'pin' })]),
+    );
+
+    expect(resolved.map((entry) => [entry.icon, entry.pressed])).toEqual([
+      ['star', true],
+      ['pin', true],
+      ['pin', undefined],
+    ]);
+  });
+
   it('resolves each entry against its own context', () => {
     const entries: SlotEntry[] = [
       { id: 'one', title: 'one', command: 'open', when: { id: 'one' } },

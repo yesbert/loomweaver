@@ -12,6 +12,7 @@ import { entryTabs } from './entry-tabs/entry-tab-actions';
 import { registerEntryTabs } from './entry-tabs/register-entry-tabs';
 import { registerNavigation } from './navigation/register-navigation';
 import { registerPages } from './routed-pages/register-pages';
+import { registerRecords } from './records/register-records';
 import { registerSandboxedSurfaces } from './sandboxed-surfaces/register-sandboxed-surfaces';
 import {
   registerReadouts,
@@ -36,6 +37,7 @@ export const testbedPlugin: Plugin = {
     testbedContext.bind(ctx);
     registerIcons(ctx);
     registerPages(ctx);
+    registerRecords(ctx);
     registerDashboard(ctx);
     registerEntryTabs(ctx);
     registerContainers(ctx);

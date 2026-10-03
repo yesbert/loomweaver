@@ -31,6 +31,10 @@ import {
 } from './composition-checks';
 import { declaredSlots } from './declared-slots';
 import { isBarButton } from '../regions/bar/bar-context';
+import {
+  surfaceActionsSlot,
+  ToolbarRegistry,
+} from '../contributions/toolbar-registry';
 
 const SLOT_REPORT_QUIET_MS = 1000;
 
@@ -49,6 +53,7 @@ export class CompositionReport {
   private readonly framePlugins =
     inject(FRAME_PLUGIN, { optional: true }) ?? [];
   private readonly activation = inject(ActivationSettled);
+  private readonly toolbars = inject(ToolbarRegistry);
 
   checkStaticContributions(): void {
     for (const problem of this.staticProblems()) {
@@ -142,6 +147,11 @@ export class CompositionReport {
         ...this.registry
           .contentRoutes()
           .flatMap((route) => route.actions ?? []),
+        ...this.toolbars
+          .toolbars()
+          .map((entry) => ({ menu: entry.toolbar.slot })),
+        ...this.surfaceIds().map((id) => ({ menu: surfaceActionsSlot(id) })),
+        ...this.registry.menuItems().map((item) => ({ menu: item.submenu })),
       ]),
     );
   }
@@ -219,6 +229,12 @@ export class CompositionReport {
           ),
         ),
     ];
+  }
+
+  private surfaceIds(): string[] {
+    return [...this.registry.views(), ...this.registry.contentRoutes()].flatMap(
+      (surface) => (surface.id === undefined ? [] : [surface.id]),
+    );
   }
 
   private routeIds(): ReadonlySet<string> {

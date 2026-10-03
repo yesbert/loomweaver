@@ -115,7 +115,7 @@ test.describe('Accessibility (WCAG 2.1 AA)', () => {
     page,
   }) => {
     await page.goto('/search');
-    const more = page.locator('[data-surface-action="testbed.search.more"]');
+    const more = page.locator('[data-lw-entry="testbed.search.more"]');
     await expect(more).toBeVisible();
     await scan(page);
 
@@ -127,6 +127,20 @@ test.describe('Accessibility (WCAG 2.1 AA)', () => {
   test("a pop-out carrying its surface's actions", async ({ page }) => {
     await page.goto('/popout/search');
     await expect(page.getByTestId('popout-actions')).toBeVisible();
+    await scan(page);
+  });
+  test('a toolbar placed in content, once per row', async ({ page }) => {
+    await page.goto('/records');
+    await expect(page.getByRole('toolbar', { name: 'Record tools' })).toHaveCount(3);
+    await scan(page);
+  });
+
+  test('a placed toolbar folded, with its tray open', async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 800 });
+    await page.goto('/records');
+    const toolbar = page.getByTestId('record-r-1').getByRole('toolbar', { name: 'Record tools' });
+    await toolbar.getByRole('button', { name: 'More' }).click();
+    await expect(toolbar.getByRole('group', { name: 'More' })).toBeVisible();
     await scan(page);
   });
 });

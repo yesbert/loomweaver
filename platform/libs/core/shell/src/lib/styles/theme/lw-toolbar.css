@@ -1,0 +1,39 @@
+@layer components {
+  lw-toolbar {
+    @apply flex min-w-0 items-center gap-0.5;
+  }
+  lw-toolbar[hidden] {
+    display: none;
+  }
+  .lw-toolbar-entry {
+    @apply h-10 w-10 rounded-md md:h-7 md:w-7;
+  }
+  .lw-toolbar-entry--text {
+    @apply flex w-auto items-center gap-1 px-2 text-sm text-content-faint transition-colors hover:bg-surface-overlay hover:text-content;
+  }
+  .lw-toolbar-entry:disabled {
+    @apply pointer-events-none opacity-40;
+  }
+  .lw-toolbar--sm .lw-toolbar-entry {
+    @apply h-8 w-8 md:h-8 md:w-8;
+  }
+  .lw-toolbar--sm .lw-toolbar-entry--text {
+    @apply w-auto;
+  }
+  .lw-toolbar-shortcut {
+    @apply rounded border border-border bg-surface-overlay px-1 text-[0.6875rem] leading-tight text-content-muted;
+  }
+  .lw-toolbar-separator {
+    @apply mx-0.5 h-5 w-px shrink-0 bg-border;
+  }
+  .lw-toolbar-tray {
+    @apply z-50 flex flex-col items-start gap-1 rounded-md border border-border bg-surface-overlay p-2 shadow-lg;
+    position: fixed;
+    position-area: block-end span-inline-start;
+    position-try-fallbacks: flip-block, flip-inline;
+    margin-top: 0.25rem;
+  }
+  .lw-toolbar-tray[hidden] {
+    display: none;
+  }
+}

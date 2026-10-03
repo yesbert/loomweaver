@@ -1,3 +1,5 @@
+import { AccessRequirement } from '../plugin/auth.js';
+
 /**
  * The **serialisable** context an opener passes when it shows a menu — e.g. the tab strip
  * passes `{ targetKind: 'content-tab', tabId, group, pinned, closable }`. Primitives only, so it crosses
@@ -29,6 +31,24 @@ export interface MenuItem {
   run?(context?: MenuContext): void;
   /** Label — Transloco key or literal. Defaults to the referenced command's title when omitted. */
   readonly title?: string;
+  /** Icon name, resolved by the host icon registry. Defaults to the referenced command's icon when omitted. */
+  readonly icon?: string;
+  /**
+   * Declarative auth gating of the entry itself, applied before the command's own requirement and in
+   * the mode it asks for; the command's requirement is applied after and only ever hides. Omit for an
+   * entry everyone sees whose command decides. Presentation only; real enforcement is server-side.
+   */
+  readonly access?: AccessRequirement;
+  /**
+   * Where this entry is drawn in a toolbar, the slot that activating it opens, beside the entry: a
+   * nested menu without a mechanism of its own. Contribute entries to it with another
+   * `registerMenuItem`. The entry needs no `command` or `run` for that, and is drawn only while the
+   * slot offers at least one entry; with a `command` as well it runs that while the slot is empty and
+   * opens the menu once the slot has an entry. Ignored in a menu, where entries do not nest.
+   */
+  readonly submenu?: string;
+  /** A heading for {@link submenu}, drawn above its first entry; ignored without one. */
+  readonly menuHeader?: MenuHeader;
   /** Group id for ordering + separators; groups render in `group` order, items in `order` within a group. */
   readonly group?: string;
   /** Lower renders first (default 0). */

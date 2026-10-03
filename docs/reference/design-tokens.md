@@ -261,7 +261,7 @@ use the tag. Content rendered **without** a running shell, typically a weaver bo
 test, has to register each element it uses itself. An unregistered tag stays in the page as an
 unknown element that draws nothing and raises no error. Each has an idempotent registration
 function in `@loomweaver/shell`: `defineLwIcon()`, `defineLwButton()`, `defineLwTooltip()`,
-`defineLwSelect()` (with `<lw-option>`), `defineLwMenu()` (with `<lw-menu-item>`),
+`defineLwSelect()` (with `<lw-option>`), `defineLwMenu()` (with `<lw-menu-item>`), `defineLwToolbar()`,
 `defineLwMarkdown()`, `defineLwNavTree()`, `defineLwProgressRing()` and `defineLwSpinner()`.
 
 - **Icons:** `<lw-icon name="add" size="1rem" />`. Names are semantic rather than pictorial;
@@ -339,6 +339,13 @@ function in `@loomweaver/shell`: `defineLwIcon()`, `defineLwButton()`, `defineLw
   draws `<lw-menu>` **itself** (from the frame UI kit, where `/frame-kit/lw-elements.global.js` defines the whole `<lw-*>` family and `/frame-kit/lw-frame.css` supplies the compiled look) and
   positions it with **`openAt(x, y)`** at the iframe-local cursor, with no cross-frame work and no RPC.
 - **Buttons in bar/rail:** register them declaratively as a `BarButtonItem`/rail item (the host renders button + tooltip from data), so you need no button component of your own per icon.
+- **A toolbar in your own content (`<lw-toolbar>`):** a menu slot drawn open, placed by a weaver
+  with `menu="<slot>"`, a `context` property describing what it stands beside, an optional `label`
+  and `size="sm"` for a dense row. The workbench fills it from the slot and words it; you never set
+  its entries yourself. Children you write into it are your own cells, kept in place by their
+  `order` attribute. Its look is `.lw-toolbar*` in `theme.css`; a `role="toolbar"` with roving
+  focus comes with it. Registered with `defineLwToolbar()` where content renders without a running
+  workbench. The how-to is [Menus → A toolbar in your own content](../weaver/menus.md#a-toolbar-in-your-own-content).
 - **Buttons in content (dialogs, about/settings, toasts):** put the **`<lw-button>`** primitive on a
   real `<button>`/`<a>`: it keeps the native semantics and uses semantic tokens only:
   ```html

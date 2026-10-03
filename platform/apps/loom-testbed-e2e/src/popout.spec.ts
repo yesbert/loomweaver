@@ -30,8 +30,8 @@ test.describe('Pop-out windows', () => {
     await page.goto('/popout/search');
     const bar = page.getByTestId('popout-actions');
 
-    await expect(bar.locator('[data-surface-action]')).toHaveCount(1);
-    const about = bar.locator('[data-surface-action="testbed.search.about"]');
+    await expect(bar.locator('[data-lw-entry]')).toHaveCount(1);
+    const about = bar.locator('[data-lw-entry="testbed.search.about"]');
     await expect(about).toBeVisible();
 
     const barBox = await bar.boundingBox();

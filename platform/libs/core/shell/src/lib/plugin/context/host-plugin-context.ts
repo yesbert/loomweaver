@@ -3,6 +3,7 @@ import {
   ContributionRegistry,
   Disposable,
 } from '../../contributions/contribution-registry';
+import { ToolbarRegistry } from '../../contributions/toolbar-registry';
 import { BarItem } from '../../foundation/bar-item';
 import { RailItem } from '../../foundation/rail-item';
 import { SHELL_LAYOUT } from '../../layout/layout';
@@ -22,6 +23,8 @@ import {
   StateHandle,
   Surface,
   TabBadge,
+  Toolbar,
+  ToolbarCell,
   ViewAction,
 } from '@loomweaver/plugin-sdk';
 import {
@@ -54,6 +57,8 @@ import { broadPrefixReason, followConflictMessage } from './surface-admission';
 
 export class HostPluginContext implements PluginContext {
   private readonly registry = inject(ContributionRegistry);
+
+  private readonly toolbars = inject(ToolbarRegistry);
 
   private readonly settings = inject(SettingsService);
 
@@ -223,6 +228,16 @@ export class HostPluginContext implements PluginContext {
   registerMenuItem(item: MenuItem): Disposable {
     this.require('contributions');
     return this.track(this.registry.addMenuItem(item, this.pluginId));
+  }
+
+  registerToolbar(toolbar: Toolbar): Disposable {
+    this.require('contributions');
+    return this.track(this.toolbars.addToolbar(toolbar, this.pluginId));
+  }
+
+  registerToolbarCell(cell: ToolbarCell): Disposable {
+    this.require('contributions');
+    return this.track(this.toolbars.addCell(cell));
   }
 
   contributeIcons(icons: Readonly<Record<string, string>>): Disposable {

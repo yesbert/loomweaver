@@ -14,7 +14,7 @@ import { formatChord } from './keyboard/format-chord';
 
 export interface Triggerable {
   readonly command?: string;
-  run?(): unknown;
+  run?(context?: MenuContext): unknown;
 }
 
 /**
@@ -113,15 +113,18 @@ export class CommandService {
       : item.run !== undefined;
   }
 
-  /** Fires a UI item's trigger: its bound command if it names one, else its inline callback. */
-  trigger(item: Triggerable): void {
+  /**
+   * Fires a UI item's trigger: its bound command if it names one, else its inline callback, either
+   * with the context the item was activated against where the trigger has one.
+   */
+  trigger(item: Triggerable, context?: MenuContext): void {
     if (item.command) {
-      this.execute(item.command);
+      this.execute(item.command, context);
       return;
     }
     const run = item.run;
     if (run) {
-      this.callInline(run);
+      this.callInline(() => run.call(item, context));
     }
   }
 

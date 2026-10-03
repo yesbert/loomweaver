@@ -1,6 +1,7 @@
 import {
   ContentTabLabel,
   MenuContext,
+  MenuHeader,
   MenuItem,
   NotificationInput,
   NotificationKind,
@@ -78,10 +79,27 @@ export function sanitizeRpcMenuItem(item: MenuItem): MenuItem {
     ),
     command: optionalText(raw['command']),
     title: optionalText(raw['title']),
+    icon: optionalText(raw['icon']),
     group: optionalText(raw['group']),
     order: optionalNumber(raw['order']),
     when: sanitizeMenuContext(raw['when']),
     checkedWhen: sanitizeMenuContext(raw['checkedWhen']),
+    submenu: optionalText(raw['submenu']),
+    menuHeader: sanitizeMenuHeader(raw['menuHeader']),
+  };
+}
+
+function sanitizeMenuHeader(value: unknown): MenuHeader | undefined {
+  if (!isWireObject(value) || typeof value['title'] !== 'string') {
+    return undefined;
+  }
+  return {
+    title: value['title'],
+    detail: optionalText(value['detail']),
+    icon: optionalText(value['icon']),
+    image: optionalText(value['image']),
+    initials: optionalText(value['initials']),
+    command: optionalText(value['command']),
   };
 }
 

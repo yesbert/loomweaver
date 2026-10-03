@@ -11,6 +11,8 @@ export interface SlotEntry {
   readonly command?: string;
   run?(context?: MenuContext): unknown;
   readonly title?: string;
+  readonly icon?: string;
+  readonly pressed?: boolean;
   readonly access?: AccessRequirement;
   readonly group?: string;
   readonly order?: number;
@@ -18,6 +20,7 @@ export interface SlotEntry {
   readonly checkedWhen?: MenuContext;
   readonly menu?: string;
   readonly menuTrigger?: MenuTrigger;
+  readonly submenu?: string;
   readonly menuHeader?: MenuHeader;
   readonly workspace?: string;
 }
@@ -31,6 +34,7 @@ export interface ResolvedEntry<T extends SlotEntry = SlotEntry> {
   readonly shortcut?: string;
   readonly checkbox: boolean;
   readonly checked: boolean;
+  readonly pressed?: boolean;
   readonly disabled: boolean;
   readonly opensMenu?: string;
   readonly command?: Command;
@@ -132,10 +136,11 @@ function resolveEntry<T extends SlotEntry>(
     title: entry.title ?? command?.title,
     group: entry.group ?? '',
     order: entry.order ?? 0,
-    icon: command?.icon,
+    icon: entry.icon ?? command?.icon,
     shortcut: sources.shortcutOf(command),
     checkbox,
     checked: checkbox && whenMatches(entry.checkedWhen, context),
+    pressed: entry.pressed ?? (checkbox ? whenMatches(entry.checkedWhen, context) : undefined),
     disabled: sources.disabled(entry.access),
     opensMenu,
     command,

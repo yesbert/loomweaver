@@ -1,7 +1,6 @@
 import {
   afterNextRender,
   DestroyRef,
-  ErrorHandler,
   inject,
   Injector,
   Service,
@@ -70,8 +69,6 @@ export class MenuService {
   private readonly auth = inject(AuthContext);
 
   private readonly transloco = inject(TranslocoService);
-
-  private readonly errors = inject(ErrorHandler);
 
   private readonly injector = inject(Injector);
 
@@ -227,15 +224,7 @@ export class MenuService {
   };
 
   private run(item: MenuItem, context: MenuContext): void {
-    if (item.command) {
-      this.commands.execute(item.command, context);
-      return;
-    }
-    try {
-      item.run?.(context);
-    } catch (error) {
-      this.errors.handleError(error);
-    }
+    this.commands.trigger(item, context);
   }
 
   private resolve(

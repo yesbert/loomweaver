@@ -61,6 +61,8 @@ function activate(): Captured {
     registerSettingsSection: capture(captured.sections),
     contributeIcons: capture(captured.icons),
     registerMenuItem: capture(captured.menuItems),
+    registerToolbar: () => ({ dispose: () => undefined }),
+    registerToolbarCell: () => ({ dispose: () => undefined }),
     navigateContent: (path) => void captured.navigated.push(path),
     openContentTab: (input) => void captured.opened.push(input),
     keepContentTab: () => undefined,
