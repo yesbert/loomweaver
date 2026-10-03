@@ -90,12 +90,13 @@ test.describe('Sandbox UI kit — /frame-kit/ assets inside the iframe', () => {
 
     const button = surface.getByTestId('frame-kit-button');
     await expect(button).toHaveClass(/lw-btn--primary/);
-    const paint = await button.evaluate((element) => {
-      const styles = getComputedStyle(element);
-      return { background: styles.backgroundColor, cursor: styles.cursor };
-    });
-    expect(paint.cursor).toBe('pointer');
-    expect(paint.background).not.toBe('rgba(0, 0, 0, 0)');
+    const paint = () =>
+      button.evaluate((element) => {
+        const styles = getComputedStyle(element);
+        return { background: styles.backgroundColor, cursor: styles.cursor };
+      });
+    await expect.poll(async () => (await paint()).background).not.toBe('rgba(0, 0, 0, 0)');
+    expect((await paint()).cursor).toBe('pointer');
 
     await button.click();
     await expect(surface.getByText(/handled in-process/)).toBeVisible();

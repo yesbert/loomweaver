@@ -19,13 +19,14 @@ exists for it. A cell a plugin in the page draws itself SHALL NOT be in the answ
 The description the surface supplies SHALL be validated as data at the boundary, and a description
 that is not SHALL be refused rather than matched.
 
-Activating an entry SHALL be the command invocation the surface already has, with the description as
-the command's context, so that the refusal and failure rules of that invocation apply unchanged. An
-entry the surface was told about SHALL run when invoked that way, and the surface SHALL need no
-grant beyond what the invocation already requires: an entry contributed by its own plugin runs on
-that account, and an entry naming another plugin's command runs only where that command is open to
-a foreign caller and the surface's plugin holds the capability to reach it. The answer SHALL omit an
-entry the invocation would refuse, so that the surface never draws a control it cannot run.
+Activating an entry SHALL be reported to the workbench, which runs the entry as it runs the same
+entry in a toolbar drawn in the page: through the one place every trigger runs through, with the
+description as the command's context. The answer is what a toolbar in the page would draw for that
+slot and description, no more and no less: an entry the workbench would refuse to run is not in it,
+and an entry another plugin contributed is in it whether or not the surface's plugin may invoke that
+plugin's commands itself, because activating a drawn control is the user's act, not the plugin's. An
+entry SHALL run only under the subscription it was told in, so that a surface cannot name an entry
+it was never shown.
 
 The surface SHALL be able to stop asking, and a surface that is torn down SHALL be told nothing
 further.
@@ -34,8 +35,14 @@ further.
 
 - **WHEN** an isolated surface asks what a slot offers against a description, and a plugin in the
   page has contributed an entry matching that description
-- **THEN** the surface is told the entry with its title, icon and shortcut, draws it, and invoking it
-  runs the command with the description
+- **THEN** the surface is told the entry with its title, icon and shortcut, draws it, and reporting
+  its activation runs the command with the description
+
+#### Scenario: An isolated plugin may own a toolbar slot
+
+- **WHEN** an isolated plugin registers a toolbar through its channel
+- **THEN** the slot is declared, a plugin in the page may fill it, and the plugin's own surface draws
+  it from what it is told
 
 #### Scenario: The answer follows the session
 
@@ -59,11 +66,17 @@ further.
 - **WHEN** a plugin in the page has registered a cell against the slot
 - **THEN** the surface is told the slot's declarative entries and nothing of the cell
 
-#### Scenario: An entry the surface could not run is not in the answer
+#### Scenario: The answer is what the page would draw
 
-- **WHEN** an entry names another plugin's command that has not declared itself open to a foreign
-  caller, or the surface's plugin lacks the capability to reach foreign commands
-- **THEN** the surface is not told the entry
+- **WHEN** another plugin has contributed an entry naming a command of its own, and the surface's
+  plugin holds no capability to invoke foreign commands
+- **THEN** the surface is told the entry, and activating it runs the command with the description,
+  exactly as the same entry runs in a toolbar drawn in the page
+
+#### Scenario: An entry runs only under the subscription that showed it
+
+- **WHEN** a surface activates a key under a subscription whose answer never held that key
+- **THEN** nothing runs
 
 #### Scenario: A torn-down surface is told nothing
 

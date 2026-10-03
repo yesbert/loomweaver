@@ -245,17 +245,34 @@ import only the contract, and the cell that injects it is a weaver's component. 
 registry of their own (`contributions/toolbar-registry.ts`) rather than growing the contribution
 registry past its line limit; it is also where the actions slot of a surface is named.
 
-**Frame RPC: `watchSlot` / `unwatchSlot`, data only.** The surface channel gains
-`watchSlot(slot, context)` returning a subscription id, with the host pushing
-`slotChanged(subscriptionId, entries)` whenever the resolution's inputs change, and `unwatchSlot`.
-The context is validated with the existing wire-field helpers. Entries are the resolved shape minus
-anything that is code: `id`, `title`, `icon`, `shortcut`, `group`, `order`, `pressed`, `opensMenu`,
-`commandId`. Inside the frame, `<lw-toolbar>` is the same element with a different bridge: frame-kit
-installs one that calls `watchSlot` and invokes through the existing `invokeCommand`. The host
-narrows the answer by the same `available` rule plus the foreign-command rule for the frame's
-plugin, so the answer is a subset of `invocableCommands` where entries name foreign commands.
-Rejected: shipping the resolution into the frame. It would need the registry, the session and the
-translations in the frame, which is what the boundary exists to keep out.
+**As built in slice 3: the surface channel carries the slot, the kit draws.** The watch lives on
+the surface's own connection, not the plugin frame's, because the surface is where the toolbar
+stands: `IframeSurface` exposes `slotWatch(slot, context)`, which answers a subscription id,
+`slotUnwatch(id)` and `slotActivate(id, key)`, and calls `slotChanged(id, view)` on the surface
+whenever the answer changes. A `SlotBridge` (`regions/content/surface/slot-bridge.ts`) mirrors the
+`PluginStateBridge` beside it: one effect per subscription over `ToolbarSlots.view`, the shared
+reader the in-page `ToolbarHost` uses too, so a frame and a page draw the same answer for the same
+slot and description; it replays the last answer when the connection comes up and stops with the
+surface. The pushed `LwSlotView` is data only: a label and a "more" label, worded, and entries of
+the element's shape plus the `submenu` an entry opens. The context the surface supplies is checked
+to be named values and refused otherwise (`requiredMenuContext`, beside the other menu-context
+helpers). Activation names the subscription and the key, so a surface can run only what it was
+shown; the bridge runs the resolved entry through `ToolbarSlots.run`, the same call the page makes.
+
+On the frame side the kit installs its own `LwToolbarHost` into the element's bridge
+(`surface-kit/surface-toolbars.ts`): every `<lw-toolbar>` connecting in the surface is watched once
+`LwFrame.connectToolbars(host)` is called, re-watched when its placement changes, unwatched when
+it leaves; `surfaceMethods()` carries `slotChanged` so the push arrives without the author wiring
+it. An entry whose `submenu` is set is opened by the kit as an `<lw-menu>` it draws beside the
+button, from a one-shot watch of that slot, and closed on select, dismiss or an outside pointer.
+
+The frame plugin's own channel gained `registerToolbar`, so an isolated plugin can own a slot its
+surface draws and the page fills; the testbed's sandbox plugin does exactly that. Two things changed
+against the plan. The methods are named for the slot (`slotWatch`), beside `stateWatch`, rather
+than `watchSlot`. And the answer is not narrowed by the surface plugin's foreign-command grant: the
+owner decided that a surface's toolbar shows what a toolbar in the page shows, because the person
+activating a drawn control is the user, not the plugin; the invocation rules for a plugin calling a
+command by identity are untouched.
 
 **Translation in the toolbar.** The resolved title is a key or a literal; in the page the element
 translates through the bridge as `lw-menu` does today and follows the strings. In the frame the

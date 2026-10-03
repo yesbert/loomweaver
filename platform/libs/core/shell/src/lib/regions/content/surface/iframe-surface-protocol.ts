@@ -2,7 +2,10 @@ import { Methods } from 'penpal';
 import { distributionIcons } from '../../../elements/icon/icon-registry';
 import { LW_TOKENS } from '../../../theme/theme-tokens';
 import { isAtOrBelow, normalizePath } from '../content-path';
-import type { LwSurfaceCaptureRequest } from '../../../surface-kit/surface-kit.frame';
+import type {
+  LwSlotView,
+  LwSurfaceCaptureRequest,
+} from '../../../surface-kit/surface-kit.frame';
 
 export interface SurfaceState {
   readonly locale: string;
@@ -26,6 +29,7 @@ export type SurfaceRemote = Methods & {
   render(state: SurfaceState): Promise<void>;
   beforeClose(): Promise<boolean> | boolean;
   stateChanged(key: string, value: unknown, loaded: boolean): void;
+  slotChanged(subscription: string, view: LwSlotView): void;
   capture(request: LwSurfaceCaptureRequest): Promise<unknown>;
 };
 

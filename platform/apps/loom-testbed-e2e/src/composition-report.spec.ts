@@ -7,6 +7,7 @@ test.describe('The dev-mode composition report (K7)', () => {
     const lines: string[] = [];
     page.on('console', (message) => void lines.push(message.text()));
     await page.goto('/');
+    await expect(page.getByText('Sandbox plugin activated')).toBeVisible();
 
     await expect
       .poll(() => page.evaluate(() => typeof window['loomweaver']?.report))

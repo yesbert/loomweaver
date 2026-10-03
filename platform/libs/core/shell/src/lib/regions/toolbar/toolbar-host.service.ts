@@ -13,18 +13,12 @@ import {
 } from '@angular/core';
 import { MenuContext, TOOLBAR_CONTEXT, ToolbarCell } from '@loomweaver/plugin-sdk';
 import { AuthContext } from '../../auth/auth-context';
-import { CommandService } from '../../commands/command.service';
-import { ContributionRegistry } from '../../contributions/contribution-registry';
-import {
-  surfaceOfActionsSlot,
-  ToolbarRegistry,
-} from '../../contributions/toolbar-registry';
+import { ToolbarRegistry } from '../../contributions/toolbar-registry';
 import {
   LW_TOOLBAR_CONTEXT,
   LW_TOOLBAR_SELECT,
   LwToolbarContextDetail,
   LwToolbarElement,
-  LwToolbarEntry,
   LwToolbarSelectDetail,
 } from '../../elements/toolbar/lw-toolbar.element';
 import {
@@ -32,18 +26,11 @@ import {
   installLwToolbarHost,
   LwToolbarHost,
 } from '../../elements/toolbar/toolbar-bridge';
-import { Wording } from '../../i18n/wording';
 import { menuOnContext } from '../../menu/chrome-item-menu';
 import { ResolvedEntry } from '../../menu/menu-resolution';
 import { MenuService } from '../../menu/menu.service';
-import { SlotResolution } from '../../menu/slot-resolution.service';
-import {
-  entryOfAction,
-  entryOfMenuItem,
-  ToolbarEntry,
-} from './toolbar-entries';
-
-const MORE_KEY = 'bar.more';
+import { ToolbarEntry } from './toolbar-entries';
+import { ToolbarSlots } from './toolbar-slots.service';
 
 interface Attachment {
   readonly cells: Map<string, ComponentRef<unknown>>;
@@ -55,19 +42,13 @@ interface Attachment {
 
 @Service()
 export class ToolbarHost implements LwToolbarHost {
-  private readonly registry = inject(ContributionRegistry);
-
   private readonly toolbars = inject(ToolbarRegistry);
 
-  private readonly slots = inject(SlotResolution);
+  private readonly slots = inject(ToolbarSlots);
 
   private readonly menus = inject(MenuService);
 
-  private readonly commands = inject(CommandService);
-
   private readonly auth = inject(AuthContext);
-
-  private readonly wording = inject(Wording);
 
   private readonly injector = inject(EnvironmentInjector);
 
@@ -134,32 +115,13 @@ export class ToolbarHost implements LwToolbarHost {
       return;
     }
     const context = toolbar.context;
-    const resolved = this.slots.resolve(this.entriesOf(slot), (entry) =>
-      this.contextFor(entry, context),
-    );
-    attachment.resolved = resolved;
-    toolbar.entries = resolved.map((entry) => this.drawn(entry));
-    toolbar.moreLabel = this.wording.translate(MORE_KEY);
-    toolbar.label = this.wording.translate(
-      toolbar.getAttribute('label') ?? this.toolbars.titleOf(slot) ?? '',
-    );
-    toolbar.openKey = this.openKeyOf(toolbar, resolved);
+    const view = this.slots.view(slot, context, toolbar.getAttribute('label'));
+    attachment.resolved = view.resolved;
+    toolbar.entries = view.entries;
+    toolbar.moreLabel = view.moreLabel;
+    toolbar.label = view.label;
+    toolbar.openKey = this.openKeyOf(toolbar, view.resolved);
     this.drawCells(toolbar, attachment, slot, context);
-  }
-
-  private drawn(entry: ResolvedEntry<ToolbarEntry>): LwToolbarEntry {
-    return {
-      key: entry.item.id,
-      label: this.wording.translate(entry.title ?? ''),
-      group: entry.group,
-      order: entry.order,
-      icon: entry.icon,
-      shortcut: entry.shortcut,
-      pressed: entry.pressed,
-      disabled: entry.disabled,
-      opensMenu: entry.opensMenu !== undefined,
-      hasContextMenu: menuOnContext(entry.item) !== undefined,
-    };
   }
 
   private openKeyOf(
@@ -228,41 +190,24 @@ export class ToolbarHost implements LwToolbarHost {
     return ref;
   }
 
-  private entriesOf(slot: string): ToolbarEntry[] {
-    const surfaceId = surfaceOfActionsSlot(slot);
-    const actions =
-      surfaceId === undefined
-        ? []
-        : this.registry.actionsOf(surfaceId).map((action) => entryOfAction(action));
-    const items = this.registry
-      .menuItems()
-      .filter((item) => item.menu === slot)
-      .map((item, index) => entryOfMenuItem(item, index));
-    return [...actions, ...items];
-  }
-
-  private contextFor(entry: ToolbarEntry, context: MenuContext): MenuContext {
-    return { ...context, id: entry.id };
-  }
-
   private select(toolbar: LwToolbarElement, detail: LwToolbarSelectDetail): void {
     const attachment = this.attachments.get(toolbar);
     const entry = attachment?.resolved.find((candidate) => candidate.item.id === detail.key);
     if (!entry || entry.disabled) {
       return;
     }
-    const context = this.contextFor(entry.item, toolbar.context);
+    const context = toolbar.context;
     if (entry.opensMenu !== undefined) {
       this.menus.open(
         entry.opensMenu,
-        context,
+        this.slots.contextFor(entry.item, context),
         { rect: detail.trigger.getBoundingClientRect(), side: 'bottom' },
         { trigger: detail.trigger, header: entry.item.menuHeader },
       );
       this.changed(toolbar);
       return;
     }
-    this.commands.trigger(entry.item, context);
+    this.slots.run(entry, context);
   }
 
   private openContextMenu(
@@ -275,7 +220,7 @@ export class ToolbarHost implements LwToolbarHost {
     if (!entry || !menu) {
       return;
     }
-    this.menus.open(menu, this.contextFor(entry.item, toolbar.context), {
+    this.menus.open(menu, this.slots.contextFor(entry.item, toolbar.context), {
       x: detail.x,
       y: detail.y,
     });

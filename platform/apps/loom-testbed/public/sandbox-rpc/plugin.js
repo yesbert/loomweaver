@@ -10,6 +10,10 @@
   connection.promise
     .then(function (ctx) {
       return Promise.all([
+        ctx.registerToolbar({
+          slot: 'sandbox-rpc.view/toolbar',
+          title: 'testbed.sandbox.toolbar',
+        }),
         ctx.toast({
           message: 'testbed.sandbox.toast',
           kind: 'success',

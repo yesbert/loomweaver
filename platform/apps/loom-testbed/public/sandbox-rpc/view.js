@@ -199,6 +199,7 @@
 
   connection.promise.then(function (host) {
     globalThis.LwFrame.connectState(host);
+    globalThis.LwFrame.connectToolbars(host);
   });
 
   connection.promise.catch(function (error) {

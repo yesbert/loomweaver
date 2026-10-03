@@ -40,6 +40,10 @@ import {
   SurfaceState,
 } from './iframe-surface-protocol';
 import { PluginStateBridge } from './plugin-state-bridge';
+import { SlotBridge } from './slot-bridge';
+import { ToolbarSlots } from '../../toolbar/toolbar-slots.service';
+import { requiredMenuContext } from '../../../menu/menu-context';
+import type { LwSlotView } from '../../../surface-kit/surface-kit.frame';
 import { surfaceRouteData } from './surface-route-data';
 
 @Component({
@@ -97,6 +101,12 @@ export class IframeSurface implements DirtySurface {
       : this.pluginState.forPlugin(this.pluginId),
     this.injector,
     (key, value, loaded) => this.pushState(key, value, loaded),
+  );
+
+  private readonly slotBridge = new SlotBridge(
+    inject(ToolbarSlots),
+    this.injector,
+    (subscription, view) => this.pushSlot(subscription, view),
   );
 
   protected readonly isolated =
@@ -194,6 +204,7 @@ export class IframeSurface implements DirtySurface {
     inject(DestroyRef).onDestroy(() => {
       unregister();
       this.stateBridge.stopAll();
+      this.slotBridge.stopAll();
       this.visibility?.disconnect();
       this.connection?.destroy();
     });
@@ -249,6 +260,18 @@ export class IframeSurface implements DirtySurface {
           this.stateBridge.set(key, value),
         stateClear: (key: string) => this.stateBridge.clear(key),
         stateUnwatch: (key: string) => this.stateBridge.unwatch(key),
+        slotWatch: (slot: string, context: unknown) =>
+          this.slotBridge.watch(
+            slot,
+            requiredMenuContext(
+              context,
+              'Surface: slotWatch takes a context of named values, not anything else.',
+            ),
+          ),
+        slotUnwatch: (subscription: string) =>
+          this.slotBridge.unwatch(subscription),
+        slotActivate: (subscription: string, key: string) =>
+          this.slotBridge.activate(subscription, key),
       },
     });
     this.connection.promise
@@ -256,8 +279,17 @@ export class IframeSurface implements DirtySurface {
         this.remote = remote;
         this.push({ ...this.reactiveState(), ...resolvedLook(this.document) });
         this.stateBridge.replay();
+        this.slotBridge.replay();
       })
       .catch(() => undefined);
+  }
+
+  private pushSlot(subscription: string, view: LwSlotView): void {
+    try {
+      this.remote?.slotChanged(subscription, view);
+    } catch {
+      this.remote = undefined;
+    }
   }
 
   private pushState(key: string, value: unknown, loaded: boolean): void {

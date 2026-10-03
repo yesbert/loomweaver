@@ -8,6 +8,7 @@ import { defineLwElements } from '../elements/lw-elements';
 import { applySurfaceState } from './surface-render-state';
 import { captureSelf } from './surface-self-capture';
 import { createState } from './surface-state-mirror';
+import { createToolbars } from './surface-toolbars';
 
 export interface LwSurfaceRenderState {
   readonly theme?: 'light' | 'dark';
@@ -44,6 +45,36 @@ export interface LwStateApi {
   watch<T = unknown>(key: string): LwStateHandle<T>;
   /** Feed the host's `stateChanged(key, value, loaded)` push in from your `methods`. */
   apply(key: string, value: unknown, loaded: boolean): void;
+}
+
+export interface LwSlotEntry {
+  readonly key: string;
+  readonly label: string;
+  readonly group?: string;
+  readonly order?: number;
+  readonly icon?: string;
+  readonly shortcut?: string;
+  readonly pressed?: boolean;
+  readonly disabled?: boolean;
+  readonly opensMenu?: boolean;
+  readonly submenu?: string;
+}
+
+export interface LwSlotView {
+  readonly label: string;
+  readonly moreLabel: string;
+  readonly entries: readonly LwSlotEntry[];
+}
+
+export interface LwSlotHost {
+  slotWatch(slot: string, context: Record<string, string | number | boolean>): unknown;
+  slotUnwatch(subscription: string): unknown;
+  slotActivate(subscription: string, key: string): unknown;
+}
+
+export interface LwToolbarsApi {
+  connect(host: LwSlotHost): void;
+  apply(subscription: string, view: LwSlotView): void;
 }
 
 export interface LwSurfaceCaptureRequest {
@@ -85,6 +116,7 @@ export type LwSurfaceMethods = Record<string, (...args: never[]) => unknown>;
 /** What the workbench may call on a surface without the surface having written it. */
 export interface LwPlatformSurfaceMethods {
   capture(request?: LwSurfaceCaptureRequest): Promise<LwSurfaceCapture>;
+  slotChanged(subscription: string, view: LwSlotView): void;
 }
 
 export interface LwFrameApi {
@@ -95,6 +127,8 @@ export interface LwFrameApi {
   /** Connect the store to the host once your Penpal connection resolves. */
   connectState(host: LwStateHost): LwStateApi;
   readonly state: LwStateApi;
+  connectToolbars(host: LwSlotHost): void;
+  readonly toolbars: LwToolbarsApi;
   /**
    * Draws this surface and answers with the result, so that a picture of the workbench holds what
    * the surface was showing instead of a hole where it sits. Expose it from your Penpal `methods`
@@ -122,6 +156,7 @@ export function installLwFrame(): LwFrameApi {
   defineLwElements();
 
   const state = createState();
+  const toolbars = createToolbars();
   const capture = (request?: LwSurfaceCaptureRequest) =>
     captureSelf(request, LW_WITHHOLD_ATTRIBUTE);
   const api: LwFrameApi = {
@@ -134,10 +169,14 @@ export function installLwFrame(): LwFrameApi {
       return state;
     },
     state,
+    connectToolbars: (host) => toolbars.connect(host),
+    toolbars,
     capture,
     surfaceMethods: <T extends LwSurfaceMethods>(own: T) => ({
       ...own,
       capture,
+      slotChanged: (subscription: string, view: LwSlotView) =>
+        toolbars.apply(subscription, view),
     }),
   };
   (globalThis as Record<string, unknown>)['LwFrame'] = api;

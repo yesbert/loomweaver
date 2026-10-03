@@ -9,6 +9,7 @@ import {
   OpenTabInput,
   Surface,
   TabBadge,
+  Toolbar,
 } from '@loomweaver/plugin-sdk';
 import { FrameSettingValues } from '../frame-settings-section';
 
@@ -18,6 +19,7 @@ export type FrameRpc = Methods & {
   updateSurfaceBadge(id: string, badge: TabBadge | null): void;
   setChildShown(childSurfaceId: string, shown: boolean): void;
   registerMenuItem(item: MenuItem): void;
+  registerToolbar(toolbar: Toolbar): void;
   registerSettingsSection(section: FrameSettingsSection): void;
   navigateContent(path: string): void;
   openContentTab(input: OpenTabInput): void;

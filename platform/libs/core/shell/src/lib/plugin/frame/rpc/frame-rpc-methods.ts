@@ -16,6 +16,7 @@ import {
   sanitizeRpcTabInput,
   sanitizeRpcTabLabel,
   sanitizeRpcToastInput,
+  sanitizeRpcToolbar,
 } from './sanitize-inputs';
 import { sanitizeRpcSettingsSection } from './sanitize-settings';
 import { sanitizeRpcSurface } from './sanitize-surface';
@@ -49,6 +50,9 @@ export function frameRpcMethods(deps: FrameRpcDeps): FrameRpc {
       },
       registerMenuItem: (item) => {
         ctx.registerMenuItem(sanitizeRpcMenuItem(item));
+      },
+      registerToolbar: (toolbar) => {
+        ctx.registerToolbar(sanitizeRpcToolbar(toolbar));
       },
       registerSettingsSection: (section) => {
         const built = buildFrameSection({
