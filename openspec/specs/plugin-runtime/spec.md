@@ -148,6 +148,12 @@ Where a plugin contributes something to a region that the distribution's layout 
 or to a region of the wrong kind, the contribution SHALL be reported to the developer rather than
 silently doing nothing.
 
+Where a plugin contributes a menu entry to a slot that nothing declares — no menu the workbench
+draws, no contributed control that names the slot, no toolbar a plugin registered — the entry SHALL
+likewise be reported. Because the plugin that fills a slot may activate before the plugin that
+declares it, this report SHALL be made once every composed plugin has activated, and SHALL NOT be
+made at the moment of registration. An entry whose slot is declared by then SHALL NOT be reported.
+
 #### Scenario: An item names a region that does not exist
 
 - **WHEN** a plugin contributes an item to a region the layout does not declare
@@ -161,6 +167,17 @@ silently doing nothing.
 #### Scenario: A contribution that can render is not reported
 
 - **WHEN** a plugin contributes an item to a region that exists and can host it
+- **THEN** nothing is reported
+
+#### Scenario: A menu entry names a slot nothing declares
+
+- **WHEN** every composed plugin has activated and an entry names a slot that no workbench menu, no
+  control and no toolbar declares
+- **THEN** the developer is told, naming the entry, the slot and the plugin that contributed it
+
+#### Scenario: A slot declared by a later plugin is not reported
+
+- **WHEN** a plugin contributes an entry to a slot and a plugin that activates afterwards declares it
 - **THEN** nothing is reported
 
 ### Requirement: A plugin's identity is stamped by the workbench, not claimed

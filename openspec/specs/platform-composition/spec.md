@@ -141,9 +141,9 @@ SHALL be kept by what it actually ships. Both SHALL be checked automatically.
 
 The workbench SHALL be able to report, during development, the mistakes a composition can make
 silently: a contribution aimed at a region the layout does not declare or that is of the wrong kind,
-a removal instruction that matched nothing, a settings row replacement that matched no row, a
-control pointing at an action nothing registers, and a keyboard shortcut more than one action
-claims.
+a menu entry aimed at a slot nothing declares, a removal instruction that matched nothing, a
+settings row replacement that matched no row, a control pointing at an action nothing registers,
+and a keyboard shortcut more than one action claims.
 
 Where a shortcut is claimed more than once, the report SHALL name the actions claiming it and SHALL
 say which of them the shortcut runs, because that is what the mistake costs: a control goes on
@@ -156,6 +156,12 @@ that did replace a row, and the report SHALL say so plainly when it finds nothin
 
 - **WHEN** a button names an action that nothing registers, or that a removal instruction took away
 - **THEN** the report names it
+
+#### Scenario: A menu entry aimed at an undeclared slot is named
+
+- **WHEN** a menu entry names a slot that no workbench menu, no contributed control and no
+  registered toolbar declares
+- **THEN** the report names the entry and the slot
 
 #### Scenario: A removal instruction that matched nothing is named, with a suggestion
 
