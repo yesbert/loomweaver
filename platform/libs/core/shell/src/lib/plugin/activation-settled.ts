@@ -14,8 +14,12 @@ export class ActivationSettled {
     this.pending.add(settled);
   }
 
+  isPending(): boolean {
+    return this.pending.size > 0;
+  }
+
   async settled(): Promise<void> {
-    while (this.pending.size > 0) {
+    while (this.isPending()) {
       await Promise.all(this.pending);
     }
   }

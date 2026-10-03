@@ -14,6 +14,7 @@ import { VersionService } from '../version/version.service';
 import type { MockInstance } from 'vitest';
 import { provideRequiredPlugins } from '../foundation/required-plugins';
 import { FRAME_PLUGIN, FramePlugin } from '../plugin/frame/frame-plugin';
+import { ActivationSettled } from '../plugin/activation-settled';
 
 const LAYOUT: ShellLayout = {
   regions: [
@@ -454,6 +455,34 @@ describe('CompositionReport: a menu entry aimed at a slot nothing declares', () 
 
     expect(warnings()).toHaveLength(1);
     expect(warnings()[0]).toContain("slot 'late/owner'");
+  });
+
+  it('waits for an activation that started after the report began and outlasts the quiet period', async () => {
+    vi.useFakeTimers();
+    const app = setUp();
+    const activation = TestBed.inject(ActivationSettled);
+    app.registry.addCommand({ id: 'c.one', title: 't', run: () => undefined });
+    app.registry.addMenuItem({ menu: 'slow/owner', command: 'c.one' }, 'filler');
+    const reported = app.report.reportUndeclaredSlotsOnceSettled();
+    let finishActivation: () => void = () => undefined;
+    activation.track(new Promise<void>((resolve) => (finishActivation = resolve)));
+
+    await vi.advanceTimersByTimeAsync(1500);
+    expect(warnings()).toEqual([]);
+
+    app.registry.addRailItem({
+      id: 'owner',
+      rail: 'activity',
+      icon: 'x',
+      title: 't',
+      menu: 'slow/owner',
+      menuTrigger: 'primary',
+    });
+    finishActivation();
+    await vi.advanceTimersByTimeAsync(1000);
+    await reported;
+
+    expect(warnings()).toEqual([]);
   });
 
   it('is not reported when a later plugin declares the slot before the report runs', async () => {

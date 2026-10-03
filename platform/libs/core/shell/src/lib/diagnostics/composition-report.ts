@@ -57,8 +57,12 @@ export class CompositionReport {
   }
 
   async reportUndeclaredSlotsOnceSettled(): Promise<void> {
-    await this.activation.settled();
-    await new Promise((resolve) => setTimeout(resolve, SLOT_REPORT_QUIET_MS));
+    do {
+      await this.activation.settled();
+      await new Promise((resolve) =>
+        setTimeout(resolve, SLOT_REPORT_QUIET_MS),
+      );
+    } while (this.activation.isPending());
     for (const problem of this.undeclaredSlotProblems()) {
       console.warn(problem);
     }
