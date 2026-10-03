@@ -113,10 +113,10 @@ shared.onChange(render);                       // re-render when the host pushes
 
 const connection = Penpal.connect({
   messenger,
-  methods: {
+  methods: LwFrame.surfaceMethods({
     render(state) { LwFrame.applySurfaceState(state); render(); },
     stateChanged: (key, value, loaded) => LwFrame.state.apply(key, value, loaded),
-  },
+  }),
 });
 connection.promise.then((host) => LwFrame.connectState(host));
 

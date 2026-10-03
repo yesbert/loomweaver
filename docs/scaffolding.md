@@ -17,11 +17,11 @@ plugin is therefore correct by construction rather than by review.
 
 Two different things carry a `@loomweaver` name, and only one of them belongs in your application:
 
-|               | Package                                                                | Installed where                                                            | Purpose                            |
-| ------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------- | ---------------------------------- |
-| **Runtime**   | `@loomweaver/shell`, `@loomweaver/plugin-sdk`, `@loomweaver/frame-kit` | your app's `dependencies`                                                  | your app boots the shell with them |
-| **Tool**      | `@loomweaver/cli`, `@loomweaver/mcp`                                   | **nowhere in your app** — run on demand, or registered with your assistant | generate source files              |
-| **Tool (Nx)** | `@loomweaver/devkit`                                                   | your workspace's `devDependencies`                                         | adds `nx g` generators             |
+|               | Package                                                                                                                     | Installed where                                                            | Purpose                            |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | ---------------------------------- |
+| **Runtime**   | `@loomweaver/shell`, `@loomweaver/plugin-sdk`, `@loomweaver/frame-kit`, and `@loomweaver/ag-ui` once a weaver has `--agent` | your app's `dependencies`                                                  | your app boots the shell with them |
+| **Tool**      | `@loomweaver/cli`, `@loomweaver/mcp`                                                                                        | **nowhere in your app** — run on demand, or registered with your assistant | generate source files              |
+| **Tool (Nx)** | `@loomweaver/devkit`                                                                                                        | your workspace's `devDependencies`                                         | adds `nx g` generators             |
 
 Only the Nx collection is installed, and only as a dev dependency, because Nx loads generators from
 `node_modules`. The other two run as separate processes. The CLI reads the workspace above the
@@ -36,9 +36,11 @@ Which tool depends on how you want to drive it:
 | a command you can run, script and put in CI                      | **`@loomweaver/cli`**    | deterministic; wires the workspace it finds, needs none |
 | to ask in prose and let an assistant fill in the options         | **`@loomweaver/mcp`**    | your assistant writes the files                         |
 
-All three read the same scaffold descriptors and call the same generator core, so a weaver scaffolded
-any of the three ways has byte-identical source. What differs is what each one is allowed to do with
-the result. See [who writes the files](#how-a-file-actually-gets-created).
+All three read the same scaffold descriptors and call the same generator core, so the same inputs
+give the same source whichever way you ask. The routes differ in what they fill in for you: the CLI
+and the Nx generator read the selector prefix from your application, and the Nx generator also
+derives the import path from the workspace's npm scope. What differs beyond that is what each one is
+allowed to do with the result. See [who writes the files](#how-a-file-actually-gets-created).
 
 ## One command: `init`
 
@@ -124,7 +126,7 @@ styled, and they work together; the fourth decides how much of a stand-in sessio
 | Flag                                | What it changes                                                                                                                                                                                                                                                                                      |
 | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `distribution --styles precompiled` | emits a one-line `src/styles.css` that imports the stylesheet **we** compiled, so the application needs **no Tailwind** — no packages, no `.postcssrc.json`, no `@source` hops. The default, `tailwind`, compiles the shell's source theme and is what lets you write Tailwind utilities of your own |
-| `theme --preset bootstrap`          | maps all 29 `--lw-*` tokens onto Bootstrap 5.3's `--bs-*` variables instead of emitting literal colours, so the shell follows your Bootstrap theme live                                                                                                                                              |
+| `theme --preset bootstrap`          | maps every `--lw-*` token onto Bootstrap 5.3's `--bs-*` variables instead of emitting literal colours, so the shell follows your Bootstrap theme live; the `on-*` tokens stay literal, because they must contrast with the fill                                                                      |
 | `auth-source --bare`                | writes the `AuthSource` alone. Without it the scaffold also writes the plugin with the sign-in, switch and sign-out verbs, the bundles, and composes them into `app.config.ts`, so a product without an identity provider can operate its session from the rail on the first serve                   |
 
 Together they are the whole Bootstrap path, and the framework itself has to go into a cascade layer:
@@ -157,12 +159,9 @@ with private commands passes `--strict`. Every report ends by saying that grants
 window decide the rest at runtime; the check judges the registrations alone.
 
 `validate-catalog` earns its place for one reason: the shell parses a
-[plugin store catalogue](distribution/plugin-store.md) **defensively**.
-It tolerates bad input instead of failing on it. A field it does not recognise is skipped. A
-malformed field is dropped. An entry missing `id` or `entryUrl` disappears entirely. All of this
-happens without a word, because a store that throws on one bad entry serves nobody. That is the
-right runtime behaviour, and a terrible authoring experience. So every finding names the
-consequence rather than the rule:
+[plugin store catalogue](distribution/plugin-store.md#the-catalogue) **defensively** and drops what
+it cannot use without a word. That is the right runtime behaviour, and a terrible authoring
+experience. So every finding names the consequence rather than the rule:
 
 ```
 error: catalog[0].capabilities contains "uii", which the host filters out silently — the plugin
@@ -219,11 +218,12 @@ End to end, asking for a plugin looks like this:
 
 1. You ask your assistant for a weaver, say a `notes` plugin with a command on `mod+shift+n`.
 2. It calls `scaffold_weaver { "id": "notes", "command": true, "shortcut": "mod+shift+n" }`.
-3. The server generates in memory and answers with the file map. **Nothing has touched disk.**
+3. The server generates in memory and answers with the file map, and with `remaining`, the
+   workspace steps the files need that the server cannot perform. **Nothing has touched disk.**
 4. Your assistant picks the target directory and writes each file with its ordinary file-writing
    tool, so this is where your usual permission prompt or diff review appears.
-5. You do the wiring the generated README lists: grant the declared capabilities, compose the
-   translations, translate `de.json`.
+5. Your assistant carries out the `remaining` steps, such as composing the plugin and serving its
+   strings, and you translate `de.json`.
 
 Three consequences worth knowing:
 
@@ -312,11 +312,11 @@ option, so the table gives both.
 | `--menu <slot>`          | `menu`         | hook a menu item into a slot, e.g. `content/tab/context` (implies `command`)                                                                                                                                                                                        |
 | `--bar-item`             | `barItem`      | a status-bar button that triggers the command (implies `command`)                                                                                                                                                                                                   |
 | `--settings`             | `settings`     | a settings section with a toggle and a text field                                                                                                                                                                                                                   |
-| `--about`                | `about`        | an About dialog that reads `ctx.host`, plus its command                                                                                                                                                                                                             |
+| `--about`                | `about`        | an About dialog that reads `ctx.host`, plus its command and a rail item at the bottom of the rail that runs it                                                                                                                                                      |
 | `--instanceable`         | `instanceable` | named saved instances with a switcher — this **docks** the surface instead of routing it (see below)                                                                                                                                                                |
 | `--container`            | `container`    | make the surface a [container](#container-surfaces): a routable tab holding a nested pane tree                                                                                                                                                                      |
 | `--agent`                | `agent`        | wire the weaver up for an [AG-UI agent](#the-agent-connection) to drive: a docked panel, the seam that decides about a call before it runs, and a stand-in that works on the first serve (implies `command`)                                                        |
-| `--access <req>`         | `access`       | auth-gate the surface and rail item: `authenticated`, `anonymous`, or a role requirement                                                                                                                                                                            |
+| `--access <req>`         | `access`       | auth-gate the surface and rail item: `authenticated`, `anonymous`, or `role:<name>`, e.g. `role:admin`                                                                                                                                                              |
 | `--prefix <prefix>`      | `prefix`       | selector prefix of the generated components. Without it the CLI takes the one your application declares in `angular.json`, and `app` where it declares none; MCP cannot read your workspace, so it takes `app` unless you pass your application's own               |
 | `--no-spec`              | `spec: false`  | skip the starter unit test, which is generated by default                                                                                                                                                                                                           |
 
@@ -359,19 +359,20 @@ copy of the English strings.
 your workbench offers, and it generates it **working**: serve the product and the whole path runs,
 from the offered list through a streamed call to its outcome, with no backend, no key and no network.
 
-Three files land under `src/lib/agent/`:
+Its files land under `src/lib/agent/`:
 
 - `<id>-connection.ts`: the connection, which is the workbench's half. The workbench's own
   commands become the tools, and a call comes back through the same seam every other trigger runs
   through. It also carries the place where your product says no before a call runs. The generated
   command declares `agentConsent: 'ask'` on itself and the connection reads that off the call, so
   what an agent's word is enough for stays with the command rather than in a list beside it.
-- `<id>-agent-panel.ts`: a docked panel showing what is offered, the call as its arguments stream in,
-  and what came back.
+- `<id>-agent-panel.ts` and `<id>-agent-panel.html`: a docked panel showing what is offered, the
+  call as its arguments stream in, and what came back.
 - `<id>-agent.ts`: a **stand-in** for the agent, which is your half, and it says so where you
   cannot miss it. It produces the protocol's own events and nothing else. Replace that one file with
   your transport; the panel and the connection stay as they are. Nothing is generated for the
   transport, the credentials or the model, because none of those can be guessed.
+- `<id>-connection.spec.ts`: a test of the connection, unless you passed `--no-spec`.
 
 What the connection guarantees, which calls to ask about and how to replace the stand-in is
 [Driving your product with an AG-UI agent](ag-ui-agents.md#generate-it); that page also names the
@@ -439,13 +440,12 @@ If your workspace is an Nx workspace, this is the fullest of the three, because 
 tree of your workspace. Beyond what the CLI wires too, it registers the project and adds the tsconfig
 path alias; the CLI cannot, and the MCP server describes those steps instead.
 
+Beside the collection, install the packages the generated source imports, as
+[Manual setup → Install](manual-setup.md#1--install) lists them. The Tailwind ones are needed only
+for a distribution on the default `--styles tailwind`.
+
 ```bash
 npm i -D @loomweaver/devkit
-# what the generated source imports; the service worker pinned to the Angular version already installed
-npm i @loomweaver/shell @loomweaver/plugin-sdk @loomweaver/frame-kit @angular/cdk @jsverse/transloco @ng-icons/heroicons \
-  @angular/service-worker@$(node -p "require('@angular/core/package.json').version")
-# only for a distribution on the default --styles tailwind; `precompiled` needs none of these
-npm i -D tailwindcss @tailwindcss/postcss @tailwindcss/typography
 
 nx g @loomweaver/devkit:weaver --id notes --command --shortcut 'mod+shift+n'
 nx g @loomweaver/devkit:distribution --name acme-studio --title 'Acme Studio' --styles precompiled

@@ -15,7 +15,10 @@ paint then always matches the shell it runs in, and no plugin carries a copy of 
 | `penpal.global.js`      | the RPC transport, as `globalThis.Penpal`                                                                      |
 | `snapdom.global.js`     | the renderer `LwFrame.capture` loads the first time a picture of the workbench is asked for                    |
 
-What `LwFrame` offers is in `lw-frame.d.ts`; the guide below walks through it.
+What `LwFrame` offers is in `lw-frame.d.ts`; the guide below walks through it. That includes the
+toolbar bridge: `LwFrame.connectToolbars(host)` lets the workbench fill a `<lw-toolbar>` the surface
+places, with `LwSlotHost`, `LwSlotView` and `LwSlotEntry` as its types
+([a toolbar inside the surface](https://loomweaver.dev/weaver/sandboxed-surfaces/#a-toolbar-inside-the-surface)).
 
 ## Serving it (distribution)
 
@@ -36,6 +39,6 @@ Add an assets glob to the application build:
 ## Where to read on
 
 - [Frame surfaces](https://loomweaver.dev/weaver/sandboxed-surfaces/): writing a surface that runs in
-  a frame, with the state store, the pushed theme and the capture hook
+  a frame, with the state store, the pushed theme, the toolbar bridge and the capture hook
 - [Frame plugins](https://loomweaver.dev/distribution/frame-plugins/): serving the kit and composing
   frame plugins into a distribution

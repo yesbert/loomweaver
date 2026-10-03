@@ -7,8 +7,9 @@
 > page and a specification disagree, the specification is right, and that is a defect in this
 > page: change the behaviour there, then explain it here.
 
-**LoomWeaver ships no server.** The platform is the frontend (`@loomweaver/shell`, `@loomweaver/plugin-sdk`) plus
-its TypeScript contracts. It never owns settings persistence, authentication, secrets or egress.
+**LoomWeaver ships no server.** The platform is the frontend (`@loomweaver/shell` and
+`@loomweaver/plugin-sdk`, with `@loomweaver/frame-kit` for frame plugins and `@loomweaver/ag-ui` for
+an agent connection) plus its TypeScript contracts. It never owns settings persistence, authentication, secrets or egress.
 Instead it defines **ports** with local/anonymous defaults, and **your product implements them
 against its own backend**. Any stack you already run works: .NET, Node, Python, Go… A distribution
 runs standalone with no backend at all. You wire a backend only for multi-user/tenant persistence
@@ -30,17 +31,17 @@ not a port; it is listed here because the swap is made in the same place.
 | Auth / session (port)          | an `AuthSource` signal                  | everyone is anonymous       |
 | Translations (provider)        | a Transloco loader                      | static files under `/i18n/` |
 
-They are independent: adopt any subset. Each is a provider in your distribution's
-`bootstrapApplication` call, placed **after `provideShell()`** so it wins the last-in-wins race for
-the token the shell already filled with its default.
+They are independent: adopt any subset. Each is a provider in the `providers` array of your
+distribution's `app.config.ts`, placed **after `provideShell()`** so it wins the last-in-wins race
+for the token the shell already filled with its default.
 
 ## 1 · Settings persistence — the `SETTINGS_STORE` port
 
 A **string key-value** port with the `KeyValueStore` shape. The shell writes its genuine
-**settings** through this seam: theme, language, text size, plugin settings, installed and disabled
-plugins, capability revocations and the saved-workspaces list. It writes **nothing else** here.
-Working state (view state, layout, usage traces) lives behind the separate `WORKING_STATE_STORE`
-port and never reaches your backend. Writes here are rare, small and worth roaming across devices.
+**settings** through this seam, the deliberate choices a user makes. Working state (view state,
+layout, usage traces) lives behind the separate `WORKING_STATE_STORE` port and never reaches this
+one. Which key flows through which port is listed in
+[Persistence stores](distribution/persistence.md#storage-key-inventory). Writes here are rare, small and worth roaming across devices.
 That is what makes a REST call per write appropriate. Values are opaque: callers serialise their
 own payloads, so any backend that can store a string under a string key qualifies. The default is
 `LocalStorageStore`, which is exported: wrap it rather than reimplement it if you only want to
@@ -128,58 +129,19 @@ defaults to the device (`localStorage`), and why most distributions never touch 
 ## 2 · Auth / session — `AuthSource`
 
 A provider-neutral **session snapshot signal**. You reduce your product's session into an
-`AuthSnapshot`. The source can be OIDC, your own identity platform, or something custom. Whenever
-the signal changes, the shell reacts: it hides or disables gated chrome, gates routes, and updates
-`ctx.session`. Roles are opaque strings: the platform matches them but never interprets them. The
-claim bag stays in your own composition. No plugin receives it and no gate evaluates it.
-
-```ts
-// src/app/app.config.ts — in the providers array
-import { provideAuthSource, provideUnauthorizedRedirect } from '@loomweaver/shell';
-import { AuthSnapshot, ANONYMOUS } from '@loomweaver/plugin-sdk';
-
-// map your session service to a Signal<AuthSnapshot>:
-provideAuthSource(() => {
-  const session = inject(MySessionService);
-  return computed<AuthSnapshot>(() =>
-    session.user()
-      ? { authenticated: true, roles: session.roles(), claims: {}, displayName: session.name() }
-      : ANONYMOUS,
-  );
-}),
-
-// optional: where an unauthorized visit to a gated route should go (return null → in-place placeholder):
-provideUnauthorizedRedirect((attemptedPath) => `/login?from=${encodeURIComponent(attemptedPath)}`),
-```
+`AuthSnapshot` and hand it over with `provideAuthSource`. The source can be OIDC, your own identity
+platform, or something custom. Whenever the signal changes, the shell reacts: it hides or disables
+gated chrome, gates routes, and updates `ctx.session`. A control naming a command the session may
+not run is not drawn at all. Roles are opaque strings: the platform matches them but never
+interprets them. The claim bag stays in your own composition. No plugin receives it and no gate
+evaluates it.
 
 Sign-in and sign-out are **yours**: there is no platform login, and the shell never opens one on its
-own. Chrome whose requirement is unmet hides or disables. Only a gated content route redirects, via
-the handler above. The `from` parameter is how your login page navigates back after a successful
-sign-in. Render your login as a weaver surface, a page or a dialog. Sign out by setting the
-snapshot back to `ANONYMOUS`.
-Complete login-page and login-dialog components live in
-[building a distribution → Auth integration](distribution/auth.md).
-Client-side gating is **presentation, not security**. Enforce it for real in your backend, by
-rejecting unauthorized calls.
-
-Your own distribution code reads the same session back through `AuthContext`, the service the host
-chrome itself uses, so a component of yours and a gated rail item can never disagree:
-
-```ts
-// any distribution code inside an injection context
-import { AuthContext } from '@loomweaver/shell';
-
-const auth = inject(AuthContext);
-auth.authenticated();                       // Signal<boolean>
-auth.roles();                               // Signal<readonly string[]>
-auth.hasRole('admin');
-auth.meets({ anyRole: ['admin', 'owner'] }); // the same predicate that gates contributions
-```
-
-On a shared browser, pair `provideAuthSource` with `{ onIdentityChange: 'reload' }` and
-`provideIdentityScopedStores`: the first guarantees no in-memory state of the previous user
-survives a switch, the second keeps their stored state in separate namespaces. Both are described in
-[building a distribution](distribution/persistence.md#identity-scoped-stores-multi-user-browsers).
+own. Mapping your session, the login page or dialog, the redirect for a gated route and the policy
+for a user switch on a shared browser are worked through in [Auth integration](distribution/auth.md).
+Your own code reads the session back through `AuthContext`, described under
+[Session](distribution-api/session.md). Client-side gating is **presentation, not security**.
+Enforce it for real in your backend, by rejecting unauthorized calls.
 
 ## 3 · Translations — static files or your API
 
@@ -211,7 +173,7 @@ provideTranslocoLoader(ApiTranslationLoader),
 ```
 
 **Your loader replaces the whole composition.** `provideTranslationNamespaces` is read by the
-built-in loader and by nothing else, so once you provide your own, it stops having any effect: the
+built-in loader and by nothing else, so once you provide your own, it stops having any effect. The
 object you return _is_ the translation table, and it must already contain the host keys plus each
 namespace nested under its name. Host keys go **flat**, namespaces **nested**:
 
@@ -245,7 +207,9 @@ keys are resolved for contribution metadata are untouched by the swap.
 The active language is stored under `lw.shell.lang` and therefore travels through your
 settings store like every other setting. The _initial_ language, though, is decided **before
 dependency injection exists**, when Transloco's config is built. That early read goes straight to
-`localStorage`, not through your store, and falls back to the browser's languages and then English.
+`localStorage`, not through your store. Without a stored value it falls back to the browser's
+languages, then to English if it is served, and otherwise to the first language the distribution
+declared.
 
 With a network-backed store the consequence is visible: a fresh browser boots in the browser's
 language and flips to the stored one once the store answers. If you want the very first paint to be
@@ -264,27 +228,10 @@ It acts purely as a boot cache; your store remains the durable copy.
 
 ### A language the shell does not ship
 
-`@loomweaver/shell` ships host bundles for **English and German**, and its built-in language switcher
-offers exactly those two. A distribution can go beyond that, but it takes over the whole concern:
-
-```ts
-// src/app/app.config.ts — in the providers array
-provideShell({ omit: ['shell.language'] }),           // hide the built-in two-language switcher
-provideTranslocoConfig({
-  availableLangs: ['en', 'de', 'fr'],
-  defaultLang: 'fr',
-  fallbackLang: 'en',
-  reRenderOnLangChange: true,
-}),
-```
-
-You then serve a complete host bundle for the new language (`/i18n/fr.json`, copied from the shipped
-English one and translated) **and** a bundle for every namespace you registered; a missing
-namespace file is not fatal, but its keys render as raw ids with a console warning. Switching the
-language at runtime and persisting the choice become yours too: call Transloco's `setActiveLang` from
-your own switcher and store the value wherever you like. One rough edge to know about: the `lang`
-attribute on `<html>` keeps reporting the language the shell itself resolved (English or German), so
-set it yourself if you rely on it.
+`provideShell({ languages })` declares the whole set of languages the workbench serves, including
+one it does not ship. [Which languages are served](distribution/icons-and-i18n.md#which-languages-are-served)
+says what a distribution then supplies. With your own loader, that language's bundle comes from your
+endpoint like every other.
 
 ## Putting it together
 
@@ -328,31 +275,10 @@ A distribution that adopts none of this still runs. That is the point of the def
 when you have a backend to put behind them, one seam at a time.
 
 **One port, one provider.** `provideSettingsStore` and `provideIdentityScopedStores` both fill the
-same `SETTINGS_STORE` token. Listing both does not combine them: the later one wins and the other is
-silently discarded. Usually you want only one of the two. A backend-backed store already isolates
-users on the server, and that is exactly what identity scoping simulates for `localStorage`.
-Sometimes you do need both: a shared browser _and_ a remote store, so that a signed-out reload
-cannot re-hydrate the previous user from a local cache. In that case, pass your store **into** the
-scoping provider. It wraps both ports and shares one boot latch:
-
-```ts
-// src/app/app.config.ts — in the providers array (instead of provideSettingsStore)
-provideIdentityScopedStores({
-  // Synchronous at boot — read a cache you maintain yourself, not the async session:
-  identity: () => localStorage.getItem('acme.last-subject'),
-  settingsStore: new HttpSettingsStore(), // the wrapped store goes here, not in a second provider
-  // workingStateStore: ...               // optional; defaults to localStorage
-}),
-```
-
-The identity discriminator must answer **before bootstrap**, because the shell peeks
-bootstrap-critical keys before first paint. So persist the last-known subject whenever your session
-resolves: `localStorage.setItem('acme.last-subject', session.subject)` on login/restore, and
-`localStorage.removeItem('acme.last-subject')` on sign-out. This is the same pre-bootstrap-cache
-idea as the language cache in [The first paint](#the-first-paint).
-
-The wrapped instance is constructed outside an injection context, so keep such a store free of
-`inject()`: the `fetch`-based one above qualifies, an `HttpClient`-based one does not.
+same `SETTINGS_STORE` token, and the later one silently discards the other. A backend-backed store
+already isolates users on the server. Where a shared browser needs identity scoping as well, pass
+your store **into** the scoping provider instead, as
+[Persistence stores](distribution/persistence.md#identity-scoped-stores-multi-user-browsers) shows.
 
 ## The security seam lives in your backend
 

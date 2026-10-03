@@ -1,64 +1,70 @@
 # @loomweaver/shell
 
-The neutral shell host (chrome + docking points). Domain-pure: it renders
-regions and holds contributions, but knows no product/domain concepts.
+The workbench of [LoomWeaver](https://loomweaver.dev), as an Angular library: the chrome and its
+regions, the plugin loader, and the host services plugins reach through `ctx`. It holds no domain
+of its own. A distribution composes it with weavers, the plugins that carry the product.
 
-## Structure (`src/lib/`) — feature slices, not technical types
+The quickest start is the scaffold, which installs this package and wires a first weaver:
 
-The lib is organized in **vertical feature slices**: each folder holds everything one
-feature needs (service + UI + contracts + specs). There are no `services/` or
-`components/`-style type buckets (current Angular style guide: "avoid creating
-directories like components, directives, and services").
+```sh
+npx @loomweaver/cli init
+```
 
-- **`shell.*` / `provide-shell.ts` / `host-commands.ts` / `built-in-menus.ts` / `default-settings.ts`** — root
-  component + DI composition entry (`provideShell({ omit })`).
-- **`layout/`** — the declarative region-agnostic model (`layout`, its queries, the
-  panel widths) + viewport breakpoint service.
-- **`regions/`** — the docked region renderers: `bar/` (incl. shell
-  brand), `rail/`, `panel/`, `pane/`, `content/`, `reorder/`, plus `curation/`, `reset/`
-  and `reveal/` for what acts across regions. Each region owns its component **and** its
-  contribution contract (`bar-item`, `rail-item`). `content/` is sub-sliced into
-  `routing/` (router wiring, the route table, reuse strategy), `surface/` (what draws a
-  surface inside a pane), `tabs/` (tab state, projection, close hooks, context menu) and
-  `access/` (auth gating + placeholder views); the address pane and shared path helper
-  live at its root.
-- **`contributions/`** — the `contribution-registry` every slice reads and the shell's own
-  `provide*` API seeds (id-keyed: same id overrides, `remove*ById`; content routes override
-  by `path`, and their `id` is the `route:` omit handle), plus surface normalisation, route
-  omission, tab badges and `disposeTogether`.
-- **`plugin/`** — plugin runtime core: `plugin`, `plugin-runtime`, `plugin-state.service`.
-  Sub-sliced into `context/` (the `ctx` a plugin receives), `frame/` (the frame rung:
-  runtime, per-frame session, settings, and `rpc/` for the method table and the wire
-  sanitizers) and `enablement/` (turning a plugin on and off, and the permissions settings
-  section).
-- **`plugin-isolation/`** — which level each running frame plugin holds, read by the frame
-  runtime, the iframe surface and the permissions section; it imports only `foundation/`.
-- **`commands/`** — the command seam (`CommandService`, invocation), with `keyboard/` (chords and
-  the keybinding service) and `palette/` (the palette, its recents, and `entry/` for the bar entries
-  that open it).
-- **`plugin-store/`** — community plugin store: catalog port and the level cap a catalog may
-  confer, install/deployment/store services and the complete store UI.
-- **`permissions/`** — capability grants, their broker and refusal reporting.
-- **`settings-dialog/`** — the settings dialog: its sections model, the service that opens it, the
-  registry and the row primitives. Settings are persisted by whoever contributes them, not here.
-- **`persistence/`** — shared kernel: the two `KeyValueStore` ports (`SETTINGS_STORE`
-  settings-only + `WORKING_STATE_STORE`) at the top, `cross-tab/` (`StateSyncService` and the
-  sync wrapper), `identity-scope/` (the boot latch, the scoped store and its provider) and
-  `stored-values/` (`hydrate`/`readStoredValue` and the parsers). Deliberately cross-cutting
-  (consumed by plugin/, regions/ and the feature slices).
-- **`elements/`** — the framework-agnostic `<lw-*>` custom-element family
-  incl. the icon registry. Deliberately cross-cutting (the host UI kit).
-- **`surface-kit/`** — what a sandboxed surface loads: `surface-kit.frame.ts` is the
-  `@loomweaver/frame-kit` bundle entry (the elements, the pushed theme and icons, the state
-  mirror and self-capture).
-- **Small feature slices** — `theme/`, `text-size/`, `i18n/` (loader + locale service +
-  switcher + translations), `auth/`, `dialog/`, `notifications/`, `menu/`, `version/`,
-  `update/`, `workspace/`, `views/` (the `View` contribution, named view instances +
-  `VIEW_STATE`).
-- **`styles/`** — design tokens + theme (see `docs/reference/design-tokens.md`).
+## Installing it by hand
 
-The published API is the `src/index.ts` barrel only; consumers never deep-import.
+The shell needs Angular 22 and has its other runtime libraries as peer dependencies:
 
-## Tests
+```bash
+npm install @loomweaver/shell @loomweaver/plugin-sdk @angular/cdk @jsverse/transloco @ng-icons/heroicons \
+  @angular/service-worker@$(node -p "require('@angular/core/package.json').version")
+```
 
-Run `nx test shell` to execute the unit tests.
+The pin keeps `@angular/service-worker` on the Angular version your workspace already has.
+
+## Using it
+
+Every provider goes into the application's `providers` array, and the root component renders
+`<lw-shell />`:
+
+```ts
+// src/app/app.config.ts
+import { ApplicationConfig } from '@angular/core';
+import { provideLayout, provideShell, provideShellRouter } from '@loomweaver/shell';
+import { provideProductIdentity } from '@loomweaver/plugin-sdk';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideShellRouter(),
+    provideShell({ serviceWorker: false }),
+    provideLayout({
+      regions: [
+        { id: 'top-bar', type: 'bar', dock: 'top' },
+        { id: 'primary', type: 'rail', dock: 'left' },
+        { id: 'main', type: 'content', dock: 'center' },
+      ],
+    }),
+    provideProductIdentity({ name: 'My Studio', tagline: 'Weave something great', logoUrl: 'logo.png' }),
+  ],
+};
+```
+
+```ts
+// src/app/app.ts
+import { Component } from '@angular/core';
+import { Shell } from '@loomweaver/shell';
+
+@Component({ selector: 'app-root', imports: [Shell], template: '<lw-shell />' })
+export class App {}
+```
+
+The shell also needs its styles and its strings served; the setup guide below covers both. Import
+only from the package root, never from a path inside it.
+
+## Where to read on
+
+- [Getting started](https://loomweaver.dev/getting-started/): the scaffold, and what it gives you
+- [Manual setup](https://loomweaver.dev/manual-setup/): every provider, the style pipeline and the
+  asset globs, wired by hand
+- [Building a distribution](https://loomweaver.dev/building-a-distribution/): composing weavers,
+  branding, auth and persistence
+- [Authoring a weaver](https://loomweaver.dev/authoring-a-weaver/): the plugins the shell runs

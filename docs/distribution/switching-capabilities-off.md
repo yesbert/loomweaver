@@ -105,14 +105,20 @@ to keep open". Switch it off with `provideShellFeatures({ content: { escalate: f
 tooltip drops that promise, so no hint advertises a gesture that does nothing. Every step of the
 cycle stays reachable from the tab's context menu either way.
 
-Every content pane, the address pane and secondary panes alike, shows the **same** inline toolbar:
-New tab, Split right, Split down, Minimize, Maximize and Close. The switches `newTab`, `splitRight`,
-`splitDown`, `minimize`, `maximize` and `close` each take one button away together with the gesture
-behind it, and fields merge, so the others stay on. `splitRightButton` and `splitDownButton` take
-the button and leave the gesture. No other button here needs that: no other one is the only route
-to its capability. A pane that holds no tabs offers the same buttons on a
-floating toolbar, under the same switches. What each button does for the user is in
-[Panes](../distribution-api/panes.md#in-depth).
+The pane toolbar's buttons, and the `content` switch behind each. What each button does for the user
+is in [Panes](../distribution-api/panes.md#in-depth).
+
+| Button      | Switch                                                                             |
+| ----------- | ---------------------------------------------------------------------------------- |
+| New tab     | `newTab`                                                                           |
+| Split right | `splitRight` with its gestures, or `splitRightButton` for the button only          |
+| Split down  | `splitDown` with its gestures, or `splitDownButton` for the button only            |
+| Minimize    | `minimize`                                                                         |
+| Maximize    | `maximize`                                                                         |
+| Close       | none; `close` governs closing tabs, and with it off a pane's tabs survive the pane |
+
+Fields merge, so the others stay on. Only the split buttons have a button-only switch. A pane that
+holds no tabs offers the same buttons on a floating toolbar, under the same switches.
 
 ## Sorting and moving
 

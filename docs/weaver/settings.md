@@ -49,6 +49,9 @@ Control kinds: `select` (single choice), `toggle` (on/off), `text` (a string fie
 `command: '<id>'` to reuse a registered command so the palette/keybindings share it), `component`
 (embed your own widget). Each value control owns its `value()`/`set()`.
 
+A `button` row naming a command the session may not run is not drawn, and a section left empty by
+that goes with it. Both appear again once the session qualifies, without a reload.
+
 ## Where next
 
 - [Sandboxed surfaces](sandboxed-surfaces.md#settings-declare-data-the-host-renders-and-stores): the data-only form a sandboxed plugin contributes over RPC.

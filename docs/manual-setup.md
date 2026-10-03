@@ -8,19 +8,20 @@
 > specification is right, and that is a defect in this page: change the behaviour there, then
 > explain it here.
 
-This page builds the same application as the [scaffolding quickstart](getting-started.md), wired by
-hand, minus two things the scaffold adds and this page leaves out: the service worker and the
-content-security policy.
+This page wires by hand the application the [scaffolding quickstart](getting-started.md) generates.
+The scaffold adds a few things on top: the service worker, the content-security policy, a raised
+bundle budget, the two search entries in the top bar and a first weaver.
 It takes about fifteen minutes, and afterwards you know what every file is for. It is also the
 reference for adding the shell to an application that already exists, when you would rather not
 have a generator rewrite it.
 
-Everything below is something the scaffold would otherwise write for you: the style pipeline, the
-asset globs, the service worker and the build settings. It is here because knowing _why_ each exists
-is worth fifteen minutes, and because a workspace the generator cannot read leaves you doing exactly
-this. The minimal `index.html` below ships no content-security policy; adopt the scaffold's strict
-one and you take on the `inlineCritical` build setting with it, which
-[Frame plugins](distribution/frame-plugins.md) describes.
+Everything below is something the scaffold would otherwise write for you: the providers, the style
+pipeline and the asset globs. It is here because knowing _why_ each exists is worth fifteen minutes,
+and because a workspace the generator cannot read leaves you doing exactly this. This page ships no
+content-security policy; adopt the scaffold's strict one and you take on the `inlineCritical` build
+setting with it, which [Frame plugins](distribution/frame-plugins.md) describes. The two search
+entries are `provideCommandPaletteEntry()` and `provideQuickOpenEntry()`; both searches work without
+them, on `mod+k` and `mod+p`.
 
 > **Prerequisites:** Node 24 and an **Angular 22** workspace, Angular CLI or Nx.
 
@@ -83,6 +84,7 @@ const layout: ShellLayout = {
     { id: 'top-bar', type: 'bar', dock: 'top' },
     { id: 'primary', type: 'rail', dock: 'left' },
     { id: 'left-panel', type: 'panel', dock: 'left' },
+    { id: 'right-panel', type: 'panel', dock: 'right' },
     { id: 'main', type: 'content', dock: 'center' },
     { id: 'status-bar', type: 'bar', dock: 'bottom' },
   ],
@@ -114,8 +116,8 @@ Four things about the generated file you are replacing:
   The [scaffolded quick start](getting-started.md) ships all of that wired, so there PWA is on.
 
 - **`provideRouter(routes)` goes away.** `provideShellRouter()` calls it for you and takes its place.
-  It bundles three things as one unit: `withDisabledInitialNavigation()`, the state-preserving reuse strategy and
-  the route sync. One unit means it cannot be half-configured. Pass your own non-content routes as
+  It bundles three things as one unit: `withDisabledInitialNavigation()`, a reuse strategy that
+  rebuilds a content route when its parameters change, and the route sync. One unit means it cannot be half-configured. Pass your own non-content routes as
   `provideShellRouter([...routes])`. `src/app/app.routes.ts` is then unreferenced. Everything else
   about the router is unchanged, which [Routing](reference/routing.md) spells out.
 - **`provideBrowserGlobalErrorListeners()` goes away too**: `provideShell()` already includes it,
@@ -171,7 +173,7 @@ whether `App` has styles; `styleUrl: './app.css'` can stay or go.
 
 /* Generate the utility classes the shell (and your own components) use. */
 @source '../node_modules/@loomweaver/shell';
-@source './app';
+@source './';
 ```
 
 ```jsonc
@@ -197,15 +199,16 @@ unlayered rules outrank the shell's: [Bringing your own CSS
 framework](distribution/css-frameworks.md) has the import order, the token mapping and the dark-mode
 mirror.
 
-## 5 · Serve the host translations
+## 5 · Serve the host translations and the frame kit
 
 The shell fetches its UI strings from `i18n/{lang}.json` under the application's base at runtime, so the build has to copy them
-out of the package. Add this to your build target's `assets`, which is `angular.json` →
-`projects.<name>.architect.build.options` with the Angular CLI and `apps/<name>/project.json` →
-`targets.build.options` in Nx:
+out of the package. A frame plugin loads the frame kit the same way. Add both to your build target's
+`assets`, which is `angular.json` → `projects.<name>.architect.build.options` with the Angular CLI
+and `apps/<name>/project.json` → `targets.build.options` in Nx:
 
 ```jsonc
-{ "glob": "**/*", "input": "node_modules/@loomweaver/shell/i18n", "output": "i18n" }
+{ "glob": "**/*", "input": "node_modules/@loomweaver/shell/i18n", "output": "i18n" },
+{ "glob": "**/*", "input": "node_modules/@loomweaver/frame-kit/dist", "output": "frame-kit" }
 ```
 
 ## 6 · (Optional) branding and plugin translations
@@ -258,10 +261,9 @@ constraint cannot depend on any libraries"_. Give the new projects tags your con
 `--tags` when generating or in `project.json` afterwards. The scaffold deliberately does not relax
 that rule for you.
 
-In an Nx workspace prefer **[`@loomweaver/devkit`](scaffolding.md#the-nx-generators--loomweaverdevkit)** over
-the CLI. Both wire the build, the styles and the composition root. The Nx adapter additionally
-registers the project and adds the tsconfig path alias, because Nx hands it a virtual tree of the
-workspace; the CLI cannot do those two and names them instead.
+In an Nx workspace prefer **[`@loomweaver/devkit`](scaffolding.md#the-nx-generators--loomweaverdevkit)**
+over the CLI; [Scaffolding](scaffolding.md#the-nx-generators--loomweaverdevkit) says what it does
+beyond it.
 
 <a id="ssr-server-side-rendering"></a>
 

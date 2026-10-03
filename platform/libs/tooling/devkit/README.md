@@ -13,7 +13,8 @@ It is the fullest of the three scaffolding adapters, because Nx hands it a virtu
 workspace: besides writing files and wiring the build, it registers the project and adds the
 tsconfig path alias. `@loomweaver/cli` writes files and wires an Angular CLI application it finds;
 `@loomweaver/mcp` returns a file map and the remaining steps, and lets your assistant place them. All
-three read the same scaffold descriptors, so the generated source is identical.
+three read the same scaffold descriptors, so the same inputs give the same source; this adapter
+also fills the import path and the selector prefix in from your workspace.
 
 Placement is read from your workspace, not assumed: `--directory` (default `libs/<project name>`),
 `--import-path` (default: your root manifest's npm scope), `--app` (inferred when the workspace has
@@ -117,8 +118,9 @@ nx g @loomweaver/devkit:auth-source --name=dev --app=acme-studio       # a stand
 nx g @loomweaver/devkit:settings-store --name=backend --app=acme-studio # backend-backed settings store
 ```
 
-Wire them in `app.config.ts` with `provideAuthSource(() => devAuthSource())` and
-`provideSettingsStore(new BackendSettingsStore())`.
+The auth source composes itself into the application's `app.config.ts`, unless you pass `--bare`;
+then, and for the settings store, wire them yourself with `provideAuthSource(() => devAuthSource())`
+and `provideSettingsStore(new BackendSettingsStore())`.
 
 ## Scaffold a theme + a layout
 
@@ -128,9 +130,10 @@ nx g @loomweaver/devkit:theme --name=acme --preset=bootstrap      # the same, ma
 nx g @loomweaver/devkit:layout --app=acme-studio                  # a ShellLayout for provideLayout(baseLayout)
 ```
 
-`--preset bootstrap` points all 29 `--lw-*` tokens at Bootstrap's `--bs-*` variables instead of
+`--preset bootstrap` points every `--lw-*` token at Bootstrap's `--bs-*` variables instead of
 emitting literal colours, so the shell follows your Bootstrap theme live — including its dark mode,
-provided you mirror `ThemeService.resolvedTheme()` onto `data-bs-theme`. The generated file says how.
+provided you mirror `ThemeService.resolvedTheme()` onto `data-bs-theme`. The generated file says how. The `on-*` tokens stay literal, because they must contrast with
+their fill rather than follow it.
 
 The layout's region ids (`primary` rail, `status-bar` bar) match the weaver defaults, so a scaffolded
 weaver's rail + bar items land in it out of the box.

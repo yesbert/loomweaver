@@ -209,7 +209,7 @@ navigation.bind(ctx);
 ctx.registerSurface({
   id: 'notes.navigation',
   title: 'notes.nav.title',
-  icon: 'notes',
+  icon: 'navigator',
   component: NotesNavigationView,
   docks: ['left-panel'],
   padded: false,
@@ -225,11 +225,10 @@ Tell the tree which address is on screen through `current`, and it marks the des
 address lies at or under. The template feeds it from `activeContent`, which is signal-shaped, so
 the marking moves as the user moves.
 
-The rule for "under" is the workbench's own segment rule, the same one `ctx.isShowingUnder`
-applies. `notes/drafts/d-17` is under `notes/drafts`, so opening a draft marks the drafts entry.
-`notes/draftsomething` is not under `notes/drafts`, because there is no segment boundary between
-them. That is the rule you would otherwise write with `startsWith` and get wrong, and the symptom
-is quiet: an entry that never marks, or one that marks its neighbour too.
+The rule for "under" is the workbench's own segment rule, the same one
+[`ctx.isShowingUnder`](sub-routes-and-follows.md#asking-whether-the-address-shown-is-under-yours-ctxisshowingunder)
+applies. `notes/drafts/d-17` is under `notes/drafts`, so opening a draft marks the drafts entry, and
+`notes/draftsomething` is not.
 
 At most one destination is marked, the longest match, and none at all when the address lies under
 no destination the tree holds. So `notes` in the writing group is marked for `notes` and for
@@ -309,9 +308,8 @@ cross-plugin navigation to the product.
 
 Picture a sidebar whose header says "Writing" while the user is among the drafts, and "Archive"
 once they open an archived note. That needs the surface's title to change while the surface runs,
-and `ctx.retitleSurface` does that under the id you registered with, and everywhere the workbench names
-the surface follows: its tab, the panel header, a picker that lists it. The surface is not rebuilt,
-so what the user folded inside it survives.
+and [`ctx.retitleSurface`](sub-routes-and-follows.md#renaming-a-surface-while-it-is-mounted-ctxretitlesurface)
+does that without rebuilding the surface, so what the user folded inside it survives.
 
 Drive it from the same fact the marking uses. The group to name is the one holding the deepest
 destination the address lies under, and the depth matters: `notes` is under everything the notes

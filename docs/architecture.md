@@ -113,6 +113,9 @@ state and roles:
 
 - **Chrome items** (rail, bar, views, view actions) are hidden or disabled.
 - **Commands** are blocked at the one `execute` seam, keybindings and the palette included.
+- **Any control naming a command** the session may not run, or one that does not belong in a
+  window of its own, is not drawn. That holds for rail, bar, surface action, settings button, menu
+  and toolbar entries alike, and the control appears once the session qualifies.
 - **Content routes** show a neutral "sign-in required" placeholder in place, or redirect via
   `provideUnauthorizedRedirect`. They appear in the New-Tab picker, and become mountable for
   split/drag hosting, only once the session qualifies.

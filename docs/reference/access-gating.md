@@ -81,10 +81,20 @@ today, reduce the claim to a role token when you build the snapshot.
 | Bar item (host-drawn button)     | not rendered                                                   | rendered, inert                                          |
 | Bar item (your component)        | not rendered                                                   | _not supported_ — it owns its cell, so it is only hidden |
 | View action                      | not rendered                                                   | rendered, inert                                          |
+| Menu or toolbar entry            | not rendered                                                   | rendered, inert                                          |
+| Toolbar cell (`ToolbarCell`)     | not rendered                                                   | _ignored_ — a cell is only hidden                        |
 | View (panel surface)             | tab and body hidden                                            | _ignored_ — a view is present or it is not               |
 | Command                          | omitted from the palette, `execute()` and its keybinding no-op | _ignored_ — blocked either way                           |
 | Content route / routable surface | placeholder at the same URL, absent from the new-tab picker    | _ignored_ — blocked either way                           |
 | Container child                  | keeps its place and shows the placeholder                      | _ignored_ — blocked either way                           |
+
+A **command's** requirement reaches further than the palette. Every control that names the command
+is not drawn while the session may not run it: a rail item, a bar button, a surface action, a
+settings button, a menu or toolbar entry. The same holds in a pop-out window for a command that does
+not declare `popout`. This applies on top of whatever `access` the control declares itself, and the
+command's requirement only ever hides. A settings button has no `access` of its own, so the command
+it names is what gates it. A control with inline behaviour instead of a command answers to its own
+requirement alone.
 
 Everything is **reactive**. A sign-in, a sign-out or a role change re-evaluates every one of these
 without a reload: gated chrome appears and disappears, a gated route the user is currently on falls
@@ -171,23 +181,11 @@ enforcement; real enforcement stays server-side, as everywhere on this page.
 
 ## Identity changes
 
-Signing in as somebody else is not the same event as signing in:
-
-```ts
-// src/app/app.config.ts — in the providers array
-provideAuthSource(() => mySessionSignal, { onIdentityChange: 'reload' }),
-```
-
-With this policy the app performs a full reload when an **established** `subject` is replaced by a
-_different_ one. First sign-in (anonymous → subject) and sign-out never fire, so an asynchronous
-session restore at boot causes no flicker. A reload is a blunt instrument on purpose: it is the only
-way to guarantee that no in-memory state of the previous user survives.
-
-Pair it with
+Signing in as somebody else is not the same event as signing in. The
+[identity-change policy](../distribution/auth.md#1--feed-the-session--provideauthsource) reloads the app when one
+established subject is replaced by another, and
 [identity-scoped stores](../distribution/persistence.md#identity-scoped-stores-multi-user-browsers)
-so the stored state is separated too. That store latches the first non-empty identity per boot and
-never follows a live switch, which is what keeps a write still in flight during the login transition
-out of the next user's namespace.
+keep the stored state of each person apart.
 
 ## Two axes that look alike
 

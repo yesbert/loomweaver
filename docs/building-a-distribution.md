@@ -25,7 +25,7 @@ import {
   provideTranslationNamespaces, provideCapabilityGrants, type ShellLayout,
 } from '@loomweaver/shell';
 import { provideProductIdentity } from '@loomweaver/plugin-sdk';
-import { notesWeaver } from '@my/notes-weaver';
+import { notesPlugin } from '@my/notes-weaver';
 
 const layout: ShellLayout = {
   regions: [
@@ -46,8 +46,8 @@ export const appConfig: ApplicationConfig = {
     provideProductIdentity({ name: 'Notes Studio', tagline: 'product.tagline', logoUrl: 'logo.png' }),
     provideTranslationNamespaces('notes', 'product'),
     // Default-deny: grant the weaver exactly what its manifest declares.
-    provideCapabilityGrants({ notes: ['contributions', 'ui', 'host'] }),
-    ...providePlugins(notesWeaver),   // variadic, returns an array — note the spread
+    provideCapabilityGrants({ notes: ['contributions', 'ui', 'navigation'] }),
+    ...providePlugins(notesPlugin),   // variadic, returns an array — note the spread
   ],
 };
 ```
@@ -70,16 +70,19 @@ app has finished loading:
 loomweaver.report()
 ```
 
-It prints the regions your layout declares, the capabilities you switched off and the ids you
-omitted, and then warns about the things that quietly land nowhere:
+It prints the version the workbench shows (the shell's own, or the one you set), the regions your layout declares, the capabilities you switched off
+and the ids you omitted. Then it warns about the things that quietly land nowhere:
 
 - an `omit` that **matched nothing**, with the prefix you probably meant: omitting `shell.permissions`
   hides a _command or item_ by that id, while the settings section of that name needs
   `setting:shell.permissions`, and the bare form fails in silence
-- a settings button or menu entry pointing at a **command no one registers** (or one your own `omit`
-  removed): the shell drops the control rather than drawing a dead one, and this says why it vanished
-- a menu entry aimed at a **slot nothing declares**: no menu the shell draws, no rail item, bar
-  button or surface action naming it as its `menu`, no registered toolbar. The entry is kept and
+- a settings row replacement whose id **matched no row**, so it replaces nothing
+- a rail item, bar button, view action, settings button or menu entry pointing at a **command no one
+  registers**, or one your own `omit` removed. The shell drops the control rather than drawing a
+  dead one, and this says why it vanished
+- a menu entry aimed at a **slot nothing declares**. A slot is declared by a menu the shell draws, by
+  a rail item, bar button or surface action naming it as its `menu`, by another menu entry's
+  `submenu`, by a registered toolbar, or as a surface's own `<id>/actions` toolbar. The entry is kept and
   appears the moment the slot is declared, so this is also warned about once in the console after
   the composed plugins have finished activating, naming the entry, the slot and the plugin that
   contributed it. It is deliberately not warned about at registration time: the plugin that fills a
@@ -90,11 +93,12 @@ omitted, and then warns about the things that quietly land nowhere:
   broken, it simply does the wrong thing. The comparison is on the chord the keyboard resolves, so it
   finds a clash between two commands that spelled the same shortcut differently
 
-One check does not wait for the console, because it is already decidable at startup. A bar, rail or
-view contribution aimed at a region your layout does not declare, or declares with another anatomy,
-is warned about immediately, and the warning names the regions of the right type that do exist. That is the
-`status` versus `status-bar` mistake, which otherwise ships a product whose status bar is simply
-empty.
+Two checks do not wait for the console, because they are already decidable at startup, and the
+report repeats both. A bar, rail or view contribution aimed at a region your layout does not declare,
+or declares with another anatomy, is warned about immediately. The warning names the regions of the
+right type that do exist. That is the `status` versus `status-bar` mistake, which otherwise ships a
+product whose status bar is simply empty. And a `provideRequiredPlugins` naming a plugin the
+distribution does not compose is warned about, because that declaration is then ignored.
 
 The report exists in dev only; nothing of it reaches a production build.
 

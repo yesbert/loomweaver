@@ -30,6 +30,11 @@ the binding guardrail; it complements [`design-tokens.md`](design-tokens.md) (co
   the left and right arrow keys move the focus from tab to tab and wrap at the ends, Home and End
   jump to the first and the last. Moving the focus chooses nothing; Enter or Space chooses the
   focused tab. `Alt` with an arrow still reorders.
+- **Toolbars:** a `<lw-toolbar>` is a `role="toolbar"` and **one tab stop**. Inside, the left and
+  right arrow keys move between its controls and wrap at the ends, Home and End jump to the first
+  and the last. It is announced by the placement's `label`, or by the title the toolbar was
+  registered with. When the row is too narrow, the controls that do not fit fold into a **More**
+  control rather than being cut off.
 - **Text size (WCAG 1.4.4):** the shell ships a user setting "text size"
   (Settings → Options → General) that scales the whole UI through the `:root` `font-size`
   (90/100/112.5/125 %, **relative** to the browser's base font). Every distribution inherits it.

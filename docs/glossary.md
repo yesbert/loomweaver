@@ -47,7 +47,13 @@ The words these pages use, one line each. Where two words name the same thing, t
 - **`ctx`**: the one uniform context a plugin receives on activation. Everything a plugin may do
   with the workbench goes through it.
 - **Contribution**: something a plugin registers through `ctx`: a surface, a command, a menu item, a
-  bar or rail item, a settings section. A distribution can remove one by naming it (`omit`).
+  toolbar or a toolbar cell, a bar or rail item, a settings section. A distribution can remove one
+  by naming it (`omit`).
+- **Slot**: the name of a menu, which anything may fill with `registerMenuItem`. The workbench
+  declares some, and a control naming one or a registered toolbar declares the rest.
+- **Toolbar**: a slot drawn open, side by side, where a plugin places `<lw-toolbar>` in its own
+  content. It is declared with `registerToolbar`; others fill it with menu items, and a trusted
+  plugin may add a cell of its own.
 - **Surface**: the one author contract for anything the workbench shows. A surface declares what it
   can do (routable, docks, instanceable), and the host places it.
 - **View**: a surface docked in a sidebar. The API keeps the word (`provideViews`, `VIEW_STATE`), so
@@ -90,8 +96,7 @@ The words these pages use, one line each. Where two words name the same thing, t
 - **Unsaved-work question**: the Save, Discard or Cancel dialog the workbench asks wherever an action
   would destroy work. It is asked by the action, so a distribution's call asks it too.
 - **Address pane**: the one pane whose content the address bar reflects. Focusing another pane moves
-  the address; it never rebuilds the pane. Older text said URL pane or primary pane; the pages say
-  address pane.
+  the address; it never rebuilds the pane.
 - **Pop-out**: a surface shown in a browser window of its own, a viewer onto the same state.
 - **Port**: a frontend seam the product implements against its own backend. There are three: the
   settings store, the working-state store and the auth source. The platform ships no server.

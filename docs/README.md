@@ -102,7 +102,7 @@ Why the workbench behaves as it does, each short, each linking to the how-to pag
 - [Access gating](reference/access-gating.md): the complete `access` reference. What gates where,
   identity changes, and why client-side gating is not a security boundary.
 - [Routing](reference/routing.md): the content area is the Angular router. What carries over
-  unchanged, where a route comes from, and and where the router is not the whole story.
+  unchanged, where a route comes from, and where the router is not the whole story.
 - [Callable commands](reference/callable-commands.md): opening a command to a caller that is not the
   user. Described arguments, answers, the `automation` capability and why the default is closed.
 - [Agent tools](reference/agent-tools.md): `@loomweaver/ag-ui`, letting an AG-UI agent reach the
@@ -140,8 +140,9 @@ run recorded as it happened.
 ## Where this stands
 
 It is for Angular teams building a product that is a workbench: several things open at once, and a
-surface other people extend. It is not for a site of plain pages. It is maintained by one person, its
-API still moves on patch releases before 1.0, and the demo application is its reference consumer.
+surface other people extend. It is not for a site of plain pages. It is maintained by one person.
+Before 1.0 its breaking changes arrive in minor releases, and the demo application is its reference
+consumer.
 
 ## License
 

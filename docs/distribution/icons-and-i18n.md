@@ -56,18 +56,18 @@ Three layers compose, and none can clobber another:
 
 Serve the namespace files as assets (`public/i18n/notes/en.json`, `public/i18n/product/en.json`) and
 copy the shell's host keys (getting-started §5). A namespace file does **not** repeat its namespace.
-
-For a distribution at the root of its origin, the base is `/` and all of this lives under `/i18n/`. A
-distribution may also be served below a path, beside other applications on the same origin: build it
-with that base (`ng build --base-href /customer-admin/`) and serve its output, assets included, under
-that path. The strings, the namespaces, the default overlay directory and the pop-out windows then
-all follow the base, with nothing else to configure.
 The loader nests it under the name:
 
 ```jsonc
 // public/i18n/product/en.json
 { "tagline": "Weave anything" }   // → resolved as product.tagline
 ```
+
+For a distribution at the root of its origin, the base is `/` and all of this lives under `/i18n/`. A
+distribution may also be served below a path, beside other applications on the same origin: build it
+with that base (`ng build --base-href /customer-admin/`) and serve its output, assets included, under
+that path. The strings, the namespaces, the default overlay directory and the pop-out windows then
+all follow the base, with nothing else to configure.
 
 ### Which languages are served
 
@@ -103,7 +103,7 @@ deliberate opt-in: call `provideTranslationOverrides()` and serve
 
 ```jsonc
 // public/i18n/overrides/en.json
-{ "workspace": { "saveAs": "Save as" } }   // the shipped string reads "Save as new"
+{ "workspace": { "save": "Save as" } }   // the shipped string reads "Save as new"
 ```
 
 The overlay is merged **key by key**, so you name only the strings you want to change and inherit

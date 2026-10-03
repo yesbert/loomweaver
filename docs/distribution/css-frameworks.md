@@ -88,7 +88,7 @@ the product default and any plugin theme:
 npx @loomweaver/cli theme --name acme --preset bootstrap --out src/themes
 ```
 
-It maps all 29 tokens onto `--bs-*` and writes down where the mapping is deliberately not one to
+It maps the `--lw-*` tokens onto `--bs-*` and writes down where the mapping is deliberately not one to
 one. The short version: LoomWeaver splits a brand colour into three roles, the identity colour, the
 colour that is safe to _read_, and the colour that is safe to _fill_ behind white text. Each role
 clears a different WCAG threshold. Bootstrap draws the same distinction with `-text-emphasis`, so

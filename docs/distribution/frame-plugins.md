@@ -14,7 +14,7 @@ fully trust, or that is not Angular. That code runs in an isolated `<iframe sand
 
 ```ts
 // src/app/app.config.ts — in the providers array
-import { provideFramePlugins } from '@loomweaver/shell';
+import { provideCapabilityGrants, provideFramePlugins } from '@loomweaver/shell';
 
 // in providers:
 provideCapabilityGrants({ 'report-tool': ['contributions', 'ui', 'navigation'] }),
@@ -49,7 +49,7 @@ the host DOM, variables or storage.
 Because a sandboxed surface has none of the host's `--lw-*` design tokens, the host **pushes the resolved
 token values** to the surface (alongside the active locale and light/dark theme); the surface sets them as
 CSS variables and paints with `var(--lw-…)` just like host chrome. The push carries the **full `--lw-*`
-vocabulary** (every `LW_TOKENS` entry), and the values are the _effective_ ones, so
+vocabulary** (every `--lw-*` token), and the values are the _effective_ ones, so
 a theme switch carries into the sandbox with no hardcoded colours or fonts to keep in sync. Any
 tenant or product token override carries the same way, and so does the user's text size.
 
@@ -67,11 +67,11 @@ runs at one of two levels, and the composition chooses:
 
 ```ts
 ...provideFramePlugins({
-  id: 'treaties',
-  entryUrl: '/treaties/plugin.html',
+  id: 'orders',
+  entryUrl: '/orders/plugin.html',
   capabilities: ['contributions'],
   level: 'embedded',                          // omit it and you get 'isolated'
-  origins: ['https://treaties.example.com'],  // where its own surfaces may come from
+  origins: ['https://orders.example.com'],    // where its own surfaces may come from
 }),
 ```
 
@@ -144,6 +144,12 @@ Plugins reference those paths instead of vendoring copies, so the kit's version 
 `@loomweaver/shell` your distribution actually runs (`@loomweaver/frame-kit` shares the platform's version line;
 keep the two in lockstep when you update). If you host sandboxed plugins, composed or through the
 plugin store, serving the kit is part of the contract those plugins rely on.
+
+The kit also carries the **toolbar bridge**. A frame surface that places `<lw-toolbar>` hands its
+connection to `LwFrame.connectToolbars(host)`, and the workbench then fills that toolbar from the
+page, as it fills one in the page itself. `lw-frame.d.ts` types it as `LwSlotHost`, `LwSlotView` and
+`LwSlotEntry`. Nothing in your composition changes for it; the surface side is
+[A toolbar inside the surface](../weaver/sandboxed-surfaces.md#a-toolbar-inside-the-surface).
 
 The **session is pushed the same way, but only when you grant it.** A surface whose plugin holds the
 `session` capability receives `{ authenticated, roles }` and can gate its own UI; without the grant the

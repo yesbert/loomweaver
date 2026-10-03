@@ -3,13 +3,14 @@
 <!-- derived-from-specs -->
 
 > **This is a guide, not the contract.** What the platform guarantees is specified under
-> `openspec/specs/`. For this page: `surfaces` · `routing` · `commands` · `ui-primitives` ·
-> `access-gating` · `surface-retention` · `persistence-ports` · `i18n`. Where this page and a
+> `openspec/specs/`. For this page: `surfaces` · `routing` · `commands` · `menus` · `ui-primitives` ·
+> `access-gating` · `surface-retention` · `persistence-ports` · `shell-layout` · `i18n`. Where this page and a
 > specification disagree, the specification is right, and that is a defect in this page: change the
 > behaviour there, then explain it here.
 
 Complete, copyable recipes: whole files with the path they belong at, what to wire, and what you get
-on screen. Every one of them compiles against the published `@loomweaver/plugin-sdk`.
+on screen. Every one of them compiles against the published packages once the placeholders it names
+as yours, such as `askAgent`, are filled in.
 
 They all assume a distribution set up by the [quickstart](getting-started.md) or by
 [hand](manual-setup.md), and a weaver of your own. If you have neither yet:
@@ -28,15 +29,15 @@ Six of these twelve recipes are what the generator writes, and one more, recipe 
 written for you. That is worth knowing before you copy anything: a generated weaver compiles, passes its own lint, and comes out the same every time, so
 your attention goes to the part that is actually yours.
 
-| Recipe                                                                                           | The invocation that writes it                                                                                                                                   |
-| ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [1 · A sidebar view](#a-sidebar-view-that-remembers-its-state)                                   | `weaver --id notes --instanceable` — the docked surface and its rail item; the persisted state is yours                                                         |
-| [2 · A content surface with its own URL](#a-content-surface-with-its-own-url)                    | `weaver --id notes` — the default shape, at `/notes`; the `:id` is what you add                                                                                 |
-| [3 · One behaviour, many triggers](#one-behaviour-many-triggers)                                 | `weaver --id notes --command --shortcut 'mod+shift+n' --menu content/tab/context --bar-item`                                                                    |
-| [4 · A settings section](#a-settings-section)                                                    | `weaver --id notes --settings`                                                                                                                                  |
-| [5 · Gating a surface behind a login](#gating-a-surface-behind-a-login)                          | `weaver --id notes --access authenticated`                                                                                                                      |
-| [10 · Letting an AG-UI agent drive your product](#10--letting-an-ag-ui-agent-drive-your-product) | `weaver --id notes --agent` — the connection, a panel and a stand-in that works before you have a transport; what you replace is one file                       |
-| [12 · A session without a backend](#a-session-without-a-backend)                                 | `auth-source --name dev` — the session source, the plugin with sign-in, switch and sign-out, the bundles, composed into your app; `--bare` for the source alone |
+| Recipe                                                                                       | The invocation that writes it                                                                                                                                   |
+| -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [1 · A sidebar view](#a-sidebar-view-that-remembers-its-state)                               | `weaver --id notes --instanceable` — the docked surface and its rail item; the persisted state is yours                                                         |
+| [2 · A content surface with its own URL](#a-content-surface-with-its-own-url)                | `weaver --id notes` — the default shape, at `/notes`; the `:id` is what you add                                                                                 |
+| [3 · One behaviour, many triggers](#one-behaviour-many-triggers)                             | `weaver --id notes --command --shortcut 'mod+shift+n' --menu content/tab/context --bar-item`                                                                    |
+| [4 · A settings section](#a-settings-section)                                                | `weaver --id notes --settings`                                                                                                                                  |
+| [5 · Gating a surface behind a login](#gating-a-surface-behind-a-login)                      | `weaver --id notes --access authenticated`                                                                                                                      |
+| [10 · Letting an AG-UI agent drive your product](#letting-an-ag-ui-agent-drive-your-product) | `weaver --id notes --agent` — the connection, a panel and a stand-in that works before you have a transport; what you replace is one file                       |
+| [12 · A session without a backend](#a-session-without-a-backend)                             | `auth-source --name dev` — the session source, the plugin with sign-in, switch and sign-out, the bundles, composed into your app; `--bare` for the source alone |
 
 The options compose, so that is one call:
 
@@ -79,7 +80,8 @@ src/notes/src/
 A surface docked into a panel region, whose sort order survives a reload: the host stores the blob,
 the view never touches storage.
 
-**Generated by** `weaver --id notes --instanceable`: the docked surface and the rail item that
+**Generated by** `weaver --id notes --instanceable`: the docked surface, declared
+`instanceable: true` so the user can keep named saved instances of it, and the rail item that
 reveals it. What follows is the part it leaves to you, the state that has to survive being
 hidden.
 
@@ -246,6 +248,10 @@ ctx.registerMenuItem({
 **You get:** the action in the command palette (`mod+k`), on its shortcut, as a status-bar button
 showing `⌘⇧N`, and in the tab context menu. Give the toast a `timeoutMs` unless you want it sticky.
 
+The same `registerMenuItem` also fills a surface's `<id>/actions` toolbar or the slot of a plugin's
+`<lw-toolbar>`. Every one of these controls is left out while the session may not run the command;
+see [A toolbar in your own content](weaver/menus.md#a-toolbar-in-your-own-content).
+
 <a id="a-settings-section"></a>
 
 ## 4 · A settings section
@@ -288,8 +294,8 @@ ctx.registerSettingsSection({
 ```
 
 **You get:** a _Notes_ entry in the settings dialog's left nav with a switch and a text field, saving
-as you type. To persist across reloads, write the values through your own storage in `set`. See
-[backend integration](backend-integration.md) for doing it through the distribution's settings store.
+as you type. To persist across reloads, write the values through your own storage in `set`;
+[Settings sections](weaver/settings.md) says why the section, not the host, owns that storage.
 
 <a id="gating-a-surface-behind-a-login"></a>
 
@@ -299,8 +305,8 @@ Declare the requirement; the host enforces it on every surface it draws, and re-
 session changes.
 
 **Generated by** `weaver --id notes --access authenticated`: the requirement lands on the surface
-and on the rail item together, which is the pairing you want. A role requirement and `mode` you
-write yourself.
+and on the rail item together, which is the pairing you want. `--access role:admin` writes the
+role requirement below; only `mode` you write yourself.
 
 **Capabilities:** `contributions` · `navigation` (the rail item calls `navigateContent`) · plus
 `session` only if you also want to _read_ the session
@@ -635,8 +641,8 @@ What each of those does in detail, what a failed save does, and the sandboxed va
 
 ## 9 · Sync your own state across browser windows
 
-Everything the shell persists already follows across same-origin windows live, with nothing to
-wire. This recipe is for **your own** state: a distribution key, a product session, a backend push.
+Everything the shell persists, apart from the layout keys that stay per window, already follows
+across same-origin windows live, with nothing to wire. This recipe is for **your own** state: a distribution key, a product session, a backend push.
 
 First decide where the state lives, because that decides how it syncs:
 
@@ -706,7 +712,7 @@ and why layout keys stay per window are
 
 ---
 
-<a id="letting-an-agent-drive-your-product"></a>
+<a id="letting-an-ag-ui-agent-drive-your-product"></a>
 
 ## 10 · Letting an AG-UI agent drive your product
 
@@ -716,9 +722,10 @@ underneath it: **an agent reaches what the user could have reached, and nothing 
 
 **Capabilities:** `automation` · plus `ui` if you confirm before a consequential call
 
-The generator writes all of this: `weaver --id notes --agent` emits the connection below, a docked
-panel to watch it through, and a stand-in that produces the protocol's own events so the whole path
-runs before you have a transport. Read on for what it wrote and where your part begins.
+The generator writes half of this: `weaver --id notes --agent` emits the connection, a docked panel
+to watch it through, and a stand-in that produces the protocol's own events, so the whole path runs
+before you have a transport. The connection below is a hand-condensed equivalent of the generated
+file, reduced to the decision. The loop after it, and the transport, are where your part begins.
 
 ```bash
 npm install @loomweaver/ag-ui @ag-ui/core
@@ -736,14 +743,16 @@ export function connectNotes(ctx: PluginContext): CommandTools {
     // from the commands, and it cannot speak for a command another plugin registered.
     before: async (call) => {
       if (call.agentConsent === 'never') {
-        return { decision: 'decline', reason: 'it is not run on an agent’s word.' };
+        return { decision: 'decline', reason: 'an agent may not run this one on its own word.' };
       }
       if (call.agentConsent !== 'ask' && call.agentConsent !== 'ask-always') {
         return { decision: 'run' };
       }
       const confirmed = await ctx.ui.confirm({
-        title: 'notes.agent.confirm',
-        message: 'notes.agent.confirmBody',
+        title: 'notes.agent.confirm.title',
+        message: 'notes.agent.confirm.message',
+        confirmLabel: 'notes.agent.confirm.yes',
+        cancelLabel: 'notes.agent.confirm.no',
         tone: 'warning',
       });
       return confirmed
@@ -1159,7 +1168,7 @@ export const devSessionPlugin: Plugin = {
 };
 ```
 
-Beside them, `src/auth/index.ts` exports the three symbols, and `src/auth/i18n/en.json` and
+Beside them, `src/auth/index.ts` exports the session source, its three verbs and the plugin, and `src/auth/i18n/en.json` and
 `de.json` carry the `session.*` keys, served under `/i18n/session/` by the assets glob the scaffold
 adds. What the scaffold composes into `app.config.ts`, and what you add by hand where it could not:
 
@@ -1216,8 +1225,10 @@ carries every one of them, so the recipes render words rather than keys when cop
                  "yes": "Delete everything" },
   "deleting": "Deleting…",
   "deleted": "All notes deleted",
-  "agent": { "confirm": "Let the assistant do this?",
-             "confirmBody": "It asked to run a command that changes your notes." }
+  "agent": { "title": "Notes assistant",
+             "confirm": { "title": "Run this command?",
+                          "message": "An agent asked to run a command that was marked consequential.",
+                          "yes": "Run it", "no": "Not now" } }
 }
 ```
 

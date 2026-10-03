@@ -75,7 +75,9 @@ provideAuthSource(() => mySnapshot, { onIdentityChange: 'reload' }),
 
 With `'reload'`, the shell performs a full `location.reload()` when one **established** subject is
 replaced by a **different** one. First sign-in (anonymous → subject) and sign-out (subject →
-anonymous) never fire, so an async session restore at boot causes no reload flicker. Pair it with
+anonymous) never fire, so an async session restore at boot causes no reload flicker. A reload is a
+blunt instrument on purpose: it is the only way to guarantee that no in-memory state of the previous
+user survives. Pair it with
 [identity-scoped stores](persistence.md#identity-scoped-stores-multi-user-browsers): the namespace then only
 ever changes across a reload boundary, so the new session re-hydrates entirely from its own state.
 
@@ -190,9 +192,8 @@ export class SignInDialog {
 }
 ```
 
-A declaratively gated "Sign in" entry that only shows while signed **out** is intentionally not
-expressible: `access` can require a session, never forbid one. Leave the entry ungated, because it
-is harmless while signed in. Or hide it from your own component by reading `AuthContext`.
+To show the "Sign in" entry only while signed **out**, give it `access: { authenticated: false }`.
+It is present while the session is anonymous and disappears the moment somebody signs in.
 
 **Sign out** is symmetric and needs no platform call: your product resets its own session, which
 flips the snapshot back to `ANONYMOUS`. The shell hides everything that required a login the moment

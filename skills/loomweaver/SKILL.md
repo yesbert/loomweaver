@@ -1,14 +1,16 @@
 ---
 name: loomweaver
 description: Build on LoomWeaver, the plugin platform for Angular workbenches. Scaffold weavers, themes, auth sources, settings stores and layouts through the @loomweaver/mcp generators instead of writing plugin code from memory, then validate what came out. Use in any project that depends on @loomweaver/shell.
-license: MIT
+license: Apache-2.0
 ---
 
 This is the procedure, not the contract. Every rule it names lives on a page it links; read the page
 before arguing with the rule.
 
-The order is the point: **call the generator before you explore the project.** It needs an id and a
-shortcut, nothing about the code around it, and reading first buys you nothing you cannot read after.
+The order is the point: **call the generator before you explore the project.** A weaver needs an id
+and nothing about the code around it; a shortcut is optional. The one thing worth reading first is
+the `prefix` in the composing application's `angular.json`: pass it, because the server cannot read
+your workspace and otherwise generates selectors prefixed `app`.
 
 ## Detect
 
@@ -24,12 +26,13 @@ shortcut, nothing about the code around it, and reading first buys you nothing y
 
 - Never write a manifest, a plugin class, a theme or a store from memory. Call the tool:
   `scaffold_weaver`, `scaffold_theme`, `scaffold_auth_source`, `scaffold_settings_store`,
-  `scaffold_layout`, `scaffold_frame_plugin`. `list_generators` says what each one takes.
+  `scaffold_layout`, `scaffold_frame_plugin`. `list_generators` names each one and what it emits;
+  the options each takes are in that tool's own input schema.
   [Scaffolding](https://loomweaver.dev/scaffolding/)
 - The server has no reach into the workspace by design. It returns a file map and names the steps
   that remain; you write the files and you do those steps.
-- Place it once the file map is back, not before: `LOOMWEAVER.md` and the composition root say where
-  this product keeps its weavers, and what you generated goes beside the ones already there.
+- Place it once the file map is back, not before: the composition root's imports show where this
+  product keeps its weavers, and what you generated goes beside the ones already there.
 - The generated `README.md` in that file map is a checklist, not a file to write. It lists the
   wiring the weaver needs. Read it, then make those edits.
 - A weaver that an agent should drive at runtime is scaffolded as one from the start, rather than
@@ -47,8 +50,8 @@ shortcut, nothing about the code around it, and reading first buys you nothing y
 
 - Grants are exactly what the manifest declares, no more. Capabilities are default-deny, and a
   plugin that asks for nothing gets nothing. [Capabilities](https://loomweaver.dev/distribution/capabilities/)
-- Templates use semantic tokens and the `.lw-*` classes, never a raw palette colour. A lint guard
-  rejects the rest. [Design tokens](https://loomweaver.dev/reference/design-tokens/)
+- Templates use semantic tokens and the `.lw-*` classes, never a raw palette colour.
+  [Design tokens](https://loomweaver.dev/reference/design-tokens/)
 - Shortcuts are written with the `mod` token, so one declaration is correct on every platform.
   [Commands](https://loomweaver.dev/weaver/commands/)
 - Translations are composed by namespace, and the two bundles stay in parity.
@@ -58,8 +61,11 @@ shortcut, nothing about the code around it, and reading first buys you nothing y
 - The content area is the Angular router. You write no `Routes` and no `canActivate`.
   [Routing](https://loomweaver.dev/reference/routing/)
 - A surface's own buttons are its `actions`, drawn by the host in the header of the panel or pane
-  that shows it. Do not build a toolbar for them. An action can open a menu slot that other plugins
-  fill, and the host hides it while the slot is empty.
+  that shows it. Do not build a toolbar for them. An action with neither `command` nor `run` opens
+  its menu slot, and the host hides it while the slot is empty. Other plugins fill a surface's
+  toolbar through the `<surface id>/actions` slot. A toolbar inside your own content is a slot
+  registered with `ctx.registerToolbar` and placed with `<lw-toolbar>`, never a hand-built row of
+  buttons.
   [The content area](https://loomweaver.dev/weaver/content-area/) ·
   [Menus](https://loomweaver.dev/weaver/menus/)
 - State has three homes, and none of them is browser storage of your own. What a routable surface
