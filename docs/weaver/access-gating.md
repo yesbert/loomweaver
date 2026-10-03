@@ -22,7 +22,7 @@ ctx.registerRailItem({ id: 'notes.admin', rail: 'primary', icon: 'settings',
 // View action visible but inert until someone is signed in (disable mode) — actions are not
 // registered separately, they ride in the surface's `actions` array:
 ctx.registerSurface({ id: 'notes.list', title: 'notes.list', docks: ['left-panel'], component: NotesList,
-  actions: [{ id: 'notes.sync', icon: 'upload', title: 'notes.sync', command: 'notes.sync',
+  actions: [{ id: 'notes.sync', icon: 'save', title: 'notes.sync', command: 'notes.sync',
     access: { authenticated: true, mode: 'disable' } }] });
 
 // A command is blocked at the one execute() seam — its keybinding no-ops, and the command palette,

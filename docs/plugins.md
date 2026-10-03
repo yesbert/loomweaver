@@ -109,35 +109,31 @@ bootstrap](weaver/sandboxed-surfaces.md#the-sandbox-bootstrap--how-a-sandboxed-p
 documents, the flat RPC `ctx` surface, receiving pushed state. The `scaffold_frame_plugin` generator
 emits this exact layout ([scaffolding](scaffolding.md)).
 
-`entryUrl` must be **same-origin**: you serve the plugin's files yourself. That is what makes review
-a meaningful control. The plugin's visible UI is a second iframe, called the surface. The host
-paints the design tokens into it, so a sandboxed plugin looks native without importing anything from
-you. See [the frame UI kit](weaver/sandboxed-surfaces.md#the-frame-ui-kit).
+You serve the plugin's files yourself, which is what makes review a meaningful control: a catalogue
+entry's `entryUrl` must be **same-origin**. A composed frame plugin may serve its own surfaces from
+further origins it names in `origins`, described under [Frame plugins → the
+level](distribution/frame-plugins.md#the-level-a-frame-plugin-runs-at). The plugin's visible UI is
+a second iframe, called the surface. The host paints the design tokens into it, so a sandboxed
+plugin looks native without importing anything from you. See [the frame UI kit](weaver/sandboxed-surfaces.md#the-frame-ui-kit).
 
-Only data crosses an RPC boundary, so a sandboxed plugin reaches a **subset** of `ctx`:
-
-| Reaches the host                                                                       | Trusted only                                                       |
-| -------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| `registerSurface` (`{ iframe }` or `{ container }`, routable **or** docked)            | `registerCommand`, `registerBarItem`, `registerRailItem`           |
-| `retitleSurface`, `updateSurfaceBadge`, `setChildShown`                                |                                                                    |
-| `registerMenuItem`, `registerSettingsSection`¹                                         | `contributeIcons`, `contributeTheme`                               |
-| `navigateContent`, `openContentTab`, `keep/pin/unpin/closeContentTab`, `revealSurface` | `ui` beyond `toast` — dialogs, prompts, `openMenu`, `openSettings` |
-| `updateContentTab`                                                                     |                                                                    |
-| `ui.toast`                                                                             | `ctx.host`, `ctx.activeContent`, `ctx.session`²                    |
-
-¹ as **data**: the control kinds carry values, not callbacks, and the host owns the storage.
-² the session is _pushed_ into the plugin's surface instead, if it was granted `session`.
+Only data crosses an RPC boundary, so a sandboxed plugin reaches a **subset** of `ctx`. The calls
+it reaches are listed under [the sandbox
+bootstrap](weaver/sandboxed-surfaces.md#the-sandbox-bootstrap--how-a-sandboxed-plugin-gets-ctx). A
+settings section crosses as **data**: the control kinds carry values, not callbacks, and the host
+owns the storage. Trusted only are `registerCommand`, `registerBarItem`, `registerRailItem`,
+`registerToolbarCell`, `updateSurfaceAction`, `contributeIcons` and `contributeTheme`. So are `ui`
+beyond `toast`, and `host`, `activeContent`, `session`, `isShowingUnder` and `hasUnsavedWork`. The
+session is _pushed_ into the plugin's surface instead, if it was granted `session`.
 
 The pattern behind the split is simple. Anything whose contract is a function cannot be serialised:
 `run`, `onClose`, a notification action. A sandboxed plugin therefore does that work itself, for
 instance drawing its own `<lw-menu>` at the cursor rather than asking the host to.
 
-A sandboxed surface is not confined to a content tab. It may declare `docks` and appear as a sidebar
-view, or declare a `container` and host a nested tree of child surfaces; a docked surface has no
-address, so its channel's `navigate` is a no-op with a development warning and its pushed `tab` is
-always empty. What the host pushes tells it where it is: `instanceId` (the pane or named instance) and
-`params` (route params, or the container's `:id` for a container child). `access` is the one field the
-seam rejects. A sandboxed surface gates itself from the pushed session state.
+A sandboxed surface is not confined to a content tab. It may declare `docks` or a `container`, and
+what it is told about where it is appears under [a docked iframe
+surface](weaver/sandboxed-surfaces.md#a-docked-iframe-surface). The seam rejects a surface's
+`access`, and a sandboxed menu entry's own `access` is not carried. A sandboxed plugin gates itself
+from the pushed session state.
 
 The retention protocol follows the same pattern. A surface that declares `retain: 'always'` is
 **hidden in place** rather than destroyed: no reload, no new handshake per tab switch. A collapsed
@@ -158,7 +154,7 @@ no consent dialog in the way:
 
 ```jsonc
 // /plugins/catalog.json
-{ "id": "treaties", "name": "Treaties", "entryUrl": "/treaties/plugin.html",
+{ "id": "invoices", "name": "Invoices", "entryUrl": "/invoices/plugin.html",
   "capabilities": ["contributions"], "deployed": true }
 ```
 
@@ -245,8 +241,8 @@ The built-in **Permissions** and **Plugin store** settings sections expose all t
 front-end can drive the same state through `CapabilityGrantService`, `PluginEnablementService` and
 `PluginInstallService`. See the [Distribution API](distribution-api/plugins-at-runtime.md).
 
-You can also remove those sections entirely (`provideShell({ omit: ['setting:shell.permissions'] })`)
-if your product decides these are not the user's call.
+You can also remove those sections entirely if your product decides these are not the user's call:
+`provideShell({ omit: ['setting:shell.permissions', 'setting:shell.pluginStore'] })`.
 
 ## Lifecycle
 
@@ -266,8 +262,10 @@ leaves no orphaned chrome behind. A plugin that starts something of its own impl
 import { Plugin } from '@loomweaver/plugin-sdk';
 
 export const chartsPlugin: Plugin = {
-  manifest: { id: 'charts', name: 'Charts', capabilities: ['contributions'] },
+  manifest: { id: 'charts', name: 'Charts', capabilities: ['contributions', 'navigation'] },
   activate(ctx) {
+    ctx.registerCommand({ id: 'charts.open', title: 'charts.title',
+      run: () => ctx.navigateContent('charts') });
     ctx.registerRailItem({ id: 'charts.rail', rail: 'primary', icon: 'document',
       title: 'charts.title', command: 'charts.open' }); // tracked — undone for you on deactivation
     startPolling();                                     // your own resource: undo it yourself
@@ -282,11 +280,10 @@ Activation is resilient: a plugin that throws during `activate` is rolled back a
 others still come up. One broken plugin cannot take the app with it.
 
 A sandboxed plugin is re-spawned when its **signature** changes. The signature is the entry URL, the
-declared capabilities, the granted capabilities and the version. The version matters for updates at
-the same URL. Without it in the signature, replacing the files would leave the running iframe on the
-old code while the UI claimed it had updated. The browser re-fetches the entry document on respawn.
-So serve plugin files with revalidating cache headers, or the "update" hands the user a cached old
-build.
+declared capabilities, the granted capabilities, the version and the level it runs at. The version
+is there so that an update at the same URL replaces the running code; what that asks of your cache
+headers is under
+[plugin store → updates](distribution/plugin-store.md#updates).
 
 ## Contribution ids and collisions
 

@@ -9,8 +9,8 @@
 
 A menu is a named slot the host draws and anything may contribute to. This page adds an item to a host
 menu and gives a rail or bar item a menu of its own. It then opens that menu on the plain click, for an
-account entry with a picture, opens a menu on your own view body, and draws a menu inside your own
-sandboxed surface.
+account entry with a picture. Finally it opens a menu on your own view body, places a toolbar others
+fill in your own content, and draws a menu inside your own sandboxed surface.
 
 Every menu the host draws stays current while it is open. Its words change in place when a late
 translation bundle arrives or the language changes, and it moves with the control that opened it.
@@ -18,7 +18,7 @@ translation bundle arrives or the language changes, and it moves with the contro
 ## Items in a host menu
 
 Add an item to a host menu slot with `ctx.registerMenuItem` (capability `contributions`).
-It names a {@link Command} by id (invoked with the menu's context) and may declare a coarse `when`
+It names a `Command` by id (invoked with the menu's context) and may declare a coarse `when`
 filter. The item shows only when every `when` key equals the same key in the opener's context. The
 host draws the menu. A right-click on a content tab opens the `content/tab/context` slot, in the
 address-carrying pane and in any split pane of the main area alike. The context is
@@ -33,8 +33,10 @@ ctx.registerMenuItem({ menu: 'content/tab/context', command: 'my.tab.reveal', gr
 An entry follows the access of the command it names. Where the session may not run the command, the
 entry is not drawn, and it appears once the session qualifies. That covers a command whose `access`
 is unmet, and in a pop-out a command that does not declare `popout`. A menu left without an entry
-does not open. Gate the command, and every menu that offers it follows; a menu
-entry has no `access` of its own. An entry with inline `run` names no command, so no command's access filters it.
+does not open. Gate the command, and every menu that offers it follows. An entry may also carry an
+`access` of its own, which is applied first and in the mode it asks for: unmet, it hides the entry, or
+with `mode: 'disable'` draws it inert. The command's requirement is applied after that and only ever
+hides. An entry with inline `run` names no command, so only its own `access` filters it.
 
 The host's own tab actions (Close, Close Others/All/to-the-Right, and a "Pinned" checkbox) live in the same
 slot, and your item joins them, in every pane of the main area. The host's entries act on the pane named
@@ -64,7 +66,8 @@ the same rule as every other contribution. The built-in entries use `menu:<comma
 [Building a distribution](../building-a-distribution.md) shows how. Without an `id` your item is
 purely additive.
 
-A menu item shows its referenced command's **icon** and **keyboard-shortcut** hint automatically. Add
+A menu item shows its referenced command's **icon** and **keyboard-shortcut** hint automatically; an
+`icon` or `title` on the item replaces the command's. Add
 `checkedWhen` to make it a **checkbox** (`role="menuitemcheckbox"`): it is checked when `checkedWhen` is a
 subset of the opener's context, so one toggle item replaces a Pin/Unpin pair (the command reads the state
 from the context and flips it). A checkbox item keeps its command's icon: the check has a leading place
@@ -193,8 +196,10 @@ actions: [
 A menu that is only on the right-click changes nothing about its control: that control has a purpose
 of its own and stays.
 
-A slot exists because something declares it: a menu the workbench draws, a rail item, bar button or
-surface action that names it as its `menu`, or a toolbar a plugin registers. An entry aimed at a
+A slot exists because something declares it: a menu the workbench draws, or a rail item, bar button or
+surface action that names it as its `menu`. A menu entry that names it as its `submenu` declares it
+too, as do a toolbar a plugin registers and a registered surface, which declares its own
+`<surface id>/actions`. An entry aimed at a
 slot nothing declares is kept, so it appears the moment the slot is declared, and is reported to the
 developer once the composed plugins have finished activating: in the browser console, and in
 [`loomweaver.report()`](../building-a-distribution.md#seeing-what-you-composed). It is not reported

@@ -35,8 +35,8 @@ output fits.
 
 ## Why this exists next to `@loomweaver/mcp`
 
-Both wrap the same pure core `generate(recipe, input) → FileMap`, so their output is identical. They
-differ in who drives:
+Both wrap the same pure core `generate(recipe, input) → FileMap`, so the same inputs give the same
+output. They differ in who drives:
 
 - **`@loomweaver/cli`** — you pass flags; the CLI writes the files. Scriptable, repeatable, usable in CI.
 - **`@loomweaver/mcp`** — you describe what you want; your assistant picks the options and writes the files.

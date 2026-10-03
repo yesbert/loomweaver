@@ -128,8 +128,14 @@ This covers **built-in menu entries** too: every standard entry carries the id
 `menu:<commandId>`. For example, `omit: ['menu:shell.tab.closeAll']` hides "Close all" from the tab
 context menu while the command itself (palette, shortcuts) stays available; omit the command id as well to
 remove the behaviour entirely. Registering a menu item with an existing id replaces that entry.
-Tab menu: `menu:shell.tab.splitRight/.splitDown/.close/.closeOthers/.closeRight/.closeAll/.togglePin` ·
-view menu: `menu:shell.view.moveToOtherSidebar/.stackBelow/.openInContent/.resetState`.
+Tab menu: `menu:shell.tab.splitRight/.splitDown/.close/.closeOthers/.closeRight/.closeAll/.togglePin/.openInWindow` ·
+view menu: `menu:shell.view.moveToOtherSidebar/.stackBelow/.openInContent/.openInWindow/.resetState/.hide`
+and `menu:shell.views.customize` · rail menu: `menu:shell.rail.hideItem/.moveToOtherRail` and
+`menu:shell.rail.customize`.
+
+The same holds for an entry another plugin contributed with an `id`, including one it placed in a
+surface's header on the slot `<surface id>/actions`: `omit: ['<entry id>']` removes that entry and
+leaves the surface's own actions alone.
 
 A menu entry whose `command:` id no longer resolves (you omitted the command, or it was never
 registered) is **hidden**, not rendered as its raw id, so omitting a bare command id cleanly removes

@@ -97,12 +97,14 @@ pattern are worth copying rather than rediscovering.
 behind keeps controlling the dev server on the same port and serves you the stale cached build
 instead of your edits.
 
-**Serve the preview over plain HTTP on `127.0.0.1`, not over HTTPS with a self-signed certificate.**
-Browsers already count loopback as a secure context, so the worker registers with no certificate at
-all. A self-signed one is worse than none here: the page loads, `isSecureContext` is `true`, and the
-worker script fetch still fails the certificate check with "An SSL certificate error occurred when
-fetching the script". Nothing registers, and the preview silently stops previewing the one thing it
-exists for.
+**Serve the preview over plain HTTP on `127.0.0.1`, or over HTTPS with a certificate the browser
+trusts.** Browsers already count loopback as a secure context, so over plain HTTP the worker
+registers with no certificate at all. The demo's preview works this way. The testbed's preview
+serves HTTPS with a local development certificate, generated once and trusted once. What fails is a
+self-signed certificate the browser does not trust: the page loads, `isSecureContext` is `true`, and
+the worker script fetch still fails the certificate check with "An SSL certificate error occurred
+when fetching the script". Nothing registers, and the preview silently stops previewing the one
+thing it exists for.
 
 ## Where next
 

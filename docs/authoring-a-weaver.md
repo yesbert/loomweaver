@@ -86,14 +86,14 @@ The order follows a weaver from its first surface to what it needs once it is sh
 - [Containers](weaver/containers.md): a workspace in a tab, a child per item, relative addresses.
 - [Sub-routes and follows](weaver/sub-routes-and-follows.md): `subRoutes`, sub-tabs when the host mounts you off-router, the rest of the address, tabs that follow the selection, `activeContent`.
 - [Commands and their triggers](weaver/commands.md): one behaviour behind shortcut, bar and rail items, palette and menu.
-- [Menus](weaver/menus.md): `registerMenuItem`, a menu on a rail item, a bar item or a surface's action, a slot that other plugins fill, `ctx.ui.openMenu` on your own view body, and the menu you draw in a sandbox.
+- [Menus](weaver/menus.md): `registerMenuItem`, a menu on a rail item, a bar item or a surface's action, and a slot that other plugins fill. Also [a toolbar in your own content](weaver/menus.md#a-toolbar-in-your-own-content) with `registerToolbar` and `<lw-toolbar>`, `ctx.ui.openMenu` on your own view body, and the menu you draw in a sandbox.
 - [Host UI and host facts](weaver/host-ui-and-facts.md): `ctx.ui` dialogs, toasts and progress, `ctx.host`.
 - [View state that survives](weaver/view-state.md): `VIEW_STATE`: filter, sub-tab, scroll position in one shape.
 - [Unsaved changes](weaver/unsaved-changes.md): `DirtySurface` and the Save, Discard, Cancel question.
 - [Your plugin's own store](weaver/plugin-state.md): `ctx.state`, one store shared by every surface of your plugin and kept per person.
 - [Settings sections](weaver/settings.md): `registerSettingsSection`, controls the host draws and you store.
 - [Access gating](weaver/access-gating.md): `access` on contributions and `ctx.session`.
-- [Sandboxed surfaces](weaver/sandboxed-surfaces.md): `component` or `iframe`, the sandbox bootstrap, the frame UI kit, the plugin store.
+- [Sandboxed surfaces](weaver/sandboxed-surfaces.md): `component` or `iframe`, the sandbox bootstrap, the frame UI kit, [a toolbar inside the surface](weaver/sandboxed-surfaces.md#a-toolbar-inside-the-surface), the plugin store.
 - [Translations](weaver/i18n.md): titles and labels as keys in a namespace of your own; body text stays yours.
 - [Icons and theme](weaver/icons-and-theme.md): `ctx.contributeIcons`, `ctx.contributeTheme`.
 

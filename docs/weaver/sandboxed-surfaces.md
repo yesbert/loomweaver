@@ -30,9 +30,10 @@ across the `ctx`-RPC boundary, unlike an Angular class. For a **sandboxed** plug
 **same-origin** (served by the distribution, like the plugin itself). A foreign origin, `javascript:` or
 `data:` URL is rejected at the RPC seam, so an untrusted plugin cannot point the host chrome wherever it
 likes. A sandboxed surface may be **docked** (`docks`) as well as routable, and it may declare a
-`container`. A sandboxed surface carries **no `actions`**: the seam keeps id, title, icon, badge, order
-and the docking fields and drops the rest, so the panel header draws no actions for it and
-`ctx.updateSurfaceAction` has nothing there to replace. The seam rejects `access` instead of silently dropping it, because a sandboxed surface gates
+`container`. A sandboxed surface's declaration carries **no `actions`**: the seam keeps id, title, icon, badge,
+order and the docking fields and drops the rest, so `ctx.updateSurfaceAction` has nothing there to
+replace. Entries registered to the slot `<surface id>/actions`, by any plugin and by the sandboxed
+plugin itself through `registerMenuItem`, are still drawn in its header. The seam rejects `access` instead of silently dropping it, because a sandboxed surface gates
 itself from the session state the host pushes. A **trusted** plugin may use the same `iframe` form to
 embed a foreign origin on purpose (a dashboard, a docs site, a video). There the distribution decides
 what may be framed through its CSP `frame-src`, which the browser enforces. The tab strip works
@@ -142,10 +143,10 @@ A sandboxed **surface** (the view document) does not import `@loomweaver/shell`.
 - **`lw-elements.global.js`** defines the whole `<lw-*>` element family with the built-in icon set
   seeded, from the same element list and behaviour source the host runs. The family is `lw-icon` ·
   `lw-tooltip` · `lw-select`/`lw-option` · `lw-nav-tree`/`lw-nav-group`/`lw-nav-item` ·
-  `lw-menu`/`lw-menu-item` · `lw-markdown` · `lw-button` · `lw-progress-ring` · `lw-spinner`. It
-  also exposes `globalThis.LwFrame`: `setIcon(name, svg)` / `removeIcon` / `hasIcon` for
-  plugin-own icons (sanitised), and `applySurfaceState(state)`. Call that one from your `render`
-  handler and the pushed tokens, root font size and light/dark theme are applied for you.
+  `lw-menu`/`lw-menu-item` · `lw-markdown` · `lw-button` · `lw-progress-ring` · `lw-spinner` ·
+  `lw-toolbar`. It also exposes `globalThis.LwFrame`: `setIcon(name, svg)` / `removeIcon` /
+  `hasIcon` for plugin-own icons (sanitised), and `applySurfaceState(state)`. Call that one from your
+  `render` handler and the pushed tokens, root font size and light/dark theme are applied for you.
 - **`lw-frame.css`** is the host's `.lw-*` class contract compiled to plain CSS on `var(--lw-*)`
   (with light/dark fallbacks for the blink before the first push), so there is no hand-kept CSS mirror.
 - **`penpal.global.js`** is the RPC transport (`globalThis.Penpal`).
@@ -171,7 +172,8 @@ changes: plain HTML with a script tag stays exactly as valid, and the declaratio
 same source the bundle is built from, so the two cannot disagree. What it describes:
 
 - **`LwFrameApi`** is the shape of `globalThis.LwFrame` itself: the icon methods, `applySurfaceState`,
-  `connectState` and the `state` store.
+  `connectState` and the `state` store, `connectToolbars` and the `toolbars` it feeds, `capture`, and
+  `surfaceMethods`, which adds the platform's own methods to yours.
 - **`LwSurfaceRenderState`** is what the host pushes to your `render` handler: theme, design tokens,
   root font size and the product's replacement glyphs. Hand it to `applySurfaceState` unchanged.
 - **`LwStateApi`** is the surface half of `ctx.state`: `watch(key)` for a handle, and `apply(...)` to

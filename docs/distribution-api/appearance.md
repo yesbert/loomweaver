@@ -41,19 +41,8 @@ No switch governs appearance. The built-in mode switch and text size toggle live
 
 **Light and dark.** The shell already ships a mode switch, persists the choice through the settings
 store and toggles the `dark` class on `<html>`. That class is what flips the `--lw-*` token ladder.
-Inject the service when **your own UI has to agree with it**, most often to mirror the mode onto
-another framework's switch, so the page cannot end up half dark:
-
-```ts
-// Bootstrap 5.3 reads data-bs-theme; keep it in step with the shell's mode.
-effect(() => {
-  document.documentElement.setAttribute('data-bs-theme', theme.resolvedTheme());
-});
-```
-
-Use `resolvedTheme` for that, never `mode`: `mode` can be `system`, which is not a value any other
-framework understands. See [bringing your own CSS
-framework](../distribution/css-frameworks.md).
+Mirroring the mode onto another framework's switch, from `resolvedTheme` and never from `mode`, is
+worked through in [Mirror dark mode](../distribution/css-frameworks.md#mirror-dark-mode).
 
 **Text size.** `md` is the default and imposes nothing, so the browser's own setting decides. Bind
 your own control to `scale()` and it follows the built-in toggle in the settings, and the other way

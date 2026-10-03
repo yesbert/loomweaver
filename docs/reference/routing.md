@@ -28,7 +28,7 @@ with several panes is on [The address](../concepts/the-address.md).
 | `routerLink`, `router.navigate`, `navigateByUrl`   | work as they do anywhere: the address resolves and the workbench opens or refines the tab that holds it |
 | `ActivatedRoute` and `paramMap`                    | work; a surface at `doc/:id` reads `id` the ordinary way                                                |
 | a query string and a fragment                      | work, and are not part of a tab's identity, so `doc/7?view=raw` stays the tab that `doc/7` is           |
-| `<router-outlet>` inside your own component        | works, for the sub-routes you declared                                                                  |
+| `<router-outlet>` inside your own component        | stays inert; a declared sub-route reaches your component through `ActivatedRoute` (below)               |
 | back, forward, reload and a pasted link            | work, and are the reason the content area is addressed at all                                           |
 | `provideRouter(routes)`                            | `provideShellRouter(routes)` instead, once, in the distribution                                         |
 | a `Routes` array for your content                  | you write none: a surface declares `routable: { path }`                                                 |
@@ -96,8 +96,9 @@ and closing, is in the [Distribution API](../distribution-api/index.md).
 routable: { path: 'doc/:id', subRoutes: ['code', 'preview'] }
 ```
 
-Your component renders them through an ordinary `<router-outlet>`, and moving between them stays
-inside one tab and does not rebuild you. The bare address stays valid: the host never redirects
+Your component reads the active one from its `ActivatedRoute` and draws it itself, because a nested
+`<router-outlet>` stays inert (below). Moving between them stays inside one tab and does not rebuild
+you. The bare address stays valid: the host never redirects
 `doc/7` to `doc/7/code`, and what the tab root shows is your decision.
 
 ## Mounting an app that brings its own routes

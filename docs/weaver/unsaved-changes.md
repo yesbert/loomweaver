@@ -78,7 +78,7 @@ let draft = '';
 
 const connection = Penpal.connect({
   messenger,
-  methods: {
+  methods: LwFrame.surfaceMethods({
     render(state) {
       /* locale, tab, theme tokens … — see the sandbox bootstrap */
     },
@@ -87,7 +87,7 @@ const connection = Penpal.connect({
       // absent, throwing or hanging all count as consent (host timeout).
       return draft === '' || confirm('Discard your draft?');
     },
-  },
+  }),
 });
 
 input.addEventListener('input', (event) => {

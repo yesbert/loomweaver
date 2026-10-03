@@ -95,7 +95,7 @@ function prose(markdown) {
 
 function longSentences(text) {
   return text
-    .split(/(?<=[.!?])\s+(?=[A-Z*"(])|\n+/)
+    .split(/(?<=[.!?])\s+(?=[A-Z*_"(])|\n+/)
     .map((sentence) => sentence.trim())
     .filter((sentence) => sentence.split(/\s+/).length > WORDS_PER_SENTENCE);
 }

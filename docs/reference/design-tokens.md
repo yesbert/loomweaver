@@ -65,24 +65,11 @@ every layer); the optional second `dark` argument overrides tokens in dark mode 
 in [authoring a weaver → custom theme](../weaver/icons-and-theme.md#custom-theme--ctxcontributetheme)). A
 distribution/tenant theme CSS uses `lw-tenant-theme` (the devkit `theme` generator emits that) and
 thereby overrules every plugin. Layer order beats specificity, so that also holds against a
-`:root.dark` token from a lower layer. A minimal tenant override:
-
-```css
-@layer lw-tenant-theme {
-  :root {
-    --lw-brand: #2e96c9;
-    --lw-accent: #c59a2f;
-  }
-  :root.dark {
-    --lw-brand: #3aa9dd;
-    --lw-accent: #d8b45a;
-  }
-}
-```
+`:root.dark` token from a lower layer. Writing that theme file is [Branding](../distribution/branding.md).
 
 ## Dimensions: there are no tokens, and how to change them anyway
 
-The token vocabulary is **colour and type only**: 29 colours plus the two font families. Sizes,
+The token vocabulary is **colour and type only**: the colours plus the two font families. Sizes,
 radii, spacing and border widths are ordinary utility classes in the shell's own templates, and that
 is a decision rather than an omission: tokenising every number would turn every rule of the host
 chrome into a promise no release could revise without breaking somebody's product. The one
@@ -171,7 +158,7 @@ dimension tokens is the answer at that point, and knowing which sizes real produ
 exactly what decides the set.
 
 The looks the demo ships are the first measurement of that. A look that only recolours needs **two**
-of these rules. A look that also changes the geometry needed **nine** (fourteen selectors), and they
+of these rules. A look that also changes the geometry needed **ten** (sixteen selectors), and they
 clustered tightly: corner radii on the control classes, the control height, the rail width, the
 top-bar and tab-strip heights, and the panel gap. So the shape of a dimension-token set is already visible: it is
 small, and it is about controls and chrome bands rather than about spacing everywhere. There are no
@@ -340,12 +327,17 @@ function in `@loomweaver/shell`: `defineLwIcon()`, `defineLwButton()`, `defineLw
   positions it with **`openAt(x, y)`** at the iframe-local cursor, with no cross-frame work and no RPC.
 - **Buttons in bar/rail:** register them declaratively as a `BarButtonItem`/rail item (the host renders button + tooltip from data), so you need no button component of your own per icon.
 - **A toolbar in your own content (`<lw-toolbar>`):** a menu slot drawn open, placed by a weaver
-  with `menu="<slot>"`, a `context` property describing what it stands beside, an optional `label`
-  and `size="sm"` for a dense row. The workbench fills it from the slot and words it; you never set
-  its entries yourself. Children you write into it are your own cells, kept in place by their
+  with `menu="<slot>"`, a `context` describing what it stands beside, an optional `label`
+  and `size="sm"` for a dense row. Give the context as a property, or as an attribute holding JSON
+  (`context='{"record":"frame"}'`) where markup is all you write. The workbench fills it from the
+  slot and words it; you never set its entries yourself. It also handles the element's
+  `lw-toolbar-select` and `lw-toolbar-context` events, so activating an entry needs no listener of
+  yours. Children you write into it are your own cells, kept in place by their
   `order` attribute. Its look is `.lw-toolbar*` in `theme.css`; a `role="toolbar"` with roving
   focus comes with it. Registered with `defineLwToolbar()` where content renders without a running
-  workbench. The how-to is [Menus → A toolbar in your own content](../weaver/menus.md#a-toolbar-in-your-own-content).
+  workbench. Inside an isolated surface it fills only after `LwFrame.connectToolbars(host)`, see
+  [A toolbar inside the surface](../weaver/sandboxed-surfaces.md#a-toolbar-inside-the-surface). The
+  how-to is [Menus → A toolbar in your own content](../weaver/menus.md#a-toolbar-in-your-own-content).
 - **Buttons in content (dialogs, about/settings, toasts):** put the **`<lw-button>`** primitive on a
   real `<button>`/`<a>`: it keeps the native semantics and uses semantic tokens only:
   ```html
@@ -471,7 +463,7 @@ from `styles/theme/`:
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | `tokens.css`       | the `--lw-*` ladder for light and dark, and its mapping onto Tailwind's `--color-*` and `--font-*`                                          |
 | `controls.css`     | the class contracts on native controls, `.lw-btn` to `.lw-switch`                                                                           |
-| `lw-<element>.css` | one look per host element: tooltip, select, menu, navigation tree and progress ring, and `prose-lw` for `<lw-markdown>`                     |
+| `lw-<element>.css` | one look per host element: tooltip, select, menu, toolbar, navigation tree, progress ring and spinner, and `prose-lw` for `<lw-markdown>`   |
 | `workbench.css`    | what only the chrome draws: rail marks, the dialog backdrop, drag feedback, pane drop zones, the bar tray and the screen-reader live region |
 | `base.css`         | what applies to the page itself (below)                                                                                                     |
 

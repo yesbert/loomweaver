@@ -42,10 +42,9 @@ export interface SimpleCommandArgument extends CommandArgumentBase {
 export interface ChoiceCommandArgument extends CommandArgumentBase {
   readonly kind: 'choice';
   /**
-   * The values this argument accepts; anything else is refused before the command runs. For a plugin
-   * in the page the list is read whenever the command is described or checked, so a getter can offer
-   * values that appear after registration. A sandboxed plugin's list is the one it registered;
-   * register the command again to change it.
+   * The values this argument accepts; anything else is refused before the command runs. The list is
+   * read whenever the command is described or checked, so a getter can offer values that appear after
+   * registration.
    */
   readonly choices: readonly string[];
 }

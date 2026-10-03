@@ -86,9 +86,6 @@ the next Escape closes the dialog. A popup your component draws itself gets the 
 `preventDefault()` on the Escape it handles. When the dialog closes, by any way, the focus goes back
 to the control that opened it.
 
-`dismissable` is gone. Replace `dismissable: true` by nothing and `dismissable: false` by
-`dismiss: 'none'`.
-
 **Keeping unsaved edits.** Three kinds of dialog edit something, and each needs something different:
 
 - _A form with its own Save and Cancel._ Open it with `dismiss: 'explicit'`. A stray click beside it

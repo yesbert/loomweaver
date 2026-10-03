@@ -38,10 +38,10 @@ them for the detail. Reach for the generator before reading the project, place t
 file map is back, run the validators on the result, and hold to the conventions a weaver needs. It
 is the same file for every tool that reads the format; only the directory differs.
 
-| Tool | Where the file goes |
-| --- | --- |
-| Claude Code | `.claude/skills/loomweaver/SKILL.md` ([documentation](https://code.claude.com/docs/en/skills)) |
-| Cursor | `.cursor/skills/loomweaver/SKILL.md`, or `.agents/skills/` ([documentation](https://cursor.com/docs/skills)) |
+| Tool                 | Where the file goes                                                                                                                              |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Claude Code          | `.claude/skills/loomweaver/SKILL.md` ([documentation](https://code.claude.com/docs/en/skills))                                                   |
+| Cursor               | `.cursor/skills/loomweaver/SKILL.md`, or `.agents/skills/` ([documentation](https://cursor.com/docs/skills))                                     |
 | VS Code with Copilot | `.github/skills/`, `.claude/skills/` or `.agents/skills/` ([documentation](https://code.visualstudio.com/docs/agent-customization/agent-skills)) |
 
 From the project root, for Claude Code:
@@ -99,7 +99,7 @@ Each tool reads a file of its own; the command and the arguments are the same in
 
 Any other client that speaks the protocol takes the same command and arguments in its own file.
 Unpinned, `npx` takes the latest server, whose generators emit code for the latest platform line;
-a project on an older shell pins the server to it, `@loomweaver/mcp@0.9.3` in the arguments, as
+a project on an older shell pins the server to it, `@loomweaver/mcp@0.9.0` in the arguments, as
 [Scaffolding](scaffolding.md#the-mcp-server--loomweavermcp) describes.
 
 ## The path
@@ -128,8 +128,8 @@ what the assistant does from there is the same.
 
 ## One run, as it happened
 
-Recorded on 2026-09-08 with Claude Code 2.1.263 in headless mode, in a fresh `ng new` app taken
-through the three commands above on platform 0.9.2, with the server pinned to the same version.
+Recorded on 2026-09-08 with Claude Code 2.1.263 in headless mode, in a fresh `ng new` app the CLI
+had turned into a distribution on platform 0.9.2, with the server pinned to the same version.
 The raw capture is trimmed here to what the platform contributes; the assistant's own file reads
 and its closing summary are left out, and nothing that remains was retyped.
 
@@ -156,6 +156,9 @@ src/lib/i18n/en.json
 src/lib/i18n/de.json
 README.md
 ```
+
+A server of a later line also answers with `remaining`, the workspace steps the files need and the
+server cannot perform, such as composing the weaver and serving its strings. This run predates it.
 
 Nothing had touched disk. The assistant chose `src/weavers/notes/` as the place and wrote seven of
 the eight files there with its ordinary file tool. The eighth, the generated `README.md`, it read
@@ -248,12 +251,10 @@ the commands, the bundles. That is the point of validators that return findings 
 generated files were adjusted to fit. The generator states structure, the assistant resolves it
 against your layout, and that is by design.
 
-**It notices what a scaffold forgets, and so did we.** The auth stand-in names two icons the shell
-does not ship. The step that provides them is one the CLI performs and the MCP route, before
-0.9.3, did not name. Both runs found the gap by reading the shell's type declarations and
-contributed the icons from the plugin itself. A reader should not have to depend on that, so the
-missing step is a defect in the tooling and is being fixed there; this page keeps the prompt because
-the product that came out of it worked.
+**It notices what a scaffold leaves out.** The auth stand-in names two icons the shell does not
+ship. The MCP route names the step that provides them among its `remaining` steps, but the runs
+recorded here came before it did. Both runs found the gap by reading the shell's type declarations
+and contributed the icons from the plugin itself.
 
 ## Two stories, told apart
 
@@ -279,5 +280,5 @@ story producing the second.
 **Next:**
 
 - [Scaffolding](scaffolding.md): every generator, every option, and who writes the files.
-- [Samples](samples.md): the recipes the generator does not write, for the assistant to type.
+- [Samples](samples.md): whole recipes, with which of them the generator writes and which are yours to type.
 - [Authoring a weaver](authoring-a-weaver.md): the contract behind what it just scaffolded.

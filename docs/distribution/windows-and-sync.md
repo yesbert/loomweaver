@@ -63,7 +63,7 @@ The quiet default is deliberate. A command **missing** from a pop-out is a small
 that does something surprising in a detached window is the larger failure, and the shell cannot tell
 the two apart for a command it did not write. So it never guesses: it marks its own two (the palette
 and Settings) and leaves the rest to the command's author. An unmarked command is omitted from the
-pop-out's palette, its keybinding no-ops and a UI item bound to it does nothing.
+pop-out's palette, its keybinding no-ops and a UI item that names it is not drawn.
 
 As a backstop, **content navigation is refused in a pop-out** (with a dev-mode warning) whether or not
 a command is marked. Without that, one navigation would take the window's address out of `/popout/…`

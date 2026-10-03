@@ -1,8 +1,8 @@
 # LoomWeaver
 
-> LoomWeaver: open-source plugin platform for Angular workbenches. Weavers (plugins) consume one uniform `ctx` contract from `@loomweaver/plugin-sdk` under a **default-deny** capability broker, and a thin **distribution** composes them with `@loomweaver/shell` into a product. The platform itself contains **zero domain logic** and ships **no server**; the backend seam is the product's own. Status: the platform is **built and published** as seven versioned npm packages, listed under *Packages* below. It is maintained by one person, its API still moves on patch releases before 1.0, and the demo application is its reference consumer.
+> LoomWeaver: open-source plugin platform for Angular workbenches. Weavers (plugins) consume one uniform `ctx` contract from `@loomweaver/plugin-sdk` under a **default-deny** capability broker, and a thin **distribution** composes them with `@loomweaver/shell` into a product. The platform itself contains **zero domain logic** and ships **no server**; the backend seam is the product's own. Status: the platform is **built and published** as seven versioned npm packages, listed under *Packages* below. It is maintained by one person, breaking changes arrive in minor releases before 1.0, and the demo application is its reference consumer.
 
-This is a curated map for people, and their AI assistants, building on or integrating LoomWeaver. For a single-fetch brief with the complete contract inlined, see [`llms-full.txt`](llms-full.txt). Read from the repository, the links are repo-relative; served from loomweaver.dev, they are absolute.
+This is a curated map for people, and their AI assistants, building on or integrating LoomWeaver. For a single-fetch brief with the contract inlined, see [`llms-full.txt`](llms-full.txt). Read from the repository, the links are repo-relative; served from loomweaver.dev, they are absolute.
 
 ## Start here
 
@@ -23,10 +23,10 @@ This is a curated map for people, and their AI assistants, building on or integr
   - [Unsaved changes](docs/weaver/unsaved-changes.md): `DirtySurface` and the Save, Discard, Cancel question.
   - [Your plugin's own store](docs/weaver/plugin-state.md): `ctx.state`, one store shared by every surface of your plugin, kept per person wherever the product supplies an identity (never clear it on sign-out); a write still held is sent when the page is left, which the built-in local store keeps and a server-backed store has to complete itself.
   - [Containers](docs/weaver/containers.md): a workspace in a tab, the arrangement it opens with, a child that stands for one item through `segment` and `CONTAINER_HANDLE`, leaving a child out with `ctx.setChildShown`.
-  - [The content area](docs/weaver/content-area.md): routable surfaces, tabs per pane, chromeless, closable (which refuses closing and nothing else), preview and pinned tabs, a tab `badge`, a surface's own `actions` in the pane header, panes and tab groups.
+  - [The content area](docs/weaver/content-area.md): routable surfaces, tabs per pane, chromeless, closable (which refuses closing and nothing else), preview and pinned tabs, a tab `badge`, a surface's own `actions` in the pane header (a toolbar other plugins fill), panes and tab groups.
   - [Sub-routes and follows](docs/weaver/sub-routes-and-follows.md): `subRoutes`, the rest of the address, tabs that follow the selection, `activeContent`.
-  - [Menus](docs/weaver/menus.md): `registerMenuItem`, a menu on a rail item, a bar item or a surface's action, opened by right-click or by activation (`menuTrigger`), a slot one plugin owns and others fill, `ctx.ui.openMenu`.
-  - [Sandboxed surfaces](docs/weaver/sandboxed-surfaces.md): `component` or `iframe`, the sandbox bootstrap, the frame UI kit.
+  - [Menus](docs/weaver/menus.md): `registerMenuItem`, a menu on a rail item, a bar item or a surface's action, opened by right-click or by activation (`menuTrigger`), a slot one plugin owns and others fill, a toolbar in your own content (`ctx.registerToolbar` + `<lw-toolbar>`), `ctx.ui.openMenu`.
+  - [Sandboxed surfaces](docs/weaver/sandboxed-surfaces.md): `component` or `iframe`, a docked iframe, the sandbox bootstrap, the frame UI kit, a toolbar inside the surface, your part in a picture of the workbench, settings declared as data.
   - [Commands and their triggers](docs/weaver/commands.md): one behaviour behind shortcut, bar and rail items, palette and menu.
   - [Access gating](docs/weaver/access-gating.md): `access` on contributions and `ctx.session`.
   - [Icons and theme](docs/weaver/icons-and-theme.md): `ctx.contributeIcons`, `ctx.contributeTheme`.
@@ -122,7 +122,7 @@ Seven npm packages, one shared version: `@loomweaver/plugin-sdk`, `@loomweaver/s
 
 ## Releases
 
-- [Changelog](https://loomweaver.dev/changelog/): every release, newest first, generated from the pull requests each one merged; the same list as [GitHub releases](https://github.com/yesbert/loomweaver/releases). Packages move on patch releases before 1.0.
+- [Changelog](https://loomweaver.dev/changelog/): every release, newest first, generated from the pull requests each one merged; the same list as [GitHub releases](https://github.com/yesbert/loomweaver/releases). Before 1.0, breaking changes arrive in minor releases.
 
 ## Examples
 
@@ -130,6 +130,6 @@ Seven npm packages, one shared version: `@loomweaver/plugin-sdk`, `@loomweaver/s
 
 ## For AI assistants
 
-- [`llms-full.txt`](llms-full.txt): the complete contract (interfaces + provider signatures) and canonical distribution/weaver code, inlined for single-fetch ingestion.
+- [`llms-full.txt`](llms-full.txt): the contract (interfaces, provider and service signatures) and canonical distribution/weaver code, inlined for single-fetch ingestion; the packed `.d.ts` stays the authority for an exact signature.
 - [Agent skill](skills/loomweaver/SKILL.md): the order of work as a `SKILL.md`, for tools that read the format (Claude Code, Cursor, VS Code with Copilot). Optional; it states procedure and links the pages, and repeats no part of the contract.
 - [Brand assets](assets/brand/): logo and colors (blue `#2E96C9`, gold `#C59A2F`).

@@ -75,15 +75,18 @@ ctx.registerSurface({ id: 'reports', title: 'reports.title', component: ReportsV
 
 They are the same actions a sidebar surface carries, with the same rules: `access` hides or disables
 one, `pressed` makes it a toggle, and `ctx.updateSurfaceAction` replaces one while the surface is
-mounted. An action naming a command the session may not run is not drawn until it may, whether or
-not the action carries an `access` of its own. The actions are the surface's own toolbar, on the
-slot `<surface id>/actions`: another plugin adds to a surface's header with
-`registerMenuItem({ menu: 'reports/actions', command: 'scanner.export' })`, and the entry is
-drawn among the actions wherever the surface stands, with a context naming the surface. The whole
-mechanism, including a toolbar you place in your own content, is in
-[Menus → A toolbar in your own content](menus.md#a-toolbar-in-your-own-content). [Sidebar surfaces](sidebar-surfaces.md) has those in full. An action can also open a menu,
-which is how one plugin offers a place that others fill: see
-[Menus](menus.md#a-menu-on-the-plain-click). A sandboxed surface carries no actions.
+mounted. [Sidebar surfaces](sidebar-surfaces.md) has those rules in full. An action naming a command
+the session may not run is not drawn until it may, whether or not the action carries an `access` of
+its own. An action can also open a menu, which is how one plugin offers a place that others fill: see
+[Menus](menus.md#a-menu-on-the-plain-click).
+
+The actions are the surface's own toolbar, on the slot `<surface id>/actions`: another plugin adds to
+a surface's header with `registerMenuItem({ menu: 'reports/actions', command: 'scanner.export' })`,
+and the entry is drawn among the actions wherever the surface stands, with a context naming the
+surface. The whole mechanism, including a toolbar you place in your own content, is in
+[Menus → A toolbar in your own content](menus.md#a-toolbar-in-your-own-content). A sandboxed
+surface declares no actions of its own, but entries contributed to its slot are drawn in its header
+all the same.
 
 In a pop-out window, which has no pane header, the actions stand in a bar above the surface. An
 action that names a `command` is drawn there only if that command declares `popout: true`, the rule

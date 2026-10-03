@@ -32,8 +32,8 @@ carries them as its URL. Both follow the address. To switch, it navigates to `do
 A sub-route is written in Angular syntax, so a segment may **carry a value**:
 
 ```ts
-routable: { path: 'programs/:programId', subRoutes: ['structure/:structureId', 'flows/:flowId'] }
-// → programs/205470/structure/9178
+routable: { path: 'orders/:orderId', subRoutes: ['lines/:lineId', 'shipments/:shipmentId'] }
+// → orders/205470/lines/9178
 ```
 
 And the bare tab root is a **valid address**: there is no redirect to the first entry, because that
@@ -110,9 +110,9 @@ value, and it says nothing about a third level. Declare `rest: true` instead and
 **the rest**, verbatim, query string included.
 
 ```ts
-ctx.registerSurface({ id: 'programs', title: 'programs.title', iframe: '/programs/view.html',
-  routable: { path: 'cedents/:cedentId/programs', rest: true } });
-// cedents/US003950/programs/205470/pricing?t=886320
+ctx.registerSurface({ id: 'orders', title: 'orders.title', iframe: '/orders/view.html',
+  routable: { path: 'customers/:customerId/orders', rest: true } });
+// customers/C1042/orders/205470/pricing?t=886320
 //   → this surface, rest: "205470/pricing?t=886320"
 ```
 
@@ -126,7 +126,7 @@ makes domain-first, deep addresses reachable. Three consequences worth knowing:
   `navigate`. Both are confined to the prefix, and each change is an ordinary history entry. A **trusted**
   component reads it the ordinary Angular way (its child `ActivatedRoute`, or the router) and navigates
   with the router. Same declaration, different target.
-- **A prefix shorter than two segments** (`cedents` rather than `cedents/:id/programs`) owns most of the
+- **A prefix shorter than two segments** (`customers` rather than `customers/:id/orders`) owns most of the
   address space, which is exactly where "the channel is confined to your own territory" stops being a
   confinement. Declaring `rest` there additionally requires the `navigation` capability, and
   registration fails loudly without it.
@@ -139,30 +139,30 @@ survives reload and back/forward.
 ## Tabs that follow the selection: `follows`
 
 Some tabs are not independent documents but
-**facets of one choice**: pick a program on one, and the others should show that program. Declare
+**facets of one choice**: pick an order on one, and the others should show that order. Declare
 `follows: true` on such a surface and the host draws a **permanent facet tab** for it, labelled by the
 surface's own `title`/`icon` and ordered by its `order`. That tab keeps pointing at the current
 selection. The host knows the parameter values of the address it is on, because it knows which pattern
 matched, and substitutes them **by name** into every following tab's pattern:
 
 ```ts
-// on cedents/US003950/programs/205470/pricing
-routable: { path: 'cedents/:cedentId/programs/:programId/treaties', follows: true }
-// → the Treaties tab points at cedents/US003950/programs/205470/treaties
+// on customers/C1042/orders/205470/pricing
+routable: { path: 'customers/:customerId/orders/:orderId/invoices', follows: true }
+// → the Invoices tab points at customers/C1042/orders/205470/invoices
 ```
 
 Where a value is unknown the address is truncated before it, which normally lands on a shorter address
-another surface owns (`cedents`, if something is registered there). Where it lands nowhere, the facet
+another surface owns (`customers`, if something is registered there). Where it lands nowhere, the facet
 has nothing to point at yet and the host **leaves the tab out** rather than drawing a control that
 cannot navigate. The tab reappears as soon as a selection exists.
 
-Four things bound the feature deliberately:
+Three things bound the feature deliberately:
 
 - **Off by default.** The opposite is right for a tab showing one specific document: nobody wants an
   open quote rewritten because a parameter changed elsewhere. A tab opened by visiting keeps the
   address it was opened with.
 - **A copy that leaves the pane carrying the browser address freezes.** Split a facet into another
-  pane or pop it out and it keeps the address it had, which is how you park one program beside another.
+  pane or pop it out and it keeps the address it had, which is how you park one order beside another.
 - **A shared parameter name must mean the same thing.** Two following surfaces may only use the same
   name when the pattern _before_ it is identical. Otherwise the host would fill one surface's address
   with the other's value, so it refuses that one registration with a message. Surfaces that do not

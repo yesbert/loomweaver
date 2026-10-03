@@ -132,6 +132,11 @@ Your own commands need no grant, and no `callable` declaration, to invoke: that 
 behaviour and you could call the function directly. They appear in `invocableCommands()` only where
 you opened them, so nothing you never opened is offered onward.
 
+Nor does a toolbar you place need it. When another plugin contributes an entry to your surface's
+toolbar, the workbench draws it and runs it when the user activates it, in the page and inside an
+isolated surface alike. Activating a drawn control is the user's act, not your plugin's, so no
+`automation` grant is involved.
+
 The grant is listed in the built-in **Permissions** settings and the user can withdraw it at any
 time; the next call is refused and the list empties, without a reload.
 

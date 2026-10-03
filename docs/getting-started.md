@@ -77,12 +77,9 @@ can open.
 Nothing here needs doing; it is worth knowing, and every line links to where it is explained. The
 run itself names each file it wrote and each line it added.
 
-**Packages.** `@loomweaver/shell`, `@loomweaver/plugin-sdk` and `@loomweaver/frame-kit`. Beside
-them `@angular/cdk` for drag and drop and accessibility, Transloco for the translations and
-`@ng-icons/heroicons` for the first-party icon set, all runtime dependencies. The service worker
-package is pinned to the Angular version you have, because a looser pin fails the install with
-`ERESOLVE` ([why](manual-setup.md#1--install)). Tailwind and its PostCSS plugin come as dev
-dependencies, unless you chose `--styles precompiled`.
+**Packages.** The runtime packages [Manual setup → Install](manual-setup.md#1--install) lists,
+with the service worker pinned to the Angular version you have, and why that pin matters. Tailwind
+and its PostCSS plugin come as dev dependencies, unless you chose `--styles precompiled`.
 
 **The distribution**, twelve files, none of yours deleted:
 

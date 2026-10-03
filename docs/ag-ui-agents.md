@@ -106,9 +106,12 @@ access gating on the command, and whether the command exists at all. There is no
 return here that widens what an agent may do, which is why the hook is a safe place to put product
 judgement.
 
-Every refusal reads the same to the agent whatever its reason. That is deliberate: if a declined
-call sounded different from a call that was never permitted, an agent could learn what is installed
-by asking for things.
+A command the agent cannot reach reads the same whatever the reason: no such command, not marked
+`callable`, no grant, the wrong window, or a session that does not qualify. That is deliberate,
+because telling them apart would let an agent learn what is installed by asking for things. Other
+refusals say what they are: your own decline carries the reason you give, and so do arguments that
+are unreadable or do not match, and a chain of calls run too deep. [What the agent gets
+back](reference/agent-tools.md#what-the-agent-gets-back) has every case.
 
 ## Replace the stand-in
 

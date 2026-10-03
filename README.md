@@ -38,8 +38,8 @@ once, panes and tabs, a surface other people extend. It is not a component libra
 a site of plain pages. It also speaks **[AG-UI](https://docs.ag-ui.com)**, the open protocol between
 a user-facing application and an agentic backend, so every command your product registers can be
 offered to an agent, and an agent still reaches only what the user could have reached. It is
-maintained by one person, its API still moves on patch releases before 1.0, and the demo application
-is its reference consumer.
+maintained by one person. Before 1.0 its breaking changes arrive in minor releases, and the demo
+application is its reference consumer.
 
 ## Quick start
 

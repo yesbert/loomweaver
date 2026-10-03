@@ -53,7 +53,7 @@ it with the opposite state when the state changes:
 ```ts
 const floated = signal(false);
 const floatAction = (pressed: boolean) => ({
-  id: 'chat.float', icon: pressed ? 'dock' : 'float',
+  id: 'chat.float', icon: pressed ? 'restore' : 'popout',
   title: pressed ? 'chat.dock' : 'chat.float', pressed,
   run: () => { floated.set(!floated()); ctx.updateSurfaceAction('chat', floatAction(floated())); },
 });

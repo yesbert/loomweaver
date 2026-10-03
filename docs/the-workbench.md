@@ -20,7 +20,7 @@ Every section ends with the page that says how to declare, curate or switch off 
 
 ![Two panes side by side in the content area, a customer list on the left and a contact history on the right, each with its own tab strip and toolbar.](../assets/media/split-panes-dark.png#gh-dark-mode-only)
 
-Two panes from one click on *Split right*, or from dragging a tab to an edge. Each pane is a tab
+Two panes from one click on _Split right_, or from dragging a tab to an edge. Each pane is a tab
 group with its own strip, and the window stays as wide as it was. Tabs can be pinned, opened as a
 preview, reordered, and popped out into a window of their own. The controls in each toolbar are the
 shell's, and a distribution takes any of them away with a switch rather than a rebuild.
@@ -52,9 +52,9 @@ Where it is described: [Commands and their triggers](weaver/commands.md),
 
 ![The tab picker open from the New tab button on a tab strip, offering the one route this product hosts at a bare path.](../assets/media/tab-picker-dark.png#gh-dark-mode-only)
 
-`mod+p` opens the second search. What is open comes first, marked *now*; below it, everything the
+`mod+p` opens the second search. What is open comes first, marked _now_; below it, everything the
 product could open, so a view that is not open yet is one keystroke away. The tab picker is its
-sibling on a tab strip: the *New tab* button lists the content a pane can host, and a click opens
+sibling on a tab strip: the _New tab_ button lists the content a pane can host, and a click opens
 it there. Both lists come from the routes and surfaces plugins contribute. Nothing registers for
 them separately.
 
@@ -71,7 +71,7 @@ badge that opens it.
 A workspace is a whole arrangement: which sidebars are open, what is in them, which tabs are in
 which pane. The product provides some, the user saves others, and the dialog keeps the two lists
 apart. Save as new, rename, delete and reset to the baseline are already here. A saved workspace
-remembers what it was derived from, which is what *Variant of Sales* says.
+remembers what it was derived from, which is what _Variant of Sales_ says.
 
 Where it is described: [Workspaces](concepts/workspaces.md),
 [Declaring workspaces](distribution/workspaces.md).
@@ -82,9 +82,9 @@ Where it is described: [Workspaces](concepts/workspaces.md),
 
 ![The curation dialog for the rail, listing every entry with a Hidden, Left or Right choice for each, and a search field above.](../assets/media/customize-rail-dark.png#gh-dark-mode-only)
 
-A right-click on the rail's empty part offers *Customize activity bar*, and this dialog opens: every
+A right-click on the rail's empty part offers _Customize activity bar_, and this dialog opens: every
 entry, and whether it sits hidden, left or right. The same dialog exists for the views of a sidebar
-under *Customize views*. These pages say rail; the workbench's own menus say *Activity bar*, and the
+under _Customize views_. These pages say rail; the workbench's own menus say _Activity bar_, and the
 glossary keeps the two together. Whatever the user arranges here is part of the workspace, so it
 survives a reload and a sign-in.
 
@@ -103,8 +103,8 @@ Where it is described: [Curating the rail](distribution/workspaces.md#curating-t
 
 The shell draws its own menus on a tab, on a sidebar view, on a rail entry, and on the empty parts
 of the rail and the sidebar strip. Entries a plugin contributes go into these same menus, beside
-the shell's, and an entry that needs a capability the plugin lacks is not drawn. Where nobody
-draws a menu, the browser's own stays.
+the shell's. An entry naming a command the session may not run, or one that does not belong in a
+window of its own, is not drawn. Where nobody draws a menu, the browser's own stays.
 
 Where it is described: [Menus](weaver/menus.md),
 [Sorting and moving](distribution/switching-capabilities-off.md#sorting-and-moving).
@@ -122,7 +122,7 @@ when the pointer reaches that place rather than anywhere on the tab, so switchin
 hides its mark. A
 surface that reports unsaved work is never destroyed while it is hidden, and closing it asks
 first. The surface reports one thing, that it is dirty; the prompt, the three answers and the
-wording are the shell's, so every plugin in the product asks the same question. *Save* appears only
+wording are the shell's, so every plugin in the product asks the same question. _Save_ appears only
 when the surface can save, and a save that fails keeps the work and the tab.
 
 Where it is described: [Retention and unsaved work](concepts/retention-and-unsaved-work.md),
@@ -186,7 +186,7 @@ window. All of it is the shell's:
 - **Light, dark and system**, a language switch, and four text sizes, in the top bar and in the
   settings dialog. [Appearance](distribution-api/appearance.md), [Translations](weaver/i18n.md).
 - **Toasts** for what a plugin or the product wants to say, and an update badge that turns into
-  *Reload to update* when a new build is ready. [Dialogs and toasts](distribution-api/dialogs-and-toasts.md),
+  _Reload to update_ when a new build is ready. [Dialogs and toasts](distribution-api/dialogs-and-toasts.md),
   [PWA](distribution/pwa.md).
 - **Access-aware chrome.** A contribution that needs a sign-in or a role is hidden, disabled or
   blocked as the session changes, in the rail, the menus, the palette and the tab picker alike.
@@ -197,16 +197,16 @@ window. All of it is the shell's:
 The shell binds these itself. `mod` is ⌘ on macOS and Ctrl elsewhere, and every chord a command
 declares is printed beside it in the palette and the menus.
 
-| Keys                                | What happens                                                     | Where it is described                                                                     |
-| ----------------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| `mod+k`                             | Opens the command palette                                        | [Command palette entry](distribution/recomposing-chrome.md#command-palette-entry)         |
-| `mod+p`                             | Opens quick open, the search over open tabs and openable content | [Command palette entry](distribution/recomposing-chrome.md#command-palette-entry)         |
-| `mod+\`                             | Splits the current pane to the right                             | [Content tabs and the pane toolbar](distribution/switching-capabilities-off.md#content-tabs-and-the-pane-toolbar) |
-| `Alt+Arrow` on a tab or rail entry  | Moves it within its strip or band                                | [Sorting and moving](distribution/switching-capabilities-off.md#sorting-and-moving)       |
-| `Alt+Shift+←/→` on a rail entry     | Moves it to the other rail (*Move to other activity bar*)        | [Curating the rail](distribution/workspaces.md#curating-the-rail)                         |
-| `Alt+Shift+←/→` on a sidebar view   | Moves it to the other sidebar                                    | [Curating a sidebar](distribution/layout.md#curating-a-sidebar)                           |
-| `Arrow` on a focused split handle   | Resizes the split; with `Shift`, in larger steps                 | [Panes and splits](distribution/layout.md#panes-and-splits)                               |
-| `Esc`                               | Closes the open dialog, menu or palette                          | [Dialogs and toasts](distribution-api/dialogs-and-toasts.md)                              |
+| Keys                               | What happens                                                     | Where it is described                                                                                             |
+| ---------------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `mod+k`                            | Opens the command palette                                        | [Command palette entry](distribution/recomposing-chrome.md#command-palette-entry)                                 |
+| `mod+p`                            | Opens quick open, the search over open tabs and openable content | [Command palette entry](distribution/recomposing-chrome.md#command-palette-entry)                                 |
+| `mod+\`                            | Splits the current pane to the right                             | [Content tabs and the pane toolbar](distribution/switching-capabilities-off.md#content-tabs-and-the-pane-toolbar) |
+| `Alt+Arrow` on a tab or rail entry | Moves it within its strip or band                                | [Sorting and moving](distribution/switching-capabilities-off.md#sorting-and-moving)                               |
+| `Alt+Shift+←/→` on a rail entry    | Moves it to the other rail (_Move to other activity bar_)        | [Curating the rail](distribution/workspaces.md#curating-the-rail)                                                 |
+| `Alt+Shift+←/→` on a sidebar view  | Moves it to the other sidebar                                    | [Curating a sidebar](distribution/layout.md#curating-a-sidebar)                                                   |
+| `Arrow` on a focused split handle  | Resizes the split; with `Shift`, in larger steps                 | [Panes and splits](distribution/layout.md#panes-and-splits)                                                       |
+| `Esc`                              | Closes the open dialog, menu or palette                          | [Dialogs and toasts](distribution-api/dialogs-and-toasts.md)                                                      |
 
 A distribution that switches a capability off takes its chord with it, so no menu entry or badge
 advertises a key that does nothing.

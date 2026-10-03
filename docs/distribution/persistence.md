@@ -106,6 +106,7 @@ each tab's `path`, **literal `title`**, `icon`, its own `badge` and `instance` i
 | `lw.shell.pane-trees:<workspaceId>`         | pane/tab layout of every dock, incl. per-tab path/title/icon/badge/instance, the **order of each pane's tabs** and which pane carries the URL (per-dock `{ tree, primary }` — pane ids are stable, the URL role is the pointer) | working state | identity | per-window |
 | `lw.shell.hidden-views:<workspaceId>`       | which sidebar views that workspace hides                                                                                                                                                                                        | working state | identity | per-window |
 | `lw.shell.rail-items`                       | which rail entries the user hid, and which rail each one sits in                                                                                                                                                                | settings      | identity | synced     |
+| `lw.shell.rail-labels`                      | which rails show each entry's name under its icon                                                                                                                                                                               | settings      | identity | synced     |
 | `lw.shell.panels`                           | which sidebars the user collapsed                                                                                                                                                                                               | working state | identity | per-window |
 | `lw.shell.panel-sizes`                      | sidebar widths                                                                                                                                                                                                                  | working state | identity | per-window |
 | `lw.shell.item-order`                       | user reorder of rail items and sidebar views (content tabs order on their pane, above)                                                                                                                                          | working state | identity | per-window |
@@ -115,6 +116,7 @@ each tab's `path`, **literal `title`**, `icon`, its own `badge` and `instance` i
 | `lw.shell.disabled-plugins`                 | plugins the user turned off                                                                                                                                                                                                     | settings      | identity | synced     |
 | `lw.shell.capability-revocations`           | user capability revocations                                                                                                                                                                                                     | settings      | identity | synced     |
 | `lw.shell.installed-plugins`                | community plugins installed at runtime                                                                                                                                                                                          | settings      | identity | synced     |
+| `lw.shell.deployed-plugins`                 | plugins the catalog last marked deployed, kept so they stay active when the catalog cannot be read                                                                                                                              | settings      | identity | synced     |
 | `lw.shell.command-mru`                      | recently used palette commands ("Recently used" section)                                                                                                                                                                        | working state | identity | synced     |
 | `lw.plugin-settings:<pluginId>:<sectionId>` | a sandboxed plugin's settings values                                                                                                                                                                                            | settings      | identity | synced     |
 | `lw.plugin-state:<pluginId>:<key>`          | a plugin's own working state (`ctx.state`)                                                                                                                                                                                      | working state | identity | synced     |
@@ -161,9 +163,8 @@ provideIdentityScopedStores({
 The wrapper covers **both** persistence ports with one shared boot latch. Another user's view
 state and layout are scoped away exactly like their settings. Never list `provideSettingsStore`
 _next to_ this provider: both fill the same `SETTINGS_STORE` token, and the later silently discards
-the other. One port, one provider; the composition with a
-remote store is worked through in
-[backend integration → One port, one provider](../backend-integration.md#putting-it-together).
+the other. One port, one provider: a remote store is passed **into** the wrapper as `settingsStore`
+or `workingStateStore`, as in the example above, and is never provided beside it.
 
 While signed in, identity-level keys are stored as `lw.id.<identity>:<key>`; device keys and the
 anonymous session keep the plain keys, so a distribution without auth is untouched. The shell peeks

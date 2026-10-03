@@ -49,8 +49,8 @@ everything you pass on:
 ```ts
 // src/app/app.config.ts
 provideTabAddressResolver(({ surfaceId, params, activePath }) =>
-  surfaceId === 'treaties' && params['cedentId']
-    ? `cedents/${params['cedentId']}/treaties/${treatyFor(activePath)}`
+  surfaceId === 'orders' && params['customerId']
+    ? `customers/${params['customerId']}/orders/${orderFor(activePath)}`
     : null,   // null → the host's own substitution
 ),
 ```
