@@ -9,9 +9,9 @@ test.describe("A content surface's own actions", () => {
       .locator('lw-address-pane-header')
       .getByTestId('surface-actions');
 
-    await expect(actions.locator('[data-surface-action]')).toHaveCount(4);
+    await expect(actions.locator('[data-lw-entry]')).toHaveCount(4);
     await expect(
-      actions.locator('[data-surface-action="testbed.search.home"]'),
+      actions.locator('[data-lw-entry="testbed.search.home"]'),
     ).toBeVisible();
     await expect(
       actions.getByRole('button', { name: 'Back to the start page' }),
@@ -20,11 +20,11 @@ test.describe("A content surface's own actions", () => {
       page.getByRole('button', { name: 'Home', exact: true }),
     ).toHaveCount(1);
 
-    await actions.locator('[data-surface-action="testbed.search.home"]').click();
+    await actions.locator('[data-lw-entry="testbed.search.home"]').click();
 
     await expect(page).toHaveURL(/\/$/);
     await expect(
-      page.locator('[data-surface-action="testbed.search.home"]'),
+      page.locator('[data-lw-entry="testbed.search.home"]'),
     ).toHaveCount(0);
   });
 
@@ -39,10 +39,10 @@ test.describe("A content surface's own actions", () => {
       .click();
 
     const second = page.locator('lw-pane-view:not([data-address-pane])');
-    const action = second.locator('[data-surface-action="testbed.search.home"]');
+    const action = second.locator('[data-lw-entry="testbed.search.home"]');
     await expect(action).toBeVisible();
     await expect(
-      page.locator('[data-surface-action="testbed.search.home"]'),
+      page.locator('[data-lw-entry="testbed.search.home"]'),
     ).toHaveCount(2);
 
     const actionBox = await action.boundingBox();
@@ -56,7 +56,7 @@ test.describe("A content surface's own actions", () => {
     page,
   }) => {
     await page.goto('/search');
-    const alone = page.locator('[data-surface-action="testbed.search.alone"]');
+    const alone = page.locator('[data-lw-entry="testbed.search.alone"]');
 
     await expect(alone).toBeVisible();
     await expect(alone).not.toHaveAttribute('aria-haspopup', 'menu');
@@ -70,11 +70,11 @@ test.describe("A content surface's own actions", () => {
     page,
   }) => {
     await page.goto('/search');
-    const more = page.locator('[data-surface-action="testbed.search.more"]');
+    const more = page.locator('[data-lw-entry="testbed.search.more"]');
 
     await expect(more).toHaveAttribute('aria-haspopup', 'menu');
     await expect(
-      page.locator('[data-surface-action="testbed.search.unfilled"]'),
+      page.locator('[data-lw-entry="testbed.search.unfilled"]'),
     ).toHaveCount(0);
 
     await more.click();

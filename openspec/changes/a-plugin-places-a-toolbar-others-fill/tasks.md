@@ -62,49 +62,50 @@
 
 ### 4. Pin it
 
-- [ ] 4.1 `lw-toolbar` element spec, registered from the published surface without a running
+- [x] 4.1 `lw-toolbar` element spec, registered from the published surface without a running
   workbench: draws resolved entries side by side with icon, tooltip and shortcut; `aria-pressed`
   for a state; `role="toolbar"` named by the placement's label, or by the registered title where
   the placement gives none, worded and following the strings; roving focus with the arrow keys; takes no
   space while the slot offers nothing; light-DOM cells with `slot="cell"` placed by order
-- [ ] 4.2 Folding: entries beyond the width fold from the end into a control whose menu offers
+- [x] 4.2 Folding: entries beyond the width fold from the end into a control whose menu offers
   them; a cell folds whole; folding follows the width in both directions; zero width suspends it
-- [ ] 4.3 `registerToolbar`: two plugins on one slot are refused naming both; the same plugin
+- [x] 4.3 `registerToolbar`: two plugins on one slot are refused naming both; the same plugin
   replaces; the toolbar dies with its plugin; a registered toolbar declares its slot
-- [ ] 4.4 `registerToolbarCell`: a foreign in-page cell is drawn, told the placement's description
+- [x] 4.4 `registerToolbarCell`: a foreign in-page cell is drawn, told the placement's description
   through its context token, hidden on an unmet requirement whatever mode it asks for
-- [ ] 4.5 Surface actions as a toolbar: every existing `surface-actions.spec.ts` case holds against
+- [x] 4.5 Surface actions as a toolbar: every existing `surface-actions.spec.ts` case holds against
   `<lw-toolbar slot="<surface>/actions">` in the panel header, the tab strip, the floating header
   and the pop-out; `updateSurfaceAction` still replaces one entry without rebuilding the surface;
   a second plugin's entry appears in the header
-- [ ] 4.6 Testbed: a toolbar on a record list placed once per row with the row's description, filled
+- [x] 4.6 Testbed: a toolbar on a record list placed once per row with the row's description, filled
   by a second testbed plugin with a `when`-filtered entry, a nested menu entry, and one component
   cell; end to end: the entry runs with the row's id, the other row does not show it, the fold
   control appears on a narrow window
 
 ### 5. Build
 
-- [ ] 5.1 `MenuItem` gains `icon?`, `access?`, `menu?`, `menuTrigger?`, `menuHeader?`; `resolveSlot`
+- [x] 5.1 `MenuItem` gains `icon?`, `access?`, `menu?`, `menuTrigger?`, `menuHeader?`; `resolveSlot`
   carries them; the JSDoc on the published contract says what each is for
-- [ ] 5.2 `Toolbar` (slot, title) and `ToolbarCell` in `plugin-sdk/chrome/`; `registerToolbar` and
+- [x] 5.2 `Toolbar` (slot, title) and `ToolbarCell` in `plugin-sdk/chrome/`; `registerToolbar` and
   `registerToolbarCell` on the context; the registry records owner per slot and refuses a second
-- [ ] 5.3 `shell/elements/toolbar/`: the element, its bridge interface, the in-page bridge the shell
+- [x] 5.3 `shell/elements/toolbar/`: the element, its bridge interface, the in-page bridge the shell
   installs at boot, the fold with `bar-fold.ts`'s ranking, the `TOOLBAR_CONTEXT` token for cells
-- [ ] 5.4 The registry maps a surface's declared `actions` onto `<surface-id>/actions` entries and
+- [x] 5.4 The registry maps a surface's declared `actions` onto `<surface-id>/actions` entries and
   routes `updateSurfaceAction` to the mapped entry; the four hosts embed the toolbar;
   `lw-surface-actions` is removed
-- [ ] 5.5 Scaffolding: the frame-plugin and weaver generators' templates mention the toolbar where
-  they mention menus; `validate_commands` accepts the new `MenuItem` fields
-- [ ] 5.6 `docs/weaver/menus.md` (toolbars), `docs/weaver/content-area.md` (surface actions are a
+- [x] 5.5 Scaffolding, checked rather than changed: `validate_commands` reads `registerCommand`
+  literals only, so the new `MenuItem` fields pass it untouched, and the weaver recipe's one menu
+  example stays a menu example; the toolbar is taught in the guide, not in the scaffold
+- [x] 5.6 `docs/weaver/menus.md` (toolbars), `docs/weaver/content-area.md` (surface actions are a
   slot others may fill), `docs/reference/design-tokens.md` (the element), `llms-full.txt`
 
 ### 6. Verify and close
 
-- [ ] 6.1 The full shell suite, lint, `nx package shell`, the packed-`.d.ts` docs guard for every
+- [x] 6.1 The full shell suite, lint, `nx package shell`, the packed-`.d.ts` docs guard for every
   new export, the structure check, the bundle-size ratchet
-- [ ] 6.2 The accessibility scan over a placed toolbar with a pressed entry and a folded one
-- [ ] 6.3 The full end-to-end suite, including the distribution served under a path
-- [ ] 6.4 `openspec validate --all --strict`
+- [x] 6.2 The accessibility scan over a placed toolbar with a pressed entry and a folded one
+- [x] 6.3 The full end-to-end suite, including the distribution served under a path
+- [x] 6.4 `openspec validate --all --strict`
 
 ## Slice 3 — the toolbar inside an isolated surface
 

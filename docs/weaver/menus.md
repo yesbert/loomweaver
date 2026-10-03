@@ -201,6 +201,65 @@ developer once the composed plugins have finished activating: in the browser con
 at registration time, because the plugin that fills a slot may well activate before the plugin that
 owns it. The usual cause is a typo in the slot id, or an owner the distribution did not compose.
 
+## A toolbar in your own content
+
+A menu slot can also be drawn open, side by side, wherever you place it in your own content: a
+toolbar. Register it once, under a slot of your own, and place `<lw-toolbar>` as often as you like,
+each placement with a `context` describing what it stands beside. Anything fills it with the same
+`registerMenuItem` that fills a menu, and the same rules apply. `when` is matched against the
+placement's context, and groups are drawn with a separator. The label, icon and shortcut come from
+the command. An entry is dropped where its command is unregistered or the session may not run it.
+
+```ts
+// the plugin that owns the records registers the toolbar, once
+export const RECORDS_TOOLBAR = 'acme.records/toolbar';
+ctx.registerToolbar({ slot: RECORDS_TOOLBAR, title: 'acme.records.toolbar' });
+ctx.registerMenuItem({ menu: RECORDS_TOOLBAR, command: 'acme.records.open', group: '0_own' });
+```
+
+```html
+<!-- …and places it once per row, with the row as the context -->
+@for (record of records(); track record.id) {
+  <li>
+    {{ record.title }}
+    <lw-toolbar [attr.menu]="toolbar" [context]="{ record: record.id, kind: record.kind }" size="sm">
+      <span order="100">{{ record.updated | date }}</span>
+    </lw-toolbar>
+  </li>
+}
+```
+
+```ts
+// any other plugin fills it, for notes only, and offers a nested menu of its own
+ctx.registerMenuItem({ menu: RECORDS_TOOLBAR, command: 'scanner.star', when: { kind: 'note' } });
+ctx.registerMenuItem({ menu: RECORDS_TOOLBAR, title: 'scanner.sources', icon: 'more',
+  submenu: 'acme.records/sources', menuHeader: { title: 'scanner.sources' } });
+ctx.registerMenuItem({ menu: 'acme.records/sources', command: 'scanner.import' });
+```
+
+The command runs with the placement's context, so `scanner.star` reads `context['record']`. An
+entry with a `submenu` opens that slot beside itself on activation and is drawn only while the slot
+offers something; with a `command` as well it runs that while the slot is empty. A toolbar whose
+slot offers nothing to the person looking at it takes no space, and appears when an entry arrives.
+Where the row is too narrow for every entry, the toolbar folds from the end into a control that
+offers the rest. It is one tab stop; the arrow keys walk its entries. The toolbar is announced by
+the `title` you registered, or by a `label` attribute on the placement where one placement differs.
+
+Your own controls go inside the element as children, with an `order` attribute where the position
+among the entries matters, as the date above does. Another plugin that runs in the page puts a
+component of its own in with `registerToolbarCell({ slot, component, order })`; the component
+injects `TOOLBAR_CONTEXT` to learn the slot and the placement. A cell is not read by the workbench:
+no command, no `when`, no shortcut, and it folds whole. It also never reaches a toolbar drawn inside
+an isolated surface, because code does not cross that boundary; there, the declarative entries do.
+
+The slot is yours: export its id so the plugins meant to fill it can name it. A second plugin
+registering a toolbar under the same slot is refused and reported. The slot a toolbar registers,
+like the slot a control names, is what declares it for the undeclared-slot report above.
+
+A surface's own actions are such a toolbar too, on the slot `<surface id>/actions`. The actions
+you declare on the surface are its owner's entries. Any plugin may add to a surface's header with
+`registerMenuItem({ menu: 'acme.records/actions', … })`, as it adds to a menu.
+
 ## A picture where you have one
 
 A rail item, a bar button and a menu heading all take

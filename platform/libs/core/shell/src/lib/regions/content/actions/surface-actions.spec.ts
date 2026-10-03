@@ -9,7 +9,9 @@ import {
   surfaceToEntry,
 } from '../../../contributions/surface-normalize';
 import { defineLwIcon } from '../../../elements/icon/lw-icon.element';
+import { defineLwToolbar } from '../../../elements/toolbar/lw-toolbar.element';
 import { defineLwTooltip } from '../../../elements/tooltip/lw-tooltip.element';
+import { ToolbarHost } from '../../toolbar/toolbar-host.service';
 import { MenuService } from '../../../menu/menu.service';
 import { PopoutWindow } from '../../../popout/popout-window';
 import { viewPanePath } from '../../pane/tree/pane-address';
@@ -43,6 +45,7 @@ describe('SurfaceActions', () => {
   beforeAll(() => {
     defineLwIcon();
     defineLwTooltip();
+    defineLwToolbar();
   });
 
   beforeEach(() => {
@@ -53,6 +56,7 @@ describe('SurfaceActions', () => {
       providers: [{ provide: AUTH_SOURCE, useValue: session }],
     });
     registry = TestBed.inject(ContributionRegistry);
+    TestBed.inject(ToolbarHost);
   });
 
   function routable(actions: readonly ViewAction[], id = 'reports') {
@@ -72,21 +76,24 @@ describe('SurfaceActions', () => {
   function render() {
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
+    TestBed.tick();
   }
 
   function labels(): string[] {
     fixture.detectChanges();
+    TestBed.tick();
     return [
       ...(fixture.nativeElement as HTMLElement).querySelectorAll(
-        'button[data-surface-action]',
+        'button[data-lw-entry]',
       ),
     ].map((button) => button.getAttribute('aria-label') ?? '');
   }
 
   function button(id: string): HTMLButtonElement {
     fixture.detectChanges();
+    TestBed.tick();
     return (fixture.nativeElement as HTMLElement).querySelector(
-      `button[data-surface-action="${CSS.escape(id)}"]`,
+      `button[data-lw-entry="${CSS.escape(id)}"]`,
     ) as HTMLButtonElement;
   }
 
@@ -211,6 +218,7 @@ describe('SurfaceActions', () => {
         ],
       });
       registry = TestBed.inject(ContributionRegistry);
+      TestBed.inject(ToolbarHost);
       registry.addCommand({ id: 'c.main', title: 'add', run: () => undefined });
       registry.addCommand({
         id: 'c.popout',

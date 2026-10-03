@@ -289,5 +289,19 @@
     "beta": "Beta",
     "new": "Neu",
     "flagged": "Markiert"
+  },
+  "records": {
+    "title": "Datensätze",
+    "heading": "Datensätze",
+    "intro": "Jede Zeile trägt dieselbe Toolbar, von diesem Plugin platziert und von einem anderen gefüllt: ein Eintrag nur für Notizen, ein Menü, das andere füllen, eine Zelle, die ein anderes Plugin zeichnet, und ein Wort dieses Plugins selbst.",
+    "toolbar": "Werkzeuge zum Datensatz",
+    "open": "Datensatz öffnen",
+    "own": "eine Zelle, die der Besitzer selbst platziert hat"
+  },
+  "filler": {
+    "star": "Datensatz markieren",
+    "sources": "Quellen",
+    "import": "Aus einer Quelle importieren",
+    "imported": "Importiert"
   }
 }

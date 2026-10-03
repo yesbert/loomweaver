@@ -9,6 +9,13 @@ import { AUTH_SOURCE } from '../../auth/auth-context';
 import { View } from '../../views/view';
 import { SURFACE_PADDING } from '../../foundation/surface-padding';
 import { ViewportService } from '../../layout/viewport.service';
+import { defineLwIcon } from '../../elements/icon/lw-icon.element';
+import { defineLwToolbar } from '../../elements/toolbar/lw-toolbar.element';
+import { defineLwTooltip } from '../../elements/tooltip/lw-tooltip.element';
+
+defineLwIcon();
+defineLwTooltip();
+defineLwToolbar();
 
 let built = 0;
 

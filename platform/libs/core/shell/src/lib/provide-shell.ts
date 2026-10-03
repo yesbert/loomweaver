@@ -65,6 +65,7 @@ import { FeatureSwitches } from './features/feature-switches.service';
 import { PaneService } from './regions/pane/pane.service';
 import { SURFACE_PADDING } from './foundation/surface-padding';
 import { ANNOUNCE_UPDATES } from './update/announce-updates';
+import { ToolbarHost } from './regions/toolbar/toolbar-host.service';
 import {
   CompositionReport,
   installCompositionReport,
@@ -225,6 +226,7 @@ function startupRegistrations(
       registerWorkbenchContributions(options),
     ),
     provideEnvironmentInitializer(reportCompositionInDevelopment),
+    provideEnvironmentInitializer(() => inject(ToolbarHost)),
     provideEnvironmentInitializer(() => inject(KeybindingService).start()),
     provideEnvironmentInitializer(() => inject(LocaleService)),
     provideEnvironmentInitializer(() => inject(RailWorkspaceEntries).start()),

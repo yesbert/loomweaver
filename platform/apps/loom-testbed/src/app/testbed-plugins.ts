@@ -7,7 +7,7 @@ import {
   providePlugins,
   provideRequiredPlugins,
 } from '@loomweaver/shell';
-import { testbedPlugin } from '@loomweaver/testbed-weaver';
+import { testbedFillerPlugin, testbedPlugin } from '@loomweaver/testbed-weaver';
 import { testbedCapturePlugin } from './capture/testbed-capture-plugin';
 
 const SANDBOX_RPC: FramePlugin = {
@@ -23,7 +23,7 @@ const SANDBOX_REST: FramePlugin = {
   capabilities: ['contributions', 'navigation'],
 };
 
-const TRUSTED_PLUGINS = [testbedPlugin, testbedCapturePlugin];
+const TRUSTED_PLUGINS = [testbedPlugin, testbedFillerPlugin, testbedCapturePlugin];
 const SANDBOXED_PLUGINS = [SANDBOX_RPC, SANDBOX_REST];
 
 export function provideTestbedPlugins(): (Provider | EnvironmentProviders)[] {

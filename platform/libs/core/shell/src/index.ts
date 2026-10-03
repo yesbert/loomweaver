@@ -44,6 +44,11 @@ export { defineLwProgressRing } from './lib/elements/progress/lw-progress-ring.e
 export { defineLwSelect } from './lib/elements/select/lw-select.element';
 export * from './lib/elements/spinner/lw-spinner.element';
 export * from './lib/elements/tooltip/lw-tooltip.element';
+export {
+  defineLwToolbar,
+  LW_TOOLBAR_TAG,
+  type LwToolbarEntry,
+} from './lib/elements/toolbar/lw-toolbar.element';
 
 export * from './lib/features/feature-switches.service';
 

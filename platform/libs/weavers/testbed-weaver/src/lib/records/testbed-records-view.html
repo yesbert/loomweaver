@@ -1,0 +1,29 @@
+<div class="mx-auto flex max-w-2xl flex-col gap-3">
+  <h2 class="text-lg font-semibold text-content">
+    {{ 'testbed.records.heading' | transloco }}
+  </h2>
+  <p class="text-sm text-content-faint">
+    {{ 'testbed.records.intro' | transloco }}
+  </p>
+  <ul class="flex flex-col divide-y divide-border rounded-md border border-border">
+    @for (record of records; track record.id) {
+      <li
+        class="flex items-center gap-3 px-3 py-2"
+        [attr.data-testid]="'record-' + record.id"
+      >
+        <span class="min-w-0 flex-1 truncate text-sm text-content">{{ record.id }}</span>
+        <span class="text-xs text-content-faint">{{ record.kind }}</span>
+        <lw-toolbar
+          [attr.menu]="slot"
+          [attr.label]="'testbed.records.toolbar' | transloco"
+          size="sm"
+          [context]="contextOf(record)"
+        >
+          <span class="text-xs text-content-muted" order="100" data-lw-cell="own">{{
+            'testbed.records.own' | transloco
+          }}</span>
+        </lw-toolbar>
+      </li>
+    }
+  </ul>
+</div>

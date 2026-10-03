@@ -7,6 +7,7 @@ import { defineLwProgressRing } from './progress/lw-progress-ring.element';
 import { defineLwSelect } from './select/lw-select.element';
 import { defineLwSpinner } from './spinner/lw-spinner.element';
 import { defineLwTooltip } from './tooltip/lw-tooltip.element';
+import { defineLwToolbar } from './toolbar/lw-toolbar.element';
 
 export const LW_ELEMENT_DEFINITIONS: readonly (() => void)[] = [
   defineLwIcon,
@@ -18,6 +19,7 @@ export const LW_ELEMENT_DEFINITIONS: readonly (() => void)[] = [
   defineLwButton,
   defineLwProgressRing,
   defineLwSpinner,
+  defineLwToolbar,
 ];
 
 export function defineLwElements(): void {

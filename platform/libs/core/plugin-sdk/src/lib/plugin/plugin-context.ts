@@ -4,6 +4,7 @@ import { BarItem } from '../chrome/bar-item.js';
 import { MenuItem } from '../chrome/menu.js';
 import { RailItem } from '../chrome/rail-item.js';
 import { SettingsSection } from '../chrome/settings-section.js';
+import { Toolbar, ToolbarCell } from '../chrome/toolbar.js';
 import { CommandArguments } from '../commands/command-arguments.js';
 import {
   CommandOutcome,
@@ -118,6 +119,21 @@ export interface PluginContext {
    * Needs the `contributions` capability.
    */
   registerMenuItem(item: MenuItem): Disposable;
+  /**
+   * Registers a {@link Toolbar}: a menu slot of your own, drawn open wherever you place
+   * `<lw-toolbar menu="…">` in your content and filled by any plugin through {@link registerMenuItem}.
+   * A slot another plugin already registered a toolbar for is refused and reported.
+   *
+   * Needs the `contributions` capability.
+   */
+  registerToolbar(toolbar: Toolbar): Disposable;
+  /**
+   * Puts a component of your own into a toolbar, yours or another plugin's, as a {@link ToolbarCell}.
+   * Only for a plugin the workbench renders in the page.
+   *
+   * Needs the `contributions` capability.
+   */
+  registerToolbarCell(cell: ToolbarCell): Disposable;
   /**
    * Contributes custom icon names the plugin can then reference in its contributions
    * (`Command.icon` / `Surface.icon` / `RailItem.icon` / `BarButtonItem.icon`). Each value

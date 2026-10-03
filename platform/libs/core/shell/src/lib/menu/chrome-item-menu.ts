@@ -5,6 +5,7 @@ export interface ChromeItemMenu {
   readonly id?: string;
   readonly menu?: string;
   readonly menuTrigger?: MenuTrigger;
+  readonly submenu?: string;
   readonly menuHeader?: MenuHeader;
   readonly command?: string;
   readonly workspace?: string;
@@ -14,6 +15,9 @@ export interface ChromeItemMenu {
 const warned = new Set<string>();
 
 export function menuOnActivate(item: ChromeItemMenu): string | undefined {
+  if (item.submenu) {
+    return item.submenu;
+  }
   if (!item.menu || item.menuTrigger === undefined || item.menuTrigger === 'context') {
     return undefined;
   }

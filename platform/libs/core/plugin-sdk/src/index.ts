@@ -25,6 +25,7 @@ export * from './lib/surfaces/pane-area.js';
 export * from './lib/chrome/bar-item.js';
 export * from './lib/chrome/rail-item.js';
 export * from './lib/chrome/menu.js';
+export * from './lib/chrome/toolbar.js';
 export * from './lib/chrome/button.js';
 export * from './lib/chrome/settings-section.js';
 export * from './lib/chrome/frame-settings-section.js';

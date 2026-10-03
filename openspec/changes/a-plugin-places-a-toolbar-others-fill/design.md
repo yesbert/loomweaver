@@ -210,6 +210,41 @@ and follows the strings as `lw-menu` does. Rejected: deriving the name from the 
 description. A description is a set of named values for matching, not a sentence, and the workbench
 cannot know what the row of controls is for.
 
+**As built in slice 2: the element draws, the host decides.** `<lw-toolbar>`
+(`elements/toolbar/lw-toolbar.element.ts`) knows nothing of commands, sessions or words. It takes
+`entries` of a plain shape (`LwToolbarEntry`: key, worded label, icon, shortcut, pressed, disabled,
+whether it opens a menu, whether it has a context menu, group, order), draws native buttons with
+`.lw-icon-btn` and `<lw-tooltip>`, separators between groups, `role="toolbar"` with roving focus,
+`hidden` while it has nothing to draw, and reports every activation and right-click as an event
+(`lw-toolbar-select`, `lw-toolbar-context`). It folds on its own, into a tray it owns, so folding
+works the same inside an isolated surface where no `MenuService` exists; folded cells move into the
+tray whole, which is what the spec asks and what a menu could not hold. A rendered button carries
+`data-lw-entry="<id>"`; the end-to-end tests select by it, as they selected `data-surface-action`
+before. Children the plugin writes are cells, told apart from the element's own nodes by the
+absence of those markers; a `MutationObserver` re-renders when such a child arrives or leaves, and
+`refresh()` does the same on demand. The element finds its driver through a module-level bridge
+(`elements/toolbar/toolbar-bridge.ts`): whoever installs a host is told of every connected
+toolbar, including ones connected before the host arrived.
+
+The in-page driver is `ToolbarHost` (`regions/toolbar/toolbar-host.service.ts`), installed when
+the shell boots and whenever `SurfaceActions` injects it, so a spec rendering surface actions needs
+no extra wiring. Per attached toolbar it runs one effect over `SlotResolution`: the entries of the
+slot are the menu entries aimed at it plus, where the slot is a surface's `<id>/actions`, that
+surface's declared actions, both adapted to one `ToolbarEntry` shape
+(`regions/toolbar/toolbar-entries.ts`); each is resolved against the placement's context plus its
+own id, worded, and handed to the element. The first draw happens synchronously on attach and on
+every change the element reports, outside the reactive graph, because Angular sets the `context`
+property while rendering the plugin's template and a signal write there is an error. Cells are
+Angular components created with `TOOLBAR_CONTEXT` provided and appended into the element with their
+`order`. Activation runs through `CommandService.trigger(item, context)`, which gained the context
+and now also serves `MenuService`, so a menu entry and a toolbar entry run the same way; an entry
+whose slot offers something opens that slot beside the button through `MenuService.open`.
+
+Two things moved from the plan. `TOOLBAR_CONTEXT` lives in the SDK, not the shell: a weaver may
+import only the contract, and the cell that injects it is a weaver's component. Toolbars have a
+registry of their own (`contributions/toolbar-registry.ts`) rather than growing the contribution
+registry past its line limit; it is also where the actions slot of a surface is named.
+
 **Frame RPC: `watchSlot` / `unwatchSlot`, data only.** The surface channel gains
 `watchSlot(slot, context)` returning a subscription id, with the host pushing
 `slotChanged(subscriptionId, entries)` whenever the resolution's inputs change, and `unwatchSlot`.

@@ -289,5 +289,19 @@
     "beta": "Beta",
     "new": "New",
     "flagged": "Flagged"
+  },
+  "records": {
+    "title": "Records",
+    "heading": "Records",
+    "intro": "Every row carries the same toolbar, placed by this plugin and filled by another: an entry only notes get, a menu others fill, a cell another plugin draws, and a word of this plugin’s own.",
+    "toolbar": "Record tools",
+    "open": "Open record",
+    "own": "a cell the owner placed itself"
+  },
+  "filler": {
+    "star": "Star this record",
+    "sources": "Sources",
+    "import": "Import from a source",
+    "imported": "Imported"
   }
 }

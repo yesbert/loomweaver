@@ -15,6 +15,11 @@ import type { MockInstance } from 'vitest';
 import { provideRequiredPlugins } from '../foundation/required-plugins';
 import { FRAME_PLUGIN, FramePlugin } from '../plugin/frame/frame-plugin';
 import { ActivationSettled } from '../plugin/activation-settled';
+import { ToolbarRegistry } from '../contributions/toolbar-registry';
+import {
+  entryToContentRoute,
+  surfaceToEntry,
+} from '../contributions/surface-normalize';
 
 const LAYOUT: ShellLayout = {
   regions: [
@@ -440,6 +445,27 @@ describe('CompositionReport: a menu entry aimed at a slot nothing declares', () 
     app.report.print();
 
     expect(warnings()).toEqual([]);
+  });
+
+  it('is not reported where a registered toolbar or a surface’s actions slot declares it', () => {
+    const app = setUp();
+    app.registry.addCommand({ id: 'c.one', title: 't', run: () => undefined });
+    TestBed.inject(ToolbarRegistry).addToolbar({ slot: 'acme.records/toolbar', title: 't' }, 'acme');
+    app.registry.addContentRoute(
+      entryToContentRoute(
+        surfaceToEntry({ id: 'reports', title: 't', routable: { path: 'reports' }, component: Stub }),
+      ),
+    );
+    app.registry.addMenuItem({ menu: 'acme.records/toolbar', command: 'c.one' }, 'scanner');
+    app.registry.addMenuItem({ menu: 'reports/actions', command: 'c.one' }, 'scanner');
+    app.registry.addMenuItem({ menu: 'acme.records/toolbar', title: 't', submenu: 'acme.records/sources' }, 'scanner');
+    app.registry.addMenuItem({ menu: 'acme.records/sources', command: 'c.one' }, 'scanner');
+    app.registry.addMenuItem({ menu: 'nobody/actions', command: 'c.one' }, 'scanner');
+
+    app.report.print();
+
+    expect(warnings()).toHaveLength(1);
+    expect(warnings()[0]).toContain("slot 'nobody/actions'");
   });
 
   it('is reported after activation has settled and the registrations have landed, not at registration', async () => {
