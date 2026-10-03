@@ -12,9 +12,8 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { DockPosition } from '../../layout/layout';
 import { TooltipPosition } from '../../elements/tooltip/lw-tooltip.element';
 import { CommandService } from '../../commands/command.service';
-import { AuthContext } from '../../auth/auth-context';
 import { MenuContext } from '@loomweaver/plugin-sdk';
-import { ChromeItemOffers } from '../../menu/chrome-item-offers';
+import { SlotResolution } from '../../menu/slot-resolution.service';
 import { MenuTriggerDirective } from '../../menu/menu-trigger.directive';
 import {
   menuOnContext,
@@ -26,7 +25,7 @@ import {
   BarComponentItem,
   BarItem,
 } from '../../foundation/bar-item';
-import { BAR_CONTEXT } from './bar-context';
+import { BAR_CONTEXT, barMenuContext } from './bar-context';
 
 const MENU_SIDE_BY_DOCK: Readonly<Record<DockPosition, MenuSide>> = {
   top: 'bottom',
@@ -49,8 +48,7 @@ export class ShellBarItem {
   readonly dock = input.required<DockPosition>();
 
   private readonly commands = inject(CommandService);
-  private readonly offers = inject(ChromeItemOffers);
-  private readonly auth = inject(AuthContext);
+  private readonly slots = inject(SlotResolution);
   private readonly injector = inject(Injector);
 
   protected readonly asComponent = computed<BarComponentItem | null>(() => {
@@ -62,6 +60,12 @@ export class ShellBarItem {
     return 'component' in item ? null : item;
   });
   private readonly brokenPicture = signal(false);
+  private readonly resolved = computed(() => {
+    const button = this.asButton();
+    return button
+      ? this.slots.resolve([button], barMenuContext).at(0)
+      : undefined;
+  });
 
   protected readonly tooltipPosition = computed<TooltipPosition>(() =>
     this.dock() === 'bottom' ? 'top' : 'bottom',
@@ -73,16 +77,12 @@ export class ShellBarItem {
     const button = this.asButton();
     return button ? menuOnContext(button) : undefined;
   });
-  protected readonly menuContext = computed<MenuContext>(() => {
-    const item = this.item();
-    return { targetKind: 'bar-item', id: item.id, bar: item.bar };
-  });
-  protected readonly activateMenu = computed<string | undefined>(() => {
-    const button = this.asButton();
-    return button
-      ? this.offers.menuOnActivation(button, this.menuContext())
-      : undefined;
-  });
+  protected readonly menuContext = computed<MenuContext>(() =>
+    barMenuContext(this.item()),
+  );
+  protected readonly activateMenu = computed<string | undefined>(
+    () => this.resolved()?.opensMenu,
+  );
 
   protected readonly componentInjector = computed<Injector>(() => {
     const item = this.item();
@@ -97,18 +97,12 @@ export class ShellBarItem {
     });
   });
 
-  protected readonly disabled = computed(() =>
-    this.auth.disabled(this.asButton()?.access),
+  protected readonly disabled = computed(
+    () => this.resolved()?.disabled ?? false,
   );
-  protected readonly shortcut = computed<string | undefined>(() => {
-    const button = this.asButton();
-    if (!button?.showShortcut || !button.command) {
-      return;
-    }
-    return this.commands.shortcutOf(
-      this.commands.commands().find((entry) => entry.id === button.command),
-    );
-  });
+  protected readonly shortcut = computed<string | undefined>(() =>
+    this.asButton()?.showShortcut ? this.resolved()?.shortcut : undefined,
+  );
 
   protected pictureOf(button: BarButtonItem): string | undefined {
     return this.brokenPicture() ? undefined : button.image;

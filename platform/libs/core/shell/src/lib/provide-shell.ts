@@ -206,6 +206,7 @@ function reportCompositionInDevelopment(): void {
   }
   const report = inject(CompositionReport);
   report.checkStaticContributions();
+  void report.reportUndeclaredSlotsOnceSettled();
   installCompositionReport(report);
 }
 

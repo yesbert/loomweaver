@@ -262,7 +262,11 @@ describe('CompositionReport', () => {
   it('reports a menu entry whose command an omit removed', () => {
     const app = setUp();
     app.registry.addCommand({ id: 'c.one', title: 't', run: () => undefined });
-    app.registry.addMenuItem({ id: 'menu:c.one', menu: 'm', command: 'c.one' });
+    app.registry.addMenuItem({
+      id: 'menu:c.one',
+      menu: 'content/tab/context',
+      command: 'c.one',
+    });
     app.registry.omit(['c.one']);
 
     app.report.print();
@@ -366,5 +370,110 @@ describe('CompositionReport', () => {
     expect(String(warn.mock.calls[0][0])).toContain(
       "declares no 'panel' region",
     );
+  });
+});
+
+describe('CompositionReport: a menu entry aimed at a slot nothing declares', () => {
+  let warn: MockInstance;
+  let info: MockInstance;
+
+  beforeEach(() => {
+    warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    info = vi.spyOn(console, 'info').mockImplementation(() => undefined);
+  });
+
+  afterEach(() => {
+    warn.mockRestore();
+    info.mockRestore();
+    vi.useRealTimers();
+  });
+
+  function warnings(): string[] {
+    return warn.mock.calls.map((call) => String(call[0]));
+  }
+
+  it('is named with its slot and the plugin that contributed it', () => {
+    const app = setUp();
+    app.registry.addCommand({ id: 'c.one', title: 't', run: () => undefined });
+    app.registry.addMenuItem({ menu: 'nobody/owns', command: 'c.one' }, 'scanner');
+
+    app.report.print();
+
+    expect(warnings()).toHaveLength(1);
+    expect(warnings()[0]).toContain("menu entry in 'nobody/owns'");
+    expect(warnings()[0]).toContain('from plugin "scanner"');
+    expect(warnings()[0]).toContain("slot 'nobody/owns'");
+  });
+
+  it('is not reported where a control, an action or the workbench declares the slot', () => {
+    const app = setUp();
+    app.registry.addCommand({ id: 'c.one', title: 't', run: () => undefined });
+    app.registry.addRailItem({
+      id: 'r',
+      rail: 'activity',
+      icon: 'x',
+      title: 't',
+      menu: 'acme/rail',
+      menuTrigger: 'primary',
+    });
+    app.registry.addBarItem({
+      id: 'b',
+      bar: 'top-bar',
+      slot: 'end',
+      icon: 'x',
+      tooltip: 't',
+      menu: 'acme/bar',
+      menuTrigger: 'primary',
+    });
+    app.registry.addView({
+      id: 'v',
+      region: 'primary',
+      title: 't',
+      component: Stub,
+      actions: [{ id: 'a', icon: 'x', title: 't', menu: 'acme/view', menuTrigger: 'primary' }],
+    });
+    for (const menu of ['acme/rail', 'acme/bar', 'acme/view', 'content/tab/context']) {
+      app.registry.addMenuItem({ menu, command: 'c.one' });
+    }
+
+    app.report.print();
+
+    expect(warnings()).toEqual([]);
+  });
+
+  it('is reported after activation has settled and the registrations have landed, not at registration', async () => {
+    vi.useFakeTimers();
+    const app = setUp();
+    app.registry.addCommand({ id: 'c.one', title: 't', run: () => undefined });
+    app.registry.addMenuItem({ menu: 'late/owner', command: 'c.one' }, 'filler');
+    const reported = app.report.reportUndeclaredSlotsOnceSettled();
+    expect(warnings()).toEqual([]);
+
+    await vi.advanceTimersByTimeAsync(1000);
+    await reported;
+
+    expect(warnings()).toHaveLength(1);
+    expect(warnings()[0]).toContain("slot 'late/owner'");
+  });
+
+  it('is not reported when a later plugin declares the slot before the report runs', async () => {
+    vi.useFakeTimers();
+    const app = setUp();
+    app.registry.addCommand({ id: 'c.one', title: 't', run: () => undefined });
+    app.registry.addMenuItem({ menu: 'late/owner', command: 'c.one' }, 'filler');
+    const reported = app.report.reportUndeclaredSlotsOnceSettled();
+    app.registry.addRailItem({
+      id: 'owner',
+      rail: 'activity',
+      icon: 'x',
+      title: 't',
+      menu: 'late/owner',
+      menuTrigger: 'primary',
+    });
+
+    await vi.advanceTimersByTimeAsync(1000);
+    await reported;
+
+    expect(warnings()).toEqual([]);
   });
 });

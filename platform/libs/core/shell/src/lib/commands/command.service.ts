@@ -14,7 +14,7 @@ import { formatChord } from './keyboard/format-chord';
 
 export interface Triggerable {
   readonly command?: string;
-  run?(): void | Promise<void>;
+  run?(): unknown;
 }
 
 /**

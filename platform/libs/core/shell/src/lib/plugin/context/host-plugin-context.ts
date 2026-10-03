@@ -222,7 +222,7 @@ export class HostPluginContext implements PluginContext {
 
   registerMenuItem(item: MenuItem): Disposable {
     this.require('contributions');
-    return this.track(this.registry.addMenuItem(item));
+    return this.track(this.registry.addMenuItem(item, this.pluginId));
   }
 
   contributeIcons(icons: Readonly<Record<string, string>>): Disposable {

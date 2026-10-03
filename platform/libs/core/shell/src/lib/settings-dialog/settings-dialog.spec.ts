@@ -1,10 +1,12 @@
-import { DialogRef } from '@loomweaver/plugin-sdk';
-import { Component, signal } from '@angular/core';
+import { ANONYMOUS, AuthSnapshot, DialogRef } from '@loomweaver/plugin-sdk';
+import { Component, Provider, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { SettingsDialog } from './settings-dialog';
 import { SettingsService } from './settings.service';
 import { SettingsSection } from './settings-model';
+import { AUTH_SOURCE } from '../auth/auth-context';
+import { ContributionRegistry } from '../contributions/contribution-registry';
 
 @Component({
   selector: 'lw-probe',
@@ -27,11 +29,16 @@ function transloco() {
   });
 }
 
-function render(section?: SettingsSection) {
+function render(
+  section?: SettingsSection,
+  providers: Provider[] = [],
+  arrange: (registry: ContributionRegistry) => void = () => undefined,
+) {
   TestBed.configureTestingModule({
     imports: [SettingsDialog, transloco()],
-    providers: [{ provide: DialogRef, useValue: new DialogRef() }],
+    providers: [{ provide: DialogRef, useValue: new DialogRef() }, ...providers],
   });
+  arrange(TestBed.inject(ContributionRegistry));
   if (section) {
     TestBed.inject(SettingsService).register(section);
   }
@@ -147,5 +154,34 @@ describe('SettingsDialog', () => {
 
     expect(host.textContent).toContain('No settings available');
     expect(host.querySelector('nav button')).toBeNull();
+  });
+  it('drops a button row whose command the session may not run, and shows it once the session qualifies', () => {
+    const auth = signal<AuthSnapshot>(ANONYMOUS);
+    const { host, fixture } = render(
+      {
+        id: 'sec',
+        title: 'sec.title',
+        rows: [
+          {
+            id: 'sec.row',
+            label: 'sec.row',
+            control: { kind: 'button', label: 'sec.act', command: 'sec.purge' },
+          },
+        ],
+      },
+      [{ provide: AUTH_SOURCE, useValue: auth }],
+      (registry) =>
+        registry.addCommand({
+          id: 'sec.purge',
+          title: 'sec.act',
+          access: { authenticated: true },
+          run: () => undefined,
+        }),
+    );
+    expect(host.textContent).toContain('No settings available');
+
+    auth.set({ authenticated: true, roles: [], claims: {} });
+    fixture.detectChanges();
+    expect(host.querySelector('nav button')).not.toBeNull();
   });
 });

@@ -17,14 +17,16 @@ import {
 } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../contributions/contribution-registry';
 import { CommandService } from '../commands/command.service';
+import { AuthContext } from '../auth/auth-context';
 import { HEADING_KEY } from './menu-heading';
 import { followed, MenuAnchor, place } from './menu-placement';
 import { MenuLabel } from './menu-wording';
 import { drawMenu, MenuRow, WordedMenu } from './menu-drawing';
 import {
   headingCommand,
-  ResolvedItem,
-  resolveMenuItems,
+  ResolvedEntry,
+  resolveSlot,
+  slotSources,
 } from './menu-resolution';
 import { wordingChanges } from '../i18n/wording';
 import {
@@ -45,6 +47,12 @@ interface OpenMenu {
   readonly wording: Subscription;
 }
 
+type LabelledEntry = ResolvedEntry<MenuItem> & { readonly title: string };
+
+function labelled(entry: ResolvedEntry<MenuItem>): entry is LabelledEntry {
+  return entry.title !== undefined;
+}
+
 export interface MenuListEntry {
   readonly key: string;
   readonly label: MenuLabel;
@@ -58,6 +66,8 @@ export class MenuService {
   private readonly registry = inject(ContributionRegistry);
 
   private readonly commands = inject(CommandService);
+
+  private readonly auth = inject(AuthContext);
 
   private readonly transloco = inject(TranslocoService);
 
@@ -82,17 +92,11 @@ export class MenuService {
     options: MenuOpenOptions = {},
   ): void {
     this.close();
-    const commands = this.usableCommands();
-    const resolved = resolveMenuItems(
+    const resolved = this.resolve(
       typeof menuId === 'string' ? [menuId] : menuId,
       context,
-      {
-        menuItems: this.registry.menuItems(),
-        commands,
-        shortcutOf: (command) => this.commands.shortcutOf(command),
-      },
     );
-    const leadsTo = headingCommand(options.header, commands);
+    const leadsTo = headingCommand(options.header, this.usableCommands());
     if (resolved.length === 0 && !leadsTo) {
       return;
     }
@@ -124,13 +128,10 @@ export class MenuService {
     context: MenuContext,
     header?: MenuHeader,
   ): boolean {
-    const usable = this.usableCommands();
-    const resolved = resolveMenuItems([menuId], context, {
-      menuItems: this.registry.menuItems(),
-      commands: usable,
-      shortcutOf: () => undefined,
-    });
-    return resolved.length > 0 || headingCommand(header, usable) !== undefined;
+    return (
+      this.resolve([menuId], context).length > 0 ||
+      headingCommand(header, this.usableCommands()) !== undefined
+    );
   }
 
   openList(
@@ -237,6 +238,21 @@ export class MenuService {
     }
   }
 
+  private resolve(
+    menuIds: readonly string[],
+    context: MenuContext,
+  ): LabelledEntry[] {
+    return resolveSlot(
+      this.registry.menuItems().filter((item) => menuIds.includes(item.menu)),
+      () => context,
+      slotSources({
+        registry: this.registry,
+        commands: this.commands,
+        auth: this.auth,
+      }),
+    ).filter((entry) => labelled(entry));
+  }
+
   private usableCommands(): readonly Command[] {
     return this.registry
       .commands()
@@ -244,7 +260,7 @@ export class MenuService {
   }
 }
 
-function resolvedRow(entry: ResolvedItem): MenuRow {
+function resolvedRow(entry: LabelledEntry): MenuRow {
   return {
     key: entry.key,
     label: entry.title,

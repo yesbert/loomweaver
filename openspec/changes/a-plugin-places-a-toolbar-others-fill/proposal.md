@@ -27,8 +27,8 @@ In three slices, each its own pull request, in this order.
 start agreeing with each other.
 
 - Every place that draws contributed commands resolves them the same way: launcher entries, bar
-  buttons, surface actions, the command search and menus all drop an item naming a command the
-  session may not run, in the main window as in a detached one. This is a defect fix against the
+  buttons, surface actions, settings buttons, the command search and menus all drop an item naming
+  a command the session may not run, in the main window as in a detached one. This is a defect fix against the
   access-gating guarantee that the reaction to the session is uniform across the workbench.
 - A menu slot is **declared**: by the workbench for its own, by a control that names it, by a
   toolbar a plugin registers. An entry contributed to a slot nothing declares is reported to the
@@ -94,6 +94,8 @@ None. A toolbar is a menu slot that is drawn differently, and belongs with menus
   by a plugin in the page.
 - `plugin-sandbox`: an isolated surface may ask what a slot offers and is told reactively, and may
   trigger an entry; what it is told carries no code.
+- `ui-primitives`: *A row that cannot work is not drawn* covers a settings button whose command the
+  session may not run, found by the inventory as the sixth place that read the command on its own.
 - `shell-layout`: *Each kind of region has a fixed anatomy* states that a toolbar is not a region
   and is not placed by the distribution, so that the rule about sub-slots is not read against it.
 

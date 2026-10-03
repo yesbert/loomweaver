@@ -6,15 +6,15 @@
     [class.px-2]="inStrip()"
     data-testid="surface-actions"
   >
-    @for (action of actions(); track action.id) {
+    @for (entry of actions(); track entry.item.id) {
       <button
         type="button"
-        (click)="run(action)"
-        [disabled]="disabled(action)"
-        [lwMenu]="contextMenuOf(action)"
-        [lwMenuOnActivate]="activateMenuOf(action)"
-        [lwMenuHeader]="action.menuHeader"
-        [lwMenuContext]="contextOf(action)"
+        (click)="run(entry)"
+        [disabled]="entry.disabled"
+        [lwMenu]="contextMenuOf(entry.item)"
+        [lwMenuOnActivate]="entry.opensMenu"
+        [lwMenuHeader]="entry.item.menuHeader"
+        [lwMenuContext]="contextOf(entry.item)"
         class="lw-icon-btn rounded-md disabled:pointer-events-none disabled:opacity-40"
         [class.h-8]="inStrip()"
         [class.w-8]="inStrip()"
@@ -22,12 +22,12 @@
         [class.w-10]="!inStrip()"
         [class.md:h-7]="!inStrip()"
         [class.md:w-7]="!inStrip()"
-        [attr.aria-label]="action.title | transloco"
-        [attr.aria-pressed]="action.pressed"
-        [attr.data-surface-action]="action.id"
+        [attr.aria-label]="entry.item.title | transloco"
+        [attr.aria-pressed]="entry.item.pressed"
+        [attr.data-surface-action]="entry.item.id"
       >
-        <lw-icon [name]="action.icon" size="1rem" />
-        <lw-tooltip [text]="action.title | transloco" position="bottom" />
+        <lw-icon [name]="entry.item.icon" size="1rem" />
+        <lw-tooltip [text]="entry.item.title | transloco" position="bottom" />
       </button>
     }
   </div>

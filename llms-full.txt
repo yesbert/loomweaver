@@ -566,6 +566,9 @@ interface PluginSession {           // ctx.session ([session] cap): imperative s
 // Auth-aware access gating. LoomWeaver owns NO auth (login/session/IdP = the product, via provideAuthSource).
 // A contribution declares `access`; the host hides (default) / disables / blocks it by login state + roles. Coarse, no
 // expression parser. `mode` applies to chrome items; a whole view / command / route is present-or-not (mode ignored).
+// A control that names a command (rail item, bar button, view action, settings button, menu entry) is drawn only while the
+// session may run that command, whether or not the control declares an `access` of its own; the control's own `access` is
+// applied first in the mode it asks for, the command's after and hide-only. One rule for every dock and the palette.
 // CLIENT-SIDE GATING IS PRESENTATION, NOT SECURITY — the real boundary is server-side.
 interface AccessRequirement { authenticated?: boolean; anyRole?: readonly string[]; allRoles?: readonly string[]; mode?: 'hide' | 'disable'; }
 // Dialog tones: 'default'|'info'|'success'|'warning'|'danger'. requireConfirmation.validate: (v) => string|null (null=allow, ''=block silently).
@@ -1048,9 +1051,10 @@ class CommandService { commands: Signal<readonly Command[]>; execute(id, context
 interface CommandInvoker { invocable(callerId, granted): readonly InvocableCommand[]; invoke(callerId, granted, id, args?): Promise<CommandOutcome> }   // the seam a plugin's invokeCommand goes through
 const COMMAND_INVOKER: InjectionToken<CommandInvoker>;  class CommandInvocationService implements CommandInvoker {}   // the shell's own; provide another to sit between an agent and the commands
 class KeybindingService { start(): void }   // the one global key listener; chords are ignored while shortcuts are switched off
-class ContributionRegistry { registeredCommands: Signal<readonly RegisteredCommand[]>; commands; views; barItems; railItems; menuItems; contentRoutes: Signal<readonly RegisteredContentRoute[]>;
+class ContributionRegistry { registeredCommands: Signal<readonly RegisteredCommand[]>; commands; views; barItems; railItems; registeredMenuItems: Signal<readonly RegisteredMenuItem[]>; menuItems; contentRoutes: Signal<readonly RegisteredContentRoute[]>;
   omittedContentRoutes; omitted: Signal<ReadonlySet<string>>; registeredIds: Signal<ReadonlySet<string>>; omit(ids): void; add*/remove* per kind }
 interface RegisteredCommand { command: Command; ownerId?: string }   // the host stamps the owner; the shell's own carry none, which is what tells plugins' commands apart
+interface RegisteredMenuItem { item: MenuItem; ownerId?: string }   // the same stamp on a menu entry, so an entry aimed at a slot nothing declares is reported with its plugin
 class DialogService { dialogs: Signal<readonly DialogInstance[]>; confirm; alert; prompt; open; progress; withProgress }   // the same seam ctx.ui uses
 interface DialogInstance { id; ref: DialogRef; kind: DialogKind; tone: DialogTone; icon?; title?; message?; component?; buttons: readonly DialogButtonView[]; dismiss: DialogDismiss; size?; bare?; maximizable?; align? }
 type DialogKind = 'confirm' | 'alert' | 'prompt' | 'custom' | 'progress';  interface DialogButtonView { label; variant: LwButtonVariant; role: ButtonRole; value?; autofocus }  type ButtonRole = 'confirm' | 'cancel' | 'custom';

@@ -193,6 +193,14 @@ actions: [
 A menu that is only on the right-click changes nothing about its control: that control has a purpose
 of its own and stays.
 
+A slot exists because something declares it: a menu the workbench draws, a rail item, bar button or
+surface action that names it as its `menu`, or a toolbar a plugin registers. An entry aimed at a
+slot nothing declares is kept, so it appears the moment the slot is declared, and is reported to the
+developer once the composed plugins have finished activating: in the browser console, and in
+[`loomweaver.report()`](../building-a-distribution.md#seeing-what-you-composed). It is not reported
+at registration time, because the plugin that fills a slot may well activate before the plugin that
+owns it. The usual cause is a typo in the slot id, or an owner the distribution did not compose.
+
 ## A picture where you have one
 
 A rail item, a bar button and a menu heading all take

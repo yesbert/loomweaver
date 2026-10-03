@@ -5,6 +5,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { SettingsRegistry } from './settings-registry';
 import { SettingButton, SettingRow, SettingsSection } from './settings-model';
 import { CommandService } from '../commands/command.service';
+import { SlotResolution } from '../menu/slot-resolution.service';
 import { WideDialogFrame } from '../dialog/wide-dialog-frame';
 import { LwButton } from '../elements/button/lw-button';
 import { LwSettingRow } from './lw-setting-row';
@@ -31,6 +32,8 @@ export class SettingsDialog {
   private readonly registry = inject(SettingsRegistry);
 
   private readonly commands = inject(CommandService);
+
+  private readonly slots = inject(SlotResolution);
 
   private readonly ref = inject(DialogRef);
 
@@ -86,7 +89,8 @@ export class SettingsDialog {
 
   private live(row: SettingRow): boolean {
     return (
-      row.control.kind !== 'button' || this.commands.triggerable(row.control)
+      row.control.kind !== 'button' ||
+      this.slots.resolve([row.control], () => ({})).length > 0
     );
   }
 }

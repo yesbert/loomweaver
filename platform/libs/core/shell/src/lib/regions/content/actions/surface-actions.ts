@@ -8,17 +8,15 @@ import {
 } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { MenuContext, ViewAction } from '@loomweaver/plugin-sdk';
-import { AuthContext } from '../../../auth/auth-context';
 import { CommandService } from '../../../commands/command.service';
 import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import {
-  menuOnActivate,
   menuOnContext,
   warnMenuTriggerConflict,
 } from '../../../menu/chrome-item-menu';
 import { MenuTriggerDirective } from '../../../menu/menu-trigger.directive';
-import { ChromeItemOffers } from '../../../menu/chrome-item-offers';
-import { PopoutWindow } from '../../../popout/popout-window';
+import { ResolvedEntry } from '../../../menu/menu-resolution';
+import { SlotResolution } from '../../../menu/slot-resolution.service';
 import { surfaceForPanePath } from '../../pane/pane-surface';
 
 @Component({
@@ -33,11 +31,7 @@ export class SurfaceActions {
 
   private readonly commands = inject(CommandService);
 
-  private readonly auth = inject(AuthContext);
-
-  private readonly offers = inject(ChromeItemOffers);
-
-  private readonly popout = inject(PopoutWindow).active;
+  private readonly slots = inject(SlotResolution);
 
   readonly path = input<string | undefined>();
 
@@ -57,24 +51,13 @@ export class SurfaceActions {
   });
 
   protected readonly actions = computed(() =>
-    this.registry
-      .actionsOf(this.surfaceId())
-      .filter((action) => this.auth.visible(action.access))
-      .filter((action) => this.belongsInThisWindow(action))
-      .filter(
-        (action) =>
-          menuOnActivate(action) === undefined ||
-          this.offers.offered(action, this.contextOf(action)),
-      )
-      .toSorted((a, b) => (a.order ?? 0) - (b.order ?? 0)),
+    this.slots.resolve(this.registry.actionsOf(this.surfaceId()), (action) =>
+      this.contextOf(action),
+    ),
   );
 
   protected contextMenuOf(action: ViewAction): string | undefined {
     return menuOnContext(action);
-  }
-
-  protected activateMenuOf(action: ViewAction): string | undefined {
-    return this.offers.menuOnActivation(action, this.contextOf(action));
   }
 
   protected contextOf(action: ViewAction): MenuContext {
@@ -86,28 +69,14 @@ export class SurfaceActions {
     };
   }
 
-  protected disabled(action: ViewAction): boolean {
-    return this.auth.disabled(action.access);
-  }
-
-  protected run(action: ViewAction): void {
-    if (this.disabled(action)) {
+  protected run(entry: ResolvedEntry<ViewAction>): void {
+    if (entry.disabled) {
       return;
     }
-    warnMenuTriggerConflict(action);
-    if (this.activateMenuOf(action)) {
+    warnMenuTriggerConflict(entry.item);
+    if (entry.opensMenu) {
       return;
     }
-    this.commands.trigger(action);
-  }
-
-  private belongsInThisWindow(action: ViewAction): boolean {
-    if (!this.popout || action.command === undefined) {
-      return true;
-    }
-    const command = this.commands
-      .commands()
-      .find((candidate) => candidate.id === action.command);
-    return command !== undefined && this.commands.available(command);
+    this.commands.trigger(entry.item);
   }
 }

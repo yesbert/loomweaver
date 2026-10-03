@@ -1,4 +1,4 @@
-import { Command } from '@loomweaver/plugin-sdk';
+import { ResolvedEntry } from '../../menu/menu-resolution';
 import { matching, ranked } from './palette-fuzzy';
 
 export interface CommandRow {
@@ -14,22 +14,23 @@ export interface CommandSections {
   readonly others: readonly CommandRow[];
 }
 
-export interface CommandWording {
-  readonly translate: (key: string) => string;
-  readonly shortcutOf: (command: Command) => string | undefined;
-}
-
 export function commandRows(
-  commands: readonly Command[],
-  wording: CommandWording,
+  entries: readonly ResolvedEntry[],
+  translate: (key: string) => string,
 ): readonly CommandRow[] {
-  return commands.map((command) => ({
-    kind: 'command',
-    id: command.id,
-    label: wording.translate(command.title),
-    icon: command.icon,
-    shortcut: wording.shortcutOf(command),
-  }));
+  return entries.flatMap((entry) =>
+    entry.command === undefined
+      ? []
+      : [
+          {
+            kind: 'command' as const,
+            id: entry.command.id,
+            label: translate(entry.command.title),
+            icon: entry.icon,
+            shortcut: entry.shortcut,
+          },
+        ],
+  );
 }
 
 export function commandSections(

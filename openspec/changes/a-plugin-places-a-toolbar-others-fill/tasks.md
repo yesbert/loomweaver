@@ -2,58 +2,61 @@
 
 ### 0. Inventory, before a line is written
 
-- [ ] 0.1 Side by side, from source: how `shell-rail.ts`, `shell-bar.ts`, `shell-bar-item.ts`,
+- [x] 0.1 Side by side, from source: how `shell-rail.ts`, `shell-bar.ts`, `shell-bar-item.ts`,
   `surface-actions.ts`, `command-rows.ts`, `rail-curation.ts` and `menu.service.ts` each filter
   (access, offered, triggerable, available, pop-out), sort, label, icon, tooltip, shortcut and run
   an item. One table, one row per concern, one column per dock, with the line each lives on
-- [ ] 0.2 From that table: which concerns `resolveSlot` absorbs, which stay dock-specific and why
+- [x] 0.2 From that table: which concerns `resolveSlot` absorbs, which stay dock-specific and why
   (the spec names the reason or the row is a duplication to remove), and which existing helper
   each absorbed concern already has (`ChromeItemOffers`, `chrome-item-menu.ts`,
   `MenuTriggerDirective`, `bar-fold.ts`, `roving-focus.ts`, `picture-primitives.ts`,
   `warnMenuTriggerConflict`) so none is written a second time
-- [ ] 0.3 The picture → initials → icon ladder in `shell-rail.html` and `shell-bar-item.html`, with
+- [x] 0.3 The picture → initials → icon ladder in `shell-rail.html` and `shell-bar-item.html`, with
   their two `brokenPicture` signals: one shared piece, used by both and by the toolbar
-- [ ] 0.4 Every test that pins today's dock behaviour, listed, so slice 1 can show which it keeps
+- [x] 0.4 Every test that pins today's dock behaviour, listed, so slice 1 can show which it keeps
   green and which it changes on purpose
-- [ ] 0.5 The result goes into design.md under *Context* before slice 1 starts; a concern the table
+- [x] 0.5 The result goes into design.md under *Context* before slice 1 starts; a concern the table
   shows to be shared but not listed in this plan is added to the plan, not worked around
 
 ## Slice 1 — one resolution, declared slots
 
 ### 1. Pin it
 
-- [ ] 1.1 `menu-resolution.spec.ts`: the one function drops an entry whose command the session may
+- [x] 1.1 `menu-resolution.spec.ts`: the one function drops an entry whose command the session may
   not run, or that does not belong in a detached window, and marks `pressed` and `opensMenu`
-- [ ] 1.2 `shell-rail.spec.ts`, `shell-bar.spec.ts`, `surface-actions.spec.ts`: a control declaring
+- [x] 1.2 `shell-rail.spec.ts`, `shell-bar.spec.ts`, `surface-actions.spec.ts`: a control declaring
   no requirement and naming a command with one is absent while the session does not qualify and
   present once it does, in the main window; these fail on the old code
-- [ ] 1.3 `command-rows.spec.ts`: the palette rows come from the same function and are unchanged
-- [ ] 1.4 `composition-checks.spec.ts`: an entry aimed at a slot no control, toolbar or built-in
+- [x] 1.3 `command-palette.spec.ts` unchanged and green: the palette rows come from the same
+  function; `settings-dialog.spec.ts`: a button row naming a command the session may not run is
+  dropped with its section and returns with the session
+- [x] 1.4 `composition-checks.spec.ts`: an entry aimed at a slot no control, toolbar or built-in
   menu declares is reported with entry, slot and plugin; one declared by a later plugin is not;
   the testbed's three slots are declared by their controls
-- [ ] 1.5 Testbed fixture: a rail entry naming a role-gated command without a requirement of its
+- [x] 1.5 Testbed fixture: a rail entry naming a role-gated command without a requirement of its
   own, beside the existing sign-in switch, and an end-to-end case that sees it appear with the role
 
 ### 2. Build
 
-- [ ] 2.1 `resolveSlot` in `menu/`: `resolveMenuItems` plus the `available` and pop-out rules that
+- [x] 2.1 `resolveSlot` in `menu/`: `resolveMenuItems` plus the `available` and pop-out rules that
   `MenuService` applies afterwards, returning `pressed`, `opensMenu` and the contributing plugin;
   `MenuService` reads it
-- [ ] 2.2 Rail, bar item and surface actions map their items through it; their own
+- [x] 2.2 Rail, bar item and surface actions map their items through it; their own
   `isShownHere`/`belongsInThisWindow`/`contributed` filters shrink to the item-level `access` and
   `offered` checks the spec keeps
-- [ ] 2.3 The palette's `commandRows` reads the same function
-- [ ] 2.4 `declaredSlots` computed from rail items, bar buttons, surface actions, registered
+- [x] 2.3 The palette's `commandRows` reads the same function, and so does the settings dialog's
+  button row, the sixth reader the inventory found
+- [x] 2.4 `declaredSlots` computed from rail items, bar buttons, surface actions, registered
   toolbars and the built-in slot list; `undeclaredSlots` in `composition-checks.ts`; the
   post-activation development warning and the store's install path run it
-- [ ] 2.5 `docs/weaver/menus.md` and `docs/weaver/access-gating.md`: the command's requirement
+- [x] 2.5 `docs/weaver/menus.md` and `docs/weaver/access-gating.md`: the command's requirement
   decides whether a control is drawn; `llms-full.txt`
 
 ### 3. Verify and close
 
-- [ ] 3.1 The full shell suite, lint, `nx package shell`, the docs checks, the structure check
-- [ ] 3.2 The full end-to-end suite
-- [ ] 3.3 `openspec validate --all --strict`; release notes name the hidden-control change
+- [x] 3.1 The full shell suite, lint, `nx package shell`, the docs checks, the structure check
+- [x] 3.2 The full end-to-end suite
+- [x] 3.3 `openspec validate --all --strict`; release notes name the hidden-control change
 
 ## Slice 2 — a toolbar a plugin places in its own content
 

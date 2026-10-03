@@ -53,6 +53,27 @@ test.describe('Auth gating', () => {
     await expect(adminTab).toBeVisible();
   });
 
+  test('a rail entry naming an admin-only command is drawn only for an admin, though it declares nothing itself', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    const entry = railRight(page).getByRole('button', {
+      name: 'Admin-only command',
+    });
+    const cycle = railRight(page).getByRole('button', { name: 'Switch user' });
+
+    await expect(entry).toHaveCount(0);
+
+    await cycle.click();
+    await expect(entry).toHaveCount(0);
+
+    await cycle.click();
+    await expect(entry).toBeVisible();
+
+    await cycle.click();
+    await expect(entry).toHaveCount(0);
+  });
+
   test('the command palette omits an admin-only command until an admin signs in', async ({
     page,
   }) => {

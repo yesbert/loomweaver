@@ -564,4 +564,36 @@ describe('ShellRail', () => {
       expect(document.body.querySelector(LW_MENU_TAG)).toBeNull();
     });
   });
+  describe('an entry naming a command the session may not run', () => {
+    const admin: AuthSnapshot = { authenticated: true, roles: ['admin'], claims: {} };
+
+    function entryNaming(command: string): RailItem {
+      return { id: 'purge', rail: 'activity', icon: 'x', title: 'cmd.reset', command };
+    }
+
+    it('is not drawn until the session qualifies, although it declares no requirement of its own', () => {
+      const auth = signal<AuthSnapshot>(ANONYMOUS);
+      const fixture = renderRail([entryNaming('notes.purge')], {
+        auth,
+        arrange: (registry) =>
+          registry.addCommand({
+            id: 'notes.purge',
+            title: 'cmd.reset',
+            access: { anyRole: ['admin'] },
+            run: () => undefined,
+          }),
+      });
+      expect(buttonsOf(fixture).length).toBe(0);
+
+      auth.set(admin);
+      fixture.detectChanges();
+      expect(buttonsOf(fixture).length).toBe(1);
+    });
+
+    it('is not drawn while its command is one nothing registers', () => {
+      const fixture = renderRail([entryNaming('notes.missing')]);
+
+      expect(buttonsOf(fixture).length).toBe(0);
+    });
+  });
 });

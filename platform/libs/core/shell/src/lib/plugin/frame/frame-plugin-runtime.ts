@@ -9,6 +9,7 @@ import {
   untracked,
 } from '@angular/core';
 import { Connection, WindowMessenger, connect } from 'penpal';
+import { ActivationSettled } from '../activation-settled';
 import { SETTINGS_STORE } from '../../persistence/settings-store';
 import { StateSyncService } from '../../persistence/cross-tab/state-sync.service';
 import { HostPluginContext } from '../context/host-plugin-context';
@@ -80,6 +81,8 @@ export class FramePluginRuntime {
 
   private readonly plugins =
     inject<readonly FramePlugin[]>(FRAME_PLUGIN, { optional: true }) ?? [];
+
+  private readonly settlement = inject(ActivationSettled);
 
   private readonly instances = new Map<string, FrameInstance>();
 
@@ -198,6 +201,7 @@ export class FramePluginRuntime {
     const session = new FrameSession(ctx.state, this.injector);
     const frame = this.createFrame(plugin.entryUrl, levelOf(plugin));
     const connection = this.connect(plugin, ctx, session, frame);
+    this.settlement.track(connection.promise);
     session.attach(connection.promise);
     this.instances.set(plugin.id, {
       ctx,

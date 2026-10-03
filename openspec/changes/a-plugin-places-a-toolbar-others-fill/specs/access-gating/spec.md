@@ -3,8 +3,9 @@
 ### Requirement: Every surface that shows a contribution reacts to the session
 
 The reaction SHALL be uniform across the workbench: launcher entries, bar items, docked view tabs,
-the actions on a view, toolbars a plugin places, commands, the command palette, keyboard shortcuts,
-addressable content, the pickers that offer content for a pane, and what may be dragged into one.
+the actions on a view, toolbars a plugin places, settings buttons, commands, the command palette,
+keyboard shortcuts, addressable content, the pickers that offer content for a pane, and what may be
+dragged into one.
 
 Where a contributed control names a command, the command's own requirement SHALL decide whether the
 control is drawn, in addition to any requirement the control declares for itself: a control naming
@@ -22,8 +23,8 @@ requirement alone, since nothing else declares who it is for.
 
 #### Scenario: A control naming a command the session may not run is not drawn
 
-- **WHEN** a launcher entry, a bar button or a surface's action names a command whose requirement
-  the session does not meet, while the control itself declares no requirement
+- **WHEN** a launcher entry, a bar button, a surface's action or a settings button names a command
+  whose requirement the session does not meet, while the control itself declares no requirement
 - **THEN** the control is not drawn
 - **AND** it is drawn once the session meets the command's requirement, without a reload
 

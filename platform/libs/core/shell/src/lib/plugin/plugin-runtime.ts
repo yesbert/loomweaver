@@ -13,6 +13,7 @@ import { HostContextFactory } from './context/host-context-factory';
 import { Plugin, PLUGIN } from './plugin';
 import { CapabilityGrantService } from '../permissions/capability-grant.service';
 import { PluginEnablementService } from './enablement/plugin-enablement.service';
+import { ActivationSettled } from './activation-settled';
 
 interface TeardownFailure {
   readonly id: string;
@@ -30,6 +31,8 @@ export class PluginRuntime {
   private readonly enablement = inject(PluginEnablementService);
 
   private readonly factory = inject(HostContextFactory);
+
+  private readonly settlement = inject(ActivationSettled);
 
   private readonly injector = inject(EnvironmentInjector);
 
@@ -140,6 +143,7 @@ export class PluginRuntime {
     try {
       const result = plugin.activate(ctx);
       if (result instanceof Promise) {
+        this.settlement.track(result);
         result.then(
           () => (activating = false),
           (error: unknown) => this.onActivationError(id, ctx, error),

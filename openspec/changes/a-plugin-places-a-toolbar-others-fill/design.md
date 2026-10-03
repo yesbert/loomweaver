@@ -34,6 +34,66 @@ of the change is a line-by-line inventory of the same places, because the aim of
 remove duplication rather than to add a sixth place where an item is filtered; anything that
 inventory finds shared and not covered here is added to the plan.
 
+### Inventory, 2026-10-03 (task 0)
+
+Read line by line before slice 1. Paths are under `platform/libs/core/shell/src/lib/`.
+
+| Concern | Rail `regions/rail/shell-rail.ts` | Bar `regions/bar/shell-bar.ts` + `shell-bar-item.ts` | Surface actions `regions/content/actions/surface-actions.ts` | Palette `commands/palette/command-palette.ts` + `command-rows.ts` | Menus `menu/menu.service.ts` + `menu-resolution.ts` | Curation `regions/curation/rail-curation.ts` |
+|---|---|---|---|---|---|---|
+| Place filter | `regionOf(...) === region.id` (219) | `item.bar === region.id` (81) | `actionsOf(surfaceId)` (61) | all commands | `menuIds.includes(item.menu)` (31) | every rail |
+| Item's own access, hide | `auth.visible` (220) | `auth.visible` (82) | `auth.visible` (62) | n/a | n/a, an entry has no access | `auth.visible` (37) |
+| Item's own access, disable | `auth.disabled` (139) | `auth.disabled` (101) | `auth.disabled` (90) | n/a | n/a | n/a |
+| **Command's access** | **not checked** | **not checked** | pop-out only, `belongsInThisWindow` (104–112) | `commands.available` (192) | `usableCommands` → `available` (240–244) | **not checked** |
+| Command registered | via `offers.offered` → `triggerable` (221) | `offers.offered` (83) | **only when the action opens a menu** (64–68); a plain action naming an unregistered command is drawn dead | n/a | `resolveItem` drops it (44–48) | `offers.offered` (38) |
+| Pop-out rule | not applied | not applied | `belongsInThisWindow` | via `available` | via `available` | not applied |
+| `when` against the context | none | none | none | none | `whenMatches` (31) | none |
+| Control drawn only while its menu offers something | `offers.menuOnActivation` (148) | (80–85) | (76–78) | n/a | n/a | `offers.offered` (38) |
+| Sort | `railEntries` by `order`, then user order | `bySlot` by `order` (180–184) | by `order` (69) | fuzzy rank | group, then order (35) | none |
+| Label | `item.title \| transloco` (html 55, 97) | `tooltip ?? label \| transloco` (html 12, 34) | `action.title \| transloco` (html 25, 30) | `translate(command.title)` (29) | `item.title ?? command.title` (50), worded in `drawMenu` | `transloco.translate(item.title)` (47) |
+| Icon | `item.icon` (html 90) | `btn.icon` (html 31) | `action.icon` (html 29) | `command.icon` (30) | `command.icon` (59) | `item.icon` (48) |
+| Picture → initials → icon | html 73–91, own `brokenPictures` (120, 130–136) | html 14–32, own `brokenPicture` (64, 113–119) | icon only | icon only | heading only, in `menu-drawing.ts` | initials only |
+| Tooltip | `lw-tooltip` (html 101) | (html 43) | (html 30) | none | none | none |
+| Shortcut | none | `showShortcut` → `commands.shortcutOf` (103–111) | none | `shortcutOf` (31) | `shortcutOf` (60) | none |
+| State | `aria-current` for a workspace (html 56) | none | `aria-pressed` from `action.pressed` (html 26) | none | `checkedWhen` → checkbox (56–57) | none |
+| `run()` | 179–191: disabled guard, `warnMenuTriggerConflict`, menu-on-activation, workspace switch, `commands.trigger` | 121–128, same without the workspace | 93–102, same | `commands.execute` | `execute` or `item.run` (228–238) | n/a |
+| Menu announced | `MenuTriggerDirective` | same | same | n/a | n/a | n/a |
+
+What the table says:
+
+- Two defects, not one. Rail, bar and surface actions ignore the named command's access everywhere
+  but the pop-out. And a surface action that names an unregistered command is drawn as a dead
+  control unless it also opens a menu, which the `commands` capability forbids.
+- The shared helpers already in place, to reuse and not rewrite: `ChromeItemOffers`
+  (`menu/chrome-item-offers.ts`) and `chrome-item-menu.ts` for menu-on-activation,
+  `MenuTriggerDirective` for the gestures and the announcement, `bar-fold.ts` for folding,
+  `elements/roving-focus.ts` for arrow-key focus, `whenMatches` and `resolveMenuItems` for the
+  menu pipeline, `CommandService.available/shortcutOf/trigger` as the one seam.
+- `ChromeItemOffers.offered` is the dock-side half of the resolution (registered command, or a menu
+  that offers something, or a workspace, or a component cell). It dissolves into the one function;
+  its `menuOnActivation` becomes that function's hook for menu-opening controls. The service is
+  renamed to what it then is, the slot resolution, and the five readers move to it.
+- The picture → initials → icon ladder is written twice with two broken-picture signals; the toolbar
+  would be the third. It becomes one piece in slice 2, when the third consumer arrives.
+- Rail-specific and bar-specific concerns that stay where they are, with their reason in the spec:
+  bands and user order, labels on and tooltips off (`shell-layout`), region filtering, folding and
+  component cells (`shell-layout`), the workspace switch (`workspaces`).
+- Tests that pin today's behaviour: `shell-rail.spec.ts` (567 lines: access 295–320, menu-opening
+  items 449–560), `shell-bar.spec.ts` (244: offered items 181–244), `shell-bar-item.spec.ts` (363:
+  disable mode 129), `surface-actions.spec.ts` (357: access 168, pop-out 180–230, menu items
+  290–357), `command-palette.spec.ts` (514: session 208), `menu-resolution.spec.ts` (100),
+  `menu-follows-the-session.spec.ts` (128), `composition-report.spec.ts` (370). Slice 1 keeps all
+  of them green except where it changes behaviour on purpose: a control naming an unavailable
+  command disappears instead of running into the seam's refusal.
+- Menu entries carry no owner today; `addMenuItem` takes none. Reporting the contributing plugin
+  needs the owner stamped the way `addCommand` stamps it.
+- Nothing marks the end of activation. `PluginRuntime.activateAll` runs the first reconcile
+  synchronously and tracks activation promises only to report errors; `FramePluginRuntime` tracks
+  connection promises the same way. Both now hand them to `ActivationSettled`, whose `settled()`
+  the report awaits.
+- A sixth reader the table missed: the settings dialog drops a button row whose command nothing
+  registers, through `CommandService.triggerable`, and read nothing about the command's access. It
+  reads the resolution now, and `ui-primitives` says so.
+
 ## Goals / Non-Goals
 
 **Goals:**
@@ -66,16 +126,24 @@ free, and the same entry can be offered in a context menu and a toolbar by namin
 Rejected: a `ToolbarItem` mirroring `BarButtonItem`. It would be the fifth item type with the
 fourth copy of the resolution.
 
-**Resolution is one pure function, the docks are its readers.** `resolveMenuItems` grows into
-`resolveSlot(slotIds, context, sources)` and takes over what `MenuService` does afterwards: the
-`available` check and the pop-out rule. Its result gains `pressed` (from `checkedWhen`), `opensMenu`
-(from `menu` + `menuTrigger`) and the plugin that contributed the entry. Rail, bar, surface actions
-and palette keep their own templates but stop filtering: each maps its items into the shape the
-function reads, or — for the surface actions — becomes a toolbar outright. The rail and the bar
-keep item-level `access` as an additional filter, applied before the function, because the spec
-says the control's own requirement still counts. Rejected: a service with signals per dock. The
-docks already hold the signals; a pure function is testable without a `TestBed` and is the part
-that was duplicated.
+**Resolution is one pure function, the docks are its readers.** `resolveMenuItems` became
+`resolveSlot(entries, contextOf, sources)` in `menu/menu-resolution.ts` and took over what
+`MenuService` did afterwards: the `available` check, which carries the pop-out rule. It takes the
+entries already narrowed to a slot, a context *per entry* (a rail item is matched against its own
+`{ targetKind, id, region }`, a menu's entries all against the one the menu was opened with), and a
+`SlotSources` record of predicates, so it stays free of services and `TestBed`. Its result carries
+the command it resolved, `disabled` from the entry's own requirement, `opensMenu` from the
+menu-on-activation hook, and the typed entry, so a dock's template keeps reading its own item
+fields. An entry is dropped when its `when` does not match, when its own requirement hides it, when
+it names a command that is unregistered or unavailable, or when it leads nowhere: no command, no
+behaviour, no menu that offers something, no workspace. The rail, the bar, the surface actions, the
+palette, the settings dialog's button rows and the rail curation all read it through
+`SlotResolution` (`menu/slot-resolution.service.ts`), which replaced `ChromeItemOffers`: its
+`offered` dissolved into the function and its `menuOnActivation` became the function's hook.
+`MenuService` builds the same sources itself, because `SlotResolution` depends on it for the hook
+and a cycle was not worth a second service. Rejected: a service with signals per dock. The docks
+already hold the signals; a pure function is testable without a `TestBed` and is the part that was
+duplicated.
 
 **Declared means: named by a control, registered as a toolbar, or the workbench's own.** No new
 "declare slot" call. The set of declared slots is computed from what exists: the `menu` field of
@@ -85,12 +153,21 @@ implicitly. Rejected: an explicit `declareMenuSlot(id)`. It would make the testb
 slots invalid until declared and adds a call nobody needs, since a slot that no control opens
 cannot be seen anyway.
 
-**Reporting after composition, through the existing diagnostics.** `composition-checks.ts` gains
-`undeclaredSlots(menuItems, declaredSlots)` and the report lists them with the entry, the slot and
-the contributing plugin. The development warning that today fires when activation completes runs
-the same check. A plugin installed from the store later re-runs it. Rejected: warning at
-`registerMenuItem`. NextPA activates in whatever order the composition lists, and a warning for an
-entry whose owner activates one tick later is noise that trains people to ignore the channel.
+**Reporting after composition, through the existing diagnostics.** `composition-checks.ts` gained
+`undeclaredSlots(entries, declared)` and `diagnostics/declared-slots.ts` computes the declared set
+from the workbench's five slot constants, every rail item's and bar button's `menu`, every surface
+action's `menu` and, from slice 2, every registered toolbar. The on-demand report lists the
+problems with the entry, the slot and the contributing plugin; for the latter the registry now
+stamps the owner on a menu entry the way it stamps it on a command (`RegisteredMenuItem`). The
+development warning is one shot: `CompositionReport.reportUndeclaredSlotsOnceSettled()` awaits
+`ActivationSettled` (`plugin/activation-settled.ts`, into which both runtimes hand every
+asynchronous activation and every sandbox connection) and then one quiet second, so that the
+registrations a frame makes right after connecting have landed, and warns once. A plugin
+installed from the store later is covered by the on-demand report, not by a second warning.
+Rejected: warning at `registerMenuItem`. NextPA activates in whatever order the composition lists,
+and a warning for an entry whose owner activates one tick later is noise that trains people to
+ignore the channel. Also rejected: a reactive effect with a debounce. It would be the more
+complete version of the same heuristic, for a channel that is advisory and development-only.
 
 **One toolbar owner per slot, enforced at registration.** `registerToolbar({ slot, ... })` records
 the owner; a second registration under the same slot from another plugin is refused with both

@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
+import { ANONYMOUS, AuthSnapshot } from '@loomweaver/plugin-sdk';
+import { AUTH_SOURCE } from '../../auth/auth-context';
 import { ShellBar } from './shell-bar';
 import { BarItem } from '../../foundation/bar-item';
 import { LayoutRegion } from '../../layout/layout';
@@ -240,5 +242,42 @@ describe('ShellBar', () => {
 
       expect(buttons()).toHaveLength(0);
     });
+  });
+});
+
+describe('a bar button naming a command the session may not run', () => {
+  it('is not drawn until the session qualifies, although it declares no requirement of its own', () => {
+    const auth = signal<AuthSnapshot>(ANONYMOUS);
+    TestBed.configureTestingModule({
+      imports: [ShellBar, transloco()],
+      providers: [{ provide: AUTH_SOURCE, useValue: auth }],
+    });
+    const registry = TestBed.inject(ContributionRegistry);
+    registry.addCommand({
+      id: 'notes.purge',
+      title: 'status.add',
+      access: { authenticated: true },
+      run: () => undefined,
+    });
+    registry.addBarItem({
+      id: 'purge',
+      bar: 'top-bar',
+      slot: 'end',
+      icon: 'add',
+      tooltip: 'status.add',
+      command: 'notes.purge',
+    });
+    const fixture = TestBed.createComponent(ShellBar);
+    fixture.componentRef.setInput('region', topBar);
+    fixture.detectChanges();
+    const buttons = () => {
+      fixture.detectChanges();
+      return (fixture.nativeElement as HTMLElement).querySelectorAll('button');
+    };
+
+    expect(buttons()).toHaveLength(0);
+
+    auth.set({ authenticated: true, roles: [], claims: {} });
+    expect(buttons()).toHaveLength(1);
   });
 });
