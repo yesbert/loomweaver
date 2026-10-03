@@ -118,7 +118,7 @@ Penpal.connect({ messenger })
 
 The RPC `ctx` is **flat**: unlike the in-process `ctx` the other how-to pages use, there is no `ctx.ui`
 facade. Its surface endpoints are `registerSurface` · `retitleSurface` · `updateSurfaceBadge` ·
-`setChildShown` · `registerMenuItem` · `registerSettingsSection`. Its content endpoints are
+`setChildShown` · `registerMenuItem` · `registerToolbar` · `registerSettingsSection`. Its content endpoints are
 `navigateContent` · `openContentTab` / `keepContentTab` / `pinContentTab` / `unpinContentTab` /
 `closeContentTab` / `updateContentTab` · `revealSurface`. The rest are `invokeCommand` / `invocableCommands` · `toast`,
 and `stateWatch` / `stateSet` / `stateClear` / `stateUnwatch` for [plugin state](plugin-state.md).
@@ -181,8 +181,47 @@ same source the bundle is built from, so the two cannot disagree. What it descri
   same on both rungs of the isolation ladder.
 - **`LwStateHost`** is the set of host methods your Penpal connection exposes for the store. You pass the
   resolved connection to `connectState`; you do not call these yourself.
+- **`LwSlotHost`**, **`LwSlotView`** and **`LwSlotEntry`** are the same three things for the toolbars a
+  surface places, described in [a toolbar inside the surface](#a-toolbar-inside-the-surface). The first
+  is the host methods `connectToolbars` takes, the second what the workbench pushes for a watched
+  slot, the third one entry of it.
 - **`LwSurfaceCapture`** / **`LwSurfaceCaptureRequest`** are what the workbench asks for and what you
   answer with when it draws a picture of itself, described next.
+
+## A toolbar inside the surface
+
+A surface may place `<lw-toolbar>` in its own markup, exactly as a plugin in the page does, and
+other plugins fill it from the page. The element is in the kit; what it needs from the workbench
+comes over the surface channel, as data:
+
+```html
+<lw-toolbar menu="my-plugin.view/toolbar" context='{"record":"frame"}' size="sm"></lw-toolbar>
+```
+
+```js
+// plugin.js — the entry document owns the slot, so it is declared and others may fill it
+ctx.registerToolbar({ slot: 'my-plugin.view/toolbar', title: 'my-plugin.toolbar' });
+
+// view.js — once the surface's connection resolves, hand it to the kit; surfaceMethods already
+// carries the slotChanged push the workbench answers with
+connection.promise.then((host) => {
+  LwFrame.connectState(host);
+  LwFrame.connectToolbars(host);
+});
+```
+
+From then on every `<lw-toolbar>` in the surface is watched on the workbench. The workbench
+resolves the slot against the element's `context`, narrows it to what the session may run, words
+it for the language in effect and pushes the result. The surface redraws when entries, commands,
+the session or the words change, without asking again. Activating an entry is reported back and
+runs in the workbench with the `context`, through the same place every trigger runs through, so a
+refusal or a failure is handled as it is for any other trigger. An entry whose `submenu` is set
+opens that slot as a menu the kit draws inside the surface, beside the entry.
+
+What does not come across: a cell another plugin registered with `registerToolbarCell`. It is code,
+and code does not cross the boundary; the surface gets the declarative entries alone. The context
+you give the element must be named values only (strings, numbers, booleans); anything else is
+refused rather than matched.
 
 ## A picture of the workbench, and your part in it
 

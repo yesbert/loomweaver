@@ -6,6 +6,7 @@ import {
   NotificationInput,
   NotificationKind,
   OpenTabInput,
+  Toolbar,
 } from '@loomweaver/plugin-sdk';
 import { tabBadgeOf } from '../../../contributions/tab-badge';
 import {
@@ -86,6 +87,20 @@ export function sanitizeRpcMenuItem(item: MenuItem): MenuItem {
     checkedWhen: sanitizeMenuContext(raw['checkedWhen']),
     submenu: optionalText(raw['submenu']),
     menuHeader: sanitizeMenuHeader(raw['menuHeader']),
+  };
+}
+
+export function sanitizeRpcToolbar(toolbar: Toolbar): Toolbar {
+  const raw = wireRecord(toolbar);
+  return {
+    slot: requiredText(
+      raw['slot'],
+      'Sandbox plugin: registerToolbar requires a non-empty string slot.',
+    ),
+    title: requiredText(
+      raw['title'],
+      'Sandbox plugin: registerToolbar requires a non-empty string title.',
+    ),
   };
 }
 

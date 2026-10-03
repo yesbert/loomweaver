@@ -97,7 +97,9 @@ test.describe('Sandbox stage — iframe plugin over Penpal', () => {
     await openRpcSandbox(page);
     const surface = page.frameLocator(claimedFrame);
 
-    await expect(surface.locator('lw-tooltip [role="tooltip"]')).toBeAttached();
+    await expect(
+      surface.locator('lw-tooltip [role="tooltip"]').first(),
+    ).toBeAttached();
   });
 
   test('opens as a preview tab; the surface promotes it over RPC', async ({

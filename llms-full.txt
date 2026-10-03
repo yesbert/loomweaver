@@ -659,6 +659,13 @@ function provideFramePlugins(...plugins: FramePlugin[]): (Provider | Environment
 // select/option · menu/menu-item · nav-tree/nav-group/nav-item · button · markdown · icon · progress-ring) with the built-in icon set seeded,
 // plus globalThis.LwFrame: LwFrameApi { setIcon(name, svg) / removeIcon / hasIcon (plugin-own icons, sanitized);
 // applySurfaceState(state: LwSurfaceRenderState { theme?, tokens?, rootFontSize?, icons? }) — call it from your render handler;
+// connectToolbars(host: LwSlotHost): void — once your Penpal connection resolves, every <lw-toolbar> in the surface is watched on the
+// workbench: it resolves the slot against the element's `context`, narrows it to what the session may run, words it and pushes an
+// LwSlotView { label, moreLabel, entries: LwSlotEntry[] } (key, label, group, order, icon, shortcut, pressed, disabled, opensMenu,
+// submenu) through slotChanged(subscription, view), which surfaceMethods() already carries; activation is reported back and runs
+// in the workbench with the context; an entry with `submenu` opens that slot as an <lw-menu> the kit draws inside the surface. The
+// surface's own LwSlotHost is the three host methods slotWatch/slotUnwatch/slotActivate on its connection; `toolbars: LwToolbarsApi`
+// ({ connect, apply }) is the same thing by hand. A cell another plugin draws in the page never crosses.
 // connectState(host: LwStateHost): LwStateApi — the surface-side half of ctx.state once your Penpal connection resolves, where
 // LwStateHost is the four host methods the connection exposes (stateWatch/stateSet/stateClear/stateUnwatch), LwStateApi is
 // { watch<T>(key): LwStateHandle<T>; apply(key, value, loaded) } and LwStateHandle mirrors a trusted plugin's handle

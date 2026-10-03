@@ -111,28 +111,28 @@
 
 ### 7. Pin it
 
-- [ ] 7.1 Frame RPC spec: `watchSlot` answers the resolved entries as data, narrowed by the
+- [x] 7.1 Frame RPC spec: `watchSlot` answers the resolved entries as data, narrowed by the
   command's requirement, the window and the frame plugin's foreign-command grant; a cell is absent;
   a context that is not data is refused; `slotChanged` fires on an entry, a command, the session
   and the language changing; `unwatchSlot` and teardown stop it
-- [ ] 7.2 Frame-kit element spec: `<lw-toolbar>` inside a frame draws from the frame bridge and
+- [x] 7.2 Frame-kit element spec: `<lw-toolbar>` inside a frame draws from the frame bridge and
   invokes through `invokeCommand` with the placement's description
-- [ ] 7.3 Testbed: the sandboxed surface draws a toolbar on a slot a page plugin fills; end to end:
+- [x] 7.3 Testbed: the sandboxed surface draws a toolbar on a slot a page plugin fills; end to end:
   the entry appears, runs, and disappears when the session loses the role, without a reload
 
 ### 8. Build
 
-- [ ] 8.1 `frame-rpc-contract.ts`: `watchSlot`, `unwatchSlot`; `FrameRemote.slotChanged`; the
+- [x] 8.1 `frame-rpc-contract.ts`: `watchSlot`, `unwatchSlot`; `FrameRemote.slotChanged`; the
   surface channel exposes them beside `stateWatch`; wire validation of the context
-- [ ] 8.2 The host side: a watch is a computed over `resolveSlot` for the frame's plugin, pushed on
+- [x] 8.2 The host side: a watch is a computed over `resolveSlot` for the frame's plugin, pushed on
   change, dropped with the channel
-- [ ] 8.3 Frame-kit: the frame bridge for `<lw-toolbar>` installed by `installLwFrame()`; the
+- [x] 8.3 Frame-kit: the frame bridge for `<lw-toolbar>` installed by `installLwFrame()`; the
   published declaration describes it
-- [ ] 8.4 `docs/weaver/sandboxed-surfaces.md`, `llms-full.txt`
+- [x] 8.4 `docs/weaver/sandboxed-surfaces.md`, `llms-full.txt`
 
 ### 9. Verify and close
 
-- [ ] 9.1 The full shell and frame-kit suites, lint, `nx package` for shell, plugin-sdk and
+- [x] 9.1 The full shell and frame-kit suites, lint, `nx package` for shell, plugin-sdk and
   frame-kit, the docs checks
-- [ ] 9.2 The full end-to-end suite
-- [ ] 9.3 `openspec validate --all --strict`
+- [x] 9.2 The full end-to-end suite
+- [x] 9.3 `openspec validate --all --strict`

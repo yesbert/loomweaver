@@ -4,6 +4,10 @@ import { FillerCountCell } from './filler-count-cell';
 
 const SOURCES_MENU = 'testbed.records/sources';
 
+const SANDBOX_TOOLBAR = 'sandbox-rpc.view/toolbar';
+
+const SANDBOX_SOURCES = 'sandbox-rpc.view/sources';
+
 const TOAST_MS = 3000;
 
 export const testbedFillerPlugin: Plugin = {
@@ -52,6 +56,22 @@ export const testbedFillerPlugin: Plugin = {
       slot: RECORDS_TOOLBAR,
       component: FillerCountCell,
       order: 10,
+    });
+    ctx.registerMenuItem({ menu: SANDBOX_TOOLBAR, command: 'testbed.filler.star', order: 0 });
+    ctx.registerMenuItem({ menu: SANDBOX_TOOLBAR, command: 'testbed.secret', order: 1 });
+    ctx.registerMenuItem({
+      id: 'testbed.filler.sandboxSources',
+      menu: SANDBOX_TOOLBAR,
+      title: 'testbed.filler.sources',
+      icon: 'more',
+      order: 2,
+      submenu: SANDBOX_SOURCES,
+    });
+    ctx.registerMenuItem({ menu: SANDBOX_SOURCES, command: 'testbed.filler.import' });
+    ctx.registerToolbarCell({
+      id: 'testbed.filler.sandboxCount',
+      slot: SANDBOX_TOOLBAR,
+      component: FillerCountCell,
     });
   },
 };

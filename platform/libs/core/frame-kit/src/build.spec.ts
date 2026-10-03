@@ -30,10 +30,12 @@ describe('frame-kit build', () => {
       'lw-icon',
       'lw-progress-ring',
       'lw-spinner',
+      'lw-toolbar',
     ]) {
       expect(js).toContain(tag);
     }
     expect(js).toContain('LwFrame');
+    expect(js).toContain('connectToolbars');
   });
 
   it('seeds the built-in icon set into the bundle', () => {
