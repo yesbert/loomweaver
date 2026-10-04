@@ -13,6 +13,7 @@
     "agent-versions-check": "node tools/checks/check-agent-versions.mjs",
     "quick-start-check": "node tools/checks/check-quick-start.mjs",
     "command-names-check": "node tools/checks/check-command-names.mjs",
+    "catalog-keys-check": "node tools/checks/check-catalog-keys.mjs",
     "comments-check": "node tools/checks/check-comments.mjs",
     "icon-docs": "node tools/checks/check-icon-docs.mjs --write",
     "icon-docs-check": "node tools/checks/check-icon-docs.mjs",

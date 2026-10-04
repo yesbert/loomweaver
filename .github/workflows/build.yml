@@ -146,6 +146,11 @@ jobs:
       - name: Region ids agree
         run: npm run region-ids-check
 
+      # A catalogue field the workbench reads and the catalogue check does not know is reported to
+      # every consumer as a misspelling. The devkit cannot import the shell, so this compares them.
+      - name: Catalogue fields agree
+        run: npm run catalog-keys-check
+
       # A Sonar exemption is keyed by a path, and a moved file leaves it matching nothing: the
       # finding comes back as new and the reason stays behind beside a path nobody reads.
       - name: Sonar exemptions name files that exist

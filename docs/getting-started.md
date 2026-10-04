@@ -56,7 +56,7 @@ The status bar along the bottom shows the running version, which the shell contr
 something of your own there, scaffold a weaver with `--bar-item` or copy [one behaviour, many
 triggers](samples.md#one-behaviour-many-triggers).
 
-`mod+shift+n` fires the command the scaffold registered, which raises a toast: a placeholder action
+`mod+shift+o` fires the command the scaffold registered, which raises a toast: a placeholder action
 on a real shortcut, there to be replaced. Write chords with the **`mod`** token rather than `cmd` or
 `ctrl`; the host binds and displays it per platform.
 
@@ -102,7 +102,7 @@ Seven of them replace what `ng new` had just produced; all seven are bootstrap w
 `README.md` stays yours, because the scaffold keeps its own notes in `LOOMWEAVER.md`.
 
 **The weaver**, eight files under `src/notes/`: a manifest, a routable surface, a rail item, a
-command on `mod+shift+n`, both translation bundles, a starter test and a README, with the
+command on `mod+shift+o`, both translation bundles, a starter test and a README, with the
 capabilities it needs already declared.
 
 **The wiring.** `.postcssrc.json` beside your `package.json`, so Tailwind runs at all; without it

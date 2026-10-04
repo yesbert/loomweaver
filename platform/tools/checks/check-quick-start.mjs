@@ -81,7 +81,7 @@ async function quickStart(dir) {
     throw new SetupError(`${cli} does not exist — run "nx run cli:bundle" first.`);
   }
   run('node', [cli, 'distribution', '--name', 'my-studio', '--title', 'My Studio', '--out', '.', '--force'], app);
-  run('node', [cli, 'weaver', '--id', 'notes', '--command', '--shortcut', 'mod+shift+n', '--out', 'src/notes'], app);
+  run('node', [cli, 'weaver', '--id', 'notes', '--command', '--shortcut', 'mod+shift+o', '--out', 'src/notes'], app);
   // The tutorial's picture is of exactly this point: the distribution and one weaver, before the
   // agent and the recipes ride along. Taking it here keeps the picture true to the page it is on.
   if (process.env.LOOM_QUICK_START_STILLS) {

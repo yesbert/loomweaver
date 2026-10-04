@@ -1,5 +1,6 @@
 import { FileMap, Recipe } from '../../lib/generate/types';
 import { isKebabId, toTitleCase } from '../../lib/generate/casing';
+import { markupText, stringLiteral } from '../../lib/generate/escape';
 
 export interface FramePluginInput {
   readonly id: string;
@@ -23,7 +24,7 @@ function pluginHtml(plugin: ResolvedFramePlugin): string {
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>${plugin.name} — frame plugin (logic)</title>
+    <title>${markupText(plugin.name)} — frame plugin (logic)</title>
   </head>
   <body>
     <script src="/frame-kit/penpal.global.js"></script>
@@ -45,10 +46,10 @@ function pluginJs(plugin: ResolvedFramePlugin): string {
   connection.promise
     .then(function (ctx) {
       return Promise.all([
-        ctx.toast({ message: '${plugin.name} ready', kind: 'success', timeoutMs: 4000 }),
+        ctx.toast({ message: ${stringLiteral(`${plugin.name} ready`)}, kind: 'success', timeoutMs: 4000 }),
         ctx.registerSurface({
           id: '${plugin.id}.view',
-          title: '${plugin.name}',
+          title: ${stringLiteral(plugin.name)},
           iframe: '/${plugin.id}/view.html',
           routable: { path: '${plugin.id}', titleIsLiteral: true },
         }),
@@ -66,23 +67,18 @@ function viewHtml(plugin: ResolvedFramePlugin): string {
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>${plugin.name}</title>
+    <title>${markupText(plugin.name)}</title>
     <link rel="stylesheet" href="/frame-kit/lw-frame.css" />
     <style>
-      body {
-        margin: 0;
-        font-family: var(--lw-font-sans, system-ui, sans-serif);
-        color: var(--lw-content, #1f2937);
-        background: var(--lw-surface, transparent);
-      }
+      body { margin: 0; }
       .wrap { max-width: 42rem; margin: 0 auto; padding: 1.5rem; }
       h1 { font-size: 1.125rem; font-weight: 600; }
-      p { color: var(--lw-content-faint, #6b7280); }
+      p { color: var(--lw-content-faint); }
     </style>
   </head>
   <body>
     <div class="wrap">
-      <h1>${plugin.name}</h1>
+      <h1>${markupText(plugin.name)}</h1>
       <p>
         Your sandboxed surface. It runs isolated in its own iframe, so its body can be built with
         any framework (React, Vue, Svelte, vanilla). The frame UI kit (served by the distribution
@@ -94,16 +90,23 @@ function viewHtml(plugin: ResolvedFramePlugin): string {
     <script src="/frame-kit/penpal.global.js"></script>
     <script src="/frame-kit/lw-elements.global.js"></script>
     <script>
-      globalThis.Penpal.connect({
+      const connection = globalThis.Penpal.connect({
         messenger: new globalThis.Penpal.WindowMessenger({
           remoteWindow: globalThis.parent,
           allowedOrigins: ['*'],
         }),
-        methods: {
+        methods: globalThis.LwFrame.surfaceMethods({
           render: function (state) {
             globalThis.LwFrame.applySurfaceState(state);
           },
-        },
+          stateChanged: function (key, value, loaded) {
+            globalThis.LwFrame.state.apply(key, value, loaded);
+          },
+        }),
+      });
+      connection.promise.then(function (host) {
+        globalThis.LwFrame.connectState(host);
+        globalThis.LwFrame.connectToolbars(host);
       });
     </script>
   </body>
@@ -136,6 +139,11 @@ function readme(plugin: ResolvedFramePlugin): string {
     '   ```',
     '',
     `The surface is routable at \`/${plugin.id}\`. Replace \`view.html\` with your own UI in any framework.`,
+    '',
+    'Keep its connection on `LwFrame.surfaceMethods`, `connectState` and `connectToolbars`: they let the',
+    'workbench picture the surface, push the plugin\'s state and fill any `<lw-toolbar>` you place. Writing',
+    'the surface in TypeScript? Add `"types": ["@loomweaver/frame-kit"]` to your tsconfig and `LwFrame` is',
+    'typed from the kit\'s `lw-frame.d.ts`.',
     '',
   ].join('\n');
 }

@@ -135,13 +135,13 @@ and its closing summary are left out, and nothing that remains was retyped.
 
 The prompt:
 
-> Add a weaver called notes with a command on mod+shift+n.
+> Add a weaver called notes with a command on mod+shift+o.
 
 The assistant listed the project, read the `LOOMWEAVER.md` the distribution scaffold had left and
 the composition root, and then called the tool:
 
 ```json
-scaffold_weaver { "id": "notes", "shortcut": "mod+shift+n", "command": true }
+scaffold_weaver { "id": "notes", "shortcut": "mod+shift+o", "command": true }
 ```
 
 The server answered with a file map and nothing else. The keys:
@@ -215,7 +215,7 @@ Test Files  3 passed (3)
 | Files written    | seven under `src/weavers/notes/`                           |
 | Files edited     | `src/app/app.config.ts`, `angular.json`                    |
 | Turns, wall time | 22 turns, 74 seconds                                       |
-| Afterwards       | `ng serve`: the icon is in the rail, `mod+shift+n` answers |
+| Afterwards       | `ng serve`: the icon is in the rail, `mod+shift+o` answers |
 
 The same prompt was run a second time from the same clean state, and it reached the same tool.
 What differed is what an assistant decides for itself: the second run kept the generator's

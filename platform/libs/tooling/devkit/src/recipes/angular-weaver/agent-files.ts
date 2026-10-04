@@ -3,6 +3,7 @@ import { RIGHT_PANEL_REGION } from '../shell-regions';
 import type { ResolvedWeaver } from './weaver-input';
 import { panelFile, panelTemplateFile } from './agent-panel';
 import { standInFile } from './agent-stand-in';
+import { stringLiteral } from '../../lib/generate/escape';
 
 /**
  * The protocol package, pinned to the range the adapter declares as a peer: two different ranges
@@ -83,7 +84,7 @@ function contextThat(confirms: boolean, ran: Asked[]): PluginContext {
   return {
     invocableCommands: () => [
       // agentConsent travels with the command, which is what the connection reads off the call.
-      { id: '${weaver.id}.hello', title: '${weaver.name} action', description: 'Shows a short message.', agentConsent: 'ask' },
+      { id: '${weaver.id}.hello', title: ${stringLiteral(`${weaver.name} action`)}, description: 'Shows a short message.', agentConsent: 'ask' },
     ],
     invokeCommand: (id: string, args?: CommandArguments) => {
       ran.push({ id, args });

@@ -72,11 +72,16 @@ the bridge, so both callers share it.
 one helper, HTML text and attributes through another, and Angular template text additionally escapes
 braces and the at sign. Each recipe uses the helper for every consumer-supplied value.
 
-**`init` pins to itself.** The package list and versions come from the scaffolds' own package
-amendments, which already carry the platform version; `init` stops keeping a second list.
+**`init` pins to itself.** The platform packages `init` installs carry the version of the tool
+that writes their templates, as the generator collection already did. Deriving the whole list from
+the scaffolds' package amendments was weighed and left: those amendments name only what the
+generated output adds beyond the shell, so the list would have to grow there first.
 
-**The default shortcut.** A generated weaver claims `mod+alt+<letter>`; browsers reserve no such
-chord for themselves. The examples in the guides follow.
+**The default shortcut.** A generated weaver keeps `mod+shift+<letter>`, but takes the first letter
+of its id that a browser leaves to the page: Chrome keeps the chords on n, t, w and q for itself.
+With no such letter it claims no shortcut. *Alternative rejected:* `mod+alt+<letter>`, which on
+layouts with AltGr is the chord that types a character, so it would swallow typing. The examples in
+the guides follow.
 
 **Shared helpers land beside their first owner.** Roving key handling and the fold tray in the
 elements layer, menu-description coercion in the menu layer, stored-value parsing beside the

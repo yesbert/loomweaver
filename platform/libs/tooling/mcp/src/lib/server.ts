@@ -30,16 +30,14 @@ function optionSchema(option: ScaffoldOption): z.ZodType {
     : z.string();
 }
 
-function inputSchema(
-  descriptor: ScaffoldDescriptor,
-): Record<string, z.ZodType> {
+export function inputSchema(descriptor: ScaffoldDescriptor): z.ZodObject {
   const shape: Record<string, z.ZodType> = {};
   for (const option of portableOptions(descriptor)) {
     const base = optionSchema(option);
     const described = base.describe(option.description);
     shape[option.name] = option.required ? described : described.optional();
   }
-  return shape;
+  return z.looseObject(shape);
 }
 
 export function createMcpServer(): McpServer {

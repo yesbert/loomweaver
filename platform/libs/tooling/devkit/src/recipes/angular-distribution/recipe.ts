@@ -11,6 +11,7 @@ import {
 } from '../shell-regions';
 import { PLACEHOLDER_LOGO_SVG } from './logo';
 import { readme } from './readme';
+import { markupText, stringLiteral } from '../../lib/generate/escape';
 
 export const DISTRIBUTION_STYLES = ['tailwind', 'precompiled'] as const;
 
@@ -112,7 +113,7 @@ export const appConfig: ApplicationConfig = {
     provideCommandPaletteEntry(),
     provideQuickOpenEntry(),
     provideProductIdentity({
-      name: '${distribution.title}',
+      name: ${stringLiteral(distribution.title)},
       tagline: 'Built on LoomWeaver',
       logoUrl: 'logo.svg',
     }),
@@ -186,7 +187,7 @@ function indexHtml(distribution: ResolvedDistribution): string {
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>${distribution.title}</title>
+    <title>${markupText(distribution.title)}</title>
     <base href="/" />
     <meta
       http-equiv="Content-Security-Policy"

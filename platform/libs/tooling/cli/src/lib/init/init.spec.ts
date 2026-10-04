@@ -111,6 +111,20 @@ describe('init', () => {
     rmSync(dir, { recursive: true, force: true });
   });
 
+  it('refuses an option it cannot use before it installs anything', () => {
+    for (const argv of [
+      ['init', '--styles', 'bootstrap'],
+      ['init', '--weaver', 'My_Notes'],
+    ]) {
+      angularApp(dir);
+      const c = capture();
+      const { deps, calls } = fakeDeps(dir);
+
+      expect(run(argv, c.io, deps)).toBe(1);
+      expect(calls).toEqual([]);
+    }
+  });
+
   it('takes a fresh Angular CLI application to a product in one run', () => {
     angularApp(dir);
     const c = capture();
@@ -120,9 +134,9 @@ describe('init', () => {
     expect(calls[0]).toEqual([
       'npm',
       'install',
-      '@loomweaver/shell',
-      '@loomweaver/plugin-sdk',
-      '@loomweaver/frame-kit',
+      '@loomweaver/shell@0.9.2',
+      '@loomweaver/plugin-sdk@0.9.2',
+      '@loomweaver/frame-kit@0.9.2',
       '@angular/cdk',
       '@jsverse/transloco',
       '@ng-icons/heroicons',
@@ -147,7 +161,7 @@ describe('init', () => {
         join(dir, 'src/notes/src/lib/plugin/notes.plugin.ts'),
         'utf8',
       ),
-    ).toContain("shortcut: 'mod+shift+n'");
+    ).toContain("shortcut: 'mod+shift+o'");
     expect(c.text()).toContain(
       'Angular CLI application, packages with npm (no lockfile found, so npm)',
     );

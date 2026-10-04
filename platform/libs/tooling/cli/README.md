@@ -6,7 +6,7 @@ project: no Nx workspace, no LoomWeaver checkout, no AI assistant needed.
 
 ```bash
 npx @loomweaver/cli init
-npx @loomweaver/cli weaver --id notes --command --shortcut 'mod+shift+n' --out src/lib/notes
+npx @loomweaver/cli weaver --id notes --command --shortcut 'mod+shift+o' --out src/lib/notes
 npx @loomweaver/cli list
 npx @loomweaver/cli --help
 ```

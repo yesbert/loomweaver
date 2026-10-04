@@ -12,7 +12,8 @@ is not inside this repo (a chat assistant, a remote client) can scaffold and val
   (`path -> content`) the client writes into its project, and, where there are any, `remaining`:
   the workspace steps the files need that the server cannot perform, each saying what it costs to
   skip. The server cannot read that project, so pass `scaffold_weaver` the selector prefix your application declares as `prefix`;
-  without it the components are named `app-…`.
+  without it the components are named `app-…`. An option a tool does not know is refused, and the
+  refusal names the ones it takes; an option only a workspace route can use is ignored.
 - `validate_manifest` · `validate_i18n` · `validate_catalog` · `validate_commands` — return structured `Finding[]`.
 
 ## Consume from npm (product repos)
