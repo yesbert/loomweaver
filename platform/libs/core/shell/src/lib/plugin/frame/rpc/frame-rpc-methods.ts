@@ -113,14 +113,10 @@ export function frameRpcMethods(deps: FrameRpcDeps): FrameRpc {
         invokeRpcCommand(ctx, textArgument(id, 'invokeCommand', 'id'), args),
       invocableCommands: () => ctx.invocableCommands(),
       toast: (input) => ctx.ui.toast(sanitizeRpcToastInput(input)),
-      stateWatch: (key) =>
-        session.watch(textArgument(key, 'stateWatch', 'key')),
-      stateSet: (key, value) =>
-        session.set(textArgument(key, 'stateSet', 'key'), value),
-      stateClear: (key) =>
-        session.clear(textArgument(key, 'stateClear', 'key')),
-      stateUnwatch: (key) =>
-        session.unwatch(textArgument(key, 'stateUnwatch', 'key')),
+      stateWatch: (key) => session.state.watch(key),
+      stateSet: (key, value) => session.state.set(key, value),
+      stateClear: (key) => session.state.clear(key),
+      stateUnwatch: (key) => session.state.unwatch(key),
     },
     deps.reportRefusal,
   );

@@ -1,5 +1,6 @@
 import { effect, Injector } from '@angular/core';
 import { PluginState, StateHandle } from '@loomweaver/plugin-sdk';
+import { textArgument } from './frame/rpc/wire-fields';
 
 interface WatchedKey {
   readonly handle: StateHandle;
@@ -17,7 +18,8 @@ export class PluginStateBridge {
     private readonly push: StatePush,
   ) {}
 
-  watch(key: string): void {
+  watch(raw: unknown): void {
+    const key = textArgument(raw, 'stateWatch', 'key');
     if (this.state === undefined || this.watched.has(key)) {
       return;
     }
@@ -39,15 +41,16 @@ export class PluginStateBridge {
     });
   }
 
-  set(key: string, value: unknown): void {
-    this.watched.get(key)?.handle.set(value);
+  set(raw: unknown, value: unknown): void {
+    this.watched.get(textArgument(raw, 'stateSet', 'key'))?.handle.set(value);
   }
 
-  clear(key: string): void {
-    this.watched.get(key)?.handle.clear();
+  clear(raw: unknown): void {
+    this.watched.get(textArgument(raw, 'stateClear', 'key'))?.handle.clear();
   }
 
-  unwatch(key: string): void {
+  unwatch(raw: unknown): void {
+    const key = textArgument(raw, 'stateUnwatch', 'key');
     this.watched.get(key)?.stop();
     this.watched.delete(key);
   }

@@ -39,7 +39,7 @@ import {
   SurfaceRemote,
   SurfaceState,
 } from './iframe-surface-protocol';
-import { PluginStateBridge } from './plugin-state-bridge';
+import { PluginStateBridge } from '../../../plugin/plugin-state-bridge';
 import { SlotBridge } from './slot-bridge';
 import { ToolbarSlots } from '../../toolbar/toolbar-slots.service';
 import { requiredMenuContext } from '../../../menu/menu-context';
@@ -255,11 +255,11 @@ export class IframeSurface implements DirtySurface {
           }
         },
         setDirty: (dirty: boolean) => this.dirty.set(dirty),
-        stateWatch: (key: string) => this.stateBridge.watch(key),
-        stateSet: (key: string, value: unknown) =>
+        stateWatch: (key: unknown) => this.stateBridge.watch(key),
+        stateSet: (key: unknown, value: unknown) =>
           this.stateBridge.set(key, value),
-        stateClear: (key: string) => this.stateBridge.clear(key),
-        stateUnwatch: (key: string) => this.stateBridge.unwatch(key),
+        stateClear: (key: unknown) => this.stateBridge.clear(key),
+        stateUnwatch: (key: unknown) => this.stateBridge.unwatch(key),
         slotWatch: (slot: string, context: unknown) =>
           this.slotBridge.watch(
             slot,

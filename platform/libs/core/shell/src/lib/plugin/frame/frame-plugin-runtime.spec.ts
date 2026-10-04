@@ -281,12 +281,12 @@ describe('FramePluginRuntime (iframe + Penpal runtime)', () => {
 
     rpc()['stateWatch']('step-1');
     TestBed.tick();
-    await Promise.resolve();
+    await new Promise((resolve) => setTimeout(resolve, 0));
     expect(remote.stateChanged).toHaveBeenCalledWith('step-1', undefined, true);
 
     rpc()['stateSet']('step-1', { note: 'typed' });
     TestBed.tick();
-    await Promise.resolve();
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(remote.stateChanged).toHaveBeenLastCalledWith(
       'step-1',

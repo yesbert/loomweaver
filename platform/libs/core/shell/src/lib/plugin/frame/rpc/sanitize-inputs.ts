@@ -1,4 +1,5 @@
 import {
+  AccessRequirement,
   ContentTabLabel,
   MenuContext,
   MenuHeader,
@@ -81,12 +82,49 @@ export function sanitizeRpcMenuItem(item: MenuItem): MenuItem {
     command: optionalText(raw['command']),
     title: optionalText(raw['title']),
     icon: optionalText(raw['icon']),
+    access: sanitizeAccess(raw['access']),
     group: optionalText(raw['group']),
     order: optionalNumber(raw['order']),
     when: sanitizeMenuContext(raw['when']),
     checkedWhen: sanitizeMenuContext(raw['checkedWhen']),
     submenu: optionalText(raw['submenu']),
     menuHeader: sanitizeMenuHeader(raw['menuHeader']),
+  };
+}
+
+const ACCESS_REFUSAL =
+  "Sandbox plugin: registerMenuItem takes 'access' as { authenticated?: boolean, " +
+  "anyRole?: string[], allRoles?: string[], mode?: 'hide' | 'disable' }.";
+
+function roleList(value: unknown): readonly string[] | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (!Array.isArray(value) || value.some((role) => typeof role !== 'string')) {
+    throw new TypeError(ACCESS_REFUSAL);
+  }
+  return value as string[];
+}
+
+function sanitizeAccess(value: unknown): AccessRequirement | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (!isWireObject(value)) {
+    throw new TypeError(ACCESS_REFUSAL);
+  }
+  const { authenticated, mode } = value;
+  if (authenticated !== undefined && typeof authenticated !== 'boolean') {
+    throw new TypeError(ACCESS_REFUSAL);
+  }
+  if (mode !== undefined && mode !== 'hide' && mode !== 'disable') {
+    throw new TypeError(ACCESS_REFUSAL);
+  }
+  return {
+    authenticated,
+    anyRole: roleList(value['anyRole']),
+    allRoles: roleList(value['allRoles']),
+    mode,
   };
 }
 
