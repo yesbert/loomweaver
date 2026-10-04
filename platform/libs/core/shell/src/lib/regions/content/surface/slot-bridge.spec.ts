@@ -113,7 +113,7 @@ describe('SlotBridge', () => {
     expect(ran).toEqual([{ record: 'r1', id: `${SLOT}#acme.share` }]);
   });
 
-  it('tells the surface which slot an entry opens, and never a cell', async () => {
+  it('tells the surface that an entry opens a menu, and never a cell', async () => {
     registry.addMenuItem({ menu: `${SLOT}/sources`, command: 'acme.share' }, 'scanner');
     registry.addMenuItem(
       { id: 'acme.sources', menu: SLOT, title: 'acme.sources', submenu: `${SLOT}/sources` },
@@ -129,8 +129,72 @@ describe('SlotBridge', () => {
 
     const view = (pushes.at(-1) as [string, LwSlotView])[1];
     expect(view.entries).toHaveLength(1);
-    expect(view.entries[0]).toMatchObject({ key: 'acme.sources', opensMenu: true, submenu: `${SLOT}/sources` });
+    expect(view.entries[0]).toMatchObject({ key: 'acme.sources', opensMenu: true });
+    expect(JSON.stringify(view)).not.toContain(`${SLOT}/sources`);
     expect(JSON.stringify(view)).not.toContain('scanner.cell');
+  });
+
+  describe('a menu an entry opens', () => {
+    const MENU = `${SLOT}/sources`;
+
+    beforeEach(() => {
+      registry.addMenuItem(
+        {
+          id: 'acme.sources',
+          menu: SLOT,
+          title: 'acme.sources',
+          submenu: MENU,
+          menuHeader: { title: 'acme.sources', command: 'acme.share' },
+        },
+        'acme',
+      );
+    });
+
+    async function openSources(): Promise<[string, LwSlotView]> {
+      const toolbar = bridge.watch(SLOT, { record: 'r1' });
+      await settle();
+      const menu = bridge.open(toolbar, 'acme.sources') as string;
+      await settle();
+      return [menu, (pushes.findLast(([id]) => id === menu) as [string, LwSlotView])[1]];
+    }
+
+    it('is matched against the opening entry, as the page matches it, and holds no untitled entry', async () => {
+      registry.addMenuItem(
+        { id: 'scanner.forSources', menu: MENU, command: 'acme.share', when: { id: 'acme.sources' } },
+        'scanner',
+      );
+      registry.addMenuItem(
+        { id: 'scanner.forItself', menu: MENU, title: 'acme.tools', run: () => undefined, when: { id: 'scanner.forItself' } },
+        'scanner',
+      );
+      registry.addMenuItem({ id: 'scanner.untitled', menu: MENU, run: () => undefined }, 'scanner');
+
+      const [menu, view] = await openSources();
+      expect(view.entries.map((entry) => entry.key)).toEqual(['acme.share']);
+
+      bridge.activate(menu, 'acme.share');
+      expect(ran).toEqual([{ record: 'r1', id: 'acme.sources' }]);
+    });
+
+    it('carries the heading worded, and the heading runs what it leads to', async () => {
+      registry.addMenuItem({ menu: MENU, command: 'acme.share' }, 'scanner');
+
+      const [menu, view] = await openSources();
+      expect(view.header).toEqual(expect.objectContaining({ title: 'Sources', leadsTo: 'Share' }));
+
+      bridge.activate(menu, '__heading');
+      expect(ran).toEqual([{ record: 'r1', id: 'acme.sources' }]);
+    });
+
+    it('answers nothing for an entry that opens nothing, one never shown, or an unknown subscription', async () => {
+      registry.addMenuItem({ menu: SLOT, command: 'acme.share' }, 'scanner');
+      const toolbar = bridge.watch(SLOT, {});
+      await settle();
+
+      expect(bridge.open(toolbar, `${SLOT}#acme.share`)).toBeUndefined();
+      expect(bridge.open(toolbar, 'nobody')).toBeUndefined();
+      expect(bridge.open('unknown', 'acme.sources')).toBeUndefined();
+    });
   });
 
   it('replays the last answer of every watched slot when asked', async () => {

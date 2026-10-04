@@ -674,10 +674,11 @@ function provideFramePlugins(...plugins: FramePlugin[]): (Provider | Environment
 // applySurfaceState(state: LwSurfaceRenderState { theme?, tokens?, rootFontSize?, icons? }) — call it from your render handler;
 // connectToolbars(host: LwSlotHost): void — once your Penpal connection resolves, every <lw-toolbar> in the surface (same element
 // as in the page, see Setup essentials) is filled by the workbench, which pushes an LwSlotView { label, moreLabel, entries:
-// LwSlotEntry[] } (key, label, group, order, icon, shortcut, pressed, disabled, opensMenu, submenu) through slotChanged(subscription,
-// view), which surfaceMethods() already carries; activation runs in the workbench with the context; a `submenu` entry opens that slot
-// as an <lw-menu> the kit draws inside the surface. LwSlotHost = the host methods slotWatch/slotUnwatch/slotActivate on the
-// connection; `toolbars: LwToolbarsApi` ({ connect, apply }) is the same by hand. The slot is declared by the plugin's entry
+// LwSlotEntry[], header?: LwSlotHeader } (entry: key, label, group, order, icon, shortcut, pressed, disabled, opensMenu) through
+// slotChanged(subscription, view), which surfaceMethods() already carries; activation runs in the workbench with the context; an
+// `opensMenu` entry is opened through slotOpen(subscription, key), and the workbench answers with the menu the page opens for that
+// entry (its context, its heading as LwSlotHeader { title, detail?, icon?, initials?, image?, leadsTo? }), which the kit draws as an
+// <lw-menu> inside the surface. LwSlotHost = the host methods slotWatch/slotUnwatch/slotActivate/slotOpen on the connection; `toolbars: LwToolbarsApi` ({ connect, apply }) is the same by hand. The slot is declared by the plugin's entry
 // document with registerToolbar; a ToolbarCell never crosses, and the element's context must be named primitives only.
 // connectState(host: LwStateHost): LwStateApi — the surface-side half of ctx.state once your Penpal connection resolves, where
 // LwStateHost is the four host methods the connection exposes (stateWatch/stateSet/stateClear/stateUnwatch), LwStateApi is

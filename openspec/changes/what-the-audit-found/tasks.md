@@ -1,11 +1,11 @@
 ## 1. A menu opened in a frame is the menu the page opens (own PR)
 
-- [ ] 1.1 Test first: an isolated surface opening an entry gets the menu matched against the opening entry's description, without untitled entries, with the heading; opening an entry that opens nothing, or one never shown, answers nothing
-- [ ] 1.2 Menu service exposes its resolution (labelled entries plus heading command); the page's open, offers and the frame bridge use it
-- [ ] 1.3 Slot bridge gains opening an entry under its subscription, deriving identity, description and heading as the in-page toolbar host does; activation runs entries and the heading as the menu service does
-- [ ] 1.4 Frame kit: the slot host gains opening an entry, the slot entry drops the further slot's identity, the slot view may carry a worded heading; the frame toolbar host draws with the shared menu drawing
-- [ ] 1.5 Test first, then fix: an entry whose own requirement asks to be inoperable is drawn disabled in a menu and does not run
-- [ ] 1.6 Testbed sandbox page, end-to-end test, guides and assistant file follow the new frame kit shape
+- [x] 1.1 Test first: an isolated surface opening an entry gets the menu matched against the opening entry's description, without untitled entries, with the heading; opening an entry that opens nothing, or one never shown, answers nothing
+- [x] 1.2 Menu service exposes its resolution (labelled entries plus heading command); the page's open, offers and the frame bridge use it
+- [x] 1.3 Slot bridge gains opening an entry under its subscription, deriving identity, description and heading as the in-page toolbar host does; activation runs entries and the heading as the menu service does
+- [x] 1.4 Frame kit: the slot host gains opening an entry, the slot entry drops the further slot's identity, the slot view may carry a worded heading; the frame toolbar host draws with the shared menu drawing
+- [x] 1.5 Test first, then fix: an entry whose own requirement asks to be inoperable is drawn disabled in a menu and does not run
+- [x] 1.6 Testbed sandbox page, end-to-end test, guides and assistant file follow the new frame kit shape
 
 ## 2. What the seam and the report miss (own PR)
 

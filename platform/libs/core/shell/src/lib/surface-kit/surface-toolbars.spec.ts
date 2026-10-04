@@ -36,6 +36,11 @@ function fakeHost(): LwSlotHost & { calls: Call[] } {
     slotActivate(subscription, key) {
       calls.push({ method: 'slotActivate', args: [subscription, key] });
     },
+    slotOpen(subscription, key) {
+      calls.push({ method: 'slotOpen', args: [subscription, key] });
+      counter += 1;
+      return Promise.resolve(`sub-${counter}`);
+    },
   };
 }
 
@@ -108,7 +113,7 @@ describe('toolbars inside an isolated surface', () => {
     expect(host.calls[2].args).toEqual(['acme/toolbar', { record: 'r2' }]);
   });
 
-  it('opens an entry’s submenu as a menu it draws itself, and runs the chosen entry under that slot', async () => {
+  it('opens an entry’s menu through the entry, draws it as the page does, and runs the chosen entry under it', async () => {
     const toolbars = createToolbars();
     const host = fakeHost();
     toolbars.connect(host);
@@ -117,26 +122,35 @@ describe('toolbars inside an isolated surface', () => {
     toolbars.apply('sub-1', {
       label: 'Tools',
       moreLabel: 'More',
-      entries: [{ key: 'sources', label: 'Sources', opensMenu: true, submenu: 'acme/sources' }],
+      entries: [{ key: 'sources', label: 'Sources', opensMenu: true }],
     });
     const button = toolbar.querySelector<HTMLButtonElement>('button[data-lw-entry="sources"]') as HTMLButtonElement;
 
     button.click();
     await flush();
-    expect(host.calls.at(-1)).toEqual({ method: 'slotWatch', args: ['acme/sources', {}] });
+    expect(host.calls.at(-1)).toEqual({ method: 'slotOpen', args: ['sub-1', 'sources'] });
     expect(toolbar.openKey).toBe('sources');
 
     const submenu: LwSlotView = {
       label: 'Sources',
       moreLabel: 'More',
-      entries: [{ key: 'import', label: 'Import', icon: 'add', shortcut: 'Ctrl+I' }],
+      header: { title: 'Sources', detail: 'Two kinds' },
+      entries: [
+        { key: 'import', label: 'Import', icon: 'add', shortcut: 'Ctrl+I', group: '0' },
+        { key: 'locked', label: 'Locked', group: '1', disabled: true },
+      ],
     };
     toolbars.apply('sub-2', submenu);
     const menu = document.body.querySelector(LW_MENU_TAG) as HTMLElement;
     expect(menu).not.toBeNull();
-    const item = menu.querySelector(LW_MENU_ITEM_TAG) as HTMLElement;
+    expect(menu.querySelector('.lw-menu-header-title')?.textContent).toBe('Sources');
+    expect(menu.getAttribute('aria-label')).toBe('Sources, Two kinds');
+    expect(menu.querySelector('.lw-menu-separator')).not.toBeNull();
+    expect(menu.classList.contains('lw-menu--leading')).toBe(true);
+    const [item, locked] = [...menu.querySelectorAll<HTMLElement>(LW_MENU_ITEM_TAG)];
     expect(item.getAttribute('label')).toBe('Import');
     expect(item.getAttribute('shortcut')).toBe('Ctrl+I');
+    expect(locked.hasAttribute('disabled')).toBe(true);
 
     item.click();
 
@@ -146,6 +160,25 @@ describe('toolbars inside an isolated surface', () => {
     expect(unwatched).toBeGreaterThan(activated);
     expect(document.body.querySelector(LW_MENU_TAG)).toBeNull();
     expect(toolbar.openKey).toBeNull();
+  });
+
+  it('opens nothing when the host answers nothing for the entry', async () => {
+    const toolbars = createToolbars();
+    const host = { ...fakeHost(), slotOpen: () => Promise.resolve(undefined) };
+    toolbars.connect(host);
+    const toolbar = place('acme/toolbar', {});
+    await flush();
+    toolbars.apply('sub-1', {
+      label: 'Tools',
+      moreLabel: 'More',
+      entries: [{ key: 'sources', label: 'Sources', opensMenu: true }],
+    });
+
+    toolbar.querySelector<HTMLButtonElement>('button[data-lw-entry="sources"]')?.click();
+    await flush();
+
+    expect(toolbar.openKey).toBeNull();
+    expect(document.body.querySelector(LW_MENU_TAG)).toBeNull();
   });
 
   it('holds the watch for a toolbar placed before the host connected', async () => {

@@ -126,6 +126,30 @@ describe('MenuService', () => {
     expect(document.body.classList.contains('lw-menu-open')).toBe(false);
   });
 
+  it('draws an entry whose own requirement asks to be inoperable as disabled, and never runs it', () => {
+    registry.addCommand({
+      id: 'c.close',
+      title: 'cmd.close',
+      run: () => undefined,
+    });
+    registry.addMenuItem({
+      menu: 'm',
+      command: 'c.close',
+      access: { authenticated: true, mode: 'disable' },
+    });
+    const execute = vi
+      .spyOn(commands, 'execute')
+      .mockImplementation(() => undefined);
+
+    service.open('m', context, { x: 0, y: 0 });
+    expect(items()[0].hasAttribute('disabled')).toBe(true);
+    menu()?.dispatchEvent(
+      new CustomEvent(LW_MENU_SELECT, { detail: { command: 'c.close' } }),
+    );
+
+    expect(execute).not.toHaveBeenCalled();
+  });
+
   it('runs an inline handler for an item without a command', () => {
     const run = vi.fn();
     registry.addMenuItem({ menu: 'm', title: 'menu.close', run });

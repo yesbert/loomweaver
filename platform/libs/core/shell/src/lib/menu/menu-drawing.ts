@@ -1,10 +1,14 @@
-import { Command, MenuHeader } from '@loomweaver/plugin-sdk';
+import { MenuHeader } from '@loomweaver/plugin-sdk';
 import {
   LW_MENU_ITEM_TAG,
   LW_MENU_TAG,
   LwMenuElement,
 } from '../elements/menu/lw-menu.element';
-import { drawMenuHeading, wordMenuHeading } from './menu-heading';
+import {
+  drawMenuHeading,
+  HeadingTarget,
+  wordMenuHeading,
+} from './menu-heading';
 import { MenuLabel, wordEntries } from './menu-wording';
 
 export interface MenuRow {
@@ -15,11 +19,12 @@ export interface MenuRow {
   readonly shortcut?: string;
   readonly checkbox: boolean;
   readonly checked: boolean;
+  readonly disabled?: boolean;
 }
 
 export interface MenuHeading {
   readonly header: MenuHeader;
-  readonly leadsTo?: Command;
+  readonly leadsTo?: HeadingTarget;
 }
 
 export interface WordedMenu {
@@ -104,6 +109,9 @@ function menuItemElement(row: MenuRow): HTMLElement {
     if (row.checked) {
       item.setAttribute('checked', '');
     }
+  }
+  if (row.disabled) {
+    item.setAttribute('disabled', '');
   }
   return item;
 }

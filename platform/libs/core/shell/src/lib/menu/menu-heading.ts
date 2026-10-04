@@ -2,9 +2,11 @@ import { Command, MenuHeader } from '@loomweaver/plugin-sdk';
 
 export const HEADING_KEY = '__heading';
 
+export type HeadingTarget = Pick<Command, 'title'>;
+
 export function drawMenuHeading(
   header: MenuHeader,
-  leadsTo?: Command,
+  leadsTo?: HeadingTarget,
 ): HTMLElement {
   const element = document.createElement('div');
   element.className = 'lw-menu-header';
@@ -28,7 +30,7 @@ export function wordMenuHeading(
   element: HTMLElement,
   header: MenuHeader,
   translate: (key: string) => string,
-  leadsTo?: Command,
+  leadsTo?: HeadingTarget,
 ): string {
   const title = translate(header.title);
   const detail = header.detail ? translate(header.detail) : undefined;

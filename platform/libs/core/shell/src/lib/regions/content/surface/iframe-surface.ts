@@ -272,6 +272,8 @@ export class IframeSurface implements DirtySurface {
           this.slotBridge.unwatch(subscription),
         slotActivate: (subscription: string, key: string) =>
           this.slotBridge.activate(subscription, key),
+        slotOpen: (subscription: string, key: string) =>
+          this.slotBridge.open(subscription, key),
       },
     });
     this.connection.promise
