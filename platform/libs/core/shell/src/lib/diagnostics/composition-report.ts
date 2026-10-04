@@ -1,4 +1,5 @@
 import { inject, Service } from '@angular/core';
+import { ViewAction } from '@loomweaver/plugin-sdk';
 import { ActivationSettled } from '../plugin/activation-settled';
 import { BAR_ITEM } from '../foundation/bar-item';
 import { RAIL_ITEM } from '../foundation/rail-item';
@@ -143,10 +144,7 @@ export class CompositionReport {
       declaredSlots([
         ...this.registry.railItems(),
         ...this.registry.barItems().filter((item) => isBarButton(item)),
-        ...this.registry.views().flatMap((view) => view.actions ?? []),
-        ...this.registry
-          .contentRoutes()
-          .flatMap((route) => route.actions ?? []),
+        ...this.surfaceActions().map(({ action }) => action),
         ...this.toolbars
           .toolbars()
           .map((entry) => ({ menu: entry.toolbar.slot })),
@@ -208,12 +206,10 @@ export class CompositionReport {
         command: item.command,
         what: `rail item "${item.id}"`,
       })),
-      ...this.registry.views().flatMap((view) =>
-        (view.actions ?? []).map((action) => ({
-          command: action.command,
-          what: `view action "${action.id}"`,
-        })),
-      ),
+      ...this.surfaceActions().map(({ surface, action }) => ({
+        command: action.command,
+        what: `action "${action.id}" of surface "${surface}"`,
+      })),
       ...this.settings
         .registered()
         .flatMap((section) =>
@@ -229,6 +225,20 @@ export class CompositionReport {
           ),
         ),
     ];
+  }
+
+  private surfaceActions(): { surface: string; action: ViewAction }[] {
+    const seen = new Set<string>();
+    return [...this.registry.views(), ...this.registry.contentRoutes()].flatMap(
+      (surface) => {
+        const id = surface.id ?? '';
+        if (seen.has(id) && id !== '') {
+          return [];
+        }
+        seen.add(id);
+        return (surface.actions ?? []).map((action) => ({ surface: id, action }));
+      },
+    );
   }
 
   private surfaceIds(): string[] {

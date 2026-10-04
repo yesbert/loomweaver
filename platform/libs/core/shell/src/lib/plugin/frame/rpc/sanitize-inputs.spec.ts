@@ -99,6 +99,37 @@ describe('sanitizeRpcToastInput', () => {
 });
 
 describe('sanitizeRpcMenuItem', () => {
+  it('carries the entry’s own access requirement across, as data', () => {
+    const item = sanitizeRpcMenuItem(
+      asMenuItem({
+        menu: 'acme/toolbar',
+        command: 'acme.purge',
+        access: { anyRole: ['admin'], mode: 'disable', extra: 'dropped' },
+      }),
+    );
+
+    expect(item.access).toEqual({
+      authenticated: undefined,
+      anyRole: ['admin'],
+      allRoles: undefined,
+      mode: 'disable',
+    });
+  });
+
+  it('refuses an access requirement that is not data it can judge', () => {
+    for (const access of [
+      'admin',
+      { authenticated: 'yes' },
+      { anyRole: ['admin', 7] },
+      { allRoles: 'admin' },
+      { mode: 'grey' },
+    ]) {
+      expect(() =>
+        sanitizeRpcMenuItem(asMenuItem({ menu: 'acme/toolbar', command: 'x', access })),
+      ).toThrow(/access/);
+    }
+  });
+
   it('rebuilds a menu item from plain fields and drops an inline run function', () => {
     const item = sanitizeRpcMenuItem(
       asMenuItem({

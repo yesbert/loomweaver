@@ -132,8 +132,8 @@ instance drawing its own `<lw-menu>` at the cursor rather than asking the host t
 A sandboxed surface is not confined to a content tab. It may declare `docks` or a `container`, and
 what it is told about where it is appears under [a docked iframe
 surface](weaver/sandboxed-surfaces.md#a-docked-iframe-surface). The seam rejects a surface's
-`access`, and a sandboxed menu entry's own `access` is not carried. A sandboxed plugin gates itself
-from the pushed session state.
+`access`, because a sandboxed surface gates itself from the pushed session state. A sandboxed menu
+entry's own `access` crosses as data, since the host draws the entry and gates it.
 
 The retention protocol follows the same pattern. A surface that declares `retain: 'always'` is
 **hidden in place** rather than destroyed: no reload, no new handshake per tab switch. A collapsed

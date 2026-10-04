@@ -297,6 +297,27 @@ describe('CompositionReport', () => {
     expect(String(warn.mock.calls[0][0])).toContain('bar item "b.one"');
   });
 
+  it('reports an action of a routable surface pointing at a command no one registers, once', () => {
+    const app = setUp();
+    app.registry.addContentRoute(
+      entryToContentRoute(
+        surfaceToEntry({
+          id: 'reports',
+          title: 't',
+          routable: { path: 'reports' },
+          component: Stub,
+          actions: [{ id: 'reports.export', icon: 'download', title: 't', command: 'nobody.home' }],
+        }),
+      ),
+    );
+
+    app.report.print();
+
+    const lines = warn.mock.calls.map((call) => String(call[0])).join('\n');
+    expect(lines).toContain('action "reports.export" of surface "reports"');
+    expect(lines.split('reports.export')).toHaveLength(2);
+  });
+
   it('lists the layout and the capabilities that are switched off', () => {
     const app = setUp([provideShellFeatures({ content: { pin: false } })]);
 

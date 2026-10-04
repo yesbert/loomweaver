@@ -9,9 +9,9 @@
 
 ## 2. What the seam and the report miss (own PR)
 
-- [ ] 2.1 Test first, then fix: a sandboxed menu entry's own access requirement crosses as data; a malformed one is refused
-- [ ] 2.2 Test first, then fix: the composition report names a routable surface's action that points at an unregistered command
-- [ ] 2.3 One plugin state bridge: the frame session composes the surface bridge; key validation inside it, tested for both callers
+- [x] 2.1 Test first, then fix: a sandboxed menu entry's own access requirement crosses as data; a malformed one is refused
+- [x] 2.2 Test first, then fix: the composition report names a routable surface's action that points at an unregistered command
+- [x] 2.3 One plugin state bridge: the frame session composes the surface bridge; key validation inside it, tested for both callers
 
 ## 3. Generators and checks that do what they say (own PR)
 
