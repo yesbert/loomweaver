@@ -57,19 +57,34 @@ export interface LwSlotEntry {
   readonly pressed?: boolean;
   readonly disabled?: boolean;
   readonly opensMenu?: boolean;
-  readonly submenu?: string;
+}
+
+/** The heading of a menu an entry opens, already worded. `leadsTo` names what activating it runs. */
+export interface LwSlotHeader {
+  readonly title: string;
+  readonly detail?: string;
+  readonly icon?: string;
+  readonly initials?: string;
+  readonly image?: string;
+  readonly leadsTo?: string;
 }
 
 export interface LwSlotView {
   readonly label: string;
   readonly moreLabel: string;
   readonly entries: readonly LwSlotEntry[];
+  readonly header?: LwSlotHeader;
 }
 
 export interface LwSlotHost {
   slotWatch(slot: string, context: Record<string, string | number | boolean>): unknown;
   slotUnwatch(subscription: string): unknown;
   slotActivate(subscription: string, key: string): unknown;
+  /**
+   * Opens the menu of an entry that `opensMenu`, under the subscription that showed it, and answers
+   * with the new subscription the menu is told under; nothing for an entry that opens nothing.
+   */
+  slotOpen(subscription: string, key: string): unknown;
 }
 
 export interface LwToolbarsApi {

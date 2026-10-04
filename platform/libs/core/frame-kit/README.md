@@ -17,7 +17,7 @@ paint then always matches the shell it runs in, and no plugin carries a copy of 
 
 What `LwFrame` offers is in `lw-frame.d.ts`; the guide below walks through it. That includes the
 toolbar bridge: `LwFrame.connectToolbars(host)` lets the workbench fill a `<lw-toolbar>` the surface
-places, with `LwSlotHost`, `LwSlotView` and `LwSlotEntry` as its types
+places, with `LwSlotHost`, `LwSlotView`, `LwSlotEntry` and `LwSlotHeader` as its types
 ([a toolbar inside the surface](https://loomweaver.dev/weaver/sandboxed-surfaces/#a-toolbar-inside-the-surface)).
 
 ## Serving it (distribution)

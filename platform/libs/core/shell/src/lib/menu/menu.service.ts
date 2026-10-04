@@ -46,7 +46,14 @@ interface OpenMenu {
   readonly wording: Subscription;
 }
 
-type LabelledEntry = ResolvedEntry<MenuItem> & { readonly title: string };
+export type LabelledEntry = ResolvedEntry<MenuItem> & {
+  readonly title: string;
+};
+
+export interface MenuAnswer {
+  readonly entries: readonly LabelledEntry[];
+  readonly leadsTo?: Command;
+}
 
 function labelled(entry: ResolvedEntry<MenuItem>): entry is LabelledEntry {
   return entry.title !== undefined;
@@ -89,35 +96,51 @@ export class MenuService {
     options: MenuOpenOptions = {},
   ): void {
     this.close();
-    const resolved = this.resolve(
+    const answer = this.answer(
       typeof menuId === 'string' ? [menuId] : menuId,
       context,
+      options.header,
     );
-    const leadsTo = headingCommand(options.header, this.usableCommands());
-    if (resolved.length === 0 && !leadsTo) {
+    if (answer.entries.length === 0 && !answer.leadsTo) {
       return;
     }
     const worded = drawMenu(
-      resolved.map((entry) => resolvedRow(entry)),
+      answer.entries.map((entry) => menuRowOf(entry)),
       this.translate,
-      options.header && { header: options.header, leadsTo },
+      options.header && { header: options.header, leadsTo: answer.leadsTo },
     );
-    const byKey = new Map(resolved.map((entry) => [entry.key, entry.item]));
     this.present(
       worded,
       at,
       (key) => {
-        if (key === HEADING_KEY && leadsTo) {
-          this.commands.execute(leadsTo.id, context);
-          return;
-        }
-        const item = key === null ? undefined : byKey.get(key);
-        if (item) {
-          this.run(item, context);
+        if (key !== null) {
+          this.choose(answer, key, context);
         }
       },
       options.trigger,
     );
+  }
+
+  answer(
+    menuIds: readonly string[],
+    context: MenuContext,
+    header?: MenuHeader,
+  ): MenuAnswer {
+    return {
+      entries: this.resolve(menuIds, context),
+      leadsTo: headingCommand(header, this.usableCommands()),
+    };
+  }
+
+  choose(answer: MenuAnswer, key: string, context: MenuContext): void {
+    if (key === HEADING_KEY && answer.leadsTo) {
+      this.commands.execute(answer.leadsTo.id, context);
+      return;
+    }
+    const entry = answer.entries.find((candidate) => candidate.key === key);
+    if (entry && !entry.disabled) {
+      this.commands.trigger(entry.item, context);
+    }
   }
 
   offers(
@@ -125,10 +148,8 @@ export class MenuService {
     context: MenuContext,
     header?: MenuHeader,
   ): boolean {
-    return (
-      this.resolve([menuId], context).length > 0 ||
-      headingCommand(header, this.usableCommands()) !== undefined
-    );
+    const answer = this.answer([menuId], context, header);
+    return answer.entries.length > 0 || answer.leadsTo !== undefined;
   }
 
   openList(
@@ -223,10 +244,6 @@ export class MenuService {
     return typeof words === 'string' ? words : key;
   };
 
-  private run(item: MenuItem, context: MenuContext): void {
-    this.commands.trigger(item, context);
-  }
-
   private resolve(
     menuIds: readonly string[],
     context: MenuContext,
@@ -249,7 +266,7 @@ export class MenuService {
   }
 }
 
-function resolvedRow(entry: LabelledEntry): MenuRow {
+export function menuRowOf(entry: LabelledEntry): MenuRow {
   return {
     key: entry.key,
     label: entry.title,
@@ -258,6 +275,7 @@ function resolvedRow(entry: LabelledEntry): MenuRow {
     shortcut: entry.shortcut,
     checkbox: entry.checkbox,
     checked: entry.checked,
+    disabled: entry.disabled,
   };
 }
 

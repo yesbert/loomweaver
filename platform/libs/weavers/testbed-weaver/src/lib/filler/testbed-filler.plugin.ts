@@ -66,6 +66,7 @@ export const testbedFillerPlugin: Plugin = {
       icon: 'more',
       order: 2,
       submenu: SANDBOX_SOURCES,
+      menuHeader: { title: 'testbed.filler.sources' },
     });
     ctx.registerMenuItem({ menu: SANDBOX_SOURCES, command: 'testbed.filler.import' });
     ctx.registerToolbarCell({

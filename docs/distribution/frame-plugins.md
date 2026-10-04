@@ -147,8 +147,8 @@ plugin store, serving the kit is part of the contract those plugins rely on.
 
 The kit also carries the **toolbar bridge**. A frame surface that places `<lw-toolbar>` hands its
 connection to `LwFrame.connectToolbars(host)`, and the workbench then fills that toolbar from the
-page, as it fills one in the page itself. `lw-frame.d.ts` types it as `LwSlotHost`, `LwSlotView` and
-`LwSlotEntry`. Nothing in your composition changes for it; the surface side is
+page, as it fills one in the page itself. `lw-frame.d.ts` types it as `LwSlotHost`, `LwSlotView`,
+`LwSlotEntry` and `LwSlotHeader`. Nothing in your composition changes for it; the surface side is
 [A toolbar inside the surface](../weaver/sandboxed-surfaces.md#a-toolbar-inside-the-surface).
 
 The **session is pushed the same way, but only when you grant it.** A surface whose plugin holds the

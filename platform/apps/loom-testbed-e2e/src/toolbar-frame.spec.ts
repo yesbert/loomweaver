@@ -47,6 +47,8 @@ test.describe('A toolbar inside an isolated surface', () => {
     const surface = page.frameLocator(SURFACE);
     const menu = surface.getByRole('menu');
     await expect(menu).toBeVisible();
+    await expect(menu).toHaveAccessibleName('Sources');
+    await expect(menu.getByText('Sources', { exact: true })).toBeVisible();
     await expect(sources).toHaveAttribute('aria-expanded', 'true');
 
     await menu.getByRole('menuitem', { name: 'Import from a source' }).click();

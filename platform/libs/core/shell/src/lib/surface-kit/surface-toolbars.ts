@@ -1,8 +1,6 @@
 import {
   LW_MENU_DISMISS,
-  LW_MENU_ITEM_TAG,
   LW_MENU_SELECT,
-  LW_MENU_TAG,
   LwMenuElement,
 } from '../elements/menu/lw-menu.element';
 import {
@@ -11,8 +9,10 @@ import {
   LwToolbarSelectDetail,
 } from '../elements/toolbar/lw-toolbar.element';
 import { installLwToolbarHost } from '../elements/toolbar/toolbar-bridge';
+import { drawMenu, MenuHeading, MenuRow } from '../menu/menu-drawing';
 import type {
   LwSlotEntry,
+  LwSlotHeader,
   LwSlotHost,
   LwSlotView,
   LwToolbarsApi,
@@ -32,25 +32,33 @@ interface OpenSubmenu {
   menu?: LwMenuElement;
 }
 
-function menuItem(entry: LwSlotEntry): HTMLElement {
-  const item = document.createElement(LW_MENU_ITEM_TAG);
-  item.setAttribute('label', entry.label);
-  item.setAttribute('command', entry.key);
-  if (entry.icon) {
-    item.setAttribute('icon', entry.icon);
-  }
-  if (entry.shortcut) {
-    item.setAttribute('shortcut', entry.shortcut);
-  }
-  if (entry.disabled) {
-    item.setAttribute('disabled', '');
-  }
-  if (entry.pressed !== undefined) {
-    item.setAttribute('checkbox', '');
-    item.toggleAttribute('checked', entry.pressed);
-  }
-  return item;
+function menuRow(entry: LwSlotEntry): MenuRow {
+  return {
+    key: entry.key,
+    label: entry.label,
+    group: entry.group ?? '',
+    icon: entry.icon,
+    shortcut: entry.shortcut,
+    checkbox: entry.pressed !== undefined,
+    checked: entry.pressed === true,
+    disabled: entry.disabled,
+  };
 }
+
+function menuHeading(header: LwSlotHeader): MenuHeading {
+  return {
+    header: {
+      title: header.title,
+      detail: header.detail,
+      icon: header.icon,
+      initials: header.initials,
+      image: header.image,
+    },
+    leadsTo: header.leadsTo === undefined ? undefined : { title: header.leadsTo },
+  };
+}
+
+const asWorded = (words: string): string => words;
 
 export function createToolbars(): LwToolbarsApi {
   let host: LwSlotHost | undefined;
@@ -91,26 +99,34 @@ export function createToolbars(): LwToolbarsApi {
 
   const openSubmenu = async (
     owner: WatchedToolbar,
-    entry: LwSlotEntry,
+    key: string,
     trigger: HTMLElement,
   ): Promise<void> => {
-    if (!host || !entry.submenu) {
+    if (!host || owner.subscription === undefined) {
       return;
     }
-    const id = String(await host.slotWatch(entry.submenu, owner.toolbar.context));
-    submenus.set(id, { owner, key: entry.key, trigger });
-    owner.toolbar.openKey = entry.key;
+    const id: unknown = await host.slotOpen(owner.subscription, key);
+    if (typeof id !== 'string') {
+      return;
+    }
+    submenus.set(id, { owner, key, trigger });
+    owner.toolbar.openKey = key;
   };
 
   const drawSubmenu = (id: string, open: OpenSubmenu, view: LwSlotView): void => {
     open.menu?.remove();
-    if (view.entries.length === 0) {
+    if (view.entries.length === 0 && view.header?.leadsTo === undefined) {
       closeSubmenu(id);
       return;
     }
-    const menu = document.createElement(LW_MENU_TAG) as LwMenuElement;
-    menu.setAttribute('aria-label', view.label);
-    menu.append(...view.entries.map((entry) => menuItem(entry)));
+    const { menu } = drawMenu(
+      view.entries.map((entry) => menuRow(entry)),
+      asWorded,
+      view.header && menuHeading(view.header),
+    );
+    if (!view.header && view.label) {
+      menu.setAttribute('aria-label', view.label);
+    }
     menu.addEventListener(LW_MENU_SELECT, (event) => {
       const key = (event as CustomEvent<{ command: string | null }>).detail.command;
       if (key !== null) {
@@ -129,8 +145,8 @@ export function createToolbars(): LwToolbarsApi {
       return;
     }
     const drawn = entry.entries.find((candidate) => candidate.key === detail.key);
-    if (drawn?.submenu) {
-      void openSubmenu(entry, drawn, detail.trigger);
+    if (drawn?.opensMenu) {
+      void openSubmenu(entry, drawn.key, detail.trigger);
       return;
     }
     void host.slotActivate(entry.subscription, detail.key);

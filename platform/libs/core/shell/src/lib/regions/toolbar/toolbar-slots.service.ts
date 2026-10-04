@@ -17,7 +17,7 @@ import {
   ToolbarEntry,
 } from './toolbar-entries';
 
-const MORE_KEY = 'bar.more';
+export const MORE_KEY = 'bar.more';
 
 export interface ToolbarSlotView {
   readonly resolved: readonly ResolvedEntry<ToolbarEntry>[];

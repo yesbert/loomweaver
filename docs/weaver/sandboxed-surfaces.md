@@ -183,10 +183,10 @@ same source the bundle is built from, so the two cannot disagree. What it descri
   same on both rungs of the isolation ladder.
 - **`LwStateHost`** is the set of host methods your Penpal connection exposes for the store. You pass the
   resolved connection to `connectState`; you do not call these yourself.
-- **`LwSlotHost`**, **`LwSlotView`** and **`LwSlotEntry`** are the same three things for the toolbars a
-  surface places, described in [a toolbar inside the surface](#a-toolbar-inside-the-surface). The first
-  is the host methods `connectToolbars` takes, the second what the workbench pushes for a watched
-  slot, the third one entry of it.
+- **`LwSlotHost`**, **`LwSlotView`**, **`LwSlotEntry`** and **`LwSlotHeader`** are the same things for
+  the toolbars a surface places, described in [a toolbar inside the surface](#a-toolbar-inside-the-surface).
+  The first is the host methods `connectToolbars` takes, the second what the workbench pushes for a
+  watched slot or an opened menu, the third one entry of it, the fourth an opened menu's heading.
 - **`LwSurfaceCapture`** / **`LwSurfaceCaptureRequest`** are what the workbench asks for and what you
   answer with when it draws a picture of itself, described next.
 
@@ -217,8 +217,12 @@ resolves the slot against the element's `context`, narrows it to what the sessio
 it for the language in effect and pushes the result. The surface redraws when entries, commands,
 the session or the words change, without asking again. Activating an entry is reported back and
 runs in the workbench with the `context`, through the same place every trigger runs through, so a
-refusal or a failure is handled as it is for any other trigger. An entry whose `submenu` is set
-opens that slot as a menu the kit draws inside the surface, beside the entry.
+refusal or a failure is handled as it is for any other trigger.
+
+An entry that opens a menu says so with `opensMenu`. Activating it asks the workbench for that
+entry's menu, and the answer is the menu the page would open for the same entry: matched against
+the entry's context, with the heading the entry declares. The kit draws it inside the surface,
+beside the entry, with the same drawing the page uses.
 
 What does not come across: a cell another plugin registered with `registerToolbarCell`. It is code,
 and code does not cross the boundary; the surface gets the declarative entries alone. The context
