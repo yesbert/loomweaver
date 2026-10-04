@@ -1,11 +1,17 @@
-import { formatFiles, logger, readJson, Tree, writeJson } from '@nx/devkit';
+import {
+  formatFiles,
+  GeneratorCallback,
+  logger,
+  readJson,
+  Tree,
+  writeJson,
+} from '@nx/devkit';
 import { amendments, generate } from '../../lib/generate/generate';
 import { distributionInput } from '../../recipes/angular-distribution/scaffold';
 import { asObject, ensureBuildTarget, JsonObject } from '../../lib/amend/merge';
 import {
   Amendment,
   BuildTargetAmendment,
-  PostcssAmendment,
 } from '../../lib/amend/types';
 import { applyAmendments } from '../apply-amendments';
 import { tsconfigPathsFile, writeFiles } from '../workspace-tree';
@@ -16,7 +22,7 @@ import { DistributionGeneratorSchema } from './schema';
 export async function distributionGenerator(
   tree: Tree,
   options: DistributionGeneratorSchema,
-): Promise<void> {
+): Promise<GeneratorCallback | undefined> {
   const distribution = nxDistribution({
     name: options.name,
     directory: options.directory,
@@ -53,7 +59,7 @@ export async function distributionGenerator(
     withTests: distribution.withTests,
   });
   const recipeAmendments = amendments(angularDistribution, input);
-  applyAmendments(tree, recipeAmendments.filter(isPostcss));
+  const installed = applyAmendments(tree, recipeAmendments);
 
   const scaffold = nxDistributionFiles(distribution);
   if (composingIntoExisting) {
@@ -78,6 +84,7 @@ export async function distributionGenerator(
   }
 
   await formatFiles(tree);
+  return installed;
 }
 
 interface ProjectJson {
@@ -131,10 +138,6 @@ function isBuildTarget(
   amendment: Amendment,
 ): amendment is BuildTargetAmendment {
   return amendment.kind === 'build-target';
-}
-
-function isPostcss(amendment: Amendment): amendment is PostcssAmendment {
-  return amendment.kind === 'postcss';
 }
 
 export default distributionGenerator;

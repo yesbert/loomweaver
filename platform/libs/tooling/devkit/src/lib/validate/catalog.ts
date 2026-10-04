@@ -20,6 +20,8 @@ export const CATALOG_ENTRY_KEYS: readonly string[] = [
   'updated',
   'repository',
   'readmeUrl',
+  'level',
+  'deployed',
 ];
 
 const SAME_ORIGIN_FIELDS = ['entryUrl', 'iconUrl', 'readmeUrl'] as const;
@@ -70,6 +72,14 @@ function schemeFinding(
   field: string,
   refusal: string,
 ): Finding | undefined {
+  if (value.startsWith('//')) {
+    return {
+      level: 'error',
+      code: 'catalog.url.foreign',
+      message: `${pathOf(index, field)} is protocol-relative, so it names another host. The host accepts same-origin URLs only and ${refusal}.`,
+      path: pathOf(index, field),
+    };
+  }
   const scheme = /^([a-z][a-z0-9+.-]*):/i.exec(value)?.[1]?.toLowerCase();
   if (scheme && scheme !== 'http' && scheme !== 'https') {
     return {
@@ -256,6 +266,8 @@ function validateEntryMetadata(
     });
   }
 
+  findings.push(...validatePlacement(raw, index));
+
   if (raw['repository'] !== undefined && !isHttpUrl(raw['repository'])) {
     findings.push({
       level: 'warning',
@@ -265,6 +277,34 @@ function validateEntryMetadata(
     });
   }
 
+  return findings;
+}
+
+function validatePlacement(
+  raw: Record<string, unknown>,
+  index: number,
+): Finding[] {
+  const findings: Finding[] = [];
+  if (raw['deployed'] !== undefined && typeof raw['deployed'] !== 'boolean') {
+    findings.push({
+      level: 'warning',
+      code: 'catalog.deployed',
+      message: `${pathOf(index, 'deployed')} must be true or false. The host deploys an entry only when it is exactly true, so this one is merely offered.`,
+      path: pathOf(index, 'deployed'),
+    });
+  }
+  if (
+    raw['level'] !== undefined &&
+    raw['level'] !== 'embedded' &&
+    raw['level'] !== 'isolated'
+  ) {
+    findings.push({
+      level: 'warning',
+      code: 'catalog.level',
+      message: `${pathOf(index, 'level')} must be "embedded" or "isolated". The host ignores anything else and runs the plugin at the level the distribution chooses.`,
+      path: pathOf(index, 'level'),
+    });
+  }
   return findings;
 }
 

@@ -1,3 +1,4 @@
+import { runInNewContext } from 'node:vm';
 import { generate } from '../../lib/generate/generate';
 import { resolveFramePluginInput, framePlugin } from './recipe';
 
@@ -35,4 +36,41 @@ describe('framePlugin recipe', () => {
     expect(view).toContain('LwFrame.applySurfaceState');
     expect(files['README.md']).toContain('@loomweaver/frame-kit');
   });
+
+  it('connects the surface through the frame kit, so it can be pictured, hold state and fill a toolbar', async () => {
+    const view = generate(framePlugin, { id: 'notes', name: 'Notes' })['view.html'];
+    const script = view.slice(view.lastIndexOf('<script>') + '<script>'.length, view.lastIndexOf('</script>'));
+    const host = { name: 'host' };
+    const calls: string[] = [];
+    let methods: Record<string, unknown> = {};
+    const sandbox = {
+      parent: {},
+      Penpal: {
+        WindowMessenger: class WindowMessenger {},
+        connect: (options: { methods: Record<string, unknown> }) => {
+          methods = options.methods;
+          return { promise: Promise.resolve(host) };
+        },
+      },
+      LwFrame: {
+        surfaceMethods: (own: Record<string, unknown>) => ({ ...own, capture: 'kit', slotChanged: 'kit' }),
+        applySurfaceState: () => undefined,
+        state: { apply: () => undefined },
+        connectState: (given: unknown) => {
+          calls.push(given === host ? 'state' : 'wrong');
+        },
+        connectToolbars: (given: unknown) => {
+          calls.push(given === host ? 'toolbars' : 'wrong');
+        },
+      },
+    };
+
+    runInNewContext(script, { globalThis: sandbox, ...sandbox });
+    await Promise.resolve();
+
+    expect(Object.keys(methods).toSorted((a, b) => a.localeCompare(b))).toEqual(['capture', 'render', 'slotChanged', 'stateChanged']);
+    expect(calls).toEqual(['state', 'toolbars']);
+    expect(view).not.toMatch(/#[0-9a-f]{3,6}\b/i);
+  });
 });
+

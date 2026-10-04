@@ -56,15 +56,15 @@ npx @loomweaver/cli init
 
 It asks no questions. Every choice is an option with a default:
 
-| Option                                   | Default                                            | Effect                                                                                                                     |
-| ---------------------------------------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `--title <text>`                         | the package name in title case                     | the product name the top bar shows                                                                                         |
-| `--styles tailwind\|precompiled`         | `tailwind`                                         | the style pipeline; `precompiled` installs no Tailwind and imports the stylesheet the shell ships                          |
-| `--weaver <id>`                          | `notes`                                            | the first plugin, with a command on `mod+shift+` and the id's first letter, so the rail shows something on the first serve |
-| `--no-weaver`                            |                                                    | no first plugin; the output says the rail stays empty until one is composed in                                             |
-| `--app <name>`                           | inferred when the Nx workspace has one application | which Nx application to take to a product; with several and none named, the candidates are listed and nothing is written   |
-| `--package-manager npm\|pnpm\|yarn\|bun` | from the lockfile, npm when there is none          | how packages are installed and how the serve command is spelled                                                            |
-| `--dry-run`                              |                                                    | name every package, file and amendment, install and write nothing                                                          |
+| Option                                   | Default                                            | Effect                                                                                                                   |
+| ---------------------------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `--title <text>`                         | the package name in title case                     | the product name the top bar shows                                                                                       |
+| `--styles tailwind\|precompiled`         | `tailwind`                                         | the style pipeline; `precompiled` installs no Tailwind and imports the stylesheet the shell ships                        |
+| `--weaver <id>`                          | `notes`                                            | the first plugin, with a command on `mod+shift+` and a letter of its id, so the rail shows something on the first serve  |
+| `--no-weaver`                            |                                                    | no first plugin; the output says the rail stays empty until one is composed in                                           |
+| `--app <name>`                           | inferred when the Nx workspace has one application | which Nx application to take to a product; with several and none named, the candidates are listed and nothing is written |
+| `--package-manager npm\|pnpm\|yarn\|bun` | from the lockfile, npm when there is none          | how packages are installed and how the serve command is spelled                                                          |
+| `--dry-run`                              |                                                    | name every package, file and amendment, install and write nothing                                                        |
 
 **In an Angular CLI application** it runs `distribution` over the application with `--force`,
 because the files it replaces are the bootstrap wiring `ng new` produced, then `weaver` into
@@ -90,7 +90,7 @@ It needs nothing installed: the generators are bundled in. It runs without a wor
 it finds one it also wires the build, and where it does not it names what is left:
 
 ```bash
-npx @loomweaver/cli weaver --id notes --command --shortcut 'mod+shift+n' --out src/lib/notes
+npx @loomweaver/cli weaver --id notes --command --shortcut 'mod+shift+o' --out src/lib/notes
 ```
 
 ```
@@ -216,8 +216,8 @@ your assistant writes it:
 
 End to end, asking for a plugin looks like this:
 
-1. You ask your assistant for a weaver, say a `notes` plugin with a command on `mod+shift+n`.
-2. It calls `scaffold_weaver { "id": "notes", "command": true, "shortcut": "mod+shift+n" }`.
+1. You ask your assistant for a weaver, say a `notes` plugin with a command on `mod+shift+o`.
+2. It calls `scaffold_weaver { "id": "notes", "command": true, "shortcut": "mod+shift+o" }`.
 3. The server generates in memory and answers with the file map, and with `remaining`, the
    workspace steps the files need that the server cannot perform. **Nothing has touched disk.**
 4. Your assistant picks the target directory and writes each file with its ordinary file-writing
@@ -303,22 +303,22 @@ About dialog and `host` comes with it.
 The CLI spells these as flags (`--bar-item`) and MCP as arguments (`barItem`); they are the same
 option, so the table gives both.
 
-| CLI flag                 | MCP argument   | Effect                                                                                                                                                                                                                                                              |
-| ------------------------ | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `--id <id>` **required** | `id`           | plugin id in kebab-case, e.g. `notes`                                                                                                                                                                                                                               |
-| `--name <name>`          | `name`         | display name; defaults to a title-cased `id`                                                                                                                                                                                                                        |
-| `--command`              | `command`      | also register a command, the complete pattern: a described `choice` argument, a declared answer, `callable`, and a `run` that raises a toast in the tone the caller chose and answers with it; its shortcut defaults to `mod+shift+` and the first letter of the id |
-| `--shortcut <chord>`     | `shortcut`     | keyboard chord for it, e.g. `mod+shift+n` (implies `command`)                                                                                                                                                                                                       |
-| `--menu <slot>`          | `menu`         | hook a menu item into a slot, e.g. `content/tab/context` (implies `command`)                                                                                                                                                                                        |
-| `--bar-item`             | `barItem`      | a status-bar button that triggers the command (implies `command`)                                                                                                                                                                                                   |
-| `--settings`             | `settings`     | a settings section with a toggle and a text field                                                                                                                                                                                                                   |
-| `--about`                | `about`        | an About dialog that reads `ctx.host`, plus its command and a rail item at the bottom of the rail that runs it                                                                                                                                                      |
-| `--instanceable`         | `instanceable` | named saved instances with a switcher — this **docks** the surface instead of routing it (see below)                                                                                                                                                                |
-| `--container`            | `container`    | make the surface a [container](#container-surfaces): a routable tab holding a nested pane tree                                                                                                                                                                      |
-| `--agent`                | `agent`        | wire the weaver up for an [AG-UI agent](#the-agent-connection) to drive: a docked panel, the seam that decides about a call before it runs, and a stand-in that works on the first serve (implies `command`)                                                        |
-| `--access <req>`         | `access`       | auth-gate the surface and rail item: `authenticated`, `anonymous`, or `role:<name>`, e.g. `role:admin`                                                                                                                                                              |
-| `--prefix <prefix>`      | `prefix`       | selector prefix of the generated components. Without it the CLI takes the one your application declares in `angular.json`, and `app` where it declares none; MCP cannot read your workspace, so it takes `app` unless you pass your application's own               |
-| `--no-spec`              | `spec: false`  | skip the starter unit test, which is generated by default                                                                                                                                                                                                           |
+| CLI flag                 | MCP argument   | Effect                                                                                                                                                                                                                                                                                                                                 |
+| ------------------------ | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--id <id>` **required** | `id`           | plugin id in kebab-case, e.g. `notes`                                                                                                                                                                                                                                                                                                  |
+| `--name <name>`          | `name`         | display name; defaults to a title-cased `id`                                                                                                                                                                                                                                                                                           |
+| `--command`              | `command`      | also register a command, the complete pattern: a described `choice` argument, a declared answer, `callable`, and a `run` that raises a toast in the tone the caller chose and answers with it; its shortcut defaults to `mod+shift+` and the first letter of the id a browser leaves to the page, which keeps n, t, w and q for itself |
+| `--shortcut <chord>`     | `shortcut`     | keyboard chord for it, e.g. `mod+shift+o` (implies `command`)                                                                                                                                                                                                                                                                          |
+| `--menu <slot>`          | `menu`         | hook a menu item into a slot, e.g. `content/tab/context` (implies `command`)                                                                                                                                                                                                                                                           |
+| `--bar-item`             | `barItem`      | a status-bar button that triggers the command (implies `command`)                                                                                                                                                                                                                                                                      |
+| `--settings`             | `settings`     | a settings section with a toggle and a text field                                                                                                                                                                                                                                                                                      |
+| `--about`                | `about`        | an About dialog that reads `ctx.host`, plus its command and a rail item at the bottom of the rail that runs it                                                                                                                                                                                                                         |
+| `--instanceable`         | `instanceable` | named saved instances with a switcher — this **docks** the surface instead of routing it (see below)                                                                                                                                                                                                                                   |
+| `--container`            | `container`    | make the surface a [container](#container-surfaces): a routable tab holding a nested pane tree                                                                                                                                                                                                                                         |
+| `--agent`                | `agent`        | wire the weaver up for an [AG-UI agent](#the-agent-connection) to drive: a docked panel, the seam that decides about a call before it runs, and a stand-in that works on the first serve (implies `command`)                                                                                                                           |
+| `--access <req>`         | `access`       | auth-gate the surface and rail item: `authenticated`, `anonymous`, or `role:<name>`, e.g. `role:admin`                                                                                                                                                                                                                                 |
+| `--prefix <prefix>`      | `prefix`       | selector prefix of the generated components. Without it the CLI takes the one your application declares in `angular.json`, and `app` where it declares none; MCP cannot read your workspace, so it takes `app` unless you pass your application's own                                                                                  |
+| `--no-spec`              | `spec: false`  | skip the starter unit test, which is generated by default                                                                                                                                                                                                                                                                              |
 
 `--instanceable` and `--container` shape the surface itself and are therefore mutually exclusive; the
 generator says so rather than emitting something that quietly does nothing.
@@ -326,8 +326,8 @@ generator says so rather than emitting something that quietly does nothing.
 Write shortcuts with the **`mod`** token rather than `cmd` or `ctrl`: the host binds and displays it
 per platform (⌘ on macOS, Ctrl elsewhere).
 
-Either way, whether `loomweaver weaver --id notes --command --shortcut 'mod+shift+n'` or the MCP
-argument `{ "id": "notes", "command": true, "shortcut": "mod+shift+n" }`, you get the same eight
+Either way, whether `loomweaver weaver --id notes --command --shortcut 'mod+shift+o'` or the MCP
+argument `{ "id": "notes", "command": true, "shortcut": "mod+shift+o" }`, you get the same eight
 files:
 
 ```
@@ -447,7 +447,7 @@ for a distribution on the default `--styles tailwind`.
 ```bash
 npm i -D @loomweaver/devkit
 
-nx g @loomweaver/devkit:weaver --id notes --command --shortcut 'mod+shift+n'
+nx g @loomweaver/devkit:weaver --id notes --command --shortcut 'mod+shift+o'
 nx g @loomweaver/devkit:distribution --name acme-studio --title 'Acme Studio' --styles precompiled
 nx g @loomweaver/devkit:frame-plugin --id charts
 nx g @loomweaver/devkit:auth-source --name acme

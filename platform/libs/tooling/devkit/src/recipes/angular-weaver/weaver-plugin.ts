@@ -7,6 +7,7 @@ import {
   STATUS_BAR_REGION,
 } from '../shell-regions';
 import { commandBlock, toneHelper } from './weaver-command';
+import { stringLiteral } from '../../lib/generate/escape';
 
 export const CONTAINER_EXAMPLE_ID = 'example';
 
@@ -231,7 +232,7 @@ ${pluginConsts(weaver).join('\n\n')}
 export const ${weaver.propertyName}Plugin: Plugin = {
   manifest: {
     id: '${weaver.id}',
-    name: '${weaver.name}',
+    name: ${stringLiteral(weaver.name)},
     capabilities: [${quotedList(weaver.capabilities)}],
   },
   activate(ctx) {

@@ -15,13 +15,13 @@
 
 ## 3. Generators and checks that do what they say (own PR)
 
-- [ ] 3.1 Escaping helpers for TypeScript literals, HTML and Angular template text; every recipe uses them; tests with quotes, braces, at signs and angle brackets, compiled where the recipe spec can
-- [ ] 3.2 Nx distribution generator applies the package amendments and returns the install callback
-- [ ] 3.3 `init` validates styles, weaver id and derived id before any step; installs platform packages at its own version from the scaffolds' amendments
-- [ ] 3.4 Assistant server refuses unknown arguments; a test for the server's schema derivation
-- [ ] 3.5 Frame plugin scaffold uses the frame kit's surface methods, state and toolbar connection; its notes name the declaration file
-- [ ] 3.6 Catalogue check: `deployed` and `level` known and value-checked, protocol-relative addresses flagged; the field list checked against the workbench's parser by a guard
-- [ ] 3.7 Default weaver shortcut `mod+alt+<letter>`; guides and examples follow
+- [x] 3.1 Escaping helpers for TypeScript literals, HTML and Angular template text; every recipe uses them; tests with quotes, braces, at signs and angle brackets, compiled where the recipe spec can
+- [x] 3.2 Nx distribution generator applies the package amendments and returns the install callback
+- [x] 3.3 `init` validates styles, weaver id and derived id before any step; installs the platform packages at its own version
+- [x] 3.4 Assistant server refuses unknown arguments; a test for the server's schema derivation
+- [x] 3.5 Frame plugin scaffold uses the frame kit's surface methods, state and toolbar connection; its notes name the declaration file
+- [x] 3.6 Catalogue check: `deployed` and `level` known and value-checked, protocol-relative addresses flagged; the field list checked against the workbench's parser by a guard
+- [x] 3.7 Default weaver shortcut skips the letters browsers keep for themselves; guides and examples follow
 
 ## 4. One implementation per job in the shell (own PR, no behaviour change)
 

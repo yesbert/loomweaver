@@ -37,7 +37,7 @@ interface ResolvedFeatures {
   readonly menuSlot?: string;
   readonly settings: boolean;
   readonly access?: string;
-  readonly shortcut: string;
+  readonly shortcut?: string;
   readonly barItem: boolean;
   readonly about: boolean;
   readonly instanceable: boolean;
@@ -98,6 +98,15 @@ const PLATFORM_BOUND_CHORD_TOKENS = new Set([
   'meta',
 ]);
 
+const KEPT_BY_BROWSERS = new Set(['n', 't', 'w', 'q']);
+
+function defaultShortcut(id: string): string | undefined {
+  const letter = [...id].find(
+    (character) => /[a-z]/.test(character) && !KEPT_BY_BROWSERS.has(character),
+  );
+  return letter && `mod+shift+${letter}`;
+}
+
 function assertPlatformNeutralChord(shortcut: string): void {
   const tokens = shortcut
     .toLowerCase()
@@ -139,7 +148,7 @@ function resolveFeatures(
     menuSlot,
     settings: Boolean(input?.settings),
     access: input?.access ? accessLiteral(input.access) : undefined,
-    shortcut: input?.shortcut?.trim() || `mod+shift+${id.charAt(0)}`,
+    shortcut: input?.shortcut?.trim() || defaultShortcut(id),
     barItem,
     about: Boolean(input?.about),
     instanceable,

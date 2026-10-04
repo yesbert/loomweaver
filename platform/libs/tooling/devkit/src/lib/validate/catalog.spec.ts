@@ -116,6 +116,23 @@ describe('validateCatalog', () => {
       );
     });
 
+    it('reads where an entry runs and whether it is deployed, and judges both', () => {
+      expect(validateCatalog([{ ...valid, deployed: true, level: 'isolated' }])).toEqual([]);
+
+      const findings = validateCatalog([{ ...valid, deployed: 'true', level: 'embeded' }]);
+      expect(findings.map((f) => f.code)).toEqual(['catalog.deployed', 'catalog.level']);
+    });
+
+    it('treats a protocol-relative address as another host, as the host does', () => {
+      const findings = validateCatalog([
+        { ...valid, entryUrl: '//evil.example/p.html', iconUrl: '//cdn.example/i.svg' },
+      ]);
+      expect(findings.map((f) => [f.code, f.path])).toEqual([
+        ['catalog.url.foreign', 'catalog[0].entryUrl'],
+        ['catalog.url.foreign', 'catalog[0].iconUrl'],
+      ]);
+    });
+
     it('warns about a missing version, because updates hang off it', () => {
       const findings = validateCatalog([{ ...valid, version: undefined }]);
       expect(findings.map((f) => f.code)).toEqual([

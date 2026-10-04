@@ -1,6 +1,11 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { basename, join, resolve } from 'node:path';
-import { toTitleCase } from '@loomweaver/devkit';
+import {
+  DistributionInput,
+  resolveDistributionInput,
+  resolveWeaverInput,
+  toTitleCase,
+} from '@loomweaver/devkit';
 import { ArgError, boolFlag, ParsedArgs, stringFlag } from '../args';
 import { Application, nxApplications } from './nx-applications';
 import {
@@ -22,10 +27,13 @@ export interface InitDeps {
   readonly version: string;
 }
 
-const RUNTIME_PACKAGES = [
+const PLATFORM_PACKAGES = [
   '@loomweaver/shell',
   '@loomweaver/plugin-sdk',
   '@loomweaver/frame-kit',
+] as const;
+
+const PEER_PACKAGES = [
   '@angular/cdk',
   '@jsverse/transloco',
   '@ng-icons/heroicons',
@@ -81,6 +89,12 @@ export function planInit(args: ParsedArgs, deps: InitDeps): InitPlan {
       : undefined;
   const name = app?.name ?? packageNameToId(manifest.name ?? basename(workspace.root));
   const styles = stringFlag(args, 'styles') ?? 'tailwind';
+  const title = stringFlag(args, 'title') ?? toTitleCase(name);
+  const weaver = weaverId(args);
+  resolveDistributionInput({ name, title, styles } as DistributionInput);
+  if (weaver !== undefined) {
+    resolveWeaverInput({ id: weaver });
+  }
   const declared = { ...manifest.dependencies, ...manifest.devDependencies };
   const missing = (names: readonly string[]) =>
     names.filter((candidate) => !Object.hasOwn(declared, candidate));
@@ -89,11 +103,12 @@ export function planInit(args: ParsedArgs, deps: InitDeps): InitPlan {
     manager: override ?? detected.manager,
     lockfile: override ? undefined : detected.lockfile,
     name,
-    title: stringFlag(args, 'title') ?? toTitleCase(name),
+    title,
     styles,
-    weaver: weaverId(args),
+    weaver,
     runtime: [
-      ...missing(RUNTIME_PACKAGES),
+      ...missing(PLATFORM_PACKAGES).map((pkg) => platformSpec(pkg, deps.version)),
+      ...missing(PEER_PACKAGES),
       ...(Object.hasOwn(declared, SERVICE_WORKER)
         ? []
         : [serviceWorkerSpec(workspace.root, manifest)]),
@@ -101,7 +116,7 @@ export function planInit(args: ParsedArgs, deps: InitDeps): InitPlan {
     dev: [
       ...(styles === 'tailwind' ? missing(STYLE_PACKAGES) : []),
       ...(workspace.kind === 'nx' && !Object.hasOwn(declared, NX_COLLECTION)
-        ? [collectionSpec(deps.version)]
+        ? [platformSpec(NX_COLLECTION, deps.version)]
         : []),
     ],
     app,
@@ -168,10 +183,8 @@ function serviceWorkerSpec(root: string, manifest: Manifest): string {
   return declared ? `${SERVICE_WORKER}@${declared}` : SERVICE_WORKER;
 }
 
-function collectionSpec(version: string): string {
-  return version === UNBUNDLED_VERSION
-    ? `${NX_COLLECTION}@latest`
-    : `${NX_COLLECTION}@${version}`;
+function platformSpec(name: string, version: string): string {
+  return `${name}@${version === UNBUNDLED_VERSION ? 'latest' : version}`;
 }
 
 function packageNameToId(value: string): string {

@@ -10,7 +10,9 @@ export function commandBlock(weaver: ResolvedWeaver): string {
     `        { name: 'tone', kind: 'choice', choices: ['info', 'success', 'warning'], description: '${weaver.id}.actionTone' },`,
     '      ],',
     `      answers: '${weaver.id}.actionAnswers',`,
-    `      shortcut: '${weaver.features.shortcut}',`,
+    ...(weaver.features.shortcut
+      ? [`      shortcut: '${weaver.features.shortcut}',`]
+      : []),
     '      callable: true,',
     ...(weaver.features.agent
       ? [

@@ -16,6 +16,7 @@ export interface ToolResult {
   [key: string]: unknown;
   content: { type: 'text'; text: string }[];
   structuredContent: Record<string, unknown>;
+  isError?: boolean;
 }
 
 type Args = Record<string, unknown>;
@@ -25,6 +26,19 @@ function ok(data: Record<string, unknown>): ToolResult {
     content: [{ type: 'text', text: JSON.stringify(data, null, 2) }],
     structuredContent: data,
   };
+}
+
+function refused(message: string): ToolResult {
+  return {
+    content: [{ type: 'text', text: message }],
+    structuredContent: { refused: message },
+    isError: true,
+  };
+}
+
+function unknownOptions(scaffold: ScaffoldDescriptor, args: Args): string[] {
+  const known = new Set(scaffold.options.map((option) => option.name));
+  return Object.keys(args).filter((name) => !known.has(name));
 }
 
 export function toolName(scaffold: ScaffoldDescriptor): string {
@@ -60,6 +74,14 @@ function portableValuesFrom(
 const WHERE_THE_FILES_LAND = '<the directory you wrote these files into>';
 
 export function scaffold(scaffold: ScaffoldDescriptor, args: Args): ToolResult {
+  const unknown = unknownOptions(scaffold, args);
+  if (unknown.length > 0) {
+    const takes = portableOptions(scaffold).map((option) => option.name);
+    return refused(
+      `${toolName(scaffold)} does not know ${unknown.map((name) => `"${name}"`).join(', ')}, ` +
+        `so nothing was generated. It takes: ${takes.join(', ')}.`,
+    );
+  }
   const values = portableValuesFrom(scaffold, args);
   const remaining = (
     scaffold.amend?.({ ...values, directory: WHERE_THE_FILES_LAND }) ?? []

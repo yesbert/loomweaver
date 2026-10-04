@@ -1,4 +1,5 @@
 import type { ResolvedWeaver } from './weaver-input';
+import { markupText } from '../../lib/generate/escape';
 
 export function aboutDialogFile(weaver: ResolvedWeaver): string {
   return `import { Component, inject } from '@angular/core';
@@ -16,7 +17,7 @@ export class ${weaver.className}AboutDialog {
 
 export function aboutDialogTemplateFile(weaver: ResolvedWeaver): string {
   return `<div class="flex flex-col items-center gap-2 text-center">
-  <h2 class="text-lg font-semibold text-content">${weaver.name}</h2>
+  <h2 class="text-lg font-semibold text-content">${markupText(weaver.name)}</h2>
   <span class="text-xs text-content-faint tabular-nums">v{{ host.version() }}</span>
 </div>
 `;
@@ -77,7 +78,7 @@ export function viewTemplateFile(weaver: ResolvedWeaver): string {
 `
     : '';
   return `<div class="mx-auto flex max-w-2xl flex-col gap-4 p-6">
-  <h2 class="text-lg font-semibold text-content">${weaver.name}</h2>
+  <h2 class="text-lg font-semibold text-content">${markupText(weaver.name)}</h2>
   <p class="text-sm text-content-faint">
     Your new weaver surface. Register more surfaces, commands, rail items and menus on
     <code class="text-content">ctx</code> inside the plugin's

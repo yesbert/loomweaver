@@ -137,7 +137,7 @@ export function readmeFile(weaver: ResolvedWeaver): string {
     '## After scaffolding',
     '',
     '- `src/lib/i18n/de.json` starts as a copy of the English strings — translate it.',
-    `- A scaffolded command defaults its shortcut to \`mod+shift+<first letter of the id>\` — two weavers whose ids share a first letter collide; pass \`--shortcut\` or edit the command.`,
+    `- A scaffolded command defaults its shortcut to \`mod+shift+\` and the first letter of the id a browser leaves to the page (it keeps n, t, w and q for itself) — two weavers that land on the same letter collide; pass \`--shortcut\` or edit the command.`,
     ...asBullet(UNTAGGED_NOTE),
     '',
   ].join('\n');

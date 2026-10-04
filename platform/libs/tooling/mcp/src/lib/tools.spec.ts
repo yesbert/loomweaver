@@ -8,6 +8,7 @@ import {
   validateI18nTool,
   validateManifestTool,
 } from './tools';
+import { inputSchema } from './server';
 
 function must(name: string) {
   const descriptor = findScaffold(name);
@@ -70,6 +71,21 @@ describe('mcp tools', () => {
       'midnight.css',
     );
     expect(Object.keys(files('layout', {}))).toContain('base-layout.ts');
+  });
+
+  it('refuses an option it does not know and names the ones it takes', () => {
+    const result = scaffold(must('weaver'), { id: 'notes', barItems: true });
+
+    expect(result.isError).toBe(true);
+    expect(result.content[0].text).toContain('"barItems"');
+    expect(result.content[0].text).toContain('barItem');
+    expect(result.structuredContent['files']).toBeUndefined();
+  });
+
+  it('lets an unknown option reach the refusal rather than stripping it on the way in', () => {
+    const parsed = inputSchema(must('weaver')).parse({ id: 'notes', barItems: true });
+
+    expect(parsed).toEqual({ id: 'notes', barItems: true });
   });
 
   it('ignores workspace-shaped options — an MCP client has nowhere to put them', () => {

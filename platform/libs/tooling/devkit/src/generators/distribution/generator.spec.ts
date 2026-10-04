@@ -33,6 +33,17 @@ describe('distribution generator', () => {
     });
   });
 
+  it('records the frame kit the generated build serves, and hands back the install', async () => {
+    const install = await distributionGenerator(tree, {
+      name: 'acme-studio',
+      title: 'Acme Studio',
+    });
+
+    const manifest = readJson(tree, 'package.json');
+    expect(manifest.dependencies['@loomweaver/frame-kit']).toMatch(/^\^\d+\.\d+\.\d+/);
+    expect(install).toEqual(expect.any(Function));
+  });
+
   it('scaffolds a runnable distribution app', async () => {
     await distributionGenerator(tree, {
       name: 'acme-studio',
