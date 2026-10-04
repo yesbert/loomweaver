@@ -30,8 +30,8 @@ if (!list) {
 }
 const known = new Set([...list[1].matchAll(/'([A-Za-z]+)'/g)].map((hit) => hit[1]));
 
-const unchecked = [...parsed].filter((key) => !known.has(key)).toSorted();
-const unread = [...known].filter((key) => !parsed.has(key)).toSorted();
+const unchecked = [...parsed].filter((key) => !known.has(key)).toSorted((a, b) => a.localeCompare(b));
+const unread = [...known].filter((key) => !parsed.has(key)).toSorted((a, b) => a.localeCompare(b));
 
 if (unchecked.length > 0 || unread.length > 0) {
   console.error('check-catalog-keys: the catalogue check and the workbench disagree on the fields of an entry.');
