@@ -1,6 +1,6 @@
 import { computed, signal } from '@angular/core';
 import { ANONYMOUS, type AuthSnapshot } from '@loomweaver/plugin-sdk';
-import { readStored, storeBestEffort } from '../best-effort-storage';
+import { LocalStorageStore } from '@loomweaver/shell';
 
 const ACCOUNTS: readonly AuthSnapshot[] = [
   {
@@ -26,12 +26,14 @@ export const ACCOUNT_PICTURES: Readonly<Record<string, string>> = {
 const SIGNED_OUT_KEY = 'demo.session.signed-out';
 const ACCOUNT_KEY = 'demo.session.account';
 
+const store = new LocalStorageStore();
+
 function readSignedOut(): boolean {
-  return readStored(SIGNED_OUT_KEY) === 'true';
+  return store.peek(SIGNED_OUT_KEY) === 'true';
 }
 
 function readAccount(): number {
-  const stored = Number(readStored(ACCOUNT_KEY));
+  const stored = Number(store.peek(ACCOUNT_KEY));
   return Number.isInteger(stored) && stored >= 0 && stored < ACCOUNTS.length ? stored : 0;
 }
 
@@ -44,16 +46,16 @@ export const demoSession = {
   ),
   account: computed<AuthSnapshot>(() => ACCOUNTS[account()]),
   signIn(): void {
-    storeBestEffort(SIGNED_OUT_KEY, 'false');
+    void store.set(SIGNED_OUT_KEY, 'false');
     signedOut.set(false);
   },
   signOut(): void {
-    storeBestEffort(SIGNED_OUT_KEY, 'true');
+    void store.set(SIGNED_OUT_KEY, 'true');
     signedOut.set(true);
   },
   switchAccount(): void {
     const next = (account() + 1) % ACCOUNTS.length;
-    storeBestEffort(ACCOUNT_KEY, String(next));
+    void store.set(ACCOUNT_KEY, String(next));
     account.set(next);
   },
 };

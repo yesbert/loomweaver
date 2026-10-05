@@ -30,7 +30,7 @@ export function chartColours(): Signal<ChartColours> {
   const observer = new MutationObserver(() => colours.set(read(root)));
   observer.observe(root, {
     attributes: true,
-    attributeFilter: ['class', 'style', 'data-look'],
+    attributeFilter: ['class', 'style'],
   });
   inject(DestroyRef).onDestroy(() => observer.disconnect());
   return colours.asReadonly();

@@ -1,27 +1,3 @@
-// Serves the production build so the service worker can be exercised locally.
-//
-// The Angular dev server cannot host the service worker truthfully: it applies per-request
-// transformations, so the bytes it serves do not match the hashes in the `ngsw.json` it emits.
-// The worker verifies every asset against that manifest, so each watch-mode rebuild ends in
-// VERSION_INSTALLATION_FAILED and the shell's (correct) "update failed" toast, a false alarm
-// indistinguishable from a broken deploy. Serving the built output makes the hashes match, so
-// the PWA install, the update flow and the failure chrome all behave like production.
-//
-// Deliberately a separate port from `npm start`: a service worker's scope is per origin, so a
-// registration left behind by a preview would otherwise keep controlling the dev server and
-// serve the stale cached build instead of your edits.
-//
-// Requests without a file extension fall back to index.html (SPA deep links). Requests that
-// look like a file 404 honestly — answering them with HTML would corrupt the worker's hash
-// check and reproduce the very failure this script avoids.
-//
-// Plain HTTP on 127.0.0.1 is deliberate. A service worker needs a secure context, and browsers
-// count loopback as one without a certificate, while a self-signed certificate is worse than none
-// here: the page loads but the worker script fetch fails the certificate check, so the worker never
-// registers and the preview silently stops previewing the thing it exists for.
-//
-// Paths are resolved relative to this file, so the script is cwd-independent.
-
 import { createServer } from 'node:http';
 import { createReadStream, existsSync, statSync } from 'node:fs';
 import { dirname, extname, join, resolve, sep } from 'node:path';

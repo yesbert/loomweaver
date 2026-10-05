@@ -1,9 +1,6 @@
 body {
   margin: 0;
   padding: 1.5rem;
-  font-family: var(--lw-font-sans, system-ui, sans-serif);
-  color: var(--lw-content, #0f172a);
-  background: var(--lw-surface, #ffffff);
 }
 
 .head {
@@ -25,7 +22,7 @@ h2 {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--lw-content-muted, #64748b);
+  color: var(--lw-content-muted);
 }
 
 .columns {
@@ -46,9 +43,9 @@ h2 {
 
 .row {
   padding: 0.75rem 0.9rem;
-  border: 1px solid var(--lw-border, rgba(100, 116, 139, 0.3));
+  border: 1px solid var(--lw-border);
   border-radius: 0.5rem;
-  background: var(--lw-surface-raised, #ffffff);
+  background: var(--lw-surface-raised);
 }
 
 .row-head {
@@ -64,7 +61,7 @@ h2 {
   gap: 1rem;
   margin-top: 0.2rem;
   font-size: 0.85rem;
-  color: var(--lw-content-muted, #64748b);
+  color: var(--lw-content-muted);
 }
 
 .reference {
@@ -91,10 +88,10 @@ h2 {
 .total {
   margin: 0.9rem 0 0;
   font-size: 0.9rem;
-  color: var(--lw-content-muted, #64748b);
+  color: var(--lw-content-muted);
 }
 
 .notice {
   margin: 0;
-  color: var(--lw-content-muted, #64748b);
+  color: var(--lw-content-muted);
 }

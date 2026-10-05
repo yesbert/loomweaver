@@ -15,7 +15,7 @@ Confirming a line books the match. Dismissing it leaves the payment for someone 
 
 ## What it is allowed to do
 
-It contributes its own view and reads whether someone is signed in, so it can say who confirmed a match. It reaches nothing else: no storage of this application, no session token, no other plugin. It runs in its own sandbox, in a document of its own, and speaks to the workbench only through the protocol the workbench offers it.
+It contributes its own view and reads whether someone is signed in and holds the accounting role, and shows the matching only to them. It reaches nothing else: no storage of this application, no session token, no other plugin. It runs in its own sandbox, in a document of its own, and speaks to the workbench only through the protocol the workbench offers it.
 
 ## Settings
 
