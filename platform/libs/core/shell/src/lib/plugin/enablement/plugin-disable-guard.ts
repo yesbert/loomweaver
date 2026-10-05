@@ -23,6 +23,15 @@ export class PluginDisableGuard {
     });
   }
 
+  toggleFrom(id: string, event: Event): void {
+    const toggle = event.target as HTMLInputElement;
+    void this.requestEnabled(id, toggle.checked).then((changed) => {
+      if (!changed) {
+        toggle.checked = true;
+      }
+    });
+  }
+
   confirmRemoval(id: string): Promise<boolean> {
     return this.closeGuard.confirmDiscard(
       this.unsavedWork.instancesOfPlugin(id),

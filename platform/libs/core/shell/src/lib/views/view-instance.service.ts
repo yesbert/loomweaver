@@ -3,6 +3,7 @@ import { WORKING_STATE_STORE } from '../persistence/working-state-store';
 import { ViewStateService } from './view-state.service';
 import { hydrateAsync, readStoredValue } from '../persistence/stored-values/hydrate';
 import { StateSyncService } from '../persistence/cross-tab/state-sync.service';
+import { parseStored } from '../persistence/stored-values/parse-stored';
 
 const STORAGE_PREFIX = 'lw.shell.view-instances:';
 
@@ -21,32 +22,25 @@ function defaultRecord(viewId: string): InstanceRecord {
 }
 
 function parseRecord(viewId: string, raw: string | undefined): InstanceRecord {
-  if (!raw) {
+  const parsed = parseStored(raw);
+  if (!parsed || typeof parsed !== 'object') {
     return defaultRecord(viewId);
   }
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    if (!parsed || typeof parsed !== 'object') {
-      return defaultRecord(viewId);
-    }
-    const record = parsed as Partial<InstanceRecord>;
-    const instances = Array.isArray(record.instances)
-      ? record.instances.filter(
-          (instance): instance is ViewInstance =>
-            !!instance && typeof instance.id === 'string' && typeof instance.name === 'string',
-        )
-      : [];
-    const withoutDefault = instances.filter((instance) => instance.id !== viewId);
-    const merged = [{ id: viewId, name: '' }, ...withoutDefault];
-    const activeId =
-      typeof record.activeId === 'string' &&
-      merged.some((instance) => instance.id === record.activeId)
-        ? record.activeId
-        : viewId;
-    return { instances: merged, activeId };
-  } catch {
-    return defaultRecord(viewId);
-  }
+  const record = parsed as Partial<InstanceRecord>;
+  const instances = Array.isArray(record.instances)
+    ? record.instances.filter(
+        (instance): instance is ViewInstance =>
+          !!instance && typeof instance.id === 'string' && typeof instance.name === 'string',
+      )
+    : [];
+  const withoutDefault = instances.filter((instance) => instance.id !== viewId);
+  const merged = [{ id: viewId, name: '' }, ...withoutDefault];
+  const activeId =
+    typeof record.activeId === 'string' &&
+    merged.some((instance) => instance.id === record.activeId)
+      ? record.activeId
+      : viewId;
+  return { instances: merged, activeId };
 }
 
 @Service()

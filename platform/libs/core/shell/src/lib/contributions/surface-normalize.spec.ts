@@ -174,7 +174,7 @@ describe('surface-normalize', () => {
       docks: [],
       container: { children: [] },
     };
-    expect(() => surfaceToView(surface)).toThrow(/container but not routable/);
+    expect(() => surfaceToView(surface)).toThrow(/container surface must be routable/);
   });
 
   it('maps a child-only surface (docks: []) to an unplaced view', () => {

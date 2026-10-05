@@ -85,9 +85,7 @@ export function surfaceToEntry(
   surface: Surface,
   pluginId?: string,
 ): RegisteredSurface {
-  if (!surface.routable) {
-    assertDockable(surface);
-  }
+  assertPlaceable(surface);
   return {
     ...dockedSurfaceFields(surface),
     ...commonSurfaceFields(surface),
@@ -116,16 +114,7 @@ export function contentRouteToEntry(
     id: route.id,
     actions: route.actions,
     ...commonSurfaceFields(route),
-    routable: {
-      path: route.path,
-      chromeless: route.chromeless,
-      title: route.title,
-      icon: route.icon,
-      titleIsLiteral: route.titleIsLiteral,
-      subRoutes: route.subRoutes,
-      rest: route.rest,
-      follows: route.follows,
-    },
+    routable: routableFields(route),
     pluginId,
     ...presentationOf(route),
   } as RegisteredSurface;
@@ -143,20 +132,30 @@ export function entryToContentRoute(
     }
     return {
       id: entry.id,
-      path: routable.path,
-      chromeless: routable.chromeless,
+      ...routableFields(routable),
       title: routable.title ?? entry.title,
       icon: routable.icon ?? entry.icon,
-      titleIsLiteral: routable.titleIsLiteral,
-      subRoutes: routable.subRoutes,
-      rest: routable.rest,
-      follows: routable.follows,
       actions: entry.actions,
       ...commonSurfaceFields(entry),
       pluginId: entry.pluginId,
       ...presentationOf(entry),
     } as RegisteredContentRoute;
   });
+}
+
+function routableFields(
+  source: NonNullable<Surface['routable']>,
+): NonNullable<Surface['routable']> {
+  return {
+    path: source.path,
+    chromeless: source.chromeless,
+    title: source.title,
+    icon: source.icon,
+    titleIsLiteral: source.titleIsLiteral,
+    subRoutes: source.subRoutes,
+    rest: source.rest,
+    follows: source.follows,
+  };
 }
 
 export function entryToView(entry: RegisteredSurface): RegisteredView {
@@ -190,17 +189,24 @@ function cached<T extends object>(
   return built;
 }
 
-function assertDockable(surface: Surface): void {
+export function assertPlaceable(
+  surface: Pick<Surface, 'id' | 'routable' | 'container' | 'docks'>,
+  who = `Surface "${surface.id}"`,
+): void {
+  if (surface.routable !== undefined) {
+    return;
+  }
   if (surface.container !== undefined) {
     throw new Error(
-      `Surface "${surface.id}" is a container but not routable — a container tab holds its own ':id' ` +
-        `. Add a routable: { path } declaration.`,
+      `${who}: a container surface must be routable, because a container tab holds its own ':id'. ` +
+        `Add a routable: { path } declaration.`,
     );
   }
   if (surface.docks === undefined) {
     throw new Error(
-      `Surface "${surface.id}" is non-routable but declares no docks — it has no home region to dock into. ` +
-        `Add docks: ['<regionId>'] (e.g. a panel region), or docks: [] for a container-only child, or make it routable.`,
+      `${who} needs 'routable.path' (a URL-addressed surface) or 'docks' (a surface hosted at a dock); ` +
+        `it declares no docks, so it has no home region. Add docks: ['<regionId>'] (e.g. a panel region), ` +
+        `or docks: [] for a container-only child.`,
     );
   }
 }

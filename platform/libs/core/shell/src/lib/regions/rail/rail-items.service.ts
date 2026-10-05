@@ -1,6 +1,7 @@
 import { Service } from '@angular/core';
 import { persistedSetting } from '../../persistence/stored-values/persisted-setting';
 import { recordOf } from '../../persistence/stored-values/persisted-record';
+import { parseStored } from '../../persistence/stored-values/parse-stored';
 
 const STORAGE_KEY = 'lw.shell.rail-items';
 
@@ -26,24 +27,17 @@ function isString(value: unknown): value is string {
 }
 
 function parse(raw: string | undefined): RailItemsState {
-  if (!raw) {
+  const parsed = parseStored(raw);
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
     return EMPTY;
   }
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-      return EMPTY;
-    }
-    const state = parsed as Record<string, unknown>;
-    return {
-      hidden: Array.isArray(state['hidden'])
-        ? state['hidden'].filter(isString)
-        : [],
-      placed: recordOf(state['placed'], isString),
-    };
-  } catch {
-    return EMPTY;
-  }
+  const state = parsed as Record<string, unknown>;
+  return {
+    hidden: Array.isArray(state['hidden'])
+      ? state['hidden'].filter(isString)
+      : [],
+    placed: recordOf(state['placed'], isString),
+  };
 }
 
 @Service()

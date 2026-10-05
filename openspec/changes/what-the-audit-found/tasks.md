@@ -25,13 +25,13 @@
 
 ## 4. One implementation per job in the shell (own PR, no behaviour change)
 
-- [ ] 4.1 Roving key to index in one helper, used by the toolbar, menu, select and pane tabs
-- [ ] 4.2 Row measuring and the fold tray lifecycle shared by the bar and the toolbar
-- [ ] 4.3 One menu-description coercion with a strict and a lenient mode
-- [ ] 4.4 One stored-value parser; each reader keeps only its shape check
-- [ ] 4.5 One helper registering a context-menu command with its entry; tab, view and rail context menus use it
-- [ ] 4.6 Surface placement assertion and routable field copy owned by surface normalisation; the RPC sanitizer keeps wire-shape checks only
-- [ ] 4.7 Small ones: chrome item activation, bar button resolved once, rail menu description, current address signal, path helpers, plugin toggle
+- [x] 4.1 Roving key to index in one helper, used by the toolbar, menu, select and pane tabs
+- [x] 4.2 Entry measuring, the fold control's width and closing the tray on an outside pointer shared by the bar and the toolbar; opening and focusing the tray stay with each, since one is an Angular template and the other plain DOM
+- [x] 4.3 One menu-description coercion with a strict and a lenient mode
+- [x] 4.4 One stored-value parser; each reader keeps only its shape check
+- [x] 4.5 One helper registering a context-menu command with its entry; tab, view and rail context menus use it
+- [x] 4.6 Surface placement assertion and routable field copy owned by surface normalisation; the RPC sanitizer keeps wire-shape checks only
+- [x] 4.7 Small ones: rail menu description, current address signal, path helpers, plugin toggle. Left as they are: the chrome item activation sequence and the bar button's second resolution, which do not diverge and would need the bar item's inputs reshaped for no gain in correctness
 
 ## 5. One implementation per job in the tooling (own PR, no behaviour change)
 

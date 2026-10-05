@@ -5,6 +5,7 @@ import {
   Surface,
   SurfacePresentation,
 } from '@loomweaver/plugin-sdk';
+import { assertPlaceable } from '../../../contributions/surface-normalize';
 import { tabBadgeOf } from '../../../contributions/tab-badge';
 import {
   WireRecord,
@@ -34,7 +35,10 @@ export function sanitizeRpcSurface(
       : undefined;
   const routable = sanitizeRpcRoutable(raw['routable']);
   const docks = textList(raw['docks']);
-  assertRpcSurfaceAddress(pluginId, container, routable, docks);
+  assertPlaceable(
+    { id, routable, container, docks },
+    `Sandbox plugin "${pluginId}": surface "${id}"`,
+  );
 
   const shared: Omit<Surface, keyof SurfacePresentation> = {
     id,
@@ -107,26 +111,6 @@ function rpcIframeUrl(
     );
   }
   return value;
-}
-
-function assertRpcSurfaceAddress(
-  pluginId: string,
-  container: ContainerSpec | undefined,
-  routable: Surface['routable'] | undefined,
-  docks: readonly string[] | undefined,
-): void {
-  if (routable === undefined && docks === undefined) {
-    throw new Error(
-      `Sandbox plugin "${pluginId}": registerSurface needs 'routable.path' (a URL-addressed surface) ` +
-        `or 'docks' (a surface hosted at a dock).`,
-    );
-  }
-  if (container !== undefined && routable === undefined) {
-    throw new Error(
-      `Sandbox plugin "${pluginId}": a container surface must be routable — a container tab holds ` +
-        `its own ':id'.`,
-    );
-  }
 }
 
 function sanitizeRpcRoutable(value: unknown): Surface['routable'] | undefined {

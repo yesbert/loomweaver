@@ -1,6 +1,7 @@
 import { CAPABILITIES, Capability } from '@loomweaver/plugin-sdk';
 import { PluginIsolationLevel } from '../../foundation/plugin-isolation-level';
 import { SettingCodec } from '../../persistence/stored-values/persisted-setting';
+import { parseStored } from '../../persistence/stored-values/parse-stored';
 
 /**
  * A community plugin the user installed from the distribution's catalog. Plain data — the same
@@ -104,18 +105,10 @@ export function dedupeById<T extends { readonly id: string }>(
 export function parseInstalledList(
   raw: string | undefined,
 ): readonly InstalledPlugin[] {
-  if (!raw) {
-    return [];
-  }
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    if (!Array.isArray(parsed)) {
-      return [];
-    }
-    return dedupeById(parsed.map((raw) => parseInstalledPlugin(raw)));
-  } catch {
-    return [];
-  }
+  const parsed = parseStored(raw);
+  return Array.isArray(parsed)
+    ? dedupeById(parsed.map((entry) => parseInstalledPlugin(entry)))
+    : [];
 }
 
 export const INSTALLED_LIST_CODEC: SettingCodec<readonly InstalledPlugin[]> = {

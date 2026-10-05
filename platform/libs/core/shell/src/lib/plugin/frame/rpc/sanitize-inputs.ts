@@ -1,7 +1,6 @@
 import {
   AccessRequirement,
   ContentTabLabel,
-  MenuContext,
   MenuHeader,
   MenuItem,
   NotificationInput,
@@ -10,6 +9,7 @@ import {
   Toolbar,
 } from '@loomweaver/plugin-sdk';
 import { tabBadgeOf } from '../../../contributions/tab-badge';
+import { menuContextOf } from '../../../foundation/wire/menu-context-of';
 import {
   isWireObject,
   onlyTrue,
@@ -85,8 +85,8 @@ export function sanitizeRpcMenuItem(item: MenuItem): MenuItem {
     access: sanitizeAccess(raw['access']),
     group: optionalText(raw['group']),
     order: optionalNumber(raw['order']),
-    when: sanitizeMenuContext(raw['when']),
-    checkedWhen: sanitizeMenuContext(raw['checkedWhen']),
+    when: menuContextOf(raw['when']),
+    checkedWhen: menuContextOf(raw['checkedWhen']),
     submenu: optionalText(raw['submenu']),
     menuHeader: sanitizeMenuHeader(raw['menuHeader']),
   };
@@ -160,19 +160,3 @@ function isNotificationKind(value: unknown): value is NotificationKind {
   return NOTIFICATION_KINDS.has(value as NotificationKind);
 }
 
-function sanitizeMenuContext(value: unknown): MenuContext | undefined {
-  if (!isWireObject(value)) {
-    return undefined;
-  }
-  const clean: Record<string, string | number | boolean> = {};
-  for (const [key, raw] of Object.entries(value)) {
-    if (
-      typeof raw === 'string' ||
-      typeof raw === 'number' ||
-      typeof raw === 'boolean'
-    ) {
-      clean[key] = raw;
-    }
-  }
-  return clean;
-}

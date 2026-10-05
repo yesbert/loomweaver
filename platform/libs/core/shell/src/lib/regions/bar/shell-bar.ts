@@ -22,11 +22,16 @@ import { AuthContext } from '../../auth/auth-context';
 import { SlotResolution } from '../../menu/slot-resolution.service';
 import { ShellBarItem } from './shell-bar-item';
 import { barMenuContext, isBarButton } from './bar-context';
-import { foldedIds, foldRank, sameIds } from './bar-fold';
+import {
+  closeOnOutsidePointer,
+  entryWidth,
+  FOLD_CONTROL_PX,
+  foldedIds,
+  foldRank,
+  sameIds,
+} from './bar-fold';
 
 const GAP_PX = 8;
-
-const FOLD_CONTROL_PX = 28;
 
 function availableWidth(bar: HTMLElement): number {
   const style = getComputedStyle(bar);
@@ -59,6 +64,8 @@ export class ShellBar {
 
   private readonly widths = new Map<string, number>();
   private observer?: ResizeObserver;
+
+  private stopOutside?: () => void;
   private controlWidth = FOLD_CONTROL_PX;
 
   private readonly folded = signal<readonly string[]>([], { equal: sameIds });
@@ -143,9 +150,13 @@ export class ShellBar {
 
   private openTray(): void {
     this.trayOpen.set(true);
-    this.document.addEventListener('pointerdown', this.onOutsidePointer, {
-      capture: true,
-    });
+    this.stopOutside = closeOnOutsidePointer(
+      this.document,
+      (target) =>
+        this.tray()?.nativeElement.contains(target) === true ||
+        this.foldControl()?.nativeElement.contains(target) === true,
+      () => this.closeTray(),
+    );
     this.document.addEventListener('keydown', this.onEscape);
   }
 
@@ -155,20 +166,9 @@ export class ShellBar {
     }
   };
 
-  private readonly onOutsidePointer = (event: PointerEvent): void => {
-    const target = event.target as Node | null;
-    const inside =
-      this.tray()?.nativeElement.contains(target) ||
-      this.foldControl()?.nativeElement.contains(target);
-    if (!inside) {
-      this.closeTray();
-    }
-  };
-
   private stopListeningOutside(): void {
-    this.document.removeEventListener('pointerdown', this.onOutsidePointer, {
-      capture: true,
-    });
+    this.stopOutside?.();
+    this.stopOutside = undefined;
     this.document.removeEventListener('keydown', this.onEscape);
   }
 
@@ -217,10 +217,7 @@ export class ShellBar {
   private observeEntries(bar: HTMLElement): void {
     for (const host of bar.querySelectorAll<HTMLElement>('[data-bar-entry]')) {
       this.observer?.observe(host);
-      this.widths.set(
-        host.dataset['barEntry'] ?? '',
-        Math.max(host.getBoundingClientRect().width, host.scrollWidth),
-      );
+      this.widths.set(host.dataset['barEntry'] ?? '', entryWidth(host));
     }
   }
 

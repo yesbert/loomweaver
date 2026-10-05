@@ -3,7 +3,6 @@ import {
   Command,
   Disposable,
   MenuContext,
-  MenuItem,
 } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { disposeTogether } from '../../../contributions/dispose-together';
@@ -15,7 +14,7 @@ import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 import { PopoutService } from '../../../popout/popout.service';
 import { menuContextString } from '../../../menu/menu-context';
 import { PaneRef } from '../../pane/tree/pane-address';
-import { menuEntryId } from '../../../menu/menu-entry-id';
+import { MenuPlacement, registerMenuCommand } from '../../../menu/context-menu-entry';
 
 const TAB_CLOSE_COMMAND_ID = 'shell.tab.close';
 const TAB_CLOSE_ALL_COMMAND_ID = 'shell.tab.closeAll';
@@ -39,15 +38,13 @@ export interface TabMenuDeps {
 
 interface TabMenuEntry {
   readonly command: Command;
-  readonly item: MenuItem;
+  readonly placement: MenuPlacement;
 }
 
 interface TabMenuGroup {
   readonly on: Signal<boolean>;
   readonly entries: readonly TabMenuEntry[];
 }
-
-type Placement = Pick<MenuItem, 'group' | 'order' | 'when' | 'checkedWhen'>;
 
 export function registerTabContextMenu(
   registry: ContributionRegistry,
@@ -178,28 +175,19 @@ export function registerTabContextMenu(
   }
 }
 
-function tabEntry(command: Command, placement: Placement): TabMenuEntry {
-  return {
-    command,
-    item: {
-      id: menuEntryId(command.id),
-      menu: TAB_CONTEXT_MENU,
-      command: command.id,
-      ...placement,
-    },
-  };
+function tabEntry(command: Command, placement: MenuPlacement): TabMenuEntry {
+  return { command, placement };
 }
 
 function register(
   registry: ContributionRegistry,
   group: TabMenuGroup,
 ): Disposable {
-  return disposeTogether([
-    ...group.entries.map(({ command }) =>
-      registry.addCommand({ ...command, paletteHidden: true }),
+  return disposeTogether(
+    group.entries.map(({ command, placement }) =>
+      registerMenuCommand(registry, TAB_CONTEXT_MENU, command, placement),
     ),
-    ...group.entries.map(({ item }) => registry.addMenuItem(item)),
-  ]);
+  );
 }
 
 function togglePin(context: MenuContext | undefined, deps: TabMenuDeps): void {

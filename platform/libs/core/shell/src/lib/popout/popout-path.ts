@@ -1,24 +1,13 @@
+import { withoutTrailingSlashes } from '../foundation/wire/path-text';
+import { normalizePath } from '../regions/content/content-path';
 import { viewIdOfPanePath, viewPanePath } from '../regions/pane/tree/pane-address';
 
 export const POPOUT_PREFIX = 'popout';
 
 const VIEW_SEGMENT = 'view/';
 
-function withoutQuery(url: string): string {
-  const end = url.search(/[?#]/);
-  return end === -1 ? url : url.slice(0, end);
-}
-
-function withoutTrailingSlashes(path: string): string {
-  let end = path.length;
-  while (end > 0 && path[end - 1] === '/') {
-    end -= 1;
-  }
-  return path.slice(0, end);
-}
-
 function bare(url: string): string {
-  return withoutTrailingSlashes(withoutQuery(url).replace(/^\/+/, ''));
+  return withoutTrailingSlashes(normalizePath(url));
 }
 
 export function isPopoutUrl(url: string): boolean {

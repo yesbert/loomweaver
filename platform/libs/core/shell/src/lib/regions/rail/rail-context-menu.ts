@@ -1,6 +1,6 @@
-import { Disposable } from '@loomweaver/plugin-sdk';
+import { Disposable, MenuContext } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../../contributions/contribution-registry';
-import { disposeTogether } from '../../contributions/dispose-together';
+import { registerMenuCommand } from '../../menu/context-menu-entry';
 import { menuContextString } from '../../menu/menu-context';
 import { RailItemsService } from './rail-items.service';
 import { RailMoveService } from './rail-move.service';
@@ -13,6 +13,10 @@ const RAIL_MOVE_TO_OTHER_RAIL_COMMAND_ID = 'shell.rail.moveToOtherRail';
 export const RAIL_ITEM_CONTEXT_MENU = 'rail/item/context';
 
 export const RAIL_CONTEXT_MENU = 'rail/context';
+
+export function railMenuContext(id: string, region: string): MenuContext {
+  return { targetKind: 'rail-item', id, region };
+}
 
 export function registerRailCustomizeMenu(
   registry: ContributionRegistry,
@@ -30,10 +34,11 @@ export function registerRailHideMenu(
   registry: ContributionRegistry,
   railItems: RailItemsService,
 ): Disposable {
-  return disposeTogether([
-    registry.addCommand({
+  return registerMenuCommand(
+    registry,
+    RAIL_ITEM_CONTEXT_MENU,
+    {
       id: RAIL_HIDE_ITEM_COMMAND_ID,
-      paletteHidden: true,
       title: 'rail.menu.hide',
       run: (context) => {
         const id = menuContextString(context, 'id');
@@ -41,25 +46,23 @@ export function registerRailHideMenu(
           railItems.hide(id);
         }
       },
-    }),
-    registry.addMenuItem({
-      id: menuEntryId(RAIL_HIDE_ITEM_COMMAND_ID),
-      menu: RAIL_ITEM_CONTEXT_MENU,
-      command: RAIL_HIDE_ITEM_COMMAND_ID,
+    },
+    {
       group: '5_visibility',
       order: 0,
-    }),
-  ]);
+    },
+  );
 }
 
 export function registerRailMoveMenu(
   registry: ContributionRegistry,
   moves: RailMoveService,
 ): Disposable {
-  return disposeTogether([
-    registry.addCommand({
+  return registerMenuCommand(
+    registry,
+    RAIL_ITEM_CONTEXT_MENU,
+    {
       id: RAIL_MOVE_TO_OTHER_RAIL_COMMAND_ID,
-      paletteHidden: true,
       title: 'rail.menu.moveToOther',
       run: (context) => {
         const id = menuContextString(context, 'id');
@@ -68,13 +71,10 @@ export function registerRailMoveMenu(
           moves.move(id, target);
         }
       },
-    }),
-    registry.addMenuItem({
-      id: menuEntryId(RAIL_MOVE_TO_OTHER_RAIL_COMMAND_ID),
-      menu: RAIL_ITEM_CONTEXT_MENU,
-      command: RAIL_MOVE_TO_OTHER_RAIL_COMMAND_ID,
+    },
+    {
       group: '1_move',
       order: 0,
-    }),
-  ]);
+    },
+  );
 }

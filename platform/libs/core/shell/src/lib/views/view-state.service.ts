@@ -4,19 +4,9 @@ import { HeldWrites } from '../persistence/held-writes/held-writes';
 import { WORKING_STATE_STORE } from '../persistence/working-state-store';
 import { hydrateAsync, readStoredValue } from '../persistence/stored-values/hydrate';
 import { StateSyncService } from '../persistence/cross-tab/state-sync.service';
+import { parseStored } from '../persistence/stored-values/parse-stored';
 
 const STORAGE_PREFIX = 'lw.shell.view-state:';
-
-function parseBlob(raw: string | undefined): unknown {
-  if (!raw) {
-    return undefined;
-  }
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return undefined;
-  }
-}
 
 interface Entry {
   readonly value: WritableSignal<unknown>;
@@ -38,7 +28,7 @@ export class ViewStateService {
         return;
       }
       entry.cancelPendingSave();
-      entry.value.set(parseBlob(raw));
+      entry.value.set(parseStored(raw));
     });
     this.sync.onNamespaceAdopted(() => this.rereadEntries());
   }
@@ -75,7 +65,7 @@ export class ViewStateService {
         STORAGE_PREFIX + instanceId,
       );
       entry.cancelPendingSave();
-      entry.value.set(parseBlob(raw));
+      entry.value.set(parseStored(raw));
     }
   }
 
@@ -85,8 +75,8 @@ export class ViewStateService {
       return existing;
     }
     const key = STORAGE_PREFIX + instanceId;
-    const value = signal<unknown>(parseBlob(this.store.peek?.(key)));
-    hydrateAsync(this.store, key, (raw) => value.set(parseBlob(raw)));
+    const value = signal<unknown>(parseStored(this.store.peek?.(key)));
+    hydrateAsync(this.store, key, (raw) => value.set(parseStored(raw)));
     const cancelPendingSave = () => this.heldWrites.cancel(key);
     const save = () => {
       const current = value();

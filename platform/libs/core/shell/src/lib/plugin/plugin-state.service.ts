@@ -13,22 +13,12 @@ import {
   readStoredValue,
 } from '../persistence/stored-values/hydrate';
 import { StateSyncService } from '../persistence/cross-tab/state-sync.service';
+import { parseStored } from '../persistence/stored-values/parse-stored';
 
 const STORAGE_PREFIX = 'lw.plugin-state:';
 const INDEX_PREFIX = 'lw.plugin-state-keys:';
 const MAX_VALUE_CHARACTERS = 64 * 1024;
 const MAX_KEYS = 64;
-
-function parseBlob(raw: string | undefined): unknown {
-  if (!raw) {
-    return undefined;
-  }
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return undefined;
-  }
-}
 
 function serialise(value: unknown): string | undefined {
   try {
@@ -39,7 +29,7 @@ function serialise(value: unknown): string | undefined {
 }
 
 function parseKeys(raw: string | undefined): string[] {
-  const parsed = parseBlob(raw);
+  const parsed = parseStored(raw);
   return Array.isArray(parsed)
     ? parsed.filter((key): key is string => typeof key === 'string')
     : [];
@@ -71,7 +61,7 @@ export class PluginStateService {
         return;
       }
       this.cancelPending(entry);
-      entry.value.set(parseBlob(raw));
+      entry.value.set(parseStored(raw));
       entry.loaded.set(true);
       this.announce(entry);
     });
@@ -108,7 +98,7 @@ export class PluginStateService {
     for (const [storageKey, entry] of this.entries) {
       const raw = await readStoredValue(this.store, storageKey);
       this.cancelPending(entry);
-      entry.value.set(parseBlob(raw));
+      entry.value.set(parseStored(raw));
       entry.loaded.set(true);
       this.announce(entry);
     }
@@ -164,7 +154,7 @@ export class PluginStateService {
     if (existing) {
       return existing;
     }
-    const value = signal<unknown>(parseBlob(this.store.peek?.(storageKey)));
+    const value = signal<unknown>(parseStored(this.store.peek?.(storageKey)));
     const loaded = signal(this.store.peek !== undefined);
     const entry: Entry = {
       storageKey,
@@ -178,7 +168,7 @@ export class PluginStateService {
     hydrateAsync(
       this.store,
       storageKey,
-      (raw) => value.set(parseBlob(raw)),
+      (raw) => value.set(parseStored(raw)),
       () => {
         loaded.set(true);
         this.announce(entry);

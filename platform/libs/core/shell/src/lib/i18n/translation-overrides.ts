@@ -1,5 +1,6 @@
 import { InjectionToken, Provider } from '@angular/core';
 import { ServedBase } from '../foundation/served-base';
+import { withoutTrailingSlashes } from '../foundation/wire/path-text';
 
 /**
  * Directory the distribution serves its overlay bundles from, without a trailing slash: relative to
@@ -12,14 +13,6 @@ export const TRANSLATION_OVERRIDES = new InjectionToken<string>(
 export const DEFAULT_OVERRIDES_PATH = 'i18n/overrides';
 
 const FROM_THE_ORIGIN = /^(\/|[a-z][a-z\d+.-]*:)/i;
-
-function withoutTrailingSlashes(path: string): string {
-  let end = path.length;
-  while (end > 0 && path[end - 1] === '/') {
-    end -= 1;
-  }
-  return path.slice(0, end);
-}
 
 /**
  * Load `<basePath>/<lang>.json` and merge it over everything else **key by key**, so a product

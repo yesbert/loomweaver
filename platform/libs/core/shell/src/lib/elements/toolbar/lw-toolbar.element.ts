@@ -1,6 +1,7 @@
 import { MenuContext } from '@loomweaver/plugin-sdk';
 import { defineElementOnce, reflectAttribute, upgradeElementProperty } from '../custom-elements';
-import { focusAndReveal, rovingTabIndex } from '../roving-focus';
+import { focusAndReveal, rovingStep, rovingTabIndex } from '../roving-focus';
+import { closeOnOutsidePointer } from '../row-fold';
 import {
   cellIdOf,
   ENTRY_ATTRIBUTE,
@@ -63,6 +64,8 @@ export class LwToolbarElement extends HTMLElement {
   private observer?: ResizeObserver;
 
   private childObserver?: MutationObserver;
+
+  private stopOutside?: () => void;
 
   private readonly layout = new ToolbarLayout(
     this,
@@ -236,7 +239,7 @@ export class LwToolbarElement extends HTMLElement {
     }
     const current = stops.indexOf(document.activeElement as HTMLElement);
     const index = current === -1 ? this.active : current;
-    const next = this.stopAfter(event.key, index, stops.length);
+    const next = rovingStep(event.key, index, stops.length, 'horizontal');
     if (next === undefined) {
       return;
     }
@@ -246,38 +249,15 @@ export class LwToolbarElement extends HTMLElement {
     event.preventDefault();
   };
 
-  private readonly onOutsidePointer = (event: PointerEvent): void => {
-    if (!this.contains(event.target as Node | null)) {
-      this.layout.closeTray();
-    }
-  };
-
-  private stopAfter(key: string, index: number, count: number): number | undefined {
-    switch (key) {
-      case 'ArrowRight': {
-        return (index + 1) % count;
-      }
-      case 'ArrowLeft': {
-        return (index - 1 + count) % count;
-      }
-      case 'Home': {
-        return 0;
-      }
-      case 'End': {
-        return count - 1;
-      }
-      default: {
-        return undefined;
-      }
-    }
-  }
-
   private listenOutside(open: boolean): void {
-    if (open) {
-      document.addEventListener('pointerdown', this.onOutsidePointer, { capture: true });
-    } else {
-      document.removeEventListener('pointerdown', this.onOutsidePointer, { capture: true });
-    }
+    this.stopOutside?.();
+    this.stopOutside = open
+      ? closeOnOutsidePointer(
+          document,
+          (target) => this.contains(target),
+          () => this.layout.closeTray(),
+        )
+      : undefined;
   }
 
   private render(): void {

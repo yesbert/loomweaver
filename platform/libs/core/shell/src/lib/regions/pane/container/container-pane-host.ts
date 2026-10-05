@@ -1,12 +1,10 @@
 import { Component, computed, effect, inject, untracked } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import {
   ActivatedRoute,
-  NavigationEnd,
   Router,
   RouterOutlet,
 } from '@angular/router';
-import { filter, map } from 'rxjs';
+import { CurrentAddress } from '../../content/current-address';
 import {
   CONTAINER_HANDLE,
   ContainerSpec,
@@ -97,13 +95,7 @@ export class ContainerPaneHost {
   private readonly containerPath = this.identity.containerPath;
   private readonly spec = this.identity.spec;
 
-  private readonly currentUrl = toSignal(
-    this.router.events.pipe(
-      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
-      map(() => this.router.url),
-    ),
-    { initialValue: this.router.url },
-  );
+  private readonly currentUrl = inject(CurrentAddress).url;
 
   private readonly urlSegment = computed(() => {
     const url = normalizePath(this.currentUrl());

@@ -2,30 +2,19 @@ import { inject, Service, signal } from '@angular/core';
 import { WORKING_STATE_STORE } from '../../persistence/working-state-store';
 import { hydrateAsync, readStoredValue } from '../../persistence/stored-values/hydrate';
 import { StateSyncService } from '../../persistence/cross-tab/state-sync.service';
+import { parseStored } from '../../persistence/stored-values/parse-stored';
+import { recordOf } from '../../persistence/stored-values/persisted-record';
 
 const STORAGE_KEY = 'lw.shell.item-order';
+
+function isIdList(value: unknown): value is readonly string[] {
+  return Array.isArray(value) && value.every((id) => typeof id === 'string');
+}
 
 function parseOrders(
   raw: string | undefined,
 ): Record<string, readonly string[]> {
-  if (!raw) {
-    return {};
-  }
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-      return {};
-    }
-    const result: Record<string, readonly string[]> = {};
-    for (const [key, value] of Object.entries(parsed)) {
-      if (Array.isArray(value) && value.every((id) => typeof id === 'string')) {
-        result[key] = value;
-      }
-    }
-    return result;
-  } catch {
-    return {};
-  }
+  return recordOf(parseStored(raw), isIdList);
 }
 
 @Service()

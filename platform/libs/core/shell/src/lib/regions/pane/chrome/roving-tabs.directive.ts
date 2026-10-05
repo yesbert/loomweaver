@@ -1,5 +1,6 @@
 import { afterEveryRender, Directive, ElementRef, inject } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
+import { rovingStep, rovingTabIndex } from '../../../elements/roving-focus';
 
 @Directive({
   selector: '[lwRovingTabs]',
@@ -26,12 +27,12 @@ export class RovingTabs {
     if (current === -1) {
       return;
     }
-    const target = this.targetFor(event.key, tabs, current);
-    if (!target) {
+    const next = rovingStep(event.key, current, tabs.length, 'horizontal');
+    if (next === undefined) {
       return;
     }
     event.preventDefault();
-    target.focus();
+    tabs[next].focus();
   }
 
   protected onFocusOut(event: FocusEvent): void {
@@ -46,33 +47,7 @@ export class RovingTabs {
       tabs.find((tab) => tab === focused) ??
       tabs.find((tab) => tab.getAttribute('aria-selected') === 'true') ??
       tabs[0];
-    for (const tab of tabs) {
-      tab.tabIndex = tab === stop ? 0 : -1;
-    }
-  }
-
-  private targetFor(
-    key: string,
-    tabs: readonly HTMLElement[],
-    current: number,
-  ): HTMLElement | undefined {
-    switch (key) {
-      case 'ArrowRight': {
-        return tabs[(current + 1) % tabs.length];
-      }
-      case 'ArrowLeft': {
-        return tabs[(current - 1 + tabs.length) % tabs.length];
-      }
-      case 'Home': {
-        return tabs[0];
-      }
-      case 'End': {
-        return tabs.at(-1);
-      }
-      default: {
-        return undefined;
-      }
-    }
+    rovingTabIndex(tabs, tabs.indexOf(stop));
   }
 
   private tabs(): HTMLElement[] {

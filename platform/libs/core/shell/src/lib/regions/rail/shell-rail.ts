@@ -27,7 +27,11 @@ import {
 import { MenuContext } from '@loomweaver/plugin-sdk';
 import { SlotResolution } from '../../menu/slot-resolution.service';
 import { MenuSide } from '../../elements/menu/lw-menu.element';
-import { RAIL_CONTEXT_MENU, RAIL_ITEM_CONTEXT_MENU } from './rail-context-menu';
+import {
+  RAIL_CONTEXT_MENU,
+  RAIL_ITEM_CONTEXT_MENU,
+  railMenuContext,
+} from './rail-context-menu';
 import { RailItemsService } from './rail-items.service';
 import { RailMoveService } from './rail-move.service';
 import { Reorderable } from '../reorder/reorderable.directive';
@@ -159,7 +163,7 @@ export class ShellRail {
   }
 
   protected menuContextOf(item: RailItem): MenuContext {
-    return { targetKind: 'rail-item', id: item.id, region: this.region().id };
+    return railMenuContext(item.id, this.region().id);
   }
 
   protected onFocus(event: FocusEvent): void {

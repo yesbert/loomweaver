@@ -1,4 +1,5 @@
 import { SettingCodec } from './persisted-setting';
+import { parseStored } from './parse-stored';
 
 export function toggledIdSet(
   set: ReadonlySet<string>,
@@ -15,19 +16,12 @@ export function toggledIdSet(
 }
 
 export function parseIdSet(raw: string | undefined): ReadonlySet<string> {
-  if (!raw) {
-    return new Set();
-  }
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    return Array.isArray(parsed)
-      ? new Set(
-          parsed.filter((entry): entry is string => typeof entry === 'string'),
-        )
-      : new Set();
-  } catch {
-    return new Set();
-  }
+  const parsed = parseStored(raw);
+  return Array.isArray(parsed)
+    ? new Set(
+        parsed.filter((entry): entry is string => typeof entry === 'string'),
+      )
+    : new Set();
 }
 
 export const ID_SET_CODEC: SettingCodec<ReadonlySet<string>> = {
