@@ -1,3 +1,24 @@
+export const FOLD_CONTROL_PX = 28;
+
+export function entryWidth(node: HTMLElement): number {
+  return Math.max(node.getBoundingClientRect().width, node.scrollWidth);
+}
+
+export function closeOnOutsidePointer(
+  document: Document,
+  inside: (target: Node | null) => boolean,
+  close: () => void,
+): () => void {
+  const onPointer = (event: PointerEvent): void => {
+    if (!inside(event.target as Node | null)) {
+      close();
+    }
+  };
+  document.addEventListener('pointerdown', onPointer, { capture: true });
+  return () =>
+    document.removeEventListener('pointerdown', onPointer, { capture: true });
+}
+
 export interface FoldMeasure {
   readonly available: number;
   readonly control: number;

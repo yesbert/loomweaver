@@ -1,4 +1,4 @@
-import { focusAndReveal, rovingTabIndex } from '../roving-focus';
+import { focusAndReveal, rovingStep, rovingTabIndex } from '../roving-focus';
 import {
   defineElementOnce,
   reflectAttribute,
@@ -274,24 +274,13 @@ export class LwSelectElement extends HTMLElement {
   }
 
   private onListboxKeydown(event: KeyboardEvent): void {
-    const last = this.choices().length - 1;
+    const step = rovingStep(event.key, this.activeIndex, this.choices().length, 'vertical');
+    if (step !== undefined) {
+      this.setActive(step);
+      event.preventDefault();
+      return;
+    }
     switch (event.key) {
-      case 'ArrowDown': {
-        this.setActive(this.activeIndex >= last ? 0 : this.activeIndex + 1);
-        break;
-      }
-      case 'ArrowUp': {
-        this.setActive(this.activeIndex <= 0 ? last : this.activeIndex - 1);
-        break;
-      }
-      case 'Home': {
-        this.setActive(0);
-        break;
-      }
-      case 'End': {
-        this.setActive(last);
-        break;
-      }
       case 'Enter':
       case ' ': {
         this.commitActive();

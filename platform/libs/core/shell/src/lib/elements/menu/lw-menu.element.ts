@@ -1,4 +1,4 @@
-import { focusAndReveal, rovingTabIndex } from '../roving-focus';
+import { focusAndReveal, rovingStep, rovingTabIndex } from '../roving-focus';
 import { clampIntoViewport, fitsInViewport } from '../viewport-fit';
 import {
   defineElementOnce,
@@ -235,23 +235,13 @@ export class LwMenuElement extends HTMLElement {
   }
 
   private handleKeydown(event: KeyboardEvent): void {
+    const step = rovingStep(event.key, this.active, this.items().length, 'vertical');
+    if (step !== undefined) {
+      this.setActive(step);
+      event.preventDefault();
+      return;
+    }
     switch (event.key) {
-      case 'ArrowDown': {
-        this.setActive(this.active < 0 ? 0 : this.active + 1);
-        break;
-      }
-      case 'ArrowUp': {
-        this.setActive((this.active < 0 ? this.items().length : this.active) - 1);
-        break;
-      }
-      case 'Home': {
-        this.setActive(0);
-        break;
-      }
-      case 'End': {
-        this.setActive(this.items().length - 1);
-        break;
-      }
       case 'Enter':
       case ' ': {
         const item = this.active >= 0 ? this.items()[this.active] : undefined;

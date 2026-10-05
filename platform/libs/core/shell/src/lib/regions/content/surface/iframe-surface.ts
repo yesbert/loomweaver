@@ -15,8 +15,9 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { filter, map } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
+import { map } from 'rxjs';
+import { CurrentAddress } from '../current-address';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { DirtySurface } from '@loomweaver/plugin-sdk';
 import { Connection, WindowMessenger, connect } from 'penpal';
@@ -42,7 +43,7 @@ import {
 import { PluginStateBridge } from '../../../plugin/plugin-state-bridge';
 import { SlotBridge } from './slot-bridge';
 import { ToolbarSlots } from '../../toolbar/toolbar-slots.service';
-import { requiredMenuContext } from '../../../menu/menu-context';
+import { requiredMenuContext } from '../../../foundation/wire/menu-context-of';
 import type { LwSlotView } from '../../../surface-kit/surface-kit.frame';
 import { surfaceRouteData } from './surface-route-data';
 
@@ -54,7 +55,6 @@ import { surfaceRouteData } from './surface-route-data';
 export class IframeSurface implements DirtySurface {
   private readonly route = inject(ActivatedRoute);
 
-  private readonly router = inject(Router);
 
   private readonly locale = inject(LocaleService);
 
@@ -141,13 +141,7 @@ export class IframeSurface implements DirtySurface {
     .flatMap((route) => route.url.map((segment) => segment.path))
     .join('/');
 
-  private readonly currentUrl = toSignal(
-    this.router.events.pipe(
-      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
-      map(() => this.router.url),
-    ),
-    { initialValue: this.router.url },
-  );
+  private readonly currentUrl = inject(CurrentAddress).url;
 
   private readonly subPath = computed(() => {
     if (this.hostMounted()) {

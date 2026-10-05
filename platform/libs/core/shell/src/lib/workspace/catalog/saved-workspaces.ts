@@ -1,3 +1,4 @@
+import { parseStored } from '../../persistence/stored-values/parse-stored';
 export const WORKSPACES_KEY = 'lw.shell.workspaces';
 
 export interface Workspace {
@@ -8,15 +9,11 @@ export interface Workspace {
 }
 
 export function parseWorkspaces(raw: string | undefined): Workspace[] {
-  if (!raw) {
+  const parsed = parseStored(raw);
+  if (!Array.isArray(parsed)) {
     return [];
   }
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    if (!Array.isArray(parsed)) {
-      return [];
-    }
-    return parsed.filter(
+  return parsed.filter(
       (workspace): workspace is Workspace =>
         !!workspace &&
         typeof (workspace as Workspace).id === 'string' &&
@@ -24,8 +21,5 @@ export function parseWorkspaces(raw: string | undefined): Workspace[] {
         typeof (workspace as Workspace).baseline === 'object' &&
         (workspace as Workspace).baseline !== null &&
         !Array.isArray((workspace as Workspace).baseline),
-    );
-  } catch {
-    return [];
-  }
+  );
 }

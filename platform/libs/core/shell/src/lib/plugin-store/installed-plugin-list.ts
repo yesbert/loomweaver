@@ -103,14 +103,7 @@ export class InstalledPluginList implements OnInit {
   }
 
   protected togglePlugin(id: string, event: Event): void {
-    const toggle = event.target as HTMLInputElement;
-    void this.disableGuard
-      .requestEnabled(id, toggle.checked)
-      .then((changed) => {
-        if (!changed) {
-          toggle.checked = true;
-        }
-      });
+    this.disableGuard.toggleFrom(id, event);
   }
 
   protected update(entry: PluginCatalogEntry): void {

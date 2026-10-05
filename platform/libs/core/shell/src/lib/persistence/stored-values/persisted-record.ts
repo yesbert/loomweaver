@@ -1,3 +1,4 @@
+import { parseStored } from './parse-stored';
 export type FlagRecord = Readonly<Record<string, true>>;
 
 export function isTrue(value: unknown): value is true {
@@ -22,14 +23,7 @@ export function parseRecord<T>(
   raw: string | undefined,
   isValue: (entry: unknown) => entry is T,
 ): Readonly<Record<string, T>> {
-  if (!raw) {
-    return {};
-  }
-  try {
-    return recordOf(JSON.parse(raw), isValue);
-  } catch {
-    return {};
-  }
+  return recordOf(parseStored(raw), isValue);
 }
 
 export function toggledFlag(

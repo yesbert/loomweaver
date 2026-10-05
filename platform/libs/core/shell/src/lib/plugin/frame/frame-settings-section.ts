@@ -9,6 +9,7 @@ import { KeyValueStore } from '../../persistence/key-value-store';
 import { hydrateAsync } from '../../persistence/stored-values/hydrate';
 import { StateSyncService } from '../../persistence/cross-tab/state-sync.service';
 import { PluginInstallService } from '../../plugin-store/lifecycle/plugin-install.service';
+import { parseStored } from '../../persistence/stored-values/parse-stored';
 
 export type FrameSettingValue = boolean | string | number;
 export type FrameSettingValues = Readonly<Record<string, FrameSettingValue>>;
@@ -25,29 +26,17 @@ function typedOverlay(
   defaults: FrameSettingValues,
   raw: string | undefined,
 ): FrameSettingValues {
-  if (!raw) {
+  const parsed = parseStored(raw);
+  if (typeof parsed !== 'object' || parsed === null) {
     return defaults;
   }
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    if (typeof parsed !== 'object' || parsed === null) {
-      return defaults;
+  const merged: Record<string, FrameSettingValue> = { ...defaults };
+  for (const [key, value] of Object.entries(parsed as Record<string, unknown>)) {
+    if (Object.hasOwn(defaults, key) && typeof value === typeof defaults[key]) {
+      merged[key] = value as FrameSettingValue;
     }
-    const merged: Record<string, FrameSettingValue> = { ...defaults };
-    for (const [key, value] of Object.entries(
-      parsed as Record<string, unknown>,
-    )) {
-      if (
-        Object.hasOwn(defaults, key) &&
-        typeof value === typeof defaults[key]
-      ) {
-        merged[key] = value as FrameSettingValue;
-      }
-    }
-    return merged;
-  } catch {
-    return defaults;
   }
+  return merged;
 }
 
 interface FrameSectionDeps {

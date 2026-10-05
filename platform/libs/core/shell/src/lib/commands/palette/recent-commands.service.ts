@@ -2,26 +2,18 @@ import { inject, Service, signal } from '@angular/core';
 import { WORKING_STATE_STORE } from '../../persistence/working-state-store';
 import { hydrateAsync } from '../../persistence/stored-values/hydrate';
 import { StateSyncService } from '../../persistence/cross-tab/state-sync.service';
+import { parseStored } from '../../persistence/stored-values/parse-stored';
 
 const STORAGE_KEY = 'lw.shell.command-mru';
 const LIMIT = 8;
 
 function parseRecentIds(raw: string | undefined): readonly string[] {
-  if (!raw) {
+  const parsed = parseStored(raw);
+  if (!Array.isArray(parsed)) {
     return [];
   }
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    if (!Array.isArray(parsed)) {
-      return [];
-    }
-    const ids = parsed.filter((entry): entry is string => {
-      return typeof entry === 'string';
-    });
-    return [...new Set(ids)].slice(0, LIMIT);
-  } catch {
-    return [];
-  }
+  const ids = parsed.filter((entry): entry is string => typeof entry === 'string');
+  return [...new Set(ids)].slice(0, LIMIT);
 }
 
 @Service()

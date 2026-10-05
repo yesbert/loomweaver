@@ -12,6 +12,7 @@ import {
 } from '../rail/rail-items.service';
 import { RailMoveService } from '../rail/rail-move.service';
 import { CurationRow, CurationSource, HIDDEN } from './curation-source';
+import { railMenuContext } from '../rail/rail-context-menu';
 
 @Service()
 export class RailCuration implements CurationSource {
@@ -31,11 +32,9 @@ export class RailCuration implements CurationSource {
   rows(): CurationRow[] {
     const fallback = this.regions()[0]?.id ?? '';
     const registered = this.slots
-      .resolve(this.registry.railItems(), (item) => ({
-        targetKind: 'rail-item',
-        id: item.id,
-        region: this.railItems.regionOf(item.id, item.rail ?? fallback),
-      }))
+      .resolve(this.registry.railItems(), (item) =>
+        railMenuContext(item.id, this.railItems.regionOf(item.id, item.rail ?? fallback)),
+      )
       .map((entry) => entry.item)
       .map((item) => ({
         id: item.id,

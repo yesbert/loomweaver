@@ -1,6 +1,6 @@
 import { Disposable } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../../contributions/contribution-registry';
-import { disposeTogether } from '../../contributions/dispose-together';
+import { registerMenuCommand } from '../../menu/menu-command';
 import { ViewMoveService } from './view-move.service';
 import { ViewVisibilityService } from './view-visibility.service';
 import { CONTENT_DOCK, viewPanePath } from '../pane/tree/pane-address';
@@ -38,10 +38,11 @@ export function registerViewMoveMenu(
   registry: ContributionRegistry,
   moves: ViewMoveService,
 ): Disposable {
-  return disposeTogether([
-    registry.addCommand({
+  return registerMenuCommand(
+    registry,
+    VIEW_CONTEXT_MENU,
+    {
       id: VIEW_MOVE_TO_OTHER_SIDEBAR_COMMAND_ID,
-      paletteHidden: true,
       title: 'panel.viewMenu.moveToOtherSidebar',
       run: (context) => {
         const viewId = menuContextString(context, 'viewId');
@@ -50,26 +51,24 @@ export function registerViewMoveMenu(
           moves.move(viewId, target);
         }
       },
-    }),
-    registry.addMenuItem({
-      id: menuEntryId(VIEW_MOVE_TO_OTHER_SIDEBAR_COMMAND_ID),
-      menu: VIEW_CONTEXT_MENU,
-      command: VIEW_MOVE_TO_OTHER_SIDEBAR_COMMAND_ID,
+    },
+    {
       group: '1_move',
       order: 0,
       when: { inContent: false },
-    }),
-  ]);
+    },
+  );
 }
 
 export function registerViewStackMenu(
   registry: ContributionRegistry,
   paneTree: PaneTreeService,
 ): Disposable {
-  return disposeTogether([
-    registry.addCommand({
+  return registerMenuCommand(
+    registry,
+    VIEW_CONTEXT_MENU,
+    {
       id: VIEW_STACK_BELOW_COMMAND_ID,
-      paletteHidden: true,
       title: 'panel.viewMenu.stackBelow',
       run: (context) => {
         const viewId = menuContextString(context, 'viewId');
@@ -83,15 +82,12 @@ export function registerViewStackMenu(
           paneTree.stackView(region, viewId);
         }
       },
-    }),
-    registry.addMenuItem({
-      id: menuEntryId(VIEW_STACK_BELOW_COMMAND_ID),
-      menu: VIEW_CONTEXT_MENU,
-      command: VIEW_STACK_BELOW_COMMAND_ID,
+    },
+    {
       group: '2_stack',
       order: 0,
-    }),
-  ]);
+    },
+  );
 }
 
 export function registerViewResetMenu(
@@ -99,10 +95,11 @@ export function registerViewResetMenu(
   viewStates: ViewStateService,
   viewInstances: ViewInstanceService,
 ): Disposable {
-  return disposeTogether([
-    registry.addCommand({
+  return registerMenuCommand(
+    registry,
+    VIEW_CONTEXT_MENU,
+    {
       id: VIEW_RESET_STATE_COMMAND_ID,
-      paletteHidden: true,
       title: 'panel.viewMenu.resetState',
       icon: 'undo',
       run: (context) => {
@@ -115,25 +112,23 @@ export function registerViewResetMenu(
           viewInstances.activeId(viewId)();
         viewStates.reset(instance);
       },
-    }),
-    registry.addMenuItem({
-      id: menuEntryId(VIEW_RESET_STATE_COMMAND_ID),
-      menu: VIEW_CONTEXT_MENU,
-      command: VIEW_RESET_STATE_COMMAND_ID,
+    },
+    {
       group: '3_state',
       order: 0,
-    }),
-  ]);
+    },
+  );
 }
 
 export function registerViewOpenInContentMenu(
   registry: ContributionRegistry,
   paneTree: PaneTreeService,
 ): Disposable {
-  return disposeTogether([
-    registry.addCommand({
+  return registerMenuCommand(
+    registry,
+    VIEW_CONTEXT_MENU,
+    {
       id: VIEW_OPEN_IN_CONTENT_COMMAND_ID,
-      paletteHidden: true,
       title: 'panel.viewMenu.openInContent',
       run: (context) => {
         const viewId = menuContextString(context, 'viewId');
@@ -146,26 +141,24 @@ export function registerViewOpenInContentMenu(
           );
         }
       },
-    }),
-    registry.addMenuItem({
-      id: menuEntryId(VIEW_OPEN_IN_CONTENT_COMMAND_ID),
-      menu: VIEW_CONTEXT_MENU,
-      command: VIEW_OPEN_IN_CONTENT_COMMAND_ID,
+    },
+    {
       group: '2_stack',
       order: 1,
       when: { inContent: false },
-    }),
-  ]);
+    },
+  );
 }
 
 export function registerViewHideMenu(
   registry: ContributionRegistry,
   visibility: ViewVisibilityService,
 ): Disposable {
-  return disposeTogether([
-    registry.addCommand({
+  return registerMenuCommand(
+    registry,
+    VIEW_CONTEXT_MENU,
+    {
       id: VIEW_HIDE_COMMAND_ID,
-      paletteHidden: true,
       title: 'panel.viewMenu.hide',
       run: (context) => {
         const viewId = menuContextString(context, 'viewId');
@@ -173,25 +166,23 @@ export function registerViewHideMenu(
           visibility.hide(viewId);
         }
       },
-    }),
-    registry.addMenuItem({
-      id: menuEntryId(VIEW_HIDE_COMMAND_ID),
-      menu: VIEW_CONTEXT_MENU,
-      command: VIEW_HIDE_COMMAND_ID,
+    },
+    {
       group: '5_visibility',
       order: 0,
-    }),
-  ]);
+    },
+  );
 }
 
 export function registerViewPopoutMenu(
   registry: ContributionRegistry,
   popout: PopoutService,
 ): Disposable {
-  return disposeTogether([
-    registry.addCommand({
+  return registerMenuCommand(
+    registry,
+    VIEW_CONTEXT_MENU,
+    {
       id: VIEW_OPEN_IN_WINDOW_COMMAND_ID,
-      paletteHidden: true,
       title: 'panel.viewMenu.openInNewWindow',
       icon: 'popout',
       run: (context) => {
@@ -200,13 +191,10 @@ export function registerViewPopoutMenu(
           popout.open(viewPanePath(viewId));
         }
       },
-    }),
-    registry.addMenuItem({
-      id: menuEntryId(VIEW_OPEN_IN_WINDOW_COMMAND_ID),
-      menu: VIEW_CONTEXT_MENU,
-      command: VIEW_OPEN_IN_WINDOW_COMMAND_ID,
+    },
+    {
       group: '4_window',
       order: 0,
-    }),
-  ]);
+    },
+  );
 }

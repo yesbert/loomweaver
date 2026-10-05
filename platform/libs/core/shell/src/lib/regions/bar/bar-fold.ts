@@ -1,6 +1,13 @@
 import { BarItem, BarSlot } from '../../foundation/bar-item';
 
-export { foldedIds, sameIds, type FoldMeasure } from '../../elements/row-fold';
+export {
+  closeOnOutsidePointer,
+  entryWidth,
+  FOLD_CONTROL_PX,
+  foldedIds,
+  sameIds,
+  type FoldMeasure,
+} from '../../elements/row-fold';
 
 const FOLD_SLOTS: readonly BarSlot[] = ['end', 'center', 'start'];
 

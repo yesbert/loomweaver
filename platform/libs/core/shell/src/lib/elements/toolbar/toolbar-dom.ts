@@ -1,4 +1,5 @@
 import { MenuContext } from '@loomweaver/plugin-sdk';
+import { menuContextOf } from '../../foundation/wire/menu-context-of';
 import { LwToolbarEntry } from './toolbar-entry';
 
 export const ENTRY_ATTRIBUTE = 'data-lw-entry';
@@ -42,10 +43,7 @@ export function parseContext(raw: string | null): MenuContext {
     return {};
   }
   try {
-    const parsed: unknown = JSON.parse(raw);
-    return typeof parsed === 'object' && parsed !== null
-      ? (parsed as MenuContext)
-      : {};
+    return menuContextOf(JSON.parse(raw)) ?? {};
   } catch {
     return {};
   }

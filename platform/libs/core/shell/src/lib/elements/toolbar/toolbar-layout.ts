@@ -1,4 +1,4 @@
-import { foldedIds, sameIds } from '../row-fold';
+import { entryWidth, FOLD_CONTROL_PX, foldedIds, sameIds } from '../row-fold';
 import {
   FOCUSABLE_SELECTOR,
   FOLD_SELECTOR,
@@ -12,8 +12,6 @@ import {
 } from './toolbar-dom';
 
 const GAP_PX = 2;
-
-const FOLD_CONTROL_PX = 28;
 
 export class ToolbarLayout {
   private folded: readonly string[] = [];
@@ -75,10 +73,7 @@ export class ToolbarLayout {
       return;
     }
     for (const item of items) {
-      const width = Math.max(
-        item.node.getBoundingClientRect().width,
-        item.node.scrollWidth,
-      );
+      const width = entryWidth(item.node);
       if (width > 0) {
         this.widths.set(item.id, width);
       }
