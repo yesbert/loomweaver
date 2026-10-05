@@ -20,7 +20,6 @@ let ctx: PluginContext | undefined;
 let tools: CommandTools | undefined;
 let runs = 0;
 
-
 export const agentRunner = {
   bind(next: PluginContext): void {
     ctx = next;

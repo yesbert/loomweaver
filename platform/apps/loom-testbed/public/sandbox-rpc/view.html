@@ -12,14 +12,6 @@
       }
       .badge {
         position: relative;
-        display: inline-block;
-        padding: 0.25rem 0.6rem;
-        border-radius: 999px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        letter-spacing: 0.02em;
-        color: var(--lw-on-brand);
-        background: var(--lw-brand);
       }
       h1 {
         margin: 0.75rem 0 1rem;
@@ -55,17 +47,7 @@
         font-weight: 600;
       }
       .keep {
-        appearance: none;
-        cursor: pointer;
         margin-left: 0.75rem;
-        padding: 0.15rem 0.6rem;
-        border-radius: 999px;
-        border: 1px solid var(--lw-brand);
-        background: none;
-        color: var(--lw-brand);
-        font: inherit;
-        font-size: 0.72rem;
-        font-weight: 600;
       }
       .kit-strip {
         display: flex;
@@ -136,12 +118,12 @@
   <body>
     <template id="page">
       <main>
-        <span class="badge">
+        <span class="badge lw-badge lw-badge--brand">
           <span data-text="badge"></span>
           <lw-tooltip data-tooltip="badgeTip" position="bottom"></lw-tooltip>
         </span>
         <button
-          class="keep"
+          class="keep lw-btn lw-btn--ghost lw-btn--sm"
           type="button"
           data-keep
           data-text="keep"

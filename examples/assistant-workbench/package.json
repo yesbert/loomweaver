@@ -12,7 +12,7 @@
   "private": true,
   "packageManager": "npm@11.16.0",
   "dependencies": {
-    "@ag-ui/core": "^0.0.59",
+    "@ag-ui/core": "^0.0.58",
     "@angular/cdk": "^22.1.5",
     "@angular/common": "^22.1.0",
     "@angular/compiler": "^22.1.0",

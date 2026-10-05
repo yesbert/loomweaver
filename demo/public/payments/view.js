@@ -12,8 +12,16 @@
 
   let state = { locale: 'en', session: { authenticated: false, roles: [] } };
   let openItems = null;
-  let surfaceHost;
   let failed = false;
+  const kit = globalThis.LwFrame;
+  const openCount = kit.state.watch(OPEN_COUNT_KEY);
+  kit.state.watch(SETTINGS_KEY).onChange((value) => {
+    if (!value) {
+      return;
+    }
+    settings = { ...DEFAULT_SETTINGS, ...value };
+    render();
+  });
 
   function strings() {
     return STRINGS[state.locale] ?? STRINGS.en;
@@ -37,13 +45,6 @@
     holder.textContent = String(text);
     return holder.innerHTML;
   }
-
-
-
-
-
-
-
 
   function outcomeBadge(line) {
     const decision = decisions.get(line.id);
@@ -196,10 +197,9 @@
     });
   }
 
-
   function publishOpenCount() {
-    if (surfaceHost && openItems) {
-      surfaceHost.stateSet(OPEN_COUNT_KEY, matching.openCount(openItems, decisions));
+    if (openItems) {
+      openCount.set(matching.openCount(openItems, decisions));
     }
   }
 
@@ -263,31 +263,21 @@
       remoteWindow: globalThis.parent,
       allowedOrigins: ['*'],
     }),
-    methods: {
-      stateChanged(key, value) {
-        if (key !== SETTINGS_KEY || !value) {
-          return;
-        }
-        settings = { ...DEFAULT_SETTINGS, ...value };
-        render();
+    methods: kit.surfaceMethods({
+      stateChanged(key, value, loaded) {
+        kit.state.apply(key, value, loaded);
       },
       render(next) {
         state = {
           locale: next.locale,
           session: next.session ?? { authenticated: false, roles: [] },
         };
-        globalThis.LwFrame.applySurfaceState(next);
+        kit.applySurfaceState(next);
         render();
       },
-    },
+    }),
   })
-    .promise.then((host) => {
-      surfaceHost = host;
-      return host
-        .stateWatch(SETTINGS_KEY)
-        .then(() => host.stateWatch(OPEN_COUNT_KEY))
-        .then(() => publishOpenCount());
-    })
+    .promise.then((host) => kit.connectState(host))
     .catch((error) => {
       console.error('[payments view] host connection failed', error);
     });

@@ -37,7 +37,10 @@ server transforms files per request, so the bytes it serves never match the hash
 from the same build, and a worker checking every asset against that manifest reports a permanent
 "update failed" that looks exactly like a broken deploy. `npm start` therefore registers no worker at
 all, and the preview gets its own port so a registration it leaves behind can never take over the dev
-server's origin.
+server's origin. The preview serves plain HTTP on 127.0.0.1, which browsers count as a secure
+context, because a self-signed certificate would make the worker script's fetch fail. It answers a path
+without a file extension with `index.html` and a missing file with a 404, so the worker never checks
+a page of HTML against an asset's hash.
 
 The `@loomweaver/*` packages come from the public npm registry, so this needs no registry configuration
 and no credential. Everything else is a plain Angular application.
@@ -121,7 +124,7 @@ Three things on it are the product's own decisions rather than the session's:
 - **A right-click on a row** opens the plugin's own menu: open, open as preview, or a new quote for
   that customer, worded in the language the page is in.
 
-The quotes workspace **claims** the quote document address, so a quote opens where quotes live however
+The sales workspace **claims** everything under `sales/`, quote documents included, so a quote opens where quotes live however
 you reach it: from the assistant, from the command palette, or by following a shared link straight
 into one. Without that a document lands in whatever workspace happened to be active, laid over an
 arrangement built for something else.
@@ -177,7 +180,7 @@ what a plugin may read, and minting whatever proves it may, is the product's own
 platform carries no seam for it today.
 
 It paints with [`@loomweaver/frame-kit`](https://www.npmjs.com/package/@loomweaver/frame-kit), served
-under `/frame-kit/`, so the three looks, both colour schemes and the user's text size reach it
+under `/frame-kit/`, so the looks' colours, both colour schemes and the user's text size reach it
 through pushed tokens with no palette of its own to keep in sync. Its own strings are English and
 German inside the plugin, because it cannot reach the demo's bundles; the tab title, workspace name
 and rail tooltip stay translation keys here, because the workbench draws those.

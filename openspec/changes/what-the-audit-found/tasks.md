@@ -40,6 +40,6 @@
 
 ## 6. The demo and the testbed use what the platform ships (own PR)
 
-- [ ] 6.1 Demo payments surface on the frame kit's surface methods and state store; its stylesheet drops its palette; its notes say why it needs the session
-- [ ] 6.2 Testbed frame pages use the class contract and drop their palette fallbacks
-- [ ] 6.3 Demo uses the shell's storage helper; dead attribute filter and stray comment removed; agent protocol versions aligned between demo and example
+- [x] 6.1 Demo payments surface on the frame kit's surface methods and state store; its stylesheet drops its palette; its notes say why it needs the session
+- [x] 6.2 Testbed frame pages use the class contract and drop their palette fallbacks
+- [x] 6.3 Demo uses the shell's storage helper; dead attribute filter and stray comment removed; agent protocol versions aligned between demo and example
