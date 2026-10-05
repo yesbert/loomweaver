@@ -1,3 +1,4 @@
+import { posix } from 'node:path';
 import {
   AssetGlob,
   BuildTargetAmendment,
@@ -343,3 +344,48 @@ export function asObject(value: unknown): JsonObject | undefined {
     ? (value as JsonObject)
     : undefined;
 }
+
+export function usesTailwind(css: string): boolean {
+  return css.split('\n').some((line) => {
+    const directive = line.trimStart();
+    return (
+      /^@import\s+['"]tailwindcss['"]/.test(directive) ||
+      /^@source\s/.test(directive)
+    );
+  });
+}
+
+export function entryStylesheet(styles: unknown): string | undefined {
+  if (!Array.isArray(styles)) {
+    return undefined;
+  }
+  return styles
+    .map((style) => inputOf(style))
+    .find((input): input is string => input?.endsWith('.css') === true);
+}
+
+export function relativeImport(fromDirectory: string, toDirectory: string): string {
+  const path = posix.relative(fromDirectory, toDirectory);
+  if (path === '') {
+    return '.';
+  }
+  return path.startsWith('..') ? path : `./${path}`;
+}
+
+const CODE_POSTCSS_CONFIGS = [
+  'postcss.config.js',
+  'postcss.config.mjs',
+  'postcss.config.cjs',
+  '.postcssrc.js',
+] as const;
+
+export function postcssWrittenAsCode(
+  exists: (file: string) => boolean,
+  amendment: PostcssAmendment,
+): string | undefined {
+  const inTheWay = CODE_POSTCSS_CONFIGS.find((name) => exists(name));
+  return inTheWay === undefined
+    ? undefined
+    : `${inTheWay} is written as code and cannot be merged into, so add ${amendment.plugin} to it yourself; until then the stylesheet emits no utility class and the workbench renders unstyled.`;
+}
+

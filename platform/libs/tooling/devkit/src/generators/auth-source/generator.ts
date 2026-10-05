@@ -1,5 +1,5 @@
-import { posix } from 'node:path';
 import { formatFiles, Tree } from '@nx/devkit';
+import { relativeImport } from '../../lib/amend/merge';
 import { generate } from '../../lib/generate/generate';
 import { authSourceAmendments } from '../../recipes/auth-source/amendments';
 import { authSource } from '../../recipes/auth-source/recipe';
@@ -20,14 +20,6 @@ export async function authSourceGenerator(
     importPath: relativeImport(`${app.root}/src/app`, root),
   });
   await formatFiles(tree);
-}
-
-function relativeImport(fromDirectory: string, toDirectory: string): string {
-  const path = posix.relative(fromDirectory, toDirectory);
-  if (path === '') {
-    return '.';
-  }
-  return path.startsWith('..') ? path : `./${path}`;
 }
 
 export default authSourceGenerator;

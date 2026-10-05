@@ -1,7 +1,7 @@
 import { addDependenciesToPackageJson, GeneratorCallback, Tree } from '@nx/devkit';
 import { Amendment } from '../lib/amend/types';
 import {
-  addI18nAssetsGlob,
+  amendBuildTarget,
   addPostcssPlugin,
   addTailwindSource,
   composeIntoAppConfig,
@@ -39,12 +39,7 @@ function apply(
     }
     case 'build-target': {
       if (into) {
-        for (const asset of amendment.assets) {
-          addI18nAssetsGlob(tree, into.app.name, {
-            input: asset.input,
-            output: asset.output ?? '',
-          });
-        }
+        amendBuildTarget(tree, into.app.name, amendment);
       }
       return;
     }

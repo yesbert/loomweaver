@@ -315,9 +315,7 @@ describe('weaver generator', () => {
     await expect(weaverGenerator(tree, { id: 'notes' })).resolves.not.toThrow();
   });
 
-  it('leaves an assets-less build target alone instead of crashing', async () => {
-    const app = readProjectConfiguration(tree, 'studio');
-    delete app.targets?.['build']?.options;
+  it('gives a build target without assets the ones the weaver needs, as the command-line route does', async () => {
     addProjectConfiguration(tree, 'bare', {
       root: 'apps/bare',
       projectType: 'application',
@@ -325,8 +323,8 @@ describe('weaver generator', () => {
     });
     await weaverGenerator(tree, { id: 'notes', app: 'bare' });
     expect(
-      readProjectConfiguration(tree, 'bare').targets?.['build']?.options,
-    ).toBeUndefined();
+      readProjectConfiguration(tree, 'bare').targets?.['build']?.options?.assets,
+    ).toEqual([expect.objectContaining({ output: 'i18n/notes' })]);
   });
 
   it('rejects an explicit --app that names a library', async () => {
