@@ -414,6 +414,14 @@ plugin's commands itself, because activating a drawn control is the user's act, 
 entry SHALL run only under the subscription it was told in, so that a surface cannot name an entry
 it was never shown.
 
+An entry whose activation opens a further slot SHALL NOT be answered with that slot's identity.
+The surface SHALL report that it opened the entry, under the subscription that showed it, and SHALL
+be answered with the menu the page opens for the same entry: matched against the description the
+entry was shown against, narrowed by the same rules as a menu in the page, so that an entry with
+nothing to label it is not in it, and carrying the heading the entry declares, worded for the
+language in effect. Activating an entry of that menu, or a heading that leads somewhere, SHALL run
+it as the page runs it. Asking to open an entry that opens nothing SHALL be refused.
+
 The surface SHALL be able to stop asking, and a surface that is torn down SHALL be told nothing
 further.
 
@@ -468,3 +476,21 @@ further.
 
 - **WHEN** an isolated surface that was listening is torn down and an entry is then contributed
 - **THEN** nothing is sent to it
+
+#### Scenario: A menu opened in the surface is the menu the page opens
+
+- **WHEN** an isolated surface opens an entry that opens a further slot, and that slot holds an entry
+  matching the opening entry's description and an entry matching only its own identity
+- **THEN** the surface is told the first and not the second, as a menu opened from the same entry in
+  the page would show
+
+#### Scenario: The heading crosses with the menu
+
+- **WHEN** the entry an isolated surface opens declares a heading for its menu
+- **THEN** the surface is told the heading, worded, with the menu's entries
+
+#### Scenario: Only an entry that opens something can be opened
+
+- **WHEN** an isolated surface asks to open an entry that opens no further slot, or one it was never
+  shown
+- **THEN** nothing is answered and nothing runs
