@@ -1,4 +1,5 @@
 import {
+  asObject,
   BuildTargetAmendment,
   composeLines,
   ComposePluginAmendment,
@@ -6,16 +7,14 @@ import {
   describeAmendment,
   ensureBuildTarget,
   ensureStylesheetSource,
+  entryStylesheet,
+  relativeImport,
   StylesheetSourceAmendment,
+  usesTailwind,
 } from '@loomweaver/devkit';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, posix, resolve } from 'node:path';
-import {
-  asObject,
-  BuildProject,
-  buildTargetOf,
-  entryStylesheetOf,
-} from '../angular-config';
+import { BuildProject, buildTargetOf } from '../angular-config';
 import {
   ConfiguredWorkspace,
   readJsonFile,
@@ -175,9 +174,8 @@ export class ProjectWiring {
   }
 
   private entryStylesheet(project: BuildProject): string | undefined {
-    const entry = entryStylesheetOf(
-      buildTargetOf(this.readConfig(), project.name)?.value,
-    );
+    const target = buildTargetOf(this.readConfig(), project.name)?.value;
+    const entry = entryStylesheet(asObject(asObject(target)?.['options'])?.['styles']);
     return entry === undefined ? undefined : resolve(this.workspace.root, entry);
   }
 }
@@ -193,17 +191,4 @@ function composeNote(
   );
 }
 
-function usesTailwind(css: string): boolean {
-  return css.split('\n').some((line) => {
-    const directive = line.trimStart();
-    return (
-      /^@import\s+['"]tailwindcss['"]/.test(directive) ||
-      /^@source\s/.test(directive)
-    );
-  });
-}
 
-function relativeImport(fromDir: string, sourceRoot: string): string {
-  const path = posix.relative(fromDir, sourceRoot);
-  return path.startsWith('.') ? path : `./${path}`;
-}

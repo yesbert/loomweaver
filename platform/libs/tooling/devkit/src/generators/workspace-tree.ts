@@ -8,11 +8,19 @@ import {
   updateProjectConfiguration,
 } from '@nx/devkit';
 import {
+  ensureBuildTarget,
   ensurePostcssPlugin,
   ensureStylesheetSource,
+  entryStylesheet,
+  postcssWrittenAsCode,
+  usesTailwind,
 } from '../lib/amend/merge';
 import { composeLines, composePlugin } from '../lib/amend/compose';
-import { ComposePluginAmendment, PostcssAmendment } from '../lib/amend/types';
+import {
+  BuildTargetAmendment,
+  ComposePluginAmendment,
+  PostcssAmendment,
+} from '../lib/amend/types';
 import { FileMap } from '../lib/generate/types';
 
 export interface ResolvedApp {
@@ -121,42 +129,25 @@ export function writeFilesGuarded(
   }
 }
 
-export interface I18nAssetsGlob {
-  readonly input: string;
-  readonly output: string;
-}
-
-export function addI18nAssetsGlob(
+export function amendBuildTarget(
   tree: Tree,
   app: string,
-  glob: I18nAssetsGlob,
+  amendment: BuildTargetAmendment,
 ): void {
   const project = readProjectConfiguration(tree, app);
-  const assets: unknown = project.targets?.['build']?.options?.assets;
-  if (!Array.isArray(assets)) {
-    return;
-  }
-  const present = assets.some(
-    (asset) =>
-      typeof asset === 'object' &&
-      asset !== null &&
-      (asset as { input?: string }).input === glob.input,
-  );
-  if (present) {
-    return;
-  }
-  assets.push({ glob: '**/*.json', input: glob.input, output: glob.output });
-  updateProjectConfiguration(tree, app, project);
-}
-
-function usesTailwind(css: string): boolean {
-  return css.split('\n').some((line) => {
-    const directive = line.trimStart();
-    return (
-      /^@import\s+['"]tailwindcss['"]/.test(directive) ||
-      /^@source\s/.test(directive)
+  const build = project.targets?.['build'];
+  if (!build) {
+    logger.warn(
+      `${app} has no build target, so the assets its plugins need were not added; add them to the target that builds it.`,
     );
-  });
+    return;
+  }
+  const result = ensureBuildTarget(build, amendment, project.root);
+  project.targets = { ...project.targets, build: result.value as typeof build };
+  updateProjectConfiguration(tree, app, project);
+  for (const reason of result.declined) {
+    logger.warn(`${app} keeps a value of its own, so this was not added: ${reason}`);
+  }
 }
 
 /**
@@ -193,39 +184,13 @@ export function addTailwindSource(
   }
 }
 
-function entryStylesheet(styles: unknown): string | undefined {
-  if (!Array.isArray(styles)) {
-    return undefined;
-  }
-  for (const entry of styles) {
-    if (typeof entry === 'string' && entry.endsWith('.css')) {
-      return entry;
-    }
-    if (typeof entry === 'object' && entry !== null) {
-      const input = (entry as { input?: unknown }).input;
-      if (typeof input === 'string' && input.endsWith('.css')) {
-        return input;
-      }
-    }
-  }
-  return undefined;
-}
-
 export function addPostcssPlugin(
   tree: Tree,
   amendment: PostcssAmendment,
 ): void {
-  const codeConfigs = [
-    'postcss.config.js',
-    'postcss.config.mjs',
-    'postcss.config.cjs',
-    '.postcssrc.js',
-  ];
-  const inTheWay = codeConfigs.find((name) => tree.exists(name));
-  if (inTheWay) {
-    logger.warn(
-      `${inTheWay} is written as code and cannot be merged into, so add ${amendment.plugin} to it yourself; until then the stylesheet emits no utility class and the workbench renders unstyled.`,
-    );
+  const writtenAsCode = postcssWrittenAsCode((name) => tree.exists(name), amendment);
+  if (writtenAsCode) {
+    logger.warn(writtenAsCode);
     return;
   }
   const existing = tree.exists(amendment.file)

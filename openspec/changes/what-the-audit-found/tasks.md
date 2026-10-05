@@ -35,8 +35,8 @@
 
 ## 5. One implementation per job in the tooling (own PR, no behaviour change)
 
-- [ ] 5.1 Amendment planners in the dev kit (tailwind detection, entry stylesheet, object coercion, relative import, build target); the command-line and Nx routes perform them
-- [ ] 5.2 Docs-site sync keeps one link rewriter with a target resolver
+- [x] 5.1 The dev kit owns tailwind detection, the entry stylesheet, object coercion, relative imports, the build-target merge and the refusal of a postcss config written as code; the command-line and Nx routes call them
+- [x] 5.2 Docs-site sync keeps one link rewriter with a target resolver
 
 ## 6. The demo and the testbed use what the platform ships (own PR)
 

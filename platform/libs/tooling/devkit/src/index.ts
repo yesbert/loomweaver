@@ -12,12 +12,17 @@ export type {
   ProviderLine,
 } from './lib/amend/types';
 export {
+  asObject,
   ensureBuildTarget,
   ensureDependency,
   ensurePostcssPlugin,
   ensureStylesheetSource,
+  entryStylesheet,
   joinProjectPath,
+  postcssWrittenAsCode,
+  relativeImport,
   resolveAssetInput,
+  usesTailwind,
   type MergeResult,
 } from './lib/amend/merge';
 export {

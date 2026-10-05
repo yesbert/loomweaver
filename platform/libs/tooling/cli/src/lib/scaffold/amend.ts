@@ -5,6 +5,7 @@ import {
   ensurePostcssPlugin,
   PackageAmendment,
   PostcssAmendment,
+  postcssWrittenAsCode,
 } from '@loomweaver/devkit';
 import { existsSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -16,13 +17,6 @@ export interface AmendPlan {
   readonly amendments: readonly PlannedAmendment[];
   readonly remaining: readonly string[];
 }
-
-const JS_POSTCSS_CONFIGS = [
-  'postcss.config.js',
-  'postcss.config.mjs',
-  'postcss.config.cjs',
-  '.postcssrc.js',
-];
 
 export function planAmend(
   amendments: readonly Amendment[],
@@ -98,13 +92,12 @@ class Amender {
   }
 
   private planPostcss(amendment: PostcssAmendment): void {
-    const inTheWay = JS_POSTCSS_CONFIGS.find((name) =>
-      existsSync(resolve(this.workspace.root, name)),
+    const writtenAsCode = postcssWrittenAsCode(
+      (name) => existsSync(resolve(this.workspace.root, name)),
+      amendment,
     );
-    if (inTheWay) {
-      this.log.note(
-        `${inTheWay} is written as code and cannot be merged into, so add ${amendment.plugin} to it yourself; until then the stylesheet emits no utility class and the workbench renders unstyled.`,
-      );
+    if (writtenAsCode) {
+      this.log.note(writtenAsCode);
       return;
     }
     const file = resolve(this.workspace.root, amendment.file);

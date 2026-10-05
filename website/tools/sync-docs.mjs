@@ -75,27 +75,17 @@ function segments(md) {
   return out;
 }
 
-function rewriteLinks(md, repoPath, knownTargets, problems) {
+function rewriteLinks(md, repoPath, problems, { kept, targetOf }) {
   return segments(md)
     .map(({ code, text }) => {
       if (code) return text;
       return text.replace(/(\[[^\]]*\]\()([^)\s]+)(\))/g, (whole, open, target, close) => {
-        if (/^(https?:|mailto:|#|\/)/.test(target)) return whole;
+        if (kept.test(target)) return whole;
         const [file, anchor] = target.split('#');
         if (!file) return whole;
         const resolved = path.normalize(path.join(path.dirname(repoPath), file));
-        const suffix = anchor ? `#${anchor}` : '';
-
-        if (VERBATIM.includes(resolved)) return `${open}/${resolved}${suffix}${close}`;
-
-        const mapped = knownTargets.get(resolved);
-        if (mapped) return `${open}${mapped}${suffix}${close}`;
-
-        if (resolved.startsWith('assets/media/') && existsSync(path.join(repoRoot, resolved))) {
-          docsMedia.add(path.basename(resolved));
-          return `${open}/media/${path.basename(resolved)}${suffix}${close}`;
-        }
-
+        const rewritten = targetOf(resolved);
+        if (rewritten) return `${open}${rewritten}${anchor ? `#${anchor}` : ''}${close}`;
         problems.push(`${repoPath}: cannot resolve link target "${target}"`);
         return whole;
       });
@@ -103,31 +93,32 @@ function rewriteLinks(md, repoPath, knownTargets, problems) {
     .join('');
 }
 
+function rewriteLinksForDocs(md, repoPath, knownTargets, problems) {
+  return rewriteLinks(md, repoPath, problems, {
+    kept: /^(https?:|mailto:|#|\/)/,
+    targetOf: (resolved) => {
+      if (VERBATIM.includes(resolved)) return `/${resolved}`;
+      const mapped = knownTargets.get(resolved);
+      if (mapped) return mapped;
+      if (resolved.startsWith('assets/media/') && existsSync(path.join(repoRoot, resolved))) {
+        docsMedia.add(path.basename(resolved));
+        return `/media/${path.basename(resolved)}`;
+      }
+      return undefined;
+    },
+  });
+}
+
 function rewriteLinksForSite(md, repoPath, knownTargets, site, problems) {
-  return segments(md)
-    .map(({ code, text }) => {
-      if (code) return text;
-      return text.replace(/(\[[^\]]*\]\()([^)\s]+)(\))/g, (whole, open, target, close) => {
-        if (/^(https?:|mailto:|#)/.test(target)) return whole;
-        const [file, anchor] = target.split('#');
-        if (!file) return whole;
-        const resolved = path.normalize(path.join(path.dirname(repoPath), file));
-        const suffix = anchor ? `#${anchor}` : '';
-
-        if (VERBATIM.includes(resolved)) return `${open}${site}/${resolved}${suffix}${close}`;
-
-        const mapped = knownTargets.get(resolved);
-        if (mapped) return `${open}${site}${mapped}${suffix}${close}`;
-
-        if (existsSync(path.join(repoRoot, resolved))) {
-          return `${open}${GITHUB_BLOB}${resolved}${suffix}${close}`;
-        }
-
-        problems.push(`${repoPath}: cannot resolve link target "${target}"`);
-        return whole;
-      });
-    })
-    .join('');
+  return rewriteLinks(md, repoPath, problems, {
+    kept: /^(https?:|mailto:|#)/,
+    targetOf: (resolved) => {
+      if (VERBATIM.includes(resolved)) return `${site}/${resolved}`;
+      const mapped = knownTargets.get(resolved);
+      if (mapped) return `${site}${mapped}`;
+      return existsSync(path.join(repoRoot, resolved)) ? `${GITHUB_BLOB}${resolved}` : undefined;
+    },
+  });
 }
 
 /* What a search result and a shared link show under the title. Derived rather than written, for the
@@ -281,7 +272,7 @@ mkdirSync(contentDir, { recursive: true });
 const problems = [];
 for (const source of sources) {
   const raw = readFileSync(path.join(repoRoot, source), 'utf8');
-  const withLinks = rewriteLinks(raw, source, knownTargets, problems);
+  const withLinks = rewriteLinksForDocs(raw, source, knownTargets, problems);
   /* Cards are the one upgrade that needs components, so a page carrying them is written as MDX.
      The route is unchanged: it is derived from the source path, not from what is written. */
   const { body, cards } = expandCards(expandPackageManagerFences(withLinks));
