@@ -14,7 +14,7 @@ import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 import { PopoutService } from '../../../popout/popout.service';
 import { menuContextString } from '../../../menu/menu-context';
 import { PaneRef } from '../../pane/tree/pane-address';
-import { MenuPlacement, registerMenuCommand } from '../../../menu/menu-command';
+import { MenuPlacement, registerMenuCommand } from '../../../menu/context-menu-entry';
 
 const TAB_CLOSE_COMMAND_ID = 'shell.tab.close';
 const TAB_CLOSE_ALL_COMMAND_ID = 'shell.tab.closeAll';

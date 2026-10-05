@@ -1,6 +1,6 @@
 import { Disposable } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../../contributions/contribution-registry';
-import { registerMenuCommand } from '../../menu/menu-command';
+import { registerMenuCommand } from '../../menu/context-menu-entry';
 import { ViewMoveService } from './view-move.service';
 import { ViewVisibilityService } from './view-visibility.service';
 import { CONTENT_DOCK, viewPanePath } from '../pane/tree/pane-address';

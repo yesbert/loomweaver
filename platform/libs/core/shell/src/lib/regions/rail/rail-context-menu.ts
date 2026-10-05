@@ -1,6 +1,6 @@
 import { Disposable, MenuContext } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../../contributions/contribution-registry';
-import { registerMenuCommand } from '../../menu/menu-command';
+import { registerMenuCommand } from '../../menu/context-menu-entry';
 import { menuContextString } from '../../menu/menu-context';
 import { RailItemsService } from './rail-items.service';
 import { RailMoveService } from './rail-move.service';
