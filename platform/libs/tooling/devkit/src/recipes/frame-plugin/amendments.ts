@@ -11,10 +11,10 @@ export function framePluginAmendments(
   input: FramePluginInput,
   where: string | undefined,
 ): readonly Amendment[] {
-  const plugin = resolveFramePluginInput(input);
   if (where === undefined || where === '') {
     return [];
   }
+  const plugin = resolveFramePluginInput(input);
   const capabilities = quotedList(FRAME_PLUGIN_CAPABILITIES);
   const entryUrl = `/${plugin.id}/plugin.html`;
   return [

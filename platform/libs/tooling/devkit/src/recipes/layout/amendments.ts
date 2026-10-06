@@ -6,10 +6,10 @@ export function layoutAmendments(
   input: LayoutInput,
   where: string | undefined,
 ): readonly Amendment[] {
-  const layout = resolveLayoutInput(input);
   if (where === undefined || where === '') {
     return [];
   }
+  const layout = resolveLayoutInput(input);
   const symbol = `${layout.propertyName}Layout`;
   return [
     {

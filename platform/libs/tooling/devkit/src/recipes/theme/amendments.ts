@@ -8,10 +8,10 @@ export function themeAmendments(
   input: ThemeInput,
   where: string | undefined,
 ): readonly Amendment[] {
-  const theme = resolveThemeInput(input);
   if (where === undefined || where === '') {
     return [];
   }
+  const theme = resolveThemeInput(input);
   return [
     {
       kind: 'stylesheet-import',

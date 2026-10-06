@@ -6,10 +6,10 @@ export function settingsStoreAmendments(
   input: SettingsStoreInput,
   where: string | undefined,
 ): readonly Amendment[] {
-  const store = resolveSettingsStoreInput(input);
   if (where === undefined || where === '') {
     return [];
   }
+  const store = resolveSettingsStoreInput(input);
   const symbol = `${store.className}SettingsStore`;
   return [
     {
