@@ -15,6 +15,7 @@
     "command-names-check": "node tools/checks/check-command-names.mjs",
     "catalog-keys-check": "node tools/checks/check-catalog-keys.mjs",
     "comments-check": "node tools/checks/check-comments.mjs",
+    "generated-output-check": "node tools/checks/check-generated-output.mjs",
     "icon-docs": "node tools/checks/check-icon-docs.mjs --write",
     "icon-docs-check": "node tools/checks/check-icon-docs.mjs",
     "import-cycles-check": "node tools/checks/check-import-cycles.mjs",
