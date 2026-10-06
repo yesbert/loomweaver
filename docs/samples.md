@@ -733,32 +733,24 @@ npm install @loomweaver/ag-ui @ag-ui/core
 
 ```ts
 // src/notes/src/lib/agent/notes-connection.ts
-import { commandTools, type CommandTools } from '@loomweaver/ag-ui';
+import { commandTools, consentPolicy, type CommandTools } from '@loomweaver/ag-ui';
 import type { PluginContext } from '@loomweaver/plugin-sdk';
 
 export function connectNotes(ctx: PluginContext): CommandTools {
   return commandTools(ctx, {
     // What an agent's word is enough for is the command's own statement, declared beside the
-    // command (`agentConsent: 'ask'`) and read off the call here. Keep no list of ids: it drifts
-    // from the commands, and it cannot speak for a command another plugin registered.
-    before: async (call) => {
-      if (call.agentConsent === 'never') {
-        return { decision: 'decline', reason: 'an agent may not run this one on its own word.' };
-      }
-      if (call.agentConsent !== 'ask' && call.agentConsent !== 'ask-always') {
-        return { decision: 'run' };
-      }
-      const confirmed = await ctx.ui.confirm({
+    // command (`agentConsent: 'ask'`). The policy acts on it: it declines what may never run on an
+    // agent's word, runs what may, and asks through your confirmation for the rest, once per
+    // connection for a command that asks first.
+    before: consentPolicy(() =>
+      ctx.ui.confirm({
         title: 'notes.agent.confirm.title',
         message: 'notes.agent.confirm.message',
         confirmLabel: 'notes.agent.confirm.yes',
         cancelLabel: 'notes.agent.confirm.no',
         tone: 'warning',
-      });
-      return confirmed
-        ? { decision: 'run' }
-        : { decision: 'decline', reason: 'the person at the keyboard said no.' };
-    },
+      }),
+    ),
   });
 }
 ```

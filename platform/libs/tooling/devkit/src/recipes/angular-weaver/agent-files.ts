@@ -15,12 +15,7 @@ export const AG_UI_PROTOCOL_VERSION = '0.0.x';
 
 function connectionFile(weaver: ResolvedWeaver): string {
   return `import { signal } from '@angular/core';
-import {
-  commandTools,
-  type CommandTools,
-  type PendingToolCall,
-  type ToolDecision,
-} from '@loomweaver/ag-ui';
+import { commandTools, consentPolicy, type CommandTools } from '@loomweaver/ag-ui';
 import type { PluginContext } from '@loomweaver/plugin-sdk';
 
 // The connection is the workbench's half: the commands offered as tools, and each call put to the
@@ -29,43 +24,28 @@ import type { PluginContext } from '@loomweaver/plugin-sdk';
 // A factory, not a module-level connection: everything a run needs lives in the closure, so a second
 // one never shares state with the first.
 export function connect${weaver.className}(ctx: PluginContext): CommandTools {
-  return commandTools(ctx, { before: (call) => decide(ctx, call) });
+  // What an agent's word is enough for is each command's own statement, declared where the command
+  // is registered. consentPolicy acts on it: it declines what may never run on an agent's word, runs
+  // what may, and asks through your confirmation for the rest, remembering a yes for a command that
+  // asks first for as long as this connection lives. The workbench states and enforces nothing here,
+  // so replace it with a decision of your own where you need one. A decision can only narrow: the
+  // workbench still refuses whatever it always refused.
+  return commandTools(ctx, {
+    before: consentPolicy(() =>
+      ctx.ui.confirm({
+        title: '${weaver.id}.agent.confirm.title',
+        message: '${weaver.id}.agent.confirm.message',
+        confirmLabel: '${weaver.id}.agent.confirm.yes',
+        cancelLabel: '${weaver.id}.agent.confirm.no',
+        tone: 'warning',
+      }),
+    ),
+  });
 }
 
 // The one connection this plugin activates, published for its panel. Set in activate(), cleared in
 // deactivate(), so the panel renders an honest empty state either side of that.
 export const ${weaver.propertyName}Tools = signal<CommandTools | null>(null);
-
-// What an agent's word is enough for is the command's own statement, declared where the command is
-// registered and read off the call here. No list of ids lives beside the commands: a list drifts from
-// what it describes, and it cannot speak for a command another plugin registered. Acting on the
-// statement is this weaver's half: the workbench states it and enforces nothing.
-async function decide(
-  ctx: PluginContext,
-  call: PendingToolCall,
-): Promise<ToolDecision> {
-  if (call.agentConsent === 'never') {
-    return {
-      decision: 'decline',
-      reason: 'an agent may not run this one on its own word.',
-    };
-  }
-  if (call.agentConsent !== 'ask' && call.agentConsent !== 'ask-always') {
-    return { decision: 'run' };
-  }
-  const yes = await ctx.ui.confirm({
-    title: '${weaver.id}.agent.confirm.title',
-    message: '${weaver.id}.agent.confirm.message',
-    confirmLabel: '${weaver.id}.agent.confirm.yes',
-    cancelLabel: '${weaver.id}.agent.confirm.no',
-    tone: 'warning',
-  });
-  // A decision can only narrow. Letting a call through does not make it reachable: the workbench
-  // still refuses whatever it always refused.
-  return yes
-    ? { decision: 'run' }
-    : { decision: 'decline', reason: 'the person at the keyboard said no.' };
-}
 `;
 }
 
@@ -80,7 +60,7 @@ interface Asked {
   readonly args?: CommandArguments;
 }
 
-function contextThat(confirms: boolean, ran: Asked[]): PluginContext {
+function contextThat(confirms: boolean, ran: Asked[], asked: string[] = []): PluginContext {
   return {
     invocableCommands: () => [
       // agentConsent travels with the command, which is what the connection reads off the call.
@@ -90,7 +70,12 @@ function contextThat(confirms: boolean, ran: Asked[]): PluginContext {
       ran.push({ id, args });
       return Promise.resolve({ outcome: 'answered', value: { tone: args?.['tone'] ?? 'info' } });
     },
-    ui: { confirm: () => Promise.resolve(confirms) },
+    ui: {
+      confirm: (input: { title: string }) => {
+        asked.push(input.title);
+        return Promise.resolve(confirms);
+      },
+    },
   } as unknown as PluginContext;
 }
 
@@ -128,6 +113,18 @@ describe('connect${weaver.className}', () => {
     expect(ran).toEqual([{ id: '${weaver.id}.hello', args: { tone: 'success' } }]);
     expect(JSON.parse(answer?.content ?? '{}').tone).toBe('success');
     expect(answer?.error).toBeUndefined();
+  });
+
+  it('asks once for a command that asks first, and remembers the yes', async () => {
+    const asked: string[] = [];
+    const ran: Asked[] = [];
+    const tools = connect${weaver.className}(contextThat(true, ran, asked));
+
+    await answersTo(tools, streamedCall('c3', '{}'));
+    await answersTo(tools, streamedCall('c4', '{}'));
+
+    expect(asked).toEqual(['${weaver.id}.agent.confirm.title']);
+    expect(ran).toHaveLength(2);
   });
 
   it('never reaches the workbench when a consequential call is declined', async () => {

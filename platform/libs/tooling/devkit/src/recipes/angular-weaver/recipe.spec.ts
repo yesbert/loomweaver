@@ -467,14 +467,13 @@ describe('angularWeaver agent connection', () => {
     expect(spec).toContain("JSON.parse(answer?.content ?? '{}').tone");
   });
 
-  it('asks about a consequential call and declines it, reading the command and not a list', () => {
+  it("acts on each command's own statement through the shipped policy, asking with the product's confirmation", () => {
     const files = agentWeaver();
     const connection = files['src/lib/agent/notes-connection.ts'];
 
-    expect(connection).toContain("call.agentConsent !== 'ask'");
+    expect(connection).toContain('before: consentPolicy(() =>');
     expect(connection).toContain('ctx.ui.confirm(');
-    expect(connection).toContain("{ decision: 'decline'");
-    expect(connection).not.toContain('CONSEQUENTIAL');
+    expect(connection).not.toContain('agentConsent ===');
     expect(connection).not.toContain('new Set([');
   });
 
