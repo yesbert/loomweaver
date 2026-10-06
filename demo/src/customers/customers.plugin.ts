@@ -19,6 +19,9 @@ export const customersPlugin: Plugin = {
       routable: { path: 'sales/customers' },
       docks: [],
       component: CustomerListView,
+      actions: [
+        { id: 'customers.list.create', icon: 'createCustomer', title: 'customers.create.action', command: 'customers.create' },
+      ],
     });
 
     ctx.registerSurface({
@@ -34,7 +37,7 @@ export const customersPlugin: Plugin = {
       id: 'customers.create',
       title: 'customers.create.action',
       description: 'customers.create.description',
-      icon: 'sales',
+      icon: 'createCustomer',
       callable: true,
       answers: 'customers.create.answers',
       run: async () => {

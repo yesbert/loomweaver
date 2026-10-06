@@ -137,7 +137,9 @@ offers: customer list and contact history; receivables, payables, ledger, closin
 that asks before it acts; suppliers and purchase orders with goods to receive; stock levels,
 movements and a stock count; employees and payroll runs with the open one to pay. Each lists its
 records in a grid that turns into compact lines on a narrow pane, with its own translations and
-tests. They are there so the workbench has enough modules to show workspaces, claims and the
+tests. A module's action, such as starting the dunning run, is a registered command that its view
+declares as a surface action. The pane header draws it, so the header, the command palette and the
+agent all run the same command. They are there so the workbench has enough modules to show workspaces, claims and the
 navigation tree doing their work.
 
 [`src/app/navigation`](src/app/navigation) draws one tree per module in the left sidebar from a

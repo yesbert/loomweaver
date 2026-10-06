@@ -21,6 +21,23 @@ demo pins the published packages, so it can adopt this without waiting for the n
 decision and its reason are written here before implementation; a view that keeps a body button keeps
 it by running the same command through the command service, not the module helper.
 
+**The five, decided.** All five move to the header, because in each view the list is the purpose and
+the action is an operation on it:
+
+| View | Action | Decision |
+|---|---|---|
+| Customer list | New customer | Header. The body keeps its search field; creating is an operation beside the list, not the list. |
+| Payroll runs | Run payroll | Header. The view reads past runs; starting the next one is an operation on them. |
+| Dunning | Start dunning run | Header. The view lists what is overdue; the run raises it, and asks first. |
+| Stock levels | Post stock count | Header. The view shows levels and what is below its reorder point; the count posts against it. |
+| Purchase orders | Post goods receipt | Header. The view lists what is on order; the receipt books the next delivery. |
+
+None keeps a body button, so none needs the command service in its component.
+
+**Each action has an icon of its own.** The commands carried their module's icon, which the view's
+tab already shows; an action drawn with the same picture as the tab beside it says nothing. Each
+command now carries the icon its action draws, so the palette shows the same picture as the header.
+
 ## Risks / Trade-offs
 
 - [An icon action is less discoverable than a labelled button] → The action carries the command's

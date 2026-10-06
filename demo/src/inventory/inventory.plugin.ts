@@ -19,6 +19,9 @@ export const inventoryPlugin: Plugin = {
       routable: { path: 'inventory/stock' },
       docks: [],
       component: StockLevelsView,
+      actions: [
+        { id: 'inventory.stock.count', icon: 'countStock', title: 'inventory.countStock', command: 'inventory.countStock' },
+      ],
     });
     ctx.registerSurface({
       id: 'inventory.movements',
@@ -33,7 +36,7 @@ export const inventoryPlugin: Plugin = {
       id: 'inventory.countStock',
       title: 'inventory.countStock',
       description: 'inventory.count.description',
-      icon: 'stockLevels',
+      icon: 'countStock',
       callable: true,
       answers: 'inventory.count.answers',
       run: async () => ({ counted: await inventoryActions.countStock() }),

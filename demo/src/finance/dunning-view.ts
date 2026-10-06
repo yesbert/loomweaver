@@ -1,7 +1,6 @@
 import { Component, computed } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { daysOverdue, dunningLevel, openAmount, overdueReceivables } from './books';
-import { financeActions } from './finance-actions';
 import { customerName, formatMoney } from '../accounting';
 import { activeLanguage } from '../i18n/active-language';
 
@@ -25,8 +24,4 @@ export class DunningView {
       level: dunningLevel(entry),
     }));
   });
-
-  protected run(): void {
-    void financeActions.dunningRun();
-  }
 }

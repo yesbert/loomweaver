@@ -1,7 +1,6 @@
 import { Component, computed } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { isBelowReorderPoint, itemsBelowReorderPoint, stockItems } from './stock';
-import { inventoryActions } from './inventory-actions';
 import { formatQuantity } from '../accounting';
 import { activeLanguage } from '../i18n/active-language';
 
@@ -26,8 +25,4 @@ export class StockLevelsView {
   });
 
   protected readonly low = computed(() => itemsBelowReorderPoint().length);
-
-  protected count(): void {
-    void inventoryActions.countStock();
-  }
 }

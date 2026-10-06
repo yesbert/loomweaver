@@ -27,13 +27,16 @@ export const peoplePlugin: Plugin = {
       routable: { path: 'people/payroll' },
       docks: [],
       component: PayrollView,
+      actions: [
+        { id: 'people.payroll.run', icon: 'runPayroll', title: 'people.runPayroll', command: 'people.runPayroll' },
+      ],
     });
 
     ctx.registerCommand({
       id: 'people.runPayroll',
       title: 'people.runPayroll',
       description: 'people.payrollDescription',
-      icon: 'payrollRuns',
+      icon: 'runPayroll',
       callable: true,
       answers: 'people.payrollAnswers',
       run: async () => ({ paid: await peopleActions.runPayroll() }),
