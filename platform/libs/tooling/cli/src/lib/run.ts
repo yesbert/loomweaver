@@ -1,15 +1,18 @@
 import { parseArgs, ParsedArgs } from './args';
 import { execInherit } from './exec';
 import { help, list } from './help';
-import { init } from './init/init';
+import { init, INIT_FLAGS } from './init/init';
 import { InitDeps, UNBUNDLED_VERSION } from './init/init-plan';
 import { Io } from './io';
-import { scaffold } from './scaffold/scaffold-command';
+import { scaffold, SCAFFOLD_FLAGS } from './scaffold/scaffold-command';
+import { allowedFlagsFor } from './scaffold/scaffold';
+import { findScaffold as findDescriptor } from '@loomweaver/devkit';
 import {
   validateCatalogCommand,
   validateCommandsCommand,
   validateI18nCommand,
   validateManifestCommand,
+  VALIDATE_FLAGS,
 } from './validate/validate-command';
 
 type CommandHandler = (args: ParsedArgs, io: Io, deps: InitDeps) => number;
@@ -24,6 +27,20 @@ const COMMANDS = new Map<string, CommandHandler>([
   ['validate-catalog', validateCatalogCommand],
   ['validate-commands', validateCommandsCommand],
 ]);
+
+export function acceptedFlags(command: string): readonly string[] | undefined {
+  if (command === 'init') {
+    return INIT_FLAGS;
+  }
+  if (command === 'list') {
+    return [];
+  }
+  if (Object.hasOwn(VALIDATE_FLAGS, command)) {
+    return VALIDATE_FLAGS[command];
+  }
+  const descriptor = findDescriptor(command);
+  return descriptor ? [...allowedFlagsFor(descriptor), ...SCAFFOLD_FLAGS] : undefined;
+}
 
 export function run(
   argv: readonly string[],

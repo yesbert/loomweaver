@@ -3,11 +3,16 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/tooling/cli/src",
   "projectType": "library",
-  "tags": ["scope:tooling", "type:tool"],
+  "tags": [
+    "scope:tooling",
+    "type:tool"
+  ],
   "targets": {
     "bundle": {
       "executor": "nx:run-commands",
-      "outputs": ["{projectRoot}/dist"],
+      "outputs": [
+        "{projectRoot}/dist"
+      ],
       "options": {
         "cwd": "libs/tooling/cli",
         "command": "node esbuild.mjs"
@@ -21,7 +26,14 @@
         "ci": {
           "mode": "coverage"
         }
-      }
+      },
+      "inputs": [
+        "default",
+        "^production",
+        {
+          "runtime": "cat ../llms-full.txt ../llms.txt ../README.md ../skills/loomweaver/SKILL.md libs/tooling/*/README.md $(find ../docs -name '*.md' | sort)"
+        }
+      ]
     }
   }
 }

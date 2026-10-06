@@ -522,11 +522,11 @@ interface TabBadge { text?: string; textIsLiteral?: boolean; icon?: string; tone
 type BarSlot = 'start' | 'center' | 'end';
 type BarItem = BarComponentItem | BarButtonItem;   // both base: { id, bar, slot, order?, access? } — access: hide either kind, disable only the button
 // A bar too narrow for all its items folds the ones that do not fit into a "More" control at its end (end slot, highest order first; then center; then start) and shows them in a tray as they are. Nothing overlaps, nothing is cut off, everything stays reachable.
-interface BarComponentItem { component: Type<unknown>; /* + base */ }
+interface BarComponentItem { component: Type<unknown>; id: string; bar: string; slot: BarSlot; order?: number; access?: AccessRequirement }
 interface Toolbar { slot: string; title: string }   // title = accessible name (key or literal); export the slot id so others can name it. The element is <lw-toolbar> under Setup essentials
 interface ToolbarCell { id: string; slot: string; component: Type<unknown>; order?: number; access?: AccessRequirement }   // id re-registered = replaced; the workbench never looks inside (no command, no `when`, no shortcut); access hides only; folds whole; never reaches a toolbar inside an isolated surface
 interface ToolbarContext { slot: string; context: MenuContext }   const TOOLBAR_CONTEXT: InjectionToken<ToolbarContext>;   // what a cell component injects to learn the slot and the placement it stands in
-interface BarButtonItem { icon?: string; initials?: string; image?: string; label?: string; tooltip?: string; menu?: string; menuTrigger?: 'context' | 'primary' | 'both'; menuHeader?: MenuHeader; command?: string; showShortcut?: boolean; run?(): void; /* + base */ }  // showShortcut: render the bound command's shortcut hint, OS-correct (⌘K / Ctrl+K); needs command to have a shortcut. Default off.
+interface BarButtonItem { icon?: string; initials?: string; image?: string; label?: string; tooltip?: string; menu?: string; menuTrigger?: 'context' | 'primary' | 'both'; menuHeader?: MenuHeader; command?: string; showShortcut?: boolean; run?(): void; id: string; bar: string; slot: BarSlot; order?: number; access?: AccessRequirement }  // showShortcut: render the bound command's shortcut hint, OS-correct (⌘K / Ctrl+K); needs command to have a shortcut. Default off.
 // `workspace` names a workspace id: the host switches to it on click and marks the entry as the current one
 // (bar + tint + aria-current) while it is active. Provide it INSTEAD of command/run; those are then ignored.
 // The entry is marked as well while a workspace the USER saved from it (its variant) is active and has no
@@ -1052,7 +1052,7 @@ class PaneService { panes: Signal<readonly PaneFacts[]>; activePane: Signal<Pane
   splitRight(pane?: PaneHandle): void; splitDown(pane?: PaneHandle): void; closePane(pane?: PaneHandle): void; unsplit(): void;
   maximize(pane?: PaneHandle): void; minimize(pane?: PaneHandle): void; restore(pane?: PaneHandle): void; focus(pane: PaneHandle): void; moveTab(path: string, pane: PaneHandle): void; exists(pane: PaneHandle): boolean }
 // closePane and unsplit spare pinned and unclosable tabs (every tab with content.close off): they join the pane that takes the space.
-type PaneHandle;   // opaque, stable while the pane exists; a stale handle does nothing. Without a handle an action means the address pane (the one carrying the address).
+type PaneHandle = unknown;   // opaque (a branded string you cannot make), stable while the pane exists; a stale handle does nothing. Without a handle an action means the address pane (the one carrying the address).
 interface PaneFacts { handle: PaneHandle; showing: string | null; itemCount: number; carriesAddress: boolean; maximized: boolean; minimized: boolean }
 interface PaneRef { dock: string; paneId: string }   // names a pane: dock 'content' is the main area, otherwise a sidebar region id. A tab's menu context carries both
                                                      // (as group + paneId, with primary = carries the address); ContentTabsService.close/closeOthers/closeToRight/closeAll
@@ -1064,7 +1064,7 @@ class ContentTabsService {   // the tabs of the pane carrying the address; the s
   navigate(path: string): Promise<boolean>; navigateTo(path: string): void; revealContentTab(navPath: string): void; activateViewTab(path: string): void; bringToFront(path: string): void; reorder(ids: string[]): void;
   close(path: string, pane?: PaneRef): void; closeOthers(path: string, pane?: PaneRef): void; closeToRight(path: string, pane?: PaneRef): void; closeAll(pane?: PaneRef): void; closePrimaryPane(): void;
   runCloseHook(path: string): void; hasUnsavedWork(path: string): boolean; neighbourOf(path: string): string }   // closing asks about unsaved work first; pinned and unclosable tabs survive the bulk closes
-class WorkspaceService { definitions: readonly WorkspaceDefinition[]; workspaces: Signal<readonly Workspace[]>; activeId: Signal<string>; hasChanges: Signal<boolean>; changedIds: Signal<ReadonlySet<string>>;
+class WorkspaceService { definitions: readonly WorkspaceDefinition[]; workspaces: Signal<Workspace[]>; activeId: Signal<string>; hasChanges: Signal<boolean>; changedIds: Signal<Set<string>>;
   initials: Signal<ReadonlyMap<string, string>>;   // the one-or-two-letter glyphs the rail draws for user-saved workspaces, by id
   switchTo(id: string, options?: { keepAddress?: boolean }): Promise<void>; saveCurrent(name: string): Promise<void>; saveBaseline(): Promise<void>; rename(id: string, name: string): void;
   reset(id?: string): Promise<boolean>; resetAll(): Promise<boolean>; remove(id: string): Promise<boolean>;   // the three ask about unsaved work and answer whether they ran
@@ -1086,12 +1086,12 @@ interface CommandInvoker { invocable(callerId, granted): readonly InvocableComma
 const COMMAND_INVOKER: InjectionToken<CommandInvoker>;  class CommandInvocationService implements CommandInvoker {}   // the shell's own; provide another to sit between an agent and the commands
 class KeybindingService { start(): void }   // the one global key listener; chords are ignored while shortcuts are switched off
 class ContributionRegistry { registeredCommands: Signal<readonly RegisteredCommand[]>; commands; views; barItems; railItems; registeredMenuItems: Signal<readonly RegisteredMenuItem[]>; menuItems; contentRoutes: Signal<readonly RegisteredContentRoute[]>;
-  omittedContentRoutes; omitted: Signal<ReadonlySet<string>>; registeredIds: Signal<ReadonlySet<string>>; omit(ids): void; add*/remove* per kind }
+  omittedContentRoutes; omitted: Signal<ReadonlySet<string>>; registeredIds: Signal<ReadonlySet<string>>; omit(ids): void }   // plus add<Kind>(…) and remove<Kind>ById(id) for each kind
 interface RegisteredCommand { command: Command; ownerId?: string }   // the host stamps the owner; the shell's own carry none, which is what tells plugins' commands apart
 interface RegisteredMenuItem { item: MenuItem; ownerId?: string }   // the same stamp on a menu entry, so an entry aimed at a slot nothing declares is reported with its plugin
 class DialogService { dialogs: Signal<readonly DialogInstance[]>; confirm; alert; prompt; open; progress; withProgress;   // the same seam ctx.ui uses
   connectDismissal(dismiss: (dialog: DialogInstance) => Promise<boolean>): () => void }   // for an outlet of your own: makes a body's requestClose run your outlet's dismissal; returns the disconnect
-interface DialogInstance { id; ref: DialogRef; kind: DialogKind; tone: DialogTone; icon?; title?; message?; component?; buttons: readonly DialogButtonView[]; dismiss: DialogDismiss; size?; bare?; maximizable?; align? }
+interface DialogInstance { id; ref: DialogRef; kind: DialogKind; tone: DialogTone; icon?; title?; message?; component?; buttons: readonly DialogButtonView[]; dismiss: DialogDismiss; size?; bare?; maximizable?; align?; injector?: Injector; placeholder?: string; promptValue?: WritableSignal<string>; progressMessage?: WritableSignal<string>; requireLabel?: string; requireValidate?: (value: string) => string | null }
 type DialogKind = 'confirm' | 'alert' | 'prompt' | 'custom' | 'progress';  interface DialogButtonView { label; variant: LwButtonVariant; role: ButtonRole; value?; autofocus }  type ButtonRole = 'confirm' | 'cancel' | 'custom';
 class NotificationService { notifications: Signal<readonly Notification[]>; show(input: NotificationInput): string; dismiss(id): void }
 class SettingsService { all: Signal<SettingsSection[]>; registered: Signal<readonly SettingsSection[]>; requestedSection; register(section): Disposable; omit(ids): void; open(sectionId?): DialogRef }
@@ -1102,7 +1102,7 @@ class PluginRuntime { activateAll(); deactivate(id); deactivateAll() }  class Fr
 class UpdateService { updateAvailable: Signal<boolean>; updateFailed: Signal<boolean>; updateBroken: Signal<boolean>; enabled: boolean; lastCheck: Signal<UpdateCheck | null>; checkForUpdate(): Promise<UpdateOutcome>; activateUpdate(): Promise<void> }
 type UpdateOutcome = 'waiting' | 'current' | 'unreachable' | 'failed' | 'unavailable';   // what a check found
 interface UpdateCheck { outcome: UpdateOutcome; at: number; automatic: boolean }   // the last check, including the workbench's own (see ShellOptions.announceUpdates)
-class VersionService { version: Signal<string>; isPreview: Signal<boolean> }   // the running build; announcing a preview is the product's own decision
+class VersionService { version: WritableSignal<string>; isPreview: Signal<boolean> }   // the running build; announcing a preview is the product's own decision
 class ViewportService { compact: Signal<boolean> }   // below the md breakpoint (767.98px): the fact the chrome folds on, for a control of your own
 const APP_RESET_WORKSPACES: InjectionToken<() => Promise<boolean>>;   // what AppResetService.reset({ workspaces: true }) calls to reset them all
 const LOOM_ICONS;   // the shipped icon map itself (LoomIconName = keyof typeof LOOM_ICONS), for code that reads a glyph rather than draws it

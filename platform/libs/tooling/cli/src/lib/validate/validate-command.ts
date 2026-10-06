@@ -38,8 +38,15 @@ function reportFindings(
   return strict && gating.length > 0 ? 1 : 0;
 }
 
+export const VALIDATE_FLAGS: Readonly<Record<string, readonly string[]>> = {
+  'validate-manifest': ['id', 'name', 'capabilities', 'strict'],
+  'validate-i18n': ['dir', 'strict'],
+  'validate-commands': ['dir', 'strict'],
+  'validate-catalog': ['file', 'strict'],
+};
+
 export function validateManifestCommand(args: ParsedArgs, io: Io): number {
-  rejectUnknownFlags(args, ['id', 'name', 'capabilities', 'strict']);
+  rejectUnknownFlags(args, VALIDATE_FLAGS['validate-manifest']);
   const capabilities = (stringFlag(args, 'capabilities') ?? '')
     .split(',')
     .map((entry) => entry.trim())
@@ -77,7 +84,7 @@ function readBundles(dir: string): Record<string, I18nBundle> {
 }
 
 export function validateI18nCommand(args: ParsedArgs, io: Io): number {
-  rejectUnknownFlags(args, ['dir', 'strict']);
+  rejectUnknownFlags(args, VALIDATE_FLAGS['validate-i18n']);
   return reportFindings(
     io,
     validateI18nParity(readBundles(requiredFlag(args, 'dir'))),
@@ -123,7 +130,7 @@ function readSources(dir: string): CommandSource[] {
 }
 
 export function validateCommandsCommand(args: ParsedArgs, io: Io): number {
-  rejectUnknownFlags(args, ['dir', 'strict']);
+  rejectUnknownFlags(args, VALIDATE_FLAGS['validate-commands']);
   const dir = requiredFlag(args, 'dir');
   const ts = loadTypeScript(dir);
   if (!ts) {
@@ -155,7 +162,7 @@ function readCatalog(file: string): unknown {
 }
 
 export function validateCatalogCommand(args: ParsedArgs, io: Io): number {
-  rejectUnknownFlags(args, ['file', 'strict']);
+  rejectUnknownFlags(args, VALIDATE_FLAGS['validate-catalog']);
   return reportFindings(
     io,
     validateCatalog(readCatalog(requiredFlag(args, 'file'))),
