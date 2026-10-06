@@ -1,5 +1,12 @@
-import { composeLines, composePlugin } from './compose';
-import { ComposePluginAmendment } from './types';
+import {
+  composeLines,
+  composePlugin,
+  composeProviders,
+  grantKey,
+  keptNote,
+  moduleImport,
+} from './compose';
+import { ComposePluginAmendment, ComposeProviderAmendment } from './types';
 
 const NOTES: ComposePluginAmendment = {
   kind: 'compose-plugin',
@@ -169,5 +176,84 @@ describe('composeLines', () => {
     expect(lines).toContain('notesPlugin');
     expect(lines).toContain("provideTranslationNamespaces('notes')");
     expect(lines).toContain('provideCapabilityGrants');
+  });
+});
+
+describe('composeProviders', () => {
+  const STORE: ComposeProviderAmendment = {
+    kind: 'compose-provider',
+    module: 'src/settings/api-settings-store',
+    providers: [
+      {
+        line: 'provideSettingsStore(new ApiSettingsStore()),',
+        shell: ['provideSettingsStore'],
+        own: ['ApiSettingsStore'],
+        unless: 'provideSettingsStore(',
+      },
+    ],
+    without: 'Without it settings stay local.',
+  };
+  const LAYOUT: ComposeProviderAmendment = {
+    kind: 'compose-provider',
+    module: 'src/wide-layout',
+    providers: [
+      { line: 'provideLayout(wideLayout),', shell: ['provideLayout'], own: ['wideLayout'], unless: 'provideLayout(' },
+    ],
+    without: 'Without it this layout is never drawn.',
+  };
+
+  it('adds the line after what is there, with its imports', () => {
+    const result = composeProviders(GENERATED, STORE, '../settings/api-settings-store');
+
+    expect(result.composed).toBe(true);
+    expect(result.kept).toEqual([]);
+    expect(result.source).toContain("import { ApiSettingsStore } from '../settings/api-settings-store';");
+    expect(result.source).toContain('  provideSettingsStore,\n');
+    expect(result.source).toContain('    provideLayout(layout),\n    provideSettingsStore(new ApiSettingsStore()),\n  ],');
+  });
+
+  it('keeps a provider of the same kind and returns it as kept, changing nothing', () => {
+    const result = composeProviders(GENERATED, LAYOUT, '../wide-layout');
+
+    expect(result).toEqual({ source: GENERATED, composed: true, kept: ['provideLayout(wideLayout),'] });
+    expect(keptNote(result.kept[0])).toBe(
+      'kept the provideLayout already there instead of provideLayout(wideLayout)',
+    );
+  });
+
+  it('changes nothing the second time', () => {
+    const once = composeProviders(GENERATED, STORE, '../settings/api-settings-store').source;
+
+    expect(composeProviders(once, STORE, '../settings/api-settings-store')).toEqual({
+      source: once,
+      composed: true,
+      kept: [],
+    });
+  });
+
+  it('declines a composition root it did not generate', () => {
+    const foreign = 'export const appConfig = { providers: [] };\n';
+
+    expect(composeProviders(foreign, STORE, '../x').composed).toBe(false);
+  });
+
+  it('imports a generated module from where the composition root sits', () => {
+    expect(moduleImport('apps/studio/src/app', 'apps/studio/src/settings/api-settings-store')).toBe(
+      '../settings/api-settings-store',
+    );
+    expect(moduleImport('apps/studio/src/app', undefined)).toBeUndefined();
+  });
+});
+
+describe('grantKey', () => {
+  it('quotes an id that is not an identifier, so the grant compiles', () => {
+    expect(grantKey('notes')).toBe('notes');
+    expect(grantKey('field-notes')).toBe("'field-notes'");
+  });
+
+  it('is what a plugin registration grants under', () => {
+    expect(composeLines({ ...NOTES, id: 'field-notes' }, './x')).toContain(
+      "provideCapabilityGrants({ 'field-notes': ['contributions', 'ui', 'navigation'] }),",
+    );
   });
 });

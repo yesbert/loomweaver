@@ -86,8 +86,9 @@ nx g @loomweaver/devkit:frame-plugin --id=notes --app=loom-testbed
 ```
 
 Writes a sandboxed plugin (`plugin.html`, `plugin.js`, `view.html`) into
-`apps/loom-testbed/public/notes/`. Replace `view.html` with any framework; the generated `README.md`
-covers registering it via `provideFramePlugins` and supplying `penpal.global.js`.
+`apps/loom-testbed/public/notes/`, registers and grants it in the application's `app.config.ts`
+with `provideFramePlugins` and `provideCapabilityGrants`, and serves the frame kit under
+`/frame-kit/`. Replace `view.html` with any framework.
 
 ## Scaffold a distribution
 
@@ -118,16 +119,17 @@ nx g @loomweaver/devkit:auth-source --name=dev --app=acme-studio       # a stand
 nx g @loomweaver/devkit:settings-store --name=backend --app=acme-studio # backend-backed settings store
 ```
 
-The auth source composes itself into the application's `app.config.ts`, unless you pass `--bare`;
-then, and for the settings store, wire them yourself with `provideAuthSource(() => devAuthSource())`
-and `provideSettingsStore(new BackendSettingsStore())`.
+Both compose themselves into the application's `app.config.ts`: the auth source unless you pass
+`--bare`, the settings store as `provideSettingsStore(new BackendSettingsStore())`. Where the
+composition already provides one of its kind, that one is kept and the generator names the line it
+did not add.
 
 ## Scaffold a theme + a layout
 
 ```sh
-nx g @loomweaver/devkit:theme --name=midnight --app=acme-studio   # a token-override CSS (@import after ours)
+nx g @loomweaver/devkit:theme --name=midnight --app=acme-studio   # a token-override CSS, imported after ours
 nx g @loomweaver/devkit:theme --name=acme --preset=bootstrap      # the same, mapped onto Bootstrap 5.3
-nx g @loomweaver/devkit:layout --app=acme-studio                  # a ShellLayout for provideLayout(baseLayout)
+nx g @loomweaver/devkit:layout --app=acme-studio                  # a ShellLayout, provided unless one is
 ```
 
 `--preset bootstrap` points every `--lw-*` token at Bootstrap's `--bs-*` variables instead of

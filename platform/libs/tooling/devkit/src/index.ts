@@ -4,9 +4,11 @@ export type {
   Amendment,
   AssetGlob,
   ComposePluginAmendment,
+  ComposeProviderAmendment,
   BuildTargetAmendment,
   PackageAmendment,
   PostcssAmendment,
+  StylesheetImportAmendment,
   StylesheetSourceAmendment,
   ImportedSymbols,
   ProviderLine,
@@ -15,21 +17,29 @@ export {
   asObject,
   ensureBuildTarget,
   ensureDependency,
-  ensurePostcssPlugin,
   ensureStylesheetSource,
   entryStylesheet,
   joinProjectPath,
-  postcssWrittenAsCode,
   relativeImport,
   resolveAssetInput,
   usesTailwind,
   type MergeResult,
 } from './lib/amend/merge';
+export { ensurePostcssPlugin, postcssWrittenAsCode } from './lib/amend/postcss';
 export {
   composeLines,
   composePlugin,
+  composeProviders,
+  keptNote,
+  moduleImport,
+  providerLines,
   type ComposeResult,
 } from './lib/amend/compose';
+export {
+  ensureStylesheetImport,
+  importSpecifier,
+  type StylesheetImportResult,
+} from './lib/amend/stylesheet-import';
 export { describeAmendment } from './lib/amend/describe';
 export {
   isKebabId,

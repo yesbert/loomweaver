@@ -2,10 +2,17 @@ import { KEBAB_ID_PATTERN } from '../../lib/generate/casing';
 import { generate } from '../../lib/generate/generate';
 import {
   APP_OPTION,
+  DIRECTORY_OPTION,
   type ScaffoldDescriptor,
+  type ScaffoldValues,
   stringValue,
 } from '../../lib/scaffolds/scaffold-values';
-import { framePlugin } from './recipe';
+import { framePluginAmendments } from './amendments';
+import { framePlugin, type FramePluginInput } from './recipe';
+
+function framePluginInput(values: ScaffoldValues): FramePluginInput {
+  return { id: stringValue(values, 'id') ?? '', name: stringValue(values, 'name') };
+}
 
 export const framePluginScaffold: ScaffoldDescriptor = {
   name: 'frame-plugin',
@@ -24,10 +31,9 @@ export const framePluginScaffold: ScaffoldDescriptor = {
       description: 'Human-readable name. Defaults to a title-cased id.',
     },
     APP_OPTION,
+    DIRECTORY_OPTION,
   ],
-  build: (values) =>
-    generate(framePlugin, {
-      id: stringValue(values, 'id') ?? '',
-      name: stringValue(values, 'name'),
-    }),
+  build: (values) => generate(framePlugin, framePluginInput(values)),
+  amend: (values) =>
+    framePluginAmendments(framePluginInput(values), stringValue(values, 'directory')),
 };

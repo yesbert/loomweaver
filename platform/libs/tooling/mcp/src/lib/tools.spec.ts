@@ -289,15 +289,23 @@ describe('scaffold', () => {
     }
   });
 
-  it('says nothing where the generated output needs nothing', () => {
-    const descriptor = findScaffold('theme');
-    if (!descriptor) {
-      throw new Error('the theme scaffold is missing');
-    }
-    const result = scaffold(descriptor, { name: 'acme' }) as {
-      content: { text: string }[];
-    };
-    expect(JSON.parse(result.content[0].text).remaining).toBeUndefined();
+  it.each([
+    ['theme', { name: 'ocean' }, "Import '<the directory you wrote these files into>/ocean.css'"],
+    ['layout', {}, 'provideLayout(baseLayout)'],
+    ['settings-store', { name: 'api' }, 'provideSettingsStore(new ApiSettingsStore())'],
+    ['frame-plugin', { id: 'notes' }, "provideCapabilityGrants({ notes: ['contributions', 'ui'] })"],
+  ])('names what %s needs from the workspace, with what skipping it costs', (name, args, step) => {
+    const text = remaining(name, args);
+
+    expect(text).toContain(step);
+    expect(text).toContain('Without');
+  });
+
+  it('says that a layout or settings store already provided stays the product\'s choice', () => {
+    expect(remaining('layout', {})).toContain('already calls provideLayout');
+    expect(remaining('settings-store', { name: 'api' })).toContain(
+      'already calls provideSettingsStore',
+    );
   });
 });
 

@@ -2,9 +2,11 @@ import { KEBAB_ID_PATTERN } from '../../lib/generate/casing';
 import { generate } from '../../lib/generate/generate';
 import {
   APP_OPTION,
+  DIRECTORY_OPTION,
   type ScaffoldDescriptor,
   stringValue,
 } from '../../lib/scaffolds/scaffold-values';
+import { layoutAmendments } from './amendments';
 import { layout } from './recipe';
 
 export const layoutScaffold: ScaffoldDescriptor = {
@@ -19,6 +21,9 @@ export const layoutScaffold: ScaffoldDescriptor = {
       default: 'base',
     },
     APP_OPTION,
+    DIRECTORY_OPTION,
   ],
   build: (values) => generate(layout, { name: stringValue(values, 'name') }),
+  amend: (values) =>
+    layoutAmendments({ name: stringValue(values, 'name') }, stringValue(values, 'directory')),
 };

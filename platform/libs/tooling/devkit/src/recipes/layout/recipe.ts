@@ -24,8 +24,8 @@ export function resolveLayoutInput(input: LayoutInput): ResolvedLayout {
 }
 
 function moduleFile(layout: ResolvedLayout): string {
-  return `// A base layout for the distribution. Pass it to provideLayout(${layout.propertyName}Layout)
-// in src/app/app.config.ts. Region ids are what contributions target — '${RAIL_REGION}' (rail) and '${STATUS_BAR_REGION}' (bar) match
+  return `// A base layout for the distribution. The scaffold provides it in src/app/app.config.ts with
+// provideLayout(${layout.propertyName}Layout), unless a layout is already provided there. Region ids are what contributions target — '${RAIL_REGION}' (rail) and '${STATUS_BAR_REGION}' (bar) match
 // the devkit weaver defaults, so a scaffolded weaver's rail + bar items land here.
 import { ShellLayout } from '@loomweaver/shell';
 
