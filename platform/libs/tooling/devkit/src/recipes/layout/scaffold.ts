@@ -1,3 +1,4 @@
+import { KEBAB_ID_PATTERN } from '../../lib/generate/casing';
 import { generate } from '../../lib/generate/generate';
 import {
   APP_OPTION,
@@ -13,7 +14,9 @@ export const layoutScaffold: ScaffoldDescriptor = {
     {
       name: 'name',
       type: 'string',
-      description: 'Layout name. Defaults to a base layout.',
+      description: 'Layout name, kebab-case; the file is <name>-layout.ts.',
+      pattern: KEBAB_ID_PATTERN,
+      default: 'base',
     },
     APP_OPTION,
   ],

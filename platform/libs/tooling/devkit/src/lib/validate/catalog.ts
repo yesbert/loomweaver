@@ -1,4 +1,5 @@
 import { Finding } from './types';
+import { isHttpUrl, pathOf, validateSameOriginUrls } from './catalog-urls';
 import { KNOWN_CAPABILITIES } from './manifest';
 
 /**
@@ -24,80 +25,8 @@ export const CATALOG_ENTRY_KEYS: readonly string[] = [
   'deployed',
 ];
 
-const SAME_ORIGIN_FIELDS = ['entryUrl', 'iconUrl', 'readmeUrl'] as const;
-
-function pathOf(index: number, field?: string): string {
-  return field ? `catalog[${index}].${field}` : `catalog[${index}]`;
-}
-
 function isPlainObject(raw: unknown): raw is Record<string, unknown> {
   return typeof raw === 'object' && raw !== null && !Array.isArray(raw);
-}
-
-function requiredUrlFinding(
-  value: unknown,
-  index: number,
-  field: string,
-): Finding | undefined {
-  if (typeof value !== 'string' || value.length === 0) {
-    return {
-      level: 'error',
-      code: 'catalog.entryUrl',
-      message: `${pathOf(index, field)} must be a non-empty string; the host drops the whole entry without it.`,
-      path: pathOf(index, field),
-    };
-  }
-  return schemeFinding(value, index, field, 'drops the entry');
-}
-
-function optionalUrlFinding(
-  value: unknown,
-  index: number,
-  field: string,
-): Finding | undefined {
-  if (typeof value !== 'string' || value.length === 0) {
-    return {
-      level: 'warning',
-      code: 'catalog.url.empty',
-      message: `${pathOf(index, field)} is present but not a non-empty string, so the host ignores it.`,
-      path: pathOf(index, field),
-    };
-  }
-  return schemeFinding(value, index, field, 'ignores the field');
-}
-
-function schemeFinding(
-  value: string,
-  index: number,
-  field: string,
-  refusal: string,
-): Finding | undefined {
-  if (value.startsWith('//')) {
-    return {
-      level: 'error',
-      code: 'catalog.url.foreign',
-      message: `${pathOf(index, field)} is protocol-relative, so it names another host. The host accepts same-origin URLs only and ${refusal}.`,
-      path: pathOf(index, field),
-    };
-  }
-  const scheme = /^([a-z][a-z0-9+.-]*):/i.exec(value)?.[1]?.toLowerCase();
-  if (scheme && scheme !== 'http' && scheme !== 'https') {
-    return {
-      level: 'error',
-      code: 'catalog.url.scheme',
-      message: `${pathOf(index, field)} uses the "${scheme}:" scheme. The host accepts same-origin http(s) URLs only and ${refusal}.`,
-      path: pathOf(index, field),
-    };
-  }
-  if (scheme) {
-    return {
-      level: 'warning',
-      code: 'catalog.url.absolute',
-      message: `${pathOf(index, field)} is absolute. The host requires same-origin, so this holds only while it matches the origin the app is served from; a root-relative path is same-origin by construction.`,
-      path: pathOf(index, field),
-    };
-  }
-  return undefined;
 }
 
 function validateCapabilities(
@@ -178,33 +107,6 @@ function validateId(raw: Record<string, unknown>, index: number): Finding[] {
       ];
 }
 
-function validateSameOriginUrls(
-  raw: Record<string, unknown>,
-  index: number,
-): Finding[] {
-  const findings: Finding[] = [];
-  for (const field of SAME_ORIGIN_FIELDS) {
-    const finding = sameOriginUrlFinding(raw, index, field);
-    if (finding) {
-      findings.push(finding);
-    }
-  }
-  return findings;
-}
-
-function sameOriginUrlFinding(
-  raw: Record<string, unknown>,
-  index: number,
-  field: (typeof SAME_ORIGIN_FIELDS)[number],
-): Finding | undefined {
-  if (field === 'entryUrl') {
-    return requiredUrlFinding(raw[field], index, field);
-  }
-  return raw[field] === undefined
-    ? undefined
-    : optionalUrlFinding(raw[field], index, field);
-}
-
 function validateNameAndVersion(
   raw: Record<string, unknown>,
   index: number,
@@ -239,11 +141,38 @@ function validateNameAndVersion(
   return findings;
 }
 
+const TEXT_FIELDS: readonly { readonly field: string; readonly loss: string }[] = [
+  { field: 'description', loss: 'the store shows no description' },
+  { field: 'icon', loss: 'the install dialog shows the default icon' },
+  { field: 'category', loss: 'the entry carries no category badge and the search cannot match one' },
+  { field: 'author', loss: 'the store names no author' },
+  {
+    field: 'version',
+    loss: 'update detection has nothing to compare, so the store can never offer an update',
+  },
+];
+
+function validateTextFields(
+  raw: Record<string, unknown>,
+  index: number,
+): Finding[] {
+  return TEXT_FIELDS.filter(
+    ({ field }) =>
+      raw[field] !== undefined &&
+      (typeof raw[field] !== 'string' || raw[field] === ''),
+  ).map(({ field, loss }) => ({
+    level: 'warning',
+    code: 'catalog.text',
+    message: `${pathOf(index, field)} is not a non-empty string, so the host drops it and ${loss}.`,
+    path: pathOf(index, field),
+  }));
+}
+
 function validateEntryMetadata(
   raw: Record<string, unknown>,
   index: number,
 ): Finding[] {
-  const findings: Finding[] = [];
+  const findings: Finding[] = [...validateTextFields(raw, index)];
 
   if (
     raw['downloads'] !== undefined &&
@@ -257,7 +186,17 @@ function validateEntryMetadata(
     });
   }
 
-  if (raw['updated'] !== undefined && !isRenderableDate(raw['updated'])) {
+  if (
+    raw['updated'] !== undefined &&
+    (typeof raw['updated'] !== 'string' || raw['updated'] === '')
+  ) {
+    findings.push({
+      level: 'warning',
+      code: 'catalog.updated',
+      message: `${pathOf(index, 'updated')} is not a non-empty string, so the host drops it and the store shows no date.`,
+      path: pathOf(index, 'updated'),
+    });
+  } else if (raw['updated'] !== undefined && !isRenderableDate(raw['updated'])) {
     findings.push({
       level: 'warning',
       code: 'catalog.updated',
@@ -328,16 +267,11 @@ function validateEntryKeys(
   return findings;
 }
 
-function isHttpUrl(raw: unknown): boolean {
-  if (typeof raw !== 'string') {
-    return false;
-  }
-  try {
-    const url = new URL(raw);
-    return url.protocol === 'http:' || url.protocol === 'https:';
-  } catch {
-    return false;
-  }
+function dropsEntry(findings: readonly Finding[], index: number): boolean {
+  const fatal = new Set([pathOf(index), pathOf(index, 'id'), pathOf(index, 'entryUrl')]);
+  return findings.some(
+    (finding) => finding.level === 'error' && finding.path !== undefined && fatal.has(finding.path),
+  );
 }
 
 function isRenderableDate(raw: unknown): boolean {
@@ -368,20 +302,24 @@ export function validateCatalog(
   }
 
   const findings: Finding[] = [];
-  const seen = new Set<string>();
+  const seen = new Map<string, number>();
   for (const [index, entry] of catalog.entries()) {
-    findings.push(...validateEntry(entry, index, known));
-    const id: unknown = isPlainObject(entry) ? entry['id'] : undefined;
-    if (typeof id === 'string' && id.length > 0) {
-      if (seen.has(id)) {
-        findings.push({
-          level: 'warning',
-          code: 'catalog.id.duplicate',
-          message: `${pathOf(index, 'id')} repeats "${id}". The host keeps the first entry with an id and drops the rest.`,
-          path: pathOf(index, 'id'),
-        });
-      }
-      seen.add(id);
+    const own = validateEntry(entry, index, known);
+    findings.push(...own);
+    if (!isPlainObject(entry) || dropsEntry(own, index)) {
+      continue;
+    }
+    const id = entry['id'] as string;
+    const first = seen.get(id);
+    if (first === undefined) {
+      seen.set(id, index);
+    } else {
+      findings.push({
+        level: 'warning',
+        code: 'catalog.id.duplicate',
+        message: `${pathOf(index, 'id')} repeats "${id}" from ${pathOf(first)}. The host keeps the first usable entry with an id and drops this one.`,
+        path: pathOf(index, 'id'),
+      });
     }
   }
   return findings;

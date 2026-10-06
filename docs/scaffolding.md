@@ -151,10 +151,14 @@ npx @loomweaver/cli validate-commands --dir src/lib/notes --strict
 A missing translation key is a _warning_: it reports and exits 0, so it will not break an unrelated
 build. `--strict` turns warnings into a non-zero exit when you do want to gate on parity.
 
-The command check, `validate-commands`, reads every registration in a directory. For each command
-it says whether an agent is offered it, what would leave the agent guessing, or that the
-registration could not be read. Guessing means an argument without a description or a returned
-value without `answers`. Only a callable command without a description is a warning, so a plugin
+The command check, `validate-commands`, reads every registration in a directory, in TypeScript and
+JavaScript alike, so a frame plugin's own script is checked too. It finds `registerCommand` on the
+context and through a destructured or renamed binding, and reads an id held in a string constant
+the same file declares. An id computed anywhere else, or a registration spread from another value,
+is reported as unreadable rather than guessed at. A property set to `undefined` counts as absent,
+as it does at runtime. For each command it says whether an agent is offered it, what would leave
+the agent guessing, or that the registration could not be read. Guessing means an argument without
+a description or a returned value without `answers`. Only a callable command without a description is a warning, so a plugin
 with private commands passes `--strict`. Every report ends by saying that grants, access and the
 window decide the rest at runtime; the check judges the registrations alone.
 
@@ -172,6 +176,15 @@ warning: catalog[1] carries no version. Update detection compares catalog versio
        can never offer an update and republishing the plugin will not respawn it for anyone who
        already installed it.
 ```
+
+Duplicates are judged the way the workbench judges them. An entry the host drops for a missing id
+or an unusable `entryUrl` does not count, so a repeated id is reported on the entry that is actually
+dropped. Metadata of the wrong type, a number where the description belongs, is reported with what
+the store then shows without it.
+
+The manifest check refuses an id that is missing or empty, because grants and contributions are
+keyed by it. An id that is not kebab-case is a warning, not an error: the workbench accepts it, and
+the warning says so. Every scaffold and guide writes ids in kebab-case.
 
 The one thing it cannot judge from outside a browser is whether an **absolute** URL is same-origin.
 It does not know the origin you will serve from. So it reports absolute URLs as warnings. It leaves
@@ -266,9 +279,9 @@ unchanged.
 {
   "findings": [
     {
-      "level": "error",
-      "code": "manifest.id",
-      "message": "Plugin id must be a kebab-case string; got \"Notes\".",
+      "level": "warning",
+      "code": "manifest.id.convention",
+      "message": "Plugin id \"Notes\" is not kebab-case. The workbench accepts it; every scaffold and guide writes ids in kebab-case, so it will read differently from the plugins beside it.",
       "path": "manifest.id"
     }
   ]
@@ -290,7 +303,7 @@ unchanged.
 | `validate_manifest`       | `id`, `name`, `capabilities`                                                                                                           | findings on a plugin manifest                                                                                            |
 | `validate_catalog`        | `catalog` — the parsed catalogue JSON array                                                                                            | findings on a plugin store catalogue, including fields the host never reads                                              |
 | `validate_i18n`           | `bundles` — the parsed language files keyed by language, e.g. `{ "en": { "notes.list": "Notes" }, "de": { "notes.list": "Notizen" } }` | findings on translation-bundle parity (keys missing in one language)                                                     |
-| `validate_commands`       | `files` — TypeScript sources keyed by path                                                                                             | per command, whether an agent is offered it and what it would have to guess at                                           |
+| `validate_commands`       | `files` — TypeScript or JavaScript sources keyed by path                                                                               | per command, whether an agent is offered it and what it would have to guess at                                           |
 
 ## The weaver generator
 

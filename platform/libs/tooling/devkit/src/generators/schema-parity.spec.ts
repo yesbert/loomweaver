@@ -6,6 +6,10 @@ import { nxSchemaFor } from '../lib/scaffolds/adapter-options';
 
 const GENERATORS = join(import.meta.dirname);
 
+const COLLECTION = JSON.parse(
+  readFileSync(join(GENERATORS, '..', '..', 'generators.json'), 'utf8'),
+) as { generators: Record<string, { description: string }> };
+
 function schemaTypeProperties(name: string): string[] {
   const path = join(GENERATORS, name, 'schema.d.ts');
   const source = ts.createSourceFile(
@@ -35,6 +39,21 @@ describe('Nx generator schemas', () => {
       expect(onDisk).toEqual(nxSchemaFor(scaffold));
     },
   );
+
+  it.each(SCAFFOLDS.map((scaffold) => [scaffold.name, scaffold] as const))(
+    "describes %s in the generator collection with the scaffold's own summary",
+    (name, scaffold) => {
+      expect(COLLECTION.generators[name]?.description).toBe(
+        `Scaffold ${scaffold.summary}.`,
+      );
+    },
+  );
+
+  it('lists exactly the scaffolds in the generator collection', () => {
+    expect(Object.keys(COLLECTION.generators).toSorted((a, b) => a.localeCompare(b))).toEqual(
+      SCAFFOLDS.map((scaffold) => scaffold.name).toSorted((a, b) => a.localeCompare(b)),
+    );
+  });
 
   it.each(SCAFFOLDS.map((scaffold) => [scaffold.name, scaffold] as const))(
     'keeps %s/schema.d.ts in step with the scaffold descriptor',

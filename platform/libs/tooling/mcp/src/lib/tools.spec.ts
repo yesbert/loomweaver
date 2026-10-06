@@ -1,4 +1,10 @@
-import { findScaffold, portableOptions, SCAFFOLDS } from '@loomweaver/devkit';
+import {
+  findScaffold,
+  nxSchemaFor,
+  portableOptions,
+  SCAFFOLDS,
+} from '@loomweaver/devkit';
+import { z } from 'zod';
 import {
   listGenerators,
   scaffold,
@@ -80,6 +86,31 @@ describe('mcp tools', () => {
     expect(result.content[0].text).toContain('"barItems"');
     expect(result.content[0].text).toContain('barItem');
     expect(result.structuredContent['files']).toBeUndefined();
+  });
+
+  it.each(SCAFFOLDS.map((descriptor) => [descriptor.name, descriptor] as const))(
+    'describes every option of %s the way the Nx schema does, pattern and default included',
+    (_, descriptor) => {
+      const published = z.toJSONSchema(inputSchema(descriptor), { io: 'input' }) as {
+        properties: Record<string, Record<string, unknown>>;
+      };
+      const nx = nxSchemaFor(descriptor)['properties'] as Record<string, Record<string, unknown>>;
+
+      for (const option of portableOptions(descriptor)) {
+        const { type, description, pattern, enum: choices, default: fallback } = nx[option.name];
+        expect(published.properties[option.name]).toMatchObject({
+          type,
+          description,
+          ...(pattern !== undefined && { pattern }),
+          ...(choices !== undefined && { enum: choices }),
+          ...(fallback !== undefined && { default: fallback }),
+        });
+      }
+    },
+  );
+
+  it('refuses a value its pattern rules out before the recipe sees it', () => {
+    expect(inputSchema(must('weaver')).safeParse({ id: 'Not Kebab' }).success).toBe(false);
   });
 
   it('lets an unknown option reach the refusal rather than stripping it on the way in', () => {

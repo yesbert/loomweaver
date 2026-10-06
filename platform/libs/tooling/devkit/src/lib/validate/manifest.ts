@@ -23,11 +23,18 @@ export function validateManifest(
 ): Finding[] {
   const findings: Finding[] = [];
 
-  if (typeof manifest.id !== 'string' || !isKebabId(manifest.id)) {
+  if (typeof manifest.id !== 'string' || manifest.id.trim() === '') {
     findings.push({
       level: 'error',
       code: 'manifest.id',
-      message: `Plugin id must be a kebab-case string; got ${JSON.stringify(manifest.id)}.`,
+      message: `Plugin id must be a non-empty string; got ${JSON.stringify(manifest.id)}. Grants, settings and every contribution are keyed by it.`,
+      path: 'manifest.id',
+    });
+  } else if (!isKebabId(manifest.id)) {
+    findings.push({
+      level: 'warning',
+      code: 'manifest.id.convention',
+      message: `Plugin id ${JSON.stringify(manifest.id)} is not kebab-case. The workbench accepts it; every scaffold and guide writes ids in kebab-case, so it will read differently from the plugins beside it.`,
       path: 'manifest.id',
     });
   }
