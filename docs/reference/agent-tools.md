@@ -74,21 +74,45 @@ the `automation` capability.
 ## The hook: confirming, declining, answering
 
 A weaver may sit in front of every call. This is where a confirmation before a heavy step belongs, and
-where a product's own policy goes.
+where a product's own policy goes. Most products want the same one, so it ships:
 
 ```ts
+import { commandTools, consentPolicy } from '@loomweaver/ag-ui';
+
+const tools = commandTools(ctx, {
+  before: consentPolicy(() => ctx.ui.confirm({ message: 'agent.confirm' })),
+});
+```
+
+`consentPolicy(confirm, wording?)` acts on what each command states about an agent's word, which the
+next section describes:
+
+| The command states  | What the policy does                                                                                   |
+| ------------------- | ------------------------------------------------------------------------------------------------------ |
+| `never`             | Declines the call and tells the agent so. Nobody is asked.                                             |
+| `allow`, or nothing | Lets the call through. Nobody is asked.                                                                |
+| `ask`               | Asks through your `confirm`. A yes is remembered for as long as the policy lives, so it is asked once. |
+| `ask-always`        | Asks through your `confirm` on every call. Nothing is remembered.                                      |
+
+A no declines the call and tells the agent so. `confirm` receives the pending call, so it can name
+the command. `wording` takes `{ never, refused }`, what the agent is told in each case, where you want
+your own words.
+
+The memory lives in the policy, so create one per connection and two connections never share an
+answer. Nothing outlives the connection: remembering consent beyond it carries privacy weight, and a
+product that wants it writes its own hook. Applying the policy is your choice. A connection without
+it asks nothing and decides nothing, exactly as before.
+
+Where you need something else, write the hook yourself:
+
+```ts
+const policy = consentPolicy(() => ctx.ui.confirm({ message: 'agent.confirm' }));
 const tools = commandTools(ctx, {
   before: async (call) => {
-    if (call.agentConsent === 'never') {
-      return { decision: 'decline', reason: 'it is not run on an agent’s word.' };
+    if (call.commandId === 'notes.export') {
+      return { decision: 'answer', content: 'Exports are run from the menu.' };
     }
-    if (call.agentConsent !== 'ask' && call.agentConsent !== 'ask-always') {
-      return { decision: 'run' };
-    }
-    const confirmed = await ctx.ui.confirm({ message: 'agent.confirm' });
-    return confirmed
-      ? { decision: 'run' }
-      : { decision: 'decline', reason: 'the user did not confirm it.' };
+    return policy(call);
   },
 });
 ```
@@ -134,7 +158,7 @@ ctx.registerCommand({
 **The platform states it and enforces nothing.** No dialog is shown for you, no answer is
 remembered, and no invocation is refused on this account: a command declaring `ask-always` still
 runs when it is invoked. Acting on the statement is yours, which is what this hook is for, and that
-includes `never`: decline it here, as the example above does.
+includes `never`. `consentPolicy` is that hook written once, and it acts only where you pass it.
 
 Leaving `callable` off is what the platform enforces, and it closes the command to every caller but
 the plugin that registered it. So for a **foreign** command that is the boundary. Your own
