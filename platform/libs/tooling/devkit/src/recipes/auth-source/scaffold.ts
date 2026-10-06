@@ -3,6 +3,7 @@ import { generate } from '../../lib/generate/generate';
 import {
   APP_OPTION,
   booleanValue,
+  DIRECTORY_OPTION,
   type ScaffoldDescriptor,
   type ScaffoldValues,
   stringValue,
@@ -34,12 +35,7 @@ export const authSourceScaffold: ScaffoldDescriptor = {
       default: false,
     },
     APP_OPTION,
-    {
-      name: 'directory',
-      type: 'string',
-      description: 'Where the files land, relative to the workspace root.',
-      workspaceOnly: true,
-    },
+    DIRECTORY_OPTION,
   ],
   build: (values) => generate(authSource, authSourceInput(values)),
   amend: (values) =>

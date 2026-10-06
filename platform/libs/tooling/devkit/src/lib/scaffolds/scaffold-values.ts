@@ -78,3 +78,10 @@ export const APP_OPTION: ScaffoldOption = {
     'Application to drop into. Inferred when the workspace has exactly one.',
   workspaceOnly: true,
 };
+
+export const DIRECTORY_OPTION: ScaffoldOption = {
+  name: 'directory',
+  type: 'string',
+  description: 'Where the files land, relative to the workspace root.',
+  workspaceOnly: true,
+};

@@ -4,7 +4,6 @@ import {
   BuildTargetAmendment,
   BundleBudget,
   PackageAmendment,
-  PostcssAmendment,
 } from './types';
 
 export type JsonObject = Record<string, unknown>;
@@ -38,31 +37,6 @@ export function resolveAssetInput(
   return glob.from === 'project'
     ? joinProjectPath(projectRoot, glob.input)
     : glob.input;
-}
-
-export function ensurePostcssPlugin(
-  existing: unknown,
-  amendment: PostcssAmendment,
-): MergeResult {
-  const root = asObject(existing) ?? {};
-  const plugins = asObject(root['plugins']);
-  if (plugins === undefined && root['plugins'] !== undefined) {
-    return {
-      value: root,
-      added: [],
-      declined: [`${amendment.file}: "plugins" is not an object`],
-    };
-  }
-  const next = { ...plugins };
-  if (Object.hasOwn(next, amendment.plugin)) {
-    return { value: root, added: [], declined: [] };
-  }
-  next[amendment.plugin] = {};
-  return {
-    value: { ...root, plugins: next },
-    added: [`${amendment.file}: ${amendment.plugin}`],
-    declined: [],
-  };
 }
 
 /**
@@ -318,7 +292,7 @@ function ensureAssets(
   const added: string[] = [];
   for (const glob of wanted) {
     const input = resolveAssetInput(glob, projectRoot);
-    if (list.some((entry) => inputOf(entry) === input)) {
+    if (list.some((entry) => inputOf(entry) === input || serves(entry, input, glob.output))) {
       continue;
     }
     list.push({
@@ -329,6 +303,17 @@ function ensureAssets(
     added.push(input);
   }
   return { value: list, added };
+}
+
+function serves(entry: unknown, input: string, output = ''): boolean {
+  const asset = asObject(entry);
+  const from = inputOf(entry);
+  if (!asset || from === undefined || !['**', '**/*'].includes(String(asset['glob']))) {
+    return false;
+  }
+  const below = posix.relative(from, input);
+  const servedAt = posix.join(String(asset['output'] ?? ''), below);
+  return !below.startsWith('..') && below !== '' && servedAt === posix.normalize(output);
 }
 
 function inputOf(entry: unknown): string | undefined {
@@ -371,21 +356,3 @@ export function relativeImport(fromDirectory: string, toDirectory: string): stri
   }
   return path.startsWith('..') ? path : `./${path}`;
 }
-
-const CODE_POSTCSS_CONFIGS = [
-  'postcss.config.js',
-  'postcss.config.mjs',
-  'postcss.config.cjs',
-  '.postcssrc.js',
-] as const;
-
-export function postcssWrittenAsCode(
-  exists: (file: string) => boolean,
-  amendment: PostcssAmendment,
-): string | undefined {
-  const inTheWay = CODE_POSTCSS_CONFIGS.find((name) => exists(name));
-  return inTheWay === undefined
-    ? undefined
-    : `${inTheWay} is written as code and cannot be merged into, so add ${amendment.plugin} to it yourself; until then the stylesheet emits no utility class and the workbench renders unstyled.`;
-}
-

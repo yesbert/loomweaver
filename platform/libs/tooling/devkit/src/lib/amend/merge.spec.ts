@@ -1,10 +1,10 @@
 import {
   ensureBuildTarget,
   ensureDependency,
-  ensurePostcssPlugin,
   ensureStylesheetSource,
   joinProjectPath,
 } from './merge';
+import { ensurePostcssPlugin } from './postcss';
 import {
   BuildTargetAmendment,
   PackageAmendment,
@@ -222,6 +222,30 @@ describe('ensureBuildTarget', () => {
     );
     expect(budgetsOf(result.value)).toEqual(budgets);
     expect(result.added.join(' ')).not.toContain('budget');
+  });
+});
+
+describe('an asset an existing glob already serves', () => {
+  const PLUGIN: BuildTargetAmendment = {
+    kind: 'build-target',
+    styles: [],
+    assets: [{ glob: '**/*', input: 'apps/studio/public/notes', from: 'workspace', output: 'notes' }],
+  };
+
+  it('is not added a second time under the same path', () => {
+    const target = { options: { assets: [{ glob: '**/*', input: 'apps/studio/public' }] } };
+
+    expect(ensureBuildTarget(target, PLUGIN, 'apps/studio').added).toEqual([]);
+  });
+
+  it('is added where the existing glob would serve it under another path', () => {
+    const target = {
+      options: { assets: [{ glob: '**/*', input: 'apps/studio/public', output: 'static' }] },
+    };
+
+    expect(ensureBuildTarget(target, PLUGIN, 'apps/studio').added).toEqual([
+      'assets: apps/studio/public/notes',
+    ]);
   });
 });
 

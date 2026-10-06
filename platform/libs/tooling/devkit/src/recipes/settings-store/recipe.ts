@@ -24,8 +24,8 @@ export function resolveSettingsStoreInput(
 function moduleFile(store: ResolvedSettingsStore): string {
   return `// A backend-backed settings store for the SETTINGS_STORE port. The platform
 // ships local defaults; the product persists settings against its own backend. Only genuine
-// settings flow through this port — working state stays on WORKING_STATE_STORE. Wire it with:
-// provideSettingsStore(new ${store.className}SettingsStore()).
+// settings flow through this port — working state stays on WORKING_STATE_STORE. The scaffold
+// provides it in the composition root: provideSettingsStore(new ${store.className}SettingsStore()).
 import { KeyValueStore } from '@loomweaver/shell';
 
 export class ${store.className}SettingsStore implements KeyValueStore {

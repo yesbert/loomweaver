@@ -1,4 +1,10 @@
-import { ComposePluginAmendment, ProviderLine } from './types';
+import { posix } from 'node:path';
+import { relativeImport } from './merge';
+import {
+  ComposePluginAmendment,
+  ComposeProviderAmendment,
+  ProviderLine,
+} from './types';
 
 export interface ComposeResult {
   readonly source: string;
@@ -67,16 +73,13 @@ export function composePlugin(
   }
   const wanted = providersToAdd(source, amendment);
   const ownSymbols = [amendment.symbol, ...wanted.flatMap((provider) => provider.own ?? [])];
-  const foreign = wanted.flatMap((provider) => provider.from ?? []);
   const withImports = source.replace(
     SHELL_IMPORT,
     () =>
       [
-        `import {${withShellSymbols(shellImport[1], wanted)}} from '@loomweaver/shell';`,
-        ...foreign.map(
-          (entry) => `import { ${[...entry.symbols].toSorted((a, b) => a.localeCompare(b)).join(', ')} } from '${entry.path}';`,
-        ),
-        `import { ${ownSymbols.toSorted((a, b) => a.localeCompare(b)).join(', ')} } from '${importPath}';`,
+        `import {${withShellSymbols(shellImport[1], [...REGISTRATION_SHELL_SYMBOLS, ...shellSymbolsOf(wanted)])}} from '@loomweaver/shell';`,
+        ...foreignImports(wanted),
+        `import { ${sorted(ownSymbols).join(', ')} } from '${importPath}';`,
       ].join('\n'),
   );
   const joined = joinNamespaces(withImports, amendment.id);
@@ -98,6 +101,99 @@ export function composePlugin(
     composed: true,
     kept: keptProviders(source, amendment).map((provider) => provider.line),
   };
+}
+
+/**
+ * Composes provider lines that belong to no plugin into a composition root we generated ourselves,
+ * under the rule a plugin's own provider lines follow. A line already there is left alone; a line
+ * whose `unless` marker is there is kept as the consumer wrote it and returned as kept.
+ */
+export function composeProviders(
+  source: string,
+  amendment: ComposeProviderAmendment,
+  importPath: string | undefined,
+): ComposeResult {
+  const pending = amendment.providers.filter(
+    (provider) => !source.includes(provider.line.replace(/,$/, '')),
+  );
+  const kept = pending.filter(
+    (provider) => provider.unless !== undefined && source.includes(provider.unless),
+  );
+  const wanted = pending.filter((provider) => !kept.includes(provider));
+  const keptLines = kept.map((provider) => provider.line);
+  if (wanted.length === 0) {
+    return { source, composed: true, kept: keptLines };
+  }
+  const shellImport = SHELL_IMPORT.exec(source);
+  if (!shellImport || !providersBlock(source)) {
+    return { source, composed: false, kept: keptLines };
+  }
+  const own = wanted.flatMap((provider) => provider.own ?? []);
+  const withImports = source.replace(SHELL_IMPORT, () =>
+    [
+      `import {${withShellSymbols(shellImport[1], shellSymbolsOf(wanted))}} from '@loomweaver/shell';`,
+      ...foreignImports(wanted),
+      ...(own.length > 0 && importPath !== undefined
+        ? [`import { ${sorted(own).join(', ')} } from '${importPath}';`]
+        : []),
+    ].join('\n'),
+  );
+  const block = providersBlock(withImports);
+  if (!block) {
+    return { source, composed: false, kept: keptLines };
+  }
+  const lines = wanted.map((provider) => `${block.indent}  ${provider.line}`).join('\n');
+  return {
+    source: `${withImports.slice(0, block.insertAt)}\n${lines}${withImports.slice(block.insertAt)}`,
+    composed: true,
+    kept: keptLines,
+  };
+}
+
+export function providerLines(
+  amendment: ComposeProviderAmendment,
+  importPath: string | undefined,
+): readonly string[] {
+  const own = amendment.providers.flatMap((provider) => provider.own ?? []);
+  return [
+    `import { ${shellSymbolsOf(amendment.providers).join(', ')} } from '@loomweaver/shell';`,
+    ...foreignImports(amendment.providers),
+    ...(own.length > 0 && importPath !== undefined
+      ? [`import { ${own.join(', ')} } from '${importPath}';`]
+      : []),
+    ...amendment.providers.map((provider) => provider.line),
+  ];
+}
+
+/** The specifier a composition root in `fromDirectory` imports a generated module under. */
+export function moduleImport(
+  fromDirectory: string,
+  module: string | undefined,
+): string | undefined {
+  if (module === undefined) {
+    return undefined;
+  }
+  const directory = relativeImport(fromDirectory, posix.dirname(module));
+  return `${directory}/${posix.basename(module)}`;
+}
+
+/** What a route says about a provider line it did not add because the product already chose. */
+export function keptNote(line: string): string {
+  return `kept the ${line.replace(/^\.\.\./, '').split('(', 1)[0]} already there instead of ${line.replace(/,$/, '')}`;
+}
+
+function shellSymbolsOf(providers: readonly ProviderLine[]): string[] {
+  return providers.flatMap((provider) => provider.shell ?? []);
+}
+
+function foreignImports(providers: readonly ProviderLine[]): string[] {
+  return providers
+    .flatMap((provider) => provider.from ?? [])
+    .map((entry) => `import { ${sorted(entry.symbols).join(', ')} } from '${entry.path}';`);
+}
+
+function sorted(symbols: readonly string[]): string[] {
+  return symbols.toSorted((a, b) => a.localeCompare(b));
 }
 
 function joinNamespaces(
@@ -170,9 +266,13 @@ export function registrationLines(
   return [
     ...providers.map((provider) => provider.line),
     namespaceLine(amendment.id),
-    `provideCapabilityGrants({ ${amendment.id}: [${quotedList(amendment.capabilities)}] }),`,
+    `provideCapabilityGrants({ ${grantKey(amendment.id)}: [${quotedList(amendment.capabilities)}] }),`,
     `...providePlugins(${amendment.symbol}),`,
   ];
+}
+
+export function grantKey(id: string): string {
+  return /^[A-Za-z_$][\w$]*$/.test(id) ? id : `'${id}'`;
 }
 
 export function quotedList(values: readonly string[]): string {
@@ -183,14 +283,7 @@ function namespaceLine(id: string): string {
   return `provideTranslationNamespaces('${id}'),`;
 }
 
-function withShellSymbols(
-  existing: string,
-  providers: readonly ProviderLine[],
-): string {
-  const wanted = [
-    ...REGISTRATION_SHELL_SYMBOLS,
-    ...providers.flatMap((provider) => provider.shell ?? []),
-  ];
+function withShellSymbols(existing: string, wanted: readonly string[]): string {
   const present = existing
     .split(',')
     .map((symbol) => symbol.trim())

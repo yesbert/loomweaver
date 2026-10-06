@@ -112,6 +112,18 @@ It finds the workspace by walking up from `--out` to the nearest `angular.json` 
 a library's own `package.json` on the way, so it wires the build as well as writing the files.
 `--dry-run` previews both and writes nothing.
 
+Every scaffold wires what its output needs. Where a product already made the choice a scaffold would
+make, the product's choice stays and the run names the line it did not add:
+
+| Scaffold         | What it wires                                                                                                                                                  | What it keeps                                                                                            |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `theme`          | imports the stylesheet into the entry stylesheet, directly after the shell's styles                                                                            | where the shell's styles are imported under another name, the import goes after the last one and says so |
+| `settings-store` | `provideSettingsStore(new …SettingsStore())` in the composition root, after `provideShell()`                                                                   | a `provideSettingsStore` already there                                                                   |
+| `layout`         | `provideLayout(…Layout)` in the composition root                                                                                                               | a `provideLayout` already there, which a generated distribution always has                               |
+| `frame-plugin`   | registers the plugin with `provideFramePlugins`, grants it `contributions` and `ui`, and serves its files under `/<id>/` and the frame kit under `/frame-kit/` | a folder an existing assets glob already serves at that path is not served twice                         |
+
+Over the MCP server each of these comes back as a `remaining` step, with what skipping it costs.
+
 `loomweaver list` prints every scaffold with its options. `loomweaver --help` prints everything else,
 [`init`](#one-command-init) included. The
 CLI is published on the platform's version line, and its output fits the `@loomweaver/shell` of the

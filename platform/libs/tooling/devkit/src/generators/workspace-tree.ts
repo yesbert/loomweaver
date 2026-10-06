@@ -9,17 +9,30 @@ import {
 } from '@nx/devkit';
 import {
   ensureBuildTarget,
-  ensurePostcssPlugin,
   ensureStylesheetSource,
   entryStylesheet,
-  postcssWrittenAsCode,
   usesTailwind,
 } from '../lib/amend/merge';
-import { composeLines, composePlugin } from '../lib/amend/compose';
+import { ensurePostcssPlugin, postcssWrittenAsCode } from '../lib/amend/postcss';
+import {
+  composeLines,
+  composePlugin,
+  composeProviders,
+  keptNote,
+  moduleImport,
+  providerLines,
+} from '../lib/amend/compose';
+import { describeAmendment } from '../lib/amend/describe';
+import {
+  ensureStylesheetImport,
+  importSpecifier,
+} from '../lib/amend/stylesheet-import';
 import {
   BuildTargetAmendment,
   ComposePluginAmendment,
+  ComposeProviderAmendment,
   PostcssAmendment,
+  StylesheetImportAmendment,
 } from '../lib/amend/types';
 import { FileMap } from '../lib/generate/types';
 
@@ -206,6 +219,61 @@ export function addPostcssPlugin(
     return;
   }
   tree.write(amendment.file, `${JSON.stringify(result.value, null, 2)}\n`);
+}
+
+export function addStylesheetImport(
+  tree: Tree,
+  app: string,
+  amendment: StylesheetImportAmendment,
+): void {
+  const project = readProjectConfiguration(tree, app);
+  const stylesheet = entryStylesheet(project.targets?.['build']?.options?.styles);
+  const css = stylesheet ? tree.read(stylesheet, 'utf8') : null;
+  if (!stylesheet || css === null) {
+    logger.warn(`${app} names no entry stylesheet, so add it yourself: ${describeAmendment(amendment)}`);
+    return;
+  }
+  const result = ensureStylesheetImport(
+    css,
+    importSpecifier(stylesheet, amendment.file),
+    amendment.after,
+  );
+  if (!result.anchored) {
+    logger.warn(
+      `${stylesheet} does not import ${amendment.after}, so ${amendment.file} was imported after its last import instead; check that it still comes after the shell's styles.`,
+    );
+  }
+  if (result.css !== css) {
+    tree.write(stylesheet, result.css);
+  }
+}
+
+export function composeProvidersIntoAppConfig(
+  tree: Tree,
+  appRoot: string,
+  amendment: ComposeProviderAmendment,
+): void {
+  const file = `${appRoot}/src/app/app.config.ts`;
+  const source = tree.read(file, 'utf8');
+  const importPath = moduleImport(`${appRoot}/src/app`, amendment.module);
+  const result =
+    source === null ? undefined : composeProviders(source, amendment, importPath);
+  if (!result?.composed) {
+    const state =
+      source === null
+        ? 'does not exist'
+        : 'no longer presents the shape the distribution scaffold generated';
+    logger.warn(
+      `${file} ${state}, so these were NOT added. ${amendment.without} Add them yourself: ${providerLines(amendment, importPath).join(' ')}`,
+    );
+    return;
+  }
+  for (const line of result.kept) {
+    logger.warn(keptNote(line));
+  }
+  if (result.source !== source) {
+    tree.write(file, result.source);
+  }
 }
 
 export function composeIntoAppConfig(

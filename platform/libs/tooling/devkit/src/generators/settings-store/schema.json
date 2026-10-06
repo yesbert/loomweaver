@@ -12,7 +12,13 @@
     "app": {
       "type": "string",
       "description": "Application to drop into. Inferred when the workspace has exactly one."
+    },
+    "directory": {
+      "type": "string",
+      "description": "Where the files land, relative to the workspace root."
     }
   },
-  "required": ["name"]
+  "required": [
+    "name"
+  ]
 }

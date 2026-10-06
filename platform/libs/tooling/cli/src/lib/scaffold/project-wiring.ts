@@ -4,7 +4,15 @@ import {
   composeLines,
   ComposePluginAmendment,
   composePlugin,
+  composeProviders,
+  ComposeProviderAmendment,
   describeAmendment,
+  ensureStylesheetImport,
+  importSpecifier,
+  keptNote,
+  moduleImport,
+  providerLines,
+  StylesheetImportAmendment,
   ensureBuildTarget,
   ensureStylesheetSource,
   entryStylesheet,
@@ -26,12 +34,15 @@ import { AmendLog } from './amend-log';
 export type ProjectAmendment =
   | BuildTargetAmendment
   | StylesheetSourceAmendment
-  | ComposePluginAmendment;
+  | StylesheetImportAmendment
+  | ComposePluginAmendment
+  | ComposeProviderAmendment;
 
 export class ProjectWiring {
   private readonly configAdded: string[] = [];
   private config?: Record<string, unknown>;
   private projectResolved = false;
+  private readonly pendingCss = new Map<string, string>();
   private project?: BuildProject;
 
   constructor(
@@ -54,8 +65,16 @@ export class ProjectWiring {
         this.planStylesheetSource(amendment, project);
         return;
       }
+      case 'stylesheet-import': {
+        this.planStylesheetImport(amendment, project);
+        return;
+      }
       case 'compose-plugin': {
         this.planComposePlugin(amendment, project);
+        return;
+      }
+      case 'compose-provider': {
+        this.planComposeProviders(amendment, project);
       }
     }
   }
@@ -148,9 +167,69 @@ export class ProjectWiring {
         ...(amendment.providers ?? [])
           .filter((provider) => !result.kept.includes(provider.line))
           .map((provider) => provider.line.replace(/,$/, '')),
-        ...result.kept.map(
-          (line) => `kept the ${line.split('(', 1)[0]} already there instead of ${line.replace(/,$/, '')}`,
-        ),
+        ...result.kept.map((line) => keptNote(line)),
+      ],
+      result.source,
+    );
+  }
+
+  private planStylesheetImport(
+    amendment: StylesheetImportAmendment,
+    project: BuildProject,
+  ): void {
+    const entry = this.entryStylesheet(project);
+    if (!entry || !existsSync(entry)) {
+      this.log.note(
+        `No entry stylesheet is wired for ${project.name}, so add it yourself: ${describeAmendment(amendment)}`,
+      );
+      return;
+    }
+    const css = this.pendingCss.get(entry) ?? readFileSync(entry, 'utf8');
+    const displayed = this.log.displayName(entry);
+    const result = ensureStylesheetImport(
+      css,
+      importSpecifier(displayed, amendment.file),
+      amendment.after,
+    );
+    if (!result.anchored) {
+      this.log.note(
+        `${displayed} does not import ${amendment.after}, so ${amendment.file} was imported after its last import instead; check that it still comes after the shell's styles.`,
+      );
+    }
+    if (result.css === css) {
+      return;
+    }
+    this.pendingCss.set(entry, result.css);
+    this.log.plan(entry, [`@import '${importSpecifier(displayed, amendment.file)}'`], result.css);
+  }
+
+  private planComposeProviders(
+    amendment: ComposeProviderAmendment,
+    project: BuildProject,
+  ): void {
+    const root = resolve(this.workspace.root, project.root, 'src/app/app.config.ts');
+    const importPath = moduleImport(this.log.displayName(dirname(root)), amendment.module);
+    const source = existsSync(root) ? readFileSync(root, 'utf8') : undefined;
+    const result =
+      source === undefined ? undefined : composeProviders(source, amendment, importPath);
+    if (!result?.composed) {
+      this.log.note(
+        `The composition root no longer presents the shape this scaffold generated, so these were NOT added. ${amendment.without} Add them yourself: ${providerLines(amendment, importPath).join(' ')}`,
+      );
+      return;
+    }
+    const kept = result.kept.map((line) => keptNote(line));
+    if (result.source === source) {
+      this.log.note(...kept.map((note) => `${note}; replace it to use the generated one.`));
+      return;
+    }
+    this.log.plan(
+      root,
+      [
+        ...amendment.providers
+          .filter((provider) => !result.kept.includes(provider.line))
+          .map((provider) => provider.line.replace(/,$/, '')),
+        ...kept,
       ],
       result.source,
     );

@@ -2,10 +2,20 @@ import { KEBAB_ID_PATTERN } from '../../lib/generate/casing';
 import { generate } from '../../lib/generate/generate';
 import {
   APP_OPTION,
+  DIRECTORY_OPTION,
   type ScaffoldDescriptor,
+  type ScaffoldValues,
   stringValue,
 } from '../../lib/scaffolds/scaffold-values';
-import { theme, THEME_PRESETS, type ThemePreset } from './recipe';
+import { themeAmendments } from './amendments';
+import { theme, THEME_PRESETS, type ThemeInput, type ThemePreset } from './recipe';
+
+function themeInput(values: ScaffoldValues): ThemeInput {
+  return {
+    name: stringValue(values, 'name') ?? '',
+    preset: (stringValue(values, 'preset') as ThemePreset | undefined) ?? 'literal',
+  };
+}
 
 export const themeScaffold: ScaffoldDescriptor = {
   name: 'theme',
@@ -27,10 +37,8 @@ export const themeScaffold: ScaffoldDescriptor = {
       default: 'literal',
     },
     APP_OPTION,
+    DIRECTORY_OPTION,
   ],
-  build: (values) =>
-    generate(theme, {
-      name: stringValue(values, 'name') ?? '',
-      preset: (stringValue(values, 'preset') as ThemePreset | undefined) ?? 'literal',
-    }),
+  build: (values) => generate(theme, themeInput(values)),
+  amend: (values) => themeAmendments(themeInput(values), stringValue(values, 'directory')),
 };

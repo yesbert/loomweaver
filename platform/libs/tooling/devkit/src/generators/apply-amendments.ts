@@ -3,14 +3,16 @@ import { Amendment } from '../lib/amend/types';
 import {
   amendBuildTarget,
   addPostcssPlugin,
+  addStylesheetImport,
   addTailwindSource,
   composeIntoAppConfig,
+  composeProvidersIntoAppConfig,
   ResolvedApp,
 } from './workspace-tree';
 
 export interface AmendedApp {
   readonly app: ResolvedApp;
-  readonly importPath: string;
+  readonly importPath?: string;
 }
 
 export function applyAmendments(
@@ -50,8 +52,20 @@ function apply(
       return;
     }
     case 'compose-plugin': {
-      if (into) {
+      if (into?.importPath !== undefined) {
         composeIntoAppConfig(tree, into.app.root, amendment, into.importPath);
+      }
+      return;
+    }
+    case 'compose-provider': {
+      if (into) {
+        composeProvidersIntoAppConfig(tree, into.app.root, amendment);
+      }
+      return;
+    }
+    case 'stylesheet-import': {
+      if (into) {
+        addStylesheetImport(tree, into.app.name, amendment);
       }
     }
   }

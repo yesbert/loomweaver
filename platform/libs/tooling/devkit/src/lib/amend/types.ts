@@ -10,6 +10,8 @@ export type Amendment =
   | BuildTargetAmendment
   | StylesheetSourceAmendment
   | ComposePluginAmendment
+  | ComposeProviderAmendment
+  | StylesheetImportAmendment
   | PackageAmendment;
 
 /**
@@ -22,6 +24,8 @@ export interface AssetGlob {
   readonly input: string;
   readonly from: 'project' | 'workspace';
   readonly output?: string;
+  /** What is missing while the glob is, where that is not the workbench's own strings. */
+  readonly without?: string;
 }
 
 /**
@@ -108,6 +112,39 @@ export interface ProviderLine {
   readonly from?: readonly ImportedSymbols[];
   /** Text whose presence means the file already carries what this line provides. */
   readonly unless?: string;
+}
+
+/**
+ * Provider lines the composition root must carry for generated code that is not a plugin: a layout,
+ * a settings store, a frame plugin's registration. Composed into the same generated providers array
+ * as a plugin is, under the same rule: a line whose `unless` marker is already there is kept as the
+ * consumer wrote it and named, because replacing what a product chose without being asked is worse
+ * than asking.
+ */
+export interface ComposeProviderAmendment {
+  readonly kind: 'compose-provider';
+  readonly providers: readonly ProviderLine[];
+  /**
+   * The generated module the lines' own symbols come from, workspace-relative and without its
+   * extension. Absent where the lines need nothing generated.
+   */
+  readonly module?: string;
+  /** What the product lacks while the lines are missing, for a route that can only name them. */
+  readonly without: string;
+}
+
+/**
+ * A generated stylesheet the application's entry stylesheet must import, after the import it names.
+ * Without the import the stylesheet is never loaded, so it changes nothing and nothing says so.
+ */
+export interface StylesheetImportAmendment {
+  readonly kind: 'stylesheet-import';
+  /** Workspace-relative, because the import is resolved from wherever the entry stylesheet sits. */
+  readonly file: string;
+  /** The specifier prefix of the import this one must follow. */
+  readonly after: string;
+  /** What the product lacks while the import is missing. */
+  readonly without: string;
 }
 
 export interface ImportedSymbols {

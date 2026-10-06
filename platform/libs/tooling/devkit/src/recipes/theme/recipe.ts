@@ -29,7 +29,7 @@ export function resolveThemeInput(input: ThemeInput): ResolvedTheme {
 
 function cssFile(theme: ResolvedTheme): string {
   return `/* ${theme.title} theme — overrides LoomWeaver's --lw-* design tokens.
-   Import it AFTER the shell theme in your distribution styles.css:
+   The scaffold imports it into your distribution's entry stylesheet, after the shell's styles:
      @import '@loomweaver/shell/styles/theme.css';
      @import './themes/${theme.name}.css';
    Declared in @layer lw-tenant-theme so it beats any plugin's ctx.contributeTheme
@@ -69,8 +69,8 @@ function cssFile(theme: ResolvedTheme): string {
 
 function bootstrapFile(theme: ResolvedTheme): string {
   return `/* ${theme.title} theme — maps LoomWeaver's --lw-* design tokens onto Bootstrap 5.3's --bs-*.
-   Import it AFTER the shell theme in your distribution styles.css, and import Bootstrap itself
-   INTO A LAYER — unlayered CSS outranks layered CSS whatever its specificity, so Bootstrap's
+   The scaffold imports it into your distribution's entry stylesheet, after the shell's styles.
+   Import Bootstrap itself INTO A LAYER — unlayered CSS outranks layered CSS whatever its specificity, so Bootstrap's
    Reboot (button { border-radius: 0 }) would otherwise beat our .lw-* component classes:
      @layer vendor;
      @import 'bootstrap/dist/css/bootstrap.css' layer(vendor);

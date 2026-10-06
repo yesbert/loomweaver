@@ -5,6 +5,7 @@ import {
   updateJson,
 } from '@nx/devkit';
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
+import { distributionGenerator } from './distribution/generator';
 
 export function createConsumerWorkspace(
   appName = 'studio',
@@ -60,4 +61,12 @@ export function addApp(
 export function declarePrefix(tree: Tree, app: string, prefix: string): void {
   const { root } = readProjectConfiguration(tree, app);
   updateJson(tree, `${root}/project.json`, (json) => ({ ...json, prefix }));
+}
+
+export const GENERATED_APP = 'apps/acme-studio';
+
+export async function createGeneratedDistribution(): Promise<Tree> {
+  const tree = createTreeWithEmptyWorkspace();
+  await distributionGenerator(tree, { name: 'acme-studio', title: 'Acme Studio' });
+  return tree;
 }

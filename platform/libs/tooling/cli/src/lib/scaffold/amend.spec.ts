@@ -236,6 +236,114 @@ describe('planAmend', () => {
   });
 });
 
+describe('planAmend for what a generated theme, layout, store or frame plugin needs', () => {
+  let dir: string;
+  const CONFIG = `import { ApplicationConfig } from '@angular/core';
+import { provideShell, provideLayout } from '@loomweaver/shell';
+import { layout } from './layout';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideShell(),
+    provideLayout(layout),
+  ],
+};
+`;
+
+  beforeEach(() => {
+    dir = mkdtempSync(join(tmpdir(), 'loom-amend-'));
+    writeFileSync(join(dir, 'package.json'), '{}');
+    writeFileSync(
+      join(dir, 'angular.json'),
+      JSON.stringify({
+        version: 1,
+        projects: {
+          studio: {
+            projectType: 'application',
+            root: '',
+            architect: {
+              build: { options: { browser: 'src/main.ts', styles: ['src/styles.css'] } },
+            },
+          },
+        },
+      }),
+    );
+    mkdirSync(join(dir, 'src/app'), { recursive: true });
+    writeFileSync(
+      join(dir, 'src/styles.css'),
+      "@import 'tailwindcss';\n@import '@loomweaver/shell/styles/theme.css';\n",
+    );
+    writeFileSync(join(dir, 'src/app/app.config.ts'), CONFIG);
+  });
+
+  afterEach(() => {
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  function read(path: string): string {
+    return readFileSync(join(dir, path), 'utf8');
+  }
+
+  it('imports a theme after the shell styles', () => {
+    applyAmend(
+      planAmend(
+        [{ kind: 'stylesheet-import', file: 'src/themes/ocean.css', after: '@loomweaver/shell/styles/', without: 'w' }],
+        join(dir, 'src/themes'),
+      ),
+    );
+
+    expect(read('src/styles.css')).toBe(
+      "@import 'tailwindcss';\n@import '@loomweaver/shell/styles/theme.css';\n@import './themes/ocean.css';\n",
+    );
+  });
+
+  it('provides a settings store, and keeps a layout already provided and says so', () => {
+    const plan = planAmend(
+      [
+        {
+          kind: 'compose-provider',
+          module: 'src/settings/api-settings-store',
+          providers: [
+            {
+              line: 'provideSettingsStore(new ApiSettingsStore()),',
+              shell: ['provideSettingsStore'],
+              own: ['ApiSettingsStore'],
+              unless: 'provideSettingsStore(',
+            },
+          ],
+          without: 'w',
+        },
+      ],
+      join(dir, 'src/settings'),
+    );
+    applyAmend(plan);
+    expect(read('src/app/app.config.ts')).toContain(
+      "import { ApiSettingsStore } from '../settings/api-settings-store';",
+    );
+    expect(read('src/app/app.config.ts')).toContain(
+      '    provideLayout(layout),\n    provideSettingsStore(new ApiSettingsStore()),\n',
+    );
+
+    const layout = planAmend(
+      [
+        {
+          kind: 'compose-provider',
+          module: 'src/wide-layout',
+          providers: [
+            { line: 'provideLayout(wideLayout),', shell: ['provideLayout'], own: ['wideLayout'], unless: 'provideLayout(' },
+          ],
+          without: 'w',
+        },
+      ],
+      join(dir, 'src'),
+    );
+    expect(layout.amendments).toEqual([]);
+    expect(layout.remaining.join(' ')).toContain(
+      'kept the provideLayout already there instead of provideLayout(wideLayout)',
+    );
+  });
+});
+
 describe('planAmend for a package the generated output needs', () => {
   const AG_UI: Amendment = {
     kind: 'package',

@@ -231,6 +231,35 @@ describe('run', () => {
     JSON.parse(readFileSync(join(dir, 'angular.json'), 'utf8')).projects.studio.architect
       .build;
 
+  it('registers, grants and serves a frame plugin written outside the public folder', () => {
+    workspace();
+    const c = capture();
+    expect(
+      inDirectory(dir, () => run(['frame-plugin', '--id', 'notes', '--out', 'plugins/notes'], c.io)),
+    ).toBe(0);
+    const config = readFileSync(join(dir, 'src/app/app.config.ts'), 'utf8');
+    expect(config).toContain("entryUrl: '/notes/plugin.html'");
+    expect(config).toContain("provideCapabilityGrants({ notes: ['contributions', 'ui'] }),");
+    expect(build().options.assets).toContainEqual({
+      glob: '**/*',
+      input: 'plugins/notes',
+      output: 'notes',
+    });
+  });
+
+  it('imports a theme into the entry stylesheet', () => {
+    workspace();
+    writeFileSync(
+      join(dir, 'src/styles.css'),
+      "@import 'tailwindcss';\n@import '@loomweaver/shell/styles/theme.css';\n",
+    );
+    const c = capture();
+    expect(inDirectory(dir, () => run(['theme', '--name', 'ocean', '--out', 'src/themes'], c.io))).toBe(0);
+    expect(readFileSync(join(dir, 'src/styles.css'), 'utf8')).toContain(
+      "@import '@loomweaver/shell/styles/theme.css';\n@import './themes/ocean.css';",
+    );
+  });
+
   it('wires a weaver written into the workspace root', () => {
     workspace();
     const c = capture();
