@@ -27,13 +27,16 @@ export const procurementPlugin: Plugin = {
       routable: { path: 'procurement/orders' },
       docks: [],
       component: PurchaseOrdersView,
+      actions: [
+        { id: 'procurement.orders.receive', icon: 'receiveGoods', title: 'procurement.receiveGoods', command: 'procurement.goodsReceipt' },
+      ],
     });
 
     ctx.registerCommand({
       id: 'procurement.goodsReceipt',
       title: 'procurement.receiveGoods',
       description: 'procurement.receiptDescription',
-      icon: 'purchaseOrders',
+      icon: 'receiveGoods',
       callable: true,
       answers: 'procurement.receiptAnswers',
       run: async () => ({ received: await procurementActions.receiveGoods() }),

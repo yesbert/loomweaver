@@ -108,13 +108,16 @@ test('the dunning run asks first, and raises every overdue receivable a level', 
     .locator('[data-level]')
     .allInnerTexts();
 
-  await page.getByTestId('dunning-run').click();
+  const dunningRun = page
+    .getByTestId('surface-actions')
+    .getByRole('button', { name: 'Start dunning run' });
+  await dunningRun.click();
   await expect(page.getByRole('dialog')).toContainText('dunning level');
   await page.getByRole('dialog').getByRole('button', { name: 'Cancel' }).click();
 
   await expect.poll(() => page.locator('[data-level]').allInnerTexts()).toEqual(before);
 
-  await page.getByTestId('dunning-run').click();
+  await dunningRun.click();
   await page.getByRole('dialog').getByRole('button', { name: 'Start dunning run' }).click();
 
   await expect.poll(() => page.locator('[data-level]').allInnerTexts()).not.toEqual(before);

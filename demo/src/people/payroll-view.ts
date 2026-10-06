@@ -1,7 +1,6 @@
 import { Component, computed } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { payrollRuns } from './staff';
-import { peopleActions } from './people-actions';
 import { formatMoney, formatMonth } from '../accounting';
 import { activeLanguage } from '../i18n/active-language';
 
@@ -23,8 +22,4 @@ export class PayrollView {
       gross: formatMoney(run.gross, lang),
     }));
   });
-
-  protected run(): void {
-    void peopleActions.runPayroll();
-  }
 }

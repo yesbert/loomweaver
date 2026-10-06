@@ -54,13 +54,16 @@ export const financePlugin: Plugin = {
       routable: { path: 'finance/dunning' },
       docks: [],
       component: DunningView,
+      actions: [
+        { id: 'finance.dunning.run', icon: 'dunningRun', title: 'finance.startDunning', command: 'finance.dunningRun' },
+      ],
     });
 
     ctx.registerCommand({
       id: 'finance.dunningRun',
       title: 'finance.startDunning',
       description: 'finance.dunningDescription',
-      icon: 'dunning',
+      icon: 'dunningRun',
       callable: true,
       answers: 'finance.dunningAnswers',
       run: async () => ({ reminded: await financeActions.dunningRun() }),
