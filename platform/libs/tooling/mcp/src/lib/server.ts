@@ -25,16 +25,21 @@ function optionSchema(option: ScaffoldOption): z.ZodType {
   if (option.type === 'boolean') {
     return z.boolean();
   }
-  return option.choices
-    ? z.enum(option.choices as [string, ...string[]])
+  if (option.choices) {
+    return z.enum(option.choices as [string, ...string[]]);
+  }
+  return option.pattern
+    ? z.string().regex(new RegExp(option.pattern))
     : z.string();
 }
 
 export function inputSchema(descriptor: ScaffoldDescriptor): z.ZodObject {
   const shape: Record<string, z.ZodType> = {};
   for (const option of portableOptions(descriptor)) {
-    const base = optionSchema(option);
-    const described = base.describe(option.description);
+    const described = optionSchema(option).meta({
+      description: option.description,
+      ...(option.default !== undefined && { default: option.default }),
+    });
     shape[option.name] = option.required ? described : described.optional();
   }
   return z.looseObject(shape);
@@ -96,7 +101,7 @@ export function createMcpServer(): McpServer {
     'validate_commands',
     {
       description:
-        "Say, per command a plugin registers, whether an agent is offered it, what would leave the agent guessing, and what the command states about an agent's word being enough to run it. Input: files = { <path>: <TypeScript source> }. Only a callable command without a description is a warning; the rest is information, and a command that states nothing about an agent's word is reported as stating nothing rather than faulted.",
+        "Say, per command a plugin registers, whether an agent is offered it, what would leave the agent guessing, and what the command states about an agent's word being enough to run it. Input: files = { <path>: <TypeScript or JavaScript source> }. Only a callable command without a description is a warning; the rest is information, and a command that states nothing about an agent's word is reported as stating nothing rather than faulted.",
       inputSchema: {
         files: z.record(z.string(), z.string()),
       },

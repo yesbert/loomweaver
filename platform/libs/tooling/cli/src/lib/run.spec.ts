@@ -294,8 +294,15 @@ describe('run', () => {
 
   it('validates a manifest and fails on an error finding', () => {
     const c = capture();
-    expect(run(['validate-manifest', '--id', 'Not Kebab'], c.io)).toBe(1);
+    expect(run(['validate-manifest', '--id', 'notes', '--capabilities', 'root'], c.io)).toBe(1);
     expect(c.errText()).toContain('error');
+  });
+
+  it('passes an id that is not kebab-case with a warning, and fails it only under --strict', () => {
+    const c = capture();
+    expect(run(['validate-manifest', '--id', 'Notes'], c.io)).toBe(0);
+    expect(c.errText()).toContain('The workbench accepts it');
+    expect(run(['validate-manifest', '--id', 'Notes', '--strict'], capture().io)).toBe(1);
   });
 
   it('reports a missing key as a warning, which alone does not fail the run', () => {
@@ -367,7 +374,22 @@ export const plugin = {
     it('names a directory without sources rather than reporting nothing', () => {
       const c = capture();
       expect(run(['validate-commands', '--dir', dir], c.io)).toBe(1);
-      expect(c.errText()).toContain('No TypeScript sources');
+      expect(c.errText()).toContain('No TypeScript or JavaScript sources');
+    });
+
+    it("reads a frame plugin's script and leaves its specs and declarations alone", () => {
+      mkdirSync(join(dir, 'public/frame'), { recursive: true });
+      writeFileSync(
+        join(dir, 'public/frame/view.js'),
+        "LwFrame.registerCommand({ id: 'frame.refresh', callable: true, run() {} });",
+      );
+      writeFileSync(join(dir, 'view.spec.js'), "ctx.registerCommand({ id: 'spec.only', run() {} });");
+      writeFileSync(join(dir, 'kit.d.ts'), "declare function registerCommand(c: { id: 'typed.only' }): void;");
+      const c = capture();
+      expect(run(['validate-commands', '--dir', dir], c.io)).toBe(0);
+      expect(c.errText()).toContain('frame.refresh: offered to an agent without a description');
+      expect(c.text() + c.errText()).not.toContain('spec.only');
+      expect(c.text() + c.errText()).not.toContain('typed.only');
     });
   });
 

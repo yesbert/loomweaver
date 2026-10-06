@@ -85,6 +85,13 @@ export function validateI18nCommand(args: ParsedArgs, io: Io): number {
   );
 }
 
+const SOURCE = /\.(?:[cm]?[jt]s|[jt]sx)$/;
+const NOT_SOURCE = /\.(?:d|spec|test)\.[cm]?[jt]sx?$/;
+
+function isCommandSource(name: string): boolean {
+  return SOURCE.test(name) && !NOT_SOURCE.test(name);
+}
+
 function readSources(dir: string): CommandSource[] {
   const sources: CommandSource[] = [];
   const walk = (folder: string): void => {
@@ -99,11 +106,7 @@ function readSources(dir: string): CommandSource[] {
       const path = join(folder, entry.name);
       if (entry.isDirectory()) {
         walk(path);
-      } else if (
-        entry.name.endsWith('.ts') &&
-        !entry.name.endsWith('.d.ts') &&
-        !entry.name.endsWith('.spec.ts')
-      ) {
+      } else if (isCommandSource(entry.name)) {
         sources.push({ path, text: readFileSync(path, 'utf8') });
       }
     }
@@ -114,7 +117,7 @@ function readSources(dir: string): CommandSource[] {
     throw new ArgError(`Cannot read ${dir}: ${(error as Error).message}`);
   }
   if (sources.length === 0) {
-    throw new ArgError(`No TypeScript sources found under ${dir}.`);
+    throw new ArgError(`No TypeScript or JavaScript sources found under ${dir}.`);
   }
   return sources;
 }

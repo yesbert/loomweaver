@@ -5,37 +5,37 @@
     "weaver": {
       "factory": "./src/generators/weaver/generator",
       "schema": "./src/generators/weaver/schema.json",
-      "description": "Scaffold a LoomWeaver weaver (Angular plugin bundle)."
+      "description": "Scaffold an Angular in-process plugin: manifest, surface, rail item, i18n, test."
     },
     "frame-plugin": {
       "factory": "./src/generators/frame-plugin/generator",
       "schema": "./src/generators/frame-plugin/schema.json",
-      "description": "Scaffold a sandboxed, framework-agnostic (iframe) LoomWeaver plugin."
+      "description": "Scaffold a framework-agnostic iframe plugin (Penpal + the frame UI kit)."
     },
     "distribution": {
       "factory": "./src/generators/distribution/generator",
       "schema": "./src/generators/distribution/schema.json",
-      "description": "Scaffold a LoomWeaver distribution (a composition-root Angular app)."
+      "description": "Scaffold a runnable composition root that boots the shell."
     },
     "auth-source": {
       "factory": "./src/generators/auth-source/generator",
       "schema": "./src/generators/auth-source/schema.json",
-      "description": "Scaffold a provider-neutral AuthSource."
+      "description": "Scaffold a stand-in session a user can operate: the AuthSource, the sign-in, switch and sign-out verbs in the rail, composed in."
     },
     "settings-store": {
       "factory": "./src/generators/settings-store/generator",
       "schema": "./src/generators/settings-store/schema.json",
-      "description": "Scaffold a backend-backed settings-store port implementation."
+      "description": "Scaffold a settings-store implementation backed by your API."
     },
     "theme": {
       "factory": "./src/generators/theme/generator",
       "schema": "./src/generators/theme/schema.json",
-      "description": "Scaffold a token-override theme (CSS) for a distribution."
+      "description": "Scaffold a token-override stylesheet in @layer lw-tenant-theme."
     },
     "layout": {
       "factory": "./src/generators/layout/generator",
       "schema": "./src/generators/layout/schema.json",
-      "description": "Scaffold a distribution base layout (ShellLayout regions)."
+      "description": "Scaffold a ShellLayout with the regions a weaver expects."
     }
   }
 }

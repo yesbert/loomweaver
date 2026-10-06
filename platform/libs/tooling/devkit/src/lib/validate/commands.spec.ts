@@ -142,4 +142,93 @@ describe('validateCommands', () => {
     expect(all.at(-1)).toEqual({ level: 'info', code: 'commands.runtime', message: RUNTIME_NOTE });
     expect(validateCommands([], ts)).toEqual([{ level: 'info', code: 'commands.runtime', message: RUNTIME_NOTE }]);
   });
+
+  describe('registrations written the other ways the workbench accepts', () => {
+    const read = (text: string, path = 'src/lib/plugin/other.plugin.ts') =>
+      validateCommands([{ path, text }], ts).filter(
+        (finding) => finding.code !== 'commands.runtime',
+      );
+
+    it('reads `true as const`, shorthand properties and ids held in constants of the file', () => {
+      const found = read(`
+        const id = 'notes.archive';
+        const ARCHIVE_TITLE = 'notes.archive.title';
+        export function activate(ctx) {
+          ctx.registerCommand({
+            id,
+            title: ARCHIVE_TITLE,
+            description: 'notes.archive.description',
+            callable: true as const,
+            run: () => undefined,
+          });
+        }
+      `);
+
+      expect(found.map((finding) => finding.code)).toEqual(['command.offered', 'command.consent']);
+      expect(found[0].message).toContain('notes.archive: offered to an agent');
+    });
+
+    it('finds registerCommand destructured from the context, renamed or bound', () => {
+      const found = read(`
+        export function activate(ctx) {
+          const { registerCommand } = ctx;
+          const { registerCommand: register } = ctx;
+          const bound = ctx.registerCommand.bind(ctx);
+          registerCommand({ id: 'a.one', title: 'a', run: () => undefined });
+          register({ id: 'a.two', title: 'a', run: () => undefined });
+          bound({ id: 'a.three', title: 'a', run: () => undefined });
+        }
+      `);
+
+      expect(found.map((finding) => finding.message.split(':', 1)[0])).toEqual(['a.one', 'a.two', 'a.three']);
+    });
+
+    it('counts a description set to undefined as no description', () => {
+      const found = read(`
+        ctx.registerCommand({
+          id: 'a.bare',
+          title: 'a',
+          description: undefined,
+          arguments: [{ name: 'to', kind: 'text', description: undefined }],
+          callable: true,
+          run: () => undefined,
+        });
+      `);
+
+      expect(found.map((finding) => finding.code)).toEqual([
+        'command.description',
+        'command.argument',
+        'command.consent',
+      ]);
+    });
+
+    it("reads a frame plugin's own script", () => {
+      const found = read(
+        `
+        LwFrame.registerCommand({
+          id: 'frame.refresh',
+          title: 'frame.refresh',
+          description: 'frame.refresh.description',
+          callable: true,
+          agentConsent: 'allow',
+          run() {},
+        });
+      `,
+        'public/frame/view.js',
+      );
+
+      expect(found.map((finding) => finding.code)).toEqual(['command.offered', 'command.consent']);
+      expect(found[1].message).toContain("frame.refresh: says an agent's word is enough");
+    });
+
+    it('still says it cannot read an id computed elsewhere', () => {
+      const [finding] = read(`
+        import { ID } from './ids';
+        ctx.registerCommand({ id: ID, title: 'a', run: () => undefined });
+      `);
+
+      expect(finding.code).toBe('command.unreadable');
+      expect(finding.message).toContain('nor a string constant declared in the file');
+    });
+  });
 });

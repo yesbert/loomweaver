@@ -25,13 +25,16 @@ interface Registration {
 }
 
 /**
- * Reads every `registerCommand` literal in the given sources and reports, per command, whether an
+ * Reads every `registerCommand` call in the given TypeScript or JavaScript sources, whether reached
+ * on the context or through a destructured or renamed binding, and reports, per command, whether an
  * agent is offered it, what would leave the agent guessing, or that the registration could not be
  * read, and — where it is offered — what the command says an agent's word is enough for, including
  * that it says nothing. Only a callable command without a description is a warning; the rest is
  * information, so a plugin with private commands passes a strict run. Nothing is guessed from an id
- * or a title: saying nothing is a declaration the platform accepts. The TypeScript compiler is passed in rather
- * than imported, so the check costs nothing where it is not used.
+ * or a title: saying nothing is a declaration the platform accepts. An id may be a string literal or a
+ * string constant the same file declares; anything computed elsewhere is reported as unreadable. A
+ * property set to `undefined` counts as absent, as it does at runtime. The TypeScript compiler is
+ * passed in rather than imported, so the check costs nothing where it is not used.
  */
 export function validateCommands(
   sources: readonly CommandSource[],
@@ -39,35 +42,132 @@ export function validateCommands(
 ): Finding[] {
   const findings: Finding[] = [];
   for (const source of sources) {
-    const file = ts.createSourceFile(source.path, source.text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+    const file = ts.createSourceFile(source.path, source.text, ts.ScriptTarget.Latest, true, scriptKind(ts, source.path));
+    const constants = stringConstants(ts, file);
     for (const call of registerCommandCalls(ts, file)) {
-      findings.push(...findingsFor(readRegistration(ts, file, call)));
+      findings.push(...findingsFor(readRegistration(ts, file, call, constants)));
     }
   }
   findings.push({ level: 'info', code: 'commands.runtime', message: RUNTIME_NOTE });
   return findings;
 }
 
-function registerCommandCalls(ts: TypeScriptModule, file: TS.SourceFile): TS.CallExpression[] {
-  const calls: TS.CallExpression[] = [];
-  const visit = (node: TS.Node): void => {
+const REGISTER = 'registerCommand';
+
+function scriptKind(ts: TypeScriptModule, path: string): TS.ScriptKind {
+  if (/\.[cm]?js$/.test(path)) {
+    return ts.ScriptKind.JS;
+  }
+  if (path.endsWith('.jsx')) {
+    return ts.ScriptKind.JSX;
+  }
+  return path.endsWith('.tsx') ? ts.ScriptKind.TSX : ts.ScriptKind.TS;
+}
+
+function walk(ts: TypeScriptModule, file: TS.SourceFile, visit: (node: TS.Node) => void): void {
+  const step = (node: TS.Node): void => {
+    visit(node);
+    ts.forEachChild(node, step);
+  };
+  step(file);
+}
+
+function stringConstants(ts: TypeScriptModule, file: TS.SourceFile): ReadonlyMap<string, string> {
+  const constants = new Map<string, string>();
+  walk(ts, file, (node) => {
     if (
-      ts.isCallExpression(node) &&
-      ts.isPropertyAccessExpression(node.expression) &&
-      node.expression.name.text === 'registerCommand'
+      ts.isVariableDeclarationList(node) &&
+      (node.flags & ts.NodeFlags.Const) !== 0
+    ) {
+      for (const declaration of node.declarations) {
+        const value = unwrapped(ts, declaration.initializer);
+        if (ts.isIdentifier(declaration.name) && value && ts.isStringLiteralLike(value)) {
+          constants.set(declaration.name.text, value.text);
+        }
+      }
+    }
+  });
+  return constants;
+}
+
+function registerAliases(ts: TypeScriptModule, file: TS.SourceFile): ReadonlySet<string> {
+  const aliases = new Set<string>([REGISTER]);
+  walk(ts, file, (node) => {
+    if (ts.isBindingElement(node) && ts.isIdentifier(node.name)) {
+      const property = node.propertyName ?? node.name;
+      if (ts.isIdentifier(property) && property.text === REGISTER) {
+        aliases.add(node.name.text);
+      }
+    }
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && namesRegister(ts, node.initializer)) {
+      aliases.add(node.name.text);
+    }
+  });
+  return aliases;
+}
+
+function namesRegister(ts: TypeScriptModule, value: TS.Node | undefined): boolean {
+  let target = unwrapped(ts, value);
+  while (
+    target &&
+    ts.isCallExpression(target) &&
+    ts.isPropertyAccessExpression(target.expression) &&
+    target.expression.name.text === 'bind'
+  ) {
+    target = unwrapped(ts, target.expression.expression);
+  }
+  return !!target && ts.isPropertyAccessExpression(target) && target.name.text === REGISTER;
+}
+
+function registerCommandCalls(ts: TypeScriptModule, file: TS.SourceFile): TS.CallExpression[] {
+  const aliases = registerAliases(ts, file);
+  const calls: TS.CallExpression[] = [];
+  walk(ts, file, (node) => {
+    if (!ts.isCallExpression(node)) {
+      return;
+    }
+    const callee = node.expression;
+    if (
+      (ts.isPropertyAccessExpression(callee) && callee.name.text === REGISTER) ||
+      (ts.isIdentifier(callee) && aliases.has(callee.text))
     ) {
       calls.push(node);
     }
-    ts.forEachChild(node, visit);
-  };
-  visit(file);
+  });
   return calls;
+}
+
+function stringOf(
+  ts: TypeScriptModule,
+  value: TS.Node | undefined,
+  constants: ReadonlyMap<string, string>,
+): string | undefined {
+  const node = unwrapped(ts, value);
+  if (!node) {
+    return undefined;
+  }
+  if (ts.isStringLiteralLike(node)) {
+    return node.text;
+  }
+  return ts.isIdentifier(node) ? constants.get(node.text) : undefined;
+}
+
+function isDeclared(ts: TypeScriptModule, value: TS.Node | undefined): boolean {
+  const node = unwrapped(ts, value);
+  if (!node) {
+    return false;
+  }
+  return !(
+    (ts.isIdentifier(node) && node.text === 'undefined') ||
+    ts.isVoidExpression(node)
+  );
 }
 
 function readRegistration(
   ts: TypeScriptModule,
   file: TS.SourceFile,
   call: TS.CallExpression,
+  constants: ReadonlyMap<string, string>,
 ): Registration {
   const line = file.getLineAndCharacterOfPosition(call.getStart(file)).line + 1;
   const at = `${file.fileName}:${line}`;
@@ -83,36 +183,27 @@ function readRegistration(
     }
     if (ts.isPropertyAssignment(property) && (ts.isIdentifier(property.name) || ts.isStringLiteral(property.name))) {
       properties.set(property.name.text, property.initializer);
+    } else if (ts.isShorthandPropertyAssignment(property)) {
+      properties.set(property.name.text, property.name);
     } else if (ts.isMethodDeclaration(property) && ts.isIdentifier(property.name)) {
       properties.set(property.name.text, property);
     }
   }
-  const id = properties.get('id');
-  if (!id || !ts.isStringLiteral(id)) {
-    return { ...empty, unreadable: 'its id is not a string literal' };
+  const id = stringOf(ts, properties.get('id'), constants);
+  if (id === undefined) {
+    return { ...empty, unreadable: 'its id is neither a string literal nor a string constant declared in the file' };
   }
-  const callable = properties.get('callable');
-  const consent = properties.get('agentConsent');
+  const consent = stringOf(ts, properties.get('agentConsent'), constants);
   return {
     at,
-    id: id.text,
-    callable: callable?.kind === ts.SyntaxKind.TrueKeyword,
-    described: properties.has('description'),
-    answers: properties.has('answers'),
+    id,
+    callable: unwrapped(ts, properties.get('callable'))?.kind === ts.SyntaxKind.TrueKeyword,
+    described: isDeclared(ts, properties.get('description')),
+    answers: isDeclared(ts, properties.get('answers')),
     returnsValue: returnsValue(ts, properties.get('run')),
-    arguments: readArguments(ts, properties.get('arguments')),
-    ...consentOf(ts, consent),
+    arguments: readArguments(ts, properties.get('arguments'), constants),
+    ...(consent !== undefined && { agentConsent: consent }),
   };
-}
-
-function consentOf(
-  ts: TypeScriptModule,
-  declared: TS.Node | undefined,
-): { readonly agentConsent?: string } {
-  const value = unwrapped(ts, declared);
-  return value && ts.isStringLiteral(value)
-    ? { agentConsent: value.text }
-    : {};
 }
 
 function unwrapped(
@@ -159,8 +250,10 @@ function consentLine(consent: string | undefined): string {
 
 function readArguments(
   ts: TypeScriptModule,
-  value: TS.Node | undefined,
+  declared: TS.Node | undefined,
+  constants: ReadonlyMap<string, string>,
 ): readonly { readonly name: string; readonly described: boolean }[] {
+  const value = unwrapped(ts, declared);
   if (!value || !ts.isArrayLiteralExpression(value)) {
     return [];
   }
@@ -174,18 +267,18 @@ function readArguments(
       if (!ts.isPropertyAssignment(property) || !ts.isIdentifier(property.name)) {
         continue;
       }
-      if (property.name.text === 'name' && ts.isStringLiteral(property.initializer)) {
-        name = property.initializer.text;
-      }
-      if (property.name.text === 'description') {
-        described = true;
+      if (property.name.text === 'name') {
+        name = stringOf(ts, property.initializer, constants) ?? name;
+      } else if (property.name.text === 'description') {
+        described = isDeclared(ts, property.initializer);
       }
     }
     return { name, described };
   });
 }
 
-function returnsValue(ts: TypeScriptModule, run: TS.Node | undefined): boolean {
+function returnsValue(ts: TypeScriptModule, declared: TS.Node | undefined): boolean {
+  const run = unwrapped(ts, declared);
   if (!run) {
     return false;
   }

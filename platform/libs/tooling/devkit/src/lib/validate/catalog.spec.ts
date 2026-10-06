@@ -153,6 +153,33 @@ describe('validateCatalog', () => {
       ]);
     });
 
+    it('names the entry the host drops when an unusable one shares its id', () => {
+      const findings = validateCatalog([
+        { ...valid, entryUrl: 'javascript:alert(1)' },
+        valid,
+        { ...valid, name: 'Third' },
+      ]);
+      const duplicates = findings.filter((finding) => finding.code === 'catalog.id.duplicate');
+
+      expect(duplicates.map((finding) => finding.path)).toEqual(['catalog[2].id']);
+      expect(duplicates[0].message).toContain('from catalog[1]');
+    });
+
+    it('reports text metadata of the wrong type, which the host drops', () => {
+      const findings = validateCatalog([
+        { ...valid, description: 42, author: '', version: 1, updated: 2026 },
+      ]);
+
+      expect(findings.map((finding) => [finding.code, finding.path])).toEqual([
+        ['catalog.text', 'catalog[0].description'],
+        ['catalog.text', 'catalog[0].author'],
+        ['catalog.text', 'catalog[0].version'],
+        ['catalog.updated', 'catalog[0].updated'],
+      ]);
+      expect(findings[2].message).toContain('can never offer an update');
+      expect(findings[3].message).toContain('shows no date');
+    });
+
     it('warns about a missing name, which falls back to the id', () => {
       expect(codes([{ ...valid, name: undefined }])).toEqual([
         'catalog.name.missing',
