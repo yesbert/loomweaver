@@ -128,6 +128,13 @@ jobs:
       - name: Comment policy
         run: npm run comments-check
 
+      # The scaffolding specification promises output that builds against the published contract.
+      # Every scaffold, across its features and composed the way the routes compose it, is
+      # type-checked against the packed declarations, its templates and stylesheets parsed, and its
+      # frame scripts run against stand-ins of the kit and the host. It takes about a second.
+      - name: Generated output compiles
+        run: npm run generated-output-check
+
       # The icon catalogue is generated from the shell's own icon map, because adding an icon and
       # remembering a table in another directory are two separate acts and the second one gets
       # forgotten. This fails when the page and the map have parted company.
