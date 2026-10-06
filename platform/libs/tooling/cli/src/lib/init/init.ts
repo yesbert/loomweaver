@@ -9,7 +9,7 @@ import {
 } from './package-manager';
 import type { Io } from '../io';
 
-const INIT_FLAGS = [
+export const INIT_FLAGS = [
   'title',
   'styles',
   'weaver',

@@ -26,14 +26,11 @@ function reportAmendments(io: Io, amend: AmendPlan, done: boolean): void {
   }
 }
 
+export const SCAFFOLD_FLAGS: readonly string[] = ['out', 'dry-run', 'force'];
+
 export function scaffold(args: ParsedArgs, io: Io): number {
   const descriptor = findScaffold(args.command);
-  rejectUnknownFlags(args, [
-    ...allowedFlagsFor(descriptor),
-    'out',
-    'dry-run',
-    'force',
-  ]);
+  rejectUnknownFlags(args, [...allowedFlagsFor(descriptor), ...SCAFFOLD_FLAGS]);
   const values = scaffoldValues(descriptor, args);
   const files = descriptor.build(values);
   const out = stringFlag(args, 'out') ?? '.';

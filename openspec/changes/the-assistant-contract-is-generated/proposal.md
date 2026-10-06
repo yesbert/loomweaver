@@ -11,11 +11,11 @@ refuses. All of it passed CI. The file is fixed now; nothing keeps it fixed.
 
 ## What Changes
 
-- The interface and service-signature blocks of the contract section are generated from the packed
-  declarations of the SDK, the shell and the frame kit, between markers, in the file's compact form.
-  The hand-written prose around them stays hand-written.
-- A guard regenerates the blocks and fails when the file differs, naming the command that rewrites
-  them, the way the icon catalogue is kept current.
+- The interface and service-signature blocks of the contract sections are checked against the packed
+  declarations of the SDK, the shell, the agent connection and the frame kit, by what each
+  declaration accepts. The explanations beside the members stay hand-written and in place.
+- A guard fails while a block differs, naming the command that rewrites the declarations that
+  differ, the way the icon catalogue is kept current.
 - A second check reads every command line the file and the guides give for the command-line tool and
   fails on a command or flag the tool does not accept.
 
@@ -32,7 +32,8 @@ None. This changes how a published file is maintained, not what the platform gua
 
 ## Impact
 
-- `llms-full.txt`: its interface blocks move between generated markers; the prose is untouched.
+- `llms-full.txt`: the declarations that differ from the packages are rewritten; the prose and the
+  comments are untouched.
 - Platform tools: a generator and two guards; the API-docs guard keeps its job of finding every
   exported name.
 - CI: two more guard steps in the pull-request build.

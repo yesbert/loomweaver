@@ -135,6 +135,12 @@ jobs:
       - name: Generated output compiles
         run: npm run generated-output-check
 
+      # llms-full.txt restates the published interfaces for an assistant, with an explanation beside
+      # each member. The explanations are written by hand; the declarations must be the packages'
+      # own, so they are compared with the packed declarations by what they accept.
+      - name: The assistant's contract is the published one
+        run: npm run llms-contract-check
+
       # The icon catalogue is generated from the shell's own icon map, because adding an icon and
       # remembering a table in another directory are two separate acts and the second one gets
       # forgotten. This fails when the page and the map have parted company.
