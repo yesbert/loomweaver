@@ -1,12 +1,6 @@
 import { EventType, type AGUIEvent, type ToolMessage } from '@ag-ui/core';
-import {
-  commandTools,
-  type CommandTools,
-  type PendingToolCall,
-  type ToolDecision,
-} from '@loomweaver/ag-ui';
+import { commandTools, consentPolicy, type CommandTools } from '@loomweaver/ag-ui';
 import type { PluginContext } from '@loomweaver/plugin-sdk';
-import { pluginContextHolder } from '../plugin-context';
 import type { Beat } from './beats';
 import { conversation } from './conversation';
 import { answering, asking } from './ag-ui-events';
@@ -17,17 +11,24 @@ const TURN_PACE = 140;
 
 export type Say = (key: string, params?: Record<string, unknown>) => string;
 
-const context = pluginContextHolder();
 let tools: CommandTools | undefined;
 let runs = 0;
 
 export const agentRunner = {
   bind(next: PluginContext): void {
-    context.bind(next);
-    tools = commandTools(next, { before: consentFor });
+    tools = commandTools(next, {
+      before: consentPolicy(() =>
+        next.ui.confirm({
+          title: 'agent.confirm.title',
+          message: 'agent.confirm.message',
+          confirmLabel: 'agent.confirm.yes',
+          cancelLabel: 'agent.confirm.no',
+          tone: 'warning',
+        }),
+      ),
+    });
   },
   unbind(): void {
-    context.unbind();
     tools = undefined;
   },
   async ask(beat: Beat, say: Say): Promise<void> {
@@ -112,29 +113,4 @@ function pace(event: AGUIEvent): Promise<void> {
         ? ARGUMENT_PACE
         : TURN_PACE;
   return new Promise((done) => setTimeout(done, wait));
-}
-
-async function consentFor(call: PendingToolCall): Promise<ToolDecision> {
-  if (call.agentConsent === 'never') {
-    return {
-      decision: 'decline',
-      reason: 'an agent may not run this one on its own word.',
-    };
-  }
-  const asks =
-    call.agentConsent === 'ask' || call.agentConsent === 'ask-always';
-  const ctx = context.current;
-  if (!ctx || !asks) {
-    return { decision: 'run' };
-  }
-  const yes = await ctx.ui.confirm({
-    title: 'agent.confirm.title',
-    message: 'agent.confirm.message',
-    confirmLabel: 'agent.confirm.yes',
-    cancelLabel: 'agent.confirm.no',
-    tone: 'warning',
-  });
-  return yes
-    ? { decision: 'run' }
-    : { decision: 'decline', reason: 'the person at the keyboard said no.' };
 }

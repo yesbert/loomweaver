@@ -10,4 +10,5 @@ The domain of this example: support tickets, and what a person or the assistant 
   list docked in the left sidebar and the ticket view that opens as a tab per ticket.
 - `lib/views/` holds the list and the ticket view.
 
-Only `tickets.reply` declares `agentConsent: 'ask'`, so it is the one call the assistant asks about.
+Only `tickets.reply` declares `agentConsent: 'ask'`, so it is the one call the assistant asks about,
+once: the connection's `consentPolicy` remembers a yes for as long as it is connected.
