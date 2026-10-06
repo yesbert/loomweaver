@@ -13,19 +13,19 @@ import { DockPosition } from '../../layout/layout';
 import { TooltipPosition } from '../../elements/tooltip/lw-tooltip.element';
 import { CommandService } from '../../commands/command.service';
 import { MenuContext } from '@loomweaver/plugin-sdk';
-import { SlotResolution } from '../../menu/slot-resolution.service';
 import { MenuTriggerDirective } from '../../menu/menu-trigger.directive';
 import {
+  activateChromeItem,
   menuOnContext,
-  warnMenuTriggerConflict,
 } from '../../menu/chrome-item-menu';
 import { MenuSide } from '../../elements/menu/lw-menu.element';
+import { BarButtonItem, BarComponentItem } from '../../foundation/bar-item';
 import {
-  BarButtonItem,
-  BarComponentItem,
-  BarItem,
-} from '../../foundation/bar-item';
-import { BAR_CONTEXT, barMenuContext } from './bar-context';
+  BAR_CONTEXT,
+  BarEntry,
+  barMenuContext,
+  isButtonEntry,
+} from './bar-context';
 
 const MENU_SIDE_BY_DOCK: Readonly<Record<DockPosition, MenuSide>> = {
   top: 'bottom',
@@ -43,29 +43,25 @@ const MENU_SIDE_BY_DOCK: Readonly<Record<DockPosition, MenuSide>> = {
   templateUrl: './shell-bar-item.html',
 })
 export class ShellBarItem {
-  readonly item = input.required<BarItem>();
+  readonly entry = input.required<BarEntry>();
 
   readonly dock = input.required<DockPosition>();
 
   private readonly commands = inject(CommandService);
-  private readonly slots = inject(SlotResolution);
   private readonly injector = inject(Injector);
 
-  protected readonly asComponent = computed<BarComponentItem | null>(() => {
-    const item = this.item();
-    return 'component' in item ? item : null;
-  });
-  protected readonly asButton = computed<BarButtonItem | null>(() => {
-    const item = this.item();
-    return 'component' in item ? null : item;
-  });
-  private readonly brokenPicture = signal(false);
   private readonly resolved = computed(() => {
-    const button = this.asButton();
-    return button
-      ? this.slots.resolve([button], barMenuContext).at(0)
-      : undefined;
+    const entry = this.entry();
+    return isButtonEntry(entry) ? entry : undefined;
   });
+  protected readonly asComponent = computed<BarComponentItem | null>(() => {
+    const entry = this.entry();
+    return isButtonEntry(entry) ? null : entry.item;
+  });
+  protected readonly asButton = computed<BarButtonItem | null>(
+    () => this.resolved()?.item ?? null,
+  );
+  private readonly brokenPicture = signal(false);
 
   protected readonly tooltipPosition = computed<TooltipPosition>(() =>
     this.dock() === 'bottom' ? 'top' : 'bottom',
@@ -78,14 +74,14 @@ export class ShellBarItem {
     return button ? menuOnContext(button) : undefined;
   });
   protected readonly menuContext = computed<MenuContext>(() =>
-    barMenuContext(this.item()),
+    barMenuContext(this.entry().item),
   );
   protected readonly activateMenu = computed<string | undefined>(
     () => this.resolved()?.opensMenu,
   );
 
   protected readonly componentInjector = computed<Injector>(() => {
-    const item = this.item();
+    const item = this.entry().item;
     return Injector.create({
       parent: this.injector,
       providers: [
@@ -113,11 +109,8 @@ export class ShellBarItem {
   }
 
   protected run(button: BarButtonItem): void {
-    if (this.disabled()) return;
-    warnMenuTriggerConflict(button);
-    if (this.activateMenu()) {
-      return;
-    }
-    this.commands.trigger(button);
+    activateChromeItem(button, this.resolved(), () =>
+      this.commands.trigger(button),
+    );
   }
 }

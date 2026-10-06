@@ -6,6 +6,7 @@ import {
   type ToolDecision,
 } from '@loomweaver/ag-ui';
 import type { PluginContext } from '@loomweaver/plugin-sdk';
+import { pluginContextHolder } from '../plugin-context';
 import type { Beat } from './beats';
 import { conversation } from './conversation';
 import { answering, asking } from './ag-ui-events';
@@ -16,17 +17,17 @@ const TURN_PACE = 140;
 
 export type Say = (key: string, params?: Record<string, unknown>) => string;
 
-let ctx: PluginContext | undefined;
+const context = pluginContextHolder();
 let tools: CommandTools | undefined;
 let runs = 0;
 
 export const agentRunner = {
   bind(next: PluginContext): void {
-    ctx = next;
+    context.bind(next);
     tools = commandTools(next, { before: consentFor });
   },
   unbind(): void {
-    ctx = undefined;
+    context.unbind();
     tools = undefined;
   },
   async ask(beat: Beat, say: Say): Promise<void> {
@@ -122,6 +123,7 @@ async function consentFor(call: PendingToolCall): Promise<ToolDecision> {
   }
   const asks =
     call.agentConsent === 'ask' || call.agentConsent === 'ask-always';
+  const ctx = context.current;
   if (!ctx || !asks) {
     return { decision: 'run' };
   }

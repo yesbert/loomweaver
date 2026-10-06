@@ -1,9 +1,19 @@
-import { Component, WritableSignal, signal } from '@angular/core';
+import {
+  Component,
+  WritableSignal,
+  computed,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { ANONYMOUS, AuthSnapshot } from '@loomweaver/plugin-sdk';
 import { ShellBarItem } from './shell-bar-item';
 import { BarItem } from '../../foundation/bar-item';
+import { DockPosition } from '../../layout/layout';
+import { SlotResolution } from '../../menu/slot-resolution.service';
+import { BarEntry, barMenuContext, isBarButton } from './bar-context';
 import { AUTH_SOURCE } from '../../auth/auth-context';
 import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { formatChord } from '../../commands/keyboard/format-chord';
@@ -17,6 +27,25 @@ import {
 
 @Component({ selector: 'lw-dummy', template: 'dummy' })
 class Dummy {}
+
+@Component({
+  selector: 'lw-bar-item-host',
+  imports: [ShellBarItem],
+  template: `@if (entry(); as entry) {
+    <lw-shell-bar-item [entry]="entry" [dock]="dock()" />
+  }`,
+})
+class BarItemHost {
+  readonly item = input.required<BarItem>();
+  readonly dock = input.required<DockPosition>();
+  private readonly slots = inject(SlotResolution);
+  protected readonly entry = computed<BarEntry | undefined>(() => {
+    const item = this.item();
+    return isBarButton(item)
+      ? this.slots.resolve([item], barMenuContext).at(0)
+      : { item };
+  });
+}
 
 beforeAll(() => defineLwTooltip());
 
@@ -33,7 +62,7 @@ function render(item: BarItem) {
     imports: [ShellBarItem, transloco()],
     providers: [],
   });
-  const fixture = TestBed.createComponent(ShellBarItem);
+  const fixture = TestBed.createComponent(BarItemHost);
   fixture.componentRef.setInput('item', item);
   fixture.componentRef.setInput('dock', 'bottom');
   fixture.detectChanges();
@@ -70,7 +99,7 @@ describe('ShellBarItem', () => {
       shortcut: 'mod+enter',
       run: () => undefined,
     });
-    const fixture = TestBed.createComponent(ShellBarItem);
+    const fixture = TestBed.createComponent(BarItemHost);
     fixture.componentRef.setInput('item', {
       id: 'a',
       bar: 'status-bar',
@@ -96,7 +125,7 @@ describe('ShellBarItem', () => {
       title: 'status.add',
       run: () => undefined,
     });
-    const fixture = TestBed.createComponent(ShellBarItem);
+    const fixture = TestBed.createComponent(BarItemHost);
     fixture.componentRef.setInput('item', {
       id: 'a',
       bar: 'status-bar',
@@ -133,7 +162,7 @@ describe('ShellBarItem', () => {
       imports: [ShellBarItem, transloco()],
       providers: [{ provide: AUTH_SOURCE, useValue: auth }],
     });
-    const fixture = TestBed.createComponent(ShellBarItem);
+    const fixture = TestBed.createComponent(BarItemHost);
     fixture.componentRef.setInput('item', {
       id: 'a',
       bar: 'status-bar',
@@ -184,7 +213,7 @@ describe('ShellBarItem', () => {
 
     it('gives way to the mark when the picture cannot be shown', () => {
       TestBed.configureTestingModule({ imports: [ShellBarItem, transloco()] });
-      const fixture = TestBed.createComponent(ShellBarItem);
+      const fixture = TestBed.createComponent(BarItemHost);
       fixture.componentRef.setInput('item', account());
       fixture.componentRef.setInput('dock', 'bottom');
       fixture.detectChanges();
@@ -220,7 +249,7 @@ describe('ShellBarItem', () => {
         run: () => undefined,
       });
       registry.addMenuItem({ menu: 'acme/overflow', command: 'c.profile' });
-      const fixture = TestBed.createComponent(ShellBarItem);
+      const fixture = TestBed.createComponent(BarItemHost);
       fixture.componentRef.setInput('item', item);
       fixture.componentRef.setInput('dock', 'top');
       fixture.detectChanges();
@@ -239,7 +268,7 @@ describe('ShellBarItem', () => {
       let ran = 0;
       TestBed.configureTestingModule({ imports: [ShellBarItem, transloco()] });
       const registry = TestBed.inject(ContributionRegistry);
-      const fixture = TestBed.createComponent(ShellBarItem);
+      const fixture = TestBed.createComponent(BarItemHost);
       fixture.componentRef.setInput('item', {
         id: 'overflow',
         bar: 'top-bar',
@@ -323,7 +352,7 @@ describe('ShellBarItem', () => {
         menuTrigger: 'primary',
       };
       const sideFor = (dock: 'top' | 'bottom' | 'left' | 'right') => {
-        const fixture = TestBed.createComponent(ShellBarItem);
+        const fixture = TestBed.createComponent(BarItemHost);
         fixture.componentRef.setInput('item', item);
         fixture.componentRef.setInput('dock', dock);
         fixture.detectChanges();

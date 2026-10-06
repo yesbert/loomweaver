@@ -10,6 +10,8 @@ import { activeLanguage } from '../i18n/active-language';
   templateUrl: './employees-view.html',
 })
 export class EmployeesView {
+  protected readonly columns = '7rem minmax(0,1fr) 8rem 8rem 6rem 8rem';
+
   private readonly lang = activeLanguage();
 
   protected readonly rows = computed(() => {

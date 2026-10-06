@@ -19,9 +19,9 @@
     </button>
   </div>
 
-  <div class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border bg-surface-raised">
+  <div class="demo-list-card">
     <div
-      class="hidden shrink-0 grid-cols-[7rem_minmax(0,1fr)_9rem_7rem_6rem] gap-3 border-b border-border px-4 py-2.5 text-xs font-medium text-content-muted @2xl:grid"
+      class="hidden shrink-0 gap-3 border-b border-border px-4 py-2.5 text-xs font-medium text-content-muted @2xl:grid" [style.grid-template-columns]="columns"
     >
       <span>{{ 'customers.column.number' | transloco }}</span>
       <span>{{ 'customers.column.name' | transloco }}</span>
@@ -37,7 +37,7 @@
             class="border-b border-border px-4 py-3 last:border-b-0 @2xl:py-2.5"
             [attr.data-customer]="row.customer.number"
           >
-            <span class="hidden grid-cols-[7rem_minmax(0,1fr)_9rem_7rem_6rem] items-center gap-3 @2xl:grid">
+            <span class="hidden items-center gap-3 @2xl:grid" [style.grid-template-columns]="columns">
               <span class="font-mono text-sm text-content-muted">{{ row.customer.number }}</span>
               <span class="truncate text-content">{{ row.customer.name }}</span>
               <span class="truncate text-sm text-content-muted">{{ row.customer.city }}</span>

@@ -1,29 +1,28 @@
-import { type PluginContext } from '@loomweaver/plugin-sdk';
+import { pluginContextHolder } from '../../plugin-context';
 
-let ctx: PluginContext | undefined;
+const context = pluginContextHolder();
 const titles = new Map<string, string>();
 
 export const navigationActions = {
-  bind(next: PluginContext): void {
-    ctx = next;
-  },
+  bind: context.bind,
   unbind(): void {
-    ctx = undefined;
+    context.unbind();
     titles.clear();
   },
   activePath(): string {
-    return ctx?.activeContent()?.path ?? '';
+    return context.current?.activeContent()?.path ?? '';
   },
   showingUnder(path: string): boolean {
-    return ctx?.isShowingUnder(path) ?? false;
+    return context.current?.isShowingUnder(path) ?? false;
   },
   open(path: string): void {
-    ctx?.navigateContent(path);
+    context.current?.navigateContent(path);
   },
   remember(surfaceId: string, titleKey: string): void {
     titles.set(surfaceId, titleKey);
   },
   retitle(surfaceId: string, titleKey: string): void {
+    const ctx = context.current;
     if (!ctx || titles.get(surfaceId) === titleKey) {
       return;
     }

@@ -10,6 +10,8 @@ import { activeLanguage } from '../i18n/active-language';
   templateUrl: './receivables-view.html',
 })
 export class ReceivablesView {
+  protected readonly columns = '7rem minmax(0,1fr) 12rem 8rem 8rem';
+
   private readonly lang = activeLanguage();
 
   protected readonly rows = computed(() => {

@@ -10,6 +10,8 @@ import { activeLanguage } from '../i18n/active-language';
   templateUrl: './movements-view.html',
 })
 export class MovementsView {
+  protected readonly columns = '8rem minmax(0,1fr) 8rem 9rem 7rem';
+
   private readonly lang = activeLanguage();
 
   protected readonly rows = computed(() => {

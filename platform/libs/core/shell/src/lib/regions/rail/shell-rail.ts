@@ -21,8 +21,8 @@ import { CommandService } from '../../commands/command.service';
 import { RailItem } from '../../foundation/rail-item';
 import { MenuTriggerDirective } from '../../menu/menu-trigger.directive';
 import {
+  activateChromeItem,
   menuOnContext,
-  warnMenuTriggerConflict,
 } from '../../menu/chrome-item-menu';
 import { MenuContext } from '@loomweaver/plugin-sdk';
 import { SlotResolution } from '../../menu/slot-resolution.service';
@@ -191,17 +191,13 @@ export class ShellRail {
   }
 
   protected run(item: RailItem): void {
-    if (this.isDisabled(item)) return;
-    warnMenuTriggerConflict(item);
-    if (this.activateMenuFor(item)) {
-      return;
-    }
-    const workspace = item.workspace;
-    if (workspace !== undefined) {
-      void this.workspaces.switchTo(workspace);
-      return;
-    }
-    this.commands.trigger(item);
+    activateChromeItem(item, this.resolved().get(item.id), () => {
+      if (item.workspace === undefined) {
+        this.commands.trigger(item);
+      } else {
+        void this.workspaces.switchTo(item.workspace);
+      }
+    });
   }
 
   protected onReorder(ids: string[]): void {

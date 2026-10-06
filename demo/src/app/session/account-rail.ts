@@ -1,9 +1,10 @@
 import { type Disposable, type PluginContext } from '@loomweaver/plugin-sdk';
+import { pluginContextHolder } from '../../plugin-context';
 import { ACCOUNT_PICTURES, demoSession } from './session';
 
 const ACCOUNT_MENU = 'session.account/menu';
 
-let ctx: PluginContext | undefined;
+const context = pluginContextHolder();
 let railItem: Disposable | undefined;
 let entries: Disposable[] = [];
 
@@ -32,12 +33,12 @@ function drop(): void {
 
 export const accountRail = {
   show(next: PluginContext): void {
-    ctx = next;
+    context.bind(next);
     draw();
   },
   hide(): void {
     drop();
-    ctx = undefined;
+    context.unbind();
   },
   switchAccount(): void {
     demoSession.switchAccount();
@@ -54,7 +55,7 @@ export const accountRail = {
 };
 
 function draw(): void {
-  const host = ctx;
+  const host = context.current;
   if (!host) {
     return;
   }

@@ -13,3 +13,7 @@ demo-look-switch .lw-select-trigger {
   font-size: 0.75rem;
   padding-inline: 0.5rem;
 }
+
+@utility demo-list-card {
+  @apply flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border bg-surface-raised;
+}

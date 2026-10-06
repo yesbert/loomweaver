@@ -2,7 +2,7 @@
   <div class="@container flex h-full flex-col overflow-auto p-6" data-testid="quote-positions">
     <div class="overflow-hidden rounded-lg border border-border bg-surface-raised">
       <div
-        class="hidden grid-cols-[2.5rem_minmax(0,1fr)_7rem_7rem_7rem] gap-3 border-b border-border px-4 py-2.5 text-xs font-medium text-content-muted @2xl:grid"
+        class="hidden gap-3 border-b border-border px-4 py-2.5 text-xs font-medium text-content-muted @2xl:grid" [style.grid-template-columns]="columns"
       >
         <span>{{ 'quotes.document.column.position' | transloco }}</span>
         <span>{{ 'quotes.document.column.description' | transloco }}</span>
@@ -15,7 +15,7 @@
         @for (line of lines(); track line.position) {
           <li class="border-b border-border px-4 py-3 last:border-b-0 @2xl:py-2.5">
             <span
-              class="hidden grid-cols-[2.5rem_minmax(0,1fr)_7rem_7rem_7rem] items-baseline gap-3 @2xl:grid"
+              class="hidden items-baseline gap-3 @2xl:grid" [style.grid-template-columns]="columns"
             >
               <span class="text-sm text-content-faint tabular-nums">{{ line.position }}</span>
               <span class="min-w-0">

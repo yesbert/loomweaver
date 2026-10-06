@@ -965,7 +965,7 @@ navigation.bind(ctx);
 ctx.registerSurface({
   id: 'notes.navigation',
   title: 'notes.nav.title',
-  icon: 'notes',
+  icon: 'navigator',
   component: NotesNavigationView,
   docks: ['left-panel'],
   padded: false,

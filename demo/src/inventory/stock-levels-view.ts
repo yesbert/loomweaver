@@ -11,6 +11,8 @@ import { activeLanguage } from '../i18n/active-language';
   templateUrl: './stock-levels-view.html',
 })
 export class StockLevelsView {
+  protected readonly columns = '7rem minmax(0,1fr) 7rem 8rem 8rem';
+
   private readonly lang = activeLanguage();
 
   protected readonly rows = computed(() => {

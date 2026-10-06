@@ -10,6 +10,8 @@ import { activeLanguage } from '../i18n/active-language';
   templateUrl: './payables-view.html',
 })
 export class PayablesView {
+  protected readonly columns = '7rem minmax(0,1fr) 8rem 10rem 8rem';
+
   private readonly lang = activeLanguage();
 
   protected readonly rows = computed(() => {

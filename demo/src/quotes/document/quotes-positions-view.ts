@@ -35,6 +35,8 @@ interface TaxBucketRow {
   templateUrl: './quotes-positions-view.html',
 })
 export class QuotesPositionsView {
+  protected readonly columns = '2.5rem minmax(0,1fr) 7rem 7rem 7rem';
+
   private readonly lang = activeLanguage();
 
   protected readonly quote = quoteFromRoute();

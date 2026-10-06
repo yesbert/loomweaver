@@ -1,4 +1,8 @@
-import { menuOnActivate, menuOnContext } from './chrome-item-menu';
+import {
+  activateChromeItem,
+  menuOnActivate,
+  menuOnContext,
+} from './chrome-item-menu';
 
 describe('the menu a chrome item opens', () => {
   it('opens its slot on activation only where the item asks for that gesture', () => {
@@ -22,5 +26,16 @@ describe('the menu a chrome item opens', () => {
     expect(menuOnContext({ id: 'a', menu: 'own', menuTrigger: 'primary' })).toBeUndefined();
     expect(menuOnContext({ id: 'a', menu: 'own', menuTrigger: 'both' })).toBe('own');
     expect(menuOnContext({ id: 'a', menu: 'own' })).toBe('own');
+  });
+
+  it('runs an activated item only while it is enabled and opens no menu', () => {
+    const run = vi.fn();
+
+    activateChromeItem({ id: 'a' }, { disabled: true }, run);
+    activateChromeItem({ id: 'a' }, { disabled: false, opensMenu: 'own' }, run);
+    expect(run).not.toHaveBeenCalled();
+
+    activateChromeItem({ id: 'a' }, { disabled: false }, run);
+    expect(run).toHaveBeenCalledOnce();
   });
 });

@@ -11,6 +11,8 @@ import { activeLanguage } from '../i18n/active-language';
   templateUrl: './payroll-view.html',
 })
 export class PayrollView {
+  protected readonly columns = 'minmax(0,1fr) 10rem 8rem 9rem';
+
   private readonly lang = activeLanguage();
 
   protected readonly rows = computed(() => {

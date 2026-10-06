@@ -1,22 +1,19 @@
-import { type PluginContext, type UiMenuItem } from '@loomweaver/plugin-sdk';
+import { type UiMenuItem } from '@loomweaver/plugin-sdk';
+import { pluginContextHolder } from '../plugin-context';
 import { type Quote, addQuote, customers } from '../accounting';
 import { statusBadge } from './quote-status';
 
-let ctx: PluginContext | undefined;
+const context = pluginContextHolder();
 
 function pathOf(quote: Quote): string {
   return `sales/quotes/${quote.id}`;
 }
 
 export const quotesActions = {
-  bind(next: PluginContext): void {
-    ctx = next;
-  },
-  unbind(): void {
-    ctx = undefined;
-  },
+  bind: context.bind,
+  unbind: context.unbind,
   open(quote: Quote, options: { preview?: boolean } = {}): void {
-    ctx?.openContentTab({
+    context.current?.openContentTab({
       path: pathOf(quote),
       title: quote.number,
       titleIsLiteral: true,
@@ -26,24 +23,24 @@ export const quotesActions = {
     });
   },
   labelTab(quote: Quote): void {
-    ctx?.updateContentTab(pathOf(quote), {
+    context.current?.updateContentTab(pathOf(quote), {
       title: quote.number,
       titleIsLiteral: true,
       badge: statusBadge(quote.status),
     });
   },
   openMenu(items: readonly UiMenuItem[], at: { x: number; y: number }): void {
-    ctx?.ui.openMenu(items, at);
+    context.current?.ui.openMenu(items, at);
   },
   hasUnsavedWork(quote: Quote): boolean {
-    return ctx?.hasUnsavedWork(pathOf(quote)) ?? false;
+    return context.current?.hasUnsavedWork(pathOf(quote)) ?? false;
   },
   keep(quote: Quote): void {
     this.open(quote);
-    ctx?.keepContentTab(pathOf(quote));
+    context.current?.keepContentTab(pathOf(quote));
   },
   createFor(customerId: string): string | null {
-    const host = ctx;
+    const host = context.current;
     if (!host) {
       return null;
     }
@@ -53,7 +50,7 @@ export const quotesActions = {
     return created.id;
   },
   async createFromSearch(search?: string): Promise<string | null> {
-    const host = ctx;
+    const host = context.current;
     if (!host) {
       return null;
     }
@@ -81,7 +78,7 @@ export const quotesActions = {
     return this.createFor(match.id);
   },
   activeQuoteId(): string | undefined {
-    const active = ctx?.activeContent();
+    const active = context.current?.activeContent();
     return active?.surfaceId === 'quotes.document' ? active.params['id'] : undefined;
   },
 };
