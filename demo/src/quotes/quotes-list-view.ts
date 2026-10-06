@@ -37,6 +37,8 @@ interface QuoteRow {
   templateUrl: './quotes-list-view.html',
 })
 export class QuotesListView {
+  protected readonly columns = '7rem minmax(0,1fr) 6rem 6rem 6.5rem 7rem';
+
   private readonly lang = activeLanguage();
 
   protected readonly statusFilters = STATUS_FILTERS;

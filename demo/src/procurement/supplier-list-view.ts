@@ -9,6 +9,8 @@ import { SUPPLIERS } from '../accounting';
   templateUrl: './supplier-list-view.html',
 })
 export class SupplierListView {
+  protected readonly columns = '7rem minmax(0,1fr) 8rem 7rem 8rem';
+
   protected readonly rows = computed(() => {
     const open = openOrdersBySupplier();
     return SUPPLIERS.map((supplier) => ({

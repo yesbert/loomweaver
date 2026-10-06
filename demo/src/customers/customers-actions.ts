@@ -1,17 +1,13 @@
-import { type PluginContext } from '@loomweaver/plugin-sdk';
+import { pluginContextHolder } from '../plugin-context';
 import { addCustomer } from '../accounting';
 
-let ctx: PluginContext | undefined;
+const context = pluginContextHolder();
 
 export const customersActions = {
-  bind(next: PluginContext): void {
-    ctx = next;
-  },
-  unbind(): void {
-    ctx = undefined;
-  },
+  bind: context.bind,
+  unbind: context.unbind,
   async create(): Promise<string | null> {
-    const host = ctx;
+    const host = context.current;
     if (!host) {
       return null;
     }

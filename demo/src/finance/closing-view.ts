@@ -8,6 +8,8 @@ import { openReceivables, periods } from './books';
   templateUrl: './closing-view.html',
 })
 export class ClosingView {
+  protected readonly columns = 'minmax(0,1fr) 12rem 8rem';
+
   protected readonly rows = periods;
 
   protected readonly blocking = computed(() => openReceivables().length);

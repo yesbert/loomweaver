@@ -4,16 +4,21 @@ import {
   defineLwToolbar,
   LW_TOOLBAR_TAG,
   LwToolbarElement,
+  LwToolbarEntry,
 } from '../elements/toolbar/lw-toolbar.element';
 import { installLwToolbarHost } from '../elements/toolbar/toolbar-bridge';
 import { defineLwTooltip } from '../elements/tooltip/lw-tooltip.element';
-import type { LwSlotHost, LwSlotView } from './surface-kit.frame';
+import type { LwSlotEntry, LwSlotHost, LwSlotView } from './surface-kit.frame';
 import { createToolbars } from './surface-toolbars';
 
 defineLwIcon();
 defineLwTooltip();
 defineLwMenu();
 defineLwToolbar();
+
+type Same<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
+
+const slotEntryIsTheToolbarEntry: Same<Omit<LwToolbarEntry, 'hasContextMenu'>, LwSlotEntry> = true;
 
 interface Call {
   readonly method: string;
@@ -190,5 +195,11 @@ describe('toolbars inside an isolated surface', () => {
     await flush();
 
     expect(host.calls).toEqual([{ method: 'slotWatch', args: ['acme/early', { a: 'b' }] }]);
+  });
+});
+
+describe('the entry a frame is told and the entry the toolbar draws', () => {
+  it('carry the same fields, apart from the context menu only the page knows of', () => {
+    expect(slotEntryIsTheToolbarEntry).toBe(true);
   });
 });

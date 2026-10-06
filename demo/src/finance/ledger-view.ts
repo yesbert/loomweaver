@@ -10,6 +10,8 @@ import { activeLanguage } from '../i18n/active-language';
   templateUrl: './ledger-view.html',
 })
 export class LedgerView {
+  protected readonly columns = '8rem minmax(0,1fr) 9rem 8rem 8rem';
+
   private readonly lang = activeLanguage();
 
   protected readonly rows = computed(() => {

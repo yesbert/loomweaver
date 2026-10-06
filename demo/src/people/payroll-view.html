@@ -8,9 +8,9 @@
     </button>
   </div>
 
-  <div class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border bg-surface-raised">
+  <div class="demo-list-card">
     <div
-      class="hidden shrink-0 grid-cols-[minmax(0,1fr)_10rem_8rem_9rem] gap-3 border-b border-border px-4 py-2.5 text-xs font-medium text-content-muted @2xl:grid"
+      class="hidden shrink-0 gap-3 border-b border-border px-4 py-2.5 text-xs font-medium text-content-muted @2xl:grid" [style.grid-template-columns]="columns"
     >
       <span>{{ 'people.column.month' | transloco }}</span>
       <span>{{ 'people.column.headcount' | transloco }}</span>
@@ -25,7 +25,7 @@
             class="border-b border-border px-4 py-3 last:border-b-0 @2xl:py-2.5"
             [attr.data-run]="row.run.month"
           >
-            <span class="hidden grid-cols-[minmax(0,1fr)_10rem_8rem_9rem] items-center gap-3 text-sm @2xl:grid">
+            <span class="hidden items-center gap-3 text-sm @2xl:grid" [style.grid-template-columns]="columns">
               <span class="truncate text-content">{{ row.month }}</span>
               <span class="text-content-muted">
                 {{ 'people.headcount' | transloco: { count: row.run.headcount } }}

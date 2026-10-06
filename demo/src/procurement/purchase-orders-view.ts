@@ -11,6 +11,8 @@ import { activeLanguage } from '../i18n/active-language';
   templateUrl: './purchase-orders-view.html',
 })
 export class PurchaseOrdersView {
+  protected readonly columns = '7rem minmax(0,1fr) 7rem 12rem 8rem 7rem';
+
   private readonly lang = activeLanguage();
 
   protected readonly rows = computed(() => {

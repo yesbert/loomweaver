@@ -1,4 +1,4 @@
-> **Status:** proposed — not approved for implementation yet.
+> **Status:** approved — approved for implementation on 2026-10-06.
 
 ## Why
 

@@ -18,9 +18,9 @@
     </div>
   </div>
 
-  <div class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border bg-surface-raised">
+  <div class="demo-list-card">
     <div
-      class="hidden shrink-0 grid-cols-[7rem_minmax(0,1fr)_7rem_8rem_8rem] gap-3 border-b border-border px-4 py-2.5 text-xs font-medium text-content-muted @2xl:grid"
+      class="hidden shrink-0 gap-3 border-b border-border px-4 py-2.5 text-xs font-medium text-content-muted @2xl:grid" [style.grid-template-columns]="columns"
     >
       <span>{{ 'inventory.column.number' | transloco }}</span>
       <span>{{ 'inventory.column.item' | transloco }}</span>
@@ -36,7 +36,7 @@
             class="border-b border-border px-4 py-3 last:border-b-0 @2xl:py-2.5"
             [attr.data-item]="row.item.number"
           >
-            <span class="hidden grid-cols-[7rem_minmax(0,1fr)_7rem_8rem_8rem] items-center gap-3 text-sm @2xl:grid">
+            <span class="hidden items-center gap-3 text-sm @2xl:grid" [style.grid-template-columns]="columns">
               <span class="font-mono text-xs text-content-muted">{{ row.item.number }}</span>
               <span class="truncate text-content">{{ row.item.labelKey | transloco }}</span>
               <span class="font-mono text-xs text-content-muted">{{ row.item.location }}</span>

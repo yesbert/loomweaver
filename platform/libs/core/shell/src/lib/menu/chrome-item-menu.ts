@@ -47,3 +47,23 @@ export function warnMenuTriggerConflict(item: ChromeItemMenu): void {
     );
   }
 }
+
+export interface ChromeItemState {
+  readonly disabled: boolean;
+  readonly opensMenu?: string;
+}
+
+export function activateChromeItem(
+  item: ChromeItemMenu,
+  state: ChromeItemState | undefined,
+  run: () => void,
+): void {
+  if (state?.disabled) {
+    return;
+  }
+  warnMenuTriggerConflict(item);
+  if (state?.opensMenu) {
+    return;
+  }
+  run();
+}

@@ -15,6 +15,8 @@ interface CustomerRow {
   templateUrl: './customer-list-view.html',
 })
 export class CustomerListView {
+  protected readonly columns = '7rem minmax(0,1fr) 9rem 7rem 6rem';
+
   protected readonly search = signal('');
 
   protected readonly rows = computed<readonly CustomerRow[]>(() => {

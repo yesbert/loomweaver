@@ -16,12 +16,12 @@ import {
 } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ContributionRegistry } from '../../contributions/contribution-registry';
-import { BarItem, BarSlot } from '../../foundation/bar-item';
+import { BarSlot } from '../../foundation/bar-item';
 import { LayoutRegion } from '../../layout/layout';
 import { AuthContext } from '../../auth/auth-context';
 import { SlotResolution } from '../../menu/slot-resolution.service';
 import { ShellBarItem } from './shell-bar-item';
-import { barMenuContext, isBarButton } from './bar-context';
+import { BarEntry, barMenuContext, isBarButton } from './bar-context';
 import {
   closeOnOutsidePointer,
   entryWidth,
@@ -83,16 +83,17 @@ export class ShellBar {
 
   protected readonly trayId = computed(() => `lw-bar-tray-${this.region().id}`);
 
-  private readonly contributed = computed<readonly BarItem[]>(() => {
+  private readonly contributed = computed<readonly BarEntry[]>(() => {
     const here = this.registry
       .barItems()
       .filter((item) => item.bar === this.region().id);
-    const cells = here.filter(
-      (item) => !isBarButton(item) && this.auth.visible(item.access),
+    const cells = here
+      .filter((item) => !isBarButton(item) && this.auth.visible(item.access))
+      .map((item) => ({ item }) as BarEntry);
+    const buttons = this.slots.resolve(
+      here.filter((item) => isBarButton(item)),
+      barMenuContext,
     );
-    const buttons = this.slots
-      .resolve(here.filter((item) => isBarButton(item)), barMenuContext)
-      .map((entry) => entry.item);
     return [...cells, ...buttons];
   });
 
@@ -100,10 +101,10 @@ export class ShellBar {
   protected readonly centerItems = computed(() => this.inBar('center'));
   protected readonly endItems = computed(() => this.inBar('end'));
 
-  protected readonly foldedItems = computed<readonly BarItem[]>(() => {
+  protected readonly foldedItems = computed<readonly BarEntry[]>(() => {
     const folded = new Set(this.folded());
     return (['start', 'center', 'end'] as const).flatMap((slot) =>
-      this.bySlot(slot).filter((item) => folded.has(item.id)),
+      this.bySlot(slot).filter((entry) => folded.has(entry.item.id)),
     );
   });
 
@@ -172,15 +173,15 @@ export class ShellBar {
     this.document.removeEventListener('keydown', this.onEscape);
   }
 
-  private inBar(slot: BarSlot): BarItem[] {
+  private inBar(slot: BarSlot): BarEntry[] {
     const folded = new Set(this.folded());
-    return this.bySlot(slot).filter((item) => !folded.has(item.id));
+    return this.bySlot(slot).filter((entry) => !folded.has(entry.item.id));
   }
 
-  private bySlot(slot: BarSlot): BarItem[] {
+  private bySlot(slot: BarSlot): BarEntry[] {
     return this.contributed()
-      .filter((item) => item.slot === slot)
-      .toSorted((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      .filter((entry) => entry.item.slot === slot)
+      .toSorted((a, b) => (a.item.order ?? 0) - (b.item.order ?? 0));
   }
 
   private observeResize(): void {
@@ -204,7 +205,7 @@ export class ShellBar {
     const available = availableWidth(bar);
     this.folded.set(
       available > 0
-        ? foldedIds(foldRank(this.contributed()), {
+        ? foldedIds(foldRank(this.contributed().map((entry) => entry.item)), {
             available,
             control: this.controlWidth,
             gap: GAP_PX,

@@ -1,17 +1,13 @@
-import { type PluginContext } from '@loomweaver/plugin-sdk';
+import { pluginContextHolder } from '../plugin-context';
 import { overdueReceivables, startDunningRun } from './books';
 
-let ctx: PluginContext | undefined;
+const context = pluginContextHolder();
 
 export const financeActions = {
-  bind(next: PluginContext): void {
-    ctx = next;
-  },
-  unbind(): void {
-    ctx = undefined;
-  },
+  bind: context.bind,
+  unbind: context.unbind,
   async dunningRun(): Promise<number> {
-    const host = ctx;
+    const host = context.current;
     if (!host) {
       return 0;
     }

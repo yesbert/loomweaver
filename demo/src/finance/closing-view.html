@@ -5,7 +5,7 @@
 
   <div class="flex flex-col overflow-hidden rounded-lg border border-border bg-surface-raised">
     <div
-      class="hidden shrink-0 grid-cols-[minmax(0,1fr)_12rem_8rem] gap-3 border-b border-border px-4 py-2.5 text-xs font-medium text-content-muted @2xl:grid"
+      class="hidden shrink-0 gap-3 border-b border-border px-4 py-2.5 text-xs font-medium text-content-muted @2xl:grid" [style.grid-template-columns]="columns"
     >
       <span>{{ 'finance.column.period' | transloco }}</span>
       <span>{{ 'finance.column.openItems' | transloco }}</span>
@@ -18,7 +18,7 @@
           class="border-b border-border px-4 py-3 last:border-b-0 @2xl:py-2.5"
           [attr.data-period]="row.month"
         >
-          <span class="hidden grid-cols-[minmax(0,1fr)_12rem_8rem] items-center gap-3 text-sm @2xl:grid">
+          <span class="hidden items-center gap-3 text-sm @2xl:grid" [style.grid-template-columns]="columns">
             <span class="font-medium text-content tabular-nums">{{ row.month }}</span>
             <span class="text-content-muted">
               {{ 'finance.openItemsInPeriod' | transloco: { count: row.openItems } }}

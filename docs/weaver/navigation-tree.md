@@ -26,7 +26,7 @@ language change, and cannot be tested without a browser. Declare it as data and 
 draw it.
 
 ```ts
-// src/notes/src/lib/views/notes-navigation.ts
+// src/notes/src/lib/views/notes-navigation.ts, the shape; recipe 11 has every destination
 export interface Destination {
   readonly path: string;
   readonly label: string;
@@ -42,14 +42,7 @@ export interface Group {
 
 export const NOTES_NAVIGATION = {
   groups: [
-    {
-      key: 'notes/writing',
-      label: 'notes.nav.writing',
-      destinations: [
-        { path: 'notes', label: 'notes.nav.all', icon: 'document' },
-        { path: 'notes/drafts', label: 'notes.nav.drafts', icon: 'edit' },
-      ],
-    },
+    { key: 'notes/writing', label: 'notes.nav.writing', destinations: [/* all notes, drafts */] },
     {
       key: 'notes/archive',
       label: 'notes.nav.archive',
@@ -63,10 +56,11 @@ export const NOTES_NAVIGATION = {
 
 The labels are translation keys, because the tree shows text as given and a template pipe is
 where it becomes a word. The icons are names from the [shipped set](../reference/icons.md); a
-name of your own comes through `ctx.contributeIcons` first. The template draws exactly this shape:
+name of your own comes through `ctx.contributeIcons` first. The template draws exactly this shape;
+here are its groups:
 
 ```html
-<!-- src/notes/src/lib/views/notes-navigation-view.html -->
+<!-- src/notes/src/lib/views/notes-navigation-view.html, the groups; the loose entries follow them -->
 <lw-nav-tree
   [attr.current]="shown()"
   [attr.aria-label]="'notes.nav.title' | transloco"
@@ -86,13 +80,6 @@ name of your own comes through `ctx.contributeIcons` first. The template draws e
         ></lw-nav-item>
       }
     </lw-nav-group>
-  }
-  @for (destination of loose; track destination.path) {
-    <lw-nav-item
-      [attr.path]="destination.path"
-      [attr.icon]="destination.icon"
-      [attr.label]="destination.label | transloco"
-    ></lw-nav-item>
   }
 </lw-nav-tree>
 ```
@@ -116,35 +103,20 @@ happens until you act. The tree navigates nothing itself, so nothing the tree do
 user without your code in between. Acting is one call:
 
 ```ts
-// src/notes/src/lib/plugin/navigation.ts
+// src/notes/src/lib/plugin/navigation.ts, the part that acts; recipe 11 has the whole module
 import type { PluginContext } from '@loomweaver/plugin-sdk';
 
 let ctx: PluginContext | undefined;
-let lastTitle: string | undefined;
 
 export const navigation = {
   bind(next: PluginContext): void {
     ctx = next;
   },
-  unbind(): void {
-    ctx = undefined;
-    lastTitle = undefined;
-  },
   activePath(): string {
     return ctx?.activeContent()?.path ?? '';
   },
-  showingUnder(path: string): boolean {
-    return ctx?.isShowingUnder(path) ?? false;
-  },
   go(path: string): void {
     ctx?.navigateContent(path);
-  },
-  retitle(surfaceId: string, title: string): void {
-    if (!ctx || lastTitle === title) {
-      return;
-    }
-    lastTitle = title;
-    ctx.retitleSurface(surfaceId, title);
   },
 };
 ```
@@ -153,9 +125,9 @@ This module is the bridge between `activate(ctx)` and a component that has no `c
 the [access-gating guide](access-gating.md) uses the same shape for the session. Bind it in
 `activate`, unbind it in `deactivate`.
 
-Here is the one place that says which capabilities a sidebar tree needs. Three of the four `ctx`
-members above are under `navigation`: `activeContent`, `isShowingUnder` and `navigateContent`.
-The fourth, `retitleSurface`, is under `contributions`, which every weaver has. So the manifest
+Here is the one place that says which capabilities a sidebar tree needs. The whole module uses
+four `ctx` members. Three are under `navigation`: `activeContent`, `isShowingUnder` and
+`navigateContent`. The fourth, `retitleSurface`, is under `contributions`, which every weaver has. So the manifest
 declares both, and the distribution grants both, or the first call throws `CapabilityError`:
 
 ```ts
@@ -166,36 +138,15 @@ manifest: {
 },
 ```
 
-The component reads the bridge and hands the event's path on:
+The component reads the bridge and hands the event's path on. Recipe 11 has the whole component,
+with its imports and decorator:
 
 ```ts
-// src/notes/src/lib/views/notes-navigation-view.ts
-import {
-  ChangeDetectionStrategy,
-  Component,
-  CUSTOM_ELEMENTS_SCHEMA,
-  computed,
-  effect,
-} from '@angular/core';
-import { TranslocoPipe } from '@jsverse/transloco';
-import { navigation } from '../plugin/navigation';
-import { NOTES_NAVIGATION } from './notes-navigation';
+// in NotesNavigationView, src/notes/src/lib/views/notes-navigation-view.ts
+protected readonly shown = computed(() => navigation.activePath());
 
-@Component({
-  selector: 'app-notes-navigation',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  imports: [TranslocoPipe],
-  templateUrl: './notes-navigation-view.html',
-})
-export class NotesNavigationView {
-  protected readonly groups = computed(() => NOTES_NAVIGATION.groups);
-  protected readonly loose = NOTES_NAVIGATION.loose;
-  protected readonly shown = computed(() => navigation.activePath());
-
-  protected open(event: Event): void {
-    navigation.go((event as CustomEvent<{ path: string }>).detail.path);
-  }
+protected open(event: Event): void {
+  navigation.go((event as CustomEvent<{ path: string }>).detail.path);
 }
 ```
 
@@ -275,7 +226,7 @@ The demo answers this by drawing only what is reachable. `ContributionRegistry` 
 over it:
 
 ```ts
-// in NotesNavigationView, replacing the `groups` line above
+// in NotesNavigationView, replacing its `groups` line
 import { inject } from '@angular/core';
 import { ContributionRegistry } from '@loomweaver/shell';
 

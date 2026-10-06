@@ -9,22 +9,22 @@
   [class.text-content-muted]="dock() === 'bottom'"
 >
   <div class="flex min-w-0 items-center gap-2">
-    @for (item of startItems(); track item.id) {
-      <lw-shell-bar-item [item]="item" [dock]="dock()" [attr.data-bar-entry]="item.id" />
+    @for (entry of startItems(); track entry.item.id) {
+      <lw-shell-bar-item [entry]="entry" [dock]="dock()" [attr.data-bar-entry]="entry.item.id" />
     }
   </div>
 
   @if (centerItems().length) {
     <div class="mx-auto flex shrink-0 items-center gap-2">
-      @for (item of centerItems(); track item.id) {
-        <lw-shell-bar-item [item]="item" [dock]="dock()" [attr.data-bar-entry]="item.id" />
+      @for (entry of centerItems(); track entry.item.id) {
+        <lw-shell-bar-item [entry]="entry" [dock]="dock()" [attr.data-bar-entry]="entry.item.id" />
       }
     </div>
   }
 
   <div class="ml-auto flex shrink-0 items-center gap-2">
-    @for (item of endItems(); track item.id) {
-      <lw-shell-bar-item [item]="item" [dock]="dock()" [attr.data-bar-entry]="item.id" />
+    @for (entry of endItems(); track entry.item.id) {
+      <lw-shell-bar-item [entry]="entry" [dock]="dock()" [attr.data-bar-entry]="entry.item.id" />
     }
     @if (foldedItems().length) {
       <button
@@ -57,8 +57,8 @@
       [style.position-anchor]="anchorName()"
       [attr.aria-label]="'bar.more' | transloco"
     >
-      @for (item of foldedItems(); track item.id) {
-        <lw-shell-bar-item [item]="item" [dock]="dock()" />
+      @for (entry of foldedItems(); track entry.item.id) {
+        <lw-shell-bar-item [entry]="entry" [dock]="dock()" />
       }
     </div>
   }

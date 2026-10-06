@@ -16,6 +16,8 @@ interface ContactRow {
   templateUrl: './contact-history-view.html',
 })
 export class ContactHistoryView {
+  protected readonly columns = '8rem minmax(0,1fr) 7rem minmax(0,1fr)';
+
   private readonly lang = activeLanguage();
 
   protected readonly rows = computed<readonly ContactRow[]>(() => {
