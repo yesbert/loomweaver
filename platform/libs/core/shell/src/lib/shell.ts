@@ -1,5 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
-import { NgTemplateOutlet } from '@angular/common';
+import { DOCUMENT, NgTemplateOutlet } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import {
@@ -41,6 +41,7 @@ import { hasContentRegion, regionsAt } from './layout/layout-queries';
 export class Shell {
   private readonly layout = inject(SHELL_LAYOUT);
   private readonly panels = inject(PanelState);
+  private readonly document = inject(DOCUMENT);
   protected readonly viewport = inject(ViewportService);
   protected readonly popout = inject(PopoutService);
 
@@ -63,6 +64,13 @@ export class Shell {
       this.topBars.length === 0 &&
       (this.leftFloating().length > 0 || this.rightFloating().length > 0),
   );
+
+  protected skipToContent(event: Event): void {
+    event.preventDefault();
+    this.document
+      .querySelector<HTMLElement>('#lw-main-content')
+      ?.focus({ preventScroll: true });
+  }
 
   protected isOverlayOpen(regionId: string): boolean {
     return this.panels.isOverlayOpen(regionId);

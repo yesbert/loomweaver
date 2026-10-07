@@ -9,6 +9,7 @@
     @if (hasContent) {
       <a
         href="#lw-main-content"
+        (click)="skipToContent($event)"
         class="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-[100] focus:rounded-md focus:bg-surface-raised focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-content focus:shadow-lg focus:outline focus:outline-2 focus:outline-brand"
       >
         {{ 'skip.toContent' | transloco }}

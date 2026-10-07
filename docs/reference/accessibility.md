@@ -15,7 +15,9 @@ the binding guardrail; it complements [`design-tokens.md`](design-tokens.md) (co
 ## What the platform already brings (inherited)
 
 - **Landmarks:** `<header>` (bar) · `<nav>` (rail) · `<main>` (content) · `<aside>` (panel) + a
-  **skip-to-content link** as the first tab stop.
+  **skip-to-content link** as the first tab stop. It moves the focus to the working area without
+  navigating, so it works at every address and under any base, and leaves the address and unsaved
+  work as they were.
 - **Focus:** visible `focus-visible` ring; dialogs have a **focus trap** + focus restore; popups/menus
   follow the **ARIA menu keyboard pattern** (arrow keys/Home/End, Escape closes, focus returns to the trigger).
 - **Live regions:** toasts announce with `role="alert"`/`"status"` depending on urgency.
