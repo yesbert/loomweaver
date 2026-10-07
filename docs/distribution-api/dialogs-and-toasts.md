@@ -54,7 +54,9 @@ No switch governs dialogs or toasts.
 **Shared options.** `confirm`, `alert` and `prompt` share `title?`, `message` (Markdown), `tone?` and
 `icon?`, plus their own labels. `confirm` additionally takes `requireConfirmation`, a typed guard for
 a destructive action. Its `validate` returns `null` to allow and a string to block: a non-empty
-string is shown as the reason, an empty one blocks silently.
+string is shown as the reason, an empty one blocks silently. The field is named by the guard's
+`label`, and a reason is announced as its description, so the label is what a screen reader reads
+out for the field. In `prompt` the `message` names the field.
 
 **Progress.** `progress()` returns a handle you close yourself; `withProgress()` ties the dialog to a
 promise and is what you want almost always.

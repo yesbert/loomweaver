@@ -585,7 +585,7 @@ interface PluginSession {           // ctx.session ([session] cap): imperative s
 // applied first in the mode it asks for, the command's after and hide-only. One rule for every dock and the palette.
 // CLIENT-SIDE GATING IS PRESENTATION, NOT SECURITY — the real boundary is server-side.
 interface AccessRequirement { authenticated?: boolean; anyRole?: readonly string[]; allRoles?: readonly string[]; mode?: 'hide' | 'disable'; }
-// Dialog tones: 'default'|'info'|'success'|'warning'|'danger'. requireConfirmation.validate: (v) => string|null (null=allow, ''=block silently).
+// Dialog tones: 'default'|'info'|'success'|'warning'|'danger'. requireConfirmation.validate: (v) => string|null (null=allow, ''=block silently; a non-empty reason is announced as the field's description). The typed field is named by requireConfirmation.label, a prompt's field by its message, so write those as what a screen reader should read out.
 // Exported names behind the shapes above, so that your own code can spell them:
 //   CAPABILITIES (the Capability union as a readonly array, canonical order) · CommandScalar = string | number | boolean ·
 //   CommandArgumentValue = CommandScalar | readonly CommandScalar[] · CommandArgumentBase + SimpleCommandArgument + ChoiceCommandArgument

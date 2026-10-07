@@ -219,6 +219,10 @@ the session or the words change, without asking again. Activating an entry is re
 runs in the workbench with the `context`, through the same place every trigger runs through, so a
 refusal or a failure is handled as it is for any other trigger.
 
+The toolbar is announced by the title the slot was registered with, worded the same way. A `label`
+the surface sets on the element is kept as its name instead; inside the frame it is taken as
+written, so word it in the surface's own language.
+
 An entry that opens a menu says so with `opensMenu`. Activating it asks the workbench for that
 entry's menu, and the answer is the menu the page would open for the same entry: matched against
 the entry's context, with the heading the entry declares. The kit draws it inside the surface,
