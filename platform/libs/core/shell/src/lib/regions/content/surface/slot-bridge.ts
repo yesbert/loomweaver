@@ -43,6 +43,7 @@ export function frameSlotView(view: ToolbarSlotView): LwSlotView {
       pressed: entry.pressed,
       disabled: entry.disabled,
       opensMenu: entry.opensMenu,
+      variant: entry.variant,
     })),
   };
 }

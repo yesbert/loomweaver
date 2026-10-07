@@ -11,6 +11,12 @@
   .lw-toolbar-entry--text {
     @apply flex w-auto items-center gap-1 px-2 text-sm text-content-faint transition-colors hover:bg-surface-overlay hover:text-content;
   }
+  .lw-toolbar-entry--button {
+    @apply w-auto px-3 md:w-auto;
+  }
+  .lw-toolbar-entry--button.lw-btn--icon {
+    @apply w-10 px-0 md:w-7;
+  }
   .lw-toolbar-entry:disabled {
     @apply pointer-events-none opacity-40;
   }
@@ -19,6 +25,12 @@
   }
   .lw-toolbar--sm .lw-toolbar-entry--text {
     @apply w-auto;
+  }
+  .lw-toolbar--sm .lw-toolbar-entry--button {
+    @apply w-auto px-2 text-xs md:w-auto;
+  }
+  .lw-toolbar--sm .lw-toolbar-entry--button.lw-btn--icon {
+    @apply w-8 px-0 md:w-8;
   }
   .lw-toolbar-shortcut {
     @apply rounded border border-border bg-surface-overlay px-1 text-[0.6875rem] leading-tight text-content-muted;

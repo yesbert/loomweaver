@@ -47,6 +47,16 @@ export interface LwStateApi {
   apply(key: string, value: unknown, loaded: boolean): void;
 }
 
+/** The look of a button an entry is drawn with, the vocabulary `<lw-button variant>` takes. */
+export type LwSlotVariant =
+  | 'primary'
+  | 'default'
+  | 'success'
+  | 'danger'
+  | 'warning'
+  | 'info'
+  | 'ghost';
+
 export interface LwSlotEntry {
   readonly key: string;
   readonly label: string;
@@ -57,6 +67,8 @@ export interface LwSlotEntry {
   readonly pressed?: boolean;
   readonly disabled?: boolean;
   readonly opensMenu?: boolean;
+  /** Already narrowed by the workbench: `primary` only where the slot's owner asked for it. */
+  readonly variant?: LwSlotVariant;
 }
 
 /** The heading of a menu an entry opens, already worded. `leadsTo` names what activating it runs. */

@@ -224,6 +224,10 @@ entry's menu, and the answer is the menu the page would open for the same entry:
 the entry's context, with the heading the entry declares. The kit draws it inside the surface,
 beside the entry, with the same drawing the page uses.
 
+An entry that names a `variant` is pushed with it, already narrowed: `primary` arrives only where
+the slot's owner asked for it, so the surface draws what it is told and cannot promote an entry
+another plugin contributed. The kit draws each variant as the same toolbar in the page draws it.
+
 What does not come across: a cell another plugin registered with `registerToolbarCell`. It is code,
 and code does not cross the boundary; the surface gets the declarative entries alone. The context
 you give the element must be named values only (strings, numbers, booleans); anything else is

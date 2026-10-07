@@ -330,6 +330,10 @@ export class ContributionRegistry {
     );
   }
 
+  ownerOfSurface(id: string): string | undefined {
+    return this.surfacesSignal().find((entry) => entry.id === id)?.pluginId;
+  }
+
   actionsOf(id: string | undefined): readonly ViewAction[] {
     if (id === undefined) {
       return [];
