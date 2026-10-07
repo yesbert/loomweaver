@@ -19,4 +19,4 @@
 
 - [x] 4.1 `docs/reference/accessibility.md`: the skip link as the requirement states it
 - [x] 4.2 `openspec validate --all --strict`
-- [ ] 4.3 Note in the PR that this closes NextPA finding F-043
+- [x] 4.3 Note in the PR that this closes NextPA finding F-043
