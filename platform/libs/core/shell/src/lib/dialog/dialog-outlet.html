@@ -103,24 +103,28 @@
               </div>
             } @else {
               @if (d.message) {
-                <lw-markdown [source]="d.message | transloco" />
+                <lw-markdown [attr.id]="d.id + '-question'" [source]="d.message | transloco" />
               }
               @if (d.requireLabel) {
-                <lw-markdown [source]="d.requireLabel | transloco" />
+                <lw-markdown [attr.id]="d.id + '-label'" [source]="d.requireLabel | transloco" />
               }
               @if (d.promptValue) {
+                @let reason = guardError(d);
                 <input
                   type="text"
                   class="lw-field"
-                  [class.lw-field--invalid]="guardError(d)"
+                  [class.lw-field--invalid]="reason"
+                  [attr.aria-labelledby]="fieldLabel(d)"
+                  [attr.aria-describedby]="reason ? d.id + '-reason' : null"
+                  [attr.aria-invalid]="reason ? 'true' : null"
                   [value]="d.promptValue()"
                   [attr.placeholder]="d.placeholder ? (d.placeholder | transloco) : null"
                   (input)="onPromptInput(d, $event)"
                   (keydown.enter)="onEnter(d)"
                   data-lw-autofocus
                 />
-                @if (guardError(d); as error) {
-                  <p class="text-xs text-negative">{{ error | transloco }}</p>
+                @if (reason) {
+                  <p [attr.id]="d.id + '-reason'" class="text-xs text-negative">{{ reason | transloco }}</p>
                 }
               }
             }

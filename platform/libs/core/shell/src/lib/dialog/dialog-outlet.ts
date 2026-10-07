@@ -188,6 +188,13 @@ export class DialogOutlet {
     );
   }
 
+  protected fieldLabel(dialog: DialogInstance): string | null {
+    if (dialog.requireLabel) {
+      return `${dialog.id}-label`;
+    }
+    return dialog.message ? `${dialog.id}-question` : null;
+  }
+
   protected guardError(dialog: DialogInstance): string | null {
     const value = dialog.promptValue?.() ?? '';
     return value.length === 0 ? null : validationError(dialog, value);
