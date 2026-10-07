@@ -76,6 +76,14 @@
     "en": "English",
     "de": "Deutsch"
   },
+  "landmark": {
+    "topBar": "Obere Leiste",
+    "statusBar": "Statusleiste",
+    "panelFooter": "Fußleiste des Panels",
+    "leftPanel": "Linkes Panel",
+    "rightPanel": "Rechtes Panel",
+    "content": "Inhalt"
+  },
   "notification": {
     "region": "Benachrichtigungen",
     "dismiss": "Schließen"

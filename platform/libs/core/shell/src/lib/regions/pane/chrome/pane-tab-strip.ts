@@ -36,7 +36,7 @@ import {
 } from '../drag/pane-move.service';
 import { RovingTabs } from './roving-tabs.directive';
 import { StripOverflow } from './strip-overflow.directive';
-import { StripTab, TabAcceptance, tabMenuContext } from './strip-tab';
+import { StripTab, TabAcceptance, tabIdIn, tabMenuContext } from './strip-tab';
 import { SurfaceActions } from '../../content/actions/surface-actions';
 
 @Component({
@@ -84,6 +84,8 @@ export class PaneTabStrip {
   readonly canAddTab = input(false);
 
   readonly paneActions = input<TemplateRef<unknown> | null>(null);
+
+  readonly panelId = input<string | null>(null);
 
   readonly surfaceActions = input(false);
 
@@ -213,6 +215,14 @@ export class PaneTabStrip {
 
   protected isActive(tab: StripTab): boolean {
     return this.activeId() === tab.path;
+  }
+
+  protected tabId(tab: StripTab): string {
+    return tabIdIn(this.stripId(), tab.path);
+  }
+
+  protected controls(tab: StripTab): string | null {
+    return this.isActive(tab) ? this.panelId() : null;
   }
 
   protected menuSlotFor(tab: StripTab): string {

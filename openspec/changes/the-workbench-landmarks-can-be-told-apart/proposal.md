@@ -60,9 +60,12 @@ None.
 - `platform/libs/core/shell/src/lib/shell-edge.html` and
   `platform/libs/core/shell/src/lib/regions/panel/shell-panel.html`: the named complementary region
   around header and panel.
-- `platform/libs/core/shell/src/lib/regions/content/`: the content grid carries `main`.
-- `platform/libs/core/shell/src/lib/regions/pane/pane-view.html` and the pane tab strip: tab panels,
-  `aria-controls`, and the address pane's body no longer `main` itself.
+- `platform/libs/core/shell/src/lib/shell.html`: a `<main>` around the content grid, and the drawer
+  as an `<aside>`.
+- `platform/libs/core/shell/src/lib/regions/pane/pane-view.html`, the pane tab strip, the sidebar
+  header and the panel: tab panels, tab ids, `aria-controls`, and the address pane's body no longer
+  `main` itself.
+- `platform/tools/checks/bundle-size-baseline.json`: the testbed's ceiling moves from 940 to 945 kB.
 - `platform/libs/core/shell/src/lib/i18n/en.json`, `de.json`: the landmark names.
 - `platform/apps/loom-testbed-e2e/src/a11y.spec.ts`: the landmark rules over a split content area.
 - `docs/reference/accessibility.md`: the landmarks as the requirement states them.

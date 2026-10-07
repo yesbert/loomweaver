@@ -119,6 +119,23 @@ describe('PaneTabStrip', () => {
     tab({ path: 'anchored', pinned: true }),
   ];
 
+  it('names each tab by an id of its own, and lets only the active one name the panel it controls', () => {
+    create([tab({ path: 'a' }), tab({ path: 'b' })]);
+    fixture.componentRef.setInput('panelId', 'pane-body');
+    fixture.detectChanges();
+
+    expect(tabByPath('a')?.id).toBe('pane-strip:content:main:tab:a');
+    expect(tabByPath('b')?.id).toBe('pane-strip:content:main:tab:b');
+    expect(tabByPath('a')?.getAttribute('aria-controls')).toBe('pane-body');
+    expect(tabByPath('b')?.hasAttribute('aria-controls')).toBe(false);
+  });
+
+  it('names no panel where the holder of the strip gives none', () => {
+    create([tab({ path: 'a' })]);
+
+    expect(tabByPath('a')?.hasAttribute('aria-controls')).toBe(false);
+  });
+
   it('lets a tab that cannot be closed be reordered and dragged', () => {
     create(movable, [], { reorderable: true, draggable: true });
 

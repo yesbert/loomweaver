@@ -13,7 +13,11 @@ import { PanelState } from './panel-state';
 import { PanelGroupService } from './panel-group.service';
 import { ViewMoveService } from './view-move.service';
 import { PANEL_STRIP_CONTEXT_MENU } from './view-context-menu';
-import { StripTab, VIEW_CONTEXT_MENU } from '../pane/chrome/strip-tab';
+import {
+  StripTab,
+  VIEW_CONTEXT_MENU,
+  panelIdIn,
+} from '../pane/chrome/strip-tab';
 import {
   isViewPanePath,
   PaneRef,
@@ -74,6 +78,8 @@ export class ShellSidebarHeader {
   }));
 
   protected readonly stripId = computed(() => stripIdOf(this.source()));
+
+  protected readonly panelId = computed(() => panelIdIn(this.stripId()));
 
   protected readonly hostId = computed(() => `panel-views-${this.region().id}`);
 

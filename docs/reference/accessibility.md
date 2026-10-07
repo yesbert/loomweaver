@@ -14,8 +14,13 @@ the binding guardrail; it complements [`design-tokens.md`](design-tokens.md) (co
 
 ## What the platform already brings (inherited)
 
-- **Landmarks:** `<header>` (bar) · `<nav>` (rail) · `<main>` (content) · `<aside>` (panel) + a
-  **skip-to-content link** as the first tab stop. It moves the focus to the working area without
+- **Landmarks:** a banner for the top row of bars, `<nav>` for the rail, and one `<main>` for the
+  content area however it is split. Each side panel is a named `<aside>`, and the bars at the bottom
+  share one `<footer>`. Each landmark is named in the interface language, and each bar inside a
+  row is a named group rather than a landmark of its own. Every pane body is a `tabpanel` named by
+  its active tab, which names the panel back with `aria-controls`. Where a side panel's header
+  floats in the top row, its strip lies in the banner rather than in the panel's region.
+- A **skip-to-content link** as the first tab stop. It moves the focus to the working area without
   navigating, so it works at every address and under any base, and leaves the address and unsaved
   work as they were.
 - **Focus:** visible `focus-visible` ring; dialogs have a **focus trap** + focus restore; popups/menus

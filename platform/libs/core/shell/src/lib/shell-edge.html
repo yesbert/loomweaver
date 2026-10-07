@@ -9,11 +9,12 @@
       <lw-shell-rail [region]="region" />
     }
   }
-  @if (!viewport.compact()) {
-    <div
+  @if (!viewport.compact() && panels().length) {
+    <aside
       class="flex flex-col overflow-hidden border-border"
       [class.border-l]="side() === 'left' && railDivider()"
       [class.border-r]="side() === 'right' && railDivider()"
+      [attr.aria-label]="panelNameKey() | transloco"
     >
       @for (panel of panels(); track panel.id) {
         <lw-shell-sidebar-header
@@ -27,7 +28,7 @@
           <lw-shell-panel [region]="region" />
         }
       </div>
-    </div>
+    </aside>
   }
   @if (side() === 'right') {
     @for (region of rails(); track region.id) {

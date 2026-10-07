@@ -80,7 +80,8 @@ function stubLayout(
   Object.defineProperty(Element.prototype, 'clientWidth', {
     configurable: true,
     get(this: Element) {
-      return this.tagName === 'HEADER' ? barWidth : 0;
+      const isBar = this.getAttribute('role') === 'group' && this.id === '';
+      return isBar ? barWidth : 0;
     },
   });
   return () => {
@@ -151,7 +152,10 @@ describe('ShellBar folding', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const tray = host.querySelector<HTMLElement>('[role="group"]');
+    const trayId =
+      host.querySelector('[data-bar-fold]')?.getAttribute('aria-controls') ??
+      '';
+    const tray = host.querySelector<HTMLElement>(`#${CSS.escape(trayId)}`);
     expect(tray?.querySelectorAll('lw-test-entry')).toHaveLength(1);
     expect(entriesInBar(fixture)).toEqual(['a', 'b']);
     expect(
@@ -164,7 +168,7 @@ describe('ShellBar folding', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(host.querySelector('[role="group"]')).toBeNull();
+    expect(host.querySelector(`#${CSS.escape(trayId)}`)).toBeNull();
   });
 });
 
@@ -212,7 +216,9 @@ describe('ShellBar', () => {
       fixture.detectChanges();
       const buttons = () => {
         fixture.detectChanges();
-        return (fixture.nativeElement as HTMLElement).querySelectorAll('button');
+        return (fixture.nativeElement as HTMLElement).querySelectorAll(
+          'button',
+        );
       };
       return { registry, buttons };
     }

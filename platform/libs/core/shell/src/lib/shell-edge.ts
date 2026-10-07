@@ -1,4 +1,5 @@
 import { Component, computed, inject, input } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { SHELL_LAYOUT, LayoutRegion } from './layout/layout';
 import { regionsAt } from './layout/layout-queries';
 import { ViewportService } from './layout/viewport.service';
@@ -9,7 +10,7 @@ import { ShellRail } from './regions/rail/shell-rail';
 
 @Component({
   selector: 'lw-shell-edge',
-  imports: [ShellRail, ShellPanel, ShellSidebarHeader],
+  imports: [ShellRail, ShellPanel, ShellSidebarHeader, TranslocoPipe],
   templateUrl: './shell-edge.html',
   host: {
     class: 'flex flex-col overflow-hidden border-border',
@@ -33,6 +34,10 @@ export class ShellEdge {
 
   private readonly anyPanelOpen = computed(() =>
     this.panels().some((panel) => !this.panelState.isCollapsed(panel.id)),
+  );
+
+  protected readonly panelNameKey = computed(() =>
+    this.side() === 'left' ? 'landmark.leftPanel' : 'landmark.rightPanel',
   );
 
   protected readonly hasBody = computed(

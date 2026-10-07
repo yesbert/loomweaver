@@ -14,7 +14,13 @@ import { PaneContainersService } from './container/pane-containers.service';
 import { PaneChromeService } from './chrome/pane-chrome.service';
 import { PaneActions } from './pane-actions.service';
 import { PaneTabStrip } from './chrome/pane-tab-strip';
-import { StripTab, VIEW_CONTEXT_MENU } from './chrome/strip-tab';
+import {
+  StripTab,
+  VIEW_CONTEXT_MENU,
+  panelIdIn,
+  tabIdIn,
+} from './chrome/strip-tab';
+import { stripIdOf } from './drag/pane-move.service';
 import { PaneToolbar } from './chrome/pane-toolbar';
 import { escalationStep } from './chrome/tab-escalation';
 import {
@@ -40,6 +46,8 @@ import { TAB_CONTEXT_MENU } from '../content/tabs/tab-context-menu';
 import { FeatureSwitches } from '../../features/feature-switches.service';
 import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { CONTENT_PANE_OPTIONS, PaneViewOptions } from './pane-view-options';
+
+const MAIN_CONTENT_ID = 'lw-main-content';
 
 @Component({
   selector: 'lw-pane-view',
@@ -142,6 +150,29 @@ export class PaneView {
   protected readonly carriesAddress = computed(() =>
     this.paneTree.carriesAddress(this.pane()),
   );
+
+  private readonly stripId = computed(() => stripIdOf(this.pane()));
+
+  protected readonly panelId = computed(() =>
+    this.carriesAddress() ? MAIN_CONTENT_ID : panelIdIn(this.stripId()),
+  );
+
+  private readonly labellingTab = computed(() => {
+    if (this.carriesAddress()) {
+      const active = this.tabs.activeViewPath() ?? this.tabs.activeTabRoot();
+      const drawn =
+        this.tabs.showStrip() &&
+        this.tabs.tabs().some((tab) => tab.path === active);
+      return drawn ? active : null;
+    }
+    const active = this.activeTabId();
+    return this.stripTabs().some((tab) => tab.path === active) ? active : null;
+  });
+
+  protected readonly panelLabelledBy = computed(() => {
+    const path = this.labellingTab();
+    return path === null ? null : tabIdIn(this.stripId(), path);
+  });
 
   protected readonly bodyPath = computed(() =>
     this.carriesAddress()

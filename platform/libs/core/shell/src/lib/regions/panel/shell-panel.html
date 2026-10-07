@@ -1,4 +1,4 @@
-<aside
+<div
   class="relative flex h-full shrink-0 flex-col overflow-hidden border-border bg-surface transition-[width] duration-300 ease-out"
   [style.width]="widthStyle()"
   [style.transition]="size.isResizing() ? 'none' : null"
@@ -38,6 +38,9 @@
         <div
           class="@container/surface flex min-h-0 min-w-0 flex-1 flex-col overflow-auto text-content"
           [class.p-3]="padded()"
+          [attr.id]="panelId()"
+          [attr.role]="panelLabelledBy() ? 'tabpanel' : null"
+          [attr.aria-labelledby]="panelLabelledBy()"
         >
           @if (view.iframe) {
             <ng-container
@@ -59,6 +62,9 @@
       } @else if (activeContentPath(); as path) {
         <lw-surface-body
           class="min-h-0 min-w-0 flex-1"
+          [attr.id]="panelId()"
+          [attr.role]="panelLabelledBy() ? 'tabpanel' : null"
+          [attr.aria-labelledby]="panelLabelledBy()"
           [path]="path"
           variant="panel"
           [retentionScope]="primaryScope()"
@@ -72,4 +78,4 @@
       <lw-shell-bar [region]="footer" class="shrink-0" />
     }
   }
-</aside>
+</div>

@@ -21,7 +21,11 @@
       }
 
       <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
-        <div class="flex">
+        <div
+          class="flex"
+          [attr.role]="hasTopRow() ? 'banner' : null"
+          [attr.aria-label]="hasTopRow() ? ('landmark.topBar' | transloco) : null"
+        >
           @for (panel of leftFloating(); track panel.id) {
             <lw-shell-sidebar-header [region]="panel" context="floating" />
           }
@@ -37,7 +41,9 @@
         </div>
         <div class="flex flex-1 overflow-hidden">
           @if (hasContent) {
-            <lw-content-grid class="min-w-0 flex-1" />
+            <main class="flex min-w-0 flex-1" [attr.aria-label]="'landmark.content' | transloco">
+              <lw-content-grid class="min-w-0 flex-1" />
+            </main>
           }
         </div>
       </div>
@@ -71,8 +77,12 @@
       }
     </div>
 
-    @for (region of bottomBars; track region.id) {
-      <lw-shell-bar [region]="region" />
+    @if (bottomBars.length) {
+      <footer [attr.aria-label]="'landmark.statusBar' | transloco">
+        @for (region of bottomBars; track region.id) {
+          <lw-shell-bar [region]="region" />
+        }
+      </footer>
     }
   </div>
 }
@@ -80,7 +90,7 @@
 <lw-dialog-outlet />
 
 <ng-template #drawer let-panel let-side="side">
-  <div
+  <aside
     class="absolute inset-y-0 z-50 flex flex-col overflow-hidden shadow-xl transition duration-300 ease-out will-change-transform"
     [class.left-0]="side === 'left'"
     [class.right-0]="side === 'right'"
@@ -89,6 +99,7 @@
     [class.opacity-0]="!isOverlayOpen(panel.id)"
     [attr.inert]="isOverlayOpen(panel.id) ? null : ''"
     [attr.aria-hidden]="!isOverlayOpen(panel.id)"
+    [attr.aria-label]="(side === 'left' ? 'landmark.leftPanel' : 'landmark.rightPanel') | transloco"
   >
     @if (isOverlayOpen(panel.id)) {
       <lw-shell-sidebar-header [region]="panel" context="drawer" />
@@ -96,5 +107,5 @@
         <lw-shell-panel [region]="panel" />
       </div>
     }
-  </div>
+  </aside>
 </ng-template>

@@ -25,30 +25,44 @@ the best-practice landmark rules never ran. See proposal.md for the failure.
 
 ## Decisions
 
-**The content area is `main`, not the focused pane.** The content grid's host carries `role="main"`
-with a translated name. A landmark that follows the focus would move whenever the person clicks
+**The content area is `main`, not the focused pane.** A real `<main>` element with a translated
+name wraps the content grid. A landmark that follows the focus would move whenever the person clicks
 another pane, and the regions list a screen reader shows would change under them. The address
 pane's body keeps `id="lw-main-content"` and `tabindex="-1"`, so the skip link still lands in the
 content rather than on the edge of `main`.
 
-**Every pane body is a `tabpanel`, labelled by its active tab.** The pane view gives its body
-`role="tabpanel"` and `aria-labelledby` pointing at the active tab's id; the strip gives each tab
-`aria-controls` pointing at its pane's body. One panel per pane rather than one per tab, because a
-pane renders only the active tab's surface; the label follows the active tab. A pane with a single
-surface and no strip (the address pane header) labels its body from that header's title.
+**Real elements rather than roles on wrappers, found during implementation.** The first cut put
+`role="main"` on the grid's host and `role="complementary"` on the panel column. The audit then
+reported a plugin's own `<header>` inside a surface as a second banner, because the audit scopes a
+`<header>` by the elements around it, not by roles. Any distribution whose plugins use `<header>`
+would have met it. A real `<main>` and real `<aside>` elements (the column beside the content, and
+the drawer on a narrow viewport) keep a plugin's interior out of the workbench's landmarks.
+
+**Every pane body is a `tabpanel`, labelled by its active tab.** Each tab gets an id derived from
+its strip's id and its path; the pane body gets an id derived from the strip's id, except the
+address pane's body, which keeps `lw-main-content`. The body carries `role="tabpanel"` and
+`aria-labelledby` naming the active tab, and the active tab alone carries `aria-controls` naming the
+body, because the others' surfaces are not drawn. The strip names a panel only where its holder
+passes one, so a strip without a body of its own never points at nothing. Where no tab is drawn for
+the active surface (the strip hidden, or a home tab left out), the body carries neither the role nor
+the label, rather than a label that resolves to nothing. The side panel's primary body, drawn by the
+panel rather than by a pane view, takes the same role from the sidebar header's strip.
 
 **A side panel's region wraps header and panel where they sit together.** In `shell-edge.html` the
 column that already holds the panel headers and panels becomes the `<aside>`, named per side ("Left
-panel", "Right panel", translated). Naming by side rather than by the active view keeps the name
-stable while the person switches views, which is what a region list needs. In the compact drawer the
-drawer element takes the role. Where a header floats in the top row, the strip stays in the banner;
-the alternative was moving the header, rejected above.
+panel", "Right panel", translated), and is drawn only on a side that declares a panel. Naming by
+side rather than by the active view keeps the name stable while the person switches views, which is
+what a region list needs. On a narrow viewport the drawer is the `<aside>`. Where a header floats in
+the top row, the strip stays in the banner; the alternative was moving the header, rejected above.
 
-**The rows are the landmarks, the bars are groups.** The top row in `shell.html` becomes `<header>`
-and the bottom bars are wrapped in one `<footer>`, both named ("Top bar", "Status bar", translated).
-`shell-bar.html` draws a `<div role="group">` named by the bar's region title, or by its dock where
-it has none. The alternative, the first bar as banner and the rest as groups, makes the landmark
-depend on the order a distribution declares its bars in.
+**The rows are the landmarks, the bars are groups.** The top row in `shell.html` carries
+`role="banner"` while it holds a bar or a floating panel header, and the bottom bars are wrapped in
+one `<footer>`; both are named ("Top bar", "Status bar", translated). The top row stays a `div` with
+the role because it is also the row that lays out floating panel headers, and an empty `<header>`
+would be a banner with nothing in it. `shell-bar.html` draws a `<div role="group">` named by its
+dock ("Top bar", "Status bar", "Panel footer"), since a region declares no title. The alternative,
+the first bar as banner and the rest as groups, makes the landmark depend on the order a
+distribution declares its bars in.
 
 **The audit runs the landmark rules.** `a11y.spec.ts` gains a case that splits the content area and
 runs `landmark-no-duplicate-banner`, `landmark-no-duplicate-contentinfo`, `landmark-one-main`,

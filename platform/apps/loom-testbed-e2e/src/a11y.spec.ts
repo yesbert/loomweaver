@@ -189,3 +189,97 @@ test.describe('Accessibility (WCAG 2.1 AA)', () => {
     await scan(page);
   });
 });
+
+const LANDMARK_RULES = [
+  'landmark-banner-is-top-level',
+  'landmark-contentinfo-is-top-level',
+  'landmark-complementary-is-top-level',
+  'landmark-main-is-top-level',
+  'landmark-no-duplicate-banner',
+  'landmark-no-duplicate-contentinfo',
+  'landmark-no-duplicate-main',
+  'landmark-one-main',
+  'landmark-unique',
+  'region',
+];
+
+test.describe('Landmarks over a split workbench', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/entry/e-01');
+    await expect(page.locator('#lw-main-content textarea')).toBeVisible();
+    await page.getByRole('button', { name: 'Split right' }).click();
+    await expect(
+      page.locator('lw-pane-view:not([data-address-pane]) lw-surface-body'),
+    ).toBeVisible();
+  });
+
+  test('the landmark rules pass', async ({ page }) => {
+    const { violations } = await new AxeBuilder({ page })
+      .withRules(LANDMARK_RULES)
+      .analyze();
+    expect(
+      violations,
+      JSON.stringify(
+        violations.map((v) => ({
+          id: v.id,
+          targets: v.nodes.map((node) => node.target.join(' ')),
+        })),
+        null,
+        2,
+      ),
+    ).toEqual([]);
+  });
+
+  test('one main holds both panes and their strips', async ({ page }) => {
+    const main = page.getByRole('main');
+    await expect(main).toHaveCount(1);
+    await expect(main.locator('lw-pane-view')).toHaveCount(2);
+    await expect(
+      main.locator('lw-pane-tab-strip [role="tablist"]'),
+    ).toHaveCount(2);
+  });
+
+  test('each pane body is a tab panel named by its active tab', async ({
+    page,
+  }) => {
+    const panels = page.getByRole('main').getByRole('tabpanel');
+    await expect(panels).toHaveCount(2);
+    for (const panel of await panels.all()) {
+      const tab = page.locator(
+        `[role="tab"][id="${await panel.getAttribute('aria-labelledby')}"]`,
+      );
+      await expect(tab).toHaveAttribute('aria-selected', 'true');
+      await expect(tab).toHaveAttribute(
+        'aria-controls',
+        (await panel.getAttribute('id')) ?? '',
+      );
+    }
+  });
+
+  test('the side panels are told apart and hold their strips', async ({
+    page,
+  }) => {
+    const left = page.getByRole('complementary', { name: 'Left panel' });
+    await expect(left).toHaveCount(1);
+    await expect(left.getByRole('tablist')).toHaveCount(1);
+    const panel = left.getByRole('tabpanel');
+    await expect(panel).toHaveCount(1);
+    await expect(
+      left.locator(
+        `[role="tab"][id="${await panel.getAttribute('aria-labelledby')}"]`,
+      ),
+    ).toHaveAttribute('aria-controls', (await panel.getAttribute('id')) ?? '');
+    await expect(
+      page.getByRole('complementary', { name: 'Right panel' }),
+    ).toHaveCount(1);
+  });
+
+  test('the bars are one banner and one content-info region', async ({
+    page,
+  }) => {
+    await expect(page.getByRole('banner', { name: 'Top bar' })).toHaveCount(1);
+    await expect(
+      page.getByRole('contentinfo', { name: 'Status bar' }),
+    ).toHaveCount(1);
+  });
+});

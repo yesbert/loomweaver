@@ -44,6 +44,7 @@
     [contextGroup]="region().id"
     [overflow]="true"
     [paneActions]="trailing"
+    [panelId]="panelId()"
     (selectTab)="select($event)"
     (reorderTabs)="onReorder($event)"
     (keydown)="onStripKeydown($event)"

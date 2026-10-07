@@ -59,6 +59,12 @@ export class Shell {
   protected readonly rightFloating = computed(() =>
     this.floating(this.rightPanels),
   );
+  protected readonly hasTopRow = computed(
+    () =>
+      this.topBars.length > 0 ||
+      this.leftFloating().length > 0 ||
+      this.rightFloating().length > 0,
+  );
   protected readonly needsHeaderSpacer = computed(
     () =>
       this.topBars.length === 0 &&
