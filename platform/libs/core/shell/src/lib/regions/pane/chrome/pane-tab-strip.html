@@ -39,6 +39,8 @@
           [lwMenu]="menuSlotFor(tab)"
           [lwMenuContext]="tabContext(tab)"
           [attr.aria-selected]="isActive(tab)"
+          [attr.id]="tabId(tab)"
+          [attr.aria-controls]="controls(tab)"
           [attr.aria-label]="unsaved(tab) ? ('content.unsavedTab' | transloco: { title: named }) : named"
           [attr.data-reorder-id]="canReorder(tab) ? tab.path : null"
           [attr.data-reorder-band]="bandOf(tab)"
@@ -78,6 +80,8 @@
             role="tab"
             cdkDragHandle
             [attr.aria-selected]="isActive(tab)"
+            [attr.id]="tabId(tab)"
+            [attr.aria-controls]="controls(tab)"
             [attr.aria-label]="unsaved(tab) ? ('content.unsavedTab' | transloco: { title: named }) : named"
             [attr.data-reorder-id]="canReorder(tab) ? tab.path : null"
             [attr.data-reorder-band]="bandOf(tab)"

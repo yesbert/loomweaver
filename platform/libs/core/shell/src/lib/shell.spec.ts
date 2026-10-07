@@ -47,9 +47,25 @@ describe('Shell', () => {
     const fixture = TestBed.createComponent(Shell);
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('header')?.textContent).toContain(
+    expect(compiled.querySelector('[role="banner"]')?.textContent).toContain(
       'LoomWeaver',
     );
+  });
+
+  it('draws one banner, one main and one content-info region, each named', async () => {
+    const fixture = TestBed.createComponent(Shell);
+    await fixture.whenStable();
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    expect(compiled.querySelectorAll('[role="banner"]')).toHaveLength(1);
+    expect(compiled.querySelectorAll('header')).toHaveLength(0);
+    expect(compiled.querySelectorAll('main')).toHaveLength(1);
+    expect(compiled.querySelectorAll('footer')).toHaveLength(1);
+    for (const landmark of compiled.querySelectorAll(
+      '[role="banner"], main, footer',
+    )) {
+      expect(landmark.getAttribute('aria-label')).toBeTruthy();
+    }
   });
 
   it('moves the focus to the working area without following the link', async () => {

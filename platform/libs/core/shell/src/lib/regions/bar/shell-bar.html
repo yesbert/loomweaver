@@ -1,5 +1,7 @@
-<header
+<div
   #bar
+  role="group"
+  [attr.aria-label]="nameKey() | transloco"
   class="flex items-center gap-2 overflow-hidden border-border bg-surface px-2 md:px-4"
   [class.border-b]="dock() === 'top'"
   [class.h-12]="dock() === 'top'"
@@ -62,4 +64,4 @@
       }
     </div>
   }
-</header>
+</div>

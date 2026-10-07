@@ -59,8 +59,11 @@ describe('a panel with a declared width', () => {
     const fixture = TestBed.createComponent(ShellPanel);
     fixture.componentRef.setInput('region', region);
     fixture.detectChanges();
-    return (fixture.nativeElement.querySelector('aside') as HTMLElement).style
-      .width;
+    return (
+      (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(
+        ':scope > div',
+      )?.style.width ?? ''
+    );
   }
 
   beforeEach(() => localStorage.clear());

@@ -16,6 +16,7 @@
     [viewContextMenuSlot]="viewContextMenu()"
     [contextGroup]="dock()"
     [paneActions]="paneActions"
+    [panelId]="panelId()"
     [surfaceActions]="options().surfaceActions"
     (selectTab)="onSelectTab($event)"
     (escalate)="onEscalate($event)"
@@ -44,8 +45,9 @@
 
 <div
   class="relative flex min-h-0 min-w-0 flex-1 flex-col outline-none"
-  [attr.id]="carriesAddress() ? 'lw-main-content' : null"
-  [attr.role]="carriesAddress() ? 'main' : null"
+  [attr.id]="panelId()"
+  [attr.role]="panelLabelledBy() ? 'tabpanel' : null"
+  [attr.aria-labelledby]="panelLabelledBy()"
   [attr.tabindex]="carriesAddress() ? -1 : null"
   (pointerdown)="onBodyPointerDown()"
 >

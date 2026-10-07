@@ -3,6 +3,14 @@ import { CONTENT_DOCK, viewIdOfPanePath } from '../tree/pane-address';
 
 export const VIEW_CONTEXT_MENU = 'panel/view/context';
 
+export function tabIdIn(stripId: string, path: string): string {
+  return `${stripId}:tab:${path}`;
+}
+
+export function panelIdIn(stripId: string): string {
+  return `${stripId}:panel`;
+}
+
 export interface StripTab {
   readonly path: string;
   readonly title: string;

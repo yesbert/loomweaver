@@ -76,6 +76,14 @@
     "en": "English",
     "de": "Deutsch"
   },
+  "landmark": {
+    "topBar": "Top bar",
+    "statusBar": "Status bar",
+    "panelFooter": "Panel footer",
+    "leftPanel": "Left panel",
+    "rightPanel": "Right panel",
+    "content": "Content"
+  },
   "notification": {
     "region": "Notifications",
     "dismiss": "Dismiss"

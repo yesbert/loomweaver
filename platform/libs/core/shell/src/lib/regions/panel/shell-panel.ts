@@ -17,6 +17,8 @@ import { ComponentLoader } from '../pane/component-loader.service';
 import { ViewInstanceSwitcher } from '../../views/view-instance-switcher';
 import { PanelGroupService } from './panel-group.service';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
+import { panelIdIn, tabIdIn } from '../pane/chrome/strip-tab';
+import { stripIdOf } from '../pane/drag/pane-move.service';
 import { PaneTreeView } from '../pane/pane-tree-view';
 import { SurfaceActions } from '../content/actions/surface-actions';
 import {
@@ -129,6 +131,23 @@ export class ShellPanel {
   protected readonly activePath = computed(() =>
     this.panelGroup.activePath(this.region().id),
   );
+
+  private readonly stripId = computed(() =>
+    stripIdOf({
+      dock: this.region().id,
+      paneId: this.paneTree.primaryId(this.region().id),
+    }),
+  );
+
+  protected readonly panelId = computed(() => panelIdIn(this.stripId()));
+
+  protected readonly panelLabelledBy = computed(() => {
+    const path = this.activePath();
+    const drawn = this.panelGroup
+      .tabs(this.region().id)
+      .some((tab) => tab.path === path);
+    return path !== undefined && drawn ? tabIdIn(this.stripId(), path) : null;
+  });
 
   protected readonly activeView = computed(() => {
     const path = this.activePath();

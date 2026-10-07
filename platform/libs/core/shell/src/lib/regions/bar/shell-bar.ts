@@ -77,6 +77,13 @@ export class ShellBar {
     () => this.dock() === 'left' || this.dock() === 'right',
   );
 
+  protected readonly nameKey = computed(() => {
+    if (this.footer()) {
+      return 'landmark.panelFooter';
+    }
+    return this.dock() === 'bottom' ? 'landmark.statusBar' : 'landmark.topBar';
+  });
+
   protected readonly anchorName = computed(
     () => `--lw-bar-fold-${this.region().id.replaceAll(/[^a-zA-Z0-9-]/g, '-')}`,
   );
