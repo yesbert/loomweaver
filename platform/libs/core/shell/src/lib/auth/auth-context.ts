@@ -1,4 +1,15 @@
-import { computed, EnvironmentProviders, inject, InjectionToken, makeEnvironmentProviders, provideEnvironmentInitializer, Provider, Service, signal, Signal } from '@angular/core';
+import {
+  computed,
+  EnvironmentProviders,
+  inject,
+  InjectionToken,
+  makeEnvironmentProviders,
+  provideEnvironmentInitializer,
+  Provider,
+  Service,
+  signal,
+  Signal,
+} from '@angular/core';
 import {
   AccessRequirement,
   ANONYMOUS,
@@ -32,10 +43,11 @@ export const AUTH_SOURCE = new InjectionToken<Signal<AuthSnapshot>>(
 export interface AuthSourceOptions {
   /**
    * `'reload'`: when a snapshot carries a **different** non-empty `subject` than the one already
-   * established this app lifetime, the shell performs a full `location.reload()` — the
-   * guaranteed-clean user switch (no pane trees, tab titles or plugin in-memory state of the
-   * previous user survive; paired with an identity-scoped settings store, the new session
-   * re-hydrates entirely from its own namespace). First sign-in (anonymous → subject) and
+   * established this app lifetime, the shell opens the application afresh at its start (the
+   * served base, never the previous user's address) — the guaranteed-clean user switch (no pane
+   * trees, tab titles, address or plugin in-memory state of the previous user survive; paired
+   * with an identity-scoped settings store, the new session re-hydrates entirely from its own
+   * namespace). A pop-out window closes instead. First sign-in (anonymous → subject) and
    * sign-out (subject → anonymous) never fire, so an async session restore at boot causes no
    * reload flicker. Snapshots without a `subject` never fire either. Default: `'ignore'`.
    */

@@ -20,4 +20,4 @@
 
 - [ ] 4.1 The JSDoc of `onIdentityChange`, `docs/distribution/auth.md` and `llms-full.txt` say where the reload lands
 - [ ] 4.2 `openspec validate --all --strict`
-- [ ] 4.3 Note in the PR that this closes NextPA finding F-046
+- [x] 4.3 Note in the PR that this closes NextPA finding F-046
