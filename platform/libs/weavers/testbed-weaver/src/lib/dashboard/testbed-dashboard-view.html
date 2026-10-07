@@ -63,8 +63,11 @@
         {{ 'testbed.dash.exportIntro' | transloco }}
       </p>
       <div class="flex flex-col gap-1 text-sm">
-        <span class="text-content-muted">{{ 'testbed.dash.exportRange' | transloco }}</span>
-        <lw-select [attr.label]="'testbed.dash.exportRange' | transloco" value="week">
+        <span id="testbed-export-range-label" class="text-content-muted">{{ 'testbed.dash.exportRange' | transloco }}</span>
+        <lw-select
+          aria-labelledby="testbed-export-range-label"
+          value="week"
+        >
           <lw-option value="week">{{ 'testbed.dash.rangeWeek' | transloco }}</lw-option>
           <lw-option value="month">{{ 'testbed.dash.rangeMonth' | transloco }}</lw-option>
         </lw-select>

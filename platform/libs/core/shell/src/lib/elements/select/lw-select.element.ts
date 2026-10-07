@@ -13,6 +13,11 @@ import {
   fillValueSlot,
   readChoices,
 } from './lw-select-parts';
+import {
+  FORWARDED_STATE,
+  forwardState,
+  syncAccessibleName,
+} from './lw-select-name';
 
 export const LW_SELECT_TAG = 'lw-select';
 
@@ -29,6 +34,9 @@ export class LwSelectElement extends HTMLElement {
     'placeholder',
     'disabled',
     'compact',
+    'aria-label',
+    'aria-labelledby',
+    ...FORWARDED_STATE,
   ];
 
   private readonly selectId = nextSelectId++;
@@ -46,6 +54,8 @@ export class LwSelectElement extends HTMLElement {
   private typeaheadTimer?: ReturnType<typeof setTimeout>;
 
   private trigger?: HTMLButtonElement;
+
+  private labelPart?: HTMLSpanElement;
 
   private valueSlot?: HTMLSpanElement;
 
@@ -133,9 +143,11 @@ export class LwSelectElement extends HTMLElement {
   }
 
   private buildControl(): void {
-    const { trigger, valueSlot } = createTrigger({
+    const { trigger, labelPart, valueSlot } = createTrigger({
       anchorName: this.anchorName,
       listboxId: this.listboxId,
+      labelId: `lw-select-label-${this.selectId}`,
+      valueId: `lw-select-value-${this.selectId}`,
       onToggle: () => this.toggle(),
       onKeydown: (event) => this.onTriggerKeydown(event),
     });
@@ -147,29 +159,30 @@ export class LwSelectElement extends HTMLElement {
 
     this.append(trigger, listbox);
     this.trigger = trigger;
+    this.labelPart = labelPart;
     this.valueSlot = valueSlot;
     this.listbox = listbox;
   }
 
   private syncTrigger(): void {
     const trigger = this.trigger;
+    const labelPart = this.labelPart;
     const valueSlot = this.valueSlot;
-    if (!trigger || !valueSlot) {
+    if (!trigger || !labelPart || !valueSlot) {
       return;
     }
-    const label = this.getAttribute('label');
     const selected = this.selectedChoice();
     const text = selected?.label ?? this.getAttribute('placeholder') ?? '';
     const iconOnly = this.compact && selected?.icon != null;
     this.withoutObserving(() => {
       trigger.disabled = this.hasAttribute('disabled');
-      if (label !== null) {
-        trigger.setAttribute(
-          'aria-label',
-          iconOnly ? `${label}: ${text}` : label,
-        );
-        this.listbox?.setAttribute('aria-label', label);
-      }
+      syncAccessibleName(this, {
+        trigger,
+        labelPart,
+        valueSlot,
+        listbox: this.listbox,
+      });
+      forwardState(this, trigger);
       fillValueSlot(valueSlot, text, selected?.icon ?? null, iconOnly);
     });
   }
@@ -274,7 +287,12 @@ export class LwSelectElement extends HTMLElement {
   }
 
   private onListboxKeydown(event: KeyboardEvent): void {
-    const step = rovingStep(event.key, this.activeIndex, this.choices().length, 'vertical');
+    const step = rovingStep(
+      event.key,
+      this.activeIndex,
+      this.choices().length,
+      'vertical',
+    );
     if (step !== undefined) {
       this.setActive(step);
       event.preventDefault();

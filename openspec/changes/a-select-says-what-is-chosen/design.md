@@ -12,11 +12,12 @@ proposal.md for the failure.
 
 - Name and value together, in every form.
 - The element accepts what a consumer already writes on any control: `aria-label`,
-  `aria-labelledby`, `aria-required`, `aria-invalid`, `aria-describedby`.
+  `aria-labelledby`, `aria-invalid`, `aria-describedby`.
 
 **Non-Goals:**
 
-- A different role. The trigger stays a button with a listbox popup.
+- A different role. The trigger stays a button with a listbox popup, and so a required choice is not
+  announced; see the decision on `aria-required` below.
 - Form association (`required` as a native constraint, `name`, form submission). The element does
   not take part in a form today and this change does not make it.
 
@@ -35,11 +36,18 @@ Rejected as well: `role="combobox"` on the trigger, which announces a value by r
 keyboard model a screen-reader user expects, and every consumer test that finds the select as a
 button.
 
-**The state attributes are mirrored, not moved.** `aria-required`, `aria-invalid` and
-`aria-describedby` join `observedAttributes` and are copied onto the trigger, and removed from it when
-removed from the host. The host keeps them, because the consumer's framework owns them and would put
-them back. Where `aria-required` on a role-less host is flagged by the audit, the host's copy is the
-only thing to revisit; the audit case in the testbed shows whether it is.
+**The state attributes are mirrored, not moved.** `aria-invalid` and `aria-describedby` join
+`observedAttributes` and are copied onto the trigger, and removed from it when removed from the host.
+The host keeps them, because the consumer's framework owns them and would put them back. Both are
+global ARIA attributes, so the host's copy is allowed where it stands.
+
+**`aria-required` is left out, found during implementation.** The testbed audit rejected it twice
+(`aria-allowed-attr`): on the role-less host, and, once a boolean `required` attribute was tried that
+set it on the trigger, on the trigger itself, because ARIA does not allow `aria-required` on the
+button role. A required choice can be announced validly only by a role that carries it, which for
+this control is `combobox`, the pattern of a select-only combobox. That changes the role every
+consumer test finds the select by, so it is not a patch, and it is left for the owner to decide as a
+change of its own. Until then the requirement states the limit and a consumer says it in the label.
 
 **The listbox keeps the label alone.** Its name is what it chooses; the choice is announced by the
 selected option inside it.
