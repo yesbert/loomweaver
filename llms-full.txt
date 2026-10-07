@@ -771,7 +771,8 @@ interface AuthSnapshot { authenticated: boolean; roles: readonly string[]; claim
 const ANONYMOUS: AuthSnapshot;   // { authenticated: false, roles: [], claims: {} } — the bare/signed-out snapshot
 // subject is the IDENTITY ANCHOR: the identity-change policy compares it and an identity-scoped
 // settings store namespaces by it; omit it and both stay inert. onIdentityChange: 'reload' fires ONLY when an
-// established subject is replaced by a DIFFERENT one (first sign-in and sign-out never reload).
+// established subject is replaced by a DIFFERENT one (first sign-in and sign-out never reload); it opens the
+// application at its start under the served base, never at the previous person's address, and a pop-out window closes.
 interface AuthSourceOptions { onIdentityChange?: 'reload' | 'ignore'; }   // default 'ignore'
 function provideAuthSource(factory: () => Signal<AuthSnapshot>, options?: AuthSourceOptions): EnvironmentProviders;
 function provideUnauthorizedRedirect(handler: (attemptedPath: string) => string | null): Provider;
