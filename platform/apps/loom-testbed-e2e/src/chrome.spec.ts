@@ -97,6 +97,48 @@ test.describe('Neutral host chrome', () => {
     await expect(page.locator('#lw-main-content')).toBeFocused();
   });
 
+  test('skip link below the root moves focus without loading the page again', async ({
+    page,
+  }) => {
+    await page.goto('/entry/e-01');
+    await expect(page.locator('#lw-main-content textarea')).toBeVisible();
+    let loads = 0;
+    page.on('load', () => loads++);
+
+    await page.keyboard.press('Tab');
+    const skip = page.getByRole('link', { name: 'Skip to main content' });
+    await expect(skip).toBeFocused();
+    await skip.press('Enter');
+
+    await expect(page.locator('#lw-main-content')).toBeFocused();
+    await expect(page).toHaveURL(/\/entry\/e-01$/);
+    expect(loads).toBe(0);
+  });
+
+  test('skip link keeps unsaved work and asks nothing about leaving', async ({
+    page,
+  }) => {
+    await page.goto('/entry/e-01');
+    const draft = page.locator('#lw-main-content textarea');
+    await draft.fill('UNSAVED-DRAFT');
+    let loads = 0;
+    let questions = 0;
+    page.on('load', () => loads++);
+    page.on('dialog', (dialog) => {
+      questions++;
+      void dialog.dismiss();
+    });
+
+    const skip = page.getByRole('link', { name: 'Skip to main content' });
+    await skip.focus();
+    await skip.press('Enter');
+
+    await expect(page.locator('#lw-main-content')).toBeFocused();
+    await expect(draft).toHaveValue('UNSAVED-DRAFT');
+    expect(loads).toBe(0);
+    expect(questions).toBe(0);
+  });
+
   test('honors prefers-reduced-motion by collapsing transitions', async ({
     page,
   }) => {

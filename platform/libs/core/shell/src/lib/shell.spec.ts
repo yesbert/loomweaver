@@ -51,6 +51,26 @@ describe('Shell', () => {
       'LoomWeaver',
     );
   });
+
+  it('moves the focus to the working area without following the link', async () => {
+    const fixture = TestBed.createComponent(Shell);
+    await fixture.whenStable();
+    const compiled = fixture.nativeElement as HTMLElement;
+    document.body.append(compiled);
+    const skip = compiled.querySelector<HTMLAnchorElement>(
+      'a[href="#lw-main-content"]',
+    );
+    const target = compiled.querySelector<HTMLElement>('#lw-main-content');
+    expect(skip).not.toBeNull();
+    expect(target).not.toBeNull();
+
+    const click = new MouseEvent('click', { bubbles: true, cancelable: true });
+    skip?.dispatchEvent(click);
+
+    expect(click.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(target);
+    compiled.remove();
+  });
 });
 
 describe('Shell sidebar footer', () => {
