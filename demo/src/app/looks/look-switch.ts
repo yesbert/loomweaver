@@ -3,6 +3,8 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { activeLook, switchLook } from './look-choice';
 import { LOOKS } from './looks';
 
+let nextLookSwitch = 0;
+
 @Component({
   selector: 'demo-look-switch',
   imports: [TranslocoPipe],
@@ -12,6 +14,7 @@ import { LOOKS } from './looks';
 export class LookSwitch {
   protected readonly looks = LOOKS;
   protected readonly active = activeLook;
+  protected readonly labelId = `demo-look-switch-label-${nextLookSwitch++}`;
 
   protected onChange(event: Event): void {
     const value = (event as CustomEvent<{ value: string }>).detail?.value;

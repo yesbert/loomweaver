@@ -116,6 +116,14 @@ test('the breeze look changes the geometry, not just the palette', async ({
   expect(look.brand).toBe('#0d9488');
 });
 
+test('the look switch is named by the label beside it, with the look chosen', async ({ page }) => {
+  await chooseLook(page, 'default');
+
+  await expect(
+    page.locator('[data-testid="look-switch"] .lw-select-trigger'),
+  ).toHaveAccessibleName(/^Theme \S/);
+});
+
 test('switching the look is a reload, and it sticks', async ({ page }) => {
   await chooseLook(page, 'default');
 
