@@ -509,6 +509,9 @@ one, and dropped where the command is unregistered, removed, or one the session 
 does not belong in the window. An entry that represents a state SHALL be drawn and announced as
 pressed or not. An entry with no icon SHALL show its title; an entry with an icon SHALL show the
 icon and offer its title as a tooltip, and SHALL show its command's shortcut there where it has one.
+An entry drawn as primary is the exception, and SHALL show its title whether or not it has an icon.
+An entry that shows its title and opens a slot SHALL show visibly that it opens a menu, not only to
+assistive technology.
 
 Activating an entry SHALL run its command with the placement's description as the command's
 context, through the one place every trigger runs through. An entry that names a menu slot and an
@@ -556,6 +559,13 @@ inside an isolated surface is covered where that boundary is specified.
   activates it by pointer or keyboard
 - **THEN** that slot opens beside the entry, against the placement's description
 
+#### Scenario: A labelled entry shows that it opens a menu
+
+- **WHEN** an entry without an icon declares that activation opens a menu slot, and that slot has an
+  entry
+- **THEN** the entry shows its title and a visible sign that it opens a menu, and is announced as
+  opening one
+
 #### Scenario: A toggling entry shows its state
 
 - **WHEN** an entry declares that it represents a state and the placement's description says the
@@ -577,6 +587,70 @@ inside an isolated surface is covered where that boundary is specified.
 
 - **WHEN** focus reaches a toolbar and the user presses the arrow keys
 - **THEN** focus moves between its entries, and the toolbar is one stop in the page's tab order
+
+### Requirement: A toolbar entry may carry the look of a button
+
+A menu entry SHALL be able to name one variant of the vocabulary the workbench's button offers:
+primary, default, success, danger, warning, info or ghost. Where the entry is drawn in a toolbar, it
+SHALL be drawn as the workbench's button of that variant is drawn, at the toolbar's size, so that a
+toolbar entry and a button of the same variant read the same. An entry that names no variant SHALL
+be drawn as every toolbar entry is drawn today. The variant SHALL be a name from that vocabulary and
+nothing else: an entry SHALL NOT carry a class, a style or a colour of its own into a toolbar, and a
+name outside the vocabulary SHALL be drawn as no variant and reported to the developer.
+
+An entry drawn as primary SHALL show its title, with its icon before it where it has one.
+
+Primary SHALL belong to the plugin that owns the slot the toolbar draws: the plugin that registered
+the toolbar, or for a surface's actions the plugin that owns the surface. An entry asking for primary
+that any other plugin contributed, or that no plugin contributed, SHALL be drawn as no variant, and
+the developer SHALL be told once per entry which plugin asked and whose slot it was. Every other
+variant SHALL be open to every contributor, so that a contributed destructive entry can look
+dangerous in a toolbar it does not own.
+
+The variant SHALL be honoured only where the entry is drawn in a toolbar. Where the same entry is
+offered in a menu, the variant SHALL be ignored, as a nested slot is.
+
+This is held for a toolbar placed by a plugin the workbench renders in the page. A toolbar drawn
+inside an isolated surface is covered where that boundary is specified.
+
+#### Scenario: The owner marks its main action
+
+- **WHEN** the plugin that registered a toolbar contributes an entry to its slot naming primary
+- **THEN** the toolbar draws the entry as a primary button, showing its title with its icon before
+  it
+
+#### Scenario: A primary entry opens what others contributed
+
+- **WHEN** the owner's primary entry also opens a slot, and a second plugin has contributed an entry
+  to that slot
+- **THEN** the entry is drawn as one primary button that shows it opens a menu, and activating it
+  opens the slot with the second plugin's entry in it
+
+#### Scenario: A contributor cannot take the main action
+
+- **WHEN** a plugin contributes an entry naming primary to a toolbar another plugin registered
+- **THEN** the entry is drawn as an entry without a variant, and the developer is told once which
+  plugin asked and whose toolbar it was
+
+#### Scenario: A contributed destructive entry reads as dangerous
+
+- **WHEN** a plugin contributes an entry naming danger to a toolbar another plugin registered
+- **THEN** the entry is drawn as a danger button is drawn
+
+#### Scenario: Without a variant nothing changes
+
+- **WHEN** an entry names no variant
+- **THEN** it is drawn exactly as a toolbar entry without a variant was drawn before
+
+#### Scenario: A name outside the vocabulary is not drawn
+
+- **WHEN** an entry names a variant the vocabulary does not hold
+- **THEN** the entry is drawn as no variant and the developer is told
+
+#### Scenario: A menu ignores the variant
+
+- **WHEN** an entry naming danger is contributed to a slot that is opened as a menu
+- **THEN** the menu offers the entry as it offers any other
 
 ### Requirement: A toolbar folds what it cannot show
 

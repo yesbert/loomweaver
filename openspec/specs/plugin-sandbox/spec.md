@@ -396,11 +396,15 @@ workbench already serves to it; the workbench SHALL NOT draw into the surface.
 
 The answer SHALL be data and nothing but data: for each entry its identity, its title as worded for
 the language in effect, its icon, its shortcut as spelled for the platform, its group and order,
-whether it represents a state and whether that state is on, and whether activating it opens a
-further slot. The answer SHALL already be narrowed by every rule that would refuse the entry — the
-command's access requirement, the window the surface is in, and the entry's own matching against
-the description — so that everything the surface is told it may draw, and nothing it is not told
-exists for it. A cell a plugin in the page draws itself SHALL NOT be in the answer.
+whether it represents a state and whether that state is on, whether activating it opens a
+further slot, and the look of a button it is drawn with. The answer SHALL already be narrowed by
+every rule that would refuse the entry — the command's access requirement, the window the surface is
+in, and the entry's own matching against the description — so that everything the surface is told
+it may draw, and nothing it is not told exists for it. The look SHALL already be narrowed by the
+same rule that keeps primary to the slot's owner in the page, so that the surface draws what it is
+told and cannot promote an entry another plugin contributed. The elements the workbench serves to
+the surface SHALL draw each look as the same element draws it in the page. A cell a plugin in the
+page draws itself SHALL NOT be in the answer.
 
 The description the surface supplies SHALL be validated as data at the boundary, and a description
 that is not SHALL be refused rather than matched.
@@ -437,6 +441,19 @@ further.
 - **WHEN** an isolated plugin registers a toolbar through its channel
 - **THEN** the slot is declared, a plugin in the page may fill it, and the plugin's own surface draws
   it from what it is told
+
+#### Scenario: The look crosses with the entry
+
+- **WHEN** an isolated plugin registers a toolbar and contributes an entry to its slot naming
+  primary, and a plugin in the page contributes one naming danger and one naming primary
+- **THEN** the surface is told primary for its own entry, danger for the second, and no look for the
+  third, and draws them that way
+
+#### Scenario: An isolated plugin can name a look through its channel
+
+- **WHEN** a sandboxed plugin contributes an entry naming a variant to a toolbar drawn in the page
+- **THEN** the entry is drawn with that variant, under the same owner rule as an entry from a plugin
+  in the page
 
 #### Scenario: The answer follows the session
 
@@ -494,3 +511,4 @@ further.
 - **WHEN** an isolated surface asks to open an entry that opens no further slot, or one it was never
   shown
 - **THEN** nothing is answered and nothing runs
+
