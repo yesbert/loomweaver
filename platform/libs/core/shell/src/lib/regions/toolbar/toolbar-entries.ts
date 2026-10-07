@@ -1,9 +1,16 @@
-import { MenuContext, MenuItem, ViewAction } from '@loomweaver/plugin-sdk';
+import {
+  LwButtonVariant,
+  MenuContext,
+  MenuItem,
+  ViewAction,
+} from '@loomweaver/plugin-sdk';
 import { SlotEntry } from '../../menu/menu-resolution';
 
 export interface ToolbarEntry extends SlotEntry {
   readonly id: string;
   readonly source: MenuItem | ViewAction;
+  readonly variant?: LwButtonVariant;
+  readonly ownerId?: string;
 }
 
 export function entryOfAction(action: ViewAction): ToolbarEntry {
@@ -23,7 +30,11 @@ export function entryOfAction(action: ViewAction): ToolbarEntry {
   };
 }
 
-export function entryOfMenuItem(item: MenuItem, index: number): ToolbarEntry {
+export function entryOfMenuItem(
+  item: MenuItem,
+  index: number,
+  ownerId?: string,
+): ToolbarEntry {
   return {
     id: item.id ?? `${item.menu}#${item.command ?? index}`,
     title: item.title,
@@ -41,5 +52,7 @@ export function entryOfMenuItem(item: MenuItem, index: number): ToolbarEntry {
     submenu: item.submenu,
     menuHeader: item.menuHeader,
     source: item,
+    variant: item.variant,
+    ownerId,
   };
 }

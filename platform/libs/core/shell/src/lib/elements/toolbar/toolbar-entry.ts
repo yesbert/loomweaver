@@ -1,3 +1,5 @@
+import { LwButtonVariant } from '@loomweaver/plugin-sdk';
+
 /**
  * One entry a `<lw-toolbar>` draws, already resolved and worded by whoever drives the element:
  * the workbench in the page, the frame kit inside an isolated surface. The element draws; it
@@ -14,4 +16,5 @@ export interface LwToolbarEntry {
   readonly disabled?: boolean;
   readonly opensMenu?: boolean;
   readonly hasContextMenu?: boolean;
+  readonly variant?: LwButtonVariant;
 }

@@ -91,6 +91,69 @@ describe('<lw-toolbar>', () => {
     expect(menu.getAttribute('aria-expanded')).toBe('true');
   });
 
+  it('draws an entry without a variant exactly as it always has', () => {
+    const toolbar = mount([
+      { key: 'icon', label: 'Icon', icon: 'add' },
+      { key: 'text', label: 'Text', shortcut: 'Ctrl+T' },
+    ]);
+    const [icon, text] = buttons(toolbar);
+
+    expect(icon.className).toBe('lw-icon-btn lw-toolbar-entry');
+    expect([...icon.children].map((child) => child.tagName.toLowerCase())).toEqual([
+      'lw-icon',
+      LW_TOOLTIP_TAG,
+    ]);
+    expect(text.className).toBe('lw-toolbar-entry lw-toolbar-entry--text');
+    expect([...text.children].map((child) => child.tagName.toLowerCase())).toEqual(['span', 'kbd']);
+  });
+
+  it('draws an entry with a variant as that button, square where it shows only its icon', () => {
+    const toolbar = mount([
+      { key: 'delete', label: 'Delete', icon: 'trash', variant: 'danger' },
+      { key: 'save', label: 'Save', variant: 'success' },
+      { key: 'odd', label: 'Odd', variant: 'loud' as never },
+    ]);
+    const [remove, save, odd] = buttons(toolbar);
+
+    expect(remove.classList).toContain('lw-btn--danger');
+    expect(remove.classList).toContain('lw-btn--icon');
+    expect(remove.querySelector(LW_TOOLTIP_TAG)?.getAttribute('text')).toBe('Delete');
+    expect(save.classList).toContain('lw-btn--success');
+    expect(save.classList).not.toContain('lw-btn--icon');
+    expect(save.textContent).toContain('Save');
+    expect(odd.className).toBe('lw-toolbar-entry lw-toolbar-entry--text');
+  });
+
+  it('shows a primary entry’s title after its icon, with its shortcut', () => {
+    const toolbar = mount([
+      { key: 'new', label: 'New knowledge', icon: 'add', shortcut: 'Ctrl+N', variant: 'primary' },
+    ]);
+    const [entry] = buttons(toolbar);
+
+    expect(entry.classList).toContain('lw-btn--primary');
+    expect(entry.classList).not.toContain('lw-btn--icon');
+    expect([...entry.children].map((child) => child.tagName.toLowerCase())).toEqual([
+      'lw-icon',
+      'span',
+      'kbd',
+    ]);
+    expect(entry.querySelector('span')?.textContent).toBe('New knowledge');
+    expect(entry.querySelector(LW_TOOLTIP_TAG)).toBeNull();
+  });
+
+  it('shows that a titled entry opens a menu, and leaves the sign out of what is announced', () => {
+    const toolbar = mount([
+      { key: 'titled', label: 'Sources', opensMenu: true },
+      { key: 'iconic', label: 'More', icon: 'more', opensMenu: true },
+    ]);
+    const [titled, iconic] = buttons(toolbar);
+
+    const chevron = titled.querySelector('lw-icon[name="chevronDown"]');
+    expect(chevron?.getAttribute('aria-hidden')).toBe('true');
+    expect(titled.getAttribute('aria-haspopup')).toBe('menu');
+    expect(iconic.querySelector('lw-icon[name="chevronDown"]')).toBeNull();
+  });
+
   it('separates groups and keeps the plugin’s own cells in their place by order', () => {
     const toolbar = mount(
       [
@@ -300,6 +363,18 @@ describe('<lw-toolbar> folding', () => {
     toolbar.entries = [...toolbar.entries];
     expect(inRow()).toEqual(['a', 'b', 'c', 'd']);
     expect(toolbar.querySelector('[data-lw-fold]')).toBeNull();
+  });
+
+  it('keeps an entry’s look when it folds into the tray', () => {
+    stubLayout(60, { a: 30, b: 30 });
+    const toolbar = mount([
+      { key: 'a', label: 'A', order: 0 },
+      { key: 'b', label: 'B', order: 1, variant: 'danger' },
+    ]);
+
+    const tray = toolbar.querySelector<HTMLElement>('.lw-toolbar-tray') as HTMLElement;
+    const folded = tray.querySelector<HTMLButtonElement>('button[data-lw-entry="b"]');
+    expect(folded?.classList).toContain('lw-btn--danger');
   });
 
   it('reads its width only once the controls placed inside it have drawn themselves', () => {

@@ -1,5 +1,6 @@
-import { MenuContext } from '@loomweaver/plugin-sdk';
+import { LwButtonVariant, MenuContext } from '@loomweaver/plugin-sdk';
 import { menuContextOf } from '../../foundation/wire/menu-context-of';
+import { isButtonVariant, lwButtonClasses } from '../button/lw-button-classes';
 import { LwToolbarEntry } from './toolbar-entry';
 
 export const ENTRY_ATTRIBUTE = 'data-lw-entry';
@@ -95,9 +96,9 @@ export function entryButton(
   const button = existing ?? document.createElement('button');
   button.type = 'button';
   button.setAttribute(ENTRY_ATTRIBUTE, entry.key);
-  button.className = entry.icon
-    ? 'lw-icon-btn lw-toolbar-entry'
-    : 'lw-toolbar-entry lw-toolbar-entry--text';
+  const variant = isButtonVariant(entry.variant) ? entry.variant : undefined;
+  const labelled = !entry.icon || variant === 'primary';
+  button.className = entryClasses(variant, labelled);
   button.disabled = entry.disabled === true;
   button.setAttribute('aria-label', entry.label);
   if (entry.pressed === undefined) {
@@ -111,33 +112,61 @@ export function entryButton(
     button.removeAttribute('aria-haspopup');
   }
   reflectExpanded(button, openKey);
-  button.replaceChildren(...entryContent(entry));
+  button.replaceChildren(
+    ...(labelled || !entry.icon ? labelledContent(entry) : iconContent(entry, entry.icon)),
+  );
   return button;
 }
 
-function entryContent(entry: LwToolbarEntry): HTMLElement[] {
+function entryClasses(variant: LwButtonVariant | undefined, labelled: boolean): string {
+  if (variant) {
+    return [
+      'lw-toolbar-entry',
+      'lw-toolbar-entry--button',
+      ...lwButtonClasses(variant, 'md', !labelled),
+    ].join(' ');
+  }
+  return labelled ? 'lw-toolbar-entry lw-toolbar-entry--text' : 'lw-icon-btn lw-toolbar-entry';
+}
+
+function icon(name: string, size: string): HTMLElement {
+  const element = document.createElement('lw-icon');
+  element.setAttribute('name', name);
+  element.setAttribute('size', size);
+  return element;
+}
+
+function iconContent(entry: LwToolbarEntry, name: string): HTMLElement[] {
+  const tooltip = document.createElement('lw-tooltip');
+  tooltip.setAttribute(
+    'text',
+    entry.shortcut ? `${entry.label} (${entry.shortcut})` : entry.label,
+  );
+  tooltip.setAttribute('position', 'bottom');
+  return [icon(name, '1rem'), tooltip];
+}
+
+function labelledContent(entry: LwToolbarEntry): HTMLElement[] {
+  const content: HTMLElement[] = [];
   if (entry.icon) {
-    const icon = document.createElement('lw-icon');
-    icon.setAttribute('name', entry.icon);
-    icon.setAttribute('size', '1rem');
-    const tooltip = document.createElement('lw-tooltip');
-    tooltip.setAttribute(
-      'text',
-      entry.shortcut ? `${entry.label} (${entry.shortcut})` : entry.label,
-    );
-    tooltip.setAttribute('position', 'bottom');
-    return [icon, tooltip];
+    content.push(icon(entry.icon, '1rem'));
   }
   const text = document.createElement('span');
   text.textContent = entry.label;
-  if (!entry.shortcut) {
-    return [text];
+  content.push(text);
+  if (entry.shortcut) {
+    const shortcut = document.createElement('kbd');
+    shortcut.className = 'lw-toolbar-shortcut';
+    shortcut.setAttribute('aria-hidden', 'true');
+    shortcut.textContent = entry.shortcut;
+    content.push(shortcut);
   }
-  const shortcut = document.createElement('kbd');
-  shortcut.className = 'lw-toolbar-shortcut';
-  shortcut.setAttribute('aria-hidden', 'true');
-  shortcut.textContent = entry.shortcut;
-  return [text, shortcut];
+  if (entry.opensMenu) {
+    const chevron = icon('chevronDown', '0.875rem');
+    chevron.setAttribute('aria-hidden', 'true');
+    content.push(chevron);
+  }
+  return content;
 }
 
 export function separator(): HTMLElement {

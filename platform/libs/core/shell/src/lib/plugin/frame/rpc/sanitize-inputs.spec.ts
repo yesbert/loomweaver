@@ -99,6 +99,23 @@ describe('sanitizeRpcToastInput', () => {
 });
 
 describe('sanitizeRpcMenuItem', () => {
+  it('carries a variant from the button vocabulary, and drops any other with a report, keeping the entry', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+    const danger = sanitizeRpcMenuItem(
+      asMenuItem({ menu: 'acme/toolbar', command: 'acme.purge', variant: 'danger' }),
+    );
+    const loud = sanitizeRpcMenuItem(
+      asMenuItem({ menu: 'acme/toolbar', command: 'acme.purge', variant: 'loud' }),
+    );
+
+    expect(danger.variant).toBe('danger');
+    expect(loud.variant).toBeUndefined();
+    expect(loud.command).toBe('acme.purge');
+    expect(warn).toHaveBeenCalledTimes(1);
+    warn.mockRestore();
+  });
+
   it('carries the entry’s own access requirement across, as data', () => {
     const item = sanitizeRpcMenuItem(
       asMenuItem({

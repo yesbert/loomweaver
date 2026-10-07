@@ -1,11 +1,13 @@
 import { inject, Service } from '@angular/core';
-import { MenuContext } from '@loomweaver/plugin-sdk';
+import { LwButtonVariant, MenuContext } from '@loomweaver/plugin-sdk';
 import { CommandService } from '../../commands/command.service';
 import { ContributionRegistry } from '../../contributions/contribution-registry';
 import {
+  ownerName,
   surfaceOfActionsSlot,
   ToolbarRegistry,
 } from '../../contributions/toolbar-registry';
+import { isButtonVariant } from '../../elements/button/lw-button-classes';
 import { LwToolbarEntry } from '../../elements/toolbar/lw-toolbar.element';
 import { Wording } from '../../i18n/wording';
 import { menuOnContext } from '../../menu/chrome-item-menu';
@@ -38,13 +40,15 @@ export class ToolbarSlots {
 
   private readonly wording = inject(Wording);
 
+  private readonly reported = new Set<string>();
+
   view(slot: string, context: MenuContext, label?: string | null): ToolbarSlotView {
     const resolved = this.slots.resolve(this.entriesOf(slot), (entry) =>
       this.contextFor(entry, context),
     );
     return {
       resolved,
-      entries: resolved.map((entry) => this.drawn(entry)),
+      entries: resolved.map((entry) => this.drawn(entry, slot)),
       label: this.wording.translate(label || (this.toolbars.titleOf(slot) ?? '')),
       moreLabel: this.wording.translate(MORE_KEY),
     };
@@ -67,13 +71,13 @@ export class ToolbarSlots {
         ? []
         : this.registry.actionsOf(surfaceId).map((action) => entryOfAction(action));
     const items = this.registry
-      .menuItems()
-      .filter((item) => item.menu === slot)
-      .map((item, index) => entryOfMenuItem(item, index));
+      .registeredMenuItems()
+      .filter((entry) => entry.item.menu === slot)
+      .map((entry, index) => entryOfMenuItem(entry.item, index, entry.ownerId));
     return [...actions, ...items];
   }
 
-  private drawn(entry: ResolvedEntry<ToolbarEntry>): LwToolbarEntry {
+  private drawn(entry: ResolvedEntry<ToolbarEntry>, slot: string): LwToolbarEntry {
     return {
       key: entry.item.id,
       label: this.wording.translate(entry.title ?? ''),
@@ -85,6 +89,51 @@ export class ToolbarSlots {
       disabled: entry.disabled,
       opensMenu: entry.opensMenu !== undefined,
       hasContextMenu: menuOnContext(entry.item) !== undefined,
+      variant: this.variantOf(entry.item, slot),
     };
+  }
+
+  private variantOf(entry: ToolbarEntry, slot: string): LwButtonVariant | undefined {
+    const asked: unknown = entry.variant;
+    if (asked === undefined) {
+      return undefined;
+    }
+    if (!isButtonVariant(asked)) {
+      this.reportOnce(
+        `${slot}\u{0}${entry.id}\u{0}unknown`,
+        `Toolbar entry '${entry.id}' in slot '${slot}' names the variant '${String(asked)}', ` +
+          'which no button has; it is drawn without a variant.',
+      );
+      return undefined;
+    }
+    if (asked !== 'primary') {
+      return asked;
+    }
+    const owner = this.ownerOf(slot);
+    if (owner !== undefined && entry.ownerId === owner) {
+      return asked;
+    }
+    this.reportOnce(
+      `${slot}\u{0}${entry.id}\u{0}primary`,
+      `Toolbar entry '${entry.id}' from ${ownerName(entry.ownerId)} asks for 'primary' in slot ` +
+        `'${slot}', which belongs to ${ownerName(owner)}; only the slot's owner draws a primary ` +
+        'entry, so it is drawn without a variant.',
+    );
+    return undefined;
+  }
+
+  private ownerOf(slot: string): string | undefined {
+    const surfaceId = surfaceOfActionsSlot(slot);
+    return surfaceId === undefined
+      ? this.toolbars.ownerOf(slot)
+      : this.registry.ownerOfSurface(surfaceId);
+  }
+
+  private reportOnce(key: string, message: string): void {
+    if (this.reported.has(key)) {
+      return;
+    }
+    this.reported.add(key);
+    console.warn(message);
   }
 }

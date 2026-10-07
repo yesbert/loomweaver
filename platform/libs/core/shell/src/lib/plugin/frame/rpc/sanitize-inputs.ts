@@ -1,6 +1,7 @@
 import {
   AccessRequirement,
   ContentTabLabel,
+  LwButtonVariant,
   MenuHeader,
   MenuItem,
   NotificationInput,
@@ -9,6 +10,7 @@ import {
   Toolbar,
 } from '@loomweaver/plugin-sdk';
 import { tabBadgeOf } from '../../../contributions/tab-badge';
+import { isButtonVariant } from '../../../elements/button/lw-button-classes';
 import { menuContextOf } from '../../../foundation/wire/menu-context-of';
 import {
   isWireObject,
@@ -89,7 +91,19 @@ export function sanitizeRpcMenuItem(item: MenuItem): MenuItem {
     checkedWhen: menuContextOf(raw['checkedWhen']),
     submenu: optionalText(raw['submenu']),
     menuHeader: sanitizeMenuHeader(raw['menuHeader']),
+    variant: sanitizeVariant(raw['variant']),
   };
+}
+
+function sanitizeVariant(value: unknown): LwButtonVariant | undefined {
+  if (value === undefined || isButtonVariant(value)) {
+    return value;
+  }
+  console.warn(
+    "Sandbox plugin: registerMenuItem takes 'variant' as one of primary, default, success, " +
+      'danger, warning, info or ghost; the entry is kept without it.',
+  );
+  return undefined;
 }
 
 const ACCESS_REFUSAL =

@@ -257,6 +257,30 @@ injects `TOOLBAR_CONTEXT` to learn the slot and the placement. A cell is not rea
 no command, no `when`, no shortcut, and it folds whole. It also never reaches a toolbar drawn inside
 an isolated surface, because code does not cross that boundary; there, the declarative entries do.
 
+An entry looks like every other entry unless it names a `variant`, from the vocabulary
+`<lw-button>` has: `primary`, `default`, `success`, `danger`, `warning`, `info`, `ghost`. In a
+toolbar it is then drawn as that button is, at the toolbar's size; in a menu the variant is ignored.
+An entry without one keeps the toolbar's own faint look, which is not `default`: `default` is the
+bordered button. A `primary` entry always shows its title, with its icon before it, and an entry
+that shows its title and opens a slot carries a chevron, so "New" can be one button that opens what
+other plugins contribute:
+
+```ts
+// the owner's main action: one primary button that opens the ways of adding, its own and others'
+ctx.registerMenuItem({ menu: RECORDS_TOOLBAR, title: 'acme.records.new', icon: 'add',
+  variant: 'primary', submenu: 'acme.records/new', group: '0_own' });
+ctx.registerMenuItem({ menu: 'acme.records/new', command: 'acme.records.write' });
+
+// another plugin's destructive entry reads as dangerous
+ctx.registerMenuItem({ menu: RECORDS_TOOLBAR, command: 'scanner.purge', variant: 'danger' });
+```
+
+`primary` belongs to the slot's owner: the plugin that registered the toolbar, or for a surface's
+actions the plugin that owns the surface. Asked for by any other plugin, the entry is drawn without
+a variant and the developer is told once, so contributions cannot compete for the main action.
+Every other variant is open to every contributor. A name outside the vocabulary is dropped and
+reported the same way.
+
 The slot is yours: export its id so the plugins meant to fill it can name it. A second plugin
 registering a toolbar under the same slot is refused and reported. The slot a toolbar registers,
 like the slot a control names, is what declares it for the undeclared-slot report above.

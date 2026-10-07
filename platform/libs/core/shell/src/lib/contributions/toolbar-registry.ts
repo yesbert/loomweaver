@@ -66,12 +66,16 @@ export class ToolbarRegistry {
     };
   }
 
+  ownerOf(slot: string): string | undefined {
+    return this.toolbars().find((entry) => entry.toolbar.slot === slot)?.ownerId;
+  }
+
   titleOf(slot: string): string | undefined {
     return this.toolbars().find((entry) => entry.toolbar.slot === slot)?.toolbar
       .title;
   }
 }
 
-function ownerName(pluginId: string | undefined): string {
+export function ownerName(pluginId: string | undefined): string {
   return pluginId === undefined ? 'the workbench' : `plugin "${pluginId}"`;
 }

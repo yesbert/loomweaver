@@ -1,4 +1,5 @@
 import { AccessRequirement } from '../plugin/auth.js';
+import { LwButtonVariant } from './button.js';
 
 /**
  * The **serialisable** context an opener passes when it shows a menu — e.g. the tab strip
@@ -47,6 +48,22 @@ export interface MenuItem {
    * opens the menu once the slot has an entry. Ignored in a menu, where entries do not nest.
    */
   readonly submenu?: string;
+  /**
+   * Where this entry is drawn in a toolbar, the look of the workbench's button it takes: the same
+   * vocabulary `<lw-button>` has, drawn the same way at the toolbar's size. Without one the entry
+   * keeps the toolbar's own look, a faint entry — which is **not** `default`, the bordered button.
+   * An entry drawn as `primary` always shows its title, with its icon before it.
+   *
+   * `primary` belongs to the plugin that owns the toolbar's slot: the plugin that registered the
+   * toolbar, or for a surface's actions the plugin that owns the surface. Asked for by any other
+   * contributor, the entry is drawn without a variant and the developer is told once. Every other
+   * variant is open to every contributor, so a contributed delete can be `danger`. Ignored in a
+   * menu, where every entry looks alike.
+   *
+   *   ctx.registerMenuItem({ menu: 'acme.notes.list/toolbar', command: 'acme.notes.new',
+   *     variant: 'primary', submenu: 'acme.notes/sources' });
+   */
+  readonly variant?: LwButtonVariant;
   /** A heading for {@link submenu}, drawn above its first entry; ignored without one. */
   readonly menuHeader?: MenuHeader;
   /** Group id for ordering + separators; groups render in `group` order, items in `order` within a group. */

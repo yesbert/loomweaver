@@ -105,6 +105,22 @@ describe('MenuService', () => {
     expect(document.body.classList.contains('lw-menu-open')).toBe(true);
   });
 
+  it('offers an entry naming a variant as it offers any other, since the look is a toolbar’s', () => {
+    registry.addCommand({ id: 'c.close', title: 'cmd.close', run: () => undefined });
+    registry.addCommand({ id: 'c.others', title: 'menu.others', run: () => undefined });
+    registry.addMenuItem({ menu: 'content/tab/context', command: 'c.close' });
+    registry.addMenuItem({ menu: 'content/tab/context', command: 'c.others', variant: 'danger' });
+
+    service.open('content/tab/context', context, { x: 20, y: 30 });
+
+    const [plain, named] = items();
+    const shape = (item: HTMLElement) =>
+      [...item.attributes].map((attribute) => attribute.name).toSorted((a, b) => a.localeCompare(b));
+    expect(named.getAttribute('label')).toBe('Close others');
+    expect(shape(named)).toEqual(shape(plain));
+    expect(named.className).toBe(plain.className);
+  });
+
   it('runs the selected item command with the context and closes', () => {
     registry.addCommand({
       id: 'c.close',

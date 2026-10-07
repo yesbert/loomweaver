@@ -74,6 +74,23 @@ describe('SlotBridge', () => {
     ]);
   });
 
+  it('tells an isolated owner each entry’s look, primary kept to the slot’s owner', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    registry.addMenuItem({ id: 'own', menu: SLOT, title: 'Own', run: () => undefined, variant: 'primary' }, 'acme');
+    registry.addMenuItem({ id: 'risky', menu: SLOT, title: 'Risky', run: () => undefined, variant: 'danger' }, 'scanner');
+    registry.addMenuItem({ id: 'pushy', menu: SLOT, title: 'Pushy', run: () => undefined, variant: 'primary' }, 'scanner');
+    bridge.watch(SLOT, {});
+    await settle();
+
+    const [, view] = pushes.at(-1) as [string, LwSlotView];
+    expect(view.entries.map((entry) => [entry.key, entry.variant])).toEqual([
+      ['own', 'primary'],
+      ['risky', 'danger'],
+      ['pushy', undefined],
+    ]);
+    warn.mockRestore();
+  });
+
   it('follows the session, the entries and the words, and stops once unwatched', async () => {
     registry.addCommand({
       id: 'acme.star',

@@ -147,6 +147,37 @@ test.describe('Accessibility (WCAG 2.1 AA)', () => {
     await scan(page);
   });
 
+  for (const theme of ['Light', 'Dark']) {
+    test(`a toolbar entry in every variant, at both sizes (${theme.toLowerCase()})`, async ({
+      page,
+    }) => {
+      await page.goto('/');
+      await page.getByRole('button', { name: theme }).click();
+      await page.evaluate(() => {
+        const variants = ['primary', 'default', 'success', 'danger', 'warning', 'info', 'ghost'];
+        const stage = document.createElement('div');
+        stage.className = 'bg-surface p-2';
+        stage.style.cssText = 'position:fixed;inset:auto 0 0 0;z-index:100';
+        for (const size of ['md', 'sm']) {
+          const toolbar = document.createElement('lw-toolbar') as HTMLElement & {
+            entries: unknown;
+          };
+          toolbar.setAttribute('label', `Variants ${size}`);
+          toolbar.setAttribute('size', size);
+          stage.append(toolbar);
+          toolbar.entries = variants.flatMap((variant) => [
+            { key: `${variant}-label`, label: variant, variant },
+            { key: `${variant}-icon`, label: `${variant} icon`, icon: 'add', variant },
+          ]);
+        }
+        document.body.append(stage);
+      });
+      await expect(page.getByRole('toolbar', { name: 'Variants sm' })).toBeVisible();
+      await expect(page.locator('lw-toolbar .lw-btn--warning')).toHaveCount(4);
+      await scan(page);
+    });
+  }
+
   test('a placed toolbar folded, with its tray open', async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 800 });
     await page.goto('/records');
