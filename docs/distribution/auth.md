@@ -75,8 +75,8 @@ provideAuthSource(() => mySnapshot, { onIdentityChange: 'reload' }),
 
 With `'reload'`, the shell opens the application afresh when one **established** subject is
 replaced by a **different** one. It lands at the application's start under the base it is served
-from, exactly as opening it without a path would, so the next person lands in their own arrangement
-or in the declared start and never on the previous person's address. A pop-out window closes
+from, exactly as opening it without a path would. The next person lands in their own arrangement or
+in the declared start, never on the previous person's address. A pop-out window closes
 instead, because what it shows belongs to the previous person. First sign-in (anonymous → subject) and sign-out (subject →
 anonymous) never fire, so an async session restore at boot causes no reload flicker. A reload is a
 blunt instrument on purpose: it is the only way to guarantee that no in-memory state of the previous
