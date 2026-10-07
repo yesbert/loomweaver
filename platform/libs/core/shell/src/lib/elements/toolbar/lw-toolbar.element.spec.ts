@@ -302,6 +302,43 @@ describe('<lw-toolbar> folding', () => {
     expect(toolbar.querySelector('[data-lw-fold]')).toBeNull();
   });
 
+  it('reads its width only once the controls placed inside it have drawn themselves', () => {
+    if (!customElements.get('lw-test-drawn-cell')) {
+      customElements.define(
+        'lw-test-drawn-cell',
+        class extends HTMLElement {
+          connectedCallback(): void {
+            this.classList.add('drawn');
+          }
+        },
+      );
+    }
+    const probe = document.createElement('lw-test-drawn-cell');
+    probe.setAttribute('data-lw-cell', 'probe');
+    const drawnAtRead: boolean[] = [];
+    const originalClient = Object.getOwnPropertyDescriptor(Element.prototype, 'clientWidth');
+    Object.defineProperty(Element.prototype, 'clientWidth', {
+      configurable: true,
+      get(this: Element) {
+        if (this.tagName.toLowerCase() !== LW_TOOLBAR_TAG) {
+          return 0;
+        }
+        drawnAtRead.push(probe.classList.contains('drawn'));
+        return 400;
+      },
+    });
+    restore = () => {
+      if (originalClient) {
+        Object.defineProperty(Element.prototype, 'clientWidth', originalClient);
+      }
+    };
+
+    mount([{ key: 'a', label: 'A' }], {}, [probe]);
+
+    expect(drawnAtRead.length).toBeGreaterThan(0);
+    expect(drawnAtRead.every(Boolean)).toBe(true);
+  });
+
   it('suspends folding while it has no width to measure against', () => {
     stubLayout(0, { a: 30, b: 30 });
     const toolbar = mount([

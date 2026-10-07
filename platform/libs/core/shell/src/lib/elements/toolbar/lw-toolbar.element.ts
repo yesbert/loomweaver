@@ -61,6 +61,8 @@ export class LwToolbarElement extends HTMLElement {
 
   private rendering = false;
 
+  private connecting = false;
+
   private observer?: ResizeObserver;
 
   private childObserver?: MutationObserver;
@@ -145,9 +147,14 @@ export class LwToolbarElement extends HTMLElement {
     this.addEventListener('click', this.onClick);
     this.addEventListener('contextmenu', this.onContextMenu);
     this.addEventListener('keydown', this.onKeydown);
-    this.observe();
-    this.render();
-    toolbarConnected(this);
+    this.connecting = true;
+    try {
+      this.observe();
+      this.render();
+      toolbarConnected(this);
+    } finally {
+      this.connecting = false;
+    }
   }
 
   disconnectedCallback(): void {
@@ -285,7 +292,9 @@ export class LwToolbarElement extends HTMLElement {
     reflectAttribute(this, 'aria-label', this.label);
     this.classList.toggle('lw-toolbar--sm', this.size === 'sm');
     this.toggleAttribute('hidden', items.length === 0);
-    this.layout.measure(items, this.moreLabelValue);
+    if (!this.connecting) {
+      this.layout.measure(items, this.moreLabelValue);
+    }
     this.roveFocus();
   }
 
