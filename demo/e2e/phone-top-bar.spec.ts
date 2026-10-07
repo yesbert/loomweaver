@@ -13,8 +13,8 @@ test('on a phone the top bar shows the mark alone and keeps every entry inside t
   await expect(brand.locator('img')).toHaveAttribute('alt', 'LoomWeaver Demo');
 
   const language = page.locator('lw-language-switcher .lw-select-trigger');
-  await expect(language).not.toContainText('English');
-  await expect(language).toHaveAttribute('aria-label', 'Language: English');
+  await expect(language).toHaveAccessibleName('Language English');
+  await expect(language.locator('.lw-select-value > .lw-select-hidden')).toHaveText('English');
 
   const topBar = page.locator('lw-shell-bar').first();
   for (const button of await topBar.getByRole('button').all()) {

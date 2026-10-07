@@ -124,7 +124,7 @@
   width: 56px;
 }
 
-:root.look-breeze lw-shell-bar header {
+:root.look-breeze lw-shell-bar > [role="group"] {
   height: 3.5rem;
   padding-inline: 1.25rem;
 }

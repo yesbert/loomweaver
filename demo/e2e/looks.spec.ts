@@ -75,7 +75,7 @@ test('the aurora look draws different icon glyphs', async ({ page }) => {
 
 async function chromeHeight(page: Page) {
   return page.evaluate(() => {
-    const bar = document.querySelector('lw-shell-bar header');
+    const bar = document.querySelector('lw-shell-bar > [role="group"]');
     const strip = document.querySelector('lw-pane-tab-strip');
     const h = (el: Element | null) =>
       el ? el.getBoundingClientRect().height : 0;
@@ -140,7 +140,7 @@ for (const look of ['default', 'aurora', 'breeze']) {
 
       const edges = await page.evaluate(() => {
         const bottom = (el: Element) => Math.round(el.getBoundingClientRect().bottom);
-        const bar = document.querySelector('lw-shell-bar header');
+        const bar = document.querySelector('lw-shell-bar > [role="group"]');
         const heads = [...document.querySelectorAll('lw-shell-sidebar-header > *')];
         return { bar: bar ? bottom(bar) : null, heads: heads.map(bottom) };
       });
