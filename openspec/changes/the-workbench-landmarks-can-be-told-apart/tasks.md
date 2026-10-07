@@ -19,7 +19,7 @@
 - [x] 3.2 The testbed's accessibility, chrome and pane suites in the browser, and the skip link cases
 - [x] 3.3 Lint for the shell and the testbed's end-to-end project
 - [x] 3.4 Nothing moves visually: the testbed split at desktop width and the phone layout, compared pixel by pixel before and after
-- [x] 3.5 The testbed's initial bundle: the landmark work adds 1.8 kB, so its ceiling moves from 940 to 945 kB
+- [x] 3.5 The initial bundles: the landmark work adds 1.8 kB to the testbed, whose ceiling moves from 940 to 945 kB, and on top of #764 takes the shell over 960, so its ceiling moves to 965 kB
 
 ## 4. Close
 

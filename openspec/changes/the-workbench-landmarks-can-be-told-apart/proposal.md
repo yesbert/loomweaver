@@ -65,7 +65,7 @@ None.
 - `platform/libs/core/shell/src/lib/regions/pane/pane-view.html`, the pane tab strip, the sidebar
   header and the panel: tab panels, tab ids, `aria-controls`, and the address pane's body no longer
   `main` itself.
-- `platform/tools/checks/bundle-size-baseline.json`: the testbed's ceiling moves from 940 to 945 kB.
+- `platform/tools/checks/bundle-size-baseline.json`: the testbed's ceiling moves from 940 to 945 kB, the shell's from 960 to 965 kB.
 - `platform/libs/core/shell/src/lib/i18n/en.json`, `de.json`: the landmark names.
 - `platform/apps/loom-testbed-e2e/src/a11y.spec.ts`: the landmark rules over a split content area.
 - `docs/reference/accessibility.md`: the landmarks as the requirement states them.
