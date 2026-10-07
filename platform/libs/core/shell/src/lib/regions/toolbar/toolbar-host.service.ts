@@ -119,7 +119,7 @@ export class ToolbarHost implements LwToolbarHost {
     attachment.resolved = view.resolved;
     toolbar.entries = view.entries;
     toolbar.moreLabel = view.moreLabel;
-    toolbar.label = view.label;
+    toolbar.accessibleName = view.label;
     toolbar.openKey = this.openKeyOf(toolbar, view.resolved);
     this.drawCells(toolbar, attachment, slot, context);
   }

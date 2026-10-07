@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { TranslocoTestingModule } from '@jsverse/transloco';
+import { TranslocoService, TranslocoTestingModule } from '@jsverse/transloco';
 import { ANONYMOUS, AuthSnapshot, MenuContext, TOOLBAR_CONTEXT } from '@loomweaver/plugin-sdk';
 import { AUTH_SOURCE } from '../../auth/auth-context';
 import { ContributionRegistry } from '../../contributions/contribution-registry';
@@ -35,8 +35,12 @@ function transloco() {
         bar: { more: 'More' },
         records: { toolbar: 'Record tools', share: 'Share', star: 'Star', sources: 'Sources' },
       },
+      de: {
+        bar: { more: 'Mehr' },
+        records: { toolbar: 'Werkzeuge', share: 'Teilen', star: 'Merken', sources: 'Quellen' },
+      },
     },
-    translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
+    translocoConfig: { availableLangs: ['en', 'de'], defaultLang: 'en' },
     preloadLangs: true,
   });
 }
@@ -199,5 +203,24 @@ describe('ToolbarHost', () => {
 
     expect(labels(toolbar)).toEqual(['Share']);
     expect(toolbar.getAttribute('aria-label')).toBe('Share');
+  });
+
+  it('words a label that changes after it is drawn, and keeps the label as written', () => {
+    const toolbar = place({ record: 'r1' }, { label: 'records.share' });
+
+    toolbar.setAttribute('label', 'records.sources');
+    TestBed.tick();
+
+    expect(toolbar.getAttribute('aria-label')).toBe('Sources');
+    expect(toolbar.getAttribute('label')).toBe('records.sources');
+  });
+
+  it('words its name again when the language changes', () => {
+    const toolbar = place({ record: 'r1' }, { label: 'records.share' });
+
+    TestBed.inject(TranslocoService).setActiveLang('de');
+    TestBed.tick();
+
+    expect(toolbar.getAttribute('aria-label')).toBe('Teilen');
   });
 });

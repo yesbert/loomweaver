@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslocoTestingModule } from '@jsverse/transloco';
+import { TranslocoService, TranslocoTestingModule } from '@jsverse/transloco';
 import { ANONYMOUS, AuthSnapshot, ViewAction } from '@loomweaver/plugin-sdk';
 import { AUTH_SOURCE } from '../../../auth/auth-context';
 import { ContributionRegistry } from '../../../contributions/contribution-registry';
@@ -30,8 +30,25 @@ class Host {
 
 function transloco() {
   return TranslocoTestingModule.forRoot({
-    langs: { en: { add: 'Add', sort: 'Sort', pin: 'Pin' } },
-    translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
+    langs: {
+      en: {
+        add: 'Add',
+        sort: 'Sort',
+        pin: 'Pin',
+        reports: { title: 'Reports' },
+        ledger: { title: 'Ledger' },
+      },
+      de: {
+        add: 'Hinzufügen',
+        reports: { title: 'Berichte' },
+        ledger: { title: 'Kassenbuch' },
+      },
+    },
+    translocoConfig: {
+      availableLangs: ['en', 'de'],
+      defaultLang: 'en',
+      reRenderOnLangChange: true,
+    },
     preloadLangs: true,
   });
 }
@@ -124,6 +141,74 @@ describe('SurfaceActions', () => {
 
     button('add').click();
     expect(ran).toEqual(['add']);
+  });
+
+  describe('the name of the toolbar', () => {
+    const add: ViewAction = {
+      id: 'add',
+      title: 'add',
+      icon: 'add',
+      run: () => undefined,
+    };
+
+    function titled(title: string, titleIsLiteral?: boolean, id = 'reports') {
+      registry.addContentRoute(
+        entryToContentRoute(
+          surfaceToEntry({
+            id,
+            title,
+            routable: { path: id, title, titleIsLiteral },
+            component: Body,
+            actions: [add],
+          }),
+        ),
+      );
+    }
+
+    function toolbarName(): string | null {
+      fixture.detectChanges();
+      TestBed.tick();
+      return (
+        (fixture.nativeElement as HTMLElement)
+          .querySelector('lw-toolbar')
+          ?.getAttribute('aria-label') ?? null
+      );
+    }
+
+    it('is the surface title in words, not its key', () => {
+      titled('reports.title');
+      render();
+
+      expect(toolbarName()).toBe('Reports');
+    });
+
+    it('is the title as written where the surface marks it literal', () => {
+      titled('Quarterly figures', true);
+      render();
+
+      expect(toolbarName()).toBe('Quarterly figures');
+    });
+
+    it('follows the surface shown when it changes under a standing toolbar', () => {
+      titled('reports.title');
+      titled('ledger.title', false, 'ledger');
+      render();
+      expect(toolbarName()).toBe('Reports');
+
+      fixture.componentInstance.path.set('ledger');
+
+      expect(toolbarName()).toBe('Ledger');
+    });
+
+    it('follows a change of language', async () => {
+      titled('reports.title');
+      render();
+
+      TestBed.inject(TranslocoService).setActiveLang('de');
+      await fixture.whenStable();
+
+      expect(toolbarName()).toBe('Berichte');
+    });
   });
 
   it('draws the actions of a docked view shown under a pane path', () => {

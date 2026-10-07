@@ -207,7 +207,7 @@ export function createToolbars(): LwToolbarsApi {
         entry.entries = view.entries;
         entry.toolbar.entries = view.entries;
         entry.toolbar.moreLabel = view.moreLabel;
-        entry.toolbar.label = view.label;
+        entry.toolbar.accessibleName = entry.toolbar.label ? null : view.label;
         return;
       }
       const open = submenus.get(subscription);
