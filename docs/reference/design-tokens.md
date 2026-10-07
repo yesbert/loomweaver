@@ -337,8 +337,9 @@ function in `@loomweaver/shell`: `defineLwIcon()`, `defineLwButton()`, `defineLw
   slot and words it; you never set its entries yourself. It also handles the element's
   `lw-toolbar-select` and `lw-toolbar-context` events, so activating an entry needs no listener of
   yours. Children you write into it are your own cells, kept in place by their
-  `order` attribute. Its look is `.lw-toolbar*` in `theme.css`; a `role="toolbar"` with roving
-  focus comes with it. Registered with `defineLwToolbar()` where content renders without a running
+  `order` attribute. Its look is `.lw-toolbar*` in `theme.css`, and an entry that names a
+  `variant` takes the button's `.lw-btn--<variant>` at the toolbar's size; a `role="toolbar"` with
+  roving focus comes with it. Registered with `defineLwToolbar()` where content renders without a running
   workbench. Inside an isolated surface it fills only after `LwFrame.connectToolbars(host)`, see
   [A toolbar inside the surface](../weaver/sandboxed-surfaces.md#a-toolbar-inside-the-surface). The
   how-to is [Menus → A toolbar in your own content](../weaver/menus.md#a-toolbar-in-your-own-content).
