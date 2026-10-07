@@ -61,6 +61,21 @@ The workbench SHALL expose its regions as landmarks, its tab strips as real tab 
 transient messages as live regions, so that the structure a sighted user sees is available to a
 screen reader. Where two regions are of the same kind, each SHALL be distinguishable by name.
 
+The landmarks SHALL be these, each named in the interface language:
+
+- the row of bars at the top edge as one banner, and the row at the bottom edge as one content-info
+  region, however many bars a distribution declares there; a single bar is not a landmark of its own;
+- the rail as navigation;
+- each side panel as a complementary region;
+- the content area as the one main region, holding every pane and every tab strip in it, however it
+  is split.
+
+Each pane's body SHALL be a tab panel named by its active tab, and each tab SHALL identify the panel
+it controls. This holds in the content area and in the side panels alike.
+
+The limit: where a side panel's header is drawn in the top row rather than beside the panel, its tab
+strip lies in the banner and not in the panel's complementary region.
+
 #### Scenario: Two sidebars are told apart
 
 - **WHEN** the workbench draws a panel on each side
@@ -70,6 +85,39 @@ screen reader. Where two regions are of the same kind, each SHALL be distinguish
 
 - **WHEN** the workbench raises a notice
 - **THEN** it is announced, with urgency matching the kind of notice
+
+#### Scenario: Bars at both edges are not two banners
+
+- **WHEN** a distribution declares a bar at the top edge and one at the bottom edge
+- **THEN** the document has one banner and one content-info region, each named
+
+#### Scenario: Several bars at one edge are still one landmark
+
+- **WHEN** a distribution declares two bars at the top edge
+- **THEN** the document has one banner, and each bar inside it is a named group
+
+#### Scenario: A split content area is one main region
+
+- **WHEN** the content area is split into two panes
+- **THEN** both panes, their surfaces and their tab strips lie inside the one main region
+
+#### Scenario: A surface is named by the tab it is opened under
+
+- **WHEN** a pane shows a surface under its active tab
+- **THEN** the pane's body is a tab panel carrying that tab's name
+- **AND** the tab identifies that panel as the one it controls
+
+#### Scenario: A side panel's strip lies in its region
+
+- **WHEN** a side panel is drawn with its header beside it
+- **THEN** its tab strip lies inside the panel's complementary region
+
+#### Scenario: The landmark audit passes over a split workbench
+
+- **WHEN** the automated audit's landmark rules run over a workbench with bars at both edges, a panel
+  on each side and a split content area
+- **THEN** no landmark is reported as duplicated, unnamed among its kind, or missing, and no content
+  is reported outside every landmark
 
 ### Requirement: A surface that opens in more than one mode is named for the mode it is in
 
@@ -161,6 +209,33 @@ while it is open and SHALL return focus where it came from when it closes.
 
 - **WHEN** a modal dialog closes
 - **THEN** focus returns to what had it before
+
+### Requirement: The first tab stop is a way past the chrome that stays on the page
+
+Where the workbench draws a content area, the first stop in its focus order SHALL be a link that
+moves the focus to the working area. Activating it SHALL NOT navigate: the application SHALL NOT
+load again, and the address, the arrangement and any unsaved work SHALL stay as they were. This
+SHALL hold at every address the application serves, not only at the root, and under any base the
+distribution is served from.
+
+The limit: a pop-out window draws no chrome to skip, so it carries no such link.
+
+#### Scenario: The skip link at the root
+
+- **WHEN** the person presses Tab once on a freshly loaded workbench at the root address and
+  activates the focused link
+- **THEN** the focus is in the working area
+
+#### Scenario: The skip link below the root does not reload
+
+- **WHEN** the workbench shows an address below the root and the person activates the skip link
+- **THEN** the focus is in the working area
+- **AND** no document is loaded and the address is unchanged
+
+#### Scenario: Unsaved work survives the skip link
+
+- **WHEN** a surface holds work that is not saved and the person activates the skip link
+- **THEN** the work is still there, and the workbench asks no question about leaving
 
 ### Requirement: The user may enlarge text, and motion may be reduced
 
