@@ -294,8 +294,12 @@ function in `@loomweaver/shell`: `defineLwIcon()`, `defineLwButton()`, `defineLw
     }
   </lw-select>
   ```
-  Attributes: `label` (accessible name), `value` (current value), `placeholder`, `disabled`;
-  `<lw-option>`: `value`, optionally `icon` (a name the icon registry knows is drawn as `<lw-icon>`
+  Attributes: `label` (accessible name), `value` (current value), `placeholder`, `disabled`.
+  The control is announced with its label **and** the current choice (or the placeholder). Name it
+  with `label`, with `aria-label`, or with `aria-labelledby` pointing at a visible label of your own
+  in the same document. Both `aria-invalid` and `aria-describedby` on the element reach the control,
+  so an error or a hint is announced with it. A required choice is not announced by the control; say
+  it in the label. Each `<lw-option>` takes `value`, optionally `icon` (a name the icon registry knows is drawn as `<lw-icon>`
   draws it; anything else, such as a flag emoji, is shown as written), label = text content. The **`lw-select-change`** event
   (`detail.value`) fires **only on user selection**, not when `value` is set programmatically (no
   feedback loop). ARIA listbox keyboard handling (↑/↓/Home/End/Enter/Esc + typeahead) and CSS anchor

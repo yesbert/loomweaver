@@ -60,6 +60,16 @@ test.describe('Accessibility (WCAG 2.1 AA)', () => {
     await scan(page);
   });
 
+  test('a select named by a label of its own', async ({ page }) => {
+    await page.goto('/dashboard/export');
+    const range = page.getByRole('button', {
+      name: 'Range Short',
+      exact: true,
+    });
+    await expect(range).toBeVisible();
+    await scan(page);
+  });
+
   test('about dialog open', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('button', { name: 'About' }).click();
@@ -131,14 +141,18 @@ test.describe('Accessibility (WCAG 2.1 AA)', () => {
   });
   test('a toolbar placed in content, once per row', async ({ page }) => {
     await page.goto('/records');
-    await expect(page.getByRole('toolbar', { name: 'Record tools' })).toHaveCount(3);
+    await expect(
+      page.getByRole('toolbar', { name: 'Record tools' }),
+    ).toHaveCount(3);
     await scan(page);
   });
 
   test('a placed toolbar folded, with its tray open', async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 800 });
     await page.goto('/records');
-    const toolbar = page.getByTestId('record-r-1').getByRole('toolbar', { name: 'Record tools' });
+    const toolbar = page
+      .getByTestId('record-r-1')
+      .getByRole('toolbar', { name: 'Record tools' });
     await toolbar.getByRole('button', { name: 'More' }).click();
     await expect(toolbar.getByRole('group', { name: 'More' })).toBeVisible();
     await scan(page);

@@ -11,6 +11,9 @@
       focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand
       disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-surface-overlay;
   }
+  .lw-select-hidden {
+    @apply sr-only;
+  }
   .lw-select-value {
     @apply flex min-w-0 items-center gap-1.5 overflow-hidden whitespace-nowrap;
   }

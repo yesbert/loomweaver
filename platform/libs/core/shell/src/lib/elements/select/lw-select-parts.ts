@@ -11,12 +11,15 @@ export interface Choice {
 
 export interface TriggerParts {
   readonly trigger: HTMLButtonElement;
+  readonly labelPart: HTMLSpanElement;
   readonly valueSlot: HTMLSpanElement;
 }
 
 export interface TriggerOptions {
   readonly anchorName: string;
   readonly listboxId: string;
+  readonly labelId: string;
+  readonly valueId: string;
   readonly onToggle: () => void;
   readonly onKeydown: (event: KeyboardEvent) => void;
 }
@@ -55,15 +58,18 @@ export function createTrigger(options: TriggerOptions): TriggerParts {
   trigger.addEventListener('click', options.onToggle);
   trigger.addEventListener('keydown', options.onKeydown);
 
+  const labelPart = createHiddenText('');
+  labelPart.id = options.labelId;
   const valueSlot = document.createElement('span');
   valueSlot.className = 'lw-select-value';
+  valueSlot.id = options.valueId;
   const chevron = document.createElement('span');
   chevron.className = 'lw-select-chevron';
   chevron.setAttribute('aria-hidden', 'true');
   chevron.textContent = '▾';
-  trigger.append(valueSlot, chevron);
+  trigger.append(labelPart, valueSlot, chevron);
 
-  return { trigger, valueSlot };
+  return { trigger, labelPart, valueSlot };
 }
 
 export function createListbox(options: ListboxOptions): HTMLDivElement {
@@ -87,7 +93,9 @@ export function fillValueSlot(
   if (icon) {
     slot.append(createGlyph(icon));
   }
-  if (!icon || !iconOnly) {
+  if (icon && iconOnly) {
+    slot.append(createHiddenText(text));
+  } else {
     slot.append(document.createTextNode(text));
   }
 }
@@ -115,6 +123,13 @@ export function createOptionRow(options: OptionRowOptions): HTMLDivElement {
   });
   row.addEventListener('pointermove', options.onHover);
   return row;
+}
+
+function createHiddenText(text: string): HTMLSpanElement {
+  const hidden = document.createElement('span');
+  hidden.className = 'lw-select-hidden';
+  hidden.textContent = text;
+  return hidden;
 }
 
 function createGlyph(icon: string): HTMLSpanElement {

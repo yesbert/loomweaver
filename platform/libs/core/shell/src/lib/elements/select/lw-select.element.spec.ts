@@ -30,6 +30,32 @@ function mount(value?: string): HTMLElement {
 
 const trigger = (element: HTMLElement) =>
   element.querySelector<HTMLButtonElement>('.lw-select-trigger')!;
+function textOf(node: Node, skip: (element: HTMLElement) => boolean): string {
+  if (!(node instanceof HTMLElement)) {
+    return node.textContent ?? '';
+  }
+  if (skip(node)) {
+    return '';
+  }
+  return [...node.childNodes].map((child) => textOf(child, skip)).join('');
+}
+const visibleText = (element: Element): string =>
+  textOf(element, (node) => node.classList.contains('lw-select-hidden'));
+const announcedText = (node: Node): string =>
+  textOf(node, (element) => element.getAttribute('aria-hidden') === 'true');
+const accessibleName = (control: HTMLElement): string => {
+  const ids = control.getAttribute('aria-labelledby');
+  if (ids === null) {
+    return control.getAttribute('aria-label') ?? announcedText(control);
+  }
+  return ids
+    .split(' ')
+    .map((id) => {
+      const part = document.querySelector(`#${id}`);
+      return part ? announcedText(part).trim() : '';
+    })
+    .join(' ');
+};
 const options = (element: HTMLElement) => [
   ...element.querySelectorAll<HTMLElement>('[role="option"]'),
 ];
@@ -44,16 +70,14 @@ describe('<lw-select> custom element', () => {
     const element = mount('de');
     element.setAttribute('compact', '');
 
-    expect(trigger(element).textContent).toContain('🇩🇪');
-    expect(trigger(element).textContent).not.toContain('Deutsch');
-    expect(trigger(element).getAttribute('aria-label')).toBe(
-      'Language: Deutsch',
-    );
+    expect(visibleText(trigger(element))).toContain('🇩🇪');
+    expect(visibleText(trigger(element))).not.toContain('Deutsch');
+    expect(accessibleName(trigger(element))).toBe('Language Deutsch');
 
     element.removeAttribute('compact');
 
-    expect(trigger(element).textContent).toContain('Deutsch');
-    expect(trigger(element).getAttribute('aria-label')).toBe('Language');
+    expect(visibleText(trigger(element))).toContain('Deutsch');
+    expect(accessibleName(trigger(element))).toBe('Language Deutsch');
   });
 
   it('draws an option icon the registry knows, on the trigger and in the list', () => {
@@ -97,11 +121,11 @@ describe('<lw-select> custom element', () => {
     expect(customElements.get(LW_OPTION_TAG)).toBeDefined();
   });
 
-  it('shows the selected value (glyph + label) and the accessible label on the trigger', () => {
+  it('shows the selected value (glyph + label) and names the trigger by label and choice', () => {
     const element = mount('de');
     expect(trigger(element).textContent).toContain('Deutsch');
     expect(trigger(element).textContent).toContain('🇩🇪');
-    expect(trigger(element).getAttribute('aria-label')).toBe('Language');
+    expect(accessibleName(trigger(element))).toBe('Language Deutsch');
     expect(trigger(element).getAttribute('aria-expanded')).toBe('false');
   });
 
@@ -280,5 +304,69 @@ describe('<lw-select> custom element', () => {
 
     expect(onChange).not.toHaveBeenCalled();
     expect(element.getAttribute('value')).toBe('en');
+  });
+
+  describe('name, value and state for assistive technology', () => {
+    it('names the trigger by the label and the placeholder while nothing is chosen', () => {
+      const element = mount();
+      element.setAttribute('placeholder', 'Choose…');
+
+      expect(accessibleName(trigger(element))).toBe('Language Choose…');
+    });
+
+    it('follows the choice when it changes', () => {
+      const element = mount('en');
+      expect(accessibleName(trigger(element))).toBe('Language English');
+
+      element.setAttribute('value', 'de');
+
+      expect(accessibleName(trigger(element))).toBe('Language Deutsch');
+    });
+
+    it('takes a label of the consumer’s own by aria-labelledby, together with the choice', () => {
+      const label = document.createElement('span');
+      label.id = 'own-label';
+      label.textContent = 'Text language';
+      document.body.append(label);
+      const element = mount('en');
+      element.removeAttribute('label');
+      element.setAttribute('aria-labelledby', 'own-label');
+
+      expect(accessibleName(trigger(element))).toBe('Text language English');
+      expect(trigger(element).hasAttribute('aria-label')).toBe(false);
+    });
+
+    it('takes an aria-label on the element in place of the label attribute', () => {
+      const element = mount('en');
+      element.removeAttribute('label');
+      element.setAttribute('aria-label', 'Spoken language');
+
+      expect(accessibleName(trigger(element))).toBe('Spoken language English');
+    });
+
+    it('is named by its choice alone when nothing names it', () => {
+      const element = mount('en');
+      element.removeAttribute('label');
+
+      expect(trigger(element).hasAttribute('aria-labelledby')).toBe(false);
+      expect(visibleText(trigger(element))).toContain('English');
+    });
+
+    it('forwards invalid and a description to the trigger, and follows their removal', () => {
+      const element = mount('en');
+      element.setAttribute('aria-invalid', 'true');
+      element.setAttribute('aria-describedby', 'phone-error');
+
+      expect(trigger(element).getAttribute('aria-invalid')).toBe('true');
+      expect(trigger(element).getAttribute('aria-describedby')).toBe(
+        'phone-error',
+      );
+
+      element.removeAttribute('aria-invalid');
+      element.removeAttribute('aria-describedby');
+
+      expect(trigger(element).hasAttribute('aria-invalid')).toBe(false);
+      expect(trigger(element).hasAttribute('aria-describedby')).toBe(false);
+    });
   });
 });
