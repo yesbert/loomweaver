@@ -57,6 +57,8 @@ export class LwToolbarElement extends HTMLElement {
 
   private moreLabelValue = 'More';
 
+  private accessibleNameValue: string | null = null;
+
   private active = 0;
 
   private rendering = false;
@@ -137,8 +139,17 @@ export class LwToolbarElement extends HTMLElement {
     this.layout.relabel(value);
   }
 
+  get accessibleName(): string | null {
+    return this.accessibleNameValue;
+  }
+
+  set accessibleName(value: string | null) {
+    this.accessibleNameValue = value;
+    this.reflectName();
+  }
+
   connectedCallback(): void {
-    for (const name of ['menu', 'label', 'size', 'context', 'entries', 'openKey', 'moreLabel']) {
+    for (const name of ['menu', 'label', 'size', 'context', 'entries', 'openKey', 'moreLabel', 'accessibleName']) {
       upgradeElementProperty(this, name);
     }
     this.setAttribute('role', 'toolbar');
@@ -174,7 +185,9 @@ export class LwToolbarElement extends HTMLElement {
       return;
     }
     if (name === 'label') {
-      reflectAttribute(this, 'aria-label', this.label);
+      this.accessibleNameValue = null;
+      this.reflectName();
+      toolbarChanged(this);
       return;
     }
     if (name === 'size') {
@@ -289,7 +302,7 @@ export class LwToolbarElement extends HTMLElement {
       }
     }
     this.layout.layOut(items, this.moreLabelValue);
-    reflectAttribute(this, 'aria-label', this.label);
+    this.reflectName();
     this.classList.toggle('lw-toolbar--sm', this.size === 'sm');
     this.toggleAttribute('hidden', items.length === 0);
     if (!this.connecting) {
@@ -320,6 +333,10 @@ export class LwToolbarElement extends HTMLElement {
     return [...this.children, ...(this.layout.tray()?.children ?? [])].filter(
       (child) => isCellNode(child),
     );
+  }
+
+  private reflectName(): void {
+    reflectAttribute(this, 'aria-label', this.accessibleNameValue ?? this.label);
   }
 
   private roveFocus(): void {

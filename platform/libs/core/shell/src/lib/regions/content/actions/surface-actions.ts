@@ -7,13 +7,16 @@ import {
   input,
 } from '@angular/core';
 import { MenuContext } from '@loomweaver/plugin-sdk';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { surfaceActionsSlot } from '../../../contributions/toolbar-registry';
 import { ToolbarHost } from '../../toolbar/toolbar-host.service';
 import { surfaceForPanePath } from '../../pane/pane-surface';
+import { paneLabelOf } from '../../pane/chrome/tab-label';
 
 @Component({
   selector: 'lw-surface-actions',
+  imports: [TranslocoPipe],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   host: { class: 'contents' },
   templateUrl: './surface-actions.html',
@@ -45,7 +48,12 @@ export class SurfaceActions {
     return id === undefined ? undefined : surfaceActionsSlot(id);
   });
 
-  protected readonly title = computed(() => this.surface()?.title ?? '');
+  protected readonly title = computed(() => {
+    const path = this.path();
+    return path === undefined || this.surface() === undefined
+      ? undefined
+      : paneLabelOf(this.registry, path);
+  });
 
   protected readonly context = computed<MenuContext>(() => ({
     targetKind: 'view-action',

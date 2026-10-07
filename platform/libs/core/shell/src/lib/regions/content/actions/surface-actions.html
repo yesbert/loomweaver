@@ -1,7 +1,8 @@
 @if (slot(); as slot) {
+  @let label = title();
   <lw-toolbar
     [attr.menu]="slot"
-    [attr.label]="title()"
+    [attr.label]="label ? (label.literalTitle ? label.title : (label.title | transloco)) : null"
     [attr.size]="inStrip() ? 'sm' : 'md'"
     [context]="context()"
     [class.border-l]="inStrip()"
