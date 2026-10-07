@@ -23,6 +23,9 @@ the binding guardrail; it complements [`design-tokens.md`](design-tokens.md) (co
 - A **skip-to-content link** as the first tab stop. It moves the focus to the working area without
   navigating, so it works at every address and under any base, and leaves the address and unsaved
   work as they were.
+- **Dialog fields:** the text field of `prompt` is named by its question, and the field of a
+  `confirm` with `requireConfirmation` by the requirement's label. A reason the guard shows is
+  announced as the field's description, and the field is marked invalid while it is shown.
 - **Focus:** visible `focus-visible` ring; dialogs have a **focus trap** + focus restore; popups/menus
   follow the **ARIA menu keyboard pattern** (arrow keys/Home/End, Escape closes, focus returns to the trigger).
 - **Live regions:** toasts announce with `role="alert"`/`"status"` depending on urgency.
@@ -40,7 +43,8 @@ the binding guardrail; it complements [`design-tokens.md`](design-tokens.md) (co
 - **Toolbars:** a `<lw-toolbar>` is a `role="toolbar"` and **one tab stop**. Inside, the left and
   right arrow keys move between its controls and wrap at the ends, Home and End jump to the first
   and the last. It is announced by the placement's `label`, or by the title the toolbar was
-  registered with. When the row is too narrow, the controls that do not fit fold into a **More**
+  registered with, worded by the workbench. The name follows a change of the label and of the
+  language, and the `label` attribute keeps what was written there. When the row is too narrow, the controls that do not fit fold into a **More**
   control rather than being cut off.
 - **Text size (WCAG 1.4.4):** the shell ships a user setting "text size"
   (Settings → Options → General) that scales the whole UI through the `:root` `font-size`
