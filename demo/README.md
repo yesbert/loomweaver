@@ -213,11 +213,17 @@ which is published and documented on its own; the recipe is in [`docs/samples.md
 
 ### Three looks
 
-[`src/app/looks`](src/app/looks) shows the same app in three appearances, through the four levers a
+[`src/app/looks`](src/app/looks) shows the same app in three appearances, through the five levers a
 distribution has: colours and type as tokens, measurements as unlayered CSS against the `.lw-*` class
-contracts, `provideIcons`, and `provideTranslationOverrides`. The switch lives in the status bar and
-**reloads**, because icons and wording are bootstrap-bound: they are composition decisions, not user
+contracts, `provideIcons`, `provideTranslationOverrides`, and where toasts appear, through
+`provideShell({ toastPosition })`. The switch lives in the status bar and **reloads**, because icons,
+wording and the toast position are bootstrap-bound: they are composition decisions, not user
 preferences. Light and dark stay live within each look.
+
+Standard leaves toasts at the bottom right, Aurora shows them at the top right, and Breeze at the
+bottom in the centre. The toasts themselves use what the platform decides: none states a lifetime, so
+a success or a hint leaves after a few seconds and a warning a little later, and a finished action
+shows its module's icon in the colour of a success.
 
 A look changes how the app _looks_; it never changes whose app it is. The logo and the product name are
 wired once in `app.config.ts` and no look can replace them; the only wording a look owns is the

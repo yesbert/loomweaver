@@ -116,6 +116,60 @@ test('the breeze look changes the geometry, not just the palette', async ({
   expect(look.brand).toBe('#0d9488');
 });
 
+async function postGoodsReceipt(page: Page) {
+  await page.goto('/procurement/orders');
+  await page
+    .getByTestId('surface-actions')
+    .getByRole('button', { name: 'Post goods receipt' })
+    .click();
+  await page
+    .getByRole('dialog')
+    .getByRole('button', { name: 'Post goods receipt' })
+    .click();
+  const toast = page.getByRole('status').filter({ hasText: 'Goods receipt posted.' });
+  await expect(toast).toBeVisible();
+  return toast;
+}
+
+const TOAST_PLACES = [
+  ['default', 'bottom', 'right'],
+  ['aurora', 'top', 'right'],
+  ['breeze', 'bottom', 'centre'],
+] as const;
+
+for (const [look, edge, side] of TOAST_PLACES) {
+  test(`the ${look} look shows its toasts at the ${edge}, ${side}`, async ({ page }) => {
+    await chooseLook(page, look);
+    const toast = await postGoodsReceipt(page);
+
+    const box = await toast.boundingBox();
+    const viewport = page.viewportSize();
+    if (!box || !viewport) {
+      throw new Error('The toast or the viewport has no size to compare.');
+    }
+    const middleX = box.x + box.width / 2;
+    const middleY = box.y + box.height / 2;
+
+    expect(middleY < viewport.height / 2).toBe(edge === 'top');
+    if (side === 'centre') {
+      expect(Math.abs(middleX - viewport.width / 2)).toBeLessThan(2);
+    } else {
+      expect(middleX).toBeGreaterThan(viewport.width / 2);
+    }
+  });
+}
+
+test('a finished action shows its module\'s icon on the toast, in the colour of a success', async ({
+  page,
+}) => {
+  await chooseLook(page, 'default');
+  const toast = await postGoodsReceipt(page);
+
+  const icon = toast.locator('lw-icon').first();
+  await expect(icon).toHaveAttribute('name', 'procurement');
+  await expect(icon).toHaveClass(/text-positive/);
+});
+
 test('the look switch is named by the label beside it, with the look chosen', async ({ page }) => {
   await chooseLook(page, 'default');
 

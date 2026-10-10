@@ -16,7 +16,6 @@ export const peopleActions = {
       host.ui.toast({
         message: 'people.nothingOpen',
         kind: 'info',
-        timeoutMs: 3000,
       });
       return null;
     }
@@ -36,7 +35,7 @@ export const peopleActions = {
     host.ui.toast({
       message: 'people.payrollDone',
       kind: 'success',
-      timeoutMs: 4000,
+      icon: 'people',
     });
     return paid.month;
   },

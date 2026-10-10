@@ -33,7 +33,7 @@ export const customersActions = {
     host.ui.toast({
       message: 'customers.create.done',
       kind: 'success',
-      timeoutMs: 4000,
+      icon: 'customerList',
     });
     return created.id;
   },

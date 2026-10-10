@@ -46,7 +46,7 @@ export const quotesActions = {
     }
     const created = addQuote(customerId);
     this.open(created);
-    host.ui.toast({ message: 'quotes.create.done', kind: 'success', timeoutMs: 4000 });
+    host.ui.toast({ message: 'quotes.create.done', kind: 'success', icon: 'sales' });
     return created.id;
   },
   async createFromSearch(search?: string): Promise<string | null> {

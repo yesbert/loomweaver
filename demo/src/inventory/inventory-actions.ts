@@ -25,7 +25,6 @@ export const inventoryActions = {
       host.ui.toast({
         message: 'inventory.count.unknownItem',
         kind: 'warning',
-        timeoutMs: 4000,
       });
       return null;
     }
@@ -43,14 +42,13 @@ export const inventoryActions = {
       host.ui.toast({
         message: 'inventory.count.unchanged',
         kind: 'info',
-        timeoutMs: 3000,
       });
       return null;
     }
     host.ui.toast({
       message: 'inventory.count.done',
       kind: 'success',
-      timeoutMs: 4000,
+      icon: 'inventory',
     });
     return item.number;
   },
