@@ -50,21 +50,45 @@ it did not.
 beside each notification and matches on the pair, so the string a plugin's name and chosen identity
 spell together no longer finds anybody else's. The published identity stays the joined string
 wherever that string is free, which is every case but the collision; where it is taken, the newcomer
-gets a generated identity, and generated identities skip any that are live. A raiser that passes
-back the identity it was returned is found by that too, which makes true what the plugin contract
-already says about replacing.
+gets a generated identity, and generated identities skip any that are live. The application's
+identities are its own: where it names a notification and a plugin's notification already carries
+that string, the plugin's is given a generated identity and the application takes the one it asked
+for, so that dismissing by an identity it knows keeps working. A raiser that passes back the
+identity it was returned is found by that too, also after that identity was taken back, which makes
+true what the plugin contract already says about replacing.
 
-**The outlet remembers which region the pointer is attending.** Pointer movement on the region
-records that region; pointer-leave and a dismissal by pointer forget it. The question "is the
-pointer attending" is whether the recorded region is the one on screen, so a region that was
-removed and drawn again starts unattended without anything having to reset a flag. Asking the
-browser's hover state was wrong twice: it is true for a pointer that never moved, and nothing
-reports its end when the card under the pointer is removed.
+**Attention belongs to a notification, and ends when it is no longer shown.** The outlet remembers
+the identity of the notification the pointer last moved on and of the one that holds the focus.
+Whenever the list of shown notifications changes, it forgets an identity that is no longer in it,
+and releases the hold when it remembers neither. Pointer movement and focus on a card whose
+notification is no longer shown are ignored.
 
-**A dismissal by pointer ends the pointer's attention.** The card under the pointer is going away,
-and Chromium will send no leave for it. If the pointer is still on another notice, the next movement
-says so. The cost is that a pointer resting perfectly still on the neighbour after a dismissal does
-not hold it, which is the same rule a resting pointer already follows.
+This replaced two earlier attempts, and why they failed is the reason for the shape. The first
+asked the browser's hover state, which is true for a pointer that never moved and whose end nothing
+reports when the card under the pointer is removed. The second remembered that the pointer was on
+the region and cleared that on a dismissal by pointer; a second review showed that a pointer moving
+during the 200 ms a dismissed card takes to fade set it again, after which Chromium sent no leave,
+and that a dismissal from the keyboard or by the application never cleared it at all. Both relied on
+an event arriving for something that had been removed. The third relies on the one thing the outlet
+always learns: what is shown.
+
+The cost is that a pointer resting perfectly still on a neighbour after the card under it went away
+does not hold the neighbour, which is the rule a resting pointer already follows.
+
+**An isolated plugin's waiting notification gives way.** The first version of this change kept
+waiting strictly first in, first out, and claimed that a notification of the workbench's then waits
+at most one bounded lifetime. A review measured 45 s behind one plugin with two places taken by the
+application's own notifications, and 30 s behind two plugins: the lifetime starts when a
+notification is shown, so a plugin's three pass through one free place one after another. A
+notification from a raiser without limits is now queued ahead of the first waiting one from a raiser
+with limits. A shown notification is never moved, so nothing jumps on screen, and what the
+workbench's notification can still wait for is one shown, limited notification, which leaves within
+the bound. Starting a limited raiser's lifetime when it raises was the alternative; it was rejected
+because a plugin's notification could then leave without ever having been shown.
+
+**Whether a notification is limited is recorded on it.** The limits are looked up when a
+notification is first shown and kept with it, so a repeat cannot change what it is by arriving at a
+moment the raiser's limits are not registered.
 
 **The board refuses to begin a hold with nothing shown.** A hold is about the notifications on
 screen. With none, a hold could only be inherited by the next one, which nobody is attending to.
@@ -72,6 +96,10 @@ screen. With none, a hold could only be inherited by the next one, which nobody 
 **The focus goes to the neighbour.** After a dismissal from the keyboard the focus moves to the
 dismiss control of the notification that follows on screen, or the one before where there is none.
 The first one was a shortcut.
+
+**The focus is handed on, and nothing else is done to it.** A dismissal by pointer no longer blurs
+the control: once attention ends with the notification, where the browser's focus lingers for the
+length of a fade does not matter.
 
 **The static classes go back into the template.** The lint guardrail that rejects an unknown
 utility reads `class` attributes in templates. Class lists assembled in TypeScript are outside it,

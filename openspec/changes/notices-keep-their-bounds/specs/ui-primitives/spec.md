@@ -66,3 +66,28 @@ stated with the boundary it crosses.
 
 - **WHEN** two plugins raise notices with the same kind and wording
 - **THEN** each is shown as its own notice
+
+### Requirement: Only a bounded number of notices is shown at once
+
+The workbench SHALL show no more than a small bounded number of notices at once. A notice raised
+beyond that SHALL wait, and SHALL be shown, in the order raised, as a shown notice leaves or is
+dismissed. The lifetime of a waiting notice SHALL NOT run until it is shown, so that no notice
+leaves without having been shown.
+
+The limit: the order raised is not kept for an isolated plugin's notice that is still waiting. It
+gives way to a notice raised by anybody else, which is stated with the boundary it crosses.
+
+#### Scenario: A notice beyond the bound waits
+
+- **WHEN** more notices are raised than the workbench shows at once
+- **THEN** the bounded number is shown and the others are not yet
+
+#### Scenario: A waiting notice moves up
+
+- **WHEN** a shown notice leaves or is dismissed while another waits
+- **THEN** the one that waited longest is shown
+
+#### Scenario: Waiting costs no lifetime
+
+- **WHEN** a notice has waited longer than its lifetime before it is shown
+- **THEN** it is shown for its whole lifetime

@@ -31,9 +31,14 @@ name removed. The release waits for this change.
   follow; the lifetime already running keeps running. The bounds on an isolated plugin's notices
   are held where the notices are held, for every way of raising, instead of being applied at the
   channel before the call.
-- **Whether the pointer is attending is remembered, not asked of the browser.** Moving on the
-  notices sets it; leaving them and dismissing by pointer clear it. A hold cannot begin while
-  nothing is shown.
+- **An isolated plugin's waiting notice gives way.** A notice raised by the workbench, the
+  distribution or a composed plugin is shown before an isolated plugin's notices that are still
+  waiting. Without this the bound on a lifetime multiplied by the number a plugin may hold, and by
+  the number of plugins.
+- **Attention belongs to a notice, and ends with it.** The outlet remembers which notice the
+  pointer moved on and which holds the focus; when that notice is no longer shown, for whatever
+  reason, the attention is over. Nothing depends on the browser reporting that a pointer or the
+  focus left a card that was removed. A hold cannot begin while nothing is shown.
 - **A notice is replaced only by whoever raised it.** An identity that is already taken by another
   raiser's notice gives the newcomer an identity of its own.
 - A stated lifetime longer than a timer can hold is shortened to what it can hold, instead of
@@ -60,9 +65,9 @@ None.
 ### Modified Capabilities
 
 - `plugin-sandbox`: the requirement bounding an isolated plugin's notices states that a repeat or a
-  replacement does not start the lifetime over.
-- `ui-primitives`: the requirement on counting a repeat points at that limit, and the requirement on
-  raising a notice gains the scenario that pins the collision.
+  replacement does not start the lifetime over, and that its waiting notices give way.
+- `ui-primitives`: the requirements on counting a repeat and on the bound point at those limits, and
+  the requirement on raising a notice gains the scenario that pins the collision.
 
 ## Impact
 

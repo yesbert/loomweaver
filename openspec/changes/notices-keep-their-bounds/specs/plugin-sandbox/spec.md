@@ -16,8 +16,15 @@ Neither SHALL buy time. Where an isolated plugin repeats a notice, or replaces o
 count and the content follow, and the lifetime that is already running SHALL keep running: the
 notice leaves when it would have left had nothing been raised again.
 
-Together the two bounds mean that an isolated plugin cannot keep the workbench's own notices, or
-another plugin's, from being shown for longer than the bound on a lifetime.
+A notice of an isolated plugin that is still waiting to be shown SHALL give way to a notice raised
+by the workbench, by the distribution or by a plugin composed into the page: such a notice is shown
+before it, whichever was raised first. A notice that is already shown is never moved for this.
+
+Together these mean that an isolated plugin cannot keep a notice of the workbench's own, or of a
+plugin composed into the page, from being shown for longer than the bound on a lifetime: what such
+a notice can still wait for is a place taken by an isolated plugin's notice that is already shown,
+and that place is free within the bound. A place taken by a notice that is not an isolated
+plugin's is outside this guarantee.
 
 The symbol a notice names SHALL cross as a name and be resolved by the workbench. An action a
 notice offers is a function, and does not cross.
@@ -57,6 +64,18 @@ bounded this way.
 - **WHEN** an isolated plugin replaces one of its notices again and again, each time before it
   would have left
 - **THEN** the notice shows the newest content, and leaves when its first lifetime runs out
+
+#### Scenario: A waiting notice of an isolated plugin gives way
+
+- **WHEN** notices of an isolated plugin are waiting to be shown and the workbench raises one of
+  its own
+- **THEN** the workbench's notice is shown before the plugin's waiting ones
+
+#### Scenario: Several isolated plugins do not add up
+
+- **WHEN** two isolated plugins each hold as many notices as they may, and the workbench raises
+  one of its own
+- **THEN** the workbench's notice is shown no later than the bound on a lifetime after it was raised
 
 #### Scenario: The workbench's own notice is not kept waiting indefinitely
 

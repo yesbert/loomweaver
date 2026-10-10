@@ -50,6 +50,29 @@ test.describe('Notices', () => {
     await expect(notices).toHaveCount(0, { timeout: 12_000 });
   });
 
+  test('a pointer still moving on a notice that is fading out does not keep the others', async ({
+    page,
+  }) => {
+    await runCommand(page, 'Raise a notice with its own symbol');
+    await runCommand(page, 'Raise the same warning again');
+    const notices = page.getByRole('region', { name: 'Notifications' });
+    const dismiss = notices.getByRole('button', { name: 'Dismiss' }).first();
+    const box = await dismiss.boundingBox();
+    if (!box) {
+      throw new Error('The dismiss control has no box to click.');
+    }
+    const x = box.x + box.width / 2;
+    const y = box.y + box.height / 2;
+
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.up();
+    await page.waitForTimeout(60);
+    await page.mouse.move(x - 2, y);
+
+    await expect(notices).toHaveCount(0, { timeout: 12_000 });
+  });
+
   test('focus passing through a notice under a resting pointer does not keep it', async ({
     page,
   }) => {

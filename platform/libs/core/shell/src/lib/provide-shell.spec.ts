@@ -114,6 +114,12 @@ describe('provideShell toasts', () => {
       provideShell({ toastPosition: 'middle' as unknown as 'top-left' }),
     ).toThrow(/toastPosition 'middle' is not one of top-left, top-center/);
   });
+
+  it('refuses an empty position too, rather than failing later where toasts are drawn', () => {
+    expect(() =>
+      provideShell({ toastPosition: '' as unknown as 'top-left' }),
+    ).toThrow(/toastPosition '' is not one of/);
+  });
 });
 
 describe('provideShell dialog close guard', () => {

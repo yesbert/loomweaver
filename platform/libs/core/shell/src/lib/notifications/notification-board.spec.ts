@@ -131,6 +131,57 @@ describe('NotificationBoard — a raiser with limits', () => {
     expect(shown()).toEqual(['A version is waiting']);
   });
 
+  it("lets the application's notification go ahead of a limited raiser's waiting ones", () => {
+    board.show({ message: 'own error', kind: 'error' });
+    board.show({ message: 'own error too', kind: 'error', icon: 'lock' });
+    showThree(0);
+    board.show({ message: 'A version is waiting', timeoutMs: 0 });
+
+    vi.advanceTimersByTime(15_000);
+    expect(shown()).toEqual([
+      'own error',
+      'own error too',
+      'A version is waiting',
+    ]);
+  });
+
+  it("shows the application's notification within one lifetime behind two limited raisers", () => {
+    board.limit('other', LIMITS);
+    showThree(0);
+    for (const message of ['four', 'five', 'six']) {
+      board.show({ message, timeoutMs: 0 }, 'other');
+    }
+    board.show({ message: 'A version is waiting', timeoutMs: 0 });
+
+    vi.advanceTimersByTime(15_000);
+    expect(shown()).toContain('A version is waiting');
+  });
+
+  it("keeps a trusted plugin's notification ahead of a limited raiser's waiting ones too", () => {
+    board.show({ message: 'own', timeoutMs: 0 });
+    showThree(0);
+    board.show({ message: 'trusted', timeoutMs: 0 }, 'trusted');
+
+    vi.advanceTimersByTime(15_000);
+    expect(shown().slice(0, 2)).toEqual(['own', 'trusted']);
+  });
+
+  it('never moves a notification that is already shown out of its place', () => {
+    showThree(0);
+    board.show({ message: 'A version is waiting', timeoutMs: 0 });
+
+    expect(shown()).toEqual(['one', 'two', 'three']);
+  });
+
+  it('keeps a limited notification limited when the limits are taken away while it is there', () => {
+    board.show({ message: 'again', timeoutMs: 0 }, 'bounded');
+    unlimit();
+    board.show({ message: 'again', timeoutMs: 0 }, 'bounded');
+
+    vi.advanceTimersByTime(15_000);
+    expect(shown()).toEqual([]);
+  });
+
   it('has room again when a notification has left', () => {
     showThree(1000);
     vi.advanceTimersByTime(1000);

@@ -383,6 +383,14 @@ describe('NotificationService', () => {
       expect(shownMessages()).toEqual(['Squatting']);
     });
 
+    it('still finds a notification by the id its raiser was returned, after that id was taken back', () => {
+      const returned = board.show({ id: 'update', message: 'Mine' }, 'shell');
+      service.show({ id: 'shell.update', message: 'A version is waiting' });
+      board.show({ id: returned, message: 'Mine, updated' }, 'shell');
+
+      expect(shownMessages()).toEqual(['Mine, updated', 'A version is waiting']);
+    });
+
     it('keeps the lifetime of a notification whose id was taken from it', () => {
       board.show({ id: 'update', message: 'Squatting', timeoutMs: 1000 }, 'shell');
       service.show({ id: 'shell.update', message: 'Mine', timeoutMs: 0 });

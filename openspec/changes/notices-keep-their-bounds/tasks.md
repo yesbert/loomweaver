@@ -37,3 +37,13 @@
 - [x] 5.2 The composition lookup, the workbench tour, `llms.txt` and `llms-full.txt` name the two notice options
 - [x] 5.3 Lint by exit code, every unit test, the packaging and the builds, the bundle ratchet, and the structure, comments, import-cycle, packed-declaration, agent-contract and documentation guards pass
 - [x] 5.4 The complete end-to-end suite passes on the branch, and `openspec validate --all --strict` is green
+
+## 6. What the second review found
+
+- [x] 6.1 Attention is remembered per notification and forgotten when that notification is no longer shown; pointer movement and focus on a card that is fading out are ignored; a browser test moves the pointer inside the fade and waits for the others to leave
+- [x] 6.2 A notification from a raiser without limits is queued ahead of the first waiting one from a raiser with limits; tests pin the two measured sequences, one plugin behind two of the application's own and two plugins at their limit
+- [x] 6.3 Whether a notification is limited is recorded on it, and a notification is found by the identity its raiser was returned also after that identity was taken back
+- [x] 6.4 The board's commands and queries are separate: finding a free identity changes nothing, and taking an identity back is its own step
+- [x] 6.5 An unknown position is refused for every value that is not absent, the empty string included; the limits' constant is not exported; the placement's boolean reads as a question
+- [x] 6.6 The test that asserted a mocked report is replaced by one that pins the removal of the limits at deactivation
+- [x] 6.7 Lint, every unit test, the builds, the guards and the complete end-to-end suite pass again

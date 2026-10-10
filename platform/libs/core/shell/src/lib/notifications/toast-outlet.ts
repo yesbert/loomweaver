@@ -1,8 +1,8 @@
-import { DOCUMENT } from '@angular/common';
 import {
   Component,
   computed,
   CUSTOM_ELEMENTS_SCHEMA,
+  effect,
   ElementRef,
   inject,
   viewChild,
@@ -41,19 +41,23 @@ const COLORS: Record<NotificationKind, FeedbackColors> = {
 })
 export class ToastOutlet {
   private readonly service = inject(NotificationService);
-  private readonly document = inject(DOCUMENT);
   private readonly region = viewChild<ElementRef<HTMLElement>>('region');
   private readonly dismissButtons =
     viewChildren<ElementRef<HTMLElement>>('dismissButton');
   private readonly placement = toastPlacement(inject(TOAST_POSITION));
-  private regionThePointerIsOn: HTMLElement | undefined;
+  private toastUnderPointer: string | undefined;
+  private toastWithFocus: string | undefined;
   protected readonly regionPlacement = this.placement.region;
   protected readonly enteringFrom = this.placement.entering;
   protected readonly notifications = computed(() =>
-    this.placement.newestFirst
+    this.placement.isNewestFirst
       ? this.service.notifications().toReversed()
       : this.service.notifications(),
   );
+
+  constructor() {
+    effect(() => this.forgetWhatLeft(this.service.notifications()));
+  }
 
   protected iconFor(toast: Notification): string {
     return toast.icon ?? toast.kind;
@@ -76,48 +80,70 @@ export class ToastOutlet {
   }
 
   protected runAction(toast: Notification, click: MouseEvent): void {
-    this.giveUpAttention(click);
+    this.handFocusToNeighbour(click);
     toast.action?.run();
     this.service.dismiss(toast.id);
   }
 
   protected dismiss(id: string, click: MouseEvent): void {
-    this.giveUpAttention(click);
+    this.handFocusToNeighbour(click);
     this.service.dismiss(id);
   }
 
-  protected pointerMoved(): void {
-    this.regionThePointerIsOn = this.region()?.nativeElement;
+  protected pointerMovedOn(id: string): void {
+    if (!this.isShown(id)) {
+      return;
+    }
+    this.toastUnderPointer = id;
     this.service.hold();
   }
 
   protected pointerLeft(): void {
-    this.regionThePointerIsOn = undefined;
-    this.releaseUnlessAttended(this.document.activeElement);
+    this.toastUnderPointer = undefined;
+    this.releaseUnlessAttended();
   }
 
-  protected focusEntered(): void {
+  protected focusEntered(id: string): void {
+    if (!this.isShown(id)) {
+      return;
+    }
+    this.toastWithFocus = id;
     this.service.hold();
   }
 
   protected focusLeft(event: FocusEvent): void {
-    this.releaseUnlessAttended(event.relatedTarget);
-  }
-
-  private giveUpAttention(click: MouseEvent): void {
-    const control = click.currentTarget as HTMLElement;
-    const neighbour = wasByKeyboard(click)
-      ? this.dismissButtonBeside(control)
-      : undefined;
-    if (neighbour) {
-      neighbour.focus();
+    if (this.isInRegion(event.relatedTarget)) {
       return;
     }
-    if (!wasByKeyboard(click)) {
-      this.regionThePointerIsOn = undefined;
+    this.toastWithFocus = undefined;
+    this.releaseUnlessAttended();
+  }
+
+  private forgetWhatLeft(shown: readonly Notification[]): void {
+    const isStillShown = (id: string | undefined) =>
+      shown.some((toast) => toast.id === id);
+    if (!isStillShown(this.toastUnderPointer)) {
+      this.toastUnderPointer = undefined;
     }
-    control.blur();
-    this.releaseUnlessAttended(this.document.activeElement);
+    if (!isStillShown(this.toastWithFocus)) {
+      this.toastWithFocus = undefined;
+    }
+    this.releaseUnlessAttended();
+  }
+
+  private releaseUnlessAttended(): void {
+    if (
+      this.toastUnderPointer === undefined &&
+      this.toastWithFocus === undefined
+    ) {
+      this.service.release();
+    }
+  }
+
+  private handFocusToNeighbour(click: MouseEvent): void {
+    if (wasByKeyboard(click)) {
+      this.dismissButtonBeside(click.currentTarget as HTMLElement)?.focus();
+    }
   }
 
   private dismissButtonBeside(control: HTMLElement): HTMLElement | undefined {
@@ -127,23 +153,14 @@ export class ToastOutlet {
     return buttons[own + 1] ?? buttons[own - 1];
   }
 
-  private releaseUnlessAttended(focused: EventTarget | null): void {
-    if (!this.hasFocusIn(focused) && !this.isPointerAttending()) {
-      this.service.release();
-    }
+  private isShown(id: string): boolean {
+    return this.service.notifications().some((toast) => toast.id === id);
   }
 
-  private hasFocusIn(target: EventTarget | null): boolean {
+  private isInRegion(target: EventTarget | null): boolean {
     const region = this.region()?.nativeElement;
     return (
       region !== undefined && target instanceof Node && region.contains(target)
-    );
-  }
-
-  private isPointerAttending(): boolean {
-    return (
-      this.regionThePointerIsOn !== undefined &&
-      this.regionThePointerIsOn === this.region()?.nativeElement
     );
   }
 }

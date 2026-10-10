@@ -651,6 +651,7 @@ function providePlugins(...plugins: Plugin[]): (Provider | EnvironmentProviders)
 // A sandboxed plugin's toasts are bounded: each leaves after 15 s at the latest (timeoutMs 0, a longer one and an error
 // without one are shortened to that), and the plugin holds at most three at once, shown and waiting; a further toast rejects.
 // Repeating a toast or replacing one by id updates it and never extends it: it leaves when it would have left anyway.
+// A sandboxed plugin's toast that is still waiting for a place gives way to a toast of the application or of a composed plugin.
 // Hardened seam: RPC surfaces are re-validated ({iframe} or {container} form — component/loadComponent cannot cross;
 // an iframe URL must be served from an origin the composition permitted — the application's own, plus FramePlugin.origins
 // — so never javascript:/data:), effective capabilities = grant ∩

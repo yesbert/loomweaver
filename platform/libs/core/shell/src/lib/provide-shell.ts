@@ -134,7 +134,9 @@ function optionProviders(
     ...valueIfSet(ANNOUNCE_UPDATES, options.announceUpdates),
     ...valueIfSet(
       TOAST_POSITION,
-      options.toastPosition && knownToastPosition(options.toastPosition),
+      options.toastPosition === undefined
+        ? undefined
+        : knownToastPosition(options.toastPosition),
     ),
     ...valueIfSet(DRAW_TOASTS, options.drawToasts),
     ...(options.serviceWorker === false

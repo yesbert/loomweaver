@@ -11,7 +11,10 @@ import {
 import { Connection, WindowMessenger, connect } from 'penpal';
 import { ActivationSettled } from '../activation-settled';
 import { SETTINGS_STORE } from '../../persistence/settings-store';
-import { NotificationBoard } from '../../notifications/notification-board';
+import {
+  NotificationBoard,
+  RaiserLimits,
+} from '../../notifications/notification-board';
 import { StateSyncService } from '../../persistence/cross-tab/state-sync.service';
 import { HostPluginContext } from '../context/host-plugin-context';
 import { HostContextFactory } from '../context/host-context-factory';
@@ -35,7 +38,11 @@ import {
 import { frameRpcMethods } from './rpc/frame-rpc-methods';
 import { FrameRemote } from './rpc/frame-rpc-contract';
 import { FrameSession } from './frame-session';
-import { ISOLATED_NOTIFICATION_LIMITS } from './isolated-notification-limits';
+
+const ISOLATED_NOTIFICATION_LIMITS: RaiserLimits = {
+  atOnce: 3,
+  lifetimeMs: 15_000,
+};
 
 interface FrameInstance {
   readonly ctx: HostPluginContext;

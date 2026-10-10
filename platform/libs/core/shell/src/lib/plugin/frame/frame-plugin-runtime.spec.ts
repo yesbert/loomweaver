@@ -18,7 +18,7 @@ import { CATALOG_MAX_ISOLATION_LEVEL } from '../../plugin-store/catalog/catalog-
 import { ContentTabsService } from '../../regions/content/tabs/content-tabs.service';
 import { MenuService } from '../../menu/menu.service';
 import { NotificationService } from '../../notifications/notification.service';
-import { CapabilityRefusalReporter } from '../../permissions/capability-refusal';
+import { NotificationBoard } from '../../notifications/notification-board';
 import { SettingsService } from '../../settings-dialog/settings.service';
 import type { Mock } from 'vitest';
 
@@ -383,19 +383,17 @@ describe('FramePluginRuntime (iframe + Penpal runtime)', () => {
     }
   });
 
-  it('reports the refused toast to the developer like any other refused call', () => {
+  it('stops bounding a plugin once it is deactivated', () => {
     const { runtime } = setup();
     runtime.activateAll();
-    const reported = vi
-      .spyOn(TestBed.inject(CapabilityRefusalReporter), 'report')
-      .mockReturnValue(false);
+    const board = TestBed.inject(NotificationBoard);
 
-    for (const message of ['one', 'two', 'three']) {
-      rpc()['toast']({ message });
+    runtime.deactivate('p1');
+
+    for (const message of ['one', 'two', 'three', 'four']) {
+      board.show({ message, timeoutMs: 0 }, 'p1');
     }
-    expect(() => rpc()['toast']({ message: 'four' })).toThrow();
-
-    expect(reported).toHaveBeenCalledTimes(1);
+    expect(board.shown()).toHaveLength(3);
   });
 
   it('deactivate tears down the frame, the connection and the contributions', () => {

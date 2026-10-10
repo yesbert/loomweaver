@@ -33,7 +33,9 @@ interface LiveNotification {
   readonly notification: Notification;
   readonly raiser: string | undefined;
   readonly name: string | undefined;
+  readonly returnedId: string;
   readonly lifetimeMs: number;
+  readonly isLimited: boolean;
 }
 
 const SHOWN_AT_ONCE = 3;
@@ -53,17 +55,18 @@ export class NotificationBoard {
   );
 
   show(input: NotificationInput, raiser?: string): string {
-    const limits = raiser === undefined ? undefined : this.limits.get(raiser);
     const existing = this.liveAs(input, raiser);
-    const entry = existing
-      ? shownAgain(existing, input, limits)
-      : this.shownFirst(input, raiser, limits);
-    this.live.update((entries) => replacedOrAppended(entries, entry));
-    if (!(existing && limits)) {
-      this.clock.stop(entry.key);
+    if (existing) {
+      return this.showAgain(existing, input);
     }
-    this.startLifetimesOfShown();
-    return entry.notification.id;
+    const limits = raiser === undefined ? undefined : this.limits.get(raiser);
+    if (limits) {
+      this.refuseBeyond(limits, raiser);
+    }
+    if (raiser === undefined && input.id !== undefined) {
+      this.takeBack(input.id);
+    }
+    return this.showFirst(input, raiser, limits);
   }
 
   dismiss(id: string): void {
@@ -88,6 +91,49 @@ export class NotificationBoard {
     return () => this.limits.delete(raiser);
   }
 
+  private showFirst(
+    input: NotificationInput,
+    raiser: string | undefined,
+    limits: RaiserLimits | undefined,
+  ): string {
+    const id = this.freeIdFor(input, raiser);
+    const entry: LiveNotification = {
+      key: this.nextKey++,
+      notification: notificationOf(id, input, 1),
+      raiser,
+      name: input.id,
+      returnedId: id,
+      lifetimeMs: limitedLifetime(lifetimeOf(input), limits),
+      isLimited: limits !== undefined,
+    };
+    this.live.update((entries) => queued(entries, entry));
+    this.startLifetimesOfShown();
+    return id;
+  }
+
+  private showAgain(
+    existing: LiveNotification,
+    input: NotificationInput,
+  ): string {
+    const { id, count } = existing.notification;
+    const isReplacement = input.id !== undefined;
+    const restartsLifetime = !existing.isLimited;
+    const entry: LiveNotification = {
+      ...existing,
+      notification: notificationOf(id, input, isReplacement ? 1 : count + 1),
+      name: isReplacement ? (existing.name ?? input.id) : existing.name,
+      lifetimeMs: restartsLifetime ? lifetimeOf(input) : existing.lifetimeMs,
+    };
+    this.live.update((entries) =>
+      entries.map((live) => (live.key === entry.key ? entry : live)),
+    );
+    if (restartsLifetime) {
+      this.clock.stop(entry.key);
+    }
+    this.startLifetimesOfShown();
+    return id;
+  }
+
   private remove(key: number): void {
     this.clock.stop(key);
     this.live.update((entries) => entries.filter((live) => live.key !== key));
@@ -106,31 +152,13 @@ export class NotificationBoard {
         entry.raiser === raiser &&
         (input.id === undefined
           ? isRepeatOf(entry, input)
-          : entry.name === input.id || entry.notification.id === input.id),
+          : entry.name === input.id || entry.returnedId === input.id),
     );
   }
 
-  private shownFirst(
-    input: NotificationInput,
-    raiser: string | undefined,
-    limits: RaiserLimits | undefined,
-  ): LiveNotification {
-    this.refuseBeyond(limits, raiser);
-    return {
-      key: this.nextKey++,
-      notification: notificationOf(this.idFor(input, raiser), input, 1),
-      raiser,
-      name: input.id,
-      lifetimeMs: limitedLifetime(lifetimeOf(input), limits),
-    };
-  }
-
-  private refuseBeyond(
-    limits: RaiserLimits | undefined,
-    raiser: string | undefined,
-  ): void {
+  private refuseBeyond(limits: RaiserLimits, raiser: string | undefined): void {
     const live = this.live().filter((entry) => entry.raiser === raiser);
-    if (limits && live.length >= limits.atOnce) {
+    if (live.length >= limits.atOnce) {
       throw new Error(
         `Plugin '${raiser}' already holds ${limits.atOnce} toasts, shown and waiting together. ` +
           'A further one is refused until one of them has left.',
@@ -138,19 +166,7 @@ export class NotificationBoard {
     }
   }
 
-  private idFor(input: NotificationInput, raiser: string | undefined): string {
-    if (input.id === undefined) {
-      return this.generatedId();
-    }
-    if (raiser === undefined) {
-      this.vacate(input.id);
-      return input.id;
-    }
-    const joined = `${raiser}.${input.id}`;
-    return this.isTaken(joined) ? this.generatedId() : joined;
-  }
-
-  private vacate(id: string): void {
+  private takeBack(id: string): void {
     if (!this.isTaken(id)) {
       return;
     }
@@ -162,6 +178,17 @@ export class NotificationBoard {
           : entry,
       ),
     );
+  }
+
+  private freeIdFor(
+    input: NotificationInput,
+    raiser: string | undefined,
+  ): string {
+    if (input.id === undefined) {
+      return this.generatedId();
+    }
+    const wanted = raiser === undefined ? input.id : `${raiser}.${input.id}`;
+    return this.isTaken(wanted) ? this.generatedId() : wanted;
   }
 
   private generatedId(): string {
@@ -185,28 +212,18 @@ export class NotificationBoard {
   }
 }
 
-function shownAgain(
-  existing: LiveNotification,
-  input: NotificationInput,
-  limits: RaiserLimits | undefined,
-): LiveNotification {
-  const { id, count } = existing.notification;
-  const isReplacement = input.id !== undefined;
-  return {
-    ...existing,
-    notification: notificationOf(id, input, isReplacement ? 1 : count + 1),
-    name: isReplacement ? (existing.name ?? input.id) : existing.name,
-    lifetimeMs: limits ? existing.lifetimeMs : lifetimeOf(input),
-  };
-}
-
-function replacedOrAppended(
+function queued(
   entries: readonly LiveNotification[],
   entry: LiveNotification,
 ): readonly LiveNotification[] {
-  return entries.some((live) => live.key === entry.key)
-    ? entries.map((live) => (live.key === entry.key ? entry : live))
-    : [...entries, entry];
+  const firstToGiveWay = entry.isLimited
+    ? -1
+    : entries.findIndex(
+        (live, place) => place >= SHOWN_AT_ONCE && live.isLimited,
+      );
+  return firstToGiveWay === -1
+    ? [...entries, entry]
+    : entries.toSpliced(firstToGiveWay, 0, entry);
 }
 
 function limitedLifetime(
