@@ -130,7 +130,10 @@ capability broker as a trusted plugin. An ungranted capability rejects, so `.cat
 latest: `timeoutMs: 0`, a longer lifetime and an `error` without one are all shortened to that. The
 plugin holds at most three toasts at once, shown and waiting together, and a further `toast` call
 rejects until one of them has left. A toast raised again and counted on one that is still there is
-not a further one. An `action` is a function and does not cross; an `icon` crosses as its name. A
+not a further one, and neither is a toast that replaces one of the plugin's own by `id`. Neither
+keeps it longer: the count and the content follow, and the toast leaves when it would have left
+anyway. While a toast of a sandboxed plugin is still waiting for a place, a toast of the application
+or of a composed plugin is shown before it. An `action` is a function and does not cross; an `icon` crosses as its name. A
 sandboxed plugin has no host dialog, so a message that has to last belongs in the plugin's own
 surface, or as a badge on its tab through `updateSurfaceBadge`.
 (Generate this whole layout with `nx g @loomweaver/devkit:frame-plugin` or the MCP

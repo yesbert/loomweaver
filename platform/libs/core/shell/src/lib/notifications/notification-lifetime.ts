@@ -3,6 +3,8 @@ import { NotificationInput, NotificationKind } from '@loomweaver/plugin-sdk';
 export const STAYS = 0;
 export const HOLD_REMAINDER_MS = 1000;
 
+const LONGEST_TIMER_MS = 2 ** 31 - 1;
+
 const LIFETIME_BY_KIND: Record<NotificationKind, number> = {
   info: 5000,
   success: 5000,
@@ -15,5 +17,7 @@ export function lifetimeOf(input: NotificationInput): number {
   if (stated === undefined) {
     return LIFETIME_BY_KIND[input.kind ?? 'info'];
   }
-  return Number.isFinite(stated) && stated > 0 ? stated : STAYS;
+  return Number.isFinite(stated) && stated > 0
+    ? Math.min(stated, LONGEST_TIMER_MS)
+    : STAYS;
 }

@@ -108,6 +108,18 @@ describe('provideShell toasts', () => {
     expect(TestBed.inject(TOAST_POSITION)).toBe('top-center');
     expect(TestBed.inject(DRAW_TOASTS)).toBe(false);
   });
+
+  it('refuses a position it does not know while composing, naming the six', () => {
+    expect(() =>
+      provideShell({ toastPosition: 'middle' as unknown as 'top-left' }),
+    ).toThrow(/toastPosition 'middle' is not one of top-left, top-center/);
+  });
+
+  it('refuses an empty position too, rather than failing later where toasts are drawn', () => {
+    expect(() =>
+      provideShell({ toastPosition: '' as unknown as 'top-left' }),
+    ).toThrow(/toastPosition '' is not one of/);
+  });
 });
 
 describe('provideShell dialog close guard', () => {

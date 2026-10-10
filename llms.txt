@@ -93,7 +93,7 @@ Deterministic scaffolding + validation for building on LoomWeaver. Prefer these 
   - [Workspaces](docs/distribution-api/workspaces.md): `WorkspaceService`, switch, save, reset, remove, and the claims a path settles by.
   - [Sidebars](docs/distribution-api/sidebars.md): `SidebarService`, collapse, expand, width, hide and show a view.
   - [Reset](docs/distribution-api/reset.md): `AppResetService`, the one question, with or without the workspaces.
-  - [Dialogs and toasts](docs/distribution-api/dialogs-and-toasts.md): `DialogService` and `NotificationService`, the same seam `ctx.ui` uses, `DialogInstance` for an outlet of your own.
+  - [Dialogs and toasts](docs/distribution-api/dialogs-and-toasts.md): `DialogService` and `NotificationService`, the same seam `ctx.ui` uses, `DialogInstance` for an outlet of your own; how long a toast stays, the limit of three, counting a repeat, `toastPosition`, and drawing toasts yourself with `drawToasts: false`.
   - [Settings](docs/distribution-api/settings.md): `SettingsService`, register, omit and open a section.
   - [Commands](docs/distribution-api/commands.md): `CommandService`, execute, run, availability, the chord for display, `Triggerable`, and the `CommandInvoker` seam.
   - [Session](docs/distribution-api/session.md): `AuthContext`, the snapshot and the predicates the chrome gates on.

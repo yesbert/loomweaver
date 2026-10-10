@@ -29,6 +29,12 @@ test.describe('Notices of a sandboxed plugin', () => {
   test('a burst beyond what the plugin may hold shows three and refuses the rest', async ({
     page,
   }) => {
+    const refusals: string[] = [];
+    page.on('console', (message) => {
+      if (message.text().includes('[store-full] toast failed')) {
+        refusals.push(message.text());
+      }
+    });
     const greeting = page.getByLabel('Greeting');
     for (const text of ['one', 'two', 'three', 'four', 'five']) {
       await greeting.fill(text);
@@ -37,6 +43,7 @@ test.describe('Notices of a sandboxed plugin', () => {
     for (const text of ['one', 'two', 'three']) {
       await expect(page.getByText(`[store-full] ${text}`)).toBeVisible();
     }
+    await expect.poll(() => refusals.length).toBe(2);
     await expect(page.getByText('[store-full] four')).toHaveCount(0);
     await expect(page.getByText('[store-full] five')).toHaveCount(0);
   });
@@ -54,6 +61,28 @@ test.describe('Notices of a sandboxed plugin', () => {
       .filter({ hasText: /\[store-full\] again/ });
     await expect(repeated).toHaveCount(1);
     await expect(repeated).toContainText('Raised 2 times');
+  });
+
+  test('repeating a notice does not keep it past its first lifetime', async ({
+    page,
+  }) => {
+    const greeting = page.getByLabel('Greeting');
+    const shout = page.getByLabel('Shout');
+    await greeting.fill('kept');
+    await shout.click();
+    await shout.click();
+    const repeated = page
+      .getByRole('status')
+      .filter({ hasText: /\[store-full\] kept/ });
+    await expect(repeated).toContainText('Raised 2 times');
+    await page.mouse.move(0, 0);
+
+    await page.waitForTimeout(3000);
+    await shout.focus();
+    await page.keyboard.press('Space');
+    await page.keyboard.press('Space');
+
+    await expect(repeated).toHaveCount(0, { timeout: 4000 });
   });
 
   test("the plugin's notices leave by themselves", async ({ page }) => {

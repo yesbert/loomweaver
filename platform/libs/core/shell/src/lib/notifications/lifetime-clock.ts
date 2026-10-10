@@ -4,61 +4,61 @@ interface RunningLifetime {
 }
 
 export class LifetimeClock {
-  private readonly running = new Map<string, RunningLifetime>();
-  private readonly paused = new Map<string, number>();
-  private held = false;
+  private readonly running = new Map<number, RunningLifetime>();
+  private readonly paused = new Map<number, number>();
+  private isHeld = false;
 
-  constructor(private readonly elapsed: (id: string) => void) {}
+  constructor(private readonly elapsed: (key: number) => void) {}
 
-  counts(id: string): boolean {
-    return this.running.has(id) || this.paused.has(id);
+  isTiming(key: number): boolean {
+    return this.running.has(key) || this.paused.has(key);
   }
 
-  start(id: string, lifetimeMs: number): void {
-    this.stop(id);
-    if (this.held) {
-      this.paused.set(id, lifetimeMs);
+  start(key: number, lifetimeMs: number): void {
+    this.stop(key);
+    if (this.isHeld) {
+      this.paused.set(key, lifetimeMs);
       return;
     }
-    this.run(id, lifetimeMs);
+    this.run(key, lifetimeMs);
   }
 
-  stop(id: string): void {
-    clearTimeout(this.running.get(id)?.timer);
-    this.running.delete(id);
-    this.paused.delete(id);
+  stop(key: number): void {
+    clearTimeout(this.running.get(key)?.timer);
+    this.running.delete(key);
+    this.paused.delete(key);
   }
 
   hold(): void {
-    if (this.held) {
+    if (this.isHeld) {
       return;
     }
-    this.held = true;
+    this.isHeld = true;
     const now = Date.now();
-    for (const [id, { timer, endsAt }] of this.running) {
+    for (const [key, { timer, endsAt }] of this.running) {
       clearTimeout(timer);
-      this.paused.set(id, Math.max(endsAt - now, 0));
+      this.paused.set(key, Math.max(endsAt - now, 0));
     }
     this.running.clear();
   }
 
   release(atLeastMs: number): void {
-    if (!this.held) {
+    if (!this.isHeld) {
       return;
     }
-    this.held = false;
+    this.isHeld = false;
     const paused = [...this.paused];
     this.paused.clear();
-    for (const [id, remainingMs] of paused) {
-      this.run(id, Math.max(remainingMs, atLeastMs));
+    for (const [key, remainingMs] of paused) {
+      this.run(key, Math.max(remainingMs, atLeastMs));
     }
   }
 
-  private run(id: string, lifetimeMs: number): void {
+  private run(key: number, lifetimeMs: number): void {
     const timer = setTimeout(() => {
-      this.running.delete(id);
-      this.elapsed(id);
+      this.running.delete(key);
+      this.elapsed(key);
     }, lifetimeMs);
-    this.running.set(id, { timer, endsAt: Date.now() + lifetimeMs });
+    this.running.set(key, { timer, endsAt: Date.now() + lifetimeMs });
   }
 }

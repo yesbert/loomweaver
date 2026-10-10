@@ -1,7 +1,6 @@
 import { CommandOutcome } from '@loomweaver/plugin-sdk';
 import { tabBadgeOf } from '../../../contributions/tab-badge';
 import { asCommandArguments } from '../../../foundation/command-arguments';
-import { NoticeBoard } from '../../../notifications/notice-board';
 import { KeyValueStore } from '../../../persistence/key-value-store';
 import { StateSyncService } from '../../../persistence/cross-tab/state-sync.service';
 import { PluginInstallService } from '../../../plugin-store/lifecycle/plugin-install.service';
@@ -19,7 +18,6 @@ import {
   sanitizeRpcToastInput,
   sanitizeRpcToolbar,
 } from './sanitize-inputs';
-import { refuseBeyondNoticeBound } from './notice-bounds';
 import { sanitizeRpcSettingsSection } from './sanitize-settings';
 import { sanitizeRpcSurface } from './sanitize-surface';
 import { textArgument } from './wire-fields';
@@ -40,7 +38,6 @@ export interface FrameRpcDeps {
   readonly install: PluginInstallService;
   readonly store: KeyValueStore;
   readonly sync: StateSyncService;
-  readonly notices: NoticeBoard;
   readonly reportRefusal: (error: unknown) => void;
 }
 
@@ -115,11 +112,7 @@ export function frameRpcMethods(deps: FrameRpcDeps): FrameRpc {
       invokeCommand: (id, args) =>
         invokeRpcCommand(ctx, textArgument(id, 'invokeCommand', 'id'), args),
       invocableCommands: () => ctx.invocableCommands(),
-      toast: (input) => {
-        const sanitized = sanitizeRpcToastInput(input);
-        refuseBeyondNoticeBound(deps.notices, pluginId, sanitized);
-        return ctx.ui.toast(sanitized);
-      },
+      toast: (input) => ctx.ui.toast(sanitizeRpcToastInput(input)),
       stateWatch: (key) => session.state.watch(key),
       stateSet: (key, value) => session.state.set(key, value),
       stateClear: (key) => session.state.clear(key),

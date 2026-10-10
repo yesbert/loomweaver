@@ -17,6 +17,8 @@ import { PluginDeploymentService } from '../../plugin-store/lifecycle/plugin-dep
 import { CATALOG_MAX_ISOLATION_LEVEL } from '../../plugin-store/catalog/catalog-level-cap';
 import { ContentTabsService } from '../../regions/content/tabs/content-tabs.service';
 import { MenuService } from '../../menu/menu.service';
+import { NotificationService } from '../../notifications/notification.service';
+import { NotificationBoard } from '../../notifications/notification-board';
 import { SettingsService } from '../../settings-dialog/settings.service';
 import type { Mock } from 'vitest';
 
@@ -357,6 +359,41 @@ describe('FramePluginRuntime (iframe + Penpal runtime)', () => {
     const id = rpc()['toast']({ message: 'hi' });
 
     expect(typeof id).toBe('string');
+  });
+
+  it('bounds the toasts of a frame plugin: a fourth is refused, a stay still leaves', () => {
+    vi.useFakeTimers();
+    try {
+      const { runtime } = setup();
+      runtime.activateAll();
+      const toasts = TestBed.inject(NotificationService);
+
+      for (const message of ['one', 'two', 'three']) {
+        rpc()['toast']({ message, timeoutMs: 0 });
+      }
+      expect(() => rpc()['toast']({ message: 'four' })).toThrow(
+        /already holds 3 toasts/,
+      );
+      expect(toasts.notifications()).toHaveLength(3);
+
+      vi.advanceTimersByTime(15_000);
+      expect(toasts.notifications()).toHaveLength(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('stops bounding a plugin once it is deactivated', () => {
+    const { runtime } = setup();
+    runtime.activateAll();
+    const board = TestBed.inject(NotificationBoard);
+
+    runtime.deactivate('p1');
+
+    for (const message of ['one', 'two', 'three', 'four']) {
+      board.show({ message, timeoutMs: 0 }, 'p1');
+    }
+    expect(board.shown()).toHaveLength(3);
   });
 
   it('deactivate tears down the frame, the connection and the contributions', () => {

@@ -2,7 +2,7 @@ import { inject } from '@angular/core';
 import { AuthContext } from '../../auth/auth-context';
 import { DialogService } from '../../dialog/dialog.service';
 import { MenuService } from '../../menu/menu.service';
-import { NoticeBoard } from '../../notifications/notice-board';
+import { NotificationBoard } from '../../notifications/notification-board';
 import { SettingsService } from '../../settings-dialog/settings.service';
 import { UpdateService } from '../../update/update.service';
 import { VersionService } from '../../version/version.service';
@@ -10,7 +10,7 @@ import { PluginHost, PluginSession, PluginUi } from '../plugin';
 
 export function pluginUi(pluginId: string, requireUi: () => void): PluginUi {
   const dialogs = inject(DialogService);
-  const notices = inject(NoticeBoard);
+  const notifications = inject(NotificationBoard);
   const settings = inject(SettingsService);
   const menu = inject(MenuService);
   return {
@@ -40,7 +40,7 @@ export function pluginUi(pluginId: string, requireUi: () => void): PluginUi {
     },
     toast: (input) => {
       requireUi();
-      return notices.raise(input, pluginId);
+      return notifications.show(input, pluginId);
     },
     openSettings: () => {
       requireUi();

@@ -100,18 +100,13 @@ describe('sanitizeRpcToastInput', () => {
     ).toBeUndefined();
   });
 
-  it.each([
-    ['a stated stay', { timeoutMs: 0 }, 15_000],
-    ['a negative lifetime', { timeoutMs: -1 }, 15_000],
-    ['a lifetime beyond the bound', { timeoutMs: 600_000 }, 15_000],
-    ['an infinite lifetime', { timeoutMs: Infinity }, undefined],
-    ['an error without a lifetime', { kind: 'error' }, 15_000],
-    ['an error stated to stay', { kind: 'error', timeoutMs: 0 }, 15_000],
-    ['a lifetime within the bound', { timeoutMs: 2000 }, 2000],
-    ['a warning without a lifetime', { kind: 'warning' }, undefined],
-  ])('turns %s into a lifetime that ends', (_, fields, lifetime) => {
-    const input = sanitizeRpcToastInput(asToast({ message: 'm', ...fields }));
-    expect(input.timeoutMs).toBe(lifetime);
+  it('carries a finite lifetime as stated, the bounding is not the sanitiser\'s', () => {
+    const lifetimeOf = (timeoutMs: number) =>
+      sanitizeRpcToastInput(asToast({ message: 'm', timeoutMs })).timeoutMs;
+
+    expect(lifetimeOf(0)).toBe(0);
+    expect(lifetimeOf(600_000)).toBe(600_000);
+    expect(lifetimeOf(Infinity)).toBeUndefined();
   });
 
   it('rejects a missing or empty message', () => {

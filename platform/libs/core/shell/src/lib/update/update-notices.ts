@@ -1,5 +1,5 @@
 import { NotificationInput } from '@loomweaver/plugin-sdk';
-import { STAYS } from '../notifications/notice-lifetime';
+import { STAYS } from '../notifications/notification-lifetime';
 
 export type UpdateNotice =
   'waiting' | 'current' | 'unreachable' | 'failed' | 'broken';

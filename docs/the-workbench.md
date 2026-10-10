@@ -185,7 +185,8 @@ window. All of it is the shell's:
   sync across every window and tab of the product. [Windows and sync](distribution/windows-and-sync.md).
 - **Light, dark and system**, a language switch, and four text sizes, in the top bar and in the
   settings dialog. [Appearance](distribution-api/appearance.md), [Translations](weaver/i18n.md).
-- **Toasts** for what a plugin or the product wants to say, and an update badge that turns into
+- **Toasts** for what a plugin or the product wants to say, coloured by kind, leaving by themselves
+  unless they report a failure, and never more than three at once. An update badge turns into
   _Reload to update_ when a new build is ready. [Dialogs and toasts](distribution-api/dialogs-and-toasts.md),
   [PWA](distribution/pwa.md).
 - **Access-aware chrome.** A contribution that needs a sign-in or a role is hidden, disabled or
