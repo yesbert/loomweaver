@@ -31,7 +31,10 @@ import { CapabilityGrantService } from '../../../permissions/capability-grant.se
 import { PluginIsolationLevelService } from '../../../plugin-isolation/plugin-isolation-level.service';
 import { ContentTabsService } from '../tabs/content-tabs.service';
 import { normalizePath, restBelow, suffixOf } from '../content-path';
-import type { LwSurfaceCapture } from '../../../surface-kit/surface-kit.frame';
+import type {
+  LwSlotView,
+  LwSurfaceCapture,
+} from '../../../surface-kit/surface-kit.frame';
 import { askSurfaceToDraw, DrawRequest } from '../../../capture/ask-surface';
 import { SurfaceCaptureRegistry } from '../../../capture/surface-capture-registry';
 import {
@@ -44,7 +47,6 @@ import { PluginStateBridge } from '../../../plugin/plugin-state-bridge';
 import { SlotBridge } from './slot-bridge';
 import { ToolbarSlots } from '../../toolbar/toolbar-slots.service';
 import { requiredMenuContext } from '../../../foundation/wire/menu-context-of';
-import type { LwSlotView } from '../../../surface-kit/surface-kit.frame';
 import { surfaceRouteData } from './surface-route-data';
 
 @Component({

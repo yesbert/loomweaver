@@ -26,6 +26,7 @@ import {
   installLwToolbarHost,
   LwToolbarHost,
 } from '../../elements/toolbar/toolbar-bridge';
+import { CELL_ATTRIBUTE } from '../../elements/toolbar/toolbar-dom';
 import { menuOnContext } from '../../menu/chrome-item-menu';
 import { ResolvedEntry } from '../../menu/menu-resolution';
 import { MenuService } from '../../menu/menu.service';
@@ -182,7 +183,7 @@ export class ToolbarHost implements LwToolbarHost {
       }),
     });
     const host = ref.location.nativeElement as HTMLElement;
-    host.setAttribute('data-lw-cell', cell.id);
+    host.setAttribute(CELL_ATTRIBUTE, cell.id);
     host.setAttribute('order', String(cell.order ?? 0));
     toolbar.append(host);
     this.appRef.attachView(ref.hostView);

@@ -101,7 +101,7 @@ export class ToolbarSlots {
     if (!isButtonVariant(asked)) {
       this.reportOnce(
         `${slot}\u{0}${entry.id}\u{0}unknown`,
-        `Toolbar entry '${entry.id}' in slot '${slot}' names the variant '${String(asked)}', ` +
+        `Toolbar entry '${entry.id}' in slot '${slot}' names ${describedVariant(asked)}, ` +
           'which no button has; it is drawn without a variant.',
       );
       return undefined;
@@ -136,4 +136,11 @@ export class ToolbarSlots {
     this.reported.add(key);
     console.warn(message);
   }
+}
+
+function describedVariant(asked: unknown): string {
+  if (typeof asked === 'string') {
+    return `the variant '${asked}'`;
+  }
+  return `a variant of type ${asked === null ? 'null' : typeof asked}`;
 }

@@ -308,12 +308,16 @@ function ensureAssets(
 function serves(entry: unknown, input: string, output = ''): boolean {
   const asset = asObject(entry);
   const from = inputOf(entry);
-  if (!asset || from === undefined || !['**', '**/*'].includes(String(asset['glob']))) {
+  if (!asset || from === undefined || !['**', '**/*'].includes(textOf(asset['glob']))) {
     return false;
   }
   const below = posix.relative(from, input);
-  const servedAt = posix.join(String(asset['output'] ?? ''), below);
+  const servedAt = posix.join(textOf(asset['output']), below);
   return !below.startsWith('..') && below !== '' && servedAt === posix.normalize(output);
+}
+
+function textOf(value: unknown): string {
+  return typeof value === 'string' ? value : '';
 }
 
 function inputOf(entry: unknown): string | undefined {
