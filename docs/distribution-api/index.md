@@ -22,6 +22,8 @@ components are the application, not a guest in it. Every service below is `provi
 
 `Shell` renders the dialog and toast outlets, so there is nothing to place in a template.
 `DialogOutlet` and `ToastOutlet` exist for a distribution that builds its own root component instead.
+Two options of `provideShell` govern toasts: `toastPosition` chooses the edge they appear at, and
+`drawToasts: false` lets you [draw them yourself](dialogs-and-toasts.md#drawing-toasts-yourself).
 
 ## The rules behind every page
 

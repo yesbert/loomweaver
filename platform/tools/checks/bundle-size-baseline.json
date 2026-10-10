@@ -3,7 +3,7 @@
   "apps": {
     "assistant-workbench": 1080,
     "demo": 1400,
-    "loom-shell": 965,
-    "loom-testbed": 950
+    "loom-shell": 975,
+    "loom-testbed": 955
   }
 }

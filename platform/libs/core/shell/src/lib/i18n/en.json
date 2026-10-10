@@ -86,7 +86,8 @@
   },
   "notification": {
     "region": "Notifications",
-    "dismiss": "Dismiss"
+    "dismiss": "Dismiss",
+    "repeated": "Raised {{count}} times"
   },
   "palette": {
     "title": "Command palette",

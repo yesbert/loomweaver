@@ -8,6 +8,7 @@ import { registerSettings } from './chrome/testbed-settings';
 import { registerContainers } from './containers/register-containers';
 import { registerDashboard } from './dashboard/register-dashboard';
 import { registerDialogs } from './dialogs/register-dialogs';
+import { registerNotices } from './notices/register-notices';
 import { entryTabs } from './entry-tabs/entry-tab-actions';
 import { registerEntryTabs } from './entry-tabs/register-entry-tabs';
 import { registerNavigation } from './navigation/register-navigation';
@@ -46,6 +47,7 @@ export const testbedPlugin: Plugin = {
     registerSandboxedSurfaces(ctx);
     registerAccessGating(ctx);
     registerDialogs(ctx);
+    registerNotices(ctx);
     registerChrome(ctx);
     registerMenus(ctx);
     registerSettings(ctx);

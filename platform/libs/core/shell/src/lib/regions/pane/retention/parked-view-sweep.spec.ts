@@ -294,10 +294,8 @@ describe('surface retention', () => {
       expect(saveCalls).toBe(1);
       expect(dirtyDestroyed).toBe(0);
       expect(
-        TestBed.inject(NotificationService)
-          .notifications()
-          .map((toast) => toast.message),
-      ).toContain('retention.saveFailed');
+        TestBed.inject(NotificationService).notifications(),
+      ).toMatchObject([{ message: 'retention.saveFailed', kind: 'error' }]);
     });
 
     it('blocks beforeunload while any surface is dirty, and stops once clean', () => {

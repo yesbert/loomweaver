@@ -31,6 +31,35 @@ describe('the ui, host and session a plugin is handed', () => {
     expect(notifications.notifications()[0].id).toBe('test-plugin.update');
   });
 
+  it("carries the icon a plugin names, and counts a plugin's repeat on its own toast", () => {
+    const { ctx, notifications } = makeContext();
+
+    ctx.ui.toast({ message: 'Synced', icon: 'refresh' });
+    ctx.ui.toast({ message: 'Synced', icon: 'refresh' });
+
+    expect(notifications.notifications()).toMatchObject([
+      { message: 'Synced', icon: 'refresh', count: 2 },
+    ]);
+  });
+
+  it("never counts a plugin's toast on the application's own of the same wording", () => {
+    const { ctx, notifications } = makeContext();
+
+    notifications.show({ message: 'Saved' });
+    ctx.ui.toast({ message: 'Saved' });
+
+    expect(notifications.notifications().map((t) => t.count)).toEqual([1, 1]);
+  });
+
+  it('gives a plugin no field through which it could raise as another plugin', () => {
+    const { ctx, notifications } = makeContext();
+    const posing = { message: 'Saved', raiser: 'other-plugin' };
+
+    ctx.ui.toast({ id: 'x', ...posing });
+
+    expect(notifications.notifications()[0].id).toBe('test-plugin.x');
+  });
+
   it('ctx.ui.openMenu opens an ad-hoc menu and dispatches the picked item run (in-process)', () => {
     const { ctx, menu } = makeContext();
     const open = vi.fn();

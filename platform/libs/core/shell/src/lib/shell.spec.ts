@@ -1,3 +1,4 @@
+import { Provider } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import {
@@ -8,6 +9,8 @@ import { Shell } from './shell';
 import { DEFAULT_BAR_ITEMS } from './regions/bar/default-bar-items';
 import { ContributionRegistry } from './contributions/contribution-registry';
 import { provideLayout } from './layout/layout';
+import { NotificationService } from './notifications/notification.service';
+import { DRAW_TOASTS } from './notifications/toast-options';
 
 function translocoTesting(options: TranslocoTestingOptions = {}) {
   return TranslocoTestingModule.forRoot({
@@ -86,6 +89,40 @@ describe('Shell', () => {
     expect(click.defaultPrevented).toBe(true);
     expect(document.activeElement).toBe(target);
     compiled.remove();
+  });
+});
+
+describe('Shell toasts', () => {
+  async function shellWith(providers: Provider[]) {
+    localStorage.clear();
+    await TestBed.configureTestingModule({
+      imports: [Shell, translocoTesting()],
+      providers: [provideRouter([]), ...providers],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(Shell);
+    await fixture.whenStable();
+    return fixture.nativeElement as HTMLElement;
+  }
+
+  it('mounts the toast outlet where the distribution says nothing', async () => {
+    const shell = await shellWith([]);
+    expect(shell.querySelector('lw-toasts')).not.toBeNull();
+  });
+
+  it('mounts no toast outlet where the distribution draws toasts itself', async () => {
+    const shell = await shellWith([{ provide: DRAW_TOASTS, useValue: false }]);
+    expect(shell.querySelector('lw-toasts')).toBeNull();
+  });
+
+  it('keeps raised toasts readable where the distribution draws them', async () => {
+    await shellWith([{ provide: DRAW_TOASTS, useValue: false }]);
+    const toasts = TestBed.inject(NotificationService);
+
+    toasts.show({ message: 'Saved', kind: 'success' });
+
+    expect(toasts.notifications()).toMatchObject([
+      { message: 'Saved', kind: 'success', count: 1 },
+    ]);
   });
 });
 

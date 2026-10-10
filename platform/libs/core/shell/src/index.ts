@@ -77,6 +77,7 @@ export { ViewportService } from './lib/layout/viewport.service';
 
 export * from './lib/notifications/notification.service';
 export * from './lib/notifications/toast-outlet';
+export type { ToastPosition } from './lib/notifications/toast-options';
 
 export * from './lib/permissions/capability-grant.service';
 export * from './lib/permissions/provide-capability-grants';

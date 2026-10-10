@@ -86,7 +86,9 @@
     }
   </div>
 }
-<lw-toasts />
+@if (drawsToasts) {
+  <lw-toasts />
+}
 <lw-dialog-outlet />
 
 <ng-template #drawer let-panel let-side="side">

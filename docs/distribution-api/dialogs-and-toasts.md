@@ -33,13 +33,19 @@ const busy = dialogs.progress({ message: 'Indexing…' }); busy.update('Almost d
 ```ts
 const toasts = inject(NotificationService);
 
-const id = toasts.show({ message: 'settings.saved', kind: 'success', timeoutMs: 4000 });
+const id = toasts.show({ message: 'settings.saved', kind: 'success' });   // leaves by itself
+toasts.show({ message: 'import.failed', kind: 'error' });                 // stays until dismissed
+toasts.show({ message: 'sync.paused', icon: 'lock', timeoutMs: 0 });      // own icon, and stays
 toasts.dismiss(id);
+```
+
+```ts
+provideShell({ toastPosition: 'top-center' });   // where toasts appear; bottom right by default
 ```
 
 ## Read it
 
-The open dialogs are `dialogs.dialogs()`, oldest first; the last one is topmost. Each is a `DialogInstance` whose `kind` is a `DialogKind`, one of confirm, alert, prompt, custom and progress, and whose buttons are `DialogButtonView`s with a `ButtonRole` of confirm, cancel or custom, which is what a custom outlet reads to draw them. What is on screen right now is `toasts.notifications()`. Opening your own component returns a [`DialogRef`](../weaver/host-ui-and-facts.md): `closed` is a promise of the result, `close(result)` settles it, and `maximized` with `toggleMaximized()` serve dialogs opened with `maximizable: true`.
+The open dialogs are `dialogs.dialogs()`, oldest first; the last one is topmost. Each is a `DialogInstance` whose `kind` is a `DialogKind`, one of confirm, alert, prompt, custom and progress, and whose buttons are `DialogButtonView`s with a `ButtonRole` of confirm, cancel or custom, which is what a custom outlet reads to draw them. The toasts to show right now are `toasts.notifications()`, oldest first and never more than three. Each is a `Notification` with its `id`, `kind`, `message`, the `icon` its raiser named, the `count` of how often it was raised, and its `action`. Opening your own component returns a [`DialogRef`](../weaver/host-ui-and-facts.md): `closed` is a promise of the result, `close(result)` settles it, and `maximized` with `toggleMaximized()` serve dialogs opened with `maximizable: true`.
 
 ## What asks about unsaved work
 
@@ -47,7 +53,9 @@ Nothing on this page asks: a dialog or a toast closes no surface. The unsaved-wo
 
 ## Switched off
 
-No switch governs dialogs or toasts.
+No switch governs dialogs or toasts. Two composition options govern toasts: `toastPosition` places
+them, and `drawToasts: false` leaves the drawing to you; both are described below. Dialogs have no
+such option.
 
 ## In depth
 
@@ -114,10 +122,117 @@ does not fit. One is a surface that draws its own two-column chrome, such as the
 The other is a panel whose height follows a filtering list, such as the command palette; centred, it
 would jump around as results change.
 
-**Toasts.** `kind` is `info | success | warning | error`. **Omitting `timeoutMs` makes the toast
-sticky**: it stays until the user dismisses it, which is right for "an update is waiting" and wrong
-for almost everything else. A single `action` adds a button. Passing the same `id` twice replaces
-the toast instead of stacking a second one.
+**Toasts.** `kind` is `info | success | warning | error`. It decides the colour of the card, the
+icon and how urgently the toast is announced. `icon` names another icon from the registry; the
+colour and the urgency stay the kind's. A single `action` adds a button.
+
+**How long a toast is shown.** `timeoutMs` counts from the moment the toast is shown. Without it the
+kind decides:
+
+| Kind              | Without `timeoutMs`    |
+| ----------------- | ---------------------- |
+| `info`, `success` | leaves after 5 seconds |
+| `warning`         | leaves after 8 seconds |
+| `error`           | stays until dismissed  |
+
+`timeoutMs: 0` keeps a toast of any kind until the user dismisses it, which is right for "an update
+is waiting" and wrong for almost everything else. A toast that offers an `action` should state its
+lifetime rather than rely on the kind, because the action leaves with it.
+
+**A toast the user is attending to does not leave.** Once the pointer moves on a toast, and while
+keyboard focus is in one, no toast leaves by itself. Afterwards each one runs what was left of its
+lifetime, and at least a second. A toast that appears under a pointer that is not moving is not
+held, so one that covers the button you just clicked still leaves.
+
+**Three at once.** No more than three toasts are shown. A further one waits its turn, and its
+lifetime starts when it is shown, so waiting costs it nothing.
+
+**The same toast again is counted.** Raising a toast with the kind, message, icon and action label
+of one that is still there adds no second card. The first shows how often it was raised, and its
+lifetime starts over. A toast with an `id` is never counted: passing the same `id` twice replaces
+the toast, which is how you update one in place.
+
+**Where toasts appear.** `provideShell({ toastPosition })` takes `top-left`, `top-center`,
+`top-right`, `bottom-left`, `bottom-center` or `bottom-right`, the default. The newest toast sits
+nearest that edge. On a narrow viewport, the one at which the side panels become overlays, toasts
+are centred at the chosen edge. A toast cannot place itself.
+
+**The colours** are the feedback tokens `info`, `positive`, `caution` and `negative`. Retint them
+and the toasts follow, like every other piece of feedback.
+
+## Drawing toasts yourself
+
+`provideShell({ drawToasts: false })` mounts no toast outlet. You draw `toasts.notifications()` in a
+component of your own, with any look or any library you like. Only the drawing moves: which toasts
+are to be shown, when one leaves, the limit of three and the counting are decided by the service,
+so your component reads a list that is already right.
+
+```ts
+// main.ts
+provideShell({ drawToasts: false });
+```
+
+```ts
+// my-toasts.ts
+import { Component, CUSTOM_ELEMENTS_SCHEMA, inject } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { Notification, NotificationService } from '@loomweaver/shell';
+
+@Component({
+  selector: 'app-toasts',
+  imports: [TranslocoPipe],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  templateUrl: './my-toasts.html',
+})
+export class MyToasts {
+  protected readonly toasts = inject(NotificationService);
+
+  protected role(toast: Notification): 'alert' | 'status' {
+    return toast.kind === 'error' || toast.kind === 'warning' ? 'alert' : 'status';
+  }
+
+  protected run(toast: Notification): void {
+    toast.action?.run();
+    this.toasts.dismiss(toast.id);
+  }
+}
+```
+
+```html
+<!-- my-toasts.html -->
+<section
+  aria-label="Notifications"
+  (pointermove)="toasts.hold()"
+  (pointerleave)="toasts.release()"
+  (focusin)="toasts.hold()"
+  (focusout)="toasts.release()"
+>
+  @for (toast of toasts.notifications(); track toast.id) {
+    <div [attr.role]="role(toast)" [class]="'my-toast my-toast--' + toast.kind">
+      <lw-icon [name]="toast.icon ?? toast.kind" />
+      <span>{{ toast.message | transloco }}</span>
+      @if (toast.count > 1) {
+        <span>×{{ toast.count }}</span>
+      }
+      @if (toast.action; as action) {
+        <button type="button" (click)="run(toast)">{{ action.label | transloco }}</button>
+      }
+      <button type="button" aria-label="Dismiss" (click)="toasts.dismiss(toast.id)">×</button>
+    </div>
+  }
+</section>
+```
+
+Place `<app-toasts />` in your root template, beside `<lw-shell />`. Three things become yours with
+the drawing:
+
+- **Announcing.** Give a warning or an error `role="alert"` and every other toast `role="status"`,
+  as above. The workbench announces nothing for a toast it does not draw.
+- **Holding.** Call `hold()` while the user is attending to your toasts and `release()` when that
+  ends. Calling `hold()` twice is the same as calling it once, and dismissing the last toast ends a
+  hold too. The example holds on `pointermove` rather than `pointerenter`, so that a toast appearing
+  under a resting pointer still leaves.
+- **Motion and contrast.** The transition and the colour pairings are part of the drawing.
 
 ## Where the story is told
 

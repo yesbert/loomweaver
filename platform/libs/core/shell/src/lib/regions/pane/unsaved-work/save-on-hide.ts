@@ -33,7 +33,7 @@ export class SaveOnHide {
       console.error('saveOn:hide failed — the surface stays dirty', error);
       this.notifications.show({
         message: 'retention.saveFailed',
-        kind: 'warning',
+        kind: 'error',
       });
     });
   }

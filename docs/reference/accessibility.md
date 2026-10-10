@@ -29,6 +29,11 @@ the binding guardrail; it complements [`design-tokens.md`](design-tokens.md) (co
 - **Focus:** visible `focus-visible` ring; dialogs have a **focus trap** + focus restore; popups/menus
   follow the **ARIA menu keyboard pattern** (arrow keys/Home/End, Escape closes, focus returns to the trigger).
 - **Live regions:** toasts announce with `role="alert"`/`"status"` depending on urgency.
+- **Timed toasts:** a toast of the error kind stays until it is dismissed. Every other toast leaves
+  by itself, but not once the pointer moves on a toast or while keyboard focus is in one, and it
+  stays at least a second after that. Every toast has a dismiss button the keyboard reaches. The kind shows
+  in the icon as well as in the colour. A distribution that draws toasts itself
+  (`drawToasts: false`) takes over announcing them, and the pairing and the motion of its own look.
 - **Motion:** `prefers-reduced-motion` is respected globally (non-essential transitions/animations
   collapse; the loading spinner stays, as essential status feedback).
 - **Contrast:** all semantic tokens are **AA-verified** (see the token rules below).

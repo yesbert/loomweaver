@@ -52,6 +52,23 @@ describe('capability refusal', () => {
     expect(toast?.action?.label).toBe('permission.openSettings');
   });
 
+  it('lets the notice leave after the lifetime it states, action and all', () => {
+    vi.useFakeTimers();
+    try {
+      const { handler, notifications, grants } = setup();
+      revoke(grants);
+
+      handler.handleError(new CapabilityError('ui', 'payments'));
+
+      vi.advanceTimersByTime(7999);
+      expect(notifications.notifications()).toHaveLength(1);
+      vi.advanceTimersByTime(1);
+      expect(notifications.notifications()).toHaveLength(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('does not point to the settings for a capability that was never granted', () => {
     const { handler, notifications, grants } = setup();
     grants.register('payments', ['navigation'], ['navigation']);

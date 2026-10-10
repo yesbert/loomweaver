@@ -90,6 +90,30 @@ describe('sanitizeRpcToastInput', () => {
     expect(input.timeoutMs).toBeUndefined();
   });
 
+  it('carries a named icon as text and drops one that is not', () => {
+    expect(
+      sanitizeRpcToastInput(asToast({ message: 'm', icon: 'refresh' })).icon,
+    ).toBe('refresh');
+    expect(
+      sanitizeRpcToastInput(asToast({ message: 'm', icon: { svg: '<svg>' } }))
+        .icon,
+    ).toBeUndefined();
+  });
+
+  it.each([
+    ['a stated stay', { timeoutMs: 0 }, 15_000],
+    ['a negative lifetime', { timeoutMs: -1 }, 15_000],
+    ['a lifetime beyond the bound', { timeoutMs: 600_000 }, 15_000],
+    ['an infinite lifetime', { timeoutMs: Infinity }, undefined],
+    ['an error without a lifetime', { kind: 'error' }, 15_000],
+    ['an error stated to stay', { kind: 'error', timeoutMs: 0 }, 15_000],
+    ['a lifetime within the bound', { timeoutMs: 2000 }, 2000],
+    ['a warning without a lifetime', { kind: 'warning' }, undefined],
+  ])('turns %s into a lifetime that ends', (_, fields, lifetime) => {
+    const input = sanitizeRpcToastInput(asToast({ message: 'm', ...fields }));
+    expect(input.timeoutMs).toBe(lifetime);
+  });
+
   it('rejects a missing or empty message', () => {
     expect(() => sanitizeRpcToastInput(asToast({}))).toThrow(/message/);
     expect(() => sanitizeRpcToastInput(asToast({ message: '' }))).toThrow(

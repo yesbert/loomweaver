@@ -1,0 +1,49 @@
+import { expect, test } from '@playwright/test';
+import { runCommand, startupNoticeGone } from './support/helpers';
+
+test.describe('Notices', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    await startupNoticeGone(page);
+  });
+
+  test('a notice the pointer moved onto stays, and leaves soon after the pointer has left', async ({
+    page,
+  }) => {
+    await runCommand(page, 'Raise a notice with its own symbol');
+    const notice = page.getByText('A success shown with a pin');
+    await expect(notice).toBeVisible();
+
+    await notice.hover();
+    await page.waitForTimeout(6500);
+    await expect(notice).toBeVisible();
+
+    await page.mouse.move(0, 0);
+    await expect(notice).toHaveCount(0, { timeout: 8000 });
+  });
+
+  test('a notice keyboard focus is in stays', async ({ page }) => {
+    await runCommand(page, 'Raise a notice with its own symbol');
+    const notices = page.getByRole('region', { name: 'Notifications' });
+    await expect(notices).toBeVisible();
+
+    await notices.getByRole('button', { name: 'Dismiss' }).focus();
+    await page.waitForTimeout(6500);
+    await expect(notices).toBeVisible();
+
+    await page.keyboard.press('Enter');
+    await expect(notices).toHaveCount(0);
+  });
+
+  test('a burst shows three notices and brings the others up as room is made', async ({
+    page,
+  }) => {
+    await runCommand(page, 'Raise five notices at once');
+    const notices = page.getByRole('region', { name: 'Notifications' });
+    await expect(notices.getByRole('status')).toHaveCount(3);
+    await expect(notices.getByText('notice 4 of 5')).toHaveCount(0);
+
+    await notices.getByRole('button', { name: 'Dismiss' }).first().click();
+    await expect(notices.getByText('notice 4 of 5')).toBeVisible();
+  });
+});

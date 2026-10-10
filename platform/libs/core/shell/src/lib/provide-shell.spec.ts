@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { SwUpdate } from '@angular/service-worker';
 import { TranslocoService } from '@jsverse/transloco';
 import { DIALOG_CLOSE_GUARD } from './dialog/dialog-close-guard';
+import { DRAW_TOASTS, TOAST_POSITION } from './notifications/toast-options';
 import { provideShell } from './provide-shell';
 import { SETTINGS_STORE } from './persistence/settings-store';
 import { SurfaceCloseGuard } from './regions/pane/unsaved-work/surface-close-guard';
@@ -78,6 +79,34 @@ describe('provideShell languages', () => {
     expect(() => provideShell({ languages: [] })).toThrow(
       /at least one language/,
     );
+  });
+});
+
+describe('provideShell toasts', () => {
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('draws toasts at the bottom right when the distribution says nothing', () => {
+    TestBed.configureTestingModule({
+      providers: [provideShell({ serviceWorker: false })],
+    });
+
+    expect(TestBed.inject(TOAST_POSITION)).toBe('bottom-right');
+    expect(TestBed.inject(DRAW_TOASTS)).toBe(true);
+  });
+
+  it('takes the position and the drawing from the distribution', () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideShell({
+          serviceWorker: false,
+          toastPosition: 'top-center',
+          drawToasts: false,
+        }),
+      ],
+    });
+
+    expect(TestBed.inject(TOAST_POSITION)).toBe('top-center');
+    expect(TestBed.inject(DRAW_TOASTS)).toBe(false);
   });
 });
 

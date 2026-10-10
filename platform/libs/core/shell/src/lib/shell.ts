@@ -14,6 +14,7 @@ import { ShellPanel } from './regions/panel/shell-panel';
 import { ShellSidebarHeader } from './regions/panel/shell-sidebar-header';
 import { ContentGrid } from './regions/content/content-grid';
 import { ToastOutlet } from './notifications/toast-outlet';
+import { DRAW_TOASTS } from './notifications/toast-options';
 import { DialogOutlet } from './dialog/dialog-outlet';
 import { ViewportService } from './layout/viewport.service';
 import { PanelState } from './regions/panel/panel-state';
@@ -43,6 +44,7 @@ export class Shell {
   private readonly panels = inject(PanelState);
   private readonly document = inject(DOCUMENT);
   protected readonly viewport = inject(ViewportService);
+  protected readonly drawsToasts = inject(DRAW_TOASTS);
   protected readonly popout = inject(PopoutService);
 
   protected readonly topBars = this.regionsAt('top', 'bar');

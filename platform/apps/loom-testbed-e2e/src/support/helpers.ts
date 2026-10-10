@@ -183,3 +183,9 @@ export async function restSandboxFrame(page: Page): Promise<Frame> {
   });
   return frame;
 }
+
+export async function startupNoticeGone(page: Page): Promise<void> {
+  const startup = page.getByText('Sandbox plugin activated');
+  await expect(startup).toBeVisible();
+  await expect(startup).toHaveCount(0, { timeout: 15_000 });
+}
