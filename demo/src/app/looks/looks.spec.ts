@@ -11,6 +11,14 @@ describe('looks', () => {
     }
   });
 
+  it('leaves the default look where the platform puts toasts, and moves them in every other', () => {
+    expect(DEFAULT_LOOK.toastPosition).toBe('bottom-right');
+    const others = LOOKS.filter((look) => look !== DEFAULT_LOOK);
+    for (const look of others) {
+      expect(look.toastPosition).not.toBe('bottom-right');
+    }
+  });
+
   it('leaves the default look on the shipped wording', () => {
     expect(DEFAULT_LOOK.overrides).toBeNull();
   });

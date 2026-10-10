@@ -53,7 +53,10 @@ export const layout: ShellLayout = {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideShellRouter(),
-    provideShell({ omit: ['shell.version'] }),
+    provideShell({
+      omit: ['shell.version'],
+      toastPosition: activeLook.toastPosition,
+    }),
     provideLayout(layout),
     provideTranslationNamespaces(
       'product',

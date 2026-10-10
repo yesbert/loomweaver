@@ -13,7 +13,7 @@ export const financeActions = {
     }
     const due = overdueReceivables().length;
     if (due === 0) {
-      host.ui.toast({ message: 'finance.nothingOverdue', kind: 'info', timeoutMs: 3000 });
+      host.ui.toast({ message: 'finance.nothingOverdue', kind: 'info' });
       return 0;
     }
     const go = await host.ui.confirm({
@@ -26,7 +26,7 @@ export const financeActions = {
       return 0;
     }
     const reminded = startDunningRun();
-    host.ui.toast({ message: 'finance.dunningDone', kind: 'success', timeoutMs: 4000 });
+    host.ui.toast({ message: 'finance.dunningDone', kind: 'success', icon: 'dunning' });
     return reminded;
   },
 };

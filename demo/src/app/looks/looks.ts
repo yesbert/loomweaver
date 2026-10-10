@@ -14,6 +14,7 @@ import {
   heroSquares2x2Solid,
   heroUserCircleSolid,
 } from '@ng-icons/heroicons/solid';
+import type { ToastPosition } from '@loomweaver/shell';
 
 export type LookId = 'default' | 'aurora' | 'breeze';
 
@@ -22,6 +23,7 @@ export interface DemoLook {
   readonly label: string;
   readonly icons: Readonly<Record<string, string>>;
   readonly overrides: string | null;
+  readonly toastPosition: ToastPosition;
 }
 
 export const LOOKS: readonly DemoLook[] = [
@@ -33,6 +35,7 @@ export const LOOKS: readonly DemoLook[] = [
       signOut: heroArrowRightStartOnRectangle,
     },
     overrides: null,
+    toastPosition: 'bottom-right',
   },
   {
     id: 'aurora',
@@ -45,6 +48,7 @@ export const LOOKS: readonly DemoLook[] = [
       search: heroMagnifyingGlassCircle,
     },
     overrides: '/i18n/overrides/aurora',
+    toastPosition: 'top-right',
   },
   {
     id: 'breeze',
@@ -57,6 +61,7 @@ export const LOOKS: readonly DemoLook[] = [
       search: heroMagnifyingGlassSolid,
     },
     overrides: '/i18n/overrides/breeze',
+    toastPosition: 'bottom-center',
   },
 ];
 

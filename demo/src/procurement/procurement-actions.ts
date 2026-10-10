@@ -16,7 +16,6 @@ export const procurementActions = {
       host.ui.toast({
         message: 'procurement.nothingExpected',
         kind: 'info',
-        timeoutMs: 3000,
       });
       return null;
     }
@@ -35,7 +34,7 @@ export const procurementActions = {
     host.ui.toast({
       message: 'procurement.receiptDone',
       kind: 'success',
-      timeoutMs: 4000,
+      icon: 'procurement',
     });
     return due.number;
   },
