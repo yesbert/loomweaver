@@ -286,6 +286,17 @@
     "draft": "Entwurf schreiben (fragt beim Schließen)",
     "draftIntro": "Kein Speichern-Button. Wer den Dialog schließt, egal wie, wird gefragt, solange der Text vom zuletzt gespeicherten abweicht."
   },
+  "notices": {
+    "repeat": "Dieselbe Warnung noch einmal melden",
+    "repeated": "Dieselbe Warnung, gezählt statt gestapelt.",
+    "symbol": "Meldung mit eigenem Symbol",
+    "pinned": "Ein Erfolg mit Pin statt Haken.",
+    "stay": "Meldung, die stehen bleibt",
+    "stays": "Diese bleibt, bis du sie schließt.",
+    "fail": "Einen Fehler melden",
+    "failed": "Ein Fehler bleibt, bis du ihn schließt.",
+    "burst": "Fünf Meldungen auf einmal"
+  },
   "badge": {
     "beta": "Beta",
     "new": "Neu",

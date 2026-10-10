@@ -114,11 +114,24 @@ describe('SurfaceCloseGuard', () => {
 
     expect(proceed).not.toHaveBeenCalled();
     expect(probe.dirty).toBe(true);
-    expect(
-      TestBed.inject(NotificationService)
-        .notifications()
-        .map((toast) => toast.message),
-    ).toContain('retention.saveFailed');
+    expect(TestBed.inject(NotificationService).notifications()).toMatchObject([
+      { message: 'retention.saveFailed', kind: 'error' },
+    ]);
+  });
+
+  it('counts a second failed save on the notice of the first', async () => {
+    const guard = TestBed.inject(SurfaceCloseGuard);
+
+    for (const probe of [new Probe(), new Probe()]) {
+      probe.saveFails = true;
+      guard.guarded([probe], vi.fn());
+      topDialog().ref.close('save');
+      await settle();
+    }
+
+    expect(TestBed.inject(NotificationService).notifications()).toMatchObject([
+      { message: 'retention.saveFailed', kind: 'error', count: 2 },
+    ]);
   });
 
   it('a save that resolves but stays dirty aborts the close and reports visibly', async () => {
@@ -136,11 +149,9 @@ describe('SurfaceCloseGuard', () => {
 
     expect(probe.saveCalls).toBe(1);
     expect(proceed).not.toHaveBeenCalled();
-    expect(
-      TestBed.inject(NotificationService)
-        .notifications()
-        .map((toast) => toast.message),
-    ).toContain('retention.stillDirty');
+    expect(TestBed.inject(NotificationService).notifications()).toMatchObject([
+      { message: 'retention.stillDirty', kind: 'warning' },
+    ]);
   });
 
   it('offers no Save button when a dirty instance cannot save', () => {

@@ -246,7 +246,8 @@ ctx.registerMenuItem({
 ```
 
 **You get:** the action in the command palette (`mod+k`), on its shortcut, as a status-bar button
-showing `⌘⇧N`, and in the tab context menu. Give the toast a `timeoutMs` unless you want it sticky.
+showing `⌘⇧N`, and in the tab context menu. The toast leaves by itself; without a `timeoutMs` the
+kind decides how soon, and only an `error` stays.
 
 The same `registerMenuItem` also fills a surface's `<id>/actions` toolbar or the slot of a plugin's
 `<lw-toolbar>`. Every one of these controls is left out while the session may not run the command;

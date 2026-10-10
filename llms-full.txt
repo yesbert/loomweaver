@@ -555,7 +555,10 @@ interface PluginUi {                // dialogs + toasts + context menus; message
   // DialogRef.toggleMaximized() let a bare dialog draw its own control (settings + plugin store do).
   progress(o: ProgressOptions): ProgressHandle;
   withProgress<T>(o: ProgressOptions, work: Promise<T>): Promise<T>;
-  toast(input: NotificationInput): string;        // { message, kind?: 'info'|'success'|'warning'|'error', action?, timeoutMs?, id? } — action is trusted in-process only; dropped over the sandbox RPC boundary (like OpenTabInput.onClose)
+  toast(input: NotificationInput): string;        // { message, kind?: 'info'|'success'|'warning'|'error', icon?, action?, timeoutMs?, id? } — action is trusted in-process only; dropped over the sandbox RPC boundary (like OpenTabInput.onClose)
+  // timeoutMs absent = the kind decides (info/success 5 s, warning 8 s, error stays); 0 = stays. No id + the same toast again while
+  // the first is still there = counted on the first (×2), not stacked; an id replaces in place and is never counted. At most three
+  // toasts are shown, the rest wait. icon = registry name shown instead of the kind's; colour and urgency stay the kind's.
   openSettings(): DialogRef;
   openMenu(items: UiMenuItem[], at: {x,y}): void;  // ad-hoc context menu at a point for the weaver's own body (right-click); host draws <lw-menu>
 }
@@ -601,7 +604,10 @@ interface AccessRequirement { authenticated?: boolean; anyRole?: readonly string
 ```ts
 // from @loomweaver/shell
 function provideShell(options?: ShellOptions): (Provider | EnvironmentProviders)[];
-interface ShellOptions { omit?: readonly string[]; serviceWorker?: boolean; retention?: RetentionDefault; padding?: PaddingDefault; announceUpdates?: boolean; languages?: readonly string[]; }
+interface ShellOptions { omit?: readonly string[]; serviceWorker?: boolean; retention?: RetentionDefault; padding?: PaddingDefault; announceUpdates?: boolean; toastPosition?: ToastPosition; drawToasts?: boolean; languages?: readonly string[]; }
+type ToastPosition = 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';   // absent = 'bottom-right'; newest toast nearest the edge
+// drawToasts (default true): false = the shell mounts no toast outlet and the product draws NotificationService.notifications()
+// itself; lifetime, the limit of three and counting still hold, announcing (role alert/status) and hold()/release() become the product's.
 // announceUpdates (default true): false = the workbench shows NO update notice (waiting, current, unreachable, failed, broken
 // storage; manual and background checks alike) and the product draws the answer from UpdateService; nothing else is withheld.
 type PaddingDefault = 'none' | 'inset';   // the app-wide inset for surfaces; absent = 'none'; a surface's own `padded` wins either way
@@ -642,6 +648,8 @@ function providePlugins(...plugins: Plugin[]): (Provider | EnvironmentProviders)
 // setChildShown), menu items, toolbars (registerToolbar; registerToolbarCell does not cross), settings sections,
 // content tabs and navigation, revealSurface, invoking callable commands (invokeCommand/invocableCommands), toasts
 // and plugin state (docs/weaver/sandboxed-surfaces.md lists the endpoints).
+// A sandboxed plugin's toasts are bounded: each leaves after 15 s at the latest (timeoutMs 0, a longer one and an error
+// without one are shortened to that), and the plugin holds at most three at once, shown and waiting; a further toast rejects.
 // Hardened seam: RPC surfaces are re-validated ({iframe} or {container} form — component/loadComponent cannot cross;
 // an iframe URL must be served from an origin the composition permitted — the application's own, plus FramePlugin.origins
 // — so never javascript:/data:), effective capabilities = grant ∩
@@ -1095,7 +1103,10 @@ class DialogService { dialogs: Signal<readonly DialogInstance[]>; confirm; alert
   connectDismissal(dismiss: (dialog: DialogInstance) => Promise<boolean>): () => void }   // for an outlet of your own: makes a body's requestClose run your outlet's dismissal; returns the disconnect
 interface DialogInstance { id; ref: DialogRef; kind: DialogKind; tone: DialogTone; icon?; title?; message?; component?; buttons: readonly DialogButtonView[]; dismiss: DialogDismiss; size?; bare?; maximizable?; align?; injector?: Injector; placeholder?: string; promptValue?: WritableSignal<string>; progressMessage?: WritableSignal<string>; requireLabel?: string; requireValidate?: (value: string) => string | null }
 type DialogKind = 'confirm' | 'alert' | 'prompt' | 'custom' | 'progress';  interface DialogButtonView { label; variant: LwButtonVariant; role: ButtonRole; value?; autofocus }  type ButtonRole = 'confirm' | 'cancel' | 'custom';
-class NotificationService { notifications: Signal<readonly Notification[]>; show(input: NotificationInput): string; dismiss(id): void }
+class NotificationService { notifications: Signal<readonly Notification[]>; show(input: NotificationInput): string; dismiss(id): void; hold(): void; release(): void }
+interface Notification { id: string; kind: NotificationKind; message: string; icon?: string; count: number; action?: NotificationAction }
+// notifications = the toasts to show now, oldest first, never more than three. hold()/release() bracket the time the user attends to them
+// (pointer moving on a toast, focus in one): nothing leaves by itself in between; the workbench's outlet calls them, your own drawing must.
 class SettingsService { all: Signal<SettingsSection[]>; registered: Signal<readonly SettingsSection[]>; requestedSection; register(section): Disposable; omit(ids): void; open(sectionId?): DialogRef }
 class CapabilityGrantService { permissions: Signal<readonly PluginPermissions[]>; isGranted(pluginId, capability): boolean; isBaseGranted(pluginId, capability): boolean; setGranted(pluginId, capability, granted): void; register; unregister }
 class PluginInstallService { installed: Signal<readonly InstalledPlugin[]>; isInstalled(id): boolean; byId(id): InstalledPlugin | undefined; install(plugin: InstalledPlugin): void; update(plugin: InstalledPlugin): void; uninstall(id): void; markComposed(ids: readonly string[]): void }   // the user's installs, persisted at lw.shell.installed-plugins; the runtime follows it live; a composed id is never shadowed

@@ -286,6 +286,17 @@
     "draft": "Write a draft (asks on closing)",
     "draftIntro": "No save button. Closing this dialog in any way asks while the text differs from what was last saved."
   },
+  "notices": {
+    "repeat": "Raise the same warning again",
+    "repeated": "The same warning, counted instead of stacked.",
+    "symbol": "Raise a notice with its own symbol",
+    "pinned": "A success shown with a pin instead of the check.",
+    "stay": "Raise a notice that stays",
+    "stays": "This one stays until you dismiss it.",
+    "fail": "Raise a failure",
+    "failed": "A failure stays until you dismiss it.",
+    "burst": "Raise five notices at once"
+  },
   "badge": {
     "beta": "Beta",
     "new": "New",

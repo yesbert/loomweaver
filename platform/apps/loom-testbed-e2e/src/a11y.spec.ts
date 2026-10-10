@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { openEntry, runCommand } from './support/helpers';
+import { openEntry, runCommand, startupNoticeGone } from './support/helpers';
 
 const WCAG_AA = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 
@@ -202,6 +202,34 @@ test.describe('Accessibility (WCAG 2.1 AA)', () => {
         page.getByRole('toolbar', { name: 'Variants sm' }),
       ).toBeVisible();
       await expect(page.locator('lw-toolbar .lw-btn--warning')).toHaveCount(4);
+      await scan(page);
+    });
+  }
+
+  for (const theme of ['Light', 'Dark']) {
+    test(`notices of every kind, one of them counted (${theme.toLowerCase()})`, async ({
+      page,
+    }) => {
+      await page.goto('/');
+      await page.getByRole('button', { name: theme }).click();
+      await startupNoticeGone(page);
+      await runCommand(page, 'Raise a failure');
+      await runCommand(page, 'Raise a notice that stays');
+      await runCommand(page, 'Raise the same warning again');
+      await runCommand(page, 'Raise the same warning again');
+      const notices = page.getByRole('region', { name: 'Notifications' });
+      await expect(notices.getByRole('alert')).toHaveCount(2);
+      await expect(notices.getByRole('status')).toHaveCount(1);
+      await expect(notices.getByText('Raised 2 times')).toHaveCount(1);
+      await scan(page);
+
+      const dismiss = notices.getByRole('button', { name: 'Dismiss' });
+      for (let left = 3; left > 0; left--) {
+        await dismiss.first().click();
+        await expect(dismiss).toHaveCount(left - 1);
+      }
+      await runCommand(page, 'Raise a notice with its own symbol');
+      await expect(notices.getByRole('status')).toHaveCount(1);
       await scan(page);
     });
   }

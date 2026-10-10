@@ -1,45 +1,66 @@
 @if (notifications().length) {
   <section
-    class="pointer-events-none fixed inset-x-0 bottom-0 z-[60] flex flex-col items-center gap-2 p-4 sm:inset-x-auto sm:right-0"
+    #region
+    [class]="regionClasses"
     [attr.aria-label]="'notification.region' | transloco"
+    (pointermove)="hold()"
+    (pointerleave)="pointerLeft()"
+    (focusin)="hold()"
+    (focusout)="focusLeft($event)"
   >
     @for (toast of notifications(); track toast.id) {
       <div
         [attr.role]="roleFor(toast.kind)"
-        class="pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-lg border border-border bg-surface-raised p-3 shadow-lg"
+        [class]="cardClasses(toast.kind)"
+        animate.leave="opacity-0"
       >
-        <lw-icon
-          [name]="iconFor(toast.kind)"
-          size="1.25rem"
-          [class]="'mt-0.5 shrink-0 ' + iconColorFor(toast.kind)"
-        />
-        <div class="flex min-w-0 flex-1 flex-col gap-2">
-          <p class="text-sm text-content">{{ toast.message | transloco }}</p>
-          @if (toast.action; as action) {
-            <button
-              lwButton
-              variant="primary"
-              size="sm"
-              type="button"
-              class="self-start"
-              (click)="runAction(toast)"
-            >
-              {{ action.label | transloco }}
-            </button>
-          }
+        <div [class]="bodyClasses(toast.kind)">
+          <lw-icon
+            [name]="iconFor(toast)"
+            size="1.25rem"
+            [class]="iconClasses(toast.kind)"
+          />
+          <div class="flex min-w-0 flex-1 flex-col gap-2">
+            <p class="text-sm text-content">
+              {{ toast.message | transloco }}
+              @if (toast.count > 1) {
+                <span
+                  aria-hidden="true"
+                  class="ms-1 text-xs font-medium text-content-muted"
+                  >×{{ toast.count }}</span
+                >
+                <span class="sr-only">{{
+                  'notification.repeated' | transloco: { count: toast.count }
+                }}</span>
+              }
+            </p>
+            @if (toast.action; as action) {
+              <button
+                lwButton
+                variant="primary"
+                size="sm"
+                type="button"
+                class="self-start"
+                (click)="runAction(toast, $event)"
+              >
+                {{ action.label | transloco }}
+              </button>
+            }
+          </div>
+          <button
+            #dismissButton
+            lwButton
+            variant="ghost"
+            size="sm"
+            iconOnly
+            type="button"
+            class="shrink-0"
+            [attr.aria-label]="'notification.dismiss' | transloco"
+            (click)="dismiss(toast.id, $event)"
+          >
+            <lw-icon name="close" size="1rem" />
+          </button>
         </div>
-        <button
-          lwButton
-          variant="ghost"
-          size="sm"
-          iconOnly
-          type="button"
-          class="shrink-0"
-          [attr.aria-label]="'notification.dismiss' | transloco"
-          (click)="dismiss(toast.id)"
-        >
-          <lw-icon name="close" size="1rem" />
-        </button>
       </div>
     }
   </section>

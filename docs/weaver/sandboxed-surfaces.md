@@ -125,6 +125,14 @@ facade. Its surface endpoints are `registerSurface` · `retitleSurface` · `upda
 and `stateWatch` / `stateSet` / `stateClear` / `stateUnwatch` for [plugin state](plugin-state.md).
 Every call runs through the same default-deny
 capability broker as a trusted plugin. An ungranted capability rejects, so `.catch` and degrade.
+
+**A sandboxed plugin's toasts are bounded.** A toast always leaves by itself, after 15 seconds at the
+latest: `timeoutMs: 0`, a longer lifetime and an `error` without one are all shortened to that. The
+plugin holds at most three toasts at once, shown and waiting together, and a further `toast` call
+rejects until one of them has left. A toast raised again and counted on one that is still there is
+not a further one. An `action` is a function and does not cross; an `icon` crosses as its name. A
+sandboxed plugin has no host dialog, so a message that has to last belongs in the plugin's own
+surface, or as a badge on its tab through `updateSurfaceBadge`.
 (Generate this whole layout with `nx g @loomweaver/devkit:frame-plugin` or the MCP
 `scaffold_frame_plugin`, described in [scaffolding](../scaffolding.md).)
 

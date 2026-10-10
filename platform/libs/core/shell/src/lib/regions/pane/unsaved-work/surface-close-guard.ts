@@ -163,7 +163,7 @@ export class SurfaceCloseGuard implements DialogCloseGuard {
       console.error('Save before closing failed', error);
       this.notifications.show({
         message: 'retention.saveFailed',
-        kind: 'warning',
+        kind: 'error',
       });
       return false;
     }

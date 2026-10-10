@@ -1,5 +1,6 @@
 import { RetentionDefault } from './regions/pane/retention/retention-policy';
 import { PaddingDefault } from './foundation/surface-padding';
+import { ToastPosition } from './notifications/toast-options';
 
 /** Options a distribution can pass to {@link provideShell}. */
 export interface ShellOptions {
@@ -81,6 +82,29 @@ export interface ShellOptions {
    * `updateAvailable` still drives whatever marker you keep, and `activateUpdate()` still applies.
    */
   readonly announceUpdates?: boolean;
+
+  /**
+   * Where toasts appear: `'top-left'`, `'top-center'`, `'top-right'`, `'bottom-left'`,
+   * `'bottom-center'` or `'bottom-right'` (the default). The newest toast sits nearest that edge.
+   * On a narrow viewport, the one at which the side panels become overlays, toasts are centred at
+   * the chosen edge whichever side you named.
+   *
+   * One choice for the application: a toast cannot place itself.
+   */
+  readonly toastPosition?: ToastPosition;
+
+  /**
+   * Whether the workbench draws toasts itself — `true` by default. With `false` the shell mounts no
+   * toast outlet and you draw `NotificationService.notifications()` in a component of your own.
+   *
+   * Only the drawing moves. Which toasts are to be shown, when one leaves, that no more than three
+   * are shown at once and that a repeated toast is counted are decided by the service and reach
+   * your drawing as they reach the workbench's. Call `NotificationService.hold()` and `release()`
+   * while the user is attending to your toasts. **Announcing them to assistive technology becomes
+   * yours:** the workbench's outlet gives a warning or an error `role="alert"` and every other
+   * toast `role="status"`.
+   */
+  readonly drawToasts?: boolean;
 
   /**
    * The languages the workbench serves, by language code, as the whole set: add a language the

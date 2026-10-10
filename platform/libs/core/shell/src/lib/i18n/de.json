@@ -86,7 +86,8 @@
   },
   "notification": {
     "region": "Benachrichtigungen",
-    "dismiss": "Schließen"
+    "dismiss": "Schließen",
+    "repeated": "{{count}}-mal gemeldet"
   },
   "palette": {
     "title": "Befehlspalette",
