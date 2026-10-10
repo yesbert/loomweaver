@@ -54,14 +54,27 @@ gets a generated identity, and generated identities skip any that are live. The 
 identities are its own: where it names a notification and a plugin's notification already carries
 that string, the plugin's is given a generated identity and the application takes the one it asked
 for, so that dismissing by an identity it knows keeps working. A raiser that passes back the
-identity it was returned is found by that too, also after that identity was taken back, which makes
-true what the plugin contract already says about replacing.
+identity it was returned is found by that too, also after that identity was taken back, and is
+returned the same identity every time, which makes true what the plugin contract already says about
+replacing.
 
 **Attention belongs to a notification, and ends when it is no longer shown.** The outlet remembers
-the identity of the notification the pointer last moved on and of the one that holds the focus.
-Whenever the list of shown notifications changes, it forgets an identity that is no longer in it,
-and releases the hold when it remembers neither. Pointer movement and focus on a card whose
-notification is no longer shown are ignored.
+the identity of the notification the pointer last moved on and of the one that holds the focus, and
+derives "the user is attending" from those two and the list of shown notifications: attended means
+one of the two is still shown. When that turns false, the hold is released. Nothing is ever
+"forgotten" by a step that could be skipped; an identity that is no longer shown simply does not
+count.
+
+The outlet listens for pointer movement and focus on its region and reads the notification from
+the card the event came from. Listening on each card was tried and failed in the browser: the
+framework stops delivering events on a card once its notification is removed, while the card
+itself stays for the length of its fade. A pointer jumping from an attended notification onto such
+a card therefore told the outlet nothing, the region reported no leave, and the hold stayed. At the
+region the same movement arrives, names a notification that is no longer shown, and ends the
+attention.
+
+The outlet releases only when its own attention ends. A hold somebody else began through the
+published service is not ended because a notification was raised or replaced.
 
 This replaced two earlier attempts, and why they failed is the reason for the shape. The first
 asked the browser's hover state, which is true for a pointer that never moved and whose end nothing

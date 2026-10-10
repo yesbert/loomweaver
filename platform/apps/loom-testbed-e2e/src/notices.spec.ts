@@ -1,5 +1,16 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Locator } from '@playwright/test';
 import { runCommand, startupNoticeGone } from './support/helpers';
+
+const ENTERED_MS = 400;
+const FADE_MS = 200;
+
+async function centreOf(control: Locator): Promise<{ x: number; y: number }> {
+  const box = await control.boundingBox();
+  if (!box) {
+    throw new Error('The control has no box to aim at.');
+  }
+  return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+}
 
 test.describe('Notices', () => {
   test.beforeEach(async ({ page }) => {
@@ -56,19 +67,38 @@ test.describe('Notices', () => {
     await runCommand(page, 'Raise a notice with its own symbol');
     await runCommand(page, 'Raise the same warning again');
     const notices = page.getByRole('region', { name: 'Notifications' });
-    const dismiss = notices.getByRole('button', { name: 'Dismiss' }).first();
-    const box = await dismiss.boundingBox();
-    if (!box) {
-      throw new Error('The dismiss control has no box to click.');
-    }
-    const x = box.x + box.width / 2;
-    const y = box.y + box.height / 2;
+    const first = await centreOf(
+      notices.getByRole('button', { name: 'Dismiss' }).first(),
+    );
+    await page.waitForTimeout(ENTERED_MS);
 
-    await page.mouse.move(x, y);
+    await page.mouse.move(first.x, first.y);
     await page.mouse.down();
     await page.mouse.up();
-    await page.waitForTimeout(60);
-    await page.mouse.move(x - 2, y);
+    for (const shift of [1, 2, 3, 4, 5, 6]) {
+      await page.waitForTimeout(FADE_MS / 6);
+      await page.mouse.move(first.x - shift, first.y);
+    }
+
+    await expect(notices).toHaveCount(0, { timeout: 12_000 });
+  });
+
+  test('a pointer jumping from a notice onto one that is fading out does not keep the first', async ({
+    page,
+  }) => {
+    await runCommand(page, 'Raise a notice with its own symbol');
+    await runCommand(page, 'Raise the same warning again');
+    const notices = page.getByRole('region', { name: 'Notifications' });
+    const dismiss = notices.getByRole('button', { name: 'Dismiss' });
+    const first = await centreOf(dismiss.first());
+    const second = await centreOf(dismiss.last());
+    await page.waitForTimeout(ENTERED_MS);
+
+    await page.mouse.move(first.x, first.y);
+    await page.mouse.down();
+    await page.mouse.up();
+    await page.mouse.move(second.x, second.y);
+    await page.mouse.move(first.x, first.y);
 
     await expect(notices).toHaveCount(0, { timeout: 12_000 });
   });

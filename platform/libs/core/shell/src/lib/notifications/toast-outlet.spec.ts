@@ -37,7 +37,7 @@ function setup(position?: ToastPosition) {
   const cards = () =>
     [...render().querySelectorAll<HTMLElement>('[role]')];
   const movePointerOn = (card: HTMLElement) =>
-    card.dispatchEvent(new Event('pointermove'));
+    card.dispatchEvent(new Event('pointermove', { bubbles: true }));
   return { service, fixture, render, region, cards, movePointerOn };
 }
 
@@ -291,12 +291,13 @@ describe('ToastOutlet', () => {
     });
 
     it('lets them leave a moment after the pointer has left', () => {
-      const { service, region, cards, movePointerOn } = setup();
+      const { service, region, cards, movePointerOn, render } = setup();
       service.show({ message: 'read me', timeoutMs: 1000 });
 
       movePointerOn(cards()[0]);
       vi.advanceTimersByTime(60_000);
       region().dispatchEvent(new Event('pointerleave'));
+      render();
 
       vi.advanceTimersByTime(999);
       expect(service.notifications()).toHaveLength(1);
@@ -315,13 +316,14 @@ describe('ToastOutlet', () => {
     });
 
     it('lets them leave once focus has moved out of the toasts', () => {
-      const { service, region } = setup();
+      const { service, region, render } = setup();
       service.show({ message: 'read me', timeoutMs: 1000 });
       const [button] = dismissButtonsIn(region());
 
       button.focus();
       vi.advanceTimersByTime(60_000);
       button.blur();
+      render();
       vi.advanceTimersByTime(1000);
 
       expect(service.notifications()).toHaveLength(0);
@@ -409,6 +411,7 @@ describe('ToastOutlet', () => {
       expect(service.notifications()).toHaveLength(1);
 
       dismissTwo.blur();
+      render();
       vi.advanceTimersByTime(1000);
       expect(service.notifications()).toHaveLength(0);
     });
@@ -429,6 +432,22 @@ describe('ToastOutlet', () => {
       expect(service.notifications()).toHaveLength(1);
     });
 
+    it('ends the pointer\'s attention when it moves on something in the region that is no toast shown', () => {
+      const { service, region, cards, movePointerOn, render } = setup();
+      service.show({ message: 'read me', timeoutMs: 1000 });
+      const fading = document.createElement('div');
+      fading.dataset['toastId'] = 'a toast that already left';
+      region().append(fading);
+
+      movePointerOn(cards()[0]);
+      vi.advanceTimersByTime(60_000);
+      movePointerOn(fading);
+      render();
+      vi.advanceTimersByTime(1000);
+
+      expect(service.notifications()).toHaveLength(0);
+    });
+
     it('forgets the pointer when the toasts were gone in between', () => {
       const { service, region, cards, movePointerOn, render } = setup();
       const first = service.show({ message: 'first', timeoutMs: 0 });
@@ -440,9 +459,23 @@ describe('ToastOutlet', () => {
       const [button] = dismissButtonsIn(region());
       button.focus();
       button.blur();
+      render();
       vi.advanceTimersByTime(1000);
 
       expect(service.notifications()).toHaveLength(0);
+    });
+
+    it('leaves alone a hold it did not begin when the toasts change', () => {
+      const { service, render } = setup();
+      service.show({ message: 'held from outside', timeoutMs: 1000 });
+      render();
+      service.hold();
+
+      service.show({ message: 'another', timeoutMs: 1000 });
+      render();
+      vi.advanceTimersByTime(60_000);
+
+      expect(service.notifications()).toHaveLength(2);
     });
 
     it('moves focus to the toast that follows the one dismissed from the keyboard, and keeps holding', () => {

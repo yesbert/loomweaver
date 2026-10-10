@@ -4,7 +4,9 @@
     class="pointer-events-none fixed inset-x-0 z-[60] flex flex-col items-center gap-2 p-4"
     [class]="regionPlacement"
     [attr.aria-label]="'notification.region' | transloco"
+    (pointermove)="pointerMoved($event)"
     (pointerleave)="pointerLeft()"
+    (focusin)="focusEntered($event)"
     (focusout)="focusLeft($event)"
   >
     @for (toast of notifications(); track toast.id) {
@@ -12,9 +14,8 @@
         [attr.role]="roleFor(toast.kind)"
         class="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg border bg-surface-raised shadow-lg transition duration-200 ease-out starting:opacity-0"
         [class]="[enteringFrom, edgeOf(toast.kind)]"
+        [attr.data-toast-id]="toast.id"
         animate.leave="opacity-0"
-        (pointermove)="pointerMovedOn(toast.id)"
-        (focusin)="focusEntered(toast.id)"
       >
         <div class="flex items-start gap-3 p-3" [class]="tintOf(toast.kind)">
           <lw-icon

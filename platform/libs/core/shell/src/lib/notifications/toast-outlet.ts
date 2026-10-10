@@ -5,6 +5,7 @@ import {
   effect,
   ElementRef,
   inject,
+  signal,
   viewChild,
   viewChildren,
 } from '@angular/core';
@@ -31,7 +32,8 @@ const COLORS: Record<NotificationKind, FeedbackColors> = {
  * (`provideShell({ toastPosition })`, bottom right by default). Mounted once by the shell root, so
  * every distribution gets it for free. Each toast shows its kind by colour and by icon, its
  * message, how often it was raised, an optional action button and a dismiss control. Once the
- * pointer moves on a toast, and while keyboard focus is in one, no toast leaves by itself.
+ * pointer moves on a toast, and while keyboard focus is in one, no toast leaves by itself; that
+ * attention ends when the pointer or the focus leaves, and when the toast itself is gone.
  */
 @Component({
   selector: 'lw-toasts',
@@ -45,8 +47,12 @@ export class ToastOutlet {
   private readonly dismissButtons =
     viewChildren<ElementRef<HTMLElement>>('dismissButton');
   private readonly placement = toastPlacement(inject(TOAST_POSITION));
-  private toastUnderPointer: string | undefined;
-  private toastWithFocus: string | undefined;
+  private readonly toastUnderPointer = signal<string | undefined>(undefined);
+  private readonly toastWithFocus = signal<string | undefined>(undefined);
+  private readonly isAttended = computed(() => {
+    const attended = new Set([this.toastUnderPointer(), this.toastWithFocus()]);
+    return this.service.notifications().some((toast) => attended.has(toast.id));
+  });
   protected readonly regionPlacement = this.placement.region;
   protected readonly enteringFrom = this.placement.entering;
   protected readonly notifications = computed(() =>
@@ -56,7 +62,11 @@ export class ToastOutlet {
   );
 
   constructor() {
-    effect(() => this.forgetWhatLeft(this.service.notifications()));
+    effect(() => {
+      if (!this.isAttended()) {
+        this.service.release();
+      }
+    });
   }
 
   protected iconFor(toast: Notification): string {
@@ -90,53 +100,29 @@ export class ToastOutlet {
     this.service.dismiss(id);
   }
 
-  protected pointerMovedOn(id: string): void {
-    if (!this.isShown(id)) {
-      return;
-    }
-    this.toastUnderPointer = id;
-    this.service.hold();
+  protected pointerMoved(event: Event): void {
+    this.toastUnderPointer.set(toastIdAt(event.target));
+    this.holdWhileAttended();
   }
 
   protected pointerLeft(): void {
-    this.toastUnderPointer = undefined;
-    this.releaseUnlessAttended();
+    this.toastUnderPointer.set(undefined);
   }
 
-  protected focusEntered(id: string): void {
-    if (!this.isShown(id)) {
-      return;
-    }
-    this.toastWithFocus = id;
-    this.service.hold();
+  protected focusEntered(event: FocusEvent): void {
+    this.toastWithFocus.set(toastIdAt(event.target));
+    this.holdWhileAttended();
   }
 
   protected focusLeft(event: FocusEvent): void {
-    if (this.isInRegion(event.relatedTarget)) {
-      return;
+    if (!this.isInRegion(event.relatedTarget)) {
+      this.toastWithFocus.set(undefined);
     }
-    this.toastWithFocus = undefined;
-    this.releaseUnlessAttended();
   }
 
-  private forgetWhatLeft(shown: readonly Notification[]): void {
-    const isStillShown = (id: string | undefined) =>
-      shown.some((toast) => toast.id === id);
-    if (!isStillShown(this.toastUnderPointer)) {
-      this.toastUnderPointer = undefined;
-    }
-    if (!isStillShown(this.toastWithFocus)) {
-      this.toastWithFocus = undefined;
-    }
-    this.releaseUnlessAttended();
-  }
-
-  private releaseUnlessAttended(): void {
-    if (
-      this.toastUnderPointer === undefined &&
-      this.toastWithFocus === undefined
-    ) {
-      this.service.release();
+  private holdWhileAttended(): void {
+    if (this.isAttended()) {
+      this.service.hold();
     }
   }
 
@@ -153,16 +139,18 @@ export class ToastOutlet {
     return buttons[own + 1] ?? buttons[own - 1];
   }
 
-  private isShown(id: string): boolean {
-    return this.service.notifications().some((toast) => toast.id === id);
-  }
-
   private isInRegion(target: EventTarget | null): boolean {
     const region = this.region()?.nativeElement;
     return (
       region !== undefined && target instanceof Node && region.contains(target)
     );
   }
+}
+
+function toastIdAt(target: EventTarget | null): string | undefined {
+  return target instanceof Element
+    ? target.closest<HTMLElement>('[data-toast-id]')?.dataset['toastId']
+    : undefined;
 }
 
 function wasByKeyboard(click: MouseEvent): boolean {

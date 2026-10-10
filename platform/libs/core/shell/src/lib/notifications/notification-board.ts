@@ -60,7 +60,7 @@ export class NotificationBoard {
       return this.showAgain(existing, input);
     }
     const limits = raiser === undefined ? undefined : this.limits.get(raiser);
-    if (limits) {
+    if (raiser !== undefined && limits) {
       this.refuseBeyond(limits, raiser);
     }
     if (raiser === undefined && input.id !== undefined) {
@@ -131,7 +131,7 @@ export class NotificationBoard {
       this.clock.stop(entry.key);
     }
     this.startLifetimesOfShown();
-    return id;
+    return existing.returnedId;
   }
 
   private remove(key: number): void {
@@ -156,7 +156,7 @@ export class NotificationBoard {
     );
   }
 
-  private refuseBeyond(limits: RaiserLimits, raiser: string | undefined): void {
+  private refuseBeyond(limits: RaiserLimits, raiser: string): void {
     const live = this.live().filter((entry) => entry.raiser === raiser);
     if (live.length >= limits.atOnce) {
       throw new Error(
@@ -216,11 +216,12 @@ function queued(
   entries: readonly LiveNotification[],
   entry: LiveNotification,
 ): readonly LiveNotification[] {
-  const firstToGiveWay = entry.isLimited
-    ? -1
-    : entries.findIndex(
-        (live, place) => place >= SHOWN_AT_ONCE && live.isLimited,
-      );
+  if (entry.isLimited) {
+    return [...entries, entry];
+  }
+  const firstToGiveWay = entries.findIndex(
+    (live, place) => place >= SHOWN_AT_ONCE && live.isLimited,
+  );
   return firstToGiveWay === -1
     ? [...entries, entry]
     : entries.toSpliced(firstToGiveWay, 0, entry);

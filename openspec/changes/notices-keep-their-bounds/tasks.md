@@ -47,3 +47,11 @@
 - [x] 6.5 An unknown position is refused for every value that is not absent, the empty string included; the limits' constant is not exported; the placement's boolean reads as a question
 - [x] 6.6 The test that asserted a mocked report is replaced by one that pins the removal of the limits at deactivation
 - [x] 6.7 Lint, every unit test, the builds, the guards and the complete end-to-end suite pass again
+
+## 7. What the third review found
+
+- [x] 7.1 Attention is derived from the two remembered identities and what is shown, the outlet listens at its region and reads the notification from the event's target, and a browser test jumps from an attended notification onto one that is fading out
+- [x] 7.2 The outlet releases only when its own attention ends, pinned by a test that holds from outside and raises another notification
+- [x] 7.3 A raiser is returned the same identity on every repeat and replacement, pinned by passing the identity back twice
+- [x] 7.4 The browser test for movement inside the fade waits for the card to have entered and moves several times across the fade
+- [x] 7.5 Lint, every unit test, the builds, the guards and the complete end-to-end suite pass again
