@@ -66,6 +66,7 @@ import { PaneService } from './regions/pane/pane.service';
 import { SURFACE_PADDING } from './foundation/surface-padding';
 import { ANNOUNCE_UPDATES } from './update/announce-updates';
 import { DRAW_TOASTS, TOAST_POSITION } from './notifications/toast-options';
+import { knownToastPosition } from './notifications/toast-placement';
 import { ToolbarHost } from './regions/toolbar/toolbar-host.service';
 import {
   CompositionReport,
@@ -131,7 +132,10 @@ function optionProviders(
     ...valueIfSet(SURFACE_RETENTION, options.retention),
     ...valueIfSet(SURFACE_PADDING, options.padding),
     ...valueIfSet(ANNOUNCE_UPDATES, options.announceUpdates),
-    ...valueIfSet(TOAST_POSITION, options.toastPosition),
+    ...valueIfSet(
+      TOAST_POSITION,
+      options.toastPosition && knownToastPosition(options.toastPosition),
+    ),
     ...valueIfSet(DRAW_TOASTS, options.drawToasts),
     ...(options.serviceWorker === false
       ? []

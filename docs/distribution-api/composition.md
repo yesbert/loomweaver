@@ -11,15 +11,17 @@ There is no single god-provider, on purpose: each decision has its own provider,
 
 **What the product _is_**
 
-| I want to …                                          | provider                                                                                           |
-| ---------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| set the name, logo and tagline                       | `provideProductIdentity` ([Branding](../distribution/branding.md#branding))                        |
-| decide which regions exist and where                 | `provideLayout` ([Layout](../distribution/layout.md))                                              |
-| recolour the whole app                               | the design tokens ([tokens](../reference/design-tokens.md))                                        |
-| change sizes, radii, density                         | your own CSS on the class contracts ([tokens](../reference/design-tokens.md))                      |
-| replace a built-in icon                              | `provideIcons` ([Icons](../distribution/icons-and-i18n.md#icons))                                  |
-| reword the shell itself ("Folder" instead of "View") | `provideTranslationOverrides` ([Rewording](../distribution/icons-and-i18n.md#rewording-the-shell)) |
-| ship my own translations                             | `provideTranslationNamespaces` ([i18n](../distribution/icons-and-i18n.md#i18n))                    |
+| I want to …                                          | provider                                                                                                         |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| set the name, logo and tagline                       | `provideProductIdentity` ([Branding](../distribution/branding.md#branding))                                      |
+| decide which regions exist and where                 | `provideLayout` ([Layout](../distribution/layout.md))                                                            |
+| recolour the whole app                               | the design tokens ([tokens](../reference/design-tokens.md))                                                      |
+| change sizes, radii, density                         | your own CSS on the class contracts ([tokens](../reference/design-tokens.md))                                    |
+| replace a built-in icon                              | `provideIcons` ([Icons](../distribution/icons-and-i18n.md#icons))                                                |
+| reword the shell itself ("Folder" instead of "View") | `provideTranslationOverrides` ([Rewording](../distribution/icons-and-i18n.md#rewording-the-shell))               |
+| ship my own translations                             | `provideTranslationNamespaces` ([i18n](../distribution/icons-and-i18n.md#i18n))                                  |
+| choose where toasts appear                           | `provideShell({ toastPosition })` ([Dialogs and toasts](dialogs-and-toasts.md))                                  |
+| draw toasts in a look of my own                      | `provideShell({ drawToasts: false })` ([Drawing toasts yourself](dialogs-and-toasts.md#drawing-toasts-yourself)) |
 
 **What users are allowed to _do_**
 

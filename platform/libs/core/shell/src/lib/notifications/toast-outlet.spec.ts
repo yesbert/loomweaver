@@ -281,11 +281,44 @@ describe('ToastOutlet', () => {
       expect(service.notifications()).toHaveLength(1);
     });
 
-    it('does not hold a toast that appears under a pointer that is not moving', () => {
+    it('does not hold a toast for focus that passes through it while the pointer never moved', () => {
       const { service, region } = setup();
       service.show({ message: 'under the pointer', timeoutMs: 1000 });
+      const button = region().querySelector('button') as HTMLButtonElement;
 
-      region().dispatchEvent(new Event('pointerenter'));
+      button.focus();
+      vi.advanceTimersByTime(60_000);
+      button.blur();
+      vi.advanceTimersByTime(1000);
+
+      expect(service.notifications()).toHaveLength(0);
+    });
+
+    it('keeps holding when focus leaves while the pointer is attending', () => {
+      const { service, region } = setup();
+      service.show({ message: 'read me', timeoutMs: 1000 });
+      const section = region();
+      const button = section.querySelector('button') as HTMLButtonElement;
+
+      section.dispatchEvent(new Event('pointermove'));
+      button.focus();
+      button.blur();
+      vi.advanceTimersByTime(60_000);
+
+      expect(service.notifications()).toHaveLength(1);
+    });
+
+    it('forgets the pointer when the toasts were gone in between', () => {
+      const { service, region, render } = setup();
+      const first = service.show({ message: 'first', timeoutMs: 0 });
+      region().dispatchEvent(new Event('pointermove'));
+      service.dismiss(first);
+      render();
+
+      service.show({ message: 'second', timeoutMs: 1000 });
+      const button = region().querySelector('button') as HTMLButtonElement;
+      button.focus();
+      button.blur();
       vi.advanceTimersByTime(1000);
 
       expect(service.notifications()).toHaveLength(0);
@@ -372,7 +405,7 @@ describe('ToastOutlet', () => {
       ]);
     });
 
-    it('gives up the focus when a toast is dismissed by pointer, so that leaving with the pointer ends the hold', () => {
+    it('ends the pointer\'s attention when a toast is dismissed by pointer, with no leave event to rely on', () => {
       const { service, region, render } = setup();
       service.show({ message: 'one', timeoutMs: 1000 });
       service.show({ message: 'two', timeoutMs: 1000 });
@@ -384,11 +417,83 @@ describe('ToastOutlet', () => {
       vi.advanceTimersByTime(60_000);
       dismissOne.dispatchEvent(new MouseEvent('click', { detail: 1 }));
       render();
-      expect(document.activeElement).not.toBe(dismissOne);
 
-      section.dispatchEvent(new Event('pointerleave'));
+      expect(document.activeElement).not.toBe(dismissOne);
       vi.advanceTimersByTime(1000);
       expect(service.notifications()).toHaveLength(0);
+    });
+
+    it('holds again when the pointer moves on a remaining toast after a dismissal by pointer', () => {
+      const { service, region, render } = setup();
+      service.show({ message: 'one', timeoutMs: 1000 });
+      service.show({ message: 'two', timeoutMs: 1000 });
+      const section = region();
+      const dismissOne = section.querySelector('button') as HTMLButtonElement;
+
+      section.dispatchEvent(new Event('pointermove'));
+      dismissOne.dispatchEvent(new MouseEvent('click', { detail: 1 }));
+      render();
+      section.dispatchEvent(new Event('pointermove'));
+      vi.advanceTimersByTime(60_000);
+
+      expect(service.notifications()).toHaveLength(1);
+    });
+
+    it('hands the focus on before it runs the action of a toast', () => {
+      const { service, region } = setup();
+      const focusedWhenRun: (Element | null)[] = [];
+      service.show({
+        message: 'with action',
+        timeoutMs: 0,
+        action: {
+          label: 'Go',
+          run: () => {
+            focusedWhenRun.push(document.activeElement);
+          },
+        },
+      });
+      const action = region().querySelector('button') as HTMLButtonElement;
+
+      action.focus();
+      action.click();
+
+      expect(focusedWhenRun).toEqual([document.body]);
+    });
+
+    it('moves focus to the toast that follows the one dismissed from the keyboard', () => {
+      const { service, region, render } = setup();
+      for (const message of ['one', 'two', 'three']) {
+        service.show({ message, timeoutMs: 0 });
+      }
+      const dismissButtons = [
+        ...region().querySelectorAll<HTMLButtonElement>(
+          'button[aria-label="Dismiss"]',
+        ),
+      ];
+
+      dismissButtons[1].focus();
+      dismissButtons[1].click();
+      render();
+
+      expect(document.activeElement).toBe(dismissButtons[2]);
+    });
+
+    it('moves focus to the toast before when the last one on screen is dismissed from the keyboard', () => {
+      const { service, region, render } = setup();
+      for (const message of ['one', 'two', 'three']) {
+        service.show({ message, timeoutMs: 0 });
+      }
+      const dismissButtons = [
+        ...region().querySelectorAll<HTMLButtonElement>(
+          'button[aria-label="Dismiss"]',
+        ),
+      ];
+
+      dismissButtons[2].focus();
+      dismissButtons[2].click();
+      render();
+
+      expect(document.activeElement).toBe(dismissButtons[1]);
     });
 
     it('ends the hold when the last toast is dismissed from the keyboard', () => {

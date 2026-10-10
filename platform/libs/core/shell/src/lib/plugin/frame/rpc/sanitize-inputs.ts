@@ -12,7 +12,6 @@ import {
 import { tabBadgeOf } from '../../../contributions/tab-badge';
 import { isButtonVariant } from '../../../elements/button/lw-button-classes';
 import { menuContextOf } from '../../../foundation/wire/menu-context-of';
-import { isolatedLifetime } from './notice-bounds';
 import {
   isWireObject,
   onlyTrue,
@@ -63,18 +62,14 @@ export function sanitizeRpcToastInput(
 ): NotificationInput {
   const raw = wireRecord(input);
   const timeoutMs = optionalNumber(raw['timeoutMs']);
-  const kind = isNotificationKind(raw['kind']) ? raw['kind'] : undefined;
   return {
     message: requiredText(
       raw['message'],
       'Sandbox plugin: toast requires a non-empty string message.',
     ),
-    kind,
+    kind: isNotificationKind(raw['kind']) ? raw['kind'] : undefined,
     icon: optionalText(raw['icon']),
-    timeoutMs: isolatedLifetime(
-      kind,
-      Number.isFinite(timeoutMs) ? timeoutMs : undefined,
-    ),
+    timeoutMs: Number.isFinite(timeoutMs) ? timeoutMs : undefined,
     id: optionalText(raw['id']),
   };
 }

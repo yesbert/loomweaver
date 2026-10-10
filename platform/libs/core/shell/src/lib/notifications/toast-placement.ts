@@ -1,31 +1,53 @@
 import { ToastPosition } from './toast-options';
 
-export interface ToastPlacement {
+interface ToastPlacement {
   readonly region: string;
   readonly entering: string;
   readonly newestFirst: boolean;
 }
 
-type Edge = 'top' | 'bottom';
-type Side = 'left' | 'center' | 'right';
+const FROM_ABOVE = 'starting:-translate-y-2';
+const FROM_BELOW = 'starting:translate-y-2';
 
-const EDGE: Record<Edge, Omit<ToastPlacement, 'region'> & { at: string }> = {
-  top: { at: 'top-0', entering: 'starting:-translate-y-2', newestFirst: true },
-  bottom: {
-    at: 'bottom-0',
-    entering: 'starting:translate-y-2',
+const PLACEMENTS: Record<ToastPosition, ToastPlacement> = {
+  'top-left': {
+    region: 'top-0 md:items-start',
+    entering: FROM_ABOVE,
+    newestFirst: true,
+  },
+  'top-center': { region: 'top-0', entering: FROM_ABOVE, newestFirst: true },
+  'top-right': {
+    region: 'top-0 md:items-end',
+    entering: FROM_ABOVE,
+    newestFirst: true,
+  },
+  'bottom-left': {
+    region: 'bottom-0 md:items-start',
+    entering: FROM_BELOW,
+    newestFirst: false,
+  },
+  'bottom-center': {
+    region: 'bottom-0',
+    entering: FROM_BELOW,
+    newestFirst: false,
+  },
+  'bottom-right': {
+    region: 'bottom-0 md:items-end',
+    entering: FROM_BELOW,
     newestFirst: false,
   },
 };
 
-const SIDE: Record<Side, string> = {
-  left: 'md:items-start',
-  center: '',
-  right: 'md:items-end',
-};
-
 export function toastPlacement(position: ToastPosition): ToastPlacement {
-  const [edge, side] = position.split('-') as [Edge, Side];
-  const { at, entering, newestFirst } = EDGE[edge];
-  return { region: `${at} ${SIDE[side]}`.trim(), entering, newestFirst };
+  return PLACEMENTS[position];
+}
+
+export function knownToastPosition(position: ToastPosition): ToastPosition {
+  if (!Object.hasOwn(PLACEMENTS, position)) {
+    throw new Error(
+      `provideShell: toastPosition '${String(position)}' is not one of ` +
+        `${Object.keys(PLACEMENTS).join(', ')}.`,
+    );
+  }
+  return position;
 }

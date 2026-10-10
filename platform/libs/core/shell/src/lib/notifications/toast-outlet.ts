@@ -19,11 +19,6 @@ import { FEEDBACK_COLORS, FeedbackColors } from './feedback-colors';
 import { TOAST_POSITION } from './toast-options';
 import { toastPlacement } from './toast-placement';
 
-const REGION =
-  'pointer-events-none fixed inset-x-0 z-[60] flex flex-col items-center gap-2 p-4';
-const CARD =
-  'pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg border bg-surface-raised shadow-lg transition duration-200 ease-out starting:opacity-0';
-
 const COLORS: Record<NotificationKind, FeedbackColors> = {
   info: FEEDBACK_COLORS.info,
   success: FEEDBACK_COLORS.success,
@@ -51,7 +46,9 @@ export class ToastOutlet {
   private readonly dismissButtons =
     viewChildren<ElementRef<HTMLElement>>('dismissButton');
   private readonly placement = toastPlacement(inject(TOAST_POSITION));
-  protected readonly regionClasses = `${REGION} ${this.placement.region}`;
+  private regionThePointerIsOn: HTMLElement | undefined;
+  protected readonly regionPlacement = this.placement.region;
+  protected readonly enteringFrom = this.placement.entering;
   protected readonly notifications = computed(() =>
     this.placement.newestFirst
       ? this.service.notifications().toReversed()
@@ -62,16 +59,16 @@ export class ToastOutlet {
     return toast.icon ?? toast.kind;
   }
 
-  protected iconClasses(kind: NotificationKind): string {
-    return `mt-0.5 shrink-0 ${COLORS[kind].text}`;
+  protected textOf(kind: NotificationKind): string {
+    return COLORS[kind].text;
   }
 
-  protected cardClasses(kind: NotificationKind): string {
-    return `${CARD} ${this.placement.entering} ${COLORS[kind].edge}`;
+  protected edgeOf(kind: NotificationKind): string {
+    return COLORS[kind].edge;
   }
 
-  protected bodyClasses(kind: NotificationKind): string {
-    return `flex items-start gap-3 p-3 ${COLORS[kind].tint}`;
+  protected tintOf(kind: NotificationKind): string {
+    return COLORS[kind].tint;
   }
 
   protected roleFor(kind: NotificationKind): 'alert' | 'status' {
@@ -79,58 +76,75 @@ export class ToastOutlet {
   }
 
   protected runAction(toast: Notification, click: MouseEvent): void {
+    this.giveUpAttention(click);
     toast.action?.run();
-    this.dismiss(toast.id, click);
+    this.service.dismiss(toast.id);
   }
 
   protected dismiss(id: string, click: MouseEvent): void {
-    this.takeFocusOffLeavingToast(click);
+    this.giveUpAttention(click);
     this.service.dismiss(id);
   }
 
-  protected hold(): void {
+  protected pointerMoved(): void {
+    this.regionThePointerIsOn = this.region()?.nativeElement;
     this.service.hold();
   }
 
   protected pointerLeft(): void {
-    if (!this.holdsFocus(this.document.activeElement)) {
-      this.service.release();
-    }
+    this.regionThePointerIsOn = undefined;
+    this.releaseUnlessAttended(this.document.activeElement);
+  }
+
+  protected focusEntered(): void {
+    this.service.hold();
   }
 
   protected focusLeft(event: FocusEvent): void {
-    if (!this.holdsFocus(event.relatedTarget) && !this.isHovered()) {
+    this.releaseUnlessAttended(event.relatedTarget);
+  }
+
+  private giveUpAttention(click: MouseEvent): void {
+    const control = click.currentTarget as HTMLElement;
+    const neighbour = wasByKeyboard(click)
+      ? this.dismissButtonBeside(control)
+      : undefined;
+    if (neighbour) {
+      neighbour.focus();
+      return;
+    }
+    if (!wasByKeyboard(click)) {
+      this.regionThePointerIsOn = undefined;
+    }
+    control.blur();
+    this.releaseUnlessAttended(this.document.activeElement);
+  }
+
+  private dismissButtonBeside(control: HTMLElement): HTMLElement | undefined {
+    const toast = control.closest('[role]');
+    const buttons = this.dismissButtons().map((button) => button.nativeElement);
+    const own = buttons.findIndex((button) => toast?.contains(button));
+    return buttons[own + 1] ?? buttons[own - 1];
+  }
+
+  private releaseUnlessAttended(focused: EventTarget | null): void {
+    if (!this.hasFocusIn(focused) && !this.isPointerAttending()) {
       this.service.release();
     }
   }
 
-  private takeFocusOffLeavingToast(click: MouseEvent): void {
-    const control = click.currentTarget as HTMLElement;
-    const next = wasByKeyboard(click)
-      ? this.dismissButtonOutside(control.closest('[role]'))
-      : undefined;
-    if (next) {
-      next.focus();
-    } else {
-      control.blur();
-    }
-  }
-
-  private dismissButtonOutside(toast: Element | null): HTMLElement | undefined {
-    return this.dismissButtons()
-      .map((button) => button.nativeElement)
-      .find((button) => !toast?.contains(button));
-  }
-
-  private holdsFocus(target: EventTarget | null): boolean {
+  private hasFocusIn(target: EventTarget | null): boolean {
     const region = this.region()?.nativeElement;
     return (
       region !== undefined && target instanceof Node && region.contains(target)
     );
   }
 
-  private isHovered(): boolean {
-    return this.region()?.nativeElement.matches(':hover') ?? false;
+  private isPointerAttending(): boolean {
+    return (
+      this.regionThePointerIsOn !== undefined &&
+      this.regionThePointerIsOn === this.region()?.nativeElement
+    );
   }
 }
 

@@ -185,7 +185,9 @@ export async function restSandboxFrame(page: Page): Promise<Frame> {
 }
 
 export async function startupNoticeGone(page: Page): Promise<void> {
-  const startup = page.getByText('Sandbox plugin activated');
-  await expect(startup).toBeVisible();
-  await expect(startup).toHaveCount(0, { timeout: 15_000 });
+  const startup = page
+    .getByRole('status')
+    .filter({ hasText: 'Sandbox plugin activated' });
+  await startup.getByRole('button', { name: 'Dismiss' }).click();
+  await expect(startup).toHaveCount(0);
 }

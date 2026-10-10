@@ -35,6 +35,40 @@ test.describe('Notices', () => {
     await expect(notices).toHaveCount(0);
   });
 
+  test('dismissing one notice by pointer lets the others leave', async ({
+    page,
+  }) => {
+    await runCommand(page, 'Raise a notice with its own symbol');
+    await runCommand(page, 'Raise the same warning again');
+    const notices = page.getByRole('region', { name: 'Notifications' });
+    await expect(notices.getByRole('button', { name: 'Dismiss' })).toHaveCount(
+      2,
+    );
+
+    await notices.getByRole('button', { name: 'Dismiss' }).first().click();
+
+    await expect(notices).toHaveCount(0, { timeout: 12_000 });
+  });
+
+  test('focus passing through a notice under a resting pointer does not keep it', async ({
+    page,
+  }) => {
+    await page.mouse.move(1500, 855);
+    await page.keyboard.press('ControlOrMeta+k');
+    await page
+      .getByRole('combobox', { name: 'Command palette' })
+      .fill('Raise a notice with its own symbol');
+    await page.keyboard.press('Enter');
+    const notices = page.getByRole('region', { name: 'Notifications' });
+    const dismiss = notices.getByRole('button', { name: 'Dismiss' });
+    await expect(dismiss).toBeVisible();
+
+    await dismiss.focus();
+    await dismiss.blur();
+
+    await expect(notices).toHaveCount(0, { timeout: 8000 });
+  });
+
   test('a burst shows three notices and brings the others up as room is made', async ({
     page,
   }) => {

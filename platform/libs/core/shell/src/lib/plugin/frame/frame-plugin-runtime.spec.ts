@@ -17,6 +17,8 @@ import { PluginDeploymentService } from '../../plugin-store/lifecycle/plugin-dep
 import { CATALOG_MAX_ISOLATION_LEVEL } from '../../plugin-store/catalog/catalog-level-cap';
 import { ContentTabsService } from '../../regions/content/tabs/content-tabs.service';
 import { MenuService } from '../../menu/menu.service';
+import { NotificationService } from '../../notifications/notification.service';
+import { CapabilityRefusalReporter } from '../../permissions/capability-refusal';
 import { SettingsService } from '../../settings-dialog/settings.service';
 import type { Mock } from 'vitest';
 
@@ -357,6 +359,43 @@ describe('FramePluginRuntime (iframe + Penpal runtime)', () => {
     const id = rpc()['toast']({ message: 'hi' });
 
     expect(typeof id).toBe('string');
+  });
+
+  it('bounds the toasts of a frame plugin: a fourth is refused, a stay still leaves', () => {
+    vi.useFakeTimers();
+    try {
+      const { runtime } = setup();
+      runtime.activateAll();
+      const toasts = TestBed.inject(NotificationService);
+
+      for (const message of ['one', 'two', 'three']) {
+        rpc()['toast']({ message, timeoutMs: 0 });
+      }
+      expect(() => rpc()['toast']({ message: 'four' })).toThrow(
+        /already holds 3 toasts/,
+      );
+      expect(toasts.notifications()).toHaveLength(3);
+
+      vi.advanceTimersByTime(15_000);
+      expect(toasts.notifications()).toHaveLength(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('reports the refused toast to the developer like any other refused call', () => {
+    const { runtime } = setup();
+    runtime.activateAll();
+    const reported = vi
+      .spyOn(TestBed.inject(CapabilityRefusalReporter), 'report')
+      .mockReturnValue(false);
+
+    for (const message of ['one', 'two', 'three']) {
+      rpc()['toast']({ message });
+    }
+    expect(() => rpc()['toast']({ message: 'four' })).toThrow();
+
+    expect(reported).toHaveBeenCalledTimes(1);
   });
 
   it('deactivate tears down the frame, the connection and the contributions', () => {

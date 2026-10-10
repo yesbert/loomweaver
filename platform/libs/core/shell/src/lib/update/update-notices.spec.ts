@@ -1,4 +1,4 @@
-import { STAYS } from '../notifications/notice-lifetime';
+import { STAYS } from '../notifications/notification-lifetime';
 import { updateNotice, UpdateNotice } from './update-notices';
 
 describe('the lifetime each update notice states', () => {

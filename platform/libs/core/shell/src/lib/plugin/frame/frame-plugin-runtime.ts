@@ -11,7 +11,7 @@ import {
 import { Connection, WindowMessenger, connect } from 'penpal';
 import { ActivationSettled } from '../activation-settled';
 import { SETTINGS_STORE } from '../../persistence/settings-store';
-import { NoticeBoard } from '../../notifications/notice-board';
+import { NotificationBoard } from '../../notifications/notification-board';
 import { StateSyncService } from '../../persistence/cross-tab/state-sync.service';
 import { HostPluginContext } from '../context/host-plugin-context';
 import { HostContextFactory } from '../context/host-context-factory';
@@ -35,6 +35,7 @@ import {
 import { frameRpcMethods } from './rpc/frame-rpc-methods';
 import { FrameRemote } from './rpc/frame-rpc-contract';
 import { FrameSession } from './frame-session';
+import { ISOLATED_NOTIFICATION_LIMITS } from './isolated-notification-limits';
 
 interface FrameInstance {
   readonly ctx: HostPluginContext;
@@ -75,7 +76,7 @@ export class FramePluginRuntime {
 
   private readonly store = inject(SETTINGS_STORE);
   private readonly sync = inject(StateSyncService);
-  private readonly notices = inject(NoticeBoard);
+  private readonly notifications = inject(NotificationBoard);
 
   private readonly factory = inject(HostContextFactory);
 
@@ -201,6 +202,9 @@ export class FramePluginRuntime {
       this.grants.isGranted(plugin.id, capability),
     );
     const session = new FrameSession(ctx.state, this.injector);
+    session.addCleanup(
+      this.notifications.limit(plugin.id, ISOLATED_NOTIFICATION_LIMITS),
+    );
     const frame = this.createFrame(plugin.entryUrl, levelOf(plugin));
     const connection = this.connect(plugin, ctx, session, frame);
     this.settlement.track(connection.promise);
@@ -242,7 +246,6 @@ export class FramePluginRuntime {
         install: this.install,
         store: this.store,
         sync: this.sync,
-        notices: this.notices,
         reportRefusal: (error) => this.refusals.report(error),
       }),
     });

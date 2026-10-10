@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { NoticeBoard } from './notice-board';
+import { NotificationBoard } from './notification-board';
 import { NotificationService } from './notification.service';
 
 describe('NotificationService', () => {
@@ -100,6 +100,12 @@ describe('NotificationService', () => {
       expect(shownMessages()).toEqual([]);
     });
 
+    it('shows a notification with a lifetime longer than a timer can hold, instead of dropping it', () => {
+      service.show({ message: 'next month', timeoutMs: 2 ** 31 });
+      vi.advanceTimersByTime(60_000);
+      expect(service.notifications()).toHaveLength(1);
+    });
+
     it('starts the lifetime over when a notification is replaced by id', () => {
       service.show({ id: 'x', message: 'first', timeoutMs: 1000 });
       vi.advanceTimersByTime(900);
@@ -154,13 +160,21 @@ describe('NotificationService', () => {
     });
 
     it('starts the lifetime of a notification raised during a hold when the hold ends', () => {
+      service.show({ message: 'held', timeoutMs: 0 });
       service.hold();
       service.show({ message: 'late', timeoutMs: 3000 });
       vi.advanceTimersByTime(60_000);
-      expect(service.notifications()).toHaveLength(1);
+      expect(shownMessages()).toEqual(['held', 'late']);
 
       service.release();
       vi.advanceTimersByTime(3000);
+      expect(shownMessages()).toEqual(['held']);
+    });
+
+    it('does not begin a hold while nothing is shown', () => {
+      service.hold();
+      service.show({ message: 'nobody attends', timeoutMs: 1000 });
+      vi.advanceTimersByTime(1000);
       expect(service.notifications()).toHaveLength(0);
     });
 
@@ -329,38 +343,75 @@ describe('NotificationService', () => {
   });
 
   describe('raiser', () => {
-    let board: NoticeBoard;
+    let board: NotificationBoard;
 
     beforeEach(() => {
-      board = TestBed.inject(NoticeBoard);
+      board = TestBed.inject(NotificationBoard);
     });
 
     it('shows the same wording from two plugins as two notifications', () => {
-      board.raise({ message: 'Done' }, 'plugin.a');
-      board.raise({ message: 'Done' }, 'plugin.b');
+      board.show({ message: 'Done' }, 'plugin.a');
+      board.show({ message: 'Done' }, 'plugin.b');
       expect(service.notifications()).toHaveLength(2);
     });
 
     it("does not count a plugin's notification on the application's own", () => {
       service.show({ message: 'Done' });
-      board.raise({ message: 'Done' }, 'plugin.a');
+      board.show({ message: 'Done' }, 'plugin.a');
       expect(service.notifications()).toHaveLength(2);
     });
 
     it('keeps the ids two plugins chose apart', () => {
-      board.raise({ id: 'status', message: 'A' }, 'plugin.a');
-      board.raise({ id: 'status', message: 'B' }, 'plugin.b');
+      board.show({ id: 'status', message: 'A' }, 'plugin.a');
+      board.show({ id: 'status', message: 'B' }, 'plugin.b');
       expect(shownIds()).toEqual(['plugin.a.status', 'plugin.b.status']);
     });
 
-    it('tells how many notifications a plugin would hold after raising one', () => {
-      board.raise({ message: 'one' }, 'plugin.a');
-      board.raise({ id: 'named', message: 'two' }, 'plugin.a');
-      board.raise({ message: 'other' }, 'plugin.b');
+    it("leaves the application's notification alone when a plugin's name and id spell its id", () => {
+      service.show({ id: 'shell.update', message: 'A version is waiting' });
+      board.show({ id: 'update', message: 'Mine now' }, 'shell');
 
-      expect(board.heldAfter({ message: 'three' }, 'plugin.a')).toBe(3);
-      expect(board.heldAfter({ message: 'one' }, 'plugin.a')).toBe(2);
-      expect(board.heldAfter({ id: 'named', message: 'x' }, 'plugin.a')).toBe(2);
+      expect(shownMessages()).toEqual(['A version is waiting', 'Mine now']);
+      expect(new Set(shownIds()).size).toBe(2);
+    });
+
+    it("gives the application's notification its id back when a plugin spelled it first", () => {
+      board.show({ id: 'update', message: 'Squatting' }, 'shell');
+      service.show({ id: 'shell.update', message: 'A version is waiting' });
+      service.dismiss('shell.update');
+
+      expect(shownMessages()).toEqual(['Squatting']);
+    });
+
+    it('keeps the lifetime of a notification whose id was taken from it', () => {
+      board.show({ id: 'update', message: 'Squatting', timeoutMs: 1000 }, 'shell');
+      service.show({ id: 'shell.update', message: 'Mine', timeoutMs: 0 });
+
+      vi.advanceTimersByTime(1000);
+      expect(shownMessages()).toEqual(['Mine']);
+    });
+
+    it("leaves another plugin's notification alone when the joined ids are equal", () => {
+      board.show({ id: 'status', message: 'Mail' }, 'acme.mail');
+      board.show({ id: 'mail.status', message: 'Not mail' }, 'acme');
+
+      expect(shownMessages()).toEqual(['Mail', 'Not mail']);
+    });
+
+    it('leaves a generated id alone when a plugin spells it', () => {
+      const generated = service.show({ message: 'Anonymous' });
+      const prefix = generated.slice(0, generated.indexOf('.'));
+      const rest = generated.slice(generated.indexOf('.') + 1);
+      board.show({ id: rest, message: 'Spelled' }, prefix);
+
+      expect(shownMessages()).toEqual(['Anonymous', 'Spelled']);
+    });
+
+    it('replaces when a plugin passes back the id it was returned', () => {
+      const id = board.show({ message: 'Syncing' }, 'plugin.a');
+      board.show({ id, message: 'Synced' }, 'plugin.a');
+
+      expect(shownMessages()).toEqual(['Synced']);
     });
   });
 });
