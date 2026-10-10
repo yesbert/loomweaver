@@ -1,3 +1,4 @@
+import { expectTypeOf } from 'vitest';
 import { defineLwIcon } from '../elements/icon/lw-icon.element';
 import { defineLwMenu, LW_MENU_ITEM_TAG, LW_MENU_TAG } from '../elements/menu/lw-menu.element';
 import {
@@ -17,8 +18,6 @@ defineLwMenu();
 defineLwToolbar();
 
 type Same<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
-
-const slotEntryIsTheToolbarEntry: Same<Omit<LwToolbarEntry, 'hasContextMenu'>, LwSlotEntry> = true;
 
 interface Call {
   readonly method: string;
@@ -200,6 +199,6 @@ describe('toolbars inside an isolated surface', () => {
 
 describe('the entry a frame is told and the entry the toolbar draws', () => {
   it('carry the same fields, apart from the context menu only the page knows of', () => {
-    expect(slotEntryIsTheToolbarEntry).toBe(true);
+    expectTypeOf<Same<Omit<LwToolbarEntry, 'hasContextMenu'>, LwSlotEntry>>().toEqualTypeOf<true>();
   });
 });

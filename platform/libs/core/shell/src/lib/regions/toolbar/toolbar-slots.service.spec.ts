@@ -83,6 +83,24 @@ describe('ToolbarSlots variants', () => {
     expect(String(warn.mock.calls[0][0])).toContain("'loud'");
   });
 
+  it('says what it was given when the variant is not a name at all', () => {
+    registry.addMenuItem(
+      {
+        id: 'acme.object',
+        menu: SLOT,
+        title: 'Object',
+        run: () => undefined,
+        variant: { loud: true },
+      } as unknown as MenuItem,
+      'acme',
+    );
+
+    expect(variants()).toEqual([undefined]);
+    const said = String(warn.mock.calls[0][0]);
+    expect(said).toContain('names a variant of type object');
+    expect(said).not.toContain('[object Object]');
+  });
+
   it('keeps primary on a surface’s actions for the plugin that owns the surface', () => {
     registry.addView(
       { id: 'acme.list', region: 'primary', title: 'List', component: class {} } as unknown as View,

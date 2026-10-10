@@ -80,7 +80,7 @@ export function createToolbars(): LwToolbarsApi {
     if (entry.subscription === undefined) {
       return;
     }
-    void host?.slotUnwatch(entry.subscription);
+    host?.slotUnwatch(entry.subscription);
     bySubscription.delete(entry.subscription);
     entry.subscription = undefined;
   };
@@ -92,7 +92,7 @@ export function createToolbars(): LwToolbarsApi {
     }
     submenus.delete(id);
     open.menu?.remove();
-    void host?.slotUnwatch(id);
+    host?.slotUnwatch(id);
     open.owner.toolbar.openKey = null;
     open.trigger.focus();
   };
@@ -130,7 +130,7 @@ export function createToolbars(): LwToolbarsApi {
     menu.addEventListener(LW_MENU_SELECT, (event) => {
       const key = (event as CustomEvent<{ command: string | null }>).detail.command;
       if (key !== null) {
-        void host?.slotActivate(id, key);
+        host?.slotActivate(id, key);
       }
       closeSubmenu(id);
     });
@@ -149,7 +149,7 @@ export function createToolbars(): LwToolbarsApi {
       void openSubmenu(entry, drawn.key, detail.trigger);
       return;
     }
-    void host.slotActivate(entry.subscription, detail.key);
+    host.slotActivate(entry.subscription, detail.key);
   };
 
   installLwToolbarHost({

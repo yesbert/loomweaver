@@ -77,8 +77,9 @@ export function scaffold(scaffold: ScaffoldDescriptor, args: Args): ToolResult {
   const unknown = unknownOptions(scaffold, args);
   if (unknown.length > 0) {
     const takes = portableOptions(scaffold).map((option) => option.name);
+    const quoted = unknown.map((name) => `"${name}"`).join(', ');
     return refused(
-      `${toolName(scaffold)} does not know ${unknown.map((name) => `"${name}"`).join(', ')}, ` +
+      `${toolName(scaffold)} does not know ${quoted}, ` +
         `so nothing was generated. It takes: ${takes.join(', ')}.`,
     );
   }
