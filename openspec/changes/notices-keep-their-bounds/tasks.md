@@ -55,3 +55,9 @@
 - [x] 7.3 A raiser is returned the same identity on every repeat and replacement, pinned by passing the identity back twice
 - [x] 7.4 The browser test for movement inside the fade waits for the card to have entered and moves several times across the fade
 - [x] 7.5 Lint, every unit test, the builds, the guards and the complete end-to-end suite pass again
+
+## 8. What the fourth check found
+
+- [x] 8.1 A remembered identity is cleared when its notification is no longer shown, so a notification shown again under the same identity is not taken for the one the pointer was on; pinned by a unit test seen to fail first
+- [x] 8.2 The focus handed to a neighbour is given again after the render, so it survives a waiting notification moving up; pinned by a browser test seen to fail first
+- [x] 8.3 Lint, every unit test, the builds, the guards and the complete end-to-end suite pass again

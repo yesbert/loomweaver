@@ -61,9 +61,14 @@ replacing.
 **Attention belongs to a notification, and ends when it is no longer shown.** The outlet remembers
 the identity of the notification the pointer last moved on and of the one that holds the focus, and
 derives "the user is attending" from those two and the list of shown notifications: attended means
-one of the two is still shown. When that turns false, the hold is released. Nothing is ever
-"forgotten" by a step that could be skipped; an identity that is no longer shown simply does not
-count.
+one of the two is still shown. When that turns false, the hold is released. An identity that is no
+longer shown does not count, whether or not anything has cleared it yet.
+
+It is cleared all the same, whenever what is shown changes. Deriving alone was not enough: a fourth
+check showed a notification dismissed under the pointer and later shown again under the same
+identity, as every notification of the workbench's own is, taken for the one the pointer was on.
+The derivation says what is attended now; the clearing keeps a remembered identity from meaning a
+later notification.
 
 The outlet listens for pointer movement and focus on its region and reads the notification from
 the card the event came from. Listening on each card was tried and failed in the browser: the
@@ -109,6 +114,11 @@ screen. With none, a hold could only be inherited by the next one, which nobody 
 **The focus goes to the neighbour.** After a dismissal from the keyboard the focus moves to the
 dismiss control of the notification that follows on screen, or the one before where there is none.
 The first one was a shortcut.
+
+**The focus is handed on twice, before the dismissal and after the render that follows it.** Where
+a waiting notification moves up, the framework moves the neighbour's card in the document and the
+browser drops the focus it was just given. Focusing again after the render restores it; focusing
+before as well keeps the hold from ending in between.
 
 **The focus is handed on, and nothing else is done to it.** A dismissal by pointer no longer blurs
 the control: once attention ends with the notification, where the browser's focus lingers for the

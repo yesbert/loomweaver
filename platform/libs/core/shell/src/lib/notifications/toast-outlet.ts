@@ -1,11 +1,14 @@
 import {
+  afterNextRender,
   Component,
   computed,
   CUSTOM_ELEMENTS_SCHEMA,
   effect,
   ElementRef,
   inject,
+  Injector,
   signal,
+  untracked,
   viewChild,
   viewChildren,
 } from '@angular/core';
@@ -43,6 +46,7 @@ const COLORS: Record<NotificationKind, FeedbackColors> = {
 })
 export class ToastOutlet {
   private readonly service = inject(NotificationService);
+  private readonly injector = inject(Injector);
   private readonly region = viewChild<ElementRef<HTMLElement>>('region');
   private readonly dismissButtons =
     viewChildren<ElementRef<HTMLElement>>('dismissButton');
@@ -62,6 +66,7 @@ export class ToastOutlet {
   );
 
   constructor() {
+    effect(() => this.forgetWhatLeft(this.service.notifications()));
     effect(() => {
       if (!this.isAttended()) {
         this.service.release();
@@ -120,6 +125,14 @@ export class ToastOutlet {
     }
   }
 
+  private forgetWhatLeft(shown: readonly Notification[]): void {
+    for (const remembered of [this.toastUnderPointer, this.toastWithFocus]) {
+      if (shown.every((toast) => toast.id !== untracked(remembered))) {
+        remembered.set(undefined);
+      }
+    }
+  }
+
   private holdWhileAttended(): void {
     if (this.isAttended()) {
       this.service.hold();
@@ -127,9 +140,14 @@ export class ToastOutlet {
   }
 
   private handFocusToNeighbour(click: MouseEvent): void {
-    if (wasByKeyboard(click)) {
-      this.dismissButtonBeside(click.currentTarget as HTMLElement)?.focus();
+    if (!wasByKeyboard(click)) {
+      return;
     }
+    const neighbour = this.dismissButtonBeside(
+      click.currentTarget as HTMLElement,
+    );
+    neighbour?.focus();
+    afterNextRender(() => neighbour?.focus(), { injector: this.injector });
   }
 
   private dismissButtonBeside(control: HTMLElement): HTMLElement | undefined {

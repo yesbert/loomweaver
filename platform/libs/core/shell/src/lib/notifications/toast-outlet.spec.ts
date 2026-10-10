@@ -448,6 +448,28 @@ describe('ToastOutlet', () => {
       expect(service.notifications()).toHaveLength(0);
     });
 
+    it('does not take a toast shown again under its old id for the one the pointer was on', () => {
+      const { service, region, cards, movePointerOn, render } = setup();
+      service.show({ id: 'stays', message: 'first time', timeoutMs: 0 });
+      movePointerOn(cards()[0]);
+      dismissButtonsIn(region())[0].dispatchEvent(
+        new MouseEvent('click', { detail: 1 }),
+      );
+      render();
+
+      service.show({ id: 'stays', message: 'second time', timeoutMs: 0 });
+      service.show({ message: 'leaves', timeoutMs: 1000 });
+      const other = dismissButtonsIn(region())[1];
+      other.focus();
+      other.blur();
+      render();
+      vi.advanceTimersByTime(1000);
+
+      expect(service.notifications().map((toast) => toast.message)).toEqual([
+        'second time',
+      ]);
+    });
+
     it('forgets the pointer when the toasts were gone in between', () => {
       const { service, region, cards, movePointerOn, render } = setup();
       const first = service.show({ message: 'first', timeoutMs: 0 });

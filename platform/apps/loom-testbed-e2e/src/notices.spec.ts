@@ -122,6 +122,26 @@ test.describe('Notices', () => {
     await expect(notices).toHaveCount(0, { timeout: 8000 });
   });
 
+  test('the focus stays on a notice after a dismissal from the keyboard brings a waiting one up', async ({
+    page,
+  }) => {
+    await runCommand(page, 'Raise five notices at once');
+    const notices = page.getByRole('region', { name: 'Notifications' });
+    const dismiss = notices.getByRole('button', { name: 'Dismiss' });
+    await expect(dismiss).toHaveCount(3);
+
+    await dismiss.nth(1).focus();
+    await page.keyboard.press('Enter');
+
+    await expect(notices.getByText('notice 4 of 5')).toBeVisible();
+    await expect(
+      notices
+        .getByRole('status')
+        .filter({ hasText: 'notice 3 of 5' })
+        .getByRole('button', { name: 'Dismiss' }),
+    ).toBeFocused();
+  });
+
   test('a burst shows three notices and brings the others up as room is made', async ({
     page,
   }) => {
