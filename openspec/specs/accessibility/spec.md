@@ -76,6 +76,10 @@ it controls. This holds in the content area and in the side panels alike.
 The limit: where a side panel's header is drawn in the top row rather than beside the panel, its tab
 strip lies in the banner and not in the panel's complementary region.
 
+The limit: a transient message is announced by whoever draws it. Where a distribution draws notices
+itself, the workbench exposes no live region for them, and announcing them with an urgency matching
+their kind is the distribution's.
+
 #### Scenario: Two sidebars are told apart
 
 - **WHEN** the workbench draws a panel on each side
@@ -83,7 +87,7 @@ strip lies in the banner and not in the panel's complementary region.
 
 #### Scenario: A transient message is announced
 
-- **WHEN** the workbench raises a notice
+- **WHEN** a notice is raised and the workbench draws notices
 - **THEN** it is announced, with urgency matching the kind of notice
 
 #### Scenario: Bars at both edges are not two banners
