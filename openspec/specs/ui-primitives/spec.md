@@ -245,6 +245,12 @@ what the notice says stays its wording.
 - **WHEN** two plugins raise notices using the same identity of their own
 - **THEN** neither replaces the other's
 
+#### Scenario: A plugin cannot spell its way to another raiser's notice
+
+- **WHEN** a plugin's own name and the identity it chooses together spell the identity of a notice
+  the workbench or another plugin raised
+- **THEN** that notice is left as it is, and the plugin's is shown as a notice of its own
+
 #### Scenario: The kind is visible without telling colours apart
 
 - **WHEN** notices of two different kinds are shown
@@ -356,6 +362,9 @@ beyond that SHALL wait, and SHALL be shown, in the order raised, as a shown noti
 dismissed. The lifetime of a waiting notice SHALL NOT run until it is shown, so that no notice
 leaves without having been shown.
 
+The limit: the order raised is not kept for an isolated plugin's notice that is still waiting. It
+gives way to a notice raised by anybody else, which is stated with the boundary it crosses.
+
 #### Scenario: A notice beyond the bound waits
 
 - **WHEN** more notices are raised than the workbench shows at once
@@ -380,6 +389,9 @@ earlier notice SHALL show how often it was raised, and its lifetime SHALL start 
 A notice its raiser gave an identity SHALL keep replacing the notice of that identity, as before,
 and SHALL NOT be counted: naming a notice says it is one thing being updated, not a thing
 happening again. Notices of two different raisers SHALL never be counted together.
+
+The limit: a repeat by an isolated plugin is counted and does not start the lifetime over. That is
+stated with the boundary it crosses.
 
 #### Scenario: The same notice twice is one card
 
