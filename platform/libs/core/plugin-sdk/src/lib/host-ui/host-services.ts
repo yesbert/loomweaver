@@ -24,7 +24,9 @@ export interface UiMenuRow {
 /**
  * A row of an ad-hoc menu that acts: `run` is invoked in process when the row is chosen. `shortcut`
  * shows the keys that do the same, at the end of the row and not announced: a chord in the vocabulary
- * of `Command.shortcut` (`'shift+ArrowUp'`, `'mod+d'`), written the way the platform writes keys. It
+ * of `Command.shortcut` (`'shift+ArrowUp'`, `'mod+d'`), written the way the platform writes keys and,
+ * where the platform names keys with words, in the interface language (`Strg+Entf` in German). Name
+ * the key your handler listens to: `'delete'` is forward delete (⌦ on macOS), `'backspace'` is ⌫. It
  * is a hint only; the workbench binds nothing, so the plugin handles those keys for its own content.
  */
 export interface UiMenuAction extends UiMenuRow {

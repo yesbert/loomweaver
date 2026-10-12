@@ -756,8 +756,8 @@ describe('MenuService', () => {
             label: 'Move',
             icon: 'sort',
             children: [
-              { key: '1.0', label: 'Up', shortcut: '⇧↑' },
-              { key: '1.1', label: 'Down', shortcut: '⇧↓' },
+              { key: '1.0', label: 'Up', chord: 'shift+ArrowUp' },
+              { key: '1.1', label: 'Down', chord: 'shift+ArrowDown' },
             ],
           },
         ],
@@ -767,7 +767,7 @@ describe('MenuService', () => {
 
       const nested = nestedMenuOf(top()[1]);
       const [up, down] = [...(nested?.querySelectorAll<HTMLElement>(LW_MENU_ITEM_TAG) ?? [])];
-      expect(up.getAttribute('shortcut')).toBe('⇧↑');
+      expect(up.getAttribute('shortcut')).toBe('Shift+↑');
       expect(nested?.classList.contains('lw-menu--leading')).toBe(false);
 
       choose(down);

@@ -52,10 +52,15 @@ export class CommandService {
    * palette row, bar button) asks here.
    */
   shortcutOf(command: Command | undefined): string | undefined {
+    const chord = this.chordOf(command);
+    return chord === undefined ? undefined : formatChord(chord);
+  }
+
+  chordOf(command: Command | undefined): string | undefined {
     if (!command?.shortcut || !this.shortcuts()) {
       return undefined;
     }
-    return formatChord(command.shortcut);
+    return command.shortcut;
   }
 
   /**

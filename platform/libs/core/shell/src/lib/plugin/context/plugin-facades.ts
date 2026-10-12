@@ -8,7 +8,6 @@ import { UpdateService } from '../../update/update.service';
 import { VersionService } from '../../version/version.service';
 import { PluginHost, PluginSession, PluginUi, UiMenuItem } from '../plugin';
 import { MenuListEntry } from '../../menu/menu.service';
-import { formatChord } from '../../commands/keyboard/format-chord';
 
 export function pluginUi(pluginId: string, requireUi: () => void): PluginUi {
   const dialogs = inject(DialogService);
@@ -100,8 +99,7 @@ function listEntries(
       key,
       label: item.label,
       icon: item.icon,
-      shortcut:
-        item.shortcut === undefined ? undefined : formatChord(item.shortcut),
+      chord: item.shortcut,
     };
   });
 }

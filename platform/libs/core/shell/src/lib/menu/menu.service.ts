@@ -65,7 +65,7 @@ export interface MenuListEntry {
   readonly key: string;
   readonly label: MenuLabel;
   readonly icon?: string;
-  readonly shortcut?: string;
+  readonly chord?: string;
   readonly active?: boolean;
   readonly checked?: boolean;
   readonly children?: readonly MenuListEntry[];
@@ -297,7 +297,7 @@ export function menuRowOf(entry: LabelledEntry): MenuRow {
     label: entry.title,
     group: entry.group,
     icon: entry.icon,
-    shortcut: entry.shortcut,
+    chord: entry.chord,
     checkbox: entry.checkbox,
     checked: entry.checked,
     disabled: entry.disabled,
@@ -312,7 +312,7 @@ function listRow(entry: MenuListEntry): MenuRow {
     label: entry.label,
     group: '',
     icon: entry.icon,
-    shortcut: entry.shortcut,
+    chord: entry.chord,
     checkbox,
     checked: checkbox && (entry.checked ?? entry.active) === true,
     children: entry.children?.map((child) => listRow(child)),

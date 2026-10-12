@@ -1142,7 +1142,7 @@ function provideQuickOpenEntry(options?: { bar?: string; slot?: BarSlot; order?:
 // with relative time; Enter reveals the tab WHERE IT LIVES (a secondary pane is activated in place, not duplicated in the
 // primary); → opens the tab's context menu. Source: ContentTabsService.quickOpenTargets / .revealContentTab
 // (@loomweaver/shell, additive; QuickOpenTarget is exported). The tab last-active timestamps are session-only (no storage key).
-function formatChord(chord: string): string;  // OS-correct chord for display — formatChord('mod+k') → '⌘K' (macOS) / 'Ctrl+K'. Same token vocabulary as Command.shortcut.
+function formatChord(chord: string): string;  // OS-correct chord for display — formatChord('mod+k') → '⌘K' (macOS) / 'Ctrl+K'. Same token vocabulary as Command.shortcut. Named keys take the macOS symbol (delete ⌦, backspace ⌫, tab ⇥, home ↖, end ↘, pageup ⇞, pagedown ⇟) and otherwise a word in the interface language once the shell runs ('Strg+Entf' in German; English without a shell); a product rewords them under the shell's `keys.*` strings.
 function provideShellRouter(extraRoutes?: Routes): (Provider | EnvironmentProviders)[];  // content-area routing; use INSTEAD of provideRouter([])
 const Shell;   // the root component, selector lw-shell: rendered as <lw-shell /> in your App's template, never in index.html
 

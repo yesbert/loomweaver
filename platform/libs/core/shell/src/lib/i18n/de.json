@@ -320,5 +320,22 @@
   },
   "railLabels": {
     "desc": "Den Namen jedes Eintrags unter seinem Symbol anzeigen."
+  },
+  "keys": {
+    "ctrl": "Strg",
+    "meta": "Meta",
+    "alt": "Alt",
+    "shift": "Umschalt",
+    "enter": "Eingabe",
+    "escape": "Esc",
+    "space": "Leertaste",
+    "delete": "Entf",
+    "backspace": "Rücktaste",
+    "tab": "Tab",
+    "home": "Pos1",
+    "end": "Ende",
+    "pageup": "Bild↑",
+    "pagedown": "Bild↓",
+    "insert": "Einfg"
   }
 }
