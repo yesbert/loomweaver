@@ -8,3 +8,8 @@ export const settleWorkspace: CanActivateFn = async (_route, state) => {
   await settlement.settle(normalizePath(state.url));
   return true;
 };
+
+export const withholdSettlement: CanActivateFn = (_route, state) => {
+  inject(WORKSPACE_SETTLEMENT).withhold(normalizePath(state.url));
+  return true;
+};

@@ -93,6 +93,7 @@ export class WorkbenchOpening {
     const shown = this.tabState.activePath();
     const destination = this.settlement.settlementDestination(shown);
     if (destination !== null) {
+      this.settlement.leaveWithheld(shown);
       await this.switcher.switchTo(destination, { keepAddress: true });
     }
     if (found.length > 0 || destination !== null) {

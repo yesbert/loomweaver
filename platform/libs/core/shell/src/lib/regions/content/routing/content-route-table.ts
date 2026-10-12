@@ -5,7 +5,7 @@ import { containerChildren } from '../../pane/container/container-children';
 import { accessCanMatch } from '../access/content-access';
 import { ContentSubStub } from './content-sub-stub';
 import { keepPopout } from './keep-popout.guard';
-import { settleWorkspace } from './settle-workspace.guard';
+import { settleWorkspace, withholdSettlement } from './settle-workspace.guard';
 import { SurfaceRouteStub } from './surface-route-stub';
 
 const CONTENT_DATA = { content: true };
@@ -53,7 +53,7 @@ function buildRegisteredRoutes(
       const placeholder: Route = {
         path: route.path,
         component: SurfaceRouteStub,
-        canActivate: [keepPopout],
+        canActivate: [keepPopout, withholdSettlement],
         data: CONTENT_DATA,
         ...(children.length && { children }),
       };
