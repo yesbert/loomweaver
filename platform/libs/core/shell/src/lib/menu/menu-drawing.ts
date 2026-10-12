@@ -55,10 +55,16 @@ function reserveLeadingColumns(
   menu: HTMLElement,
   rows: readonly MenuRow[],
 ): void {
-  if (rows.some((row) => row.checkbox)) {
+  const checks = rows.some((row) => row.checkbox);
+  const icons = rows.some((row) => row.icon);
+  if (checks && icons && rows.every((row) => !(row.checkbox && row.icon))) {
+    menu.classList.add('lw-menu--shared');
+    return;
+  }
+  if (checks) {
     menu.classList.add('lw-menu--checks');
   }
-  if (rows.some((row) => row.icon)) {
+  if (icons) {
     menu.classList.add('lw-menu--leading');
   }
 }

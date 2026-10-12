@@ -34,7 +34,9 @@
     @apply hidden w-4 shrink-0 items-center justify-center text-content-muted;
   }
   .lw-menu--checks > lw-menu-item > .lw-menu-item-check,
-  .lw-menu--leading > lw-menu-item > .lw-menu-item-lead {
+  .lw-menu--leading > lw-menu-item > .lw-menu-item-lead,
+  .lw-menu--shared > lw-menu-item[checkbox] > .lw-menu-item-check,
+  .lw-menu--shared > lw-menu-item:not([checkbox]) > .lw-menu-item-lead {
     @apply flex;
   }
   .lw-menu-separator {
