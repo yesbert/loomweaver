@@ -410,7 +410,7 @@ function in `@loomweaver/shell`: `defineLwIcon()`, `defineLwButton()`, `defineLw
   A `role="slider"` needs an accessible name (`aria-label`).
 - **Unavailable choices (`.lw-checkbox`, `.lw-switch`, `.lw-radio`):** natively `disabled` takes the
   control out of the tab order, which is right when there is nothing to say. When the person has to
-  learn *why* the choice is unavailable, mark it `aria-disabled="true"` instead and point
+  learn _why_ the choice is unavailable, mark it `aria-disabled="true"` instead and point
   `aria-describedby` at the reason: the class draws it exactly like `disabled`, and it stays
   focusable. The class changes the look only, so refuse the change yourself
   (`(click)="$event.preventDefault()"` covers pointer and Space).
