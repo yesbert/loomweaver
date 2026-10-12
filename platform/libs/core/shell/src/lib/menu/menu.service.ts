@@ -25,6 +25,7 @@ import {
   headingCommand,
   ResolvedEntry,
   resolveSlot,
+  SlotEntry,
   slotSources,
 } from './menu-resolution';
 import { wordingChanges } from '../i18n/wording';
@@ -48,6 +49,7 @@ interface OpenMenu {
 
 export type LabelledEntry = ResolvedEntry<MenuItem> & {
   readonly title: string;
+  readonly submenu?: readonly LabelledEntry[];
 };
 
 export interface MenuAnswer {
@@ -63,8 +65,10 @@ export interface MenuListEntry {
   readonly key: string;
   readonly label: MenuLabel;
   readonly icon?: string;
+  readonly shortcut?: string;
   readonly active?: boolean;
   readonly checked?: boolean;
+  readonly children?: readonly MenuListEntry[];
 }
 
 @Service()
@@ -137,7 +141,9 @@ export class MenuService {
       this.commands.execute(answer.leadsTo.id, context);
       return;
     }
-    const entry = answer.entries.find((candidate) => candidate.key === key);
+    const entry = everyEntry(answer.entries).find(
+      (candidate) => candidate.key === key,
+    );
     if (entry && !entry.disabled) {
       this.commands.trigger(entry.item, context);
     }
@@ -247,16 +253,35 @@ export class MenuService {
   private resolve(
     menuIds: readonly string[],
     context: MenuContext,
+    open: ReadonlySet<string> = new Set(menuIds),
   ): LabelledEntry[] {
+    const submenus = new Map<string, LabelledEntry[]>();
+    const offered = (entry: SlotEntry): string | undefined => {
+      const slot = entry.submenu;
+      if (slot === undefined || open.has(slot)) {
+        return undefined;
+      }
+      const entries = this.resolve([slot], context, new Set([...open, slot]));
+      if (entries.length === 0) {
+        return undefined;
+      }
+      submenus.set(slot, entries);
+      return slot;
+    };
     return resolveSlot(
       this.registry.menuItems().filter((item) => menuIds.includes(item.menu)),
       () => context,
-      slotSources({
-        registry: this.registry,
-        commands: this.commands,
-        auth: this.auth,
-      }),
-    ).filter((entry) => labelled(entry));
+      slotSources(
+        {
+          registry: this.registry,
+          commands: this.commands,
+          auth: this.auth,
+        },
+        offered,
+      ),
+    )
+      .filter((entry) => labelled(entry))
+      .map((entry) => withSubmenu(entry, submenus));
   }
 
   private usableCommands(): readonly Command[] {
@@ -276,6 +301,7 @@ export function menuRowOf(entry: LabelledEntry): MenuRow {
     checkbox: entry.checkbox,
     checked: entry.checked,
     disabled: entry.disabled,
+    children: entry.submenu?.map((child) => menuRowOf(child)),
   };
 }
 
@@ -286,7 +312,35 @@ function listRow(entry: MenuListEntry): MenuRow {
     label: entry.label,
     group: '',
     icon: entry.icon,
+    shortcut: entry.shortcut,
     checkbox,
     checked: checkbox && (entry.checked ?? entry.active) === true,
+    children: entry.children?.map((child) => listRow(child)),
   };
+}
+
+function withSubmenu(
+  entry: LabelledEntry,
+  submenus: ReadonlyMap<string, readonly LabelledEntry[]>,
+): LabelledEntry {
+  const submenu = entry.opensMenu && submenus.get(entry.opensMenu);
+  return submenu ? { ...entry, submenu: keyedUnder(entry.key, submenu) } : entry;
+}
+
+function keyedUnder(
+  parent: string,
+  entries: readonly LabelledEntry[],
+): LabelledEntry[] {
+  return entries.map((entry) => {
+    const key = `${parent}>${entry.key}`;
+    return {
+      ...entry,
+      key,
+      submenu: entry.submenu && keyedUnder(key, entry.submenu),
+    };
+  });
+}
+
+function everyEntry(entries: readonly LabelledEntry[]): LabelledEntry[] {
+  return entries.flatMap((entry) => [entry, ...everyEntry(entry.submenu ?? [])]);
 }

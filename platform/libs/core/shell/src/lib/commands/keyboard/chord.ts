@@ -40,6 +40,10 @@ const TOKEN_LABELS: ReadonlyMap<
   ['enter', { mac: '↵', other: 'Enter' }],
   ['escape', { mac: 'Esc', other: 'Esc' }],
   ['space', { mac: 'Space', other: 'Space' }],
+  ['arrowup', { mac: '↑', other: '↑' }],
+  ['arrowdown', { mac: '↓', other: '↓' }],
+  ['arrowleft', { mac: '←', other: '←' }],
+  ['arrowright', { mac: '→', other: '→' }],
 ]);
 
 type Modifier = 'ctrl' | 'meta' | 'alt' | 'shift';

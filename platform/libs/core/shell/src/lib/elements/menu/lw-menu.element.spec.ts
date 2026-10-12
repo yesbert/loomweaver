@@ -332,4 +332,309 @@ describe('<lw-menu> custom element', () => {
       expect(menu.style.left).toBe(`${control.right - 200}px`);
     });
   });
+  describe('a submenu nested in an entry', () => {
+    function mountNested(): {
+      menu: LwMenuElement;
+      move: HTMLElement;
+      submenu: LwMenuElement;
+      steps: HTMLElement[];
+    } {
+      const menu = mount([['rename', 'Rename']]) as LwMenuElement;
+      const move = document.createElement(LW_MENU_ITEM_TAG);
+      move.setAttribute('label', 'Move');
+      move.setAttribute('icon', 'sort');
+      const submenu = document.createElement(LW_MENU_TAG) as LwMenuElement;
+      for (const [command, label] of [
+        ['up', 'Up'],
+        ['down', 'Down'],
+      ]) {
+        const step = document.createElement(LW_MENU_ITEM_TAG);
+        step.setAttribute('command', command);
+        step.setAttribute('label', label);
+        step.setAttribute('shortcut', '⇧↑');
+        submenu.append(step);
+      }
+      move.append(submenu);
+      menu.append(move);
+      const remove = document.createElement(LW_MENU_ITEM_TAG);
+      remove.setAttribute('command', 'remove');
+      remove.setAttribute('label', 'Remove');
+      menu.append(remove);
+      return {
+        menu,
+        move,
+        submenu,
+        steps: [...submenu.querySelectorAll<HTMLElement>('lw-menu-item')],
+      };
+    }
+    const press = (target: Element, k: string): KeyboardEvent => {
+      const event = new KeyboardEvent('keydown', {
+        key: k,
+        bubbles: true,
+        cancelable: true,
+      });
+      target.dispatchEvent(event);
+      return event;
+    };
+    const labelledName = (item: HTMLElement): string =>
+      (item.getAttribute('aria-labelledby') ?? '')
+        .split(' ')
+        .map((id) => document.querySelector(`#${id}`)?.textContent ?? '')
+        .join(' ');
+
+    it('marks the entry as opening a menu, with a chevron, and names it by its own label', () => {
+      const { move } = mountNested();
+
+      expect(move.getAttribute('role')).toBe('menuitem');
+      expect(move.getAttribute('aria-haspopup')).toBe('menu');
+      expect(move.getAttribute('aria-expanded')).toBe('false');
+      expect(move.querySelector(':scope > .lw-menu-item-submenu')).not.toBeNull();
+      expect(
+        move
+          .querySelector(':scope > .lw-menu-item-submenu')
+          ?.getAttribute('aria-hidden'),
+      ).toBe('true');
+      expect(labelledName(move)).toBe('Move');
+    });
+
+    it('keeps its submenu when the entry draws itself again', () => {
+      const { move, submenu } = mountNested();
+
+      move.setAttribute('label', 'Verschieben');
+
+      expect(move.querySelector(':scope > lw-menu')).toBe(submenu);
+      expect(labelledName(move)).toBe('Verschieben');
+    });
+
+    it('marks an entry whose submenu arrives after it was drawn', async () => {
+      const menu = mount([['a', 'Resize']]);
+      const entry = itemsOf(menu)[0];
+      entry.append(document.createElement(LW_MENU_TAG));
+      await Promise.resolve();
+
+      expect(entry.getAttribute('aria-haspopup')).toBe('menu');
+    });
+
+    it('stays hidden and leaves focus alone until its entry opens it', async () => {
+      const { menu, submenu } = mountNested();
+      await Promise.resolve();
+
+      expect(submenu.hidden).toBe(true);
+      expect(document.activeElement).toBe(menu);
+    });
+
+    it('counts only its own entries when moving', () => {
+      const { menu, move } = mountNested();
+
+      press(menu, 'ArrowDown');
+      press(menu, 'ArrowDown');
+
+      expect(document.activeElement).toBe(move);
+      press(menu, 'ArrowDown');
+      expect(document.activeElement?.getAttribute('command')).toBe('remove');
+    });
+
+    it('opens from the right arrow with focus on its first entry, and the left arrow closes it', () => {
+      const { menu, move, submenu, steps } = mountNested();
+      press(menu, 'ArrowDown');
+      press(menu, 'ArrowDown');
+
+      press(move, 'ArrowRight');
+
+      expect(submenu.hidden).toBe(false);
+      expect(move.getAttribute('aria-expanded')).toBe('true');
+      expect(document.activeElement).toBe(steps[0]);
+
+      press(steps[0], 'ArrowDown');
+      expect(document.activeElement).toBe(steps[1]);
+
+      const left = press(steps[1], 'ArrowLeft');
+
+      expect(left.defaultPrevented).toBe(true);
+      expect(submenu.hidden).toBe(true);
+      expect(move.getAttribute('aria-expanded')).toBe('false');
+      expect(document.activeElement).toBe(move);
+    });
+
+    it('opens from Enter and Space without choosing anything', () => {
+      const { menu, move, submenu } = mountNested();
+      const onSelect = vi.fn();
+      menu.addEventListener(LW_MENU_SELECT, onSelect);
+      press(menu, 'ArrowDown');
+      press(menu, 'ArrowDown');
+
+      press(move, 'Enter');
+      expect(submenu.hidden).toBe(false);
+
+      press(document.activeElement as Element, 'Escape');
+      press(move, ' ');
+
+      expect(submenu.hidden).toBe(false);
+      expect(onSelect).not.toHaveBeenCalled();
+    });
+
+    it('closes only itself on Escape, which stays marked handled', () => {
+      const { menu, move, submenu, steps } = mountNested();
+      const onDismiss = vi.fn();
+      menu.addEventListener(LW_MENU_DISMISS, onDismiss);
+      press(menu, 'ArrowDown');
+      press(menu, 'ArrowDown');
+      press(move, 'ArrowRight');
+
+      const escape = press(steps[0], 'Escape');
+
+      expect(escape.defaultPrevented).toBe(true);
+      expect(onDismiss).not.toHaveBeenCalled();
+      expect(submenu.hidden).toBe(true);
+      expect(document.activeElement).toBe(move);
+    });
+
+    it('dismisses the whole menu on Tab', () => {
+      const { menu, move, steps } = mountNested();
+      const onDismiss = vi.fn();
+      menu.addEventListener(LW_MENU_DISMISS, onDismiss);
+      press(menu, 'ArrowDown');
+      press(menu, 'ArrowDown');
+      press(move, 'ArrowRight');
+
+      press(steps[0], 'Tab');
+
+      expect(onDismiss).toHaveBeenCalledTimes(1);
+    });
+
+    it('chooses an entry of the submenu once, and the outer menu hears it', () => {
+      const { menu, move, steps } = mountNested();
+      const onSelect = vi.fn();
+      menu.addEventListener(LW_MENU_SELECT, (e) =>
+        onSelect((e as CustomEvent).detail.command),
+      );
+      press(menu, 'ArrowDown');
+      press(menu, 'ArrowDown');
+      press(move, 'ArrowRight');
+
+      press(steps[0], 'ArrowDown');
+      press(steps[1], 'Enter');
+
+      expect(onSelect).toHaveBeenCalledTimes(1);
+      expect(onSelect).toHaveBeenCalledWith('down');
+    });
+
+    it('opens on a click of its entry and selects nothing; a click inside selects once', () => {
+      const { menu, move, submenu, steps } = mountNested();
+      const onSelect = vi.fn();
+      menu.addEventListener(LW_MENU_SELECT, (e) =>
+        onSelect((e as CustomEvent).detail.command),
+      );
+
+      move.click();
+
+      expect(submenu.hidden).toBe(false);
+      expect(onSelect).not.toHaveBeenCalled();
+
+      steps[1].click();
+
+      expect(onSelect).toHaveBeenCalledTimes(1);
+      expect(onSelect).toHaveBeenCalledWith('down');
+    });
+
+    describe('with the pointer', () => {
+      beforeEach(() => vi.useFakeTimers());
+      afterEach(() => vi.useRealTimers());
+      const hover = (target: Element) =>
+        target.dispatchEvent(new Event('pointerover', { bubbles: true }));
+
+      it('opens after a pause on its entry, and closes after one on a sibling', () => {
+        const { menu, move, submenu } = mountNested();
+
+        hover(move);
+        expect(submenu.hidden).toBe(true);
+        vi.advanceTimersByTime(200);
+        expect(submenu.hidden).toBe(false);
+
+        hover(itemsOf(menu)[0]);
+        expect(submenu.hidden).toBe(false);
+        vi.advanceTimersByTime(200);
+        expect(submenu.hidden).toBe(true);
+      });
+
+      it('stays open when the pointer moves on into it', () => {
+        const { menu, move, submenu, steps } = mountNested();
+        hover(move);
+        vi.advanceTimersByTime(200);
+
+        hover(itemsOf(menu)[0]);
+        hover(steps[0]);
+        vi.advanceTimersByTime(200);
+
+        expect(submenu.hidden).toBe(false);
+      });
+
+      it('does not open when the pointer only passes over its entry', () => {
+        const { menu, move, submenu } = mountNested();
+
+        hover(move);
+        vi.advanceTimersByTime(50);
+        hover(itemsOf(menu)[0]);
+        vi.advanceTimersByTime(200);
+
+        expect(submenu.hidden).toBe(true);
+      });
+    });
+
+    describe('placement', () => {
+      const box = (element: HTMLElement, r: MenuAnchorRect) => {
+        element.getBoundingClientRect = () =>
+          ({
+            ...r,
+            width: r.right - r.left,
+            height: r.bottom - r.top,
+          }) as DOMRect;
+      };
+
+      it('opens beside its entry, lined up with it', () => {
+        const { menu, move, submenu } = mountNested();
+        box(menu, { left: 100, right: 300, top: 50, bottom: 200 });
+        box(move, { left: 100, right: 300, top: 90, bottom: 122 });
+        submenu.getBoundingClientRect = () =>
+          ({ width: 180, height: 80, top: 0, left: 0, right: 180, bottom: 80 }) as DOMRect;
+
+        move.click();
+
+        expect(Number.parseFloat(submenu.style.left)).toBeGreaterThan(300);
+        expect(Number.parseFloat(submenu.style.left)).toBeLessThan(306);
+        expect(Number.parseFloat(submenu.style.top)).toBeLessThanOrEqual(90);
+        expect(Number.parseFloat(submenu.style.top)).toBeGreaterThan(80);
+      });
+
+      it('moves up only as far as the window needs, near the bottom edge', () => {
+        const { menu, move, submenu } = mountNested();
+        const bottom = window.innerHeight - 10;
+        box(menu, { left: 100, right: 300, top: bottom - 120, bottom });
+        box(move, { left: 100, right: 300, top: bottom - 60, bottom: bottom - 28 });
+        submenu.getBoundingClientRect = () =>
+          ({ width: 180, height: 140, top: 0, left: 0, right: 180, bottom: 140 }) as DOMRect;
+
+        move.click();
+
+        expect(Number.parseFloat(submenu.style.top)).toBe(
+          window.innerHeight - 140 - 4,
+        );
+      });
+
+      it('opens on the left where the right has no room', () => {
+        const { menu, move, submenu } = mountNested();
+        const right = window.innerWidth - 10;
+        box(menu, { left: right - 200, right, top: 50, bottom: 200 });
+        box(move, { left: right - 200, right, top: 90, bottom: 122 });
+        submenu.getBoundingClientRect = () =>
+          ({ width: 180, height: 80, top: 0, left: 0, right: 180, bottom: 80 }) as DOMRect;
+
+        move.click();
+
+        expect(Number.parseFloat(submenu.style.left) + 180).toBeLessThan(
+          right - 200,
+        );
+      });
+    });
+  });
 });

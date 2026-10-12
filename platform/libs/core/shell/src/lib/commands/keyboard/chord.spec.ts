@@ -89,6 +89,13 @@ describe('formatChordOn', () => {
     expect(formatChordOn('mod+enter', false)).toBe('Ctrl+Enter');
     expect(formatChordOn('alt+escape', false)).toBe('Alt+Esc');
   });
+
+  it('writes the arrow keys as arrows on every platform', () => {
+    expect(formatChordOn('shift+ArrowUp', true)).toBe('⇧↑');
+    expect(formatChordOn('shift+arrowdown', false)).toBe('Shift+↓');
+    expect(formatChordOn('ArrowLeft', true)).toBe('←');
+    expect(formatChordOn('ArrowRight', false)).toBe('→');
+  });
 });
 
 describe('isEditableTarget', () => {

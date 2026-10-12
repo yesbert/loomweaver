@@ -16,6 +16,7 @@ import {
 } from './testbed-entries';
 import { entryTabs } from './entry-tab-actions';
 import { testbedContext } from '../bound-context';
+import { entryRowMenu } from './entry-row-menu';
 
 type SortKey = 'waiting' | 'priority';
 
@@ -137,21 +138,10 @@ export class TestbedListView {
   protected rowMenu(event: MouseEvent, entry: Entry): void {
     event.preventDefault();
     testbedContext.use((ctx) =>
-      ctx.ui.openMenu(
-        [
-          {
-            label: 'testbed.list.ctxOpen',
-            icon: 'testbedEntry',
-            run: () => entryTabs.openEntry(entry, 'permanent'),
-          },
-          {
-            label: 'testbed.list.ctxPreview',
-            icon: 'preview',
-            run: () => entryTabs.openEntry(entry, 'preview'),
-          },
-        ],
-        { x: event.clientX, y: event.clientY },
-      ),
+      ctx.ui.openMenu(entryRowMenu(ctx, entry), {
+        x: event.clientX,
+        y: event.clientY,
+      }),
     );
   }
 }
