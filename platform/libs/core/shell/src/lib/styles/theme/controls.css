@@ -57,7 +57,7 @@
   }
 
   .lw-segmented-item[aria-pressed='true'] {
-    @apply bg-surface-raised text-brand shadow-sm;
+    @apply bg-surface-raised text-brand shadow-sm outline-1 outline-transparent;
   }
 
   .lw-segmented-option {
@@ -67,7 +67,7 @@
     @apply sr-only;
   }
   .lw-segmented-option:has(> input:checked) {
-    @apply bg-surface-raised font-medium text-content shadow-sm;
+    @apply bg-surface-raised font-medium text-content shadow-sm outline-1 outline-transparent;
   }
   .lw-segmented-option:has(> input:focus-visible) {
     @apply outline-2 outline-offset-1 outline-brand;

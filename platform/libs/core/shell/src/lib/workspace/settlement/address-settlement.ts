@@ -1,21 +1,13 @@
 import { inject, Service } from '@angular/core';
-import { ContributionRegistry } from '../../contributions/contribution-registry';
-import { normalizePath, tabRootOf } from '../../regions/content/content-path';
+import { normalizePath } from '../../regions/content/content-path';
 import { ContentRouter } from '../../regions/content/routing/content-router';
 import { NavigationOptions } from '../../regions/content/tabs/content-tab-projection';
 import { TabNavigationService } from '../../regions/content/tabs/tab-navigation.service';
-import { CONTENT_DOCK } from '../../regions/pane/tree/pane-address';
-import { leavesOf } from '../../regions/pane/tree/pane-queries';
-import { PaneTreeService } from '../../regions/pane/tree/pane-tree.service';
 import { ActiveWorkspaceService } from '../active-workspace.service';
 import { settlementDestination } from '../catalog/workspace-lookup';
 import { WorkspaceCatalog } from '../catalog/workspace-catalog';
 import { claimFor } from '../workspace-claims';
-
-interface WithheldVisit {
-  readonly workspaceId: string;
-  readonly root: string;
-}
+import { WithheldVisits } from './withheld-visits';
 
 @Service()
 export class AddressSettlement {
@@ -23,11 +15,9 @@ export class AddressSettlement {
   private readonly catalog = inject(WorkspaceCatalog);
   private readonly contentRouter = inject(ContentRouter);
   private readonly tabNavigation = inject(TabNavigationService);
-  private readonly paneTree = inject(PaneTreeService);
-  private readonly registry = inject(ContributionRegistry);
+  private readonly withheld = inject(WithheldVisits);
 
   private chosen: string | null = null;
-  private withheld: WithheldVisit | null = null;
 
   choose(path: string, options: NavigationOptions = {}): void {
     this.chosen = normalizePath(path);
@@ -61,49 +51,20 @@ export class AddressSettlement {
   }
 
   withhold(path: string): void {
-    const root = this.rootOf(path);
-    if (this.isWithheld(root)) {
-      return;
+    if (this.settlementDestination(path) !== null) {
+      this.withheld.note(path);
     }
-    const waiting =
-      this.settlementDestination(path) !== null && !this.holdsContentAt(root);
-    this.withheld = waiting ? { workspaceId: this.active.id(), root } : null;
   }
 
   leaveWithheld(path: string): void {
-    const root = this.rootOf(path);
-    const withheld = this.isWithheld(root);
-    this.withheld = null;
-    if (!withheld) {
-      return;
-    }
-    for (const leaf of leavesOf(this.paneTree.tree(CONTENT_DOCK))) {
-      for (const tab of leaf.tabs) {
-        if (this.rootOf(tab.path) === root) {
-          this.paneTree.removeTab(CONTENT_DOCK, leaf.id, tab.path);
-        }
-      }
-    }
+    this.withheld.leave(path);
+  }
+
+  forgetWithheld(): void {
+    this.withheld.forget();
   }
 
   destinationFor(path: string): string | null {
     return claimFor(this.catalog.activeClaims(), path)?.workspaceId ?? null;
-  }
-
-  private isWithheld(root: string): boolean {
-    return (
-      this.withheld?.workspaceId === this.active.id() &&
-      this.withheld.root === root
-    );
-  }
-
-  private holdsContentAt(root: string): boolean {
-    return leavesOf(this.paneTree.tree(CONTENT_DOCK)).some((leaf) =>
-      leaf.tabs.some((tab) => this.rootOf(tab.path) === root),
-    );
-  }
-
-  private rootOf(path: string): string {
-    return tabRootOf(this.registry.contentRoutes(), normalizePath(path));
   }
 }

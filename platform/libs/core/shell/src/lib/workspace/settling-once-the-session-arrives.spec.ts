@@ -5,6 +5,7 @@ import { RouterTestingHarness } from '@angular/router/testing';
 import { ANONYMOUS, AuthSnapshot, ContentRoute } from '@loomweaver/plugin-sdk';
 import { AUTH_SOURCE } from '../auth/auth-context';
 import { ContributionRegistry } from '../contributions/contribution-registry';
+import { provideIdentityScopedStores } from '../persistence/identity-scope/provide-identity-scoped-stores';
 import { provideLayout, ShellLayout } from '../layout/layout';
 import { BootAddress } from '../regions/content/routing/boot-address';
 import { buildContentRoutes } from '../regions/content/routing/content-route-table';
@@ -23,6 +24,7 @@ const ROUTES: readonly ContentRoute[] = [
   { path: '', component: TestContent },
   { path: 'dashboard', component: TestContent },
   { path: 'records', component: TestContent, access: { authenticated: true } },
+  { path: 'archive', component: TestContent, access: { authenticated: true } },
   { path: 'notes', component: TestContent },
 ];
 
@@ -41,7 +43,7 @@ const DECLARED: readonly WorkspaceDefinition[] = [
   {
     id: 'records',
     title: 'Records',
-    claims: ['records'],
+    claims: ['records', 'archive'],
     content: { tabs: [{ path: 'records', closable: false }] },
   },
 ];
@@ -59,10 +61,30 @@ async function settled(): Promise<void> {
   await TestBed.inject(ApplicationRef).whenStable();
 }
 
-async function openedBeforeTheSessionAt(address: string) {
+const ARRANGED_WITH_RECORDS = JSON.stringify({
+  content: {
+    tree: {
+      kind: 'leaf',
+      id: 'main',
+      tabs: [{ path: 'dashboard', closable: false }, { path: 'records' }],
+      active: 'dashboard',
+    },
+    primary: 'main',
+  },
+});
+
+async function openedBeforeTheSessionAt(
+  address: string,
+  { scopedToThePerson = false } = {},
+) {
   const session = signal<AuthSnapshot>(ANONYMOUS);
   TestBed.configureTestingModule({
     providers: [
+      ...(scopedToThePerson
+        ? provideIdentityScopedStores({
+            identity: () => session().subject ?? null,
+          })
+        : []),
       provideRouter(buildContentRoutes(ROUTES)),
       provideLayout(LAYOUT),
       { provide: BootAddress, useValue: { path: address } },
@@ -84,10 +106,26 @@ async function openedBeforeTheSessionAt(address: string) {
     await TestBed.inject(Router).navigateByUrl(address);
     await settled();
   };
+  const goTo = async (path: string) => {
+    await TestBed.inject(Router).navigateByUrl(path);
+    await settled();
+  };
   return {
     workspaces,
     contentTabs,
     visitAgain,
+    goTo,
+    sessionArrivesElsewhere: async () => {
+      session.set(SIGNED_IN);
+      await settled();
+    },
+    sessionArrivesAt: async (path: string) => {
+      session.set(SIGNED_IN);
+      await TestBed.inject(Router).navigateByUrl(path, {
+        onSameUrlNavigation: 'reload',
+      });
+      await settled();
+    },
     sessionArrives: async () => {
       session.set(SIGNED_IN);
       await TestBed.inject(Router).navigateByUrl(address, {
@@ -137,6 +175,45 @@ describe('settling once the session arrives', () => {
     await settled();
 
     expect(opened.contentTabs()).toEqual(['dashboard', 'notes']);
+  });
+
+  it('takes the content out when the person moved on before the session arrived', async () => {
+    const opened = await openedBeforeTheSessionAt('/records');
+    await opened.goTo('/notes');
+
+    await opened.sessionArrivesElsewhere();
+
+    expect(opened.workspaces.activeId()).toBe('dashboard');
+    expect(opened.contentTabs()).toEqual(['dashboard', 'notes']);
+  });
+
+  it('takes out every claimed content that waited, not only the last', async () => {
+    const opened = await openedBeforeTheSessionAt('/records');
+    await opened.goTo('/archive');
+    await opened.sessionArrivesAt('/archive');
+
+    await opened.workspaces.switchTo('dashboard');
+    await settled();
+
+    expect(opened.contentTabs()).toEqual(['dashboard']);
+  });
+
+  it("keeps what the person's own arrangement holds at the address", async () => {
+    localStorage.setItem('lw.id.ada:lw.shell.active-workspace', 'dashboard');
+    localStorage.setItem(
+      'lw.id.ada:lw.shell.pane-trees:dashboard',
+      ARRANGED_WITH_RECORDS,
+    );
+    const opened = await openedBeforeTheSessionAt('/records', {
+      scopedToThePerson: true,
+    });
+
+    await opened.sessionArrivesAt('/records');
+
+    expect(opened.workspaces.activeId()).toBe('records');
+    expect(
+      localStorage.getItem('lw.id.ada:lw.shell.pane-trees:dashboard'),
+    ).toContain('"path":"records"');
   });
 
   it('keeps unclaimed content where it was opened', async () => {

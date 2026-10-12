@@ -6,6 +6,7 @@ import { ContentRouter } from '../../regions/content/routing/content-router';
 import { ContentTabState } from '../../regions/content/tabs/content-tab-state';
 import { TabNavigationService } from '../../regions/content/tabs/tab-navigation.service';
 import { activeContentPath } from '../../regions/pane/tree/active-content-path';
+import { PANE_TREES_KEY } from '../../regions/pane/tree/pane-tree-storage';
 import { PaneTreeService } from '../../regions/pane/tree/pane-tree.service';
 import { ActiveWorkspaceService } from '../active-workspace.service';
 import { WORKSPACE_STATE_KEYS } from '../working-state/state-channels';
@@ -87,6 +88,9 @@ export class WorkbenchOpening {
     const found = WORKSPACE_STATE_KEYS.filter(
       (key) => stored[key] !== undefined,
     );
+    if (found.includes(PANE_TREES_KEY)) {
+      this.settlement.forgetWithheld();
+    }
     for (const key of found) {
       this.switcher.channels[key].hydrate(stored[key]);
     }

@@ -48,14 +48,20 @@ export class CommandService {
   /**
    * The command's keyboard chord, formatted for display and OS-correct (`'⌘K'` / `'Ctrl+K'`), or
    * `undefined` where it has none — **or where this distribution has switched shortcuts off**, so a
-   * hint never promises a key that does nothing. Every place the shell prints a chord (menu entry,
-   * palette row, bar button) asks here.
+   * hint never promises a key that does nothing. Named keys are spelled the platform's way and in the
+   * interface language, as {@link formatChord} spells them. A palette row, a bar button and a toolbar
+   * entry ask here; a menu asks {@link chordOf} and spells the hint when it words its labels.
    */
   shortcutOf(command: Command | undefined): string | undefined {
     const chord = this.chordOf(command);
     return chord === undefined ? undefined : formatChord(chord);
   }
 
+  /**
+   * The command's keyboard chord as declared (`'mod+k'`), or `undefined` where it has none or where
+   * this distribution has switched shortcuts off. For a hint that is spelled later, such as a menu
+   * entry that is worded again when the language changes; to show it now, use {@link shortcutOf}.
+   */
   chordOf(command: Command | undefined): string | undefined {
     if (!command?.shortcut || !this.shortcuts()) {
       return undefined;
