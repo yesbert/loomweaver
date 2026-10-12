@@ -146,7 +146,7 @@ test.describe('Sandbox stage — iframe plugin over Penpal', () => {
       surface.getByRole('heading', { name: /isolated iframe/ }),
     ).toBeVisible();
 
-    await page.getByRole('button', { name: 'Language' }).click();
+    await page.getByRole('combobox', { name: 'Language' }).click();
     await page.getByRole('option', { name: 'Deutsch' }).click();
 
     await expect(

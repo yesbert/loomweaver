@@ -1,4 +1,3 @@
-import { focusAndReveal, rovingStep, rovingTabIndex } from '../roving-focus';
 import {
   defineElementOnce,
   reflectAttribute,
@@ -18,14 +17,19 @@ import {
   forwardState,
   syncAccessibleName,
 } from './lw-select-name';
+import {
+  isPrintable,
+  openingIndex,
+  selectedIndex,
+  stepOverEnabled,
+  Typeahead,
+} from './lw-select-keys';
 
 export const LW_SELECT_TAG = 'lw-select';
 
 export const LW_SELECT_CHANGE = 'lw-select-change';
 
 let nextSelectId = 0;
-
-const TYPEAHEAD_RESET_MS = 500;
 
 export class LwSelectElement extends HTMLElement {
   static readonly observedAttributes = [
@@ -34,6 +38,7 @@ export class LwSelectElement extends HTMLElement {
     'placeholder',
     'disabled',
     'compact',
+    'required',
     'aria-label',
     'aria-labelledby',
     ...FORWARDED_STATE,
@@ -49,9 +54,7 @@ export class LwSelectElement extends HTMLElement {
 
   private activeIndex = 0;
 
-  private typeahead = '';
-
-  private typeaheadTimer?: ReturnType<typeof setTimeout>;
+  private readonly typeahead = new Typeahead();
 
   private trigger?: HTMLButtonElement;
 
@@ -79,8 +82,17 @@ export class LwSelectElement extends HTMLElement {
     this.toggleAttribute('compact', value);
   }
 
+  get required(): boolean {
+    return this.hasAttribute('required');
+  }
+
+  set required(value: boolean) {
+    this.toggleAttribute('required', value);
+  }
+
   connectedCallback(): void {
     upgradeElementProperty(this, 'value');
+    upgradeElementProperty(this, 'required');
     if (!this.trigger) {
       this.buildControl();
     }
@@ -93,9 +105,7 @@ export class LwSelectElement extends HTMLElement {
   disconnectedCallback(): void {
     this.observer?.disconnect();
     document.removeEventListener('pointerdown', this.onOutsidePointer, true);
-    if (this.typeaheadTimer !== undefined) {
-      clearTimeout(this.typeaheadTimer);
-    }
+    this.typeahead.clear();
   }
 
   attributeChangedCallback(name: string): void {
@@ -147,17 +157,15 @@ export class LwSelectElement extends HTMLElement {
       anchorName: this.anchorName,
       listboxId: this.listboxId,
       labelId: `lw-select-label-${this.selectId}`,
-      valueId: `lw-select-value-${this.selectId}`,
       onToggle: () => this.toggle(),
       onKeydown: (event) => this.onTriggerKeydown(event),
     });
     const listbox = createListbox({
       anchorName: this.anchorName,
       listboxId: this.listboxId,
-      onKeydown: (event) => this.onListboxKeydown(event),
     });
 
-    this.append(trigger, listbox);
+    this.append(labelPart, trigger, listbox);
     this.trigger = trigger;
     this.labelPart = labelPart;
     this.valueSlot = valueSlot;
@@ -179,7 +187,6 @@ export class LwSelectElement extends HTMLElement {
       syncAccessibleName(this, {
         trigger,
         labelPart,
-        valueSlot,
         listbox: this.listbox,
       });
       forwardState(this, trigger);
@@ -195,7 +202,7 @@ export class LwSelectElement extends HTMLElement {
     }
   }
 
-  private openListbox(): void {
+  private openListbox(start = selectedIndex(this.choices(), this.value)): void {
     const listbox = this.listbox;
     const trigger = this.trigger;
     if (this.isOpen || this.hasAttribute('disabled') || !listbox || !trigger) {
@@ -207,9 +214,7 @@ export class LwSelectElement extends HTMLElement {
       listbox.hidden = false;
       trigger.setAttribute('aria-expanded', 'true');
     });
-    const choices = this.choices();
-    const selected = choices.findIndex((choice) => choice.value === this.value);
-    this.setActive(Math.max(0, selected));
+    this.setActive(start);
 
     document.addEventListener('pointerdown', this.onOutsidePointer, {
       capture: true,
@@ -237,6 +242,7 @@ export class LwSelectElement extends HTMLElement {
       listbox.hidden = true;
       listbox.replaceChildren();
       trigger.setAttribute('aria-expanded', 'false');
+      trigger.removeAttribute('aria-activedescendant');
     });
     document.removeEventListener('pointerdown', this.onOutsidePointer, true);
     return true;
@@ -260,7 +266,8 @@ export class LwSelectElement extends HTMLElement {
   }
 
   private setActive(index: number): void {
-    if (!this.listbox) {
+    const trigger = this.trigger;
+    if (!this.listbox || !trigger) {
       return;
     }
     const rows = [...this.listbox.children] as HTMLElement[];
@@ -268,77 +275,83 @@ export class LwSelectElement extends HTMLElement {
       return;
     }
     this.activeIndex = Math.max(0, Math.min(index, rows.length - 1));
+    const active = rows[this.activeIndex];
     this.withoutObserving(() => {
       for (const [rowIndex, row] of rows.entries()) {
         row.classList.toggle('is-active', rowIndex === this.activeIndex);
       }
-      rovingTabIndex(rows, this.activeIndex);
+      trigger.setAttribute('aria-activedescendant', active.id);
     });
-    focusAndReveal(rows[this.activeIndex]);
+    active.scrollIntoView?.({ block: 'nearest' });
   }
 
   private onTriggerKeydown(event: KeyboardEvent): void {
-    if (!['ArrowDown', 'ArrowUp', 'Enter', ' '].includes(event.key)) {
-      return;
+    if (this.isOpen) {
+      this.onOpenKeydown(event);
+    } else {
+      this.onClosedKeydown(event);
     }
-
-    event.preventDefault();
-    this.openListbox();
   }
 
-  private onListboxKeydown(event: KeyboardEvent): void {
-    const step = rovingStep(
-      event.key,
-      this.activeIndex,
-      this.choices().length,
-      'vertical',
+  private onClosedKeydown(event: KeyboardEvent): void {
+    const start = openingIndex(
+      event,
+      this.choices(),
+      this.value,
+      this.typeahead,
     );
+    if (start === undefined) {
+      return;
+    }
+    event.preventDefault();
+    this.openListbox(start);
+  }
+
+  private onOpenKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Tab') {
+      this.dismiss();
+      return;
+    }
+    if (this.handleOpenKey(event)) {
+      event.preventDefault();
+    }
+  }
+
+  private handleOpenKey(event: KeyboardEvent): boolean {
+    if (event.key === 'ArrowUp' && event.altKey) {
+      this.commitActive();
+      return true;
+    }
+    const step = stepOverEnabled(this.choices(), event.key, this.activeIndex);
     if (step !== undefined) {
       this.setActive(step);
-      event.preventDefault();
-      return;
+      return true;
     }
     switch (event.key) {
       case 'Enter':
       case ' ': {
         this.commitActive();
-        break;
+        return true;
       }
       case 'Escape': {
         this.close();
-        break;
-      }
-      case 'Tab': {
-        this.dismiss();
-        return;
+        return true;
       }
       default: {
-        if (event.key.length === 1) {
-          this.onTypeahead(event.key);
-        }
-        return;
+        return this.typeIfPrintable(event);
       }
     }
-    event.preventDefault();
   }
 
-  private onTypeahead(char: string): void {
-    this.typeahead += char.toLowerCase();
-    if (this.typeaheadTimer !== undefined) {
-      clearTimeout(this.typeaheadTimer);
+  private typeIfPrintable(event: KeyboardEvent): boolean {
+    if (!isPrintable(event)) {
+      return false;
     }
-    this.typeaheadTimer = setTimeout(
-      () => (this.typeahead = ''),
-      TYPEAHEAD_RESET_MS,
-    );
-    const match = this.choices().findIndex(
-      (choice) =>
-        !choice.disabled &&
-        choice.label.toLowerCase().startsWith(this.typeahead),
-    );
-    if (match !== -1) {
+    const match = this.typeahead.match(this.choices(), event.key);
+    if (match !== undefined) {
       this.setActive(match);
     }
+    return true;
   }
 
   private commitActive(): void {

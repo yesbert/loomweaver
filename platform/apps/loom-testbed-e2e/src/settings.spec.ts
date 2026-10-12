@@ -14,7 +14,7 @@ test.describe('Settings surface', () => {
 
     await expect(page.locator('lw-settings-dialog select')).toHaveCount(0);
 
-    const density = page.getByRole('button', { name: 'Density' });
+    const density = page.getByRole('combobox', { name: 'Density' });
     await expect(density).toContainText('Comfortable');
     await density.click();
     await page.getByRole('option', { name: 'Compact' }).click();

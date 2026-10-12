@@ -19,7 +19,6 @@ export interface TriggerOptions {
   readonly anchorName: string;
   readonly listboxId: string;
   readonly labelId: string;
-  readonly valueId: string;
   readonly onToggle: () => void;
   readonly onKeydown: (event: KeyboardEvent) => void;
 }
@@ -27,7 +26,6 @@ export interface TriggerOptions {
 export interface ListboxOptions {
   readonly anchorName: string;
   readonly listboxId: string;
-  readonly onKeydown: (event: KeyboardEvent) => void;
 }
 
 export interface OptionRowOptions {
@@ -51,6 +49,7 @@ export function createTrigger(options: TriggerOptions): TriggerParts {
   const trigger = document.createElement('button');
   trigger.type = 'button';
   trigger.className = 'lw-select-trigger';
+  trigger.setAttribute('role', 'combobox');
   trigger.setAttribute('aria-haspopup', 'listbox');
   trigger.setAttribute('aria-expanded', 'false');
   trigger.setAttribute('aria-controls', options.listboxId);
@@ -60,14 +59,14 @@ export function createTrigger(options: TriggerOptions): TriggerParts {
 
   const labelPart = createHiddenText('');
   labelPart.id = options.labelId;
+  labelPart.hidden = true;
   const valueSlot = document.createElement('span');
   valueSlot.className = 'lw-select-value';
-  valueSlot.id = options.valueId;
   const chevron = document.createElement('span');
   chevron.className = 'lw-select-chevron';
   chevron.setAttribute('aria-hidden', 'true');
   chevron.textContent = '▾';
-  trigger.append(labelPart, valueSlot, chevron);
+  trigger.append(valueSlot, chevron);
 
   return { trigger, labelPart, valueSlot };
 }
@@ -79,7 +78,7 @@ export function createListbox(options: ListboxOptions): HTMLDivElement {
   listbox.setAttribute('role', 'listbox');
   listbox.hidden = true;
   listbox.style.setProperty('position-anchor', options.anchorName);
-  listbox.addEventListener('keydown', options.onKeydown);
+  listbox.addEventListener('mousedown', (event) => event.preventDefault());
   return listbox;
 }
 
@@ -108,7 +107,6 @@ export function createOptionRow(options: OptionRowOptions): HTMLDivElement {
   row.id = options.id;
   row.dataset['value'] = choice.value;
   row.setAttribute('aria-selected', String(options.selected));
-  row.tabIndex = -1;
   if (choice.disabled) {
     row.setAttribute('aria-disabled', 'true');
   }

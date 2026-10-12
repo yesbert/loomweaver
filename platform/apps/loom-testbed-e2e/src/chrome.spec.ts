@@ -16,14 +16,14 @@ test.describe('Neutral host chrome', () => {
   });
 
   test('switches the interface language', async ({ page }) => {
-    await expect(page.getByRole('button', { name: 'Language' })).toContainText(
-      'English',
-    );
+    await expect(
+      page.getByRole('combobox', { name: 'Language' }),
+    ).toContainText('English');
 
-    await page.getByRole('button', { name: 'Language' }).click();
+    await page.getByRole('combobox', { name: 'Language' }).click();
     await page.getByRole('option', { name: 'Deutsch' }).click();
 
-    await expect(page.getByRole('button', { name: 'Sprache' })).toContainText(
+    await expect(page.getByRole('combobox', { name: 'Sprache' })).toContainText(
       'Deutsch',
     );
     await expect(
@@ -35,7 +35,7 @@ test.describe('Neutral host chrome', () => {
     page,
   }) => {
     await page.setViewportSize({ width: 1280, height: 380 });
-    await page.getByRole('button', { name: 'Language' }).click();
+    await page.getByRole('combobox', { name: 'Language' }).click();
 
     const anchored = await page.evaluate(() => {
       const list = document.querySelector('[role="listbox"]');
@@ -58,16 +58,23 @@ test.describe('Neutral host chrome', () => {
   });
 
   test('navigates the language menu with the keyboard', async ({ page }) => {
-    await page.getByRole('button', { name: 'Language' }).click();
+    const language = page.getByRole('combobox', { name: 'Language' });
+    await language.click();
 
-    await expect(page.getByRole('option', { name: 'English' })).toBeFocused();
+    await expect(language).toBeFocused();
+    await expect(page.getByRole('option', { name: 'English' })).toHaveClass(
+      /is-active/,
+    );
 
     await page.keyboard.press('ArrowDown');
-    await expect(page.getByRole('option', { name: 'Deutsch' })).toBeFocused();
+    await expect(language).toBeFocused();
+    await expect(page.getByRole('option', { name: 'Deutsch' })).toHaveClass(
+      /is-active/,
+    );
     await page.keyboard.press('Enter');
 
     await expect(page.getByRole('option')).toHaveCount(0);
-    await expect(page.getByRole('button', { name: 'Sprache' })).toContainText(
+    await expect(page.getByRole('combobox', { name: 'Sprache' })).toContainText(
       'Deutsch',
     );
   });
@@ -75,7 +82,7 @@ test.describe('Neutral host chrome', () => {
   test('escape closes the language menu and restores focus to the trigger', async ({
     page,
   }) => {
-    const trigger = page.getByRole('button', { name: 'Language' });
+    const trigger = page.getByRole('combobox', { name: 'Language' });
     await trigger.click();
     await expect(page.getByRole('option', { name: 'Deutsch' })).toBeVisible();
 

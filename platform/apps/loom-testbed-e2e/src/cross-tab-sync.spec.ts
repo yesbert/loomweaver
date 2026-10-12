@@ -46,15 +46,15 @@ test.describe('Cross-tab live sync', () => {
 
     await markWindow(second);
     await expect(
-      second.getByRole('button', { name: 'Language' }),
+      second.getByRole('combobox', { name: 'Language' }),
     ).toContainText('English');
 
-    await first.getByRole('button', { name: 'Language' }).click();
+    await first.getByRole('combobox', { name: 'Language' }).click();
     await first.getByRole('option', { name: 'Deutsch' }).click();
 
-    await expect(second.getByRole('button', { name: 'Sprache' })).toContainText(
-      'Deutsch',
-    );
+    await expect(
+      second.getByRole('combobox', { name: 'Sprache' }),
+    ).toContainText('Deutsch');
     await expect(second.locator('html')).toHaveAttribute('lang', 'de');
     expect(
       await second.evaluate(

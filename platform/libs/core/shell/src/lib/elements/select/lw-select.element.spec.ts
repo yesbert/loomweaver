@@ -46,7 +46,7 @@ const announcedText = (node: Node): string =>
 const accessibleName = (control: HTMLElement): string => {
   const ids = control.getAttribute('aria-labelledby');
   if (ids === null) {
-    return control.getAttribute('aria-label') ?? announcedText(control);
+    return control.getAttribute('aria-label') ?? '';
   }
   return ids
     .split(' ')
@@ -56,28 +56,50 @@ const accessibleName = (control: HTMLElement): string => {
     })
     .join(' ');
 };
+const announcedValue = (control: HTMLElement): string =>
+  announcedText(control).trim();
 const options = (element: HTMLElement) => [
   ...element.querySelectorAll<HTMLElement>('[role="option"]'),
 ];
-const key = (element: HTMLElement, target: Element, k: string) =>
-  target.dispatchEvent(new KeyboardEvent('keydown', { key: k, bubbles: true }));
+const press = (
+  target: Element,
+  k: string,
+  init: KeyboardEventInit = {},
+): KeyboardEvent => {
+  const event = new KeyboardEvent('keydown', {
+    key: k,
+    bubbles: true,
+    cancelable: true,
+    ...init,
+  });
+  target.dispatchEvent(event);
+  return event;
+};
+const activeOption = (element: HTMLElement): HTMLElement | null => {
+  const id = trigger(element).getAttribute('aria-activedescendant');
+  return id === null ? null : element.querySelector<HTMLElement>(`#${id}`);
+};
+const value = (element: HTMLElement) => element.getAttribute('value');
+function addOption(
+  element: HTMLElement,
+  optionValue: string,
+  label: string,
+  disabled = false,
+): void {
+  const option = document.createElement(LW_OPTION_TAG);
+  option.setAttribute('value', optionValue);
+  option.toggleAttribute('disabled', disabled);
+  option.textContent = label;
+  element.append(option);
+}
 
 describe('<lw-select> custom element', () => {
   beforeAll(() => defineLwSelect());
   afterEach(() => document.body.replaceChildren());
 
-  it('compact shows the chosen option by its icon alone and names it for assistive technology', () => {
-    const element = mount('de');
-    element.setAttribute('compact', '');
-
-    expect(visibleText(trigger(element))).toContain('🇩🇪');
-    expect(visibleText(trigger(element))).not.toContain('Deutsch');
-    expect(accessibleName(trigger(element))).toBe('Language Deutsch');
-
-    element.removeAttribute('compact');
-
-    expect(visibleText(trigger(element))).toContain('Deutsch');
-    expect(accessibleName(trigger(element))).toBe('Language Deutsch');
+  it('registers both tags', () => {
+    expect(customElements.get(LW_SELECT_TAG)).toBeDefined();
+    expect(customElements.get(LW_OPTION_TAG)).toBeDefined();
   });
 
   it('draws an option icon the registry knows, on the trigger and in the list', () => {
@@ -116,33 +138,33 @@ describe('<lw-select> custom element', () => {
     expect(options(element)[0].textContent).toContain('🇬🇧');
   });
 
-  it('registers both tags', () => {
-    expect(customElements.get(LW_SELECT_TAG)).toBeDefined();
-    expect(customElements.get(LW_OPTION_TAG)).toBeDefined();
-  });
-
-  it('shows the selected value (glyph + label) and names the trigger by label and choice', () => {
+  it('shows the selected value with its glyph, closed', () => {
     const element = mount('de');
-    expect(trigger(element).textContent).toContain('Deutsch');
-    expect(trigger(element).textContent).toContain('🇩🇪');
-    expect(accessibleName(trigger(element))).toBe('Language Deutsch');
+
+    expect(visibleText(trigger(element))).toContain('Deutsch');
+    expect(visibleText(trigger(element))).toContain('🇩🇪');
     expect(trigger(element).getAttribute('aria-expanded')).toBe('false');
   });
 
   it('shows the placeholder when nothing is selected', () => {
     const element = mount();
     element.setAttribute('placeholder', 'Choose…');
-    expect(trigger(element).textContent).toContain('Choose…');
+
+    expect(visibleText(trigger(element))).toContain('Choose…');
   });
 
   it('opens a listbox of options with the current one marked selected', () => {
     const element = mount('en');
+
     trigger(element).click();
+
     expect(trigger(element).getAttribute('aria-expanded')).toBe('true');
-    const options_ = options(element);
-    expect(options_.map((o) => o.dataset['value'])).toEqual(['en', 'de']);
-    expect(options_[0].getAttribute('aria-selected')).toBe('true');
-    expect(options_[1].getAttribute('aria-selected')).toBe('false');
+    expect(options(element).map((o) => o.dataset['value'])).toEqual([
+      'en',
+      'de',
+    ]);
+    expect(options(element)[0].getAttribute('aria-selected')).toBe('true');
+    expect(options(element)[1].getAttribute('aria-selected')).toBe('false');
   });
 
   it('emits lw-select-change and updates the value when an option is clicked', () => {
@@ -156,9 +178,9 @@ describe('<lw-select> custom element', () => {
     options(element)[1].click();
 
     expect(onChange).toHaveBeenCalledWith('de');
-    expect(element.getAttribute('value')).toBe('de');
+    expect(value(element)).toBe('de');
     expect(trigger(element).getAttribute('aria-expanded')).toBe('false');
-    expect(trigger(element).textContent).toContain('Deutsch');
+    expect(visibleText(trigger(element))).toContain('Deutsch');
   });
 
   it('does NOT emit when the value is set programmatically (no feedback loop)', () => {
@@ -169,101 +191,15 @@ describe('<lw-select> custom element', () => {
     element.setAttribute('value', 'de');
 
     expect(onChange).not.toHaveBeenCalled();
-    expect(trigger(element).textContent).toContain('Deutsch');
-  });
-
-  it('navigates with the keyboard: ArrowDown roves, Enter selects', () => {
-    const element = mount('en');
-    const onChange = vi.fn();
-    element.addEventListener(LW_SELECT_CHANGE, (e) =>
-      onChange((e as CustomEvent).detail.value),
-    );
-
-    trigger(element).click();
-    const listbox = element.querySelector('[role="listbox"]')!;
-    key(element, listbox, 'ArrowDown');
-    key(element, listbox, 'Enter');
-
-    expect(onChange).toHaveBeenCalledWith('de');
-    expect(element.getAttribute('value')).toBe('de');
-  });
-
-  it('closes on Escape without changing the value', () => {
-    const element = mount('en');
-    trigger(element).click();
-    key(element, element.querySelector('[role="listbox"]')!, 'Escape');
-    expect(trigger(element).getAttribute('aria-expanded')).toBe('false');
-    expect(element.getAttribute('value')).toBe('en');
-  });
-
-  it('marks its Escape as handled, so a dialog around it stays open', () => {
-    const element = mount('en');
-    trigger(element).click();
-    const escape = new KeyboardEvent('keydown', {
-      key: 'Escape',
-      bubbles: true,
-      cancelable: true,
-    });
-
-    element.querySelector('[role="listbox"]')!.dispatchEvent(escape);
-
-    expect(escape.defaultPrevented).toBe(true);
-  });
-
-  it('opens from the trigger keyboard (Space) and a second trigger click closes it', () => {
-    const element = mount('en');
-    key(element, trigger(element), ' ');
-    expect(trigger(element).getAttribute('aria-expanded')).toBe('true');
-    trigger(element).click();
-    expect(trigger(element).getAttribute('aria-expanded')).toBe('false');
-  });
-
-  it('ArrowUp wraps to the last option', () => {
-    const element = mount('en');
-    trigger(element).click();
-    key(element, element.querySelector('[role="listbox"]')!, 'ArrowUp');
-    key(element, element.querySelector('[role="listbox"]')!, 'Enter');
-    expect(element.getAttribute('value')).toBe('de');
-  });
-
-  it('Home and End move the active option to the first/last', () => {
-    const element = mount('en');
-    trigger(element).click();
-    const listbox = element.querySelector('[role="listbox"]')!;
-    key(element, listbox, 'End');
-    expect(options(element)[1].classList.contains('is-active')).toBe(true);
-    key(element, listbox, 'Home');
-    expect(options(element)[0].classList.contains('is-active')).toBe(true);
-  });
-
-  it('typeahead jumps to the first option matching the typed prefix', () => {
-    const element = mount('en');
-    trigger(element).click();
-    key(element, element.querySelector('[role="listbox"]')!, 'd');
-    expect(options(element)[1].classList.contains('is-active')).toBe(true);
-  });
-
-  it('pointermove over an option makes it the active one', () => {
-    const element = mount('en');
-    trigger(element).click();
-    options(element)[1].dispatchEvent(
-      new Event('pointermove', { bubbles: true }),
-    );
-    expect(options(element)[1].classList.contains('is-active')).toBe(true);
-  });
-
-  it('closes on Tab without changing the value', () => {
-    const element = mount('en');
-    trigger(element).click();
-    key(element, element.querySelector('[role="listbox"]')!, 'Tab');
-    expect(trigger(element).getAttribute('aria-expanded')).toBe('false');
-    expect(element.getAttribute('value')).toBe('en');
+    expect(visibleText(trigger(element))).toContain('Deutsch');
   });
 
   it('closes when a pointerdown lands outside the element', () => {
     const element = mount('en');
     trigger(element).click();
+
     document.dispatchEvent(new Event('pointerdown'));
+
     expect(trigger(element).getAttribute('aria-expanded')).toBe('false');
   });
 
@@ -283,19 +219,15 @@ describe('<lw-select> custom element', () => {
   it('closes an open listbox when disabled at runtime', () => {
     const element = mount('en');
     trigger(element).click();
-    expect(trigger(element).getAttribute('aria-expanded')).toBe('true');
 
     element.setAttribute('disabled', '');
+
     expect(trigger(element).getAttribute('aria-expanded')).toBe('false');
   });
 
-  it('does not commit a disabled option and skips it in typeahead', () => {
+  it('does not commit a disabled option', () => {
     const element = mount('en');
-    const disabled = document.createElement(LW_OPTION_TAG);
-    disabled.setAttribute('value', 'fr');
-    disabled.setAttribute('disabled', '');
-    disabled.textContent = 'Français';
-    element.append(disabled);
+    addOption(element, 'fr', 'Français', true);
     const onChange = vi.fn();
     element.addEventListener(LW_SELECT_CHANGE, onChange);
 
@@ -303,27 +235,54 @@ describe('<lw-select> custom element', () => {
     options(element)[2].click();
 
     expect(onChange).not.toHaveBeenCalled();
-    expect(element.getAttribute('value')).toBe('en');
+    expect(value(element)).toBe('en');
   });
 
   describe('name, value and state for assistive technology', () => {
-    it('names the trigger by the label and the placeholder while nothing is chosen', () => {
+    it('is a combobox that opens a listbox', () => {
+      const element = mount('en');
+
+      expect(trigger(element).getAttribute('role')).toBe('combobox');
+      expect(trigger(element).getAttribute('aria-controls')).toBe(
+        element.querySelector('[role="listbox"]')?.id,
+      );
+    });
+
+    it('is named by its label alone and carries the choice as its value', () => {
+      const element = mount('de');
+
+      expect(accessibleName(trigger(element))).toBe('Language');
+      expect(announcedValue(trigger(element))).toBe('Deutsch');
+    });
+
+    it('carries the choice as its value in the compact symbol form too', () => {
+      const element = mount('de');
+      element.setAttribute('compact', '');
+
+      expect(visibleText(trigger(element))).toContain('🇩🇪');
+      expect(visibleText(trigger(element))).not.toContain('Deutsch');
+      expect(accessibleName(trigger(element))).toBe('Language');
+      expect(announcedValue(trigger(element))).toBe('Deutsch');
+    });
+
+    it('carries the placeholder as its value while nothing is chosen', () => {
       const element = mount();
       element.setAttribute('placeholder', 'Choose…');
 
-      expect(accessibleName(trigger(element))).toBe('Language Choose…');
+      expect(accessibleName(trigger(element))).toBe('Language');
+      expect(announcedValue(trigger(element))).toBe('Choose…');
     });
 
     it('follows the choice when it changes', () => {
       const element = mount('en');
-      expect(accessibleName(trigger(element))).toBe('Language English');
 
       element.setAttribute('value', 'de');
 
-      expect(accessibleName(trigger(element))).toBe('Language Deutsch');
+      expect(accessibleName(trigger(element))).toBe('Language');
+      expect(announcedValue(trigger(element))).toBe('Deutsch');
     });
 
-    it('takes a label of the consumer’s own by aria-labelledby, together with the choice', () => {
+    it('takes a label of the consumer’s own by aria-labelledby, without the choice', () => {
       const label = document.createElement('span');
       label.id = 'own-label';
       label.textContent = 'Text language';
@@ -332,7 +291,7 @@ describe('<lw-select> custom element', () => {
       element.removeAttribute('label');
       element.setAttribute('aria-labelledby', 'own-label');
 
-      expect(accessibleName(trigger(element))).toBe('Text language English');
+      expect(accessibleName(trigger(element))).toBe('Text language');
       expect(trigger(element).hasAttribute('aria-label')).toBe(false);
     });
 
@@ -341,15 +300,22 @@ describe('<lw-select> custom element', () => {
       element.removeAttribute('label');
       element.setAttribute('aria-label', 'Spoken language');
 
-      expect(accessibleName(trigger(element))).toBe('Spoken language English');
+      expect(accessibleName(trigger(element))).toBe('Spoken language');
     });
 
-    it('is named by its choice alone when nothing names it', () => {
+    it('is nameless when nothing names it, and still shows its choice', () => {
       const element = mount('en');
       element.removeAttribute('label');
 
       expect(trigger(element).hasAttribute('aria-labelledby')).toBe(false);
+      expect(trigger(element).hasAttribute('aria-label')).toBe(false);
       expect(visibleText(trigger(element))).toContain('English');
+    });
+
+    it('keeps its label out of what the control reads as its value', () => {
+      const element = mount('en');
+
+      expect(trigger(element).textContent).not.toContain('Language');
     });
 
     it('forwards invalid and a description to the trigger, and follows their removal', () => {
@@ -367,6 +333,260 @@ describe('<lw-select> custom element', () => {
 
       expect(trigger(element).hasAttribute('aria-invalid')).toBe(false);
       expect(trigger(element).hasAttribute('aria-describedby')).toBe(false);
+    });
+
+    it('announces a required choice from the attribute, and follows its removal', () => {
+      const element = mount('en');
+
+      element.setAttribute('required', '');
+
+      expect(trigger(element).getAttribute('aria-required')).toBe('true');
+      expect(element.hasAttribute('aria-required')).toBe(false);
+
+      element.removeAttribute('required');
+
+      expect(trigger(element).hasAttribute('aria-required')).toBe(false);
+    });
+
+    it('takes required as a property and reflects it', () => {
+      const element = mount('en') as HTMLElement & { required: boolean };
+
+      element.required = true;
+
+      expect(element.hasAttribute('required')).toBe(true);
+      expect(trigger(element).getAttribute('aria-required')).toBe('true');
+
+      element.required = false;
+
+      expect(element.required).toBe(false);
+      expect(trigger(element).hasAttribute('aria-required')).toBe(false);
+    });
+
+    it('keeps a required property set before the element was upgraded', () => {
+      const element = document.createElement(
+        'lw-select-late',
+      ) as HTMLElement & {
+        required: boolean;
+      };
+      element.required = true;
+      document.body.append(element);
+      class LateSelect extends (customElements.get(LW_SELECT_TAG) as {
+        new (): HTMLElement;
+      }) {}
+      customElements.define('lw-select-late', LateSelect);
+
+      expect(element.hasAttribute('required')).toBe(true);
+      expect(trigger(element).getAttribute('aria-required')).toBe('true');
+    });
+  });
+
+  describe('keyboard, with focus kept on the control', () => {
+    it('opens from the keyboard and keeps focus on the trigger, pointing at the choice', () => {
+      const element = mount('de');
+      trigger(element).focus();
+
+      const event = press(trigger(element), 'ArrowDown');
+
+      expect(event.defaultPrevented).toBe(true);
+      expect(trigger(element).getAttribute('aria-expanded')).toBe('true');
+      expect(document.activeElement).toBe(trigger(element));
+      expect(activeOption(element)?.dataset['value']).toBe('de');
+      expect(options(element).every((o) => !o.hasAttribute('tabindex'))).toBe(
+        true,
+      );
+    });
+
+    it('moves the active option with the arrows while focus stays put, and Enter chooses it', () => {
+      const element = mount('en');
+      const onChange = vi.fn();
+      element.addEventListener(LW_SELECT_CHANGE, (e) =>
+        onChange((e as CustomEvent).detail.value),
+      );
+      trigger(element).focus();
+      press(trigger(element), 'Enter');
+
+      press(trigger(element), 'ArrowDown');
+
+      expect(activeOption(element)?.dataset['value']).toBe('de');
+      expect(activeOption(element)?.classList.contains('is-active')).toBe(true);
+      expect(document.activeElement).toBe(trigger(element));
+
+      const enter = press(trigger(element), 'Enter');
+
+      expect(enter.defaultPrevented).toBe(true);
+      expect(onChange).toHaveBeenCalledWith('de');
+      expect(trigger(element).getAttribute('aria-expanded')).toBe('false');
+      expect(trigger(element).hasAttribute('aria-activedescendant')).toBe(
+        false,
+      );
+      expect(document.activeElement).toBe(trigger(element));
+    });
+
+    it('chooses with Space and with Alt+ArrowUp', () => {
+      const element = mount('en');
+      press(trigger(element), ' ');
+      press(trigger(element), 'ArrowDown');
+      press(trigger(element), ' ');
+
+      expect(value(element)).toBe('de');
+
+      press(trigger(element), 'ArrowDown', { altKey: true });
+      press(trigger(element), 'ArrowUp');
+      press(trigger(element), 'ArrowUp', { altKey: true });
+
+      expect(value(element)).toBe('en');
+      expect(trigger(element).getAttribute('aria-expanded')).toBe('false');
+    });
+
+    it('ArrowUp wraps to the last option', () => {
+      const element = mount('en');
+      trigger(element).click();
+
+      press(trigger(element), 'ArrowUp');
+      press(trigger(element), 'Enter');
+
+      expect(value(element)).toBe('de');
+    });
+
+    it('Home and End move the active option to the first and last', () => {
+      const element = mount('en');
+      trigger(element).click();
+
+      press(trigger(element), 'End');
+      expect(activeOption(element)?.dataset['value']).toBe('de');
+
+      press(trigger(element), 'Home');
+      expect(activeOption(element)?.dataset['value']).toBe('en');
+    });
+
+    it('skips a disabled option when moving', () => {
+      const element = mount('en');
+      addOption(element, 'fr', 'Français', true);
+      addOption(element, 'it', 'Italiano');
+      trigger(element).click();
+
+      press(trigger(element), 'ArrowDown');
+      press(trigger(element), 'ArrowDown');
+      expect(activeOption(element)?.dataset['value']).toBe('it');
+
+      press(trigger(element), 'End');
+      expect(activeOption(element)?.dataset['value']).toBe('it');
+    });
+
+    it('opens at the first and last option from Home and End on the closed control', () => {
+      const element = mount('de');
+
+      press(trigger(element), 'Home');
+      expect(trigger(element).getAttribute('aria-expanded')).toBe('true');
+      expect(activeOption(element)?.dataset['value']).toBe('en');
+
+      press(trigger(element), 'Escape');
+      press(trigger(element), 'End');
+      expect(activeOption(element)?.dataset['value']).toBe('de');
+    });
+
+    it('opens from Alt+ArrowDown on the closed control', () => {
+      const element = mount('en');
+
+      press(trigger(element), 'ArrowDown', { altKey: true });
+
+      expect(trigger(element).getAttribute('aria-expanded')).toBe('true');
+    });
+
+    it('opens at the first match when a letter is typed on the closed control', () => {
+      const element = mount('en');
+
+      const event = press(trigger(element), 'd');
+
+      expect(event.defaultPrevented).toBe(true);
+      expect(trigger(element).getAttribute('aria-expanded')).toBe('true');
+      expect(activeOption(element)?.dataset['value']).toBe('de');
+    });
+
+    it('typeahead jumps to the first option matching the typed prefix and skips a disabled one', () => {
+      const element = mount('en');
+      addOption(element, 'da', 'Dansk', true);
+      trigger(element).click();
+
+      press(trigger(element), 'd');
+
+      expect(activeOption(element)?.dataset['value']).toBe('de');
+    });
+
+    it('leaves a modified letter to the page', () => {
+      const element = mount('en');
+
+      const event = press(trigger(element), 'd', { metaKey: true });
+
+      expect(event.defaultPrevented).toBe(false);
+      expect(trigger(element).getAttribute('aria-expanded')).toBe('false');
+    });
+
+    it('closes on Escape without changing the value and marks the key handled', () => {
+      const element = mount('en');
+      trigger(element).click();
+      press(trigger(element), 'ArrowDown');
+
+      const escape = press(trigger(element), 'Escape');
+
+      expect(escape.defaultPrevented).toBe(true);
+      expect(trigger(element).getAttribute('aria-expanded')).toBe('false');
+      expect(value(element)).toBe('en');
+    });
+
+    it('leaves Escape on the closed control to whatever is around it', () => {
+      const element = mount('en');
+
+      const escape = press(trigger(element), 'Escape');
+
+      expect(escape.defaultPrevented).toBe(false);
+    });
+
+    it('closes on Tab without choosing, and lets focus move on', () => {
+      const element = mount('en');
+      trigger(element).click();
+      press(trigger(element), 'ArrowDown');
+
+      const tab = press(trigger(element), 'Tab');
+
+      expect(tab.defaultPrevented).toBe(false);
+      expect(trigger(element).getAttribute('aria-expanded')).toBe('false');
+      expect(value(element)).toBe('en');
+    });
+
+    it('a second trigger click closes the list', () => {
+      const element = mount('en');
+      press(trigger(element), ' ');
+
+      trigger(element).click();
+
+      expect(trigger(element).getAttribute('aria-expanded')).toBe('false');
+    });
+  });
+
+  describe('pointer', () => {
+    it('keeps focus on the trigger when an option is pressed', () => {
+      const element = mount('en');
+      trigger(element).click();
+      const pointerDown = new MouseEvent('mousedown', {
+        bubbles: true,
+        cancelable: true,
+      });
+
+      options(element)[1].dispatchEvent(pointerDown);
+
+      expect(pointerDown.defaultPrevented).toBe(true);
+    });
+
+    it('pointermove over an option makes it the active one', () => {
+      const element = mount('en');
+      trigger(element).click();
+
+      options(element)[1].dispatchEvent(
+        new Event('pointermove', { bubbles: true }),
+      );
+
+      expect(activeOption(element)?.dataset['value']).toBe('de');
     });
   });
 });
