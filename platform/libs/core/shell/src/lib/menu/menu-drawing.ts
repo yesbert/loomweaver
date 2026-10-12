@@ -20,6 +20,7 @@ export interface MenuRow {
   readonly checkbox: boolean;
   readonly checked: boolean;
   readonly disabled?: boolean;
+  readonly children?: readonly MenuRow[];
 }
 
 export interface MenuHeading {
@@ -38,7 +39,6 @@ export function drawMenu(
   heading?: MenuHeading,
 ): WordedMenu {
   const menu = document.createElement(LW_MENU_TAG) as LwMenuElement;
-  reserveLeadingColumns(menu, rows);
   const wordHeading = heading
     ? appendHeading(menu, heading, translate)
     : () => undefined;
@@ -80,8 +80,9 @@ function appendHeading(
 function appendRows(
   menu: HTMLElement,
   rows: readonly MenuRow[],
+  labelled: [HTMLElement, MenuLabel][] = [],
 ): [HTMLElement, MenuLabel][] {
-  const labelled: [HTMLElement, MenuLabel][] = [];
+  reserveLeadingColumns(menu, rows);
   let lastGroup: string | undefined;
   for (const row of rows) {
     if (lastGroup !== undefined && row.group !== lastGroup) {
@@ -91,6 +92,11 @@ function appendRows(
     const item = menuItemElement(row);
     labelled.push([item, row.label]);
     menu.append(item);
+    if (row.children) {
+      const submenu = document.createElement(LW_MENU_TAG);
+      appendRows(submenu, row.children, labelled);
+      item.append(submenu);
+    }
   }
   return labelled;
 }

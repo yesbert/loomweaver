@@ -6,7 +6,9 @@ import { NotificationBoard } from '../../notifications/notification-board';
 import { SettingsService } from '../../settings-dialog/settings.service';
 import { UpdateService } from '../../update/update.service';
 import { VersionService } from '../../version/version.service';
-import { PluginHost, PluginSession, PluginUi } from '../plugin';
+import { PluginHost, PluginSession, PluginUi, UiMenuItem } from '../plugin';
+import { MenuListEntry } from '../../menu/menu.service';
+import { formatChord } from '../../commands/keyboard/format-chord';
 
 export function pluginUi(pluginId: string, requireUi: () => void): PluginUi {
   const dialogs = inject(DialogService);
@@ -48,12 +50,10 @@ export function pluginUi(pluginId: string, requireUi: () => void): PluginUi {
     },
     openMenu: (items, at) => {
       requireUi();
-      const entries = items.map((item, index) => ({
-        key: String(index),
-        label: item.label,
-        icon: item.icon,
-      }));
-      menu.openList(entries, at, (key) => items[Number(key)]?.run());
+      const runs = new Map<string, () => void>();
+      menu.openList(listEntries(items, '', runs), at, (key) =>
+        runs.get(key)?.(),
+      );
     },
   };
 }
@@ -78,4 +78,30 @@ export function pluginSession(): PluginSession {
     roles: auth.roles,
     hasRole: (role) => auth.hasRole(role),
   };
+}
+
+function listEntries(
+  items: readonly UiMenuItem[],
+  prefix: string,
+  runs: Map<string, () => void>,
+): MenuListEntry[] {
+  return items.map((item, index) => {
+    const key = `${prefix}${index}`;
+    if (item.items !== undefined) {
+      return {
+        key,
+        label: item.label,
+        icon: item.icon,
+        children: listEntries(item.items, `${key}.`, runs),
+      };
+    }
+    runs.set(key, item.run);
+    return {
+      key,
+      label: item.label,
+      icon: item.icon,
+      shortcut:
+        item.shortcut === undefined ? undefined : formatChord(item.shortcut),
+    };
+  });
 }

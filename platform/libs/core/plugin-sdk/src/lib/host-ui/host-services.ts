@@ -11,19 +11,54 @@ import {
 import { NotificationInput } from './notification.js';
 
 /**
- * One row of an ad-hoc context menu opened via {@link PluginUi.openMenu}: a display `label` (a translation
- * key of the plugin's own bundle or a literal; it is looked up as a key, a label no bundle knows is shown
- * as it is, and a key is re-worded in the open menu when the strings arrive or the language changes), an
- * optional leading `icon` (a host icon-registry name), and an in-process `run` handler invoked when the
- * row is chosen.
- * Only for a trusted plugin: `run` is a function, so it does not cross the sandbox RPC boundary. A
- * sandboxed plugin draws its own `<lw-menu>` instead.
+ * What every row of an ad-hoc menu has: a display `label` (a translation key of the plugin's own bundle
+ * or a literal; it is looked up as a key, a label no bundle knows is shown as it is, and a key is
+ * re-worded in the open menu when the strings arrive or the language changes) and an optional leading
+ * `icon` (a host icon-registry name).
  */
-export interface UiMenuItem {
+export interface UiMenuRow {
   readonly label: string;
   readonly icon?: string;
-  readonly run: () => void;
 }
+
+/**
+ * A row of an ad-hoc menu that acts: `run` is invoked in process when the row is chosen. `shortcut`
+ * shows the keys that do the same, at the end of the row and not announced: a chord in the vocabulary
+ * of `Command.shortcut` (`'shift+ArrowUp'`, `'mod+d'`), written the way the platform writes keys. It
+ * is a hint only; the workbench binds nothing, so the plugin handles those keys for its own content.
+ */
+export interface UiMenuAction extends UiMenuRow {
+  readonly run: () => void;
+  readonly shortcut?: string;
+  readonly items?: never;
+}
+
+/**
+ * A row of an ad-hoc menu that opens `items` as a submenu beside it, by pointer, click or the right
+ * arrow. It runs nothing itself. Submenus nest to any depth.
+ *
+ *   ctx.ui.openMenu([
+ *     { label: 'acme.card.rename', icon: 'edit', run: rename },
+ *     { label: 'acme.card.move', icon: 'sort', items: [
+ *       { label: 'acme.card.up', shortcut: 'ArrowUp', run: () => move(-1) },
+ *       { label: 'acme.card.down', shortcut: 'ArrowDown', run: () => move(1) },
+ *     ] },
+ *   ], at);
+ */
+export interface UiSubmenu extends UiMenuRow {
+  readonly items: readonly UiMenuItem[];
+  readonly run?: never;
+  readonly shortcut?: never;
+}
+
+/**
+ * One row of an ad-hoc context menu opened via {@link PluginUi.openMenu}: either a {@link UiMenuAction}
+ * that runs, or a {@link UiSubmenu} that opens more rows beside it.
+ * Only for a trusted plugin: `run` is a function, so it does not cross the sandbox RPC boundary. A
+ * sandboxed plugin draws its own `<lw-menu>` instead, and nests a `<lw-menu>` inside a
+ * `<lw-menu-item>` for a submenu.
+ */
+export type UiMenuItem = UiMenuAction | UiSubmenu;
 
 /**
  * Host UI services a plugin reaches through `ctx.ui`: modal

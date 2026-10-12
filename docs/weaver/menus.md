@@ -244,7 +244,8 @@ ctx.registerMenuItem({ menu: 'acme.records/sources', command: 'scanner.import' }
 
 The command runs with the placement's context, so `scanner.star` reads `context['record']`. An
 entry with a `submenu` opens that slot beside itself on activation and is drawn only while the slot
-offers something; with a `command` as well it runs that while the slot is empty. A toolbar whose
+offers something; with a `command` as well it runs that while the slot is empty. The same entry in a
+menu rather than a toolbar opens the slot as a submenu, by the same rule, as the next section shows. A toolbar whose
 slot offers nothing to the person looking at it takes no space, and appears when an entry arrives.
 Where the row is too narrow for every entry, the toolbar folds from the end into a control that
 offers the rest. It is one tab stop; the arrow keys walk its entries. The toolbar is announced by
@@ -322,6 +323,26 @@ Only the element that opens a menu suppresses the native context menu. Everywher
 body and above all a text field inside it, a right-click still gives the user cut, copy, paste and
 spellcheck. Draw your own only where you mean to replace it.
 
+## A submenu
+
+Any entry of a menu can open a submenu that unfolds beside it. The entry shows a chevron, and the
+submenu opens when the pointer rests on the entry, on a click or tap, or from the keyboard with the
+right arrow, Enter or Space. The left arrow and Escape close the submenu alone and put focus back on
+its entry, Tab closes the whole menu, and choosing an entry inside closes every level. The submenu
+lines up with its entry and opens on the other side where the window has no room. Its entries show
+icons, shortcuts and states like any other entry.
+
+In a slot, give the entry a `submenu` and contribute to that slot like to any other. It is drawn
+while the slot offers something; with a `command` as well, it runs that command while the slot is
+empty. A slot that leads back to one already open above it is not offered again.
+
+```ts
+ctx.registerMenuItem({ menu: 'content/tab/context', title: 'notes.menu.share', icon: 'popout',
+  submenu: 'acme.notes/share' });
+ctx.registerMenuItem({ menu: 'acme.notes/share', command: 'notes.copyLink' });
+ctx.registerMenuItem({ menu: 'acme.notes/share', command: 'notes.exportPdf' });
+```
+
 ## A menu on your own view body
 
 A right-click on your **own in-process view body** (a list row, a canvas node) is not a host slot;
@@ -343,12 +364,21 @@ onRowContextMenu(event: MouseEvent, note: Note) {
   ctx.ui.openMenu(
     [
       { label: 'notes.menu.open', icon: 'document', run: () => this.open(note) },
+      { label: 'notes.menu.move', icon: 'sort', items: [
+        { label: 'notes.menu.up', shortcut: 'alt+ArrowUp', run: () => this.move(note, -1) },
+        { label: 'notes.menu.down', shortcut: 'alt+ArrowDown', run: () => this.move(note, 1) },
+      ] },
       { label: 'notes.menu.delete', icon: 'trash', run: () => store.remove(note.id) },
     ],
     { x: event.clientX, y: event.clientY },
   );
 }
 ```
+
+An item with `items` instead of `run` opens them as a submenu. An item may name a `shortcut`, a
+chord in the vocabulary of a command's shortcut; the menu shows it the way the platform writes keys,
+arrows as arrows, and does not announce it. It is a hint only: the workbench binds nothing, so your
+view handles those keys itself.
 
 It is **trusted rung only**: `run` is a function, so it does not cross the sandbox boundary. A
 sandboxed surface draws its own menu instead, below.
@@ -358,7 +388,9 @@ sandboxed surface draws its own menu instead, below.
 Inside your own sandboxed `iframe` surface you draw the menu yourself. Load the
 [frame UI kit](sandboxed-surfaces.md#the-frame-ui-kit) (`/frame-kit/lw-elements.global.js` defines `<lw-menu>`
 along with the rest of the family), build `<lw-menu>` + `<lw-menu-item>` on right-click, and call
-`menu.openAt(event.clientX, event.clientY)`. Handle the selection **in-process**: no cross-frame
+`menu.openAt(event.clientX, event.clientY)`. A `<lw-menu>` you put inside a `<lw-menu-item>` is that
+entry's submenu, with the same pointer and keyboard behaviour as the host's, and a choice inside it
+reaches the outer menu's `lw-menu-select`. Handle the selection **in-process**: no cross-frame
 coordinates, no RPC. The paint follows the host tokens pushed to the surface, so it matches the app theme.
 
 ## Where next

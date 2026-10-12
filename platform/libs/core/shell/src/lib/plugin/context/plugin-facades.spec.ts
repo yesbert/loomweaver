@@ -111,6 +111,45 @@ describe('the ui, host and session a plugin is handed', () => {
     expect(labels()).toEqual(['Öffnen', 'Ada Lovelace']);
   });
 
+  it('ctx.ui.openMenu nests an entry’s own entries, formats their shortcuts and runs the nested pick', () => {
+    const { ctx, menu } = makeContext();
+    const up = vi.fn();
+    const openList = vi
+      .spyOn(menu, 'openList')
+      .mockImplementation((_entries, _at, _pick) => undefined);
+
+    ctx.ui.openMenu(
+      [
+        { label: 'Rename', run: () => undefined },
+        {
+          label: 'Move',
+          icon: 'sort',
+          items: [
+            { label: 'Up', shortcut: 'ArrowUp', run: up },
+            { label: 'Down', shortcut: 'ArrowDown', run: () => undefined },
+          ],
+        },
+      ],
+      { x: 0, y: 0 },
+    );
+
+    const [entries, , onPick] = openList.mock.calls[0];
+    expect(entries[1]).toEqual({
+      key: '1',
+      label: 'Move',
+      icon: 'sort',
+      children: [
+        { key: '1.0', label: 'Up', shortcut: '↑' },
+        { key: '1.1', label: 'Down', shortcut: '↓' },
+      ],
+    });
+
+    onPick('1');
+    expect(up).not.toHaveBeenCalled();
+    onPick('1.0');
+    expect(up).toHaveBeenCalledTimes(1);
+  });
+
   it('ctx.ui.openMenu requires the "ui" capability (default-deny)', () => {
     const { ctx } = makeContext(['contributions']);
     expect(() =>

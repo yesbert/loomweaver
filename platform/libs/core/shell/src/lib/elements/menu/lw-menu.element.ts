@@ -1,13 +1,18 @@
 import { focusAndReveal, rovingStep, rovingTabIndex } from '../roving-focus';
 import { clampIntoViewport, fitsInViewport } from '../viewport-fit';
+import { defineElementOnce } from '../custom-elements';
 import {
-  defineElementOnce,
-  reflectAttribute,
-  upgradeElementProperty,
-} from '../custom-elements';
+  isNested,
+  nestedMenu,
+  SUBMENU_GAP,
+  submenuAnchor,
+  SubmenuPause,
+} from './lw-submenu';
+import { LW_MENU_ITEM_TAG, LwMenuItemElement } from './lw-menu-item.element';
+
+export { LW_MENU_ITEM_TAG, LwMenuItemElement } from './lw-menu-item.element';
 
 export const LW_MENU_TAG = 'lw-menu';
-export const LW_MENU_ITEM_TAG = 'lw-menu-item';
 
 export const MENU_ANCHOR_GAP = 4;
 
@@ -45,94 +50,23 @@ function aligned(
   return fitsInViewport(near, size, limit) ? near : clampIntoViewport(far - size, size, limit);
 }
 
-function leadingPlace(className: string, iconName: string | null): HTMLSpanElement {
-  const place = document.createElement('span');
-  place.className = className;
-  place.setAttribute('aria-hidden', 'true');
-  if (iconName) {
-    const icon = document.createElement('lw-icon');
-    icon.setAttribute('name', iconName);
-    icon.setAttribute('size', '0.9rem');
-    place.append(icon);
-  }
-  return place;
-}
-
-export class LwMenuItemElement extends HTMLElement {
-  static readonly observedAttributes = [
-    'label',
-    'command',
-    'disabled',
-    'icon',
-    'shortcut',
-    'checkbox',
-    'checked',
-  ];
-
-  get label(): string | null {
-    return this.getAttribute('label');
-  }
-  set label(value: string | null) {
-    reflectAttribute(this, 'label', value);
-  }
-  get command(): string | null {
-    return this.getAttribute('command');
-  }
-  set command(value: string | null) {
-    reflectAttribute(this, 'command', value);
-  }
-
-  connectedCallback(): void {
-    upgradeElementProperty(this, 'label');
-    upgradeElementProperty(this, 'command');
-    this.tabIndex = -1;
-    this.render();
-  }
-
-  attributeChangedCallback(): void {
-    if (this.isConnected) {
-      this.render();
-    }
-  }
-
-  private render(): void {
-    const checkbox = this.hasAttribute('checkbox');
-    const checked = this.hasAttribute('checked');
-    this.setAttribute('role', checkbox ? 'menuitemcheckbox' : 'menuitem');
-    if (checkbox) {
-      this.setAttribute('aria-checked', String(checked));
-    } else {
-      this.removeAttribute('aria-checked');
-    }
-    this.setAttribute('aria-disabled', String(this.hasAttribute('disabled')));
-
-    const check = leadingPlace('lw-menu-item-check', checked ? 'check' : null);
-    const lead = leadingPlace('lw-menu-item-lead', this.getAttribute('icon'));
-
-    const label = document.createElement('span');
-    label.className = 'lw-menu-item-label';
-    label.textContent = this.getAttribute('label') ?? '';
-    this.replaceChildren(check, lead, label);
-
-    const shortcut = this.getAttribute('shortcut');
-    if (shortcut) {
-      const hint = document.createElement('span');
-      hint.className = 'lw-menu-item-shortcut';
-      hint.setAttribute('aria-hidden', 'true');
-      hint.textContent = shortcut;
-      this.append(hint);
-    }
-  }
-}
-
 export class LwMenuElement extends HTMLElement {
   private active = -1;
+
+  private opener?: HTMLElement;
+
+  private readonly pause = new SubmenuPause();
 
   connectedCallback(): void {
     this.setAttribute('role', 'menu');
     this.tabIndex = -1;
     this.addEventListener('keydown', this.onKeydown);
     this.addEventListener('click', this.onClick);
+    this.addEventListener('pointerover', this.onPointerOver);
+    if (isNested(this)) {
+      this.hidden = true;
+      return;
+    }
 
     queueMicrotask(() => {
       if (this.isConnected) {
@@ -144,6 +78,8 @@ export class LwMenuElement extends HTMLElement {
   disconnectedCallback(): void {
     this.removeEventListener('keydown', this.onKeydown);
     this.removeEventListener('click', this.onClick);
+    this.removeEventListener('pointerover', this.onPointerOver);
+    this.pause.cancel();
   }
 
   openAt(x: number, y: number): void {
@@ -184,13 +120,102 @@ export class LwMenuElement extends HTMLElement {
     this.handleKeydown(event);
 
   private readonly onClick = (event: MouseEvent) => {
-    const item = (event.target as HTMLElement | null)?.closest<HTMLElement>(
-      `[role^="menuitem"]`,
-    );
-    if (item && !this.isDisabled(item)) {
+    const item = this.ownItemAt(event.target);
+    if (!item || this.isDisabled(item)) {
+      return;
+    }
+    if (nestedMenu(item)) {
+      this.openSubmenu(item, false);
+    } else {
       this.select(item);
     }
   };
+
+  private readonly onPointerOver = (event: Event) => {
+    const target = event.target as Node;
+    if (this.opener?.contains(target)) {
+      this.pause.cancel();
+      return;
+    }
+    const item = this.ownItemAt(event.target);
+    if (!item) {
+      return;
+    }
+    if (nestedMenu(item) && !this.isDisabled(item)) {
+      this.pause.after(() => this.openSubmenu(item, false));
+    } else if (this.opener) {
+      this.pause.after(() => this.closeSubmenu(false));
+    } else {
+      this.pause.cancel();
+    }
+  };
+
+  private owns(target: EventTarget | null): boolean {
+    return (target as Element | null)?.closest?.(LW_MENU_TAG) === this;
+  }
+
+  private ownItemAt(target: EventTarget | null): HTMLElement | null {
+    if (!this.owns(target)) {
+      return null;
+    }
+    return (target as Element).closest<HTMLElement>('[role^="menuitem"]');
+  }
+
+  private openSubmenu(item: HTMLElement, focusFirst: boolean): void {
+    const submenu = nestedMenu(item) as LwMenuElement | null;
+    if (!submenu) {
+      return;
+    }
+    this.pause.cancel();
+    if (this.opener !== item) {
+      this.closeSubmenu(false);
+    }
+    this.opener = item;
+    this.active = this.items().indexOf(item);
+    submenu.hidden = false;
+    item.setAttribute('aria-expanded', 'true');
+    submenu.unfoldBeside(submenuAnchor(this, item, submenu));
+    if (focusFirst) {
+      submenu.setActive(0);
+    }
+  }
+
+  private unfoldBeside(rect: MenuAnchorRect): void {
+    const { width, height } = this.measured();
+    this.place(
+      beside(
+        rect.right + SUBMENU_GAP,
+        rect.left - SUBMENU_GAP - width,
+        width,
+        window.innerWidth,
+      ),
+      clampIntoViewport(rect.top, height, window.innerHeight),
+    );
+  }
+
+  private closeSubmenu(focusOpener: boolean): void {
+    const item = this.opener;
+    if (!item) {
+      return;
+    }
+    this.opener = undefined;
+    this.pause.cancel();
+    const submenu = nestedMenu(item) as LwMenuElement | null;
+    if (submenu) {
+      submenu.closeSubmenu(false);
+      submenu.active = -1;
+      submenu.hidden = true;
+    }
+    item.setAttribute('aria-expanded', 'false');
+    if (focusOpener) {
+      item.focus();
+    }
+  }
+
+  private closeFromInside(): void {
+    const owner = this.parentElement?.closest<LwMenuElement>(LW_MENU_TAG);
+    owner?.closeSubmenu(true);
+  }
 
   private measured(): DOMRect {
     this.place(0, 0);
@@ -203,8 +228,8 @@ export class LwMenuElement extends HTMLElement {
   }
 
   private items(): HTMLElement[] {
-    return [...this.querySelectorAll<HTMLElement>('[role^="menuitem"]')].filter(
-      (item) => !this.isDisabled(item),
+    return ([...this.children] as HTMLElement[]).filter(
+      (item) => item.matches('[role^="menuitem"]') && !this.isDisabled(item),
     );
   }
 
@@ -221,6 +246,9 @@ export class LwMenuElement extends HTMLElement {
       return;
     }
     this.active = (index + items.length) % items.length;
+    if (this.opener && this.opener !== items[this.active]) {
+      this.closeSubmenu(false);
+    }
     rovingTabIndex(items, this.active);
     focusAndReveal(items[this.active]);
   }
@@ -235,23 +263,44 @@ export class LwMenuElement extends HTMLElement {
   }
 
   private handleKeydown(event: KeyboardEvent): void {
+    if (!this.owns(event.target)) {
+      return;
+    }
     const step = rovingStep(event.key, this.active, this.items().length, 'vertical');
     if (step !== undefined) {
       this.setActive(step);
       event.preventDefault();
       return;
     }
+    const item = this.active >= 0 ? this.items()[this.active] : undefined;
     switch (event.key) {
+      case 'ArrowRight': {
+        if (item && nestedMenu(item)) {
+          this.openSubmenu(item, true);
+        }
+        break;
+      }
+      case 'ArrowLeft': {
+        if (isNested(this)) {
+          this.closeFromInside();
+        }
+        break;
+      }
       case 'Enter':
       case ' ': {
-        const item = this.active >= 0 ? this.items()[this.active] : undefined;
-        if (item) {
+        if (item && nestedMenu(item)) {
+          this.openSubmenu(item, true);
+        } else if (item) {
           this.select(item);
         }
         break;
       }
       case 'Escape': {
-        this.dispatchEvent(new CustomEvent(LW_MENU_DISMISS, { bubbles: true }));
+        if (isNested(this)) {
+          this.closeFromInside();
+        } else {
+          this.dispatchEvent(new CustomEvent(LW_MENU_DISMISS, { bubbles: true }));
+        }
         break;
       }
       case 'Tab': {

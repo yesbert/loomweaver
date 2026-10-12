@@ -655,4 +655,124 @@ describe('MenuService', () => {
       expect(menu()).toBeNull();
     });
   });
+  describe('an entry that opens a submenu', () => {
+    const nestedMenuOf = (item: HTMLElement) =>
+      item.querySelector<HTMLElement>(`:scope > ${LW_MENU_TAG}`);
+    const top = () =>
+      [...(menu()?.children ?? [])].filter((child) =>
+        child.matches(LW_MENU_ITEM_TAG),
+      ) as HTMLElement[];
+    const choose = (item: HTMLElement) =>
+      item.dispatchEvent(
+        new CustomEvent(LW_MENU_SELECT, {
+          detail: { command: item.getAttribute('command') },
+          bubbles: true,
+        }),
+      );
+
+    beforeEach(() => {
+      registry.addCommand({ id: 'c.close', title: 'cmd.close', run: () => undefined });
+      registry.addCommand({ id: 'c.others', title: 'menu.others', run: () => undefined });
+    });
+
+    it('opens its slot as a submenu, and a nested choice runs with the menu’s context', () => {
+      registry.addMenuItem({ menu: 'm', command: 'c.close' });
+      registry.addMenuItem({ menu: 'm', title: 'menu.pinned', icon: 'lock', submenu: 'm/more' });
+      registry.addMenuItem({ menu: 'm/more', command: 'c.others' });
+      const execute = vi.spyOn(commands, 'execute').mockImplementation(() => undefined);
+
+      service.open('m', context, { x: 0, y: 0 });
+
+      const [, more] = top();
+      expect(more.getAttribute('label')).toBe('Pinned');
+      expect(more.getAttribute('icon')).toBe('lock');
+      const nested = nestedMenuOf(more);
+      const [others] = [...(nested?.querySelectorAll<HTMLElement>(LW_MENU_ITEM_TAG) ?? [])];
+      expect(others.getAttribute('label')).toBe('Close others');
+
+      choose(others);
+
+      expect(execute).toHaveBeenCalledWith('c.others', context);
+      expect(menu()).toBeNull();
+    });
+
+    it('runs its command as an ordinary entry while its slot is empty', () => {
+      registry.addMenuItem({ menu: 'm', command: 'c.close', submenu: 'm/empty' });
+      const execute = vi.spyOn(commands, 'execute').mockImplementation(() => undefined);
+
+      service.open('m', context, { x: 0, y: 0 });
+
+      const [close] = top();
+      expect(nestedMenuOf(close)).toBeNull();
+      choose(close);
+      expect(execute).toHaveBeenCalledWith('c.close', context);
+    });
+
+    it('is not drawn while its slot is empty and it has no command', () => {
+      registry.addMenuItem({ menu: 'm', command: 'c.close' });
+      registry.addMenuItem({ menu: 'm', title: 'menu.pinned', submenu: 'm/empty' });
+
+      service.open('m', context, { x: 0, y: 0 });
+
+      expect(top().map((item) => item.getAttribute('label'))).toEqual(['Close tab']);
+    });
+
+    it('leaves out an entry that leads back to a slot open above it', () => {
+      registry.addMenuItem({ menu: 'm', title: 'menu.pinned', submenu: 'm/more' });
+      registry.addMenuItem({ menu: 'm/more', command: 'c.others' });
+      registry.addMenuItem({ menu: 'm/more', title: 'menu.close', submenu: 'm' });
+
+      service.open('m', context, { x: 0, y: 0 });
+
+      const nested = nestedMenuOf(top()[0]);
+      const labels = [...(nested?.querySelectorAll(LW_MENU_ITEM_TAG) ?? [])].map(
+        (item) => item.getAttribute('label'),
+      );
+      expect(labels).toEqual(['Close others']);
+    });
+
+    it('keeps inline entries apart on every level', () => {
+      const outer = vi.fn();
+      const inner = vi.fn();
+      registry.addMenuItem({ menu: 'm', title: 'menu.close', run: outer });
+      registry.addMenuItem({ menu: 'm', title: 'menu.pinned', submenu: 'm/more' });
+      registry.addMenuItem({ menu: 'm/more', title: 'menu.others', run: inner });
+
+      service.open('m', context, { x: 0, y: 0 });
+      const nested = nestedMenuOf(top()[1]);
+      choose(nested?.querySelector<HTMLElement>(LW_MENU_ITEM_TAG) as HTMLElement);
+
+      expect(inner).toHaveBeenCalledTimes(1);
+      expect(outer).not.toHaveBeenCalled();
+    });
+
+    it('draws an ad-hoc entry’s own entries as a submenu, with their shortcuts', () => {
+      const pick = vi.fn();
+      service.openList(
+        [
+          { key: '0', label: 'Rename' },
+          {
+            key: '1',
+            label: 'Move',
+            icon: 'sort',
+            children: [
+              { key: '1.0', label: 'Up', shortcut: '⇧↑' },
+              { key: '1.1', label: 'Down', shortcut: '⇧↓' },
+            ],
+          },
+        ],
+        { x: 0, y: 0 },
+        pick,
+      );
+
+      const nested = nestedMenuOf(top()[1]);
+      const [up, down] = [...(nested?.querySelectorAll<HTMLElement>(LW_MENU_ITEM_TAG) ?? [])];
+      expect(up.getAttribute('shortcut')).toBe('⇧↑');
+      expect(nested?.classList.contains('lw-menu--leading')).toBe(false);
+
+      choose(down);
+
+      expect(pick).toHaveBeenCalledWith('1.1');
+    });
+  });
 });

@@ -41,11 +41,11 @@ export interface MenuItem {
    */
   readonly access?: AccessRequirement;
   /**
-   * Where this entry is drawn in a toolbar, the slot that activating it opens, beside the entry: a
-   * nested menu without a mechanism of its own. Contribute entries to it with another
-   * `registerMenuItem`. The entry needs no `command` or `run` for that, and is drawn only while the
-   * slot offers at least one entry; with a `command` as well it runs that while the slot is empty and
-   * opens the menu once the slot has an entry. Ignored in a menu, where entries do not nest.
+   * The slot this entry opens beside itself: in a toolbar a menu opened from the entry, in a menu a
+   * submenu that unfolds beside it. Contribute entries to it with another `registerMenuItem`. The
+   * entry needs no `command` or `run` for that, and is drawn only while the slot offers at least one
+   * entry; with a `command` as well it runs that while the slot is empty and opens the slot once it
+   * has an entry. A slot that leads back to one already open above it is not offered again.
    */
   readonly submenu?: string;
   /**
