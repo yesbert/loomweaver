@@ -107,7 +107,7 @@ test('a link to a quote that does not exist says so', async ({ page }) => {
 
 test('the document reads in German', async ({ page }) => {
   await page.goto('/sales/quotes/q-0007');
-  await page.getByRole('button', { name: 'Language' }).click();
+  await page.getByRole('combobox', { name: 'Language' }).click();
   await page.getByRole('option', { name: 'Deutsch' }).click();
 
   await expect(page.getByTestId('quote-customer')).toContainText('Versendet');

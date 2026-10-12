@@ -18,7 +18,7 @@ test('filters by status and sums what is shown', async ({ page }) => {
   await expect(footer).toContainText('7 of 7');
   const unfiltered = await footer.innerText();
 
-  await page.getByRole('button', { name: 'Status' }).click();
+  await page.getByRole('combobox', { name: 'Status' }).click();
   await page.getByRole('option', { name: 'Accepted' }).click();
 
   await expect(page.locator(rows)).toHaveCount(2);
@@ -43,7 +43,7 @@ test('formats money and dates in the active language', async ({ page }) => {
   const first = page.locator(rows).first();
   await expect(first).toContainText('€');
 
-  await page.getByRole('button', { name: 'Language' }).click();
+  await page.getByRole('combobox', { name: 'Language' }).click();
   await page.getByRole('option', { name: 'Deutsch' }).click();
 
   await expect(page.locator(rows).first()).toContainText('Versendet');
