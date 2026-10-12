@@ -17,13 +17,13 @@
 
 ## 3. Verify
 
-- [ ] 3.1 The full shell and plugin-sdk suites, lint, structure and the contract checks
-- [ ] 3.2 Testbed: a card-like ad-hoc menu with "Move" and "Resize" submenus, icons and shortcuts; an e2e test that opens a submenu by keyboard and by pointer, chooses in it, and runs the accessibility audit with the submenu open
+- [x] 3.1 The full shell and plugin-sdk suites, lint, structure and the contract checks
+- [x] 3.2 Testbed: a card-like ad-hoc menu with "Move" and "Resize" submenus, icons and shortcuts; an e2e test that opens a submenu by keyboard and by pointer, chooses in it, and runs the accessibility audit with the submenu open
 - [x] 3.3 Show it to the owner in the running testbed before the PR is merged
 
 ## 4. Document and close
 
 - [x] 4.1 `llms-full.txt`: nested `<lw-menu>`, `items` and `shortcut` on an ad-hoc entry, `submenu` in a menu (`docs/reference/design-tokens.md` names `<lw-menu>` only by its registration, so it needs nothing)
 - [x] 4.2 The guide that explains the three kinds of menu, where it names what an entry can do (`docs/weaver/menus.md`: a section on submenus, the ad-hoc example, the sandbox paragraph)
-- [ ] 4.3 `openspec validate --all --strict`
-- [ ] 4.4 PR that says it closes NextPA finding F-049
+- [x] 4.3 `openspec validate --all --strict`
+- [x] 4.4 PR that says it closes NextPA finding F-049
