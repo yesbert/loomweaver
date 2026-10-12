@@ -408,6 +408,12 @@ function in `@loomweaver/shell`: `defineLwIcon()`, `defineLwButton()`, `defineLw
   pseudo-element). Native → arrow keys/a11y, no custom element. The settings `control.kind`
   **`slider`** (a number with `min`/`max`/`step`) renders `.lw-range` + a value readout.
   A `role="slider"` needs an accessible name (`aria-label`).
+- **Unavailable choices (`.lw-checkbox`, `.lw-switch`, `.lw-radio`):** natively `disabled` takes the
+  control out of the tab order, which is right when there is nothing to say. When the person has to
+  learn *why* the choice is unavailable, mark it `aria-disabled="true"` instead and point
+  `aria-describedby` at the reason: the class draws it exactly like `disabled`, and it stays
+  focusable. The class changes the look only, so refuse the change yourself
+  (`(click)="$event.preventDefault()"` covers pointer and Space).
 - **Progress (`.lw-progress` / `<lw-progress-ring>`):** the **bar** = `.lw-progress` on a **native**
   `<progress value max>` (class contract; `role="progressbar"` + a11y are native, only fill/track are
   tinted). The **ring** = `<lw-progress-ring value max size>` as a custom element (there is no native circular element; it shows the percentage in the centre; `size` is a **CSS length** such as `2.5rem` [default]; a bare number is invalid and silently discarded by the browser). **Both need

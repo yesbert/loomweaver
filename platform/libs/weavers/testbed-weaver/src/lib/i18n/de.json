@@ -164,7 +164,13 @@
     "assigned": "Zugewiesen an U1",
     "resolved": "Erledigt",
     "median": "Mittlere Wartezeit",
-    "watch": "Diesen Eintrag beobachten"
+    "watch": "Diesen Eintrag beobachten",
+    "availability": "Verfügbarkeit",
+    "offline": "Offline arbeiten",
+    "sync": "Mit dem Server abgleichen",
+    "archive": "Diesen Eintrag archivieren",
+    "escalate": "Eskalieren",
+    "needsConnection": "Braucht eine Verbindung zum Server."
   },
   "admin": {
     "title": "Gesperrtes Leistenelement",

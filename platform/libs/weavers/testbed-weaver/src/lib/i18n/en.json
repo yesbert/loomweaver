@@ -164,7 +164,13 @@
     "assigned": "Assigned to U1",
     "resolved": "Resolved",
     "median": "Median wait",
-    "watch": "Watch this entry"
+    "watch": "Watch this entry",
+    "availability": "Availability",
+    "offline": "Work offline",
+    "sync": "Sync with the server",
+    "archive": "Archive this entry",
+    "escalate": "Escalate",
+    "needsConnection": "Needs a connection to the server."
   },
   "admin": {
     "title": "Gated rail item",

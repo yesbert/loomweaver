@@ -77,7 +77,8 @@
     @apply h-4 w-4 shrink-0 cursor-pointer;
     accent-color: var(--lw-brand);
   }
-  .lw-checkbox:disabled {
+  .lw-checkbox:disabled,
+  .lw-checkbox[aria-disabled='true'] {
     @apply cursor-not-allowed opacity-60;
   }
 
@@ -147,7 +148,8 @@
     @apply h-4 w-4 shrink-0 cursor-pointer;
     accent-color: var(--lw-brand);
   }
-  .lw-radio:disabled {
+  .lw-radio:disabled,
+  .lw-radio[aria-disabled='true'] {
     @apply cursor-not-allowed opacity-60;
   }
 
@@ -180,7 +182,8 @@
   .lw-switch:checked::before {
     @apply translate-x-4;
   }
-  .lw-switch:disabled {
+  .lw-switch:disabled,
+  .lw-switch[aria-disabled='true'] {
     @apply cursor-not-allowed opacity-60;
   }
 }
