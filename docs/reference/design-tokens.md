@@ -294,18 +294,27 @@ function in `@loomweaver/shell`: `defineLwIcon()`, `defineLwButton()`, `defineLw
     }
   </lw-select>
   ```
-  Attributes: `label` (accessible name), `value` (current value), `placeholder`, `disabled`.
-  The control is announced with its label **and** the current choice (or the placeholder). Name it
-  with `label`, with `aria-label`, or with `aria-labelledby` pointing at a visible label of your own
-  in the same document. Both `aria-invalid` and `aria-describedby` on the element reach the control,
-  so an error or a hint is announced with it. A required choice is not announced by the control; say
-  it in the label. Each `<lw-option>` takes `value`, optionally `icon` (a name the icon registry knows is drawn as `<lw-icon>`
+  Attributes: `label` (accessible name), `value` (current value), `placeholder`, `disabled`,
+  `required`.
+  The control is a **combobox**: its name is the label, and the current choice (or the placeholder)
+  is its value, so it is announced as "Language, combobox, English". A test finds it with
+  `getByRole('combobox', { name: 'Language' })`. Name it with `label`, with `aria-label`, or with
+  `aria-labelledby` pointing at a visible label of your own in the same document. **A select needs a
+  name:** without one it is a nameless combobox, and the accessibility audit reports it. `required`
+  (attribute or property) announces the choice as required. It draws no mark and validates nothing,
+  so show it in the label as well if your design marks required fields. Both `aria-invalid`
+  and `aria-describedby` on the element reach the control, so an error or a hint is announced with
+  it. Each `<lw-option>` takes `value`, optionally `icon` (a name the icon registry knows is drawn as `<lw-icon>`
   draws it; anything else, such as a flag emoji, is shown as written), label = text content. The **`lw-select-change`** event
   (`detail.value`) fires **only on user selection**, not when `value` is set programmatically (no
-  feedback loop). ARIA listbox keyboard handling (↑/↓/Home/End/Enter/Esc + typeahead) and CSS anchor
-  positioning sit inside the element; the **look** lives as `.lw-select-*` in `theme.css`. With
-  `compact`, the trigger shows the chosen option by its icon alone and names the choice in its
-  accessible name. An option without an icon still shows its text.
+  feedback loop). The keyboard follows the select-only combobox pattern, and focus stays on the
+  control while the list is open. On the closed control, ↑/↓/Enter/Space/Alt+↓ open the list at the
+  choice, Home/End at the first or last option, and a letter at the first match. In the open list,
+  ↑/↓/Home/End move past disabled options and Enter/Space/Alt+↑ choose. Esc closes without choosing
+  and is marked handled, so a dialog around the select stays open. Tab closes without choosing. The
+  keyboard handling and CSS anchor positioning sit inside the element; the **look** lives as `.lw-select-*` in `theme.css`. With
+  `compact`, the trigger shows the chosen option by its icon alone and still announces the chosen
+  option's name as its value. An option without an icon still shows its text.
 - **Sidebar navigation (`<lw-nav-tree>` + `<lw-nav-group>` + `<lw-nav-item>`):** a
   **framework-agnostic custom element** (like `<lw-select>`) for the list of destinations a product
   puts in a sidebar, declared as **light-DOM children**. The tree takes **`current`**, the address

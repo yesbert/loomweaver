@@ -227,7 +227,7 @@ describe('DialogOutlet: Escape closes only what it was pressed in', () => {
     trigger.click();
     expect(trigger.getAttribute('aria-expanded')).toBe('true');
 
-    t.pressEscape(host.querySelector('[role="listbox"]') as HTMLElement);
+    t.pressEscape(trigger);
     await settle();
 
     expect(trigger.getAttribute('aria-expanded')).toBe('false');

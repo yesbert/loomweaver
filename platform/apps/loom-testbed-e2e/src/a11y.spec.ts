@@ -60,14 +60,33 @@ test.describe('Accessibility (WCAG 2.1 AA)', () => {
     await scan(page);
   });
 
-  test('a select named by a label of its own', async ({ page }) => {
+  test('a required select named by a label of its own', async ({ page }) => {
     await page.goto('/dashboard/export');
-    const range = page.getByRole('button', {
-      name: 'Range Short',
-      exact: true,
-    });
+    const range = page.getByRole('combobox', { name: 'Range', exact: true });
     await expect(range).toBeVisible();
+    await expect(range).toContainText('Short');
+    await expect(range).toHaveAttribute('aria-required', 'true');
     await scan(page);
+  });
+
+  test('a select open from the keyboard, focus kept on it', async ({
+    page,
+  }) => {
+    await page.goto('/dashboard/export');
+    const range = page.getByRole('combobox', { name: 'Range', exact: true });
+    await range.focus();
+    await page.keyboard.press('ArrowDown');
+    await expect(range).toHaveAttribute('aria-expanded', 'true');
+    await page.keyboard.press('ArrowDown');
+    await expect(range).toBeFocused();
+    await expect(range).toHaveAttribute(
+      'aria-activedescendant',
+      /lw-select-listbox-\d+-opt-1/,
+    );
+    await scan(page);
+    await page.keyboard.press('Enter');
+    await expect(range).toHaveAttribute('aria-expanded', 'false');
+    await expect(range).not.toContainText('Short');
   });
 
   test('a confirmation that asks to type, with something typed', async ({
@@ -90,7 +109,7 @@ test.describe('Accessibility (WCAG 2.1 AA)', () => {
 
   test('language menu open', async ({ page }) => {
     await page.goto('/');
-    await page.getByRole('button', { name: 'Language' }).click();
+    await page.getByRole('combobox', { name: 'Language' }).click();
     await expect(page.getByRole('option', { name: 'Deutsch' })).toBeVisible();
     await scan(page);
   });

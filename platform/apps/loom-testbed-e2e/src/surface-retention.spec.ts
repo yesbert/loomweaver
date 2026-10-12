@@ -343,7 +343,7 @@ test.describe('Surface retention (a sandboxed surface is hidden, not rebuilt)', 
 
     const module_ = process.platform === 'darwin' ? 'Meta' : 'Control';
     await page.keyboard.press(`${module_}+KeyP`);
-    await page.getByRole('combobox').fill('rest route');
+    await page.getByRole('dialog').getByRole('combobox').fill('rest route');
     await page.getByRole('option', { name: /Sandbox \(rest route\)/ }).click();
     await expect(
       page.getByRole('tab', { name: 'Sandbox (rest route)' }),
