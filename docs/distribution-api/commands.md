@@ -68,7 +68,10 @@ starts it, and there is nothing to call yourself.
 
 **Rendering a chord.** To show a shortcut in your own UI, use `formatChord('mod+k')`, exported from
 `@loomweaver/shell`. It returns ⌘K on macOS and Ctrl+K elsewhere, using the same platform detection
-as the shell, so your hint can never disagree with the binding.
+as the shell, so your hint can never disagree with the binding. Named keys take the macOS symbol
+where there is one (`delete` is ⌦, `backspace` is ⌫) and otherwise a word in the interface language,
+so a German interface on Windows reads Strg+Entf. The words are the shell's own strings under
+`keys.*`, which a product rewords like any other; without a running shell they are English.
 
 **Two searches, one component.** The palette has two entry points. Under `shell.commandPalette`
 (`mod+k`) it lists **commands**. Under `shell.quickOpen` (`mod+p`) it lists **content to navigate

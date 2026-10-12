@@ -5,6 +5,7 @@ import {
   MenuHeader,
   MenuTrigger,
 } from '@loomweaver/plugin-sdk';
+import { formatChord } from '../commands/keyboard/format-chord';
 
 export interface SlotEntry {
   readonly id?: string;
@@ -31,6 +32,7 @@ export interface ResolvedEntry<T extends SlotEntry = SlotEntry> {
   readonly group: string;
   readonly order: number;
   readonly icon?: string;
+  readonly chord?: string;
   readonly shortcut?: string;
   readonly checkbox: boolean;
   readonly checked: boolean;
@@ -44,7 +46,7 @@ export interface ResolvedEntry<T extends SlotEntry = SlotEntry> {
 export interface SlotSources {
   readonly commands: readonly Command[];
   readonly available: (command: Command) => boolean;
-  readonly shortcutOf: (command: Command | undefined) => string | undefined;
+  readonly chordOf: (command: Command | undefined) => string | undefined;
   readonly visible: (access: AccessRequirement | undefined) => boolean;
   readonly disabled: (access: AccessRequirement | undefined) => boolean;
   readonly menuOffered?: (
@@ -57,7 +59,7 @@ export interface SlotSourceServices {
   readonly registry: { readonly commands: () => readonly Command[] };
   readonly commands: {
     available(command: Command): boolean;
-    shortcutOf(command: Command | undefined): string | undefined;
+    chordOf(command: Command | undefined): string | undefined;
   };
   readonly auth: {
     visible(access: AccessRequirement | undefined): boolean;
@@ -72,7 +74,7 @@ export function slotSources(
   return {
     commands: registry.commands(),
     available: (command) => commands.available(command),
-    shortcutOf: (command) => commands.shortcutOf(command),
+    chordOf: (command) => commands.chordOf(command),
     visible: (access) => auth.visible(access),
     disabled: (access) => auth.disabled(access),
     menuOffered,
@@ -137,7 +139,7 @@ function resolveEntry<T extends SlotEntry>(
     group: entry.group ?? '',
     order: entry.order ?? 0,
     icon: entry.icon ?? command?.icon,
-    shortcut: sources.shortcutOf(command),
+    ...chordAndShortcut(sources.chordOf(command)),
     checkbox,
     checked: checkbox && whenMatches(entry.checkedWhen, context),
     pressed: entry.pressed ?? (checkbox ? whenMatches(entry.checkedWhen, context) : undefined),
@@ -172,4 +174,10 @@ function leadsSomewhere(
     opensMenu !== undefined ||
     entry.workspace !== undefined
   );
+}
+
+function chordAndShortcut(
+  chord: string | undefined,
+): Pick<ResolvedEntry, 'chord' | 'shortcut'> {
+  return chord === undefined ? {} : { chord, shortcut: formatChord(chord) };
 }

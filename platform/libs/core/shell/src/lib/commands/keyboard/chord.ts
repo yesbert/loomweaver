@@ -28,23 +28,38 @@ const TOKEN_ALIASES: ReadonlyMap<string, string> = new Map([
   [' ', 'space'],
 ]);
 
-const TOKEN_LABELS: ReadonlyMap<
-  string,
-  { readonly mac: string; readonly other: string }
-> = new Map([
-  ['mod', { mac: '⌘', other: 'Ctrl' }],
-  ['ctrl', { mac: '⌃', other: 'Ctrl' }],
-  ['meta', { mac: '⌘', other: 'Meta' }],
-  ['alt', { mac: '⌥', other: 'Alt' }],
-  ['shift', { mac: '⇧', other: 'Shift' }],
-  ['enter', { mac: '↵', other: 'Enter' }],
-  ['escape', { mac: 'Esc', other: 'Esc' }],
-  ['space', { mac: 'Space', other: 'Space' }],
-  ['arrowup', { mac: '↑', other: '↑' }],
-  ['arrowdown', { mac: '↓', other: '↓' }],
-  ['arrowleft', { mac: '←', other: '←' }],
-  ['arrowright', { mac: '→', other: '→' }],
+interface KeyLabel {
+  readonly word: string;
+  readonly symbol?: string;
+  readonly everywhere?: boolean;
+}
+
+const KEY_LABELS: ReadonlyMap<string, KeyLabel> = new Map([
+  ['mod', { word: 'Ctrl', symbol: '⌘' }],
+  ['ctrl', { word: 'Ctrl', symbol: '⌃' }],
+  ['meta', { word: 'Meta', symbol: '⌘' }],
+  ['alt', { word: 'Alt', symbol: '⌥' }],
+  ['shift', { word: 'Shift', symbol: '⇧' }],
+  ['enter', { word: 'Enter', symbol: '↵' }],
+  ['escape', { word: 'Esc' }],
+  ['space', { word: 'Space' }],
+  ['delete', { word: 'Del', symbol: '⌦' }],
+  ['backspace', { word: 'Backspace', symbol: '⌫' }],
+  ['tab', { word: 'Tab', symbol: '⇥' }],
+  ['home', { word: 'Home', symbol: '↖' }],
+  ['end', { word: 'End', symbol: '↘' }],
+  ['pageup', { word: 'PgUp', symbol: '⇞' }],
+  ['pagedown', { word: 'PgDn', symbol: '⇟' }],
+  ['insert', { word: 'Ins' }],
+  ['arrowup', { word: '↑', everywhere: true }],
+  ['arrowdown', { word: '↓', everywhere: true }],
+  ['arrowleft', { word: '←', everywhere: true }],
+  ['arrowright', { word: '→', everywhere: true }],
 ]);
+
+const WORD_OF: ReadonlyMap<string, string> = new Map([['mod', 'ctrl']]);
+
+export type KeyWords = (key: string) => string | undefined;
 
 type Modifier = 'ctrl' | 'meta' | 'alt' | 'shift';
 
@@ -102,20 +117,30 @@ function applyToken(parts: ChordParts, token: string, isMac: boolean): void {
   parts.key = canonical;
 }
 
-export function formatChordOn(chord: string, isMac: boolean): string {
+export function formatChordOn(
+  chord: string,
+  isMac: boolean,
+  words?: KeyWords,
+): string {
   return chord
     .split('+')
-    .map((raw) => tokenLabel(raw.trim(), isMac))
+    .map((raw) => tokenLabel(raw.trim(), isMac, words))
     .join(isMac ? '' : '+');
 }
 
-function tokenLabel(token: string, isMac: boolean): string {
+function tokenLabel(token: string, isMac: boolean, words?: KeyWords): string {
   const canonical = canonicalToken(token);
-  const label = TOKEN_LABELS.get(canonical);
-  if (label !== undefined) {
-    return isMac ? label.mac : label.other;
+  const label = KEY_LABELS.get(canonical);
+  if (label === undefined) {
+    return canonical.charAt(0).toUpperCase() + canonical.slice(1);
   }
-  return canonical.charAt(0).toUpperCase() + canonical.slice(1);
+  if (label.everywhere) {
+    return label.word;
+  }
+  if (isMac && label.symbol !== undefined) {
+    return label.symbol;
+  }
+  return words?.(WORD_OF.get(canonical) ?? canonical) ?? label.word;
 }
 
 export interface ChordClaims {

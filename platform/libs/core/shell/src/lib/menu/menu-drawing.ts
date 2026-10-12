@@ -9,6 +9,7 @@ import {
   HeadingTarget,
   wordMenuHeading,
 } from './menu-heading';
+import { formatChord } from '../commands/keyboard/format-chord';
 import { MenuLabel, wordEntries } from './menu-wording';
 
 export interface MenuRow {
@@ -16,6 +17,7 @@ export interface MenuRow {
   readonly label: MenuLabel;
   readonly group: string;
   readonly icon?: string;
+  readonly chord?: string;
   readonly shortcut?: string;
   readonly checkbox: boolean;
   readonly checked: boolean;
@@ -43,8 +45,10 @@ export function drawMenu(
     ? appendHeading(menu, heading, translate)
     : () => undefined;
   const labelled = appendRows(menu, rows);
+  const chorded = chordsOf(labelled, rows);
   const word = (): void => {
     wordEntries(labelled, translate);
+    wordChords(chorded);
     wordHeading();
   };
   word();
@@ -126,6 +130,27 @@ function menuItemElement(row: MenuRow): HTMLElement {
     item.setAttribute('disabled', '');
   }
   return item;
+}
+
+function chordsOf(
+  labelled: readonly [HTMLElement, MenuLabel][],
+  rows: readonly MenuRow[],
+): [HTMLElement, string][] {
+  const chords = everyRow(rows).map((row) => row.chord);
+  return labelled.flatMap(([item], index) => {
+    const chord = chords[index];
+    return chord ? [[item, chord] as [HTMLElement, string]] : [];
+  });
+}
+
+function everyRow(rows: readonly MenuRow[]): MenuRow[] {
+  return rows.flatMap((row) => [row, ...everyRow(row.children ?? [])]);
+}
+
+function wordChords(chorded: readonly [HTMLElement, string][]): void {
+  for (const [item, chord] of chorded) {
+    item.setAttribute('shortcut', formatChord(chord));
+  }
 }
 
 function separator(): HTMLElement {

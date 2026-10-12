@@ -111,7 +111,8 @@ describe('drawing a menu', () => {
   it("separates groups, writes each row's key and shortcut, and words the labels", () => {
     const { menu } = drawMenu(
       [
-        row('a', { group: '1', shortcut: 'Ctrl+W' }),
+        row('a', { group: '1', chord: 'ctrl+w' }),
+        row('c', { group: '1', shortcut: 'Ctrl+Q' }),
         row('b', { group: '2', label: (words) => words('menu.b') }),
       ],
       translate,
@@ -121,11 +122,14 @@ describe('drawing a menu', () => {
     expect(menu.querySelectorAll('[role="separator"]')).toHaveLength(1);
     expect(items.map((item) => item.getAttribute('command'))).toEqual([
       'a',
+      'c',
       'b',
     ]);
     expect(items[0].getAttribute('shortcut')).toBe('Ctrl+W');
+    expect(items[1].getAttribute('shortcut')).toBe('Ctrl+Q');
     expect(items.map((item) => item.getAttribute('label'))).toEqual([
       't:a',
+      't:c',
       't:menu.b',
     ]);
   });

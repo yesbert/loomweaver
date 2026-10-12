@@ -90,6 +90,21 @@ describe('formatChordOn', () => {
     expect(formatChordOn('alt+escape', false)).toBe('Alt+Esc');
   });
 
+  it("names the editing and paging keys the platform's way", () => {
+    expect(formatChordOn('mod+delete', true)).toBe('⌘⌦');
+    expect(formatChordOn('backspace', true)).toBe('⌫');
+    expect(formatChordOn('mod+delete', false)).toBe('Ctrl+Del');
+    expect(formatChordOn('pageup', false)).toBe('PgUp');
+    expect(formatChordOn('insert', true)).toBe('Ins');
+  });
+
+  it('takes a word for a key from the words it is given, and keeps symbols and arrows', () => {
+    const german = (key: string) => ({ ctrl: 'Strg', delete: 'Entf' })[key];
+    expect(formatChordOn('mod+delete', false, german)).toBe('Strg+Entf');
+    expect(formatChordOn('mod+delete', true, german)).toBe('⌘⌦');
+    expect(formatChordOn('alt+ArrowUp', false, german)).toBe('Alt+↑');
+  });
+
   it('writes the arrow keys as arrows on every platform', () => {
     expect(formatChordOn('shift+ArrowUp', true)).toBe('⇧↑');
     expect(formatChordOn('shift+arrowdown', false)).toBe('Shift+↓');

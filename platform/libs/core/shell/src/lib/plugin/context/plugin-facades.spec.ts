@@ -139,8 +139,8 @@ describe('the ui, host and session a plugin is handed', () => {
       label: 'Move',
       icon: 'sort',
       children: [
-        { key: '1.0', label: 'Up', shortcut: '↑' },
-        { key: '1.1', label: 'Down', shortcut: '↓' },
+        { key: '1.0', label: 'Up', chord: 'ArrowUp' },
+        { key: '1.1', label: 'Down', chord: 'ArrowDown' },
       ],
     });
 

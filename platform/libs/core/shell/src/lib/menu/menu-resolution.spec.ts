@@ -39,7 +39,7 @@ describe('resolveSlot', () => {
     return {
       commands,
       available: () => true,
-      shortcutOf: (command) => (command?.shortcut ? 'Ctrl+W' : undefined),
+      chordOf: (command) => command?.shortcut,
       visible: () => true,
       disabled: () => false,
       ...overrides,

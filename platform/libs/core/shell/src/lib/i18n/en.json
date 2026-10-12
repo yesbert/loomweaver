@@ -320,5 +320,22 @@
   },
   "railLabels": {
     "desc": "Show each entry’s name under its icon."
+  },
+  "keys": {
+    "ctrl": "Ctrl",
+    "meta": "Meta",
+    "alt": "Alt",
+    "shift": "Shift",
+    "enter": "Enter",
+    "escape": "Esc",
+    "space": "Space",
+    "delete": "Del",
+    "backspace": "Backspace",
+    "tab": "Tab",
+    "home": "Home",
+    "end": "End",
+    "pageup": "PgUp",
+    "pagedown": "PgDn",
+    "insert": "Ins"
   }
 }

@@ -42,6 +42,7 @@ import { UNUSABLE_WORKSPACES } from './workspace/usability/unusable-workspaces';
 import { UnusableWorkspacesService } from './workspace/usability/unusable-workspaces.service';
 import { CommandInvocationService } from './commands/command-invocation.service';
 import { KeybindingService } from './commands/keyboard/keybinding.service';
+import { wordChordKeys } from './commands/keyboard/chord-wording';
 import { DialogService } from './dialog/dialog.service';
 import { ContentTabsService } from './regions/content/tabs/content-tabs.service';
 import { PaneTreeService } from './regions/pane/tree/pane-tree.service';
@@ -237,6 +238,7 @@ function startupRegistrations(
     provideEnvironmentInitializer(reportCompositionInDevelopment),
     provideEnvironmentInitializer(() => inject(ToolbarHost)),
     provideEnvironmentInitializer(() => inject(KeybindingService).start()),
+    provideEnvironmentInitializer(wordChordKeys),
     provideEnvironmentInitializer(() => inject(LocaleService)),
     provideEnvironmentInitializer(() => inject(RailWorkspaceEntries).start()),
     provideEnvironmentInitializer(() => registerSettings(options)),
