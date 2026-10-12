@@ -170,7 +170,14 @@
     "sync": "Mit dem Server abgleichen",
     "archive": "Diesen Eintrag archivieren",
     "escalate": "Eskalieren",
-    "needsConnection": "Braucht eine Verbindung zum Server."
+    "needsConnection": "Braucht eine Verbindung zum Server.",
+    "replyLanguage": "Antwortsprache",
+    "reply": {
+      "auto": "Auto",
+      "de": "Deutsch",
+      "fr": "Französisch"
+    },
+    "noFrench": "Französische Antworten brauchen das französische Sprachpaket."
   },
   "admin": {
     "title": "Gesperrtes Leistenelement",
