@@ -97,7 +97,7 @@ interface PluginContext {
                                                          // stays; badge: null removes the tab's own badge. Never opens a tab (no open
                                                          // tab = no-op); a tab whose content another plugin registered is left alone;
                                                          // crosses the sandbox [contributions]
-  revealSurface(id: string): void;                       // activate a DOCKED surface's tab wherever the user placed it (sidebar pane — expanding a collapsed panel — or content pane); no-op for unknown/container-child ids. Routable surfaces: use navigateContent  [navigation]
+  revealSurface(id: string): void;                       // activate a DOCKED surface's tab wherever the user placed it (sidebar pane — expanding a collapsed panel, opening its overlay on a narrow window, found even before the panel was ever drawn — or content pane); no-op for hidden/unknown/container-child ids. Routable surfaces: use navigateContent  [navigation]
   readonly activeContent: () => ActiveContent | null;    // signal-shaped read: which routable surface the address pane
                                                          // shows + its :params — instead of injecting the host router /
                                                          // parsing URLs. Trusted rung only.           [navigation]
