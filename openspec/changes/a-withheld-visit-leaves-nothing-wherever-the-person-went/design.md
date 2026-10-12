@@ -13,9 +13,8 @@ replaces what was built while nobody was known.
 
 **Non-Goals:**
 
-- A visit that waited in a workspace the person has since left. Its tab is in that workspace's stored
-  arrangement, which reading never rewrites, and it stays until the person closes it or resets that
-  workspace.
+- Rewriting the stored arrangement of a workspace that is not active. A visit that waited in a
+  workspace the person has left is kept until that workspace is entered again, and taken out then.
 
 ## Decisions
 
@@ -28,6 +27,13 @@ visit stops waiting, so the service reacts to it and takes out every visit the p
 at whose content the session now reaches. The visit shown is left to the settlement that its address
 triggers, and that settlement also takes out the others, because it may run before the reaction to the
 session does.
+
+**Kept per workspace, taken out on arrival.** A visit is only ever taken out of the arrangement on
+screen, so one that waited in a workspace the person has left stays remembered, and entering that
+workspace again takes out whatever of it now qualifies, once its arrangement has been read.
+
+**Not in a pop-out window.** A pop-out never settles a workspace, so a visit it noted could only be
+taken out of an arrangement it does not own.
 
 **Forget rather than take out when the arrangement is read again.** The arrangement adopted is the
 person's own and holds nothing provisional, so there is nothing to take out of it.

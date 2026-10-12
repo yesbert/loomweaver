@@ -20,60 +20,56 @@ export class WithheldVisits {
   private readonly paneTree = inject(PaneTreeService);
   private readonly registry = inject(ContributionRegistry);
 
-  private readonly waitingIn = new Map<string, string>();
+  private readonly waiting = new Map<string, Set<string>>();
 
   constructor() {
     effect(() => {
       this.auth.state();
-      untracked(() => this.leaveWhatNowQualifiesElsewhere());
+      untracked(() => this.releaseWhatQualifies());
     });
   }
 
   note(path: string): void {
     const root = this.rootOf(path);
-    if (this.waitsHere(root) || this.holdsContentAt(root)) {
+    if (this.holdsContentAt(root)) {
       return;
     }
-    this.waitingIn.set(root, this.active.id());
+    const here = this.active.id();
+    this.waiting.set(here, new Set([...this.waitingHere(), root]));
   }
 
   leave(path: string): void {
-    const root = this.rootOf(path);
-    for (const waiting of this.waitingIn.keys()) {
-      if (waiting === root || this.qualifies(waiting)) {
-        this.release(waiting);
-      }
-    }
+    this.releaseWhatQualifies(this.rootOf(path));
+  }
+
+  arrived(): void {
+    this.releaseWhatQualifies();
   }
 
   forget(): void {
-    this.waitingIn.clear();
+    this.waiting.clear();
   }
 
-  private leaveWhatNowQualifiesElsewhere(): void {
+  private releaseWhatQualifies(settling?: string): void {
     const shown = this.rootOf(this.contentRouter.here());
-    for (const root of this.waitingIn.keys()) {
-      if (root !== shown && this.qualifies(root)) {
-        this.release(root);
+    const waiting = this.waitingHere();
+    for (const root of waiting) {
+      if (root !== settling && (root === shown || !this.qualifies(root))) {
+        continue;
       }
+      this.removeContentAt(root);
+      waiting.delete(root);
     }
   }
 
-  private release(root: string): void {
-    if (this.waitsHere(root)) {
-      this.removeContentAt(root);
-    }
-    this.waitingIn.delete(root);
+  private waitingHere(): Set<string> {
+    return this.waiting.get(this.active.id()) ?? new Set();
   }
 
   private qualifies(root: string): boolean {
     return this.auth.meets(
       matchRoute(this.registry.contentRoutes(), root)?.access,
     );
-  }
-
-  private waitsHere(root: string): boolean {
-    return this.waitingIn.get(root) === this.active.id();
   }
 
   private holdsContentAt(root: string): boolean {

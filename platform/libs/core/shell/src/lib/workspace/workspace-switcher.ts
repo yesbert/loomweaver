@@ -62,6 +62,7 @@ export class WorkspaceSwitcher {
   async enter(id: string): Promise<void> {
     this.active.set(id);
     await this.hydrateActive();
+    this.settlement.arrivedInWorkspace();
     this.warnDeclarationGaps(id);
   }
 

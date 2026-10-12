@@ -17,11 +17,20 @@ behind, and what that workspace held at the address before the visit SHALL stay.
   holds an arrangement, that arrangement replaces the provisional one. Taking tabs out of it at that
   point could remove a tab the person kept there, depending on which of the two runs first.
 
+A second review of that fix found two more:
+
+- **The person switched workspace while waiting.** The visit was forgotten when the session arrived
+  in another workspace, so the provisional tab stayed in the one it waited in.
+- **A pop-out window noted visits too**, although it never settles anything and its arrangement is
+  the main window's.
+
 The requirement does not change; the implementation does not yet meet it.
 
 ## What Changes
 
-- Every visit that waits for the session is remembered, per address and workspace.
+- Every visit that waits for the session is remembered, per address and workspace, and kept until
+  its workspace is active again; arriving in that workspace takes out what now qualifies.
+- A pop-out window remembers no waiting visit.
 - When the session qualifies, every waiting visit the person is no longer looking at is taken out of
   the workspace it waited in; the one shown settles as before, and takes out any other that now
   qualifies with it.

@@ -64,6 +64,10 @@ export class AddressSettlement {
     this.withheld.forget();
   }
 
+  arrivedInWorkspace(): void {
+    this.withheld.arrived();
+  }
+
   destinationFor(path: string): string | null {
     return claimFor(this.catalog.activeClaims(), path)?.workspaceId ?? null;
   }

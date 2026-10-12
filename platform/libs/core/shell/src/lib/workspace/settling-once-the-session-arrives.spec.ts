@@ -26,6 +26,7 @@ const ROUTES: readonly ContentRoute[] = [
   { path: 'records', component: TestContent, access: { authenticated: true } },
   { path: 'archive', component: TestContent, access: { authenticated: true } },
   { path: 'notes', component: TestContent },
+  { path: 'journal', component: TestContent },
 ];
 
 const LAYOUT: ShellLayout = {
@@ -45,6 +46,12 @@ const DECLARED: readonly WorkspaceDefinition[] = [
     title: 'Records',
     claims: ['records', 'archive'],
     content: { tabs: [{ path: 'records', closable: false }] },
+  },
+  {
+    id: 'journal',
+    title: 'Journal',
+    claims: ['journal'],
+    content: { tabs: [{ path: 'journal', closable: false }] },
   },
 ];
 
@@ -192,6 +199,18 @@ describe('settling once the session arrives', () => {
     await opened.goTo('/archive');
     await opened.sessionArrivesAt('/archive');
 
+    await opened.workspaces.switchTo('dashboard');
+    await settled();
+
+    expect(opened.contentTabs()).toEqual(['dashboard']);
+  });
+
+  it('takes the content out once the person is back in the workspace it waited in', async () => {
+    const opened = await openedBeforeTheSessionAt('/records');
+    await opened.workspaces.switchTo('journal');
+    await settled();
+
+    await opened.sessionArrivesElsewhere();
     await opened.workspaces.switchTo('dashboard');
     await settled();
 
