@@ -19,7 +19,7 @@
 - [x] 3.1 The full shell suite and the frame kit's build test
 - [x] 3.2 Testbed e2e: every select found as a button moves to the combobox role (`chrome.spec.ts`, `a11y.spec.ts`, `sandbox.spec.ts`, `cross-tab-sync.spec.ts`, `tooltip-look.spec.ts` where it addresses a select); the accessibility audit gains a required select and passes. Also moved: `settings.spec.ts` (Density), the keyboard test in `chrome.spec.ts` (focus stays on the control), and an unscoped `getByRole('combobox')` in `surface-retention.spec.ts` that now matched a select before the open picker's field
 - [x] 3.3 Demo e2e: the demo runs on the published packages, so its select lookups by the button role (`demo/e2e/smoke.spec.ts`, `quotes.spec.ts`, `quotes-document.spec.ts`) move to the combobox role in the PR that raises the demo and the example to 0.19.0, not here; the lookups by `.lw-select-trigger` need no change
-- [ ] 3.4 Manual check in Safari with VoiceOver on the testbed: name, role, value and "required" announced, the option moved to announced; done by the owner before the release and before this change is archived. Chromium's accessibility tree, read by `.claude/tests/select-combobox/ax-tree.mjs`, already gives role `combobox`, name "Range", value "Short" then "Long", required, and focus kept on the control
+- [ ] 3.4 Not done: the owner could not run VoiceOver and set it aside on 2026-10-12. What stands in its place is Chromium's accessibility tree, read by `.claude/tests/select-combobox/ax-tree.mjs`: role `combobox`, name "Range", value "Short" then "Long", required, and focus kept on the control; and the owner looked at the select in the running testbed
 - [x] 3.5 Lint for the shell, the testbed and the demo
 
 ## 4. Document and close
@@ -27,5 +27,5 @@
 - [x] 4.1 `docs/reference/design-tokens.md`: role, name and value, the `required` attribute, the keys, and that a select needs a name
 - [x] 4.2 `llms-full.txt`: the same, where it describes the select
 - [x] 4.3 `openspec validate --all --strict`
-- [ ] 4.4 PR with a **Breaking** section that gives a consumer the three edits (combobox role, name without the value, `required` in place of label text) and the nameless-select case, and says it closes the rest of NextPA finding F-045
-- [ ] 4.5 Report the release as ready for 0.19.0 and ask the owner before bumping
+- [x] 4.4 PR with a **Breaking** section that gives a consumer the three edits (combobox role, name without the value, `required` in place of label text) and the nameless-select case, and says it closes the rest of NextPA finding F-045
+- [x] 4.5 Report the release as ready for 0.19.0 and ask the owner before bumping (asked on 2026-10-12; the release is the owner's call and not part of this change)
