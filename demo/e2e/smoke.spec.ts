@@ -13,10 +13,10 @@ test('boots the branded shell', async ({ page }) => {
 test('speaks German as completely as English', async ({ page }) => {
   await page.goto('/');
 
-  await page.getByRole('button', { name: 'Language' }).click();
+  await page.getByRole('combobox', { name: 'Language' }).click();
   await page.getByRole('option', { name: 'Deutsch' }).click();
 
-  await expect(page.getByRole('button', { name: 'Sprache' })).toContainText('Deutsch');
+  await expect(page.getByRole('combobox', { name: 'Sprache' })).toContainText('Deutsch');
   await expect(page.getByText('Ein Produkt auf Basis von LoomWeaver')).toBeVisible();
 });
 

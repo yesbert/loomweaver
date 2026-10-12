@@ -170,12 +170,13 @@ test('a finished action shows its module\'s icon on the toast, in the colour of 
   await expect(icon).toHaveClass(/text-positive/);
 });
 
-test('the look switch is named by the label beside it, with the look chosen', async ({ page }) => {
+test('the look switch is named by the label beside it, with the look chosen as its value', async ({ page }) => {
   await chooseLook(page, 'default');
 
-  await expect(
-    page.locator('[data-testid="look-switch"] .lw-select-trigger'),
-  ).toHaveAccessibleName(/^Theme \S/);
+  const control = page.locator('[data-testid="look-switch"] .lw-select-trigger');
+  await expect(control).toHaveRole('combobox');
+  await expect(control).toHaveAccessibleName('Theme');
+  await expect(control).toHaveText(/\S/);
 });
 
 test('switching the look is a reload, and it sticks', async ({ page }) => {
