@@ -412,6 +412,12 @@ SHALL create a claim either; what a user decides is which workspace they save an
 An address no workspace claims SHALL behave as it does without any claim: it is shown where the user
 already is.
 
+Where claimed content asks for a session the person does not yet have, the visit SHALL wait where the
+person is and explain itself, and once the session qualifies the claim SHALL hold as for any other
+visit. The waiting SHALL leave nothing behind: the workspace the visit waited in SHALL hold afterwards
+what it held before, so a visit before the session is known ends as one after it would. What that
+workspace held at the address before the visit SHALL stay.
+
 Where an address is claimed by more than one declared workspace and one claim is narrower than the
 others, the narrowest SHALL win, as the workbench already resolves a more specific address against a
 more general one. Where none is narrower the claim SHALL be dropped, the developer SHALL be told and
@@ -468,6 +474,14 @@ mistake.
   other
 - **THEN** the developer is told, and both workspaces are named
 - **AND** the application runs, and that address behaves as though nothing claimed it
+
+#### Scenario: Content that waited for the session leaves nothing where it waited
+
+- **WHEN** the application is opened at a claimed address whose content asks for a session, before
+  the session is known, in a workspace that does not claim it
+- **AND** the session then qualifies, so the claiming workspace becomes active
+- **THEN** the workspace the visit waited in holds no tab for that content, now or after a restart
+- **AND** this holds whether or not an arrangement was stored for the person who signed in
 
 ### Requirement: Stored content that contradicts a current declaration is kept and recognised
 
