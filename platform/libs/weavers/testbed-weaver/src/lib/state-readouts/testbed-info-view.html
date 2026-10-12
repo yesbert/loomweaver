@@ -83,4 +83,46 @@
       }
     </div>
   </fieldset>
+  <fieldset class="flex flex-col gap-2 text-sm" data-testid="testbed-availability">
+    <legend class="text-content-muted">{{ 'testbed.info.availability' | transloco }}</legend>
+    <label class="flex items-center gap-2 text-content">
+      <input type="checkbox" role="switch" class="lw-switch" disabled />
+      {{ 'testbed.info.offline' | transloco }}
+    </label>
+    <label class="flex items-center gap-2 text-content">
+      <input
+        type="checkbox"
+        role="switch"
+        class="lw-switch"
+        aria-disabled="true"
+        aria-describedby="testbed-availability-reason"
+        (click)="$event.preventDefault()"
+      />
+      {{ 'testbed.info.sync' | transloco }}
+    </label>
+    <label class="flex items-center gap-2 text-content">
+      <input
+        type="checkbox"
+        class="lw-checkbox"
+        aria-disabled="true"
+        aria-describedby="testbed-availability-reason"
+        (click)="$event.preventDefault()"
+      />
+      {{ 'testbed.info.archive' | transloco }}
+    </label>
+    <label class="flex items-center gap-2 text-content">
+      <input
+        type="radio"
+        name="testbed-escalation"
+        class="lw-radio"
+        aria-disabled="true"
+        aria-describedby="testbed-availability-reason"
+        (click)="$event.preventDefault()"
+      />
+      {{ 'testbed.info.escalate' | transloco }}
+    </label>
+    <p id="testbed-availability-reason" class="text-content-muted">
+      {{ 'testbed.info.needsConnection' | transloco }}
+    </p>
+  </fieldset>
 </form>
