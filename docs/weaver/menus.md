@@ -73,6 +73,8 @@ subset of the opener's context, so one toggle item replaces a Pin/Unpin pair (th
 from the context and flips it). A checkbox item keeps its command's icon: the check has a leading place
 of its own and the icon follows it, so a menu of modes that each have a symbol can still mark the one in
 effect. A menu without any checkbox reserves no space for the check, and one without icons none for those.
+Where no item has both a check and an icon, the check takes the place the icons stand in, so the names
+start after one leading place rather than two.
 
 ```ts
 ctx.registerCommand({

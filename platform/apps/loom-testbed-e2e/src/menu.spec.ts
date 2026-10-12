@@ -22,6 +22,31 @@ test.describe('Content-tab context menu', () => {
     await expect(page.getByRole('tab', { name: 'E-01' })).toBeVisible();
   });
 
+  test('names start one leading place in, where no entry needs both a check and an icon', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await openTwoEntries(page);
+    await page.getByRole('tab', { name: 'E-01' }).click({ button: 'right' });
+    const menu = page.getByRole('menu');
+    await expect(menu).toBeVisible();
+
+    const nameStart = async (name: string) =>
+      (
+        await menu
+          .getByRole('menuitem', { name })
+          .or(menu.getByRole('menuitemcheckbox', { name }))
+          .locator('.lw-menu-item-label')
+          .boundingBox()
+      )?.x ?? NaN;
+    const edge = (await menu.boundingBox())?.x ?? NaN;
+    const close = await nameStart('Close Others');
+
+    expect(await nameStart('Pinned')).toBe(close);
+    expect(await nameStart('Reveal in the entry list')).toBe(close);
+    expect(close - edge).toBeLessThan(40);
+  });
+
   test('an entry follows the access of the command it names', async ({
     page,
   }) => {

@@ -20,8 +20,8 @@ function row(key: string, extra: Partial<MenuRow> = {}): MenuRow {
 }
 
 function places(menu: HTMLElement): string[] {
-  return ['lw-menu--checks', 'lw-menu--leading'].filter((name) =>
-    menu.classList.contains(name),
+  return ['lw-menu--checks', 'lw-menu--leading', 'lw-menu--shared'].filter(
+    (name) => menu.classList.contains(name),
   );
 }
 
@@ -55,6 +55,50 @@ describe('the leading places a menu reserves', () => {
     expect(places(menu)).toEqual(['lw-menu--checks', 'lw-menu--leading']);
     expect(items[1].getAttribute('icon')).toBe('themeDark');
     expect(items[1].hasAttribute('checked')).toBe(true);
+  });
+
+  it('shares one place where states and icons never meet on one row, as in a tab menu', () => {
+    const { menu } = drawMenu(
+      [
+        row('close'),
+        row('pinned', { checkbox: true }),
+        row('reveal', { icon: 'search' }),
+      ],
+      translate,
+    );
+    expect(places(menu)).toEqual(['lw-menu--shared']);
+  });
+
+  it('keeps two places once one row has both a state and an icon', () => {
+    const { menu } = drawMenu(
+      [
+        row('pinned', { checkbox: true }),
+        row('dark', { icon: 'themeDark', checkbox: true }),
+      ],
+      translate,
+    );
+    expect(places(menu)).toEqual(['lw-menu--checks', 'lw-menu--leading']);
+  });
+
+  it('lets a submenu decide its places from its own rows', () => {
+    const { menu } = drawMenu(
+      [
+        row('pinned', { checkbox: true }),
+        row('move', {
+          icon: 'sort',
+          children: [row('up', { icon: 'x', checkbox: true })],
+        }),
+      ],
+      translate,
+    );
+    const submenu = menu.querySelector<HTMLElement>(
+      `${LW_MENU_ITEM_TAG} > lw-menu`,
+    );
+    expect(places(menu)).toEqual(['lw-menu--shared']);
+    expect(submenu && places(submenu)).toEqual([
+      'lw-menu--checks',
+      'lw-menu--leading',
+    ]);
   });
 
   it('reserves neither for a plain menu', () => {
