@@ -404,9 +404,11 @@ function in `@loomweaver/shell`: `defineLwIcon()`, `defineLwButton()`, `defineLw
     <label class="lw-segmented-option"><input type="radio" name="reply" value="de" /> German</label>
   </fieldset>
   ```
+
   **Shared bar-control height:** `.lw-segmented` and `.lw-select-trigger` both pin `h-8.5`
   (34px), so controls standing next to each other in a bar are the same height by construction, and
   new bar controls should carry the same height.
+
 - **Text fields (`.lw-field`):** put the class **`lw-field`** on a **native** `<input>` / `<textarea>` /
   `<input type="date">`, and it themes through the tokens (tenant-/theme-reactive, like `.lw-btn`).
   `lw-field--invalid` marks a validation error. **Deliberately no wrapper element:** a native field
