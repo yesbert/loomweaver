@@ -835,7 +835,9 @@ interface WorkspaceDefinition { id: string; title: string; icon?: string; initia
 //   claims: the content addresses that BELONG to this workspace, as route paths in the same vocabulary as
 //   `content` — 'quotes/:id' claims every quote document and everything under one. Reaching a claimed address
 //   ACTIVATES that workspace and shows the content inside it, however the address was reached: a link followed
-//   in, a restart, a command, a programmatic navigation, a tab a plugin opened. Content the ACTIVE workspace
+//   in, a restart, a command, a programmatic navigation, a tab a plugin opened. Claimed content that needs a session
+//   and is reached before the session is known waits where the user is, moves into its workspace once the session
+//   qualifies, and leaves the workspace it waited in as it was. Content the ACTIVE workspace
 //   claims moves nothing, and an unclaimed address opens where the user already is. This is what turns
 //   workspaces from an arrangement feature into the NAVIGATION model — a rail entry carrying `workspace:` is
 //   the only kind the host marks as current, and a claimed address activates its workspace however it was

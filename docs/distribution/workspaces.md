@@ -77,7 +77,8 @@ A **deep link still wins**: an address that names content opens what it names, a
 claims that address, it is the one the visitor starts in. That holds for an address below gated
 content too. Opened before the session is known, it keeps its address. Once the session qualifies and
 the claiming workspace becomes active, the content opens at that sub-address rather than at what the
-workspace declares. Where your declaration names no content of
+workspace declares. The workspace it waited in keeps only what it held before, wherever the visitor
+went in the meantime. Where your declaration names no content of
 its own, there is nothing to land on: an opening then leaves both the address and the active
 workspace alone, so whatever you serve at the bare address is what shows. If two declarations set
 `initial`, the first wins, as with a duplicate id.
