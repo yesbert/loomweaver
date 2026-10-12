@@ -3,6 +3,7 @@
 - [x] 1.1 Unit tests: a person who moved on before the session arrived, two claimed visits that waited, and a person whose own arrangement holds the address; see the first two fail
 - [x] 1.2 Remember every waiting visit; take out those that qualify when the session changes or when one settles; forget them where the person's arrangement is read again
 - [x] 1.3 JSDoc of `chordOf` and `shortcutOf`; the forced-colours outline; chords collected while the rows are drawn
+- [x] 1.4 Second review: a test for a person who switched workspace while waiting, and one that a pop-out window notes nothing; see the first fail; keep waiting visits per workspace until it is entered again, and note nothing in a pop-out
 
 ## 2. Verify and close
 

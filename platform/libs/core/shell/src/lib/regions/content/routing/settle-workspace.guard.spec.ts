@@ -1,10 +1,14 @@
 import { runInInjectionContext, Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import type { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+import type {
+  ActivatedRouteSnapshot,
+  RouterStateSnapshot,
+} from '@angular/router';
 import { WORKSPACE_SETTLEMENT } from './workspace-settlement';
 import { buildContentRoutes } from './content-route-table';
 import { keepPopout } from './keep-popout.guard';
-import { settleWorkspace } from './settle-workspace.guard';
+import { settleWorkspace, withholdSettlement } from './settle-workspace.guard';
+import { BootAddress } from './boot-address';
 
 describe('settling the workspace before content is shown', () => {
   it('guards every content route, so no way in can be forgotten', () => {
@@ -63,4 +67,36 @@ describe('settling the workspace before content is shown', () => {
     expect(settled).toEqual(['quotes/q-0007']);
     expect(allowed).toBe(true);
   });
+
+  for (const [where, boot, expected] of [
+    ['the main window', '/', ['records']],
+    ['a pop-out window', '/popout/notes', []],
+  ] as const) {
+    it(`notes a visit that waits for the session in ${where}`, () => {
+      const withheld: string[] = [];
+      TestBed.configureTestingModule({
+        providers: [
+          { provide: BootAddress, useValue: { path: boot } },
+          {
+            provide: WORKSPACE_SETTLEMENT,
+            useValue: {
+              withhold: (path: string) => {
+                withheld.push(path);
+              },
+            },
+          },
+        ],
+      });
+
+      const allowed = runInInjectionContext(TestBed.inject(Injector), () =>
+        withholdSettlement(
+          {} as ActivatedRouteSnapshot,
+          { url: '/records' } as RouterStateSnapshot,
+        ),
+      );
+
+      expect(allowed).toBe(true);
+      expect(withheld).toEqual(expected);
+    });
+  }
 });
