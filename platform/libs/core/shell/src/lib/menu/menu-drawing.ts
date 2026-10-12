@@ -44,8 +44,8 @@ export function drawMenu(
   const wordHeading = heading
     ? appendHeading(menu, heading, translate)
     : () => undefined;
-  const labelled = appendRows(menu, rows);
-  const chorded = chordsOf(labelled, rows);
+  const chorded: [HTMLElement, string][] = [];
+  const labelled = appendRows(menu, rows, chorded);
   const word = (): void => {
     wordEntries(labelled, translate);
     wordChords(chorded);
@@ -90,6 +90,7 @@ function appendHeading(
 function appendRows(
   menu: HTMLElement,
   rows: readonly MenuRow[],
+  chorded: [HTMLElement, string][],
   labelled: [HTMLElement, MenuLabel][] = [],
 ): [HTMLElement, MenuLabel][] {
   reserveLeadingColumns(menu, rows);
@@ -101,10 +102,13 @@ function appendRows(
     lastGroup = row.group;
     const item = menuItemElement(row);
     labelled.push([item, row.label]);
+    if (row.chord) {
+      chorded.push([item, row.chord]);
+    }
     menu.append(item);
     if (row.children) {
       const submenu = document.createElement(LW_MENU_TAG);
-      appendRows(submenu, row.children, labelled);
+      appendRows(submenu, row.children, chorded, labelled);
       item.append(submenu);
     }
   }
@@ -132,24 +136,12 @@ function menuItemElement(row: MenuRow): HTMLElement {
   return item;
 }
 
-function chordsOf(
-  labelled: readonly [HTMLElement, MenuLabel][],
-  rows: readonly MenuRow[],
-): [HTMLElement, string][] {
-  const chords = everyRow(rows).map((row) => row.chord);
-  return labelled.flatMap(([item], index) => {
-    const chord = chords[index];
-    return chord ? [[item, chord] as [HTMLElement, string]] : [];
-  });
-}
-
-function everyRow(rows: readonly MenuRow[]): MenuRow[] {
-  return rows.flatMap((row) => [row, ...everyRow(row.children ?? [])]);
-}
-
 function wordChords(chorded: readonly [HTMLElement, string][]): void {
   for (const [item, chord] of chorded) {
-    item.setAttribute('shortcut', formatChord(chord));
+    const hint = formatChord(chord);
+    if (item.getAttribute('shortcut') !== hint) {
+      item.setAttribute('shortcut', hint);
+    }
   }
 }
 
