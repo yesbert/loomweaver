@@ -12,7 +12,6 @@ function testbedWorkspaces(): readonly WorkspaceDefinition[] {
       id: 'testbed.home',
       title: 'product.workspace.home',
       icon: 'testbedHome',
-      sidebars: { 'left-panel': [], 'right-panel': [] },
       content: { tabs: [{ path: '', closable: false }] },
     },
     {
