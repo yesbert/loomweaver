@@ -62,23 +62,24 @@ export class AddressSettlement {
 
   withhold(path: string): void {
     const root = this.rootOf(path);
+    if (this.isWithheld(root)) {
+      return;
+    }
     const waiting =
       this.settlementDestination(path) !== null && !this.holdsContentAt(root);
     this.withheld = waiting ? { workspaceId: this.active.id(), root } : null;
   }
 
   leaveWithheld(path: string): void {
-    const withheld = this.withheld;
+    const root = this.rootOf(path);
+    const withheld = this.isWithheld(root);
     this.withheld = null;
-    if (
-      withheld?.workspaceId !== this.active.id() ||
-      withheld.root !== this.rootOf(path)
-    ) {
+    if (!withheld) {
       return;
     }
     for (const leaf of leavesOf(this.paneTree.tree(CONTENT_DOCK))) {
       for (const tab of leaf.tabs) {
-        if (this.rootOf(tab.path) === withheld.root) {
+        if (this.rootOf(tab.path) === root) {
           this.paneTree.removeTab(CONTENT_DOCK, leaf.id, tab.path);
         }
       }
@@ -87,6 +88,13 @@ export class AddressSettlement {
 
   destinationFor(path: string): string | null {
     return claimFor(this.catalog.activeClaims(), path)?.workspaceId ?? null;
+  }
+
+  private isWithheld(root: string): boolean {
+    return (
+      this.withheld?.workspaceId === this.active.id() &&
+      this.withheld.root === root
+    );
   }
 
   private holdsContentAt(root: string): boolean {

@@ -78,9 +78,16 @@ async function openedBeforeTheSessionAt(address: string) {
   await settled();
   const contentTabs = () =>
     collectTabPaths(TestBed.inject(PaneTreeService).tree(CONTENT_DOCK));
+  const visitAgain = async () => {
+    await TestBed.inject(Router).navigateByUrl('/notes');
+    await settled();
+    await TestBed.inject(Router).navigateByUrl(address);
+    await settled();
+  };
   return {
     workspaces,
     contentTabs,
+    visitAgain,
     sessionArrives: async () => {
       session.set(SIGNED_IN);
       await TestBed.inject(Router).navigateByUrl(address, {
@@ -119,6 +126,17 @@ describe('settling once the session arrives', () => {
 
     expect(opened.workspaces.activeId()).toBe('dashboard');
     expect(opened.contentTabs()).toEqual(['dashboard']);
+  });
+
+  it('takes the content out even when it was visited again while waiting', async () => {
+    const opened = await openedBeforeTheSessionAt('/records');
+    await opened.visitAgain();
+    await opened.sessionArrives();
+
+    await opened.workspaces.switchTo('dashboard');
+    await settled();
+
+    expect(opened.contentTabs()).toEqual(['dashboard', 'notes']);
   });
 
   it('keeps unclaimed content where it was opened', async () => {
