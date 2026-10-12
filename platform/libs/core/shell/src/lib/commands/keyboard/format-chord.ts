@@ -1,6 +1,5 @@
-import { formatChordOn, isMacPlatform, KeyWords } from './chord';
-
-let keyWords: KeyWords | undefined;
+import { formatChordOn, isMacPlatform } from './chord';
+import { keyWordsInUse } from './key-words';
 
 /**
  * Formats a keyboard chord for display, OS-correct: `formatChord('mod+k')` → `'⌘K'` on macOS,
@@ -12,9 +11,5 @@ let keyWords: KeyWords | undefined;
  * shortcut anywhere without duplicating the platform detection the shell already does internally.
  */
 export function formatChord(chord: string): string {
-  return formatChordOn(chord, isMacPlatform(), keyWords);
-}
-
-export function wordChordKeysWith(words: KeyWords | undefined): void {
-  keyWords = words;
+  return formatChordOn(chord, isMacPlatform(), keyWordsInUse());
 }
