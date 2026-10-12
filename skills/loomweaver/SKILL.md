@@ -75,6 +75,11 @@ your workspace and otherwise generates selectors prefixed `app`.
   identity, so do not clear them on sign-out and do not look for a user id to build keys from.
   [View state that survives](https://loomweaver.dev/weaver/view-state/) ·
   [Your plugin's own store](https://loomweaver.dev/weaver/plugin-state/)
+- A choice among a few short options that stay visible is native radios in a
+  `<fieldset class="lw-segmented">`, each in a `<label class="lw-segmented-option">`; a longer list
+  is `<lw-select>`. A choice that is unavailable and has to say why is `aria-disabled="true"` with
+  `aria-describedby` on the reason, not `disabled`, and you refuse the change yourself.
+  [Design tokens](https://loomweaver.dev/reference/design-tokens/)
 - "This is running" is `<lw-spinner>`. A known amount of progress is a native
   `<progress class="lw-progress">` for a bar or `<lw-progress-ring>` for a ring. The elements are
   used by tag like every other `<lw-*>` element.

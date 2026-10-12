@@ -379,8 +379,11 @@ onRowContextMenu(event: MouseEvent, note: Note) {
 
 An item with `items` instead of `run` opens them as a submenu. An item may name a `shortcut`, a
 chord in the vocabulary of a command's shortcut; the menu shows it the way the platform writes keys,
-arrows as arrows, and does not announce it. It is a hint only: the workbench binds nothing, so your
-view handles those keys itself.
+arrows as arrows, and does not announce it. A named key takes the macOS symbol where there is one and
+otherwise a word in the interface language: `'mod+delete'` reads ⌘⌦ on a Mac and Strg+Entf in a
+German interface elsewhere. An open menu follows a change of language. Name the key your handler
+listens to: `'delete'` is forward delete, `'backspace'` is the key macOS labels ⌫. It is a hint only:
+the workbench binds nothing, so your view handles those keys itself.
 
 It is **trusted rung only**: `run` is a function, so it does not cross the sandbox boundary. A
 sandboxed surface draws its own menu instead, below.

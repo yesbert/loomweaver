@@ -564,7 +564,9 @@ interface PluginUi {                // dialogs + toasts + context menus; message
 }
 // UiMenuItem = UiMenuAction | UiSubmenu, both extending UiMenuRow { label: string (key or literal), icon?: string }.
 // UiMenuAction adds run: () => void and shortcut?: string (a chord like 'shift+ArrowUp', drawn the platform's way, arrows as
-// ↑↓←→, not announced, a HINT ONLY: the workbench binds nothing, your content handles the keys). UiSubmenu adds
+// ↑↓←→, named keys as the macOS symbol or a word in the interface language, e.g. 'mod+delete' → ⌘⌦ / Strg+Entf; 'delete'
+// is forward delete, 'backspace' is ⌫, so name the key your handler listens to; not announced, a HINT ONLY: the
+// workbench binds nothing, your content handles the keys). UiSubmenu adds
 // items: UiMenuItem[] and opens them as a submenu beside it (no run). An entry with neither run nor items, or both, does not
 // compile. A key follows the strings: every
 // menu the host draws (declared slot, heading, this ad-hoc one) is re-worded in place, focus kept, and placed again, when the
