@@ -86,9 +86,14 @@ export class WorkspaceService {
   async settle(path: string): Promise<void> {
     const destination = this.settlement.takeDestination(path);
     if (destination !== null) {
+      this.settlement.leaveWithheld(path);
       await this.switchTo(destination, { keepAddress: true });
       this.tabNavigation.keepAddress(path);
     }
+  }
+
+  withhold(path: string): void {
+    this.settlement.withhold(path);
   }
 
   switchTo(id: string, options: { keepAddress?: boolean } = {}): Promise<void> {
