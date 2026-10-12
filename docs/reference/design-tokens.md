@@ -386,11 +386,29 @@ function in `@loomweaver/shell`: `defineLwIcon()`, `defineLwButton()`, `defineLw
 - **Segmented selection (`.lw-segmented` / `.lw-segmented-item`):** a container with one button per
   option (theme mode, text size). The selected state hangs off **`aria-pressed`**: the a11y state
   _is_ the style hook, and there is no `--active` class. **Pitfall:** `.lw-segmented-item` is by
-  contract a **square icon field** (7×7); for text segments override the size at the call site
-  (`w-auto px-3 text-sm`), because size stays per-site utilities, as with `.lw-icon-btn`.
+  contract a **square icon field** (7×7); for a text button in a bar override the size at the call
+  site (`w-auto px-3 text-sm`), because size stays per-site utilities, as with `.lw-icon-btn`.
+- **Segmented choice with words (`.lw-segmented` / `.lw-segmented-option`):** for a choice among a
+  few short options that should all stay visible, put `.lw-segmented` on a `<fieldset>` and
+  `.lw-segmented-option` on a `<label>` around each native `<input type="radio">` (one shared
+  `name`). The class hides the radio visually and draws the chosen, focused and unavailable states
+  from it, so the group is one tab stop, the arrow keys choose, and the `<legend>` (may be
+  `sr-only`) names the group. No script, no wrapper element. An option that is unavailable but must
+  stay reachable takes `aria-disabled="true"` plus `aria-describedby` on the reason, and you cancel
+  the change yourself. More than three or four options, or long words, belong in `<lw-select>`.
+
+  ```html
+  <fieldset class="lw-segmented">
+    <legend class="sr-only">Reply language</legend>
+    <label class="lw-segmented-option"><input type="radio" name="reply" value="auto" checked /> Auto</label>
+    <label class="lw-segmented-option"><input type="radio" name="reply" value="de" /> German</label>
+  </fieldset>
+  ```
+
   **Shared bar-control height:** `.lw-segmented` and `.lw-select-trigger` both pin `h-8.5`
   (34px), so controls standing next to each other in a bar are the same height by construction, and
   new bar controls should carry the same height.
+
 - **Text fields (`.lw-field`):** put the class **`lw-field`** on a **native** `<input>` / `<textarea>` /
   `<input type="date">`, and it themes through the tokens (tenant-/theme-reactive, like `.lw-btn`).
   `lw-field--invalid` marks a validation error. **Deliberately no wrapper element:** a native field

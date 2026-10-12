@@ -60,6 +60,23 @@
     @apply bg-surface-raised text-brand shadow-sm;
   }
 
+  .lw-segmented-option {
+    @apply relative flex h-7 cursor-pointer items-center justify-center rounded px-3 text-sm whitespace-nowrap text-content-muted transition-colors hover:text-content;
+  }
+  .lw-segmented-option > input[type='radio'] {
+    @apply sr-only;
+  }
+  .lw-segmented-option:has(> input:checked) {
+    @apply bg-surface-raised font-medium text-content shadow-sm;
+  }
+  .lw-segmented-option:has(> input:focus-visible) {
+    @apply outline-2 outline-offset-1 outline-brand;
+  }
+  .lw-segmented-option:has(> input:disabled),
+  .lw-segmented-option:has(> input[aria-disabled='true']) {
+    @apply cursor-not-allowed opacity-60 hover:text-content-muted;
+  }
+
   .lw-field {
     @apply block w-full rounded-md border border-border bg-field px-3 py-2 text-sm text-content
       placeholder:text-content-faint transition-colors

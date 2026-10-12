@@ -66,6 +66,28 @@
     />
     {{ 'testbed.info.watch' | transloco }}
   </label>
+  <div class="flex flex-col gap-1 text-sm" data-testid="testbed-reply-language">
+    <fieldset class="lw-segmented">
+      <legend class="sr-only">{{ 'testbed.info.replyLanguage' | transloco }}</legend>
+      @for (language of replyLanguages; track language) {
+      <label class="lw-segmented-option">
+        <input
+          type="radio"
+          name="testbed-reply-language"
+          [value]="language"
+          [checked]="replyLanguage() === language"
+          [attr.aria-disabled]="language === 'fr' ? 'true' : null"
+          [attr.aria-describedby]="language === 'fr' ? 'testbed-reply-language-reason' : null"
+          (click)="chooseReplyLanguage(language, $event)"
+        />
+        {{ 'testbed.info.reply.' + language | transloco }}
+      </label>
+      }
+    </fieldset>
+    <p id="testbed-reply-language-reason" class="text-content-muted">
+      {{ 'testbed.info.noFrench' | transloco }}
+    </p>
+  </div>
   <fieldset class="flex flex-col gap-1 text-sm">
     <legend class="text-content-muted">{{ 'testbed.info.priority' | transloco }}</legend>
     <div class="flex gap-4">

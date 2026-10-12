@@ -170,7 +170,14 @@
     "sync": "Sync with the server",
     "archive": "Archive this entry",
     "escalate": "Escalate",
-    "needsConnection": "Needs a connection to the server."
+    "needsConnection": "Needs a connection to the server.",
+    "replyLanguage": "Reply language",
+    "reply": {
+      "auto": "Auto",
+      "de": "German",
+      "fr": "French"
+    },
+    "noFrench": "French replies need the French voice pack."
   },
   "admin": {
     "title": "Gated rail item",

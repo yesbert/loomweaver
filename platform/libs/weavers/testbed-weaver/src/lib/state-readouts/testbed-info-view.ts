@@ -35,6 +35,8 @@ export class TestbedInfoView {
   protected readonly favorite = signal(false);
   protected readonly priorities = ['low', 'medium', 'high'] as const;
   protected readonly priority = signal<string>('medium');
+  protected readonly replyLanguages = ['auto', 'de', 'fr'] as const;
+  protected readonly replyLanguage = signal<string>('auto');
 
   protected onScratch(event: Event): void {
     testbedScratch.write((event.target as HTMLInputElement).value);
@@ -42,6 +44,14 @@ export class TestbedInfoView {
 
   protected onInput(target: WritableSignal<string>, event: Event): void {
     target.set((event.target as HTMLInputElement | HTMLTextAreaElement).value);
+  }
+
+  protected chooseReplyLanguage(language: string, event: Event): void {
+    if (language === 'fr') {
+      event.preventDefault();
+      return;
+    }
+    this.replyLanguage.set(language);
   }
 
   protected onCheck(target: WritableSignal<boolean>, event: Event): void {
