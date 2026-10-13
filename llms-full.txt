@@ -139,7 +139,7 @@ interface Command {                 // one behaviour, many triggers (items refer
                                     // no bundle knows IS warned, so a literal like "1.2.3" is the one case that still is.
                                     // The same rule holds for every "key or literal" field below.
   readonly icon?: string;           // host icon name
-  readonly shortcut?: string;       // chord, e.g. "mod+enter" (mod = ⌘/Ctrl)
+  readonly shortcut?: string;       // chord, e.g. "mod+enter" (mod = ⌘/Ctrl; del = the platform's delete key, ⌫ on macOS, Delete elsewhere)
   readonly access?: AccessRequirement;  // gate this command: blocked at the one execute() seam — keybinding + palette too
   readonly paletteHidden?: boolean;     // hide from the command palette: a context-only command whose run needs a MenuContext the palette can't supply. Menu items + keybindings still invoke it.
   readonly popout?: boolean;            // OPT-IN: commands are MAIN-WINDOW-ONLY by default; declare popout to offer one in a pop-out window (one surface, no tab strip / rail / sidebar). Unmarked → palette omits it there, keybinding no-ops, bound item does nothing. The quiet default is deliberate: a missing command is a small annoyance, a surprising one in a detached window is worse, and the shell cannot tell them apart for a command it did not write — it marks its own two (palette, Settings) and guesses for none of yours. Independently: content navigation is REFUSED in a pop-out (dev warning), since it would take the window out of /popout/… and silently stop it being a pop-out; and Quick-Open is not registered there at all.
@@ -565,7 +565,8 @@ interface PluginUi {                // dialogs + toasts + context menus; message
 // UiMenuItem = UiMenuAction | UiSubmenu, both extending UiMenuRow { label: string (key or literal), icon?: string }.
 // UiMenuAction adds run: () => void and shortcut?: string (a chord like 'shift+ArrowUp', drawn the platform's way, arrows as
 // ↑↓←→, named keys as the macOS symbol or a word in the interface language, e.g. 'mod+delete' → ⌘⌦ / Strg+Entf; 'delete'
-// is forward delete, 'backspace' is ⌫, so name the key your handler listens to; not announced, a HINT ONLY: the
+// is forward delete, 'backspace' is ⌫, 'del' is the platform's delete key (⌫ on macOS, Delete elsewhere: 'mod+del' →
+// ⌘⌫ / Strg+Entf), so name the key your handler listens to; not announced, a HINT ONLY: the
 // workbench binds nothing, your content handles the keys). UiSubmenu adds
 // items: UiMenuItem[] and opens them as a submenu beside it (no run). An entry with neither run nor items, or both, does not
 // compile. A key follows the strings: every
@@ -1146,7 +1147,7 @@ function provideQuickOpenEntry(options?: { bar?: string; slot?: BarSlot; order?:
 // with relative time; Enter reveals the tab WHERE IT LIVES (a secondary pane is activated in place, not duplicated in the
 // primary); → opens the tab's context menu. Source: ContentTabsService.quickOpenTargets / .revealContentTab
 // (@loomweaver/shell, additive; QuickOpenTarget is exported). The tab last-active timestamps are session-only (no storage key).
-function formatChord(chord: string): string;  // OS-correct chord for display — formatChord('mod+k') → '⌘K' (macOS) / 'Ctrl+K'. Same token vocabulary as Command.shortcut. Named keys take the macOS symbol (delete ⌦, backspace ⌫, tab ⇥, home ↖, end ↘, pageup ⇞, pagedown ⇟) and otherwise a word in the interface language once the shell runs ('Strg+Entf' in German; English without a shell); a product rewords them under the shell's `keys.*` strings.
+function formatChord(chord: string): string;  // OS-correct chord for display — formatChord('mod+k') → '⌘K' (macOS) / 'Ctrl+K'. Same token vocabulary as Command.shortcut. Named keys take the macOS symbol (delete ⌦, backspace ⌫, tab ⇥, home ↖, end ↘, pageup ⇞, pagedown ⇟; del is the platform's delete key, so 'mod+del' → '⌘⌫' / 'Ctrl+Del') and otherwise a word in the interface language once the shell runs ('Strg+Entf' in German; English without a shell); a product rewords them under the shell's `keys.*` strings.
 function provideShellRouter(extraRoutes?: Routes): (Provider | EnvironmentProviders)[];  // content-area routing; use INSTEAD of provideRouter([])
 const Shell;   // the root component, selector lw-shell: rendered as <lw-shell /> in your App's template, never in index.html
 

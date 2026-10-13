@@ -64,6 +64,16 @@ describe('spelling a shortcut', () => {
     expect(formatChord('space')).toBe('Leertaste');
   });
 
+  it("spells the neutral delete key as the platform's delete key", () => {
+    withTheShellsWords();
+    speak('de');
+
+    onPlatform('MacIntel');
+    expect(formatChord('mod+del')).toBe('⌘⌫');
+    onPlatform('Win32');
+    expect(formatChord('mod+del')).toBe('Strg+Entf');
+  });
+
   it('falls back to the English words without a running shell', () => {
     onPlatform('Win32');
 

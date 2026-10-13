@@ -21,6 +21,19 @@ describe('chordSignature', () => {
     expect(chordSignature('ctrl+space', false)).toBe('ctrl+space');
   });
 
+  it('resolves "del" to backspace on macOS and to delete elsewhere', () => {
+    expect(chordSignature('mod+del', true)).toBe('meta+backspace');
+    expect(chordSignature('mod+del', false)).toBe('ctrl+delete');
+    expect(chordSignature('Del', true)).toBe('backspace');
+  });
+
+  it('keeps "delete" and "backspace" on their own keys on every platform', () => {
+    for (const isMac of [true, false]) {
+      expect(chordSignature('delete', isMac)).toBe('delete');
+      expect(chordSignature('backspace', isMac)).toBe('backspace');
+    }
+  });
+
   it('returns null for a chord with no key', () => {
     expect(chordSignature('ctrl+shift', false)).toBeNull();
     expect(chordSignature('', false)).toBeNull();
@@ -96,6 +109,13 @@ describe('formatChordOn', () => {
     expect(formatChordOn('mod+delete', false)).toBe('Ctrl+Del');
     expect(formatChordOn('pageup', false)).toBe('PgUp');
     expect(formatChordOn('insert', true)).toBe('Ins');
+  });
+
+  it('spells "del" as the key it stands for on the platform', () => {
+    const german = (key: string) => ({ ctrl: 'Strg', delete: 'Entf' })[key];
+    expect(formatChordOn('mod+del', true)).toBe('⌘⌫');
+    expect(formatChordOn('mod+del', false)).toBe('Ctrl+Del');
+    expect(formatChordOn('mod+del', false, german)).toBe('Strg+Entf');
   });
 
   it('takes a word for a key from the words it is given, and keeps symbols and arrows', () => {

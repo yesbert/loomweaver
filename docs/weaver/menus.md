@@ -382,7 +382,8 @@ chord in the vocabulary of a command's shortcut; the menu shows it the way the p
 arrows as arrows, and does not announce it. A named key takes the macOS symbol where there is one and
 otherwise a word in the interface language: `'mod+delete'` reads ⌘⌦ on a Mac and Strg+Entf in a
 German interface elsewhere. An open menu follows a change of language. Name the key your handler
-listens to: `'delete'` is forward delete, `'backspace'` is the key macOS labels ⌫. It is a hint only:
+listens to: `'delete'` is forward delete, `'backspace'` is the key macOS labels ⌫, and `'del'` is the
+platform's delete key, ⌫ on a Mac and Delete elsewhere. It is a hint only:
 the workbench binds nothing, so your view handles those keys itself.
 
 It is **trusted rung only**: `run` is a function, so it does not cross the sandbox boundary. A

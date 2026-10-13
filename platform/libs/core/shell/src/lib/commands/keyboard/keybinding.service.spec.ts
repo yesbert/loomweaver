@@ -17,9 +17,7 @@ describe('KeybindingService', () => {
     registry = TestBed.inject(ContributionRegistry);
     commands = TestBed.inject(CommandService);
     keybindings = TestBed.inject(KeybindingService);
-    execute = vi
-      .spyOn(commands, 'execute')
-      .mockImplementation(() => undefined);
+    execute = vi.spyOn(commands, 'execute').mockImplementation(() => undefined);
   });
 
   function press(target: EventTarget, init: KeyboardEventInit): boolean {
@@ -130,9 +128,7 @@ describe('KeybindingService', () => {
   });
 
   it('warns on a shortcut clash and lets the last command win', () => {
-    const warn = vi
-      .spyOn(console, 'warn')
-      .mockImplementation(() => undefined);
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     registry.addCommand({
       id: 'do.first',
       title: 't',
@@ -197,5 +193,92 @@ describe('KeybindingService', () => {
     expect(run).toHaveBeenCalledTimes(1);
     expect(recent.ids()).toEqual([]);
     expect(localStorage.getItem('lw.shell.command-mru')).toBeNull();
+  });
+
+  describe('on the neutral delete key', () => {
+    const original = Object.getOwnPropertyDescriptor(navigator, 'platform');
+
+    function on(platform: string): void {
+      Object.defineProperty(navigator, 'platform', {
+        value: platform,
+        configurable: true,
+      });
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({});
+      registry = TestBed.inject(ContributionRegistry);
+      commands = TestBed.inject(CommandService);
+      keybindings = TestBed.inject(KeybindingService);
+      execute = vi
+        .spyOn(commands, 'execute')
+        .mockImplementation(() => undefined);
+    }
+
+    afterEach(() => {
+      if (original) {
+        Object.defineProperty(navigator, 'platform', original);
+      }
+    });
+
+    it('fires on backspace and not on forward delete on macOS', () => {
+      on('MacIntel');
+      registry.addCommand({
+        id: 'card.remove',
+        title: 't',
+        shortcut: 'del',
+        run: () => undefined,
+      });
+      keybindings.start();
+
+      press(document, { key: 'Delete' });
+      expect(execute).not.toHaveBeenCalled();
+      press(document, { key: 'Backspace' });
+      expect(execute).toHaveBeenCalledWith('card.remove');
+    });
+
+    it('fires on forward delete and not on backspace elsewhere', () => {
+      on('Win32');
+      registry.addCommand({
+        id: 'card.remove',
+        title: 't',
+        shortcut: 'del',
+        run: () => undefined,
+      });
+      keybindings.start();
+
+      press(document, { key: 'Backspace' });
+      expect(execute).not.toHaveBeenCalled();
+      press(document, { key: 'Delete' });
+      expect(execute).toHaveBeenCalledWith('card.remove');
+    });
+
+    it('clashes with backspace on macOS and not elsewhere', () => {
+      const warn = vi
+        .spyOn(console, 'warn')
+        .mockImplementation(() => undefined);
+      for (const [platform, clashes] of [
+        ['MacIntel', true],
+        ['Win32', false],
+      ] as const) {
+        on(platform);
+        warn.mockClear();
+        registry.addCommand({
+          id: 'card.remove',
+          title: 't',
+          shortcut: 'del',
+          run: () => undefined,
+        });
+        registry.addCommand({
+          id: 'text.erase',
+          title: 't',
+          shortcut: 'backspace',
+          run: () => undefined,
+        });
+        keybindings.start();
+        TestBed.tick();
+
+        expect(warn.mock.calls.length > 0).toBe(clashes);
+      }
+      warn.mockRestore();
+    });
   });
 });
