@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { resolveWeaverInput } from '@loomweaver/devkit';
 import { ParsedArgs, rejectUnknownFlags } from '../args';
 import { InitDeps, NX_COLLECTION, InitPlan, planInit } from './init-plan';
 import {
@@ -247,7 +248,11 @@ function installSteps(plan: InitPlan): Step[] {
 }
 
 function weaverDescription(id: string): string {
-  return `"${id}" with a command on mod+shift+${id.charAt(0)}`;
+  const { shortcut } = resolveWeaverInput({
+    id,
+    features: { command: true },
+  }).features;
+  return `"${id}" with a command on ${shortcut}`;
 }
 
 function serveCommand(plan: InitPlan): string {
@@ -266,4 +271,3 @@ function composesShell(file: string): boolean {
     existsSync(file) && readFileSync(file, 'utf8').includes('provideShell(')
   );
 }
-

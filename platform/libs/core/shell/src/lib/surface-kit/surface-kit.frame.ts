@@ -206,7 +206,9 @@ export function installLwFrame(): LwFrameApi {
         toolbars.apply(subscription, view),
     }),
   };
-  (globalThis as Record<string, unknown>)['LwFrame'] = api;
+  const globals = globalThis as Record<string, unknown>;
+  globals['LwFrame'] = api;
+  globals['LW_WITHHOLD_ATTRIBUTE'] = LW_WITHHOLD_ATTRIBUTE;
   return api;
 }
 
