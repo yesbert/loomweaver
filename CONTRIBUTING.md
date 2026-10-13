@@ -244,7 +244,8 @@ broken is listed in [`docs/reference/operations.md`](docs/reference/operations.m
 
 - **Angular 22, idiomatically.** Standalone only, signals for state, `inject()`, the `@if`/`@for`
   control flow, zoneless/OnPush. No `NgModule` for feature code, no `*ngIf`, no decorator
-  `@Input`/`@Output`. TypeScript `strict` and `strictTemplates`.
+  `@Input`/`@Output`. TypeScript `strict` and `strictTemplates`, and no `any` without a reason.
+  Components and directives take the `lw` selector prefix (lint error).
 - **No comments in code.** If a spot needs an explaining comment, the code is not readable enough, so
   restructure it instead. The only exception is what third parties consume: JSDoc on a symbol a
   consumer can reach in the packed declarations. That includes a published interface's base type and
@@ -263,7 +264,9 @@ broken is listed in [`docs/reference/operations.md`](docs/reference/operations.m
   together), never a `services/` or `components/` bucket. Grouping by type is fine _inside_ a slice.
   A folder holds at most 12 concepts and a source file over 400 lines must be justified; a folder
   that outgrows the threshold is cut into sub-themes named for what they do, the way
-  `regions/content` and `elements/` already are.
+  `regions/content` and `elements/` already are. The shell's `foundation/` folder is the one shared
+  place: a module belongs there only if every slice may read it and no slice owns it, and it imports
+  no sibling slice (lint error).
 - **Every component template lives in its own `.html` file** next to the `.ts`. Inline templates are a
   lint error, apart from trivial stubs and test hosts in specs. The reason is not taste: the Tailwind
   guardrail that rejects a mistyped utility class reads template files, and markup hidden in a
@@ -272,6 +275,8 @@ broken is listed in [`docs/reference/operations.md`](docs/reference/operations.m
 - **Clean Code, pragmatically**: intention-revealing names, small functions doing one thing at one
   level of abstraction, command-query separation, early returns instead of nested conditionals,
   fail-fast with a clear message. YAGNI and KISS beat completeness, so do not abstract past the need.
+- **Remove, do not deprecate.** A symbol is never marked deprecated and kept; it is removed, and the
+  removal is announced in the release.
 - **Fix bugs test-first**: a red test that reproduces the bug, then the fix. If you change behaviour,
   check that the new test actually fails against the old code. A test that passes either way proves
   nothing.

@@ -36,8 +36,8 @@ them to skim your review.
   resolves to nothing. Say the thing itself.
 - **Do not propose `NgModule`, `*ngIf`, `*ngFor`, or decorator `@Input`/`@Output`.** Angular 22,
   idiomatically: standalone only, signals, `inject()`, the `@if`/`@for` control flow, zoneless.
-- **Do not ask for a changelog entry.** Release history is written at release time in
-  `docs/chronicle.md`, and it is a frozen record rather than a file a pull request edits.
+- **Do not ask for a changelog entry.** Release history is written by the maintainer at release
+  time, and it is not a file a pull request edits.
 - **Do not suggest adding a server, an API route or a database.** The platform ships none by
   decision. The seam surfaces here only as the frontend ports a product implements.
 - **Do not suggest abstracting for a case that does not exist yet.** YAGNI and KISS beat

@@ -57,7 +57,7 @@ const baseConfig = [
                         },
                         {
                             // A distribution is the one composition root where the platform meets
-                            // its weaver bundles (VS Code's product layer): it may consume the
+                            // its weaver bundles: it may consume the
                             // platform, weavers and the contract to wire a shippable product.
                             sourceTag: "scope:distribution",
                             onlyDependOnLibsWithTags: [
