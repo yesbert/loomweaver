@@ -10,7 +10,6 @@ import { join } from 'node:path';
 import { run } from '../run';
 import { capture, writeFiles } from '../test-fixtures';
 
-
 function angularApp(root: string, name = 'my-studio'): void {
   writeFiles(root, {
     'package.json': JSON.stringify(
@@ -162,6 +161,7 @@ describe('init', () => {
         'utf8',
       ),
     ).toContain("shortcut: 'mod+shift+o'");
+    expect(c.text()).toContain('"notes" with a command on mod+shift+o');
     expect(c.text()).toContain(
       'Angular CLI application, packages with npm (no lockfile found, so npm)',
     );

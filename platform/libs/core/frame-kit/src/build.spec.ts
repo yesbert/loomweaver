@@ -89,6 +89,21 @@ describe('frame-kit build', () => {
     expect(js).toContain('surfaceMethods');
   });
 
+  it('sets every global value its declaration names', () => {
+    const declaration = readFileSync(join(out, 'lw-frame.d.ts'), 'utf8');
+    const js = readFileSync(join(out, 'lw-elements.global.js'), 'utf8');
+    const declared = [...declaration.matchAll(/^declare const (\w+)/gm)].map(
+      ([, name]) => name,
+    );
+
+    expect(declared).toContain('LwFrame');
+    for (const name of declared) {
+      expect(js, name).toMatch(
+        new RegExp(String.raw`(\.${name}|\[["']${name}["']\])\s*=[^=]`),
+      );
+    }
+  });
+
   it('turns a declaration that only re-exports types into a script with no stray statement', () => {
     const script = declarationAsScript(
       'export interface LwFrameApi {\n  ready(): void;\n}\nexport {};\n',

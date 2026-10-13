@@ -28,7 +28,6 @@ export class CapabilityRefusalReporter {
       id: 'permission-blocked',
       kind: 'warning',
       message: 'permission.blocked',
-      timeoutMs: 8000,
       action: {
         label: 'permission.openSettings',
         run: () =>
@@ -45,7 +44,6 @@ export class CapabilityRefusalReporter {
       id: 'permission-blocked',
       kind: 'warning',
       message: 'permission.unavailable',
-      timeoutMs: 8000,
     });
   }
 }
