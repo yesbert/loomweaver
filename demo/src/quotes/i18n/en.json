@@ -20,7 +20,8 @@
   "margin": {
     "revenue": "Revenue (net)",
     "cost": "Cost",
-    "total": "Margin"
+    "total": "Margin",
+    "percent": "({{percent}}%)"
   },
   "document": {
     "positions": "Positions",

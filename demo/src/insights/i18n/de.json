@@ -7,9 +7,10 @@
     "out": "Beim Kunden",
     "outHint": "in {{count}} offenen Angeboten",
     "rate": "Angenommen",
+    "rateValue": "{{percent}} %",
     "rateHint": "der entschiedenen Angebote, {{count}} insgesamt",
     "margin": "Gewonnene Marge",
-    "marginHint": "{{percent}}% auf {{revenue}} Umsatz",
+    "marginHint": "{{percent}} % auf {{revenue}} Umsatz",
     "quoted": "Angebotsvolumen je Monat",
     "pipeline": "Pipeline nach Status"
   },
