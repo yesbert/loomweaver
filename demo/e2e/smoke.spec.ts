@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '@playwright/test';
 import { chooseScheme } from './scheme';
 
 test('boots the branded shell', async ({ page }) => {
@@ -13,12 +13,21 @@ test('boots the branded shell', async ({ page }) => {
 test('speaks German as completely as English', async ({ page }) => {
   await page.goto('/');
 
-  await page.getByRole('combobox', { name: 'Language' }).click();
+  await (await theLanguageChoice(page, 'Language', 'More')).click();
   await page.getByRole('option', { name: 'Deutsch' }).click();
 
-  await expect(page.getByRole('combobox', { name: 'Sprache' })).toContainText('Deutsch');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'de');
   await expect(page.getByText('Ein Produkt auf Basis von LoomWeaver')).toBeVisible();
+  await expect(await theLanguageChoice(page, 'Sprache', 'Mehr')).toContainText('Deutsch');
 });
+
+async function theLanguageChoice(page: Page, name: string, more: string): Promise<Locator> {
+  const language = page.getByRole('combobox', { name });
+  if (!(await language.isVisible())) {
+    await page.getByRole('banner').first().getByRole('button', { name: more }).click();
+  }
+  return language;
+}
 
 test('renders translated labels, never raw keys', async ({ page }) => {
   await page.goto('/');
