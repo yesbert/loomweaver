@@ -9,4 +9,4 @@
 
 - [x] 2.1 JSDoc of a command's shortcut, of a menu entry's shortcut and of the published formatting function; `llms-full.txt`; the shortcut lines of the weaver commands and menus guides
 - [x] 2.2 The shell suite, lint, `openspec validate --all --strict`
-- [ ] 2.3 PR; tell NextPA that F-054 is fixed in the release that carries it
+- [x] 2.3 PR; tell NextPA that F-054 is fixed in the release that carries it

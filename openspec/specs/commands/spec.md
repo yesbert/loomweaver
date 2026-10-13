@@ -74,6 +74,15 @@ language that carries no word for a key shows the English one.
 Matching SHALL use the physical key, so that a shortcut combining a modifier with a digit or a
 letter still matches where the modifier changes the character produced.
 
+A shortcut MAY name the platform's delete key in a neutral form, as it names the platform's command
+modifier. The neutral delete key SHALL stand for the backspace key on macOS and for the forward delete
+key on every other platform, alike for binding, for clash detection and for every hint. Its hint SHALL
+be spelled exactly as the key it stands for on that platform. Naming the forward delete key or the
+backspace key directly SHALL keep meaning that physical key on every platform.
+
+The limit: the neutral delete key stands for one key per platform. A product that wants a command to
+fire on both keys of a platform declares two commands, or handles the keys in its own content.
+
 #### Scenario: One declaration works on every platform
 
 - **WHEN** a command declares a shortcut using the neutral modifier
@@ -115,6 +124,24 @@ letter still matches where the modifier changes the character produced.
 
 - **WHEN** the language changes while hints are shown
 - **THEN** the hints are spelled in the new language
+
+#### Scenario: The neutral delete key binds to the key that deletes on each platform
+
+- **WHEN** a command declares a shortcut on the neutral delete key
+- **THEN** on macOS it fires on the backspace key and not on forward delete, and on every other
+  platform it fires on the forward delete key and not on backspace
+
+#### Scenario: The neutral delete key is spelled as the key it stands for
+
+- **WHEN** a hint shows a shortcut with the neutral modifier and the neutral delete key
+- **THEN** on macOS it shows ⌘⌫, and in German on a platform that names keys with words it reads
+  "Strg+Entf"
+
+#### Scenario: The neutral delete key clashes with the key it stands for
+
+- **WHEN** one command declares the neutral delete key and another declares the key it stands for on
+  the running platform
+- **THEN** the developer is told of the clash, as for two commands with the same shortcut
 
 ### Requirement: Typing is not hijacked
 
