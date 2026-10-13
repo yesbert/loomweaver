@@ -15,7 +15,7 @@
         <dt class="text-content">{{ 'quotes.margin.total' | transloco }}</dt>
         <dd class="text-content tabular-nums" data-testid="quote-margin-total">
           {{ margin() }}
-          <span class="ml-1 text-xs font-normal text-content-muted">({{ percent() }}%)</span>
+          <span class="ml-1 text-xs font-normal text-content-muted">{{ 'quotes.margin.percent' | transloco: { percent: percent() } }}</span>
         </dd>
       </div>
     </dl>
@@ -27,7 +27,7 @@
             {{ row.descriptionKey | transloco }}
           </span>
           <span class="shrink-0 tabular-nums" [class]="row.thin ? 'text-caution' : 'text-content'">
-            {{ row.margin }} ({{ row.percent }}%)
+            {{ row.margin }} {{ 'quotes.margin.percent' | transloco: { percent: row.percent } }}
           </span>
         </li>
       }

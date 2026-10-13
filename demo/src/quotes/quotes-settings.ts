@@ -1,27 +1,13 @@
 import { signal } from '@angular/core';
 import { type PluginContext } from '@loomweaver/plugin-sdk';
+import { LocalStorageStore } from '@loomweaver/shell';
 
 const STORAGE_KEY = 'demo.quotes.show-margin';
 const MARGIN_SURFACE = 'quotes.margin';
-
-function storedChoice(): boolean {
-  try {
-    return localStorage.getItem(STORAGE_KEY) !== 'false';
-  } catch {
-    return true;
-  }
-}
-
-function rememberBestEffort(shown: boolean): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, String(shown));
-  } catch {
-    return;
-  }
-}
+const store = new LocalStorageStore();
 
 export function registerQuoteSettings(ctx: PluginContext): void {
-  const marginShown = signal(storedChoice());
+  const marginShown = signal(store.peek(STORAGE_KEY) !== 'false');
   ctx.setChildShown(MARGIN_SURFACE, marginShown());
   ctx.registerSettingsSection({
     id: 'quotes.settings',
@@ -37,7 +23,7 @@ export function registerQuoteSettings(ctx: PluginContext): void {
           value: () => marginShown(),
           set: (shown) => {
             marginShown.set(shown);
-            rememberBestEffort(shown);
+            void store.set(STORAGE_KEY, String(shown));
             ctx.setChildShown(MARGIN_SURFACE, shown);
           },
         },

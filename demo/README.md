@@ -82,7 +82,6 @@ npm run licence-check  # production dependencies against the permissive allowlis
 | `src/app/about` | The About dialog behind the status bar badge, which also welcomes a first visit. |
 | `src/app/preview` | The status bar badge shown while the demo runs on a preview line. |
 | `src/app/legal` | The imprint link in the status bar. |
-| `src/app/best-effort-storage.ts` | `localStorage` access that a blocked storage cannot break. |
 | `src/accounting` | The shared data library. Not a plugin. |
 | `src/quotes` | The quotes weaver. |
 | `src/customers`, `src/finance`, `src/procurement`, `src/inventory`, `src/people` | The module weavers, one per module in the rail. |

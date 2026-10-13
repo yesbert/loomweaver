@@ -1,7 +1,9 @@
 import { signal } from '@angular/core';
+import { LocalStorageStore } from '@loomweaver/shell';
 
 const KEY_PREFIX = 'sk-or-';
 const STORAGE_KEY = 'assistant-workbench.openrouter-key';
+const store = new LocalStorageStore();
 
 export function cleanKey(raw: string): string {
   return raw
@@ -16,7 +18,7 @@ export function looksLikeKey(key: string): boolean {
   return key.startsWith(KEY_PREFIX) && !/\s/.test(key);
 }
 
-const current = signal(stored());
+const current = signal(store.peek(STORAGE_KEY) ?? '');
 
 export const openRouterKey = {
   value: current.asReadonly(),
@@ -26,33 +28,13 @@ export const openRouterKey = {
     if (!looksLikeKey(key)) {
       return false;
     }
-    store(key);
+    void store.set(STORAGE_KEY, key);
     current.set(key);
     return true;
   },
 
   forget(): void {
-    store(null);
+    void store.delete(STORAGE_KEY);
     current.set('');
   },
 };
-
-function stored(): string {
-  try {
-    return localStorage.getItem(STORAGE_KEY) ?? '';
-  } catch {
-    return '';
-  }
-}
-
-function store(key: string | null): void {
-  try {
-    if (key === null) {
-      localStorage.removeItem(STORAGE_KEY);
-    } else {
-      localStorage.setItem(STORAGE_KEY, key);
-    }
-  } catch {
-    return;
-  }
-}

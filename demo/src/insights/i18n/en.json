@@ -7,6 +7,7 @@
     "out": "Out with customers",
     "outHint": "across {{count}} open quotes",
     "rate": "Accepted",
+    "rateValue": "{{percent}}%",
     "rateHint": "of the decided quotes, {{count}} in total",
     "margin": "Margin won",
     "marginHint": "{{percent}}% on {{revenue}} revenue",
