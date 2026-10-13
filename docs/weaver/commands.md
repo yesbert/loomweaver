@@ -23,6 +23,11 @@ ctx.registerCommand({
 Now any item can trigger it with `command: 'notes.add'` instead of its own `run()`. The palette
 (`mod+k`) and the shortcut reach the same behaviour.
 
+`mod` is the platform's command modifier, and `del` is the platform's delete key in the same way: the
+key labelled ⌫ on a Mac and Delete (`Entf` on a German keyboard) elsewhere. A shortcut such as
+`'mod+del'` binds to ⌘⌫ on a Mac and to Ctrl+Delete elsewhere, and its hint says so. `delete` and
+`backspace` always name those two physical keys.
+
 A command can also take **described arguments**, **answer with a result**, and be **opened to a caller
 that is not the user**: another plugin, a script, an assistant driving the app. Then nobody has to
 build a second list of your actions beside this one. It is closed to such callers until it says

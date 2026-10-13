@@ -30,8 +30,10 @@ export interface Command {
   /**
    * Optional default keyboard shortcut — a chord like `"mod+enter"` or `"mod+shift+p"`. Tokens are
    * case-insensitive and `+`-joined: modifiers `mod` (⌘ on macOS, Ctrl elsewhere), `ctrl`, `meta`/
-   * `cmd`, `alt`/`option`, `shift`, then one key (`k`, `enter`, `escape`, …). The host binds it; a
-   * user cannot rebind it.
+   * `cmd`, `alt`/`option`, `shift`, then one key (`k`, `enter`, `escape`, …). `del` is the platform's
+   * delete key, as `mod` is its command modifier: Backspace (⌫) on macOS, Delete elsewhere, while
+   * `delete` and `backspace` always name those physical keys. The host binds it; a user cannot rebind
+   * it.
    */
   readonly shortcut?: string;
   /**

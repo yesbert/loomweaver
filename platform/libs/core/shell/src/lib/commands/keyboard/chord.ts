@@ -75,6 +75,14 @@ function canonicalToken(token: string): string {
   return TOKEN_ALIASES.get(lower) ?? lower;
 }
 
+function platformToken(token: string, isMac: boolean): string {
+  const canonical = canonicalToken(token);
+  if (canonical === 'del') {
+    return isMac ? 'backspace' : 'delete';
+  }
+  return canonical;
+}
+
 function toSignature(parts: ChordParts): string {
   return [
     parts.ctrl ? 'ctrl' : '',
@@ -105,7 +113,7 @@ export function chordSignature(chord: string, isMac: boolean): string | null {
 }
 
 function applyToken(parts: ChordParts, token: string, isMac: boolean): void {
-  const canonical = canonicalToken(token);
+  const canonical = platformToken(token, isMac);
   if (canonical === 'mod') {
     parts[isMac ? 'meta' : 'ctrl'] = true;
     return;
@@ -129,7 +137,7 @@ export function formatChordOn(
 }
 
 function tokenLabel(token: string, isMac: boolean, words?: KeyWords): string {
-  const canonical = canonicalToken(token);
+  const canonical = platformToken(token, isMac);
   const label = KEY_LABELS.get(canonical);
   if (label === undefined) {
     return canonical.charAt(0).toUpperCase() + canonical.slice(1);
