@@ -1,1 +1,1 @@
-export const PLATFORM_VERSION = '0.19.1';
+export const PLATFORM_VERSION = '0.19.2';
