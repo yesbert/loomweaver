@@ -40,8 +40,9 @@ Grants work identically, from the same default-deny map that
 [`iframe` route surface](../weaver/content-area.md). A
 plain-string, data-oriented `ctx` slice crosses the boundary; an Angular class cannot. Everything
 arriving over the wire is re-validated at the RPC seam. Only the `{ iframe }` surface form is
-accepted. The surface URL must be **same-origin** (distribution-served). Foreign origins,
-`javascript:` and `data:` URLs are rejected. What the sandboxed `ctx` carries, and how a surface
+accepted. The surface URL must be **same-origin** (distribution-served), or come from an origin the
+composition lists in the plugin's `origins` (below). Any other origin, `javascript:` and `data:` URLs
+are rejected. What the sandboxed `ctx` carries, and how a surface
 paints and talks back, is [Sandboxed surfaces](../weaver/sandboxed-surfaces.md). The isolation
 guarantee is the iframe sandbox: the plugin runs in its own JS context and origin, with no access to
 the host DOM, variables or storage.
@@ -162,7 +163,8 @@ It pairs with the same-origin surface check at the RPC seam as defence in depth 
 surfaces. Angular's component styles need `style-src 'unsafe-inline'`.
 
 **`frame-src` is yours to decide, and it is the real gate for trusted embeds.** A _sandboxed_ plugin can
-never choose the origin, because the RPC seam rejects anything not same-origin. A _trusted_ weaver,
+never choose the origin, because the RPC seam rejects anything outside its own origin and the
+`origins` the composition granted it. A _trusted_ weaver,
 however, may point an [`iframe` surface](../weaver/content-area.md) at a foreign origin on purpose
 (a metrics dashboard, a docs site, a video), and that is an intended capability, not a defect: the platform does not second-guess code you compiled in. What stops it is your CSP, which the
 browser enforces and no plugin can talk around. So with `frame-src 'self'` such a surface is simply

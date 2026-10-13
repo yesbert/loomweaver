@@ -62,7 +62,8 @@ your workspace and otherwise generates selectors prefixed `app`.
   [Routing](https://loomweaver.dev/reference/routing/)
 - A surface's own buttons are its `actions`, drawn by the host in the header of the panel or pane
   that shows it. Do not build a toolbar for them. An action with neither `command` nor `run` opens
-  its menu slot, and the host hides it while the slot is empty. Other plugins fill a surface's
+  its menu slot on a click when it sets `menuTrigger: 'primary'` or `'both'`, and the host hides it
+  while the slot is empty. Other plugins fill a surface's
   toolbar through the `<surface id>/actions` slot. A toolbar inside your own content is a slot
   registered with `ctx.registerToolbar` and placed with `<lw-toolbar>`, never a hand-built row of
   buttons.

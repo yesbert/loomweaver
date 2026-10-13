@@ -39,8 +39,9 @@ the binding guardrail; it complements [`design-tokens.md`](design-tokens.md) (co
 - **Contrast:** all semantic tokens are **AA-verified** (see the token rules below).
 - **Tab strips:** every pane strip is a real `role="tablist"` with `role="tab"` children. Because ARIA
   specifies `tab` as "children presentational", the **close and unpin controls on a tab are not
-  focusable buttons** but pure pointer affordances (`aria-hidden`). The keyboard equivalent is
-  **`Delete`** on the focused tab (announced via `aria-keyshortcuts`), plus the tab context menu.
+  focusable buttons** but pure pointer affordances (`aria-hidden`). The keyboard equivalent of
+  closing is **`Delete`** on a focused tab that may close and is not pinned (announced via
+  `aria-keyshortcuts`); unpinning, and closing any other tab, go through the tab context menu.
   A strip is **one tab stop**: Tab enters it on the selected tab and the next Tab leaves it. Inside,
   the left and right arrow keys move the focus from tab to tab and wrap at the ends, Home and End
   jump to the first and the last. Moving the focus chooses nothing; Enter or Space chooses the

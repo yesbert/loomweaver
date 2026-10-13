@@ -73,7 +73,7 @@ ctx.registerCommand({
   title: 'invoices.export',
   description: 'Export the selected invoices as CSV',
   arguments: [
-    { name: 'range', kind: 'choice', choices: ['month', 'quarter', 'year'], required: true },
+    { name: 'range', kind: 'choice', description: 'The period to export', choices: ['month', 'quarter', 'year'], required: true },
   ],
   callable: true,
   run: (_context, args) => exportInvoices(String(args?.['range'])),

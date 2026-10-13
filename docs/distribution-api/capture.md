@@ -43,7 +43,8 @@ const forCarrying = await capture.capture({
 
 `size` is `'screen'` (the default), `'plain'` for one picture pixel per CSS pixel, or
 `{ withinWidth }` for a greatest width in picture pixels. A named width keeps the proportions of what
-was pictured, and never enlarges: ask for 4000 on a workbench 1440 wide and you get 1440.
+was pictured, and never goes past the screen's density: ask for 4000 on a workbench 1440 wide and you
+get 1440 on a plain screen, 2880 on a double-density one.
 
 **The size is settled before anything is drawn**, and it reaches every isolated surface as the same
 number. That is the point of asking rather than resizing afterwards: each part of the picture is

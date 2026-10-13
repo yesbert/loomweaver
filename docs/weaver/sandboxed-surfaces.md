@@ -31,7 +31,8 @@ across the `ctx`-RPC boundary, unlike an Angular class. For a **sandboxed** plug
 `data:` URL is rejected at the RPC seam, so an untrusted plugin cannot point the host chrome wherever it
 likes. A sandboxed surface may be **docked** (`docks`) as well as routable, and it may declare a
 `container`. A sandboxed surface's declaration carries **no `actions`**: the seam keeps id, title, icon, badge,
-order and the docking fields and drops the rest, so `ctx.updateSurfaceAction` has nothing there to
+order, `instanceable`, `retain`, `saveOn`, `closable`, `padded`, the address and the docking fields
+and drops the rest, so `ctx.updateSurfaceAction` has nothing there to
 replace. Entries registered to the slot `<surface id>/actions`, by any plugin and by the sandboxed
 plugin itself through `registerMenuItem`, are still drawn in its header. The seam rejects `access` instead of silently dropping it, because a sandboxed surface gates
 itself from the session state the host pushes. A **trusted** plugin may use the same `iframe` form to

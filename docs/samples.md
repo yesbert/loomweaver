@@ -246,7 +246,7 @@ ctx.registerMenuItem({
 ```
 
 **You get:** the action in the command palette (`mod+k`), on its shortcut, as a status-bar button
-showing `⌘⇧N`, and in the tab context menu. The toast leaves by itself; without a `timeoutMs` the
+showing `⌘⇧O`, and in the tab context menu. The toast leaves by itself; without a `timeoutMs` the
 kind decides how soon, and only an `error` stays.
 
 The same `registerMenuItem` also fills a surface's `<id>/actions` toolbar or the slot of a plugin's
@@ -612,10 +612,11 @@ export class NoteEditor implements DirtySurface {
 question; closing runs the host's _Save · Discard · Cancel_ dialog, where _Save_ appears only because
 `surfaceSave` exists; closing the browser window triggers the native `beforeunload` prompt. Declare
 `saveOn: 'hide'` on the registration and the question becomes an auto-save. The optional
-`surfaceBeforeClose` replaces the dialog with your own flow:
+`surfaceBeforeClose` runs your own flow first; an instance still dirty after it gets the dialog all the
+same, so approving never discards silently:
 
 ```ts
-  // Optional veto — replace the standard ask with your own close flow.
+  // Optional veto: your own close flow runs before the standard ask.
   async surfaceBeforeClose(): Promise<boolean> {
     if (!this.surfaceDirty()) {
       return true;

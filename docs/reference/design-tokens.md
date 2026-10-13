@@ -36,10 +36,13 @@ Only needed if you write Tailwind utilities of your own. The other two paths nee
 - Entry point: your app's `src/styles.css`, building against the published `@loomweaver/shell` package:
   ```css
   @import 'tailwindcss';
+  @import '@loomweaver/shell/styles/theme.css';
+  @plugin '@tailwindcss/typography';             /* <lw-markdown> draws its content as prose */
   @source '../node_modules/@loomweaver/shell';    /* also scan the shell library's classes */
   @source './app';
-  @import '@loomweaver/shell/styles/theme.css';
   ```
+- Every `@import` comes before the other at-rules, as plain CSS requires. Without the typography
+  plugin `<lw-markdown>` renders unstyled, and nothing reports it.
 - The `@source` path is relative to the stylesheet it stands in and has to reach the `node_modules`
   that holds `@loomweaver/shell`. A project that sits deeper needs one `../` more per level. With a
   wrong path Tailwind emits none of the shell's classes and reports nothing.
@@ -256,9 +259,9 @@ function in `@loomweaver/shell`: `defineLwIcon()`, `defineLwButton()`, `defineLw
   own with `provideIcons({ name: svgRef })` (from `@loomweaver/shell`), a **weaver** adds them at runtime
   with `ctx.contributeIcons({ name: svg })`. A distribution may also **replace** a first-party glyph
   by naming it, and the replacement travels into sandboxed surfaces; a weaver never can, so an
-  installed plugin cannot repaint the chrome. Contributed SVG is **sanitised** at registration
+  installed plugin cannot repaint the chrome. SVG a **weaver** contributes is **sanitised** at registration
   (DOMPurify, SVG profile: `<script>`, event handlers and `javascript:` are removed, and markup that
-  does not survive is discarded). A weaver then references the name in its contributions
+  does not survive is discarded); a distribution's icons are trusted like the shipped set and are not. A weaver then references the name in its contributions
   (`icon: 'name'`) **or** draws it directly by tag. **`<lw-icon>` is a framework-agnostic custom element**: it resolves the name
   through the **module-global** icon registry (no Angular DI, no `@ng-icons` runtime), so it is
   **usable inside your own weaver body too** (`schemas: [CUSTOM_ELEMENTS_SCHEMA]`). The SVG uses
@@ -352,7 +355,7 @@ function in `@loomweaver/shell`: `defineLwIcon()`, `defineLwButton()`, `defineLw
   workbench. Inside an isolated surface it fills only after `LwFrame.connectToolbars(host)`, see
   [A toolbar inside the surface](../weaver/sandboxed-surfaces.md#a-toolbar-inside-the-surface). The
   how-to is [Menus → A toolbar in your own content](../weaver/menus.md#a-toolbar-in-your-own-content).
-- **Buttons in content (dialogs, about/settings, toasts):** put the **`<lw-button>`** primitive on a
+- **Buttons in content (dialogs, about/settings, toasts):** put the **`lwButton`** directive on a
   real `<button>`/`<a>`: it keeps the native semantics and uses semantic tokens only:
   ```html
   <button lwButton variant="primary" (click)="save()">Save</button>
