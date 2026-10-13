@@ -86,11 +86,13 @@ for an agent host that reads it there. The generated connection declares `ask` o
 command and reads it off the call. Keep that shape: no set of command ids beside the commands. Such
 a set drifts from what it describes, and it cannot speak for a command another plugin registered.
 
-**The platform states it and enforces nothing.** No dialog is shown for you, no answer is
-remembered, and no invocation is refused on this account: a command declaring `ask-always` still
+**The platform states it and enforces nothing.** The workbench shows no dialog for you, remembers no
+answer, and refuses no invocation on this account: a command declaring `ask-always` still
 runs when it is invoked. Acting on the statement is your half, in your own words and your own
 placement, which is what the hook is for. That includes `never`: the generated connection declines
-such a call outright.
+such a call outright. It does this through `consentPolicy`, which asks through your `confirm` and
+remembers a yes to an `ask` command for as long as the connection lives. That memory belongs to the
+adapter you opted into, not to the workbench.
 
 Leaving `callable` off is what the platform enforces, and it closes a command to every caller but
 the plugin that registered it.

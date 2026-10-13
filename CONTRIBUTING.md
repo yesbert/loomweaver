@@ -67,7 +67,7 @@ npm ci
 npm run start:testbed        # the testbed weaver on https://127.0.0.1:4200
 ```
 
-The dev server is HTTPS. A `prestart` hook generates a self-signed `localhost` certificate into
+The dev server is HTTPS. A `prestart:testbed` hook generates a self-signed `localhost` certificate into
 `platform/.certs/` when one is missing. Trust it once so the browser accepts the page. On macOS:
 
 ```bash
@@ -113,7 +113,7 @@ npm run api-docs-check
 A name that legitimately needs no prose of its own goes into the exemption list in
 `platform/tools/checks/check-api-docs.mjs`, with a reason, so the decision is visible in review.
 
-Three more checks read nothing but sources, so they are the cheapest to run while you work:
+Three more checks are cheap to run while you work; the first two read nothing but sources:
 
 ```bash
 npm run import-cycles-check   # which way the shell's imports point

@@ -26,7 +26,7 @@ address-carrying pane and in any split pane of the main area alike. The context 
 in, `primary` says that pane carries the address, and `sole` says the tab is the only one in its pane:
 
 ```ts
-ctx.registerCommand({ id: 'my.tab.reveal', title: 'my.tab.reveal', run: (ctx) => reveal(ctx?.tabId) });
+ctx.registerCommand({ id: 'my.tab.reveal', title: 'my.tab.reveal', run: (context) => reveal(context?.['tabId']) });
 ctx.registerMenuItem({ menu: 'content/tab/context', command: 'my.tab.reveal', group: '3_plugin', when: { closable: true } });
 ```
 
@@ -120,6 +120,9 @@ ctx.registerRailItem({
 });
 ctx.registerMenuItem({ menu: 'notes.account/menu', command: 'notes.signOut', group: '9_session' });
 ```
+
+The workbench ships no person glyph, so `user` here is an icon the plugin contributes itself with
+`ctx.contributeIcons`, as [Icons and theme](icons-and-theme.md) shows.
 
 Add `menuHeader: { title, detail?, icon?, initials? }` and the host draws a heading above the first
 entry, which is where the name belongs when the control itself is a two-letter badge:
@@ -255,7 +258,7 @@ the `title` you registered, or by a `label` attribute on the placement where one
 
 Your own controls go inside the element as children, with an `order` attribute where the position
 among the entries matters, as the date above does. Another plugin that runs in the page puts a
-component of its own in with `registerToolbarCell({ slot, component, order })`; the component
+component of its own in with `registerToolbarCell({ id, slot, component, order })`; the component
 injects `TOOLBAR_CONTEXT` to learn the slot and the placement. A cell is not read by the workbench:
 no command, no `when`, no shortcut, and it folds whole. It also never reaches a toolbar drawn inside
 an isolated surface, because code does not cross that boundary; there, the declarative entries do.

@@ -33,7 +33,8 @@ with several panes is on [The address](../concepts/the-address.md).
 | `provideRouter(routes)`                            | `provideShellRouter(routes)` instead, once, in the distribution                                         |
 | a `Routes` array for your content                  | you write none: a surface declares `routable: { path }`                                                 |
 | a `canActivate` of your own on contributed content | not attachable; declare `access` and the host gates it for you                                          |
-| resolvers and live parameter streams               | fine, except on a **retained** surface (below)                                                          |
+| resolvers                                          | none: you write no `Routes`, so a surface loads its own data                                            |
+| live parameter streams                             | work, and follow the address while the pane carries it                                                  |
 
 ## Where a route comes from
 
@@ -79,9 +80,7 @@ remember and no wrong way to navigate.
 `ctx.navigateContent(path)` performs the same navigation, and it exists for reasons that are not
 behavioural: it is gated by the `navigation` capability, so a distribution can refuse it; it is the
 form a **sandboxed** plugin has, which cannot reach the router at all because it runs in another
-document; and it is the one that reports back whether the navigation happened. Use it from a plugin
-that may be sandboxed and from chrome-level code that wants that answer. Inside your own surface, use
-`routerLink`.
+document. Use it from a plugin that may be sandboxed. Inside your own surface, use `routerLink`.
 
 `ctx.openContentTab({ path, title })` is the third one, and it is not navigation with a nicer name:
 it is how you give a tab a title the URL does not carry (a document name), and how you attach an

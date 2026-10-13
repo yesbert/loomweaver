@@ -100,5 +100,5 @@ You are not limited to this set, and nothing above is a ceiling on what a produc
   icons above, and its drawing then replaces the shipped one everywhere the chrome draws it, sandboxed
   surfaces included.
 
-Contributed SVG is sanitised at registration. The rules, and the rest of the `<lw-*>` vocabulary, are
+SVG a plugin contributes is sanitised at registration; a distribution's icons are trusted like the shipped set. The rules, and the rest of the `<lw-*>` vocabulary, are
 in [Design tokens](design-tokens.md).

@@ -21,7 +21,8 @@ left, and switching to another restores that one's own arrangement without askin
 
 Every workspace has a baseline, the arrangement it started from. Reset returns to it. That is what
 makes experimenting with the arrangement safe: nothing the user does to a workspace is more than one
-reset away from how it was declared or first saved.
+reset away from its baseline. That is how the workspace was declared or first saved, until the user
+makes the current arrangement the new baseline.
 
 A reset destroys hidden work, so it asks the unsaved-work question first, like every other action
 that would ([Retention and unsaved work](retention-and-unsaved-work.md#the-unsaved-work-question)).

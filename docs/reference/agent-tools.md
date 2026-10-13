@@ -32,10 +32,17 @@ const answer = await tools.receive(event);
 if (answer) {
   messages.push(answer);
 }
+
+// once the run is over, answer every call the agent left open
+for (let left = await tools.flush(); left; left = await tools.flush()) {
+  messages.push(left);
+}
 ```
 
 `receive` answers a message when an event completed a call, and `null` otherwise. Events that are not
-part of a tool call are ignored, so you can hand it everything without filtering first.
+part of a tool call are ignored, so you can hand it everything without filtering first. The event that
+ends the run answers only the first call still open; `flush` answers the next one each time it is
+called, and `null` once none is left.
 
 ## What you get, and what you do not
 
@@ -65,7 +72,7 @@ the `automation` capability.
 | Export                                    | What it is                                                                                                                                                                                           |
 | ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `commandTools(ctx, options?)`             | The whole integration: the list, the loop and the hook. Returns `CommandTools`.                                                                                                                      |
-| `CommandTools`                            | `list()`, `receive(event)` and `flush()`. `flush` closes a call an agent left open; `receive` already does it when the run reports that it finished or errored.                                      |
+| `CommandTools`                            | `list()`, `receive(event)` and `flush()`. `flush` answers one call an agent left open, or `null` once none is left; the event that ends a run answers only the first.                                |
 | `CommandAccess`                           | The slice of a plugin context this touches: `invocableCommands` and `invokeCommand`. Your `ctx` satisfies it; it is narrower on purpose, because it says exactly what an agent reaches through here. |
 | `toolFor(command)` / `toolsFor(commands)` | The mapping alone, if you assemble the request yourself. An `InvocableCommand` becomes a protocol `Tool`, with the declared arguments as JSON Schema.                                                |
 | `readArguments(json)`                     | Reads the JSON an agent streamed into arguments the workbench can be handed, or `null` where it cannot.                                                                                              |

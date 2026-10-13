@@ -24,7 +24,7 @@ step of [manual setup](../manual-setup.md#4--styles): no Tailwind packages, no `
 ```
 
 It carries the design tokens, the `.lw-*` class contracts and every utility the shell's own templates
-use: 67 KB minified, 11 KB over the wire. What you give up is writing Tailwind utilities in _your_
+use: 85 KB minified, 11 KB over the wire. What you give up is writing Tailwind utilities in _your_
 templates. The `--lw-*` tokens remain available to any CSS you write.
 
 The [distribution scaffold](../scaffolding.md#the-cli--loomweavercli) writes exactly that file when

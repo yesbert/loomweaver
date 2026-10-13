@@ -69,7 +69,7 @@ disabling or uninstalling a plugin and resetting a workspace all ask, because th
 by the action, not by the button that triggered it. Closing the browser window asks too, in the
 browser's own words: browsers ignore page-supplied text there and localise the prompt to the browser's
 language, not the product's. A distribution that closes a tab from its own code asks the same
-question, and its call answers whether it ran.
+question; the call returns at once and says nothing about the answer.
 
 Before it asks, it shows. A tab whose surface holds unsaved work is drawn differently from one whose
 work is saved, and its name says so as well. A user coming back to six open documents can then see

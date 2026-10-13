@@ -128,7 +128,7 @@ the router instead. A container tab may sit in a split pane or in a pop-out, whe
 address at all, and a list whose rows only worked in the main window would not be much of a list.
 
 While the container tab _does_ hold the address, the URL names the focused child
-(`/sim/abc123/item/42`), so such a link is shareable. A deep link opens what it names: into that
+(`/runs/abc123/item/42`), so such a link is shareable. A deep link opens what it names: into that
 same declared pane, and into an existing tab when one is already open. Elsewhere the container keeps
 its own idea of what is focused and the address simply does not express it.
 

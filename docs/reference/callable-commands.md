@@ -88,7 +88,7 @@ MCP server offers it as `validate_commands`.
 ```ts
 // What may I run?
 const actions = ctx.invocableCommands();
-// [{ id, title, description?, arguments?, answers? }, …] — ordered by id, texts already translated
+// [{ id, title, description?, arguments?, answers?, agentConsent? }, …] — ordered by id, texts already translated
 
 // Run one.
 const outcome = await ctx.invokeCommand('notes.open', { path: 'inbox/today' });
@@ -161,7 +161,7 @@ Everything below is exported from `@loomweaver/plugin-sdk`.
 | `CommandAnswer`        | what a command may answer with — scalars, `null`, arrays and plain objects, nested.                                                                                                                                                                                                                                                                                   |
 | `CommandOutcome`       | the union an invocation answers with: `CommandAnswered`, `CommandRefused` or `CommandFailed`. Switch on `outcome`.                                                                                                                                                                                                                                                    |
 | `CommandRefusalReason` | why a refusal happened — `unavailable`, `invalid-arguments` or `too-deep`. See the table above.                                                                                                                                                                                                                                                                       |
-| `InvocableCommand`     | one entry of `ctx.invocableCommands()`: id, title, and the optional description, arguments and `answers`, every text already translated.                                                                                                                                                                                                                              |
+| `InvocableCommand`     | one entry of `ctx.invocableCommands()`: id, title, and the optional description, arguments, `answers` and `agentConsent`, every text already translated.                                                                                                                                                                                                              |
 
 ## Across the sandbox boundary
 

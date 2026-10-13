@@ -274,10 +274,11 @@ export const appConfig: ApplicationConfig = {
 A distribution that adopts none of this still runs. That is the point of the defaults. Adopt them
 when you have a backend to put behind them, one seam at a time.
 
-**One port, one provider.** `provideSettingsStore` and `provideIdentityScopedStores` both fill the
-same `SETTINGS_STORE` token, and the later one silently discards the other. A backend-backed store
-already isolates users on the server. Where a shared browser needs identity scoping as well, pass
-your store **into** the scoping provider instead, as
+**One port, one provider.** `provideIdentityScopedStores` fills both `SETTINGS_STORE` and
+`WORKING_STATE_STORE`, the tokens `provideSettingsStore` and `provideWorkingStateStore` fill, and the
+later provider silently discards the earlier one. A backend-backed store already isolates users on
+the server. Where a shared browser needs identity scoping as well, pass your stores **into** the
+scoping provider instead, as `settingsStore` and `workingStateStore`, as
 [Persistence stores](distribution/persistence.md#identity-scoped-stores-multi-user-browsers) shows.
 
 ## The security seam lives in your backend
