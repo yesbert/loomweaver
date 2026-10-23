@@ -99,10 +99,13 @@ false`, `types: ["*"]`, `noUncheckedSideEffectImports: false` and `ignoreDepreca
   commits carry no sign-off. Squash the branch and commit it with `-s` before pushing, or the Sign-off
   check fails. A lockfile that pins the old exact versions stops `npm install` with ERESOLVE before
   the run can start; regenerating it is the way through.
-- **ng-packagr stays on 22.1 for now.** From 22.2 it bundles declarations with rolldown-plugin-dts,
-  which keeps internal declarations nothing public references. The packed `@loomweaver/shell` types
-  would carry 129 names a consumer can see and not import, and `api-docs-check` fails on them. 22.1
-  builds Angular 22.2 without complaint. Move it when the bundler drops unreferenced declarations again.
+- **ng-packagr 22.2 keeps declarations nothing public references.** It passes `treeshake: false` to
+  the declaration bundle as well as to the JavaScript one. The packed `@loomweaver/shell` types
+  therefore carry some 129 internal names a consumer can see and not import (ng-packagr/ng-packagr#3471).
+  `api-docs-check` therefore follows the exports through their type references rather than reading
+  every declaration. The same release also leaves JSDoc out of the packed JavaScript; the types keep
+  it. Clear `node_modules/.cache/ng-packagr` before you compare two package builds, or the second one
+  may be served from the cache.
 - **Nx's test tree seeds an oxfmt config unless told otherwise.** `createTreeWithEmptyWorkspace()`
   defaults to oxfmt since Nx 24, and with oxfmt not installed `formatFiles` formats nothing. A
   generator test that asserts on formatted output asks for `{ formatter: 'prettier' }`, which is what a
