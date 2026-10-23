@@ -5,7 +5,8 @@ import { DialogService } from '../../dialog/dialog.service';
 import { PluginDisableGuard } from '../../plugin/enablement/plugin-disable-guard';
 import { PluginCatalogEntry } from '../catalog/catalog-entry';
 import { PluginInstallService } from './plugin-install.service';
-import { addedCapabilities } from './plugin-update';
+import { addedCapabilities, raisedLevel } from './plugin-update';
+import { DEFAULT_ISOLATION_LEVEL } from '../../foundation/plugin-isolation-level';
 
 @Service()
 export class PluginStoreConsent {
@@ -35,12 +36,13 @@ export class PluginStoreConsent {
       return;
     }
     const added = addedCapabilities(entry, installed);
-    if (added.length > 0) {
+    const raised = raisedLevel(entry, installed);
+    if (added.length > 0 || raised) {
       const accepted = await this.dialogs.confirm({
         title: this.transloco.translate('settings.storeUpdateTitle', {
           name: entry.name,
         }),
-        message: this.updateMessage(entry, added),
+        message: this.updateMessage(entry, added, raised),
         confirmLabel: this.transloco.translate('settings.storeUpdate'),
         icon: entry.icon ?? 'plugin',
       });
@@ -74,6 +76,7 @@ export class PluginStoreConsent {
     if (entry.description) {
       paragraphs.push(entry.description, '');
     }
+    paragraphs.push(this.levelLine(entry), '');
     const capabilities = entry.capabilities ?? [];
     if (capabilities.length === 0) {
       paragraphs.push(
@@ -94,6 +97,7 @@ export class PluginStoreConsent {
   private updateMessage(
     entry: PluginCatalogEntry,
     added: readonly Capability[],
+    raised: boolean,
   ): string {
     return [
       this.transloco.translate('settings.storeUpdateConsent', {
@@ -101,8 +105,15 @@ export class PluginStoreConsent {
         version: entry.version ?? '',
       }),
       '',
+      ...(raised ? [this.levelLine(entry), ''] : []),
       ...this.permissionLines(added),
     ].join('\n');
+  }
+
+  private levelLine(entry: PluginCatalogEntry): string {
+    return this.transloco.translate(
+      `settings.pluginLevel.${entry.level ?? DEFAULT_ISOLATION_LEVEL}`,
+    );
   }
 
   private permissionLines(capabilities: readonly Capability[]): string[] {

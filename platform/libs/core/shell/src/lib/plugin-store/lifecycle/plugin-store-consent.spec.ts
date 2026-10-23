@@ -81,3 +81,49 @@ describe('PluginStoreConsent.confirmUpdate (updates respawn the plugin)', () => 
     expect(update).not.toHaveBeenCalled();
   });
 });
+
+describe('PluginStoreConsent and the isolation level', () => {
+  it('names the level the plugin will run at when asking to install it', async () => {
+    const { consent, confirm } = fakeDeps({ removalAllowed: true });
+    const install = vi.fn();
+    TestBed.inject(PluginInstallService).install = install;
+
+    await consent.confirmInstall({ ...entry, level: 'embedded' } as PluginCatalogEntry);
+
+    const asked = confirm.mock.calls[0] as unknown as [{ message: string }];
+    expect(asked[0].message).toContain('settings.pluginLevel.embedded');
+  });
+
+  it('names the default level where an entry states none', async () => {
+    const { consent, confirm } = fakeDeps({ removalAllowed: true });
+    TestBed.inject(PluginInstallService).install = vi.fn();
+
+    await consent.confirmInstall(entry);
+
+    const asked = confirm.mock.calls[0] as unknown as [{ message: string }];
+    expect(asked[0].message).toContain('settings.pluginLevel.isolated');
+  });
+
+  it('asks again when an update raises the level, even with no new capability', async () => {
+    const { consent, confirm, update } = fakeDeps({
+      removalAllowed: true,
+      consentAccepted: false,
+    });
+
+    await consent.confirmUpdate({ ...entry, level: 'embedded' } as PluginCatalogEntry);
+
+    expect(confirm).toHaveBeenCalledTimes(1);
+    const asked = confirm.mock.calls[0] as unknown as [{ message: string }];
+    expect(asked[0].message).toContain('settings.pluginLevel.embedded');
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it('updates without asking where the level and the capabilities stay as agreed', async () => {
+    const { consent, confirm, update } = fakeDeps({ removalAllowed: true });
+
+    await consent.confirmUpdate(entry);
+
+    expect(confirm).not.toHaveBeenCalled();
+    expect(update).toHaveBeenCalled();
+  });
+});

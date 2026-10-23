@@ -264,6 +264,15 @@ describe('sanitizeRpcSurface', () => {
     ).toThrow(/permitted/);
   });
 
+  it('rejects a blob: surface URL even where its origin is the application', () => {
+    expect(() =>
+      sanitizeRpcSurface(
+        'testbed',
+        validSurface({ iframe: `blob:${location.origin}/0b1c2d3e` }),
+      ),
+    ).toThrow(/permitted/);
+  });
+
   it('accepts a surface from an origin the composition permitted for the plugin', () => {
     const surface = sanitizeRpcSurface(
       'treaties',

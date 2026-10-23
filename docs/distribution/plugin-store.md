@@ -55,6 +55,12 @@ entry active for every user without a consent dialog, on the operator's authorit
 at, and the catalogue's `maxLevel` caps what it may be given
 ([Frame plugins](frame-plugins.md#the-level-a-frame-plugin-runs-at)).
 
+An entry's `id` holds lower-case letters, digits, dots and hyphens, and starts with a letter or digit,
+such as `acme.report-tool`. `shell` and everything under `shell.` belong to the workbench. An entry
+outside that form is dropped, so it can neither take the place of the workbench's own settings nor
+share stored values with another plugin by the shape of its name. The install and update dialogs
+name the level an entry runs at, and an update that raises it asks again.
+
 `iconUrl` is a **same-origin image** the operator ships with the plugin (a not-yet-installed plugin
 cannot contribute registry icons); `category` is your curated taxonomy; `downloads`/`updated` are
 display-only operator stats. All metadata is parsed defensively: a foreign-origin
