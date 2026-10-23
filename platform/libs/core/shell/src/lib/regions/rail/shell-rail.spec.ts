@@ -245,10 +245,11 @@ describe('ShellRail', () => {
         initials: 'GH',
       });
 
-      const button = fixture.nativeElement.querySelector(
-        '[data-rail-item="ini"]',
-      ) as HTMLElement;
-      expect(button.textContent?.replaceAll(/\s+/g, ' ').trim()).toBe('GH Reset');
+      const drawn = fixture.nativeElement
+        .querySelector('[data-rail-item="ini"]')
+        .cloneNode(true) as HTMLElement;
+      drawn.querySelector('lw-tooltip')?.remove();
+      expect(drawn.textContent?.replaceAll(/\s+/g, ' ').trim()).toBe('GH Reset');
     });
   });
 

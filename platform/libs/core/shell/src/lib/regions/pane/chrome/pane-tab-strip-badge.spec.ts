@@ -133,7 +133,9 @@ describe('a badge on a tab', () => {
   it('stays a word of its own in the text the tab shows', async () => {
     await create([tab({ badge: DEVELOPER })]);
 
-    expect(tabElement()?.textContent?.replaceAll(/\s+/g, ' ').trim()).toBe(
+    const drawn = tabElement()?.cloneNode(true) as HTMLElement;
+    drawn.querySelector('lw-tooltip')?.remove();
+    expect(drawn.textContent?.replaceAll(/\s+/g, ' ').trim()).toBe(
       'Advanced Developer',
     );
   });
