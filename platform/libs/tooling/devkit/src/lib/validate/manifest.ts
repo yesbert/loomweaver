@@ -43,7 +43,8 @@ export function validateManifest(
     findings.push({
       level: 'error',
       code: 'manifest.name',
-      message: 'Plugin name must be a string when provided.',
+      message:
+        'Plugin name must be a string when provided; the plugin list shows whatever it turns into as text instead of a name.',
       path: 'manifest.name',
     });
   }
@@ -61,7 +62,8 @@ function validateCapabilities(capabilities: unknown, known: readonly string[]): 
       {
         level: 'error',
         code: 'manifest.capabilities',
-        message: 'capabilities must be an array when provided.',
+        message:
+          'capabilities must be an array when provided; the workbench reads any other shape as no declaration it can match, and grants this plugin nothing.',
         path: 'manifest.capabilities',
       },
     ];
@@ -74,7 +76,7 @@ function validateCapabilities(capabilities: unknown, known: readonly string[]): 
       findings.push({
         level: 'error',
         code: 'manifest.capability.unknown',
-        message: `Unknown capability ${JSON.stringify(capability)}. Known: ${known.join(', ')}.`,
+        message: `Unknown capability ${JSON.stringify(capability)}, so the workbench grants nothing for it. Known: ${known.join(', ')}.`,
         path: 'manifest.capabilities',
       });
       continue;
@@ -83,7 +85,7 @@ function validateCapabilities(capabilities: unknown, known: readonly string[]): 
       findings.push({
         level: 'warning',
         code: 'manifest.capability.duplicate',
-        message: `Duplicate capability "${capability}".`,
+        message: `Duplicate capability "${capability}". The second one changes nothing, but reads as if the plugin asked for two.`,
         path: 'manifest.capabilities',
       });
     }

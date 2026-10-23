@@ -1,3 +1,4 @@
+import { stringLiteral } from '../../lib/generate/escape';
 import type { ResolvedWeaver } from './weaver-input';
 
 export function commandBlock(weaver: ResolvedWeaver): string {
@@ -11,7 +12,7 @@ export function commandBlock(weaver: ResolvedWeaver): string {
     '      ],',
     `      answers: '${weaver.id}.actionAnswers',`,
     ...(weaver.features.shortcut
-      ? [`      shortcut: '${weaver.features.shortcut}',`]
+      ? [`      shortcut: ${stringLiteral(weaver.features.shortcut)},`]
       : []),
     '      callable: true,',
     ...(weaver.features.agent

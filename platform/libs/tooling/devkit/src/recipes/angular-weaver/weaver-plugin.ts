@@ -132,10 +132,10 @@ function aboutRailBlock(weaver: ResolvedWeaver): string {
   ].join('\n');
 }
 
-function menuBlock(weaver: ResolvedWeaver): string {
+function menuBlock(weaver: ResolvedWeaver, menuSlot: string): string {
   return [
     '    ctx.registerMenuItem({',
-    `      menu: '${weaver.features.menuSlot}',`,
+    `      menu: ${stringLiteral(menuSlot)},`,
     `      command: '${weaver.id}.hello',`,
     '    });',
   ].join('\n');
@@ -213,7 +213,7 @@ function pluginBody(weaver: ResolvedWeaver): readonly string[] {
   body.push(surfaceBlock(weaver), railBlock(weaver));
   if (weaver.features.about) body.push(aboutRailBlock(weaver));
   if (weaver.features.barItem) body.push(barItemBlock(weaver));
-  if (weaver.features.menuSlot) body.push(menuBlock(weaver));
+  if (weaver.features.menuSlot) body.push(menuBlock(weaver, weaver.features.menuSlot));
   if (weaver.features.settings) body.push(settingsBlock(weaver));
   if (weaver.features.agent) body.push(agentSurfaceBlock(weaver));
   return body;

@@ -17,6 +17,7 @@ import {
   ConfiguredWorkspace,
   findWorkspace,
   readJsonFile,
+  resolveBuildProject,
   WorkspaceError,
 } from '../workspace';
 
@@ -68,6 +69,7 @@ export interface InitPlan {
   readonly runtime: readonly string[];
   readonly dev: readonly string[];
   readonly app?: Application;
+  readonly projectRoot: string;
   readonly dryRun: boolean;
 }
 
@@ -120,6 +122,10 @@ export function planInit(args: ParsedArgs, deps: InitDeps): InitPlan {
         : []),
     ],
     app,
+    projectRoot:
+      workspace.kind === 'nx'
+        ? workspace.root
+        : resolve(workspace.root, resolveBuildProject(workspace, deps.cwd).root),
     dryRun: boolFlag(args, 'dry-run') === true,
   };
 }

@@ -120,6 +120,27 @@ describe('composePlugin', () => {
     expect(source).toBe(inline);
   });
 
+  it('composes at the end of the array itself, past a nested array that closes on a line of its own', () => {
+    const nested = GENERATED.replace(
+      'provideLayout(layout),',
+      "provideLayout(layout),\n    provideIcons({\n      names: [\n        'home',\n      ],\n    }),",
+    );
+    const { source, composed } = composePlugin(nested, NOTES, '../notes/src');
+    expect(composed).toBe(true);
+    expect(source).toContain(
+      "'home',\n      ],\n    }),\n    provideTranslationNamespaces('notes'),",
+    );
+  });
+
+  it('registers a plugin whose name is only part of a name already there', () => {
+    const longer = GENERATED.replace(
+      'provideLayout(layout),',
+      'provideLayout(layout),\n    notesPluginSettings(),',
+    );
+    const { source } = composePlugin(longer, NOTES, '../notes/src');
+    expect(source).toContain('...providePlugins(notesPlugin),');
+  });
+
   it('joins the translation namespaces already declared rather than replacing them', () => {
     const first = composePlugin(GENERATED, NOTES, '../notes/src').source;
     const second = composePlugin(first, SESSION, '../auth').source;
@@ -229,6 +250,25 @@ describe('composeProviders', () => {
       composed: true,
       kept: [],
     });
+  });
+
+  it('adds a grant whose key is only the end of a key already there', () => {
+    const grants: ComposeProviderAmendment = {
+      kind: 'compose-provider',
+      providers: [
+        { line: "provideCapabilityGrants({ notes: ['ui'] }),", shell: ['provideCapabilityGrants'], unless: 'notes: [' },
+      ],
+      without: 'Without it the plugin runs without its grants.',
+    };
+    const other = GENERATED.replace(
+      'provideLayout(layout),',
+      "provideLayout(layout),\n    provideCapabilityGrants({ othernotes: ['ui'] }),",
+    );
+
+    const result = composeProviders(other, grants, undefined);
+
+    expect(result.kept).toEqual([]);
+    expect(result.source).toContain("provideCapabilityGrants({ notes: ['ui'] }),");
   });
 
   it('declines a composition root it did not generate', () => {

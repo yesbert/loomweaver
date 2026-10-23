@@ -43,5 +43,6 @@
       "default": "vitest"
     }
   },
+  "additionalProperties": false,
   "required": ["name"]
 }

@@ -208,6 +208,15 @@ describe('angularWeaver recipe', () => {
     expect(readme).toContain('src/lib/i18n');
   });
 
+  it('writes a menu slot and a shortcut with a quote in them as the strings they are', () => {
+    const plugin = generate(angularWeaver, {
+      id: 'notes',
+      features: { menu: "a'b", shortcut: "mod+'" },
+    })['src/lib/plugin/notes.plugin.ts'];
+    expect(plugin).toContain(String.raw`menu: 'a\'b',`);
+    expect(plugin).toContain(String.raw`shortcut: 'mod+\'',`);
+  });
+
   it('rejects a platform-bound shortcut chord in favour of mod', () => {
     expect(() =>
       generate(angularWeaver, { id: 'notes', features: { shortcut: 'cmd+k' } }),

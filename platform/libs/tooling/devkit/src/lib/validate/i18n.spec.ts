@@ -18,6 +18,7 @@ describe('validateI18nParity', () => {
     expect(findings).toHaveLength(1);
     expect(findings[0].code).toBe('i18n.missingKey');
     expect(findings[0].message).toContain('subtitle');
+    expect(findings[0].message).toContain('see the key itself');
     expect(findings[0].path).toBe('i18n/de');
   });
 

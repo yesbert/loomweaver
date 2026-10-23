@@ -83,5 +83,5 @@ function installPackages(
   }
   return Object.keys(wanted).length === 0
     ? undefined
-    : addDependenciesToPackageJson(tree, wanted, {});
+    : addDependenciesToPackageJson(tree, wanted, {}, 'package.json', true);
 }

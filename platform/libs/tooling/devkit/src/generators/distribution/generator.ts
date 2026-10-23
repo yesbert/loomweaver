@@ -14,7 +14,11 @@ import {
   BuildTargetAmendment,
 } from '../../lib/amend/types';
 import { applyAmendments } from '../apply-amendments';
-import { tsconfigPathsFile, writeFiles } from '../workspace-tree';
+import {
+  tsconfigPathsFile,
+  writeFiles,
+  writeFilesGuarded,
+} from '../workspace-tree';
 import { angularDistribution } from '../../recipes/angular-distribution/recipe';
 import { nxDistribution, nxDistributionFiles } from './nx-files';
 import { DistributionGeneratorSchema } from './schema';
@@ -80,7 +84,7 @@ export async function distributionGenerator(
       );
     }
   } else {
-    writeFiles(tree, distribution.projectRoot, source, scaffold);
+    writeFilesGuarded(tree, distribution.projectRoot, source, scaffold);
   }
 
   await formatFiles(tree);

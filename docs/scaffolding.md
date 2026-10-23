@@ -66,9 +66,10 @@ It asks no questions. Every choice is an option with a default:
 | `--package-manager npm\|pnpm\|yarn\|bun` | from the lockfile, npm when there is none          | how packages are installed and how the serve command is spelled                                                          |
 | `--dry-run`                              |                                                    | name every package, file and amendment, install and write nothing                                                        |
 
-**In an Angular CLI application** it runs `distribution` over the application with `--force`,
-because the files it replaces are the bootstrap wiring `ng new` produced, then `weaver` into
-`src/<id>`. **In an Nx workspace** it installs `@loomweaver/devkit` as a dev dependency and runs the
+**In an Angular CLI application** it runs `distribution` over the application's own project root
+with `--force`, because the files it replaces are the bootstrap wiring `ng new` produced, then
+`weaver` into `src/<id>` beneath it. It replaces such a file only while it is still what `ng new`
+wrote. Where one was changed, it names that file and stops before installing or writing anything. **In an Nx workspace** it installs `@loomweaver/devkit` as a dev dependency and runs the
 Nx generators, because only they register the project and the import alias; the result is what
 [the Nx generators](#the-nx-generators--loomweaverdevkit) produce. The serve command is `npm start`
 in the first case and `npx nx serve <app>` in the second, each spelled for the package manager

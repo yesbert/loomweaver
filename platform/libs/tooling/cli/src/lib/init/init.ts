@@ -1,8 +1,12 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { resolveWeaverInput } from '@loomweaver/devkit';
-import { ParsedArgs, rejectUnknownFlags } from '../args';
+import { parseArgs, ParsedArgs, rejectUnknownFlags } from '../args';
+import { findScaffold, scaffoldValues } from '../scaffold/scaffold';
+import { planWrite } from '../scaffold/write';
+import { WorkspaceError } from '../workspace';
 import { InitDeps, NX_COLLECTION, InitPlan, planInit } from './init-plan';
+import { stillAsNgNewWrote } from './ng-new-files';
 import {
   execCommand,
   installCommand,
@@ -139,28 +143,29 @@ function stepsFor(plan: InitPlan): Step[] {
 }
 
 function angularSteps(plan: InitPlan): Step[] {
-  const root = plan.workspace.root;
-  const steps: Step[] = [
-    ...installSteps(plan),
-    {
-      label: 'Distribution',
-      describe: `scaffold the composition root for "${plan.title}" (${plan.styles}) and wire the build`,
-      done: composesShell(join(root, 'src/app/app.config.ts')),
-      kind: 'scaffold',
-      argv: [
-        'distribution',
-        '--name',
-        plan.name,
-        '--title',
-        plan.title,
-        '--styles',
-        plan.styles,
-        '--out',
-        root,
-        '--force',
-      ],
-    },
-  ];
+  const root = plan.projectRoot;
+  const distribution: ScaffoldStep = {
+    label: 'Distribution',
+    describe: `scaffold the composition root for "${plan.title}" (${plan.styles}) and wire the build`,
+    done: composesShell(join(root, 'src/app/app.config.ts')),
+    kind: 'scaffold',
+    argv: [
+      'distribution',
+      '--name',
+      plan.name,
+      '--title',
+      plan.title,
+      '--styles',
+      plan.styles,
+      '--out',
+      root,
+      '--force',
+    ],
+  };
+  if (!distribution.done) {
+    refuseToReplaceChangedFiles(distribution.argv, root);
+  }
+  const steps: Step[] = [...installSteps(plan), distribution];
   if (plan.weaver) {
     steps.push({
       label: 'First weaver',
@@ -264,6 +269,24 @@ function serveCommand(plan: InitPlan): string {
     ]).join(' ');
   }
   return runScriptCommand(plan.manager, 'start');
+}
+
+function refuseToReplaceChangedFiles(
+  argv: readonly string[],
+  root: string,
+): void {
+  const args = parseArgs(argv);
+  const scaffold = findScaffold(args.command);
+  const files = scaffold.build(scaffoldValues(scaffold, args));
+  const changed = planWrite(files, root).conflicts.filter(
+    (path) => !stillAsNgNewWrote(path, readFileSync(join(root, path), 'utf8')),
+  );
+  if (changed.length > 0) {
+    throw new WorkspaceError(
+      `The distribution replaces ${changed.join(', ')}, which ${changed.length === 1 ? 'is' : 'are'} no longer what ng new wrote, so nothing was installed or written. ` +
+        `Move ${changed.length === 1 ? 'it' : 'them'} aside or undo the changes and run init again; "loomweaver distribution --out ${root} --dry-run" shows everything it writes.`,
+    );
+  }
 }
 
 function composesShell(file: string): boolean {

@@ -97,5 +97,6 @@
       "default": "vitest"
     }
   },
+  "additionalProperties": false,
   "required": ["id"]
 }

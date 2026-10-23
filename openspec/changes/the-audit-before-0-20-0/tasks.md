@@ -33,15 +33,15 @@
 
 ## 6. Scaffolding and tooling
 
-- [ ] 6.1 The Nx generator schemas refuse an unknown option
-- [ ] 6.2 The Nx route keeps a package version the consumer already recorded
-- [ ] 6.3 The Nx weaver and distribution generators refuse to overwrite existing files, and every Nx route refuses a target outside the workspace
-- [ ] 6.4 `--shortcut` and `--menu` are escaped into generated code
-- [ ] 6.5 Composing into `providers` finds the array's own end, and an existing registration is matched as a whole name
-- [ ] 6.6 `init` passes arguments to Windows shells safely
-- [ ] 6.7 `init` replaces Angular application files only while they are still what `ng new` wrote, and writes into the build project's own root
-- [ ] 6.8 No starter spec with `unitTestRunner none`
-- [ ] 6.9 The manifest and i18n checks name the consequence of each finding
+- [x] 6.1 The Nx generator schemas refuse an unknown option
+- [x] 6.2 The Nx route keeps a package version the consumer already recorded
+- [x] 6.3 The Nx weaver and distribution generators refuse to overwrite existing files, and every Nx route refuses a target outside the workspace
+- [x] 6.4 `--shortcut` and `--menu` are escaped into generated code
+- [x] 6.5 Composing into `providers` finds the array's own end, and an existing registration is matched as a whole name
+- [x] 6.6 `init` passes arguments to Windows shells safely
+- [x] 6.7 `init` replaces Angular application files only while they are still what `ng new` wrote, and writes into the build project's own root
+- [x] 6.8 No starter spec with `unitTestRunner none`
+- [x] 6.9 The manifest and i18n checks name the consequence of each finding
 
 ## 7. Demo, guards and release
 

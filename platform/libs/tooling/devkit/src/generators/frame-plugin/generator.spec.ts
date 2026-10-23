@@ -23,6 +23,12 @@ describe('frame-plugin generator', () => {
       '/notes/view.html',
     );
   });
+
+  it('refuses a directory outside the workspace', async () => {
+    await expect(
+      framePluginGenerator(tree, { id: 'notes', directory: '/srv/notes' }),
+    ).rejects.toThrow(/outside the workspace/);
+  });
 });
 
 describe('frame-plugin generator in a generated distribution', () => {
