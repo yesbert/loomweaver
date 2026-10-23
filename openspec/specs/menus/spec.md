@@ -740,7 +740,10 @@ command while the slot offers nothing.
 
 An entry that opens a submenu SHALL show it visibly, by a mark at its trailing end, SHALL be announced
 as opening a menu and whether that menu is open, and SHALL be drawn as current while its submenu is
-open. The submenu SHALL be placed beside the entry, lined up with it, and on the other side where the
+open. It SHALL be named by its own words, whether its submenu is open or closed: the entries of an
+open submenu SHALL NOT count among the words the entry shows. A plugin drawing its own menu SHALL keep
+writing a submenu inside the entry it belongs to; how the entry is presented to assistive technology
+is the workbench's. The submenu SHALL be placed beside the entry, lined up with it, and on the other side where the
 preferred side has no room, kept within the window like every menu. Entries of a submenu SHALL show
 icons, shortcuts, states, separators and words exactly as the menu it opens from, and SHALL follow the
 strings the same way.
@@ -795,6 +798,18 @@ lead back to a slot already open above it is not drawn.
 
 - **WHEN** a menu stands so close to the right edge that its submenu has no room on the right
 - **THEN** the submenu opens on the left of the menu, fully visible
+
+#### Scenario: An open submenu is not part of its entry's name
+
+- **WHEN** an entry opens its submenu
+- **THEN** the entry is named by its own words alone, and is announced as opening a menu that is open
+- **AND** the automated accessibility audit reports no violation with the submenu open
+
+#### Scenario: A submenu written inside its entry keeps working
+
+- **WHEN** a plugin draws its own menu with the workbench's menu element and puts a menu element
+  inside one of its entries
+- **THEN** that entry opens it as its submenu, and choosing an entry in it reaches the outer menu
 
 ### Requirement: An entry of a plugin's own menu may show a shortcut
 

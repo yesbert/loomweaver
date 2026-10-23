@@ -13,4 +13,4 @@
 
 - [x] 3.1 The testbed's submenu specs and the accessibility audit pass with axe-core 4.14, the frame kit's build and the generated frame scripts too
 - [x] 3.2 The shell suite, lint, `openspec validate --all --strict`
-- [ ] 3.3 PR
+- [x] 3.3 PR (#828)
