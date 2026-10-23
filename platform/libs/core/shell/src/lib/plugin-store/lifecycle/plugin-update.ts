@@ -1,3 +1,7 @@
+import {
+  DEFAULT_ISOLATION_LEVEL,
+  exceedsLevel,
+} from '../../foundation/plugin-isolation-level';
 import { Capability } from '@loomweaver/plugin-sdk';
 import { InstalledPlugin } from './installed-plugin';
 import { PluginCatalogEntry } from '../catalog/catalog-entry';
@@ -36,6 +40,16 @@ export function availableUpdate(
     return undefined;
   }
   return isNewerVersion(entry.version, installed.version) ? entry : undefined;
+}
+
+export function raisedLevel(
+  entry: PluginCatalogEntry,
+  installed: InstalledPlugin,
+): boolean {
+  return exceedsLevel(
+    entry.level ?? DEFAULT_ISOLATION_LEVEL,
+    installed.level ?? DEFAULT_ISOLATION_LEVEL,
+  );
 }
 
 export function addedCapabilities(

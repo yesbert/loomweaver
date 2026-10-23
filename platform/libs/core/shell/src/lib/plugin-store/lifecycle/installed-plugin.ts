@@ -36,9 +36,25 @@ export interface InstalledPlugin {
   readonly level?: PluginIsolationLevel;
 }
 
+const PLUGIN_IDENTITY = /^[a-z0-9][a-z0-9.-]*$/;
+
+const WORKBENCH_NAMESPACE = 'shell';
+
+export function isPluginIdentity(id: string): boolean {
+  return (
+    PLUGIN_IDENTITY.test(id) &&
+    id !== WORKBENCH_NAMESPACE &&
+    !id.startsWith(`${WORKBENCH_NAMESPACE}.`)
+  );
+}
+
 export function isSameOriginUrl(url: string): boolean {
   try {
-    return new URL(url, document.baseURI).origin === location.origin;
+    const parsed = new URL(url, document.baseURI);
+    return (
+      (parsed.protocol === 'http:' || parsed.protocol === 'https:') &&
+      parsed.origin === location.origin
+    );
   } catch {
     return false;
   }
@@ -66,7 +82,7 @@ export function parseInstalledPlugin(
     return undefined;
   }
   const entry = raw as Record<string, unknown>;
-  if (typeof entry['id'] !== 'string' || entry['id'].length === 0) {
+  if (typeof entry['id'] !== 'string' || !isPluginIdentity(entry['id'])) {
     return undefined;
   }
   if (

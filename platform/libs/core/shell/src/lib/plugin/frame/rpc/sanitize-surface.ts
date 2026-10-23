@@ -189,10 +189,12 @@ function sanitizeRpcContainerTab(value: unknown): ContainerTabEntry[] {
   ];
 }
 
+const FETCHED_PROTOCOLS: ReadonlySet<string> = new Set(['http:', 'https:']);
+
 function surfaceOrigin(iframe: string): string | null {
   try {
-    const origin = new URL(iframe, document.baseURI).origin;
-    return origin === 'null' ? null : origin;
+    const url = new URL(iframe, document.baseURI);
+    return FETCHED_PROTOCOLS.has(url.protocol) ? url.origin : null;
   } catch {
     return null;
   }

@@ -94,17 +94,34 @@ function validateEntry(
   ];
 }
 
+const PLUGIN_IDENTITY = /^[a-z0-9][a-z0-9.-]*$/;
+
 function validateId(raw: Record<string, unknown>, index: number): Finding[] {
-  return typeof raw['id'] === 'string' && raw['id'].length > 0
-    ? []
-    : [
-        {
-          level: 'error',
-          code: 'catalog.id',
-          message: `${pathOf(index, 'id')} must be a non-empty string; the host drops the whole entry without it.`,
-          path: pathOf(index, 'id'),
-        },
-      ];
+  const id = raw['id'];
+  if (typeof id !== 'string' || id.length === 0) {
+    return [idFinding(index, 'must be a non-empty string; the host drops the whole entry without it.')];
+  }
+  if (id === 'shell' || id.startsWith('shell.')) {
+    return [idFinding(index, `"${id}" is in the workbench's own namespace; the host drops the whole entry.`)];
+  }
+  if (!PLUGIN_IDENTITY.test(id)) {
+    return [
+      idFinding(
+        index,
+        `"${id}" may hold only lower-case letters, digits, dots and hyphens, starting with a letter or digit; the host drops the whole entry.`,
+      ),
+    ];
+  }
+  return [];
+}
+
+function idFinding(index: number, problem: string): Finding {
+  return {
+    level: 'error',
+    code: 'catalog.id',
+    message: `${pathOf(index, 'id')} ${problem}`,
+    path: pathOf(index, 'id'),
+  };
 }
 
 function validateNameAndVersion(

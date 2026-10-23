@@ -24,6 +24,11 @@ describe('validateCatalog', () => {
   describe('what makes the host drop the whole entry', () => {
     it('flags a missing id', () => {
       expect(codes([{ ...valid, id: undefined }])).toContain('catalog.id');
+      expect(codes([{ ...valid, id: 'acme:docs' }])).toContain('catalog.id');
+      expect(codes([{ ...valid, id: 'Acme' }])).toContain('catalog.id');
+      expect(codes([{ ...valid, id: 'shell' }])).toContain('catalog.id');
+      expect(codes([{ ...valid, id: 'shell.permissions' }])).toContain('catalog.id');
+      expect(codes([{ ...valid, id: 'acme.notes-2' }])).not.toContain('catalog.id');
     });
 
     it('flags a missing entryUrl', () => {
