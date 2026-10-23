@@ -133,7 +133,7 @@ export class LwMenuElement extends HTMLElement {
 
   private readonly onPointerOver = (event: Event) => {
     const target = event.target as Node;
-    if (this.opener?.contains(target)) {
+    if ((this.opener?.closest(LW_MENU_ITEM_TAG) ?? this.opener)?.contains(target)) {
       this.pause.cancel();
       return;
     }
@@ -228,9 +228,16 @@ export class LwMenuElement extends HTMLElement {
   }
 
   private items(): HTMLElement[] {
-    return ([...this.children] as HTMLElement[]).filter(
-      (item) => item.matches('[role^="menuitem"]') && !this.isDisabled(item),
-    );
+    return ([...this.children] as HTMLElement[])
+      .map((child) =>
+        child.getAttribute('role') === 'none'
+          ? child.querySelector<HTMLElement>(':scope > [role^="menuitem"]')
+          : child,
+      )
+      .filter(
+        (item): item is HTMLElement =>
+          item !== null && item.matches('[role^="menuitem"]') && !this.isDisabled(item),
+      );
   }
 
   private isDisabled(item: HTMLElement): boolean {

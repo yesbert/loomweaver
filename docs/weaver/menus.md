@@ -400,7 +400,9 @@ Inside your own sandboxed `iframe` surface you draw the menu yourself. Load the
 along with the rest of the family), build `<lw-menu>` + `<lw-menu-item>` on right-click, and call
 `menu.openAt(event.clientX, event.clientY)`. A `<lw-menu>` you put inside a `<lw-menu-item>` is that
 entry's submenu, with the same pointer and keyboard behaviour as the host's, and a choice inside it
-reaches the outer menu's `lw-menu-select`. Handle the selection **in-process**: no cross-frame
+reaches the outer menu's `lw-menu-select`. Such an entry is presented the way the WAI-ARIA
+authoring practices present a submenu: the `<lw-menu-item>` takes no role, and a row inside it is the
+menu item that takes the focus. A test that finds entries by role and name finds it as before. Handle the selection **in-process**: no cross-frame
 coordinates, no RPC. The paint follows the host tokens pushed to the surface, so it matches the app theme.
 
 ## Where next
