@@ -21,6 +21,10 @@ your workspace and otherwise generates selectors prefixed `app`.
   [Getting started](https://loomweaver.dev/getting-started/)
 - A project that already depends on `@loomweaver/shell` gets the generators below, and the first
   call is the generator itself. [Building a distribution](https://loomweaver.dev/building-a-distribution/)
+- A project moving to a newer LoomWeaver release reads what that release asks of it first: every
+  `@loomweaver/*` package moves at once to one version, and each minor release crossed has its own
+  steps, such as renamed agent tools or a fixed form for catalogue ids.
+  [Updating](https://loomweaver.dev/updating/)
 
 ## Generate
 
