@@ -23,7 +23,7 @@ setting with it, which [Frame plugins](distribution/frame-plugins.md) describes.
 entries are `provideCommandPaletteEntry()` and `provideQuickOpenEntry()`; both searches work without
 them, on `mod+k` and `mod+p`.
 
-> **Prerequisites:** Node 24 and an **Angular 22** workspace, Angular CLI or Nx.
+> **Prerequisites:** Node 24 or 26 and an **Angular 22** workspace, Angular CLI or Nx.
 
 Nothing here is Angular-CLI-specific. Where **Nx** differs it is called out, and there is a section
 of its own at the end.

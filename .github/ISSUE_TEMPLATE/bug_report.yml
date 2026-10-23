@@ -42,7 +42,7 @@ body:
     attributes:
       label: Environment
       description: Browser and OS, plus Node version if it is a build or tooling problem.
-      placeholder: Chrome 141 on macOS 15, Node 24
+      placeholder: Chrome 141 on macOS 15, Node 26
     validations:
       required: false
 

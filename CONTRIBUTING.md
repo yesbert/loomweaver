@@ -59,7 +59,7 @@ to a branch you have already written, and the check's summary says the same thin
 
 ## Getting set up
 
-You need **Node 24** (see [`.nvmrc`](.nvmrc)). Everything lives in the Nx workspace under `platform/`:
+You need **Node 26** (see [`.nvmrc`](.nvmrc)). Everything lives in the Nx workspace under `platform/`:
 
 ```bash
 cd platform
