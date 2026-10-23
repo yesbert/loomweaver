@@ -58,11 +58,12 @@ function nameHeading(element: HTMLElement): void {
   if (purpose === undefined) {
     return;
   }
+  const mark = element.querySelector('.lw-menu-header-mark');
   const shown = [
-    '.lw-menu-header-mark',
-    '.lw-menu-header-title',
-    '.lw-menu-header-detail:not([hidden])',
-  ].map((part) => element.querySelector(part)?.textContent ?? undefined);
+    mark?.querySelector('lw-icon') ? undefined : mark?.textContent,
+    element.querySelector('.lw-menu-header-title')?.textContent,
+    element.querySelector('.lw-menu-header-detail:not([hidden])')?.textContent,
+  ].map((text) => text ?? undefined);
   element.setAttribute('aria-label', nameShowing(shown, purpose));
 }
 

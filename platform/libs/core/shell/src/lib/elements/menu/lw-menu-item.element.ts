@@ -1,5 +1,5 @@
 import { reflectAttribute, upgradeElementProperty } from '../custom-elements';
-import { markOpener, nestedMenu, submenuMark } from './lw-submenu';
+import { ENTRY_ROW_CLASS, markOpener, nestedMenu, submenuMark } from './lw-submenu';
 
 export const LW_MENU_ITEM_TAG = 'lw-menu-item';
 
@@ -110,7 +110,7 @@ export class LwMenuItemElement extends HTMLElement {
   private rowBeside(): HTMLElement {
     if (!this.row) {
       this.row = document.createElement('span');
-      this.row.className = 'lw-menu-item-row';
+      this.row.className = ENTRY_ROW_CLASS;
       this.row.tabIndex = -1;
     }
     for (const name of ['aria-checked', 'aria-disabled', 'aria-haspopup', 'aria-expanded', 'tabindex']) {
@@ -124,7 +124,9 @@ export class LwMenuItemElement extends HTMLElement {
   private withoutRow(): HTMLElement {
     this.row?.remove();
     this.row = undefined;
-    this.tabIndex = -1;
+    if (!this.hasAttribute('tabindex')) {
+      this.tabIndex = -1;
+    }
     return this;
   }
 

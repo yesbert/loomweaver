@@ -528,7 +528,7 @@ interface ToolbarCell { id: string; slot: string; component: Type<unknown>; orde
 interface ToolbarContext { slot: string; context: MenuContext }   const TOOLBAR_CONTEXT: InjectionToken<ToolbarContext>;   // what a cell component injects to learn the slot and the placement it stands in
 interface BarButtonItem { icon?: string; initials?: string; image?: string; label?: string; tooltip?: string; menu?: string; menuTrigger?: 'context' | 'primary' | 'both'; menuHeader?: MenuHeader; command?: string; showShortcut?: boolean; run?(): void; id: string; bar: string; slot: BarSlot; order?: number; access?: AccessRequirement }  // showShortcut: render the bound command's shortcut hint, OS-correct (⌘K / Ctrl+K); needs command to have a shortcut. Default off.
 // The host names the button by what it shows, then what it is for: initials, label, tooltip, shown shortcut ("EN, Language",
-// "AL, Account", "Add ⌘↵"); a tooltip that already contains the label is kept as it is.
+// "AL, Account", "Add ⌘↵"); a tooltip that already says everything the button shows, in order, is kept as it is.
 // `workspace` names a workspace id: the host switches to it on click and marks the entry as the current one
 // (bar + tint + aria-current) while it is active. Provide it INSTEAD of command/run; those are then ignored.
 // The entry is marked as well while a workspace the USER saved from it (its variant) is active and has no

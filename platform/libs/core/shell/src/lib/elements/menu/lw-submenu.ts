@@ -6,9 +6,20 @@ export const SUBMENU_GAP = 2;
 
 const NESTED_MENU = ':scope > lw-menu';
 
+export const ENTRY_ROW_CLASS = 'lw-menu-item-row';
+
+export function holderOf(entry: Element): Element | null {
+  return entry.classList.contains(ENTRY_ROW_CLASS) ? entry.parentElement : entry;
+}
+
+export function entryOf(child: Element): HTMLElement | null {
+  return child.getAttribute('role') === 'none'
+    ? child.querySelector<HTMLElement>(':scope > [role^="menuitem"]')
+    : (child as HTMLElement);
+}
+
 export function nestedMenu(item: Element): HTMLElement | null {
-  const holder = item.classList.contains('lw-menu-item-row') ? item.parentElement : item;
-  return holder?.querySelector<HTMLElement>(NESTED_MENU) ?? null;
+  return holderOf(item)?.querySelector<HTMLElement>(NESTED_MENU) ?? null;
 }
 
 export function isNested(menu: HTMLElement): boolean {

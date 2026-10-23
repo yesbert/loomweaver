@@ -17,7 +17,7 @@ export function nameShowing(
 }
 
 export function nameWithHint(name: string, hint: string | undefined): string {
-  return hint ? `${name} ${hint}` : name;
+  return hint && !name.includes(hint) ? `${name} ${hint}` : name;
 }
 
 function contains(text: string, part: string): boolean {

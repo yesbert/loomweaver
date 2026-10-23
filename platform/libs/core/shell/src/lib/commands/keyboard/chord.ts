@@ -138,6 +138,11 @@ export function formatChordOn(
 
 const ARIA_KEY_NAMES: ReadonlyMap<string, string> = new Map([
   ['ctrl', 'Control'],
+  ['capslock', 'CapsLock'],
+  ['contextmenu', 'ContextMenu'],
+  ['numlock', 'NumLock'],
+  ['printscreen', 'PrintScreen'],
+  ['scrolllock', 'ScrollLock'],
   ['pageup', 'PageUp'],
   ['pagedown', 'PageDown'],
   ['arrowup', 'ArrowUp'],
@@ -164,8 +169,8 @@ export function ariaKeyShortcutsOn(
     .join('+');
 }
 
-export function ariaKeyShortcuts(chord: string): string | undefined {
-  return ariaKeyShortcutsOn(chord, isMacPlatform());
+export function ariaKeyShortcuts(chord: string | undefined): string | undefined {
+  return chord ? ariaKeyShortcutsOn(chord, isMacPlatform()) : undefined;
 }
 
 function tokenLabel(token: string, isMac: boolean, words?: KeyWords): string {

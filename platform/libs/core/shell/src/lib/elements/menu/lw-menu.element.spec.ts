@@ -332,6 +332,22 @@ describe('<lw-menu> custom element', () => {
       expect(menu.style.left).toBe(`${control.right - 200}px`);
     });
   });
+  describe('an entry drawn again while it holds the tab stop', () => {
+    it('keeps the tab stop when its words change', () => {
+      const menu = mount([
+        ['a', 'Open'],
+        ['b', 'Close'],
+      ]);
+      menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+      const [active] = itemsOf(menu);
+      expect(active.tabIndex).toBe(0);
+
+      active.setAttribute('label', 'Öffnen');
+
+      expect(active.tabIndex).toBe(0);
+    });
+  });
+
   describe('a submenu nested in an entry', () => {
     function mountNested(): {
       menu: LwMenuElement;

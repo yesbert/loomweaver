@@ -2,6 +2,8 @@ import { focusAndReveal, rovingStep, rovingTabIndex } from '../roving-focus';
 import { clampIntoViewport, fitsInViewport } from '../viewport-fit';
 import { defineElementOnce } from '../custom-elements';
 import {
+  entryOf,
+  holderOf,
   isNested,
   nestedMenu,
   SUBMENU_GAP,
@@ -133,7 +135,7 @@ export class LwMenuElement extends HTMLElement {
 
   private readonly onPointerOver = (event: Event) => {
     const target = event.target as Node;
-    if ((this.opener?.closest(LW_MENU_ITEM_TAG) ?? this.opener)?.contains(target)) {
+    if (this.opener && holderOf(this.opener)?.contains(target)) {
       this.pause.cancel();
       return;
     }
@@ -228,12 +230,8 @@ export class LwMenuElement extends HTMLElement {
   }
 
   private items(): HTMLElement[] {
-    return ([...this.children] as HTMLElement[])
-      .map((child) =>
-        child.getAttribute('role') === 'none'
-          ? child.querySelector<HTMLElement>(':scope > [role^="menuitem"]')
-          : child,
-      )
+    return [...this.children]
+      .map((child) => entryOf(child))
       .filter(
         (item): item is HTMLElement =>
           item !== null && item.matches('[role^="menuitem"]') && !this.isDisabled(item),

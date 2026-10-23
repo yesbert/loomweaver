@@ -72,6 +72,16 @@ describe('a heading that leads to a command', () => {
     );
   });
 
+  it('leaves the text inside an icon mark out of the name', () => {
+    const withIcon = { title: 'account.name', icon: 'user' };
+    const heading = drawMenuHeading(withIcon, profile);
+    heading.querySelector('lw-icon')!.textContent = 'User icon';
+
+    wordMenuHeading(heading, withIcon, translate, profile);
+
+    expect(heading.getAttribute('aria-label')).toBe('Ada Lovelace, Profile');
+  });
+
   it('is named anew in the language it is worded in', () => {
     const heading = drawMenuHeading(header, profile);
     wordMenuHeading(heading, header, translate, profile);
