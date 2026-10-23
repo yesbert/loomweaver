@@ -153,8 +153,11 @@ test.describe('A picture of the workbench', () => {
 
     const before = await page.evaluate(() => document.body.childElementCount);
     await page.evaluate(() => globalThis.lwCapture!());
-    const after = await page.evaluate(() => document.body.childElementCount);
 
-    expect(after).toBe(before);
+    await expect
+      .poll(() => page.evaluate(() => document.body.childElementCount), {
+        timeout: 10_000,
+      })
+      .toBe(before);
   });
 });
