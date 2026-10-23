@@ -34,6 +34,8 @@ export class LwMenuItemElement extends HTMLElement {
 
   private observer?: MutationObserver;
 
+  private row?: HTMLElement;
+
   get label(): string | null {
     return this.getAttribute('label');
   }
@@ -50,7 +52,6 @@ export class LwMenuItemElement extends HTMLElement {
   connectedCallback(): void {
     upgradeElementProperty(this, 'label');
     upgradeElementProperty(this, 'command');
-    this.tabIndex = -1;
     this.render();
     this.observer = new MutationObserver(() => {
       const opens = nestedMenu(this) !== null;
@@ -72,31 +73,59 @@ export class LwMenuItemElement extends HTMLElement {
   }
 
   private render(): void {
-    const checkbox = this.hasAttribute('checkbox');
-    const checked = this.hasAttribute('checked');
-    this.setAttribute('role', checkbox ? 'menuitemcheckbox' : 'menuitem');
-    if (checkbox) {
-      this.setAttribute('aria-checked', String(checked));
-    } else {
-      this.removeAttribute('aria-checked');
-    }
-    this.setAttribute('aria-disabled', String(this.hasAttribute('disabled')));
-
-    const check = leadingPlace('lw-menu-item-check', checked ? 'check' : null);
-    const lead = leadingPlace('lw-menu-item-lead', this.getAttribute('icon'));
-
-    const label = document.createElement('span');
-    label.className = 'lw-menu-item-label';
-    label.textContent = this.getAttribute('label') ?? '';
-
     const submenu = nestedMenu(this);
     this.opens = submenu !== null;
-    const stale = [...this.childNodes].filter((child) => child !== submenu);
+    const entry = this.opens ? this.rowBeside() : this.withoutRow();
+    const stale = [...this.childNodes].filter(
+      (child) => child !== submenu && child !== this.row,
+    );
     for (const child of stale) {
       child.remove();
     }
-    this.prepend(check, lead, label, ...this.trailing());
-    markOpener(this, label, this.opens);
+
+    const checkbox = this.hasAttribute('checkbox');
+    const checked = this.hasAttribute('checked');
+    entry.setAttribute('role', checkbox ? 'menuitemcheckbox' : 'menuitem');
+    if (checkbox) {
+      entry.setAttribute('aria-checked', String(checked));
+    } else {
+      entry.removeAttribute('aria-checked');
+    }
+    entry.setAttribute('aria-disabled', String(this.hasAttribute('disabled')));
+
+    const check = leadingPlace('lw-menu-item-check', checked ? 'check' : null);
+    const lead = leadingPlace('lw-menu-item-lead', this.getAttribute('icon'));
+    const label = document.createElement('span');
+    label.className = 'lw-menu-item-label';
+    label.textContent = this.getAttribute('label') ?? '';
+    const content = [check, lead, label, ...this.trailing()];
+    if (this.row) {
+      this.row.replaceChildren(...content);
+    } else {
+      this.prepend(...content);
+    }
+    markOpener(entry, this.opens);
+  }
+
+  private rowBeside(): HTMLElement {
+    if (!this.row) {
+      this.row = document.createElement('span');
+      this.row.className = 'lw-menu-item-row';
+      this.row.tabIndex = -1;
+    }
+    for (const name of ['aria-checked', 'aria-disabled', 'aria-haspopup', 'aria-expanded', 'tabindex']) {
+      this.removeAttribute(name);
+    }
+    this.setAttribute('role', 'none');
+    this.prepend(this.row);
+    return this.row;
+  }
+
+  private withoutRow(): HTMLElement {
+    this.row?.remove();
+    this.row = undefined;
+    this.tabIndex = -1;
+    return this;
   }
 
   private trailing(): HTMLElement[] {

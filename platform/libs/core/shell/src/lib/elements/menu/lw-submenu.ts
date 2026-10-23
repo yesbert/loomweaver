@@ -6,10 +6,9 @@ export const SUBMENU_GAP = 2;
 
 const NESTED_MENU = ':scope > lw-menu';
 
-let nextLabelId = 0;
-
 export function nestedMenu(item: Element): HTMLElement | null {
-  return item.querySelector<HTMLElement>(NESTED_MENU);
+  const holder = item.classList.contains('lw-menu-item-row') ? item.parentElement : item;
+  return holder?.querySelector<HTMLElement>(NESTED_MENU) ?? null;
 }
 
 export function isNested(menu: HTMLElement): boolean {
@@ -43,19 +42,12 @@ export function submenuMark(): HTMLSpanElement {
   return mark;
 }
 
-export function markOpener(
-  item: HTMLElement,
-  label: HTMLElement,
-  opens: boolean,
-): void {
+export function markOpener(item: HTMLElement, opens: boolean): void {
   if (!opens) {
     item.removeAttribute('aria-haspopup');
     item.removeAttribute('aria-expanded');
-    item.removeAttribute('aria-labelledby');
     return;
   }
-  label.id = `lw-menu-item-label-${nextLabelId++}`;
-  item.setAttribute('aria-labelledby', label.id);
   item.setAttribute('aria-haspopup', 'menu');
   if (!item.hasAttribute('aria-expanded')) {
     item.setAttribute('aria-expanded', 'false');

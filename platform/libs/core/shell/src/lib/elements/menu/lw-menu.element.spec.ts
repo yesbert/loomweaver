@@ -335,6 +335,7 @@ describe('<lw-menu> custom element', () => {
   describe('a submenu nested in an entry', () => {
     function mountNested(): {
       menu: LwMenuElement;
+      holder: HTMLElement;
       move: HTMLElement;
       submenu: LwMenuElement;
       steps: HTMLElement[];
@@ -362,7 +363,8 @@ describe('<lw-menu> custom element', () => {
       menu.append(remove);
       return {
         menu,
-        move,
+        holder: move,
+        move: rowOf(move),
         submenu,
         steps: [...submenu.querySelectorAll<HTMLElement>('lw-menu-item')],
       };
@@ -376,34 +378,48 @@ describe('<lw-menu> custom element', () => {
       target.dispatchEvent(event);
       return event;
     };
-    const labelledName = (item: HTMLElement): string =>
-      (item.getAttribute('aria-labelledby') ?? '')
-        .split(' ')
-        .map((id) => document.querySelector(`#${id}`)?.textContent ?? '')
-        .join(' ');
+    function rowOf(holder: HTMLElement): HTMLElement {
+      return holder.querySelector<HTMLElement>(':scope > [role="menuitem"]') as HTMLElement;
+    }
 
-    it('marks the entry as opening a menu, with a chevron, and names it by its own label', () => {
-      const { move } = mountNested();
+    const ownWords = (row: HTMLElement): string => row.textContent?.trim() ?? '';
 
+    it('takes no role itself and lets its row be the entry, marked as opening a menu', () => {
+      const { holder, move, submenu } = mountNested();
+
+      expect(holder.getAttribute('role')).toBe('none');
       expect(move.getAttribute('role')).toBe('menuitem');
       expect(move.getAttribute('aria-haspopup')).toBe('menu');
       expect(move.getAttribute('aria-expanded')).toBe('false');
-      expect(move.querySelector(':scope > .lw-menu-item-submenu')).not.toBeNull();
-      expect(
-        move
-          .querySelector(':scope > .lw-menu-item-submenu')
-          ?.getAttribute('aria-hidden'),
-      ).toBe('true');
-      expect(labelledName(move)).toBe('Move');
+      expect(move.querySelector(':scope > .lw-menu-item-submenu')?.getAttribute('aria-hidden')).toBe(
+        'true',
+      );
+      expect(submenu.parentElement).toBe(holder);
+      expect(move.contains(submenu)).toBe(false);
     });
 
-    it('keeps its submenu when the entry draws itself again', () => {
-      const { move, submenu } = mountNested();
+    it('is named by its own words, with its submenu open as well as closed', () => {
+      const { menu, move, submenu } = mountNested();
 
-      move.setAttribute('label', 'Verschieben');
+      expect(ownWords(move)).toBe('Move');
+      expect(move.hasAttribute('aria-labelledby')).toBe(false);
 
-      expect(move.querySelector(':scope > lw-menu')).toBe(submenu);
-      expect(labelledName(move)).toBe('Verschieben');
+      press(menu, 'ArrowDown');
+      press(menu, 'ArrowDown');
+      press(move, 'ArrowRight');
+
+      expect(submenu.hidden).toBe(false);
+      expect(ownWords(move)).toBe('Move');
+    });
+
+    it('keeps its submenu and its row when the entry draws itself again', () => {
+      const { holder, move, submenu } = mountNested();
+
+      holder.setAttribute('label', 'Verschieben');
+
+      expect(holder.querySelector(':scope > lw-menu')).toBe(submenu);
+      expect(rowOf(holder)).toBe(move);
+      expect(ownWords(move)).toBe('Verschieben');
     });
 
     it('marks an entry whose submenu arrives after it was drawn', async () => {
@@ -412,7 +428,20 @@ describe('<lw-menu> custom element', () => {
       entry.append(document.createElement(LW_MENU_TAG));
       await Promise.resolve();
 
-      expect(entry.getAttribute('aria-haspopup')).toBe('menu');
+      expect(entry.getAttribute('role')).toBe('none');
+      expect(rowOf(entry)?.getAttribute('aria-haspopup')).toBe('menu');
+    });
+
+    it('is the entry itself again once its submenu leaves', async () => {
+      const { holder, submenu } = mountNested();
+
+      submenu.remove();
+      await Promise.resolve();
+
+      expect(holder.getAttribute('role')).toBe('menuitem');
+      expect(rowOf(holder)).toBeNull();
+      expect(holder.hasAttribute('aria-haspopup')).toBe(false);
+      expect(holder.textContent?.trim()).toBe('Move');
     });
 
     it('stays hidden and leaves focus alone until its entry opens it', async () => {
