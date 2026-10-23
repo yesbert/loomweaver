@@ -63,9 +63,9 @@ tools.list();  // readonly Tool[]
 plugin may reach changes as plugins load and unload and as the session changes, and a list kept from
 earlier promises actions that are no longer there.
 
-Each entry is already narrowed by everything that would refuse the invocation: the command declared
-itself `callable`, the session meets its `access`, it belongs in this window, and, for a command your
-plugin did not register, your plugin holds the `automation` capability.
+Each entry is already narrowed by everything that would refuse the invocation. The command declared
+itself `callable`, the session meets its `access`, and it belongs in this window. For a command your
+plugin did not register, your plugin also holds the `automation` capability.
 
 ## The pieces, if you want less than the loop
 

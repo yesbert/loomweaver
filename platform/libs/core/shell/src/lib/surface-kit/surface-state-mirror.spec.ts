@@ -76,7 +76,9 @@ describe('the frame kit state mirror', () => {
     const first = state.watch<string>('draft');
     const second = state.watch<string>('draft');
     const heard: (string | undefined)[] = [];
-    second.onChange((value) => heard.push(value));
+    second.onChange((value) => {
+      heard.push(value);
+    });
 
     first.dispose();
     second.set('kept');
@@ -95,7 +97,9 @@ describe('the frame kit state mirror', () => {
     const first = state.watch<string>('draft');
     const second = state.watch<string>('draft');
     const heard: (string | undefined)[] = [];
-    first.onChange((value) => heard.push(value));
+    first.onChange((value) => {
+      heard.push(value);
+    });
 
     first.dispose();
     state.apply('draft', 'later', true);

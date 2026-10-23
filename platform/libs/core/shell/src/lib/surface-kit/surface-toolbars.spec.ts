@@ -199,7 +199,7 @@ describe('toolbars inside an isolated surface', () => {
     const watches = host.calls.filter((call) => call.method === 'slotWatch').length;
     const unwatched = host.calls.filter((call) => call.method === 'slotUnwatch').map((call) => call.args[0]);
     expect(watches).toBe(2);
-    expect(unwatched.toSorted()).toEqual(['sub-1', 'sub-2']);
+    expect(unwatched.toSorted((a, b) => String(a).localeCompare(String(b)))).toEqual(['sub-1', 'sub-2']);
   });
 
   it('lets go of a watch whose toolbar left before the host answered it', async () => {
