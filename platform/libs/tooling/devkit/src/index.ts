@@ -106,4 +106,9 @@ export {
 export { validateI18nParity, type I18nBundle } from './lib/validate/i18n';
 export { validateCatalog, CATALOG_ENTRY_KEYS } from './lib/validate/catalog';
 export { validateCommands, RUNTIME_NOTE, type CommandSource } from './lib/validate/commands';
-export { loadTypeScript, type TypeScriptModule } from './lib/validate/typescript';
+export {
+  loadTypeScript,
+  TYPESCRIPT_COMPATIBILITY_PACKAGE,
+  type TypeScriptLookup,
+  type TypeScriptModule,
+} from './lib/validate/typescript';

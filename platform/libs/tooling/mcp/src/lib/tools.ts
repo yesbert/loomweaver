@@ -4,6 +4,7 @@ import {
   portableOptions,
   RUNTIME_NOTE,
   ScaffoldDescriptor,
+  TYPESCRIPT_COMPATIBILITY_PACKAGE,
   SCAFFOLDS,
   ScaffoldValues,
   validateCatalog,
@@ -117,7 +118,7 @@ export function validateI18nTool(args: Args): ToolResult {
 
 export function validateCommandsTool(args: Args): ToolResult {
   const files = (args['files'] ?? {}) as Record<string, string>;
-  const ts = loadTypeScript(process.cwd());
+  const { ts, ...missing } = loadTypeScript(process.cwd());
   if (!ts) {
     return ok({
       findings: [
@@ -125,7 +126,9 @@ export function validateCommandsTool(args: Args): ToolResult {
           level: 'error',
           code: 'commands.typescript',
           message:
-            'typescript is not installed where this server runs; the check reads sources with the TypeScript compiler API, so start the server inside the project.',
+            'withoutInterface' in missing
+              ? `TypeScript ${missing.withoutInterface} is installed where this server runs but offers no compiler API to read sources with; install ${TYPESCRIPT_COMPATIBILITY_PACKAGE} in the project and the check reads them through it.`
+              : 'typescript is not installed where this server runs; the check reads sources with the TypeScript compiler API, so start the server inside the project.',
         },
       ],
     });

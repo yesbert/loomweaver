@@ -174,6 +174,11 @@ a description or a returned value without `answers`. Only a callable command wit
 with private commands passes `--strict`. Every report ends by saying that grants, access and the
 window decide the rest at runtime; the check judges the registrations alone.
 
+The check reads your sources with the TypeScript compiler your project has, so run it inside the
+project. TypeScript 7 no longer ships the compiler API it reads with. A project on TypeScript 7
+installs `@typescript/typescript6` beside it, and the check reads through that package. Without it
+the check says so and names the package, rather than failing inside the compiler.
+
 `validate-catalog` earns its place for one reason: the shell parses a
 [plugin store catalogue](distribution/plugin-store.md#the-catalogue) **defensively** and drops what
 it cannot use without a word. That is the right runtime behaviour, and a terrible authoring

@@ -1,5 +1,6 @@
 import {
   findScaffold,
+  loadTypeScript,
   nxSchemaFor,
   portableOptions,
   SCAFFOLDS,
@@ -15,6 +16,11 @@ import {
   validateManifestTool,
 } from './tools';
 import { inputSchema } from './server';
+
+vi.mock('@loomweaver/devkit', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@loomweaver/devkit')>();
+  return { ...actual, loadTypeScript: vi.fn(actual.loadTypeScript) };
+});
 
 function must(name: string) {
   const descriptor = findScaffold(name);
@@ -334,5 +340,33 @@ export const plugin = {
     ]);
     expect(findings[0].level).toBe('warning');
     expect(findings[1].level).toBe('info');
+  });
+
+  function findingWithout(lookup: ReturnType<typeof loadTypeScript>) {
+    vi.mocked(loadTypeScript).mockReturnValueOnce(lookup);
+    const result = validateCommandsTool({ files: { 'a.ts': '' } });
+    return (
+      result.structuredContent['findings'] as {
+        code: string;
+        level: string;
+        message: string;
+      }[]
+    )[0];
+  }
+
+  it('names the package to install where TypeScript offers no compiler API', () => {
+    const finding = findingWithout({ ts: null, withoutInterface: '7.0.2' });
+
+    expect(finding.level).toBe('error');
+    expect(finding.code).toBe('commands.typescript');
+    expect(finding.message).toContain('TypeScript 7.0.2');
+    expect(finding.message).toContain('@typescript/typescript6');
+  });
+
+  it('says that TypeScript is missing where none is installed', () => {
+    const finding = findingWithout({ ts: null });
+
+    expect(finding.code).toBe('commands.typescript');
+    expect(finding.message).toContain('typescript is not installed');
   });
 });
