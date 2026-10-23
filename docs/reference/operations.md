@@ -94,6 +94,12 @@ false`, `types: ["*"]`, `noUncheckedSideEffectImports: false` and `ignoreDepreca
 - **Upgrade through `npx nx migrate <version>`, not `npm update`.**
   `scripts/update-all-dependencies.sh` deliberately stays inside the semver ranges and only reports
   the majors that are waiting.
+- **TypeScript 7 waits for Angular, and five guards wait for it with the 6.0 API.** `check-api-docs`,
+  `check-comments`, `check-generated-output`, `check-icon-docs`, `check-llms-contract` and the
+  frame kit's `build.mjs` import `typescript` for its compiler API, which TypeScript 7 no longer
+  ships. When the workspace moves, they import `@typescript/typescript6` instead, Microsoft's
+  package with the 6.0 API, and nothing else in them changes. The libraries themselves already type
+  check under the TypeScript 7 compiler with nothing new to fix.
 - **From Nx 24, `nx migrate --run-migrations` is a run that commits each step itself.** It writes a
   runbook under `.nx/migrate-runs/`, hands some steps back as work with a handoff file, and its
   commits carry no sign-off. Squash the branch and commit it with `-s` before pushing, or the Sign-off

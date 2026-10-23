@@ -2,6 +2,7 @@ import {
   type CommandSource,
   I18nBundle,
   loadTypeScript,
+  TYPESCRIPT_COMPATIBILITY_PACKAGE,
   validateCatalog,
   validateCommands,
   validateI18nParity,
@@ -132,10 +133,12 @@ function readSources(dir: string): CommandSource[] {
 export function validateCommandsCommand(args: ParsedArgs, io: Io): number {
   rejectUnknownFlags(args, VALIDATE_FLAGS['validate-commands']);
   const dir = requiredFlag(args, 'dir');
-  const ts = loadTypeScript(dir);
+  const { ts, ...missing } = loadTypeScript(dir);
   if (!ts) {
     throw new ArgError(
-      `typescript is not installed where ${dir} can reach it; the check reads sources with the TypeScript compiler API, so run it inside the project.`,
+      'withoutInterface' in missing
+        ? `TypeScript ${missing.withoutInterface} is installed where ${dir} can reach it but offers no compiler API to read sources with; install ${TYPESCRIPT_COMPATIBILITY_PACKAGE} in the project and the check reads them through it.`
+        : `typescript is not installed where ${dir} can reach it; the check reads sources with the TypeScript compiler API, so run it inside the project.`,
     );
   }
   return reportFindings(
