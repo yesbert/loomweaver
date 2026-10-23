@@ -52,6 +52,6 @@
 
 ## 8. Close
 
-- [ ] 8.0 The demo and the example follow the new tool names when they move to 0.20.0; the example's own name translation goes
-- [ ] 8.1 Release notes for 0.20.0 name the breaking changes: the agent connection, catalogue identities, the submenu row, `loadTypeScript`
-- [ ] 8.2 `openspec validate --all --strict`, then archive
+- [x] 8.0 The demo and the example follow the new tool names when they move to 0.20.0; the example's own name translation goes
+- [x] 8.1 Release notes for 0.20.0 name the breaking changes: the agent connection, catalogue identities, the submenu row, `loadTypeScript`
+- [x] 8.2 `openspec validate --all --strict`, then archive
