@@ -100,7 +100,7 @@ false`, `types: ["*"]`, `noUncheckedSideEffectImports: false` and `ignoreDepreca
   check fails. A lockfile that pins the old exact versions stops `npm install` with ERESOLVE before
   the run can start; regenerating it is the way through.
 - **ng-packagr stays on 22.1 for now.** From 22.2 it bundles declarations with rolldown-plugin-dts,
-  which keeps internal declarations nothing public references: the packed `@loomweaver/shell` types
+  which keeps internal declarations nothing public references. The packed `@loomweaver/shell` types
   would carry 129 names a consumer can see and not import, and `api-docs-check` fails on them. 22.1
   builds Angular 22.2 without complaint. Move it when the bundler drops unreferenced declarations again.
 - **Nx's test tree seeds an oxfmt config unless told otherwise.** `createTreeWithEmptyWorkspace()`
