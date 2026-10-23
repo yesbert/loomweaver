@@ -34,7 +34,7 @@ export function validateI18nParity(bundles: Readonly<Record<string, I18nBundle>>
         findings.push({
           level: 'warning',
           code: 'i18n.missingKey',
-          message: `Language "${lang}" is missing translation key "${key}".`,
+          message: `Language "${lang}" is missing translation key "${key}", so people using it see the key itself where the text should be.`,
           path: `i18n/${lang}`,
         });
       }

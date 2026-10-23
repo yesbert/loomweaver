@@ -32,6 +32,7 @@ export function nxSchemaFor(
     title: `Scaffold ${scaffold.summary}`,
     type: 'object',
     properties,
+    additionalProperties: false,
     required: scaffold.options
       .filter((option) => option.required)
       .map((option) => option.name),

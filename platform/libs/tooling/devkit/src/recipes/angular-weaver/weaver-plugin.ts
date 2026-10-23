@@ -135,7 +135,7 @@ function aboutRailBlock(weaver: ResolvedWeaver): string {
 function menuBlock(weaver: ResolvedWeaver): string {
   return [
     '    ctx.registerMenuItem({',
-    `      menu: '${weaver.features.menuSlot}',`,
+    `      menu: ${stringLiteral(weaver.features.menuSlot)},`,
     `      command: '${weaver.id}.hello',`,
     '    });',
   ].join('\n');

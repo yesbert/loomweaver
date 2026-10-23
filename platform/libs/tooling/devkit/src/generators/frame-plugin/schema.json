@@ -22,6 +22,7 @@
       "description": "Where the files land, relative to the workspace root."
     }
   },
+  "additionalProperties": false,
   "required": [
     "id"
   ]

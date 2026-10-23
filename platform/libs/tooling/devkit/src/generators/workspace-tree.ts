@@ -121,25 +121,49 @@ export function tsconfigPathsFile(tree: Tree): string {
 }
 
 export function writeFiles(tree: Tree, root: string, ...maps: FileMap[]): void {
-  for (const files of maps) {
-    for (const [path, content] of Object.entries(files)) {
-      tree.write(`${root}/${path}`, content);
-    }
+  for (const [path, content] of filesUnder(root, maps)) {
+    tree.write(path, content);
   }
 }
 
 export function writeFilesGuarded(
   tree: Tree,
   root: string,
-  files: FileMap,
+  ...maps: FileMap[]
 ): void {
-  for (const [path, content] of Object.entries(files)) {
-    const full = `${root}/${path}`;
-    if (tree.exists(full)) {
-      throw new Error(`A file already exists at ${full}.`);
-    }
-    tree.write(full, content);
+  const files = filesUnder(root, maps);
+  const taken = files.find(([path]) => tree.exists(path));
+  if (taken) {
+    throw new Error(
+      `${taken[0]} already exists, so nothing was written. Choose another name or directory, or move that file away first.`,
+    );
   }
+  for (const [path, content] of files) {
+    tree.write(path, content);
+  }
+}
+
+function filesUnder(
+  root: string,
+  maps: readonly FileMap[],
+): [string, string][] {
+  const base = insideWorkspace(root);
+  return maps.flatMap((files) =>
+    Object.entries(files).map(([path, content]): [string, string] => [
+      posix.join(base, path),
+      content,
+    ]),
+  );
+}
+
+function insideWorkspace(directory: string): string {
+  const normal = posix.normalize(directory.replaceAll('\\', '/'));
+  if (posix.isAbsolute(normal) || normal === '..' || normal.startsWith('../')) {
+    throw new Error(
+      `${directory} lies outside the workspace, so nothing was written. Pass a directory inside it, relative to the workspace root.`,
+    );
+  }
+  return normal;
 }
 
 export function amendBuildTarget(

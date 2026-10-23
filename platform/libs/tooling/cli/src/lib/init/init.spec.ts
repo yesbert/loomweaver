@@ -10,6 +10,10 @@ import { join } from 'node:path';
 import { run } from '../run';
 import { capture, writeFiles } from '../test-fixtures';
 
+const NG_NEW = JSON.parse(
+  readFileSync(join(import.meta.dirname, 'ng-new-22.fixture.json'), 'utf8'),
+) as Record<string, string>;
+
 function angularApp(root: string, name = 'my-studio'): void {
   writeFiles(root, {
     'package.json': JSON.stringify(
@@ -50,16 +54,16 @@ function angularApp(root: string, name = 'my-studio'): void {
       null,
       2,
     ),
-    'src/main.ts':
-      "import { bootstrapApplication } from '@angular/platform-browser';\n",
-    'src/index.html':
-      '<!doctype html><html><body><app-root></app-root></body></html>\n',
-    'src/styles.css': '',
-    'src/app/app.ts': 'export class App {}\n',
-    'src/app/app.html': '<router-outlet />\n',
-    'src/app/app.config.ts': 'export const appConfig = { providers: [] };\n',
-    'src/app/app.routes.ts': 'export const routes = [];\n',
+    ...ngNewSources(''),
   });
+}
+
+function ngNewSources(projectRoot: string): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(NG_NEW)
+      .filter(([path]) => path.startsWith('src/'))
+      .map(([path, content]) => [join(projectRoot, path), content]),
+  );
 }
 
 function nxWorkspace(root: string, apps: readonly string[]): void {
@@ -166,6 +170,72 @@ describe('init', () => {
       'Angular CLI application, packages with npm (no lockfile found, so npm)',
     );
     expect(c.text().trimEnd().endsWith('Serve it with: npm start')).toBe(true);
+  });
+
+  it('stops before installing anything where a file it would replace is no longer what ng new wrote', () => {
+    angularApp(dir);
+    const edited =
+      "import { provideHttpClient } from '@angular/common/http';\n" +
+      readFileSync(join(dir, 'src/app/app.config.ts'), 'utf8').replace(
+        'provideRouter(routes)',
+        'provideRouter(routes),\n    provideHttpClient()',
+      );
+    writeFileSync(join(dir, 'src/app/app.config.ts'), edited);
+    const c = capture();
+    const { deps, calls } = fakeDeps(dir);
+
+    expect(run(['init'], c.io, deps)).toBe(1);
+
+    expect(calls).toEqual([]);
+    expect(readFileSync(join(dir, 'src/app/app.config.ts'), 'utf8')).toBe(
+      edited,
+    );
+    expect(c.errText()).toContain('src/app/app.config.ts');
+    expect(c.errText()).toContain('nothing was installed or written');
+  });
+
+  it('writes into the build project’s own root where it is not the workspace root', () => {
+    writeFiles(dir, {
+      'package.json': JSON.stringify({
+        name: 'acme',
+        dependencies: { '@angular/core': '^22.1.0' },
+      }),
+      'angular.json': JSON.stringify({
+        version: 1,
+        projects: {
+          studio: {
+            projectType: 'application',
+            root: 'projects/studio',
+            sourceRoot: 'projects/studio/src',
+            architect: {
+              build: {
+                builder: '@angular/build:application',
+                options: {
+                  browser: 'projects/studio/src/main.ts',
+                  styles: ['projects/studio/src/styles.css'],
+                  assets: [],
+                },
+              },
+            },
+          },
+        },
+      }),
+      ...ngNewSources('projects/studio'),
+    });
+    const c = capture();
+    const { deps } = fakeDeps(dir);
+
+    expect(run(['init'], c.io, deps), c.errText()).toBe(0);
+
+    const config = readFileSync(
+      join(dir, 'projects/studio/src/app/app.config.ts'),
+      'utf8',
+    );
+    expect(config).toContain('...providePlugins(notesPlugin)');
+    expect(
+      existsSync(join(dir, 'projects/studio/src/notes/src/index.ts')),
+    ).toBe(true);
+    expect(existsSync(join(dir, 'src'))).toBe(false);
   });
 
   it('changes nothing on a second run and says so', () => {

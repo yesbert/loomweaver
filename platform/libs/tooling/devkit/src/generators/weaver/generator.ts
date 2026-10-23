@@ -14,7 +14,7 @@ import {
   ResolvedApp,
   tsconfigPathsFile,
   workspaceScope,
-  writeFiles,
+  writeFilesGuarded,
 } from '../workspace-tree';
 import { weaverAmendments } from '../../recipes/angular-weaver/amendments';
 import { angularWeaver } from '../../recipes/angular-weaver/recipe';
@@ -48,11 +48,12 @@ export async function weaverGenerator(
 
   const input = weaverInput({
     ...options,
+    ...(options.unitTestRunner === 'none' && { spec: false }),
     prefix: project.prefix,
     importPath: project.importPath,
   });
   const source = generate(angularWeaver, input);
-  writeFiles(tree, project.projectRoot, source, nxWeaverFiles(project));
+  writeFilesGuarded(tree, project.projectRoot, source, nxWeaverFiles(project));
 
   updateJson(tree, baseTsconfig, (json) => {
     json.compilerOptions ??= {};

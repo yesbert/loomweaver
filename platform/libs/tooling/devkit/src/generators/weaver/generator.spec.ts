@@ -59,6 +59,15 @@ describe('weaver generator', () => {
     expect(tree.exists('libs/notes-weaver/tsconfig.spec.json')).toBe(false);
   });
 
+  it('leaves no spec behind for a workspace that runs no unit tests', async () => {
+    await weaverGenerator(tree, { id: 'notes', agent: true, unitTestRunner: 'none' });
+    const specs = tree
+      .listChanges()
+      .map((change) => change.path)
+      .filter((path) => path.endsWith('.spec.ts'));
+    expect(specs).toEqual([]);
+  });
+
   it('takes the import alias from the workspace scope', async () => {
     await weaverGenerator(tree, { id: 'notes' });
     const base = readJson(tree, 'tsconfig.base.json');
@@ -95,6 +104,20 @@ describe('weaver generator', () => {
     });
     const tsconfig = readJson(tree, 'packages/plugins/notes/tsconfig.json');
     expect(tsconfig.extends).toBe('../../../tsconfig.base.json');
+  });
+
+  it('refuses to write over a file that is already there, and leaves it as it was', async () => {
+    tree.write('libs/notes-weaver/src/index.ts', 'keep me');
+    await expect(weaverGenerator(tree, { id: 'notes' })).rejects.toThrow(
+      /libs\/notes-weaver\/src\/index\.ts already exists/,
+    );
+    expect(tree.read('libs/notes-weaver/src/index.ts', 'utf8')).toBe('keep me');
+  });
+
+  it('refuses a directory outside the workspace', async () => {
+    await expect(
+      weaverGenerator(tree, { id: 'notes', directory: '../outside' }),
+    ).rejects.toThrow(/outside the workspace/);
   });
 
   it('names the project that already occupies the directory', async () => {
@@ -294,7 +317,7 @@ describe('weaver generator', () => {
 
   it('adds no source twice when a weaver is regenerated', async () => {
     await weaverGenerator(tree, { id: 'notes' });
-    tree.delete('libs/notes-weaver/project.json');
+    tree.delete('libs/notes-weaver');
     await weaverGenerator(tree, { id: 'notes' });
     const css = tree.read('apps/studio/src/styles.css', 'utf8') ?? '';
     expect(css.match(/libs\/notes-weaver\/src/g)).toHaveLength(1);
@@ -364,6 +387,20 @@ describe('weaver generator with an agent connection', () => {
     await weaverGenerator(tree, { id: 'notes', agent: true });
     expect(readJson(tree, 'package.json').dependencies['@ag-ui/core']).toBe(
       '1.0.42',
+    );
+  });
+
+  it('leaves an older version the consumer already chose in place', async () => {
+    const manifest = readJson(tree, 'package.json');
+    manifest.dependencies = {
+      ...manifest.dependencies,
+      '@ag-ui/core': '0.0.1',
+    };
+    tree.write('package.json', JSON.stringify(manifest, null, 2));
+
+    await weaverGenerator(tree, { id: 'notes', agent: true });
+    expect(readJson(tree, 'package.json').dependencies['@ag-ui/core']).toBe(
+      '0.0.1',
     );
   });
 

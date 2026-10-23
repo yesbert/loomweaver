@@ -28,20 +28,62 @@ interface ProvidersBlock {
 }
 
 function closingLine(source: string, from: number): ProvidersBlock | null {
-  let close = source.indexOf('],', from);
-  while (close !== -1) {
-    let start = close;
-    while (start > from && source.charAt(start - 1).trim() === '') {
-      start -= 1;
-    }
-    const gap = source.slice(start, close);
-    const newline = gap.indexOf('\n');
-    if (newline !== -1) {
-      return { insertAt: start + newline, indent: gap.slice(newline + 1) };
-    }
-    close = source.indexOf('],', close + 2);
+  const close = matchingBracket(source, from);
+  if (close === -1) {
+    return null;
   }
-  return null;
+  let start = close;
+  while (start > from && source.charAt(start - 1).trim() === '') {
+    start -= 1;
+  }
+  const gap = source.slice(start, close);
+  const newline = gap.indexOf('\n');
+  return newline === -1
+    ? null
+    : { insertAt: start + newline, indent: gap.slice(newline + 1) };
+}
+
+function matchingBracket(source: string, from: number): number {
+  let depth = 1;
+  let index = from;
+  while (index < source.length) {
+    const skipped = skipLiteral(source, index);
+    if (skipped !== index) {
+      index = skipped;
+      continue;
+    }
+    const char = source.charAt(index);
+    if (char === '[') {
+      depth += 1;
+    } else if (char === ']') {
+      depth -= 1;
+      if (depth === 0) {
+        return index;
+      }
+    }
+    index += 1;
+  }
+  return -1;
+}
+
+function skipLiteral(source: string, at: number): number {
+  const char = source.charAt(at);
+  if (source.startsWith('//', at)) {
+    const end = source.indexOf('\n', at);
+    return end === -1 ? source.length : end;
+  }
+  if (source.startsWith('/*', at)) {
+    const end = source.indexOf('*/', at + 2);
+    return end === -1 ? source.length : end + 2;
+  }
+  if (char !== "'" && char !== '"' && char !== '`') {
+    return at;
+  }
+  let index = at + 1;
+  while (index < source.length && source.charAt(index) !== char) {
+    index += source.charAt(index) === '\\' ? 2 : 1;
+  }
+  return index + 1;
 }
 
 function providersBlock(source: string): ProvidersBlock | null {
@@ -64,7 +106,7 @@ export function composePlugin(
   amendment: ComposePluginAmendment,
   importPath: string,
 ): ComposeResult {
-  if (source.includes(amendment.symbol)) {
+  if (mentions(source, amendment.symbol)) {
     return { source, composed: true, kept: [] };
   }
   const shellImport = SHELL_IMPORT.exec(source);
@@ -114,10 +156,10 @@ export function composeProviders(
   importPath: string | undefined,
 ): ComposeResult {
   const pending = amendment.providers.filter(
-    (provider) => !source.includes(provider.line.replace(/,$/, '')),
+    (provider) => !mentions(source, provider.line.replace(/,$/, '')),
   );
   const kept = pending.filter(
-    (provider) => provider.unless !== undefined && source.includes(provider.unless),
+    (provider) => provider.unless !== undefined && mentions(source, provider.unless),
   );
   const wanted = pending.filter((provider) => !kept.includes(provider));
   const keptLines = kept.map((provider) => provider.line);
@@ -226,7 +268,7 @@ function providersToAdd(
   amendment: ComposePluginAmendment,
 ): readonly ProviderLine[] {
   return (amendment.providers ?? []).filter(
-    (provider) => !(provider.unless && source.includes(provider.unless)),
+    (provider) => !(provider.unless && mentions(source, provider.unless)),
   );
 }
 
@@ -235,7 +277,7 @@ function keptProviders(
   amendment: ComposePluginAmendment,
 ): readonly ProviderLine[] {
   return (amendment.providers ?? []).filter(
-    (provider) => provider.unless !== undefined && source.includes(provider.unless),
+    (provider) => provider.unless !== undefined && mentions(source, provider.unless),
   );
 }
 
@@ -297,4 +339,10 @@ function withShellSymbols(existing: string, wanted: readonly string[]): string {
   const multiline = existing.includes('\n');
   const all = [...present, ...missing].toSorted((a, b) => a.localeCompare(b));
   return multiline ? `\n  ${all.join(',\n  ')},\n` : ` ${all.join(', ')} `;
+}
+
+function mentions(source: string, text: string): boolean {
+  const escaped = text.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+  const tail = /[\w$]$/.test(text) ? String.raw`(?![\w$])` : '';
+  return new RegExp(String.raw`(?<![\w$])${escaped}${tail}`).test(source);
 }

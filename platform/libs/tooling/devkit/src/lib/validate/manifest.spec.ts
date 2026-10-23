@@ -39,6 +39,16 @@ describe('validateManifest', () => {
     expect(findings.map((f) => f.code)).toContain('manifest.capabilities');
   });
 
+  it.each([
+    [{ id: 'notes', name: 42 }, 'the plugin list shows'],
+    [{ id: 'notes', capabilities: 'ui' }, 'grants this plugin nothing'],
+    [{ id: 'notes', capabilities: ['root'] }, 'grants nothing for it'],
+    [{ id: 'notes', capabilities: ['ui', 'ui'] }, 'changes nothing'],
+  ])('names what %j costs', (manifest, consequence) => {
+    const [finding] = validateManifest(manifest);
+    expect(finding.message).toContain(consequence);
+  });
+
   it('honours an injected capability list', () => {
     expect(validateManifest({ id: 'notes', capabilities: ['files'] }, ['files'])).toEqual([]);
   });

@@ -149,6 +149,20 @@ describe('distribution generator', () => {
     ).rejects.toThrow(/already exists/);
   });
 
+  it('refuses to write over a file that is already there, and leaves it as it was', async () => {
+    tree.write('apps/acme-studio/src/main.ts', 'keep me');
+    await expect(
+      distributionGenerator(tree, { name: 'acme-studio' }),
+    ).rejects.toThrow(/apps\/acme-studio\/src\/main\.ts already exists/);
+    expect(tree.read('apps/acme-studio/src/main.ts', 'utf8')).toBe('keep me');
+  });
+
+  it('refuses a directory outside the workspace', async () => {
+    await expect(
+      distributionGenerator(tree, { name: 'acme-studio', directory: '../studio' }),
+    ).rejects.toThrow(/outside the workspace/);
+  });
+
   describe('composing into an application that already exists', () => {
     beforeEach(() => {
       addProjectConfiguration(tree, 'acme-studio', {

@@ -41,6 +41,13 @@ describe('Nx generator schemas', () => {
   );
 
   it.each(SCAFFOLDS.map((scaffold) => [scaffold.name, scaffold] as const))(
+    'refuses an option %s does not know, so a mistyped flag is not silently ignored',
+    (_name, scaffold) => {
+      expect(nxSchemaFor(scaffold)['additionalProperties']).toBe(false);
+    },
+  );
+
+  it.each(SCAFFOLDS.map((scaffold) => [scaffold.name, scaffold] as const))(
     "describes %s in the generator collection with the scaffold's own summary",
     (name, scaffold) => {
       expect(COLLECTION.generators[name]?.description).toBe(
