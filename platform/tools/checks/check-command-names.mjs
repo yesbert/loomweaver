@@ -12,7 +12,7 @@
 // rather than a guard at runtime.
 
 import { readFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { filesUnder } from './files-under.mjs';
 
@@ -54,14 +54,20 @@ function depths(literal) {
   return at;
 }
 
-/** Raw values of `key` at the top level of an object literal, not inside a nested one. */
+/**
+ * Raw values of `key` at the top level of an object literal, not inside a nested one. A shorthand
+ * property (`{ title }`) is the variable of that name.
+ */
 function topLevelRaw(literal, key) {
-  const pattern = new RegExp(String.raw`${key}:\s*('[^']*'|[A-Za-z_$][\w$.]*)`, 'g');
+  const pattern = new RegExp(
+    String.raw`(?<![\w$.])${key}(?:\s*:\s*('[^']*'|[A-Za-z_$][\w$.]*)|(?=\s*[,}]))`,
+    'g',
+  );
   const depth = depths(literal);
   const found = [];
   for (const match of literal.matchAll(pattern)) {
     if (depth[match.index] === 1) {
-      found.push(match[1]);
+      found.push(match[1] ?? key);
     }
   }
   return found;
@@ -82,7 +88,7 @@ function constants() {
   const found = new Map();
   for (const file of sources(shell)) {
     const source = readFileSync(file, 'utf8');
-    for (const [, name, value] of source.matchAll(/^(?:export )?const ([A-Z][A-Z0-9_]*_COMMAND_ID) = '([^']*)'/gm)) {
+    for (const [, name, value] of source.matchAll(/^(?:export )?const ([A-Z][A-Z0-9_]*_(?:COMMAND_ID|TITLE)) = '([^']*)'/gm)) {
       found.set(name, value);
     }
   }
@@ -102,29 +108,55 @@ function valueOf(raw, known) {
 }
 
 /**
- * The files the workbench's own palette commands are registered from: the orchestrator and every
- * `…-command.ts` or `…-commands.ts` beside what a command opens. Context-menu commands live with
- * their menus and are not offered in the palette, so they are out of scope.
+ * Files that call `addCommand` with what someone else hands them rather than registering a command of
+ * the shell's own: the registry itself, the bridge a plugin registers through, and context-menu entries,
+ * which are hidden from the palette.
  */
+const PASSES_ON = new Set([
+  'contributions/contribution-registry.ts',
+  'plugin/context/host-plugin-context.ts',
+  'menu/context-menu-entry.ts',
+]);
+
+/** Every file the workbench registers a command of its own from, wherever it sits. */
 function hostCommandSources() {
-  return sources(shell).filter((file) => /(^|\/)(host-commands|[\w-]+-commands?)\.ts$/.test(file));
+  return sources(shell).filter(
+    (file) =>
+      !PASSES_ON.has(relative(shell, file).replaceAll('\\', '/')) &&
+      readFileSync(file, 'utf8').includes('addCommand('),
+  );
+}
+
+/**
+ * A local `const name = options.something ?? DEFAULT` resolves to that default, which is what a
+ * product that brands nothing sees.
+ */
+function defaultsIn(source, known) {
+  const local = new Map(known);
+  for (const [, name, fallback] of source.matchAll(/const (\w+) = [^;\n]*\?\? ([A-Z][A-Z0-9_]*);/g)) {
+    if (known.has(fallback)) {
+      local.set(name, known.get(fallback));
+    }
+  }
+  return local;
 }
 
 /** Every host command the shell registers, as id → the translation key it is titled by. */
 function hostCommands(known) {
-  const source = hostCommandSources()
-    .map((file) => readFileSync(file, 'utf8'))
-    .join('\n');
   const commands = new Map();
   const unresolved = [];
-  for (const match of source.matchAll(/addCommand\(\s*\{/g)) {
-    const literal = objectAt(source, source.indexOf('{', match.index));
-    const id = valueOf(topLevelRaw(literal, 'id')[0], known);
-    const title = valueOf(topLevelRaw(literal, 'title')[0], known);
-    if (id && title) {
-      commands.set(id, title);
-    } else {
-      unresolved.push(literal.slice(0, 80).replaceAll(/\s+/g, ' '));
+  for (const file of hostCommandSources()) {
+    const source = readFileSync(file, 'utf8');
+    const here = defaultsIn(source, known);
+    for (const match of source.matchAll(/addCommand\(\s*\{/g)) {
+      const literal = objectAt(source, source.indexOf('{', match.index));
+      const id = valueOf(topLevelRaw(literal, 'id')[0], here);
+      const title = valueOf(topLevelRaw(literal, 'title')[0], here);
+      if (id && title) {
+        commands.set(id, title);
+      } else {
+        unresolved.push(literal.slice(0, 80).replaceAll(/\s+/g, ' '));
+      }
     }
   }
   return { commands, unresolved };
