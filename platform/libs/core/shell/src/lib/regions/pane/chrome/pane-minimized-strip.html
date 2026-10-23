@@ -5,7 +5,7 @@
   [class.px-2]="!vertical()"
   [class.py-2]="vertical()"
   (click)="restore()"
-  [attr.aria-label]="restoreKey() | transloco: { count: tabCount() }"
+  [attr.aria-label]="nameOf(label().literalTitle ? label().title : (label().title | transloco), restoreKey() | transloco: { count: tabCount() })"
   data-testid="pane-minimized-strip"
 >
   <lw-icon [name]="label().icon ?? 'document'" size="0.875rem" />
@@ -19,8 +19,7 @@
     >{{ label().literalTitle ? label().title : (label().title | transloco)
     }}</span
   >
-  } @if (tabCount() > 1) {
-  <span
+  } @if (tabCount() > 1) { &ngsp;<span
     class="lw-badge lw-badge--brand shrink-0 px-1.5 py-0 text-xs"
     aria-hidden="true"
     >+{{ extraTabs() }}</span

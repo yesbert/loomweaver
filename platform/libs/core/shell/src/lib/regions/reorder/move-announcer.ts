@@ -11,6 +11,12 @@ export interface MoveWording {
   readonly targetRight: string;
 }
 
+export interface MovedEntry {
+  readonly id: string;
+  readonly title?: string;
+  readonly literalTitle?: boolean;
+}
+
 @Service()
 export class MoveAnnouncer {
   private readonly layout = inject(SHELL_LAYOUT);
@@ -19,17 +25,24 @@ export class MoveAnnouncer {
 
   announce(
     wording: MoveWording,
-    moved: { readonly id: string; readonly title?: string },
+    moved: MovedEntry,
     targetRegion: string,
   ): void {
     void this.announcer.announce(
       this.transloco.translate(wording.announce, {
-        [wording.subject]: moved.title
-          ? this.transloco.translate(moved.title)
-          : moved.id,
+        [wording.subject]: this.nameOf(moved),
         target: this.targetLabel(wording, targetRegion),
       }),
     );
+  }
+
+  private nameOf(moved: MovedEntry): string {
+    if (!moved.title) {
+      return moved.id;
+    }
+    return moved.literalTitle
+      ? moved.title
+      : this.transloco.translate(moved.title);
   }
 
   private targetLabel(wording: MoveWording, regionId: string): string {

@@ -3,6 +3,7 @@ import {
   CUSTOM_ELEMENTS_SCHEMA,
   computed,
   inject,
+  Injector,
   input,
 } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -32,6 +33,7 @@ import { ContributionRegistry } from '../../contributions/contribution-registry'
 import { FeatureSwitches } from '../../features/feature-switches.service';
 import { regionOnSide } from '../../layout/layout-queries';
 import { sideForMoveChord } from '../reorder/move-chord';
+import { focusMovedEntry } from '../reorder/focus-moved-entry';
 
 export type SidebarHeaderContext = 'edge' | 'drawer' | 'floating';
 
@@ -53,6 +55,7 @@ export class ShellSidebarHeader {
   private readonly registry = inject(ContributionRegistry);
   private readonly layout = inject(SHELL_LAYOUT);
   private readonly features = inject(FeatureSwitches).sidebar;
+  private readonly injector = inject(Injector);
 
   protected readonly viewContextMenu = VIEW_CONTEXT_MENU;
 
@@ -156,12 +159,21 @@ export class ShellSidebarHeader {
       return;
     }
     event.preventDefault();
+    this.moveToPanel(path, target.id);
+    focusMovedEntry(
+      `#${CSS.escape(`panel-views-${target.id}`)} [data-tab-path="${CSS.escape(path)}"]`,
+      this.injector,
+    );
+  }
+
+  private moveToPanel(path: string, targetRegion: string): void {
     const viewId = viewIdOfPanePath(path);
+    const tab = this.stripTabs().find((one) => one.path === path);
     if (viewId !== null) {
-      this.viewMove.move(viewId, target.id);
-      return;
+      this.viewMove.move(viewId, targetRegion);
+    } else if (tab) {
+      this.viewMove.moveTab(this.source(), tab, targetRegion);
     }
-    this.viewMove.moveTab(this.source(), path, target.id);
   }
 
   private panelOn(side: 'left' | 'right'): LayoutRegion | undefined {

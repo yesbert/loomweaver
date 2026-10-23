@@ -117,6 +117,15 @@ export class LwTooltipElement extends HTMLElement {
 
   private readonly onFocusOut = () => this.hide();
 
+  private readonly onEscape = (event: KeyboardEvent) => {
+    if (event.key !== 'Escape') {
+      return;
+    }
+    this.hide();
+    event.preventDefault();
+    event.stopPropagation();
+  };
+
   private render(): void {
     const text = (this.getAttribute('text') ?? '').trim();
     if (!text) {
@@ -165,6 +174,7 @@ export class LwTooltipElement extends HTMLElement {
     } catch {
       return;
     }
+    document.addEventListener('keydown', this.onEscape, { capture: true });
     this.placeBubble(bubble);
   }
 
@@ -197,6 +207,7 @@ export class LwTooltipElement extends HTMLElement {
 
   private hide(): void {
     this.clearTimer();
+    document.removeEventListener('keydown', this.onEscape, { capture: true });
     const bubble = this.bubble;
     if (!bubble || typeof bubble.hidePopover !== 'function') {
       return;

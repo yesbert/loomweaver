@@ -3,6 +3,7 @@ import {
   CUSTOM_ELEMENTS_SCHEMA,
   computed,
   inject,
+  Injector,
   input,
   signal,
 } from '@angular/core';
@@ -44,6 +45,7 @@ import { RailWorkspaceEntries } from './rail-workspace-entries';
 import { bandOf, railEntries } from './rail-entries';
 import { railNameKey } from './rail-name';
 import { sideForMoveChord } from '../reorder/move-chord';
+import { focusMovedEntry } from '../reorder/focus-moved-entry';
 import { nameShowing } from '../../foundation/name-showing';
 
 @Component({
@@ -76,6 +78,7 @@ export class ShellRail {
   private readonly workspaceEntries = inject(RailWorkspaceEntries);
   private readonly railLabels = inject(RailLabelsService);
   protected readonly labelFit = inject(RailLabelFit);
+  private readonly injector = inject(Injector);
 
   protected readonly railMenu = computed(() =>
     this.features.curate() ? [RAIL_CONTEXT_MENU] : [],
@@ -189,6 +192,7 @@ export class ShellRail {
     }
     event.preventDefault();
     this.railMove.move(itemId, target);
+    focusMovedEntry(`[data-rail-item="${CSS.escape(itemId)}"]`, this.injector);
   }
 
   protected isCurrent(item: RailItem): boolean {
