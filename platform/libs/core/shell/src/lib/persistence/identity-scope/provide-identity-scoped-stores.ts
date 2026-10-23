@@ -112,7 +112,13 @@ export function provideIdentityScopedStores(
             ]),
           )
           .catch(() => undefined)
-          .finally(() => latch.settle());
+          .finally(() => {
+            latch.settle();
+            void Promise.all([
+              settings.writeWhatArrivedDuringAdoption(),
+              workingState.writeWhatArrivedDuringAdoption(),
+            ]).catch(() => undefined);
+          });
       });
       effect(() => {
         auth.state();

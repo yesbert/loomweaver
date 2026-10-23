@@ -54,6 +54,10 @@ export class PluginStateService {
   private readonly entries = new Map<string, Entry>();
   private readonly keysByPlugin = new Map<string, Set<string>>();
 
+  private readonly indexReads = new Map<string, Promise<void>>();
+
+  private readonly removedBeforeRead = new Map<string, Set<string>>();
+
   constructor() {
     this.sync.registerPrefix('working-state', STORAGE_PREFIX, (raw, key) => {
       const entry = this.entries.get(key);
@@ -85,9 +89,12 @@ export class PluginStateService {
       entry.value.set(undefined);
       this.entries.delete(storageKey);
     }
+    const known = [...(this.keysByPlugin.get(pluginId) ?? [])];
     this.keysByPlugin.delete(pluginId);
+    this.indexReads.delete(pluginId);
+    this.removedBeforeRead.delete(pluginId);
     void readStoredValue(this.store, INDEX_PREFIX + pluginId).then((raw) => {
-      for (const key of parseKeys(raw)) {
+      for (const key of new Set([...known, ...parseKeys(raw)])) {
         void this.store.delete(this.storageKeyOf(pluginId, key));
       }
       void this.store.delete(INDEX_PREFIX + pluginId);
@@ -203,8 +210,7 @@ export class PluginStateService {
     this.cancelPending(entry);
     entry.value.set(undefined);
     void this.store.delete(entry.storageKey);
-    const keys = this.keysByPlugin.get(entry.pluginId);
-    keys?.delete(key);
+    this.forgetKey(entry.pluginId, key);
     this.persistIndex(entry.pluginId);
     this.announce(entry);
   }
@@ -273,18 +279,36 @@ export class PluginStateService {
       return existing;
     }
     const keys = new Set(parseKeys(this.store.peek?.(INDEX_PREFIX + pluginId)));
+    const removed = new Set<string>();
     this.keysByPlugin.set(pluginId, keys);
-    void readStoredValue(this.store, INDEX_PREFIX + pluginId).then((raw) => {
-      for (const key of parseKeys(raw)) {
-        keys.add(key);
-      }
-    });
+    this.removedBeforeRead.set(pluginId, removed);
+    this.indexReads.set(
+      pluginId,
+      readStoredValue(this.store, INDEX_PREFIX + pluginId).then((raw) => {
+        for (const key of parseKeys(raw)) {
+          if (!removed.has(key)) {
+            keys.add(key);
+          }
+        }
+        this.removedBeforeRead.delete(pluginId);
+      }),
+    );
     return keys;
   }
 
+  private forgetKey(pluginId: string, key: string): void {
+    this.knownKeys(pluginId).delete(key);
+    this.removedBeforeRead.get(pluginId)?.add(key);
+  }
+
   private persistIndex(pluginId: string): void {
-    const keys = [...(this.keysByPlugin.get(pluginId) ?? [])];
-    void this.store.set(INDEX_PREFIX + pluginId, JSON.stringify(keys));
+    const keys = this.keysByPlugin.get(pluginId);
+    void (this.indexReads.get(pluginId) ?? Promise.resolve()).then(() => {
+      if (!keys || this.keysByPlugin.get(pluginId) !== keys) {
+        return;
+      }
+      void this.store.set(INDEX_PREFIX + pluginId, JSON.stringify([...keys]));
+    });
   }
 
   private storageKeyOf(pluginId: string, key: string): string {

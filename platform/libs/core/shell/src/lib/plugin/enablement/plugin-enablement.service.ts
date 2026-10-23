@@ -85,8 +85,6 @@ export class PluginEnablementService {
     if (!enabled && this.required.has(id)) {
       return;
     }
-    this.storedDisabled.set(
-      toggledIdSet(this.storedDisabled.value(), id, !enabled),
-    );
+    this.storedDisabled.update((disabled) => toggledIdSet(disabled, id, !enabled));
   }
 }

@@ -6,14 +6,14 @@
 
 ## 2. The agent connection
 
-- [ ] 2.1 A call is run only where its command is among the tools offered (delta)
-- [ ] 2.2 Tool names in the model interfaces' form, translated back on a call, no two alike (delta)
+- [x] 2.1 A call is run only where its command is among the tools offered (delta)
+- [x] 2.2 Tool names in the model interfaces' form, translated back on a call, no two alike (delta)
 
 ## 3. Persistence
 
-- [ ] 3.1 Plugin state: clearing before any write keeps the stored key index; a write before the index is read does not truncate it
-- [ ] 3.2 Identity-scoped store: a write made while adoption runs is not lost
-- [ ] 3.3 Persisted setting: a set before an asynchronous store answered is not overwritten by the late stored value
+- [x] 3.1 Plugin state: clearing before any write keeps the stored key index; a write before the index is read does not truncate it
+- [x] 3.2 Identity-scoped store: a write made while adoption runs is not lost
+- [x] 3.3 Persisted setting: a set before an asynchronous store answered is not overwritten by the late stored value
 
 ## 4. Accessibility
 
@@ -52,5 +52,6 @@
 
 ## 8. Close
 
+- [ ] 8.0 The demo and the example follow the new tool names when they move to 0.20.0; the example's own name translation goes
 - [ ] 8.1 Release notes for 0.20.0 name the breaking changes: the agent connection, catalogue identities, the submenu row, `loadTypeScript`
 - [ ] 8.2 `openspec validate --all --strict`, then archive

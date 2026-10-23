@@ -205,6 +205,45 @@ describe('IdentityScopedStore', () => {
   });
 });
 
+describe('IdentityScopedStore while it adopts an identity', () => {
+  it('writes what arrived during the adoption once it has settled', async () => {
+    let identity: string | null = null;
+    const latch = new BootLatchedIdentity(() => identity);
+    latch.watchAdoption(() => undefined);
+    latch.latch();
+    identity = 'ada';
+    const data = new Map<string, string>();
+    let answer: () => void = () => undefined;
+    const slow: KeyValueStore = {
+      get: (key) =>
+        new Promise((resolve) => {
+          answer = () => resolve(data.get(key));
+        }),
+      set: (key, value) => {
+        data.set(key, value);
+        return Promise.resolve();
+      },
+      delete: (key) => {
+        data.delete(key);
+        return Promise.resolve();
+      },
+    };
+    const store = new IdentityScopedStore(slow, latch, new Set());
+    latch.latch();
+    await store.set('first', 'carried');
+
+    const adopting = store.writeWhereTheNamespaceIsEmpty();
+    await store.set('during', 'changed');
+    answer();
+    await adopting;
+    latch.settle();
+    await store.writeWhatArrivedDuringAdoption();
+
+    expect(data.get('lw.id.ada:first')).toBe('carried');
+    expect(data.get('lw.id.ada:during')).toBe('changed');
+  });
+});
+
 describe('provideIdentityScopedStores', () => {
   beforeEach(() => localStorage.clear());
 
