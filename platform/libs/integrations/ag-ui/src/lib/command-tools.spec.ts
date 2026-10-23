@@ -74,7 +74,7 @@ describe('commandTools list', () => {
       commandTools(ctx)
         .list()
         .map((tool) => tool.name),
-    ).toEqual(['notes.open']);
+    ).toEqual(['notes__open']);
   });
 
   it('reads the list again for each run rather than keeping it', () => {
@@ -95,7 +95,7 @@ describe('commandTools receive', () => {
     const { ctx, invoked } = access();
     const answers = await play(
       commandTools(ctx),
-      streamedCall('c1', 'notes.open', '{"path":"inbox"}'),
+      streamedCall('c1', 'notes__open', '{"path":"inbox"}'),
     );
 
     expect(invoked).toEqual([{ id: 'notes.open', args: { path: 'inbox' } }]);
@@ -107,7 +107,7 @@ describe('commandTools receive', () => {
   it('answers only when the call is complete', async () => {
     const { ctx } = access();
     const tools = commandTools(ctx);
-    const events = streamedCall('c1', 'notes.open', '{"path":"a"}');
+    const events = streamedCall('c1', 'notes__open', '{"path":"a"}');
 
     expect(await tools.receive(events[0])).toBeNull();
     expect(await tools.receive(events[1])).toBeNull();
@@ -119,7 +119,7 @@ describe('commandTools receive', () => {
     const { ctx } = access({ outcome: 'answered', value: { rows: 3 } });
     const [answer] = await play(
       commandTools(ctx),
-      streamedCall('c1', 'notes.open', '{"path":"a"}'),
+      streamedCall('c1', 'notes__open', '{"path":"a"}'),
     );
 
     expect(answer.content).toBe('{"rows":3}');
@@ -130,7 +130,7 @@ describe('commandTools receive', () => {
     const { ctx } = access({ outcome: 'answered' });
     const [answer] = await play(
       commandTools(ctx),
-      streamedCall('c1', 'notes.open', '{"path":"a"}'),
+      streamedCall('c1', 'notes__open', '{"path":"a"}'),
     );
 
     expect(answer.content).toBe('The command ran.');
@@ -147,11 +147,11 @@ describe('commandTools receive', () => {
 
     const [refusal] = await play(
       commandTools(refused.ctx),
-      streamedCall('c1', 'notes.open', '{"path":"a"}'),
+      streamedCall('c1', 'notes__open', '{"path":"a"}'),
     );
     const [failure] = await play(
       commandTools(failed.ctx),
-      streamedCall('c2', 'notes.open', '{"path":"a"}'),
+      streamedCall('c2', 'notes__open', '{"path":"a"}'),
     );
 
     expect(refusal.error).toContain('did not run');
@@ -164,26 +164,52 @@ describe('commandTools receive', () => {
     const { ctx, invoked } = access();
     const [answer] = await play(
       commandTools(ctx),
-      streamedCall('c1', 'notes.open', '{"path":'),
+      streamedCall('c1', 'notes__open', '{"path":'),
     );
 
     expect(answer.error).toContain('readable JSON');
     expect(invoked).toEqual([]);
   });
 
-  it('leaves a tool the workbench does not know to the workbench to refuse', async () => {
-    const { ctx, invoked } = access({
-      outcome: 'refused',
-      reason: 'unavailable',
-      message: 'nothing here',
-    });
+  it('refuses a tool it did not offer, without reaching the workbench', async () => {
+    const { ctx, invoked } = access();
     const [answer] = await play(
       commandTools(ctx),
-      streamedCall('c1', 'nothing.here', '{}'),
+      streamedCall('c1', 'nothing__here', '{}'),
     );
 
-    expect(invoked).toEqual([{ id: 'nothing.here', args: {} }]);
-    expect(answer.error).toContain('did not run');
+    expect(invoked).toEqual([]);
+    expect(answer.error).toContain('not one of the tools offered');
+  });
+
+  it('refuses a command its plugin registered without opening it, named by its own id', async () => {
+    const { ctx, invoked } = access();
+    const [answer] = await play(
+      commandTools(ctx, { before: () => ({ decision: 'run' }) }),
+      streamedCall('c1', 'notes.wipe', '{}'),
+    );
+
+    expect(invoked).toEqual([]);
+    expect(answer.error).toContain('not one of the tools offered');
+  });
+
+  it('refuses a call to a tool that is no longer offered when the call arrives', async () => {
+    let offered: readonly InvocableCommand[] = [OPEN];
+    const invoked: string[] = [];
+    const tools = commandTools({
+      invocableCommands: () => offered,
+      invokeCommand: (id) => {
+        invoked.push(id);
+        return Promise.resolve(ANSWERED);
+      },
+    });
+    expect(tools.list().map((tool) => tool.name)).toEqual(['notes__open']);
+
+    offered = [];
+    const [answer] = await play(tools, streamedCall('c1', 'notes__open', '{"path":"a"}'));
+
+    expect(invoked).toEqual([]);
+    expect(answer.error).toContain('not one of the tools offered');
   });
 
   it('keeps two interleaved calls apart', async () => {
@@ -192,11 +218,11 @@ describe('commandTools receive', () => {
     const answers = await play(commandTools(ctx), [
       event(EventType.TOOL_CALL_START, {
         toolCallId: 'a',
-        toolCallName: 'notes.open',
+        toolCallName: 'notes__open',
       }),
       event(EventType.TOOL_CALL_START, {
         toolCallId: 'b',
-        toolCallName: 'notes.open',
+        toolCallName: 'notes__open',
       }),
       event(EventType.TOOL_CALL_ARGS, {
         toolCallId: 'a',
@@ -245,7 +271,7 @@ describe('commandTools with chunked tool calls', () => {
     const answers = await play(commandTools(ctx), [
       event(EventType.TOOL_CALL_CHUNK, {
         toolCallId: 'c1',
-        toolCallName: 'notes.open',
+        toolCallName: 'notes__open',
         delta: '{"path":',
       }),
       event(EventType.TOOL_CALL_CHUNK, { delta: '"inbox"}' }),
@@ -261,12 +287,12 @@ describe('commandTools with chunked tool calls', () => {
     const answers = await play(commandTools(ctx), [
       event(EventType.TOOL_CALL_CHUNK, {
         toolCallId: 'c1',
-        toolCallName: 'notes.open',
+        toolCallName: 'notes__open',
         delta: '{"path":"a"}',
       }),
       event(EventType.TOOL_CALL_CHUNK, {
         toolCallId: 'c2',
-        toolCallName: 'notes.open',
+        toolCallName: 'notes__open',
         delta: '{"path":"b"}',
       }),
     ]);
@@ -280,7 +306,7 @@ describe('commandTools with chunked tool calls', () => {
     const answers = await play(commandTools(ctx), [
       event(EventType.TOOL_CALL_CHUNK, {
         toolCallId: 'c1',
-        toolCallName: 'notes.open',
+        toolCallName: 'notes__open',
         delta: '{"path":"inbox"}',
       }),
       event(EventType.RUN_ERROR, {}),
@@ -296,7 +322,7 @@ describe('commandTools at the end of a run', () => {
   function started(id: string): BaseEvent {
     return event(EventType.TOOL_CALL_START, {
       toolCallId: id,
-      toolCallName: 'notes.open',
+      toolCallName: 'notes__open',
     });
   }
 
@@ -357,7 +383,7 @@ describe('commandTools hook', () => {
     const { ctx, invoked } = access();
     await play(
       commandTools(ctx),
-      streamedCall('c1', 'notes.open', '{"path":"a"}'),
+      streamedCall('c1', 'notes__open', '{"path":"a"}'),
     );
 
     expect(invoked).toHaveLength(1);
@@ -370,7 +396,7 @@ describe('commandTools hook', () => {
       return { decision: 'run' };
     });
 
-    await play(tools, streamedCall('c1', 'notes.open', '{"path":"a"}'));
+    await play(tools, streamedCall('c1', 'notes__open', '{"path":"a"}'));
 
     expect(seen).toEqual([
       { toolCallId: 'c1', commandId: 'notes.open', args: { path: 'a' } },
@@ -390,26 +416,11 @@ describe('commandTools hook', () => {
       },
     });
 
-    await play(tools, streamedCall('c1', 'notes.open', '{"path":"a"}'));
-    await play(tools, streamedCall('c2', 'notes.list', '{}'));
-    await play(tools, streamedCall('c3', 'notes.gone', '{}'));
+    await play(tools, streamedCall('c1', 'notes__open', '{"path":"a"}'));
+    await play(tools, streamedCall('c2', 'notes__list', '{}'));
+    await play(tools, streamedCall('c3', 'notes__gone', '{}'));
 
-    expect(seen).toEqual(['ask-always', undefined, undefined]);
-  });
-
-  it('does not read the command list when no hook is supplied', async () => {
-    let asked = 0;
-    const tools = commandTools({
-      invocableCommands: () => {
-        asked += 1;
-        return [OPEN];
-      },
-      invokeCommand: () => Promise.resolve(ANSWERED),
-    });
-
-    await play(tools, streamedCall('c1', 'notes.open', '{"path":"a"}'));
-
-    expect(asked).toBe(0);
+    expect(seen).toEqual(['ask-always', undefined]);
   });
 
   it("runs a command that says an agent's word is never enough when the hook lets it through", async () => {
@@ -419,7 +430,7 @@ describe('commandTools hook', () => {
 
     await play(
       commandTools(ctx, { before: () => ({ decision: 'run' }) }),
-      streamedCall('c1', 'notes.open', '{"path":"a"}'),
+      streamedCall('c1', 'notes__open', '{"path":"a"}'),
     );
 
     expect(invoked).toHaveLength(1);
@@ -433,7 +444,7 @@ describe('commandTools hook', () => {
 
     const [answer] = await play(
       tools,
-      streamedCall('c1', 'notes.open', '{"path":"a"}'),
+      streamedCall('c1', 'notes__open', '{"path":"a"}'),
     );
 
     expect(invoked).toEqual([]);
@@ -448,7 +459,7 @@ describe('commandTools hook', () => {
 
     const [answer] = await play(
       tools,
-      streamedCall('c1', 'notes.open', '{"path":"a"}'),
+      streamedCall('c1', 'notes__open', '{"path":"a"}'),
     );
 
     expect(invoked).toEqual([]);
@@ -461,7 +472,7 @@ describe('commandTools hook', () => {
       async () => await { decision: 'run' as const },
     );
 
-    await play(tools, streamedCall('c1', 'notes.open', '{"path":"a"}'));
+    await play(tools, streamedCall('c1', 'notes__open', '{"path":"a"}'));
 
     expect(invoked).toHaveLength(1);
   });
@@ -476,7 +487,7 @@ describe('commandTools hook', () => {
 
     const [answer] = await play(
       tools,
-      streamedCall('c1', 'notes.open', '{"path":"a"}'),
+      streamedCall('c1', 'notes__open', '{"path":"a"}'),
     );
 
     expect(invoked).toHaveLength(1);

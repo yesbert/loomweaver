@@ -6,8 +6,17 @@ function command(over: Partial<InvocableCommand> = {}): InvocableCommand {
 }
 
 describe('toolFor', () => {
-  it('names the tool by the command id, so a call names the identity the workbench knows', () => {
-    expect(toolFor(command()).name).toBe('notes.open');
+  it('names the tool in the form the model interfaces accept, dots spelled as two underscores', () => {
+    expect(toolFor(command()).name).toBe('notes__open');
+  });
+
+  it('keeps only letters, digits, underscores and hyphens, at most 64 of them', () => {
+    const long = `acme.${'x'.repeat(80)}.open`;
+    const name = toolFor(command({ id: long })).name;
+
+    expect(name).toMatch(/^[A-Za-z0-9_-]{1,64}$/);
+    expect(toolFor(command({ id: 'acme/odd name' })).name).toMatch(/^[A-Za-z0-9_-]+$/);
+    expect(toolFor(command({ id: `${long}2` })).name).not.toBe(name);
   });
 
   it('describes it by the description where there is one', () => {
@@ -115,13 +124,19 @@ describe('toolFor', () => {
 });
 
 describe('toolsFor', () => {
+  it('never offers two commands under the same name', () => {
+    const tools = toolsFor([command({ id: 'a.b' }), command({ id: 'a__b' })]);
+
+    expect(tools.map((tool) => tool.name)).toEqual(['a__b']);
+  });
+
   it('keeps the order the workbench gave', () => {
     const tools = toolsFor([
       command({ id: 'a.one' }),
       command({ id: 'b.two' }),
     ]);
 
-    expect(tools.map((tool) => tool.name)).toEqual(['a.one', 'b.two']);
+    expect(tools.map((tool) => tool.name)).toEqual(['a__one', 'b__two']);
   });
 
   it('describes nothing where there is nothing to describe', () => {

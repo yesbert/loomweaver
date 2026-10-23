@@ -168,9 +168,15 @@ runs when it is invoked. Acting on the statement is yours, which is what this ho
 includes `never`. `consentPolicy` is that hook written once, and it acts only where you pass it.
 
 Leaving `callable` off is what the platform enforces, and it closes the command to every caller but
-the plugin that registered it. So for a **foreign** command that is the boundary. Your own
-unopened commands stay reachable through your own `ctx`, and they are not in the account, so they
-arrive here with `agentConsent` undefined. You wrote them, so you are the one who knows them.
+the plugin that registered it. The connection holds the agent to the same boundary: it runs a call
+only where the command is among the tools it offers at that moment, and refuses anything else,
+saying why. Your own unopened commands are not offered, so an agent cannot reach them through your
+`ctx` either. To give one to the agent, open it with `callable: true`.
+
+Each tool is named after its command in the form the common model interfaces accept: letters,
+digits, underscores and hyphens, at most 64 of them, with each dot spelled as two underscores. So
+`notes.open` is offered as `notes__open`. A call comes back under that name, and the hook and the
+answer speak of the command by its own id.
 
 `toolFor` carries the statement into the tool's `metadata` under the same name, so an agent host
 that treats a consequential tool differently reads it with the tool. A command that says nothing

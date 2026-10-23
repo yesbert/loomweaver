@@ -1,12 +1,12 @@
 export interface AssembledCall {
   readonly toolCallId: string;
-  readonly commandId: string;
+  readonly toolName: string;
   readonly json: string;
 }
 
 interface OpenCall {
   readonly toolCallId: string;
-  readonly commandId: string;
+  readonly toolName: string;
   json: string;
 }
 
@@ -14,8 +14,8 @@ export class ToolCallAssembly {
   private readonly openCalls = new Map<string, OpenCall>();
   private chunkedCallId: string | null = null;
 
-  start(toolCallId: string, commandId: string, json = ''): void {
-    this.openCalls.set(toolCallId, { toolCallId, commandId, json });
+  start(toolCallId: string, toolName: string, json = ''): void {
+    this.openCalls.set(toolCallId, { toolCallId, toolName, json });
   }
 
   append(toolCallId: string, delta: string): void {
@@ -36,7 +36,7 @@ export class ToolCallAssembly {
 
   chunk(
     toolCallId: string | undefined,
-    commandId: string,
+    toolName: string,
     delta: string,
   ): AssembledCall | undefined {
     if (toolCallId === undefined || toolCallId === this.chunkedCallId) {
@@ -46,7 +46,7 @@ export class ToolCallAssembly {
       return undefined;
     }
     const previous = this.takeChunked();
-    this.start(toolCallId, commandId, delta);
+    this.start(toolCallId, toolName, delta);
     this.chunkedCallId = toolCallId;
     return previous;
   }

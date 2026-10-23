@@ -34,7 +34,11 @@ function connection(before?: (call: PendingToolCall) => Promise<unknown>) {
     calls += 1;
     const id = `call-${calls}`;
     const events = [
-      { type: EventType.TOOL_CALL_START, toolCallId: id, toolCallName: name },
+      {
+        type: EventType.TOOL_CALL_START,
+        toolCallId: id,
+        toolCallName: name.replaceAll('.', '__'),
+      },
       { type: EventType.TOOL_CALL_ARGS, toolCallId: id, delta: '{}' },
       { type: EventType.TOOL_CALL_END, toolCallId: id },
     ] as unknown as BaseEvent[];
