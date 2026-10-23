@@ -12,7 +12,7 @@ describe('distribution generator', () => {
   let tree: Tree;
 
   beforeEach(() => {
-    tree = createTreeWithEmptyWorkspace();
+    tree = createTreeWithEmptyWorkspace({ formatter: 'prettier' });
   });
 
   it('sets an initial-bundle budget the workbench fits and a product can still exceed', async () => {

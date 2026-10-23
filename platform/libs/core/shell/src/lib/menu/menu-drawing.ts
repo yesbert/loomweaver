@@ -106,11 +106,12 @@ function appendRows(
       chorded.push([item, row.chord]);
     }
     menu.append(item);
-    if (row.children) {
-      const submenu = document.createElement(LW_MENU_TAG);
-      appendRows(submenu, row.children, chorded, labelled);
-      item.append(submenu);
+    if (!row.children) {
+      continue;
     }
+    const submenu = document.createElement(LW_MENU_TAG);
+    appendRows(submenu, row.children, chorded, labelled);
+    item.append(submenu);
   }
   return labelled;
 }

@@ -69,15 +69,17 @@ function requireTheme() {
 
 function requireFfmpeg() {
   const probe = spawnSync('ffmpeg', ['-version'], { stdio: 'ignore' });
-  if (probe.error) {
-    console.error(
-      'record-tour needs ffmpeg on PATH to produce the mp4, the gif and the poster.\n' +
-        '  macOS:  brew install ffmpeg\n' +
-        '  Debian: sudo apt install ffmpeg\n' +
-        'The webm alone would not be enough: the website sync fails on a missing file.',
-    );
-    process.exit(1);
+  if (!probe.error) {
+    return;
   }
+
+  console.error(
+    'record-tour needs ffmpeg on PATH to produce the mp4, the gif and the poster.\n' +
+      '  macOS:  brew install ffmpeg\n' +
+      '  Debian: sudo apt install ffmpeg\n' +
+      'The webm alone would not be enough: the website sync fails on a missing file.',
+  );
+  process.exit(1);
 }
 
 const OVERLAY = `

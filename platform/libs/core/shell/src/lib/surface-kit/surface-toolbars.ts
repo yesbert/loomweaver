@@ -166,10 +166,12 @@ export function createToolbars(): LwToolbarsApi {
     },
     changed(toolbar) {
       const entry = watched.get(toolbar);
-      if (entry) {
-        unwatch(entry);
-        void watch(entry);
+      if (!entry) {
+        return;
       }
+
+      unwatch(entry);
+      void watch(entry);
     },
     detach(toolbar) {
       const entry = watched.get(toolbar);

@@ -35,8 +35,8 @@ one event at a time.
 
 **This package's stability follows AG-UI, not the platform.** It shares a version number with the
 other `@loomweaver/*` packages because they are released together, and that number says which platform
-release it was built against. It says nothing about the protocol, which is at `0.0.x` and still
-moving. A break there is answered by publishing at the next platform version.
+release it was built against. It says nothing about the protocol, which this release speaks at
+`1.x`. A break there is answered by publishing at the next platform version.
 
 `@ag-ui/core` and `@loomweaver/plugin-sdk` are peer dependencies, so a weaver that also builds its own
 agent resolves one copy of each rather than two.

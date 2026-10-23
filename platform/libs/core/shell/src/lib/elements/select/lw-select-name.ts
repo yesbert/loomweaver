@@ -14,10 +14,12 @@ export function syncAccessibleName(host: HTMLElement, parts: NamedParts): void {
   const labelIds = ownLabel ?? (label === null ? null : labelPart.id);
   trigger.removeAttribute('aria-label');
   setOrRemove(trigger, 'aria-labelledby', labelIds);
-  if (listbox) {
-    setOrRemove(listbox, 'aria-labelledby', ownLabel);
-    setOrRemove(listbox, 'aria-label', ownLabel === null ? label : null);
+  if (!listbox) {
+    return;
   }
+
+  setOrRemove(listbox, 'aria-labelledby', ownLabel);
+  setOrRemove(listbox, 'aria-label', ownLabel === null ? label : null);
 }
 
 export function forwardState(host: HTMLElement, trigger: HTMLElement): void {

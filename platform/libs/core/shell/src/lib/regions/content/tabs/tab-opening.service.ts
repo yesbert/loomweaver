@@ -127,10 +127,12 @@ export class TabOpeningService {
         (tabPath) => tabRootOf(routes, tabPath) === root,
         input,
       );
-      if (next !== null) {
-        this.paneTree.commit(dock, next);
-        found = true;
+      if (next === null) {
+        continue;
       }
+
+      this.paneTree.commit(dock, next);
+      found = true;
     }
     return found;
   }

@@ -43,10 +43,12 @@ export function assignWorkspaceInitials(
   const assigned = new Map<string, string>();
   for (const workspace of workspaces) {
     const candidate = firstFree(candidatesFor(workspace.name), taken);
-    if (candidate !== undefined) {
-      taken.add(candidate);
-      assigned.set(workspace.id, candidate);
+    if (candidate === undefined) {
+      continue;
     }
+
+    taken.add(candidate);
+    assigned.set(workspace.id, candidate);
   }
   return assigned;
 }

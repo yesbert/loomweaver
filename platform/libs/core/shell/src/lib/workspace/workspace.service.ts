@@ -85,11 +85,13 @@ export class WorkspaceService {
 
   async settle(path: string): Promise<void> {
     const destination = this.settlement.takeDestination(path);
-    if (destination !== null) {
-      this.settlement.leaveWithheld(path);
-      await this.switchTo(destination, { keepAddress: true });
-      this.tabNavigation.keepAddress(path);
+    if (destination === null) {
+      return;
     }
+
+    this.settlement.leaveWithheld(path);
+    await this.switchTo(destination, { keepAddress: true });
+    this.tabNavigation.keepAddress(path);
   }
 
   withhold(path: string): void {
@@ -136,10 +138,7 @@ export class WorkspaceService {
   }
 
   async remove(id: string): Promise<boolean> {
-    if (this.catalog.isBuiltInOrDeclared(id)) {
-      return false;
-    }
-    if (!(await this.discard.confirmDiscardParked(id))) {
+    if (this.catalog.isBuiltInOrDeclared(id) || !(await this.discard.confirmDiscardParked(id))) {
       return false;
     }
     this.catalog.commit(

@@ -18,11 +18,13 @@ function reportAmendments(io: Io, amend: AmendPlan, done: boolean): void {
       }
     }
   }
-  if (amend.remaining.length > 0) {
-    io.out('Still to do by hand:');
-    for (const entry of amend.remaining) {
-      io.out(`  - ${entry}`);
-    }
+  if (!(amend.remaining.length > 0)) {
+    return;
+  }
+
+  io.out('Still to do by hand:');
+  for (const entry of amend.remaining) {
+    io.out(`  - ${entry}`);
   }
 }
 

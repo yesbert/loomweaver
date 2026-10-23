@@ -63,10 +63,7 @@ export class PluginStoreConsent {
       confirmLabel: this.transloco.translate('settings.storeUninstall'),
       tone: 'danger',
     });
-    if (!accepted) {
-      return;
-    }
-    if (!(await this.disableGuard.confirmRemoval(id))) {
+    if (!accepted || !(await this.disableGuard.confirmRemoval(id))) {
       return;
     }
     this.installs.uninstall(id);

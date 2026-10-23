@@ -35,17 +35,16 @@ export function menuOnContext(item: ChromeItemMenu): string | undefined {
 
 export function warnMenuTriggerConflict(item: ChromeItemMenu): void {
   const id = item.id ?? '';
-  if (!isDevMode() || warned.has(id)) {
+  if (!isDevMode() || warned.has(id) || item.workspace === undefined || item.menuTrigger === undefined || item.menuTrigger === 'context') {
     return;
   }
-  if (item.workspace !== undefined && item.menuTrigger !== undefined && item.menuTrigger !== 'context') {
-    warned.add(id);
-    console.warn(
-      `Item "${item.id}" switches to workspace "${item.workspace}" and asks for its menu on ` +
-        `activation — activating it is the switch, so the menu "${item.menu}" stays on the ` +
-        `right-click.`,
-    );
-  }
+
+  warned.add(id);
+  console.warn(
+    `Item "${item.id}" switches to workspace "${item.workspace}" and asks for its menu on ` +
+      `activation — activating it is the switch, so the menu "${item.menu}" stays on the ` +
+      `right-click.`,
+  );
 }
 
 export interface ChromeItemState {

@@ -1,10 +1,11 @@
 export function upgradeElementProperty(element: HTMLElement, name: string): void {
   const self = element as unknown as Record<string, unknown>;
-  if (Object.hasOwn(element, name)) {
-    const value = self[name];
-    delete self[name];
-    self[name] = value;
+  if (!Object.hasOwn(element, name)) {
+    return;
   }
+  const value = self[name];
+  delete self[name];
+  self[name] = value;
 }
 
 export function reflectAttribute(

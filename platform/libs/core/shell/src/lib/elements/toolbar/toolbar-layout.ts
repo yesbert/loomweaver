@@ -84,10 +84,12 @@ export class ToolbarLayout {
       gap: GAP_PX,
       widthOf: (id) => this.widths.get(id),
     });
-    if (!sameIds(folded, this.folded)) {
-      this.folded = folded;
-      this.layOut(items, moreLabel);
+    if (sameIds(folded, this.folded)) {
+      return;
     }
+
+    this.folded = folded;
+    this.layOut(items, moreLabel);
   }
 
   toggleTray(): void {

@@ -162,7 +162,7 @@ export class ShellPanel {
 
   protected readonly activeContentPath = computed(() => {
     const path = this.activePath();
-    return path !== undefined && !isViewPanePath(path) ? path : undefined;
+    return path === undefined || isViewPanePath(path) ? undefined : path;
   });
 
   protected readonly panelPaneOptions = PANEL_PANE_OPTIONS;

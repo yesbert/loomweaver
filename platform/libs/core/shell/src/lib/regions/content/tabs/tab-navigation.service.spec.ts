@@ -227,10 +227,13 @@ describe('Following the address while the arrangement hydrates', () => {
 
 function documentAt(pathname: string): Document {
   return new Proxy(document, {
-    get: (target, prop) =>
-      prop === 'location'
-        ? { pathname }
-        : (Reflect.get(target, prop, target) as unknown),
+    get: (target, prop) => {
+      if (prop === 'location') {
+        return { pathname };
+      }
+      const value = Reflect.get(target, prop, target) as unknown;
+      return typeof value === 'function' ? value.bind(target) : value;
+    },
   });
 }
 

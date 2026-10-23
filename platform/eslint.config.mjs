@@ -293,10 +293,49 @@ const baseConfig = [
             // the findings are in code that ships to a browser rather than to node. Raising the
             // language target would enforce these three at the cost of a support floor, for a
             // gain that is one intermediate array nobody measures. Turn them on when the floor
-            // moves for a reason of its own.
+            // moves for a reason of its own. The Set methods (isSubsetOf, union and the rest) are
+            // ES2025 as well and wait for the same floor.
             "unicorn/prefer-promise-try": "off",
             "unicorn/prefer-iterator-helpers": "off",
             "unicorn/prefer-iterator-to-array": "off",
+            "unicorn/prefer-set-methods": "off",
+
+            // It wants a documentation comment without the leading asterisks. Every JSDoc block on
+            // the published contract is written the conventional way, which is the form the
+            // packed .d.ts carries and an IDE renders; 489 blocks would change shape for no reader.
+            "unicorn/no-asterisk-prefix-in-documentation-comments": "off",
+
+            // It now folds a guard clause and the return after it into one ternary. The
+            // engineering standards ask for guard clauses over nesting, and a guard that names its
+            // case reads better than a condition hidden in the middle of an expression.
+            "unicorn/prefer-ternary": "off",
+
+            // It reports a parameter that every caller in the file passes the same value. Almost
+            // all of its 37 findings are test helpers, where the parameter names what the case
+            // varies even when one file needs only one value of it.
+            "unicorn/no-unnecessary-parameters": "off",
+
+            // It reads `flatMap((x) => (keep ? [x] : []))` as a filter written the long way. It is
+            // a filter and a map in one pass that narrows the type for the compiler, which a
+            // `filter` followed by a `map` does not, so the rewrite would cost a type guard each.
+            "unicorn/no-unnecessary-array-flat-map": "off",
+
+            // It turns `value ?? fallback` inside a function into a default parameter. A default
+            // parameter applies to undefined alone, `??` to null as well, and the values here come
+            // from the DOM and from stored settings, which hand us null.
+            "unicorn/prefer-default-parameters": "off",
+        }
+    },
+    {
+        // A configuration file exists to export the call that builds its configuration, which is
+        // exactly the top-level side effect this rule forbids in a module.
+        files: [
+            "**/eslint.config.mjs",
+            "**/vite.config.mts",
+            "**/playwright.config.ts"
+        ],
+        rules: {
+            "unicorn/no-top-level-side-effects": "off"
         }
     },
     {

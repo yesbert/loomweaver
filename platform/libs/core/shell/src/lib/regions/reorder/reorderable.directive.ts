@@ -33,14 +33,16 @@ export class Reorderable {
     }
     const active = this.document.activeElement as HTMLElement | null;
     const item = active?.closest<HTMLElement>('[data-reorder-id]');
-    if (!item || !this.host.nativeElement.contains(item)) {
+    if (
+      !item ||
+      !this.host.nativeElement.contains(item) ||
+      !this.moveByKeyboard(item, direction)
+    ) {
       return;
     }
-    if (this.moveByKeyboard(item, direction)) {
-      event.preventDefault();
-      const id = item.dataset['reorderId'] ?? '';
-      setTimeout(() => this.focusItem(id), 0);
-    }
+    event.preventDefault();
+    const id = item.dataset['reorderId'] ?? '';
+    setTimeout(() => this.focusItem(id), 0);
   }
 
   private items(): HTMLElement[] {

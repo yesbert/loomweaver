@@ -2,7 +2,7 @@ import type { ResolvedWeaver } from './weaver-input';
 
 export function panelFile(weaver: ResolvedWeaver): string {
   return `import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { EventType, type AGUIEvent, type Tool, type ToolMessage } from '@ag-ui/core';
+import { contentToText, EventType, type AGUIEvent, type Tool, type ToolMessage } from '@ag-ui/core';
 import { askAgent } from './${weaver.id}-agent';
 import { ${weaver.propertyName}Tools } from './${weaver.id}-connection';
 
@@ -75,7 +75,7 @@ export class ${weaver.className}AgentPanel {
     if (message) {
       this.push({
         kind: 'result',
-        text: message.error ?? message.content,
+        text: message.error ?? contentToText(message.content),
         failed: Boolean(message.error),
       });
     }

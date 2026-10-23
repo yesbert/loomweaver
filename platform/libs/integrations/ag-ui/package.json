@@ -27,7 +27,7 @@
     "tslib": "^2.3.0"
   },
   "peerDependencies": {
-    "@ag-ui/core": "0.0.x",
+    "@ag-ui/core": "^1.0.3",
     "@loomweaver/plugin-sdk": "0.19.2"
   },
   "publishConfig": {

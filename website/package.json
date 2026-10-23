@@ -17,12 +17,13 @@
     "test": "node --test \"tools/*.test.mjs\""
   },
   "dependencies": {
+    "@astrojs/markdown-remark": "^7.3.4",
     "@astrojs/sitemap": "^3.7.4",
-    "@astrojs/starlight": "^0.41.7",
-    "astro": "^7.1.6"
+    "@astrojs/starlight": "^0.42.6",
+    "astro": "^7.4.2"
   },
   "devDependencies": {
-    "eslint": "^10.9.1",
-    "typescript-eslint": "^8.68.0"
+    "eslint": "^10.13.0",
+    "typescript-eslint": "^8.72.0"
   }
 }

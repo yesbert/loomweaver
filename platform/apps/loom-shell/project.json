@@ -71,11 +71,18 @@
         "development": {
           "buildTarget": "loom-shell:build:development"
         }
+      },
+      "readyWhen": {
+        "signal": true
       }
     },
     "serve-static": {
       "continuous": true,
       "executor": "@nx/web:file-server",
+      "readyWhen": {
+        "signal": true
+      },
+      "dependsOn": ["build"],
       "options": {
         "buildTarget": "loom-shell:build",
         "staticFilePath": "dist/apps/loom-shell/browser",

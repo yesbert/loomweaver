@@ -130,16 +130,15 @@ function components(edges) {
         const parent = work.at(-1)[0];
         low.set(parent, Math.min(low.get(parent), low.get(node)));
       }
-      if (low.get(node) === index.get(node)) {
-        const group = [];
-        let popped;
-        do {
-          popped = stack.pop();
-          onStack.delete(popped);
-          group.push(popped);
-        } while (popped !== node);
-        if (group.length > 1) found.push(group.toSorted((a, b) => a.localeCompare(b)));
-      }
+      if (low.get(node) !== index.get(node)) continue;
+      const group = [];
+      let popped;
+      do {
+        popped = stack.pop();
+        onStack.delete(popped);
+        group.push(popped);
+      } while (popped !== node);
+      if (group.length > 1) found.push(group.toSorted((a, b) => a.localeCompare(b)));
     }
   }
   return found;

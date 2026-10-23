@@ -7,11 +7,8 @@
   "implicitDependencies": ["loom-testbed"],
   "targets": {
     "e2e": {
-      "executor": "@nx/playwright:playwright",
-      "outputs": ["{workspaceRoot}/dist/.playwright/apps/loom-testbed-e2e"],
-      "options": {
-        "config": "apps/loom-testbed-e2e/playwright.config.ts"
-      }
+      "dependsOn": [],
+      "outputs": ["{workspaceRoot}/dist/.playwright/apps/loom-testbed-e2e"]
     }
   }
 }
