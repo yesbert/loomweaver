@@ -297,14 +297,15 @@ export interface PluginContext {
     args?: CommandArguments,
   ): Promise<CommandOutcome>;
   /**
-   * The commands this plugin may invoke that it did not register itself: the list of commands the
-   * workbench would run for it, already narrowed by everything that would refuse the invocation, with
-   * every text resolved to the active language. Empty without the grant, whatever is installed.
+   * The callable commands this plugin may invoke: the list of commands the workbench would run for
+   * it, already narrowed by everything that would refuse the invocation, with every text resolved to
+   * the active language. It holds this plugin's own callable commands as well; without the
+   * `automation` capability it holds nothing else, whatever is installed.
    *
    * Read it instead of keeping a list of your own: a second list is a second answer to "may this
    * run", and it is not the one the user can see and withdraw.
    *
-   * Needs the `automation` capability.
+   * Needs the `automation` capability for every command this plugin did not register.
    */
   readonly invocableCommands: () => readonly InvocableCommand[];
   /**
