@@ -3,6 +3,7 @@ import { MAX_RATIO, MIN_RATIO } from '../tree/pane-ratio';
 
 const STEP = 0.02;
 const STEP_COARSE = 0.1;
+const DRAG_ENDS = ['pointerup', 'pointercancel', 'lostpointercapture'] as const;
 
 @Component({
   selector: 'lw-pane-split-handle',
@@ -58,14 +59,20 @@ export class PaneSplitHandle {
     event.preventDefault();
     const move = (e: PointerEvent) =>
       this.ratioStream.emit(this.fraction(e, rect));
-    const up = (e: PointerEvent) => {
-      element.releasePointerCapture(e.pointerId);
+    const end = () => {
       element.removeEventListener('pointermove', move);
-      element.removeEventListener('pointerup', up);
+      for (const type of DRAG_ENDS) {
+        element.removeEventListener(type, end);
+      }
+      if (element.hasPointerCapture(event.pointerId)) {
+        element.releasePointerCapture(event.pointerId);
+      }
       this.ratioCommit.emit();
     };
     element.addEventListener('pointermove', move);
-    element.addEventListener('pointerup', up);
+    for (const type of DRAG_ENDS) {
+      element.addEventListener(type, end);
+    }
   }
 
   protected onKeydown(event: KeyboardEvent): void {

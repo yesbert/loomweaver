@@ -98,6 +98,8 @@ export class FramePluginRuntime {
 
   private readonly reportedRefusals = new Set<string>();
 
+  private readonly listed = new Set<string>();
+
   private started = false;
 
   activateAll(): void {
@@ -163,6 +165,7 @@ export class FramePluginRuntime {
     this.reportRefused(refused);
     for (const plugin of runnable) {
       this.enablement.register(plugin.id, plugin.name ?? plugin.id);
+      this.listed.add(plugin.id);
       const enabled = !disabled.has(plugin.id);
       const running = this.instances.get(plugin.id);
       if (enabled && !running) {
@@ -179,12 +182,13 @@ export class FramePluginRuntime {
 
   private deactivateUnlisted(runnable: readonly RunnableFramePlugin[]): void {
     const known = new Set(runnable.map((plugin) => plugin.id));
-    for (const id of this.instances.keys()) {
+    for (const id of this.listed) {
       if (known.has(id)) {
         continue;
       }
       this.deactivate(id);
       this.enablement.unregister(id);
+      this.listed.delete(id);
     }
   }
 

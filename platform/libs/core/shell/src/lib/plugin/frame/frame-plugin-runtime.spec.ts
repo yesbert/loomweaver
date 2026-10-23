@@ -550,6 +550,27 @@ describe('FramePluginRuntime (iframe + Penpal runtime)', () => {
     expect(enablement.plugins().map((p) => p.id)).not.toContain('p2');
   });
 
+  it('drops a store-installed plugin from the list when it is uninstalled while switched off', () => {
+    const { runtime } = setup();
+    runtime.activateAll();
+    const install = TestBed.inject(PluginInstallService);
+    const enablement = TestBed.inject(PluginEnablementService);
+    install.install({
+      id: 'p2',
+      name: 'Store plugin',
+      entryUrl: '/p2/plugin.html',
+      capabilities: ['contributions'],
+    });
+    TestBed.tick();
+    enablement.setEnabled('p2', false);
+    TestBed.tick();
+
+    install.uninstall('p2');
+    TestBed.tick();
+
+    expect(enablement.plugins().map((p) => p.id)).not.toContain('p2');
+  });
+
   it('runs a deployed catalog entry without consent, granting exactly what it names', () => {
     const { runtime } = setup();
     runtime.activateAll();

@@ -33,8 +33,14 @@ import { MenuService } from '../../menu/menu.service';
 import { ToolbarEntry } from './toolbar-entries';
 import { ToolbarSlots } from './toolbar-slots.service';
 
+interface MountedCell {
+  readonly ref: ComponentRef<unknown>;
+  readonly cell: ToolbarCell;
+  readonly context: MenuContext;
+}
+
 interface Attachment {
-  readonly cells: Map<string, ComponentRef<unknown>>;
+  readonly cells: Map<string, MountedCell>;
   readonly effect: EffectRef;
   readonly onSelect: (event: Event) => void;
   readonly onContext: (event: Event) => void;
@@ -103,8 +109,8 @@ export class ToolbarHost implements LwToolbarHost {
     attachment.effect.destroy();
     toolbar.removeEventListener(LW_TOOLBAR_SELECT, attachment.onSelect);
     toolbar.removeEventListener(LW_TOOLBAR_CONTEXT, attachment.onContext);
-    for (const cell of attachment.cells.values()) {
-      cell.destroy();
+    for (const mounted of attachment.cells.values()) {
+      mounted.ref.destroy();
     }
     attachment.cells.clear();
   }
@@ -149,11 +155,11 @@ export class ToolbarHost implements LwToolbarHost {
       .cells()
       .filter((cell) => cell.slot === slot && this.auth.visible(cell.access));
     let changed = false;
-    for (const [id, ref] of attachment.cells) {
-      if (wanted.some((cell) => cell.id === id)) {
+    for (const [id, mounted] of attachment.cells) {
+      if (wanted.includes(mounted.cell) && sameContext(mounted.context, context)) {
         continue;
       }
-      ref.destroy();
+      mounted.ref.destroy();
       attachment.cells.delete(id);
       changed = true;
     }
@@ -161,7 +167,11 @@ export class ToolbarHost implements LwToolbarHost {
       if (attachment.cells.has(cell.id)) {
         continue;
       }
-      attachment.cells.set(cell.id, this.mountCell(toolbar, cell, slot, context));
+      attachment.cells.set(cell.id, {
+        ref: this.mountCell(toolbar, cell, slot, context),
+        cell,
+        context,
+      });
       changed = true;
     }
     if (changed) {
@@ -226,4 +236,12 @@ export class ToolbarHost implements LwToolbarHost {
       y: detail.y,
     });
   }
+}
+
+function sameContext(a: MenuContext, b: MenuContext): boolean {
+  const keys = Object.keys(a);
+  return (
+    keys.length === Object.keys(b).length &&
+    keys.every((key) => Object.is(a[key], b[key]))
+  );
 }

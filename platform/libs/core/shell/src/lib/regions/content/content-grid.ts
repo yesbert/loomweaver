@@ -49,7 +49,7 @@ export class ContentGrid {
   constructor() {
     const document_ = inject(DOCUMENT);
     const onKeydown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
+      if (event.key === 'Escape' && !event.defaultPrevented) {
         this.chrome.endMaximize();
       }
     };

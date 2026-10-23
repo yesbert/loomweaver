@@ -110,6 +110,63 @@ describe('TabClosingService close others/all/right', () => {
     const unclosable = service.tabs().find((tab) => tab.path === 'doc/a');
     expect(unclosable?.closable).toBe(false);
   });
+
+  describe('with views beside the documents', () => {
+    const paths = () => service.tabs().map((tab) => tab.path);
+
+    beforeEach(() => {
+      const registry = TestBed.inject(ContributionRegistry);
+      registry.addView({
+        id: 'v1',
+        region: 'primary',
+        title: 'v1',
+        component: TestContent,
+      });
+      registry.addView({
+        id: 'fixed',
+        region: 'primary',
+        title: 'fixed',
+        component: TestContent,
+        closable: false,
+      });
+      const paneTree = TestBed.inject(PaneTreeService);
+      paneTree.insertTab(
+        CONTENT_DOCK,
+        paneTree.primaryId(CONTENT_DOCK),
+        'view:v1',
+      );
+      paneTree.insertTab(
+        CONTENT_DOCK,
+        paneTree.primaryId(CONTENT_DOCK),
+        'view:fixed',
+      );
+    });
+
+    it('closeOthers closes a closable view too', () => {
+      service.closeOthers('doc/a');
+      expect(paths()).toContain('doc/a');
+      expect(paths()).not.toContain('view:v1');
+      expect(paths()).toContain('view:fixed');
+    });
+
+    it('closeOthers from a view keeps that view and closes the documents', () => {
+      service.closeOthers('view:v1');
+      expect(paths()).toContain('view:v1');
+      expect(paths()).not.toContain('doc/a');
+    });
+
+    it('closeAll closes the closable views', () => {
+      service.closeAll();
+      expect(paths()).not.toContain('view:v1');
+      expect(paths()).toContain('view:fixed');
+    });
+
+    it('closeToRight closes the views after the target', () => {
+      service.closeToRight('doc/c');
+      expect(paths()).toContain('doc/c');
+      expect(paths()).not.toContain('view:v1');
+    });
+  });
 });
 
 describe('TabClosingService close guarding', () => {
