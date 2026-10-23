@@ -69,6 +69,41 @@ describe('the frame kit state mirror', () => {
     ]);
   });
 
+  it('keeps a key watched while another handle on it is still in use', () => {
+    const state = createState();
+    const { host, calls } = recordingHost();
+    state.connect(host);
+    const first = state.watch<string>('draft');
+    const second = state.watch<string>('draft');
+    const heard: (string | undefined)[] = [];
+    second.onChange((value) => heard.push(value));
+
+    first.dispose();
+    second.set('kept');
+    state.apply('draft', 'from host', true);
+
+    expect(calls).toEqual(['watch draft', 'set draft "kept"']);
+    expect(heard).toEqual(['from host']);
+
+    second.dispose();
+    expect(calls.at(-1)).toBe('unwatch draft');
+  });
+
+  it('stops telling a disposed handle about changes', () => {
+    const state = createState();
+    state.connect(recordingHost().host);
+    const first = state.watch<string>('draft');
+    const second = state.watch<string>('draft');
+    const heard: (string | undefined)[] = [];
+    first.onChange((value) => heard.push(value));
+
+    first.dispose();
+    state.apply('draft', 'later', true);
+
+    expect(heard).toEqual([]);
+    second.dispose();
+  });
+
   it('sends a write made after the connection straight away', () => {
     const state = createState();
     const handle = state.watch<string>('scratch');

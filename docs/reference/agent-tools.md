@@ -64,8 +64,8 @@ plugin may reach changes as plugins load and unload and as the session changes, 
 earlier promises actions that are no longer there.
 
 Each entry is already narrowed by everything that would refuse the invocation: the command declared
-itself `callable`, the session meets its `access`, it belongs in this window, and your plugin holds
-the `automation` capability.
+itself `callable`, the session meets its `access`, it belongs in this window, and, for a command your
+plugin did not register, your plugin holds the `automation` capability.
 
 ## The pieces, if you want less than the loop
 

@@ -1,9 +1,12 @@
 import type { LwStateApi, LwStateHost } from './surface-kit.frame';
 
+type Listener = (value: unknown, loaded: boolean) => void;
+
 interface Watched {
   value: unknown;
   loaded: boolean;
-  readonly listeners: ((value: unknown, loaded: boolean) => void)[];
+  handles: number;
+  readonly listeners: Set<Listener>;
 }
 
 interface EarlyWrite {
@@ -50,7 +53,12 @@ export function createState(): LwStateApi & {
     if (existing) {
       return existing;
     }
-    const entry: Watched = { value: undefined, loaded: false, listeners: [] };
+    const entry: Watched = {
+      value: undefined,
+      loaded: false,
+      handles: 0,
+      listeners: new Set(),
+    };
     watched.set(key, entry);
     host?.stateWatch(key);
     return entry;
@@ -77,6 +85,9 @@ export function createState(): LwStateApi & {
     },
     watch<T>(key: string) {
       const entry = entryFor(key);
+      entry.handles += 1;
+      const own: Listener[] = [];
+      let disposed = false;
       return {
         value: () => entry.value as T | undefined,
         loaded: () => entry.loaded,
@@ -89,15 +100,26 @@ export function createState(): LwStateApi & {
           write(key, { cleared: true });
         },
         dispose: () => {
+          if (disposed) {
+            return;
+          }
+          disposed = true;
+          for (const listener of own) {
+            entry.listeners.delete(listener);
+          }
+          entry.handles -= 1;
+          if (entry.handles > 0 || watched.get(key) !== entry) {
+            return;
+          }
           watched.delete(key);
           host?.stateUnwatch(key);
         },
         onChange: (
           listener: (value: T | undefined, loaded: boolean) => void,
         ) => {
-          entry.listeners.push(
-            listener as (value: unknown, loaded: boolean) => void,
-          );
+          const heard = listener as Listener;
+          own.push(heard);
+          entry.listeners.add(heard);
         },
       };
     },

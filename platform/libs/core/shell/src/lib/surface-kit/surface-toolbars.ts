@@ -22,6 +22,7 @@ interface WatchedToolbar {
   readonly toolbar: LwToolbarElement;
   readonly onSelect: (event: Event) => void;
   subscription?: string;
+  watches: number;
   entries: readonly LwSlotEntry[];
 }
 
@@ -71,12 +72,18 @@ export function createToolbars(): LwToolbarsApi {
     if (!host || !slot) {
       return;
     }
+    const asked = ++entry.watches;
     const id = String(await host.slotWatch(slot, entry.toolbar.context));
+    if (asked !== entry.watches || watched.get(entry.toolbar) !== entry) {
+      host?.slotUnwatch(id);
+      return;
+    }
     entry.subscription = id;
     bySubscription.set(id, entry);
   };
 
   const unwatch = (entry: WatchedToolbar): void => {
+    entry.watches += 1;
     if (entry.subscription === undefined) {
       return;
     }
@@ -157,6 +164,7 @@ export function createToolbars(): LwToolbarsApi {
       const entry: WatchedToolbar = {
         toolbar,
         entries: [],
+        watches: 0,
         onSelect: (event) =>
           select(entry, (event as CustomEvent<LwToolbarSelectDetail>).detail),
       };

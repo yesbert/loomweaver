@@ -185,6 +185,36 @@ describe('toolbars inside an isolated surface', () => {
     expect(document.body.querySelector(LW_MENU_TAG)).toBeNull();
   });
 
+  it('lets go of a watch the placement changed under before the host answered it', async () => {
+    const toolbars = createToolbars();
+    const host = fakeHost();
+    toolbars.connect(host);
+    const toolbar = place('acme/toolbar', { record: 'r1' });
+
+    toolbar.context = { record: 'r2' };
+    await flush();
+    toolbar.remove();
+    await flush();
+
+    const watches = host.calls.filter((call) => call.method === 'slotWatch').length;
+    const unwatched = host.calls.filter((call) => call.method === 'slotUnwatch').map((call) => call.args[0]);
+    expect(watches).toBe(2);
+    expect(unwatched.toSorted()).toEqual(['sub-1', 'sub-2']);
+  });
+
+  it('lets go of a watch whose toolbar left before the host answered it', async () => {
+    const toolbars = createToolbars();
+    const host = fakeHost();
+    toolbars.connect(host);
+    const toolbar = place('acme/toolbar', { record: 'r1' });
+
+    toolbar.remove();
+    await flush();
+
+    expect(host.calls.map((call) => call.method)).toEqual(['slotWatch', 'slotUnwatch']);
+    expect(host.calls[1].args).toEqual(['sub-1']);
+  });
+
   it('holds the watch for a toolbar placed before the host connected', async () => {
     const toolbars = createToolbars();
     place('acme/early', { a: 'b' });
