@@ -1,4 +1,4 @@
-import { EventType, type AGUIEvent, type Tool, type ToolMessage } from '@ag-ui/core';
+import { contentToText, EventType, type AGUIEvent, type Tool, type ToolMessage } from '@ag-ui/core';
 
 export const MODEL = 'dots-studio/dots-3-note-preview:free';
 
@@ -76,7 +76,7 @@ async function* ask(conversation: Conversation, request: AgentRequest): AsyncGen
       for (const call of calls) {
         yield* callEvents(call);
         const answer = answerTo(conversation.answers, call.id);
-        history.push({ role: 'tool', tool_call_id: call.id, content: answer.error ?? answer.content });
+        history.push({ role: 'tool', tool_call_id: call.id, content: answer.error ?? contentToText(answer.content) });
       }
     }
     yield { type: EventType.RUN_FINISHED, ...thread };
@@ -87,7 +87,7 @@ async function* ask(conversation: Conversation, request: AgentRequest): AsyncGen
 
 async function* callEvents(call: ChatToolCall): AsyncGenerator<AGUIEvent> {
   const toolCallId = call.id;
-  yield { type: EventType.TOOL_CALL_START, toolCallId, toolCallName: commandId(call.function.name) };
+  yield { type: EventType.TOOL_CALL_START, toolCallId, toolCallName: call.function.name };
   yield { type: EventType.TOOL_CALL_ARGS, toolCallId, delta: call.function.arguments || '{}' };
   yield { type: EventType.TOOL_CALL_END, toolCallId };
 }
@@ -147,7 +147,7 @@ function offered(tool: Tool) {
   return {
     type: 'function',
     function: {
-      name: toolName(tool.name),
+      name: tool.name,
       description: tool.description,
       parameters: tool.parameters ?? { type: 'object', properties: {} },
     },
@@ -165,12 +165,4 @@ function describe(failure: unknown): string {
     return `OpenRouter did not answer within ${TIMEOUT_MS / 1000} seconds. Free models are shared; try again.`;
   }
   return failure instanceof Error ? failure.message : String(failure);
-}
-
-function toolName(id: string): string {
-  return id.replaceAll('.', '__');
-}
-
-function commandId(name: string): string {
-  return name.replaceAll('__', '.');
 }

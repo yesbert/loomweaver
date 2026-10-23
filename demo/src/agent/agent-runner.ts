@@ -1,5 +1,5 @@
 import { EventType, type AGUIEvent, type ToolMessage } from '@ag-ui/core';
-import { commandTools, consentPolicy, type CommandTools } from '@loomweaver/ag-ui';
+import { commandTools, consentPolicy, toolFor, type CommandTools } from '@loomweaver/ag-ui';
 import type { PluginContext } from '@loomweaver/plugin-sdk';
 import type { Beat } from './beats';
 import { conversation } from './conversation';
@@ -12,10 +12,12 @@ const TURN_PACE = 140;
 export type Say = (key: string, params?: Record<string, unknown>) => string;
 
 let tools: CommandTools | undefined;
+let context: PluginContext | undefined;
 let runs = 0;
 
 export const agentRunner = {
   bind(next: PluginContext): void {
+    context = next;
     tools = commandTools(next, {
       before: consentPolicy(() =>
         next.ui.confirm({
@@ -30,6 +32,7 @@ export const agentRunner = {
   },
   unbind(): void {
     tools = undefined;
+    context = undefined;
   },
   async ask(beat: Beat, say: Say): Promise<void> {
     if (!tools || !conversation.begin()) {
@@ -46,7 +49,8 @@ export const agentRunner = {
         kind: 'note',
         text: say('agent.offered', { count: offered.length }),
       });
-      if (!offered.some((tool) => tool.name === beat.call.commandId)) {
+      const toolName = toolNameFor(beat.call.commandId);
+      if (!offered.some((tool) => tool.name === toolName)) {
         conversation.push({
           kind: 'note',
           text: say('agent.notOffered', { command: beat.call.commandId }),
@@ -56,7 +60,7 @@ export const agentRunner = {
         conversation.push({ kind: 'note', text: speech('warns') });
       }
 
-      const answer = await drive(asking(beat, runId, speech('says')), say);
+      const answer = await drive(asking(beat, toolName, runId, speech('says')), say);
       const closes = speech(answer?.error ? 'refused' : 'closes');
       await drive(answering(`${runId}.reply`, closes), say);
     } finally {
@@ -64,6 +68,11 @@ export const agentRunner = {
     }
   },
 };
+
+function toolNameFor(commandId: string): string {
+  const command = context?.invocableCommands().find((one) => one.id === commandId);
+  return command ? toolFor(command).name : commandId;
+}
 
 async function drive(events: Generator<AGUIEvent>, say: Say): Promise<ToolMessage | null> {
   let answer: ToolMessage | null = null;
