@@ -45,10 +45,10 @@
 
 ## 7. Demo, guards and release
 
-- [ ] 7.1 The demo shows calendar dates as the dates they are, in every time zone
-- [ ] 7.2 `command-names-check` reads every shipped command registration
-- [ ] 7.3 `operations.md` says what `quick-start-check` installs
-- [ ] 7.4 The release refuses a tag that is not on `main`, pins npm and its actions, and reads the packages from the published table
+- [x] 7.1 The demo shows calendar dates as the dates they are, in every time zone
+- [x] 7.2 `command-names-check` reads every shipped command registration
+- [x] 7.3 `operations.md` says what `quick-start-check` installs
+- [x] 7.4 The release refuses a tag that is not on `main`, pins npm and its actions, and reads the packages from the published table
 
 ## 8. Close
 
