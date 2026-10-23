@@ -33,9 +33,9 @@ const ENTRIES = Object.fromEntries(
 
 // Names a consumer can see in the packed declarations but cannot import: a type a public field is
 // declared with, or a class a public constructor takes, that the barrel never re-exports. The rollup
-// carries every declaration the public surface reaches, so a declaration in it that is not in its
-// export list is exactly that. Each one here is a decision still to be taken, export it or take it
-// off the public surface, and a new one fails until it is taken.
+// can carry more than the public surface reaches, so what counts is what the exports reach through
+// their type references and the export list leaves out. Each one here is a decision still to be
+// taken, export it or take it off the public surface, and a new one fails until it is taken.
 const VISIBLE_BUT_NOT_EXPORTED = new Map([
   ['PANE_HANDLE', 'the phantom brand of PaneHandle: declared, never a value, nothing to import'],
 ]);
@@ -184,26 +184,100 @@ function exportedNames(entry) {
   return names.toSorted((a, b) => a.localeCompare(b));
 }
 
-// The names a rollup declares at its top level, exported or not. Only a rollup is read this way:
-// the plugin-sdk entry and the frame-kit script are not bundled declarations, so everything they
-// declare is what they export.
-function declaredNames(entry) {
-  const source = readFileSync(entry, 'utf8');
-  const declared = new Set();
-  for (const match of source.matchAll(
-    /^(?:declare )?(?:abstract class|class|const|enum|function|interface|type) (\w+)/gm,
-  )) {
-    declared.add(match[1]);
+// The rollup's top-level declarations by local name. A name can be declared more than once, an
+// interface merged or a function overloaded, and every declaration counts.
+function topLevelDeclarations(source) {
+  const declarations = new Map();
+  const add = (name, node) =>
+    declarations.set(name, [...(declarations.get(name) ?? []), node]);
+  for (const statement of source.statements) {
+    if (ts.isVariableStatement(statement)) {
+      for (const declaration of statement.declarationList.declarations) {
+        if (ts.isIdentifier(declaration.name)) add(declaration.name.text, declaration);
+      }
+    } else if (
+      (ts.isInterfaceDeclaration(statement) ||
+        ts.isTypeAliasDeclaration(statement) ||
+        ts.isClassDeclaration(statement) ||
+        ts.isFunctionDeclaration(statement) ||
+        ts.isEnumDeclaration(statement) ||
+        ts.isModuleDeclaration(statement)) &&
+      statement.name &&
+      ts.isIdentifier(statement.name)
+    ) {
+      add(statement.name.text, statement);
+    }
   }
-  return declared;
+  return declarations;
 }
 
-function leakedNames(entry, exported) {
-  const leaked = [];
-  for (const name of declaredNames(entry)) {
-    if (!exported.has(name)) leaked.push(name);
+// The local names the rollup exports, by modifier or through an export list.
+function exportedLocals(source) {
+  const locals = new Set();
+  for (const statement of source.statements) {
+    if (ts.isExportDeclaration(statement) && statement.exportClause && ts.isNamedExports(statement.exportClause)) {
+      for (const element of statement.exportClause.elements) {
+        locals.add((element.propertyName ?? element.name).text);
+      }
+      continue;
+    }
+    const exportedHere = ts.getModifiers?.(statement)?.some(
+      (modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword,
+    );
+    if (!exportedHere) continue;
+    if (ts.isVariableStatement(statement)) {
+      for (const declaration of statement.declarationList.declarations) {
+        if (ts.isIdentifier(declaration.name)) locals.add(declaration.name.text);
+      }
+    } else if (statement.name && ts.isIdentifier(statement.name)) {
+      locals.add(statement.name.text);
+    }
   }
-  return leaked.toSorted((a, b) => a.localeCompare(b));
+  return locals;
+}
+
+function leftmost(name) {
+  return ts.isQualifiedName(name) ? leftmost(name.left) : name;
+}
+
+// The names a declaration refers to where a consumer meets them: a type it is written with, a
+// `typeof`, a class it extends or implements, and a computed key such as a phantom brand.
+function referencedNames(node) {
+  const names = new Set();
+  const visit = (child) => {
+    if (ts.isTypeReferenceNode(child)) names.add(leftmost(child.typeName).text);
+    else if (ts.isTypeQueryNode(child)) names.add(leftmost(child.exprName).text);
+    else if (
+      (ts.isExpressionWithTypeArguments(child) || ts.isComputedPropertyName(child)) &&
+      ts.isIdentifier(child.expression)
+    ) {
+      names.add(child.expression.text);
+    }
+    ts.forEachChild(child, visit);
+  };
+  visit(node);
+  return names;
+}
+
+// What the exports reach and the export list leaves out. A declaration nothing public refers to is
+// not counted: a bundler may keep it, but no public type leads a consumer to it.
+function leakedNames(entry) {
+  const source = ts.createSourceFile(entry, readFileSync(entry, 'utf8'), ts.ScriptTarget.Latest, true);
+  const declarations = topLevelDeclarations(source);
+  const exported = exportedLocals(source);
+  const reached = new Set();
+  const pending = [...exported].filter((name) => declarations.has(name));
+  while (pending.length > 0) {
+    const name = pending.pop();
+    if (reached.has(name)) continue;
+    reached.add(name);
+    for (const node of declarations.get(name)) {
+      for (const referenced of referencedNames(node)) {
+        if (declarations.has(referenced) && !reached.has(referenced)) pending.push(referenced);
+      }
+    }
+  }
+  return [...reached].filter((name) => !exported.has(name)).toSorted((a, b) => a.localeCompare(b));
 }
 
 const blob = docsBlob();
@@ -236,7 +310,7 @@ for (const [package_, relative] of Object.entries(ENTRIES)) {
     missing.push(`${package_} · ${name}`);
   }
   if (relative.endsWith('.d.ts') && relative.includes('/types/')) {
-    for (const name of leakedNames(entry, exported)) {
+    for (const name of leakedNames(entry)) {
       seenLeaked.add(name);
       if (VISIBLE_BUT_NOT_EXPORTED.has(name)) continue;
       leaked.push(`${package_} · ${name}`);
