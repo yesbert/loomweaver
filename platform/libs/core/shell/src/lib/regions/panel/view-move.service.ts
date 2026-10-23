@@ -15,6 +15,12 @@ const VIEW_MOVE_WORDING: MoveWording = {
   targetRight: 'panel.viewMove.targetRight',
 };
 
+export interface MovedTab {
+  readonly path: string;
+  readonly title: string;
+  readonly literalTitle: boolean;
+}
+
 @Service()
 export class ViewMoveService {
   private readonly layout = inject(SHELL_LAYOUT);
@@ -52,12 +58,17 @@ export class ViewMoveService {
     );
   }
 
-  moveTab(source: PaneRef, path: string, targetRegion: string): void {
-    this.paneMove.moveToStrip(source, path, {
+  moveTab(source: PaneRef, tab: MovedTab, targetRegion: string): void {
+    this.paneMove.moveToStrip(source, tab.path, {
       dock: targetRegion,
       paneId: this.paneTree.primaryId(targetRegion),
     });
     this.panels.expand(targetRegion);
+    this.announcer.announce(
+      VIEW_MOVE_WORDING,
+      { id: tab.path, title: tab.title, literalTitle: tab.literalTitle },
+      targetRegion,
+    );
   }
 
   otherPanel(fromRegion: string): string | undefined {

@@ -43,7 +43,7 @@ describe('PaneMinimizedStrip', () => {
     create(leaf([{ path: 'doc/1', title: 'Report', literalTitle: true }]));
     expect(button().textContent).toContain('Report');
     expect(button().getAttribute('aria-label')).toBe(
-      'content.split.restoreMinimized',
+      'Report, content.split.restoreMinimized',
     );
     expect(fixture.nativeElement.querySelector('.lw-badge')).toBeNull();
   });
@@ -63,8 +63,11 @@ describe('PaneMinimizedStrip', () => {
       '+2',
     );
     expect(button().getAttribute('aria-label')).toBe(
-      'content.split.restoreMinimizedCount',
+      'A, +2, content.split.restoreMinimizedCount',
     );
+    const drawn = button().cloneNode(true) as HTMLElement;
+    drawn.querySelector('lw-tooltip')?.remove();
+    expect(drawn.textContent?.replaceAll(/\s+/g, ' ').trim()).toBe('A +2');
   });
 
   it('falls back to the route/home label when the tab has no title', () => {
@@ -103,13 +106,13 @@ describe('PaneMinimizedStrip', () => {
     fixture.componentRef.setInput('orientation', 'column');
     fixture.detectChanges();
     expect(button().textContent).toContain('Home');
-    expect(button().getAttribute('aria-label')).toBe('Restore pane');
+    expect(button().getAttribute('aria-label')).toBe('Home, Restore pane');
 
     TestBed.inject(TranslocoService).setActiveLang('de');
     fixture.detectChanges();
 
     expect(button().textContent).toContain('Start');
-    expect(button().getAttribute('aria-label')).toBe('Bereich zeigen');
+    expect(button().getAttribute('aria-label')).toBe('Start, Bereich zeigen');
   });
 
   it('restores the pane on click via PaneChromeService', () => {

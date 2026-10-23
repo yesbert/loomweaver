@@ -17,10 +17,10 @@
 
 ## 4. Accessibility
 
-- [ ] 4.1 A tooltip is dismissed by Escape (WCAG 1.4.13)
-- [ ] 4.2 The minimised pane is named by the title and count it shows
-- [ ] 4.3 A dialog without a title is named by its message
-- [ ] 4.4 A tab moved to the other sidebar by keyboard is announced; a rail entry moved by keyboard keeps the focus
+- [x] 4.1 A tooltip is dismissed by Escape (WCAG 1.4.13)
+- [x] 4.2 The minimised pane is named by the title and count it shows
+- [x] 4.3 A dialog without a title is named by its message
+- [x] 4.4 A tab moved to the other sidebar by keyboard is announced; a rail entry moved by keyboard keeps the focus
 
 ## 5. Workbench behaviour
 

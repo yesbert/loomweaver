@@ -9,6 +9,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { PaneLeaf, activeTab } from '../tree/pane-node';
 import { PaneChromeService } from './pane-chrome.service';
 import { overlayTabTitle, PaneLabel, paneLabelOf } from './tab-label';
+import { nameShowing } from '../../../foundation/name-showing';
 import { ContributionRegistry } from '../../../contributions/contribution-registry';
 
 @Component({
@@ -42,6 +43,13 @@ export class PaneMinimizedStrip {
       ? 'content.split.restoreMinimizedCount'
       : 'content.split.restoreMinimized',
   );
+
+  protected nameOf(title: string, purpose: string): string {
+    return nameShowing(
+      [title, this.tabCount() > 1 ? `+${this.extraTabs()}` : undefined],
+      purpose,
+    );
+  }
 
   protected restore(): void {
     this.chrome.toggleMinimize(this.dock(), this.leaf().id);

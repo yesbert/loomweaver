@@ -44,7 +44,7 @@ test.describe('Rail entries the user curates', () => {
     await expect(notes).toHaveCount(0);
     await expect(
       right.getByRole('button', { name: 'Notes', exact: true }),
-    ).toHaveCount(1);
+    ).toBeFocused();
 
     await page.reload();
     await expect(notes).toHaveCount(0);

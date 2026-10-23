@@ -22,6 +22,9 @@ test.describe('Cross-panel view move', () => {
     await expect(
       page.locator(left).getByRole('tab', { name: 'Outline' }),
     ).toHaveCount(0);
+    await expect(
+      page.locator(right).getByRole('tab', { name: 'Outline' }),
+    ).toBeFocused();
 
     await page.reload();
     await expect(

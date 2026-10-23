@@ -146,6 +146,31 @@ describe('DialogOutlet confirm guard', () => {
       expect(refused.hasAttribute('aria-describedby')).toBe(false);
     });
 
+    it('names a dialog without a title by its message', () => {
+      const { service, fixture } = setup();
+      void service.confirm({ message: 'prompt.ask' });
+      fixture.detectChanges();
+      const host = fixture.nativeElement as HTMLElement;
+      const dialog = host.querySelector('dialog') as HTMLDialogElement;
+
+      expect(dialog.hasAttribute('aria-label')).toBe(false);
+      expect(textOf(host, dialog.getAttribute('aria-labelledby'))).toBe(
+        'Name the copy',
+      );
+    });
+
+    it('names a dialog with a title by the title alone', () => {
+      const { service, fixture } = setup();
+      void service.confirm({ title: 'dialog.ok', message: 'prompt.ask' });
+      fixture.detectChanges();
+      const dialog = (fixture.nativeElement as HTMLElement).querySelector(
+        'dialog',
+      ) as HTMLDialogElement;
+
+      expect(dialog.getAttribute('aria-label')).toBe('OK');
+      expect(dialog.hasAttribute('aria-labelledby')).toBe(false);
+    });
+
     it('is named by the question in a prompt', () => {
       const { service, fixture } = setup();
       void service.prompt({ message: 'prompt.ask' });

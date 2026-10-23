@@ -114,4 +114,21 @@ describe('ViewMoveService (as a moveTab special case)', () => {
       expect(announce).toHaveBeenCalledWith('v1 moved to right sidebar');
     });
   });
+
+  describe('moveTab', () => {
+    it('announces a moved tab by the title it shows', () => {
+      paneTree.seedPrimaryTabs('primary', ['notes/today']);
+
+      service.moveTab(
+        { dock: 'primary', paneId: PRIMARY_PANE },
+        { path: 'notes/today', title: 'Today', literalTitle: true },
+        'secondary',
+      );
+
+      expect(paneTree.primaryTabs('secondary').map((tab) => tab.path)).toEqual([
+        'notes/today',
+      ]);
+      expect(announce).toHaveBeenCalledWith('Today moved to right sidebar');
+    });
+  });
 });
