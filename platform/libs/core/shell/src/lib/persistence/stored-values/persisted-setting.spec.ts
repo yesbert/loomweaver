@@ -64,6 +64,31 @@ describe('persistedSetting', () => {
     expect(setting.value()).toBe('stored');
   });
 
+  it('keeps a value set before a slower store answered, and stores it', async () => {
+    const store = new MapStore();
+    store.values.set(KEY, 'stored');
+    const setting = settingOn(store);
+
+    setting.set('mine');
+    await settle();
+
+    expect(setting.value()).toBe('mine');
+    expect(store.values.get(KEY)).toBe('mine');
+  });
+
+  it('applies a change made before a slower store answered to the stored value, not to the default', async () => {
+    const store = new MapStore();
+    store.values.set(KEY, 'stored');
+    const setting = settingOn(store);
+
+    setting.update((current) => `${current}+one`);
+    expect(setting.value()).toBe('default+one');
+    await settle();
+
+    expect(setting.value()).toBe('stored+one');
+    expect(store.values.get(KEY)).toBe('stored+one');
+  });
+
   it('follows a change another window made', async () => {
     const store = new PeekableStore();
     const setting = settingOn(store);

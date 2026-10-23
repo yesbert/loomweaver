@@ -53,6 +53,14 @@ export class IdentityScopedStore implements KeyValueStore {
     }
   }
 
+  async writeWhatArrivedDuringAdoption(): Promise<void> {
+    const arrived = [...this.withheld];
+    this.withheld.clear();
+    for (const [scoped, value] of arrived) {
+      await this.inner.set(scoped, value);
+    }
+  }
+
   private held(key: string): boolean {
     return !this.deviceKeys.has(key) && this.latch.adopting();
   }

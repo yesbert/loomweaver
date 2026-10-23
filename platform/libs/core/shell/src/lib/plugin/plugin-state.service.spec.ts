@@ -279,6 +279,36 @@ describe('PluginStateService', () => {
     expect(localStorage.getItem('lw.plugin-state-keys:acme')).toBeNull();
   });
 
+  it('keeps the stored key index when a key is cleared before anything was written', () => {
+    localStorage.setItem('lw.plugin-state-keys:acme', JSON.stringify(['a', 'b', 'c']));
+    const service = setup();
+
+    service.forPlugin('acme').watch<string>('draft').clear();
+
+    expect(JSON.parse(localStorage.getItem('lw.plugin-state-keys:acme') ?? '[]')).toEqual([
+      'a',
+      'b',
+      'c',
+    ]);
+  });
+
+  it('keeps the stored key index when a store that answers later is written to first', async () => {
+    const store = asyncStore({ 'lw.plugin-state-keys:acme': JSON.stringify(['a', 'b', 'c']) });
+    const service = setup(store);
+
+    service.forPlugin('acme').watch<string>('d').set('new');
+    await vi.waitFor(async () =>
+      expect(JSON.parse((await store.get('lw.plugin-state-keys:acme')) ?? '[]')).toContain('d'),
+    );
+
+    expect((JSON.parse((await store.get('lw.plugin-state-keys:acme')) ?? '[]') as string[]).toSorted((a, b) => a.localeCompare(b))).toEqual([
+      'a',
+      'b',
+      'c',
+      'd',
+    ]);
+  });
+
   describe('where the product supplies an identity', () => {
     function bootAs(identity: string | null) {
       TestBed.resetTestingModule();

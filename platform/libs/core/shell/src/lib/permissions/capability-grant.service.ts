@@ -130,12 +130,8 @@ export class CapabilityGrantService {
 
   /** Turns a base-granted capability on or off for a plugin (user revoke / restore). Persisted. */
   setGranted(pluginId: string, capability: Capability, granted: boolean): void {
-    this.revocations.set(
-      toggledIdSet(
-        this.revoked(),
-        revocationKey(pluginId, capability),
-        !granted,
-      ),
+    this.revocations.update((revoked) =>
+      toggledIdSet(revoked, revocationKey(pluginId, capability), !granted),
     );
   }
 }

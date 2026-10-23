@@ -67,7 +67,7 @@ export class PluginInstallService {
     if (this.isInstalled(plugin.id)) {
       throw new Error(`Plugin "${plugin.id}" is already installed.`);
     }
-    this.stored.set([...this.installed(), entry]);
+    this.stored.update((installed) => [...installed, entry]);
   }
 
   /**
@@ -81,10 +81,8 @@ export class PluginInstallService {
     if (!this.isInstalled(plugin.id)) {
       throw new Error(`Plugin "${plugin.id}" is not installed.`);
     }
-    this.stored.set(
-      this.installed().map((current) =>
-        current.id === entry.id ? entry : current,
-      ),
+    this.stored.update((installed) =>
+      installed.map((current) => (current.id === entry.id ? entry : current)),
     );
   }
 
@@ -98,7 +96,7 @@ export class PluginInstallService {
     if (!this.isInstalled(id)) {
       return;
     }
-    this.stored.set(this.installed().filter((entry) => entry.id !== id));
+    this.stored.update((installed) => installed.filter((entry) => entry.id !== id));
     this.pluginState.removePlugin(id);
   }
 
