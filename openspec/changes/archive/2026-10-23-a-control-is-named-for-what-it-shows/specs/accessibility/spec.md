@@ -48,8 +48,10 @@ distribution. The workbench neither reads nor corrects it.
 
 #### Scenario: A menu heading that leads somewhere is named by what it shows
 
-- **WHEN** a menu's heading shows a person's name and leads to the command "Profile"
-- **THEN** its accessible name begins with the person's name and ends with "Profile"
+- **WHEN** a menu's heading shows a person's initials, name and address and leads to the command
+  "Profile"
+- **THEN** its accessible name carries the initials, the name and the address in that order and ends
+  with "Profile"
 
 #### Scenario: A badge stays a word of its own
 

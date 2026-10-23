@@ -24,4 +24,4 @@
 - [x] 4.1 The JSDoc of a bar button's `tooltip` and `label` says the name begins with the label; `llms-full.txt` and the bar section of the weaver guides where they describe a bar button's name
 - [x] 4.2 Update end-to-end helpers and tests that find a control by its old exact name, in the testbed and in the demo
 - [x] 4.3 The testbed audit passes with axe-core 4.14 on every screen it visits, except an open submenu, which the design hands to a change of its own; the shell suite, lint, `npm run structure-check`, `openspec validate --all --strict`
-- [ ] 4.4 PR; tell NextPA that F-055 is fixed in the release that carries it, with the list of controls whose names changed
+- [x] 4.4 PR (#820); NextPA hears that F-055 is fixed, with the list of controls whose names changed, in the report of the release that carries it
