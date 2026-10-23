@@ -181,6 +181,12 @@ jobs:
           # for the same reason it must not be npm's.
           dist="$(node scripts/dist-tag.mjs "${tag#v}")"
           notes=(--generate-notes)
+          # What a minor release asks of a product goes above the list of pull requests, taken from
+          # the section docs/updating.md keeps for it, so the page and the guide say the same thing.
+          node scripts/update-notes.mjs "${tag#v}" > update-notes.md
+          if [[ -s update-notes.md ]]; then
+            notes+=(--notes-file update-notes.md)
+          fi
           if [[ "${dist}" != "latest" ]]; then
             notes+=(--prerelease)
           fi

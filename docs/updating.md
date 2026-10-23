@@ -27,7 +27,8 @@ same version too.
 
 **Read the section of every minor release you cross.** Before 1.0, a breaking change arrives in a
 minor release (0.19 to 0.20) and a patch release only adds. The sections below say what changed,
-who it reaches and what to do.
+who it reaches and what to do. Every minor release has one, also when it asks nothing, and its
+release page opens with the same text.
 
 **Then let the checks and the tests tell you what is left:**
 
