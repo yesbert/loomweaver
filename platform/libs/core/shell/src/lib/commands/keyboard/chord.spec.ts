@@ -1,4 +1,5 @@
 import {
+  ariaKeyShortcutsOn,
   chordSignature,
   eventSignature,
   formatChordOn,
@@ -176,5 +177,29 @@ describe('a chord alias', () => {
         );
       }
     }
+  });
+});
+
+describe('ariaKeyShortcutsOn', () => {
+  it('announces the neutral modifier as Meta on macOS and Control elsewhere', () => {
+    expect(ariaKeyShortcutsOn('mod+k', true)).toBe('Meta+K');
+    expect(ariaKeyShortcutsOn('mod+k', false)).toBe('Control+K');
+  });
+
+  it('announces the neutral delete key as the key it stands for', () => {
+    expect(ariaKeyShortcutsOn('del', true)).toBe('Backspace');
+    expect(ariaKeyShortcutsOn('mod+del', false)).toBe('Control+Delete');
+  });
+
+  it('names every modifier and a named key the way a key event does', () => {
+    expect(ariaKeyShortcutsOn('ctrl+alt+shift+pageup', false)).toBe(
+      'Control+Alt+Shift+PageUp',
+    );
+    expect(ariaKeyShortcutsOn('mod+arrowleft', true)).toBe('Meta+ArrowLeft');
+    expect(ariaKeyShortcutsOn('shift+esc', false)).toBe('Shift+Escape');
+  });
+
+  it('announces nothing for a chord without a key', () => {
+    expect(ariaKeyShortcutsOn('mod+shift', true)).toBeUndefined();
   });
 });

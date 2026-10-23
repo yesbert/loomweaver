@@ -52,7 +52,7 @@
       [lwMenuHeader]="item.menuHeader"
       [lwMenuSide]="menuSide()"
       [lwMenuContext]="menuContextOf(item)"
-      [attr.aria-label]="item.title | transloco"
+      [attr.aria-label]="nameOf(item, item.title | transloco)"
       [attr.aria-current]="isCurrent(item) ? 'true' : null"
       [attr.data-rail-item]="item.id"
       [attr.data-reorder-id]="reorderable() ? item.id : null"
@@ -90,7 +90,7 @@
         <lw-icon [name]="item.icon" [attr.size]="isLabelled() ? '1.25rem' : '1rem'" />
       }
       @if (isLabelled()) {
-        <span
+        &ngsp;<span
           data-testid="rail-label"
           [attr.data-rail-label]="item.id"
           class="line-clamp-2 w-full text-center text-[0.625rem] leading-tight break-words"

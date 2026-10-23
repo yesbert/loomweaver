@@ -130,6 +130,16 @@ describe('a badge on a tab', () => {
     expect(tabElement()?.getAttribute('aria-label')).toBe('Advanced, Developer');
   });
 
+  it('stays a word of its own in the text the tab shows', async () => {
+    await create([tab({ badge: DEVELOPER })]);
+
+    const drawn = tabElement()?.cloneNode(true) as HTMLElement;
+    drawn.querySelector('lw-tooltip')?.remove();
+    expect(drawn.textContent?.replaceAll(/\s+/g, ' ').trim()).toBe(
+      'Advanced Developer',
+    );
+  });
+
   it('stays inside the name that says the tab holds unsaved work', async () => {
     dirty = true;
     await create([tab({ badge: DEVELOPER })]);

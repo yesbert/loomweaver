@@ -148,8 +148,9 @@ menuHeader: { title: displayName, detail: emailAddress, initials: 'AR', command:
 
 The heading is then the menu's first entry. The down arrow reaches it first, a click, Enter or Space
 runs the command with the menu's context and closes the menu, and it looks like an entry under the
-pointer. A screen reader still hears the name once, on the menu, and hears the heading by the
-command's title, such as "Profile". So you need no separate "Profile" entry below it. A command that
+pointer. A screen reader hears the name once on the menu. The heading is named by what it shows,
+followed by the command's title, such as "AR, Ada Rossi, ada@example.com, Profile". A person who
+speaks what they see reaches it that way too. You need no separate "Profile" entry below it. A command that
 nothing registers leaves the heading a plain heading.
 
 Activation offers **your** slot alone: the workbench's own entries for that item, the ones that hide

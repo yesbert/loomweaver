@@ -9,7 +9,8 @@
     [lwMenuSide]="menuSide()"
     [lwMenuContext]="menuContext()"
     class="relative flex items-center gap-1 rounded px-1.5 py-0.5 text-content-faint transition-colors hover:bg-surface-overlay hover:text-content disabled:pointer-events-none disabled:opacity-40"
-    [attr.aria-label]="(btn.tooltip ?? btn.label ?? '') | transloco"
+    [attr.aria-label]="nameOf(btn, (btn.label ?? '') | transloco, (btn.tooltip ?? btn.label ?? '') | transloco)"
+    [attr.aria-keyshortcuts]="keyShortcuts()"
   >
     @if (pictureOf(btn); as picture) {
       <img
@@ -31,10 +32,10 @@
       <lw-icon [name]="icon" size="1rem" />
     }
     @if (btn.label; as label) {
-      <span>{{ label | transloco }}</span>
+      &ngsp;<span>{{ label | transloco }}</span>
     }
     @if (shortcut(); as chord) {
-      <kbd
+      &ngsp;<kbd
         class="rounded border border-border bg-surface-overlay px-1 text-[0.6875rem] leading-tight text-content-muted"
         >{{ chord }}</kbd
       >

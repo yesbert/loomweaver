@@ -114,6 +114,17 @@ test.describe('Accessibility (WCAG 2.1 AA)', () => {
     await scan(page);
   });
 
+  test('account menu open, its heading leading to the profile', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await page.locator('[data-rail-item="testbed.rail.account"]').click();
+    await expect(
+      page.getByRole('menuitem', { name: /Ada Lovelace.*Profile/ }),
+    ).toBeVisible();
+    await scan(page);
+  });
+
   test('reset dialog open (filled danger button + guard error)', async ({
     page,
   }) => {

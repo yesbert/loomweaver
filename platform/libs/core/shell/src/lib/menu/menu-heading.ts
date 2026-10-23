@@ -1,8 +1,11 @@
 import { Command, MenuHeader } from '@loomweaver/plugin-sdk';
+import { nameShowing } from '../foundation/name-showing';
 
 export const HEADING_KEY = '__heading';
 
 export type HeadingTarget = Pick<Command, 'title'>;
+
+const purposes = new WeakMap<HTMLElement, string>();
 
 export function drawMenuHeading(
   header: MenuHeader,
@@ -18,9 +21,9 @@ export function drawMenuHeading(
     element.setAttribute('aria-hidden', 'true');
   }
 
-  const mark = drawMark(header);
+  const mark = drawMark(header, () => nameHeading(element));
   if (mark) {
-    element.append(mark);
+    element.append(mark, ' ');
   }
   element.append(drawLines(header));
   return element;
@@ -34,9 +37,6 @@ export function wordMenuHeading(
 ): string {
   const title = translate(header.title);
   const detail = header.detail ? translate(header.detail) : undefined;
-  if (leadsTo) {
-    element.setAttribute('aria-label', translate(leadsTo.title));
-  }
   const name = element.querySelector('.lw-menu-header-title');
   if (name) {
     name.textContent = title;
@@ -46,7 +46,24 @@ export function wordMenuHeading(
     second.textContent = detail ?? '';
     second.hidden = !detail;
   }
+  if (leadsTo) {
+    purposes.set(element, translate(leadsTo.title));
+    nameHeading(element);
+  }
   return detail ? `${title}, ${detail}` : title;
+}
+
+function nameHeading(element: HTMLElement): void {
+  const purpose = purposes.get(element);
+  if (purpose === undefined) {
+    return;
+  }
+  const shown = [
+    '.lw-menu-header-mark',
+    '.lw-menu-header-title',
+    '.lw-menu-header-detail:not([hidden])',
+  ].map((part) => element.querySelector(part)?.textContent ?? undefined);
+  element.setAttribute('aria-label', nameShowing(shown, purpose));
 }
 
 function drawLines(header: MenuHeader): HTMLElement {
@@ -58,12 +75,15 @@ function drawLines(header: MenuHeader): HTMLElement {
   if (header.detail) {
     const second = document.createElement('span');
     second.className = 'lw-menu-header-detail';
-    lines.append(second);
+    lines.append(' ', second);
   }
   return lines;
 }
 
-function drawMark(header: MenuHeader): HTMLElement | undefined {
+function drawMark(
+  header: MenuHeader,
+  onChange: () => void,
+): HTMLElement | undefined {
   if (!header.image && !header.initials && !header.icon) {
     return undefined;
   }
@@ -72,9 +92,10 @@ function drawMark(header: MenuHeader): HTMLElement | undefined {
   mark.append(...markContent(header));
   if (header.image) {
     const picture = mark.firstElementChild as HTMLImageElement;
-    picture.addEventListener('error', () =>
-      mark.replaceChildren(...markContent({ ...header, image: undefined })),
-    );
+    picture.addEventListener('error', () => {
+      mark.replaceChildren(...markContent({ ...header, image: undefined }));
+      onChange();
+    });
   }
   return mark;
 }
