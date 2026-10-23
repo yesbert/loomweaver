@@ -202,4 +202,10 @@ describe('ariaKeyShortcutsOn', () => {
   it('announces nothing for a chord without a key', () => {
     expect(ariaKeyShortcutsOn('mod+shift', true)).toBeUndefined();
   });
+
+  it('spells a key named by several words the way a key event does', () => {
+    expect(ariaKeyShortcutsOn('shift+contextmenu', false)).toBe('Shift+ContextMenu');
+    expect(ariaKeyShortcutsOn('capslock', false)).toBe('CapsLock');
+    expect(ariaKeyShortcutsOn('printscreen', false)).toBe('PrintScreen');
+  });
 });

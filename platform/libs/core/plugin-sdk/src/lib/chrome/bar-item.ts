@@ -62,7 +62,7 @@ export interface BarButtonItem extends BarItemBase {
    * Transloco key/literal for the tooltip; falls back to {@link label}. It says what the button is
    * for, and the host names the button by what it shows first: the drawn initials, then the
    * {@link label}, then the tooltip, then a shown shortcut (`'EN, Language'`, `'AL, Account'`). A
-   * tooltip that already contains the label is taken as it is.
+   * tooltip that already says everything the button shows, in that order, is taken as it is.
    */
   readonly tooltip?: string;
   /**

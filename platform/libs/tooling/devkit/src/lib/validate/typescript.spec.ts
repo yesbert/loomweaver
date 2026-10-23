@@ -58,6 +58,12 @@ describe('loadTypeScript', () => {
     expect(loadTypeScript(root, root).ts?.version).toBe('6.0.3');
   });
 
+  it('reads through the compatibility release where it is the only one installed', () => {
+    const root = project({ [TYPESCRIPT_COMPATIBILITY_PACKAGE]: WITH_INTERFACE('6.0.2') });
+
+    expect(loadTypeScript(root, root).ts?.version).toBe('6.0.2');
+  });
+
   it('reports no TypeScript where none is installed', () => {
     const root = project({});
 

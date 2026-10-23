@@ -101,12 +101,9 @@ export class ShellBarItem {
   protected readonly shortcut = computed<string | undefined>(() =>
     this.asButton()?.showShortcut ? this.resolved()?.shortcut : undefined,
   );
-  protected readonly keyShortcuts = computed<string | undefined>(() => {
-    const chord = this.asButton()?.showShortcut
-      ? this.resolved()?.chord
-      : undefined;
-    return chord ? ariaKeyShortcuts(chord) : undefined;
-  });
+  protected readonly keyShortcuts = computed<string | undefined>(() =>
+    ariaKeyShortcuts(this.asButton()?.showShortcut ? this.resolved()?.chord : undefined),
+  );
 
   protected pictureOf(button: BarButtonItem): string | undefined {
     return this.brokenPicture() ? undefined : button.image;

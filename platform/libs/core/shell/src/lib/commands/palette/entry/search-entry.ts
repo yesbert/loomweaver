@@ -31,10 +31,9 @@ export class SearchEntry {
     this.commands.shortcutOf(this.command()),
   );
 
-  protected readonly keyShortcuts = computed<string | undefined>(() => {
-    const chord = this.commands.chordOf(this.command());
-    return chord ? ariaKeyShortcuts(chord) : undefined;
-  });
+  protected readonly keyShortcuts = computed<string | undefined>(() =>
+    ariaKeyShortcuts(this.commands.chordOf(this.command())),
+  );
 
   protected nameOf(title: string): string {
     return nameWithHint(title, this.shortcut());

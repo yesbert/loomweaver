@@ -50,6 +50,10 @@ describe('nameWithHint', () => {
     expect(nameWithHint('Command palette', '⌘K')).toBe('Command palette ⌘K');
   });
 
+  it('does not say a shortcut twice that the name already says', () => {
+    expect(nameWithHint('Search (⌘K)', '⌘K')).toBe('Search (⌘K)');
+  });
+
   it('leaves the name alone where no shortcut is shown', () => {
     expect(nameWithHint('Command palette', undefined)).toBe('Command palette');
   });

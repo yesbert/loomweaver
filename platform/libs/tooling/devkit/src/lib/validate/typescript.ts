@@ -23,7 +23,7 @@ export type TypeScriptLookup =
  * Resolves the TypeScript compiler the way a project's own tooling would: from the directory being
  * checked first, then from `alsoFrom`, the working directory unless given. A TypeScript that cannot
  * read a source file, such as TypeScript 7, is passed over for {@link TYPESCRIPT_COMPATIBILITY_PACKAGE}
- * installed beside it. Where neither is found the result says why, so the caller can say so instead
+ * installed beside it, which is also used where it is the only one installed. Where neither is found the result says why, so the caller can say so instead
  * of failing inside the compiler.
  */
 export function loadTypeScript(fromDir: string, alsoFrom: string = process.cwd()): TypeScriptLookup {
@@ -33,10 +33,9 @@ export function loadTypeScript(fromDir: string, alsoFrom: string = process.cwd()
     if (readsSources(found)) {
       return { ts: found };
     }
-    if (!found) {
-      continue;
+    if (found) {
+      withoutInterface ??= versionOf(found);
     }
-    withoutInterface ??= versionOf(found);
     const compatible = requireFrom(from, TYPESCRIPT_COMPATIBILITY_PACKAGE);
     if (readsSources(compatible)) {
       return { ts: compatible };
