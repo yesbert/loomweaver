@@ -12,7 +12,7 @@ import type {
 } from '@loomweaver/plugin-sdk';
 import { type AssembledCall, ToolCallAssembly } from './tool-call-assembly.js';
 import { readArguments } from './tool-arguments.js';
-import { toolsFor } from './tool-definitions.js';
+import { offeredCommand, toolsFor } from './tool-definitions.js';
 import { answerFor, refusalFor, resultFor } from './tool-results.js';
 
 /**
@@ -29,7 +29,7 @@ export type CommandAccess = Pick<
 export interface PendingToolCall {
   /** The protocol's id for this call — what the answer is addressed to. */
   readonly toolCallId: string;
-  /** The command the agent named. */
+  /** The command the call runs, as the workbench knows it (not the tool name the agent used). */
   readonly commandId: string;
   /** What it wants to pass, already readable as data but not yet checked against the command. */
   readonly args: CommandArguments;
@@ -37,12 +37,9 @@ export interface PendingToolCall {
    * How much an agent may do with the named command without asking the user, read at the moment of
    * the call rather than from a list kept earlier.
    *
-   * Undefined in three cases, and they are worth telling apart. The command says nothing. Or no such
-   * command is reachable, which is the workbench's refusal to make and it makes it as it always has.
-   * Or the command is one **this plugin registered without making it callable**: the list holds what
-   * a caller may reach, and such a command is not in it, while `invokeCommand` still runs it for its
-   * owner. A plugin wrote its own commands, so it is the one that knows them; whatever it decides
-   * about them belongs in this hook.
+   * Undefined where the command says nothing. A call reaches this hook only for a command offered as
+   * a tool at that moment, so a command its plugin did not open to callers never gets here: the
+   * connection refuses it, as the workbench refuses it for every other caller.
    *
    * Nothing here acts on it. Asking, and remembering an answer, are the plugin's, which is what this
    * hook is for; the adapter only makes sure the statement is at hand where the decision is taken.
@@ -95,6 +92,7 @@ export interface CommandTools {
 }
 
 const UNREADABLE = 'its arguments did not arrive as readable JSON.';
+const NOT_OFFERED = 'it is not one of the tools offered to you.';
 const UNFINISHED = 'the run ended before its arguments were complete.';
 
 /**
@@ -167,18 +165,22 @@ async function answerCall(
   options: CommandToolOptions,
   call: AssembledCall,
 ): Promise<ToolMessage> {
+  const command = offeredCommand(ctx.invocableCommands(), call.toolName);
+  if (!command) {
+    return refusalFor(call.toolCallId, NOT_OFFERED);
+  }
   const args = readArguments(call.json);
   if (args === null) {
     return refusalFor(call.toolCallId, UNREADABLE);
   }
   if (!options.before) {
-    return run(ctx, call, args);
+    return run(ctx, call.toolCallId, command.id, args);
   }
   const decision = await options.before({
     toolCallId: call.toolCallId,
-    commandId: call.commandId,
+    commandId: command.id,
     args,
-    ...consentOf(ctx, call.commandId),
+    ...(command.agentConsent !== undefined && { agentConsent: command.agentConsent }),
   });
   if (decision.decision === 'decline') {
     return refusalFor(call.toolCallId, decision.reason);
@@ -186,26 +188,14 @@ async function answerCall(
   if (decision.decision === 'answer') {
     return answerFor(call.toolCallId, decision.content);
   }
-  return run(ctx, call, args);
+  return run(ctx, call.toolCallId, command.id, args);
 }
 
 async function run(
   ctx: CommandAccess,
-  call: AssembledCall,
+  toolCallId: string,
+  commandId: string,
   args: CommandArguments,
 ): Promise<ToolMessage> {
-  return resultFor(
-    call.toolCallId,
-    await ctx.invokeCommand(call.commandId, args),
-  );
-}
-
-function consentOf(
-  ctx: CommandAccess,
-  commandId: string,
-): Pick<PendingToolCall, 'agentConsent'> {
-  const consent = ctx
-    .invocableCommands()
-    .find((command) => command.id === commandId)?.agentConsent;
-  return consent === undefined ? {} : { agentConsent: consent };
+  return resultFor(toolCallId, await ctx.invokeCommand(commandId, args));
 }

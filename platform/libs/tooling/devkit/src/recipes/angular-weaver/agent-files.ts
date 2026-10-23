@@ -49,6 +49,10 @@ export const ${weaver.propertyName}Tools = signal<CommandTools | null>(null);
 `;
 }
 
+function helloTool(weaver: ResolvedWeaver): string {
+  return `${weaver.id}.hello`.replaceAll('.', '__');
+}
+
 function specFile(weaver: ResolvedWeaver): string {
   return `import { contentToText, EventType, type AGUIEvent, type ToolMessage } from '@ag-ui/core';
 import type { CommandTools } from '@loomweaver/ag-ui';
@@ -81,7 +85,7 @@ function contextThat(confirms: boolean, ran: Asked[], asked: string[] = []): Plu
 
 function streamedCall(toolCallId: string, ...deltas: string[]): AGUIEvent[] {
   return [
-    { type: EventType.TOOL_CALL_START, toolCallId, toolCallName: '${weaver.id}.hello' },
+    { type: EventType.TOOL_CALL_START, toolCallId, toolCallName: '${helloTool(weaver)}' },
     ...deltas.map((delta): AGUIEvent => ({ type: EventType.TOOL_CALL_ARGS, toolCallId, delta })),
     { type: EventType.TOOL_CALL_END, toolCallId },
   ];
@@ -101,7 +105,7 @@ async function answersTo(tools: CommandTools, events: AGUIEvent[]): Promise<Tool
 describe('connect${weaver.className}', () => {
   it('offers what the workbench offers', () => {
     const tools = connect${weaver.className}(contextThat(true, []));
-    expect(tools.list().map((tool) => tool.name)).toEqual(['${weaver.id}.hello']);
+    expect(tools.list().map((tool) => tool.name)).toEqual(['${helloTool(weaver)}']);
   });
 
   it('assembles a call from its events and answers with the outcome', async () => {
