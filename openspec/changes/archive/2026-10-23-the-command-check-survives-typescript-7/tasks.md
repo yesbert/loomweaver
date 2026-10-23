@@ -12,4 +12,4 @@
 
 - [x] 3.1 The JSDoc of the lookup; the guide's paragraph on the command check where it says what the check needs; `docs/reference/operations.md` on the guards that read the 6.0 interface
 - [x] 3.2 The tooling suites, lint, `openspec validate --all --strict`
-- [ ] 3.3 PR
+- [x] 3.3 PR (#826)

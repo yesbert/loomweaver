@@ -510,6 +510,13 @@ command that states nothing about an agent's word, and SHALL NOT guess from a co
 its label what running it would cost: saying nothing is a declaration the platform accepts, and a
 guess a consumer cannot act on teaches them to overlook the report.
 
+The command check reads a consumer's sources with the TypeScript compiler of the consumer's own
+project. Where that project's TypeScript offers no programming interface to read sources with, as
+the native rewrite does not, the check SHALL read them through the compatibility release of the
+previous interface when the project has it installed. Where it has neither, the check SHALL say
+which of the two it found, and for a TypeScript without the interface name what to install, rather
+than failing inside the compiler. The limit: the check never brings a compiler of its own.
+
 #### Scenario: A finding says what it will cost
 
 - **WHEN** a catalogue names a permission the platform does not define
@@ -561,6 +568,20 @@ guess a consumer cannot act on teaches them to overlook the report.
 
 - **WHEN** the check reports on a directory
 - **THEN** its report says that grants and access decide the rest at runtime and were not judged
+
+#### Scenario: A project on the native TypeScript is checked through the compatibility release
+
+- **WHEN** the command check runs in a project whose TypeScript offers no programming interface, and
+  the compatibility release of the previous interface is installed beside it
+- **THEN** the check reads the sources and reports as it does on a TypeScript that has the interface
+
+#### Scenario: A project on the native TypeScript alone is told what to install
+
+- **WHEN** the command check runs in a project whose TypeScript offers no programming interface, and
+  the compatibility release is not installed
+- **THEN** the check reports that the installed TypeScript offers no interface to read sources with
+  and names the release to install
+- **AND** it does not fail inside the compiler
 
 ### Requirement: One command takes an existing application to a running product
 
