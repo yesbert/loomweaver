@@ -7,6 +7,7 @@
 export const sidebar = [
   { label: 'Overview', link: '/overview/' },
   { label: 'Changelog', link: '/changelog/' },
+  { label: 'Updating', link: '/updating/' },
   {
     label: 'Guides',
     items: [

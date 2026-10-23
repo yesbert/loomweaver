@@ -123,6 +123,7 @@ Seven npm packages, one shared version: `@loomweaver/plugin-sdk`, `@loomweaver/s
 ## Releases
 
 - [Changelog](https://loomweaver.dev/changelog/): every release, newest first, generated from the pull requests each one merged; the same list as [GitHub releases](https://github.com/yesbert/loomweaver/releases). Before 1.0, breaking changes arrive in minor releases.
+- [Updating](docs/updating.md): what a product does to move to a newer release. Move every `@loomweaver/*` package at once to the same version, then read the section of each minor release crossed; for 0.20.0 that is AG-UI tool names (`notes.open` is offered as `notes__open`) and `@ag-ui/core` 1.x, catalogue ids in a fixed form with `shell` reserved, the submenu row as the `menuitem`, accessible names that begin with what a control draws, and `loadTypeScript` returning `{ ts }`. Read it before updating a product.
 
 ## Examples
 

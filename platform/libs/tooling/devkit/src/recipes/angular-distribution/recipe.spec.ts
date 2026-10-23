@@ -104,6 +104,12 @@ describe('angularDistribution recipe', () => {
     expect(readme).toContain('apple-touch-icon');
   });
 
+  it('says where to read what an update asks of the product', () => {
+    const readme = generate(angularDistribution, { name: 'acme-studio' })['LOOMWEAVER.md'];
+
+    expect(readme).toContain('https://loomweaver.dev/updating/');
+  });
+
   it('puts every @import ahead of the other at-rules, as CSS requires', () => {
     const styles = generate(angularDistribution, { name: 'acme-studio' })[
       'src/styles.css'

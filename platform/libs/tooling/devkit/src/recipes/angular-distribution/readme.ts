@@ -219,5 +219,11 @@ export function readme(distribution: ResolvedDistribution): string {
     'settings backend; back it separately with `provideWorkingStateStore` only if',
     'working state should travel across devices.',
     '',
+    '## Updating LoomWeaver',
+    '',
+    'Move every `@loomweaver/*` package at once, to the same version, and read what each minor',
+    'release you cross asks of you before you build: <https://loomweaver.dev/updating/>. Before 1.0',
+    'a breaking change arrives in a minor release, and that page names what to do for each one.',
+    '',
   ].join('\n');
 }

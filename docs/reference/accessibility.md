@@ -52,6 +52,10 @@ the binding guardrail; it complements [`design-tokens.md`](design-tokens.md) (co
   registered with, worded by the workbench. The name follows a change of the label and of the
   language, and the `label` attribute keeps what was written there. When the row is too narrow, the controls that do not fit fold into a **More**
   control rather than being cut off.
+- **Names that contain what is drawn (WCAG 2.5.3):** a workbench control that draws text is named
+  by that text first and its purpose after it. The rail entry drawing initials is "NR, Account",
+  and the view switcher drawing the current view is "Default, Saved views". A palette entry names
+  its shortcut and announces it with `aria-keyshortcuts`.
 - **Text size (WCAG 1.4.4):** the shell ships a user setting "text size"
   (Settings → Options → General) that scales the whole UI through the `:root` `font-size`
   (90/100/112.5/125 %, **relative** to the browser's base font). Every distribution inherits it.
@@ -66,7 +70,9 @@ the binding guardrail; it complements [`design-tokens.md`](design-tokens.md) (co
    the host brings is yours to build and to keep. What else it costs is in
    [your own custom element](../weaver/sidebar-surfaces.md#your-own-custom-element--the-escape-hatch).
 2. **An accessible name for everything interactive:** visible text **or** `aria-label`. Icon-only
-   buttons **require** `aria-label`.
+   buttons **require** `aria-label`. Where a control draws text and also carries an `aria-label`,
+   the label begins with that text and adds the purpose after it (WCAG 2.5.3): a button drawing
+   "EN" for the language is "EN, Language", not "Language". A tooltip does not replace that text.
 3. **Semantic colour tokens only** (never raw hex). In particular:
    - Brand blue as **text** → `text-brand-text` (not `text-brand`, which is AA only as a fill/icon).
    - Filled **action surfaces with a label** → use the `<lw-button>` variants (they carry the
