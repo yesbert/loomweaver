@@ -104,7 +104,7 @@ describe('an agent driving the workbench end to end', () => {
   it('offers what the workbench offers, and nothing its author did not open', () => {
     expect(compose().list()).toEqual([
       {
-        name: 'notes.open',
+        name: 'notes__open',
         description: 'Opens the note at a path',
         parameters: {
           type: 'object',
@@ -119,7 +119,7 @@ describe('an agent driving the workbench end to end', () => {
     const answer = await call(
       compose(),
       'c1',
-      'notes.open',
+      'notes__open',
       '{"path":"inbox/today"}',
     );
 
@@ -142,7 +142,7 @@ describe('an agent driving the workbench end to end', () => {
 
   it('reaches nothing at all without the automation grant', async () => {
     const tools = compose([]);
-    const answer = await call(tools, 'c3', 'notes.open', '{"path":"a"}');
+    const answer = await call(tools, 'c3', 'notes__open', '{"path":"a"}');
 
     expect(tools.list()).toEqual([]);
     expect(opened).toEqual([]);
@@ -153,7 +153,7 @@ describe('an agent driving the workbench end to end', () => {
     const answer = await call(
       compose(),
       'c4',
-      'notes.open',
+      'notes__open',
       '{"path":"a","colour":"red"}',
     );
 
@@ -170,7 +170,7 @@ describe('an agent driving the workbench end to end', () => {
           : { decision: 'decline', reason: 'the user did not confirm it.' },
     });
 
-    const answer = await call(tools, 'c5', 'notes.open', '{"path":"elsewhere"}');
+    const answer = await call(tools, 'c5', 'notes__open', '{"path":"elsewhere"}');
 
     expect(opened).toEqual([]);
     expect(answer?.error).toContain('did not confirm');
