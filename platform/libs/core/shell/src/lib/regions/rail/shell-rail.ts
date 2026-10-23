@@ -44,6 +44,7 @@ import { RailWorkspaceEntries } from './rail-workspace-entries';
 import { bandOf, railEntries } from './rail-entries';
 import { railNameKey } from './rail-name';
 import { sideForMoveChord } from '../reorder/move-chord';
+import { nameShowing } from '../../foundation/name-showing';
 
 @Component({
   selector: 'lw-shell-rail',
@@ -143,6 +144,10 @@ export class ShellRail {
 
   protected pictureOf(item: RailItem): string | undefined {
     return this.brokenPictures().has(item.id) ? undefined : item.image;
+  }
+
+  protected nameOf(item: RailItem, title: string): string {
+    return nameShowing([this.pictureOf(item) ? undefined : item.initials], title);
   }
 
   protected onPictureError(item: RailItem): void {

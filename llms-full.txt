@@ -219,8 +219,8 @@ interface InvocableCommand { id: string; title: string; description?: string; ar
 // a menu at the pointer carries none, because what it acts on is under the pointer.
 // With `command` (a registered command id) the heading LEADS to what it names (an account menu's heading opening
 // the profile): it becomes the FIRST entry (menuitem role, reached first by the arrow keys, click/Enter/Space
-// runs the command with the menu context and closes the menu), announced by the command's title while the menu
-// keeps the name. An unregistered command leaves it a plain heading; a menu whose only entry is it still opens.
+// runs the command with the menu context and closes the menu), announced by what it shows and then the command's
+// title ("AR, Ada Rossi, ada@example.com, Profile") while the menu keeps the name. An unregistered command leaves it a plain heading; a menu whose only entry is it still opens.
 // A RailItem, a BarButtonItem and a MenuHeader may carry `image?: string` — anything an <img> takes, an address you serve
 // or a data URL — drawn round in place of icon/initials. The ladder is PICTURE, then initials, then icon,
 // and the HOST falls back: a picture that is absent or fails to load leaves the control exactly as it
@@ -527,6 +527,8 @@ interface Toolbar { slot: string; title: string }   // title = accessible name (
 interface ToolbarCell { id: string; slot: string; component: Type<unknown>; order?: number; access?: AccessRequirement }   // id re-registered = replaced; the workbench never looks inside (no command, no `when`, no shortcut); access hides only; folds whole; never reaches a toolbar inside an isolated surface
 interface ToolbarContext { slot: string; context: MenuContext }   const TOOLBAR_CONTEXT: InjectionToken<ToolbarContext>;   // what a cell component injects to learn the slot and the placement it stands in
 interface BarButtonItem { icon?: string; initials?: string; image?: string; label?: string; tooltip?: string; menu?: string; menuTrigger?: 'context' | 'primary' | 'both'; menuHeader?: MenuHeader; command?: string; showShortcut?: boolean; run?(): void; id: string; bar: string; slot: BarSlot; order?: number; access?: AccessRequirement }  // showShortcut: render the bound command's shortcut hint, OS-correct (⌘K / Ctrl+K); needs command to have a shortcut. Default off.
+// The host names the button by what it shows, then what it is for: initials, label, tooltip, shown shortcut ("EN, Language",
+// "AL, Account", "Add ⌘↵"); a tooltip that already contains the label is kept as it is.
 // `workspace` names a workspace id: the host switches to it on click and marks the entry as the current one
 // (bar + tint + aria-current) while it is active. Provide it INSTEAD of command/run; those are then ignored.
 // The entry is marked as well while a workspace the USER saved from it (its variant) is active and has no

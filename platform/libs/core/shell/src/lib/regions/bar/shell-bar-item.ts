@@ -20,6 +20,8 @@ import {
 } from '../../menu/chrome-item-menu';
 import { MenuSide } from '../../elements/menu/lw-menu.element';
 import { BarButtonItem, BarComponentItem } from '../../foundation/bar-item';
+import { nameShowing, nameWithHint } from '../../foundation/name-showing';
+import { ariaKeyShortcuts } from '../../commands/keyboard/chord';
 import {
   BAR_CONTEXT,
   BarEntry,
@@ -99,9 +101,27 @@ export class ShellBarItem {
   protected readonly shortcut = computed<string | undefined>(() =>
     this.asButton()?.showShortcut ? this.resolved()?.shortcut : undefined,
   );
+  protected readonly keyShortcuts = computed<string | undefined>(() => {
+    const chord = this.asButton()?.showShortcut
+      ? this.resolved()?.chord
+      : undefined;
+    return chord ? ariaKeyShortcuts(chord) : undefined;
+  });
 
   protected pictureOf(button: BarButtonItem): string | undefined {
     return this.brokenPicture() ? undefined : button.image;
+  }
+
+  protected nameOf(
+    button: BarButtonItem,
+    label: string,
+    purpose: string,
+  ): string {
+    const initials = this.pictureOf(button) ? undefined : button.initials;
+    return nameWithHint(
+      nameShowing([initials, label], purpose),
+      this.shortcut(),
+    );
   }
 
   protected onPictureError(): void {

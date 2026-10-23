@@ -135,8 +135,9 @@ export interface MenuHeader {
   /**
    * Id of a registered command the heading leads to, such as the account's profile. The
    * heading then becomes the menu's first entry: the keyboard reaches it first, a click, Enter or
-   * Space runs the command with the menu's context and closes the menu, and it is announced by the
-   * command's title rather than by the name the menu already carries. A command nothing registers,
+   * Space runs the command with the menu's context and closes the menu, and it is announced by
+   * what it shows, followed by the command's title (`'AR, Ada Rossi, ada@example.com, Profile'`),
+   * so a person who speaks the words they see reaches it. A command nothing registers,
    * one without a title, or one the current session may not run (its `access` is unmet, or the
    * window is a pop-out and it does not declare `popout`) leaves the heading a plain heading.
    */

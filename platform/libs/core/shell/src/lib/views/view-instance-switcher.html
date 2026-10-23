@@ -1,11 +1,12 @@
+@let shown = activeName() || ('viewInstance.default' | transloco);
 <button
   type="button"
   class="flex min-w-0 flex-1 items-center gap-1 truncate rounded px-1 py-0.5 text-left text-xs font-semibold tracking-wide text-content-faint uppercase transition-colors hover:bg-surface-overlay hover:text-content"
   (click)="openSwitcher($event)"
   lwMenuAnnounced
-  [attr.aria-label]="'viewInstance.switcher' | transloco"
+  [attr.aria-label]="nameOf(shown, 'viewInstance.switcher' | transloco)"
   data-testid="view-switcher"
 >
-  <span class="truncate">{{ activeName() || ('viewInstance.default' | transloco) }}</span>
+  <span class="truncate">{{ shown }}</span>
   <lw-icon name="chevronDown" size="0.85rem" class="shrink-0" />
 </button>

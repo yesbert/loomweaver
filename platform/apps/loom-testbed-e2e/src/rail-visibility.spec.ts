@@ -82,7 +82,7 @@ test.describe('Rail entries the user curates', () => {
     await page.keyboard.press('Escape');
 
     const entry = rail(page).getByRole('button', {
-      name: 'Quarter close',
+      name: 'QC, Quarter close',
       exact: true,
     });
     await expect(entry).toHaveCount(0);

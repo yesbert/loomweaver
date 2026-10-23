@@ -238,6 +238,18 @@ describe('ShellRail', () => {
       ).toBe(1);
       expect(labelsOf(fixture)).toEqual(['Reset', 'Reset']);
     });
+
+    it('keeps initials and name apart as two words', () => {
+      const fixture = labelledSetup({
+        ...entry('ini', 'cmd.reset'),
+        initials: 'GH',
+      });
+
+      const button = fixture.nativeElement.querySelector(
+        '[data-rail-item="ini"]',
+      ) as HTMLElement;
+      expect(button.textContent?.replaceAll(/\s+/g, ' ').trim()).toBe('GH Reset');
+    });
   });
 
   describe('landmark label', () => {
@@ -399,6 +411,25 @@ describe('ShellRail', () => {
 
       expect(buttonsOf(fixture)[0].getAttribute('aria-label')).toBe('Reset');
       expect(picture(fixture)?.getAttribute('aria-hidden')).toBe('true');
+    });
+
+    it('names an entry drawn with initials by them first', () => {
+      const fixture = renderRail([withPicture({ image: undefined })]);
+
+      expect(buttonsOf(fixture)[0].getAttribute('aria-label')).toBe(
+        'AL, Reset',
+      );
+    });
+
+    it('names the entry by its initials once its picture gives way to them', () => {
+      const fixture = renderRail([withPicture()]);
+
+      picture(fixture)?.dispatchEvent(new Event('error'));
+      fixture.detectChanges();
+
+      expect(buttonsOf(fixture)[0].getAttribute('aria-label')).toBe(
+        'AL, Reset',
+      );
     });
   });
 

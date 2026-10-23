@@ -47,7 +47,8 @@ ctx.registerRailItem({ id: 'notes.settings', rail: 'primary', icon: 'settings',
 
 // Declarative status-bar button — the host paints button + tooltip from data (no component).
 // `showShortcut: true` renders the bound command's shortcut hint (OS-correct, ⌘↵ / Ctrl+Enter) —
-// only when the command declares a `shortcut`.
+// only when the command declares a `shortcut`. The host names the button by what it shows first:
+// initials, then `label`, then `tooltip`, then the hint ("EN, Language", "Add ⌘↵").
 ctx.registerBarItem({ id: 'notes.add.btn', bar: 'status-bar', slot: 'start', order: 1,
   icon: 'add', tooltip: 'notes.add', command: 'notes.add', showShortcut: true });
 

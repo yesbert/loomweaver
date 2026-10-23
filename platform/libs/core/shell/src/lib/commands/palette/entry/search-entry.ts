@@ -3,6 +3,8 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { Command } from '@loomweaver/plugin-sdk';
 import { BAR_CONTEXT } from '../../../regions/bar/bar-context';
 import { CommandService } from '../../command.service';
+import { ariaKeyShortcuts } from '../../keyboard/chord';
+import { nameWithHint } from '../../../foundation/name-showing';
 
 @Component({
   selector: 'lw-search-entry',
@@ -28,6 +30,15 @@ export class SearchEntry {
   protected readonly shortcut = computed<string | undefined>(() =>
     this.commands.shortcutOf(this.command()),
   );
+
+  protected readonly keyShortcuts = computed<string | undefined>(() => {
+    const chord = this.commands.chordOf(this.command());
+    return chord ? ariaKeyShortcuts(chord) : undefined;
+  });
+
+  protected nameOf(title: string): string {
+    return nameWithHint(title, this.shortcut());
+  }
 
   protected open(): void {
     this.commands.execute(this.commandId());

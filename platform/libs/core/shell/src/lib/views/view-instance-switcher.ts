@@ -6,6 +6,7 @@ import { MenuListEntry, MenuService } from '../menu/menu.service';
 import { MENU_ANCHOR_GAP } from '../elements/menu/lw-menu.element';
 import { MenuTriggerDirective } from '../menu/menu-trigger.directive';
 import { ViewInstanceService } from './view-instance.service';
+import { nameShowing } from '../foundation/name-showing';
 
 @Component({
   selector: 'lw-view-instance-switcher',
@@ -35,6 +36,10 @@ export class ViewInstanceSwitcher {
     }
     return active.name;
   });
+
+  protected nameOf(shown: string, purpose: string): string {
+    return nameShowing([shown], purpose);
+  }
 
   protected openSwitcher(event: MouseEvent): void {
     const viewId = this.view().id;

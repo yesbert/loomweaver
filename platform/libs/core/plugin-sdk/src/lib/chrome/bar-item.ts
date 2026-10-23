@@ -40,7 +40,10 @@ export interface BarComponentItem extends BarItemBase {
 export interface BarButtonItem extends BarItemBase {
   /** Icon name shown in the button (optional if a label is given). */
   readonly icon?: string;
-  /** Transloco key/literal for a visible text label (optional). */
+  /**
+   * Transloco key/literal for a visible text label (optional). The button's accessible name begins
+   * with it, so a person who speaks the words they see reaches the button.
+   */
   readonly label?: string;
   /**
    * One or two letters the host draws **instead of** {@link icon}, for a button standing for
@@ -55,7 +58,12 @@ export interface BarButtonItem extends BarItemBase {
    * content policy.
    */
   readonly image?: string;
-  /** Transloco key/literal for the tooltip; falls back to {@link label}. */
+  /**
+   * Transloco key/literal for the tooltip; falls back to {@link label}. It says what the button is
+   * for, and the host names the button by what it shows first: the drawn initials, then the
+   * {@link label}, then the tooltip, then a shown shortcut (`'EN, Language'`, `'AL, Account'`). A
+   * tooltip that already contains the label is taken as it is.
+   */
   readonly tooltip?: string;
   /**
    * Id of a menu slot to open as this button's **context menu** on right-click — region-agnostic:

@@ -446,7 +446,7 @@ describe('MenuService', () => {
         expect(execute).toHaveBeenNthCalledWith(2, 'c.profile', context);
       });
 
-      it('is announced by what its command does while the menu keeps the name', () => {
+      it('is announced by what it shows, then by what its command does, while the menu keeps the name', () => {
         profile();
         open({
           title: 'menu.close',
@@ -458,7 +458,9 @@ describe('MenuService', () => {
           'Close, ada@example.com',
         );
         expect(heading()?.getAttribute('role')).toBe('menuitem');
-        expect(heading()?.getAttribute('aria-label')).toBe('Profile');
+        expect(heading()?.getAttribute('aria-label')).toBe(
+          'Close, ada@example.com, Profile',
+        );
         expect(heading()?.hasAttribute('aria-hidden')).toBe(false);
       });
 

@@ -17,6 +17,7 @@ import { BarEntry, barMenuContext, isBarButton } from './bar-context';
 import { AUTH_SOURCE } from '../../auth/auth-context';
 import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { formatChord } from '../../commands/keyboard/format-chord';
+import { ariaKeyShortcuts } from '../../commands/keyboard/chord';
 import { defineLwTooltip } from '../../elements/tooltip/lw-tooltip.element';
 import { MenuService } from '../../menu/menu.service';
 import {
@@ -115,6 +116,68 @@ describe('ShellBarItem', () => {
     const host = fixture.nativeElement as HTMLElement;
     expect(host.querySelector('kbd')?.textContent?.trim()).toBe(
       formatChord('mod+enter'),
+    );
+  });
+
+  it('names a button by its purpose followed by the shortcut it shows', () => {
+    TestBed.configureTestingModule({ imports: [ShellBarItem, transloco()] });
+    TestBed.inject(ContributionRegistry).addCommand({
+      id: 'testbed.act',
+      title: 'status.add',
+      shortcut: 'mod+enter',
+      run: () => undefined,
+    });
+    const fixture = TestBed.createComponent(BarItemHost);
+    fixture.componentRef.setInput('item', {
+      id: 'a',
+      bar: 'status-bar',
+      slot: 'start',
+      icon: 'add',
+      tooltip: 'status.add',
+      command: 'testbed.act',
+      showShortcut: true,
+    } satisfies BarItem);
+    fixture.componentRef.setInput('dock', 'bottom');
+    fixture.detectChanges();
+
+    const button = (fixture.nativeElement as HTMLElement).querySelector(
+      'button',
+    ) as HTMLButtonElement;
+    expect(button.getAttribute('aria-label')).toBe(
+      `Add item ${formatChord('mod+enter')}`,
+    );
+    expect(button.getAttribute('aria-keyshortcuts')).toBe(
+      ariaKeyShortcuts('mod+enter'),
+    );
+  });
+
+  it('names a button by its visible label before its tooltip', () => {
+    const host = render({
+      id: 'lang',
+      bar: 'status-bar',
+      slot: 'end',
+      label: 'EN',
+      tooltip: 'Language',
+      run: () => undefined,
+    });
+
+    expect(host.querySelector('button')?.getAttribute('aria-label')).toBe(
+      'EN, Language',
+    );
+  });
+
+  it('keeps a tooltip that already says the label as the name', () => {
+    const host = render({
+      id: 'lang',
+      bar: 'status-bar',
+      slot: 'end',
+      label: 'EN',
+      tooltip: 'EN, Language',
+      run: () => undefined,
+    });
+
+    expect(host.querySelector('button')?.getAttribute('aria-label')).toBe(
+      'EN, Language',
     );
   });
 
@@ -231,6 +294,54 @@ describe('ShellBarItem', () => {
       expect(
         host.querySelector('[data-testid="bar-initials"]')?.className,
       ).toContain('lw-chrome-mark');
+    });
+
+    it('names a button drawn with initials by them first', () => {
+      const host = render(account({ image: undefined }));
+
+      expect(host.querySelector('button')?.getAttribute('aria-label')).toBe(
+        'AL, Add item',
+      );
+    });
+
+    it('names a button by its initials and its label where it has no tooltip', () => {
+      const host = render(
+        account({
+          image: undefined,
+          tooltip: undefined,
+          label: 'Ada Lovelace',
+        }),
+      );
+
+      expect(host.querySelector('button')?.getAttribute('aria-label')).toBe(
+        'AL, Ada Lovelace',
+      );
+    });
+
+    it('keeps initials, label and shortcut apart as words', () => {
+      const host = render(
+        account({
+          image: undefined,
+          tooltip: undefined,
+          label: 'Ada Lovelace',
+        }),
+      );
+
+      const drawn = host
+        .querySelector('button')
+        ?.cloneNode(true) as HTMLElement;
+      drawn.querySelector('lw-tooltip')?.remove();
+      expect(drawn.textContent?.replaceAll(/\s+/g, ' ').trim()).toBe(
+        'AL Ada Lovelace',
+      );
+    });
+
+    it('names a button drawn as a picture by its tooltip alone', () => {
+      const host = render(account());
+
+      expect(host.querySelector('button')?.getAttribute('aria-label')).toBe(
+        'Add item',
+      );
     });
   });
 

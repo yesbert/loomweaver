@@ -136,6 +136,38 @@ export function formatChordOn(
     .join(isMac ? '' : '+');
 }
 
+const ARIA_KEY_NAMES: ReadonlyMap<string, string> = new Map([
+  ['ctrl', 'Control'],
+  ['pageup', 'PageUp'],
+  ['pagedown', 'PageDown'],
+  ['arrowup', 'ArrowUp'],
+  ['arrowdown', 'ArrowDown'],
+  ['arrowleft', 'ArrowLeft'],
+  ['arrowright', 'ArrowRight'],
+]);
+
+export function ariaKeyShortcutsOn(
+  chord: string,
+  isMac: boolean,
+): string | undefined {
+  const signature = chordSignature(chord, isMac);
+  if (signature === null) {
+    return undefined;
+  }
+  return signature
+    .split('+')
+    .map(
+      (token) =>
+        ARIA_KEY_NAMES.get(token) ??
+        token.charAt(0).toUpperCase() + token.slice(1),
+    )
+    .join('+');
+}
+
+export function ariaKeyShortcuts(chord: string): string | undefined {
+  return ariaKeyShortcutsOn(chord, isMacPlatform());
+}
+
 function tokenLabel(token: string, isMac: boolean, words?: KeyWords): string {
   const canonical = platformToken(token, isMac);
   const label = KEY_LABELS.get(canonical);

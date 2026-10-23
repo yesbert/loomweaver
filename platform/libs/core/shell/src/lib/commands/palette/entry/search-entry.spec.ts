@@ -7,6 +7,8 @@ import { PALETTE_COMMAND_ID } from '../command-palette';
 import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { AUTH_SOURCE } from '../../../auth/auth-context';
 import { provideShellFeatures } from '../../../foundation/shell-features';
+import { formatChord } from '../../keyboard/format-chord';
+import { ariaKeyShortcuts } from '../../keyboard/chord';
 
 function transloco() {
   return TranslocoTestingModule.forRoot({
@@ -62,6 +64,31 @@ describe('SearchEntry — the badge does not outlive the search it opens', () =>
     expect(host.querySelector('button')).not.toBeNull();
   });
 
+  it('names the entry by its purpose followed by the shortcut it shows', () => {
+    TestBed.configureTestingModule({
+      imports: [CommandPaletteEntry, transloco()],
+    });
+    TestBed.inject(ContributionRegistry).addCommand({
+      id: PALETTE_COMMAND_ID,
+      title: 'palette.title',
+      icon: 'search',
+      shortcut: 'mod+k',
+      run: () => undefined,
+    });
+    const fixture = TestBed.createComponent(CommandPaletteEntry);
+    fixture.detectChanges();
+
+    const button = (fixture.nativeElement as HTMLElement).querySelector(
+      'button',
+    ) as HTMLButtonElement;
+    expect(button.getAttribute('aria-label')).toBe(
+      `Command palette ${formatChord('mod+k')}`,
+    );
+    expect(button.getAttribute('aria-keyshortcuts')).toBe(
+      ariaKeyShortcuts('mod+k'),
+    );
+  });
+
   it('stays and still opens the search where shortcuts are off, promising no chord', () => {
     let opened = 0;
     TestBed.configureTestingModule({
@@ -82,6 +109,8 @@ describe('SearchEntry — the badge does not outlive the search it opens', () =>
     const button = host.querySelector('button') as HTMLButtonElement;
     expect(button).not.toBeNull();
     expect(host.querySelector('kbd')).toBeNull();
+    expect(button.getAttribute('aria-label')).toBe('Command palette');
+    expect(button.hasAttribute('aria-keyshortcuts')).toBe(false);
 
     button.click();
     expect(opened).toBe(1);
