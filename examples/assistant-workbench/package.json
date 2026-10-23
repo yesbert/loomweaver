@@ -10,7 +10,7 @@
     "lint": "eslint ."
   },
   "private": true,
-  "packageManager": "npm@11.16.0",
+  "packageManager": "npm@11.20.0",
   "dependencies": {
     "@ag-ui/core": "^0.0.58",
     "@angular/cdk": "^22.2.4",

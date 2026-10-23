@@ -43,7 +43,8 @@ jobs:
           cache: npm
           cache-dependency-path: platform/package-lock.json
 
-      # Trusted publishing needs npm 11.5.1 or newer. Node 24 ships an older 11.x on some images.
+      # Trusted publishing needs npm 11.5.1 or newer, and a runner image can carry an older npm than
+      # the Node release it installs ships with.
       - name: Use an npm that can publish over OIDC
         run: npm install -g npm@latest
 

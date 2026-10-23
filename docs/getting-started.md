@@ -11,7 +11,7 @@ A running product in one command: the LoomWeaver chrome, branded, with one plugi
 already contributing to it. The [live demo](https://demo.loomweaver.dev) runs the same shell, built
 the same way.
 
-> **Prerequisites:** Node 24 and an **Angular 22** application, from the Angular CLI (`ng new`) or
+> **Prerequisites:** Node 24 or 26 and an **Angular 22** application, from the Angular CLI (`ng new`) or
 > inside an Nx workspace. The command below creates none; it takes the one you are in. Under Nx it
 > runs the Nx generators, so the plugin becomes a registered project, and where the workspace has
 > more than one application it asks you to name one with `--app`.
