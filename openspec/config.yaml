@@ -20,7 +20,7 @@ context: |
     @loomweaver/ag-ui        AG-UI adapter: the workbench's commands offered to an agent
   The published contract is what lands in the packed .d.ts, not what the source barrels export.
 
-  Stack: Angular 22 (standalone-only, signals, zoneless, new control flow, inject()) + Nx 23,
+  Stack: Angular 22 (standalone-only, signals, zoneless, new control flow, inject()) + Nx 24,
   TypeScript strict + strictTemplates. Tailwind 4 is optional for consumers — the shell ships a
   precompiled stylesheet and its visual contract is a set of `.lw-*` CSS classes plus `--lw-*`
   design tokens.

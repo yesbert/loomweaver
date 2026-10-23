@@ -26,11 +26,13 @@ function objectAt(source, from) {
     if (source[at] === '{') {
       depth += 1;
     }
-    if (source[at] === '}') {
-      depth -= 1;
-      if (depth === 0) {
-        return source.slice(from, at + 1);
-      }
+    if (source[at] !== '}') {
+      continue;
+    }
+
+    depth -= 1;
+    if (depth === 0) {
+      return source.slice(from, at + 1);
     }
   }
   throw new Error(`unbalanced object literal at ${from}`);
@@ -169,15 +171,14 @@ if (commands.size === 0) {
 }
 
 const settingsLabels = labelsFromSettings(known);
-const failures = [];
 
 // Skipping quietly is the one outcome this must never have: a check that covers less than it says
 // reads as a guarantee and is not one.
-for (const where of unresolved) {
-  failures.push(
+const failures = Array.from(
+  unresolved,
+  (where) =>
     `a registration names itself with something this check cannot resolve, so it went unchecked — teach it the constant: ${where}`,
-  );
-}
+);
 
 for (const language of LANGUAGES) {
   const strings = bundle(language);

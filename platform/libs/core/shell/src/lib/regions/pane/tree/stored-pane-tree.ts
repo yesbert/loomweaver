@@ -122,9 +122,9 @@ export function healedPrimary(
   node: PaneNode,
   candidate: string | undefined,
 ): string {
-  return candidate !== undefined && findLeaf(node, candidate) !== null
-    ? candidate
-    : collectLeafIds(node)[0];
+  return candidate === undefined || findLeaf(node, candidate) === null
+    ? collectLeafIds(node)[0]
+    : candidate;
 }
 
 export function withoutBorrowedLabels(

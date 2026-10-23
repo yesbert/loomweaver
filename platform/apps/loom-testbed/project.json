@@ -101,6 +101,9 @@
           "servePath": "/x/",
           "port": 4201
         }
+      },
+      "readyWhen": {
+        "signal": true
       }
     },
     "test": {
@@ -113,6 +116,10 @@
     "serve-static": {
       "continuous": true,
       "executor": "@nx/web:file-server",
+      "readyWhen": {
+        "signal": true
+      },
+      "dependsOn": ["build"],
       "options": {
         "buildTarget": "loom-testbed:build",
         "staticFilePath": "dist/apps/loom-testbed/browser",

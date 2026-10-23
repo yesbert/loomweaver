@@ -353,10 +353,12 @@ export class LwToolbarElement extends HTMLElement {
       this.observer = new ResizeObserver(() => this.remeasure());
       this.observer.observe(this);
     }
-    if (typeof MutationObserver !== 'undefined') {
-      this.childObserver = new MutationObserver((mutations) => this.onChildren(mutations));
-      this.childObserver.observe(this, { childList: true });
+    if (typeof MutationObserver === 'undefined') {
+      return;
     }
+
+    this.childObserver = new MutationObserver((mutations) => this.onChildren(mutations));
+    this.childObserver.observe(this, { childList: true });
   }
 
   private remeasure(): void {

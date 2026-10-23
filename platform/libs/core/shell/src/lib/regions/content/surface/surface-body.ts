@@ -133,7 +133,7 @@ export class SurfaceBody {
 
   private readonly declaredView = computed(() => {
     const declared = this.declared();
-    return declared !== null && !('path' in declared) ? declared : null;
+    return declared === null || ('path' in declared) ? null : declared;
   });
 
   private readonly declaredRoute = computed(() => {

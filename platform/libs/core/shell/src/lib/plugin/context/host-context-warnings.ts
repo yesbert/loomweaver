@@ -80,21 +80,19 @@ export function warnUnlessPanelRegion(
   regions: readonly LayoutRegion[],
   view: View,
 ): void {
-  if (!isDevMode()) {
-    return;
-  }
-  if (view.region === CONTAINER_CHILD_REGION) {
+  if (!isDevMode() || (view.region === CONTAINER_CHILD_REGION)) {
     return;
   }
   const region = regions.find((r) => r.id === view.region);
-  if (region?.type !== 'panel') {
-    const detail = region ? `a '${region.type}' region` : 'an unknown region';
-    console.warn(
-      `Plugin "${pluginId}" registered surface "${view.id}" with home dock "${view.region}" — ` +
-        `${detail}. A non-routable surface renders only in 'panel' regions; for the content area ` +
-        `add routable: { path }. This surface will not appear.`,
-    );
+  if (region?.type === 'panel') {
+    return;
   }
+  const detail = region ? `a '${region.type}' region` : 'an unknown region';
+  console.warn(
+    `Plugin "${pluginId}" registered surface "${view.id}" with home dock "${view.region}" — ` +
+      `${detail}. A non-routable surface renders only in 'panel' regions; for the content area ` +
+      `add routable: { path }. This surface will not appear.`,
+  );
 }
 
 export function warnUnlessRegionType(

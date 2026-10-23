@@ -46,10 +46,12 @@ function apply(): void {
     state.handle = state.ctx.contributeTheme(SUNRISE_THEME, SUNRISE_THEME_DARK);
     return;
   }
-  if (!on && state.handle) {
-    state.handle.dispose();
-    state.handle = null;
+  if (on || !state.handle) {
+    return;
   }
+
+  state.handle.dispose();
+  state.handle = null;
 }
 
 export function registerTheme(ctx: PluginContext): void {

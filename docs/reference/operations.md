@@ -94,6 +94,19 @@ false`, `types: ["*"]`, `noUncheckedSideEffectImports: false` and `ignoreDepreca
 - **Upgrade through `npx nx migrate <version>`, not `npm update`.**
   `scripts/update-all-dependencies.sh` deliberately stays inside the semver ranges and only reports
   the majors that are waiting.
+- **From Nx 24, `nx migrate --run-migrations` is a run that commits each step itself.** It writes a
+  runbook under `.nx/migrate-runs/`, hands some steps back as work with a handoff file, and its
+  commits carry no sign-off. Squash the branch and commit it with `-s` before pushing, or the Sign-off
+  check fails. A lockfile that pins the old exact versions stops `npm install` with ERESOLVE before
+  the run can start; regenerating it is the way through.
+- **ng-packagr stays on 22.1 for now.** From 22.2 it bundles declarations with rolldown-plugin-dts,
+  which keeps internal declarations nothing public references. The packed `@loomweaver/shell` types
+  would carry 129 names a consumer can see and not import, and `api-docs-check` fails on them. 22.1
+  builds Angular 22.2 without complaint. Move it when the bundler drops unreferenced declarations again.
+- **Nx's test tree seeds an oxfmt config unless told otherwise.** `createTreeWithEmptyWorkspace()`
+  defaults to oxfmt since Nx 24, and with oxfmt not installed `formatFiles` formats nothing. A
+  generator test that asserts on formatted output asks for `{ formatter: 'prettier' }`, which is what a
+  real workspace uses.
 - **A page under `docs/` needs an opening paragraph of prose, or the site build fails.**
   `website/tools/sync-docs.mjs` derives the page's meta description from it, the way it derives the
   title from the `# Title` heading. Blockquotes, the derived-from-specs header, tables and code

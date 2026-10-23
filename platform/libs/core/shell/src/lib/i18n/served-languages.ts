@@ -90,9 +90,9 @@ function matchPreference(
   }
   const canonical = canonicalOrNull(preference);
   const base = canonical?.split('-', 1)[0];
-  return base !== undefined && base !== canonical
-    ? servedLanguage(base, served)
-    : undefined;
+  return base === undefined || base === canonical
+    ? undefined
+    : servedLanguage(base, served);
 }
 
 export function detectInitialLanguage(served: readonly string[]): string {

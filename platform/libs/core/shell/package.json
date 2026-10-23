@@ -26,10 +26,10 @@
     "rxjs": "^7.8.0"
   },
   "dependencies": {
-    "@zumer/snapdom": "^2.24.18",
-    "dompurify": "^3.4.11",
-    "marked": "^18.0.6",
-    "penpal": "^7.0.6",
+    "@zumer/snapdom": "^3.3.7",
+    "dompurify": "^3.4.17",
+    "marked": "^18.1.1",
+    "penpal": "^8.0.1",
     "tslib": "^2.3.0"
   },
   "exports": {

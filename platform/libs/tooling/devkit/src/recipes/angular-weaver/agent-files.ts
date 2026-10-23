@@ -11,7 +11,7 @@ import { stringLiteral } from '../../lib/generate/escape';
  * adapter itself is published on the platform's own version line, so a generated weaver asks for
  * `PLATFORM_VERSION`. `check-agent-versions` fails the build when either drifts.
  */
-export const AG_UI_PROTOCOL_VERSION = '0.0.x';
+export const AG_UI_PROTOCOL_VERSION = '^1.0.3';
 
 function connectionFile(weaver: ResolvedWeaver): string {
   return `import { signal } from '@angular/core';
@@ -50,7 +50,7 @@ export const ${weaver.propertyName}Tools = signal<CommandTools | null>(null);
 }
 
 function specFile(weaver: ResolvedWeaver): string {
-  return `import { EventType, type AGUIEvent, type ToolMessage } from '@ag-ui/core';
+  return `import { contentToText, EventType, type AGUIEvent, type ToolMessage } from '@ag-ui/core';
 import type { CommandTools } from '@loomweaver/ag-ui';
 import type { CommandArguments, PluginContext } from '@loomweaver/plugin-sdk';
 import { connect${weaver.className} } from './${weaver.id}-connection';
@@ -111,7 +111,7 @@ describe('connect${weaver.className}', () => {
     const [answer] = await answersTo(tools, streamedCall('c1', '{"tone"', ':"success"}'));
 
     expect(ran).toEqual([{ id: '${weaver.id}.hello', args: { tone: 'success' } }]);
-    expect(JSON.parse(answer?.content ?? '{}').tone).toBe('success');
+    expect(JSON.parse(contentToText(answer?.content) || '{}').tone).toBe('success');
     expect(answer?.error).toBeUndefined();
   });
 

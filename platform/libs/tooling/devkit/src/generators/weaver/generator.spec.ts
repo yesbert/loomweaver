@@ -248,7 +248,7 @@ describe('weaver generator', () => {
   });
 
   it('says it composed nothing where a workspace without a test runner has no application', async () => {
-    const bare = createTreeWithEmptyWorkspace();
+    const bare = createTreeWithEmptyWorkspace({ formatter: 'prettier' });
     const warn = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
 
     await weaverGenerator(bare, { id: 'notes', unitTestRunner: 'none' });
@@ -357,13 +357,13 @@ describe('weaver generator with an agent connection', () => {
     const manifest = readJson(tree, 'package.json');
     manifest.dependencies = {
       ...manifest.dependencies,
-      '@ag-ui/core': '0.0.42',
+      '@ag-ui/core': '1.0.42',
     };
     tree.write('package.json', JSON.stringify(manifest, null, 2));
 
     await weaverGenerator(tree, { id: 'notes', agent: true });
     expect(readJson(tree, 'package.json').dependencies['@ag-ui/core']).toBe(
-      '0.0.42',
+      '1.0.42',
     );
   });
 

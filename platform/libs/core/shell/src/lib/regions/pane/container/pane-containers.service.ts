@@ -22,10 +22,11 @@ export class PaneContainersService {
       return;
     }
     const { node } = containerLayout(dock, spec, [], '');
-    if (node !== null) {
-      const landing = landingLeaf(node);
-      this.paneTree.commit(dock, node, landing?.id);
+    if (node === null) {
+      return;
     }
+    const landing = landingLeaf(node);
+    this.paneTree.commit(dock, node, landing?.id);
   }
 
   dropContainer(dock: string): void {

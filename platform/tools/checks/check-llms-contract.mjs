@@ -312,36 +312,32 @@ for (const info of declaredIn) {
       }
       const optional = (symbol.flags & ts.SymbolFlags.Optional) !== (published.flags & ts.SymbolFlags.Optional);
       const spelledAlike = normalised(printed(node), []) === normalised(memberText(published), []);
-      const differs = spelledAlike
-        ? false
-        : (generic
+      const differs = !spelledAlike && (generic
         ? normalised(printed(node), typeParameters(statement)) !==
           normalised(memberText(published), typeParameters(theirs.declarations[0]))
         : optional || !same(checker.getTypeOfSymbolAtLocation(symbol, node), checker.getTypeOfSymbol(published)));
-      if (differs) {
-        problems.push(`${where}: ${name}.${member} is published as\n      ${memberText(published)}\n    but shown as\n      ${printed(node)}`);
-        const keepsReadonly = printed(node).startsWith('readonly ');
-        replaceWith(info, node, keepsReadonly ? memberText(published) : memberText(published).replace(/^readonly /, ''));
-      }
+      if (!differs) continue;
+      problems.push(`${where}: ${name}.${member} is published as\n      ${memberText(published)}\n    but shown as\n      ${printed(node)}`);
+      const keepsReadonly = printed(node).startsWith('readonly ');
+      replaceWith(info, node, keepsReadonly ? memberText(published) : memberText(published).replace(/^readonly /, ''));
     }
     // A class is a service, and a block lists the members a reader needs; an interface is a shape a
     // plugin fills or reads, and a block that leaves a member out misleads whoever fills it.
     const absent = [...wantedMembers.keys()].filter((member) => !shownMembers.has(member));
-    if (kind === 'interface' && absent.length > 0) {
-      problems.push(`${at}: ${name} lacks ${absent.join(', ')}, which the package publishes`);
-      const texts = absent.map((member) => memberText(wantedMembers.get(member)).replace(/^readonly /, ''));
-      const body = statement.getText();
-      const close = info.block.start + statement.end - 1 - info.offset;
-      if (body.includes('\n')) {
-        const first = statement.members[0];
-        const indent = ' '.repeat(sourceFile.getLineAndCharacterOfPosition(first.getStart()).character);
-        edits.push({ from: close, to: close, text: `${texts.map((text) => `${indent}${text};`).join('\n')}\n` });
-      } else {
-        const last = statement.members.at(-1);
-        const after = info.block.start + (last ? last.end : statement.end - 1) - info.offset;
-        const separator = last && !last.getText().endsWith(';') ? '; ' : ' ';
-        edits.push({ from: after, to: after, text: `${separator}${texts.join('; ')}` });
-      }
+    if (kind !== 'interface' || absent.length === 0) continue;
+    problems.push(`${at}: ${name} lacks ${absent.join(', ')}, which the package publishes`);
+    const texts = absent.map((member) => memberText(wantedMembers.get(member)).replace(/^readonly /, ''));
+    const body = statement.getText();
+    const close = info.block.start + statement.end - 1 - info.offset;
+    if (body.includes('\n')) {
+      const first = statement.members[0];
+      const indent = ' '.repeat(sourceFile.getLineAndCharacterOfPosition(first.getStart()).character);
+      edits.push({ from: close, to: close, text: `${texts.map((text) => `${indent}${text};`).join('\n')}\n` });
+    } else {
+      const last = statement.members.at(-1);
+      const after = info.block.start + (last ? last.end : statement.end - 1) - info.offset;
+      const separator = last && !last.getText().endsWith(';') ? '; ' : ' ';
+      edits.push({ from: after, to: after, text: `${separator}${texts.join('; ')}` });
     }
   }
 }

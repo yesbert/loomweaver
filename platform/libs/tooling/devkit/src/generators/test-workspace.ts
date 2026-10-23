@@ -11,7 +11,7 @@ export function createConsumerWorkspace(
   appName = 'studio',
   appRoot = `apps/${appName}`,
 ): Tree {
-  const tree = createTreeWithEmptyWorkspace();
+  const tree = createTreeWithEmptyWorkspace({ formatter: 'prettier' });
   updateJson(tree, 'package.json', (json) => ({
     ...json,
     name: '@acme/source',
@@ -66,7 +66,7 @@ export function declarePrefix(tree: Tree, app: string, prefix: string): void {
 export const GENERATED_APP = 'apps/acme-studio';
 
 export async function createGeneratedDistribution(): Promise<Tree> {
-  const tree = createTreeWithEmptyWorkspace();
+  const tree = createTreeWithEmptyWorkspace({ formatter: 'prettier' });
   await distributionGenerator(tree, { name: 'acme-studio', title: 'Acme Studio' });
   return tree;
 }

@@ -52,10 +52,12 @@ export class PreviewSlotService {
           )
         : [...tabs, slot],
     );
-    if (previousRoot !== undefined && previousRoot !== root) {
-      this.closeHooks.runSafely(previous?.onClose);
-      this.closeHooks.delete(previousRoot);
+    if (previousRoot === undefined || previousRoot === root) {
+      return;
     }
+
+    this.closeHooks.runSafely(previous?.onClose);
+    this.closeHooks.delete(previousRoot);
   }
 
   private replaceIn(pane: PaneLeaf, slot: OpenTab): void {

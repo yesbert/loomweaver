@@ -73,14 +73,16 @@ export function registerViewStackMenu(
       run: (context) => {
         const viewId = menuContextString(context, 'viewId');
         const region = menuContextString(context, 'region');
-        if (viewId && region) {
-          paneTree.setActiveTab(
-            region,
-            paneTree.primaryId(region),
-            viewPanePath(viewId),
-          );
-          paneTree.stackView(region, viewId);
+        if (!(viewId && region)) {
+          return;
         }
+
+        paneTree.setActiveTab(
+          region,
+          paneTree.primaryId(region),
+          viewPanePath(viewId),
+        );
+        paneTree.stackView(region, viewId);
       },
     },
     {

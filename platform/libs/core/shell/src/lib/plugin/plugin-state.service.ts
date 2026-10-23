@@ -123,10 +123,12 @@ export class PluginStateService {
         entry.listeners.delete(listener);
       }
       entry.watchers -= 1;
-      if (entry.watchers === 0) {
-        this.flush(entry);
-        this.entries.delete(entry.storageKey);
+      if (entry.watchers !== 0) {
+        return;
       }
+
+      this.flush(entry);
+      this.entries.delete(entry.storageKey);
     };
     return {
       value: () => entry.value() as T | undefined,

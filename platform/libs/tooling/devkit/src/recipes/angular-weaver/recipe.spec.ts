@@ -464,7 +464,7 @@ describe('angularWeaver agent connection', () => {
 
   it('emits a test that reads the answer the command gave', () => {
     const spec = agentWeaver()['src/lib/agent/notes-connection.spec.ts'];
-    expect(spec).toContain("JSON.parse(answer?.content ?? '{}').tone");
+    expect(spec).toContain("JSON.parse(contentToText(answer?.content) || '{}').tone");
   });
 
   it("acts on each command's own statement through the shipped policy, asking with the product's confirmation", () => {

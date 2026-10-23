@@ -44,9 +44,9 @@ export function originOf(
     return id;
   }
   const origin = saved.find((workspace) => workspace.id === id)?.origin;
-  return origin !== undefined && definitionOf(definitions, origin) !== undefined
-    ? origin
-    : null;
+  return origin === undefined || definitionOf(definitions, origin) === undefined
+    ? null
+    : origin;
 }
 
 export function claimsOfWorkspace(

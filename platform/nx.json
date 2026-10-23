@@ -92,6 +92,16 @@
         "testTargetName": "test",
         "testMode": "run"
       }
+    },
+    {
+      "plugin": "@nx/playwright/plugin",
+      "options": {
+        "targetName": "e2e",
+        "ciTargetName": "e2e-ci"
+      }
     }
-  ]
+  ],
+  "affected": {
+    "legacy": true
+  }
 }
