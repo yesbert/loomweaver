@@ -100,8 +100,8 @@ false`, `types: ["*"]`, `noUncheckedSideEffectImports: false` and `ignoreDepreca
   check fails. A lockfile that pins the old exact versions stops `npm install` with ERESOLVE before
   the run can start; regenerating it is the way through.
 - **ng-packagr 22.2 keeps declarations nothing public references.** It passes `treeshake: false` to
-  the declaration bundle as well as to the JavaScript one, so the packed `@loomweaver/shell` types
-  carry some 129 internal names a consumer can see and not import (ng-packagr/ng-packagr#3471).
+  the declaration bundle as well as to the JavaScript one. The packed `@loomweaver/shell` types
+  therefore carry some 129 internal names a consumer can see and not import (ng-packagr/ng-packagr#3471).
   `api-docs-check` therefore follows the exports through their type references rather than reading
   every declaration. The same release also leaves JSDoc out of the packed JavaScript; the types keep
   it. Clear `node_modules/.cache/ng-packagr` before you compare two package builds, or the second one
