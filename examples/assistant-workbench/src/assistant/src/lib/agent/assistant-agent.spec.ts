@@ -28,7 +28,7 @@ async function run(
   for await (const event of agent.ask({
     runId: 'r1',
     prompt: 'assign T-1041 to dana',
-    tools: [{ name: 'tickets.assign', description: 'Assigns a ticket.', parameters: {} }],
+    tools: [{ name: 'tickets__assign', description: 'Assigns a ticket.', parameters: {} }],
     key: 'k',
   })) {
     seen.push(event);
@@ -41,7 +41,7 @@ async function run(
 }
 
 describe('createAgent', () => {
-  it('offers the tools with names a model may call, and maps a call back to the command id', async () => {
+  it('offers the tools under the names the connection gave them, and hands a call back under the same name', async () => {
     const { fetchLike, sent } = answering([
       {
         role: 'assistant',
@@ -60,7 +60,7 @@ describe('createAgent', () => {
 
     expect(sent[0].tools.map((tool) => tool.function.name)).toEqual(['tickets__assign']);
     const start = seen.find((event) => event.type === EventType.TOOL_CALL_START);
-    expect(start?.type === EventType.TOOL_CALL_START && start.toolCallName).toBe('tickets.assign');
+    expect(start?.type === EventType.TOOL_CALL_START && start.toolCallName).toBe('tickets__assign');
     expect(seen.map((event) => event.type)).toEqual([
       EventType.RUN_STARTED,
       EventType.TOOL_CALL_START,

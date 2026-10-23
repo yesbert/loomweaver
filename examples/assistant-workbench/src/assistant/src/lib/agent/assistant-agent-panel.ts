@@ -8,7 +8,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { EventType, type AGUIEvent, type Tool, type ToolMessage } from '@ag-ui/core';
+import { contentToText, EventType, type AGUIEvent, type Tool, type ToolMessage } from '@ag-ui/core';
 import { createAgent, MODEL } from './assistant-agent';
 import { assistantTools } from './assistant-connection';
 import { openRouterKey } from './openrouter-key';
@@ -113,7 +113,7 @@ export class AssistantAgentPanel {
     if (message) {
       this.push({
         kind: 'result',
-        text: message.error ?? message.content,
+        text: message.error ?? contentToText(message.content),
         failed: Boolean(message.error),
       });
     }

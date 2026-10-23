@@ -23,6 +23,7 @@ function* speak(messageId: string, text: string): Generator<AGUIEvent> {
 
 export function* asking(
   beat: Beat,
+  toolName: string,
   runId: string,
   says: string,
 ): Generator<AGUIEvent> {
@@ -30,7 +31,7 @@ export function* asking(
 
   yield { type: EventType.RUN_STARTED, threadId: THREAD_ID, runId };
   yield* speak(`${runId}.says`, says);
-  yield { type: EventType.TOOL_CALL_START, toolCallId, toolCallName: beat.call.commandId };
+  yield { type: EventType.TOOL_CALL_START, toolCallId, toolCallName: toolName };
   for (const piece of chunks(JSON.stringify(beat.call.args()), ARGUMENT_CHUNK)) {
     yield { type: EventType.TOOL_CALL_ARGS, toolCallId, delta: piece };
   }

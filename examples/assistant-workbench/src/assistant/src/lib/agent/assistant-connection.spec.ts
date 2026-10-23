@@ -28,7 +28,7 @@ function contextThat(confirms: boolean, ran: Asked[]): PluginContext {
 
 function streamedCall(toolCallId: string, ...deltas: string[]): AGUIEvent[] {
   return [
-    { type: EventType.TOOL_CALL_START, toolCallId, toolCallName: 'tickets.reply' },
+    { type: EventType.TOOL_CALL_START, toolCallId, toolCallName: 'tickets__reply' },
     ...deltas.map((delta): AGUIEvent => ({ type: EventType.TOOL_CALL_ARGS, toolCallId, delta })),
     { type: EventType.TOOL_CALL_END, toolCallId },
   ];
@@ -48,7 +48,7 @@ async function answersTo(tools: CommandTools, events: AGUIEvent[]): Promise<Tool
 describe('connectAssistant', () => {
   it('offers what the workbench offers', () => {
     const tools = connectAssistant(contextThat(true, []));
-    expect(tools.list().map((tool) => tool.name)).toEqual(['tickets.reply']);
+    expect(tools.list().map((tool) => tool.name)).toEqual(['tickets__reply']);
   });
 
   it('assembles a call from its events and answers with the outcome', async () => {
