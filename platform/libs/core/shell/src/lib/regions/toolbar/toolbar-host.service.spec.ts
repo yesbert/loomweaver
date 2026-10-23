@@ -28,6 +28,9 @@ class FilterCell {
   protected readonly where = JSON.stringify(inject(TOOLBAR_CONTEXT));
 }
 
+@Component({ selector: 'lw-other-filter-cell', template: 'other' })
+class OtherFilterCell {}
+
 function transloco() {
   return TranslocoTestingModule.forRoot({
     langs: {
@@ -195,6 +198,40 @@ describe('ToolbarHost', () => {
     expect(cell.textContent).toContain('"record":"r1"');
     expect(cell.textContent).toContain(`"slot":"${SLOT}"`);
     expect(toolbar.hasAttribute('hidden')).toBe(false);
+  });
+
+  it('mounts a cell again when the placement it was told about changes', () => {
+    toolbars.addCell({ id: 'scanner.filter', slot: SLOT, component: FilterCell });
+    const toolbar = place({ record: 'r1' });
+
+    toolbar.context = { record: 'r2' };
+    TestBed.tick();
+
+    const cells = toolbar.querySelectorAll('lw-filter-cell');
+    expect(cells).toHaveLength(1);
+    expect(cells[0].textContent).toContain('"record":"r2"');
+  });
+
+  it('keeps a cell whose placement is set again unchanged', () => {
+    toolbars.addCell({ id: 'scanner.filter', slot: SLOT, component: FilterCell });
+    const toolbar = place({ record: 'r1' });
+    const before = toolbar.querySelector('lw-filter-cell');
+
+    toolbar.context = { record: 'r1' };
+    TestBed.tick();
+
+    expect(toolbar.querySelector('lw-filter-cell')).toBe(before);
+  });
+
+  it('swaps a cell for the one registered over it under the same id', () => {
+    toolbars.addCell({ id: 'scanner.filter', slot: SLOT, component: FilterCell });
+    const toolbar = place({ record: 'r1' });
+
+    toolbars.addCell({ id: 'scanner.filter', slot: SLOT, component: OtherFilterCell });
+    TestBed.tick();
+
+    expect(toolbar.querySelector('lw-filter-cell')).toBeNull();
+    expect(toolbar.querySelector('lw-other-filter-cell')).not.toBeNull();
   });
 
   it('takes the placement’s own label over the registered title', () => {

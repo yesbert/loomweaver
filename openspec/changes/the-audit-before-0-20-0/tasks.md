@@ -24,12 +24,12 @@
 
 ## 5. Workbench behaviour
 
-- [ ] 5.1 Escape that a menu or dialog handled does not end a maximised pane
-- [ ] 5.2 A toolbar cell follows its toolbar's context and a same-id override
-- [ ] 5.3 Close others, all and to the right close closable view tabs in the address-carrying pane too
-- [ ] 5.4 The pane split handle ends a cancelled drag
-- [ ] 5.5 Save on hide reports a save that throws or does not return a promise
-- [ ] 5.6 Uninstalling a disabled plugin removes it from the permissions surface
+- [x] 5.1 Escape that a menu or dialog handled does not end a maximised pane
+- [x] 5.2 A toolbar cell follows its toolbar's context and a same-id override
+- [x] 5.3 Close others, all and to the right close closable view tabs in the address-carrying pane too
+- [x] 5.4 The pane split handle ends a cancelled drag
+- [x] 5.5 Save on hide reports a save that throws or does not return a promise
+- [x] 5.6 Uninstalling a disabled plugin removes it from the permissions surface
 
 ## 6. Scaffolding and tooling
 

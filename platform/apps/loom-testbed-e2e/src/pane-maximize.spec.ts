@@ -28,6 +28,26 @@ test.describe('Pane maximize', () => {
     expect((await grid.boundingBox())!.x).toBeGreaterThan(0);
   });
 
+  test('an Escape that closes a menu leaves the pane maximized', async ({
+    page,
+  }) => {
+    await page.goto('/search');
+    const grid = page.locator('lw-content-grid');
+    await page.getByTestId('pane-maximize').first().click();
+    await expect(grid).toHaveClass(/fixed/);
+
+    await grid.getByRole('tab').first().click({ button: 'right' });
+    const menu = page.getByRole('menu');
+    await expect(menu).toBeVisible();
+
+    await page.keyboard.press('Escape');
+    await expect(menu).toHaveCount(0);
+    await expect(grid).toHaveClass(/fixed/);
+
+    await page.keyboard.press('Escape');
+    await expect(grid).not.toHaveClass(/fixed/);
+  });
+
   test('a secondary pane maximizes over everything too', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('tab', { name: 'Entry list' }).click();

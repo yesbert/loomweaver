@@ -205,6 +205,34 @@ describe('DialogOutlet: how the user may close a dialog', () => {
 describe('DialogOutlet: Escape closes only what it was pressed in', () => {
   beforeAll(() => defineLwSelect());
 
+  it('takes the Escape for itself while it is open, even when it may not be dismissed', () => {
+    const t = setup();
+    t.open(CleanBody, 'none');
+    const escape = new KeyboardEvent('keydown', {
+      key: 'Escape',
+      bubbles: true,
+      cancelable: true,
+    });
+
+    document.dispatchEvent(escape);
+
+    expect(escape.defaultPrevented).toBe(true);
+    expect(t.titles()).toEqual(['t']);
+  });
+
+  it('leaves an Escape alone while no dialog is open', () => {
+    setup();
+    const escape = new KeyboardEvent('keydown', {
+      key: 'Escape',
+      bubbles: true,
+      cancelable: true,
+    });
+
+    document.dispatchEvent(escape);
+
+    expect(escape.defaultPrevented).toBe(false);
+  });
+
   it('leaves the dialog open for an Escape something inside already handled', async () => {
     const t = setup();
     const dialog = t.open(UnsavedBody, 'explicit');

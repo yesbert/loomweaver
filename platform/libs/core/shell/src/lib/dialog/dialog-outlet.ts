@@ -104,7 +104,11 @@ export class DialogOutlet {
       return;
     }
     const top = this.top();
-    if (top && this.canBeDismissed(top)) {
+    if (!top) {
+      return;
+    }
+    event.preventDefault();
+    if (this.canBeDismissed(top)) {
       void this.requestDismiss(top);
     }
   }

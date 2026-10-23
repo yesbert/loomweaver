@@ -78,6 +78,7 @@ describe('PaneSplitHandle', () => {
       ({ left: 0, top: 0, width: 100, height: 100 }) as DOMRect;
     parent.append(host);
     host.setPointerCapture = () => undefined;
+    host.hasPointerCapture = () => true;
     host.releasePointerCapture = () => undefined;
 
     host.dispatchEvent(pointer('pointerdown', { pointerId: 1, clientX: 30 }));
@@ -89,5 +90,36 @@ describe('PaneSplitHandle', () => {
 
     host.dispatchEvent(pointer('pointermove', { clientX: 10 }));
     expect(stream.at(-1)).toBeCloseTo(0.7);
+  });
+
+  describe('a drag that ends without a release', () => {
+    function dragTo70(): void {
+      create('row', 0.5);
+      const parent = document.createElement('div');
+      parent.getBoundingClientRect = () =>
+        ({ left: 0, top: 0, width: 100, height: 100 }) as DOMRect;
+      parent.append(host);
+      host.setPointerCapture = () => undefined;
+      host.hasPointerCapture = () => false;
+      host.releasePointerCapture = () => {
+        throw new Error('the pointer is no longer active');
+      };
+      host.dispatchEvent(pointer('pointerdown', { pointerId: 1, clientX: 30 }));
+      host.dispatchEvent(pointer('pointermove', { clientX: 70 }));
+    }
+
+    for (const type of ['pointercancel', 'lostpointercapture']) {
+      it(`ends on ${type}, keeping where it got to, and follows the pointer no further`, () => {
+        dragTo70();
+
+        host.dispatchEvent(pointer(type, { pointerId: 1 }));
+        expect(commits).toBe(1);
+
+        host.dispatchEvent(pointer('pointermove', { clientX: 10 }));
+        host.dispatchEvent(pointer('pointerup', { pointerId: 1 }));
+        expect(stream.at(-1)).toBeCloseTo(0.7);
+        expect(commits).toBe(1);
+      });
+    }
   });
 });

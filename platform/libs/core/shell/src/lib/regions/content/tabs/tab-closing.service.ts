@@ -57,9 +57,9 @@ export class TabClosingService {
         )
         .map((tab) => tabRootOf(routes, tab.path)),
     );
-    this.closeGuard.guarded(this.closeSetCandidates(roots), () =>
-      this.closeSet(roots, target?.path ?? keep),
-    );
+    const chosen = normalizePath(path);
+    const views = this.closableViewTabs().filter((view) => view !== chosen);
+    this.closeBulk(roots, views, target?.path ?? keep);
   }
 
   closeAll(pane?: PaneRef): void {
@@ -77,9 +77,7 @@ export class TabClosingService {
     const survivor = this.state
       .openTabs()
       .find((tab) => tab.pinned || !tab.closable);
-    this.closeGuard.guarded(this.closeSetCandidates(roots), () =>
-      this.closeSet(roots, survivor?.path ?? ''),
-    );
+    this.closeBulk(roots, this.closableViewTabs(), survivor?.path ?? '');
   }
 
   closeToRight(path: string, pane?: PaneRef): void {
@@ -95,16 +93,16 @@ export class TabClosingService {
     const { routes, root: keep } = this.state.rootFor(path);
     const rendered = this.state.tabs();
     const index = rendered.findIndex((tab) => tab.path === keep);
-    const roots = new Set(
+    const right = new Set(
       rendered
         .slice(index + 1)
         .filter((tab) => tab.closable && !tab.pinned)
         .map((tab) => tab.path),
     );
+    const views = this.closableViewTabs().filter((view) => right.has(view));
+    const roots = new Set([...right].filter((path) => !isViewPanePath(path)));
     const target = this.state.openTabRootedAt(routes, keep);
-    this.closeGuard.guarded(this.closeSetCandidates(roots), () =>
-      this.closeSet(roots, target?.path ?? keep),
-    );
+    this.closeBulk(roots, views, target?.path ?? keep);
   }
 
   closePrimaryPane(keeps: TabKeep = keepsNothing): void {
@@ -205,12 +203,7 @@ export class TabClosingService {
   }
 
   private closeViewTab(path: string): void {
-    this.paneTree.setPrimaryTabs(
-      CONTENT_DOCK,
-      this.paneTree
-        .primaryTabs(CONTENT_DOCK)
-        .filter((tab) => tab.path !== path),
-    );
+    this.closeViewTabs(new Set([path]));
   }
 
   private urlPaneCandidates(path: string): unknown[] {
@@ -220,8 +213,43 @@ export class TabClosingService {
     );
   }
 
-  private closeSetCandidates(roots: ReadonlySet<string>): unknown[] {
-    return [...roots].flatMap((root) => this.urlPaneCandidates(root));
+  private closableViewTabs(): string[] {
+    const rendered = new Set(
+      this.state
+        .tabs()
+        .filter((tab) => tab.closable && isViewPanePath(tab.path))
+        .map((tab) => tab.path),
+    );
+    return this.paneTree
+      .primaryTabs(CONTENT_DOCK)
+      .filter((tab) => rendered.has(tab.path) && closable(tab))
+      .map((tab) => tab.path);
+  }
+
+  private closeBulk(
+    roots: ReadonlySet<string>,
+    views: readonly string[],
+    fallbackPath: string,
+  ): void {
+    const candidates = [...roots, ...views].flatMap((path) =>
+      this.urlPaneCandidates(path),
+    );
+    this.closeGuard.guarded(candidates, () => {
+      this.closeViewTabs(new Set(views));
+      this.closeSet(roots, fallbackPath);
+    });
+  }
+
+  private closeViewTabs(paths: ReadonlySet<string>): void {
+    if (paths.size === 0) {
+      return;
+    }
+    this.paneTree.setPrimaryTabs(
+      CONTENT_DOCK,
+      this.paneTree
+        .primaryTabs(CONTENT_DOCK)
+        .filter((tab) => !paths.has(tab.path)),
+    );
   }
 
   private closeSet(roots: ReadonlySet<string>, fallbackPath: string): void {
@@ -243,11 +271,7 @@ export class TabClosingService {
       this.closeHooks.delete(root);
     }
     if (activeWentAway) {
-      void this.navigation
-        .navigate(fallbackPath)
-        .catch((error: unknown) =>
-          console.error('Content navigation failed', error),
-        );
+      void this.navigateAfterClose(fallbackPath);
     }
   }
 
