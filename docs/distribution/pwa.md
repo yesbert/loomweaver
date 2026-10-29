@@ -53,6 +53,11 @@ key**. Nothing errors. Cache them explicitly:
 }
 ```
 
+`prefetch` downloads every language on the first visit. With `"installMode": "lazy"` the worker
+caches each file the first time it is shown, and `"updateMode": "prefetch"` keeps it current after
+that. Offline, the app then has the languages someone has already used and no others. Either way
+the strings are covered; the choice is how much the first visit downloads.
+
 **No worker at all?** Pass `provideShell({ serviceWorker: false })`. Registration is skipped,
 `UpdateService.enabled` reports `false` and no update is ever offered. The service injects
 `SwUpdate` optionally, so nothing else changes. Use it whenever your build emits no
@@ -105,6 +110,17 @@ self-signed certificate the browser does not trust: the page loads, `isSecureCon
 the worker script fetch still fails the certificate check with "An SSL certificate error occurred
 when fetching the script". Nothing registers, and the preview silently stops previewing the one
 thing it exists for.
+
+**On loopback the first visit waits for the prefetch; a deployment does not.** On the first visit
+the worker takes control of the page at once. Every request the page makes then passes through it,
+an API call to another origin included. Angular's worker answers none of them before it has
+initialised. On `localhost`, `127.0.0.1` and `[::1]` that includes downloading every `prefetch`
+group, one file after another. The application's own requests wait until the last file is cached,
+which takes seconds once there are a hundred chunks and translation files. On any other host name
+the worker starts that download only after the page has been quiet for five seconds, or thirty at
+the latest, and requests pass while it runs. So a slow first load on a loopback preview says nothing
+about a deployment. To see what a deployed client sees, serve the build under a name that resolves to
+loopback, over HTTPS with a certificate the browser trusts for that name.
 
 ## Where next
 
