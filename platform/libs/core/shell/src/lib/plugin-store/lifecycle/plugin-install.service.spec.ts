@@ -6,6 +6,7 @@ import { PluginDeploymentService } from './plugin-deployment.service';
 import { PluginInstallService } from './plugin-install.service';
 import { PluginEnablementService } from '../../plugin/enablement/plugin-enablement.service';
 import { CapabilityGrantService } from '../../permissions/capability-grant.service';
+import { PluginStateService } from '../../plugin/plugin-state.service';
 
 const KEY = 'lw.shell.installed-plugins';
 
@@ -154,7 +155,7 @@ describe('PluginInstallService', () => {
     expect(grants.isGranted('store.other', 'ui')).toBe(false);
   });
 
-  it('removing a stored install whose id a composed or deployed plugin holds leaves that plugin\'s switch-off and revocations alone', () => {
+  it('removing a stored install whose id a composed or deployed plugin holds leaves that plugin\'s state, switch-off and revocations alone', () => {
     localStorage.setItem(
       KEY,
       JSON.stringify([
@@ -174,9 +175,15 @@ describe('PluginInstallService', () => {
       grants.setGranted(id, 'ui', false);
     }
 
+    const removeState = vi.spyOn(
+      TestBed.inject(PluginStateService),
+      'removePlugin',
+    );
+
     service.uninstall('composed');
     service.uninstall('deployed');
 
+    expect(removeState).not.toHaveBeenCalled();
     expect(service.installed()).toEqual([]);
     expect(
       JSON.parse(localStorage.getItem('lw.shell.disabled-plugins') ?? '[]'),

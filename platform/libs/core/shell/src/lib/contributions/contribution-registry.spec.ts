@@ -82,6 +82,20 @@ describe('ContributionRegistry', () => {
     });
   });
 
+  it("reads no other owner's badge for a surface the workbench owns", () => {
+    const BETA = { text: 'badges.beta' };
+    registry.addView({ ...view, id: 'shared' });
+    registry.addContentRoute(
+      { id: 'shared', path: 'shared', component: DummyComponent },
+      'two',
+    );
+
+    registry.updateSurfaceBadge('shared', BETA, 'two');
+
+    expect(registry.badgeOf('shared')).toBeUndefined();
+    expect(registry.badgeOf('shared', 'two')).toEqual(BETA);
+  });
+
   it('starts empty', () => {
     expect(registry.commands()).toEqual([]);
     expect(registry.views()).toEqual([]);

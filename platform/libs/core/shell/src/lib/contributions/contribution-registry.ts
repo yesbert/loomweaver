@@ -307,7 +307,9 @@ export class ContributionRegistry {
   }
 
   badgeOf(id: string | undefined, pluginId?: string): TabBadge | undefined {
-    return this.badges.badgeOf(id, pluginId);
+    const ofAnyOwner =
+      pluginId === undefined && id !== undefined && !this.holds(id, pluginId);
+    return this.badges.badgeOf(id, pluginId, ofAnyOwner);
   }
 
   /**

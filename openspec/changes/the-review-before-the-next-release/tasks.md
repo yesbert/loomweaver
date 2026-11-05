@@ -35,6 +35,8 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [x] 1.27 A frame plugin the user cannot switch (required or deployed) whose connection failed or timed out is tried again on a later reconcile; the rule of 1.18 applies to plugins that have a switch (`plugin/frame/frame-plugin-runtime.ts`)
 - [x] 1.28 Uninstalling a stored install whose id a composed or deployed plugin holds does not clear that plugin's stored switch-off or revocations (`plugin-store/lifecycle/plugin-install.service.ts`)
 - [x] 1.29 An entry a product's own catalogue port answers that is dropped is named in the console once per entry, the way the address catalogue reports what it drops (`plugin-store/catalog/`)
+- [x] 1.30 Uninstalling a stored install whose id a composed or deployed plugin holds leaves that plugin's stored state alone too, not only its switch-off and revocations (`plugin-store/lifecycle/plugin-install.service.ts`, `uninstall`)
+- [x] 1.31 A badge read without an owner for a surface the workbench owns shows that surface's badge or none, never the badge of another owner's surface with the same id (`contributions/surface-badges.ts`, `badgeOf`)
 
 ## 2. Unsaved work and panes
 

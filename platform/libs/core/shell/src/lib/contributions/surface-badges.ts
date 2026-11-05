@@ -13,10 +13,11 @@ export class SurfaceBadges {
   badgeOf(
     id: string | undefined,
     ownerId: string | undefined,
+    orOfAnyOwner = false,
   ): TabBadge | undefined {
     const ofId = this.badges().filter((held) => held.id === id);
     const exact = ofId.find((held) => held.ownerId === ownerId);
-    return (exact ?? (ownerId === undefined ? ofId[0] : undefined))?.badge;
+    return (exact ?? (orOfAnyOwner ? ofId[0] : undefined))?.badge;
   }
 
   set(
