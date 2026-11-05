@@ -58,7 +58,7 @@ class Draft {
       <ng-container
         [lwRetainedComponent]="surface"
         [componentInjector]="injector"
-        retentionKey="main:main|notes/shown"
+        retentionKey="content:main|notes"
         [retain]="true"
       />
     }
@@ -93,9 +93,6 @@ function compose(answer = true) {
     ),
   };
   const dirty = { surfaceDirty: () => true };
-  const unsavedWork = {
-    instancesEverywhere: vi.fn((): unknown[] => [dirty]),
-  };
   TestBed.configureTestingModule({
     providers: [
       provideRouter([{ path: '**', children: [] }]),
@@ -106,7 +103,6 @@ function compose(answer = true) {
         content: { tabs: [{ path: 'orders/o-0', closable: false }] },
       } as never),
       { provide: SurfaceCloseGuard, useValue: guard },
-      { provide: UnsavedWork, useValue: unsavedWork },
       {
         provide: APP_RESET_WORKSPACES,
         useFactory: () => {
@@ -116,7 +112,10 @@ function compose(answer = true) {
       },
     ],
   });
-  return { ws: TestBed.inject(WorkspaceService), guard, unsavedWork, dirty };
+  vi.spyOn(TestBed.inject(UnsavedWork), 'instancesEverywhere').mockReturnValue([
+    dirty,
+  ]);
+  return { ws: TestBed.inject(WorkspaceService), guard, dirty };
 }
 
 async function nextTask(): Promise<void> {
@@ -176,7 +175,7 @@ describe('WorkspaceService asks about unsaved work where the command did', () =>
     const { ws, guard } = compose(false);
     await ws.switchTo('orders');
     await rearrangeTheActiveWorkspace();
-    const parked = draft('main:main|orders/o-1', 'parked');
+    const parked = draft('content:main|orders/o-1', 'parked');
     await ws.switchTo('overview');
     expect(stored('orders')).toContain('orders/o-1');
 
@@ -202,20 +201,19 @@ describe('WorkspaceService asks about unsaved work where the command did', () =>
     expect(stored('orders')).not.toContain('orders/o-1');
   });
 
-  it('removing the workspace the user is in asks once for the work its surfaces show and the work parked under it', async () => {
-    const { ws, guard, unsavedWork } = compose(false);
-    const stash = TestBed.inject(RetainedViewStash);
-    unsavedWork.instancesEverywhere.mockImplementation(() => stash.instances());
+  it('removing the workspace the user is in asks once for the work in the tabs it loses and the work parked under it', async () => {
+    const { ws, guard } = compose(false);
     await ws.switchTo('orders');
-    draft('main:main|orders/o-9', 'parked');
+    draft('content:main|orders/o-9', 'parked');
     await ws.switchTo('overview');
     await ws.saveCurrent('scratch');
     const saved = ws.workspaces().find((w) => w.name === 'scratch');
     if (!saved) {
       throw new Error('no saved workspace');
     }
-    const parked = draft('main:main|notes/parked', 'parked');
-    const shown = draft('main:main|notes/shown', 'shown');
+    TestBed.inject(PaneTreeService).insertTab(CONTENT_DOCK, 'main', 'notes');
+    const parked = draft('content:main|drafts', 'parked');
+    const shown = draft('content:main|notes', 'shown');
 
     const ran = await ws.remove(saved.id);
 
@@ -225,6 +223,23 @@ describe('WorkspaceService asks about unsaved work where the command did', () =>
       new Set([parked.instance, shown.instance]),
     );
     expect(ws.workspaces().some((w) => w.id === saved.id)).toBe(true);
+  });
+
+  it('removing the workspace the user is in does not ask about work in a tab the starting workspace holds in the same pane', async () => {
+    const { ws, guard } = compose(false);
+    await rearrangeTheActiveWorkspace();
+    await ws.saveCurrent('scratch');
+    const saved = ws.workspaces().find((w) => w.name === 'scratch');
+    if (!saved) {
+      throw new Error('no saved workspace');
+    }
+    const staying = draft('content:main|orders/o-1', 'shown');
+
+    await ws.remove(saved.id);
+    await nextTask();
+
+    expect(guard.confirmDiscard).toHaveBeenLastCalledWith([]);
+    expect(staying.hostView.destroyed).toBe(false);
   });
 
   it('removing the workspace the user is in leaves nothing of it parked once its work is discarded', async () => {

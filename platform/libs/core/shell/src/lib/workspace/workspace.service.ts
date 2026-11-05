@@ -1,17 +1,8 @@
-import {
-  afterNextRender,
-  computed,
-  inject,
-  Injector,
-  Service,
-} from '@angular/core';
+import { computed, inject, Service } from '@angular/core';
 import { WORKING_STATE_STORE } from '../persistence/working-state-store';
 import { TabNavigationService } from '../regions/content/tabs/tab-navigation.service';
 import { RetainedViewStash } from '../regions/pane/retention/retained-view-stash';
-import {
-  ActiveWorkspaceService,
-  workspaceScopedKey,
-} from './active-workspace.service';
+import { ActiveWorkspaceService } from './active-workspace.service';
 import { WORKSPACE_STATE_KEYS } from './working-state/state-channels';
 import { StoredStateRevision } from './working-state/stored-state-revision';
 import { unsavedWorkspaces } from './working-state/unsaved-workspaces';
@@ -21,7 +12,7 @@ import { BUILT_IN_WORKSPACE_ID } from './declaration/composed-definitions';
 import { WorkbenchOpening } from './opening/workbench-opening';
 import { AddressSettlement } from './settlement/address-settlement';
 import { type WorkspaceClaim } from './workspace-claims';
-import { WorkspaceDiscardConfirmation } from './workspace-discard-confirmation';
+import { WorkspaceDiscard } from './workspace-discard';
 import { assignWorkspaceInitials } from './workspace-initials';
 import { WorkspaceSwitcher } from './workspace-switcher';
 
@@ -32,11 +23,10 @@ export class WorkspaceService {
   private readonly settlement = inject(AddressSettlement);
   private readonly active = inject(ActiveWorkspaceService);
   private readonly stash = inject(RetainedViewStash);
-  private readonly discard = inject(WorkspaceDiscardConfirmation);
+  private readonly discard = inject(WorkspaceDiscard);
   private readonly tabNavigation = inject(TabNavigationService);
   private readonly workingStateStore = inject(WORKING_STATE_STORE);
   private readonly storedRevision = inject(StoredStateRevision);
-  private readonly injector = inject(Injector);
 
   readonly definitions = this.catalog.definitions;
   readonly workspaces = this.catalog.saved;
@@ -158,10 +148,7 @@ export class WorkspaceService {
     this.catalog.commit(
       this.workspaces().filter((workspace) => workspace.id !== id),
     );
-    this.stash.evictWorkspace(id);
-    for (const key of WORKSPACE_STATE_KEYS) {
-      void this.workingStateStore.delete(workspaceScopedKey(key, id));
-    }
+    this.discard.forget(id);
     if (id === this.active.id()) {
       void this.leaveRemoved(id);
     }
@@ -182,9 +169,7 @@ export class WorkspaceService {
 
   private async leaveRemoved(id: string): Promise<void> {
     await this.switchTo(this.catalog.startingId);
-    afterNextRender(() => this.stash.evictWorkspace(id), {
-      injector: this.injector,
-    });
+    this.discard.forgetOnceLetGo(id);
   }
 
   private resetNow(id: string): void {

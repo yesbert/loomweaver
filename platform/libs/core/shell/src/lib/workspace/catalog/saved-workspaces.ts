@@ -8,12 +8,20 @@ export interface Workspace {
   readonly origin?: string;
 }
 
-export function parseWorkspaces(raw: string | undefined): Workspace[] {
+export interface ReadWorkspaces {
+  readonly workspaces: Workspace[];
+  readonly malformed: boolean;
+}
+
+export function readWorkspaces(raw: string | undefined): ReadWorkspaces {
+  if (!raw) {
+    return { workspaces: [], malformed: false };
+  }
   const parsed = parseStored(raw);
   if (!Array.isArray(parsed)) {
-    return [];
+    return { workspaces: [], malformed: true };
   }
-  return parsed.filter(
+  const workspaces = parsed.filter(
       (workspace): workspace is Workspace =>
         !!workspace &&
         typeof (workspace as Workspace).id === 'string' &&
@@ -22,4 +30,5 @@ export function parseWorkspaces(raw: string | undefined): Workspace[] {
         (workspace as Workspace).baseline !== null &&
         !Array.isArray((workspace as Workspace).baseline),
   );
+  return { workspaces, malformed: workspaces.length !== parsed.length };
 }

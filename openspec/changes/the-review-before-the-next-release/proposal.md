@@ -36,7 +36,8 @@ did not know, and carried a call from a run that broke off into the next one.
 
 - A reset of a workspace the user is not in, and the removal of the one they are in, ask about the
   unsaved work they would destroy. A remembered workspace that no longer exists gives way to the
-  default one, unless the saved workspaces could not be read.
+  default one once the saved workspaces have been read, asking first where that destroys unsaved
+  work; saved workspaces that could not be read or understood move nobody.
 - Every other finding is fixed where it sits, each with a test that fails before the fix. The task
   list names them by area: the plugin trust boundary, unsaved work and panes, addresses and tabs,
   persistence and workspaces, commands and menus, the chrome, the agent connection, the scaffolding

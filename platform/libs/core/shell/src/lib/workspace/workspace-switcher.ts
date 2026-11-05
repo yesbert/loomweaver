@@ -4,10 +4,18 @@ import { SHELL_LAYOUT } from '../layout/layout';
 import { regionIdsOfType } from '../layout/layout-queries';
 import { WORKING_STATE_STORE } from '../persistence/working-state-store';
 import { activeContentPath } from '../regions/pane/tree/active-content-path';
+import {
+  PANE_TREES_KEY,
+  parseDocks,
+} from '../regions/pane/tree/pane-tree-storage';
+import { DockEntry } from '../regions/pane/tree/stored-pane-tree';
 import { PaneTreeService } from '../regions/pane/tree/pane-tree.service';
 import { HiddenViewsService } from '../regions/panel/hidden-views.service';
 import { PanelGroupService } from '../regions/panel/panel-group.service';
-import { ActiveWorkspaceService } from './active-workspace.service';
+import {
+  ActiveWorkspaceService,
+  workspaceScopedKey,
+} from './active-workspace.service';
 import {
   WORKSPACE_STATE_KEYS,
   stateChannels,
@@ -89,6 +97,21 @@ export class WorkspaceSwitcher {
     );
   }
 
+  restore(stored: Readonly<Record<string, string>>): void {
+    this.hydrate(stored, this.baselineOf(this.active.id()));
+  }
+
+  async arrangementOf(id: string): Promise<Record<string, DockEntry>> {
+    const stored = await readWorkspaceState(
+      this.workingStateStore,
+      (key) => workspaceScopedKey(key, id),
+      [PANE_TREES_KEY],
+    );
+    return parseDocks(
+      stored[PANE_TREES_KEY] ?? this.baselineOf(id)[PANE_TREES_KEY],
+    );
+  }
+
   chooseCurrentAddress(): void {
     this.settlement.choose(activeContentPath(this.paneTree));
   }
@@ -106,7 +129,13 @@ export class WorkspaceSwitcher {
 
   private async hydrateActive(): Promise<void> {
     const baseline = this.baselineOf(this.active.id());
-    const stored = await this.currentState();
+    this.hydrate(await this.currentState(), baseline);
+  }
+
+  private hydrate(
+    stored: Readonly<Record<string, string>>,
+    baseline: Readonly<Record<string, string>>,
+  ): void {
     for (const key of WORKSPACE_STATE_KEYS) {
       this.channels[key].hydrate(stored[key] ?? baseline[key]);
     }

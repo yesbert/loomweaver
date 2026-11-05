@@ -102,6 +102,7 @@ describe('a workspace whose stored arrangement leaves it without content', () =>
     const ws = TestBed.inject(WorkspaceService);
     const unusable = TestBed.inject(UnusableWorkspacesService);
     await ws.switchTo('home');
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(unusable.ids().has('home')).toBe(false);
   });

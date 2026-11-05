@@ -55,6 +55,11 @@ export class ActiveWorkspaceService {
     }
   }
 
+  async isWhatTheStoreRemembers(): Promise<boolean> {
+    const stored = await readStoredValue(this.workingStateStore, ACTIVE_KEY);
+    return storedId(stored) === this.active();
+  }
+
   takeAdoption(): string | null {
     if (!this.adopted) {
       return null;

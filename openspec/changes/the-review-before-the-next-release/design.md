@@ -33,7 +33,9 @@ belongs to the pane's body.
 **The unsaved-work question follows the work, not the active workspace.** The capability said a
 reset of a workspace the user is not in asks nothing, because no live work is in it. Work parked
 under it is live, and the reset destroys it, so the reset asks for exactly that work. Removing the
-workspace in use asks once for what it shows and what it parked.
+workspace in use, and giving way from one that nothing lists any more, ask once: for what the
+workspace parked and for the tabs the default workspace does not hold in the same pane. A tab both
+hold stays open with its work and is not asked about.
 
 **The bundle-size guard counts what the browser fetches.** It follows the static imports of the
 entry script, so the recorded ceilings rise once to the real number. That is a correction of the

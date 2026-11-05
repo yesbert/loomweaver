@@ -7,9 +7,12 @@ export async function readWorkspaceState(
   scopedKey: (key: string) => string,
   keys: readonly string[],
 ): Promise<Record<string, string>> {
+  const read = await Promise.all(
+    keys.map((key) => readStoredValue(store, scopedKey(key))),
+  );
   const state: Record<string, string> = {};
-  for (const key of keys) {
-    const raw = await readStoredValue(store, scopedKey(key));
+  for (const [position, key] of keys.entries()) {
+    const raw = read[position];
     if (raw != null) {
       state[key] = raw;
     }

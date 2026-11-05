@@ -7,6 +7,8 @@ import { AUTH_SOURCE } from '../auth/auth-context';
 import { ContributionRegistry } from '../contributions/contribution-registry';
 import { provideIdentityScopedStores } from '../persistence/identity-scope/provide-identity-scoped-stores';
 import { provideLayout, ShellLayout } from '../layout/layout';
+import { StateSyncService } from '../persistence/cross-tab/state-sync.service';
+import { KeyValueStore } from '../persistence/key-value-store';
 import { BootAddress } from '../regions/content/routing/boot-address';
 import { buildContentRoutes } from '../regions/content/routing/content-route-table';
 import { WORKSPACE_SETTLEMENT } from '../regions/content/routing/workspace-settlement';
@@ -80,9 +82,29 @@ const ARRANGED_WITH_RECORDS = JSON.stringify({
   },
 });
 
+class SavedListThatDoesNotAnswerTheAnonymous implements KeyValueStore {
+  get(key: string): Promise<string | undefined> {
+    return key === 'lw.shell.workspaces'
+      ? new Promise(() => undefined)
+      : Promise.resolve(undefined);
+  }
+
+  set(): Promise<void> {
+    return Promise.resolve();
+  }
+
+  delete(): Promise<void> {
+    return Promise.resolve();
+  }
+}
+
 async function openedBeforeTheSessionAt(
   address: string,
-  { scopedToThePerson = false } = {},
+  {
+    scopedToThePerson = false,
+    settingsStore = undefined as KeyValueStore | undefined,
+    anEarlierAdopterTakesItsTime = false,
+  } = {},
 ) {
   const session = signal<AuthSnapshot>(ANONYMOUS);
   TestBed.configureTestingModule({
@@ -90,6 +112,7 @@ async function openedBeforeTheSessionAt(
       ...(scopedToThePerson
         ? provideIdentityScopedStores({
             identity: () => session().subject ?? null,
+            settingsStore,
           })
         : []),
       provideRouter(buildContentRoutes(ROUTES)),
@@ -102,6 +125,11 @@ async function openedBeforeTheSessionAt(
   });
   const registry = TestBed.inject(ContributionRegistry);
   for (const route of ROUTES) registry.addContentRoute(route);
+  if (anEarlierAdopterTakesItsTime) {
+    TestBed.inject(StateSyncService).onNamespaceAdopted(
+      () => new Promise((resolve) => setTimeout(resolve, 30)),
+    );
+  }
   const workspaces = TestBed.inject(WorkspaceService);
   await RouterTestingHarness.create(address);
   await settled();
@@ -241,5 +269,42 @@ describe('settling once the session arrives', () => {
 
     expect(opened.workspaces.activeId()).toBe('dashboard');
     expect(opened.contentTabs()).toContain('notes');
+  });
+
+  it('gives way to the start where the workspace the person last chose is not listed any more', async () => {
+    localStorage.setItem('lw.id.ada:lw.shell.active-workspace', 'gone');
+    const opened = await openedBeforeTheSessionAt('/notes', {
+      scopedToThePerson: true,
+    });
+
+    await opened.sessionArrives();
+
+    expect(opened.workspaces.activeId()).toBe('dashboard');
+    expect(opened.contentTabs()).toContain('notes');
+    expect(
+      localStorage.getItem('lw.id.ada:lw.shell.active-workspace'),
+    ).toBe('dashboard');
+  });
+
+  it('does not judge the workspace opened before the session by the list of the person who arrived', async () => {
+    localStorage.setItem('lw.shell.active-workspace', 'gone');
+    localStorage.setItem('lw.id.ada:lw.shell.active-workspace', 'journal');
+    const opened = await openedBeforeTheSessionAt('/notes', {
+      scopedToThePerson: true,
+      settingsStore: new SavedListThatDoesNotAnswerTheAnonymous(),
+      anEarlierAdopterTakesItsTime: true,
+    });
+    expect(opened.workspaces.activeId()).toBe('gone');
+
+    await opened.sessionArrivesElsewhere();
+    for (let turn = 0; turn < 5; turn += 1) {
+      await settled();
+    }
+
+    expect(opened.workspaces.activeId()).toBe('journal');
+    expect(
+      localStorage.getItem('lw.id.ada:lw.shell.active-workspace'),
+    ).toBe('journal');
+    expect(opened.contentTabs()).not.toContain('dashboard');
   });
 });

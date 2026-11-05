@@ -13,6 +13,7 @@ import { WORKSPACE_STATE_KEYS } from '../working-state/state-channels';
 import { WorkspaceCatalog } from '../catalog/workspace-catalog';
 import { WorkspaceDefinition } from '../declaration/workspace-definition';
 import { AddressSettlement } from '../settlement/address-settlement';
+import { WorkspaceDiscard } from '../workspace-discard';
 import { WorkspaceSwitcher } from '../workspace-switcher';
 
 export function declaredStart(
@@ -37,6 +38,9 @@ export class WorkbenchOpening {
   private readonly bootAddress = inject(BootAddress);
   private readonly contentRouter = inject(ContentRouter);
   private readonly sync = inject(StateSyncService);
+  private readonly discard = inject(WorkspaceDiscard);
+
+  private adoptions = 0;
 
   start(): void {
     this.sync.onNamespaceAdopted(() => this.rereadForAdoptedNamespace());
@@ -44,31 +48,54 @@ export class WorkbenchOpening {
   }
 
   private async openWorkbench(): Promise<void> {
+    const opened = this.active.id();
     const adopted = this.active.takeAdoption();
     if (adopted !== null) {
-      this.switcher.apply(this.switcher.baselineOf(adopted));
-      this.switcher.warnDeclarationGaps(adopted);
-      this.tabNavigation.keepAddress(this.tabState.activePath());
+      await this.restoreAdopted(adopted);
     }
-    const entered = adopted !== null || (await this.leftAnUnlistedWorkspace());
-    await this.startWhereTheDistributionSays(entered);
+    await this.startWhereTheDistributionSays(adopted !== null);
+    void this.leaveWhereUnlisted(opened);
   }
 
-  private async leftAnUnlistedWorkspace(): Promise<boolean> {
-    if (this.listed() || !(await this.catalog.savedRead())) {
-      return false;
+  private async restoreAdopted(id: string): Promise<void> {
+    const reading = this.switcher.currentState();
+    await this.paneTree.arrangementSettled;
+    const stored = await reading;
+    if (this.active.id() !== id) {
+      return;
+    }
+    this.switcher.restore(stored);
+    this.switcher.warnDeclarationGaps(id);
+    this.tabNavigation.keepAddress(this.tabState.activePath());
+  }
+
+  private async leaveWhereUnlisted(opened: string): Promise<void> {
+    const adoptions = this.adoptions;
+    const stillUnlisted = async () =>
+      adoptions === this.adoptions &&
+      !this.catalog.exists(opened) &&
+      (await this.active.isWhatTheStoreRemembers());
+    if (this.catalog.exists(opened) || !(await this.catalog.savedRead())) {
+      return;
     }
     await this.paneTree.arrangementSettled;
-    if (this.listed() || this.active.wasChosen()) {
-      return false;
+    if (!(await stillUnlisted())) {
+      return;
     }
-    await this.switcher.enter(this.catalog.startingId);
-    this.tabNavigation.keepAddress(this.tabState.activePath());
-    return true;
-  }
-
-  private listed(): boolean {
-    return this.catalog.exists(this.active.id());
+    const address = this.tabState.activePath();
+    const allowed = await this.discard.confirmDiscardOf(opened, address);
+    if (!allowed || !(await stillUnlisted())) {
+      return;
+    }
+    if (this.active.id() !== opened) {
+      this.discard.forget(opened);
+      return;
+    }
+    const entering = this.switcher.enter(this.catalog.startingId);
+    this.discard.forget(opened);
+    await entering;
+    this.tabNavigation.keepAddress(address);
+    this.discard.forgetOnceLetGo(opened);
   }
 
   private async startWhereTheDistributionSays(entered: boolean): Promise<void> {
@@ -101,6 +128,7 @@ export class WorkbenchOpening {
   }
 
   private async rereadForAdoptedNamespace(): Promise<void> {
+    this.adoptions += 1;
     await this.active.reread();
     const stored = await this.switcher.currentState();
     const found = WORKSPACE_STATE_KEYS.filter(
@@ -121,5 +149,6 @@ export class WorkbenchOpening {
     if (found.length > 0 || destination !== null) {
       this.tabNavigation.keepAddress(shown);
     }
+    void this.leaveWhereUnlisted(this.active.id());
   }
 }

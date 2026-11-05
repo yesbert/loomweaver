@@ -13,7 +13,7 @@ import {
 } from './workspace-lookup';
 import {
   WORKSPACES_KEY,
-  parseWorkspaces,
+  readWorkspaces,
   type Workspace,
 } from './saved-workspaces';
 import {
@@ -40,8 +40,14 @@ export class WorkspaceCatalog {
 
   private readonly injector = inject(Injector);
 
+  private malformed = false;
+
   private readonly stored = persistedSetting<Workspace[]>(WORKSPACES_KEY, {
-    parse: parseWorkspaces,
+    parse: (raw) => {
+      const read = readWorkspaces(raw);
+      this.malformed = read.malformed;
+      return read.workspaces;
+    },
     serialize: (list) => JSON.stringify(list),
   });
 
@@ -69,18 +75,20 @@ export class WorkspaceCatalog {
   }
 
   commit(next: Workspace[]): void {
+    this.malformed = false;
     this.stored.set(next);
   }
 
   async savedRead(): Promise<boolean> {
-    if (!this.stored.answered()) {
-      await firstValueFrom(
+    const answered =
+      this.stored.answered() ||
+      (await firstValueFrom(
         toObservable(this.stored.answered, { injector: this.injector }).pipe(
           filter(Boolean),
         ),
-      );
-    }
-    return !this.stored.unreadable();
+        { defaultValue: false },
+      ));
+    return answered && !this.stored.unreadable() && !this.malformed;
   }
 
   definitionOf(id: string): WorkspaceDefinition | undefined {

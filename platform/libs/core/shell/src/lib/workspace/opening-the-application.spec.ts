@@ -73,6 +73,24 @@ class LateStore extends AsyncStore {
   }
 }
 
+class SilentStore extends AsyncStore {
+  override get(): Promise<string | undefined> {
+    return new Promise(() => undefined);
+  }
+}
+
+const DASHBOARD_WITH_REPORTS = JSON.stringify({
+  content: {
+    tree: {
+      kind: 'leaf',
+      id: 'main',
+      tabs: [{ path: 'dashboard', closable: false }, { path: 'reports' }],
+      active: 'reports',
+    },
+    primary: 'main',
+  },
+});
+
 class UnreadableStore extends AsyncStore {
   override get(): Promise<string | undefined> {
     return Promise.reject(new Error('503'));
@@ -278,6 +296,38 @@ describe('opening the application where the distribution says', () => {
     expect(again.location.path()).toBe('/dashboard');
   });
 
+  it('restores what the user built in the declared workspace when it supersedes a stored choice of the built-in one, through a working state that reads back asynchronously', async () => {
+    const stores = new Map<string, string>([
+      ['lw.shell.active-workspace', 'default'],
+      ['lw.shell.pane-trees:dashboard', DASHBOARD_WITH_REPORTS],
+    ]);
+
+    const opened = await open('/', { stores });
+
+    expect(opened.workspaces.activeId()).toBe('dashboard');
+    expect(opened.tabs.tabs().map((tab) => tab.path)).toEqual([
+      'dashboard',
+      'reports',
+    ]);
+    expect(opened.location.path()).toBe('/reports');
+    expect(stores.get('lw.shell.pane-trees:dashboard')).toContain('reports');
+  });
+
+  it('lands in the declared workspace without waiting for a saved list that never answers', async () => {
+    const stores = new Map<string, string>([
+      ['lw.shell.active-workspace', 'gone'],
+    ]);
+
+    const opened = await open('/', {
+      stores,
+      settings: new SilentStore(stores),
+    });
+    await lateAnswersArrived();
+
+    expect(opened.workspaces.activeId()).toBe('dashboard');
+    expect(opened.location.path()).toBe('/dashboard');
+  });
+
   it('waits for a saved list that reads back asynchronously before judging the stored workspace', async () => {
     const stores = new Map<string, string>([
       ['lw.shell.active-workspace', 'mine'],
@@ -319,6 +369,7 @@ describe('opening the application where the distribution says', () => {
     ]);
 
     const opened = await open('/reports', { stores });
+    await lateAnswersArrived();
 
     expect(opened.workspaces.activeId()).toBe('dashboard');
     expect(stores.get('lw.shell.active-workspace')).toBe('dashboard');
