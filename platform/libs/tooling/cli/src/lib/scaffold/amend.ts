@@ -10,7 +10,14 @@ import {
 } from '@loomweaver/devkit';
 import { existsSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { findWorkspace, readJsonFile, Workspace } from '../workspace';
+import {
+  findWorkspace,
+  projectRootAbove,
+  readJsonFile,
+  resolveBuildProject,
+  Workspace,
+  WorkspaceError,
+} from '../workspace';
 import { AmendLog, PlannedAmendment } from './amend-log';
 import { ProjectAmendment, ProjectWiring } from './project-wiring';
 
@@ -95,7 +102,8 @@ class Amender {
   private planPostcss(amendment: PostcssAmendment): void {
     const exists = (name: string) =>
       existsSync(resolve(this.workspace.root, name));
-    const name = postcssFileTheBuildReads(exists, amendment);
+    const projectRoot = this.projectRoot();
+    const name = postcssFileTheBuildReads(exists, amendment, projectRoot);
     const file = resolve(this.workspace.root, name);
     const result = ensurePostcssPlugin(
       existsSync(file) ? readJsonFile(file) : undefined,
@@ -106,11 +114,25 @@ class Amender {
     if (result.added.length === 0) {
       return;
     }
-    const ignored = postcssWrittenAsCode(exists, amendment);
+    const ignored = postcssWrittenAsCode(exists, amendment, projectRoot);
     if (ignored) {
       this.log.note(ignored);
     }
     this.log.plan(file, result.added, `${JSON.stringify(result.value, null, 2)}\n`);
+  }
+
+  private projectRoot(): string {
+    if (this.workspace.kind !== 'angular') {
+      return projectRootAbove(this.workspace, this.target);
+    }
+    try {
+      return resolveBuildProject(this.workspace, this.target).root;
+    } catch (error) {
+      if (error instanceof WorkspaceError) {
+        return '';
+      }
+      throw error;
+    }
   }
 
   private planPackage(amendment: PackageAmendment): void {

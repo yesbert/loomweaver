@@ -88,6 +88,19 @@ describe('the footprint of the generators in an Nx workspace', () => {
     expect(sorted(footprint)).toEqual(touchedSince(before, tree));
   });
 
+  it('names the style pipeline file in the project root, where the build looks first', async () => {
+    tree.write(`${APP.root}/postcss.config.json`, '{}\n');
+    tree.write('.postcssrc.json', '{}\n');
+    await formatFiles(tree);
+    const footprint = nxDistributionFootprint(APP, { styles: 'tailwind' }, read);
+    const before = contents(tree);
+
+    await distributionGenerator(tree, { name: APP.name, directory: APP.root, force: true });
+
+    expect(footprint).toContain(`${APP.root}/postcss.config.json`);
+    expect(sorted(footprint)).toEqual(touchedSince(before, tree));
+  });
+
   it('names exactly the files the weaver generator creates or changes', async () => {
     await distributionGenerator(tree, { name: APP.name, directory: APP.root, force: true });
     const values = { id: 'notes', command: true };

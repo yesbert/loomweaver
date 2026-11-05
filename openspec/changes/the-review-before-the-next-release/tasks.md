@@ -101,13 +101,13 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [x] 8.6 The PostCSS wiring goes into the file the build reads, and a script configuration the build ignores is named as ignored (`devkit/src/lib/amend/postcss.ts`, `cli/src/lib/scaffold/amend.ts`)
 - [x] 8.7 The distribution scaffold over MCP names the stylesheet source path among what is left to do (`mcp/src/lib/tools.ts`)
 - [x] 8.8 An untouched application created with another stylesheet language is recognised (`cli/src/lib/init/ng-new-files.ts`)
-- [ ] 8.9 A weaver generated into a directory at the workspace root gets paths that resolve (`devkit/src/generators/weaver/nx-files.ts`)
-- [ ] 8.10 A root-level application without a `tsconfig.json`, in a workspace without a base configuration, does not get one that extends itself (`devkit/src/generators/workspace-tree.ts`)
-- [ ] 8.11 The PostCSS wiring looks in the project root before the workspace root, as the build does (`devkit/src/lib/amend/postcss.ts`)
-- [ ] 8.12 The trial run of `init` in an Nx workspace names `package.json` under the step that changes it
-- [ ] 8.13 `init` asks the devkit where a weaver's project lands instead of assuming `libs/<id>-weaver` (`cli/src/lib/init/init.ts`)
-- [ ] 8.14 The tooling's spec files type-check, and a target holds that (`libs/tooling/*/tsconfig.spec.json`)
-- [ ] 8.15 The fixture of an untouched `ng new` application is what Angular 22 writes: regenerated from a real `ng new`, not from memory (`cli/src/lib/init/ng-new-22.fixture.json`)
+- [x] 8.9 A weaver generated into a directory at the workspace root gets paths that resolve (`devkit/src/generators/weaver/nx-files.ts`)
+- [x] 8.10 A root-level application without a `tsconfig.json`, in a workspace without a base configuration, does not get one that extends itself (`devkit/src/generators/workspace-tree.ts`)
+- [x] 8.11 The PostCSS wiring looks in the project root before the workspace root, as the build does (`devkit/src/lib/amend/postcss.ts`)
+- [x] 8.12 The trial run of `init` in an Nx workspace names `package.json` under the step that changes it
+- [x] 8.13 `init` asks the devkit where a weaver's project lands instead of assuming `libs/<id>-weaver` (`cli/src/lib/init/init.ts`)
+- [x] 8.14 The tooling's spec files type-check, and a target holds that (`libs/tooling/*/tsconfig.spec.json`)
+- [x] 8.15 The fixture of an untouched `ng new` application is what Angular 22 writes: regenerated from a real `ng new`, not from memory (`cli/src/lib/init/ng-new-22.fixture.json`)
 
 ## 9. The demo and the example
 

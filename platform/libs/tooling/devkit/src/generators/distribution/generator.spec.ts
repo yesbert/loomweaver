@@ -392,6 +392,29 @@ describe('distribution generator', () => {
     );
   });
 
+  it('gives a root-level application no configuration that extends or imports itself', async () => {
+    tree.delete('tsconfig.base.json');
+    addProjectConfiguration(tree, 'acme-studio', {
+      root: '.',
+      projectType: 'application',
+      targets: {
+        build: { executor: '@angular/build:application', options: {} },
+      },
+    });
+
+    await distributionGenerator(tree, {
+      name: 'acme-studio',
+      directory: '.',
+      force: true,
+    });
+
+    expect(readJson(tree, 'tsconfig.json').extends).toBeUndefined();
+    expect(readJson(tree, 'tsconfig.app.json').extends).toBe('./tsconfig.json');
+    expect(tree.read('eslint.config.mjs', 'utf8')).not.toContain(
+      "from './eslint.config.mjs'",
+    );
+  });
+
   it('writes the style pipeline the generated stylesheet needs', async () => {
     await distributionGenerator(tree, { name: 'acme-studio' });
     expect(JSON.parse(tree.read('.postcssrc.json', 'utf8') as string)).toEqual({
@@ -435,6 +458,43 @@ describe('distribution generator', () => {
       JSON.parse(tree.read('postcss.config.json', 'utf8') as string),
     ).toEqual({ plugins: { autoprefixer: {}, '@tailwindcss/postcss': {} } });
     expect(tree.exists('.postcssrc.json')).toBe(false);
+  });
+
+  it('adds the plugin to the configuration in the project root, where the build looks first', async () => {
+    addProjectConfiguration(tree, 'acme-studio', {
+      root: 'apps/acme-studio',
+      projectType: 'application',
+      targets: {
+        build: { executor: '@angular/build:application', options: {} },
+      },
+    });
+    tree.write(
+      'apps/acme-studio/.postcssrc.json',
+      JSON.stringify({ plugins: { autoprefixer: {} } }),
+    );
+    tree.write('postcss.config.json', '{}');
+
+    await distributionGenerator(tree, { name: 'acme-studio', force: true });
+
+    expect(
+      JSON.parse(tree.read('apps/acme-studio/.postcssrc.json', 'utf8') as string),
+    ).toEqual({ plugins: { autoprefixer: {}, '@tailwindcss/postcss': {} } });
+    expect(JSON.parse(tree.read('postcss.config.json', 'utf8') as string)).toEqual({});
+    expect(tree.exists('.postcssrc.json')).toBe(false);
+  });
+
+  it('names a script in the project root as ignored too', async () => {
+    tree.write('apps/acme-studio/postcss.config.mjs', 'export default {};\n');
+    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
+
+    await distributionGenerator(tree, { name: 'acme-studio' });
+
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringMatching(
+        /apps\/acme-studio\/postcss\.config\.mjs is a script, which the Angular build does not read/,
+      ),
+    );
+    warn.mockRestore();
   });
 
   it('keeps the plugins a workspace already configured', async () => {

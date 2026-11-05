@@ -104,6 +104,7 @@ export { nxSchemaFor, portableOptions, usageFor } from './lib/scaffolds/adapter-
 export {
   nxDistributionFootprint,
   nxWeaverFootprint,
+  nxWeaverRoot,
   type NxApplication,
   type ReadWorkspaceFile,
 } from './generators/nx-footprint';

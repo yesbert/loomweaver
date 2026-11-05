@@ -74,7 +74,9 @@ wrote. Where one was changed, it names that file and stops before installing or 
 generators, because only they register the project and the import alias; the result is what
 [the Nx generators](#the-nx-generators--loomweaverdevkit) produce. The same rule holds there: a
 bootstrap file is replaced only while it is still what the Nx application generator wrote, and one
-that was changed is named before anything is installed or written. The application's own
+that was changed is named before anything is installed or written. What it recognises is what
+`@nx/angular` 24 writes with its default options, so an application generated with other options
+is refused and named in the same way rather than overwritten. The application's own
 `tsconfig*.json` and `eslint.config.mjs` are never replaced. The serve command is `npm start` in
 the first case and `npx nx serve <app>` in the second, each spelled for the package manager found.
 

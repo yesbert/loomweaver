@@ -1,6 +1,11 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { FileMap, joinProjectPath, resolveWeaverInput } from '@loomweaver/devkit';
+import {
+  FileMap,
+  joinProjectPath,
+  nxWeaverRoot,
+  resolveWeaverInput,
+} from '@loomweaver/devkit';
 import { parseArgs, ParsedArgs, rejectUnknownFlags } from '../args';
 import { findScaffold, scaffoldValues } from '../scaffold/scaffold';
 import { planWrite } from '../scaffold/write';
@@ -214,7 +219,9 @@ function nxSteps(plan: InitPlan): Step[] {
       shown: (path) => joinProjectPath(app.root, path),
     });
   }
-  const trial = plan.dryRun ? nxTrial(root, app, replaced) : undefined;
+  const trial = plan.dryRun
+    ? nxTrial(root, app, replaced, [...plan.runtime, ...plan.dev])
+    : undefined;
   const steps: Step[] = [
     ...installSteps(plan),
     {
@@ -240,7 +247,7 @@ function nxSteps(plan: InitPlan): Step[] {
     steps.push({
       label: 'First weaver',
       describe: weaverDescription(plan.weaver),
-      done: existsSync(join(root, 'libs', `${plan.weaver}-weaver`)),
+      done: existsSync(join(root, nxWeaverRoot(plan.weaver))),
       kind: 'exec',
       touches: trial?.weaver(plan.weaver),
       command: generator('weaver', [
@@ -256,12 +263,17 @@ function nxSteps(plan: InitPlan): Step[] {
 }
 
 function installSteps(plan: InitPlan): Step[] {
+  const touches = [
+    'changes package.json',
+    ...(plan.lockfile ? [`changes ${plan.lockfile}`] : []),
+  ];
   return [
     {
       label: 'Install',
       describe: plan.runtime.join(' '),
       done: plan.runtime.length === 0,
       kind: 'exec',
+      touches,
       command: installCommand(plan.manager, plan.runtime, false),
     },
     {
@@ -269,6 +281,7 @@ function installSteps(plan: InitPlan): Step[] {
       describe: plan.dev.join(' '),
       done: plan.dev.length === 0,
       kind: 'exec',
+      touches,
       command: installCommand(plan.manager, plan.dev, true),
     },
   ];

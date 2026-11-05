@@ -458,6 +458,35 @@ describe('init', () => {
     expect(c.text()).not.toContain('apps/studio/tsconfig.json');
   });
 
+  it('names package.json under the install that changes it, not under a generator', () => {
+    nxWorkspace(dir, ['studio']);
+    writeFileSync(join(dir, 'pnpm-lock.yaml'), 'lockfileVersion: 9\n');
+    const c = capture();
+    const { deps } = fakeDeps(dir);
+
+    expect(run(['init', '--dry-run'], c.io, deps)).toBe(0);
+
+    const said = c.text().split('\n');
+    const generators = said.findIndex((line) =>
+      line.includes('@loomweaver/devkit:distribution'),
+    );
+    expect(said.slice(0, generators)).toContain('  changes package.json');
+    expect(said.slice(0, generators)).toContain('  changes pnpm-lock.yaml');
+    expect(said.slice(generators)).not.toContain('  changes package.json');
+  });
+
+  it('does not generate a weaver again that is already in the workspace', () => {
+    nxWorkspace(dir, ['studio']);
+    writeFiles(dir, { 'libs/notes-weaver/project.json': '{}' });
+    const c = capture();
+    const { deps, calls } = fakeDeps(dir);
+
+    expect(run(['init'], c.io, deps)).toBe(0);
+
+    expect(c.text()).toContain('First weaver: already there.');
+    expect(calls.flat()).not.toContain('@loomweaver/devkit:weaver');
+  });
+
   it('hands the generator the workspace root for an application that sits there', () => {
     nxWorkspace(dir, []);
     writeFiles(dir, {

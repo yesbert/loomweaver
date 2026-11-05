@@ -4,7 +4,9 @@ import { FileMap } from '../../lib/generate/types';
 import { NEUTRAL_PREFIX } from '../../lib/scaffolds/scaffold-values';
 import {
   depthFor,
+  extendingBase,
   NxScaffoldDepth,
+  projectRootIn,
   SHARED_ANGULAR_COMPILER_OPTIONS,
   SHARED_COMPILER_OPTIONS,
   sharedEslintConfig,
@@ -12,7 +14,6 @@ import {
 } from '../project-config-files';
 
 const APP_ROOT_PREFIX = 'app';
-const WORKSPACE_ROOT = /^\.?\/?$/;
 
 export interface NxDistributionOptions {
   readonly name: string;
@@ -37,8 +38,7 @@ export interface NxDistribution {
 export function nxDistribution(
   options: NxDistributionOptions,
 ): NxDistribution {
-  const directory = options.directory ?? `apps/${options.name}`;
-  const projectRoot = WORKSPACE_ROOT.test(directory) ? '' : directory;
+  const projectRoot = projectRootIn(options.directory ?? `apps/${options.name}`);
   return {
     name: options.name,
     projectRoot,
@@ -150,7 +150,7 @@ function projectJson(distribution: NxDistribution): string {
 function tsconfig(distribution: NxDistribution): string {
   return JSON.stringify(
     {
-      extends: `${distribution.depth.toRoot}/${distribution.baseTsconfig}`,
+      ...extendingBase(distribution.projectRoot, distribution.baseTsconfig),
       compilerOptions: SHARED_COMPILER_OPTIONS,
       angularCompilerOptions: SHARED_ANGULAR_COMPILER_OPTIONS,
       files: [],

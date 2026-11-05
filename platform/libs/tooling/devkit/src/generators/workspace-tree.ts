@@ -228,9 +228,10 @@ export function addTailwindSource(
 export function addPostcssPlugin(
   tree: Tree,
   amendment: PostcssAmendment,
+  projectRoot: string,
 ): void {
   const exists = (name: string) => tree.exists(name);
-  const file = postcssFileTheBuildReads(exists, amendment);
+  const file = postcssFileTheBuildReads(exists, amendment, projectRoot);
   const existing = tree.exists(file)
     ? (JSON.parse(tree.read(file, 'utf8') ?? '{}') as unknown)
     : undefined;
@@ -243,7 +244,7 @@ export function addPostcssPlugin(
   if (result.added.length === 0) {
     return;
   }
-  const ignored = postcssWrittenAsCode(exists, amendment);
+  const ignored = postcssWrittenAsCode(exists, amendment, projectRoot);
   if (ignored) {
     logger.warn(ignored);
   }

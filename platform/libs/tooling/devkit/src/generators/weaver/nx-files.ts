@@ -1,8 +1,11 @@
+import { joinProjectPath } from '../../lib/amend/merge';
 import { FileMap } from '../../lib/generate/types';
 import { NEUTRAL_PREFIX } from '../../lib/scaffolds/scaffold-values';
 import {
   depthFor,
+  extendingBase,
   NxScaffoldDepth,
+  projectRootIn,
   SHARED_ANGULAR_COMPILER_OPTIONS,
   SHARED_COMPILER_OPTIONS,
   sharedEslintConfig,
@@ -35,7 +38,7 @@ export interface NxWeaverProject {
 
 export function nxWeaverProject(options: NxWeaverOptions): NxWeaverProject {
   const projectName = options.projectName ?? `${options.id}-weaver`;
-  const projectRoot = options.directory ?? `libs/${projectName}`;
+  const projectRoot = projectRootIn(options.directory ?? `libs/${projectName}`);
   return {
     id: options.id,
     projectName,
@@ -56,7 +59,7 @@ function projectJson(project: NxWeaverProject): string {
     {
       name: project.projectName,
       $schema: `${project.depth.toRoot}/node_modules/nx/schemas/project-schema.json`,
-      sourceRoot: `${project.projectRoot}/src`,
+      sourceRoot: joinProjectPath(project.projectRoot, 'src'),
       prefix: project.prefix,
       projectType: 'library',
       tags: project.tags,
@@ -79,7 +82,7 @@ function projectJson(project: NxWeaverProject): string {
 function tsconfig(project: NxWeaverProject): string {
   return JSON.stringify(
     {
-      extends: `${project.depth.toRoot}/${project.baseTsconfig}`,
+      ...extendingBase(project.projectRoot, project.baseTsconfig),
       compilerOptions: SHARED_COMPILER_OPTIONS,
       angularCompilerOptions: SHARED_ANGULAR_COMPILER_OPTIONS,
       files: [],

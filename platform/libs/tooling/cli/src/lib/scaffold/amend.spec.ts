@@ -149,6 +149,55 @@ describe('planAmend', () => {
     ]);
   });
 
+  it('adds the plugin to the configuration in the project root, where the build looks first', () => {
+    writeFileSync(
+      join(dir, 'angular.json'),
+      JSON.stringify({
+        version: 1,
+        projects: {
+          studio: {
+            projectType: 'application',
+            root: 'projects/studio',
+            architect: { build: { options: {} } },
+          },
+        },
+      }),
+    );
+    mkdirSync(join(dir, 'projects/studio'), { recursive: true });
+    writeFileSync(
+      join(dir, 'projects/studio/.postcssrc.json'),
+      JSON.stringify({ plugins: { autoprefixer: {} } }),
+    );
+    writeFileSync(join(dir, 'postcss.config.json'), '{}');
+
+    const plan = planAmend([POSTCSS], join(dir, 'projects/studio'));
+    applyAmend(plan);
+
+    expect(plan.amendments.map((amendment) => amendment.display)).toEqual([
+      'projects/studio/.postcssrc.json',
+    ]);
+    expect(
+      JSON.parse(
+        readFileSync(join(dir, 'projects/studio/.postcssrc.json'), 'utf8'),
+      ),
+    ).toEqual({ plugins: { autoprefixer: {}, '@tailwindcss/postcss': {} } });
+    expect(readFileSync(join(dir, 'postcss.config.json'), 'utf8')).toBe('{}');
+  });
+
+  it('adds the plugin to the configuration beside the project.json an Nx project is built from', () => {
+    rmSync(join(dir, 'angular.json'));
+    writeFileSync(join(dir, 'nx.json'), '{}');
+    mkdirSync(join(dir, 'apps/studio/src'), { recursive: true });
+    writeFileSync(join(dir, 'apps/studio/project.json'), '{}');
+    writeFileSync(join(dir, 'apps/studio/postcss.config.json'), '{}');
+
+    const plan = planAmend([POSTCSS], join(dir, 'apps/studio/src'));
+
+    expect(plan.amendments.map((amendment) => amendment.display)).toEqual([
+      'apps/studio/postcss.config.json',
+    ]);
+  });
+
   it('names the candidates rather than wiring the wrong project', () => {
     writeFileSync(
       join(dir, 'angular.json'),

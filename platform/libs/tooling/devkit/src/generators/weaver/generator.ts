@@ -5,6 +5,7 @@ import {
   Tree,
   updateJson,
 } from '@nx/devkit';
+import { joinProjectPath } from '../../lib/amend/merge';
 import { generate } from '../../lib/generate/generate';
 import { weaverInput } from '../../recipes/angular-weaver/scaffold';
 import { applyAmendments } from '../apply-amendments';
@@ -42,8 +43,10 @@ export async function weaverGenerator(
         : undefined,
     baseTsconfig,
   });
-  if (tree.exists(`${project.projectRoot}/project.json`)) {
-    throw new Error(`A project already exists at ${project.projectRoot}.`);
+  if (tree.exists(joinProjectPath(project.projectRoot, 'project.json'))) {
+    throw new Error(
+      `A project already exists at ${project.projectRoot || 'the workspace root'}.`,
+    );
   }
 
   const input = weaverInput({
@@ -59,7 +62,7 @@ export async function weaverGenerator(
     json.compilerOptions ??= {};
     json.compilerOptions.paths ??= {};
     json.compilerOptions.paths[project.importPath] = [
-      `./${project.projectRoot}/src/index.ts`,
+      `./${joinProjectPath(project.projectRoot, 'src/index.ts')}`,
     ];
     return json;
   });

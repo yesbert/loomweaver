@@ -45,6 +45,11 @@ export function nxDistributionFootprint(
   ]);
 }
 
+/** The project root the weaver generator gives a weaver that is placed nowhere in particular. */
+export function nxWeaverRoot(id: string): string {
+  return nxWeaverProject({ id }).projectRoot;
+}
+
 /**
  * Every workspace file the weaver generator creates or changes when it composes the weaver into
  * the application given, as paths relative to the workspace root.
@@ -88,7 +93,11 @@ function amendedFile(
 ): string | undefined {
   switch (amendment.kind) {
     case 'postcss': {
-      const file = postcssFileTheBuildReads((name) => read(name) !== undefined, amendment);
+      const file = postcssFileTheBuildReads(
+        (name) => read(name) !== undefined,
+        amendment,
+        app.root,
+      );
       const added = ensurePostcssPlugin(parsed(read(file)), amendment).added;
       return added.length > 0 ? file : undefined;
     }

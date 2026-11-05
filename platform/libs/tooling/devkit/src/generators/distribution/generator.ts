@@ -70,7 +70,12 @@ export async function distributionGenerator(
     withTests: distribution.withTests,
   });
   const recipeAmendments = amendments(angularDistribution, input);
-  const installed = applyAmendments(tree, recipeAmendments);
+  const installed = applyAmendments(
+    tree,
+    recipeAmendments,
+    undefined,
+    distribution.projectRoot,
+  );
 
   const scaffold = nxDistributionFiles(distribution);
   if (composingIntoExisting) {

@@ -230,12 +230,13 @@ describe('angularWeaver recipe', () => {
   });
 
   it('never defaults to a chord a browser keeps for itself, and claims none when every letter is kept', () => {
-    expect(resolveWeaverInput({ id: 'notes', command: true }).features.shortcut).toBe('mod+shift+o');
-    expect(resolveWeaverInput({ id: 'tasks', command: true }).features.shortcut).toBe('mod+shift+a');
-    expect(resolveWeaverInput({ id: 'qtw', command: true }).features.shortcut).toBeUndefined();
-    expect(
-      generate(angularWeaver, { id: 'qtw', command: true })['src/lib/plugin/qtw.plugin.ts'],
-    ).not.toContain('shortcut:');
+    const withCommand = (id: string) => ({ id, features: { command: true } });
+    expect(resolveWeaverInput(withCommand('notes')).features.shortcut).toBe('mod+shift+o');
+    expect(resolveWeaverInput(withCommand('tasks')).features.shortcut).toBe('mod+shift+a');
+    expect(resolveWeaverInput(withCommand('qtw')).features.shortcut).toBeUndefined();
+    const plugin = generate(angularWeaver, withCommand('qtw'))['src/lib/plugin/qtw.plugin.ts'];
+    expect(plugin).toContain('registerCommand');
+    expect(plugin).not.toContain('shortcut:');
   });
 
   it('defaults the command shortcut and lets it be overridden', () => {
