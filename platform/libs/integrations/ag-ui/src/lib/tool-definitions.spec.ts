@@ -25,8 +25,28 @@ describe('toolFor', () => {
     );
   });
 
-  it('falls back to the title rather than leaving an unpickable empty description', () => {
-    expect(toolFor(command()).description).toBe('Open note');
+  it('does not present the title as a description where the command has none', () => {
+    expect(toolFor(command()).description).toBe('');
+  });
+
+  it('says what the command answers beside what it does', () => {
+    expect(
+      toolFor(
+        command({ description: 'Opens a note', answers: 'The path it opened' }),
+      ).description,
+    ).toBe('Opens a note\nAnswers: The path it opened');
+  });
+
+  it('says what the command answers even where it has no description', () => {
+    expect(toolFor(command({ answers: 'The path it opened' })).description).toBe(
+      'Answers: The path it opened',
+    );
+  });
+
+  it('does not open with an empty line where the description is empty', () => {
+    expect(
+      toolFor(command({ description: '', answers: 'The path it opened' })).description,
+    ).toBe('Answers: The path it opened');
   });
 
   it("carries what the command says an agent's word is enough for", () => {

@@ -105,7 +105,7 @@ describe('an agent driving the workbench end to end', () => {
     expect(compose().list()).toEqual([
       {
         name: 'notes__open',
-        description: 'Opens the note at a path',
+        description: 'Opens the note at a path\nAnswers: The path it opened',
         parameters: {
           type: 'object',
           properties: { path: { type: 'string', description: 'Where' } },
@@ -133,7 +133,7 @@ describe('an agent driving the workbench end to end', () => {
   });
 
   it('refuses a command whose author never opened it, without running it', async () => {
-    const answer = await call(compose(), 'c2', 'notes.secret');
+    const answer = await call(compose(), 'c2', 'notes__secret');
 
     expect(opened).toEqual([]);
     expect(answer?.error).toContain('did not run');

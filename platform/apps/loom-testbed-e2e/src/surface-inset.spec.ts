@@ -3,12 +3,18 @@ import { expect, test, type Page } from '@playwright/test';
 const leftPanelTabs = '#panel-views-left-panel';
 
 async function insetOfDockedView(page: Page): Promise<string> {
-  return page.evaluate(() => {
+  const inset = await page.evaluate(() => {
     const docked = [
-      ...document.querySelectorAll<HTMLElement>('[class*="container/surface"]'),
+      ...document.querySelectorAll<HTMLElement>(
+        'lw-shell-panel [class*="container/surface"]',
+      ),
     ].find((surface) => surface.getBoundingClientRect().left < 500);
-    return docked ? getComputedStyle(docked).padding : 'no docked surface';
+    return docked ? getComputedStyle(docked).padding : null;
   });
+  if (inset === null) {
+    throw new Error('insetOfDockedView: no docked surface in the left sidebar');
+  }
+  return inset;
 }
 
 test.describe('The inset a sidebar gives a view', () => {
@@ -25,8 +31,8 @@ test.describe('The inset a sidebar gives a view', () => {
       .locator(leftPanelTabs)
       .getByRole('tab', { name: 'Outline' })
       .click();
-    await page.waitForTimeout(300);
+    await expect(page.getByTestId('outline-sort')).toBeVisible();
 
-    expect(await insetOfDockedView(page)).not.toBe('0px');
+    await expect.poll(() => insetOfDockedView(page)).not.toBe('0px');
   });
 });

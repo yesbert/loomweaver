@@ -31,15 +31,15 @@ const SCALAR_TYPE: Readonly<Record<CommandArgument['kind'], string>> = {
  * protocol's own place for a property of a tool, under the name it was declared with, so an agent host can
  * treat a consequential tool differently. A command that says nothing carries no `metadata` at all.
  *
- * A command with no description of its own gets one derived from its title. The protocol requires a
- * description and an agent chooses between tools by reading it, so an empty string would make the
- * tool unpickable; the title is a poor explanation but it is not nothing, and the workbench warns the
- * author in dev mode when a command is callable without one.
+ * The description is what the command says it does, followed on a line of its own by what it says it
+ * answers. A command with no description is not given its title in its place, because a label is not
+ * an explanation: the protocol requires the field, so it is empty or holds only the answer, and the
+ * workbench warns the author in dev mode when a command is callable without a description.
  */
 export function toolFor(command: InvocableCommand): Tool {
   return {
     name: toolNameOf(command.id),
-    description: command.description ?? command.title,
+    description: descriptionOf(command),
     parameters: parametersFor(command.arguments),
     ...(command.agentConsent !== undefined && {
       metadata: { agentConsent: command.agentConsent },
@@ -64,6 +64,12 @@ export function offeredCommand(
 }
 
 const TOOL_NAME_LIMIT = 64;
+
+function descriptionOf(command: InvocableCommand): string {
+  const answers =
+    command.answers === undefined ? undefined : `Answers: ${command.answers}`;
+  return [command.description, answers].filter(Boolean).join('\n');
+}
 
 function toolNameOf(commandId: string): string {
   const name = commandId.replaceAll('.', '__').replaceAll(/[^A-Za-z0-9_-]/g, '_');

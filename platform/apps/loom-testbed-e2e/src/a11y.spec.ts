@@ -276,6 +276,20 @@ test.describe('Accessibility (WCAG 2.1 AA)', () => {
   });
 });
 
+test.describe('One surface open in both panes of a split', () => {
+  test('names its field in each pane, and the scan passes', async ({
+    page,
+  }) => {
+    await page.goto('/entry/e-01');
+    await expect(page.locator('#lw-main-content textarea')).toBeVisible();
+    await page.getByRole('button', { name: 'Split right' }).click();
+    await expect(
+      page.getByRole('textbox', { name: 'Your draft', exact: true }),
+    ).toHaveCount(2);
+    await scan(page);
+  });
+});
+
 const LANDMARK_RULES = [
   'landmark-banner-is-top-level',
   'landmark-contentinfo-is-top-level',

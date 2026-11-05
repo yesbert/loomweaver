@@ -34,10 +34,18 @@ test('pane ids are stable — handing the URL role around renames no pane', asyn
     await clickTabInPane(page, side, label);
     await expect
       .poll(async () =>
-        (await paneStripsLeftToRight(page)).map((pane) => pane.stripId),
+        (await paneStripsLeftToRight(page)).map((pane) => pane.address),
       )
-      .toEqual(before);
+      .toEqual(side === 'left' ? [true, false] : [false, true]);
+    expect(
+      (await paneStripsLeftToRight(page)).map((pane) => pane.stripId),
+    ).toEqual(before);
   }
+
+  await page.getByRole('tab', { name: 'Notes' }).first().focus();
+  expect(
+    (await paneStripsLeftToRight(page)).map((pane) => pane.stripId),
+  ).toEqual(before);
 });
 
 test('the URL role survives a reload as a pointer: the focused pane is still the URL pane', async ({

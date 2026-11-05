@@ -14,16 +14,21 @@ alive, the same question is asked wherever work would be destroyed, a surface re
 same way in every pane, adopting a namespace reads it before it writes to it, typing is not
 hijacked, a generator only adds. Those need a fix and a test that pins it, not a new requirement.
 
-One needs a requirement. A contribution is replaced by a later one with the same id, which is what
+Two need a requirement. A contribution is replaced by a later one with the same id, which is what
 lets a distribution override a bundled plugin. Nothing limits that to the distribution: a plugin
 installed from a catalogue, holding only the right to contribute, could replace the product's own
-route, view or menu entry, and the original stayed gone after the plugin was removed.
+route, view or menu entry, and the original stayed gone after the plugin was removed. And the
+connection an agent drives ran a command when the check in front of it answered with something it
+did not know, and carried a call from a run that broke off into the next one.
 
 ## What Changes
 
 - A plugin that does not run as the application's own code can no longer replace a contribution
   another owner registered. The registration is refused and reported. Replacing stays what it was
   for the distribution and the plugins composed into it.
+- The agent connection follows one run at a time and forgets the calls an earlier run left open. A
+  check before a call that throws, rejects or gives no decision refuses the call, and the agent is
+  told only that the check failed.
 - Every other finding is fixed where it sits, each with a test that fails before the fix. The task
   list names them by area: the plugin trust boundary, unsaved work and panes, addresses and tabs,
   persistence and workspaces, commands and menus, the chrome, the agent connection, the scaffolding
@@ -42,6 +47,8 @@ None.
 
 - `plugin-runtime`: a plugin that does not run as the application's own code cannot replace a
   contribution another owner registered.
+- `commands`: the agent connection follows one run at a time, and a check that fails lets nothing
+  through.
 
 ## Impact
 

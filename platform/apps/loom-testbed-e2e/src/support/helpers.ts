@@ -144,10 +144,15 @@ export function clickTabInPane(
         (a, b) => a.getBoundingClientRect().x - b.getBoundingClientRect().x,
       );
       const pane = which === 'left' ? panes[0] : panes.at(-1);
-      const tab = [...pane.querySelectorAll('[role="tab"]')].find((element) =>
-        (element.textContent ?? '').includes(name),
+      const tab = [...(pane?.querySelectorAll('[role="tab"]') ?? [])].find(
+        (element) => (element.textContent ?? '').includes(name),
       );
-      tab?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      if (tab === undefined) {
+        throw new Error(
+          `clickTabInPane: no tab "${name}" in the ${which} pane`,
+        );
+      }
+      tab.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     },
     [side, label] as const,
   );

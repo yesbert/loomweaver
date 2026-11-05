@@ -762,17 +762,21 @@ the part that talks to a model, and `back` is how an answer reaches it:
 
 ```ts
 const tools = connectNotes(ctx);
-// Ask at the start of every run. Never keep the answer: what you may reach changes.
-for await (const event of askAgent({ prompt, tools: tools.list() })) {
-  // Hand it every event of the run; send back whatever it answers.
-  const answer = await tools.receive(event);
-  if (answer) {
-    back(answer);
+try {
+  // Ask at the start of every run. Never keep the answer: what you may reach changes.
+  for await (const event of askAgent({ prompt, tools: tools.list() })) {
+    // Hand it every event of the run; send back whatever it answers.
+    const answer = await tools.receive(event);
+    if (answer) {
+      back(answer);
+    }
   }
-}
-// A call the run left open is answered too, one at a time, until none is left.
-for (let left = await tools.flush(); left; left = await tools.flush()) {
-  back(left);
+} finally {
+  // A call the run left open is answered too, one at a time, until none is left. In a `finally`,
+  // because a run that broke off has no event that answers them.
+  for (let left = await tools.flush(); left; left = await tools.flush()) {
+    back(left);
+  }
 }
 ```
 

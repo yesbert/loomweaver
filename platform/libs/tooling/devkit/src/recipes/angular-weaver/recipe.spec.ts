@@ -464,6 +464,21 @@ describe('angularWeaver agent connection', () => {
     expect(panel).toContain('const offered = tools.list();');
   });
 
+  it('answers the calls a run left open where the run broke off too', () => {
+    const panel = agentWeaver()['src/lib/agent/notes-agent-panel.ts'];
+    const afterTheRun = panel.slice(panel.indexOf('} finally {'));
+    expect(afterTheRun).toContain(
+      'for (let left = await tools.flush(); left; left = await tools.flush()) {',
+    );
+    expect(afterTheRun).toContain('this.busy.set(false);');
+  });
+
+  it('labels a tool that has no description by its name instead of an empty button', () => {
+    expect(agentWeaver()['src/lib/agent/notes-agent-panel.html']).toContain(
+      '{{ tool.description || tool.name }}',
+    );
+  });
+
   it('fills the generated argument from the schema instead of sending none', () => {
     const standIn = agentWeaver()['src/lib/agent/notes-agent.ts'];
     expect(standIn).toContain('sampleArguments(picked)');

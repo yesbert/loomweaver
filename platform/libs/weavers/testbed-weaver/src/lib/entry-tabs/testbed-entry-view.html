@@ -91,17 +91,18 @@
       </ol>
 
       <div class="mt-auto flex flex-col gap-2">
-        <label class="text-xs font-medium text-content-muted" for="testbed-reply">
-          {{ 'testbed.entry.replyLabel' | transloco }}
+        <label class="flex flex-col gap-2">
+          <span class="text-xs font-medium text-content-muted">
+            {{ 'testbed.entry.replyLabel' | transloco }}
+          </span>
+          <textarea
+            class="lw-field min-h-24"
+            rows="3"
+            [attr.placeholder]="'testbed.entry.replyPlaceholder' | transloco"
+            [value]="draft()"
+            (input)="onInput($event)"
+          ></textarea>
         </label>
-        <textarea
-          id="testbed-reply"
-          class="lw-field min-h-24"
-          rows="3"
-          [attr.placeholder]="'testbed.entry.replyPlaceholder' | transloco"
-          [value]="draft()"
-          (input)="onInput($event)"
-        ></textarea>
         <div class="flex items-center gap-3">
           <button
             type="button"
