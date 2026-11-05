@@ -53,3 +53,11 @@ workspace is deleted, and when an arrangement counts as arrived while the addres
 Carrying a surface to another pane instead of rebuilding it, so that a drag keeps unsaved work
 without a question, is open too. Two things would have to be decided first: what an instance id
 means once an instance can move between panes, and where a moved surface's injector lives.
+
+The workbench-capture capability says a plugin is given no moment at which it could act differently
+because it is being pictured. A repaired end-to-end test shows that it is given one: the first
+picture appends a script to the frame's document and a load event fires, and every picture adds and
+removes an element there, so a mutation observer in the plugin's own script is called during each
+picture. No message reaches the frame. The drawing works by copying the frame's page inside the
+frame, so closing this means drawing a surface another way, or saying in the capability what a
+plugin can notice. The test is kept as a skipped test that states the guarantee.

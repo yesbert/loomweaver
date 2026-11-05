@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { rail } from './support/helpers';
+import { rail, watchFor } from './support/helpers';
 
 const left = '#panel-views-left-panel';
 
@@ -70,10 +70,22 @@ test.describe('Pop-out windows', () => {
     await page.getByTestId('outline-sort').click();
     await expect(page.getByTestId('outline-sort')).toHaveText(/A–Z/);
 
-    await page.waitForTimeout(500);
-    await expect(
-      page.evaluate(() => localStorage.getItem('lw.shell.pane-trees:default')),
-    ).resolves.toBeNull();
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          localStorage.getItem('lw.shell.view-state:testbed.outline'),
+        ),
+      )
+      .toContain('alpha');
+    expect(
+      await page.evaluate(() =>
+        Object.keys(localStorage).filter(
+          (key) =>
+            key.startsWith('lw.shell.pane-trees') ||
+            key.startsWith('lw.shell.panels'),
+        ),
+      ),
+    ).toEqual([]);
   });
 
   test('the view context menu opens the view in its own window, keeping the original', async ({
@@ -137,11 +149,21 @@ test.describe('A pop-out offers only what can work there', () => {
     await page.goto('/popout/search');
     await expect(page.getByRole('heading', { name: 'Search' })).toBeVisible();
     await expect(page.getByRole('tab')).toHaveCount(0);
+    const paletteShown = await watchFor(page, 'lw-command-palette');
 
     await page.keyboard.press('Meta+p');
     await page.keyboard.press('Control+p');
 
-    await expect(page.getByRole('dialog')).toHaveCount(0);
+    await page
+      .getByTestId('popout-actions')
+      .locator('[data-lw-entry="testbed.search.about"]')
+      .dispatchEvent('click');
+    await expect(
+      page
+        .getByRole('dialog')
+        .filter({ hasNot: page.locator('lw-command-palette') }),
+    ).toBeVisible();
+    expect(await paletteShown()).toBe(false);
   });
 
   test('offers only the commands that declare popout, and nothing else', async ({

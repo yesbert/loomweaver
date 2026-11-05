@@ -12,12 +12,19 @@ test.describe('Settings surface', () => {
       .getByRole('button', { name: 'Testbed weaver', exact: true })
       .click();
 
-    await expect(page.locator('lw-settings-dialog select')).toHaveCount(0);
-
     const density = page.getByRole('combobox', { name: 'Density' });
     await expect(density).toContainText('Comfortable');
+    await expect(page.locator('lw-settings-dialog select')).toHaveCount(0);
     await density.click();
     await page.getByRole('option', { name: 'Compact' }).click();
+    await expect(density).toContainText('Compact');
+
+    await page.keyboard.press('Escape');
+    await expect(page.locator('lw-settings-dialog')).toHaveCount(0);
+    await page.getByRole('button', { name: 'Settings' }).click();
+    await page
+      .getByRole('button', { name: 'Testbed weaver', exact: true })
+      .click();
     await expect(density).toContainText('Compact');
   });
 
@@ -45,6 +52,16 @@ test.describe('Settings surface', () => {
     await fontSize.fill('18');
     await expect(fontSize).toHaveValue('18');
     await expect(page.getByText('18', { exact: true })).toBeVisible();
+
+    await page.keyboard.press('Escape');
+    await expect(page.locator('lw-settings-dialog')).toHaveCount(0);
+    await page.getByRole('button', { name: 'Settings' }).click();
+    await page
+      .getByRole('button', { name: 'Testbed weaver', exact: true })
+      .click();
+    await expect(notifications).not.toBeChecked();
+    await expect(displayName).toHaveValue('Grace Hopper');
+    await expect(fontSize).toHaveValue('18');
   });
 
   test('the shell text-size setting scales the interface and persists across reload', async ({

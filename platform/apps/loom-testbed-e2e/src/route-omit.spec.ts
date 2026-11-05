@@ -44,6 +44,7 @@ test.describe('Omitted content route', () => {
     await page.goto('/notes');
 
     await expect(page).toHaveURL(/\/notes$/);
+    await expect(page.locator('lw-testbed-notes-view textarea')).toBeVisible();
     await expect(
       page.getByRole('heading', { name: 'View not available' }),
     ).toHaveCount(0);

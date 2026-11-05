@@ -189,6 +189,29 @@ export async function restSandboxFrame(page: Page): Promise<Frame> {
   return frame;
 }
 
+type ShownLatch = { __shown?: boolean };
+
+export async function watchFor(
+  page: Page,
+  selector: string,
+): Promise<() => Promise<boolean>> {
+  await page.evaluate((watched) => {
+    const latch = globalThis as unknown as ShownLatch;
+    latch.__shown = false;
+    new MutationObserver(() => {
+      latch.__shown ||= [...document.querySelectorAll(watched)].some(
+        (element) => element.checkVisibility(),
+      );
+    }).observe(document.body, {
+      attributes: true,
+      childList: true,
+      subtree: true,
+    });
+  }, selector);
+  return () =>
+    page.evaluate(() => (globalThis as unknown as ShownLatch).__shown === true);
+}
+
 export async function startupNoticeGone(page: Page): Promise<void> {
   const startup = page
     .getByRole('status')

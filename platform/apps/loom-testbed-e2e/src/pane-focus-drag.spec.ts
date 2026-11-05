@@ -106,6 +106,8 @@ test.describe('A focus handoff leaves no phantom tab behind', () => {
     await expect(tab.locator('lw-tooltip')).toHaveAttribute('text', 'E-01');
 
     await tab.dblclick();
-    await expect(tab).toHaveClass(/italic/);
+    await page.getByRole('button', { name: 'Bravo' }).click();
+    await expect(page.getByRole('tab', { name: 'E-02' })).toBeVisible();
+    await expect(tab).toHaveCount(0);
   });
 });

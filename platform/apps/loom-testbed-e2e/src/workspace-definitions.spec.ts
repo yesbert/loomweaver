@@ -92,6 +92,7 @@ test.describe('Developer-defined workspaces', () => {
       page.locator('lw-pane-view:not([data-address-pane]) lw-surface-body'),
     ).toHaveCount(2);
     await page.getByRole('button', { name: 'Workspaces' }).click();
+    await expect(page.getByTestId('workspace-reset')).toBeDisabled();
     await expect(page.getByTestId('workspace-changed')).toHaveCount(0);
   });
 });

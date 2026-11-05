@@ -12,19 +12,23 @@ test.describe('Command palette omits context-only commands', () => {
     await page.keyboard.press(`${module_}+KeyK`);
     await expect(palette).toBeVisible();
 
+    const offered = page.getByRole('option', { name: 'Focus the entry list' });
     await palette.fill('Focus');
-    await expect(
-      page.getByRole('option', { name: 'Focus the entry list' }),
-    ).toBeVisible();
+    await expect(offered).toBeVisible();
 
     await palette.fill('Close');
+    await expect(offered).toHaveCount(0);
     await expect(
       page.getByRole('option', { name: 'Close Others' }),
     ).toHaveCount(0);
     await expect(page.getByRole('option', { name: 'Close All' })).toHaveCount(
       0,
     );
+
+    await palette.fill('Focus');
+    await expect(offered).toBeVisible();
     await palette.fill('Stack below');
+    await expect(offered).toHaveCount(0);
     await expect(page.getByRole('option', { name: 'Stack below' })).toHaveCount(
       0,
     );

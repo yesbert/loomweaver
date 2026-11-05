@@ -222,6 +222,27 @@ Each of these is a review. What it finds is added to the group it belongs to and
 - [ ] 12.4 The shell's stylesheets, and the product-identity, host-services and platform-composition capabilities against the code
 - [ ] 12.5 The generator schemas, the tooling READMEs, the unit specs of the testbed weaver and the AG-UI adapter, and `platform/tools/media/`
 
+## 16. More tests that could not fail
+
+What review 12.1 found in the end-to-end suite (`platform/apps/loom-testbed-e2e/src/`).
+
+- [x] 16.1 Revealing a surface is checked by the tab it selects, not by a text that is on the page anyway (`reveal-surface.spec.ts`)
+- [x] 16.2 The container test looks for its sidebar tab where sidebar tabs are (`container.spec.ts`)
+- [x] 16.3 The retained-address test waits for the address to move before it reads the panes (`retained-url-pane.spec.ts`)
+- [x] 16.4 A hidden rail entry is checked after the rail has been drawn (`rail-visibility.spec.ts`)
+- [x] 16.5 The withholding test takes the picture from the workbench and records what the frame can observe (`surface-withholding.spec.ts`)
+- [x] 16.6 Three tests anchor on something present before they assert an absence (`workspace-claims.spec.ts`, `route-omit.spec.ts`, `identity.spec.ts`)
+- [x] 16.7 Promoting a preview tab is checked by what a kept tab does (`pane-focus-drag.spec.ts`)
+- [x] 16.8 A menu entry's absence is asserted on an open menu, and an absence after loading on a drawn page (`shell-features.spec.ts`)
+- [x] 16.9 Three negatives are read after the gesture has taken effect (`container.spec.ts`, `popout.spec.ts`, `palette-context-commands.spec.ts`)
+- [x] 16.10 The test named for commands, rail entry and button checks the rail entry (`shell-features.spec.ts`)
+- [x] 16.11 A fixed wait gives way to a gesture whose effect is awaited, and the pop-out test compares the stored keys (`shell-features.spec.ts`, `popout.spec.ts`)
+- [x] 16.12 The split test reads the size it says it resizes and persists (`content-split.spec.ts`)
+- [x] 16.13 Three tests check the half their name promises (`view-state-travel.spec.ts`, `plugin-state.spec.ts`, `settings.spec.ts`)
+- [x] 16.14 The test that a switch never collapses a sidebar starts from an expanded one (`workspaces.spec.ts`)
+- [x] 16.15 Six negatives move behind their anchor or onto what was really open (`hidden-views.spec.ts`, `workspace-definitions.spec.ts`, `settings.spec.ts`, `tab-follows.spec.ts`, `surface-retention.spec.ts`, `plugin-store.spec.ts`)
+- [x] 16.16 Handed to the owner as a decision (see design.md): a plugin's own script can notice that a picture is being made, because the drawing adds and removes nodes in the frame's document; the test that says so is kept as `test.fixme` (`surface-withholding.spec.ts`)
+
 ## 13. Hand-over
 
 - [ ] 13.1 The merge gate's steps pass locally on `main` after the last group merged

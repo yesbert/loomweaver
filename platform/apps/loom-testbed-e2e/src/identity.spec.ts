@@ -92,7 +92,10 @@ test.describe('Identity-scoped state & identity-change reload', () => {
     await cycle.click();
     await expectFreshWindow(page);
 
-    await expect(page).not.toHaveURL(/\/entry\/e-01/);
+    await expect(
+      rail(page).getByRole('button', { name: 'Sign out' }),
+    ).toBeVisible();
+    await expect.poll(() => new URL(page.url()).pathname).toBe('/');
     await expect(page.locator('#lw-main-content textarea')).toHaveCount(0);
   });
 });

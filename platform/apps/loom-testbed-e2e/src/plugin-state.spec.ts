@@ -63,17 +63,18 @@ test.describe('A plugin-private store', () => {
     await expect(second.getByTestId('scratch-echo')).toHaveText(
       'typed in window one',
     );
-    const keys = await second.evaluate(() =>
-      Object.keys(localStorage).filter((key) =>
-        key.startsWith('lw.plugin-state'),
+    const stored = await second.evaluate(() => ({
+      holdingTheValue: Object.keys(localStorage).filter((key) =>
+        (localStorage.getItem(key) ?? '').includes('typed in window one'),
       ),
-    );
-    expect(keys).toEqual(
-      expect.arrayContaining([
-        'lw.plugin-state:testbed:scratch',
-        'lw.plugin-state-keys:testbed',
-      ]),
-    );
+      namingTheKey: Object.keys(localStorage).filter((key) =>
+        (localStorage.getItem(key) ?? '').includes('"scratch"'),
+      ),
+    }));
+    expect(stored).toEqual({
+      holdingTheValue: ['lw.plugin-state:testbed:scratch'],
+      namingTheKey: ['lw.plugin-state-keys:testbed'],
+    });
     await second.close();
   });
 });
