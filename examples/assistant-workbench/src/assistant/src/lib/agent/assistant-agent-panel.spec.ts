@@ -92,11 +92,19 @@ describe('AssistantAgentPanel', () => {
     expect(document.activeElement).toBe(field);
   });
 
-  it('answers the calls a run left open when the run breaks off', async () => {
+  it('answers the calls a run left open when the run breaks off, and tells the agent what it answered', async () => {
     const call = { id: 'c1', type: 'function', function: { name: 'tickets__open', arguments: '{}' } };
-    vi.stubGlobal('fetch', () =>
-      Promise.resolve(completion({ role: 'assistant', content: null, tool_calls: [call] })),
-    );
+    const sent: { messages: Record<string, unknown>[] }[] = [];
+    vi.stubGlobal('fetch', (_input: unknown, init: RequestInit) => {
+      sent.push(JSON.parse(String(init.body)) as { messages: Record<string, unknown>[] });
+      return Promise.resolve(
+        completion(
+          sent.length === 1
+            ? { role: 'assistant', content: null, tool_calls: [call] }
+            : { role: 'assistant', content: 'Done.' },
+        ),
+      );
+    });
     const left: (ToolMessage | null)[] = [
       { id: 'c1.result', role: 'tool', toolCallId: 'c1', content: '', error: 'this call was left open' },
     ];
@@ -118,5 +126,15 @@ describe('AssistantAgentPanel', () => {
     expect(said).toContain('the connection broke off');
     expect(said).toContain('this call was left open');
     expect(left).toHaveLength(0);
+
+    ask(fixture, 'and now?');
+    await vi.waitFor(() => expect(sent).toHaveLength(2));
+    await untilIdle(fixture);
+
+    expect(sent[1].messages).toContainEqual({
+      role: 'tool',
+      tool_call_id: 'c1',
+      content: 'this call was left open',
+    });
   });
 });

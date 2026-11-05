@@ -146,8 +146,10 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [x] 9.6 Bank statement dates are the same day in every time zone (`demo/public/payments/matching.js`, `view.js`)
 - [x] 9.7 The assistant's prompt keeps the focus across a run (`assistant-agent-panel.html`)
 - [x] 9.8 The example compiles with `strict` and `strictTemplates` (`examples/assistant-workbench/tsconfig.json`)
-- [ ] 9.9 Leads, each verified first: the demo's service worker serving the sandboxed payments plugin offline; unused exports and files in `demo/src`
+- [x] 9.9 Leads, each verified first: the demo's service worker serving the sandboxed payments plugin offline; unused exports and files in `demo/src`
 - [x] 9.10 The example's panel flushes in a `finally`, as the guide says (`examples/assistant-workbench/src/assistant/src/lib/agent/assistant-agent-panel.ts`)
+- [x] 9.11 A bank statement line on the edge of the chosen period is in or out by its date, the same in every time zone (`demo/public/payments/matching.js`, the period cutoff)
+- [x] 9.12 The answers the example's panel flushes after a run reach the agent's history, so the next run does not meet calls without a result (`examples/assistant-workbench/src/assistant/src/lib/agent/assistant-agent-panel.ts`)
 
 ## 10. Tests that could not fail
 

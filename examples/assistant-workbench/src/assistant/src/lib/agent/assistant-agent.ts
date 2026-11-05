@@ -66,6 +66,8 @@ async function* ask(conversation: Conversation, request: AgentRequest): AsyncGen
   const { history } = conversation;
   const thread = { threadId: 'assistant', runId: request.runId };
   yield { type: EventType.RUN_STARTED, ...thread };
+  history.push(...unansweredCalls(history).map((call) => resultOf(conversation.answers, call.id)));
+  conversation.answers.clear();
   history.push({ role: 'user', content: request.prompt });
   try {
     for (let round = 0; round < MAX_ROUNDS; round++) {
@@ -80,8 +82,7 @@ async function* ask(conversation: Conversation, request: AgentRequest): AsyncGen
       }
       for (const call of calls) {
         yield* callEvents(call);
-        const answer = answerTo(conversation.answers, call.id);
-        history.push({ role: 'tool', tool_call_id: call.id, content: answer.error ?? contentToText(answer.content) });
+        history.push(resultOf(conversation.answers, call.id));
       }
     }
     yield { type: EventType.RUN_FINISHED, ...thread };
@@ -95,6 +96,16 @@ async function* callEvents(call: ChatToolCall): AsyncGenerator<AGUIEvent> {
   yield { type: EventType.TOOL_CALL_START, toolCallId, toolCallName: call.function.name };
   yield { type: EventType.TOOL_CALL_ARGS, toolCallId, delta: call.function.arguments || '{}' };
   yield { type: EventType.TOOL_CALL_END, toolCallId };
+}
+
+function unansweredCalls(history: readonly ChatMessage[]): readonly ChatToolCall[] {
+  const answered = new Set(history.map((message) => message.tool_call_id));
+  return history.flatMap((message) => message.tool_calls ?? []).filter((call) => !answered.has(call.id));
+}
+
+function resultOf(answers: Map<string, ToolMessage>, toolCallId: string): ChatMessage {
+  const answer = answerTo(answers, toolCallId);
+  return { role: 'tool', tool_call_id: toolCallId, content: answer.error ?? contentToText(answer.content) };
 }
 
 function answerTo(answers: Map<string, ToolMessage>, toolCallId: string): ToolMessage {

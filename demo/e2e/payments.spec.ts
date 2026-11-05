@@ -244,3 +244,33 @@ test.describe('west of UTC', () => {
     });
   }
 });
+
+for (const [zone, now, when] of [
+  ['America/Los_Angeles', '2026-03-10T03:00:00Z', 'in the evening, when UTC is a day ahead'],
+  ['Pacific/Auckland', '2026-03-09T19:00:00Z', 'in the morning, when UTC is a day behind'],
+]) {
+  test.describe(`in ${zone}`, () => {
+    test.use({ timezoneId: zone });
+
+    test(`a line on the edge of the period is in or out by its date ${when}`, async ({ page }) => {
+      await page.clock.setFixedTime(new Date(now));
+      await page.goto('/');
+      await openPayments(page);
+      const view = surface(page);
+      await expect(view.getByTestId('statement')).toBeVisible();
+
+      const shown = await view.locator('body').evaluate(() => {
+        const matching = (
+          globalThis as unknown as {
+            PaymentsMatching: {
+              shownStatement(settings: { period: string; sort: string }): { id: string }[];
+            };
+          }
+        ).PaymentsMatching;
+        return matching.shownStatement({ period: '5', sort: 'newest' }).map((line) => line.id);
+      });
+
+      expect(shown).toEqual(['b-1', 'b-2', 'b-3']);
+    });
+  });
+}

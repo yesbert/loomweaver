@@ -122,6 +122,7 @@ export class AssistantAgentPanel {
     } finally {
       for (let left = await tools.flush(); left; left = await tools.flush()) {
         this.showAnswer(left);
+        this.agent.answer(left);
       }
     }
   }

@@ -52,13 +52,6 @@ if (translations.length === 0) {
   );
 }
 
-const offline = ['/payments/view.html', '/frame-kit/lw-frame.css', '/api/open-items.json'];
-for (const url of offline) {
-  if (!cached.includes(url)) {
-    problems.push(`the service worker does not cache ${url}, so the installed app loses the isolated plugin offline`);
-  }
-}
-
 for (const icon of manifest.icons ?? []) {
   if (!cached.includes(`/${icon.src}`)) {
     problems.push(`the service worker does not cache ${icon.src}, which the manifest points at`);

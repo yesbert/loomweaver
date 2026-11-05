@@ -90,6 +90,33 @@ describe('createAgent', () => {
     expect(second[second.length - 1]).toEqual({ role: 'tool', tool_call_id: 'c1', content: '{"status":"in progress"}' });
   });
 
+  it('gives a call from a run that broke off its result before the next run asks', async () => {
+    const call = { id: 'c1', type: 'function', function: { name: 'tickets__assign', arguments: '{}' } };
+    const { fetchLike, sent } = answering([
+      { role: 'assistant', content: null, tool_calls: [call, { ...call, id: 'c2' }] },
+      { role: 'assistant', content: 'Done.' },
+    ]);
+    const agent = createAgent(wordingOf(en), fetchLike);
+    const request = { runId: 'r1', prompt: 'assign T-1041 to dana', tools: [], key: 'k' };
+    for await (const event of agent.ask(request)) {
+      if (event.type === EventType.TOOL_CALL_END) {
+        break;
+      }
+    }
+    agent.answer({ id: 'm1', role: 'tool', toolCallId: 'c1', content: '', error: 'this call was left open' });
+
+    for await (const event of agent.ask({ ...request, runId: 'r2', prompt: 'and now?' })) {
+      void event;
+    }
+
+    expect(sent[1].messages.slice(2).map((message) => [message['role'], message['tool_call_id'], message['content']])).toEqual([
+      ['assistant', undefined, null],
+      ['tool', 'c1', 'this call was left open'],
+      ['tool', 'c2', 'the workbench did not answer this call.'],
+      ['user', undefined, 'and now?'],
+    ]);
+  });
+
   it('reports a failed request as a run error instead of throwing', async () => {
     const fetchLike: typeof fetch = () =>
       Promise.resolve(new Response(JSON.stringify({ error: { message: 'rate limited' } }), { status: 429 }));
