@@ -75,6 +75,13 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [x] 3.7 A frame's navigation target with a dot segment or a backslash is refused (`regions/content/surface/iframe-surface-protocol.ts`)
 - [x] 3.8 At an address nothing declares, the active content reads as nothing rather than as the home surface (`regions/content/tabs/content-tab-state.ts`)
 - [x] 3.9 Leads, each verified first: the boot placeholder at an encoded deep link; the session re-match superseding a navigation in flight; the close hook running while the same tab is open in another pane; a failed lazy load leaving the pane blank (`regions/content/routing/content-router.ts`, `tabs/tab-closing.service.ts`, `surface/surface-body.ts`)
+- [ ] 3.10 A plugin that registers the home route does not count as the owner of every other address (`plugin/context/plugin-surface-ownership.ts`)
+- [ ] 3.11 An address nothing declares is not attributed to the home route when a tab is duplicated or its label updated (`regions/content/pane-admission.ts`, `tabs/tab-label-update.ts`)
+- [ ] 3.12 A tab stored under a path as it was typed is recognised by its address in every pane, not only in the one carrying the address (`regions/pane/tree/pane-structure.ts`)
+- [ ] 3.13 Replacing the preview tab keeps the teardown while another pane still holds that tab (`regions/content/tabs/preview-slot.service.ts`)
+- [ ] 3.14 A lazy surface whose load failed is tried again when its tab is opened again (`regions/pane/component-loader.service.ts`)
+- [ ] 3.15 Lead, verify first: an address carrying matrix parameters finds the content route Angular finds for it (`regions/content/content-path.ts`)
+- [ ] 3.16 Content whose plugin could not be loaded says that, not that the view does not exist in this application (`regions/content/access/`)
 
 ## 4. Persistence, identity and workspaces
 
